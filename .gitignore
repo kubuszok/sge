@@ -1,0 +1,20 @@
+## sbt
+project/
+target/
+
+# VC Code, Cursor, etc.
+.vscode/
+.cursorrules
+.cursorignore
+.cursorignorerules
+.cursorignorerules
+
+## IntelliJ, Android Studio:
+.idea/
+*.ipr
+*.iws
+*.iml
+
+## OS-Specific:
+.DS_Store
+Thumbs.db

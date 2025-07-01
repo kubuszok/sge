@@ -1,0 +1,331 @@
+package sge
+package math
+
+import sge.math.collision._
+import sge.utils.Pool
+import scala.collection.mutable.ArrayBuffer
+
+// Placeholder for missing types
+case class Frustum()
+type ObjectSet[T] = ArrayBuffer[T]
+
+/** A static Octree implementation.
+  *
+  * Example of usage:
+  *
+  * <pre> Vector3 min = new Vector3(-10, -10, -10); Vector3 max = new Vector3(10, 10, 10); octree = new Octree<GameObject>(min, max, MAX_DEPTH, MAX_ITEMS_PER_NODE, new Octree.Collider<GameObject>() {
+  * &#64;Override public boolean intersects (BoundingBox nodeBounds, GameObject geometry) { return nodeBounds.intersects(geometry.box); }
+  *
+  * &#64;Override public boolean intersects (Frustum frustum, GameObject geometry) { return frustum.boundsInFrustum(geometry.box); }
+  *
+  * &#64;Override public float intersects (Ray ray, GameObject geometry) { if (Intersector.intersectRayBounds(ray, geometry.box, new Vector3())) { return tmp.dst2(ray.origin); } return
+  * Float.MAX_VALUE; } });
+  *
+  * // Adding game objects to the octree octree.add(gameObject1); octree.add(gameObject2);
+  *
+  * // Querying the result ObjectSet<GameObject> result = new ObjectSet<>(); octree.query(cam.frustum, result);
+  *
+  * // Rendering the result for (GameObject gameObject : result) { modelBatch.render(gameObject); } </pre>
+  */
+class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxDepth: Int, val maxItemsPerNode: Int, val collider: Octree.Collider[T]) {
+
+  val nodePool = new Pool[OctreeNode]() {
+    override protected val initialCapacity: Int        = 16
+    override protected val max:             Int        = Int.MaxValue
+    override protected def newObject():     OctreeNode = new OctreeNode()
+  }
+
+  protected val root: OctreeNode = createNode(
+    Vector3(scala.math.min(minimum.x, maximum.x), scala.math.min(minimum.y, maximum.y), scala.math.min(minimum.z, maximum.z)),
+    Vector3(scala.math.max(minimum.x, maximum.x), scala.math.max(minimum.y, maximum.y), scala.math.max(minimum.z, maximum.z)),
+    maxDepth
+  )
+
+  def createNode(min: Vector3, max: Vector3, level: Int): OctreeNode = {
+    val node = nodePool.obtain()
+    node.bounds.set(min, max)
+    node.level = level
+    node.leaf = true
+    node
+  }
+
+  def add(obj: T): Unit =
+    root.add(obj)
+
+  def remove(obj: T): Unit =
+    root.remove(obj)
+
+  def update(obj: T): Unit = {
+    root.remove(obj)
+    root.add(obj)
+  }
+
+  /** Method to retrieve all the geometries.
+    * @param resultSet
+    * @return
+    *   the result set
+    */
+  def getAll(resultSet: ObjectSet[T]): ObjectSet[T] = {
+    root.getAll(resultSet)
+    resultSet
+  }
+
+  /** Method to query geometries inside nodes that the aabb intersects. Can be used as broad phase.
+    * @param aabb
+    *   \- The bounding box to query
+    * @param result
+    *   \- Set to be populated with objects inside the BoundingBoxes
+    */
+  def query(aabb: BoundingBox, result: ObjectSet[T]): ObjectSet[T] = {
+    root.query(aabb, result)
+    result
+  }
+
+  /** Method to query geometries inside nodes that the frustum intersects. Can be used as broad phase.
+    * @param frustum
+    *   \- The frustum to query
+    * @param result
+    *   set populated with objects near from the frustum
+    */
+  def query(frustum: Frustum, result: ObjectSet[T]): ObjectSet[T] = {
+    root.query(frustum, result)
+    result
+  }
+
+  def rayCast(ray: Ray, result: Octree.RayCastResult[T]): T = {
+    result.distance = result.maxDistanceSq
+    root.rayCast(ray, result)
+    result.geometry
+  }
+
+  /** Method to get nodes as bounding boxes. Useful for debug purpose.
+    *
+    * @param boxes
+    */
+  def getNodesBoxes(boxes: ObjectSet[BoundingBox]): ObjectSet[BoundingBox] = {
+    root.getBoundingBox(boxes)
+    boxes
+  }
+
+  protected class OctreeNode {
+
+    var level: Int = scala.compiletime.uninitialized
+    val bounds = new BoundingBox()
+    var leaf:             Boolean           = scala.compiletime.uninitialized
+    private var children: Array[OctreeNode] = scala.compiletime.uninitialized // May be null when leaf is true.
+    private val geometries = ArrayBuffer[T]()
+
+    private def split(): Unit = {
+      val midx = (bounds.max.x + bounds.min.x) * 0.5f
+      val midy = (bounds.max.y + bounds.min.y) * 0.5f
+      val midz = (bounds.max.z + bounds.min.z) * 0.5f
+
+      val deeperLevel = level - 1
+
+      leaf = false
+      if (children == null) children = Array.ofDim[OctreeNode](8)
+      children(0) = createNode(Vector3(bounds.min.x, midy, midz), Vector3(midx, bounds.max.y, bounds.max.z), deeperLevel)
+      children(1) = createNode(Vector3(midx, midy, midz), Vector3(bounds.max.x, bounds.max.y, bounds.max.z), deeperLevel)
+      children(2) = createNode(Vector3(midx, midy, bounds.min.z), Vector3(bounds.max.x, bounds.max.y, midz), deeperLevel)
+      children(3) = createNode(Vector3(bounds.min.x, midy, bounds.min.z), Vector3(midx, bounds.max.y, midz), deeperLevel)
+      children(4) = createNode(Vector3(bounds.min.x, bounds.min.y, midz), Vector3(midx, midy, bounds.max.z), deeperLevel)
+      children(5) = createNode(Vector3(midx, bounds.min.y, midz), Vector3(bounds.max.x, midy, bounds.max.z), deeperLevel)
+      children(6) = createNode(Vector3(midx, bounds.min.y, bounds.min.z), Vector3(bounds.max.x, midy, midz), deeperLevel)
+      children(7) = createNode(Vector3(bounds.min.x, bounds.min.y, bounds.min.z), Vector3(midx, midy, midz), deeperLevel)
+
+      // Move geometries from parent to children
+      for (child <- children)
+        for (geometry <- this.geometries)
+          child.add(geometry)
+      this.geometries.clear()
+    }
+
+    private def merge(): Unit = {
+      clearChildren()
+      leaf = true
+    }
+
+    private def free(): Unit = {
+      geometries.clear()
+      if (!leaf) clearChildren()
+      nodePool.free(this)
+    }
+
+    private def clearChildren(): Unit =
+      for (i <- 0 until 8) {
+        children(i).free()
+        children(i) = null
+      }
+
+    def add(geometry: T): Unit = {
+      if (!collider.intersects(bounds, geometry)) {
+        return
+      }
+
+      // If is not leaf, check children
+      if (!leaf) {
+        for (child <- children)
+          child.add(geometry)
+      } else {
+        if (geometries.size >= maxItemsPerNode && level > 0) {
+          split()
+          for (child <- children)
+            child.add(geometry)
+        } else {
+          geometries += geometry
+        }
+      }
+    }
+
+    def remove(obj: T): Boolean =
+      if (!leaf) {
+        var removed = false
+        for (node <- children)
+          removed |= node.remove(obj)
+
+        if (removed) {
+          val geometrySet = ArrayBuffer[T]()
+          for (node <- children)
+            node.getAll(geometrySet)
+          if (geometrySet.size <= maxItemsPerNode) {
+            for (geometry <- geometrySet)
+              geometries += geometry
+            merge()
+          }
+        }
+
+        removed
+      } else {
+        val index = geometries.indexOf(obj)
+        if (index >= 0) {
+          geometries.remove(index)
+          true
+        } else {
+          false
+        }
+      }
+
+    protected def isLeaf: Boolean = leaf
+
+    def query(aabb: BoundingBox, result: ObjectSet[T]): Unit = {
+      if (!aabb.intersects(bounds)) {
+        return
+      }
+
+      if (!leaf) {
+        for (node <- children)
+          node.query(aabb, result)
+      } else {
+        for (geometry <- geometries)
+          // Filter geometries using collider
+          if (collider.intersects(bounds, geometry)) {
+            result += geometry
+          }
+      }
+    }
+
+    def query(frustum: Frustum, result: ObjectSet[T]): Unit =
+      // Placeholder implementation since Frustum methods are not available
+      if (!leaf) {
+        for (node <- children)
+          node.query(frustum, result)
+      } else {
+        for (geometry <- geometries)
+          // Filter geometries using collider
+          if (collider.intersects(frustum, geometry)) {
+            result += geometry
+          }
+      }
+
+    def rayCast(ray: Ray, result: Octree.RayCastResult[T]): Unit = {
+      val tmp = Octree.tmp
+      // Placeholder for ray-bounds intersection since the method is not available
+      val intersect = true // Intersector.intersectRayBounds(ray, bounds, tmp)
+      if (!intersect) {
+        return
+      } else {
+        val dst2 = tmp.distanceSq(ray.origin) // Using distanceSq instead of dst2
+        if (dst2 >= result.maxDistanceSq) {
+          return
+        }
+      }
+
+      // Check intersection with children
+      if (!leaf) {
+        for (child <- children)
+          child.rayCast(ray, result)
+      } else {
+        for (geometry <- geometries) {
+          // Check intersection with geometries
+          val distance = collider.intersects(ray, geometry)
+          if (result.geometry == null || distance < result.distance) {
+            result.geometry = geometry
+            result.distance = distance
+          }
+        }
+      }
+    }
+
+    /** Get all geometries using Depth-First Search recursion.
+      * @param resultSet
+      */
+    def getAll(resultSet: ObjectSet[T]): Unit = {
+      if (!leaf) {
+        for (child <- children)
+          child.getAll(resultSet)
+      }
+      resultSet ++= geometries
+    }
+
+    /** Get bounding boxes using Depth-First Search recursion.
+      * @param bounds
+      */
+    def getBoundingBox(bounds: ObjectSet[BoundingBox]): Unit = {
+      if (!leaf) {
+        for (node <- children)
+          node.getBoundingBox(bounds)
+      }
+      bounds += this.bounds
+    }
+  }
+}
+
+object Octree {
+  val tmp = new Vector3()
+
+  /** Interface used by octree to handle geometries' collisions against BoundingBox, Frustum and Ray.
+    * @param <T>
+    */
+  trait Collider[T] {
+
+    /** Method to calculate intersection between aabb and the geometry.
+      * @param nodeBounds
+      * @param geometry
+      * @return
+      *   if they are intersecting
+      */
+    def intersects(nodeBounds: BoundingBox, geometry: T): Boolean
+
+    /** Method to calculate intersection between frustum and the geometry.
+      * @param frustum
+      * @param geometry
+      * @return
+      *   if they are intersecting
+      */
+    def intersects(frustum: Frustum, geometry: T): Boolean
+
+    /** Method to calculate intersection between ray and the geometry.
+      * @param ray
+      * @param geometry
+      * @return
+      *   distance between ray and geometry
+      */
+    def intersects(ray: Ray, geometry: T): Float
+  }
+
+  class RayCastResult[T] {
+    var geometry:      T     = scala.compiletime.uninitialized
+    var distance:      Float = scala.compiletime.uninitialized
+    var maxDistanceSq: Float = Float.MaxValue
+  }
+}
