@@ -29,12 +29,12 @@ class QuickSelect[T] {
     storage
   }
 
-  private def recursiveSelect(left: Int, right: Int, k: Int): Int = {
-    if (left == right) return left
-    val pivotIndex    = medianOfThreePivot(left, right)
-    val pivotNewIndex = partition(left, right, pivotIndex)
-    val pivotDist     = (pivotNewIndex - left) + 1
-    val result: Int =
+  private def recursiveSelect(left: Int, right: Int, k: Int): Int =
+    if (left == right) left
+    else {
+      val pivotIndex    = medianOfThreePivot(left, right)
+      val pivotNewIndex = partition(left, right, pivotIndex)
+      val pivotDist     = (pivotNewIndex - left) + 1
       if (pivotDist == k) {
         pivotNewIndex
       } else if (k < pivotDist) {
@@ -42,8 +42,7 @@ class QuickSelect[T] {
       } else {
         recursiveSelect(pivotNewIndex + 1, right, k - pivotDist)
       }
-    result
-  }
+    }
 
   /** Median of Three has the potential to outperform a random pivot, especially for partially sorted arrays */
   private def medianOfThreePivot(leftIdx: Int, rightIdx: Int): Int = {

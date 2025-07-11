@@ -8,14 +8,7 @@ package math
   */
 class Plane {
 
-  /** Enum specifying on which side a point lies respective to the plane and it's normal. {@link PlaneSide#Front} is the side to which the normal points.
-    *
-    * @author
-    *   mzechner
-    */
-  object PlaneSide extends Enumeration {
-    val OnPlane, Back, Front = Value
-  }
+  import Plane.PlaneSide
 
   val normal = new Vector3()
   var d      = 0f
@@ -183,4 +176,15 @@ class Plane {
 
   override def toString: String =
     normal.toString + ", " + d
+}
+object Plane {
+
+  /** Enum specifying on which side a point lies respective to the plane and it's normal. {@link PlaneSide#Front} is the side to which the normal points.
+    *
+    * @author
+    *   mzechner
+    */
+  object PlaneSide extends Enumeration {
+    val OnPlane, Back, Front = Value
+  }
 }

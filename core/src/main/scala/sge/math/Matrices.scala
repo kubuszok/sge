@@ -1007,7 +1007,7 @@ class Matrix4 {
     *   This matrix for the purpose of chaining operations together.
     */
   def mul(matrix: Matrix4): Matrix4 = {
-    mul(values, matrix.values)
+    Matrix4.mul(values, matrix.values)
     this
   }
 
@@ -1022,7 +1022,7 @@ class Matrix4 {
     */
   def mulLeft(matrix: Matrix4): Matrix4 = {
     Matrix4.tmpMat.set(matrix)
-    mul(Matrix4.tmpMat.values, values)
+    Matrix4.mul(Matrix4.tmpMat.values, values)
     this
   }
 
@@ -1928,6 +1928,264 @@ class Matrix4 {
       s"[${values(Matrix4.M20)}|${values(Matrix4.M21)}|${values(Matrix4.M22)}|${values(Matrix4.M23)}]\n" +
       s"[${values(Matrix4.M30)}|${values(Matrix4.M31)}|${values(Matrix4.M32)}|${values(Matrix4.M33)}]\n"
 
+  /** Postmultiplies this matrix by a translation matrix. Postmultiplication is also used by OpenGL ES' glTranslate/glRotate/glScale
+    * @param translation
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def translate(translation: Vector3): Matrix4 =
+    translate(translation.x, translation.y, translation.z)
+
+  /** Postmultiplies this matrix by a translation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
+    * @param x
+    *   Translation in the x-axis.
+    * @param y
+    *   Translation in the y-axis.
+    * @param z
+    *   Translation in the z-axis.
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def translate(x: Float, y: Float, z: Float): Matrix4 = {
+    values(Matrix4.M03) += values(Matrix4.M00) * x + values(Matrix4.M01) * y + values(Matrix4.M02) * z
+    values(Matrix4.M13) += values(Matrix4.M10) * x + values(Matrix4.M11) * y + values(Matrix4.M12) * z
+    values(Matrix4.M23) += values(Matrix4.M20) * x + values(Matrix4.M21) * y + values(Matrix4.M22) * z
+    values(Matrix4.M33) += values(Matrix4.M30) * x + values(Matrix4.M31) * y + values(Matrix4.M32) * z
+    this
+  }
+
+  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
+    * @param axis
+    *   The vector axis to rotate around.
+    * @param degrees
+    *   The angle in degrees.
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def rotate(axis: Vector3, degrees: Float): Matrix4 = {
+    if (degrees == 0) return this
+    Matrix4.quat.set(axis, degrees)
+    rotate(Matrix4.quat)
+  }
+
+  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
+    * @param axis
+    *   The vector axis to rotate around.
+    * @param radians
+    *   The angle in radians.
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def rotateRad(axis: Vector3, radians: Float): Matrix4 = {
+    if (radians == 0) return this
+    Matrix4.quat.setFromAxisRad(axis, radians)
+    rotate(Matrix4.quat)
+  }
+
+  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
+    * @param axisX
+    *   The x-axis component of the vector to rotate around.
+    * @param axisY
+    *   The y-axis component of the vector to rotate around.
+    * @param axisZ
+    *   The z-axis component of the vector to rotate around.
+    * @param degrees
+    *   The angle in degrees
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def rotate(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 = {
+    if (degrees == 0) return this
+    Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees)
+    rotate(Matrix4.quat)
+  }
+
+  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
+    * @param axisX
+    *   The x-axis component of the vector to rotate around.
+    * @param axisY
+    *   The y-axis component of the vector to rotate around.
+    * @param axisZ
+    *   The z-axis component of the vector to rotate around.
+    * @param radians
+    *   The angle in radians
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def rotateRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 = {
+    if (radians == 0) return this
+    Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians)
+    rotate(Matrix4.quat)
+  }
+
+  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
+    * @param rotation
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def rotate(rotation: Quaternion): Matrix4 = {
+    val x  = rotation.x
+    val y  = rotation.y
+    val z  = rotation.z
+    val w  = rotation.w
+    val xx = x * x
+    val xy = x * y
+    val xz = x * z
+    val xw = x * w
+    val yy = y * y
+    val yz = y * z
+    val yw = y * w
+    val zz = z * z
+    val zw = z * w
+    // Set matrix from quaternion
+    values(Matrix4.M00) = 1 - 2 * (yy + zz)
+    values(Matrix4.M01) = 2 * (xy - zw)
+    values(Matrix4.M02) = 2 * (xz + yw)
+    values(Matrix4.M03) = 0
+    values(Matrix4.M10) = 2 * (xy + zw)
+    values(Matrix4.M11) = 1 - 2 * (xx + zz)
+    values(Matrix4.M12) = 2 * (yz - xw)
+    values(Matrix4.M13) = 0
+    values(Matrix4.M20) = 2 * (xz - yw)
+    values(Matrix4.M21) = 2 * (yz + xw)
+    values(Matrix4.M22) = 1 - 2 * (xx + yy)
+    values(Matrix4.M23) = 0
+    values(Matrix4.M30) = 0
+    values(Matrix4.M31) = 0
+    values(Matrix4.M32) = 0
+    values(Matrix4.M33) = 1
+    this
+  }
+
+  /** Postmultiplies this matrix by the rotation between two vectors.
+    * @param v1
+    *   The base vector
+    * @param v2
+    *   The target vector
+    * @return
+    *   This matrix for the purpose of chaining methods together
+    */
+  def rotate(v1: Vector3, v2: Vector3): Matrix4 =
+    rotate(Matrix4.quat.setFromCross(v1, v2))
+
+  /** Post-multiplies this matrix by a rotation toward a direction.
+    * @param direction
+    *   direction to rotate toward
+    * @param up
+    *   up vector
+    * @return
+    *   This matrix for chaining
+    */
+  def rotateTowardDirection(direction: Vector3, up: Vector3): Matrix4 = {
+    Matrix4.l_vez.set(direction).nor()
+    Matrix4.l_vex.set(direction).crs(up).nor()
+    Matrix4.l_vey.set(Matrix4.l_vex).crs(Matrix4.l_vez).nor()
+    values(Matrix4.M00) = Matrix4.l_vex.x
+    values(Matrix4.M01) = Matrix4.l_vex.y
+    values(Matrix4.M02) = Matrix4.l_vex.z
+    values(Matrix4.M10) = Matrix4.l_vey.x
+    values(Matrix4.M11) = Matrix4.l_vey.y
+    values(Matrix4.M12) = Matrix4.l_vey.z
+    values(Matrix4.M20) = -Matrix4.l_vez.x
+    values(Matrix4.M21) = -Matrix4.l_vez.y
+    values(Matrix4.M22) = -Matrix4.l_vez.z
+    this
+  }
+
+  /** Post-multiplies this matrix by a rotation toward a target.
+    * @param target
+    *   the target to rotate to
+    * @param up
+    *   the up vector
+    * @return
+    *   This matrix for chaining
+    */
+  def rotateTowardTarget(target: Vector3, up: Vector3): Matrix4 = {
+    Matrix4.tmpVec.set(target.x - values(Matrix4.M03), target.y - values(Matrix4.M13), target.z - values(Matrix4.M23))
+    rotateTowardDirection(Matrix4.tmpVec, up)
+  }
+
+  /** Postmultiplies this matrix with a scale matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
+    * @param scaleX
+    *   The scale in the x-axis.
+    * @param scaleY
+    *   The scale in the y-axis.
+    * @param scaleZ
+    *   The scale in the z-axis.
+    * @return
+    *   This matrix for the purpose of chaining methods together.
+    */
+  def scale(scaleX: Float, scaleY: Float, scaleZ: Float): Matrix4 = {
+    values(Matrix4.M00) *= scaleX
+    values(Matrix4.M01) *= scaleY
+    values(Matrix4.M02) *= scaleZ
+    values(Matrix4.M10) *= scaleX
+    values(Matrix4.M11) *= scaleY
+    values(Matrix4.M12) *= scaleZ
+    values(Matrix4.M20) *= scaleX
+    values(Matrix4.M21) *= scaleY
+    values(Matrix4.M22) *= scaleZ
+    values(Matrix4.M30) *= scaleX
+    values(Matrix4.M31) *= scaleY
+    values(Matrix4.M32) *= scaleZ
+    this
+  }
+
+  /** Copies the 4x3 upper-left sub-matrix into float array. The destination array is supposed to be a column major matrix.
+    * @param dst
+    *   the destination matrix
+    */
+  def extract4x3Matrix(dst: Array[Float]): Unit = {
+    dst(0) = values(Matrix4.M00)
+    dst(1) = values(Matrix4.M10)
+    dst(2) = values(Matrix4.M20)
+    dst(3) = values(Matrix4.M01)
+    dst(4) = values(Matrix4.M11)
+    dst(5) = values(Matrix4.M21)
+    dst(6) = values(Matrix4.M02)
+    dst(7) = values(Matrix4.M12)
+    dst(8) = values(Matrix4.M22)
+    dst(9) = values(Matrix4.M03)
+    dst(10) = values(Matrix4.M13)
+    dst(11) = values(Matrix4.M23)
+  }
+
+  /** @return True if this matrix has any rotation or scaling, false otherwise */
+  def hasRotationOrScaling(): Boolean =
+    !(MathUtils.isEqual(values(Matrix4.M00), 1) && MathUtils.isEqual(values(Matrix4.M11), 1) && MathUtils.isEqual(values(Matrix4.M22), 1)
+      && MathUtils.isZero(values(Matrix4.M01)) && MathUtils.isZero(values(Matrix4.M02)) && MathUtils.isZero(values(Matrix4.M10)) && MathUtils.isZero(values(Matrix4.M12))
+      && MathUtils.isZero(values(Matrix4.M20)) && MathUtils.isZero(values(Matrix4.M21)))
+}
+
+object Matrix4 {
+  val M00 = 0
+  val M01 = 4
+  val M02 = 8
+  val M03 = 12
+  val M10 = 1
+  val M11 = 5
+  val M12 = 9
+  val M13 = 13
+  val M20 = 2
+  val M21 = 6
+  val M22 = 10
+  val M23 = 14
+  val M30 = 3
+  val M31 = 7
+  val M32 = 11
+  val M33 = 15
+
+  // Static fields that were moved from the class
+  private val quat       = new Quaternion()
+  private val quat2      = new Quaternion()
+  private val l_vez      = new Vector3()
+  private val l_vex      = new Vector3()
+  private val l_vey      = new Vector3()
+  private val tmpVec     = new Vector3()
+  private val tmpMat     = new Matrix4()
+  private val right      = new Vector3()
+  private val tmpForward = new Vector3()
+  private val tmpUp      = new Vector3()
   // @off
   /*JNI
   #include <memory.h>
@@ -2273,263 +2531,4 @@ class Matrix4 {
       - values(Matrix4.M20) * values(Matrix4.M11) * values(Matrix4.M02) * values(Matrix4.M33) + values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M02) * values(Matrix4.M33)
       + values(Matrix4.M20) * values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M33) - values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M12) * values(Matrix4.M33)
       - values(Matrix4.M10) * values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M33) + values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M22) * values(Matrix4.M33)
-
-  /** Postmultiplies this matrix by a translation matrix. Postmultiplication is also used by OpenGL ES' glTranslate/glRotate/glScale
-    * @param translation
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def translate(translation: Vector3): Matrix4 =
-    translate(translation.x, translation.y, translation.z)
-
-  /** Postmultiplies this matrix by a translation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
-    * @param x
-    *   Translation in the x-axis.
-    * @param y
-    *   Translation in the y-axis.
-    * @param z
-    *   Translation in the z-axis.
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def translate(x: Float, y: Float, z: Float): Matrix4 = {
-    values(Matrix4.M03) += values(Matrix4.M00) * x + values(Matrix4.M01) * y + values(Matrix4.M02) * z
-    values(Matrix4.M13) += values(Matrix4.M10) * x + values(Matrix4.M11) * y + values(Matrix4.M12) * z
-    values(Matrix4.M23) += values(Matrix4.M20) * x + values(Matrix4.M21) * y + values(Matrix4.M22) * z
-    values(Matrix4.M33) += values(Matrix4.M30) * x + values(Matrix4.M31) * y + values(Matrix4.M32) * z
-    this
-  }
-
-  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
-    * @param axis
-    *   The vector axis to rotate around.
-    * @param degrees
-    *   The angle in degrees.
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def rotate(axis: Vector3, degrees: Float): Matrix4 = {
-    if (degrees == 0) return this
-    Matrix4.quat.set(axis, degrees)
-    rotate(Matrix4.quat)
-  }
-
-  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
-    * @param axis
-    *   The vector axis to rotate around.
-    * @param radians
-    *   The angle in radians.
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def rotateRad(axis: Vector3, radians: Float): Matrix4 = {
-    if (radians == 0) return this
-    Matrix4.quat.setFromAxisRad(axis, radians)
-    rotate(Matrix4.quat)
-  }
-
-  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
-    * @param axisX
-    *   The x-axis component of the vector to rotate around.
-    * @param axisY
-    *   The y-axis component of the vector to rotate around.
-    * @param axisZ
-    *   The z-axis component of the vector to rotate around.
-    * @param degrees
-    *   The angle in degrees
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def rotate(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 = {
-    if (degrees == 0) return this
-    Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees)
-    rotate(Matrix4.quat)
-  }
-
-  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
-    * @param axisX
-    *   The x-axis component of the vector to rotate around.
-    * @param axisY
-    *   The y-axis component of the vector to rotate around.
-    * @param axisZ
-    *   The z-axis component of the vector to rotate around.
-    * @param radians
-    *   The angle in radians
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def rotateRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 = {
-    if (radians == 0) return this
-    Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians)
-    rotate(Matrix4.quat)
-  }
-
-  /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
-    * @param rotation
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def rotate(rotation: Quaternion): Matrix4 = {
-    val x  = rotation.x
-    val y  = rotation.y
-    val z  = rotation.z
-    val w  = rotation.w
-    val xx = x * x
-    val xy = x * y
-    val xz = x * z
-    val xw = x * w
-    val yy = y * y
-    val yz = y * z
-    val yw = y * w
-    val zz = z * z
-    val zw = z * w
-    // Set matrix from quaternion
-    values(Matrix4.M00) = 1 - 2 * (yy + zz)
-    values(Matrix4.M01) = 2 * (xy - zw)
-    values(Matrix4.M02) = 2 * (xz + yw)
-    values(Matrix4.M03) = 0
-    values(Matrix4.M10) = 2 * (xy + zw)
-    values(Matrix4.M11) = 1 - 2 * (xx + zz)
-    values(Matrix4.M12) = 2 * (yz - xw)
-    values(Matrix4.M13) = 0
-    values(Matrix4.M20) = 2 * (xz - yw)
-    values(Matrix4.M21) = 2 * (yz + xw)
-    values(Matrix4.M22) = 1 - 2 * (xx + yy)
-    values(Matrix4.M23) = 0
-    values(Matrix4.M30) = 0
-    values(Matrix4.M31) = 0
-    values(Matrix4.M32) = 0
-    values(Matrix4.M33) = 1
-    this
-  }
-
-  /** Postmultiplies this matrix by the rotation between two vectors.
-    * @param v1
-    *   The base vector
-    * @param v2
-    *   The target vector
-    * @return
-    *   This matrix for the purpose of chaining methods together
-    */
-  def rotate(v1: Vector3, v2: Vector3): Matrix4 =
-    rotate(Matrix4.quat.setFromCross(v1, v2))
-
-  /** Post-multiplies this matrix by a rotation toward a direction.
-    * @param direction
-    *   direction to rotate toward
-    * @param up
-    *   up vector
-    * @return
-    *   This matrix for chaining
-    */
-  def rotateTowardDirection(direction: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.l_vez.set(direction).nor()
-    Matrix4.l_vex.set(direction).crs(up).nor()
-    Matrix4.l_vey.set(Matrix4.l_vex).crs(Matrix4.l_vez).nor()
-    values(Matrix4.M00) = Matrix4.l_vex.x
-    values(Matrix4.M01) = Matrix4.l_vex.y
-    values(Matrix4.M02) = Matrix4.l_vex.z
-    values(Matrix4.M10) = Matrix4.l_vey.x
-    values(Matrix4.M11) = Matrix4.l_vey.y
-    values(Matrix4.M12) = Matrix4.l_vey.z
-    values(Matrix4.M20) = -Matrix4.l_vez.x
-    values(Matrix4.M21) = -Matrix4.l_vez.y
-    values(Matrix4.M22) = -Matrix4.l_vez.z
-    this
-  }
-
-  /** Post-multiplies this matrix by a rotation toward a target.
-    * @param target
-    *   the target to rotate to
-    * @param up
-    *   the up vector
-    * @return
-    *   This matrix for chaining
-    */
-  def rotateTowardTarget(target: Vector3, up: Vector3): Matrix4 = {
-    Matrix4.tmpVec.set(target.x - values(Matrix4.M03), target.y - values(Matrix4.M13), target.z - values(Matrix4.M23))
-    rotateTowardDirection(Matrix4.tmpVec, up)
-  }
-
-  /** Postmultiplies this matrix with a scale matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
-    * @param scaleX
-    *   The scale in the x-axis.
-    * @param scaleY
-    *   The scale in the y-axis.
-    * @param scaleZ
-    *   The scale in the z-axis.
-    * @return
-    *   This matrix for the purpose of chaining methods together.
-    */
-  def scale(scaleX: Float, scaleY: Float, scaleZ: Float): Matrix4 = {
-    values(Matrix4.M00) *= scaleX
-    values(Matrix4.M01) *= scaleY
-    values(Matrix4.M02) *= scaleZ
-    values(Matrix4.M10) *= scaleX
-    values(Matrix4.M11) *= scaleY
-    values(Matrix4.M12) *= scaleZ
-    values(Matrix4.M20) *= scaleX
-    values(Matrix4.M21) *= scaleY
-    values(Matrix4.M22) *= scaleZ
-    values(Matrix4.M30) *= scaleX
-    values(Matrix4.M31) *= scaleY
-    values(Matrix4.M32) *= scaleZ
-    this
-  }
-
-  /** Copies the 4x3 upper-left sub-matrix into float array. The destination array is supposed to be a column major matrix.
-    * @param dst
-    *   the destination matrix
-    */
-  def extract4x3Matrix(dst: Array[Float]): Unit = {
-    dst(0) = values(Matrix4.M00)
-    dst(1) = values(Matrix4.M10)
-    dst(2) = values(Matrix4.M20)
-    dst(3) = values(Matrix4.M01)
-    dst(4) = values(Matrix4.M11)
-    dst(5) = values(Matrix4.M21)
-    dst(6) = values(Matrix4.M02)
-    dst(7) = values(Matrix4.M12)
-    dst(8) = values(Matrix4.M22)
-    dst(9) = values(Matrix4.M03)
-    dst(10) = values(Matrix4.M13)
-    dst(11) = values(Matrix4.M23)
-  }
-
-  /** @return True if this matrix has any rotation or scaling, false otherwise */
-  def hasRotationOrScaling(): Boolean =
-    !(MathUtils.isEqual(values(Matrix4.M00), 1) && MathUtils.isEqual(values(Matrix4.M11), 1) && MathUtils.isEqual(values(Matrix4.M22), 1)
-      && MathUtils.isZero(values(Matrix4.M01)) && MathUtils.isZero(values(Matrix4.M02)) && MathUtils.isZero(values(Matrix4.M10)) && MathUtils.isZero(values(Matrix4.M12))
-      && MathUtils.isZero(values(Matrix4.M20)) && MathUtils.isZero(values(Matrix4.M21)))
-}
-
-object Matrix4 {
-  val M00 = 0
-  val M01 = 4
-  val M02 = 8
-  val M03 = 12
-  val M10 = 1
-  val M11 = 5
-  val M12 = 9
-  val M13 = 13
-  val M20 = 2
-  val M21 = 6
-  val M22 = 10
-  val M23 = 14
-  val M30 = 3
-  val M31 = 7
-  val M32 = 11
-  val M33 = 15
-
-  // Static fields that were moved from the class
-  private val quat       = new Quaternion()
-  private val quat2      = new Quaternion()
-  private val l_vez      = new Vector3()
-  private val l_vex      = new Vector3()
-  private val l_vey      = new Vector3()
-  private val tmpVec     = new Vector3()
-  private val tmpMat     = new Matrix4()
-  private val right      = new Vector3()
-  private val tmpForward = new Vector3()
-  private val tmpUp      = new Vector3()
 }

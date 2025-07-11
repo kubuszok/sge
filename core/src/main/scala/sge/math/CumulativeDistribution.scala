@@ -71,24 +71,25 @@ class CumulativeDistribution[T] {
     * @return
     *   the value whose interval contains the probability
     */
-  def value(probability: Float): T = {
-    var valueObj: CumulativeValue[T] = null
-    var imax = currentSize - 1
-    var imin = 0
-    var imid = 0
-    while (imin <= imax) {
-      imid = imin + ((imax - imin) / 2)
-      valueObj = values(imid)
-      if (probability < valueObj.frequency)
-        imax = imid - 1
-      else if (probability > valueObj.frequency)
-        imin = imid + 1
-      else
-        return valueObj.value
-    }
+  def value(probability: Float): T =
+    scala.util.boundary {
+      var valueObj: CumulativeValue[T] = null
+      var imax = currentSize - 1
+      var imin = 0
+      var imid = 0
+      while (imin <= imax) {
+        imid = imin + ((imax - imin) / 2)
+        valueObj = values(imid)
+        if (probability < valueObj.frequency)
+          imax = imid - 1
+        else if (probability > valueObj.frequency)
+          imin = imid + 1
+        else
+          scala.util.boundary.break(valueObj.value)
+      }
 
-    values(imin).value
-  }
+      values(imin).value
+    }
 
   /** @return the value whose interval contains a random probability in [0,1] */
   def value(): T =

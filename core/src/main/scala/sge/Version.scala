@@ -1,6 +1,6 @@
 package sge
 
-import sge.utils.SdeError
+import sge.utils.SgeError
 
 /** The version of libGDX
   *
@@ -19,7 +19,7 @@ object Version {
       if (v.length < 1) 0 else Integer.valueOf(v(0))
     } catch {
       case t: Throwable =>
-        throw SdeError.MathError(s"Invalid version $VERSION", Some(t))
+        throw SgeError.MathError(s"Invalid version $VERSION", Some(t))
     }
 
   /** The current minor version of libGDX * */
@@ -29,7 +29,7 @@ object Version {
       if (v.length < 2) 0 else Integer.valueOf(v(1))
     } catch {
       case t: Throwable =>
-        throw SdeError.MathError(s"Invalid version $VERSION", Some(t))
+        throw SgeError.MathError(s"Invalid version $VERSION", Some(t))
     }
 
   /** The current revision version of libGDX * */
@@ -39,7 +39,7 @@ object Version {
       if (v.length < 3) 0 else Integer.valueOf(v(2))
     } catch {
       case t: Throwable =>
-        throw SdeError.MathError(s"Invalid version $VERSION", Some(t))
+        throw SgeError.MathError(s"Invalid version $VERSION", Some(t))
     }
 
   def isHigher(major: Int, minor: Int, revision: Int): Boolean =

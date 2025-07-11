@@ -367,7 +367,7 @@ object I18NBundle {
       }
     } catch {
       case e: IOException =>
-        throw SdeError.FileReadError(baseFileHandle, "Error loading I18N bundle", Some(e))
+        throw SgeError.FileReadError(baseFileHandle, "Error loading I18N bundle", Some(e))
     } finally
       if (reader.isDefined) {
         try

@@ -166,7 +166,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
 
   def set(points: T*): Bezier[T] = {
     if (points.length < 2 || points.length > 4)
-      throw utils.SdeError.MathError("Only first, second and third degree Bezier curves are supported.")
+      throw utils.SgeError.MathError("Only first, second and third degree Bezier curves are supported.")
     if (tmp.isEmpty) tmp = Some(points(0).copy)
     if (tmp2.isEmpty) tmp2 = Some(points(0).copy)
     if (tmp3.isEmpty) tmp3 = Some(points(0).copy)
@@ -177,7 +177,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
 
   def set(points: Array[T], offset: Int, length: Int): Bezier[T] = {
     if (length < 2 || length > 4)
-      throw utils.SdeError.MathError("Only first, second and third degree Bezier curves are supported.")
+      throw utils.SgeError.MathError("Only first, second and third degree Bezier curves are supported.")
     if (tmp.isEmpty) tmp = Some(points(offset).copy)
     if (tmp2.isEmpty) tmp2 = Some(points(offset).copy)
     if (tmp3.isEmpty) tmp3 = Some(points(offset).copy)
@@ -188,7 +188,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
 
   def set(points: ArrayBuffer[T], offset: Int, length: Int): Bezier[T] = {
     if (length < 2 || length > 4)
-      throw utils.SdeError.MathError("Only first, second and third degree Bezier curves are supported.")
+      throw utils.SgeError.MathError("Only first, second and third degree Bezier curves are supported.")
     if (tmp.isEmpty) tmp = Some(points(offset).copy)
     if (tmp2.isEmpty) tmp2 = Some(points(offset).copy)
     if (tmp3.isEmpty) tmp3 = Some(points(offset).copy)

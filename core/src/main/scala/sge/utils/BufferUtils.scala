@@ -24,7 +24,8 @@ object BufferUtils {
   val unsafeBuffers:   scala.collection.mutable.ArrayBuffer[ByteBuffer] = new scala.collection.mutable.ArrayBuffer[ByteBuffer](0)
   var allocatedUnsafe: Int                                              = 0
 
-  import sge.utils.BufferUtilsPlatform._
+  // Import the native methods from the Gdx library.
+  import com.badlogic.gdx.utils.BufferUtils._
 
   /** Copies numFloats floats from src starting at offset to dst. Dst is assumed to be a direct {@link Buffer} . The method will crash if that is not the case. The position and limit of the buffer are
     * ignored, the copy is placed at position 0 in the buffer. After the copying process the position of the buffer is set to 0 and its limit is set to numFloats * 4 if it is a ByteBuffer and
@@ -109,8 +110,9 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
+  //def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
+  //  copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
+  // TODO: report compiler error because this method IS implemented in the Gdx library, but the compiler doesn't see it.
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -186,10 +188,11 @@ object BufferUtils {
     * @param numElements
     *   the number of elements to copy.
     */
-  def copy(src: Array[Int], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
-    dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
-  }
+  // def copy(src: Array[Int], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
+  //   dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
+  //   copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
+  // }
+  // TODO: report compiler error because this method IS implemented in the Gdx library, but the compiler doesn't see it.
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position will stay the same, the limit will be set to position + numElements. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.

@@ -3,7 +3,7 @@ package net
 
 import java.net.{ InetSocketAddress, Socket => JSocket }
 import java.io.{ InputStream, OutputStream }
-// import sge.utils.SdeError
+// import sge.utils.SgeError
 
 /** Socket implementation using java.net.Socket.
   *

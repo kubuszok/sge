@@ -72,37 +72,39 @@ class InputEventQueue {
 
   private def next(nextType: Int, startIndex: Int): Int =
     synchronized {
-      val q = queue.toArray
-      var i = startIndex
-      val n = queue.size
-      while (i < n) {
-        val eventType = q(i)
-        if (eventType == nextType) return i
-        i += 3
-        eventType match {
-          case SKIP =>
-            i += q(i)
-          case KEY_DOWN =>
-            i += 1
-          case KEY_UP =>
-            i += 1
-          case KEY_TYPED =>
-            i += 1
-          case TOUCH_DOWN =>
-            i += 4
-          case TOUCH_UP =>
-            i += 4
-          case TOUCH_DRAGGED =>
-            i += 3
-          case MOUSE_MOVED =>
-            i += 2
-          case SCROLLED =>
-            i += 2
-          case _ =>
-            throw new RuntimeException()
+      scala.util.boundary {
+        val q = queue.toArray
+        var i = startIndex
+        val n = queue.size
+        while (i < n) {
+          val eventType = q(i)
+          if (eventType == nextType) scala.util.boundary.break(i)
+          i += 3
+          eventType match {
+            case SKIP =>
+              i += q(i)
+            case KEY_DOWN =>
+              i += 1
+            case KEY_UP =>
+              i += 1
+            case KEY_TYPED =>
+              i += 1
+            case TOUCH_DOWN =>
+              i += 4
+            case TOUCH_UP =>
+              i += 4
+            case TOUCH_DRAGGED =>
+              i += 3
+            case MOUSE_MOVED =>
+              i += 2
+            case SCROLLED =>
+              i += 2
+            case _ =>
+              throw new RuntimeException()
+          }
         }
+        -1
       }
-      -1
     }
 
   private def queueTime(time: Long): Unit = {

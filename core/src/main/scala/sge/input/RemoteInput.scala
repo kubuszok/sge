@@ -4,7 +4,7 @@ package input
 import java.io.{ DataInputStream, IOException }
 import java.net.{ InetAddress, ServerSocket, Socket }
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.SdeError
+import sge.utils.SgeError
 import sge.Input.{ KeyboardHeightObserver, OnscreenKeyboardType, Orientation, Peripheral, VibrationType }
 import sge.input.NativeInputConfiguration
 
@@ -180,7 +180,7 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
       result
     } catch {
       case e: Exception =>
-        throw SdeError.NetworkError(s"Couldn't open listening socket at port '$port'", Some(e))
+        throw SgeError.NetworkError(s"Couldn't open listening socket at port '$port'", Some(e))
     }
 
   override def run(): Unit =

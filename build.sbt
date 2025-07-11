@@ -6,7 +6,8 @@ val commonSettings = Seq(
     "-feature",
     "-no-indent",
     "-rewrite",
-    "-Wconf:msg=.*Infinite loop in function body.*:error"
+    "-Xfatal-warnings"
+    //"-Wconf:msg=.*Infinite loop in function body.*:error"
   )
 )
 

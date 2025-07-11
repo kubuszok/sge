@@ -1,5 +1,7 @@
 package sge
 
+import sge.Graphics
+
 final case class Sge private[sge] (
   application: Application,
   graphics:    Graphics,

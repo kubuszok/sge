@@ -385,12 +385,12 @@ class Affine2 {
   /** Inverts this matrix given that the determinant is != 0.
     * @return
     *   This matrix for the purpose of chaining operations.
-    * @throws SdeError.MathError
+    * @throws SgeError.MathError
     *   if the matrix is singular (not invertible)
     */
   def inv(): Affine2 = {
     val det = this.det()
-    if (det == 0f) throw utils.SdeError.MathError("Can't invert a singular affine matrix")
+    if (det == 0f) throw utils.SgeError.MathError("Can't invert a singular affine matrix")
 
     val invDet = 1.0f / det
 

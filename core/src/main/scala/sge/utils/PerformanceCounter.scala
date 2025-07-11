@@ -40,7 +40,7 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
     */
   def tick(delta: Float): Unit = {
     if (!valid) {
-      throw SdeError.InvalidInput("Invalid data, check if you called PerformanceCounter#stop()")
+      throw SgeError.InvalidInput("Invalid data, check if you called PerformanceCounter#stop()")
     }
 
     time.put(current)

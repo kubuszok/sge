@@ -1,3 +1,8 @@
+## Metals
+.bloop/
+.bsp/
+.metals/
+
 ## sbt
 project/
 target/

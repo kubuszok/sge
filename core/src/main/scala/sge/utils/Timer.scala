@@ -260,7 +260,7 @@ object Timer {
                 waitMillis = instances(i).update(this, timeMillis, waitMillis)
               catch {
                 case ex: Throwable =>
-                  throw SdeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
+                  throw SgeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
               }
           }
 
@@ -323,7 +323,7 @@ object Timer {
         instances.clear()
         threadLock.notifyAll()
       }
-      // app.removeLifecycleListener(this) // TODO: Implement LifecycleListener
+    // app.removeLifecycleListener(this) // TODO: Implement LifecycleListener
   }
 
   // Extension methods for ArrayBuffer to match the original Array API

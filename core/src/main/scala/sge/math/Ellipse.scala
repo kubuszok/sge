@@ -213,12 +213,13 @@ class Ellipse() extends Shape2D {
   override def toString: String =
     "[" + x + "," + y + "," + width + "," + height + "]"
 
-  override def equals(o: Any): Boolean = {
-    if (o == this) return true
-    if (o == null || o.getClass != this.getClass) return false
-    val e = o.asInstanceOf[Ellipse]
-    this.x == e.x && this.y == e.y && this.width == e.width && this.height == e.height
-  }
+  override def equals(o: Any): Boolean =
+    if (o == this) true
+    else if (o == null || o.getClass != this.getClass) false
+    else {
+      val e = o.asInstanceOf[Ellipse]
+      this.x == e.x && this.y == e.y && this.width == e.width && this.height == e.height
+    }
 
   override def hashCode(): Int = {
     val prime  = 53

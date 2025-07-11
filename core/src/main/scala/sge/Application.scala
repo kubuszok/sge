@@ -2,9 +2,6 @@ package sge
 
 import sge.utils.Clipboard
 
-// Forward declarations for types that should be defined elsewhere in the framework
-trait Graphics
-
 /** <p> An <code>Application</code> is the main entry point of your project. It sets up a window and rendering surface and manages the different aspects of your application, namely {@link Graphics} ,
   * {@link Audio} , {@link Input} and {@link Files} . Think of an Application being equivalent to Swing's <code>JFrame</code> or Android's <code>Activity</code>. </p>
   *

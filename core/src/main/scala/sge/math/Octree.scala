@@ -2,12 +2,9 @@ package sge
 package math
 
 import sge.math.collision._
+import sge.math.Frustum
 import sge.utils.Pool
-import scala.collection.mutable.ArrayBuffer
-
-// Placeholder for missing types
-case class Frustum()
-type ObjectSet[T] = ArrayBuffer[T]
+import scala.collection.mutable.{ ArrayBuffer, Set }
 
 /** A static Octree implementation.
   *
@@ -23,7 +20,7 @@ type ObjectSet[T] = ArrayBuffer[T]
   *
   * // Adding game objects to the octree octree.add(gameObject1); octree.add(gameObject2);
   *
-  * // Querying the result ObjectSet<GameObject> result = new ObjectSet<>(); octree.query(cam.frustum, result);
+  * // Querying the result Set<GameObject> result = new Set<>(); octree.query(cam.frustum, result);
   *
   * // Rendering the result for (GameObject gameObject : result) { modelBatch.render(gameObject); } </pre>
   */
@@ -65,7 +62,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     * @return
     *   the result set
     */
-  def getAll(resultSet: ObjectSet[T]): ObjectSet[T] = {
+  def getAll(resultSet: Set[T]): Set[T] = {
     root.getAll(resultSet)
     resultSet
   }
@@ -76,7 +73,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     * @param result
     *   \- Set to be populated with objects inside the BoundingBoxes
     */
-  def query(aabb: BoundingBox, result: ObjectSet[T]): ObjectSet[T] = {
+  def query(aabb: BoundingBox, result: Set[T]): Set[T] = {
     root.query(aabb, result)
     result
   }
@@ -87,7 +84,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     * @param result
     *   set populated with objects near from the frustum
     */
-  def query(frustum: Frustum, result: ObjectSet[T]): ObjectSet[T] = {
+  def query(frustum: Frustum, result: Set[T]): Set[T] = {
     root.query(frustum, result)
     result
   }
@@ -102,7 +99,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     *
     * @param boxes
     */
-  def getNodesBoxes(boxes: ObjectSet[BoundingBox]): ObjectSet[BoundingBox] = {
+  def getNodesBoxes(boxes: Set[BoundingBox]): Set[BoundingBox] = {
     root.getBoundingBox(boxes)
     boxes
   }
@@ -186,7 +183,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
         if (removed) {
           val geometrySet = ArrayBuffer[T]()
           for (node <- children)
-            node.getAll(geometrySet)
+            node.getAll(geometrySet.to(Set))
           if (geometrySet.size <= maxItemsPerNode) {
             for (geometry <- geometrySet)
               geometries += geometry
@@ -207,7 +204,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
 
     protected def isLeaf: Boolean = leaf
 
-    def query(aabb: BoundingBox, result: ObjectSet[T]): Unit = {
+    def query(aabb: BoundingBox, result: Set[T]): Unit = {
       if (!aabb.intersects(bounds)) {
         return
       }
@@ -224,7 +221,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
       }
     }
 
-    def query(frustum: Frustum, result: ObjectSet[T]): Unit =
+    def query(frustum: Frustum, result: Set[T]): Unit =
       // Placeholder implementation since Frustum methods are not available
       if (!leaf) {
         for (node <- children)
@@ -269,7 +266,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     /** Get all geometries using Depth-First Search recursion.
       * @param resultSet
       */
-    def getAll(resultSet: ObjectSet[T]): Unit = {
+    def getAll(resultSet: Set[T]): Unit = {
       if (!leaf) {
         for (child <- children)
           child.getAll(resultSet)
@@ -280,7 +277,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     /** Get bounding boxes using Depth-First Search recursion.
       * @param bounds
       */
-    def getBoundingBox(bounds: ObjectSet[BoundingBox]): Unit = {
+    def getBoundingBox(bounds: Set[BoundingBox]): Unit = {
       if (!leaf) {
         for (node <- children)
           node.getBoundingBox(bounds)

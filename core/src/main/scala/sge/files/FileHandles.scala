@@ -80,7 +80,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     file
 
   /** Returns a stream for reading this file as bytes.
-    * @throws [[sge.utils.SdeError]]
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def read(): InputStream =
@@ -92,7 +92,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       }
     ) {
       utils.Nullable(getClass.getResourceAsStream("/" + file.getPath().replace('\\', '/'))).getOrElse {
-        throw utils.SdeError.FileReadError(this, "File not found")
+        throw utils.SgeError.FileReadError(this, "File not found")
       }
     } else {
       try
@@ -100,27 +100,27 @@ class FileHandle(val file: File, val fileType: FileType) {
       catch {
         case ex: Exception =>
           if (file.isDirectory())
-            throw utils.SdeError.FileReadError(this, "Cannot open a stream to a directory", Some(ex))
-          throw utils.SdeError.FileReadError(this, "Error reading file", Some(ex))
+            throw utils.SgeError.FileReadError(this, "Cannot open a stream to a directory", Some(ex))
+          throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
       }
     }
 
   /** Returns a buffered stream for reading this file as bytes.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def read(bufferSize: Int): BufferedInputStream =
     new BufferedInputStream(read(), bufferSize)
 
   /** Returns a reader for reading this file as characters the platform's default charset.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def reader(): Reader =
     new InputStreamReader(read())
 
   /** Returns a reader for reading this file as characters.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def reader(charset: String): Reader = {
@@ -130,7 +130,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     catch {
       case ex: UnsupportedEncodingException =>
         utils.StreamUtils.closeQuietly(stream)
-        throw utils.SdeError.FileReadError(this, "Error reading file", Some(ex))
+        throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
     }
   }
 
@@ -142,7 +142,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     new BufferedReader(new InputStreamReader(read()), bufferSize)
 
   /** Returns a buffered reader for reading this file as characters.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def reader(bufferSize: Int, charset: String): BufferedReader =
@@ -151,11 +151,11 @@ class FileHandle(val file: File, val fileType: FileType) {
     catch {
       case ex: UnsupportedEncodingException =>
         utils.StreamUtils.closeQuietly(read())
-        throw utils.SdeError.FileReadError(this, "Error reading file", Some(ex))
+        throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
     }
 
   /** Reads the entire file into a string using the platform's default charset.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def readString(): String = readString(null)
@@ -183,7 +183,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       output.toString()
     } catch {
       case ex: IOException =>
-        throw utils.SdeError.FileReadError(this, "Error reading layout file", Some(ex))
+        throw utils.SgeError.FileReadError(this, "Error reading layout file", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(reader)
   }
@@ -198,7 +198,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       utils.StreamUtils.copyStreamToByteArray(input, estimateLength())
     catch {
       case ex: IOException =>
-        throw utils.SdeError.FileReadError(this, "Error reading file", Some(ex))
+        throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(input)
   }
@@ -230,7 +230,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       position - offset
     } catch {
       case ex: IOException =>
-        throw utils.SdeError.FileReadError(this, "Error reading file", Some(ex))
+        throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(input)
   }
@@ -246,7 +246,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, doesn't exist, or could not be read, or memory mapping fails, or is a {@link FileType#Classpath} file.
     */
   def map(mode: FileChannel.MapMode): ByteBuffer = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileReadError(this, "Cannot map a classpath file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot map a classpath file")
     var raf: RandomAccessFile = null
     try {
       val f = getFile()
@@ -257,7 +257,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       mappedBuffer
     } catch {
       case ex: Exception =>
-        throw utils.SdeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(raf)
   }
@@ -269,16 +269,16 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
   def write(append: Boolean): OutputStream = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileReadError(this, "Cannot write to a classpath file")
-    if (fileType == FileType.Internal) throw utils.SdeError.FileReadError(this, "Cannot write to an internal file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot write to a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
     try
       new FileOutputStream(getFile(), append)
     catch {
       case ex: Exception =>
         if (getFile().isDirectory())
-          throw utils.SdeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
-        throw utils.SdeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     }
   }
 
@@ -306,7 +306,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       utils.StreamUtils.copyStream(input, output)
     } catch {
       case ex: Exception =>
-        throw utils.SdeError.FileReadError(this, s"Error stream writing to file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $file ($fileType)", Some(ex))
     } finally {
       utils.StreamUtils.closeQuietly(input)
       utils.StreamUtils.closeQuietly(output)
@@ -330,8 +330,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
   def writer(append: Boolean, charset: String): Writer = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileReadError(this, "Cannot write to a classpath file")
-    if (fileType == FileType.Internal) throw utils.SdeError.FileReadError(this, "Cannot write to an internal file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot write to a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
     try {
       val output = new FileOutputStream(getFile(), append)
@@ -342,8 +342,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     } catch {
       case ex: IOException =>
         if (getFile().isDirectory())
-          throw utils.SdeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
-        throw utils.SdeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     }
   }
 
@@ -370,7 +370,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       writer.write(string)
     } catch {
       case ex: Exception =>
-        throw utils.SdeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(writer)
   }
@@ -387,7 +387,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       output.write(bytes)
     catch {
       case ex: IOException =>
-        throw utils.SdeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(output)
   }
@@ -404,7 +404,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       output.write(bytes, offset, length)
     catch {
       case ex: IOException =>
-        throw utils.SdeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(output)
   }
@@ -502,10 +502,10 @@ class FileHandle(val file: File, val fileType: FileType) {
     }
   }
 
-  /** @throws GdxRuntimeException if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file. */
+  /** @throws [[sge.utils.SgeError]] if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file. */
   def mkdirs(): Unit = {
-    if (fileType == FileType.Classpath) throw new RuntimeException("Cannot mkdirs with a classpath file: " + file)
-    if (fileType == FileType.Internal) throw new RuntimeException("Cannot mkdirs with an internal file: " + file)
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot mkdirs with a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot mkdirs with an internal file")
     getFile().mkdirs()
   }
 
@@ -528,8 +528,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file.
     */
   def delete(): Boolean = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileWriteError(this, "Cannot delete a classpath file")
-    if (fileType == FileType.Internal) throw utils.SdeError.FileWriteError(this, "Cannot delete an internal file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
     getFile().delete()
   }
 
@@ -538,8 +538,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file.
     */
   def deleteDirectory(): Boolean = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileWriteError(this, "Cannot delete a classpath file")
-    if (fileType == FileType.Internal) throw utils.SdeError.FileWriteError(this, "Cannot delete an internal file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
     deleteDirectory(getFile())
   }
 
@@ -554,15 +554,15 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file.
     */
   def emptyDirectory(preserveTree: Boolean): Unit = {
-    if (fileType == FileType.Classpath) throw utils.SdeError.FileWriteError(this, "Cannot delete a classpath file")
-    if (fileType == FileType.Internal) throw utils.SdeError.FileWriteError(this, "Cannot delete an internal file")
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
+    if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
     emptyDirectory(getFile(), preserveTree)
   }
 
   /** Copies this file or directory to the specified file or directory. If this handle is a file, then 1) if the destination is a file, it is overwritten, or 2) if the destination is a directory, this
     * file is copied into it, or 3) if the destination doesn't exist, {@link #mkdirs()} is called on the destination's parent and this file is copied into it with a new name. If this handle is a
-    * directory, then 1) if the destination is a file, GdxRuntimeException is thrown, or 2) if the destination is a directory, this directory is copied into it recursively, overwriting existing files,
-    * or 3) if the destination doesn't exist, {@link #mkdirs()} is called on the destination and this directory is copied into it recursively.
+    * directory, then 1) if the destination is a file, SgeError is thrown, or 2) if the destination is a directory, this directory is copied into it recursively, overwriting existing files, or 3) if
+    * the destination doesn't exist, {@link #mkdirs()} is called on the destination and this directory is copied into it recursively.
     * @throws GdxRuntimeException
     *   if the destination file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file, or copying failed.
     */
@@ -573,10 +573,10 @@ class FileHandle(val file: File, val fileType: FileType) {
       return
     }
     if (dest.exists()) {
-      if (!dest.isDirectory()) throw utils.SdeError.FileWriteError(dest, "Destination exists but is not a directory")
+      if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination exists but is not a directory")
     } else {
       dest.mkdirs()
-      if (!dest.isDirectory()) throw utils.SdeError.FileWriteError(dest, "Destination directory cannot be created")
+      if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination directory cannot be created")
     }
     copyDirectory(this, dest.child(name()))
   }
@@ -588,9 +588,9 @@ class FileHandle(val file: File, val fileType: FileType) {
   def moveTo(dest: FileHandle): Unit =
     fileType match {
       case FileType.Classpath =>
-        throw utils.SdeError.FileWriteError(this, "Cannot move a classpath file")
+        throw utils.SgeError.FileWriteError(this, "Cannot move a classpath file")
       case FileType.Internal =>
-        throw utils.SdeError.FileWriteError(this, "Cannot move an internal file")
+        throw utils.SgeError.FileWriteError(this, "Cannot move an internal file")
       case FileType.Absolute | FileType.External if getFile().renameTo(dest.getFile()) =>
       // Try rename for efficiency and to change case on case-insensitive file systems.
       case _ =>
