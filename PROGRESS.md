@@ -1,0 +1,94 @@
+# Progress of the conversion
+
+## Core
+
+- [ ] `com.badlogic.gdx` -> `sge`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.gdx.assets` -> `sge.assets`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [ ] `com.badlogic.gdx.assets.loaders` -> `sge.assets.loaders`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.audio` -> `sge.audio`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.files` -> `sge.files`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.graphics` -> `sge.graphics`
+  - [ ] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [ ] `com.badlogic.graphics.g2d` -> `sge.graphics.g2d`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [ ] `com.badlogic.graphics.g3d` -> `sge.graphics.g3d`
+    - not yet started :(
+  - [ ] `com.badlogic.graphics.glutils` -> `sge.graphics.glutils`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [ ] `com.badlogic.graphics.profiling` -> `sge.graphics.profiling`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.input` -> `sge.input`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.maps` -> `sge.maps`
+  - not yet started :(
+- [ ] `com.badlogic.math` -> `sge.math`
+  - [ ] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [ ] `com.badlogic.math.collisions` -> `sge.math.collisions`
+    - [ ] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.net` -> `sge.net`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+- [ ] `com.badlogic.scenes.scene2d` -> `sge.scenes.scene2d`
+  - not yet started :(
+- [ ] `com.badlogic.utils` -> `sge.utils`
+  - [x] best effort AI prod code conversion
+  - [ ] best effort AI test code conversion
+  - [ ] manual verification that no code was omitted
+  - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [x] `com.badlogic.utils.asynccompressions` -> `sge.utils.async`
+    - [x] removed as we have that natively in Scala/Scala.js/Scala Native
+  - [ ] `com.badlogic.utils.compressions` -> `sge.utils.compressions`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)
+  - [x] `com.badlogic.utils.reflect` -> `sge.utils.reflect`
+    - [x] removed as do not use that by convention in Scala/Scala.js/Scala Native
+  - [ ] `com.badlogic.utils.viewport` -> `sge.utils.viewport`
+    - [x] best effort AI prod code conversion
+    - [ ] best effort AI test code conversion
+    - [ ] manual verification that no code was omitted
+    - [ ] manual improvements (Scala conventions, opaque types, inline defs, etc)

@@ -110,7 +110,7 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  //def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
+  // def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
   //  copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
   // TODO: report compiler error because this method IS implemented in the Gdx library, but the compiler doesn't see it.
 
