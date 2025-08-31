@@ -1,37 +1,91 @@
 package sge
 package utils
 
-opaque type Nullable[A] = A
+/** `Option` alternative for LibGDX that does not allocate memory for `Some` case.
+  *
+  * Insipred by Kyo's allocation-free `Option` type.
+  */
+type Nullable[A] = Nullable.Impl[A]
+
+@scala.annotation.nowarn("msg=type test")
 object Nullable {
+  opaque type Impl[A] = A | Nullable.NestedNone
 
-  inline def apply[A](a: A): Nullable[A] = a
-
-  inline def empty[A]: Nullable[A] = null.asInstanceOf[Nullable[A]]
-
-  extension [A](a: Nullable[A]) {
-
-    inline def fold[B](onEmpty: => B)(onValue: A => B): B =
-      if (a == null) onEmpty else onValue(a)
-
-    inline def foreach(f: A => Unit): Unit =
-      if (a != null) f(a)
-
-    inline def isEmpty:   Boolean = a == null
-    inline def isDefined: Boolean = a != null
-
-    inline def getOrElse[B >: A](default: => B): B =
-      if (a == null) default else a
-
-    inline def orNull: A = a
+  def apply[A](a: A): Nullable[A] = a match {
+    case _ if a == null => None
+    case NestedNone(n)  => NestedNone(n + 1)
+    case a              => a
   }
+  def empty[A]: Nullable[A] = NestedNone(0)
+
+  def fromOption[A](option: Option[A]): Nullable[A] = option.fold(empty[A])(apply)
+
+  extension [A](maybe: Nullable[A]) {
+
+    def map[B](f: A => B): Nullable[B] = maybe match {
+      case `None` => None
+      case a: A => apply(f(a))
+    }
+
+    def flatMap[B](f: A => Nullable[B]): Nullable[B] = map(f).flatten
+
+    def foreach(f: A => Unit): Unit = maybe match {
+      case `None` => ()
+      case a: A => f(a)
+    }
+
+    def fold[B](onEmpty: => B)(onSome: A => B): B = maybe match {
+      case `None` => onEmpty
+      case a: A => onSome(a)
+    }
+
+    def getOrElse(onEmpty: => A): A = maybe match {
+      case `None` => onEmpty
+      case a: A => a
+    }
+
+    def orNull: A = maybe match {
+      case `None` => null.asInstanceOf[A]
+      case a: A => a
+    }
+  }
+  extension [A](maybe: Nullable[Nullable[A]]) {
+
+    def flatten: Nullable[A] = maybe match {
+      case nn @ NestedNone(n) => NestedNone(n - 1)
+      case a: A => a
+    }
+  }
+
+  /** Implicit conversion from non-null values to `Nullable`. */
+  given [A]: Conversion[A, Nullable[A]] = nonEmptyConversion.asInstanceOf[Conversion[A, Nullable[A]]]
+
+  /** Implicit conversion from `null` to `Nullable`. */
+  given [A]: Conversion[Null, Nullable[A]] = emptyConversion.asInstanceOf[Conversion[Null, Nullable[A]]]
 
   private val nonEmptyConversion: Conversion[Any, Nullable[Any]] = new {
-    def apply(a: Any): Nullable[Any] = a
+    def apply(a: Any): Nullable[Any] = Nullable(a)
   }
-  inline given [A]: Conversion[A, Nullable[A]] = nonEmptyConversion.asInstanceOf[Conversion[A, Nullable[A]]]
-
   private val emptyConversion: Conversion[Null, Nullable[Any]] = new {
-    def apply(a: Null): Nullable[Any] = null.asInstanceOf[Nullable[Any]]
+    def apply(a: Null): Nullable[Any] = Nullable.empty
   }
-  inline given [A]: Conversion[Null, Nullable[A]] = emptyConversion.asInstanceOf[Conversion[Null, Nullable[A]]]
+
+  /** Non-nested `None`. For this value we should use an empty branch, since it cannot model Some(None), Some(Some(None)) and so on.
+    */
+  private val None = NestedNone(0)
+
+  /** Nested `None`, that traces the amount of nesting. Cached to avoid allocation.
+    */
+  private case class NestedNone private (value: Int) {
+
+    assert(value >= 0, "None nesting level cannot be negative, got: " + value)
+  }
+  private object NestedNone {
+
+    def apply(value: Int): NestedNone =
+      if (value < cache.length) cache(value)
+      else new NestedNone(value)
+
+    private val cache = IArray.from((0 until 10).map(new NestedNone(_)))
+  }
 }
