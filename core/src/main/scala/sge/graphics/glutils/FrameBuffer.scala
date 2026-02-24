@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/FrameBuffer.java
+ * Original authors: mzechner, realitix
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package glutils
@@ -80,7 +88,7 @@ class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
     colorTexture.close()
 
   override protected def attachFrameBufferColorTexture(texture: Texture): Unit =
-    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, GL20.GL_TEXTURE_2D, texture.getTextureObjectHandle(), 0)
+    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, GL20.GL_TEXTURE_2D, texture.getTextureObjectHandle().toInt, 0)
 }
 
 object FrameBuffer {

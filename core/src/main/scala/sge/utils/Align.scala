@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/Align.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -21,8 +29,10 @@ object Align {
   val bottomRight: Align = bottom | right
 
   extension (a: Align) {
-    def |(b: Align): Align = a | b
-    def &(b: Align): Align = a & b
+    inline def toInt: Int   = a
+    def unary_~     : Align = ~a
+    def |(b: Align):  Align = a | b
+    def &(b: Align):  Align = a & b
 
     inline def isLeft:   Boolean = (a & left) != 0
     inline def isRight:  Boolean = (a & right) != 0

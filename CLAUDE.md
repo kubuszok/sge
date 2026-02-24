@@ -1,201 +1,107 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-SGE2 is a Scala port of LibGDX, a cross-platform game development framework. This is an active conversion project porting Java/Kotlin LibGDX APIs to idiomatic Scala 3 code. The conversion follows a systematic approach documented in PROGRESS.md.
+SGE is a Scala 3 port of LibGDX, a cross-platform game development framework.
+~248 of ~605 core Java files have been AI-converted so far. The conversion follows
+a systematic approach tracked in `docs/progress/migration-status.tsv`.
 
 ## Build System
 
-This project uses SBT (Scala Build Tool):
+This project uses SBT (Scala Build Tool). **Do NOT call `sbt` directly** — use
+`sge-metals` MCP instead. If you must use SBT directly, **always use `sbt --client`**
+to connect to the running SBT server and avoid JVM startup overhead.
 
-- **Build**: `sbt compile`
-- **Format code**: `sbt scalafmt` (scalafmt plugin is configured)
-- **Clean**: `sbt clean`
-- **Run**: No main class defined yet - this is a library project
-
-Configuration:
 - Scala version: 3.7.1
-- Compiler flags include `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Xfatal-warnings`
+- Compiler flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Xfatal-warnings`
+- Format code: `sbt --client scalafmt`
+
+## Source Reference
+
+The original LibGDX source is available as a local git submodule:
+
+```
+./libgdx/gdx/src/com/badlogic/gdx/   # Original Java source (read-only reference)
+```
+
+**NEVER fetch LibGDX source from GitHub.** Always read from `./libgdx/`.
+
+Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
 
 ## Project Structure
 
 ```
-core/src/main/scala/sge/          # Main SGE library code
-├── *.scala                       # Core engine classes (Application, Graphics, Audio, etc.)
-├── assets/                       # Asset management system
-├── audio/                        # Audio subsystem  
-├── files/                        # File handling
-├── graphics/                     # Graphics rendering
-│   ├── g2d/                     # 2D graphics (sprites, batches, etc.)
-│   ├── glutils/                 # OpenGL utilities
-│   └── profiling/               # Graphics profiling tools
-├── input/                        # Input handling
-├── math/                         # Mathematical utilities
-│   └── collision/               # Collision detection
-├── net/                          # Networking
-├── scenes/scene2d/              # 2D scene graph (partial port)
-└── utils/                        # Utilities
-    ├── compression/             # LZMA compression
-    └── viewport/                # Viewport management
+core/src/main/scala/sge/           # SGE library code
+├── *.scala                        # Core engine classes
+├── assets/, audio/, files/        # Subsystem packages
+├── graphics/                      # Graphics (g2d/, glutils/, profiling/)
+├── input/, math/, net/            # Input, math (collision/), networking
+├── scenes/scene2d/                # 2D scene graph (partial)
+└── utils/                         # Utilities (compression/, viewport/)
+libgdx/                            # Git submodule — original LibGDX source
+docs/                              # Project documentation
+├── contributing/                  # Conversion rules, code style, tooling
+├── progress/                      # Migration tracking (TSV), quality issues
+├── architecture/                  # Platform targets, backend analysis
+└── improvements/                  # Design improvements over LibGDX
 ```
+
+## Tooling
+
+| Tool | Purpose |
+|------|---------|
+| `sge-metals` MCP | Compile, get errors/warnings. **Use instead of raw sbt.** |
+| `context7` MCP | Look up external library documentation |
+| `./libgdx/` | Local reference source. **Never fetch from GitHub.** |
+
+MCP servers are configured in `.vscode/mcp.json` (local, not committed).
+See `docs/contributing/tooling.md` for details.
 
 ## Architecture
 
-The project follows LibGDX's modular architecture with these key patterns:
+1. **Core Engine Access**: `Sge` object provides all subsystems (graphics, audio, files, input, net)
+2. **Scala-First Design**: Opaque types, `given`/`using` context, Scala stdlib collections
+3. **Package Mapping**: `com.badlogic.gdx.*` → `sge.*` (see `docs/contributing/type-mappings.md`)
 
-1. **Core Engine Access**: The main `Sge` object provides access to all subsystems (graphics, audio, files, input, net)
-2. **Scala-First Design**: Uses Scala 3 features like opaque types, given/using context, and idiomatic collections
-3. **Package Mapping**: `com.badlogic.gdx.*` → `sge.*` with some structural changes documented in CHANGES.md
+## Code Conventions (Key Rules)
 
-## Conversion Status
+- **License header**: Every ported file must have a header with original source path, authors,
+  and Apache 2.0 license. See `docs/contributing/code-style.md` for the template.
+- **Braces required**: `{}` for all `trait`, `class`, `enum`, method definitions (`-no-indent`)
+- **Split packages**: `package sge` / `package graphics` / `package g2d` (not flat)
+- **No `return`**: Use `scala.util.boundary`/`break` (see `docs/contributing/control-flow-guide.md`)
+- **No `null`**: Use `Nullable[A]` opaque type (see `docs/contributing/nullable-guide.md`)
+- **No comment removal**: Preserve all original comments during conversion
+- **Uninitialized vars**: Use `scala.compiletime.uninitialized`
+- **Comparators**: Use `given Ordering[T]`
+- **Disposable**: Use `AutoCloseable`/`close()` instead
 
-This is an ongoing port from LibGDX. Key conversion details:
+## Java to Scala Conversion
 
-- Most core packages have initial AI-generated conversions
-- Manual verification and Scala idiomatization is pending for most modules
-- Some LibGDX classes are intentionally skipped in favor of Scala stdlib (collections, JSON, XML, async)
-- The `g3d` (3D graphics) package is not yet started
+Full procedure with 19 type/API adjustments: `docs/contributing/conversion-rules.md`
 
-Refer to PROGRESS.md for detailed conversion status of each package.
+Quick reference for common replacements:
 
-## Code Conventions
+| Java | Scala |
+|------|-------|
+| `Gdx` | `Sge` (implicit) |
+| `GdxRuntimeException` | `SgeError` |
+| `Array<T>` | `ArrayBuffer[T]` |
+| `ObjectMap<K,V>` | `mutable.Map[K,V]` |
+| `Disposable`/`dispose()` | `AutoCloseable`/`close()` |
+| `@Null` | `Nullable[A]` |
+| `return value` | `boundary { break(value) }` |
+| `Comparator<T>` | `given Ordering[T]` |
 
-- Use Scala 3 syntax (no curly braces for simple expressions due to `-no-indent`)
-- Prefer opaque types over case classes where appropriate  
-- Use `given`/`using` for context passing
-- Follow existing naming patterns in the codebase
-- Maintain LibGDX API compatibility where possible while making it idiomatic Scala
+## Documentation Index
 
-## Java to Scala migration plan
-
-When asked to convert some file from Java to Scala, start by planning before executing the plan.
-
-During planning conform to the following rules:
-
-1. The MCP config can be found in `.vscode/mcp.json`:
-    - Use `sge2-metals` MCP to compile the project and obtain the informations about errors and warnings.
-    - Use `context7` MCP to obtain information about other libraries.
-2. Do NOT call `sbt` directly! If you need to make code compilable as an intermediate step, do not remove the code, comment it out instead and leave a note for yourself.
-3. Do NOT use braceless-syntax! Use braces `{}` for `trait`, `class`, `enum` and method definitions.
-4. Do NOT remove comments! Leave them unchanged.
-5. Do NOT use flat package names! Instead of `package a.b.c` use
-
-    ```scala
-    package a
-    package b
-    package c
-    ```
-
-    ! It automatically imports all the definitions from the packages `a`, `a.b` and `a.b.c`, and they don't need to be imported with `import`.
-
-Conversion should be performed as follows:
-
-1. find all Scala files which have Java syntax in them
-2. rewrite Java method declarations to Scala declarations and Java types into Scala types
-3. move static classes, enums and methods of a class to companion object (create it if needed)
-4. move all nested classes and enums from interface to compatnion object (create it if needed)
-5. rewrite methods implementations from Java to Scala, with these adjustments:
-  a. when code uses `ByteArray`, `CharArray`, `FloatArray`, `IntArray`, `LongArray`, `ShortArray`, use `DynamicArray` of the respective type instead
-  b. when code uses `ArrayMap`, `IdentityMap`, `IntFloatMap`, `IntIntMap`, `IntMap`, `LongMap`, `ObjectFloatMap`, `ObjectLongMap`, `ObjectIntMap`, `ObjectMap` use `ArrayMap` of the respective type instead
-  c. when code uses `ObjectSet`, use `Set` of the respective type instead
-  d. when code uses `BooleanArray`, `Bits` or `IntSet`, use `BitSet` of the respective type instead
-  e. when code uses `OrderedSet`, use `SortedSet` of the respective type instead
-  f. when code uses `GdxException`, use one of `SgeError`s instead
-  g. when code uses global `Gdx`, use implicit `Sge` instead
-  h. when having uninitialized `var`, use `scala.compiletime.uninitialized` instead of `_`
-  i. when seeing a type that can be `null` as an argument/returned value, use `sde.utils.Nullable` instead of `Option` - see `Nullable[A]` usage
-  j. when seeing `math.methodName` consider it might be `Math.methodName` instead of a method in `math` package
-  k. when after rewrite there is still a `return` rewrite the code to use `scala.util.boundary` - see Removing `return`, `break` and `continue`
-  l. when seeing something that is `java.util.Comparator` or could be, convert it to `given Ordering`
-  m. when seeing `SnapshotArray` use `ArrayBuffer`, and where modifications between `begin()` and `end()` are made on a copy and after `end()` modified copy replaces the original
-  n. when seeing `Disposable`, replace it with `AutoCloseable` and `dispose()` method with `close()` method
-  o. when seeing value assigned to `Collections.allocateIterators`, remove this statement
-  p. when seeing `matrix.val`, use `matrix.values`
-  q. when seeing `AsyncTask<T>`, use `() => T` and rename `call()` to `def apply()`
-  r. when seeing `AsyncResult<t>`, use `scala.concurrent.Future[T]` instead (adjust code for `Future`s and `ExecutorContext`s)
-  s. when seeing `ApplicationAdapter` use `Application`, when `InputAdapter` use `Input`, when `ScreenAdapter` use `Screen`
-6. use `sge2-metals` MCP to ensure that conversion is successful
-7. fix both errors and warnings
-
-## `Nullable[A]` usage
-
-1. replace `if (nullable == null) value else nullable.asInstanceOf[A]` with `nullable.getOrElse(value)`
-1. replace `if (nullable == null) throw error else { val a = nullable.asInstanceOf[A]; ... }` with `nullable.fold(throw error)(a => ...)`
-2. replace `if (nullable == null) thunk else { val a = nullable.asInstanceOf[A]; ... }` with `nullable.fold(thunk)(a => ...)`
-3. replace `if (nullable != null) { val a = nullable.asInstanceOf[A]; ... }` (no else) with `nullable.foreach { a => ... }`
-3. replace `nullable != null` or `!(nullable == null)` with `nullable.isDefined`
-4. replace `nullable == null` with `nullable.isEmpty`
-5. replace `nullable = null.asInstanceOf[Nullable[A]]`, `nullable = _` and `nullable = scala.compiletime.uninitialized` with `nullable = Nullable.empty`
-
-In general:
-
-- initialize value using `Nullable.empty` instead of `null` and `Nullable(value)` when it's non-null or unknown
-- use `fold` when there is branching handling both cases of `null` and non-`null`
-  - use `getOrElse` instead if non-`null` only returns unchanged value and `null` returns a single value
-- use `foreach` if there is no branch handling `null`
-
-## Removing `return`, `break` and `continue`
-
-This project does not allow `return`, `break` and `continue`, when seeing one rewrite the code
-
-1. replace
-
-```scala
-def method = {
-  // code
-  return value
-  // code
-}
-```
-
-with 
-
-```scala
-def method = scala.util.boundary {
-  // code
-  scala.util.boundary.break(value)
-  // code
-}
-```
-
-2. replace
-
-```java
-while (cond) {
-  // code
-  break;
-}
-```
-
-with
-
-```scala
-scala.util.boundary {
-  while (cond) {
-    // code
-    scala.util.boundary.break()
-  }
-}
-```
-
-3. replace
-
-```java
-while (cond) {
-  // code
-  continue;
-}
-```
-
-with
-
-```scala
-while (cond) {
-  scala.util.boundary {
-    // code
-    scala.util.boundary.break()
-  }
-}
-```
+| Path | Content |
+|------|---------|
+| `docs/contributing/` | Conversion rules, nullable guide, control flow, type mappings, code style, tooling |
+| `docs/progress/migration-status.tsv` | Per-file migration status (605 files) |
+| `docs/progress/quality-issues.md` | Systemic code issues (return, null, Java syntax, TODOs) |
+| `docs/architecture/` | Platform targets, backend analysis, build structure |
+| `docs/improvements/` | Type safety, API design improvements over LibGDX |
+| `CHANGES.md` | Human-readable narrative of porting decisions |

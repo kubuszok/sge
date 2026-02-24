@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/viewport/FillViewport.java
+ * Original authors: Daniel Holderbaum, Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 package viewport

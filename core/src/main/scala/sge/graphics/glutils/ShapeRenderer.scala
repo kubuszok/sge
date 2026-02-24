@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/ShapeRenderer.java
+ * Original authors: mzechner, stbachmann, Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package glutils
@@ -218,7 +226,7 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   /** Draws a rectangle line using ShapeType.Filled. */
   def rectLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, c1: Color, c2: Color): Unit =
     check(ShapeType.Filled, null, 8)
-    // TODO: Implement rectangle line
+  // TODO: Implement rectangle line
 
   /** Draws a circle using ShapeType.Line or ShapeType.Filled. */
   def circle(x: Float, y: Float, radius: Float): Unit =

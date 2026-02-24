@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/CRC.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 package compression
@@ -7,28 +15,24 @@ class CRC {
   import scala.compiletime.uninitialized
   private var _value: Int = -1
 
-  def init(): Unit = {
+  def init(): Unit =
     _value = -1
-  }
 
-  def update(data: Array[Byte], offset: Int, size: Int): Unit = {
+  def update(data: Array[Byte], offset: Int, size: Int): Unit =
     for (i <- 0 until size)
-      _value = CRC.Table((_value ^ data(offset + i)) & 0xFF) ^ (_value >>> 8)
-  }
+      _value = CRC.Table((_value ^ data(offset + i)) & 0xff) ^ (_value >>> 8)
 
   def update(data: Array[Byte]): Unit = {
     val size = data.length
     for (i <- 0 until size)
-      _value = CRC.Table((_value ^ data(i)) & 0xFF) ^ (_value >>> 8)
+      _value = CRC.Table((_value ^ data(i)) & 0xff) ^ (_value >>> 8)
   }
 
-  def updateByte(b: Int): Unit = {
-    _value = CRC.Table((_value ^ b) & 0xFF) ^ (_value >>> 8)
-  }
+  def updateByte(b: Int): Unit =
+    _value = CRC.Table((_value ^ b) & 0xff) ^ (_value >>> 8)
 
-  def getDigest(): Int = {
-    _value ^ (-1)
-  }
+  def getDigest(): Int =
+    _value ^ -1
 }
 
 object CRC {
@@ -42,7 +46,7 @@ object CRC {
       var j = 0
       while (j < 8) {
         if ((r & 1) != 0)
-          r = (r >>> 1) ^ 0xEDB88320
+          r = (r >>> 1) ^ 0xedb88320
         else
           r >>>= 1
         j += 1

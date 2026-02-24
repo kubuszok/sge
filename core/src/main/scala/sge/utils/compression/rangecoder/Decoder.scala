@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/rangecoder/Decoder.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.rangecoder
 
 import java.io.IOException
@@ -5,17 +13,15 @@ import java.io.IOException
 class Decoder {
   import Decoder._
 
-  var Range: Int = 0
-  var Code: Int = 0
+  var Range:  Int                 = 0
+  var Code:   Int                 = 0
   var Stream: java.io.InputStream = scala.compiletime.uninitialized
 
-  def setStream(stream: java.io.InputStream): Unit = {
+  def setStream(stream: java.io.InputStream): Unit =
     Stream = stream
-  }
 
-  def releaseStream(): Unit = {
+  def releaseStream(): Unit =
     Stream = null
-  }
 
   @throws[IOException]
   def init(): Unit = {
@@ -28,10 +34,10 @@ class Decoder {
   @throws[IOException]
   def decodeDirectBits(numTotalBits: Int): Int = {
     var result = 0
-    var i = numTotalBits
+    var i      = numTotalBits
     while (i != 0) {
       Range >>>= 1
-      val t = ((Code - Range) >>> 31)
+      val t = (Code - Range) >>> 31
       Code -= Range & (t - 1)
       result = (result << 1) | (1 - t)
       if ((Range & kTopMask) == 0) {
@@ -45,7 +51,7 @@ class Decoder {
 
   @throws[IOException]
   def decodeBit(probs: Array[Short], index: Int): Int = {
-    val prob = probs(index)
+    val prob     = probs(index)
     val newBound = (Range >>> kNumBitModelTotalBits) * prob
     if ((Code ^ 0x80000000) < (newBound ^ 0x80000000)) {
       Range = newBound
@@ -69,13 +75,12 @@ class Decoder {
 }
 
 object Decoder {
-  val kTopMask: Int = ~((1 << 24) - 1)
+  val kTopMask:              Int = ~((1 << 24) - 1)
   val kNumBitModelTotalBits: Int = 11
-  val kBitModelTotal: Int = 1 << kNumBitModelTotalBits
-  val kNumMoveBits: Int = 5
+  val kBitModelTotal:        Int = 1 << kNumBitModelTotalBits
+  val kNumMoveBits:          Int = 5
 
-  def initBitModels(probs: Array[Short]): Unit = {
+  def initBitModels(probs: Array[Short]): Unit =
     for (i <- probs.indices)
       probs(i) = (kBitModelTotal >>> 1).toShort
-  }
 }

@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/CustomTexture3DData.java
+ * Original authors: mgsx
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package glutils
@@ -82,7 +90,7 @@ class CustomTexture3DData(
     gl30.fold(
       onEmpty = throw SgeError.GraphicsError("GL30 is not available")
     )(
-      onValue = gl => gl.glTexImage3D(GL30.GL_TEXTURE_3D, mipMapLevel, glInternalFormat, width, height, depth, 0, glFormat, glType, pixels)
+      onSome = gl => gl.glTexImage3D(GL30.GL_TEXTURE_3D, mipMapLevel, glInternalFormat, width, height, depth, 0, glFormat, glType, pixels)
     )
   }
 }

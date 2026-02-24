@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/EarClippingTriangulator.java
+ * Original authors: badlogicgames@gmail.com, Nicolas Gramlich (optimizations, collinear edge support), Eric Spitz, Thomas ten Cate (bugfixes, optimizations), Nathan Sweet (rewrite, return indices, no allocation, optimizations)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 

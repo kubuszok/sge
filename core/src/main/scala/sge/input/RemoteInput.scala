@@ -1,10 +1,18 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/input/RemoteInput.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package input
 
 import java.io.{ DataInputStream, IOException }
 import java.net.{ InetAddress, ServerSocket, Socket }
 import scala.collection.mutable.ArrayBuffer
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import sge.Input.{ KeyboardHeightObserver, OnscreenKeyboardType, Orientation, Peripheral, VibrationType }
 import sge.input.NativeInputConfiguration
 
@@ -57,7 +65,7 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
     final val TOUCH_DRAGGED = 2
   }
 
-  class EventTrigger(touchEvent: TouchEvent, keyEvent: KeyEvent) extends Runnable {
+  class EventTrigger(touchEvent: Nullable[TouchEvent], keyEvent: Nullable[KeyEvent]) extends Runnable {
     override def run(): Unit = {
       justTouchedFlag = false
       if (keyJustPressed) {
@@ -66,81 +74,81 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
           justPressedKeys(i) = false
       }
 
-      if (processor != null) {
-        if (touchEvent != null) {
-          touchEvent.`type` match {
+      processor.fold {
+        touchEvent.foreach { te =>
+          te.`type` match {
             case TouchEvent.TOUCH_DOWN =>
-              deltaX(touchEvent.pointer) = 0
-              deltaY(touchEvent.pointer) = 0
-              processor.touchDown(touchEvent.x, touchEvent.y, touchEvent.pointer, Input.Buttons.LEFT)
-              touchedPointers(touchEvent.pointer) = true
+              deltaX(te.pointer) = 0
+              deltaY(te.pointer) = 0
+              touchedPointers(te.pointer) = true
               justTouchedFlag = true
             case TouchEvent.TOUCH_UP =>
-              deltaX(touchEvent.pointer) = 0
-              deltaY(touchEvent.pointer) = 0
-              processor.touchUp(touchEvent.x, touchEvent.y, touchEvent.pointer, Input.Buttons.LEFT)
-              touchedPointers(touchEvent.pointer) = false
+              deltaX(te.pointer) = 0
+              deltaY(te.pointer) = 0
+              touchedPointers(te.pointer) = false
             case TouchEvent.TOUCH_DRAGGED =>
-              deltaX(touchEvent.pointer) = touchEvent.x - touchX(touchEvent.pointer)
-              deltaY(touchEvent.pointer) = touchEvent.y - touchY(touchEvent.pointer)
-              processor.touchDragged(touchEvent.x, touchEvent.y, touchEvent.pointer)
+              deltaX(te.pointer) = te.x - touchX(te.pointer)
+              deltaY(te.pointer) = te.y - touchY(te.pointer)
           }
-          touchX(touchEvent.pointer) = touchEvent.x
-          touchY(touchEvent.pointer) = touchEvent.y
+          touchX(te.pointer) = te.x
+          touchY(te.pointer) = te.y
         }
-        if (keyEvent != null) {
-          keyEvent.`type` match {
-            case KeyEvent.KEY_DOWN =>
-              processor.keyDown(keyEvent.keyCode)
-              if (!keys(keyEvent.keyCode)) {
-                keyCount += 1
-                keys(keyEvent.keyCode) = true
-              }
-              keyJustPressed = true
-              justPressedKeys(keyEvent.keyCode) = true
-            case KeyEvent.KEY_UP =>
-              processor.keyUp(keyEvent.keyCode)
-              if (keys(keyEvent.keyCode)) {
-                keyCount -= 1
-                keys(keyEvent.keyCode) = false
-              }
-            case KeyEvent.KEY_TYPED =>
-              processor.keyTyped(keyEvent.keyChar)
-          }
-        }
-      } else {
-        if (touchEvent != null) {
-          touchEvent.`type` match {
-            case TouchEvent.TOUCH_DOWN =>
-              deltaX(touchEvent.pointer) = 0
-              deltaY(touchEvent.pointer) = 0
-              touchedPointers(touchEvent.pointer) = true
-              justTouchedFlag = true
-            case TouchEvent.TOUCH_UP =>
-              deltaX(touchEvent.pointer) = 0
-              deltaY(touchEvent.pointer) = 0
-              touchedPointers(touchEvent.pointer) = false
-            case TouchEvent.TOUCH_DRAGGED =>
-              deltaX(touchEvent.pointer) = touchEvent.x - touchX(touchEvent.pointer)
-              deltaY(touchEvent.pointer) = touchEvent.y - touchY(touchEvent.pointer)
-          }
-          touchX(touchEvent.pointer) = touchEvent.x
-          touchY(touchEvent.pointer) = touchEvent.y
-        }
-        if (keyEvent != null) {
-          if (keyEvent.`type` == KeyEvent.KEY_DOWN) {
-            if (!keys(keyEvent.keyCode)) {
+        keyEvent.foreach { ke =>
+          if (ke.`type` == KeyEvent.KEY_DOWN) {
+            if (!keys(ke.keyCode)) {
               keyCount += 1
-              keys(keyEvent.keyCode) = true
+              keys(ke.keyCode) = true
             }
             keyJustPressed = true
-            justPressedKeys(keyEvent.keyCode) = true
+            justPressedKeys(ke.keyCode) = true
           }
-          if (keyEvent.`type` == KeyEvent.KEY_UP) {
-            if (keys(keyEvent.keyCode)) {
+          if (ke.`type` == KeyEvent.KEY_UP) {
+            if (keys(ke.keyCode)) {
               keyCount -= 1
-              keys(keyEvent.keyCode) = false
+              keys(ke.keyCode) = false
             }
+          }
+        }
+      } { p =>
+        touchEvent.foreach { te =>
+          te.`type` match {
+            case TouchEvent.TOUCH_DOWN =>
+              deltaX(te.pointer) = 0
+              deltaY(te.pointer) = 0
+              p.touchDown(te.x, te.y, te.pointer, Input.Buttons.LEFT)
+              touchedPointers(te.pointer) = true
+              justTouchedFlag = true
+            case TouchEvent.TOUCH_UP =>
+              deltaX(te.pointer) = 0
+              deltaY(te.pointer) = 0
+              p.touchUp(te.x, te.y, te.pointer, Input.Buttons.LEFT)
+              touchedPointers(te.pointer) = false
+            case TouchEvent.TOUCH_DRAGGED =>
+              deltaX(te.pointer) = te.x - touchX(te.pointer)
+              deltaY(te.pointer) = te.y - touchY(te.pointer)
+              p.touchDragged(te.x, te.y, te.pointer)
+          }
+          touchX(te.pointer) = te.x
+          touchY(te.pointer) = te.y
+        }
+        keyEvent.foreach { ke =>
+          ke.`type` match {
+            case KeyEvent.KEY_DOWN =>
+              p.keyDown(ke.keyCode)
+              if (!keys(ke.keyCode)) {
+                keyCount += 1
+                keys(ke.keyCode) = true
+              }
+              keyJustPressed = true
+              justPressedKeys(ke.keyCode) = true
+            case KeyEvent.KEY_UP =>
+              p.keyUp(ke.keyCode)
+              if (keys(ke.keyCode)) {
+                keyCount -= 1
+                keys(ke.keyCode) = false
+              }
+            case KeyEvent.KEY_TYPED =>
+              p.keyTyped(ke.keyChar)
           }
         }
       }
@@ -156,18 +164,18 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   private var remoteHeight: Float   = 0f
   private var connected:    Boolean = false
 
-  var keyCount:        Int            = 0
-  val keys:            Array[Boolean] = Array.ofDim[Boolean](256)
-  var keyJustPressed:  Boolean        = false
-  val justPressedKeys: Array[Boolean] = Array.ofDim[Boolean](256)
-  val deltaX:          Array[Int]     = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
-  val deltaY:          Array[Int]     = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
-  val touchX:          Array[Int]     = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
-  val touchY:          Array[Int]     = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
-  val touchedPointers: Array[Boolean] = Array.ofDim[Boolean](RemoteInput.MAX_TOUCHES)
-  var justTouchedFlag: Boolean        = false
-  var processor:       InputProcessor = null
-  val ips: Array[String] =
+  var keyCount:        Int                      = 0
+  val keys:            Array[Boolean]           = Array.ofDim[Boolean](256)
+  var keyJustPressed:  Boolean                  = false
+  val justPressedKeys: Array[Boolean]           = Array.ofDim[Boolean](256)
+  val deltaX:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val deltaY:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val touchX:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val touchY:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val touchedPointers: Array[Boolean]           = Array.ofDim[Boolean](RemoteInput.MAX_TOUCHES)
+  var justTouchedFlag: Boolean                  = false
+  var processor:       Nullable[InputProcessor] = Nullable.empty
+  val ips:             Array[String]            =
     try {
       serverSocket = new ServerSocket(port)
       val thread = new Thread(this)
@@ -200,8 +208,8 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
         multiTouch = in.readBoolean()
         while (true) {
           val event = in.readInt()
-          var keyEvent:   KeyEvent   = null
-          var touchEvent: TouchEvent = null
+          var keyEvent:   Nullable[KeyEvent]   = Nullable.empty
+          var touchEvent: Nullable[TouchEvent] = Nullable.empty
           event match {
             case RemoteSender.ACCEL =>
               accel(0) = in.readFloat()
@@ -219,35 +227,41 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
               gyrate(1) = in.readFloat()
               gyrate(2) = in.readFloat()
             case RemoteSender.KEY_DOWN =>
-              keyEvent = new KeyEvent()
-              keyEvent.keyCode = in.readInt()
-              keyEvent.`type` = KeyEvent.KEY_DOWN
+              val ke = new KeyEvent()
+              ke.keyCode = in.readInt()
+              ke.`type` = KeyEvent.KEY_DOWN
+              keyEvent = Nullable(ke)
             case RemoteSender.KEY_UP =>
-              keyEvent = new KeyEvent()
-              keyEvent.keyCode = in.readInt()
-              keyEvent.`type` = KeyEvent.KEY_UP
+              val ke = new KeyEvent()
+              ke.keyCode = in.readInt()
+              ke.`type` = KeyEvent.KEY_UP
+              keyEvent = Nullable(ke)
             case RemoteSender.KEY_TYPED =>
-              keyEvent = new KeyEvent()
-              keyEvent.keyChar = in.readChar()
-              keyEvent.`type` = KeyEvent.KEY_TYPED
+              val ke = new KeyEvent()
+              ke.keyChar = in.readChar()
+              ke.`type` = KeyEvent.KEY_TYPED
+              keyEvent = Nullable(ke)
             case RemoteSender.TOUCH_DOWN =>
-              touchEvent = new TouchEvent()
-              touchEvent.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              touchEvent.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
-              touchEvent.pointer = in.readInt()
-              touchEvent.`type` = TouchEvent.TOUCH_DOWN
+              val te = new TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
+              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              te.pointer = in.readInt()
+              te.`type` = TouchEvent.TOUCH_DOWN
+              touchEvent = Nullable(te)
             case RemoteSender.TOUCH_UP =>
-              touchEvent = new TouchEvent()
-              touchEvent.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              touchEvent.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
-              touchEvent.pointer = in.readInt()
-              touchEvent.`type` = TouchEvent.TOUCH_UP
+              val te = new TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
+              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              te.pointer = in.readInt()
+              te.`type` = TouchEvent.TOUCH_UP
+              touchEvent = Nullable(te)
             case RemoteSender.TOUCH_DRAGGED =>
-              touchEvent = new TouchEvent()
-              touchEvent.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              touchEvent.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
-              touchEvent.pointer = in.readInt()
-              touchEvent.`type` = TouchEvent.TOUCH_DRAGGED
+              val te = new TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
+              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              te.pointer = in.readInt()
+              te.`type` = TouchEvent.TOUCH_DRAGGED
+              touchEvent = Nullable(te)
           }
 
           // TODO: Post this to main thread when Application interface is available
@@ -319,8 +333,8 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   override def getRoll():                                                                                       Float          = compass(2)
   override def setCatchKey(keycode:                Int, catchKey:   Boolean):                                   Unit           = {}
   override def isCatchKey(keycode:                 Int):                                                        Boolean        = false
-  override def setInputProcessor(processor:        InputProcessor):                                             Unit           = this.processor = processor
-  override def getInputProcessor():                                                                             InputProcessor = this.processor
+  override def setInputProcessor(processor:        InputProcessor):                                             Unit           = this.processor = Nullable(processor)
+  override def getInputProcessor():                                                                             InputProcessor = this.processor.orNull
 
   /** @return
     *   the IP addresses {@link RemoteSender} or gdx-remote should connect to. Most likely the LAN addresses if behind a NAT.

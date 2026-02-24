@@ -1,3 +1,14 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/Vector.java
+ *                  com/badlogic/gdx/math/Vector2.java
+ *                  com/badlogic/gdx/math/Vector3.java
+ *                  com/badlogic/gdx/math/Vector4.java
+ * Original authors: badlogicgames@gmail.com, Xoppa, Antz
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 

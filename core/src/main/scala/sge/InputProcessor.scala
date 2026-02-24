@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/InputProcessor.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 
 /** An InputProcessor is used to receive input events from the keyboard and the touch screen (mouse on the desktop). For this it has to be registered with the
@@ -16,7 +24,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def keyDown(keycode: Int): Boolean
+  def keyDown(keycode: Int): Boolean = false
 
   /** Called when a key was released
     *
@@ -25,7 +33,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def keyUp(keycode: Int): Boolean
+  def keyUp(keycode: Int): Boolean = false
 
   /** Called when a key was typed
     *
@@ -34,7 +42,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def keyTyped(character: Char): Boolean
+  def keyTyped(character: Char): Boolean = false
 
   /** Called when the screen was touched or a mouse button was pressed. The button parameter will be {@link Buttons#LEFT} on iOS.
     * @param screenX
@@ -48,7 +56,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean
+  def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
 
   /** Called when a finger was lifted or a mouse button was released. The button parameter will be {@link Buttons#LEFT} on iOS.
     * @param pointer
@@ -58,7 +66,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean
+  def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
 
   /** Called when the touch gesture is cancelled. Reason may be from OS interruption to touch becoming a large surface such as the user cheek). Relevant on Android and iOS only. The button parameter
     * will be {@link Buttons#LEFT} on iOS.
@@ -69,7 +77,7 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean
+  def touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean = false
 
   /** Called when a finger or the mouse was dragged.
     * @param pointer
@@ -77,13 +85,13 @@ trait InputProcessor {
     * @return
     *   whether the input was processed
     */
-  def touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean
+  def touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean = false
 
   /** Called when the mouse was moved without any buttons being pressed. Will not be called on iOS.
     * @return
     *   whether the input was processed
     */
-  def mouseMoved(screenX: Int, screenY: Int): Boolean
+  def mouseMoved(screenX: Int, screenY: Int): Boolean = false
 
   /** Called when the mouse wheel was scrolled. Will not be called on iOS.
     * @param amountX
@@ -93,5 +101,5 @@ trait InputProcessor {
     * @return
     *   whether the input was processed.
     */
-  def scrolled(amountX: Float, amountY: Float): Boolean
+  def scrolled(amountX: Float, amountY: Float): Boolean = false
 }

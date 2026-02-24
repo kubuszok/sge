@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/LifecycleListener.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 
 /** A LifecycleListener can be added to an {@link Application} via {@link Application#addLifecycleListener(LifecycleListener)} . It will receive notification of pause, resume and dispose events. This

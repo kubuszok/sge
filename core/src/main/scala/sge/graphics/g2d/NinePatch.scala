@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g2d/NinePatch.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package g2d
@@ -269,7 +277,11 @@ class NinePatch {
     } else
       bottomRight = -1
     if (patches(NinePatch.MIDDLE_LEFT) != null) {
-      middleLeft = add(patches(NinePatch.MIDDLE_LEFT), isStretchW = false, patches(NinePatch.TOP_LEFT) != null || patches(NinePatch.BOTTOM_LEFT) != null)
+      middleLeft = add(
+        patches(NinePatch.MIDDLE_LEFT),
+        isStretchW = false,
+        patches(NinePatch.TOP_LEFT) != null || patches(NinePatch.BOTTOM_LEFT) != null
+      )
       leftWidth = Math.max(leftWidth, patches(NinePatch.MIDDLE_LEFT).getRegionWidth().toFloat)
       middleHeight = Math.max(middleHeight, patches(NinePatch.MIDDLE_LEFT).getRegionHeight().toFloat)
     } else

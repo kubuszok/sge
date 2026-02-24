@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git submodule:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(sbt --client:*)",
+      "Bash(python3:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:www.scala-sbt.org)",
+      "Bash(done)",
+      "Bash(sbt --client scalafmt:*)",
+      "Bash(sbt --client scalafmtAll:*)",
+      "Bash(java -version:*)",
+      "Bash(sbt:*)",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(# Check what unported scene2d ui classes depend on each other for cls in Container Dialog ScrollPane Skin TextField SelectBox ProgressBar Slider Window List Tooltip TextTooltip Tree HorizontalGroup VerticalGroup SplitPane TextArea; do echo \"\"=== $cls depends on ===\"\" grep \"\"import.*scene2d\\\\.ui\\\\.\"\" libgdx/gdx/src/com/badlogic/gdx/scenes/scene2d/ui/$cls.java)",
+      "Bash(# See which 11 files reference Skin grep -rl \"\"\\\\bSkin\\\\b\"\" /Users/dev/Workspaces/GitHub/sge-porting/.claude/worktrees/elegant-imagining-walrus/core/src/main/scala/sge/)",
+      "Bash(# Quick check: does the project currently compile? # Let''s look at any existing notes about compilation status grep -rn \"\"TODO\\\\|FIXME\\\\|HACK\\\\|XXX\\\\|DOES NOT COMPILE\\\\|compilation\"\" /Users/dev/Workspaces/GitHub/sge-porting/.claude/worktrees/elegant-imagining-walrus/CHANGES.md)",
+      "Bash(sort:*)",
+      "Bash(/usr/bin/grep:*)"
+    ]
+  }
+}

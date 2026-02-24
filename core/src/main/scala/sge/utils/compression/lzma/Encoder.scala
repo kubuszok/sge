@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/lzma/Encoder.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 package compression
@@ -492,7 +500,7 @@ class Encoder {
         if (lenTest2 >= 2) {
           val state2 = Base.stateUpdateChar(state)
 
-          val posStateNext = (position + 1) & _posStateMask
+          val posStateNext      = (position + 1) & _posStateMask
           val nextRepMatchPrice = curAnd1Price
             + sge.utils.compression.rangecoder.Encoder.getPrice1(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
             + sge.utils.compression.rangecoder.Encoder.getPrice1(_isRep(state2))
@@ -550,7 +558,7 @@ class Encoder {
           if (lenTest2 >= 2) {
             var state2 = Base.stateUpdateRep(state)
 
-            var posStateNext = (position + lenTest) & _posStateMask
+            var posStateNext       = (position + lenTest) & _posStateMask
             val curAndLenCharPrice = repMatchPrice + getRepPrice(repIndex, lenTest, state, posState)
               + sge.utils.compression.rangecoder.Encoder.getPrice0(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
               + _literalEncoder
@@ -558,7 +566,7 @@ class Encoder {
                 .getPrice(true, _matchFinder.getIndexByte(lenTest - (reps(repIndex) + 1)), _matchFinder.getIndexByte(lenTest - 1))
             state2 = Base.stateUpdateChar(state2)
             posStateNext = (position + lenTest + 1) & _posStateMask
-            val nextMatchPrice = curAndLenCharPrice + sge.utils.compression.rangecoder.Encoder.getPrice1(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
+            val nextMatchPrice    = curAndLenCharPrice + sge.utils.compression.rangecoder.Encoder.getPrice1(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
             val nextRepMatchPrice = nextMatchPrice
               + sge.utils.compression.rangecoder.Encoder.getPrice1(_isRep(state2))
 
@@ -632,7 +640,7 @@ class Encoder {
                     .getPrice(true, _matchFinder.getIndexByte(startLen - (curBack + 1) - 1), _matchFinder.getIndexByte(startLen - 1))
                 state2 = Base.stateUpdateChar(state2)
                 posStateNext = (position + startLen + 1) & _posStateMask
-                val nextMatchPrice = curAndLenCharPrice + sge.utils.compression.rangecoder.Encoder.getPrice1(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
+                val nextMatchPrice    = curAndLenCharPrice + sge.utils.compression.rangecoder.Encoder.getPrice1(_isMatch((state2 << Base.kNumPosStatesBitsMax) + posStateNext))
                 val nextRepMatchPrice = nextMatchPrice
                   + sge.utils.compression.rangecoder.Encoder.getPrice1(_isRep(state2))
 
@@ -985,10 +993,10 @@ class Encoder {
 
 object Encoder {
   // Static members (converted types)
-  final val EMatchFinderTypeBT2: Int = 0
-  final val EMatchFinderTypeBT4: Int = 1
-  final val kIfinityPrice:       Int = 0xfffffff
-  val g_FastPos: Array[Byte] = {
+  final val EMatchFinderTypeBT2: Int         = 0
+  final val EMatchFinderTypeBT4: Int         = 1
+  final val kIfinityPrice:       Int         = 0xfffffff
+  val g_FastPos:                 Array[Byte] = {
     val arr        = Array.ofDim[Byte](1 << 11)
     val kFastSlots = 22
     var c          = 2

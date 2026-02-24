@@ -1,17 +1,24 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/rangecoder/BitTreeEncoder.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.rangecoder
 
 import java.io.IOException
 
 class BitTreeEncoder(numBitLevels: Int) {
-  val NumBitLevels: Int = numBitLevels
-  val Models: Array[Short] = Array.ofDim[Short](1 << numBitLevels)
+  val NumBitLevels: Int          = numBitLevels
+  val Models:       Array[Short] = Array.ofDim[Short](1 << numBitLevels)
 
-  def init(): Unit = {
+  def init(): Unit =
     Decoder.initBitModels(Models)
-  }
 
   def encode(rangeEncoder: Encoder, symbol: Int): Unit = {
-    var m = 1
+    var m        = 1
     var bitIndex = NumBitLevels
     while (bitIndex != 0) {
       bitIndex -= 1
@@ -33,8 +40,8 @@ class BitTreeEncoder(numBitLevels: Int) {
   }
 
   def getPrice(symbol: Int): Int = {
-    var price = 0
-    var m = 1
+    var price    = 0
+    var m        = 1
     var bitIndex = NumBitLevels
     while (bitIndex != 0) {
       bitIndex -= 1
@@ -47,9 +54,9 @@ class BitTreeEncoder(numBitLevels: Int) {
 
   def reverseGetPrice(symbol: Int): Int = {
     var price = 0
-    var m = 1
-    var s = symbol
-    var i = NumBitLevels
+    var m     = 1
+    var s     = symbol
+    var i     = NumBitLevels
     while (i != 0) {
       val bit = s & 1
       s >>>= 1
@@ -64,9 +71,9 @@ class BitTreeEncoder(numBitLevels: Int) {
 object BitTreeEncoder {
   def reverseGetPrice(models: Array[Short], startIndex: Int, numBitLevels: Int, symbol: Int): Int = {
     var price = 0
-    var m = 1
-    var s = symbol
-    var i = numBitLevels
+    var m     = 1
+    var s     = symbol
+    var i     = numBitLevels
     while (i != 0) {
       val bit = s & 1
       s >>>= 1

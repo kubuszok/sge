@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/ApplicationListener.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 
 /** <p> An <code>ApplicationListener</code> is called when the {@link Application} is created, resumed, rendering, paused or destroyed. All methods are called in a thread that has the OpenGL context

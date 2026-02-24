@@ -1,3 +1,6 @@
+/*
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -13,7 +16,7 @@ enum Eval[A] { fa =>
   final def flatten[B](implicit ev: A <:< Eval[B]): Eval[B] = flatMap(ev)
   final def flatTap[B](f:           A => Eval[B]):  Eval[A] = flatMap(a => f(a).as(a))
 
-  final def map[B](f: A => B): Eval[B] = flatMap(a => Pure(f(a)))
+  final def map[B](f: A => B):    Eval[B] = flatMap(a => Pure(f(a)))
   final def mapTap[B](f: A => B): Eval[A] = map { a =>
     val _ = f(a)
     a

@@ -1,8 +1,16 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/lzma/Base.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.lzma
 
 object Base {
   val kNumRepDistances: Int = 4
-  val kNumStates: Int = 12
+  val kNumStates:       Int = 12
 
   def stateInit(): Int = 0
 
@@ -23,12 +31,12 @@ object Base {
   def stateIsCharState(index: Int): Boolean = index < 7
 
   val kNumPosSlotBits: Int = 6
-  val kDicLogSizeMin: Int = 0
+  val kDicLogSizeMin:  Int = 0
   // val kDicLogSizeMax: Int = 28
   // val kDistTableSizeMax: Int = kDicLogSizeMax * 2
 
   val kNumLenToPosStatesBits: Int = 2 // it's for speed optimization
-  val kNumLenToPosStates: Int = 1 << kNumLenToPosStatesBits
+  val kNumLenToPosStates:     Int = 1 << kNumLenToPosStatesBits
 
   val kMatchMinLen: Int = 2
 
@@ -37,29 +45,29 @@ object Base {
     if (l < kNumLenToPosStates) l else kNumLenToPosStates - 1
   }
 
-  val kNumAlignBits: Int = 4
+  val kNumAlignBits:   Int = 4
   val kAlignTableSize: Int = 1 << kNumAlignBits
-  val kAlignMask: Int = kAlignTableSize - 1
+  val kAlignMask:      Int = kAlignTableSize - 1
 
   val kStartPosModelIndex: Int = 4
-  val kEndPosModelIndex: Int = 14
-  val kNumPosModels: Int = kEndPosModelIndex - kStartPosModelIndex
+  val kEndPosModelIndex:   Int = 14
+  val kNumPosModels:       Int = kEndPosModelIndex - kStartPosModelIndex
 
   val kNumFullDistances: Int = 1 << (kEndPosModelIndex / 2)
 
   val kNumLitPosStatesBitsEncodingMax: Int = 4
-  val kNumLitContextBitsMax: Int = 8
+  val kNumLitContextBitsMax:           Int = 8
 
-  val kNumPosStatesBitsMax: Int = 4
-  val kNumPosStatesMax: Int = 1 << kNumPosStatesBitsMax
+  val kNumPosStatesBitsMax:         Int = 4
+  val kNumPosStatesMax:             Int = 1 << kNumPosStatesBitsMax
   val kNumPosStatesBitsEncodingMax: Int = 4
-  val kNumPosStatesEncodingMax: Int = 1 << kNumPosStatesBitsEncodingMax
+  val kNumPosStatesEncodingMax:     Int = 1 << kNumPosStatesBitsEncodingMax
 
-  val kNumLowLenBits: Int = 3
-  val kNumMidLenBits: Int = 3
-  val kNumHighLenBits: Int = 8
+  val kNumLowLenBits:    Int = 3
+  val kNumMidLenBits:    Int = 3
+  val kNumHighLenBits:   Int = 8
   val kNumLowLenSymbols: Int = 1 << kNumLowLenBits
   val kNumMidLenSymbols: Int = 1 << kNumMidLenBits
-  val kNumLenSymbols: Int = kNumLowLenSymbols + kNumMidLenSymbols + (1 << kNumHighLenBits)
-  val kMatchMaxLen: Int = kMatchMinLen + kNumLenSymbols - 1
+  val kNumLenSymbols:    Int = kNumLowLenSymbols + kNumMidLenSymbols + (1 << kNumHighLenBits)
+  val kMatchMaxLen:      Int = kMatchMinLen + kNumLenSymbols - 1
 }

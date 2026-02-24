@@ -1,0 +1,426 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/scenes/scene2d/ui/List.java
+ * Original authors: mzechner, Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package scenes
+package scene2d
+package ui
+
+import scala.collection.mutable.ArrayBuffer
+
+import sge.graphics.Color
+import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
+import sge.math.Rectangle
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
+import sge.scenes.scene2d.utils.{ ArraySelection, Cullable, Drawable, UIUtils }
+import sge.utils.{ Align, Nullable }
+
+/** A list (aka list box) displays textual items and highlights the currently selected item. <p> {@link ChangeEvent} is fired when the list selection changes. <p> The preferred size of the list is
+  * determined by the text bounds of the items and the size of the {@link ListStyle#selection}.
+  * @author
+  *   mzechner
+  * @author
+  *   Nathan Sweet
+  */
+class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with Cullable with Styleable[SgeList.ListStyle] {
+  import SgeList._
+
+  private var _style:      ListStyle           = scala.compiletime.uninitialized
+  val items:               ArrayBuffer[T]      = ArrayBuffer.empty
+  var selection:           ArraySelection[T]   = new ArraySelection(items)
+  private var cullingArea: Nullable[Rectangle] = Nullable.empty
+  private var _prefWidth:  Float               = 0f
+  private var _prefHeight: Float               = 0f
+  var itemHeight:          Float               = 0f
+  private var alignment:   Align               = Align.left
+  var pressedIndex:        Int                 = -1
+  var overIndex:           Int                 = -1
+  private var keyListener: InputListener       = scala.compiletime.uninitialized
+  var typeToSelect:        Boolean             = false
+
+  selection.setActor(Nullable(this))
+  selection.setRequired(true)
+
+  setStyle(style)
+  setSize(getPrefWidth, getPrefHeight)
+
+  val self = this
+  keyListener = new InputListener() {
+    var typeTimeout: Long   = 0L
+    var prefix:      String = ""
+
+    override def keyDown(event: InputEvent, keycode: Int): Boolean = scala.util.boundary {
+      if (self.items.isEmpty) scala.util.boundary.break(false)
+      keycode match {
+        case Input.Keys.A =>
+          if (UIUtils.ctrl() && self.selection.getMultiple) {
+            self.selection.clear()
+            self.selection.addAll(self.items)
+            scala.util.boundary.break(true)
+          }
+        case Input.Keys.HOME =>
+          self.setSelectedIndex(0)
+          scala.util.boundary.break(true)
+        case Input.Keys.END =>
+          self.setSelectedIndex(self.items.size - 1)
+          scala.util.boundary.break(true)
+        case Input.Keys.DOWN =>
+          var index = self.items.indexOf(self.getSelected.getOrElse(null.asInstanceOf[T])) + 1
+          if (index >= self.items.size) index = 0
+          self.setSelectedIndex(index)
+          scala.util.boundary.break(true)
+        case Input.Keys.UP =>
+          var index = self.items.indexOf(self.getSelected.getOrElse(null.asInstanceOf[T])) - 1
+          if (index < 0) index = self.items.size - 1
+          self.setSelectedIndex(index)
+          scala.util.boundary.break(true)
+        case Input.Keys.ESCAPE =>
+          self.getStage.foreach(_.setKeyboardFocus(Nullable.empty))
+          scala.util.boundary.break(true)
+        case _ =>
+      }
+      false
+    }
+
+    override def keyTyped(event: InputEvent, character: Char): Boolean = scala.util.boundary {
+      if (!self.typeToSelect) scala.util.boundary.break(false)
+      val time = System.currentTimeMillis()
+      if (time > typeTimeout) prefix = ""
+      typeTimeout = time + 300
+      prefix += character.toLower
+      var i = 0
+      while (i < self.items.size) {
+        if (self.itemToString(self.items(i)).toLowerCase().startsWith(prefix)) {
+          self.setSelectedIndex(i)
+          scala.util.boundary.break(false)
+        }
+        i += 1
+      }
+      false
+    }
+  }
+  addListener(keyListener)
+
+  addListener(
+    new InputListener() {
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = scala.util.boundary {
+        if (pointer != 0 || button != 0) scala.util.boundary.break(true)
+        if (self.selection.isDisabled) scala.util.boundary.break(true)
+        self.getStage.foreach(_.setKeyboardFocus(Nullable(self)))
+        if (self.items.isEmpty) scala.util.boundary.break(true)
+        val index = self.getItemIndexAt(y)
+        if (index == -1) scala.util.boundary.break(true)
+        self.selection.choose(self.items(index))
+        self.pressedIndex = index
+        true
+      }
+
+      override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Unit =
+        if (pointer == 0 && button == 0) {
+          self.pressedIndex = -1
+        }
+
+      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+        self.overIndex = self.getItemIndexAt(y)
+
+      override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
+        self.overIndex = self.getItemIndexAt(y)
+        false
+      }
+
+      override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit = {
+        if (pointer == 0) self.pressedIndex = -1
+        if (pointer == -1) self.overIndex = -1
+      }
+    }
+  )
+
+  // Skin constructors commented out until Skin is ported
+  // def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[ListStyle]))
+  // def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[ListStyle]))
+
+  override def setStyle(style: ListStyle): Unit = {
+    if (style == null) throw new IllegalArgumentException("style cannot be null.")
+    this._style = style
+    invalidateHierarchy()
+  }
+
+  /** Returns the list's style. Modifying the returned style may not have an effect until {@link #setStyle(ListStyle)} is called.
+    */
+  override def getStyle: ListStyle = _style
+
+  override def layout(): Unit = {
+    val font             = _style.font
+    val selectedDrawable = _style.selection
+
+    itemHeight = font.getCapHeight() - font.getDescent() * 2
+    itemHeight += selectedDrawable.getTopHeight + selectedDrawable.getBottomHeight
+
+    _prefWidth = 0
+    val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
+    val glyphLayout = layoutPool.obtain()
+    var i           = 0
+    while (i < items.size) {
+      glyphLayout.setText(font, itemToString(items(i)))
+      _prefWidth = Math.max(glyphLayout.width, _prefWidth)
+      i += 1
+    }
+    layoutPool.free(glyphLayout)
+    _prefWidth += selectedDrawable.getLeftWidth + selectedDrawable.getRightWidth
+    _prefHeight = items.size * itemHeight
+
+    _style.background.foreach { background =>
+      _prefWidth = Math.max(_prefWidth + background.getLeftWidth + background.getRightWidth, background.getMinWidth)
+      _prefHeight = Math.max(_prefHeight + background.getTopHeight + background.getBottomHeight, background.getMinHeight)
+    }
+  }
+
+  override def draw(batch: Batch, parentAlpha: Float): Unit = scala.util.boundary {
+    validate()
+
+    drawBackground(batch, parentAlpha)
+
+    val font                = _style.font
+    val selectedDrawable    = _style.selection
+    val fontColorSelected   = _style.fontColorSelected
+    val fontColorUnselected = _style.fontColorUnselected
+
+    val color = getColor
+    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+
+    var x      = getX
+    val y      = getY
+    var width  = getWidth
+    val height = getHeight
+    var itemY  = height
+
+    _style.background.foreach { background =>
+      val leftWidth = background.getLeftWidth
+      x += leftWidth
+      itemY -= background.getTopHeight
+      width -= leftWidth + background.getRightWidth
+    }
+
+    val textOffsetX = selectedDrawable.getLeftWidth
+    val textWidth   = width - textOffsetX - selectedDrawable.getRightWidth
+    val textOffsetY = selectedDrawable.getTopHeight - font.getDescent()
+
+    font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
+    var i = 0
+    while (i < items.size) {
+      val canDraw = cullingArea.fold(true) { ca =>
+        itemY - itemHeight <= ca.y + ca.height && itemY >= ca.y
+      }
+      if (canDraw) {
+        val item     = items(i)
+        val selected = selection.contains(Nullable(item))
+        var drawable: Nullable[Drawable] = Nullable.empty
+        if (pressedIndex == i && _style.down.isDefined)
+          drawable = _style.down
+        else if (selected) {
+          drawable = Nullable(selectedDrawable)
+          font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
+        } else if (overIndex == i && _style.over.isDefined)
+          drawable = _style.over
+        drawSelection(batch, drawable, x, y + itemY - itemHeight, width, itemHeight)
+        drawItem(batch, font, i, item, x + textOffsetX, y + itemY - textOffsetY, textWidth)
+        if (selected) {
+          font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
+        }
+      } else if (cullingArea.fold(false)(ca => itemY < ca.y)) {
+        scala.util.boundary.break()
+      }
+      itemY -= itemHeight
+      i += 1
+    }
+  }
+
+  protected def drawSelection(batch: Batch, drawable: Nullable[Drawable], x: Float, y: Float, width: Float, height: Float): Unit =
+    drawable.foreach(_.draw(batch, x, y, width, height))
+
+  /** Called to draw the background. Default implementation draws the style background drawable. */
+  protected def drawBackground(batch: Batch, parentAlpha: Float): Unit =
+    _style.background.foreach { background =>
+      val color = getColor
+      batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+      background.draw(batch, getX, getY, getWidth, getHeight)
+    }
+
+  protected def drawItem(batch: Batch, font: BitmapFont, index: Int, item: T, x: Float, y: Float, width: Float): GlyphLayout = {
+    val string = itemToString(item)
+    font.draw(batch, string, x, y, 0, string.length(), width, alignment.toInt, false, Nullable("..."))
+  }
+
+  def getSelection: ArraySelection[T] = selection
+
+  def setSelection(selection: ArraySelection[T]): Unit =
+    this.selection = selection
+
+  /** Returns the first selected item, or null. */
+  def getSelected: Nullable[T] = selection.first
+
+  /** Sets the selection to only the passed item, if it is a possible choice.
+    * @param item
+    *   May be null.
+    */
+  def setSelected(item: Nullable[T]): Unit =
+    if (item.fold(false)(i => items.contains(i)))
+      selection.set(item.orNull)
+    else if (selection.getRequired && items.nonEmpty)
+      selection.set(items.head)
+    else
+      selection.clear()
+
+  /** @return The index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1. */
+  def getSelectedIndex: Int = {
+    val selected = selection.items
+    if (selected.isEmpty) -1 else items.indexOf(selected.head)
+  }
+
+  /** Sets the selection to only the selected index.
+    * @param index
+    *   -1 to clear the selection.
+    */
+  def setSelectedIndex(index: Int): Unit = {
+    if (index < -1 || index >= items.size)
+      throw new IllegalArgumentException("index must be >= -1 and < " + items.size + ": " + index)
+    if (index == -1) {
+      selection.clear()
+    } else {
+      selection.set(items(index))
+    }
+  }
+
+  /** @return May be null. */
+  def getOverItem: Nullable[T] =
+    if (overIndex == -1) Nullable.empty else Nullable(items(overIndex))
+
+  /** @return May be null. */
+  def getPressedItem: Nullable[T] =
+    if (pressedIndex == -1) Nullable.empty else Nullable(items(pressedIndex))
+
+  /** @return null if not over an item. */
+  def getItemAt(y: Float): Nullable[T] = {
+    val index = getItemIndexAt(y)
+    if (index == -1) Nullable.empty else Nullable(items(index))
+  }
+
+  /** @return -1 if not over an item. */
+  def getItemIndexAt(y: Float): Int = {
+    var adjustedY = y
+    val height    = getHeight
+    _style.background.foreach { background =>
+      adjustedY -= background.getBottomHeight
+    }
+    val bgHeight = _style.background.fold(height)(bg => height - bg.getTopHeight - bg.getBottomHeight)
+    val index    = ((bgHeight - adjustedY) / itemHeight).toInt
+    if (index < 0 || index >= items.size) -1 else index
+  }
+
+  /** Sets the items visible in the list, clearing the selection if it is no longer valid. If a selection is {@link ArraySelection#getRequired()}, the first item is selected. This can safely be called
+    * with a (modified) array returned from {@link #getItems()}.
+    */
+  def setItems(newItems: ArrayBuffer[T]): Unit = {
+    if (newItems == null) throw new IllegalArgumentException("newItems cannot be null.")
+    val oldPrefWidth  = getPrefWidth
+    val oldPrefHeight = getPrefHeight
+
+    if (newItems ne items) {
+      items.clear()
+      items.addAll(newItems)
+    }
+    overIndex = -1
+    pressedIndex = -1
+    selection.validate()
+
+    invalidate()
+    if (oldPrefWidth != getPrefWidth || oldPrefHeight != getPrefHeight) invalidateHierarchy()
+  }
+
+  def clearItems(): Unit =
+    if (items.nonEmpty) {
+      items.clear()
+      overIndex = -1
+      pressedIndex = -1
+      selection.clear()
+      invalidateHierarchy()
+    }
+
+  /** Returns the internal items array. If modified, {@link #setItems(ArrayBuffer)} must be called to reflect the changes. */
+  def getItems: ArrayBuffer[T] = items
+
+  def getItemHeight: Float = itemHeight
+
+  override def getPrefWidth: Float = { validate(); _prefWidth }
+
+  override def getPrefHeight: Float = { validate(); _prefHeight }
+
+  def itemToString(obj: T): String = obj.toString
+
+  override def setCullingArea(cullingArea: Nullable[Rectangle]): Unit =
+    this.cullingArea = cullingArea
+
+  /** @return
+    *   May be null.
+    * @see
+    *   #setCullingArea(Rectangle)
+    */
+  def getCullingArea: Nullable[Rectangle] = cullingArea
+
+  /** Sets the horizontal alignment of the list items.
+    * @param alignment
+    *   See {@link Align}.
+    */
+  def setAlignment(alignment: Align): Unit =
+    this.alignment = alignment
+
+  def getAlignment: Align = alignment
+
+  def setTypeToSelect(typeToSelect: Boolean): Unit =
+    this.typeToSelect = typeToSelect
+
+  def getKeyListener: InputListener = keyListener
+}
+
+object SgeList {
+
+  /** The style for a list, see {@link SgeList}.
+    * @author
+    *   mzechner
+    * @author
+    *   Nathan Sweet
+    */
+  class ListStyle() {
+    var font:                BitmapFont         = scala.compiletime.uninitialized
+    var fontColorSelected:   Color              = new Color(1, 1, 1, 1)
+    var fontColorUnselected: Color              = new Color(1, 1, 1, 1)
+    var selection:           Drawable           = scala.compiletime.uninitialized
+    var down:                Nullable[Drawable] = Nullable.empty
+    var over:                Nullable[Drawable] = Nullable.empty
+    var background:          Nullable[Drawable] = Nullable.empty
+
+    def this(font: BitmapFont, fontColorSelected: Color, fontColorUnselected: Color, selection: Drawable) = {
+      this()
+      this.font = font
+      this.fontColorSelected.set(fontColorSelected)
+      this.fontColorUnselected.set(fontColorUnselected)
+      this.selection = selection
+    }
+
+    def this(style: ListStyle) = {
+      this()
+      font = style.font
+      fontColorSelected.set(style.fontColorSelected)
+      fontColorUnselected.set(style.fontColorUnselected)
+      selection = style.selection
+      down = style.down
+      over = style.over
+      background = style.background
+    }
+  }
+}

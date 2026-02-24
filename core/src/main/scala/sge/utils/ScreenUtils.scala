@@ -1,0 +1,159 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/ScreenUtils.java
+ * Original authors: espitz
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package utils
+
+import java.nio.{ Buffer, ByteBuffer }
+import sge.graphics.{ Color, GL20 }
+// TODO: Uncomment when Pixmap.createFromFrameBuffer is ported
+// import sge.graphics.{ Pixmap, Texture }
+// import sge.graphics.Pixmap.{ Blending, Format }
+// import sge.graphics.g2d.TextureRegion
+// import sge.math.MathUtils
+
+/** Class with static helper methods related to currently bound OpenGL frame buffer, including access to the current OpenGL FrameBuffer. These methods can be used to get the entire screen content or a
+  * portion thereof.
+  *
+  * @author
+  *   espitz (original implementation)
+  */
+object ScreenUtils {
+
+  /** Clears the color buffers with the specified Color.
+    * @param color
+    *   Color to clear the color buffers with.
+    */
+  def clear(color: Color)(using sge: Sge): Unit =
+    clear(color.r, color.g, color.b, color.a, false)
+
+  /** Clears the color buffers with the specified color. */
+  def clear(r: Float, g: Float, b: Float, a: Float)(using sge: Sge): Unit =
+    clear(r, g, b, a, false)
+
+  /** Clears the color buffers and optionally the depth buffer.
+    * @param color
+    *   Color to clear the color buffers with.
+    * @param clearDepth
+    *   Clears the depth buffer if true.
+    */
+  def clear(color: Color, clearDepth: Boolean)(using sge: Sge): Unit =
+    clear(color.r, color.g, color.b, color.a, clearDepth)
+
+  /** Clears the color buffers and optionally the depth buffer.
+    * @param clearDepth
+    *   Clears the depth buffer if true.
+    */
+  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean)(using sge: Sge): Unit =
+    clear(r, g, b, a, clearDepth, false)
+
+  /** Clears the color buffers, optionally the depth buffer and whether to apply antialiasing (requires to set number of samples in the launcher class).
+    *
+    * @param clearDepth
+    *   Clears the depth buffer if true.
+    * @param applyAntialiasing
+    *   applies multi-sampling for antialiasing if true.
+    */
+  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean, applyAntialiasing: Boolean)(using sge: Sge): Unit = {
+    sge.graphics.gl.glClearColor(r, g, b, a)
+    var mask = GL20.GL_COLOR_BUFFER_BIT
+    if (clearDepth) mask = mask | GL20.GL_DEPTH_BUFFER_BIT
+    if (applyAntialiasing && sge.graphics.getBufferFormat().coverageSampling) mask = mask | GL20.GL_COVERAGE_BUFFER_BIT_NV
+    sge.graphics.gl.glClear(mask)
+  }
+
+  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
+  // /** Returns the current framebuffer contents as a {@link TextureRegion} with a width and height equal to the current screen size.
+  //   * The base {@link Texture} always has {@link MathUtils#nextPowerOfTwo} dimensions and RGBA8888 {@link Format}. It can be
+  //   * accessed via {@link TextureRegion#getTexture}. The texture is not managed and has to be reloaded manually on a context loss.
+  //   * The returned TextureRegion is flipped along the Y axis by default.
+  //   */
+  // def getFrameBufferTexture()(using sge: Sge): TextureRegion = {
+  //   val w = sge.graphics.getBackBufferWidth()
+  //   val h = sge.graphics.getBackBufferHeight()
+  //   getFrameBufferTexture(0, 0, w, h)
+  // }
+
+  /** Returns a portion of the current framebuffer contents specified by x, y, width and height as a {@link TextureRegion} with the same dimensions. The base {@link Texture} always has
+    * {@link MathUtils#nextPowerOfTwo} dimensions and RGBA8888 {@link Format}. It can be accessed via {@link TextureRegion#getTexture}. This texture is not managed and has to be reloaded manually on a
+    * context loss. If the width and height specified are larger than the framebuffer dimensions, the Texture will be padded accordingly. Pixels that fall outside of the current screen will have RGBA
+    * values of 0.
+    *
+    * @param x
+    *   the x position of the framebuffer contents to capture
+    * @param y
+    *   the y position of the framebuffer contents to capture
+    * @param w
+    *   the width of the framebuffer contents to capture
+    * @param h
+    *   the height of the framebuffer contents to capture
+    */
+  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
+  // def getFrameBufferTexture(x: Int, y: Int, w: Int, h: Int)(using sge: Sge): TextureRegion = {
+  //   val potW = MathUtils.nextPowerOfTwo(w)
+  //   val potH = MathUtils.nextPowerOfTwo(h)
+  //
+  //   val pixmap = Pixmap.createFromFrameBuffer(x, y, w, h)
+  //   val potPixmap = new Pixmap(potW, potH, Format.RGBA8888)
+  //   potPixmap.setBlending(Blending.None)
+  //   potPixmap.drawPixmap(pixmap, 0, 0)
+  //   val texture = new Texture(potPixmap)
+  //   val textureRegion = new TextureRegion(texture, 0, h, w, -h)
+  //   potPixmap.close()
+  //   pixmap.close()
+  //
+  //   textureRegion
+  // }
+
+  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
+  // /** @deprecated use {@link Pixmap#createFromFrameBuffer(int, int, int, int)} instead. */
+  // @deprecated("use Pixmap.createFromFrameBuffer instead", "")
+  // def getFrameBufferPixmap(x: Int, y: Int, w: Int, h: Int)(using sge: Sge): Pixmap =
+  //   Pixmap.createFromFrameBuffer(x, y, w, h)
+
+  /** Returns the current framebuffer contents as a byte[] array with a length equal to screen width * height * 4. The byte[] will always contain RGBA8888 data. Because of differences in screen and
+    * image origins the framebuffer contents should be flipped along the Y axis if you intend save them to disk as a bitmap. Flipping is not a cheap operation, so use this functionality wisely.
+    *
+    * @param flipY
+    *   whether to flip pixels along Y axis
+    */
+  def getFrameBufferPixels(flipY: Boolean)(using sge: Sge): Array[Byte] = {
+    val w = sge.graphics.getBackBufferWidth()
+    val h = sge.graphics.getBackBufferHeight()
+    getFrameBufferPixels(0, 0, w, h, flipY)
+  }
+
+  /** Returns a portion of the current framebuffer contents specified by x, y, width and height, as a byte[] array with a length equal to the specified width * height * 4. The byte[] will always
+    * contain RGBA8888 data. If the width and height specified are larger than the framebuffer dimensions, the Texture will be padded accordingly. Pixels that fall outside of the current screen will
+    * have RGBA values of 0. Because of differences in screen and image origins the framebuffer contents should be flipped along the Y axis if you intend save them to disk as a bitmap. Flipping is not
+    * a cheap operation, so use this functionality wisely.
+    *
+    * @param flipY
+    *   whether to flip pixels along Y axis
+    */
+  def getFrameBufferPixels(x: Int, y: Int, w: Int, h: Int, flipY: Boolean)(using sge: Sge): Array[Byte] = {
+    sge.graphics.gl.glPixelStorei(GL20.GL_PACK_ALIGNMENT, 1)
+    val pixels = BufferUtils.newByteBuffer(w * h * 4)
+    sge.graphics.gl.glReadPixels(x, y, w, h, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, pixels)
+    val numBytes = w * h * 4
+    val lines    = new Array[Byte](numBytes)
+    if (flipY) {
+      val numBytesPerLine = w * 4
+      var i               = 0
+      while (i < h) {
+        pixels.asInstanceOf[Buffer].position((h - i - 1) * numBytesPerLine)
+        pixels.get(lines, i * numBytesPerLine, numBytesPerLine)
+        i += 1
+      }
+    } else {
+      pixels.asInstanceOf[Buffer].clear()
+      pixels.get(lines)
+    }
+    lines
+  }
+}

@@ -1,22 +1,30 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/lz/InWindow.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.lz
 
 import java.io.IOException
 
 class InWindow {
-  var _bufferBase: Array[Byte] = scala.compiletime.uninitialized // pointer to buffer with data
-  var _stream: java.io.InputStream = scala.compiletime.uninitialized
-  var _posLimit: Int = 0 // offset (from _buffer) of first byte when new block reading must be done
-  var _streamEndWasReached: Boolean = false // if (true) then _streamPos shows real end of stream
+  var _bufferBase:          Array[Byte]         = scala.compiletime.uninitialized // pointer to buffer with data
+  var _stream:              java.io.InputStream = scala.compiletime.uninitialized
+  var _posLimit:            Int                 = 0 // offset (from _buffer) of first byte when new block reading must be done
+  var _streamEndWasReached: Boolean             = false // if (true) then _streamPos shows real end of stream
 
   var _pointerToLastSafePosition: Int = 0
 
   var _bufferOffset: Int = 0
 
-  var _blockSize: Int = 0 // Size of Allocated memory block
-  var _pos: Int = 0 // offset (from _buffer) of curent byte
+  var _blockSize:      Int = 0 // Size of Allocated memory block
+  var _pos:            Int = 0 // offset (from _buffer) of curent byte
   var _keepSizeBefore: Int = 0 // how many BYTEs must be kept in buffer before _pos
-  var _keepSizeAfter: Int = 0 // how many BYTEs must be kept buffer after _pos
-  var _streamPos: Int = 0 // offset (from _buffer) of first not read byte from Stream
+  var _keepSizeAfter:  Int = 0 // how many BYTEs must be kept buffer after _pos
+  var _streamPos:      Int = 0 // offset (from _buffer) of first not read byte from Stream
 
   def moveBlock(): Unit = {
     var offset = _bufferOffset + _pos - _keepSizeBefore
@@ -50,9 +58,8 @@ class InWindow {
     }
   }
 
-  def free(): Unit = {
+  def free(): Unit =
     _bufferBase = null
-  }
 
   def create(keepSizeBefore: Int, keepSizeAfter: Int, keepSizeReserv: Int): Unit = {
     _keepSizeBefore = keepSizeBefore
@@ -66,13 +73,11 @@ class InWindow {
     _pointerToLastSafePosition = _blockSize - keepSizeAfter
   }
 
-  def setStream(stream: java.io.InputStream): Unit = {
+  def setStream(stream: java.io.InputStream): Unit =
     _stream = stream
-  }
 
-  def releaseStream(): Unit = {
+  def releaseStream(): Unit =
     _stream = null
-  }
 
   @throws[IOException]
   def init(): Unit = {
@@ -93,9 +98,8 @@ class InWindow {
     }
   }
 
-  def getIndexByte(index: Int): Byte = {
+  def getIndexByte(index: Int): Byte =
     _bufferBase(_bufferOffset + _pos + index)
-  }
 
   // index + limit have not to exceed _keepSizeAfter;
   def getMatchLen(index: Int, distance: Int, limit: Int): Int = {
@@ -103,8 +107,8 @@ class InWindow {
     if (_streamEndWasReached && (_pos + index) + lim > _streamPos)
       lim = _streamPos - (_pos + index)
     val dist = distance + 1
-    val pby = _bufferOffset + _pos + index
-    var i = 0
+    val pby  = _bufferOffset + _pos + index
+    var i    = 0
     while (i < lim && _bufferBase(pby + i) == _bufferBase(pby + i - dist))
       i += 1
     i

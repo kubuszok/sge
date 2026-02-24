@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/Interpolation.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 
@@ -46,7 +54,7 @@ object Interpolation {
 
   /** Fast, then slow. */
   val pow2Out = new PowOut(2)
-  val fastSlow: Interpolation = pow2Out
+  val fastSlow:      Interpolation = pow2Out
   val pow2InInverse: Interpolation = new Interpolation {
     def apply(a: Float): Float =
       if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f

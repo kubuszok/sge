@@ -1,0 +1,67 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/assets/loaders/ParticleEffectLoader.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package assets
+package loaders
+
+import sge.files.FileHandle
+import sge.graphics.g2d.{ ParticleEffect, TextureAtlas }
+import sge.utils.Nullable
+import scala.collection.mutable.ArrayBuffer
+
+/** {@link AssetLoader} to load {@link ParticleEffect} instances. Passing a {@link ParticleEffectParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify an
+  * atlas file or an image directory to be used for the effect's images. Per default images are loaded from the directory in which the effect file is found.
+  */
+class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends SynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectParameter](resolver) {
+
+  override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ParticleEffect = {
+    val effect = new ParticleEffect()
+    if (parameter != null) {
+      parameter.atlasFile.fold {
+        parameter.imagesDir.fold {
+          effect.load(file, file.parent())
+        } { imgDir =>
+          effect.load(file, imgDir)
+        }
+      } { atlasFile =>
+        effect.load(file, assetManager.get(atlasFile, classOf[TextureAtlas]), parameter.atlasPrefix.getOrElse(""))
+      }
+    } else {
+      effect.load(file, file.parent())
+    }
+    effect
+  }
+
+  override def getDependencies(fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ArrayBuffer[AssetDescriptor[?]] = {
+    val deps = ArrayBuffer.empty[AssetDescriptor[?]]
+    if (parameter != null) {
+      parameter.atlasFile.foreach { atlasFile =>
+        deps += new AssetDescriptor[TextureAtlas](atlasFile, classOf[TextureAtlas])
+      }
+    }
+    deps
+  }
+}
+
+object ParticleEffectLoader {
+
+  /** Parameter to be passed to {@link AssetManager#load(String, Class, AssetLoaderParameters)} if additional configuration is necessary for the {@link ParticleEffect}.
+    */
+  class ParticleEffectParameter extends AssetLoaderParameters[ParticleEffect] {
+
+    /** Atlas file name. */
+    var atlasFile: Nullable[String] = Nullable.empty
+
+    /** Optional prefix to image names * */
+    var atlasPrefix: Nullable[String] = Nullable.empty
+
+    /** Image directory. */
+    var imagesDir: Nullable[FileHandle] = Nullable.empty
+  }
+}

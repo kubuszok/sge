@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/Texture.java
+ * Original authors: badlogicgames@gmail.com
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.graphics
 
 import sge.{ Application, Sge }
@@ -20,7 +28,7 @@ import java.nio.Buffer
   * @author
   *   badlogicgames@gmail.com
   */
-class Texture(glTarget: Int, glHandle: Int, data: TextureData)(using sge: Sge) extends GLTexture(glTarget, glHandle) {
+class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using sge: Sge) extends GLTexture(glTarget, glHandle) {
 
   // TextureFilter and TextureWrap enums are now defined in TextureEnums.scala
 
@@ -29,41 +37,53 @@ class Texture(glTarget: Int, glHandle: Int, data: TextureData)(using sge: Sge) e
   def this(internalPath: String)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
-      sge.graphics.gl.glGenTexture(),
+      TextureHandle(sge.graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(sge.files.internal(internalPath), null, false)
     )
   }
 
   def this(file: FileHandle)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), TextureData.Factory.loadFromFile(file, null, false))
+    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), TextureData.Factory.loadFromFile(file, null, false))
   }
 
   def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), TextureData.Factory.loadFromFile(file, null, useMipMaps))
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureData.Factory.loadFromFile(file, null, useMipMaps)
+    )
   }
 
   def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), TextureData.Factory.loadFromFile(file, format, useMipMaps))
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureData.Factory.loadFromFile(file, format, useMipMaps)
+    )
   }
 
   def this(pixmap: Pixmap)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), new PixmapTextureData(pixmap, null, false, false))
+    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, null, false, false))
   }
 
   def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), new PixmapTextureData(pixmap, null, useMipMaps, false))
+    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, null, useMipMaps, false))
   }
 
   def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), new PixmapTextureData(pixmap, format, useMipMaps, false))
+    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, format, useMipMaps, false))
   }
 
   def this(width: Int, height: Int, format: Format)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), new PixmapTextureData(new Pixmap(width, height, format), null, false, true))
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      new PixmapTextureData(new Pixmap(width, height, format), null, false, true)
+    )
   }
 
   def this(data: TextureData)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, sge.graphics.gl.glGenTexture(), data)
+    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), data)
   }
 
   load(data)
@@ -88,7 +108,7 @@ class Texture(glTarget: Int, glHandle: Int, data: TextureData)(using sge: Sge) e
     */
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload unmanaged Texture")
-    glHandle = sge.graphics.gl.glGenTexture()
+    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
     load(textureData)
   }
 
@@ -126,7 +146,7 @@ class Texture(glTarget: Int, glHandle: Int, data: TextureData)(using sge: Sge) e
     // reloaded through the asset manager as we first remove (and thus dispose) the texture
     // and then reload it. the glHandle is set to 0 in invalidateAllTextures prior to
     // removal from the asset manager.
-    if (glHandle == 0) return
+    if (glHandle == TextureHandle.none) return
     delete()
     if (textureData.isManaged)
       Texture.managedTextures.get(sge.application).foreach(_.filterInPlace(_ != this))
@@ -155,7 +175,7 @@ object Texture {
   /** Invalidate all managed textures. This is an internal method. Do not use it! */
   def invalidateAllTextures(app: Application)(using sge: Sge): Unit =
     managedTextures.get(app) match {
-      case None => return
+      case None                      => return
       case Some(managedTextureArray) =>
         if (assetManager == null) {
           for (texture <- managedTextureArray)

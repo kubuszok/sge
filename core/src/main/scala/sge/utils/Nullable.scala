@@ -1,3 +1,6 @@
+/*
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -47,6 +50,16 @@ object Nullable {
     def orNull: A = maybe match {
       case `None` => null.asInstanceOf[A]
       case a: A => a
+    }
+
+    def isDefined: Boolean = maybe match {
+      case `None` => false
+      case _      => true
+    }
+
+    def isEmpty: Boolean = maybe match {
+      case `None` => true
+      case _      => false
     }
   }
   extension [A](maybe: Nullable[Nullable[A]]) {

@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/Color.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 
@@ -290,11 +298,9 @@ class Color(var r: Float = 0f, var g: Float = 0f, var b: Float = 0f, var a: Floa
     this
   }
 
-  override def equals(o: Any): Boolean = {
-    if (this eq o.asInstanceOf[AnyRef]) return true
-    if (o == null || getClass != o.getClass) return false
-    val color = o.asInstanceOf[Color]
-    toIntBits() == color.toIntBits()
+  override def equals(o: Any): Boolean = o match {
+    case color: Color => (this eq color) || toIntBits() == color.toIntBits()
+    case _ => false
   }
 
   override def hashCode(): Int = {

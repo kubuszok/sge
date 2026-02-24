@@ -1,0 +1,145 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/scenes/scene2d/ui/Value.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package scenes
+package scene2d
+package ui
+
+import sge.scenes.scene2d.utils.Layout
+import sge.utils.Nullable
+
+/** Value placeholder, allowing the value to be computed on request. Values can be provided an actor for context to reduce the number of value instances that need to be created and reduce verbosity in
+  * code that specifies values.
+  * @author
+  *   Nathan Sweet
+  */
+abstract class Value {
+
+  /** Calls {@link #get(Actor)} with null. */
+  def get(): Float = get(Nullable.empty)
+
+  /** @param context
+    *   May be null.
+    */
+  def get(context: Nullable[Actor]): Float
+}
+
+object Value {
+
+  /** A value that is always zero. */
+  val zero: Fixed = new Fixed(0)
+
+  /** A fixed value that is not computed each time it is used.
+    * @author
+    *   Nathan Sweet
+    */
+  class Fixed(private val value: Float) extends Value {
+
+    def get(context: Nullable[Actor]): Float = value
+
+    override def toString: String = value.toString
+  }
+
+  object Fixed {
+    private val cache: Array[Nullable[Fixed]] = Array.fill[Nullable[Fixed]](111)(Nullable.empty)
+
+    def valueOf(value: Float): Fixed =
+      if (value == 0) zero
+      else if (value >= -10 && value <= 100 && value == value.toInt.toFloat) {
+        val idx = value.toInt + 10
+        cache(idx).getOrElse {
+          val fixed = new Fixed(value)
+          cache(idx) = Nullable(fixed)
+          fixed
+        }
+      } else new Fixed(value)
+  }
+
+  /** Value that is the minWidth of the actor in the cell. */
+  val minWidth: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getMinWidth
+        case a => a.getWidth
+      }
+  }
+
+  /** Value that is the minHeight of the actor in the cell. */
+  val minHeight: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getMinHeight
+        case a => a.getHeight
+      }
+  }
+
+  /** Value that is the prefWidth of the actor in the cell. */
+  val prefWidth: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getPrefWidth
+        case a => a.getWidth
+      }
+  }
+
+  /** Value that is the prefHeight of the actor in the cell. */
+  val prefHeight: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getPrefHeight
+        case a => a.getHeight
+      }
+  }
+
+  /** Value that is the maxWidth of the actor in the cell. */
+  val maxWidth: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getMaxWidth
+        case a => a.getWidth
+      }
+  }
+
+  /** Value that is the maxHeight of the actor in the cell. */
+  val maxHeight: Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f) {
+        case l: Layout => l.getMaxHeight
+        case a => a.getHeight
+      }
+  }
+
+  /** Returns a value that is a percentage of the actor's width. */
+  def percentWidth(percent: Float): Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f)(_.getWidth * percent)
+  }
+
+  /** Returns a value that is a percentage of the actor's height. */
+  def percentHeight(percent: Float): Value = new Value {
+    def get(context: Nullable[Actor]): Float =
+      context.fold(0f)(_.getHeight * percent)
+  }
+
+  /** Returns a value that is a percentage of the specified actor's width. The context actor is ignored. */
+  def percentWidth(percent: Float, actor: Actor): Value = {
+    require(actor != null, "actor cannot be null.")
+    new Value {
+      def get(context: Nullable[Actor]): Float = actor.getWidth * percent
+    }
+  }
+
+  /** Returns a value that is a percentage of the specified actor's height. The context actor is ignored. */
+  def percentHeight(percent: Float, actor: Actor): Value = {
+    require(actor != null, "actor cannot be null.")
+    new Value {
+      def get(context: Nullable[Actor]): Float = actor.getHeight * percent
+    }
+  }
+}

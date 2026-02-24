@@ -1,0 +1,607 @@
+# SGE Migration Status - Updated: 2026-02-24
+# libgdx_path	sge_path	status	notes
+com/badlogic/gdx/AbstractGraphics.java	sge/Graphics.scala	ai_converted	merged into Graphics
+com/badlogic/gdx/AbstractInput.java	sge/Input.scala	ai_converted	merged into Input
+com/badlogic/gdx/Application.java	sge/Application.scala	ai_converted	
+com/badlogic/gdx/ApplicationAdapter.java	sge/Application.scala	ai_converted	merged into Application trait
+com/badlogic/gdx/ApplicationListener.java	sge/ApplicationListener.scala	ai_converted	
+com/badlogic/gdx/ApplicationLogger.java	sge/ApplicationLogger.scala	ai_converted	
+com/badlogic/gdx/Audio.java	sge/Audio.scala	ai_converted	
+com/badlogic/gdx/Files.java	sge/Files.scala	ai_converted	
+com/badlogic/gdx/Game.java	sge/Game.scala	ai_converted	
+com/badlogic/gdx/Gdx.java	sge/Sge.scala	ai_converted	renamed Gdx->Sge
+com/badlogic/gdx/Graphics.java	sge/Graphics.scala	ai_converted	
+com/badlogic/gdx/Input.java	sge/Input.scala	ai_converted	
+com/badlogic/gdx/InputAdapter.java	sge/Input.scala	ai_converted	merged into Input trait
+com/badlogic/gdx/InputEventQueue.java	sge/InputEventQueue.scala	ai_converted	
+com/badlogic/gdx/InputMultiplexer.java	sge/InputMultiplexer.scala	ai_converted	
+com/badlogic/gdx/InputProcessor.java	sge/InputProcessor.scala	ai_converted	
+com/badlogic/gdx/LifecycleListener.java	sge/LifecycleListener.scala	ai_converted	
+com/badlogic/gdx/Net.java	sge/Net.scala	ai_converted	
+com/badlogic/gdx/Preferences.java	sge/Preferences.scala	ai_converted	
+com/badlogic/gdx/Screen.java	sge/Screen.scala	ai_converted	
+com/badlogic/gdx/ScreenAdapter.java	sge/Screen.scala	ai_converted	merged into Screen trait
+com/badlogic/gdx/Version.java	sge/Version.scala	ai_converted	
+com/badlogic/gdx/assets/AssetDescriptor.java	sge/assets/AssetDescriptor.scala	ai_converted	
+com/badlogic/gdx/assets/AssetErrorListener.java	sge/assets/AssetErrorListener.scala	ai_converted	
+com/badlogic/gdx/assets/AssetLoaderParameters.java	sge/assets/AssetLoaderParameters.scala	ai_converted	
+com/badlogic/gdx/assets/AssetLoadingTask.java	sge/assets/AssetLoadingTask.scala	ai_converted	
+com/badlogic/gdx/assets/AssetManager.java	sge/assets/AssetManager.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/AssetLoader.java	sge/assets/loaders/AssetLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/AsynchronousAssetLoader.java	sge/assets/loaders/AsynchronousAssetLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/BitmapFontLoader.java	sge/assets/loaders/BitmapFontLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/CubemapLoader.java	sge/assets/loaders/CubemapLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/FileHandleResolver.java	sge/assets/loaders/FileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/I18NBundleLoader.java	sge/assets/loaders/I18NBundleLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/ModelLoader.java		not_started	
+com/badlogic/gdx/assets/loaders/MusicLoader.java	sge/assets/loaders/MusicLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/ParticleEffectLoader.java	sge/assets/loaders/ParticleEffectLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/PixmapLoader.java	sge/assets/loaders/PixmapLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/ShaderProgramLoader.java	sge/assets/loaders/ShaderProgramLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/SkinLoader.java	sge/assets/loaders/SkinLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/SoundLoader.java	sge/assets/loaders/SoundLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/SynchronousAssetLoader.java	sge/assets/loaders/SynchronousAssetLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/TextureAtlasLoader.java	sge/assets/loaders/TextureAtlasLoader.scala	ai_converted
+com/badlogic/gdx/assets/loaders/TextureLoader.java	sge/assets/loaders/TextureLoader.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/AbsoluteFileHandleResolver.java	sge/assets/loaders/resolvers/AbsoluteFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/ClasspathFileHandleResolver.java	sge/assets/loaders/resolvers/ClasspathFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/ExternalFileHandleResolver.java	sge/assets/loaders/resolvers/ExternalFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/InternalFileHandleResolver.java	sge/assets/loaders/resolvers/InternalFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/LocalFileHandleResolver.java	sge/assets/loaders/resolvers/LocalFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/PrefixFileHandleResolver.java	sge/assets/loaders/resolvers/PrefixFileHandleResolver.scala	ai_converted	
+com/badlogic/gdx/assets/loaders/resolvers/ResolutionFileResolver.java	sge/assets/loaders/resolvers/ResolutionFileResolver.scala	ai_converted	
+com/badlogic/gdx/audio/AudioDevice.java	sge/audio/AudioDevice.scala	ai_converted	
+com/badlogic/gdx/audio/AudioRecorder.java	sge/audio/AudioRecorder.scala	ai_converted	
+com/badlogic/gdx/audio/Music.java	sge/audio/Music.scala	ai_converted	
+com/badlogic/gdx/audio/Sound.java	sge/audio/Sound.scala	ai_converted	
+com/badlogic/gdx/files/FileHandle.java	sge/files/FileHandles.scala	ai_converted	renamed
+com/badlogic/gdx/files/FileHandleStream.java	sge/files/FileHandles.scala	ai_converted	merged into FileHandles
+com/badlogic/gdx/files/package-info.java		skipped	package-info not needed in Scala
+com/badlogic/gdx/graphics/Camera.java	sge/graphics/Camera.scala	ai_converted	
+com/badlogic/gdx/graphics/Color.java	sge/graphics/Color.scala	ai_converted	
+com/badlogic/gdx/graphics/Colors.java	sge/graphics/Colors.scala	ai_converted	
+com/badlogic/gdx/graphics/Cubemap.java	sge/graphics/Cubemap.scala	ai_converted	
+com/badlogic/gdx/graphics/CubemapData.java	sge/graphics/CubemapData.scala	ai_converted	
+com/badlogic/gdx/graphics/Cursor.java	sge/graphics/Cursor.scala	ai_converted	
+com/badlogic/gdx/graphics/FPSLogger.java	sge/graphics/FPSLogger.scala	ai_converted	
+com/badlogic/gdx/graphics/GL20.java	sge/graphics/GL20.scala	ai_converted	
+com/badlogic/gdx/graphics/GL30.java	sge/graphics/GL30.scala	ai_converted	
+com/badlogic/gdx/graphics/GL31.java	sge/graphics/GL31.scala	ai_converted	
+com/badlogic/gdx/graphics/GL32.java	sge/graphics/GL32.scala	ai_converted	
+com/badlogic/gdx/graphics/GLTexture.java	sge/graphics/GLTexture.scala	ai_converted	
+com/badlogic/gdx/graphics/Mesh.java	sge/graphics/Mesh.scala	ai_converted	
+com/badlogic/gdx/graphics/OrthographicCamera.java	sge/graphics/OrthographicCamera.scala	ai_converted	
+com/badlogic/gdx/graphics/PerspectiveCamera.java	sge/graphics/PerspectiveCamera.scala	ai_converted	
+com/badlogic/gdx/graphics/Pixmap.java	sge/graphics/Pixmap.scala	ai_converted	
+com/badlogic/gdx/graphics/PixmapIO.java	sge/graphics/PixmapIO.scala	ai_converted	
+com/badlogic/gdx/graphics/Texture.java	sge/graphics/Texture.scala	ai_converted	
+com/badlogic/gdx/graphics/Texture3D.java	sge/graphics/Texture3D.scala	ai_converted	
+com/badlogic/gdx/graphics/Texture3DData.java	sge/graphics/Texture3DData.scala	ai_converted	
+com/badlogic/gdx/graphics/TextureArray.java	sge/graphics/TextureArray.scala	ai_converted	
+com/badlogic/gdx/graphics/TextureArrayData.java	sge/graphics/TextureArrayData.scala	ai_converted	
+com/badlogic/gdx/graphics/TextureData.java	sge/graphics/TextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/VertexAttribute.java	sge/graphics/VertexAttribute.scala	ai_converted	
+com/badlogic/gdx/graphics/VertexAttributes.java	sge/graphics/VertexAttributes.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/Animation.java	sge/graphics/g2d/Animation.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/Batch.java	sge/graphics/g2d/Batch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/BitmapFont.java	sge/graphics/g2d/BitmapFont.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/BitmapFontCache.java	sge/graphics/g2d/BitmapFontCache.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/CpuSpriteBatch.java	sge/graphics/g2d/CpuSpriteBatch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/DistanceFieldFont.java	sge/graphics/g2d/DistanceFieldFont.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/Gdx2DPixmap.java	sge/graphics/g2d/Gdx2DPixmap.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/GlyphLayout.java	sge/graphics/g2d/GlyphLayout.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/NinePatch.java	sge/graphics/g2d/NinePatch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/ParticleEffect.java	sge/graphics/g2d/ParticleEffect.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/ParticleEffectPool.java	sge/graphics/g2d/ParticleEffectPool.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/ParticleEmitter.java	sge/graphics/g2d/ParticleEmitter.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PixmapPacker.java	sge/graphics/g2d/PixmapPacker.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PixmapPackerIO.java	sge/graphics/g2d/PixmapPackerIO.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PolygonBatch.java	sge/graphics/g2d/PolygonBatch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PolygonRegion.java	sge/graphics/g2d/PolygonRegion.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PolygonRegionLoader.java	sge/graphics/g2d/PolygonRegionLoader.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PolygonSprite.java	sge/graphics/g2d/PolygonSprite.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/PolygonSpriteBatch.java	sge/graphics/g2d/PolygonSpriteBatch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/RepeatablePolygonSprite.java	sge/graphics/g2d/RepeatablePolygonSprite.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/Sprite.java	sge/graphics/g2d/Sprite.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/SpriteBatch.java	sge/graphics/g2d/SpriteBatch.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/SpriteCache.java	sge/graphics/g2d/SpriteCache.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/TextureAtlas.java	sge/graphics/g2d/TextureAtlas.scala	ai_converted	
+com/badlogic/gdx/graphics/g2d/TextureRegion.java	sge/graphics/g2d/TextureRegion.scala	ai_converted	
+com/badlogic/gdx/graphics/g3d/Attribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Attributes.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Environment.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Material.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Model.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/ModelBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/ModelCache.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/ModelInstance.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Renderable.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/RenderableProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Shader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/CubemapAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/DepthTestAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/DirectionalLightsAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/PointLightsAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/SpotLightsAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/Decal.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/DecalBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/DecalMaterial.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/GroupPlug.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/GroupStrategy.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/PluggableGroupStrategy.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/decals/SimpleOrthoGroupStrategy.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/AmbientCubemap.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/BaseLight.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/DirectionalLight.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/DirectionalShadowLight.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/PointLight.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/ShadowMap.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/SphericalHarmonics.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/environment/SpotLight.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/Animation.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/MeshPart.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/Node.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/NodeAnimation.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/NodeKeyframe.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/NodePart.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelAnimation.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelMaterial.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelMesh.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelMeshPart.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelNode.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleController.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ResourceData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/AnimationController.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/BaseShaderProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/DefaultShaderProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/DefaultTextureBinder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/DepthShaderProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/MeshBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/MeshPartBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/RenderContext.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/RenderableSorter.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/ShaderProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/ShapeCache.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/TextureBinder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/TextureProvider.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/glutils/CustomTexture3DData.java	sge/graphics/glutils/CustomTexture3DData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ETC1.java	sge/graphics/glutils/ETC1.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ETC1TextureData.java	sge/graphics/glutils/ETC1TextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FacedCubemapData.java	sge/graphics/glutils/FacedCubemapData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FileTextureArrayData.java	sge/graphics/glutils/FileTextureArrayData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FileTextureData.java	sge/graphics/glutils/FileTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FloatFrameBuffer.java	sge/graphics/glutils/FloatFrameBuffer.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FloatTextureData.java	sge/graphics/glutils/FloatTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FrameBuffer.java	sge/graphics/glutils/FrameBuffer.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/FrameBufferCubemap.java	sge/graphics/glutils/FrameBufferCubemap.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/GLFrameBuffer.java	sge/graphics/glutils/GLFrameBuffer.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/GLOnlyTextureData.java	sge/graphics/glutils/GLOnlyTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/GLVersion.java	sge/graphics/glutils/GLVersion.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/HdpiMode.java	sge/graphics/glutils/HdpiMode.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/HdpiUtils.java	sge/graphics/glutils/HdpiUtils.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ImmediateModeRenderer.java	sge/graphics/glutils/ImmediateModeRenderer.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ImmediateModeRenderer20.java	sge/graphics/glutils/ImmediateModeRenderer20.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/IndexArray.java	sge/graphics/glutils/IndexArray.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/IndexBufferObject.java	sge/graphics/glutils/IndexBufferObject.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/IndexBufferObjectSubData.java	sge/graphics/glutils/IndexBufferObjectSubData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/IndexData.java	sge/graphics/glutils/IndexData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/InstanceBufferObject.java	sge/graphics/glutils/InstanceBufferObject.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/InstanceBufferObjectSubData.java	sge/graphics/glutils/InstanceBufferObjectSubData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/InstanceData.java	sge/graphics/glutils/InstanceData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/KTXTextureData.java	sge/graphics/glutils/KTXTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/MipMapGenerator.java	sge/graphics/glutils/MipMapGenerator.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/MipMapTextureData.java	sge/graphics/glutils/MipMapTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/PixmapTextureData.java	sge/graphics/glutils/PixmapTextureData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ShaderProgram.java	sge/graphics/glutils/ShaderProgram.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/ShapeRenderer.java	sge/graphics/glutils/ShapeRenderer.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/VertexArray.java	sge/graphics/glutils/VertexArray.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/VertexBufferObject.java	sge/graphics/glutils/VertexBufferObject.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/VertexBufferObjectSubData.java	sge/graphics/glutils/VertexBufferObjectSubData.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/VertexBufferObjectWithVAO.java	sge/graphics/glutils/VertexBufferObjectWithVAO.scala	ai_converted	
+com/badlogic/gdx/graphics/glutils/VertexData.java	sge/graphics/glutils/VertexData.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GL20Interceptor.java	sge/graphics/profiling/GL20Interceptor.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GL30Interceptor.java	sge/graphics/profiling/GL30Interceptor.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GL31Interceptor.java	sge/graphics/profiling/GL31Interceptor.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GL32Interceptor.java	sge/graphics/profiling/GL32Interceptor.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GLErrorListener.java	sge/graphics/profiling/GLErrorListener.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GLInterceptor.java	sge/graphics/profiling/GLInterceptor.scala	ai_converted	
+com/badlogic/gdx/graphics/profiling/GLProfiler.java	sge/graphics/profiling/GLProfiler.scala	ai_converted	
+com/badlogic/gdx/input/GestureDetector.java	sge/input/GestureDetector.scala	ai_converted	
+com/badlogic/gdx/input/NativeInputConfiguration.java	sge/input/NativeImputConfiguration.scala	ai_converted	typo in SGE name: Imput
+com/badlogic/gdx/input/RemoteInput.java	sge/input/RemoteInput.scala	ai_converted	
+com/badlogic/gdx/input/RemoteSender.java	sge/input/RemoteSender.scala	ai_converted	
+com/badlogic/gdx/input/TextInputWrapper.java	sge/input/TextinputWrapper.scala	ai_converted	case change in name
+com/badlogic/gdx/maps/ImageResolver.java	sge/maps/ImageResolver.scala	ai_converted	maps module
+com/badlogic/gdx/maps/Map.java	sge/maps/Map.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapGroupLayer.java	sge/maps/MapGroupLayer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapLayer.java	sge/maps/MapLayer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapLayers.java	sge/maps/MapLayers.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapObject.java	sge/maps/MapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapObjects.java	sge/maps/MapObjects.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapProperties.java	sge/maps/MapProperties.scala	ai_converted	maps module
+com/badlogic/gdx/maps/MapRenderer.java	sge/maps/MapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/CircleMapObject.java	sge/maps/objects/CircleMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/EllipseMapObject.java	sge/maps/objects/EllipseMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/PointMapObject.java	sge/maps/objects/PointMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/PolygonMapObject.java	sge/maps/objects/PolygonMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/PolylineMapObject.java	sge/maps/objects/PolylineMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/RectangleMapObject.java	sge/maps/objects/RectangleMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/TextMapObject.java	sge/maps/objects/TextMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/objects/TextureMapObject.java	sge/maps/objects/TextureMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/AtlasTmjMapLoader.java		deferred	needs JsonReader (not ported)
+com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java		deferred	needs XmlReader (not ported)
+com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java		deferred	needs XML or JSON parser
+com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java		deferred	needs JsonReader (not ported)
+com/badlogic/gdx/maps/tiled/BaseTmxMapLoader.java		deferred	needs XmlReader (not ported)
+com/badlogic/gdx/maps/tiled/TideMapLoader.java		deferred	needs XmlReader (not ported)
+com/badlogic/gdx/maps/tiled/TiledMap.java	sge/maps/tiled/TiledMap.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapImageLayer.java	sge/maps/tiled/TiledMapImageLayer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapLoader.java		deferred	needs BaseTiledMapLoader
+com/badlogic/gdx/maps/tiled/TiledMapRenderer.java	sge/maps/tiled/TiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapTile.java	sge/maps/tiled/TiledMapTile.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapTileLayer.java	sge/maps/tiled/TiledMapTileLayer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapTileSet.java	sge/maps/tiled/TiledMapTileSet.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TiledMapTileSets.java	sge/maps/tiled/TiledMapTileSets.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TmjMapLoader.java		deferred	needs BaseTmjMapLoader
+com/badlogic/gdx/maps/tiled/TmxMapLoader.java		deferred	needs BaseTmxMapLoader
+com/badlogic/gdx/maps/tiled/objects/TiledMapTileMapObject.java	sge/maps/tiled/objects/TiledMapTileMapObject.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/BatchTiledMapRenderer.java	sge/maps/tiled/renderers/BatchTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/HexagonalTiledMapRenderer.java	sge/maps/tiled/renderers/HexagonalTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.java	sge/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/IsometricTiledMapRenderer.java	sge/maps/tiled/renderers/IsometricTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/OrthoCachedTiledMapRenderer.java	sge/maps/tiled/renderers/OrthoCachedTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/renderers/OrthogonalTiledMapRenderer.java	sge/maps/tiled/renderers/OrthogonalTiledMapRenderer.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/tiles/AnimatedTiledMapTile.java	sge/maps/tiled/tiles/AnimatedTiledMapTile.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/tiles/StaticTiledMapTile.java	sge/maps/tiled/tiles/StaticTiledMapTile.scala	ai_converted	maps module
+com/badlogic/gdx/math/Affine2.java	sge/math/Affine2.scala	ai_converted	
+com/badlogic/gdx/math/BSpline.java	sge/math/BSpline.scala	ai_converted	
+com/badlogic/gdx/math/Bezier.java	sge/math/Bezier.scala	ai_converted	
+com/badlogic/gdx/math/Bresenham2.java	sge/math/Bresenham2.scala	ai_converted	
+com/badlogic/gdx/math/CatmullRomSpline.java	sge/math/CatmullRomSpline.scala	ai_converted	
+com/badlogic/gdx/math/Circle.java	sge/math/Circle.scala	ai_converted	
+com/badlogic/gdx/math/ConvexHull.java	sge/math/ConvexHull.scala	ai_converted	
+com/badlogic/gdx/math/CumulativeDistribution.java	sge/math/CumulativeDistribution.scala	ai_converted	
+com/badlogic/gdx/math/DelaunayTriangulator.java	sge/math/DelaunayTriangulator.scala	ai_converted	
+com/badlogic/gdx/math/EarClippingTriangulator.java	sge/math/EarClippingTriangulator.scala	ai_converted	
+com/badlogic/gdx/math/Ellipse.java	sge/math/Ellipse.scala	ai_converted	
+com/badlogic/gdx/math/FloatCounter.java	sge/math/FloatCounter.scala	ai_converted	
+com/badlogic/gdx/math/Frustum.java	sge/math/Frustum.scala	ai_converted	
+com/badlogic/gdx/math/GeometryUtils.java	sge/math/GeometryUtils.scala	ai_converted	
+com/badlogic/gdx/math/GridPoint2.java	sge/math/GridPoints.scala	ai_converted	merged into GridPoints
+com/badlogic/gdx/math/GridPoint3.java	sge/math/GridPoints.scala	ai_converted	merged into GridPoints
+com/badlogic/gdx/math/Interpolation.java	sge/math/Interpolation.scala	ai_converted	
+com/badlogic/gdx/math/Intersector.java	sge/math/Intersector.scala	ai_converted	
+com/badlogic/gdx/math/MathUtils.java	sge/math/MathUtils.scala	ai_converted	
+com/badlogic/gdx/math/Matrix3.java	sge/math/Matrices.scala	ai_converted	merged into Matrices
+com/badlogic/gdx/math/Matrix4.java	sge/math/Matrices.scala	ai_converted	merged into Matrices
+com/badlogic/gdx/math/Octree.java	sge/math/Octree.scala	ai_converted	
+com/badlogic/gdx/math/Path.java	sge/math/Path.scala	ai_converted	
+com/badlogic/gdx/math/Plane.java	sge/math/Plane.scala	ai_converted	
+com/badlogic/gdx/math/Polygon.java	sge/math/Polygon.scala	ai_converted	
+com/badlogic/gdx/math/Polyline.java	sge/math/Polyline.scala	ai_converted	
+com/badlogic/gdx/math/Quaternion.java	sge/math/Quaternion.scala	ai_converted	
+com/badlogic/gdx/math/RandomXS128.java	sge/math/RandomXS128.scala	ai_converted	
+com/badlogic/gdx/math/Rectangle.java	sge/math/Rectangle.scala	ai_converted	
+com/badlogic/gdx/math/Shape2D.java	sge/math/Shape2D.scala	ai_converted	
+com/badlogic/gdx/math/Vector.java	sge/math/Vectors.scala	ai_converted	merged into Vectors
+com/badlogic/gdx/math/Vector2.java	sge/math/Vectors.scala	ai_converted	merged into Vectors
+com/badlogic/gdx/math/Vector3.java	sge/math/Vectors.scala	ai_converted	merged into Vectors
+com/badlogic/gdx/math/Vector4.java	sge/math/Vectors.scala	ai_converted	merged into Vectors
+com/badlogic/gdx/math/WindowedMean.java	sge/math/WindowedMean.scala	ai_converted	
+com/badlogic/gdx/math/collision/BoundingBox.java	sge/math/collision/BoundingBox.scala	ai_converted	
+com/badlogic/gdx/math/collision/OrientedBoundingBox.java	sge/math/collision/OrientedBoundingBox.scala	ai_converted	
+com/badlogic/gdx/math/collision/Ray.java	sge/math/collision/Ray.scala	ai_converted	
+com/badlogic/gdx/math/collision/Segment.java	sge/math/collision/Segment.scala	ai_converted	
+com/badlogic/gdx/math/collision/Sphere.java	sge/math/collision/Sphere.scala	ai_converted	
+com/badlogic/gdx/net/HttpParametersUtils.java	sge/net/HttpParametersUtils.scala	ai_converted	
+com/badlogic/gdx/net/HttpRequestBuilder.java	sge/net/HttpRequestBuilder.scala	ai_converted	
+com/badlogic/gdx/net/HttpRequestHeader.java	sge/net/HttpRequestHeader.scala	ai_converted	
+com/badlogic/gdx/net/HttpResponseHeader.java	sge/net/HttpResponseHeader.scala	ai_converted	
+com/badlogic/gdx/net/HttpStatus.java	sge/net/HttpStatus.scala	ai_converted	
+com/badlogic/gdx/net/NetJavaImpl.java	sge/net/NetJavaImpl.scala	ai_converted	
+com/badlogic/gdx/net/NetJavaServerSocketImpl.java	sge/net/NetJavaServerSocketImpl.scala	ai_converted	
+com/badlogic/gdx/net/NetJavaSocketImpl.java	sge/net/NetJavaSocketImpl.scala	ai_converted	
+com/badlogic/gdx/net/ServerSocket.java	sge/net/ServerSocket.scala	ai_converted	
+com/badlogic/gdx/net/ServerSocketHints.java	sge/net/ServerSocketHints.scala	ai_converted	
+com/badlogic/gdx/net/Socket.java	sge/net/Socket.scala	ai_converted	
+com/badlogic/gdx/net/SocketHints.java	sge/net/SocketHints.scala	ai_converted	
+com/badlogic/gdx/scenes/scene2d/Action.java	sge/scenes/scene2d/Action.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/Actor.java	sge/scenes/scene2d/Actor.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/Event.java	sge/scenes/scene2d/Event.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/EventListener.java	sge/scenes/scene2d/EventListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/Group.java	sge/scenes/scene2d/Group.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/InputEvent.java	sge/scenes/scene2d/InputEvent.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/InputListener.java	sge/scenes/scene2d/InputListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/Stage.java	sge/scenes/scene2d/Stage.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/Touchable.java	sge/scenes/scene2d/Touchable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/Actions.java	sge/scenes/scene2d/actions/Actions.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/AddAction.java	sge/scenes/scene2d/actions/AddAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/AddListenerAction.java	sge/scenes/scene2d/actions/AddListenerAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/AfterAction.java	sge/scenes/scene2d/actions/AfterAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/AlphaAction.java	sge/scenes/scene2d/actions/AlphaAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/ColorAction.java	sge/scenes/scene2d/actions/ColorAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/CountdownEventAction.java	sge/scenes/scene2d/actions/CountdownEventAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/DelayAction.java	sge/scenes/scene2d/actions/DelayAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/DelegateAction.java	sge/scenes/scene2d/actions/DelegateAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/EventAction.java	sge/scenes/scene2d/actions/EventAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/FinishableAction.java	sge/scenes/scene2d/actions/FinishableAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/FloatAction.java	sge/scenes/scene2d/actions/FloatAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/IntAction.java	sge/scenes/scene2d/actions/IntAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/LayoutAction.java	sge/scenes/scene2d/actions/LayoutAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/MoveByAction.java	sge/scenes/scene2d/actions/MoveByAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/MoveToAction.java	sge/scenes/scene2d/actions/MoveToAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/ParallelAction.java	sge/scenes/scene2d/actions/ParallelAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RelativeTemporalAction.java	sge/scenes/scene2d/actions/RelativeTemporalAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RemoveAction.java	sge/scenes/scene2d/actions/RemoveAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RemoveActorAction.java	sge/scenes/scene2d/actions/RemoveActorAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RemoveListenerAction.java	sge/scenes/scene2d/actions/RemoveListenerAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RepeatAction.java	sge/scenes/scene2d/actions/RepeatAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RotateByAction.java	sge/scenes/scene2d/actions/RotateByAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RotateToAction.java	sge/scenes/scene2d/actions/RotateToAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/RunnableAction.java	sge/scenes/scene2d/actions/RunnableAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/ScaleByAction.java	sge/scenes/scene2d/actions/ScaleByAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/ScaleToAction.java	sge/scenes/scene2d/actions/ScaleToAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/SequenceAction.java	sge/scenes/scene2d/actions/SequenceAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/SizeByAction.java	sge/scenes/scene2d/actions/SizeByAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/SizeToAction.java	sge/scenes/scene2d/actions/SizeToAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/TemporalAction.java	sge/scenes/scene2d/actions/TemporalAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/TimeScaleAction.java	sge/scenes/scene2d/actions/TimeScaleAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/TouchableAction.java	sge/scenes/scene2d/actions/TouchableAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/actions/VisibleAction.java	sge/scenes/scene2d/actions/VisibleAction.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Button.java	sge/scenes/scene2d/ui/Button.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ButtonGroup.java	sge/scenes/scene2d/ui/ButtonGroup.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Cell.java	sge/scenes/scene2d/ui/Cell.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/CheckBox.java	sge/scenes/scene2d/ui/CheckBox.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Container.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Dialog.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/HorizontalGroup.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Image.java	sge/scenes/scene2d/ui/Image.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java	sge/scenes/scene2d/ui/ImageButton.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java	sge/scenes/scene2d/ui/ImageTextButton.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Label.java	sge/scenes/scene2d/ui/Label.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/List.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ParticleEffectActor.java	sge/scenes/scene2d/ui/ParticleEffectActor.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ScrollPane.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/SelectBox.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Skin.java	sge/scenes/scene2d/ui/Skin.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Slider.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/SplitPane.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Stack.java	sge/scenes/scene2d/ui/Stack.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Styleable.java	sge/scenes/scene2d/ui/Styleable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Table.java	sge/scenes/scene2d/ui/Table.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextArea.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextButton.java	sge/scenes/scene2d/ui/TextButton.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextField.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextTooltip.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TooltipManager.java	sge/scenes/scene2d/ui/TooltipManager.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Touchpad.java	sge/scenes/scene2d/ui/Touchpad.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Tree.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Value.java	sge/scenes/scene2d/ui/Value.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/VerticalGroup.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Widget.java	sge/scenes/scene2d/ui/Widget.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/WidgetGroup.java	sge/scenes/scene2d/ui/WidgetGroup.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Window.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/ActorGestureListener.java	sge/scenes/scene2d/utils/ActorGestureListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/ArraySelection.java	sge/scenes/scene2d/utils/ArraySelection.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/BaseDrawable.java	sge/scenes/scene2d/utils/BaseDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/ChangeListener.java	sge/scenes/scene2d/utils/ChangeListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/ClickListener.java	sge/scenes/scene2d/utils/ClickListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/Cullable.java	sge/scenes/scene2d/utils/Cullable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/Disableable.java	sge/scenes/scene2d/utils/Disableable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/DragAndDrop.java	sge/scenes/scene2d/utils/DragAndDrop.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/DragListener.java	sge/scenes/scene2d/utils/DragListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/DragScrollListener.java	sge/scenes/scene2d/utils/DragScrollListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/Drawable.java	sge/scenes/scene2d/utils/Drawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/FocusListener.java	sge/scenes/scene2d/utils/FocusListener.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/Layout.java	sge/scenes/scene2d/utils/Layout.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/NinePatchDrawable.java	sge/scenes/scene2d/utils/NinePatchDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/ScissorStack.java	sge/scenes/scene2d/utils/ScissorStack.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/Selection.java	sge/scenes/scene2d/utils/Selection.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/SpriteDrawable.java	sge/scenes/scene2d/utils/SpriteDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/TextureRegionDrawable.java	sge/scenes/scene2d/utils/TextureRegionDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/TiledDrawable.java	sge/scenes/scene2d/utils/TiledDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/TransformDrawable.java	sge/scenes/scene2d/utils/TransformDrawable.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java	sge/scenes/scene2d/utils/UIUtils.scala	ai_converted	scene2d module
+com/badlogic/gdx/utils/Align.java	sge/utils/Align.scala	ai_converted	
+com/badlogic/gdx/utils/Array.java		skipped	use ArrayBuffer
+com/badlogic/gdx/utils/ArrayMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/ArraySupplier.java		skipped	use plain functions
+com/badlogic/gdx/utils/AtomicQueue.java		skipped	use stdlib
+com/badlogic/gdx/utils/Base64Coder.java		skipped	use java.util.Base64
+com/badlogic/gdx/utils/BaseJsonReader.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/BinaryHeap.java	sge/utils/BinaryHeap.scala	ai_converted	
+com/badlogic/gdx/utils/Bits.java		skipped	use BitSet
+com/badlogic/gdx/utils/BooleanArray.java		skipped	use BitSet
+com/badlogic/gdx/utils/BufferUtils.java	sge/utils/BufferUtils.scala	ai_converted	
+com/badlogic/gdx/utils/ByteArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/CharArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/Clipboard.java	sge/utils/Clipboard.scala	ai_converted	
+com/badlogic/gdx/utils/Collections.java		skipped	use stdlib
+com/badlogic/gdx/utils/ComparableTimSort.java	sge/utils/ComparableTimSort.scala	ai_converted	
+com/badlogic/gdx/utils/DataBuffer.java	sge/utils/DataBuffer.scala	ai_converted	
+com/badlogic/gdx/utils/DataInput.java	sge/utils/DataInput.scala	ai_converted	
+com/badlogic/gdx/utils/DataOutput.java	sge/utils/DataOutput.scala	ai_converted
+com/badlogic/gdx/utils/DefaultPool.java	sge/utils/Pool.scala	ai_converted	merged into Pool
+com/badlogic/gdx/utils/DelayedRemovalArray.java		skipped	use .view
+com/badlogic/gdx/utils/Disposable.java		skipped	use AutoCloseable
+com/badlogic/gdx/utils/FloatArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/FlushablePool.java	sge/utils/Pool.scala	ai_converted	merged into Pool
+com/badlogic/gdx/utils/GdxNativesLoader.java	sge/utils/SdeNativesLoader.scala	ai_converted	renamed; file still uses old Sde prefix
+com/badlogic/gdx/utils/GdxRuntimeException.java	sge/utils/SdeError.scala	ai_converted	renamed; file still uses old Sde prefix
+com/badlogic/gdx/utils/I18NBundle.java	sge/utils/I18nBundle.scala	ai_converted	case change in name
+com/badlogic/gdx/utils/IdentityMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/IntArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/IntFloatMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/IntIntMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/IntMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/IntSet.java		skipped	use BitSet
+com/badlogic/gdx/utils/Json.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonMatcher.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonReader.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonSkimmer.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonString.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonValue.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/JsonWriter.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/LittleEndianInputStream.java	sge/utils/LittleEndianInputStream.scala	ai_converted	
+com/badlogic/gdx/utils/Logger.java	sge/utils/Logger.scala	ai_converted	
+com/badlogic/gdx/utils/LongArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/LongMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/LongQueue.java		skipped	use stdlib
+com/badlogic/gdx/utils/NonNull.java		skipped	use Nullable opaque type
+com/badlogic/gdx/utils/NonNullByDefault.java		skipped	use Nullable opaque type
+com/badlogic/gdx/utils/Null.java		skipped	use Nullable opaque type
+com/badlogic/gdx/utils/NumberUtils.java	sge/utils/NumberUtils.scala	ai_converted	
+com/badlogic/gdx/utils/ObjectFloatMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/ObjectIntMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/ObjectLongMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/ObjectMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/ObjectSet.java		skipped	use Set
+com/badlogic/gdx/utils/OrderedMap.java		skipped	use mutable.Map
+com/badlogic/gdx/utils/OrderedSet.java		skipped	use SortedSet
+com/badlogic/gdx/utils/PatternParser.java		skipped	depends on JsonMatcher (skipped)
+com/badlogic/gdx/utils/PauseableThread.java		skipped	use Future
+com/badlogic/gdx/utils/PerformanceCounter.java	sge/utils/PerformanceCounter.scala	ai_converted	
+com/badlogic/gdx/utils/PerformanceCounters.java	sge/utils/PerformanceCounters.scala	ai_converted	
+com/badlogic/gdx/utils/Pool.java	sge/utils/Pool.scala	ai_converted	
+com/badlogic/gdx/utils/PoolManager.java	sge/utils/PoolManager.scala	ai_converted
+com/badlogic/gdx/utils/PooledLinkedList.java		skipped	use stdlib
+com/badlogic/gdx/utils/Pools.java		not_started	deprecated, heavy scene2d deps - deferred
+com/badlogic/gdx/utils/Predicate.java		skipped	use plain functions
+com/badlogic/gdx/utils/PropertiesUtils.java	sge/utils/PropertiesUtils.scala	ai_converted	
+com/badlogic/gdx/utils/QuadTreeFloat.java	sge/utils/Pool.scala	ai_converted	nested in Pool companion object	
+com/badlogic/gdx/utils/Queue.java		skipped	use stdlib
+com/badlogic/gdx/utils/QuickSelect.java	sge/utils/QuickSelect.scala	ai_converted	
+com/badlogic/gdx/utils/ReflectionPool.java		skipped	uses reflection
+com/badlogic/gdx/utils/Scaling.java	sge/utils/Scaling.scala	ai_converted	
+com/badlogic/gdx/utils/ScreenUtils.java	sge/utils/ScreenUtils.scala	ai_converted	some methods commented pending Pixmap.createFromFrameBuffer	
+com/badlogic/gdx/utils/Select.java	sge/utils/Select.scala	ai_converted	
+com/badlogic/gdx/utils/SerializationException.java	sge/utils/SdeError.scala	ai_converted	merged into SdeError
+com/badlogic/gdx/utils/ShortArray.java		skipped	use DynamicArray
+com/badlogic/gdx/utils/SnapshotArray.java		skipped	use ArrayBuffer with copy-on-modify
+com/badlogic/gdx/utils/Sort.java	sge/utils/Sort.scala	ai_converted	
+com/badlogic/gdx/utils/SortedIntList.java		skipped	use stdlib
+com/badlogic/gdx/utils/StreamUtils.java	sge/utils/StreamUtils.scala	ai_converted	
+com/badlogic/gdx/utils/TextFormatter.java	sge/utils/TextFormatter.scala	ai_converted	
+com/badlogic/gdx/utils/TimSort.java	sge/utils/TimSort.scala	ai_converted	
+com/badlogic/gdx/utils/TimeUtils.java	sge/utils/TimeUtils.scala	ai_converted	
+com/badlogic/gdx/utils/Timer.java	sge/utils/Timer.scala	ai_converted	
+com/badlogic/gdx/utils/UBJsonReader.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/UBJsonWriter.java		skipped	use Scala JSON library
+com/badlogic/gdx/utils/XmlReader.java		skipped	use Scala XML library
+com/badlogic/gdx/utils/XmlWriter.java		skipped	use Scala XML library
+com/badlogic/gdx/utils/async/AsyncExecutor.java		skipped	use scala.concurrent.Future
+com/badlogic/gdx/utils/async/AsyncResult.java		skipped	use scala.concurrent.Future
+com/badlogic/gdx/utils/async/AsyncTask.java		skipped	use scala.concurrent.Future
+com/badlogic/gdx/utils/async/ThreadUtils.java		skipped	use scala.concurrent.Future
+com/badlogic/gdx/utils/compression/CRC.java	sge/utils/compression/CRC.scala	ai_converted	
+com/badlogic/gdx/utils/compression/ICodeProgress.java	sge/utils/compression/ICodeProgress.scala	ai_converted	
+com/badlogic/gdx/utils/compression/Lzma.java	sge/utils/compression/Lzma.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lz/BinTree.java	sge/utils/compression/lz/BinTree.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lz/InWindow.java	sge/utils/compression/lz/InWindow.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lz/OutWindow.java	sge/utils/compression/lz/OutWindow.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lzma/Base.java	sge/utils/compression/lzma/Base.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lzma/Decoder.java	sge/utils/compression/lzma/Decoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/lzma/Encoder.java	sge/utils/compression/lzma/Encoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/rangecoder/BitTreeDecoder.java	sge/utils/compression/rangecoder/BitTreeDecoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/rangecoder/BitTreeEncoder.java	sge/utils/compression/rangecoder/BitTreeEncoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/rangecoder/Decoder.java	sge/utils/compression/rangecoder/Decoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/rangecoder/Encoder.java	sge/utils/compression/rangecoder/Encoder.scala	ai_converted	
+com/badlogic/gdx/utils/reflect/Annotation.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/ArrayReflection.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/ClassReflection.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/Constructor.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/Field.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/Method.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/reflect/ReflectionException.java		skipped	avoid runtime reflection
+com/badlogic/gdx/utils/viewport/ExtendViewport.java	sge/utils/viewport/ExtendViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/FillViewport.java	sge/utils/viewport/FillViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/FitViewport.java	sge/utils/viewport/FitViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/ScalingViewport.java	sge/utils/viewport/ScalingViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/ScreenViewport.java	sge/utils/viewport/ScreenViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/StretchViewport.java	sge/utils/viewport/StretchViewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/Viewport.java	sge/utils/viewport/Viewport.scala	ai_converted	

@@ -1,12 +1,12 @@
 val commonSettings = Seq(
-  scalaVersion := "3.7.1",
+  scalaVersion := "3.8.1",
   organization := "com.kubuszok",
   scalacOptions ++= Seq(
     "-deprecation",
     "-feature",
     "-no-indent",
     "-rewrite",
-    "-Xfatal-warnings"
+    "-Werror"
     //"-Wconf:msg=.*Infinite loop in function body.*:error"
   )
 )

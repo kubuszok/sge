@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/MathUtils.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 
@@ -19,14 +27,14 @@ object MathUtils {
 
   val E = Math.E.toFloat
 
-  private val SIN_BITS  = 14 // 16KB. Adjust for accuracy.
-  private val SIN_MASK  = ~(-1 << SIN_BITS)
-  private val SIN_COUNT = SIN_MASK + 1
+  private val SIN_BITS       = 14 // 16KB. Adjust for accuracy.
+  private[math] val SIN_MASK = ~(-1 << SIN_BITS)
+  private val SIN_COUNT      = SIN_MASK + 1
 
-  private val radFull    = PI2
-  private val degFull    = 360
-  private val radToIndex = SIN_COUNT / radFull
-  private val degToIndex = SIN_COUNT / degFull
+  private val radFull          = PI2
+  private val degFull          = 360
+  private[math] val radToIndex = SIN_COUNT / radFull
+  private[math] val degToIndex = SIN_COUNT / degFull
 
   /** multiply by this to convert from radians to degrees */
   val radiansToDegrees = 180f / PI
@@ -36,7 +44,7 @@ object MathUtils {
   val degreesToRadians = PI / 180
   val degRad           = degreesToRadians
 
-  private object Sin {
+  private[math] object Sin {
     val table = new Array[Float](SIN_COUNT)
 
     {
@@ -493,52 +501,38 @@ object MathUtils {
   // ---
 
   /** Returns the next power of two. Returns the specified value if the value is already a power of two. */
-  def nextPowerOfTwo(value: Int): Int = {
-    if (value == 0) return 1
-    var v = value
-    v -= 1
-    v |= v >> 1
-    v |= v >> 2
-    v |= v >> 4
-    v |= v >> 8
-    v |= v >> 16
-    v + 1
-  }
+  def nextPowerOfTwo(value: Int): Int =
+    if (value == 0) 1
+    else {
+      var v = value
+      v -= 1
+      v |= v >> 1
+      v |= v >> 2
+      v |= v >> 4
+      v |= v >> 8
+      v |= v >> 16
+      v + 1
+    }
 
   def isPowerOfTwo(value: Int): Boolean =
     value != 0 && (value & (value - 1)) == 0
 
   // ---
 
-  def clamp(value: Short, min: Short, max: Short): Short = {
-    if (value < min) return min
-    if (value > max) return max
-    value
-  }
+  def clamp(value: Short, min: Short, max: Short): Short =
+    if (value < min) min else if (value > max) max else value
 
-  def clamp(value: Int, min: Int, max: Int): Int = {
-    if (value < min) return min
-    if (value > max) return max
-    value
-  }
+  def clamp(value: Int, min: Int, max: Int): Int =
+    if (value < min) min else if (value > max) max else value
 
-  def clamp(value: Long, min: Long, max: Long): Long = {
-    if (value < min) return min
-    if (value > max) return max
-    value
-  }
+  def clamp(value: Long, min: Long, max: Long): Long =
+    if (value < min) min else if (value > max) max else value
 
-  def clamp(value: Float, min: Float, max: Float): Float = {
-    if (value < min) return min
-    if (value > max) return max
-    value
-  }
+  def clamp(value: Float, min: Float, max: Float): Float =
+    if (value < min) min else if (value > max) max else value
 
-  def clamp(value: Double, min: Double, max: Double): Double = {
-    if (value < min) return min
-    if (value > max) return max
-    value
-  }
+  def clamp(value: Double, min: Double, max: Double): Double =
+    if (value < min) min else if (value > max) max else value
 
   // ---
 

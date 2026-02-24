@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/Texture3D.java
+ * Original authors: mgsx
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 
@@ -12,7 +20,7 @@ import sge.utils.SgeError
   * @author
   *   mgsx
   */
-class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_TEXTURE_3D, sde.graphics.gl.glGenTexture()) {
+class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_TEXTURE_3D, TextureHandle(sde.graphics.gl.glGenTexture())) {
 
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
@@ -66,7 +74,7 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
-    glHandle = sde.graphics.gl.glGenTexture()
+    glHandle = TextureHandle(sde.graphics.gl.glGenTexture())
     load(textureData)
   }
 

@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/ShaderProgram.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package glutils
@@ -198,7 +206,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     // -1 == cached but not found
     attributes.get(name) match {
       case Some(location) => location
-      case None =>
+      case None           =>
         val location = gl.glGetAttribLocation(program, name)
         attributes.put(name, location)
         location
@@ -213,7 +221,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     // -1 == cached but not found
     uniforms.get(name) match {
       case Some(location) => location
-      case None =>
+      case None           =>
         val location = sge.graphics.gl20.glGetUniformLocation(program, name)
         if (location == -1 && pedantic) {
           if (isCompiled()) throw new IllegalArgumentException(s"No uniform with name '$name' in shader")

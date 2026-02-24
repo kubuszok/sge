@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/GLTexture.java
+ * Original authors: badlogic, Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.graphics
 
 import sge.Sge
@@ -16,7 +24,7 @@ import scala.compiletime.uninitialized
   * @author
   *   badlogic, Xoppa
   */
-abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using sge: Sge) extends AutoCloseable {
+abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandle)(using sge: Sge) extends AutoCloseable {
 
   protected var minFilter:              TextureFilter = TextureFilter.Nearest
   protected var magFilter:              TextureFilter = TextureFilter.Nearest
@@ -35,7 +43,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using s
 
   /** Generates a new OpenGL texture with the specified target. */
   def this(glTarget: Int)(using sge: Sge) = {
-    this(glTarget, sge.graphics.gl.glGenTexture())
+    this(glTarget, TextureHandle(sge.graphics.gl.glGenTexture()))
   }
 
   /** @return whether this texture is managed or not. */
@@ -46,7 +54,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using s
   /** Binds this texture. The texture will be bound to the currently active texture unit specified via {@link GL20#glActiveTexture(int)} .
     */
   def bind(): Unit =
-    sge.graphics.gl.glBindTexture(glTarget, glHandle)
+    sge.graphics.gl.glBindTexture(glTarget, glHandle.toInt)
 
   /** Binds the texture to the given texture unit. Sets the currently active texture unit via {@link GL20#glActiveTexture(int)} .
     * @param unit
@@ -54,7 +62,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using s
     */
   def bind(unit: Int): Unit = {
     sge.graphics.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit)
-    sge.graphics.gl.glBindTexture(glTarget, glHandle)
+    sge.graphics.gl.glBindTexture(glTarget, glHandle.toInt)
   }
 
   /** @return The {@link TextureFilter} used for minification. */
@@ -70,7 +78,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using s
   def getVWrap(): TextureWrap = vWrap
 
   /** @return The OpenGL handle for this texture. */
-  def getTextureObjectHandle(): Int = glHandle
+  def getTextureObjectHandle(): TextureHandle = glHandle
 
   /** Sets the {@link TextureWrap} for this texture on the u and v axis. Assumes the texture is bound and active!
     * @param u
@@ -198,17 +206,17 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: Int)(using s
 
   /** Destroys the OpenGL Texture as specified by the glHandle. */
   protected def delete(): Unit =
-    if (glHandle != 0) {
-      sge.graphics.gl.glDeleteTexture(glHandle)
-      glHandle = 0
+    if (glHandle != TextureHandle.none) {
+      sge.graphics.gl.glDeleteTexture(glHandle.toInt)
+      glHandle = TextureHandle.none
     }
 
   override def close(): Unit =
     // Note: close() cannot access GL context without Sge parameter
     // This should be called from a context where Sge is available
-    if (glHandle != 0) {
+    if (glHandle != TextureHandle.none) {
       // Mark as deleted, actual GL cleanup needs to be done with proper context
-      glHandle = 0
+      glHandle = TextureHandle.none
     }
 
   def uploadImageData(target: Int, data: TextureData): Unit =

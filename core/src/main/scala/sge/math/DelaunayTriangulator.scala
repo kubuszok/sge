@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/DelaunayTriangulator.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 
@@ -104,9 +112,9 @@ class DelaunayTriangulator {
       while (triangleIndex >= 0) {
         val completeIndex = triangleIndex / 3
         if (!complete(completeIndex)) {
-          val p1 = triangles(triangleIndex - 2)
-          val p2 = triangles(triangleIndex - 1)
-          val p3 = triangles(triangleIndex)
+          val p1       = triangles(triangleIndex - 2)
+          val p2       = triangles(triangleIndex - 1)
+          val p3       = triangles(triangleIndex)
           val (x1, y1) = if (p1 >= end) {
             val i = p1 - end
             (superTriangle(i), superTriangle(i + 1))

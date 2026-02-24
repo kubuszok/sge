@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/Timer.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -234,8 +242,8 @@ object Timer {
     var instance:        Option[Timer] = None
     var pauseTimeMillis: Long          = 0
 
-    val postedTasks      = ArrayBuffer.empty[Task]
-    private val runTasks = ArrayBuffer.empty[Task]
+    val postedTasks            = ArrayBuffer.empty[Task]
+    private val runTasks       = ArrayBuffer.empty[Task]
     private val runPostedTasks = new Runnable {
       def run(): Unit = runPostedTasksImpl()
     }

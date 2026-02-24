@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/net/NetJavaImpl.java
+ * Original authors: acoppes
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package net
 
@@ -74,7 +82,7 @@ class NetJavaImpl(maxThreads: Int = Int.MaxValue) {
 
   private val executorService: ThreadPoolExecutor = {
     val isCachedPool = maxThreads == Int.MaxValue
-    val executor = new ThreadPoolExecutor(
+    val executor     = new ThreadPoolExecutor(
       if (isCachedPool) 0 else maxThreads,
       maxThreads,
       60L,
@@ -123,8 +131,8 @@ class NetJavaImpl(maxThreads: Int = Int.MaxValue) {
         }
       }
 
-      val connection = url.openConnection().asInstanceOf[HttpURLConnection]
-      val doInput    = !method.equalsIgnoreCase(Net.HttpMethods.HEAD)
+      val connection  = url.openConnection().asInstanceOf[HttpURLConnection]
+      val doInput     = !method.equalsIgnoreCase(Net.HttpMethods.HEAD)
       val doingOutPut = method.equalsIgnoreCase(Net.HttpMethods.POST) ||
         method.equalsIgnoreCase(Net.HttpMethods.PUT) ||
         method.equalsIgnoreCase(Net.HttpMethods.PATCH)

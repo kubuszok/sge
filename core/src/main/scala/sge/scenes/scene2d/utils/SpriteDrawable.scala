@@ -1,0 +1,96 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/scenes/scene2d/utils/SpriteDrawable.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package scenes
+package scene2d
+package utils
+
+import sge.graphics.Color
+import sge.graphics.g2d.{ Batch, Sprite, TextureAtlas }
+
+/** Drawable for a {@link Sprite}.
+  * @author
+  *   Nathan Sweet
+  */
+class SpriteDrawable() extends BaseDrawable with TransformDrawable {
+  private var sprite: Sprite = scala.compiletime.uninitialized
+
+  def this(sprite: Sprite) = {
+    this()
+    setSprite(sprite)
+  }
+
+  def this(drawable: SpriteDrawable) = {
+    this()
+    // Copy base drawable properties
+    drawable match {
+      case bd: BaseDrawable =>
+        setLeftWidth(bd.getLeftWidth)
+        setRightWidth(bd.getRightWidth)
+        setTopHeight(bd.getTopHeight)
+        setBottomHeight(bd.getBottomHeight)
+        setMinWidth(bd.getMinWidth)
+        setMinHeight(bd.getMinHeight)
+        setName(bd.getName)
+    }
+    setSprite(drawable.sprite)
+  }
+
+  override def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit = {
+    val spriteColor = sprite.getColor()
+    val oldColor    = sprite.getPackedColor()
+    sprite.setColor(spriteColor.mul(batch.getColor()))
+
+    sprite.setRotation(0)
+    sprite.setScale(1, 1)
+    sprite.setBounds(x, y, width, height)
+    sprite.draw(batch)
+
+    sprite.setPackedColor(oldColor)
+  }
+
+  override def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
+
+    val spriteColor = sprite.getColor()
+    val oldColor    = sprite.getPackedColor()
+    sprite.setColor(spriteColor.mul(batch.getColor()))
+
+    sprite.setOrigin(originX, originY)
+    sprite.setRotation(rotation)
+    sprite.setScale(scaleX, scaleY)
+    sprite.setBounds(x, y, width, height)
+    sprite.draw(batch)
+
+    sprite.setPackedColor(oldColor)
+  }
+
+  def setSprite(sprite: Sprite): Unit = {
+    this.sprite = sprite
+    setMinWidth(sprite.getWidth())
+    setMinHeight(sprite.getHeight())
+  }
+
+  def getSprite: Sprite = sprite
+
+  /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
+  def tint(tint: Color): SpriteDrawable = {
+    val newSprite: Sprite = sprite match {
+      case as: TextureAtlas.AtlasSprite => new TextureAtlas.AtlasSprite(as)
+      case _ => new Sprite(sprite)
+    }
+    newSprite.setColor(tint)
+    newSprite.setSize(getMinWidth, getMinHeight)
+    val drawable = new SpriteDrawable(newSprite)
+    drawable.setLeftWidth(getLeftWidth)
+    drawable.setRightWidth(getRightWidth)
+    drawable.setTopHeight(getTopHeight)
+    drawable.setBottomHeight(getBottomHeight)
+    drawable
+  }
+}

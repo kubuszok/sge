@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/FrameBufferCubemap.java
+ * Original authors: realitix
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package glutils
@@ -99,7 +107,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     val glHandle = texture.getTextureObjectHandle()
     val sides    = Cubemap.CubemapSide.values
     for (side <- sides)
-      gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, glHandle, 0)
+      gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, glHandle.toInt, 0)
   }
 
   /** Makes the frame buffer current so everything gets drawn to it, must be followed by call to either nextSide() or bindSide(Cubemap.CubemapSide) to activate the side to render onto.
@@ -128,7 +136,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     *   The side to bind
     */
   protected def bindSide(side: Cubemap.CubemapSide): Unit =
-    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, getColorBufferTexture().getTextureObjectHandle(), 0)
+    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, getColorBufferTexture().getTextureObjectHandle().toInt, 0)
 
   /** Get the currently bound side. */
   def getSide(): Cubemap.CubemapSide =

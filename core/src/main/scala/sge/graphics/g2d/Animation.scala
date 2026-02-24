@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g2d/Animation.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package g2d
@@ -192,5 +200,15 @@ object Animation {
   /** Defines possible playback modes for an {@link Animation}. */
   enum PlayMode {
     case NORMAL, REVERSED, LOOP, LOOP_REVERSED, LOOP_PINGPONG, LOOP_RANDOM
+
+    def isLooping: Boolean = this match {
+      case NORMAL | REVERSED => false
+      case _                 => true
+    }
+
+    def isReversed: Boolean = this match {
+      case REVERSED | LOOP_REVERSED => true
+      case _                        => false
+    }
   }
 }

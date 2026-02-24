@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g2d/BitmapFontCache.java
+ * Original authors: Nathan Sweet, davebaol, Alexander Dorokhov
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.graphics.g2d
 
 import sge.graphics.Color

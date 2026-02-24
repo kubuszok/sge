@@ -1,27 +1,35 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/lz/BinTree.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.lz
 
 import java.io.IOException
 
 class BinTree extends InWindow {
-  var _cyclicBufferPos: Int = 0
+  var _cyclicBufferPos:  Int = 0
   var _cyclicBufferSize: Int = 0
-  var _matchMaxLen: Int = 0
+  var _matchMaxLen:      Int = 0
 
-  var _son: Array[Int] = scala.compiletime.uninitialized
+  var _son:  Array[Int] = scala.compiletime.uninitialized
   var _hash: Array[Int] = scala.compiletime.uninitialized
 
-  var _cutValue: Int = 0xFF
-  var _hashMask: Int = 0
+  var _cutValue:    Int = 0xff
+  var _hashMask:    Int = 0
   var _hashSizeSum: Int = 0
 
   var hashArray: Boolean = true
 
   var kNumHashDirectBytes: Int = 0
-  var kMinMatchCheck: Int = 4
-  var kFixHashSize: Int = BinTree.kHash2Size + BinTree.kHash3Size
+  var kMinMatchCheck:      Int = 4
+  var kFixHashSize:        Int = BinTree.kHash2Size + BinTree.kHash3Size
 
   def setType(numHashBytes: Int): Unit = {
-    hashArray = (numHashBytes > 2)
+    hashArray = numHashBytes > 2
     if (hashArray) {
       kNumHashDirectBytes = 0
       kMinMatchCheck = 4
@@ -67,7 +75,7 @@ class BinTree extends InWindow {
       hs |= (hs >> 4)
       hs |= (hs >> 8)
       hs >>= 1
-      hs |= 0xFFFF
+      hs |= 0xffff
       if (hs > (1 << 24)) hs >>= 1
       _hashMask = hs
       hs += 1
@@ -89,21 +97,21 @@ class BinTree extends InWindow {
         return 0
       }
     }
-    var offset = 0
+    var offset      = 0
     val matchMinPos = if (_pos > _cyclicBufferSize) _pos - _cyclicBufferSize else 0
-    val cur = _bufferOffset + _pos
-    var maxLen = BinTree.kStartMaxLen
-    var hashValue = 0
-    var hash2Value = 0
-    var hash3Value = 0
+    val cur         = _bufferOffset + _pos
+    var maxLen      = BinTree.kStartMaxLen
+    var hashValue   = 0
+    var hash2Value  = 0
+    var hash3Value  = 0
     if (hashArray) {
-      var temp = BinTree.CrcTable(_bufferBase(cur) & 0xFF) ^ (_bufferBase(cur + 1) & 0xFF)
+      var temp = BinTree.CrcTable(_bufferBase(cur) & 0xff) ^ (_bufferBase(cur + 1) & 0xff)
       hash2Value = temp & (BinTree.kHash2Size - 1)
-      temp ^= (_bufferBase(cur + 2) & 0xFF) << 8
+      temp ^= (_bufferBase(cur + 2) & 0xff) << 8
       hash3Value = temp & (BinTree.kHash3Size - 1)
-      hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xFF) << 5)) & _hashMask
+      hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xff) << 5)) & _hashMask
     } else
-      hashValue = (_bufferBase(cur) & 0xFF) ^ ((_bufferBase(cur + 1) & 0xFF) << 8)
+      hashValue = (_bufferBase(cur) & 0xff) ^ ((_bufferBase(cur + 1) & 0xff) << 8)
     var curMatch = _hash(kFixHashSize + hashValue)
     if (hashArray) {
       var curMatch2 = _hash(hash2Value)
@@ -127,7 +135,7 @@ class BinTree extends InWindow {
     }
     _hash(kFixHashSize + hashValue) = _pos
     val ptr0 = (_cyclicBufferPos << 1) + 1
-    val ptr1 = (_cyclicBufferPos << 1)
+    val ptr1 = _cyclicBufferPos << 1
     var len0 = kNumHashDirectBytes
     var len1 = kNumHashDirectBytes
     if (kNumHashDirectBytes != 0) {
@@ -139,17 +147,17 @@ class BinTree extends InWindow {
       }
     }
     var count = _cutValue
-    var done = false
-    while (!done) {
+    var done  = false
+    while (!done)
       if (curMatch <= matchMinPos || { count -= 1; count < 0 }) {
         _son(ptr0) = BinTree.kEmptyHashValue
         _son(ptr1) = BinTree.kEmptyHashValue
         done = true
       } else {
-        val delta = _pos - curMatch
+        val delta     = _pos - curMatch
         val cyclicPos = (if (delta <= _cyclicBufferPos) _cyclicBufferPos - delta else _cyclicBufferPos - delta + _cyclicBufferSize) << 1
-        val pby1 = _bufferOffset + curMatch
-        var len = math.min(len0, len1)
+        val pby1      = _bufferOffset + curMatch
+        var len       = math.min(len0, len1)
         if (_bufferBase(pby1 + len) == _bufferBase(cur + len)) {
           var break = false
           while (!break && { len += 1; len != lenLimit })
@@ -164,7 +172,7 @@ class BinTree extends InWindow {
             }
           }
         }
-        if ((_bufferBase(pby1 + len) & 0xFF) < (_bufferBase(cur + len) & 0xFF)) {
+        if ((_bufferBase(pby1 + len) & 0xff) < (_bufferBase(cur + len) & 0xff)) {
           _son(ptr1) = curMatch
           val newPtr1 = cyclicPos + 1
           curMatch = _son(newPtr1)
@@ -176,7 +184,6 @@ class BinTree extends InWindow {
           len0 = len
         }
       }
-    }
     movePos()
     offset
   }
@@ -195,36 +202,36 @@ class BinTree extends InWindow {
           n -= 1
         } else {
           val matchMinPos = if (_pos > _cyclicBufferSize) _pos - _cyclicBufferSize else 0
-          val cur = _bufferOffset + _pos
-          var hashValue = 0
+          val cur         = _bufferOffset + _pos
+          var hashValue   = 0
           if (hashArray) {
-            var temp = BinTree.CrcTable(_bufferBase(cur) & 0xFF) ^ (_bufferBase(cur + 1) & 0xFF)
+            var temp       = BinTree.CrcTable(_bufferBase(cur) & 0xff) ^ (_bufferBase(cur + 1) & 0xff)
             val hash2Value = temp & (BinTree.kHash2Size - 1)
             _hash(hash2Value) = _pos
-            temp ^= (_bufferBase(cur + 2) & 0xFF) << 8
+            temp ^= (_bufferBase(cur + 2) & 0xff) << 8
             val hash3Value = temp & (BinTree.kHash3Size - 1)
             _hash(BinTree.kHash3Offset + hash3Value) = _pos
-            hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xFF) << 5)) & _hashMask
+            hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xff) << 5)) & _hashMask
           } else
-            hashValue = (_bufferBase(cur) & 0xFF) ^ ((_bufferBase(cur + 1) & 0xFF) << 8)
+            hashValue = (_bufferBase(cur) & 0xff) ^ ((_bufferBase(cur + 1) & 0xff) << 8)
           var curMatch = _hash(kFixHashSize + hashValue)
           _hash(kFixHashSize + hashValue) = _pos
-          val ptr0 = (_cyclicBufferPos << 1) + 1
-          val ptr1 = (_cyclicBufferPos << 1)
-          var len0 = kNumHashDirectBytes
-          var len1 = kNumHashDirectBytes
+          val ptr0  = (_cyclicBufferPos << 1) + 1
+          val ptr1  = _cyclicBufferPos << 1
+          var len0  = kNumHashDirectBytes
+          var len1  = kNumHashDirectBytes
           var count = _cutValue
-          var done = false
-          while (!done) {
+          var done  = false
+          while (!done)
             if (curMatch <= matchMinPos || { count -= 1; count < 0 }) {
               _son(ptr0) = BinTree.kEmptyHashValue
               _son(ptr1) = BinTree.kEmptyHashValue
               done = true
             } else {
-              val delta = _pos - curMatch
+              val delta     = _pos - curMatch
               val cyclicPos = (if (delta <= _cyclicBufferPos) _cyclicBufferPos - delta else _cyclicBufferPos - delta + _cyclicBufferSize) << 1
-              val pby1 = _bufferOffset + curMatch
-              var len = math.min(len0, len1)
+              val pby1      = _bufferOffset + curMatch
+              var len       = math.min(len0, len1)
               if (_bufferBase(pby1 + len) == _bufferBase(cur + len)) {
                 var break = false
                 while (!break && { len += 1; len != lenLimit })
@@ -235,7 +242,7 @@ class BinTree extends InWindow {
                   done = true
                 }
               }
-              if ((_bufferBase(pby1 + len) & 0xFF) < (_bufferBase(cur + len) & 0xFF)) {
+              if ((_bufferBase(pby1 + len) & 0xff) < (_bufferBase(cur + len) & 0xff)) {
                 _son(ptr1) = curMatch
                 val newPtr1 = cyclicPos + 1
                 curMatch = _son(newPtr1)
@@ -247,7 +254,6 @@ class BinTree extends InWindow {
                 len0 = len
               }
             }
-          }
           movePos()
           n -= 1
         }
@@ -255,7 +261,7 @@ class BinTree extends InWindow {
     }
   }
 
-  def normalizeLinks(items: Array[Int], numItems: Int, subValue: Int): Unit = {
+  def normalizeLinks(items: Array[Int], numItems: Int, subValue: Int): Unit =
     for (i <- 0 until numItems) {
       var value = items(i)
       if (value <= BinTree.kEmptyHashValue)
@@ -264,7 +270,6 @@ class BinTree extends InWindow {
         value -= subValue
       items(i) = value
     }
-  }
 
   def normalize(): Unit = {
     val subValue = _pos - _cyclicBufferSize
@@ -273,18 +278,17 @@ class BinTree extends InWindow {
     reduceOffsets(subValue)
   }
 
-  def setCutValue(cutValue: Int): Unit = {
+  def setCutValue(cutValue: Int): Unit =
     _cutValue = cutValue
-  }
 }
 
 object BinTree {
-  final val kHash2Size: Int = 1 << 10
-  final val kHash3Size: Int = 1 << 16
-  final val kBT2HashSize: Int = 1 << 16
-  final val kStartMaxLen: Int = 1
-  final val kHash3Offset: Int = kHash2Size
-  final val kEmptyHashValue: Int = 0
+  final val kHash2Size:          Int = 1 << 10
+  final val kHash3Size:          Int = 1 << 16
+  final val kBT2HashSize:        Int = 1 << 16
+  final val kStartMaxLen:        Int = 1
+  final val kHash3Offset:        Int = kHash2Size
+  final val kEmptyHashValue:     Int = 0
   final val kMaxValForNormalize: Int = (1 << 30) - 1
 
   val CrcTable: Array[Int] = {
@@ -293,7 +297,7 @@ object BinTree {
       var r = i
       for (j <- 0 until 8)
         if ((r & 1) != 0)
-          r = (r >>> 1) ^ 0xEDB88320
+          r = (r >>> 1) ^ 0xedb88320
         else
           r >>>= 1
       arr(i) = r

@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/Pool.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -50,6 +58,7 @@ trait Pool[A] {
     */
   protected def reset(obj: A): Unit = obj match {
     case obj: Pool.Poolable => obj.reset()
+    case _ => ()
   }
 
   /** Called when an object is discarded. This is the case when an object is freed, but the maximum capacity of the pool is reached, and when the pool is {@link #clear() cleared}
@@ -186,7 +195,7 @@ object Pool {
     private def addToChild(value: Float, valueX: Float, valueY: Float): Unit = {
       val halfWidth  = width / 2
       val halfHeight = height / 2
-      val child = if (valueX < x + halfWidth) {
+      val child      = if (valueX < x + halfWidth) {
         if (valueY < y + halfHeight) {
           if (sw.isDefined) sw.orNull
           else {

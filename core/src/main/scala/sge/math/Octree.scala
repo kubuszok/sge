@@ -1,9 +1,17 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/Octree.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 
 import sge.math.collision._
 import sge.math.Frustum
-import sge.utils.Pool
+import sge.utils.{ Nullable, Pool }
 import scala.collection.mutable.{ ArrayBuffer, Set }
 
 /** A static Octree implementation.
@@ -108,8 +116,8 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
 
     var level: Int = scala.compiletime.uninitialized
     val bounds = new BoundingBox()
-    var leaf:             Boolean           = scala.compiletime.uninitialized
-    private var children: Array[OctreeNode] = scala.compiletime.uninitialized // May be null when leaf is true.
+    var leaf:             Boolean                     = scala.compiletime.uninitialized
+    private var children: Nullable[Array[OctreeNode]] = Nullable.empty
     private val geometries = ArrayBuffer[T]()
 
     private def split(): Unit = {
@@ -120,18 +128,19 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
       val deeperLevel = level - 1
 
       leaf = false
-      if (children == null) children = Array.ofDim[OctreeNode](8)
-      children(0) = createNode(Vector3(bounds.min.x, midy, midz), Vector3(midx, bounds.max.y, bounds.max.z), deeperLevel)
-      children(1) = createNode(Vector3(midx, midy, midz), Vector3(bounds.max.x, bounds.max.y, bounds.max.z), deeperLevel)
-      children(2) = createNode(Vector3(midx, midy, bounds.min.z), Vector3(bounds.max.x, bounds.max.y, midz), deeperLevel)
-      children(3) = createNode(Vector3(bounds.min.x, midy, bounds.min.z), Vector3(midx, bounds.max.y, midz), deeperLevel)
-      children(4) = createNode(Vector3(bounds.min.x, bounds.min.y, midz), Vector3(midx, midy, bounds.max.z), deeperLevel)
-      children(5) = createNode(Vector3(midx, bounds.min.y, midz), Vector3(bounds.max.x, midy, bounds.max.z), deeperLevel)
-      children(6) = createNode(Vector3(midx, bounds.min.y, bounds.min.z), Vector3(bounds.max.x, midy, midz), deeperLevel)
-      children(7) = createNode(Vector3(bounds.min.x, bounds.min.y, bounds.min.z), Vector3(midx, midy, midz), deeperLevel)
+      val ch = children.getOrElse(Array.ofDim[OctreeNode](8))
+      ch(0) = createNode(Vector3(bounds.min.x, midy, midz), Vector3(midx, bounds.max.y, bounds.max.z), deeperLevel)
+      ch(1) = createNode(Vector3(midx, midy, midz), Vector3(bounds.max.x, bounds.max.y, bounds.max.z), deeperLevel)
+      ch(2) = createNode(Vector3(midx, midy, bounds.min.z), Vector3(bounds.max.x, bounds.max.y, midz), deeperLevel)
+      ch(3) = createNode(Vector3(bounds.min.x, midy, bounds.min.z), Vector3(midx, bounds.max.y, midz), deeperLevel)
+      ch(4) = createNode(Vector3(bounds.min.x, bounds.min.y, midz), Vector3(midx, midy, bounds.max.z), deeperLevel)
+      ch(5) = createNode(Vector3(midx, bounds.min.y, midz), Vector3(bounds.max.x, midy, bounds.max.z), deeperLevel)
+      ch(6) = createNode(Vector3(midx, bounds.min.y, bounds.min.z), Vector3(bounds.max.x, midy, midz), deeperLevel)
+      ch(7) = createNode(Vector3(bounds.min.x, bounds.min.y, bounds.min.z), Vector3(midx, midy, midz), deeperLevel)
+      children = Nullable(ch)
 
       // Move geometries from parent to children
-      for (child <- children)
+      for (child <- ch)
         for (geometry <- this.geometries)
           child.add(geometry)
       this.geometries.clear()
@@ -149,41 +158,47 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     }
 
     private def clearChildren(): Unit =
-      for (i <- 0 until 8) {
-        children(i).free()
-        children(i) = null
+      children.foreach { ch =>
+        for (i <- 0 until 8)
+          ch(i).free()
+        children = Nullable.empty
       }
 
-    def add(geometry: T): Unit = {
+    def add(geometry: T): Unit =
       if (!collider.intersects(bounds, geometry)) {
-        return
-      }
-
-      // If is not leaf, check children
-      if (!leaf) {
-        for (child <- children)
-          child.add(geometry)
+        ()
+      } else if (!leaf) {
+        // If is not leaf, check children
+        children.foreach { ch =>
+          for (child <- ch)
+            child.add(geometry)
+        }
       } else {
         if (geometries.size >= maxItemsPerNode && level > 0) {
           split()
-          for (child <- children)
-            child.add(geometry)
+          children.foreach { ch =>
+            for (child <- ch)
+              child.add(geometry)
+          }
         } else {
           geometries += geometry
         }
       }
-    }
 
     def remove(obj: T): Boolean =
       if (!leaf) {
         var removed = false
-        for (node <- children)
-          removed |= node.remove(obj)
+        children.foreach { ch =>
+          for (node <- ch)
+            removed |= node.remove(obj)
+        }
 
         if (removed) {
           val geometrySet = ArrayBuffer[T]()
-          for (node <- children)
-            node.getAll(geometrySet.to(Set))
+          children.foreach { ch =>
+            for (node <- ch)
+              node.getAll(geometrySet.to(Set))
+          }
           if (geometrySet.size <= maxItemsPerNode) {
             for (geometry <- geometrySet)
               geometries += geometry
@@ -204,28 +219,29 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
 
     protected def isLeaf: Boolean = leaf
 
-    def query(aabb: BoundingBox, result: Set[T]): Unit = {
-      if (!aabb.intersects(bounds)) {
-        return
-      }
-
-      if (!leaf) {
-        for (node <- children)
-          node.query(aabb, result)
-      } else {
-        for (geometry <- geometries)
-          // Filter geometries using collider
-          if (collider.intersects(bounds, geometry)) {
-            result += geometry
+    def query(aabb: BoundingBox, result: Set[T]): Unit =
+      if (aabb.intersects(bounds)) {
+        if (!leaf) {
+          children.foreach { ch =>
+            for (node <- ch)
+              node.query(aabb, result)
           }
+        } else {
+          for (geometry <- geometries)
+            // Filter geometries using collider
+            if (collider.intersects(bounds, geometry)) {
+              result += geometry
+            }
+        }
       }
-    }
 
     def query(frustum: Frustum, result: Set[T]): Unit =
       // Placeholder implementation since Frustum methods are not available
       if (!leaf) {
-        for (node <- children)
-          node.query(frustum, result)
+        children.foreach { ch =>
+          for (node <- ch)
+            node.query(frustum, result)
+        }
       } else {
         for (geometry <- geometries)
           // Filter geometries using collider
@@ -234,28 +250,30 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
           }
       }
 
-    def rayCast(ray: Ray, result: Octree.RayCastResult[T]): Unit = {
+    def rayCast(ray: Ray, result: Octree.RayCastResult[T]): Unit = scala.util.boundary {
       val tmp = Octree.tmp
       // Placeholder for ray-bounds intersection since the method is not available
       val intersect = true // Intersector.intersectRayBounds(ray, bounds, tmp)
       if (!intersect) {
-        return
+        scala.util.boundary.break(())
       } else {
         val dst2 = tmp.distanceSq(ray.origin) // Using distanceSq instead of dst2
         if (dst2 >= result.maxDistanceSq) {
-          return
+          scala.util.boundary.break(())
         }
       }
 
       // Check intersection with children
       if (!leaf) {
-        for (child <- children)
-          child.rayCast(ray, result)
+        children.foreach { ch =>
+          for (child <- ch)
+            child.rayCast(ray, result)
+        }
       } else {
         for (geometry <- geometries) {
           // Check intersection with geometries
           val distance = collider.intersects(ray, geometry)
-          if (result.geometry == null || distance < result.distance) {
+          if (result.geometryNullable.isEmpty || distance < result.distance) {
             result.geometry = geometry
             result.distance = distance
           }
@@ -268,8 +286,10 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
       */
     def getAll(resultSet: Set[T]): Unit = {
       if (!leaf) {
-        for (child <- children)
-          child.getAll(resultSet)
+        children.foreach { ch =>
+          for (child <- ch)
+            child.getAll(resultSet)
+        }
       }
       resultSet ++= geometries
     }
@@ -279,8 +299,10 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
       */
     def getBoundingBox(bounds: Set[BoundingBox]): Unit = {
       if (!leaf) {
-        for (node <- children)
-          node.getBoundingBox(bounds)
+        children.foreach { ch =>
+          for (node <- ch)
+            node.getBoundingBox(bounds)
+        }
       }
       bounds += this.bounds
     }
@@ -321,8 +343,10 @@ object Octree {
   }
 
   class RayCastResult[T] {
-    var geometry:      T     = scala.compiletime.uninitialized
-    var distance:      Float = scala.compiletime.uninitialized
-    var maxDistanceSq: Float = Float.MaxValue
+    var geometryNullable:     Nullable[T] = Nullable.empty
+    def geometry:             T           = geometryNullable.getOrElse(throw new NoSuchElementException("No geometry in RayCastResult"))
+    def geometry_=(value: T): Unit        = geometryNullable = Nullable(value)
+    var distance:             Float       = scala.compiletime.uninitialized
+    var maxDistanceSq:        Float       = Float.MaxValue
   }
 }

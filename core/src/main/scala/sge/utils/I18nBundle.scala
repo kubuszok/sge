@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/I18nBundle.java
+ * Original authors: davebaol
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -5,6 +13,7 @@ import java.io.{ IOException, Reader }
 import java.util.{ ArrayList, List => JList, Locale, MissingResourceException }
 import scala.collection.mutable.{ LinkedHashSet, Set => MutableSet }
 import scala.jdk.CollectionConverters._
+import scala.util.boundary
 import sge.files.FileHandle
 import sge.utils.{ Nullable, ObjectMap, PropertiesUtils, TextFormatter }
 
@@ -57,7 +66,7 @@ class I18NBundle {
     */
   @throws[IOException]
   protected def load(reader: Reader): Unit = {
-    properties = new ObjectMap[String, String]()
+    properties = ObjectMap[String, String]()
     PropertiesUtils.load(properties, reader)
   }
 
@@ -89,18 +98,17 @@ class I18NBundle {
     * @return
     *   the string for the given key or the key surrounded by {@code ???} if it cannot be found and {@link #getExceptionOnMissingKey()} returns {@code false}
     */
-  def get(key: String): String = {
-    var result = properties.get(key)
-    if (result == null) {
-      if (parent.isDefined) result = parent.orNull.get(key)
-      if (result == null) {
-        if (I18NBundle.exceptionOnMissingKey)
-          throw new MissingResourceException("Can't find bundle key " + key, this.getClass.getName, key)
-        else
-          return "???" + key + "???"
-      }
+  def get(key: String): String = boundary {
+    val result = properties.get(key)
+    if (result.isDefined) boundary.break(result.orNull)
+    if (parent.isDefined) {
+      val parentResult = parent.orNull.get(key)
+      boundary.break(parentResult)
     }
-    result
+    if (I18NBundle.exceptionOnMissingKey)
+      throw new MissingResourceException("Can't find bundle key " + key, this.getClass.getName, key)
+    else
+      "???" + key + "???"
   }
 
   /** Gets a key set of loaded properties. Keys will be copied into a new set and returned.
@@ -110,12 +118,7 @@ class I18NBundle {
     */
   def keys(): MutableSet[String] = {
     val result = new LinkedHashSet[String]()
-    val keys   = properties.keys()
-    if (keys != null) {
-      val it = keys.iterator
-      while (it.hasNext)
-        result.add(it.next())
-    }
+    properties.foreachKey(key => result.add(key))
     result
   }
 
@@ -140,16 +143,8 @@ class I18NBundle {
     *
     * @param placeholder
     */
-  def debug(placeholder: String): Unit = {
-    val keys = properties.keys()
-    if (keys != null) {
-      val it = keys.iterator
-      while (it.hasNext) {
-        val s = it.next()
-        properties.put(s, placeholder)
-      }
-    }
-  }
+  def debug(placeholder: String): Unit =
+    properties.foreachKey(key => properties.put(key, placeholder))
 }
 
 object I18NBundle {

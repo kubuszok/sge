@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g2d/ParticleEmitter.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 package g2d
@@ -423,7 +431,10 @@ class ParticleEmitter {
       particle.yScale = yScaleValue.newLowValue() / spriteHeight
       particle.yScaleDiff = yScaleValue.newHighValue() / spriteHeight
       if (!yScaleValue.relative) particle.yScaleDiff -= particle.yScale
-      particle.setScale(particle.xScale + particle.xScaleDiff * xScaleValue.getScale(0), particle.yScale + particle.yScaleDiff * yScaleValue.getScale(0))
+      particle.setScale(
+        particle.xScale + particle.xScaleDiff * xScaleValue.getScale(0),
+        particle.yScale + particle.yScaleDiff * yScaleValue.getScale(0)
+      )
     } else {
       particle.setScale(particle.xScale + particle.xScaleDiff * xScaleValue.getScale(0))
     }

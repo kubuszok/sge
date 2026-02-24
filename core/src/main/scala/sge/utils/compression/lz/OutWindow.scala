@@ -1,13 +1,21 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/utils/compression/lz/OutWindow.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge.utils.compression.lz
 
 import java.io.IOException
 
 class OutWindow {
-  var _buffer: Array[Byte] = scala.compiletime.uninitialized
-  var _pos: Int = 0
-  var _windowSize: Int = 0
-  var _streamPos: Int = 0
-  var _stream: java.io.OutputStream = scala.compiletime.uninitialized
+  var _buffer:     Array[Byte]          = scala.compiletime.uninitialized
+  var _pos:        Int                  = 0
+  var _windowSize: Int                  = 0
+  var _streamPos:  Int                  = 0
+  var _stream:     java.io.OutputStream = scala.compiletime.uninitialized
 
   def create(windowSize: Int): Unit = {
     if (_buffer == null || _windowSize != windowSize) _buffer = new Array[Byte](windowSize)
@@ -28,12 +36,11 @@ class OutWindow {
     _stream = null
   }
 
-  def init(solid: Boolean): Unit = {
+  def init(solid: Boolean): Unit =
     if (!solid) {
       _streamPos = 0
       _pos = 0
     }
-  }
 
   @throws[IOException]
   def flush(): Unit = {
@@ -46,7 +53,7 @@ class OutWindow {
 
   @throws[IOException]
   def copyBlock(distance: Int, len: Int): Unit = {
-    var l = len
+    var l   = len
     var pos = _pos - distance - 1
     if (pos < 0) pos += _windowSize
     while (l != 0) {

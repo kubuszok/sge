@@ -1,3 +1,6 @@
+/*
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package utils
 
@@ -15,7 +18,7 @@ object Resource {
   def pure[A](a: A): Resource[A] = Eval.pure((a, Eval.void))
 
   extension [A](res: Resource[A]) {
-    def map[B](f: A => B): Resource[B] = flatMap(a => Eval.pure(f(a._1) -> a._2))
+    def map[B](f: A => B):               Resource[B] = flatMap(a => Eval.pure(f(a._1) -> a._2))
     def flatMap[B](f: A => Resource[B]): Resource[B] =
       res.flatMap { case (aValue, aCleanup) =>
         try

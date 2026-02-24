@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/Screen.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 
 /** <p> Represents one of many application screens, such as a main menu, a settings menu, the game screen and so on. </p> <p> Note that {@link #close()} is not called automatically. </p>

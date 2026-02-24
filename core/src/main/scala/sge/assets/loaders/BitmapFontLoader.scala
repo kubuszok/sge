@@ -1,0 +1,116 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/assets/loaders/BitmapFontLoader.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package assets
+package loaders
+
+import sge.files.FileHandle
+import sge.graphics.Texture
+import sge.graphics.Texture.TextureFilter
+import sge.graphics.g2d.{ BitmapFont, BitmapFontData, TextureAtlas, TextureRegion }
+import sge.utils.{ Nullable, SgeError }
+import scala.collection.mutable.ArrayBuffer
+import scala.util.boundary
+
+/** {@link AssetLoader} for {@link BitmapFont} instances. Loads the font description file (.fnt) asynchronously, loads the {@link Texture} containing the glyphs as a dependency. The
+  * {@link BitmapFontParameter} allows you to set things like texture filters or whether to flip the glyphs vertically.
+  * @author
+  *   mzechner (original implementation)
+  */
+class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[BitmapFont, BitmapFontLoader.BitmapFontParameter](resolver) {
+
+  private var data: Nullable[BitmapFontData] = Nullable.empty
+
+  override def getDependencies(fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): ArrayBuffer[AssetDescriptor[?]] = boundary {
+    val deps = ArrayBuffer.empty[AssetDescriptor[?]]
+    if (parameter != null && parameter.bitmapFontData.isDefined) {
+      data = parameter.bitmapFontData
+      boundary.break(deps)
+    }
+
+    data = Nullable(new BitmapFontData(Nullable(file), parameter != null && parameter.flip))
+    if (parameter != null && parameter.atlasName.isDefined) {
+      parameter.atlasName.foreach { atlasName =>
+        deps += new AssetDescriptor[TextureAtlas](atlasName, classOf[TextureAtlas])
+      }
+    } else {
+      data.foreach { d =>
+        for (i <- 0 until d.imagePaths.length) {
+          val path     = d.imagePaths(i)
+          val resolved = resolve(path)
+
+          val textureParams = new TextureLoader.TextureParameter()
+
+          if (parameter != null) {
+            textureParams.genMipMaps = parameter.genMipMaps
+            textureParams.minFilter = parameter.minFilter
+            textureParams.magFilter = parameter.magFilter
+          }
+
+          deps += new AssetDescriptor[Texture](resolved, classOf[Texture], textureParams)
+        }
+      }
+    }
+
+    deps
+  }
+
+  override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): Unit = {}
+
+  override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): BitmapFont =
+    if (parameter != null && parameter.atlasName.isDefined) {
+      val atlasName = parameter.atlasName.orNull
+      val atlas     = manager.get(atlasName, classOf[TextureAtlas])
+      val name      = file.sibling(data.orNull.imagePaths(0)).nameWithoutExtension()
+      val region    = atlas.findRegion(name)
+
+      region.fold {
+        throw SgeError.GraphicsError("Could not find font region " + name + " in atlas " + atlasName)
+      } { r =>
+        new BitmapFont(file, Nullable(r))
+      }
+    } else {
+      val d    = data.orNull
+      val n    = d.imagePaths.length
+      val regs = ArrayBuffer.empty[TextureRegion]
+      for (i <- 0 until n)
+        regs += new TextureRegion(manager.get(d.imagePaths(i), classOf[Texture]))
+      new BitmapFont(d, Nullable(regs), true)
+    }
+}
+
+object BitmapFontLoader {
+
+  /** Parameter to be passed to {@link AssetManager#load(String, Class, AssetLoaderParameters)} if additional configuration is necessary for the {@link BitmapFont}.
+    * @author
+    *   mzechner (original implementation)
+    */
+  class BitmapFontParameter extends AssetLoaderParameters[BitmapFont] {
+
+    /** Flips the font vertically if {@code true}. Defaults to {@code false}. * */
+    var flip: Boolean = false
+
+    /** Generates mipmaps for the font if {@code true}. Defaults to {@code false}. * */
+    var genMipMaps: Boolean = false
+
+    /** The {@link TextureFilter} to use when scaling down the {@link BitmapFont}. Defaults to {@link TextureFilter#Nearest}. */
+    var minFilter: TextureFilter = TextureFilter.Nearest
+
+    /** The {@link TextureFilter} to use when scaling up the {@link BitmapFont}. Defaults to {@link TextureFilter#Nearest}. */
+    var magFilter: TextureFilter = TextureFilter.Nearest
+
+    /** optional {@link BitmapFontData} to be used instead of loading the {@link Texture} directly. Use this if your font is embedded in a Skin.
+      */
+    var bitmapFontData: Nullable[BitmapFontData] = Nullable.empty
+
+    /** The name of the {@link TextureAtlas} to load the {@link BitmapFont} itself from. Optional; if empty, will look for a separate image
+      */
+    var atlasName: Nullable[String] = Nullable.empty
+  }
+}

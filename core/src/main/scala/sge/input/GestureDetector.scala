@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/input/GestureDetector.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package input
 
@@ -65,8 +73,8 @@ class GestureDetector(
   override def touchDown(x: Int, y: Int, pointer: Int, button: Int): Boolean =
     touchDown(x.toFloat, y.toFloat, pointer, button)
 
-  def touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-    if (pointer > 1) return false
+  def touchDown(x: Float, y: Float, pointer: Int, button: Int): Boolean = scala.util.boundary {
+    if (pointer > 1) scala.util.boundary.break(false)
 
     if (pointer == 0) {
       pointer1.set(x, y)
@@ -103,9 +111,9 @@ class GestureDetector(
   override def touchDragged(x: Int, y: Int, pointer: Int): Boolean =
     touchDragged(x.toFloat, y.toFloat, pointer)
 
-  def touchDragged(x: Float, y: Float, pointer: Int): Boolean = {
-    if (pointer > 1) return false
-    if (longPressFired) return false
+  def touchDragged(x: Float, y: Float, pointer: Int): Boolean = scala.util.boundary {
+    if (pointer > 1) scala.util.boundary.break(false)
+    if (longPressFired) scala.util.boundary.break(false)
 
     if (pointer == 0)
       pointer1.set(x, y)
@@ -115,7 +123,7 @@ class GestureDetector(
     // handle pinch zoom
     if (pinching) {
       val result = listener.pinch(initialPointer1, initialPointer2, pointer1, pointer2)
-      return listener.zoom(initialPointer1.distance(initialPointer2), pointer1.distance(pointer2)) || result
+      scala.util.boundary.break(listener.zoom(initialPointer1.distance(initialPointer2), pointer1.distance(pointer2)) || result)
     }
 
     // update tracker
@@ -130,7 +138,7 @@ class GestureDetector(
     // if we have left the tap square, we are panning
     if (!inTapRectangle) {
       panning = true
-      return listener.pan(x, y, tracker.deltaX, tracker.deltaY)
+      scala.util.boundary.break(listener.pan(x, y, tracker.deltaX, tracker.deltaY))
     }
 
     false
@@ -139,8 +147,8 @@ class GestureDetector(
   override def touchUp(x: Int, y: Int, pointer: Int, button: Int): Boolean =
     touchUp(x.toFloat, y.toFloat, pointer, button)
 
-  def touchUp(x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-    if (pointer > 1) return false
+  def touchUp(x: Float, y: Float, pointer: Int, button: Int): Boolean = scala.util.boundary {
+    if (pointer > 1) scala.util.boundary.break(false)
 
     // check if we are still tapping.
     if (inTapRectangle && !isWithinTapRectangle(x, y, tapRectangleCenterX, tapRectangleCenterY))
@@ -150,7 +158,7 @@ class GestureDetector(
     panning = false
 
     longPressTask.cancel()
-    if (longPressFired) return false
+    if (longPressFired) scala.util.boundary.break(false)
 
     if (inTapRectangle) {
       // handle taps
@@ -168,7 +176,7 @@ class GestureDetector(
       lastTapButton = button
       lastTapPointer = pointer
       touchDownTime = 0
-      return listener.tap(x, y, tapCount, button)
+      scala.util.boundary.break(listener.tap(x, y, tapCount, button))
     }
 
     if (pinching) {
@@ -184,7 +192,7 @@ class GestureDetector(
         // second pointer has lifted off, set up panning to use the first pointer...
         tracker.start(pointer1.x, pointer1.y, sde.input.getCurrentEventTime())
       }
-      return false
+      scala.util.boundary.break(false)
     }
 
     // handle no longer panning
@@ -219,10 +227,9 @@ class GestureDetector(
     * @return
     *   whether the user touched the screen for as much or more than the given duration.
     */
-  def isLongPressed(duration: Float): Boolean = {
-    if (touchDownTime == 0) return false
-    TimeUtils.nanoTime() - touchDownTime > (duration * 1000000000L).toLong
-  }
+  def isLongPressed(duration: Float): Boolean =
+    if (touchDownTime == 0) false
+    else TimeUtils.nanoTime() - touchDownTime > (duration * 1000000000L).toLong
 
   def isPanning(): Boolean = panning
 
@@ -390,15 +397,15 @@ object GestureDetector {
     def getVelocityX(): Float = {
       val meanX    = getAverage(this.meanX, numSamples)
       val meanTime = getAverage(this.meanTime, numSamples) / 1000000000.0f
-      if (meanTime == 0) return 0
-      meanX / meanTime
+      if (meanTime == 0) 0
+      else meanX / meanTime
     }
 
     def getVelocityY(): Float = {
       val meanY    = getAverage(this.meanY, numSamples)
       val meanTime = getAverage(this.meanTime, numSamples) / 1000000000.0f
-      if (meanTime == 0) return 0
-      meanY / meanTime
+      if (meanTime == 0) 0
+      else meanY / meanTime
     }
 
     private def getAverage(values: Array[Float], numSamples: Int): Float = {
@@ -411,20 +418,24 @@ object GestureDetector {
 
     private def getAverage(values: Array[Long], numSamples: Int): Float = {
       val numSamplesUsed = min(sampleSize, numSamples)
-      var sum            = 0L
-      for (i <- 0 until numSamplesUsed)
-        sum += values(i)
-      if (numSamplesUsed == 0) return 0
-      sum.toFloat / numSamplesUsed
+      if (numSamplesUsed == 0) 0
+      else {
+        var sum = 0L
+        for (i <- 0 until numSamplesUsed)
+          sum += values(i)
+        sum.toFloat / numSamplesUsed
+      }
     }
 
     private def getSum(values: Array[Float], numSamples: Int): Float = {
       val numSamplesUsed = min(sampleSize, numSamples)
-      var sum            = 0f
-      for (i <- 0 until numSamplesUsed)
-        sum += values(i)
-      if (numSamplesUsed == 0) return 0
-      sum
+      if (numSamplesUsed == 0) 0
+      else {
+        var sum = 0f
+        for (i <- 0 until numSamplesUsed)
+          sum += values(i)
+        sum
+      }
     }
   }
 }

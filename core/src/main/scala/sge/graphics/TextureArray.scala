@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/TextureArray.java
+ * Original authors: Tomski
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 
@@ -12,7 +20,7 @@ import scala.collection.mutable
   * @author
   *   Tomski
   */
-class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL30.GL_TEXTURE_2D_ARRAY, sge.graphics.gl.glGenTexture()) {
+class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL30.GL_TEXTURE_2D_ARRAY, TextureHandle(sge.graphics.gl.glGenTexture())) {
 
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
@@ -82,7 +90,7 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
-    glHandle = sge.graphics.gl.glGenTexture()
+    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
     load(textureData)
   }
 }

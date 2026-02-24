@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/Cubemap.java
+ * Original authors: Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package graphics
 
@@ -70,7 +78,7 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged Cubemap")
-    glHandle = sge.graphics.gl.glGenTexture()
+    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
     load(data)
   }
 
@@ -86,7 +94,7 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
     // reloaded through the asset manager as we first remove (and thus dispose) the texture
     // and then reload it. the glHandle is set to 0 in invalidateAllTextures prior to
     // removal from the asset manager.
-    if (glHandle == 0) return
+    if (glHandle == TextureHandle.none) return
     delete()
     if (data.isManaged) {
       Cubemap.managedCubemaps.get(sge.application) match {
@@ -175,7 +183,7 @@ object Cubemap {
               // already reloaded cubemaps.
               val refCount = assetManager.orNull.getReferenceCount(fileName)
               assetManager.orNull.setReferenceCount(fileName, 0)
-              cubemap.glHandle = 0
+              cubemap.glHandle = TextureHandle.none
 
               // create the parameters, passing the reference to the cubemap as
               // well as a callback that sets the ref count.
@@ -194,7 +202,7 @@ object Cubemap {
 
               // unload the c, create a new gl handle then reload it.
               assetManager.orNull.unload(fileName)
-              cubemap.glHandle = sge.graphics.gl.glGenTexture()
+              cubemap.glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
               assetManager.orNull.load(fileName, classOf[Cubemap], params)
             }
           }

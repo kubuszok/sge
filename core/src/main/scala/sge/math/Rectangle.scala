@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/math/Rectangle.java
+ * Original authors: badlogicgames@gmail.com
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 package math
 
@@ -438,16 +446,14 @@ class Rectangle() extends Shape2D {
     result
   }
 
-  override def equals(obj: Any): Boolean = {
-    if (this == obj) return true
-    if (obj == null) return false
-    if (getClass != obj.getClass) return false
-    val other = obj.asInstanceOf[Rectangle]
-    if (java.lang.Float.floatToRawIntBits(height) != java.lang.Float.floatToRawIntBits(other.height)) return false
-    if (java.lang.Float.floatToRawIntBits(width) != java.lang.Float.floatToRawIntBits(other.width)) return false
-    if (java.lang.Float.floatToRawIntBits(x) != java.lang.Float.floatToRawIntBits(other.x)) return false
-    if (java.lang.Float.floatToRawIntBits(y) != java.lang.Float.floatToRawIntBits(other.y)) return false
-    true
+  override def equals(obj: Any): Boolean = obj match {
+    case other: Rectangle =>
+      (this eq other) ||
+      (java.lang.Float.floatToRawIntBits(height) == java.lang.Float.floatToRawIntBits(other.height) &&
+        java.lang.Float.floatToRawIntBits(width) == java.lang.Float.floatToRawIntBits(other.width) &&
+        java.lang.Float.floatToRawIntBits(x) == java.lang.Float.floatToRawIntBits(other.x) &&
+        java.lang.Float.floatToRawIntBits(y) == java.lang.Float.floatToRawIntBits(other.y))
+    case _ => false
   }
 }
 

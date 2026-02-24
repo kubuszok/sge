@@ -1,3 +1,11 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/InputMultiplexer.java
+ * Original authors: Nathan Sweet
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
 package sge
 
 import scala.collection.mutable.ArrayBuffer
@@ -18,7 +26,7 @@ class InputMultiplexer extends InputProcessor {
   }
 
   def addProcessor(index: Int, processor: InputProcessor): Unit = {
-    if (processor == null) throw new NullPointerException("processor cannot be null")
+    if (processor == null) throw new IllegalArgumentException("processor cannot be null")
     processors.insert(index, processor)
   }
 
@@ -26,7 +34,7 @@ class InputMultiplexer extends InputProcessor {
     processors.remove(index)
 
   def addProcessor(processor: InputProcessor): Unit = {
-    if (processor == null) throw new NullPointerException("processor cannot be null")
+    if (processor == null) throw new IllegalArgumentException("processor cannot be null")
     processors.addOne(processor)
   }
 
@@ -61,30 +69,30 @@ class InputMultiplexer extends InputProcessor {
     processingCopy.exists(event)
   }
 
-  def keyDown(keycode: Int): Boolean =
+  override def keyDown(keycode: Int): Boolean =
     processEvent(_.keyDown(keycode))
 
-  def keyUp(keycode: Int): Boolean =
+  override def keyUp(keycode: Int): Boolean =
     processEvent(_.keyUp(keycode))
 
-  def keyTyped(character: Char): Boolean =
+  override def keyTyped(character: Char): Boolean =
     processEvent(_.keyTyped(character))
 
-  def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
+  override def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
     processEvent(_.touchDown(screenX, screenY, pointer, button))
 
-  def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
+  override def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
     processEvent(_.touchUp(screenX, screenY, pointer, button))
 
-  def touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
+  override def touchCancelled(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean =
     processEvent(_.touchCancelled(screenX, screenY, pointer, button))
 
-  def touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean =
+  override def touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean =
     processEvent(_.touchDragged(screenX, screenY, pointer))
 
-  def mouseMoved(screenX: Int, screenY: Int): Boolean =
+  override def mouseMoved(screenX: Int, screenY: Int): Boolean =
     processEvent(_.mouseMoved(screenX, screenY))
 
-  def scrolled(amountX: Float, amountY: Float): Boolean =
+  override def scrolled(amountX: Float, amountY: Float): Boolean =
     processEvent(_.scrolled(amountX, amountY))
 }
