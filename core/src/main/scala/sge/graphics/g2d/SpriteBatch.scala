@@ -123,17 +123,15 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this()(using sge: Sge) = {
+  def this()(using sge: Sge) =
     this(1000, null)
-  }
 
   /** Constructs a SpriteBatch with one buffer and the default shader.
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this(size: Int)(using sge: Sge) = {
+  def this(size: Int)(using sge: Sge) =
     this(size, null)
-  }
 
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.")

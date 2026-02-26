@@ -77,17 +77,14 @@ class Button() extends Table() with Disableable with Styleable[Button.ButtonStyl
     addListener(clickListener)
   }
 
-  def this(up: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable]) =
     this(new Button.ButtonStyle(up, Nullable.empty, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable]) =
     this(new Button.ButtonStyle(up, down, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable]) =
     this(new Button.ButtonStyle(up, down, checked))
-  }
 
   // def this(child: Actor, skin: Skin) = this(child, skin.get(classOf[ButtonStyle]))
 
@@ -132,7 +129,6 @@ class Button() extends Table() with Disableable with Styleable[Button.ButtonStyl
   def getProgrammaticChangeEvents: Boolean = programmaticChangeEvents
 
   override def setStyle(style: ButtonStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
 
     setBackground(getBackgroundDrawable)

@@ -9,6 +9,8 @@
 package sge
 package math
 
+import sge.utils.Nullable
+
 class Polyline() extends Shape2D {
   private var localVertices:               Array[Float] = Array.empty[Float]
   private var worldVertices:               Array[Float] = scala.compiletime.uninitialized
@@ -42,7 +44,7 @@ class Polyline() extends Shape2D {
     isDirty = false
 
     val localVertices = this.localVertices
-    if (this.worldVertices == null || this.worldVertices.length < localVertices.length)
+    if (Nullable(this.worldVertices).fold(true)(_.length < localVertices.length))
       this.worldVertices = new Array[Float](localVertices.length)
 
     val worldVertices = this.worldVertices
@@ -215,7 +217,7 @@ class Polyline() extends Shape2D {
       i += 2
     }
 
-    if (bounds == null) bounds = new Rectangle()
+    if (Nullable(bounds).isEmpty) bounds = new Rectangle()
     bounds.x = minX
     bounds.y = minY
     bounds.width = maxX - minX

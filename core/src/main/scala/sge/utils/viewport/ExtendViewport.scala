@@ -31,22 +31,19 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera} with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float)(using sge: Sge) =
     this(minWorldWidth, minWorldHeight, 0, 0, new OrthographicCamera())
-  }
 
   /** Creates a new viewport with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using sge: Sge) =
     this(minWorldWidth, minWorldHeight, 0, 0, camera)
-  }
 
   /** Creates a new viewport using a new {@link OrthographicCamera} and a maximum world size.
     * @see
     *   ExtendViewport#ExtendViewport(float, float, float, float, Camera)
     */
-  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using sge: Sge) =
     this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, new OrthographicCamera())
-  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     // Fit min size to the screen.

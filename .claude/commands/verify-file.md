@@ -10,7 +10,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    Open the source from `./libgdx/gdx/src/`.
 
 3. **Run the verification checklist** from `docs/contributing/verification-checklist.md`:
-   - Compilation: compile via `sge-metals` MCP, check for errors and warnings
+   - Compilation: compile via `just compile`, check for errors and warnings
    - Completeness: compare all public methods, constants, enums against LibGDX source
    - Scala idioms: check for `return`, `null`, Java syntax, etc.
    - Type mappings: verify collections, exceptions, Gdx references are converted

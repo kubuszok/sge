@@ -42,14 +42,14 @@ class GlyphLayout extends Poolable {
   def setText(font: BitmapFont, str: CharSequence, color: Color, targetWidth: Float, halign: Int, wrap: Boolean): Unit =
     setText(font, str, 0, str.length(), color, targetWidth, halign, wrap, Nullable.empty[String])
 
-  def setText(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): Unit = {
+  def setText(font: BitmapFont, str: CharSequence, start: Int, end: Int, color: Color, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): Unit = scala.util.boundary {
 
     reset()
 
     val fontData = font.data
     if (start == end) { // Empty string.
       height = fontData.capHeight
-      return
+      scala.util.boundary.break(())
     }
 
     // Avoid wrapping one line per character, which is very inefficient.
@@ -76,7 +76,7 @@ class GlyphLayout extends Poolable {
       var runEnd: Int = 0
       var newline = false
       if (i == end) { // End of text.
-        if (runStart == end) return // No run to process, we're done.
+        if (runStart == end) scala.util.boundary.break(()) // No run to process, we're done.
         runEnd = end // Process the final run.
         isLastRun = true
       } else {
@@ -173,7 +173,7 @@ class GlyphLayout extends Poolable {
               if (truncate.isDefined) {
                 // Truncate.
                 truncateRun(fontData, lineRun, adjustedTargetWidth, truncate.orNull)
-                return
+                scala.util.boundary.break(())
               }
 
               // Wrap.
@@ -260,7 +260,7 @@ class GlyphLayout extends Poolable {
       }
     }
 
-  private def truncateRun(fontData: BitmapFontData, run: GlyphRun, targetWidth: Float, truncate: String): Unit = {
+  private def truncateRun(fontData: BitmapFontData, run: GlyphRun, targetWidth: Float, truncate: String): Unit = scala.util.boundary {
     val glyphCount = run.glyphs.size
 
     // Determine truncate string size.
@@ -282,7 +282,7 @@ class GlyphLayout extends Poolable {
     while (count < run.xAdvances.size) {
       val xAdvance = xAdvances(count)
       width += xAdvance
-      if (width > adjustedTargetWidth) return
+      if (width > adjustedTargetWidth) scala.util.boundary.break(())
       count += 1
     }
 
@@ -318,7 +318,7 @@ class GlyphLayout extends Poolable {
     // glyphRunPool.free(truncateRun)
   }
 
-  private def wrapGlyphs(fontData: BitmapFontData, first: GlyphRun, wrapIndex: Int): GlyphRun = {
+  private def wrapGlyphs(fontData: BitmapFontData, first: GlyphRun, wrapIndex: Int): GlyphRun = scala.util.boundary {
     val glyphs2    = first.glyphs // Starts with all the glyphs.
     val glyphCount = first.glyphs.size
     val xAdvances2 = first.xAdvances // Starts with all the xadvances.
@@ -326,14 +326,14 @@ class GlyphLayout extends Poolable {
     // Skip whitespace before the wrap index.
     var firstEnd = wrapIndex
     while (firstEnd > 0) {
-      if (!fontData.isWhitespace(glyphs2(firstEnd - 1).id.toChar)) return null
+      if (!fontData.isWhitespace(glyphs2(firstEnd - 1).id.toChar)) scala.util.boundary.break(null)
       firstEnd -= 1
     }
 
     // Skip whitespace after the wrap index.
     var secondStart = wrapIndex
     while (secondStart < glyphCount) {
-      if (!fontData.isWhitespace(glyphs2(secondStart).id.toChar)) return null
+      if (!fontData.isWhitespace(glyphs2(secondStart).id.toChar)) scala.util.boundary.break(null)
       secondStart += 1
     }
 
@@ -366,7 +366,7 @@ class GlyphLayout extends Poolable {
         var i                  = colors.size - 2
         while (i >= 2) { // i >= 1 because first 2 values always determine the base color.
           val colorChangeIndex = colors(i)
-          if (colorChangeIndex <= reductionThreshold) return second
+          if (colorChangeIndex <= reductionThreshold) scala.util.boundary.break(second)
           colors(i) = colorChangeIndex - droppedGlyphCount
           i -= 2
         }
@@ -418,8 +418,8 @@ class GlyphLayout extends Poolable {
 
   private val colorStack = ArrayBuffer[Int]()
 
-  private def parseColorMarkup(str: CharSequence, start: Int, end: Int): Int = {
-    if (start == end) return -1 // String ended with "[".
+  private def parseColorMarkup(str: CharSequence, start: Int, end: Int): Int = scala.util.boundary {
+    if (start == end) scala.util.boundary.break(-1) // String ended with "[".
     str.charAt(start) match {
       case '#' =>
         // Parse hex color RRGGBBAA to an ABGR int, where AA is optional and defaults to FF if omitted.
@@ -428,10 +428,10 @@ class GlyphLayout extends Poolable {
         while (i < end) {
           val ch = str.charAt(i)
           if (ch == ']') {
-            if (i < start + 2 || i > start + 9) return -1 // Illegal number of hex digits.
+            if (i < start + 2 || i > start + 9) scala.util.boundary.break(-1) // Illegal number of hex digits.
             if (i - start < 8) color = color << (9 - (i - start) << 2) | 0xff // RRGGBB or fewer chars.
             colorStack += Integer.reverseBytes(color)
-            return i - start
+            scala.util.boundary.break(i - start)
           }
           color = (color << 4) + ch
           if (ch >= '0' && ch <= '9')
@@ -441,7 +441,7 @@ class GlyphLayout extends Poolable {
           else if (ch >= 'a' && ch <= 'f')
             color -= 'a' - 10
           else
-            return -1 // Unexpected character in hex color.
+            scala.util.boundary.break(-1) // Unexpected character in hex color.
           i += 1
         }
         -1
@@ -461,7 +461,7 @@ class GlyphLayout extends Poolable {
             // val color = Colors.get(str.subSequence(start, i).toString())
             // if (color == null) return -1 // Unknown color name.
             // colorStack += color.toIntBits()
-            return i - start
+            scala.util.boundary.break(i - start)
           }
         }
         -1 // Unclosed color tag.
@@ -477,20 +477,21 @@ class GlyphLayout extends Poolable {
     height = 0
   }
 
-  override def toString(): String = {
-    if (runs.isEmpty) return ""
-    val buffer = new StringBuilder(128)
-    buffer.append(width)
-    buffer.append('x')
-    buffer.append(height)
-    buffer.append('\n')
-    for (i <- runs.indices) {
-      buffer.append(runs(i).toString())
+  override def toString(): String =
+    if (runs.isEmpty) ""
+    else {
+      val buffer = new StringBuilder(128)
+      buffer.append(width)
+      buffer.append('x')
+      buffer.append(height)
       buffer.append('\n')
+      for (i <- runs.indices) {
+        buffer.append(runs(i).toString())
+        buffer.append('\n')
+      }
+      buffer.setLength(buffer.length() - 1)
+      buffer.toString()
     }
-    buffer.setLength(buffer.length() - 1)
-    buffer.toString()
-  }
 }
 
 class GlyphRun extends Poolable {

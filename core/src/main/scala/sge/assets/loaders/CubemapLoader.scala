@@ -15,7 +15,7 @@ import sge.graphics.{ Cubemap, CubemapData }
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.glutils.KTXTextureData
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} for {@link Cubemap} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link CubemapParameter}
@@ -28,37 +28,40 @@ class CubemapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynch
   private val info = new CubemapLoader.CubemapLoaderInfo()
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): Unit = {
+    val param = Nullable(parameter)
     info.filename = fileName
-    if (parameter == null || parameter.cubemapData.fold(true)(_ => false)) {
+    if (param.fold(true)(_.cubemapData.isEmpty)) {
       var format: Nullable[Format] = Nullable.empty
       var genMipMaps = false
       info.cubemap = Nullable.empty
 
-      if (parameter != null) {
-        format = parameter.format
-        info.cubemap = parameter.cubemap
+      param.foreach { p =>
+        format = p.format
+        info.cubemap = p.cubemap
       }
 
       if (fileName.contains(".ktx") || fileName.contains(".zktx")) {
         info.data = new KTXTextureData(file, genMipMaps)
       }
     } else {
-      info.data = parameter.cubemapData.orNull
-      info.cubemap = parameter.cubemap
+      param.foreach { p =>
+        info.data = p.cubemapData.getOrElse(throw SgeError.InvalidInput("cubemapData is empty"))
+        info.cubemap = p.cubemap
+      }
     }
     if (!info.data.isPrepared) info.data.prepare()
   }
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): Cubemap = {
-    var cubemapResult: Cubemap = info.cubemap.fold {
+    val cubemapResult: Cubemap = info.cubemap.fold {
       new Cubemap(info.data)
     } { existing =>
       existing.load(info.data)
       existing
     }
-    if (parameter != null) {
-      cubemapResult.setFilter(parameter.minFilter, parameter.magFilter)
-      cubemapResult.setWrap(parameter.wrapU, parameter.wrapV)
+    Nullable(parameter).foreach { p =>
+      cubemapResult.setFilter(p.minFilter, p.magFilter)
+      cubemapResult.setWrap(p.wrapU, p.wrapV)
     }
     cubemapResult
   }

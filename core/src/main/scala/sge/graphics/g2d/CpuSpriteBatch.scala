@@ -41,14 +41,12 @@ class CpuSpriteBatch(size: Int, defaultShader: ShaderProgram = null)(using sge: 
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using sge: Sge) = {
+  def this()(using sge: Sge) =
     this(1000, null)
-  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using sge: Sge) = {
+  def this(size: Int)(using sge: Sge) =
     this(size, null)
-  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>

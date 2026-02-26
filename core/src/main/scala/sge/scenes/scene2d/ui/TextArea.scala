@@ -43,11 +43,9 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using sg
 
   private var prefRows: Float = 0
 
-  // // TODO: uncomment when Skin is ported
-  // def this(text: String, skin: Skin)(using Sge) = this(Nullable(text), skin.get(classOf[TextFieldStyle]))
+  def this(text: String, skin: Skin)(using Sge) = this(Nullable(text), skin.get(classOf[TextField.TextFieldStyle]))
 
-  // // TODO: uncomment when Skin is ported
-  // def this(text: String, skin: Skin, styleName: String)(using Sge) = this(Nullable(text), skin.get(styleName, classOf[TextFieldStyle]))
+  def this(text: String, skin: Skin, styleName: String)(using Sge) = this(Nullable(text), skin.get(styleName, classOf[TextField.TextFieldStyle]))
 
   override protected def initialize(): Unit = {
     super.initialize()
@@ -85,12 +83,11 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using sg
 
   override def setStyle(style: TextField.TextFieldStyle): Unit = {
     // same as super(), just different textHeight. no super() so we don't do same work twice
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
 
     // no extra descent to fake line height
     textHeight = style.font.getCapHeight() - style.font.getDescent()
-    if (_text != null) updateDisplayText()
+    updateDisplayText()
     invalidateHierarchy()
   }
 
@@ -270,7 +267,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using sg
 
   override protected def calculateOffsets(): Unit = {
     super.calculateOffsets()
-    if (!this._text.equals(lastText.orNull)) {
+    if (lastText.fold(true)(_ != this._text)) {
       this.lastText = Nullable(_text)
       val font         = getStyle.font
       val maxWidthLine = this.getWidth -

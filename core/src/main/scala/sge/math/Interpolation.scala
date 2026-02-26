@@ -216,7 +216,7 @@ object Interpolation {
   }
 
   class BounceOut(val widths: Array[Float], val heights: Array[Float]) extends Interpolation {
-    def this(bounces: Int) = {
+    def this(bounces: Int) =
       this(
         if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
         else {
@@ -267,7 +267,6 @@ object Interpolation {
           h
         }
       )
-    }
 
     def apply(a: Float): Float =
       if (a == 1) 1f

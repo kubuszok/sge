@@ -34,64 +34,69 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
 
   private val textureData = data
 
-  def this(internalPath: String)(using sge: Sge) = {
+  def this(internalPath: String)(using sge: Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
-      TextureData.Factory.loadFromFile(sge.files.internal(internalPath), null, false)
+      TextureData.Factory.loadFromFile(sge.files.internal(internalPath), Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), TextureData.Factory.loadFromFile(file, null, false))
-  }
-
-  def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(file: FileHandle)(using sge: Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
-      TextureData.Factory.loadFromFile(file, null, useMipMaps)
+      TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
-      TextureData.Factory.loadFromFile(file, format, useMipMaps)
+      TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
-  }
 
-  def this(pixmap: Pixmap)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, null, false, false))
-  }
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) =
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
+    )
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, null, useMipMaps, false))
-  }
+  def this(pixmap: Pixmap)(using sge: Sge) =
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      new PixmapTextureData(pixmap, Nullable.empty, false, false, false)
+    )
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) =
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(sge.graphics.gl.glGenTexture()),
+      new PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
+    )
+
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) =
     this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, format, useMipMaps, false))
-  }
 
-  def this(width: Int, height: Int, format: Format)(using sge: Sge) = {
+  def this(width: Int, height: Int, format: Format)(using sge: Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
-      new PixmapTextureData(new Pixmap(width, height, format), null, false, true)
+      new PixmapTextureData(new Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
-  }
 
-  def this(data: TextureData)(using sge: Sge) = {
+  def this(data: TextureData)(using sge: Sge) =
     this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), data)
-  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)
 
   def load(data: TextureData)(using sge: Sge): Unit = {
-    if (this.textureData != null && data.isManaged != this.textureData.isManaged)
-      throw SgeError.GraphicsError("New data must have the same managed status as the old data")
+    Nullable(this.textureData).foreach { existing =>
+      if (data.isManaged != existing.isManaged)
+        throw SgeError.GraphicsError("New data must have the same managed status as the old data")
+    }
 
     if (!data.isPrepared) data.prepare()
 
@@ -177,7 +182,7 @@ object Texture {
     managedTextures.get(app) match {
       case None                      => return
       case Some(managedTextureArray) =>
-        if (assetManager == null) {
+        if (Nullable(assetManager).isEmpty) {
           for (texture <- managedTextureArray)
             texture.reload()
         } else {

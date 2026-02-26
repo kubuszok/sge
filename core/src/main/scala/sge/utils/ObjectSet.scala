@@ -12,18 +12,14 @@ package utils
 import scala.compiletime.summonFrom
 import scala.util.boundary
 
-/** An unordered set where the keys are objects. Null keys are not allowed. No allocation is done except when growing the
-  * table size.
+/** An unordered set where the keys are objects. Null keys are not allowed. No allocation is done except when growing the table size.
   *
-  * This class performs fast contains and remove (typically O(1), worst case O(n) but that is rare in practice). Add may
-  * be slightly slower, depending on hash collisions. Hashcodes are rehashed to reduce collisions and the need to
-  * resize. Load factors greater than 0.91 greatly increase the chances to resize to the next higher POT size.
+  * This class performs fast contains and remove (typically O(1), worst case O(n) but that is rare in practice). Add may be slightly slower, depending on hash collisions. Hashcodes are rehashed to
+  * reduce collisions and the need to resize. Load factors greater than 0.91 greatly increase the chances to resize to the next higher POT size.
   *
-  * This implementation uses linear probing with the backward shift algorithm for removal. Hashcodes are rehashed using
-  * Fibonacci hashing.
+  * This implementation uses linear probing with the backward shift algorithm for removal. Hashcodes are rehashed using Fibonacci hashing.
   *
-  * Uses `filled: Array[Boolean]` for occupancy tracking instead of null-key checks, so the same implementation works
-  * uniformly for both reference and primitive key types.
+  * Uses `filled: Array[Boolean]` for occupancy tracking instead of null-key checks, so the same implementation works uniformly for both reference and primitive key types.
   *
   * @author
   *   Nathan Sweet, Tommy Ettinger (original implementation)
@@ -53,9 +49,8 @@ final class ObjectSet[A] private (
   // --- Hash table internals ---
 
   /** Returns an index >= 0 and <= mask for the specified item using Fibonacci hashing. */
-  private def place(key: A): Int = {
+  private def place(key: A): Int =
     (key.hashCode().toLong * 0x9e3779b97f4a7c15L >>> shift).toInt
-  }
 
   /** Returns the index of the key if already present, else -(index + 1) for the next empty index. */
   private def locateKey(key: A): Int = boundary {
@@ -135,8 +130,7 @@ final class ObjectSet[A] private (
   /** Returns true if the specified key is in the set. */
   def contains(key: A): Boolean = locateKey(key) >= 0
 
-  /** Returns the stored instance for the given key, or `Nullable.empty` if not present. Useful when the set contains
-    * canonical instances and you want to retrieve the stored one.
+  /** Returns the stored instance for the given key, or `Nullable.empty` if not present. Useful when the set contains canonical instances and you want to retrieve the stored one.
     */
   def get(key: A): Nullable[A] = {
     val i = locateKey(key)
@@ -157,16 +151,14 @@ final class ObjectSet[A] private (
   // --- Bulk ---
 
   /** Clears the set. */
-  def clear(): Unit = {
+  def clear(): Unit =
     if (_size == 0) ()
     else {
       _size = 0
       java.util.Arrays.fill(filled, false)
     }
-  }
 
-  /** Clears the set and reduces the size of the backing arrays to be the specified capacity / loadFactor, if they are
-    * larger.
+  /** Clears the set and reduces the size of the backing arrays to be the specified capacity / loadFactor, if they are larger.
     */
   def clear(maximumCapacity: Int): Unit = {
     val tableSize = ObjectMap.tableSize(maximumCapacity, loadFactor)
@@ -240,8 +232,8 @@ final class ObjectSet[A] private (
   /** Returns a new DynamicArray containing all elements in the set. */
   def toArray: DynamicArray[A] = {
     val array = DynamicArray.createWithMk(mk, _size, true)
-    val len = keyTable.length
-    var i   = 0
+    val len   = keyTable.length
+    var i     = 0
     while (i < len) {
       if (filled(i)) array.add(keyTable(i))
       i += 1
@@ -280,7 +272,7 @@ final class ObjectSet[A] private (
     case _ => false
   }
 
-  override def toString(): String = {
+  override def toString(): String =
     if (_size == 0) "{}"
     else {
       val sb  = new StringBuilder()
@@ -299,16 +291,15 @@ final class ObjectSet[A] private (
       sb.append('}')
       sb.toString()
     }
-  }
 
   // --- Internal accessors for OrderedSet ---
 
-  private[utils] def internalKeyTable: Array[A]      = keyTable
-  private[utils] def internalFilled: Array[Boolean]   = filled
-  private[utils] def internalMask: Int                = mask
-  private[utils] def internalShift: Int               = shift
-  private[utils] def internalThreshold: Int           = threshold
-  private[utils] def internalMk: MkArray[A]           = mk
+  private[utils] def internalKeyTable:  Array[A]       = keyTable
+  private[utils] def internalFilled:    Array[Boolean] = filled
+  private[utils] def internalMask:      Int            = mask
+  private[utils] def internalShift:     Int            = shift
+  private[utils] def internalThreshold: Int            = threshold
+  private[utils] def internalMk:        MkArray[A]     = mk
 }
 
 object ObjectSet {
@@ -326,7 +317,7 @@ object ObjectSet {
   }
 
   /** Creates an ObjectSet that is a copy of the given set. */
-  def from[A](other: ObjectSet[A]): ObjectSet[A] = {
+  def from[A](other: ObjectSet[A]): ObjectSet[A] =
     new ObjectSet[A](
       other.mk,
       other.mk.copyOf(other.keyTable, other.keyTable.length),
@@ -337,7 +328,6 @@ object ObjectSet {
       other.loadFactor,
       other.threshold
     )
-  }
 
   private def create[A](mk: MkArray[A], capacity: Int, loadFactor: Float): ObjectSet[A] = {
     if (loadFactor <= 0f || loadFactor >= 1f)

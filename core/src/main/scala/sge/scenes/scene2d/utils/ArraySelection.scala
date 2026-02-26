@@ -22,8 +22,7 @@ class ArraySelection[T](private var array: ArrayBuffer[T]) extends Selection[T] 
   private var rangeSelect: Boolean     = true
   private var rangeStart:  Nullable[T] = Nullable.empty
 
-  override def choose(item: T)(using sge: Sge): Unit = {
-    if (item == null) throw new IllegalArgumentException("item cannot be null.")
+  override def choose(item: T)(using sge: Sge): Unit =
     if (_isDisabled) ()
     else if (!rangeSelect || !multiple) {
       super.choose(item)
@@ -60,7 +59,6 @@ class ArraySelection[T](private var array: ArrayBuffer[T]) extends Selection[T] 
       super.choose(item)
       rangeStart = Nullable(item)
     }
-  }
 
   /** Called after the selection changes, clears the range start item. */
   override protected def changed(): Unit =

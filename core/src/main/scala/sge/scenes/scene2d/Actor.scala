@@ -166,7 +166,7 @@ class Actor {
     *   true if the event was {@link Event#cancel() cancelled}.
     */
   def notify(event: Event, capture: Boolean): Boolean = scala.util.boundary {
-    if (event.getTarget == null) throw new IllegalArgumentException("The event target cannot be null.")
+    if (Nullable(event.getTarget).isEmpty) throw new IllegalArgumentException("The event target cannot be null.")
 
     val listenersToNotify = if (capture) captureListeners else listeners
     if (listenersToNotify.isEmpty) scala.util.boundary.break(event.isCancelled)
@@ -909,14 +909,12 @@ class Actor {
     var a: Actor = this
     while (true) {
       a.localToParentCoordinates(localCoords)
-      a.parent match {
-        case p if p.isDefined =>
-          val pp = p.orNull
-          if (ascendant.fold(false)(_ eq pp)) scala.util.boundary.break(localCoords)
-          a = pp
-        case _ =>
-          if (ascendant.isEmpty) scala.util.boundary.break(localCoords)
-          throw new IllegalArgumentException("Actor is not an ascendant: " + ascendant)
+      a.parent.fold {
+        if (ascendant.isEmpty) scala.util.boundary.break(localCoords)
+        throw new IllegalArgumentException("Actor is not an ascendant: " + ascendant)
+      } { pp =>
+        if (ascendant.fold(false)(_ eq pp)) scala.util.boundary.break(localCoords)
+        a = pp
       }
     }
     localCoords // unreachable but needed for type

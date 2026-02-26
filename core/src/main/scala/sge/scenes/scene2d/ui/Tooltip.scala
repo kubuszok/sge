@@ -38,9 +38,8 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using sge: Sge) = {
+  def this(contents: Nullable[T])(using sge: Sge) =
     this(contents, TooltipManager.getInstance())
-  }
 
   def getManager: TooltipManager = manager
 
@@ -68,8 +67,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
       container.toFront()
       false
     } else {
-      // TODO: uncomment when TooltipManager.touchDown is implemented
-      // manager.touchDown(this)
+      manager.touchDown(this)
       false
     }
 
@@ -115,8 +113,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
       val descendant = fromActor.fold(false)(fa => fa.isDescendantOf(actor))
       if (!descendant) {
         setContainerPosition(actor, x, y)
-        // TODO: uncomment when TooltipManager.enter is implemented
-        // manager.enter(this)
+        manager.enter(this)
       }
     }
 
@@ -127,10 +124,8 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     }
   }
 
-  def hide(): Unit = {
-    // TODO: uncomment when TooltipManager.hide is implemented
-    // manager.hide(this)
-  }
+  def hide(): Unit =
+    manager.hide(this)
 }
 
 object Tooltip {

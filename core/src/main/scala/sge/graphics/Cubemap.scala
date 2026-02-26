@@ -18,6 +18,7 @@ import sge.assets.loaders.AssetLoader
 import sge.files.FileHandle
 import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.{ FacedCubemapData, PixmapTextureData }
+import sge.utils.Nullable
 import sge.math.Vector3
 import sge.utils.{ Nullable, SgeError }
 import sge.{ Application, Sge }
@@ -32,34 +33,48 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
   if (data.isManaged) Cubemap.addManagedCubemap(sge.application, this)
 
   /** Construct a Cubemap with the specified texture files for the sides, does not generate mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using sge: Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ))
-  }
 
   /** Construct a Cubemap with the specified texture files for the sides, optionally generating mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using sge: Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ, useMipMaps))
-  }
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, does not generate mipmaps. */
-  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap)(using sge: Sge) = {
-    this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ, false))
-  }
+  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap)(using sge: Sge) =
+    this(
+      new FacedCubemapData(
+        Nullable(positiveX),
+        Nullable(negativeX),
+        Nullable(positiveY),
+        Nullable(negativeY),
+        Nullable(positiveZ),
+        Nullable(negativeZ),
+        false
+      )
+    )
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, optionally generating mipmaps. */
-  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
-    this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ, useMipMaps))
-  }
+  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap, useMipMaps: Boolean)(using sge: Sge) =
+    this(
+      new FacedCubemapData(
+        Nullable(positiveX),
+        Nullable(negativeX),
+        Nullable(positiveY),
+        Nullable(negativeY),
+        Nullable(positiveZ),
+        Nullable(negativeZ),
+        useMipMaps
+      )
+    )
 
   /** Construct a Cubemap with {@link Pixmap}s for each side of the specified size. */
-  def this(width: Int, height: Int, depth: Int, format: Format)(using sge: Sge) = {
+  def this(width: Int, height: Int, depth: Int, format: Format)(using sge: Sge) =
     this(new FacedCubemapData(width, height, depth, format))
-  }
 
   /** Construct a Cubemap with the specified {@link TextureData}'s for the sides */
-  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using sge: Sge) = {
+  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using sge: Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ))
-  }
 
   /** Sets the sides of this cubemap to the specified {@link CubemapData}. */
   def load(data: CubemapData): Unit = {

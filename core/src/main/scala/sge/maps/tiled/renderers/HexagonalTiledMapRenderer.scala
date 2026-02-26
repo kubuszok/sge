@@ -37,13 +37,11 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
   def this(map: TiledMap, batch:     Batch)(using sge: Sge) = this(map, 1.0f, batch, false)
 
   private def initHex(map: TiledMap): Unit = {
-    val axis = map.getProperties.get("staggeraxis", classOf[String])
-    if (axis != null) {
+    Nullable(map.getProperties.get("staggeraxis", classOf[String])).foreach { axis =>
       staggerAxisX = axis == "x"
     }
 
-    val index = map.getProperties.get("staggerindex", classOf[String])
-    if (index != null) {
+    Nullable(map.getProperties.get("staggerindex", classOf[String])).foreach { index =>
       staggerIndexEven = index == "even"
     }
 
@@ -53,31 +51,32 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
       staggerIndexEven = !staggerIndexEven
     }
 
-    val length: Integer = map.getProperties.get("hexsidelength", classOf[Integer])
-    if (length != null) {
-      hexSideLength = length.intValue().toFloat
-    } else {
+    Nullable(map.getProperties.get("hexsidelength", classOf[Integer])).fold {
       if (staggerAxisX) {
-        val tw: Integer = map.getProperties.get("tilewidth", classOf[Integer])
-        if (tw != null) {
+        Nullable(map.getProperties.get("tilewidth", classOf[Integer])).fold {
+          if (map.getLayers.size > 0) {
+            val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
+            hexSideLength = 0.5f * tmtl.getTileWidth
+          } else {
+            hexSideLength = 0f
+          }
+        } { tw =>
           hexSideLength = 0.5f * tw.intValue()
-        } else if (map.getLayers.size > 0) {
-          val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
-          hexSideLength = 0.5f * tmtl.getTileWidth
-        } else {
-          hexSideLength = 0f
         }
       } else {
-        val th: Integer = map.getProperties.get("tileheight", classOf[Integer])
-        if (th != null) {
+        Nullable(map.getProperties.get("tileheight", classOf[Integer])).fold {
+          if (map.getLayers.size > 0) {
+            val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
+            hexSideLength = 0.5f * tmtl.getTileHeight
+          } else {
+            hexSideLength = 0f
+          }
+        } { th =>
           hexSideLength = 0.5f * th.intValue()
-        } else if (map.getLayers.size > 0) {
-          val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
-          hexSideLength = 0.5f * tmtl.getTileHeight
-        } else {
-          hexSideLength = 0f
         }
       }
+    } { length =>
+      hexSideLength = length.intValue().toFloat
     }
   }
 
@@ -207,7 +206,7 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     val vertices   = this.vertices
     val region     = layer.getTextureRegion
 
-    if (region == null) {
+    if (Nullable(region).isEmpty) {
       ()
     } else {
       val tileHeight     = getMap.getProperties.get("tileheight", classOf[Integer]).intValue()

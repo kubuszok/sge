@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel
 import java.nio.channels.FileChannel.MapMode
+import sge.utils.Nullable
 
 /** Represents a file or directory on the filesystem, classpath, Android app storage, or Android assets directory. FileHandles are created via a {@link Files} instance.
   *
@@ -166,7 +167,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
-  def readString(): String = readString(null)
+  def readString(): String = readString(Nullable.empty[String])
 
   /** Reads the entire file into a string using the specified charset.
     * @param charset
@@ -174,26 +175,23 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
-  def readString(charset: String): String = {
+  def readString(charset: Nullable[String]): String = {
     val output = new StringBuilder(estimateLength())
-    var reader: InputStreamReader = null
+    var reader: InputStreamReader = null.asInstanceOf[InputStreamReader]
     try {
-      if (charset == null)
-        reader = new InputStreamReader(read())
-      else
-        reader = new InputStreamReader(read(), charset)
+      reader = charset.fold(new InputStreamReader(read()))(cs => new InputStreamReader(read(), cs))
       val buffer = new Array[Char](256)
-      while (true) {
-        val length = reader.read(buffer)
-        if (length == -1) return output.toString()
+      var length = reader.read(buffer)
+      while (length != -1) {
         output.append(buffer, 0, length)
+        length = reader.read(buffer)
       }
       output.toString()
     } catch {
       case ex: IOException =>
         throw utils.SgeError.FileReadError(this, "Error reading layout file", Some(ex))
     } finally
-      utils.StreamUtils.closeQuietly(reader)
+      Nullable(reader).foreach(utils.StreamUtils.closeQuietly(_))
   }
 
   /** Reads the entire file into a byte array.
@@ -230,10 +228,10 @@ class FileHandle(val file: File, val fileType: FileType) {
     val input    = read()
     var position = 0
     try {
-      while (true) {
-        val count = input.read(bytes, offset + position, size - position)
-        if (count <= 0) return position - offset
+      var count = input.read(bytes, offset + position, size - position)
+      while (count > 0) {
         position += count
+        count = input.read(bytes, offset + position, size - position)
       }
       position - offset
     } catch {
@@ -255,7 +253,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def map(mode: FileChannel.MapMode): ByteBuffer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot map a classpath file")
-    var raf: RandomAccessFile = null
+    var raf: RandomAccessFile = null.asInstanceOf[RandomAccessFile]
     try {
       val f = getFile()
       raf = new RandomAccessFile(f, if (mode == MapMode.READ_ONLY) "r" else "rw")
@@ -267,7 +265,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
     } finally
-      utils.StreamUtils.closeQuietly(raf)
+      Nullable(raf).foreach(utils.StreamUtils.closeQuietly(_))
   }
 
   /** Returns a stream for writing to this file. Parent directories will be created if necessary.
@@ -308,7 +306,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
   def write(input: InputStream, append: Boolean): Unit = {
-    var output: OutputStream = null
+    var output: OutputStream = null.asInstanceOf[OutputStream]
     try {
       output = write(append)
       utils.StreamUtils.copyStream(input, output)
@@ -317,7 +315,7 @@ class FileHandle(val file: File, val fileType: FileType) {
         throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $file ($fileType)", Some(ex))
     } finally {
       utils.StreamUtils.closeQuietly(input)
-      utils.StreamUtils.closeQuietly(output)
+      Nullable(output).foreach(utils.StreamUtils.closeQuietly(_))
     }
   }
 
@@ -327,7 +325,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writer(append: Boolean): Writer = writer(append, null)
+  def writer(append: Boolean): Writer = writer(append, Nullable.empty[String])
 
   /** Returns a writer for writing to this file. Parent directories will be created if necessary.
     * @param append
@@ -337,16 +335,13 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writer(append: Boolean, charset: String): Writer = {
+  def writer(append: Boolean, charset: Nullable[String]): Writer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot write to a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
     try {
       val output = new FileOutputStream(getFile(), append)
-      if (charset == null)
-        new OutputStreamWriter(output)
-      else
-        new OutputStreamWriter(output, charset)
+      charset.fold(new OutputStreamWriter(output): Writer)(cs => new OutputStreamWriter(output, cs))
     } catch {
       case ex: IOException =>
         if (getFile().isDirectory())
@@ -361,7 +356,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writeString(string: String, append: Boolean): Unit = writeString(string, append, null)
+  def writeString(string: String, append: Boolean): Unit = writeString(string, append, Nullable.empty[String])
 
   /** Writes the specified string to the file using the specified charset. Parent directories will be created if necessary.
     * @param append
@@ -371,8 +366,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writeString(string: String, append: Boolean, charset: String): Unit = {
-    var writer: Writer = null
+  def writeString(string: String, append: Boolean, charset: Nullable[String]): Unit = {
+    var writer: Writer = null.asInstanceOf[Writer]
     try {
       writer = this.writer(append, charset)
       writer.write(string)
@@ -380,7 +375,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     } finally
-      utils.StreamUtils.closeQuietly(writer)
+      Nullable(writer).foreach(utils.StreamUtils.closeQuietly(_))
   }
 
   /** Writes the specified bytes to the file. Parent directories will be created if necessary.
@@ -424,9 +419,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def list(): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    val relativePaths = getFile().list()
-    if (relativePaths == null) Array.empty[FileHandle]
-    else relativePaths.map(child)
+    Nullable(getFile().list()).fold(Array.empty[FileHandle])(_.map(child))
   }
 
   /** Returns the paths to the children of this directory that satisfy the specified filter. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an
@@ -438,10 +431,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def list(filter: FileFilter): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    val fileObj       = getFile()
-    val relativePaths = fileObj.list()
-    if (relativePaths == null) Array.empty[FileHandle]
-    else {
+    Nullable(getFile().list()).fold(Array.empty[FileHandle]) { relativePaths =>
       relativePaths.map(path => child(path)).filter(childHandle => filter.accept(childHandle.getFile()))
     }
   }
@@ -455,10 +445,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def list(filter: FilenameFilter): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    val fileObj       = getFile()
-    val relativePaths = fileObj.list()
-    if (relativePaths == null) Array.empty[FileHandle]
-    else {
+    val fileObj = getFile()
+    Nullable(fileObj.list()).fold(Array.empty[FileHandle]) { relativePaths =>
       relativePaths.filter(path => filter.accept(fileObj, path)).map(path => child(path))
     }
   }
@@ -470,9 +458,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def list(suffix: String): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    val relativePaths = getFile().list()
-    if (relativePaths == null) Array.empty[FileHandle]
-    else {
+    Nullable(getFile().list()).fold(Array.empty[FileHandle]) { relativePaths =>
       relativePaths.filter(_.endsWith(suffix)).map(child)
     }
   }
@@ -498,17 +484,13 @@ class FileHandle(val file: File, val fileType: FileType) {
     new FileHandle(new File(file.getParent(), name), fileType)
   }
 
-  def parent(): FileHandle = {
-    val parent = file.getParentFile()
-    if (parent == null) {
-      if (fileType == FileType.Absolute)
-        new FileHandle(new File("/"), fileType)
-      else
-        new FileHandle(new File(""), fileType)
-    } else {
+  def parent(): FileHandle =
+    Nullable(file.getParentFile()).fold {
+      if (fileType == FileType.Absolute) new FileHandle(new File("/"), fileType)
+      else new FileHandle(new File(""), fileType)
+    } { parent =>
       new FileHandle(parent, fileType)
     }
-  }
 
   /** @throws [[sge.utils.SgeError]] if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file. */
   def mkdirs(): Unit = {
@@ -574,20 +556,19 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if the destination file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file, or copying failed.
     */
-  def copyTo(dest: FileHandle): Unit = {
+  def copyTo(dest: FileHandle): Unit =
     if (!isDirectory()) {
       val actualDest = if (dest.isDirectory()) dest.child(name()) else dest
       copyFile(this, actualDest)
-      return
-    }
-    if (dest.exists()) {
-      if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination exists but is not a directory")
     } else {
-      dest.mkdirs()
-      if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination directory cannot be created")
+      if (dest.exists()) {
+        if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination exists but is not a directory")
+      } else {
+        dest.mkdirs()
+        if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination directory cannot be created")
+      }
+      copyDirectory(this, dest.child(name()))
     }
-    copyDirectory(this, dest.child(name()))
-  }
 
   /** Moves this file to the specified file, overwriting the file if it already exists.
     * @throws GdxRuntimeException
@@ -669,8 +650,7 @@ class FileHandle(val file: File, val fileType: FileType) {
 
   private def emptyDirectory(file: File, preserveTree: Boolean): Unit =
     if (file.isDirectory()) {
-      val children = file.listFiles()
-      if (children != null) {
+      Nullable(file.listFiles()).foreach { children =>
         for (child <- children)
           if (child.isDirectory()) {
             if (preserveTree) {

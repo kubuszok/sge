@@ -22,8 +22,7 @@ import sge.graphics.Texture
 import sge.math.collision.BoundingBox
 import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.Batch
-import sge.utils.SgeError
-import sge.utils.StreamUtils
+import sge.utils.{ Nullable, SgeError, StreamUtils }
 import scala.collection.mutable.ArrayBuffer
 
 /** See <a href= "https://web.archive.org/web/20200427191041/http://www.badlogicgames.com/wordpress/?p=12555">http://www.badlogicgames.com/wordpress/?p=12555</a>
@@ -128,13 +127,13 @@ class ParticleEffect extends AutoCloseable {
   def getEmitters(): ArrayBuffer[ParticleEmitter] =
     emitters
 
-  /** Returns the emitter with the specified name, or null. */
-  def findEmitter(name: String): ParticleEmitter = scala.util.boundary {
+  /** Returns the emitter with the specified name, or empty. */
+  def findEmitter(name: String): Nullable[ParticleEmitter] = scala.util.boundary {
     for (i <- emitters.indices) {
       val emitter = emitters(i)
-      if (emitter.getName().equals(name)) scala.util.boundary.break(emitter)
+      if (emitter.getName().equals(name)) scala.util.boundary.break(Nullable(emitter))
     }
-    null
+    Nullable.empty
   }
 
   /** Allocates all emitters particles. See {@link com.badlogic.gdx.graphics.g2d.ParticleEmitter#preAllocateParticles()} */
@@ -158,9 +157,9 @@ class ParticleEffect extends AutoCloseable {
   }
 
   def load(effectFile: FileHandle, atlas: TextureAtlas): Unit =
-    load(effectFile, atlas, null)
+    load(effectFile, atlas, Nullable.empty)
 
-  def load(effectFile: FileHandle, atlas: TextureAtlas, atlasPrefix: String): Unit = {
+  def load(effectFile: FileHandle, atlas: TextureAtlas, atlasPrefix: Nullable[String]): Unit = {
     loadEmitters(effectFile)
     loadEmitterImages(atlas, atlasPrefix)
   }
@@ -168,7 +167,7 @@ class ParticleEffect extends AutoCloseable {
   def loadEmitters(effectFile: FileHandle): Unit = {
     val input = effectFile.read()
     emitters.clear()
-    var reader: BufferedReader = null
+    var reader = null.asInstanceOf[BufferedReader]
     try {
       reader = new BufferedReader(new InputStreamReader(input), 512)
       var shouldContinue = true
@@ -181,13 +180,13 @@ class ParticleEffect extends AutoCloseable {
       case ex: IOException =>
         throw SgeError.GraphicsError("Error loading effect: " + effectFile, Some(ex))
     } finally
-      StreamUtils.closeQuietly(reader)
+      Nullable(reader).foreach(StreamUtils.closeQuietly)
   }
 
   def loadEmitterImages(atlas: TextureAtlas): Unit =
-    loadEmitterImages(atlas, null)
+    loadEmitterImages(atlas, Nullable.empty)
 
-  def loadEmitterImages(atlas: TextureAtlas, atlasPrefix: String): Unit =
+  def loadEmitterImages(atlas: TextureAtlas, atlasPrefix: Nullable[String]): Unit =
     for (i <- emitters.indices) {
       val emitter = emitters(i)
       if (emitter.getImagePaths().size == 0) { /* continue */ }
@@ -197,7 +196,7 @@ class ParticleEffect extends AutoCloseable {
           var imageName    = new File(imagePath.replace('\\', '/')).getName()
           val lastDotIndex = imageName.lastIndexOf('.')
           if (lastDotIndex != -1) imageName = imageName.substring(0, lastDotIndex)
-          if (atlasPrefix != null) imageName = atlasPrefix + imageName
+          atlasPrefix.foreach(prefix => imageName = prefix + imageName)
           val sprite = atlas.createSprite(imageName)
           sprite.fold(throw new IllegalArgumentException("Atlas is missing region: " + imageName))(sprites.addOne)
         }
@@ -214,11 +213,7 @@ class ParticleEffect extends AutoCloseable {
         val sprites = ArrayBuffer[Sprite]()
         for (imagePath <- emitter.getImagePaths()) {
           val imageName = new File(imagePath.replace('\\', '/')).getName()
-          var sprite    = loadedSprites.get(imageName).orNull
-          if (sprite == null) {
-            sprite = new Sprite(loadTexture(imagesDir.child(imageName)))
-            loadedSprites.put(imageName, sprite)
-          }
+          val sprite    = loadedSprites.getOrElseUpdate(imageName, new Sprite(loadTexture(imagesDir.child(imageName))))
           sprites.addOne(sprite)
         }
         emitter.setSprites(sprites.toArray)
@@ -247,7 +242,7 @@ class ParticleEffect extends AutoCloseable {
 
   /** Returns the bounding box for all active particles. z axis will always be zero. */
   def getBoundingBox(): BoundingBox = {
-    if (bounds == null) bounds = new BoundingBox()
+    if (Nullable(bounds).isEmpty) bounds = new BoundingBox()
 
     bounds.inf()
     for (emitter <- this.emitters)

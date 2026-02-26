@@ -12,7 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.audio.Music
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} for {@link Music} instances. The Music instance is loaded synchronously.
@@ -36,7 +36,7 @@ class MusicLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynchro
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: MusicLoader.MusicParameter): Music = {
     val result = music
     music = Nullable.empty
-    result.orNull
+    result.getOrElse(throw SgeError.SerializationError("Music not loaded"))
   }
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: MusicLoader.MusicParameter): ArrayBuffer[AssetDescriptor[?]] =

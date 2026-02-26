@@ -36,15 +36,12 @@ import scala.compiletime.uninitialized
   */
 class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge) extends AutoCloseable {
 
-  if (vertexShader == null) throw new IllegalArgumentException("vertex shader must not be null")
-  if (fragmentShader == null) throw new IllegalArgumentException("fragment shader must not be null")
-
   private val actualVertexShader =
-    if (ShaderProgram.prependVertexCode != null && ShaderProgram.prependVertexCode.length() > 0)
+    if (ShaderProgram.prependVertexCode.nonEmpty)
       ShaderProgram.prependVertexCode + vertexShader
     else vertexShader
   private val actualFragmentShader =
-    if (ShaderProgram.prependFragmentCode != null && ShaderProgram.prependFragmentCode.length() > 0)
+    if (ShaderProgram.prependFragmentCode.nonEmpty)
       ShaderProgram.prependFragmentCode + fragmentShader
     else fragmentShader
 
@@ -109,9 +106,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     ShaderProgram.addManagedShader(sge.application, this)
   }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) =
     this(vertexShader.readString(), fragmentShader.readString())
-  }
 
   /** Loads and compiles the shaders, creates a new program and links the shaders.
     *
@@ -124,24 +120,22 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
 
     if (vertexShaderHandle == -1 || fragmentShaderHandle == -1) {
       compiledSuccessfully = false
-      return
+    } else {
+      program = linkProgram(createProgram())
+      if (program == -1) {
+        compiledSuccessfully = false
+      } else {
+        compiledSuccessfully = true
+      }
     }
-
-    program = linkProgram(createProgram())
-    if (program == -1) {
-      compiledSuccessfully = false
-      return
-    }
-
-    compiledSuccessfully = true
   }
 
-  private def loadShader(shaderType: Int, source: String): Int = {
+  private def loadShader(shaderType: Int, source: String): Int = scala.util.boundary {
     val gl     = sge.graphics.gl20
     val intbuf = BufferUtils.newIntBuffer(1)
 
     val shader = gl.glCreateShader(shaderType)
-    if (shader == 0) return -1
+    if (shader == 0) scala.util.boundary.break(-1)
 
     gl.glShaderSource(shader, source)
     gl.glCompileShader(shader)
@@ -152,7 +146,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
       val infoLog = gl.glGetShaderInfoLog(shader)
       log += (if (shaderType == GL20.GL_VERTEX_SHADER) "Vertex shader\n" else "Fragment shader:\n")
       log += infoLog
-      return -1
+      scala.util.boundary.break(-1)
     }
 
     shader
@@ -164,9 +158,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     if (program != 0) program else -1
   }
 
-  private def linkProgram(program: Int): Int = {
+  private def linkProgram(program: Int): Int = scala.util.boundary {
     val gl = sge.graphics.gl20
-    if (program == -1) return -1
+    if (program == -1) scala.util.boundary.break(-1)
 
     gl.glAttachShader(program, vertexShaderHandle)
     gl.glAttachShader(program, fragmentShaderHandle)
@@ -180,7 +174,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     val linked = intbuf.get(0)
     if (linked == 0) {
       log = sge.graphics.gl20.glGetProgramInfoLog(program)
-      return -1
+      scala.util.boundary.break(-1)
     }
 
     program
@@ -643,8 +637,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     val gl = sge.graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
-    if (location == -1) return
-    gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, buffer)
+    if (location != -1) {
+      gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, buffer)
+    }
   }
 
   def setVertexAttribute(location: Int, size: Int, shaderType: Int, normalize: Boolean, stride: Int, buffer: Buffer): Unit = {
@@ -672,8 +667,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     val gl = sge.graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
-    if (location == -1) return
-    gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, offset)
+    if (location != -1) {
+      gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, offset)
+    }
   }
 
   def setVertexAttribute(location: Int, size: Int, shaderType: Int, normalize: Boolean, stride: Int, offset: Int): Unit = {
@@ -707,8 +703,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     val gl = sge.graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
-    if (location == -1) return
-    gl.glDisableVertexAttribArray(location)
+    if (location != -1) {
+      gl.glDisableVertexAttribArray(location)
+    }
   }
 
   def disableVertexAttribute(location: Int): Unit = {
@@ -726,8 +723,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     val gl = sge.graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
-    if (location == -1) return
-    gl.glEnableVertexAttribArray(location)
+    if (location != -1) {
+      gl.glEnableVertexAttribArray(location)
+    }
   }
 
   def enableVertexAttribute(location: Int): Unit = {
@@ -939,16 +937,13 @@ object ShaderProgram {
   /** Invalidates all shaders so the next time they are used new handles are generated
     * @param app
     */
-  def invalidateAllShaderPrograms(app: Application)(using sge: Sge): Unit = {
-    if (sge.graphics == null) return
-
+  def invalidateAllShaderPrograms(app: Application)(using sge: Sge): Unit =
     shaders.get(app) match {
       case Some(shaderArray) =>
         for (i <- shaderArray.indices)
           shaderArray(i).invalidate()
       case None =>
     }
-  }
 
   def clearAllShaderPrograms(app: Application): Unit =
     shaders.remove(app)

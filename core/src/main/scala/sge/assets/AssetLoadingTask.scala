@@ -38,9 +38,8 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
     this(manager, assetDesc, loader, threadPool, if (manager.getLogLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
-  }
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {
@@ -94,7 +93,7 @@ class AssetLoadingTask(
           boundary.break()
         case deps =>
           deps.foreach(removeDuplicates)
-          manager.addDependencies(assetDesc.fileName, deps.orNull)
+          manager.addDependencies(assetDesc.fileName, deps.getOrElse(throw SgeError.SerializationError("dependencies not loaded")))
       }
     } else {
       asset = Nullable(
@@ -164,7 +163,7 @@ class AssetLoadingTask(
     if (assetDesc.file.isEmpty) {
       assetDesc.file = Nullable(loader.resolve(assetDesc.fileName))
     }
-    assetDesc.file.orNull
+    assetDesc.file.getOrElse(throw SgeError.SerializationError(s"Could not resolve file for asset: ${assetDesc.fileName}"))
   }
 
   private def removeDuplicates(array: ArrayBuffer[AssetDescriptor[?]]): Unit = {

@@ -15,7 +15,7 @@ import java.util.regex.Matcher
 import sge.files.FileHandle
 import sge.graphics.PixmapIO
 import sge.graphics.Texture.TextureFilter
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 
 /** Saves PixmapPackers to files.
   * @author
@@ -90,13 +90,13 @@ class PixmapPackerIO {
             writer.write("  xy: " + rect.getX() + "," + rect.getY() + "\n")
             writer.write("  size: " + rect.getWidth() + "," + rect.getHeight() + "\n")
 
-            if (rect.splits != null) {
+            Nullable(rect.splits).foreach { splits =>
               writer.write(
-                "  split: " + rect.splits(0) + ", " + rect.splits(1) + ", " + rect.splits(2) + ", " + rect.splits(3) + "\n"
+                "  split: " + splits(0) + ", " + splits(1) + ", " + splits(2) + ", " + splits(3) + "\n"
               )
-              if (rect.pads != null) {
+              Nullable(rect.pads).foreach { pads =>
                 writer.write(
-                  "  pad: " + rect.pads(0) + ", " + rect.pads(1) + ", " + rect.pads(2) + ", " + rect.pads(3) + "\n"
+                  "  pad: " + pads(0) + ", " + pads(1) + ", " + pads(2) + ", " + pads(3) + "\n"
                 )
               }
             }

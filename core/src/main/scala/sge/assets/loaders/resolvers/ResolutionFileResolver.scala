@@ -12,6 +12,7 @@ package loaders
 package resolvers
 
 import sge.files.{ FileHandle, FileType }
+import sge.utils.Nullable
 
 /** This {@link FileHandleResolver} uses a given list of {@link Resolution} s to determine the best match based on the current back buffer size. An example of how this resolver works:
   *
@@ -48,9 +49,8 @@ class ResolutionFileResolver(protected val baseResolver: FileHandleResolver, pro
   }
 
   protected def resolve(originalHandle: FileHandle, suffix: String): String = {
-    val parentString = originalHandle.parent() match {
-      case parent if parent != null && !parent.name().equals("") => parent.path() + "/"
-      case _                                                     => ""
+    val parentString = Nullable(originalHandle.parent()).fold("") { parent =>
+      if (parent.name().equals("")) "" else parent.path() + "/"
     }
     parentString + suffix + "/" + originalHandle.name()
   }

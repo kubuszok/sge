@@ -110,9 +110,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   projectionMatrix.setToOrtho2D(0, 0, sde.graphics.getWidth().toFloat, sde.graphics.getHeight().toFloat)
 
   /** Creates a cache that uses indexed geometry and can contain up to 1000 images. */
-  def this()(using sde: Sge) = {
+  def this()(using sde: Sge) =
     this(1000, SpriteCache.createDefaultShader(), false)
-  }
 
   /** Creates a cache with the specified size, using a default shader if OpenGL ES 2.0 is being used.
     * @param size
@@ -120,9 +119,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     * @param useIndices
     *   If true, indexed geometry will be used.
     */
-  def this(size: Int, useIndices: Boolean)(using sde: Sge) = {
+  def this(size: Int, useIndices: Boolean)(using sde: Sge) =
     this(size, SpriteCache.createDefaultShader(), useIndices)
-  }
 
   /** Sets the color used to tint images when they are added to the SpriteCache. Default is {@link Color#WHITE}. */
   def setColor(tint: Color): Unit = {

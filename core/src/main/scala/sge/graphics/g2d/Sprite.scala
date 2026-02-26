@@ -15,6 +15,7 @@ import sge.graphics.Texture
 import sge.graphics.g2d.Batch.*
 import sge.math.MathUtils
 import sge.math.Rectangle
+import sge.utils.Nullable
 import scala.compiletime.uninitialized
 
 /** Holds the geometry, color, and texture information for drawing 2D sprites using {@link Batch} . A Sprite has a position and a size given as width and height. The position is relative to the origin
@@ -49,7 +50,6 @@ class Sprite() extends TextureRegion {
   /** Creates a sprite with width, height, and texture region equal to the size of the texture. */
   def this(texture: Texture) = {
     this()
-    if (texture == null) throw new IllegalArgumentException("texture cannot be null.")
     setTexture(texture)
     super.setRegion(0, 0, texture.getWidth, texture.getHeight)
     setColor(1, 1, 1, 1)
@@ -65,7 +65,6 @@ class Sprite() extends TextureRegion {
     */
   def this(texture: Texture, srcWidth: Int, srcHeight: Int) = {
     this()
-    if (texture == null) throw new IllegalArgumentException("texture cannot be null.")
     setTexture(texture)
     super.setRegion(0, 0, srcWidth, srcHeight): Unit
     setColor(1, 1, 1, 1)
@@ -81,7 +80,6 @@ class Sprite() extends TextureRegion {
     */
   def this(texture: Texture, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int) = {
     this()
-    if (texture == null) throw new IllegalArgumentException("texture cannot be null.")
     setTexture(texture)
     super.setRegion(srcX, srcY, srcWidth, srcHeight)
     setColor(1, 1, 1, 1)
@@ -122,7 +120,7 @@ class Sprite() extends TextureRegion {
 
   /** Make this sprite a copy in every way of the specified sprite */
   def set(sprite: Sprite): Unit = {
-    if (sprite == null) throw new IllegalArgumentException("sprite cannot be null.")
+    // sprite: Sprite is non-nullable in Scala
     System.arraycopy(sprite.vertices, 0, vertices, 0, Sprite.SPRITE_SIZE)
     setTexture(sprite.getTexture())
     setU(sprite.getU())
@@ -593,7 +591,7 @@ class Sprite() extends TextureRegion {
     maxy = if (maxy < vertices(Y3)) vertices(Y3) else maxy
     maxy = if (maxy < vertices(Y4)) vertices(Y4) else maxy
 
-    if (bounds == null) bounds = new Rectangle()
+    if (Nullable(bounds).isEmpty) bounds = new Rectangle()
     bounds.x = minx
     bounds.y = miny
     bounds.width = maxx - minx

@@ -71,14 +71,14 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
     this._style = style.asInstanceOf[ImageTextButtonStyle]
     super.setStyle(style)
 
-    if (image != null) updateImage()
+    Nullable(image).foreach(_ => updateImage())
 
-    if (label != null) {
+    Nullable(label).foreach { l =>
       val textButtonStyle = style.asInstanceOf[ImageTextButtonStyle]
-      val labelStyle      = label.getStyle
+      val labelStyle      = l.getStyle
       labelStyle.font = textButtonStyle.font
       labelStyle.fontColor = getFontColor
-      label.setStyle(labelStyle)
+      l.setStyle(labelStyle)
     }
   }
 

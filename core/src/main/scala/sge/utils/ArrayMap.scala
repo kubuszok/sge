@@ -12,22 +12,20 @@ package utils
 import scala.compiletime.summonFrom
 import scala.util.boundary
 
-/** An ordered or unordered map of objects. This implementation uses arrays to store the keys and values, which means
-  * gets do a comparison for each key in the map. This is slower than a typical hash map implementation, but may be
-  * acceptable for small maps and has the benefits that keys and values can be accessed by index, which makes iteration
-  * fast. Like `DynamicArray`, if `preserveOrder` is false, this class avoids a memory copy when removing elements (the
-  * last element is moved to the removed element's position).
+/** An ordered or unordered map of objects. This implementation uses arrays to store the keys and values, which means gets do a comparison for each key in the map. This is slower than a typical hash
+  * map implementation, but may be acceptable for small maps and has the benefits that keys and values can be accessed by index, which makes iteration fast. Like `DynamicArray`, if `preserveOrder` is
+  * false, this class avoids a memory copy when removing elements (the last element is moved to the removed element's position).
   *
   * @author
   *   Nathan Sweet (original implementation)
   */
 final class ArrayMap[K, V] private (
-  private val mkK:       MkArray[K],
-  private val mkV:       MkArray[V],
-  private var keyArray:  Array[K],
-  private var valArray:  Array[V],
-  private var _size:     Int,
-  val preserveOrder:     Boolean
+  private val mkK:      MkArray[K],
+  private val mkV:      MkArray[V],
+  private var keyArray: Array[K],
+  private var valArray: Array[V],
+  private var _size:    Int,
+  val preserveOrder:    Boolean
 ) {
 
   // --- Core ---
@@ -43,8 +41,7 @@ final class ArrayMap[K, V] private (
 
   // --- Access ---
 
-  /** Puts a key-value pair into the map. If the key already exists, the value is replaced and the index is returned. If
-    * the key is new, it is appended and the new index is returned.
+  /** Puts a key-value pair into the map. If the key already exists, the value is replaced and the index is returned. If the key is new, it is appended and the new index is returned.
     */
   def put(key: K, value: V): Int = {
     val existingIdx = indexOfKey(key)
@@ -157,9 +154,8 @@ final class ArrayMap[K, V] private (
   }
 
   /** Removes all key-value pairs. */
-  def clear(): Unit = {
+  def clear(): Unit =
     _size = 0
-  }
 
   /** Ensures capacity for at least `additional` more elements beyond current size. */
   def ensureCapacity(additional: Int): Unit = {
@@ -171,12 +167,11 @@ final class ArrayMap[K, V] private (
   }
 
   /** Trims the backing arrays to exactly `size` elements. */
-  def shrink(): Unit = {
+  def shrink(): Unit =
     if (keyArray.length != _size) {
       keyArray = mkK.copyOf(keyArray, _size)
       valArray = mkV.copyOf(valArray, _size)
     }
-  }
 
   // --- Stack-like access ---
 
@@ -214,7 +209,7 @@ final class ArrayMap[K, V] private (
   def shuffle(): Unit = {
     var i = _size - 1
     while (i > 0) {
-      val ii = math.MathUtils.random(i)
+      val ii   = math.MathUtils.random(i)
       val tmpK = keyArray(i)
       keyArray(i) = keyArray(ii)
       keyArray(ii) = tmpK
@@ -226,9 +221,8 @@ final class ArrayMap[K, V] private (
   }
 
   /** Reduces the size to at most `newSize`, discarding trailing pairs. */
-  def truncate(newSize: Int): Unit = {
+  def truncate(newSize: Int): Unit =
     if (newSize < _size) _size = newSize
-  }
 
   // --- Iteration ---
 
@@ -289,7 +283,7 @@ final class ArrayMap[K, V] private (
     case _ => false
   }
 
-  override def toString(): String = {
+  override def toString(): String =
     if (_size == 0) "{}"
     else {
       val sb = new StringBuilder()
@@ -305,7 +299,6 @@ final class ArrayMap[K, V] private (
       sb.append('}')
       sb.toString()
     }
-  }
 
   // --- Internal ---
 
@@ -332,7 +325,7 @@ object ArrayMap {
   }
 
   /** Creates an ArrayMap that is a copy of the given map. */
-  def from[K, V](other: ArrayMap[K, V]): ArrayMap[K, V] = {
+  def from[K, V](other: ArrayMap[K, V]): ArrayMap[K, V] =
     new ArrayMap[K, V](
       other.mkK,
       other.mkV,
@@ -341,16 +334,14 @@ object ArrayMap {
       other._size,
       other.preserveOrder
     )
-  }
 
   private def create[K, V](
     mkK:           MkArray[K],
     mkV:           MkArray[V],
     capacity:      Int,
     preserveOrder: Boolean
-  ): ArrayMap[K, V] = {
+  ): ArrayMap[K, V] =
     new ArrayMap[K, V](mkK, mkV, mkK.create(capacity), mkV.create(capacity), 0, preserveOrder)
-  }
 
   /** Resolves MkArray at compile time using summonFrom. */
   private inline def summonMkArray[A]: MkArray[A] = summonFrom { case mk: MkArray[A] =>

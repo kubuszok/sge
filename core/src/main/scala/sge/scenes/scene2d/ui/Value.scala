@@ -128,18 +128,14 @@ object Value {
   }
 
   /** Returns a value that is a percentage of the specified actor's width. The context actor is ignored. */
-  def percentWidth(percent: Float, actor: Actor): Value = {
-    require(actor != null, "actor cannot be null.")
+  def percentWidth(percent: Float, actor: Actor): Value =
     new Value {
       def get(context: Nullable[Actor]): Float = actor.getWidth * percent
     }
-  }
 
   /** Returns a value that is a percentage of the specified actor's height. The context actor is ignored. */
-  def percentHeight(percent: Float, actor: Actor): Value = {
-    require(actor != null, "actor cannot be null.")
+  def percentHeight(percent: Float, actor: Actor): Value =
     new Value {
       def get(context: Nullable[Actor]): Float = actor.getHeight * percent
     }
-  }
 }

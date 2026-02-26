@@ -9,6 +9,8 @@
 package sge
 package math
 
+import sge.utils.Nullable
+
 /** @author Xoppa (original implementation) */
 class CatmullRomSpline[T <: Vector[T]] extends Path[T] {
 
@@ -25,9 +27,9 @@ class CatmullRomSpline[T <: Vector[T]] extends Path[T] {
   }
 
   def set(controlPoints: Array[T], continuous: Boolean): CatmullRomSpline[T] = {
-    if (tmp == null) tmp = controlPoints(0).copy
-    if (tmp2 == null) tmp2 = controlPoints(0).copy
-    if (tmp3 == null) tmp3 = controlPoints(0).copy
+    if (Nullable(tmp).isEmpty) tmp = controlPoints(0).copy
+    if (Nullable(tmp2).isEmpty) tmp2 = controlPoints(0).copy
+    if (Nullable(tmp3).isEmpty) tmp3 = controlPoints(0).copy
     this.controlPoints = controlPoints
     this.continuous = continuous
     this.spanCount = if (continuous) controlPoints.length else controlPoints.length - 3
@@ -87,28 +89,21 @@ class CatmullRomSpline[T <: Vector[T]] extends Path[T] {
     approximate(in, nearest(in, start, count))
 
   def approximate(in: T, near: Int): Float = {
-    var n        = near
-    val nearest  = controlPoints(n)
-    val previous = controlPoints(if (n > 0) n - 1 else spanCount - 1)
-    val next     = controlPoints((n + 1) % spanCount)
-    val dstPrev2 = in.distanceSq(previous)
-    val dstNext2 = in.distanceSq(next)
-    var P1: T = null.asInstanceOf[T]
-    var P2: T = null.asInstanceOf[T]
-    var P3: T = null.asInstanceOf[T]
-    if (dstNext2 < dstPrev2) {
-      P1 = nearest
-      P2 = next
-      P3 = in
+    var n            = near
+    val nearest      = controlPoints(n)
+    val previous     = controlPoints(if (n > 0) n - 1 else spanCount - 1)
+    val next         = controlPoints((n + 1) % spanCount)
+    val dstPrev2     = in.distanceSq(previous)
+    val dstNext2     = in.distanceSq(next)
+    val (p1, p2, p3) = if (dstNext2 < dstPrev2) {
+      (nearest, next, in)
     } else {
       n = if (n > 0) n - 1 else spanCount - 1
-      P1 = previous
-      P2 = nearest
-      P3 = in
+      (previous, nearest, in)
     }
-    val L1Sqr = P1.distanceSq(P2)
-    val L2Sqr = P3.distanceSq(P2)
-    val L3Sqr = P3.distanceSq(P1)
+    val L1Sqr = p1.distanceSq(p2)
+    val L2Sqr = p3.distanceSq(p2)
+    val L3Sqr = p3.distanceSq(p1)
     val L1    = scala.math.sqrt(L1Sqr).toFloat
     val s     = (L2Sqr + L1Sqr - L3Sqr) / (2f * L1)
     val u     = MathUtils.clamp((L1 - s) / L1, 0f, 1f)

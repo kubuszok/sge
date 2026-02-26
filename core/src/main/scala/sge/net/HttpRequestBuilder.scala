@@ -11,6 +11,7 @@ package net
 
 import java.io.InputStream
 import scala.collection.mutable
+import sge.utils.Nullable
 
 /** A builder for {@link HttpRequest} s.
   *
@@ -27,7 +28,7 @@ class HttpRequestBuilder {
 
   /** Initializes the builder and sets it up to build a new {@link HttpRequest} . */
   def newRequest(): HttpRequestBuilder = {
-    if (httpRequest != null) {
+    if (Nullable(httpRequest).isDefined) {
       throw new IllegalStateException("A new request has already been started. Call HttpRequestBuilder.build() first.")
     }
 
@@ -139,7 +140,7 @@ class HttpRequestBuilder {
   }
 
   private def validate(): Unit =
-    if (httpRequest == null) {
+    if (Nullable(httpRequest).isEmpty) {
       throw new IllegalStateException("A new request has not been started yet. Call HttpRequestBuilder.newRequest() first.")
     }
 }

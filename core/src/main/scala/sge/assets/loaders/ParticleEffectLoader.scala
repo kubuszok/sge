@@ -22,26 +22,26 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
 
   override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ParticleEffect = {
     val effect = new ParticleEffect()
-    if (parameter != null) {
-      parameter.atlasFile.fold {
-        parameter.imagesDir.fold {
+    Nullable(parameter).fold {
+      effect.load(file, file.parent())
+    } { p =>
+      p.atlasFile.fold {
+        p.imagesDir.fold {
           effect.load(file, file.parent())
         } { imgDir =>
           effect.load(file, imgDir)
         }
       } { atlasFile =>
-        effect.load(file, assetManager.get(atlasFile, classOf[TextureAtlas]), parameter.atlasPrefix.getOrElse(""))
+        effect.load(file, assetManager.get(atlasFile, classOf[TextureAtlas]), p.atlasPrefix)
       }
-    } else {
-      effect.load(file, file.parent())
     }
     effect
   }
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ArrayBuffer[AssetDescriptor[?]] = {
     val deps = ArrayBuffer.empty[AssetDescriptor[?]]
-    if (parameter != null) {
-      parameter.atlasFile.foreach { atlasFile =>
+    Nullable(parameter).foreach { p =>
+      p.atlasFile.foreach { atlasFile =>
         deps += new AssetDescriptor[TextureAtlas](atlasFile, classOf[TextureAtlas])
       }
     }

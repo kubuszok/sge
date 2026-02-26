@@ -40,7 +40,6 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
   protected var edge:     Int     = 0
   protected var dragging: Boolean = false
 
-  if (title == null) throw new IllegalArgumentException("title cannot be null.")
   setTouchable(Touchable.enabled)
   setClip(true)
 
@@ -128,7 +127,7 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
           val minHeight     = getMinHeight
           val maxHeight     = getMaxHeight
           val stage         = getStage
-          val clampPosition = self.keepWithinStage && stage.isDefined && getParent.fold(false)(_ eq stage.getOrElse(null.asInstanceOf[Stage]).getRoot)
+          val clampPosition = self.keepWithinStage && stage.fold(false)(s => getParent.fold(false)(_ eq s.getRoot))
 
           if ((self.edge & MOVE) != 0) {
             val amountX = x - startX
@@ -188,21 +187,16 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     }
   )
 
-  // Skin constructors commented out until Skin is ported
-  // def this(title: String, skin: Skin) = {
-  //   this(title, skin.get(classOf[WindowStyle]))
-  //   setSkin(skin)
-  // }
-  // def this(title: String, skin: Skin, styleName: String) = {
-  //   this(title, skin.get(styleName, classOf[WindowStyle]))
-  //   setSkin(skin)
-  // }
+  def this(title: String, skin: Skin) =
+    this(title, skin.get(classOf[Window.WindowStyle]))
+
+  def this(title: String, skin: Skin, styleName: String) =
+    this(title, skin.get(styleName, classOf[Window.WindowStyle]))
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     new Label(Nullable(text), style)
 
   override def setStyle(style: WindowStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
 
     setBackground(Nullable(style.background))
@@ -284,10 +278,12 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     if (hitResult.isEmpty || hitResult.fold(false)(_ eq this)) scala.util.boundary.break(hitResult)
     if (y <= height && y >= height - getPadTop && x >= 0 && x <= getWidth) {
       // Hit the title bar, don't use the hit child if it is in the Window's table.
-      var current: Actor = hitResult.orNull
-      while (!current.getParent.fold(false)(_ eq this))
-        current.getParent.foreach { p => current = p }
-      if (getCell(current).isDefined) scala.util.boundary.break(Nullable(this: Actor))
+      hitResult.foreach { hr =>
+        var current: Actor = hr
+        while (!current.getParent.fold(false)(_ eq this))
+          current.getParent.foreach { p => current = p }
+        if (getCell(current).isDefined) scala.util.boundary.break(Nullable(this: Actor))
+      }
     }
     hitResult
   }

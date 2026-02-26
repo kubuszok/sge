@@ -14,7 +14,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
-import sge.utils.{ BufferUtils, SgeError };
+import sge.utils.{ BufferUtils, Nullable, SgeError };
 
 /** <p> A {@link VertexData} implementation based on OpenGL vertex buffer objects. <p> If the OpenGL ES context was lost you can call {@link #invalidate()} to recreate a new OpenGL vertex buffer
   * object. <p> The data is bound via glVertexAttribPointer() according to the attribute aliases specified via {@link VertexAttributes} in the constructor. <p> VertexBufferObjects must be disposed via
@@ -102,7 +102,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     */
   protected def setBuffer(data: Buffer, ownsBuffer: Boolean, value: VertexAttributes): Unit = {
     if (isBound) throw SgeError.GraphicsError("Cannot change attributes while VBO is bound")
-    if (this.ownsBuffer && byteBuffer != null) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
+    if (this.ownsBuffer && Nullable(byteBuffer).isDefined) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
     attributes = value
     data match {
       case bb: ByteBuffer => byteBuffer = bb

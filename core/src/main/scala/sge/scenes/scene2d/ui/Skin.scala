@@ -11,10 +11,14 @@ package scenes
 package scene2d
 package ui
 
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
+
 import sge.files.FileHandle
 import sge.graphics.Color
 import sge.graphics.Texture
 import sge.graphics.g2d.BitmapFont
+import sge.graphics.g2d.BitmapFontData
 import sge.graphics.g2d.NinePatch
 import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.TextureAtlas
@@ -27,6 +31,7 @@ import sge.scenes.scene2d.utils.NinePatchDrawable
 import sge.scenes.scene2d.utils.SpriteDrawable
 import sge.scenes.scene2d.utils.TextureRegionDrawable
 import sge.scenes.scene2d.utils.TiledDrawable
+import sge.utils.JsonValue
 import sge.utils.Nullable
 import sge.utils.SgeError
 
@@ -56,7 +61,7 @@ class Skin() extends AutoCloseable {
       _atlas = Nullable(new TextureAtlas(atlasFile))
       _atlas.foreach(addRegions)
     }
-    // TODO: load(skinFile) — needs JSON library
+    load(skinFile)
   }
 
   /** Creates a skin containing the resources in the specified skin JSON file and the texture regions from the specified atlas. The atlas is automatically disposed when the skin is disposed.
@@ -65,7 +70,7 @@ class Skin() extends AutoCloseable {
     this()
     _atlas = Nullable(atlas)
     addRegions(atlas)
-    // TODO: load(skinFile) — needs JSON library
+    load(skinFile)
   }
 
   /** Creates a skin containing the texture regions from the specified atlas. The atlas is automatically disposed when the skin is disposed.
@@ -77,10 +82,206 @@ class Skin() extends AutoCloseable {
   }
 
   /** Adds all resources in the specified skin JSON file. */
-  def load(skinFile: FileHandle): Unit =
-    // TODO: Implement when a Scala JSON library is chosen.
-    // Original used libGDX's Json + ClassReflection, which are intentionally skipped in the migration.
-    throw SgeError.InvalidInput("Skin.load() is not yet implemented — needs a Scala JSON library")
+  def load(skinFile: FileHandle)(using sge: Sge): Unit =
+    try {
+      val reader    = new _root_.sge.utils.JsonReader()
+      val root      = reader.parse(skinFile)
+      var typeEntry = root.child
+      while (typeEntry.isDefined) {
+        val te       = typeEntry.orNull
+        val typeName = te.name.getOrElse("")
+        Skin.resolveClass(typeName) match {
+          case Some(tpe) => readNamedObjects(tpe, te, skinFile)
+          case None      => () // Unknown type, skip
+        }
+        typeEntry = te.next
+      }
+    } catch {
+      case ex: SgeError  => throw ex
+      case ex: Exception =>
+        throw SgeError.InvalidInput("Error reading skin file: " + skinFile + ": " + ex.getMessage)
+    }
+
+  private def readNamedObjects(tpe: Class[?], valueMap: JsonValue, skinFile: FileHandle)(using Sge): Unit = {
+    val addType    = if (tpe == classOf[Skin.TintedDrawable]) classOf[Drawable] else tpe
+    var valueEntry = valueMap.child
+    while (valueEntry.isDefined) {
+      val entry     = valueEntry.orNull
+      val entryName = entry.name.getOrElse("")
+      try {
+        val obj = readValue(tpe, entry, skinFile)
+        if (obj != null) {
+          add(entryName, obj, addType)
+          if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
+            add(entryName, obj, classOf[Drawable])
+        }
+      } catch {
+        case ex: Exception =>
+          throw SgeError.InvalidInput("Error reading " + tpe.getSimpleName + ": " + entryName + ": " + ex.getMessage)
+      }
+      valueEntry = entry.next
+    }
+  }
+
+  /** Reads a single value of the specified type from JSON. For string JSON values referencing named resources, looks them up in this skin. For Color, BitmapFont, and TintedDrawable, uses explicit
+    * readers. For all other types (typically widget style classes), uses reflection-based field setting.
+    */
+  private def readValue(tpe: Class[?], jsonData: JsonValue, skinFile: FileHandle)(using Sge): Any =
+    // If the JSON is a string but the type is not a string, look up the resource by name.
+    if (jsonData.isString && !classOf[CharSequence].isAssignableFrom(tpe))
+      get(jsonData.asString().orNull, tpe.asInstanceOf[Class[Any]])
+    else if (tpe == classOf[Color]) readColor(jsonData)
+    else if (tpe == classOf[BitmapFont]) readBitmapFont(jsonData, skinFile)
+    else if (tpe == classOf[Skin.TintedDrawable]) readTintedDrawable(jsonData)
+    else readStyleObject(tpe, jsonData)
+
+  /** Reads a Color from JSON. Supports string references, hex notation, and r/g/b/a components. */
+  private def readColor(jsonData: JsonValue): Color =
+    if (jsonData.isString) get(jsonData.asString().orNull, classOf[Color])
+    else {
+      val hex = jsonData.getString("hex", Nullable.empty)
+      if (hex.isDefined) Color.valueOf(hex.orNull)
+      else {
+        val r = jsonData.getFloat("r", 0f)
+        val g = jsonData.getFloat("g", 0f)
+        val b = jsonData.getFloat("b", 0f)
+        val a = jsonData.getFloat("a", 1f)
+        new Color(r, g, b, a)
+      }
+    }
+
+  /** Reads a BitmapFont from JSON. */
+  private def readBitmapFont(jsonData: JsonValue, skinFile: FileHandle)(using sge: Sge): BitmapFont = {
+    val path            = jsonData.getString("file").orNull
+    val scaledSize      = jsonData.getFloat("scaledSize", -1f)
+    val flip            = jsonData.getBoolean("flip", false)
+    val markupEnabled   = jsonData.getBoolean("markupEnabled", false)
+    val useIntPositions = jsonData.getBoolean("useIntegerPositions", true)
+
+    var fontFile = skinFile.parent().child(path)
+    if (!fontFile.exists()) fontFile = sge.files.internal(path)
+    if (!fontFile.exists()) throw SgeError.InvalidInput("Font file not found: " + fontFile)
+
+    // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
+    val regionName = fontFile.nameWithoutExtension()
+    try {
+      val font: BitmapFont = {
+        val regions = getRegions(regionName)
+        if (regions.isDefined)
+          new BitmapFont(new BitmapFontData(Nullable(fontFile), flip), Nullable(regions.orNull), true)
+        else {
+          val region = optional(regionName, classOf[TextureRegion])
+          if (region.isDefined)
+            new BitmapFont(fontFile, region, flip)
+          else {
+            val imageFile = fontFile.parent().child(regionName + ".png")
+            if (imageFile.exists())
+              new BitmapFont(fontFile, imageFile, flip)
+            else
+              new BitmapFont(fontFile, flip)
+          }
+        }
+      }
+      font.getData().markupEnabled = markupEnabled
+      font.setUseIntegerPositions(useIntPositions)
+      // Scaled size is the desired cap height to scale the font to.
+      if (scaledSize != -1) {
+        val s = scaledSize / font.getCapHeight()
+        font.getData().scaleX = s
+        font.getData().scaleY = s
+      }
+      font
+    } catch {
+      case ex: RuntimeException =>
+        throw SgeError.InvalidInput("Error loading bitmap font: " + fontFile + ": " + ex.getMessage)
+    }
+  }
+
+  /** Reads a TintedDrawable from JSON. Returns the tinted Drawable. */
+  private def readTintedDrawable(jsonData: JsonValue): Drawable = {
+    val drawableName = jsonData.getString("name").orNull
+    val color        = readColor(jsonData.require("color"))
+    val drawable     = newDrawable(drawableName, color)
+    drawable match {
+      case named: BaseDrawable =>
+        named.setName(Nullable(jsonData.name.getOrElse("") + " (" + drawableName + ", " + color + ")"))
+      case _ =>
+    }
+    drawable
+  }
+
+  /** Reads a style object (or any POJO-like class) from JSON using reflection. Supports "parent" field for style inheritance. */
+  private def readStyleObject(tpe: Class[?], jsonMap: JsonValue): Any = {
+    val obj = tpe.getDeclaredConstructor().newInstance()
+
+    // Handle parent field: copy all fields from the named parent resource.
+    val parentJson = jsonMap.get("parent")
+    if (parentJson.isDefined) {
+      val parentName = parentJson.orNull.asString().orNull
+      var parentType: Class[?] = tpe
+      var found = false
+      while (!found && parentType != classOf[Object])
+        try {
+          val parentObj = get(parentName, parentType.asInstanceOf[Class[Any]])
+          Skin.copyFields(parentObj, obj)
+          found = true
+        } catch {
+          case _: SgeError =>
+            parentType = parentType.getSuperclass
+        }
+      if (!found)
+        throw SgeError.InvalidInput("Unable to find parent resource with name: " + parentName)
+    }
+
+    // Set fields from JSON.
+    var entry = jsonMap.child
+    while (entry.isDefined) {
+      val e         = entry.orNull
+      val fieldName = e.name.getOrElse("")
+      if (fieldName != "parent") {
+        Skin.findField(tpe, fieldName).foreach { field =>
+          field.setAccessible(true)
+          setFieldValue(obj, field, e)
+        }
+      }
+      entry = e.next
+    }
+    obj
+  }
+
+  /** Sets a field value on an object from a JsonValue entry. Resolves string references to named skin resources. */
+  private def setFieldValue(obj: Any, field: Field, json: JsonValue): Unit = {
+    val fieldType = field.getType
+
+    // String JSON value for a non-string field → look up resource by name in the skin.
+    if (json.isString && !classOf[CharSequence].isAssignableFrom(fieldType)) {
+      val resourceName = json.asString().orNull
+      try {
+        val value = get(resourceName, fieldType.asInstanceOf[Class[Any]])
+        field.set(obj, value)
+      } catch {
+        case _: SgeError => () // Resource not found, skip
+      }
+    } else if (fieldType == classOf[Color] || fieldType.getName == "sge.graphics.Color") {
+      field.set(obj, readColor(json))
+    } else if (json.isObject) {
+      // Nested object — could be an inline style reference. Try to read it as the field type.
+      try {
+        val nested = readStyleObject(fieldType, json)
+        field.set(obj, nested)
+      } catch {
+        case _: Exception => () // Can't instantiate, skip
+      }
+    } else if (fieldType == classOf[Float] || fieldType == java.lang.Float.TYPE) {
+      field.setFloat(obj, json.asFloat())
+    } else if (fieldType == classOf[Int] || fieldType == java.lang.Integer.TYPE) {
+      field.setInt(obj, json.asInt())
+    } else if (fieldType == classOf[Boolean] || fieldType == java.lang.Boolean.TYPE) {
+      field.setBoolean(obj, json.asBoolean())
+    } else if (fieldType == classOf[String]) {
+      field.set(obj, json.asString().orNull)
+    }
+  }
 
   /** Adds all named texture regions from the atlas. The atlas will not be automatically disposed when the skin is disposed. */
   def addRegions(atlas: TextureAtlas): Unit = {
@@ -102,16 +303,12 @@ class Skin() extends AutoCloseable {
     add(name, resource, resource.getClass)
 
   def add(name: String, resource: Any, tpe: Class[?]): Unit = {
-    require(name != null, "name cannot be null.")
-    require(resource != null, "resource cannot be null.")
     val typeResources = resources.getOrElseUpdate(tpe, mutable.Map.empty)
     typeResources.put(name, resource)
   }
 
-  def remove(name: String, tpe: Class[?]): Unit = {
-    require(name != null, "name cannot be null.")
+  def remove(name: String, tpe: Class[?]): Unit =
     resources.get(tpe).foreach(_.remove(name))
-  }
 
   /** Returns a resource named "default" for the specified type.
     * @throws SgeError
@@ -125,9 +322,6 @@ class Skin() extends AutoCloseable {
     *   if the resource was not found.
     */
   def get[T](name: String, tpe: Class[T]): T = boundary {
-    require(name != null, "name cannot be null.")
-    require(tpe != null, "type cannot be null.")
-
     if (tpe == classOf[Drawable]) break(getDrawable(name).asInstanceOf[T])
     if (tpe == classOf[TextureRegion]) break(getRegion(name).asInstanceOf[T])
     if (tpe == classOf[NinePatch]) break(getPatch(name).asInstanceOf[T])
@@ -147,8 +341,6 @@ class Skin() extends AutoCloseable {
     *   Nullable.empty if not found.
     */
   def optional[T](name: String, tpe: Class[T]): Nullable[T] = {
-    require(name != null, "name cannot be null.")
-    require(tpe != null, "type cannot be null.")
     val typeResources = resources.get(tpe)
     if (typeResources.isEmpty) Nullable.empty
     else {
@@ -182,11 +374,11 @@ class Skin() extends AutoCloseable {
     */
   def getRegion(name: String): TextureRegion = boundary {
     val region = optional(name, classOf[TextureRegion])
-    if (region.isDefined) break(region.orNull)
+    region.foreach(r => break(r))
 
-    val texture = optional(name, classOf[Texture])
-    if (texture.isEmpty) throw SgeError.InvalidInput("No TextureRegion or Texture registered with name: " + name)
-    val newRegion = new TextureRegion(texture.orNull)
+    val texture   = optional(name, classOf[Texture])
+    val tex       = texture.getOrElse(throw SgeError.InvalidInput("No TextureRegion or Texture registered with name: " + name))
+    val newRegion = new TextureRegion(tex)
     add(name, newRegion, classOf[TextureRegion])
     newRegion
   }
@@ -200,7 +392,7 @@ class Skin() extends AutoCloseable {
     if (region.isDefined) {
       val buf = mutable.ArrayBuffer.empty[TextureRegion]
       while (region.isDefined) {
-        buf += region.orNull
+        region.foreach(buf += _)
         region = optional(regionName + "_" + i, classOf[TextureRegion])
         i += 1
       }
@@ -213,7 +405,7 @@ class Skin() extends AutoCloseable {
     */
   def getTiledDrawable(name: String): TiledDrawable = boundary {
     val existing = optional(name, classOf[TiledDrawable])
-    if (existing.isDefined) break(existing.orNull)
+    existing.foreach(e => break(e))
 
     val tiled = new TiledDrawable(getRegion(name))
     tiled.setName(Nullable(name))
@@ -230,7 +422,7 @@ class Skin() extends AutoCloseable {
     */
   def getPatch(name: String): NinePatch = boundary {
     val existing = optional(name, classOf[NinePatch])
-    if (existing.isDefined) break(existing.orNull)
+    existing.foreach(e => break(e))
 
     try {
       val region = getRegion(name)
@@ -246,10 +438,10 @@ class Skin() extends AutoCloseable {
           }
         case _ =>
       }
-      if (patch.isEmpty) patch = Nullable(new NinePatch(region))
-      if (_scale != 1) patch.orNull.scale(_scale, _scale)
-      add(name, patch.orNull, classOf[NinePatch])
-      patch.orNull
+      val result = patch.getOrElse(new NinePatch(region))
+      if (_scale != 1) result.scale(_scale, _scale)
+      add(name, result, classOf[NinePatch])
+      result
     } catch {
       case _: SgeError =>
         throw SgeError.InvalidInput("No NinePatch, TextureRegion, or Texture registered with name: " + name)
@@ -261,7 +453,7 @@ class Skin() extends AutoCloseable {
     */
   def getSprite(name: String): Sprite = boundary {
     val existing = optional(name, classOf[Sprite])
-    if (existing.isDefined) break(existing.orNull)
+    existing.foreach(e => break(e))
 
     try {
       val textureRegion = getRegion(name)
@@ -272,10 +464,10 @@ class Skin() extends AutoCloseable {
             sprite = Nullable(new AtlasSprite(region))
         case _ =>
       }
-      if (sprite.isEmpty) sprite = Nullable(new Sprite(textureRegion))
-      if (_scale != 1) sprite.orNull.setSize(sprite.orNull.getWidth() * _scale, sprite.orNull.getHeight() * _scale)
-      add(name, sprite.orNull, classOf[Sprite])
-      sprite.orNull
+      val result = sprite.getOrElse(new Sprite(textureRegion))
+      if (_scale != 1) result.setSize(result.getWidth() * _scale, result.getHeight() * _scale)
+      add(name, result, classOf[Sprite])
+      result
     } catch {
       case _: SgeError =>
         throw SgeError.InvalidInput("No NinePatch, TextureRegion, or Texture registered with name: " + name)
@@ -286,7 +478,7 @@ class Skin() extends AutoCloseable {
     */
   def getDrawable(name: String): Drawable = boundary {
     var drawable: Nullable[Drawable] = optional(name, classOf[Drawable])
-    if (drawable.isDefined) break(drawable.orNull)
+    drawable.foreach(d => break(d))
 
     // Use texture or texture region. If it has splits, use ninepatch. If it has rotation or whitespace stripping, use sprite.
     try {
@@ -311,31 +503,33 @@ class Skin() extends AutoCloseable {
     // Check for explicit registration of ninepatch, sprite, or tiled drawable.
     if (drawable.isEmpty) {
       val patch = optional(name, classOf[NinePatch])
-      if (patch.isDefined)
-        drawable = Nullable(new NinePatchDrawable(patch.orNull))
-      else {
+      patch.foreach { p =>
+        drawable = Nullable(new NinePatchDrawable(p))
+      }
+      if (drawable.isEmpty) {
         val sprite = optional(name, classOf[Sprite])
-        if (sprite.isDefined)
-          drawable = Nullable(new SpriteDrawable(sprite.orNull))
-        else
+        sprite.foreach { s =>
+          drawable = Nullable(new SpriteDrawable(s))
+        }
+        if (drawable.isEmpty)
           throw SgeError.InvalidInput("No Drawable, NinePatch, TextureRegion, Texture, or Sprite registered with name: " + name)
       }
     }
 
-    drawable.orNull match {
+    val result = drawable.getOrElse(throw SgeError.InvalidInput("No Drawable registered with name: " + name))
+    result match {
       case bd: BaseDrawable => bd.setName(Nullable(name))
       case _ =>
     }
 
-    add(name, drawable.orNull, classOf[Drawable])
-    drawable.orNull
+    add(name, result, classOf[Drawable])
+    result
   }
 
   /** Returns the name of the specified style object, or Nullable.empty if it is not in the skin. This compares potentially every style object in the skin of the same type as the specified style,
     * which may be a somewhat expensive operation.
     */
-  def find(resource: Any): Nullable[String] = {
-    require(resource != null, "style cannot be null.")
+  def find(resource: Any): Nullable[String] =
     resources.get(resource.getClass) match {
       case Some(typeResources) =>
         typeResources.collectFirst { case (k, v) if v == resource => k } match {
@@ -344,7 +538,6 @@ class Skin() extends AutoCloseable {
         }
       case None => Nullable.empty
     }
-  }
 
   /** Returns a copy of a drawable found in the skin via {@link #getDrawable(String)}. */
   def newDrawable(name: String): Drawable =
@@ -446,5 +639,79 @@ object Skin {
   class TintedDrawable {
     var name:  String = scala.compiletime.uninitialized
     var color: Color  = scala.compiletime.uninitialized
+  }
+
+  /** Maps short class names to their Class objects for JSON type resolution. */
+  private lazy val classTagMap: Map[String, Class[?]] = {
+    val classes: Array[Class[?]] = Array(
+      classOf[BitmapFont],
+      classOf[Color],
+      classOf[TintedDrawable],
+      classOf[NinePatchDrawable],
+      classOf[SpriteDrawable],
+      classOf[TextureRegionDrawable],
+      classOf[TiledDrawable],
+      classOf[Button.ButtonStyle],
+      classOf[CheckBox.CheckBoxStyle],
+      classOf[ImageButton.ImageButtonStyle],
+      classOf[ImageTextButton.ImageTextButtonStyle],
+      classOf[Label.LabelStyle],
+      classOf[SgeList.ListStyle],
+      classOf[ProgressBar.ProgressBarStyle],
+      classOf[ScrollPane.ScrollPaneStyle],
+      classOf[SelectBox.SelectBoxStyle],
+      classOf[Slider.SliderStyle],
+      classOf[SplitPane.SplitPaneStyle],
+      classOf[TextButton.TextButtonStyle],
+      classOf[TextField.TextFieldStyle],
+      classOf[TextTooltip.TextTooltipStyle],
+      classOf[Touchpad.TouchpadStyle],
+      classOf[Tree.TreeStyle],
+      classOf[Window.WindowStyle]
+    )
+    val map = mutable.Map.empty[String, Class[?]]
+    for (c <- classes) map.put(c.getSimpleName, c)
+    // Also add LibGDX-compatible aliases for List (renamed to SgeList in SGE).
+    map.put("ListStyle", classOf[SgeList.ListStyle])
+    map.toMap
+  }
+
+  /** Resolves a type name from skin JSON to a Class. Tries the class tag map first, then fully qualified class name. */
+  private def resolveClass(name: String): Option[Class[?]] =
+    classTagMap.get(name).orElse {
+      try Some(Class.forName(name))
+      catch { case _: ClassNotFoundException => None }
+    }
+
+  /** Copies all non-static, non-synthetic fields from source to target using reflection. */
+  private def copyFields(source: Any, target: Any): Unit = {
+    var clazz: Class[?] = source.getClass
+    while (clazz != null && clazz != classOf[Object]) {
+      val fields = clazz.getDeclaredFields
+      var i      = 0
+      while (i < fields.length) {
+        val field = fields(i)
+        if (!Modifier.isStatic(field.getModifiers) && !field.isSynthetic && !field.getName.startsWith("$")) {
+          field.setAccessible(true)
+          try field.set(target, field.get(source))
+          catch { case _: Exception => () }
+        }
+        i += 1
+      }
+      clazz = clazz.getSuperclass
+    }
+  }
+
+  /** Finds a field by name on the class or its superclasses. */
+  private def findField(clazz: Class[?], name: String): Option[Field] = {
+    var c: Class[?] = clazz
+    while (c != null && c != classOf[Object])
+      try {
+        val field = c.getDeclaredField(name)
+        return Some(field) // scalastyle:ignore
+      } catch {
+        case _: NoSuchFieldException => c = c.getSuperclass
+      }
+    None
   }
 }

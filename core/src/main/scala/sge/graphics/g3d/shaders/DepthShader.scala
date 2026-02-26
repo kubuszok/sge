@@ -1,0 +1,192 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java
+ * Original authors: Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+package shaders
+
+import scala.util.boundary
+import scala.util.boundary.break
+import sge.graphics.GL20
+import sge.graphics.g3d.attributes.{ BlendingAttribute, FloatAttribute, TextureAttribute }
+import sge.graphics.g3d.utils.RenderContext
+import sge.graphics.glutils.ShaderProgram
+import sge.utils.{ Nullable, SgeError }
+
+class DepthShader(
+  renderable:    Renderable,
+  config:        DepthShader.Config,
+  shaderProgram: ShaderProgram
+)(using sge: Sge)
+    extends DefaultShader(renderable, config, shaderProgram) {
+
+  private val _depthNumBones: Int = {
+    val attributes = DepthShader.combineAttributes(renderable)
+
+    if (renderable.bones.isDefined && renderable.bones.fold(0)(_.length) > config.numBones) {
+      throw SgeError.GraphicsError(
+        "too many bones: " + renderable.bones.fold(0)(_.length) + ", max configured: " + config.numBones
+      )
+    }
+
+    val boneWeights = renderable.meshPart.mesh.getVertexAttributes().getBoneWeights()
+    if (boneWeights > config.numBoneWeights) {
+      throw SgeError.GraphicsError(
+        "too many bone weights: " + boneWeights + ", max configured: " + config.numBoneWeights
+      )
+    }
+
+    renderable.bones.fold(0)(_ => config.numBones)
+  }
+
+  val numBones: Int = _depthNumBones
+
+  private val alphaTestAttribute: FloatAttribute =
+    new FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
+
+  def this(renderable: Renderable)(using sge: Sge) =
+    this(
+      renderable,
+      DepthShader.Config(), {
+        val cfg    = DepthShader.Config()
+        val prefix = DepthShader.createPrefix(renderable, cfg)
+        val vs     = DepthShader.getDefaultVertexShader()
+        val fs     = DepthShader.getDefaultFragmentShader()
+        new ShaderProgram(prefix + vs, prefix + fs)
+      }
+    )
+
+  def this(renderable: Renderable, config: DepthShader.Config)(using sge: Sge) =
+    this(
+      renderable,
+      config, {
+        val prefix = DepthShader.createPrefix(renderable, config)
+        val vs     = config.vertexShader.getOrElse(DepthShader.getDefaultVertexShader())
+        val fs     = config.fragmentShader.getOrElse(DepthShader.getDefaultFragmentShader())
+        new ShaderProgram(prefix + vs, prefix + fs)
+      }
+    )
+
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using sge: Sge) =
+    this(
+      renderable,
+      config, {
+        val vs = config.vertexShader.getOrElse(DepthShader.getDefaultVertexShader())
+        val fs = config.fragmentShader.getOrElse(DepthShader.getDefaultFragmentShader())
+        new ShaderProgram(prefix + vs, prefix + fs)
+      }
+    )
+
+  def this(
+    renderable:     Renderable,
+    config:         DepthShader.Config,
+    prefix:         String,
+    vertexShader:   String,
+    fragmentShader: String
+  )(using sge: Sge) =
+    this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+
+  override def begin(camera: Camera, context: RenderContext): Unit = {
+    super.begin(camera, context)
+    // Gdx.gl20.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
+    // Gdx.gl20.glPolygonOffset(2.f, 100.f);
+  }
+
+  override def end(): Unit = {
+    super.end()
+    // Gdx.gl20.glDisable(GL20.GL_POLYGON_OFFSET_FILL);
+  }
+
+  override def canRender(renderable: Renderable): Boolean = boundary {
+    if (renderable.bones.isDefined) {
+      if (renderable.bones.fold(0)(_.length) > config.numBones) break(false)
+      if (renderable.meshPart.mesh.getVertexAttributes().getBoneWeights() > config.numBoneWeights) break(false)
+    }
+    val attributes = DepthShader.combineAttributes(renderable)
+
+    val isBlendedTextureShader = (attributesMask & BlendingAttribute.Type) == BlendingAttribute.Type &&
+      (attributesMask & TextureAttribute.Diffuse) == TextureAttribute.Diffuse
+
+    val isBlendedTextureRenderable =
+      attributes.has(BlendingAttribute.Type) && attributes.has(TextureAttribute.Diffuse)
+
+    if (isBlendedTextureShader != isBlendedTextureRenderable) break(false)
+
+    renderable.bones.isDefined == (numBones > 0)
+  }
+
+  override def render(renderable: Renderable, combinedAttributes: Attributes): Unit =
+    if (combinedAttributes.has(BlendingAttribute.Type)) {
+      val blending = combinedAttributes
+        .get(BlendingAttribute.Type)
+        .fold(
+          null.asInstanceOf[BlendingAttribute]
+        )(_.asInstanceOf[BlendingAttribute])
+      combinedAttributes.remove(BlendingAttribute.Type)
+      val hasAlphaTest = combinedAttributes.has(FloatAttribute.AlphaTest)
+      if (!hasAlphaTest) combinedAttributes.set(alphaTestAttribute)
+      if (blending.opacity >= combinedAttributes.get(FloatAttribute.AlphaTest).fold(0f)(_.asInstanceOf[FloatAttribute].value)) {
+        super.render(renderable, combinedAttributes)
+      }
+      if (!hasAlphaTest) combinedAttributes.remove(FloatAttribute.AlphaTest)
+      combinedAttributes.set(blending)
+    } else {
+      super.render(renderable, combinedAttributes)
+    }
+}
+
+object DepthShader {
+
+  class Config extends DefaultShader.Config {
+    var depthBufferOnly:  Boolean = false
+    var defaultAlphaTest: Float   = 0.5f
+
+    defaultCullFace = GL20.GL_FRONT
+
+    def this(vertexShader: String, fragmentShader: String) = {
+      this()
+      this.vertexShader = Nullable(vertexShader)
+      this.fragmentShader = Nullable(fragmentShader)
+    }
+  }
+
+  private var _defaultVertexShader: Nullable[String] = Nullable.empty
+
+  def getDefaultVertexShader()(using sge: Sge): String = {
+    if (_defaultVertexShader.isEmpty) {
+      _defaultVertexShader = Nullable(sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl").readString())
+    }
+    _defaultVertexShader.getOrElse("")
+  }
+
+  private var _defaultFragmentShader: Nullable[String] = Nullable.empty
+
+  def getDefaultFragmentShader()(using sge: Sge): String = {
+    if (_defaultFragmentShader.isEmpty) {
+      _defaultFragmentShader = Nullable(sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl").readString())
+    }
+    _defaultFragmentShader.getOrElse("")
+  }
+
+  def createPrefix(renderable: Renderable, config: Config): String = {
+    var prefix = DefaultShader.createPrefix(renderable, config)
+    if (!config.depthBufferOnly) prefix += "#define PackedDepthFlag\n"
+    prefix
+  }
+
+  private val tmpAttributes: Attributes = new Attributes()
+
+  // TODO: Move responsibility for combining attributes to RenderableProvider
+  private def combineAttributes(renderable: Renderable): Attributes = {
+    tmpAttributes.clear()
+    renderable.environment.foreach(tmpAttributes.set(_))
+    renderable.material.foreach(tmpAttributes.set(_))
+    tmpAttributes
+  }
+}

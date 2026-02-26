@@ -1,4 +1,4 @@
-# SGE Migration Status - Updated: 2026-02-24
+# SGE Migration Status - Updated: 2026-02-26
 # libgdx_path	sge_path	status	notes
 com/badlogic/gdx/AbstractGraphics.java	sge/Graphics.scala	ai_converted	merged into Graphics
 com/badlogic/gdx/AbstractInput.java	sge/Input.scala	ai_converted	merged into Input
@@ -33,7 +33,7 @@ com/badlogic/gdx/assets/loaders/BitmapFontLoader.java	sge/assets/loaders/BitmapF
 com/badlogic/gdx/assets/loaders/CubemapLoader.java	sge/assets/loaders/CubemapLoader.scala	ai_converted
 com/badlogic/gdx/assets/loaders/FileHandleResolver.java	sge/assets/loaders/FileHandleResolver.scala	ai_converted	
 com/badlogic/gdx/assets/loaders/I18NBundleLoader.java	sge/assets/loaders/I18NBundleLoader.scala	ai_converted	
-com/badlogic/gdx/assets/loaders/ModelLoader.java		not_started	
+com/badlogic/gdx/assets/loaders/ModelLoader.java	sge/assets/loaders/ModelLoader.scala	ai_converted
 com/badlogic/gdx/assets/loaders/MusicLoader.java	sge/assets/loaders/MusicLoader.scala	ai_converted	
 com/badlogic/gdx/assets/loaders/ParticleEffectLoader.java	sge/assets/loaders/ParticleEffectLoader.scala	ai_converted
 com/badlogic/gdx/assets/loaders/PixmapLoader.java	sge/assets/loaders/PixmapLoader.scala	ai_converted
@@ -107,146 +107,146 @@ com/badlogic/gdx/graphics/g2d/SpriteBatch.java	sge/graphics/g2d/SpriteBatch.scal
 com/badlogic/gdx/graphics/g2d/SpriteCache.java	sge/graphics/g2d/SpriteCache.scala	ai_converted	
 com/badlogic/gdx/graphics/g2d/TextureAtlas.java	sge/graphics/g2d/TextureAtlas.scala	ai_converted	
 com/badlogic/gdx/graphics/g2d/TextureRegion.java	sge/graphics/g2d/TextureRegion.scala	ai_converted	
-com/badlogic/gdx/graphics/g3d/Attribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Attributes.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Environment.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Material.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Model.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/ModelBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/ModelCache.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/ModelInstance.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Renderable.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/RenderableProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/Shader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/CubemapAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/DepthTestAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/DirectionalLightsAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/PointLightsAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/SpotLightsAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/Decal.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/DecalBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/DecalMaterial.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/GroupPlug.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/GroupStrategy.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/PluggableGroupStrategy.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/decals/SimpleOrthoGroupStrategy.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/AmbientCubemap.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/BaseLight.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/DirectionalLight.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/DirectionalShadowLight.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/PointLight.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/ShadowMap.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/SphericalHarmonics.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/environment/SpotLight.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/Animation.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/MeshPart.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/Node.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/NodeAnimation.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/NodeKeyframe.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/NodePart.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelAnimation.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelMaterial.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelMesh.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelMeshPart.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelNode.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleController.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ResourceData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/AnimationController.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/BaseShaderProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/DefaultShaderProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/DefaultTextureBinder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/DepthShaderProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/MeshBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/MeshPartBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/RenderContext.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/RenderableSorter.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/ShaderProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/ShapeCache.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/TextureBinder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/TextureProvider.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java		not_started	g3d module
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java		not_started	g3d module
+com/badlogic/gdx/graphics/g3d/Attribute.java	sge/graphics/g3d/Attribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/Attributes.java	sge/graphics/g3d/Attributes.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/Environment.java	sge/graphics/g3d/Environment.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/Material.java	sge/graphics/g3d/Material.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/Model.java	sge/graphics/g3d/Model.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/ModelBatch.java	sge/graphics/g3d/ModelBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/ModelCache.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/ModelInstance.java	sge/graphics/g3d/ModelInstance.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/Renderable.java	sge/graphics/g3d/Renderable.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/RenderableProvider.java	sge/graphics/g3d/RenderableProvider.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/Shader.java	sge/graphics/g3d/Shader.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java	sge/graphics/g3d/attributes/BlendingAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java	sge/graphics/g3d/attributes/ColorAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/CubemapAttribute.java	sge/graphics/g3d/attributes/CubemapAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/DepthTestAttribute.java	sge/graphics/g3d/attributes/DepthTestAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/DirectionalLightsAttribute.java	sge/graphics/g3d/attributes/DirectionalLightsAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java	sge/graphics/g3d/attributes/FloatAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java	sge/graphics/g3d/attributes/IntAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/PointLightsAttribute.java	sge/graphics/g3d/attributes/PointLightsAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/SpotLightsAttribute.java	sge/graphics/g3d/attributes/SpotLightsAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java	sge/graphics/g3d/attributes/TextureAttribute.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java	sge/graphics/g3d/decals/CameraGroupStrategy.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/Decal.java	sge/graphics/g3d/decals/Decal.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/DecalBatch.java	sge/graphics/g3d/decals/DecalBatch.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/DecalMaterial.java	sge/graphics/g3d/decals/DecalMaterial.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/GroupPlug.java	sge/graphics/g3d/decals/GroupPlug.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/GroupStrategy.java	sge/graphics/g3d/decals/GroupStrategy.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/PluggableGroupStrategy.java	sge/graphics/g3d/decals/PluggableGroupStrategy.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/decals/SimpleOrthoGroupStrategy.java	sge/graphics/g3d/decals/SimpleOrthoGroupStrategy.scala	ai_converted	g3d decals batch
+com/badlogic/gdx/graphics/g3d/environment/AmbientCubemap.java	sge/graphics/g3d/environment/AmbientCubemap.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/BaseLight.java	sge/graphics/g3d/environment/BaseLight.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/DirectionalLight.java	sge/graphics/g3d/environment/DirectionalLight.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/DirectionalShadowLight.java	sge/graphics/g3d/environment/DirectionalShadowLight.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/PointLight.java	sge/graphics/g3d/environment/PointLight.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/ShadowMap.java	sge/graphics/g3d/environment/ShadowMap.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/SphericalHarmonics.java	sge/graphics/g3d/environment/SphericalHarmonics.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/environment/SpotLight.java	sge/graphics/g3d/environment/SpotLight.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java	sge/graphics/g3d/loader/G3dModelLoader.scala	ai_converted	g3d module; .g3dj text JSON support (UBJson deferred)
+com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java	sge/graphics/g3d/loader/ObjLoader.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/model/Animation.java	sge/graphics/g3d/model/Animation.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/MeshPart.java	sge/graphics/g3d/model/MeshPart.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/Node.java	sge/graphics/g3d/model/Node.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/model/NodeAnimation.java	sge/graphics/g3d/model/NodeAnimation.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/NodeKeyframe.java	sge/graphics/g3d/model/NodeKeyframe.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/NodePart.java	sge/graphics/g3d/model/NodePart.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/model/data/ModelAnimation.java	sge/graphics/g3d/model/data/ModelAnimation.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelData.java	sge/graphics/g3d/model/data/ModelData.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelMaterial.java	sge/graphics/g3d/model/data/ModelMaterial.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelMesh.java	sge/graphics/g3d/model/data/ModelMesh.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelMeshPart.java	sge/graphics/g3d/model/data/ModelMeshPart.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelNode.java	sge/graphics/g3d/model/data/ModelNode.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java	sge/graphics/g3d/model/data/ModelNodeAnimation.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java	sge/graphics/g3d/model/data/ModelNodeKeyframe.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java	sge/graphics/g3d/model/data/ModelNodePart.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java	sge/graphics/g3d/model/data/ModelTexture.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleController.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ResourceData.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java	sge/graphics/g3d/shaders/DefaultShader.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java	sge/graphics/g3d/shaders/DepthShader.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/AnimationController.java	sge/graphics/g3d/utils/AnimationController.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java	sge/graphics/g3d/utils/BaseAnimationController.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/BaseShaderProvider.java	sge/graphics/g3d/utils/BaseShaderProvider.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java	sge/graphics/g3d/utils/CameraInputController.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java	sge/graphics/g3d/utils/DefaultRenderableSorter.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/DefaultShaderProvider.java	sge/graphics/g3d/utils/DefaultShaderProvider.scala	ai_converted	g3d batch A
+com/badlogic/gdx/graphics/g3d/utils/DefaultTextureBinder.java	sge/graphics/g3d/utils/DefaultTextureBinder.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/DepthShaderProvider.java	sge/graphics/g3d/utils/DepthShaderProvider.scala	ai_converted	g3d batch A
+com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java	sge/graphics/g3d/utils/FirstPersonCameraController.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/MeshBuilder.java	sge/graphics/g3d/utils/MeshBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/MeshPartBuilder.java	sge/graphics/g3d/utils/MeshPartBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java	sge/graphics/g3d/utils/ModelBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/RenderContext.java	sge/graphics/g3d/utils/RenderContext.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/utils/RenderableSorter.java	sge/graphics/g3d/utils/RenderableSorter.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/utils/ShaderProvider.java	sge/graphics/g3d/utils/ShaderProvider.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/ShapeCache.java	sge/graphics/g3d/utils/ShapeCache.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/TextureBinder.java	sge/graphics/g3d/utils/TextureBinder.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java	sge/graphics/g3d/utils/TextureDescriptor.scala	ai_converted	g3d phase 1
+com/badlogic/gdx/graphics/g3d/utils/TextureProvider.java	sge/graphics/g3d/utils/TextureProvider.scala	ai_converted	g3d phase 2
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.scala	ai_converted	g3d module
 com/badlogic/gdx/graphics/glutils/CustomTexture3DData.java	sge/graphics/glutils/CustomTexture3DData.scala	ai_converted	
 com/badlogic/gdx/graphics/glutils/ETC1.java	sge/graphics/glutils/ETC1.scala	ai_converted	
 com/badlogic/gdx/graphics/glutils/ETC1TextureData.java	sge/graphics/glutils/ETC1TextureData.scala	ai_converted	
@@ -435,37 +435,37 @@ com/badlogic/gdx/scenes/scene2d/ui/Button.java	sge/scenes/scene2d/ui/Button.scal
 com/badlogic/gdx/scenes/scene2d/ui/ButtonGroup.java	sge/scenes/scene2d/ui/ButtonGroup.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Cell.java	sge/scenes/scene2d/ui/Cell.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/CheckBox.java	sge/scenes/scene2d/ui/CheckBox.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Container.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Dialog.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/HorizontalGroup.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Container.java	sge/scenes/scene2d/ui/Container.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Dialog.java	sge/scenes/scene2d/ui/Dialog.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/HorizontalGroup.java	sge/scenes/scene2d/ui/HorizontalGroup.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Image.java	sge/scenes/scene2d/ui/Image.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java	sge/scenes/scene2d/ui/ImageButton.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java	sge/scenes/scene2d/ui/ImageTextButton.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Label.java	sge/scenes/scene2d/ui/Label.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/List.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/List.java	sge/scenes/scene2d/ui/SgeList.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/ParticleEffectActor.java	sge/scenes/scene2d/ui/ParticleEffectActor.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/ScrollPane.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/SelectBox.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java	sge/scenes/scene2d/ui/ProgressBar.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/ScrollPane.java	sge/scenes/scene2d/ui/ScrollPane.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/SelectBox.java	sge/scenes/scene2d/ui/SelectBox.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Skin.java	sge/scenes/scene2d/ui/Skin.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Slider.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/SplitPane.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Slider.java	sge/scenes/scene2d/ui/Slider.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/SplitPane.java	sge/scenes/scene2d/ui/SplitPane.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Stack.java	sge/scenes/scene2d/ui/Stack.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Styleable.java	sge/scenes/scene2d/ui/Styleable.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Table.java	sge/scenes/scene2d/ui/Table.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/TextArea.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextArea.java	sge/scenes/scene2d/ui/TextArea.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/TextButton.java	sge/scenes/scene2d/ui/TextButton.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/TextField.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/TextTooltip.java		not_started	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextField.java	sge/scenes/scene2d/ui/TextField.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/TextTooltip.java	sge/scenes/scene2d/ui/TextTooltip.scala	ai_converted	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java	sge/scenes/scene2d/ui/Tooltip.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/TooltipManager.java	sge/scenes/scene2d/ui/TooltipManager.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Touchpad.java	sge/scenes/scene2d/ui/Touchpad.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Tree.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Tree.java	sge/scenes/scene2d/ui/Tree.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Value.java	sge/scenes/scene2d/ui/Value.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/VerticalGroup.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/VerticalGroup.java	sge/scenes/scene2d/ui/VerticalGroup.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/Widget.java	sge/scenes/scene2d/ui/Widget.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/ui/WidgetGroup.java	sge/scenes/scene2d/ui/WidgetGroup.scala	ai_converted	scene2d module
-com/badlogic/gdx/scenes/scene2d/ui/Window.java		not_started	scene2d module
+com/badlogic/gdx/scenes/scene2d/ui/Window.java	sge/scenes/scene2d/ui/Window.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/utils/ActorGestureListener.java	sge/scenes/scene2d/utils/ActorGestureListener.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/utils/ArraySelection.java	sge/scenes/scene2d/utils/ArraySelection.scala	ai_converted	scene2d module
 com/badlogic/gdx/scenes/scene2d/utils/BaseDrawable.java	sge/scenes/scene2d/utils/BaseDrawable.scala	ai_converted	scene2d module
@@ -550,7 +550,7 @@ com/badlogic/gdx/utils/PerformanceCounters.java	sge/utils/PerformanceCounters.sc
 com/badlogic/gdx/utils/Pool.java	sge/utils/Pool.scala	ai_converted	
 com/badlogic/gdx/utils/PoolManager.java	sge/utils/PoolManager.scala	ai_converted
 com/badlogic/gdx/utils/PooledLinkedList.java		skipped	use stdlib
-com/badlogic/gdx/utils/Pools.java		not_started	deprecated, heavy scene2d deps - deferred
+com/badlogic/gdx/utils/Pools.java		skipped	deprecated; uses ReflectionPool (reflection skipped)
 com/badlogic/gdx/utils/Predicate.java		skipped	use plain functions
 com/badlogic/gdx/utils/PropertiesUtils.java	sge/utils/PropertiesUtils.scala	ai_converted	
 com/badlogic/gdx/utils/QuadTreeFloat.java	sge/utils/Pool.scala	ai_converted	nested in Pool companion object	

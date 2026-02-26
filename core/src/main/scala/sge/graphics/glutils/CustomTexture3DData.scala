@@ -15,8 +15,7 @@ import java.nio.ByteBuffer
 import sge.graphics.GL20
 import sge.graphics.GL30
 import sge.graphics.Texture3DData
-import sge.utils.BufferUtils
-import sge.utils.SgeError
+import sge.utils.{ BufferUtils, Nullable, SgeError }
 
 /** A {@link Texture3DData} implementation that addresses 2 use cases :
   *
@@ -52,7 +51,7 @@ class CustomTexture3DData(
 
   override def useMipMaps(): Boolean = false
 
-  override def isManaged(): Boolean = pixels != null
+  override def isManaged(): Boolean = Nullable(pixels).isDefined
 
   def getInternalFormat(): Int = glInternalFormat
 
@@ -63,7 +62,7 @@ class CustomTexture3DData(
   def getMipMapLevel(): Int = mipMapLevel
 
   def getPixels(): ByteBuffer = {
-    if (pixels == null) {
+    if (Nullable(pixels).isEmpty) {
       val numChannels = glFormat match {
         case GL30.GL_RED | GL30.GL_RED_INTEGER | GL20.GL_LUMINANCE | GL20.GL_ALPHA => 1
         case GL30.GL_RG | GL30.GL_RG_INTEGER | GL20.GL_LUMINANCE_ALPHA             => 2

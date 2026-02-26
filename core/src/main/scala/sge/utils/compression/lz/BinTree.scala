@@ -59,31 +59,32 @@ class BinTree extends InWindow {
     if (_pos == BinTree.kMaxValForNormalize) normalize()
   }
 
-  def create(historySize: Int, keepAddBufferBefore: Int, matchMaxLen: Int, keepAddBufferAfter: Int): Boolean = {
-    if (historySize > BinTree.kMaxValForNormalize - 256) return false
-    _cutValue = 16 + (matchMaxLen >> 1)
-    val windowReservSize = (historySize + keepAddBufferBefore + matchMaxLen + keepAddBufferAfter) / 2 + 256
-    super.create(historySize + keepAddBufferBefore, matchMaxLen + keepAddBufferAfter, windowReservSize)
-    _matchMaxLen = matchMaxLen
-    val cyclicBufferSize = historySize + 1
-    if (_cyclicBufferSize != cyclicBufferSize) _son = new Array[Int]({ _cyclicBufferSize = cyclicBufferSize; _cyclicBufferSize * 2 })
-    var hs = BinTree.kBT2HashSize
-    if (hashArray) {
-      hs = historySize - 1
-      hs |= (hs >> 1)
-      hs |= (hs >> 2)
-      hs |= (hs >> 4)
-      hs |= (hs >> 8)
-      hs >>= 1
-      hs |= 0xffff
-      if (hs > (1 << 24)) hs >>= 1
-      _hashMask = hs
-      hs += 1
-      hs += kFixHashSize
+  def create(historySize: Int, keepAddBufferBefore: Int, matchMaxLen: Int, keepAddBufferAfter: Int): Boolean =
+    if (historySize > BinTree.kMaxValForNormalize - 256) false
+    else {
+      _cutValue = 16 + (matchMaxLen >> 1)
+      val windowReservSize = (historySize + keepAddBufferBefore + matchMaxLen + keepAddBufferAfter) / 2 + 256
+      super.create(historySize + keepAddBufferBefore, matchMaxLen + keepAddBufferAfter, windowReservSize)
+      _matchMaxLen = matchMaxLen
+      val cyclicBufferSize = historySize + 1
+      if (_cyclicBufferSize != cyclicBufferSize) _son = new Array[Int]({ _cyclicBufferSize = cyclicBufferSize; _cyclicBufferSize * 2 })
+      var hs = BinTree.kBT2HashSize
+      if (hashArray) {
+        hs = historySize - 1
+        hs |= (hs >> 1)
+        hs |= (hs >> 2)
+        hs |= (hs >> 4)
+        hs |= (hs >> 8)
+        hs >>= 1
+        hs |= 0xffff
+        if (hs > (1 << 24)) hs >>= 1
+        _hashMask = hs
+        hs += 1
+        hs += kFixHashSize
+      }
+      if (hs != _hashSizeSum) _hash = new Array[Int]({ _hashSizeSum = hs; _hashSizeSum })
+      true
     }
-    if (hs != _hashSizeSum) _hash = new Array[Int]({ _hashSizeSum = hs; _hashSizeSum })
-    true
-  }
 
   @throws[IOException]
   def getMatches(distances: Array[Int]): Int = {
@@ -94,98 +95,100 @@ class BinTree extends InWindow {
       lenLimit = _streamPos - _pos
       if (lenLimit < kMinMatchCheck) {
         movePos()
-        return 0
       }
     }
-    var offset      = 0
-    val matchMinPos = if (_pos > _cyclicBufferSize) _pos - _cyclicBufferSize else 0
-    val cur         = _bufferOffset + _pos
-    var maxLen      = BinTree.kStartMaxLen
-    var hashValue   = 0
-    var hash2Value  = 0
-    var hash3Value  = 0
-    if (hashArray) {
-      var temp = BinTree.CrcTable(_bufferBase(cur) & 0xff) ^ (_bufferBase(cur + 1) & 0xff)
-      hash2Value = temp & (BinTree.kHash2Size - 1)
-      temp ^= (_bufferBase(cur + 2) & 0xff) << 8
-      hash3Value = temp & (BinTree.kHash3Size - 1)
-      hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xff) << 5)) & _hashMask
-    } else
-      hashValue = (_bufferBase(cur) & 0xff) ^ ((_bufferBase(cur + 1) & 0xff) << 8)
-    var curMatch = _hash(kFixHashSize + hashValue)
-    if (hashArray) {
-      var curMatch2 = _hash(hash2Value)
-      var curMatch3 = _hash(BinTree.kHash3Offset + hash3Value)
-      _hash(hash2Value) = _pos
-      _hash(BinTree.kHash3Offset + hash3Value) = _pos
-      if (curMatch2 > matchMinPos && _bufferBase(_bufferOffset + curMatch2) == _bufferBase(cur)) {
-        distances(offset) = maxLen; offset += 1; maxLen = 2
-        distances(offset) = _pos - curMatch2 - 1; offset += 1
-      }
-      if (curMatch3 > matchMinPos && _bufferBase(_bufferOffset + curMatch3) == _bufferBase(cur)) {
-        if (curMatch3 == curMatch2) { offset -= 2 }
-        distances(offset) = maxLen; offset += 1; maxLen = 3
-        distances(offset) = _pos - curMatch3 - 1; offset += 1
-        curMatch2 = curMatch3
-      }
-      if (offset != 0 && curMatch2 == curMatch) {
-        offset -= 2
-        maxLen = BinTree.kStartMaxLen
-      }
-    }
-    _hash(kFixHashSize + hashValue) = _pos
-    val ptr0 = (_cyclicBufferPos << 1) + 1
-    val ptr1 = _cyclicBufferPos << 1
-    var len0 = kNumHashDirectBytes
-    var len1 = kNumHashDirectBytes
-    if (kNumHashDirectBytes != 0) {
-      if (curMatch > matchMinPos) {
-        if (_bufferBase(_bufferOffset + curMatch + kNumHashDirectBytes) != _bufferBase(cur + kNumHashDirectBytes)) {
-          distances(offset) = maxLen; offset += 1; maxLen = kNumHashDirectBytes
-          distances(offset) = _pos - curMatch - 1; offset += 1
+    if (lenLimit < kMinMatchCheck) 0
+    else {
+      var offset      = 0
+      val matchMinPos = if (_pos > _cyclicBufferSize) _pos - _cyclicBufferSize else 0
+      val cur         = _bufferOffset + _pos
+      var maxLen      = BinTree.kStartMaxLen
+      var hashValue   = 0
+      var hash2Value  = 0
+      var hash3Value  = 0
+      if (hashArray) {
+        var temp = BinTree.CrcTable(_bufferBase(cur) & 0xff) ^ (_bufferBase(cur + 1) & 0xff)
+        hash2Value = temp & (BinTree.kHash2Size - 1)
+        temp ^= (_bufferBase(cur + 2) & 0xff) << 8
+        hash3Value = temp & (BinTree.kHash3Size - 1)
+        hashValue = (temp ^ (BinTree.CrcTable(_bufferBase(cur + 3) & 0xff) << 5)) & _hashMask
+      } else
+        hashValue = (_bufferBase(cur) & 0xff) ^ ((_bufferBase(cur + 1) & 0xff) << 8)
+      var curMatch = _hash(kFixHashSize + hashValue)
+      if (hashArray) {
+        var curMatch2 = _hash(hash2Value)
+        var curMatch3 = _hash(BinTree.kHash3Offset + hash3Value)
+        _hash(hash2Value) = _pos
+        _hash(BinTree.kHash3Offset + hash3Value) = _pos
+        if (curMatch2 > matchMinPos && _bufferBase(_bufferOffset + curMatch2) == _bufferBase(cur)) {
+          distances(offset) = maxLen; offset += 1; maxLen = 2
+          distances(offset) = _pos - curMatch2 - 1; offset += 1
+        }
+        if (curMatch3 > matchMinPos && _bufferBase(_bufferOffset + curMatch3) == _bufferBase(cur)) {
+          if (curMatch3 == curMatch2) { offset -= 2 }
+          distances(offset) = maxLen; offset += 1; maxLen = 3
+          distances(offset) = _pos - curMatch3 - 1; offset += 1
+          curMatch2 = curMatch3
+        }
+        if (offset != 0 && curMatch2 == curMatch) {
+          offset -= 2
+          maxLen = BinTree.kStartMaxLen
         }
       }
-    }
-    var count = _cutValue
-    var done  = false
-    while (!done)
-      if (curMatch <= matchMinPos || { count -= 1; count < 0 }) {
-        _son(ptr0) = BinTree.kEmptyHashValue
-        _son(ptr1) = BinTree.kEmptyHashValue
-        done = true
-      } else {
-        val delta     = _pos - curMatch
-        val cyclicPos = (if (delta <= _cyclicBufferPos) _cyclicBufferPos - delta else _cyclicBufferPos - delta + _cyclicBufferSize) << 1
-        val pby1      = _bufferOffset + curMatch
-        var len       = math.min(len0, len1)
-        if (_bufferBase(pby1 + len) == _bufferBase(cur + len)) {
-          var break = false
-          while (!break && { len += 1; len != lenLimit })
-            if (_bufferBase(pby1 + len) != _bufferBase(cur + len)) break = true
-          if (maxLen < len) {
-            distances(offset) = maxLen; offset += 1; maxLen = len
-            distances(offset) = delta - 1; offset += 1
-            if (len == lenLimit) {
-              _son(ptr1) = _son(cyclicPos)
-              _son(ptr0) = _son(cyclicPos + 1)
-              done = true
-            }
+      _hash(kFixHashSize + hashValue) = _pos
+      val ptr0 = (_cyclicBufferPos << 1) + 1
+      val ptr1 = _cyclicBufferPos << 1
+      var len0 = kNumHashDirectBytes
+      var len1 = kNumHashDirectBytes
+      if (kNumHashDirectBytes != 0) {
+        if (curMatch > matchMinPos) {
+          if (_bufferBase(_bufferOffset + curMatch + kNumHashDirectBytes) != _bufferBase(cur + kNumHashDirectBytes)) {
+            distances(offset) = maxLen; offset += 1; maxLen = kNumHashDirectBytes
+            distances(offset) = _pos - curMatch - 1; offset += 1
           }
         }
-        if ((_bufferBase(pby1 + len) & 0xff) < (_bufferBase(cur + len) & 0xff)) {
-          _son(ptr1) = curMatch
-          val newPtr1 = cyclicPos + 1
-          curMatch = _son(newPtr1)
-          len1 = len
-        } else {
-          _son(ptr0) = curMatch
-          val newPtr0 = cyclicPos
-          curMatch = _son(newPtr0)
-          len0 = len
-        }
       }
-    movePos()
-    offset
+      var count = _cutValue
+      var done  = false
+      while (!done)
+        if (curMatch <= matchMinPos || { count -= 1; count < 0 }) {
+          _son(ptr0) = BinTree.kEmptyHashValue
+          _son(ptr1) = BinTree.kEmptyHashValue
+          done = true
+        } else {
+          val delta     = _pos - curMatch
+          val cyclicPos = (if (delta <= _cyclicBufferPos) _cyclicBufferPos - delta else _cyclicBufferPos - delta + _cyclicBufferSize) << 1
+          val pby1      = _bufferOffset + curMatch
+          var len       = math.min(len0, len1)
+          if (_bufferBase(pby1 + len) == _bufferBase(cur + len)) {
+            var break = false
+            while (!break && { len += 1; len != lenLimit })
+              if (_bufferBase(pby1 + len) != _bufferBase(cur + len)) break = true
+            if (maxLen < len) {
+              distances(offset) = maxLen; offset += 1; maxLen = len
+              distances(offset) = delta - 1; offset += 1
+              if (len == lenLimit) {
+                _son(ptr1) = _son(cyclicPos)
+                _son(ptr0) = _son(cyclicPos + 1)
+                done = true
+              }
+            }
+          }
+          if ((_bufferBase(pby1 + len) & 0xff) < (_bufferBase(cur + len) & 0xff)) {
+            _son(ptr1) = curMatch
+            val newPtr1 = cyclicPos + 1
+            curMatch = _son(newPtr1)
+            len1 = len
+          } else {
+            _son(ptr0) = curMatch
+            val newPtr0 = cyclicPos
+            curMatch = _son(newPtr0)
+            len0 = len
+          }
+        }
+      movePos()
+      offset
+    }
   }
 
   @throws[IOException]

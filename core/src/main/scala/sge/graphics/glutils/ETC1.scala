@@ -23,6 +23,7 @@ import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.math.MathUtils
 import sge.utils.BufferUtils
+import sge.utils.Nullable
 import sge.utils.SgeError
 import sge.utils.StreamUtils
 
@@ -57,14 +58,13 @@ object ETC1 {
 
     checkNPOT()
 
-    def this(pkmFile: FileHandle) = {
+    def this(pkmFile: FileHandle) =
       this(
         ETC1.getWidthPKM(ETC1.loadCompressedData(pkmFile), 0),
         ETC1.getHeightPKM(ETC1.loadCompressedData(pkmFile), 0),
         ETC1.loadCompressedData(pkmFile),
         PKM_HEADER_SIZE
       )
-    }
 
     private def checkNPOT(): Unit =
       if (!MathUtils.isPowerOfTwo(width) || !MathUtils.isPowerOfTwo(height)) {
@@ -80,7 +80,7 @@ object ETC1 {
       *   the file.
       */
     def write(file: FileHandle): Unit = {
-      var write: DataOutputStream = null
+      var write        = null.asInstanceOf[DataOutputStream]
       val buffer       = Array.ofDim[Byte](10 * 1024)
       var writtenBytes = 0
       compressedData.position(0)
@@ -97,7 +97,7 @@ object ETC1 {
       } catch {
         case e: Exception => throw SgeError.FileWriteError(file, "Couldn't write PKM file", Some(e))
       } finally
-        StreamUtils.closeQuietly(write)
+        Nullable(write).foreach(StreamUtils.closeQuietly)
       compressedData.position(dataOffset)
       compressedData.limit(compressedData.capacity())
     }
@@ -117,7 +117,7 @@ object ETC1 {
 
   private def loadCompressedData(pkmFile: FileHandle): ByteBuffer = {
     val buffer = Array.ofDim[Byte](1024 * 10)
-    var in: DataInputStream = null
+    var in     = null.asInstanceOf[DataInputStream]
     try {
       in = new DataInputStream(new BufferedInputStream(new GZIPInputStream(pkmFile.read())))
       val fileSize       = in.readInt()
@@ -131,7 +131,7 @@ object ETC1 {
     } catch {
       case e: Exception => throw SgeError.FileReadError(pkmFile, "Couldn't load pkm file", Some(e))
     } finally
-      StreamUtils.closeQuietly(in)
+      Nullable(in).foreach(StreamUtils.closeQuietly)
   }
 
   private def getPixelSize(format: Format): Int =

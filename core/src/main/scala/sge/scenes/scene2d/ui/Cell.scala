@@ -97,7 +97,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified value. */
   def size(size: Value): Cell[T] = {
-    require(size != null, "size cannot be null.")
+
     minWidth = Nullable(size)
     minHeight = Nullable(size)
     prefWidth = Nullable(size)
@@ -109,8 +109,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified values. */
   def size(width: Value, height: Value): Cell[T] = {
-    require(width != null, "width cannot be null.")
-    require(height != null, "height cannot be null.")
+
     minWidth = Nullable(width)
     minHeight = Nullable(height)
     prefWidth = Nullable(width)
@@ -134,7 +133,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minWidth, prefWidth, and maxWidth to the specified value. */
   def width(width: Value): Cell[T] = {
-    require(width != null, "width cannot be null.")
+
     minWidth = Nullable(width)
     prefWidth = Nullable(width)
     maxWidth = Nullable(width)
@@ -149,7 +148,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minHeight, prefHeight, and maxHeight to the specified value. */
   def height(height: Value): Cell[T] = {
-    require(height != null, "height cannot be null.")
+
     minHeight = Nullable(height)
     prefHeight = Nullable(height)
     maxHeight = Nullable(height)
@@ -164,7 +163,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minWidth and minHeight to the specified value. */
   def minSize(size: Value): Cell[T] = {
-    require(size != null, "size cannot be null.")
+
     minWidth = Nullable(size)
     minHeight = Nullable(size)
     this
@@ -172,21 +171,20 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the minWidth and minHeight to the specified values. */
   def minSize(width: Value, height: Value): Cell[T] = {
-    require(width != null, "width cannot be null.")
-    require(height != null, "height cannot be null.")
+
     minWidth = Nullable(width)
     minHeight = Nullable(height)
     this
   }
 
   def minWidth(minWidth: Value): Cell[T] = {
-    require(minWidth != null, "minWidth cannot be null.")
+
     this.minWidth = Nullable(minWidth)
     this
   }
 
   def minHeight(minHeight: Value): Cell[T] = {
-    require(minHeight != null, "minHeight cannot be null.")
+
     this.minHeight = Nullable(minHeight)
     this
   }
@@ -215,7 +213,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the prefWidth and prefHeight to the specified value. */
   def prefSize(size: Value): Cell[T] = {
-    require(size != null, "size cannot be null.")
+
     prefWidth = Nullable(size)
     prefHeight = Nullable(size)
     this
@@ -223,21 +221,20 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the prefWidth and prefHeight to the specified values. */
   def prefSize(width: Value, height: Value): Cell[T] = {
-    require(width != null, "width cannot be null.")
-    require(height != null, "height cannot be null.")
+
     prefWidth = Nullable(width)
     prefHeight = Nullable(height)
     this
   }
 
   def prefWidth(prefWidth: Value): Cell[T] = {
-    require(prefWidth != null, "prefWidth cannot be null.")
+
     this.prefWidth = Nullable(prefWidth)
     this
   }
 
   def prefHeight(prefHeight: Value): Cell[T] = {
-    require(prefHeight != null, "prefHeight cannot be null.")
+
     this.prefHeight = Nullable(prefHeight)
     this
   }
@@ -266,7 +263,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the maxWidth and maxHeight to the specified value. If the max size is 0, no maximum size is used. */
   def maxSize(size: Value): Cell[T] = {
-    require(size != null, "size cannot be null.")
+
     maxWidth = Nullable(size)
     maxHeight = Nullable(size)
     this
@@ -274,8 +271,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the maxWidth and maxHeight to the specified values. If the max size is 0, no maximum size is used. */
   def maxSize(width: Value, height: Value): Cell[T] = {
-    require(width != null, "width cannot be null.")
-    require(height != null, "height cannot be null.")
+
     maxWidth = Nullable(width)
     maxHeight = Nullable(height)
     this
@@ -283,14 +279,14 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** If the maxWidth is 0, no maximum width is used. */
   def maxWidth(maxWidth: Value): Cell[T] = {
-    require(maxWidth != null, "maxWidth cannot be null.")
+
     this.maxWidth = Nullable(maxWidth)
     this
   }
 
   /** If the maxHeight is 0, no maximum height is used. */
   def maxHeight(maxHeight: Value): Cell[T] = {
-    require(maxHeight != null, "maxHeight cannot be null.")
+
     this.maxHeight = Nullable(maxHeight)
     this
   }
@@ -321,7 +317,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the spaceTop, spaceLeft, spaceBottom, and spaceRight to the specified value. */
   def space(space: Value): Cell[T] = {
-    require(space != null, "space cannot be null.")
+
     spaceTop = Nullable(space)
     spaceLeft = Nullable(space)
     spaceBottom = Nullable(space)
@@ -330,10 +326,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
   }
 
   def space(top: Value, left: Value, bottom: Value, right: Value): Cell[T] = {
-    require(top != null, "top cannot be null.")
-    require(left != null, "left cannot be null.")
-    require(bottom != null, "bottom cannot be null.")
-    require(right != null, "right cannot be null.")
+
     spaceTop = Nullable(top)
     spaceLeft = Nullable(left)
     spaceBottom = Nullable(bottom)
@@ -342,25 +335,25 @@ class Cell[T <: Actor] extends Pool.Poolable {
   }
 
   def spaceTop(spaceTop: Value): Cell[T] = {
-    require(spaceTop != null, "spaceTop cannot be null.")
+
     this.spaceTop = Nullable(spaceTop)
     this
   }
 
   def spaceLeft(spaceLeft: Value): Cell[T] = {
-    require(spaceLeft != null, "spaceLeft cannot be null.")
+
     this.spaceLeft = Nullable(spaceLeft)
     this
   }
 
   def spaceBottom(spaceBottom: Value): Cell[T] = {
-    require(spaceBottom != null, "spaceBottom cannot be null.")
+
     this.spaceBottom = Nullable(spaceBottom)
     this
   }
 
   def spaceRight(spaceRight: Value): Cell[T] = {
-    require(spaceRight != null, "spaceRight cannot be null.")
+
     this.spaceRight = Nullable(spaceRight)
     this
   }
@@ -412,7 +405,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
 
   /** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
   def pad(pad: Value): Cell[T] = {
-    require(pad != null, "pad cannot be null.")
+
     padTop = Nullable(pad)
     padLeft = Nullable(pad)
     padBottom = Nullable(pad)
@@ -421,10 +414,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
   }
 
   def pad(top: Value, left: Value, bottom: Value, right: Value): Cell[T] = {
-    require(top != null, "top cannot be null.")
-    require(left != null, "left cannot be null.")
-    require(bottom != null, "bottom cannot be null.")
-    require(right != null, "right cannot be null.")
+
     padTop = Nullable(top)
     padLeft = Nullable(left)
     padBottom = Nullable(bottom)
@@ -433,25 +423,25 @@ class Cell[T <: Actor] extends Pool.Poolable {
   }
 
   def padTop(padTop: Value): Cell[T] = {
-    require(padTop != null, "padTop cannot be null.")
+
     this.padTop = Nullable(padTop)
     this
   }
 
   def padLeft(padLeft: Value): Cell[T] = {
-    require(padLeft != null, "padLeft cannot be null.")
+
     this.padLeft = Nullable(padLeft)
     this
   }
 
   def padBottom(padBottom: Value): Cell[T] = {
-    require(padBottom != null, "padBottom cannot be null.")
+
     this.padBottom = Nullable(padBottom)
     this
   }
 
   def padRight(padRight: Value): Cell[T] = {
-    require(padRight != null, "padRight cannot be null.")
+
     this.padRight = Nullable(padRight)
     this
   }

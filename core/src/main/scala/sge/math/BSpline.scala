@@ -10,6 +10,7 @@ package sge
 package math
 
 import scala.reflect.ClassTag
+import sge.utils.Nullable
 
 /** @author Xoppa (original implementation) */
 object BSpline {
@@ -227,21 +228,16 @@ class BSpline[T <: Vector[T]: ClassTag] extends Path[T] {
   }
 
   def set(controlPoints: Array[T], degree: Int, continuous: Boolean): BSpline[T] = {
-    if (tmp == null) tmp = controlPoints(0).copy
-    if (tmp2 == null) tmp2 = controlPoints(0).copy
-    if (tmp3 == null) tmp3 = controlPoints(0).copy
+    if (Nullable(tmp).isEmpty) tmp = controlPoints(0).copy
+    if (Nullable(tmp2).isEmpty) tmp2 = controlPoints(0).copy
+    if (Nullable(tmp3).isEmpty) tmp3 = controlPoints(0).copy
     this.controlPoints = controlPoints
     this.degree = degree
     this.continuous = continuous
     this.spanCount = if (continuous) controlPoints.length else controlPoints.length - degree
     // We use knots.length instead of storing another variable in each BSpline.
     val knotCount = if (continuous) controlPoints.length else controlPoints.length - 1
-    if (knots == null)
-      knots = new Array[T](knotCount)
-    else {
-      // Arrays don't have clear, we'll create a new one
-      knots = new Array[T](knotCount)
-    }
+    knots = new Array[T](knotCount)
     for (i <- 0 until knotCount)
       knots(i) = BSpline.calculate(controlPoints(0).copy, if (continuous) i else i + (0.5f * degree).toInt, 0f, controlPoints, degree, continuous, tmp)
     this

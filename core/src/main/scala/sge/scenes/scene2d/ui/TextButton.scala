@@ -48,17 +48,16 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle) exte
     new Label(text.map(s => s: CharSequence), style)
 
   override def setStyle(style: Button.ButtonStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     if (!style.isInstanceOf[TextButtonStyle]) throw new IllegalArgumentException("style must be a TextButtonStyle.")
     this._style = style.asInstanceOf[TextButtonStyle]
     super.setStyle(style)
 
-    if (label != null) {
+    Nullable(label).foreach { l =>
       val textButtonStyle = style.asInstanceOf[TextButtonStyle]
-      val labelStyle      = label.getStyle
+      val labelStyle      = l.getStyle
       labelStyle.font = textButtonStyle.font
       labelStyle.fontColor = textButtonStyle.fontColor
-      label.setStyle(labelStyle)
+      l.setStyle(labelStyle)
     }
   }
 
@@ -94,7 +93,6 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle) exte
   }
 
   def setLabel(label: Label): Unit = {
-    if (label == null) throw new IllegalArgumentException("label cannot be null.")
     getLabelCell.foreach(_.setActor(Nullable(label)))
     this.label = label
   }

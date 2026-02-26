@@ -12,7 +12,7 @@ Use this checklist when verifying an AI-converted file. A file can be marked as 
 
 ## Compilation
 
-- [ ] File compiles without errors via `sge-metals` MCP
+- [ ] File compiles without errors via `just compile`
 - [ ] File compiles without warnings (warnings are fatal)
 
 ## Completeness

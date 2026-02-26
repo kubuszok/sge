@@ -10,6 +10,8 @@ package sge
 package graphics
 package profiling
 
+import sge.utils.Nullable
+
 /** Listener for GL errors detected by {@link GLProfiler} .
   *
   * @see
@@ -31,14 +33,14 @@ object GLErrorListener {
   /** Listener that will log using Gdx.app.error GL error name and GL function. */
   val LOGGING_LISTENER: GLErrorListener = new GLErrorListener {
     override def onError(error: Int): Unit = scala.util.boundary {
-      var place: String = null
+      var place: Nullable[String] = Nullable.empty
       try {
         val stack = Thread.currentThread().getStackTrace
         for (i <- stack.indices)
           if ("check".equals(stack(i).getMethodName)) {
             if (i + 1 < stack.length) {
               val glMethod = stack(i + 1)
-              place = glMethod.getMethodName
+              place = Nullable(glMethod.getMethodName)
             }
             scala.util.boundary.break()
           }
@@ -46,12 +48,12 @@ object GLErrorListener {
         case _: Exception => // ignored
       }
 
-      if (place != null) {
-        println(s"GLProfiler Error ${GLInterceptor.resolveErrorNumber(error)} from $place")
-      } else {
+      place.fold {
         println(s"GLProfiler Error ${GLInterceptor.resolveErrorNumber(error)} at: ")
         new Exception().printStackTrace()
         // This will capture current stack trace for logging, if possible
+      } { p =>
+        println(s"GLProfiler Error ${GLInterceptor.resolveErrorNumber(error)} from $p")
       }
     }
   }

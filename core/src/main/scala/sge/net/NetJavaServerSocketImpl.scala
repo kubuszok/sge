@@ -10,6 +10,7 @@ package sge
 package net
 
 import java.net.{ InetSocketAddress, ServerSocket => JServerSocket }
+import sge.utils.Nullable
 
 /** Server socket implementation using java.net.ServerSocket.
   *
@@ -34,11 +35,12 @@ class NetJavaServerSocketImpl(val protocol: Net.Protocol, port: Int, hints: Serv
     try {
       // initialize
       server = new JServerSocket()
-      if (hints != null) {
-        server.setPerformancePreferences(hints.performancePrefConnectionTime, hints.performancePrefLatency, hints.performancePrefBandwidth)
-        server.setReuseAddress(hints.reuseAddress)
-        server.setSoTimeout(hints.acceptTimeout)
-        server.setReceiveBufferSize(hints.receiveBufferSize)
+      val hintsOpt = Nullable(hints)
+      hintsOpt.foreach { h =>
+        server.setPerformancePreferences(h.performancePrefConnectionTime, h.performancePrefLatency, h.performancePrefBandwidth)
+        server.setReuseAddress(h.reuseAddress)
+        server.setSoTimeout(h.acceptTimeout)
+        server.setReceiveBufferSize(h.receiveBufferSize)
       }
 
       // and bind the server...
@@ -47,10 +49,8 @@ class NetJavaServerSocketImpl(val protocol: Net.Protocol, port: Int, hints: Serv
         case None       => new InetSocketAddress(port)
       }
 
-      if (hints != null) {
-        server.bind(address, hints.backlog)
-      } else {
-        server.bind(address)
+      hintsOpt.fold(server.bind(address)) { h =>
+        server.bind(address, h.backlog)
       }
     } catch {
       case e: Exception =>
@@ -68,9 +68,9 @@ class NetJavaServerSocketImpl(val protocol: Net.Protocol, port: Int, hints: Serv
     }
 
   override def close(): Unit =
-    if (server != null) {
+    Nullable(server).foreach { s =>
       try {
-        server.close()
+        s.close()
         server = null
       } catch {
         case e: Exception =>

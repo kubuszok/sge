@@ -29,7 +29,6 @@ class TextureRegion() {
   /** Constructs a region the size of the specified texture. */
   def this(texture: Texture) = {
     this()
-    if (texture == null) throw new IllegalArgumentException("texture cannot be null.")
     this.texture = texture
     setRegion(0, 0, texture.getWidth, texture.getHeight)
   }

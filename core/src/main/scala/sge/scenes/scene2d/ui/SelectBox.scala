@@ -50,9 +50,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
     }
   }
 
-  // TODO: uncomment when Skin is ported
-  // def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[SelectBoxStyle]))
-  // def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[SelectBoxStyle]))
+  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[SelectBox.SelectBoxStyle]))
+  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[SelectBox.SelectBoxStyle]))
 
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
@@ -98,12 +97,11 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
   }
 
   override def setStyle(style: SelectBoxStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
 
-    if (scrollPane != null) {
-      scrollPane.setStyle(style.scrollStyle)
-      scrollPane.list.setStyle(style.listStyle)
+    Nullable(scrollPane).foreach { sp =>
+      sp.setStyle(style.scrollStyle)
+      sp.list.setStyle(style.listStyle)
     }
     invalidateHierarchy()
   }
@@ -114,7 +112,6 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
 
   /** Set the backing Array that makes up the choices available in the SelectBox */
   def setItems(newItems: T*): Unit = {
-    if (newItems == null) throw new IllegalArgumentException("newItems cannot be null.")
     val oldPrefWidth = getPrefWidth
 
     items.clear()
@@ -128,7 +125,6 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
 
   /** Sets the items visible in the select box. */
   def setItems(newItems: ArrayBuffer[T]): Unit = {
-    if (newItems == null) throw new IllegalArgumentException("newItems cannot be null.")
     val oldPrefWidth = getPrefWidth
 
     if (newItems ne items) {
@@ -194,7 +190,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
       scrollStyle.background.foreach { scrollBg =>
         scrollWidth = Math.max(scrollWidth + scrollBg.getLeftWidth + scrollBg.getRightWidth, scrollBg.getMinWidth)
       }
-      if (scrollPane == null || !scrollPane.disableY) {
+      if (Nullable(scrollPane).fold(true)(!_.disableY)) {
         scrollWidth += Math.max(_style.scrollStyle.vScroll.fold(0f)(_.getMinWidth), _style.scrollStyle.vScrollKnob.fold(0f)(_.getMinWidth))
       }
       prefWidth = Math.max(prefWidth, scrollWidth)
@@ -211,8 +207,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor(): Color =
-    if (isDisabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.orNull
-    else if (_style.overFontColor.isDefined && (isOver || scrollPane.hasParent)) _style.overFontColor.orNull
+    if (isDisabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.getOrElse(_style.fontColor)
+    else if (_style.overFontColor.isDefined && (isOver || scrollPane.hasParent)) _style.overFontColor.getOrElse(_style.fontColor)
     else _style.fontColor
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
@@ -232,16 +228,14 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
     background.foreach(_.draw(batch, x, y, width, height))
 
     val selected: Nullable[T] = selection.first
-    if (selected.isDefined) {
-      val sel = selected.orNull
-      if (background.isDefined) {
-        val bg = background.orNull
+    selected.foreach { sel =>
+      background.fold {
+        y += (height / 2 + font.getData().capHeight / 2).toInt.toFloat
+      } { bg =>
         width -= bg.getLeftWidth + bg.getRightWidth
         height -= bg.getBottomHeight + bg.getTopHeight
         x += bg.getLeftWidth
         y += (height / 2 + bg.getBottomHeight + font.getData().capHeight / 2).toInt.toFloat
-      } else {
-        y += (height / 2 + font.getData().capHeight / 2).toInt.toFloat
       }
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha)
       drawItem(batch, font, sel, x, y, width)
@@ -271,12 +265,14 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
 
   /** Sets the selection to only the passed item, if it is a possible choice, else selects the first item. */
   def setSelected(item: Nullable[T]): Unit =
-    if (item.fold(false)(i => items.contains(i)))
-      selection.set(item.orNull)
-    else if (items.nonEmpty)
-      selection.set(items.head)
-    else
-      selection.clear()
+    item.fold {
+      if (items.nonEmpty) selection.set(items.head)
+      else selection.clear()
+    } { i =>
+      if (items.contains(i)) selection.set(i)
+      else if (items.nonEmpty) selection.set(items.head)
+      else selection.clear()
+    }
 
   /** @return The index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1. */
   def getSelectedIndex: Int = {

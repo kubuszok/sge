@@ -101,13 +101,11 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
   setText(text.getOrElse(""))
   setSize(getPrefWidth, getPrefHeight)
 
-  // /** Creates a new TextField.
-  //   * TODO: Skin constructors not yet ported */
-  // def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get(classOf[TextFieldStyle]))
+  /** Creates a new TextField. */
+  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get(classOf[TextField.TextFieldStyle]))
 
-  // /** Creates a new TextField.
-  //   * TODO: Skin constructors not yet ported */
-  // def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[TextFieldStyle]))
+  /** Creates a new TextField. */
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[TextField.TextFieldStyle]))
 
   protected def initialize(): Unit = {
     inputListener = createInputListener()
@@ -198,11 +196,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
     this.onlyFontChars = onlyFontChars
 
   def setStyle(style: TextField.TextFieldStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
 
     textHeight = style.font.getCapHeight() - style.font.getDescent() * 2
-    if (_text != null) updateDisplayText()
+    updateDisplayText()
     invalidateHierarchy()
   }
 
@@ -310,8 +307,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
 
     val font = _style.font
     val fontColor: Color =
-      if (disabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.orNull
-      else if (focused && _style.focusedFontColor.isDefined) _style.focusedFontColor.orNull
+      if (disabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.getOrElse(_style.fontColor)
+      else if (focused && _style.focusedFontColor.isDefined) _style.focusedFontColor.getOrElse(_style.fontColor)
       else _style.fontColor
     val selection   = _style.selection
     val cursorPatch = _style.cursor
@@ -335,8 +332,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
     val textY = getTextY(font, background)
     calculateOffsets()
 
-    if (focused && hasSelection && selection.isDefined) {
-      drawSelection(selection.orNull, batch, font, x + bgLeftWidth, y + textY)
+    if (focused && hasSelection) {
+      selection.foreach { sel =>
+        drawSelection(sel, batch, font, x + bgLeftWidth, y + textY)
+      }
     }
 
     val yOffset = if (font.isFlipped()) -textHeight else 0
@@ -358,8 +357,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
       drawText(batch, font, x + bgLeftWidth, y + textY + yOffset)
       data.markupEnabled = markupEnabled
     }
-    if (!disabled && cursorOn && cursorPatch.isDefined) {
-      drawCursor(cursorPatch.orNull, batch, font, x + bgLeftWidth, y + textY)
+    if (!disabled && cursorOn) {
+      cursorPatch.foreach { cp =>
+        drawCursor(cp, batch, font, x + bgLeftWidth, y + textY)
+      }
     }
   }
 
@@ -1192,7 +1193,7 @@ object TextField {
     def this(style: TextFieldStyle) = {
       this()
       font = style.font
-      if (style.fontColor != null) fontColor = new Color(style.fontColor)
+      Nullable(style.fontColor).foreach(c => fontColor = new Color(c))
       focusedFontColor = style.focusedFontColor.map(c => new Color(c))
       disabledFontColor = style.disabledFontColor.map(c => new Color(c))
 

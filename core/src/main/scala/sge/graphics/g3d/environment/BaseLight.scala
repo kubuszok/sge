@@ -1,0 +1,26 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/environment/BaseLight.java
+ * Original authors: (see AUTHORS file)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+package environment
+
+abstract class BaseLight[T <: BaseLight[T]] {
+  val color: Color = new Color(0, 0, 0, 1)
+
+  def setColor(r: Float, g: Float, b: Float, a: Float): T = {
+    this.color.set(r, g, b, a)
+    this.asInstanceOf[T]
+  }
+
+  def setColor(color: Color): T = {
+    this.color.set(color)
+    this.asInstanceOf[T]
+  }
+}

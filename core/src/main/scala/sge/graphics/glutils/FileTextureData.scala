@@ -19,8 +19,6 @@ import sge.utils.SgeError
 import sge.utils.Nullable
 import scala.compiletime.uninitialized
 
-import scala.language.implicitConversions
-
 class FileTextureData(
   val file:            FileHandle,
   preloadedPixmap:     Nullable[Pixmap] = Nullable.empty,
@@ -35,10 +33,10 @@ class FileTextureData(
   private var isPreparedState: Boolean          = false
 
   // Initialize from constructor parameters
-  if (pixmap.isDefined) {
-    width = pixmap.orNull.getWidth()
-    height = pixmap.orNull.getHeight()
-    if (format.isEmpty) this.format = pixmap.orNull.getFormat()
+  pixmap.foreach { p =>
+    width = p.getWidth()
+    height = p.getHeight()
+    if (format.isEmpty) this.format = Nullable(p.getFormat())
   }
 
   override def isPrepared: Boolean = isPreparedState
@@ -47,12 +45,14 @@ class FileTextureData(
     if (isPreparedState) throw SgeError.InvalidInput("Already prepared")
     if (pixmap.isEmpty) {
       if (file.extension().equals("cim"))
-        pixmap = PixmapIO.readCIM(file)
+        pixmap = Nullable(PixmapIO.readCIM(file))
       else
-        pixmap = new Pixmap(file)
-      width = pixmap.orNull.getWidth()
-      height = pixmap.orNull.getHeight()
-      if (format.isEmpty) format = pixmap.orNull.getFormat()
+        pixmap = Nullable(new Pixmap(file))
+    }
+    pixmap.foreach { p =>
+      width = p.getWidth()
+      height = p.getHeight()
+      if (format.isEmpty) format = Nullable(p.getFormat())
     }
     isPreparedState = true
   }
@@ -60,7 +60,7 @@ class FileTextureData(
   override def consumePixmap(): Pixmap = {
     if (!isPreparedState) throw SgeError.InvalidInput("Call prepare() before calling getPixmap()")
     isPreparedState = false
-    val pixmapToReturn = this.pixmap.orNull
+    val pixmapToReturn = this.pixmap.getOrElse(throw SgeError.InvalidInput("No pixmap available"))
     this.pixmap = Nullable.empty
     pixmapToReturn
   }
@@ -71,7 +71,7 @@ class FileTextureData(
 
   override def getHeight: Int = height
 
-  override def getFormat: Format = format.orNull
+  override def getFormat: Format = format.getOrElse(Format.RGBA8888)
 
   override def useMipMaps: Boolean = useMipMapsParam
 

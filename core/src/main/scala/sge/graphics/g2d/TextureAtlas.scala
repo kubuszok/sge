@@ -69,15 +69,21 @@ class TextureAtlas() extends AutoCloseable {
   /** Adds the textures and regions from the specified texture atlas data. */
   def load(data: TextureAtlas.TextureAtlasData)(using sge: Sge): Unit = {
     for (page <- data.pages) {
-      if (page.texture.isEmpty) page.texture = Nullable(new Texture(page.textureFile.orNull, page.format, page.useMipMaps))
-      page.texture.orNull.setFilter(page.minFilter, page.magFilter)
-      page.texture.orNull.setWrap(page.uWrap, page.vWrap)
-      textures.addOne(page.texture.orNull)
+      if (page.texture.isEmpty) {
+        page.texture = Nullable(
+          new Texture(page.textureFile.getOrElse(throw SgeError.GraphicsError("Page has no texture file")), page.format, page.useMipMaps)
+        )
+      }
+      page.texture.foreach { tex =>
+        tex.setFilter(page.minFilter, page.magFilter)
+        tex.setWrap(page.uWrap, page.vWrap)
+        textures.addOne(tex)
+      }
     }
 
     for (region <- data.regions) {
       val atlasRegion = new TextureAtlas.AtlasRegion(
-        region.page.texture.orNull,
+        region.page.texture.getOrElse(throw SgeError.GraphicsError("Region page has no texture")),
         region.left,
         region.top,
         if (region.rotate) region.height else region.width,
@@ -189,9 +195,11 @@ class TextureAtlas() extends AutoCloseable {
       .flatMap { region =>
         val splits = region.findValue("split")
         if (splits.isEmpty) throw new IllegalArgumentException("Region does not have ninepatch splits: " + name)
-        val patch = new NinePatch(region, splits.orNull(0), splits.orNull(1), splits.orNull(2), splits.orNull(3))
-        val pads  = region.findValue("pad")
-        if (pads.isDefined) patch.setPadding(pads.orNull(0).toFloat, pads.orNull(1).toFloat, pads.orNull(2).toFloat, pads.orNull(3).toFloat)
+        val s     = splits.getOrElse(throw new IllegalArgumentException("Region does not have ninepatch splits: " + name))
+        val patch = new NinePatch(region, s(0), s(1), s(2), s(3))
+        region.findValue("pad").foreach { p =>
+          patch.setPadding(p(0).toFloat, p(1).toFloat, p(2).toFloat, p(3).toFloat)
+        }
         Some(patch)
       }
       .orNull
@@ -348,46 +356,47 @@ object TextureAtlas {
       )
 
       val reader = packFile.reader(1024)
-      var line: String = null
+      var line: Nullable[String] = Nullable.empty
       try {
-        line = reader.readLine()
+        line = Nullable(reader.readLine())
         // Ignore empty lines before first entry.
-        while (line != null && line.trim().length == 0)
-          line = reader.readLine()
+        while (line.isDefined && line.getOrElse("").trim().length == 0)
+          line = Nullable(reader.readLine())
         // Header entries.
         boundary {
           while (true) {
-            if (line == null || line.trim().length == 0) boundary.break()
-            if (readEntry(entry, line) == 0) boundary.break() // Silently ignore all header fields.
-            line = reader.readLine()
+            if (line.fold(true)(_.trim().length == 0)) boundary.break()
+            if (readEntry(entry, line.getOrElse("")) == 0) boundary.break() // Silently ignore all header fields.
+            line = Nullable(reader.readLine())
           }
         }
         // Page and region entries.
-        var page:   Page                    = null
-        var names:  ArrayBuffer[String]     = null
-        var values: ArrayBuffer[Array[Int]] = null
+        var page:   Nullable[Page]                    = Nullable.empty
+        var names:  Nullable[ArrayBuffer[String]]     = Nullable.empty
+        var values: Nullable[ArrayBuffer[Array[Int]]] = Nullable.empty
         boundary {
           while (true) {
-            if (line == null) boundary.break()
-            if (line.trim().length == 0) {
-              page = null
-              line = reader.readLine()
-            } else if (page == null) {
-              page = new Page()
-              page.name = line
-              page.textureFile = Nullable(imagesDir.child(line))
+            if (line.isEmpty) boundary.break()
+            if (line.getOrElse("").trim().length == 0) {
+              page = Nullable.empty
+              line = Nullable(reader.readLine())
+            } else if (page.isEmpty) {
+              val p = new Page()
+              p.name = line.getOrElse("")
+              p.textureFile = Nullable(imagesDir.child(line.getOrElse("")))
               boundary {
                 while (true) {
                   if (readEntry(entry, line = reader.readLine()) == 0) boundary.break()
                   val field = pageFields.get(entry(0))
-                  if (field.isDefined) field.get.parse(page) // Silently ignore unknown page fields.
+                  if (field.isDefined) field.get.parse(p) // Silently ignore unknown page fields.
                 }
               }
-              pages.addOne(page)
+              pages.addOne(p)
+              page = Nullable(p)
             } else {
               val region = new Region()
-              region.page = page
-              region.name = line.trim()
+              region.page = page.getOrElse(throw SgeError.GraphicsError("Region has no page"))
+              region.name = line.getOrElse("").trim()
               if (flip) region.flip = true
               boundary {
                 while (true) {
@@ -397,11 +406,11 @@ object TextureAtlas {
                   if (field.isDefined)
                     field.get.parse(region)
                   else {
-                    if (names == null) {
-                      names = ArrayBuffer.empty[String]
-                      values = ArrayBuffer.empty[Array[Int]]
+                    if (names.isEmpty) {
+                      names = Nullable(ArrayBuffer.empty[String])
+                      values = Nullable(ArrayBuffer.empty[Array[Int]])
                     }
-                    names.addOne(entry(0))
+                    names.foreach(_.addOne(entry(0)))
                     val entryValues = new Array[Int](count)
                     for (i <- 0 until count)
                       try
@@ -409,7 +418,7 @@ object TextureAtlas {
                       catch {
                         case _: NumberFormatException => // Silently ignore non-integer values.
                       }
-                    values.addOne(entryValues)
+                    values.foreach(_.addOne(entryValues))
                   }
                 }
               }
@@ -417,11 +426,13 @@ object TextureAtlas {
                 region.originalWidth = region.width
                 region.originalHeight = region.height
               }
-              if (names != null && names.length > 0) {
-                region.names = Nullable(names.toArray)
-                region.values = Nullable(values.toArray)
-                names.clear()
-                values.clear()
+              names.foreach { ns =>
+                if (ns.length > 0) {
+                  region.names = Nullable(ns.toArray)
+                  values.foreach { vs => region.values = Nullable(vs.toArray) }
+                  ns.clear()
+                  values.foreach(_.clear())
+                }
               }
               regions.addOne(region)
             }
@@ -429,7 +440,7 @@ object TextureAtlas {
         }
       } catch {
         case ex: Exception =>
-          throw SgeError.FileReadError(packFile, "Error reading texture atlas file: " + packFile + (if (line == null) "" else "\nLine: " + line), Some(ex))
+          throw SgeError.FileReadError(packFile, "Error reading texture atlas file: " + packFile + line.fold("")(l => "\nLine: " + l), Some(ex))
       } finally
         StreamUtils.closeQuietly(reader)
 
@@ -513,9 +524,10 @@ object TextureAtlas {
 
       def findValue(name: String): Nullable[Array[Int]] =
         boundary {
-          if (names.isDefined) {
-            for (i <- 0 until names.orNull.length)
-              if (name.equals(names.orNull(i))) boundary.break(Nullable(values.orNull(i)))
+          names.foreach { ns =>
+            val vs = values.getOrElse(throw SgeError.GraphicsError("names defined but values missing"))
+            for (i <- ns.indices)
+              if (name.equals(ns(i))) boundary.break(Nullable(vs(i)))
           }
           Nullable.empty
         }
@@ -625,9 +637,10 @@ object TextureAtlas {
 
     def findValue(name: String): Nullable[Array[Int]] =
       boundary {
-        if (names.isDefined) {
-          for (i <- 0 until names.orNull.length)
-            if (name.equals(names.orNull(i))) boundary.break(Nullable(values.orNull(i)))
+        names.foreach { ns =>
+          val vs = values.getOrElse(throw SgeError.GraphicsError("names defined but values missing"))
+          for (i <- ns.indices)
+            if (name.equals(ns(i))) boundary.break(Nullable(vs(i)))
         }
         Nullable.empty
       }

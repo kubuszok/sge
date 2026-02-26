@@ -50,11 +50,11 @@ class ImmediateModeRenderer20(
 
   private val vertices: Array[Float] = Array.ofDim[Float](maxVertices * vertexSize)
 
-  private val normalOffset: Int = if (mesh.getVertexAttribute(Usage.Normal) != null) mesh.getVertexAttribute(Usage.Normal).offset / 4 else 0
+  private val normalOffset: Int = mesh.getVertexAttribute(Usage.Normal).fold(0)(_.offset / 4)
 
-  private val colorOffset: Int = if (mesh.getVertexAttribute(Usage.ColorPacked) != null) mesh.getVertexAttribute(Usage.ColorPacked).offset / 4 else 0
+  private val colorOffset: Int = mesh.getVertexAttribute(Usage.ColorPacked).fold(0)(_.offset / 4)
 
-  private val texCoordOffset: Int = if (mesh.getVertexAttribute(Usage.TextureCoordinates) != null) mesh.getVertexAttribute(Usage.TextureCoordinates).offset / 4 else 0
+  private val texCoordOffset: Int = mesh.getVertexAttribute(Usage.TextureCoordinates).fold(0)(_.offset / 4)
 
   private val shaderUniformNames: Array[String] = Array.ofDim[String](numTexCoords)
   for (i <- 0 until numTexCoords)
@@ -156,7 +156,7 @@ class ImmediateModeRenderer20(
   override def getMaxVertices(): Int = maxVertices
 
   def dispose(): Unit = {
-    if (ownsShader && shaderVar != null) shaderVar.close()
+    if (ownsShader) shaderVar.close()
     mesh.close()
   }
 

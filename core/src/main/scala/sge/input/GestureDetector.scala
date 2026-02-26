@@ -29,15 +29,11 @@ class GestureDetector(
 )(implicit sde: sge.Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
     this(20f, 20f, 0.4f, 1.1f, Integer.MAX_VALUE, listener)
-  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
-  }
-
-  if (listener == null) throw new IllegalArgumentException("listener cannot be null.")
 
   private var tapRectangleWidth:     Float = halfTapRectangleWidth
   private var tapRectangleHeight:    Float = halfTapRectangleHeight

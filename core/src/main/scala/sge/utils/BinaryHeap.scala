@@ -12,6 +12,7 @@ package utils
 import java.util.Arrays
 import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary, boundary.break
+import sge.utils.Nullable
 
 /** A binary heap that stores nodes which each have a float value and are sorted either lowest first or highest first. The Node class can be extended to store additional information.
   * @author
@@ -54,14 +55,12 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
     * @param identity
     *   If true, == comparison will be used. If false, .equals() comparison will be used.
     */
-  def contains(node: T, identity: Boolean): Boolean = {
-    if (node == null) throw new IllegalArgumentException("node cannot be null.")
+  def contains(node: T, identity: Boolean): Boolean =
     if (identity) {
       nodes.take(size).exists(_ == node)
     } else {
       nodes.take(size).exists(_.equals(node))
     }
-  }
 
   /** Returns the first item in the heap. This is the item with the lowest value (or highest value if this heap is configured as a max heap).
     */
@@ -170,12 +169,8 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
         val leftValue = leftNode.value
 
         // May have a right child.
-        val (rightNode, rightValue) = if (rightIndex >= size) {
-          (null, if (isMaxHeap) -Float.MaxValue else Float.MaxValue)
-        } else {
-          val rNode = nodes(rightIndex)
-          (rNode, rNode.value)
-        }
+        val rightNodeOpt: Nullable[BinaryHeap.Node] = if (rightIndex >= size) Nullable.empty else Nullable(nodes(rightIndex))
+        val rightValue = rightNodeOpt.fold(if (isMaxHeap) -Float.MaxValue else Float.MaxValue)(_.value)
 
         // The smallest of the three values is the parent.
         if (leftValue < rightValue ^ isMaxHeap) {
@@ -185,8 +180,10 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
           currentIndex = leftIndex
         } else {
           if (rightValue == value || (rightValue > value ^ isMaxHeap)) break()
-          nodes(currentIndex) = rightNode
-          if (rightNode != null) rightNode.index = currentIndex
+          rightNodeOpt.foreach { rn =>
+            nodes(currentIndex) = rn
+            rn.index = currentIndex
+          }
           currentIndex = rightIndex
         }
       }

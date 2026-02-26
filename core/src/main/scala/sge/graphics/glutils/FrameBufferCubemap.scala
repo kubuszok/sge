@@ -85,9 +85,8 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     * @param height
     * @param hasDepth
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) =
     this(format, width, height, hasDepth, false)
-  }
 
   // TODO: Convert and implement when all dependencies are converted
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Cubemap = {
@@ -119,17 +118,16 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
 
   /** Bind the next side of cubemap and return false if no more side. Should be called in between a call to begin() and end to cycle to each side of the cubemap to render on.
     */
-  def nextSide(): Boolean = {
+  def nextSide(): Boolean =
     if (currentSide > 5) {
       throw SgeError.GraphicsError("No remaining sides.")
     } else if (currentSide == 5) {
-      return false
+      false
+    } else {
+      currentSide += 1
+      bindSide(getSide())
+      true
     }
-
-    currentSide += 1
-    bindSide(getSide())
-    true
-  }
 
   /** Bind the side, making it active to render on. Should be called in between a call to begin() and end().
     * @param side

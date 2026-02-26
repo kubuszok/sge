@@ -477,27 +477,28 @@ class Matrix3 {
     * @return
     *   This matrix for the purpose of chaining.
     */
-  def rotateRad(radians: Float): Matrix3 = {
-    if (radians == 0) return this
-    val cos = Math.cos(radians).toFloat
-    val sin = Math.sin(radians).toFloat
+  def rotateRad(radians: Float): Matrix3 =
+    if (radians == 0) this
+    else {
+      val cos = Math.cos(radians).toFloat
+      val sin = Math.sin(radians).toFloat
 
-    val tmp = this.tmp
-    tmp(Matrix3.M00) = cos
-    tmp(Matrix3.M10) = sin
-    // tmp(Matrix3.M20) = 0
+      val tmp = this.tmp
+      tmp(Matrix3.M00) = cos
+      tmp(Matrix3.M10) = sin
+      // tmp(Matrix3.M20) = 0
 
-    tmp(Matrix3.M01) = -sin
-    tmp(Matrix3.M11) = cos
-    // tmp(Matrix3.M21) = 0
+      tmp(Matrix3.M01) = -sin
+      tmp(Matrix3.M11) = cos
+      // tmp(Matrix3.M21) = 0
 
-    tmp(Matrix3.M02) = 0
-    tmp(Matrix3.M12) = 0
-    // tmp(Matrix3.M22) = 1
+      tmp(Matrix3.M02) = 0
+      tmp(Matrix3.M12) = 0
+      // tmp(Matrix3.M22) = 1
 
-    Matrix3.mul(values, tmp)
-    this
-  }
+      Matrix3.mul(values, tmp)
+      this
+    }
 
   /** Postmultiplies this matrix with a scale matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
     * @param scaleX
@@ -1429,13 +1430,13 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def setToRotation(axis: Vector3, degrees: Float): Matrix4 = {
+  def setToRotation(axis: Vector3, degrees: Float): Matrix4 =
     if (degrees == 0) {
       idt()
-      return this
+      this
+    } else {
+      set(Matrix4.quat.set(axis, degrees))
     }
-    set(Matrix4.quat.set(axis, degrees))
-  }
 
   /** Sets the matrix to a rotation matrix around the given axis.
     * @param axis
@@ -1445,13 +1446,13 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def setToRotationRad(axis: Vector3, radians: Float): Matrix4 = {
+  def setToRotationRad(axis: Vector3, radians: Float): Matrix4 =
     if (radians == 0) {
       idt()
-      return this
+      this
+    } else {
+      set(Matrix4.quat.setFromAxisRad(axis, radians))
     }
-    set(Matrix4.quat.setFromAxisRad(axis, radians))
-  }
 
   /** Sets the matrix to a rotation matrix around the given axis.
     * @param axisX
@@ -1465,13 +1466,13 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def setToRotation(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 = {
+  def setToRotation(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 =
     if (degrees == 0) {
       idt()
-      return this
+      this
+    } else {
+      set(Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees))
     }
-    set(Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees))
-  }
 
   /** Sets the matrix to a rotation matrix around the given axis.
     * @param axisX
@@ -1485,13 +1486,13 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def setToRotationRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 = {
+  def setToRotationRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 =
     if (radians == 0) {
       idt()
-      return this
+      this
+    } else {
+      set(Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians))
     }
-    set(Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians))
-  }
 
   /** Set the matrix to a rotation matrix between two vectors.
     * @param v1
@@ -1971,11 +1972,12 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def rotate(axis: Vector3, degrees: Float): Matrix4 = {
-    if (degrees == 0) return this
-    Matrix4.quat.set(axis, degrees)
-    rotate(Matrix4.quat)
-  }
+  def rotate(axis: Vector3, degrees: Float): Matrix4 =
+    if (degrees == 0) this
+    else {
+      Matrix4.quat.set(axis, degrees)
+      rotate(Matrix4.quat)
+    }
 
   /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
     * @param axis
@@ -1985,11 +1987,12 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def rotateRad(axis: Vector3, radians: Float): Matrix4 = {
-    if (radians == 0) return this
-    Matrix4.quat.setFromAxisRad(axis, radians)
-    rotate(Matrix4.quat)
-  }
+  def rotateRad(axis: Vector3, radians: Float): Matrix4 =
+    if (radians == 0) this
+    else {
+      Matrix4.quat.setFromAxisRad(axis, radians)
+      rotate(Matrix4.quat)
+    }
 
   /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
     * @param axisX
@@ -2003,11 +2006,12 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def rotate(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 = {
-    if (degrees == 0) return this
-    Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees)
-    rotate(Matrix4.quat)
-  }
+  def rotate(axisX: Float, axisY: Float, axisZ: Float, degrees: Float): Matrix4 =
+    if (degrees == 0) this
+    else {
+      Matrix4.quat.setFromAxis(axisX, axisY, axisZ, degrees)
+      rotate(Matrix4.quat)
+    }
 
   /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale
     * @param axisX
@@ -2021,11 +2025,12 @@ class Matrix4 {
     * @return
     *   This matrix for the purpose of chaining methods together.
     */
-  def rotateRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 = {
-    if (radians == 0) return this
-    Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians)
-    rotate(Matrix4.quat)
-  }
+  def rotateRad(axisX: Float, axisY: Float, axisZ: Float, radians: Float): Matrix4 =
+    if (radians == 0) this
+    else {
+      Matrix4.quat.setFromAxisRad(axisX, axisY, axisZ, radians)
+      rotate(Matrix4.quat)
+    }
 
   /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix. Postmultiplication is also used by OpenGL ES' 1.x glTranslate/glRotate/glScale.
     * @param rotation
@@ -2452,73 +2457,75 @@ object Matrix4 {
     */
   def inv(values: Array[Float]): Boolean = {
     val l_det = det(values)
-    if (l_det == 0) return false
-    val m00 = values(Matrix4.M12) * values(Matrix4.M23) * values(Matrix4.M31) - values(Matrix4.M13) * values(Matrix4.M22) * values(Matrix4.M31)
-      + values(Matrix4.M13) * values(Matrix4.M21) * values(Matrix4.M32) - values(Matrix4.M11) * values(Matrix4.M23) * values(Matrix4.M32)
-      - values(Matrix4.M12) * values(Matrix4.M21) * values(Matrix4.M33) + values(Matrix4.M11) * values(Matrix4.M22) * values(Matrix4.M33)
-    val m01 = values(Matrix4.M03) * values(Matrix4.M22) * values(Matrix4.M31) - values(Matrix4.M02) * values(Matrix4.M23) * values(Matrix4.M31)
-      - values(Matrix4.M03) * values(Matrix4.M21) * values(Matrix4.M32) + values(Matrix4.M01) * values(Matrix4.M23) * values(Matrix4.M32)
-      + values(Matrix4.M02) * values(Matrix4.M21) * values(Matrix4.M33) - values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M33)
-    val m02 = values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M31) - values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M31)
-      + values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M32) - values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M32)
-      - values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M33) + values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M33)
-    val m03 = values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M21) - values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M21)
-      - values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M22) + values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M22)
-      + values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M23) - values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M23)
-    val m10 = values(Matrix4.M13) * values(Matrix4.M22) * values(Matrix4.M30) - values(Matrix4.M12) * values(Matrix4.M23) * values(Matrix4.M30)
-      - values(Matrix4.M13) * values(Matrix4.M20) * values(Matrix4.M32) + values(Matrix4.M10) * values(Matrix4.M23) * values(Matrix4.M32)
-      + values(Matrix4.M12) * values(Matrix4.M20) * values(Matrix4.M33) - values(Matrix4.M10) * values(Matrix4.M22) * values(Matrix4.M33)
-    val m11 = values(Matrix4.M02) * values(Matrix4.M23) * values(Matrix4.M30) - values(Matrix4.M03) * values(Matrix4.M22) * values(Matrix4.M30)
-      + values(Matrix4.M03) * values(Matrix4.M20) * values(Matrix4.M32) - values(Matrix4.M00) * values(Matrix4.M23) * values(Matrix4.M32)
-      - values(Matrix4.M02) * values(Matrix4.M20) * values(Matrix4.M33) + values(Matrix4.M00) * values(Matrix4.M22) * values(Matrix4.M33)
-    val m12 = values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M30) - values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M30)
-      - values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M32) + values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M32)
-      + values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M33) - values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M33)
-    val m13 = values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M20) - values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M20)
-      + values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M22) - values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M22)
-      - values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M23) + values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M23)
-    val m20 = values(Matrix4.M11) * values(Matrix4.M23) * values(Matrix4.M30) - values(Matrix4.M13) * values(Matrix4.M21) * values(Matrix4.M30)
-      + values(Matrix4.M13) * values(Matrix4.M20) * values(Matrix4.M31) - values(Matrix4.M10) * values(Matrix4.M23) * values(Matrix4.M31)
-      - values(Matrix4.M11) * values(Matrix4.M20) * values(Matrix4.M33) + values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M33)
-    val m21 = values(Matrix4.M03) * values(Matrix4.M21) * values(Matrix4.M30) - values(Matrix4.M01) * values(Matrix4.M23) * values(Matrix4.M30)
-      - values(Matrix4.M03) * values(Matrix4.M20) * values(Matrix4.M31) + values(Matrix4.M00) * values(Matrix4.M23) * values(Matrix4.M31)
-      + values(Matrix4.M01) * values(Matrix4.M20) * values(Matrix4.M33) - values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M33)
-    val m22 = values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M30) - values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M30)
-      + values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M31) - values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M31)
-      - values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M33) + values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M33)
-    val m23 = values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M20) - values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M20)
-      - values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M21) + values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M21)
-      + values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M23) - values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M23)
-    val m30 = values(Matrix4.M12) * values(Matrix4.M21) * values(Matrix4.M30) - values(Matrix4.M11) * values(Matrix4.M22) * values(Matrix4.M30)
-      - values(Matrix4.M12) * values(Matrix4.M20) * values(Matrix4.M31) + values(Matrix4.M10) * values(Matrix4.M22) * values(Matrix4.M31)
-      + values(Matrix4.M11) * values(Matrix4.M20) * values(Matrix4.M32) - values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M32)
-    val m31 = values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M30) - values(Matrix4.M02) * values(Matrix4.M21) * values(Matrix4.M30)
-      + values(Matrix4.M02) * values(Matrix4.M20) * values(Matrix4.M31) - values(Matrix4.M00) * values(Matrix4.M22) * values(Matrix4.M31)
-      - values(Matrix4.M01) * values(Matrix4.M20) * values(Matrix4.M32) + values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M32)
-    val m32 = values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M30) - values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M30)
-      - values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M31) + values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M31)
-      + values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M32) - values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M32)
-    val m33 = values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M20) - values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M20)
-      + values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M21) - values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M21)
-      - values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M22) + values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M22)
-    val inv_det = 1.0f / l_det
-    values(Matrix4.M00) = m00 * inv_det
-    values(Matrix4.M10) = m10 * inv_det
-    values(Matrix4.M20) = m20 * inv_det
-    values(Matrix4.M30) = m30 * inv_det
-    values(Matrix4.M01) = m01 * inv_det
-    values(Matrix4.M11) = m11 * inv_det
-    values(Matrix4.M21) = m21 * inv_det
-    values(Matrix4.M31) = m31 * inv_det
-    values(Matrix4.M02) = m02 * inv_det
-    values(Matrix4.M12) = m12 * inv_det
-    values(Matrix4.M22) = m22 * inv_det
-    values(Matrix4.M32) = m32 * inv_det
-    values(Matrix4.M03) = m03 * inv_det
-    values(Matrix4.M13) = m13 * inv_det
-    values(Matrix4.M23) = m23 * inv_det
-    values(Matrix4.M33) = m33 * inv_det
-    true
+    if (l_det == 0) false
+    else {
+      val m00 = values(Matrix4.M12) * values(Matrix4.M23) * values(Matrix4.M31) - values(Matrix4.M13) * values(Matrix4.M22) * values(Matrix4.M31)
+        + values(Matrix4.M13) * values(Matrix4.M21) * values(Matrix4.M32) - values(Matrix4.M11) * values(Matrix4.M23) * values(Matrix4.M32)
+        - values(Matrix4.M12) * values(Matrix4.M21) * values(Matrix4.M33) + values(Matrix4.M11) * values(Matrix4.M22) * values(Matrix4.M33)
+      val m01 = values(Matrix4.M03) * values(Matrix4.M22) * values(Matrix4.M31) - values(Matrix4.M02) * values(Matrix4.M23) * values(Matrix4.M31)
+        - values(Matrix4.M03) * values(Matrix4.M21) * values(Matrix4.M32) + values(Matrix4.M01) * values(Matrix4.M23) * values(Matrix4.M32)
+        + values(Matrix4.M02) * values(Matrix4.M21) * values(Matrix4.M33) - values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M33)
+      val m02 = values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M31) - values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M31)
+        + values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M32) - values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M32)
+        - values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M33) + values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M33)
+      val m03 = values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M21) - values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M21)
+        - values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M22) + values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M22)
+        + values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M23) - values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M23)
+      val m10 = values(Matrix4.M13) * values(Matrix4.M22) * values(Matrix4.M30) - values(Matrix4.M12) * values(Matrix4.M23) * values(Matrix4.M30)
+        - values(Matrix4.M13) * values(Matrix4.M20) * values(Matrix4.M32) + values(Matrix4.M10) * values(Matrix4.M23) * values(Matrix4.M32)
+        + values(Matrix4.M12) * values(Matrix4.M20) * values(Matrix4.M33) - values(Matrix4.M10) * values(Matrix4.M22) * values(Matrix4.M33)
+      val m11 = values(Matrix4.M02) * values(Matrix4.M23) * values(Matrix4.M30) - values(Matrix4.M03) * values(Matrix4.M22) * values(Matrix4.M30)
+        + values(Matrix4.M03) * values(Matrix4.M20) * values(Matrix4.M32) - values(Matrix4.M00) * values(Matrix4.M23) * values(Matrix4.M32)
+        - values(Matrix4.M02) * values(Matrix4.M20) * values(Matrix4.M33) + values(Matrix4.M00) * values(Matrix4.M22) * values(Matrix4.M33)
+      val m12 = values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M30) - values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M30)
+        - values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M32) + values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M32)
+        + values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M33) - values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M33)
+      val m13 = values(Matrix4.M02) * values(Matrix4.M13) * values(Matrix4.M20) - values(Matrix4.M03) * values(Matrix4.M12) * values(Matrix4.M20)
+        + values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M22) - values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M22)
+        - values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M23) + values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M23)
+      val m20 = values(Matrix4.M11) * values(Matrix4.M23) * values(Matrix4.M30) - values(Matrix4.M13) * values(Matrix4.M21) * values(Matrix4.M30)
+        + values(Matrix4.M13) * values(Matrix4.M20) * values(Matrix4.M31) - values(Matrix4.M10) * values(Matrix4.M23) * values(Matrix4.M31)
+        - values(Matrix4.M11) * values(Matrix4.M20) * values(Matrix4.M33) + values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M33)
+      val m21 = values(Matrix4.M03) * values(Matrix4.M21) * values(Matrix4.M30) - values(Matrix4.M01) * values(Matrix4.M23) * values(Matrix4.M30)
+        - values(Matrix4.M03) * values(Matrix4.M20) * values(Matrix4.M31) + values(Matrix4.M00) * values(Matrix4.M23) * values(Matrix4.M31)
+        + values(Matrix4.M01) * values(Matrix4.M20) * values(Matrix4.M33) - values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M33)
+      val m22 = values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M30) - values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M30)
+        + values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M31) - values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M31)
+        - values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M33) + values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M33)
+      val m23 = values(Matrix4.M03) * values(Matrix4.M11) * values(Matrix4.M20) - values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M20)
+        - values(Matrix4.M03) * values(Matrix4.M10) * values(Matrix4.M21) + values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M21)
+        + values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M23) - values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M23)
+      val m30 = values(Matrix4.M12) * values(Matrix4.M21) * values(Matrix4.M30) - values(Matrix4.M11) * values(Matrix4.M22) * values(Matrix4.M30)
+        - values(Matrix4.M12) * values(Matrix4.M20) * values(Matrix4.M31) + values(Matrix4.M10) * values(Matrix4.M22) * values(Matrix4.M31)
+        + values(Matrix4.M11) * values(Matrix4.M20) * values(Matrix4.M32) - values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M32)
+      val m31 = values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M30) - values(Matrix4.M02) * values(Matrix4.M21) * values(Matrix4.M30)
+        + values(Matrix4.M02) * values(Matrix4.M20) * values(Matrix4.M31) - values(Matrix4.M00) * values(Matrix4.M22) * values(Matrix4.M31)
+        - values(Matrix4.M01) * values(Matrix4.M20) * values(Matrix4.M32) + values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M32)
+      val m32 = values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M30) - values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M30)
+        - values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M31) + values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M31)
+        + values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M32) - values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M32)
+      val m33 = values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M20) - values(Matrix4.M02) * values(Matrix4.M11) * values(Matrix4.M20)
+        + values(Matrix4.M02) * values(Matrix4.M10) * values(Matrix4.M21) - values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M21)
+        - values(Matrix4.M01) * values(Matrix4.M10) * values(Matrix4.M22) + values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M22)
+      val inv_det = 1.0f / l_det
+      values(Matrix4.M00) = m00 * inv_det
+      values(Matrix4.M10) = m10 * inv_det
+      values(Matrix4.M20) = m20 * inv_det
+      values(Matrix4.M30) = m30 * inv_det
+      values(Matrix4.M01) = m01 * inv_det
+      values(Matrix4.M11) = m11 * inv_det
+      values(Matrix4.M21) = m21 * inv_det
+      values(Matrix4.M31) = m31 * inv_det
+      values(Matrix4.M02) = m02 * inv_det
+      values(Matrix4.M12) = m12 * inv_det
+      values(Matrix4.M22) = m22 * inv_det
+      values(Matrix4.M32) = m32 * inv_det
+      values(Matrix4.M03) = m03 * inv_det
+      values(Matrix4.M13) = m13 * inv_det
+      values(Matrix4.M23) = m23 * inv_det
+      values(Matrix4.M33) = m33 * inv_det
+      true
+    }
   }
 
   /** Computes the determinante of the given matrix. The matrix array is assumed to hold a 4x4 column major matrix as you can get from {@link Matrix4#values} .

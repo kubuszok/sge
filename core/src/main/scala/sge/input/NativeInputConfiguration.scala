@@ -9,6 +9,8 @@
 package sge
 package input
 
+import sge.utils.Nullable
+
 class NativeInputConfiguration {
 
   private var inputType:         sge.Input.OnscreenKeyboardType.OnscreenKeyboardType = sge.Input.OnscreenKeyboardType.Default
@@ -20,7 +22,7 @@ class NativeInputConfiguration {
   private var validator:          sge.Input.InputStringValidator = scala.compiletime.uninitialized
   private var placeholder:        String                         = ""
   private var showPasswordButton: Boolean                        = false
-  private var autoComplete:       Array[String]                  = null
+  private var autoComplete:       Nullable[Array[String]]        = Nullable.empty
 
   def getType(): sge.Input.OnscreenKeyboardType.OnscreenKeyboardType =
     inputType
@@ -94,27 +96,25 @@ class NativeInputConfiguration {
     this
   }
 
-  def getAutoComplete(): Array[String] =
+  def getAutoComplete(): Nullable[Array[String]] =
     autoComplete
 
-  def setAutoComplete(autoComplete: Array[String]): NativeInputConfiguration = {
+  def setAutoComplete(autoComplete: Nullable[Array[String]]): NativeInputConfiguration = {
     this.autoComplete = autoComplete
     this
   }
 
   def validate(): Unit = {
-    var message: String = null
-    if (inputType == null) message = "OnscreenKeyboardType needs to be non null"
-    if (textInputWrapper == null) message = "TextInputWrapper needs to be non null"
+    var message: Nullable[String] = Nullable.empty
+    if (Nullable(textInputWrapper).isEmpty) message = Nullable("TextInputWrapper needs to be non null")
     if (showPasswordButton && inputType != sge.Input.OnscreenKeyboardType.Password)
-      message = "ShowPasswordButton only works with OnscreenKeyboardType.Password"
-    if (placeholder == null) message = "Placeholder needs to be non null"
-    if (autoComplete != null && inputType != sge.Input.OnscreenKeyboardType.Default)
-      message = "AutoComplete should only be used with OnscreenKeyboardType.Default"
-    if (autoComplete != null && multiLine) message = "AutoComplete shouldn't be used with multiline"
+      message = Nullable("ShowPasswordButton only works with OnscreenKeyboardType.Password")
+    if (autoComplete.isDefined && inputType != sge.Input.OnscreenKeyboardType.Default)
+      message = Nullable("AutoComplete should only be used with OnscreenKeyboardType.Default")
+    if (autoComplete.isDefined && multiLine) message = Nullable("AutoComplete shouldn't be used with multiline")
 
-    if (message != null) {
-      throw new IllegalArgumentException("NativeInputConfiguration validation failed: " + message)
+    message.foreach { m =>
+      throw new IllegalArgumentException("NativeInputConfiguration validation failed: " + m)
     }
   }
 }

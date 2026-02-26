@@ -332,7 +332,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   def row(): Cell[?] = scala.util.boundary {
     if (cells.nonEmpty) {
       if (!implicitEndRow) {
-        if (cells.last.endRow) scala.util.boundary.break(rowDefaults.orNull) // Row was already ended.
+        if (cells.last.endRow) rowDefaults.foreach(rd => scala.util.boundary.break(rd)) // Row was already ended.
         endRow()
       }
       invalidate()
@@ -384,8 +384,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   }
 
   /** Returns the cell for the specified actor in this table, or null. */
-  def getCell[T <: Actor](actor: T): Nullable[Cell[T]] = {
-    require(actor != null, "actor cannot be null.")
+  def getCell[T <: Actor](actor: T): Nullable[Cell[T]] =
     scala.util.boundary {
       var i = 0
       while (i < cells.size) {
@@ -395,7 +394,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       }
       Nullable.empty
     }
-  }
 
   /** Returns the cells for this table. */
   def getCells: ArrayBuffer[Cell[?]] = cells
@@ -427,7 +425,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Sets the padTop, padLeft, padBottom, and padRight around the table to the specified value. */
   def pad(pad: Value): Table = {
-    require(pad != null, "pad cannot be null.")
     padTop = pad
     padLeft = pad
     padBottom = pad
@@ -437,10 +434,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   }
 
   def pad(top: Value, left: Value, bottom: Value, right: Value): Table = {
-    require(top != null, "top cannot be null.")
-    require(left != null, "left cannot be null.")
-    require(bottom != null, "bottom cannot be null.")
-    require(right != null, "right cannot be null.")
     padTop = top
     padLeft = left
     padBottom = bottom
@@ -451,7 +444,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Padding at the top edge of the table. */
   def padTop(padTop: Value): Table = {
-    require(padTop != null, "padTop cannot be null.")
     this.padTop = padTop
     sizeInvalid = true
     this
@@ -459,7 +451,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Padding at the left edge of the table. */
   def padLeft(padLeft: Value): Table = {
-    require(padLeft != null, "padLeft cannot be null.")
     this.padLeft = padLeft
     sizeInvalid = true
     this
@@ -467,7 +458,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Padding at the bottom edge of the table. */
   def padBottom(padBottom: Value): Table = {
-    require(padBottom != null, "padBottom cannot be null.")
     this.padBottom = padBottom
     sizeInvalid = true
     this
@@ -475,7 +465,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Padding at the right edge of the table. */
   def padRight(padRight: Value): Table = {
-    require(padRight != null, "padRight cannot be null.")
     this.padRight = padRight
     sizeInvalid = true
     this
@@ -945,43 +934,43 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
     val vpadding     = padTop + this.padBottom.get(Nullable(this))
 
     // Size columns and rows between min and pref size using (preferred - min) size to weight distribution of extra space.
-    var columnWeightedWidth: Array[Float] = null
     val totalGrowWidth = tablePrefWidth - tableMinWidth
-    if (totalGrowWidth == 0)
-      columnWeightedWidth = columnMinWidth
-    else {
-      val extraWidth = Math.min(totalGrowWidth, Math.max(0f, layoutWidth - tableMinWidth))
-      columnWeightedWidth = ensureSize(Table._columnWeightedWidth, columns)
-      Table._columnWeightedWidth = columnWeightedWidth
-      val columnMinWidth  = this.columnMinWidth
-      val columnPrefWidth = this.columnPrefWidth
-      var i               = 0
-      while (i < columns) {
-        val growWidth = columnPrefWidth(i) - columnMinWidth(i)
-        val growRatio = growWidth / totalGrowWidth
-        columnWeightedWidth(i) = columnMinWidth(i) + extraWidth * growRatio
-        i += 1
+    val columnWeightedWidth: Array[Float] =
+      if (totalGrowWidth == 0) columnMinWidth
+      else {
+        val extraWidth = Math.min(totalGrowWidth, Math.max(0f, layoutWidth - tableMinWidth))
+        val cww        = ensureSize(Table._columnWeightedWidth, columns)
+        Table._columnWeightedWidth = cww
+        val columnMinWidth  = this.columnMinWidth
+        val columnPrefWidth = this.columnPrefWidth
+        var i               = 0
+        while (i < columns) {
+          val growWidth = columnPrefWidth(i) - columnMinWidth(i)
+          val growRatio = growWidth / totalGrowWidth
+          cww(i) = columnMinWidth(i) + extraWidth * growRatio
+          i += 1
+        }
+        cww
       }
-    }
 
-    var rowWeightedHeight: Array[Float] = null
     val totalGrowHeight = tablePrefHeight - tableMinHeight
-    if (totalGrowHeight == 0)
-      rowWeightedHeight = rowMinHeight
-    else {
-      rowWeightedHeight = ensureSize(Table._rowWeightedHeight, rows)
-      Table._rowWeightedHeight = rowWeightedHeight
-      val extraHeight   = Math.min(totalGrowHeight, Math.max(0f, layoutHeight - tableMinHeight))
-      val rowMinHeight  = this.rowMinHeight
-      val rowPrefHeight = this.rowPrefHeight
-      var i             = 0
-      while (i < rows) {
-        val growHeight = rowPrefHeight(i) - rowMinHeight(i)
-        val growRatio  = growHeight / totalGrowHeight
-        rowWeightedHeight(i) = rowMinHeight(i) + extraHeight * growRatio
-        i += 1
+    val rowWeightedHeight: Array[Float] =
+      if (totalGrowHeight == 0) rowMinHeight
+      else {
+        val rwh = ensureSize(Table._rowWeightedHeight, rows)
+        Table._rowWeightedHeight = rwh
+        val extraHeight   = Math.min(totalGrowHeight, Math.max(0f, layoutHeight - tableMinHeight))
+        val rowMinHeight  = this.rowMinHeight
+        val rowPrefHeight = this.rowPrefHeight
+        var i             = 0
+        while (i < rows) {
+          val growHeight = rowPrefHeight(i) - rowMinHeight(i)
+          val growRatio  = growHeight / totalGrowHeight
+          rwh(i) = rowMinHeight(i) + extraHeight * growRatio
+          i += 1
+        }
+        rwh
       }
-    }
 
     // Determine actor and cell sizes (before expand or fill).
     val cellCount = cells.size

@@ -11,11 +11,10 @@ package utils
 
 import scala.compiletime.summonFrom
 
-/** An `ObjectMap` that also stores keys in a `DynamicArray` using the insertion order. Null keys are not allowed. No
-  * allocation is done except when growing the table size.
+/** An `ObjectMap` that also stores keys in a `DynamicArray` using the insertion order. Null keys are not allowed. No allocation is done except when growing the table size.
   *
-  * Iteration over the entries, keys, and values is ordered and faster than an unordered map. Keys can also be accessed
-  * and the order changed using `orderedKeys`. There is some additional overhead for put and remove.
+  * Iteration over the entries, keys, and values is ordered and faster than an unordered map. Keys can also be accessed and the order changed using `orderedKeys`. There is some additional overhead for
+  * put and remove.
   *
   * @author
   *   Nathan Sweet, Tommy Ettinger (original implementation)
@@ -41,8 +40,7 @@ final class OrderedMap[K, V] private (
 
   // --- Access ---
 
-  /** Returns the old value associated with the specified key, or `Nullable.empty` if the key was not already in the
-    * map.
+  /** Returns the old value associated with the specified key, or `Nullable.empty` if the key was not already in the map.
     */
   def put(key: K, value: V): Nullable[V] = {
     val existing = map.get(key)
@@ -78,11 +76,10 @@ final class OrderedMap[K, V] private (
   /** Returns the key for the specified value, or `Nullable.empty` if it is not in the map. */
   def findKey(value: V): Nullable[K] = map.findKey(value)
 
-  /** Changes the key `before` to `after` without changing its position in the order or its value. Returns true if
-    * `before` was removed and `after` was added, false otherwise (i.e. `after` is already present or `before` is not
-    * present).
+  /** Changes the key `before` to `after` without changing its position in the order or its value. Returns true if `before` was removed and `after` was added, false otherwise (i.e. `after` is already
+    * present or `before` is not present).
     */
-  def alter(before: K, after: K): Boolean = {
+  def alter(before: K, after: K): Boolean =
     if (map.containsKey(after)) false
     else {
       val idx = _keys.indexOf(before)
@@ -96,12 +93,11 @@ final class OrderedMap[K, V] private (
         true
       }
     }
-  }
 
-  /** Changes the key at the given index in the order to `after`, without changing the ordering of other entries or any
-    * values. Returns true if `after` successfully replaced the key at `index`, false otherwise.
+  /** Changes the key at the given index in the order to `after`, without changing the ordering of other entries or any values. Returns true if `after` successfully replaced the key at `index`, false
+    * otherwise.
     */
-  def alterIndex(index: Int, after: K): Boolean = {
+  def alterIndex(index: Int, after: K): Boolean =
     if (index < 0 || index >= map.size || map.containsKey(after)) false
     else {
       val before = _keys(index)
@@ -112,7 +108,6 @@ final class OrderedMap[K, V] private (
       _keys.update(index, after)
       true
     }
-  }
 
   // --- Bulk ---
 
@@ -141,9 +136,8 @@ final class OrderedMap[K, V] private (
   }
 
   /** Increases the size of the backing array to accommodate additional items. */
-  def ensureCapacity(additionalCapacity: Int): Unit = {
+  def ensureCapacity(additionalCapacity: Int): Unit =
     map.ensureCapacity(additionalCapacity)
-  }
 
   /** Reduces the size of the backing arrays. */
   def shrink(maximumCapacity: Int): Unit = map.shrink(maximumCapacity)
@@ -189,10 +183,10 @@ final class OrderedMap[K, V] private (
 
   override def equals(obj: Any): Boolean = obj match {
     case other: OrderedMap[?, ?] => map.equals(other.map)
-    case _                       => false
+    case _ => false
   }
 
-  override def toString(): String = {
+  override def toString(): String =
     if (size == 0) "{}"
     else {
       val sb = new StringBuilder()
@@ -209,7 +203,6 @@ final class OrderedMap[K, V] private (
       sb.append('}')
       sb.toString()
     }
-  }
 }
 
 object OrderedMap {
@@ -228,12 +221,11 @@ object OrderedMap {
   }
 
   /** Creates an OrderedMap that is a copy of the given map. */
-  def from[K, V](other: OrderedMap[K, V]): OrderedMap[K, V] = {
+  def from[K, V](other: OrderedMap[K, V]): OrderedMap[K, V] =
     new OrderedMap[K, V](
       ObjectMap.from(other.map),
       DynamicArray.from(other._keys)
     )
-  }
 
   private def create[K, V](
     mkK:        MkArray[K],

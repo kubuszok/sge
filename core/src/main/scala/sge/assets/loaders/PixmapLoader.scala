@@ -12,7 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.Pixmap
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} for {@link Pixmap} instances. The Pixmap is loaded asynchronously.
@@ -31,7 +31,7 @@ class PixmapLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): Pixmap = {
     val result = pixmap
     pixmap = Nullable.empty
-    result.orNull
+    result.getOrElse(throw SgeError.SerializationError("Pixmap not loaded"))
   }
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): ArrayBuffer[AssetDescriptor[?]] =

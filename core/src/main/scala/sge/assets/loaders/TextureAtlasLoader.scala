@@ -14,7 +14,7 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureAtlas
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} to load {@link TextureAtlas} instances. Passing a {@link TextureAtlasParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify whether the
@@ -35,7 +35,7 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using sge: Sge) extends S
         }
     }
 
-    val atlas = new TextureAtlas(data.orNull)
+    val atlas = new TextureAtlas(data.getOrElse(throw SgeError.SerializationError("TextureAtlasData not loaded")))
     data = Nullable.empty
     atlas
   }
@@ -44,10 +44,7 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using sge: Sge) extends S
     val atlasFile = file
     val imgDir    = atlasFile.parent()
 
-    if (parameter != null)
-      data = Nullable(new TextureAtlasData(atlasFile, imgDir, parameter.flip))
-    else
-      data = Nullable(new TextureAtlasData(atlasFile, imgDir, false))
+    data = Nullable(new TextureAtlasData(atlasFile, imgDir, Nullable(parameter).fold(false)(_.flip)))
 
     val dependencies = ArrayBuffer.empty[AssetDescriptor[?]]
     data.foreach { d =>

@@ -4,7 +4,7 @@ When asked to convert a file from Java to Scala, **start by planning before exec
 
 ## Planning Rules
 
-1. Use `sge-metals` MCP to compile and get errors/warnings. **Never call `sbt` directly.**
+1. Use `just compile` to compile and get errors/warnings.
 2. Use `context7` MCP to look up library documentation.
 3. If you need to make code compilable as an intermediate step, **comment out** problematic code
    instead of removing it. Leave a note for yourself.
@@ -74,7 +74,7 @@ Rewrite method implementations from Java to Scala, applying these adjustments:
 
 ### Step 6: Verify compilation
 
-Use `sge-metals` MCP to ensure the conversion compiles successfully.
+Use `just compile` to ensure the conversion compiles successfully.
 
 ### Step 7: Fix issues
 

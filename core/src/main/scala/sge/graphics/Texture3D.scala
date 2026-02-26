@@ -10,6 +10,7 @@ package sge
 package graphics
 
 import scala.collection.mutable
+import sge.utils.Nullable
 
 import sge.graphics.GLTexture
 import sge.graphics.Texture.TextureWrap
@@ -25,9 +26,8 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
 
-  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using sde: Sge) = {
+  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using sde: Sge) =
     this(new CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
-  }
 
   if (sde.graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("Texture3D requires a device running with GLES 3.0 compatibility")
@@ -40,8 +40,9 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
   }
 
   private def load(data: Texture3DData)(using sde: Sge): Unit = {
-    if (this.textureData != null && data.isManaged() != this.textureData.isManaged()) {
-      throw SgeError.GraphicsError("New data must have the same managed status as the old data")
+    Nullable(this.textureData).foreach { existing =>
+      if (data.isManaged() != existing.isManaged())
+        throw SgeError.GraphicsError("New data must have the same managed status as the old data")
     }
     this.textureData = data
 
@@ -86,7 +87,7 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
 
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, r: TextureWrap, force: Boolean): Unit = {
     unsafeSetWrap(u, v, force)
-    if (r != null && (force || rWrap != r)) {
+    if (force || rWrap != r) {
       sde.graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
       rWrap = r
     }

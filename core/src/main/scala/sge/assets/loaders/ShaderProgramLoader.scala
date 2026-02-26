@@ -36,33 +36,34 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
   }
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): ShaderProgram = {
-    var vertFileName: String = null
-    var fragFileName: String = null
+    val param = Nullable(parameter)
+    var vertFileName: Nullable[String] = Nullable.empty
+    var fragFileName: Nullable[String] = Nullable.empty
 
-    if (parameter != null) {
-      if (parameter.vertexFile != null) vertFileName = parameter.vertexFile
-      if (parameter.fragmentFile != null) fragFileName = parameter.fragmentFile
+    param.foreach { p =>
+      p.vertexFile.foreach(v => vertFileName = Nullable(v))
+      p.fragmentFile.foreach(f => fragFileName = Nullable(f))
     }
 
-    if (vertFileName == null && fileName.endsWith(fragmentFileSuffix)) {
-      vertFileName = fileName.substring(0, fileName.length() - fragmentFileSuffix.length()) + vertexFileSuffix
+    if (vertFileName.isEmpty && fileName.endsWith(fragmentFileSuffix)) {
+      vertFileName = Nullable(fileName.substring(0, fileName.length() - fragmentFileSuffix.length()) + vertexFileSuffix)
     }
-    if (fragFileName == null && fileName.endsWith(vertexFileSuffix)) {
-      fragFileName = fileName.substring(0, fileName.length() - vertexFileSuffix.length()) + fragmentFileSuffix
+    if (fragFileName.isEmpty && fileName.endsWith(vertexFileSuffix)) {
+      fragFileName = Nullable(fileName.substring(0, fileName.length() - vertexFileSuffix.length()) + fragmentFileSuffix)
     }
 
-    val vertexFile   = if (vertFileName == null) file else resolve(vertFileName)
-    val fragmentFile = if (fragFileName == null) file else resolve(fragFileName)
+    val vertexFile   = vertFileName.fold(file)(resolve(_))
+    val fragmentFile = fragFileName.fold(file)(resolve(_))
     var vertexCode   = vertexFile.readString()
     var fragmentCode = if (vertexFile.equals(fragmentFile)) vertexCode else fragmentFile.readString()
 
-    if (parameter != null) {
-      if (parameter.prependVertexCode != null) vertexCode = parameter.prependVertexCode + vertexCode
-      if (parameter.prependFragmentCode != null) fragmentCode = parameter.prependFragmentCode + fragmentCode
+    param.foreach { p =>
+      p.prependVertexCode.foreach(code => vertexCode = code + vertexCode)
+      p.prependFragmentCode.foreach(code => fragmentCode = code + fragmentCode)
     }
 
     val shaderProgram = new ShaderProgram(vertexCode, fragmentCode)
-    if ((parameter == null || parameter.logOnCompileFailure) && !shaderProgram.isCompiled()) {
+    if (param.fold(true)(_.logOnCompileFailure) && !shaderProgram.isCompiled()) {
       sge.application.error("ShaderProgramLoader", s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
     }
 
@@ -75,11 +76,11 @@ object ShaderProgramLoader {
 
     /** File name to be used for the vertex program instead of the default determined by the file name used to submit this asset to AssetManager.
       */
-    var vertexFile: String = null
+    var vertexFile: Nullable[String] = Nullable.empty
 
     /** File name to be used for the fragment program instead of the default determined by the file name used to submit this asset to AssetManager.
       */
-    var fragmentFile: String = null
+    var fragmentFile: Nullable[String] = Nullable.empty
 
     /** Whether to log (at the error level) the shader's log if it fails to compile. Default true. */
     var logOnCompileFailure: Boolean = true
@@ -87,11 +88,11 @@ object ShaderProgramLoader {
     /** Code that is always added to the vertex shader code. This is added as-is, and you should include a newline (`\n`) if needed. {@linkplain ShaderProgram#prependVertexCode} is placed before this
       * code.
       */
-    var prependVertexCode: String = null
+    var prependVertexCode: Nullable[String] = Nullable.empty
 
     /** Code that is always added to the fragment shader code. This is added as-is, and you should include a newline (`\n`) if needed. {@linkplain ShaderProgram#prependFragmentCode} is placed before
       * this code.
       */
-    var prependFragmentCode: String = null
+    var prependFragmentCode: Nullable[String] = Nullable.empty
   }
 }

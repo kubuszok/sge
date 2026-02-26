@@ -1,0 +1,74 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/Material.java
+ * Original authors: (see AUTHORS file)
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+
+import scala.collection.mutable.ArrayBuffer
+
+class Material(var id: String) extends Attributes {
+
+  /** Create an empty material */
+  def this() =
+    this("mtl" + Material.nextCounter())
+
+  /** Create a material with the specified attributes */
+  def this(attributes: Attribute*) = {
+    this()
+    set(attributes*)
+  }
+
+  /** Create a material with the specified attributes */
+  def this(id: String, attributes: Attribute*) = {
+    this(id)
+    set(attributes*)
+  }
+
+  /** Create a material with the specified attributes */
+  def this(attributes: ArrayBuffer[Attribute]) = {
+    this()
+    set(attributes)
+  }
+
+  /** Create a material with the specified attributes */
+  def this(id: String, attributes: ArrayBuffer[Attribute]) = {
+    this(id)
+    set(attributes)
+  }
+
+  /** Create a material which is an exact copy of the specified material */
+  def this(id: String, copyFrom: Material) = {
+    this(id)
+    for (attr <- copyFrom)
+      set(attr.copy())
+  }
+
+  /** Create a material which is an exact copy of the specified material */
+  def this(copyFrom: Material) =
+    this(copyFrom.id, copyFrom)
+
+  /** Create a copy of this material */
+  def copy(): Material = new Material(this)
+
+  override def hashCode(): Int = super.hashCode() + 3 * id.hashCode()
+
+  override def equals(other: Any): Boolean = other match {
+    case that: Material => (that eq this) || (that.id == id && super.equals(that))
+    case _ => false
+  }
+}
+
+object Material {
+  private var counter: Int = 0
+
+  private def nextCounter(): Int = {
+    counter += 1
+    counter
+  }
+}

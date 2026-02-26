@@ -295,7 +295,6 @@ object DragAndDrop {
     *   Nathan Sweet
     */
   abstract class Source(val actor: Actor) {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
 
     /** Called when a drag is started on the source. The coordinates are in the source's local coordinate system.
       * @return
@@ -322,7 +321,6 @@ object DragAndDrop {
     *   Nathan Sweet
     */
   abstract class Target(val actor: Actor) {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
     actor.getStage.foreach { stage =>
       if (actor == stage.getRoot)
         throw new IllegalArgumentException("The stage root cannot be a drag and drop target.")

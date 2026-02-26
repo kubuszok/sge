@@ -19,7 +19,7 @@
 | `com.badlogic.gdx.math` | `sge.math` | |
 | `com.badlogic.gdx.math.collision` | `sge.math.collision` | |
 | `com.badlogic.gdx.net` | `sge.net` | |
-| `com.badlogic.gdx.scenes.scene2d` | `sge.scenes.scene2d` | Not yet started |
+| `com.badlogic.gdx.scenes.scene2d` | `sge.scenes.scene2d` | Complete |
 | `com.badlogic.gdx.utils` | `sge.utils` | Partial |
 | `com.badlogic.gdx.utils.compression` | `sge.utils.compression` | |
 | `com.badlogic.gdx.utils.viewport` | `sge.utils.viewport` | |
@@ -37,7 +37,7 @@
 | `SerializationException` | `SgeError.SerializationError` |
 | `QuadTreeFloat` | `Pool.QuadTreeFloat` |
 
-## Skipped Packages (Scala stdlib replacements)
+## Skipped Packages
 
 | LibGDX Package | Reason |
 |---------------|--------|
@@ -46,35 +46,60 @@
 
 ## Skipped Classes
 
-### Collections
+### Collections — Arrays
 
-| LibGDX Class | SGE Replacement |
-|-------------|-----------------|
-| `Array` | `ArrayBuffer` / `ArraySeq` |
-| `ByteArray`, `CharArray`, `FloatArray`, `IntArray`, `LongArray`, `ShortArray` | `DynamicArray[T]` |
-| `DelayedRemovalArray` | `.view`s |
-| `SnapshotArray` | `ArrayBuffer` with copy-on-modify |
-| `PooledLinkedList`, `SortedIntList` | Scala stdlib lists |
-| `ObjectMap`, `IntMap`, `IntIntMap`, `IntFloatMap`, `LongMap`, `ObjectIntMap`, `ObjectFloatMap`, `ObjectLongMap` | `ObjectMap[K, V]` |
-| `ArrayMap`, `IdentityMap` | `ArrayMap[K, V]` |
-| `OrderedMap` | `OrderedMap[K, V]` |
-| `ObjectSet`, `IntSet` | `ObjectSet[A]` |
-| `OrderedSet` | `OrderedSet[A]` |
-| `AtomicQueue`, `LongQueue`, `Queue` | Scala stdlib queues |
-| `BooleanArray`, `Bits` | `mutable.BitSet` |
-| `Collections` | Scala has views, mutable/immutable split |
-| `StringBuilder` | `scala.collection.mutable.StringBuilder` |
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `Array` | `ArrayBuffer` / `ArraySeq` | Scala stdlib equivalent |
+| `ByteArray`, `CharArray`, `FloatArray`, `IntArray`, `LongArray`, `ShortArray` | `DynamicArray[T]` | Unified via MkArray type class |
+| `DelayedRemovalArray` | `.view`s | Scala collections have lazy views |
+| `SnapshotArray` | `ArrayBuffer` with copy-on-modify | Simple pattern suffices |
 
-### JSON/XML (use Scala libraries)
+### Collections — Lists
 
-All `Json*`, `UBJson*`, `XmlReader`, `XmlWriter` classes are skipped.
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `PooledLinkedList`, `SortedIntList` | Scala stdlib lists | Scala stdlib equivalent |
+
+### Collections — Maps
+
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `ObjectMap`, `IntMap`, `IntIntMap`, `IntFloatMap`, `LongMap`, `ObjectIntMap`, `ObjectFloatMap`, `ObjectLongMap` | `ObjectMap[K, V]` | Unified MkArray-backed map |
+| `ArrayMap`, `IdentityMap` | `ArrayMap[K, V]` | MkArray-backed ordered map |
+| `OrderedMap` | `OrderedMap[K, V]` | Insertion-ordered variant |
+
+### Collections — Sets
+
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `ObjectSet`, `IntSet` | `ObjectSet[A]` | MkArray-backed set |
+| `OrderedSet` | `OrderedSet[A]` | Insertion-ordered variant |
+
+### Collections — Queues & Bit Sets
+
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `AtomicQueue`, `LongQueue`, `Queue` | Scala stdlib queues | Scala stdlib equivalent |
+| `BooleanArray`, `Bits` | `mutable.BitSet` | Scala stdlib equivalent |
+
+### Collections — Other
+
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `Collections` | — | Scala has views, mutable/immutable split |
+| `StringBuilder` | `scala.collection.mutable.StringBuilder` | Scala stdlib equivalent |
+
+### JSON/XML
+
+All `Json*`, `UBJson*`, `XmlReader`, `XmlWriter` classes are skipped — Scala has dedicated JSON/XML libraries.
 
 ### Other Skipped Classes
 
-| LibGDX Class | Reason |
-|-------------|--------|
-| `PauseableThread` | Use `Future`s |
-| `Null`, `NonNull`, `NonNullByDefault` | Use `Nullable[A]` opaque type |
-| `ArraySupplier`, `Predicate` | Use plain Scala functions |
-| `Base64Coder` | Use `java.util.Base64` (post JDK7) |
-| `Disposable` | Use `AutoCloseable` / `Resource` |
+| LibGDX Class | SGE Replacement | Reason |
+|-------------|-----------------|--------|
+| `PauseableThread` | `Future`s | Scala async primitives |
+| `Null`, `NonNull`, `NonNullByDefault` | `Nullable[A]` opaque type | Zero-allocation null safety |
+| `ArraySupplier`, `Predicate` | Plain Scala functions | Scala functions replace SAM types |
+| `Base64Coder` | `java.util.Base64` | Available since JDK 7 |
+| `Disposable` | `AutoCloseable` / `Resource` | Scala/JDK standard |

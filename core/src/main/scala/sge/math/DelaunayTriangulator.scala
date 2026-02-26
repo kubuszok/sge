@@ -10,6 +10,7 @@ package sge
 package math
 
 import scala.collection.mutable.ArrayBuffer
+import sge.utils.Nullable
 
 /** Delaunay triangulation. Adapted from Paul Bourke's triangulate: http://paulbourke.net/papers/triangulate/
   * @author
@@ -48,7 +49,7 @@ class DelaunayTriangulator {
     var pointsArray = points
     var offsetVar   = offset
     if (!sorted) {
-      if (sortedPoints == null || sortedPoints.length < count) sortedPoints = new Array[Float](count)
+      if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
       Array.copy(points, offset, sortedPoints, 0, count)
       pointsArray = sortedPoints
       offsetVar = 0

@@ -17,6 +17,7 @@ import sge.math.Vector2
 import sge.math.Vector3
 import sge.math.collision.Ray
 import sge.graphics.glutils.HdpiUtils
+import sge.scenes.scene2d.utils.ScissorStack
 import sge.Sge
 
 /** Manages a {@link Camera} and determines how world coordinates are mapped to and from the screen.
@@ -116,10 +117,8 @@ abstract class Viewport(using sge: Sge) {
     camera.getPickRay(touchX, touchY, this.screenX.toFloat, this.screenY.toFloat, screenWidth.toFloat, screenHeight.toFloat)
 
   /** @see ScissorStack#calculateScissors(Camera, float, float, float, float, Matrix4, Rectangle, Rectangle) */
-  // TODO: Convert to proper Scala when ScissorStack equivalent is available
-  // def calculateScissors(batchTransform: Matrix4, area: Rectangle, scissor: Rectangle): Unit = {
-  //   ScissorStack.calculateScissors(camera, screenX, screenY, screenWidth, screenHeight, batchTransform, area, scissor)
-  // }
+  def calculateScissors(batchTransform: Matrix4, area: Rectangle, scissor: Rectangle): Unit =
+    ScissorStack.calculateScissors(camera, screenX.toFloat, screenY.toFloat, screenWidth.toFloat, screenHeight.toFloat, batchTransform, area, scissor)
 
   /** Transforms a point to real screen coordinates (as opposed to OpenGL ES window coordinates), where the origin is in the top left and the the y-axis is pointing downwards.
     */

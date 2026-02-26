@@ -62,75 +62,76 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
 
   override def prepare(): Unit = {
     if (compressedData.isDefined) throw SgeError.GraphicsError("Already prepared")
-    if (file == null) throw SgeError.GraphicsError("Need a file to load from")
     // We support normal ktx files as well as 'zktx' which are gzip ktx file with an int length at the beginning (like ETC1).
     if (file.name().endsWith(".zktx")) {
       val buffer = new Array[Byte](1024 * 10)
-      var in: Nullable[DataInputStream] = Nullable.empty
+      var in     = null.asInstanceOf[DataInputStream]
       try {
-        in = Nullable(new DataInputStream(new BufferedInputStream(new GZIPInputStream(file.read()))))
-        val fileSize = in.orNull.readInt()
-        compressedData = Nullable(BufferUtils.newUnsafeByteBuffer(fileSize))
-        var readBytes = 0
-        readBytes = in.orNull.read(buffer)
+        val inputStream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file.read())))
+        in = inputStream
+        val fileSize = inputStream.readInt()
+        val cd       = BufferUtils.newUnsafeByteBuffer(fileSize)
+        compressedData = Nullable(cd)
+        var readBytes = inputStream.read(buffer)
         while (readBytes != -1) {
-          compressedData.orNull.put(buffer, 0, readBytes)
-          readBytes = in.orNull.read(buffer)
+          cd.put(buffer, 0, readBytes)
+          readBytes = inputStream.read(buffer)
         }
-        compressedData.orNull.asInstanceOf[Buffer].position(0)
-        compressedData.orNull.asInstanceOf[Buffer].limit(compressedData.orNull.capacity())
+        cd.asInstanceOf[Buffer].position(0)
+        cd.asInstanceOf[Buffer].limit(cd.capacity())
       } catch {
         case e: Exception => throw SgeError.GraphicsError(s"Couldn't load zktx file '$file'", Some(e))
       } finally
-        StreamUtils.closeQuietly(in.orNull)
+        Nullable(in).foreach(StreamUtils.closeQuietly)
     } else {
       compressedData = Nullable(ByteBuffer.wrap(file.readBytes()))
     }
-    if (compressedData.orNull.get() != 0x0ab.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x04b.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x054.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x058.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x020.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x031.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x031.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x0bb.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x00d.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x00a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x01a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    if (compressedData.orNull.get() != 0x00a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
-    val endianTag = compressedData.orNull.getInt()
+    val cd = compressedData.getOrElse(throw SgeError.GraphicsError("Failed to load KTX data"))
+    if (cd.get() != 0x0ab.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x04b.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x054.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x058.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x020.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x031.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x031.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x0bb.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x00d.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x00a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x01a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    if (cd.get() != 0x00a.toByte) throw SgeError.GraphicsError("Invalid KTX Header")
+    val endianTag = cd.getInt()
     if (endianTag != 0x04030201 && endianTag != 0x01020304) throw SgeError.GraphicsError("Invalid KTX Header")
     if (endianTag != 0x04030201)
-      compressedData.orNull.order(if (compressedData.orNull.order() == ByteOrder.BIG_ENDIAN) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN)
-    glType = compressedData.orNull.getInt()
-    glTypeSize = compressedData.orNull.getInt()
-    glFormat = compressedData.orNull.getInt()
-    glInternalFormat = compressedData.orNull.getInt()
-    glBaseInternalFormat = compressedData.orNull.getInt()
-    pixelWidth = compressedData.orNull.getInt()
-    pixelHeight = compressedData.orNull.getInt()
-    pixelDepth = compressedData.orNull.getInt()
-    numberOfArrayElements = compressedData.orNull.getInt()
-    numberOfFaces = compressedData.orNull.getInt()
-    numberOfMipmapLevels = compressedData.orNull.getInt()
+      cd.order(if (cd.order() == ByteOrder.BIG_ENDIAN) ByteOrder.LITTLE_ENDIAN else ByteOrder.BIG_ENDIAN)
+    glType = cd.getInt()
+    glTypeSize = cd.getInt()
+    glFormat = cd.getInt()
+    glInternalFormat = cd.getInt()
+    glBaseInternalFormat = cd.getInt()
+    pixelWidth = cd.getInt()
+    pixelHeight = cd.getInt()
+    pixelDepth = cd.getInt()
+    numberOfArrayElements = cd.getInt()
+    numberOfFaces = cd.getInt()
+    numberOfMipmapLevels = cd.getInt()
     if (numberOfMipmapLevels == 0) {
       numberOfMipmapLevels = 1
       // useMipMapsParam = true // This was a val parameter, can't be reassigned
     }
-    val bytesOfKeyValueData = compressedData.orNull.getInt()
-    imagePos = compressedData.orNull.position() + bytesOfKeyValueData
-    if (!compressedData.orNull.isDirect()) {
+    val bytesOfKeyValueData = cd.getInt()
+    imagePos = cd.position() + bytesOfKeyValueData
+    if (!cd.isDirect()) {
       var pos = imagePos
       for (level <- 0 until numberOfMipmapLevels) {
-        val faceLodSize        = compressedData.orNull.getInt(pos)
+        val faceLodSize        = cd.getInt(pos)
         val faceLodSizeRounded = (faceLodSize + 3) & ~3
         pos += faceLodSizeRounded * numberOfFaces + 4
       }
-      compressedData.orNull.asInstanceOf[Buffer].limit(pos)
-      compressedData.orNull.asInstanceOf[Buffer].position(0)
+      cd.asInstanceOf[Buffer].limit(pos)
+      cd.asInstanceOf[Buffer].position(0)
       val directBuffer = BufferUtils.newUnsafeByteBuffer(pos)
-      directBuffer.order(compressedData.orNull.order())
-      directBuffer.put(compressedData.orNull)
+      directBuffer.order(cd.order())
+      directBuffer.put(cd)
       compressedData = Nullable(directBuffer)
     }
   }
@@ -207,22 +208,23 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
     if (previousUnpackAlignment != 4) sge.graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 4)
     val localGlInternalFormat = this.glInternalFormat
     val localGlFormat         = this.glFormat
+    val cd                    = compressedData.getOrElse(throw SgeError.GraphicsError("Call prepare() before calling consumeCompressedData()"))
     var pos                   = imagePos
     for (level <- 0 until numberOfMipmapLevels) {
       val levelPixelWidth  = Math.max(1, this.pixelWidth >> level)
       var levelPixelHeight = Math.max(1, this.pixelHeight >> level)
       var levelPixelDepth  = Math.max(1, this.pixelDepth >> level)
-      compressedData.orNull.asInstanceOf[Buffer].position(pos)
-      val faceLodSize        = compressedData.orNull.getInt()
+      cd.asInstanceOf[Buffer].position(pos)
+      val faceLodSize        = cd.getInt()
       val faceLodSizeRounded = (faceLodSize + 3) & ~3
       pos += 4
       for (face <- 0 until numberOfFaces) {
-        compressedData.orNull.asInstanceOf[Buffer].position(pos)
+        cd.asInstanceOf[Buffer].position(pos)
         pos += faceLodSizeRounded
         if (singleFace != -1 && singleFace != face) {
           // continue to next iteration
         } else {
-          val data = compressedData.orNull.slice()
+          val data = cd.slice()
           data.asInstanceOf[Buffer].limit(faceLodSizeRounded)
           if (textureDimensions == 1) {
             // if (compressed)
@@ -275,7 +277,7 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
   }
 
   def disposePreparedData(): Unit = {
-    if (compressedData.isDefined) BufferUtils.disposeUnsafeByteBuffer(compressedData.orNull)
+    compressedData.foreach(BufferUtils.disposeUnsafeByteBuffer)
     compressedData = Nullable.empty
   }
 
@@ -296,18 +298,19 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
   def getGlInternalFormat(): Int = glInternalFormat
 
   def getData(requestedLevel: Int, requestedFace: Int): Nullable[ByteBuffer] = {
+    val cd  = compressedData.getOrElse(throw SgeError.GraphicsError("No data available — call prepare() first"))
     var pos = imagePos
     var result: Nullable[ByteBuffer] = Nullable.empty
 
     for (level <- 0 until numberOfMipmapLevels if result.isEmpty) {
-      val faceLodSize        = compressedData.orNull.getInt(pos)
+      val faceLodSize        = cd.getInt(pos)
       val faceLodSizeRounded = (faceLodSize + 3) & ~3
       pos += 4
       if (level == requestedLevel) {
         for (face <- 0 until numberOfFaces if result.isEmpty) {
           if (face == requestedFace) {
-            compressedData.orNull.asInstanceOf[Buffer].position(pos)
-            val data = compressedData.orNull.slice()
+            cd.asInstanceOf[Buffer].position(pos)
+            val data = cd.slice()
             data.asInstanceOf[Buffer].limit(faceLodSizeRounded)
             result = Nullable(data)
           }

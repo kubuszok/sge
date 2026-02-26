@@ -16,7 +16,7 @@ import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.Texture.TextureWrap
 import sge.graphics.TextureData
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} for {@link Texture} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link TextureParameter}
@@ -30,37 +30,39 @@ class TextureLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynch
   private val info = new TextureLoader.TextureLoaderInfo()
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): Unit = {
+    val param = Nullable(parameter)
     info.filename = fileName
-    if (parameter == null || parameter.textureData.isEmpty) {
+    if (param.fold(true)(_.textureData.isEmpty)) {
       var format: Nullable[Format] = Nullable.empty
       var genMipMaps = false
       info.texture = Nullable.empty
 
-      if (parameter != null) {
-        format = parameter.format
-        genMipMaps = parameter.genMipMaps
-        info.texture = parameter.texture
+      param.foreach { p =>
+        format = p.format
+        genMipMaps = p.genMipMaps
+        info.texture = p.texture
       }
 
-      info.data = TextureData.Factory.loadFromFile(file, format.orNull, genMipMaps)
+      info.data = TextureData.Factory.loadFromFile(file, format, genMipMaps)
     } else {
-      info.data = parameter.textureData.orNull
-      info.texture = parameter.texture
+      param.foreach { p =>
+        info.data = p.textureData.getOrElse(throw SgeError.InvalidInput("textureData is empty"))
+        info.texture = p.texture
+      }
     }
     if (!info.data.isPrepared) info.data.prepare()
   }
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): Texture = {
-    if (info == null) return null
-    var texture = info.texture.orNull
-    if (texture != null) {
-      texture.load(info.data)
-    } else {
-      texture = new Texture(info.data)
+    val texture = info.texture.fold {
+      new Texture(info.data)
+    } { existing =>
+      existing.load(info.data)
+      existing
     }
-    if (parameter != null) {
-      texture.setFilter(parameter.minFilter, parameter.magFilter)
-      texture.setWrap(parameter.wrapU, parameter.wrapV)
+    Nullable(parameter).foreach { p =>
+      texture.setFilter(p.minFilter, p.magFilter)
+      texture.setWrap(p.wrapU, p.wrapV)
     }
     texture
   }

@@ -23,8 +23,7 @@ import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.math.EarClippingTriangulator
-import sge.utils.StreamUtils
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError, StreamUtils }
 
 /** loads {@link PolygonRegion PolygonRegions} using a {@link com.badlogic.gdx.graphics.g2d.PolygonRegionLoader}
   * @author
@@ -36,9 +35,8 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
   private val triangulator = new EarClippingTriangulator()
 
-  def this()(using sge: Sge) = {
+  def this()(using sge: Sge) =
     this(new InternalFileHandleResolver())
-  }
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion =
     // TODO: Once AssetManager has get() and getDependencies() methods, uncomment the following:
@@ -53,14 +51,14 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     * be used. If no suitable file is found, the returned Array will be empty.
     */
   override def getDependencies(fileName: String, file: FileHandle, params: PolygonRegionLoader.PolygonRegionParameters): ArrayBuffer[AssetDescriptor[?]] = {
-    val actualParams = if (params == null) defaultParameters else params
-    var image: String = null
+    val actualParams = Nullable(params).getOrElse(defaultParameters)
+    var image: Nullable[String] = Nullable.empty
     try {
       val reader = file.reader(actualParams.readerBuffer)
       var line   = reader.readLine()
       while (line != null) {
         if (line.startsWith(actualParams.texturePrefix)) {
-          image = line.substring(actualParams.texturePrefix.length())
+          image = Nullable(line.substring(actualParams.texturePrefix.length()))
           // Break from loop - in Scala we can use return or a different pattern
         }
         line = reader.readLine()
@@ -70,19 +68,18 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
       case e: IOException => throw SgeError.FileReadError(file, s"Error reading $fileName", Some(e))
     }
 
-    if (image == null && actualParams.textureExtensions != null) {
+    if (image.isEmpty) {
       for (extension <- actualParams.textureExtensions) {
         val sibling = file.sibling(file.nameWithoutExtension().concat("." + extension))
-        if (sibling.exists()) {
-          image = sibling.name()
-          // Break from loop
+        if (sibling.exists() && image.isEmpty) {
+          image = Nullable(sibling.name())
         }
       }
     }
 
-    if (image != null) {
+    if (image.isDefined) {
       val deps = ArrayBuffer[AssetDescriptor[?]]()
-      deps += new AssetDescriptor[Texture](file.sibling(image), classOf[Texture])
+      deps += new AssetDescriptor[Texture](file.sibling(image.getOrElse("")), classOf[Texture])
       deps
     } else {
       ArrayBuffer.empty
@@ -94,7 +91,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     * @param file
     *   file handle to the shape definition file
     */
-  def load(textureRegion: TextureRegion, file: FileHandle): PolygonRegion = {
+  def load(textureRegion: TextureRegion, file: FileHandle): PolygonRegion = scala.util.boundary {
     val reader = file.reader(256)
     try {
       var line = reader.readLine()
@@ -106,7 +103,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
           for (i <- vertices.indices)
             vertices(i) = java.lang.Float.parseFloat(polygonStrings(i))
           // It would probably be better if PSH stored the vertices and triangles, then we don't have to triangulate here.
-          return new PolygonRegion(textureRegion, vertices, triangulator.computeTriangles(vertices).toArray)
+          scala.util.boundary.break(new PolygonRegion(textureRegion, vertices, triangulator.computeTriangles(vertices).toArray))
         }
         line = reader.readLine()
       }

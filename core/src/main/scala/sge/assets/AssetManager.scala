@@ -13,7 +13,8 @@ import sge.utils.Logger
 
 // TODO: stub until we have: loaders, g2d, g3d, etc
 trait AssetManager {
-  def getLogLevel:                                                                      Int
-  def addDependencies(fileName: String, dependencies: ArrayBuffer[AssetDescriptor[?]]): Unit
-  def get[T](fileName:          String, `type`:       Class[T]):                        T
+  def getLogLevel:                                                                       Int
+  def addDependencies(fileName:  String, dependencies: ArrayBuffer[AssetDescriptor[?]]): Unit
+  def get[T](fileName:           String, `type`:       Class[T]):                        T
+  def getAssetFileName[T](asset: T):                                                     String
 }

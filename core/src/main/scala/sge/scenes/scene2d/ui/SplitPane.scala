@@ -60,9 +60,13 @@ class SplitPane(
   setSize(getPrefWidth, getPrefHeight)
   initialize()
 
-  // Skin constructors commented out until Skin is ported
-  // def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using sge: Sge) =
-  //   this(firstWidget, secondWidget, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SplitPaneStyle]))
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using sge: Sge) =
+    this(
+      firstWidget,
+      secondWidget,
+      vertical,
+      skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SplitPane.SplitPaneStyle])
+    )
 
   private def initialize(): Unit = {
     val self = this
@@ -247,28 +251,28 @@ class SplitPane(
       val alpha = color.a * parentAlpha
 
       applyTransform(batch, computeTransform())
-      _firstWidget.foreach { fw =>
-        if (fw.isVisible) {
-          batch.flush()
-          // TODO: Use stage.calculateScissors when it's ported
-          // stage.calculateScissors(firstWidgetBounds, tempScissors)
-          // if (ScissorStack.pushScissors(tempScissors)) {
-          fw.draw(batch, alpha)
-          batch.flush()
-          //   ScissorStack.popScissors()
-          // }
+      getStage.foreach { stage =>
+        _firstWidget.foreach { fw =>
+          if (fw.isVisible) {
+            batch.flush()
+            stage.calculateScissors(firstWidgetBounds, tempScissors)
+            if (ScissorStack.pushScissors(tempScissors)) {
+              fw.draw(batch, alpha)
+              batch.flush()
+              ScissorStack.popScissors()
+            }
+          }
         }
-      }
-      _secondWidget.foreach { sw =>
-        if (sw.isVisible) {
-          batch.flush()
-          // TODO: Use stage.calculateScissors when it's ported
-          // stage.calculateScissors(secondWidgetBounds, tempScissors)
-          // if (ScissorStack.pushScissors(tempScissors)) {
-          sw.draw(batch, alpha)
-          batch.flush()
-          //   ScissorStack.popScissors()
-          // }
+        _secondWidget.foreach { sw =>
+          if (sw.isVisible) {
+            batch.flush()
+            stage.calculateScissors(secondWidgetBounds, tempScissors)
+            if (ScissorStack.pushScissors(tempScissors)) {
+              sw.draw(batch, alpha)
+              batch.flush()
+              ScissorStack.popScissors()
+            }
+          }
         }
       }
       batch.setColor(color.r, color.g, color.b, alpha)
@@ -360,8 +364,7 @@ class SplitPane(
   override def addActorBefore(actorBefore: Actor, actor: Actor): Unit =
     throw new UnsupportedOperationException("Use SplitPane#setWidget.")
 
-  override def removeActor(actor: Actor): Boolean = {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
+  override def removeActor(actor: Actor): Boolean =
     if (_firstWidget.fold(false)(_ eq actor)) {
       setFirstWidget(Nullable.empty)
       true
@@ -371,10 +374,8 @@ class SplitPane(
     } else {
       true
     }
-  }
 
-  override def removeActor(actor: Actor, unfocus: Boolean): Boolean = {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
+  override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
     if (_firstWidget.fold(false)(_ eq actor)) {
       super.removeActor(actor, unfocus)
       _firstWidget = Nullable.empty
@@ -388,7 +389,6 @@ class SplitPane(
     } else {
       false
     }
-  }
 
   override def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val actor = super.removeActorAt(index, unfocus)

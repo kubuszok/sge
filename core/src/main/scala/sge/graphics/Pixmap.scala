@@ -10,7 +10,7 @@ package sge.graphics
 
 import sge.files.FileHandle
 import sge.graphics.g2d.Gdx2DPixmap
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import scala.compiletime.uninitialized
 import java.nio.ByteBuffer
 
@@ -25,23 +25,20 @@ import Pixmap.*
   * @author
   *   Nathan Sweet (original implementation)
   */
-class Pixmap private (file: FileHandle, private val width: Int, private val height: Int, private val format: Format) extends AutoCloseable {
+class Pixmap private (file: Nullable[FileHandle], private val width: Int, private val height: Int, private val format: Format) extends AutoCloseable {
 
-  private var pixmap:   Gdx2DPixmap = uninitialized
-  private var color:    Int         = 0
-  private var blending: Blending    = Blending.SourceOver
+  private var pixmap:   Nullable[Gdx2DPixmap] = Nullable.empty
+  private var color:    Int                   = 0
+  private var blending: Blending              = Blending.SourceOver
 
-  def this(file: FileHandle) = {
-    this(file, 100, 100, Format.RGBA8888)
-  }
+  def this(file: FileHandle) =
+    this(Nullable(file), 100, 100, Format.RGBA8888)
 
-  def this(width: Int, height: Int, format: Format) = {
-    this(null, width, height, format)
-  }
+  def this(width: Int, height: Int, format: Format) =
+    this(Nullable.empty, width, height, format)
 
-  def this(pixmap: Gdx2DPixmap) = {
-    this(null, pixmap.getWidth(), pixmap.getHeight(), Format.fromGdx2DPixmapFormat(pixmap.getFormat()))
-  }
+  def this(pixmap: Gdx2DPixmap) =
+    this(Nullable.empty, pixmap.getWidth(), pixmap.getHeight(), Format.fromGdx2DPixmapFormat(pixmap.getFormat()))
 
   def getWidth():  Int    = width
   def getHeight(): Int    = height
@@ -94,11 +91,9 @@ class Pixmap private (file: FileHandle, private val width: Int, private val heig
     *   The pixel color in RGBA8888 format.
     */
   def getPixel(x: Int, y: Int): Int =
-    if (pixmap != null) {
+    pixmap.fold(0) { _ =>
       // Return pixel data from underlying pixmap
       0 // Stub implementation
-    } else {
-      0
     }
 
   /** Returns the OpenGL ES format of this Pixmap. Used as the seventh parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
@@ -141,18 +136,15 @@ class Pixmap private (file: FileHandle, private val width: Int, private val heig
     *   the direct {@link ByteBuffer} holding the pixel data.
     */
   def getPixels(): ByteBuffer =
-    if (pixmap != null) {
+    pixmap.fold(ByteBuffer.allocateDirect(0)) { _ =>
       // Return pixel buffer from underlying pixmap
       ByteBuffer.allocateDirect(0) // Stub implementation
-    } else {
-      ByteBuffer.allocateDirect(0)
     }
 
-  override def close(): Unit =
-    if (pixmap != null) {
-      pixmap.close()
-      pixmap = null
-    }
+  override def close(): Unit = {
+    pixmap.foreach(_.close())
+    pixmap = Nullable.empty
+  }
 }
 object Pixmap {
 

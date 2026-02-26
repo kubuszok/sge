@@ -11,6 +11,7 @@ package net
 
 import java.net.{ InetSocketAddress, Socket => JSocket }
 import java.io.{ InputStream, OutputStream }
+import sge.utils.Nullable
 // import sge.utils.SgeError
 
 /** Socket implementation using java.net.Socket.
@@ -30,10 +31,8 @@ class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: 
 
     // and connect...
     val address = new InetSocketAddress(host, port)
-    if (hints != null) {
-      socket.connect(address, hints.connectTimeout)
-    } else {
-      socket.connect(address)
+    Nullable(hints).fold(socket.connect(address)) { h =>
+      socket.connect(address, h.connectTimeout)
     }
   } catch {
     case e: Exception =>
@@ -47,16 +46,16 @@ class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: 
   }
 
   private def applyHints(hints: SocketHints): Unit =
-    if (hints != null) {
+    Nullable(hints).foreach { h =>
       try {
-        socket.setPerformancePreferences(hints.performancePrefConnectionTime, hints.performancePrefLatency, hints.performancePrefBandwidth)
-        socket.setTrafficClass(hints.trafficClass)
-        socket.setTcpNoDelay(hints.tcpNoDelay)
-        socket.setKeepAlive(hints.keepAlive)
-        socket.setSendBufferSize(hints.sendBufferSize)
-        socket.setReceiveBufferSize(hints.receiveBufferSize)
-        socket.setSoLinger(hints.linger, hints.lingerDuration)
-        socket.setSoTimeout(hints.socketTimeout)
+        socket.setPerformancePreferences(h.performancePrefConnectionTime, h.performancePrefLatency, h.performancePrefBandwidth)
+        socket.setTrafficClass(h.trafficClass)
+        socket.setTcpNoDelay(h.tcpNoDelay)
+        socket.setKeepAlive(h.keepAlive)
+        socket.setSendBufferSize(h.sendBufferSize)
+        socket.setReceiveBufferSize(h.receiveBufferSize)
+        socket.setSoLinger(h.linger, h.lingerDuration)
+        socket.setSoTimeout(h.socketTimeout)
       } catch {
         case e: Exception =>
           throw new RuntimeException("Error setting socket hints.", e)
@@ -64,11 +63,7 @@ class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: 
     }
 
   override def isConnected(): Boolean =
-    if (socket != null) {
-      socket.isConnected()
-    } else {
-      false
-    }
+    Nullable(socket).fold(false)(_.isConnected())
 
   override def getInputStream(): InputStream =
     try
@@ -90,9 +85,9 @@ class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: 
     socket.getRemoteSocketAddress().toString()
 
   override def close(): Unit =
-    if (socket != null) {
+    Nullable(socket).foreach { s =>
       try {
-        socket.close()
+        s.close()
         socket = null
       } catch {
         case e: Exception =>

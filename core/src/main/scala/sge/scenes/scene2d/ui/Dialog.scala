@@ -29,10 +29,9 @@ import sge.utils.Nullable
   */
 class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Window(title, windowStyle) {
 
-  var contentTable: Table = scala.compiletime.uninitialized
-  var buttonTable:  Table = scala.compiletime.uninitialized
-  // TODO: change to Nullable[Skin] when Skin is ported
-  private var skin:          Nullable[Any]                        = Nullable.empty
+  var contentTable:          Table                                = scala.compiletime.uninitialized
+  var buttonTable:           Table                                = scala.compiletime.uninitialized
+  private var skin:          Nullable[Skin]                       = Nullable.empty
   val values:                mutable.Map[Actor, Nullable[AnyRef]] = mutable.Map.empty
   var cancelHide:            Boolean                              = false
   var previousKeyboardFocus: Nullable[Actor]                      = Nullable.empty
@@ -46,18 +45,14 @@ class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Wi
     }
   }
 
-  // Skin constructors commented out until Skin is ported
-  // TODO: uncomment when Skin is ported
-  // def this(title: String, skin: Skin) = {
-  //   this(title, skin.get(classOf[WindowStyle]))
-  //   setSkin(skin)
-  //   this.skin = Nullable(skin)
-  // }
-  // def this(title: String, skin: Skin, windowStyleName: String) = {
-  //   this(title, skin.get(windowStyleName, classOf[WindowStyle]))
-  //   setSkin(skin)
-  //   this.skin = Nullable(skin)
-  // }
+  def this(title: String, skin: Skin)(using Sge) = {
+    this(title, skin.get(classOf[Window.WindowStyle]))
+    this.skin = Nullable(skin)
+  }
+  def this(title: String, skin: Skin, windowStyleName: String)(using Sge) = {
+    this(title, skin.get(windowStyleName, classOf[Window.WindowStyle]))
+    this.skin = Nullable(skin)
+  }
 
   initialize()
 
@@ -65,10 +60,10 @@ class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Wi
     setModal(true)
 
     defaults().space(6)
-    contentTable = new Table(skin)
+    contentTable = new Table(skin.map(s => s: Any))
     add(Nullable[Actor](contentTable)).grow()
     row()
-    buttonTable = new Table(skin)
+    buttonTable = new Table(skin.map(s => s: Any))
     add(Nullable[Actor](buttonTable)).fillX()
 
     contentTable.defaults().space(6)
@@ -129,10 +124,8 @@ class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Wi
 
   /** Adds a label to the content table. The dialog must have been constructed with a skin to use this method. */
   def text(text: Nullable[String]): Dialog = {
-    if (skin.isEmpty)
-      throw new IllegalStateException("This method may only be used if the dialog was constructed with a Skin.")
-    // TODO: uncomment when Skin is ported
-    // text(text, skin.get.asInstanceOf[Skin].get(classOf[LabelStyle]))
+    val s = skin.getOrElse(throw new IllegalStateException("This method may only be used if the dialog was constructed with a Skin."))
+    this.text(text, s.get(classOf[LabelStyle]))
     this
   }
 
@@ -156,10 +149,8 @@ class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Wi
     *   The object that will be passed to {@link #result(Object)} if this button is clicked. May be null.
     */
   def button(text: Nullable[String], obj: Nullable[AnyRef]): Dialog = {
-    if (skin.isEmpty)
-      throw new IllegalStateException("This method may only be used if the dialog was constructed with a Skin.")
-    // TODO: uncomment when Skin is ported
-    // button(text, obj, skin.get.asInstanceOf[Skin].get(classOf[TextButtonStyle]))
+    val s = skin.getOrElse(throw new IllegalStateException("This method may only be used if the dialog was constructed with a Skin."))
+    this.button(text, obj, s.get(classOf[TextButtonStyle]))
     this
   }
 

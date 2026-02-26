@@ -13,7 +13,7 @@ package g2d
 import sge.math.MathUtils
 import sge.math.Rectangle
 import sge.graphics.Color
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import scala.compiletime.uninitialized
 
 /** @author
@@ -48,7 +48,7 @@ class PolygonSprite {
   }
 
   def set(sprite: PolygonSprite): Unit = {
-    if (sprite == null) throw SgeError.InvalidInput("sprite cannot be null.")
+    // sprite: PolygonSprite is non-nullable in Scala
 
     setRegion(sprite.region)
 
@@ -312,7 +312,7 @@ class PolygonSprite {
     val textureCoords  = region.getTextureCoords()
 
     val verticesLength = (regionVertices.length / 2) * 5
-    if (vertices == null || vertices.length != verticesLength) vertices = new Array[Float](verticesLength)
+    if (Nullable(vertices).isEmpty || vertices.length != verticesLength) vertices = new Array[Float](verticesLength)
 
     // Set the color and UVs in this sprite's vertices.
     val floatColor      = color.toFloatBits()

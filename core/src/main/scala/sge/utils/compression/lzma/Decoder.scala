@@ -41,15 +41,16 @@ class Decoder {
       m_HighCoder.init()
     }
 
-    def Decode(rangeDecoder: sge.utils.compression.rangecoder.Decoder, posState: Int): Int = {
-      if (rangeDecoder.decodeBit(m_Choice, 0) == 0) return m_LowCoder(posState).decode(rangeDecoder)
-      var symbol = Base.kNumLowLenSymbols
-      if (rangeDecoder.decodeBit(m_Choice, 1) == 0)
-        symbol = symbol + m_MidCoder(posState).decode(rangeDecoder)
-      else
-        symbol = symbol + Base.kNumMidLenSymbols + m_HighCoder.decode(rangeDecoder)
-      symbol
-    }
+    def Decode(rangeDecoder: sge.utils.compression.rangecoder.Decoder, posState: Int): Int =
+      if (rangeDecoder.decodeBit(m_Choice, 0) == 0) m_LowCoder(posState).decode(rangeDecoder)
+      else {
+        var symbol = Base.kNumLowLenSymbols
+        if (rangeDecoder.decodeBit(m_Choice, 1) == 0)
+          symbol = symbol + m_MidCoder(posState).decode(rangeDecoder)
+        else
+          symbol = symbol + Base.kNumMidLenSymbols + m_HighCoder.decode(rangeDecoder)
+        symbol
+      }
   }
 
   class LiteralDecoder {
@@ -90,16 +91,17 @@ class Decoder {
     var m_NumPosBits:  Int             = 0
     var m_PosMask:     Int             = 0
 
-    def Create(numPosBits: Int, numPrevBits: Int): Unit = {
-      if (m_Coders != null && m_NumPrevBits == numPrevBits && m_NumPosBits == numPosBits) return
-      m_NumPosBits = numPosBits
-      m_PosMask = (1 << numPosBits) - 1
-      m_NumPrevBits = numPrevBits
-      val numStates = 1 << (m_NumPrevBits + m_NumPosBits)
-      m_Coders = Array.ofDim[Decoder2](numStates)
-      for (i <- 0 until numStates)
-        m_Coders(i) = new Decoder2()
-    }
+    def Create(numPosBits: Int, numPrevBits: Int): Unit =
+      if (m_Coders != null && m_NumPrevBits == numPrevBits && m_NumPosBits == numPosBits) ()
+      else {
+        m_NumPosBits = numPosBits
+        m_PosMask = (1 << numPosBits) - 1
+        m_NumPrevBits = numPrevBits
+        val numStates = 1 << (m_NumPrevBits + m_NumPosBits)
+        m_Coders = Array.ofDim[Decoder2](numStates)
+        for (i <- 0 until numStates)
+          m_Coders(i) = new Decoder2()
+      }
 
     def Init(): Unit = {
       val numStates = 1 << (m_NumPrevBits + m_NumPosBits)
@@ -136,25 +138,27 @@ class Decoder {
 
   var m_PosStateMask: Int = 0
 
-  def SetDictionarySize(dictionarySize: Int): Boolean = {
-    if (dictionarySize < 0) return false
-    if (m_DictionarySize != dictionarySize) {
-      m_DictionarySize = dictionarySize
-      m_DictionarySizeCheck = Math.max(m_DictionarySize, 1)
-      m_OutWindow.create(Math.max(m_DictionarySizeCheck, 1 << 12))
+  def SetDictionarySize(dictionarySize: Int): Boolean =
+    if (dictionarySize < 0) false
+    else {
+      if (m_DictionarySize != dictionarySize) {
+        m_DictionarySize = dictionarySize
+        m_DictionarySizeCheck = Math.max(m_DictionarySize, 1)
+        m_OutWindow.create(Math.max(m_DictionarySizeCheck, 1 << 12))
+      }
+      true
     }
-    true
-  }
 
-  def SetLcLpPb(lc: Int, lp: Int, pb: Int): Boolean = {
-    if (lc > Base.kNumLitContextBitsMax || lp > 4 || pb > Base.kNumPosStatesBitsMax) return false
-    m_LiteralDecoder.Create(lp, lc)
-    val numPosStates = 1 << pb
-    m_LenDecoder.Create(numPosStates)
-    m_RepLenDecoder.Create(numPosStates)
-    m_PosStateMask = numPosStates - 1
-    true
-  }
+  def SetLcLpPb(lc: Int, lp: Int, pb: Int): Boolean =
+    if (lc > Base.kNumLitContextBitsMax || lp > 4 || pb > Base.kNumPosStatesBitsMax) false
+    else {
+      m_LiteralDecoder.Create(lp, lc)
+      val numPosStates = 1 << pb
+      m_LenDecoder.Create(numPosStates)
+      m_RepLenDecoder.Create(numPosStates)
+      m_PosStateMask = numPosStates - 1
+      true
+    }
 
   @throws[IOException]
   def Init(): Unit = {
@@ -178,7 +182,7 @@ class Decoder {
   }
 
   @throws[IOException]
-  def Code(inStream: java.io.InputStream, outStream: java.io.OutputStream, outSize: Long): Boolean = {
+  def Code(inStream: java.io.InputStream, outStream: java.io.OutputStream, outSize: Long): Boolean = scala.util.boundary {
     m_RangeDecoder.setStream(inStream)
     m_OutWindow.setStream(outStream)
     Init()
@@ -247,8 +251,8 @@ class Decoder {
               rep0 = rep0 + (m_RangeDecoder.decodeDirectBits(numDirectBits - Base.kNumAlignBits) << Base.kNumAlignBits)
               rep0 = rep0 + m_PosAlignDecoder.reverseDecode(m_RangeDecoder)
               if (rep0 < 0) {
-                if (rep0 == -1) return true // break
-                return false
+                if (rep0 == -1) scala.util.boundary.break(true) // break
+                scala.util.boundary.break(false)
               }
             }
           } else
@@ -256,7 +260,7 @@ class Decoder {
         }
         if (rep0 >= nowPos64 || rep0 >= m_DictionarySizeCheck) {
           // m_OutWindow.Flush()
-          return false
+          scala.util.boundary.break(false)
         }
         m_OutWindow.copyBlock(rep0, len)
         nowPos64 += len
@@ -269,17 +273,18 @@ class Decoder {
     true
   }
 
-  def SetDecoderProperties(properties: Array[Byte]): Boolean = {
-    if (properties.length < 5) return false
-    val value          = properties(0) & 0xff
-    val lc             = value % 9
-    val remainder      = value / 9
-    val lp             = remainder % 5
-    val pb             = remainder / 5
-    var dictionarySize = 0
-    for (i <- 0 until 4)
-      dictionarySize += (properties(1 + i) & 0xff) << (i * 8)
-    if (!SetLcLpPb(lc, lp, pb)) return false
-    SetDictionarySize(dictionarySize)
-  }
+  def SetDecoderProperties(properties: Array[Byte]): Boolean =
+    if (properties.length < 5) false
+    else {
+      val value          = properties(0) & 0xff
+      val lc             = value % 9
+      val remainder      = value / 9
+      val lp             = remainder % 5
+      val pb             = remainder / 5
+      var dictionarySize = 0
+      for (i <- 0 until 4)
+        dictionarySize += (properties(1 + i) & 0xff) << (i * 8)
+      if (!SetLcLpPb(lc, lp, pb)) false
+      else SetDictionarySize(dictionarySize)
+    }
 }

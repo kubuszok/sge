@@ -34,8 +34,7 @@ class Selection[T] extends Disableable with Iterable[T] {
 
   /** Selects or deselects the specified item based on how the selection is configured, whether ctrl is currently pressed, etc. This is typically invoked by user interaction.
     */
-  def choose(item: T)(using sge: Sge): Unit = {
-    if (item == null) throw new IllegalArgumentException("item cannot be null.")
+  def choose(item: T)(using sge: Sge): Unit =
     if (_isDisabled) ()
     else {
       snapshot()
@@ -66,7 +65,6 @@ class Selection[T] extends Disableable with Iterable[T] {
       } finally
         cleanup()
     }
-  }
 
   def notEmpty: Boolean = selected.nonEmpty
 
@@ -95,8 +93,7 @@ class Selection[T] extends Disableable with Iterable[T] {
     old.clear()
 
   /** Sets the selection to only the specified item. */
-  def set(item: T): Unit = {
-    if (item == null) throw new IllegalArgumentException("item cannot be null.")
+  def set(item: T): Unit =
     if (selected.size == 1 && selected.head == item) ()
     else {
       snapshot()
@@ -110,7 +107,6 @@ class Selection[T] extends Disableable with Iterable[T] {
       }
       cleanup()
     }
-  }
 
   def setAll(items: ArrayBuffer[T]): Unit = {
     var added = false
@@ -121,7 +117,6 @@ class Selection[T] extends Disableable with Iterable[T] {
     val n = items.size
     while (i < n) {
       val item = items(i)
-      if (item == null) throw new IllegalArgumentException("item cannot be null.")
       if (selected.add(item)) added = true
       i += 1
     }
@@ -137,8 +132,7 @@ class Selection[T] extends Disableable with Iterable[T] {
   }
 
   /** Adds the item to the selection. */
-  def add(item: T): Unit = {
-    if (item == null) throw new IllegalArgumentException("item cannot be null.")
+  def add(item: T): Unit =
     if (!selected.add(item)) ()
     else if (programmaticChangeEvents && fireChangeEvent())
       selected.remove(item)
@@ -146,7 +140,6 @@ class Selection[T] extends Disableable with Iterable[T] {
       lastSelected = Nullable(item)
       changed()
     }
-  }
 
   def addAll(items: ArrayBuffer[T]): Unit = {
     var added = false
@@ -155,7 +148,6 @@ class Selection[T] extends Disableable with Iterable[T] {
     val n = items.size
     while (i < n) {
       val item = items(i)
-      if (item == null) throw new IllegalArgumentException("item cannot be null.")
       if (selected.add(item)) added = true
       i += 1
     }
@@ -170,8 +162,7 @@ class Selection[T] extends Disableable with Iterable[T] {
     cleanup()
   }
 
-  def remove(item: T): Unit = {
-    if (item == null) throw new IllegalArgumentException("item cannot be null.")
+  def remove(item: T): Unit =
     if (!selected.remove(item)) ()
     else if (programmaticChangeEvents && fireChangeEvent())
       selected.add(item)
@@ -179,7 +170,6 @@ class Selection[T] extends Disableable with Iterable[T] {
       lastSelected = Nullable.empty
       changed()
     }
-  }
 
   def removeAll(items: ArrayBuffer[T]): Unit = {
     var removed = false
@@ -188,7 +178,6 @@ class Selection[T] extends Disableable with Iterable[T] {
     val n = items.size
     while (i < n) {
       val item = items(i)
-      if (item == null) throw new IllegalArgumentException("item cannot be null.")
       if (selected.remove(item)) removed = true
       i += 1
     }

@@ -1,0 +1,4 @@
+# Use JDK 21 LTS to avoid accidentally relying on APIs absent from Scala.js/Native javalib.
+# Install with: sdk install java 21.0.6-graal
+# See also: sdk env install
+java=21.0.6-graal

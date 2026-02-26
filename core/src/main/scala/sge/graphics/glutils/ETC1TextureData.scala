@@ -16,26 +16,25 @@ import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
 import sge.graphics.glutils.ETC1.ETC1Data
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import scala.compiletime.uninitialized
 
 class ETC1TextureData(
-  val file:            FileHandle,
+  val file:            Nullable[FileHandle],
   val useMipMapsValue: Boolean
 ) extends TextureData {
 
-  private var data:         ETC1Data = uninitialized
-  private var width:        Int      = 0
-  private var height:       Int      = 0
-  private var preparedFlag: Boolean  = false
+  private var data:         Nullable[ETC1Data] = Nullable.empty
+  private var width:        Int                = 0
+  private var height:       Int                = 0
+  private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle) = {
-    this(file, false)
-  }
+  def this(file: FileHandle) =
+    this(Nullable(file), false)
 
   def this(encodedImage: ETC1Data, useMipMaps: Boolean) = {
-    this(file = null, useMipMapsValue = useMipMaps)
-    this.data = encodedImage
+    this(file = Nullable.empty, useMipMapsValue = useMipMaps)
+    this.data = Nullable(encodedImage)
   }
 
   override def getType(): TextureData.TextureDataType =
@@ -46,12 +45,14 @@ class ETC1TextureData(
 
   override def prepare(): Unit = {
     if (preparedFlag) throw SgeError.GraphicsError("Already prepared")
-    if (file == null && data == null) throw SgeError.GraphicsError("Can only load once from ETC1Data")
-    if (file != null) {
-      data = new ETC1Data(file)
+    if (file.isEmpty && data.isEmpty) throw SgeError.GraphicsError("Can only load once from ETC1Data")
+    file.foreach { f =>
+      data = Nullable(new ETC1Data(f))
     }
-    width = data.width
-    height = data.height
+    data.foreach { d =>
+      width = d.width
+      height = d.height
+    }
     preparedFlag = true
   }
 
@@ -71,8 +72,8 @@ class ETC1TextureData(
     //     data.compressedData.capacity() - data.dataOffset, data.compressedData)
     //   if (useMipMapsValue) sge.graphics.gl20.glGenerateMipmap(GL20.GL_TEXTURE_2D)
     // }
-    data.close()
-    data = null
+    data.foreach(_.close())
+    data = Nullable.empty
     preparedFlag = false
   }
 

@@ -11,6 +11,7 @@ package graphics
 package glutils
 
 import sge.files.FileHandle
+import sge.utils.Nullable
 import sge.utils.SgeError
 
 /** @author Tomski * */
@@ -27,7 +28,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
     this.depth = files.length
     textureDatas = Array.ofDim[TextureData](files.length)
     for (i <- files.indices)
-      textureDatas(i) = TextureData.Factory.loadFromFile(files(i), format, useMipMaps)
+      textureDatas(i) = TextureData.Factory.loadFromFile(files(i), Nullable(format), useMipMaps)
   }
 
   override def isPrepared(): Boolean = prepared

@@ -21,11 +21,10 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
    - Use `boundary`/`break` patterns from `docs/contributing/control-flow-guide.md`
 
 5. **Execute the conversion**:
-   - Use `sge-metals` MCP to compile and check errors/warnings
-   - Never call `sbt` directly
+   - Use `just compile` to compile and check errors/warnings
    - If intermediate steps need compilation, comment out code rather than removing it
 
-6. **Verify compilation**: Use `sge-metals` MCP to confirm zero errors and zero warnings.
+6. **Verify compilation**: Use `just compile` to confirm zero errors and zero warnings.
 
 7. **Update tracking**: Update the file's row in `docs/progress/migration-status.tsv`
    to reflect the new status.

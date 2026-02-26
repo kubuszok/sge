@@ -153,9 +153,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     bind(shader, null)
 
   override def bind(shader: ShaderProgram, locations: Array[Int]): Unit = {
-    if (sde.graphics.gl30.isDefined) {
-      sde.graphics.gl30.orNull.glBindVertexArray(vaoHandle)
-    }
+    sde.graphics.gl30.foreach(_.glBindVertexArray(vaoHandle))
 
     bindAttributes(shader, locations)
 
@@ -235,16 +233,14 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     unbind(shader, null)
 
   override def unbind(shader: ShaderProgram, locations: Array[Int]): Unit = {
-    if (sde.graphics.gl30.isDefined) {
-      sde.graphics.gl30.orNull.glBindVertexArray(0)
-    }
+    sde.graphics.gl30.foreach(_.glBindVertexArray(0))
     isBound = false
   }
 
   /** Invalidates the VertexBufferObject so a new OpenGL buffer handle is created. Use this in case of a context loss. */
   override def invalidate(): Unit = {
-    if (sde.graphics.gl30.isDefined) {
-      bufferHandle = sde.graphics.gl30.orNull.glGenBuffer()
+    sde.graphics.gl30.foreach { gl =>
+      bufferHandle = gl.glGenBuffer()
     }
     createVAO()
     isDirty = true
@@ -252,9 +248,9 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
 
   /** Disposes of all resources this VertexBufferObject uses. */
   override def close(): Unit = {
-    if (sde.graphics.gl30.isDefined) {
-      sde.graphics.gl30.orNull.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
-      sde.graphics.gl30.orNull.glDeleteBuffer(bufferHandle)
+    sde.graphics.gl30.foreach { gl =>
+      gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
+      gl.glDeleteBuffer(bufferHandle)
     }
     bufferHandle = 0
     if (ownsBuffer) {
@@ -264,21 +260,21 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
   }
 
   private def createVAO(): Unit =
-    if (sde.graphics.gl30.isDefined) {
+    sde.graphics.gl30.foreach { gl =>
       val tmpHandle = BufferUtils.newIntBuffer(1)
       tmpHandle.asInstanceOf[Buffer].clear()
-      sde.graphics.gl30.orNull.glGenVertexArrays(1, tmpHandle)
+      gl.glGenVertexArrays(1, tmpHandle)
       vaoHandle = tmpHandle.get()
     }
 
   private def deleteVAO(): Unit =
     if (vaoHandle != -1) {
-      if (sde.graphics.gl30.isDefined) {
+      sde.graphics.gl30.foreach { gl =>
         val tmpHandle = BufferUtils.newIntBuffer(1)
         tmpHandle.asInstanceOf[Buffer].clear()
         tmpHandle.put(vaoHandle)
         tmpHandle.asInstanceOf[Buffer].flip()
-        sde.graphics.gl30.orNull.glDeleteVertexArrays(1, tmpHandle)
+        gl.glDeleteVertexArrays(1, tmpHandle)
       }
       vaoHandle = -1
     }

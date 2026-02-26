@@ -42,9 +42,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   def getDepth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: Int)(using sge: Sge) = {
+  def this(glTarget: Int)(using sge: Sge) =
     this(glTarget, TextureHandle(sge.graphics.gl.glGenTexture()))
-  }
 
   /** @return whether this texture is managed or not. */
   def isManaged: Boolean
@@ -98,11 +97,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     *   True to always set the values, even if they are the same as the current values.
     */
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, force: Boolean): Unit = {
-    if (u != null && (force || uWrap != u)) {
+    if (force || uWrap != u) {
       sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
       uWrap = u
     }
-    if (v != null && (force || vWrap != v)) {
+    if (force || vWrap != v) {
       sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
       vWrap = v
     }
@@ -140,11 +139,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     *   True to always set the values, even if they are the same as the current values.
     */
   def unsafeSetFilter(minFilter: TextureFilter, magFilter: TextureFilter, force: Boolean): Unit = {
-    if (minFilter != null && (force || this.minFilter != minFilter)) {
+    if (force || this.minFilter != minFilter) {
       sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
       this.minFilter = minFilter
     }
-    if (magFilter != null && (force || this.magFilter != magFilter)) {
+    if (force || this.magFilter != magFilter) {
       sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
       this.magFilter = magFilter
     }
@@ -243,11 +242,6 @@ object GLTexture {
   }
 
   def uploadImageData(target: Int, data: TextureData, miplevel: Int)(using sge: Sge): Unit = {
-    if (data == null) {
-      // FIXME: remove texture on target?
-      return
-    }
-
     if (!data.isPrepared) data.prepare()
 
     val dataType = data.getType()

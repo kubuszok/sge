@@ -13,7 +13,7 @@ package ui
 
 import sge.graphics.glutils.ShapeRenderer
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.Align
+import sge.utils.{ Align, Nullable }
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -168,10 +168,10 @@ class HorizontalGroup extends WidgetGroup {
 
         var width  = 0f
         var height = 0f
-        var layout: Layout = null
+        var layout: Nullable[Layout] = Nullable.empty
         child match {
           case l: Layout =>
-            layout = l
+            layout = Nullable(l)
             width = l.getPrefWidth
             height = l.getPrefHeight
           case _ =>
@@ -181,9 +181,9 @@ class HorizontalGroup extends WidgetGroup {
 
         if (fill > 0) height = rowHeight * fill
 
-        if (layout != null) {
-          height = Math.max(height, layout.getMinHeight)
-          val maxHeight = layout.getMaxHeight
+        layout.foreach { l =>
+          height = Math.max(height, l.getMinHeight)
+          val maxHeight = l.getMaxHeight
           if (maxHeight > 0 && height > maxHeight) height = maxHeight
         }
 
@@ -204,7 +204,7 @@ class HorizontalGroup extends WidgetGroup {
           child.setBounds(x, y, width, height)
         x += width + space
 
-        if (layout != null) layout.validate()
+        layout.foreach(_.validate())
         i += incr
       }
     }
@@ -257,10 +257,10 @@ class HorizontalGroup extends WidgetGroup {
 
       var width  = 0f
       var height = 0f
-      var layout: Layout = null
+      var layout: Nullable[Layout] = Nullable.empty
       child match {
         case l: Layout =>
-          layout = l
+          layout = Nullable(l)
           width = l.getPrefWidth
           if (width > groupWidth) width = Math.max(groupWidth, l.getMinWidth)
           height = l.getPrefHeight
@@ -284,9 +284,9 @@ class HorizontalGroup extends WidgetGroup {
 
       if (fill > 0) height = rowHeight * fill
 
-      if (layout != null) {
-        height = Math.max(height, layout.getMinHeight)
-        val maxHeight = layout.getMaxHeight
+      layout.foreach { l =>
+        height = Math.max(height, l.getMinHeight)
+        val maxHeight = l.getMaxHeight
         if (maxHeight > 0 && height > maxHeight) height = maxHeight
       }
 
@@ -307,7 +307,7 @@ class HorizontalGroup extends WidgetGroup {
         child.setBounds(x, y, width, height)
       x += width + space
 
-      if (layout != null) layout.validate()
+      layout.foreach(_.validate())
       i += incr
     }
   }

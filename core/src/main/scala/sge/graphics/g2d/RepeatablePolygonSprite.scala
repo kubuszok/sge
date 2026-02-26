@@ -206,8 +206,9 @@ class RepeatablePolygonSprite {
           if (verts(j) == (col + 1) * gridWidth) u = 1f
           if (verts(j + 1) == row * gridHeight) v = 0f
           if (verts(j + 1) == (row + 1) * gridHeight) v = 1f
-          u = region.orNull.getU() + (region.orNull.getU2() - region.orNull.getU()) * u
-          v = region.orNull.getV() + (region.orNull.getV2() - region.orNull.getV()) * v
+          val reg = region.getOrElse(throw new IllegalStateException("region not set"))
+          u = reg.getU() + (reg.getU2() - reg.getU()) * u
+          v = reg.getV() + (reg.getV2() - reg.getV()) * v
           fullVerts(idx) = u
           idx += 1
           fullVerts(idx) = v
@@ -224,8 +225,10 @@ class RepeatablePolygonSprite {
     if (dirty) {
       buildVertices()
     }
-    for (i <- vertices.indices)
-      batch.draw(region.orNull.getTexture(), vertices(i), 0, vertices(i).length, indices(i), 0, indices(i).length)
+    for (i <- vertices.indices) {
+      val reg = region.getOrElse(throw new IllegalStateException("region not set"))
+      batch.draw(reg.getTexture(), vertices(i), 0, vertices(i).length, indices(i), 0, indices(i).length)
+    }
   }
 
   /** @param color - Tint color to be applied to entire polygon */

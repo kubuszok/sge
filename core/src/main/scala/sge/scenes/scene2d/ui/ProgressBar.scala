@@ -56,15 +56,19 @@ class ProgressBar(
   this._value = min
   setSize(getPrefWidth, getPrefHeight)
 
-  // Skin constructors commented out until Skin is ported
-  // def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) =
-  //   this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBarStyle]))
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) =
+    this(
+      min,
+      max,
+      stepSize,
+      vertical,
+      skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBar.ProgressBarStyle])
+    )
 
-  // def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) =
-  //   this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBarStyle]))
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) =
+    this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBar.ProgressBarStyle]))
 
   override def setStyle(style: ProgressBarStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
     invalidateHierarchy()
   }
@@ -312,10 +316,8 @@ class ProgressBar(
     this.animateDuration = duration
 
   /** Sets the interpolation to use for {@link #setAnimateDuration(float)}. */
-  def setAnimateInterpolation(animateInterpolation: Interpolation): Unit = {
-    if (animateInterpolation == null) throw new IllegalArgumentException("animateInterpolation cannot be null.")
+  def setAnimateInterpolation(animateInterpolation: Interpolation): Unit =
     this.animateInterpolation = animateInterpolation
-  }
 
   /** Sets the interpolation to use for display. */
   def setVisualInterpolation(interpolation: Interpolation): Unit =

@@ -32,9 +32,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) = {
+  def this(font: BitmapFont) =
     this(font, font.usesIntegerPositions())
-  }
 
   // Initialize fields in the primary constructor
   private val pageCount = font.regions.size
@@ -269,7 +268,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     pooledLayouts.clear()
     layouts.clear()
     for (i <- idx.indices) {
-      if (pageGlyphIndices != null) pageGlyphIndices(i).clear()
+      if (pageGlyphIndices.nonEmpty) pageGlyphIndices(i).clear()
       idx(i) = 0
     }
   }
@@ -294,14 +293,14 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     }
 
   private def requirePageGlyphs(page: Int, glyphCount: Int): Unit = {
-    if (pageGlyphIndices != null) {
+    if (pageGlyphIndices.nonEmpty) {
       if (glyphCount > pageGlyphIndices(page).length)
         pageGlyphIndices(page).sizeHint(glyphCount)
     }
 
     val vertexCount = idx(page) + glyphCount * 20
     var vertices    = pageVertices(page)
-    if (vertices == null) {
+    if (Nullable(vertices).isEmpty) {
       pageVertices(page) = Array.ofDim[Float](vertexCount)
     } else if (vertices.length < vertexCount) {
       val newVertices = Array.ofDim[Float](vertexCount)
@@ -422,7 +421,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     var currentIdx = this.idx(page)
     this.idx(page) += 20
 
-    if (pageGlyphIndices != null) pageGlyphIndices(page) += glyphCount
+    if (pageGlyphIndices.nonEmpty) pageGlyphIndices(page) += glyphCount
     glyphCount += 1
 
     val vertices = pageVertices(page)
@@ -462,7 +461,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
     val newPageGlyphIndices    = Array.ofDim[ArrayBuffer[Int]](pageCount)
     var pageGlyphIndicesLength = 0
-    if (pageGlyphIndices != null) {
+    if (pageGlyphIndices.nonEmpty) {
       pageGlyphIndicesLength = pageGlyphIndices.length
       System.arraycopy(pageGlyphIndices, 0, newPageGlyphIndices, 0, pageGlyphIndices.length)
     }

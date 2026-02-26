@@ -142,7 +142,6 @@ class Image(drawable: Nullable[Drawable], private var scaling: Scaling, private 
   def getDrawable: Nullable[Drawable] = _drawable
 
   def setScaling(scaling: Scaling): Unit = {
-    if (scaling == null) throw new IllegalArgumentException("scaling cannot be null.")
     this.scaling = scaling
     invalidate()
   }

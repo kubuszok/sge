@@ -12,6 +12,7 @@ package glutils
 
 import sge.graphics.{ Color, GL20 }
 import sge.math.{ MathUtils, Matrix4, Vector2, Vector3 }
+import sge.utils.Nullable
 import sge.Sge
 
 /** Renders points, lines, shape outlines and filled shapes. <p> By default a 2D orthographic projection with the origin in the lower left corner is used and units are specified in screen pixels. This
@@ -61,7 +62,7 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   private val combinedMatrix:       Matrix4               = new Matrix4()
   private val tmp:                  Vector2               = new Vector2()
   private val color:                Color                 = new Color(1, 1, 1, 1)
-  private var shapeType:            ShapeType             = scala.compiletime.uninitialized
+  private var shapeType:            Nullable[ShapeType]   = Nullable.empty
   private var autoShapeType:        Boolean               = false
   private var defaultRectLineWidth: Float                 = 0.75f
 
@@ -163,8 +164,8 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
     *   the renderType.
     */
   def begin(shapeType: ShapeType): Unit = {
-    if (this.shapeType != null) throw new IllegalStateException("Call end() before beginning a new shape batch.")
-    this.shapeType = shapeType
+    if (this.shapeType.isDefined) throw new IllegalStateException("Call end() before beginning a new shape batch.")
+    this.shapeType = Nullable(shapeType)
     if (matrixDirty) {
       combinedMatrix.set(projectionMatrix)
       combinedMatrix.mul(transformMatrix)
@@ -174,8 +175,8 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   }
 
   def set(shapeType: ShapeType): Unit = {
-    if (this.shapeType == shapeType) return
-    if (this.shapeType == null) throw new IllegalStateException("begin must be called first.")
+    if (this.shapeType.fold(false)(_ == shapeType)) return
+    if (this.shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
     if (!autoShapeType) throw new IllegalStateException("autoShapeType must be enabled.")
     end()
     begin(shapeType)
@@ -184,7 +185,9 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   /** Finishes the batch of shapes and ensures they get rendered. */
   def end(): Unit =
     // TODO: renderer.end()
-    shapeType = null
+    shapeType = Nullable.empty
+
+  def isDrawing: Boolean = shapeType.isDefined
 
   /** Draws a line using ShapeType.Line or ShapeType.Filled. */
   def line(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float): Unit =
@@ -197,11 +200,11 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   /** Draws a line using ShapeType.Line or ShapeType.Filled. The line is drawn with two colors interpolated between the start and end points.
     */
   def line(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float, c1: Color, c2: Color): Unit = {
-    if (shapeType == ShapeType.Filled) {
+    if (shapeType.fold(false)(_ == ShapeType.Filled)) {
       rectLine(x, y, x2, y2, defaultRectLineWidth, c1, c2)
       return
     }
-    check(ShapeType.Line, null, 2)
+    check(ShapeType.Line, Nullable.empty, 2)
     // TODO: renderer.color(c1.r, c1.g, c1.b, c1.a)
     // TODO: renderer.vertex(x, y, z)
     // TODO: renderer.color(c2.r, c2.g, c2.b, c2.a)
@@ -214,9 +217,9 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
 
   /** Draws a rectangle using ShapeType.Line or ShapeType.Filled. */
   def rectangle(x: Float, y: Float, width: Float, height: Float, col1: Color, col2: Color, col3: Color, col4: Color): Unit = {
-    check(ShapeType.Line, ShapeType.Filled, 8)
+    check(ShapeType.Line, Nullable(ShapeType.Filled), 8)
 
-    if (shapeType == ShapeType.Line) {
+    if (shapeType.fold(false)(_ == ShapeType.Line)) {
       // TODO: Implement line rectangle
     } else {
       // TODO: Implement filled rectangle
@@ -225,7 +228,7 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
 
   /** Draws a rectangle line using ShapeType.Filled. */
   def rectLine(x1: Float, y1: Float, x2: Float, y2: Float, width: Float, c1: Color, c2: Color): Unit =
-    check(ShapeType.Filled, null, 8)
+    check(ShapeType.Filled, Nullable.empty, 8)
   // TODO: Implement rectangle line
 
   /** Draws a circle using ShapeType.Line or ShapeType.Filled. */
@@ -235,7 +238,7 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   /** Draws a circle using ShapeType.Line or ShapeType.Filled. */
   def circle(x: Float, y: Float, radius: Float, segments: Int): Unit = {
     if (segments <= 0) throw new IllegalArgumentException("segments must be > 0.")
-    check(ShapeType.Line, ShapeType.Filled, segments * 2 + 2)
+    check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 2 + 2)
 
     val angle = 2 * MathUtils.PI / segments
     var cos   = MathUtils.cos(angle)
@@ -243,21 +246,22 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
     var cx    = radius
     var cy    = 0f
 
-    if (shapeType == ShapeType.Line) {
+    if (shapeType.fold(false)(_ == ShapeType.Line)) {
       // TODO: Implement line circle
     } else {
       // TODO: Implement filled circle
     }
   }
 
-  private def check(preferred: ShapeType, other: ShapeType, newVertices: Int): Unit = {
-    if (shapeType == null) throw new IllegalStateException("begin must be called first.")
-    if (shapeType != preferred && shapeType != other) {
+  private def check(preferred: ShapeType, other: Nullable[ShapeType], newVertices: Int): Unit = {
+    if (shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
+    if (!shapeType.fold(false)(st => st == preferred || other.fold(false)(_ == st))) {
       if (!autoShapeType) {
-        if (other == null)
+        other.fold {
           throw new IllegalStateException(s"Must call begin(ShapeType.${preferred.toString}).")
-        else
-          throw new IllegalStateException(s"Must call begin(ShapeType.${preferred.toString}) or begin(ShapeType.${other.toString}).")
+        } { o =>
+          throw new IllegalStateException(s"Must call begin(ShapeType.${preferred.toString}) or begin(ShapeType.${o.toString}).")
+        }
       } else {
         end()
         begin(preferred)

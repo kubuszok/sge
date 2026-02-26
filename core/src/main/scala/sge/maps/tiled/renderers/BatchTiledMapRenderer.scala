@@ -32,17 +32,14 @@ abstract class BatchTiledMapRenderer(
   protected val repeatedImageBounds: Rectangle    = new Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using sge: Sge) = {
+  def this(map: TiledMap)(using sge: Sge) =
     this(map, 1.0f, new SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = {
+  def this(map: TiledMap, unitScale: Float)(using sge: Sge) =
     this(map, unitScale, new SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, batch: Batch)(using sge: Sge) = {
+  def this(map: TiledMap, batch: Batch)(using sge: Sge) =
     this(map, 1.0f, batch, false)
-  }
 
   def getMap: TiledMap = map
 

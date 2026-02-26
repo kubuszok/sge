@@ -14,8 +14,7 @@ import sge.graphics.VertexAttributes
 import sge.graphics.VertexAttribute
 import sge.graphics.GL20
 import sge.graphics.GL30
-import sge.utils.BufferUtils
-import sge.utils.SgeError
+import sge.utils.{ BufferUtils, Nullable, SgeError }
 import sge.Sge
 
 import java.nio.Buffer
@@ -30,9 +29,8 @@ import scala.compiletime.uninitialized
   */
 class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) =
     this(isStatic, numVertices, new VertexAttributes(attributes*))
-  }
 
   private var attributes:   VertexAttributes = scala.compiletime.uninitialized
   private var buffer:       FloatBuffer      = scala.compiletime.uninitialized
@@ -79,7 +77,7 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     */
   protected def setBuffer(data: Buffer, ownsBuffer: Boolean, value: VertexAttributes): Unit = {
     if (isBound) throw SgeError.GraphicsError("Cannot change attributes while VBO is bound")
-    if (this.ownsBuffer && byteBuffer != null) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
+    if (this.ownsBuffer && Nullable(byteBuffer).isDefined) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
     attributes = value
     data match {
       case bb: ByteBuffer => byteBuffer = bb

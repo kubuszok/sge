@@ -11,11 +11,9 @@ package utils
 
 import scala.compiletime.summonFrom
 
-/** An `ObjectSet` that also stores keys in a `DynamicArray` using the insertion order. Null keys are not allowed. No
-  * allocation is done except when growing the table size.
+/** An `ObjectSet` that also stores keys in a `DynamicArray` using the insertion order. Null keys are not allowed. No allocation is done except when growing the table size.
   *
-  * Iteration is ordered and faster than an unordered set. Keys can also be accessed and the order changed using
-  * `orderedItems`. There is some additional overhead for add and remove.
+  * Iteration is ordered and faster than an unordered set. Keys can also be accessed and the order changed using `orderedItems`. There is some additional overhead for add and remove.
   *
   * @author
   *   Nathan Sweet, Tommy Ettinger (original implementation)
@@ -42,13 +40,12 @@ final class OrderedSet[A] private (
   // --- Access ---
 
   /** Returns true if the key was added to the set or false if it was already in the set. */
-  def add(key: A): Boolean = {
+  def add(key: A): Boolean =
     if (!set.add(key)) false
     else {
       _items.add(key)
       true
     }
-  }
 
   /** Adds all elements from another OrderedSet. */
   def addAll(other: OrderedSet[A]): Unit = {
@@ -74,13 +71,12 @@ final class OrderedSet[A] private (
   }
 
   /** Returns true if the key was removed. */
-  def remove(key: A): Boolean = {
+  def remove(key: A): Boolean =
     if (!set.remove(key)) false
     else {
       _items.removeValue(key)
       true
     }
-  }
 
   /** Removes the element at the given insertion-order index. Returns the removed element. */
   def removeIndex(index: Int): A = {
@@ -98,10 +94,9 @@ final class OrderedSet[A] private (
   /** Returns the first element in insertion order. Throws if empty. */
   def first: A = _items.first
 
-  /** Changes the item `before` to `after` without changing its position in the order. Returns true if `before` was
-    * removed and `after` was added, false otherwise.
+  /** Changes the item `before` to `after` without changing its position in the order. Returns true if `before` was removed and `after` was added, false otherwise.
     */
-  def alter(before: A, after: A): Boolean = {
+  def alter(before: A, after: A): Boolean =
     if (set.contains(after)) false
     else if (!set.remove(before)) false
     else {
@@ -109,12 +104,10 @@ final class OrderedSet[A] private (
       _items.update(_items.indexOf(before), after)
       true
     }
-  }
 
-  /** Changes the item at the given index in the order to `after`, without changing the ordering of other items. Returns
-    * true if `after` successfully replaced the contents at `index`, false otherwise.
+  /** Changes the item at the given index in the order to `after`, without changing the ordering of other items. Returns true if `after` successfully replaced the contents at `index`, false otherwise.
     */
-  def alterIndex(index: Int, after: A): Boolean = {
+  def alterIndex(index: Int, after: A): Boolean =
     if (index < 0 || index >= set.size || set.contains(after)) false
     else {
       set.remove(_items(index))
@@ -122,7 +115,6 @@ final class OrderedSet[A] private (
       _items.update(index, after)
       true
     }
-  }
 
   // --- Bulk ---
 
@@ -207,7 +199,7 @@ final class OrderedSet[A] private (
     case _ => false
   }
 
-  override def toString(): String = {
+  override def toString(): String =
     if (size == 0) "{}"
     else {
       val sb = new StringBuilder()
@@ -222,7 +214,6 @@ final class OrderedSet[A] private (
       sb.append('}')
       sb.toString()
     }
-  }
 }
 
 object OrderedSet {
@@ -240,12 +231,11 @@ object OrderedSet {
   }
 
   /** Creates an OrderedSet that is a copy of the given set. */
-  def from[A](other: OrderedSet[A]): OrderedSet[A] = {
+  def from[A](other: OrderedSet[A]): OrderedSet[A] =
     new OrderedSet[A](
       ObjectSet.from(other.set),
       DynamicArray.from(other._items)
     )
-  }
 
   private def create[A](mk: MkArray[A], capacity: Int, loadFactor: Float): OrderedSet[A] = {
     val set   = ObjectSet.createWithMk(mk, capacity, loadFactor)

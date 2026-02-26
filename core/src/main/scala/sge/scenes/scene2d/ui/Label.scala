@@ -65,8 +65,6 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
   //   this(text, new Label.LabelStyle(skin.getFont(fontName), skin.getColor(colorName)))
 
   override def setStyle(style: Label.LabelStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
-    if (style.font == null) throw new IllegalArgumentException("Missing LabelStyle font.")
     this._style = style
 
     cache = style.font.newFontCache()

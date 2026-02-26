@@ -40,12 +40,11 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  // Skin constructors commented out until Skin is ported
-  // def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) =
-  //   this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SliderStyle]))
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) =
+    this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[Slider.SliderStyle]))
 
-  // def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) =
-  //   this(min, max, stepSize, vertical, skin.get(styleName, classOf[SliderStyle]))
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) =
+    this(min, max, stepSize, vertical, skin.get(styleName, classOf[Slider.SliderStyle]))
 
   addListener(
     new InputListener() {

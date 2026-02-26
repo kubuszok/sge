@@ -25,8 +25,6 @@ import sge.utils.Nullable
 import sge.Sge
 import scala.compiletime.uninitialized
 
-import scala.language.implicitConversions
-
 /** A {@link TextureData} implementation which should be used to create float textures. */
 class FloatTextureData(
   val width:          Int,
@@ -39,7 +37,7 @@ class FloatTextureData(
     extends TextureData {
 
   private var isPreparedState: Boolean               = false
-  private var buffer:          Nullable[FloatBuffer] = scala.compiletime.uninitialized
+  private var buffer:          Nullable[FloatBuffer] = Nullable.empty
 
   override def getType(): TextureData.TextureDataType = TextureData.TextureDataType.Custom
 
@@ -55,7 +53,7 @@ class FloatTextureData(
       if (internalFormat == GL30.GL_RG16F || internalFormat == GL30.GL_RG32F) amountOfFloats = 2
       if (internalFormat == GL30.GL_R16F || internalFormat == GL30.GL_R32F) amountOfFloats = 1
 
-      this.buffer = BufferUtils.newFloatBuffer(width * height * amountOfFloats)
+      this.buffer = Nullable(BufferUtils.newFloatBuffer(width * height * amountOfFloats))
     }
     isPreparedState = true
   }

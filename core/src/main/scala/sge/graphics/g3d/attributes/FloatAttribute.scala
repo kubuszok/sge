@@ -1,0 +1,52 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+package attributes
+
+import sge.math.MathUtils
+import sge.utils.NumberUtils
+
+class FloatAttribute(
+  `type`:    Long,
+  var value: Float = 0f
+) extends Attribute(`type`) {
+
+  override def copy(): Attribute =
+    new FloatAttribute(`type`, value)
+
+  override def hashCode(): Int = {
+    var result = super.hashCode()
+    result = 977 * result + NumberUtils.floatToRawIntBits(value)
+    result
+  }
+
+  override def compare(that: Attribute): Int =
+    if (`type` != that.`type`) (`type` - that.`type`).toInt
+    else {
+      val v = that.asInstanceOf[FloatAttribute].value
+      if (MathUtils.isEqual(value, v)) 0 else if (value < v) -1 else 1
+    }
+}
+
+object FloatAttribute {
+
+  val ShininessAlias: String = "shininess"
+  val Shininess:      Long   = Attribute.register(ShininessAlias)
+
+  def createShininess(value: Float): FloatAttribute =
+    new FloatAttribute(Shininess, value)
+
+  val AlphaTestAlias: String = "alphaTest"
+  val AlphaTest:      Long   = Attribute.register(AlphaTestAlias)
+
+  def createAlphaTest(value: Float): FloatAttribute =
+    new FloatAttribute(AlphaTest, value)
+}

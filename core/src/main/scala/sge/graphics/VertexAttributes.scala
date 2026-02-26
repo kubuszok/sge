@@ -9,7 +9,7 @@
 package sge
 package graphics
 
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 import java.util.NoSuchElementException
 import scala.util.boundary, boundary.break
@@ -45,10 +45,8 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     * @param usage
     *   The usage of the VertexAttribute.
     */
-  def getOffset(usage: Int, defaultIfNotFound: Int): Int = {
-    val vertexAttribute = findByUsage(usage)
-    if (vertexAttribute == null) defaultIfNotFound else vertexAttribute.offset / 4
-  }
+  def getOffset(usage: Int, defaultIfNotFound: Int): Int =
+    findByUsage(usage).fold(defaultIfNotFound)(_.offset / 4)
 
   /** Returns the offset for the first VertexAttribute with the specified usage.
     * @param usage
@@ -61,12 +59,12 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     * @param usage
     *   The usage of the VertexAttribute to find.
     */
-  def findByUsage(usage: Int): VertexAttribute = {
+  def findByUsage(usage: Int): Nullable[VertexAttribute] = {
     val len = size
     boundary {
       for (i <- 0 until len)
-        if (get(i).usage == usage) break(get(i))
-      null
+        if (get(i).usage == usage) break(Nullable(get(i)))
+      Nullable.empty
     }
   }
 
@@ -206,7 +204,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     }
 
   override def iterator(): Iterator[VertexAttribute] = {
-    if (iterable == null) iterable = new ReadonlyIterable[VertexAttribute](attributesArray)
+    if (Nullable(iterable).isEmpty) iterable = new ReadonlyIterable[VertexAttribute](attributesArray)
     iterable.iterator()
   }
 

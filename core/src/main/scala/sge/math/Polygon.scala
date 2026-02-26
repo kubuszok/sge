@@ -9,6 +9,8 @@
 package sge
 package math
 
+import sge.utils.Nullable
+
 /** Encapsulates a 2D polygon defined by it's vertices relative to an origin point (default of 0, 0). */
 class Polygon() extends Shape2D {
   private var localVertices: Array[Float] = Array.empty[Float]
@@ -50,7 +52,7 @@ class Polygon() extends Shape2D {
     isDirty = false
 
     val localVertices = this.localVertices
-    if (worldVertices == null || worldVertices.length != localVertices.length)
+    if (Nullable(worldVertices).fold(true)(_.length != localVertices.length))
       worldVertices = Array.ofDim[Float](localVertices.length)
     val positionX = x
     val positionY = y
@@ -215,7 +217,7 @@ class Polygon() extends Shape2D {
       i += 2
     }
 
-    if (bounds == null) bounds = new Rectangle()
+    if (Nullable(bounds).isEmpty) bounds = new Rectangle()
     bounds.x = minX
     bounds.y = minY
     bounds.width = maxX - minX

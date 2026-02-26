@@ -8,6 +8,8 @@
  */
 package sge
 
+import sge.utils.Nullable
+
 /** <p> Interface to the input facilities. This allows polling the state of the keyboard, the touch screen and the accelerometer. On some backends (desktop, gwt, etc) the touch screen is replaced by
   * mouse input. The accelerometer is of course not available on all backends. </p>
   *
@@ -953,17 +955,15 @@ object Input {
       *   the int keycode
       */
     def valueOf(keyname: String): Int = {
-      if (keyNames == null) initializeKeyNames()
+      if (Nullable(keyNames).isEmpty) initializeKeyNames()
       keyNames.getOrElse(keyname, -1)
     }
 
     /** lazily intialized in {@link Keys#valueOf(String)} */
     private def initializeKeyNames(): Unit = {
       keyNames = collection.mutable.Map[String, Int]()
-      for (i <- 0 until 256) {
-        val name = toString(i)
-        if (name != null) keyNames.put(name, i)
-      }
+      for (i <- 0 until 256)
+        Nullable(toString(i)).foreach(name => keyNames.put(name, i))
     }
   }
 

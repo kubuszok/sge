@@ -101,6 +101,6 @@ Configuration is in `.scalafmt.conf`.
 
 ## Compiler Flags
 
-Active flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Xfatal-warnings`
+Active flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
 
 All warnings are fatal — treat them as errors.

@@ -25,20 +25,21 @@ import scala.collection.mutable.ArrayBuffer
   * @author
   *   Nathan Sweet
   */
-class SkinLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader[Skin, SkinLoader.SkinParameter](resolver) {
+class SkinLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Skin, SkinLoader.SkinParameter](resolver) {
 
   override def getDependencies(
     fileName:  String,
     file:      FileHandle,
     parameter: SkinLoader.SkinParameter
   ): ArrayBuffer[AssetDescriptor[?]] = {
-    val deps = ArrayBuffer.empty[AssetDescriptor[?]]
-    if (parameter == null || parameter.textureAtlasPath.isEmpty)
+    val deps  = ArrayBuffer.empty[AssetDescriptor[?]]
+    val param = Nullable(parameter)
+    if (param.fold(true)(_.textureAtlasPath.isEmpty))
       deps += new AssetDescriptor[TextureAtlas](file.pathWithoutExtension() + ".atlas", classOf[TextureAtlas])
     else
-      parameter.textureAtlasPath.foreach { path =>
+      param.foreach(_.textureAtlasPath.foreach { path =>
         deps += new AssetDescriptor[TextureAtlas](path, classOf[TextureAtlas])
-      }
+      })
     deps
   }
 
@@ -55,13 +56,14 @@ class SkinLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader[S
     file:      FileHandle,
     parameter: SkinLoader.SkinParameter
   ): Skin = {
+    val param            = Nullable(parameter)
     var textureAtlasPath = file.pathWithoutExtension() + ".atlas"
     var resources: Nullable[mutable.Map[String, Any]] = Nullable.empty
-    if (parameter != null) {
-      parameter.textureAtlasPath.foreach { path =>
+    param.foreach { p =>
+      p.textureAtlasPath.foreach { path =>
         textureAtlasPath = path
       }
-      resources = parameter.resources
+      resources = p.resources
     }
     val atlas = manager.get(textureAtlasPath, classOf[TextureAtlas])
     val skin  = newSkin(atlas)

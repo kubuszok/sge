@@ -10,7 +10,7 @@ package sge
 package graphics
 
 import sge.files.FileHandle
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import sge.graphics.Pixmap.Format
 import scala.annotation.targetName
 
@@ -25,24 +25,20 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using sge: Sge) = {
+  def this(internalPaths: Array[String])(using sge: Sge) =
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
-  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using sge: Sge) = {
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using sge: Sge) =
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
-  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using sge: Sge) = {
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using sge: Sge) =
     this(useMipMaps, Format.RGBA8888, files)
-  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using sge: Sge) = {
+  def this(files: Array[FileHandle])(using sge: Sge) =
     this(false, files)
-  }
 
   if (sge.graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")
@@ -53,8 +49,10 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
   if (data.isManaged()) TextureArray.addManagedTexture(sge.application, this)
 
   private def load(data: TextureArrayData): Unit = {
-    if (this.textureData != null && data.isManaged() != this.textureData.isManaged())
-      throw SgeError.GraphicsError("New data must have the same managed status as the old data")
+    Nullable(this.textureData).foreach { existing =>
+      if (data.isManaged() != existing.isManaged())
+        throw SgeError.GraphicsError("New data must have the same managed status as the old data")
+    }
     this.textureData = data
 
     bind()

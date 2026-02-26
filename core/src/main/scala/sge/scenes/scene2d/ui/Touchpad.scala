@@ -99,7 +99,6 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   }
 
   override def setStyle(style: TouchpadStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null")
     this._style = style
     invalidateHierarchy()
   }

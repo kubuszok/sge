@@ -197,30 +197,30 @@ object Pool {
       val halfHeight = height / 2
       val child      = if (valueX < x + halfWidth) {
         if (valueY < y + halfHeight) {
-          if (sw.isDefined) sw.orNull
-          else {
-            sw = obtainChild(x, y, halfWidth, halfHeight, depth + 1)
-            sw.orNull
+          sw.getOrElse {
+            val c = obtainChild(x, y, halfWidth, halfHeight, depth + 1)
+            sw = Nullable(c)
+            c
           }
         } else {
-          if (nw.isDefined) nw.orNull
-          else {
-            nw = obtainChild(x, y + halfHeight, halfWidth, halfHeight, depth + 1)
-            nw.orNull
+          nw.getOrElse {
+            val c = obtainChild(x, y + halfHeight, halfWidth, halfHeight, depth + 1)
+            nw = Nullable(c)
+            c
           }
         }
       } else {
         if (valueY < y + halfHeight) {
-          if (se.isDefined) se.orNull
-          else {
-            se = obtainChild(x + halfWidth, y, halfWidth, halfHeight, depth + 1)
-            se.orNull
+          se.getOrElse {
+            val c = obtainChild(x + halfWidth, y, halfWidth, halfHeight, depth + 1)
+            se = Nullable(c)
+            c
           }
         } else {
-          if (ne.isDefined) ne.orNull
-          else {
-            ne = obtainChild(x + halfWidth, y + halfHeight, halfWidth, halfHeight, depth + 1)
-            ne.orNull
+          ne.getOrElse {
+            val c = obtainChild(x + halfWidth, y + halfHeight, halfWidth, halfHeight, depth + 1)
+            ne = Nullable(c)
+            c
           }
         }
       }

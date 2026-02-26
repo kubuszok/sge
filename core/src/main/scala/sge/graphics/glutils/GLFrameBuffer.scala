@@ -220,8 +220,6 @@ object GLFrameBuffer {
     * rebuild! Use with care.
     */
   def invalidateAllFrameBuffers(app: Application)(using sge: Sge): Unit = {
-    if (sge.graphics.gl20 == null) return
-
     val bufferArray = buffers.get(app)
     if (bufferArray.isEmpty) return
     for (buffer <- bufferArray.get)

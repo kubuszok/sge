@@ -61,9 +61,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
   setStyle(style)
   initialize()
 
-  // TODO: Skin constructors - uncomment when Skin is ported
-  // def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[Tree.TreeStyle]))
-  // def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[Tree.TreeStyle]))
+  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[Tree.TreeStyle]))
+  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[Tree.TreeStyle]))
 
   private def initialize(): Unit = {
     val self = this
@@ -562,10 +561,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
   }
 
   /** Returns the node with the specified value, or null. */
-  def findNode(value: V): Nullable[N] = {
-    if (value == null) throw new IllegalArgumentException("value cannot be null.")
+  def findNode(value: V): Nullable[N] =
     Tree.findNode(rootNodes, value).asInstanceOf[Nullable[N]]
-  }
 
   def collapseAll(): Unit =
     Tree.collapseAll(rootNodes)
@@ -676,7 +673,6 @@ object Tree {
 
     def this(actor: A) = {
       this()
-      if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
       this.actor = actor
     }
 
@@ -844,10 +840,9 @@ object Tree {
     }
 
     def setActor(newActor: A): Unit = {
-      if (actor != null) {
-        val tree = getTree()
-        tree.foreach { t =>
-          val index = actor.getZIndex
+      Nullable(actor).foreach { currentActor =>
+        getTree().foreach { t =>
+          val index = currentActor.getZIndex
           t.removeActorAt(index, true)
           t.addActorAt(index, newActor)
         }
@@ -915,11 +910,9 @@ object Tree {
     }
 
     /** Returns this node or the child node with the specified value, or null. */
-    def findNode(value: V): Nullable[N] = {
-      if (value == null) throw new IllegalArgumentException("value cannot be null.")
+    def findNode(value: V): Nullable[N] =
       if (value == this.value) Nullable(this.asInstanceOf[N])
       else Tree.findNode(children, value).asInstanceOf[Nullable[N]]
-    }
 
     /** Collapses all nodes under and including this node. */
     def collapseAll(): Unit = {
@@ -972,7 +965,6 @@ object Tree {
 
     /** Returns true if the specified node is this node or an ascendant of this node. */
     def isAscendantOf(node: N): Boolean = scala.util.boundary {
-      if (node == null) throw new IllegalArgumentException("node cannot be null.")
       var current: Nullable[Node[?, ?, ?]] = Nullable(node)
       while (current.isDefined) {
         if (current.fold(false)(_ eq this)) scala.util.boundary.break(true)
@@ -983,7 +975,6 @@ object Tree {
 
     /** Returns true if the specified node is this node or an descendant of this node. */
     def isDescendantOf(node: N): Boolean = scala.util.boundary {
-      if (node == null) throw new IllegalArgumentException("node cannot be null.")
       var current: Nullable[Node[?, ?, ?]] = Nullable(this)
       while (current.isDefined) {
         if (current.fold(false)(_ eq node)) scala.util.boundary.break(true)

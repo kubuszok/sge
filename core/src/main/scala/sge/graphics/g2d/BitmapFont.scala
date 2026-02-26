@@ -23,27 +23,23 @@ import scala.language.implicitConversions
 
 class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[TextureRegion]], val integer: Boolean)(using sge: Sge) extends AutoCloseable {
 
-  val regions:             ArrayBuffer[TextureRegion] = if (regionsParam.isDefined) regionsParam.orNull else loadRegions()
+  val regions:             ArrayBuffer[TextureRegion] = regionsParam.getOrElse(loadRegions())
   private val cache:       BitmapFontCache            = newFontCache()
   private val flipped:     Boolean                    = data.flipped
   private var ownsTexture: Boolean                    = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) =
     this(new BitmapFontData(fontFile, false), if (region.isDefined) Nullable(ArrayBuffer(region.orNull)) else Nullable.empty, true)
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) =
     this(new BitmapFontData(fontFile, flip), if (region.isDefined) Nullable(ArrayBuffer(region.orNull)) else Nullable.empty, true)
-  }
 
-  def this(fontFile: FileHandle)(using sge: Sge) = {
+  def this(fontFile: FileHandle)(using sge: Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) =
     this(new BitmapFontData(fontFile, flip), Nullable.empty, true)
-  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(
@@ -63,17 +59,17 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
     ownsTexture = true
   }
 
-  private def loadRegions()(using sge: Sge): ArrayBuffer[TextureRegion] = {
-    if (data.imagePaths == null)
+  private def loadRegions()(using sge: Sge): ArrayBuffer[TextureRegion] =
+    data.imagePaths.fold {
       throw new IllegalArgumentException("If no regions are specified, the font data must have an images path.")
-
-    val n          = data.imagePaths.length
-    val newRegions = ArrayBuffer[TextureRegion]()
-    for (i <- 0 until n)
-      newRegions += new TextureRegion(new Texture(data.imagePaths(i)))
-    ownsTexture = true
-    newRegions
-  }
+    } { paths =>
+      val n          = paths.length
+      val newRegions = ArrayBuffer[TextureRegion]()
+      for (i <- 0 until n)
+        newRegions += new TextureRegion(new Texture(paths(i)))
+      ownsTexture = true
+      newRegions
+    }
 
   load(data)
 
@@ -81,7 +77,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
     for (page <- data.glyphs if page != null)
       for (glyph <- page if glyph != null)
         data.setGlyphRegion(glyph, regions(glyph.page))
-    if (data.missingGlyph.isDefined) data.setGlyphRegion(data.missingGlyph.orNull, regions(data.missingGlyph.orNull.page))
+    data.missingGlyph.foreach(mg => data.setGlyphRegion(mg, regions(mg.page)))
   }
 
   def draw(batch: Batch, str: CharSequence, x: Float, y: Float): GlyphLayout = {
@@ -144,20 +140,17 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
   def setFixedWidthGlyphs(glyphs: CharSequence): Unit = {
     val fontData   = this.data
     var maxAdvance = 0
-    for (index <- 0 until glyphs.length()) {
-      val g = fontData.getGlyph(glyphs.charAt(index))
-      if (g.isDefined && g.orNull.xadvance > maxAdvance) maxAdvance = g.orNull.xadvance
-    }
-    for (index <- 0 until glyphs.length()) {
-      val g = fontData.getGlyph(glyphs.charAt(index))
-      if (g.isDefined) {
-        val glyph = g.orNull
+    for (index <- 0 until glyphs.length())
+      fontData.getGlyph(glyphs.charAt(index)).foreach { g =>
+        if (g.xadvance > maxAdvance) maxAdvance = g.xadvance
+      }
+    for (index <- 0 until glyphs.length())
+      fontData.getGlyph(glyphs.charAt(index)).foreach { glyph =>
         glyph.xoffset += (maxAdvance - glyph.xadvance) / 2
         glyph.xadvance = maxAdvance
-        glyph.kerning = null
+        glyph.kerning = Nullable.empty
         glyph.fixedWidth = true
       }
-    }
   }
 
   def setUseIntegerPositions(useInteger: Boolean): Unit =
@@ -195,38 +188,39 @@ object BitmapFont {
   }
 
   class Glyph {
-    var id:         Int                = 0
-    var srcX:       Int                = 0
-    var srcY:       Int                = 0
-    var width:      Int                = 0
-    var height:     Int                = 0
-    var u:          Float              = 0f
-    var v:          Float              = 0f
-    var u2:         Float              = 0f
-    var v2:         Float              = 0f
-    var xoffset:    Int                = 0
-    var yoffset:    Int                = 0
-    var xadvance:   Int                = 0
-    var kerning:    Array[Array[Byte]] = null
-    var fixedWidth: Boolean            = false
-    var page:       Int                = 0
+    var id:         Int                          = 0
+    var srcX:       Int                          = 0
+    var srcY:       Int                          = 0
+    var width:      Int                          = 0
+    var height:     Int                          = 0
+    var u:          Float                        = 0f
+    var v:          Float                        = 0f
+    var u2:         Float                        = 0f
+    var v2:         Float                        = 0f
+    var xoffset:    Int                          = 0
+    var yoffset:    Int                          = 0
+    var xadvance:   Int                          = 0
+    var kerning:    Nullable[Array[Array[Byte]]] = Nullable.empty
+    var fixedWidth: Boolean                      = false
+    var page:       Int                          = 0
 
-    def getKerning(ch: Char): Int = {
-      if (kerning != null) {
-        val page = kerning(ch >>> LOG2_PAGE_SIZE)
-        if (page != null) return page(ch & PAGE_SIZE - 1)
+    def getKerning(ch: Char): Int =
+      kerning.fold(0) { k =>
+        val page = k(ch >>> LOG2_PAGE_SIZE)
+        if (page != null) page(ch & PAGE_SIZE - 1)
+        else 0
       }
-      0
-    }
 
     def setKerning(ch: Int, value: Int): Unit = {
-      if (kerning == null) kerning = Array.ofDim[Byte](PAGES, 0)
-      var page = kerning(ch >>> LOG2_PAGE_SIZE)
-      if (page == null) {
-        kerning(ch >>> LOG2_PAGE_SIZE) = Array.ofDim[Byte](PAGE_SIZE)
-        page = kerning(ch >>> LOG2_PAGE_SIZE)
+      if (kerning.isEmpty) kerning = Nullable(Array.ofDim[Byte](PAGES, 0))
+      kerning.foreach { k =>
+        var page = k(ch >>> LOG2_PAGE_SIZE)
+        if (page == null) {
+          k(ch >>> LOG2_PAGE_SIZE) = Array.ofDim[Byte](PAGE_SIZE)
+          page = k(ch >>> LOG2_PAGE_SIZE)
+        }
+        page(ch & PAGE_SIZE - 1) = value.toByte
       }
-      page(ch & PAGE_SIZE - 1) = value.toByte
     }
 
     override def toString(): String = Character.toString(id.toChar)
@@ -234,22 +228,22 @@ object BitmapFont {
 }
 
 class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val flipped: Boolean = false) {
-  var name:           Nullable[String] = Nullable.empty
-  var imagePaths:     Array[String]    = null
-  var padTop:         Float            = 0f
-  var padRight:       Float            = 0f
-  var padBottom:      Float            = 0f
-  var padLeft:        Float            = 0f
-  var lineHeight:     Float            = 0f
-  var capHeight:      Float            = 1f
-  var ascent:         Float            = 0f
-  var descent:        Float            = 0f
-  var down:           Float            = 0f
-  var blankLineScale: Float            = 1f
-  var scaleX:         Float            = 1f
-  var scaleY:         Float            = 1f
-  var markupEnabled:  Boolean          = false
-  var cursorX:        Float            = 0f
+  var name:           Nullable[String]        = Nullable.empty
+  var imagePaths:     Nullable[Array[String]] = Nullable.empty
+  var padTop:         Float                   = 0f
+  var padRight:       Float                   = 0f
+  var padBottom:      Float                   = 0f
+  var padLeft:        Float                   = 0f
+  var lineHeight:     Float                   = 0f
+  var capHeight:      Float                   = 1f
+  var ascent:         Float                   = 0f
+  var descent:        Float                   = 0f
+  var down:           Float                   = 0f
+  var blankLineScale: Float                   = 1f
+  var scaleX:         Float                   = 1f
+  var scaleY:         Float                   = 1f
+  var markupEnabled:  Boolean                 = false
+  var cursorX:        Float                   = 0f
 
   val glyphs:       Array[Array[BitmapFont.Glyph]] = Array.ofDim[BitmapFont.Glyph](BitmapFont.PAGES, 0)
   var missingGlyph: Nullable[BitmapFont.Glyph]     = Nullable.empty
@@ -257,9 +251,9 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   var spaceXadvance: Float = 0f
   var xHeight:       Float = 1f
 
-  var breakChars: Array[Char] = null
-  var xChars:     Array[Char] = Array('x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z')
-  var capChars:   Array[Char] = Array('M', 'N', 'B', 'D', 'C', 'E', 'F', 'K', 'A', 'G', 'H', 'I', 'J', 'L', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
+  var breakChars: Nullable[Array[Char]] = Nullable.empty
+  var xChars:     Array[Char]           = Array('x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z')
+  var capChars:   Array[Char]           = Array('M', 'N', 'B', 'D', 'C', 'E', 'F', 'K', 'A', 'G', 'H', 'I', 'J', 'L', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
 
   def load(fontFile: FileHandle, flip: Boolean): Unit = {
     // Implementation would go here - simplified for now
@@ -302,9 +296,8 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   def getGlyphs(run: GlyphRun, str: CharSequence, start: Int, end: Int, lastGlyph: BitmapFont.Glyph): Unit =
     // Simplified implementation
     for (i <- start until end) {
-      val ch    = str.charAt(i)
-      val glyph = getGlyph(ch).getOrElse(missingGlyph.orNull)
-      if (glyph != null) {
+      val ch = str.charAt(i)
+      getGlyph(ch).fold(missingGlyph)(Nullable(_)).foreach { glyph =>
         run.glyphs += glyph
         run.xAdvances += glyph.xadvance.toFloat
       }

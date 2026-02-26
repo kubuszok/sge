@@ -11,12 +11,11 @@ package scenes
 package scene2d
 package ui
 
-import sge.utils.Nullable
+import sge.math.Interpolation
+import sge.scenes.scene2d.actions.Actions
+import sge.utils.{ Nullable, Timer }
 
-// TODO: uncomment when Tooltip, Container, and Actions are fully integrated
-// import sge.math.Interpolation
-// import sge.scenes.scene2d.actions.Actions._
-// import sge.utils.Timer
+import scala.collection.mutable.ArrayBuffer
 
 /** Keeps track of an application's tooltips.
   * @author
@@ -52,52 +51,114 @@ class TooltipManager()(using sge: Sge) {
     */
   var edgeDistance: Float = 7
 
-  // TODO: uncomment when Tooltip is ported
-  // val shown: ArrayBuffer[Tooltip[?]] = ArrayBuffer.empty
+  val shown: ArrayBuffer[Tooltip[?]] = ArrayBuffer.empty
 
   var time: Float = initialTime
 
-  // TODO: uncomment when Timer.Task is integrated
-  // val resetTask: Timer.Task = new Timer.Task() {
-  //   def run(): Unit = {
-  //     time = initialTime
-  //   }
-  // }
+  val resetTask: Timer.Task = new Timer.Task() {
+    def run(): Unit =
+      time = initialTime
+  }
 
-  // TODO: uncomment when Tooltip is ported
-  // var showTooltip: Nullable[Tooltip[?]] = Nullable.empty
+  var showTooltip: Nullable[Tooltip[?]] = Nullable.empty
 
-  // TODO: uncomment when Timer.Task is integrated
-  // val showTask: Timer.Task = new Timer.Task() {
-  //   def run(): Unit = {
-  //     // ... showTooltip logic
-  //   }
-  // }
+  val showTask: Timer.Task = new Timer.Task() {
+    def run(): Unit =
+      showTooltip.foreach { tooltip =>
+        tooltip.targetActor.foreach { ta =>
+          ta.getStage.foreach { stage =>
+            stage.addActor(tooltip.container)
+            tooltip.container.toFront()
+            shown += tooltip
 
-  // TODO: uncomment when Tooltip is ported
-  // def touchDown(tooltip: Tooltip[?]): Unit = { ... }
+            tooltip.container.clearActions()
+            showAction(tooltip)
 
-  // TODO: uncomment when Tooltip is ported
-  // def enter(tooltip: Tooltip[?]): Unit = { ... }
+            if (!tooltip.instant) {
+              time = subsequentTime
+              resetTask.cancel()
+            }
+          }
+        }
+      }
+  }
 
-  // TODO: uncomment when Tooltip is ported
-  // def hide(tooltip: Tooltip[?]): Unit = { ... }
+  def touchDown(tooltip: Tooltip[?]): Unit = {
+    showTask.cancel()
+    if (tooltip.container.remove()) resetTask.cancel()
+    resetTask.run()
+    if (enabled || tooltip.always) {
+      showTooltip = Nullable(tooltip)
+      Timer.schedule(showTask, time)
+    }
+  }
 
-  // /** Called when tooltip is shown. Default implementation sets actions to animate showing. */
-  // TODO: uncomment when Tooltip, Container, and Actions are ported
-  // protected def showAction(tooltip: Tooltip[?]): Unit = { ... }
+  def enter(tooltip: Tooltip[?]): Unit = {
+    showTooltip = Nullable(tooltip)
+    showTask.cancel()
+    if (enabled || tooltip.always) {
+      if (time == 0 || tooltip.instant)
+        showTask.run()
+      else
+        Timer.schedule(showTask, time)
+    }
+  }
 
-  // /** Called when tooltip is hidden. Default implementation sets actions to animate hiding and to remove the actor from the stage
-  //   * when the actions are complete. A subclass must at least remove the actor. */
-  // TODO: uncomment when Tooltip, Container, and Actions are ported
-  // protected def hideAction(tooltip: Tooltip[?]): Unit = { ... }
+  def hide(tooltip: Tooltip[?]): Unit = {
+    showTooltip = Nullable.empty
+    showTask.cancel()
+    if (tooltip.container.hasParent) {
+      shown -= tooltip
+      hideAction(tooltip)
+      resetTask.cancel()
+      Timer.schedule(resetTask, resetTime)
+    }
+  }
 
-  // TODO: uncomment when Tooltip is ported
-  // def hideAll(): Unit = { ... }
+  /** Called when tooltip is shown. Default implementation sets actions to animate showing. */
+  protected def showAction(tooltip: Tooltip[?]): Unit = {
+    val actionTime = if (animations) if (time > 0) 0.5f else 0.15f else 0.1f
+    tooltip.container.setTransform(true)
+    tooltip.container.getColor.a = 0.2f
+    tooltip.container.setScale(0.05f)
+    tooltip.container.addAction(
+      Actions.parallel(
+        Actions.fadeIn(actionTime, Nullable(Interpolation.fade)),
+        Actions.scaleTo(1, 1, actionTime, Nullable(Interpolation.fade))
+      )
+    )
+  }
 
-  // /** Shows all tooltips on hover without a delay for {@link #resetTime} seconds. */
-  // TODO: uncomment when Timer.Task is integrated
-  // def instant(): Unit = { ... }
+  /** Called when tooltip is hidden. Default implementation sets actions to animate hiding and to remove the actor from the stage when the actions are complete. A subclass must at least remove the
+    * actor.
+    */
+  protected def hideAction(tooltip: Tooltip[?]): Unit =
+    tooltip.container.addAction(
+      Actions.sequence(
+        Actions.parallel(
+          Actions.alpha(0.2f, 0.2f, Nullable(Interpolation.fade)),
+          Actions.scaleTo(0.05f, 0.05f, 0.2f, Nullable(Interpolation.fade))
+        ),
+        Actions.removeActor()
+      )
+    )
+
+  def hideAll(): Unit = {
+    resetTask.cancel()
+    showTask.cancel()
+    time = initialTime
+    showTooltip = Nullable.empty
+
+    shown.foreach(_.hide())
+    shown.clear()
+  }
+
+  /** Shows all tooltips on hover without a delay for {@link #resetTime} seconds. */
+  def instant(): Unit = {
+    time = 0
+    showTask.run()
+    showTask.cancel()
+  }
 }
 
 object TooltipManager {

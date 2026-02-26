@@ -20,6 +20,10 @@ target/
 *.iws
 *.iml
 
+## Metals MCP
+metals-mcp-server
+.mcp.json
+
 ## OS-Specific:
 .DS_Store
 Thumbs.db

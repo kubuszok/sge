@@ -59,15 +59,17 @@ class DataInput(in: InputStream) extends DataInputStream(in) {
         // Try to read 7 bit ASCII chars.
         var charIndex = 0
         var b         = 0
-        while (charIndex < actualCharCount) {
-          b = readByte()
-          if (b < 0) {
-            b = b & 0xff
-            readUtf8_slow(actualCharCount, charIndex, b)
-            return new String(localChars, 0, actualCharCount)
+        scala.util.boundary {
+          while (charIndex < actualCharCount) {
+            b = readByte()
+            if (b < 0) {
+              b = b & 0xff
+              readUtf8_slow(actualCharCount, charIndex, b)
+              scala.util.boundary.break(())
+            }
+            localChars(charIndex) = b.toChar
+            charIndex += 1
           }
-          localChars(charIndex) = b.toChar
-          charIndex += 1
         }
         new String(localChars, 0, actualCharCount)
     }
@@ -78,19 +80,21 @@ class DataInput(in: InputStream) extends DataInputStream(in) {
     val localChars       = this.chars
     var currentCharIndex = charIndex
     var currentB         = b
-    while (true) {
-      (currentB >> 4) match {
-        case 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 =>
-          localChars(currentCharIndex) = currentB.toChar
-        case 12 | 13 =>
-          localChars(currentCharIndex) = ((currentB & 0x1f) << 6 | readByte() & 0x3f).toChar
-        case 14 =>
-          localChars(currentCharIndex) = ((currentB & 0x0f) << 12 | (readByte() & 0x3f) << 6 | readByte() & 0x3f).toChar
-        case _ => // ignore invalid bytes
+    scala.util.boundary {
+      while (true) {
+        (currentB >> 4) match {
+          case 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 =>
+            localChars(currentCharIndex) = currentB.toChar
+          case 12 | 13 =>
+            localChars(currentCharIndex) = ((currentB & 0x1f) << 6 | readByte() & 0x3f).toChar
+          case 14 =>
+            localChars(currentCharIndex) = ((currentB & 0x0f) << 12 | (readByte() & 0x3f) << 6 | readByte() & 0x3f).toChar
+          case _ => // ignore invalid bytes
+        }
+        currentCharIndex += 1
+        if (currentCharIndex >= charCount) scala.util.boundary.break(())
+        currentB = readByte() & 0xff
       }
-      currentCharIndex += 1
-      if (currentCharIndex >= charCount) return
-      currentB = readByte() & 0xff
     }
   }
 }

@@ -14,7 +14,7 @@ import sge.graphics.Color
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.math.MathUtils
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 
 /** A 3x3 grid of texture regions. Any of the regions may be omitted. Padding may be set as a hint on how to inset content on top of the ninepatch (by default the eight "edge" textures of the
   * ninepatch define the padding). When drawn, the four corner patches will not be scaled, the interior patch will be scaled in both directions, and the middle patch for each edge will be scaled in
@@ -75,7 +75,6 @@ class NinePatch {
     */
   def this(region: TextureRegion, left: Int, right: Int, top: Int, bottom: Int) = {
     this()
-    if (region == null) throw new IllegalArgumentException("region cannot be null.")
     initializeFromRegion(region, left, right, top, bottom)
   }
 
@@ -110,8 +109,8 @@ class NinePatch {
     */
   def this(patches: TextureRegion*) = {
     this()
-    val patchArray = patches.toArray
-    if (patchArray == null || patchArray.length != 9) throw new IllegalArgumentException("NinePatch needs nine TextureRegions")
+    val patchArray: Array[Nullable[TextureRegion]] = patches.map(Nullable(_)).toArray
+    if (patchArray.length != 9) throw new IllegalArgumentException("NinePatch needs nine TextureRegions")
 
     load(patchArray)
     validatePatches(patchArray)
@@ -131,21 +130,21 @@ class NinePatch {
     val middleWidth  = region.getRegionWidth() - left - right
     val middleHeight = region.getRegionHeight() - top - bottom
 
-    val patches = new Array[TextureRegion](9)
+    val patches = Array.fill(9)(Nullable.empty[TextureRegion])
     if (top > 0) {
-      if (left > 0) patches(NinePatch.TOP_LEFT) = new TextureRegion(region, 0, 0, left, top)
-      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = new TextureRegion(region, left, 0, middleWidth, top)
-      if (right > 0) patches(NinePatch.TOP_RIGHT) = new TextureRegion(region, left + middleWidth, 0, right, top)
+      if (left > 0) patches(NinePatch.TOP_LEFT) = Nullable(new TextureRegion(region, 0, 0, left, top))
+      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = Nullable(new TextureRegion(region, left, 0, middleWidth, top))
+      if (right > 0) patches(NinePatch.TOP_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, 0, right, top))
     }
     if (middleHeight > 0) {
-      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = new TextureRegion(region, 0, top, left, middleHeight)
-      if (middleWidth > 0) patches(NinePatch.MIDDLE_CENTER) = new TextureRegion(region, left, top, middleWidth, middleHeight)
-      if (right > 0) patches(NinePatch.MIDDLE_RIGHT) = new TextureRegion(region, left + middleWidth, top, right, middleHeight)
+      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = Nullable(new TextureRegion(region, 0, top, left, middleHeight))
+      if (middleWidth > 0) patches(NinePatch.MIDDLE_CENTER) = Nullable(new TextureRegion(region, left, top, middleWidth, middleHeight))
+      if (right > 0) patches(NinePatch.MIDDLE_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, top, right, middleHeight))
     }
     if (bottom > 0) {
-      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = new TextureRegion(region, 0, top + middleHeight, left, bottom)
-      if (middleWidth > 0) patches(NinePatch.BOTTOM_CENTER) = new TextureRegion(region, left, top + middleHeight, middleWidth, bottom)
-      if (right > 0) patches(NinePatch.BOTTOM_RIGHT) = new TextureRegion(region, left + middleWidth, top + middleHeight, right, bottom)
+      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = Nullable(new TextureRegion(region, 0, top + middleHeight, left, bottom))
+      if (middleWidth > 0) patches(NinePatch.BOTTOM_CENTER) = Nullable(new TextureRegion(region, left, top + middleHeight, middleWidth, bottom))
+      if (right > 0) patches(NinePatch.BOTTOM_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, top + middleHeight, right, bottom))
     }
 
     // If split only vertical, move splits from right to center.
@@ -153,18 +152,18 @@ class NinePatch {
       patches(NinePatch.TOP_CENTER) = patches(NinePatch.TOP_RIGHT)
       patches(NinePatch.MIDDLE_CENTER) = patches(NinePatch.MIDDLE_RIGHT)
       patches(NinePatch.BOTTOM_CENTER) = patches(NinePatch.BOTTOM_RIGHT)
-      patches(NinePatch.TOP_RIGHT) = null
-      patches(NinePatch.MIDDLE_RIGHT) = null
-      patches(NinePatch.BOTTOM_RIGHT) = null
+      patches(NinePatch.TOP_RIGHT) = Nullable.empty
+      patches(NinePatch.MIDDLE_RIGHT) = Nullable.empty
+      patches(NinePatch.BOTTOM_RIGHT) = Nullable.empty
     }
     // If split only horizontal, move splits from bottom to center.
     if (top == 0 && middleHeight == 0) {
       patches(NinePatch.MIDDLE_LEFT) = patches(NinePatch.BOTTOM_LEFT)
       patches(NinePatch.MIDDLE_CENTER) = patches(NinePatch.BOTTOM_CENTER)
       patches(NinePatch.MIDDLE_RIGHT) = patches(NinePatch.BOTTOM_RIGHT)
-      patches(NinePatch.BOTTOM_LEFT) = null
-      patches(NinePatch.BOTTOM_CENTER) = null
-      patches(NinePatch.BOTTOM_RIGHT) = null
+      patches(NinePatch.BOTTOM_LEFT) = Nullable.empty
+      patches(NinePatch.BOTTOM_CENTER) = Nullable.empty
+      patches(NinePatch.BOTTOM_RIGHT) = Nullable.empty
     }
 
     load(patches)
@@ -177,46 +176,46 @@ class NinePatch {
 
   private def initializeFromRegion(region: TextureRegion): Unit =
     load(
-      Array(
+      Array[Nullable[TextureRegion]](
         //
-        null,
-        null,
-        null, //
-        null,
-        region,
-        null, //
-        null,
-        null,
-        null //
+        Nullable.empty,
+        Nullable.empty,
+        Nullable.empty, //
+        Nullable.empty,
+        Nullable(region),
+        Nullable.empty, //
+        Nullable.empty,
+        Nullable.empty,
+        Nullable.empty //
       )
     )
 
-  private def validatePatches(patches: Array[TextureRegion]): Unit = {
+  private def validatePatches(patches: Array[Nullable[TextureRegion]]): Unit = {
     if (
-      (patches(NinePatch.TOP_LEFT) != null && patches(NinePatch.TOP_LEFT).getRegionWidth() != leftWidth)
-      || (patches(NinePatch.MIDDLE_LEFT) != null && patches(NinePatch.MIDDLE_LEFT).getRegionWidth() != leftWidth)
-      || (patches(NinePatch.BOTTOM_LEFT) != null && patches(NinePatch.BOTTOM_LEFT).getRegionWidth() != leftWidth)
+      patches(NinePatch.TOP_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
+      || patches(NinePatch.MIDDLE_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
+      || patches(NinePatch.BOTTOM_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
     ) {
       throw new IllegalArgumentException("Left side patches must have the same width")
     }
     if (
-      (patches(NinePatch.TOP_RIGHT) != null && patches(NinePatch.TOP_RIGHT).getRegionWidth() != rightWidth)
-      || (patches(NinePatch.MIDDLE_RIGHT) != null && patches(NinePatch.MIDDLE_RIGHT).getRegionWidth() != rightWidth)
-      || (patches(NinePatch.BOTTOM_RIGHT) != null && patches(NinePatch.BOTTOM_RIGHT).getRegionWidth() != rightWidth)
+      patches(NinePatch.TOP_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
+      || patches(NinePatch.MIDDLE_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
+      || patches(NinePatch.BOTTOM_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
     ) {
       throw new IllegalArgumentException("Right side patches must have the same width")
     }
     if (
-      (patches(NinePatch.BOTTOM_LEFT) != null && patches(NinePatch.BOTTOM_LEFT).getRegionHeight() != bottomHeight)
-      || (patches(NinePatch.BOTTOM_CENTER) != null && patches(NinePatch.BOTTOM_CENTER).getRegionHeight() != bottomHeight)
-      || (patches(NinePatch.BOTTOM_RIGHT) != null && patches(NinePatch.BOTTOM_RIGHT).getRegionHeight() != bottomHeight)
+      patches(NinePatch.BOTTOM_LEFT).fold(false)(_.getRegionHeight() != bottomHeight)
+      || patches(NinePatch.BOTTOM_CENTER).fold(false)(_.getRegionHeight() != bottomHeight)
+      || patches(NinePatch.BOTTOM_RIGHT).fold(false)(_.getRegionHeight() != bottomHeight)
     ) {
       throw new IllegalArgumentException("Bottom side patches must have the same height")
     }
     if (
-      (patches(NinePatch.TOP_LEFT) != null && patches(NinePatch.TOP_LEFT).getRegionHeight() != topHeight)
-      || (patches(NinePatch.TOP_CENTER) != null && patches(NinePatch.TOP_CENTER).getRegionHeight() != topHeight)
-      || (patches(NinePatch.TOP_RIGHT) != null && patches(NinePatch.TOP_RIGHT).getRegionHeight() != topHeight)
+      patches(NinePatch.TOP_LEFT).fold(false)(_.getRegionHeight() != topHeight)
+      || patches(NinePatch.TOP_CENTER).fold(false)(_.getRegionHeight() != topHeight)
+      || patches(NinePatch.TOP_RIGHT).fold(false)(_.getRegionHeight() != topHeight)
     ) {
       throw new IllegalArgumentException("Top side patches must have the same height")
     }
@@ -253,77 +252,74 @@ class NinePatch {
     this.color.set(color)
   }
 
-  private def load(patches: Array[TextureRegion]): Unit = {
-    if (patches(NinePatch.BOTTOM_LEFT) != null) {
-      bottomLeft = add(patches(NinePatch.BOTTOM_LEFT), isStretchW = false, isStretchH = false)
-      leftWidth = patches(NinePatch.BOTTOM_LEFT).getRegionWidth().toFloat
-      bottomHeight = patches(NinePatch.BOTTOM_LEFT).getRegionHeight().toFloat
-    } else
+  private def load(patches: Array[Nullable[TextureRegion]]): Unit = {
+    patches(NinePatch.BOTTOM_LEFT).fold {
       bottomLeft = -1
-    if (patches(NinePatch.BOTTOM_CENTER) != null) {
-      bottomCenter = add(
-        patches(NinePatch.BOTTOM_CENTER),
-        patches(NinePatch.BOTTOM_LEFT) != null || patches(NinePatch.BOTTOM_RIGHT) != null,
-        isStretchH = false
-      )
-      middleWidth = Math.max(middleWidth, patches(NinePatch.BOTTOM_CENTER).getRegionWidth().toFloat)
-      bottomHeight = Math.max(bottomHeight, patches(NinePatch.BOTTOM_CENTER).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      bottomLeft = add(p, isStretchW = false, isStretchH = false)
+      leftWidth = p.getRegionWidth().toFloat
+      bottomHeight = p.getRegionHeight().toFloat
+    }
+    patches(NinePatch.BOTTOM_CENTER).fold {
       bottomCenter = -1
-    if (patches(NinePatch.BOTTOM_RIGHT) != null) {
-      bottomRight = add(patches(NinePatch.BOTTOM_RIGHT), isStretchW = false, isStretchH = false)
-      rightWidth = Math.max(rightWidth, patches(NinePatch.BOTTOM_RIGHT).getRegionWidth().toFloat)
-      bottomHeight = Math.max(bottomHeight, patches(NinePatch.BOTTOM_RIGHT).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      bottomCenter = add(p, patches(NinePatch.BOTTOM_LEFT).isDefined || patches(NinePatch.BOTTOM_RIGHT).isDefined, isStretchH = false)
+      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
+      bottomHeight = Math.max(bottomHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.BOTTOM_RIGHT).fold {
       bottomRight = -1
-    if (patches(NinePatch.MIDDLE_LEFT) != null) {
-      middleLeft = add(
-        patches(NinePatch.MIDDLE_LEFT),
-        isStretchW = false,
-        patches(NinePatch.TOP_LEFT) != null || patches(NinePatch.BOTTOM_LEFT) != null
-      )
-      leftWidth = Math.max(leftWidth, patches(NinePatch.MIDDLE_LEFT).getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, patches(NinePatch.MIDDLE_LEFT).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      bottomRight = add(p, isStretchW = false, isStretchH = false)
+      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
+      bottomHeight = Math.max(bottomHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.MIDDLE_LEFT).fold {
       middleLeft = -1
-    if (patches(NinePatch.MIDDLE_CENTER) != null) {
-      middleCenter = add(
-        patches(NinePatch.MIDDLE_CENTER),
-        patches(NinePatch.MIDDLE_LEFT) != null || patches(NinePatch.MIDDLE_RIGHT) != null,
-        patches(NinePatch.TOP_CENTER) != null || patches(NinePatch.BOTTOM_CENTER) != null
-      )
-      middleWidth = Math.max(middleWidth, patches(NinePatch.MIDDLE_CENTER).getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, patches(NinePatch.MIDDLE_CENTER).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      middleLeft = add(p, isStretchW = false, patches(NinePatch.TOP_LEFT).isDefined || patches(NinePatch.BOTTOM_LEFT).isDefined)
+      leftWidth = Math.max(leftWidth, p.getRegionWidth().toFloat)
+      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.MIDDLE_CENTER).fold {
       middleCenter = -1
-    if (patches(NinePatch.MIDDLE_RIGHT) != null) {
-      middleRight = add(
-        patches(NinePatch.MIDDLE_RIGHT),
-        isStretchW = false,
-        patches(NinePatch.TOP_RIGHT) != null || patches(NinePatch.BOTTOM_RIGHT) != null
+    } { p =>
+      middleCenter = add(
+        p,
+        patches(NinePatch.MIDDLE_LEFT).isDefined || patches(NinePatch.MIDDLE_RIGHT).isDefined,
+        patches(NinePatch.TOP_CENTER).isDefined || patches(NinePatch.BOTTOM_CENTER).isDefined
       )
-      rightWidth = Math.max(rightWidth, patches(NinePatch.MIDDLE_RIGHT).getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, patches(NinePatch.MIDDLE_RIGHT).getRegionHeight().toFloat)
-    } else
+      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
+      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.MIDDLE_RIGHT).fold {
       middleRight = -1
-    if (patches(NinePatch.TOP_LEFT) != null) {
-      topLeft = add(patches(NinePatch.TOP_LEFT), isStretchW = false, isStretchH = false)
-      leftWidth = Math.max(leftWidth, patches(NinePatch.TOP_LEFT).getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, patches(NinePatch.TOP_LEFT).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      middleRight = add(p, isStretchW = false, patches(NinePatch.TOP_RIGHT).isDefined || patches(NinePatch.BOTTOM_RIGHT).isDefined)
+      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
+      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.TOP_LEFT).fold {
       topLeft = -1
-    if (patches(NinePatch.TOP_CENTER) != null) {
-      topCenter = add(patches(NinePatch.TOP_CENTER), patches(NinePatch.TOP_LEFT) != null || patches(NinePatch.TOP_RIGHT) != null, isStretchH = false)
-      middleWidth = Math.max(middleWidth, patches(NinePatch.TOP_CENTER).getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, patches(NinePatch.TOP_CENTER).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      topLeft = add(p, isStretchW = false, isStretchH = false)
+      leftWidth = Math.max(leftWidth, p.getRegionWidth().toFloat)
+      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.TOP_CENTER).fold {
       topCenter = -1
-    if (patches(NinePatch.TOP_RIGHT) != null) {
-      topRight = add(patches(NinePatch.TOP_RIGHT), isStretchW = false, isStretchH = false)
-      rightWidth = Math.max(rightWidth, patches(NinePatch.TOP_RIGHT).getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, patches(NinePatch.TOP_RIGHT).getRegionHeight().toFloat)
-    } else
+    } { p =>
+      topCenter = add(p, patches(NinePatch.TOP_LEFT).isDefined || patches(NinePatch.TOP_RIGHT).isDefined, isStretchH = false)
+      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
+      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+    }
+    patches(NinePatch.TOP_RIGHT).fold {
       topRight = -1
+    } { p =>
+      topRight = add(p, isStretchW = false, isStretchH = false)
+      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
+      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+    }
     if (idx < vertices.length) {
       val newVertices = new Array[Float](idx)
       System.arraycopy(vertices, 0, newVertices, 0, idx)
@@ -332,7 +328,7 @@ class NinePatch {
   }
 
   private def add(region: TextureRegion, isStretchW: Boolean, isStretchH: Boolean): Int = {
-    if (texture == null)
+    if (Nullable(texture).isEmpty)
       texture = region.getTexture()
     else if (texture != region.getTexture())
       throw new IllegalArgumentException("All regions must be from the same texture.")

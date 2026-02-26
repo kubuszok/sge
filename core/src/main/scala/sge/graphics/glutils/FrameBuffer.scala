@@ -68,9 +68,8 @@ class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
   }
 
   /** Creates a new FrameBuffer having the given dimensions and potentially a depth buffer attached. */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) =
     this(format, width, height, hasDepth, false)
-  }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Texture = {
     val data   = new GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)

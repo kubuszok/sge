@@ -1,0 +1,175 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/model/MeshPart.java
+ * Original authors: badlogic, Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+package model
+
+import sge.graphics.Mesh
+import sge.graphics.glutils.ShaderProgram
+import sge.math.Vector3
+import sge.math.collision.BoundingBox
+import sge.utils.Nullable
+
+/** A MeshPart is composed of a subset of vertices of a {@link Mesh}, along with the primitive type. The vertices subset is described by an offset and size. When the mesh is indexed (which is when
+  * {@link Mesh#getNumIndices()} > 0), then the {@link #offset} represents the offset in the indices array and {@link #size} represents the number of indices. When the mesh isn't indexed, then the
+  * {@link #offset} member represents the offset in the vertices array and the {@link #size} member represents the number of vertices. </p>
+  *
+  * In other words: Regardless whether the mesh is indexed or not, when {@link #primitiveType} is not a strip, then {@link #size} equals the number of primitives multiplied by the number of vertices
+  * per primitive. So if the MeshPart represents 4 triangles ( {@link #primitiveType} is GL_TRIANGLES), then the {@link #size} member is 12 (4 triangles * 3 vertices = 12 vertices total). Likewise, if
+  * the part represents 12 lines ({@link #primitiveType} is GL_LINES), then the size is 24 (12 lines * 2 vertices = 24 vertices total). </p>
+  *
+  * Note that some classes might require the mesh (part) to be indexed. </p>
+  *
+  * The {@link Mesh} referenced by the {@link #mesh} member must outlive the MeshPart. When the mesh is disposed, the MeshPart is unusable.
+  * @author
+  *   badlogic, Xoppa
+  */
+class MeshPart {
+
+  /** Unique id within model, may be null. Will be ignored by {@link #equals(MeshPart)} * */
+  var id: Nullable[String] = Nullable.empty
+
+  /** The primitive type, OpenGL constant e.g: {@link GL20#GL_TRIANGLES}, {@link GL20#GL_POINTS}, {@link GL20#GL_LINES}, {@link GL20#GL_LINE_STRIP}, {@link GL20#GL_TRIANGLE_STRIP} *
+    */
+  var primitiveType: Int = 0
+
+  /** The offset in the {@link #mesh} to this part. If the mesh is indexed ({@link Mesh#getNumIndices()} > 0), this is the offset in the indices array, otherwise it is the offset in the vertices
+    * array. *
+    */
+  var offset: Int = 0
+
+  /** The size (in total number of vertices) of this part in the {@link #mesh}. When the mesh is indexed ( {@link Mesh#getNumIndices()} > 0), this is the number of indices, otherwise it is the number
+    * of vertices. *
+    */
+  var size: Int = 0
+
+  /** The Mesh the part references, also stored in {@link Model} * */
+  var mesh: Mesh = scala.compiletime.uninitialized
+
+  /** The offset to the center of the bounding box of the shape, only valid after the call to {@link #update()}. * */
+  val center: Vector3 = new Vector3()
+
+  /** The location, relative to {@link #center}, of the corner of the axis aligned bounding box of the shape. Or, in other words: half the dimensions of the bounding box of the shape, where
+    * {@link Vector3#x} is half the width, {@link Vector3#y} is half the height and {@link Vector3#z} is half the depth. Only valid after the call to {@link #update()}. *
+    */
+  val halfExtents: Vector3 = new Vector3()
+
+  /** The radius relative to {@link #center} of the bounding sphere of the shape, or negative if not calculated yet. This is the same as the length of the {@link #halfExtents} member. See
+    * {@link #update()}. *
+    */
+  var radius: Float = -1f
+
+  /** Construct a new MeshPart, with null values. The MeshPart is unusable until you set all members. * */
+  def this(id: Nullable[String], mesh: Mesh, offset: Int, size: Int, primitiveType: Int) = {
+    this()
+    set(id, mesh, offset, size, primitiveType)
+  }
+
+  /** Construct a new MeshPart which is an exact copy of the provided MeshPart.
+    * @param copyFrom
+    *   The MeshPart to copy.
+    */
+  def this(copyFrom: MeshPart) = {
+    this()
+    set(copyFrom)
+  }
+
+  /** Set this MeshPart to be a copy of the other MeshPart
+    * @param other
+    *   The MeshPart from which to copy the values
+    * @return
+    *   this MeshPart, for chaining
+    */
+  def set(other: MeshPart): MeshPart = {
+    this.id = other.id
+    this.mesh = other.mesh
+    this.offset = other.offset
+    this.size = other.size
+    this.primitiveType = other.primitiveType
+    this.center.set(other.center)
+    this.halfExtents.set(other.halfExtents)
+    this.radius = other.radius
+    this
+  }
+
+  /** Set this MeshPart to given values, does not {@link #update()} the bounding box values.
+    * @return
+    *   this MeshPart, for chaining.
+    */
+  def set(id: Nullable[String], mesh: Mesh, offset: Int, size: Int, primitiveType: Int): MeshPart = {
+    this.id = id
+    this.mesh = mesh
+    this.offset = offset
+    this.size = size
+    this.primitiveType = primitiveType
+    this.center.set(0, 0, 0)
+    this.halfExtents.set(0, 0, 0)
+    this.radius = -1f
+    this
+  }
+
+  /** Calculates and updates the {@link #center}, {@link #halfExtents} and {@link #radius} values. This is considered a costly operation and should not be called frequently. All vertices (points) of
+    * the shape are traversed to calculate the maximum and minimum x, y and z coordinate of the shape. Note that MeshPart is not aware of any transformation that might be applied when rendering. It
+    * calculates the untransformed (not moved, not scaled, not rotated) values.
+    */
+  def update(): Unit = {
+    mesh.calculateBoundingBox(MeshPart.bounds, offset, size)
+    MeshPart.bounds.getCenter(center)
+    MeshPart.bounds.getDimensions(halfExtents).scl(0.5f)
+    radius = halfExtents.length
+  }
+
+  /** Compares this MeshPart to the specified MeshPart and returns true if they both reference the same {@link Mesh} and the {@link #offset}, {@link #size} and {@link #primitiveType} members are
+    * equal. The {@link #id} member is ignored.
+    * @param other
+    *   The other MeshPart to compare this MeshPart to.
+    * @return
+    *   True when this MeshPart equals the other MeshPart (ignoring the {@link #id} member), false otherwise.
+    */
+  def equals(other: MeshPart): Boolean =
+    (other eq this) || (other != null && (other.mesh eq mesh) && other.primitiveType == primitiveType
+      && other.offset == offset && other.size == size)
+
+  override def equals(obj: Any): Boolean =
+    obj match {
+      case other: MeshPart => equals(other)
+      case _ => false
+    }
+
+  override def hashCode(): Int = {
+    var result = if (mesh != null) System.identityHashCode(mesh) else 0
+    result = 31 * result + primitiveType
+    result = 31 * result + offset
+    result = 31 * result + size
+    result
+  }
+
+  /** Renders the mesh part using the specified shader, must be called after {@link ShaderProgram#bind()}.
+    * @param shader
+    *   the shader to be used
+    * @param autoBind
+    *   overrides the autoBind member of the Mesh
+    */
+  def render(shader: ShaderProgram, autoBind: Boolean): Unit =
+    mesh.render(shader, primitiveType, offset, size, autoBind)
+
+  /** Renders the mesh part using the specified shader, must be called after {@link ShaderProgram#bind()}.
+    * @param shader
+    *   the shader to be used
+    */
+  def render(shader: ShaderProgram): Unit =
+    mesh.render(shader, primitiveType, offset, size)
+}
+
+object MeshPart {
+
+  /** Temporary static {@link BoundingBox} instance, used in the {@link #update()} method. * */
+  private val bounds: BoundingBox = new BoundingBox()
+}

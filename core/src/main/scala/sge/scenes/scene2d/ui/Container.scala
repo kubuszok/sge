@@ -249,23 +249,19 @@ class Container[T <: Actor]() extends WidgetGroup {
   override def addActorAfter(actorAfter: Actor, actor: Actor): Unit =
     throw new UnsupportedOperationException("Use Container#setActor.")
 
-  override def removeActor(actor: Actor): Boolean = {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
+  override def removeActor(actor: Actor): Boolean =
     if (!this.actor.fold(false)(_ eq actor)) false
     else {
       setActor(Nullable.empty)
       true
     }
-  }
 
-  override def removeActor(actor: Actor, unfocus: Boolean): Boolean = {
-    if (actor == null) throw new IllegalArgumentException("actor cannot be null.")
+  override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
     if (!this.actor.fold(false)(_ eq actor)) false
     else {
       this.actor = Nullable.empty
       super.removeActor(actor, unfocus)
     }
-  }
 
   override def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val removed = super.removeActorAt(index, unfocus)
@@ -277,7 +273,6 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified value. */
   def size(size: Value): Container[T] = {
-    if (size == null) throw new IllegalArgumentException("size cannot be null.")
     _minWidth = size; _minHeight = size
     _prefWidth = size; _prefHeight = size
     _maxWidth = size; _maxHeight = size
@@ -286,8 +281,6 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the minWidth, prefWidth, maxWidth, minHeight, prefHeight, and maxHeight to the specified values. */
   def size(width: Value, height: Value): Container[T] = {
-    if (width == null) throw new IllegalArgumentException("width cannot be null.")
-    if (height == null) throw new IllegalArgumentException("height cannot be null.")
     _minWidth = width; _minHeight = height
     _prefWidth = width; _prefHeight = height
     _maxWidth = width; _maxHeight = height
@@ -302,7 +295,6 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the minWidth, prefWidth, and maxWidth to the specified value. */
   def width(width: Value): Container[T] = {
-    if (width == null) throw new IllegalArgumentException("width cannot be null.")
     _minWidth = width; _prefWidth = width; _maxWidth = width
     this
   }
@@ -312,7 +304,6 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the minHeight, prefHeight, and maxHeight to the specified value. */
   def height(height: Value): Container[T] = {
-    if (height == null) throw new IllegalArgumentException("height cannot be null.")
     _minHeight = height; _prefHeight = height; _maxHeight = height
     this
   }
@@ -322,24 +313,19 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the minWidth and minHeight to the specified value. */
   def minSize(size: Value): Container[T] = {
-    if (size == null) throw new IllegalArgumentException("size cannot be null.")
     _minWidth = size; _minHeight = size; this
   }
 
   /** Sets the minWidth and minHeight to the specified values. */
   def minSize(width: Value, height: Value): Container[T] = {
-    if (width == null) throw new IllegalArgumentException("width cannot be null.")
-    if (height == null) throw new IllegalArgumentException("height cannot be null.")
     _minWidth = width; _minHeight = height; this
   }
 
   def minWidth(minWidth: Value): Container[T] = {
-    if (minWidth == null) throw new IllegalArgumentException("minWidth cannot be null.")
     this._minWidth = minWidth; this
   }
 
   def minHeight(minHeight: Value): Container[T] = {
-    if (minHeight == null) throw new IllegalArgumentException("minHeight cannot be null.")
     this._minHeight = minHeight; this
   }
 
@@ -355,24 +341,19 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the prefWidth and prefHeight to the specified value. */
   def prefSize(size: Value): Container[T] = {
-    if (size == null) throw new IllegalArgumentException("size cannot be null.")
     _prefWidth = size; _prefHeight = size; this
   }
 
   /** Sets the prefWidth and prefHeight to the specified values. */
   def prefSize(width: Value, height: Value): Container[T] = {
-    if (width == null) throw new IllegalArgumentException("width cannot be null.")
-    if (height == null) throw new IllegalArgumentException("height cannot be null.")
     _prefWidth = width; _prefHeight = height; this
   }
 
   def prefWidth(prefWidth: Value): Container[T] = {
-    if (prefWidth == null) throw new IllegalArgumentException("prefWidth cannot be null.")
     this._prefWidth = prefWidth; this
   }
 
   def prefHeight(prefHeight: Value): Container[T] = {
-    if (prefHeight == null) throw new IllegalArgumentException("prefHeight cannot be null.")
     this._prefHeight = prefHeight; this
   }
 
@@ -388,24 +369,19 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the maxWidth and maxHeight to the specified value. */
   def maxSize(size: Value): Container[T] = {
-    if (size == null) throw new IllegalArgumentException("size cannot be null.")
     _maxWidth = size; _maxHeight = size; this
   }
 
   /** Sets the maxWidth and maxHeight to the specified values. */
   def maxSize(width: Value, height: Value): Container[T] = {
-    if (width == null) throw new IllegalArgumentException("width cannot be null.")
-    if (height == null) throw new IllegalArgumentException("height cannot be null.")
     _maxWidth = width; _maxHeight = height; this
   }
 
   def maxWidth(maxWidth: Value): Container[T] = {
-    if (maxWidth == null) throw new IllegalArgumentException("maxWidth cannot be null.")
     this._maxWidth = maxWidth; this
   }
 
   def maxHeight(maxHeight: Value): Container[T] = {
-    if (maxHeight == null) throw new IllegalArgumentException("maxHeight cannot be null.")
     this._maxHeight = maxHeight; this
   }
 
@@ -421,35 +397,26 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   /** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
   def pad(pad: Value): Container[T] = {
-    if (pad == null) throw new IllegalArgumentException("pad cannot be null.")
     _padTop = pad; _padLeft = pad; _padBottom = pad; _padRight = pad; this
   }
 
   def pad(top: Value, left: Value, bottom: Value, right: Value): Container[T] = {
-    if (top == null) throw new IllegalArgumentException("top cannot be null.")
-    if (left == null) throw new IllegalArgumentException("left cannot be null.")
-    if (bottom == null) throw new IllegalArgumentException("bottom cannot be null.")
-    if (right == null) throw new IllegalArgumentException("right cannot be null.")
     _padTop = top; _padLeft = left; _padBottom = bottom; _padRight = right; this
   }
 
   def padTop(padTop: Value): Container[T] = {
-    if (padTop == null) throw new IllegalArgumentException("padTop cannot be null.")
     this._padTop = padTop; this
   }
 
   def padLeft(padLeft: Value): Container[T] = {
-    if (padLeft == null) throw new IllegalArgumentException("padLeft cannot be null.")
     this._padLeft = padLeft; this
   }
 
   def padBottom(padBottom: Value): Container[T] = {
-    if (padBottom == null) throw new IllegalArgumentException("padBottom cannot be null.")
     this._padBottom = padBottom; this
   }
 
   def padRight(padRight: Value): Container[T] = {
-    if (padRight == null) throw new IllegalArgumentException("padRight cannot be null.")
     this._padRight = padRight; this
   }
 
@@ -513,17 +480,17 @@ class Container[T <: Actor]() extends WidgetGroup {
   def right(): Container[T] = { _align = (_align | Align.right) & ~Align.left; this }
 
   override def getMinWidth: Float =
-    _minWidth.get(actor.getOrElse(null.asInstanceOf[T])) + _padLeft.get(this) + _padRight.get(this)
+    actor.fold(0f)(a => _minWidth.get(a)) + _padLeft.get(this) + _padRight.get(this)
 
   def getMinHeightValue: Value = _minHeight
 
   override def getMinHeight: Float =
-    _minHeight.get(actor.getOrElse(null.asInstanceOf[T])) + _padTop.get(this) + _padBottom.get(this)
+    actor.fold(0f)(a => _minHeight.get(a)) + _padTop.get(this) + _padBottom.get(this)
 
   def getPrefWidthValue: Value = _prefWidth
 
   override def getPrefWidth: Float = {
-    var v = _prefWidth.get(actor.getOrElse(null.asInstanceOf[T]))
+    var v = actor.fold(0f)(a => _prefWidth.get(a))
     _background.foreach { bg => v = Math.max(v, bg.getMinWidth) }
     Math.max(getMinWidth, v + _padLeft.get(this) + _padRight.get(this))
   }
@@ -531,7 +498,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getPrefHeightValue: Value = _prefHeight
 
   override def getPrefHeight: Float = {
-    var v = _prefHeight.get(actor.getOrElse(null.asInstanceOf[T]))
+    var v = actor.fold(0f)(a => _prefHeight.get(a))
     _background.foreach { bg => v = Math.max(v, bg.getMinHeight) }
     Math.max(getMinHeight, v + _padTop.get(this) + _padBottom.get(this))
   }
@@ -539,7 +506,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getMaxWidthValue: Value = _maxWidth
 
   override def getMaxWidth: Float = {
-    var v = _maxWidth.get(actor.getOrElse(null.asInstanceOf[T]))
+    var v = actor.fold(0f)(a => _maxWidth.get(a))
     if (v > 0) v += _padLeft.get(this) + _padRight.get(this)
     v
   }
@@ -547,7 +514,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getMaxHeightValue: Value = _maxHeight
 
   override def getMaxHeight: Float = {
-    var v = _maxHeight.get(actor.getOrElse(null.asInstanceOf[T]))
+    var v = actor.fold(0f)(a => _maxHeight.get(a))
     if (v > 0) v += _padTop.get(this) + _padBottom.get(this)
     v
   }

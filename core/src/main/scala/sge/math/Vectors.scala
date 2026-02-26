@@ -702,26 +702,26 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
       x += alpha * (target.x - x)
       y += alpha * (target.y - y)
       z += alpha * (target.z - z)
-      return this
+      this
+    } else {
+      // theta0 = angle between input vectors
+      val theta0 = Math.acos(dotProduct).toFloat
+      // theta = angle between this vector and result
+      val theta = theta0 * alpha
+
+      val st = Math.sin(theta).toFloat
+      val tx = target.x - x * dotProduct
+      val ty = target.y - y * dotProduct
+      val tz = target.z - z * dotProduct
+      val l2 = tx * tx + ty * ty + tz * tz
+      val dl = st * (if (l2 < 0.0001f) 1f else 1f / Math.sqrt(l2).toFloat)
+
+      scale(Math.cos(theta).toFloat)
+      x += tx * dl
+      y += ty * dl
+      z += tz * dl
+      normalize()
     }
-
-    // theta0 = angle between input vectors
-    val theta0 = Math.acos(dotProduct).toFloat
-    // theta = angle between this vector and result
-    val theta = theta0 * alpha
-
-    val st = Math.sin(theta).toFloat
-    val tx = target.x - x * dotProduct
-    val ty = target.y - y * dotProduct
-    val tz = target.z - z * dotProduct
-    val l2 = tx * tx + ty * ty + tz * tz
-    val dl = st * (if (l2 < 0.0001f) 1f else 1f / Math.sqrt(l2).toFloat)
-
-    scale(Math.cos(theta).toFloat)
-    x += tx * dl
-    y += ty * dl
-    z += tz * dl
-    normalize()
   }
 
   override def toString: String = s"($x,$y,$z)"
@@ -841,6 +841,21 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     val newY = x * matrix.values(Matrix4.M10) + y * matrix.values(Matrix4.M11) + z * matrix.values(Matrix4.M12) + matrix.values(Matrix4.M13)
     val newZ = x * matrix.values(Matrix4.M20) + y * matrix.values(Matrix4.M21) + z * matrix.values(Matrix4.M22) + matrix.values(Matrix4.M23)
     set(newX, newY, newZ)
+  }
+
+  /** Left-multiplies the vector by the given matrix.
+    * @param matrix
+    *   The matrix
+    * @return
+    *   This vector for chaining
+    */
+  def mul(matrix: Matrix3): this.type = {
+    val l_mat = matrix.values
+    set(
+      x * l_mat(Matrix3.M00) + y * l_mat(Matrix3.M01) + z * l_mat(Matrix3.M02),
+      x * l_mat(Matrix3.M10) + y * l_mat(Matrix3.M11) + z * l_mat(Matrix3.M12),
+      x * l_mat(Matrix3.M20) + y * l_mat(Matrix3.M21) + z * l_mat(Matrix3.M22)
+    )
   }
 }
 
@@ -1159,11 +1174,12 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     val epsilon = Epsilon()
     val len1Sq  = lengthSq
     val len2Sq  = other.lengthSq
-    if (len1Sq == 0f || len2Sq == 0f) return true
-
-    val dotProd       = dot(other)
-    val expectedDotSq = len1Sq * len2Sq
-    Math.abs(dotProd * dotProd - expectedDotSq) <= epsilon * epsilon * expectedDotSq
+    if (len1Sq == 0f || len2Sq == 0f) true
+    else {
+      val dotProd       = dot(other)
+      val expectedDotSq = len1Sq * len2Sq
+      Math.abs(dotProd * dotProd - expectedDotSq) <= epsilon * epsilon * expectedDotSq
+    }
   }
 
   override def epsilonEquals(other: Vector4)(using Epsilon): Boolean = {

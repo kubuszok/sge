@@ -28,32 +28,37 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
   private var data: Nullable[BitmapFontData] = Nullable.empty
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): ArrayBuffer[AssetDescriptor[?]] = boundary {
-    val deps = ArrayBuffer.empty[AssetDescriptor[?]]
-    if (parameter != null && parameter.bitmapFontData.isDefined) {
-      data = parameter.bitmapFontData
-      boundary.break(deps)
+    val param = Nullable(parameter)
+    val deps  = ArrayBuffer.empty[AssetDescriptor[?]]
+    param.foreach { p =>
+      if (p.bitmapFontData.isDefined) {
+        data = p.bitmapFontData
+        boundary.break(deps)
+      }
     }
 
-    data = Nullable(new BitmapFontData(Nullable(file), parameter != null && parameter.flip))
-    if (parameter != null && parameter.atlasName.isDefined) {
-      parameter.atlasName.foreach { atlasName =>
+    data = Nullable(new BitmapFontData(Nullable(file), param.fold(false)(_.flip)))
+    if (param.fold(false)(_.atlasName.isDefined)) {
+      param.foreach(_.atlasName.foreach { atlasName =>
         deps += new AssetDescriptor[TextureAtlas](atlasName, classOf[TextureAtlas])
-      }
+      })
     } else {
       data.foreach { d =>
-        for (i <- 0 until d.imagePaths.length) {
-          val path     = d.imagePaths(i)
-          val resolved = resolve(path)
+        d.imagePaths.foreach { paths =>
+          for (i <- 0 until paths.length) {
+            val path     = paths(i)
+            val resolved = resolve(path)
 
-          val textureParams = new TextureLoader.TextureParameter()
+            val textureParams = new TextureLoader.TextureParameter()
 
-          if (parameter != null) {
-            textureParams.genMipMaps = parameter.genMipMaps
-            textureParams.minFilter = parameter.minFilter
-            textureParams.magFilter = parameter.magFilter
+            param.foreach { p =>
+              textureParams.genMipMaps = p.genMipMaps
+              textureParams.minFilter = p.minFilter
+              textureParams.magFilter = p.magFilter
+            }
+
+            deps += new AssetDescriptor[Texture](resolved, classOf[Texture], textureParams)
           }
-
-          deps += new AssetDescriptor[Texture](resolved, classOf[Texture], textureParams)
         }
       }
     }
@@ -63,11 +68,14 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): Unit = {}
 
-  override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): BitmapFont =
-    if (parameter != null && parameter.atlasName.isDefined) {
-      val atlasName = parameter.atlasName.orNull
+  override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): BitmapFont = {
+    val param = Nullable(parameter)
+    if (param.fold(false)(_.atlasName.isDefined)) {
+      val d         = data.getOrElse(throw SgeError.GraphicsError("BitmapFontData not loaded"))
+      val atlasName = param.getOrElse(throw SgeError.GraphicsError("parameter required")).atlasName.getOrElse(throw SgeError.GraphicsError("atlasName required"))
       val atlas     = manager.get(atlasName, classOf[TextureAtlas])
-      val name      = file.sibling(data.orNull.imagePaths(0)).nameWithoutExtension()
+      val paths     = d.imagePaths.getOrElse(throw SgeError.GraphicsError("BitmapFontData has no image paths"))
+      val name      = file.sibling(paths(0)).nameWithoutExtension()
       val region    = atlas.findRegion(name)
 
       region.fold {
@@ -76,13 +84,15 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
         new BitmapFont(file, Nullable(r))
       }
     } else {
-      val d    = data.orNull
-      val n    = d.imagePaths.length
-      val regs = ArrayBuffer.empty[TextureRegion]
+      val d        = data.getOrElse(throw SgeError.GraphicsError("BitmapFontData not loaded"))
+      val imgPaths = d.imagePaths.getOrElse(throw SgeError.GraphicsError("BitmapFontData has no image paths"))
+      val n        = imgPaths.length
+      val regs     = ArrayBuffer.empty[TextureRegion]
       for (i <- 0 until n)
-        regs += new TextureRegion(manager.get(d.imagePaths(i), classOf[Texture]))
+        regs += new TextureRegion(manager.get(imgPaths(i), classOf[Texture]))
       new BitmapFont(d, Nullable(regs), true)
     }
+  }
 }
 
 object BitmapFontLoader {

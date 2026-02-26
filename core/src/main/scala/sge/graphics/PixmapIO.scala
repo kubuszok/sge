@@ -9,6 +9,7 @@
 package sge
 package graphics
 
+import sge.utils.Nullable
 import java.io.BufferedInputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataInputStream
@@ -86,7 +87,7 @@ object PixmapIO {
     private val readBuffer  = new Array[Byte](BUFFER_SIZE);
 
     def write(file: FileHandle, pixmap: Pixmap): Unit = {
-      var out: DataOutputStream = null;
+      var out = null.asInstanceOf[DataOutputStream]
 
       try {
         val deflaterOutputStream = new DeflaterOutputStream(file.write(false));
@@ -117,11 +118,11 @@ object PixmapIO {
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't write Pixmap to file '" + file + "'", Some(e));
       } finally
-        StreamUtils.closeQuietly(out);
+        Nullable(out).foreach(StreamUtils.closeQuietly)
     }
 
     def read(file: FileHandle): Pixmap = {
-      var in: DataInputStream = null;
+      var in = null.asInstanceOf[DataInputStream]
 
       try {
         in = new DataInputStream(new InflaterInputStream(new BufferedInputStream(file.read())));
@@ -146,7 +147,7 @@ object PixmapIO {
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't read Pixmap from file '" + file + "'", Some(e));
       } finally
-        StreamUtils.closeQuietly(in);
+        Nullable(in).foreach(StreamUtils.closeQuietly)
     }
 
     private def toGdx2DPixmapFormat(format: Format): Int = format match {
@@ -236,13 +237,13 @@ object PixmapIO {
 
       val lineLen = pixmap.getWidth() * 4;
 
-      if (lineOutBytes == null || lineOutBytes.length < lineLen) {
+      if (Nullable(lineOutBytes).fold(true)(_.length < lineLen)) {
         lineOutBytes = new Array[Byte](lineLen);
       }
-      if (curLineBytes == null || curLineBytes.length < lineLen) {
+      if (Nullable(curLineBytes).fold(true)(_.length < lineLen)) {
         curLineBytes = new Array[Byte](lineLen);
       }
-      if (prevLineBytes == null || prevLineBytes.length < lineLen) {
+      if (Nullable(prevLineBytes).fold(true)(_.length < lineLen)) {
         prevLineBytes = new Array[Byte](lineLen);
         for (i <- 0 until lineLen)
           prevLineBytes(i) = 0;

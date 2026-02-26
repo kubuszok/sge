@@ -419,12 +419,10 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     */
   def updateTextureRegions(regions: ArrayBuffer[TextureRegion], minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Unit = {
     updatePageTextures(minFilter, magFilter, useMipMaps);
-    while (regions.size < pages.size) {
-      val pageTexture = pages(regions.size).texture.orNull
-      if (pageTexture != null) {
+    while (regions.size < pages.size)
+      pages(regions.size).texture.foreach { pageTexture =>
         regions.addOne(new TextureRegion(pageTexture))
       }
-    }
   }
 
   /** Calls {@link Page#updateTexture(TextureFilter, TextureFilter, boolean) updateTexture} for each page. */
@@ -656,20 +654,19 @@ object PixmapPacker {
       * @return
       *   true if the texture was created or reuploaded.
       */
-    def updateTexture(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Boolean = {
-      if (texture.isDefined) {
-        if (!dirty) return false
-        texture.orNull.load(texture.orNull.getTextureData())
-      } else {
-        texture = Nullable(
-          new Texture(new PixmapTextureData(image, image.getFormat(), useMipMaps, false, true)) {
-            override def close(): Unit = {
-              super.close()
-              image.close()
-            }
+    def updateTexture(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Boolean = scala.util.boundary {
+      if (texture.isEmpty) {
+        val tex = new Texture(new PixmapTextureData(image, image.getFormat(), useMipMaps, false, true)) {
+          override def close(): Unit = {
+            super.close()
+            image.close()
           }
-        )
-        texture.orNull.setFilter(minFilter, magFilter)
+        }
+        texture = Nullable(tex)
+        tex.setFilter(minFilter, magFilter)
+      } else {
+        if (!dirty) scala.util.boundary.break(false)
+        texture.foreach(tex => tex.load(tex.getTextureData()))
       }
       dirty = false
       true

@@ -1,107 +1,46 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with this repository.
+SGE is a Scala 3 port of LibGDX. 445 of 605 core files converted, 86 not started
+(84 g3d + 2 other), 65 skipped (stdlib replacements), 9 deferred.
 
-## Project Overview
+## Build Rules
 
-SGE is a Scala 3 port of LibGDX, a cross-platform game development framework.
-~248 of ~605 core Java files have been AI-converted so far. The conversion follows
-a systematic approach tracked in `docs/progress/migration-status.tsv`.
-
-## Build System
-
-This project uses SBT (Scala Build Tool). **Do NOT call `sbt` directly** — use
-`sge-metals` MCP instead. If you must use SBT directly, **always use `sbt --client`**
-to connect to the running SBT server and avoid JVM startup overhead.
-
-- Scala version: 3.7.1
-- Compiler flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Xfatal-warnings`
-- Format code: `sbt --client scalafmt`
-
-## Source Reference
-
-The original LibGDX source is available as a local git submodule:
-
-```
-./libgdx/gdx/src/com/badlogic/gdx/   # Original Java source (read-only reference)
-```
-
-**NEVER fetch LibGDX source from GitHub.** Always read from `./libgdx/`.
-
-Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
-
-## Project Structure
-
-```
-core/src/main/scala/sge/           # SGE library code
-├── *.scala                        # Core engine classes
-├── assets/, audio/, files/        # Subsystem packages
-├── graphics/                      # Graphics (g2d/, glutils/, profiling/)
-├── input/, math/, net/            # Input, math (collision/), networking
-├── scenes/scene2d/                # 2D scene graph (partial)
-└── utils/                         # Utilities (compression/, viewport/)
-libgdx/                            # Git submodule — original LibGDX source
-docs/                              # Project documentation
-├── contributing/                  # Conversion rules, code style, tooling
-├── progress/                      # Migration tracking (TSV), quality issues
-├── architecture/                  # Platform targets, backend analysis
-└── improvements/                  # Design improvements over LibGDX
-```
+- Scala **3.8.1**, compiler flags: `-deprecation -feature -no-indent -rewrite -Werror`
+- **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
+- **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
+- **No `return`**: use `scala.util.boundary`/`break`
+- **No `null`**: use `Nullable[A]` opaque type
+- **No comment removal**: preserve all original comments
+- Use `sbt --client` or `just compile` / `just fmt` — never bare `sbt`
 
 ## Tooling
 
 | Tool | Purpose |
 |------|---------|
-| `sge-metals` MCP | Compile, get errors/warnings. **Use instead of raw sbt.** |
-| `context7` MCP | Look up external library documentation |
+| `metals-mcp` | Compile, search, inspect, format (snapshot — see `just metals-install`) |
+| `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
+| `Justfile` | Task recipes — run `just --list` |
 | `./libgdx/` | Local reference source. **Never fetch from GitHub.** |
 
-MCP servers are configured in `.vscode/mcp.json` (local, not committed).
-See `docs/contributing/tooling.md` for details.
+## Conversion Guides
 
-## Architecture
+- [Conversion rules](docs/contributing/conversion-rules.md) — full 19-step procedure
+- [Type mappings](docs/contributing/type-mappings.md) — package/class renames, skipped classes
+- [Code style](docs/contributing/code-style.md) — license header template, formatting
+- [Nullable guide](docs/contributing/nullable-guide.md) — `Nullable[A]` opaque type
+- [Control flow guide](docs/contributing/control-flow-guide.md) — `boundary`/`break` patterns
+- [Verification checklist](docs/contributing/verification-checklist.md) — post-conversion checks
 
-1. **Core Engine Access**: `Sge` object provides all subsystems (graphics, audio, files, input, net)
-2. **Scala-First Design**: Opaque types, `given`/`using` context, Scala stdlib collections
-3. **Package Mapping**: `com.badlogic.gdx.*` → `sge.*` (see `docs/contributing/type-mappings.md`)
+## Source Reference
 
-## Code Conventions (Key Rules)
+Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
 
-- **License header**: Every ported file must have a header with original source path, authors,
-  and Apache 2.0 license. See `docs/contributing/code-style.md` for the template.
-- **Braces required**: `{}` for all `trait`, `class`, `enum`, method definitions (`-no-indent`)
-- **Split packages**: `package sge` / `package graphics` / `package g2d` (not flat)
-- **No `return`**: Use `scala.util.boundary`/`break` (see `docs/contributing/control-flow-guide.md`)
-- **No `null`**: Use `Nullable[A]` opaque type (see `docs/contributing/nullable-guide.md`)
-- **No comment removal**: Preserve all original comments during conversion
-- **Uninitialized vars**: Use `scala.compiletime.uninitialized`
-- **Comparators**: Use `given Ordering[T]`
-- **Disposable**: Use `AutoCloseable`/`close()` instead
-
-## Java to Scala Conversion
-
-Full procedure with 19 type/API adjustments: `docs/contributing/conversion-rules.md`
-
-Quick reference for common replacements:
-
-| Java | Scala |
-|------|-------|
-| `Gdx` | `Sge` (implicit) |
-| `GdxRuntimeException` | `SgeError` |
-| `Array<T>` | `ArrayBuffer[T]` |
-| `ObjectMap<K,V>` | `mutable.Map[K,V]` |
-| `Disposable`/`dispose()` | `AutoCloseable`/`close()` |
-| `@Null` | `Nullable[A]` |
-| `return value` | `boundary { break(value) }` |
-| `Comparator<T>` | `given Ordering[T]` |
-
-## Documentation Index
+## Documentation
 
 | Path | Content |
 |------|---------|
-| `docs/contributing/` | Conversion rules, nullable guide, control flow, type mappings, code style, tooling |
-| `docs/progress/migration-status.tsv` | Per-file migration status (605 files) |
-| `docs/progress/quality-issues.md` | Systemic code issues (return, null, Java syntax, TODOs) |
-| `docs/architecture/` | Platform targets, backend analysis, build structure |
-| `docs/improvements/` | Type safety, API design improvements over LibGDX |
-| `CHANGES.md` | Human-readable narrative of porting decisions |
+| `docs/contributing/` | All conversion guides, code style, tooling |
+| `docs/progress/migration-status.tsv` | Per-file status (605 files) |
+| `docs/progress/quality-issues.md` | Systemic issues (return, null, Java syntax, TODOs) |
+| `docs/architecture/` | Platform targets, backend analysis |
+| `docs/improvements/` | Type safety, API design improvements |

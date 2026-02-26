@@ -99,12 +99,8 @@ class I18NBundle {
     *   the string for the given key or the key surrounded by {@code ???} if it cannot be found and {@link #getExceptionOnMissingKey()} returns {@code false}
     */
   def get(key: String): String = boundary {
-    val result = properties.get(key)
-    if (result.isDefined) boundary.break(result.orNull)
-    if (parent.isDefined) {
-      val parentResult = parent.orNull.get(key)
-      boundary.break(parentResult)
-    }
+    properties.get(key).foreach(r => boundary.break(r))
+    parent.foreach(p => boundary.break(p.get(key)))
     if (I18NBundle.exceptionOnMissingKey)
       throw new MissingResourceException("Can't find bundle key " + key, this.getClass.getName, key)
     else
@@ -238,13 +234,12 @@ object I18NBundle {
   def createBundle(baseFileHandle: FileHandle, locale: Locale, encoding: String): I18NBundle =
     createBundleImpl(baseFileHandle, locale, encoding)
 
-  private def createBundleImpl(baseFileHandle: FileHandle, locale: Locale, encoding: String): I18NBundle = {
-    if (baseFileHandle == null || locale == null || encoding == null) throw new NullPointerException()
-
-    var bundle:     Nullable[I18NBundle] = Nullable.empty
-    var baseBundle: Nullable[I18NBundle] = Nullable.empty
-    var targetLocale = locale
-    while (targetLocale != null) {
+  private def createBundleImpl(baseFileHandle: FileHandle, locale: Locale, encoding: String): I18NBundle = boundary {
+    var bundle:          Nullable[I18NBundle] = Nullable.empty
+    var baseBundle:      Nullable[I18NBundle] = Nullable.empty
+    var targetLocaleOpt: Nullable[Locale]     = Nullable(locale)
+    while (targetLocaleOpt.isDefined) {
+      val targetLocale = targetLocaleOpt.getOrElse(throw new AssertionError("unreachable"))
       // Create the candidate locales
       val candidateLocales = getCandidateLocales(targetLocale)
 
@@ -252,13 +247,13 @@ object I18NBundle {
       bundle = loadBundleChain(baseFileHandle, encoding, candidateLocales, 0, baseBundle)
 
       // Check the loaded bundle (if any)
-      if (bundle.isDefined) {
-        val bundleLocale = bundle.orNull.getLocale // WTH? GWT can't access bundle.locale directly
+      bundle.foreach { b =>
+        val bundleLocale = b.getLocale // WTH? GWT can't access bundle.locale directly
         val isBaseBundle = bundleLocale.equals(Locale.ROOT)
 
         if (!isBaseBundle || bundleLocale.equals(locale)) {
           // Found the bundle for the requested locale
-          return bundle.orNull
+          boundary.break(b)
         }
 
         if (baseBundle.isEmpty) {
@@ -268,17 +263,14 @@ object I18NBundle {
       }
 
       // Try the fallback locale
-      targetLocale = getFallbackLocale(targetLocale)
+      targetLocaleOpt = getFallbackLocale(targetLocale)
     }
 
-    if (bundle.isEmpty) {
-      if (baseBundle.isEmpty) {
+    bundle.getOrElse {
+      baseBundle.getOrElse {
         throw new MissingResourceException("Can't find bundle for base file handle " + baseFileHandle, "", "")
       }
-      bundle = baseBundle
     }
-
-    bundle.orNull
   }
 
   /** Returns a <code>List</code> of <code>Locale</code>s as candidate locales for <code>locale</code>. This method is equivalent to the implementation of {@link
@@ -321,26 +313,26 @@ object I18NBundle {
     * @return
     *   a <code>Locale</code> for the fallback search, or <code>null</code> if no further fallback search is needed.
     */
-  private def getFallbackLocale(locale: Locale): Locale = {
+  private def getFallbackLocale(locale: Locale): Nullable[Locale] = {
     val defaultLocale = Locale.getDefault()
-    if (locale.equals(defaultLocale)) null else defaultLocale
+    if (locale.equals(defaultLocale)) Nullable.empty else Nullable(defaultLocale)
   }
 
-  private def loadBundleChain(baseFileHandle: FileHandle, encoding: String, candidateLocales: JList[Locale], candidateIndex: Int, baseBundle: Nullable[I18NBundle]): Nullable[I18NBundle] = {
+  private def loadBundleChain(baseFileHandle: FileHandle, encoding: String, candidateLocales: JList[Locale], candidateIndex: Int, baseBundle: Nullable[I18NBundle]): Nullable[I18NBundle] = boundary {
     val targetLocale = candidateLocales.get(candidateIndex)
     var parent: Nullable[I18NBundle] = Nullable.empty
     if (candidateIndex != candidateLocales.size() - 1) {
       // Load recursively the parent having the next candidate locale
       parent = loadBundleChain(baseFileHandle, encoding, candidateLocales, candidateIndex + 1, baseBundle)
     } else if (baseBundle.isDefined && targetLocale.equals(Locale.ROOT)) {
-      return baseBundle
+      boundary.break(baseBundle)
     }
 
     // Load the bundle
     val bundle = loadBundle(baseFileHandle, encoding, targetLocale)
-    if (bundle.isDefined) {
-      bundle.orNull.parent = parent
-      return bundle
+    bundle.foreach { b =>
+      b.parent = parent
+      boundary.break(bundle)
     }
 
     parent
@@ -354,26 +346,26 @@ object I18NBundle {
       val fileHandle = toFileHandle(baseFileHandle, targetLocale)
       if (checkFileExistence(fileHandle)) {
         // Instantiate the bundle
-        bundle = new I18NBundle()
+        val b = new I18NBundle()
 
         // Load bundle properties from the stream with the specified encoding
-        reader = fileHandle.reader(encoding)
-        bundle.orNull.load(reader.orNull)
+        val r = fileHandle.reader(encoding)
+        reader = Nullable(r)
+        b.load(r)
+        bundle = Nullable(b)
       }
     } catch {
       case e: IOException =>
         throw SgeError.FileReadError(baseFileHandle, "Error loading I18N bundle", Some(e))
     } finally
-      if (reader.isDefined) {
+      reader.foreach { r =>
         try
-          reader.orNull.close()
+          r.close()
         catch {
           case _: IOException =>
         }
       }
-    if (bundle.isDefined) {
-      bundle.orNull.setLocale(targetLocale)
-    }
+    bundle.foreach(_.setLocale(targetLocale))
 
     bundle
   }

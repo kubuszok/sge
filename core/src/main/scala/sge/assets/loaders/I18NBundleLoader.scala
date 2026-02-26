@@ -11,8 +11,7 @@ package assets
 package loaders
 
 import sge.files.FileHandle
-import sge.utils.I18NBundle
-import sge.utils.Nullable
+import sge.utils.{ I18NBundle, Nullable, SgeError }
 import scala.collection.mutable.ArrayBuffer
 import java.util.Locale
 
@@ -34,27 +33,21 @@ class I18NBundleLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): Unit = {
     this.bundle = Nullable.empty
-    val locale = parameter match {
-      case null                  => Locale.getDefault()
-      case p if p.locale == null => Locale.getDefault()
-      case p                     => p.locale
-    }
-    val encoding = parameter match {
-      case null => null
-      case p    => p.encoding
-    }
+    val param    = Nullable(parameter)
+    val locale   = param.fold(Locale.getDefault())(_.locale.getOrElse(Locale.getDefault()))
+    val encoding = param.fold(Nullable.empty[String])(_.encoding)
 
-    if (encoding == null) {
+    encoding.fold {
       this.bundle = Nullable(I18NBundle.createBundle(file, locale))
-    } else {
-      this.bundle = Nullable(I18NBundle.createBundle(file, locale, encoding))
+    } { enc =>
+      this.bundle = Nullable(I18NBundle.createBundle(file, locale, enc))
     }
   }
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): I18NBundle = {
     val result = this.bundle
     this.bundle = Nullable.empty
-    result.orNull
+    result.getOrElse(throw SgeError.SerializationError("I18NBundle not loaded"))
   }
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): ArrayBuffer[AssetDescriptor[?]] =
@@ -62,8 +55,8 @@ class I18NBundleLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
 }
 
 object I18NBundleLoader {
-  class I18NBundleParameter(val locale: Locale = null, val encoding: String = null) extends AssetLoaderParameters[I18NBundle] {
-    def this() = this(null, null)
-    def this(locale: Locale) = this(locale, null)
+  class I18NBundleParameter(val locale: Nullable[Locale] = Nullable.empty, val encoding: Nullable[String] = Nullable.empty) extends AssetLoaderParameters[I18NBundle] {
+    def this() = this(Nullable.empty, Nullable.empty)
+    def this(locale: Locale) = this(Nullable(locale), Nullable.empty)
   }
 }

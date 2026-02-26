@@ -36,7 +36,6 @@ class ButtonGroup[T <: Button]() {
   }
 
   def add(button: T): Unit = {
-    if (button == null) throw new IllegalArgumentException("button cannot be null.")
     button.buttonGroup = Nullable.empty
     val shouldCheck = button.isChecked || buttons.size < minCheckCount
     button.setChecked(false)
@@ -45,22 +44,17 @@ class ButtonGroup[T <: Button]() {
     button.setChecked(shouldCheck)
   }
 
-  def addAll(buttons: T*): Unit = {
-    if (buttons == null) throw new IllegalArgumentException("buttons cannot be null.")
+  def addAll(buttons: T*): Unit =
     buttons.foreach(add)
-  }
 
   def remove(button: T): Unit = {
-    if (button == null) throw new IllegalArgumentException("button cannot be null.")
     button.buttonGroup = Nullable.empty
     buttons -= button
     checkedButtons -= button
   }
 
-  def removeAll(buttons: T*): Unit = {
-    if (buttons == null) throw new IllegalArgumentException("buttons cannot be null.")
+  def removeAll(buttons: T*): Unit =
     buttons.foreach(remove)
-  }
 
   def clear(): Unit = {
     buttons.clear()
@@ -69,7 +63,6 @@ class ButtonGroup[T <: Button]() {
 
   /** Sets the first {@link TextButton} with the specified text to checked. */
   def setChecked(text: String): Unit = {
-    if (text == null) throw new IllegalArgumentException("text cannot be null.")
     var i = 0
     val n = buttons.size
     scala.util.boundary {

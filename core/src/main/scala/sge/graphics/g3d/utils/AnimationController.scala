@@ -1,0 +1,394 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/utils/AnimationController.java
+ * Original authors: Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package g3d
+package utils
+
+import scala.util.boundary
+import scala.util.boundary.break
+
+import sge.graphics.g3d.model.{ Animation, Node }
+import sge.math.MathUtils
+import sge.utils.{ Nullable, Pool, SgeError }
+
+/** Class to control one or more {@link Animation}s on a {@link ModelInstance}. Use the {@link #setAnimation(String, int, float, AnimationListener)} method to change the current animation. Use the
+  * {@link #animate(String, int, float, AnimationListener, float)} method to start an animation, optionally blending onto the current animation. Use the
+  * {@link #queue(String, int, float, AnimationListener, float)} method to queue an animation to be played when the current animation is finished. Use the
+  * {@link #action(String, int, float, AnimationListener, float)} method to play a (short) animation on top of the current animation.
+  *
+  * You can use multiple AnimationControllers on the same ModelInstance, as long as they don't interfere with each other (don't affect the same {@link Node}s).
+  *
+  * @author
+  *   Xoppa
+  */
+class AnimationController(target: ModelInstance) extends BaseAnimationController(target) {
+  import AnimationController._
+
+  protected val animationPool: Pool[AnimationDesc] =
+    new Pool.Default[AnimationDesc](() => new AnimationDesc())
+
+  /** The animation currently playing. Do not alter this value. */
+  var current: Nullable[AnimationDesc] = Nullable.empty
+
+  /** The animation queued to be played when the {@link #current} animation is completed. Do not alter this value. */
+  var queued: Nullable[AnimationDesc] = Nullable.empty
+
+  /** The transition time which should be applied to the queued animation. Do not alter this value. */
+  var queuedTransitionTime: Float = 0f
+
+  /** The animation which previously played. Do not alter this value. */
+  var previous: Nullable[AnimationDesc] = Nullable.empty
+
+  /** The current transition time. Do not alter this value. */
+  var transitionCurrentTime: Float = 0f
+
+  /** The target transition time. Do not alter this value. */
+  var transitionTargetTime: Float = 0f
+
+  /** Whether an action is being performed. Do not alter this value. */
+  var inAction: Boolean = false
+
+  /** When true a call to {@link #update(float)} will not be processed. */
+  var paused: Boolean = false
+
+  /** Whether to allow the same animation to be played while playing that animation. */
+  var allowSameAnimation: Boolean = false
+
+  private var justChangedAnimation: Boolean = false
+
+  private def obtain(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    if (anim == null) Nullable.empty
+    else {
+      val result = animationPool.obtain()
+      result.animation = anim
+      result.listener = listener
+      result.loopCount = loopCount
+      result.speed = speed
+      result.offset = offset
+      result.duration = if (duration < 0) anim.duration - offset else duration
+      result.time = if (speed < 0) result.duration else 0f
+      Nullable(result)
+    }
+
+  private def obtainByName(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    if (id == null) Nullable.empty
+    else {
+      val anim = target.getAnimation(id)
+      if (anim.isEmpty) throw SgeError.InvalidInput("Unknown animation: " + id)
+      anim.fold(Nullable.empty[AnimationDesc]) { a =>
+        obtain(a, offset, duration, loopCount, speed, listener)
+      }
+    }
+
+  private def obtainFrom(anim: AnimationDesc): Nullable[AnimationDesc] =
+    obtain(anim.animation, anim.offset, anim.duration, anim.loopCount, anim.speed, anim.listener)
+
+  /** Update any animations currently being played.
+    * @param delta
+    *   The time elapsed since last update, change this to alter the overall speed (can be negative).
+    */
+  def update(delta: Float): Unit = boundary {
+    if (paused) break(())
+    previous.foreach { prev =>
+      transitionCurrentTime += delta
+      if (transitionCurrentTime >= transitionTargetTime) {
+        removeAnimation(prev.animation)
+        justChangedAnimation = true
+        animationPool.free(prev)
+        previous = Nullable.empty
+      }
+    }
+    if (justChangedAnimation) {
+      target.calculateTransforms()
+      justChangedAnimation = false
+    }
+    current.fold(break(())) { cur =>
+      if (cur.loopCount == 0 || cur.animation == null) break(())
+      val remain = cur.update(delta)
+      if (remain >= 0f) {
+        queued.foreach { q =>
+          inAction = false
+          animate(Nullable(q), queuedTransitionTime)
+          queued = Nullable.empty
+          if (remain > 0f) { update(remain); break(()) }
+          break(())
+        }
+      }
+      previous.fold {
+        applyAnimation(cur.animation, cur.offset + cur.time)
+      } { prev =>
+        applyAnimations(prev.animation, prev.offset + prev.time, cur.animation, cur.offset + cur.time, transitionCurrentTime / transitionTargetTime)
+      }
+    }
+  }
+
+  /** Set the active animation, replacing any current animation.
+    * @param id
+    *   The ID of the {@link Animation} within the {@link ModelInstance}.
+    * @return
+    *   The {@link AnimationDesc} which can be read to get the progress of the animation. Will be invalid when the animation is completed.
+    */
+  def setAnimation(id: String): Nullable[AnimationDesc] =
+    setAnimation(id, 1, 1.0f, Nullable.empty)
+
+  /** Set the active animation, replacing any current animation. */
+  def setAnimation(id: String, loopCount: Int): Nullable[AnimationDesc] =
+    setAnimation(id, loopCount, 1.0f, Nullable.empty)
+
+  /** Set the active animation, replacing any current animation. */
+  def setAnimation(id: String, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    setAnimation(id, 1, 1.0f, listener)
+
+  /** Set the active animation, replacing any current animation. */
+  def setAnimation(id: String, loopCount: Int, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    setAnimation(id, loopCount, 1.0f, listener)
+
+  /** Set the active animation, replacing any current animation. */
+  def setAnimation(id: String, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    setAnimation(id, 0f, -1f, loopCount, speed, listener)
+
+  /** Set the active animation, replacing any current animation. */
+  def setAnimation(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    setAnimation(obtainByName(id, offset, duration, loopCount, speed, listener))
+
+  /** Set the active animation, replacing any current animation. */
+  protected def setAnimation(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    setAnimation(obtain(anim, offset, duration, loopCount, speed, listener))
+
+  /** Set the active animation, replacing any current animation. */
+  protected def setAnimation(anim: Nullable[AnimationDesc]): Nullable[AnimationDesc] = {
+    current.fold {
+      current = anim
+    } { cur =>
+      anim.fold {
+        removeAnimation(cur.animation)
+        animationPool.free(cur)
+        current = Nullable.empty
+      } { a =>
+        if (!allowSameAnimation && cur.animation == a.animation)
+          a.time = cur.time
+        else
+          removeAnimation(cur.animation)
+        animationPool.free(cur)
+        current = Nullable(a)
+      }
+    }
+    justChangedAnimation = true
+    anim
+  }
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  def animate(id: String, transitionTime: Float): Nullable[AnimationDesc] =
+    animate(id, 1, 1.0f, Nullable.empty, transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  def animate(id: String, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    animate(id, 1, 1.0f, listener, transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  def animate(id: String, loopCount: Int, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    animate(id, loopCount, 1.0f, listener, transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  def animate(id: String, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    animate(id, 0f, -1f, loopCount, speed, listener, transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  def animate(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    animate(obtainByName(id, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  protected def animate(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    animate(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Changes the current animation by blending the new on top of the old during the transition time. */
+  protected def animate(anim: Nullable[AnimationDesc], transitionTime: Float): Nullable[AnimationDesc] = {
+    current.fold {
+      current = anim
+    } { cur =>
+      if (cur.loopCount == 0) {
+        current = anim
+      } else if (inAction) {
+        queue(anim, transitionTime)
+      } else {
+        anim.fold {} { a =>
+          if (!allowSameAnimation && cur.animation == a.animation) {
+            a.time = cur.time
+            animationPool.free(cur)
+            current = Nullable(a)
+          } else {
+            previous.foreach { prev =>
+              removeAnimation(prev.animation)
+              animationPool.free(prev)
+            }
+            previous = current
+            current = Nullable(a)
+            transitionCurrentTime = 0f
+            transitionTargetTime = transitionTime
+          }
+        }
+      }
+    }
+    anim
+  }
+
+  /** Queue an animation to be applied when the {@link #current} animation is finished. If the current animation is continuously looping it will be synchronized on next loop.
+    */
+  def queue(id: String, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    queue(id, 0f, -1f, loopCount, speed, listener, transitionTime)
+
+  /** Queue an animation to be applied when the {@link #current} animation is finished. If the current animation is continuously looping it will be synchronized on next loop.
+    */
+  def queue(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    queue(obtainByName(id, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Queue an animation to be applied when the current is finished. If current is continuous it will be synced on next loop. */
+  protected def queue(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    queue(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Queue an animation to be applied when the current is finished. If current is continuous it will be synced on next loop. */
+  protected def queue(anim: Nullable[AnimationDesc], transitionTime: Float): Nullable[AnimationDesc] =
+    current.fold {
+      animate(anim, transitionTime)
+    } { cur =>
+      if (cur.loopCount == 0) {
+        animate(anim, transitionTime)
+      } else {
+        queued.foreach(animationPool.free)
+        queued = anim
+        queuedTransitionTime = transitionTime
+        if (cur.loopCount < 0) cur.loopCount = 1
+        anim
+      }
+    }
+
+  /** Apply an action animation on top of the current animation. */
+  def action(id: String, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    action(id, 0, -1f, loopCount, speed, listener, transitionTime)
+
+  /** Apply an action animation on top of the current animation. */
+  def action(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    action(obtainByName(id, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Apply an action animation on top of the current animation. */
+  protected def action(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener], transitionTime: Float): Nullable[AnimationDesc] =
+    action(obtain(anim, offset, duration, loopCount, speed, listener), transitionTime)
+
+  /** Apply an action animation on top of the current animation. */
+  protected def action(anim: Nullable[AnimationDesc], transitionTime: Float): Nullable[AnimationDesc] = {
+    anim.foreach { a =>
+      if (a.loopCount < 0) throw SgeError.InvalidInput("An action cannot be continuous")
+    }
+    current.fold {
+      animate(anim, transitionTime)
+    } { cur =>
+      if (cur.loopCount == 0) {
+        animate(anim, transitionTime)
+      } else {
+        val toQueue = if (inAction) Nullable.empty[AnimationDesc] else obtainFrom(cur)
+        inAction = false
+        animate(anim, transitionTime)
+        inAction = true
+        toQueue.foreach(q => queue(Nullable(q), transitionTime))
+        anim
+      }
+    }
+  }
+}
+
+object AnimationController {
+
+  /** Listener that will be informed when an animation is looped or completed.
+    * @author
+    *   Xoppa
+    */
+  trait AnimationListener {
+
+    /** Gets called when an animation is completed.
+      * @param animation
+      *   The animation which just completed.
+      */
+    def onEnd(animation: AnimationDesc): Unit
+
+    /** Gets called when an animation is looped. The {@link AnimationDesc#loopCount} is updated prior to this call and can be read or written to alter the number of remaining loops.
+      * @param animation
+      *   The animation which just looped.
+      */
+    def onLoop(animation: AnimationDesc): Unit
+  }
+
+  /** Class describing how to play and {@link Animation}. You can read the values within this class to get the progress of the animation. Do not change the values. Only valid when the animation is
+    * currently played.
+    * @author
+    *   Xoppa
+    */
+  class AnimationDesc {
+
+    /** Listener which will be informed when the animation is looped or ended. */
+    var listener: Nullable[AnimationListener] = Nullable.empty
+
+    /** The animation to be applied. */
+    var animation: Animation = scala.compiletime.uninitialized
+
+    /** The speed at which to play the animation (can be negative), 1.0 for normal speed. */
+    var speed: Float = 0f
+
+    /** The current animation time. */
+    var time: Float = 0f
+
+    /** The offset within the animation (animation time = offsetTime + time) */
+    var offset: Float = 0f
+
+    /** The duration of the animation */
+    var duration: Float = 0f
+
+    /** The number of remaining loops, negative for continuous, zero if stopped. */
+    var loopCount: Int = 0
+
+    /** @param delta
+      *   delta time, must be positive.
+      * @return
+      *   the remaining time or -1 if still animating.
+      */
+    protected[utils] def update(delta: Float): Float = boundary {
+      if (loopCount != 0 && animation != null) {
+        var loops: Int = 0
+        val diff = speed * delta
+        if (!MathUtils.isZero(duration)) {
+          time += diff
+          if (speed < 0) {
+            var invTime = duration - time
+            loops = Math.abs(invTime / duration).toInt
+            invTime = Math.abs(invTime % duration)
+            time = duration - invTime
+          } else {
+            loops = Math.abs(time / duration).toInt
+            time = Math.abs(time % duration)
+          }
+        } else {
+          loops = 1
+        }
+        for (i <- 0 until loops) {
+          if (loopCount > 0) loopCount -= 1
+          if (loopCount != 0) listener.foreach(_.onLoop(this))
+          if (loopCount == 0) {
+            val result = ((loops - 1) - i) * duration + (if (diff < 0f) duration - time else time)
+            time = if (diff < 0f) 0f else duration
+            listener.foreach(_.onEnd(this))
+            break(result)
+          }
+        }
+        break(-1f)
+      } else {
+        break(delta)
+      }
+    }
+  }
+}

@@ -62,55 +62,53 @@ class TimSort[T] {
     stackSize = 0
     TimSort.rangeCheck(a.length, lo, hi)
     val nRemaining = hi - lo
-    if (nRemaining < 2) return // Arrays of size 0 and 1 are always sorted
-
-    // If array is small, do a "mini-TimSort" with no merges
-    if (nRemaining < TimSort.MIN_MERGE) {
+    if (nRemaining < 2) () // Arrays of size 0 and 1 are always sorted
+    else if (nRemaining < TimSort.MIN_MERGE) {
+      // If array is small, do a "mini-TimSort" with no merges
       val initRunLen = TimSort.countRunAndMakeAscending(a, lo, hi, c)
       TimSort.binarySort(a, lo, hi, lo + initRunLen, c)
-      return
-    }
+    } else {
+      this.a = a
+      this.c = c
+      tmpCount = 0
 
-    this.a = a
-    this.c = c
-    tmpCount = 0
+      // March over the array once, left to right, finding natural runs, extending short natural runs to minRun elements, and
+      // merging runs to maintain stack invariant.
+      val minRun    = TimSort.minRunLength(nRemaining)
+      var currentLo = lo
+      var remaining = nRemaining
 
-    // March over the array once, left to right, finding natural runs, extending short natural runs to minRun elements, and
-    // merging runs to maintain stack invariant.
-    val minRun    = TimSort.minRunLength(nRemaining)
-    var currentLo = lo
-    var remaining = nRemaining
+      while (remaining != 0) {
+        // Identify next run
+        var runLen = TimSort.countRunAndMakeAscending(a, currentLo, hi, c)
 
-    while (remaining != 0) {
-      // Identify next run
-      var runLen = TimSort.countRunAndMakeAscending(a, currentLo, hi, c)
+        // If run is short, extend to min(minRun, remaining)
+        if (runLen < minRun) {
+          val force = if (remaining <= minRun) remaining else minRun
+          TimSort.binarySort(a, currentLo, currentLo + force, currentLo + runLen, c)
+          runLen = force
+        }
 
-      // If run is short, extend to min(minRun, remaining)
-      if (runLen < minRun) {
-        val force = if (remaining <= minRun) remaining else minRun
-        TimSort.binarySort(a, currentLo, currentLo + force, currentLo + runLen, c)
-        runLen = force
+        // Push run onto pending-run stack, and maybe merge
+        pushRun(currentLo, runLen)
+        mergeCollapse()
+
+        // Advance to find next run
+        currentLo += runLen
+        remaining -= runLen
       }
 
-      // Push run onto pending-run stack, and maybe merge
-      pushRun(currentLo, runLen)
-      mergeCollapse()
+      // Merge all remaining runs to complete sort
+      if (TimSort.DEBUG) assert(currentLo == hi)
+      mergeForceCollapse()
+      if (TimSort.DEBUG) assert(stackSize == 1)
 
-      // Advance to find next run
-      currentLo += runLen
-      remaining -= runLen
+      this.a = null.asInstanceOf[Array[T]]
+      this.c = null.asInstanceOf[Ordering[T]]
+      val tmp = this.tmp
+      for (i <- 0 until tmpCount)
+        tmp(i) = null
     }
-
-    // Merge all remaining runs to complete sort
-    if (TimSort.DEBUG) assert(currentLo == hi)
-    mergeForceCollapse()
-    if (TimSort.DEBUG) assert(stackSize == 1)
-
-    this.a = null.asInstanceOf[Array[T]]
-    this.c = null.asInstanceOf[Ordering[T]]
-    val tmp = this.tmp
-    for (i <- 0 until tmpCount)
-      tmp(i) = null
   }
 
   /** Pushes the specified run onto the pending-run stack. */
@@ -122,14 +120,16 @@ class TimSort[T] {
 
   /** Examines the stack of runs waiting to be merged and merges adjacent runs until the stack invariants are reestablished. */
   private def mergeCollapse(): Unit =
-    while (stackSize > 1) {
-      var n = stackSize - 2
-      if ((n >= 1 && runLen(n - 1) <= runLen(n) + runLen(n + 1)) || (n >= 2 && runLen(n - 2) <= runLen(n) + runLen(n - 1))) {
-        if (runLen(n - 1) < runLen(n + 1)) n -= 1
-      } else if (runLen(n) > runLen(n + 1)) {
-        return // Invariant is established
+    scala.util.boundary {
+      while (stackSize > 1) {
+        var n = stackSize - 2
+        if ((n >= 1 && runLen(n - 1) <= runLen(n) + runLen(n + 1)) || (n >= 2 && runLen(n - 2) <= runLen(n) + runLen(n - 1))) {
+          if (runLen(n - 1) < runLen(n + 1)) n -= 1
+        } else if (runLen(n) > runLen(n + 1)) {
+          scala.util.boundary.break(()) // Invariant is established
+        }
+        mergeAt(n)
       }
-      mergeAt(n)
     }
 
   /** Merges all runs on the stack until only one remains. This method is called once, to complete the sort. */
@@ -141,7 +141,7 @@ class TimSort[T] {
     }
 
   /** Merges the two runs at stack indices i and i+1. */
-  private def mergeAt(i: Int): Unit = {
+  private def mergeAt(i: Int): Unit = scala.util.boundary {
     if (TimSort.DEBUG) assert(stackSize >= 2)
     if (TimSort.DEBUG) assert(i >= 0)
     if (TimSort.DEBUG) assert(i == stackSize - 2 || i == stackSize - 3)
@@ -166,12 +166,12 @@ class TimSort[T] {
     if (TimSort.DEBUG) assert(k >= 0)
     base1 += k
     len1 -= k
-    if (len1 == 0) return
+    if (len1 == 0) scala.util.boundary.break(())
 
     // Find where the last element of run1 goes in run2
     len2 = TimSort.gallopLeft(a(base1 + len1 - 1), a, base2, len2, len2 - 1, c)
     if (TimSort.DEBUG) assert(len2 >= 0)
-    if (len2 == 0) return
+    if (len2 == 0) scala.util.boundary.break(())
 
     // Merge remaining runs, using tmp array with min(len1, len2) elements
     if (len1 <= len2)
@@ -213,27 +213,23 @@ object TimSort {
   def sort[T](a: Array[T], c: Ordering[T]): Unit =
     sort(a, 0, a.length, c)
 
-  def sort[T](a: Array[T], lo: Int, hi: Int, c: Ordering[T]): Unit = {
+  def sort[T](a: Array[T], lo: Int, hi: Int, c: Ordering[T]): Unit =
     if (c == null) {
       Arrays.sort(a.asInstanceOf[Array[AnyRef]], lo, hi)
-      return
+    } else {
+      rangeCheck(a.length, lo, hi)
+      val nRemaining = hi - lo
+      if (nRemaining < 2) () // Arrays of size 0 and 1 are always sorted
+      else if (nRemaining < MIN_MERGE) {
+        // If array is small, do a "mini-TimSort" with no merges
+        val initRunLen = countRunAndMakeAscending(a, lo, hi, c)
+        binarySort(a, lo, hi, lo + initRunLen, c)
+      } else {
+        // March over the array once, left to right, finding natural runs
+        val ts = new TimSort[T]()
+        ts.doSort(a, c, lo, hi)
+      }
     }
-
-    rangeCheck(a.length, lo, hi)
-    val nRemaining = hi - lo
-    if (nRemaining < 2) return // Arrays of size 0 and 1 are always sorted
-
-    // If array is small, do a "mini-TimSort" with no merges
-    if (nRemaining < MIN_MERGE) {
-      val initRunLen = countRunAndMakeAscending(a, lo, hi, c)
-      binarySort(a, lo, hi, lo + initRunLen, c)
-      return
-    }
-
-    // March over the array once, left to right, finding natural runs
-    val ts = new TimSort[T]()
-    ts.doSort(a, c, lo, hi)
-  }
 
   /** Sorts the specified portion of the specified array using a binary insertion sort. */
   private def binarySort[T](a: Array[T], lo: Int, hi: Int, start: Int, c: Ordering[T]): Unit = {
@@ -280,20 +276,21 @@ object TimSort {
   private def countRunAndMakeAscending[T](a: Array[T], lo: Int, hi: Int, c: Ordering[T]): Int = {
     if (DEBUG) assert(lo < hi)
     var runHi = lo + 1
-    if (runHi == hi) return 1
+    if (runHi == hi) 1
+    else {
+      // Find end of run, and reverse range if descending
+      if (c.compare(a(runHi), a(lo)) < 0) { // Descending
+        runHi += 1
+        while (runHi < hi && c.compare(a(runHi), a(runHi - 1)) < 0)
+          runHi += 1
+        reverseRange(a, lo, runHi)
+      } else { // Ascending
+        while (runHi < hi && c.compare(a(runHi), a(runHi - 1)) >= 0)
+          runHi += 1
+      }
 
-    // Find end of run, and reverse range if descending
-    if (c.compare(a(runHi), a(lo)) < 0) { // Descending
-      runHi += 1
-      while (runHi < hi && c.compare(a(runHi), a(runHi - 1)) < 0)
-        runHi += 1
-      reverseRange(a, lo, runHi)
-    } else { // Ascending
-      while (runHi < hi && c.compare(a(runHi), a(runHi - 1)) >= 0)
-        runHi += 1
+      runHi - lo
     }
-
-    runHi - lo
   }
 
   /** Reverse the specified range of the specified array. */

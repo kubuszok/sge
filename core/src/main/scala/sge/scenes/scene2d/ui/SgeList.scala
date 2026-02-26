@@ -70,12 +70,12 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
           self.setSelectedIndex(self.items.size - 1)
           scala.util.boundary.break(true)
         case Input.Keys.DOWN =>
-          var index = self.items.indexOf(self.getSelected.getOrElse(null.asInstanceOf[T])) + 1
+          var index = self.getSelected.fold(-1)(s => self.items.indexOf(s)) + 1
           if (index >= self.items.size) index = 0
           self.setSelectedIndex(index)
           scala.util.boundary.break(true)
         case Input.Keys.UP =>
-          var index = self.items.indexOf(self.getSelected.getOrElse(null.asInstanceOf[T])) - 1
+          var index = self.getSelected.fold(-1)(s => self.items.indexOf(s)) - 1
           if (index < 0) index = self.items.size - 1
           self.setSelectedIndex(index)
           scala.util.boundary.break(true)
@@ -140,12 +140,10 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
     }
   )
 
-  // Skin constructors commented out until Skin is ported
-  // def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[ListStyle]))
-  // def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[ListStyle]))
+  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[SgeList.ListStyle]))
+  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[SgeList.ListStyle]))
 
   override def setStyle(style: ListStyle): Unit = {
-    if (style == null) throw new IllegalArgumentException("style cannot be null.")
     this._style = style
     invalidateHierarchy()
   }
@@ -269,12 +267,14 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
     *   May be null.
     */
   def setSelected(item: Nullable[T]): Unit =
-    if (item.fold(false)(i => items.contains(i)))
-      selection.set(item.orNull)
-    else if (selection.getRequired && items.nonEmpty)
-      selection.set(items.head)
-    else
-      selection.clear()
+    item.fold {
+      if (selection.getRequired && items.nonEmpty) selection.set(items.head)
+      else selection.clear()
+    } { i =>
+      if (items.contains(i)) selection.set(i)
+      else if (selection.getRequired && items.nonEmpty) selection.set(items.head)
+      else selection.clear()
+    }
 
   /** @return The index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1. */
   def getSelectedIndex: Int = {
@@ -326,7 +326,6 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
     * with a (modified) array returned from {@link #getItems()}.
     */
   def setItems(newItems: ArrayBuffer[T]): Unit = {
-    if (newItems == null) throw new IllegalArgumentException("newItems cannot be null.")
     val oldPrefWidth  = getPrefWidth
     val oldPrefHeight = getPrefHeight
 

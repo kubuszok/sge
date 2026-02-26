@@ -9,6 +9,7 @@
 package sge
 package graphics
 
+import sge.utils.Nullable
 import scala.language.implicitConversions
 
 import sge.graphics.{ Pixmap, PixmapIO }
@@ -92,14 +93,12 @@ object TextureData {
   object Factory {
 
     def loadFromFile(file: FileHandle, useMipMaps: Boolean)(using sge: Sge): TextureData =
-      loadFromFile(file, null, useMipMaps)
+      loadFromFile(file, Nullable.empty, useMipMaps)
 
-    def loadFromFile(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge): TextureData = {
-      if (file == null) return null
+    def loadFromFile(file: FileHandle, format: Nullable[Format], useMipMaps: Boolean)(using sge: Sge): TextureData =
       if (file.name().endsWith(".cim")) new FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
       else if (file.name().endsWith(".etc1")) new ETC1TextureData(file, useMipMaps)
       else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) new KTXTextureData(file, useMipMaps)
-      else new FileTextureData(file, new Pixmap(100, 100, if (format != null) format else Format.RGBA8888), format, useMipMaps)
-    }
+      else new FileTextureData(file, new Pixmap(100, 100, format.getOrElse(Format.RGBA8888)), format, useMipMaps)
   }
 }

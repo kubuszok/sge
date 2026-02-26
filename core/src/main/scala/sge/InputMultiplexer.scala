@@ -25,18 +25,14 @@ class InputMultiplexer extends InputProcessor {
     this.processors.addAll(processors)
   }
 
-  def addProcessor(index: Int, processor: InputProcessor): Unit = {
-    if (processor == null) throw new IllegalArgumentException("processor cannot be null")
+  def addProcessor(index: Int, processor: InputProcessor): Unit =
     processors.insert(index, processor)
-  }
 
   def removeProcessor(index: Int): Unit =
     processors.remove(index)
 
-  def addProcessor(processor: InputProcessor): Unit = {
-    if (processor == null) throw new IllegalArgumentException("processor cannot be null")
+  def addProcessor(processor: InputProcessor): Unit =
     processors.addOne(processor)
-  }
 
   def removeProcessor(processor: InputProcessor): Unit =
     processors.subtractOne(processor)
