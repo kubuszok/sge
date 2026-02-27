@@ -11,8 +11,7 @@ package assets
 package loaders
 
 import sge.files.FileHandle
-import sge.utils.{ I18NBundle, Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, I18NBundle, Nullable, SgeError }
 import java.util.Locale
 
 /** {@link AssetLoader} for {@link I18NBundle} instances. The I18NBundle is loaded asynchronously. <p> Notice that you can't load two bundles with the same base name and different locale or encoding
@@ -50,8 +49,8 @@ class I18NBundleLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
     result.getOrElse(throw SgeError.SerializationError("I18NBundle not loaded"))
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 }
 
 object I18NBundleLoader {

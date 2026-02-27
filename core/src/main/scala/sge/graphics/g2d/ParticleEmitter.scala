@@ -15,13 +15,12 @@ import sge.math.MathUtils
 import sge.math.Rectangle
 import sge.math.collision.BoundingBox
 
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.Writer
 import java.util.Arrays
-import scala.collection.mutable.ArrayBuffer
 
 class ParticleEmitter {
   import ParticleEmitter._
@@ -50,24 +49,24 @@ class ParticleEmitter {
   private var ySizeValues:  Array[RangedNumericValue] = scala.compiletime.uninitialized
   private var motionValues: Array[RangedNumericValue] = scala.compiletime.uninitialized
 
-  private var accumulator:      Float               = 0f
-  private var sprites:          ArrayBuffer[Sprite] = scala.compiletime.uninitialized
-  private var spriteMode:       SpriteMode          = SpriteMode.single
-  private var particles:        Array[Particle]     = scala.compiletime.uninitialized
-  private var minParticleCount: Int                 = 0
-  private var maxParticleCount: Int                 = 4
-  private var x:                Float               = 0f
-  private var y:                Float               = 0f
-  private var name:             String              = scala.compiletime.uninitialized
-  private var imagePaths:       ArrayBuffer[String] = scala.compiletime.uninitialized
-  private var activeCount:      Int                 = 0
-  private var active:           Array[Boolean]      = scala.compiletime.uninitialized
-  private var firstUpdate:      Boolean             = false
-  private var flipX:            Boolean             = false
-  private var flipY:            Boolean             = false
-  private var updateFlags:      Int                 = 0
-  private var allowCompletion:  Boolean             = false
-  private var bounds:           BoundingBox         = scala.compiletime.uninitialized
+  private var accumulator:      Float                = 0f
+  private var sprites:          DynamicArray[Sprite] = scala.compiletime.uninitialized
+  private var spriteMode:       SpriteMode           = SpriteMode.single
+  private var particles:        Array[Particle]      = scala.compiletime.uninitialized
+  private var minParticleCount: Int                  = 0
+  private var maxParticleCount: Int                  = 4
+  private var x:                Float                = 0f
+  private var y:                Float                = 0f
+  private var name:             String               = scala.compiletime.uninitialized
+  private var imagePaths:       DynamicArray[String] = scala.compiletime.uninitialized
+  private var activeCount:      Int                  = 0
+  private var active:           Array[Boolean]       = scala.compiletime.uninitialized
+  private var firstUpdate:      Boolean              = false
+  private var flipX:            Boolean              = false
+  private var flipY:            Boolean              = false
+  private var updateFlags:      Int                  = 0
+  private var allowCompletion:  Boolean              = false
+  private var bounds:           BoundingBox          = scala.compiletime.uninitialized
 
   private var emission:        Int   = 0
   private var emissionDiff:    Int   = 0
@@ -104,9 +103,9 @@ class ParticleEmitter {
 
   def this(emitter: ParticleEmitter) = {
     this()
-    sprites = ArrayBuffer.from(emitter.sprites)
+    sprites = DynamicArray.from(emitter.sprites)
     name = emitter.name
-    imagePaths = ArrayBuffer.from(emitter.imagePaths)
+    imagePaths = DynamicArray.from(emitter.imagePaths)
     setMaxParticleCount(emitter.maxParticleCount)
     minParticleCount = emitter.minParticleCount
     // Copy values - simplified for now
@@ -122,8 +121,8 @@ class ParticleEmitter {
   }
 
   private def initialize(): Unit = {
-    sprites = ArrayBuffer[Sprite]()
-    imagePaths = ArrayBuffer[String]()
+    sprites = DynamicArray[Sprite]()
+    imagePaths = DynamicArray[String]()
     durationValue.setAlwaysActive(true)
     emissionValue.setAlwaysActive(true)
     lifeValue.setAlwaysActive(true)
@@ -382,9 +381,9 @@ class ParticleEmitter {
     var sprite: Nullable[Sprite] = Nullable.empty
     spriteMode match {
       case SpriteMode.single | SpriteMode.animated =>
-        if (sprites.nonEmpty) sprite = Nullable(sprites.head)
+        if (sprites.nonEmpty) sprite = Nullable(sprites.first)
       case SpriteMode.random =>
-        if (sprites.nonEmpty) sprite = Nullable(sprites(scala.util.Random.nextInt(sprites.length)))
+        if (sprites.nonEmpty) sprite = Nullable(sprites(scala.util.Random.nextInt(sprites.size)))
     }
 
     var particle = particles(index)
@@ -621,7 +620,7 @@ class ParticleEmitter {
       }
 
       if ((updateFlags & UPDATE_SPRITE) != 0) {
-        val frame = Math.min((percent * sprites.length).toInt, sprites.length - 1)
+        val frame = Math.min((percent * sprites.size).toInt, sprites.size - 1)
         if (particle.frame != frame) {
           val sprite           = sprites(frame)
           val prevSpriteWidth  = particle.getWidth()
@@ -663,8 +662,8 @@ class ParticleEmitter {
   }
 
   def setSprites(sprites: Array[Sprite]): Unit = scala.util.boundary {
-    this.sprites = ArrayBuffer.from(sprites)
-    if (sprites.length == 0) scala.util.boundary.break()
+    this.sprites = DynamicArray.from(sprites)
+    if (sprites.size == 0) scala.util.boundary.break()
     for (i <- particles.indices) {
       val particle = particles(i)
       if (particle == null) scala.util.boundary.break()
@@ -672,10 +671,10 @@ class ParticleEmitter {
         case SpriteMode.single =>
           if (sprites.nonEmpty) Nullable(sprites(0)) else Nullable.empty
         case SpriteMode.random =>
-          if (sprites.nonEmpty) Nullable(sprites(scala.util.Random.nextInt(sprites.length))) else Nullable.empty
+          if (sprites.nonEmpty) Nullable(sprites(scala.util.Random.nextInt(sprites.size))) else Nullable.empty
         case SpriteMode.animated =>
           val percent    = 1 - particle.currentLife / particle.life.toFloat
-          val frameIndex = Math.min((percent * sprites.length).toInt, sprites.length - 1)
+          val frameIndex = Math.min((percent * sprites.size).toInt, sprites.size - 1)
           particle.frame = frameIndex
           if (sprites.nonEmpty) Nullable(sprites(frameIndex)) else Nullable.empty
       }
@@ -697,7 +696,7 @@ class ParticleEmitter {
     for (index <- particles.indices) {
       var particle = particles(index)
       if (particle == null) {
-        particles(index) = newParticle(if (sprites.nonEmpty) sprites.head else null)
+        particles(index) = newParticle(if (sprites.nonEmpty) sprites.first else null)
         particle = particles(index)
         particle.flip(flipX, flipY)
       }
@@ -857,7 +856,7 @@ class ParticleEmitter {
     Nullable(imagePaths).fold(Array.empty[String])(_.toArray)
 
   def setImagePaths(imagePaths: Array[String]): Unit =
-    this.imagePaths = ArrayBuffer.from(imagePaths)
+    this.imagePaths = DynamicArray.from(imagePaths)
 
   def setFlip(flipX: Boolean, flipY: Boolean): Unit = {
     this.flipX = flipX
@@ -1120,10 +1119,10 @@ class ParticleEmitter {
         line = reader.readLine()
       }
 
-      val imagePaths  = ArrayBuffer[String]()
+      val imagePaths  = DynamicArray[String]()
       var currentLine = line
       while (currentLine != null && currentLine.nonEmpty) {
-        imagePaths += currentLine
+        imagePaths.add(currentLine)
         currentLine = reader.readLine()
       }
       setImagePaths(imagePaths.toArray)

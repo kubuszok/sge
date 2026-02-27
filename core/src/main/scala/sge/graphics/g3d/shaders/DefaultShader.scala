@@ -11,7 +11,6 @@ package graphics
 package g3d
 package shaders
 
-import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
@@ -33,7 +32,7 @@ import sge.graphics.GLTexture
 import sge.graphics.g3d.utils.{ RenderContext, TextureDescriptor }
 import sge.graphics.glutils.ShaderProgram
 import sge.math.{ Matrix3, Matrix4, Vector3 }
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 class DefaultShader(
   renderable:    Renderable,
@@ -405,13 +404,13 @@ class DefaultShader(
     val lights: Nullable[Environment]                = renderable.environment
     val dla:    Nullable[DirectionalLightsAttribute] =
       attributes.get(classOf[DirectionalLightsAttribute], DirectionalLightsAttribute.Type)
-    val dirs: Nullable[ArrayBuffer[DirectionalLight]] = dla.map(_.lights)
-    val pla:  Nullable[PointLightsAttribute]          =
+    val dirs: Nullable[DynamicArray[DirectionalLight]] = dla.map(_.lights)
+    val pla:  Nullable[PointLightsAttribute]           =
       attributes.get(classOf[PointLightsAttribute], PointLightsAttribute.Type)
-    val points: Nullable[ArrayBuffer[PointLight]] = pla.map(_.lights)
-    val sla:    Nullable[SpotLightsAttribute]     =
+    val points: Nullable[DynamicArray[PointLight]] = pla.map(_.lights)
+    val sla:    Nullable[SpotLightsAttribute]      =
       attributes.get(classOf[SpotLightsAttribute], SpotLightsAttribute.Type)
-    val spots: Nullable[ArrayBuffer[SpotLight]] = sla.map(_.lights)
+    val spots: Nullable[DynamicArray[SpotLight]] = sla.map(_.lights)
 
     if (dirLightsLoc >= 0) {
       var i = 0

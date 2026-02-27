@@ -22,17 +22,16 @@ import sge.graphics.Texture
 import sge.math.collision.BoundingBox
 import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.Batch
-import sge.utils.{ Nullable, SgeError, StreamUtils }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
 
 /** See <a href= "https://web.archive.org/web/20200427191041/http://www.badlogicgames.com/wordpress/?p=12555">http://www.badlogicgames.com/wordpress/?p=12555</a>
   * @author
   *   mzechner
   */
 class ParticleEffect extends AutoCloseable {
-  private val emitters:    ArrayBuffer[ParticleEmitter] = ArrayBuffer.empty[ParticleEmitter]
-  private var bounds:      BoundingBox                  = scala.compiletime.uninitialized
-  private var ownsTexture: Boolean                      = scala.compiletime.uninitialized
+  private val emitters:    DynamicArray[ParticleEmitter] = DynamicArray[ParticleEmitter]()
+  private var bounds:      BoundingBox                   = scala.compiletime.uninitialized
+  private var ownsTexture: Boolean                       = scala.compiletime.uninitialized
   /*protected*/
   var xSizeScale: Float = 1f
   /*protected*/
@@ -43,12 +42,15 @@ class ParticleEffect extends AutoCloseable {
   def this(effect: ParticleEffect) = {
     this()
     emitters.clear()
-    for (i <- effect.emitters.indices)
-      emitters.addOne(newEmitter(effect.emitters(i)))
+    var i = 0
+    while (i < effect.emitters.size) {
+      emitters.add(newEmitter(effect.emitters(i)))
+      i += 1
+    }
   }
 
   def start(): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).start()
 
   /** Resets the effect so it can be started again like a new effect. Any changes to scale are reverted. See {@link #reset(boolean)} .
@@ -70,7 +72,7 @@ class ParticleEffect extends AutoCloseable {
     *   Whether to start the effect after resetting.
     */
   def reset(resetScaling: Boolean, start: Boolean): Unit = {
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).reset(start)
     if (resetScaling && (xSizeScale != 1f || ySizeScale != 1f || motionScale != 1f)) {
       scaleEffect(1f / xSizeScale, 1f / ySizeScale, 1f / motionScale)
@@ -81,23 +83,23 @@ class ParticleEffect extends AutoCloseable {
   }
 
   def update(delta: Float): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).update(delta)
 
   def draw(spriteBatch: Batch): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).draw(spriteBatch)
 
   def draw(spriteBatch: Batch, delta: Float): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).draw(spriteBatch, delta)
 
   def allowCompletion(): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).allowCompletionMethod()
 
   def isComplete(): Boolean = scala.util.boundary {
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       if (!emitter.isComplete()) scala.util.boundary.break(false)
     }
@@ -105,7 +107,7 @@ class ParticleEffect extends AutoCloseable {
   }
 
   def setDuration(duration: Int): Unit =
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       emitter.setContinuous(false)
       emitter.duration = duration.toFloat
@@ -113,23 +115,23 @@ class ParticleEffect extends AutoCloseable {
     }
 
   def setPosition(x: Float, y: Float): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).setPosition(x, y)
 
   def setFlip(flipX: Boolean, flipY: Boolean): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).setFlip(flipX, flipY)
 
   def flipY(): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).flipYValues()
 
-  def getEmitters(): ArrayBuffer[ParticleEmitter] =
+  def getEmitters(): DynamicArray[ParticleEmitter] =
     emitters
 
   /** Returns the emitter with the specified name, or empty. */
   def findEmitter(name: String): Nullable[ParticleEmitter] = scala.util.boundary {
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       if (emitter.getName().equals(name)) scala.util.boundary.break(Nullable(emitter))
     }
@@ -143,7 +145,7 @@ class ParticleEffect extends AutoCloseable {
 
   def save(output: Writer): Unit = {
     var index = 0
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       if (index > 0) output.write("\n")
       emitter.save(output)
@@ -173,7 +175,7 @@ class ParticleEffect extends AutoCloseable {
       var shouldContinue = true
       while (shouldContinue) {
         val emitter = newEmitter(reader)
-        emitters.addOne(emitter)
+        emitters.add(emitter)
         if (reader.readLine() == null) shouldContinue = false
       }
     } catch {
@@ -187,18 +189,18 @@ class ParticleEffect extends AutoCloseable {
     loadEmitterImages(atlas, Nullable.empty)
 
   def loadEmitterImages(atlas: TextureAtlas, atlasPrefix: Nullable[String]): Unit =
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       if (emitter.getImagePaths().size == 0) { /* continue */ }
       else {
-        val sprites = ArrayBuffer[Sprite]()
+        val sprites = DynamicArray[Sprite]()
         for (imagePath <- emitter.getImagePaths()) {
           var imageName    = new File(imagePath.replace('\\', '/')).getName()
           val lastDotIndex = imageName.lastIndexOf('.')
           if (lastDotIndex != -1) imageName = imageName.substring(0, lastDotIndex)
           atlasPrefix.foreach(prefix => imageName = prefix + imageName)
           val sprite = atlas.createSprite(imageName)
-          sprite.fold(throw new IllegalArgumentException("Atlas is missing region: " + imageName))(sprites.addOne)
+          sprite.fold(throw new IllegalArgumentException("Atlas is missing region: " + imageName))(sprites.add)
         }
         emitter.setSprites(sprites.toArray)
       }
@@ -207,14 +209,14 @@ class ParticleEffect extends AutoCloseable {
   def loadEmitterImages(imagesDir: FileHandle)(using sge: Sge): Unit = {
     ownsTexture = true
     val loadedSprites = scala.collection.mutable.Map[String, Sprite]()
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       if (emitter.getImagePaths().size != 0) {
-        val sprites = ArrayBuffer[Sprite]()
+        val sprites = DynamicArray[Sprite]()
         for (imagePath <- emitter.getImagePaths()) {
           val imageName = new File(imagePath.replace('\\', '/')).getName()
           val sprite    = loadedSprites.getOrElseUpdate(imageName, new Sprite(loadTexture(imagesDir.child(imageName))))
-          sprites.addOne(sprite)
+          sprites.add(sprite)
         }
         emitter.setSprites(sprites.toArray)
       }
@@ -233,7 +235,7 @@ class ParticleEffect extends AutoCloseable {
   /** Disposes the texture for each sprite for each ParticleEmitter. */
   def close(): Unit = {
     if (!ownsTexture) return
-    for (i <- emitters.indices) {
+    for (i <- 0 until emitters.size) {
       val emitter = emitters(i)
       for (sprite <- emitter.getSprites())
         sprite.getTexture().close()
@@ -281,6 +283,6 @@ class ParticleEffect extends AutoCloseable {
     * @param cleanUpBlendFunction
     */
   def setEmittersCleanUpBlendFunction(cleanUpBlendFunction: Boolean): Unit =
-    for (i <- emitters.indices)
+    for (i <- 0 until emitters.size)
       emitters(i).setCleansUpBlendFunction(cleanUpBlendFunction)
 }

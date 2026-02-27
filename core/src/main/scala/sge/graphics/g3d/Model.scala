@@ -13,7 +13,6 @@ package g3d
 import java.nio.Buffer
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -24,7 +23,7 @@ import sge.graphics.g3d.model.data._
 import sge.graphics.g3d.utils.{ TextureDescriptor, TextureProvider }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ ArrayMap, BufferUtils, Nullable, SgeError }
+import sge.utils.{ ArrayMap, BufferUtils, DynamicArray, Nullable, SgeError }
 
 /** A model represents a 3D assets. It stores a hierarchy of nodes. A node has a transform and optionally a graphical part in form of a {@link MeshPart} and {@link Material}. Mesh parts reference
   * subsets of vertices in one of the meshes of the model. Animations can be applied to nodes, to modify their transform (translation, rotation, scale) over time. </p>
@@ -42,23 +41,23 @@ class Model extends AutoCloseable {
 
   /** the materials of the model, used by nodes that have a graphical representation FIXME not sure if superfluous, allows modification of materials without having to traverse the nodes *
     */
-  val materials: ArrayBuffer[Material] = ArrayBuffer[Material]()
+  val materials: DynamicArray[Material] = DynamicArray[Material]()
 
   /** root nodes of the model * */
-  val nodes: ArrayBuffer[Node] = ArrayBuffer[Node]()
+  val nodes: DynamicArray[Node] = DynamicArray[Node]()
 
   /** animations of the model, modifying node transformations * */
-  val animations: ArrayBuffer[Animation] = ArrayBuffer[Animation]()
+  val animations: DynamicArray[Animation] = DynamicArray[Animation]()
 
   /** the meshes of the model * */
-  val meshes: ArrayBuffer[Mesh] = ArrayBuffer[Mesh]()
+  val meshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
 
   /** parts of meshes, used by nodes that have a graphical representation FIXME not sure if superfluous, stored in Nodes as well, could be useful to create bullet meshes *
     */
-  val meshParts: ArrayBuffer[MeshPart] = ArrayBuffer[MeshPart]()
+  val meshParts: DynamicArray[MeshPart] = DynamicArray[MeshPart]()
 
   /** Array of disposable resources like textures or meshes the Model is responsible for disposing * */
-  protected val disposables: ArrayBuffer[AutoCloseable] = ArrayBuffer[AutoCloseable]()
+  protected val disposables: DynamicArray[AutoCloseable] = DynamicArray[AutoCloseable]()
 
   /** Constructs a new Model based on the {@link ModelData}. Texture files will be loaded from the internal file storage via an {@link TextureProvider.FileTextureProvider}.
     * @param modelData
@@ -88,7 +87,7 @@ class Model extends AutoCloseable {
     calculateTransforms()
   }
 
-  protected def loadAnimations(modelAnimations: Iterable[ModelAnimation]): Unit =
+  protected def loadAnimations(modelAnimations: DynamicArray[ModelAnimation]): Unit =
     for (anim <- modelAnimations) {
       val animation = new Animation()
       animation.id = anim.id
@@ -100,37 +99,37 @@ class Model extends AutoCloseable {
             nodeAnim.node = n
 
             Nullable(nanim.translation).foreach { trans =>
-              val buf = ArrayBuffer[NodeKeyframe[Vector3]]()
+              val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- trans) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
                 val v = new Vector3()
                 v.set(n.translation)
                 kf.value.foreach(src => v.set(src))
-                buf += new NodeKeyframe[Vector3](kf.keytime, v)
+                buf.add(new NodeKeyframe[Vector3](kf.keytime, v))
               }
               nodeAnim.translation = Nullable(buf)
             }
 
             Nullable(nanim.rotation).foreach { rot =>
-              val buf = ArrayBuffer[NodeKeyframe[Quaternion]]()
+              val buf = DynamicArray[NodeKeyframe[Quaternion]]()
               for (kf <- rot) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
                 val q = new Quaternion(0, 0, 0, 1)
                 q.set(n.rotation)
                 kf.value.foreach(src => q.set(src))
-                buf += new NodeKeyframe[Quaternion](kf.keytime, q)
+                buf.add(new NodeKeyframe[Quaternion](kf.keytime, q))
               }
               nodeAnim.rotation = Nullable(buf)
             }
 
             Nullable(nanim.scaling).foreach { scl =>
-              val buf = ArrayBuffer[NodeKeyframe[Vector3]]()
+              val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- scl) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
                 val v = new Vector3()
                 v.set(n.scale)
                 kf.value.foreach(src => v.set(src))
-                buf += new NodeKeyframe[Vector3](kf.keytime, v)
+                buf.add(new NodeKeyframe[Vector3](kf.keytime, v))
               }
               nodeAnim.scaling = Nullable(buf)
             }
@@ -140,20 +139,20 @@ class Model extends AutoCloseable {
               || nodeAnim.rotation.fold(false)(_.nonEmpty)
               || nodeAnim.scaling.fold(false)(_.nonEmpty)
             ) {
-              animation.nodeAnimations += nodeAnim
+              animation.nodeAnimations.add(nodeAnim)
             }
           }
         }
       }
-      if (animation.nodeAnimations.nonEmpty) animations += animation
+      if (animation.nodeAnimations.nonEmpty) animations.add(animation)
     }
 
   private val nodePartBones: mutable.Map[NodePart, ArrayMap[String, Matrix4]] = mutable.Map.empty
 
-  protected def loadNodes(modelNodes: Iterable[ModelNode]): Unit = {
+  protected def loadNodes(modelNodes: DynamicArray[ModelNode]): Unit = {
     nodePartBones.clear()
     for (node <- modelNodes)
-      nodes += loadNode(node)
+      nodes.add(loadNode(node))
     for ((nodePart, boneMap) <- nodePartBones) {
       if (nodePart.invBoneBindTransforms.isEmpty) {
         nodePart.invBoneBindTransforms = Nullable(ArrayMap[Node, Matrix4]())
@@ -203,7 +202,7 @@ class Model extends AutoCloseable {
         val nodePart = new NodePart()
         meshPart.foreach(mp => nodePart.meshPart = mp)
         meshMaterial.foreach(mm => nodePart.material = mm)
-        node.parts += nodePart
+        node.parts.add(nodePart)
         Nullable(modelNodePart.bones).foreach(b => nodePartBones.put(nodePart, b))
       }
     }
@@ -216,7 +215,7 @@ class Model extends AutoCloseable {
     node
   }
 
-  protected def loadMeshes(modelMeshes: Iterable[ModelMesh])(using sge: Sge): Unit =
+  protected def loadMeshes(modelMeshes: DynamicArray[ModelMesh])(using sge: Sge): Unit =
     for (mesh <- modelMeshes)
       convertMesh(mesh)
 
@@ -229,8 +228,8 @@ class Model extends AutoCloseable {
     val numVertices = modelMesh.vertices.length / (attributes.vertexSize / 4)
 
     val mesh = new Mesh(true, numVertices, numIndices, attributes)
-    meshes += mesh
-    disposables += mesh
+    meshes.add(mesh)
+    disposables.add(mesh)
 
     BufferUtils.copy(modelMesh.vertices, mesh.getVerticesBuffer(true), modelMesh.vertices.length, 0)
     var offset        = 0
@@ -247,16 +246,16 @@ class Model extends AutoCloseable {
         indicesBuffer.put(part.indices)
       }
       offset += meshPart.size
-      meshParts += meshPart
+      meshParts.add(meshPart)
     }
     indicesBuffer.asInstanceOf[Buffer].position(0)
     for (part <- meshParts)
       part.update()
   }
 
-  protected def loadMaterials(modelMaterials: Iterable[ModelMaterial], textureProvider: TextureProvider): Unit =
+  protected def loadMaterials(modelMaterials: DynamicArray[ModelMaterial], textureProvider: TextureProvider): Unit =
     for (mtl <- modelMaterials)
-      materials += convertMaterial(mtl, textureProvider)
+      materials.add(convertMaterial(mtl, textureProvider))
 
   protected def convertMaterial(mtl: ModelMaterial, textureProvider: TextureProvider): Material = {
     val result = new Material()
@@ -276,7 +275,7 @@ class Model extends AutoCloseable {
       for (tex <- mtlTextures) {
         val texture = textures.getOrElseUpdate(tex.fileName, {
                                                  val t = textureProvider.load(tex.fileName)
-                                                 disposables += t
+                                                 disposables.add(t)
                                                  t
                                                }
         )
@@ -320,10 +319,10 @@ class Model extends AutoCloseable {
     *   the AutoCloseable
     */
   def manageDisposable(disposable: AutoCloseable): Unit =
-    if (!disposables.contains(disposable)) disposables += disposable
+    if (!disposables.contains(disposable)) disposables.add(disposable)
 
   /** @return the {@link AutoCloseable} objects that will be disposed when the {@link #close()} method is called. */
-  def getManagedDisposables: Iterable[AutoCloseable] = disposables
+  def getManagedDisposables: DynamicArray[AutoCloseable] = disposables
 
   override def close(): Unit =
     for (disposable <- disposables)

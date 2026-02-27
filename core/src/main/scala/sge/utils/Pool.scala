@@ -25,20 +25,20 @@ trait Pool[A] {
 
   var peak: Int = 0
 
-  private val freeObjects = new scala.collection.mutable.ArrayBuffer[A](initialCapacity)
+  private val freeObjects = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[A]], initialCapacity, true)
 
   protected def newObject(): A
 
   /** Returns an object from this pool. The object may be new (from [[newObject]]) or reused (previously [[free]]). */
   def obtain(): A =
-    if (freeObjects.isEmpty) newObject() else freeObjects.remove(0)
+    if (freeObjects.isEmpty) newObject() else freeObjects.removeIndex(0)
 
   /** Puts the specified object in the pool, making it eligible to be returned by {@link #obtain()} . If the pool already contains {@link #max} free objects, the specified object is
     * {@link #discard(Object) discarded} , it is not reset and not added to the pool. <p> The pool does not check if an object is already freed, so the same object must not be freed multiple times.
     */
   def free(obj: A): Unit =
     if (freeObjects.size < max) {
-      freeObjects += obj
+      freeObjects.add(obj)
       peak = peak max freeObjects.size
       reset(obj)
     } else
@@ -51,7 +51,7 @@ trait Pool[A] {
     */
   def fill(size: Int): Unit =
     for (i <- 0 until size)
-      if (freeObjects.size < max) freeObjects += newObject()
+      if (freeObjects.size < max) freeObjects.add(newObject())
   peak = peak max freeObjects.size
 
   /** Called when an object is freed to clear the state of the object for possible later reuse. The default implementation calls {@link Poolable#reset()} if the object is {@link Poolable} .
@@ -69,10 +69,22 @@ trait Pool[A] {
   def freeAll(objects: Iterable[A]): Unit = {
     objects.foreach { obj =>
       if (freeObjects.size < max) {
-        freeObjects += obj
+        freeObjects.add(obj)
         reset(obj)
       } else {
         discard(obj)
+      }
+    }
+    peak = peak max freeObjects.size
+  }
+
+  def freeAll(objects: DynamicArray[? <: A]): Unit = {
+    objects.foreach { obj =>
+      if (freeObjects.size < max) {
+        freeObjects.add(obj.asInstanceOf[A])
+        reset(obj.asInstanceOf[A])
+      } else {
+        discard(obj.asInstanceOf[A])
       }
     }
     peak = peak max freeObjects.size
@@ -103,27 +115,27 @@ object Pool {
   }
 
   trait Flushable[A] extends Pool[A] {
-    protected val obtained = new scala.collection.mutable.ArrayBuffer[A]()
+    protected val obtained = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[A]], 16, true)
 
     override def obtain(): A = {
       val result = super.obtain()
-      obtained += result
+      obtained.add(result)
       result
     }
 
     /** Frees all obtained instances. */
     def flush(): Unit = {
-      super.freeAll(obtained)
+      super.freeAll(obtained.iterator.toSeq)
       obtained.clear()
     }
 
     override def free(obj: A): Unit = {
-      obtained -= obj
+      obtained.removeValue(obj)
       super.free(obj)
     }
 
     override def freeAll(objects: Iterable[A]): Unit = {
-      obtained --= objects
+      objects.foreach(obtained.removeValue)
       super.freeAll(objects)
     }
   }
@@ -244,10 +256,10 @@ object Pool {
     /** @param results
       *   For each entry found within the radius, if any, the value, x, y, and square of the distance to the entry are added to this array. See VALUE, X, Y, and DISTSQR.
       */
-    def query(centerX: Float, centerY: Float, radius: Float, results: scala.collection.mutable.ArrayBuffer[Float]): Unit =
+    def query(centerX: Float, centerY: Float, radius: Float, results: DynamicArray[Float]): Unit =
       query(centerX, centerY, radius * radius, centerX - radius, centerY - radius, radius * 2, results)
 
-    private def query(centerX: Float, centerY: Float, radiusSqr: Float, rectX: Float, rectY: Float, rectSize: Float, results: scala.collection.mutable.ArrayBuffer[Float]): Unit = {
+    private def query(centerX: Float, centerY: Float, radiusSqr: Float, rectX: Float, rectY: Float, rectSize: Float, results: DynamicArray[Float]): Unit = {
       if (!(x < rectX + rectSize && x + width > rectX && y < rectY + rectSize && y + height > rectY)) return
       val count = this.count
       if (count != -1) {
@@ -260,10 +272,10 @@ object Pool {
           val dy = py - centerY
           val d  = dx * dx + dy * dy
           if (d <= radiusSqr) {
-            results += values(i - 1)
-            results += px
-            results += py
-            results += d
+            results.add(values(i - 1))
+            results.add(px)
+            results.add(py)
+            results.add(d)
           }
           i += 3
         }
@@ -278,7 +290,7 @@ object Pool {
     /** @param results
       *   For each entry found within the rectangle, if any, the value, x, and y of the entry are added to this array. See VALUE, X, and Y.
       */
-    def query(rect: sge.math.Rectangle, results: scala.collection.mutable.ArrayBuffer[Float]): Unit = {
+    def query(rect: sge.math.Rectangle, results: DynamicArray[Float]): Unit = {
       if (x >= rect.x + rect.width || x + width <= rect.x || y >= rect.y + rect.height || y + height <= rect.y) return
       val count = this.count
       if (count != -1) {
@@ -288,9 +300,9 @@ object Pool {
           val px = values(i)
           val py = values(i + 1)
           if (rect.contains(px, py)) {
-            results += values(i - 1)
-            results += px
-            results += py
+            results.add(values(i - 1))
+            results.add(px)
+            results.add(py)
           }
           i += 3
         }
@@ -308,13 +320,13 @@ object Pool {
       *   false if no entry was found because the quad tree was empty or the specified point is farther than the larger of the quad tree's width or height from an entry. If false is returned the
       *   result array is empty.
       */
-    def nearest(x: Float, y: Float, result: scala.collection.mutable.ArrayBuffer[Float]): Boolean = {
+    def nearest(x: Float, y: Float, result: DynamicArray[Float]): Boolean = {
       // Find nearest value in a cell that contains the point.
       result.clear()
-      result += 0
-      result += 0
-      result += 0
-      result += Float.PositiveInfinity
+      result.add(0)
+      result.add(0)
+      result.add(0)
+      result.add(Float.PositiveInfinity)
       findNearestInternal(x, y, result)
       val nearValue = result(0)
       val nearX     = result(1)
@@ -347,14 +359,14 @@ object Pool {
       }
       if (!found && result.isEmpty) return false
       result.clear()
-      result += finalNearValue
-      result += finalNearX
-      result += finalNearY
-      result += finalNearDist
+      result.add(finalNearValue)
+      result.add(finalNearX)
+      result.add(finalNearY)
+      result.add(finalNearDist)
       true
     }
 
-    private def findNearestInternal(x: Float, y: Float, result: scala.collection.mutable.ArrayBuffer[Float]): Unit = {
+    private def findNearestInternal(x: Float, y: Float, result: DynamicArray[Float]): Unit = {
       if (!(this.x < x && this.x + width > x && this.y < y && this.y + height > y)) return
 
       val count = this.count

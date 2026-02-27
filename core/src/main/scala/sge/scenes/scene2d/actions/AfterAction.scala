@@ -11,19 +11,18 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Executes an action only after all other actions on the actor at the time this action's target was set have finished.
   * @author
   *   Nathan Sweet
   */
 class AfterAction extends DelegateAction {
-  private val waitForActions: ArrayBuffer[Action] = ArrayBuffer.empty
+  private val waitForActions: DynamicArray[Action] = DynamicArray[Action]()
 
   override def setTarget(newTarget: Nullable[Actor]): Unit = {
     newTarget.foreach { t =>
-      waitForActions ++= t.getActions
+      waitForActions.addAll(t.getActions)
     }
     super.setTarget(newTarget)
   }
@@ -40,7 +39,7 @@ class AfterAction extends DelegateAction {
       var i = waitForActions.size - 1
       while (i >= 0) {
         val a = waitForActions(i)
-        if (!currentActions.contains(a)) waitForActions.remove(i)
+        if (!currentActions.contains(a)) waitForActions.removeIndex(i)
         i -= 1
       }
       if (waitForActions.nonEmpty) false

@@ -10,7 +10,7 @@ package sge
 package graphics
 
 import scala.collection.mutable
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 import sge.graphics.GLTexture
 import sge.graphics.Texture.TextureWrap
@@ -98,11 +98,11 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
 }
 
 object Texture3D {
-  private val managedTexture3Ds: mutable.Map[Application, mutable.ArrayBuffer[Texture3D]] = mutable.Map()
+  private val managedTexture3Ds: mutable.Map[Application, DynamicArray[Texture3D]] = mutable.Map()
 
   private def addManagedTexture(app: Application, texture: Texture3D): Unit = {
-    val managedTextureArray = managedTexture3Ds.getOrElseUpdate(app, mutable.ArrayBuffer())
-    managedTextureArray.addOne(texture)
+    val managedTextureArray = managedTexture3Ds.getOrElseUpdate(app, DynamicArray[Texture3D]())
+    managedTextureArray.add(texture)
   }
 
   /** Clears all managed TextureArrays. This is an internal method. Do not use it! */

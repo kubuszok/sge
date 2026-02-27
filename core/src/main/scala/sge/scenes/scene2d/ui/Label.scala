@@ -11,12 +11,10 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, BitmapFontCache, GlyphLayout }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A text label, with optional word wrapping. <p> The preferred size of the label is determined by the actual text bounds, unless {@link #setWrap(boolean) word wrap} is enabled.
   * @author
@@ -25,27 +23,27 @@ import sge.utils.{ Align, Nullable }
 class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widget with Styleable[Label.LabelStyle] {
   import Label._
 
-  private var _style:           Label.LabelStyle  = scala.compiletime.uninitialized
-  private val glyphLayout:      GlyphLayout       = new GlyphLayout()
-  private var prefWidth:        Float             = 0
-  private var prefHeight:       Float             = 0
-  private val _text:            ArrayBuffer[Char] = ArrayBuffer.empty
-  private var intValue:         Int               = Int.MinValue
-  private var cache:            BitmapFontCache   = scala.compiletime.uninitialized
-  private var labelAlign:       Align             = Align.left
-  private var lineAlign:        Align             = Align.left
-  private var wrap:             Boolean           = false
-  private var lastPrefHeight:   Float             = 0
-  private var prefSizeInvalid:  Boolean           = true
-  private var fontScaleX:       Float             = 1
-  private var fontScaleY:       Float             = 1
-  private var fontScaleChanged: Boolean           = false
-  private var ellipsis:         Nullable[String]  = Nullable.empty
+  private var _style:           Label.LabelStyle   = scala.compiletime.uninitialized
+  private val glyphLayout:      GlyphLayout        = new GlyphLayout()
+  private var prefWidth:        Float              = 0
+  private var prefHeight:       Float              = 0
+  private val _text:            DynamicArray[Char] = DynamicArray[Char]()
+  private var intValue:         Int                = Int.MinValue
+  private var cache:            BitmapFontCache    = scala.compiletime.uninitialized
+  private var labelAlign:       Align              = Align.left
+  private var lineAlign:        Align              = Align.left
+  private var wrap:             Boolean            = false
+  private var lastPrefHeight:   Float              = 0
+  private var prefSizeInvalid:  Boolean            = true
+  private var fontScaleX:       Float              = 1
+  private var fontScaleY:       Float              = 1
+  private var fontScaleChanged: Boolean            = false
+  private var ellipsis:         Nullable[String]   = Nullable.empty
 
   text.foreach { t =>
     var i = 0
     while (i < t.length()) {
-      _text += t.charAt(i)
+      _text.add(t.charAt(i))
       i += 1
     }
   }
@@ -86,7 +84,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
       val s = value.toString
       var i = 0
       while (i < s.length) {
-        _text += s.charAt(i)
+        _text.add(s.charAt(i))
         i += 1
       }
       intValue = value
@@ -104,7 +102,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
       _text.clear()
       var i = 0
       while (i < nt.length()) {
-        _text += nt.charAt(i)
+        _text.add(nt.charAt(i))
         i += 1
       }
     }
@@ -127,7 +125,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
     }
   }
 
-  def getText: ArrayBuffer[Char] = _text
+  def getText: DynamicArray[Char] = _text
 
   override def invalidate(): Unit = {
     super.invalidate()

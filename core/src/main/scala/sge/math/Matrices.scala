@@ -1098,22 +1098,29 @@ class Matrix4 {
     val inv_det = 1.0f / l_det
     val values  = this.values
 
-    val v00 = values(Matrix4.M12) * values(Matrix4.M23) * values(Matrix4.M31) - values(Matrix4.M13) * values(Matrix4.M22) * values(Matrix4.M31)
-    val v10 = values(Matrix4.M20) * values(Matrix4.M12) * values(Matrix4.M31) - values(Matrix4.M10) * values(Matrix4.M22) * values(Matrix4.M31)
-    val v20 = values(Matrix4.M10) * values(Matrix4.M21) * values(Matrix4.M32) - values(Matrix4.M20) * values(Matrix4.M11) * values(Matrix4.M32)
-    val v01 = values(Matrix4.M21) * values(Matrix4.M02) * values(Matrix4.M31) - values(Matrix4.M01) * values(Matrix4.M22) * values(Matrix4.M31)
-    val v11 = values(Matrix4.M00) * values(Matrix4.M22) * values(Matrix4.M31) - values(Matrix4.M20) * values(Matrix4.M02) * values(Matrix4.M31)
-    val v21 = values(Matrix4.M20) * values(Matrix4.M01) * values(Matrix4.M32) - values(Matrix4.M00) * values(Matrix4.M21) * values(Matrix4.M32)
-    val v02 = values(Matrix4.M01) * values(Matrix4.M12) * values(Matrix4.M31) - values(Matrix4.M11) * values(Matrix4.M02) * values(Matrix4.M31)
-    val v12 = values(Matrix4.M10) * values(Matrix4.M02) * values(Matrix4.M31) - values(Matrix4.M00) * values(Matrix4.M12) * values(Matrix4.M31)
-    val v22 = values(Matrix4.M00) * values(Matrix4.M11) * values(Matrix4.M32) - values(Matrix4.M10) * values(Matrix4.M01) * values(Matrix4.M32)
-    val v03 = values(Matrix4.M01) * values(Matrix4.M13) * values(Matrix4.M22) - values(Matrix4.M11) * values(Matrix4.M03) * values(Matrix4.M22)
-    val v13 = values(Matrix4.M10) * values(Matrix4.M03) * values(Matrix4.M22) - values(Matrix4.M00) * values(Matrix4.M13) * values(Matrix4.M22)
-    val v23 = values(Matrix4.M20) * values(Matrix4.M03) * values(Matrix4.M12) - values(Matrix4.M00) * values(Matrix4.M23) * values(Matrix4.M12)
-    val v30 = values(Matrix4.M31) * values(Matrix4.M22) * values(Matrix4.M13) - values(Matrix4.M32) * values(Matrix4.M21) * values(Matrix4.M13)
-    val v31 = values(Matrix4.M30) * values(Matrix4.M22) * values(Matrix4.M13) - values(Matrix4.M32) * values(Matrix4.M20) * values(Matrix4.M13)
-    val v32 = values(Matrix4.M30) * values(Matrix4.M21) * values(Matrix4.M23) - values(Matrix4.M31) * values(Matrix4.M20) * values(Matrix4.M23)
-    val v33 = values(Matrix4.M30) * values(Matrix4.M21) * values(Matrix4.M22) - values(Matrix4.M31) * values(Matrix4.M22) * values(Matrix4.M20)
+    // Extract matrix elements for readability
+    val m00 = values(Matrix4.M00); val m01 = values(Matrix4.M01); val m02 = values(Matrix4.M02); val m03 = values(Matrix4.M03)
+    val m10 = values(Matrix4.M10); val m11 = values(Matrix4.M11); val m12 = values(Matrix4.M12); val m13 = values(Matrix4.M13)
+    val m20 = values(Matrix4.M20); val m21 = values(Matrix4.M21); val m22 = values(Matrix4.M22); val m23 = values(Matrix4.M23)
+    val m30 = values(Matrix4.M30); val m31 = values(Matrix4.M31); val m32 = values(Matrix4.M32); val m33 = values(Matrix4.M33)
+
+    // Cofactors of the adjugate matrix (each is a 3x3 subdeterminant with 6 terms)
+    val v00 = m12 * m23 * m31 - m13 * m22 * m31 + m13 * m21 * m32 - m11 * m23 * m32 - m12 * m21 * m33 + m11 * m22 * m33
+    val v01 = m03 * m22 * m31 - m02 * m23 * m31 - m03 * m21 * m32 + m01 * m23 * m32 + m02 * m21 * m33 - m01 * m22 * m33
+    val v02 = m02 * m13 * m31 - m03 * m12 * m31 + m03 * m11 * m32 - m01 * m13 * m32 - m02 * m11 * m33 + m01 * m12 * m33
+    val v03 = m03 * m12 * m21 - m02 * m13 * m21 - m03 * m11 * m22 + m01 * m13 * m22 + m02 * m11 * m23 - m01 * m12 * m23
+    val v10 = m13 * m22 * m30 - m12 * m23 * m30 - m13 * m20 * m32 + m10 * m23 * m32 + m12 * m20 * m33 - m10 * m22 * m33
+    val v11 = m02 * m23 * m30 - m03 * m22 * m30 + m03 * m20 * m32 - m00 * m23 * m32 - m02 * m20 * m33 + m00 * m22 * m33
+    val v12 = m03 * m12 * m30 - m02 * m13 * m30 - m03 * m10 * m32 + m00 * m13 * m32 + m02 * m10 * m33 - m00 * m12 * m33
+    val v13 = m02 * m13 * m20 - m03 * m12 * m20 + m03 * m10 * m22 - m00 * m13 * m22 - m02 * m10 * m23 + m00 * m12 * m23
+    val v20 = m11 * m23 * m30 - m13 * m21 * m30 + m13 * m20 * m31 - m10 * m23 * m31 - m11 * m20 * m33 + m10 * m21 * m33
+    val v21 = m03 * m21 * m30 - m01 * m23 * m30 - m03 * m20 * m31 + m00 * m23 * m31 + m01 * m20 * m33 - m00 * m21 * m33
+    val v22 = m01 * m13 * m30 - m03 * m11 * m30 + m03 * m10 * m31 - m00 * m13 * m31 - m01 * m10 * m33 + m00 * m11 * m33
+    val v23 = m03 * m11 * m20 - m01 * m13 * m20 - m03 * m10 * m21 + m00 * m13 * m21 + m01 * m10 * m23 - m00 * m11 * m23
+    val v30 = m12 * m21 * m30 - m11 * m22 * m30 - m12 * m20 * m31 + m10 * m22 * m31 + m11 * m20 * m32 - m10 * m21 * m32
+    val v31 = m01 * m22 * m30 - m02 * m21 * m30 + m02 * m20 * m31 - m00 * m22 * m31 - m01 * m20 * m32 + m00 * m21 * m32
+    val v32 = m02 * m11 * m30 - m01 * m12 * m30 - m02 * m10 * m31 + m00 * m12 * m31 + m01 * m10 * m32 - m00 * m11 * m32
+    val v33 = m01 * m12 * m20 - m02 * m11 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 + m00 * m11 * m22
 
     values(Matrix4.M00) = inv_det * v00
     values(Matrix4.M10) = inv_det * v10

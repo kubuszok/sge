@@ -11,8 +11,8 @@ package scenes
 package scene2d
 package utils
 
-import scala.collection.mutable.{ ArrayBuffer, LinkedHashSet }
-import sge.utils.Nullable
+import scala.collection.mutable.LinkedHashSet
+import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** Manages selected objects. Optionally fires a {@link ChangeEvent} on an actor. Selection changes can be vetoed via {@link ChangeEvent#cancel()}.
   * @author
@@ -108,7 +108,7 @@ class Selection[T] extends Disableable with Iterable[T] {
       cleanup()
     }
 
-  def setAll(items: ArrayBuffer[T]): Unit = {
+  def setAll(items: DynamicArray[T]): Unit = {
     var added = false
     snapshot()
     lastSelected = Nullable.empty
@@ -123,8 +123,8 @@ class Selection[T] extends Disableable with Iterable[T] {
     if (added) {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
-      else if (items.nonEmpty) {
-        lastSelected = Nullable(items.last)
+      else if (items.size > 0) {
+        lastSelected = Nullable(items(items.size - 1))
         changed()
       }
     }
@@ -141,7 +141,7 @@ class Selection[T] extends Disableable with Iterable[T] {
       changed()
     }
 
-  def addAll(items: ArrayBuffer[T]): Unit = {
+  def addAll(items: DynamicArray[T]): Unit = {
     var added = false
     snapshot()
     var i = 0
@@ -155,7 +155,7 @@ class Selection[T] extends Disableable with Iterable[T] {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else {
-        lastSelected = Nullable(items.last)
+        lastSelected = Nullable(items(items.size - 1))
         changed()
       }
     }
@@ -171,7 +171,7 @@ class Selection[T] extends Disableable with Iterable[T] {
       changed()
     }
 
-  def removeAll(items: ArrayBuffer[T]): Unit = {
+  def removeAll(items: DynamicArray[T]): Unit = {
     var removed = false
     snapshot()
     var i = 0
@@ -235,10 +235,14 @@ class Selection[T] extends Disableable with Iterable[T] {
 
   override def iterator: Iterator[T] = selected.iterator
 
-  def toArray: ArrayBuffer[T] = ArrayBuffer.from(selected)
+  def toArray: DynamicArray[T] = {
+    val result = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+    selected.foreach(result.add)
+    result
+  }
 
-  def toArray(array: ArrayBuffer[T]): ArrayBuffer[T] = {
-    array.addAll(selected)
+  def toArray(array: DynamicArray[T]): DynamicArray[T] = {
+    selected.foreach(array.add)
     array
   }
 

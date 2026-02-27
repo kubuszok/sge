@@ -15,7 +15,8 @@ import sge.graphics.{ Color, GL20 }
 import sge.math.{ Matrix3, Matrix4, Vector2, Vector3, Vector4 }
 import sge.{ Application, Sge }
 import sge.files.FileHandle
-import scala.collection.mutable.{ ArrayBuffer, Map as MutableMap }
+import sge.utils.DynamicArray
+import scala.collection.mutable.Map as MutableMap
 import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer, IntBuffer }
 import scala.compiletime.uninitialized
 
@@ -691,7 +692,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     gl.glDeleteShader(vertexShaderHandle)
     gl.glDeleteShader(fragmentShaderHandle)
     gl.glDeleteProgram(program)
-    ShaderProgram.shaders.get(sge.application).foreach(_ -= this)
+    ShaderProgram.shaders.get(sge.application).foreach(_.removeValue(this))
   }
 
   /** Disables the vertex attribute with the given name
@@ -927,11 +928,11 @@ object ShaderProgram {
   var prependFragmentCode = ""
 
   /** the list of currently available shaders * */
-  private val shaders: MutableMap[Application, ArrayBuffer[ShaderProgram]] = MutableMap.empty
+  private val shaders: MutableMap[Application, DynamicArray[ShaderProgram]] = MutableMap.empty
 
   private def addManagedShader(app: Application, shaderProgram: ShaderProgram): Unit = {
-    val managedResources = shaders.getOrElseUpdate(app, ArrayBuffer.empty)
-    managedResources += shaderProgram
+    val managedResources = shaders.getOrElseUpdate(app, DynamicArray[ShaderProgram]())
+    managedResources.add(shaderProgram)
   }
 
   /** Invalidates all shaders so the next time they are used new handles are generated
@@ -940,8 +941,12 @@ object ShaderProgram {
   def invalidateAllShaderPrograms(app: Application)(using sge: Sge): Unit =
     shaders.get(app) match {
       case Some(shaderArray) =>
-        for (i <- shaderArray.indices)
+        var i = 0
+        val n = shaderArray.size
+        while (i < n) {
           shaderArray(i).invalidate()
+          i += 1
+        }
       case None =>
     }
 

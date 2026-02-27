@@ -10,11 +10,10 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** Extend this class to implement a material attribute. Register the attribute type by statically calling the [[Attribute.register]] method, whose return value should be used to instantiate the
   * attribute. A class can implement multiple types
@@ -54,7 +53,7 @@ abstract class Attribute(
 object Attribute {
 
   /** The registered type aliases */
-  private val types: ArrayBuffer[String] = ArrayBuffer.empty
+  private val types: DynamicArray[String] = DynamicArray[String]()
 
   /** The long bitmask is limited to 64 bits */
   private val MAX_ATTRIBUTE_COUNT: Int = 64
@@ -93,7 +92,7 @@ object Attribute {
       if (types.size >= MAX_ATTRIBUTE_COUNT) {
         throw SgeError.InvalidInput("Cannot register " + alias + ", maximum registered attribute count reached.")
       }
-      types += alias
+      types.add(alias)
       1L << (types.size - 1)
     }
   }

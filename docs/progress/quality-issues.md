@@ -3,7 +3,7 @@
 Systemic code quality issues found across the SGE codebase. These should be addressed
 during verification and idiomatization passes.
 
-Last updated: 2026-02-26
+Last updated: 2026-02-27
 
 ## Summary
 
@@ -15,6 +15,7 @@ Last updated: 2026-02-26
 | `null.asInstanceOf` | 23 | ~69 | Not started |
 | Remaining Java syntax | 363 | ~2875 | Not started |
 | TODO/FIXME markers | 57 | ~119 | Not started |
+| ArrayBuffer→DynamicArray | 0 | 0 | **Complete** (145 files) |
 
 ## 1. Missing License Headers — COMPLETE
 
@@ -76,6 +77,29 @@ Run `just sge-quality todo` to see current occurrences.
 - **`NativeImputConfiguration.scala`** — Typo: "Imput" should be "Input"
 - **`TextinputWrapper.scala`** — Inconsistent casing: "input" should be "Input"
 
-## 7. Missing Implementations
+## 7. ArrayBuffer→DynamicArray Migration — COMPLETE
+
+All 145 files using `scala.collection.mutable.ArrayBuffer` have been migrated to
+`sge.utils.DynamicArray`. DynamicArray provides unboxed primitive arrays via `MkArray`,
+snapshot (copy-on-write) iteration, and ordered/unordered removal modes — matching
+LibGDX's custom `Array<T>` semantics that ArrayBuffer lacked.
+
+**API additions to DynamicArray**: `foreach`, `iterator`, `exists`, `find`, `count`,
+`forall`, `indexWhere`, `+=`, `-=`, `--=`, `addAll(Iterable)` — enabling mechanical
+migration from ArrayBuffer patterns.
+
+**MkArray additions**: `mkNullable` given for `DynamicArray[Nullable[A]]` support.
+
+**DynamicArray additions**: `wrapRefUnchecked` factory for generic types with `ClassTag`
+but not `MkArray`.
+
+Files migrated by area: math (7), utils (7), g2d (13), g3d core (9), g3d/attributes (3),
+g3d/decals (6), g3d/loader (2), g3d/model (3), g3d/model/data (4), g3d/particles (7),
+g3d/particles/batches (4), g3d/particles/influencers (4), g3d/shaders (2), g3d/utils (7),
+g3d/utils/shapebuilders (1), glutils (4), scene2d (3), scene2d/actions (2),
+scene2d/ui (14), scene2d/utils (4), maps (2), maps/tiled (12), assets (2),
+assets/loaders (13), root (2), graphics (6), input (1).
+
+## 8. Missing Implementations
 
 - **`Nullable.scala`**: `isDefined` and `isEmpty` methods are implemented and working.

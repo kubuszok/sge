@@ -9,7 +9,7 @@
 package sge
 package math
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** A simple implementation of the ear cutting algorithm to triangulate simple polygons without holes. For more information: <ul> <li><a
   * href="http://cgm.cs.mcgill.ca/~godfried/teaching/cg-projects/97/Ian/algorithm2.html">http://cgm.cs.mcgill.ca/~godfried/ teaching/cg-projects/97/Ian/algorithm2.html</a></li> <li><a href=
@@ -32,15 +32,15 @@ class EarClippingTriangulator {
   private val CONCAVE = -1
   private val CONVEX  = 1
 
-  private val indicesArray = ArrayBuffer[Short]()
+  private val indicesArray = DynamicArray[Short]()
   private var indices:     Array[Short] = scala.compiletime.uninitialized
   private var vertices:    Array[Float] = scala.compiletime.uninitialized
   private var vertexCount: Int          = scala.compiletime.uninitialized
-  private val vertexTypes = ArrayBuffer[Int]()
-  private val triangles   = ArrayBuffer[Short]()
+  private val vertexTypes = DynamicArray[Int]()
+  private val triangles   = DynamicArray[Short]()
 
   /** @see #computeTriangles(float[], int, int) */
-  def computeTriangles(vertices: Array[Float]): ArrayBuffer[Short] =
+  def computeTriangles(vertices: Array[Float]): DynamicArray[Short] =
     computeTriangles(vertices, 0, vertices.length)
 
   /** Triangulates the given (convex or concave) simple polygon to a list of triangle vertices.
@@ -49,7 +49,7 @@ class EarClippingTriangulator {
     * @return
     *   triples of triangle indices in clockwise order. Note the returned array is reused for later calls to the same method.
     */
-  def computeTriangles(vertices: Array[Float], offset: Int, count: Int): ArrayBuffer[Short] = {
+  def computeTriangles(vertices: Array[Float], offset: Int, count: Int): DynamicArray[Short] = {
     this.vertices = vertices
     val vertexCount = count / 2
     this.vertexCount = vertexCount
@@ -57,7 +57,7 @@ class EarClippingTriangulator {
 
     val indicesArray = this.indicesArray
     indicesArray.clear()
-    indicesArray.sizeHint(vertexCount)
+    indicesArray.ensureCapacity(vertexCount)
     val indices = new Array[Short](vertexCount)
     this.indices = indices
     if (GeometryUtils.isClockwise(vertices, offset, count)) {
@@ -77,7 +77,7 @@ class EarClippingTriangulator {
 
     val vertexTypes = this.vertexTypes
     vertexTypes.clear()
-    vertexTypes.sizeHint(vertexCount)
+    vertexTypes.ensureCapacity(vertexCount)
     var i = 0
     val n = vertexCount
     while (i < n) {
@@ -88,7 +88,7 @@ class EarClippingTriangulator {
     // A polygon with n vertices has a triangulation of n-2 triangles.
     val triangles = this.triangles
     triangles.clear()
-    triangles.sizeHint(scala.math.max(0, vertexCount - 2) * 3)
+    triangles.ensureCapacity(scala.math.max(0, vertexCount - 2) * 3)
     triangulate()
     triangles
   }
@@ -204,7 +204,7 @@ class EarClippingTriangulator {
     for (i <- earTipIndex until vertexCount - 1)
       indices(i) = indices(i + 1)
     // Remove from vertex types
-    vertexTypes.remove(earTipIndex)
+    vertexTypes.removeIndex(earTipIndex)
     vertexCount -= 1
   }
 

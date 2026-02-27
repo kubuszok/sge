@@ -11,12 +11,10 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.scenes.scene2d.utils.Drawable
-import sge.utils.{ Align, Nullable }
+import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A button with a child {@link Label} to display text.
   * @author
@@ -104,7 +102,7 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle) exte
   def setText(text: Nullable[String]): Unit =
     label.setText(text.map(s => s: CharSequence))
 
-  def getText: ArrayBuffer[Char] = label.getText
+  def getText: DynamicArray[Char] = label.getText
 
   override def toString: String =
     getName.getOrElse {

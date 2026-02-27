@@ -9,7 +9,7 @@
 package sge
 package math
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Implementation of the Bezier curve.
   * @author
@@ -150,12 +150,12 @@ object Bezier {
   }
 }
 
-class Bezier[T <: Vector[T]] extends Path[T] {
+class Bezier[T <: Vector[T]: scala.reflect.ClassTag] extends Path[T] {
 
-  val points:       ArrayBuffer[T] = ArrayBuffer.empty
-  private var tmp:  Option[T]      = None
-  private var tmp2: Option[T]      = None
-  private var tmp3: Option[T]      = None
+  val points:       DynamicArray[T] = DynamicArray[T]()
+  private var tmp:  Option[T]       = None
+  private var tmp2: Option[T]       = None
+  private var tmp3: Option[T]       = None
 
   def this(points: T*) = {
     this()
@@ -167,7 +167,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
     set(points, offset, length)
   }
 
-  def this(points: ArrayBuffer[T], offset: Int, length: Int) = {
+  def this(points: DynamicArray[T], offset: Int, length: Int) = {
     this()
     set(points, offset, length)
   }
@@ -179,7 +179,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
     if (tmp2.isEmpty) tmp2 = Some(points(0).copy)
     if (tmp3.isEmpty) tmp3 = Some(points(0).copy)
     this.points.clear()
-    this.points.appendAll(points)
+    this.points.addAll(points)
     this
   }
 
@@ -190,11 +190,11 @@ class Bezier[T <: Vector[T]] extends Path[T] {
     if (tmp2.isEmpty) tmp2 = Some(points(offset).copy)
     if (tmp3.isEmpty) tmp3 = Some(points(offset).copy)
     this.points.clear()
-    this.points.appendAll(points.slice(offset, offset + length))
+    this.points.addAll(points, offset, length)
     this
   }
 
-  def set(points: ArrayBuffer[T], offset: Int, length: Int): Bezier[T] = {
+  def set(points: DynamicArray[T], offset: Int, length: Int): Bezier[T] = {
     if (length < 2 || length > 4)
       throw utils.SgeError.MathError("Only first, second and third degree Bezier curves are supported.")
     if (tmp.isEmpty) tmp = Some(points(offset).copy)
@@ -202,7 +202,7 @@ class Bezier[T <: Vector[T]] extends Path[T] {
     if (tmp3.isEmpty) tmp3 = Some(points(offset).copy)
     this.points.clear()
     for (i <- offset until (offset + length))
-      this.points.append(points(i))
+      this.points.add(points(i))
     this
   }
 

@@ -12,7 +12,6 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
 import sge.assets.AssetDescriptor
 import sge.assets.AssetManager
 import sge.utils.DynamicArray
@@ -23,7 +22,7 @@ import sge.utils.ObjectMap
   * properly after being deserialized. To save the assets, the object should implement the [[ResourceData.Configurable]] interface and obtain a [[ResourceData.SaveData]] object to store every required
   * asset or information which will be used during the loading phase. The passed in [[AssetManager]] is generally used to find the asset file name for a given resource of a given type. The class can
   * also store global configurations, this is useful when dealing with objects which should be allocated once (i.e singleton). The deserialization process must happen in the same order of
-  * serialization, because the per object [[ResourceData.SaveData]] blocks are stored as an [[ArrayBuffer]] within the [[ResourceData]], while the global [[ResourceData.SaveData]] instances can be
+  * serialization, because the per object [[ResourceData.SaveData]] blocks are stored as a [[DynamicArray]] within the [[ResourceData]], while the global [[ResourceData.SaveData]] instances can be
   * accessed in any order because require a unique [[String]] and are stored in an [[ObjectMap]].
   * @author
   *   Inferno
@@ -38,12 +37,12 @@ class ResourceData[T]() {
   private var uniqueData: ObjectMap[String, SaveData] = ObjectMap[String, SaveData]()
 
   /** Objects save data, must be loaded in the same saving order */
-  private var data: ArrayBuffer[SaveData] = ArrayBuffer.empty[SaveData]
+  private var data: DynamicArray[SaveData] = DynamicArray[SaveData]()
 
   /** Shared assets among all the configurable objects */
-  var sharedAssets:             ArrayBuffer[AssetData[?]] = ArrayBuffer.empty[AssetData[?]]
-  private var currentLoadIndex: Int                       = 0
-  var resource:                 Nullable[T]               = Nullable.empty
+  var sharedAssets:             DynamicArray[AssetData[?]] = DynamicArray[AssetData[?]]()
+  private var currentLoadIndex: Int                        = 0
+  var resource:                 Nullable[T]                = Nullable.empty
 
   def this(resource: T) = {
     this()
@@ -62,20 +61,20 @@ class ResourceData[T]() {
       -1
     }
 
-  def getAssetDescriptors(): ArrayBuffer[AssetDescriptor[?]] = {
-    val descriptors = ArrayBuffer.empty[AssetDescriptor[?]]
+  def getAssetDescriptors(): DynamicArray[AssetDescriptor[?]] = {
+    val descriptors = DynamicArray[AssetDescriptor[?]]()
     for (assetData <- sharedAssets)
-      descriptors += new AssetDescriptor(assetData.filename, assetData.`type`)
+      descriptors.add(new AssetDescriptor(assetData.filename, assetData.`type`))
     descriptors
   }
 
-  def getAssets(): ArrayBuffer[AssetData[?]] =
+  def getAssets(): DynamicArray[AssetData[?]] =
     sharedAssets
 
   /** Creates and adds a new SaveData object to the save data list */
   def createSaveData(): SaveData = {
     val saveData = new SaveData(this)
-    data += saveData
+    data.add(saveData)
     saveData
   }
 
@@ -126,7 +125,7 @@ object ResourceData {
       resources.foreach { res =>
         var i = res.getAssetData(filename, `type`)
         if (i == -1) {
-          res.sharedAssets += new AssetData(filename, `type`)
+          res.sharedAssets.add(new AssetData(filename, `type`))
           i = res.sharedAssets.size - 1
         }
         assets.add(i)

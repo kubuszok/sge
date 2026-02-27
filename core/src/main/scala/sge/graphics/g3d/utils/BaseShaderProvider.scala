@@ -11,15 +11,14 @@ package graphics
 package g3d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 abstract class BaseShaderProvider extends ShaderProvider {
 
-  protected val shaders: ArrayBuffer[Shader] = ArrayBuffer[Shader]()
+  protected val shaders: DynamicArray[Shader] = DynamicArray[Shader]()
 
   override def getShader(renderable: Renderable): Shader = boundary {
     renderable.shader.foreach { suggested =>
@@ -30,7 +29,7 @@ abstract class BaseShaderProvider extends ShaderProvider {
     val shader = createShader(renderable)
     if (!shader.canRender(renderable)) throw SgeError.GraphicsError("unable to provide a shader for this renderable")
     shader.init()
-    shaders += shader
+    shaders.add(shader)
     shader
   }
 

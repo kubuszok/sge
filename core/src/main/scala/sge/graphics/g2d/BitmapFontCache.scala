@@ -9,14 +9,13 @@
 package sge.graphics.g2d
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 import sge.utils.NumberUtils
-import scala.collection.mutable.ArrayBuffer
 
 class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
-  private val layouts       = ArrayBuffer[GlyphLayout]()
-  private val pooledLayouts = ArrayBuffer[GlyphLayout]()
+  private val layouts       = DynamicArray[GlyphLayout]()
+  private val pooledLayouts = DynamicArray[GlyphLayout]()
   private var glyphCount: Int   = 0
   private var x:          Float = 0f
   private var y:          Float = 0f
@@ -28,7 +27,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Number of vertex data entries per page
   private var idx: Array[Int] = Array.empty
   // For each page, an array with a value for each glyph from that page
-  private var pageGlyphIndices: Array[ArrayBuffer[Int]] = Array.empty
+  private var pageGlyphIndices: Array[DynamicArray[Int]] = Array.empty
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
@@ -43,9 +42,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   idx = Array.ofDim[Int](pageCount)
   if (pageCount > 1) {
     // Contains the indices of the glyph in the cache as they are added.
-    pageGlyphIndices = Array.ofDim[ArrayBuffer[Int]](pageCount)
+    pageGlyphIndices = Array.ofDim[DynamicArray[Int]](pageCount)
     for (i <- 0 until pageCount)
-      pageGlyphIndices(i) = ArrayBuffer[Int]()
+      pageGlyphIndices(i) = DynamicArray[Int]()
   }
   tempGlyphCount = Array.ofDim[Int](pageCount)
 
@@ -86,17 +85,20 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     for (i <- tempGlyphCountLocal.indices)
       tempGlyphCountLocal(i) = 0
 
-    for (i <- layouts.indices) {
+    var i = 0
+    while (i < layouts.size) {
       val layout              = layouts(i)
       val colors              = layout.colors
       var colorsIndex         = 0
       var nextColorGlyphIndex = 0
       var glyphIndex          = 0
       var lastColorFloatBits  = 0f
-      for (ii <- layout.runs.indices) {
+      var ii                  = 0
+      while (ii < layout.runs.size) {
         val run    = layout.runs(ii)
         val glyphs = run.glyphs
-        for (iii <- glyphs.indices) {
+        var iii    = 0
+        while (iii < glyphs.size) {
           if (glyphIndex == nextColorGlyphIndex) {
             // Color.abgr8888ToColor(tempColor, colors.get(++colorsIndex))
             // lastColorFloatBits = tempColor.mul(tint).toFloatBits()
@@ -111,8 +113,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
           vertices(offset + 10) = lastColorFloatBits
           vertices(offset + 15) = lastColorFloatBits
           glyphIndex += 1
+          iii += 1
         }
+        ii += 1
       }
+      i += 1
     }
   }
 
@@ -177,7 +182,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       val vertices     = pageVertices(i)
       val glyphIndices = pageGlyphIndices(i)
       // Loop through the indices and determine whether the glyph is inside begin/end.
-      for (j <- glyphIndices.indices) {
+      var j = 0
+      while (j < glyphIndices.size) {
         val glyphIndex = glyphIndices(j)
 
         // Break early if the glyph is out of bounds.
@@ -191,6 +197,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
           vertices(offset + 10) = color
           vertices(offset + 15) = color
         }
+        j += 1
       }
     }
   }
@@ -226,7 +233,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
       // For each set of glyph indices, determine where to begin within the start/end bounds.
       val glyphIndices = pageGlyphIndices(i)
-      for (ii <- glyphIndices.indices) {
+      var ii           = 0
+      while (ii < glyphIndices.size) {
         val glyphIndex = glyphIndices(ii)
 
         // Break early if the glyph is out of bounds.
@@ -237,6 +245,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
         // Determine the vertex count by counting glyphs within bounds.
         if (glyphIndex >= start) count += 1
+        ii += 1
       }
 
       // Page doesn't need to be rendered.
@@ -282,10 +291,15 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       for (i <- tempGlyphCountLocal.indices)
         tempGlyphCountLocal(i) = 0
       // Determine # of glyphs in each page.
-      for (i <- layout.runs.indices) {
+      var i = 0
+      while (i < layout.runs.size) {
         val glyphs = layout.runs(i).glyphs
-        for (ii <- glyphs.indices)
+        var ii     = 0
+        while (ii < glyphs.size) {
           tempGlyphCountLocal(glyphs(ii).page) += 1
+          ii += 1
+        }
+        i += 1
       }
       // Require that many for each page.
       for (i <- tempGlyphCountLocal.indices)
@@ -294,8 +308,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   private def requirePageGlyphs(page: Int, glyphCount: Int): Unit = {
     if (pageGlyphIndices.nonEmpty) {
-      if (glyphCount > pageGlyphIndices(page).length)
-        pageGlyphIndices(page).sizeHint(glyphCount)
+      if (glyphCount > pageGlyphIndices(page).size)
+        pageGlyphIndices(page).ensureCapacity(glyphCount - pageGlyphIndices(page).size)
     }
 
     val vertexCount = idx(page) + glyphCount * 20
@@ -346,7 +360,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
     // val layout = Pools.obtain(() => new GlyphLayout)
     val layout = new GlyphLayout()
-    pooledLayouts += layout
+    pooledLayouts.add(layout)
     layout.setText(font, str, start, end, color, targetWidth, halign, wrap, truncate)
     addText(layout, x, y)
     layout
@@ -362,7 +376,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     // Check if the number of font pages has changed.
     if (pageVertices.length < font.regions.size) setPageCount(font.regions.size)
 
-    layouts += layout
+    layouts.add(layout)
     requireGlyphs(layout)
 
     val colors              = layout.colors
@@ -376,7 +390,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       val xAdvances = run.xAdvances
       val gx        = x + run.x
       val gy        = y + run.y
-      for (ii <- glyphs.indices) {
+      var ii        = 0
+      while (ii < glyphs.size) {
         if (glyphIndex == nextColorGlyphIndex) {
           colorsIndex += 1
           lastColorFloatBits = NumberUtils.intToFloatColor(colors(colorsIndex))
@@ -386,6 +401,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
         // gx += xAdvances[ii]
         addGlyph(glyphs(ii), gx, gy, lastColorFloatBits)
         glyphIndex += 1
+        ii += 1
       }
     }
 
@@ -421,7 +437,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     var currentIdx = this.idx(page)
     this.idx(page) += 20
 
-    if (pageGlyphIndices.nonEmpty) pageGlyphIndices(page) += glyphCount
+    if (pageGlyphIndices.nonEmpty) pageGlyphIndices(page).add(glyphCount)
     glyphCount += 1
 
     val vertices = pageVertices(page)
@@ -459,27 +475,27 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     System.arraycopy(idx, 0, newIdx, 0, idx.length)
     idx = newIdx
 
-    val newPageGlyphIndices    = Array.ofDim[ArrayBuffer[Int]](pageCount)
+    val newPageGlyphIndices    = Array.ofDim[DynamicArray[Int]](pageCount)
     var pageGlyphIndicesLength = 0
     if (pageGlyphIndices.nonEmpty) {
       pageGlyphIndicesLength = pageGlyphIndices.length
       System.arraycopy(pageGlyphIndices, 0, newPageGlyphIndices, 0, pageGlyphIndices.length)
     }
     for (i <- pageGlyphIndicesLength until pageCount)
-      newPageGlyphIndices(i) = ArrayBuffer[Int]()
+      newPageGlyphIndices(i) = DynamicArray[Int]()
     pageGlyphIndices = newPageGlyphIndices
 
     tempGlyphCount = Array.ofDim[Int](pageCount)
   }
 
-  def getX():                               Float                    = x
-  def getY():                               Float                    = y
-  def getFont():                            BitmapFont               = font
-  def setUseIntegerPositions(use: Boolean): Unit                     = this.integer = use
-  def usesIntegerPositions():               Boolean                  = integer
-  def getPageCount():                       Int                      = pageVertices.length
-  def getVertices():                        Array[Float]             = getVertices(0)
-  def getVertices(page:           Int):     Array[Float]             = pageVertices(page)
-  def getVertexCount(page:        Int):     Int                      = idx(page)
-  def getLayouts():                         ArrayBuffer[GlyphLayout] = layouts
+  def getX():                               Float                     = x
+  def getY():                               Float                     = y
+  def getFont():                            BitmapFont                = font
+  def setUseIntegerPositions(use: Boolean): Unit                      = this.integer = use
+  def usesIntegerPositions():               Boolean                   = integer
+  def getPageCount():                       Int                       = pageVertices.length
+  def getVertices():                        Array[Float]              = getVertices(0)
+  def getVertices(page:           Int):     Array[Float]              = pageVertices(page)
+  def getVertexCount(page:        Int):     Int                       = idx(page)
+  def getLayouts():                         DynamicArray[GlyphLayout] = layouts
 }

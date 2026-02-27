@@ -11,7 +11,6 @@ package graphics
 package g3d
 package shaders
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.g3d.utils.{ RenderContext, TextureDescriptor }
@@ -25,15 +24,15 @@ import sge.utils.{ DynamicArray, Nullable, ObjectMap, SgeError }
   */
 abstract class BaseShader extends Shader {
 
-  private val uniforms:   ArrayBuffer[String]                         = ArrayBuffer.empty[String]
-  private val validators: ArrayBuffer[Nullable[BaseShader.Validator]] =
-    ArrayBuffer.empty[Nullable[BaseShader.Validator]]
-  private val setters:             ArrayBuffer[Nullable[BaseShader.Setter]] = ArrayBuffer.empty[Nullable[BaseShader.Setter]]
-  private var locations:           Nullable[Array[Int]]                     = Nullable.empty
-  private val globalUniforms:      DynamicArray[Int]                        = DynamicArray[Int]()
-  private val localUniforms:       DynamicArray[Int]                        = DynamicArray[Int]()
-  private val _attributes:         ObjectMap[Int, Int]                      = ObjectMap[Int, Int]()
-  private val instancedAttributes: ObjectMap[Int, Int]                      = ObjectMap[Int, Int]()
+  private val uniforms:   DynamicArray[String]                         = DynamicArray[String]()
+  private val validators: DynamicArray[Nullable[BaseShader.Validator]] =
+    DynamicArray[Nullable[BaseShader.Validator]]()
+  private val setters:             DynamicArray[Nullable[BaseShader.Setter]] = DynamicArray[Nullable[BaseShader.Setter]]()
+  private var locations:           Nullable[Array[Int]]                      = Nullable.empty
+  private val globalUniforms:      DynamicArray[Int]                         = DynamicArray[Int]()
+  private val localUniforms:       DynamicArray[Int]                         = DynamicArray[Int]()
+  private val _attributes:         ObjectMap[Int, Int]                       = ObjectMap[Int, Int]()
+  private val instancedAttributes: ObjectMap[Int, Int]                       = ObjectMap[Int, Int]()
 
   var program:             Nullable[ShaderProgram] = Nullable.empty
   var context:             Nullable[RenderContext] = Nullable.empty
@@ -52,9 +51,9 @@ abstract class BaseShader extends Shader {
       setters(existing) = setter
       existing
     } else {
-      uniforms += alias
-      validators += validator
-      setters += setter
+      uniforms.add(alias)
+      validators.add(validator)
+      setters.add(setter)
       uniforms.size - 1
     }
   }

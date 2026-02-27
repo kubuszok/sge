@@ -10,7 +10,6 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
 import sge.graphics.g3d.attributes.DirectionalLightsAttribute
 import sge.graphics.g3d.attributes.PointLightsAttribute
 import sge.graphics.g3d.attributes.SpotLightsAttribute
@@ -19,8 +18,7 @@ import sge.graphics.g3d.environment.DirectionalLight
 import sge.graphics.g3d.environment.PointLight
 import sge.graphics.g3d.environment.ShadowMap
 import sge.graphics.g3d.environment.SpotLight
-import sge.utils.Nullable
-import sge.utils.SgeError
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 class Environment extends Attributes {
 
@@ -33,7 +31,7 @@ class Environment extends Attributes {
     this
   }
 
-  def add(lights: ArrayBuffer[BaseLight[?]]): Environment = {
+  def add(lights: DynamicArray[BaseLight[?]]): Environment = {
     for (light <- lights)
       add(light)
     this
@@ -54,9 +52,9 @@ class Environment extends Attributes {
     dirLights.fold {
       val newDirLights = new DirectionalLightsAttribute()
       set(newDirLights)
-      newDirLights.lights += light
+      newDirLights.lights.add(light)
     } { dl =>
-      dl.lights += light
+      dl.lights.add(light)
     }
     this
   }
@@ -66,9 +64,9 @@ class Environment extends Attributes {
     pointLights.fold {
       val newPointLights = new PointLightsAttribute()
       set(newPointLights)
-      newPointLights.lights += light
+      newPointLights.lights.add(light)
     } { pl =>
-      pl.lights += light
+      pl.lights.add(light)
     }
     this
   }
@@ -78,9 +76,9 @@ class Environment extends Attributes {
     spotLights.fold {
       val newSpotLights = new SpotLightsAttribute()
       set(newSpotLights)
-      newSpotLights.lights += light
+      newSpotLights.lights.add(light)
     } { sl =>
-      sl.lights += light
+      sl.lights.add(light)
     }
     this
   }
@@ -91,7 +89,7 @@ class Environment extends Attributes {
     this
   }
 
-  def removeLights(lights: ArrayBuffer[BaseLight[?]]): Environment = {
+  def removeLights(lights: DynamicArray[BaseLight[?]]): Environment = {
     for (light <- lights)
       removeLight(light)
     this
@@ -111,7 +109,7 @@ class Environment extends Attributes {
     if (has(DirectionalLightsAttribute.Type)) {
       get(DirectionalLightsAttribute.Type).foreach { attr =>
         val dirLights = attr.asInstanceOf[DirectionalLightsAttribute]
-        dirLights.lights -= light
+        dirLights.lights.removeValue(light)
         if (dirLights.lights.isEmpty) remove(DirectionalLightsAttribute.Type)
       }
     }
@@ -122,7 +120,7 @@ class Environment extends Attributes {
     if (has(PointLightsAttribute.Type)) {
       get(PointLightsAttribute.Type).foreach { attr =>
         val pointLights = attr.asInstanceOf[PointLightsAttribute]
-        pointLights.lights -= light
+        pointLights.lights.removeValue(light)
         if (pointLights.lights.isEmpty) remove(PointLightsAttribute.Type)
       }
     }
@@ -133,7 +131,7 @@ class Environment extends Attributes {
     if (has(SpotLightsAttribute.Type)) {
       get(SpotLightsAttribute.Type).foreach { attr =>
         val spotLights = attr.asInstanceOf[SpotLightsAttribute]
-        spotLights.lights -= light
+        spotLights.lights.removeValue(light)
         if (spotLights.lights.isEmpty) remove(SpotLightsAttribute.Type)
       }
     }

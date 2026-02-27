@@ -10,8 +10,6 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.files.FileHandle
 import sge.graphics.g3d.shaders.DefaultShader
 import sge.graphics.g3d.utils.DefaultRenderableSorter
@@ -20,9 +18,7 @@ import sge.graphics.g3d.utils.DefaultTextureBinder
 import sge.graphics.g3d.utils.RenderContext
 import sge.graphics.g3d.utils.RenderableSorter
 import sge.graphics.g3d.utils.ShaderProvider
-import sge.utils.Nullable
-import sge.utils.Pool
-import sge.utils.SgeError
+import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
 /** Batches [[Renderable]] instances, fetches [[Shader]]s for them, sorts them and then renders them. Fetching the shaders is done using a [[ShaderProvider]], which defaults to
   * [[DefaultShaderProvider]]. Sorting the renderables is done using a [[RenderableSorter]], which default to [[DefaultRenderableSorter]].
@@ -48,7 +44,7 @@ class ModelBatch(
   protected val renderablesPool: ModelBatch.RenderablePool = new ModelBatch.RenderablePool()
 
   /** list of Renderables to be rendered in the current batch * */
-  protected val renderables: ArrayBuffer[Renderable] = new ArrayBuffer[Renderable]()
+  protected val renderables: DynamicArray[Renderable] = DynamicArray[Renderable]()
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
@@ -221,7 +217,7 @@ class ModelBatch(
     */
   def render(renderable: Renderable): Unit = {
     renderable.shader = Nullable(shaderProvider.getShader(renderable))
-    renderables += renderable
+    renderables.add(renderable)
   }
 
   /** Calls [[RenderableProvider.getRenderables]] and adds all returned [[Renderable]] instances to the current batch to be rendered. Can only be called after a call to [[begin]] and before a call to

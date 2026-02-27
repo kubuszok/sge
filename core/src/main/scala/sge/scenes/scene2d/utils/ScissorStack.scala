@@ -11,11 +11,10 @@ package scenes
 package scene2d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
 import sge.graphics.{ Camera, GL20 }
 import sge.graphics.glutils.HdpiUtils
 import sge.math.{ Matrix4, Rectangle, Vector3 }
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** A stack of {@link Rectangle} objects to be used for clipping via {@link GL20#glScissor(int, int, int, int)}. When a new Rectangle is pushed onto the stack, it will be merged with the current top
   * of stack. The minimum area of overlap is then set as the real top of the stack.
@@ -23,9 +22,9 @@ import sge.utils.Nullable
   *   mzechner
   */
 object ScissorStack {
-  private val scissors: ArrayBuffer[Rectangle] = ArrayBuffer.empty
-  private val tmp:      Vector3                = Vector3()
-  private val viewport: Rectangle              = new Rectangle()
+  private val scissors: DynamicArray[Rectangle] = DynamicArray[Rectangle]()
+  private val tmp:      Vector3                 = Vector3()
+  private val viewport: Rectangle               = new Rectangle()
 
   /** Pushes a new scissor {@link Rectangle} onto the stack, merging it with the current top of the stack. The minimal area of overlap between the top of stack rectangle and the provided rectangle is
     * pushed onto the stack. This will invoke {@link GL20#glScissor(int, int, int, int)} with the final top of stack rectangle. In case no scissor is yet on the stack this will also enable
@@ -40,13 +39,13 @@ object ScissorStack {
       if (scissor.width < 1 || scissor.height < 1) false
       else {
         sge.graphics.getGL20().glEnable(GL20.GL_SCISSOR_TEST)
-        scissors += scissor
+        scissors.add(scissor)
         HdpiUtils.glScissor(scissor.x.toInt, scissor.y.toInt, scissor.width.toInt, scissor.height.toInt)
         true
       }
     } else {
       // merge scissors
-      val parent = scissors.last
+      val parent = scissors(scissors.size - 1)
       val minX   = Math.max(parent.x, scissor.x)
       val maxX   = Math.min(parent.x + parent.width, scissor.x + scissor.width)
       if (maxX - minX < 1) false
@@ -59,7 +58,7 @@ object ScissorStack {
           scissor.y = minY
           scissor.width = maxX - minX
           scissor.height = Math.max(1, maxY - minY)
-          scissors += scissor
+          scissors.add(scissor)
           HdpiUtils.glScissor(scissor.x.toInt, scissor.y.toInt, scissor.width.toInt, scissor.height.toInt)
           true
         }
@@ -71,11 +70,11 @@ object ScissorStack {
     * disabled. <p> Any drawing should be flushed before popping scissors.
     */
   def popScissors()(using sge: Sge): Rectangle = {
-    val old = scissors.remove(scissors.size - 1)
+    val old = scissors.removeIndex(scissors.size - 1)
     if (scissors.isEmpty)
       sge.graphics.getGL20().glDisable(GL20.GL_SCISSOR_TEST)
     else {
-      val scissor = scissors.last
+      val scissor = scissors(scissors.size - 1)
       HdpiUtils.glScissor(scissor.x.toInt, scissor.y.toInt, scissor.width.toInt, scissor.height.toInt)
     }
     old
@@ -84,7 +83,7 @@ object ScissorStack {
   /** @return null if there are no scissors. */
   def peekScissors: Nullable[Rectangle] =
     if (scissors.isEmpty) Nullable.empty
-    else Nullable(scissors.last)
+    else Nullable(scissors(scissors.size - 1))
 
   private def fix(rect: Rectangle): Unit = {
     rect.x = Math.round(rect.x).toFloat
@@ -140,7 +139,7 @@ object ScissorStack {
       viewport.set(0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
       viewport
     } else {
-      val scissor = scissors.last
+      val scissor = scissors(scissors.size - 1)
       viewport.set(scissor)
       viewport
     }

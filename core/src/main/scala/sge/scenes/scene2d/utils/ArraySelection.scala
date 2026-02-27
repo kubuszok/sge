@@ -11,14 +11,13 @@ package scenes
 package scene2d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** A selection that supports range selection by knowing about the array of items being selected.
   * @author
   *   Nathan Sweet
   */
-class ArraySelection[T](private var array: ArrayBuffer[T]) extends Selection[T] {
+class ArraySelection[T](private var array: DynamicArray[T]) extends Selection[T] {
   private var rangeSelect: Boolean     = true
   private var rangeStart:  Nullable[T] = Nullable.empty
 
@@ -76,17 +75,17 @@ class ArraySelection[T](private var array: ArrayBuffer[T]) extends Selection[T] 
     } else {
       var changed  = false
       val iter     = items.iterator
-      val toRemove = ArrayBuffer.empty[T]
+      val toRemove = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
       while (iter.hasNext) {
         val s = iter.next()
         if (!array.contains(s)) {
-          toRemove += s
+          toRemove.add(s)
           changed = true
         }
       }
       toRemove.foreach(selected.remove)
       if (required && selected.isEmpty)
-        set(array.head)
+        set(array.first)
       else if (changed)
         this.changed()
     }

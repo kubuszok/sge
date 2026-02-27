@@ -10,7 +10,6 @@ package sge
 package graphics
 
 import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
 import java.util.NoSuchElementException
 import scala.util.boundary, boundary.break
 

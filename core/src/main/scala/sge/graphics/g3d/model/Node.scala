@@ -11,14 +11,13 @@ package graphics
 package g3d
 package model
 
-import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** A node is part of a hierarchy of Nodes in a {@link Model}. A Node encodes a transform relative to its parents. A Node can have child nodes. Optionally a node can specify a {@link MeshPart} and a
   * {@link Material} to be applied to the mesh part.
@@ -54,10 +53,10 @@ class Node {
     */
   val globalTransform: Matrix4 = new Matrix4()
 
-  var parts: ArrayBuffer[NodePart] = ArrayBuffer[NodePart]()
+  var parts: DynamicArray[NodePart] = DynamicArray[NodePart]()
 
-  protected var parent: Nullable[Node]    = Nullable.empty
-  private val children: ArrayBuffer[Node] = ArrayBuffer[Node]()
+  protected var parent: Nullable[Node]     = Nullable.empty
+  private val children: DynamicArray[Node] = DynamicArray[Node]()
 
   /** Calculates the local transform based on the translation, scale and rotation
     * @return
@@ -133,13 +132,14 @@ class Node {
   /** Extends the bounding box with the bounds of this Node. This is a potential slow operation, it is advised to cache the result.
     */
   def extendBoundingBox(out: BoundingBox, transform: Boolean): BoundingBox = {
-    for (part <- parts if part.enabled) {
-      val mp = part.meshPart
-      if (transform)
-        mp.mesh.extendBoundingBox(out, mp.offset, mp.size, globalTransform)
-      else
-        mp.mesh.extendBoundingBox(out, mp.offset, mp.size)
-    }
+    for (part <- parts)
+      if (part.enabled) {
+        val mp = part.meshPart
+        if (transform)
+          mp.mesh.extendBoundingBox(out, mp.offset, mp.size, globalTransform)
+        else
+          mp.mesh.extendBoundingBox(out, mp.offset, mp.size)
+      }
     for (child <- children)
       child.extendBoundingBox(out)
     out
@@ -199,7 +199,7 @@ class Node {
     * @return
     *   the zero-based index of the first added child
     */
-  def addChildren[T <: Node](nodes: Iterable[T]): Int =
+  def addChildren[T <: Node](nodes: DynamicArray[T]): Int =
     insertChildren(-1, nodes)
 
   /** Insert the specified node as child of this node at the specified index. If the node is already a child of another node, then it is removed from its current parent. If the specified index is less
@@ -223,7 +223,7 @@ class Node {
       if (!parentNode.removeChild(child)) throw SgeError.InvalidInput("Could not remove child from its current parent")
     }
     val actualIndex = if (index < 0 || index >= children.size) {
-      children += child
+      children.add(child)
       children.size - 1
     } else {
       children.insert(index, child)
@@ -242,7 +242,7 @@ class Node {
     * @return
     *   the zero-based index of the first inserted child
     */
-  def insertChildren[T <: Node](index: Int, nodes: Iterable[T]): Int = {
+  def insertChildren[T <: Node](index: Int, nodes: DynamicArray[T]): Int = {
     val startIdx = if (index < 0 || index > children.size) children.size else index
     var i        = startIdx
     for (child <- nodes) {
@@ -263,14 +263,14 @@ class Node {
     val idx = children.indexWhere(_ eq child)
     if (idx < 0) false
     else {
-      children.remove(idx)
+      children.removeIndex(idx)
       child.parent = Nullable.empty
       true
     }
   }
 
-  /** @return An {@link Iterable} to all child nodes that this node contains. */
-  def getChildren: Iterable[Node] = children
+  /** @return A {@link DynamicArray} of all child nodes that this node contains. */
+  def getChildren: DynamicArray[Node] = children
 
   /** @return The parent node that holds this node as child node, may be null. */
   def getParent: Nullable[Node] = parent
@@ -306,7 +306,7 @@ class Node {
     globalTransform.set(other.globalTransform)
     parts.clear()
     for (nodePart <- other.parts)
-      parts += nodePart.copy()
+      parts.add(nodePart.copy())
     children.clear()
     for (child <- other.getChildren)
       addChild(child.copy())
@@ -322,7 +322,7 @@ object Node {
     * @return
     *   The node with the specified id, or null if not found.
     */
-  def getNode(nodes: ArrayBuffer[Node], id: String, recursive: Boolean, ignoreCase: Boolean): Nullable[Node] = boundary {
+  def getNode(nodes: DynamicArray[Node], id: String, recursive: Boolean, ignoreCase: Boolean): Nullable[Node] = boundary {
     val n = nodes.size
     if (ignoreCase) {
       for (i <- 0 until n) {

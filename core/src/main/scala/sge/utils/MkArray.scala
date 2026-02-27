@@ -157,4 +157,8 @@ object MkArray {
       dest
     }
   }
+
+  /** MkArray instance for Nullable types. At the JVM level, `Nullable[A]` erases to `Object`, so we use `Array[AnyRef]` as the backing store and cast.
+    */
+  given mkNullable[A]: MkArray[Nullable[A]] = anyRef[AnyRef](using scala.reflect.classTag[AnyRef]).asInstanceOf[MkArray[Nullable[A]]]
 }

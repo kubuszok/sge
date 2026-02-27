@@ -11,11 +11,10 @@ package graphics
 package g3d
 package decals
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Camera
 import sge.graphics.GL20
 import sge.graphics.glutils.ShaderProgram
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.ObjectMap
 import sge.utils.Pool
@@ -30,12 +29,12 @@ import sge.utils.SgeError
   */
 class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(using sge: Sge) extends GroupStrategy with AutoCloseable {
 
-  private val arrayPool: Pool[ArrayBuffer[Decal]] = new Pool.Default[ArrayBuffer[Decal]](
-    () => new ArrayBuffer[Decal](),
+  private val arrayPool: Pool[DynamicArray[Decal]] = new Pool.Default[DynamicArray[Decal]](
+    () => DynamicArray[Decal](),
     initialCapacity = 16
   )
-  private val usedArrays:     ArrayBuffer[ArrayBuffer[Decal]]              = new ArrayBuffer[ArrayBuffer[Decal]]()
-  private val materialGroups: ObjectMap[DecalMaterial, ArrayBuffer[Decal]] = ObjectMap[DecalMaterial, ArrayBuffer[Decal]]()
+  private val usedArrays:     DynamicArray[DynamicArray[Decal]]             = DynamicArray[DynamicArray[Decal]]()
+  private val materialGroups: ObjectMap[DecalMaterial, DynamicArray[Decal]] = ObjectMap[DecalMaterial, DynamicArray[Decal]]()
 
   private var shader: ShaderProgram = scala.compiletime.uninitialized
 
@@ -59,13 +58,11 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
   override def decideGroup(decal: Decal): Int =
     if (decal.getMaterial.isOpaque) CameraGroupStrategy.GROUP_OPAQUE else CameraGroupStrategy.GROUP_BLEND
 
-  override def beforeGroup(group: Int, contents: ArrayBuffer[Decal]): Unit =
+  override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == CameraGroupStrategy.GROUP_BLEND) {
       sge.graphics.gl.glEnable(GL20.GL_BLEND)
       sge.graphics.gl.glDepthMask(false)
-      val sorted = contents.sorted(using cameraSorter)
-      contents.clear()
-      contents ++= sorted
+      contents.sort(cameraSorter)
     } else {
       var i = 0
       val n = contents.size
@@ -74,21 +71,21 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
         val materialGroup = materialGroups.get(decal.material).getOrElse {
           val mg = arrayPool.obtain()
           mg.clear()
-          usedArrays += mg
+          usedArrays.add(mg)
           materialGroups.put(decal.material, mg)
           mg
         }
-        materialGroup += decal
+        materialGroup.add(decal)
         i += 1
       }
 
       contents.clear()
       materialGroups.foreachValue { materialGroup =>
-        contents ++= materialGroup
+        contents.addAll(materialGroup)
       }
 
       materialGroups.clear()
-      arrayPool.freeAll(usedArrays)
+      usedArrays.foreach(arrayPool.free)
       usedArrays.clear()
     }
 

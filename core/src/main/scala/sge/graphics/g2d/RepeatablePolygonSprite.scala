@@ -12,7 +12,7 @@ package g2d
 
 import sge.math.*
 import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Renders polygon filled with a repeating TextureRegion with specified density Without causing an additional flush or render call
   *
@@ -26,10 +26,10 @@ class RepeatablePolygonSprite {
 
   private var dirty: Boolean = true
 
-  private val parts: ArrayBuffer[Nullable[Array[Float]]] = ArrayBuffer.empty[Nullable[Array[Float]]]
+  private val parts: DynamicArray[Nullable[Array[Float]]] = DynamicArray[Nullable[Array[Float]]]()
 
-  private val vertices: ArrayBuffer[Array[Float]] = ArrayBuffer.empty[Array[Float]]
-  private val indices:  ArrayBuffer[Array[Short]] = ArrayBuffer.empty[Array[Short]]
+  private val vertices: DynamicArray[Array[Float]] = DynamicArray[Array[Float]]()
+  private val indices:  DynamicArray[Array[Short]] = DynamicArray[Array[Short]]()
 
   private var cols:       Int   = 0
   private var rows:       Int   = 0
@@ -116,13 +116,13 @@ class RepeatablePolygonSprite {
         if (hasIntersection) {
           // For simplicity, use the tmpPoly vertices as intersection result
           val intersectionVerts = tmpVertices.clone()
-          parts += Nullable(snapToGrid(intersectionVerts))
+          parts.add(Nullable(snapToGrid(intersectionVerts)))
           val triangleIndices = triangulator.computeTriangles(intersectionVerts)
-          indices += triangleIndices.toArray
+          indices.add(triangleIndices.toArray)
         } else {
           // adding null for key consistency, needed to get col/row from key
           // the other alternative is to make parts - IntMap<FloatArray>
-          parts += Nullable.empty
+          parts.add(Nullable.empty)
         }
       }
 
@@ -179,7 +179,8 @@ class RepeatablePolygonSprite {
   /** Builds final vertices with vertex attributes like coordinates, color and region u/v */
   private def buildVertices(): Unit = {
     vertices.clear()
-    for (i <- parts.indices) {
+    var i = 0
+    while (i < parts.size) {
       val vertsNullable = parts(i)
       vertsNullable.fold {
         // Skip null parts
@@ -215,8 +216,9 @@ class RepeatablePolygonSprite {
           idx += 1
           j += 2
         }
-        vertices += fullVerts
+        vertices.add(fullVerts)
       }
+      i += 1
     }
     dirty = false
   }
@@ -225,9 +227,11 @@ class RepeatablePolygonSprite {
     if (dirty) {
       buildVertices()
     }
-    for (i <- vertices.indices) {
+    var i = 0
+    while (i < vertices.size) {
       val reg = region.getOrElse(throw new IllegalStateException("region not set"))
       batch.draw(reg.getTexture(), vertices(i), 0, vertices(i).length, indices(i), 0, indices(i).length)
+      i += 1
     }
   }
 

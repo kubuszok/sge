@@ -10,14 +10,13 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.{ Camera, Mesh, VertexAttributes }
 import sge.graphics.g3d.model.MeshPart
 import sge.graphics.g3d.utils.{ MeshBuilder, RenderableSorter }
-import sge.utils.{ Nullable, Pool, SgeError }
+import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
 /** ModelCache tries to combine multiple render calls into a single render call by merging them where possible. Can be used for multiple type of models (e.g. varying vertex attributes or materials),
   * the ModelCache will combine where possible. Can be used dynamically (e.g. every frame) or statically (e.g. to combine part of scenery). Be aware that any combined vertices are directly
@@ -27,7 +26,7 @@ import sge.utils.{ Nullable, Pool, SgeError }
   */
 class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using sge: Sge) extends AutoCloseable with RenderableProvider {
 
-  private val renderables:     ArrayBuffer[Renderable]    = new ArrayBuffer[Renderable]()
+  private val renderables:     DynamicArray[Renderable]   = DynamicArray[Renderable]()
   private val renderablesPool: Pool.Flushable[Renderable] = new Pool.Flushable[Renderable] {
     override protected val max:             Int        = Int.MaxValue
     override protected val initialCapacity: Int        = 16
@@ -39,8 +38,8 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     override def newObject():               MeshPart = new MeshPart()
   }
 
-  private val items: ArrayBuffer[Renderable] = new ArrayBuffer[Renderable]()
-  private val tmp:   ArrayBuffer[Renderable] = new ArrayBuffer[Renderable]()
+  private val items: DynamicArray[Renderable] = DynamicArray[Renderable]()
+  private val tmp:   DynamicArray[Renderable] = DynamicArray[Renderable]()
 
   private val meshBuilder: MeshBuilder      = new MeshBuilder()
   private var building:    Boolean          = false
@@ -116,7 +115,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
 
     meshBuilder.begin(vertexAttributes)
     var part = meshBuilder.part("", primitiveType, meshPartPool.obtain())
-    renderables += obtainRenderable(material, primitiveType)
+    renderables.add(obtainRenderable(material, primitiveType))
 
     var i = 0
     val n = items.size
@@ -156,7 +155,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
 
         material = mat
         primitiveType = pt
-        renderables += obtainRenderable(material, primitiveType)
+        renderables.add(obtainRenderable(material, primitiveType))
       }
 
       meshBuilder.setVertexTransform(Nullable(renderable.worldTransform))
@@ -189,9 +188,9 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   def add(renderable: Renderable): Unit = {
     if (!building) throw SgeError.InvalidInput("Can only add items to the ModelCache in between .begin() and .end()")
     if (renderable.bones.isEmpty)
-      items += renderable
+      items.add(renderable)
     else
-      renderables += renderable
+      renderables.add(renderable)
   }
 
   /** Adds the specified {@link RenderableProvider} to the cache, see {@link #add(Renderable)}. */
@@ -211,13 +210,13 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     for (renderableProvider <- renderableProviders)
       add(renderableProvider)
 
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit = {
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit = {
     if (building) throw SgeError.InvalidInput("Cannot render a ModelCache in between .begin() and .end()")
     for (r <- this.renderables) {
       r.shader = Nullable.empty
       r.environment = Nullable.empty
     }
-    renderables ++= this.renderables
+    renderables.addAll(this.renderables)
   }
 
   override def close(): Unit = {
@@ -257,11 +256,11 @@ object ModelCache {
     */
   class SimpleMeshPool(using sge: Sge) extends MeshPool {
     // FIXME Make a better (preferable JNI) MeshPool implementation
-    private val freeMeshes: ArrayBuffer[Mesh] = new ArrayBuffer[Mesh]()
-    private val usedMeshes: ArrayBuffer[Mesh] = new ArrayBuffer[Mesh]()
+    private val freeMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
+    private val usedMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
 
     override def flush(): Unit = {
-      freeMeshes ++= usedMeshes
+      freeMeshes.addAll(usedMeshes)
       usedMeshes.clear()
     }
 
@@ -275,8 +274,8 @@ object ModelCache {
             mesh.getVertexAttributes().equals(vertexAttributes) && mesh.getMaxVertices() >= vertexCount
             && mesh.getMaxIndices() >= indexCount
           ) {
-            freeMeshes.remove(i)
-            usedMeshes += mesh
+            freeMeshes.removeIndex(i)
+            usedMeshes.add(mesh)
             break(mesh)
           }
           i += 1
@@ -284,7 +283,7 @@ object ModelCache {
         val vc     = MeshBuilder.MAX_VERTICES
         val ic     = Math.max(vc, 1 << (32 - Integer.numberOfLeadingZeros(indexCount - 1)))
         val result = new Mesh(false, vc, ic, vertexAttributes)
-        usedMeshes += result
+        usedMeshes.add(result)
         result
       }
 
@@ -303,11 +302,11 @@ object ModelCache {
     *   Xoppa
     */
   class TightMeshPool(using sge: Sge) extends MeshPool {
-    private val freeMeshes: ArrayBuffer[Mesh] = new ArrayBuffer[Mesh]()
-    private val usedMeshes: ArrayBuffer[Mesh] = new ArrayBuffer[Mesh]()
+    private val freeMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
+    private val usedMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
 
     override def flush(): Unit = {
-      freeMeshes ++= usedMeshes
+      freeMeshes.addAll(usedMeshes)
       usedMeshes.clear()
     }
 
@@ -321,14 +320,14 @@ object ModelCache {
             mesh.getVertexAttributes().equals(vertexAttributes) && mesh.getMaxVertices() == vertexCount
             && mesh.getMaxIndices() == indexCount
           ) {
-            freeMeshes.remove(i)
-            usedMeshes += mesh
+            freeMeshes.removeIndex(i)
+            usedMeshes.add(mesh)
             break(mesh)
           }
           i += 1
         }
         val result = new Mesh(true, vertexCount, indexCount, vertexAttributes)
-        usedMeshes += result
+        usedMeshes.add(result)
         result
       }
 
@@ -347,8 +346,8 @@ object ModelCache {
     *   Xoppa
     */
   class Sorter extends RenderableSorter with Ordering[Renderable] {
-    override def sort(camera: Camera, renderables: ArrayBuffer[Renderable]): Unit =
-      renderables.sortInPlace()(using this)
+    override def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit =
+      renderables.sort()(using this)
 
     override def compare(arg0: Renderable, arg1: Renderable): Int = {
       val va0 = arg0.meshPart.mesh.getVertexAttributes()

@@ -14,8 +14,7 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.g2d.{ BitmapFont, BitmapFontData, TextureAtlas, TextureRegion }
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 import scala.util.boundary
 
 /** {@link AssetLoader} for {@link BitmapFont} instances. Loads the font description file (.fnt) asynchronously, loads the {@link Texture} containing the glyphs as a dependency. The
@@ -27,9 +26,9 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
 
   private var data: Nullable[BitmapFontData] = Nullable.empty
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): ArrayBuffer[AssetDescriptor[?]] = boundary {
+  override def getDependencies(fileName: String, file: FileHandle, parameter: BitmapFontLoader.BitmapFontParameter): DynamicArray[AssetDescriptor[?]] = boundary {
     val param = Nullable(parameter)
-    val deps  = ArrayBuffer.empty[AssetDescriptor[?]]
+    val deps  = DynamicArray[AssetDescriptor[?]]()
     param.foreach { p =>
       if (p.bitmapFontData.isDefined) {
         data = p.bitmapFontData
@@ -40,7 +39,7 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
     data = Nullable(new BitmapFontData(Nullable(file), param.fold(false)(_.flip)))
     if (param.fold(false)(_.atlasName.isDefined)) {
       param.foreach(_.atlasName.foreach { atlasName =>
-        deps += new AssetDescriptor[TextureAtlas](atlasName, classOf[TextureAtlas])
+        deps.add(new AssetDescriptor[TextureAtlas](atlasName, classOf[TextureAtlas]))
       })
     } else {
       data.foreach { d =>
@@ -57,7 +56,7 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
               textureParams.magFilter = p.magFilter
             }
 
-            deps += new AssetDescriptor[Texture](resolved, classOf[Texture], textureParams)
+            deps.add(new AssetDescriptor[Texture](resolved, classOf[Texture], textureParams))
           }
         }
       }
@@ -87,9 +86,9 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asy
       val d        = data.getOrElse(throw SgeError.GraphicsError("BitmapFontData not loaded"))
       val imgPaths = d.imagePaths.getOrElse(throw SgeError.GraphicsError("BitmapFontData has no image paths"))
       val n        = imgPaths.length
-      val regs     = ArrayBuffer.empty[TextureRegion]
+      val regs     = DynamicArray[TextureRegion]()
       for (i <- 0 until n)
-        regs += new TextureRegion(manager.get(imgPaths(i), classOf[Texture]))
+        regs.add(new TextureRegion(manager.get(imgPaths(i), classOf[Texture])))
       new BitmapFont(d, Nullable(regs), true)
     }
   }

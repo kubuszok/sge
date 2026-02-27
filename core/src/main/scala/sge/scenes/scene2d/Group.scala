@@ -10,8 +10,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
@@ -27,7 +26,7 @@ import sge.scenes.scene2d.utils.Cullable
   */
 class Group extends Actor with Cullable {
 
-  val children:                  ArrayBuffer[Actor]  = ArrayBuffer.empty
+  val children:                  DynamicArray[Actor] = DynamicArray[Actor]()
   private val worldTransform:    Affine2             = new Affine2()
   private val computedTransform: Matrix4             = new Matrix4()
   private val oldTransform:      Matrix4             = new Matrix4()
@@ -282,7 +281,7 @@ class Group extends Actor with Cullable {
   def addActor(actor: Actor): Unit =
     if (!actor.parent.fold(false)(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
-      children += actor
+      children.add(actor)
       actor.setParent(Nullable(this))
       getStage.foreach(s => actor.setStage(Nullable(s)))
       childrenChanged()
@@ -296,7 +295,7 @@ class Group extends Actor with Cullable {
     if (!actor.parent.fold(false)(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       if (index >= children.size)
-        children += actor
+        children.add(actor)
       else
         children.insert(index, actor)
       actor.setParent(Nullable(this))
@@ -324,7 +323,7 @@ class Group extends Actor with Cullable {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       val index = children.indexOf(actorAfter)
       if (index == children.size || index == -1)
-        children += actor
+        children.add(actor)
       else
         children.insert(index + 1, actor)
       actor.setParent(Nullable(this))
@@ -353,7 +352,7 @@ class Group extends Actor with Cullable {
     *   the actor removed from this group.
     */
   def removeActorAt(index: Int, unfocus: Boolean): Actor = {
-    val actor = children.remove(index)
+    val actor = children.removeIndex(index)
     getStage.foreach { stage =>
       if (unfocus) stage.unfocus(actor)
       stage.actorRemoved(actor)
@@ -459,7 +458,7 @@ class Group extends Actor with Cullable {
   def getChild(index: Int): Actor = children(index)
 
   /** Returns an ordered list of child actors in this group. */
-  def getChildren: ArrayBuffer[Actor] = children
+  def getChildren: DynamicArray[Actor] = children
 
   def hasChildren: Boolean = children.nonEmpty
 

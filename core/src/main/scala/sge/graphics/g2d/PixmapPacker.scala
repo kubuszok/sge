@@ -20,8 +20,8 @@ import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.PixmapTextureData
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.{ ArrayBuffer, Map as MutableMap }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
+import scala.collection.mutable.Map as MutableMap
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
 import scala.util.boundary
@@ -65,19 +65,19 @@ import scala.util.boundary.break
   *   Rob Rendell
   */
 class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
-  var packToTexture:    Boolean                        = false
-  var disposed:         Boolean                        = false
-  var pageWidth:        Int                            = uninitialized
-  var pageHeight:       Int                            = uninitialized
-  var pageFormat:       Format                         = uninitialized
-  var padding:          Int                            = uninitialized
-  var duplicateBorder:  Boolean                        = false
-  var stripWhitespaceX: Boolean                        = false
-  var stripWhitespaceY: Boolean                        = false
-  var alphaThreshold:   Int                            = uninitialized
-  var transparentColor: Color                          = new Color(0f, 0f, 0f, 0f)
-  val pages:            ArrayBuffer[PixmapPacker.Page] = ArrayBuffer()
-  var packStrategy:     PixmapPacker.PackStrategy      = uninitialized
+  var packToTexture:    Boolean                         = false
+  var disposed:         Boolean                         = false
+  var pageWidth:        Int                             = uninitialized
+  var pageHeight:       Int                             = uninitialized
+  var pageFormat:       Format                          = uninitialized
+  var padding:          Int                             = uninitialized
+  var duplicateBorder:  Boolean                         = false
+  var stripWhitespaceX: Boolean                         = false
+  var stripWhitespaceY: Boolean                         = false
+  var alphaThreshold:   Int                             = uninitialized
+  var transparentColor: Color                           = new Color(0f, 0f, 0f, 0f)
+  val pages:            DynamicArray[PixmapPacker.Page] = DynamicArray[PixmapPacker.Page]()
+  var packStrategy:     PixmapPacker.PackStrategy       = uninitialized
 
   /** Uses {@link GuillotineStrategy} .
     * @see
@@ -137,7 +137,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
   /** Sorts the images to the optimzal order they should be packed. Some packing strategies rely heavily on the images being sorted.
     */
-  def sort(images: ArrayBuffer[Pixmap]): Unit =
+  def sort(images: DynamicArray[Pixmap]): Unit =
     packStrategy.sort(images)
 
   /** Inserts the pixmap without a name. It cannot be looked up by name.
@@ -263,7 +263,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     val page = packStrategy.pack(this, workingName, rect.bounds);
     if (workingName != null) {
       page.rects.put(workingName, rect);
-      page.addedRects.addOne(workingName);
+      page.addedRects.add(workingName);
     }
 
     val rectX:      Int = rect.getX()
@@ -417,11 +417,11 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
   /** Calls {@link Page#updateTexture(TextureFilter, TextureFilter, boolean) updateTexture} for each page and adds a region to the specified array for each page texture.
     */
-  def updateTextureRegions(regions: ArrayBuffer[TextureRegion], minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Unit = {
+  def updateTextureRegions(regions: DynamicArray[TextureRegion], minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Unit = {
     updatePageTextures(minFilter, magFilter, useMipMaps);
     while (regions.size < pages.size)
       pages(regions.size).texture.foreach { pageTexture =>
-        regions.addOne(new TextureRegion(pageTexture))
+        regions.add(new TextureRegion(pageTexture))
       }
   }
 
@@ -614,7 +614,7 @@ object PixmapPacker {
     *   Nathan Sweet
     */
   trait PackStrategy {
-    def sort(images: ArrayBuffer[Pixmap]): Unit
+    def sort(images: DynamicArray[Pixmap]): Unit
 
     /** Returns the page the bounds should be placed in and modifies the specified bounds position. */
     def pack(packer: PixmapPacker, name: String, bounds: Bounds)(implicit sge: Sge): Page
@@ -631,7 +631,7 @@ object PixmapPacker {
     val rects:      MutableMap[String, PixmapPackerRectangle] = MutableMap()
     val image:      Pixmap                                    = new Pixmap(packer.pageWidth, packer.pageHeight, packer.pageFormat)
     var texture:    Nullable[Texture]                         = Nullable.empty
-    val addedRects: ArrayBuffer[String]                       = ArrayBuffer()
+    val addedRects: DynamicArray[String]                      = DynamicArray[String]()
     var dirty:      Boolean                                   = false
 
     // Initialize page
@@ -720,9 +720,9 @@ object PixmapPacker {
   }
 
   class GuillotineStrategy extends PackStrategy {
-    def sort(images: ArrayBuffer[Pixmap]): Unit =
+    def sort(images: DynamicArray[Pixmap]): Unit =
       // Simple sorting by area (width * height) in descending order
-      images.sortInPlaceBy(pixmap => -(pixmap.getWidth() * pixmap.getHeight()))
+      images.sort(Ordering.by[Pixmap, Int](pixmap => -(pixmap.getWidth() * pixmap.getHeight())))
 
     def pack(packer: PixmapPacker, name: String, rect: Bounds)(implicit sge: Sge): Page = {
       // Simplified implementation - would need full conversion for complex logic
@@ -730,9 +730,9 @@ object PixmapPacker {
         // For now, create a basic Page - GuillotinePage would need proper Sge context
         // val page = new GuillotinePage(packer)(using sge)
         val page = new Page(packer)(using sge)
-        packer.pages.addOne(page)
+        packer.pages.add(page)
       }
-      packer.pages.head
+      packer.pages.first
     }
   }
 

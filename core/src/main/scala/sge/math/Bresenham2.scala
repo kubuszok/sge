@@ -9,8 +9,7 @@
 package sge
 package math
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Pool
+import sge.utils.{ DynamicArray, Pool }
 
 /** Returns a list of points at integer coordinates for a line on a 2D grid, using the Bresenham algorithm. <p>
   *
@@ -21,7 +20,7 @@ import sge.utils.Pool
   */
 final class Bresenham2 {
 
-  private val points = ArrayBuffer.empty[GridPoint2]
+  private val points = DynamicArray[GridPoint2]()
   private val pool   = new Pool.Default[GridPoint2](() => GridPoint2())
 
   /** Returns a list of {@link GridPoint2} instances along the given line, at integer coordinates.
@@ -48,7 +47,7 @@ final class Bresenham2 {
     *   the list of points on the line at integer coordinates
     */
   def line(startX: Int, startY: Int, endX: Int, endY: Int): Array[GridPoint2] = {
-    pool.freeAll(points)
+    points.foreach(pool.free)
     points.clear()
     line(startX, startY, endX, endY, pool, points).toArray
   }
@@ -69,7 +68,7 @@ final class Bresenham2 {
     * @return
     *   the list of points on the line at integer coordinates
     */
-  def line(startX: Int, startY: Int, endX: Int, endY: Int, pool: Pool[GridPoint2], output: ArrayBuffer[GridPoint2]): ArrayBuffer[GridPoint2] = {
+  def line(startX: Int, startY: Int, endX: Int, endY: Int, pool: Pool[GridPoint2], output: DynamicArray[GridPoint2]): DynamicArray[GridPoint2] = {
     val w   = endX - startX
     val h   = endY - startY
     var dx1 = 0

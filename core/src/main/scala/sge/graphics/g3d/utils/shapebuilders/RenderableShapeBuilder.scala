@@ -12,13 +12,11 @@ package g3d
 package utils
 package shapebuilders
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.{ Color, Mesh }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.utils.{ Nullable, Pool }
+import sge.utils.{ DynamicArray, Nullable, Pool }
 
 /** RenderableShapeBuilder builds various properties of a renderable.
   * @author
@@ -46,9 +44,9 @@ object RenderableShapeBuilder {
 
   private val renderablesPool: RenderablePoolImpl = new RenderablePoolImpl()
 
-  private var indices:     Array[Short]            = Array.empty[Short]
-  private var vertices:    Array[Float]            = Array.empty[Float]
-  private val renderables: ArrayBuffer[Renderable] = ArrayBuffer[Renderable]()
+  private var indices:     Array[Short]             = Array.empty[Short]
+  private var vertices:    Array[Float]             = Array.empty[Float]
+  private val renderables: DynamicArray[Renderable] = DynamicArray[Renderable]()
   final private val FLOAT_BYTES = 4
 
   /** Builds normal, tangent and binormal of a RenderableProvider with default colors (normal blue, tangent red, binormal green).

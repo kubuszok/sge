@@ -32,6 +32,7 @@ import sge.math.Matrix4
 import sge.math.Vector2
 import sge.math.Vector3
 import sge.math.collision.BoundingBox
+import sge.utils.DynamicArray
 import sge.utils.SgeError
 import sge.utils.Nullable
 import scala.util.boundary
@@ -673,7 +674,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
   /** Frees all resources associated with this Mesh */
   override def close(): Unit = {
     if (Mesh.meshes.contains(summon[Sge].application)) {
-      Mesh.meshes(summon[Sge].application) -= this
+      Mesh.meshes(summon[Sge].application).removeValue(this)
     }
     vertices.close()
     instances.foreach(_.close())
@@ -907,7 +908,7 @@ object Mesh {
   }
 
   /** list of all meshes * */
-  private val meshes = mutable.Map[Application, mutable.ArrayBuffer[Mesh]]()
+  private val meshes = mutable.Map[Application, DynamicArray[Mesh]]()
 
   private def makeVertexBuffer(isStatic: Boolean, maxVertices: Int, vertexAttributes: VertexAttributes)(using sge: Sge): VertexData =
     if (sge.graphics.gl30.isDefined) {
@@ -941,8 +942,8 @@ object Mesh {
     }
 
   private def addManagedMesh(app: Application, mesh: Mesh): Unit = {
-    val managedResources = meshes.getOrElseUpdate(app, mutable.ArrayBuffer[Mesh]())
-    managedResources += mesh
+    val managedResources = meshes.getOrElseUpdate(app, DynamicArray[Mesh]())
+    managedResources.add(mesh)
   }
 
   /** Invalidates all meshes so the next time they are rendered new VBO handles are generated.
@@ -966,7 +967,7 @@ object Mesh {
     val builder = new StringBuilder()
     builder.append("Managed meshes/app: { ")
     for ((app, meshArray) <- meshes) {
-      builder.append(meshArray.length)
+      builder.append(meshArray.size)
       builder.append(" ")
     }
     builder.append("}")

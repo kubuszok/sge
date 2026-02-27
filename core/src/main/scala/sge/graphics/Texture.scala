@@ -17,7 +17,8 @@ import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.files.FileHandle
 import sge.utils.{ Nullable, SgeError }
 import sge.assets.{ AssetLoaderParameters, AssetManager }
-import scala.collection.mutable.{ ArrayBuffer, Map }
+import sge.utils.DynamicArray
+import scala.collection.mutable.Map
 import java.nio.Buffer
 
 /** A Texture wraps a standard OpenGL ES texture. <p> A Texture can be managed. If the OpenGL context is lost all managed textures get invalidated. This happens when a user switches to another
@@ -154,7 +155,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
     if (glHandle == TextureHandle.none) return
     delete()
     if (textureData.isManaged)
-      Texture.managedTextures.get(sge.application).foreach(_.filterInPlace(_ != this))
+      Texture.managedTextures.get(sge.application).foreach(_.removeValue(this))
   }
 
   override def toString(): String =
@@ -165,12 +166,12 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
 }
 
 object Texture {
-  private var assetManager:    AssetManager                           = scala.compiletime.uninitialized
-  private val managedTextures: Map[Application, ArrayBuffer[Texture]] = Map.empty
+  private var assetManager:    AssetManager                            = scala.compiletime.uninitialized
+  private val managedTextures: Map[Application, DynamicArray[Texture]] = Map.empty
 
   private def addManagedTexture(app: Application, texture: Texture): Unit = {
-    val managedTextureArray = managedTextures.getOrElseUpdate(app, ArrayBuffer.empty)
-    managedTextureArray += texture
+    val managedTextureArray = managedTextures.getOrElseUpdate(app, DynamicArray[Texture]())
+    managedTextureArray.add(texture)
   }
 
   /** Clears all managed textures. This is an internal method. Do not use it! */
@@ -193,7 +194,7 @@ object Texture {
 
           // next we go through each texture and reload either directly or via the
           // asset manager.
-          val textures = managedTextureArray.clone()
+          val textures = DynamicArray.from(managedTextureArray)
           for (texture <- textures)
             // val fileName = assetManager.getAssetFileName(texture)
             // if (fileName == null) {

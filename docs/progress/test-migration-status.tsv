@@ -1,0 +1,37 @@
+# Test Migration Status
+# Tracks porting of LibGDX unit tests to SGE munit + new SGE-specific test suites
+# Statuses: migrated, skipped_no_target, new_sge_test
+# Last updated: 2026-02-27
+libgdx_test	sge_test	status	notes
+math/Vector2Test	sge/math/Vector2Test.scala	migrated	toString, fromString, angle/angleRad (instance + static)
+math/Vector3Test	sge/math/Vector3Test.scala	migrated	toString, fromString
+math/Vector4Test	sge/math/Vector4Test.scala	migrated	toString, fromString
+math/RectangleTest	sge/math/RectangleTest.scala	migrated	toString, fromString
+math/Shape2DTest	sge/math/Shape2DTest.scala	migrated	Circle and Rectangle overlap/contains tests
+math/collision/CollisionTest	sge/math/collision/CollisionTest.scala	migrated	BoundingBox + OBB contains/intersects (OBB.contains(OBB) unblocked)
+math/MathUtilsTest	sge/math/MathUtilsTest.scala	migrated	lerpAngle, norm, map, trig, atan2 tests
+math/PolygonTest	sge/math/PolygonTest.scala	migrated	Rotation and area tests
+math/ConvexHullTest	sge/math/ConvexHullTest.scala	migrated	computePolygon with cyclic equality
+math/OctreeTest	sge/math/OctreeTest.scala	migrated	Insert, remove, getAll tests
+math/IntersectorTest	sge/math/IntersectorTest.scala	migrated	42 tests: isPointInTriangle, pointLineSide, isPointInPolygon, splitTriangle, intersectSegmentCircle, intersectPlanes, intersectPolygons, intersectRayPlane, intersectRayTriangle, intersectRaySphere, intersectRayBounds, intersectLines, intersectSegments, intersectRectangles, overlaps, overlapConvexPolygons, intersectRayRay, distanceLinePoint, distanceSegmentPoint, nearestSegmentPoint, intersectSegmentPlane, intersectLinePlane, intersectBoundsPlaneFast, intersectSegmentRectangle, intersectLinePolygon, intersectSegmentPolygon
+math/BSplineTest	sge/math/BSplineTest.scala	migrated	Cubic spline, derivative, approximation tests
+math/BezierTest	sge/math/BezierTest.scala	migrated	Parameterized over ImportType x useSetter
+utils/SortTest	sge/utils/SortTest.scala	migrated	Array and DynamicArray sorting, edge cases
+utils/FlushablePoolTest	sge/utils/FlushablePoolTest.scala	migrated	Pool.Flushable obtain/flush/free lifecycle
+utils/MixedPutRemoveTest	sge/utils/ObjectMapTest.scala	migrated	Stress tests merged into ObjectMapTest
+utils/BitsTest	-	skipped_no_target	Bits replaced by scala.collection.mutable.BitSet
+utils/AtomicQueueTest	-	skipped_no_target	AtomicQueue not ported (use java.util.concurrent)
+utils/JsonTest	-	skipped_no_target	LibGDX JsonReader replaced by jsoniter bridge
+utils/JsonValueTest (libgdx)	-	skipped_no_target	LibGDX JsonValue tests; SGE has its own below
+utils/CharArrayTest	-	skipped_no_target	CharArray replaced by DynamicArray[Char]
+utils/LongArrayTest	-	skipped_no_target	LongArray replaced by DynamicArray[Long]
+utils/LongQueueTest	-	skipped_no_target	LongQueue not ported (use standard Queue)
+utils/QueueTest	-	skipped_no_target	Queue replaced by scala.collection.mutable.Queue
+utils/PooledLinkedListTest	-	skipped_no_target	PooledLinkedList not ported
+utils/SortedIntListTest	-	skipped_no_target	SortedIntList not ported
+g3d/utils/AnimationControllerTest	sge/graphics/g3d/utils/AnimationControllerTest.scala	migrated	keyframe index + end-up action tests
+g3d/utils/AnimationDescTest	sge/graphics/g3d/utils/AnimationDescTest.scala	migrated	Update forward/reverse with various deltas
+-	sge/utils/DynamicArrayTest.scala	new_sge_test	55 tests: construction, add/remove, iteration, snapshot, sort, edge cases
+-	sge/utils/ObjectMapTest.scala	new_sge_test	41 tests: put/get/remove, iteration, equals, stress tests
+-	sge/utils/JsonValueTest.scala	new_sge_test	72 tests: construction, navigation, type accessors, mutation, serialization
+-	sge/math/Matrix4Test.scala	new_sge_test	7 tests: det, inv (identity, translation, rotation, arbitrary, singular), setTranslation

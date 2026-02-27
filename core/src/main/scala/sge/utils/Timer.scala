@@ -9,8 +9,6 @@
 package sge
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-
 /** Executes tasks in the future on the main loop thread.
   * @author
   *   Nathan Sweet (original implementation)
@@ -18,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
 class Timer(implicit sde: sge.Sge) {
   import Timer._
 
-  private val tasks = ArrayBuffer.empty[Task]
+  private val tasks = DynamicArray[Task]()
   private var stopTimeMillis: Long = 0
 
   start()
@@ -51,7 +49,7 @@ class Timer(implicit sde: sge.Sge) {
           task.executeTimeMillis = executeTimeMillis
           task.intervalMillis = (intervalSeconds * 1000).toLong
           task.repeatCount = repeatCount
-          tasks += task
+          tasks.add(task)
         }
       }
       threadLock.notifyAll()
@@ -71,7 +69,7 @@ class Timer(implicit sde: sge.Sge) {
       val currentThread = thread()
       val instances     = currentThread.instances
       if (instances.contains(this)) return
-      instances += this
+      instances.add(this)
       if (stopTimeMillis > 0) {
         delay(System.nanoTime() / 1000000 - stopTimeMillis)
         stopTimeMillis = 0
@@ -85,7 +83,7 @@ class Timer(implicit sde: sge.Sge) {
       val currentThread = thread()
       this.synchronized {
         currentThread.postedTasks.synchronized {
-          for (task <- tasks) {
+          tasks.foreach { task =>
             currentThread.removePostedTask(task)
             task.reset()
           }
@@ -101,7 +99,7 @@ class Timer(implicit sde: sge.Sge) {
   private[Timer] def update(thread: TimerThread, timeMillis: Long, waitMillis: Long): Long = synchronized {
     var currentWaitMillis = waitMillis
     var i                 = 0
-    while (i < tasks.length) {
+    while (i < tasks.size) {
       val task = tasks(i)
       task.synchronized {
         if (task.executeTimeMillis > timeMillis) {
@@ -110,7 +108,7 @@ class Timer(implicit sde: sge.Sge) {
         } else {
           if (task.repeatCount == 0) {
             task.timer = None
-            tasks.remove(i)
+            tasks.removeIndex(i)
           } else {
             task.executeTimeMillis = timeMillis + task.intervalMillis
             currentWaitMillis = scala.math.min(currentWaitMillis, task.intervalMillis)
@@ -126,10 +124,11 @@ class Timer(implicit sde: sge.Sge) {
 
   /** Adds the specified delay to all tasks. */
   def delay(delayMillis: Long): Unit = synchronized {
-    for (task <- tasks)
+    tasks.foreach { task =>
       task.synchronized {
         task.executeTimeMillis += delayMillis
       }
+    }
   }
 }
 
@@ -238,12 +237,12 @@ object Timer {
   private class TimerThread(implicit sde: sge.Sge) extends Runnable {
     val files       = sde.files
     private val app = sde
-    val instances   = ArrayBuffer.empty[Timer]
+    val instances   = DynamicArray[Timer]()
     var instance:        Option[Timer] = None
     var pauseTimeMillis: Long          = 0
 
-    val postedTasks            = ArrayBuffer.empty[Task]
-    private val runTasks       = ArrayBuffer.empty[Task]
+    val postedTasks            = DynamicArray[Task]()
+    private val runTasks       = DynamicArray[Task]()
     private val runPostedTasks = new Runnable {
       def run(): Unit = runPostedTasksImpl()
     }
@@ -263,13 +262,16 @@ object Timer {
           var waitMillis = 5000L
           if (pauseTimeMillis == 0) {
             val timeMillis = System.nanoTime() / 1000000
-            for (i <- instances.indices)
+            var i          = 0
+            while (i < instances.size) {
               try
                 waitMillis = instances(i).update(this, timeMillis, waitMillis)
               catch {
                 case ex: Throwable =>
                   throw SgeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
               }
+              i += 1
+            }
           }
 
           if (currentThread.exists(_ != this) || files != sde.files) return
@@ -285,11 +287,10 @@ object Timer {
 
     private def runPostedTasksImpl(): Unit = {
       postedTasks.synchronized {
-        runTasks ++= postedTasks
+        runTasks.addAll(postedTasks)
         postedTasks.clear()
       }
-      for (task <- runTasks)
-        task.run()
+      runTasks.foreach(_.run())
       runTasks.clear()
     }
 
@@ -299,7 +300,7 @@ object Timer {
           // TODO: Implement postRunnable when Application interface is converted
           // app.postRunnable(runPostedTasks)
         }
-        postedTasks += task
+        postedTasks.add(task)
       }
 
     def removePostedTask(task: Task): Unit =
@@ -310,8 +311,7 @@ object Timer {
     def resume(): Unit =
       threadLock.synchronized {
         val delayMillis = System.nanoTime() / 1000000 - pauseTimeMillis
-        for (instance <- instances)
-          instance.delay(delayMillis)
+        instances.foreach(_.delay(delayMillis))
         pauseTimeMillis = 0
         threadLock.notifyAll()
       }
@@ -334,16 +334,4 @@ object Timer {
     // app.removeLifecycleListener(this) // TODO: Implement LifecycleListener
   }
 
-  // Extension methods for ArrayBuffer to match the original Array API
-  implicit class ArrayBufferExtensions[T](buffer: ArrayBuffer[T]) {
-    def removeValue(value: T): Boolean = {
-      val index = buffer.indexOf(value)
-      if (index >= 0) {
-        buffer.remove(index)
-        true
-      } else {
-        false
-      }
-    }
-  }
 }

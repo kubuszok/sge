@@ -12,7 +12,8 @@ package math
 import sge.math.collision._
 import sge.math.Frustum
 import sge.utils.{ Nullable, Pool }
-import scala.collection.mutable.{ ArrayBuffer, Set }
+import sge.utils.DynamicArray
+import scala.collection.mutable.Set
 
 /** A static Octree implementation.
   *
@@ -32,7 +33,7 @@ import scala.collection.mutable.{ ArrayBuffer, Set }
   *
   * // Rendering the result for (GameObject gameObject : result) { modelBatch.render(gameObject); } </pre>
   */
-class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxDepth: Int, val maxItemsPerNode: Int, val collider: Octree.Collider[T]) {
+class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxDepth: Int, val maxItemsPerNode: Int, val collider: Octree.Collider[T]) {
 
   val nodePool = new Pool[OctreeNode]() {
     override protected val initialCapacity: Int        = 16
@@ -118,7 +119,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
     val bounds = new BoundingBox()
     var leaf:             Boolean                     = scala.compiletime.uninitialized
     private var children: Nullable[Array[OctreeNode]] = Nullable.empty
-    private val geometries = ArrayBuffer[T]()
+    private val geometries = DynamicArray[T]()
 
     private def split(): Unit = {
       val midx = (bounds.max.x + bounds.min.x) * 0.5f
@@ -194,10 +195,10 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
         }
 
         if (removed) {
-          val geometrySet = ArrayBuffer[T]()
+          val geometrySet = Set.empty[T]
           children.foreach { ch =>
             for (node <- ch)
-              node.getAll(geometrySet.to(Set))
+              node.getAll(geometrySet)
           }
           if (geometrySet.size <= maxItemsPerNode) {
             for (geometry <- geometrySet)
@@ -210,7 +211,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
       } else {
         val index = geometries.indexOf(obj)
         if (index >= 0) {
-          geometries.remove(index)
+          geometries.removeIndex(index)
           true
         } else {
           false
@@ -291,7 +292,7 @@ class Octree[T: scala.reflect.ClassTag](minimum: Vector3, maximum: Vector3, maxD
             child.getAll(resultSet)
         }
       }
-      resultSet ++= geometries
+      geometries.foreach(resultSet += _)
     }
 
     /** Get bounding boxes using Depth-First Search recursion.

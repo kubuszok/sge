@@ -12,8 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.audio.Sound
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** {@link AssetLoader} for {@link Sound} instances. The Sound instance is loaded synchronously.
   * @author
@@ -39,8 +38,8 @@ class SoundLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynchro
     result.getOrElse(throw SgeError.SerializationError("Sound not loaded"))
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: SoundLoader.SoundParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: SoundLoader.SoundParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 }
 
 object SoundLoader {

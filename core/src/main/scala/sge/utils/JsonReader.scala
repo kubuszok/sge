@@ -17,8 +17,7 @@ import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
 
 /** Lightweight JSON parser.
   *
-  * Parses JSON text into a tree of [[JsonValue]] nodes. Uses jsoniter-scala + kindlings for parsing, then converts to the
-  * LibGDX-compatible linked-list tree structure.
+  * Parses JSON text into a tree of [[JsonValue]] nodes. Uses jsoniter-scala + kindlings for parsing, then converts to the LibGDX-compatible linked-list tree structure.
   */
 class JsonReader extends BaseJsonReader {
 
@@ -38,10 +37,9 @@ class JsonReader extends BaseJsonReader {
         sb.appendAll(buffer, 0, len)
         len = reader.read(buffer)
       }
-    } finally {
-      try { reader.close() }
+    } finally
+      try reader.close()
       catch { case _: Exception => () }
-    }
     parse(sb.toString)
   }
 

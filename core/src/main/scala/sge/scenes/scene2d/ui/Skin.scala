@@ -31,6 +31,7 @@ import sge.scenes.scene2d.utils.NinePatchDrawable
 import sge.scenes.scene2d.utils.SpriteDrawable
 import sge.scenes.scene2d.utils.TextureRegionDrawable
 import sge.scenes.scene2d.utils.TiledDrawable
+import sge.utils.DynamicArray
 import sge.utils.JsonValue
 import sge.utils.Nullable
 import sge.utils.SgeError
@@ -384,15 +385,15 @@ class Skin() extends AutoCloseable {
   }
 
   /** @return an array with the {@link TextureRegion} that have an index != -1, or Nullable.empty if none are found. */
-  def getRegions(regionName: String): Nullable[mutable.ArrayBuffer[TextureRegion]] = {
-    var regions: Nullable[mutable.ArrayBuffer[TextureRegion]] = Nullable.empty
+  def getRegions(regionName: String): Nullable[DynamicArray[TextureRegion]] = {
+    var regions: Nullable[DynamicArray[TextureRegion]] = Nullable.empty
     var i      = 0
     var region = optional(regionName + "_" + i, classOf[TextureRegion])
     i += 1
     if (region.isDefined) {
-      val buf = mutable.ArrayBuffer.empty[TextureRegion]
+      val buf = DynamicArray[TextureRegion]()
       while (region.isDefined) {
-        region.foreach(buf += _)
+        region.foreach(buf.add(_))
         region = optional(regionName + "_" + i, classOf[TextureRegion])
         i += 1
       }

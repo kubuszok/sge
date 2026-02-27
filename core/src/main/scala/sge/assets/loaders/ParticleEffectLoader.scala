@@ -12,8 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.g2d.{ ParticleEffect, TextureAtlas }
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 /** {@link AssetLoader} to load {@link ParticleEffect} instances. Passing a {@link ParticleEffectParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify an
   * atlas file or an image directory to be used for the effect's images. Per default images are loaded from the directory in which the effect file is found.
@@ -38,11 +37,11 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
     effect
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ArrayBuffer[AssetDescriptor[?]] = {
-    val deps = ArrayBuffer.empty[AssetDescriptor[?]]
+  override def getDependencies(fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): DynamicArray[AssetDescriptor[?]] = {
+    val deps = DynamicArray[AssetDescriptor[?]]()
     Nullable(parameter).foreach { p =>
       p.atlasFile.foreach { atlasFile =>
-        deps += new AssetDescriptor[TextureAtlas](atlasFile, classOf[TextureAtlas])
+        deps.add(new AssetDescriptor[TextureAtlas](atlasFile, classOf[TextureAtlas]))
       }
     }
     deps

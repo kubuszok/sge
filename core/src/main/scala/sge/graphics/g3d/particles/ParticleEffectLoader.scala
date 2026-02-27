@@ -11,12 +11,11 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
-
 import _root_.sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
 import _root_.sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import _root_.sge.files.FileHandle
 import _root_.sge.graphics.g3d.particles.batches.ParticleBatch
+import _root_.sge.utils.DynamicArray
 import _root_.sge.utils.Nullable
 
 // NOTE: Full implementation requires a JSON serialization bridge (libGDX Json class).
@@ -34,8 +33,8 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
 
   import ParticleEffectLoader.*
 
-  protected var items: ArrayBuffer[(String, ResourceData[ParticleEffect])] =
-    new ArrayBuffer[(String, ResourceData[ParticleEffect])]()
+  protected var items: DynamicArray[(String, ResourceData[ParticleEffect])] =
+    DynamicArray[(String, ResourceData[ParticleEffect])]()
 
   override def loadAsync(
     manager:   AssetManager,
@@ -50,13 +49,13 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
     fileName:  String,
     file:      FileHandle,
     parameter: ParticleEffectLoadParameter
-  ): ArrayBuffer[AssetDescriptor[?]] = {
+  ): DynamicArray[AssetDescriptor[?]] = {
     // TODO: Requires Json.fromJson(classOf[ResourceData], file) to deserialize ResourceData
     // Once JSON bridge is available, this should:
     // 1. Deserialize ResourceData[ParticleEffect] from file
     // 2. Cache it in items synchronized list
     // 3. Return asset descriptors for all referenced assets
-    val descriptors = new ArrayBuffer[AssetDescriptor[?]]()
+    val descriptors = DynamicArray[AssetDescriptor[?]]()
     descriptors
   }
 
@@ -99,7 +98,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
         val entry = items(i)
         if (entry._1 == fileName) {
           effectData = Nullable(entry._2)
-          items.remove(i)
+          items.removeIndex(i)
           i = items.size // break
         }
         i += 1
@@ -129,10 +128,10 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
 object ParticleEffectLoader {
 
   class ParticleEffectLoadParameter(
-    val batches: Nullable[ArrayBuffer[ParticleBatch[?]]]
+    val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: ArrayBuffer[ParticleBatch[?]]) =
+    def this(batches: DynamicArray[ParticleBatch[?]]) =
       this(Nullable(batches))
   }
 
@@ -141,7 +140,7 @@ object ParticleEffectLoader {
     val file:    FileHandle,
     val manager: AssetManager,
     /** Optional parameters, but should be present to correctly load the settings */
-    val batches:     Nullable[ArrayBuffer[ParticleBatch[?]]] = Nullable.empty,
+    val batches:     Nullable[DynamicArray[ParticleBatch[?]]] = Nullable.empty,
     val prettyPrint: Boolean = false
   ) extends AssetLoaderParameters[ParticleEffect]
 }

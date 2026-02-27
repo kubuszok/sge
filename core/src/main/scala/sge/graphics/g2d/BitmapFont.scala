@@ -13,27 +13,36 @@ package g2d
 import sge.files.FileHandle
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 import sge.utils.Pool.Poolable
-import scala.collection.mutable.ArrayBuffer
 import java.io.{ BufferedReader, InputStreamReader }
 import java.util.StringTokenizer
 
 import scala.language.implicitConversions
 
-class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[TextureRegion]], val integer: Boolean)(using sge: Sge) extends AutoCloseable {
+class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using sge: Sge) extends AutoCloseable {
 
-  val regions:             ArrayBuffer[TextureRegion] = regionsParam.getOrElse(loadRegions())
-  private val cache:       BitmapFontCache            = newFontCache()
-  private val flipped:     Boolean                    = data.flipped
-  private var ownsTexture: Boolean                    = false
+  val regions:             DynamicArray[TextureRegion] = regionsParam.getOrElse(loadRegions())
+  private val cache:       BitmapFontCache             = newFontCache()
+  private val flipped:     Boolean                     = data.flipped
+  private var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
   def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) =
-    this(new BitmapFontData(fontFile, false), if (region.isDefined) Nullable(ArrayBuffer(region.orNull)) else Nullable.empty, true)
+    this(
+      new BitmapFontData(fontFile, false),
+      if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
+      else Nullable.empty,
+      true
+    )
 
   def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) =
-    this(new BitmapFontData(fontFile, flip), if (region.isDefined) Nullable(ArrayBuffer(region.orNull)) else Nullable.empty, true)
+    this(
+      new BitmapFontData(fontFile, flip),
+      if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
+      else Nullable.empty,
+      true
+    )
 
   def this(fontFile: FileHandle)(using sge: Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
@@ -44,7 +53,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
-      Nullable(ArrayBuffer(new TextureRegion(new Texture(imageFile, false)))),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
       true
     )
     ownsTexture = true
@@ -53,20 +62,20 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using sge: Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
-      Nullable(ArrayBuffer(new TextureRegion(new Texture(imageFile, false)))),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
       integer
     )
     ownsTexture = true
   }
 
-  private def loadRegions()(using sge: Sge): ArrayBuffer[TextureRegion] =
+  private def loadRegions()(using sge: Sge): DynamicArray[TextureRegion] =
     data.imagePaths.fold {
       throw new IllegalArgumentException("If no regions are specified, the font data must have an images path.")
     } { paths =>
       val n          = paths.length
-      val newRegions = ArrayBuffer[TextureRegion]()
+      val newRegions = DynamicArray[TextureRegion]()
       for (i <- 0 until n)
-        newRegions += new TextureRegion(new Texture(paths(i)))
+        newRegions.add(new TextureRegion(new Texture(paths(i))))
       ownsTexture = true
       newRegions
     }
@@ -114,27 +123,28 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[ArrayBuffer[Te
     cache.draw(batch)
   }
 
-  def getColor():                                            Color                      = cache.getColor()
-  def setColor(color:  Color):                               Unit                       = cache.getColor().set(color)
-  def setColor(r:      Float, g: Float, b: Float, a: Float): Unit                       = cache.getColor().set(r, g, b, a)
-  def getScaleX():                                           Float                      = data.scaleX
-  def getScaleY():                                           Float                      = data.scaleY
-  def getRegion():                                           TextureRegion              = regions.head
-  def getRegions():                                          ArrayBuffer[TextureRegion] = regions
-  def getRegion(index: Int):                                 TextureRegion              = regions(index)
-  def getLineHeight():                                       Float                      = data.lineHeight
-  def getSpaceXadvance():                                    Float                      = data.spaceXadvance
-  def getXHeight():                                          Float                      = data.xHeight
-  def getCapHeight():                                        Float                      = data.capHeight
-  def getAscent():                                           Float                      = data.ascent
-  def getDescent():                                          Float                      = data.descent
-  def isFlipped():                                           Boolean                    = flipped
+  def getColor():                                            Color                       = cache.getColor()
+  def setColor(color:  Color):                               Unit                        = cache.getColor().set(color)
+  def setColor(r:      Float, g: Float, b: Float, a: Float): Unit                        = cache.getColor().set(r, g, b, a)
+  def getScaleX():                                           Float                       = data.scaleX
+  def getScaleY():                                           Float                       = data.scaleY
+  def getRegion():                                           TextureRegion               = regions.first
+  def getRegions():                                          DynamicArray[TextureRegion] = regions
+  def getRegion(index: Int):                                 TextureRegion               = regions(index)
+  def getLineHeight():                                       Float                       = data.lineHeight
+  def getSpaceXadvance():                                    Float                       = data.spaceXadvance
+  def getXHeight():                                          Float                       = data.xHeight
+  def getCapHeight():                                        Float                       = data.capHeight
+  def getAscent():                                           Float                       = data.ascent
+  def getDescent():                                          Float                       = data.descent
+  def isFlipped():                                           Boolean                     = flipped
 
   def close(): Unit =
     if (ownsTexture) {
-      for (i <- regions.indices) {
+      var i = 0
+      while (i < regions.size)
         // regions(i).getTexture().close() // Close method not available
-      }
+        i += 1
     }
 
   def setFixedWidthGlyphs(glyphs: CharSequence): Unit = {
@@ -303,7 +313,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
       }
     }
 
-  def getWrapIndex(glyphs: ArrayBuffer[BitmapFont.Glyph], start: Int): Int = {
+  def getWrapIndex(glyphs: DynamicArray[BitmapFont.Glyph], start: Int): Int = {
     // Simplified implementation - find next whitespace
     var i = start
     while (i < glyphs.size && !isWhitespace(glyphs(i).id.toChar))

@@ -9,9 +9,6 @@
 package sge
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-import scala.reflect.ClassTag
-
 /** Provides methods to sort arrays of objects. Sorting requires working memory and this class allows that memory to be reused to avoid allocation. The sorting is otherwise identical to the
   * Arrays.sort methods (uses timsort).<br> <br> Note that sorting primitive arrays with the Arrays.sort methods does not allocate memory (unless sorting large arrays of char, short, or byte).
   * @author
@@ -20,7 +17,7 @@ import scala.reflect.ClassTag
 object Sort {
   private var comparableTimSort = new ComparableTimSort()
 
-  def sort[T <: Comparable[T]: ClassTag](a: ArrayBuffer[T]): Unit =
+  def sort[T <: Comparable[T]](a: DynamicArray[T]): Unit =
     comparableTimSort.doSort(a.toArray.asInstanceOf[Array[AnyRef]], 0, a.size)
 
   /** The specified objects must implement {@link Comparable}. */
@@ -31,12 +28,12 @@ object Sort {
   def sort(a: Array[AnyRef], fromIndex: Int, toIndex: Int): Unit =
     comparableTimSort.doSort(a, fromIndex, toIndex)
 
-  def sort[T: ClassTag](a: ArrayBuffer[T], c: Ordering[T]): Unit = {
+  def sort[T](a: DynamicArray[T], c: Ordering[T]): Unit = {
     val array = a.toArray
     TimSort.sort(array, c)
-    // Copy back to ArrayBuffer
+    // Copy back to DynamicArray
     a.clear()
-    a.addAll(array)
+    a.addAll(array, 0, array.length)
   }
 
   def sort[T](a: Array[T], c: Ordering[T]): Unit =

@@ -10,15 +10,14 @@ package sge
 package maps
 package tiled
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** @brief Collection of {@link TiledMapTileSet} */
 class TiledMapTileSets extends Iterable[TiledMapTileSet] {
 
-  private val tilesets: ArrayBuffer[TiledMapTileSet] = ArrayBuffer.empty
+  private val tilesets: DynamicArray[TiledMapTileSet] = DynamicArray[TiledMapTileSet]()
 
   /** @param index
     *   index to get the desired {@link TiledMapTileSet} at.
@@ -48,7 +47,7 @@ class TiledMapTileSets extends Iterable[TiledMapTileSet] {
 
   /** @param tileset set to be added to the collection */
   def addTileSet(tileset: TiledMapTileSet): Unit =
-    tilesets.addOne(tileset)
+    tilesets.add(tileset)
 
   /** Removes tileset at index
     *
@@ -56,11 +55,11 @@ class TiledMapTileSets extends Iterable[TiledMapTileSet] {
     *   index at which to remove a tileset.
     */
   def removeTileSet(index: Int): Unit =
-    tilesets.remove(index)
+    tilesets.removeIndex(index)
 
   /** @param tileset set to be removed */
   def removeTileSet(tileset: TiledMapTileSet): Unit =
-    tilesets -= tileset
+    tilesets.removeValue(tileset)
 
   /** @param id
     *   id of the {@link TiledMapTile} to get.

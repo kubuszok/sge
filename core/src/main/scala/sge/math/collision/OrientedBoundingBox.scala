@@ -34,6 +34,7 @@ class OrientedBoundingBox() {
   def this(bounds: BoundingBox) = {
     this()
     this.bounds.set(bounds.min, bounds.max)
+    update()
   }
 
   /** Constructs a new oriented bounding box from the given bounding box and transform.
@@ -47,6 +48,7 @@ class OrientedBoundingBox() {
     this()
     this.bounds.set(bounds.min, bounds.max)
     this.transform.set(transform)
+    update()
   }
 
   def getVertices(): Array[Vector3] = vertices

@@ -9,12 +9,11 @@
 package sge
 package assets
 
-import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, boundary }
 import sge.assets.loaders.AssetLoader
 import sge.files.FileHandle
-import sge.utils.{ Logger, Nullable, SgeError, TimeUtils }
+import sge.utils.{ DynamicArray, Logger, Nullable, SgeError, TimeUtils }
 
 /** Responsible for loading an asset through an AssetLoader based on an AssetDescriptor. Please don't forget to update the overriding emu file on GWT backend when changing this file!
   *
@@ -29,12 +28,12 @@ class AssetLoadingTask(
   val startTime: Long
 ) extends (() => Unit) {
 
-  @volatile var asyncDone:          Boolean                                   = false
-  @volatile var dependenciesLoaded: Boolean                                   = false
-  @volatile var dependencies:       Nullable[ArrayBuffer[AssetDescriptor[?]]] = Nullable.empty
-  @volatile var depsFuture:         Nullable[Future[Unit]]                    = Nullable.empty
-  @volatile var loadFuture:         Nullable[Future[Unit]]                    = Nullable.empty
-  @volatile var asset:              Nullable[Any]                             = Nullable.empty
+  @volatile var asyncDone:          Boolean                                    = false
+  @volatile var dependenciesLoaded: Boolean                                    = false
+  @volatile var dependencies:       Nullable[DynamicArray[AssetDescriptor[?]]] = Nullable.empty
+  @volatile var depsFuture:         Nullable[Future[Unit]]                     = Nullable.empty
+  @volatile var loadFuture:         Nullable[Future[Unit]]                     = Nullable.empty
+  @volatile var asset:              Nullable[Any]                              = Nullable.empty
 
   @volatile var cancel: Boolean = false
 
@@ -166,7 +165,7 @@ class AssetLoadingTask(
     assetDesc.file.getOrElse(throw SgeError.SerializationError(s"Could not resolve file for asset: ${assetDesc.fileName}"))
   }
 
-  private def removeDuplicates(array: ArrayBuffer[AssetDescriptor[?]]): Unit = {
+  private def removeDuplicates(array: DynamicArray[AssetDescriptor[?]]): Unit = {
     // Use a Set to track seen combinations of filename and type for O(n) deduplication
     val seen = scala.collection.mutable.Set[(String, Class[?])]()
     var i    = 0
@@ -174,7 +173,7 @@ class AssetLoadingTask(
       val desc = array(i)
       val key  = (desc.fileName, desc.`type`)
       if (seen.contains(key)) {
-        array.remove(i)
+        array.removeIndex(i)
       } else {
         seen.add(key)
         i += 1

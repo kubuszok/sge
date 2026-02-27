@@ -11,11 +11,9 @@ package graphics
 package g3d
 package model
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.math.Quaternion
 import sge.math.Vector3
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** A NodeAnimation defines keyframes for a {@link Node} in a {@link Model}. The keyframes are given as a translation vector, a rotation quaternion and a scale vector. Keyframes are interpolated
   * linearly for now. Keytimes are given in seconds.
@@ -28,11 +26,11 @@ class NodeAnimation {
   var node: Node = scala.compiletime.uninitialized
 
   /** the translation keyframes if any (might be null), sorted by time ascending * */
-  var translation: Nullable[ArrayBuffer[NodeKeyframe[Vector3]]] = Nullable.empty
+  var translation: Nullable[DynamicArray[NodeKeyframe[Vector3]]] = Nullable.empty
 
   /** the rotation keyframes if any (might be null), sorted by time ascending * */
-  var rotation: Nullable[ArrayBuffer[NodeKeyframe[Quaternion]]] = Nullable.empty
+  var rotation: Nullable[DynamicArray[NodeKeyframe[Quaternion]]] = Nullable.empty
 
   /** the scaling keyframes if any (might be null), sorted by time ascending * */
-  var scaling: Nullable[ArrayBuffer[NodeKeyframe[Vector3]]] = Nullable.empty
+  var scaling: Nullable[DynamicArray[NodeKeyframe[Vector3]]] = Nullable.empty
 }

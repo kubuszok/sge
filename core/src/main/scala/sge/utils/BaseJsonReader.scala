@@ -13,6 +13,6 @@ import java.io.InputStream
 
 /** Interface for JSON readers that can parse InputStreams and FileHandles. */
 trait BaseJsonReader {
-  def parse(input: InputStream): JsonValue
-  def parse(file: files.FileHandle): JsonValue
+  def parse(input: InputStream):      JsonValue
+  def parse(file:  files.FileHandle): JsonValue
 }

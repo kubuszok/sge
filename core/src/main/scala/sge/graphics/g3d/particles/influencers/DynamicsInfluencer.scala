@@ -14,12 +14,11 @@ package influencers
 
 import java.util.Arrays
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleController
 import sge.math.{ MathUtils, Quaternion }
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 
 /** It's an {@link Influencer} which controls the particles dynamics (movement, rotations).
@@ -30,30 +29,30 @@ class DynamicsInfluencer extends Influencer {
 
   import DynamicsInfluencer.*
 
-  var velocities:                      ArrayBuffer[DynamicsModifier] = scala.compiletime.uninitialized
-  private var accellerationChannel:    FloatChannel                  = scala.compiletime.uninitialized
-  private var positionChannel:         FloatChannel                  = scala.compiletime.uninitialized
-  private var previousPositionChannel: FloatChannel                  = scala.compiletime.uninitialized
-  private var rotationChannel:         FloatChannel                  = scala.compiletime.uninitialized
-  private var angularVelocityChannel:  FloatChannel                  = scala.compiletime.uninitialized
-  private var hasAcceleration:         Boolean                       = false
-  private var has2dAngularVelocity:    Boolean                       = false
-  private var has3dAngularVelocity:    Boolean                       = false
+  var velocities:                      DynamicArray[DynamicsModifier] = scala.compiletime.uninitialized
+  private var accellerationChannel:    FloatChannel                   = scala.compiletime.uninitialized
+  private var positionChannel:         FloatChannel                   = scala.compiletime.uninitialized
+  private var previousPositionChannel: FloatChannel                   = scala.compiletime.uninitialized
+  private var rotationChannel:         FloatChannel                   = scala.compiletime.uninitialized
+  private var angularVelocityChannel:  FloatChannel                   = scala.compiletime.uninitialized
+  private var hasAcceleration:         Boolean                        = false
+  private var has2dAngularVelocity:    Boolean                        = false
+  private var has3dAngularVelocity:    Boolean                        = false
 
-  this.velocities = new ArrayBuffer[DynamicsModifier](3)
+  this.velocities = DynamicArray[DynamicsModifier](3)
 
   def this(velocityModifiers: DynamicsModifier*) = {
     this()
-    this.velocities = new ArrayBuffer[DynamicsModifier](velocityModifiers.length)
+    this.velocities = DynamicArray[DynamicsModifier](velocityModifiers.length)
     for (value <- velocityModifiers)
-      this.velocities += value.copy().asInstanceOf[DynamicsModifier]
+      this.velocities.add(value.copy().asInstanceOf[DynamicsModifier])
   }
 
   def this(velocityInfluencer: DynamicsInfluencer) = {
     this()
-    this.velocities = new ArrayBuffer[DynamicsModifier](velocityInfluencer.velocities.size)
+    this.velocities = DynamicArray[DynamicsModifier](velocityInfluencer.velocities.size)
     for (value <- velocityInfluencer.velocities)
-      this.velocities += value.copy().asInstanceOf[DynamicsModifier]
+      this.velocities.add(value.copy().asInstanceOf[DynamicsModifier])
   }
 
   override def allocateChannels(): Unit = {

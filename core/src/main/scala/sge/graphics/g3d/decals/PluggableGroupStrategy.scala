@@ -11,8 +11,7 @@ package graphics
 package g3d
 package decals
 
-import scala.collection.mutable.ArrayBuffer
-
+import sge.utils.DynamicArray
 import sge.utils.ObjectMap
 import sge.utils.Nullable
 
@@ -22,7 +21,7 @@ abstract class PluggableGroupStrategy extends GroupStrategy {
 
   private val plugs: ObjectMap[Int, GroupPlug] = ObjectMap[Int, GroupPlug]()
 
-  override def beforeGroup(group: Int, contents: ArrayBuffer[Decal]): Unit =
+  override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     plugs.get(group).foreach(_.beforeGroup(contents))
 
   override def afterGroup(group: Int): Unit =

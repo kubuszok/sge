@@ -11,12 +11,10 @@ package graphics
 package g3d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.{ GL20, Mesh, VertexAttribute, VertexAttributes }
 import sge.graphics.VertexAttributes.Usage
 import sge.math.Matrix4
-import sge.utils.{ Nullable, Pool, SgeError }
+import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
 /** A relatively lightweight class which can be used to render basic shapes which don't need a node structure and alike. Can be used for batching both static and dynamic shapes which share the same
   * {@link Material} and transformation {@link Matrix4} within the world. Use {@link ModelBatch} to render the `ShapeCache`. Must be disposed when no longer needed to release native resources. <p> How
@@ -82,8 +80,8 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
     builder.end(mesh)
   }
 
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit =
-    renderables += renderable
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
+    renderables.add(renderable)
 
   /** Allows to customize the material.
     * @return

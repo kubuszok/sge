@@ -16,8 +16,7 @@ import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.Texture.TextureWrap
 import sge.graphics.TextureData
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** {@link AssetLoader} for {@link Texture} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link TextureParameter}
   * to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows one to specify parameters as can be passed to the various Texture constructors, e.g. filtering, whether to generate
@@ -67,8 +66,8 @@ class TextureLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynch
     texture
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 }
 
 object TextureLoader {

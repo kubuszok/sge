@@ -12,7 +12,6 @@ package g3d
 package utils
 
 import scala.annotation.nowarn
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -20,7 +19,7 @@ import sge.graphics.{ Color, GL20, Mesh, VertexAttributes }
 import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
 import sge.math.{ Matrix4, Vector3 }
 import sge.Sge
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** Helper class to create {@link Model}s from code. To start building use the {@link #begin()} method, when finished building use the {@link #end()} method. The end method returns the model just
   * build. Building cannot be nested, only one model (per ModelBuilder) can be build at the time. The same ModelBuilder can be used to build multiple models sequential. Use the {@link #node()} method
@@ -39,7 +38,7 @@ class ModelBuilder {
   protected var currentNode: Nullable[Node] = Nullable.empty
 
   /** The mesh builders created between begin and end */
-  protected var builders: ArrayBuffer[MeshBuilder] = ArrayBuffer[MeshBuilder]()
+  protected var builders: DynamicArray[MeshBuilder] = DynamicArray[MeshBuilder]()
 
   private val tmpTransform: Matrix4 = new Matrix4()
 
@@ -48,7 +47,7 @@ class ModelBuilder {
       if (mb.getAttributes().equals(attributes) && mb.lastIndex() < MeshBuilder.MAX_VERTICES / 2) break(mb)
     val result = new MeshBuilder()
     result.begin(attributes)
-    builders += result
+    builders.add(result)
     result
   }
 
@@ -89,7 +88,7 @@ class ModelBuilder {
 
     endnode()
 
-    model.foreach(_.nodes += node)
+    model.foreach(_.nodes.add(node))
     this.currentNode = Nullable(node)
 
     node
@@ -131,7 +130,7 @@ class ModelBuilder {
     */
   def part(meshpart: MeshPart, material: Material): Unit = {
     if (currentNode.isEmpty) this.node()
-    currentNode.foreach(_.parts += new NodePart(meshpart, material))
+    currentNode.foreach(_.parts.add(new NodePart(meshpart, material)))
   }
 
   /** Adds the specified mesh part to the current node. The Mesh will be managed by the model and disposed when the model is disposed. The resources the Material might contain are not managed, use
@@ -530,10 +529,10 @@ object ModelBuilder {
 
   private def rebuildReferences(model: Model, node: Node): Unit = {
     for (mpm <- node.parts) {
-      if (!model.materials.contains(mpm.material)) model.materials += mpm.material
+      if (!model.materials.contains(mpm.material)) model.materials.add(mpm.material)
       if (!model.meshParts.contains(mpm.meshPart)) {
-        model.meshParts += mpm.meshPart
-        if (!model.meshes.contains(mpm.meshPart.mesh)) model.meshes += mpm.meshPart.mesh
+        model.meshParts.add(mpm.meshPart)
+        if (!model.meshes.contains(mpm.meshPart.mesh)) model.meshes.add(mpm.meshPart.mesh)
         model.manageDisposable(mpm.meshPart.mesh)
       }
     }

@@ -12,14 +12,12 @@ package g3d
 package particles
 package influencers
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.assets.AssetManager
 import sge.graphics.g3d.{ Model, ModelInstance }
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.{ ParticleChannels, ResourceData }
 import sge.graphics.g3d.particles.ResourceData.SaveData
-import sge.utils.{ Nullable, Pool }
+import sge.utils.{ DynamicArray, Nullable, Pool }
 
 /** It's an {@link Influencer} which controls which {@link Model} will be assigned to the particles as {@link ModelInstance}.
   * @author
@@ -27,17 +25,17 @@ import sge.utils.{ Nullable, Pool }
   */
 abstract class ModelInfluencer extends Influencer {
 
-  var models:       ArrayBuffer[Model]           = new ArrayBuffer[Model](1)
+  var models:       DynamicArray[Model]          = DynamicArray[Model](1)
   var modelChannel: ObjectChannel[ModelInstance] = scala.compiletime.uninitialized
 
   def this(models: Model*) = {
     this()
-    this.models ++= models
+    for (m <- models) this.models.add(m)
   }
 
   def this(influencer: ModelInfluencer) = {
     this()
-    this.models ++= influencer.models
+    this.models.addAll(influencer.models)
   }
 
   override def allocateChannels(): Unit =
@@ -55,7 +53,7 @@ abstract class ModelInfluencer extends Influencer {
     while (descriptor.isDefined) {
       descriptor.foreach { desc =>
         val model = manager.get(desc.fileName, desc.`type`).asInstanceOf[Model]
-        models += model
+        models.add(model)
       }
       descriptor = data.loadAsset()
     }
@@ -69,12 +67,12 @@ object ModelInfluencer {
 
     def this(influencer: Single) = {
       this()
-      this.models ++= influencer.models
+      this.models.addAll(influencer.models)
     }
 
     def this(models: Model*) = {
       this()
-      this.models ++= models
+      for (m <- models) this.models.add(m)
     }
 
     override def init(): Unit = {
@@ -104,12 +102,12 @@ object ModelInfluencer {
 
     def this(influencer: Random) = {
       this()
-      this.models ++= influencer.models
+      this.models.addAll(influencer.models)
     }
 
     def this(models: Model*) = {
       this()
-      this.models ++= models
+      for (m <- models) this.models.add(m)
     }
 
     override def init(): Unit =

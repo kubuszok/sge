@@ -12,8 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 /** {@link AssetLoader} for {@link ShaderProgram} instances loaded from text files. If the file suffix is ".vert", it is assumed to be a vertex shader, and a fragment shader is found using the same
   * file name with a ".frag" suffix. And vice versa if the file suffix is ".frag". These default suffixes can be changed in the ShaderProgramLoader constructor. <p> For all other file suffixes, the
@@ -28,8 +27,8 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
 
   def this(resolver: FileHandleResolver)(using sge: Sge) = this(resolver, ".vert", ".frag")
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): Unit = {
     // Nothing to load asynchronously

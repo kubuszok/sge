@@ -12,8 +12,6 @@ package g3d
 package particles
 package batches
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.GL20
 import sge.graphics.Mesh
 import sge.graphics.Texture
@@ -36,6 +34,7 @@ import sge.graphics.glutils.ShaderProgram
 import sge.math.MathUtils
 import sge.math.Matrix3
 import sge.math.Vector3
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.Pool
 
@@ -55,7 +54,7 @@ class BillboardParticleBatch(
   import BillboardParticleBatch.*
 
   private val renderablePool:       RenderablePool                   = new RenderablePool(this)
-  private var renderables:          ArrayBuffer[Renderable]          = new ArrayBuffer[Renderable]()
+  private var renderables:          DynamicArray[Renderable]         = DynamicArray[Renderable]()
   private var vertices:             Array[Float]                     = scala.compiletime.uninitialized
   private var indices:              Array[Short]                     = scala.compiletime.uninitialized
   private var currentVertexSize:    Int                              = 0
@@ -158,7 +157,7 @@ class BillboardParticleBatch(
   }
 
   private def clearRenderablesPool(): Unit = {
-    renderablePool.freeAll(renderables)
+    renderables.foreach(renderablePool.free)
     var i    = 0
     val free = renderablePool.getFree
     while (i < free) {
@@ -217,7 +216,7 @@ class BillboardParticleBatch(
     _useGPU
 
   def setTexture(texture: Texture): Unit = {
-    renderablePool.freeAll(renderables)
+    renderables.foreach(renderablePool.free)
     renderables.clear()
     var i    = 0
     val free = renderablePool.getFree
@@ -241,7 +240,7 @@ class BillboardParticleBatch(
 
   override def begin(): Unit = {
     super.begin()
-    renderablePool.freeAll(renderables)
+    renderables.foreach(renderablePool.free)
     renderables.clear()
   }
 
@@ -669,14 +668,14 @@ class BillboardParticleBatch(
       renderable.meshPart.size = (addedVertexCount / 4) * 6
       renderable.meshPart.mesh.setVertices(vertices, currentVertexSize * v, currentVertexSize * addedVertexCount)
       renderable.meshPart.update()
-      renderables += renderable
+      renderables.add(renderable)
       v += addedVertexCount
     }
   }
 
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit =
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     for (renderable <- this.renderables)
-      renderables += pool.obtain().set(renderable)
+      renderables.add(pool.obtain().set(renderable))
 
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("billboardBatch")

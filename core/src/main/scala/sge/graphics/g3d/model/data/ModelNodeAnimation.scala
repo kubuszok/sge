@@ -12,9 +12,9 @@ package g3d
 package model
 package data
 
-import scala.collection.mutable.ArrayBuffer
 import sge.math.Quaternion
 import sge.math.Vector3
+import sge.utils.DynamicArray
 
 class ModelNodeAnimation {
 
@@ -22,11 +22,11 @@ class ModelNodeAnimation {
   var nodeId: String = scala.compiletime.uninitialized
 
   /** the keyframes, defining the translation of a node for a specific timestamp * */
-  var translation: ArrayBuffer[ModelNodeKeyframe[Vector3]] = scala.compiletime.uninitialized
+  var translation: DynamicArray[ModelNodeKeyframe[Vector3]] = scala.compiletime.uninitialized
 
   /** the keyframes, defining the rotation of a node for a specific timestamp * */
-  var rotation: ArrayBuffer[ModelNodeKeyframe[Quaternion]] = scala.compiletime.uninitialized
+  var rotation: DynamicArray[ModelNodeKeyframe[Quaternion]] = scala.compiletime.uninitialized
 
   /** the keyframes, defining the scaling of a node for a specific timestamp * */
-  var scaling: ArrayBuffer[ModelNodeKeyframe[Vector3]] = scala.compiletime.uninitialized
+  var scaling: DynamicArray[ModelNodeKeyframe[Vector3]] = scala.compiletime.uninitialized
 }

@@ -1,7 +1,7 @@
 # CLAUDE.md
 
-SGE is a Scala 3 port of LibGDX. 445 of 605 core files converted, 86 not started
-(84 g3d + 2 other), 65 skipped (stdlib replacements), 9 deferred.
+SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
+66 skipped (stdlib replacements), 0 deferred.
 
 ## Build Rules
 

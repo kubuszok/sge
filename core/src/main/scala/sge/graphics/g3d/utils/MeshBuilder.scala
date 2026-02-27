@@ -11,8 +11,6 @@ package graphics
 package g3d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.{ Color, GL20, Mesh, VertexAttribute, VertexAttributes }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.TextureRegion
@@ -88,7 +86,7 @@ class MeshBuilder extends MeshPartBuilder {
   protected var part: Nullable[MeshPart] = Nullable.empty
 
   /** The parts created between begin and end */
-  protected var parts: ArrayBuffer[MeshPart] = ArrayBuffer[MeshPart]()
+  protected var parts: DynamicArray[MeshPart] = DynamicArray[MeshPart]()
 
   /** The color used if no vertex color is specified. */
   protected val color:    Color   = new Color(Color.WHITE)
@@ -205,7 +203,7 @@ class MeshBuilder extends MeshPartBuilder {
     meshPart.id = Nullable(id)
     this.primitiveType = primitiveType
     meshPart.primitiveType = primitiveType
-    parts += meshPart
+    parts.add(meshPart)
 
     setColor(Nullable.empty)
     setVertexTransform(Nullable.empty)
@@ -1329,17 +1327,17 @@ object MeshBuilder {
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
   def createAttributes(usage: Long): VertexAttributes = {
-    val attrs = ArrayBuffer[VertexAttribute]()
+    val attrs = DynamicArray[VertexAttribute]()
     if ((usage & Usage.Position) == Usage.Position)
-      attrs += new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE)
+      attrs.add(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
     if ((usage & Usage.ColorUnpacked) == Usage.ColorUnpacked)
-      attrs += new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE)
+      attrs.add(new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     if ((usage & Usage.ColorPacked) == Usage.ColorPacked)
-      attrs += new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE)
+      attrs.add(new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     if ((usage & Usage.Normal) == Usage.Normal)
-      attrs += new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE)
+      attrs.add(new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
     if ((usage & Usage.TextureCoordinates) == Usage.TextureCoordinates)
-      attrs += new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0")
-    new VertexAttributes(attrs.toSeq*)
+      attrs.add(new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"))
+    new VertexAttributes(attrs.toArray*)
   }
 }

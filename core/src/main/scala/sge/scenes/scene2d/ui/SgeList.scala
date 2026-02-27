@@ -11,14 +11,12 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.Rectangle
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ ArraySelection, Cullable, Drawable, UIUtils }
-import sge.utils.{ Align, Nullable }
+import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
 
 /** A list (aka list box) displays textual items and highlights the currently selected item. <p> {@link ChangeEvent} is fired when the list selection changes. <p> The preferred size of the list is
   * determined by the text bounds of the items and the size of the {@link ListStyle#selection}.
@@ -31,7 +29,7 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
   import SgeList._
 
   private var _style:      ListStyle           = scala.compiletime.uninitialized
-  val items:               ArrayBuffer[T]      = ArrayBuffer.empty
+  val items:               DynamicArray[T]     = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
   var selection:           ArraySelection[T]   = new ArraySelection(items)
   private var cullingArea: Nullable[Rectangle] = Nullable.empty
   private var _prefWidth:  Float               = 0f
@@ -268,11 +266,11 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
     */
   def setSelected(item: Nullable[T]): Unit =
     item.fold {
-      if (selection.getRequired && items.nonEmpty) selection.set(items.head)
+      if (selection.getRequired && items.nonEmpty) selection.set(items.first)
       else selection.clear()
     } { i =>
       if (items.contains(i)) selection.set(i)
-      else if (selection.getRequired && items.nonEmpty) selection.set(items.head)
+      else if (selection.getRequired && items.nonEmpty) selection.set(items.first)
       else selection.clear()
     }
 
@@ -325,7 +323,7 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
   /** Sets the items visible in the list, clearing the selection if it is no longer valid. If a selection is {@link ArraySelection#getRequired()}, the first item is selected. This can safely be called
     * with a (modified) array returned from {@link #getItems()}.
     */
-  def setItems(newItems: ArrayBuffer[T]): Unit = {
+  def setItems(newItems: DynamicArray[T]): Unit = {
     val oldPrefWidth  = getPrefWidth
     val oldPrefHeight = getPrefHeight
 
@@ -350,8 +348,8 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
       invalidateHierarchy()
     }
 
-  /** Returns the internal items array. If modified, {@link #setItems(ArrayBuffer)} must be called to reflect the changes. */
-  def getItems: ArrayBuffer[T] = items
+  /** Returns the internal items array. If modified, {@link #setItems(DynamicArray)} must be called to reflect the changes. */
+  def getItems: DynamicArray[T] = items
 
   def getItemHeight: Float = itemHeight
 

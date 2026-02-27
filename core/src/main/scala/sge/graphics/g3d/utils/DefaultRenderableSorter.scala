@@ -11,11 +11,9 @@ package graphics
 package g3d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.math.{ Matrix4, Vector3 }
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 class DefaultRenderableSorter extends RenderableSorter {
   private var camera: Nullable[Camera] = Nullable.empty
@@ -24,9 +22,9 @@ class DefaultRenderableSorter extends RenderableSorter {
 
   private given Ordering[Renderable] = (o1: Renderable, o2: Renderable) => compareRenderables(o1, o2)
 
-  override def sort(camera: Camera, renderables: ArrayBuffer[Renderable]): Unit = {
+  override def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit = {
     this.camera = Nullable(camera)
-    renderables.sortInPlace()
+    renderables.sort()
   }
 
   private def getTranslation(worldTransform: Matrix4, center: Vector3, output: Vector3): Vector3 = {

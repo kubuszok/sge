@@ -15,7 +15,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.IntBuffer
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.compiletime.uninitialized
 
 import sge.Application
@@ -28,6 +27,7 @@ import sge.graphics.GL31
 import sge.graphics.GLTexture
 import sge.graphics.Pixmap
 import sge.Sge
+import sge.utils.{ DynamicArray, MkArray }
 
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a gltexture for the color attachment and a
   * renderbuffer for the depth buffer. You can get a hold of the gltexture by GLFrameBuffer.getColorBufferTexture(). This class will only work with OpenGL ES 2.0. </p>
@@ -43,7 +43,7 @@ import sge.Sge
 abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseable {
 
   /** the color buffer texture * */
-  protected val textureAttachments: ArrayBuffer[T] = ArrayBuffer[T]()
+  protected val textureAttachments: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
 
   /** the framebuffer handle * */
   protected var framebufferHandle: Int = scala.compiletime.uninitialized
@@ -61,7 +61,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
   protected var hasDepthStencilPackedBuffer: Boolean = scala.compiletime.uninitialized
 
   /** the colorbuffer render object handles * */
-  protected val colorBufferHandles: ArrayBuffer[Int] = ArrayBuffer[Int]()
+  protected val colorBufferHandles: DynamicArray[Int] = DynamicArray[Int]()
 
   /** if multiple texture attachments are present * */
   protected var isMRT: Boolean = scala.compiletime.uninitialized
@@ -79,10 +79,10 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
 
   /** Convenience method to return the first Texture attachment present in the fbo * */
   def getColorBufferTexture(): T =
-    textureAttachments.head
+    textureAttachments.first
 
   /** Return the Texture attachments attached to the fbo * */
-  def getTextureAttachments(): ArrayBuffer[T] =
+  def getTextureAttachments(): DynamicArray[T] =
     textureAttachments
 
   /** Override this method in a derived class to set up the backing texture as you like. */
@@ -195,7 +195,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
 object GLFrameBuffer {
 
   /** the frame buffers * */
-  private val buffers: mutable.Map[Application, ArrayBuffer[GLFrameBuffer[?]]] = mutable.Map[Application, ArrayBuffer[GLFrameBuffer[?]]]()
+  private val buffers: mutable.Map[Application, DynamicArray[GLFrameBuffer[?]]] = mutable.Map[Application, DynamicArray[GLFrameBuffer[?]]]()
 
   private val GL_DEPTH24_STENCIL8_OES: Int = 0x88f0
 
@@ -212,8 +212,8 @@ object GLFrameBuffer {
     sge.graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, defaultFramebufferHandle)
 
   private def addManagedFrameBuffer(app: Application, frameBuffer: GLFrameBuffer[?]): Unit = {
-    val managedResources = buffers.getOrElseUpdate(app, ArrayBuffer[GLFrameBuffer[?]]())
-    managedResources += frameBuffer
+    val managedResources = buffers.getOrElseUpdate(app, DynamicArray[GLFrameBuffer[?]]())
+    managedResources.add(frameBuffer)
   }
 
   /** Invalidates all frame buffers. This can be used when the OpenGL context is lost to rebuild all managed frame buffers. This assumes that the texture attached to this buffer has already been
@@ -255,8 +255,8 @@ object GLFrameBuffer {
 
   abstract class GLFrameBufferBuilder[U <: GLFrameBuffer[? <: GLTexture]](val width: Int, val height: Int, val samples: Int = 0) {
 
-    protected val textureAttachmentSpecs: ArrayBuffer[FrameBufferTextureAttachmentSpec]      = ArrayBuffer[FrameBufferTextureAttachmentSpec]()
-    protected val colorRenderBufferSpecs: ArrayBuffer[FrameBufferRenderBufferAttachmentSpec] = ArrayBuffer[FrameBufferRenderBufferAttachmentSpec]()
+    protected val textureAttachmentSpecs: DynamicArray[FrameBufferTextureAttachmentSpec]      = DynamicArray[FrameBufferTextureAttachmentSpec]()
+    protected val colorRenderBufferSpecs: DynamicArray[FrameBufferRenderBufferAttachmentSpec] = DynamicArray[FrameBufferRenderBufferAttachmentSpec]()
 
     protected var stencilRenderBufferSpec:            FrameBufferRenderBufferAttachmentSpec = scala.compiletime.uninitialized
     protected var depthRenderBufferSpec:              FrameBufferRenderBufferAttachmentSpec = scala.compiletime.uninitialized
@@ -269,7 +269,7 @@ object GLFrameBuffer {
     def this(width: Int, height: Int) = this(width, height, 0)
 
     def addColorTextureAttachment(internalFormat: Int, format: Int, `type`: Int): GLFrameBufferBuilder[U] = {
-      textureAttachmentSpecs += new FrameBufferTextureAttachmentSpec(internalFormat, format, `type`)
+      textureAttachmentSpecs.add(new FrameBufferTextureAttachmentSpec(internalFormat, format, `type`))
       this
     }
 
@@ -283,21 +283,21 @@ object GLFrameBuffer {
       val spec = new FrameBufferTextureAttachmentSpec(internalFormat, format, `type`)
       spec.isFloat = true
       spec.isGpuOnly = gpuOnly
-      textureAttachmentSpecs += spec
+      textureAttachmentSpecs.add(spec)
       this
     }
 
     def addDepthTextureAttachment(internalFormat: Int, `type`: Int): GLFrameBufferBuilder[U] = {
       val spec = new FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_DEPTH_COMPONENT, `type`)
       spec.isDepth = true
-      textureAttachmentSpecs += spec
+      textureAttachmentSpecs.add(spec)
       this
     }
 
     def addStencilTextureAttachment(internalFormat: Int, `type`: Int): GLFrameBufferBuilder[U] = {
       val spec = new FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_STENCIL_ATTACHMENT, `type`)
       spec.isStencil = true
-      textureAttachmentSpecs += spec
+      textureAttachmentSpecs.add(spec)
       this
     }
 
@@ -308,7 +308,7 @@ object GLFrameBuffer {
     }
 
     def addColorRenderBuffer(internalFormat: Int): GLFrameBufferBuilder[U] = {
-      colorRenderBufferSpecs += new FrameBufferRenderBufferAttachmentSpec(internalFormat)
+      colorRenderBufferSpecs.add(new FrameBufferRenderBufferAttachmentSpec(internalFormat))
       this
     }
 

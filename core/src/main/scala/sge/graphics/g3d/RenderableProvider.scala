@@ -10,7 +10,7 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Returns a list of [[Renderable]] instances to be rendered by a ModelBatch.
   * @author
@@ -25,5 +25,5 @@ trait RenderableProvider {
     * @param pool
     *   the pool to obtain Renderables from
     */
-  def getRenderables(renderables: ArrayBuffer[Renderable], pool: sge.utils.Pool[Renderable]): Unit
+  def getRenderables(renderables: DynamicArray[Renderable], pool: sge.utils.Pool[Renderable]): Unit
 }

@@ -9,22 +9,21 @@
 package sge
 package math
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Computes the convex hull of a set of points using the monotone chain convex hull algorithm (aka Andrew's algorithm).
   * @author
   *   Nathan Sweet (original implementation)
   */
 class ConvexHull {
-  private val quicksortStack = ArrayBuffer[Int]()
+  private val quicksortStack = DynamicArray[Int]()
   private var sortedPoints: Array[Float] = scala.compiletime.uninitialized
-  private val hull            = ArrayBuffer[Float]()
-  private val indices         = ArrayBuffer[Int]()
-  private val originalIndices = ArrayBuffer[Short]()
+  private val hull            = DynamicArray[Float]()
+  private val indices         = DynamicArray[Int]()
+  private val originalIndices = DynamicArray[Short]()
 
   /** @see #computePolygon(float[], int, int, boolean) */
-  def computePolygon(points: Array[Float], sorted: Boolean): ArrayBuffer[Float] =
+  def computePolygon(points: Array[Float], sorted: Boolean): DynamicArray[Float] =
     computePolygon(points, 0, points.length, sorted)
 
   /** Returns a list of points on the convex hull in counter-clockwise order. Note: the last point in the returned list is the same as the first one.
@@ -38,7 +37,7 @@ class ConvexHull {
     * @return
     *   pairs of coordinates that describe the convex hull polygon in counterclockwise order. Note the returned array is reused for later calls to the same method.
     */
-  def computePolygon(points: Array[Float], offset: Int, count: Int, sorted: Boolean): ArrayBuffer[Float] = {
+  def computePolygon(points: Array[Float], offset: Int, count: Int, sorted: Boolean): DynamicArray[Float] = {
     var pointsArray = points
     var offsetVar   = offset
     var end         = offset + count
@@ -61,7 +60,7 @@ class ConvexHull {
       val x = pointsArray(i)
       val y = pointsArray(i + 1)
       while (hull.size >= 4 && ccw(x, y) <= 0)
-        hull.dropRightInPlace(2)
+        hull.truncate(hull.size - 2)
       hull += x
       hull += y
       i += 2
@@ -74,7 +73,7 @@ class ConvexHull {
       val x = pointsArray(i)
       val y = pointsArray(i + 1)
       while (hull.size >= t && ccw(x, y) <= 0)
-        hull.dropRightInPlace(2)
+        hull.truncate(hull.size - 2)
       hull += x
       hull += y
       i -= 2
@@ -84,12 +83,12 @@ class ConvexHull {
   }
 
   /** @see #computeIndices(float[], int, int, boolean, boolean) */
-  def computeIndices(points: Array[Float], sorted: Boolean, yDown: Boolean): ArrayBuffer[Int] =
+  def computeIndices(points: Array[Float], sorted: Boolean, yDown: Boolean): DynamicArray[Int] =
     computeIndices(points, 0, points.length, sorted, yDown)
 
   /** Computes a hull the same as {@link #computePolygon(float[], int, int, boolean)} but returns indices of the specified points.
     */
-  def computeIndices(points: Array[Float], offset: Int, count: Int, sorted: Boolean, yDown: Boolean): ArrayBuffer[Int] = {
+  def computeIndices(points: Array[Float], offset: Int, count: Int, sorted: Boolean, yDown: Boolean): DynamicArray[Int] = {
     if (count > 32767) throw new IllegalArgumentException("count must be <= " + 32767)
     var pointsArray = points
     var offsetVar   = offset
@@ -117,8 +116,8 @@ class ConvexHull {
       val x = pointsArray(i)
       val y = pointsArray(i + 1)
       while (hull.size >= 4 && ccw(x, y) <= 0) {
-        hull.dropRightInPlace(2)
-        indices.dropRightInPlace(1)
+        hull.truncate(hull.size - 2)
+        indices.truncate(indices.size - 1)
       }
       hull += x
       hull += y
@@ -135,8 +134,8 @@ class ConvexHull {
       val x = pointsArray(i)
       val y = pointsArray(i + 1)
       while (hull.size >= t && ccw(x, y) <= 0) {
-        hull.dropRightInPlace(2)
-        indices.dropRightInPlace(1)
+        hull.truncate(hull.size - 2)
+        indices.truncate(indices.size - 1)
       }
       hull += x
       hull += y
@@ -176,7 +175,7 @@ class ConvexHull {
   private def sort(values: Array[Float], count: Int): Unit = {
     val pointCount = count / 2
     originalIndices.clear()
-    originalIndices.sizeHint(pointCount)
+    originalIndices.ensureCapacity(pointCount)
     var i: Short = 0
     while (i < pointCount) {
       originalIndices += i
@@ -189,8 +188,8 @@ class ConvexHull {
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
-      upper = stack.remove(stack.size - 1)
-      lower = stack.remove(stack.size - 1)
+      upper = stack.pop()
+      lower = stack.pop()
       if (upper <= lower) {
         // continue
       } else {
@@ -254,7 +253,7 @@ class ConvexHull {
   private def sortWithIndices(values: Array[Float], count: Int, yDown: Boolean): Unit = {
     val pointCount = count / 2
     originalIndices.clear()
-    originalIndices.sizeHint(pointCount)
+    originalIndices.ensureCapacity(pointCount)
     var i: Short = 0
     while (i < pointCount) {
       originalIndices += i
@@ -267,8 +266,8 @@ class ConvexHull {
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
-      upper = stack.remove(stack.size - 1)
-      lower = stack.remove(stack.size - 1)
+      upper = stack.pop()
+      lower = stack.pop()
       if (upper <= lower) {
         // continue
       } else {

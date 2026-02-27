@@ -11,14 +11,12 @@ package graphics
 package g3d
 package loader
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.assets.loaders.{ FileHandleResolver, ModelLoader }
 import sge.files.FileHandle
 import sge.graphics.{ Color, GL20, VertexAttribute }
 import sge.graphics.g3d.model.data._
 import sge.math.{ Matrix4, Quaternion, Vector2, Vector3 }
-import sge.utils.{ ArrayMap, BaseJsonReader, JsonValue, Nullable, SgeError }
+import sge.utils.{ ArrayMap, BaseJsonReader, DynamicArray, JsonValue, Nullable, SgeError }
 
 /** Loads G3D models from `.g3dj` (JSON text) files. Binary `.g3db` format (UBJson) is not yet supported. */
 class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(using sge: Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
@@ -47,7 +45,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     val meshes = json.get("meshes").orNull
     if (meshes != null) {
 
-      model.meshes.sizeHint(model.meshes.size + meshes.size)
+      model.meshes.ensureCapacity(meshes.size)
       var meshN = meshes.child
       while (meshN.isDefined) {
         val mesh     = meshN.orNull
@@ -61,7 +59,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
         jsonMesh.vertices = mesh.require("vertices").asFloatArray()
 
         val meshParts = mesh.require("parts")
-        val parts     = ArrayBuffer[ModelMeshPart]()
+        val parts     = DynamicArray[ModelMeshPart]()
         var meshPartN = meshParts.child
         while (meshPartN.isDefined) {
           val meshPart = meshPartN.orNull
@@ -83,11 +81,11 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
           jsonPart.primitiveType = parseType(tpe)
 
           jsonPart.indices = meshPart.require("indices").asShortArray()
-          parts += jsonPart
+          parts.add(jsonPart)
           meshPartN = meshPart.next
         }
         jsonMesh.parts = parts.toArray
-        model.meshes += jsonMesh
+        model.meshes.add(jsonMesh)
         meshN = mesh.next
       }
     }
@@ -105,7 +103,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
       )
 
   protected def parseAttributes(attributes: JsonValue): Array[VertexAttribute] = {
-    val vertexAttributes = ArrayBuffer[VertexAttribute]()
+    val vertexAttributes = DynamicArray[VertexAttribute]()
     var unit             = 0
     var blendWeightCount = 0
     var valueN           = attributes.child
@@ -113,22 +111,22 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
       val value = valueN.orNull
       val attr  = value.asString().orNull
       if (attr.equals("POSITION")) {
-        vertexAttributes += VertexAttribute.Position()
+        vertexAttributes.add(VertexAttribute.Position())
       } else if (attr.equals("NORMAL")) {
-        vertexAttributes += VertexAttribute.Normal()
+        vertexAttributes.add(VertexAttribute.Normal())
       } else if (attr.equals("COLOR")) {
-        vertexAttributes += VertexAttribute.ColorUnpacked()
+        vertexAttributes.add(VertexAttribute.ColorUnpacked())
       } else if (attr.equals("COLORPACKED")) {
-        vertexAttributes += VertexAttribute.ColorPacked()
+        vertexAttributes.add(VertexAttribute.ColorPacked())
       } else if (attr.equals("TANGENT")) {
-        vertexAttributes += VertexAttribute.Tangent()
+        vertexAttributes.add(VertexAttribute.Tangent())
       } else if (attr.equals("BINORMAL")) {
-        vertexAttributes += VertexAttribute.Binormal()
+        vertexAttributes.add(VertexAttribute.Binormal())
       } else if (attr.startsWith("TEXCOORD")) {
-        vertexAttributes += VertexAttribute.TexCoords(unit)
+        vertexAttributes.add(VertexAttribute.TexCoords(unit))
         unit += 1
       } else if (attr.startsWith("BLENDWEIGHT")) {
-        vertexAttributes += VertexAttribute.BoneWeight(blendWeightCount)
+        vertexAttributes.add(VertexAttribute.BoneWeight(blendWeightCount))
         blendWeightCount += 1
       } else {
         throw SgeError.InvalidInput(
@@ -145,7 +143,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     if (materials == null) {
       // we should probably create some default material in this case
     } else {
-      model.materials.sizeHint(model.materials.size + materials.size)
+      model.materials.ensureCapacity(materials.size)
       var materialN = materials.child
       while (materialN.isDefined) {
         val material     = materialN.orNull
@@ -197,13 +195,13 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
 
             jsonTexture.usage = parseTextureUsage(textureType)
 
-            if (jsonMaterial.textures == null) jsonMaterial.textures = ArrayBuffer[ModelTexture]()
-            jsonMaterial.textures += jsonTexture
+            if (jsonMaterial.textures == null) jsonMaterial.textures = DynamicArray[ModelTexture]()
+            jsonMaterial.textures.add(jsonTexture)
             textureN = texture.next
           }
         }
 
-        model.materials += jsonMaterial
+        model.materials.add(jsonMaterial)
         materialN = material.next
       }
     }
@@ -236,13 +234,13 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     else
       throw SgeError.InvalidInput("Expected Vector2 values <> than two.")
 
-  protected def parseNodes(model: ModelData, json: JsonValue): ArrayBuffer[ModelNode] = {
+  protected def parseNodes(model: ModelData, json: JsonValue): DynamicArray[ModelNode] = {
     val nodes = json.get("nodes").orNull
     if (nodes != null) {
-      model.nodes.sizeHint(model.nodes.size + nodes.size)
+      model.nodes.ensureCapacity(nodes.size)
       var nodeN = nodes.child
       while (nodeN.isDefined) {
-        model.nodes += parseNodesRecursively(nodeN.orNull)
+        model.nodes.add(parseNodesRecursively(nodeN.orNull))
         nodeN = nodeN.orNull.next
       }
     }
@@ -349,7 +347,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     val animations = json.get("animations").orNull
     if (animations == null) return // scalastyle:ignore
 
-    model.animations.sizeHint(model.animations.size + animations.size)
+    model.animations.ensureCapacity(animations.size)
 
     var animN = animations.child
     while (animN.isDefined) {
@@ -357,14 +355,14 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
       val nodes = anim.get("bones").orNull
       if (nodes != null) {
         val animation = new ModelAnimation()
-        model.animations += animation
-        animation.nodeAnimations.sizeHint(animation.nodeAnimations.size + nodes.size)
+        model.animations.add(animation)
+        animation.nodeAnimations.ensureCapacity(nodes.size)
         animation.id = anim.getString("id").orNull
         var nodeN = nodes.child
         while (nodeN.isDefined) {
           val node     = nodeN.orNull
           val nodeAnim = new ModelNodeAnimation()
-          animation.nodeAnimations += nodeAnim
+          animation.nodeAnimations.add(nodeAnim)
           nodeAnim.nodeId = node.getString("boneId").orNull
 
           // For backwards compatibility (version 0.1):
@@ -376,44 +374,44 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
               val keytime     = keyframe.getFloat("keytime", 0f) / 1000.0f
               val translation = keyframe.get("translation").orNull
               if (translation != null && translation.size == 3) {
-                if (nodeAnim.translation == null) nodeAnim.translation = ArrayBuffer[ModelNodeKeyframe[Vector3]]()
+                if (nodeAnim.translation == null) nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
                 val tkf = new ModelNodeKeyframe[Vector3]()
                 tkf.keytime = keytime
                 tkf.value = Nullable(
                   new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
                 )
-                nodeAnim.translation += tkf
+                nodeAnim.translation.add(tkf)
               }
               val rotation = keyframe.get("rotation").orNull
               if (rotation != null && rotation.size == 4) {
-                if (nodeAnim.rotation == null) nodeAnim.rotation = ArrayBuffer[ModelNodeKeyframe[Quaternion]]()
+                if (nodeAnim.rotation == null) nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
                 val rkf = new ModelNodeKeyframe[Quaternion]()
                 rkf.keytime = keytime
                 rkf.value = Nullable(
                   new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3))
                 )
-                nodeAnim.rotation += rkf
+                nodeAnim.rotation.add(rkf)
               }
               val scale = keyframe.get("scale").orNull
               if (scale != null && scale.size == 3) {
-                if (nodeAnim.scaling == null) nodeAnim.scaling = ArrayBuffer[ModelNodeKeyframe[Vector3]]()
+                if (nodeAnim.scaling == null) nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
                 val skf = new ModelNodeKeyframe[Vector3]()
                 skf.keytime = keytime
                 skf.value = Nullable(new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2)))
-                nodeAnim.scaling += skf
+                nodeAnim.scaling.add(skf)
               }
               keyframeN = keyframe.next
             }
           } else { // Version 0.2:
             val translationKF = node.get("translation").orNull
             if (translationKF != null && translationKF.isArray) {
-              nodeAnim.translation = ArrayBuffer[ModelNodeKeyframe[Vector3]]()
-              nodeAnim.translation.sizeHint(translationKF.size)
+              nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
+              nodeAnim.translation.ensureCapacity(translationKF.size)
               var kfN = translationKF.child
               while (kfN.isDefined) {
                 val keyframe = kfN.orNull
                 val kf       = new ModelNodeKeyframe[Vector3]()
-                nodeAnim.translation += kf
+                nodeAnim.translation.add(kf)
                 kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
                 val translation = keyframe.get("value").orNull
                 if (translation != null && translation.size >= 3)
@@ -426,13 +424,13 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
 
             val rotationKF = node.get("rotation").orNull
             if (rotationKF != null && rotationKF.isArray) {
-              nodeAnim.rotation = ArrayBuffer[ModelNodeKeyframe[Quaternion]]()
-              nodeAnim.rotation.sizeHint(rotationKF.size)
+              nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
+              nodeAnim.rotation.ensureCapacity(rotationKF.size)
               var kfN = rotationKF.child
               while (kfN.isDefined) {
                 val keyframe = kfN.orNull
                 val kf       = new ModelNodeKeyframe[Quaternion]()
-                nodeAnim.rotation += kf
+                nodeAnim.rotation.add(kf)
                 kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
                 val rotation = keyframe.get("value").orNull
                 if (rotation != null && rotation.size >= 4)
@@ -450,13 +448,13 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
 
             val scalingKF = node.get("scaling").orNull
             if (scalingKF != null && scalingKF.isArray) {
-              nodeAnim.scaling = ArrayBuffer[ModelNodeKeyframe[Vector3]]()
-              nodeAnim.scaling.sizeHint(scalingKF.size)
+              nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
+              nodeAnim.scaling.ensureCapacity(scalingKF.size)
               var kfN = scalingKF.child
               while (kfN.isDefined) {
                 val keyframe = kfN.orNull
                 val kf       = new ModelNodeKeyframe[Vector3]()
-                nodeAnim.scaling += kf
+                nodeAnim.scaling.add(kf)
                 kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
                 val scaling = keyframe.get("value").orNull
                 if (scaling != null && scaling.size >= 3)

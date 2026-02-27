@@ -11,7 +11,7 @@ package graphics
 package g3d
 package model
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** An Animation has an id and a list of {@link NodeAnimation} instances. Each NodeAnimation animates a single {@link Node} in the {@link Model}. Every {@link NodeAnimation} is assumed to have the
   * same amount of keyframes, at the same timestamps, as all other node animations for faster keyframe searches.
@@ -28,5 +28,5 @@ class Animation {
   var duration: Float = 0f
 
   /** the animation curves for individual nodes * */
-  var nodeAnimations: ArrayBuffer[NodeAnimation] = ArrayBuffer[NodeAnimation]()
+  var nodeAnimations: DynamicArray[NodeAnimation] = DynamicArray[NodeAnimation]()
 }

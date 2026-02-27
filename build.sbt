@@ -20,6 +20,8 @@ val commonSettings = Seq(
 
 val kindlingsVersion = "361026ca2b848637931d65ffece9023592179ada-SNAPSHOT"
 val jsoniterVersion = "2.38.9"
+val munitVersion          = "1.0.4"
+val munitScalacheckVersion = "1.2.0"
 
 val core = (project in file("core"))
   .settings(commonSettings*)
@@ -29,6 +31,8 @@ val core = (project in file("core"))
     libraryDependencies ++= Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % jsoniterVersion,
       "com.kubuszok" %% "kindlings-jsoniter-json" % kindlingsVersion,
-      "org.scala-lang.modules" %% "scala-xml" % "2.3.0"
+      "org.scala-lang.modules" %% "scala-xml" % "2.3.0",
+      "org.scalameta" %% "munit"            % munitVersion          % Test,
+      "org.scalameta" %% "munit-scalacheck" % munitScalacheckVersion % Test
     )
   )

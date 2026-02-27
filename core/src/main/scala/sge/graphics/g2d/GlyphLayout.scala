@@ -9,17 +9,16 @@
 package sge.graphics.g2d
 
 import sge.graphics.Color
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 import sge.utils.Pool.Poolable
-import scala.collection.mutable.ArrayBuffer
 
 class GlyphLayout extends Poolable {
 
-  val runs:       ArrayBuffer[GlyphRun] = ArrayBuffer()
-  val colors:     ArrayBuffer[Int]      = ArrayBuffer()
-  var glyphCount: Int                   = 0
-  var width:      Float                 = 0f
-  var height:     Float                 = 0f
+  val runs:       DynamicArray[GlyphRun] = DynamicArray[GlyphRun]()
+  val colors:     DynamicArray[Int]      = DynamicArray[Int]()
+  var glyphCount: Int                    = 0
+  var width:      Float                  = 0f
+  var height:     Float                  = 0f
 
   def this(font: BitmapFont, str: CharSequence) = {
     this()
@@ -59,8 +58,8 @@ class GlyphLayout extends Poolable {
 
     var currentColor = color.toIntBits()
     var nextColor    = currentColor
-    colors += 0
-    colors += currentColor
+    colors.add(0)
+    colors.add(currentColor)
     val markupEnabled = fontData.markupEnabled
 
     var isLastRun = false
@@ -127,8 +126,8 @@ class GlyphLayout extends Poolable {
             // Consecutive color changes, or after an empty run, or at the beginning of the string.
             colors(colors.size - 1) = nextColor
           } else {
-            colors += glyphCount
-            colors += nextColor
+            colors.add(glyphCount)
+            colors.add(nextColor)
           }
           currentColor = nextColor
         }
@@ -140,7 +139,7 @@ class GlyphLayout extends Poolable {
           }
         } else if (lineRun == null) {
           lineRun = run
-          runs += lineRun
+          runs.add(lineRun)
         } else {
           lineRun.appendRun(run)
           // glyphRunPool.free(run)
@@ -188,7 +187,7 @@ class GlyphLayout extends Poolable {
               if (lineRun == null) {
                 runEnded = true // All wrapped glyphs were whitespace.
               } else {
-                runs += lineRun
+                runs.add(lineRun)
 
                 y += down
                 lineRun.x = 0
@@ -231,22 +230,26 @@ class GlyphLayout extends Poolable {
 
   private def calculateWidths(fontData: BitmapFontData): Unit = {
     var maxWidth = 0f
-    for (i <- runs.indices) {
+    var i        = 0
+    while (i < runs.size) {
       val run       = runs(i)
       val xAdvances = run.xAdvances
       var runWidth  = run.x + xAdvances(0)
       var max       = 0f // run.x is needed to ensure floats are rounded same as above.
       val glyphs    = run.glyphs
-      for (ii <- glyphs.indices) {
+      var ii        = 0
+      while (ii < glyphs.size) {
         val glyph      = glyphs(ii)
         val glyphWidth = getGlyphWidth(glyph, fontData)
         max = Math.max(max, runWidth + glyphWidth) // A glyph can extend past the right edge of subsequent glyphs.
         if (ii + 1 < xAdvances.size) {
           runWidth += xAdvances(ii + 1)
         }
+        ii += 1
       }
       run.width = Math.max(runWidth, max) - run.x
       maxWidth = Math.max(maxWidth, run.x + run.width)
+      i += 1
     }
     this.width = maxWidth
   }
@@ -254,9 +257,11 @@ class GlyphLayout extends Poolable {
   private def alignRuns(targetWidth: Float, halign: Int): Unit =
     if ((halign & 1) == 0) { // Not left aligned, so must be center or right aligned. (Align.left = 1)
       val center = (halign & 2) != 0 // Align.center = 2
-      for (i <- runs.indices) {
+      var i      = 0
+      while (i < runs.size) {
         val run = runs(i)
         run.x += (if (center) 0.5f * (targetWidth - run.width) else targetWidth - run.width)
+        i += 1
       }
     }
 
@@ -288,11 +293,11 @@ class GlyphLayout extends Poolable {
 
     if (count > 1) {
       // Some run glyphs fit, append truncate glyphs.
-      run.glyphs.remove(count - 1, run.glyphs.size)
-      run.xAdvances.remove(count, run.xAdvances.size)
+      run.glyphs.removeRange(count - 1, run.glyphs.size)
+      run.xAdvances.removeRange(count, run.xAdvances.size)
       setLastGlyphXAdvance(fontData, run)
       if (truncateRun.xAdvances.nonEmpty) {
-        run.xAdvances.addAll(truncateRun.xAdvances.slice(1, truncateRun.xAdvances.size))
+        run.xAdvances.addAll(truncateRun.xAdvances.items, 1, truncateRun.xAdvances.size - 1)
       }
     } else {
       // No run glyphs fit, use only truncate glyphs.
@@ -306,8 +311,8 @@ class GlyphLayout extends Poolable {
       this.glyphCount -= droppedGlyphCount
       if (fontData.markupEnabled) {
         while (colors.size > 2 && colors(colors.size - 2) >= this.glyphCount) {
-          colors.remove(colors.size - 2)
-          colors.remove(colors.size - 1)
+          colors.removeIndex(colors.size - 2)
+          colors.removeIndex(colors.size - 1)
         }
       }
     }
@@ -343,15 +348,15 @@ class GlyphLayout extends Poolable {
     if (secondStart < glyphCount) {
       second = new GlyphRun()
 
-      val glyphs1 = ArrayBuffer[BitmapFont.Glyph]() // Starts empty.
-      glyphs1.addAll(glyphs2.slice(0, firstEnd))
-      glyphs2.remove(0, secondStart)
+      val glyphs1 = DynamicArray[BitmapFont.Glyph]() // Starts empty.
+      glyphs1.addAll(glyphs2.items, 0, firstEnd)
+      glyphs2.removeRange(0, secondStart)
       first.glyphs = glyphs1
       second.glyphs = glyphs2
 
-      val xAdvances1 = ArrayBuffer[Float]() // Starts empty.
-      xAdvances1.addAll(xAdvances2.slice(0, firstEnd + 1))
-      xAdvances2.remove(1, secondStart) // Leave first entry to be overwritten by next line.
+      val xAdvances1 = DynamicArray[Float]() // Starts empty.
+      xAdvances1.addAll(xAdvances2.items, 0, firstEnd + 1)
+      xAdvances2.removeRange(1, secondStart) // Leave first entry to be overwritten by next line.
       xAdvances2(0) = getLineOffset(glyphs2, fontData)
       first.xAdvances = xAdvances1
       second.xAdvances = xAdvances2
@@ -373,8 +378,8 @@ class GlyphLayout extends Poolable {
       }
     } else {
       // Second run is empty, just trim whitespace glyphs from end of first run.
-      glyphs2.remove(firstEnd, glyphs2.size)
-      xAdvances2.remove(firstEnd + 1, xAdvances2.size)
+      glyphs2.removeRange(firstEnd, glyphs2.size)
+      xAdvances2.removeRange(firstEnd + 1, xAdvances2.size)
 
       val droppedGlyphCount = secondStart - firstEnd
       if (droppedGlyphCount > 0) {
@@ -383,8 +388,8 @@ class GlyphLayout extends Poolable {
           // Many color changes can be hidden in the dropped whitespace, so keep only the very last color entry.
           val lastColor = colors.last
           while (colors(colors.size - 2) > this.glyphCount) {
-            colors.remove(colors.size - 2)
-            colors.remove(colors.size - 1)
+            colors.removeIndex(colors.size - 2)
+            colors.removeIndex(colors.size - 1)
           }
           colors(colors.size - 2) = this.glyphCount // Update color change index.
           colors(colors.size - 1) = lastColor // Update color entry.
@@ -395,7 +400,7 @@ class GlyphLayout extends Poolable {
     if (firstEnd == 0) {
       // If the first run is now empty, remove it.
       // glyphRunPool.free(first)
-      runs.remove(runs.size - 1)
+      runs.removeIndex(runs.size - 1)
     } else {
       setLastGlyphXAdvance(fontData, first)
     }
@@ -411,12 +416,12 @@ class GlyphLayout extends Poolable {
   private def getGlyphWidth(glyph: BitmapFont.Glyph, fontData: BitmapFontData): Float =
     (if (glyph.fixedWidth) glyph.xadvance else glyph.width + glyph.xoffset) * fontData.scaleX - fontData.padRight
 
-  private def getLineOffset(glyphs: ArrayBuffer[BitmapFont.Glyph], fontData: BitmapFontData): Float = {
-    val first = glyphs.head
+  private def getLineOffset(glyphs: DynamicArray[BitmapFont.Glyph], fontData: BitmapFontData): Float = {
+    val first = glyphs.first
     (if (first.fixedWidth) 0 else -first.xoffset * fontData.scaleX) - fontData.padLeft
   }
 
-  private val colorStack = ArrayBuffer[Int]()
+  private val colorStack = DynamicArray[Int]()
 
   private def parseColorMarkup(str: CharSequence, start: Int, end: Int): Int = scala.util.boundary {
     if (start == end) scala.util.boundary.break(-1) // String ended with "[".
@@ -430,7 +435,7 @@ class GlyphLayout extends Poolable {
           if (ch == ']') {
             if (i < start + 2 || i > start + 9) scala.util.boundary.break(-1) // Illegal number of hex digits.
             if (i - start < 8) color = color << (9 - (i - start) << 2) | 0xff // RRGGBB or fewer chars.
-            colorStack += Integer.reverseBytes(color)
+            colorStack.add(Integer.reverseBytes(color))
             scala.util.boundary.break(i - start)
           }
           color = (color << 4) + ch
@@ -448,7 +453,7 @@ class GlyphLayout extends Poolable {
       case '[' => // "[[" is an escaped left square bracket.
         -2
       case ']' => // "[]" is a "pop" color tag.
-        if (colorStack.size > 1) colorStack.remove(colorStack.size - 1)
+        if (colorStack.size > 1) colorStack.removeIndex(colorStack.size - 1)
         0
       case _ =>
         // Parse named color.
@@ -485,9 +490,11 @@ class GlyphLayout extends Poolable {
       buffer.append('x')
       buffer.append(height)
       buffer.append('\n')
-      for (i <- runs.indices) {
+      var i = 0
+      while (i < runs.size) {
         buffer.append(runs(i).toString())
         buffer.append('\n')
+        i += 1
       }
       buffer.setLength(buffer.length() - 1)
       buffer.toString()
@@ -495,16 +502,16 @@ class GlyphLayout extends Poolable {
 }
 
 class GlyphRun extends Poolable {
-  var glyphs:    ArrayBuffer[BitmapFont.Glyph] = ArrayBuffer()
-  var xAdvances: ArrayBuffer[Float]            = ArrayBuffer()
-  var x:         Float                         = 0f
-  var y:         Float                         = 0f
-  var width:     Float                         = 0f
+  var glyphs:    DynamicArray[BitmapFont.Glyph] = DynamicArray[BitmapFont.Glyph]()
+  var xAdvances: DynamicArray[Float]            = DynamicArray[Float]()
+  var x:         Float                          = 0f
+  var y:         Float                          = 0f
+  var width:     Float                          = 0f
 
   def appendRun(run: GlyphRun): Unit = {
     glyphs.addAll(run.glyphs)
     // Remove the width of the last glyph. The first xadvance of the appended run has kerning for the last glyph of this run.
-    if (xAdvances.nonEmpty) xAdvances.remove(xAdvances.size - 1)
+    if (xAdvances.nonEmpty) xAdvances.removeIndex(xAdvances.size - 1)
     xAdvances.addAll(run.xAdvances)
   }
 
@@ -515,9 +522,11 @@ class GlyphRun extends Poolable {
 
   override def toString(): String = {
     val buffer = new StringBuilder(glyphs.size + 32)
-    for (i <- glyphs.indices) {
+    var i      = 0
+    while (i < glyphs.size) {
       val g = glyphs(i)
       buffer.append(g.id.toChar)
+      i += 1
     }
     buffer.append(", ")
     buffer.append(x)

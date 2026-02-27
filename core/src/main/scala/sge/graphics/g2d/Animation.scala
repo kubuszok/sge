@@ -11,7 +11,7 @@ package graphics
 package g2d
 
 import sge.math.MathUtils
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 import scala.compiletime.uninitialized
 import scala.reflect.ClassTag
 
@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
   * @author
   *   mzechner (original implementation)
   */
-class Animation[T: ClassTag](frameDuration: Float, keyFrames: ArrayBuffer[? <: T]) {
+class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: T]) {
 
   /** Length must not be modified without updating {@link #animationDuration}. See {@link #setKeyFrames(T[])}. */
   private var keyFramesArray:    Array[T] = uninitialized
@@ -33,7 +33,7 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: ArrayBuffer[? <: T
 
   private var playMode: Animation.PlayMode = Animation.PlayMode.NORMAL
 
-  // Initialize keyframes from the ArrayBuffer
+  // Initialize keyframes from the DynamicArray
   val frames = keyFrames.toArray.asInstanceOf[Array[T]]
   setKeyFrames(frames*)
 
@@ -44,7 +44,7 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: ArrayBuffer[? <: T
     * @param keyFrames
     *   the objects representing the frames. If this Array is type-aware, {@link #getKeyFrames()} can return the correct type of array. Otherwise, it returns an Object[].
     */
-  def this(frameDuration: Float, keyFrames: ArrayBuffer[? <: T], playMode: Animation.PlayMode) = {
+  def this(frameDuration: Float, keyFrames: DynamicArray[? <: T], playMode: Animation.PlayMode) = {
     this(frameDuration, keyFrames)
     setPlayMode(playMode)
   }
@@ -57,7 +57,7 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: ArrayBuffer[? <: T
     *   the objects representing the frames.
     */
   def this(frameDuration: Float, keyFrames: T*) =
-    this(frameDuration, ArrayBuffer.from(keyFrames))
+    this(frameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
 
   /** Returns a frame based on the so called state time. This is the amount of seconds an object has spent in the state this Animation instance represents, e.g. running, jumping and so on. The mode
     * specifies whether the animation is looping or not.

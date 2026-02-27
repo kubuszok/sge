@@ -11,13 +11,12 @@ package graphics
 package g3d
 package decals
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.glutils.ShaderProgram
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 
 /** <p> This class provides hooks which are invoked by {@link DecalBatch} to evaluate the group a sprite falls into, as well as to adjust settings before and after rendering a group. </p> <p> A group
-  * is identified by an integer. The {@link #beforeGroup(int, ArrayBuffer) beforeGroup()} method provides the strategy with a list of all the decals, which are contained in the group itself, and will
+  * is identified by an integer. The {@link #beforeGroup(int, DynamicArray) beforeGroup()} method provides the strategy with a list of all the decals, which are contained in the group itself, and will
   * be rendered before the associated call to {@link #afterGroup(int)}.<br/> A call to {@code beforeGroup()} is always followed by a call to {@code afterGroup()}.<br/> <b>Groups are always invoked
   * based on their ascending int values</b>. Group -10 will be rendered before group -5, group -5 before group 0, group 0 before group 6 and so on.<br/> The call order for a single flush is always
   * {@code beforeGroups(), beforeGroup1(), afterGroup1(), ... beforeGroupN(), afterGroupN(), afterGroups()}. </p> <p> The contents of the {@code beforeGroup()} call can be modified at will to realize
@@ -50,7 +49,7 @@ trait GroupStrategy {
     * @param contents
     *   Array of entries of arrays containing all the decals in the group
     */
-  def beforeGroup(group: Int, contents: ArrayBuffer[Decal]): Unit
+  def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit
 
   /** Invoked directly after rendering of a group has completed
     *

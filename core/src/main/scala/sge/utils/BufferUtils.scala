@@ -29,8 +29,8 @@ import sge.math.Matrix4;
   */
 object BufferUtils {
 
-  val unsafeBuffers:   scala.collection.mutable.ArrayBuffer[ByteBuffer] = new scala.collection.mutable.ArrayBuffer[ByteBuffer](0)
-  var allocatedUnsafe: Int                                              = 0
+  val unsafeBuffers:   DynamicArray[ByteBuffer] = DynamicArray[ByteBuffer]()
+  var allocatedUnsafe: Int                      = 0
 
   // Import the native methods from the Gdx library.
   import com.badlogic.gdx.utils.BufferUtils._
@@ -539,7 +539,7 @@ object BufferUtils {
       val index = unsafeBuffers.indexOf(buffer)
       if (index < 0)
         throw new IllegalArgumentException("buffer not allocated with newUnsafeByteBuffer or already disposed")
-      unsafeBuffers.remove(index)
+      unsafeBuffers.removeIndex(index)
     }
     allocatedUnsafe -= size
     freeMemory(buffer)
@@ -557,7 +557,7 @@ object BufferUtils {
     buffer.order(ByteOrder.nativeOrder())
     allocatedUnsafe += numBytes
     unsafeBuffers.synchronized {
-      unsafeBuffers += buffer
+      unsafeBuffers.add(buffer)
     }
     buffer
   }
@@ -581,7 +581,7 @@ object BufferUtils {
   def newUnsafeByteBuffer(buffer: ByteBuffer): ByteBuffer = {
     allocatedUnsafe += buffer.capacity()
     unsafeBuffers.synchronized {
-      unsafeBuffers += buffer
+      unsafeBuffers.add(buffer)
     }
     buffer
   }

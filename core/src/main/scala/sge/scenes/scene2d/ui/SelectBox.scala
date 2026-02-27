@@ -11,15 +11,13 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.{ Interpolation, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage, Touchable }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.{ ArraySelection, ClickListener, Disableable, Drawable }
-import sge.utils.{ Align, Nullable }
+import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
 
 /** A select box (aka a drop-down list) allows a user to choose one of a number of values from a list. When inactive, the selected value is displayed. When activated, it shows the list of values that
   * may be selected. <p> {@link ChangeEvent} is fired when the selectbox selection changes. <p> The preferred size of the select box is determined by the maximum text bounds of the items and the size
@@ -34,7 +32,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
   import SelectBox._
 
   private var _style:        SelectBoxStyle         = scala.compiletime.uninitialized
-  val items:                 ArrayBuffer[T]         = ArrayBuffer.empty
+  val items:                 DynamicArray[T]        = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
   var scrollPane:            SelectBoxScrollPane[T] = scala.compiletime.uninitialized
   private var prefWidth:     Float                  = 0f
   private var prefHeight:    Float                  = 0f
@@ -124,7 +122,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
   }
 
   /** Sets the items visible in the select box. */
-  def setItems(newItems: ArrayBuffer[T]): Unit = {
+  def setItems(newItems: DynamicArray[T]): Unit = {
     val oldPrefWidth = getPrefWidth
 
     if (newItems ne items) {
@@ -147,8 +145,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
       invalidateHierarchy()
     }
 
-  /** Returns the internal items array. If modified, {@link #setItems(ArrayBuffer)} must be called to reflect the changes. */
-  def getItems: ArrayBuffer[T] = items
+  /** Returns the internal items array. If modified, {@link #setItems(DynamicArray)} must be called to reflect the changes. */
+  def getItems: DynamicArray[T] = items
 
   override def layout(): Unit = {
     val bg   = _style.background
@@ -266,11 +264,11 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
   /** Sets the selection to only the passed item, if it is a possible choice, else selects the first item. */
   def setSelected(item: Nullable[T]): Unit =
     item.fold {
-      if (items.nonEmpty) selection.set(items.head)
+      if (items.nonEmpty) selection.set(items.first)
       else selection.clear()
     } { i =>
       if (items.contains(i)) selection.set(i)
-      else if (items.nonEmpty) selection.set(items.head)
+      else if (items.nonEmpty) selection.set(items.first)
       else selection.clear()
     }
 

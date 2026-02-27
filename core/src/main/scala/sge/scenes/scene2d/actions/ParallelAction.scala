@@ -11,16 +11,15 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Executes a number of actions at the same time.
   * @author
   *   Nathan Sweet
   */
 class ParallelAction extends Action {
-  val actions:          ArrayBuffer[Action] = ArrayBuffer.empty
-  private var complete: Boolean             = false
+  val actions:          DynamicArray[Action] = DynamicArray[Action]()
+  private var complete: Boolean              = false
 
   def this(action1: Action) = {
     this()
@@ -91,7 +90,7 @@ class ParallelAction extends Action {
   }
 
   def addAction(action: Action): Unit = {
-    actions += action
+    actions.add(action)
     actor.foreach(a => action.setActor(Nullable(a)))
   }
 
@@ -104,7 +103,7 @@ class ParallelAction extends Action {
     super.setActor(actor)
   }
 
-  def getActions: ArrayBuffer[Action] = actions
+  def getActions: DynamicArray[Action] = actions
 
   override def toString: String = {
     val buffer = new StringBuilder(64)

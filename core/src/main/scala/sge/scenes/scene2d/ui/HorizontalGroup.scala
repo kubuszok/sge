@@ -13,9 +13,7 @@ package ui
 
 import sge.graphics.glutils.ShapeRenderer
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.{ Align, Nullable }
-
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A group that lays out its children side by side horizontally, with optional wrapping. This can be easier than using {@link Table} when actors need to be inserted into or removed from the middle of
   * the group. {@link #getChildren()} can be sorted to change the order of the actors (eg {@link Actor#setZIndex(int)}). {@link #invalidate()} must be called after changing the children order. <p> The
@@ -26,11 +24,11 @@ import scala.collection.mutable.ArrayBuffer
   *   Nathan Sweet
   */
 class HorizontalGroup extends WidgetGroup {
-  private var _prefWidth:     Float              = scala.compiletime.uninitialized
-  private var _prefHeight:    Float              = scala.compiletime.uninitialized
-  private var lastPrefHeight: Float              = scala.compiletime.uninitialized
-  private var sizeInvalid:    Boolean            = true
-  private var rowSizes:       ArrayBuffer[Float] = ArrayBuffer.empty // row width, row height, ...
+  private var _prefWidth:     Float               = scala.compiletime.uninitialized
+  private var _prefHeight:    Float               = scala.compiletime.uninitialized
+  private var lastPrefHeight: Float               = scala.compiletime.uninitialized
+  private var sizeInvalid:    Boolean             = true
+  private var rowSizes:       DynamicArray[Float] = DynamicArray[Float]() // row width, row height, ...
 
   private var _align:       Align   = Align.left
   private var _rowAlign:    Align   = Align.center
@@ -90,8 +88,8 @@ class HorizontalGroup extends WidgetGroup {
 
         var incrX = width + (if (x > 0) space else 0)
         if (x + incrX > groupWidth && x > 0) {
-          rowSizes += x
-          rowSizes += rowHeight
+          rowSizes.add(x)
+          rowSizes.add(rowHeight)
           _prefWidth = Math.max(_prefWidth, x + pad)
           if (y > 0) y += wrapSpace
           y += rowHeight
@@ -103,8 +101,8 @@ class HorizontalGroup extends WidgetGroup {
         rowHeight = Math.max(rowHeight, height)
         i += incr
       }
-      rowSizes += x
-      rowSizes += rowHeight
+      rowSizes.add(x)
+      rowSizes.add(rowHeight)
       _prefWidth = Math.max(_prefWidth, x + pad)
       if (y > 0) y += wrapSpace
       _prefHeight = Math.max(_prefHeight, y + rowHeight)

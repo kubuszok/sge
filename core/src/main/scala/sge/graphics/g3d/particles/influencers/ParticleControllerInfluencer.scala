@@ -12,8 +12,6 @@ package g3d
 package particles
 package influencers
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.ParticleChannels
@@ -27,23 +25,23 @@ import sge.utils.{ DynamicArray, Nullable, Pool }
   */
 abstract class ParticleControllerInfluencer extends Influencer {
 
-  var templates:                           ArrayBuffer[ParticleController]   = scala.compiletime.uninitialized
+  var templates:                           DynamicArray[ParticleController]  = scala.compiletime.uninitialized
   protected var particleControllerChannel: ObjectChannel[ParticleController] = scala.compiletime.uninitialized
 
-  this.templates = new ArrayBuffer[ParticleController](1)
+  this.templates = DynamicArray[ParticleController](1)
 
   def this(templateControllers: ParticleController*) = {
     this()
-    this.templates = new ArrayBuffer[ParticleController](templateControllers.length)
+    this.templates = DynamicArray[ParticleController](templateControllers.length)
     for (tmpl <- templateControllers)
-      this.templates += tmpl
+      this.templates.add(tmpl)
   }
 
   def this(influencer: ParticleControllerInfluencer) = {
     this()
-    this.templates = new ArrayBuffer[ParticleController](influencer.templates.size)
+    this.templates = DynamicArray[ParticleController](influencer.templates.size)
     for (tmpl <- influencer.templates)
-      this.templates += tmpl
+      this.templates.add(tmpl)
   }
 
   override def allocateChannels(): Unit =
@@ -72,18 +70,18 @@ abstract class ParticleControllerInfluencer extends Influencer {
 
   override def save(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data    = resources.createSaveData()
-    val effects = new ArrayBuffer[ParticleEffect]()
+    val effects = DynamicArray[ParticleEffect]()
     // NOTE: AssetManager.getAll not yet available; save is a stub for now
 
-    val controllers = new ArrayBuffer[ParticleController]()
-    controllers ++= templates
-    val effectsIndices = new ArrayBuffer[DynamicArray[Int]]()
+    val controllers = DynamicArray[ParticleController]()
+    controllers.addAll(templates)
+    val effectsIndices = DynamicArray[DynamicArray[Int]]()
 
     var i = 0
     while (i < effects.size && controllers.nonEmpty) {
       val effect            = effects(i)
       val effectControllers = effect.getControllers()
-      val toRemove          = new ArrayBuffer[ParticleController]()
+      val toRemove          = DynamicArray[ParticleController]()
       var indices: Nullable[DynamicArray[Int]] = Nullable.empty
       for (ctrl <- controllers) {
         val index = effectControllers.indexOf(ctrl)
@@ -91,15 +89,15 @@ abstract class ParticleControllerInfluencer extends Influencer {
           if (indices.isEmpty) {
             indices = Nullable(DynamicArray[Int]())
           }
-          toRemove += ctrl
+          toRemove.add(ctrl)
           indices.foreach(_.add(index))
         }
       }
-      controllers --= toRemove
+      for (r <- toRemove) controllers.removeValue(r)
 
       indices.foreach { idx =>
         data.saveAsset(manager.getAssetFileName(effect), classOf[ParticleEffect])
-        effectsIndices += idx
+        effectsIndices.add(idx)
       }
       i += 1
     }
@@ -108,7 +106,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.getSaveData()
-    val effectsIndices: Nullable[ArrayBuffer[DynamicArray[Int]]] = data.load("indices")
+    val effectsIndices: Nullable[DynamicArray[DynamicArray[Int]]] = data.load("indices")
     effectsIndices.foreach { indices =>
       val indicesIter = indices.iterator
       var keepLoading = true
@@ -123,7 +121,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
           val effectControllers = effect.getControllers()
           var j                 = 0
           while (j < effectIndices.size) {
-            templates += effectControllers(effectIndices(j))
+            templates.add(effectControllers(effectIndices(j)))
             j += 1
           }
         }
@@ -139,16 +137,16 @@ object ParticleControllerInfluencer {
 
     def this(templateControllers: ParticleController*) = {
       this()
-      this.templates = new ArrayBuffer[ParticleController](templateControllers.length)
+      this.templates = DynamicArray[ParticleController](templateControllers.length)
       for (tmpl <- templateControllers)
-        this.templates += tmpl
+        this.templates.add(tmpl)
     }
 
     def this(particleControllerSingle: Single) = {
       this()
-      this.templates = new ArrayBuffer[ParticleController](particleControllerSingle.templates.size)
+      this.templates = DynamicArray[ParticleController](particleControllerSingle.templates.size)
       for (tmpl <- particleControllerSingle.templates)
-        this.templates += tmpl
+        this.templates.add(tmpl)
     }
 
     override def init(): Unit = {
@@ -212,17 +210,17 @@ object ParticleControllerInfluencer {
 
     def this(templateControllers: ParticleController*) = {
       this()
-      this.templates = new ArrayBuffer[ParticleController](templateControllers.length)
+      this.templates = DynamicArray[ParticleController](templateControllers.length)
       for (tmpl <- templateControllers)
-        this.templates += tmpl
+        this.templates.add(tmpl)
       pool = createPool()
     }
 
     def this(particleControllerRandom: Random) = {
       this()
-      this.templates = new ArrayBuffer[ParticleController](particleControllerRandom.templates.size)
+      this.templates = DynamicArray[ParticleController](particleControllerRandom.templates.size)
       for (tmpl <- particleControllerRandom.templates)
-        this.templates += tmpl
+        this.templates.add(tmpl)
       pool = createPool()
     }
 

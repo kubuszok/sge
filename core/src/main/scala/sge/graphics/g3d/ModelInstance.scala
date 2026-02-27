@@ -10,14 +10,13 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ ArrayMap, Nullable, Pool }
+import sge.utils.{ ArrayMap, DynamicArray, Nullable, Pool }
 
 /** An instance of a {@link Model}, allows to specify global transform and modify the materials, as it has a copy of the model's materials. Multiple instances can be created from the same Model, all
   * sharing the meshes and textures of the Model. The Model owns the meshes and textures, to dispose of these, the Model has to be disposed. Therefor, the Model must outlive all its ModelInstances
@@ -36,13 +35,13 @@ class ModelInstance(
 
   /** the materials of the model, used by nodes that have a graphical representation FIXME not sure if superfluous, allows modification of materials without having to traverse the nodes *
     */
-  val materials: ArrayBuffer[Material] = ArrayBuffer[Material]()
+  val materials: DynamicArray[Material] = DynamicArray[Material]()
 
   /** root nodes of the model * */
-  val nodes: ArrayBuffer[Node] = ArrayBuffer[Node]()
+  val nodes: DynamicArray[Node] = DynamicArray[Node]()
 
   /** animations of the model, modifying node transformations * */
-  val animations: ArrayBuffer[Animation] = ArrayBuffer[Animation]()
+  val animations: DynamicArray[Animation] = DynamicArray[Animation]()
 
   /** user definable value, which is passed to the {@link Shader}. */
   var userData: Nullable[Any] = Nullable.empty
@@ -96,7 +95,7 @@ class ModelInstance(
     val node = model.getNode(nodeId, recursive)
     node.foreach { n =>
       val nodeCopy = n.copy()
-      this.nodes += nodeCopy
+      this.nodes.add(nodeCopy)
       if (mergeTransform) {
         this.transform.mul(if (parentTransform) n.globalTransform else n.localTransform)
         nodeCopy.translation.set(0, 0, 0)
@@ -142,17 +141,17 @@ class ModelInstance(
   /** @return A newly created ModelInstance which is a copy of this ModelInstance */
   def copy(): ModelInstance = new ModelInstance(this)
 
-  private def copyNodes(nodes: ArrayBuffer[Node]): Unit = {
+  private def copyNodes(nodes: DynamicArray[Node]): Unit = {
     for (node <- nodes)
-      this.nodes += node.copy()
+      this.nodes.add(node.copy())
     invalidate()
   }
 
-  private def copyNodesById(nodes: ArrayBuffer[Node], nodeIds: Seq[String]): Unit = {
+  private def copyNodesById(nodes: DynamicArray[Node], nodeIds: Seq[String]): Unit = {
     for (node <- nodes)
       for (nodeId <- nodeIds)
         if (nodeId == node.id) {
-          this.nodes += node.copy()
+          this.nodes.add(node.copy())
         }
     invalidate()
   }
@@ -176,7 +175,7 @@ class ModelInstance(
       if (!materials.contains(part.material)) {
         val midx = materials.indexWhere(_.id == part.material.id)
         if (midx < 0)
-          materials += { part.material = part.material.copy(); part.material }
+          materials.add { part.material = part.material.copy(); part.material }
         else
           part.material = materials(midx)
       }
@@ -195,17 +194,17 @@ class ModelInstance(
     * @param source
     *   Iterable collection of source animations {@link Animation}
     */
-  def copyAnimations(source: Iterable[Animation]): Unit =
+  def copyAnimations(source: DynamicArray[Animation]): Unit =
     for (anim <- source)
       copyAnimation(anim, ModelInstance.defaultShareKeyframes)
 
   /** Copy source animations to this ModelInstance
     * @param source
-    *   Iterable collection of source animations {@link Animation}
+    *   DynamicArray collection of source animations {@link Animation}
     * @param shareKeyframes
     *   Shallow copy of {@link NodeKeyframe}'s if it's true, otherwise make a deep copy.
     */
-  def copyAnimations(source: Iterable[Animation], shareKeyframes: Boolean): Unit =
+  def copyAnimations(source: DynamicArray[Animation], shareKeyframes: Boolean): Unit =
     for (anim <- source)
       copyAnimation(anim, shareKeyframes)
 
@@ -238,31 +237,31 @@ class ModelInstance(
             nodeAnim.scaling = nanim.scaling
           } else {
             nanim.translation.foreach { trans =>
-              val buf = ArrayBuffer[NodeKeyframe[Vector3]]()
+              val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- trans)
-                buf += new NodeKeyframe[Vector3](kf.keytime, kf.value)
+                buf.add(new NodeKeyframe[Vector3](kf.keytime, kf.value))
               nodeAnim.translation = Nullable(buf)
             }
             nanim.rotation.foreach { rot =>
-              val buf = ArrayBuffer[NodeKeyframe[Quaternion]]()
+              val buf = DynamicArray[NodeKeyframe[Quaternion]]()
               for (kf <- rot)
-                buf += new NodeKeyframe[Quaternion](kf.keytime, kf.value)
+                buf.add(new NodeKeyframe[Quaternion](kf.keytime, kf.value))
               nodeAnim.rotation = Nullable(buf)
             }
             nanim.scaling.foreach { scl =>
-              val buf = ArrayBuffer[NodeKeyframe[Vector3]]()
+              val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- scl)
-                buf += new NodeKeyframe[Vector3](kf.keytime, kf.value)
+                buf.add(new NodeKeyframe[Vector3](kf.keytime, kf.value))
               nodeAnim.scaling = Nullable(buf)
             }
           }
           if (nodeAnim.translation.isDefined || nodeAnim.rotation.isDefined || nodeAnim.scaling.isDefined) {
-            animation.nodeAnimations += nodeAnim
+            animation.nodeAnimations.add(nodeAnim)
           }
         }
       }
     }
-    if (animation.nodeAnimations.nonEmpty) animations += animation
+    if (animation.nodeAnimations.nonEmpty) animations.add(animation)
   }
 
   /** Traverses the Node hierarchy and collects {@link Renderable} instances for every node with a graphical representation. Renderables are obtained from the provided pool. The resulting array can be
@@ -273,7 +272,7 @@ class ModelInstance(
     * @param pool
     *   the pool to obtain Renderables from
     */
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit =
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     for (node <- nodes)
       getRenderables(node, renderables, pool)
 
@@ -295,10 +294,10 @@ class ModelInstance(
     out
   }
 
-  protected def getRenderables(node: Node, renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit = {
+  protected def getRenderables(node: Node, renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit = {
     if (node.parts.nonEmpty) {
       for (nodePart <- node.parts)
-        if (nodePart.enabled) renderables += getRenderable(pool.obtain(), node, nodePart)
+        if (nodePart.enabled) renderables.add(getRenderable(pool.obtain(), node, nodePart))
     }
 
     for (child <- node.getChildren)

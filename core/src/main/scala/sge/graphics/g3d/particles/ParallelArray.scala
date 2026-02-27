@@ -12,7 +12,7 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.SgeError
 
@@ -30,7 +30,7 @@ class ParallelArray(
   import ParallelArray.*
 
   /** the channels added to the array */
-  val arrays: ArrayBuffer[Channel] = ArrayBuffer.empty[Channel]
+  val arrays: DynamicArray[Channel] = DynamicArray[Channel]()
 
   /** the current amount of defined elements, do not change manually unless you know what you are doing. */
   var size: Int = 0
@@ -48,7 +48,7 @@ class ParallelArray(
     if (channel.isEmpty) {
       val allocated = allocateChannel[T](channelDescriptor)
       initializer.foreach(init => init.init(allocated))
-      arrays += allocated
+      arrays.add(allocated)
       allocated
     } else {
       channel.getOrElse(throw SgeError.InvalidInput("Unreachable"))
@@ -75,7 +75,7 @@ class ParallelArray(
 
   /** Removes the channel with the given id */
   def removeArray(id: Int): Unit =
-    arrays.remove(findIndex(id))
+    arrays.removeIndex(findIndex(id))
 
   private def findIndex(id: Int): Int =
     scala.util.boundary {

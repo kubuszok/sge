@@ -14,8 +14,8 @@ import java.util.NoSuchElementException
 
 /** Container for a JSON object, array, string, double, long, boolean, or null.
   *
-  * JsonValue children are a linked list. Iteration of arrays or objects is easily done using a for-each or the `next` field, both
-  * shown below. This is much more efficient than accessing children by index when there are many children.
+  * JsonValue children are a linked list. Iteration of arrays or objects is easily done using a for-each or the `next` field, both shown below. This is much more efficient than accessing children by
+  * index when there are many children.
   *
   * {{{
   * val map: JsonValue = ...
@@ -32,17 +32,18 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
 
   private var stringValue: Nullable[String] = Nullable.empty
   private var doubleValue: Double           = 0
-  private var longValue: Long               = 0
+  private var longValue:   Long             = 0
 
-  var name: Nullable[String]      = Nullable.empty
-  var child: Nullable[JsonValue]  = Nullable.empty
+  var name:      Nullable[String]    = Nullable.empty
+  var child:     Nullable[JsonValue] = Nullable.empty
   var lastChild: Nullable[JsonValue] = Nullable.empty
-  var parent: Nullable[JsonValue] = Nullable.empty
+  var parent:    Nullable[JsonValue] = Nullable.empty
+
   /** When changing this field the parent `size` may need to be changed. */
-  var next: Nullable[JsonValue] = Nullable.empty
-  var prev: Nullable[JsonValue] = Nullable.empty
-  var childCount: Int = 0
-  override def size: Int = childCount
+  var next:          Nullable[JsonValue] = Nullable.empty
+  var prev:          Nullable[JsonValue] = Nullable.empty
+  var childCount:    Int                 = 0
+  override def size: Int                 = childCount
 
   /** Creates a value with the given string, or nullValue type if the string is null. */
   def this(value: Nullable[String]) = {
@@ -78,7 +79,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   // -- Navigation --
 
   /** Returns the child at the specified index. This requires walking the linked list to the specified entry. */
-  def get(index: Int): Nullable[JsonValue] = {
+  def get(index: Int): Nullable[JsonValue] =
     if (index == size - 1) lastChild
     else {
       var current = child
@@ -89,23 +90,20 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
       }
       current
     }
-  }
 
   /** Returns the child with the specified name. */
   def get(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && (current.orNull.name.isEmpty || current.orNull.name.orNull != name)) {
+    while (current.isDefined && (current.orNull.name.isEmpty || current.orNull.name.orNull != name))
       current = current.orNull.next
-    }
     current
   }
 
   /** Returns the child with the specified name, ignoring case. */
   def getIgnoreCase(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && (current.orNull.name.isEmpty || !current.orNull.name.orNull.equalsIgnoreCase(name))) {
+    while (current.isDefined && (current.orNull.name.isEmpty || !current.orNull.name.orNull.equalsIgnoreCase(name)))
       current = current.orNull.next
-    }
     current
   }
 
@@ -807,30 +805,28 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     if (s.isEmpty) false else s.orNull == value
   }
 
-  def nameEquals(value: String): Boolean = {
+  def nameEquals(value: String): Boolean =
     if (name.isEmpty) false else name.orNull == value
-  }
 
   // -- Serialization --
 
   /** Returns a JSON string representation. */
-  def toJson(): String = {
+  def toJson(): String =
     if (isValue) {
       val s = asString()
       if (s.isEmpty) "null" else s.orNull
     } else {
       val writer = new StringWriter(512)
-      try {
+      try
         toJson(writer)
-      } catch {
+      catch {
         case ex: IOException => throw SgeError.SerializationError("Error writing JSON", Some(ex))
       }
       writer.toString
     }
-  }
 
   /** Writes a JSON representation to the writer. */
-  def toJson(writer: Writer): Unit = {
+  def toJson(writer: Writer): Unit =
     if (isObject) {
       writer.write('{')
       var c = child
@@ -871,7 +867,6 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     } else {
       throw SgeError.SerializationError("Unknown object type: " + this)
     }
-  }
 
   // -- Iteration --
 
@@ -890,7 +885,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   }
 
   /** Returns a human readable string representing the path from the root of the JSON object graph to this value. */
-  def trace(): String = {
+  def trace(): String =
     if (parent.isEmpty) {
       if (_type == ValueType.array) "[]"
       else if (_type == ValueType.`object`) "{}"
@@ -901,7 +896,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
           var tr = "[]"
           var i  = 0
           var c  = parent.orNull.child
-          while (c.isDefined) {
+          while (c.isDefined)
             if (c.orNull eq this) {
               tr = "[" + i + "]"
               c = Nullable.empty // break
@@ -909,7 +904,6 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
               i += 1
               c = c.orNull.next
             }
-          }
           tr
         } else if (name.isDefined && name.orNull.indexOf('.') != -1)
           ".\"" + name.orNull.replace("\"", "\\\"") + "\""
@@ -917,16 +911,14 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
           "." + name.fold("")(identity)
       parent.orNull.trace() + t
     }
-  }
 
-  override def toString(): String = {
+  override def toString(): String =
     if (isValue) {
       val s = asString()
       if (name.isEmpty) s.fold("null")(identity) else name.orNull + ": " + s.fold("null")(identity)
     } else {
       (if (name.isEmpty) "" else name.orNull + ": ") + toJson()
     }
-  }
 }
 
 object JsonValue {
@@ -949,7 +941,7 @@ object JsonValue {
         val raw = n.value
         n.toLong match {
           case Some(l) if l.toString == raw => new JsonValue(l, Nullable(raw))
-          case _ =>
+          case _                            =>
             n.toDouble match {
               case Some(d) => new JsonValue(d, Nullable(raw))
               case _       => new JsonValue(Nullable(raw): Nullable[String])

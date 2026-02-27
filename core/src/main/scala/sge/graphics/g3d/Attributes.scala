@@ -10,22 +10,21 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
 
-  protected var mask:       Long                   = 0L
-  protected val attributes: ArrayBuffer[Attribute] = ArrayBuffer.empty[Attribute]
+  protected var mask:       Long                    = 0L
+  protected val attributes: DynamicArray[Attribute] = DynamicArray[Attribute]()
 
   protected var sorted: Boolean = true
 
   /** Sort the attributes by their ID */
   final def sort(): Unit =
     if (!sorted) {
-      attributes.sortInPlace()(using Attributes.attributeOrdering)
+      attributes.sort()(using Attributes.attributeOrdering)
       sorted = true
     }
 
@@ -56,10 +55,10 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
 
   /** Get multiple attributes at once. Example: material.get(out, ColorAttribute.Diffuse | ColorAttribute.Specular | TextureAttribute.Diffuse);
     */
-  final def get(out: ArrayBuffer[Attribute], tpe: Long): ArrayBuffer[Attribute] = {
+  final def get(out: DynamicArray[Attribute], tpe: Long): DynamicArray[Attribute] = {
     var i = 0
     while (i < attributes.size) {
-      if ((attributes(i).`type` & tpe) != 0) out += attributes(i)
+      if ((attributes(i).`type` & tpe) != 0) out.add(attributes(i))
       i += 1
     }
     out
@@ -85,7 +84,7 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     val idx = indexOf(attribute.`type`)
     if (idx < 0) {
       enable(attribute.`type`)
-      attributes += attribute
+      attributes.add(attribute)
       sorted = false
     } else {
       attributes(idx) = attribute
@@ -136,7 +135,7 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     while (i >= 0) {
       val tpe = attributes(i).`type`
       if ((mask & tpe) == tpe) {
-        attributes.remove(i)
+        attributes.removeIndex(i)
         disable(tpe)
         sorted = false
       }

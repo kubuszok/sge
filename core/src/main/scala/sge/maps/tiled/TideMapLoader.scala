@@ -1,0 +1,321 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/maps/tiled/TideMapLoader.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package maps
+package tiled
+
+import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
+import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
+import sge.assets.loaders.resolvers.InternalFileHandleResolver
+import sge.files.FileHandle
+import sge.graphics.Texture
+import sge.graphics.g2d.TextureRegion
+import sge.maps.tiled.TiledMapTileLayer.Cell
+import sge.maps.tiled.tiles.{ AnimatedTiledMapTile, StaticTiledMapTile }
+import sge.utils.{ DynamicArray, Nullable, XmlReader }
+
+import java.io.IOException
+import scala.collection.mutable
+
+class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends SynchronousAssetLoader[TiledMap, TideMapLoader.Parameters](resolver) {
+
+  private var xml:  XmlReader         = new XmlReader()
+  private var root: XmlReader.Element = scala.compiletime.uninitialized
+
+  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+
+  def load(fileName: String): TiledMap =
+    try {
+      val tideFile = resolve(fileName)
+      root = xml.parse(tideFile)
+      val textures = mutable.HashMap.empty[String, Texture]
+      for (textureFile <- loadTileSheets(root, tideFile))
+        textures.put(textureFile.path(), new Texture(textureFile))
+      val imageResolver  = new ImageResolver.DirectImageResolver(textures)
+      val map            = loadMap(root, tideFile, imageResolver)
+      val ownedResources = DynamicArray[AutoCloseable]()
+      textures.values.foreach(t => ownedResources.add(t))
+      map.setOwnedResources(ownedResources)
+      map
+    } catch {
+      case e: IOException =>
+        throw new IllegalArgumentException("Couldn't load tilemap '" + fileName + "'", e)
+    }
+
+  override def load(
+    assetManager: AssetManager,
+    fileName:     String,
+    tideFile:     FileHandle,
+    parameter:    TideMapLoader.Parameters
+  ): TiledMap =
+    try
+      loadMap(root, tideFile, new ImageResolver.AssetManagerImageResolver(assetManager))
+    catch {
+      case e: Exception =>
+        throw new IllegalArgumentException("Couldn't load tilemap '" + fileName + "'", e)
+    }
+
+  override def getDependencies(
+    fileName:  String,
+    tmxFile:   FileHandle,
+    parameter: TideMapLoader.Parameters
+  ): DynamicArray[AssetDescriptor[?]] = {
+    val dependencies = DynamicArray[AssetDescriptor[?]]()
+    try {
+      root = xml.parse(tmxFile)
+      for (image <- loadTileSheets(root, tmxFile))
+        dependencies.add(new AssetDescriptor[Texture](image.path(), classOf[Texture]))
+      dependencies
+    } catch {
+      case e: IOException =>
+        throw new IllegalArgumentException("Couldn't load tilemap '" + fileName + "'", e)
+    }
+  }
+
+  /** Loads the map data, given the XML root element and an [[ImageResolver]] used to return the tileset Textures
+    * @param root
+    *   the XML root element
+    * @param tmxFile
+    *   the Filehandle of the tmx file
+    * @param imageResolver
+    *   the [[ImageResolver]]
+    * @return
+    *   the [[TiledMap]]
+    */
+  private def loadMap(root: XmlReader.Element, tmxFile: FileHandle, imageResolver: ImageResolver): TiledMap = {
+    val map        = new TiledMap()
+    val properties = root.getChildByName("Properties")
+    if (properties.isDefined) {
+      loadProperties(map.getProperties, properties.orNull)
+    }
+    val tilesheets        = root.getChildByName("TileSheets")
+    val tilesheetElements = tilesheets.orNull.getChildrenByName("TileSheet")
+    var ti                = 0
+    while (ti < tilesheetElements.size) {
+      val tilesheet = tilesheetElements(ti)
+      loadTileSheet(map, tilesheet, tmxFile, imageResolver)
+      ti += 1
+    }
+    val layers        = root.getChildByName("Layers")
+    val layerElements = layers.orNull.getChildrenByName("Layer")
+    var li            = 0
+    while (li < layerElements.size) {
+      val layer = layerElements(li)
+      loadLayer(map, layer)
+      li += 1
+    }
+    map
+  }
+
+  /** Loads the tilesets
+    * @param root
+    *   the root XML element
+    * @return
+    *   a list of filenames for images containing tiles
+    */
+  private def loadTileSheets(root: XmlReader.Element, tideFile: FileHandle): DynamicArray[FileHandle] = {
+    val images          = DynamicArray[FileHandle]()
+    val tilesheets      = root.getChildByName("TileSheets")
+    val tilesetElements = tilesheets.orNull.getChildrenByName("TileSheet")
+    var ti              = 0
+    while (ti < tilesetElements.size) {
+      val tileset     = tilesetElements(ti)
+      val imageSource = tileset.getChildByName("ImageSource")
+      val image       = getRelativeFileHandle(tideFile, imageSource.orNull.getText.orNull)
+      images.add(image)
+      ti += 1
+    }
+    images
+  }
+
+  private def loadTileSheet(
+    map:           TiledMap,
+    element:       XmlReader.Element,
+    tideFile:      FileHandle,
+    imageResolver: ImageResolver
+  ): Unit =
+    if (element.name == "TileSheet") {
+      val id          = element.getAttribute("Id")
+      val imageSource = element.getChildByName("ImageSource").orNull.getText.orNull
+
+      val alignment = element.getChildByName("Alignment").orNull
+      val sheetSize = alignment.getAttribute("SheetSize")
+      val tileSize  = alignment.getAttribute("TileSize")
+      val margin    = alignment.getAttribute("Margin")
+      val spacing   = alignment.getAttribute("Spacing")
+
+      val sheetSizeParts = sheetSize.split(" x ")
+      val sheetSizeX     = Integer.parseInt(sheetSizeParts(0))
+      val sheetSizeY     = Integer.parseInt(sheetSizeParts(1))
+
+      val tileSizeParts = tileSize.split(" x ")
+      val tileSizeX     = Integer.parseInt(tileSizeParts(0))
+      val tileSizeY     = Integer.parseInt(tileSizeParts(1))
+
+      val marginParts = margin.split(" x ")
+      val marginX     = Integer.parseInt(marginParts(0))
+      val marginY     = Integer.parseInt(marginParts(1))
+
+      val spacingParts = margin.split(" x ")
+      val spacingX     = Integer.parseInt(spacingParts(0))
+      val spacingY     = Integer.parseInt(spacingParts(1))
+
+      val image   = getRelativeFileHandle(tideFile, imageSource)
+      val texture = imageResolver.getImage(image.path())
+
+      val tilesets = map.getTileSets
+      var firstgid = 1
+      for (tileset <- tilesets)
+        firstgid += tileset.size
+
+      val tileset = new TiledMapTileSet()
+      tileset.setName(id)
+      tileset.getProperties.put("firstgid", firstgid: java.lang.Integer)
+      var gid = firstgid
+
+      texture.foreach { tex =>
+        val stopWidth  = tex.getRegionWidth() - tileSizeX
+        val stopHeight = tex.getRegionHeight() - tileSizeY
+
+        var y = marginY
+        while (y <= stopHeight) {
+          var x = marginX
+          while (x <= stopWidth) {
+            val tile: TiledMapTile =
+              new StaticTiledMapTile(new TextureRegion(tex, x, y, tileSizeX, tileSizeY))
+            tile.setId(gid)
+            tileset.putTile(gid, tile)
+            gid += 1
+            x += tileSizeX + spacingX
+          }
+          y += tileSizeY + spacingY
+        }
+      }
+
+      val properties = element.getChildByName("Properties")
+      if (properties.isDefined) {
+        loadProperties(tileset.getProperties, properties.orNull)
+      }
+
+      tilesets.addTileSet(tileset)
+    }
+
+  private def loadLayer(map: TiledMap, element: XmlReader.Element): Unit =
+    if (element.name == "Layer") {
+      val id      = element.getAttribute("Id")
+      val visible = element.getAttribute("Visible")
+
+      val dimensions = element.getChildByName("Dimensions").orNull
+      val layerSize  = dimensions.getAttribute("LayerSize")
+      val tileSize   = dimensions.getAttribute("TileSize")
+
+      val layerSizeParts = layerSize.split(" x ")
+      val layerSizeX     = Integer.parseInt(layerSizeParts(0))
+      val layerSizeY     = Integer.parseInt(layerSizeParts(1))
+
+      val tileSizeParts = tileSize.split(" x ")
+      val tileSizeX     = Integer.parseInt(tileSizeParts(0))
+      val tileSizeY     = Integer.parseInt(tileSizeParts(1))
+
+      val layer = new TiledMapTileLayer(layerSizeX, layerSizeY, tileSizeX, tileSizeY)
+      layer.setName(id)
+      layer.setVisible(visible.equalsIgnoreCase("True"))
+      val tileArray = element.getChildByName("TileArray").orNull
+      val rows      = tileArray.getChildrenByName("Row")
+      val tilesets  = map.getTileSets
+      var currentTileSet: TiledMapTileSet = null // scalastyle:ignore
+      var firstgid = 0
+      var row      = 0
+      val rowCount = rows.size
+      while (row < rowCount) {
+        val currentRow = rows(row)
+        val y          = rowCount - 1 - row
+        var x          = 0
+        var child      = 0
+        val childCount = currentRow.getChildCount
+        while (child < childCount) {
+          val currentChild = currentRow.getChild(child)
+          val name         = currentChild.name
+          if (name == "TileSheet") {
+            currentTileSet = tilesets.getTileSet(currentChild.getAttribute("Ref")).orNull
+            firstgid = currentTileSet.getProperties.get("firstgid", classOf[Integer]).intValue()
+          } else if (name == "Null") {
+            x += currentChild.getIntAttribute("Count", 0)
+          } else if (name == "Static") {
+            val cell = new Cell()
+            cell.setTile(currentTileSet.getTile(firstgid + currentChild.getIntAttribute("Index", 0)))
+            layer.setCell(x, y, Nullable(cell))
+            x += 1
+          } else if (name == "Animated") {
+            // Create an AnimatedTile
+            val interval        = currentChild.getInt("Interval", 0)
+            val frames          = currentChild.getChildByName("Frames").orNull
+            val frameTiles      = DynamicArray[StaticTiledMapTile]()
+            var frameChild      = 0
+            val frameChildCount = frames.getChildCount
+            while (frameChild < frameChildCount) {
+              val frame     = frames.getChild(frameChild)
+              val frameName = frame.name
+              if (frameName == "TileSheet") {
+                currentTileSet = tilesets.getTileSet(frame.getAttribute("Ref")).orNull
+                firstgid = currentTileSet.getProperties.get("firstgid", classOf[Integer]).intValue()
+              } else if (frameName == "Static") {
+                frameTiles.add(currentTileSet.getTile(firstgid + frame.getIntAttribute("Index", 0)).orNull.asInstanceOf[StaticTiledMapTile])
+              }
+              frameChild += 1
+            }
+            val cell = new Cell()
+            cell.setTile(Nullable(new AnimatedTiledMapTile(interval / 1000f, frameTiles)))
+            layer.setCell(x, y, Nullable(cell))
+            x += 1 // TODO: Reuse existing animated tiles
+          }
+          child += 1
+        }
+        row += 1
+      }
+
+      val properties = element.getChildByName("Properties")
+      if (properties.isDefined) {
+        loadProperties(layer.getProperties, properties.orNull)
+      }
+
+      map.getLayers.add(layer)
+    }
+
+  private def loadProperties(properties: MapProperties, element: XmlReader.Element): Unit =
+    if (element.name == "Properties") {
+      val propertyElements = element.getChildrenByName("Property")
+      var pi               = 0
+      while (pi < propertyElements.size) {
+        val property = propertyElements(pi)
+        val key      = property.getAttribute("Key", Nullable.empty).orNull
+        val propType = property.getAttribute("Type", Nullable.empty).orNull
+        val value    = property.getText.orNull
+
+        if (propType == "Int32") {
+          properties.put(key, Integer.parseInt(value): java.lang.Integer)
+        } else if (propType == "String") {
+          properties.put(key, value)
+        } else if (propType == "Boolean") {
+          properties.put(key, java.lang.Boolean.valueOf(value.equalsIgnoreCase("true")))
+        } else {
+          properties.put(key, value)
+        }
+        pi += 1
+      }
+    }
+
+  private def getRelativeFileHandle(file: FileHandle, path: String): FileHandle =
+    BaseTiledMapLoader.getRelativeFileHandle(file, path)
+}
+
+object TideMapLoader {
+
+  class Parameters extends AssetLoaderParameters[TiledMap]
+}

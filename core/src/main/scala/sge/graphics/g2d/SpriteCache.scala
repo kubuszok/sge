@@ -22,7 +22,7 @@ import sge.math.Matrix4
 import sge.utils.SgeError
 import sge.graphics.{ Color, GL20, Mesh, Texture, VertexAttribute }
 import sge.graphics.g2d.{ Sprite, TextureRegion }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 import scala.compiletime.uninitialized
 
 /** Draws 2D images, optimized for geometry that does not change. Sprites and/or textures are cached and given an ID, which can later be used for drawing. The size, color, and texture region for each
@@ -42,18 +42,18 @@ import scala.compiletime.uninitialized
 class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using sde: Sge) extends AutoCloseable {
   import SpriteCache._
 
-  private var mesh:             Mesh               = uninitialized
-  private var drawing:          Boolean            = false
-  private val transformMatrix:  Matrix4            = new Matrix4()
-  private val projectionMatrix: Matrix4            = new Matrix4()
-  private val caches:           ArrayBuffer[Cache] = ArrayBuffer.empty
+  private var mesh:             Mesh                = uninitialized
+  private var drawing:          Boolean             = false
+  private val transformMatrix:  Matrix4             = new Matrix4()
+  private val projectionMatrix: Matrix4             = new Matrix4()
+  private val caches:           DynamicArray[Cache] = DynamicArray[Cache]()
 
   private val combinedMatrix: Matrix4       = new Matrix4()
   private var shaderVar:      ShaderProgram = shader
 
-  private var currentCache: Cache                = null
-  private val textures:     ArrayBuffer[Texture] = ArrayBuffer.empty
-  private val counts:       ArrayBuffer[Int]     = ArrayBuffer.empty
+  private var currentCache: Cache                 = null
+  private val textures:     DynamicArray[Texture] = DynamicArray[Texture]()
+  private val counts:       DynamicArray[Int]     = DynamicArray[Int]()
 
   // Track indices manually since getNumIndices is not available
   private val maxIndices:  Int          = if (useIndices) size * 6 else 0
@@ -153,7 +153,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     if (currentCache != null) throw new IllegalStateException("endCache must be called before begin.")
     val verticesPerImage = if (maxIndices > 0) 4 else 6
     currentCache = new Cache(caches.size, vertexIndex)
-    caches += currentCache
+    caches.add(currentCache)
   }
 
   /** Starts the redefinition of an existing cache, allowing the add and {@link #endCache()} methods to be called. If this is not the last cache created, it cannot have more entries added to it than
@@ -163,7 +163,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     if (drawing) throw new IllegalStateException("end must be called before beginCache")
     if (currentCache != null) throw new IllegalStateException("endCache must be called before begin.")
     if (cacheID == caches.size - 1) {
-      val oldCache = caches.remove(cacheID)
+      val oldCache = caches.removeIndex(cacheID)
       vertexIndex = oldCache.offset
       beginCache()
       return
@@ -236,8 +236,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     val count            = length / (verticesPerImage * VERTEX_SIZE) * 6
     val lastIndex        = textures.size - 1
     if (lastIndex < 0 || textures(lastIndex) != texture) {
-      textures += texture
-      counts += count
+      textures.add(texture)
+      counts.add(count)
     } else
       counts(lastIndex) += count
 

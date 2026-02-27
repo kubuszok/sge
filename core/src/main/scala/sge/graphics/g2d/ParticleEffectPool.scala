@@ -11,7 +11,6 @@ package graphics
 package g2d
 
 import sge.utils.Pool
-import scala.collection.mutable.ArrayBuffer
 
 /** Pool for {@link ParticleEffect} instances. This is a convenient class that prevents {@link ParticleEffect} instances from being freed while they are still in use.
   *

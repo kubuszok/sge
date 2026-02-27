@@ -11,7 +11,6 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 import scala.util.boundary
 
@@ -22,7 +21,7 @@ import sge.input.TextInputWrapper
 import sge.math.{ MathUtils, Vector2 }
 import sge.scenes.scene2d.{ Actor, Group, InputEvent, InputListener, Stage }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener, Disableable, Drawable, UIUtils }
-import sge.utils.{ Align, Clipboard, Nullable, Timer }
+import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Timer }
 
 /** A single-line text input field. <p> The preferred height of a text field is the height of the {@link TextFieldStyle#font} and {@link TextFieldStyle#background}. The preferred width of a text field
   * is 150, a relatively arbitrary size. <p> The text field will copy the currently selected text when ctrl+c is pressed, and paste any text in the clipboard when ctrl+v is pressed. Clipboard
@@ -444,9 +443,9 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
     glyphPositions.clear()
     var x = 0f
     if (glyphLayout.runs.nonEmpty) {
-      val run       = glyphLayout.runs.head
+      val run       = glyphLayout.runs.first
       val xAdvances = run.xAdvances
-      fontOffset = xAdvances.head
+      fontOffset = xAdvances.first
       var idx = 1
       while (idx < xAdvances.size) {
         glyphPositions.add(x)
@@ -582,7 +581,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
   }
 
   /** @return May be null. */
-  private def findNextTextField(actors: ArrayBuffer[Actor], best: Nullable[TextField], bestCoords: Vector2, currentCoords: Vector2, up: Boolean): Nullable[TextField] = boundary {
+  private def findNextTextField(actors: DynamicArray[Actor], best: Nullable[TextField], bestCoords: Vector2, currentCoords: Vector2, up: Boolean): Nullable[TextField] = boundary {
     var currentBest = best
     var i           = 0
     val n           = actors.size

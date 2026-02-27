@@ -11,13 +11,12 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, Group, InputEvent }
 import sge.scenes.scene2d.utils.{ ClickListener, Drawable, Layout, Selection, UIUtils }
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** A tree widget where each node has an icon, actor, and child nodes. <p> The preferred size of the tree is determined by the preferred size of the actors for the expanded nodes. <p>
   * {@link ChangeEvent} is fired when the selected node changes.
@@ -30,9 +29,9 @@ import sge.utils.Nullable
   */
 class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge: Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
 
-  private var _style: Tree.TreeStyle = scala.compiletime.uninitialized
-  val rootNodes:      ArrayBuffer[N] = ArrayBuffer.empty
-  val selection:      Selection[N]   = new Selection[N]() {
+  private var _style: Tree.TreeStyle  = scala.compiletime.uninitialized
+  val rootNodes:      DynamicArray[N] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
+  val selection:      Selection[N]    = new Selection[N]() {
     override protected def changed(): Unit =
       size match {
         case 0 =>
@@ -150,7 +149,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
       if (existingIndex != -1) {
         if (existingIndex == idx) scala.util.boundary.break(())
         if (existingIndex < idx) idx -= 1
-        rootNodes.remove(existingIndex)
+        rootNodes.removeIndex(existingIndex)
         val actorIndex = node.actor.getZIndex
         if (actorIndex != -1) node.removeFromTree(this, actorIndex)
       }
@@ -181,7 +180,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
       }
       val idx = rootNodes.indexOf(node)
       if (idx == -1) scala.util.boundary.break(())
-      rootNodes.remove(idx)
+      rootNodes.removeIndex(idx)
       val actorIndex = node.actor.getZIndex
       if (actorIndex != -1) node.removeFromTree(this, actorIndex)
     }
@@ -218,7 +217,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     prefWidth += paddingLeft + paddingRight
   }
 
-  private def computeSize(nodes: ArrayBuffer[N], indent: Float, plusMinusWidth: Float): Unit = {
+  private def computeSize(nodes: DynamicArray[N], indent: Float, plusMinusWidth: Float): Unit = {
     val ySpacing = this.ySpacing
     val spacing  = iconSpacingLeft + iconSpacingRight
     var i        = 0
@@ -251,7 +250,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     layout(rootNodes, paddingLeft, getHeight - ySpacing / 2, plusMinusWidth())
   }
 
-  private def layout(nodes: ArrayBuffer[N], indent: Float, y: Float, plusMinusWidth: Float): Float = {
+  private def layout(nodes: DynamicArray[N], indent: Float, y: Float, plusMinusWidth: Float): Float = {
     val ySpacing        = this.ySpacing
     val iconSpacingLeft = this.iconSpacingLeft
     val spacing         = iconSpacingLeft + iconSpacingRight
@@ -309,7 +308,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     b:              Float,
     a:              Float,
     parent:         Nullable[N],
-    nodes:          ArrayBuffer[N],
+    nodes:          DynamicArray[N],
     indent:         Float,
     plusMinusWidth: Float
   ): Float = {
@@ -413,7 +412,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     result
   }
 
-  private def getNodeAt(nodes: ArrayBuffer[N], y: Float, rowY: Float): Float = scala.util.boundary {
+  private def getNodeAt(nodes: DynamicArray[N], y: Float, rowY: Float): Float = scala.util.boundary {
     var rY = rowY
     var i  = 0
     val n  = nodes.size
@@ -435,7 +434,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     rY
   }
 
-  private[ui] def selectNodes(nodes: ArrayBuffer[N], low: Float, high: Float): Unit =
+  private[ui] def selectNodes(nodes: DynamicArray[N], low: Float, high: Float): Unit =
     scala.util.boundary {
       var i = 0
       val n = nodes.size
@@ -464,11 +463,11 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
 
   /** If the order of the root nodes is changed, {@link #updateRootNodes()} must be called to ensure the nodes' actors are in the correct order.
     */
-  def getRootNodes: ArrayBuffer[N] = rootNodes
+  def getRootNodes: DynamicArray[N] = rootNodes
 
   /** @deprecated Use {@link #getRootNodes()}. */
   @deprecated("Use getRootNodes()", "")
-  def getNodes: ArrayBuffer[N] = rootNodes
+  def getNodes: DynamicArray[N] = rootNodes
 
   /** Updates the order of the actors in the tree for all root nodes and all child nodes. This is useful after changing the order of {@link #getRootNodes()}.
     * @see
@@ -544,10 +543,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
     prefHeight
   }
 
-  def findExpandedValues(values: ArrayBuffer[V]): Unit =
-    Tree.findExpandedValues(rootNodes, values.asInstanceOf[ArrayBuffer[Any]])
+  def findExpandedValues(values: DynamicArray[V]): Unit =
+    Tree.findExpandedValues(rootNodes, values.asInstanceOf[DynamicArray[Any]])
 
-  def restoreExpandedValues(values: ArrayBuffer[V]): Unit = {
+  def restoreExpandedValues(values: DynamicArray[V]): Unit = {
     var i = 0
     val n = values.size
     while (i < n) {
@@ -581,9 +580,9 @@ object Tree {
     */
   private[ui] def removeNodeFromTree(tree: Tree[? <: Node[?, ?, ?], ?], node: Node[?, ?, ?]): Unit = scala.util.boundary {
     node.parent.foreach { p =>
-      val idx = p.children.indexOf(node)
+      val idx = p.children.asInstanceOf[DynamicArray[Any]].indexOf(node)
       if (idx != -1) {
-        p.children.remove(idx)
+        p.children.removeIndex(idx)
         if (p.expanded) {
           node.removeFromTree(tree, node.actor.getZIndex)
         }
@@ -591,28 +590,28 @@ object Tree {
       }
       scala.util.boundary.break()
     }
-    val rootNodes = tree.rootNodes.asInstanceOf[ArrayBuffer[Any]]
+    val rootNodes = tree.rootNodes.asInstanceOf[DynamicArray[Any]]
     val idx       = rootNodes.indexOf(node)
     if (idx != -1) {
-      rootNodes.remove(idx)
+      rootNodes.removeIndex(idx)
       val actorIndex = node.actor.getZIndex
       if (actorIndex != -1) node.removeFromTree(tree, actorIndex)
     }
   }
 
-  private[ui] def findExpandedValues[N <: Node[N, ?, ? <: Actor]](nodes: ArrayBuffer[? <: Node[?, ?, ? <: Actor]], values: ArrayBuffer[Any]): Boolean = {
+  private[ui] def findExpandedValues[N <: Node[N, ?, ? <: Actor]](nodes: DynamicArray[? <: Node[?, ?, ? <: Actor]], values: DynamicArray[Any]): Boolean = {
     var expanded = false
     var i        = 0
     val n        = nodes.size
     while (i < n) {
       val node = nodes(i)
-      if (node.expanded && !findExpandedValues(node.children, values)) values += node.value
+      if (node.expanded && !findExpandedValues(node.children, values)) values.add(node.value)
       i += 1
     }
     expanded
   }
 
-  private[ui] def findNode(nodes: ArrayBuffer[? <: Node[?, ?, ? <: Actor]], value: Any): Nullable[Node[?, ?, ? <: Actor]] = scala.util.boundary {
+  private[ui] def findNode(nodes: DynamicArray[? <: Node[?, ?, ? <: Actor]], value: Any): Nullable[Node[?, ?, ? <: Actor]] = scala.util.boundary {
     var i = 0
     var n = nodes.size
     while (i < n) {
@@ -631,7 +630,7 @@ object Tree {
     Nullable.empty
   }
 
-  private[ui] def collapseAll(nodes: ArrayBuffer[? <: Node[?, ?, ? <: Actor]]): Unit = {
+  private[ui] def collapseAll(nodes: DynamicArray[? <: Node[?, ?, ? <: Actor]]): Unit = {
     var i = 0
     val n = nodes.size
     while (i < n) {
@@ -642,7 +641,7 @@ object Tree {
     }
   }
 
-  private[ui] def expandAll(nodes: ArrayBuffer[? <: Node[?, ?, ? <: Actor]]): Unit = {
+  private[ui] def expandAll(nodes: DynamicArray[? <: Node[?, ?, ? <: Actor]]): Unit = {
     var i = 0
     val n = nodes.size
     while (i < n) {
@@ -664,7 +663,7 @@ object Tree {
   abstract class Node[N <: Node[N, V, A], V, A <: Actor] {
     var actor:      A                  = scala.compiletime.uninitialized
     var parent:     Nullable[N]        = Nullable.empty
-    val children:   ArrayBuffer[N]     = ArrayBuffer.empty
+    val children:   DynamicArray[N]    = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
     var selectable: Boolean            = true
     var expanded:   Boolean            = false
     var icon:       Nullable[Drawable] = Nullable.empty
@@ -746,7 +745,7 @@ object Tree {
     def add(node: N): Unit =
       insert(children.size, node)
 
-    def addAll(nodes: ArrayBuffer[N]): Unit = {
+    def addAll(nodes: DynamicArray[N]): Unit = {
       var i = 0
       val n = nodes.size
       while (i < n) {
@@ -802,7 +801,7 @@ object Tree {
     def remove(node: N): Unit = {
       val idx = children.indexOf(node)
       if (idx != -1) {
-        children.remove(idx)
+        children.removeIndex(idx)
         if (expanded) {
           val tree = getTree()
           tree.foreach { t =>
@@ -857,7 +856,7 @@ object Tree {
     /** If the children order is changed, {@link #updateChildren()} must be called to ensure the node's actors are in the correct order. That is not necessary if this node is not in the tree or is not
       * expanded, because then the child node's actors are not in the tree.
       */
-    def getChildren: ArrayBuffer[N] = children
+    def getChildren: DynamicArray[N] = children
 
     def hasChildren: Boolean = children.size > 0
 
@@ -941,12 +940,12 @@ object Tree {
     def setSelectable(selectable: Boolean): Unit =
       this.selectable = selectable
 
-    def findExpandedValues(values: ArrayBuffer[V]): Unit =
-      if (expanded && !Tree.findExpandedValues(children, values.asInstanceOf[ArrayBuffer[Any]])) {
-        value.foreach(v => values += v)
+    def findExpandedValues(values: DynamicArray[V]): Unit =
+      if (expanded && !Tree.findExpandedValues(children, values.asInstanceOf[DynamicArray[Any]])) {
+        value.foreach(v => values.add(v))
       }
 
-    def restoreExpandedValues(values: ArrayBuffer[V]): Unit = {
+    def restoreExpandedValues(values: DynamicArray[V]): Unit = {
       var i = 0
       val n = values.size
       while (i < n) {

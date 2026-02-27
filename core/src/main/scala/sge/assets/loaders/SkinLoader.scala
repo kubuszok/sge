@@ -13,10 +13,9 @@ package loaders
 import sge.files.FileHandle
 import sge.graphics.g2d.TextureAtlas
 import sge.scenes.scene2d.ui.Skin
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 /** {@link AssetLoader} for {@link Skin} instances. All {@link Texture} and {@link BitmapFont} instances will be loaded as dependencies. Passing a {@link SkinParameter} allows the exact name of the
   * texture associated with the skin to be specified. Otherwise the skin texture is looked up just as with a call to {@link Skin#Skin(com.badlogic.gdx.files.FileHandle)}. A {@link SkinParameter} also
@@ -31,14 +30,14 @@ class SkinLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynchron
     fileName:  String,
     file:      FileHandle,
     parameter: SkinLoader.SkinParameter
-  ): ArrayBuffer[AssetDescriptor[?]] = {
-    val deps  = ArrayBuffer.empty[AssetDescriptor[?]]
+  ): DynamicArray[AssetDescriptor[?]] = {
+    val deps  = DynamicArray[AssetDescriptor[?]]()
     val param = Nullable(parameter)
     if (param.fold(true)(_.textureAtlasPath.isEmpty))
-      deps += new AssetDescriptor[TextureAtlas](file.pathWithoutExtension() + ".atlas", classOf[TextureAtlas])
+      deps.add(new AssetDescriptor[TextureAtlas](file.pathWithoutExtension() + ".atlas", classOf[TextureAtlas]))
     else
       param.foreach(_.textureAtlasPath.foreach { path =>
-        deps += new AssetDescriptor[TextureAtlas](path, classOf[TextureAtlas])
+        deps.add(new AssetDescriptor[TextureAtlas](path, classOf[TextureAtlas]))
       })
     deps
   }

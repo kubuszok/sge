@@ -10,8 +10,7 @@ package sge
 package maps
 package tiled
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** @brief
   *   Represents a tiled map, adds the concept of tiles and tilesets.
@@ -20,8 +19,8 @@ import sge.utils.Nullable
   *   Map
   */
 class TiledMap extends maps.Map {
-  private val tilesets:       TiledMapTileSets                     = new TiledMapTileSets()
-  private var ownedResources: Nullable[ArrayBuffer[AutoCloseable]] = Nullable.empty
+  private val tilesets:       TiledMapTileSets                      = new TiledMapTileSets()
+  private var ownedResources: Nullable[DynamicArray[AutoCloseable]] = Nullable.empty
 
   /** @return collection of tilesets for this map. */
   def getTileSets: TiledMapTileSets = tilesets
@@ -29,7 +28,7 @@ class TiledMap extends maps.Map {
   /** Used by loaders to set resources when loading the map directly, without {@link AssetManager}. To be disposed in {@link #close()}.
     * @param resources
     */
-  def setOwnedResources(resources: ArrayBuffer[AutoCloseable]): Unit =
+  def setOwnedResources(resources: DynamicArray[AutoCloseable]): Unit =
     this.ownedResources = Nullable(resources)
 
   override def close(): Unit =

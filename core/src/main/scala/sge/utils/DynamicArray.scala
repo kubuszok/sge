@@ -16,6 +16,7 @@ package utils
 
 import scala.annotation.targetName
 import scala.compiletime.summonFrom
+import scala.reflect.ClassTag
 import scala.util.boundary
 
 /** Resizable array that avoids boxing for primitive types via the `MkArray` type class.
@@ -537,6 +538,96 @@ final class DynamicArray[A] private (
 
   def nonEmpty: Boolean = _size != 0
 
+  // --- Iteration ---
+
+  /** Applies `f` to each element. */
+  def foreach(f: A => Unit): Unit = {
+    var i = 0
+    while (i < _size) {
+      f(_items(i))
+      i += 1
+    }
+  }
+
+  /** Returns an `Iterator` over all elements. Supports `for` comprehensions. */
+  def iterator: Iterator[A] = new Iterator[A] {
+    private var i   = 0
+    private val len = _size
+    def hasNext: Boolean = i < len
+    def next():  A       = {
+      val v = _items(i); i += 1; v
+    }
+  }
+
+  /** Returns true if any element satisfies `p`. */
+  def exists(p: A => Boolean): Boolean = boundary {
+    var i = 0
+    while (i < _size) {
+      if (p(_items(i))) boundary.break(true)
+      i += 1
+    }
+    false
+  }
+
+  /** Returns the first element satisfying `p`, or `Nullable.empty`. */
+  def find(p: A => Boolean): Nullable[A] = boundary {
+    var i = 0
+    while (i < _size) {
+      if (p(_items(i))) boundary.break(Nullable(_items(i)))
+      i += 1
+    }
+    Nullable.empty[A]
+  }
+
+  /** Returns the number of elements satisfying `p`. */
+  def count(p: A => Boolean): Int = {
+    var c = 0
+    var i = 0
+    while (i < _size) {
+      if (p(_items(i))) c += 1
+      i += 1
+    }
+    c
+  }
+
+  /** Returns true if all elements satisfy `p`. Returns true for an empty array. */
+  def forall(p: A => Boolean): Boolean = boundary {
+    var i = 0
+    while (i < _size) {
+      if (!p(_items(i))) boundary.break(false)
+      i += 1
+    }
+    true
+  }
+
+  /** Returns the index of the first element satisfying `p`, or -1. */
+  def indexWhere(p: A => Boolean): Int = boundary {
+    var i = 0
+    while (i < _size) {
+      if (p(_items(i))) boundary.break(i)
+      i += 1
+    }
+    -1
+  }
+
+  // --- Operator aliases (ArrayBuffer compatibility) ---
+
+  /** Alias for `add`. */
+  @targetName("plusEquals")
+  def +=(value: A): Unit = add(value)
+
+  /** Alias for `removeValue`. */
+  @targetName("minusEquals")
+  def -=(value: A): Unit = { removeValue(value); () }
+
+  /** Alias for `removeAll`. */
+  @targetName("minusMinusEquals")
+  def --=(other: DynamicArray[? <: A]): Unit = { removeAll(other); () }
+
+  /** Appends all elements from a Scala `Iterable`. */
+  def addAll(items: Iterable[A]): Unit =
+    items.foreach(add)
+
   // --- Standard ---
 
   override def hashCode(): Int =
@@ -644,8 +735,17 @@ object DynamicArray {
     wrapWith(mk, array)
   }
 
-  /** Creates a DynamicArray with an explicit MkArray instance. For use by collection internals. */
-  private[utils] def createWithMk[A](mk: MkArray[A], capacity: Int, preserveOrder: Boolean): DynamicArray[A] =
+  /** Creates a DynamicArray that wraps an existing array, using `ClassTag` to derive `MkArray`.
+    *
+    * Use this when the element type is a generic type parameter with `ClassTag` but without a concrete `MkArray` in scope (e.g. `T: ClassTag` without `T <: AnyRef`).
+    */
+  def wrapRefUnchecked[A: ClassTag](array: Array[A]): DynamicArray[A] = {
+    val mk = MkArray.anyRef[AnyRef].asInstanceOf[MkArray[A]]
+    wrapWith(mk, array)
+  }
+
+  /** Creates a DynamicArray with an explicit MkArray instance. For use by collection internals or when `T` is a type parameter without a concrete `MkArray` in scope. */
+  private[sge] def createWithMk[A](mk: MkArray[A], capacity: Int, preserveOrder: Boolean): DynamicArray[A] =
     create(mk, capacity, preserveOrder)
 
   // Non-inline helpers to avoid @publicInBinary requirement on the private constructor

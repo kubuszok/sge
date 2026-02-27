@@ -13,9 +13,7 @@ package ui
 
 import sge.math.Interpolation
 import sge.scenes.scene2d.actions.Actions
-import sge.utils.{ Nullable, Timer }
-
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, Timer }
 
 /** Keeps track of an application's tooltips.
   * @author
@@ -51,7 +49,7 @@ class TooltipManager()(using sge: Sge) {
     */
   var edgeDistance: Float = 7
 
-  val shown: ArrayBuffer[Tooltip[?]] = ArrayBuffer.empty
+  val shown: DynamicArray[Tooltip[?]] = DynamicArray[Tooltip[?]]()
 
   var time: Float = initialTime
 
@@ -69,7 +67,7 @@ class TooltipManager()(using sge: Sge) {
           ta.getStage.foreach { stage =>
             stage.addActor(tooltip.container)
             tooltip.container.toFront()
-            shown += tooltip
+            shown.add(tooltip)
 
             tooltip.container.clearActions()
             showAction(tooltip)
@@ -108,7 +106,7 @@ class TooltipManager()(using sge: Sge) {
     showTooltip = Nullable.empty
     showTask.cancel()
     if (tooltip.container.hasParent) {
-      shown -= tooltip
+      shown.removeValue(tooltip)
       hideAction(tooltip)
       resetTask.cancel()
       Timer.schedule(resetTask, resetTime)

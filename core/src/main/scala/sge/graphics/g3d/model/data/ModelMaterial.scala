@@ -12,7 +12,7 @@ package g3d
 package model
 package data
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 class ModelMaterial {
   var id: String = scala.compiletime.uninitialized
@@ -28,7 +28,7 @@ class ModelMaterial {
   var shininess: Float = 0f
   var opacity:   Float = 1.0f
 
-  var textures: ArrayBuffer[ModelTexture] = scala.compiletime.uninitialized
+  var textures: DynamicArray[ModelTexture] = scala.compiletime.uninitialized
 }
 
 object ModelMaterial {

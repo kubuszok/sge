@@ -15,6 +15,7 @@ import sge.graphics.Pixmap.Format
 import scala.annotation.targetName
 
 import scala.collection.mutable
+import sge.utils.DynamicArray
 
 /** Open GLES wrapper for TextureArray
   * @author
@@ -94,8 +95,8 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
 }
 
 object TextureArray {
-  final val managedTextureArrays: mutable.Map[Application, mutable.ArrayBuffer[TextureArray]] =
-    mutable.Map[Application, mutable.ArrayBuffer[TextureArray]]()
+  final val managedTextureArrays: mutable.Map[Application, DynamicArray[TextureArray]] =
+    mutable.Map[Application, DynamicArray[TextureArray]]()
 
   private def getInternalHandles(internalPaths: String*)(using sge: Sge): Array[FileHandle] = {
     val handles = new Array[FileHandle](internalPaths.length)
@@ -105,12 +106,8 @@ object TextureArray {
   }
 
   private def addManagedTexture(app: Application, texture: TextureArray): Unit = {
-    var managedTextureArray = managedTextureArrays.get(app)
-    if (managedTextureArray.isEmpty) {
-      managedTextureArray = Some(mutable.ArrayBuffer[TextureArray]())
-      managedTextureArrays.put(app, managedTextureArray.get)
-    }
-    managedTextureArray.get.addOne(texture)
+    val managedTextureArray = managedTextureArrays.getOrElseUpdate(app, DynamicArray[TextureArray]())
+    managedTextureArray.add(texture)
   }
 
   /** Clears all managed TextureArrays. This is an internal method. Do not use it! */
@@ -122,9 +119,12 @@ object TextureArray {
     val managedTextureArray = managedTextureArrays.get(app)
     if (managedTextureArray.isEmpty) return
 
-    for (i <- managedTextureArray.get.indices) {
+    var i = 0
+    val n = managedTextureArray.get.size
+    while (i < n) {
       val textureArray = managedTextureArray.get(i)
       textureArray.reload()
+      i += 1
     }
   }
 

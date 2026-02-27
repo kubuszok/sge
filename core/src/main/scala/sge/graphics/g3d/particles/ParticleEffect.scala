@@ -11,12 +11,12 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.batches.ParticleBatch
+import sge.utils.DynamicArray
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
 import sge.utils.Nullable
@@ -27,24 +27,24 @@ import sge.utils.Nullable
   */
 class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
 
-  private var controllers: ArrayBuffer[ParticleController] = new ArrayBuffer[ParticleController](3)
-  private var bounds:      Nullable[BoundingBox]           = Nullable.empty
+  private var controllers: DynamicArray[ParticleController] = DynamicArray[ParticleController](3)
+  private var bounds:      Nullable[BoundingBox]            = Nullable.empty
 
   def this(effect: ParticleEffect) = {
     this()
-    controllers = new ArrayBuffer[ParticleController](effect.controllers.size)
+    controllers = DynamicArray[ParticleController](effect.controllers.size)
     var i = 0
     val n = effect.controllers.size
     while (i < n) {
-      controllers += effect.controllers(i).copy()
+      controllers.add(effect.controllers(i).copy())
       i += 1
     }
   }
 
   def this(emitters: ParticleController*) = {
     this()
-    this.controllers = new ArrayBuffer[ParticleController](emitters.length)
-    this.controllers ++= emitters
+    this.controllers = DynamicArray[ParticleController](emitters.length)
+    for (e <- emitters) this.controllers.add(e)
   }
 
   def init(): Unit = {
@@ -186,7 +186,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
   }
 
   /** @return all particle controllers. */
-  def getControllers(): ArrayBuffer[ParticleController] =
+  def getControllers(): DynamicArray[ParticleController] =
     controllers
 
   /** Returns the controller with the specified name, or null. */
@@ -224,7 +224,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
 
   /** Assign one batch, among those passed in, to each controller. The batch must be compatible with the controller to be assigned.
     */
-  def setBatch(batches: ArrayBuffer[ParticleBatch[?]]): Unit =
+  def setBatch(batches: DynamicArray[ParticleBatch[?]]): Unit =
     for (controller <- controllers)
       boundary {
         for (batch <- batches)

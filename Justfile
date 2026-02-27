@@ -124,6 +124,14 @@ fmt:
 # Compile, format, compile again
 compile-fmt: compile fmt compile
 
+# Run all tests
+test:
+    sbt --client test
+
+# Run a specific test suite
+test-only suite:
+    sbt --client "core/testOnly {{suite}}"
+
 # ── Metals MCP ────────────────────────────────────────────────────
 
 # metals-mcp snapshot version (check https://github.com/scalameta/metals/actions for latest)

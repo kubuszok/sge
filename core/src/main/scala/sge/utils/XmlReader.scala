@@ -17,8 +17,7 @@ import scala.xml.{ Elem, Node, XML }
 
 /** Lightweight XML parser.
   *
-  * Parses XML text into a tree of [[XmlReader.Element]] nodes. Uses scala-xml for parsing, then converts to the LibGDX-compatible
-  * tree structure.
+  * Parses XML text into a tree of [[XmlReader.Element]] nodes. Uses scala-xml for parsing, then converts to the LibGDX-compatible tree structure.
   */
 class XmlReader {
 
@@ -36,10 +35,9 @@ class XmlReader {
         sb.appendAll(buffer, 0, len)
         len = reader.read(buffer)
       }
-    } finally {
-      try { reader.close() }
+    } finally
+      try reader.close()
       catch { case _: Exception => () }
-    }
     parse(sb.toString)
   }
 
@@ -57,8 +55,8 @@ object XmlReader {
   /** An XML element with attributes, children, and text content. */
   class Element(val name: String, private var _parent: Nullable[Element]) {
     private var attributes: Nullable[ObjectMap[String, String]] = Nullable.empty
-    private var children: Nullable[DynamicArray[Element]]       = Nullable.empty
-    private var _text: Nullable[String]                         = Nullable.empty
+    private var children:   Nullable[DynamicArray[Element]]     = Nullable.empty
+    private var _text:      Nullable[String]                    = Nullable.empty
 
     def getParent: Nullable[Element] = _parent
 
@@ -74,13 +72,12 @@ object XmlReader {
       value.orNull
     }
 
-    def getAttribute(attrName: String, defaultValue: Nullable[String]): Nullable[String] = {
+    def getAttribute(attrName: String, defaultValue: Nullable[String]): Nullable[String] =
       if (attributes.isEmpty) defaultValue
       else {
         val value = attributes.orNull.get(attrName)
         if (value.isEmpty) defaultValue else value
       }
-    }
 
     def hasAttribute(attrName: String): Boolean =
       attributes.isDefined && attributes.orNull.containsKey(attrName)
@@ -112,19 +109,17 @@ object XmlReader {
 
     def setText(text: Nullable[String]): Unit = _text = text
 
-    def removeChild(index: Int): Unit = {
+    def removeChild(index: Int): Unit =
       if (children.isDefined) {
         val removedChild = children.orNull.removeIndex(index)
         removedChild._parent = Nullable.empty
       }
-    }
 
-    def removeChild(child: Element): Unit = {
+    def removeChild(child: Element): Unit =
       if (children.isDefined) {
         val removeSuccess = children.orNull.removeValueByRef(child)
         if (removeSuccess) child._parent = Nullable.empty
       }
-    }
 
     def remove(): Unit = {
       _parent.orNull.removeChild(this)
@@ -132,37 +127,37 @@ object XmlReader {
     }
 
     /** Returns the first child having the given name or empty, does not recurse. */
-    def getChildByName(childName: String): Nullable[Element] = {
+    def getChildByName(childName: String): Nullable[Element] =
       if (children.isEmpty) Nullable.empty
-      else boundary {
-        var i = 0
-        while (i < children.orNull.size) {
-          val element = children.orNull(i)
-          if (element.name == childName) break(Nullable(element))
-          i += 1
+      else
+        boundary {
+          var i = 0
+          while (i < children.orNull.size) {
+            val element = children.orNull(i)
+            if (element.name == childName) break(Nullable(element))
+            i += 1
+          }
+          Nullable.empty
         }
-        Nullable.empty
-      }
-    }
 
     def hasChild(childName: String): Boolean =
       children.isDefined && getChildByName(childName).isDefined
 
     /** Returns the first child having the given name or empty, recurses. */
-    def getChildByNameRecursive(childName: String): Nullable[Element] = {
+    def getChildByNameRecursive(childName: String): Nullable[Element] =
       if (children.isEmpty) Nullable.empty
-      else boundary {
-        var i = 0
-        while (i < children.orNull.size) {
-          val element = children.orNull(i)
-          if (element.name == childName) break(Nullable(element))
-          val found = element.getChildByNameRecursive(childName)
-          if (found.isDefined) break(found)
-          i += 1
+      else
+        boundary {
+          var i = 0
+          while (i < children.orNull.size) {
+            val element = children.orNull(i)
+            if (element.name == childName) break(Nullable(element))
+            val found = element.getChildByNameRecursive(childName)
+            if (found.isDefined) break(found)
+            i += 1
+          }
+          Nullable.empty
         }
-        Nullable.empty
-      }
-    }
 
     def hasChildRecursive(childName: String): Boolean =
       children.isDefined && getChildByNameRecursive(childName).isDefined
@@ -188,7 +183,7 @@ object XmlReader {
       result
     }
 
-    private def getChildrenByNameRecursivelyImpl(childName: String, result: DynamicArray[Element]): Unit = {
+    private def getChildrenByNameRecursivelyImpl(childName: String, result: DynamicArray[Element]): Unit =
       if (children.isDefined) {
         var i = 0
         while (i < children.orNull.size) {
@@ -198,7 +193,6 @@ object XmlReader {
           i += 1
         }
       }
-    }
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getFloatAttribute(attrName: String): Float =
@@ -238,7 +232,7 @@ object XmlReader {
     }
 
     /** Returns the attribute value with the specified name, or if no attribute is found, the text of a child with the name. */
-    def get(fieldName: String, defaultValue: Nullable[String]): Nullable[String] = {
+    def get(fieldName: String, defaultValue: Nullable[String]): Nullable[String] =
       if (attributes.isDefined) {
         val value = attributes.orNull.get(fieldName)
         if (value.isDefined) value
@@ -258,7 +252,6 @@ object XmlReader {
           if (t.isEmpty) defaultValue else t
         }
       }
-    }
 
     def getInt(fieldName: String): Int = {
       val value = get(fieldName, Nullable.empty)

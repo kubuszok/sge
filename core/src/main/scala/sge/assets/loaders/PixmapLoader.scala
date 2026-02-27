@@ -12,8 +12,7 @@ package loaders
 
 import sge.files.FileHandle
 import sge.graphics.Pixmap
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** {@link AssetLoader} for {@link Pixmap} instances. The Pixmap is loaded asynchronously.
   * @author
@@ -34,8 +33,8 @@ class PixmapLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader
     result.getOrElse(throw SgeError.SerializationError("Pixmap not loaded"))
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 }
 
 object PixmapLoader {

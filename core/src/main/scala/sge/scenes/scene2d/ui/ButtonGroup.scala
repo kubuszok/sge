@@ -11,8 +11,7 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** Manages a group of buttons to enforce a minimum and maximum number of checked buttons. This enables "radio button" functionality and more. A button may only be in one group at a time. <p> The
   * {@link #canCheck(Button, boolean)} method can be overridden to control if a button check or uncheck is allowed.
@@ -21,12 +20,12 @@ import sge.utils.Nullable
   */
 class ButtonGroup[T <: Button]() {
 
-  private val buttons:        ArrayBuffer[T] = ArrayBuffer.empty
-  private var checkedButtons: ArrayBuffer[T] = ArrayBuffer.empty
-  private var minCheckCount:  Int            = 1
-  private var maxCheckCount:  Int            = 1
-  private var uncheckLast:    Boolean        = true
-  private var lastChecked:    Nullable[T]    = Nullable.empty
+  private val buttons:        DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  private var checkedButtons: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  private var minCheckCount:  Int             = 1
+  private var maxCheckCount:  Int             = 1
+  private var uncheckLast:    Boolean         = true
+  private var lastChecked:    Nullable[T]     = Nullable.empty
 
   def this(buttons: T*) = {
     this()
@@ -40,7 +39,7 @@ class ButtonGroup[T <: Button]() {
     val shouldCheck = button.isChecked || buttons.size < minCheckCount
     button.setChecked(false)
     button.buttonGroup = Nullable(this)
-    buttons += button
+    buttons.add(button)
     button.setChecked(shouldCheck)
   }
 
@@ -49,8 +48,8 @@ class ButtonGroup[T <: Button]() {
 
   def remove(button: T): Unit = {
     button.buttonGroup = Nullable.empty
-    buttons -= button
-    checkedButtons -= button
+    buttons.removeValue(button)
+    checkedButtons.removeValue(button)
   }
 
   def removeAll(buttons: T*): Unit =
@@ -89,7 +88,7 @@ class ButtonGroup[T <: Button]() {
     if (!newState) {
       // Keep button checked to enforce minCheckCount.
       if (checkedButtons.size <= minCheckCount) scala.util.boundary.break(false)
-      checkedButtons -= button
+      checkedButtons.removeValue(button)
     } else {
       // Keep button unchecked to enforce maxCheckCount.
       if (maxCheckCount != -1 && checkedButtons.size >= maxCheckCount) {
@@ -108,7 +107,7 @@ class ButtonGroup[T <: Button]() {
           }
         }
       }
-      checkedButtons += button
+      checkedButtons.add(button)
       lastChecked = Nullable(button)
     }
 
@@ -138,9 +137,9 @@ class ButtonGroup[T <: Button]() {
     if (checkedButtons.nonEmpty) buttons.indexOf(checkedButtons(0))
     else -1
 
-  def getAllChecked: ArrayBuffer[T] = checkedButtons
+  def getAllChecked: DynamicArray[T] = checkedButtons
 
-  def getButtons: ArrayBuffer[T] = buttons
+  def getButtons: DynamicArray[T] = buttons
 
   /** Sets the minimum number of buttons that must be checked. Default is 1. */
   def setMinCheckCount(minCheckCount: Int): Unit =

@@ -13,7 +13,6 @@ package g2d
 import java.io.BufferedReader
 import java.io.IOException
 
-import scala.collection.mutable.ArrayBuffer
 import sge.assets.AssetDescriptor
 import sge.assets.AssetLoaderParameters
 import sge.assets.AssetManager
@@ -23,7 +22,7 @@ import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.math.EarClippingTriangulator
-import sge.utils.{ Nullable, SgeError, StreamUtils }
+import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
 
 /** loads {@link PolygonRegion PolygonRegions} using a {@link com.badlogic.gdx.graphics.g2d.PolygonRegionLoader}
   * @author
@@ -50,7 +49,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     * to the returned Array. Otherwise a sibling of the given file with the same name and the first found extension in {@link PolygonRegionParameters#textureExtensions params.textureExtensions} will
     * be used. If no suitable file is found, the returned Array will be empty.
     */
-  override def getDependencies(fileName: String, file: FileHandle, params: PolygonRegionLoader.PolygonRegionParameters): ArrayBuffer[AssetDescriptor[?]] = {
+  override def getDependencies(fileName: String, file: FileHandle, params: PolygonRegionLoader.PolygonRegionParameters): DynamicArray[AssetDescriptor[?]] = {
     val actualParams = Nullable(params).getOrElse(defaultParameters)
     var image: Nullable[String] = Nullable.empty
     try {
@@ -78,11 +77,11 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     }
 
     if (image.isDefined) {
-      val deps = ArrayBuffer[AssetDescriptor[?]]()
-      deps += new AssetDescriptor[Texture](file.sibling(image.getOrElse("")), classOf[Texture])
+      val deps = DynamicArray[AssetDescriptor[?]]()
+      deps.add(new AssetDescriptor[Texture](file.sibling(image.getOrElse("")), classOf[Texture]))
       deps
     } else {
-      ArrayBuffer.empty
+      DynamicArray[AssetDescriptor[?]]()
     }
   }
 

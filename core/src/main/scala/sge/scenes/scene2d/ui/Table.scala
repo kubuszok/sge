@@ -11,13 +11,12 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.Rectangle
 import sge.scenes.scene2d.utils.{ Drawable, Layout }
-import sge.utils.{ Align, Nullable, Pool }
+import sge.utils.{ Align, DynamicArray, Nullable, Pool }
 
 /** A group that sizes and positions children using table constraints.
   *
@@ -37,10 +36,10 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   private var rows:           Int     = 0
   private var implicitEndRow: Boolean = false
 
-  private val cells:           ArrayBuffer[Cell[?]]           = ArrayBuffer.empty
-  private val cellDefaults:    Cell[?]                        = obtainCell()
-  private val _columnDefaults: ArrayBuffer[Nullable[Cell[?]]] = ArrayBuffer.empty
-  private var rowDefaults:     Nullable[Cell[?]]              = Nullable.empty
+  private val cells:           DynamicArray[Cell[?]]           = DynamicArray[Cell[?]]()
+  private val cellDefaults:    Cell[?]                         = obtainCell()
+  private val _columnDefaults: DynamicArray[Nullable[Cell[?]]] = DynamicArray[Nullable[Cell[?]]]()
+  private var rowDefaults:     Nullable[Cell[?]]               = Nullable.empty
 
   private var sizeInvalid:     Boolean      = true
   private var columnMinWidth:  Array[Float] = Array.empty
@@ -62,8 +61,8 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   var padRight:   Value = backgroundRight
   var tableAlign: Align = Align.center
 
-  var tableDebug: Table.Debug                      = Table.Debug.none
-  var debugRects: Nullable[ArrayBuffer[DebugRect]] = Nullable.empty
+  var tableDebug: Table.Debug                       = Table.Debug.none
+  var debugRects: Nullable[DynamicArray[DebugRect]] = Nullable.empty
 
   var background:    Nullable[Drawable] = Nullable.empty
   private var _clip: Boolean            = false
@@ -237,7 +236,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       cell.column = 0
       cell._row = 0
     }
-    cells += cell
+    cells.add(cell)
 
     cell.set(cellDefaults)
     if (cell.column < _columnDefaults.size) cell.merge(_columnDefaults(cell.column))
@@ -372,10 +371,10 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       if (column >= this._columnDefaults.size) {
         var i = this._columnDefaults.size
         while (i < column) {
-          this._columnDefaults += Nullable.empty
+          this._columnDefaults.add(Nullable.empty)
           i += 1
         }
-        this._columnDefaults += Nullable(c)
+        this._columnDefaults.add(Nullable(c))
       } else {
         this._columnDefaults(column) = Nullable(c)
       }
@@ -396,7 +395,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
     }
 
   /** Returns the cells for this table. */
-  def getCells: ArrayBuffer[Cell[?]] = cells
+  def getCells: DynamicArray[Cell[?]] = cells
 
   override def getPrefWidth: Float = {
     if (sizeInvalid) computeSize()
@@ -1254,7 +1253,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
   }
 
   private def clearDebugRects(): Unit = {
-    if (debugRects.isEmpty) debugRects = Nullable(ArrayBuffer.empty[DebugRect])
+    if (debugRects.isEmpty) debugRects = Nullable(DynamicArray[DebugRect]())
     debugRects.foreach { rects =>
       DebugRect.pool.freeAll(rects)
       rects.clear()

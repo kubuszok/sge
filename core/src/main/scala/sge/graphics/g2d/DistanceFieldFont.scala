@@ -14,15 +14,14 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.ShaderProgram
-import sge.utils.Nullable
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Renders bitmap fonts using distance field textures, see the <a href="https://libgdx.com/wiki/graphics/2d/fonts/distance-field-fonts">Distance Field Fonts wiki article</a> for usage. Initialize the
   * SpriteBatch with the {@link #createDistanceFieldShader()} shader. <p> Attention: The batch is flushed before and after each string is rendered.
   * @author
   *   Florian Falkner
   */
-class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[ArrayBuffer[TextureRegion]], integer: Boolean)(using sge: Sge) extends BitmapFont(data, pageRegions, integer) {
+class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray[TextureRegion]], integer: Boolean)(using sge: Sge) extends BitmapFont(data, pageRegions, integer) {
   super.load(data)
 
   private var distanceFieldSmoothing: Float = scala.compiletime.uninitialized
@@ -33,7 +32,7 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[ArrayBuffer[
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using sge: Sge) = {
     this(
       new BitmapFontData(Nullable(fontFile), flip),
-      Nullable(ArrayBuffer(new TextureRegion(new Texture(imageFile, false)))),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
       integer
     )
     setOwnsTexture(true)
@@ -45,7 +44,9 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[ArrayBuffer[
   def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) =
     this(
       new BitmapFontData(Nullable(fontFile), flip),
-      region.fold(Nullable.empty[ArrayBuffer[TextureRegion]])(r => Nullable(ArrayBuffer(r))),
+      region.fold(Nullable.empty[DynamicArray[TextureRegion]]) { r =>
+        val da = DynamicArray[TextureRegion](); da.add(r); Nullable(da)
+      },
       true
     )
 

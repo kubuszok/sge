@@ -8,13 +8,12 @@
  */
 package sge.assets
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Logger
+import sge.utils.{ DynamicArray, Logger }
 
 // TODO: stub until we have: loaders, g2d, g3d, etc
 trait AssetManager {
-  def getLogLevel:                                                                       Int
-  def addDependencies(fileName:  String, dependencies: ArrayBuffer[AssetDescriptor[?]]): Unit
-  def get[T](fileName:           String, `type`:       Class[T]):                        T
-  def getAssetFileName[T](asset: T):                                                     String
+  def getLogLevel:                                                                        Int
+  def addDependencies(fileName:  String, dependencies: DynamicArray[AssetDescriptor[?]]): Unit
+  def get[T](fileName:           String, `type`:       Class[T]):                         T
+  def getAssetFileName[T](asset: T):                                                      String
 }

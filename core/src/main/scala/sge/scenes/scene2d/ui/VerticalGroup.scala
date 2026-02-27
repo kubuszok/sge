@@ -11,12 +11,9 @@ package scenes
 package scene2d
 package ui
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.glutils.ShapeRenderer
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.Align
-import sge.utils.Nullable
+import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A group that lays out its children top to bottom vertically, with optional wrapping. {@link #getChildren()} can be sorted to change the order of the actors (eg {@link Actor#setZIndex(int)}). This
   * can be easier than using {@link Table} when actors need to be inserted into or removed from the middle of the group. {@link #invalidate()} must be called after changing the children order.
@@ -30,11 +27,11 @@ import sge.utils.Nullable
   */
 class VerticalGroup extends WidgetGroup {
 
-  private var _prefWidth:    Float                        = 0
-  private var _prefHeight:   Float                        = 0
-  private var lastPrefWidth: Float                        = 0
-  private var sizeInvalid:   Boolean                      = true
-  private var columnSizes:   Nullable[ArrayBuffer[Float]] = Nullable.empty // column height, column width, ...
+  private var _prefWidth:    Float                         = 0
+  private var _prefHeight:   Float                         = 0
+  private var lastPrefWidth: Float                         = 0
+  private var sizeInvalid:   Boolean                       = true
+  private var columnSizes:   Nullable[DynamicArray[Float]] = Nullable.empty // column height, column width, ...
 
   private var _align:       Align   = Align.top
   private var _columnAlign: Align   = Align.center
@@ -66,7 +63,7 @@ class VerticalGroup extends WidgetGroup {
     if (_wrap) {
       _prefHeight = 0
       val colSizes = columnSizes.getOrElse {
-        val buf = ArrayBuffer[Float]()
+        val buf = DynamicArray[Float]()
         columnSizes = Nullable(buf)
         buf
       }
@@ -99,8 +96,8 @@ class VerticalGroup extends WidgetGroup {
         val incrY0 = height + (if (y > 0) space else 0)
         var incrY  = incrY0
         if (y + incrY > groupHeight && y > 0) {
-          colSizes += y
-          colSizes += columnWidth
+          colSizes.add(y)
+          colSizes.add(columnWidth)
           _prefHeight = Math.max(_prefHeight, y + pad)
           if (x > 0) x += wrapSpace
           x += columnWidth
@@ -112,8 +109,8 @@ class VerticalGroup extends WidgetGroup {
         columnWidth = Math.max(columnWidth, width)
         i += incr
       }
-      colSizes += y
-      colSizes += columnWidth
+      colSizes.add(y)
+      colSizes.add(columnWidth)
       _prefHeight = Math.max(_prefHeight, y + pad)
       if (x > 0) x += wrapSpace
       _prefWidth = Math.max(_prefWidth, x + columnWidth)
@@ -249,7 +246,7 @@ class VerticalGroup extends WidgetGroup {
     groupHeight -= _padTop
     align = _columnAlign
 
-    val colSizes = columnSizes.getOrElse(ArrayBuffer[Float]())
+    val colSizes = columnSizes.getOrElse(DynamicArray[Float]())
     val children = getChildren
     var n        = children.size
     var i        = if (_reverse) n - 1 else 0

@@ -11,7 +11,7 @@ package graphics
 package g3d
 package utils
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Responsible for sorting [[Renderable]] lists by whatever criteria (material, distance to camera, etc.)
   * @author
@@ -25,5 +25,5 @@ trait RenderableSorter {
     * @param renderables
     *   the array of renderables to be sorted
     */
-  def sort(camera: Camera, renderables: ArrayBuffer[Renderable]): Unit
+  def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit
 }

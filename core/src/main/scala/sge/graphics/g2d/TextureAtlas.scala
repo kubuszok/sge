@@ -11,7 +11,8 @@ package graphics
 package g2d
 
 import java.io.BufferedReader
-import scala.collection.mutable.{ ArrayBuffer, Map as MutableMap, Set as MutableSet }
+import scala.collection.mutable.{ Map as MutableMap, Set as MutableSet }
+import sge.utils.DynamicArray
 import scala.util.boundary
 import scala.language.implicitConversions
 import sge.Sge
@@ -27,8 +28,8 @@ import sge.utils.{ Nullable, SgeError, StreamUtils }
   *   Nathan Sweet
   */
 class TextureAtlas() extends AutoCloseable {
-  private val textures: MutableSet[Texture]                   = MutableSet.empty[Texture]
-  private val regions:  ArrayBuffer[TextureAtlas.AtlasRegion] = ArrayBuffer.empty[TextureAtlas.AtlasRegion]
+  private val textures: MutableSet[Texture]                    = MutableSet.empty[Texture]
+  private val regions:  DynamicArray[TextureAtlas.AtlasRegion] = DynamicArray[TextureAtlas.AtlasRegion]()
 
   /** Loads the specified pack file using FileType.Internal, using the parent directory of the pack file to find the page images.
     */
@@ -100,7 +101,7 @@ class TextureAtlas() extends AutoCloseable {
       atlasRegion.names = region.names
       atlasRegion.values = region.values
       if (region.flip) atlasRegion.flip(false, true)
-      regions.addOne(atlasRegion)
+      regions.add(atlasRegion)
     }
   }
 
@@ -109,7 +110,7 @@ class TextureAtlas() extends AutoCloseable {
     textures.addOne(texture)
     val region = new TextureAtlas.AtlasRegion(texture, x, y, width, height)
     region.name = name
-    regions.addOne(region)
+    regions.add(region)
     region
   }
 
@@ -118,7 +119,7 @@ class TextureAtlas() extends AutoCloseable {
     textures.addOne(textureRegion.texture)
     val region = new TextureAtlas.AtlasRegion(textureRegion)
     region.name = name
-    regions.addOne(region)
+    regions.add(region)
     region
   }
 
@@ -129,32 +130,32 @@ class TextureAtlas() extends AutoCloseable {
   /** Returns the first region found with the specified name. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple times.
     */
   def findRegion(name: String): Nullable[TextureAtlas.AtlasRegion] =
-    regions.find(_.name == name).orNull
+    regions.iterator.find(_.name == name).orNull
 
   /** Returns the first region found with the specified name and index. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple
     * times.
     */
   def findRegion(name: String, index: Int): Nullable[TextureAtlas.AtlasRegion] =
-    regions.find(r => r.name == name && r.index == index).orNull
+    regions.iterator.find(r => r.name == name && r.index == index).orNull
 
   /** Returns all regions with the specified name, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions, so the result should be
     * cached rather than calling this method multiple times.
     */
   def findRegions(name: String): Array[TextureAtlas.AtlasRegion] =
-    regions.filter(_.name == name).map(r => new TextureAtlas.AtlasRegion(r)).toArray
+    regions.iterator.filter(_.name == name).map(r => new TextureAtlas.AtlasRegion(r)).toArray
 
   /** Returns all regions in the atlas as sprites. This method creates a new sprite for each region, so the result should be stored rather than calling this method multiple times.
     * @see
     *   #createSprite(String)
     */
   def createSprites(): Array[Sprite] =
-    regions.map(newSprite).toArray
+    regions.iterator.map(newSprite).toArray
 
   /** Returns the first region found with the specified name as a sprite. If whitespace was stripped from the region when it was packed, the sprite is automatically positioned as if whitespace had not
     * been stripped. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached rather than calling this method multiple times.
     */
   def createSprite(name: String): Nullable[Sprite] =
-    regions.find(_.name == name).map(newSprite).orNull
+    regions.iterator.find(_.name == name).map(newSprite).orNull
 
   /** Returns the first region found with the specified name and index as a sprite. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached
     * rather than calling this method multiple times.
@@ -162,7 +163,7 @@ class TextureAtlas() extends AutoCloseable {
     *   #createSprite(String)
     */
   def createSprite(name: String, index: Int): Nullable[Sprite] =
-    regions.find(r => r.name == name && r.index == index).map(newSprite).orNull
+    regions.iterator.find(r => r.name == name && r.index == index).map(newSprite).orNull
 
   /** Returns all regions with the specified name as sprites, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions and constructs new
     * sprites, so the result should be cached rather than calling this method multiple times.
@@ -170,7 +171,7 @@ class TextureAtlas() extends AutoCloseable {
     *   #createSprite(String)
     */
   def createSprites(name: String): Array[Sprite] =
-    regions.filter(_.name == name).map(newSprite).toArray
+    regions.iterator.filter(_.name == name).map(newSprite).toArray
 
   private def newSprite(region: TextureAtlas.AtlasRegion): Sprite =
     if (region.packedWidth == region.originalWidth && region.packedHeight == region.originalHeight) {
@@ -190,7 +191,7 @@ class TextureAtlas() extends AutoCloseable {
     * constructs a new ninepatch, so the result should be cached rather than calling this method multiple times.
     */
   def createPatch(name: String): Nullable[NinePatch] =
-    regions
+    regions.iterator
       .find(_.name == name)
       .flatMap { region =>
         val splits = region.findValue("split")
@@ -219,8 +220,8 @@ class TextureAtlas() extends AutoCloseable {
 object TextureAtlas {
 
   class TextureAtlasData {
-    val pages:   ArrayBuffer[Page]   = ArrayBuffer.empty[Page]
-    val regions: ArrayBuffer[Region] = ArrayBuffer.empty[Region]
+    val pages:   DynamicArray[Page]   = DynamicArray[Page]()
+    val regions: DynamicArray[Region] = DynamicArray[Region]()
 
     def this(packFile: FileHandle, imagesDir: FileHandle, flip: Boolean) = {
       this()
@@ -371,9 +372,9 @@ object TextureAtlas {
           }
         }
         // Page and region entries.
-        var page:   Nullable[Page]                    = Nullable.empty
-        var names:  Nullable[ArrayBuffer[String]]     = Nullable.empty
-        var values: Nullable[ArrayBuffer[Array[Int]]] = Nullable.empty
+        var page:   Nullable[Page]                     = Nullable.empty
+        var names:  Nullable[DynamicArray[String]]     = Nullable.empty
+        var values: Nullable[DynamicArray[Array[Int]]] = Nullable.empty
         boundary {
           while (true) {
             if (line.isEmpty) boundary.break()
@@ -391,7 +392,7 @@ object TextureAtlas {
                   if (field.isDefined) field.get.parse(p) // Silently ignore unknown page fields.
                 }
               }
-              pages.addOne(p)
+              pages.add(p)
               page = Nullable(p)
             } else {
               val region = new Region()
@@ -407,10 +408,10 @@ object TextureAtlas {
                     field.get.parse(region)
                   else {
                     if (names.isEmpty) {
-                      names = Nullable(ArrayBuffer.empty[String])
-                      values = Nullable(ArrayBuffer.empty[Array[Int]])
+                      names = Nullable(DynamicArray[String]())
+                      values = Nullable(DynamicArray[Array[Int]]())
                     }
-                    names.foreach(_.addOne(entry(0)))
+                    names.foreach(_.add(entry(0)))
                     val entryValues = new Array[Int](count)
                     for (i <- 0 until count)
                       try
@@ -418,7 +419,7 @@ object TextureAtlas {
                       catch {
                         case _: NumberFormatException => // Silently ignore non-integer values.
                       }
-                    values.foreach(_.addOne(entryValues))
+                    values.foreach(_.add(entryValues))
                   }
                 }
               }
@@ -427,14 +428,14 @@ object TextureAtlas {
                 region.originalHeight = region.height
               }
               names.foreach { ns =>
-                if (ns.length > 0) {
+                if (ns.size > 0) {
                   region.names = Nullable(ns.toArray)
                   values.foreach { vs => region.values = Nullable(vs.toArray) }
                   ns.clear()
                   values.foreach(_.clear())
                 }
               }
-              regions.addOne(region)
+              regions.add(region)
             }
           }
         }
@@ -445,11 +446,13 @@ object TextureAtlas {
         StreamUtils.closeQuietly(reader)
 
       if (hasIndexes) {
-        regions.sortInPlaceWith { (r1, r2) =>
-          val i1 = if (r1.index == -1) Int.MaxValue else r1.index
-          val i2 = if (r2.index == -1) Int.MaxValue else r2.index
-          i1 < i2
-        }
+        regions.sort(
+          Ordering.fromLessThan[Region] { (r1, r2) =>
+            val i1 = if (r1.index == -1) Int.MaxValue else r1.index
+            val i2 = if (r2.index == -1) Int.MaxValue else r2.index
+            i1 < i2
+          }
+        )
       }
     }
 

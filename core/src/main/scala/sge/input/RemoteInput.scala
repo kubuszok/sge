@@ -11,7 +11,6 @@ package input
 
 import java.io.{ DataInputStream, IOException }
 import java.net.{ InetAddress, ServerSocket, Socket }
-import scala.collection.mutable.ArrayBuffer
 import sge.utils.{ Nullable, SgeError }
 import sge.Input.{ KeyboardHeightObserver, OnscreenKeyboardType, Orientation, Peripheral, VibrationType }
 import sge.input.NativeInputConfiguration

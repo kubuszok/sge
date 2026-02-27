@@ -29,7 +29,6 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.g2d.Gdx2DPixmap
 import sge.utils.SgeError
 import sge.utils.StreamUtils
-import scala.collection.mutable.ArrayBuffer
 
 /** Writes Pixmaps to various formats.
   * @author

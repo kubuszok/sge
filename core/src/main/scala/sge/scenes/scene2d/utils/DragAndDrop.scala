@@ -11,11 +11,11 @@ package scenes
 package scene2d
 package utils
 
-import scala.collection.mutable.{ ArrayBuffer, Map => MutableMap }
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.math.Vector2
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Manages drag and drop operations through registered drag sources and drop targets.
   * @author
@@ -30,7 +30,7 @@ class DragAndDrop {
   private var removeDragActor:   Boolean                          = false
   private var _target:           Nullable[Target]                 = Nullable.empty
   private var isValidTarget:     Boolean                          = false
-  private val targets:           ArrayBuffer[Target]              = ArrayBuffer.empty
+  private val targets:           DynamicArray[Target]             = DynamicArray[Target]()
   private val sourceListeners:   MutableMap[Source, DragListener] = MutableMap.empty
   private var tapSquareSize:     Float                            = 8
   private var button:            Int                              = 0
@@ -221,10 +221,10 @@ class DragAndDrop {
     }
 
   def addTarget(target: Target): Unit =
-    targets += target
+    targets.add(target)
 
   def removeTarget(target: Target): Unit =
-    targets -= target
+    targets.removeValue(target)
 
   /** Removes all targets and sources. */
   def clear(): Unit = {

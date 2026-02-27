@@ -12,14 +12,13 @@ package g3d
 package particles
 package influencers
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.assets.AssetManager
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ResourceData
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 
 /** It's an {@link Influencer} which assigns a region of a {@link Texture} to the particles.
@@ -30,20 +29,20 @@ abstract class RegionInfluencer extends Influencer {
 
   import RegionInfluencer.*
 
-  var regions:                 ArrayBuffer[AspectTextureRegion] = scala.compiletime.uninitialized
-  protected var regionChannel: FloatChannel                     = scala.compiletime.uninitialized
-  var atlasName:               Nullable[String]                 = Nullable.empty
+  var regions:                 DynamicArray[AspectTextureRegion] = scala.compiletime.uninitialized
+  protected var regionChannel: FloatChannel                      = scala.compiletime.uninitialized
+  var atlasName:               Nullable[String]                  = Nullable.empty
 
   def this(regionsCount: Int) = {
     this()
-    this.regions = new ArrayBuffer[AspectTextureRegion](regionsCount)
+    this.regions = DynamicArray[AspectTextureRegion](regionsCount)
   }
 
   /** All the regions must be defined on the same Texture */
   def this(textureRegions: Array[TextureRegion]) = {
     this()
     atlasName = Nullable.empty
-    this.regions = new ArrayBuffer[AspectTextureRegion](textureRegions.length)
+    this.regions = DynamicArray[AspectTextureRegion](textureRegions.length)
     add(textureRegions*)
   }
 
@@ -52,24 +51,24 @@ abstract class RegionInfluencer extends Influencer {
 
   def this(regionInfluencer: RegionInfluencer) = {
     this()
-    this.regions = new ArrayBuffer[AspectTextureRegion](regionInfluencer.regions.size)
+    this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
     var i = 0
     while (i < regionInfluencer.regions.size) {
-      regions += new AspectTextureRegion(regionInfluencer.regions(i))
+      regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
       i += 1
     }
   }
 
   /** Initializes with a single default region covering the full texture */
   protected def initDefault(): Unit = {
-    this.regions = new ArrayBuffer[AspectTextureRegion](1)
+    this.regions = DynamicArray[AspectTextureRegion](1)
     val aspectRegion = new AspectTextureRegion()
     aspectRegion.u = 0
     aspectRegion.v = 0
     aspectRegion.u2 = 1
     aspectRegion.v2 = 1
     aspectRegion.halfInvAspectRatio = 0.5f
-    regions += aspectRegion
+    regions.add(aspectRegion)
   }
 
   def setAtlasName(atlasName: Nullable[String]): Unit =
@@ -77,7 +76,7 @@ abstract class RegionInfluencer extends Influencer {
 
   def add(regions: TextureRegion*): Unit =
     for (region <- regions)
-      this.regions += new AspectTextureRegion(region)
+      this.regions.add(new AspectTextureRegion(region))
 
   def clear(): Unit = {
     atlasName = Nullable.empty
@@ -186,10 +185,10 @@ object RegionInfluencer {
 
     def this(regionInfluencer: Single) = {
       this()
-      this.regions = new ArrayBuffer[AspectTextureRegion](regionInfluencer.regions.size)
+      this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions += new AspectTextureRegion(regionInfluencer.regions(i))
+        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -197,7 +196,7 @@ object RegionInfluencer {
     def this(textureRegion: TextureRegion) = {
       this()
       atlasName = Nullable.empty
-      this.regions = new ArrayBuffer[AspectTextureRegion](1)
+      this.regions = DynamicArray[AspectTextureRegion](1)
       add(textureRegion)
     }
 
@@ -230,10 +229,10 @@ object RegionInfluencer {
 
     def this(regionInfluencer: Random) = {
       this()
-      this.regions = new ArrayBuffer[AspectTextureRegion](regionInfluencer.regions.size)
+      this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions += new AspectTextureRegion(regionInfluencer.regions(i))
+        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -241,7 +240,7 @@ object RegionInfluencer {
     def this(textureRegion: TextureRegion) = {
       this()
       atlasName = Nullable.empty
-      this.regions = new ArrayBuffer[AspectTextureRegion](1)
+      this.regions = DynamicArray[AspectTextureRegion](1)
       add(textureRegion)
     }
 
@@ -278,10 +277,10 @@ object RegionInfluencer {
 
     def this(regionInfluencer: Animated) = {
       this()
-      this.regions = new ArrayBuffer[AspectTextureRegion](regionInfluencer.regions.size)
+      this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions += new AspectTextureRegion(regionInfluencer.regions(i))
+        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -289,7 +288,7 @@ object RegionInfluencer {
     def this(textureRegion: TextureRegion) = {
       this()
       atlasName = Nullable.empty
-      this.regions = new ArrayBuffer[AspectTextureRegion](1)
+      this.regions = DynamicArray[AspectTextureRegion](1)
       add(textureRegion)
     }
 

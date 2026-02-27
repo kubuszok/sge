@@ -10,7 +10,7 @@ package sge.assets.loaders
 
 import sge.files.FileHandle
 import sge.assets.AssetLoaderParameters
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Abstract base class for asset loaders.
   * @author
@@ -41,5 +41,5 @@ abstract class AssetLoader[T, P <: AssetLoaderParameters[T]](private val resolve
     * @return
     *   other assets that the asset depends on and need to be loaded first or null if there are no dependencies.
     */
-  def getDependencies(fileName: String, file: FileHandle, parameter: P): ArrayBuffer[sge.assets.AssetDescriptor[?]]
+  def getDependencies(fileName: String, file: FileHandle, parameter: P): DynamicArray[sge.assets.AssetDescriptor[?]]
 }

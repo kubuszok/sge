@@ -8,16 +8,15 @@
  */
 package sge
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** An {@link InputProcessor} that delegates to an ordered list of other InputProcessors. Delegation for an event stops if a processor returns true, which indicates that the event was handled.
   * @author
   *   Nathan Sweet (original implementation)
   */
 class InputMultiplexer extends InputProcessor {
-  private var processors = ArrayBuffer[InputProcessor]()
-  private var processingCopy: ArrayBuffer[InputProcessor] = ArrayBuffer()
+  private var processors = DynamicArray[InputProcessor]()
+  private var processingCopy: DynamicArray[InputProcessor] = DynamicArray[InputProcessor]()
   private var inProcessing = false
 
   def this(processors: InputProcessor*) = {
@@ -29,13 +28,13 @@ class InputMultiplexer extends InputProcessor {
     processors.insert(index, processor)
 
   def removeProcessor(index: Int): Unit =
-    processors.remove(index)
+    processors.removeIndex(index)
 
   def addProcessor(processor: InputProcessor): Unit =
-    processors.addOne(processor)
+    processors.add(processor)
 
   def removeProcessor(processor: InputProcessor): Unit =
-    processors.subtractOne(processor)
+    processors.removeValue(processor)
 
   /** @return the number of processors in this multiplexer */
   def size(): Int =
@@ -49,12 +48,12 @@ class InputMultiplexer extends InputProcessor {
     this.processors.addAll(processors)
   }
 
-  def setProcessors(processors: ArrayBuffer[InputProcessor]): Unit = {
+  def setProcessors(processors: DynamicArray[InputProcessor]): Unit = {
     this.processors.clear()
     this.processors.addAll(processors)
   }
 
-  def getProcessors(): ArrayBuffer[InputProcessor] =
+  def getProcessors(): DynamicArray[InputProcessor] =
     processors
 
   private def processEvent[T](event: InputProcessor => Boolean): Boolean = {

@@ -13,7 +13,6 @@ package loader
 
 import java.io.{ BufferedReader, InputStreamReader }
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -45,10 +44,10 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
   def this()(using sge: Sge) =
     this(null)
 
-  private val verts:  DynamicArray[Float]          = DynamicArray[Float](300)
-  private val norms:  DynamicArray[Float]          = DynamicArray[Float](300)
-  private val uvs:    DynamicArray[Float]          = DynamicArray[Float](200)
-  private val groups: ArrayBuffer[ObjLoader.Group] = ArrayBuffer[ObjLoader.Group]()
+  private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
+  private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)
+  private val uvs:    DynamicArray[Float]           = DynamicArray[Float](200)
+  private val groups: DynamicArray[ObjLoader.Group] = DynamicArray[ObjLoader.Group]()
 
   /** Directly load the model on the calling thread. The model with not be managed by an {@link AssetManager}. */
   def loadModel(fileHandle: FileHandle, flipV: Boolean): Nullable[Model] =
@@ -69,7 +68,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
     // Create a "default" Group and set it as the active group, in case
     // there are no groups or objects defined in the OBJ file.
     var activeGroup = new ObjLoader.Group("default")
-    groups += activeGroup
+    groups.add(activeGroup)
 
     val reader = new BufferedReader(new InputStreamReader(file.read()), 4096)
     var id     = 0
@@ -106,23 +105,23 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
               var i     = 1
               while (i < tokens.length - 2) {
                 parts = tokens(1).split("/")
-                faces += getIndex(parts(0), verts.size)
+                faces.add(getIndex(parts(0), verts.size))
                 if (parts.length > 2) {
                   if (i == 1) activeGroup.hasNorms = true
-                  faces += getIndex(parts(2), norms.size)
+                  faces.add(getIndex(parts(2), norms.size))
                 }
                 if (parts.length > 1 && parts(1).nonEmpty) {
                   if (i == 1) activeGroup.hasUVs = true
-                  faces += getIndex(parts(1), uvs.size)
+                  faces.add(getIndex(parts(1), uvs.size))
                 }
                 i += 1
                 parts = tokens(i).split("/")
-                faces += getIndex(parts(0), verts.size)
+                faces.add(getIndex(parts(0), verts.size))
                 if (parts.length > 2) faces += getIndex(parts(2), norms.size)
                 if (parts.length > 1 && parts(1).nonEmpty) faces += getIndex(parts(1), uvs.size)
                 i += 1
                 parts = tokens(i).split("/")
-                faces += getIndex(parts(0), verts.size)
+                faces.add(getIndex(parts(0), verts.size))
                 if (parts.length > 2) faces += getIndex(parts(2), norms.size)
                 if (parts.length > 1 && parts(1).nonEmpty) faces += getIndex(parts(1), uvs.size)
                 activeGroup.numFaces += 1
@@ -159,7 +158,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
     var i = 0
     while (i < groups.size)
       if (groups(i).numFaces < 1) {
-        groups.remove(i)
+        groups.removeIndex(i)
       } else {
         i += 1
       }
@@ -230,10 +229,10 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
         }
       }
 
-      val attributes = ArrayBuffer[VertexAttribute]()
-      attributes += new VertexAttribute(VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE)
-      if (hasNorms) attributes += new VertexAttribute(VertexAttributes.Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE)
-      if (hasUVs) attributes += new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0")
+      val attributes = DynamicArray[VertexAttribute]()
+      attributes.add(new VertexAttribute(VertexAttributes.Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
+      if (hasNorms) attributes.add(new VertexAttribute(VertexAttributes.Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
+      if (hasUVs) attributes.add(new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"))
 
       id += 1
       val stringId = id.toString
@@ -259,10 +258,10 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
       mesh.attributes = attributes.toArray
       mesh.vertices = finalVerts
       mesh.parts = Array(part)
-      data.nodes += node
-      data.meshes += mesh
+      data.nodes.add(node)
+      data.meshes.add(mesh)
       val mm = mtl.getMaterial(group.materialName)
-      data.materials += mm
+      data.materials.add(mm)
       g += 1
     }
 
@@ -287,7 +286,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
     for (group <- groups)
       if (group.name.equals(name)) break(group)
     val group = new ObjLoader.Group(name)
-    groups += group
+    groups.add(group)
     group
   }
 
@@ -312,17 +311,17 @@ object ObjLoader {
   }
 
   private class Group(val name: String) {
-    var materialName: String           = "default"
-    var faces:        ArrayBuffer[Int] = ArrayBuffer[Int]()
-    var numFaces:     Int              = 0
-    var hasNorms:     Boolean          = false
-    var hasUVs:       Boolean          = false
-    var mat:          Material         = new Material("")
+    var materialName: String            = "default"
+    var faces:        DynamicArray[Int] = DynamicArray[Int]()
+    var numFaces:     Int               = 0
+    var hasNorms:     Boolean           = false
+    var hasUVs:       Boolean           = false
+    var mat:          Material          = new Material("")
   }
 
   /** Loads .mtl files */
   private class MtlLoader {
-    val materials: ArrayBuffer[ModelMaterial] = ArrayBuffer[ModelMaterial]()
+    val materials: DynamicArray[ModelMaterial] = DynamicArray[ModelMaterial]()
 
     /** loads .mtl file */
     def load(file: FileHandle): Unit = {
@@ -351,7 +350,7 @@ object ObjLoader {
               val key = tokens(0).toLowerCase
               if (key.equals("newmtl")) {
                 val mat = currentMaterial.build()
-                materials += mat
+                materials.add(mat)
 
                 if (tokens.length > 1) {
                   currentMaterial.materialName = tokens(1)
@@ -392,7 +391,7 @@ object ObjLoader {
 
         // last material
         val mat = currentMaterial.build()
-        materials += mat
+        materials.add(mat)
       }
     }
 
@@ -447,8 +446,8 @@ object ObjLoader {
         val tex = new ModelTexture()
         tex.usage = usage
         tex.fileName = texFilename
-        if (mat.textures == null) mat.textures = new ArrayBuffer[ModelTexture](1)
-        mat.textures += tex
+        if (mat.textures == null) mat.textures = DynamicArray[ModelTexture]()
+        mat.textures.add(tex)
       }
 
       def reset(): Unit = {

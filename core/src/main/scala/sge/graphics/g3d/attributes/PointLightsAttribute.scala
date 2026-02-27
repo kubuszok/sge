@@ -11,25 +11,24 @@ package graphics
 package g3d
 package attributes
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.g3d.environment.PointLight
+import sge.utils.DynamicArray
 
-/** An [[Attribute]] which can be used to send an [[ArrayBuffer]] of [[PointLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
+/** An [[Attribute]] which can be used to send a [[DynamicArray]] of [[PointLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
   * [[PointLightsAttribute(PointLightsAttribute)]] method will not create new lights.
   * @author
   *   Xoppa (original implementation)
   */
 class PointLightsAttribute(
-  val lights: ArrayBuffer[PointLight]
+  val lights: DynamicArray[PointLight]
 ) extends Attribute(PointLightsAttribute.Type) {
 
   def this() =
-    this(ArrayBuffer.empty[PointLight])
+    this(DynamicArray[PointLight]())
 
   def this(copyFrom: PointLightsAttribute) = {
     this()
-    lights ++= copyFrom.lights
+    lights.addAll(copyFrom.lights)
   }
 
   override def copy(): PointLightsAttribute =

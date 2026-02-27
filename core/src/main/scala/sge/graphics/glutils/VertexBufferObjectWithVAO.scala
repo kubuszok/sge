@@ -15,8 +15,8 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import scala.collection.mutable.ArrayBuffer
 import sge.utils.BufferUtils;
+import sge.utils.DynamicArray
 
 /** <p> A {@link VertexData} implementation that uses vertex buffer objects and vertex array objects. (This is required for OpenGL 3.0+ core profiles. In particular, the default VAO has been
   * deprecated, as has the use of client memory for passing vertex attributes.) Use of VAOs should give a slight performance benefit since you don't have to bind the attributes on every draw anymore.
@@ -42,7 +42,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
   var isDirty         = false
   var isBound         = false
   var vaoHandle       = -1
-  var cachedLocations = ArrayBuffer[Int]()
+  var cachedLocations = DynamicArray[Int]()
 
   /** Constructs a new interleaved VertexBufferObjectWithVAO.
     *
@@ -193,7 +193,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
         } else {
           locations(i)
         }
-        cachedLocations += location
+        cachedLocations.add(location)
 
         if (location >= 0) {
           shader.enableVertexAttribute(location)

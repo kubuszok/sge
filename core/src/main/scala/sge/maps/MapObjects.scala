@@ -9,15 +9,14 @@
 package sge
 package maps
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** @brief Collection of MapObject instances */
 class MapObjects extends Iterable[MapObject] {
 
-  private val objects: ArrayBuffer[MapObject] = ArrayBuffer.empty
+  private val objects: DynamicArray[MapObject] = DynamicArray[MapObject]()
 
   /** @param index
     * @return
@@ -56,23 +55,23 @@ class MapObjects extends Iterable[MapObject] {
 
   /** @param object instance to be added to the collection */
   def add(obj: MapObject): Unit =
-    objects.addOne(obj)
+    objects.add(obj)
 
   /** @param index removes MapObject instance at index */
   def remove(index: Int): Unit =
-    objects.remove(index)
+    objects.removeIndex(index)
 
   /** @param object instance to be removed */
   def remove(obj: MapObject): Unit =
-    objects -= obj
+    objects.removeValue(obj)
 
   /** @param type
     *   class of the objects we want to retrieve
     * @return
     *   array filled with all the objects in the collection matching type
     */
-  def getByType[T <: MapObject](clazz: Class[T]): ArrayBuffer[T] =
-    getByType(clazz, ArrayBuffer.empty[T])
+  def getByType[T <: MapObject](clazz: Class[T]): DynamicArray[T] =
+    getByType(clazz, DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
 
   /** @param type
     *   class of the objects we want to retrieve
@@ -81,14 +80,14 @@ class MapObjects extends Iterable[MapObject] {
     * @return
     *   array filled with all the objects in the collection matching type
     */
-  def getByType[T <: MapObject](clazz: Class[T], fill: ArrayBuffer[T]): ArrayBuffer[T] = {
+  def getByType[T <: MapObject](clazz: Class[T], fill: DynamicArray[T]): DynamicArray[T] = {
     fill.clear()
     var i = 0
     val n = objects.size
     while (i < n) {
       val obj = objects(i)
       if (clazz.isInstance(obj)) {
-        fill.addOne(obj.asInstanceOf[T])
+        fill.add(obj.asInstanceOf[T])
       }
       i += 1
     }

@@ -1,4 +1,4 @@
-# SGE Migration Status - Updated: 2026-02-26
+# SGE Migration Status - Updated: 2026-02-27
 # libgdx_path	sge_path	status	notes
 com/badlogic/gdx/AbstractGraphics.java	sge/Graphics.scala	ai_converted	merged into Graphics
 com/badlogic/gdx/AbstractInput.java	sge/Input.scala	ai_converted	merged into Input
@@ -113,7 +113,7 @@ com/badlogic/gdx/graphics/g3d/Environment.java	sge/graphics/g3d/Environment.scal
 com/badlogic/gdx/graphics/g3d/Material.java	sge/graphics/g3d/Material.scala	ai_converted	g3d phase 1
 com/badlogic/gdx/graphics/g3d/Model.java	sge/graphics/g3d/Model.scala	ai_converted	g3d phase 2
 com/badlogic/gdx/graphics/g3d/ModelBatch.java	sge/graphics/g3d/ModelBatch.scala	ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/ModelCache.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/ModelCache.java	sge/graphics/g3d/ModelCache.scala	ai_converted	g3d module
 com/badlogic/gdx/graphics/g3d/ModelInstance.java	sge/graphics/g3d/ModelInstance.scala	ai_converted	g3d phase 2
 com/badlogic/gdx/graphics/g3d/Renderable.java	sge/graphics/g3d/Renderable.scala	ai_converted	g3d phase 1
 com/badlogic/gdx/graphics/g3d/RenderableProvider.java	sge/graphics/g3d/RenderableProvider.scala	ai_converted	g3d phase 1
@@ -162,59 +162,59 @@ com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java	sge/graphics/g3
 com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java	sge/graphics/g3d/model/data/ModelNodeKeyframe.scala	ai_converted	g3d phase 1
 com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java	sge/graphics/g3d/model/data/ModelNodePart.scala	ai_converted	g3d phase 1
 com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java	sge/graphics/g3d/model/data/ModelTexture.scala	ai_converted	g3d phase 1
-com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleController.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/ResourceData.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java		ai_converted	g3d module
-com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java		ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java	sge/graphics/g3d/particles/ParallelArray.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java	sge/graphics/g3d/particles/ParticleChannels.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleController.java	sge/graphics/g3d/particles/ParticleController.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java	sge/graphics/g3d/particles/ParticleControllerComponent.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java	sge/graphics/g3d/particles/ParticleEffect.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java	sge/graphics/g3d/particles/ParticleEffectLoader.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java	sge/graphics/g3d/particles/ParticleShader.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java	sge/graphics/g3d/particles/ParticleSorter.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java	sge/graphics/g3d/particles/ParticleSystem.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/ResourceData.java	sge/graphics/g3d/particles/ResourceData.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java	sge/graphics/g3d/particles/batches/BillboardParticleBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java	sge/graphics/g3d/particles/batches/BufferedParticleBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java	sge/graphics/g3d/particles/batches/ModelInstanceParticleBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java	sge/graphics/g3d/particles/batches/ParticleBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java	sge/graphics/g3d/particles/batches/PointSpriteParticleBatch.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java	sge/graphics/g3d/particles/emitters/Emitter.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java	sge/graphics/g3d/particles/emitters/RegularEmitter.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java	sge/graphics/g3d/particles/influencers/ColorInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java	sge/graphics/g3d/particles/influencers/DynamicsInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java	sge/graphics/g3d/particles/influencers/DynamicsModifier.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java	sge/graphics/g3d/particles/influencers/Influencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java	sge/graphics/g3d/particles/influencers/ModelInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java	sge/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java	sge/graphics/g3d/particles/influencers/ParticleControllerInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java	sge/graphics/g3d/particles/influencers/RegionInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java	sge/graphics/g3d/particles/influencers/ScaleInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java	sge/graphics/g3d/particles/influencers/SimpleInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java	sge/graphics/g3d/particles/influencers/SpawnInfluencer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java	sge/graphics/g3d/particles/renderers/BillboardControllerRenderData.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java	sge/graphics/g3d/particles/renderers/BillboardRenderer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java	sge/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java	sge/graphics/g3d/particles/renderers/ModelInstanceRenderer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java	sge/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java	sge/graphics/g3d/particles/renderers/ParticleControllerRenderData.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java	sge/graphics/g3d/particles/renderers/ParticleControllerRenderer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java	sge/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java	sge/graphics/g3d/particles/renderers/PointSpriteRenderer.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java	sge/graphics/g3d/particles/values/CylinderSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java	sge/graphics/g3d/particles/values/EllipseSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java	sge/graphics/g3d/particles/values/GradientColorValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java	sge/graphics/g3d/particles/values/LineSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/MeshSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java	sge/graphics/g3d/particles/values/NumericValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java	sge/graphics/g3d/particles/values/ParticleValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java	sge/graphics/g3d/particles/values/PointSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java	sge/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java	sge/graphics/g3d/particles/values/RangedNumericValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java	sge/graphics/g3d/particles/values/RectangleSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java	sge/graphics/g3d/particles/values/ScaledNumericValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java	sge/graphics/g3d/particles/values/SpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.scala	ai_converted	g3d module
+com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java	sge/graphics/g3d/shaders/BaseShader.scala	ai_converted	g3d module
 com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java	sge/graphics/g3d/shaders/DefaultShader.scala	ai_converted	g3d module
 com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java	sge/graphics/g3d/shaders/DepthShader.scala	ai_converted	g3d module
 com/badlogic/gdx/graphics/g3d/utils/AnimationController.java	sge/graphics/g3d/utils/AnimationController.scala	ai_converted	g3d phase 2
@@ -311,22 +311,22 @@ com/badlogic/gdx/maps/objects/PolylineMapObject.java	sge/maps/objects/PolylineMa
 com/badlogic/gdx/maps/objects/RectangleMapObject.java	sge/maps/objects/RectangleMapObject.scala	ai_converted	maps module
 com/badlogic/gdx/maps/objects/TextMapObject.java	sge/maps/objects/TextMapObject.scala	ai_converted	maps module
 com/badlogic/gdx/maps/objects/TextureMapObject.java	sge/maps/objects/TextureMapObject.scala	ai_converted	maps module
-com/badlogic/gdx/maps/tiled/AtlasTmjMapLoader.java		deferred	needs JsonReader (not ported)
-com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java		deferred	needs XmlReader (not ported)
-com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java		deferred	needs XML or JSON parser
-com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java		deferred	needs JsonReader (not ported)
-com/badlogic/gdx/maps/tiled/BaseTmxMapLoader.java		deferred	needs XmlReader (not ported)
-com/badlogic/gdx/maps/tiled/TideMapLoader.java		deferred	needs XmlReader (not ported)
+com/badlogic/gdx/maps/tiled/AtlasTmjMapLoader.java	sge/maps/tiled/AtlasTmjMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java	sge/maps/tiled/AtlasTmxMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java	sge/maps/tiled/BaseTiledMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java	sge/maps/tiled/BaseTmjMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/BaseTmxMapLoader.java	sge/maps/tiled/BaseTmxMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TideMapLoader.java	sge/maps/tiled/TideMapLoader.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMap.java	sge/maps/tiled/TiledMap.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapImageLayer.java	sge/maps/tiled/TiledMapImageLayer.scala	ai_converted	maps module
-com/badlogic/gdx/maps/tiled/TiledMapLoader.java		deferred	needs BaseTiledMapLoader
+com/badlogic/gdx/maps/tiled/TiledMapLoader.java	sge/maps/tiled/TiledMapLoader.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapRenderer.java	sge/maps/tiled/TiledMapRenderer.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapTile.java	sge/maps/tiled/TiledMapTile.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapTileLayer.java	sge/maps/tiled/TiledMapTileLayer.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapTileSet.java	sge/maps/tiled/TiledMapTileSet.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/TiledMapTileSets.java	sge/maps/tiled/TiledMapTileSets.scala	ai_converted	maps module
-com/badlogic/gdx/maps/tiled/TmjMapLoader.java		deferred	needs BaseTmjMapLoader
-com/badlogic/gdx/maps/tiled/TmxMapLoader.java		deferred	needs BaseTmxMapLoader
+com/badlogic/gdx/maps/tiled/TmjMapLoader.java	sge/maps/tiled/TmjMapLoader.scala	ai_converted	maps module
+com/badlogic/gdx/maps/tiled/TmxMapLoader.java	sge/maps/tiled/TmxMapLoader.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/objects/TiledMapTileMapObject.java	sge/maps/tiled/objects/TiledMapTileMapObject.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/renderers/BatchTiledMapRenderer.java	sge/maps/tiled/renderers/BatchTiledMapRenderer.scala	ai_converted	maps module
 com/badlogic/gdx/maps/tiled/renderers/HexagonalTiledMapRenderer.java	sge/maps/tiled/renderers/HexagonalTiledMapRenderer.scala	ai_converted	maps module

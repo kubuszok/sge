@@ -8,8 +8,7 @@
  */
 package sge
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.{ Nullable, NumberUtils }
+import sge.utils.{ DynamicArray, Nullable, NumberUtils }
 
 /** Queues events that are later passed to an {@link InputProcessor} .
   * @author
@@ -18,8 +17,8 @@ import sge.utils.{ Nullable, NumberUtils }
 class InputEventQueue {
   import InputEventQueue.*
 
-  private val queue           = ArrayBuffer[Int]()
-  private val processingQueue = ArrayBuffer[Int]()
+  private val queue           = DynamicArray[Int]()
+  private val processingQueue = DynamicArray[Int]()
   private var currentEventTime: Long = 0L
 
   def drain(processor: Nullable[InputProcessor]): Unit = scala.util.boundary {
@@ -29,7 +28,7 @@ class InputEventQueue {
         scala.util.boundary.break()
       } { proc =>
         processingQueue.clear()
-        processingQueue.addAll(queue)
+        processingQueue.addAll(queue: DynamicArray[Int])
         queue.clear()
       }
     }
@@ -116,53 +115,53 @@ class InputEventQueue {
     }
 
   private def queueTime(time: Long): Unit = {
-    queue.addOne((time >> 32).toInt)
-    queue.addOne(time.toInt)
+    queue.add((time >> 32).toInt)
+    queue.add(time.toInt)
   }
 
   def keyDown(keycode: Int, time: Long): Boolean =
     synchronized {
-      queue.addOne(KEY_DOWN)
+      queue.add(KEY_DOWN)
       queueTime(time)
-      queue.addOne(keycode)
+      queue.add(keycode)
       false
     }
 
   def keyUp(keycode: Int, time: Long): Boolean =
     synchronized {
-      queue.addOne(KEY_UP)
+      queue.add(KEY_UP)
       queueTime(time)
-      queue.addOne(keycode)
+      queue.add(keycode)
       false
     }
 
   def keyTyped(character: Char, time: Long): Boolean =
     synchronized {
-      queue.addOne(KEY_TYPED)
+      queue.add(KEY_TYPED)
       queueTime(time)
-      queue.addOne(character.toInt)
+      queue.add(character.toInt)
       false
     }
 
   def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Long): Boolean =
     synchronized {
-      queue.addOne(TOUCH_DOWN)
+      queue.add(TOUCH_DOWN)
       queueTime(time)
-      queue.addOne(screenX)
-      queue.addOne(screenY)
-      queue.addOne(pointer)
-      queue.addOne(button)
+      queue.add(screenX)
+      queue.add(screenY)
+      queue.add(pointer)
+      queue.add(button)
       false
     }
 
   def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Long): Boolean =
     synchronized {
-      queue.addOne(TOUCH_UP)
+      queue.add(TOUCH_UP)
       queueTime(time)
-      queue.addOne(screenX)
-      queue.addOne(screenY)
-      queue.addOne(pointer)
-      queue.addOne(button)
+      queue.add(screenX)
+      queue.add(screenY)
+      queue.add(pointer)
+      queue.add(button)
       false
     }
 
@@ -177,11 +176,11 @@ class InputEventQueue {
         }
         i = next(TOUCH_DRAGGED, i + 6)
       }
-      queue.addOne(TOUCH_DRAGGED)
+      queue.add(TOUCH_DRAGGED)
       queueTime(time)
-      queue.addOne(screenX)
-      queue.addOne(screenY)
-      queue.addOne(pointer)
+      queue.add(screenX)
+      queue.add(screenY)
+      queue.add(pointer)
       false
     }
 
@@ -194,19 +193,19 @@ class InputEventQueue {
         queue(i + 3) = 2
         i = next(MOUSE_MOVED, i + 5)
       }
-      queue.addOne(MOUSE_MOVED)
+      queue.add(MOUSE_MOVED)
       queueTime(time)
-      queue.addOne(screenX)
-      queue.addOne(screenY)
+      queue.add(screenX)
+      queue.add(screenY)
       false
     }
 
   def scrolled(amountX: Float, amountY: Float, time: Long): Boolean =
     synchronized {
-      queue.addOne(SCROLLED)
+      queue.add(SCROLLED)
       queueTime(time)
-      queue.addOne(NumberUtils.floatToIntBits(amountX))
-      queue.addOne(NumberUtils.floatToIntBits(amountY))
+      queue.add(NumberUtils.floatToIntBits(amountX))
+      queue.add(NumberUtils.floatToIntBits(amountY))
       false
     }
 

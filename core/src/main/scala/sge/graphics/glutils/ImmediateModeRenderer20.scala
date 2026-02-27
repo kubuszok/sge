@@ -14,9 +14,8 @@ import sge.graphics.VertexAttributes.Usage
 import sge.graphics.{ Color, Mesh, VertexAttribute }
 import sge.graphics.g2d.SpriteBatch
 import sge.math.Matrix4
-import sge.utils.SgeError
+import sge.utils.{ DynamicArray, SgeError }
 import sge.Sge
-import scala.collection.mutable.ArrayBuffer
 import scala.compiletime.uninitialized
 
 /** Immediate mode rendering class for GLES 2.0. The renderer will allow you to specify vertices on the fly and provides a default shader for (unlit) rendering.
@@ -77,12 +76,12 @@ class ImmediateModeRenderer20(
   }
 
   private def buildVertexAttributes(hasNormals: Boolean, hasColor: Boolean, numTexCoords: Int): Array[VertexAttribute] = {
-    val attribs = ArrayBuffer[VertexAttribute]()
-    attribs.addOne(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
-    if (hasNormals) attribs.addOne(new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
-    if (hasColor) attribs.addOne(new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
+    val attribs = DynamicArray[VertexAttribute]()
+    attribs.add(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
+    if (hasNormals) attribs.add(new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
+    if (hasColor) attribs.add(new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     for (i <- 0 until numTexCoords)
-      attribs.addOne(new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + i))
+      attribs.add(new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + i))
     attribs.toArray
   }
 

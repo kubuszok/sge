@@ -12,8 +12,6 @@ package g3d
 package particles
 package batches
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.GL20
 import sge.graphics.Mesh
 import sge.graphics.Texture
@@ -32,6 +30,7 @@ import sge.graphics.g3d.particles.ResourceData.SaveData
 import sge.graphics.g3d.particles.renderers.PointSpriteControllerRenderData
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Vector3
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.Pool
 
@@ -148,8 +147,8 @@ class PointSpriteParticleBatch(
     renderable.meshPart.update()
   }
 
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit =
-    if (bufferedParticlesCount > 0) renderables += pool.obtain().set(renderable)
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
+    if (bufferedParticlesCount > 0) renderables.add(pool.obtain().set(renderable))
 
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("pointSpriteBatch")

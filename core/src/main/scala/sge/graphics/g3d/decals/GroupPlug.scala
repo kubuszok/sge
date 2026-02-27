@@ -11,13 +11,13 @@ package graphics
 package g3d
 package decals
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 /** Handles a single group's pre and post render arrangements. Can be plugged into {@link PluggableGroupStrategy} to build modular {@link GroupStrategy GroupStrategies}.
   */
 trait GroupPlug {
 
-  def beforeGroup(contents: ArrayBuffer[Decal]): Unit
+  def beforeGroup(contents: DynamicArray[Decal]): Unit
 
   def afterGroup(): Unit
 }

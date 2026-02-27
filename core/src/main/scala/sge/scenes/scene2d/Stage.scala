@@ -10,8 +10,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ Nullable, Pool, PoolManager, Scaling }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, Pool, PoolManager, Scaling }
 
 import sge.graphics.{ Camera, Color, GL20, OrthographicCamera }
 import sge.graphics.g2d.{ Batch, SpriteBatch }
@@ -34,20 +33,20 @@ import sge.utils.viewport.{ ScalingViewport, Viewport }
   */
 class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBatch: Boolean)(using sge: Sge) extends InputProcessor with AutoCloseable {
 
-  protected val pools:                 PoolManager                   = new PoolManager()
-  private val root:                    Group                         = new Group()
-  private val tempCoords:              Vector2                       = new Vector2()
-  private val pointerOverActors:       Array[Nullable[Actor]]        = Array.fill(20)(Nullable.empty)
-  private val pointerTouched:          Array[Boolean]                = new Array[Boolean](20)
-  private val pointerScreenX:          Array[Int]                    = new Array[Int](20)
-  private val pointerScreenY:          Array[Int]                    = new Array[Int](20)
-  private var mouseScreenX:            Int                           = 0
-  private var mouseScreenY:            Int                           = 0
-  private var mouseOverActor:          Nullable[Actor]               = Nullable.empty
-  private var keyboardFocus:           Nullable[Actor]               = Nullable.empty
-  private var scrollFocus:             Nullable[Actor]               = Nullable.empty
-  private[scene2d] val touchFocuses:   ArrayBuffer[Stage.TouchFocus] = ArrayBuffer.empty
-  private var actionsRequestRendering: Boolean                       = true
+  protected val pools:                 PoolManager                    = new PoolManager()
+  private val root:                    Group                          = new Group()
+  private val tempCoords:              Vector2                        = new Vector2()
+  private val pointerOverActors:       Array[Nullable[Actor]]         = Array.fill(20)(Nullable.empty)
+  private val pointerTouched:          Array[Boolean]                 = new Array[Boolean](20)
+  private val pointerScreenX:          Array[Int]                     = new Array[Int](20)
+  private val pointerScreenY:          Array[Int]                     = new Array[Int](20)
+  private var mouseScreenX:            Int                            = 0
+  private var mouseScreenY:            Int                            = 0
+  private var mouseOverActor:          Nullable[Actor]                = Nullable.empty
+  private var keyboardFocus:           Nullable[Actor]                = Nullable.empty
+  private var scrollFocus:             Nullable[Actor]                = Nullable.empty
+  private[scene2d] val touchFocuses:   DynamicArray[Stage.TouchFocus] = DynamicArray[Stage.TouchFocus]()
+  private var actionsRequestRendering: Boolean                        = true
 
   private var debugShapes:           Nullable[ShapeRenderer] = Nullable.empty
   private var debugInvisible:        Boolean                 = false
@@ -351,7 +350,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
         if (focus.pointer == pointer && focus.button == button) {
           val idx = touchFocuses.indexOf(focus)
           if (idx >= 0) {
-            touchFocuses.remove(idx)
+            touchFocuses.removeIndex(idx)
             event.setTarget(focus.target)
             event.setListenerActor(focus.listenerActor)
             if (focus.listener.handle(event)) event.handle()
@@ -471,7 +470,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     focus.listener = listener
     focus.pointer = pointer
     focus.button = button
-    touchFocuses += focus
+    touchFocuses.add(focus)
   }
 
   /** Removes touch focus for the specified listener, pointer, and button. Note the listener will not receive a touchUp event when this method is used.
@@ -484,7 +483,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
         (focus.listener eq listener) && (focus.listenerActor eq listenerActor) && (focus.target eq target)
         && focus.pointer == pointer && focus.button == button
       ) {
-        touchFocuses.remove(i)
+        touchFocuses.removeIndex(i)
         pools.free(focus)
       }
       i -= 1
@@ -506,7 +505,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
       if (focus.listenerActor eq listenerActor) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
-          touchFocuses.remove(idx)
+          touchFocuses.removeIndex(idx)
 
           if (event.isEmpty) {
             val e = pools.obtain(classOf[InputEvent])
@@ -560,7 +559,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
       if (!isException) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
-          touchFocuses.remove(idx)
+          touchFocuses.removeIndex(idx)
           event.setTarget(focus.target)
           event.setListenerActor(focus.listenerActor)
           event.setPointer(focus.pointer)
@@ -591,7 +590,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     * @see
     *   Group#getChildren()
     */
-  def getActors: ArrayBuffer[Actor] = root.children
+  def getActors: DynamicArray[Actor] = root.children
 
   /** Adds a listener to the root.
     * @see

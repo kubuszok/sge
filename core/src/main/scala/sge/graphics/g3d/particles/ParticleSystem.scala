@@ -11,10 +11,9 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.particles.batches.ParticleBatch
+import sge.utils.DynamicArray
 import sge.utils.Pool
 
 /** Singleton class which manages the particle effects. It's a utility class to ease particle batches management and particle effects update.
@@ -23,17 +22,17 @@ import sge.utils.Pool
   */
 final class ParticleSystem extends RenderableProvider {
 
-  private val batches: ArrayBuffer[ParticleBatch[?]] = new ArrayBuffer[ParticleBatch[?]]()
-  private val effects: ArrayBuffer[ParticleEffect]   = new ArrayBuffer[ParticleEffect]()
+  private val batches: DynamicArray[ParticleBatch[?]] = DynamicArray[ParticleBatch[?]]()
+  private val effects: DynamicArray[ParticleEffect]   = DynamicArray[ParticleEffect]()
 
   def add(batch: ParticleBatch[?]): Unit =
-    batches += batch
+    batches.add(batch)
 
   def add(effect: ParticleEffect): Unit =
-    effects += effect
+    effects.add(effect)
 
   def remove(effect: ParticleEffect): Unit =
-    effects -= effect
+    effects.removeValue(effect)
 
   /** Removes all the effects added to the system */
   def removeAll(): Unit =
@@ -75,10 +74,10 @@ final class ParticleSystem extends RenderableProvider {
     for (batch <- batches)
       batch.end()
 
-  override def getRenderables(renderables: ArrayBuffer[Renderable], pool: Pool[Renderable]): Unit =
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     for (batch <- batches)
       batch.getRenderables(renderables, pool)
 
-  def getBatches(): ArrayBuffer[ParticleBatch[?]] =
+  def getBatches(): DynamicArray[ParticleBatch[?]] =
     batches
 }

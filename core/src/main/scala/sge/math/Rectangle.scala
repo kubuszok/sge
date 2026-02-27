@@ -430,6 +430,30 @@ class Rectangle() extends Shape2D {
   override def toString: String =
     "[" + x + "," + y + "," + width + "," + height + "]"
 
+  /** Sets this {@code Rectangle} to the value represented by the specified string according to the format of {@link #toString()}.
+    * @param v
+    *   the string.
+    * @return
+    *   this rectangle for chaining
+    */
+  def fromString(v: String): Rectangle = {
+    val s0 = v.indexOf(',', 1)
+    val s1 = v.indexOf(',', s0 + 1)
+    val s2 = v.indexOf(',', s1 + 1)
+    if (s0 != -1 && s1 != -1 && s2 != -1 && v.charAt(0) == '[' && v.charAt(v.length - 1) == ']') {
+      try {
+        val x      = java.lang.Float.parseFloat(v.substring(1, s0))
+        val y      = java.lang.Float.parseFloat(v.substring(s0 + 1, s1))
+        val width  = java.lang.Float.parseFloat(v.substring(s1 + 1, s2))
+        val height = java.lang.Float.parseFloat(v.substring(s2 + 1, v.length - 1))
+        this.set(x, y, width, height)
+      } catch {
+        case _: NumberFormatException =>
+          throw utils.SgeError.MathError(s"Malformed Rectangle: $v")
+      }
+    } else throw utils.SgeError.MathError(s"Malformed Rectangle: $v")
+  }
+
   def area(): Float =
     this.width * this.height
 

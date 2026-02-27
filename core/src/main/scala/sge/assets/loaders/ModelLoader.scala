@@ -10,7 +10,6 @@ package sge
 package assets
 package loaders
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -20,12 +19,12 @@ import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.Model
 import sge.graphics.g3d.model.data.{ ModelData, ModelMaterial, ModelTexture }
 import sge.graphics.g3d.utils.TextureProvider
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 
-  protected var items:             ArrayBuffer[(String, ModelData)] = ArrayBuffer[(String, ModelData)]()
-  protected var defaultParameters: ModelLoader.ModelParameters      = new ModelLoader.ModelParameters()
+  protected var items:             DynamicArray[(String, ModelData)] = DynamicArray[(String, ModelData)]()
+  protected var defaultParameters: ModelLoader.ModelParameters       = new ModelLoader.ModelParameters()
 
   /** Directly load the raw model data on the calling thread. */
   def loadModelData(fileHandle: FileHandle, parameters: P): Nullable[ModelData]
@@ -52,15 +51,15 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
   def loadModel(fileHandle: FileHandle): Nullable[Model] =
     loadModel(fileHandle, new TextureProvider.FileTextureProvider(), null.asInstanceOf[P])
 
-  override def getDependencies(fileName: String, file: FileHandle, parameters: P): ArrayBuffer[AssetDescriptor[?]] = {
-    val deps = ArrayBuffer[AssetDescriptor[?]]()
+  override def getDependencies(fileName: String, file: FileHandle, parameters: P): DynamicArray[AssetDescriptor[?]] = {
+    val deps = DynamicArray[AssetDescriptor[?]]()
     val data = loadModelData(file, parameters)
     if (data.isEmpty) deps
     else {
       data.foreach { d =>
         val item = (fileName, d)
         items.synchronized {
-          items += item
+          items.add(item)
         }
       }
 
@@ -72,7 +71,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
         for (modelMaterial <- d.materials)
           Nullable(modelMaterial.textures).foreach { textures =>
             for (modelTexture <- textures)
-              deps += AssetDescriptor[Texture](modelTexture.fileName, classOf[Texture], Nullable(textureParameter))
+              deps.add(AssetDescriptor[Texture](modelTexture.fileName, classOf[Texture], Nullable(textureParameter)))
           }
       }
       deps
@@ -88,7 +87,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
       while (i < items.size)
         if (items(i)._1.equals(fileName)) {
           data = Nullable(items(i)._2)
-          items.remove(i)
+          items.removeIndex(i)
         } else {
           i += 1
         }
@@ -98,12 +97,11 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
       val result = new Model(d, new TextureProvider.AssetTextureProvider(manager))
       // need to remove the textures from the managed disposables, or else ref counting
       // doesn't work!
-      val disposables = result.getManagedDisposables.iterator
-      val filtered    = result.getManagedDisposables.asInstanceOf[ArrayBuffer[AutoCloseable]]
-      var idx         = 0
+      val filtered = result.getManagedDisposables
+      var idx      = 0
       while (idx < filtered.size)
         filtered(idx) match {
-          case _: Texture => filtered.remove(idx)
+          case _: Texture => filtered.removeIndex(idx)
           case _ => idx += 1
         }
       result

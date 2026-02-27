@@ -1,0 +1,180 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/maps/tiled/TiledMapLoader.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ */
+package sge
+package maps
+package tiled
+
+import sge.assets.{ AssetDescriptor, AssetManager }
+import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
+import sge.assets.loaders.resolvers.InternalFileHandleResolver
+import sge.files.FileHandle
+import sge.utils.{ DynamicArray, JsonReader, JsonValue, Nullable, XmlReader }
+
+import scala.util.boundary
+import scala.util.boundary.break
+
+/** A universal map loader that automatically delegates to the appropriate underlying map loader [[TmxMapLoader]], [[AtlasTmxMapLoader]], [[TmjMapLoader]], or [[AtlasTmjMapLoader]] based solely on the
+  * map file's extension and content. A primary use case is for projects that need to load a mix of TMX and TMJ maps (with or without atlases) using a single loader instance inside an
+  * [[AssetManager]]. For TMX and TMJ files, this loader checks for the presence of an `"atlas"` property. If found, it uses an atlas-based loader; otherwise, it falls back to the standard loader.
+  */
+class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[TiledMap, BaseTiledMapLoader.Parameters](resolver) {
+
+  private val tmxMapLoader: TmxMapLoader = new TmxMapLoader(resolver)
+  private val tmjMapLoader: TmjMapLoader = new TmjMapLoader(resolver)
+
+  private val atlasTmxMapLoader: AtlasTmxMapLoader = new AtlasTmxMapLoader(resolver)
+  private val xmlReader:         XmlReader         = new XmlReader()
+
+  private val atlasTmjMapLoader: AtlasTmjMapLoader = new AtlasTmjMapLoader(resolver)
+  private val jsonReader:        JsonReader        = new JsonReader()
+
+  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+
+  /** Universal synchronous loader. This method is a thin wrapper that picks the correct underlying loader (TMX vs TMJ, atlas vs non-atlas) and then delegates straight through to its synchronous
+    * `load(...)` implementation.
+    * @param fileName
+    *   path to a .tmx or .tmj file
+    * @return
+    *   a loaded [[TiledMap]]
+    */
+  def load(fileName: String): TiledMap =
+    load(fileName, new BaseTiledMapLoader.Parameters())
+
+  /** Universal synchronous loader with custom parameters. Resolves the file and inspects the extension (tmx vs tmj). Check whether the 'atlas' property exists in the map and delegates to the
+    * appropriate loader's `load(...)`.
+    * @param fileName
+    *   path to a .tmx or .tmj file
+    * @param parameter
+    *   existing Parameters object
+    * @return
+    *   a loaded [[TiledMap]]
+    */
+  def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
+    var param = parameter
+    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    val file      = resolve(fileName)
+    val extension = file.extension().toLowerCase
+    if (extension == "tmx") {
+      if (usesAtlas(file))
+        atlasTmxMapLoader.load(fileName, param)
+      else
+        tmxMapLoader.load(fileName, param)
+    } else if (extension == "tmj") {
+      if (usesAtlas(file))
+        atlasTmjMapLoader.load(fileName, param)
+      else
+        tmjMapLoader.load(fileName, param)
+    } else {
+      throw new IllegalArgumentException("Unsupported map format: '" + extension + "' in file: " + fileName)
+    }
+  }
+
+  override def getDependencies(
+    fileName:  String,
+    file:      FileHandle,
+    parameter: BaseTiledMapLoader.Parameters
+  ): DynamicArray[AssetDescriptor[?]] = {
+    var param = parameter
+    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    val extension = file.extension().toLowerCase
+    if (extension == "tmx") {
+      if (usesAtlas(file))
+        atlasTmxMapLoader.getDependencies(fileName, file, param)
+      else
+        tmxMapLoader.getDependencies(fileName, file, param)
+    } else if (extension == "tmj") {
+      if (usesAtlas(file))
+        atlasTmjMapLoader.getDependencies(fileName, file, param)
+      else
+        tmjMapLoader.getDependencies(fileName, file, param)
+    } else {
+      throw new IllegalArgumentException("Unsupported map format: " + extension)
+    }
+  }
+
+  override def loadAsync(
+    manager:   AssetManager,
+    fileName:  String,
+    file:      FileHandle,
+    parameter: BaseTiledMapLoader.Parameters
+  ): Unit = {
+    var param = parameter
+    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    val extension = file.extension().toLowerCase
+    if (extension == "tmx") {
+      if (usesAtlas(file))
+        atlasTmxMapLoader.loadAsync(manager, fileName, file, param)
+      else
+        tmxMapLoader.loadAsync(manager, fileName, file, param)
+    } else if (extension == "tmj") {
+      if (usesAtlas(file))
+        atlasTmjMapLoader.loadAsync(manager, fileName, file, param)
+      else
+        tmjMapLoader.loadAsync(manager, fileName, file, param)
+    } else {
+      throw new IllegalArgumentException("Unsupported map format: " + extension)
+    }
+  }
+
+  override def loadSync(
+    manager:   AssetManager,
+    fileName:  String,
+    file:      FileHandle,
+    parameter: BaseTiledMapLoader.Parameters
+  ): TiledMap = {
+    var param = parameter
+    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    val extension = file.extension().toLowerCase
+    if (extension == "tmx") {
+      if (usesAtlas(file))
+        atlasTmxMapLoader.loadSync(manager, fileName, file, param)
+      else
+        tmxMapLoader.loadSync(manager, fileName, file, param)
+    } else if (extension == "tmj") {
+      if (usesAtlas(file))
+        atlasTmjMapLoader.loadSync(manager, fileName, file, param)
+      else
+        tmjMapLoader.loadSync(manager, fileName, file, param)
+    } else {
+      throw new IllegalArgumentException("Unsupported map format: " + extension)
+    }
+  }
+
+  private def usesAtlas(file: FileHandle): Boolean = boundary {
+    val extension = file.extension().toLowerCase
+    if (extension == "tmx") {
+      val root       = xmlReader.parse(file)
+      val properties = root.getChildByName("properties")
+      if (properties.isDefined) {
+        val propertyElements = properties.orNull.getChildrenByName("property")
+        var pi               = 0
+        while (pi < propertyElements.size) {
+          val property = propertyElements(pi)
+          val name     = property.getAttribute("name", Nullable("")).orNull
+          if ("atlas" == name) {
+            break(true)
+          }
+          pi += 1
+        }
+      }
+    } else if (extension == "tmj") {
+      val root       = jsonReader.parse(file)
+      val properties = root.get("properties")
+      properties.foreach { props =>
+        for (property <- props) {
+          val name = property.getString("name", Nullable("")).orNull
+          if ("atlas" == name) {
+            break(true)
+          }
+        }
+      }
+    }
+    false
+  }
+}

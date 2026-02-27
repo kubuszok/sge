@@ -11,13 +11,13 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.Camera
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData
 import sge.math.{ Matrix4, Vector3 }
+import sge.utils.DynamicArray
 
 /** This class is used by particle batches to sort the particles before rendering.
   * @author
@@ -30,7 +30,7 @@ abstract class ParticleSorter {
   /** @return
     *   an array of offsets where each particle should be put in the resulting mesh (also if more than one mesh will be generated, this is an absolute offset considering a BIG output array).
     */
-  def sort[T <: ParticleControllerRenderData](renderData: ArrayBuffer[T]): Array[Int]
+  def sort[T <: ParticleControllerRenderData](renderData: DynamicArray[T]): Array[Int]
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera
@@ -60,7 +60,7 @@ object ParticleSorter {
         currentCapacity = capacity
       }
 
-    override def sort[T <: ParticleControllerRenderData](renderData: ArrayBuffer[T]): Array[Int] =
+    override def sort[T <: ParticleControllerRenderData](renderData: DynamicArray[T]): Array[Int] =
       indices
   }
 
@@ -79,7 +79,7 @@ object ParticleSorter {
         currentSize = capacity
       }
 
-    override def sort[T <: ParticleControllerRenderData](renderData: ArrayBuffer[T]): Array[Int] = {
+    override def sort[T <: ParticleControllerRenderData](renderData: DynamicArray[T]): Array[Int] = {
       val values = camera.view.values
       val cx     = values(Matrix4.M20)
       val cy     = values(Matrix4.M21)

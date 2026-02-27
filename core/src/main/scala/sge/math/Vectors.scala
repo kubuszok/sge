@@ -529,6 +529,43 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
     */
   def rotateAroundRad(reference: Vector2, radians: Float): this.type =
     this.-(reference).rotateRad(radians).+(reference)
+
+  /** Converts this {@code Vector2} to a string in the format {@code (x,y)}.
+    * @return
+    *   a string representation of this object.
+    */
+  override def toString: String = s"($x,$y)"
+
+  /** Sets this {@code Vector2} to the value represented by the specified string according to the format of {@link #toString()}.
+    * @param v
+    *   the string.
+    * @return
+    *   this vector for chaining
+    */
+  def fromString(v: String): this.type = {
+    val s = v.indexOf(',', 1)
+    if (s != -1 && v.charAt(0) == '(' && v.charAt(v.length - 1) == ')') {
+      try {
+        val x = java.lang.Float.parseFloat(v.substring(1, s))
+        val y = java.lang.Float.parseFloat(v.substring(s + 1, v.length - 1))
+        set(x, y)
+      } catch {
+        case _: NumberFormatException =>
+          throw utils.SgeError.MathError(s"Malformed Vector2: $v")
+      }
+    } else throw utils.SgeError.MathError(s"Malformed Vector2: $v")
+  }
+}
+
+object Vector2 {
+  def angleDeg(x: Float, y: Float): Float = {
+    var angle = Math.atan2(y, x).toFloat * MathUtils.radiansToDegrees
+    if (angle < 0) angle += 360
+    angle
+  }
+
+  def angleRad(x: Float, y: Float): Float =
+    Math.atan2(y, x).toFloat
 }
 
 final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) extends Vector[Vector3] {
@@ -856,6 +893,28 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
       x * l_mat(Matrix3.M10) + y * l_mat(Matrix3.M11) + z * l_mat(Matrix3.M12),
       x * l_mat(Matrix3.M20) + y * l_mat(Matrix3.M21) + z * l_mat(Matrix3.M22)
     )
+  }
+
+  /** Sets this {@code Vector3} to the value represented by the specified string according to the format of {@link #toString()}.
+    * @param v
+    *   the string.
+    * @return
+    *   this vector for chaining
+    */
+  def fromString(v: String): this.type = {
+    val s0 = v.indexOf(',', 1)
+    val s1 = v.indexOf(',', s0 + 1)
+    if (s0 != -1 && s1 != -1 && v.charAt(0) == '(' && v.charAt(v.length - 1) == ')') {
+      try {
+        val x = java.lang.Float.parseFloat(v.substring(1, s0))
+        val y = java.lang.Float.parseFloat(v.substring(s0 + 1, s1))
+        val z = java.lang.Float.parseFloat(v.substring(s1 + 1, v.length - 1))
+        set(x, y, z)
+      } catch {
+        case _: NumberFormatException =>
+          throw utils.SgeError.MathError(s"Malformed Vector3: $v")
+      }
+    } else throw utils.SgeError.MathError(s"Malformed Vector3: $v")
   }
 }
 
@@ -1226,6 +1285,30 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     x == vector.x && y == vector.y && z == vector.z && w == vector.w
 
   override def toString: String = s"($x,$y,$z,$w)"
+
+  /** Sets this {@code Vector4} to the value represented by the specified string according to the format of {@link #toString()}.
+    * @param v
+    *   the string.
+    * @return
+    *   this vector, set with the value from v, for chaining
+    */
+  def fromString(v: String): this.type = {
+    val s0 = v.indexOf(',', 1)
+    val s1 = v.indexOf(',', s0 + 1)
+    val s2 = v.indexOf(',', s1 + 1)
+    if (s0 != -1 && s1 != -1 && s2 != -1 && v.charAt(0) == '(' && v.charAt(v.length - 1) == ')') {
+      try {
+        val x = java.lang.Float.parseFloat(v.substring(1, s0))
+        val y = java.lang.Float.parseFloat(v.substring(s0 + 1, s1))
+        val z = java.lang.Float.parseFloat(v.substring(s1 + 1, s2))
+        val w = java.lang.Float.parseFloat(v.substring(s2 + 1, v.length - 1))
+        set(x, y, z, w)
+      } catch {
+        case _: NumberFormatException =>
+          throw utils.SgeError.MathError(s"Malformed Vector4: $v")
+      }
+    } else throw utils.SgeError.MathError(s"Malformed Vector4: $v")
+  }
 
   override def hashCode(): Int = {
     val prime  = 31

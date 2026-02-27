@@ -10,7 +10,7 @@ package sge
 package graphics
 package g3d
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 class Material(var id: String) extends Attributes {
 
@@ -31,15 +31,15 @@ class Material(var id: String) extends Attributes {
   }
 
   /** Create a material with the specified attributes */
-  def this(attributes: ArrayBuffer[Attribute]) = {
+  def this(attributes: DynamicArray[Attribute]) = {
     this()
-    set(attributes)
+    for (attr <- attributes) set(attr)
   }
 
   /** Create a material with the specified attributes */
-  def this(id: String, attributes: ArrayBuffer[Attribute]) = {
+  def this(id: String, attributes: DynamicArray[Attribute]) = {
     this(id)
-    set(attributes)
+    for (attr <- attributes) set(attr)
   }
 
   /** Create a material which is an exact copy of the specified material */

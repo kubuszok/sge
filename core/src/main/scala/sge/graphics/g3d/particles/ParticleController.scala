@@ -11,12 +11,12 @@ package graphics
 package g3d
 package particles
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
+import sge.utils.DynamicArray
 import sge.graphics.g3d.particles.emitters.Emitter
 import sge.graphics.g3d.particles.influencers.Influencer
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderer
@@ -37,7 +37,7 @@ class ParticleController extends ResourceData.Configurable {
   var emitter: Emitter = scala.compiletime.uninitialized
 
   /** Update the properties of the particles */
-  var influencers: ArrayBuffer[Influencer] = new ArrayBuffer[Influencer](3)
+  var influencers: DynamicArray[Influencer] = DynamicArray[Influencer](3)
 
   /** Controls the graphical representation of the particles */
   var renderer: ParticleControllerRenderer[?, ?] = scala.compiletime.uninitialized
@@ -67,7 +67,9 @@ class ParticleController extends ResourceData.Configurable {
     this.emitter = emitter
     this.renderer = renderer
     this.particleChannels = new ParticleChannels()
-    this.influencers = ArrayBuffer.from(influencers)
+    this.influencers = DynamicArray[Influencer](influencers.length)
+    for (inf <- influencers)
+      this.influencers.add(inf)
   }
 
   /** Sets the delta used to step the simulation */
@@ -224,9 +226,14 @@ class ParticleController extends ResourceData.Configurable {
   /** @return a copy of this controller */
   def copy(): ParticleController = {
     val copiedEmitter     = this.emitter.copy().asInstanceOf[Emitter]
-    val copiedInfluencers = this.influencers.map(_.copy().asInstanceOf[Influencer])
     val copiedRenderer    = this.renderer.copy().asInstanceOf[ParticleControllerRenderer[?, ?]]
-    new ParticleController(new String(this.name), copiedEmitter, copiedRenderer, copiedInfluencers.toSeq*)
+    val copiedInfluencers = DynamicArray[Influencer](this.influencers.size)
+    var ci                = 0
+    while (ci < this.influencers.size) {
+      copiedInfluencers.add(this.influencers(ci).copy().asInstanceOf[Influencer])
+      ci += 1
+    }
+    new ParticleController(new String(this.name), copiedEmitter, copiedRenderer, copiedInfluencers.toArray.toSeq*)
   }
 
   def dispose(): Unit = {
@@ -283,7 +290,7 @@ class ParticleController extends ResourceData.Configurable {
   /** Removes the Influencer of the given type. */
   def removeInfluencer[K <: Influencer](`type`: Class[K]): Unit = {
     val index = findIndex(`type`)
-    if (index > -1) influencers.remove(index)
+    if (index > -1) influencers.removeIndex(index)
   }
 
   /** Replaces the Influencer of the given type with the one passed as parameter. */
@@ -291,7 +298,7 @@ class ParticleController extends ResourceData.Configurable {
     val index = findIndex(`type`)
     if (index > -1) {
       influencers.insert(index, newInfluencer)
-      influencers.remove(index + 1)
+      influencers.removeIndex(index + 1)
       true
     } else false
   }

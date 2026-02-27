@@ -14,8 +14,7 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureAtlas
 import sge.graphics.g2d.TextureAtlas.TextureAtlasData
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** {@link AssetLoader} to load {@link TextureAtlas} instances. Passing a {@link TextureAtlasParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify whether the
   * atlas regions should be flipped on the y-axis or not.
@@ -40,13 +39,13 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using sge: Sge) extends S
     atlas
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: TextureAtlasLoader.TextureAtlasParameter): ArrayBuffer[AssetDescriptor[?]] = {
+  override def getDependencies(fileName: String, file: FileHandle, parameter: TextureAtlasLoader.TextureAtlasParameter): DynamicArray[AssetDescriptor[?]] = {
     val atlasFile = file
     val imgDir    = atlasFile.parent()
 
     data = Nullable(new TextureAtlasData(atlasFile, imgDir, Nullable(parameter).fold(false)(_.flip)))
 
-    val dependencies = ArrayBuffer.empty[AssetDescriptor[?]]
+    val dependencies = DynamicArray[AssetDescriptor[?]]()
     data.foreach { d =>
       for (page <- d.getPages()) {
         val params = new TextureLoader.TextureParameter()
@@ -55,7 +54,7 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using sge: Sge) extends S
         params.minFilter = page.minFilter
         params.magFilter = page.magFilter
         page.textureFile.foreach { tf =>
-          dependencies += new AssetDescriptor[Texture](tf, classOf[Texture], params)
+          dependencies.add(new AssetDescriptor[Texture](tf, classOf[Texture], params))
         }
       }
     }

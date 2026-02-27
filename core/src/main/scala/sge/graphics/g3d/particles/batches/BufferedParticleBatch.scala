@@ -12,22 +12,21 @@ package g3d
 package particles
 package batches
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.Camera
 import sge.graphics.g3d.particles.ParticleSorter
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData
+import sge.utils.DynamicArray
 
 /** Base class of all the batches requiring to buffer {@link ParticleControllerRenderData}
   * @author
   *   Inferno
   */
 abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends ParticleBatch[T] {
-  protected var renderData:             ArrayBuffer[T] = new ArrayBuffer[T](10)
-  protected var bufferedParticlesCount: Int            = 0
-  protected var currentCapacity:        Int            = 0
-  protected var sorter:                 ParticleSorter = new ParticleSorter.Distance()
-  protected var camera:                 Camera         = scala.compiletime.uninitialized
+  protected var renderData:             DynamicArray[T] = DynamicArray[ParticleControllerRenderData](10).asInstanceOf[DynamicArray[T]]
+  protected var bufferedParticlesCount: Int             = 0
+  protected var currentCapacity:        Int             = 0
+  protected var sorter:                 ParticleSorter  = new ParticleSorter.Distance()
+  protected var camera:                 Camera          = scala.compiletime.uninitialized
 
   override def begin(): Unit = {
     renderData.clear()
@@ -36,7 +35,7 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
 
   override def draw(data: T): Unit =
     if (data.controller.particles.size > 0) {
-      renderData += data
+      renderData.add(data)
       bufferedParticlesCount += data.controller.particles.size
     }
 

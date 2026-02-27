@@ -12,9 +12,9 @@ package g3d
 package model
 package data
 
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.DynamicArray
 
 class ModelAnimation {
-  var id:             String                          = scala.compiletime.uninitialized
-  var nodeAnimations: ArrayBuffer[ModelNodeAnimation] = ArrayBuffer[ModelNodeAnimation]()
+  var id:             String                           = scala.compiletime.uninitialized
+  var nodeAnimations: DynamicArray[ModelNodeAnimation] = DynamicArray[ModelNodeAnimation]()
 }

@@ -11,25 +11,24 @@ package graphics
 package g3d
 package attributes
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.g3d.environment.DirectionalLight
+import sge.utils.DynamicArray
 
-/** An [[Attribute]] which can be used to send an [[ArrayBuffer]] of [[DirectionalLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
+/** An [[Attribute]] which can be used to send a [[DynamicArray]] of [[DirectionalLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
   * [[DirectionalLightsAttribute(DirectionalLightsAttribute)]] method will not create new lights.
   * @author
   *   Xoppa (original implementation)
   */
 class DirectionalLightsAttribute(
-  val lights: ArrayBuffer[DirectionalLight]
+  val lights: DynamicArray[DirectionalLight]
 ) extends Attribute(DirectionalLightsAttribute.Type) {
 
   def this() =
-    this(ArrayBuffer.empty[DirectionalLight])
+    this(DynamicArray[DirectionalLight]())
 
   def this(copyFrom: DirectionalLightsAttribute) = {
     this()
-    lights ++= copyFrom.lights
+    lights.addAll(copyFrom.lights)
   }
 
   override def copy(): DirectionalLightsAttribute =

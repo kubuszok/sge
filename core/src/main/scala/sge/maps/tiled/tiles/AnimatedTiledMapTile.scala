@@ -11,12 +11,11 @@ package maps
 package tiled
 package tiles
 
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.g2d.TextureRegion
 import sge.maps.{ MapObjects, MapProperties }
-import sge.utils.{ Nullable, SgeError, TimeUtils }
+import sge.utils.{ DynamicArray, Nullable, SgeError, TimeUtils }
 
 /** @brief Represents a changing {@link TiledMapTile}. */
 class AnimatedTiledMapTile private (
@@ -40,7 +39,7 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(interval: Float, frameTiles: ArrayBuffer[StaticTiledMapTile]) =
+  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       Array.fill(frameTiles.size)((interval * 1000f).toInt),
@@ -54,7 +53,7 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(intervals: Array[Int], frameTiles: ArrayBuffer[StaticTiledMapTile]) =
+  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       intervals.clone(),

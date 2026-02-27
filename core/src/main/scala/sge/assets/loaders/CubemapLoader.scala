@@ -15,8 +15,7 @@ import sge.graphics.{ Cubemap, CubemapData }
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.glutils.KTXTextureData
-import sge.utils.{ Nullable, SgeError }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 /** {@link AssetLoader} for {@link Cubemap} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link CubemapParameter}
   * to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows one to specify parameters as can be passed to the various Cubemap constructors, e.g. filtering and so on.
@@ -66,8 +65,8 @@ class CubemapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynch
     cubemapResult
   }
 
-  override def getDependencies(fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): ArrayBuffer[AssetDescriptor[?]] =
-    ArrayBuffer.empty
+  override def getDependencies(fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): DynamicArray[AssetDescriptor[?]] =
+    DynamicArray[AssetDescriptor[?]]()
 }
 
 object CubemapLoader {

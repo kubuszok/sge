@@ -9,25 +9,24 @@
 package sge
 package math
 
-import scala.collection.mutable.ArrayBuffer
-import sge.utils.Nullable
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Delaunay triangulation. Adapted from Paul Bourke's triangulate: http://paulbourke.net/papers/triangulate/
   * @author
   *   Nathan Sweet (original implementation)
   */
 class DelaunayTriangulator {
-  private val quicksortStack = ArrayBuffer[Int]()
+  private val quicksortStack = DynamicArray[Int]()
   private var sortedPoints: Array[Float] = scala.compiletime.uninitialized
-  private val triangles       = ArrayBuffer[Short]()
-  private val originalIndices = ArrayBuffer[Short]()
-  private val edges           = ArrayBuffer[Int]()
-  private val complete        = ArrayBuffer[Boolean]()
+  private val triangles       = DynamicArray[Short]()
+  private val originalIndices = DynamicArray[Short]()
+  private val edges           = DynamicArray[Int]()
+  private val complete        = DynamicArray[Boolean]()
   private val superTriangle   = new Array[Float](6)
   private val centroid        = new Vector2()
 
   /** @see #computeTriangles(float[], int, int, boolean) */
-  def computeTriangles(points: Array[Float], sorted: Boolean): ArrayBuffer[Short] =
+  def computeTriangles(points: Array[Float], sorted: Boolean): DynamicArray[Short] =
     computeTriangles(points, 0, points.length, sorted)
 
   /** Triangulates the given point cloud to a list of triangle indices that make up the Delaunay triangulation.
@@ -39,12 +38,12 @@ class DelaunayTriangulator {
     * @return
     *   triples of indices into the points that describe the triangles in clockwise order. Note the returned array is reused for later calls to the same method.
     */
-  def computeTriangles(points: Array[Float], offset: Int, count: Int, sorted: Boolean): ArrayBuffer[Short] = {
+  def computeTriangles(points: Array[Float], offset: Int, count: Int, sorted: Boolean): DynamicArray[Short] = {
     if (count > 32767) throw new IllegalArgumentException("count must be <= " + 32767)
     val triangles = this.triangles
     triangles.clear()
     if (count < 6) return triangles
-    triangles.sizeHint(count)
+    triangles.ensureCapacity(count)
 
     var pointsArray = points
     var offsetVar   = offset
@@ -90,11 +89,11 @@ class DelaunayTriangulator {
     superTriangle(5) = ymid - dmax
 
     val edges = this.edges
-    edges.sizeHint(count / 2)
+    edges.ensureCapacity(count / 2)
 
     val complete = this.complete
     complete.clear()
-    complete.sizeHint(count)
+    complete.ensureCapacity(count)
 
     // Add super triangle.
     triangles += end.toShort
@@ -145,8 +144,8 @@ class DelaunayTriangulator {
               edges += p3
               edges += p1
 
-              triangles.remove(triangleIndex - 2, 3)
-              complete.remove(completeIndex)
+              triangles.removeRange(triangleIndex - 2, triangleIndex + 1)
+              complete.removeIndex(completeIndex)
           }
         }
         triangleIndex -= 3
@@ -186,7 +185,7 @@ class DelaunayTriangulator {
     var idx = triangles.size - 1
     while (idx >= 0) {
       if (triangles(idx) >= end || triangles(idx - 1) >= end || triangles(idx - 2) >= end) {
-        triangles.remove(idx - 2, 3)
+        triangles.removeRange(idx - 2, idx + 1)
       }
       idx -= 3
     }
@@ -264,7 +263,7 @@ class DelaunayTriangulator {
   private def sort(values: Array[Float], count: Int): Unit = {
     val pointCount = count / 2
     originalIndices.clear()
-    originalIndices.sizeHint(pointCount)
+    originalIndices.ensureCapacity(pointCount)
     var i: Short = 0
     while (i < pointCount) {
       originalIndices += i
@@ -277,8 +276,8 @@ class DelaunayTriangulator {
     stack += lower
     stack += upper - 1
     while (stack.nonEmpty) {
-      upper = stack.remove(stack.size - 1)
-      lower = stack.remove(stack.size - 1)
+      upper = stack.pop()
+      lower = stack.pop()
       if (upper <= lower) {
         // continue
       } else {
@@ -335,7 +334,7 @@ class DelaunayTriangulator {
     up
   }
 
-  def trim(triangles: ArrayBuffer[Short], points: Array[Float], hull: Array[Float], offset: Int, count: Int): Unit = {
+  def trim(triangles: DynamicArray[Short], points: Array[Float], hull: Array[Float], offset: Int, count: Int): Unit = {
     var i = triangles.size - 1
     while (i >= 0) {
       val p1 = triangles(i - 2) * 2
@@ -343,7 +342,7 @@ class DelaunayTriangulator {
       val p3 = triangles(i) * 2
       GeometryUtils.triangleCentroid(points(p1), points(p1 + 1), points(p2), points(p2 + 1), points(p3), points(p3 + 1), centroid)
       if (!GeometryUtils.isPointInPolygon(hull, offset, count, centroid.x, centroid.y)) {
-        triangles.remove(i - 2, 3)
+        triangles.removeRange(i - 2, i + 1)
       }
       i -= 3
     }

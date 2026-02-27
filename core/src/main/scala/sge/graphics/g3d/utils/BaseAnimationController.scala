@@ -12,13 +12,12 @@ package g3d
 package utils
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
-import sge.utils.{ Nullable, Pool, SgeError }
+import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
 /** Base class for applying one or more {@link Animation}s to a {@link ModelInstance}. This class only applies the actual {@link Node} transformations, it does not manage animations or keep track of
   * animation states. See {@link AnimationController} for an implementation of this class which does manage animations.
@@ -148,7 +147,7 @@ object BaseAnimationController {
     * @return
     *   key frame index, 0 if time is out of key frames time range
     */
-  def getFirstKeyframeIndexAtTime[T](arr: ArrayBuffer[NodeKeyframe[T]], time: Float): Int = scala.util.boundary {
+  def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = scala.util.boundary {
     val lastIndex = arr.size - 1
 
     // edges cases : time out of range always return first index

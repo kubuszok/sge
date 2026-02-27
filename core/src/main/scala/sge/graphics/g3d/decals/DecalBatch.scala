@@ -12,12 +12,12 @@ package g3d
 package decals
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 import sge.graphics.Mesh
 import sge.graphics.VertexAttribute
 import sge.graphics.VertexAttributes
 import sge.graphics.glutils.ShaderProgram
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.Pool
 
@@ -33,12 +33,12 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
   private var vertices: Array[Float] = scala.compiletime.uninitialized
   private var mesh:     Mesh         = scala.compiletime.uninitialized
 
-  private val groupList: mutable.TreeMap[Int, ArrayBuffer[Decal]] = mutable.TreeMap.empty
-  private val groupPool: Pool[ArrayBuffer[Decal]]                 = new Pool.Default[ArrayBuffer[Decal]](
-    () => new ArrayBuffer[Decal](100),
+  private val groupList: mutable.TreeMap[Int, DynamicArray[Decal]] = mutable.TreeMap.empty
+  private val groupPool: Pool[DynamicArray[Decal]]                 = new Pool.Default[DynamicArray[Decal]](
+    () => DynamicArray[Decal](100),
     initialCapacity = 16
   )
-  private val usedGroups: ArrayBuffer[ArrayBuffer[Decal]] = new ArrayBuffer[ArrayBuffer[Decal]](16)
+  private val usedGroups: DynamicArray[DynamicArray[Decal]] = DynamicArray[DynamicArray[Decal]](16)
 
   initialize(size)
 
@@ -107,11 +107,11 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
     val targetGroup = groupList.getOrElseUpdate(groupIndex, {
                                                   val group = groupPool.obtain()
                                                   group.clear()
-                                                  usedGroups += group
+                                                  usedGroups.add(group)
                                                   group
                                                 }
     )
-    targetGroup += decal
+    targetGroup.add(decal)
   }
 
   /** Flush this batch sending all contained decals to GL. After flushing the batch is empty once again. */
@@ -137,7 +137,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
     * @param decals
     *   Decals to render
     */
-  private def render(shader: Nullable[ShaderProgram], decals: ArrayBuffer[Decal]): Unit = {
+  private def render(shader: Nullable[ShaderProgram], decals: DynamicArray[Decal]): Unit = {
     // batch vertices
     var lastMaterial: Nullable[DecalMaterial] = Nullable.empty
     var idx = 0
@@ -180,7 +180,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
   /** Remove all decals from batch */
   protected def clear(): Unit = {
     groupList.clear()
-    groupPool.freeAll(usedGroups)
+    usedGroups.foreach(groupPool.free)
     usedGroups.clear()
   }
 

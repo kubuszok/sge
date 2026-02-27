@@ -11,10 +11,9 @@ package graphics
 package g3d
 package decals
 
-import scala.collection.mutable.ArrayBuffer
-
 import sge.graphics.GL20
 import sge.graphics.glutils.ShaderProgram
+import sge.utils.DynamicArray
 import sge.utils.Nullable
 import sge.utils.Sort
 
@@ -33,7 +32,7 @@ class SimpleOrthoGroupStrategy(using sge: Sge) extends GroupStrategy {
   override def decideGroup(decal: Decal): Int =
     if (decal.getMaterial.isOpaque) SimpleOrthoGroupStrategy.GROUP_OPAQUE else SimpleOrthoGroupStrategy.GROUP_BLEND
 
-  override def beforeGroup(group: Int, contents: ArrayBuffer[Decal]): Unit =
+  override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == SimpleOrthoGroupStrategy.GROUP_BLEND) {
       Sort.sort(contents, comparator)
       sge.graphics.gl.glEnable(GL20.GL_BLEND)

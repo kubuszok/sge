@@ -8,7 +8,6 @@
  */
 package sge.utils
 
-import scala.collection.mutable.ArrayBuffer
 import sge.math.MathUtils
 
 /** @author xoppa (original implementation) */
@@ -16,17 +15,17 @@ class PerformanceCounters {
   private val nano2seconds = MathUtils.nanoToSec
 
   private var lastTick = 0L
-  val counters: ArrayBuffer[PerformanceCounter] = ArrayBuffer.empty[PerformanceCounter]
+  val counters: DynamicArray[PerformanceCounter] = DynamicArray[PerformanceCounter]()
 
   def add(name: String, windowSize: Int): PerformanceCounter = {
     val result = new PerformanceCounter(name, windowSize)
-    counters += result
+    counters.add(result)
     result
   }
 
   def add(name: String): PerformanceCounter = {
     val result = new PerformanceCounter(name)
-    counters += result
+    counters.add(result)
     result
   }
 
@@ -36,15 +35,21 @@ class PerformanceCounters {
     lastTick = t
   }
 
-  def tick(deltaTime: Float): Unit =
-    for (i <- counters.indices)
+  def tick(deltaTime: Float): Unit = {
+    var i = 0
+    while (i < counters.size) {
       counters(i).tick(deltaTime)
+      i += 1
+    }
+  }
 
   def toString(sb: StringBuilder): StringBuilder = {
     sb.setLength(0)
-    for (i <- counters.indices) {
+    var i = 0
+    while (i < counters.size) {
       if (i != 0) sb.append("; ")
       counters(i).toString(sb)
+      i += 1
     }
     sb
   }

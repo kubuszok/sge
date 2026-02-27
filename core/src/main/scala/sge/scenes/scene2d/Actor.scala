@@ -10,8 +10,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ Align, Nullable, PoolManager }
-import scala.collection.mutable.ArrayBuffer
+import sge.utils.{ Align, DynamicArray, MkArray, Nullable, PoolManager }
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
@@ -33,17 +32,17 @@ import sge.math.{ MathUtils, Rectangle, Vector2 }
   */
 class Actor {
 
-  private var stage:            Nullable[Stage]            = Nullable.empty
-  private[scene2d] var parent:  Nullable[Group]            = Nullable.empty
-  private val listeners:        ArrayBuffer[EventListener] = ArrayBuffer.empty
-  private val captureListeners: ArrayBuffer[EventListener] = ArrayBuffer.empty
-  private val actions:          ArrayBuffer[Action]        = ArrayBuffer.empty
+  private var stage:            Nullable[Stage]             = Nullable.empty
+  private[scene2d] var parent:  Nullable[Group]             = Nullable.empty
+  private val listeners:        DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val captureListeners: DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val actions:          DynamicArray[Action]        = DynamicArray[Action]()
 
   // Deferred removal support for listeners
-  private var iteratingListeners:             Int                        = 0
-  private var iteratingCaptureListeners:      Int                        = 0
-  private val pendingListenerRemovals:        ArrayBuffer[EventListener] = ArrayBuffer.empty
-  private val pendingCaptureListenerRemovals: ArrayBuffer[EventListener] = ArrayBuffer.empty
+  private var iteratingListeners:             Int                         = 0
+  private var iteratingCaptureListeners:      Int                         = 0
+  private val pendingListenerRemovals:        DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val pendingCaptureListenerRemovals: DynamicArray[EventListener] = DynamicArray[EventListener]()
 
   private var name:       Nullable[String] = Nullable.empty
   private var touchable:  Touchable        = Touchable.enabled
@@ -87,7 +86,7 @@ class Actor {
             val current     = actions(i)
             val actionIndex = if (current eq action) i else actions.indexOf(action)
             if (actionIndex != -1) {
-              actions.remove(actionIndex)
+              actions.removeIndex(actionIndex)
               action.setActor(Nullable.empty)
               i -= 1
             }
@@ -113,15 +112,15 @@ class Actor {
     event.setTarget(this)
 
     // Collect ascendants so event propagation is unaffected by hierarchy changes.
-    val ascendants = ArrayBuffer.empty[Group]
+    val ascendants = DynamicArray[Group]()
     var p          = this.parent
     p.foreach { pp =>
-      ascendants += pp
+      ascendants.add(pp)
       p = pp.parent
     }
     while (p.isDefined)
       p.foreach { pp =>
-        ascendants += pp
+        ascendants.add(pp)
         p = pp.parent
       }
 
@@ -186,13 +185,13 @@ class Actor {
       if (capture) {
         iteratingCaptureListeners -= 1
         if (iteratingCaptureListeners == 0) {
-          pendingCaptureListenerRemovals.foreach(l => captureListeners -= l)
+          pendingCaptureListenerRemovals.foreach(l => captureListeners.removeValue(l))
           pendingCaptureListenerRemovals.clear()
         }
       } else {
         iteratingListeners -= 1
         if (iteratingListeners == 0) {
-          pendingListenerRemovals.foreach(l => listeners -= l)
+          pendingListenerRemovals.foreach(l => listeners.removeValue(l))
           pendingListenerRemovals.clear()
         }
       }
@@ -234,48 +233,48 @@ class Actor {
     */
   def addListener(listener: EventListener): Boolean =
     if (!listeners.contains(listener)) {
-      listeners += listener
+      listeners.add(listener)
       true
     } else false
 
   def removeListener(listener: EventListener): Boolean =
     if (iteratingListeners > 0) {
       val removed = listeners.contains(listener)
-      if (removed) pendingListenerRemovals += listener
+      if (removed) pendingListenerRemovals.add(listener)
       removed
     } else {
       val idx = listeners.indexOf(listener)
-      if (idx >= 0) { listeners.remove(idx); true }
+      if (idx >= 0) { listeners.removeIndex(idx); true }
       else false
     }
 
-  def getListeners: ArrayBuffer[EventListener] = listeners
+  def getListeners: DynamicArray[EventListener] = listeners
 
   /** Adds a listener that is only notified during the capture phase.
     * @see
     *   #fire(Event)
     */
   def addCaptureListener(listener: EventListener): Boolean = {
-    if (!captureListeners.contains(listener)) captureListeners += listener
+    if (!captureListeners.contains(listener)) captureListeners.add(listener)
     true
   }
 
   def removeCaptureListener(listener: EventListener): Boolean =
     if (iteratingCaptureListeners > 0) {
       val removed = captureListeners.contains(listener)
-      if (removed) pendingCaptureListenerRemovals += listener
+      if (removed) pendingCaptureListenerRemovals.add(listener)
       removed
     } else {
       val idx = captureListeners.indexOf(listener)
-      if (idx >= 0) { captureListeners.remove(idx); true }
+      if (idx >= 0) { captureListeners.removeIndex(idx); true }
       else false
     }
 
-  def getCaptureListeners: ArrayBuffer[EventListener] = captureListeners
+  def getCaptureListeners: DynamicArray[EventListener] = captureListeners
 
   def addAction(action: Action)(using sge: Sge): Unit = {
     action.setActor(Nullable(this))
-    actions += action
+    actions.add(action)
 
     stage.foreach { s =>
       if (s.getActionsRequestRendering) sge.graphics.requestRendering()
@@ -287,12 +286,12 @@ class Actor {
     action.foreach { a =>
       val idx = actions.indexOf(a)
       if (idx >= 0) {
-        actions.remove(idx)
+        actions.removeIndex(idx)
         a.setActor(Nullable.empty)
       }
     }
 
-  def getActions: ArrayBuffer[Action] = actions
+  def getActions: DynamicArray[Action] = actions
 
   /** Returns true if the actor has one or more actions. */
   def hasActions: Boolean = actions.nonEmpty
@@ -759,7 +758,7 @@ class Actor {
           val idx = children.indexOf(this)
           if (idx < 0) false
           else {
-            children.remove(idx)
+            children.removeIndex(idx)
             children.insert(clampedIndex, this)
             true
           }
@@ -967,7 +966,7 @@ object Actor {
   val POOLS: PoolManager = new PoolManager()
 
   POOLS.addPool(classOf[Rectangle], () => new Rectangle())
-  POOLS.addPool(classOf[ArrayBuffer[?]], () => ArrayBuffer.empty[Any])
+  POOLS.addPool(classOf[DynamicArray[?]], () => DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[Any]], 16, true))
   POOLS.addPool(classOf[GlyphLayout], () => new GlyphLayout())
   POOLS.addPool(classOf[utils.ChangeListener.ChangeEvent], () => new utils.ChangeListener.ChangeEvent())
 }
