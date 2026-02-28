@@ -14,6 +14,7 @@ package renderers
 import sge.Sge
 import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
+import sge.utils.Nullable
 
 class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using sge: Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
@@ -111,7 +112,7 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
     val vertices   = this.vertices
     val region     = layer.getTextureRegion
 
-    if (region == null) {
+    if (Nullable(region).isEmpty) {
       ()
     } else {
 

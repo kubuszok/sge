@@ -16,6 +16,7 @@ import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.utils.{ DynamicArray, JsonReader, JsonValue, Nullable, XmlReader }
 
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -57,7 +58,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
     */
   def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
     var param = parameter
-    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
     val file      = resolve(fileName)
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
@@ -81,7 +82,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
     parameter: BaseTiledMapLoader.Parameters
   ): DynamicArray[AssetDescriptor[?]] = {
     var param = parameter
-    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
@@ -105,7 +106,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
     parameter: BaseTiledMapLoader.Parameters
   ): Unit = {
     var param = parameter
-    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
@@ -129,7 +130,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
     parameter: BaseTiledMapLoader.Parameters
   ): TiledMap = {
     var param = parameter
-    if (param == null) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))

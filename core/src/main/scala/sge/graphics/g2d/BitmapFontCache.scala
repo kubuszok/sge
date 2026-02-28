@@ -11,6 +11,8 @@ package sge.graphics.g2d
 import sge.graphics.Color
 import sge.utils.{ DynamicArray, Nullable }
 import sge.utils.NumberUtils
+import scala.util.boundary
+import scala.util.boundary.break
 
 class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
@@ -51,8 +53,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def setPosition(x: Float, y: Float): Unit =
     translate(x - this.x, y - this.y)
 
-  def translate(xAmount: Float, yAmount: Float): Unit = {
-    if (xAmount == 0 && yAmount == 0) return
+  def translate(xAmount: Float, yAmount: Float): Unit = boundary {
+    if (xAmount == 0 && yAmount == 0) break()
     var adjXAmount = xAmount
     var adjYAmount = yAmount
     if (integer) {
@@ -74,9 +76,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     }
   }
 
-  def tint(tint: Color): Unit = {
+  def tint(tint: Color): Unit = boundary {
     val newTint = tint.toFloatBits()
-    if (currentTint == newTint) return
+    if (currentTint == newTint) break()
     currentTint = newTint
 
     val pageVerticesLocal   = this.pageVertices
@@ -222,7 +224,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def draw(spriteBatch: Batch, start: Int, end: Int): Unit = scala.util.boundary {
     if (pageVertices.length == 1) { // 1 page.
       spriteBatch.draw(font.getRegion().getTexture(), pageVertices(0), start * 20, (end - start) * 20)
-      return
+      scala.util.boundary.break()
     }
 
     // Determine vertex offset and count to render for each page. Some pages might not need to be rendered at all.
@@ -369,9 +371,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def addText(layout: GlyphLayout, x: Float, y: Float): Unit =
     addToCache(layout, x, y + font.data.ascent)
 
-  private def addToCache(layout: GlyphLayout, x: Float, y: Float): Unit = {
+  private def addToCache(layout: GlyphLayout, x: Float, y: Float): Unit = boundary {
     val runCount = layout.runs.size
-    if (runCount == 0) return
+    if (runCount == 0) break()
 
     // Check if the number of font pages has changed.
     if (pageVertices.length < font.regions.size) setPageCount(font.regions.size)

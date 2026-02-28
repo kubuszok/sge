@@ -19,6 +19,7 @@ import sge.graphics.g2d.TextureRegion
 import sge.utils.{ DynamicArray, Nullable, XmlReader }
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 
 /** @brief
   *   synchronous loader for TMX maps created with the Tiled tool
@@ -185,7 +186,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
   ): Unit = {
 
     val props = tileSet.getProperties
-    if (image != null) {
+    if (Nullable(image).isDefined) {
       // One image for the whole tileSet
       val texture = imageResolver.getImage(image.path())
 
@@ -224,7 +225,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
         if (imageElement.isDefined) {
           val imgSource = imageElement.orNull.getAttribute("source")
 
-          if (source != null) {
+          if (Nullable(source).isDefined) {
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(
               BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source),
               imgSource

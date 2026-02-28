@@ -122,14 +122,12 @@ abstract class Viewport(using sge: Sge) {
 
   /** Transforms a point to real screen coordinates (as opposed to OpenGL ES window coordinates), where the origin is in the top left and the the y-axis is pointing downwards.
     */
-  // TODO: Convert to proper Scala syntax
   def toScreenCoordinates(worldCoords: Vector2, transformMatrix: Matrix4): Vector2 = {
     tmp.set(worldCoords.x, worldCoords.y, 0)
     tmp.mul(transformMatrix)
     camera.project(tmp, screenX.toFloat, screenY.toFloat, screenWidth.toFloat, screenHeight.toFloat)
     tmp.y = sge.graphics.getHeight() - tmp.y
-    worldCoords.x = tmp.x
-    worldCoords.y = tmp.y
+    worldCoords.set(tmp.x, tmp.y)
     worldCoords
   }
 

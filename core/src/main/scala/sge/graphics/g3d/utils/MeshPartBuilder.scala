@@ -245,7 +245,7 @@ trait MeshPartBuilder {
     corner01:   MeshPartBuilder.VertexInfo,
     divisionsU: Int,
     divisionsV: Int
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated use PatchShapeBuilder.build instead. */
   @deprecated("use PatchShapeBuilder.build instead", "")
@@ -257,7 +257,7 @@ trait MeshPartBuilder {
     normal:     Vector3,
     divisionsU: Int,
     divisionsV: Int
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated use PatchShapeBuilder.build instead. */
   @deprecated("use PatchShapeBuilder.build instead", "")
@@ -279,7 +279,7 @@ trait MeshPartBuilder {
     normalZ:    Float,
     divisionsU: Int,
     divisionsV: Int
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated use BoxShapeBuilder.build instead. */
   @deprecated("use BoxShapeBuilder.build instead", "")
@@ -292,7 +292,7 @@ trait MeshPartBuilder {
     corner011: MeshPartBuilder.VertexInfo,
     corner101: MeshPartBuilder.VertexInfo,
     corner111: MeshPartBuilder.VertexInfo
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated use BoxShapeBuilder.build instead. */
   @deprecated("use BoxShapeBuilder.build instead", "")
@@ -305,31 +305,31 @@ trait MeshPartBuilder {
     corner011: Vector3,
     corner101: Vector3,
     corner111: Vector3
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated use BoxShapeBuilder.build instead. */
   @deprecated("use BoxShapeBuilder.build instead", "")
-  def box(transform: Matrix4): Unit = ???
+  def box(transform: Matrix4): Unit
 
   /** @deprecated use BoxShapeBuilder.build instead. */
   @deprecated("use BoxShapeBuilder.build instead", "")
-  def box(width: Float, height: Float, depth: Float): Unit = ???
+  def box(width: Float, height: Float, depth: Float): Unit
 
   /** @deprecated use BoxShapeBuilder.build instead. */
   @deprecated("use BoxShapeBuilder.build instead", "")
-  def box(x: Float, y: Float, z: Float, width: Float, height: Float, depth: Float): Unit = ???
+  def box(x: Float, y: Float, z: Float, width: Float, height: Float, depth: Float): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
-  def circle(radius: Float, divisions: Int, centerX: Float, centerY: Float, centerZ: Float, normalX: Float, normalY: Float, normalZ: Float): Unit = ???
+  def circle(radius: Float, divisions: Int, centerX: Float, centerY: Float, centerZ: Float, normalX: Float, normalY: Float, normalZ: Float): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
-  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3): Unit = ???
+  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
-  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3, tangent: Vector3, binormal: Vector3): Unit = ???
+  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3, tangent: Vector3, binormal: Vector3): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -348,7 +348,7 @@ trait MeshPartBuilder {
     binormalX: Float,
     binormalY: Float,
     binormalZ: Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -363,11 +363,11 @@ trait MeshPartBuilder {
     normalZ:   Float,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
-  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3, angleFrom: Float, angleTo: Float): Unit = ???
+  def circle(radius: Float, divisions: Int, center: Vector3, normal: Vector3, angleFrom: Float, angleTo: Float): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -380,7 +380,7 @@ trait MeshPartBuilder {
     binormal:  Vector3,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -401,7 +401,7 @@ trait MeshPartBuilder {
     binormalZ: Float,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -415,11 +415,11 @@ trait MeshPartBuilder {
     normalX:   Float,
     normalY:   Float,
     normalZ:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
-  def ellipse(width: Float, height: Float, divisions: Int, center: Vector3, normal: Vector3): Unit = ???
+  def ellipse(width: Float, height: Float, divisions: Int, center: Vector3, normal: Vector3): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -431,7 +431,7 @@ trait MeshPartBuilder {
     normal:    Vector3,
     tangent:   Vector3,
     binormal:  Vector3
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -451,7 +451,7 @@ trait MeshPartBuilder {
     binormalX: Float,
     binormalY: Float,
     binormalZ: Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -467,7 +467,7 @@ trait MeshPartBuilder {
     normalZ:   Float,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -479,7 +479,7 @@ trait MeshPartBuilder {
     normal:    Vector3,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -493,7 +493,7 @@ trait MeshPartBuilder {
     binormal:  Vector3,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -515,7 +515,7 @@ trait MeshPartBuilder {
     binormalZ: Float,
     angleFrom: Float,
     angleTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -539,7 +539,7 @@ trait MeshPartBuilder {
     binormalZ:   Float,
     angleFrom:   Float,
     angleTo:     Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -557,7 +557,7 @@ trait MeshPartBuilder {
     normalZ:     Float,
     angleFrom:   Float,
     angleTo:     Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -573,7 +573,7 @@ trait MeshPartBuilder {
     normalX:     Float,
     normalY:     Float,
     normalZ:     Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use EllipseShapeBuilder.build instead. */
   @deprecated("Use EllipseShapeBuilder.build instead", "")
@@ -585,15 +585,15 @@ trait MeshPartBuilder {
     divisions:   Int,
     center:      Vector3,
     normal:      Vector3
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use CylinderShapeBuilder.build instead. */
   @deprecated("Use CylinderShapeBuilder.build instead", "")
-  def cylinder(width: Float, height: Float, depth: Float, divisions: Int): Unit = ???
+  def cylinder(width: Float, height: Float, depth: Float, divisions: Int): Unit
 
   /** @deprecated Use CylinderShapeBuilder.build instead. */
   @deprecated("Use CylinderShapeBuilder.build instead", "")
-  def cylinder(width: Float, height: Float, depth: Float, divisions: Int, angleFrom: Float, angleTo: Float): Unit = ???
+  def cylinder(width: Float, height: Float, depth: Float, divisions: Int, angleFrom: Float, angleTo: Float): Unit
 
   /** @deprecated Use CylinderShapeBuilder.build instead. */
   @deprecated("Use CylinderShapeBuilder.build instead", "")
@@ -605,23 +605,23 @@ trait MeshPartBuilder {
     angleFrom: Float,
     angleTo:   Float,
     close:     Boolean
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use ConeShapeBuilder.build instead. */
   @deprecated("Use ConeShapeBuilder.build instead", "")
-  def cone(width: Float, height: Float, depth: Float, divisions: Int): Unit = ???
+  def cone(width: Float, height: Float, depth: Float, divisions: Int): Unit
 
   /** @deprecated Use ConeShapeBuilder.build instead. */
   @deprecated("Use ConeShapeBuilder.build instead", "")
-  def cone(width: Float, height: Float, depth: Float, divisions: Int, angleFrom: Float, angleTo: Float): Unit = ???
+  def cone(width: Float, height: Float, depth: Float, divisions: Int, angleFrom: Float, angleTo: Float): Unit
 
   /** @deprecated Use SphereShapeBuilder.build instead. */
   @deprecated("Use SphereShapeBuilder.build instead", "")
-  def sphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit = ???
+  def sphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit
 
   /** @deprecated Use SphereShapeBuilder.build instead. */
   @deprecated("Use SphereShapeBuilder.build instead", "")
-  def sphere(transform: Matrix4, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit = ???
+  def sphere(transform: Matrix4, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit
 
   /** @deprecated Use SphereShapeBuilder.build instead. */
   @deprecated("Use SphereShapeBuilder.build instead", "")
@@ -635,7 +635,7 @@ trait MeshPartBuilder {
     angleUTo:   Float,
     angleVFrom: Float,
     angleVTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use SphereShapeBuilder.build instead. */
   @deprecated("Use SphereShapeBuilder.build instead", "")
@@ -650,11 +650,11 @@ trait MeshPartBuilder {
     angleUTo:   Float,
     angleVFrom: Float,
     angleVTo:   Float
-  ): Unit = ???
+  ): Unit
 
   /** @deprecated Use CapsuleShapeBuilder.build instead. */
   @deprecated("Use CapsuleShapeBuilder.build instead", "")
-  def capsule(radius: Float, height: Float, divisions: Int): Unit = ???
+  def capsule(radius: Float, height: Float, divisions: Int): Unit
 
   /** @deprecated Use ArrowShapeBuilder.build instead. */
   @deprecated("Use ArrowShapeBuilder.build instead", "")
@@ -668,7 +668,7 @@ trait MeshPartBuilder {
     capLength:     Float,
     stemThickness: Float,
     divisions:     Int
-  ): Unit = ???
+  ): Unit
 }
 
 object MeshPartBuilder {

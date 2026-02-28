@@ -17,6 +17,7 @@ import java.nio.IntBuffer;
 
 import sge.utils.BufferUtils;
 import sge.utils.DynamicArray
+import sge.utils.Nullable
 
 /** <p> A {@link VertexData} implementation that uses vertex buffer objects and vertex array objects. (This is required for OpenGL 3.0+ core profiles. In particular, the default VAO has been
   * deprecated, as has the use of client memory for passing vertex attributes.) Use of VAOs should give a slight performance benefit since you don't have to bind the attributes on every draw anymore.
@@ -150,9 +151,9 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     *   the shader
     */
   override def bind(shader: ShaderProgram): Unit =
-    bind(shader, null)
+    bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     sde.graphics.gl30.foreach(_.glBindVertexArray(vaoHandle))
 
     bindAttributes(shader, locations)
@@ -163,21 +164,21 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     isBound = true
   }
 
-  private def bindAttributes(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  private def bindAttributes(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     var stillValid    = cachedLocations.nonEmpty
     val numAttributes = attributes.size
 
     if (stillValid) {
-      if (locations == null) {
+      locations.fold {
         for (i <- 0 until numAttributes if stillValid) {
           val attribute = attributes.get(i)
           val location  = shader.getAttributeLocation(attribute.alias)
           stillValid = location == cachedLocations(i)
         }
-      } else {
-        stillValid = locations.length == cachedLocations.size
+      } { locs =>
+        stillValid = locs.length == cachedLocations.size
         for (i <- 0 until numAttributes if stillValid)
-          stillValid = locations(i) == cachedLocations(i)
+          stillValid = locs(i) == cachedLocations(i)
       }
     }
 
@@ -188,11 +189,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
 
       for (i <- 0 until numAttributes) {
         val attribute = attributes.get(i)
-        val location  = if (locations == null) {
-          shader.getAttributeLocation(attribute.alias)
-        } else {
-          locations(i)
-        }
+        val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
         cachedLocations.add(location)
 
         if (location >= 0) {
@@ -203,18 +200,16 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     }
   }
 
-  private def unbindAttributes(shaderProgram: ShaderProgram): Unit = {
-    if (cachedLocations.isEmpty) {
-      return
-    }
-    val numAttributes = attributes.size
-    for (i <- 0 until numAttributes) {
-      val location = cachedLocations(i)
-      if (location >= 0) {
-        shaderProgram.disableVertexAttribute(location)
+  private def unbindAttributes(shaderProgram: ShaderProgram): Unit =
+    if (cachedLocations.nonEmpty) {
+      val numAttributes = attributes.size
+      for (i <- 0 until numAttributes) {
+        val location = cachedLocations(i)
+        if (location >= 0) {
+          shaderProgram.disableVertexAttribute(location)
+        }
       }
     }
-  }
 
   private def bindData(gl: GL20): Unit =
     if (isDirty) {
@@ -230,9 +225,9 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     *   the shader
     */
   override def unbind(shader: ShaderProgram): Unit =
-    unbind(shader, null)
+    unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     sde.graphics.gl30.foreach(_.glBindVertexArray(0))
     isBound = false
   }

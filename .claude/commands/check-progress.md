@@ -2,10 +2,22 @@ Show migration progress for the SGE project, optionally filtered by package.
 
 ## Procedure
 
-1. Read `docs/progress/migration-status.tsv`
+1. Run the status recipe:
 
-2. If `$ARGUMENTS` is provided, filter rows where `libgdx_path` contains that string
-   (e.g., `graphics/g2d` shows only the g2d package).
+   Overall summary:
+   ```
+   just sge-status
+   ```
+
+   Filtered by package (e.g., `graphics/g2d`):
+   ```
+   just sge-status <package>
+   ```
+
+2. If `$ARGUMENTS` is provided, use it as the package filter:
+   ```
+   just sge-status $ARGUMENTS
+   ```
 
 3. Summarize:
    - Total files per status (`not_started`, `partial`, `ai_converted`, `verified`, `idiomatized`, `skipped`)
@@ -13,3 +25,8 @@ Show migration progress for the SGE project, optionally filtered by package.
    - List any files with notes indicating issues
 
 4. If no argument provided, show a high-level summary grouped by top-level package.
+
+## Important
+
+**Do NOT use shell commands directly.** Use `just sge-status` or Read the TSV file
+with the Read tool.

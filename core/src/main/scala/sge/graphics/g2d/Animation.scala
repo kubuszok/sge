@@ -56,8 +56,9 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     * @param keyFrames
     *   the objects representing the frames.
     */
-  def this(frameDuration: Float, keyFrames: T*) =
+  def this(frameDuration: Float, keyFrames: T*) = {
     this(frameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
+  }
 
   /** Returns a frame based on the so called state time. This is the amount of seconds an object has spent in the state this Animation instance represents, e.g. running, jumping and so on. The mode
     * specifies whether the animation is looping or not.
@@ -107,40 +108,40 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     * @return
     *   current frame number
     */
-  def getKeyFrameIndex(stateTime: Float): Int = {
-    if (keyFramesArray.length == 1) return 0
+  def getKeyFrameIndex(stateTime: Float): Int =
+    if (keyFramesArray.length == 1) 0
+    else {
+      var frameNumber = (stateTime / frameDurationVar).toInt
+      frameNumber = playMode match {
+        case Animation.PlayMode.NORMAL =>
+          Math.min(keyFramesArray.length - 1, frameNumber)
+        case Animation.PlayMode.LOOP =>
+          frameNumber % keyFramesArray.length
+        case Animation.PlayMode.LOOP_PINGPONG =>
+          frameNumber = frameNumber % ((keyFramesArray.length * 2) - 2)
+          if (frameNumber >= keyFramesArray.length)
+            keyFramesArray.length - 2 - (frameNumber - keyFramesArray.length)
+          else
+            frameNumber
+        case Animation.PlayMode.LOOP_RANDOM =>
+          val lastFrameNumberTemp = (lastStateTime / frameDurationVar).toInt
+          if (lastFrameNumberTemp != frameNumber) {
+            MathUtils.random(keyFramesArray.length - 1)
+          } else {
+            this.lastFrameNumber
+          }
+        case Animation.PlayMode.REVERSED =>
+          Math.max(keyFramesArray.length - frameNumber - 1, 0)
+        case Animation.PlayMode.LOOP_REVERSED =>
+          frameNumber = frameNumber % keyFramesArray.length
+          keyFramesArray.length - frameNumber - 1
+      }
 
-    var frameNumber = (stateTime / frameDurationVar).toInt
-    frameNumber = playMode match {
-      case Animation.PlayMode.NORMAL =>
-        Math.min(keyFramesArray.length - 1, frameNumber)
-      case Animation.PlayMode.LOOP =>
-        frameNumber % keyFramesArray.length
-      case Animation.PlayMode.LOOP_PINGPONG =>
-        frameNumber = frameNumber % ((keyFramesArray.length * 2) - 2)
-        if (frameNumber >= keyFramesArray.length)
-          keyFramesArray.length - 2 - (frameNumber - keyFramesArray.length)
-        else
-          frameNumber
-      case Animation.PlayMode.LOOP_RANDOM =>
-        val lastFrameNumberTemp = (lastStateTime / frameDurationVar).toInt
-        if (lastFrameNumberTemp != frameNumber) {
-          MathUtils.random(keyFramesArray.length - 1)
-        } else {
-          this.lastFrameNumber
-        }
-      case Animation.PlayMode.REVERSED =>
-        Math.max(keyFramesArray.length - frameNumber - 1, 0)
-      case Animation.PlayMode.LOOP_REVERSED =>
-        frameNumber = frameNumber % keyFramesArray.length
-        keyFramesArray.length - frameNumber - 1
+      lastFrameNumber = frameNumber
+      lastStateTime = stateTime
+
+      frameNumber
     }
-
-    lastFrameNumber = frameNumber
-    lastStateTime = stateTime
-
-    frameNumber
-  }
 
   /** Returns the keyframes[] array where all the frames of the animation are stored.
     * @return

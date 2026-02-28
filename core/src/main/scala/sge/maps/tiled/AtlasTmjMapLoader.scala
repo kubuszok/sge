@@ -18,6 +18,8 @@ import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.utils.{ DynamicArray, JsonValue, Nullable }
 
+import scala.language.implicitConversions
+
 /** A TiledMap Loader which loads tiles from a TextureAtlas instead of separate images.
   *
   * It requires a map-level property called 'atlas' with its value being the relative path to the TextureAtlas. The atlas must have in it indexed regions named after the tilesets used in the map. The
@@ -90,8 +92,8 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
 
     // Atlas dependencies
     val atlasFileHandle = getAtlasFileHandle(tmxFile)
-    if (atlasFileHandle != null) {
-      descriptors.add(new AssetDescriptor[TextureAtlas](atlasFileHandle, classOf[TextureAtlas]))
+    Nullable(atlasFileHandle).foreach { handle =>
+      descriptors.add(new AssetDescriptor[TextureAtlas](handle, classOf[TextureAtlas]))
     }
 
     descriptors
@@ -132,11 +134,11 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
     props.put("margin", margin:           java.lang.Integer)
     props.put("spacing", spacing:         java.lang.Integer)
 
-    if (imageSource != null && imageSource.nonEmpty) {
+    if (Nullable(imageSource).isDefined && imageSource.nonEmpty) {
       val lastgid = firstgid + ((imageWidth / tilewidth) * (imageHeight / tileheight)) - 1
       for (region <- atlas.findRegions(name))
         // Handle unused tileIds
-        if (region != null) {
+        if (Nullable(region).isDefined) {
           val tileId = firstgid + region.index
           if (tileId >= firstgid && tileId <= lastgid) {
             addStaticTiledMapTile(tileSet, region, tileId, offsetX.toFloat, offsetY.toFloat)

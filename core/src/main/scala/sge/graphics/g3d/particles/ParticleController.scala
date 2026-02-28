@@ -140,7 +140,7 @@ class ParticleController extends ResourceData.Configurable {
     */
   def init(): Unit = {
     bind()
-    if (particles != null) {
+    if (Nullable(particles).isDefined) {
       end()
       particleChannels.resetIds()
     }

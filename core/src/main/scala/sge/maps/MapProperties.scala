@@ -10,6 +10,7 @@ package sge
 package maps
 
 import scala.collection.mutable
+import sge.utils.Nullable
 
 /** @brief
   *   Set of string indexed values representing map elements' properties, allowing to retrieve, modify and add properties to the set.
@@ -61,7 +62,7 @@ class MapProperties {
     */
   def get[T](key: String, defaultValue: T, clazz: Class[T]): T = {
     val obj = get(key)
-    if (obj == null) defaultValue else obj.asInstanceOf[T]
+    Nullable(obj).fold(defaultValue)(_.asInstanceOf[T])
   }
 
   /** @param key

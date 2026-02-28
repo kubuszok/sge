@@ -158,9 +158,9 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     *   the shader
     */
   override def bind(shader: ShaderProgram): Unit =
-    bind(shader, null)
+    bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val gl = sde.graphics.gl20
 
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
@@ -171,23 +171,12 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     }
 
     val numAttributes = attributes.size
-    if (locations == null) {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = shader.getAttributeLocation(attribute.alias)
-        if (location >= 0) {
-          shader.enableVertexAttribute(location)
-          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)
-        }
-      }
-    } else {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = locations(i)
-        if (location >= 0) {
-          shader.enableVertexAttribute(location)
-          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)
-        }
+    for (i <- 0 until numAttributes) {
+      val attribute = attributes.get(i)
+      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      if (location >= 0) {
+        shader.enableVertexAttribute(location)
+        shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)
       }
     }
     isBound = true
@@ -199,17 +188,17 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     *   the shader
     */
   override def unbind(shader: ShaderProgram): Unit =
-    unbind(shader, null)
+    unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val gl            = sde.graphics.gl20
     val numAttributes = attributes.size
-    if (locations == null) {
+    locations.fold {
       for (i <- 0 until numAttributes)
         shader.disableVertexAttribute(attributes.get(i).alias)
-    } else {
+    } { locs =>
       for (i <- 0 until numAttributes) {
-        val location = locations(i)
+        val location = locs(i)
         if (location >= 0) shader.disableVertexAttribute(location)
       }
     }

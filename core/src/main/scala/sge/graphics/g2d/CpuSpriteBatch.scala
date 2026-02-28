@@ -13,6 +13,7 @@ package g2d
 import sge.math.Affine2
 import sge.math.MathUtils
 import sge.math.Matrix4
+import sge.utils.Nullable
 import sge.utils.SgeError
 import sge.Sge
 import sge.graphics.VertexAttributes.Usage
@@ -30,7 +31,7 @@ import scala.compiletime.uninitialized
   * @author
   *   Valentin Milea
   */
-class CpuSpriteBatch(size: Int, defaultShader: ShaderProgram = null)(using sge: Sge) extends SpriteBatch(size, defaultShader) {
+class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using sge: Sge) extends SpriteBatch(size, defaultShader) {
 
   import CpuSpriteBatch._
 
@@ -41,12 +42,14 @@ class CpuSpriteBatch(size: Int, defaultShader: ShaderProgram = null)(using sge: 
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using sge: Sge) =
-    this(1000, null)
+  def this()(using sge: Sge) = {
+    this(1000, Nullable.empty)
+  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using sge: Sge) =
-    this(size, null)
+  def this(size: Int)(using sge: Sge) = {
+    this(size, Nullable.empty)
+  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>
@@ -648,16 +651,16 @@ class CpuSpriteBatch(size: Int, defaultShader: ShaderProgram = null)(using sge: 
 
 object CpuSpriteBatch {
 
-  private def checkEqual(a: Matrix4, b: Matrix4): Boolean = {
-    if (a == b) return true;
-
-    // matrices are assumed to be 2D transformations
-    val aValues = a.getValues();
-    val bValues = b.getValues();
-    (aValues(Matrix4.M00) == bValues(Matrix4.M00) && aValues(Matrix4.M10) == bValues(Matrix4.M10)
-    && aValues(Matrix4.M01) == bValues(Matrix4.M01) && aValues(Matrix4.M11) == bValues(Matrix4.M11)
-    && aValues(Matrix4.M03) == bValues(Matrix4.M03) && aValues(Matrix4.M13) == bValues(Matrix4.M13))
-  }
+  private def checkEqual(a: Matrix4, b: Matrix4): Boolean =
+    if (a == b) true
+    else {
+      // matrices are assumed to be 2D transformations
+      val aValues = a.getValues();
+      val bValues = b.getValues();
+      (aValues(Matrix4.M00) == bValues(Matrix4.M00) && aValues(Matrix4.M10) == bValues(Matrix4.M10)
+      && aValues(Matrix4.M01) == bValues(Matrix4.M01) && aValues(Matrix4.M11) == bValues(Matrix4.M11)
+      && aValues(Matrix4.M03) == bValues(Matrix4.M03) && aValues(Matrix4.M13) == bValues(Matrix4.M13))
+    }
 
   private def checkEqual(matrix: Matrix4, affine: Affine2): Boolean = {
     val values = matrix.getValues();

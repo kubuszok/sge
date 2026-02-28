@@ -14,6 +14,7 @@ import sge.math.Affine2
 import sge.math.Matrix4
 import sge.graphics.Color
 import sge.graphics.glutils.ShaderProgram
+import sge.utils.Nullable
 
 /** A Batch is used to draw 2D rectangles that reference a texture (region). The class will batch the drawing commands and optimize them for processing by the GPU. <p> To draw something with a Batch
   * one has to first call the {@link Batch#begin()} method which will setup appropriate render states. When you are done with drawing you have to call the {@link Batch#end()} which will actually draw
@@ -270,11 +271,12 @@ trait Batch extends AutoCloseable {
   /** Sets the shader to be used in a GLES 2.0 environment. Vertex position attribute is called "a_position", the texture coordinates attribute is called "a_texCoord0", the color attribute is called
     * "a_color". See {@link ShaderProgram#POSITION_ATTRIBUTE} , {@link ShaderProgram#COLOR_ATTRIBUTE} and {@link ShaderProgram#TEXCOORD_ATTRIBUTE} which gets "0" appended to indicate the use of the
     * first texture unit. The combined transform and projection matrx is uploaded via a mat4 uniform called "u_projTrans". The texture sampler is passed via a uniform called "u_texture". <p> Call this
-    * method with a null argument to use the default shader. <p> This method will flush the batch before setting the new shader, you can call it in between {@link #begin()} and {@link #end()} .
+    * method with a Nullable.empty argument to use the default shader. <p> This method will flush the batch before setting the new shader, you can call it in between {@link #begin()} and
+    * {@link #end()} .
     * @param shader
-    *   the {@link ShaderProgram} or null to use the default shader.
+    *   the {@link ShaderProgram} or Nullable.empty to use the default shader.
     */
-  def setShader(shader: ShaderProgram): Unit
+  def setShader(shader: Nullable[ShaderProgram]): Unit
 
   /** @return the current {@link ShaderProgram} set by {@link #setShader(ShaderProgram)} or the defaultShader */
   def getShader(): ShaderProgram

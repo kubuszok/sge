@@ -47,6 +47,10 @@ object Nullable {
       case a: A => a
     }
 
+    /** Unwraps to the raw value or null. NOT actually deprecated — the annotation is used to trigger -Werror with -deprecation, forcing callers to add @nowarn("msg=deprecated") with an explicit
+      * comment explaining why orNull is needed (e.g., passing to a Java API that expects null). For all other cases, use fold, foreach, getOrElse, map, isDefined, or isEmpty instead.
+      */
+    @deprecated("orNull should only be used at Java interop boundaries; use fold/foreach/getOrElse instead", "always")
     def orNull: A = maybe match {
       case `None` => null.asInstanceOf[A]
       case a: A => a

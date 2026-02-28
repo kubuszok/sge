@@ -12,6 +12,8 @@ import sge.graphics.Color
 import sge.utils.{ DynamicArray, Nullable }
 import sge.utils.Pool.Poolable
 
+import scala.language.implicitConversions
+
 class GlyphLayout extends Poolable {
 
   val runs:       DynamicArray[GlyphRun] = DynamicArray[GlyphRun]()
@@ -134,10 +136,10 @@ class GlyphLayout extends Poolable {
 
         if (run.glyphs.isEmpty) {
           // glyphRunPool.free(run)
-          if (lineRun == null) {
+          if (Nullable(lineRun).isEmpty) {
             runEnded = true // Otherwise wrap and truncate must still be processed for lineRun.
           }
-        } else if (lineRun == null) {
+        } else if (Nullable(lineRun).isEmpty) {
           lineRun = run
           runs.add(lineRun)
         } else {
@@ -184,7 +186,7 @@ class GlyphLayout extends Poolable {
                 wrapIndex = ii - 1
               }
               lineRun = wrapGlyphs(fontData, lineRun, wrapIndex)
-              if (lineRun == null) {
+              if (Nullable(lineRun).isEmpty) {
                 runEnded = true // All wrapped glyphs were whitespace.
               } else {
                 runs.add(lineRun)

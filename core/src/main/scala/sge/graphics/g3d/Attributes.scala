@@ -171,7 +171,7 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     */
   final def same(other: Attributes, compareValues: Boolean): Boolean = boundary {
     if (other eq this) break(true)
-    if ((other == null) || (mask != other.mask)) break(false)
+    if (mask != other.mask) break(false)
     if (!compareValues) break(true)
     sort()
     other.sort()

@@ -13,6 +13,10 @@ package lzma
 
 import java.io.IOException
 
+import scala.util.boundary
+import scala.util.boundary.break
+
+import sge.utils.Nullable
 import sge.utils.compression.ICodeProgress
 import sge.utils.compression.rangecoder.BitTreeEncoder
 import sge.utils.compression.lz.BinTree
@@ -96,7 +100,7 @@ class Encoder {
   val properties: Array[Byte] = Array.ofDim[Byte](Encoder.kPropSize)
 
   def create(): Unit = {
-    if (_matchFinder == null) {
+    if (Nullable(_matchFinder).isEmpty) {
       val bt           = new sge.utils.compression.lz.BinTree()
       var numHashBytes = 4
       if (_matchFinderType == Encoder.EMatchFinderTypeBT2) numHashBytes = 2
@@ -105,10 +109,11 @@ class Encoder {
     }
     _literalEncoder.create(_numLiteralPosStateBits, _numLiteralContextBits)
 
-    if (_dictionarySize == _dictionarySizePrev && _numFastBytesPrev == _numFastBytes) return
-    _matchFinder.create(_dictionarySize, Encoder.kNumOpts, _numFastBytes, Base.kMatchMaxLen + 1)
-    _dictionarySizePrev = _dictionarySize
-    _numFastBytesPrev = _numFastBytes
+    if (_dictionarySize != _dictionarySizePrev || _numFastBytesPrev != _numFastBytes) {
+      _matchFinder.create(_dictionarySize, Encoder.kNumOpts, _numFastBytes, Base.kMatchMaxLen + 1)
+      _dictionarySizePrev = _dictionarySize
+      _numFastBytesPrev = _numFastBytes
+    }
   }
 
   def encoder(): Unit = {
@@ -678,22 +683,21 @@ class Encoder {
     smallDist < (1 << (32 - kDif)) && bigDist >= (smallDist << kDif)
   }
 
-  def writeEndMarker(posState: Int): Unit = {
-    if (!_writeEndMark) return
-
-    _rangeEncoder.encode(_isMatch, (_state << Base.kNumPosStatesBitsMax) + posState, 1)
-    _rangeEncoder.encode(_isRep, _state, 0)
-    _state = Base.stateUpdateMatch(_state)
-    val len = Base.kMatchMinLen
-    _lenEncoder.encode(_rangeEncoder, len - Base.kMatchMinLen, posState)
-    val posSlot       = (1 << Base.kNumPosSlotBits) - 1
-    val lenToPosState = Base.getLenToPosState(len)
-    _posSlotEncoder(lenToPosState).encode(_rangeEncoder, posSlot)
-    val footerBits = 30
-    val posReduced = (1 << footerBits) - 1
-    _rangeEncoder.encodeDirectBits(posReduced >> Base.kNumAlignBits, footerBits - Base.kNumAlignBits)
-    _posAlignEncoder.reverseEncode(_rangeEncoder, posReduced & Base.kAlignMask)
-  }
+  def writeEndMarker(posState: Int): Unit =
+    if (_writeEndMark) {
+      _rangeEncoder.encode(_isMatch, (_state << Base.kNumPosStatesBitsMax) + posState, 1)
+      _rangeEncoder.encode(_isRep, _state, 0)
+      _state = Base.stateUpdateMatch(_state)
+      val len = Base.kMatchMinLen
+      _lenEncoder.encode(_rangeEncoder, len - Base.kMatchMinLen, posState)
+      val posSlot       = (1 << Base.kNumPosSlotBits) - 1
+      val lenToPosState = Base.getLenToPosState(len)
+      _posSlotEncoder(lenToPosState).encode(_rangeEncoder, posSlot)
+      val footerBits = 30
+      val posReduced = (1 << footerBits) - 1
+      _rangeEncoder.encodeDirectBits(posReduced >> Base.kNumAlignBits, footerBits - Base.kNumAlignBits)
+      _posAlignEncoder.reverseEncode(_rangeEncoder, posReduced & Base.kAlignMask)
+    }
 
   def flush(nowPos: Int): Unit = {
     ReleaseMFStream()
@@ -702,26 +706,26 @@ class Encoder {
     _rangeEncoder.flushStream()
   }
 
-  def codeOneBlock(inSize: Array[Long], outSize: Array[Long], finished: Array[Boolean]): Unit = {
+  def codeOneBlock(inSize: Array[Long], outSize: Array[Long], finished: Array[Boolean]): Unit = boundary {
     inSize(0) = 0
     outSize(0) = 0
     finished(0) = true
 
-    if (_inStream != null) {
+    if (Nullable(_inStream).isDefined) {
       _matchFinder.setStream(_inStream)
       _matchFinder.init()
       _needReleaseMFStream = true
       _inStream = null
     }
 
-    if (_finished) return
+    if (_finished) break(())
     _finished = true
 
     val progressPosValuePrev = nowPos64
     if (nowPos64 == 0) {
       if (_matchFinder.getNumAvailableBytes() == 0) {
         flush(nowPos64.toInt)
-        return
+        break(())
       }
 
       readMatchDistances()
@@ -736,7 +740,7 @@ class Encoder {
     }
     if (_matchFinder.getNumAvailableBytes() == 0) {
       flush(nowPos64.toInt)
-      return
+      break(())
     }
     while (true) {
 
@@ -826,20 +830,20 @@ class Encoder {
         outSize(0) = _rangeEncoder.getProcessedSizeAdd()
         if (_matchFinder.getNumAvailableBytes() == 0) {
           flush(nowPos64.toInt)
-          return
+          break(())
         }
 
         if (nowPos64 - progressPosValuePrev >= (1 << 12)) {
           _finished = false
           finished(0) = false
-          return
+          break(())
         }
       }
     }
   }
 
   def ReleaseMFStream(): Unit =
-    if (_matchFinder != null && _needReleaseMFStream) {
+    if (Nullable(_matchFinder).isDefined && _needReleaseMFStream) {
       _matchFinder.releaseStream()
       _needReleaseMFStream = false
     }
@@ -884,12 +888,14 @@ class Encoder {
     _needReleaseMFStream = false
     try {
       SetStreams(inStream, outStream, inSize, outSize)
-      while (true) {
+      boundary {
+        while (true) {
 
-        codeOneBlock(processedInSize, processedOutSize, finished)
-        if (finished(0)) return
-        if (progress != null) {
-          progress.SetProgress(processedInSize(0), processedOutSize(0))
+          codeOneBlock(processedInSize, processedOutSize, finished)
+          if (finished(0)) break(())
+          if (Nullable(progress).isDefined) {
+            progress.SetProgress(processedInSize(0), processedOutSize(0))
+          }
         }
       }
     } finally
@@ -949,43 +955,48 @@ class Encoder {
 
   def SetDictionarySize(dictionarySize: Int): Boolean = {
     val kDicLogSizeMaxCompress = 29
-    if (dictionarySize < (1 << Base.kDicLogSizeMin) || dictionarySize > (1 << kDicLogSizeMaxCompress)) return false
-    _dictionarySize = dictionarySize
-    var dicLogSize: Int = 0
-    while (dictionarySize > (1 << dicLogSize))
-      dicLogSize += 1
-    _distTableSize = dicLogSize * 2
-    true
-  }
-
-  def SetNumFastBytes(numFastBytes: Int): Boolean = {
-    if (numFastBytes < 5 || numFastBytes > Base.kMatchMaxLen) return false
-    _numFastBytes = numFastBytes
-    true
-  }
-
-  def SetMatchFinder(matchFinderIndex: Int): Boolean = {
-    if (matchFinderIndex < 0 || matchFinderIndex > 2) return false
-    val matchFinderIndexPrev = _matchFinderType
-    _matchFinderType = matchFinderIndex
-    if (_matchFinder != null && matchFinderIndexPrev != _matchFinderType) {
-      _dictionarySizePrev = -1
-      _matchFinder = null
+    if (dictionarySize < (1 << Base.kDicLogSizeMin) || dictionarySize > (1 << kDicLogSizeMaxCompress)) false
+    else {
+      _dictionarySize = dictionarySize
+      var dicLogSize: Int = 0
+      while (dictionarySize > (1 << dicLogSize))
+        dicLogSize += 1
+      _distTableSize = dicLogSize * 2
+      true
     }
-    true
   }
 
-  def SetLcLpPb(lc: Int, lp: Int, pb: Int): Boolean = {
+  def SetNumFastBytes(numFastBytes: Int): Boolean =
+    if (numFastBytes < 5 || numFastBytes > Base.kMatchMaxLen) false
+    else {
+      _numFastBytes = numFastBytes
+      true
+    }
+
+  def SetMatchFinder(matchFinderIndex: Int): Boolean =
+    if (matchFinderIndex < 0 || matchFinderIndex > 2) false
+    else {
+      val matchFinderIndexPrev = _matchFinderType
+      _matchFinderType = matchFinderIndex
+      if (Nullable(_matchFinder).isDefined && matchFinderIndexPrev != _matchFinderType) {
+        _dictionarySizePrev = -1
+        _matchFinder = null
+      }
+      true
+    }
+
+  def SetLcLpPb(lc: Int, lp: Int, pb: Int): Boolean =
     if (
       lp < 0 || lp > Base.kNumLitPosStatesBitsEncodingMax || lc < 0 || lc > Base.kNumLitContextBitsMax || pb < 0
       || pb > Base.kNumPosStatesBitsEncodingMax
-    ) return false
-    _numLiteralPosStateBits = lp
-    _numLiteralContextBits = lc
-    _posStateBits = pb
-    _posStateMask = (1 << _posStateBits) - 1
-    true
-  }
+    ) false
+    else {
+      _numLiteralPosStateBits = lp
+      _numLiteralContextBits = lc
+      _posStateBits = pb
+      _posStateMask = (1 << _posStateBits) - 1
+      true
+    }
 
   def SetEndMarkerMode(endMarkerMode: Boolean): Unit =
     _writeEndMark = endMarkerMode
@@ -1012,17 +1023,15 @@ object Encoder {
     arr
   }
 
-  def GetPosSlot(pos: Int): Int = {
-    if (pos < (1 << 11)) return g_FastPos(pos)
-    if (pos < (1 << 21)) return g_FastPos(pos >> 10) + 20
-    g_FastPos(pos >> 20) + 40
-  }
+  def GetPosSlot(pos: Int): Int =
+    if (pos < (1 << 11)) g_FastPos(pos)
+    else if (pos < (1 << 21)) g_FastPos(pos >> 10) + 20
+    else g_FastPos(pos >> 20) + 40
 
-  def GetPosSlot2(pos: Int): Int = {
-    if (pos < (1 << 17)) return g_FastPos(pos >> 6) + 12
-    if (pos < (1 << 27)) return g_FastPos(pos >> 16) + 32
-    g_FastPos(pos >> 26) + 52
-  }
+  def GetPosSlot2(pos: Int): Int =
+    if (pos < (1 << 17)) g_FastPos(pos >> 6) + 12
+    else if (pos < (1 << 27)) g_FastPos(pos >> 16) + 32
+    else g_FastPos(pos >> 26) + 52
 
   final val kDefaultDictionaryLogSize: Int = 22
   final val kNumFastBytesDefault:      Int = 0x20
@@ -1095,16 +1104,16 @@ object Encoder {
     var m_NumPosBits:  Int             = 0
     var m_PosMask:     Int             = 0
 
-    def create(numPosBits: Int, numPrevBits: Int): Unit = {
-      if (m_Coders != null && m_NumPrevBits == numPrevBits && m_NumPosBits == numPosBits) return
-      m_NumPosBits = numPosBits
-      m_PosMask = (1 << numPosBits) - 1
-      m_NumPrevBits = numPrevBits
-      val numStates = 1 << (m_NumPrevBits + m_NumPosBits)
-      m_Coders = Array.ofDim[Encoder2](numStates)
-      for (i <- 0 until numStates)
-        m_Coders(i) = new Encoder2()
-    }
+    def create(numPosBits: Int, numPrevBits: Int): Unit =
+      if (Nullable(m_Coders).isEmpty || m_NumPrevBits != numPrevBits || m_NumPosBits != numPosBits) {
+        m_NumPosBits = numPosBits
+        m_PosMask = (1 << numPosBits) - 1
+        m_NumPrevBits = numPrevBits
+        val numStates = 1 << (m_NumPrevBits + m_NumPosBits)
+        m_Coders = Array.ofDim[Encoder2](numStates)
+        for (i <- 0 until numStates)
+          m_Coders(i) = new Encoder2()
+      }
 
     def init(): Unit = {
       val numStates = 1 << (m_NumPrevBits + m_NumPosBits)

@@ -11,7 +11,11 @@ package graphics
 package g3d
 package environment
 
+import scala.annotation.targetName
+import scala.language.implicitConversions
+
 import sge.math.Vector3
+import sge.utils.Nullable
 
 class DirectionalLight extends BaseLight[DirectionalLight] {
   val direction: Vector3 = new Vector3()
@@ -29,20 +33,20 @@ class DirectionalLight extends BaseLight[DirectionalLight] {
   def set(copyFrom: DirectionalLight): DirectionalLight =
     set(copyFrom.color, copyFrom.direction)
 
-  def set(color: Color, direction: Vector3): DirectionalLight = {
-    if (color != null) this.color.set(color)
-    if (direction != null) this.direction.set(direction).nor()
+  def set(color: Nullable[Color], direction: Nullable[Vector3]): DirectionalLight = {
+    color.foreach(this.color.set(_))
+    direction.foreach(d => this.direction.set(d).nor())
     this
   }
 
-  def set(r: Float, g: Float, b: Float, direction: Vector3): DirectionalLight = {
+  def set(r: Float, g: Float, b: Float, direction: Nullable[Vector3]): DirectionalLight = {
     this.color.set(r, g, b, 1f)
-    if (direction != null) this.direction.set(direction).nor()
+    direction.foreach(d => this.direction.set(d).nor())
     this
   }
 
-  def set(color: Color, dirX: Float, dirY: Float, dirZ: Float): DirectionalLight = {
-    if (color != null) this.color.set(color)
+  def set(color: Nullable[Color], dirX: Float, dirY: Float, dirZ: Float): DirectionalLight = {
+    color.foreach(this.color.set(_))
     this.direction.set(dirX, dirY, dirZ).nor()
     this
   }
@@ -58,6 +62,7 @@ class DirectionalLight extends BaseLight[DirectionalLight] {
     case _ => false
   }
 
-  def equals(other: DirectionalLight): Boolean =
-    (other != null) && ((other eq this) || (color.equals(other.color) && direction.equals(other.direction)))
+  @targetName("equalsDirectionalLight")
+  def equals(other: Nullable[DirectionalLight]): Boolean =
+    other.fold(false)(o => (o eq this) || (color.equals(o.color) && direction.equals(o.direction)))
 }

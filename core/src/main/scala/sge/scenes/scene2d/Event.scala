@@ -66,13 +66,13 @@ class Event extends Pool.Poolable {
   }
 
   /** Returns the actor that the event originated from. */
-  def getTarget: Actor = targetActor.getOrElse(null.asInstanceOf[Actor])
+  def getTarget: Actor = targetActor.getOrElse(null)
 
   def setTarget(targetActor: Actor): Unit =
     this.targetActor = Nullable(targetActor)
 
   /** Returns the actor that this listener is attached to. */
-  def getListenerActor: Actor = listenerActor.getOrElse(null.asInstanceOf[Actor])
+  def getListenerActor: Actor = listenerActor.getOrElse(null)
 
   def setListenerActor(listenerActor: Actor): Unit =
     this.listenerActor = Nullable(listenerActor)

@@ -39,26 +39,28 @@ final class DefaultTextureBinder(
   private val textures: Array[GLTexture] = new Array[GLTexture](_count)
 
   /** Texture units ordered from most to least recently used */
-  private val unitsLRU: Array[Int] = if (method == DefaultTextureBinder.LRU) new Array[Int](_count) else null
+  private val unitsLRU: Array[Int] = if (method == DefaultTextureBinder.LRU) new Array[Int](_count) else Array.emptyIntArray
 
   /** Flag to indicate the current texture is reused */
   private var reused: Boolean = false
 
-  private var reuseCount: Int = 0 // TODO remove debug code
-  private var bindCount:  Int = 0 // TODO remove debug code
+  private var reuseCount: Int = 0 // Profiling stats — used by getBindCount/getReuseCount
+  private var bindCount:  Int = 0 // Profiling stats — used by getBindCount/getReuseCount
 
   /** Uses all available texture units and reuse weight of 3 */
-  def this(method: Int)(using sge: Sge) =
+  def this(method: Int)(using sge: Sge) = {
     this(method, 0, -1)
+  }
 
   /** Uses all remaining texture units and reuse weight of 3 */
-  def this(method: Int, offset: Int)(using sge: Sge) =
+  def this(method: Int, offset: Int)(using sge: Sge) = {
     this(method, offset, -1)
+  }
 
   override def begin(): Unit =
     for (i <- 0 until _count) {
       textures(i) = null
-      if (unitsLRU != null) unitsLRU(i) = i
+      if (unitsLRU.nonEmpty) unitsLRU(i) = i
     }
 
   override def end(): Unit =
@@ -153,7 +155,7 @@ final class DefaultTextureBinder(
         }
         break(idx)
       }
-      if (textures(idx) == null) {
+      if (Nullable(textures(idx)).isEmpty) {
         i += 1
         // shift LRU entries
         var j = i - 1

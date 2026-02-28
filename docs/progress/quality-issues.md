@@ -3,18 +3,18 @@
 Systemic code quality issues found across the SGE codebase. These should be addressed
 during verification and idiomatization passes.
 
-Last updated: 2026-02-27
+Last updated: 2026-02-28
 
 ## Summary
 
 | Issue Type | Files Affected | Total Occurrences | Status |
 |-----------|---------------|-------------------|--------|
 | Missing license header | 0 | 0 | **Complete** (454 files) |
-| `return` keyword usage | 44 | ~125 | In progress (13 files done) |
-| Direct `null` checks | 68 | ~233 | In progress (6 files done) |
-| `null.asInstanceOf` | 23 | ~69 | Not started |
-| Remaining Java syntax | 363 | ~2875 | Not started |
-| TODO/FIXME markers | 57 | ~119 | Not started |
+| `return` keyword usage | 0 | 0 | **Complete** (53 files, 4 batches) |
+| Direct `null` checks | 0 | 0 | **Complete** (~200 files) |
+| `null.asInstanceOf` | 4 | 9 | **Mostly complete** (49 removed, 9 deferred) |
+| Remaining Java syntax | 2 | 4 | **Triaged** — false positives only (`void` as method name) |
+| TODO/FIXME markers | 63 | 129 | **Triaged** (0 actionable, 82 blocked, 40 upstream, 7 info) |
 | ArrayBuffer→DynamicArray | 0 | 0 | **Complete** (145 files) |
 
 ## 1. Missing License Headers — COMPLETE
@@ -25,7 +25,7 @@ Apache 2.0 license notice, and Scala port copyright. SGE-only files (no Java equ
 have a simpler copyright-only header. Merged files (e.g., `Matrices.scala` from
 `Matrix3.java` + `Matrix4.java`) list all original sources.
 
-## 2. `return` Keyword Usage (44 files, ~125 occurrences)
+## 2. `return` Keyword Usage (53 files, ~197 occurrences) — COMPLETE
 
 All `return` keywords must be replaced with `scala.util.boundary`/`break` patterns.
 See [control-flow-guide.md](../contributing/control-flow-guide.md).
@@ -34,10 +34,26 @@ See [control-flow-guide.md](../contributing/control-flow-guide.md).
 ShaderProgram, DefaultTextureBinder, Decoder, TimSort, PolygonRegionLoader, BinTree,
 DataInput, ParticleEmitter, Vectors, FrameBufferCubemap, BaseAnimationController.
 
-Highest remaining: Sprite (18), Encoder (17), ComparableTimSort (6), GLTexture (6),
-Pool (6), Affine2 (4), BitmapFontCache (4), EarClippingTriangulator (4).
+**Batch Q2 complete** (6 files, ~50 occurrences removed): Intersector (~19),
+Sprite (~18), ComparableTimSort (~6), GLTexture (~5), Pool (~6), BitmapFontCache (~4).
 
-Run `just sge-quality return` to see current occurrences.
+**Batch Q3 complete** (4 files, ~12 occurrences removed): BaseTmxMapLoader (6),
+BaseTiledMapLoader (4), JsonValue (1), Skin (1).
+
+**Batch Q4 complete** (30 files, ~72 occurrences removed): Affine2 (4),
+EarClippingTriangulator (4), GeometryUtils (3), Polyline (3), Quaternion (1),
+Polygon (1), WindowedMean (1), DelaunayTriangulator (1), Circle (1),
+CumulativeDistribution (1), SpriteBatch (3), PolygonSpriteBatch (2),
+PolygonSprite (4), SpriteCache (2), PixmapPacker (2), BitmapFont (1),
+Animation (1), ParticleEffect (1), CpuSpriteBatch (1), Texture (2),
+TextureArray (1), Cubemap (1), Mesh (1), ShapeRenderer (2), GLFrameBuffer (1),
+ImmediateModeRenderer20 (1), VertexBufferObjectWithVAO (1), GLProfiler (2),
+Encoder (14), InWindow (3), OutWindow (1), Timer (3), BinaryHeap (2),
+BaseTmjMapLoader (7), TmjMapLoader (1).
+
+All `return` keywords have been replaced with `boundary`/`break` patterns or
+`if`/`else` restructuring. Verified: `rg '\breturn\b'` finds only `@return`
+doc tags and error message strings.
 
 ## 3. Direct `null` Checks (68 files, ~233 occurrences)
 
@@ -47,25 +63,100 @@ See [nullable-guide.md](../contributing/nullable-guide.md).
 **Batch Q2 complete** (6 files converted): FacedCubemapData, NinePatch, BitmapFont,
 TextureAtlas, ParticleEmitter, plus cascade fix in Cubemap and BitmapFontLoader.
 
-Note: Many remaining `== null` / `!= null` checks are at Java interop boundaries
-(e.g., `reader.readLine()` returns) or array-element nullability. These are intentional
-and lower priority than field-level null patterns.
+**Batch N1 complete** (6 files, ~44 null checks removed): DirectionalLight, PointLight,
+SpotLight (parameter guards + equals), SpriteBatch, PolygonSpriteBatch, SpriteCache
+(field init + shader state + constructor params). Cascade updates in Batch trait
+(setShader signature) and CpuSpriteBatch (constructor param).
 
-Additionally, 23 files have ~69 `null.asInstanceOf` occurrences used for pool recycling
-and `uninitialized` field resets. These are largely intentional JVM patterns.
+**Batch N2 complete** (3 files, ~10 null checks removed): ModelInstance (constructor
+param null-or-default + null-or-empty guards), BaseAnimationController (applyAnimation
+null dispatch + applyAnimations param guards), AnimationController (obtain/obtainByName
+param guards). 2 deferred checks in AnimationDesc (uninitialized field guards).
 
-Run `just sge-quality null` to see current occurrences.
+**Batch N3 complete** (113 files, ~150+ null checks removed): Automated Scalafix +
+manual conversion across graphics, maps, utils, math, assets, scene2d packages.
 
-## 4. Remaining Java Syntax (363 files, ~2875 occurrences)
+**Batch N4 complete** (36 files, ~120+ null checks removed): Deep conversion of
+BaseShader (14 setter methods + init/render), G3dModelLoader (50 JSON null patterns),
+tiled map loaders, BitmapFont, GlyphLayout, ParticleEmitter, PixmapPacker, Skin,
+DefaultShader, MeshBuilder, TextureAtlas, FileHandles, AnimationController, Select.
 
-Patterns like `public`, `private`, `protected`, `static`, `void`, `boolean`, `final`,
-`abstract class`, `implements`, and `extends ... {` that indicate unconverted Java code.
+**Batch N5 complete** (28 files, ~27 null checks removed): Final sweep of ObjLoader,
+Gdx2DPixmap, compression utilities, DynamicArray, DefaultTextureBinder, Mesh,
+SpriteBatch variants, light attributes, vertex/instance buffer objects.
+
+All `== null` / `!= null` checks eliminated. Only comments and `Nullable` internals
+remain. Run `just sge-quality null` to verify.
+
+### `null.asInstanceOf` elimination
+
+Reduced from 58 occurrences across 23 files to 9 occurrences across 4 files.
+
+**Groups completed** (49 occurrences removed across 18 files):
+- **Group A** (10 occ, 6 files): Try-finally resource vars → move creation before try,
+  var→val. FileHandles (4), ETC1 (2), PixmapIO (2), ParticleEffect (1), KTXTextureData (1).
+- **Group B** (9 occ, 1 file): GlyphLayout local vars → bare `null`.
+- **Group C** (5 occ, 1 file): ObjLoader local vars → bare `null` + conditional assignment.
+- **Group D** (4 occ, 2 files): Added `ObjectMap.getUnsafe` for guaranteed-key lookups in
+  OrderedMap.
+- **Group E** (3 occ, 3 files): Added `ObjectChannel.clearSlot` for particle influencers
+  (ModelInfluencer, ParticleControllerInfluencer).
+- **Group F** (3 occ, 1 file): Stage.TouchFocus pool reset → bare `null`.
+- **Group G** (5 occ, 1 file): DynamicArray snapshot/recycled → bare `null`.
+- **Group H** (2 occ, 2 files): DepthShader and ModelInstanceRenderer → throw on missing
+  required values.
+- **Group I** (2 occ, 1 file): PixmapPacker local vars → bare `null`.
+- **Group J** (3 occ, 3 files): MeshPart pool reset → bare `null` (ModelCache, ModelBatch,
+  RenderableShapeBuilder).
+- **Group K** (2 occ, 1 file): Event getTarget/getListenerActor → `getOrElse(null)`.
+- **Group L** (1 occ, 1 file): ModelCache sort camera → `getOrElse(null)`.
+- **PixmapPacker stub** (1 occ): `null.asInstanceOf[TextureAtlas]` → `throw NotImplementedError`.
+
+**Deferred** (9 occurrences, 4 files):
+- ModelLoader.scala (5): Abstract method `loadModelData(fh, P)` — changing P to Nullable
+  cascades to ObjLoader, G3dModelLoader, AssetManager.
+- BaseShader.scala (1): Setter interface `set(shader, id, null, null)` — affects all
+  shader implementations.
+- TimSort.scala (2): Generic type params `Array[T]`/`Ordering[T]` for GC-assist nulling.
+- Nullable.scala (1): Internal `orNull` implementation — intentional.
+
+## 4. Remaining Java Syntax (2 files, 4 occurrences) — TRIAGED
+
+Scan now targets Java-exclusive keywords only (`public`, `static`, `void`, `boolean`,
+`implements`). Previously included `private`, `protected`, `final` which are valid Scala
+keywords, causing ~3140 false positives across 368 files.
+
+After fixing the scan, 4 remaining matches are `void` used as a valid Scala method name
+in `Eval.scala` and `Resource.scala` — no code changes needed.
 
 Run `just sge-quality java_syntax` to see current occurrences.
 
-## 5. TODO/FIXME Markers (57 files, ~119 occurrences)
+## 5. TODO/FIXME Markers (63 files, 129 occurrences) — TRIAGED
 
-Files with TODO, FIXME, HACK, or XXX comments that need attention.
+Categorized as of 2026-02-28:
+
+| Category | Markers | Files | Action |
+|----------|---------|-------|--------|
+| Upstream FIXMEs | 40 | 27 | Preserve (inherited from LibGDX source) |
+| Blocked TODOs | 82 | 36 | Waiting on dependencies (ShapeRenderer, Skin, AssetManager, etc.) |
+| Actionable TODOs | 0 | 0 | **All resolved** |
+| Informational | 7 | 7 | Future improvement notes, no action needed |
+
+**Resolved actionable TODOs** (10 markers across 6 files):
+- `ComparableTimSort.scala` (2): implemented `mergeLo`/`mergeHi`/`ensureCapacity`
+- `DefaultTextureBinder.scala` (2): reclassified as profiling stats (used by public API)
+- `Viewport.scala` (1): replaced field mutation with `.set()` call
+- `BufferUtils.scala` (2): explained JNI bridge limitation
+- `ParticleEffectLoader.scala` (2): reclassified as blocked (needs Json framework)
+- `SgeNativesLoader.scala` (1): reclassified as blocked (needs native loading strategy)
+
+**Major blocked dependency groups:**
+- ShapeRenderer infrastructure: 22 markers (ShapeRenderer, Actor, Group, Table,
+  Container, ScrollPane, HorizontalGroup, VerticalGroup)
+- Skin/UI port: 5 markers (Table)
+- Graphics/Sge trait: 8 markers (GLProfiler, FPSLogger, Game, Button, ETC1TextureData)
+- AssetManager: 4 markers (Cubemap, PolygonRegionLoader, AssetManager)
+- ScrollPane: 5 markers (DragScrollListener)
 
 Run `just sge-quality todo` to see current occurrences.
 

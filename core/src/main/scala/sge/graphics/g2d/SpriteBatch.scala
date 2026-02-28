@@ -17,7 +17,10 @@ import sge.math.Affine2
 import sge.math.MathUtils
 import sge.math.Matrix4
 import sge.graphics.{ Color, GL20, VertexAttribute }
+import sge.utils.Nullable
+
 import scala.compiletime.uninitialized
+import scala.language.implicitConversions
 
 import java.nio.Buffer
 
@@ -29,17 +32,17 @@ import java.nio.Buffer
   * @author
   *   Nathan Sweet
   */
-class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) extends Batch with AutoCloseable {
+class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using sge: Sge) extends Batch with AutoCloseable {
 
   private var currentDataType: VertexDataType = uninitialized
 
   private var mesh: Mesh = uninitialized
 
-  final val vertices: Array[Float] = Array.ofDim[Float](size * Sprite.SPRITE_SIZE)
-  var idx:            Int          = 0
-  var lastTexture:    Texture      = null
-  var invTexWidth:    Float        = 0
-  var invTexHeight:   Float        = 0
+  final val vertices: Array[Float]      = Array.ofDim[Float](size * Sprite.SPRITE_SIZE)
+  var idx:            Int               = 0
+  var lastTexture:    Nullable[Texture] = Nullable.empty
+  var invTexWidth:    Float             = 0
+  var invTexHeight:   Float             = 0
 
   var drawing: Boolean = false
 
@@ -53,9 +56,9 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
   private var blendSrcFuncAlpha: Int     = GL20.GL_SRC_ALPHA
   private var blendDstFuncAlpha: Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
 
-  private val shader:       ShaderProgram = if (defaultShader == null) SpriteBatch.createDefaultShader() else defaultShader
-  private var customShader: ShaderProgram = null
-  private var ownsShader:   Boolean       = defaultShader == null
+  private val shader:       ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
+  private var customShader: Nullable[ShaderProgram] = Nullable.empty
+  private var ownsShader:   Boolean                 = defaultShader.isEmpty
 
   private val color: Color = new Color(1, 1, 1, 1)
   var colorPacked:   Float = Color.WHITE_FLOAT_BITS
@@ -81,7 +84,7 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
 
   currentDataType = {
     @scala.annotation.nowarn // suppress deprecation warning
-    inline def thunk = if (SpriteBatch.overrideVertexType != null) SpriteBatch.overrideVertexType else vertexDataType
+    inline def thunk = SpriteBatch.overrideVertexType.getOrElse(vertexDataType)
     thunk
   }
 
@@ -123,25 +126,24 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this()(using sge: Sge) =
-    this(1000, null)
+  def this()(using sge: Sge) = {
+    this(1000, Nullable.empty)
+  }
 
   /** Constructs a SpriteBatch with one buffer and the default shader.
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this(size: Int)(using sge: Sge) =
-    this(size, null)
+  def this(size: Int)(using sge: Sge) = {
+    this(size, Nullable.empty)
+  }
 
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.")
     renderCalls = 0
 
     sge.graphics.gl.glDepthMask(false)
-    if (customShader != null)
-      customShader.bind()
-    else
-      shader.bind()
+    customShader.fold(shader.bind())(_.bind())
     setupMatrices()
 
     drawing = true
@@ -150,7 +152,7 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
   override def end(): Unit = {
     if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before end.")
     if (idx > 0) flush()
-    lastTexture = null
+    lastTexture = Nullable.empty
     drawing = false
 
     val gl = sge.graphics.gl
@@ -890,37 +892,36 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
     this.idx = localIdx + 20
   }
 
-  override def flush(): Unit = {
-    if (idx == 0) return
+  override def flush(): Unit =
+    if (idx != 0) {
+      renderCalls += 1
+      totalRenderCalls += 1
+      val spritesInBatch = idx / 20
+      if (spritesInBatch > maxSpritesInBatch) maxSpritesInBatch = spritesInBatch
+      val count = spritesInBatch * 6
 
-    renderCalls += 1
-    totalRenderCalls += 1
-    val spritesInBatch = idx / 20
-    if (spritesInBatch > maxSpritesInBatch) maxSpritesInBatch = spritesInBatch
-    val count = spritesInBatch * 6
+      lastTexture.orNull.bind()
+      val mesh = this.mesh
+      mesh.setVertices(vertices, 0, idx)
 
-    lastTexture.bind()
-    val mesh = this.mesh
-    mesh.setVertices(vertices, 0, idx)
+      // Only upload indices for the vertex array type
+      if (currentDataType == VertexDataType.VertexArray) {
+        val indicesBuffer = mesh.getIndicesBuffer(true).asInstanceOf[Buffer]
+        indicesBuffer.position(0)
+        indicesBuffer.limit(count)
+      }
 
-    // Only upload indices for the vertex array type
-    if (currentDataType == VertexDataType.VertexArray) {
-      val indicesBuffer = mesh.getIndicesBuffer(true).asInstanceOf[Buffer]
-      indicesBuffer.position(0)
-      indicesBuffer.limit(count)
+      if (blendingDisabled) {
+        sge.graphics.gl.glDisable(GL20.GL_BLEND)
+      } else {
+        sge.graphics.gl.glEnable(GL20.GL_BLEND)
+        if (blendSrcFunc != -1) sge.graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
+      }
+
+      mesh.render(customShader.getOrElse(shader), GL20.GL_TRIANGLES, 0, count)
+
+      idx = 0
     }
-
-    if (blendingDisabled) {
-      sge.graphics.gl.glDisable(GL20.GL_BLEND)
-    } else {
-      sge.graphics.gl.glEnable(GL20.GL_BLEND)
-      if (blendSrcFunc != -1) sge.graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
-    }
-
-    mesh.render(if (customShader != null) customShader else shader, GL20.GL_TRIANGLES, 0, count)
-
-    idx = 0
-  }
 
   override def getBlendSrcFunc(): Int =
     blendSrcFunc
@@ -936,7 +937,7 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
 
   override def close(): Unit = {
     mesh.close()
-    if (ownsShader && shader != null) shader.close()
+    if (ownsShader) shader.close()
   }
 
   override def getProjectionMatrix(): Matrix4 =
@@ -959,13 +960,9 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
 
   protected def setupMatrices(): Unit = {
     combinedMatrix.set(projectionMatrix).mul(transformMatrix)
-    if (customShader != null) {
-      customShader.setUniformMatrix("u_projTrans", combinedMatrix)
-      customShader.setUniformi("u_texture", 0)
-    } else {
-      shader.setUniformMatrix("u_projTrans", combinedMatrix)
-      shader.setUniformi("u_texture", 0)
-    }
+    val activeShader = customShader.getOrElse(shader)
+    activeShader.setUniformMatrix("u_projTrans", combinedMatrix)
+    activeShader.setUniformi("u_texture", 0)
   }
 
   protected def switchTexture(texture: Texture): Unit = {
@@ -975,28 +972,20 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
     invTexHeight = 1.0f / texture.getHeight
   }
 
-  override def setShader(shader: ShaderProgram): Unit = {
-    if (shader == customShader) // avoid unnecessary flushing in case we are drawing
-      return
-    if (drawing) {
-      flush()
+  override def setShader(shader: Nullable[ShaderProgram]): Unit =
+    if (!(shader.orNull eq customShader.orNull)) { // avoid unnecessary flushing in case we are drawing
+      if (drawing) {
+        flush()
+      }
+      customShader = shader
+      if (drawing) {
+        customShader.fold(this.shader.bind())(_.bind())
+        setupMatrices()
+      }
     }
-    customShader = shader
-    if (drawing) {
-      if (customShader != null)
-        customShader.bind()
-      else
-        this.shader.bind()
-      setupMatrices()
-    }
-  }
 
   override def getShader(): ShaderProgram =
-    if (customShader == null) {
-      shader
-    } else {
-      customShader
-    }
+    customShader.getOrElse(shader)
 
   override def isBlendingEnabled(): Boolean =
     !blendingDisabled
@@ -1014,14 +1003,14 @@ class SpriteBatch(size: Int, defaultShader: ShaderProgram)(using sge: Sge) exten
   override def setBlendFunction(srcFunc: Int, dstFunc: Int): Unit =
     setBlendFunctionSeparate(srcFunc, dstFunc, srcFunc, dstFunc)
 
-  override def setBlendFunctionSeparate(srcFuncColor: Int, dstFuncColor: Int, srcFuncAlpha: Int, dstFuncAlpha: Int): Unit = {
-    if (blendSrcFunc == srcFuncColor && blendDstFunc == dstFuncColor && blendSrcFuncAlpha == srcFuncAlpha && blendDstFuncAlpha == dstFuncAlpha) return
-    if (drawing) flush()
-    blendSrcFunc = srcFuncColor
-    blendDstFunc = dstFuncColor
-    blendSrcFuncAlpha = srcFuncAlpha
-    blendDstFuncAlpha = dstFuncAlpha
-  }
+  override def setBlendFunctionSeparate(srcFuncColor: Int, dstFuncColor: Int, srcFuncAlpha: Int, dstFuncAlpha: Int): Unit =
+    if (blendSrcFunc != srcFuncColor || blendDstFunc != dstFuncColor || blendSrcFuncAlpha != srcFuncAlpha || blendDstFuncAlpha != dstFuncAlpha) {
+      if (drawing) flush()
+      blendSrcFunc = srcFuncColor
+      blendDstFunc = dstFuncColor
+      blendSrcFuncAlpha = srcFuncAlpha
+      blendDstFuncAlpha = dstFuncAlpha
+    }
 
   def isDrawing(): Boolean =
     drawing
@@ -1038,7 +1027,7 @@ object SpriteBatch {
   /** Used to completely override the vertex type used by SpriteBatch. This is useful for picking a specific vertex data type on construction of the sprite batch. Recommended to reset this back to
     * defaultVertexDataType Once the batch has been created with this flag
     */
-  @deprecated var overrideVertexType: VertexDataType = null
+  @deprecated var overrideVertexType: Nullable[VertexDataType] = Nullable.empty
 
   /** Returns a new instance of the default shader used by SpriteBatch for GL2 when no shader is specified. */
   def createDefaultShader()(using sge: Sge): ShaderProgram = {

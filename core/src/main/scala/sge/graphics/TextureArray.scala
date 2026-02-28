@@ -26,20 +26,24 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using sge: Sge) =
+  def this(internalPaths: Array[String])(using sge: Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
+  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using sge: Sge) =
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using sge: Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
+  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using sge: Sge) =
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using sge: Sge) = {
     this(useMipMaps, Format.RGBA8888, files)
+  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using sge: Sge) =
+  def this(files: Array[FileHandle])(using sge: Sge) = {
     this(false, files)
+  }
 
   if (sge.graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")
@@ -117,14 +121,14 @@ object TextureArray {
   /** Invalidate all managed TextureArrays. This is an internal method. Do not use it! */
   def invalidateAllTextureArrays(app: Application): Unit = {
     val managedTextureArray = managedTextureArrays.get(app)
-    if (managedTextureArray.isEmpty) return
-
-    var i = 0
-    val n = managedTextureArray.get.size
-    while (i < n) {
-      val textureArray = managedTextureArray.get(i)
-      textureArray.reload()
-      i += 1
+    if (managedTextureArray.isDefined) {
+      var i = 0
+      val n = managedTextureArray.get.size
+      while (i < n) {
+        val textureArray = managedTextureArray.get(i)
+        textureArray.reload()
+        i += 1
+      }
     }
   }
 

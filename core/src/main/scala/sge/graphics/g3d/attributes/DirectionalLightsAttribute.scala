@@ -13,6 +13,7 @@ package attributes
 
 import sge.graphics.g3d.environment.DirectionalLight
 import sge.utils.DynamicArray
+import sge.utils.Nullable
 
 /** An [[Attribute]] which can be used to send a [[DynamicArray]] of [[DirectionalLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
   * [[DirectionalLightsAttribute(DirectionalLightsAttribute)]] method will not create new lights.
@@ -37,7 +38,7 @@ class DirectionalLightsAttribute(
   override def hashCode(): Int = {
     var result = super.hashCode()
     for (light <- lights)
-      result = 1229 * result + (if (light == null) 0 else light.hashCode())
+      result = 1229 * result + Nullable(light).fold(0)(_.hashCode())
     result
   }
 

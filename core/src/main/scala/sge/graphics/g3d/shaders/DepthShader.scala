@@ -50,7 +50,7 @@ class DepthShader(
   private val alphaTestAttribute: FloatAttribute =
     new FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using sge: Sge) =
+  def this(renderable: Renderable)(using sge: Sge) = {
     this(
       renderable,
       DepthShader.Config(), {
@@ -61,8 +61,9 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using sge: Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config)(using sge: Sge) = {
     this(
       renderable,
       config, {
@@ -72,8 +73,9 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using sge: Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using sge: Sge) = {
     this(
       renderable,
       config, {
@@ -82,6 +84,7 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -89,8 +92,9 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using sge: Sge) =
+  )(using sge: Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
@@ -123,11 +127,7 @@ class DepthShader(
 
   override def render(renderable: Renderable, combinedAttributes: Attributes): Unit =
     if (combinedAttributes.has(BlendingAttribute.Type)) {
-      val blending = combinedAttributes
-        .get(BlendingAttribute.Type)
-        .fold(
-          null.asInstanceOf[BlendingAttribute]
-        )(_.asInstanceOf[BlendingAttribute])
+      val blending = combinedAttributes.get(BlendingAttribute.Type).map(_.asInstanceOf[BlendingAttribute]).getOrElse(throw SgeError.GraphicsError("Expected BlendingAttribute when has() is true"))
       combinedAttributes.remove(BlendingAttribute.Type)
       val hasAlphaTest = combinedAttributes.has(FloatAttribute.AlphaTest)
       if (!hasAlphaTest) combinedAttributes.set(alphaTestAttribute)

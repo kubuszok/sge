@@ -24,6 +24,8 @@ import sge.graphics.Texture
 import sge.math.EarClippingTriangulator
 import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
 
+import scala.language.implicitConversions
+
 /** loads {@link PolygonRegion PolygonRegions} using a {@link com.badlogic.gdx.graphics.g2d.PolygonRegionLoader}
   * @author
   *   dermetfan
@@ -34,8 +36,9 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
   private val triangulator = new EarClippingTriangulator()
 
-  def this()(using sge: Sge) =
+  def this()(using sge: Sge) = {
     this(new InternalFileHandleResolver())
+  }
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion =
     // TODO: Once AssetManager has get() and getDependencies() methods, uncomment the following:
@@ -55,7 +58,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     try {
       val reader = file.reader(actualParams.readerBuffer)
       var line   = reader.readLine()
-      while (line != null) {
+      while (Nullable(line).isDefined) {
         if (line.startsWith(actualParams.texturePrefix)) {
           image = Nullable(line.substring(actualParams.texturePrefix.length()))
           // Break from loop - in Scala we can use return or a different pattern
@@ -94,7 +97,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     val reader = file.reader(256)
     try {
       var line = reader.readLine()
-      while (line != null) {
+      while (Nullable(line).isDefined) {
         if (line.startsWith("s")) {
           // Read shape.
           val polygonStrings = line.substring(1).trim().split(",")

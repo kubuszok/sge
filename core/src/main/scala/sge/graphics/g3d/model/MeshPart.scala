@@ -134,7 +134,7 @@ class MeshPart {
     *   True when this MeshPart equals the other MeshPart (ignoring the {@link #id} member), false otherwise.
     */
   def equals(other: MeshPart): Boolean =
-    (other eq this) || (other != null && (other.mesh eq mesh) && other.primitiveType == primitiveType
+    (other eq this) || ((other.mesh eq mesh) && other.primitiveType == primitiveType
       && other.offset == offset && other.size == size)
 
   override def equals(obj: Any): Boolean =
@@ -144,7 +144,7 @@ class MeshPart {
     }
 
   override def hashCode(): Int = {
-    var result = if (mesh != null) System.identityHashCode(mesh) else 0
+    var result = System.identityHashCode(mesh)
     result = 31 * result + primitiveType
     result = 31 * result + offset
     result = 31 * result + size

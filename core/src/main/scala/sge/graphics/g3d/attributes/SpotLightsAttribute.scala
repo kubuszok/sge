@@ -13,6 +13,7 @@ package attributes
 
 import sge.graphics.g3d.environment.SpotLight
 import sge.utils.DynamicArray
+import sge.utils.Nullable
 
 /** An [[Attribute]] which can be used to send a [[DynamicArray]] of [[SpotLight]] instances to the Shader. The lights are stored by reference, the [[copy]] or
   * [[SpotLightsAttribute(SpotLightsAttribute)]] method will not create new lights.
@@ -37,7 +38,7 @@ class SpotLightsAttribute(
   override def hashCode(): Int = {
     var result = super.hashCode()
     for (light <- lights)
-      result = 1237 * result + (if (light == null) 0 else light.hashCode())
+      result = 1237 * result + Nullable(light).fold(0)(_.hashCode())
     result
   }
 

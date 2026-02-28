@@ -24,6 +24,8 @@ import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.Batch
 import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
 
+import scala.language.implicitConversions
+
 /** See <a href= "https://web.archive.org/web/20200427191041/http://www.badlogicgames.com/wordpress/?p=12555">http://www.badlogicgames.com/wordpress/?p=12555</a>
   * @author
   *   mzechner
@@ -169,20 +171,19 @@ class ParticleEffect extends AutoCloseable {
   def loadEmitters(effectFile: FileHandle): Unit = {
     val input = effectFile.read()
     emitters.clear()
-    var reader = null.asInstanceOf[BufferedReader]
+    val reader = new BufferedReader(new InputStreamReader(input), 512)
     try {
-      reader = new BufferedReader(new InputStreamReader(input), 512)
       var shouldContinue = true
       while (shouldContinue) {
         val emitter = newEmitter(reader)
         emitters.add(emitter)
-        if (reader.readLine() == null) shouldContinue = false
+        if (Nullable(reader.readLine()).isEmpty) shouldContinue = false
       }
     } catch {
       case ex: IOException =>
         throw SgeError.GraphicsError("Error loading effect: " + effectFile, Some(ex))
     } finally
-      Nullable(reader).foreach(StreamUtils.closeQuietly)
+      StreamUtils.closeQuietly(reader)
   }
 
   def loadEmitterImages(atlas: TextureAtlas): Unit =
@@ -233,14 +234,14 @@ class ParticleEffect extends AutoCloseable {
     new Texture(file, false)
 
   /** Disposes the texture for each sprite for each ParticleEmitter. */
-  def close(): Unit = {
-    if (!ownsTexture) return
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      for (sprite <- emitter.getSprites())
-        sprite.getTexture().close()
+  def close(): Unit =
+    if (ownsTexture) {
+      for (i <- 0 until emitters.size) {
+        val emitter = emitters(i)
+        for (sprite <- emitter.getSprites())
+          sprite.getTexture().close()
+      }
     }
-  }
 
   /** Returns the bounding box for all active particles. z axis will always be zero. */
   def getBoundingBox(): BoundingBox = {

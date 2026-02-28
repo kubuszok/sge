@@ -12,6 +12,7 @@ package g3d
 package utils
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -66,22 +67,22 @@ class BaseAnimationController(
   /** Apply a single animation to the {@link ModelInstance} and update the it to reflect the changes. */
   protected def applyAnimation(animation: Animation, time: Float): Unit = {
     if (applying) throw SgeError.InvalidInput("Call end() first")
-    BaseAnimationController.applyAnimation(null, null, 1f, animation, time)
+    BaseAnimationController.applyAnimation(Nullable.empty, Nullable.empty, 1f, animation, time)
     target.calculateTransforms()
   }
 
   /** Apply two animations, blending the second onto to first using weight. */
-  protected def applyAnimations(anim1: Animation, time1: Float, anim2: Animation, time2: Float, weight: Float): Unit =
-    if (anim2 == null || weight == 0f)
-      applyAnimation(anim1, time1)
-    else if (anim1 == null || weight == 1f)
-      applyAnimation(anim2, time2)
+  protected def applyAnimations(anim1: Nullable[Animation], time1: Float, anim2: Nullable[Animation], time2: Float, weight: Float): Unit =
+    if (anim2.isEmpty || weight == 0f)
+      anim1.foreach(a => applyAnimation(a, time1))
+    else if (anim1.isEmpty || weight == 1f)
+      anim2.foreach(a => applyAnimation(a, time2))
     else if (applying)
       throw SgeError.InvalidInput("Call end() first")
     else {
       begin()
-      apply(anim1, time1, 1f)
-      apply(anim2, time2, weight)
+      apply(anim1.orNull, time1, 1f)
+      apply(anim2.orNull, time2, weight)
       end()
     }
 
@@ -259,17 +260,19 @@ object BaseAnimationController {
   }
 
   /** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-  protected def applyAnimation(out: mutable.Map[Node, Transform], pool: Pool[Transform], alpha: Float, animation: Animation, time: Float): Unit =
+  protected def applyAnimation(out: Nullable[mutable.Map[Node, Transform]], pool: Nullable[Pool[Transform]], alpha: Float, animation: Animation, time: Float): Unit =
 
-    if (out == null) {
+    if (out.isEmpty) {
       for (nodeAnim <- animation.nodeAnimations)
         applyNodeAnimationDirectly(nodeAnim, time)
     } else {
-      for (node <- out.keys)
+      val m = out.orNull
+      val p = pool.orNull
+      for (node <- m.keys)
         node.isAnimated = false
       for (nodeAnim <- animation.nodeAnimations)
-        applyNodeAnimationBlending(nodeAnim, out, pool, alpha, time)
-      for ((node, transform) <- out)
+        applyNodeAnimationBlending(nodeAnim, m, p, alpha, time)
+      for ((node, transform) <- m)
         if (!node.isAnimated) {
           node.isAnimated = true
           transform.lerp(node.translation, node.rotation, node.scale, alpha)

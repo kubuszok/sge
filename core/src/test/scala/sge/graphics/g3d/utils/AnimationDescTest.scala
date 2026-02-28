@@ -10,6 +10,7 @@ package graphics
 package g3d
 package utils
 
+import scala.language.implicitConversions
 import sge.graphics.g3d.model.Animation
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
 import sge.utils.Nullable

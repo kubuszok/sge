@@ -18,6 +18,8 @@ import java.nio.ByteBuffer
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
+import com.badlogic.gdx.graphics.glutils.{ ETC1 => ETC1Jni }
+
 import sge.files.FileHandle
 import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
@@ -58,14 +60,6 @@ object ETC1 {
 
     checkNPOT()
 
-    def this(pkmFile: FileHandle) =
-      this(
-        ETC1.getWidthPKM(ETC1.loadCompressedData(pkmFile), 0),
-        ETC1.getHeightPKM(ETC1.loadCompressedData(pkmFile), 0),
-        ETC1.loadCompressedData(pkmFile),
-        PKM_HEADER_SIZE
-      )
-
     private def checkNPOT(): Unit =
       if (!MathUtils.isPowerOfTwo(width) || !MathUtils.isPowerOfTwo(height)) {
         System.out.println("ETC1Data warning: non-power-of-two ETC1 textures may crash the driver of PowerVR GPUs")
@@ -80,13 +74,12 @@ object ETC1 {
       *   the file.
       */
     def write(file: FileHandle): Unit = {
-      var write        = null.asInstanceOf[DataOutputStream]
       val buffer       = Array.ofDim[Byte](10 * 1024)
       var writtenBytes = 0
       compressedData.position(0)
       compressedData.limit(compressedData.capacity())
+      val write = new DataOutputStream(new GZIPOutputStream(file.write(false)))
       try {
-        write = new DataOutputStream(new GZIPOutputStream(file.write(false)))
         write.writeInt(compressedData.capacity())
         while (writtenBytes != compressedData.capacity()) {
           val bytesToWrite = scala.math.min(compressedData.remaining(), buffer.length)
@@ -97,7 +90,7 @@ object ETC1 {
       } catch {
         case e: Exception => throw SgeError.FileWriteError(file, "Couldn't write PKM file", Some(e))
       } finally
-        Nullable(write).foreach(StreamUtils.closeQuietly)
+        StreamUtils.closeQuietly(write)
       compressedData.position(dataOffset)
       compressedData.limit(compressedData.capacity())
     }
@@ -115,11 +108,23 @@ object ETC1 {
       }
   }
 
+  object ETC1Data {
+
+    def apply(pkmFile: FileHandle): ETC1Data = {
+      val compressedData = loadCompressedData(pkmFile)
+      new ETC1Data(
+        getWidthPKM(compressedData, 0),
+        getHeightPKM(compressedData, 0),
+        compressedData,
+        PKM_HEADER_SIZE
+      )
+    }
+  }
+
   private def loadCompressedData(pkmFile: FileHandle): ByteBuffer = {
     val buffer = Array.ofDim[Byte](1024 * 10)
-    var in     = null.asInstanceOf[DataInputStream]
+    val in     = new DataInputStream(new BufferedInputStream(new GZIPInputStream(pkmFile.read())))
     try {
-      in = new DataInputStream(new BufferedInputStream(new GZIPInputStream(pkmFile.read())))
       val fileSize       = in.readInt()
       val compressedData = BufferUtils.newUnsafeByteBuffer(fileSize)
       var readBytes      = 0
@@ -131,7 +136,7 @@ object ETC1 {
     } catch {
       case e: Exception => throw SgeError.FileReadError(pkmFile, "Couldn't load pkm file", Some(e))
     } finally
-      Nullable(in).foreach(StreamUtils.closeQuietly)
+      StreamUtils.closeQuietly(in)
   }
 
   private def getPixelSize(format: Format): Int =
@@ -192,8 +197,7 @@ object ETC1 {
     *   the number of bytes needed to store the compressed data
     */
   def getCompressedDataSize(width: Int, height: Int): Int =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.getCompressedDataSize(width, height)
 
   /** Writes a PKM header to the {@link ByteBuffer} . Does not modify the position or limit of the ByteBuffer.
     * @param header
@@ -206,8 +210,7 @@ object ETC1 {
     *   the height in pixels
     */
   def formatHeader(header: ByteBuffer, offset: Int, width: Int, height: Int): Unit =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.formatHeader(header, offset, width, height)
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -217,8 +220,7 @@ object ETC1 {
     *   the width stored in the PKM header
     */
   def getWidthPKM(header: ByteBuffer, offset: Int): Int =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.getWidthPKM(header, offset)
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -228,8 +230,7 @@ object ETC1 {
     *   the height stored in the PKM header
     */
   def getHeightPKM(header: ByteBuffer, offset: Int): Int =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.getHeightPKM(header, offset)
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -239,8 +240,7 @@ object ETC1 {
     *   the width stored in the PKM header
     */
   def isValidPKM(header: ByteBuffer, offset: Int): Boolean =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.isValidPKM(header, offset)
 
   /** Decodes the compressed image data to RGB565 or RGB888 pixel data. Does not modify the position or limit of the {@link ByteBuffer} instances.
     * @param compressedData
@@ -259,8 +259,7 @@ object ETC1 {
     *   the pixel size, either 2 (RBG565) or 3 (RGB888)
     */
   private def decodeImage(compressedData: ByteBuffer, offset: Int, decodedData: ByteBuffer, offsetDec: Int, width: Int, height: Int, pixelSize: Int): Unit =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.decodeImage(compressedData, offset, decodedData, offsetDec, width, height, pixelSize)
 
   /** Encodes the image data given as RGB565 or RGB888. Does not modify the position or limit of the {@link ByteBuffer} .
     * @param imageData
@@ -277,8 +276,7 @@ object ETC1 {
     *   a new direct native order ByteBuffer containing the compressed image data
     */
   private def encodeImage(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.encodeImage(imageData, offset, width, height, pixelSize)
 
   /** Encodes the image data given as RGB565 or RGB888. Does not modify the position or limit of the {@link ByteBuffer} .
     * @param imageData
@@ -295,6 +293,5 @@ object ETC1 {
     *   a new direct native order ByteBuffer containing the compressed image data
     */
   private def encodeImagePKM(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer =
-    // Native implementation - placeholder
-    ???
+    ETC1Jni.encodeImagePKM(imageData, offset, width, height, pixelSize)
 }

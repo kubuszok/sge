@@ -118,7 +118,7 @@ final class OrderedMap[K, V] private (
     var i         = 0
     while (i < otherKeys.size) {
       val key = otherKeys(i)
-      put(key, other.map.get(key, null.asInstanceOf[V]))
+      put(key, other.map.getUnsafe(key))
       i += 1
     }
   }
@@ -154,7 +154,7 @@ final class OrderedMap[K, V] private (
     var i = 0
     while (i < _keys.size) {
       val key = _keys(i)
-      f(key, map.get(key, null.asInstanceOf[V]))
+      f(key, map.getUnsafe(key))
       i += 1
     }
   }
@@ -172,7 +172,7 @@ final class OrderedMap[K, V] private (
   def foreachValue(f: V => Unit): Unit = {
     var i = 0
     while (i < _keys.size) {
-      f(map.get(_keys(i), null.asInstanceOf[V]))
+      f(map.getUnsafe(_keys(i)))
       i += 1
     }
   }
@@ -197,7 +197,7 @@ final class OrderedMap[K, V] private (
         val key = _keys(i)
         sb.append(key)
         sb.append('=')
-        sb.append(map.get(key, null.asInstanceOf[V]))
+        sb.append(map.getUnsafe(key))
         i += 1
       }
       sb.append('}')

@@ -2,12 +2,12 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 
 ## Procedure
 
-1. **Read the SGE file**: Open `core/src/main/scala/$ARGUMENTS`
+1. **Read the SGE file**: Open `core/src/main/scala/$ARGUMENTS` with the Read tool.
 
 2. **Find the LibGDX source**: Determine the original Java file path. The mapping is:
    `sge/<path>.scala` → `com/badlogic/gdx/<path>.java`.
    Check `docs/contributing/type-mappings.md` for renamed/merged files.
-   Open the source from `./libgdx/gdx/src/`.
+   Open the source from `./libgdx/gdx/src/` with the Read tool.
 
 3. **Run the verification checklist** from `docs/contributing/verification-checklist.md`:
    - Compilation: compile via `just compile`, check for errors and warnings
@@ -22,3 +22,8 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 
 5. **Update tracking**: If all items pass, update `docs/progress/migration-status.tsv`
    to `verified`. If issues found, add notes.
+
+## Important
+
+**Do NOT use shell commands directly.** Use `just compile` for compilation,
+the Read tool for file reading, and the Grep/Glob tools for code search.

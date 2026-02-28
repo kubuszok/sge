@@ -140,7 +140,7 @@ class MeshBuilder extends MeshPartBuilder {
     this.istart = 0
     this.part = Nullable.empty
     this.stride = attributes.vertexSize / 4
-    if (this.vertex == null || this.vertex.length < stride) this.vertex = new Array[Float](stride)
+    if (Nullable(this.vertex).fold(true)(_.length < stride)) this.vertex = new Array[Float](stride)
     val a = attributes.findByUsage(Usage.Position)
     if (a.isEmpty) throw SgeError.InvalidInput("Cannot build mesh without position attribute")
     a.foreach { attr =>

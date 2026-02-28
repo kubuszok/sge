@@ -17,7 +17,7 @@ import sge.graphics.g3d.attributes.{ BlendingAttribute, ColorAttribute }
 import sge.graphics.g3d.particles.ParallelArray.{ FloatChannel, ObjectChannel }
 import sge.graphics.g3d.particles.{ ParticleChannels, ParticleControllerComponent }
 import sge.graphics.g3d.particles.batches.{ ModelInstanceParticleBatch, ParticleBatch }
-import sge.utils.Nullable
+import sge.utils.{ Nullable, SgeError }
 
 /** A {@link ParticleControllerRenderer} which will render particles as {@link ModelInstance} to a {@link ModelInstanceParticleBatch}.
   * @author
@@ -44,7 +44,11 @@ class ModelInstanceRenderer
 
   override def init(): Unit =
     renderData.foreach { rd =>
-      rd.modelInstanceChannel = controller.particles.getChannel[ObjectChannel[ModelInstance]](ParticleChannels.ModelInstance).getOrElse(null.asInstanceOf[ObjectChannel[ModelInstance]])
+      rd.modelInstanceChannel = controller.particles
+        .getChannel[ObjectChannel[ModelInstance]](ParticleChannels.ModelInstance)
+        .getOrElse(
+          throw SgeError.InvalidInput("ModelInstance channel not allocated")
+        )
       val colorOpt = controller.particles.getChannel[FloatChannel](ParticleChannels.Color)
       hasColor = colorOpt.isDefined
       colorOpt.foreach { ch => rd.colorChannel = ch }

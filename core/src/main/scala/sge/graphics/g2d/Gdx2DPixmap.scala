@@ -9,7 +9,7 @@
 package sge.graphics.g2d
 
 import sge.graphics.GL20
-import sge.utils.SgeError
+import sge.utils.{ Nullable, SgeError }
 import java.nio.ByteBuffer
 import java.io.{ ByteArrayOutputStream, IOException, InputStream }
 import scala.compiletime.uninitialized
@@ -29,7 +29,7 @@ class Gdx2DPixmap extends AutoCloseable {
     this()
     try {
       pixelPtr = load(nativeData, encodedData, offset, len)
-      if (pixelPtr == null) throw new IOException("Error loading pixmap: " + getFailureReason())
+      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
       width = nativeData(1).toInt
@@ -49,7 +49,7 @@ class Gdx2DPixmap extends AutoCloseable {
     try {
       if (!encodedData.isDirect()) throw new IOException("Couldn't load pixmap from non-direct ByteBuffer")
       pixelPtr = loadByteBuffer(nativeData, encodedData, offset, len)
-      if (pixelPtr == null) throw new IOException("Error loading pixmap: " + getFailureReason())
+      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
       width = nativeData(1).toInt
@@ -79,7 +79,7 @@ class Gdx2DPixmap extends AutoCloseable {
 
       val finalBuffer = bytes.toByteArray()
       pixelPtr = load(nativeData, finalBuffer, 0, finalBuffer.length)
-      if (pixelPtr == null) throw new IOException("Error loading pixmap: " + getFailureReason())
+      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
       width = nativeData(1).toInt
@@ -98,7 +98,7 @@ class Gdx2DPixmap extends AutoCloseable {
   def this(width: Int, height: Int, format: Int) = {
     this()
     pixelPtr = newPixmap(nativeData, width, height, format)
-    if (pixelPtr == null) throw SgeError.GraphicsError(s"Unable to allocate memory for pixmap: ${width}x$height, ${getFormatString(format)}")
+    if (Nullable(pixelPtr).isEmpty) throw SgeError.GraphicsError(s"Unable to allocate memory for pixmap: ${width}x$height, ${getFormatString(format)}")
 
     this.basePtr = nativeData(0)
     this.width = nativeData(1).toInt

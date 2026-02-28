@@ -196,13 +196,15 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
   override def equals(obj: Any): Boolean =
     obj match {
       case other: BinaryHeap[_] =>
-        if (other.size != size) return false
-        val nodes1 = this.nodes
-        val nodes2 = other.nodes
-        boundary {
-          for (i <- 0 until size)
-            if (nodes1(i).value != nodes2(i).value) break(false)
-          true
+        if (other.size != size) false
+        else {
+          val nodes1 = this.nodes
+          val nodes2 = other.nodes
+          boundary {
+            for (i <- 0 until size)
+              if (nodes1(i).value != nodes2(i).value) break(false)
+            true
+          }
         }
       case _ => false
     }
@@ -215,19 +217,20 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
     h
   }
 
-  override def toString: String = {
-    if (size == 0) return "[]"
-    val nodes  = this.nodes
-    val buffer = new StringBuilder(32)
-    buffer.append('[')
-    buffer.append(nodes(0).value)
-    for (i <- 1 until size) {
-      buffer.append(", ")
-      buffer.append(nodes(i).value)
+  override def toString: String =
+    if (size == 0) "[]"
+    else {
+      val nodes  = this.nodes
+      val buffer = new StringBuilder(32)
+      buffer.append('[')
+      buffer.append(nodes(0).value)
+      for (i <- 1 until size) {
+        buffer.append(", ")
+        buffer.append(nodes(i).value)
+      }
+      buffer.append(']')
+      buffer.toString
     }
-    buffer.append(']')
-    buffer.toString
-  }
 }
 
 object BinaryHeap {

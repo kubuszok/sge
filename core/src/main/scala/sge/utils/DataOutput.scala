@@ -54,12 +54,13 @@ class DataOutput(out: OutputStream) extends DataOutputStream(out) {
     *   May be null.
     */
   @throws[IOException]
-  def writeString(value: String | Null): Unit = boundary {
-    if (value == null) {
+  def writeString(value: Nullable[String]): Unit = boundary {
+    if (value.isEmpty) {
       write(0)
       boundary.break(())
     }
-    val charCount = value.length()
+    val v         = value.getOrElse("")
+    val charCount = v.length()
     if (charCount == 0) {
       writeByte(1)
       boundary.break(())
@@ -68,9 +69,9 @@ class DataOutput(out: OutputStream) extends DataOutputStream(out) {
     // Try to write 8 bit chars.
     var charIndex = 0
     while (charIndex < charCount) {
-      val c = value.charAt(charIndex)
+      val c = v.charAt(charIndex)
       if (c > 127) {
-        writeString_slow(value, charCount, charIndex)
+        writeString_slow(v, charCount, charIndex)
         boundary.break(())
       }
       write(c.toByte)

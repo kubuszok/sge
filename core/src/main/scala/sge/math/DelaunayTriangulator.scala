@@ -42,182 +42,184 @@ class DelaunayTriangulator {
     if (count > 32767) throw new IllegalArgumentException("count must be <= " + 32767)
     val triangles = this.triangles
     triangles.clear()
-    if (count < 6) return triangles
-    triangles.ensureCapacity(count)
+    if (count < 6) triangles
+    else {
+      triangles.ensureCapacity(count)
 
-    var pointsArray = points
-    var offsetVar   = offset
-    if (!sorted) {
-      if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
-      Array.copy(points, offset, sortedPoints, 0, count)
-      pointsArray = sortedPoints
-      offsetVar = 0
-      sort(pointsArray, count)
-    }
-
-    val end = offsetVar + count
-
-    // Determine bounds for super triangle.
-    var xmin = pointsArray(0)
-    var ymin = pointsArray(1)
-    var xmax = xmin
-    var ymax = ymin
-    var i    = offsetVar + 2
-    while (i < end) {
-      val value = pointsArray(i)
-      if (value < xmin) xmin = value
-      if (value > xmax) xmax = value
-      i += 1
-      val value2 = pointsArray(i)
-      if (value2 < ymin) ymin = value2
-      if (value2 > ymax) ymax = value2
-      i += 1
-    }
-    val dx   = xmax - xmin
-    val dy   = ymax - ymin
-    val dmax = (if (dx > dy) dx else dy) * 20f
-    val xmid = (xmax + xmin) / 2f
-    val ymid = (ymax + ymin) / 2f
-
-    // Setup the super triangle, which contains all points.
-    val superTriangle = this.superTriangle
-    superTriangle(0) = xmid - dmax
-    superTriangle(1) = ymid - dmax
-    superTriangle(2) = xmid
-    superTriangle(3) = ymid + dmax
-    superTriangle(4) = xmid + dmax
-    superTriangle(5) = ymid - dmax
-
-    val edges = this.edges
-    edges.ensureCapacity(count / 2)
-
-    val complete = this.complete
-    complete.clear()
-    complete.ensureCapacity(count)
-
-    // Add super triangle.
-    triangles += end.toShort
-    triangles += (end + 2).toShort
-    triangles += (end + 4).toShort
-    complete += false
-
-    // Include each point one at a time into the existing mesh.
-    var pointIndex = offsetVar
-    while (pointIndex < end) {
-      val x = pointsArray(pointIndex)
-      val y = pointsArray(pointIndex + 1)
-
-      // If x,y lies inside the circumcircle of a triangle, the edges are stored and the triangle removed.
-      var triangleIndex = triangles.size - 1
-      while (triangleIndex >= 0) {
-        val completeIndex = triangleIndex / 3
-        if (!complete(completeIndex)) {
-          val p1       = triangles(triangleIndex - 2)
-          val p2       = triangles(triangleIndex - 1)
-          val p3       = triangles(triangleIndex)
-          val (x1, y1) = if (p1 >= end) {
-            val i = p1 - end
-            (superTriangle(i), superTriangle(i + 1))
-          } else {
-            (pointsArray(p1), pointsArray(p1 + 1))
-          }
-          val (x2, y2) = if (p2 >= end) {
-            val i = p2 - end
-            (superTriangle(i), superTriangle(i + 1))
-          } else {
-            (pointsArray(p2), pointsArray(p2 + 1))
-          }
-          val (x3, y3) = if (p3 >= end) {
-            val i = p3 - end
-            (superTriangle(i), superTriangle(i + 1))
-          } else {
-            (pointsArray(p3), pointsArray(p3 + 1))
-          }
-          circumCircle(x, y, x1, y1, x2, y2, x3, y3) match {
-            case DelaunayTriangulator.COMPLETE =>
-              complete(completeIndex) = true
-            case DelaunayTriangulator.INSIDE =>
-              edges += p1
-              edges += p2
-              edges += p2
-              edges += p3
-              edges += p3
-              edges += p1
-
-              triangles.removeRange(triangleIndex - 2, triangleIndex + 1)
-              complete.removeIndex(completeIndex)
-          }
-        }
-        triangleIndex -= 3
+      var pointsArray = points
+      var offsetVar   = offset
+      if (!sorted) {
+        if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
+        Array.copy(points, offset, sortedPoints, 0, count)
+        pointsArray = sortedPoints
+        offsetVar = 0
+        sort(pointsArray, count)
       }
 
-      var i = 0
-      val n = edges.size
-      while (i < n) {
-        // Skip multiple edges. If all triangles are anticlockwise then all interior edges are opposite pointing in direction.
-        val p1 = edges(i)
-        if (p1 != -1) {
-          val p2   = edges(i + 1)
-          var skip = false
-          var ii   = i + 2
-          while (ii < n) {
-            if (p1 == edges(ii + 1) && p2 == edges(ii)) {
-              skip = true
-              edges(ii) = -1
+      val end = offsetVar + count
+
+      // Determine bounds for super triangle.
+      var xmin = pointsArray(0)
+      var ymin = pointsArray(1)
+      var xmax = xmin
+      var ymax = ymin
+      var i    = offsetVar + 2
+      while (i < end) {
+        val value = pointsArray(i)
+        if (value < xmin) xmin = value
+        if (value > xmax) xmax = value
+        i += 1
+        val value2 = pointsArray(i)
+        if (value2 < ymin) ymin = value2
+        if (value2 > ymax) ymax = value2
+        i += 1
+      }
+      val dx   = xmax - xmin
+      val dy   = ymax - ymin
+      val dmax = (if (dx > dy) dx else dy) * 20f
+      val xmid = (xmax + xmin) / 2f
+      val ymid = (ymax + ymin) / 2f
+
+      // Setup the super triangle, which contains all points.
+      val superTriangle = this.superTriangle
+      superTriangle(0) = xmid - dmax
+      superTriangle(1) = ymid - dmax
+      superTriangle(2) = xmid
+      superTriangle(3) = ymid + dmax
+      superTriangle(4) = xmid + dmax
+      superTriangle(5) = ymid - dmax
+
+      val edges = this.edges
+      edges.ensureCapacity(count / 2)
+
+      val complete = this.complete
+      complete.clear()
+      complete.ensureCapacity(count)
+
+      // Add super triangle.
+      triangles += end.toShort
+      triangles += (end + 2).toShort
+      triangles += (end + 4).toShort
+      complete += false
+
+      // Include each point one at a time into the existing mesh.
+      var pointIndex = offsetVar
+      while (pointIndex < end) {
+        val x = pointsArray(pointIndex)
+        val y = pointsArray(pointIndex + 1)
+
+        // If x,y lies inside the circumcircle of a triangle, the edges are stored and the triangle removed.
+        var triangleIndex = triangles.size - 1
+        while (triangleIndex >= 0) {
+          val completeIndex = triangleIndex / 3
+          if (!complete(completeIndex)) {
+            val p1       = triangles(triangleIndex - 2)
+            val p2       = triangles(triangleIndex - 1)
+            val p3       = triangles(triangleIndex)
+            val (x1, y1) = if (p1 >= end) {
+              val i = p1 - end
+              (superTriangle(i), superTriangle(i + 1))
+            } else {
+              (pointsArray(p1), pointsArray(p1 + 1))
             }
-            ii += 2
+            val (x2, y2) = if (p2 >= end) {
+              val i = p2 - end
+              (superTriangle(i), superTriangle(i + 1))
+            } else {
+              (pointsArray(p2), pointsArray(p2 + 1))
+            }
+            val (x3, y3) = if (p3 >= end) {
+              val i = p3 - end
+              (superTriangle(i), superTriangle(i + 1))
+            } else {
+              (pointsArray(p3), pointsArray(p3 + 1))
+            }
+            circumCircle(x, y, x1, y1, x2, y2, x3, y3) match {
+              case DelaunayTriangulator.COMPLETE =>
+                complete(completeIndex) = true
+              case DelaunayTriangulator.INSIDE =>
+                edges += p1
+                edges += p2
+                edges += p2
+                edges += p3
+                edges += p3
+                edges += p1
+
+                triangles.removeRange(triangleIndex - 2, triangleIndex + 1)
+                complete.removeIndex(completeIndex)
+            }
           }
-          if (!skip) {
-            // Form new triangles for the current point. Edges are arranged in clockwise order.
-            triangles += p1.toShort
-            triangles += edges(i + 1).toShort
-            triangles += pointIndex.toShort
-            complete += false
-          }
+          triangleIndex -= 3
         }
-        i += 2
-      }
-      edges.clear()
-      pointIndex += 2
-    }
 
-    // Remove triangles with super triangle vertices.
-    var idx = triangles.size - 1
-    while (idx >= 0) {
-      if (triangles(idx) >= end || triangles(idx - 1) >= end || triangles(idx - 2) >= end) {
-        triangles.removeRange(idx - 2, idx + 1)
+        var i = 0
+        val n = edges.size
+        while (i < n) {
+          // Skip multiple edges. If all triangles are anticlockwise then all interior edges are opposite pointing in direction.
+          val p1 = edges(i)
+          if (p1 != -1) {
+            val p2   = edges(i + 1)
+            var skip = false
+            var ii   = i + 2
+            while (ii < n) {
+              if (p1 == edges(ii + 1) && p2 == edges(ii)) {
+                skip = true
+                edges(ii) = -1
+              }
+              ii += 2
+            }
+            if (!skip) {
+              // Form new triangles for the current point. Edges are arranged in clockwise order.
+              triangles += p1.toShort
+              triangles += edges(i + 1).toShort
+              triangles += pointIndex.toShort
+              complete += false
+            }
+          }
+          i += 2
+        }
+        edges.clear()
+        pointIndex += 2
       }
-      idx -= 3
-    }
 
-    // Convert sorted to unsorted indices.
-    if (!sorted) {
-      var i = 0
-      val n = triangles.size
-      while (i < n) {
-        triangles(i) = (originalIndices(triangles(i) / 2) * 2).toShort
-        i += 1
+      // Remove triangles with super triangle vertices.
+      var idx = triangles.size - 1
+      while (idx >= 0) {
+        if (triangles(idx) >= end || triangles(idx - 1) >= end || triangles(idx - 2) >= end) {
+          triangles.removeRange(idx - 2, idx + 1)
+        }
+        idx -= 3
       }
-    }
 
-    // Adjust triangles to start from zero and count by 1, not by vertex x,y coordinate pairs.
-    if (offsetVar == 0) {
-      var i = 0
-      val n = triangles.size
-      while (i < n) {
-        triangles(i) = (triangles(i) / 2).toShort
-        i += 1
+      // Convert sorted to unsorted indices.
+      if (!sorted) {
+        var i = 0
+        val n = triangles.size
+        while (i < n) {
+          triangles(i) = (originalIndices(triangles(i) / 2) * 2).toShort
+          i += 1
+        }
       }
-    } else {
-      var i = 0
-      val n = triangles.size
-      while (i < n) {
-        triangles(i) = ((triangles(i) - offsetVar) / 2).toShort
-        i += 1
-      }
-    }
 
-    triangles
+      // Adjust triangles to start from zero and count by 1, not by vertex x,y coordinate pairs.
+      if (offsetVar == 0) {
+        var i = 0
+        val n = triangles.size
+        while (i < n) {
+          triangles(i) = (triangles(i) / 2).toShort
+          i += 1
+        }
+      } else {
+        var i = 0
+        val n = triangles.size
+        while (i < n) {
+          triangles(i) = ((triangles(i) - offsetVar) / 2).toShort
+          i += 1
+        }
+      }
+
+      triangles
+    }
   }
 
   /** Returns INSIDE if point xp,yp is inside the circumcircle made up of the points x1,y1, x2,y2, x3,y3. Returns COMPLETE if xp is to the right of the entire circumcircle. Otherwise returns

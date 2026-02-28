@@ -12,6 +12,8 @@ package glutils
 
 import java.nio.FloatBuffer
 
+import sge.utils.Nullable
+
 /** A VertexData instance holds vertices for rendering with OpenGL. It is implemented as either a {@link VertexArray} or a {@link VertexBufferObject} . Only the later supports OpenGL ES 2.0.
   *
   * @author
@@ -75,7 +77,7 @@ trait VertexData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Array[Int]): Unit
+  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
 
   /** Unbinds this VertexData. */
   def unbind(shader: ShaderProgram): Unit
@@ -84,7 +86,7 @@ trait VertexData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Array[Int]): Unit
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
 
   /** Invalidates the VertexData if applicable. Use this in case of a context loss. */
   def invalidate(): Unit

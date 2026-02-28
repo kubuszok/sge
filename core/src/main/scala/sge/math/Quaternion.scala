@@ -28,8 +28,9 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) =
+  def this(quaternion: Quaternion) = {
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *
@@ -431,12 +432,14 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     */
   def setFromAxisRad(x: Float, y: Float, z: Float, radians: Float): Quaternion = {
     val d = scala.math.sqrt(x * x + y * y + z * z).toFloat
-    if (d == 0f) return idt()
-    val dInv  = 1f / d
-    val l_ang = if (radians < 0) MathUtils.PI2 - (-radians % MathUtils.PI2) else radians % MathUtils.PI2
-    val l_sin = scala.math.sin(l_ang / 2).toFloat
-    val l_cos = scala.math.cos(l_ang / 2).toFloat
-    this.set(dInv * x * l_sin, dInv * y * l_sin, dInv * z * l_sin, l_cos).nor()
+    if (d == 0f) idt()
+    else {
+      val dInv  = 1f / d
+      val l_ang = if (radians < 0) MathUtils.PI2 - (-radians % MathUtils.PI2) else radians % MathUtils.PI2
+      val l_sin = scala.math.sin(l_ang / 2).toFloat
+      val l_cos = scala.math.cos(l_ang / 2).toFloat
+      this.set(dInv * x * l_sin, dInv * y * l_sin, dInv * z * l_sin, l_cos).nor()
+    }
   }
 
   /** Sets the Quaternion from the given matrix, optionally removing any scaling. */
@@ -752,18 +755,14 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     result
   }
 
-  override def equals(obj: Any): Boolean =
-    if (this == obj) {
-      true
-    } else if (obj == null || !obj.isInstanceOf[Quaternion]) {
-      false
-    } else {
-      val other = obj.asInstanceOf[Quaternion]
+  override def equals(obj: Any): Boolean = obj match {
+    case other: Quaternion =>
       (NumberUtils.floatToRawIntBits(w) == NumberUtils.floatToRawIntBits(other.w))
       && (NumberUtils.floatToRawIntBits(x) == NumberUtils.floatToRawIntBits(other.x))
       && (NumberUtils.floatToRawIntBits(y) == NumberUtils.floatToRawIntBits(other.y))
       && (NumberUtils.floatToRawIntBits(z) == NumberUtils.floatToRawIntBits(other.z))
-    }
+    case _ => false
+  }
 
   /** Get the dot product between this and the other quaternion (commutative).
     * @param other

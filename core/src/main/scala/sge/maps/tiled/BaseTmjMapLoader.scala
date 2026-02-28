@@ -494,19 +494,20 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   /** JSON TextMapObjects contain object nodes containing specific text related attributes. Here we merge them, parent attributes will override those found in templates.
     */
-  protected def mergeJsonObject(parentObject: JsonValue, templateObject: JsonValue): JsonValue = {
-    if (templateObject == null) return parentObject // scalastyle:ignore
-    if (parentObject == null) return templateObject // scalastyle:ignore
-    // Create a new merged element which will contain a combination of parent and template objects
-    val merged = new JsonValue(JsonValue.ValueType.`object`)
-    // Add children from template
-    for (child <- templateObject)
-      merged.addChild(child.name.orNull, cloneElementShallow(child))
-    // Add or override children from parent
-    for (child <- parentObject)
-      merged.setChild(child.name.orNull, cloneElementShallow(child))
-    merged
-  }
+  protected def mergeJsonObject(parentObject: JsonValue, templateObject: JsonValue): JsonValue =
+    if (Nullable(templateObject).isEmpty) parentObject // scalastyle:ignore
+    else if (Nullable(parentObject).isEmpty) templateObject // scalastyle:ignore
+    else {
+      // Create a new merged element which will contain a combination of parent and template objects
+      val merged = new JsonValue(JsonValue.ValueType.`object`)
+      // Add children from template
+      for (child <- templateObject)
+        merged.addChild(child.name.orNull, cloneElementShallow(child))
+      // Add or override children from parent
+      for (child <- parentObject)
+        merged.setChild(child.name.orNull, cloneElementShallow(child))
+      merged
+    }
 
   /** Returns a shallow copy of the source JsonValue element we pass in. This method only copies the basic type and value (string, number, boolean, or null) from the source element. It does not clone
     * child element for arrays or objects. If the source element is an array or object, the entire element is copied using JsonValue's copy constructor, resulting in a deep copy for those types.
@@ -527,55 +528,57 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   /** Merges two properties arrays from a parent and template. Matching properties from the parent will override the template's.
     */
-  protected def mergeJsonProperties(parentProps: JsonValue, templateProps: JsonValue): JsonValue = {
-    if (templateProps == null) return parentProps // scalastyle:ignore
-    if (parentProps == null) return templateProps // scalastyle:ignore
-    // Create a new merged properties element which will contain a combination of parent and template properties.
-    val merged = new JsonValue(JsonValue.ValueType.array)
-    // Set properties from template
-    for (property <- templateProps)
-      merged.addChild(deepCopyJsonValue(property)) // deep copy
-    // Set properties from the parent, matching ones from template will be overridden
-    for (property <- parentProps) {
-      val propName = property.getString("name", Nullable.empty)
-      if (propName.isDefined) {
-        // Search for an existing property with the same name
-        for (child <- merged)
-          if (propName.orNull == child.getString("name", Nullable.empty).orNull) {
-            child.removeFromParent()
-          }
-        merged.addChild(deepCopyJsonValue(property)) // Add or replace with map copy
+  protected def mergeJsonProperties(parentProps: JsonValue, templateProps: JsonValue): JsonValue =
+    if (Nullable(templateProps).isEmpty) parentProps // scalastyle:ignore
+    else if (Nullable(parentProps).isEmpty) templateProps // scalastyle:ignore
+    else {
+      // Create a new merged properties element which will contain a combination of parent and template properties.
+      val merged = new JsonValue(JsonValue.ValueType.array)
+      // Set properties from template
+      for (property <- templateProps)
+        merged.addChild(deepCopyJsonValue(property)) // deep copy
+      // Set properties from the parent, matching ones from template will be overridden
+      for (property <- parentProps) {
+        val propName = property.getString("name", Nullable.empty)
+        if (propName.isDefined) {
+          // Search for an existing property with the same name
+          for (child <- merged)
+            if (propName.orNull == child.getString("name", Nullable.empty).orNull) {
+              child.removeFromParent()
+            }
+          merged.addChild(deepCopyJsonValue(property)) // Add or replace with map copy
+        }
       }
+      merged
     }
-    merged
-  }
 
   /** Recursively merges a "parent" (map) object element with its referenced template object element. Attributes and properties found in the template are allowed to be overwritten by any matching ones
     * found in its parent element. The returned element is a new detached tree (parent = null) so it can be handed straight to the loadObject() method without issues.
     */
-  protected def mergeParentElementWithTemplate(parent: JsonValue, template: JsonValue): JsonValue = {
-    if (template == null) return parent // scalastyle:ignore
-    if (parent == null) return template // scalastyle:ignore
-    // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
-    val merged = new JsonValue(JsonValue.ValueType.`object`)
-    // Set attributes from template
-    for (child <- template)
-      merged.addChild(cloneElementShallow(child))
-    // Set attributes from the parent, matching ones from template will be overridden
-    // Specifically added special case to handle JSON version of TextMapObjects since they are unique compared to other objects.
-    for (child <- parent) {
-      val key = child.name.orNull
-      key match {
-        case "properties" =>
-          merged.setChild(key, mergeJsonProperties(child, template.get("properties").orNull))
-        case "text" =>
-          merged.setChild(key, mergeJsonObject(child, template.get("text").orNull))
-        case _ =>
-          merged.setChild(key, cloneElementShallow(child))
+  protected def mergeParentElementWithTemplate(parent: JsonValue, template: JsonValue): JsonValue =
+    if (Nullable(template).isEmpty) parent // scalastyle:ignore
+    else if (Nullable(parent).isEmpty) template // scalastyle:ignore
+    else {
+      // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
+      val merged = new JsonValue(JsonValue.ValueType.`object`)
+      // Set attributes from template
+      for (child <- template)
+        merged.addChild(cloneElementShallow(child))
+      // Set attributes from the parent, matching ones from template will be overridden
+      // Specifically added special case to handle JSON version of TextMapObjects since they are unique compared to other objects.
+      for (child <- parent) {
+        val key = child.name.orNull
+        key match {
+          case "properties" =>
+            merged.setChild(key, mergeJsonProperties(child, template.get("properties").orNull))
+          case "text" =>
+            merged.setChild(key, mergeJsonObject(child, template.get("text").orNull))
+          case _ =>
+            merged.setChild(key, cloneElementShallow(child))
+        }
       }
+      merged
     }
-    merged
-  }
 
   /** Creates a deep copy of a JsonValue tree, since JsonValue has no copy constructor. */
   private def deepCopyJsonValue(src: JsonValue): JsonValue = {
@@ -593,32 +596,31 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   /* * End of Tiled Template Loading Section * */
 
-  private def loadProperties(properties: MapProperties, element: JsonValue): Unit = {
-    if (element == null || element.name.fold(true)(_ != "properties")) return // scalastyle:ignore
-
-    for (property <- element) {
-      val name     = property.getString("name", Nullable.empty).orNull
-      var value    = property.getString("value", Nullable.empty)
-      val propType = property.getString("type", Nullable.empty)
-      if (value.isEmpty && propType.fold(true)(_ != "class")) {
-        value = property.asString()
-      }
-      propType.orNull match {
-        case "object" =>
-          value.foreach(v => loadObjectProperty(properties, name, v))
-        case "class" =>
-          // A 'class' property is a property which is itself a set of properties
-          val classProperties = new MapProperties()
-          val className       = property.getString("propertytype", Nullable.empty).orNull
-          classProperties.put("type", className)
-          // the actual properties of a 'class' property are stored as a new properties tag
-          properties.put(name, classProperties)
-          loadJsonClassProperties(className, classProperties, property.get("value"))
-        case _ =>
-          value.foreach(v => loadBasicProperty(properties, name, v, propType))
+  private def loadProperties(properties: MapProperties, element: JsonValue): Unit =
+    if (Nullable(element).isDefined && element.name.fold(false)(_ == "properties")) { // scalastyle:ignore
+      for (property <- element) {
+        val name     = property.getString("name", Nullable.empty).orNull
+        var value    = property.getString("value", Nullable.empty)
+        val propType = property.getString("type", Nullable.empty)
+        if (value.isEmpty && propType.fold(true)(_ != "class")) {
+          value = property.asString()
+        }
+        propType.orNull match {
+          case "object" =>
+            value.foreach(v => loadObjectProperty(properties, name, v))
+          case "class" =>
+            // A 'class' property is a property which is itself a set of properties
+            val classProperties = new MapProperties()
+            val className       = property.getString("propertytype", Nullable.empty).orNull
+            classProperties.put("type", className)
+            // the actual properties of a 'class' property are stored as a new properties tag
+            properties.put(name, classProperties)
+            loadJsonClassProperties(className, classProperties, property.get("value"))
+          case _ =>
+            value.foreach(v => loadBasicProperty(properties, name, v, propType))
+        }
       }
     }
-  }
 
   protected def loadTileSet(element: JsonValue, tmjFile: FileHandle, imageResolver: ImageResolver): Unit = {
     var el = element

@@ -132,20 +132,20 @@ class ImmediateModeRenderer20(
     numVertices += 1
   }
 
-  def flush(): Unit = {
-    if (numVertices == 0) return
-    shaderVar.bind()
-    shaderVar.setUniformMatrix("u_projModelView", projModelView)
-    for (i <- 0 until numTexCoords)
-      shaderVar.setUniformi(shaderUniformNames(i), i)
-    mesh.setVertices(vertices, 0, vertexIdx)
-    // TODO: Fix mesh.render call when proper Mesh implementation is available
-    // mesh.render(shaderVar, primitiveType)
+  def flush(): Unit =
+    if (numVertices != 0) {
+      shaderVar.bind()
+      shaderVar.setUniformMatrix("u_projModelView", projModelView)
+      for (i <- 0 until numTexCoords)
+        shaderVar.setUniformi(shaderUniformNames(i), i)
+      mesh.setVertices(vertices, 0, vertexIdx)
+      // TODO: Fix mesh.render call when proper Mesh implementation is available
+      // mesh.render(shaderVar, primitiveType)
 
-    numSetTexCoords = 0
-    vertexIdx = 0
-    numVertices = 0
-  }
+      numSetTexCoords = 0
+      vertexIdx = 0
+      numVertices = 0
+    }
 
   def end(): Unit =
     flush()

@@ -48,8 +48,7 @@ class DecalMaterial {
     }
 
   override def hashCode(): Int = {
-    val tex    = textureRegion.getTexture()
-    var result = if (tex != null) tex.hashCode() else 0
+    var result = Nullable(textureRegion.getTexture()).fold(0)(_.hashCode())
     result = 31 * result + srcBlendFactor
     result = 31 * result + dstBlendFactor
     result

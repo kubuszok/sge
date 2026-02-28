@@ -5,14 +5,12 @@ class Matrix4Test extends munit.FunSuite {
 
   private val epsilon = 1e-4f
 
-  private def assertMatrixEquals(a: Matrix4, b: Matrix4, eps: Float = epsilon): Unit = {
-    for (i <- 0 until 16) {
+  private def assertMatrixEquals(a: Matrix4, b: Matrix4, eps: Float = epsilon): Unit =
+    for (i <- 0 until 16)
       assert(
         Math.abs(a.values(i) - b.values(i)) < eps,
         s"Matrix mismatch at index $i: ${a.values(i)} vs ${b.values(i)}"
       )
-    }
-  }
 
   test("det identity") {
     val m = new Matrix4().idt()
@@ -26,7 +24,7 @@ class Matrix4Test extends munit.FunSuite {
   }
 
   test("inv identity") {
-    val m = new Matrix4().idt().inv()
+    val m        = new Matrix4().idt().inv()
     val identity = new Matrix4().idt()
     assertMatrixEquals(m, identity)
   }
@@ -54,8 +52,8 @@ class Matrix4Test extends munit.FunSuite {
     m.values(Matrix4.M10) = 5; m.values(Matrix4.M11) = 6; m.values(Matrix4.M12) = 7; m.values(Matrix4.M13) = 8
     m.values(Matrix4.M20) = 2; m.values(Matrix4.M21) = 6; m.values(Matrix4.M22) = 4; m.values(Matrix4.M23) = 8
     m.values(Matrix4.M30) = 3; m.values(Matrix4.M31) = 1; m.values(Matrix4.M32) = 7; m.values(Matrix4.M33) = 2
-    val mInv = new Matrix4().set(m).inv()
-    val product = new Matrix4().set(m).mul(mInv)
+    val mInv     = new Matrix4().set(m).inv()
+    val product  = new Matrix4().set(m).mul(mInv)
     val identity = new Matrix4().idt()
     assertMatrixEquals(product, identity, 1e-3f)
   }
@@ -69,7 +67,7 @@ class Matrix4Test extends munit.FunSuite {
   }
 
   test("setTranslation and getTranslation roundtrip") {
-    val m = new Matrix4().idt().setTranslation(10, 20, 30)
+    val m   = new Matrix4().idt().setTranslation(10, 20, 30)
     val pos = m.getTranslation(new Vector3())
     assertEqualsFloat(pos.x, 10f, epsilon)
     assertEqualsFloat(pos.y, 20f, epsilon)

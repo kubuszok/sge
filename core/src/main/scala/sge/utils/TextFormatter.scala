@@ -16,7 +16,7 @@ class TextFormatter(locale: Locale, useAdvanced: Boolean) {
     // Simple placeholder implementation - should use proper MessageFormat
     var result = pattern
     args.zipWithIndex.foreach { case (arg, index) =>
-      result = result.replace(s"{$index}", if (arg != null) arg.toString else "null")
+      result = result.replace(s"{$index}", Nullable(arg).fold("null")(_.toString))
     }
     result
   }

@@ -10,6 +10,9 @@ package sge
 package graphics
 package g2d
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.files.FileHandle
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.TextureRegion
@@ -28,27 +31,31 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   private var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) = {
     this(
       new BitmapFontData(fontFile, false),
       if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
       else Nullable.empty,
       true
     )
+  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
       if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
       else Nullable.empty,
       true
     )
+  }
 
-  def this(fontFile: FileHandle)(using sge: Sge) =
+  def this(fontFile: FileHandle)(using sge: Sge) = {
     this(fontFile, Nullable.empty[TextureRegion])
+  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) =
+  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(new BitmapFontData(fontFile, flip), Nullable.empty, true)
+  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(
@@ -83,8 +90,8 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   load(data)
 
   protected def load(data: BitmapFontData): Unit = {
-    for (page <- data.glyphs if page != null)
-      for (glyph <- page if glyph != null)
+    for (page <- data.glyphs if Nullable(page).isDefined)
+      for (glyph <- page if Nullable(glyph).isDefined)
         data.setGlyphRegion(glyph, regions(glyph.page))
     data.missingGlyph.foreach(mg => data.setGlyphRegion(mg, regions(mg.page)))
   }
@@ -187,11 +194,11 @@ object BitmapFont {
   val PAGE_SIZE      = 1 << LOG2_PAGE_SIZE
   val PAGES          = 0x10000 / PAGE_SIZE
 
-  def indexOf(text: CharSequence, ch: Char, start: Int): Int = {
+  def indexOf(text: CharSequence, ch: Char, start: Int): Int = boundary {
     val n = text.length()
     var i = start
     while (i < n) {
-      if (text.charAt(i) == ch) return i
+      if (text.charAt(i) == ch) break(i)
       i += 1
     }
     n
@@ -217,7 +224,7 @@ object BitmapFont {
     def getKerning(ch: Char): Int =
       kerning.fold(0) { k =>
         val page = k(ch >>> LOG2_PAGE_SIZE)
-        if (page != null) page(ch & PAGE_SIZE - 1)
+        if (Nullable(page).isDefined) page(ch & PAGE_SIZE - 1)
         else 0
       }
 
@@ -225,7 +232,7 @@ object BitmapFont {
       if (kerning.isEmpty) kerning = Nullable(Array.ofDim[Byte](PAGES, 0))
       kerning.foreach { k =>
         var page = k(ch >>> LOG2_PAGE_SIZE)
-        if (page == null) {
+        if (Nullable(page).isEmpty) {
           k(ch >>> LOG2_PAGE_SIZE) = Array.ofDim[Byte](PAGE_SIZE)
           page = k(ch >>> LOG2_PAGE_SIZE)
         }
@@ -275,7 +282,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
 
   def getGlyph(ch: Char): Nullable[BitmapFont.Glyph] = {
     val page = glyphs(ch / BitmapFont.PAGE_SIZE)
-    if (page != null) page(ch & BitmapFont.PAGE_SIZE - 1) else Nullable.empty
+    if (Nullable(page).isDefined) page(ch & BitmapFont.PAGE_SIZE - 1) else Nullable.empty
   }
 
   def setLineHeight(height: Float): Unit = {
@@ -285,7 +292,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
 
   def setGlyph(ch: Int, glyph: BitmapFont.Glyph): Unit = {
     var page = glyphs(ch / BitmapFont.PAGE_SIZE)
-    if (page == null) {
+    if (Nullable(page).isEmpty) {
       glyphs(ch / BitmapFont.PAGE_SIZE) = Array.ofDim[BitmapFont.Glyph](BitmapFont.PAGE_SIZE)
       page = glyphs(ch / BitmapFont.PAGE_SIZE)
     }
@@ -293,8 +300,8 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   }
 
   def getFirstGlyph(): BitmapFont.Glyph = scala.util.boundary {
-    for (page <- glyphs if page != null)
-      for (glyph <- page if glyph != null && glyph.height != 0 && glyph.width != 0)
+    for (page <- glyphs if Nullable(page).isDefined)
+      for (glyph <- page if Nullable(glyph).isDefined && glyph.height != 0 && glyph.width != 0)
         scala.util.boundary.break(glyph)
     throw new RuntimeException("No valid glyph found")
   }

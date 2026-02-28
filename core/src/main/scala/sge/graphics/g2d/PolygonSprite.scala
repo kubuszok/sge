@@ -109,11 +109,11 @@ class PolygonSprite {
   def translateX(xAmount: Float): Unit = {
     this.x += xAmount;
 
-    if (dirty) return;
-
-    val vertices = this.vertices;
-    for (i <- 0 until vertices.length by Sprite.VERTEX_SIZE)
-      vertices(i) += xAmount;
+    if (!dirty) {
+      val vertices = this.vertices;
+      for (i <- 0 until vertices.length by Sprite.VERTEX_SIZE)
+        vertices(i) += xAmount;
+    }
   }
 
   /** Sets the y position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
@@ -121,11 +121,11 @@ class PolygonSprite {
   def translateY(yAmount: Float): Unit = {
     y += yAmount;
 
-    if (dirty) return;
-
-    val vertices = this.vertices;
-    for (i <- 1 until vertices.length by Sprite.VERTEX_SIZE)
-      vertices(i) += yAmount;
+    if (!dirty) {
+      val vertices = this.vertices;
+      for (i <- 1 until vertices.length by Sprite.VERTEX_SIZE)
+        vertices(i) += yAmount;
+    }
   }
 
   /** Sets the position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
@@ -134,12 +134,12 @@ class PolygonSprite {
     x += xAmount;
     y += yAmount;
 
-    if (dirty) return;
-
-    val vertices = this.vertices;
-    for (i <- 0 until vertices.length by Sprite.VERTEX_SIZE) {
-      vertices(i) += xAmount;
-      vertices(i + 1) += yAmount;
+    if (!dirty) {
+      val vertices = this.vertices;
+      for (i <- 0 until vertices.length by Sprite.VERTEX_SIZE) {
+        vertices(i) += xAmount;
+        vertices(i + 1) += yAmount;
+      }
     }
   }
 
@@ -198,37 +198,38 @@ class PolygonSprite {
   }
 
   /** Returns the packed vertices, colors, and texture coordinates for this sprite. */
-  def getVertices(): Array[Float] = {
-    if (!dirty) return this.vertices
-    dirty = false
+  def getVertices(): Array[Float] =
+    if (!dirty) this.vertices
+    else {
+      dirty = false
 
-    val originX        = this.originX
-    val originY        = this.originY
-    val scaleX         = this.scaleX
-    val scaleY         = this.scaleY
-    val region         = this.region
-    val spriteVertices = this.vertices
-    val regionVertices = region.getVertices()
+      val originX        = this.originX
+      val originY        = this.originY
+      val scaleX         = this.scaleX
+      val scaleY         = this.scaleY
+      val region         = this.region
+      val spriteVertices = this.vertices
+      val regionVertices = region.getVertices()
 
-    val worldOriginX = x + originX
-    val worldOriginY = y + originY
-    val sX           = width / region.getRegion().getRegionWidth()
-    val sY           = height / region.getRegion().getRegionHeight()
-    val cos          = MathUtils.cosDeg(rotation)
-    val sin          = MathUtils.sinDeg(rotation)
+      val worldOriginX = x + originX
+      val worldOriginY = y + originY
+      val sX           = width / region.getRegion().getRegionWidth()
+      val sY           = height / region.getRegion().getRegionHeight()
+      val cos          = MathUtils.cosDeg(rotation)
+      val sin          = MathUtils.sinDeg(rotation)
 
-    var fx: Float = 0f
-    var fy: Float = 0f
-    var v = 0
-    for (i <- 0 until regionVertices.length by 2) {
-      fx = (regionVertices(i) * sX - originX) * scaleX
-      fy = (regionVertices(i + 1) * sY - originY) * scaleY
-      spriteVertices(v) = cos * fx - sin * fy + worldOriginX
-      spriteVertices(v + 1) = sin * fx + cos * fy + worldOriginY
-      v += 5
+      var fx: Float = 0f
+      var fy: Float = 0f
+      var v = 0
+      for (i <- 0 until regionVertices.length by 2) {
+        fx = (regionVertices(i) * sX - originX) * scaleX
+        fy = (regionVertices(i + 1) * sY - originY) * scaleY
+        spriteVertices(v) = cos * fx - sin * fy + worldOriginX
+        spriteVertices(v + 1) = sin * fx + cos * fy + worldOriginY
+        v += 5
+      }
+      spriteVertices
     }
-    spriteVertices
-  }
 
   /** Returns the bounding axis aligned {@link Rectangle} that bounds this sprite. The rectangles x and y coordinates describe its bottom left corner. If you change the position or size of the sprite,
     * you have to fetch the triangle again for it to be recomputed.

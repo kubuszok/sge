@@ -100,6 +100,13 @@ final class ObjectMap[K, V] private (
     if (i < 0) defaultValue else valueTable(i)
   }
 
+  /** Returns the value for the specified key without checking if it exists. Only safe when the caller guarantees the key is present in the map.
+    */
+  private[utils] def getUnsafe(key: K): V = {
+    val i = locateKey(key)
+    valueTable(i)
+  }
+
   /** Returns the value for the removed key, or `Nullable.empty` if the key is not in the map. Uses backward-shift deletion to maintain probe sequences without tombstones.
     */
   def remove(key: K): Nullable[V] = {

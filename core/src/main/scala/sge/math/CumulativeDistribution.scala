@@ -9,6 +9,9 @@
 package sge
 package math
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 /** This class represents a cumulative distribution. It can be used in scenarios where there are values with different probabilities and it's required to pick one of those respecting the probability.
   * For example one could represent the frequency of the alphabet letters using a cumulative distribution and use it to randomly pick a letter respecting their probabilities (useful when generating
   * random words). Another example could be point generation on a mesh surface: one could generate a cumulative distribution using triangles areas as interval size, in this way triangles with a large
@@ -116,13 +119,13 @@ class CumulativeDistribution[T] {
     values(index).value
 
   /** Set the interval size on the passed in object. The object must be present in the distribution. */
-  def setInterval(obj: T, intervalSize: Float): Unit = {
+  def setInterval(obj: T, intervalSize: Float): Unit = boundary {
     var i = 0
     while (i < currentSize) {
       val value = values(i)
       if (value.value == obj) {
         value.interval = intervalSize
-        return
+        break(())
       }
       i += 1
     }

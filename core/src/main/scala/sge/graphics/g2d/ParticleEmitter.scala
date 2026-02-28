@@ -17,6 +17,8 @@ import sge.math.collision.BoundingBox
 
 import sge.utils.{ DynamicArray, Nullable }
 
+import scala.language.implicitConversions
+
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.Writer
@@ -387,7 +389,7 @@ class ParticleEmitter {
     }
 
     var particle = particles(index)
-    if (particle == null) {
+    if (Nullable(particle).isEmpty) {
       particles(index) = newParticle(sprite.orNull)
       particle = particles(index)
       particle.flip(flipX, flipY)
@@ -463,7 +465,7 @@ class ParticleEmitter {
     }
 
     var color = particle.tint
-    if (color == null) {
+    if (Nullable(color).isEmpty) {
       color = new Array[Float](3)
       particle.tint = color
     }
@@ -666,7 +668,7 @@ class ParticleEmitter {
     if (sprites.size == 0) scala.util.boundary.break()
     for (i <- particles.indices) {
       val particle = particles(i)
-      if (particle == null) scala.util.boundary.break()
+      if (Nullable(particle).isEmpty) scala.util.boundary.break()
       val sprite: Nullable[Sprite] = spriteMode match {
         case SpriteMode.single =>
           if (sprites.nonEmpty) Nullable(sprites(0)) else Nullable.empty
@@ -695,7 +697,7 @@ class ParticleEmitter {
       throw new IllegalStateException("ParticleEmitter.setSprites() must have been called before preAllocateParticles()")
     for (index <- particles.indices) {
       var particle = particles(index)
-      if (particle == null) {
+      if (Nullable(particle).isEmpty) {
         particles(index) = newParticle(if (sprites.nonEmpty) sprites.first else null)
         particle = particles(index)
         particle.flip(flipX, flipY)
@@ -864,7 +866,7 @@ class ParticleEmitter {
     Nullable(particles).foreach { ps =>
       for (i <- ps.indices) {
         val particle = ps(i)
-        if (particle != null) particle.flip(flipX, flipY)
+        Nullable(particle).foreach(_.flip(flipX, flipY))
       }
     }
   }
@@ -1121,7 +1123,7 @@ class ParticleEmitter {
 
       val imagePaths  = DynamicArray[String]()
       var currentLine = line
-      while (currentLine != null && currentLine.nonEmpty) {
+      while (Nullable(currentLine).isDefined && currentLine.nonEmpty) {
         imagePaths.add(currentLine)
         currentLine = reader.readLine()
       }
@@ -1148,7 +1150,7 @@ object ParticleEmitter {
 
   def readString(reader: BufferedReader, name: String): String = {
     val line = reader.readLine()
-    if (line == null) throw new IOException("Missing value: " + name)
+    if (Nullable(line).isEmpty) throw new IOException("Missing value: " + name)
     readString(line)
   }
 
@@ -1459,7 +1461,7 @@ object ParticleEmitter {
       // For backwards compatibility, independent property may not be defined
       if (reader.markSupported()) reader.mark(100)
       val line = reader.readLine()
-      if (line == null) throw new IOException("Missing value: independent")
+      if (Nullable(line).isEmpty) throw new IOException("Missing value: independent")
       if (line.contains("independent"))
         independent = java.lang.Boolean.parseBoolean(readString(line))
       else if (reader.markSupported())

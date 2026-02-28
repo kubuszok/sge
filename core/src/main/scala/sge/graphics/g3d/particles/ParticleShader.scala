@@ -91,8 +91,7 @@ class ParticleShader private (
       (vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMask())
 
   override def compareTo(other: Shader): Int =
-    if (other == null) -1
-    else if (other eq this) 0
+    if (other eq this) 0
     else 0 // FIXME compare shaders on their impact on performance
 
   override def equals(obj: Any): Boolean = obj match {
@@ -118,7 +117,7 @@ class ParticleShader private (
   var currentMaterial: Nullable[Material] = Nullable.empty
 
   protected def bindMaterial(renderable: Renderable): Unit =
-    if (currentMaterial.fold(false)(_ eq renderable.material.getOrElse(null.asInstanceOf[Material]))) {
+    if (currentMaterial.fold(false)(cm => renderable.material.fold(false)(rm => cm eq rm))) {
       // same material, nothing to do
     } else {
       var cullFace       = if (config.defaultCullFace == -1) GL20.GL_BACK else config.defaultCullFace

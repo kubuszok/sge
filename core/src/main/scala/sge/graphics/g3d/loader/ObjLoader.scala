@@ -41,8 +41,9 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
-  def this()(using sge: Sge) =
+  def this()(using sge: Sge) = {
     this(null)
+  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)
@@ -60,8 +61,8 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
     if (ObjLoader.logWarning) {
       sge.application.error("ObjLoader", "Wavefront (OBJ) is not fully supported, consult the documentation for more information")
     }
-    var line:      String        = null.asInstanceOf[String]
-    var tokens:    Array[String] = null.asInstanceOf[Array[String]]
+    var line:      String        = null
+    var tokens:    Array[String] = null
     var firstChar: Char          = '\u0000'
     val mtl = new ObjLoader.MtlLoader()
 
@@ -74,7 +75,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
     var id     = 0
     try {
       line = reader.readLine()
-      while (line != null) {
+      while (Nullable(line).isDefined) {
 
         tokens = line.split("\\s+")
         if (tokens.length < 1) {
@@ -145,7 +146,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
                 activeGroup.materialName = tokens(1).replace('.', '_')
             }
           }
-          if (line != null) line = reader.readLine()
+          if (Nullable(line).isDefined) line = reader.readLine()
         }
       }
       reader.close()
@@ -291,7 +292,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
   }
 
   private def getIndex(index: String, size: Int): Int =
-    if (index == null || index.isEmpty) 0
+    if (Nullable(index).fold(true)(_.isEmpty)) 0
     else {
       val idx = Integer.parseInt(index)
       if (idx < 0) size + idx
@@ -325,18 +326,18 @@ object ObjLoader {
 
     /** loads .mtl file */
     def load(file: FileHandle): Unit = {
-      var line:   String        = null.asInstanceOf[String]
-      var tokens: Array[String] = null.asInstanceOf[Array[String]]
+      var line:   String        = null
+      var tokens: Array[String] = null
 
       val currentMaterial = new ObjMaterial()
 
-      if (file == null || !file.exists()) {
+      if (Nullable(file).fold(true)(!_.exists())) {
         // early exit - no file to load
       } else {
         val reader = new BufferedReader(new InputStreamReader(file.read()), 4096)
         try {
           line = reader.readLine()
-          while (line != null) {
+          while (Nullable(line).isDefined) {
 
             if (line.nonEmpty && line.charAt(0) == '\t') line = line.substring(1).trim
 
@@ -429,7 +430,7 @@ object ObjLoader {
       def build(): ModelMaterial = {
         val mat = new ModelMaterial()
         mat.id = materialName
-        mat.ambient = ambientColor.fold(null.asInstanceOf[Color])(c => new Color(c))
+        ambientColor.foreach(c => mat.ambient = new Color(c))
         mat.diffuse = new Color(diffuseColor)
         mat.specular = new Color(specularColor)
         mat.opacity = opacity
@@ -446,7 +447,7 @@ object ObjLoader {
         val tex = new ModelTexture()
         tex.usage = usage
         tex.fileName = texFilename
-        if (mat.textures == null) mat.textures = DynamicArray[ModelTexture]()
+        if (Nullable(mat.textures).isEmpty) mat.textures = DynamicArray[ModelTexture]()
         mat.textures.add(tex)
       }
 

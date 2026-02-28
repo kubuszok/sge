@@ -17,7 +17,7 @@ package utils
   *   Jon Renner (original implementation)
   */
 class Select {
-  private var quickSelect: QuickSelect[AnyRef] = scala.compiletime.uninitialized
+  private var quickSelect: Nullable[QuickSelect[AnyRef]] = Nullable.empty
 
   def select[T](items: Array[T], comp: Ordering[T], kthLowest: Int, size: Int): T = {
     val idx = selectIndex(items, comp, kthLowest, size)
@@ -40,8 +40,8 @@ class Select {
         fastMax(items, comp, size)
       } else {
         // quickselect a better choice for cases of k between min and max
-        if (quickSelect == null) quickSelect = new QuickSelect[AnyRef]()
-        quickSelect.select(items.asInstanceOf[Array[AnyRef]], comp.asInstanceOf[Ordering[AnyRef]], kthLowest, size)
+        if (quickSelect.isEmpty) quickSelect = Nullable(new QuickSelect[AnyRef]())
+        quickSelect.getOrElse(throw new AssertionError("unreachable")).select(items.asInstanceOf[Array[AnyRef]], comp.asInstanceOf[Ordering[AnyRef]], kthLowest, size)
       }
     idx
   }
@@ -74,13 +74,10 @@ class Select {
 object Select {
 
   /** Provided for convenience */
-  def instance(): Select =
-    _instance match {
-      case null =>
-        _instance = new Select()
-        _instance
-      case existing => existing
-    }
+  def instance(): Select = {
+    if (_instance.isEmpty) _instance = Nullable(new Select())
+    _instance.getOrElse(throw new AssertionError("unreachable"))
+  }
 
-  private var _instance: Select = scala.compiletime.uninitialized
+  private var _instance: Nullable[Select] = Nullable.empty
 }

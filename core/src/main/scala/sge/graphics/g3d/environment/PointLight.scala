@@ -11,7 +11,11 @@ package graphics
 package g3d
 package environment
 
+import scala.annotation.targetName
+import scala.language.implicitConversions
+
 import sge.math.Vector3
+import sge.utils.Nullable
 
 class PointLight extends BaseLight[PointLight] {
   val position:  Vector3 = new Vector3()
@@ -35,22 +39,22 @@ class PointLight extends BaseLight[PointLight] {
   def set(copyFrom: PointLight): PointLight =
     set(copyFrom.color, copyFrom.position, copyFrom.intensity)
 
-  def set(color: Color, position: Vector3, intensity: Float): PointLight = {
-    if (color != null) this.color.set(color)
-    if (position != null) this.position.set(position)
+  def set(color: Nullable[Color], position: Nullable[Vector3], intensity: Float): PointLight = {
+    color.foreach(this.color.set(_))
+    position.foreach(this.position.set(_))
     this.intensity = intensity
     this
   }
 
-  def set(r: Float, g: Float, b: Float, position: Vector3, intensity: Float): PointLight = {
+  def set(r: Float, g: Float, b: Float, position: Nullable[Vector3], intensity: Float): PointLight = {
     this.color.set(r, g, b, 1f)
-    if (position != null) this.position.set(position)
+    position.foreach(this.position.set(_))
     this.intensity = intensity
     this
   }
 
-  def set(color: Color, x: Float, y: Float, z: Float, intensity: Float): PointLight = {
-    if (color != null) this.color.set(color)
+  def set(color: Nullable[Color], x: Float, y: Float, z: Float, intensity: Float): PointLight = {
+    color.foreach(this.color.set(_))
     this.position.set(x, y, z)
     this.intensity = intensity
     this
@@ -68,6 +72,7 @@ class PointLight extends BaseLight[PointLight] {
     case _ => false
   }
 
-  def equals(other: PointLight): Boolean =
-    (other != null) && ((other eq this) || (color.equals(other.color) && position.equals(other.position) && intensity == other.intensity))
+  @targetName("equalsPointLight")
+  def equals(other: Nullable[PointLight]): Boolean =
+    other.fold(false)(o => (o eq this) || (color.equals(o.color) && position.equals(o.position) && intensity == o.intensity))
 }

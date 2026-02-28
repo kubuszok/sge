@@ -626,7 +626,7 @@ class DefaultShader(
     }
 
   override def compareTo(other: Shader): Int =
-    if (other == null) -1
+    if (Nullable(other).isEmpty) -1
     else if (other eq this) 0
     else 0 // FIXME compare shaders on their impact on performance
 
@@ -878,7 +878,7 @@ object DefaultShader {
         var i = 0
         while (i < bones.length) {
           val idx = i / 16
-          if (renderable.bones.isEmpty || renderable.bones.fold(true)(b => idx >= b.length || b(idx) == null))
+          if (renderable.bones.isEmpty || renderable.bones.fold(true)(b => idx >= b.length || Nullable(b(idx)).isEmpty))
             System.arraycopy(Bones.idtMatrix.values, 0, bones, i, 16)
           else
             renderable.bones.foreach { b =>

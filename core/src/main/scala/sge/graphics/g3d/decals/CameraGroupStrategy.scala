@@ -138,7 +138,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
   override def getGroupShader(group: Int): Nullable[ShaderProgram] = Nullable(shader)
 
   def close(): Unit =
-    if (shader != null) shader.close()
+    Nullable(shader).foreach(_.close())
 }
 
 object CameraGroupStrategy {

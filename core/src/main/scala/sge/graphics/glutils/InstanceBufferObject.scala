@@ -154,9 +154,9 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     *   the shader
     */
   override def bind(shader: ShaderProgram): Unit =
-    bind(shader, null)
+    bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val gl = sge.graphics.gl20
 
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
@@ -167,43 +167,22 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     }
 
     val numAttributes = attributes.size
-    if (locations == null) {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = shader.getAttributeLocation(attribute.alias)
-        if (location >= 0) {
-          val unitOffset = attribute.unit
-          shader.enableVertexAttribute(location + unitOffset)
+    for (i <- 0 until numAttributes) {
+      val attribute = attributes.get(i)
+      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      if (location >= 0) {
+        val unitOffset = attribute.unit
+        shader.enableVertexAttribute(location + unitOffset)
 
-          shader.setVertexAttribute(
-            location + unitOffset,
-            attribute.numComponents,
-            attribute.`type`,
-            attribute.normalized,
-            attributes.vertexSize,
-            attribute.offset
-          )
-          sge.graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
-        }
-      }
-    } else {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = locations(i)
-        if (location >= 0) {
-          val unitOffset = attribute.unit
-          shader.enableVertexAttribute(location + unitOffset)
-
-          shader.setVertexAttribute(
-            location + unitOffset,
-            attribute.numComponents,
-            attribute.`type`,
-            attribute.normalized,
-            attributes.vertexSize,
-            attribute.offset
-          )
-          sge.graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
-        }
+        shader.setVertexAttribute(
+          location + unitOffset,
+          attribute.numComponents,
+          attribute.`type`,
+          attribute.normalized,
+          attributes.vertexSize,
+          attribute.offset
+        )
+        sge.graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
       }
     }
     isBound = true
@@ -215,28 +194,17 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     *   the shader
     */
   override def unbind(shader: ShaderProgram): Unit =
-    unbind(shader, null)
+    unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val gl            = sge.graphics.gl20
     val numAttributes = attributes.size
-    if (locations == null) {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = shader.getAttributeLocation(attribute.alias)
-        if (location >= 0) {
-          val unitOffset = attribute.unit
-          shader.disableVertexAttribute(location + unitOffset)
-        }
-      }
-    } else {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = locations(i)
-        if (location >= 0) {
-          val unitOffset = attribute.unit
-          shader.disableVertexAttribute(location + unitOffset)
-        }
+    for (i <- 0 until numAttributes) {
+      val attribute = attributes.get(i)
+      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      if (location >= 0) {
+        val unitOffset = attribute.unit
+        shader.disableVertexAttribute(location + unitOffset)
       }
     }
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)

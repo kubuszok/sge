@@ -51,9 +51,11 @@ class AnimationControllerTest extends munit.FunSuite {
 
   private def assertSameAnimation(expected: Animation, actual: Nullable[AnimationDesc]): Unit = {
     assert(actual.isDefined, "AnimationDesc should not be empty")
-    val desc = actual.orNull
-    if (expected.id != desc.animation.id) {
-      fail(s"expected: ${expected.id}, actual: ${desc.animation.id}")
+    actual.foreach { desc =>
+      val actualId = desc.animation.fold("<empty>")(_.id)
+      if (expected.id != actualId) {
+        fail(s"expected: ${expected.id}, actual: ${actualId}")
+      }
     }
   }
 

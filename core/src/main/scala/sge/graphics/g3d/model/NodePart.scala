@@ -89,7 +89,7 @@ class NodePart {
         if (existing.length != neededSize) new Array[Matrix4](neededSize) else existing
       }
       for (i <- boneArray.indices)
-        if (boneArray(i) == null) boneArray(i) = new Matrix4()
+        if (Nullable(boneArray(i)).isEmpty) boneArray(i) = new Matrix4()
       bones = Nullable(boneArray)
     }
     this

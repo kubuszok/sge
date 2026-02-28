@@ -83,22 +83,23 @@ object GeometryUtils {
     */
   def lowestPositiveRoot(a: Float, b: Float, c: Float): Float = {
     val det = b * b - 4 * a * c
-    if (det < 0) return Float.NaN
+    if (det < 0) Float.NaN
+    else {
+      val sqrtD = scala.math.sqrt(det).toFloat
+      val invA  = 1 / (2 * a)
+      var r1    = (-b - sqrtD) * invA
+      var r2    = (-b + sqrtD) * invA
 
-    val sqrtD = scala.math.sqrt(det).toFloat
-    val invA  = 1 / (2 * a)
-    var r1    = (-b - sqrtD) * invA
-    var r2    = (-b + sqrtD) * invA
+      if (r1 > r2) {
+        val tmp = r2
+        r2 = r1
+        r1 = tmp
+      }
 
-    if (r1 > r2) {
-      val tmp = r2
-      r2 = r1
-      r1 = tmp
+      if (r1 > 0) r1
+      else if (r2 > 0) r2
+      else Float.NaN
     }
-
-    if (r1 > 0) r1
-    else if (r2 > 0) r2
-    else Float.NaN
   }
 
   def colinear(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float): Boolean = {
@@ -245,40 +246,41 @@ object GeometryUtils {
     area * 0.5f
   }
 
-  def ensureCCW(polygon: Array[Float], offset: Int, count: Int): Unit = {
-    if (!isClockwise(polygon, offset, count)) return
-    val lastX = offset + count - 2
-    var i     = offset
-    val n     = offset + count / 2
-    while (i < n) {
-      val other = lastX - i
-      val x     = polygon(i)
-      val y     = polygon(i + 1)
-      polygon(i) = polygon(other)
-      polygon(i + 1) = polygon(other + 1)
-      polygon(other) = x
-      polygon(other + 1) = y
-      i += 2
+  def ensureCCW(polygon: Array[Float], offset: Int, count: Int): Unit =
+    if (isClockwise(polygon, offset, count)) {
+      val lastX = offset + count - 2
+      var i     = offset
+      val n     = offset + count / 2
+      while (i < n) {
+        val other = lastX - i
+        val x     = polygon(i)
+        val y     = polygon(i + 1)
+        polygon(i) = polygon(other)
+        polygon(i + 1) = polygon(other + 1)
+        polygon(other) = x
+        polygon(other + 1) = y
+        i += 2
+      }
     }
-  }
 
-  def isClockwise(polygon: Array[Float], offset: Int, count: Int): Boolean = {
-    if (count <= 2) return false
-    var area = 0f
-    val last = offset + count - 2
-    var x1   = polygon(last)
-    var y1   = polygon(last + 1)
-    var i    = offset
-    while (i <= last) {
-      val x2 = polygon(i)
-      val y2 = polygon(i + 1)
-      area += x1 * y2 - x2 * y1
-      x1 = x2
-      y1 = y2
-      i += 2
+  def isClockwise(polygon: Array[Float], offset: Int, count: Int): Boolean =
+    if (count <= 2) false
+    else {
+      var area = 0f
+      val last = offset + count - 2
+      var x1   = polygon(last)
+      var y1   = polygon(last + 1)
+      var i    = offset
+      while (i <= last) {
+        val x2 = polygon(i)
+        val y2 = polygon(i + 1)
+        area += x1 * y2 - x2 * y1
+        x1 = x2
+        y1 = y2
+        i += 2
+      }
+      area < 0
     }
-    area < 0
-  }
 
   /** Returns true if the point is inside the polygon using the ray casting algorithm.
     * @param polygon

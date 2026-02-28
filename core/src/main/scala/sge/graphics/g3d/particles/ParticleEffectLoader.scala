@@ -50,7 +50,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
     file:      FileHandle,
     parameter: ParticleEffectLoadParameter
   ): DynamicArray[AssetDescriptor[?]] = {
-    // TODO: Requires Json.fromJson(classOf[ResourceData], file) to deserialize ResourceData
+    // Blocked: needs Json serialization framework (not yet ported)
     // Once JSON bridge is available, this should:
     // 1. Deserialize ResourceData[ParticleEffect] from file
     // 2. Cache it in items synchronized list
@@ -78,7 +78,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends
       }
     }
 
-    // TODO: Requires Json library to serialize data to file
+    // Blocked: needs Json serialization framework (not yet ported)
     // Once JSON bridge is available:
     // val json = new Json(parameter.jsonOutputType)
     // if (parameter.prettyPrint) parameter.file.writeString(json.prettyPrint(data), false)
@@ -131,8 +131,9 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) =
+    def this(batches: DynamicArray[ParticleBatch[?]]) = {
       this(Nullable(batches))
+    }
   }
 
   class ParticleEffectSaveParameter(

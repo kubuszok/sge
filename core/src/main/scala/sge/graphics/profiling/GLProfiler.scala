@@ -38,58 +38,58 @@ class GLProfiler(graphics: Graphics) {
   }
 
   /** Enables profiling by replacing the {@code GL20} and {@code GL30} instances with profiling ones. */
-  def enable(): Unit = {
-    if (enabled) return
+  def enable(): Unit =
+    if (!enabled) {
 
-    // TODO: Graphics doesn't have these methods yet - commented out for compilation
-    // if (glInterceptor.isInstanceOf[GL32]) {
-    //   graphics.setGL32(glInterceptor.asInstanceOf[GL32])
-    // }
-    // if (glInterceptor.isInstanceOf[GL31]) {
-    //   graphics.setGL31(glInterceptor.asInstanceOf[GL31])
-    // }
-    // if (glInterceptor.isInstanceOf[GL30]) {
-    //   graphics.setGL30(glInterceptor.asInstanceOf[GL30])
-    // }
-    // graphics.setGL20(glInterceptor)
+      // TODO: Graphics doesn't have these methods yet - commented out for compilation
+      // if (glInterceptor.isInstanceOf[GL32]) {
+      //   graphics.setGL32(glInterceptor.asInstanceOf[GL32])
+      // }
+      // if (glInterceptor.isInstanceOf[GL31]) {
+      //   graphics.setGL31(glInterceptor.asInstanceOf[GL31])
+      // }
+      // if (glInterceptor.isInstanceOf[GL30]) {
+      //   graphics.setGL30(glInterceptor.asInstanceOf[GL30])
+      // }
+      // graphics.setGL20(glInterceptor)
 
-    // TODO: Gdx object doesn't exist yet - commented out
-    // Gdx.gl32 = graphics.getGL32()
-    // Gdx.gl31 = graphics.getGL31()
-    // Gdx.gl30 = graphics.getGL30()
-    // Gdx.gl20 = graphics.getGL20()
-    // Gdx.gl = graphics.getGL20()
+      // TODO: Gdx object doesn't exist yet - commented out
+      // Gdx.gl32 = graphics.getGL32()
+      // Gdx.gl31 = graphics.getGL31()
+      // Gdx.gl30 = graphics.getGL30()
+      // Gdx.gl20 = graphics.getGL20()
+      // Gdx.gl = graphics.getGL20()
 
-    enabled = true
-  }
+      enabled = true
+    }
 
   /** Disables profiling by resetting the {@code GL20} and {@code GL30} instances with the original ones. */
-  def disable(): Unit = {
-    if (!enabled) return
+  def disable(): Unit =
+    if (enabled) {
 
-    // TODO: Graphics doesn't have these methods yet - commented out for compilation
-    // if (glInterceptor.isInstanceOf[GL32Interceptor]) {
-    //   graphics.setGL32(glInterceptor.asInstanceOf[GL32Interceptor].gl32)
-    // }
-    // if (glInterceptor.isInstanceOf[GL31Interceptor]) {
-    //   graphics.setGL31(glInterceptor.asInstanceOf[GL31Interceptor].gl31)
-    // }
-    // if (glInterceptor.isInstanceOf[GL30Interceptor]) {
-    //   graphics.setGL30(glInterceptor.asInstanceOf[GL30Interceptor].gl30)
-    // }
-    // if (glInterceptor.isInstanceOf[GL20Interceptor]) {
-    //   graphics.setGL20(glInterceptor.asInstanceOf[GL20Interceptor].gl20)
-    // }
+      // TODO: Graphics doesn't have these methods yet - commented out for compilation
+      // if (glInterceptor.isInstanceOf[GL32Interceptor]) {
+      //   graphics.setGL32(glInterceptor.asInstanceOf[GL32Interceptor].gl32)
+      // }
+      // if (glInterceptor.isInstanceOf[GL31Interceptor]) {
+      //   graphics.setGL31(glInterceptor.asInstanceOf[GL31Interceptor].gl31)
+      // }
+      // if (glInterceptor.isInstanceOf[GL30Interceptor]) {
+      //   graphics.setGL30(glInterceptor.asInstanceOf[GL30Interceptor].gl30)
+      // }
+      // if (glInterceptor.isInstanceOf[GL20Interceptor]) {
+      //   graphics.setGL20(glInterceptor.asInstanceOf[GL20Interceptor].gl20)
+      // }
 
-    // TODO: Gdx object doesn't exist yet - commented out
-    // Gdx.gl32 = graphics.getGL32()
-    // Gdx.gl31 = graphics.getGL31()
-    // Gdx.gl30 = graphics.getGL30()
-    // Gdx.gl20 = graphics.getGL20()
-    // Gdx.gl = graphics.getGL20()
+      // TODO: Gdx object doesn't exist yet - commented out
+      // Gdx.gl32 = graphics.getGL32()
+      // Gdx.gl31 = graphics.getGL31()
+      // Gdx.gl30 = graphics.getGL30()
+      // Gdx.gl20 = graphics.getGL20()
+      // Gdx.gl = graphics.getGL20()
 
-    enabled = false
-  }
+      enabled = false
+    }
 
   /** Set the current listener for the {@link GLProfiler} to {@code errorListener} */
   def setListener(errorListener: GLErrorListener): Unit =

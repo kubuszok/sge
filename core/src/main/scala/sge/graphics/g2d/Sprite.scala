@@ -17,6 +17,8 @@ import sge.math.MathUtils
 import sge.math.Rectangle
 import sge.utils.Nullable
 import scala.compiletime.uninitialized
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** Holds the geometry, color, and texture information for drawing 2D sprites using {@link Batch} . A Sprite has a position and a size given as width and height. The position is relative to the origin
   * of the coordinate system specified via {@link Batch#begin()} and the respective matrices. A Sprite is always rectangular and its position (x, y) are located in the bottom left corner of that
@@ -145,16 +147,16 @@ class Sprite() extends TextureRegion {
   /** Sets the position and size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale are changed, it is slightly more efficient to set the bounds after
     * those operations.
     */
-  def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
+  def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = boundary {
     this.x = x
     this.y = y
     this.width = width
     this.height = height
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val x2       = x + width
@@ -176,14 +178,14 @@ class Sprite() extends TextureRegion {
   /** Sets the size of the sprite when drawn, before scaling and rotation are applied. If origin, rotation, or scale are changed, it is slightly more efficient to set the size after those operations.
     * If both position and size are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setSize(width: Float, height: Float): Unit = {
+  def setSize(width: Float, height: Float): Unit = boundary {
     this.width = width
     this.height = height
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val x2       = x + width
@@ -205,14 +207,14 @@ class Sprite() extends TextureRegion {
   /** Sets the position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setPosition(x: Float, y: Float): Unit = {
+  def setPosition(x: Float, y: Float): Unit = boundary {
     this.x = x
     this.y = y
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val x2       = x + width
@@ -238,13 +240,13 @@ class Sprite() extends TextureRegion {
   /** Sets the x position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setX(x: Float): Unit = {
+  def setX(x: Float): Unit = boundary {
     this.x = x
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val x2       = x + width
@@ -258,13 +260,13 @@ class Sprite() extends TextureRegion {
   /** Sets the y position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setY(y: Float): Unit = {
+  def setY(y: Float): Unit = boundary {
     this.y = y
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val y2       = y + height
@@ -289,13 +291,13 @@ class Sprite() extends TextureRegion {
 
   /** Sets the x position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
-  def translateX(xAmount: Float): Unit = {
+  def translateX(xAmount: Float): Unit = boundary {
     this.x += xAmount
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val vertices = this.vertices
@@ -307,13 +309,13 @@ class Sprite() extends TextureRegion {
 
   /** Sets the y position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
-  def translateY(yAmount: Float): Unit = {
+  def translateY(yAmount: Float): Unit = boundary {
     y += yAmount
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val vertices = this.vertices
@@ -325,14 +327,14 @@ class Sprite() extends TextureRegion {
 
   /** Sets the position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
-  def translate(xAmount: Float, yAmount: Float): Unit = {
+  def translate(xAmount: Float, yAmount: Float): Unit = boundary {
     x += xAmount
     y += yAmount
 
-    if (dirty) return
+    if (dirty) break()
     if (rotation != 0 || scaleX != 1 || scaleY != 1) {
       dirty = true
-      return
+      break()
     }
 
     val vertices = this.vertices
@@ -429,8 +431,8 @@ class Sprite() extends TextureRegion {
 
   /** Sets the sprite's rotation in degrees relative to the current rotation. Rotation is centered on the origin set in {@link #setOrigin(float, float)}
     */
-  def rotate(degrees: Float): Unit = {
-    if (degrees == 0) return
+  def rotate(degrees: Float): Unit = boundary {
+    if (degrees == 0) break()
     rotation += degrees
     dirty = true
   }

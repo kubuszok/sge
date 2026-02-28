@@ -65,24 +65,22 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
     // We support normal ktx files as well as 'zktx' which are gzip ktx file with an int length at the beginning (like ETC1).
     if (file.name().endsWith(".zktx")) {
       val buffer = new Array[Byte](1024 * 10)
-      var in     = null.asInstanceOf[DataInputStream]
+      val in     = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file.read())))
       try {
-        val inputStream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file.read())))
-        in = inputStream
-        val fileSize = inputStream.readInt()
+        val fileSize = in.readInt()
         val cd       = BufferUtils.newUnsafeByteBuffer(fileSize)
         compressedData = Nullable(cd)
-        var readBytes = inputStream.read(buffer)
+        var readBytes = in.read(buffer)
         while (readBytes != -1) {
           cd.put(buffer, 0, readBytes)
-          readBytes = inputStream.read(buffer)
+          readBytes = in.read(buffer)
         }
         cd.asInstanceOf[Buffer].position(0)
         cd.asInstanceOf[Buffer].limit(cd.capacity())
       } catch {
         case e: Exception => throw SgeError.GraphicsError(s"Couldn't load zktx file '$file'", Some(e))
       } finally
-        Nullable(in).foreach(StreamUtils.closeQuietly)
+        StreamUtils.closeQuietly(in)
     } else {
       compressedData = Nullable(ByteBuffer.wrap(file.readBytes()))
     }

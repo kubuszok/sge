@@ -208,12 +208,14 @@ class Circle() extends Shape2D {
     */
   def contains(c: Circle): Boolean = {
     val radiusDiff = radius - c.radius
-    if (radiusDiff < 0f) return false // Can't contain bigger circle
-    val dx        = x - c.x
-    val dy        = y - c.y
-    val dst       = dx * dx + dy * dy
-    val radiusSum = radius + c.radius
-    !(radiusDiff * radiusDiff < dst) && (dst < radiusSum * radiusSum)
+    if (radiusDiff < 0f) false // Can't contain bigger circle
+    else {
+      val dx        = x - c.x
+      val dy        = y - c.y
+      val dst       = dx * dx + dy * dy
+      val radiusSum = radius + c.radius
+      !(radiusDiff * radiusDiff < dst) && (dst < radiusSum * radiusSum)
+    }
   }
 
   /** @param c
@@ -241,11 +243,9 @@ class Circle() extends Shape2D {
   def area(): Float =
     this.radius * this.radius * MathUtils.PI
 
-  override def equals(o: Any): Boolean = {
-    if (o == this) return true
-    if (o == null || o.getClass != this.getClass) return false
-    val c = o.asInstanceOf[Circle]
-    this.x == c.x && this.y == c.y && this.radius == c.radius
+  override def equals(o: Any): Boolean = o match {
+    case c: Circle => this.x == c.x && this.y == c.y && this.radius == c.radius
+    case _ => false
   }
 
   override def hashCode(): Int = {

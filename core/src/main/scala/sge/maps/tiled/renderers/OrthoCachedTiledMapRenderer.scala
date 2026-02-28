@@ -16,6 +16,7 @@ import sge.graphics.{ Color, GL20, OrthographicCamera }
 import sge.graphics.g2d.{ Batch, SpriteCache, TextureRegion }
 import sge.maps.{ MapLayer, MapLayers, MapObject }
 import sge.math.{ Matrix4, Rectangle }
+import sge.utils.Nullable
 
 /** Renders ortho tiles by caching geometry on the GPU. How much is cached is controlled by {@link #setOverCache(float)}. When the view reaches the edge of the cached tiles, the cache is rebuilt at
   * the new view position. <p> This class may have poor performance when tiles are often changed dynamically, since the cache must be rebuilt after each change.
@@ -310,7 +311,7 @@ class OrthoCachedTiledMapRenderer(
 
     val region = layer.getTextureRegion
 
-    if (region == null) {
+    if (Nullable(region).isEmpty) {
       ()
     } else {
       val x  = layer.getX

@@ -177,9 +177,8 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def readString(charset: Nullable[String]): String = {
     val output = new StringBuilder(estimateLength())
-    var reader: InputStreamReader = null.asInstanceOf[InputStreamReader]
+    val reader = charset.fold(new InputStreamReader(read()))(cs => new InputStreamReader(read(), cs))
     try {
-      reader = charset.fold(new InputStreamReader(read()))(cs => new InputStreamReader(read(), cs))
       val buffer = new Array[Char](256)
       var length = reader.read(buffer)
       while (length != -1) {
@@ -191,7 +190,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       case ex: IOException =>
         throw utils.SgeError.FileReadError(this, "Error reading layout file", Some(ex))
     } finally
-      Nullable(reader).foreach(utils.StreamUtils.closeQuietly(_))
+      utils.StreamUtils.closeQuietly(reader)
   }
 
   /** Reads the entire file into a byte array.
@@ -253,10 +252,9 @@ class FileHandle(val file: File, val fileType: FileType) {
     */
   def map(mode: FileChannel.MapMode): ByteBuffer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot map a classpath file")
-    var raf: RandomAccessFile = null.asInstanceOf[RandomAccessFile]
+    val f   = getFile()
+    val raf = new RandomAccessFile(f, if (mode == MapMode.READ_ONLY) "r" else "rw")
     try {
-      val f = getFile()
-      raf = new RandomAccessFile(f, if (mode == MapMode.READ_ONLY) "r" else "rw")
       val fileChannel  = raf.getChannel()
       val mappedBuffer = fileChannel.map(mode, 0, f.length())
       mappedBuffer.order(ByteOrder.nativeOrder())
@@ -265,7 +263,7 @@ class FileHandle(val file: File, val fileType: FileType) {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
     } finally
-      Nullable(raf).foreach(utils.StreamUtils.closeQuietly(_))
+      utils.StreamUtils.closeQuietly(raf)
   }
 
   /** Returns a stream for writing to this file. Parent directories will be created if necessary.
@@ -306,16 +304,15 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
   def write(input: InputStream, append: Boolean): Unit = {
-    var output: OutputStream = null.asInstanceOf[OutputStream]
-    try {
-      output = write(append)
+    val output = write(append)
+    try
       utils.StreamUtils.copyStream(input, output)
-    } catch {
+    catch {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $file ($fileType)", Some(ex))
     } finally {
       utils.StreamUtils.closeQuietly(input)
-      Nullable(output).foreach(utils.StreamUtils.closeQuietly(_))
+      utils.StreamUtils.closeQuietly(output)
     }
   }
 
@@ -367,15 +364,14 @@ class FileHandle(val file: File, val fileType: FileType) {
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
   def writeString(string: String, append: Boolean, charset: Nullable[String]): Unit = {
-    var writer: Writer = null.asInstanceOf[Writer]
-    try {
-      writer = this.writer(append, charset)
+    val writer = this.writer(append, charset)
+    try
       writer.write(string)
-    } catch {
+    catch {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
     } finally
-      Nullable(writer).foreach(utils.StreamUtils.closeQuietly(_))
+      utils.StreamUtils.closeQuietly(writer)
   }
 
   /** Writes the specified bytes to the file. Parent directories will be created if necessary.
@@ -506,9 +502,9 @@ class FileHandle(val file: File, val fileType: FileType) {
     fileType match {
       case FileType.Internal =>
         if (getFile().exists()) true
-        else classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/')) != null
+        else Nullable(classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/'))).isDefined
       case FileType.Classpath =>
-        classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/')) != null
+        Nullable(classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/'))).isDefined
       case _ =>
         getFile().exists()
     }

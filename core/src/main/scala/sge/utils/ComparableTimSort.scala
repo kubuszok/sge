@@ -9,6 +9,9 @@
 package sge
 package utils
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 /** This is a near duplicate of TimSort, modified for use with arrays of objects that implement Comparable, instead of using explicit comparators.
   *
   * If you are using an optimizing VM, you may find that ComparableTimSort offers no performance benefit over TimSort in conjunction with a comparator that simply returns
@@ -37,17 +40,17 @@ class ComparableTimSort {
   private val runBase:   Array[Int] = new Array[Int](40)
   private val runLen:    Array[Int] = new Array[Int](40)
 
-  def doSort(a: Array[AnyRef], lo: Int, hi: Int): Unit = {
+  def doSort(a: Array[AnyRef], lo: Int, hi: Int): Unit = boundary {
     stackSize = 0
     ComparableTimSort.rangeCheck(a.length, lo, hi)
     val nRemaining = hi - lo
-    if (nRemaining < 2) return // Arrays of size 0 and 1 are always sorted
+    if (nRemaining < 2) break() // Arrays of size 0 and 1 are always sorted
 
     // If array is small, do a "mini-TimSort" with no merges
     if (nRemaining < ComparableTimSort.MIN_MERGE) {
       val initRunLen = ComparableTimSort.countRunAndMakeAscending(a, lo, hi)
       ComparableTimSort.binarySort(a, lo, hi, lo + initRunLen)
-      return
+      break()
     }
 
     this.a = a
@@ -96,7 +99,7 @@ class ComparableTimSort {
     stackSize += 1
   }
 
-  private def mergeCollapse(): Unit =
+  private def mergeCollapse(): Unit = boundary {
     while (stackSize > 1) {
       var n = stackSize - 2
       if (n > 0 && runLen(n - 1) <= runLen(n) + runLen(n + 1)) {
@@ -105,9 +108,10 @@ class ComparableTimSort {
       } else if (runLen(n) <= runLen(n + 1)) {
         mergeAt(n)
       } else {
-        return
+        break()
       }
     }
+  }
 
   private def mergeForceCollapse(): Unit =
     while (stackSize > 1) {
@@ -116,7 +120,7 @@ class ComparableTimSort {
       mergeAt(n)
     }
 
-  private def mergeAt(i: Int): Unit = {
+  private def mergeAt(i: Int): Unit = boundary {
     if (ComparableTimSort.DEBUG) assert(stackSize >= 2)
     if (ComparableTimSort.DEBUG) assert(i >= 0)
     if (ComparableTimSort.DEBUG) assert(i == stackSize - 2 || i == stackSize - 3)
@@ -141,12 +145,12 @@ class ComparableTimSort {
     if (ComparableTimSort.DEBUG) assert(k >= 0)
     base1 + k
     len1 -= k
-    if (len1 == 0) return
+    if (len1 == 0) break()
 
     // Find where the last element of run1 goes in run2
     len2 = ComparableTimSort.gallopLeft(a(base1 + len1 - 1).asInstanceOf[Comparable[AnyRef]], a, base2, len2, len2 - 1)
     if (ComparableTimSort.DEBUG) assert(len2 >= 0)
-    if (len2 == 0) return
+    if (len2 == 0) break()
 
     // Merge remaining runs, using tmp array with min(len1, len2) elements
     if (len1 <= len2) {
@@ -156,13 +160,309 @@ class ComparableTimSort {
     }
   }
 
-  // Placeholder for mergeLo and mergeHi methods - these need proper implementation
-  private def mergeLo(base1: Int, len1: Int, base2: Int, len2: Int): Unit = {
-    // TODO: Implement merge logic
+  /** Merges two adjacent runs in place, in a stable fashion. The first element of the first run must be greater than the first element of the second run (a[base1] > a[base2]), and the last element of
+    * the first run (a[base1 + len1-1]) must be greater than all elements of the second run.
+    *
+    * For performance, this method should be called only when len1 <= len2; its twin, mergeHi should be called if len1 >= len2. (Either method may be called if len1 == len2.)
+    *
+    * @param base1
+    *   index of first element in first run to be merged
+    * @param len1
+    *   length of first run to be merged (must be > 0)
+    * @param base2
+    *   index of first element in second run to be merged (must be aBase + aLen)
+    * @param len2
+    *   length of second run to be merged (must be > 0)
+    */
+  private def mergeLo(_base1: Int, _len1: Int, base2: Int, _len2: Int): Unit = boundary {
+    if (ComparableTimSort.DEBUG) assert(_len1 > 0 && _len2 > 0 && _base1 + _len1 == base2)
+
+    var len1 = _len1
+    var len2 = _len2
+
+    // Copy first run into temp array
+    val a   = this.a // For performance
+    val tmp = ensureCapacity(len1)
+    System.arraycopy(a, _base1, tmp, 0, len1)
+
+    var cursor1 = 0 // Indexes into tmp array
+    var cursor2 = base2 // Indexes int a
+    var dest    = _base1 // Indexes int a
+
+    // Move first element of second run and deal with degenerate cases
+    a(dest) = a(cursor2); dest += 1; cursor2 += 1
+    len2 -= 1
+    if (len2 == 0) {
+      System.arraycopy(tmp, cursor1, a, dest, len1)
+      break()
+    }
+    if (len1 == 1) {
+      System.arraycopy(a, cursor2, a, dest, len2)
+      a(dest + len2) = tmp(cursor1) // Last elt of run 1 to end of merge
+      break()
+    }
+
+    var localMinGallop = this.minGallop // Use local variable for performance
+    var done           = false
+    while (!done) {
+      var count1 = 0 // Number of times in a row that first run won
+      var count2 = 0 // Number of times in a row that second run won
+
+      /*
+       * Do the straightforward thing until (if ever) one run starts winning consistently.
+       */
+      var breakOuter = false
+      var doContinue = true
+      while (doContinue) {
+        if (ComparableTimSort.DEBUG) assert(len1 > 1 && len2 > 0)
+        if (a(cursor2).asInstanceOf[Comparable[AnyRef]].compareTo(tmp(cursor1)) < 0) {
+          a(dest) = a(cursor2); dest += 1; cursor2 += 1
+          count2 += 1
+          count1 = 0
+          len2 -= 1
+          if (len2 == 0) { breakOuter = true; doContinue = false }
+        } else {
+          a(dest) = tmp(cursor1); dest += 1; cursor1 += 1
+          count1 += 1
+          count2 = 0
+          len1 -= 1
+          if (len1 == 1) { breakOuter = true; doContinue = false }
+        }
+        if (doContinue && !((count1 | count2) < localMinGallop)) doContinue = false
+      }
+      if (breakOuter) { done = true }
+
+      /*
+       * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+       * ever) neither run appears to be winning consistently anymore.
+       */
+      if (!done) {
+        var gallopContinue = true
+        while (gallopContinue) {
+          if (ComparableTimSort.DEBUG) assert(len1 > 1 && len2 > 0)
+          count1 = ComparableTimSort.gallopRight(a(cursor2).asInstanceOf[Comparable[AnyRef]], tmp, cursor1, len1, 0)
+          if (count1 != 0) {
+            System.arraycopy(tmp, cursor1, a, dest, count1)
+            dest += count1
+            cursor1 += count1
+            len1 -= count1
+            if (len1 <= 1) { // len1 == 1 || len1 == 0
+              done = true; gallopContinue = false
+            }
+          }
+          if (gallopContinue) {
+            a(dest) = a(cursor2); dest += 1; cursor2 += 1
+            len2 -= 1
+            if (len2 == 0) { done = true; gallopContinue = false }
+          }
+
+          if (gallopContinue) {
+            count2 = ComparableTimSort.gallopLeft(tmp(cursor1).asInstanceOf[Comparable[AnyRef]], a, cursor2, len2, 0)
+            if (count2 != 0) {
+              System.arraycopy(a, cursor2, a, dest, count2)
+              dest += count2
+              cursor2 += count2
+              len2 -= count2
+              if (len2 == 0) { done = true; gallopContinue = false }
+            }
+            if (gallopContinue) {
+              a(dest) = tmp(cursor1); dest += 1; cursor1 += 1
+              len1 -= 1
+              if (len1 == 1) { done = true; gallopContinue = false }
+              else localMinGallop -= 1
+            }
+          }
+
+          if (gallopContinue && !(count1 >= ComparableTimSort.MIN_GALLOP || count2 >= ComparableTimSort.MIN_GALLOP))
+            gallopContinue = false
+        }
+        if (!done) {
+          if (localMinGallop < 0) localMinGallop = 0
+          localMinGallop += 2 // Penalize for leaving gallop mode
+        }
+      }
+    } // End of "outer" loop
+    this.minGallop = if (localMinGallop < 1) 1 else localMinGallop // Write back to field
+
+    if (len1 == 1) {
+      if (ComparableTimSort.DEBUG) assert(len2 > 0)
+      System.arraycopy(a, cursor2, a, dest, len2)
+      a(dest + len2) = tmp(cursor1) // Last elt of run 1 to end of merge
+    } else if (len1 == 0) {
+      throw new IllegalArgumentException("Comparison method violates its general contract!")
+    } else {
+      if (ComparableTimSort.DEBUG) assert(len2 == 0)
+      if (ComparableTimSort.DEBUG) assert(len1 > 1)
+      System.arraycopy(tmp, cursor1, a, dest, len1)
+    }
   }
 
-  private def mergeHi(base1: Int, len1: Int, base2: Int, len2: Int): Unit = {
-    // TODO: Implement merge logic
+  /** Like mergeLo, except that this method should be called only if len1 >= len2; mergeLo should be called if len1 <= len2. (Either method may be called if len1 == len2.)
+    *
+    * @param base1
+    *   index of first element in first run to be merged
+    * @param len1
+    *   length of first run to be merged (must be > 0)
+    * @param base2
+    *   index of first element in second run to be merged (must be aBase + aLen)
+    * @param len2
+    *   length of second run to be merged (must be > 0)
+    */
+  private def mergeHi(base1: Int, _len1: Int, base2: Int, _len2: Int): Unit = boundary {
+    if (ComparableTimSort.DEBUG) assert(_len1 > 0 && _len2 > 0 && base1 + _len1 == base2)
+
+    var len1 = _len1
+    var len2 = _len2
+
+    // Copy second run into temp array
+    val a   = this.a // For performance
+    val tmp = ensureCapacity(len2)
+    System.arraycopy(a, base2, tmp, 0, len2)
+
+    var cursor1 = base1 + len1 - 1 // Indexes into a
+    var cursor2 = len2 - 1 // Indexes into tmp array
+    var dest    = base2 + len2 - 1 // Indexes into a
+
+    // Move last element of first run and deal with degenerate cases
+    a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+    len1 -= 1
+    if (len1 == 0) {
+      System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2)
+      break()
+    }
+    if (len2 == 1) {
+      dest -= len1
+      cursor1 -= len1
+      System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
+      a(dest) = tmp(cursor2)
+      break()
+    }
+
+    var localMinGallop = this.minGallop // Use local variable for performance
+    var done           = false
+    while (!done) {
+      var count1 = 0 // Number of times in a row that first run won
+      var count2 = 0 // Number of times in a row that second run won
+
+      /*
+       * Do the straightforward thing until (if ever) one run appears to win consistently.
+       */
+      var breakOuter = false
+      var doContinue = true
+      while (doContinue) {
+        if (ComparableTimSort.DEBUG) assert(len1 > 0 && len2 > 1)
+        if (tmp(cursor2).asInstanceOf[Comparable[AnyRef]].compareTo(a(cursor1)) < 0) {
+          a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+          count1 += 1
+          count2 = 0
+          len1 -= 1
+          if (len1 == 0) { breakOuter = true; doContinue = false }
+        } else {
+          a(dest) = tmp(cursor2); dest -= 1; cursor2 -= 1
+          count2 += 1
+          count1 = 0
+          len2 -= 1
+          if (len2 == 1) { breakOuter = true; doContinue = false }
+        }
+        if (doContinue && !((count1 | count2) < localMinGallop)) doContinue = false
+      }
+      if (breakOuter) { done = true }
+
+      /*
+       * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+       * ever) neither run appears to be winning consistently anymore.
+       */
+      if (!done) {
+        var gallopContinue = true
+        while (gallopContinue) {
+          if (ComparableTimSort.DEBUG) assert(len1 > 0 && len2 > 1)
+          count1 = len1 - ComparableTimSort.gallopRight(tmp(cursor2).asInstanceOf[Comparable[AnyRef]], a, base1, len1, len1 - 1)
+          if (count1 != 0) {
+            dest -= count1
+            cursor1 -= count1
+            len1 -= count1
+            System.arraycopy(a, cursor1 + 1, a, dest + 1, count1)
+            if (len1 == 0) { done = true; gallopContinue = false }
+          }
+          if (gallopContinue) {
+            a(dest) = tmp(cursor2); dest -= 1; cursor2 -= 1
+            len2 -= 1
+            if (len2 == 1) { done = true; gallopContinue = false }
+          }
+
+          if (gallopContinue) {
+            count2 = len2 - ComparableTimSort.gallopLeft(a(cursor1).asInstanceOf[Comparable[AnyRef]], tmp, 0, len2, len2 - 1)
+            if (count2 != 0) {
+              dest -= count2
+              cursor2 -= count2
+              len2 -= count2
+              System.arraycopy(tmp, cursor2 + 1, a, dest + 1, count2)
+              if (len2 <= 1) { // len2 == 1 || len2 == 0
+                done = true; gallopContinue = false
+              }
+            }
+            if (gallopContinue) {
+              a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+              len1 -= 1
+              if (len1 == 0) { done = true; gallopContinue = false }
+              else localMinGallop -= 1
+            }
+          }
+
+          if (gallopContinue && !(count1 >= ComparableTimSort.MIN_GALLOP || count2 >= ComparableTimSort.MIN_GALLOP))
+            gallopContinue = false
+        }
+        if (!done) {
+          if (localMinGallop < 0) localMinGallop = 0
+          localMinGallop += 2 // Penalize for leaving gallop mode
+        }
+      }
+    } // End of "outer" loop
+    this.minGallop = if (localMinGallop < 1) 1 else localMinGallop // Write back to field
+
+    if (len2 == 1) {
+      if (ComparableTimSort.DEBUG) assert(len1 > 0)
+      dest -= len1
+      cursor1 -= len1
+      System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
+      a(dest) = tmp(cursor2) // Move first elt of run2 to front of merge
+    } else if (len2 == 0) {
+      throw new IllegalArgumentException("Comparison method violates its general contract!")
+    } else {
+      if (ComparableTimSort.DEBUG) assert(len1 == 0)
+      if (ComparableTimSort.DEBUG) assert(len2 > 0)
+      System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2)
+    }
+  }
+
+  /** Ensures that the external array tmp has at least the specified number of elements, increasing its size if necessary. The size increases exponentially to ensure amortized linear time complexity.
+    *
+    * @param minCapacity
+    *   the minimum required capacity of the tmp array
+    * @return
+    *   tmp, whether or not it grew
+    */
+  private def ensureCapacity(minCapacity: Int): Array[AnyRef] = {
+    tmpCount = Math.max(tmpCount, minCapacity)
+    if (tmp.length < minCapacity) {
+      // Compute smallest power of 2 > minCapacity
+      var newSize = minCapacity
+      newSize |= newSize >> 1
+      newSize |= newSize >> 2
+      newSize |= newSize >> 4
+      newSize |= newSize >> 8
+      newSize |= newSize >> 16
+      newSize += 1
+
+      if (newSize < 0) // Not bloody likely!
+        newSize = minCapacity
+      else
+        newSize = Math.min(newSize, a.length >>> 1)
+
+      val newArray = new Array[AnyRef](newSize)
+      tmp = newArray
+    }
+    tmp
   }
 }
 
@@ -195,16 +495,16 @@ object ComparableTimSort {
   def sort(a: Array[AnyRef]): Unit =
     sort(a, 0, a.length)
 
-  def sort(a: Array[AnyRef], lo: Int, hi: Int): Unit = {
+  def sort(a: Array[AnyRef], lo: Int, hi: Int): Unit = boundary {
     rangeCheck(a.length, lo, hi)
     val nRemaining = hi - lo
-    if (nRemaining < 2) return // Arrays of size 0 and 1 are always sorted
+    if (nRemaining < 2) break() // Arrays of size 0 and 1 are always sorted
 
     // If array is small, do a "mini-TimSort" with no merges
     if (nRemaining < MIN_MERGE) {
       val initRunLen = countRunAndMakeAscending(a, lo, hi)
       binarySort(a, lo, hi, lo + initRunLen)
-      return
+      break()
     }
 
     // March over the array once, left to right, finding natural runs, extending short natural runs to minRun elements, and
@@ -252,11 +552,11 @@ object ComparableTimSort {
     }
   }
 
-  private def countRunAndMakeAscending(a: Array[AnyRef], lo: Int, hi: Int): Int = {
+  private def countRunAndMakeAscending(a: Array[AnyRef], lo: Int, hi: Int): Int = boundary {
     if (DEBUG) assert(lo < hi)
 
     var runHi = lo + 1
-    if (runHi == hi) return 1
+    if (runHi == hi) break(1)
 
     // Find end of run, and reverse range if descending
     if (a(runHi).asInstanceOf[Comparable[AnyRef]].compareTo(a(lo)) < 0) { // Descending

@@ -10,6 +10,7 @@ package sge
 package graphics
 package g3d
 
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -58,23 +59,21 @@ class ModelInstance(
   }
 
   /** Constructs a new ModelInstance with only the specified nodes and materials of the given model. */
-  def this(model: Model, rootNodeIds: Seq[String]) = {
+  def this(model: Model, rootNodeIds: Nullable[Seq[String]]) = {
     this(model, new Matrix4())
-    if (rootNodeIds == null || rootNodeIds.isEmpty)
-      copyNodes(model.nodes)
-    else
-      copyNodesById(model.nodes, rootNodeIds)
+    val hasIds = rootNodeIds.fold(false)(_.nonEmpty)
+    if (hasIds) copyNodesById(model.nodes, rootNodeIds.orNull)
+    else copyNodes(model.nodes)
     copyAnimations(model.animations, ModelInstance.defaultShareKeyframes)
     calculateTransforms()
   }
 
   /** Constructs a new ModelInstance with the specified transform. */
-  def this(model: Model, transform: Matrix4, rootNodeIds: Seq[String]) = {
-    this(model, if (transform == null) new Matrix4() else transform)
-    if (rootNodeIds == null || rootNodeIds.isEmpty)
-      copyNodes(model.nodes)
-    else
-      copyNodesById(model.nodes, rootNodeIds)
+  def this(model: Model, transform: Nullable[Matrix4], rootNodeIds: Nullable[Seq[String]]) = {
+    this(model, transform.getOrElse(new Matrix4()))
+    val hasIds = rootNodeIds.fold(false)(_.nonEmpty)
+    if (hasIds) copyNodesById(model.nodes, rootNodeIds.orNull)
+    else copyNodes(model.nodes)
     copyAnimations(model.animations, ModelInstance.defaultShareKeyframes)
     calculateTransforms()
   }
@@ -90,8 +89,8 @@ class ModelInstance(
     * @param mergeTransform
     *   True to apply the source node transform to the instance transform, resetting the node transform.
     */
-  def this(model: Model, transform: Matrix4, nodeId: String, recursive: Boolean, parentTransform: Boolean, mergeTransform: Boolean, shareKeyframes: Boolean) = {
-    this(model, if (transform == null) new Matrix4() else transform)
+  def this(model: Model, transform: Nullable[Matrix4], nodeId: String, recursive: Boolean, parentTransform: Boolean, mergeTransform: Boolean, shareKeyframes: Boolean) = {
+    this(model, transform.getOrElse(new Matrix4()))
     val node = model.getNode(nodeId, recursive)
     node.foreach { n =>
       val nodeCopy = n.copy()
@@ -123,8 +122,8 @@ class ModelInstance(
   }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance, transform: Matrix4, shareKeyframes: Boolean) = {
-    this(copyFrom.model, if (transform == null) new Matrix4() else transform)
+  def this(copyFrom: ModelInstance, transform: Nullable[Matrix4], shareKeyframes: Boolean) = {
+    this(copyFrom.model, transform.getOrElse(new Matrix4()))
     copyNodes(copyFrom.nodes)
     copyAnimations(copyFrom.animations, shareKeyframes)
     calculateTransforms()

@@ -1,28 +1,37 @@
 Find code quality issues in the SGE codebase.
 
-Argument: `$ARGUMENTS` — one of: `return`, `null`, `java_syntax`, `todo`, `all`
+Argument: `$ARGUMENTS` — one of: `return`, `null`, `null_cast`, `java_syntax`, `todo`, `all`
 
 ## Procedure
 
-1. Based on the argument, search `core/src/main/scala/sge/` for:
+1. Run the appropriate `just` recipe:
 
-   - **`return`**: Find files containing the `return` keyword. These need `boundary`/`break`
-     rewriting per `docs/contributing/control-flow-guide.md`.
+   ```
+   just sge-quality $ARGUMENTS
+   ```
 
-   - **`null`**: Find files with `== null`, `!= null`, or `null.asInstanceOf`. These need
-     `Nullable[A]` patterns per `docs/contributing/nullable-guide.md`.
+   For summary counts only (no line-by-line output):
+   ```
+   just sge-quality $ARGUMENTS summary
+   ```
 
-   - **`java_syntax`**: Find files with remaining Java keywords: `public`, `private`,
-     `protected`, `static`, `void`, `boolean`, `final`, `implements`.
+   Categories:
+   - **`return`**: Actual `return` statements (excluding doc tags and comments)
+   - **`null`**: `== null` / `!= null` checks (excluding comments and strings)
+   - **`null_cast`**: `null.asInstanceOf` occurrences
+   - **`java_syntax`**: Remaining Java keywords (`public`, `static`, `void`, etc.)
+   - **`todo`**: `TODO`, `FIXME`, `HACK`, `XXX` markers
+   - **`all`**: All categories except `java_syntax`
 
-   - **`todo`**: Find files with `TODO`, `FIXME`, `HACK`, or `XXX` comments.
-
-   - **`all`**: Run all four searches.
-
-2. For each category, report:
+2. For each category, the recipe reports:
    - Number of affected files
    - Total occurrences
-   - Top 10 files by occurrence count
+   - Top 10 files by occurrence count (in full mode)
 
-3. Cross-reference against `docs/progress/quality-issues.md` and note any changes
-   since last documented counts.
+3. Cross-reference against `docs/progress/quality-issues.md` (read with the Read tool)
+   and note any changes since last documented counts.
+
+## Important
+
+**Do NOT use `rg`, `grep`, or any shell commands directly.** All searches must go
+through `just sge-quality` or the dedicated Grep/Glob tools.

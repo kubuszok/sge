@@ -10,6 +10,8 @@ package sge.utils.compression.lz
 
 import java.io.IOException
 
+import sge.utils.Nullable
+
 class OutWindow {
   var _buffer:     Array[Byte]          = scala.compiletime.uninitialized
   var _pos:        Int                  = 0
@@ -18,7 +20,7 @@ class OutWindow {
   var _stream:     java.io.OutputStream = scala.compiletime.uninitialized
 
   def create(windowSize: Int): Unit = {
-    if (_buffer == null || _windowSize != windowSize) _buffer = new Array[Byte](windowSize)
+    if (Nullable(_buffer).isEmpty || _windowSize != windowSize) _buffer = new Array[Byte](windowSize)
     _windowSize = windowSize
     _pos = 0
     _streamPos = 0
@@ -45,10 +47,11 @@ class OutWindow {
   @throws[IOException]
   def flush(): Unit = {
     val size = _pos - _streamPos
-    if (size == 0) return
-    _stream.write(_buffer, _streamPos, size)
-    if (_pos >= _windowSize) _pos = 0
-    _streamPos = _pos
+    if (size != 0) {
+      _stream.write(_buffer, _streamPos, size)
+      if (_pos >= _windowSize) _pos = 0
+      _streamPos = _pos
+    }
   }
 
   @throws[IOException]

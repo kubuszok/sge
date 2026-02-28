@@ -48,8 +48,9 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   /** Create a ModelCache using the default {@link Sorter} and the {@link SimpleMeshPool} implementation. This might not be the most optimal implementation for you use-case, but should be good to
     * start with.
     */
-  def this()(using sge: Sge) =
+  def this()(using sge: Sge) = {
     this(new ModelCache.Sorter(), new ModelCache.SimpleMeshPool())
+  }
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
     * cache and prepare it for creating a new cache. The cache is not valid until the call to {@link #end()} is made. Use one of the add methods (e.g. {@link #add(Renderable)} or
@@ -81,7 +82,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     result.bones = Nullable.empty
     result.environment = Nullable.empty
     result.material = material
-    result.meshPart.mesh = null.asInstanceOf[Mesh]
+    result.meshPart.mesh = null
     result.meshPart.offset = 0
     result.meshPart.size = 0
     result.meshPart.primitiveType = primitiveType
@@ -102,7 +103,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     building = false
 
     if (items.isEmpty) break(())
-    sorter.sort(camera.getOrElse(null.asInstanceOf[Camera]), items)
+    sorter.sort(camera.getOrElse(null), items)
 
     val itemCount = items.size
     val initCount = renderables.size

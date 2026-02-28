@@ -18,6 +18,8 @@ import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.utils.{ DynamicArray, Nullable, XmlReader }
 
+import scala.language.implicitConversions
+
 /** A TiledMap Loader which loads tiles from a TextureAtlas instead of separate images.
   *
   * It requires a map-level property called 'atlas' with its value being the relative path to the TextureAtlas. The atlas must have in it indexed regions named after the tilesets used in the map. The
@@ -90,8 +92,8 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
 
     // Atlas dependencies
     val atlasFileHandle = getAtlasFileHandle(tmxFile)
-    if (atlasFileHandle != null) {
-      descriptors.add(new AssetDescriptor[TextureAtlas](atlasFileHandle, classOf[TextureAtlas]))
+    Nullable(atlasFileHandle).foreach { handle =>
+      descriptors.add(new AssetDescriptor[TextureAtlas](handle, classOf[TextureAtlas]))
     }
 
     descriptors
@@ -132,11 +134,11 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
     props.put("margin", margin:           java.lang.Integer)
     props.put("spacing", spacing:         java.lang.Integer)
 
-    if (imageSource != null && imageSource.nonEmpty) {
+    if (Nullable(imageSource).isDefined && imageSource.nonEmpty) {
       val lastgid = firstgid + ((imageWidth / tilewidth) * (imageHeight / tileheight)) - 1
       for (region <- atlas.findRegions(name))
         // Handle unused tileIds
-        if (region != null) {
+        if (Nullable(region).isDefined) {
           val tileId = firstgid + region.index
           if (tileId >= firstgid && tileId <= lastgid) {
             addStaticTiledMapTile(tileSet, region, tileId, offsetX.toFloat, offsetY.toFloat)
@@ -164,7 +166,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
   protected def getAtlasFileHandle(tmxFile: FileHandle): FileHandle = {
     val properties = root.orNull.getChildByName("properties")
 
-    var atlasFilePath: String = null // scalastyle:ignore
+    var atlasFilePath: Nullable[String] = Nullable.empty
     if (properties.isDefined) {
       val propertyElements = properties.orNull.getChildrenByName("property")
       var pi               = 0
@@ -172,17 +174,17 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
         val property = propertyElements(pi)
         val name     = property.getAttribute("name")
         if (name.startsWith("atlas")) {
-          atlasFilePath = property.getAttribute("value")
+          atlasFilePath = Nullable(property.getAttribute("value"))
         }
         pi += 1
       }
     }
-    if (atlasFilePath == null) {
+    if (atlasFilePath.isEmpty) {
       throw new IllegalArgumentException("The map is missing the 'atlas' property")
     } else {
-      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, atlasFilePath)
+      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, atlasFilePath.orNull)
       if (!fileHandle.exists()) {
-        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + atlasFilePath + "'")
+        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + atlasFilePath.orNull + "'")
       }
       fileHandle
     }

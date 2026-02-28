@@ -11,6 +11,7 @@ package graphics
 package g3d
 package utils
 
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -63,25 +64,23 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
 
   private var justChangedAnimation: Boolean = false
 
-  private def obtain(anim: Animation, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
-    if (anim == null) Nullable.empty
-    else {
+  private def obtain(anim: Nullable[Animation], offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    anim.fold(Nullable.empty[AnimationDesc]) { a =>
       val result = animationPool.obtain()
-      result.animation = anim
+      result.animation = Nullable(a)
       result.listener = listener
       result.loopCount = loopCount
       result.speed = speed
       result.offset = offset
-      result.duration = if (duration < 0) anim.duration - offset else duration
+      result.duration = if (duration < 0) a.duration - offset else duration
       result.time = if (speed < 0) result.duration else 0f
       Nullable(result)
     }
 
-  private def obtainByName(id: String, offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
-    if (id == null) Nullable.empty
-    else {
-      val anim = target.getAnimation(id)
-      if (anim.isEmpty) throw SgeError.InvalidInput("Unknown animation: " + id)
+  private def obtainByName(id: Nullable[String], offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
+    id.fold(Nullable.empty[AnimationDesc]) { name =>
+      val anim = target.getAnimation(name)
+      if (anim.isEmpty) throw SgeError.InvalidInput("Unknown animation: " + name)
       anim.fold(Nullable.empty[AnimationDesc]) { a =>
         obtain(a, offset, duration, loopCount, speed, listener)
       }
@@ -99,7 +98,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
     previous.foreach { prev =>
       transitionCurrentTime += delta
       if (transitionCurrentTime >= transitionTargetTime) {
-        removeAnimation(prev.animation)
+        prev.animation.foreach(removeAnimation(_))
         justChangedAnimation = true
         animationPool.free(prev)
         previous = Nullable.empty
@@ -110,7 +109,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
       justChangedAnimation = false
     }
     current.fold(break(())) { cur =>
-      if (cur.loopCount == 0 || cur.animation == null) break(())
+      if (cur.loopCount == 0 || cur.animation.isEmpty) break(())
       val remain = cur.update(delta)
       if (remain >= 0f) {
         queued.foreach { q =>
@@ -122,7 +121,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
         }
       }
       previous.fold {
-        applyAnimation(cur.animation, cur.offset + cur.time)
+        cur.animation.foreach(anim => applyAnimation(anim, cur.offset + cur.time))
       } { prev =>
         applyAnimations(prev.animation, prev.offset + prev.time, cur.animation, cur.offset + cur.time, transitionCurrentTime / transitionTargetTime)
       }
@@ -168,14 +167,14 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
       current = anim
     } { cur =>
       anim.fold {
-        removeAnimation(cur.animation)
+        cur.animation.foreach(removeAnimation(_))
         animationPool.free(cur)
         current = Nullable.empty
       } { a =>
         if (!allowSameAnimation && cur.animation == a.animation)
           a.time = cur.time
         else
-          removeAnimation(cur.animation)
+          cur.animation.foreach(removeAnimation(_))
         animationPool.free(cur)
         current = Nullable(a)
       }
@@ -225,7 +224,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
             current = Nullable(a)
           } else {
             previous.foreach { prev =>
-              removeAnimation(prev.animation)
+              prev.animation.foreach(removeAnimation(_))
               animationPool.free(prev)
             }
             previous = current
@@ -335,7 +334,7 @@ object AnimationController {
     var listener: Nullable[AnimationListener] = Nullable.empty
 
     /** The animation to be applied. */
-    var animation: Animation = scala.compiletime.uninitialized
+    var animation: Nullable[Animation] = Nullable.empty
 
     /** The speed at which to play the animation (can be negative), 1.0 for normal speed. */
     var speed: Float = 0f
@@ -358,7 +357,7 @@ object AnimationController {
       *   the remaining time or -1 if still animating.
       */
     protected[utils] def update(delta: Float): Float = boundary {
-      if (loopCount != 0 && animation != null) {
+      if (loopCount != 0 && animation.isDefined) {
         var loops: Int = 0
         val diff = speed * delta
         if (!MathUtils.isZero(duration)) {

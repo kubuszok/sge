@@ -120,7 +120,7 @@ object BufferUtils {
     */
   // def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
   //  copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
-  // TODO: report compiler error because this method IS implemented in the Gdx library, but the compiler doesn't see it.
+  // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -200,7 +200,7 @@ object BufferUtils {
   //   dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
   //   copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
   // }
-  // TODO: report compiler error because this method IS implemented in the Gdx library, but the compiler doesn't see it.
+  // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position will stay the same, the limit will be set to position + numElements. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.

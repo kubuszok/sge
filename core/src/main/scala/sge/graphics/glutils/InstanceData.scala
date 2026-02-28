@@ -11,6 +11,7 @@ package graphics
 package glutils
 
 import sge.graphics.VertexAttributes
+import sge.utils.Nullable
 
 import java.nio.FloatBuffer
 
@@ -103,7 +104,7 @@ trait InstanceData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Array[Int]): Unit
+  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
 
   /** Unbinds this InstanceData. */
   def unbind(shader: ShaderProgram): Unit
@@ -113,7 +114,7 @@ trait InstanceData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Array[Int]): Unit
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
 
   /** Invalidates the InstanceData if applicable. Use this in case of a context loss. */
   def invalidate(): Unit

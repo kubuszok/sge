@@ -13,6 +13,7 @@ package utils
 
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.{ Batch, Sprite, TextureAtlas, TextureRegion }
+import sge.utils.Nullable
 
 /** Drawable for a {@link TextureRegion}.
   * @author
@@ -55,9 +56,9 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
 
   def setRegion(region: TextureRegion): Unit = {
     this.region = region
-    if (region != null) {
-      setMinWidth(region.getRegionWidth().toFloat)
-      setMinHeight(region.getRegionHeight().toFloat)
+    Nullable(region).foreach { r =>
+      setMinWidth(r.getRegionWidth().toFloat)
+      setMinHeight(r.getRegionHeight().toFloat)
     }
   }
 

@@ -10,6 +10,7 @@ package sge
 package utils
 
 import java.util.Arrays
+import scala.language.implicitConversions
 
 /** A stable, adaptive, iterative mergesort that requires far fewer than n lg(n) comparisons when running on partially sorted arrays, while offering performance comparable to a traditional mergesort
   * when run on random arrays. Like all proper mergesorts, this sort is stable and runs O(n log n) time (worst case). In the worst case, this sort requires temporary storage space for n/2 object
@@ -213,21 +214,22 @@ object TimSort {
   def sort[T](a: Array[T], c: Ordering[T]): Unit =
     sort(a, 0, a.length, c)
 
-  def sort[T](a: Array[T], lo: Int, hi: Int, c: Ordering[T]): Unit =
-    if (c == null) {
+  def sort[T](a: Array[T], lo: Int, hi: Int, c: Nullable[Ordering[T]]): Unit =
+    if (c.isEmpty) {
       Arrays.sort(a.asInstanceOf[Array[AnyRef]], lo, hi)
     } else {
+      val comp = c.getOrElse(throw new AssertionError("unreachable"))
       rangeCheck(a.length, lo, hi)
       val nRemaining = hi - lo
       if (nRemaining < 2) () // Arrays of size 0 and 1 are always sorted
       else if (nRemaining < MIN_MERGE) {
         // If array is small, do a "mini-TimSort" with no merges
-        val initRunLen = countRunAndMakeAscending(a, lo, hi, c)
-        binarySort(a, lo, hi, lo + initRunLen, c)
+        val initRunLen = countRunAndMakeAscending(a, lo, hi, comp)
+        binarySort(a, lo, hi, lo + initRunLen, comp)
       } else {
         // March over the array once, left to right, finding natural runs
         val ts = new TimSort[T]()
-        ts.doSort(a, c, lo, hi)
+        ts.doSort(a, comp, lo, hi)
       }
     }
 

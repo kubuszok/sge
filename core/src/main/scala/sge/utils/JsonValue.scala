@@ -11,6 +11,8 @@ package utils
 
 import java.io.{ IOException, StringWriter, Writer }
 import java.util.NoSuchElementException
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** Container for a JSON object, array, string, double, long, boolean, or null.
   *
@@ -681,14 +683,14 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   }
 
   /** Replaces an existing child with the same name as the specified value, else adds it after the last child. */
-  def setChild(value: JsonValue): Unit = {
+  def setChild(value: JsonValue): Unit = boundary {
     val n = value.name
     if (n.isEmpty) throw new IllegalStateException("An object child requires a name: " + value)
     var current = child
     while (current.isDefined) {
       if (current.orNull.name.isDefined && current.orNull.name.orNull == n.orNull) {
         current.orNull.replace(value)
-        return // scalastyle:ignore
+        break()
       }
       current = current.orNull.next
     }

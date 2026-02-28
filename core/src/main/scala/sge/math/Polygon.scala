@@ -47,49 +47,50 @@ class Polygon() extends Shape2D {
     * @return
     *   vertices scaled, rotated, and offset by the polygon position.
     */
-  def getTransformedVertices: Array[Float] = {
-    if (!isDirty) return worldVertices
-    isDirty = false
+  def getTransformedVertices: Array[Float] =
+    if (!isDirty) worldVertices
+    else {
+      isDirty = false
 
-    val localVertices = this.localVertices
-    if (Nullable(worldVertices).fold(true)(_.length != localVertices.length))
-      worldVertices = Array.ofDim[Float](localVertices.length)
-    val positionX = x
-    val positionY = y
-    val originX   = this.originX
-    val originY   = this.originY
-    val scaleX    = this.scaleX
-    val scaleY    = this.scaleY
-    val scale     = scaleX != 1 || scaleY != 1
-    val rotation  = this.rotation
-    val cos       = MathUtils.cosDeg(rotation)
-    val sin       = MathUtils.sinDeg(rotation)
+      val localVertices = this.localVertices
+      if (Nullable(worldVertices).fold(true)(_.length != localVertices.length))
+        worldVertices = Array.ofDim[Float](localVertices.length)
+      val positionX = x
+      val positionY = y
+      val originX   = this.originX
+      val originY   = this.originY
+      val scaleX    = this.scaleX
+      val scaleY    = this.scaleY
+      val scale     = scaleX != 1 || scaleY != 1
+      val rotation  = this.rotation
+      val cos       = MathUtils.cosDeg(rotation)
+      val sin       = MathUtils.sinDeg(rotation)
 
-    var i = 0
-    val n = localVertices.length
-    while (i < n) {
-      var x = localVertices(i) - originX
-      var y = localVertices(i + 1) - originY
+      var i = 0
+      val n = localVertices.length
+      while (i < n) {
+        var x = localVertices(i) - originX
+        var y = localVertices(i + 1) - originY
 
-      // scale if needed
-      if (scale) {
-        x *= scaleX
-        y *= scaleY
+        // scale if needed
+        if (scale) {
+          x *= scaleX
+          y *= scaleY
+        }
+
+        // rotate if needed
+        if (rotation != 0) {
+          val oldX = x
+          x = cos * x - sin * y
+          y = sin * oldX + cos * y
+        }
+
+        worldVertices(i) = positionX + x + originX
+        worldVertices(i + 1) = positionY + y + originY
+        i += 2
       }
-
-      // rotate if needed
-      if (rotation != 0) {
-        val oldX = x
-        x = cos * x - sin * y
-        y = sin * oldX + cos * y
-      }
-
-      worldVertices(i) = positionX + x + originX
-      worldVertices(i + 1) = positionY + y + originY
-      i += 2
+      worldVertices
     }
-    worldVertices
-  }
 
   /** Sets the origin point to which all of the polygon's local vertices are relative to. */
   def setOrigin(originX: Float, originY: Float): Unit = {

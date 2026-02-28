@@ -221,9 +221,10 @@ object GLFrameBuffer {
     */
   def invalidateAllFrameBuffers(app: Application)(using sge: Sge): Unit = {
     val bufferArray = buffers.get(app)
-    if (bufferArray.isEmpty) return
-    for (buffer <- bufferArray.get)
-      buffer.build()
+    if (bufferArray.isDefined) {
+      for (buffer <- bufferArray.get)
+        buffer.build()
+    }
   }
 
   def clearAllFrameBuffers(app: Application): Unit =

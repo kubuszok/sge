@@ -574,23 +574,23 @@ class Affine2 {
     * @return
     *   This matrix for the purpose of chaining.
     */
-  def rotate(degrees: Float): Affine2 = {
-    if (degrees == 0f) return this
+  def rotate(degrees: Float): Affine2 =
+    if (degrees == 0f) this
+    else {
+      val cos = MathUtils.cosDeg(degrees)
+      val sin = MathUtils.sinDeg(degrees)
 
-    val cos = MathUtils.cosDeg(degrees)
-    val sin = MathUtils.sinDeg(degrees)
+      val tmp00 = m00 * cos + m01 * sin
+      val tmp01 = m00 * -sin + m01 * cos
+      val tmp10 = m10 * cos + m11 * sin
+      val tmp11 = m10 * -sin + m11 * cos
 
-    val tmp00 = m00 * cos + m01 * sin
-    val tmp01 = m00 * -sin + m01 * cos
-    val tmp10 = m10 * cos + m11 * sin
-    val tmp11 = m10 * -sin + m11 * cos
-
-    m00 = tmp00
-    m01 = tmp01
-    m10 = tmp10
-    m11 = tmp11
-    this
-  }
+      m00 = tmp00
+      m01 = tmp01
+      m10 = tmp10
+      m11 = tmp11
+      this
+    }
 
   /** Postmultiplies this matrix with a (counter-clockwise) rotation matrix.
     * @param radians
@@ -598,23 +598,23 @@ class Affine2 {
     * @return
     *   This matrix for the purpose of chaining.
     */
-  def rotateRad(radians: Float): Affine2 = {
-    if (radians == 0f) return this
+  def rotateRad(radians: Float): Affine2 =
+    if (radians == 0f) this
+    else {
+      val cos = MathUtils.cos(radians)
+      val sin = MathUtils.sin(radians)
 
-    val cos = MathUtils.cos(radians)
-    val sin = MathUtils.sin(radians)
+      val tmp00 = m00 * cos + m01 * sin
+      val tmp01 = m00 * -sin + m01 * cos
+      val tmp10 = m10 * cos + m11 * sin
+      val tmp11 = m10 * -sin + m11 * cos
 
-    val tmp00 = m00 * cos + m01 * sin
-    val tmp01 = m00 * -sin + m01 * cos
-    val tmp10 = m10 * cos + m11 * sin
-    val tmp11 = m10 * -sin + m11 * cos
-
-    m00 = tmp00
-    m01 = tmp01
-    m10 = tmp10
-    m11 = tmp11
-    this
-  }
+      m00 = tmp00
+      m01 = tmp01
+      m10 = tmp10
+      m11 = tmp11
+      this
+    }
 
   /** Premultiplies this matrix with a (counter-clockwise) rotation matrix.
     * @param degrees
@@ -622,27 +622,27 @@ class Affine2 {
     * @return
     *   This matrix for the purpose of chaining.
     */
-  def preRotate(degrees: Float): Affine2 = {
-    if (degrees == 0f) return this
+  def preRotate(degrees: Float): Affine2 =
+    if (degrees == 0f) this
+    else {
+      val cos = MathUtils.cosDeg(degrees)
+      val sin = MathUtils.sinDeg(degrees)
 
-    val cos = MathUtils.cosDeg(degrees)
-    val sin = MathUtils.sinDeg(degrees)
+      val tmp00 = cos * m00 - sin * m10
+      val tmp01 = cos * m01 - sin * m11
+      val tmp02 = cos * m02 - sin * m12
+      val tmp10 = sin * m00 + cos * m10
+      val tmp11 = sin * m01 + cos * m11
+      val tmp12 = sin * m02 + cos * m12
 
-    val tmp00 = cos * m00 - sin * m10
-    val tmp01 = cos * m01 - sin * m11
-    val tmp02 = cos * m02 - sin * m12
-    val tmp10 = sin * m00 + cos * m10
-    val tmp11 = sin * m01 + cos * m11
-    val tmp12 = sin * m02 + cos * m12
-
-    m00 = tmp00
-    m01 = tmp01
-    m02 = tmp02
-    m10 = tmp10
-    m11 = tmp11
-    m12 = tmp12
-    this
-  }
+      m00 = tmp00
+      m01 = tmp01
+      m02 = tmp02
+      m10 = tmp10
+      m11 = tmp11
+      m12 = tmp12
+      this
+    }
 
   /** Premultiplies this matrix with a (counter-clockwise) rotation matrix.
     * @param radians
@@ -650,27 +650,27 @@ class Affine2 {
     * @return
     *   This matrix for the purpose of chaining.
     */
-  def preRotateRad(radians: Float): Affine2 = {
-    if (radians == 0f) return this
+  def preRotateRad(radians: Float): Affine2 =
+    if (radians == 0f) this
+    else {
+      val cos = MathUtils.cos(radians)
+      val sin = MathUtils.sin(radians)
 
-    val cos = MathUtils.cos(radians)
-    val sin = MathUtils.sin(radians)
+      val tmp00 = cos * m00 - sin * m10
+      val tmp01 = cos * m01 - sin * m11
+      val tmp02 = cos * m02 - sin * m12
+      val tmp10 = sin * m00 + cos * m10
+      val tmp11 = sin * m01 + cos * m11
+      val tmp12 = sin * m02 + cos * m12
 
-    val tmp00 = cos * m00 - sin * m10
-    val tmp01 = cos * m01 - sin * m11
-    val tmp02 = cos * m02 - sin * m12
-    val tmp10 = sin * m00 + cos * m10
-    val tmp11 = sin * m01 + cos * m11
-    val tmp12 = sin * m02 + cos * m12
-
-    m00 = tmp00
-    m01 = tmp01
-    m02 = tmp02
-    m10 = tmp10
-    m11 = tmp11
-    m12 = tmp12
-    this
-  }
+      m00 = tmp00
+      m01 = tmp01
+      m02 = tmp02
+      m10 = tmp10
+      m11 = tmp11
+      m12 = tmp12
+      this
+    }
 
   /** Postmultiplies this matrix by a shear matrix.
     * @param shearX

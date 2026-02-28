@@ -35,60 +35,69 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
 
   private val textureData = data
 
-  def this(internalPath: String)(using sge: Sge) =
+  def this(internalPath: String)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(sge.files.internal(internalPath), Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle)(using sge: Sge) =
+  def this(file: FileHandle)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) =
+  def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
+  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) =
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
+  }
 
-  def this(pixmap: Pixmap)(using sge: Sge) =
+  def this(pixmap: Pixmap)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) =
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
     this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, format, useMipMaps, false))
+  }
 
-  def this(width: Int, height: Int, format: Format)(using sge: Sge) =
+  def this(width: Int, height: Int, format: Format)(using sge: Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(sge.graphics.gl.glGenTexture()),
       new PixmapTextureData(new Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
+  }
 
-  def this(data: TextureData)(using sge: Sge) =
+  def this(data: TextureData)(using sge: Sge) = {
     this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), data)
+  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)
@@ -147,16 +156,16 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
   override def isManaged: Boolean = textureData.isManaged
 
   /** Disposes all resources associated with the texture */
-  override def close(): Unit = {
+  override def close(): Unit =
     // this is a hack. reason: we have to set the glHandle to 0 for textures that are
     // reloaded through the asset manager as we first remove (and thus dispose) the texture
     // and then reload it. the glHandle is set to 0 in invalidateAllTextures prior to
     // removal from the asset manager.
-    if (glHandle == TextureHandle.none) return
-    delete()
-    if (textureData.isManaged)
-      Texture.managedTextures.get(sge.application).foreach(_.removeValue(this))
-  }
+    if (glHandle != TextureHandle.none) {
+      delete()
+      if (textureData.isManaged)
+        Texture.managedTextures.get(sge.application).foreach(_.removeValue(this))
+    }
 
   override def toString(): String =
     textureData match {
@@ -181,7 +190,7 @@ object Texture {
   /** Invalidate all managed textures. This is an internal method. Do not use it! */
   def invalidateAllTextures(app: Application)(using sge: Sge): Unit =
     managedTextures.get(app) match {
-      case None                      => return
+      case None                      => ()
       case Some(managedTextureArray) =>
         if (Nullable(assetManager).isEmpty) {
           for (texture <- managedTextureArray)

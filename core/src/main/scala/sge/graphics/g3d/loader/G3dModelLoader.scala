@@ -11,6 +11,8 @@ package graphics
 package g3d
 package loader
 
+import scala.language.implicitConversions
+
 import sge.assets.loaders.{ FileHandleResolver, ModelLoader }
 import sge.files.FileHandle
 import sge.graphics.{ Color, GL20, VertexAttribute }
@@ -33,7 +35,7 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     if (model.version(0) != G3dModelLoader.VERSION_HI || model.version(1) != G3dModelLoader.VERSION_LO)
       throw SgeError.InvalidInput("Model version not supported")
 
-    model.id = json.getString("id", Nullable("")).orNull
+    model.id = json.getString("id", Nullable("")).getOrElse("")
     parseMeshes(model, json)
     parseMaterials(model, json, handle.parent().path())
     parseNodes(model, json)
@@ -41,55 +43,49 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     model
   }
 
-  protected def parseMeshes(model: ModelData, json: JsonValue): Unit = {
-    val meshes = json.get("meshes").orNull
-    if (meshes != null) {
-
+  protected def parseMeshes(model: ModelData, json: JsonValue): Unit =
+    json.get("meshes").foreach { meshes =>
       model.meshes.ensureCapacity(meshes.size)
       var meshN = meshes.child
-      while (meshN.isDefined) {
-        val mesh     = meshN.orNull
-        val jsonMesh = new ModelMesh()
+      while (meshN.isDefined)
+        meshN.foreach { mesh =>
+          val jsonMesh = new ModelMesh()
 
-        val id = mesh.getString("id", Nullable("")).orNull
-        jsonMesh.id = id
+          jsonMesh.id = mesh.getString("id", Nullable("")).getOrElse("")
 
-        val attributes = mesh.require("attributes")
-        jsonMesh.attributes = parseAttributes(attributes)
-        jsonMesh.vertices = mesh.require("vertices").asFloatArray()
+          val attributes = mesh.require("attributes")
+          jsonMesh.attributes = parseAttributes(attributes)
+          jsonMesh.vertices = mesh.require("vertices").asFloatArray()
 
-        val meshParts = mesh.require("parts")
-        val parts     = DynamicArray[ModelMeshPart]()
-        var meshPartN = meshParts.child
-        while (meshPartN.isDefined) {
-          val meshPart = meshPartN.orNull
-          val jsonPart = new ModelMeshPart()
-          val partId   = mesh.getString("id", Nullable.empty).orNull
-          if (partId == null) {
-            throw SgeError.InvalidInput("Not id given for mesh part")
-          }
-          for (other <- parts)
-            if (other.id.equals(partId)) {
-              throw SgeError.InvalidInput("Mesh part with id '" + partId + "' already in defined")
+          val meshParts = mesh.require("parts")
+          val parts     = DynamicArray[ModelMeshPart]()
+          var meshPartN = meshParts.child
+          while (meshPartN.isDefined)
+            meshPartN.foreach { meshPart =>
+              val jsonPart = new ModelMeshPart()
+              val partId   = mesh.getString("id", Nullable.empty).getOrElse {
+                throw SgeError.InvalidInput("Not id given for mesh part")
+              }
+              for (other <- parts)
+                if (other.id.equals(partId)) {
+                  throw SgeError.InvalidInput("Mesh part with id '" + partId + "' already in defined")
+                }
+              jsonPart.id = partId
+
+              val tpe = meshPart.getString("type", Nullable.empty).getOrElse {
+                throw SgeError.InvalidInput("No primitive type given for mesh part '" + partId + "'")
+              }
+              jsonPart.primitiveType = parseType(tpe)
+
+              jsonPart.indices = meshPart.require("indices").asShortArray()
+              parts.add(jsonPart)
+              meshPartN = meshPart.next
             }
-          jsonPart.id = partId
-
-          val tpe = meshPart.getString("type", Nullable.empty).orNull
-          if (tpe == null) {
-            throw SgeError.InvalidInput("No primitive type given for mesh part '" + partId + "'")
-          }
-          jsonPart.primitiveType = parseType(tpe)
-
-          jsonPart.indices = meshPart.require("indices").asShortArray()
-          parts.add(jsonPart)
-          meshPartN = meshPart.next
+          jsonMesh.parts = parts.toArray
+          model.meshes.add(jsonMesh)
+          meshN = mesh.next
         }
-        jsonMesh.parts = parts.toArray
-        model.meshes.add(jsonMesh)
-        meshN = mesh.next
-      }
     }
-  }
 
   protected def parseType(tpe: String): Int =
     if (tpe.equals("TRIANGLES")) GL20.GL_TRIANGLES
@@ -108,8 +104,8 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     var blendWeightCount = 0
     var valueN           = attributes.child
     while (valueN.isDefined) {
-      val value = valueN.orNull
-      val attr  = value.asString().orNull
+      val value = valueN.getOrElse(throw SgeError.InvalidInput("Unexpected empty attribute"))
+      val attr  = value.asString().getOrElse(throw SgeError.InvalidInput("Attribute must be a string"))
       if (attr.equals("POSITION")) {
         vertexAttributes.add(VertexAttribute.Position())
       } else if (attr.equals("NORMAL")) {
@@ -138,74 +134,66 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     vertexAttributes.toArray
   }
 
-  protected def parseMaterials(model: ModelData, json: JsonValue, materialDir: String): Unit = {
-    val materials = json.get("materials").orNull
-    if (materials == null) {
-      // we should probably create some default material in this case
-    } else {
+  protected def parseMaterials(model: ModelData, json: JsonValue, materialDir: String): Unit =
+    // we should probably create some default material in this case
+    json.get("materials").foreach { materials =>
       model.materials.ensureCapacity(materials.size)
       var materialN = materials.child
-      while (materialN.isDefined) {
-        val material     = materialN.orNull
-        val jsonMaterial = new ModelMaterial()
+      while (materialN.isDefined)
+        materialN.foreach { material =>
+          val jsonMaterial = new ModelMaterial()
 
-        val id = material.getString("id", Nullable.empty).orNull
-        if (id == null) throw SgeError.InvalidInput("Material needs an id.")
-
-        jsonMaterial.id = id
-
-        // Read material colors
-        val diffuse = material.get("diffuse").orNull
-        if (diffuse != null) jsonMaterial.diffuse = parseColor(diffuse)
-        val ambient = material.get("ambient").orNull
-        if (ambient != null) jsonMaterial.ambient = parseColor(ambient)
-        val emissive = material.get("emissive").orNull
-        if (emissive != null) jsonMaterial.emissive = parseColor(emissive)
-        val specular = material.get("specular").orNull
-        if (specular != null) jsonMaterial.specular = parseColor(specular)
-        val reflection = material.get("reflection").orNull
-        if (reflection != null) jsonMaterial.reflection = parseColor(reflection)
-        // Read shininess
-        jsonMaterial.shininess = material.getFloat("shininess", 0.0f)
-        // Read opacity
-        jsonMaterial.opacity = material.getFloat("opacity", 1.0f)
-
-        // Read textures
-        val textures = material.get("textures").orNull
-        if (textures != null) {
-          var textureN = textures.child
-          while (textureN.isDefined) {
-            val texture     = textureN.orNull
-            val jsonTexture = new ModelTexture()
-
-            val textureId = texture.getString("id", Nullable.empty).orNull
-            if (textureId == null) throw SgeError.InvalidInput("Texture has no id.")
-            jsonTexture.id = textureId
-
-            val fileName = texture.getString("filename", Nullable.empty).orNull
-            if (fileName == null) throw SgeError.InvalidInput("Texture needs filename.")
-            jsonTexture.fileName = materialDir + (if (materialDir.isEmpty || materialDir.endsWith("/")) "" else "/") +
-              fileName
-
-            jsonTexture.uvTranslation = readVector2(texture.get("uvTranslation").orNull, 0f, 0f)
-            jsonTexture.uvScaling = readVector2(texture.get("uvScaling").orNull, 1f, 1f)
-
-            val textureType = texture.getString("type", Nullable.empty).orNull
-            if (textureType == null) throw SgeError.InvalidInput("Texture needs type.")
-
-            jsonTexture.usage = parseTextureUsage(textureType)
-
-            if (jsonMaterial.textures == null) jsonMaterial.textures = DynamicArray[ModelTexture]()
-            jsonMaterial.textures.add(jsonTexture)
-            textureN = texture.next
+          jsonMaterial.id = material.getString("id", Nullable.empty).getOrElse {
+            throw SgeError.InvalidInput("Material needs an id.")
           }
-        }
 
-        model.materials.add(jsonMaterial)
-        materialN = material.next
-      }
+          // Read material colors
+          material.get("diffuse").foreach(v => jsonMaterial.diffuse = parseColor(v))
+          material.get("ambient").foreach(v => jsonMaterial.ambient = parseColor(v))
+          material.get("emissive").foreach(v => jsonMaterial.emissive = parseColor(v))
+          material.get("specular").foreach(v => jsonMaterial.specular = parseColor(v))
+          material.get("reflection").foreach(v => jsonMaterial.reflection = parseColor(v))
+          // Read shininess
+          jsonMaterial.shininess = material.getFloat("shininess", 0.0f)
+          // Read opacity
+          jsonMaterial.opacity = material.getFloat("opacity", 1.0f)
+
+          // Read textures
+          material.get("textures").foreach { textures =>
+            var textureN = textures.child
+            while (textureN.isDefined)
+              textureN.foreach { texture =>
+                val jsonTexture = new ModelTexture()
+
+                jsonTexture.id = texture.getString("id", Nullable.empty).getOrElse {
+                  throw SgeError.InvalidInput("Texture has no id.")
+                }
+
+                val fileName = texture.getString("filename", Nullable.empty).getOrElse {
+                  throw SgeError.InvalidInput("Texture needs filename.")
+                }
+                jsonTexture.fileName = materialDir + (if (materialDir.isEmpty || materialDir.endsWith("/")) "" else "/") +
+                  fileName
+
+                jsonTexture.uvTranslation = readVector2(texture.get("uvTranslation"), 0f, 0f)
+                jsonTexture.uvScaling = readVector2(texture.get("uvScaling"), 1f, 1f)
+
+                val textureType = texture.getString("type", Nullable.empty).getOrElse {
+                  throw SgeError.InvalidInput("Texture needs type.")
+                }
+
+                jsonTexture.usage = parseTextureUsage(textureType)
+
+                if (Nullable(jsonMaterial.textures).isEmpty) jsonMaterial.textures = DynamicArray[ModelTexture]()
+                jsonMaterial.textures.add(jsonTexture)
+                textureN = texture.next
+              }
+          }
+
+          model.materials.add(jsonMaterial)
+          materialN = material.next
+        }
     }
-  }
 
   protected def parseTextureUsage(value: String): Int =
     if (value.equalsIgnoreCase("AMBIENT")) ModelTexture.USAGE_AMBIENT
@@ -226,23 +214,23 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
     else
       throw SgeError.InvalidInput("Expected Color values <> than three.")
 
-  protected def readVector2(vectorArray: JsonValue, x: Float, y: Float): Vector2 =
-    if (vectorArray == null)
-      new Vector2(x, y)
-    else if (vectorArray.size == 2)
-      new Vector2(vectorArray.getFloat(0), vectorArray.getFloat(1))
-    else
-      throw SgeError.InvalidInput("Expected Vector2 values <> than two.")
+  protected def readVector2(vectorArray: Nullable[JsonValue], x: Float, y: Float): Vector2 =
+    vectorArray.fold(new Vector2(x, y)) { v =>
+      if (v.size == 2)
+        new Vector2(v.getFloat(0), v.getFloat(1))
+      else
+        throw SgeError.InvalidInput("Expected Vector2 values <> than two.")
+    }
 
   protected def parseNodes(model: ModelData, json: JsonValue): DynamicArray[ModelNode] = {
-    val nodes = json.get("nodes").orNull
-    if (nodes != null) {
+    json.get("nodes").foreach { nodes =>
       model.nodes.ensureCapacity(nodes.size)
       var nodeN = nodes.child
-      while (nodeN.isDefined) {
-        model.nodes.add(parseNodesRecursively(nodeN.orNull))
-        nodeN = nodeN.orNull.next
-      }
+      while (nodeN.isDefined)
+        nodeN.foreach { n =>
+          model.nodes.add(parseNodesRecursively(n))
+          nodeN = n.next
+        }
     }
 
     model.nodes
@@ -253,220 +241,220 @@ class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(u
   protected def parseNodesRecursively(json: JsonValue): ModelNode = {
     val jsonNode = new ModelNode()
 
-    val id = json.getString("id", Nullable.empty).orNull
-    if (id == null) throw SgeError.InvalidInput("Node id missing.")
-    jsonNode.id = id
+    jsonNode.id = json.getString("id", Nullable.empty).getOrElse {
+      throw SgeError.InvalidInput("Node id missing.")
+    }
 
-    val translation = json.get("translation").orNull
-    if (translation != null && translation.size != 3) throw SgeError.InvalidInput("Node translation incomplete")
-    jsonNode.translation =
-      if (translation == null) null
-      else new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
+    json.get("translation").foreach { t =>
+      if (t.size != 3) throw SgeError.InvalidInput("Node translation incomplete")
+      jsonNode.translation = new Vector3(t.getFloat(0), t.getFloat(1), t.getFloat(2))
+    }
 
-    val rotation = json.get("rotation").orNull
-    if (rotation != null && rotation.size != 4) throw SgeError.InvalidInput("Node rotation incomplete")
-    jsonNode.rotation =
-      if (rotation == null) null
-      else new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3))
+    json.get("rotation").foreach { r =>
+      if (r.size != 4) throw SgeError.InvalidInput("Node rotation incomplete")
+      jsonNode.rotation = new Quaternion(r.getFloat(0), r.getFloat(1), r.getFloat(2), r.getFloat(3))
+    }
 
-    val scale = json.get("scale").orNull
-    if (scale != null && scale.size != 3) throw SgeError.InvalidInput("Node scale incomplete")
-    jsonNode.scale =
-      if (scale == null) null
-      else new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2))
+    json.get("scale").foreach { s =>
+      if (s.size != 3) throw SgeError.InvalidInput("Node scale incomplete")
+      jsonNode.scale = new Vector3(s.getFloat(0), s.getFloat(1), s.getFloat(2))
+    }
 
-    val meshId = json.getString("mesh", Nullable.empty).orNull
-    if (meshId != null) jsonNode.meshId = meshId
+    json.getString("mesh", Nullable.empty).foreach(m => jsonNode.meshId = m)
 
-    val materials = json.get("parts").orNull
-    if (materials != null) {
+    json.get("parts").foreach { materials =>
       jsonNode.parts = new Array[ModelNodePart](materials.size)
       var i         = 0
       var materialN = materials.child
-      while (materialN.isDefined) {
-        val material = materialN.orNull
-        val nodePart = new ModelNodePart()
+      while (materialN.isDefined)
+        materialN.foreach { material =>
+          val nodePart = new ModelNodePart()
 
-        val meshPartId = material.getString("meshpartid", Nullable.empty).orNull
-        val materialId = material.getString("materialid", Nullable.empty).orNull
-        if (meshPartId == null || materialId == null) {
-          throw SgeError.InvalidInput("Node " + id + " part is missing meshPartId or materialId")
-        }
-        nodePart.materialId = materialId
-        nodePart.meshPartId = meshPartId
-
-        val bones = material.get("bones").orNull
-        if (bones != null) {
-          nodePart.bones = ArrayMap[String, Matrix4](true, bones.size)
-          var boneN = bones.child
-          while (boneN.isDefined) {
-            val bone   = boneN.orNull
-            val nodeId = bone.getString("node", Nullable.empty).orNull
-            if (nodeId == null) throw SgeError.InvalidInput("Bone node ID missing")
-
-            val transform = new Matrix4()
-
-            var v = bone.get("translation").orNull
-            if (v != null && v.size >= 3) transform.translate(v.getFloat(0), v.getFloat(1), v.getFloat(2))
-
-            v = bone.get("rotation").orNull
-            if (v != null && v.size >= 4)
-              transform.rotate(tempQ.set(v.getFloat(0), v.getFloat(1), v.getFloat(2), v.getFloat(3)))
-
-            v = bone.get("scale").orNull
-            if (v != null && v.size >= 3) transform.scale(v.getFloat(0), v.getFloat(1), v.getFloat(2))
-
-            nodePart.bones.put(nodeId, transform)
-            boneN = bone.next
+          val meshPartId = material.getString("meshpartid", Nullable.empty)
+          val materialId = material.getString("materialid", Nullable.empty)
+          if (meshPartId.isEmpty || materialId.isEmpty) {
+            throw SgeError.InvalidInput("Node " + jsonNode.id + " part is missing meshPartId or materialId")
           }
-        }
+          nodePart.materialId = materialId.getOrElse("")
+          nodePart.meshPartId = meshPartId.getOrElse("")
 
-        jsonNode.parts(i) = nodePart
-        i += 1
-        materialN = material.next
-      }
+          material.get("bones").foreach { bones =>
+            nodePart.bones = ArrayMap[String, Matrix4](true, bones.size)
+            var boneN = bones.child
+            while (boneN.isDefined)
+              boneN.foreach { bone =>
+                val nodeId = bone.getString("node", Nullable.empty).getOrElse {
+                  throw SgeError.InvalidInput("Bone node ID missing")
+                }
+
+                val transform = new Matrix4()
+
+                bone.get("translation").foreach { v =>
+                  if (v.size >= 3) transform.translate(v.getFloat(0), v.getFloat(1), v.getFloat(2))
+                }
+                bone.get("rotation").foreach { v =>
+                  if (v.size >= 4)
+                    transform.rotate(tempQ.set(v.getFloat(0), v.getFloat(1), v.getFloat(2), v.getFloat(3)))
+                }
+                bone.get("scale").foreach { v =>
+                  if (v.size >= 3) transform.scale(v.getFloat(0), v.getFloat(1), v.getFloat(2))
+                }
+
+                nodePart.bones.put(nodeId, transform)
+                boneN = bone.next
+              }
+          }
+
+          jsonNode.parts(i) = nodePart
+          i += 1
+          materialN = material.next
+        }
     }
 
-    val children = json.get("children").orNull
-    if (children != null) {
+    json.get("children").foreach { children =>
       jsonNode.children = new Array[ModelNode](children.size)
 
       var i      = 0
       var childN = children.child
-      while (childN.isDefined) {
-        jsonNode.children(i) = parseNodesRecursively(childN.orNull)
-        i += 1
-        childN = childN.orNull.next
-      }
+      while (childN.isDefined)
+        childN.foreach { c =>
+          jsonNode.children(i) = parseNodesRecursively(c)
+          i += 1
+          childN = c.next
+        }
     }
 
     jsonNode
   }
 
   protected def parseAnimations(model: ModelData, json: JsonValue): Unit = {
-    val animations = json.get("animations").orNull
-    if (animations == null) return // scalastyle:ignore
+    json.get("animations").foreach { animations =>
+      model.animations.ensureCapacity(animations.size)
 
-    model.animations.ensureCapacity(animations.size)
+      var animN = animations.child
+      while (animN.isDefined) {
+        animN.foreach { anim =>
+          anim.get("bones").foreach { nodes =>
+            val animation = new ModelAnimation()
+            model.animations.add(animation)
+            animation.nodeAnimations.ensureCapacity(nodes.size)
+            animation.id = anim.getString("id").getOrElse("")
+            var nodeN = nodes.child
+            while (nodeN.isDefined) {
+              nodeN.foreach { node =>
+                val nodeAnim = new ModelNodeAnimation()
+                animation.nodeAnimations.add(nodeAnim)
+                nodeAnim.nodeId = node.getString("boneId").getOrElse("")
 
-    var animN = animations.child
-    while (animN.isDefined) {
-      val anim  = animN.orNull
-      val nodes = anim.get("bones").orNull
-      if (nodes != null) {
-        val animation = new ModelAnimation()
-        model.animations.add(animation)
-        animation.nodeAnimations.ensureCapacity(nodes.size)
-        animation.id = anim.getString("id").orNull
-        var nodeN = nodes.child
-        while (nodeN.isDefined) {
-          val node     = nodeN.orNull
-          val nodeAnim = new ModelNodeAnimation()
-          animation.nodeAnimations.add(nodeAnim)
-          nodeAnim.nodeId = node.getString("boneId").orNull
+                // For backwards compatibility (version 0.1):
+                val keyframes = node.get("keyframes")
+                if (keyframes.fold(false)(_.isArray)) {
+                  var keyframeN = keyframes.fold(Nullable.empty[JsonValue])(_.child)
+                  while (keyframeN.isDefined)
+                    keyframeN.foreach { keyframe =>
+                      val keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
+                      keyframe.get("translation").foreach { translation =>
+                        if (translation.size == 3) {
+                          if (Nullable(nodeAnim.translation).isEmpty) nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
+                          val tkf = new ModelNodeKeyframe[Vector3]()
+                          tkf.keytime = keytime
+                          tkf.value = Nullable(
+                            new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
+                          )
+                          nodeAnim.translation.add(tkf)
+                        }
+                      }
+                      keyframe.get("rotation").foreach { rotation =>
+                        if (rotation.size == 4) {
+                          if (Nullable(nodeAnim.rotation).isEmpty) nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
+                          val rkf = new ModelNodeKeyframe[Quaternion]()
+                          rkf.keytime = keytime
+                          rkf.value = Nullable(
+                            new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3))
+                          )
+                          nodeAnim.rotation.add(rkf)
+                        }
+                      }
+                      keyframe.get("scale").foreach { scale =>
+                        if (scale.size == 3) {
+                          if (Nullable(nodeAnim.scaling).isEmpty) nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
+                          val skf = new ModelNodeKeyframe[Vector3]()
+                          skf.keytime = keytime
+                          skf.value = Nullable(new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2)))
+                          nodeAnim.scaling.add(skf)
+                        }
+                      }
+                      keyframeN = keyframe.next
+                    }
+                } else { // Version 0.2:
+                  node.get("translation").foreach { translationKF =>
+                    if (translationKF.isArray) {
+                      nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
+                      nodeAnim.translation.ensureCapacity(translationKF.size)
+                      var kfN = translationKF.child
+                      while (kfN.isDefined)
+                        kfN.foreach { kfVal =>
+                          val kf = new ModelNodeKeyframe[Vector3]()
+                          nodeAnim.translation.add(kf)
+                          kf.keytime = kfVal.getFloat("keytime", 0f) / 1000.0f
+                          kfVal.get("value").foreach { translation =>
+                            if (translation.size >= 3)
+                              kf.value = Nullable(
+                                new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
+                              )
+                          }
+                          kfN = kfVal.next
+                        }
+                    }
+                  }
 
-          // For backwards compatibility (version 0.1):
-          val keyframes = node.get("keyframes").orNull
-          if (keyframes != null && keyframes.isArray) {
-            var keyframeN = keyframes.child
-            while (keyframeN.isDefined) {
-              val keyframe    = keyframeN.orNull
-              val keytime     = keyframe.getFloat("keytime", 0f) / 1000.0f
-              val translation = keyframe.get("translation").orNull
-              if (translation != null && translation.size == 3) {
-                if (nodeAnim.translation == null) nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
-                val tkf = new ModelNodeKeyframe[Vector3]()
-                tkf.keytime = keytime
-                tkf.value = Nullable(
-                  new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
-                )
-                nodeAnim.translation.add(tkf)
-              }
-              val rotation = keyframe.get("rotation").orNull
-              if (rotation != null && rotation.size == 4) {
-                if (nodeAnim.rotation == null) nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
-                val rkf = new ModelNodeKeyframe[Quaternion]()
-                rkf.keytime = keytime
-                rkf.value = Nullable(
-                  new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3))
-                )
-                nodeAnim.rotation.add(rkf)
-              }
-              val scale = keyframe.get("scale").orNull
-              if (scale != null && scale.size == 3) {
-                if (nodeAnim.scaling == null) nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
-                val skf = new ModelNodeKeyframe[Vector3]()
-                skf.keytime = keytime
-                skf.value = Nullable(new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2)))
-                nodeAnim.scaling.add(skf)
-              }
-              keyframeN = keyframe.next
-            }
-          } else { // Version 0.2:
-            val translationKF = node.get("translation").orNull
-            if (translationKF != null && translationKF.isArray) {
-              nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
-              nodeAnim.translation.ensureCapacity(translationKF.size)
-              var kfN = translationKF.child
-              while (kfN.isDefined) {
-                val keyframe = kfN.orNull
-                val kf       = new ModelNodeKeyframe[Vector3]()
-                nodeAnim.translation.add(kf)
-                kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
-                val translation = keyframe.get("value").orNull
-                if (translation != null && translation.size >= 3)
-                  kf.value = Nullable(
-                    new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2))
-                  )
-                kfN = keyframe.next
-              }
-            }
+                  node.get("rotation").foreach { rotationKF =>
+                    if (rotationKF.isArray) {
+                      nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
+                      nodeAnim.rotation.ensureCapacity(rotationKF.size)
+                      var kfN = rotationKF.child
+                      while (kfN.isDefined)
+                        kfN.foreach { kfVal =>
+                          val kf = new ModelNodeKeyframe[Quaternion]()
+                          nodeAnim.rotation.add(kf)
+                          kf.keytime = kfVal.getFloat("keytime", 0f) / 1000.0f
+                          kfVal.get("value").foreach { rotation =>
+                            if (rotation.size >= 4)
+                              kf.value = Nullable(
+                                new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3))
+                              )
+                          }
+                          kfN = kfVal.next
+                        }
+                    }
+                  }
 
-            val rotationKF = node.get("rotation").orNull
-            if (rotationKF != null && rotationKF.isArray) {
-              nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
-              nodeAnim.rotation.ensureCapacity(rotationKF.size)
-              var kfN = rotationKF.child
-              while (kfN.isDefined) {
-                val keyframe = kfN.orNull
-                val kf       = new ModelNodeKeyframe[Quaternion]()
-                nodeAnim.rotation.add(kf)
-                kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
-                val rotation = keyframe.get("value").orNull
-                if (rotation != null && rotation.size >= 4)
-                  kf.value = Nullable(
-                    new Quaternion(
-                      rotation.getFloat(0),
-                      rotation.getFloat(1),
-                      rotation.getFloat(2),
-                      rotation.getFloat(3)
-                    )
-                  )
-                kfN = keyframe.next
-              }
-            }
-
-            val scalingKF = node.get("scaling").orNull
-            if (scalingKF != null && scalingKF.isArray) {
-              nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
-              nodeAnim.scaling.ensureCapacity(scalingKF.size)
-              var kfN = scalingKF.child
-              while (kfN.isDefined) {
-                val keyframe = kfN.orNull
-                val kf       = new ModelNodeKeyframe[Vector3]()
-                nodeAnim.scaling.add(kf)
-                kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.0f
-                val scaling = keyframe.get("value").orNull
-                if (scaling != null && scaling.size >= 3)
-                  kf.value = Nullable(new Vector3(scaling.getFloat(0), scaling.getFloat(1), scaling.getFloat(2)))
-                kfN = keyframe.next
+                  node.get("scaling").foreach { scalingKF =>
+                    if (scalingKF.isArray) {
+                      nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
+                      nodeAnim.scaling.ensureCapacity(scalingKF.size)
+                      var kfN = scalingKF.child
+                      while (kfN.isDefined)
+                        kfN.foreach { kfVal =>
+                          val kf = new ModelNodeKeyframe[Vector3]()
+                          nodeAnim.scaling.add(kf)
+                          kf.keytime = kfVal.getFloat("keytime", 0f) / 1000.0f
+                          kfVal.get("value").foreach { scaling =>
+                            if (scaling.size >= 3)
+                              kf.value = Nullable(new Vector3(scaling.getFloat(0), scaling.getFloat(1), scaling.getFloat(2)))
+                          }
+                          kfN = kfVal.next
+                        }
+                    }
+                  }
+                }
+                nodeN = node.next
               }
             }
           }
-          nodeN = node.next
+          animN = anim.next
         }
       }
-      animN = anim.next
     }
   }
 }

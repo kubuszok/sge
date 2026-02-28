@@ -9,6 +9,9 @@
 package sge
 package math
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.utils.DynamicArray
 
 /** A simple implementation of the ear cutting algorithm to triangulate simple polygons without holes. For more information: <ul> <li><a
@@ -126,11 +129,11 @@ class EarClippingTriangulator {
     computeSpannedAreaSign(vertices(previous), vertices(previous + 1), vertices(current), vertices(current + 1), vertices(next), vertices(next + 1))
   }
 
-  private def findEarTip(): Int = {
+  private def findEarTip(): Int = boundary {
     val vertexCount = this.vertexCount
     var i           = 0
     while (i < vertexCount) {
-      if (isEarTip(i)) return i
+      if (isEarTip(i)) break(i)
       i += 1
     }
 
@@ -144,15 +147,15 @@ class EarClippingTriangulator {
     val vertexTypes = this.vertexTypes
     i = 0
     while (i < vertexCount) {
-      if (vertexTypes(i) != CONCAVE) return i
+      if (vertexTypes(i) != CONCAVE) break(i)
       i += 1
     }
     0 // If all vertices are concave, just return the first one.
   }
 
-  private def isEarTip(earTipIndex: Int): Boolean = {
+  private def isEarTip(earTipIndex: Int): Boolean = boundary {
     val vertexTypes = this.vertexTypes
-    if (vertexTypes(earTipIndex) == CONCAVE) return false
+    if (vertexTypes(earTipIndex) == CONCAVE) break(false)
 
     val prevIndex = this.previousIndex(earTipIndex)
     val nextIdx   = this.nextIndex(earTipIndex)
@@ -183,7 +186,7 @@ class EarClippingTriangulator {
         // note: check the edge defined by p1->p3 first since this fails _far_ more then the other 2 checks.
         if (computeSpannedAreaSign(p3x, p3y, p1x, p1y, vx, vy) >= 0) {
           if (computeSpannedAreaSign(p1x, p1y, p2x, p2y, vx, vy) >= 0) {
-            if (computeSpannedAreaSign(p2x, p2y, p3x, p3y, vx, vy) >= 0) return false
+            if (computeSpannedAreaSign(p2x, p2y, p3x, p3y, vx, vy) >= 0) break(false)
           }
         }
       }

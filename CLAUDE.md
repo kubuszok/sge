@@ -5,13 +5,37 @@ SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
 
 ## Build Rules
 
-- Scala **3.8.1**, compiler flags: `-deprecation -feature -no-indent -rewrite -Werror`
+- Scala **3.8.2**, compiler flags: `-deprecation -feature -no-indent -rewrite -Werror`
+- **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn` (info-level via `-Wconf:id=E198:info`)
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
 - **No `return`**: use `scala.util.boundary`/`break`
-- **No `null`**: use `Nullable[A]` opaque type
+- **No `null`**: use `Nullable[A]` opaque type. **Never use `orNull`** except at Java interop boundaries (requires `@nowarn` + comment)
 - **No comment removal**: preserve all original comments
 - Use `sbt --client` or `just compile` / `just fmt` — never bare `sbt`
+
+## Bash Restrictions
+
+**Only `just` recipes and `sbt --client` are allowed in Bash.** All other commands
+(`rg`, `grep`, `head`, `tail`, `sort`, `find`, `ls`, `wc`, `awk`, `sed`, `perl`,
+`echo`, `for`, `while`, `xargs`, `python`) are denied. Use:
+
+- **Dedicated tools** (`Grep`, `Glob`, `Read`) for code search and file reading
+- **`just` recipes** for builds, git, GitHub CLI, quality scans, and search
+- **`sbt --client`** for compilation, tests, and Scalafix
+
+Key `just` recipes:
+
+| Recipe | Purpose |
+|--------|---------|
+| `just compile` / `just test` | Build and test |
+| `just compile-errors` / `just compile-warnings` | Filtered build output |
+| `just git-status` / `just diff-stat` / `just git-log` | Git read-only |
+| `just stage <files>` / `just commit '<msg>'` | Git staging + commit |
+| `just commit-all '<msg>'` | Stage all + commit |
+| `just gh-pr-list` / `just gh-issue-list` | GitHub CLI read-only |
+| `just sge-quality <type> [summary]` | Quality scans (return/null/todo/all) |
+| `just sge-grep '<pattern>'` / `just sge-count '<pattern>'` | Code search |
 
 ## Tooling
 
@@ -19,8 +43,9 @@ SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
 |------|---------|
 | `metals-mcp` | Compile, search, inspect, format (snapshot — see `just metals-install`) |
 | `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
-| `Justfile` | Task recipes — run `just --list` |
+| `Justfile` | Task recipes — run `just --list` for full list |
 | `./libgdx/` | Local reference source. **Never fetch from GitHub.** |
+| `scalafix-rules/` | Custom Scalafix lint rules (separate module). Run: `just scalafix <Rule>` |
 
 ## Conversion Guides
 

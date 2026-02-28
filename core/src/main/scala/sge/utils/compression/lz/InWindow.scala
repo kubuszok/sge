@@ -10,6 +10,11 @@ package sge.utils.compression.lz
 
 import java.io.IOException
 
+import scala.util.boundary
+import scala.util.boundary.break
+
+import sge.utils.Nullable
+
 class InWindow {
   var _bufferBase:          Array[Byte]         = scala.compiletime.uninitialized // pointer to buffer with data
   var _stream:              java.io.InputStream = scala.compiletime.uninitialized
@@ -40,18 +45,18 @@ class InWindow {
   }
 
   @throws[IOException]
-  def readBlock(): Unit = {
-    if (_streamEndWasReached) return
+  def readBlock(): Unit = boundary {
+    if (_streamEndWasReached) break(())
     while (true) {
       val size = (0 - _bufferOffset) + _blockSize - _streamPos
-      if (size == 0) return
+      if (size == 0) break(())
       val numReadBytes = _stream.read(_bufferBase, _bufferOffset + _streamPos, size)
       if (numReadBytes == -1) {
         _posLimit = _streamPos
         val pointerToPostion = _bufferOffset + _posLimit
         if (pointerToPostion > _pointerToLastSafePosition) _posLimit = _pointerToLastSafePosition - _bufferOffset
         _streamEndWasReached = true
-        return
+        break(())
       }
       _streamPos += numReadBytes
       if (_streamPos >= _pos + _keepSizeAfter) _posLimit = _streamPos - _keepSizeAfter
@@ -65,7 +70,7 @@ class InWindow {
     _keepSizeBefore = keepSizeBefore
     _keepSizeAfter = keepSizeAfter
     val blockSize = keepSizeBefore + keepSizeAfter + keepSizeReserv
-    if (_bufferBase == null || _blockSize != blockSize) {
+    if (Nullable(_bufferBase).isEmpty || _blockSize != blockSize) {
       free()
       _blockSize = blockSize
       _bufferBase = new Array[Byte](_blockSize)

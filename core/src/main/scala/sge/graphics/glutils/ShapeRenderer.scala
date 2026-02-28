@@ -174,13 +174,13 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
     // TODO: renderer.begin(combinedMatrix, shapeType.getGlType())
   }
 
-  def set(shapeType: ShapeType): Unit = {
-    if (this.shapeType.fold(false)(_ == shapeType)) return
-    if (this.shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
-    if (!autoShapeType) throw new IllegalStateException("autoShapeType must be enabled.")
-    end()
-    begin(shapeType)
-  }
+  def set(shapeType: ShapeType): Unit =
+    if (!this.shapeType.fold(false)(_ == shapeType)) {
+      if (this.shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
+      if (!autoShapeType) throw new IllegalStateException("autoShapeType must be enabled.")
+      end()
+      begin(shapeType)
+    }
 
   /** Finishes the batch of shapes and ensures they get rendered. */
   def end(): Unit =
@@ -199,17 +199,16 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
 
   /** Draws a line using ShapeType.Line or ShapeType.Filled. The line is drawn with two colors interpolated between the start and end points.
     */
-  def line(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float, c1: Color, c2: Color): Unit = {
+  def line(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float, c1: Color, c2: Color): Unit =
     if (shapeType.fold(false)(_ == ShapeType.Filled)) {
       rectLine(x, y, x2, y2, defaultRectLineWidth, c1, c2)
-      return
+    } else {
+      check(ShapeType.Line, Nullable.empty, 2)
+      // TODO: renderer.color(c1.r, c1.g, c1.b, c1.a)
+      // TODO: renderer.vertex(x, y, z)
+      // TODO: renderer.color(c2.r, c2.g, c2.b, c2.a)
+      // TODO: renderer.vertex(x2, y2, z2)
     }
-    check(ShapeType.Line, Nullable.empty, 2)
-    // TODO: renderer.color(c1.r, c1.g, c1.b, c1.a)
-    // TODO: renderer.vertex(x, y, z)
-    // TODO: renderer.color(c2.r, c2.g, c2.b, c2.a)
-    // TODO: renderer.vertex(x2, y2, z2)
-  }
 
   /** Draws a rectangle using ShapeType.Line or ShapeType.Filled. */
   def rectangle(x: Float, y: Float, width: Float, height: Float): Unit =

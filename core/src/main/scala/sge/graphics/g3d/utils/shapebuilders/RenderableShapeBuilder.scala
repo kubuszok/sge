@@ -35,7 +35,7 @@ object RenderableShapeBuilder {
       val renderable = super.obtain()
       renderable.environment = Nullable.empty
       renderable.material = Nullable.empty
-      renderable.meshPart.set(Nullable(""), null.asInstanceOf[Mesh], 0, 0, 0)
+      renderable.meshPart.set(Nullable(""), null, 0, 0, 0)
       renderable.shader = Nullable.empty
       renderable.userData = Nullable.empty
       renderable

@@ -16,7 +16,7 @@ object SgeNativesLoader {
 
   def load(): Unit = synchronized {
     if (!nativesLoaded && !disableNativesLoading) {
-      // TODO
+      // Blocked: needs platform-specific native library loading strategy
       nativesLoaded = true
     }
   }

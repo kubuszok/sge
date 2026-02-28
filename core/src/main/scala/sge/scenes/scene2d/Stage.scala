@@ -65,22 +65,25 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using sge: Sge) =
+  def this(viewport: Viewport)(using sge: Sge) = {
     this(viewport, new SpriteBatch()(using sge), true)
+  }
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using sge: Sge) =
+  def this()(using sge: Sge) = {
     this(
       new ScalingViewport(Scaling.stretch, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat, new OrthographicCamera())
     )
+  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using sge: Sge) =
+  def this(viewport: Viewport, batch: Batch)(using sge: Sge) = {
     this(viewport, batch, false)
+  }
 
   def draw(): Unit = {
     val camera = viewport.getCamera()
@@ -924,9 +927,9 @@ object Stage {
     var button:        Int           = 0
 
     def reset(): Unit = {
-      listenerActor = null.asInstanceOf[Actor]
-      listener = null.asInstanceOf[EventListener]
-      target = null.asInstanceOf[Actor]
+      listenerActor = null
+      listener = null
+      target = null
     }
   }
 }

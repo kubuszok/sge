@@ -86,11 +86,9 @@ object PixmapIO {
     private val readBuffer  = new Array[Byte](BUFFER_SIZE);
 
     def write(file: FileHandle, pixmap: Pixmap): Unit = {
-      var out = null.asInstanceOf[DataOutputStream]
-
+      val deflaterOutputStream = new DeflaterOutputStream(file.write(false));
+      val out                  = new DataOutputStream(deflaterOutputStream);
       try {
-        val deflaterOutputStream = new DeflaterOutputStream(file.write(false));
-        out = new DataOutputStream(deflaterOutputStream);
         out.writeInt(pixmap.getWidth());
         out.writeInt(pixmap.getHeight());
         out.writeInt(toGdx2DPixmapFormat(pixmap.getFormat()));
@@ -117,14 +115,12 @@ object PixmapIO {
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't write Pixmap to file '" + file + "'", Some(e));
       } finally
-        Nullable(out).foreach(StreamUtils.closeQuietly)
+        StreamUtils.closeQuietly(out)
     }
 
     def read(file: FileHandle): Pixmap = {
-      var in = null.asInstanceOf[DataInputStream]
-
+      val in = new DataInputStream(new InflaterInputStream(new BufferedInputStream(file.read())));
       try {
-        in = new DataInputStream(new InflaterInputStream(new BufferedInputStream(file.read())));
         val width  = in.readInt();
         val height = in.readInt();
         val format = Format.fromGdx2DPixmapFormat(in.readInt());
@@ -146,7 +142,7 @@ object PixmapIO {
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't read Pixmap from file '" + file + "'", Some(e));
       } finally
-        Nullable(in).foreach(StreamUtils.closeQuietly)
+        StreamUtils.closeQuietly(in)
     }
 
     private def toGdx2DPixmapFormat(format: Format): Int = format match {

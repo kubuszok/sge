@@ -12,6 +12,8 @@ package math
 import sge.math.Plane.PlaneSide
 import sge.math.collision.{ BoundingBox, OrientedBoundingBox, Ray }
 import sge.utils.{ DynamicArray, Nullable }
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** Class offering various static methods for intersection testing between different geometric objects.
   * @author
@@ -63,7 +65,7 @@ object Intersector {
     * @return
     *   whether the point is in the triangle
     */
-  def isPointInTriangle(point: Vector3, t1: Vector3, t2: Vector3, t3: Vector3): Boolean = {
+  def isPointInTriangle(point: Vector3, t1: Vector3, t2: Vector3, t3: Vector3): Boolean = boundary {
     v0.set(t1).sub(point)
     v1.set(t2).sub(point)
     v2.set(t3).sub(point)
@@ -71,7 +73,7 @@ object Intersector {
     v1.crs(v2)
     v2.crs(v0)
 
-    if (v1.dot(v2) < 0f) return false
+    if (v1.dot(v2) < 0f) break(false)
     v0.crs(v2.set(t2).sub(point))
     v1.dot(v0) >= 0f
   }
@@ -81,21 +83,21 @@ object Intersector {
     isPointInTriangle(p.x, p.y, a.x, a.y, b.x, b.y, c.x, c.y)
 
   /** Returns true if the given point is inside the triangle. */
-  def isPointInTriangle(px: Float, py: Float, ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float): Boolean = {
+  def isPointInTriangle(px: Float, py: Float, ax: Float, ay: Float, bx: Float, by: Float, cx: Float, cy: Float): Boolean = boundary {
     val px1    = px - ax
     val py1    = py - ay
     val side12 = (bx - ax) * py1 - (by - ay) * px1 > 0
-    if ((cx - ax) * py1 - (cy - ay) * px1 > 0 == side12) return false
-    if ((cx - bx) * (py - by) - (cy - by) * (px - bx) > 0 != side12) return false
+    if ((cx - ax) * py1 - (cy - ay) * px1 > 0 == side12) break(false)
+    if ((cx - bx) * (py - by) - (cy - by) * (px - bx) > 0 != side12) break(false)
     true
   }
 
-  def intersectSegmentPlane(start: Vector3, end: Vector3, plane: Plane, intersection: Vector3): Boolean = {
+  def intersectSegmentPlane(start: Vector3, end: Vector3, plane: Plane, intersection: Vector3): Boolean = boundary {
     val dir   = v0.set(end).sub(start)
     val denom = dir.dot(plane.getNormal)
-    if (denom == 0f) return false
+    if (denom == 0f) break(false)
     val t = -(start.dot(plane.getNormal) + plane.getD) / denom
-    if (t < 0 || t > 1) return false
+    if (t < 0 || t > 1) break(false)
 
     intersection.set(start).add(dir.scl(t))
     true
@@ -169,9 +171,9 @@ object Intersector {
     * @return
     *   Whether the two polygons intersect.
     */
-  def intersectPolygons(p1: Polygon, p2: Polygon, overlap: Nullable[Polygon]): Boolean = {
+  def intersectPolygons(p1: Polygon, p2: Polygon, overlap: Nullable[Polygon]): Boolean = boundary {
     if (p1.getVertices.length == 0 || p2.getVertices.length == 0) {
-      return false
+      break(false)
     }
     val ip         = Intersector.ip; val ep1                 = Intersector.ep1; val ep2 = Intersector.ep2; val s = Intersector.s; val e = Intersector.e
     val floatArray = Intersector.floatArray; val floatArray2 = Intersector.floatArray2
@@ -186,7 +188,7 @@ object Intersector {
       // wrap around to beginning of array if index points to end;
       if (i < last) ep2.set(vertices2(i + 2), vertices2(i + 3))
       else ep2.set(vertices2(0), vertices2(1))
-      if (floatArray2.size == 0) return false
+      if (floatArray2.size == 0) break(false)
       s.set(floatArray2(floatArray2.size - 2), floatArray2(floatArray2.size - 1))
       var j = 0
       while (j < floatArray2.size) {
@@ -233,20 +235,20 @@ object Intersector {
         else
           ovl.setVertices(floatArray2.toArray)
       }
-      return true
+      break(true)
     }
     false
   }
 
   /** Returns true if the specified polygons intersect. */
-  def intersectPolygons(polygon1: DynamicArray[Float], polygon2: DynamicArray[Float]): Boolean = {
-    if (Intersector.isPointInPolygon(polygon1.items, 0, polygon1.size, polygon2.items(0), polygon2.items(1))) return true
-    if (Intersector.isPointInPolygon(polygon2.items, 0, polygon2.size, polygon1.items(0), polygon1.items(1))) return true
+  def intersectPolygons(polygon1: DynamicArray[Float], polygon2: DynamicArray[Float]): Boolean = boundary {
+    if (Intersector.isPointInPolygon(polygon1.items, 0, polygon1.size, polygon2.items(0), polygon2.items(1))) break(true)
+    if (Intersector.isPointInPolygon(polygon2.items, 0, polygon2.size, polygon1.items(0), polygon1.items(1))) break(true)
     intersectPolygonEdges(polygon1, polygon2)
   }
 
   /** Returns true if the lines of the specified polygons intersect. */
-  def intersectPolygonEdges(polygon1: DynamicArray[Float], polygon2: DynamicArray[Float]): Boolean = {
+  def intersectPolygonEdges(polygon1: DynamicArray[Float], polygon2: DynamicArray[Float]): Boolean = boundary {
     val last1 = polygon1.size - 2; val last2 = polygon2.size - 2
     val p1    = polygon1.items; val p2       = polygon2.items
     var x1    = p1(last1); var y1            = p1(last1 + 1)
@@ -257,7 +259,7 @@ object Intersector {
       var j  = 0
       while (j <= last2) {
         val x4 = p2(j); val y4 = p2(j + 1)
-        if (intersectSegments(x1, y1, x2, y2, x3, y3, x4, y4, Nullable.empty[Vector2])) return true
+        if (intersectSegments(x1, y1, x2, y2, x3, y3, x4, y4, Nullable.empty[Vector2])) break(true)
         x3 = x4
         y3 = y4
         j += 2
@@ -284,24 +286,24 @@ object Intersector {
     nearestSegmentPoint(start, end, point, v2a).distance(point)
 
   /** Returns a point on the segment nearest to the specified point. */
-  def nearestSegmentPoint(start: Vector2, end: Vector2, point: Vector2, nearest: Vector2): Vector2 = {
+  def nearestSegmentPoint(start: Vector2, end: Vector2, point: Vector2, nearest: Vector2): Vector2 = boundary {
     val length2 = start.distanceSq(end)
-    if (length2 == 0) return nearest.set(start)
+    if (length2 == 0) break(nearest.set(start))
     val t = ((point.x - start.x) * (end.x - start.x) + (point.y - start.y) * (end.y - start.y)) / length2
-    if (t <= 0) return nearest.set(start)
-    if (t >= 1) return nearest.set(end)
+    if (t <= 0) break(nearest.set(start))
+    if (t >= 1) break(nearest.set(end))
     nearest.set(start.x + t * (end.x - start.x), start.y + t * (end.y - start.y))
   }
 
   /** Returns a point on the segment nearest to the specified point. */
-  def nearestSegmentPoint(startX: Float, startY: Float, endX: Float, endY: Float, pointX: Float, pointY: Float, nearest: Vector2): Vector2 = {
+  def nearestSegmentPoint(startX: Float, startY: Float, endX: Float, endY: Float, pointX: Float, pointY: Float, nearest: Vector2): Vector2 = boundary {
     val xDiff   = endX - startX
     val yDiff   = endY - startY
     val length2 = xDiff * xDiff + yDiff * yDiff
-    if (length2 == 0) return nearest.set(startX, startY)
+    if (length2 == 0) break(nearest.set(startX, startY))
     val t = ((pointX - startX) * (endX - startX) + (pointY - startY) * (endY - startY)) / length2
-    if (t <= 0) return nearest.set(startX, startY)
-    if (t >= 1) return nearest.set(endX, endY)
+    if (t <= 0) break(nearest.set(startX, startY))
+    if (t >= 1) break(nearest.set(endX, endY))
     nearest.set(startX + t * (endX - startX), startY + t * (endY - startY))
   }
 
@@ -388,7 +390,7 @@ object Intersector {
     * @return
     *   Whether the frustum intersects the bounding box
     */
-  def intersectFrustumBounds(frustum: Frustum, bounds: BoundingBox): Boolean = {
+  def intersectFrustumBounds(frustum: Frustum, bounds: BoundingBox): Boolean = boundary {
     val boundsIntersectsFrustum = frustum.pointInFrustum(bounds.getCorner000(tmp)) ||
       frustum.pointInFrustum(bounds.getCorner001(tmp)) || frustum.pointInFrustum(bounds.getCorner010(tmp)) ||
       frustum.pointInFrustum(bounds.getCorner011(tmp)) || frustum.pointInFrustum(bounds.getCorner100(tmp)) ||
@@ -396,7 +398,7 @@ object Intersector {
       frustum.pointInFrustum(bounds.getCorner111(tmp))
 
     if (boundsIntersectsFrustum) {
-      return true
+      break(true)
     }
 
     var frustumIsInsideBounds = false
@@ -413,14 +415,14 @@ object Intersector {
     * @return
     *   Whether the frustum intersects the oriented bounding box
     */
-  def intersectFrustumBounds(frustum: Frustum, obb: OrientedBoundingBox): Boolean = {
+  def intersectFrustumBounds(frustum: Frustum, obb: OrientedBoundingBox): Boolean = boundary {
     var boundsIntersectsFrustum = false
 
     for (v <- obb.getVertices())
       boundsIntersectsFrustum |= frustum.pointInFrustum(v)
 
     if (boundsIntersectsFrustum) {
-      return true
+      break(true)
     }
 
     var frustumIsInsideBounds = false
@@ -443,12 +445,12 @@ object Intersector {
     * @return
     *   scalar parameter on the first ray describing the point where the intersection happens. May be negative. In case the rays are collinear, Float.POSITIVE_INFINITY will be returned.
     */
-  def intersectRayRay(start1: Vector2, direction1: Vector2, start2: Vector2, direction2: Vector2): Float = {
+  def intersectRayRay(start1: Vector2, direction1: Vector2, start2: Vector2, direction2: Vector2): Float = boundary {
     val difx  = start2.x - start1.x
     val dify  = start2.y - start1.y
     val d1xd2 = direction1.x * direction2.y - direction1.y * direction2.x
     if (d1xd2 == 0.0f) {
-      return Float.PositiveInfinity // collinear
+      break(Float.PositiveInfinity) // collinear
     }
     val d2sx = direction2.x / d1xd2
     val d2sy = direction2.y / d1xd2
@@ -461,11 +463,11 @@ object Intersector {
     * @return
     *   Whether an intersection is present.
     */
-  def intersectRayPlane(ray: Ray, plane: Plane, intersection: Nullable[Vector3]): Boolean = {
+  def intersectRayPlane(ray: Ray, plane: Plane, intersection: Nullable[Vector3]): Boolean = boundary {
     val denom = ray.direction.dot(plane.getNormal)
     if (denom != 0) {
       val t = -(ray.origin.dot(plane.getNormal) + plane.getD) / denom
-      if (t < 0) return false
+      if (t < 0) break(false)
 
       intersection.foreach(_.set(ray.origin).add(v0.set(ray.direction).scl(t)))
       true
@@ -500,14 +502,14 @@ object Intersector {
     * @param intersection
     *   The point where the three planes intersect
     */
-  def intersectPlanes(a: Plane, b: Plane, c: Plane, intersection: Vector3): Boolean = {
+  def intersectPlanes(a: Plane, b: Plane, c: Plane, intersection: Vector3): Boolean = boundary {
     tmp1.set(a.normal).crs(b.normal)
     tmp2.set(b.normal).crs(c.normal)
     tmp3.set(c.normal).crs(a.normal)
 
     val f = -a.normal.dot(tmp2)
     if (Math.abs(f) < MathUtils.FLOAT_ROUNDING_ERROR) {
-      return false
+      break(false)
     }
 
     tmp1.scl(c.d)
@@ -531,7 +533,7 @@ object Intersector {
     * @return
     *   True in case an intersection is present.
     */
-  def intersectRayTriangle(ray: Ray, t1: Vector3, t2: Vector3, t3: Vector3, intersection: Nullable[Vector3]): Boolean = {
+  def intersectRayTriangle(ray: Ray, t1: Vector3, t2: Vector3, t3: Vector3, intersection: Nullable[Vector3]): Boolean = boundary {
     val edge1 = v0.set(t2).sub(t1)
     val edge2 = v1.set(t3).sub(t1)
 
@@ -541,23 +543,23 @@ object Intersector {
       p.set(t1, t2, t3)
       if (p.testPoint(ray.origin) == PlaneSide.OnPlane && Intersector.isPointInTriangle(ray.origin, t1, t2, t3)) {
         intersection.foreach(_.set(ray.origin))
-        return true
+        break(true)
       }
-      return false
+      break(false)
     }
 
     det = 1.0f / det
 
     val tvec = i.set(ray.origin).sub(t1)
     val u    = tvec.dot(pvec) * det
-    if (u < 0.0f || u > 1.0f) return false
+    if (u < 0.0f || u > 1.0f) break(false)
 
     val qvec = tvec.crs(edge1)
     val v    = ray.direction.dot(qvec) * det
-    if (v < 0.0f || u + v > 1.0f) return false
+    if (v < 0.0f || u + v > 1.0f) break(false)
 
     val t = edge2.dot(qvec) * det
-    if (t < 0) return false
+    if (t < 0) break(false)
 
     intersection.foreach { isect =>
       if (t <= MathUtils.FLOAT_ROUNDING_ERROR) {
@@ -582,13 +584,13 @@ object Intersector {
     * @return
     *   Whether an intersection is present.
     */
-  def intersectRaySphere(ray: Ray, center: Vector3, radius: Float, intersection: Nullable[Vector3]): Boolean = {
+  def intersectRaySphere(ray: Ray, center: Vector3, radius: Float, intersection: Nullable[Vector3]): Boolean = boundary {
     val len = ray.direction.dot(center.x - ray.origin.x, center.y - ray.origin.y, center.z - ray.origin.z)
     if (len < 0f) // behind the ray
-      return false
+      break(false)
     val dst2 = center.distanceSq(ray.origin.x + ray.direction.x * len, ray.origin.y + ray.direction.y * len, ray.origin.z + ray.direction.z * len)
     val r2   = radius * radius
-    if (dst2 > r2) return false
+    if (dst2 > r2) break(false)
     intersection.foreach(_.set(ray.direction).scl(len - Math.sqrt(r2 - dst2).toFloat).add(ray.origin))
     true
   }
@@ -604,10 +606,10 @@ object Intersector {
     * @return
     *   Whether an intersection is present.
     */
-  def intersectRayBounds(ray: Ray, box: BoundingBox, intersection: Nullable[Vector3]): Boolean = {
+  def intersectRayBounds(ray: Ray, box: BoundingBox, intersection: Nullable[Vector3]): Boolean = boundary {
     if (box.contains(ray.origin)) {
       intersection.foreach(_.set(ray.origin))
-      return true
+      break(true)
     }
     var lowest = 0f
     var t      = 0f
@@ -770,7 +772,7 @@ object Intersector {
     * @return
     *   Whether an intersection is present.
     */
-  def intersectRayOrientedBounds(ray: Ray, bounds: BoundingBox, transform: Matrix4, intersection: Nullable[Vector3]): Boolean = {
+  def intersectRayOrientedBounds(ray: Ray, bounds: BoundingBox, transform: Matrix4, intersection: Nullable[Vector3]): Boolean = boundary {
     var tMin = 0.0f
     var tMax = Float.MaxValue
     var t1   = 0f
@@ -791,9 +793,9 @@ object Intersector {
       if (t1 > t2) { val w = t1; t1 = t2; t2 = w }
       if (t2 < tMax) tMax = t2
       if (t1 > tMin) tMin = t1
-      if (tMax < tMin) return false
+      if (tMax < tMin) break(false)
     } else if (-e + bounds.min.x > 0.0f || -e + bounds.max.x < 0.0f) {
-      return false
+      break(false)
     }
 
     // Test intersection with the 2 planes perpendicular to the OBB's Y axis
@@ -809,9 +811,9 @@ object Intersector {
       if (t1 > t2) { val w = t1; t1 = t2; t2 = w }
       if (t2 < tMax) tMax = t2
       if (t1 > tMin) tMin = t1
-      if (tMin > tMax) return false
+      if (tMin > tMax) break(false)
     } else if (-e + bounds.min.y > 0.0f || -e + bounds.max.y < 0.0f) {
-      return false
+      break(false)
     }
 
     // Test intersection with the 2 planes perpendicular to the OBB's Z axis
@@ -827,9 +829,9 @@ object Intersector {
       if (t1 > t2) { val w = t1; t1 = t2; t2 = w }
       if (t2 < tMax) tMax = t2
       if (t1 > tMin) tMin = t1
-      if (tMin > tMax) return false
+      if (tMin > tMax) break(false)
     } else if (-e + bounds.min.z > 0.0f || -e + bounds.max.z < 0.0f) {
-      return false
+      break(false)
     }
 
     intersection.foreach { isect =>
@@ -1019,9 +1021,9 @@ object Intersector {
     * @return
     *   Whether the two lines intersect
     */
-  def intersectLines(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, intersection: Nullable[Vector2]): Boolean = {
+  def intersectLines(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, intersection: Nullable[Vector2]): Boolean = boundary {
     val d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-    if (d == 0) return false
+    if (d == 0) break(false)
 
     intersection.foreach { isect =>
       val ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / d
@@ -1038,7 +1040,7 @@ object Intersector {
     * @return
     *   Whether polygon and line intersects
     */
-  def intersectLinePolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = {
+  def intersectLinePolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = boundary {
     val vertices = polygon.getTransformedVertices
     val x1       = p1.x; val y1            = p1.y; val x2 = p2.x; val y2 = p2.y
     val n        = vertices.length
@@ -1052,7 +1054,7 @@ object Intersector {
         val xd = x1 - x3
         val ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d
         if (ua >= 0 && ua <= 1) {
-          return true
+          break(true)
         }
       }
       x3 = x4
@@ -1066,13 +1068,13 @@ object Intersector {
     * @return
     *   Whether the rectangles intersect
     */
-  def intersectRectangles(rectangle1: Rectangle, rectangle2: Rectangle, intersection: Rectangle): Boolean = {
+  def intersectRectangles(rectangle1: Rectangle, rectangle2: Rectangle, intersection: Rectangle): Boolean = boundary {
     if (rectangle1.overlaps(rectangle2)) {
       intersection.x = Math.max(rectangle1.x, rectangle2.x)
       intersection.width = Math.min(rectangle1.x + rectangle1.width, rectangle2.x + rectangle2.width) - intersection.x
       intersection.y = Math.max(rectangle1.y, rectangle2.y)
       intersection.height = Math.min(rectangle1.y + rectangle1.height, rectangle2.y + rectangle2.height) - intersection.y
-      return true
+      break(true)
     }
     false
   }
@@ -1091,14 +1093,14 @@ object Intersector {
     * @return
     *   whether the rectangle intersects with the line segment
     */
-  def intersectSegmentRectangle(startX: Float, startY: Float, endX: Float, endY: Float, rectangle: Rectangle): Boolean = {
+  def intersectSegmentRectangle(startX: Float, startY: Float, endX: Float, endY: Float, rectangle: Rectangle): Boolean = boundary {
     val rectangleEndX = rectangle.x + rectangle.width
     val rectangleEndY = rectangle.y + rectangle.height
 
-    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangle.x, rectangleEndY, Nullable.empty[Vector2])) return true
-    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangleEndX, rectangle.y, Nullable.empty[Vector2])) return true
-    if (intersectSegments(startX, startY, endX, endY, rectangleEndX, rectangle.y, rectangleEndX, rectangleEndY, Nullable.empty[Vector2])) return true
-    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangleEndY, rectangleEndX, rectangleEndY, Nullable.empty[Vector2])) return true
+    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangle.x, rectangleEndY, Nullable.empty[Vector2])) break(true)
+    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangle.y, rectangleEndX, rectangle.y, Nullable.empty[Vector2])) break(true)
+    if (intersectSegments(startX, startY, endX, endY, rectangleEndX, rectangle.y, rectangleEndX, rectangleEndY, Nullable.empty[Vector2])) break(true)
+    if (intersectSegments(startX, startY, endX, endY, rectangle.x, rectangleEndY, rectangleEndX, rectangleEndY, Nullable.empty[Vector2])) break(true)
 
     rectangle.contains(startX, startY)
   }
@@ -1115,7 +1117,7 @@ object Intersector {
     * @return
     *   Whether polygon and segment intersect
     */
-  def intersectSegmentPolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = {
+  def intersectSegmentPolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = boundary {
     val vertices = polygon.getTransformedVertices
     val x1       = p1.x; val y1            = p1.y; val x2 = p2.x; val y2 = p2.y
     val n        = vertices.length
@@ -1131,7 +1133,7 @@ object Intersector {
         if (ua >= 0 && ua <= 1) {
           val ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d
           if (ub >= 0 && ub <= 1) {
-            return true
+            break(true)
           }
         }
       }
@@ -1162,17 +1164,17 @@ object Intersector {
   /** @param intersection
     *   May be Nullable.empty.
     */
-  def intersectSegments(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, intersection: Nullable[Vector2]): Boolean = {
+  def intersectSegments(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, x4: Float, y4: Float, intersection: Nullable[Vector2]): Boolean = boundary {
     val d = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1)
-    if (d == 0) return false
+    if (d == 0) break(false)
 
     val yd = y1 - y3
     val xd = x1 - x3
     val ua = ((x4 - x3) * yd - (y4 - y3) * xd) / d
-    if (ua < 0 || ua > 1) return false
+    if (ua < 0 || ua > 1) break(false)
 
     val ub = ((x2 - x1) * yd - (y2 - y1) * xd) / d
-    if (ub < 0 || ub > 1) return false
+    if (ub < 0 || ub > 1) break(false)
 
     intersection.foreach(_.set(x1 + (x2 - x1) * ua, y1 + (y2 - y1) * ua))
     true
@@ -1256,7 +1258,7 @@ object Intersector {
     * @return
     *   Whether polygons overlap.
     */
-  def overlapConvexPolygons(verts1: Array[Float], offset1: Int, count1: Int, verts2: Array[Float], offset2: Int, count2: Int, mtv: Nullable[MinimumTranslationVector]): Boolean = {
+  def overlapConvexPolygons(verts1: Array[Float], offset1: Int, count1: Int, verts2: Array[Float], offset2: Int, count2: Int, mtv: Nullable[MinimumTranslationVector]): Boolean = boundary {
     var overlaps = false
     mtv.foreach { m =>
       m.depth = Float.MaxValue
@@ -1272,7 +1274,7 @@ object Intersector {
         m.depth = 0
         m.normal.setZero()
       }
-      return false
+      break(false)
     }
     true
   }
@@ -1300,7 +1302,7 @@ object Intersector {
     count2:        Int,
     mtv:           Nullable[MinimumTranslationVector],
     shapesShifted: Boolean
-  ): Boolean = {
+  ): Boolean = boundary {
     val endA = offset1 + count1
     val endB = offset2 + count2
     // get axis of polygon A
@@ -1343,7 +1345,7 @@ object Intersector {
       }
       // There is a gap
       if (maxA < minB || maxB < minA) {
-        return false
+        break(false)
       } else {
         mtv.foreach { m =>
           val o          = Math.min(maxA, maxB) - Math.max(minA, minB)
@@ -1399,7 +1401,7 @@ object Intersector {
     * @param split
     *   output SplitTriangle
     */
-  def splitTriangle(triangle: Array[Float], plane: Plane, split: SplitTriangle): Unit = {
+  def splitTriangle(triangle: Array[Float], plane: Plane, split: SplitTriangle): Unit = boundary {
     val stride = triangle.length / 3
     val r1     = plane.testPoint(triangle(0), triangle(1), triangle(2)) == PlaneSide.Back
     val r2     = plane.testPoint(triangle(0 + stride), triangle(1 + stride), triangle(2 + stride)) == PlaneSide.Back
@@ -1417,7 +1419,7 @@ object Intersector {
         split.numFront = 1
         System.arraycopy(triangle, 0, split.front, 0, triangle.length)
       }
-      return
+      break()
     }
 
     // set number of triangles

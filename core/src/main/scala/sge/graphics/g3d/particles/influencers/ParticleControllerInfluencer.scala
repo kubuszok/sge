@@ -19,6 +19,8 @@ import sge.graphics.g3d.particles.ParticleController
 import sge.graphics.g3d.particles.ResourceData
 import sge.utils.{ DynamicArray, Nullable, Pool }
 
+import scala.language.implicitConversions
+
 /** It's an {@link Influencer} which controls which {@link ParticleController} will be assigned to a particle.
   * @author
   *   Inferno
@@ -56,13 +58,13 @@ abstract class ParticleControllerInfluencer extends Influencer {
   }
 
   override def close(): Unit =
-    if (controller != null) {
+    if (Nullable(controller).isDefined) {
       var i = 0
       while (i < controller.particles.size) {
         val ctrl = particleControllerChannel.objectData(i)
-        if (ctrl != null) {
+        if (Nullable(ctrl).isDefined) {
           ctrl.dispose()
-          particleControllerChannel.objectData(i) = null.asInstanceOf[ParticleController]
+          particleControllerChannel.clearSlot(i)
         }
         i += 1
       }
@@ -117,7 +119,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
           keepLoading = false
         } { desc =>
           val effect = manager.get(desc.fileName, classOf[ParticleEffect])
-          if (effect == null) throw new RuntimeException("Template is null")
+          if (Nullable(effect).isEmpty) throw new RuntimeException("Template is null")
           val effectControllers = effect.getControllers()
           var j                 = 0
           while (j < effectIndices.size) {
@@ -257,7 +259,7 @@ object ParticleControllerInfluencer {
         val ctrl = particleControllerChannel.objectData(i)
         ctrl.end()
         pool.free(ctrl)
-        particleControllerChannel.objectData(i) = null.asInstanceOf[ParticleController]
+        particleControllerChannel.clearSlot(i)
         i += 1
       }
     }

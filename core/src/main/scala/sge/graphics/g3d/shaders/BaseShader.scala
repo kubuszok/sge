@@ -11,6 +11,7 @@ package graphics
 package g3d
 package shaders
 
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.g3d.utils.{ RenderContext, TextureDescriptor }
@@ -121,8 +122,8 @@ abstract class BaseShader extends Shader {
       i += 1
     }
     locations = Nullable(locs)
-    if (renderable != null) {
-      val attrs = renderable.meshPart.mesh.getVertexAttributes()
+    Nullable(renderable).foreach { r =>
+      val attrs = r.meshPart.mesh.getVertexAttributes()
       val c     = attrs.size
       var j     = 0
       while (j < c) {
@@ -131,7 +132,7 @@ abstract class BaseShader extends Shader {
         if (location >= 0) _attributes.put(attr.getKey(), location)
         j += 1
       }
-      val iattrs = renderable.meshPart.mesh.getInstancedAttributes()
+      val iattrs = r.meshPart.mesh.getInstancedAttributes()
       iattrs.foreach { ia =>
         val ic = ia.size
         var k  = 0
@@ -173,9 +174,9 @@ abstract class BaseShader extends Shader {
     tempArray.items
   }
 
-  private def getInstancedAttributeLocations(attrs: Nullable[VertexAttributes]): Array[Int] =
+  private def getInstancedAttributeLocations(attrs: Nullable[VertexAttributes]): Nullable[Array[Int]] =
     // Instanced attributes may be null
-    attrs.fold(null.asInstanceOf[Array[Int]]) { a =>
+    attrs.fold(Nullable.empty[Array[Int]]) { a =>
       tempArray2.clear()
       val n = a.size
       var i = 0
@@ -184,7 +185,7 @@ abstract class BaseShader extends Shader {
         i += 1
       }
       tempArray2.shrink()
-      tempArray2.items
+      Nullable(tempArray2.items)
     }
 
   private var combinedAttributes: Attributes = new Attributes()
@@ -206,23 +207,22 @@ abstract class BaseShader extends Shader {
     }
     val meshChanged = currentMesh.fold(true)(m => !(m eq renderable.meshPart.mesh))
     if (meshChanged) {
-      currentMesh.foreach { m =>
-        m.unbind(program.fold(null.asInstanceOf[ShaderProgram])(identity), tempArray.items, tempArray2.items)
+      program.foreach { prog =>
+        currentMesh.foreach(_.unbind(prog, tempArray.items, tempArray2.items))
+        currentMesh = Nullable(renderable.meshPart.mesh)
+        renderable.meshPart.mesh.bind(
+          prog,
+          getAttributeLocations(renderable.meshPart.mesh.getVertexAttributes()),
+          getInstancedAttributeLocations(renderable.meshPart.mesh.getInstancedAttributes())
+        )
       }
-      currentMesh = Nullable(renderable.meshPart.mesh)
-      val prog = program.fold(null.asInstanceOf[ShaderProgram])(identity)
-      renderable.meshPart.mesh.bind(
-        prog,
-        getAttributeLocations(renderable.meshPart.mesh.getVertexAttributes()),
-        getInstancedAttributeLocations(renderable.meshPart.mesh.getInstancedAttributes())
-      )
     }
-    renderable.meshPart.render(program.fold(null.asInstanceOf[ShaderProgram])(identity), false)
+    program.foreach(prog => renderable.meshPart.render(prog, false))
   }
 
   override def end(): Unit = {
-    currentMesh.foreach { m =>
-      m.unbind(program.fold(null.asInstanceOf[ShaderProgram])(identity), tempArray.items, tempArray2.items)
+    program.foreach { prog =>
+      currentMesh.foreach(_.unbind(prog, tempArray.items, tempArray2.items))
     }
     currentMesh = Nullable.empty
   }
@@ -248,105 +248,105 @@ abstract class BaseShader extends Shader {
       if (inputID >= 0 && inputID < locs.length) locs(inputID) else -1
     }
 
-  final def set(uniform: Int, value: Matrix4): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
-  }
-
-  final def set(uniform: Int, value: Matrix3): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
-  }
-
-  final def set(uniform: Int, value: Vector3): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), value)); true }
-  }
-
-  final def set(uniform: Int, value: Vector2): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), value)); true }
-  }
-
-  final def set(uniform: Int, value: Color): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), value)); true }
-  }
-
-  final def setFloat(uniform: Int, value: Float): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), value)); true }
-  }
-
-  final def setFloat(uniform: Int, v1: Float, v2: Float): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), v1, v2)); true }
-  }
-
-  final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3)); true }
-  }
-
-  final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float, v4: Float): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3, v4)); true }
-  }
-
-  final def setInt(uniform: Int, value: Int): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformi(locs(uniform), value)); true }
-  }
-
-  final def setInt(uniform: Int, v1: Int, v2: Int): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformi(locs(uniform), v1, v2)); true }
-  }
-
-  final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3)); true }
-  }
-
-  final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int, v4: Int): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3, v4)); true }
-  }
-
-  final def set(uniform: Int, textureDesc: TextureDescriptor[?]): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else {
-      context.foreach { ctx =>
-        program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(textureDesc)))
-      }
-      true
+  final def set(uniform: Int, value: Matrix4): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
     }
-  }
 
-  final def set(uniform: Int, texture: GLTexture): Boolean = {
-    val locs = locations.fold(null.asInstanceOf[Array[Int]])(identity)
-    if (locs(uniform) < 0) false
-    else {
-      context.foreach { ctx =>
-        program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(texture)))
-      }
-      true
+  final def set(uniform: Int, value: Matrix3): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
     }
-  }
+
+  final def set(uniform: Int, value: Vector3): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), value)); true }
+    }
+
+  final def set(uniform: Int, value: Vector2): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), value)); true }
+    }
+
+  final def set(uniform: Int, value: Color): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), value)); true }
+    }
+
+  final def setFloat(uniform: Int, value: Float): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), value)); true }
+    }
+
+  final def setFloat(uniform: Int, v1: Float, v2: Float): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), v1, v2)); true }
+    }
+
+  final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3)); true }
+    }
+
+  final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float, v4: Float): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3, v4)); true }
+    }
+
+  final def setInt(uniform: Int, value: Int): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformi(locs(uniform), value)); true }
+    }
+
+  final def setInt(uniform: Int, v1: Int, v2: Int): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformi(locs(uniform), v1, v2)); true }
+    }
+
+  final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3)); true }
+    }
+
+  final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int, v4: Int): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3, v4)); true }
+    }
+
+  final def set(uniform: Int, textureDesc: TextureDescriptor[?]): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else {
+        context.foreach { ctx =>
+          program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(textureDesc)))
+        }
+        true
+      }
+    }
+
+  final def set(uniform: Int, texture: GLTexture): Boolean =
+    locations.fold(false) { locs =>
+      if (locs(uniform) < 0) false
+      else {
+        context.foreach { ctx =>
+          program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(texture)))
+        }
+        true
+      }
+    }
 }
 
 object BaseShader {
@@ -392,10 +392,11 @@ object BaseShader {
       this(alias, 0L, 0L, 0L)
 
     override def validate(shader: BaseShader, inputID: Int, renderable: Renderable): Boolean = {
+      val r        = Nullable(renderable)
       val matFlags =
-        if (renderable != null && renderable.material.isDefined) renderable.material.fold(0L)(_.getMask) else 0L
+        r.fold(0L)(_.material.fold(0L)(_.getMask))
       val envFlags =
-        if (renderable != null && renderable.environment.isDefined) renderable.environment.fold(0L)(_.getMask) else 0L
+        r.fold(0L)(_.environment.fold(0L)(_.getMask))
       ((matFlags & materialMask) == materialMask) && ((envFlags & environmentMask) == environmentMask) &&
       (((matFlags | envFlags) & overallMask) == overallMask)
     }

@@ -48,8 +48,8 @@ final class DynamicArray[A] private (
   // capture calculus in the future (Scala capture checking / CC). Worth revisiting
   // when CC matures — it would allow the compiler to statically ensure that the
   // snapshot scope is properly closed.
-  private var snapshot:  Array[A] = null.asInstanceOf[Array[A]]
-  private var recycled:  Array[A] = null.asInstanceOf[Array[A]]
+  private var snapshot:  Array[A] = null
+  private var recycled:  Array[A] = null
   private var snapshots: Int      = 0
 
   // --- Fields (direct access for zero-boxing hot paths) ---
@@ -496,16 +496,16 @@ final class DynamicArray[A] private (
   /** Ends a snapshot. If items were copied during the snapshot, the old array is recycled. */
   def end(): Unit = {
     snapshots -= 1
-    if (snapshot == null) {
+    if (Nullable(snapshot).isEmpty) {
       // No snapshot was active — nothing to do
     } else if (snapshot ne _items) {
       // Items were copied — recycle the old snapshot array
-      if (recycled == null || recycled.length < snapshot.length) {
+      if (Nullable(recycled).isEmpty || recycled.length < snapshot.length) {
         recycled = snapshot
       }
-      snapshot = null.asInstanceOf[Array[A]]
+      snapshot = null
     } else if (snapshots == 0) {
-      snapshot = null.asInstanceOf[Array[A]]
+      snapshot = null
     }
   }
 
@@ -637,7 +637,7 @@ final class DynamicArray[A] private (
       var i = 0
       while (i < _size) {
         val elem = _items(i)
-        h = 31 * h + (if (elem.asInstanceOf[AnyRef] == null) 0 else elem.hashCode())
+        h = 31 * h + (if (Nullable(elem.asInstanceOf[AnyRef]).isEmpty) 0 else elem.hashCode())
         i += 1
       }
       h
@@ -682,14 +682,14 @@ final class DynamicArray[A] private (
   /** Called before any mutation. If a snapshot is active and the items array is the snapshot, copies the items array so the snapshot remains untouched.
     */
   private def modified(): Unit =
-    if (snapshot == null || (snapshot ne _items)) {
+    if (Nullable(snapshot).isEmpty || (snapshot ne _items)) {
       // No snapshot active, or items were already copied — nothing to do
     } else {
       // Items array is the snapshot — must copy before mutating
-      if (recycled != null && recycled.length >= _size) {
+      if (Nullable(recycled).isDefined && recycled.length >= _size) {
         System.arraycopy(_items, 0, recycled, 0, _size)
         _items = recycled
-        recycled = null.asInstanceOf[Array[A]]
+        recycled = null
       } else {
         _items = mk.copyOf(_items, _items.length)
       }

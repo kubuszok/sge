@@ -24,6 +24,9 @@ import sge.utils.{ DynamicArray, JsonValue, Nullable, ObjectMap, ObjectSet, Stre
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream, IOException, InputStream }
 import java.util.zip.{ GZIPInputStream, InflaterInputStream }
+import scala.language.implicitConversions
+import scala.util.boundary
+import scala.util.boundary.break
 
 abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: FileHandleResolver) extends BaseTiledMapLoader[P](resolver) {
 
@@ -543,9 +546,9 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   protected def mergeProperties(
     parentProps:   XmlReader.Element,
     templateProps: XmlReader.Element
-  ): XmlReader.Element = {
-    if (templateProps == null) return parentProps // scalastyle:ignore
-    if (parentProps == null) return templateProps // scalastyle:ignore
+  ): XmlReader.Element = boundary {
+    if (Nullable(templateProps).isEmpty) break(parentProps)
+    if (Nullable(parentProps).isEmpty) break(templateProps)
     // Create a new merged properties element which will contain a combination of parent and template properties.
     val merged = new XmlReader.Element("properties", Nullable.empty)
     // Set properties from template
@@ -562,16 +565,16 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val property = parentProperties(pi)
       val name     = property.getAttribute("name", Nullable.empty)
       // Find & remove a duplicate by name, if any
-      var existing: XmlReader.Element = null // scalastyle:ignore
+      var existing: Nullable[XmlReader.Element] = Nullable.empty
       var i = 0
       while (i < merged.getChildCount) {
         val child = merged.getChild(i)
         if ("property" == child.name && name.isDefined && name.orNull == child.getAttribute("name", Nullable.empty).orNull) {
-          existing = child
+          existing = Nullable(child)
         }
         i += 1
       }
-      if (existing != null) merged.removeChild(existing)
+      existing.foreach(merged.removeChild)
       merged.addChild(cloneElementShallow(property))
       pi += 1
     }
@@ -584,9 +587,9 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   protected def mergeParentElementWithTemplate(
     parent:   XmlReader.Element,
     template: XmlReader.Element
-  ): XmlReader.Element = {
-    if (template == null) return parent // scalastyle:ignore
-    if (parent == null) return template // scalastyle:ignore
+  ): XmlReader.Element = boundary {
+    if (Nullable(template).isEmpty) break(parent)
+    if (Nullable(parent).isEmpty) break(template)
     // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
     val merged = new XmlReader.Element(template.name, Nullable.empty)
     // Set attributes from template
@@ -637,8 +640,8 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   }
   /* * End of Tiled Template Loading Section * */
 
-  protected def loadProperties(properties: MapProperties, element: XmlReader.Element): Unit = {
-    if (element == null) return // scalastyle:ignore
+  protected def loadProperties(properties: MapProperties, element: XmlReader.Element): Unit = boundary {
+    if (Nullable(element).isEmpty) break()
     if (element.name == "properties") {
       val propertyElements = element.getChildrenByName("property")
       var pi               = 0
@@ -689,15 +692,15 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
     for (projectClassMember <- projectClassMembers.orNull) {
-      val propName  = projectClassMember.name
-      val classProp =
-        if (classElement == null) null
-        else getPropertyByName(classElement, propName)
+      val propName = projectClassMember.name
+      val classProp: Nullable[XmlReader.Element] =
+        if (Nullable(classElement).isEmpty) Nullable.empty
+        else Nullable(getPropertyByName(classElement, propName))
       projectClassMember.`type` match {
         case "object" =>
           val value =
-            if (classProp == null) projectClassMember.defaultValue.flatMap(_.asString()).orNull
-            else getPropertyValue(classProp)
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).orNull
+            else getPropertyValue(classProp.orNull)
           loadObjectProperty(classProperties, propName, value)
         case "class" =>
           // A 'class' property is a property which is itself a set of properties
@@ -706,16 +709,16 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           nestedClassProperties.put("type", nestedClassName)
           // the actual properties of a 'class' property are stored as a new properties tag
           classProperties.put(propName, nestedClassProperties)
-          if (classProp == null) {
+          if (classProp.isEmpty) {
             // no class values overridden -> use default class values
             loadJsonClassProperties(nestedClassName, nestedClassProperties, projectClassMember.defaultValue)
           } else {
-            loadClassProperties(nestedClassName, nestedClassProperties, classProp)
+            loadClassProperties(nestedClassName, nestedClassProperties, classProp.orNull)
           }
         case _ =>
           val value =
-            if (classProp == null) projectClassMember.defaultValue.flatMap(_.asString()).orNull
-            else getPropertyValue(classProp)
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).orNull
+            else getPropertyValue(classProp.orNull)
           loadBasicProperty(classProperties, propName, value, Nullable(projectClassMember.`type`))
       }
     }
@@ -726,7 +729,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     if (attrValue.isDefined) attrValue.orNull else classProp.getText.orNull
   }
 
-  protected def getPropertyByName(classElement: XmlReader.Element, propName: String): XmlReader.Element = {
+  protected def getPropertyByName(classElement: XmlReader.Element, propName: String): XmlReader.Element = boundary {
     // we use getChildrenByNameRecursively here because in case of nested classes,
     // we get an element with a root property (=class) and inside additional property tags for the real
     // class properties. If we just use getChildrenByName we don't get any children for a nested class.
@@ -735,7 +738,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     while (i < properties.size) {
       val property = properties(i)
       if (propName == property.getAttribute("name")) {
-        return property // scalastyle:ignore
+        break(property)
       }
       i += 1
     }

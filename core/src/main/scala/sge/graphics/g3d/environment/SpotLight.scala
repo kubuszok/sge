@@ -11,8 +11,12 @@ package graphics
 package g3d
 package environment
 
+import scala.annotation.targetName
+import scala.language.implicitConversions
+
 import sge.math.MathUtils
 import sge.math.Vector3
+import sge.utils.Nullable
 
 /** Note that the default shader doesn't support spot lights, you'll have to supply your own shader to use this class.
   * @author
@@ -63,28 +67,28 @@ class SpotLight extends BaseLight[SpotLight] {
   def set(copyFrom: SpotLight): SpotLight =
     set(copyFrom.color, copyFrom.position, copyFrom.direction, copyFrom.intensity, copyFrom.cutoffAngle, copyFrom.exponent)
 
-  def set(color: Color, position: Vector3, direction: Vector3, intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
-    if (color != null) this.color.set(color)
-    if (position != null) this.position.set(position)
-    if (direction != null) this.direction.set(direction).nor()
+  def set(color: Nullable[Color], position: Nullable[Vector3], direction: Nullable[Vector3], intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
+    color.foreach(this.color.set(_))
+    position.foreach(this.position.set(_))
+    direction.foreach(d => this.direction.set(d).nor())
     this.intensity = intensity
     this.cutoffAngle = cutoffAngle
     this.exponent = exponent
     this
   }
 
-  def set(r: Float, g: Float, b: Float, position: Vector3, direction: Vector3, intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
+  def set(r: Float, g: Float, b: Float, position: Nullable[Vector3], direction: Nullable[Vector3], intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
     this.color.set(r, g, b, 1f)
-    if (position != null) this.position.set(position)
-    if (direction != null) this.direction.set(direction).nor()
+    position.foreach(this.position.set(_))
+    direction.foreach(d => this.direction.set(d).nor())
     this.intensity = intensity
     this.cutoffAngle = cutoffAngle
     this.exponent = exponent
     this
   }
 
-  def set(color: Color, posX: Float, posY: Float, posZ: Float, dirX: Float, dirY: Float, dirZ: Float, intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
-    if (color != null) this.color.set(color)
+  def set(color: Nullable[Color], posX: Float, posY: Float, posZ: Float, dirX: Float, dirY: Float, dirZ: Float, intensity: Float, cutoffAngle: Float, exponent: Float): SpotLight = {
+    color.foreach(this.color.set(_))
     this.position.set(posX, posY, posZ)
     this.direction.set(dirX, dirY, dirZ).nor()
     this.intensity = intensity
@@ -113,8 +117,11 @@ class SpotLight extends BaseLight[SpotLight] {
     case _ => false
   }
 
-  def equals(other: SpotLight): Boolean =
-    (other != null) && ((other eq this) || (color.equals(other.color) && position.equals(other.position)
-      && direction.equals(other.direction) && MathUtils.isEqual(intensity, other.intensity)
-      && MathUtils.isEqual(cutoffAngle, other.cutoffAngle) && MathUtils.isEqual(exponent, other.exponent)))
+  @targetName("equalsSpotLight")
+  def equals(other: Nullable[SpotLight]): Boolean =
+    other.fold(false)(o =>
+      (o eq this) || (color.equals(o.color) && position.equals(o.position)
+        && direction.equals(o.direction) && MathUtils.isEqual(intensity, o.intensity)
+        && MathUtils.isEqual(cutoffAngle, o.cutoffAngle) && MathUtils.isEqual(exponent, o.exponent))
+    )
 }

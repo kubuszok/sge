@@ -19,6 +19,7 @@ import sge.graphics.g2d.TextureRegion
 import sge.utils.{ DynamicArray, JsonValue, Nullable }
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 
 /** @brief
   *   synchronous loader for TMJ maps created with the Tiled tool
@@ -118,23 +119,22 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
     layers:      JsonValue,
     tmjFile:     FileHandle,
     fileHandles: DynamicArray[FileHandle]
-  ): Unit = {
-    if (layers == null) return // scalastyle:ignore
-
-    for (layer <- layers) {
-      val layerType = layer.getString("type", Nullable("")).orNull
-      if (layerType == "imagelayer") {
-        val source = layer.getString("image", Nullable.empty)
-        source.foreach { s =>
-          val handle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
-          fileHandles.add(handle)
+  ): Unit =
+    if (Nullable(layers).isDefined) { // scalastyle:ignore
+      for (layer <- layers) {
+        val layerType = layer.getString("type", Nullable("")).orNull
+        if (layerType == "imagelayer") {
+          val source = layer.getString("image", Nullable.empty)
+          source.foreach { s =>
+            val handle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
+            fileHandles.add(handle)
+          }
+        } else if (layerType == "group") {
+          // Recursively process group layers
+          layer.get("layers").foreach(ls => collectImageLayerFileHandles(ls, tmjFile, fileHandles))
         }
-      } else if (layerType == "group") {
-        // Recursively process group layers
-        layer.get("layers").foreach(ls => collectImageLayerFileHandles(ls, tmjFile, fileHandles))
       }
     }
-  }
 
   protected def getTileSetDependencyFileHandle(
     tmjFile: FileHandle,
@@ -195,7 +195,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
   ): Unit = {
 
     val props = tileSet.getProperties
-    if (image != null) {
+    if (Nullable(image).isDefined) {
       // One image for the whole tileSet
       val texture = imageResolver.getImage(image.path())
 
@@ -233,7 +233,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
         if (tile.has("image")) {
           val imgSource = tile.getString("image", Nullable.empty).orNull
 
-          if (source != null) {
+          if (Nullable(source).isDefined) {
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(
               BaseTiledMapLoader.getRelativeFileHandle(tmjFile, source),
               imgSource

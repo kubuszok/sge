@@ -71,12 +71,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} . Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) =
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) = {
     this(
       vertices = Mesh.makeVertexBuffer(isStatic, maxVertices, attributes),
       indices = new IndexBufferObject(isStatic, maxIndices),
       isVertexArray = false
     )
+  }
 
   /** Creates a new Mesh with the given attributes.
     *
@@ -89,8 +90,9 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using sge: Sge) =
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using sge: Sge) = {
     this(isStatic = isStatic, maxVertices = maxVertices, maxIndices = maxIndices, attributes = new VertexAttributes(attributes*))
+  }
 
   /** Creates a new Mesh with the given attributes. Adds extra optimizations for dynamic (frequently modified) meshes.
     *
@@ -108,12 +110,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @author
     *   Jaroslaw Wisniewski <j.wisniewski@appsisle.com> *
     */
-  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) =
+  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) = {
     this(
       vertices = Mesh.makeVertexBuffer(staticVertices, maxVertices, attributes),
       indices = new IndexBufferObject(staticIndices, maxIndices),
       isVertexArray = false
     )
+  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -128,12 +131,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) =
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using sge: Sge) = {
     this(
       Mesh.createVertexData(meshType, isStatic, maxVertices, attributes),
       Mesh.createIndexData(meshType, isStatic, maxIndices),
       meshType == Mesh.VertexDataType.VertexArray
     )
+  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -148,7 +152,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using sge: Sge) =
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using sge: Sge) = {
     this(
       meshType = meshType,
       isStatic = isStatic,
@@ -156,6 +160,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
       maxIndices = maxIndices,
       attributes = new VertexAttributes(attributes*)
     )
+  }
 
   def enableInstancedRendering(isStatic: Boolean, maxInstances: Int, attributes: VertexAttribute*): Mesh = {
     if (!isInstancedFlag) {
@@ -524,7 +529,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     *   the shader (does not bind the shader)
     */
   def bind(shader: ShaderProgram): Unit =
-    bind(shader, null, null)
+    bind(shader, Nullable.empty, Nullable.empty)
 
   /** Binds the underlying {@link VertexBufferObject} and {@link IndexBufferObject} if indices where given. Use this with OpenGL ES 2.0 and when auto-bind is disabled.
     *
@@ -535,7 +540,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param instanceLocations
     *   array containing the instance attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Array[Int], instanceLocations: Array[Int]): Unit = {
+  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]], instanceLocations: Nullable[Array[Int]]): Unit = {
     vertices.bind(shader, locations)
     instances.foreach { inst =>
       if (inst.getNumInstances() > 0) inst.bind(shader, instanceLocations)
@@ -549,7 +554,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     *   the shader (does not unbind the shader)
     */
   def unbind(shader: ShaderProgram): Unit =
-    unbind(shader, null, null)
+    unbind(shader, Nullable.empty, Nullable.empty)
 
   /** Unbinds the underlying {@link VertexBufferObject} and {@link IndexBufferObject} is indices were given. Use this with OpenGL ES 1.x and when auto-bind is disabled.
     *
@@ -560,7 +565,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param instanceLocations
     *   array containing the instance attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Array[Int], instanceLocations: Array[Int]): Unit = {
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]], instanceLocations: Nullable[Array[Int]]): Unit = {
     vertices.unbind(shader, locations)
     instances.foreach { inst =>
       if (inst.getNumInstances() > 0) inst.unbind(shader, instanceLocations)
@@ -627,49 +632,48 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param autoBind
     *   overrides the autoBind member of this Mesh
     */
-  def render(shader: ShaderProgram, primitiveType: Int, offset: Int, count: Int, autoBind: Boolean): Unit = {
-    if (count == 0) return
+  def render(shader: ShaderProgram, primitiveType: Int, offset: Int, count: Int, autoBind: Boolean): Unit =
+    if (count != 0) {
+      if (autoBind) bind(shader)
 
-    if (autoBind) bind(shader)
-
-    if (isVertexArray) {
-      if (indices.getNumIndices() > 0) {
-        val buffer      = indices.getBuffer(false)
-        val oldPosition = buffer.position()
-        buffer.asInstanceOf[Buffer].position(offset)
-        summon[Sge].graphics.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, buffer)
-        buffer.asInstanceOf[Buffer].position(oldPosition)
-      } else {
-        summon[Sge].graphics.gl20.glDrawArrays(primitiveType, offset, count)
-      }
-    } else {
-      val numInstances = if (isInstancedFlag) instances.fold(0)(_.getNumInstances()) else 0
-
-      if (indices.getNumIndices() > 0) {
-        if (count + offset > indices.getNumMaxIndices()) {
-          throw new SgeError.GraphicsError(
-            "Mesh attempting to access memory outside of the index buffer (count: " + count +
-              ", offset: " + offset + ", max: " + indices.getNumMaxIndices() + ")",
-            None
-          )
-        }
-
-        if (isInstancedFlag && numInstances > 0) {
-          summon[Sge].graphics.gl30.foreach(_.glDrawElementsInstanced(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2, numInstances))
-        } else {
-          summon[Sge].graphics.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2)
-        }
-      } else {
-        if (isInstancedFlag && numInstances > 0) {
-          summon[Sge].graphics.gl30.foreach(_.glDrawArraysInstanced(primitiveType, offset, count, numInstances))
+      if (isVertexArray) {
+        if (indices.getNumIndices() > 0) {
+          val buffer      = indices.getBuffer(false)
+          val oldPosition = buffer.position()
+          buffer.asInstanceOf[Buffer].position(offset)
+          summon[Sge].graphics.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, buffer)
+          buffer.asInstanceOf[Buffer].position(oldPosition)
         } else {
           summon[Sge].graphics.gl20.glDrawArrays(primitiveType, offset, count)
         }
-      }
-    }
+      } else {
+        val numInstances = if (isInstancedFlag) instances.fold(0)(_.getNumInstances()) else 0
 
-    if (autoBind) unbind(shader)
-  }
+        if (indices.getNumIndices() > 0) {
+          if (count + offset > indices.getNumMaxIndices()) {
+            throw new SgeError.GraphicsError(
+              "Mesh attempting to access memory outside of the index buffer (count: " + count +
+                ", offset: " + offset + ", max: " + indices.getNumMaxIndices() + ")",
+              None
+            )
+          }
+
+          if (isInstancedFlag && numInstances > 0) {
+            summon[Sge].graphics.gl30.foreach(_.glDrawElementsInstanced(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2, numInstances))
+          } else {
+            summon[Sge].graphics.gl20.glDrawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2)
+          }
+        } else {
+          if (isInstancedFlag && numInstances > 0) {
+            summon[Sge].graphics.gl30.foreach(_.glDrawArraysInstanced(primitiveType, offset, count, numInstances))
+          } else {
+            summon[Sge].graphics.gl20.glDrawArrays(primitiveType, offset, count)
+          }
+        }
+      }
+
+      if (autoBind) unbind(shader)
+    }
 
   /** Frees all resources associated with this Mesh */
   override def close(): Unit = {

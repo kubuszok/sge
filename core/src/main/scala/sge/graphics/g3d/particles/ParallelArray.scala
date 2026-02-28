@@ -245,6 +245,10 @@ object ParallelArray {
 
     var objectData: Array[T] = data.asInstanceOf[Array[T]]
 
+    /** Clears the object reference at the given index. Used for pool recycling. */
+    def clearSlot(index: Int): Unit =
+      objectData.asInstanceOf[Array[AnyRef]](index) = null
+
     override def add(index: Int, objects: Any*): Unit = {
       var i = strideSize * owner.size
       val c = i + strideSize

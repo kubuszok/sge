@@ -9,6 +9,9 @@
 package sge
 package utils
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 /** Executes tasks in the future on the main loop thread.
   * @author
   *   Nathan Sweet (original implementation)
@@ -68,13 +71,14 @@ class Timer(implicit sde: sge.Sge) {
     threadLock.synchronized {
       val currentThread = thread()
       val instances     = currentThread.instances
-      if (instances.contains(this)) return
-      instances.add(this)
-      if (stopTimeMillis > 0) {
-        delay(System.nanoTime() / 1000000 - stopTimeMillis)
-        stopTimeMillis = 0
+      if (!instances.contains(this)) {
+        instances.add(this)
+        if (stopTimeMillis > 0) {
+          delay(System.nanoTime() / 1000000 - stopTimeMillis)
+          stopTimeMillis = 0
+        }
+        threadLock.notifyAll()
       }
-      threadLock.notifyAll()
     }
 
   /** Cancels all tasks. */
@@ -255,33 +259,35 @@ object Timer {
     thread.start()
 
     def run(): Unit = {
-      while (true)
-        threadLock.synchronized {
-          if (currentThread.exists(_ != this) || files != sde.files) return
+      boundary {
+        while (true)
+          threadLock.synchronized {
+            if (currentThread.exists(_ != this) || files != sde.files) break(())
 
-          var waitMillis = 5000L
-          if (pauseTimeMillis == 0) {
-            val timeMillis = System.nanoTime() / 1000000
-            var i          = 0
-            while (i < instances.size) {
-              try
-                waitMillis = instances(i).update(this, timeMillis, waitMillis)
-              catch {
-                case ex: Throwable =>
-                  throw SgeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
+            var waitMillis = 5000L
+            if (pauseTimeMillis == 0) {
+              val timeMillis = System.nanoTime() / 1000000
+              var i          = 0
+              while (i < instances.size) {
+                try
+                  waitMillis = instances(i).update(this, timeMillis, waitMillis)
+                catch {
+                  case ex: Throwable =>
+                    throw SgeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
+                }
+                i += 1
               }
-              i += 1
+            }
+
+            if (currentThread.exists(_ != this) || files != sde.files) break(())
+
+            try
+              if (waitMillis > 0) threadLock.wait(waitMillis)
+            catch {
+              case _: InterruptedException => // ignored
             }
           }
-
-          if (currentThread.exists(_ != this) || files != sde.files) return
-
-          try
-            if (waitMillis > 0) threadLock.wait(waitMillis)
-          catch {
-            case _: InterruptedException => // ignored
-          }
-        }
+      }
       dispose()
     }
 

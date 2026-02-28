@@ -127,7 +127,7 @@ object ModelInfluencer {
       val c = startIndex + count
       while (i < c) {
         pool.free(modelChannel.objectData(i))
-        modelChannel.objectData(i) = null.asInstanceOf[ModelInstance]
+        modelChannel.clearSlot(i)
         i += 1
       }
     }

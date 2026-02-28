@@ -14,6 +14,9 @@ import java.util.Arrays
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphics.{ Color, Pixmap }
 import sge.graphics.Pixmap.{ Blending, Format }
 import sge.graphics.Texture
@@ -160,140 +163,142 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     var workingName  = name
     var workingImage = image
 
-    if (disposed) return null
-    if (workingName != null && getRect(workingName) != null)
-      throw SgeError.InvalidInput("Pixmap has already been packed with name: " + workingName)
+    if (disposed) null // scalastyle:ignore
+    else {
+      if (Nullable(workingName).isDefined && Nullable(getRect(workingName)).isDefined)
+        throw SgeError.InvalidInput("Pixmap has already been packed with name: " + workingName)
 
-    var rect:            PixmapPacker.PixmapPackerRectangle = null;
-    var pixmapToDispose: Pixmap                             = null;
-    if (workingName != null && workingName.endsWith(".9")) {
-      rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth() - 2, workingImage.getHeight() - 2);
-      pixmapToDispose = new Pixmap(workingImage.getWidth() - 2, workingImage.getHeight() - 2, workingImage.getFormat());
-      pixmapToDispose.setBlending(Blending.None);
-      rect.splits = getSplits(workingImage);
-      rect.pads = getPads(workingImage, rect.splits);
-      pixmapToDispose.drawPixmap(workingImage, 0, 0, 1, 1, workingImage.getWidth() - 1, workingImage.getHeight() - 1);
-      workingImage = pixmapToDispose;
-      workingName = workingName.split("\\.").head;
-    } else {
-      if (stripWhitespaceX || stripWhitespaceY) {
-        val originalWidth:  Int = workingImage.getWidth()
-        val originalHeight: Int = workingImage.getHeight()
-        // Strip whitespace, manipulate the pixmap and return corrected Rect
-        var top:    Int = 0
-        var bottom: Int = workingImage.getHeight()
-        if (stripWhitespaceY) {
-          var outerBreak = false
-          var y          = 0
-          while (y < workingImage.getHeight() && !outerBreak) {
-            var x = 0
-            while (x < workingImage.getWidth() && !outerBreak) {
-              val pixel: Int = workingImage.getPixel(x, y)
-              val alpha: Int = pixel & 0x000000ff
-              if (alpha > alphaThreshold) outerBreak = true
-              x += 1
-            }
-            if (!outerBreak) top += 1
-            y += 1
-          }
-          outerBreak = false
-          y = workingImage.getHeight() - 1
-          while (y >= top && !outerBreak) {
-            var x = 0
-            while (x < workingImage.getWidth() && !outerBreak) {
-              val pixel: Int = workingImage.getPixel(x, y)
-              val alpha: Int = pixel & 0x000000ff
-              if (alpha > alphaThreshold) outerBreak = true
-              x += 1
-            }
-            if (!outerBreak) bottom -= 1
-            y -= 1
-          }
-        }
-        var left:  Int = 0
-        var right: Int = workingImage.getWidth()
-        if (stripWhitespaceX) {
-          var outerBreak = false
-          var x          = 0
-          while (x < workingImage.getWidth() && !outerBreak) {
-            var y = top
-            while (y < bottom && !outerBreak) {
-              val pixel: Int = workingImage.getPixel(x, y)
-              val alpha: Int = pixel & 0x000000ff
-              if (alpha > alphaThreshold) outerBreak = true
-              y += 1
-            }
-            if (!outerBreak) left += 1
-            x += 1
-          }
-          outerBreak = false
-          x = workingImage.getWidth() - 1
-          while (x >= left && !outerBreak) {
-            var y = top
-            while (y < bottom && !outerBreak) {
-              val pixel: Int = workingImage.getPixel(x, y)
-              val alpha: Int = pixel & 0x000000ff
-              if (alpha > alphaThreshold) outerBreak = true
-              y += 1
-            }
-            if (!outerBreak) right -= 1
-            x -= 1
-          }
-        }
-
-        val newWidth:  Int = right - left
-        val newHeight: Int = bottom - top
-
-        pixmapToDispose = new Pixmap(newWidth, newHeight, workingImage.getFormat());
+      var rect:            PixmapPacker.PixmapPackerRectangle = null;
+      var pixmapToDispose: Pixmap                             = null;
+      if (Nullable(workingName).isDefined && workingName.endsWith(".9")) {
+        rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth() - 2, workingImage.getHeight() - 2);
+        pixmapToDispose = new Pixmap(workingImage.getWidth() - 2, workingImage.getHeight() - 2, workingImage.getFormat());
         pixmapToDispose.setBlending(Blending.None);
-        pixmapToDispose.drawPixmap(workingImage, 0, 0, left, top, newWidth, newHeight);
+        rect.splits = getSplits(workingImage);
+        rect.pads = getPads(workingImage, rect.splits);
+        pixmapToDispose.drawPixmap(workingImage, 0, 0, 1, 1, workingImage.getWidth() - 1, workingImage.getHeight() - 1);
         workingImage = pixmapToDispose;
-
-        rect = new PixmapPacker.PixmapPackerRectangle(0, 0, newWidth, newHeight, left, top, originalWidth, originalHeight);
+        workingName = workingName.split("\\.").head;
       } else {
-        rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth(), workingImage.getHeight());
+        if (stripWhitespaceX || stripWhitespaceY) {
+          val originalWidth:  Int = workingImage.getWidth()
+          val originalHeight: Int = workingImage.getHeight()
+          // Strip whitespace, manipulate the pixmap and return corrected Rect
+          var top:    Int = 0
+          var bottom: Int = workingImage.getHeight()
+          if (stripWhitespaceY) {
+            var outerBreak = false
+            var y          = 0
+            while (y < workingImage.getHeight() && !outerBreak) {
+              var x = 0
+              while (x < workingImage.getWidth() && !outerBreak) {
+                val pixel: Int = workingImage.getPixel(x, y)
+                val alpha: Int = pixel & 0x000000ff
+                if (alpha > alphaThreshold) outerBreak = true
+                x += 1
+              }
+              if (!outerBreak) top += 1
+              y += 1
+            }
+            outerBreak = false
+            y = workingImage.getHeight() - 1
+            while (y >= top && !outerBreak) {
+              var x = 0
+              while (x < workingImage.getWidth() && !outerBreak) {
+                val pixel: Int = workingImage.getPixel(x, y)
+                val alpha: Int = pixel & 0x000000ff
+                if (alpha > alphaThreshold) outerBreak = true
+                x += 1
+              }
+              if (!outerBreak) bottom -= 1
+              y -= 1
+            }
+          }
+          var left:  Int = 0
+          var right: Int = workingImage.getWidth()
+          if (stripWhitespaceX) {
+            var outerBreak = false
+            var x          = 0
+            while (x < workingImage.getWidth() && !outerBreak) {
+              var y = top
+              while (y < bottom && !outerBreak) {
+                val pixel: Int = workingImage.getPixel(x, y)
+                val alpha: Int = pixel & 0x000000ff
+                if (alpha > alphaThreshold) outerBreak = true
+                y += 1
+              }
+              if (!outerBreak) left += 1
+              x += 1
+            }
+            outerBreak = false
+            x = workingImage.getWidth() - 1
+            while (x >= left && !outerBreak) {
+              var y = top
+              while (y < bottom && !outerBreak) {
+                val pixel: Int = workingImage.getPixel(x, y)
+                val alpha: Int = pixel & 0x000000ff
+                if (alpha > alphaThreshold) outerBreak = true
+                y += 1
+              }
+              if (!outerBreak) right -= 1
+              x -= 1
+            }
+          }
+
+          val newWidth:  Int = right - left
+          val newHeight: Int = bottom - top
+
+          pixmapToDispose = new Pixmap(newWidth, newHeight, workingImage.getFormat());
+          pixmapToDispose.setBlending(Blending.None);
+          pixmapToDispose.drawPixmap(workingImage, 0, 0, left, top, newWidth, newHeight);
+          workingImage = pixmapToDispose;
+
+          rect = new PixmapPacker.PixmapPackerRectangle(0, 0, newWidth, newHeight, left, top, originalWidth, originalHeight);
+        } else {
+          rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth(), workingImage.getHeight());
+        }
       }
+
+      if (rect.getWidth() > pageWidth || rect.getHeight() > pageHeight) {
+        if (Nullable(workingName).isEmpty) throw SgeError.InvalidInput("Page size too small for pixmap.");
+        throw SgeError.InvalidInput("Page size too small for pixmap: " + workingName);
+      }
+
+      val page = packStrategy.pack(this, workingName, rect.bounds);
+      if (Nullable(workingName).isDefined) {
+        page.rects.put(workingName, rect);
+        page.addedRects.add(workingName);
+      }
+
+      val rectX:      Int = rect.getX()
+      val rectY:      Int = rect.getY()
+      val rectWidth:  Int = rect.getWidth()
+      val rectHeight: Int = rect.getHeight()
+
+      if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
+        // Note: This would need proper GL context and texture binding
+        // For now, just mark as dirty
+        page.dirty = true;
+      } else
+        page.dirty = true;
+
+      page.image.drawPixmap(workingImage, rectX, rectY);
+
+      if (duplicateBorder) {
+        val imageWidth:  Int = workingImage.getWidth()
+        val imageHeight: Int = workingImage.getHeight()
+        // Note: These drawPixmap calls need adjustment for parameter count
+        // For now, using basic 2-parameter version
+        // TODO: Implement proper border duplication when drawPixmap signature is available
+      }
+
+      if (Nullable(pixmapToDispose).isDefined) {
+        // Note: Pixmap.dispose() not available, would need proper cleanup
+      }
+
+      rect.page = page;
+      rect
     }
-
-    if (rect.getWidth() > pageWidth || rect.getHeight() > pageHeight) {
-      if (workingName == null) throw SgeError.InvalidInput("Page size too small for pixmap.");
-      throw SgeError.InvalidInput("Page size too small for pixmap: " + workingName);
-    }
-
-    val page = packStrategy.pack(this, workingName, rect.bounds);
-    if (workingName != null) {
-      page.rects.put(workingName, rect);
-      page.addedRects.add(workingName);
-    }
-
-    val rectX:      Int = rect.getX()
-    val rectY:      Int = rect.getY()
-    val rectWidth:  Int = rect.getWidth()
-    val rectHeight: Int = rect.getHeight()
-
-    if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
-      // Note: This would need proper GL context and texture binding
-      // For now, just mark as dirty
-      page.dirty = true;
-    } else
-      page.dirty = true;
-
-    page.image.drawPixmap(workingImage, rectX, rectY);
-
-    if (duplicateBorder) {
-      val imageWidth:  Int = workingImage.getWidth()
-      val imageHeight: Int = workingImage.getHeight()
-      // Note: These drawPixmap calls need adjustment for parameter count
-      // For now, using basic 2-parameter version
-      // TODO: Implement proper border duplication when drawPixmap signature is available
-    }
-
-    if (pixmapToDispose != null) {
-      // Note: Pixmap.dispose() not available, would need proper cleanup
-    }
-
-    rect.page = page;
-    rect
   }
 
   /** @return
@@ -360,7 +365,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     // val atlas = new TextureAtlas();
     // updateTextureAtlas(atlas, minFilter, magFilter, useMipMaps);
     // return atlas;
-    null.asInstanceOf[TextureAtlas]
+    throw new NotImplementedError("generateTextureAtlas not yet implemented")
 
   /** Updates the {@link TextureAtlas} , adding any new {@link Pixmap} instances packed since the last call to this method. This can be used to insert Pixmap instances on a separate thread via
     * {@link #pack(String, Pixmap)} and update the TextureAtlas on the rendering thread. This method must be called on the rendering thread. After calling this method, disposing the packer will no
@@ -384,7 +389,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
               // val region = new TextureAtlas.AtlasRegion(page.texture.orNull, rect.getX(), rect.getY(),
               //	rect.getWidth(), rect.getHeight());
 
-              if (rect.splits != null) {
+              if (Nullable(rect.splits).isDefined) {
                 // region.names = Array("split", "pad");
                 // region.values = Array(rect.splits, rect.pads);
               }
@@ -562,7 +567,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
       val pads = Array(startX, endX, startY, endY)
 
-      if (splits != null && Arrays.equals(pads, splits)) {
+      if (Nullable(splits).isDefined && Arrays.equals(pads, splits)) {
         null
       } else {
         pads
@@ -572,7 +577,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
   private val c = new Color()
 
-  private def getSplitPoint(raster: Pixmap, startX: Int, startY: Int, startPoint: Boolean, xAxis: Boolean): Int = {
+  private def getSplitPoint(raster: Pixmap, startX: Int, startY: Int, startPoint: Boolean, xAxis: Boolean): Int = boundary {
     val rgba = Array.ofDim[Int](4)
 
     var next   = if (xAxis) startX else startY
@@ -593,7 +598,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
       rgba(1) = (c.g * 255).toInt
       rgba(2) = (c.b * 255).toInt
       rgba(3) = (c.a * 255).toInt
-      if (rgba(3) == breakA) return next
+      if (rgba(3) == breakA) break(next)
 
       if (!startPoint && (rgba(0) != 0 || rgba(1) != 0 || rgba(2) != 0 || rgba(3) != 255))
         println(s"$x  $y ${rgba.mkString(" ")} ")

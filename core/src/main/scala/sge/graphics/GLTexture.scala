@@ -18,6 +18,8 @@ import sge.math.MathUtils
 import java.nio.{ Buffer, FloatBuffer }
 import scala.collection.mutable
 import scala.compiletime.uninitialized
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** Class representing an OpenGL texture by its target and handle. Keeps track of its state like the TextureFilter and TextureWrap. Also provides some (protected) static methods to create TextureData
   * and upload image data.
@@ -172,11 +174,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     * @return
     *   The actual level set, which may be lower than the provided value due to device limitations.
     */
-  def unsafeSetAnisotropicFilter(level: Float, force: Boolean): Float = {
+  def unsafeSetAnisotropicFilter(level: Float, force: Boolean): Float = boundary {
     val max = GLTexture.getMaxAnisotropicFilterLevel()
-    if (max == 1f) return 1f
+    if (max == 1f) break(1f)
     val adjustedLevel = Math.min(level, max)
-    if (!force && MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) return adjustedLevel
+    if (!force && MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
     sge.graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
     anisotropicFilterLevel = adjustedLevel
     adjustedLevel
@@ -189,11 +191,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     * @return
     *   The actual level set, which may be lower than the provided value due to device limitations.
     */
-  def setAnisotropicFilter(level: Float): Float = {
+  def setAnisotropicFilter(level: Float): Float = boundary {
     val max = GLTexture.getMaxAnisotropicFilterLevel()
-    if (max == 1f) return 1f
+    if (max == 1f) break(1f)
     val adjustedLevel = Math.min(level, max)
-    if (MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) return adjustedLevel
+    if (MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
     bind()
     sge.graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
     anisotropicFilterLevel = adjustedLevel
@@ -226,8 +228,8 @@ object GLTexture {
   private var maxAnisotropicFilterLevel = 0f
 
   /** @return The maximum supported anisotropic filtering level supported by the device. */
-  def getMaxAnisotropicFilterLevel()(using sge: Sge): Float = {
-    if (maxAnisotropicFilterLevel > 0) return maxAnisotropicFilterLevel
+  def getMaxAnisotropicFilterLevel()(using sge: Sge): Float = boundary {
+    if (maxAnisotropicFilterLevel > 0) break(maxAnisotropicFilterLevel)
     if (sge.graphics.supportsExtension("GL_EXT_texture_filter_anisotropic")) {
       val buffer = BufferUtils.newFloatBuffer(16)
       buffer.asInstanceOf[Buffer].position(0)
@@ -241,13 +243,13 @@ object GLTexture {
     }
   }
 
-  def uploadImageData(target: Int, data: TextureData, miplevel: Int)(using sge: Sge): Unit = {
+  def uploadImageData(target: Int, data: TextureData, miplevel: Int)(using sge: Sge): Unit = boundary {
     if (!data.isPrepared) data.prepare()
 
     val dataType = data.getType()
     if (dataType == TextureData.TextureDataType.Custom) {
       data.consumeCustomData(target)
-      return
+      break()
     }
 
     var pixmap        = data.consumePixmap()

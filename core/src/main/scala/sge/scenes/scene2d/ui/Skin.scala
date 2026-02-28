@@ -37,6 +37,7 @@ import sge.utils.Nullable
 import sge.utils.SgeError
 
 import scala.collection.mutable
+import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -111,7 +112,7 @@ class Skin() extends AutoCloseable {
       val entryName = entry.name.getOrElse("")
       try {
         val obj = readValue(tpe, entry, skinFile)
-        if (obj != null) {
+        if (Nullable(obj).isDefined) {
           add(entryName, obj, addType)
           if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
             add(entryName, obj, classOf[Drawable])
@@ -687,7 +688,7 @@ object Skin {
   /** Copies all non-static, non-synthetic fields from source to target using reflection. */
   private def copyFields(source: Any, target: Any): Unit = {
     var clazz: Class[?] = source.getClass
-    while (clazz != null && clazz != classOf[Object]) {
+    while (Nullable(clazz).isDefined && clazz != classOf[Object]) {
       val fields = clazz.getDeclaredFields
       var i      = 0
       while (i < fields.length) {
@@ -704,12 +705,12 @@ object Skin {
   }
 
   /** Finds a field by name on the class or its superclasses. */
-  private def findField(clazz: Class[?], name: String): Option[Field] = {
+  private def findField(clazz: Class[?], name: String): Option[Field] = boundary {
     var c: Class[?] = clazz
-    while (c != null && c != classOf[Object])
+    while (Nullable(c).isDefined && c != classOf[Object])
       try {
         val field = c.getDeclaredField(name)
-        return Some(field) // scalastyle:ignore
+        break(Some(field))
       } catch {
         case _: NoSuchFieldException => c = c.getSuperclass
       }

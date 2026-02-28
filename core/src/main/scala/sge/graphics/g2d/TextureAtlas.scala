@@ -464,7 +464,7 @@ object TextureAtlas {
 
     private def readEntry(entry: Array[String], line: String): Int =
       boundary {
-        if (line == null) boundary.break(0)
+        if (Nullable(line).isEmpty) boundary.break(0)
         val trimmedLine = line.trim()
         if (trimmedLine.length == 0) boundary.break(0)
         val colon = trimmedLine.indexOf(':')

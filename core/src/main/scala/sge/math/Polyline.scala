@@ -39,87 +39,90 @@ class Polyline() extends Shape2D {
     localVertices
 
   /** Returns vertices scaled, rotated, and offset by the polygon position. */
-  def getTransformedVertices(): Array[Float] = {
-    if (!isDirty) return this.worldVertices
-    isDirty = false
+  def getTransformedVertices(): Array[Float] =
+    if (!isDirty) this.worldVertices
+    else {
+      isDirty = false
 
-    val localVertices = this.localVertices
-    if (Nullable(this.worldVertices).fold(true)(_.length < localVertices.length))
-      this.worldVertices = new Array[Float](localVertices.length)
+      val localVertices = this.localVertices
+      if (Nullable(this.worldVertices).fold(true)(_.length < localVertices.length))
+        this.worldVertices = new Array[Float](localVertices.length)
 
-    val worldVertices = this.worldVertices
-    val positionX     = x
-    val positionY     = y
-    val originX       = this.originX
-    val originY       = this.originY
-    val scaleX        = this.scaleX
-    val scaleY        = this.scaleY
-    val scale         = scaleX != 1 || scaleY != 1
-    val rotation      = this.rotation
-    val cos           = MathUtils.cosDeg(rotation)
-    val sin           = MathUtils.sinDeg(rotation)
+      val worldVertices = this.worldVertices
+      val positionX     = x
+      val positionY     = y
+      val originX       = this.originX
+      val originY       = this.originY
+      val scaleX        = this.scaleX
+      val scaleY        = this.scaleY
+      val scale         = scaleX != 1 || scaleY != 1
+      val rotation      = this.rotation
+      val cos           = MathUtils.cosDeg(rotation)
+      val sin           = MathUtils.sinDeg(rotation)
 
-    var i = 0
-    val n = localVertices.length
-    while (i < n) {
-      var x = localVertices(i) - originX
-      var y = localVertices(i + 1) - originY
+      var i = 0
+      val n = localVertices.length
+      while (i < n) {
+        var x = localVertices(i) - originX
+        var y = localVertices(i + 1) - originY
 
-      // scale if needed
-      if (scale) {
-        x *= scaleX
-        y *= scaleY
+        // scale if needed
+        if (scale) {
+          x *= scaleX
+          y *= scaleY
+        }
+
+        // rotate if needed
+        if (rotation != 0) {
+          val oldX = x
+          x = cos * x - sin * y
+          y = sin * oldX + cos * y
+        }
+
+        worldVertices(i) = positionX + x + originX
+        worldVertices(i + 1) = positionY + y + originY
+        i += 2
       }
-
-      // rotate if needed
-      if (rotation != 0) {
-        val oldX = x
-        x = cos * x - sin * y
-        y = sin * oldX + cos * y
-      }
-
-      worldVertices(i) = positionX + x + originX
-      worldVertices(i + 1) = positionY + y + originY
-      i += 2
+      worldVertices
     }
-    worldVertices
-  }
 
   /** Returns the euclidean length of the polyline without scaling */
-  def getLength(): Float = {
-    if (!shouldCalculateLength) return length
-    shouldCalculateLength = false
+  def getLength(): Float =
+    if (!shouldCalculateLength) length
+    else {
+      shouldCalculateLength = false
 
-    length = 0
-    var i = 0
-    val n = localVertices.length - 2
-    while (i < n) {
-      val x = localVertices(i + 2) - localVertices(i)
-      val y = localVertices(i + 1) - localVertices(i + 3)
-      length += Math.sqrt(x * x + y * y).toFloat
-      i += 2
+      length = 0
+      var i = 0
+      val n = localVertices.length - 2
+      while (i < n) {
+        val x = localVertices(i + 2) - localVertices(i)
+        val y = localVertices(i + 1) - localVertices(i + 3)
+        length += Math.sqrt(x * x + y * y).toFloat
+        i += 2
+      }
+
+      length
     }
-
-    length
-  }
 
   /** Returns the euclidean length of the polyline */
-  def getScaledLength(): Float = {
-    if (!shouldCalculateScaledLength) return scaledLength
-    shouldCalculateScaledLength = false
+  def getScaledLength(): Float =
+    if (!shouldCalculateScaledLength) scaledLength
+    else {
+      shouldCalculateScaledLength = false
 
-    scaledLength = 0
-    var i = 0
-    val n = localVertices.length - 2
-    while (i < n) {
-      val x = localVertices(i + 2) * scaleX - localVertices(i) * scaleX
-      val y = localVertices(i + 1) * scaleY - localVertices(i + 3) * scaleY
-      scaledLength += Math.sqrt(x * x + y * y).toFloat
-      i += 2
+      scaledLength = 0
+      var i = 0
+      val n = localVertices.length - 2
+      while (i < n) {
+        val x = localVertices(i + 2) * scaleX - localVertices(i) * scaleX
+        val y = localVertices(i + 1) * scaleY - localVertices(i + 3) * scaleY
+        scaledLength += Math.sqrt(x * x + y * y).toFloat
+        i += 2
+      }
+
+      scaledLength
     }
-
-    scaledLength
-  }
 
   def getX(): Float = x
 

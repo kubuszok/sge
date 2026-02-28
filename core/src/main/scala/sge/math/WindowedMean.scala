@@ -77,16 +77,16 @@ class WindowedMean(windowSize: Int) {
   }
 
   /** @return The standard deviation */
-  def standardDeviation(): Float = {
-    if (!hasEnoughData()) return 0f
+  def standardDeviation(): Float =
+    if (!hasEnoughData()) 0f
+    else {
+      val meanValue = getMean()
+      var sum       = 0f
+      for (i <- values.indices)
+        sum += (values(i) - meanValue) * (values(i) - meanValue)
 
-    val meanValue = getMean()
-    var sum       = 0f
-    for (i <- values.indices)
-      sum += (values(i) - meanValue) * (values(i) - meanValue)
-
-    scala.math.sqrt(sum / values.length).toFloat
-  }
+      scala.math.sqrt(sum / values.length).toFloat
+    }
 
   def getLowest(): Float = {
     var lowest = Float.MaxValue

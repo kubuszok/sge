@@ -17,6 +17,7 @@ import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
 import sge.maps.{ MapGroupLayer, MapLayer, MapLayers, MapObject }
 import sge.maps.tiled.tiles.AnimatedTiledMapTile
 import sge.math.{ Matrix4, Rectangle }
+import sge.utils.Nullable
 
 abstract class BatchTiledMapRenderer(
   protected var map:       TiledMap,
@@ -121,7 +122,7 @@ abstract class BatchTiledMapRenderer(
 
     val region = layer.getTextureRegion
 
-    if (region == null) {
+    if (Nullable(region).isEmpty) {
       ()
     } else {
       val x  = layer.getX

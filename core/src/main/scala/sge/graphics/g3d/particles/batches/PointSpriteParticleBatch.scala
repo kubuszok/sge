@@ -71,7 +71,7 @@ class PointSpriteParticleBatch(
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)
-    if (renderable.meshPart.mesh != null) renderable.meshPart.mesh.close()
+    Nullable(renderable.meshPart.mesh).foreach(_.close())
     renderable.meshPart.mesh = new Mesh(false, capacity, 0, CPU_ATTRIBUTES)
   }
 

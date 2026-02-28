@@ -21,6 +21,8 @@ import sge.utils.{ JsonReader, JsonValue, Nullable, ObjectMap }
 import sge.utils.DynamicArray
 
 import scala.collection.mutable
+import scala.util.boundary
+import scala.util.boundary.break
 
 abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: FileHandleResolver) extends AsynchronousAssetLoader[TiledMap, P](resolver) {
 
@@ -147,11 +149,11 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
 
   /** Parses the given Tiled project file for class property information. A class can have multiple members. Refer to [[BaseTiledMapLoader.ProjectClassMember]].
     */
-  protected def loadProjectFile(projectFilePath: Nullable[String]): Unit = {
+  protected def loadProjectFile(projectFilePath: Nullable[String]): Unit = boundary {
     val classInfo = ObjectMap[String, DynamicArray[BaseTiledMapLoader.ProjectClassMember]]()
     projectClassInfo = Nullable(classInfo)
     if (projectFilePath.isEmpty || projectFilePath.orNull.trim.isEmpty) {
-      return // scalastyle:ignore
+      break()
     }
 
     val projectFile   = resolve(projectFilePath.orNull)
@@ -159,7 +161,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     val propertyTypes = projectRoot.get("propertyTypes")
     if (propertyTypes.isEmpty) {
       // no custom property types in project -> nothing to parse
-      return // scalastyle:ignore
+      break()
     }
 
     for (propertyType <- propertyTypes.orNull)
@@ -237,7 +239,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     * @return
     *   A String representing the color in the #RRGGBBAA format
     */
-  protected def loadMapPropertiesClassDefaults(className: Nullable[String], mapProperties: MapProperties): Unit = {
+  protected def loadMapPropertiesClassDefaults(className: Nullable[String], mapProperties: MapProperties): Unit = boundary {
     if (projectClassInfo.isEmpty) {
       System.err.println(
         "[TiledMapLoader] WARN: There is at least one property of type class or an object with a class defined. "
@@ -245,10 +247,10 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
       )
       // to avoid spamming the warning message we can set an empty ObjectMap as projectClassInfo
       this.projectClassInfo = Nullable(ObjectMap[String, DynamicArray[BaseTiledMapLoader.ProjectClassMember]]())
-      return // scalastyle:ignore
+      break()
     }
     if (className.isEmpty || !projectClassInfo.orNull.containsKey(className.orNull)) {
-      return // scalastyle:ignore
+      break()
     }
 
     val classMembers = projectClassInfo.orNull.get(className.orNull)

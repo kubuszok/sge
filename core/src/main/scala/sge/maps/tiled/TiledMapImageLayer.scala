@@ -13,6 +13,7 @@ package tiled
 import sge.graphics.Pixmap
 import sge.graphics.g2d.TextureRegion
 import sge.maps.MapLayer
+import sge.utils.Nullable
 
 class TiledMapImageLayer(
   private var region:  TextureRegion,
@@ -34,7 +35,7 @@ class TiledMapImageLayer(
     */
   private def checkTransparencySupport(region: TextureRegion): Boolean = {
     val format = region.getTexture().getTextureData().getFormat
-    format != null && formatHasAlpha(format)
+    Nullable(format).isDefined && formatHasAlpha(format)
   }
 
   // Check if pixel format supports alpha channel

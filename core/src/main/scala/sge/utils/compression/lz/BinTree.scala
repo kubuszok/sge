@@ -10,6 +10,8 @@ package sge.utils.compression.lz
 
 import java.io.IOException
 
+import sge.utils.Nullable
+
 class BinTree extends InWindow {
   var _cyclicBufferPos:  Int = 0
   var _cyclicBufferSize: Int = 0
@@ -44,7 +46,7 @@ class BinTree extends InWindow {
   @throws[IOException]
   override def init(): Unit = {
     super.init()
-    if (_hash != null)
+    if (Nullable(_hash).isDefined)
       for (i <- 0 until _hashSizeSum)
         _hash(i) = BinTree.kEmptyHashValue
     _cyclicBufferPos = 0

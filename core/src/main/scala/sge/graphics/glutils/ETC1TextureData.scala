@@ -47,7 +47,7 @@ class ETC1TextureData(
     if (preparedFlag) throw SgeError.GraphicsError("Already prepared")
     if (file.isEmpty && data.isEmpty) throw SgeError.GraphicsError("Can only load once from ETC1Data")
     file.foreach { f =>
-      data = Nullable(new ETC1Data(f))
+      data = Nullable(ETC1Data(f))
     }
     data.foreach { d =>
       width = d.width

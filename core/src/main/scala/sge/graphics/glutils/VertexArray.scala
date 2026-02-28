@@ -14,7 +14,7 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
 
-import sge.utils.BufferUtils
+import sge.utils.{ BufferUtils, Nullable }
 
 /** <p> Convenience class for working with OpenGL vertex arrays. It interleaves all data in the order you specified in the constructor via {@link VertexAttribute} . </p>
   *
@@ -72,45 +72,25 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
   }
 
   override def bind(shader: ShaderProgram): Unit =
-    bind(shader, null)
+    bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val numAttributes = attributes.size
     byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
-    if (locations == null) {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = shader.getAttributeLocation(attribute.alias)
-        if (location < 0) {
-          // continue to next iteration
-        } else {
-          shader.enableVertexAttribute(location)
+    for (i <- 0 until numAttributes) {
+      val attribute = attributes.get(i)
+      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      if (location < 0) {
+        // continue to next iteration
+      } else {
+        shader.enableVertexAttribute(location)
 
-          if (attribute.`type` == GL20.GL_FLOAT) {
-            buffer.asInstanceOf[Buffer].position(attribute.offset / 4)
-            shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, buffer)
-          } else {
-            byteBuffer.asInstanceOf[Buffer].position(attribute.offset)
-            shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, byteBuffer)
-          }
-        }
-      }
-    } else {
-      for (i <- 0 until numAttributes) {
-        val attribute = attributes.get(i)
-        val location  = locations(i)
-        if (location < 0) {
-          // continue to next iteration
+        if (attribute.`type` == GL20.GL_FLOAT) {
+          buffer.asInstanceOf[Buffer].position(attribute.offset / 4)
+          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, buffer)
         } else {
-          shader.enableVertexAttribute(location)
-
-          if (attribute.`type` == GL20.GL_FLOAT) {
-            buffer.asInstanceOf[Buffer].position(attribute.offset / 4)
-            shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, buffer)
-          } else {
-            byteBuffer.asInstanceOf[Buffer].position(attribute.offset)
-            shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, byteBuffer)
-          }
+          byteBuffer.asInstanceOf[Buffer].position(attribute.offset)
+          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, byteBuffer)
         }
       }
     }
@@ -123,16 +103,16 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     *   the shader
     */
   override def unbind(shader: ShaderProgram): Unit =
-    unbind(shader, null)
+    unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Array[Int]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
     val numAttributes = attributes.size
-    if (locations == null) {
+    locations.fold {
       for (i <- 0 until numAttributes)
         shader.disableVertexAttribute(attributes.get(i).alias)
-    } else {
+    } { locs =>
       for (i <- 0 until numAttributes) {
-        val location = locations(i)
+        val location = locs(i)
         if (location >= 0) shader.disableVertexAttribute(location)
       }
     }

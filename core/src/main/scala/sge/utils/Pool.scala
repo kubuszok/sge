@@ -10,6 +10,8 @@ package sge
 package utils
 
 import scala.language.implicitConversions
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** A pool of objects that can be reused to avoid allocation.
   *
@@ -172,16 +174,16 @@ object Pool {
       this.height = height
     }
 
-    def add(value: Float, valueX: Float, valueY: Float): Unit = {
+    def add(value: Float, valueX: Float, valueY: Float): Unit = boundary {
       val count = this.count
       if (count == -1) {
         addToChild(value, valueX, valueY)
-        return
+        break()
       }
       if (depth < maxDepth) {
         if (count == maxValuesCount) {
           split(value, valueX, valueY)
-          return
+          break()
         }
       } else if (count == values.length) {
         values = java.util.Arrays.copyOf(values, growValues())
@@ -259,8 +261,8 @@ object Pool {
     def query(centerX: Float, centerY: Float, radius: Float, results: DynamicArray[Float]): Unit =
       query(centerX, centerY, radius * radius, centerX - radius, centerY - radius, radius * 2, results)
 
-    private def query(centerX: Float, centerY: Float, radiusSqr: Float, rectX: Float, rectY: Float, rectSize: Float, results: DynamicArray[Float]): Unit = {
-      if (!(x < rectX + rectSize && x + width > rectX && y < rectY + rectSize && y + height > rectY)) return
+    private def query(centerX: Float, centerY: Float, radiusSqr: Float, rectX: Float, rectY: Float, rectSize: Float, results: DynamicArray[Float]): Unit = boundary {
+      if (!(x < rectX + rectSize && x + width > rectX && y < rectY + rectSize && y + height > rectY)) break()
       val count = this.count
       if (count != -1) {
         val values = this.values
@@ -290,8 +292,8 @@ object Pool {
     /** @param results
       *   For each entry found within the rectangle, if any, the value, x, and y of the entry are added to this array. See VALUE, X, and Y.
       */
-    def query(rect: sge.math.Rectangle, results: DynamicArray[Float]): Unit = {
-      if (x >= rect.x + rect.width || x + width <= rect.x || y >= rect.y + rect.height || y + height <= rect.y) return
+    def query(rect: sge.math.Rectangle, results: DynamicArray[Float]): Unit = boundary {
+      if (x >= rect.x + rect.width || x + width <= rect.x || y >= rect.y + rect.height || y + height <= rect.y) break()
       val count = this.count
       if (count != -1) {
         val values = this.values
@@ -320,7 +322,7 @@ object Pool {
       *   false if no entry was found because the quad tree was empty or the specified point is farther than the larger of the quad tree's width or height from an entry. If false is returned the
       *   result array is empty.
       */
-    def nearest(x: Float, y: Float, result: DynamicArray[Float]): Boolean = {
+    def nearest(x: Float, y: Float, result: DynamicArray[Float]): Boolean = boundary {
       // Find nearest value in a cell that contains the point.
       result.clear()
       result.add(0)
@@ -357,7 +359,7 @@ object Pool {
         }
         i += 4
       }
-      if (!found && result.isEmpty) return false
+      if (!found && result.isEmpty) break(false)
       result.clear()
       result.add(finalNearValue)
       result.add(finalNearX)
@@ -366,8 +368,8 @@ object Pool {
       true
     }
 
-    private def findNearestInternal(x: Float, y: Float, result: DynamicArray[Float]): Unit = {
-      if (!(this.x < x && this.x + width > x && this.y < y && this.y + height > y)) return
+    private def findNearestInternal(x: Float, y: Float, result: DynamicArray[Float]): Unit = boundary {
+      if (!(this.x < x && this.x + width > x && this.y < y && this.y + height > y)) break()
 
       val count = this.count
       if (count != -1) {

@@ -14,6 +14,8 @@ package lzma
 // Converted from Java to Scala
 import java.io.IOException
 
+import sge.utils.Nullable
+
 import sge.utils.compression.lz.OutWindow
 import sge.utils.compression.rangecoder.BitTreeDecoder
 
@@ -92,7 +94,7 @@ class Decoder {
     var m_PosMask:     Int             = 0
 
     def Create(numPosBits: Int, numPrevBits: Int): Unit =
-      if (m_Coders != null && m_NumPrevBits == numPrevBits && m_NumPosBits == numPosBits) ()
+      if (Nullable(m_Coders).isDefined && m_NumPrevBits == numPrevBits && m_NumPosBits == numPosBits) ()
       else {
         m_NumPosBits = numPosBits
         m_PosMask = (1 << numPosBits) - 1

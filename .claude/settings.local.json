@@ -1,34 +1,33 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git submodule:*)",
-      "Bash(gh api:*)",
       "Bash(just:*)",
       "Bash(just *)",
       "Bash(sbt --client:*)",
-      "Bash(java -version:*)",
-      "Bash(cs bootstrap:*)",
-      "WebFetch(domain:github.com)",
-      "WebFetch(domain:www.scala-sbt.org)",
-      "WebFetch(domain:scalameta.org)",
-      "WebFetch(domain:softwaremill.com)",
+      "WebFetch",
       "WebSearch"
     ],
+    "alwaysAsk": ["Edit(Justfile)"],
     "deny": [
-      "Bash(chmod:*)",
-      "Bash(echo:*)",
-      "Bash(find:*)",
+      "Bash(rg:*)",
       "Bash(grep:*)",
-      "Bash(head:*)",
+      "Bash(find:*)",
       "Bash(ls:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(sort:*)",
+      "Bash(wc:*)",
+      "Bash(awk:*)",
+      "Bash(sed:*)",
       "Bash(perl:*)",
       "Bash(python:*)",
-      "Bash(python3:*)",
-      "Bash(sort:*)",
+      "Bash(echo:*)",
+      "Bash(chmod:*)",
       "Bash(xargs:*)",
-      "Bash(wc:*)"
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(for:*)",
+      "Bash(while:*)"
     ]
   }
 }
