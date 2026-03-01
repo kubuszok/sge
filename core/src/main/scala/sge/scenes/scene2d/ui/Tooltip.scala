@@ -38,8 +38,9 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using sge: Sge) =
+  def this(contents: Nullable[T])(using sge: Sge) = {
     this(contents, TooltipManager.getInstance())
+  }
 
   def getManager: TooltipManager = manager
 

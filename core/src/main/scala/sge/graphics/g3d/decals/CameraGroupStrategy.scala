@@ -40,7 +40,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   createDefaultShader()
 
-  def this(camera: Camera)(using sge: Sge) =
+  def this(camera: Camera)(using sge: Sge) = {
     this(
       camera,
       Ordering.fromLessThan[Decal] { (o1, o2) =>
@@ -49,6 +49,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
         Math.signum(dist2 - dist1).toInt > 0
       }
     )
+  }
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera

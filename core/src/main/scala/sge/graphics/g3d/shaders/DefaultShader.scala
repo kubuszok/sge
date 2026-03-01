@@ -238,7 +238,7 @@ class DefaultShader(
   protected var spotLightsExponentOffset:    Int = 0
   protected var spotLightsSize:              Int = 0
 
-  def this(renderable: Renderable)(using sge: Sge) =
+  def this(renderable: Renderable)(using sge: Sge) = {
     this(
       renderable,
       new DefaultShader.Config(), {
@@ -249,8 +249,9 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config)(using sge: Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config)(using sge: Sge) = {
     this(
       renderable,
       config, {
@@ -260,8 +261,9 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using sge: Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using sge: Sge) = {
     this(
       renderable,
       config, {
@@ -270,6 +272,7 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -277,8 +280,9 @@ class DefaultShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using sge: Sge) =
+  )(using sge: Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def init(): Unit = {
     val prog = this.program.getOrElse(throw SgeError.GraphicsError("No shader program"))

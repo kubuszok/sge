@@ -2,6 +2,12 @@
 
 Target SBT multi-project layout using `sbt-projectmatrix` for cross-platform compilation.
 
+**Status (2026-03-01):** This build structure has been validated in practice with the
+`hello-world/` prototype. All three platform backends (JVM, Scala.js, Scala Native)
+compile and run correctly. See [platform-validation.md](platform-validation.md)
+for results and [cross-platform-settings.md](cross-platform-settings.md) for the
+complete settings reference.
+
 ## Why sbt-projectmatrix (not sbt-crossproject)
 
 | Aspect | sbt-crossproject (legacy) | sbt-projectmatrix |
@@ -32,6 +38,11 @@ sbt 2.0 is at **RC9** (Feb 16, 2026). Not yet stable. Key considerations:
 
 **Recommendation**: Stay on sbt 1.x with `sbt-projectmatrix` plugin (0.11.0) for now.
 Migrate to sbt 2.0 after stable release and Scala.js/Native plugin readiness.
+
+**Validated toolchain** (2026-03-01): sbt 1.10.7 + sbt-projectmatrix 0.11.0 +
+sbt-scalajs 1.20.2 + sbt-scala-native 0.5.10 + Scala 3.8.2. All three platforms
+compile and run. See [cross-platform-settings.md](cross-platform-settings.md)
+for version constraints and known compatibility issues.
 
 ## Current Structure
 
@@ -67,8 +78,8 @@ backend-headless/           # Headless backend (testing)
 ```scala
 // project/plugins.sbt
 addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.11.0")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % scalaJSVersion)
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % scalaNativeVersion)
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.2")
+addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.10")
 ```
 
 ```scala
@@ -77,15 +88,15 @@ lazy val core = projectMatrix
   .in(file("core"))
   .settings(
     name := "sge-core",
-    scalaVersion := "3.7.1"
+    scalaVersion := "3.8.2"
   )
-  .jvmPlatform(scalaVersions = Seq("3.7.1"))
-  .jsPlatform(scalaVersions = Seq("3.7.1"))
-  .nativePlatform(scalaVersions = Seq("3.7.1"))
+  .jvmPlatform(scalaVersions = Seq("3.8.2"))
+  .jsPlatform(scalaVersions = Seq("3.8.2"))
+  .nativePlatform(scalaVersions = Seq("3.8.2"))
 
 lazy val backendLwjgl3 = project
   .in(file("backend-lwjgl3"))
-  .dependsOn(core.jvm("3.7.1"))
+  .dependsOn(core.jvm("3.8.2"))
   .settings(
     libraryDependencies ++= Seq(
       "org.lwjgl" % "lwjgl" % lwjglVersion,
@@ -99,7 +110,7 @@ lazy val backendLwjgl3 = project
 lazy val backendWebgl = project
   .in(file("backend-webgl"))
   .enablePlugins(ScalaJSPlugin)
-  .dependsOn(core.js("3.7.1"))
+  .dependsOn(core.js("3.8.2"))
   .settings(
     libraryDependencies += "org.scala-js" %%% "scalajs-dom" % scalajsDomVersion
   )
@@ -107,11 +118,11 @@ lazy val backendWebgl = project
 lazy val backendNative = project
   .in(file("backend-native"))
   .enablePlugins(ScalaNativePlugin)
-  .dependsOn(core.native("3.7.1"))
+  .dependsOn(core.native("3.8.2"))
 
 lazy val backendHeadless = project
   .in(file("backend-headless"))
-  .dependsOn(core.jvm("3.7.1"))
+  .dependsOn(core.jvm("3.8.2"))
 ```
 
 ## SBT 2.0 Equivalent (future, once stable)
@@ -125,9 +136,9 @@ lazy val core = projectMatrix
   .settings(
     name := "sge-core"
   )
-  .jvmPlatform(scalaVersions = Seq("3.7.1"))
-  .jsPlatform(scalaVersions = Seq("3.7.1"))
-  .nativePlatform(scalaVersions = Seq("3.7.1"))
+  .jvmPlatform(scalaVersions = Seq("3.8.2"))
+  .jsPlatform(scalaVersions = Seq("3.8.2"))
+  .nativePlatform(scalaVersions = Seq("3.8.2"))
 ```
 
 ## Migration Path

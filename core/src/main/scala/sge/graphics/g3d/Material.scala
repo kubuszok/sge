@@ -15,8 +15,9 @@ import sge.utils.DynamicArray
 class Material(var id: String) extends Attributes {
 
   /** Create an empty material */
-  def this() =
+  def this() = {
     this("mtl" + Material.nextCounter())
+  }
 
   /** Create a material with the specified attributes */
   def this(attributes: Attribute*) = {
@@ -50,8 +51,9 @@ class Material(var id: String) extends Attributes {
   }
 
   /** Create a material which is an exact copy of the specified material */
-  def this(copyFrom: Material) =
+  def this(copyFrom: Material) = {
     this(copyFrom.id, copyFrom)
+  }
 
   /** Create a copy of this material */
   def copy(): Material = new Material(this)

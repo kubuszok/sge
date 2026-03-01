@@ -15,15 +15,15 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.nio.Buffer
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
-
-import com.badlogic.gdx.graphics.glutils.{ ETC1 => ETC1Jni }
 
 import sge.files.FileHandle
 import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.math.MathUtils
+import sge.platform.PlatformOps
 import sge.utils.BufferUtils
 import sge.utils.Nullable
 import sge.utils.SgeError
@@ -42,6 +42,8 @@ object ETC1 {
   /** The PKM header size in bytes * */
   val PKM_HEADER_SIZE: Int = 16
   val ETC1_RGB8_OES:   Int = 0x00008d64
+
+  private val etc1 = PlatformOps.etc1
 
   /** Class for storing ETC1 compressed image data.
     * @author
@@ -189,6 +191,26 @@ object ETC1 {
     pixmap
   }
 
+  // ─── ByteBuffer → Array[Byte] adapter helpers ──────────────────────────
+
+  /** Extract bytes from a direct ByteBuffer starting at offset. */
+  private def extractBytes(buf: ByteBuffer, offset: Int, len: Int): Array[Byte] = {
+    val arr = new Array[Byte](len)
+    val dup = buf.duplicate()
+    dup.position(offset)
+    dup.get(arr, 0, len)
+    arr
+  }
+
+  /** Write bytes from an Array[Byte] into a direct ByteBuffer at the given offset. */
+  private def putBytes(buf: ByteBuffer, offset: Int, arr: Array[Byte], len: Int): Unit = {
+    val dup = buf.duplicate()
+    dup.position(offset)
+    dup.put(arr, 0, len)
+  }
+
+  // ─── Delegated ETC1 operations ─────────────────────────────────────────
+
   /** @param width
     *   the width in pixels
     * @param height
@@ -197,7 +219,7 @@ object ETC1 {
     *   the number of bytes needed to store the compressed data
     */
   def getCompressedDataSize(width: Int, height: Int): Int =
-    ETC1Jni.getCompressedDataSize(width, height)
+    etc1.getCompressedDataSize(width, height)
 
   /** Writes a PKM header to the {@link ByteBuffer} . Does not modify the position or limit of the ByteBuffer.
     * @param header
@@ -209,8 +231,11 @@ object ETC1 {
     * @param height
     *   the height in pixels
     */
-  def formatHeader(header: ByteBuffer, offset: Int, width: Int, height: Int): Unit =
-    ETC1Jni.formatHeader(header, offset, width, height)
+  def formatHeader(header: ByteBuffer, offset: Int, width: Int, height: Int): Unit = {
+    val arr = extractBytes(header, offset, PKM_HEADER_SIZE)
+    etc1.formatHeader(arr, 0, width, height)
+    putBytes(header, offset, arr, PKM_HEADER_SIZE)
+  }
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -219,8 +244,10 @@ object ETC1 {
     * @return
     *   the width stored in the PKM header
     */
-  def getWidthPKM(header: ByteBuffer, offset: Int): Int =
-    ETC1Jni.getWidthPKM(header, offset)
+  def getWidthPKM(header: ByteBuffer, offset: Int): Int = {
+    val arr = extractBytes(header, offset, PKM_HEADER_SIZE)
+    etc1.getWidthPKM(arr, 0)
+  }
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -229,8 +256,10 @@ object ETC1 {
     * @return
     *   the height stored in the PKM header
     */
-  def getHeightPKM(header: ByteBuffer, offset: Int): Int =
-    ETC1Jni.getHeightPKM(header, offset)
+  def getHeightPKM(header: ByteBuffer, offset: Int): Int = {
+    val arr = extractBytes(header, offset, PKM_HEADER_SIZE)
+    etc1.getHeightPKM(arr, 0)
+  }
 
   /** @param header
     *   direct native order {@link ByteBuffer} holding the PKM header
@@ -239,8 +268,10 @@ object ETC1 {
     * @return
     *   the width stored in the PKM header
     */
-  def isValidPKM(header: ByteBuffer, offset: Int): Boolean =
-    ETC1Jni.isValidPKM(header, offset)
+  def isValidPKM(header: ByteBuffer, offset: Int): Boolean = {
+    val arr = extractBytes(header, offset, PKM_HEADER_SIZE)
+    etc1.isValidPKM(arr, 0)
+  }
 
   /** Decodes the compressed image data to RGB565 or RGB888 pixel data. Does not modify the position or limit of the {@link ByteBuffer} instances.
     * @param compressedData
@@ -258,8 +289,14 @@ object ETC1 {
     * @param pixelSize
     *   the pixel size, either 2 (RBG565) or 3 (RGB888)
     */
-  private def decodeImage(compressedData: ByteBuffer, offset: Int, decodedData: ByteBuffer, offsetDec: Int, width: Int, height: Int, pixelSize: Int): Unit =
-    ETC1Jni.decodeImage(compressedData, offset, decodedData, offsetDec, width, height, pixelSize)
+  private def decodeImage(compressedData: ByteBuffer, offset: Int, decodedData: ByteBuffer, offsetDec: Int, width: Int, height: Int, pixelSize: Int): Unit = {
+    val compSize    = etc1.getCompressedDataSize(width, height)
+    val compArr     = extractBytes(compressedData, offset, compSize)
+    val decodedSize = width * height * pixelSize
+    val decArr      = new Array[Byte](decodedSize)
+    etc1.decodeImage(compArr, 0, decArr, 0, width, height, pixelSize)
+    putBytes(decodedData, offsetDec, decArr, decodedSize)
+  }
 
   /** Encodes the image data given as RGB565 or RGB888. Does not modify the position or limit of the {@link ByteBuffer} .
     * @param imageData
@@ -275,8 +312,16 @@ object ETC1 {
     * @return
     *   a new direct native order ByteBuffer containing the compressed image data
     */
-  private def encodeImage(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer =
-    ETC1Jni.encodeImage(imageData, offset, width, height, pixelSize)
+  private def encodeImage(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer = {
+    val imgSize = width * height * pixelSize
+    val imgArr  = extractBytes(imageData, offset, imgSize)
+    val compArr = etc1.encodeImage(imgArr, 0, width, height, pixelSize)
+    // Allocate a malloc-backed direct ByteBuffer (matches original C behaviour)
+    val result = PlatformOps.buffer.newDisposableByteBuffer(compArr.length)
+    result.put(compArr)
+    result.position(0)
+    result
+  }
 
   /** Encodes the image data given as RGB565 or RGB888. Does not modify the position or limit of the {@link ByteBuffer} .
     * @param imageData
@@ -292,6 +337,14 @@ object ETC1 {
     * @return
     *   a new direct native order ByteBuffer containing the compressed image data
     */
-  private def encodeImagePKM(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer =
-    ETC1Jni.encodeImagePKM(imageData, offset, width, height, pixelSize)
+  private def encodeImagePKM(imageData: ByteBuffer, offset: Int, width: Int, height: Int, pixelSize: Int): ByteBuffer = {
+    val imgSize = width * height * pixelSize
+    val imgArr  = extractBytes(imageData, offset, imgSize)
+    val pkmArr  = etc1.encodeImagePKM(imgArr, 0, width, height, pixelSize)
+    // Allocate a malloc-backed direct ByteBuffer (matches original C behaviour)
+    val result = PlatformOps.buffer.newDisposableByteBuffer(pkmArr.length)
+    result.put(pkmArr)
+    result.position(0)
+    result
+  }
 }

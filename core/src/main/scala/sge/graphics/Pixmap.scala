@@ -31,14 +31,17 @@ class Pixmap private (file: Nullable[FileHandle], private val width: Int, privat
   private var color:    Int                   = 0
   private var blending: Blending              = Blending.SourceOver
 
-  def this(file: FileHandle) =
+  def this(file: FileHandle) = {
     this(Nullable(file), 100, 100, Format.RGBA8888)
+  }
 
-  def this(width: Int, height: Int, format: Format) =
+  def this(width: Int, height: Int, format: Format) = {
     this(Nullable.empty, width, height, format)
+  }
 
-  def this(pixmap: Gdx2DPixmap) =
+  def this(pixmap: Gdx2DPixmap) = {
     this(Nullable.empty, pixmap.getWidth(), pixmap.getHeight(), Format.fromGdx2DPixmapFormat(pixmap.getFormat()))
+  }
 
   def getWidth():  Int    = width
   def getHeight(): Int    = height

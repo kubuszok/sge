@@ -32,8 +32,9 @@ class TextureAttribute(
 
   if (!TextureAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) =
+  def this(`type`: Long) = {
     this(`type`, new TextureDescriptor[Texture](), 0f, 0f, 1f, 1f, 0)
+  }
 
   def this(`type`: Long, texture: Texture) = {
     this(`type`)

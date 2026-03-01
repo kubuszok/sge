@@ -382,14 +382,17 @@ object BaseShader {
     val overallMask:     Long = 0L
   ) extends Validator {
 
-    def this(alias: String, materialMask: Long, environmentMask: Long) =
+    def this(alias: String, materialMask: Long, environmentMask: Long) = {
       this(alias, materialMask, environmentMask, 0L)
+    }
 
-    def this(alias: String, overallMask: Long) =
+    def this(alias: String, overallMask: Long) = {
       this(alias, 0L, 0L, overallMask)
+    }
 
-    def this(alias: String) =
+    def this(alias: String) = {
       this(alias, 0L, 0L, 0L)
+    }
 
     override def validate(shader: BaseShader, inputID: Int, renderable: Renderable): Boolean = {
       val r        = Nullable(renderable)

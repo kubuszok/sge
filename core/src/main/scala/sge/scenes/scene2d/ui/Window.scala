@@ -187,11 +187,13 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     }
   )
 
-  def this(title: String, skin: Skin) =
+  def this(title: String, skin: Skin) = {
     this(title, skin.get(classOf[Window.WindowStyle]))
+  }
 
-  def this(title: String, skin: Skin, styleName: String) =
+  def this(title: String, skin: Skin, styleName: String) = {
     this(title, skin.get(styleName, classOf[Window.WindowStyle]))
+  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     new Label(Nullable(text), style)

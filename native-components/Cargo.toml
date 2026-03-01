@@ -1,0 +1,21 @@
+[package]
+name = "sge-native-ops"
+version = "0.1.0"
+edition = "2021"
+description = "ETC1 codec + buffer operations for SGE (JNI + C ABI)"
+
+[lib]
+name = "sge_native_ops"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+jni = { version = "0.21", optional = true }
+libc = { version = "0.2", optional = true }
+
+[features]
+default = []
+jvm = ["jni", "libc"]
+
+[profile.release]
+opt-level = 3
+lto = true

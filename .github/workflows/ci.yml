@@ -1,0 +1,199 @@
+name: CI
+
+on:
+  push:
+    branches: [main, platform-validation]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─── Native Components (Rust library) ────────────────────────────────
+
+  build-native:
+    name: Native Components (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+            artifact: rust-lib-linux
+            lib-glob: |
+              native-components/target/release/libsge_native_ops.so
+              native-components/target/release/libsge_native_ops.a
+          - os: macos-26-intel
+            label: macOS Intel
+            artifact: rust-lib-macos-intel
+            lib-glob: |
+              native-components/target/release/libsge_native_ops.dylib
+              native-components/target/release/libsge_native_ops.a
+          - os: macos-latest
+            label: macOS ARM
+            artifact: rust-lib-macos-arm
+            lib-glob: |
+              native-components/target/release/libsge_native_ops.dylib
+              native-components/target/release/libsge_native_ops.a
+          - os: windows-latest
+            label: Windows
+            artifact: rust-lib-windows
+            lib-glob: |
+              native-components/target/release/sge_native_ops.dll
+              native-components/target/release/sge_native_ops.dll.lib
+              native-components/target/release/sge_native_ops.lib
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            native-components/target
+          key: rust-${{ runner.os }}-${{ hashFiles('native-components/Cargo.lock') }}
+          restore-keys: rust-${{ runner.os }}-
+
+      - name: Build Rust library (release, JVM feature)
+        working-directory: native-components
+        run: cargo build --release --features jvm
+
+      - name: Run Rust tests
+        working-directory: native-components
+        run: cargo test
+
+      - name: Upload Rust artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.lib-glob }}
+          retention-days: 1
+
+  # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
+
+  test-js:
+    name: Scala.js compile + test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Compile + test Scala.js
+        run: sbt 'coreJS/test'
+
+  # ─── JVM compile + test (requires Rust JNI library) ────────────────
+
+  test-jvm:
+    name: JVM tests (${{ matrix.label }})
+    needs: build-native
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+            artifact: rust-lib-linux
+          - os: macos-26-intel
+            label: macOS Intel
+            artifact: rust-lib-macos-intel
+          - os: macos-latest
+            label: macOS ARM
+            artifact: rust-lib-macos-arm
+          - os: windows-latest
+            label: Windows
+            artifact: rust-lib-windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Download Rust artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: native-components/target/release
+
+      - name: Run JVM tests
+        run: sbt 'core/test'
+
+  # ─── Scala Native compile + test (requires Rust static library) ────
+
+  test-native:
+    name: Scala Native tests (${{ matrix.label }})
+    needs: build-native
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux
+            artifact: rust-lib-linux
+          - os: macos-26-intel
+            label: macOS Intel
+            artifact: rust-lib-macos-intel
+          - os: macos-latest
+            label: macOS ARM
+            artifact: rust-lib-macos-arm
+          - os: windows-latest
+            label: Windows
+            artifact: rust-lib-windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Install Scala Native system dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libstdc++-12-dev
+
+      - name: Install Scala Native system dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: choco install llvm --yes
+
+      - name: Download Rust artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: native-components/target/release
+
+      - name: Remove dynamic libraries (force static linking)
+        shell: bash
+        run: rm -f native-components/target/release/libsge_native_ops.{dylib,so} native-components/target/release/sge_native_ops.dll
+
+      - name: Run Scala Native tests
+        run: sbt 'coreNative/test'

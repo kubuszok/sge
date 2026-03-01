@@ -17,14 +17,17 @@ import sge.utils.Nullable
 
 class DepthShaderProvider(val config: DepthShader.Config)(using sge: Sge) extends BaseShaderProvider {
 
-  def this(vertexShader: String, fragmentShader: String)(using sge: Sge) =
+  def this(vertexShader: String, fragmentShader: String)(using sge: Sge) = {
     this(new DepthShader.Config(vertexShader, fragmentShader))
+  }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) =
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
     this(vertexShader.readString(), fragmentShader.readString())
+  }
 
-  def this()(using sge: Sge) =
+  def this()(using sge: Sge) = {
     this(new DepthShader.Config())
+  }
 
   override protected def createShader(renderable: Renderable): Shader =
     new DepthShader(renderable, config)

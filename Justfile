@@ -212,19 +212,27 @@ stub-deprecated +files:
 
 # ── Build ─────────────────────────────────────────────────────────
 
-# Compile the project
+# Compile the project (JVM)
 compile:
-    sbt --client compile
+    sbt --client 'core/compile'
+
+# Compile Scala.js target
+compile-js:
+    sbt --client 'coreJS/compile'
+
+# Compile Scala Native target
+compile-native:
+    sbt --client 'coreNative/compile'
 
 # Compile and show last N lines (default 30)
 compile-tail n="30":
     #!/usr/bin/env bash
-    sbt --client 'core / compile' 2>&1 | tail -n {{n}}
+    sbt --client 'core/compile' 2>&1 | tail -n {{n}}
 
 # Compile and show only errors (no info/warn noise)
 compile-errors:
     #!/usr/bin/env bash
-    output=$(sbt --client 'core / compile' 2>&1)
+    output=$(sbt --client 'core/compile' 2>&1)
     echo "$output" | grep '^\[error\]' || echo "No errors"
     echo ""
     echo "$output" | tail -3
@@ -232,7 +240,7 @@ compile-errors:
 # Compile and show warnings + errors (skip info)
 compile-warnings:
     #!/usr/bin/env bash
-    output=$(sbt --client 'core / compile' 2>&1)
+    output=$(sbt --client 'core/compile' 2>&1)
     echo "$output" | grep -E '^\[(warn|error)\]' || echo "Clean"
     echo ""
     echo "$output" | tail -3
@@ -244,14 +252,29 @@ fmt:
 # Compile, format, compile again
 compile-fmt: compile fmt compile
 
-# Run all tests
+# Run JVM tests
 test:
-    sbt --client test
+    sbt --client 'core/test'
+
+# Run JVM tests (explicit)
+test-jvm:
+    sbt --client 'core/test'
+
+# Run Scala.js tests
+test-js:
+    sbt --client 'coreJS/test'
+
+# Run Scala Native tests (requires static-only Rust lib)
+test-native: rust-build-static
+    sbt --client 'coreNative/test'
+
+# Build Rust + run all platform tests (JVM + JS + Native)
+test-all: rust-build test-jvm test-js test-native
 
 # Run all tests and show last N lines (default 20)
 test-tail n="20":
     #!/usr/bin/env bash
-    sbt --client 'core / test' 2>&1 | tail -n {{n}}
+    sbt --client 'core/test' 2>&1 | tail -n {{n}}
 
 # Run a specific test suite
 test-only suite:
@@ -365,6 +388,10 @@ commit message:
 commit-all message:
     git add -A && git commit -m "{{message}}"
 
+# Push current branch to origin
+push:
+    git push origin "$(git branch --show-current)"
+
 # ── GitHub CLI — read-only ───────────────────────────────────────
 
 # List open PRs
@@ -459,6 +486,21 @@ sge-count pattern:
     #!/usr/bin/env bash
     rg -c '{{pattern}}' {{sge_src}} --type scala 2>/dev/null \
         | awk -F: '{s+=$2; n++; print} END{print ""; print "  Files: " n "  Occurrences: " s}'
+
+# ── Native Components (Rust library) ─────────────────────────────
+
+# Build the Rust native library (release mode, JVM feature enabled)
+rust-build:
+    cd native-components && cargo build --release --features jvm
+
+# Build Rust and remove .dylib so Scala Native links statically
+rust-build-static:
+    cd native-components && cargo build --release --features jvm
+    rm -f native-components/target/release/libsge_native_ops.dylib native-components/target/release/libsge_native_ops.so
+
+# Run Rust unit tests
+rust-test:
+    cd native-components && cargo test
 
 # ── Metals MCP ────────────────────────────────────────────────────
 

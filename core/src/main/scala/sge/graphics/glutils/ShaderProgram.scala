@@ -107,8 +107,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     ShaderProgram.addManagedShader(sge.application, this)
   }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) =
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
     this(vertexShader.readString(), fragmentShader.readString())
+  }
 
   /** Loads and compiles the shaders, creates a new program and links the shaders.
     *

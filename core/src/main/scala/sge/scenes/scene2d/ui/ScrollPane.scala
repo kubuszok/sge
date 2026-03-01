@@ -92,16 +92,19 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using sge: Sge) =
+  def this(actor: Nullable[Actor])(using sge: Sge) = {
     this(actor, new ScrollPane.ScrollPaneStyle())
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using sge: Sge) =
+  def this(actor: Nullable[Actor], skin: Skin)(using sge: Sge) = {
     this(actor, skin.get(classOf[ScrollPane.ScrollPaneStyle]))
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using sge: Sge) =
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using sge: Sge) = {
     this(actor, skin.get(styleName, classOf[ScrollPane.ScrollPaneStyle]))
+  }
 
   protected def addCaptureListener(): Unit = {
     val self = this

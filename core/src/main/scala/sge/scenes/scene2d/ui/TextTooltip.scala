@@ -27,20 +27,25 @@ class TextTooltip(text: Nullable[String], manager: TooltipManager, style: TextTo
 
   setStyle(style)
 
-  def this(text: Nullable[String], skin: Skin)(using Sge) =
+  def this(text: Nullable[String], skin: Skin)(using Sge) = {
     this(text, TooltipManager.getInstance(), skin.get(classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) =
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
     this(text, TooltipManager.getInstance(), skin.get(styleName, classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) =
+  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) = {
     this(text, TooltipManager.getInstance(), style)
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) = {
     this(text, manager, skin.get(classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) = {
     this(text, manager, skin.get(styleName, classOf[TextTooltip.TextTooltipStyle]))
+  }
 
   protected def newLabel(text: Nullable[String], style: LabelStyle): Label =
     new Label(text.map(t => t: CharSequence), style)

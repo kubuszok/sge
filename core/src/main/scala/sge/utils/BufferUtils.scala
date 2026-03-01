@@ -21,6 +21,7 @@ import java.nio.ShortBuffer
 
 import sge.math.Matrix3;
 import sge.math.Matrix4;
+import sge.platform.PlatformOps
 
 /** Class with static helper methods to increase the speed of array/direct buffer and direct buffer/direct buffer transfers
   *
@@ -31,9 +32,6 @@ object BufferUtils {
 
   val unsafeBuffers:   DynamicArray[ByteBuffer] = DynamicArray[ByteBuffer]()
   var allocatedUnsafe: Int                      = 0
-
-  // Import the native methods from the Gdx library.
-  import com.badlogic.gdx.utils.BufferUtils._
 
   /** Copies numFloats floats from src starting at offset to dst. Dst is assumed to be a direct {@link Buffer} . The method will crash if that is not the case. The position and limit of the buffer are
     * ignored, the copy is placed at position 0 in the buffer. After the copying process the position of the buffer is set to 0 and its limit is set to numFloats * 4 if it is a ByteBuffer and
@@ -53,7 +51,10 @@ object BufferUtils {
       dst.limit(numFloats << 2);
     else if (dst.isInstanceOf[FloatBuffer]) dst.limit(numFloats);
 
-    copyJni(src, dst, numFloats, offset);
+    // Write floats into the buffer at position 0
+    val bb = asByteBuffer(dst)
+    bb.position(0)
+    bb.asFloatBuffer().put(src, offset, numFloats)
     dst.position(0);
   }
 
@@ -71,7 +72,9 @@ object BufferUtils {
     */
   def copy(src: Array[Byte], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.put(src, srcOffset, numElements)
   }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -88,7 +91,9 @@ object BufferUtils {
     */
   def copy(src: Array[Short], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements << 1))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 1)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asShortBuffer().put(src, srcOffset, numElements)
   }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -103,8 +108,11 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  def copy(src: Array[Char], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 1)
+  def copy(src: Array[Char], srcOffset: Int, numElements: Int, dst: Buffer): Unit = {
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asCharBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -119,7 +127,6 @@ object BufferUtils {
     *   the destination Buffer, its position is used as an offset.
     */
   // def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-  //  copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
   // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -134,8 +141,11 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  def copy(src: Array[Long], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 3)
+  def copy(src: Array[Long], srcOffset: Int, numElements: Int, dst: Buffer): Unit = {
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asLongBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -149,8 +159,11 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  def copy(src: Array[Float], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
+  def copy(src: Array[Float], srcOffset: Int, numElements: Int, dst: Buffer): Unit = {
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asFloatBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -164,8 +177,11 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  def copy(src: Array[Double], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 3)
+  def copy(src: Array[Double], srcOffset: Int, numElements: Int, dst: Buffer): Unit = {
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asDoubleBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position will stay the same, the limit will be set to position + numElements. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -181,7 +197,9 @@ object BufferUtils {
     */
   def copy(src: Array[Char], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements << 1))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 1)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asCharBuffer().put(src, srcOffset, numElements)
   }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -198,7 +216,6 @@ object BufferUtils {
     */
   // def copy(src: Array[Int], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
   //   dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
-  //   copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
   // }
   // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
 
@@ -216,7 +233,9 @@ object BufferUtils {
     */
   def copy(src: Array[Long], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements << 3))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 3)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asLongBuffer().put(src, srcOffset, numElements)
   }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -233,7 +252,9 @@ object BufferUtils {
     */
   def copy(src: Array[Float], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 2)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asFloatBuffer().put(src, srcOffset, numElements)
   }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
@@ -250,13 +271,14 @@ object BufferUtils {
     */
   def copy(src: Array[Double], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
     dst.limit(dst.position() + bytesToElements(dst, numElements << 3))
-    copyJni(src, srcOffset, dst, positionInBytes(dst), numElements << 3)
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asDoubleBuffer().put(src, srcOffset, numElements)
   }
 
-  /** Copies the contents of src to dst, starting from the current position of src, copying numElements elements (using the data type of src, no matter the datatype of dst). The dst
-    * {@link Buffer#position()} is used as the writing offset. The position of both Buffers will stay the same. The limit of the src Buffer will stay the same. The limit of the dst Buffer will be set
-    * to dst.position() + numElements, where numElements are translated to the number of elements appropriate for the dst Buffer data type. <b>The Buffers must be direct Buffers with native byte
-    * order. No error checking is performed</b>.
+  /** Copies the contents of src to dst, starting from the current position of src, copying numElements elements. The dst {@link Buffer#position()} is used as the writing offset. The position of both
+    * Buffers will stay the same. The limit of the src Buffer will stay the same. The limit of the dst Buffer will be set to dst.position() + numElements, where numElements are translated to the
+    * number of elements appropriate for the dst Buffer data type. <b>The Buffers must be direct Buffers with native byte order. No error checking is performed</b>.
     *
     * @param src
     *   the source Buffer.
@@ -268,7 +290,14 @@ object BufferUtils {
   def copy(src: Buffer, dst: Buffer, numElements: Int): Unit = {
     val numBytes = elementsToBytes(src, numElements)
     dst.limit(dst.position() + bytesToElements(dst, numBytes))
-    copyJni(src, positionInBytes(src), dst, positionInBytes(dst), numBytes)
+    val srcBb  = asByteBuffer(src)
+    val srcPos = positionInBytes(src)
+    val srcDup = srcBb.duplicate()
+    srcDup.position(srcPos)
+    srcDup.limit(srcPos + numBytes)
+    val dstBb = asByteBuffer(dst)
+    dstBb.position(positionInBytes(dst))
+    dstBb.put(srcDup)
   }
 
   /** Multiply float vector components within the buffer with the specified matrix. The {@link Buffer#position()} is used as the offset.
@@ -316,15 +345,17 @@ object BufferUtils {
     *   The offset within the buffer (in bytes relative to the current position) to the vector
     */
   def transform(data: Buffer, dimensions: Int, strideInBytes: Int, count: Int, matrix: Matrix4, offset: Int): Unit =
-    dimensions match {
-      case 4 =>
-        transformV4M4Jni(data, strideInBytes, count, matrix.values, positionInBytes(data) + offset)
-      case 3 =>
-        transformV3M4Jni(data, strideInBytes, count, matrix.values, positionInBytes(data) + offset)
-      case 2 =>
-        transformV2M4Jni(data, strideInBytes, count, matrix.values, positionInBytes(data) + offset)
-      case _ =>
-        throw new IllegalArgumentException()
+    withFloatArray(data, positionInBytes(data) + offset) { (arr, floatOffset) =>
+      dimensions match {
+        case 4 =>
+          PlatformOps.buffer.transformV4M4(arr, strideInBytes / 4, count, matrix.values, floatOffset)
+        case 3 =>
+          PlatformOps.buffer.transformV3M4(arr, strideInBytes / 4, count, matrix.values, floatOffset)
+        case 2 =>
+          PlatformOps.buffer.transformV2M4(arr, strideInBytes / 4, count, matrix.values, floatOffset)
+        case _ =>
+          throw new IllegalArgumentException()
+      }
     }
 
   /** Multiply float vector components within the buffer with the specified matrix. The specified offset value is added to the {@link Buffer#position()} and used as the offset.
@@ -344,11 +375,11 @@ object BufferUtils {
   def transform(data: Array[Float], dimensions: Int, strideInBytes: Int, count: Int, matrix: Matrix4, offset: Int): Unit =
     dimensions match {
       case 4 =>
-        transformV4M4Jni(data, strideInBytes, count, matrix.values, offset)
+        PlatformOps.buffer.transformV4M4(data, strideInBytes / 4, count, matrix.values, offset / 4)
       case 3 =>
-        transformV3M4Jni(data, strideInBytes, count, matrix.values, offset)
+        PlatformOps.buffer.transformV3M4(data, strideInBytes / 4, count, matrix.values, offset / 4)
       case 2 =>
-        transformV2M4Jni(data, strideInBytes, count, matrix.values, offset)
+        PlatformOps.buffer.transformV2M4(data, strideInBytes / 4, count, matrix.values, offset / 4)
       case _ =>
         throw new IllegalArgumentException()
     }
@@ -398,13 +429,15 @@ object BufferUtils {
     *   The offset within the buffer (in bytes relative to the current position) to the vector
     */
   def transform(data: Buffer, dimensions: Int, strideInBytes: Int, count: Int, matrix: Matrix3, offset: Int): Unit =
-    dimensions match {
-      case 3 =>
-        transformV3M3Jni(data, strideInBytes, count, matrix.values, positionInBytes(data) + offset)
-      case 2 =>
-        transformV2M3Jni(data, strideInBytes, count, matrix.values, positionInBytes(data) + offset)
-      case _ =>
-        throw new IllegalArgumentException()
+    withFloatArray(data, positionInBytes(data) + offset) { (arr, floatOffset) =>
+      dimensions match {
+        case 3 =>
+          PlatformOps.buffer.transformV3M3(arr, strideInBytes / 4, count, matrix.values, floatOffset)
+        case 2 =>
+          PlatformOps.buffer.transformV2M3(arr, strideInBytes / 4, count, matrix.values, floatOffset)
+        case _ =>
+          throw new IllegalArgumentException()
+      }
     }
 
   /** Multiply float vector components within the buffer with the specified matrix. The specified offset value is added to the {@link Buffer#position()} and used as the offset.
@@ -424,36 +457,152 @@ object BufferUtils {
   def transform(data: Array[Float], dimensions: Int, strideInBytes: Int, count: Int, matrix: Matrix3, offset: Int): Unit =
     dimensions match {
       case 3 =>
-        transformV3M3Jni(data, strideInBytes, count, matrix.values, offset)
+        PlatformOps.buffer.transformV3M3(data, strideInBytes / 4, count, matrix.values, offset / 4)
       case 2 =>
-        transformV2M3Jni(data, strideInBytes, count, matrix.values, offset)
+        PlatformOps.buffer.transformV2M3(data, strideInBytes / 4, count, matrix.values, offset / 4)
       case _ =>
         throw new IllegalArgumentException()
     }
 
   def findFloats(vertex: Buffer, strideInBytes: Int, vertices: Buffer, numVertices: Int): Long =
-    find(vertex, positionInBytes(vertex), strideInBytes, vertices, positionInBytes(vertices), numVertices)
+    findFromBuffers(vertex, positionInBytes(vertex), strideInBytes, vertices, positionInBytes(vertices), numVertices)
 
   def findFloats(vertex: Array[Float], strideInBytes: Int, vertices: Buffer, numVertices: Int): Long =
-    find(vertex, 0, strideInBytes, vertices, positionInBytes(vertices), numVertices)
+    findArrayInBuffer(vertex, 0, strideInBytes, vertices, positionInBytes(vertices), numVertices)
 
   def findFloats(vertex: Buffer, strideInBytes: Int, vertices: Array[Float], numVertices: Int): Long =
-    find(vertex, positionInBytes(vertex), strideInBytes, vertices, 0, numVertices)
+    findBufferInArray(vertex, positionInBytes(vertex), strideInBytes, vertices, 0, numVertices)
 
   def findFloats(vertex: Array[Float], strideInBytes: Int, vertices: Array[Float], numVertices: Int): Long =
-    find(vertex, 0, strideInBytes, vertices, 0, numVertices)
+    PlatformOps.buffer.find(vertex, 0, strideInBytes / 4, vertices, 0, numVertices)
 
   def findFloats(vertex: Buffer, strideInBytes: Int, vertices: Buffer, numVertices: Int, epsilon: Float): Long =
-    find(vertex, positionInBytes(vertex), strideInBytes, vertices, positionInBytes(vertices), numVertices, epsilon)
+    findFromBuffersEpsilon(vertex, positionInBytes(vertex), strideInBytes, vertices, positionInBytes(vertices), numVertices, epsilon)
 
   def findFloats(vertex: Array[Float], strideInBytes: Int, vertices: Buffer, numVertices: Int, epsilon: Float): Long =
-    find(vertex, 0, strideInBytes, vertices, positionInBytes(vertices), numVertices, epsilon)
+    findArrayInBufferEpsilon(vertex, 0, strideInBytes, vertices, positionInBytes(vertices), numVertices, epsilon)
 
   def findFloats(vertex: Buffer, strideInBytes: Int, vertices: Array[Float], numVertices: Int, epsilon: Float): Long =
-    find(vertex, positionInBytes(vertex), strideInBytes, vertices, 0, numVertices, epsilon)
+    findBufferInArrayEpsilon(vertex, positionInBytes(vertex), strideInBytes, vertices, 0, numVertices, epsilon)
 
   def findFloats(vertex: Array[Float], strideInBytes: Int, vertices: Array[Float], numVertices: Int, epsilon: Float): Long =
-    find(vertex, 0, strideInBytes, vertices, 0, numVertices, epsilon)
+    PlatformOps.buffer.find(vertex, 0, strideInBytes / 4, vertices, 0, numVertices, epsilon)
+
+  // ─── Find helpers (Buffer→Array adapters) ──────────────────────────────
+
+  private def findFromBuffers(
+    vertex:             Buffer,
+    vertexByteOffset:   Int,
+    strideInBytes:      Int,
+    vertices:           Buffer,
+    verticesByteOffset: Int,
+    numVertices:        Int
+  ): Long = {
+    val vArr  = extractFloats(vertex, vertexByteOffset)
+    val vsArr = extractFloats(vertices, verticesByteOffset)
+    PlatformOps.buffer.find(vArr, 0, strideInBytes / 4, vsArr, 0, numVertices)
+  }
+
+  private def findArrayInBuffer(
+    vertex:             Array[Float],
+    vertexOffset:       Int,
+    strideInBytes:      Int,
+    vertices:           Buffer,
+    verticesByteOffset: Int,
+    numVertices:        Int
+  ): Long = {
+    val vsArr = extractFloats(vertices, verticesByteOffset)
+    PlatformOps.buffer.find(vertex, vertexOffset, strideInBytes / 4, vsArr, 0, numVertices)
+  }
+
+  private def findBufferInArray(
+    vertex:           Buffer,
+    vertexByteOffset: Int,
+    strideInBytes:    Int,
+    vertices:         Array[Float],
+    verticesOffset:   Int,
+    numVertices:      Int
+  ): Long = {
+    val vArr = extractFloats(vertex, vertexByteOffset)
+    PlatformOps.buffer.find(vArr, 0, strideInBytes / 4, vertices, verticesOffset, numVertices)
+  }
+
+  private def findFromBuffersEpsilon(
+    vertex:             Buffer,
+    vertexByteOffset:   Int,
+    strideInBytes:      Int,
+    vertices:           Buffer,
+    verticesByteOffset: Int,
+    numVertices:        Int,
+    epsilon:            Float
+  ): Long = {
+    val vArr  = extractFloats(vertex, vertexByteOffset)
+    val vsArr = extractFloats(vertices, verticesByteOffset)
+    PlatformOps.buffer.find(vArr, 0, strideInBytes / 4, vsArr, 0, numVertices, epsilon)
+  }
+
+  private def findArrayInBufferEpsilon(
+    vertex:             Array[Float],
+    vertexOffset:       Int,
+    strideInBytes:      Int,
+    vertices:           Buffer,
+    verticesByteOffset: Int,
+    numVertices:        Int,
+    epsilon:            Float
+  ): Long = {
+    val vsArr = extractFloats(vertices, verticesByteOffset)
+    PlatformOps.buffer.find(vertex, vertexOffset, strideInBytes / 4, vsArr, 0, numVertices, epsilon)
+  }
+
+  private def findBufferInArrayEpsilon(
+    vertex:           Buffer,
+    vertexByteOffset: Int,
+    strideInBytes:    Int,
+    vertices:         Array[Float],
+    verticesOffset:   Int,
+    numVertices:      Int,
+    epsilon:          Float
+  ): Long = {
+    val vArr = extractFloats(vertex, vertexByteOffset)
+    PlatformOps.buffer.find(vArr, 0, strideInBytes / 4, vertices, verticesOffset, numVertices, epsilon)
+  }
+
+  // ─── Buffer↔Array adapter helpers ──────────────────────────────────────
+
+  /** Extract all remaining floats from a Buffer starting at a byte offset. */
+  private def extractFloats(buf: Buffer, byteOffset: Int): Array[Float] = {
+    val bb  = asByteBuffer(buf)
+    val dup = bb.duplicate().order(ByteOrder.nativeOrder())
+    dup.position(byteOffset)
+    val fb  = dup.asFloatBuffer()
+    val arr = new Array[Float](fb.remaining())
+    fb.get(arr)
+    arr
+  }
+
+  /** Extract floats from a Buffer, call a mutating function, then write them back. */
+  private def withFloatArray(buf: Buffer, byteOffset: Int)(f: (Array[Float], Int) => Unit): Unit = {
+    val bb  = asByteBuffer(buf)
+    val dup = bb.duplicate().order(ByteOrder.nativeOrder())
+    dup.position(byteOffset)
+    val fb  = dup.asFloatBuffer()
+    val arr = new Array[Float](fb.remaining())
+    fb.get(arr)
+    f(arr, 0)
+    fb.position(0)
+    fb.put(arr)
+  }
+
+  /** Get the underlying ByteBuffer from any Buffer type. */
+  private def asByteBuffer(buf: Buffer): ByteBuffer =
+    buf match {
+      case bb: ByteBuffer => bb
+      case _ =>
+        // For view buffers (FloatBuffer, ShortBuffer, etc.), we need the backing ByteBuffer.
+        // Direct view buffers are created from a ByteBuffer, so we use reflection-free casting
+        // through the buffer's bulk operations. This relies on the Buffer being direct.
+        throw new UnsupportedOperationException("Expected a ByteBuffer, got " + buf.getClass.getName)
+    }
 
   private def positionInBytes(dst: Buffer): Int =
     dst match {
@@ -542,7 +691,7 @@ object BufferUtils {
       unsafeBuffers.removeIndex(index)
     }
     allocatedUnsafe -= size
-    freeMemory(buffer)
+    PlatformOps.buffer.freeMemory(buffer)
   }
 
   def isUnsafeByteBuffer(buffer: ByteBuffer): Boolean =
@@ -553,7 +702,7 @@ object BufferUtils {
   /** Allocates a new direct ByteBuffer from native heap memory using the native byte order. Needs to be disposed with {@link #disposeUnsafeByteBuffer(ByteBuffer)} .
     */
   def newUnsafeByteBuffer(numBytes: Int): ByteBuffer = {
-    val buffer = newDisposableByteBuffer(numBytes)
+    val buffer = PlatformOps.buffer.newDisposableByteBuffer(numBytes)
     buffer.order(ByteOrder.nativeOrder())
     allocatedUnsafe += numBytes
     unsafeBuffers.synchronized {
@@ -569,7 +718,7 @@ object BufferUtils {
     *   the address of the Buffer.
     */
   def getUnsafeBufferAddress(buffer: Buffer): Long =
-    getBufferAddress(buffer) + buffer.position()
+    PlatformOps.buffer.getBufferAddress(buffer) + buffer.position()
 
   /** Registers the given ByteBuffer as an unsafe ByteBuffer. The ByteBuffer must have been allocated in native code, pointing to a memory region allocated via malloc. Needs to be disposed with
     * {@link #disposeUnsafeByteBuffer(ByteBuffer)} .

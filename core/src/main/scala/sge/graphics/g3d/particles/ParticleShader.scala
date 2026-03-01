@@ -57,10 +57,11 @@ class ParticleShader private (
   // Object uniforms
   register(DefaultShader.Inputs.diffuseTexture, Nullable(DefaultShader.Setters.diffuseTexture))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using sge: Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using sge: Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using sge: Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using sge: Sge) = {
     this(
       renderable,
       config,
@@ -68,12 +69,15 @@ class ParticleShader private (
       config.vertexShader.getOrElse(ParticleShader.getDefaultVertexShader()),
       config.fragmentShader.getOrElse(ParticleShader.getDefaultFragmentShader())
     )
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config)(using sge: Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config)(using sge: Sge) = {
     this(renderable, config, ParticleShader.createPrefix(renderable, config))
+  }
 
-  def this(renderable: Renderable)(using sge: Sge) =
+  def this(renderable: Renderable)(using sge: Sge) = {
     this(renderable, new ParticleShader.Config())
+  }
 
   override def init(): Unit = {
     val prog = this.program

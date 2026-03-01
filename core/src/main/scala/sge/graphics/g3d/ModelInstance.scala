@@ -130,12 +130,14 @@ class ModelInstance(
   }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance, transform: Matrix4) =
+  def this(copyFrom: ModelInstance, transform: Matrix4) = {
     this(copyFrom, transform, ModelInstance.defaultShareKeyframes)
+  }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance) =
+  def this(copyFrom: ModelInstance) = {
     this(copyFrom, copyFrom.transform.cpy())
+  }
 
   /** @return A newly created ModelInstance which is a copy of this ModelInstance */
   def copy(): ModelInstance = new ModelInstance(this)

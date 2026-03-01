@@ -26,8 +26,9 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
 
   private var distanceFieldSmoothing: Float = scala.compiletime.uninitialized
 
-  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) =
+  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(new BitmapFontData(Nullable(fontFile), flip), Nullable.empty, true)
+  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using sge: Sge) = {
     this(
@@ -38,10 +39,11 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
     setOwnsTexture(true)
   }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) =
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
     this(fontFile, imageFile, flip, true)
+  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) = {
     this(
       new BitmapFontData(Nullable(fontFile), flip),
       region.fold(Nullable.empty[DynamicArray[TextureRegion]]) { r =>
@@ -49,12 +51,15 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
       },
       true
     )
+  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) = {
     this(fontFile, region, false)
+  }
 
-  def this(fontFile: FileHandle)(using sge: Sge) =
+  def this(fontFile: FileHandle)(using sge: Sge) = {
     this(fontFile, Nullable.empty[TextureRegion])
+  }
 
   override protected def load(data: BitmapFontData): Unit = {
     super.load(data)
@@ -84,8 +89,9 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
     *   Florian Falkner
     */
   private class DistanceFieldFontCache(font: DistanceFieldFont, integer: Boolean) extends BitmapFontCache(font, integer) {
-    def this(font: DistanceFieldFont) =
+    def this(font: DistanceFieldFont) = {
       this(font, font.usesIntegerPositions())
+    }
 
     private def getSmoothingFactor(): Float = {
       val font = super.getFont().asInstanceOf[DistanceFieldFont]

@@ -25,8 +25,9 @@ abstract class SpawnShapeValue extends ParticleValue with ResourceData.Configura
   var yOffsetValue: RangedNumericValue = new RangedNumericValue()
   var zOffsetValue: RangedNumericValue = new RangedNumericValue()
 
-  def this(spawnShapeValue: SpawnShapeValue) =
+  def this(spawnShapeValue: SpawnShapeValue) = {
     this()
+  }
 
   def spawnAux(vector: Vector3, percent: Float): Unit
 

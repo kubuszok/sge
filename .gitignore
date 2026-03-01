@@ -4,7 +4,9 @@
 .metals/
 
 ## sbt
-project/
+project/*
+!project/plugins.sbt
+!project/build.properties
 target/
 
 # VC Code, Cursor, etc.
@@ -23,6 +25,9 @@ target/
 ## Metals MCP
 metals-mcp-server
 .mcp.json
+
+## Rust
+native-components/target/
 
 ## OS-Specific:
 .DS_Store

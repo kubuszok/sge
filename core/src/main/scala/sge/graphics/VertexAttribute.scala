@@ -49,8 +49,9 @@ final class VertexAttribute(
     * @param alias
     *   the alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, alias: String) =
+  def this(usage: Int, numComponents: Int, alias: String) = {
     this(usage, numComponents, false, if (usage == Usage.ColorPacked) GL20.GL_UNSIGNED_BYTE else GL20.GL_FLOAT, alias, 0)
+  }
 
   /** Constructs a new VertexAttribute. The GL data type is automatically selected based on the usage.
     *
@@ -63,7 +64,7 @@ final class VertexAttribute(
     * @param unit
     *   Optional unit/index specifier, used for texture coordinates and bone weights
     */
-  def this(usage: Int, numComponents: Int, alias: String, unit: Int) =
+  def this(usage: Int, numComponents: Int, alias: String, unit: Int) = {
     this(
       usage,
       numComponents,
@@ -72,6 +73,7 @@ final class VertexAttribute(
       alias,
       unit
     )
+  }
 
   /** Constructs a new VertexAttribute.
     *
@@ -87,8 +89,9 @@ final class VertexAttribute(
     * @param alias
     *   The alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) =
+  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) = {
     this(usage, numComponents, normalized, `type`, alias, 0)
+  }
 
   /** @return
     *   A copy of this VertexAttribute with the same parameters. The {@link #offset} is not copied and must be recalculated, as is typically done by the {@linkplain VertexAttributes} that owns the

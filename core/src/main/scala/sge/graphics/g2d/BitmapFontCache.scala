@@ -33,8 +33,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) =
+  def this(font: BitmapFont) = {
     this(font, font.usesIntegerPositions())
+  }
 
   // Initialize fields in the primary constructor
   private val pageCount = font.regions.size
