@@ -8,16 +8,15 @@
  */
 package sge
 
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.DynamicArray
 
 /** An {@link InputProcessor} that delegates to an ordered list of other InputProcessors. Delegation for an event stops if a processor returns true, which indicates that the event was handled.
   * @author
   *   Nathan Sweet (original implementation)
   */
 class InputMultiplexer extends InputProcessor {
-  private var processors = DynamicArray[InputProcessor]()
-  private var processingCopy: DynamicArray[InputProcessor] = DynamicArray[InputProcessor]()
-  private var inProcessing = false
+  private val processors = DynamicArray[InputProcessor]()
+  private val processingCopy: DynamicArray[InputProcessor] = DynamicArray[InputProcessor]()
 
   def this(processors: InputProcessor*) = {
     this()

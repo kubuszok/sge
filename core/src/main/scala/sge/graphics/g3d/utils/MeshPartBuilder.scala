@@ -11,8 +11,7 @@ package graphics
 package g3d
 package utils
 
-import sge.graphics.{ Color, GL20, Mesh, VertexAttributes }
-import sge.graphics.VertexAttributes.Usage
+import sge.graphics.{ Color, Mesh, VertexAttributes }
 import sge.graphics.g2d.TextureRegion
 import sge.graphics.g3d.model.MeshPart
 import sge.math.{ Matrix4, Vector2, Vector3 }

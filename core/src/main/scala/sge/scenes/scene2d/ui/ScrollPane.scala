@@ -11,13 +11,12 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.{ Interpolation, MathUtils, Rectangle, Vector2 }
-import sge.scenes.scene2d.{ Actor, Event, InputEvent, InputListener, Stage, Touchable }
+import sge.scenes.scene2d.{ Actor, Event, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.utils.{ ActorGestureListener, Cullable, Drawable, Layout }
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.Nullable
 
 /** A group that scrolls a child actor using scrollbars and/or mouse or touch dragging. <p> The actor is sized to its preferred size. If the actor's preferred width or height is less than the size of
   * this scroll pane, it is set to the size of this scroll pane. Scrollbars appear when the actor is larger than the scroll pane. <p> The scroll pane's preferred size is that of the child actor. At
@@ -27,7 +26,7 @@ import sge.utils.{ Nullable, SgeError }
   * @author
   *   Nathan Sweet
   */
-class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(using sge: Sge) extends WidgetGroup with Styleable[ScrollPane.ScrollPaneStyle] {
+class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(using Sge) extends WidgetGroup with Styleable[ScrollPane.ScrollPaneStyle] {
   import ScrollPane._
 
   private var _style: ScrollPaneStyle = scala.compiletime.uninitialized
@@ -92,19 +91,16 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using sge: Sge) = {
+  def this(actor: Nullable[Actor])(using Sge) =
     this(actor, new ScrollPane.ScrollPaneStyle())
-  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using sge: Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin)(using Sge) =
     this(actor, skin.get(classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using sge: Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) =
     this(actor, skin.get(styleName, classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   protected def addCaptureListener(): Unit = {
     val self = this
@@ -302,7 +298,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     */
   override def getStyle: ScrollPaneStyle = _style
 
-  override def act(delta: Float)(using sge: Sge): Unit = {
+  override def act(delta: Float)(using Sge): Unit = {
     super.act(delta)
 
     val panning   = flickScrollListener.getGestureDetector.isPanning()
@@ -395,7 +391,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
     if (animating) {
       getStage.foreach { stage =>
-        if (stage.getActionsRequestRendering) sge.graphics.requestRendering()
+        if (stage.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
   }

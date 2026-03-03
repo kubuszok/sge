@@ -58,7 +58,7 @@ class VerticalGroup extends WidgetGroup {
   private def computeSize(): Unit = {
     sizeInvalid = false
     val children = getChildren
-    var n        = children.size
+    val n        = children.size
     _prefWidth = 0
     if (_wrap) {
       _prefHeight = 0
@@ -167,7 +167,7 @@ class VerticalGroup extends WidgetGroup {
       align = _columnAlign
 
       val children = getChildren
-      var n        = children.size
+      val n        = children.size
       var i        = if (_reverse) n - 1 else 0
       val end      = if (_reverse) -1 else n
       val incr     = if (_reverse) -1 else 1
@@ -248,7 +248,7 @@ class VerticalGroup extends WidgetGroup {
 
     val colSizes = columnSizes.getOrElse(DynamicArray[Float]())
     val children = getChildren
-    var n        = children.size
+    val n        = children.size
     var i        = if (_reverse) n - 1 else 0
     val end      = if (_reverse) -1 else n
     val incr     = if (_reverse) -1 else 1

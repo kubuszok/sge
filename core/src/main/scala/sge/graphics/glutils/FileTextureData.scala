@@ -17,7 +17,6 @@ import sge.graphics.PixmapIO
 import sge.graphics.TextureData
 import sge.utils.SgeError
 import sge.utils.Nullable
-import scala.compiletime.uninitialized
 
 class FileTextureData(
   val file:            FileHandle,

@@ -11,9 +11,6 @@ package graphics
 package g3d
 package particles
 
-import scala.util.boundary
-import scala.util.boundary.break
-
 import sge.graphics.Camera
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData
 import sge.math.{ Matrix4, Vector3 }
@@ -42,7 +39,7 @@ abstract class ParticleSorter {
 }
 
 object ParticleSorter {
-  private val TMP_V1: Vector3 = new Vector3()
+  new Vector3()
 
   /** Using this class will not apply sorting */
   class None extends ParticleSorter {

@@ -44,7 +44,7 @@ class MapObjects extends Iterable[MapObject] {
 
   /** Get the index of the object having the specified name, or -1 if no such object exists. */
   def getIndex(name: String): Int =
-    getIndex(get(name).orNull)
+    get(name).fold(-1)(getIndex)
 
   /** Get the index of the object in the collection, or -1 if no such object exists. */
   def getIndex(obj: MapObject): Int =

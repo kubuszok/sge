@@ -41,7 +41,7 @@ class TimSort[T] {
 
   /** This controls when we get *into* galloping mode. It is initialized to MIN_GALLOP. The mergeLo and mergeHi methods nudge it higher for random data, and lower for highly structured data.
     */
-  private var minGallop: Int = TimSort.MIN_GALLOP
+  TimSort.MIN_GALLOP
 
   /** Temp storage for merges. */
   private var tmp:      Array[AnyRef] = scala.compiletime.uninitialized

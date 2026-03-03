@@ -4,7 +4,8 @@ package math
 class Vector2Test extends munit.FunSuite {
 
   test("toString") {
-    assertEquals(new Vector2(-5f, 42.00055f).toString(), "(-5.0,42.00055)")
+    // Use exact float values (binary fractions, non-integer) to avoid JVM/JS formatting differences
+    assertEquals(new Vector2(-5.5f, 42.5f).toString(), "(-5.5,42.5)")
   }
 
   test("fromString") {

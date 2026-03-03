@@ -17,7 +17,7 @@ import scala.util.boundary.break
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe, NodePart }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.{ ArrayMap, DynamicArray, Nullable, Pool }
+import sge.utils.{ DynamicArray, Nullable, Pool }
 
 /** An instance of a {@link Model}, allows to specify global transform and modify the materials, as it has a copy of the model's materials. Multiple instances can be created from the same Model, all
   * sharing the meshes and textures of the Model. The Model owns the meshes and textures, to dispose of these, the Model has to be disposed. Therefor, the Model must outlive all its ModelInstances
@@ -61,9 +61,10 @@ class ModelInstance(
   /** Constructs a new ModelInstance with only the specified nodes and materials of the given model. */
   def this(model: Model, rootNodeIds: Nullable[Seq[String]]) = {
     this(model, new Matrix4())
-    val hasIds = rootNodeIds.fold(false)(_.nonEmpty)
-    if (hasIds) copyNodesById(model.nodes, rootNodeIds.orNull)
-    else copyNodes(model.nodes)
+    rootNodeIds.fold(copyNodes(model.nodes)) { ids =>
+      if (ids.nonEmpty) copyNodesById(model.nodes, ids)
+      else copyNodes(model.nodes)
+    }
     copyAnimations(model.animations, ModelInstance.defaultShareKeyframes)
     calculateTransforms()
   }
@@ -71,9 +72,10 @@ class ModelInstance(
   /** Constructs a new ModelInstance with the specified transform. */
   def this(model: Model, transform: Nullable[Matrix4], rootNodeIds: Nullable[Seq[String]]) = {
     this(model, transform.getOrElse(new Matrix4()))
-    val hasIds = rootNodeIds.fold(false)(_.nonEmpty)
-    if (hasIds) copyNodesById(model.nodes, rootNodeIds.orNull)
-    else copyNodes(model.nodes)
+    rootNodeIds.fold(copyNodes(model.nodes)) { ids =>
+      if (ids.nonEmpty) copyNodesById(model.nodes, ids)
+      else copyNodes(model.nodes)
+    }
     copyAnimations(model.animations, ModelInstance.defaultShareKeyframes)
     calculateTransforms()
   }
@@ -130,14 +132,12 @@ class ModelInstance(
   }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance, transform: Matrix4) = {
+  def this(copyFrom: ModelInstance, transform: Matrix4) =
     this(copyFrom, transform, ModelInstance.defaultShareKeyframes)
-  }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance) = {
+  def this(copyFrom: ModelInstance) =
     this(copyFrom, copyFrom.transform.cpy())
-  }
 
   /** @return A newly created ModelInstance which is a copy of this ModelInstance */
   def copy(): ModelInstance = new ModelInstance(this)

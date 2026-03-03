@@ -14,7 +14,6 @@ import scala.language.implicitConversions
 
 import sge.graphics.{ Pixmap, PixmapIO }
 import sge.graphics.Pixmap.Format
-import sge.graphics.g2d.Gdx2DPixmap
 import sge.graphics.glutils.{ ETC1TextureData, FileTextureData, KTXTextureData }
 import sge.files.FileHandle
 
@@ -92,10 +91,10 @@ object TextureData {
     */
   object Factory {
 
-    def loadFromFile(file: FileHandle, useMipMaps: Boolean)(using sge: Sge): TextureData =
+    def loadFromFile(file: FileHandle, useMipMaps: Boolean)(using Sge): TextureData =
       loadFromFile(file, Nullable.empty, useMipMaps)
 
-    def loadFromFile(file: FileHandle, format: Nullable[Format], useMipMaps: Boolean)(using sge: Sge): TextureData =
+    def loadFromFile(file: FileHandle, format: Nullable[Format], useMipMaps: Boolean)(using Sge): TextureData =
       if (file.name().endsWith(".cim")) new FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
       else if (file.name().endsWith(".etc1")) new ETC1TextureData(file, useMipMaps)
       else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) new KTXTextureData(file, useMipMaps)

@@ -20,5 +20,5 @@ final case class Sge private[sge] (
 )
 object Sge {
 
-  inline def apply()(using sge: Sge): Sge = sge
+  inline def apply()(using Sge): Sge = summon[Sge]
 }

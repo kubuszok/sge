@@ -13,7 +13,7 @@ import sge.math.Vector2
 import sge.utils.{ TimeUtils, Timer }
 import sge.utils.Timer.Task
 import sge.InputProcessor
-import scala.math.{ abs, min }
+import scala.math.min
 
 /** {@link InputProcessor} implementation that detects gestures (tap, long press, fling, pan, zoom, pinch) and hands them to a {@link GestureListener} .
   * @author
@@ -29,13 +29,11 @@ class GestureDetector(
 )(implicit sde: sge.Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
     this(20f, 20f, 0.4f, 1.1f, Integer.MAX_VALUE, listener)
-  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
-  }
 
   private var tapRectangleWidth:     Float = halfTapRectangleWidth
   private var tapRectangleHeight:    Float = halfTapRectangleHeight
@@ -425,15 +423,5 @@ object GestureDetector {
       }
     }
 
-    private def getSum(values: Array[Float], numSamples: Int): Float = {
-      val numSamplesUsed = min(sampleSize, numSamples)
-      if (numSamplesUsed == 0) 0
-      else {
-        var sum = 0f
-        for (i <- 0 until numSamplesUsed)
-          sum += values(i)
-        sum
-      }
-    }
   }
 }

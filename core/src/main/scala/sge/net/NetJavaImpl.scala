@@ -10,8 +10,8 @@ package sge
 package net
 
 import java.net.{ HttpURLConnection, URL }
-import java.io.{ InputStream, OutputStream, OutputStreamWriter }
-import java.util.concurrent.{ Future, LinkedBlockingQueue, SynchronousQueue, ThreadFactory, ThreadPoolExecutor, TimeUnit, atomic }
+import java.io.{ InputStream, OutputStreamWriter }
+import java.util.concurrent.{ Future, LinkedBlockingQueue, SynchronousQueue, ThreadFactory, ThreadPoolExecutor, TimeUnit }
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
 import sge.utils.{ Nullable, StreamUtils }
@@ -27,9 +27,9 @@ class NetJavaImpl(maxThreads: Int = Int.MaxValue) {
   class HttpClientResponse(connection: HttpURLConnection) extends Net.HttpResponse {
     private val status: HttpStatus =
       try
-        new HttpStatus(connection.getResponseCode())
+        HttpStatus(connection.getResponseCode())
       catch {
-        case _: java.io.IOException => new HttpStatus(-1)
+        case _: java.io.IOException => HttpStatus(-1)
       }
 
     override def getResult(): Array[Byte] =
@@ -104,30 +104,23 @@ class NetJavaImpl(maxThreads: Int = Int.MaxValue) {
 
     try {
       val method = httpRequest.getMethod()
-      val url: URL = {
-        val doInput = !method.equalsIgnoreCase(Net.HttpMethods.HEAD)
-        // should be enabled to upload data.
-        val doingOutPut = method.equalsIgnoreCase(Net.HttpMethods.POST) ||
-          method.equalsIgnoreCase(Net.HttpMethods.PUT) ||
-          method.equalsIgnoreCase(Net.HttpMethods.PATCH)
-
-        if (method.equalsIgnoreCase(Net.HttpMethods.GET) || method.equalsIgnoreCase(Net.HttpMethods.HEAD)) {
+      val url: URL =
+        if (method == Net.HttpMethod.GET || method == Net.HttpMethod.HEAD) {
           val queryString = Nullable(httpRequest.getContent()).fold("")(v => if (v != "") "?" + v else "")
           java.net.URI(httpRequest.getUrl() + queryString).toURL()
         } else {
           java.net.URI(httpRequest.getUrl()).toURL()
         }
-      }
 
       val connection  = url.openConnection().asInstanceOf[HttpURLConnection]
-      val doInput     = !method.equalsIgnoreCase(Net.HttpMethods.HEAD)
-      val doingOutPut = method.equalsIgnoreCase(Net.HttpMethods.POST) ||
-        method.equalsIgnoreCase(Net.HttpMethods.PUT) ||
-        method.equalsIgnoreCase(Net.HttpMethods.PATCH)
+      val doInput     = method != Net.HttpMethod.HEAD
+      val doingOutPut = method == Net.HttpMethod.POST ||
+        method == Net.HttpMethod.PUT ||
+        method == Net.HttpMethod.PATCH
 
       connection.setDoOutput(doingOutPut)
       connection.setDoInput(doInput)
-      connection.setRequestMethod(method)
+      connection.setRequestMethod(method.value)
       HttpURLConnection.setFollowRedirects(httpRequest.getFollowRedirects())
 
       putIntoConnectionsAndListeners(httpRequest, Nullable.fromOption(httpResponseListener), connection)

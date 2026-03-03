@@ -206,8 +206,8 @@ class ParticleController extends ResourceData.Configurable {
   }
 
   /** Updates the particles data */
-  def update()(using sge: Sge): Unit =
-    update(sge.graphics.getDeltaTime())
+  def update()(using Sge): Unit =
+    update(Sge().graphics.getDeltaTime())
 
   /** Updates the particles data */
   def update(deltaTime: Float): Unit = {

@@ -45,7 +45,7 @@ class PoolManager {
 
   /** Returns the pool registered for the class. Will return Nullable.empty, if no pool for this class is registered */
   def getPoolOrNull[T](clazz: Class[T]): Nullable[Pool[T]] =
-    Nullable(typePools.get(clazz).map(_.asInstanceOf[Pool[T]]).orNull)
+    Nullable.fromOption(typePools.get(clazz).map(_.asInstanceOf[Pool[T]]))
 
   /** Whether a pool for this class is already registered */
   def hasPool(clazz: Class[?]): Boolean =

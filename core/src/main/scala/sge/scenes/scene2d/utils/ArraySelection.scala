@@ -17,11 +17,11 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class ArraySelection[T](private var array: DynamicArray[T]) extends Selection[T] {
+class ArraySelection[T](private val array: DynamicArray[T]) extends Selection[T] {
   private var rangeSelect: Boolean     = true
   private var rangeStart:  Nullable[T] = Nullable.empty
 
-  override def choose(item: T)(using sge: Sge): Unit =
+  override def choose(item: T)(using Sge): Unit =
     if (_isDisabled) ()
     else if (!rangeSelect || !multiple) {
       super.choose(item)

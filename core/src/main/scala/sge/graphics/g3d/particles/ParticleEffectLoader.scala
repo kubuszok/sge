@@ -29,7 +29,7 @@ import _root_.sge.utils.Nullable
   * @author
   *   inferno
   */
-class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectLoadParameter](resolver) {
+class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectLoadParameter](resolver) {
 
   import ParticleEffectLoader.*
 
@@ -131,9 +131,8 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) = {
+    def this(batches: DynamicArray[ParticleBatch[?]]) =
       this(Nullable(batches))
-    }
   }
 
   class ParticleEffectSaveParameter(

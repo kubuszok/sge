@@ -11,10 +11,10 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.{ Camera, Color, OrthographicCamera }
+import sge.graphics.{ Color, OrthographicCamera }
 import sge.graphics.g2d.{ Batch, BitmapFont }
 import sge.math.Vector2
-import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage, Touchable }
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.scenes.scene2d.ui.Label.LabelStyle
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, Nullable }
@@ -123,9 +123,7 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
           var windowY = getY
 
           val minWidth      = getMinWidth
-          val maxWidth      = getMaxWidth
           val minHeight     = getMinHeight
-          val maxHeight     = getMaxHeight
           val stage         = getStage
           val clampPosition = self.keepWithinStage && stage.fold(false)(s => getParent.fold(false)(_ eq s.getRoot))
 
@@ -187,13 +185,11 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     }
   )
 
-  def this(title: String, skin: Skin) = {
+  def this(title: String, skin: Skin) =
     this(title, skin.get(classOf[Window.WindowStyle]))
-  }
 
-  def this(title: String, skin: Skin, styleName: String) = {
+  def this(title: String, skin: Skin, styleName: String) =
     this(title, skin.get(styleName, classOf[Window.WindowStyle]))
-  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     new Label(Nullable(text), style)

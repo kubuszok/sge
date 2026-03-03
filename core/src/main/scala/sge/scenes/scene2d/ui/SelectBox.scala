@@ -27,7 +27,7 @@ import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widget with Disableable with Styleable[SelectBox.SelectBoxStyle] {
+class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget with Disableable with Styleable[SelectBox.SelectBoxStyle] {
 
   import SelectBox._
 
@@ -48,8 +48,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
     }
   }
 
-  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[SelectBox.SelectBoxStyle]))
-  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[SelectBox.SelectBoxStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get(classOf[SelectBox.SelectBoxStyle]))
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[SelectBox.SelectBoxStyle]))
 
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
@@ -357,12 +357,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using sge: Sge) extends Widg
 
   def getClickListener: ClickListener = clickListener
 
-  protected def onShow(scrollPane: Actor, below: Boolean)(using sge: Sge): Unit = {
+  protected def onShow(scrollPane: Actor, below: Boolean)(using Sge): Unit = {
     scrollPane.getColor.a = 0
     scrollPane.addAction(Actions.fadeIn(0.3f, Nullable(Interpolation.fade)))
   }
 
-  protected def onHide(scrollPane: Actor)(using sge: Sge): Unit = {
+  protected def onHide(scrollPane: Actor)(using Sge): Unit = {
     scrollPane.getColor.a = 1
     scrollPane.addAction(Actions.sequence(Actions.fadeOut(0.15f, Nullable(Interpolation.fade)), Actions.removeActor()))
   }
@@ -376,7 +376,7 @@ object SelectBox {
     * @author
     *   Nathan Sweet
     */
-  class SelectBoxScrollPane[T](val selectBox: SelectBox[T])(using sge: Sge) extends ScrollPane(Nullable.empty, selectBox._style.scrollStyle) {
+  class SelectBoxScrollPane[T](val selectBox: SelectBox[T])(using Sge) extends ScrollPane(Nullable.empty, selectBox._style.scrollStyle) {
 
     var maxListCount:                Int             = 0
     private val stagePosition:       Vector2         = new Vector2()
@@ -548,7 +548,7 @@ object SelectBox {
       super.draw(batch, parentAlpha)
     }
 
-    override def act(delta: Float)(using sge: Sge): Unit = {
+    override def act(delta: Float)(using Sge): Unit = {
       super.act(delta)
       toFront()
     }

@@ -39,11 +39,10 @@ import sge.utils.{ DynamicArray, Nullable }
   * @author
   *   mzechner, espitz, xoppa
   */
-class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
+class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(null)
-  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)
@@ -59,7 +58,7 @@ class ObjLoader(resolver: FileHandleResolver)(using sge: Sge) extends ModelLoade
 
   protected def loadModelData(file: FileHandle, flipV: Boolean): Nullable[ModelData] = boundary {
     if (ObjLoader.logWarning) {
-      sge.application.error("ObjLoader", "Wavefront (OBJ) is not fully supported, consult the documentation for more information")
+      Sge().application.error("ObjLoader", "Wavefront (OBJ) is not fully supported, consult the documentation for more information")
     }
     var line:      String        = null
     var tokens:    Array[String] = null

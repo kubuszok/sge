@@ -26,9 +26,8 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
 
-  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using sde: Sge) = {
+  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using sde: Sge) =
     this(new CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
-  }
 
   if (sde.graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("Texture3D requires a device running with GLES 3.0 compatibility")
@@ -119,7 +118,7 @@ object Texture3D {
   def getManagedStatus(): String = {
     val builder = StringBuilder()
     builder.append("Managed TextureArrays/app: { ")
-    for ((app, textures) <- managedTexture3Ds) {
+    for ((_, textures) <- managedTexture3Ds) {
       builder.append(textures.size)
       builder.append(" ")
     }

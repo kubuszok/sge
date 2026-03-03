@@ -33,7 +33,7 @@ class Group extends Actor with Cullable {
   var transform:                 Boolean             = true
   private var cullingArea:       Nullable[Rectangle] = Nullable.empty
 
-  override def act(delta: Float)(using sge: Sge): Unit = {
+  override def act(delta: Float)(using Sge): Unit = {
     super.act(delta)
     val snapshot = children.toArray
     var i        = 0

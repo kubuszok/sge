@@ -43,7 +43,7 @@ class MapLayers extends Iterable[MapLayer] {
 
   /** Get the index of the layer having the specified name, or -1 if no such layer exists. */
   def getIndex(name: String): Int =
-    getIndex(get(name).orNull)
+    get(name).fold(-1)(getIndex)
 
   /** Get the index of the layer in the collection, or -1 if no such layer exists. */
   def getIndex(layer: MapLayer): Int =

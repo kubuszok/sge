@@ -30,7 +30,7 @@ class DirectionalShadowLight(
   shadowViewportHeight: Float,
   shadowNear:           Float,
   shadowFar:            Float
-)(using sge: Sge)
+)(using Sge)
     extends DirectionalLight
     with ShadowMap
     with AutoCloseable {
@@ -80,15 +80,15 @@ class DirectionalShadowLight(
       val w = fb.getWidth()
       val h = fb.getHeight()
       fb.begin()
-      sge.graphics.gl.glViewport(0, 0, w, h)
-      sge.graphics.gl.glClearColor(1, 1, 1, 1)
-      sge.graphics.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT)
-      sge.graphics.gl.glEnable(GL20.GL_SCISSOR_TEST)
-      sge.graphics.gl.glScissor(1, 1, w - 2, h - 2)
+      Sge().graphics.gl.glViewport(0, 0, w, h)
+      Sge().graphics.gl.glClearColor(1, 1, 1, 1)
+      Sge().graphics.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT)
+      Sge().graphics.gl.glEnable(GL20.GL_SCISSOR_TEST)
+      Sge().graphics.gl.glScissor(1, 1, w - 2, h - 2)
     }
 
   def end(): Unit = {
-    sge.graphics.gl.glDisable(GL20.GL_SCISSOR_TEST)
+    Sge().graphics.gl.glDisable(GL20.GL_SCISSOR_TEST)
     fbo.foreach(_.end())
   }
 

@@ -9,7 +9,6 @@
 package sge
 package graphics
 
-import sge.math.Matrix4
 import sge.math.Vector3
 
 /** A Camera with perspective projection.

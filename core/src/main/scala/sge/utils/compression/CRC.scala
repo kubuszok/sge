@@ -12,7 +12,6 @@ package compression
 
 // SevenZip/CRC.java
 class CRC {
-  import scala.compiletime.uninitialized
   private var _value: Int = -1
 
   def init(): Unit =

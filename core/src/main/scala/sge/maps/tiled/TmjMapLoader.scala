@@ -24,9 +24,9 @@ import scala.language.implicitConversions
 /** @brief
   *   synchronous loader for TMJ maps created with the Tiled tool
   */
-class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
+class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file. The map will
     * be loaded for a y-up coordinate system.
@@ -101,14 +101,15 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
     val fileHandles = DynamicArray[FileHandle]()
 
     // TileSet descriptors
-    val tileSets = root.orNull.get("tilesets")
+    val r        = root.getOrElse(throw new IllegalStateException("root not initialized"))
+    val tileSets = r.get("tilesets")
     tileSets.foreach { ts =>
       for (tileSet <- ts)
         getTileSetDependencyFileHandle(fileHandles, tmjFile, tileSet)
     }
 
     // ImageLayer descriptors
-    root.orNull.get("layers").foreach { layers =>
+    r.get("layers").foreach { layers =>
       collectImageLayerFileHandles(layers, tmjFile, fileHandles)
     }
 
@@ -122,7 +123,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
   ): Unit =
     if (Nullable(layers).isDefined) { // scalastyle:ignore
       for (layer <- layers) {
-        val layerType = layer.getString("type", Nullable("")).orNull
+        val layerType = layer.getString("type", Nullable("")).getOrElse("")
         if (layerType == "imagelayer") {
           val source = layer.getString("image", Nullable.empty)
           source.foreach { s =>
@@ -152,19 +153,19 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
     var ts = tileSet
     var tsjFile: FileHandle = tmjFile
     val source = ts.getString("source", Nullable.empty)
-    if (source.isDefined) {
-      tsjFile = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, source.orNull)
+    source.foreach { s =>
+      tsjFile = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
       ts = json.parse(tsjFile)
     }
     if (ts.has("image")) {
-      val imageSource = ts.getString("image", Nullable.empty).orNull
+      val imageSource = ts.getString("image", Nullable.empty).getOrElse("")
       val image       = BaseTiledMapLoader.getRelativeFileHandle(tsjFile, imageSource)
       fileHandles.add(image)
     } else {
       val tiles = ts.get("tiles")
       tiles.foreach { t =>
         for (tile <- t) {
-          val imageSource = tile.getString("image", Nullable.empty).orNull
+          val imageSource = tile.getString("image", Nullable.empty).getOrElse("")
           val image       = BaseTiledMapLoader.getRelativeFileHandle(tsjFile, imageSource)
           fileHandles.add(image)
         }
@@ -231,7 +232,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmj
       var currentImage = image
       for (tile <- tiles) {
         if (tile.has("image")) {
-          val imgSource = tile.getString("image", Nullable.empty).orNull
+          val imgSource = tile.getString("image", Nullable.empty).getOrElse("")
 
           if (Nullable(source).isDefined) {
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(

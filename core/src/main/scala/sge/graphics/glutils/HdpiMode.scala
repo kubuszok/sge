@@ -10,8 +10,6 @@ package sge
 package graphics
 package glutils
 
-import sge.graphics.GL20
-
 enum HdpiMode {
 
   /** mouse coordinates, {@link Graphics#getWidth()} and {@link Graphics#getHeight()} will return logical coordinates according to the system defined HDPI scaling. Rendering will be performed to a

@@ -52,7 +52,7 @@ trait Pool[A] {
     *   the number of objects to be added
     */
   def fill(size: Int): Unit =
-    for (i <- 0 until size)
+    for (_ <- 0 until size)
       if (freeObjects.size < max) freeObjects.add(newObject())
   peak = peak max freeObjects.size
 

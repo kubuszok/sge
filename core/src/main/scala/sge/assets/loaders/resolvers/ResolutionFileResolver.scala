@@ -28,7 +28,7 @@ import sge.utils.Nullable
   * <p> The files are ultimately resolved via the given {{@link #baseResolver}. In case the first version cannot be resolved, the fallback will try to search for the file without the resolution
   * folder. </p>
   */
-class ResolutionFileResolver(protected val baseResolver: FileHandleResolver, protected val descriptors: Array[ResolutionFileResolver.Resolution])(using sge: Sge) extends FileHandleResolver {
+class ResolutionFileResolver(protected val baseResolver: FileHandleResolver, protected val descriptors: Array[ResolutionFileResolver.Resolution])(using Sge) extends FileHandleResolver {
 
   /** Creates a {@code ResolutionFileResolver} based on a given {@link FileHandleResolver} and a list of {@link Resolution} s.
     * @param baseResolver
@@ -36,7 +36,7 @@ class ResolutionFileResolver(protected val baseResolver: FileHandleResolver, pro
     * @param descriptors
     *   A list of {@link Resolution} s. At least one has to be supplied.
     */
-  def this(baseResolver: FileHandleResolver, descriptors: ResolutionFileResolver.Resolution*)(using sge: Sge) = {
+  def this(baseResolver: FileHandleResolver, descriptors: ResolutionFileResolver.Resolution*)(using Sge) = {
     this(baseResolver, descriptors.toArray)
     if (descriptors.isEmpty) throw new IllegalArgumentException("At least one Resolution needs to be supplied.")
   }
@@ -59,7 +59,7 @@ class ResolutionFileResolver(protected val baseResolver: FileHandleResolver, pro
 object ResolutionFileResolver {
   case class Resolution(portraitWidth: Int, portraitHeight: Int, folder: String)
 
-  def choose(descriptors: Resolution*)(using sge: Sge): Resolution =
+  def choose(descriptors: Resolution*)(using Sge): Resolution =
     // For now, return the first resolution until we find the proper Graphics method
     // TODO: Replace with proper screen size detection once Graphics interface is available
     descriptors(0)

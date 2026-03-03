@@ -24,9 +24,9 @@ import scala.language.implicitConversions
 /** @brief
   *   synchronous loader for TMX maps created with the Tiled tool
   */
-class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmxMapLoader[BaseTiledMapLoader.Parameters](resolver) {
+class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file. The map will
     * be loaded for a y-up coordinate system.
@@ -99,7 +99,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
     val fileHandles = DynamicArray[FileHandle]()
 
     // TileSet descriptors
-    val tilesetElements = root.orNull.getChildrenByNameRecursively("tileset")
+    val tilesetElements = root.getOrElse(throw new IllegalStateException("root not initialized")).getChildrenByNameRecursively("tileset")
     var ti              = 0
     while (ti < tilesetElements.size) {
       getTileSetDependencyFileHandle(fileHandles, tmxFile, tilesetElements(ti))
@@ -107,15 +107,15 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
     }
 
     // ImageLayer descriptors
-    val imageLayerElements = root.orNull.getChildrenByNameRecursively("imagelayer")
+    val imageLayerElements = root.getOrElse(throw new IllegalStateException("root not initialized")).getChildrenByNameRecursively("imagelayer")
     var ii                 = 0
     while (ii < imageLayerElements.size) {
       val imageLayer = imageLayerElements(ii)
       val image      = imageLayer.getChildByName("image")
-      if (image.isDefined) {
-        val source = image.orNull.getAttribute("source", Nullable.empty)
-        if (source.isDefined) {
-          val handle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source.orNull)
+      image.foreach { img =>
+        val source = img.getAttribute("source", Nullable.empty)
+        source.foreach { s =>
+          val handle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, s)
           fileHandles.add(handle)
         }
       }
@@ -141,21 +141,23 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
     var ts = tileset
     var tsxFile: FileHandle = tmxFile
     val source = ts.getAttribute("source", Nullable.empty)
-    if (source.isDefined) {
-      tsxFile = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source.orNull)
+    source.foreach { s =>
+      tsxFile = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, s)
       ts = xml.parse(tsxFile)
     }
     val imageElement = ts.getChildByName("image")
     if (imageElement.isDefined) {
-      val imageSource = imageElement.orNull.getAttribute("source")
-      val image       = BaseTiledMapLoader.getRelativeFileHandle(tsxFile, imageSource)
-      fileHandles.add(image)
+      imageElement.foreach { ie =>
+        val imageSource = ie.getAttribute("source")
+        val image       = BaseTiledMapLoader.getRelativeFileHandle(tsxFile, imageSource)
+        fileHandles.add(image)
+      }
     } else {
       val tileElements = ts.getChildrenByName("tile")
       var tei          = 0
       while (tei < tileElements.size) {
         val tile        = tileElements(tei)
-        val imageSource = tile.getChildByName("image").orNull.getAttribute("source")
+        val imageSource = tile.getChildByName("image").getOrElse(throw new IllegalStateException("tile missing image element")).getAttribute("source")
         val image       = BaseTiledMapLoader.getRelativeFileHandle(tsxFile, imageSource)
         fileHandles.add(image)
         tei += 1
@@ -222,8 +224,8 @@ class TmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmx
       var currentImage = image
       for (tileElement <- tileElements) {
         val imageElement = tileElement.getChildByName("image")
-        if (imageElement.isDefined) {
-          val imgSource = imageElement.orNull.getAttribute("source")
+        imageElement.foreach { ie =>
+          val imgSource = ie.getAttribute("source")
 
           if (Nullable(source).isDefined) {
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(

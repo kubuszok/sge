@@ -18,12 +18,11 @@ import sge.graphics.GL30
 import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
-import sge.graphics.glutils.GLVersion
 import sge.utils.BufferUtils
 import sge.utils.SgeError
 import sge.utils.Nullable
+import scala.annotation.nowarn
 import sge.Sge
-import scala.compiletime.uninitialized
 
 /** A {@link TextureData} implementation which should be used to create float textures. */
 class FloatTextureData(
@@ -33,7 +32,7 @@ class FloatTextureData(
   val format:         Int,
   val `type`:         Int,
   val isGpuOnly:      Boolean
-)(using sge: Sge)
+)(using Sge)
     extends TextureData {
 
   private var isPreparedState: Boolean               = false
@@ -60,25 +59,29 @@ class FloatTextureData(
 
   override def consumeCustomData(target: Int): Unit =
     if (
-      sge.application.getType() == ApplicationType.Android || sge.application.getType() == ApplicationType.iOS
-      || (sge.application.getType() == ApplicationType.WebGL && !sge.graphics.isGL30Available())
+      Sge().application.getType() == ApplicationType.Android || Sge().application.getType() == ApplicationType.iOS
+      || (Sge().application.getType() == ApplicationType.WebGL && !Sge().graphics.isGL30Available())
     ) {
 
-      if (!sge.graphics.supportsExtension("OES_texture_float"))
+      if (!Sge().graphics.supportsExtension("OES_texture_float"))
         throw SgeError.GraphicsError("Extension OES_texture_float not supported!")
 
       // GLES and WebGL defines texture format by 3rd and 8th argument,
       // so to get a float texture one needs to supply GL_RGBA and GL_FLOAT there.
-      sge.graphics.gl.glTexImage2D(target, 0, GL20.GL_RGBA, width, height, 0, GL20.GL_RGBA, GL20.GL_FLOAT, buffer.orNull)
+      // orNull required: GL20.glTexImage2D Java API accepts null buffer for GPU-only allocation
+      @nowarn("msg=deprecated") val buf1 = buffer.orNull
+      Sge().graphics.gl.glTexImage2D(target, 0, GL20.GL_RGBA, width, height, 0, GL20.GL_RGBA, GL20.GL_FLOAT, buf1)
 
     } else {
-      if (!sge.graphics.isGL30Available()) {
-        if (!sge.graphics.supportsExtension("GL_ARB_texture_float"))
+      if (!Sge().graphics.isGL30Available()) {
+        if (!Sge().graphics.supportsExtension("GL_ARB_texture_float"))
           throw SgeError.GraphicsError("Extension GL_ARB_texture_float not supported!")
       }
       // in desktop OpenGL the texture format is defined only by the third argument,
       // hence we need to use GL_RGBA32F there (this constant is unavailable in GLES/WebGL)
-      sge.graphics.gl.glTexImage2D(target, 0, internalFormat, width, height, 0, format, GL20.GL_FLOAT, buffer.orNull)
+      // orNull required: GL20.glTexImage2D Java API accepts null buffer for GPU-only allocation
+      @nowarn("msg=deprecated") val buf2 = buffer.orNull
+      Sge().graphics.gl.glTexImage2D(target, 0, internalFormat, width, height, 0, format, GL20.GL_FLOAT, buf2)
     }
 
   override def consumePixmap(): Pixmap =

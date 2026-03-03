@@ -11,7 +11,6 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.math.{ Interpolation, MathUtils }
 import sge.scenes.scene2d.utils.{ ChangeListener, Disableable, Drawable }
@@ -32,7 +31,7 @@ class ProgressBar(
   var stepSize: Float,
   val vertical: Boolean,
   style:        ProgressBar.ProgressBarStyle
-)(using sge: Sge)
+)(using Sge)
     extends Widget
     with Disableable
     with Styleable[ProgressBar.ProgressBarStyle] {
@@ -56,7 +55,7 @@ class ProgressBar(
   this._value = min
   setSize(getPrefWidth, getPrefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
     this(
       min,
       max,
@@ -64,11 +63,9 @@ class ProgressBar(
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBar.ProgressBarStyle])
     )
-  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBar.ProgressBarStyle]))
-  }
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style
@@ -79,20 +76,19 @@ class ProgressBar(
     */
   override def getStyle: ProgressBarStyle = _style
 
-  override def act(delta: Float)(using sge: Sge): Unit = {
-    super.act(delta)(using sge)
+  override def act(delta: Float)(using Sge): Unit = {
+    super.act(delta)(using Sge())
     if (animateTime > 0) {
       animateTime -= delta
       val stage = getStage
       stage.foreach { s =>
-        if (s.getActionsRequestRendering) sge.graphics.requestRendering()
+        if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     val style       = this._style
-    val disabled    = this.disabled
     val knob        = Nullable(style.knob)
     val currentKnob = getKnobDrawable()
     val bg          = getBackgroundDrawable()

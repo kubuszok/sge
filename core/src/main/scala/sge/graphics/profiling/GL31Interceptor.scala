@@ -10,7 +10,7 @@ package sge
 package graphics
 package profiling
 
-import java.nio.{ Buffer, FloatBuffer, IntBuffer }
+import java.nio.{ FloatBuffer, IntBuffer }
 
 class GL31Interceptor(glProfiler: GLProfiler, val gl31: GL31) extends GL30Interceptor(glProfiler, gl31) with GL31 {
 

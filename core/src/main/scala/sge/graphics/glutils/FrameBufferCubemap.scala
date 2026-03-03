@@ -17,7 +17,6 @@ import sge.graphics.GL20
 import sge.graphics.Pixmap
 import sge.utils.SgeError
 import sge.Sge
-import scala.compiletime.uninitialized
 
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a cubemap for the color attachment and a
   * renderbuffer for the depth buffer. You can get a hold of the cubemap by FrameBufferCubemap.getColorBufferTexture(). This class will only work with OpenGL ES 2.0. </p>
@@ -36,7 +35,7 @@ import scala.compiletime.uninitialized
   * @author
   *   realitix
   */
-class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
+class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
 
   /** the zero-based index of the active side * */
   private var currentSide: Int = -1
@@ -46,7 +45,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     * @param bufferBuilder
     *   *
     */
-  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Cubemap]])(using sge: Sge) = {
+  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Cubemap]])(using Sge) = {
     this()
     this.bufferBuilder = bufferBuilder
     build()
@@ -67,7 +66,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     * @throws SgeError.GraphicsError
     *   in case the FrameBuffer could not be created
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean, hasStencil: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean, hasStencil: Boolean)(using Sge) = {
     this()
     val frameBufferBuilder = new GLFrameBuffer.FrameBufferCubemapBuilder(width, height)
     frameBufferBuilder.addBasicColorTextureAttachment(format)
@@ -85,9 +84,8 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     * @param height
     * @param hasDepth
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
     this(format, width, height, hasDepth, false)
-  }
 
   // TODO: Convert and implement when all dependencies are converted
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Cubemap = {
@@ -103,7 +101,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
   // colorTexture.close()
 
   override protected def attachFrameBufferColorTexture(texture: Cubemap): Unit = {
-    val gl       = sge.graphics.gl20
+    val gl       = Sge().graphics.gl20
     val glHandle = texture.getTextureObjectHandle()
     val sides    = Cubemap.CubemapSide.values
     for (side <- sides)
@@ -135,7 +133,7 @@ class FrameBufferCubemap()(using sge: Sge) extends GLFrameBuffer[Cubemap] {
     *   The side to bind
     */
   protected def bindSide(side: Cubemap.CubemapSide): Unit =
-    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, getColorBufferTexture().getTextureObjectHandle().toInt, 0)
+    Sge().graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, getColorBufferTexture().getTextureObjectHandle().toInt, 0)
 
   /** Get the currently bound side. */
   def getSide(): Cubemap.CubemapSide =

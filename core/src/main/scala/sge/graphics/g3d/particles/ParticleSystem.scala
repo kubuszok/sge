@@ -39,11 +39,11 @@ final class ParticleSystem extends RenderableProvider {
     effects.clear()
 
   /** Updates the simulation of all effects */
-  def update()(using sge: Sge): Unit =
+  def update()(using Sge): Unit =
     for (effect <- effects)
       effect.update()
 
-  def updateAndDraw()(using sge: Sge): Unit =
+  def updateAndDraw()(using Sge): Unit =
     for (effect <- effects) {
       effect.update()
       effect.draw()

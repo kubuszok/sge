@@ -10,20 +10,12 @@ package sge
 package graphics
 package glutils
 
-import java.nio.Buffer
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.IntBuffer
 import scala.collection.mutable
-import scala.compiletime.uninitialized
 
 import sge.Application
-import sge.Application.ApplicationType
-import sge.utils.BufferUtils
 import sge.utils.SgeError
 import sge.graphics.GL20
 import sge.graphics.GL30
-import sge.graphics.GL31
 import sge.graphics.GLTexture
 import sge.graphics.Pixmap
 import sge.Sge
@@ -40,7 +32,7 @@ import sge.utils.{ DynamicArray, MkArray }
   * @author
   *   mzechner, realitix
   */
-abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseable {
+abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
 
   /** the color buffer texture * */
   protected val textureAttachments: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
@@ -68,10 +60,8 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
 
   protected var bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[T]] = scala.compiletime.uninitialized
 
-  private var defaultDrawBuffers: IntBuffer = scala.compiletime.uninitialized
-
   /** Creates a GLFrameBuffer from the specifications provided by bufferBuilder * */
-  protected def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[T]])(using sge: Sge) = {
+  protected def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[T]])(using Sge) = {
     this()
     this.bufferBuilder = bufferBuilder
     build()
@@ -98,10 +88,6 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
     // TODO: Convert the complex build method implementation
     throw SgeError.GraphicsError("GLFrameBuffer.build() implementation not yet converted to Scala")
 
-  private def checkValidBuilder(): Unit =
-    // TODO: Convert the checkValidBuilder method implementation
-    throw SgeError.GraphicsError("GLFrameBuffer.checkValidBuilder() implementation not yet converted to Scala")
-
   /** Releases all resources associated with the FrameBuffer. */
   override def close(): Unit =
     // TODO: Convert the dispose method implementation
@@ -109,7 +95,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
 
   /** Makes the frame buffer current so everything gets drawn to it. */
   def bind(): Unit =
-    sge.graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebufferHandle)
+    Sge().graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebufferHandle)
 
   /** Binds the frame buffer and sets the viewport accordingly, so everything gets drawn to it. */
   def begin(): Unit = {
@@ -119,11 +105,11 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
 
   /** Sets viewport to the dimensions of framebuffer. Called by begin(). */
   protected def setFrameBufferViewport(): Unit =
-    sge.graphics.gl20.glViewport(0, 0, bufferBuilder.width, bufferBuilder.height)
+    Sge().graphics.gl20.glViewport(0, 0, bufferBuilder.width, bufferBuilder.height)
 
   /** Unbinds the framebuffer, all drawing will be performed to the normal framebuffer from here on. */
   def end(): Unit =
-    end(0, 0, sge.graphics.getBackBufferWidth(), sge.graphics.getBackBufferHeight())
+    end(0, 0, Sge().graphics.getBackBufferWidth(), Sge().graphics.getBackBufferHeight())
 
   /** Unbinds the framebuffer and sets viewport sizes, all drawing will be performed to the normal framebuffer from here on.
     *
@@ -138,7 +124,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using sge: Sge) extends AutoCloseab
     */
   def end(x: Int, y: Int, width: Int, height: Int): Unit = {
     GLFrameBuffer.unbind()
-    sge.graphics.gl20.glViewport(x, y, width, height)
+    Sge().graphics.gl20.glViewport(x, y, width, height)
   }
 
   /** Transfer pixels from this frame buffer to the destination frame buffer. Usually used when using multisample, it resolves samples from this multisample FBO to a non-multisample as destination in
@@ -197,29 +183,18 @@ object GLFrameBuffer {
   /** the frame buffers * */
   private val buffers: mutable.Map[Application, DynamicArray[GLFrameBuffer[?]]] = mutable.Map[Application, DynamicArray[GLFrameBuffer[?]]]()
 
-  private val GL_DEPTH24_STENCIL8_OES: Int = 0x88f0
-
   /** the default framebuffer handle, a.k.a screen. */
+  @scala.annotation.nowarn("id=E198") // set in build(), will be read when framebuffer restoration is implemented
   private var defaultFramebufferHandle: Int = scala.compiletime.uninitialized
 
-  /** true if we have polled for the default handle already. */
-  private var defaultFramebufferHandleInitialized: Boolean = false
-
-  private val singleInt: IntBuffer = BufferUtils.newIntBuffer(1)
-
   /** Unbinds the framebuffer, all drawing will be performed to the normal framebuffer from here on. */
-  def unbind()(using sge: Sge): Unit =
-    sge.graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, defaultFramebufferHandle)
-
-  private def addManagedFrameBuffer(app: Application, frameBuffer: GLFrameBuffer[?]): Unit = {
-    val managedResources = buffers.getOrElseUpdate(app, DynamicArray[GLFrameBuffer[?]]())
-    managedResources.add(frameBuffer)
-  }
+  def unbind()(using Sge): Unit =
+    Sge().graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, defaultFramebufferHandle)
 
   /** Invalidates all frame buffers. This can be used when the OpenGL context is lost to rebuild all managed frame buffers. This assumes that the texture attached to this buffer has already been
     * rebuild! Use with care.
     */
-  def invalidateAllFrameBuffers(app: Application)(using sge: Sge): Unit = {
+  def invalidateAllFrameBuffers(app: Application)(using Sge): Unit = {
     val bufferArray = buffers.get(app)
     if (bufferArray.isDefined) {
       for (buffer <- bufferArray.get)
@@ -334,27 +309,27 @@ object GLFrameBuffer {
     def addBasicStencilDepthPackedRenderBuffer(): GLFrameBufferBuilder[U] =
       addStencilDepthPackedRenderBuffer(GL30.GL_DEPTH24_STENCIL8)
 
-    def build()(using sge: Sge): U
+    def build()(using Sge): U
   }
 
   class FrameBufferBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FrameBuffer](width, height, samples) {
     def this(width: Int, height: Int) = this(width, height, 0)
 
-    override def build()(using sge: Sge): FrameBuffer =
+    override def build()(using Sge): FrameBuffer =
       new FrameBuffer(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]]])
   }
 
   class FloatFrameBufferBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FloatFrameBuffer](width, height, samples) {
     def this(width: Int, height: Int) = this(width, height, 0)
 
-    override def build()(using sge: Sge): FloatFrameBuffer =
+    override def build()(using Sge): FloatFrameBuffer =
       new FloatFrameBuffer(this)
   }
 
   class FrameBufferCubemapBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FrameBufferCubemap](width, height, samples) {
     def this(width: Int, height: Int) = this(width, height, 0)
 
-    override def build()(using sge: Sge): FrameBufferCubemap =
+    override def build()(using Sge): FrameBufferCubemap =
       new FrameBufferCubemap(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Cubemap]]])
   }
 }

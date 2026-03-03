@@ -18,7 +18,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * @author
   *   mzechner (original implementation)
   */
-class SoundLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Sound, SoundLoader.SoundParameter](resolver) {
+class SoundLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Sound, SoundLoader.SoundParameter](resolver) {
 
   private var sound: Nullable[Sound] = Nullable.empty
 
@@ -30,7 +30,7 @@ class SoundLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynchro
   protected def getLoadedSound: Nullable[Sound] = sound
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: SoundLoader.SoundParameter): Unit =
-    sound = Nullable(sge.audio.newSound(file))
+    sound = Nullable(Sge().audio.newSound(file))
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: SoundLoader.SoundParameter): Sound = {
     val result = sound

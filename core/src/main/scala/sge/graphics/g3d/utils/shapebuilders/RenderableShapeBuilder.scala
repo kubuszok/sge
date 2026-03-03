@@ -12,7 +12,7 @@ package g3d
 package utils
 package shapebuilders
 
-import sge.graphics.{ Color, Mesh }
+import sge.graphics.Color
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.utils.MeshPartBuilder

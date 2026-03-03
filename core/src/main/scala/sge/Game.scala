@@ -17,29 +17,29 @@ abstract class Game extends ApplicationListener {
   protected var screen: Nullable[Screen] = Nullable.empty
 
   override def dispose(): Unit =
-    screen.fold(())(_.hide())
+    screen.foreach(_.hide())
 
   override def pause(): Unit =
-    screen.fold(())(_.pause())
+    screen.foreach(_.pause())
 
   override def resume(): Unit =
-    screen.fold(())(_.resume())
+    screen.foreach(_.resume())
 
   override def render(): Unit =
     // TODO: Need to get delta time from somewhere - placeholder for now
-    screen.fold(())(_.render(0.016f)) // 60 FPS default
+    screen.foreach(_.render(0.016f)) // 60 FPS default
 
   override def resize(width: Int, height: Int): Unit =
-    screen.fold(())(_.resize(width, height))
+    screen.foreach(_.resize(width, height))
 
   /** Sets the current screen. {@link Screen#hide()} is called on any old screen, and {@link Screen#show()} is called on the new screen, if any.
     * @param screen
     *   may be {@code null}
     */
   def setScreen(newScreen: Nullable[Screen]): Unit = {
-    screen.fold(())(_.hide())
+    screen.foreach(_.hide())
     this.screen = newScreen
-    screen.fold(()) { s =>
+    screen.foreach { s =>
       s.show()
       // TODO: Need to get screen dimensions from somewhere - using placeholder resize call
       s.resize(800, 600) // Default size placeholder

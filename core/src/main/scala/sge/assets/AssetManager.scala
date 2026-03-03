@@ -8,7 +8,7 @@
  */
 package sge.assets
 
-import sge.utils.{ DynamicArray, Logger }
+import sge.utils.DynamicArray
 
 // TODO: stub until we have: loaders, g2d, g3d, etc
 trait AssetManager {

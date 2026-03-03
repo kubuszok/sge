@@ -9,7 +9,7 @@
 package sge
 package graphics
 
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.Nullable
 import java.util.NoSuchElementException
 import scala.util.boundary, boundary.break
 
@@ -209,7 +209,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
 
   private class ReadonlyIterator[T](array: Array[T]) extends Iterator[T] {
     private var index: Int     = 0
-    private var valid: Boolean = true
+    private val valid: Boolean = true
 
     override def hasNext: Boolean = {
       if (!valid) throw new RuntimeException("#iterator() cannot be used nested.")
@@ -229,9 +229,6 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   }
 
   private class ReadonlyIterable[T](array: Array[T]) extends Iterable[T] {
-    private var iterator1: ReadonlyIterator[T] = scala.compiletime.uninitialized
-    private var iterator2: ReadonlyIterator[T] = scala.compiletime.uninitialized
-
     override def iterator(): Iterator[T] =
       // For now, always create new iterators to avoid complexity
       new ReadonlyIterator(array)

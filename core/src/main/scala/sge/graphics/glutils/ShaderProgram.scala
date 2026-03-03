@@ -10,14 +10,14 @@ package sge
 package graphics
 package glutils
 
-import sge.utils.{ BufferUtils, Nullable }
+import sge.utils.BufferUtils
 import sge.graphics.{ Color, GL20 }
 import sge.math.{ Matrix3, Matrix4, Vector2, Vector3, Vector4 }
 import sge.{ Application, Sge }
 import sge.files.FileHandle
 import sge.utils.DynamicArray
 import scala.collection.mutable.Map as MutableMap
-import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer, IntBuffer }
+import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer }
 import scala.compiletime.uninitialized
 
 /** <p> A shader program encapsulates a vertex and fragment shader pair linked to form a shader program. </p>
@@ -35,7 +35,7 @@ import scala.compiletime.uninitialized
   * @author
   *   mzechner (original implementation)
   */
-class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge) extends AutoCloseable {
+class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) extends AutoCloseable {
 
   private val actualVertexShader =
     if (ShaderProgram.prependVertexCode.nonEmpty)
@@ -86,7 +86,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   private var fragmentShaderHandle: Int = uninitialized
 
   /** matrix float buffer * */
-  private val matrix: FloatBuffer = BufferUtils.newFloatBuffer(16)
+  BufferUtils.newFloatBuffer(16)
 
   /** vertex shader source * */
   private val vertexShaderSource: String = actualVertexShader
@@ -98,18 +98,16 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   private var invalidated: Boolean = false
 
   /** reference count * */
-  private var refCount: Int = 0
 
   compileShaders(actualVertexShader, actualFragmentShader)
   if (isCompiled()) {
     fetchAttributes()
     fetchUniforms()
-    ShaderProgram.addManagedShader(sge.application, this)
+    ShaderProgram.addManagedShader(Sge().application, this)
   }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
     this(vertexShader.readString(), fragmentShader.readString())
-  }
 
   /** Loads and compiles the shaders, creates a new program and links the shaders.
     *
@@ -133,7 +131,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   private def loadShader(shaderType: Int, source: String): Int = scala.util.boundary {
-    val gl     = sge.graphics.gl20
+    val gl     = Sge().graphics.gl20
     val intbuf = BufferUtils.newIntBuffer(1)
 
     val shader = gl.glCreateShader(shaderType)
@@ -155,13 +153,13 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   protected def createProgram(): Int = {
-    val gl      = sge.graphics.gl20
+    val gl      = Sge().graphics.gl20
     val program = gl.glCreateProgram()
     if (program != 0) program else -1
   }
 
   private def linkProgram(program: Int): Int = scala.util.boundary {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     if (program == -1) scala.util.boundary.break(-1)
 
     gl.glAttachShader(program, vertexShaderHandle)
@@ -175,7 +173,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     gl.glGetProgramiv(program, GL20.GL_LINK_STATUS, intbuf)
     val linked = intbuf.get(0)
     if (linked == 0) {
-      log = sge.graphics.gl20.glGetProgramInfoLog(program)
+      log = Sge().graphics.gl20.glGetProgramInfoLog(program)
       scala.util.boundary.break(-1)
     }
 
@@ -187,7 +185,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     */
   def getLog(): String =
     if (isCompiled()) {
-      log = sge.graphics.gl20.glGetProgramInfoLog(program)
+      log = Sge().graphics.gl20.glGetProgramInfoLog(program)
       log
     } else {
       log
@@ -197,7 +195,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   def isCompiled(): Boolean = compiledSuccessfully
 
   private def fetchAttributeLocation(name: String): Int = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     // -2 == not yet cached
     // -1 == cached but not found
     attributes.get(name) match {
@@ -218,7 +216,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     uniforms.get(name) match {
       case Some(location) => location
       case None           =>
-        val location = sge.graphics.gl20.glGetUniformLocation(program, name)
+        val location = Sge().graphics.gl20.glGetUniformLocation(program, name)
         if (location == -1 && pedantic) {
           if (isCompiled()) throw new IllegalArgumentException(s"No uniform with name '$name' in shader")
           throw new IllegalStateException(s"An attempted fetch uniform from uncompiled shader \n${getLog()}")
@@ -235,14 +233,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the value
     */
   def setUniformi(name: String, value: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform1i(location, value)
   }
 
   def setUniformi(location: Int, value: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform1i(location, value)
   }
@@ -257,14 +255,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the second value
     */
   def setUniformi(name: String, value1: Int, value2: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform2i(location, value1, value2)
   }
 
   def setUniformi(location: Int, value1: Int, value2: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform2i(location, value1, value2)
   }
@@ -281,14 +279,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the third value
     */
   def setUniformi(name: String, value1: Int, value2: Int, value3: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform3i(location, value1, value2, value3)
   }
 
   def setUniformi(location: Int, value1: Int, value2: Int, value3: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform3i(location, value1, value2, value3)
   }
@@ -307,14 +305,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the fourth value
     */
   def setUniformi(name: String, value1: Int, value2: Int, value3: Int, value4: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform4i(location, value1, value2, value3, value4)
   }
 
   def setUniformi(location: Int, value1: Int, value2: Int, value3: Int, value4: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform4i(location, value1, value2, value3, value4)
   }
@@ -327,14 +325,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the value
     */
   def setUniformf(name: String, value: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform1f(location, value)
   }
 
   def setUniformf(location: Int, value: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform1f(location, value)
   }
@@ -349,14 +347,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the second value
     */
   def setUniformf(name: String, value1: Float, value2: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform2f(location, value1, value2)
   }
 
   def setUniformf(location: Int, value1: Float, value2: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform2f(location, value1, value2)
   }
@@ -373,14 +371,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the third value
     */
   def setUniformf(name: String, value1: Float, value2: Float, value3: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform3f(location, value1, value2, value3)
   }
 
   def setUniformf(location: Int, value1: Float, value2: Float, value3: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform3f(location, value1, value2, value3)
   }
@@ -399,66 +397,66 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the fourth value
     */
   def setUniformf(name: String, value1: Float, value2: Float, value3: Float, value4: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform4f(location, value1, value2, value3, value4)
   }
 
   def setUniformf(location: Int, value1: Float, value2: Float, value3: Float, value4: Float): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform4f(location, value1, value2, value3, value4)
   }
 
   def setUniform1fv(name: String, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform1fv(location, length, values, offset)
   }
 
   def setUniform1fv(location: Int, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform1fv(location, length, values, offset)
   }
 
   def setUniform2fv(name: String, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform2fv(location, length / 2, values, offset)
   }
 
   def setUniform2fv(location: Int, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform2fv(location, length / 2, values, offset)
   }
 
   def setUniform3fv(name: String, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform3fv(location, length / 3, values, offset)
   }
 
   def setUniform3fv(location: Int, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform3fv(location, length / 3, values, offset)
   }
 
   def setUniform4fv(name: String, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchUniformLocation(name)
     gl.glUniform4fv(location, length / 4, values, offset)
   }
 
   def setUniform4fv(location: Int, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform4fv(location, length / 4, values, offset)
   }
@@ -489,7 +487,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     setUniformMatrix(location, matrix, false)
 
   def setUniformMatrix(location: Int, matrix: Matrix4, transpose: Boolean): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniformMatrix4fv(location, 1, transpose, matrix.values, 0)
   }
@@ -520,7 +518,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     setUniformMatrix(location, matrix, false)
 
   def setUniformMatrix(location: Int, matrix: Matrix3, transpose: Boolean): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniformMatrix3fv(location, 1, transpose, matrix.values, 0)
   }
@@ -535,7 +533,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   whether the uniform matrix should be transposed
     */
   def setUniformMatrix3fv(name: String, buffer: FloatBuffer, count: Int, transpose: Boolean): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     buffer.asInstanceOf[Buffer].position(0)
     val location = fetchUniformLocation(name)
@@ -552,7 +550,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   whether the uniform matrix should be transposed
     */
   def setUniformMatrix4fv(name: String, buffer: FloatBuffer, count: Int, transpose: Boolean): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     buffer.asInstanceOf[Buffer].position(0)
     val location = fetchUniformLocation(name)
@@ -560,7 +558,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   def setUniformMatrix4fv(location: Int, values: Array[Float], offset: Int, length: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniformMatrix4fv(location, length / 16, false, values, offset)
   }
@@ -636,7 +634,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the buffer containing the vertex attributes.
     */
   def setVertexAttribute(name: String, size: Int, shaderType: Int, normalize: Boolean, stride: Int, buffer: Buffer): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
     if (location != -1) {
@@ -645,7 +643,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   def setVertexAttribute(location: Int, size: Int, shaderType: Int, normalize: Boolean, stride: Int, buffer: Buffer): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, buffer)
   }
@@ -666,7 +664,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   byte offset into the vertex buffer object bound to GL20.GL_ARRAY_BUFFER.
     */
   def setVertexAttribute(name: String, size: Int, shaderType: Int, normalize: Boolean, stride: Int, offset: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
     if (location != -1) {
@@ -675,25 +673,25 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   def setVertexAttribute(location: Int, size: Int, shaderType: Int, normalize: Boolean, stride: Int, offset: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glVertexAttribPointer(location, size, shaderType, normalize, stride, offset)
   }
 
   def bind(): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUseProgram(program)
   }
 
   /** Disposes all resources associated with this shader. Must be called when the shader is no longer used. */
   def close(): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     gl.glUseProgram(0)
     gl.glDeleteShader(vertexShaderHandle)
     gl.glDeleteShader(fragmentShaderHandle)
     gl.glDeleteProgram(program)
-    ShaderProgram.shaders.get(sge.application).foreach(_.removeValue(this))
+    ShaderProgram.shaders.get(Sge().application).foreach(_.removeValue(this))
   }
 
   /** Disables the vertex attribute with the given name
@@ -702,7 +700,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the vertex attribute name
     */
   def disableVertexAttribute(name: String): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
     if (location != -1) {
@@ -711,7 +709,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   def disableVertexAttribute(location: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glDisableVertexAttribArray(location)
   }
@@ -722,7 +720,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the vertex attribute name
     */
   def enableVertexAttribute(name: String): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     val location = fetchAttributeLocation(name)
     if (location != -1) {
@@ -731,7 +729,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
   }
 
   def enableVertexAttribute(location: Int): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     checkManaged()
     gl.glEnableVertexAttribArray(location)
   }
@@ -761,7 +759,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
     *   the fourth value
     */
   def setAttributef(name: String, value1: Float, value2: Float, value3: Float, value4: Float): Unit = {
-    val gl       = sge.graphics.gl20
+    val gl       = Sge().graphics.gl20
     val location = fetchAttributeLocation(name)
     gl.glVertexAttrib4f(location, value1, value2, value3, value4)
   }
@@ -771,7 +769,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
 
   private def fetchUniforms(): Unit = {
     params.asInstanceOf[Buffer].clear()
-    sge.graphics.gl20.glGetProgramiv(program, GL20.GL_ACTIVE_UNIFORMS, params)
+    Sge().graphics.gl20.glGetProgramiv(program, GL20.GL_ACTIVE_UNIFORMS, params)
     val numUniforms = params.get(0)
 
     uniformNames = new Array[String](numUniforms)
@@ -780,8 +778,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
       params.asInstanceOf[Buffer].clear()
       params.put(0, 1)
       shaderType.asInstanceOf[Buffer].clear()
-      val name     = sge.graphics.gl20.glGetActiveUniform(program, i, params, shaderType)
-      val location = sge.graphics.gl20.glGetUniformLocation(program, name)
+      val name     = Sge().graphics.gl20.glGetActiveUniform(program, i, params, shaderType)
+      val location = Sge().graphics.gl20.glGetUniformLocation(program, name)
       uniforms.put(name, location)
       uniformTypes.put(name, shaderType.get(0))
       uniformSizes.put(name, params.get(0))
@@ -791,7 +789,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
 
   private def fetchAttributes(): Unit = {
     params.asInstanceOf[Buffer].clear()
-    sge.graphics.gl20.glGetProgramiv(program, GL20.GL_ACTIVE_ATTRIBUTES, params)
+    Sge().graphics.gl20.glGetProgramiv(program, GL20.GL_ACTIVE_ATTRIBUTES, params)
     val numAttributes = params.get(0)
 
     attributeNames = new Array[String](numAttributes)
@@ -800,8 +798,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using sge: Sge
       params.asInstanceOf[Buffer].clear()
       params.put(0, 1)
       shaderType.asInstanceOf[Buffer].clear()
-      val name     = sge.graphics.gl20.glGetActiveAttrib(program, i, params, shaderType)
-      val location = sge.graphics.gl20.glGetAttribLocation(program, name)
+      val name     = Sge().graphics.gl20.glGetActiveAttrib(program, i, params, shaderType)
+      val location = Sge().graphics.gl20.glGetAttribLocation(program, name)
       attributes.put(name, location)
       attributeTypes.put(name, shaderType.get(0))
       attributeSizes.put(name, params.get(0))
@@ -939,7 +937,7 @@ object ShaderProgram {
   /** Invalidates all shaders so the next time they are used new handles are generated
     * @param app
     */
-  def invalidateAllShaderPrograms(app: Application)(using sge: Sge): Unit =
+  def invalidateAllShaderPrograms(app: Application)(using Sge): Unit =
     shaders.get(app) match {
       case Some(shaderArray) =>
         var i = 0
@@ -966,6 +964,6 @@ object ShaderProgram {
   }
 
   /** @return the number of managed shader programs currently loaded */
-  def getNumManagedShaderPrograms()(using sge: Sge): Int =
-    shaders.get(sge.application).map(_.size).getOrElse(0)
+  def getNumManagedShaderPrograms()(using Sge): Int =
+    shaders.get(Sge().application).map(_.size).getOrElse(0)
 }

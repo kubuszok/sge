@@ -10,8 +10,9 @@ package sge
 package input
 
 import java.io.{ DataInputStream, IOException }
-import java.net.{ InetAddress, ServerSocket, Socket }
+import java.net.{ InetAddress, ServerSocket }
 import sge.utils.{ Nullable, SgeError }
+import scala.annotation.nowarn
 import sge.Input.{ KeyboardHeightObserver, OnscreenKeyboardType, Orientation, Peripheral, VibrationType }
 import sge.input.NativeInputConfiguration
 
@@ -318,22 +319,23 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   override def getTextInput(listener: Input.TextInputListener, title: String, text: String, hint: String, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit =
     sde.input.getTextInput(listener, title, text, hint, `type`)
 
-  override def setOnscreenKeyboardVisible(visible: Boolean):                                                    Unit           = {}
-  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit           = {}
-  override def openTextInputField(configuration:   NativeInputConfiguration):                                   Unit           = {}
-  override def closeTextInputField(sendReturn:     Boolean):                                                    Unit           = {}
-  override def setKeyboardHeightObserver(observer: KeyboardHeightObserver):                                     Unit           = {}
-  override def vibrate(milliseconds:               Int):                                                        Unit           = {}
-  override def vibrate(milliseconds:               Int, fallback:   Boolean):                                   Unit           = {}
-  override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean):                    Unit           = {}
-  override def vibrate(vibrationType:              VibrationType.VibrationType):                                Unit           = {}
-  override def getAzimuth():                                                                                    Float          = compass(0)
-  override def getPitch():                                                                                      Float          = compass(1)
-  override def getRoll():                                                                                       Float          = compass(2)
-  override def setCatchKey(keycode:                Int, catchKey:   Boolean):                                   Unit           = {}
-  override def isCatchKey(keycode:                 Int):                                                        Boolean        = false
-  override def setInputProcessor(processor:        InputProcessor):                                             Unit           = this.processor = Nullable(processor)
-  override def getInputProcessor():                                                                             InputProcessor = this.processor.orNull
+  override def setOnscreenKeyboardVisible(visible: Boolean):                                                    Unit    = {}
+  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit    = {}
+  override def openTextInputField(configuration:   NativeInputConfiguration):                                   Unit    = {}
+  override def closeTextInputField(sendReturn:     Boolean):                                                    Unit    = {}
+  override def setKeyboardHeightObserver(observer: KeyboardHeightObserver):                                     Unit    = {}
+  override def vibrate(milliseconds:               Int):                                                        Unit    = {}
+  override def vibrate(milliseconds:               Int, fallback:   Boolean):                                   Unit    = {}
+  override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean):                    Unit    = {}
+  override def vibrate(vibrationType:              VibrationType.VibrationType):                                Unit    = {}
+  override def getAzimuth():                                                                                    Float   = compass(0)
+  override def getPitch():                                                                                      Float   = compass(1)
+  override def getRoll():                                                                                       Float   = compass(2)
+  override def setCatchKey(keycode:                Int, catchKey:   Boolean):                                   Unit    = {}
+  override def isCatchKey(keycode:                 Int):                                                        Boolean = false
+  override def setInputProcessor(processor:        InputProcessor):                                             Unit    = this.processor = Nullable(processor)
+  // Input trait returns InputProcessor (not Nullable) — orNull needed at API boundary
+  @nowarn("msg=deprecated") override def getInputProcessor(): InputProcessor = this.processor.orNull
 
   /** @return
     *   the IP addresses {@link RemoteSender} or gdx-remote should connect to. Most likely the LAN addresses if behind a NAT.

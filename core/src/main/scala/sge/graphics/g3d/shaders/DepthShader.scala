@@ -23,11 +23,11 @@ class DepthShader(
   renderable:    Renderable,
   config:        DepthShader.Config,
   shaderProgram: ShaderProgram
-)(using sge: Sge)
+)(using Sge)
     extends DefaultShader(renderable, config, shaderProgram) {
 
   private val _depthNumBones: Int = {
-    val attributes = DepthShader.combineAttributes(renderable)
+    DepthShader.combineAttributes(renderable)
 
     if (renderable.bones.isDefined && renderable.bones.fold(0)(_.length) > config.numBones) {
       throw SgeError.GraphicsError(
@@ -50,7 +50,7 @@ class DepthShader(
   private val alphaTestAttribute: FloatAttribute =
     new FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using sge: Sge) = {
+  def this(renderable: Renderable)(using Sge) =
     this(
       renderable,
       DepthShader.Config(), {
@@ -61,9 +61,8 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using sge: Sge) = {
+  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) =
     this(
       renderable,
       config, {
@@ -73,9 +72,8 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using sge: Sge) = {
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config, {
@@ -84,7 +82,6 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
   def this(
     renderable:     Renderable,
@@ -92,9 +89,8 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using sge: Sge) = {
+  )(using Sge) =
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
@@ -158,18 +154,18 @@ object DepthShader {
 
   private var _defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using sge: Sge): String = {
+  def getDefaultVertexShader()(using Sge): String = {
     if (_defaultVertexShader.isEmpty) {
-      _defaultVertexShader = Nullable(sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl").readString())
+      _defaultVertexShader = Nullable(Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl").readString())
     }
     _defaultVertexShader.getOrElse("")
   }
 
   private var _defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using sge: Sge): String = {
+  def getDefaultFragmentShader()(using Sge): String = {
     if (_defaultFragmentShader.isEmpty) {
-      _defaultFragmentShader = Nullable(sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl").readString())
+      _defaultFragmentShader = Nullable(Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl").readString())
     }
     _defaultFragmentShader.getOrElse("")
   }

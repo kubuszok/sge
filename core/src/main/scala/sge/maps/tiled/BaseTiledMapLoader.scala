@@ -68,17 +68,17 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
   def getIdToObject: Nullable[mutable.HashMap[Int, MapObject]] = Nullable(idToObject)
 
   protected def castProperty(name: String, value: String, `type`: Nullable[String]): Any = {
-    val t = `type`
-    if (t.isEmpty || t.orNull == "string" || t.orNull == "file") value
-    else if (t.orNull == "int") Integer.valueOf(value)
-    else if (t.orNull == "float") java.lang.Float.valueOf(value)
-    else if (t.orNull == "bool") java.lang.Boolean.valueOf(value)
-    else if (t.orNull == "color")
+    val t = `type`.getOrElse("string")
+    if (t == "string" || t == "file") value
+    else if (t == "int") Integer.valueOf(value)
+    else if (t == "float") java.lang.Float.valueOf(value)
+    else if (t == "bool") java.lang.Boolean.valueOf(value)
+    else if (t == "color")
       // return color after converting from #AARRGGBB to #RRGGBBAA
       Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(value))
     else
       throw new IllegalArgumentException(
-        "Wrong type given for property " + name + ", given : " + t.orNull
+        "Wrong type given for property " + name + ", given : " + t
           + ", supported : string, file, bool, int, float, color"
       )
   }
@@ -152,11 +152,11 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
   protected def loadProjectFile(projectFilePath: Nullable[String]): Unit = boundary {
     val classInfo = ObjectMap[String, DynamicArray[BaseTiledMapLoader.ProjectClassMember]]()
     projectClassInfo = Nullable(classInfo)
-    if (projectFilePath.isEmpty || projectFilePath.orNull.trim.isEmpty) {
+    if (projectFilePath.isEmpty || projectFilePath.getOrElse("").trim.isEmpty) {
       break()
     }
 
-    val projectFile   = resolve(projectFilePath.orNull)
+    val projectFile   = resolve(projectFilePath.getOrElse(""))
     val projectRoot   = new JsonReader().parse(projectFile)
     val propertyTypes = projectRoot.get("propertyTypes")
     if (propertyTypes.isEmpty) {
@@ -164,22 +164,26 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
       break()
     }
 
-    for (propertyType <- propertyTypes.orNull)
-      if ("class" == propertyType.getString("type", Nullable.empty).orNull) {
-        val className = propertyType.getString("name", Nullable.empty).orNull
-        val members   = propertyType.get("members")
-        if (members.isDefined && !members.orNull.isEmpty) {
-          val projectClassMembers = DynamicArray[BaseTiledMapLoader.ProjectClassMember]()
-          classInfo.put(className, projectClassMembers)
-          for (member <- members.orNull) {
-            val projectClassMember = new BaseTiledMapLoader.ProjectClassMember()
-            projectClassMember.name = member.getString("name", Nullable.empty).orNull
-            projectClassMember.`type` = member.getString("type", Nullable.empty).orNull
-            projectClassMember.propertyType = member.getString("propertyType", Nullable.empty)
-            projectClassMember.defaultValue = member.get("value")
+    propertyTypes.foreach { pt =>
+      for (propertyType <- pt)
+        if ("class" == propertyType.getString("type", Nullable.empty).getOrElse("")) {
+          val className = propertyType.getString("name", Nullable.empty).getOrElse("")
+          val members   = propertyType.get("members")
+          members.foreach { ms =>
+            if (!ms.isEmpty) {
+              val projectClassMembers = DynamicArray[BaseTiledMapLoader.ProjectClassMember]()
+              classInfo.put(className, projectClassMembers)
+              for (member <- ms) {
+                val projectClassMember = new BaseTiledMapLoader.ProjectClassMember()
+                projectClassMember.name = member.getString("name", Nullable.empty).getOrElse("")
+                projectClassMember.`type` = member.getString("type", Nullable.empty).getOrElse("")
+                projectClassMember.propertyType = member.getString("propertyType", Nullable.empty)
+                projectClassMember.defaultValue = member.get("value")
+              }
+            }
           }
         }
-      }
+    }
   }
 
   protected def loadJsonClassProperties(
@@ -187,24 +191,25 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     classProperties: MapProperties,
     classElement:    Nullable[JsonValue]
   ): Unit = {
-    if (projectClassInfo.isEmpty) {
+    val pci = projectClassInfo.getOrElse(
       throw new IllegalStateException(
         "No class information loaded to support class properties. Did you set the 'projectFilePath' parameter?"
       )
-    }
-    if (projectClassInfo.orNull.isEmpty) {
+    )
+    if (pci.isEmpty) {
       throw new IllegalStateException(
         "No class information available. Did you set the correct Tiled project path in the 'projectFilePath' parameter?"
       )
     }
-    val projectClassMembers = projectClassInfo.orNull.get(className)
-    if (projectClassMembers.isEmpty) {
-      throw new IllegalStateException(
-        "There is no class with name '" + className + "' in given Tiled project file."
+    val members = pci
+      .get(className)
+      .getOrElse(
+        throw new IllegalStateException(
+          "There is no class with name '" + className + "' in given Tiled project file."
+        )
       )
-    }
 
-    for (projectClassMember <- projectClassMembers.orNull) {
+    for (projectClassMember <- members) {
       val propName     = projectClassMember.name
       val classPropRaw = classElement.flatMap(_.get(propName))
       projectClassMember.`type` match {
@@ -217,7 +222,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
           // A 'class' property is a property which is itself a set of properties
           val classProp             = if (classPropRaw.isEmpty) projectClassMember.defaultValue else classPropRaw
           val nestedClassProperties = new MapProperties()
-          val nestedClassName       = projectClassMember.propertyType.orNull
+          val nestedClassName       = projectClassMember.propertyType.getOrElse("")
           nestedClassProperties.put("type", nestedClassName)
           // the actual properties of a 'class' property are stored as a new properties tag
           classProperties.put(propName, nestedClassProperties)
@@ -249,11 +254,12 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
       this.projectClassInfo = Nullable(ObjectMap[String, DynamicArray[BaseTiledMapLoader.ProjectClassMember]]())
       break()
     }
-    if (className.isEmpty || !projectClassInfo.orNull.containsKey(className.orNull)) {
+    val pci = projectClassInfo.getOrElse(throw new IllegalStateException("unreachable"))
+    if (className.isEmpty || !pci.containsKey(className.getOrElse(""))) {
       break()
     }
 
-    val classMembers = projectClassInfo.orNull.get(className.orNull)
+    val classMembers = pci.get(className.getOrElse(""))
     classMembers.foreach { members =>
       for (classMember <- members) {
         val propName = classMember.name
@@ -265,10 +271,10 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
             // In that case we need to load the default values of the class
             // which are stored inside the 'projectClassInfo' field.
             val nestedClassProperties = new MapProperties()
-            val nestedClassName       = classMember.propertyType.orNull
+            val nestedClassName       = classMember.propertyType.getOrElse("")
             nestedClassProperties.put("type", nestedClassName)
             mapProperties.put(propName, nestedClassProperties)
-            loadJsonClassProperties(classMember.propertyType.orNull, nestedClassProperties, classMember.defaultValue)
+            loadJsonClassProperties(nestedClassName, nestedClassProperties, classMember.defaultValue)
           } else {
             classMember.defaultValue.foreach { dv =>
               val value = dv.asString()
@@ -331,8 +337,8 @@ object BaseTiledMapLoader {
       "ProjectClassMember{" +
         "name='" + name + "'" +
         ", type='" + `type` + "'" +
-        ", propertyType='" + propertyType.orNull + "'" +
-        ", defaultValue=" + defaultValue.orNull + "}"
+        ", propertyType='" + propertyType.getOrElse("") + "'" +
+        ", defaultValue=" + defaultValue.fold("")(_.toString) + "}"
   }
 
   protected[tiled] val FLAG_FLIP_HORIZONTALLY: Int = 0x80000000

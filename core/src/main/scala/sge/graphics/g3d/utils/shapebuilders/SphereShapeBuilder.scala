@@ -13,7 +13,6 @@ package utils
 package shapebuilders
 
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.graphics.g3d.utils.MeshPartBuilder.VertexInfo
 import sge.math.{ MathUtils, Matrix3, Matrix4 }
 import sge.utils.{ DynamicArray, Nullable }
 

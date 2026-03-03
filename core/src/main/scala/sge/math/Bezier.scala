@@ -93,7 +93,7 @@ object Bezier {
     */
   def quadratic_derivative[T <: Vector[T]](out: T, t: Float, p0: T, p1: T, p2: T, tmp: T): T = {
     // B2'(t) = 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1)
-    val dt = 1f - t
+    1f - t
     out.set(p1).-(p0).scale(2).scale(1 - t).+(tmp.set(p2).-(p1).scale(t).scale(2))
   }
 

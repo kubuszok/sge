@@ -12,7 +12,6 @@ package viewport
 
 import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
-import sge.math.Vector2
 import sge.utils.Scaling
 
 /** A viewport that keeps the world aspect ratio by both scaling and extending the world. By default, the world is first scaled to fit within the viewport using {@link Scaling#fit} , then the shorter
@@ -21,7 +20,7 @@ import sge.utils.Scaling
   * @author
   *   Nathan Sweet
   */
-class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float, camera: Camera)(using sge: Sge) extends Viewport {
+class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float, camera: Camera)(using Sge) extends Viewport {
   private var _minWorldWidth:  Float   = minWorldWidth
   private var _minWorldHeight: Float   = minWorldHeight
   private var _maxWorldWidth:  Float   = maxWorldWidth
@@ -31,22 +30,19 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera} with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float)(using Sge) =
     this(minWorldWidth, minWorldHeight, 0, 0, new OrthographicCamera())
-  }
 
   /** Creates a new viewport with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using Sge) =
     this(minWorldWidth, minWorldHeight, 0, 0, camera)
-  }
 
   /** Creates a new viewport using a new {@link OrthographicCamera} and a maximum world size.
     * @see
     *   ExtendViewport#ExtendViewport(float, float, float, float, Camera)
     */
-  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using sge: Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using Sge) =
     this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, new OrthographicCamera())
-  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     // Fit min size to the screen.

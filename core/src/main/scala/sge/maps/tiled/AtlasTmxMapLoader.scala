@@ -30,13 +30,13 @@ import scala.language.implicitConversions
   * @author
   *   Manuel Bua
   */
-class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmxMapLoader[BaseTiledMapLoader.Parameters](resolver) {
+class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
   protected var trackedTextures: DynamicArray[Texture] = DynamicArray[Texture]()
 
   protected var atlasResolver: AtlasTmxMapLoader.AtlasResolver = scala.compiletime.uninitialized
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   def load(fileName: String): TiledMap =
     load(fileName, new BaseTiledMapLoader.Parameters())
@@ -152,8 +152,8 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
       val tile   = tileSet.getTile(tileId)
       if (tile.isEmpty) {
         val imageElement = tileElement.getChildByName("image")
-        if (imageElement.isDefined) {
-          var regionName = imageElement.orNull.getAttribute("source")
+        imageElement.foreach { ie =>
+          var regionName = ie.getAttribute("source")
           regionName = regionName.substring(0, regionName.lastIndexOf('.'))
           val region = atlas.findRegion(regionName)
           if (region.isEmpty) throw new IllegalArgumentException("Tileset atlasRegion not found: " + regionName)
@@ -164,11 +164,11 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
   }
 
   protected def getAtlasFileHandle(tmxFile: FileHandle): FileHandle = {
-    val properties = root.orNull.getChildByName("properties")
+    val properties = root.getOrElse(throw new IllegalStateException("root not initialized")).getChildByName("properties")
 
     var atlasFilePath: Nullable[String] = Nullable.empty
-    if (properties.isDefined) {
-      val propertyElements = properties.orNull.getChildrenByName("property")
+    properties.foreach { props =>
+      val propertyElements = props.getChildrenByName("property")
       var pi               = 0
       while (pi < propertyElements.size) {
         val property = propertyElements(pi)
@@ -182,9 +182,10 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
     if (atlasFilePath.isEmpty) {
       throw new IllegalArgumentException("The map is missing the 'atlas' property")
     } else {
-      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, atlasFilePath.orNull)
+      val path       = atlasFilePath.getOrElse("")
+      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, path)
       if (!fileHandle.exists()) {
-        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + atlasFilePath.orNull + "'")
+        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + path + "'")
       }
       fileHandle
     }

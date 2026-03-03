@@ -110,7 +110,7 @@ final class Bresenham2 {
     var currentX  = startX
     var currentY  = startY
 
-    for (i <- 0 to longest) {
+    for (_ <- 0 to longest) {
       val point = pool.obtain()
       point.set(currentX, currentY)
       output += point

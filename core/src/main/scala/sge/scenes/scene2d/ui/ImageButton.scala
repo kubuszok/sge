@@ -40,17 +40,14 @@ class ImageButton(style: ImageButton.ImageButtonStyle) extends Button() {
   //   setSkin(skin)
   // }
 
-  def this(imageUp: Nullable[Drawable]) = {
+  def this(imageUp: Nullable[Drawable]) =
     this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable]) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable]) =
     this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable]) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable]) =
     this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
-  }
 
   protected def newImage(): Image =
     new Image(Nullable.empty, Scaling.fit)

@@ -19,11 +19,11 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(using sge: Sge) extends InputListener {
+class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(using Sge) extends InputListener {
   import Tooltip._
 
   val container: Container[T] = new Container[T](contents) {
-    override def act(delta: Float)(using sge: Sge): Unit = {
+    override def act(delta: Float)(using Sge): Unit = {
       super.act(delta)
       targetActor.foreach { ta =>
         if (ta.getStage.isEmpty) remove()
@@ -38,9 +38,8 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using sge: Sge) = {
+  def this(contents: Nullable[T])(using Sge) =
     this(contents, TooltipManager.getInstance())
-  }
 
   def getManager: TooltipManager = manager
 
@@ -108,7 +107,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
 
   override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit =
     if (pointer != -1) ()
-    else if (touchIndependent && sge.input.isTouched()) ()
+    else if (touchIndependent && Sge().input.isTouched()) ()
     else {
       val actor      = event.getListenerActor
       val descendant = fromActor.fold(false)(fa => fa.isDescendantOf(actor))

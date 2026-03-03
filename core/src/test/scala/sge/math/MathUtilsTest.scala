@@ -3,6 +3,10 @@ package math
 
 class MathUtilsTest extends munit.FunSuite {
 
+  // Math.copySign is not available in Scala.js javalib, so we inline it here.
+  private def copySign(magnitude: Float, sign: Float): Float =
+    if (sign < 0f) -Math.abs(magnitude) else Math.abs(magnitude)
+
   test("lerpAngle") {
     assertEqualsDouble(MathUtils.lerpAngle(MathUtils.PI / 18f, MathUtils.PI / 6f, 0.0f).toDouble, (MathUtils.PI / 18f).toDouble, 0.01)
     assertEqualsDouble(MathUtils.lerpAngle(MathUtils.PI / 18f, MathUtils.PI / 6f, 0.5f).toDouble, (MathUtils.PI / 9f).toDouble, 0.01)
@@ -13,7 +17,7 @@ class MathUtilsTest extends munit.FunSuite {
     // intentionally skips where c == 0, because there are two equally-valid results for that case.
     var c = -1f
     while (c <= 1f) {
-      val expected = MathUtils.PI + Math.copySign(MathUtils.HALF_PI, c) + c
+      val expected = MathUtils.PI + copySign(MathUtils.HALF_PI, c) + c
       assertEqualsDouble(
         MathUtils.lerpAngle(0, MathUtils.PI2 + MathUtils.PI + c + c, 0.5f).toDouble,
         expected.toDouble,
@@ -38,7 +42,7 @@ class MathUtilsTest extends munit.FunSuite {
     // intentionally skips where c == 0, because there are two equally-valid results for that case.
     var c = -80f
     while (c <= 80f) {
-      val expected = 180f + Math.copySign(90f, c) + c
+      val expected = 180f + copySign(90f, c) + c
       assertEqualsDouble(
         MathUtils.lerpAngleDeg(0, 540 + c + c, 0.5f).toDouble,
         expected.toDouble,

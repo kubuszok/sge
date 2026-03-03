@@ -19,7 +19,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-abstract class Value {
+trait Value {
 
   /** Calls {@link #get(Actor)} with null. */
   def get(): Float = get(Nullable.empty)
@@ -62,80 +62,56 @@ object Value {
   }
 
   /** Value that is the minWidth of the actor in the cell. */
-  val minWidth: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getMinWidth
-        case a => a.getWidth
-      }
-  }
+  val minWidth: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getMinWidth
+      case a => a.getWidth
+    }
 
   /** Value that is the minHeight of the actor in the cell. */
-  val minHeight: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getMinHeight
-        case a => a.getHeight
-      }
-  }
+  val minHeight: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getMinHeight
+      case a => a.getHeight
+    }
 
   /** Value that is the prefWidth of the actor in the cell. */
-  val prefWidth: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getPrefWidth
-        case a => a.getWidth
-      }
-  }
+  val prefWidth: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getPrefWidth
+      case a => a.getWidth
+    }
 
   /** Value that is the prefHeight of the actor in the cell. */
-  val prefHeight: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getPrefHeight
-        case a => a.getHeight
-      }
-  }
+  val prefHeight: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getPrefHeight
+      case a => a.getHeight
+    }
 
   /** Value that is the maxWidth of the actor in the cell. */
-  val maxWidth: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getMaxWidth
-        case a => a.getWidth
-      }
-  }
+  val maxWidth: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getMaxWidth
+      case a => a.getWidth
+    }
 
   /** Value that is the maxHeight of the actor in the cell. */
-  val maxHeight: Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f) {
-        case l: Layout => l.getMaxHeight
-        case a => a.getHeight
-      }
-  }
+  val maxHeight: Value = context =>
+    context.fold(0f) {
+      case l: Layout => l.getMaxHeight
+      case a => a.getHeight
+    }
 
   /** Returns a value that is a percentage of the actor's width. */
-  def percentWidth(percent: Float): Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f)(_.getWidth * percent)
-  }
+  def percentWidth(percent: Float): Value = context => context.fold(0f)(_.getWidth * percent)
 
   /** Returns a value that is a percentage of the actor's height. */
-  def percentHeight(percent: Float): Value = new Value {
-    def get(context: Nullable[Actor]): Float =
-      context.fold(0f)(_.getHeight * percent)
-  }
+  def percentHeight(percent: Float): Value = context => context.fold(0f)(_.getHeight * percent)
 
   /** Returns a value that is a percentage of the specified actor's width. The context actor is ignored. */
-  def percentWidth(percent: Float, actor: Actor): Value =
-    new Value {
-      def get(context: Nullable[Actor]): Float = actor.getWidth * percent
-    }
+  def percentWidth(percent: Float, actor: Actor): Value = _ => actor.getWidth * percent
 
   /** Returns a value that is a percentage of the specified actor's height. The context actor is ignored. */
-  def percentHeight(percent: Float, actor: Actor): Value =
-    new Value {
-      def get(context: Nullable[Actor]): Float = actor.getHeight * percent
-    }
+  def percentHeight(percent: Float, actor: Actor): Value = _ => actor.getHeight * percent
 }

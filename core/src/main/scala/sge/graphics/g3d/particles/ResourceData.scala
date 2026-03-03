@@ -34,10 +34,10 @@ class ResourceData[T]() {
   /** Unique data, can be used to save/load generic data which is not always loaded back after saving. Must be used to store data which is uniquely addressable by a given string (i.e a system
     * configuration).
     */
-  private var uniqueData: ObjectMap[String, SaveData] = ObjectMap[String, SaveData]()
+  private val uniqueData: ObjectMap[String, SaveData] = ObjectMap[String, SaveData]()
 
   /** Objects save data, must be loaded in the same saving order */
-  private var data: DynamicArray[SaveData] = DynamicArray[SaveData]()
+  private val data: DynamicArray[SaveData] = DynamicArray[SaveData]()
 
   /** Shared assets among all the configurable objects */
   var sharedAssets:             DynamicArray[AssetData[?]] = DynamicArray[AssetData[?]]()
@@ -118,9 +118,8 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) = {
+    def this(resources: ResourceData[?]) =
       this(Nullable(resources))
-    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>

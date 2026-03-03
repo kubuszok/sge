@@ -32,13 +32,13 @@ object ScissorStack {
     * @return
     *   true if the scissors were pushed. false if the scissor area was zero, in this case the scissors were not pushed and no drawing should occur.
     */
-  def pushScissors(scissor: Rectangle)(using sge: Sge): Boolean = {
+  def pushScissors(scissor: Rectangle)(using Sge): Boolean = {
     fix(scissor)
 
     if (scissors.isEmpty) {
       if (scissor.width < 1 || scissor.height < 1) false
       else {
-        sge.graphics.getGL20().glEnable(GL20.GL_SCISSOR_TEST)
+        Sge().graphics.getGL20().glEnable(GL20.GL_SCISSOR_TEST)
         scissors.add(scissor)
         HdpiUtils.glScissor(scissor.x.toInt, scissor.y.toInt, scissor.width.toInt, scissor.height.toInt)
         true
@@ -69,10 +69,10 @@ object ScissorStack {
   /** Pops the current scissor rectangle from the stack and sets the new scissor area to the new top of stack rectangle. In case no more rectangles are on the stack, {@link GL20#GL_SCISSOR_TEST} is
     * disabled. <p> Any drawing should be flushed before popping scissors.
     */
-  def popScissors()(using sge: Sge): Rectangle = {
+  def popScissors()(using Sge): Rectangle = {
     val old = scissors.removeIndex(scissors.size - 1)
     if (scissors.isEmpty)
-      sge.graphics.getGL20().glDisable(GL20.GL_SCISSOR_TEST)
+      Sge().graphics.getGL20().glDisable(GL20.GL_SCISSOR_TEST)
     else {
       val scissor = scissors(scissors.size - 1)
       HdpiUtils.glScissor(scissor.x.toInt, scissor.y.toInt, scissor.width.toInt, scissor.height.toInt)
@@ -104,8 +104,8 @@ object ScissorStack {
     * @see
     *   #calculateScissors(Camera, float, float, float, float, Matrix4, Rectangle, Rectangle)
     */
-  def calculateScissors(camera: Camera, batchTransform: Matrix4, area: Rectangle, scissor: Rectangle)(using sge: Sge): Unit =
-    calculateScissors(camera, 0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat, batchTransform, area, scissor)
+  def calculateScissors(camera: Camera, batchTransform: Matrix4, area: Rectangle, scissor: Rectangle)(using Sge): Unit =
+    calculateScissors(camera, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, batchTransform, area, scissor)
 
   /** Calculates a scissor rectangle in OpenGL ES window coordinates from a {@link Camera}, a transformation {@link Matrix4} and an axis aligned {@link Rectangle}. The rectangle will get transformed
     * by the camera and transform matrices and is then projected to screen coordinates. Note that only axis aligned rectangles will work with this method. If either the Camera or the Matrix4 have
@@ -134,9 +134,9 @@ object ScissorStack {
   }
 
   /** @return the current viewport in OpenGL ES window coordinates based on the currently applied scissor */
-  def getViewport(using sge: Sge): Rectangle =
+  def getViewport(using Sge): Rectangle =
     if (scissors.isEmpty) {
-      viewport.set(0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+      viewport.set(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
       viewport
     } else {
       val scissor = scissors(scissors.size - 1)

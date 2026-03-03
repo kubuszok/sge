@@ -13,8 +13,8 @@ package renderers
 
 import sge.Sge
 import sge.graphics.{ Color, GL20, OrthographicCamera }
-import sge.graphics.g2d.{ Batch, SpriteCache, TextureRegion }
-import sge.maps.{ MapLayer, MapLayers, MapObject }
+import sge.graphics.g2d.{ Batch, SpriteCache }
+import sge.maps.{ MapLayer, MapObject }
 import sge.math.{ Matrix4, Rectangle }
 import sge.utils.Nullable
 
@@ -29,7 +29,7 @@ class OrthoCachedTiledMapRenderer(
   protected val map:       TiledMap,
   protected var unitScale: Float,
   cacheSize:               Int
-)(using sge: Sge)
+)(using Sge)
     extends TiledMapRenderer
     with AutoCloseable {
 
@@ -52,10 +52,10 @@ class OrthoCachedTiledMapRenderer(
   protected var canCacheMoreS: Boolean = false
 
   /** Creates a renderer with a unit scale of 1 and cache size of 2000. */
-  def this(map: TiledMap)(using sge: Sge) = this(map, 1f, 2000)
+  def this(map: TiledMap)(using Sge) = this(map, 1f, 2000)
 
   /** Creates a renderer with a cache size of 2000. */
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = this(map, unitScale, 2000)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, 2000)
 
   override def setView(camera: OrthographicCamera): Unit = {
     spriteCache.setProjectionMatrix(camera.combined)
@@ -118,8 +118,8 @@ class OrthoCachedTiledMapRenderer(
     }
 
     if (blending) {
-      sge.graphics.gl.glEnable(GL20.GL_BLEND)
-      sge.graphics.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+      Sge().graphics.gl.glEnable(GL20.GL_BLEND)
+      Sge().graphics.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
     }
     spriteCache.begin()
     val mapLayers = map.getLayers
@@ -134,7 +134,7 @@ class OrthoCachedTiledMapRenderer(
       i += 1
     }
     spriteCache.end()
-    if (blending) sge.graphics.gl.glDisable(GL20.GL_BLEND)
+    if (blending) Sge().graphics.gl.glDisable(GL20.GL_BLEND)
   }
 
   override def render(layers: Array[Int]): Unit = {
@@ -164,8 +164,8 @@ class OrthoCachedTiledMapRenderer(
     }
 
     if (blending) {
-      sge.graphics.gl.glEnable(GL20.GL_BLEND)
-      sge.graphics.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+      Sge().graphics.gl.glEnable(GL20.GL_BLEND)
+      Sge().graphics.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
     }
     spriteCache.begin()
     val mapLayers = map.getLayers
@@ -177,7 +177,7 @@ class OrthoCachedTiledMapRenderer(
       }
     }
     spriteCache.end()
-    if (blending) sge.graphics.gl.glDisable(GL20.GL_BLEND)
+    if (blending) Sge().graphics.gl.glDisable(GL20.GL_BLEND)
   }
 
   override def renderObjects(layer: MapLayer): Unit =
@@ -265,16 +265,16 @@ class OrthoCachedTiledMapRenderer(
             if (rotations != 0) {
               rotations match {
                 case TiledMapTileLayer.Cell.ROTATE_90 =>
-                  var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V4); vertices(Batch.V4) = tempV
-                  var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U4); vertices(Batch.U4) = tempU
+                  val tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V4); vertices(Batch.V4) = tempV
+                  val tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U4); vertices(Batch.U4) = tempU
                 case TiledMapTileLayer.Cell.ROTATE_180 =>
                   var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U3); vertices(Batch.U3) = tempU
                   tempU = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U4); vertices(Batch.U4) = tempU
                   var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V3); vertices(Batch.V3) = tempV
                   tempV = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V4); vertices(Batch.V4) = tempV
                 case TiledMapTileLayer.Cell.ROTATE_270 =>
-                  var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V4); vertices(Batch.V4) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V2); vertices(Batch.V2) = tempV
-                  var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U4); vertices(Batch.U4) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U2); vertices(Batch.U2) = tempU
+                  val tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V4); vertices(Batch.V4) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V2); vertices(Batch.V2) = tempV
+                  val tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U4); vertices(Batch.U4) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U2); vertices(Batch.U2) = tempU
                 case _ => ()
               }
             }

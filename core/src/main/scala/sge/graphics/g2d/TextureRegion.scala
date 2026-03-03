@@ -265,7 +265,7 @@ object TextureRegion {
     *   a two-dimensional array of TextureRegions based on the specified region.
     */
   def splitWithMargins(region: TextureRegion, tileWidth: Int, tileHeight: Int, margin: Int, spacing: Int): Array[Array[TextureRegion]] = {
-    val texture      = region.getTexture()
+    region.getTexture()
     val regionWidth  = region.getRegionWidth()
     val regionHeight = region.getRegionHeight()
     val xSlices      = (regionWidth - 2 * margin + spacing) / (tileWidth + spacing)

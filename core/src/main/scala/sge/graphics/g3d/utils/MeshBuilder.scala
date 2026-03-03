@@ -245,7 +245,7 @@ class MeshBuilder extends MeshPartBuilder {
   }
 
   /** End building the mesh and returns the mesh */
-  def end()(using sge: Sge): Mesh =
+  def end()(using Sge): Mesh =
     end(
       new Mesh(
         true,

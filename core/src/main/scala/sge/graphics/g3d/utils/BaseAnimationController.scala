@@ -13,8 +13,6 @@ package utils
 
 import scala.collection.mutable
 import scala.language.implicitConversions
-import scala.util.boundary
-import scala.util.boundary.break
 
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
@@ -81,8 +79,8 @@ class BaseAnimationController(
       throw SgeError.InvalidInput("Call end() first")
     else {
       begin()
-      apply(anim1.orNull, time1, 1f)
-      apply(anim2.orNull, time2, weight)
+      anim1.foreach(a => apply(a, time1, 1f))
+      anim2.foreach(a => apply(a, time2, weight))
       end()
     }
 
@@ -266,8 +264,8 @@ object BaseAnimationController {
       for (nodeAnim <- animation.nodeAnimations)
         applyNodeAnimationDirectly(nodeAnim, time)
     } else {
-      val m = out.orNull
-      val p = pool.orNull
+      val m = out.getOrElse(throw SgeError.InvalidInput("out must be defined"))
+      val p = pool.getOrElse(throw SgeError.InvalidInput("pool must be defined"))
       for (node <- m.keys)
         node.isAnimated = false
       for (nodeAnim <- animation.nodeAnimations)

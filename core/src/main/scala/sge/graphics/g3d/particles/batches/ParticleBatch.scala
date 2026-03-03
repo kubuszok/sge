@@ -12,7 +12,6 @@ package g3d
 package particles
 package batches
 
-import sge.assets.AssetManager
 import sge.graphics.g3d.RenderableProvider
 import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderData

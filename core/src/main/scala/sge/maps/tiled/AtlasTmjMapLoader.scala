@@ -30,13 +30,13 @@ import scala.language.implicitConversions
   * @author
   *   Manuel Bua
   */
-class AtlasTmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
+class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
   protected var trackedTextures: DynamicArray[Texture] = DynamicArray[Texture]()
 
   protected var atlasResolver: AtlasTmjMapLoader.AtlasResolver = scala.compiletime.uninitialized
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   def load(fileName: String): TiledMap =
     load(fileName, new BaseTiledMapLoader.Parameters())
@@ -153,7 +153,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
       if (tile.isEmpty) {
         val imageElement = tileElement.get("image")
         imageElement.foreach { ie =>
-          var regionName = ie.asString().orNull
+          var regionName = ie.asString().getOrElse("")
           regionName = regionName.substring(0, regionName.lastIndexOf('.'))
           val region = atlas.findRegion(regionName)
           if (region.isEmpty) throw new IllegalArgumentException("Tileset atlasRegion not found: " + regionName)
@@ -164,24 +164,25 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Ba
   }
 
   protected def getAtlasFileHandle(tmjFile: FileHandle): FileHandle = {
-    val properties = root.orNull.get("properties")
+    val properties = root.getOrElse(throw new IllegalStateException("root not initialized")).get("properties")
 
     var atlasFilePath: Nullable[String] = Nullable.empty
     properties.foreach { props =>
       for (property <- props) {
-        val name = property.getString("name", Nullable("")).orNull
+        val name = property.getString("name", Nullable("")).getOrElse("")
         if (name.startsWith("atlas")) {
           atlasFilePath = property.getString("value", Nullable(""))
         }
       }
     }
 
-    if (atlasFilePath.isEmpty || atlasFilePath.orNull.isEmpty) {
+    if (atlasFilePath.isEmpty || atlasFilePath.getOrElse("").isEmpty) {
       throw new IllegalArgumentException("The map is missing the 'atlas' property")
     } else {
-      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, atlasFilePath.orNull)
+      val path       = atlasFilePath.getOrElse("")
+      val fileHandle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, path)
       if (!fileHandle.exists()) {
-        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + atlasFilePath.orNull + "'")
+        throw new IllegalArgumentException("The 'atlas' file could not be found: '" + path + "'")
       }
       fileHandle
     }

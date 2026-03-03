@@ -24,10 +24,10 @@ class DecalMaterial {
   var dstBlendFactor: Int           = 0
 
   /** Binds the material's texture to the OpenGL context and changes the glBlendFunc to the values used by it. */
-  def set()(using sge: Sge): Unit = {
+  def set()(using Sge): Unit = {
     textureRegion.getTexture().bind(0)
     if (!isOpaque) {
-      sge.graphics.gl.glBlendFunc(srcBlendFactor, dstBlendFactor)
+      Sge().graphics.gl.glBlendFunc(srcBlendFactor, dstBlendFactor)
     }
   }
 

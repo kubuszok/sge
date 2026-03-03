@@ -9,6 +9,7 @@
 package sge
 package utils
 
+import scala.annotation.nowarn
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -195,7 +196,6 @@ object Timer {
     *   Nathan Sweet
     */
   abstract class Task(implicit sde: sge.Sge) extends Runnable {
-    private val app = sde // Store which app to postRunnable (eg for multiple LwjglAWTCanvas).
     private[Timer] var executeTimeMillis: Long          = 0
     private[Timer] var intervalMillis:    Long          = 0
     private[Timer] var repeatCount:       Int           = 0
@@ -239,17 +239,14 @@ object Timer {
     *   Nathan Sweet
     */
   private class TimerThread(implicit sde: sge.Sge) extends Runnable {
-    val files       = sde.files
-    private val app = sde
-    val instances   = DynamicArray[Timer]()
+    val files     = sde.files
+    val instances = DynamicArray[Timer]()
     var instance:        Option[Timer] = None
     var pauseTimeMillis: Long          = 0
 
-    val postedTasks            = DynamicArray[Task]()
-    private val runTasks       = DynamicArray[Task]()
-    private val runPostedTasks = new Runnable {
-      def run(): Unit = runPostedTasksImpl()
-    }
+    val postedTasks = DynamicArray[Task]()
+    @nowarn("msg=unused") // will be used when postRunnable is implemented
+    private val runTasks = DynamicArray[Task]()
 
     // app.addLifecycleListener(this) // TODO: Implement LifecycleListener
     resume()
@@ -289,15 +286,6 @@ object Timer {
           }
       }
       dispose()
-    }
-
-    private def runPostedTasksImpl(): Unit = {
-      postedTasks.synchronized {
-        runTasks.addAll(postedTasks)
-        postedTasks.clear()
-      }
-      runTasks.foreach(_.run())
-      runTasks.clear()
     }
 
     def addPostedTask(task: Task): Unit =

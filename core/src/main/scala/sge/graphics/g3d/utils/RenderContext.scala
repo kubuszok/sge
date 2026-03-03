@@ -19,7 +19,7 @@ package utils
 class RenderContext(
   /** used to bind textures * */
   val textureBinder: TextureBinder
-)(using sge: Sge) {
+)(using Sge) {
 
   private var blending:               Boolean = false
   private var blendSourceRgbFactor:   Int     = 0
@@ -34,7 +34,7 @@ class RenderContext(
 
   /** Sets up the render context, must be matched with a call to [[end]]. */
   def begin(): Unit = {
-    val gl = sge.graphics.gl
+    val gl = Sge().graphics.gl
     gl.glDisable(GL20.GL_DEPTH_TEST)
     depthFunc = 0
     gl.glDepthMask(true)
@@ -52,7 +52,7 @@ class RenderContext(
 
   /** Resets all changed OpenGL states to their defaults. */
   def end(): Unit = {
-    val gl = sge.graphics.gl
+    val gl = Sge().graphics.gl
     if (depthFunc != 0) gl.glDisable(GL20.GL_DEPTH_TEST)
     if (!depthMask) gl.glDepthMask(true)
     if (blending) gl.glDisable(GL20.GL_BLEND)
@@ -63,14 +63,14 @@ class RenderContext(
   def setDepthMask(depthMask: Boolean): Unit =
     if (this.depthMask != depthMask) {
       this.depthMask = depthMask
-      sge.graphics.gl.glDepthMask(depthMask)
+      Sge().graphics.gl.glDepthMask(depthMask)
     }
 
   def setDepthTest(depthFunction: Int): Unit =
     setDepthTest(depthFunction, 0f, 1f)
 
   def setDepthTest(depthFunction: Int, depthRangeNear: Float, depthRangeFar: Float): Unit = {
-    val gl         = sge.graphics.gl
+    val gl         = Sge().graphics.gl
     val wasEnabled = depthFunc != 0
     val enabled    = depthFunction != 0
     if (depthFunc != depthFunction) {
@@ -99,7 +99,7 @@ class RenderContext(
     setBlending(enabled, sFactor, dFactor, sFactor, dFactor)
 
   def setBlending(enabled: Boolean, sRgbFactor: Int, dRgbFactor: Int, sAlphaFactor: Int, dAlphaFactor: Int): Unit = {
-    val gl = sge.graphics.gl
+    val gl = Sge().graphics.gl
     if (enabled != blending) {
       blending = enabled
       if (enabled)
@@ -120,7 +120,7 @@ class RenderContext(
   }
 
   def setCullFace(face: Int): Unit = {
-    val gl = sge.graphics.gl
+    val gl = Sge().graphics.gl
     if (face != cullFace) {
       cullFace = face
       if (face == GL20.GL_FRONT || face == GL20.GL_BACK || face == GL20.GL_FRONT_AND_BACK) {

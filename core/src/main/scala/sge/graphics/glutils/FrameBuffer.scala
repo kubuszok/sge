@@ -16,7 +16,6 @@ import sge.graphics.Pixmap
 import sge.graphics.Texture
 import sge.graphics.GL20
 import sge.Application
-import sge.utils.SgeError
 import sge.Sge
 
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a texture for the color attachment and a
@@ -30,14 +29,14 @@ import sge.Sge
   * @author
   *   mzechner, realitix
   */
-class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
+class FrameBuffer(using Sge) extends GLFrameBuffer[Texture] {
 
   /** Creates a GLFrameBuffer from the specifications provided by bufferBuilder
     *
     * @param bufferBuilder
     *   *
     */
-  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]])(using sge: Sge) = {
+  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]])(using Sge) = {
     this()
     this.bufferBuilder = bufferBuilder
     build()
@@ -56,7 +55,7 @@ class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
     * @throws SgeError.GraphicsError
     *   in case the FrameBuffer could not be created
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean, hasStencil: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean, hasStencil: Boolean)(using Sge) = {
     this()
     val frameBufferBuilder = new GLFrameBuffer.FrameBufferBuilder(width, height)
     frameBufferBuilder.addBasicColorTextureAttachment(format)
@@ -68,15 +67,14 @@ class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
   }
 
   /** Creates a new FrameBuffer having the given dimensions and potentially a depth buffer attached. */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
     this(format, width, height, hasDepth, false)
-  }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Texture = {
     val data   = new GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)
     val result = new Texture(data)
     // Filtering support for depth textures on WebGL is spotty https://github.com/KhronosGroup/OpenGL-API/issues/84
-    val webGLDepth = attachmentSpec.isDepth && sge.application.getType() == Application.ApplicationType.WebGL
+    val webGLDepth = attachmentSpec.isDepth && Sge().application.getType() == Application.ApplicationType.WebGL
     if (!webGLDepth) {
       result.setFilter(TextureFilter.Linear, TextureFilter.Linear)
     }
@@ -88,12 +86,12 @@ class FrameBuffer(using sge: Sge) extends GLFrameBuffer[Texture] {
     colorTexture.close()
 
   override protected def attachFrameBufferColorTexture(texture: Texture): Unit =
-    sge.graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, GL20.GL_TEXTURE_2D, texture.getTextureObjectHandle().toInt, 0)
+    Sge().graphics.gl20.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, GL20.GL_TEXTURE_2D, texture.getTextureObjectHandle().toInt, 0)
 }
 
 object FrameBuffer {
 
   /** See GLFrameBuffer.unbind() */
-  def unbind()(using sge: Sge): Unit =
+  def unbind()(using Sge): Unit =
     GLFrameBuffer.unbind()
 }

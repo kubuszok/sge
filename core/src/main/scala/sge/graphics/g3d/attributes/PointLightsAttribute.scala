@@ -24,9 +24,8 @@ class PointLightsAttribute(
   val lights: DynamicArray[PointLight]
 ) extends Attribute(PointLightsAttribute.Type) {
 
-  def this() = {
+  def this() =
     this(DynamicArray[PointLight]())
-  }
 
   def this(copyFrom: PointLightsAttribute) = {
     this()

@@ -16,14 +16,11 @@ import scala.util.boundary.break
 import sge.files.FileHandle
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ DynamicArray, Nullable, SgeError }
-import sge.utils.Pool.Poolable
-import java.io.{ BufferedReader, InputStreamReader }
-import java.util.StringTokenizer
+import sge.utils.{ DynamicArray, Nullable }
 
 import scala.language.implicitConversions
 
-class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using sge: Sge) extends AutoCloseable {
+class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using Sge) extends AutoCloseable {
 
   val regions:             DynamicArray[TextureRegion] = regionsParam.getOrElse(loadRegions())
   private val cache:       BitmapFontCache             = newFontCache()
@@ -31,33 +28,31 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   private var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
     this(
       new BitmapFontData(fontFile, false),
-      if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
-      else Nullable.empty,
+      region.map { r =>
+        val da = DynamicArray[TextureRegion](); da.add(r); da
+      },
       true
     )
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
     this(
       new BitmapFontData(fontFile, flip),
-      if (region.isDefined) { val da = DynamicArray[TextureRegion](); da.add(region.orNull); Nullable(da) }
-      else Nullable.empty,
+      region.map { r =>
+        val da = DynamicArray[TextureRegion](); da.add(r); da
+      },
       true
     )
-  }
 
-  def this(fontFile: FileHandle)(using sge: Sge) = {
+  def this(fontFile: FileHandle)(using Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
     this(new BitmapFontData(fontFile, flip), Nullable.empty, true)
-  }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
       Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
@@ -66,7 +61,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     ownsTexture = true
   }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
       Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
@@ -75,7 +70,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     ownsTexture = true
   }
 
-  private def loadRegions()(using sge: Sge): DynamicArray[TextureRegion] =
+  private def loadRegions()(using Sge): DynamicArray[TextureRegion] =
     data.imagePaths.fold {
       throw new IllegalArgumentException("If no regions are specified, the font data must have an images path.")
     } { paths =>

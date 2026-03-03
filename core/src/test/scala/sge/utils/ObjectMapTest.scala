@@ -47,9 +47,9 @@ class ObjectMapTest extends munit.FunSuite {
     map.put("b", 2)
     map.put("c", 3)
     assertEquals(map.size, 3)
-    assertEquals(map.get("a").orNull, 1)
-    assertEquals(map.get("b").orNull, 2)
-    assertEquals(map.get("c").orNull, 3)
+    assertEquals(map.get("a").getOrElse(fail("expected non-empty")), 1)
+    assertEquals(map.get("b").getOrElse(fail("expected non-empty")), 2)
+    assertEquals(map.get("c").getOrElse(fail("expected non-empty")), 3)
   }
 
   test("put overwrites existing key") {
@@ -57,8 +57,8 @@ class ObjectMapTest extends munit.FunSuite {
     map.put("a", 1)
     val old = map.put("a", 99)
     assert(old.isDefined)
-    assertEquals(old.orNull, 1)
-    assertEquals(map.get("a").orNull, 99)
+    assertEquals(old.getOrElse(fail("expected non-empty")), 1)
+    assertEquals(map.get("a").getOrElse(fail("expected non-empty")), 99)
     assertEquals(map.size, 1)
   }
 
@@ -86,7 +86,7 @@ class ObjectMapTest extends munit.FunSuite {
     map.put("b", 2)
     val removed = map.remove("a")
     assert(removed.isDefined)
-    assertEquals(removed.orNull, 1)
+    assertEquals(removed.getOrElse(fail("expected non-empty")), 1)
     assertEquals(map.size, 1)
     assert(map.get("a").isEmpty)
   }
@@ -123,7 +123,7 @@ class ObjectMapTest extends munit.FunSuite {
     map.put("b", 2)
     val key = map.findKey(2)
     assert(key.isDefined)
-    assertEquals(key.orNull, "b")
+    assertEquals(key.getOrElse(fail("expected non-empty")), "b")
     assert(map.findKey(99).isEmpty)
   }
 
@@ -172,7 +172,7 @@ class ObjectMapTest extends munit.FunSuite {
     map2.put("c", 3)
     map1.putAll(map2)
     assertEquals(map1.size, 3)
-    assertEquals(map1.get("b").orNull, 2)
+    assertEquals(map1.get("b").getOrElse(fail("expected non-empty")), 2)
   }
 
   test("clear") {
@@ -205,7 +205,7 @@ class ObjectMapTest extends munit.FunSuite {
     // Should not throw
     map.ensureCapacity(1000)
     assertEquals(map.size, 1)
-    assertEquals(map.get("a").orNull, 1)
+    assertEquals(map.get("a").getOrElse(fail("expected non-empty")), 1)
   }
 
   test("shrink reduces table size") {
@@ -213,7 +213,7 @@ class ObjectMapTest extends munit.FunSuite {
     map.put("a", 1)
     map.shrink(2)
     assertEquals(map.size, 1)
-    assertEquals(map.get("a").orNull, 1)
+    assertEquals(map.get("a").getOrElse(fail("expected non-empty")), 1)
   }
 
   test("shrink with negative capacity throws") {
@@ -286,10 +286,10 @@ class ObjectMapTest extends munit.FunSuite {
     original.put("b", 2)
     val copy = ObjectMap.from(original)
     assertEquals(copy.size, 2)
-    assertEquals(copy.get("a").orNull, 1)
+    assertEquals(copy.get("a").getOrElse(fail("expected non-empty")), 1)
     // Modifying copy does not affect original
     copy.put("a", 99)
-    assertEquals(original.get("a").orNull, 1)
+    assertEquals(original.get("a").getOrElse(fail("expected non-empty")), 1)
   }
 
   // ---- toString ----
@@ -325,7 +325,7 @@ class ObjectMapTest extends munit.FunSuite {
     assertEquals(map.size, 1)
     assert(map.containsKey("only"))
     assert(map.containsValue(42))
-    assertEquals(map.findKey(42).orNull, "only")
+    assertEquals(map.findKey(42).getOrElse(fail("expected non-empty")), "only")
     map.remove("only")
     assertEquals(map.size, 0)
   }
@@ -336,7 +336,7 @@ class ObjectMapTest extends munit.FunSuite {
       map.put(s"key$i", i)
     assertEquals(map.size, 1000)
     for (i <- 0 until 1000)
-      assertEquals(map.get(s"key$i").orNull, i)
+      assertEquals(map.get(s"key$i").getOrElse(fail("expected non-empty")), i)
   }
 
   test("many removals after insertions") {
@@ -413,7 +413,7 @@ class ObjectMapTest extends munit.FunSuite {
     for (i <- 0 until 1000 by 2) {
       val removed = map.remove(i)
       assert(removed.isDefined)
-      assertEquals(removed.orNull, i * 10)
+      assertEquals(removed.getOrElse(fail("expected non-empty")), i * 10)
     }
     assertEquals(map.size, 500)
 
@@ -422,7 +422,7 @@ class ObjectMapTest extends munit.FunSuite {
       if (i % 2 == 0) {
         assert(map.get(i).isEmpty)
       } else {
-        assertEquals(map.get(i).orNull, i * 10)
+        assertEquals(map.get(i).getOrElse(fail("expected non-empty")), i * 10)
       }
   }
 
@@ -434,13 +434,13 @@ class ObjectMapTest extends munit.FunSuite {
       map.put(new BadHash(i), i)
     assertEquals(map.size, 50)
     for (i <- 0 until 50)
-      assertEquals(map.get(new BadHash(i)).orNull, i)
+      assertEquals(map.get(new BadHash(i)).getOrElse(fail("expected non-empty")), i)
     // Remove half
     for (i <- 0 until 25)
       map.remove(new BadHash(i))
     assertEquals(map.size, 25)
     for (i <- 25 until 50)
-      assertEquals(map.get(new BadHash(i)).orNull, i)
+      assertEquals(map.get(new BadHash(i)).getOrElse(fail("expected non-empty")), i)
   }
 }
 

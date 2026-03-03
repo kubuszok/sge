@@ -11,10 +11,8 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, NinePatch, TextureRegion }
 import sge.graphics.Texture
-import sge.math.Vector2
 import sge.scenes.scene2d.utils.{ Drawable, NinePatchDrawable, TextureRegionDrawable, TransformDrawable }
 import sge.utils.{ Align, Nullable, Scaling }
 

@@ -84,20 +84,20 @@ class Skin() extends AutoCloseable {
   }
 
   /** Adds all resources in the specified skin JSON file. */
-  def load(skinFile: FileHandle)(using sge: Sge): Unit =
+  def load(skinFile: FileHandle)(using Sge): Unit =
     try {
       val reader    = new _root_.sge.utils.JsonReader()
       val root      = reader.parse(skinFile)
       var typeEntry = root.child
-      while (typeEntry.isDefined) {
-        val te       = typeEntry.orNull
-        val typeName = te.name.getOrElse("")
-        Skin.resolveClass(typeName) match {
-          case Some(tpe) => readNamedObjects(tpe, te, skinFile)
-          case None      => () // Unknown type, skip
+      while (typeEntry.isDefined)
+        typeEntry.foreach { te =>
+          val typeName = te.name.getOrElse("")
+          Skin.resolveClass(typeName) match {
+            case Some(tpe) => readNamedObjects(tpe, te, skinFile)
+            case None      => () // Unknown type, skip
+          }
+          typeEntry = te.next
         }
-        typeEntry = te.next
-      }
     } catch {
       case ex: SgeError  => throw ex
       case ex: Exception =>
@@ -107,22 +107,22 @@ class Skin() extends AutoCloseable {
   private def readNamedObjects(tpe: Class[?], valueMap: JsonValue, skinFile: FileHandle)(using Sge): Unit = {
     val addType    = if (tpe == classOf[Skin.TintedDrawable]) classOf[Drawable] else tpe
     var valueEntry = valueMap.child
-    while (valueEntry.isDefined) {
-      val entry     = valueEntry.orNull
-      val entryName = entry.name.getOrElse("")
-      try {
-        val obj = readValue(tpe, entry, skinFile)
-        if (Nullable(obj).isDefined) {
-          add(entryName, obj, addType)
-          if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
-            add(entryName, obj, classOf[Drawable])
+    while (valueEntry.isDefined)
+      valueEntry.foreach { entry =>
+        val entryName = entry.name.getOrElse("")
+        try {
+          val obj = readValue(tpe, entry, skinFile)
+          if (Nullable(obj).isDefined) {
+            add(entryName, obj, addType)
+            if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
+              add(entryName, obj, classOf[Drawable])
+          }
+        } catch {
+          case ex: Exception =>
+            throw SgeError.InvalidInput("Error reading " + tpe.getSimpleName + ": " + entryName + ": " + ex.getMessage)
         }
-      } catch {
-        case ex: Exception =>
-          throw SgeError.InvalidInput("Error reading " + tpe.getSimpleName + ": " + entryName + ": " + ex.getMessage)
+        valueEntry = entry.next
       }
-      valueEntry = entry.next
-    }
   }
 
   /** Reads a single value of the specified type from JSON. For string JSON values referencing named resources, looks them up in this skin. For Color, BitmapFont, and TintedDrawable, uses explicit
@@ -131,7 +131,7 @@ class Skin() extends AutoCloseable {
   private def readValue(tpe: Class[?], jsonData: JsonValue, skinFile: FileHandle)(using Sge): Any =
     // If the JSON is a string but the type is not a string, look up the resource by name.
     if (jsonData.isString && !classOf[CharSequence].isAssignableFrom(tpe))
-      get(jsonData.asString().orNull, tpe.asInstanceOf[Class[Any]])
+      get(jsonData.asString().getOrElse(""), tpe.asInstanceOf[Class[Any]])
     else if (tpe == classOf[Color]) readColor(jsonData)
     else if (tpe == classOf[BitmapFont]) readBitmapFont(jsonData, skinFile)
     else if (tpe == classOf[Skin.TintedDrawable]) readTintedDrawable(jsonData)
@@ -139,11 +139,10 @@ class Skin() extends AutoCloseable {
 
   /** Reads a Color from JSON. Supports string references, hex notation, and r/g/b/a components. */
   private def readColor(jsonData: JsonValue): Color =
-    if (jsonData.isString) get(jsonData.asString().orNull, classOf[Color])
+    if (jsonData.isString) get(jsonData.asString().getOrElse(""), classOf[Color])
     else {
       val hex = jsonData.getString("hex", Nullable.empty)
-      if (hex.isDefined) Color.valueOf(hex.orNull)
-      else {
+      hex.map(Color.valueOf).getOrElse {
         val r = jsonData.getFloat("r", 0f)
         val g = jsonData.getFloat("g", 0f)
         val b = jsonData.getFloat("b", 0f)
@@ -153,15 +152,15 @@ class Skin() extends AutoCloseable {
     }
 
   /** Reads a BitmapFont from JSON. */
-  private def readBitmapFont(jsonData: JsonValue, skinFile: FileHandle)(using sge: Sge): BitmapFont = {
-    val path            = jsonData.getString("file").orNull
+  private def readBitmapFont(jsonData: JsonValue, skinFile: FileHandle)(using Sge): BitmapFont = {
+    val path            = jsonData.getString("file").getOrElse("")
     val scaledSize      = jsonData.getFloat("scaledSize", -1f)
     val flip            = jsonData.getBoolean("flip", false)
     val markupEnabled   = jsonData.getBoolean("markupEnabled", false)
     val useIntPositions = jsonData.getBoolean("useIntegerPositions", true)
 
     var fontFile = skinFile.parent().child(path)
-    if (!fontFile.exists()) fontFile = sge.files.internal(path)
+    if (!fontFile.exists()) fontFile = Sge().files.internal(path)
     if (!fontFile.exists()) throw SgeError.InvalidInput("Font file not found: " + fontFile)
 
     // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
@@ -170,7 +169,7 @@ class Skin() extends AutoCloseable {
       val font: BitmapFont = {
         val regions = getRegions(regionName)
         if (regions.isDefined)
-          new BitmapFont(new BitmapFontData(Nullable(fontFile), flip), Nullable(regions.orNull), true)
+          new BitmapFont(new BitmapFontData(Nullable(fontFile), flip), regions, true)
         else {
           val region = optional(regionName, classOf[TextureRegion])
           if (region.isDefined)
@@ -201,7 +200,7 @@ class Skin() extends AutoCloseable {
 
   /** Reads a TintedDrawable from JSON. Returns the tinted Drawable. */
   private def readTintedDrawable(jsonData: JsonValue): Drawable = {
-    val drawableName = jsonData.getString("name").orNull
+    val drawableName = jsonData.getString("name").getOrElse("")
     val color        = readColor(jsonData.require("color"))
     val drawable     = newDrawable(drawableName, color)
     drawable match {
@@ -219,7 +218,7 @@ class Skin() extends AutoCloseable {
     // Handle parent field: copy all fields from the named parent resource.
     val parentJson = jsonMap.get("parent")
     if (parentJson.isDefined) {
-      val parentName = parentJson.orNull.asString().orNull
+      val parentName = parentJson.flatMap(_.asString()).getOrElse("")
       var parentType: Class[?] = tpe
       var found = false
       while (!found && parentType != classOf[Object])
@@ -237,17 +236,17 @@ class Skin() extends AutoCloseable {
 
     // Set fields from JSON.
     var entry = jsonMap.child
-    while (entry.isDefined) {
-      val e         = entry.orNull
-      val fieldName = e.name.getOrElse("")
-      if (fieldName != "parent") {
-        Skin.findField(tpe, fieldName).foreach { field =>
-          field.setAccessible(true)
-          setFieldValue(obj, field, e)
+    while (entry.isDefined)
+      entry.foreach { e =>
+        val fieldName = e.name.getOrElse("")
+        if (fieldName != "parent") {
+          Skin.findField(tpe, fieldName).foreach { field =>
+            field.setAccessible(true)
+            setFieldValue(obj, field, e)
+          }
         }
+        entry = e.next
       }
-      entry = e.next
-    }
     obj
   }
 
@@ -257,7 +256,7 @@ class Skin() extends AutoCloseable {
 
     // String JSON value for a non-string field → look up resource by name in the skin.
     if (json.isString && !classOf[CharSequence].isAssignableFrom(fieldType)) {
-      val resourceName = json.asString().orNull
+      val resourceName = json.asString().getOrElse("")
       try {
         val value = get(resourceName, fieldType.asInstanceOf[Class[Any]])
         field.set(obj, value)
@@ -281,7 +280,10 @@ class Skin() extends AutoCloseable {
     } else if (fieldType == classOf[Boolean] || fieldType == java.lang.Boolean.TYPE) {
       field.setBoolean(obj, json.asBoolean())
     } else if (fieldType == classOf[String]) {
-      field.set(obj, json.asString().orNull)
+      // Java reflection: field.set requires null for absent string values
+      @scala.annotation.nowarn("msg=deprecated")
+      val stringValue = json.asString().orNull
+      field.set(obj, stringValue)
     }
   }
 

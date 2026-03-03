@@ -11,11 +11,10 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.math.{ Circle, Vector2 }
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
-import sge.utils.{ Align, Nullable }
+import sge.utils.Nullable
 
 /** An on-screen joystick. The movement area of the joystick is circular, centered on the touchpad, and its size determined by the smaller touchpad dimension. <p> The preferred size of the touchpad is
   * determined by the background. <p> {@link ChangeEvent} is fired when the touchpad knob is moved. Cancelling the event will move the knob to where it was previously.

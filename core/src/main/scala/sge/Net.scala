@@ -10,15 +10,15 @@ package sge
 
 import sge.utils.Nullable
 import sge.net._
-import java.io.{ InputStream, OutputStream }
+import java.io.InputStream
 import java.util.{ List, Map }
 import scala.collection.mutable
 
 /** Provides methods to perform networking operations, such as simple HTTP get and post requests, and TCP server/client socket communication. </p>
   *
-  * To perform an HTTP request create a {@link HttpRequest} with the HTTP method (see {@link HttpMethods} for common methods) and invoke {@link #sendHttpRequest(HttpRequest, HttpResponseListener)}
-  * with it and a {@link HttpResponseListener} . After the HTTP request was processed, the {@link HttpResponseListener} is called with a {@link HttpResponse} with the HTTP response values and an
-  * status code to determine if the request was successful or not. </p>
+  * To perform an HTTP request create a {@link HttpRequest} with the HTTP method (see {@link HttpMethod} for common methods) and invoke {@link #sendHttpRequest(HttpRequest, HttpResponseListener)} with
+  * it and a {@link HttpResponseListener} . After the HTTP request was processed, the {@link HttpResponseListener} is called with a {@link HttpResponse} with the HTTP response values and an status
+  * code to determine if the request was successful or not. </p>
   *
   * To create a TCP client socket to communicate with a remote TCP server, invoke the {@link #newClientSocket(Protocol, String, int, SocketHints)} method. The returned {@link Socket} offers an
   * {@link InputStream} and {@link OutputStream} to communicate with the end point. </p>
@@ -117,26 +117,26 @@ object Net {
     * often causing a change in state or side effects on the server.</li> <li><b>PUT</b> replaces all current representations of the target resource with the request payload.</li> <li><b>PATCH</b>
     * method is used to apply partial modifications to a resource.</li> <li><b>DELETE</b> deletes the specified resource.</li> </ul>
     */
-  object HttpMethods {
+  enum HttpMethod(val value: String) {
 
     /** The HEAD method asks for a response identical to that of a GET request, but without the response body. * */
-    val HEAD = "HEAD"
+    case HEAD extends HttpMethod("HEAD")
 
     /** The GET method requests a representation of the specified resource. Requests using GET should only retrieve data. * */
-    val GET = "GET"
+    case GET extends HttpMethod("GET")
 
     /** The POST method is used to submit an entity to the specified resource, often causing a change in state or side effects on the server. *
       */
-    val POST = "POST"
+    case POST extends HttpMethod("POST")
 
     /** The PUT method replaces all current representations of the target resource with the request payload. * */
-    val PUT = "PUT"
+    case PUT extends HttpMethod("PUT")
 
     /** The PATCH method is used to apply partial modifications to a resource. * */
-    val PATCH = "PATCH"
+    case PATCH extends HttpMethod("PATCH")
 
     /** The DELETE method deletes the specified resource. * */
-    val DELETE = "DELETE"
+    case DELETE extends HttpMethod("DELETE")
   }
 
   /** HTTP response interface with methods to get the response data as a byte[], a {@link String} or an {@link InputStream}. */
@@ -177,15 +177,15 @@ object Net {
     def getHeaders(): Map[String, List[String]]
   }
 
-  /** Contains getters and setters for the following parameters: <ul> <li><strong>httpMethod:</strong> GET or POST are most common, can use {@link Net.HttpMethods HttpMethods} for static
-    * references</li> <li><strong>url:</strong> the url</li> <li><strong>headers:</strong> a map of the headers, setter can be called multiple times</li> <li><strong>timeout:</strong> time spent
-    * trying to connect before giving up</li> <li><strong>content:</strong> A string containing the data to be used when processing the HTTP request.</li> </ul>
+  /** Contains getters and setters for the following parameters: <ul> <li><strong>httpMethod:</strong> GET or POST are most common, can use {@link Net.HttpMethod HttpMethod} for static references</li>
+    * <li><strong>url:</strong> the url</li> <li><strong>headers:</strong> a map of the headers, setter can be called multiple times</li> <li><strong>timeout:</strong> time spent trying to connect
+    * before giving up</li> <li><strong>content:</strong> A string containing the data to be used when processing the HTTP request.</li> </ul>
     *
     * Abstracts the concept of a HTTP Request:
     *
     * <pre> Map<String, String> parameters = new HashMap<String, String>(); parameters.put("user", "myuser");
     *
-    * HttpRequest httpGet = new HttpRequest(HttpMethods.Get); httpGet.setUrl("http://somewhere.net"); httpGet.setContent(HttpParametersUtils.convertHttpParameters(parameters)); ...
+    * HttpRequest httpGet = new HttpRequest(HttpMethod.GET); httpGet.setUrl("http://somewhere.net"); httpGet.setContent(HttpParametersUtils.convertHttpParameters(parameters)); ...
     * Gdx.net.sendHttpRequest (httpGet, new HttpResponseListener() { public void handleHttpResponse(HttpResponse httpResponse) { status = httpResponse.getResultAsString(); //do stuff here based on
     * response }
     *
@@ -193,9 +193,9 @@ object Net {
     */
   class HttpRequest() extends sge.utils.Pool.Poolable {
 
-    private var httpMethod: String                      = scala.compiletime.uninitialized
+    private var httpMethod: HttpMethod                  = scala.compiletime.uninitialized
     private var url:        String                      = scala.compiletime.uninitialized
-    private var headers:    mutable.Map[String, String] = mutable.Map[String, String]()
+    private val headers:    mutable.Map[String, String] = mutable.Map[String, String]()
     private var timeOut:    Int                         = 0
 
     private var content:       String      = scala.compiletime.uninitialized
@@ -205,11 +205,11 @@ object Net {
     private var followRedirects:    Boolean = true
     private var includeCredentials: Boolean = false
 
-    /** Creates a new HTTP request with the specified HTTP method, see {@link HttpMethods} .
+    /** Creates a new HTTP request with the specified HTTP method, see {@link HttpMethod} .
       * @param httpMethod
-      *   This is the HTTP method for the request, see {@link HttpMethods}
+      *   This is the HTTP method for the request, see {@link HttpMethod}
       */
-    def this(httpMethod: String) = {
+    def this(httpMethod: HttpMethod) = {
       this()
       this.httpMethod = httpMethod
     }
@@ -271,7 +271,7 @@ object Net {
       this.includeCredentials = includeCredentials
 
     /** Sets the HTTP method of the HttpRequest. */
-    def setMethod(httpMethod: String): Unit =
+    def setMethod(httpMethod: HttpMethod): Unit =
       this.httpMethod = httpMethod
 
     /** Returns the timeOut of the HTTP request.
@@ -281,7 +281,7 @@ object Net {
     def getTimeOut(): Int = timeOut
 
     /** Returns the HTTP method of the HttpRequest. */
-    def getMethod(): String = httpMethod
+    def getMethod(): HttpMethod = httpMethod
 
     /** Returns the URL of the HTTP request. */
     def getUrl(): String = url
@@ -304,8 +304,9 @@ object Net {
     /** Returns whether a cross-origin request will include credentials. By default false. */
     def getIncludeCredentials(): Boolean = includeCredentials
 
+    @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
     override def reset(): Unit = {
-      httpMethod = null
+      httpMethod = null.asInstanceOf[HttpMethod] // Poolable reset requires clearing all state
       url = null
       headers.clear()
       timeOut = 0

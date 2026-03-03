@@ -83,7 +83,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
     }
   }
 
-  def update()(using sge: Sge): Unit = {
+  def update()(using Sge): Unit = {
     var i = 0
     val n = controllers.size
     while (i < n) {

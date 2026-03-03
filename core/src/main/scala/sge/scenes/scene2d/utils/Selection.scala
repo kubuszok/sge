@@ -34,7 +34,7 @@ class Selection[T] extends Disableable with Iterable[T] {
 
   /** Selects or deselects the specified item based on how the selection is configured, whether ctrl is currently pressed, etc. This is typically invoked by user interaction.
     */
-  def choose(item: T)(using sge: Sge): Unit =
+  def choose(item: T)(using Sge): Unit =
     if (_isDisabled) ()
     else {
       snapshot()

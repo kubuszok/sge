@@ -11,13 +11,10 @@ package utils
 package compression
 package lzma
 
-import java.io.IOException
-
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.utils.Nullable
-import sge.utils.compression.ICodeProgress
 import sge.utils.compression.rangecoder.BitTreeEncoder
 import sge.utils.compression.lz.BinTree
 
@@ -267,7 +264,7 @@ class Encoder {
     if (numAvailableBytes > Base.kMatchMaxLen) numAvailableBytes = Base.kMatchMaxLen
 
     var repMaxIndex = 0
-    var i: Int = 0
+
     for (i <- 0 until Base.kNumRepDistances) {
       reps(i) = _repDistances(i)
       repLens(i) = _matchFinder.getMatchLen(0 - 1, reps(i), Base.kMatchMaxLen)
@@ -493,7 +490,7 @@ class Encoder {
         }
       }
 
-      var numAvailableBytesFull = _matchFinder.getNumAvailableBytes() + 1
+      val numAvailableBytesFull = _matchFinder.getNumAvailableBytes() + 1
       var numAvailableBytes     = Math.min(Encoder.kNumOpts - 1 - cur, numAvailableBytesFull)
 
       if (numAvailableBytes < 2) scala.util.boundary.break()(using loop)
@@ -921,7 +918,7 @@ class Encoder {
     }
 
     for (lenToPosState <- 0 until Base.kNumLenToPosStates) {
-      var posSlot: Int = 0
+
       val encoder = _posSlotEncoder(lenToPosState)
 
       val st = lenToPosState << Base.kNumPosSlotBits
@@ -932,7 +929,7 @@ class Encoder {
           - Base.kNumAlignBits) << sge.utils.compression.rangecoder.Encoder.kNumBitPriceShiftBits)
 
       val st2 = lenToPosState * Base.kNumFullDistances
-      var i: Int = 0
+
       for (i <- 0 until Base.kStartPosModelIndex)
         _distancesPrices(st2 + i) = _posSlotPrices(st + i)
       for (i <- Base.kStartPosModelIndex until Base.kNumFullDistances)
@@ -1015,7 +1012,7 @@ object Encoder {
     arr(1) = 1
     for (slotFast <- 2 until kFastSlots) {
       val k = 1 << ((slotFast >> 1) - 1)
-      for (j <- 0 until k) {
+      for (_ <- 0 until k) {
         arr(c) = slotFast.toByte
         c += 1
       }
@@ -1167,7 +1164,7 @@ object Encoder {
       val a1 = sge.utils.compression.rangecoder.Encoder.getPrice1(_choice(0))
       val b0 = a1 + sge.utils.compression.rangecoder.Encoder.getPrice0(_choice(1))
       val b1 = a1 + sge.utils.compression.rangecoder.Encoder.getPrice1(_choice(1))
-      var i  = 0
+
       for (i <- 0 until Base.kNumLowLenSymbols) {
         if (i >= numSymbols) scala.util.boundary.break()
         prices(st + i) = a0 + _lowCoder(posState).getPrice(i)

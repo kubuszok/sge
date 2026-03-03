@@ -119,7 +119,7 @@ class BinTree extends InWindow {
       var curMatch = _hash(kFixHashSize + hashValue)
       if (hashArray) {
         var curMatch2 = _hash(hash2Value)
-        var curMatch3 = _hash(BinTree.kHash3Offset + hash3Value)
+        val curMatch3 = _hash(BinTree.kHash3Offset + hash3Value)
         _hash(hash2Value) = _pos
         _hash(BinTree.kHash3Offset + hash3Value) = _pos
         if (curMatch2 > matchMinPos && _bufferBase(_bufferOffset + curMatch2) == _bufferBase(cur)) {
@@ -300,7 +300,7 @@ object BinTree {
     val arr = new Array[Int](256)
     for (i <- 0 until 256) {
       var r = i
-      for (j <- 0 until 8)
+      for (_ <- 0 until 8)
         if ((r & 1) != 0)
           r = (r >>> 1) ^ 0xedb88320
         else

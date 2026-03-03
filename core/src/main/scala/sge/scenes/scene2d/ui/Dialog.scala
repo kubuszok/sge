@@ -27,7 +27,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Window(title, windowStyle) {
+class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(title, windowStyle) {
 
   var contentTable:          Table                                = scala.compiletime.uninitialized
   var buttonTable:           Table                                = scala.compiletime.uninitialized
@@ -260,7 +260,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using sge: Sge) extends Wi
         override def keyDown(event: InputEvent, keycode2: Int): Boolean = {
           if (keycode == keycode2) {
             // Delay a frame to eat the keyTyped event.
-            sge.application.postRunnable(new Runnable() {
+            Sge().application.postRunnable(new Runnable() {
               def run(): Unit = {
                 result(obj)
                 if (!cancelHide) hide()

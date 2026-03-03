@@ -22,10 +22,10 @@ import sge.utils.{ DynamicArray, Nullable }
   * @author
   *   cypherdare (original implementation)
   */
-class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSuffix: String = ".vert", private val fragmentFileSuffix: String = ".frag")(using sge: Sge)
+class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSuffix: String = ".vert", private val fragmentFileSuffix: String = ".frag")(using Sge)
     extends AsynchronousAssetLoader[ShaderProgram, ShaderProgramLoader.ShaderProgramParameter](resolver) {
 
-  def this(resolver: FileHandleResolver)(using sge: Sge) = this(resolver, ".vert", ".frag")
+  def this(resolver: FileHandleResolver)(using Sge) = this(resolver, ".vert", ".frag")
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): DynamicArray[AssetDescriptor[?]] =
     DynamicArray[AssetDescriptor[?]]()
@@ -63,7 +63,7 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
 
     val shaderProgram = new ShaderProgram(vertexCode, fragmentCode)
     if (param.fold(true)(_.logOnCompileFailure) && !shaderProgram.isCompiled()) {
-      sge.application.error("ShaderProgramLoader", s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
+      Sge().application.error("ShaderProgramLoader", s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
     }
 
     shaderProgram

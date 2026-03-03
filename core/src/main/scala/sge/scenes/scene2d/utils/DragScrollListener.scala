@@ -12,7 +12,6 @@ package scene2d
 package utils
 
 import sge.math.{ Interpolation, Vector2 }
-import sge.utils.Timer
 
 // TODO: uncomment when ScrollPane is ported
 // import sge.scenes.scene2d.ui.ScrollPane
@@ -27,20 +26,17 @@ import sge.utils.Timer
 // TODO: uncomment when ScrollPane is ported
 // class DragScrollListener(scroll: ScrollPane) extends DragListener {
 class DragScrollListener extends DragListener {
-  import DragScrollListener.*
 
   // TODO: uncomment when ScrollPane is ported
   // private var scroll: ScrollPane = _
-  private var scrollUp:   Timer.Task    = scala.compiletime.uninitialized
-  private var scrollDown: Timer.Task    = scala.compiletime.uninitialized
-  var interpolation:      Interpolation = Interpolation.exp5In
-  var minSpeed:           Float         = 15
-  var maxSpeed:           Float         = 75
-  var tickSecs:           Float         = 0.05f
-  var startTime:          Long          = 0
-  var rampTime:           Long          = 1750
-  var padTop:             Float         = 0
-  var padBottom:          Float         = 0
+  var interpolation: Interpolation = Interpolation.exp5In
+  var minSpeed:      Float         = 15
+  var maxSpeed:      Float         = 75
+  var tickSecs:      Float         = 0.05f
+  var startTime:     Long          = 0
+  var rampTime:      Long          = 1750
+  var padTop:        Float         = 0
+  var padBottom:     Float         = 0
 
   // TODO: uncomment when ScrollPane is ported
   // def this(scroll: ScrollPane) = {

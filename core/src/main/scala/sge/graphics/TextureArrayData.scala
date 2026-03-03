@@ -63,7 +63,7 @@ object TextureArrayData {
     */
   object Factory {
 
-    def loadFromFiles(format: Pixmap.Format, useMipMaps: Boolean, files: FileHandle*)(using sge: Sge): TextureArrayData =
+    def loadFromFiles(format: Pixmap.Format, useMipMaps: Boolean, files: FileHandle*)(using Sge): TextureArrayData =
       new FileTextureArrayData(format, useMipMaps, files*)
   }
 }

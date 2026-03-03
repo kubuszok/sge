@@ -11,11 +11,7 @@ package graphics
 package g2d
 
 import java.util.Arrays
-import java.util.regex.Matcher
 import java.util.regex.Pattern
-
-import scala.util.boundary
-import scala.util.boundary.break
 
 import sge.graphics.{ Color, Pixmap }
 import sge.graphics.Pixmap.{ Blending, Format }
@@ -24,6 +20,7 @@ import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.PixmapTextureData
 import sge.utils.{ DynamicArray, Nullable, SgeError }
+import scala.annotation.nowarn
 import scala.collection.mutable.Map as MutableMap
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
@@ -270,10 +267,10 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
         page.addedRects.add(workingName);
       }
 
-      val rectX:      Int = rect.getX()
-      val rectY:      Int = rect.getY()
-      val rectWidth:  Int = rect.getWidth()
-      val rectHeight: Int = rect.getHeight()
+      val rectX: Int = rect.getX()
+      val rectY: Int = rect.getY()
+      rect.getWidth()
+      rect.getHeight()
 
       if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
         // Note: This would need proper GL context and texture binding
@@ -285,8 +282,8 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
       page.image.drawPixmap(workingImage, rectX, rectY);
 
       if (duplicateBorder) {
-        val imageWidth:  Int = workingImage.getWidth()
-        val imageHeight: Int = workingImage.getHeight()
+        workingImage.getWidth()
+        workingImage.getHeight()
         // Note: These drawPixmap calls need adjustment for parameter count
         // For now, using basic 2-parameter version
         // TODO: Implement proper border duplication when drawPixmap signature is available
@@ -394,6 +391,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
                 // region.values = Array(rect.splits, rect.pads);
               }
 
+              @nowarn("msg=not read") // set during search, will be used when full packing algorithm is complete
               var imageIndex = -1
               var imageName  = name
 

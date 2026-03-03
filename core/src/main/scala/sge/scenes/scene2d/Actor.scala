@@ -73,10 +73,10 @@ class Actor {
     * @param delta
     *   Time in seconds since the last frame.
     */
-  def act(delta: Float)(using sge: Sge): Unit =
+  def act(delta: Float)(using Sge): Unit =
     if (actions.nonEmpty) {
       stage.foreach { s =>
-        if (s.getActionsRequestRendering) sge.graphics.requestRendering()
+        if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
       try {
         var i = 0
@@ -272,12 +272,12 @@ class Actor {
 
   def getCaptureListeners: DynamicArray[EventListener] = captureListeners
 
-  def addAction(action: Action)(using sge: Sge): Unit = {
+  def addAction(action: Action)(using Sge): Unit = {
     action.setActor(Nullable(this))
     actions.add(action)
 
     stage.foreach { s =>
-      if (s.getActionsRequestRendering) sge.graphics.requestRendering()
+      if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
     }
   }
 

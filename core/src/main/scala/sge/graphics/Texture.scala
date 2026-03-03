@@ -9,17 +9,14 @@
 package sge.graphics
 
 import sge.{ Application, Sge }
-import sge.assets.loaders.TextureLoader.TextureParameter
 import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.FileTextureData
-import sge.graphics.glutils.{ MipMapGenerator, PixmapTextureData }
-import sge.graphics.Texture.{ TextureFilter, TextureWrap }
+import sge.graphics.glutils.PixmapTextureData
 import sge.files.FileHandle
 import sge.utils.{ Nullable, SgeError }
-import sge.assets.{ AssetLoaderParameters, AssetManager }
+import sge.assets.AssetManager
 import sge.utils.DynamicArray
 import scala.collection.mutable.Map
-import java.nio.Buffer
 
 /** A Texture wraps a standard OpenGL ES texture. <p> A Texture can be managed. If the OpenGL context is lost all managed textures get invalidated. This happens when a user switches to another
   * application or receives an incoming call. Managed textures get reloaded automatically. <p> A Texture has to be bound via the {@link Texture#bind()} method in order for it to be applied to
@@ -29,80 +26,75 @@ import java.nio.Buffer
   * @author
   *   badlogicgames@gmail.com
   */
-class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using sge: Sge) extends GLTexture(glTarget, glHandle) {
+class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using Sge) extends GLTexture(glTarget, glHandle) {
 
   // TextureFilter and TextureWrap enums are now defined in TextureEnums.scala
 
   private val textureData = data
 
-  def this(internalPath: String)(using sge: Sge) = {
+  def this(internalPath: String)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
-      TextureData.Factory.loadFromFile(sge.files.internal(internalPath), Nullable.empty, false)
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
+      TextureData.Factory.loadFromFile(Sge().files.internal(internalPath), Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle)(using sge: Sge) = {
+  def this(file: FileHandle)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
-  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
-  }
 
-  def this(pixmap: Pixmap)(using sge: Sge) = {
+  def this(pixmap: Pixmap)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
-  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
-  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), new PixmapTextureData(pixmap, format, useMipMaps, false))
-  }
-
-  def this(width: Int, height: Int, format: Format)(using sge: Sge) = {
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
-      TextureHandle(sge.graphics.gl.glGenTexture()),
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
+      new PixmapTextureData(pixmap, format, useMipMaps, false)
+    )
+
+  def this(width: Int, height: Int, format: Format)(using Sge) =
+    this(
+      GL20.GL_TEXTURE_2D,
+      TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(new Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
-  }
 
-  def this(data: TextureData)(using sge: Sge) = {
-    this(GL20.GL_TEXTURE_2D, TextureHandle(sge.graphics.gl.glGenTexture()), data)
-  }
+  def this(data: TextureData)(using Sge) =
+    this(GL20.GL_TEXTURE_2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)
 
-  def load(data: TextureData)(using sge: Sge): Unit = {
+  def load(data: TextureData)(using Sge): Unit = {
     Nullable(this.textureData).foreach { existing =>
       if (data.isManaged != existing.isManaged)
         throw SgeError.GraphicsError("New data must have the same managed status as the old data")
@@ -116,14 +108,14 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
     unsafeSetFilter(minFilter, magFilter, true)
     unsafeSetWrap(uWrap, vWrap, true)
     unsafeSetAnisotropicFilter(anisotropicFilterLevel, true)
-    sge.graphics.gl.glBindTexture(glTarget, 0)
+    Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
   /** Used internally to reload after context loss. Creates a new GL handle then calls {@link #load(TextureData)} . Use this only if you know what you do!
     */
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload unmanaged Texture")
-    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
+    glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }
 
@@ -137,11 +129,11 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
     * @param y
     *   The y coordinate in pixels
     */
-  def draw(pixmap: Pixmap, x: Int, y: Int)(using sge: Sge): Unit = {
+  def draw(pixmap: Pixmap, x: Int, y: Int)(using Sge): Unit = {
     if (textureData.isManaged) throw SgeError.GraphicsError("can't draw to a managed texture")
 
     bind()
-    sge.graphics.gl.glTexSubImage2D(glTarget, 0, x, y, pixmap.getWidth(), pixmap.getHeight(), pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels())
+    Sge().graphics.gl.glTexSubImage2D(glTarget, 0, x, y, pixmap.getWidth(), pixmap.getHeight(), pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels())
   }
 
   override def getWidth: Int = textureData.getWidth
@@ -164,7 +156,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using s
     if (glHandle != TextureHandle.none) {
       delete()
       if (textureData.isManaged)
-        Texture.managedTextures.get(sge.application).foreach(_.removeValue(this))
+        Texture.managedTextures.get(Sge().application).foreach(_.removeValue(this))
     }
 
   override def toString(): String =
@@ -188,7 +180,7 @@ object Texture {
     managedTextures.remove(app)
 
   /** Invalidate all managed textures. This is an internal method. Do not use it! */
-  def invalidateAllTextures(app: Application)(using sge: Sge): Unit =
+  def invalidateAllTextures(app: Application)(using Sge): Unit =
     managedTextures.get(app) match {
       case None                      => ()
       case Some(managedTextureArray) =>
@@ -227,7 +219,7 @@ object Texture {
   def getManagedStatus(): String = {
     val builder = new StringBuilder()
     builder.append("Managed textures/app: { ")
-    for ((app, textures) <- managedTextures) {
+    for ((_, textures) <- managedTextures) {
       builder.append(textures.size)
       builder.append(" ")
     }
@@ -236,8 +228,8 @@ object Texture {
   }
 
   /** @return the number of managed textures currently loaded */
-  def getNumManagedTextures()(using sge: Sge): Int =
-    managedTextures.get(sge.application).fold(0)(_.size)
+  def getNumManagedTextures()(using Sge): Int =
+    managedTextures.get(Sge().application).fold(0)(_.size)
 
   /** Defines the filtering mode for textures. */
   enum TextureFilter(val glEnum: Int) {

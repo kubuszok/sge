@@ -23,10 +23,8 @@ import sge.graphics.g3d.Renderable
 import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.graphics.g3d.attributes.DepthTestAttribute
 import sge.graphics.g3d.attributes.TextureAttribute
-import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ResourceData
-import sge.graphics.g3d.particles.ResourceData.SaveData
 import sge.graphics.g3d.particles.renderers.PointSpriteControllerRenderData
 import sge.graphics.glutils.ShaderProgram
 import sge.math.Vector3
@@ -43,7 +41,7 @@ class PointSpriteParticleBatch(
   shaderConfig:       Nullable[AnyRef], // ParticleShader.Config - not yet ported
   blendingAttribute:  Nullable[BlendingAttribute],
   depthTestAttribute: Nullable[DepthTestAttribute]
-)(using sge: Sge)
+)(using Sge)
     extends BufferedParticleBatch[PointSpriteControllerRenderData] {
 
   import PointSpriteParticleBatch.*
@@ -63,13 +61,11 @@ class PointSpriteParticleBatch(
   // renderable.shader = new ParticleShader(renderable, shaderConfig)
   // renderable.shader.foreach(_.init())
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
-  def this(capacity: Int)(using sge: Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)
@@ -185,10 +181,10 @@ object PointSpriteParticleBatch {
   protected val CPU_REGION_OFFSET:            Int = CPU_ATTRIBUTES.getOffset(Usage.TextureCoordinates)
   protected val CPU_SIZE_AND_ROTATION_OFFSET: Int = CPU_ATTRIBUTES.getOffset(sizeAndRotationUsage)
 
-  private def enablePointSprites()(using sge: Sge): Unit = {
-    sge.graphics.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE)
-    if (sge.application.getType() == Application.ApplicationType.Desktop) {
-      sge.graphics.gl.glEnable(0x8861) // GL_POINT_OES
+  private def enablePointSprites()(using Sge): Unit = {
+    Sge().graphics.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE)
+    if (Sge().application.getType() == Application.ApplicationType.Desktop) {
+      Sge().graphics.gl.glEnable(0x8861) // GL_POINT_OES
     }
     pointSpritesEnabled = true
   }

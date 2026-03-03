@@ -24,7 +24,7 @@ class DataOutput(out: OutputStream) extends DataOutputStream(out) {
     */
   @throws[IOException]
   def writeInt(value: Int, optimizePositive: Boolean): Int = boundary {
-    var v = if (!optimizePositive) (value << 1) ^ (value >> 31) else value
+    val v = if (!optimizePositive) (value << 1) ^ (value >> 31) else value
     if (v >>> 7 == 0) {
       write(v.toByte)
       boundary.break(1)

@@ -13,7 +13,7 @@ package g2d
 import sge.math.MathUtils
 import sge.math.Rectangle
 import sge.graphics.Color
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.Nullable
 import scala.compiletime.uninitialized
 
 /** @author

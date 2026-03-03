@@ -25,7 +25,7 @@ final class DefaultTextureBinder(
   val method: Int,
   val offset: Int,
   count:      Int
-)(using sge: Sge)
+)(using Sge)
     extends TextureBinder {
 
   private val _count: Int = {
@@ -48,14 +48,12 @@ final class DefaultTextureBinder(
   private var bindCount:  Int = 0 // Profiling stats — used by getBindCount/getReuseCount
 
   /** Uses all available texture units and reuse weight of 3 */
-  def this(method: Int)(using sge: Sge) = {
+  def this(method: Int)(using Sge) =
     this(method, 0, -1)
-  }
 
   /** Uses all remaining texture units and reuse weight of 3 */
-  def this(method: Int, offset: Int)(using sge: Sge) = {
+  def this(method: Int, offset: Int)(using Sge) =
     this(method, offset, -1)
-  }
 
   override def begin(): Unit =
     for (i <- 0 until _count) {
@@ -69,7 +67,7 @@ final class DefaultTextureBinder(
      * Gdx.gl.glActiveTexture(GL20.GL_TEXTURE0 + offset + i); Gdx.gl.glBindTexture(GL20.GL_TEXTURE_2D, 0); textures[i] = null; }
      * }
      */
-    sge.graphics.gl.glActiveTexture(GL20.GL_TEXTURE0)
+    Sge().graphics.gl.glActiveTexture(GL20.GL_TEXTURE0)
 
   override def bind(textureDescriptor: TextureDescriptor[?]): Int =
     bindTexture(textureDescriptor, false)
@@ -84,7 +82,7 @@ final class DefaultTextureBinder(
   private def bindTexture(textureDesc: TextureDescriptor[?], rebind: Boolean): Int = {
     reused = false
     textureDesc.texture.fold(-1) { texture =>
-      val (idx, result) = method match {
+      val (_, result) = method match {
         case DefaultTextureBinder.ROUNDROBIN =>
           val i = bindTextureRoundRobin(texture)
           (i, offset + i)
@@ -101,7 +99,7 @@ final class DefaultTextureBinder(
           if (rebind)
             texture.bind(result)
           else
-            sge.graphics.gl.glActiveTexture(GL20.GL_TEXTURE0 + result)
+            Sge().graphics.gl.glActiveTexture(GL20.GL_TEXTURE0 + result)
         } else {
           bindCount += 1
         }
@@ -200,9 +198,9 @@ object DefaultTextureBinder {
   /** GLES only supports up to 32 textures */
   val MAX_GLES_UNITS: Int = 32
 
-  private def getMaxTextureUnits()(using sge: Sge): Int = {
+  private def getMaxTextureUnits()(using Sge): Int = {
     val buffer = BufferUtils.newIntBuffer(16)
-    sge.graphics.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer)
+    Sge().graphics.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer)
     buffer.get(0)
   }
 }

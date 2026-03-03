@@ -12,8 +12,6 @@ package g3d
 package shaders
 
 import scala.language.implicitConversions
-import scala.util.boundary
-import scala.util.boundary.break
 
 import sge.graphics.g3d.attributes.{
   BlendingAttribute,
@@ -38,7 +36,7 @@ class DefaultShader(
   renderable:    Renderable,
   val config:    DefaultShader.Config,
   shaderProgram: ShaderProgram
-)(using sge: Sge)
+)(using Sge)
     extends BaseShader {
 
   private val _combinedAttributes: Attributes = DefaultShader.combineAttributes(renderable)
@@ -238,7 +236,7 @@ class DefaultShader(
   protected var spotLightsExponentOffset:    Int = 0
   protected var spotLightsSize:              Int = 0
 
-  def this(renderable: Renderable)(using sge: Sge) = {
+  def this(renderable: Renderable)(using Sge) =
     this(
       renderable,
       new DefaultShader.Config(), {
@@ -249,9 +247,8 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config)(using sge: Sge) = {
+  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) =
     this(
       renderable,
       config, {
@@ -261,9 +258,8 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using sge: Sge) = {
+  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config, {
@@ -272,7 +268,6 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
   def this(
     renderable:     Renderable,
@@ -280,9 +275,8 @@ class DefaultShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using sge: Sge) = {
+  )(using Sge) =
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
 
   override def init(): Unit = {
     val prog = this.program.getOrElse(throw SgeError.GraphicsError("No shader program"))
@@ -324,9 +318,9 @@ class DefaultShader(
     }
   }
 
-  private val _normalMatrix: Matrix3 = new Matrix3()
-  private var time:          Float   = 0f
-  private var lightsSet:     Boolean = false
+  new Matrix3()
+  private var time:      Float   = 0f
+  private var lightsSet: Boolean = false
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
@@ -340,7 +334,7 @@ class DefaultShader(
     lightsSet = false
 
     if (has(u_time)) {
-      time += sge.graphics.getDeltaTime()
+      time += Sge().graphics.getDeltaTime()
       setFloat(u_time, time)
     }
 
@@ -348,7 +342,7 @@ class DefaultShader(
     boneWeightsLocations.foreach { locs =>
       for (location <- locs)
         if (location >= 0) {
-          sge.graphics.gl.glVertexAttrib2f(location, 0, 0)
+          Sge().graphics.gl.glVertexAttrib2f(location, 0, 0)
         }
     }
   }
@@ -402,7 +396,7 @@ class DefaultShader(
     }
   }
 
-  private val tmpV1: Vector3 = new Vector3()
+  new Vector3()
 
   protected def bindLights(renderable: Renderable, attributes: Attributes): Unit = {
     val lights: Nullable[Environment]                = renderable.environment
@@ -1194,20 +1188,20 @@ object DefaultShader {
 
   private var _defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using sge: Sge): String = {
+  def getDefaultVertexShader()(using Sge): String = {
     if (_defaultVertexShader.isEmpty)
       _defaultVertexShader = Nullable(
-        sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString()
+        Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString()
       )
     _defaultVertexShader.getOrElse("")
   }
 
   private var _defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using sge: Sge): String = {
+  def getDefaultFragmentShader()(using Sge): String = {
     if (_defaultFragmentShader.isEmpty)
       _defaultFragmentShader = Nullable(
-        sge.files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl").readString()
+        Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl").readString()
       )
     _defaultFragmentShader.getOrElse("")
   }

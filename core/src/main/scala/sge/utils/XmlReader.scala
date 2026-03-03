@@ -63,45 +63,34 @@ object XmlReader {
     def getAttributes: Nullable[ObjectMap[String, String]] = attributes
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
-    def getAttribute(attrName: String): String = {
-      if (attributes.isEmpty)
-        throw SgeError.InvalidInput("Element " + name + " doesn't have attribute: " + attrName)
-      val value = attributes.orNull.get(attrName)
-      if (value.isEmpty)
-        throw SgeError.InvalidInput("Element " + name + " doesn't have attribute: " + attrName)
-      value.orNull
+    def getAttribute(attrName: String): String =
+      attributes.flatMap(_.get(attrName)).getOrElse(throw SgeError.InvalidInput("Element " + name + " doesn't have attribute: " + attrName))
+
+    def getAttribute(attrName: String, defaultValue: Nullable[String]): Nullable[String] = {
+      val value = attributes.flatMap(_.get(attrName))
+      if (value.isEmpty) defaultValue else value
     }
 
-    def getAttribute(attrName: String, defaultValue: Nullable[String]): Nullable[String] =
-      if (attributes.isEmpty) defaultValue
-      else {
-        val value = attributes.orNull.get(attrName)
-        if (value.isEmpty) defaultValue else value
-      }
-
     def hasAttribute(attrName: String): Boolean =
-      attributes.isDefined && attributes.orNull.containsKey(attrName)
+      attributes.fold(false)(_.containsKey(attrName))
 
     def setAttribute(attrName: String, value: String): Unit = {
       if (attributes.isEmpty) attributes = Nullable(ObjectMap[String, String](8))
-      attributes.orNull.put(attrName, value)
+      attributes.foreach(_.put(attrName, value))
     }
 
     def getChildCount: Int =
-      if (children.isEmpty) 0 else children.orNull.size
+      children.fold(0)(_.size)
 
     def getChildren: Nullable[DynamicArray[Element]] = children
 
     /** @throws SgeError.InvalidInput if the element has no children. */
-    def getChild(index: Int): Element = {
-      if (children.isEmpty)
-        throw SgeError.InvalidInput("Element has no children: " + name)
-      children.orNull(index)
-    }
+    def getChild(index: Int): Element =
+      children.fold[Element](throw SgeError.InvalidInput("Element has no children: " + name))(_(index))
 
     def addChild(element: Element): Unit = {
       if (children.isEmpty) children = Nullable(DynamicArray[Element](8))
-      children.orNull.add(element)
+      children.foreach(_.add(element))
       element._parent = Nullable(this)
     }
 
@@ -110,47 +99,46 @@ object XmlReader {
     def setText(text: Nullable[String]): Unit = _text = text
 
     def removeChild(index: Int): Unit =
-      if (children.isDefined) {
-        val removedChild = children.orNull.removeIndex(index)
+      children.foreach { c =>
+        val removedChild = c.removeIndex(index)
         removedChild._parent = Nullable.empty
       }
 
     def removeChild(child: Element): Unit =
-      if (children.isDefined) {
-        val removeSuccess = children.orNull.removeValueByRef(child)
+      children.foreach { c =>
+        val removeSuccess = c.removeValueByRef(child)
         if (removeSuccess) child._parent = Nullable.empty
       }
 
     def remove(): Unit = {
-      _parent.orNull.removeChild(this)
+      _parent.foreach(_.removeChild(this))
       _parent = Nullable.empty
     }
 
     /** Returns the first child having the given name or empty, does not recurse. */
     def getChildByName(childName: String): Nullable[Element] =
-      if (children.isEmpty) Nullable.empty
-      else
+      children.fold(Nullable.empty[Element]) { c =>
         boundary {
           var i = 0
-          while (i < children.orNull.size) {
-            val element = children.orNull(i)
+          while (i < c.size) {
+            val element = c(i)
             if (element.name == childName) break(Nullable(element))
             i += 1
           }
           Nullable.empty
         }
+      }
 
     def hasChild(childName: String): Boolean =
       children.isDefined && getChildByName(childName).isDefined
 
     /** Returns the first child having the given name or empty, recurses. */
     def getChildByNameRecursive(childName: String): Nullable[Element] =
-      if (children.isEmpty) Nullable.empty
-      else
+      children.fold(Nullable.empty[Element]) { c =>
         boundary {
           var i = 0
-          while (i < children.orNull.size) {
-            val element = children.orNull(i)
+          while (i < c.size) {
+            val element = c(i)
             if (element.name == childName) break(Nullable(element))
             val found = element.getChildByNameRecursive(childName)
             if (found.isDefined) break(found)
@@ -158,6 +146,7 @@ object XmlReader {
           }
           Nullable.empty
         }
+      }
 
     def hasChildRecursive(childName: String): Boolean =
       children.isDefined && getChildByNameRecursive(childName).isDefined
@@ -165,10 +154,10 @@ object XmlReader {
     /** Returns the children with the given name or an empty array. */
     def getChildrenByName(childName: String): DynamicArray[Element] = {
       val result = DynamicArray[Element](4)
-      if (children.isDefined) {
+      children.foreach { c =>
         var i = 0
-        while (i < children.orNull.size) {
-          val child = children.orNull(i)
+        while (i < c.size) {
+          val child = c(i)
           if (child.name == childName) result.add(child)
           i += 1
         }
@@ -184,10 +173,10 @@ object XmlReader {
     }
 
     private def getChildrenByNameRecursivelyImpl(childName: String, result: DynamicArray[Element]): Unit =
-      if (children.isDefined) {
+      children.foreach { c =>
         var i = 0
-        while (i < children.orNull.size) {
-          val child = children.orNull(i)
+        while (i < c.size) {
+          val child = c(i)
           if (child.name == childName) result.add(child)
           child.getChildrenByNameRecursivelyImpl(childName, result)
           i += 1
@@ -198,93 +187,57 @@ object XmlReader {
     def getFloatAttribute(attrName: String): Float =
       java.lang.Float.parseFloat(getAttribute(attrName))
 
-    def getFloatAttribute(attrName: String, defaultValue: Float): Float = {
-      val value = getAttribute(attrName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Float.parseFloat(value.orNull)
-    }
+    def getFloatAttribute(attrName: String, defaultValue: Float): Float =
+      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Float.parseFloat(v))
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getIntAttribute(attrName: String): Int =
       java.lang.Integer.parseInt(getAttribute(attrName))
 
-    def getIntAttribute(attrName: String, defaultValue: Int): Int = {
-      val value = getAttribute(attrName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Integer.parseInt(value.orNull)
-    }
+    def getIntAttribute(attrName: String, defaultValue: Int): Int =
+      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Integer.parseInt(v))
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getBooleanAttribute(attrName: String): Boolean =
       java.lang.Boolean.parseBoolean(getAttribute(attrName))
 
-    def getBooleanAttribute(attrName: String, defaultValue: Boolean): Boolean = {
-      val value = getAttribute(attrName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Boolean.parseBoolean(value.orNull)
-    }
+    def getBooleanAttribute(attrName: String, defaultValue: Boolean): Boolean =
+      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Boolean.parseBoolean(v))
 
     /** Returns the attribute value with the specified name, or if no attribute is found, the text of a child with the name.
       * @throws SgeError.InvalidInput
       *   if no attribute or child was found.
       */
-    def get(fieldName: String): String = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName)
-      value.orNull
-    }
+    def get(fieldName: String): String =
+      get(fieldName, Nullable.empty).getOrElse(throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))
 
     /** Returns the attribute value with the specified name, or if no attribute is found, the text of a child with the name. */
-    def get(fieldName: String, defaultValue: Nullable[String]): Nullable[String] =
-      if (attributes.isDefined) {
-        val value = attributes.orNull.get(fieldName)
-        if (value.isDefined) value
-        else {
-          val child = getChildByName(fieldName)
-          if (child.isEmpty) defaultValue
-          else {
-            val t = child.orNull.getText
-            if (t.isEmpty) defaultValue else t
-          }
-        }
-      } else {
-        val child = getChildByName(fieldName)
-        if (child.isEmpty) defaultValue
-        else {
-          val t = child.orNull.getText
-          if (t.isEmpty) defaultValue else t
-        }
+    def get(fieldName: String, defaultValue: Nullable[String]): Nullable[String] = {
+      val fromAttr = attributes.flatMap(_.get(fieldName))
+      if (fromAttr.isDefined) fromAttr
+      else {
+        val t = getChildByName(fieldName).flatMap(_.getText)
+        if (t.isEmpty) defaultValue else t
       }
-
-    def getInt(fieldName: String): Int = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName)
-      java.lang.Integer.parseInt(value.orNull)
     }
 
-    def getInt(fieldName: String, defaultValue: Int): Int = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Integer.parseInt(value.orNull)
-    }
+    def getInt(fieldName: String): Int =
+      get(fieldName, Nullable.empty).fold[Int](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Integer.parseInt(v))
 
-    def getFloat(fieldName: String): Float = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName)
-      java.lang.Float.parseFloat(value.orNull)
-    }
+    def getInt(fieldName: String, defaultValue: Int): Int =
+      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Integer.parseInt(v))
 
-    def getFloat(fieldName: String, defaultValue: Float): Float = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Float.parseFloat(value.orNull)
-    }
+    def getFloat(fieldName: String): Float =
+      get(fieldName, Nullable.empty).fold[Float](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Float.parseFloat(v))
 
-    def getBoolean(fieldName: String): Boolean = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName)
-      java.lang.Boolean.parseBoolean(value.orNull)
-    }
+    def getFloat(fieldName: String, defaultValue: Float): Float =
+      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Float.parseFloat(v))
 
-    def getBoolean(fieldName: String, defaultValue: Boolean): Boolean = {
-      val value = get(fieldName, Nullable.empty)
-      if (value.isEmpty) defaultValue else java.lang.Boolean.parseBoolean(value.orNull)
-    }
+    def getBoolean(fieldName: String): Boolean =
+      get(fieldName, Nullable.empty).fold[Boolean](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Boolean.parseBoolean(v))
+
+    def getBoolean(fieldName: String, defaultValue: Boolean): Boolean =
+      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Boolean.parseBoolean(v))
 
     override def toString(): String = toString("")
 
@@ -293,8 +246,8 @@ object XmlReader {
       buffer.append(indent)
       buffer.append('<')
       buffer.append(name)
-      if (attributes.isDefined) {
-        attributes.orNull.foreachEntry { (k, v) =>
+      attributes.foreach { attrs =>
+        attrs.foreachEntry { (k, v) =>
           buffer.append(' ')
           buffer.append(k)
           buffer.append("=\"")
@@ -302,20 +255,22 @@ object XmlReader {
           buffer.append('"')
         }
       }
-      if (children.isEmpty && (_text.isEmpty || _text.orNull.isEmpty))
+      if (children.isEmpty && _text.fold(true)(_.isEmpty))
         buffer.append("/>")
       else {
         buffer.append(">\n")
         val childIndent = indent + "\t"
-        if (_text.isDefined && _text.orNull.nonEmpty) {
-          buffer.append(childIndent)
-          buffer.append(_text.orNull)
-          buffer.append('\n')
+        _text.foreach { t =>
+          if (t.nonEmpty) {
+            buffer.append(childIndent)
+            buffer.append(t)
+            buffer.append('\n')
+          }
         }
-        if (children.isDefined) {
+        children.foreach { c =>
           var i = 0
-          while (i < children.orNull.size) {
-            buffer.append(children.orNull(i).toString(childIndent))
+          while (i < c.size) {
+            buffer.append(c(i).toString(childIndent))
             buffer.append('\n')
             i += 1
           }

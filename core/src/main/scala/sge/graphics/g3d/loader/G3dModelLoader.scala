@@ -21,7 +21,7 @@ import sge.math.{ Matrix4, Quaternion, Vector2, Vector3 }
 import sge.utils.{ ArrayMap, BaseJsonReader, DynamicArray, JsonValue, Nullable, SgeError }
 
 /** Loads G3D models from `.g3dj` (JSON text) files. Binary `.g3db` format (UBJson) is not yet supported. */
-class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(using sge: Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
+class G3dModelLoader(val reader: BaseJsonReader, resolver: FileHandleResolver)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
 
   override def loadModelData(fileHandle: FileHandle, parameters: ModelLoader.ModelParameters): Nullable[ModelData] =
     Nullable(parseModel(fileHandle))

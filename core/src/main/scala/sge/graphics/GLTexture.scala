@@ -13,11 +13,9 @@ import sge.graphics.Pixmap.Blending
 import sge.graphics.glutils.MipMapGenerator
 import sge.graphics.Pixmap
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
-import sge.utils.{ BufferUtils, Nullable, SgeError, Show }
+import sge.utils.BufferUtils
 import sge.math.MathUtils
-import java.nio.{ Buffer, FloatBuffer }
-import scala.collection.mutable
-import scala.compiletime.uninitialized
+import java.nio.Buffer
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -26,7 +24,7 @@ import scala.util.boundary.break
   * @author
   *   badlogic, Xoppa
   */
-abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandle)(using sge: Sge) extends AutoCloseable {
+abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandle)(using Sge) extends AutoCloseable {
 
   protected var minFilter:              TextureFilter = TextureFilter.Nearest
   protected var magFilter:              TextureFilter = TextureFilter.Nearest
@@ -44,9 +42,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   def getDepth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: Int)(using sge: Sge) = {
-    this(glTarget, TextureHandle(sge.graphics.gl.glGenTexture()))
-  }
+  def this(glTarget: Int)(using Sge) =
+    this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
 
   /** @return whether this texture is managed or not. */
   def isManaged: Boolean
@@ -56,15 +53,15 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   /** Binds this texture. The texture will be bound to the currently active texture unit specified via {@link GL20#glActiveTexture(int)} .
     */
   def bind(): Unit =
-    sge.graphics.gl.glBindTexture(glTarget, glHandle.toInt)
+    Sge().graphics.gl.glBindTexture(glTarget, glHandle.toInt)
 
   /** Binds the texture to the given texture unit. Sets the currently active texture unit via {@link GL20#glActiveTexture(int)} .
     * @param unit
     *   the unit (0 to MAX_TEXTURE_UNITS).
     */
   def bind(unit: Int): Unit = {
-    sge.graphics.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit)
-    sge.graphics.gl.glBindTexture(glTarget, glHandle.toInt)
+    Sge().graphics.gl.glActiveTexture(GL20.GL_TEXTURE0 + unit)
+    Sge().graphics.gl.glBindTexture(glTarget, glHandle.toInt)
   }
 
   /** @return The {@link TextureFilter} used for minification. */
@@ -101,11 +98,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     */
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, force: Boolean): Unit = {
     if (force || uWrap != u) {
-      sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
       uWrap = u
     }
     if (force || vWrap != v) {
-      sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
       vWrap = v
     }
   }
@@ -120,8 +117,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     this.uWrap = u
     this.vWrap = v
     bind()
-    sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
-    sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
   }
 
   /** Sets the {@link TextureFilter} for this texture for minification and magnification. Assumes the texture is bound and active!
@@ -143,11 +140,11 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     */
   def unsafeSetFilter(minFilter: TextureFilter, magFilter: TextureFilter, force: Boolean): Unit = {
     if (force || this.minFilter != minFilter) {
-      sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
       this.minFilter = minFilter
     }
     if (force || this.magFilter != magFilter) {
-      sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
       this.magFilter = magFilter
     }
   }
@@ -162,8 +159,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     this.minFilter = minFilter
     this.magFilter = magFilter
     bind()
-    sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
-    sge.graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
   }
 
   /** Sets the anisotropic filter level for the texture. Assumes the texture is bound and active!
@@ -180,7 +177,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     if (max == 1f) break(1f)
     val adjustedLevel = Math.min(level, max)
     if (!force && MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
-    sge.graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
+    Sge().graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
     anisotropicFilterLevel = adjustedLevel
     adjustedLevel
   }
@@ -198,7 +195,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     val adjustedLevel = Math.min(level, max)
     if (MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
     bind()
-    sge.graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
+    Sge().graphics.gl20.glTexParameterf(GL20.GL_TEXTURE_2D, GL20.GL_TEXTURE_MAX_ANISOTROPY_EXT, adjustedLevel)
     anisotropicFilterLevel = adjustedLevel
     adjustedLevel
   }
@@ -209,7 +206,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   /** Destroys the OpenGL Texture as specified by the glHandle. */
   protected def delete(): Unit =
     if (glHandle != TextureHandle.none) {
-      sge.graphics.gl.glDeleteTexture(glHandle.toInt)
+      Sge().graphics.gl.glDeleteTexture(glHandle.toInt)
       glHandle = TextureHandle.none
     }
 
@@ -229,13 +226,13 @@ object GLTexture {
   private var maxAnisotropicFilterLevel = 0f
 
   /** @return The maximum supported anisotropic filtering level supported by the device. */
-  def getMaxAnisotropicFilterLevel()(using sge: Sge): Float = boundary {
+  def getMaxAnisotropicFilterLevel()(using Sge): Float = boundary {
     if (maxAnisotropicFilterLevel > 0) break(maxAnisotropicFilterLevel)
-    if (sge.graphics.supportsExtension("GL_EXT_texture_filter_anisotropic")) {
+    if (Sge().graphics.supportsExtension("GL_EXT_texture_filter_anisotropic")) {
       val buffer = BufferUtils.newFloatBuffer(16)
       buffer.asInstanceOf[Buffer].position(0)
       buffer.asInstanceOf[Buffer].limit(buffer.capacity())
-      sge.graphics.gl20.glGetFloatv(GL20.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, buffer)
+      Sge().graphics.gl20.glGetFloatv(GL20.GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, buffer)
       maxAnisotropicFilterLevel = buffer.get(0)
       maxAnisotropicFilterLevel
     } else {
@@ -244,7 +241,7 @@ object GLTexture {
     }
   }
 
-  def uploadImageData(target: Int, data: TextureData, miplevel: Int)(using sge: Sge): Unit = boundary {
+  def uploadImageData(target: Int, data: TextureData, miplevel: Int)(using Sge): Unit = boundary {
     if (!data.isPrepared) data.prepare()
 
     val dataType = data.getType()
@@ -266,11 +263,11 @@ object GLTexture {
       disposePixmap = true
     }
 
-    sge.graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
+    Sge().graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
     if (data.useMipMaps) {
       MipMapGenerator.generateMipMap(target, pixmap, pixmap.getWidth(), pixmap.getHeight())
     } else {
-      sge.graphics.gl.glTexImage2D(
+      Sge().graphics.gl.glTexImage2D(
         target,
         miplevel,
         pixmap.getGLInternalFormat(),

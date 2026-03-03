@@ -11,13 +11,11 @@ package graphics
 package glutils
 
 import sge.files.FileHandle
-import sge.graphics.GL20
 import sge.graphics.Pixmap
 import sge.graphics.Pixmap.Format
 import sge.graphics.TextureData
 import sge.graphics.glutils.ETC1.ETC1Data
 import sge.utils.{ Nullable, SgeError }
-import scala.compiletime.uninitialized
 
 class ETC1TextureData(
   val file:            Nullable[FileHandle],
@@ -29,9 +27,8 @@ class ETC1TextureData(
   private var height:       Int                = 0
   private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle) = {
+  def this(file: FileHandle) =
     this(Nullable(file), false)
-  }
 
   def this(encodedImage: ETC1Data, useMipMaps: Boolean) = {
     this(file = Nullable.empty, useMipMapsValue = useMipMaps)

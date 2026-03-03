@@ -26,7 +26,7 @@ import java.util.Locale
   * @author
   *   davebaol (original implementation)
   */
-class I18NBundleLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[I18NBundle, I18NBundleLoader.I18NBundleParameter](resolver) {
+class I18NBundleLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[I18NBundle, I18NBundleLoader.I18NBundleParameter](resolver) {
 
   private var bundle: Nullable[I18NBundle] = Nullable.empty
 

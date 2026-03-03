@@ -9,6 +9,7 @@
 package sge
 package assets
 
+import scala.annotation.nowarn
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, boundary }
 import sge.assets.loaders.AssetLoader
@@ -37,9 +38,8 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
     this(manager, assetDesc, loader, threadPool, if (manager.getLogLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
-  }
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {
@@ -47,7 +47,7 @@ class AssetLoadingTask(
     val asyncLoader = loader.asInstanceOf[AsynchronousAssetLoader[Any, AssetLoaderParameters[Any]]]
     if (!dependenciesLoaded) {
       dependencies = Nullable(
-        asyncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+        asyncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
       )
       dependencies.foreach { deps =>
         removeDuplicates(deps)
@@ -55,11 +55,11 @@ class AssetLoadingTask(
       }
       if (dependencies.isEmpty) {
         // if we have no dependencies, we load the async part of the task immediately.
-        asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+        asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
         asyncDone = true
       }
     } else {
-      asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+      asyncLoader.loadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
       asyncDone = true
     }
   }
@@ -83,12 +83,12 @@ class AssetLoadingTask(
     if (!dependenciesLoaded) {
       dependenciesLoaded = true
       dependencies = Nullable(
-        syncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+        syncLoader.getDependencies(assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
       )
       dependencies match {
         case dep if dep.isEmpty =>
           asset = Nullable(
-            syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+            syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
           )
           boundary.break()
         case deps =>
@@ -97,7 +97,7 @@ class AssetLoadingTask(
       }
     } else {
       asset = Nullable(
-        syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+        syncLoader.load(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
       )
     }
   }
@@ -116,7 +116,7 @@ class AssetLoadingTask(
                 dependenciesLoaded = true
                 if (asyncDone)
                   asset = Nullable(
-                    asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+                    asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
                   )
               case Some(Failure(e)) =>
                 throw SgeError.SerializationError(s"Couldn't load dependencies of asset: ${assetDesc.fileName}", Some(e))
@@ -130,7 +130,7 @@ class AssetLoadingTask(
       loadFuture = Nullable(Future(apply()))
     } else if (asyncDone) {
       asset = Nullable(
-        asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+        asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
       )
     } else {
       loadFuture.foreach { future =>
@@ -138,7 +138,7 @@ class AssetLoadingTask(
           future.value match {
             case Some(Success(_)) =>
               asset = Nullable(
-                asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+                asyncLoader.loadSync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
               )
             case Some(Failure(e)) =>
               throw SgeError.SerializationError(s"Couldn't load asset: ${assetDesc.fileName}", Some(e))
@@ -154,10 +154,16 @@ class AssetLoadingTask(
     // Use type checking that works at runtime
     try {
       val asyncLoader = loader.asInstanceOf[AsynchronousAssetLoader[Any, AssetLoaderParameters[Any]]]
-      asyncLoader.unloadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]])
+      asyncLoader.unloadAsync(manager, assetDesc.fileName, resolve(loader, assetDesc), loaderParams)
     } catch {
       case _: ClassCastException => // Not an async loader, nothing to do
     }
+
+  /** Extracts the loader parameters, unwrapping Nullable to pass to loader APIs that accept potentially-null parameters at runtime (loader methods declare non-null P but handle null).
+    */
+  @nowarn("msg=deprecated") // orNull needed: loader APIs accept null params at runtime
+  private def loaderParams: AssetLoaderParameters[Any] =
+    assetDesc.params.orNull.asInstanceOf[AssetLoaderParameters[Any]]
 
   private def resolve(loader: AssetLoader[?, ?], assetDesc: AssetDescriptor[?]): FileHandle = {
     if (assetDesc.file.isEmpty) {

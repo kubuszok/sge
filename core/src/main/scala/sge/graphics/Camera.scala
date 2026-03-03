@@ -9,13 +9,11 @@
 package sge
 package graphics
 
-import sge.graphics.g2d.Batch
 import sge.math.Frustum
 import sge.math.Matrix4
 import sge.math.Quaternion
 import sge.math.Vector3
 import sge.math.collision.Ray
-import sge.utils.Nullable
 import sge.Sge
 
 /** Base class for OrthographicCamera and PerspectiveCamera.

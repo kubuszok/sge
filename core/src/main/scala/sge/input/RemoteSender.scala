@@ -47,7 +47,7 @@ class RemoteSender(ip: String, port: Int)(implicit sde: sge.Sge) extends InputPr
     connected = true
     sde.input.setInputProcessor(this)
   } catch {
-    case e: Exception =>
+    case _: Exception =>
       println("RemoteSender: couldn't connect to " + ip + ":" + port)
   }
 

@@ -12,7 +12,7 @@ package g3d
 package particles
 
 import sge.graphics.{ Camera, GL20 }
-import sge.graphics.g3d.{ Attribute, Attributes, Material, Renderable, Shader }
+import sge.graphics.g3d.{ Attributes, Material, Renderable, Shader }
 import sge.graphics.g3d.attributes.{ BlendingAttribute, DepthTestAttribute, IntAttribute, TextureAttribute }
 import sge.graphics.g3d.shaders.{ BaseShader, DefaultShader }
 import sge.graphics.g3d.utils.RenderContext
@@ -57,11 +57,10 @@ class ParticleShader private (
   // Object uniforms
   register(DefaultShader.Inputs.diffuseTexture, Nullable(DefaultShader.Setters.diffuseTexture))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using sge: Sge) = {
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) =
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using sge: Sge) = {
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config,
@@ -69,15 +68,12 @@ class ParticleShader private (
       config.vertexShader.getOrElse(ParticleShader.getDefaultVertexShader()),
       config.fragmentShader.getOrElse(ParticleShader.getDefaultFragmentShader())
     )
-  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config)(using sge: Sge) = {
+  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) =
     this(renderable, config, ParticleShader.createPrefix(renderable, config))
-  }
 
-  def this(renderable: Renderable)(using sge: Sge) = {
+  def this(renderable: Renderable)(using Sge) =
     this(renderable, new ParticleShader.Config())
-  }
 
   override def init(): Unit = {
     val prog = this.program
@@ -124,7 +120,7 @@ class ParticleShader private (
     if (currentMaterial.fold(false)(cm => renderable.material.fold(false)(rm => cm eq rm))) {
       // same material, nothing to do
     } else {
-      var cullFace       = if (config.defaultCullFace == -1) GL20.GL_BACK else config.defaultCullFace
+      val cullFace       = if (config.defaultCullFace == -1) GL20.GL_BACK else config.defaultCullFace
       var depthFunc      = if (config.defaultDepthFunc == -1) GL20.GL_LEQUAL else config.defaultDepthFunc
       var depthRangeNear = 0f
       var depthRangeFar  = 1f
@@ -226,18 +222,18 @@ object ParticleShader {
 
   private var defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using sge: Sge): String =
+  def getDefaultVertexShader()(using Sge): String =
     defaultVertexShader.getOrElse {
-      val s = sge.files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.vertex.glsl").readString()
+      val s = Sge().files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.vertex.glsl").readString()
       defaultVertexShader = Nullable(s)
       s
     }
 
   private var defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using sge: Sge): String =
+  def getDefaultFragmentShader()(using Sge): String =
     defaultFragmentShader.getOrElse {
-      val s = sge.files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl").readString()
+      val s = Sge().files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl").readString()
       defaultFragmentShader = Nullable(s)
       s
     }
@@ -302,9 +298,9 @@ object ParticleShader {
   /** Material attributes which are not required but always supported. */
   private val optionalAttributes: Long = IntAttribute.CullFace | DepthTestAttribute.Type
 
-  def createPrefix(renderable: Renderable, config: Config)(using sge: Sge): String = {
+  def createPrefix(renderable: Renderable, config: Config)(using Sge): String = {
     var prefix = ""
-    if (sge.application.getType() == Application.ApplicationType.Desktop)
+    if (Sge().application.getType() == Application.ApplicationType.Desktop)
       prefix += "#version 120\n"
     else
       prefix += "#version 100\n"

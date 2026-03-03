@@ -11,10 +11,9 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
-import sge.math.{ Rectangle, Vector2 }
-import sge.scenes.scene2d.{ Actor, Group, InputEvent }
+import sge.math.Vector2
+import sge.scenes.scene2d.{ Actor, InputEvent }
 import sge.scenes.scene2d.utils.{ ClickListener, Drawable, Layout, Selection, UIUtils }
 import sge.utils.{ DynamicArray, MkArray, Nullable }
 
@@ -27,7 +26,7 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge: Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
+class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
 
   private var _style: Tree.TreeStyle  = scala.compiletime.uninitialized
   val rootNodes:      DynamicArray[N] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
@@ -60,8 +59,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
   setStyle(style)
   initialize()
 
-  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[Tree.TreeStyle]))
-  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[Tree.TreeStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get(classOf[Tree.TreeStyle]))
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[Tree.TreeStyle]))
 
   private def initialize(): Unit = {
     val self = this
@@ -388,10 +387,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using sge
   protected def getExpandIcon(node: N, iconX: Float): Drawable =
     if (
       _overNode.fold(false)(_ eq node) //
-      && sge.application.getType() == Application.ApplicationType.Desktop //
+      && Sge().application.getType() == Application.ApplicationType.Desktop //
       && (!selection.getMultiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
     ) {
-      val mouseX = screenToLocalCoordinates(Tree.tmp.set(sge.input.getX().toFloat, 0)).x + getX
+      val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.getX().toFloat, 0)).x + getX
       if (mouseX >= 0 && mouseX < iconX) {
         val icon: Nullable[Drawable] = if (node.expanded) _style.minusOver else _style.plusOver
         val defaultIcon = if (node.expanded) _style.minus else _style.plus
@@ -600,7 +599,7 @@ object Tree {
   }
 
   private[ui] def findExpandedValues[N <: Node[N, ?, ? <: Actor]](nodes: DynamicArray[? <: Node[?, ?, ? <: Actor]], values: DynamicArray[Any]): Boolean = {
-    var expanded = false
+    val expanded = false
     var i        = 0
     val n        = nodes.size
     while (i < n) {
@@ -686,7 +685,7 @@ object Tree {
           // nothing to do
         } else {
           val tree = getTree()
-          tree.fold(()) { t =>
+          tree.foreach { t =>
             var actorIndex = actor.getZIndex + 1
             if (expanded) {
               var i = 0
@@ -728,7 +727,7 @@ object Tree {
 
     /** Called to remove the actor from the tree, eg when the node is removed or the node's parent is collapsed. */
     protected[ui] def removeFromTree(tree: Tree[? <: Node[?, ?, ?], ?], actorIndex: Int): Unit = {
-      val removeActorAt = tree.removeActorAt(actorIndex, true)
+      tree.removeActorAt(actorIndex, true)
       // assert removeActorAt != actor; // If false, either 1) there's a bug, or 2) the children were modified.
       if (!expanded) {
         // nothing to do

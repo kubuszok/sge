@@ -13,9 +13,7 @@ package glutils
 import java.io.BufferedInputStream
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.nio.Buffer
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
@@ -25,7 +23,6 @@ import sge.graphics.Pixmap.Format
 import sge.math.MathUtils
 import sge.platform.PlatformOps
 import sge.utils.BufferUtils
-import sge.utils.Nullable
 import sge.utils.SgeError
 import sge.utils.StreamUtils
 

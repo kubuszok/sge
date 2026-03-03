@@ -16,10 +16,7 @@ import sge.math.Matrix4
 import sge.utils.Nullable
 import sge.utils.SgeError
 import sge.Sge
-import sge.graphics.VertexAttributes.Usage
 import sge.graphics.glutils.ShaderProgram
-import sge.graphics.{ Color, GL20, VertexAttribute }
-import scala.compiletime.uninitialized
 
 /** CpuSpriteBatch behaves like SpriteBatch, except it doesn't flush automatically whenever the transformation matrix changes. Instead, the vertices get adjusted on subsequent draws to match the
   * running batch. This can improve performance through longer batches, for example when drawing Groups with transform enabled.
@@ -31,7 +28,7 @@ import scala.compiletime.uninitialized
   * @author
   *   Valentin Milea
   */
-class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using sge: Sge) extends SpriteBatch(size, defaultShader) {
+class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using Sge) extends SpriteBatch(size, defaultShader) {
 
   import CpuSpriteBatch._
 
@@ -42,14 +39,12 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty)
-  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using sge: Sge) = {
+  def this(size: Int)(using Sge) =
     this(size, Nullable.empty)
-  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>

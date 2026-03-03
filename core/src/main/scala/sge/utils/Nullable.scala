@@ -69,7 +69,8 @@ object Nullable {
   extension [A](maybe: Nullable[Nullable[A]]) {
 
     def flatten: Nullable[A] = maybe match {
-      case nn @ NestedNone(n) => NestedNone(n - 1)
+      case `None`           => None
+      case _ @NestedNone(n) => NestedNone(n - 1)
       case a: A => a
     }
   }
@@ -100,7 +101,7 @@ object Nullable {
   private object NestedNone {
 
     def apply(value: Int): NestedNone =
-      if (value < cache.length) cache(value)
+      if (value >= 0 && value < cache.length) cache(value)
       else new NestedNone(value)
 
     private val cache = IArray.from((0 until 10).map(new NestedNone(_)))

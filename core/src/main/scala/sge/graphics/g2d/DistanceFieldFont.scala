@@ -21,16 +21,15 @@ import sge.utils.{ DynamicArray, Nullable }
   * @author
   *   Florian Falkner
   */
-class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray[TextureRegion]], integer: Boolean)(using sge: Sge) extends BitmapFont(data, pageRegions, integer) {
+class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray[TextureRegion]], integer: Boolean)(using Sge) extends BitmapFont(data, pageRegions, integer) {
   super.load(data)
 
   private var distanceFieldSmoothing: Float = scala.compiletime.uninitialized
 
-  def this(fontFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
     this(new BitmapFontData(Nullable(fontFile), flip), Nullable.empty, true)
-  }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using Sge) = {
     this(
       new BitmapFontData(Nullable(fontFile), flip),
       Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
@@ -39,11 +38,10 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
     setOwnsTexture(true)
   }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) =
     this(fontFile, imageFile, flip, true)
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
     this(
       new BitmapFontData(Nullable(fontFile), flip),
       region.fold(Nullable.empty[DynamicArray[TextureRegion]]) { r =>
@@ -51,15 +49,12 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using sge: Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
     this(fontFile, region, false)
-  }
 
-  def this(fontFile: FileHandle)(using sge: Sge) = {
+  def this(fontFile: FileHandle)(using Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
   override protected def load(data: BitmapFontData): Unit = {
     super.load(data)
@@ -89,9 +84,8 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
     *   Florian Falkner
     */
   private class DistanceFieldFontCache(font: DistanceFieldFont, integer: Boolean) extends BitmapFontCache(font, integer) {
-    def this(font: DistanceFieldFont) = {
+    def this(font: DistanceFieldFont) =
       this(font, font.usesIntegerPositions())
-    }
 
     private def getSmoothingFactor(): Float = {
       val font = super.getFont().asInstanceOf[DistanceFieldFont]
@@ -122,7 +116,7 @@ object DistanceFieldFont {
   /** Returns a new instance of the distance field shader, see https://libgdx.com/wiki/graphics/2d/fonts/distance-field-fonts if the u_smoothing uniform > 0.0. Otherwise the same code as the default
     * SpriteBatch shader is used.
     */
-  def createDistanceFieldShader()(using sge: Sge): ShaderProgram = {
+  def createDistanceFieldShader()(using Sge): ShaderProgram = {
     val vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
       "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
       "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +

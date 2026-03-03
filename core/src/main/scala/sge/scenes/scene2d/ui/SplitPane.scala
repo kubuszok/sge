@@ -11,10 +11,9 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.math.{ Rectangle, Vector2 }
-import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ Drawable, Layout, ScissorStack }
 import sge.utils.{ Nullable, SgeError }
 
@@ -33,7 +32,7 @@ class SplitPane(
   secondWidget: Nullable[Actor],
   var vertical: Boolean,
   style:        SplitPane.SplitPaneStyle
-)(using sge: Sge)
+)(using Sge)
     extends WidgetGroup
     with Styleable[SplitPane.SplitPaneStyle] {
   import SplitPane._
@@ -60,14 +59,13 @@ class SplitPane(
   setSize(getPrefWidth, getPrefHeight)
   initialize()
 
-  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using sge: Sge) = {
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) =
     this(
       firstWidget,
       secondWidget,
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SplitPane.SplitPaneStyle])
     )
-  }
 
   private def initialize(): Unit = {
     val self = this

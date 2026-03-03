@@ -694,8 +694,7 @@ object Matrix3 {
   *   badlogicgames@gmail.com (original implementation)
   */
 class Matrix4 {
-  val values:      Array[Float] = Array.ofDim(16)
-  private val tmp: Array[Float] = Array.ofDim(16)
+  val values: Array[Float] = Array.ofDim(16)
 
   // Initialize as identity matrix
   values(Matrix4.M00) = 1f
@@ -2296,7 +2295,7 @@ object Matrix4 {
     */
   def mulVec(mat: Array[Float], vecs: Array[Float], offset: Int, numVecs: Int, stride: Int): Unit = {
     var vecOffset = offset
-    for (i <- 0 until numVecs) {
+    for (_ <- 0 until numVecs) {
       val vec = Array(vecs(vecOffset), vecs(vecOffset + 1), vecs(vecOffset + 2))
       mulVec(mat, vec)
       vecs(vecOffset) = vec(0)
@@ -2323,7 +2322,7 @@ object Matrix4 {
     */
   def prj(mat: Array[Float], vecs: Array[Float], offset: Int, numVecs: Int, stride: Int): Unit = {
     var vecOffset = offset
-    for (i <- 0 until numVecs) {
+    for (_ <- 0 until numVecs) {
       val vec = Array(vecs(vecOffset), vecs(vecOffset + 1), vecs(vecOffset + 2))
       prj(mat, vec)
       vecs(vecOffset) = vec(0)
@@ -2350,7 +2349,7 @@ object Matrix4 {
     */
   def rot(mat: Array[Float], vecs: Array[Float], offset: Int, numVecs: Int, stride: Int): Unit = {
     var vecOffset = offset
-    for (i <- 0 until numVecs) {
+    for (_ <- 0 until numVecs) {
       val vec = Array(vecs(vecOffset), vecs(vecOffset + 1), vecs(vecOffset + 2))
       rot(mat, vec)
       vecs(vecOffset) = vec(0)

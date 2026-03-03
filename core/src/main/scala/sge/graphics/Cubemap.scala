@@ -11,14 +11,11 @@ package graphics
 
 import scala.collection.mutable
 
-import sge.assets.AssetLoaderParameters.LoadedCallback
 import sge.assets.AssetManager
-import sge.assets.loaders.AssetLoader
 // import sge.assets.loaders.CubemapLoader.CubemapParameter // TODO: Create CubemapLoader
 import sge.files.FileHandle
 import sge.graphics.Pixmap.Format
-import sge.graphics.glutils.{ FacedCubemapData, PixmapTextureData }
-import sge.utils.Nullable
+import sge.graphics.glutils.FacedCubemapData
 import sge.math.Vector3
 import sge.utils.{ Nullable, SgeError }
 import sge.{ Application, Sge }
@@ -27,23 +24,21 @@ import sge.{ Application, Sge }
   * @author
   *   Xoppa
   */
-class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture(GL20.GL_TEXTURE_CUBE_MAP) {
+class Cubemap(protected var data: CubemapData)(using Sge) extends GLTexture(GL20.GL_TEXTURE_CUBE_MAP) {
 
   load(data)
-  if (data.isManaged) Cubemap.addManagedCubemap(sge.application, this)
+  if (data.isManaged) Cubemap.addManagedCubemap(Sge().application, this)
 
   /** Construct a Cubemap with the specified texture files for the sides, does not generate mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ))
-  }
 
   /** Construct a Cubemap with the specified texture files for the sides, optionally generating mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ, useMipMaps))
-  }
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, does not generate mipmaps. */
-  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap)(using sge: Sge) = {
+  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap)(using Sge) =
     this(
       new FacedCubemapData(
         Nullable(positiveX),
@@ -55,10 +50,9 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
         false
       )
     )
-  }
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, optionally generating mipmaps. */
-  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(positiveX: Pixmap, negativeX: Pixmap, positiveY: Pixmap, negativeY: Pixmap, positiveZ: Pixmap, negativeZ: Pixmap, useMipMaps: Boolean)(using Sge) =
     this(
       new FacedCubemapData(
         Nullable(positiveX),
@@ -70,17 +64,14 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
         useMipMaps
       )
     )
-  }
 
   /** Construct a Cubemap with {@link Pixmap}s for each side of the specified size. */
-  def this(width: Int, height: Int, depth: Int, format: Format)(using sge: Sge) = {
+  def this(width: Int, height: Int, depth: Int, format: Format)(using Sge) =
     this(new FacedCubemapData(width, height, depth, format))
-  }
 
   /** Construct a Cubemap with the specified {@link TextureData}'s for the sides */
-  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using sge: Sge) = {
+  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using Sge) =
     this(new FacedCubemapData(positiveX, negativeX, positiveY, negativeY, positiveZ, negativeZ))
-  }
 
   /** Sets the sides of this cubemap to the specified {@link CubemapData}. */
   def load(data: CubemapData): Unit = {
@@ -90,7 +81,7 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
     unsafeSetWrap(uWrap, vWrap, true)
     unsafeSetAnisotropicFilter(anisotropicFilterLevel, true)
     data.consumeCubemapData()
-    sge.graphics.gl.glBindTexture(glTarget, 0)
+    Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
   def getCubemapData(): CubemapData = data
@@ -99,7 +90,7 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged Cubemap")
-    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
+    glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(data)
   }
 
@@ -118,7 +109,7 @@ class Cubemap(protected var data: CubemapData)(using sge: Sge) extends GLTexture
     if (glHandle != TextureHandle.none) {
       delete()
       if (data.isManaged) {
-        Cubemap.managedCubemaps.get(sge.application) match {
+        Cubemap.managedCubemaps.get(Sge().application) match {
           case Some(cubemaps) => cubemaps -= this
           case None           => // no cubemaps for this app
         }
@@ -257,6 +248,6 @@ object Cubemap {
   }
 
   /** @return the number of managed cubemaps currently loaded */
-  def getNumManagedCubemaps()(using sge: Sge): Int =
-    managedCubemaps.get(sge.application).map(_.size).getOrElse(0)
+  def getNumManagedCubemaps()(using Sge): Int =
+    managedCubemaps.get(Sge().application).map(_.size).getOrElse(0)
 }

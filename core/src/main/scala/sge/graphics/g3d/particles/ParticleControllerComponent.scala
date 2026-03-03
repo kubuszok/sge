@@ -20,7 +20,6 @@ import sge.math.{ Matrix3, Matrix4, Quaternion, Vector3 }
   *   inferno
   */
 abstract class ParticleControllerComponent extends AutoCloseable with ResourceData.Configurable {
-  import ParticleControllerComponent.*
 
   protected var controller: ParticleController = scala.compiletime.uninitialized
 

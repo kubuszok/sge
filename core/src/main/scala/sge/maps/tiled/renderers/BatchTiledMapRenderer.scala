@@ -13,8 +13,8 @@ package renderers
 
 import sge.Sge
 import sge.graphics.{ Color, OrthographicCamera }
-import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
-import sge.maps.{ MapGroupLayer, MapLayer, MapLayers, MapObject }
+import sge.graphics.g2d.{ Batch, SpriteBatch }
+import sge.maps.{ MapGroupLayer, MapLayer, MapObject }
 import sge.maps.tiled.tiles.AnimatedTiledMapTile
 import sge.math.{ Matrix4, Rectangle }
 import sge.utils.Nullable
@@ -24,7 +24,7 @@ abstract class BatchTiledMapRenderer(
   protected var unitScale: Float,
   protected var batch:     Batch,
   protected var ownsBatch: Boolean
-)(using sge: Sge)
+)(using Sge)
     extends TiledMapRenderer
     with AutoCloseable {
 
@@ -33,17 +33,14 @@ abstract class BatchTiledMapRenderer(
   protected val repeatedImageBounds: Rectangle    = new Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using sge: Sge) = {
+  def this(map: TiledMap)(using Sge) =
     this(map, 1.0f, new SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = {
+  def this(map: TiledMap, unitScale: Float)(using Sge) =
     this(map, unitScale, new SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, batch: Batch)(using sge: Sge) = {
+  def this(map: TiledMap, batch: Batch)(using Sge) =
     this(map, 1.0f, batch, false)
-  }
 
   def getMap: TiledMap = map
 

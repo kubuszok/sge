@@ -19,15 +19,14 @@ import sge.graphics.OrthographicCamera
   * @author
   *   Nathan Sweet
   */
-class ScreenViewport(camera: Camera)(using sge: Sge) extends Viewport {
+class ScreenViewport(camera: Camera)(using Sge) extends Viewport {
   private var unitsPerPixel: Float = 1
 
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(new OrthographicCamera())
-  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     setScreenBounds(0, 0, screenWidth, screenHeight)

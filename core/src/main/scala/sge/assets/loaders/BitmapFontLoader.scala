@@ -22,7 +22,7 @@ import scala.util.boundary
   * @author
   *   mzechner (original implementation)
   */
-class BitmapFontLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[BitmapFont, BitmapFontLoader.BitmapFontParameter](resolver) {
+class BitmapFontLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[BitmapFont, BitmapFontLoader.BitmapFontParameter](resolver) {
 
   private var data: Nullable[BitmapFontData] = Nullable.empty
 

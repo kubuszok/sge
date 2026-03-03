@@ -15,7 +15,7 @@ import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
-import sge.graphics.g3d.model.{ Animation, Node }
+import sge.graphics.g3d.model.Animation
 import sge.math.MathUtils
 import sge.utils.{ Nullable, Pool, SgeError }
 

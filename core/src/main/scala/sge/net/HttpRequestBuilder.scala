@@ -38,8 +38,8 @@ class HttpRequestBuilder {
     this
   }
 
-  /** @see HttpRequest#setMethod(String) */
-  def method(httpMethod: String): HttpRequestBuilder = {
+  /** @see HttpRequest#setMethod(Net.HttpMethod) */
+  def method(httpMethod: Net.HttpMethod): HttpRequestBuilder = {
     validate()
     httpRequest.setMethod(httpMethod)
     this

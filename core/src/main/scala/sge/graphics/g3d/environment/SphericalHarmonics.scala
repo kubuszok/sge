@@ -15,9 +15,8 @@ import sge.utils.SgeError
 
 class SphericalHarmonics private[environment] (val data: Array[Float]) {
 
-  def this() = {
+  def this() =
     this(new Array[Float](SphericalHarmonics.NUM_VALUES))
-  }
 
   def set(values: Array[Float]): SphericalHarmonics = {
     var i = 0
@@ -52,7 +51,7 @@ object SphericalHarmonics {
   private val NUM_VALUES = 9 * 3
 
   // <kalle_h> last term is no x*x * y*y but x*x - y*y
-  private val coeff: Array[Float] = Array(0.282095f, 0.488603f, 0.488603f, 0.488603f, 1.092548f, 1.092548f, 1.092548f, 0.315392f, 0.546274f)
+  // private val coeff: Array[Float] = Array(0.282095f, 0.488603f, 0.488603f, 0.488603f, 1.092548f, 1.092548f, 1.092548f, 0.315392f, 0.546274f) // unused in upstream LibGDX
 
   /** Creates a SphericalHarmonics from an array of float values.
     * @throws SgeError.InvalidInput

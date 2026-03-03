@@ -9,7 +9,7 @@
 package sge
 package utils
 
-import java.nio.{ Buffer, ByteBuffer }
+import java.nio.Buffer
 import sge.graphics.{ Color, GL20 }
 // TODO: Uncomment when Pixmap.createFromFrameBuffer is ported
 // import sge.graphics.{ Pixmap, Texture }
@@ -29,11 +29,11 @@ object ScreenUtils {
     * @param color
     *   Color to clear the color buffers with.
     */
-  def clear(color: Color)(using sge: Sge): Unit =
+  def clear(color: Color)(using Sge): Unit =
     clear(color.r, color.g, color.b, color.a, false)
 
   /** Clears the color buffers with the specified color. */
-  def clear(r: Float, g: Float, b: Float, a: Float)(using sge: Sge): Unit =
+  def clear(r: Float, g: Float, b: Float, a: Float)(using Sge): Unit =
     clear(r, g, b, a, false)
 
   /** Clears the color buffers and optionally the depth buffer.
@@ -42,14 +42,14 @@ object ScreenUtils {
     * @param clearDepth
     *   Clears the depth buffer if true.
     */
-  def clear(color: Color, clearDepth: Boolean)(using sge: Sge): Unit =
+  def clear(color: Color, clearDepth: Boolean)(using Sge): Unit =
     clear(color.r, color.g, color.b, color.a, clearDepth)
 
   /** Clears the color buffers and optionally the depth buffer.
     * @param clearDepth
     *   Clears the depth buffer if true.
     */
-  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean)(using sge: Sge): Unit =
+  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean)(using Sge): Unit =
     clear(r, g, b, a, clearDepth, false)
 
   /** Clears the color buffers, optionally the depth buffer and whether to apply antialiasing (requires to set number of samples in the launcher class).
@@ -59,12 +59,12 @@ object ScreenUtils {
     * @param applyAntialiasing
     *   applies multi-sampling for antialiasing if true.
     */
-  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean, applyAntialiasing: Boolean)(using sge: Sge): Unit = {
-    sge.graphics.gl.glClearColor(r, g, b, a)
+  def clear(r: Float, g: Float, b: Float, a: Float, clearDepth: Boolean, applyAntialiasing: Boolean)(using Sge): Unit = {
+    Sge().graphics.gl.glClearColor(r, g, b, a)
     var mask = GL20.GL_COLOR_BUFFER_BIT
     if (clearDepth) mask = mask | GL20.GL_DEPTH_BUFFER_BIT
-    if (applyAntialiasing && sge.graphics.getBufferFormat().coverageSampling) mask = mask | GL20.GL_COVERAGE_BUFFER_BIT_NV
-    sge.graphics.gl.glClear(mask)
+    if (applyAntialiasing && Sge().graphics.getBufferFormat().coverageSampling) mask = mask | GL20.GL_COVERAGE_BUFFER_BIT_NV
+    Sge().graphics.gl.glClear(mask)
   }
 
   // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
@@ -73,7 +73,7 @@ object ScreenUtils {
   //   * accessed via {@link TextureRegion#getTexture}. The texture is not managed and has to be reloaded manually on a context loss.
   //   * The returned TextureRegion is flipped along the Y axis by default.
   //   */
-  // def getFrameBufferTexture()(using sge: Sge): TextureRegion = {
+  // def getFrameBufferTexture()(using Sge): TextureRegion = {
   //   val w = sge.graphics.getBackBufferWidth()
   //   val h = sge.graphics.getBackBufferHeight()
   //   getFrameBufferTexture(0, 0, w, h)
@@ -94,7 +94,7 @@ object ScreenUtils {
     *   the height of the framebuffer contents to capture
     */
   // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
-  // def getFrameBufferTexture(x: Int, y: Int, w: Int, h: Int)(using sge: Sge): TextureRegion = {
+  // def getFrameBufferTexture(x: Int, y: Int, w: Int, h: Int)(using Sge): TextureRegion = {
   //   val potW = MathUtils.nextPowerOfTwo(w)
   //   val potH = MathUtils.nextPowerOfTwo(h)
   //
@@ -113,7 +113,7 @@ object ScreenUtils {
   // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
   // /** @deprecated use {@link Pixmap#createFromFrameBuffer(int, int, int, int)} instead. */
   // @deprecated("use Pixmap.createFromFrameBuffer instead", "")
-  // def getFrameBufferPixmap(x: Int, y: Int, w: Int, h: Int)(using sge: Sge): Pixmap =
+  // def getFrameBufferPixmap(x: Int, y: Int, w: Int, h: Int)(using Sge): Pixmap =
   //   Pixmap.createFromFrameBuffer(x, y, w, h)
 
   /** Returns the current framebuffer contents as a byte[] array with a length equal to screen width * height * 4. The byte[] will always contain RGBA8888 data. Because of differences in screen and
@@ -122,9 +122,9 @@ object ScreenUtils {
     * @param flipY
     *   whether to flip pixels along Y axis
     */
-  def getFrameBufferPixels(flipY: Boolean)(using sge: Sge): Array[Byte] = {
-    val w = sge.graphics.getBackBufferWidth()
-    val h = sge.graphics.getBackBufferHeight()
+  def getFrameBufferPixels(flipY: Boolean)(using Sge): Array[Byte] = {
+    val w = Sge().graphics.getBackBufferWidth()
+    val h = Sge().graphics.getBackBufferHeight()
     getFrameBufferPixels(0, 0, w, h, flipY)
   }
 
@@ -136,10 +136,10 @@ object ScreenUtils {
     * @param flipY
     *   whether to flip pixels along Y axis
     */
-  def getFrameBufferPixels(x: Int, y: Int, w: Int, h: Int, flipY: Boolean)(using sge: Sge): Array[Byte] = {
-    sge.graphics.gl.glPixelStorei(GL20.GL_PACK_ALIGNMENT, 1)
+  def getFrameBufferPixels(x: Int, y: Int, w: Int, h: Int, flipY: Boolean)(using Sge): Array[Byte] = {
+    Sge().graphics.gl.glPixelStorei(GL20.GL_PACK_ALIGNMENT, 1)
     val pixels = BufferUtils.newByteBuffer(w * h * 4)
-    sge.graphics.gl.glReadPixels(x, y, w, h, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, pixels)
+    Sge().graphics.gl.glReadPixels(x, y, w, h, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, pixels)
     val numBytes = w * h * 4
     val lines    = new Array[Byte](numBytes)
     if (flipY) {

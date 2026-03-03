@@ -28,7 +28,7 @@ import sge.utils.Pool
   * batch handles things depends on the {@link GroupStrategy}. Different strategies can be used to customize shaders, states, culling etc. for more details see the {@link GroupStrategy} java doc.<br/>
   * While it shouldn't be necessary to change strategies, if you have to do so, do it before calling {@link #add(Decal)}, and if you already did, call {@link #flush()} first. </p>
   */
-class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge: Sge) extends AutoCloseable {
+class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge) extends AutoCloseable {
 
   private var vertices: Array[Float] = scala.compiletime.uninitialized
   private var mesh:     Mesh         = scala.compiletime.uninitialized
@@ -45,9 +45,8 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
   /** Creates a new DecalBatch using the given {@link GroupStrategy}. The most commong strategy to use is a {@link CameraGroupStrategy}
     * @param groupStrategy
     */
-  def this(groupStrategy: GroupStrategy)(using sge: Sge) = {
+  def this(groupStrategy: GroupStrategy)(using Sge) =
     this(DecalBatch.DEFAULT_SIZE, groupStrategy)
-  }
 
   /** Sets the {@link GroupStrategy} used
     * @param groupStrategy
@@ -64,7 +63,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using sge:
   def initialize(size: Int): Unit = {
     vertices = new Array[Float](size * Decal.SIZE)
 
-    val vertexDataType: Mesh.VertexDataType = if (sge.graphics.gl30.isDefined) {
+    val vertexDataType: Mesh.VertexDataType = if (Sge().graphics.gl30.isDefined) {
       Mesh.VertexDataType.VertexBufferObjectWithVAO
     } else {
       Mesh.VertexDataType.VertexArray

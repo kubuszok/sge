@@ -29,7 +29,7 @@ class Slider(
   stepSize: Float,
   vertical: Boolean,
   style:    Slider.SliderStyle
-)(using sge: Sge)
+)(using Sge)
     extends ProgressBar(min, max, stepSize, vertical, style) {
   import Slider._
 
@@ -40,13 +40,11 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using sge: Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
     this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[Slider.SliderStyle]))
-  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using sge: Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[Slider.SliderStyle]))
-  }
 
   addListener(
     new InputListener() {
@@ -153,7 +151,7 @@ class Slider(
 
     val oldValue     = value
     val snappedValue =
-      if (!sge.input.isKeyPressed(Input.Keys.SHIFT_LEFT) && !sge.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) snap(value)
+      if (!Sge().input.isKeyPressed(Input.Keys.SHIFT_LEFT) && !Sge().input.isKeyPressed(Input.Keys.SHIFT_RIGHT)) snap(value)
       else value
     val valueSet = setValue(snappedValue)
     if (snappedValue == oldValue) position = oldPosition

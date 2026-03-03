@@ -11,7 +11,6 @@ package graphics
 package g3d
 
 import sge.files.FileHandle
-import sge.graphics.g3d.shaders.DefaultShader
 import sge.graphics.g3d.utils.DefaultRenderableSorter
 import sge.graphics.g3d.utils.DefaultShaderProvider
 import sge.graphics.g3d.utils.DefaultTextureBinder
@@ -58,14 +57,13 @@ class ModelBatch(
     context:        Nullable[RenderContext],
     shaderProvider: Nullable[ShaderProvider],
     sorter:         Nullable[RenderableSorter]
-  )(using sge: Sge) = {
+  )(using Sge) =
     this(
       context.getOrElse(new RenderContext(new DefaultTextureBinder(DefaultTextureBinder.LRU, 1))),
       context.isEmpty,
       shaderProvider.getOrElse(new DefaultShaderProvider()),
       sorter.getOrElse(new DefaultRenderableSorter())
     )
-  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
@@ -73,9 +71,8 @@ class ModelBatch(
     * @param shaderProvider
     *   The [[ShaderProvider]] to use, will be disposed when this ModelBatch is disposed.
     */
-  def this(context: RenderContext, shaderProvider: ShaderProvider)(using sge: Sge) = {
+  def this(context: RenderContext, shaderProvider: ShaderProvider)(using Sge) =
     this(Nullable(context), Nullable(shaderProvider), Nullable.empty)
-  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
@@ -83,17 +80,15 @@ class ModelBatch(
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(context: RenderContext, sorter: RenderableSorter)(using sge: Sge) = {
+  def this(context: RenderContext, sorter: RenderableSorter)(using Sge) =
     this(Nullable(context), Nullable.empty, Nullable(sorter))
-  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
     *   The [[RenderContext]] to use.
     */
-  def this(context: RenderContext)(using sge: Sge) = {
+  def this(context: RenderContext)(using Sge) =
     this(Nullable(context), Nullable.empty, Nullable.empty)
-  }
 
   /** Construct a ModelBatch
     * @param shaderProvider
@@ -101,25 +96,22 @@ class ModelBatch(
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(shaderProvider: ShaderProvider, sorter: RenderableSorter)(using sge: Sge) = {
+  def this(shaderProvider: ShaderProvider, sorter: RenderableSorter)(using Sge) =
     this(Nullable.empty, Nullable(shaderProvider), Nullable(sorter))
-  }
 
   /** Construct a ModelBatch
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(sorter: RenderableSorter)(using sge: Sge) = {
+  def this(sorter: RenderableSorter)(using Sge) =
     this(Nullable.empty, Nullable.empty, Nullable(sorter))
-  }
 
   /** Construct a ModelBatch
     * @param shaderProvider
     *   The [[ShaderProvider]] to use, will be disposed when this ModelBatch is disposed.
     */
-  def this(shaderProvider: ShaderProvider)(using sge: Sge) = {
+  def this(shaderProvider: ShaderProvider)(using Sge) =
     this(Nullable.empty, Nullable(shaderProvider), Nullable.empty)
-  }
 
   /** Construct a ModelBatch with the default implementation and the specified ubershader. See [[DefaultShader]] for more information about using a custom ubershader. Requires OpenGL ES 2.0.
     * @param vertexShader
@@ -127,9 +119,8 @@ class ModelBatch(
     * @param fragmentShader
     *   The [[FileHandle]] of the fragment shader to use.
     */
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
     this(Nullable.empty, Nullable(new DefaultShaderProvider(vertexShader, fragmentShader)), Nullable.empty)
-  }
 
   /** Construct a ModelBatch with the default implementation and the specified ubershader. See [[DefaultShader]] for more information about using a custom ubershader. Requires OpenGL ES 2.0.
     * @param vertexShader
@@ -137,14 +128,12 @@ class ModelBatch(
     * @param fragmentShader
     *   The fragment shader to use.
     */
-  def this(vertexShader: String, fragmentShader: String)(using sge: Sge) = {
+  def this(vertexShader: String, fragmentShader: String)(using Sge) =
     this(Nullable.empty, Nullable(new DefaultShaderProvider(vertexShader, fragmentShader)), Nullable.empty)
-  }
 
   /** Construct a ModelBatch with the default implementation */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
   /** Start rendering one or more [[Renderable]]s. Use one of the render() methods to provide the renderables. Must be followed by a call to [[end]]. The OpenGL context must not be altered between
     * [[begin]] and [[end]].
@@ -198,7 +187,7 @@ class ModelBatch(
       var i = 0
       while (i < renderables.size) {
         val renderable = renderables(i)
-        if (currentShader.orNull ne renderable.shader.orNull) {
+        if (currentShader != renderable.shader) {
           currentShader.foreach(_.end())
           currentShader = renderable.shader
           currentShader.foreach(_.begin(cam, context))

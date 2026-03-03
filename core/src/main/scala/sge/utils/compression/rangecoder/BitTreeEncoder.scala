@@ -8,8 +8,6 @@
  */
 package sge.utils.compression.rangecoder
 
-import java.io.IOException
-
 class BitTreeEncoder(numBitLevels: Int) {
   val NumBitLevels: Int          = numBitLevels
   val Models:       Array[Short] = Array.ofDim[Short](1 << numBitLevels)
@@ -31,7 +29,7 @@ class BitTreeEncoder(numBitLevels: Int) {
   def reverseEncode(rangeEncoder: Encoder, symbol: Int): Unit = {
     var m = 1
     var s = symbol
-    for (i <- 0 until NumBitLevels) {
+    for (_ <- 0 until NumBitLevels) {
       val bit = s & 1
       rangeEncoder.encode(Models, m, bit)
       m = (m << 1) | bit
@@ -87,7 +85,7 @@ object BitTreeEncoder {
   def reverseEncode(models: Array[Short], startIndex: Int, rangeEncoder: Encoder, numBitLevels: Int, symbol: Int): Unit = {
     var m = 1
     var s = symbol
-    for (i <- 0 until numBitLevels) {
+    for (_ <- 0 until numBitLevels) {
       val bit = s & 1
       rangeEncoder.encode(models, startIndex + m, bit)
       m = (m << 1) | bit

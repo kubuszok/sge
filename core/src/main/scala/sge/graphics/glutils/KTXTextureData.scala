@@ -15,7 +15,6 @@ import java.io.DataInputStream
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
-import java.nio.IntBuffer
 import java.util.zip.GZIPInputStream
 
 import sge.files.FileHandle
@@ -28,6 +27,7 @@ import sge.utils.SgeError
 import sge.utils.StreamUtils
 import sge.utils.Nullable
 import sge.Sge
+import scala.annotation.nowarn
 
 /** A KTXTextureData holds the data from a KTX (or zipped KTX file, aka ZKTX). That is to say an OpenGL ready texture data. The KTX file format is just a thin wrapper around OpenGL textures and
   * therefore is compatible with most OpenGL texture capabilities like texture compression, cubemapping, mipmapping, etc.
@@ -37,13 +37,15 @@ import sge.Sge
   * @author
   *   Vincent Bousquet
   */
-class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge) extends TextureData, CubemapData {
+class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) extends TextureData, CubemapData {
 
   // KTX header (only available after preparing)
-  private var glType:               Int = scala.compiletime.uninitialized
-  private var glTypeSize:           Int = scala.compiletime.uninitialized
-  private var glFormat:             Int = scala.compiletime.uninitialized
-  private var glInternalFormat:     Int = scala.compiletime.uninitialized
+  private var glType: Int = scala.compiletime.uninitialized
+  @nowarn("msg=not read") // set in parsing, will be read when KTX texture consumption is implemented
+  private var glTypeSize:       Int = scala.compiletime.uninitialized
+  private var glFormat:         Int = scala.compiletime.uninitialized
+  private var glInternalFormat: Int = scala.compiletime.uninitialized
+  @nowarn("msg=not read") // set in parsing, will be read when KTX texture consumption is implemented
   private var glBaseInternalFormat: Int = scala.compiletime.uninitialized
   private var pixelWidth  = -1
   private var pixelHeight = -1
@@ -120,7 +122,7 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
     imagePos = cd.position() + bytesOfKeyValueData
     if (!cd.isDirect()) {
       var pos = imagePos
-      for (level <- 0 until numberOfMipmapLevels) {
+      for (_ <- 0 until numberOfMipmapLevels) {
         val faceLodSize        = cd.getInt(pos)
         val faceLodSizeRounded = (faceLodSize + 3) & ~3
         pos += faceLodSizeRounded * numberOfFaces + 4
@@ -201,9 +203,9 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
     }
 
     // KTX files require an unpack alignment of 4
-    sge.graphics.gl.glGetIntegerv(GL20.GL_UNPACK_ALIGNMENT, buffer)
+    Sge().graphics.gl.glGetIntegerv(GL20.GL_UNPACK_ALIGNMENT, buffer)
     val previousUnpackAlignment = buffer.get(0)
-    if (previousUnpackAlignment != 4) sge.graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 4)
+    if (previousUnpackAlignment != 4) Sge().graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 4)
     val localGlInternalFormat = this.glInternalFormat
     val localGlFormat         = this.glFormat
     val cd                    = compressedData.getOrElse(throw SgeError.GraphicsError("Call prepare() before calling consumeCompressedData()"))
@@ -211,7 +213,8 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
     for (level <- 0 until numberOfMipmapLevels) {
       val levelPixelWidth  = Math.max(1, this.pixelWidth >> level)
       var levelPixelHeight = Math.max(1, this.pixelHeight >> level)
-      var levelPixelDepth  = Math.max(1, this.pixelDepth >> level)
+      @nowarn("msg=not read") // computed for 3D texture level iteration, unused in current 2D path
+      var levelPixelDepth = Math.max(1, this.pixelDepth >> level)
       cd.asInstanceOf[Buffer].position(pos)
       val faceLodSize        = cd.getInt()
       val faceLodSizeRounded = (faceLodSize + 3) & ~3
@@ -226,17 +229,17 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
           data.asInstanceOf[Buffer].limit(faceLodSizeRounded)
           if (textureDimensions == 1) {
             // if (compressed)
-            // sge.graphics.gl.glCompressedTexImage1D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, 0, faceLodSize, data)
+            // Sge().graphics.gl.glCompressedTexImage1D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, 0, faceLodSize, data)
             // else
-            // sge.graphics.gl.glTexImage1D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, 0, localGlFormat, glType, data)
+            // Sge().graphics.gl.glTexImage1D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, 0, localGlFormat, glType, data)
           } else if (textureDimensions == 2) {
             if (numberOfArrayElements > 0) levelPixelHeight = numberOfArrayElements
             if (compressed) {
               if (localGlInternalFormat == ETC1.ETC1_RGB8_OES) {
-                if (!sge.graphics.supportsExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
+                if (!Sge().graphics.supportsExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
                   val etcData = new ETC1Data(levelPixelWidth, levelPixelHeight, data, 0)
                   val pixmap  = ETC1.decodeImage(etcData, Format.RGB888)
-                  sge.graphics.gl.glTexImage2D(
+                  Sge().graphics.gl.glTexImage2D(
                     actualTarget + face,
                     level,
                     pixmap.getGLInternalFormat(),
@@ -249,26 +252,26 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using sge: Sge)
                   )
                   pixmap.close()
                 } else {
-                  sge.graphics.gl.glCompressedTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, faceLodSize, data)
+                  Sge().graphics.gl.glCompressedTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, faceLodSize, data)
                 }
               } else {
                 // Try to load (no software unpacking fallback)
-                sge.graphics.gl.glCompressedTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, faceLodSize, data)
+                Sge().graphics.gl.glCompressedTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, faceLodSize, data)
               }
             } else
-              sge.graphics.gl.glTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, localGlFormat, glType, data)
+              Sge().graphics.gl.glTexImage2D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, 0, localGlFormat, glType, data)
           } else if (textureDimensions == 3) {
             if (numberOfArrayElements > 0) levelPixelDepth = numberOfArrayElements
             // if (compressed)
-            // sge.graphics.gl.glCompressedTexImage3D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, levelPixelDepth, 0, faceLodSize, data)
+            // Sge().graphics.gl.glCompressedTexImage3D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, levelPixelDepth, 0, faceLodSize, data)
             // else
-            // sge.graphics.gl.glTexImage3D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, levelPixelDepth, 0, localGlFormat, glType, data)
+            // Sge().graphics.gl.glTexImage3D(actualTarget + face, level, localGlInternalFormat, levelPixelWidth, levelPixelHeight, levelPixelDepth, 0, localGlFormat, glType, data)
           }
         }
       }
     }
-    if (previousUnpackAlignment != 4) sge.graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, previousUnpackAlignment)
-    if (useMipMaps) sge.graphics.gl.glGenerateMipmap(actualTarget)
+    if (previousUnpackAlignment != 4) Sge().graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, previousUnpackAlignment)
+    if (useMipMaps) Sge().graphics.gl.glGenerateMipmap(actualTarget)
 
     // dispose data once transfered to GPU
     disposePreparedData()

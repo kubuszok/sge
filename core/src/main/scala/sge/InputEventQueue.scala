@@ -33,7 +33,7 @@ class InputEventQueue {
       }
     }
 
-    processor.fold(()) { proc =>
+    processor.foreach { proc =>
       val q = processingQueue.toArray
       var i = 0
       val n = processingQueue.size

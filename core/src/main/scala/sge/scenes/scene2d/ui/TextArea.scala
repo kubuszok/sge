@@ -19,7 +19,7 @@ import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A text input field with multiple lines. */
-class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using sge: Sge) extends TextField(text, style) {
+class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sge) extends TextField(text, style) {
 
   import TextField._
 
@@ -403,7 +403,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using sg
       val result = super.keyDown(event, keycode)
       if (hasKeyboardFocus) {
         var repeat = false
-        val shift  = sge.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || sge.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)
+        val shift  = Sge().input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Sge().input.isKeyPressed(Input.Keys.SHIFT_RIGHT)
         if (keycode == Input.Keys.DOWN) {
           if (shift) {
             if (!hasSelection) {

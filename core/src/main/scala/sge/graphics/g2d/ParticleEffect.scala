@@ -13,7 +13,6 @@ package g2d
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.Writer
 
@@ -155,7 +154,7 @@ class ParticleEffect extends AutoCloseable {
     }
   }
 
-  def load(effectFile: FileHandle, imagesDir: FileHandle)(using sge: Sge): Unit = {
+  def load(effectFile: FileHandle, imagesDir: FileHandle)(using Sge): Unit = {
     loadEmitters(effectFile)
     loadEmitterImages(imagesDir)
   }
@@ -207,7 +206,7 @@ class ParticleEffect extends AutoCloseable {
       }
     }
 
-  def loadEmitterImages(imagesDir: FileHandle)(using sge: Sge): Unit = {
+  def loadEmitterImages(imagesDir: FileHandle)(using Sge): Unit = {
     ownsTexture = true
     val loadedSprites = scala.collection.mutable.Map[String, Sprite]()
     for (i <- 0 until emitters.size) {
@@ -230,7 +229,7 @@ class ParticleEffect extends AutoCloseable {
   protected def newEmitter(emitter: ParticleEmitter): ParticleEmitter =
     new ParticleEmitter(emitter)
 
-  protected def loadTexture(file: FileHandle)(using sge: Sge): Texture =
+  protected def loadTexture(file: FileHandle)(using Sge): Texture =
     new Texture(file, false)
 
   /** Disposes the texture for each sprite for each ParticleEmitter. */

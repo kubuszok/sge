@@ -24,12 +24,12 @@ import sge.Sge
   * @author
   *   Vincent Nousquet
   */
-class FacedCubemapData(using sge: Sge) extends CubemapData {
+class FacedCubemapData(using Sge) extends CubemapData {
 
   protected val data: Array[Nullable[TextureData]] = Array.fill(6)(Nullable.empty)
 
   /** Construct a Cubemap with the specified texture files for the sides, optionally generating mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle)(using Sge) = {
     this()
     data(0) = Nullable(TextureData.Factory.loadFromFile(positiveX, false))
     data(1) = Nullable(TextureData.Factory.loadFromFile(negativeX, false))
@@ -40,7 +40,7 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
   }
 
   /** Construct a Cubemap with the specified texture files for the sides, optionally generating mipmaps. */
-  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using sge: Sge) = {
+  def this(positiveX: FileHandle, negativeX: FileHandle, positiveY: FileHandle, negativeY: FileHandle, positiveZ: FileHandle, negativeZ: FileHandle, useMipMaps: Boolean)(using Sge) = {
     this()
     data(0) = Nullable(TextureData.Factory.loadFromFile(positiveX, useMipMaps))
     data(1) = Nullable(TextureData.Factory.loadFromFile(negativeX, useMipMaps))
@@ -72,7 +72,7 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
     positiveZ:  Nullable[Pixmap],
     negativeZ:  Nullable[Pixmap],
     useMipMaps: Boolean
-  )(using sge: Sge) = {
+  )(using Sge) = {
     this()
     data(0) = positiveX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
     data(1) = negativeX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
@@ -83,7 +83,7 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
   }
 
   /** Construct a Cubemap with {@link Pixmap}s for each side of the specified size. */
-  def this(width: Int, height: Int, depth: Int, format: Format)(using sge: Sge) = {
+  def this(width: Int, height: Int, depth: Int, format: Format)(using Sge) = {
     this()
     data(0) = Nullable(new PixmapTextureData(new Pixmap(depth, height, format), null, false, true))
     data(1) = Nullable(new PixmapTextureData(new Pixmap(depth, height, format), null, false, true))
@@ -94,7 +94,7 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
   }
 
   /** Construct a Cubemap with the specified {@link TextureData}'s for the sides */
-  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using sge: Sge) = {
+  def this(positiveX: TextureData, negativeX: TextureData, positiveY: TextureData, negativeY: TextureData, positiveZ: TextureData, negativeZ: TextureData)(using Sge) = {
     this()
     data(0) = Nullable(positiveX)
     data(1) = Nullable(negativeX)
@@ -114,7 +114,7 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
     * @param file
     *   The texture {@link FileHandle}
     */
-  def load(side: CubemapSide, file: FileHandle)(using sge: Sge): Unit =
+  def load(side: CubemapSide, file: FileHandle)(using Sge): Unit =
     data(side.index) = Nullable(TextureData.Factory.loadFromFile(file, false))
 
   /** Sets the specified side of this cubemap to the specified {@link Pixmap} , overwriting any previous data set to that side. Note that you need to reload through {@link Cubemap#load(CubemapData)}
@@ -201,8 +201,8 @@ class FacedCubemapData(using sge: Sge) extends CubemapData {
             pixmap = tmp
             disposePixmap = true
           }
-          sge.graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
-          sge.graphics.gl.glTexImage2D(
+          Sge().graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
+          Sge().graphics.gl.glTexImage2D(
             GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,
             pixmap.getGLInternalFormat(),

@@ -11,7 +11,6 @@ package scenes
 package scene2d
 package ui
 
-import sge.graphics.Color
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.Rectangle

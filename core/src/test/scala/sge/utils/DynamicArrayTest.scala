@@ -323,7 +323,7 @@ class DynamicArrayTest extends munit.FunSuite {
     arr.add(42)
     val r = arr.random()
     assert(r.isDefined)
-    assertEquals(r.orNull, 42)
+    assertEquals(r.getOrElse(fail("expected non-empty")), 42)
   }
 
   // ---- Search ----
@@ -403,7 +403,7 @@ class DynamicArrayTest extends munit.FunSuite {
     arr.add(1, 2, 3)
     val found = arr.find(_ == 2)
     assert(found.isDefined)
-    assertEquals(found.orNull, 2)
+    assertEquals(found.getOrElse(fail("expected non-empty")), 2)
     assert(arr.find(_ == 99).isEmpty)
   }
 

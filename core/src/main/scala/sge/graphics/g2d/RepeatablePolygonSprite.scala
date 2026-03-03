@@ -21,8 +21,7 @@ import sge.utils.DynamicArray
   */
 class RepeatablePolygonSprite {
 
-  private var region:  Nullable[TextureRegion] = Nullable.empty
-  private var density: Float                   = 0.0f
+  private var region: Nullable[TextureRegion] = Nullable.empty
 
   private var dirty: Boolean = true
 
@@ -64,10 +63,10 @@ class RepeatablePolygonSprite {
 
     val offsetVertices = offset(vertices)
 
-    val polygon          = Polygon(offsetVertices)
-    val tmpPoly          = Polygon()
-    val intersectionPoly = Polygon()
-    val triangulator     = EarClippingTriangulator()
+    val polygon = Polygon(offsetVertices)
+    val tmpPoly = Polygon()
+    Polygon()
+    val triangulator = EarClippingTriangulator()
 
     var idx: Int = 0
 

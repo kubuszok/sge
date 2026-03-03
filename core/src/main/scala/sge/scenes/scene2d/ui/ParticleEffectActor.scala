@@ -31,7 +31,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
     resetOnStart = false
   }
 
-  def this(particleFile: FileHandle, imagesDir: FileHandle)(using sge: Sge) = {
+  def this(particleFile: FileHandle, imagesDir: FileHandle)(using Sge) = {
     this(new ParticleEffect(), true)
     particleEffect.load(particleFile, imagesDir)
     ownsEffect = true
@@ -50,7 +50,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
     }
   }
 
-  override def act(delta: Float)(using sge: Sge): Unit = {
+  override def act(delta: Float)(using Sge): Unit = {
     super.act(delta)
     // don't do particleEffect.update() here - the correct position is set just while we
     // are in draw() method. We save the delta here to update in draw()

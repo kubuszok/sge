@@ -17,11 +17,11 @@ import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.Model
-import sge.graphics.g3d.model.data.{ ModelData, ModelMaterial, ModelTexture }
+import sge.graphics.g3d.model.data.ModelData
 import sge.graphics.g3d.utils.TextureProvider
 import sge.utils.{ DynamicArray, Nullable }
 
-abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
+abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 
   protected var items:             DynamicArray[(String, ModelData)] = DynamicArray[(String, ModelData)]()
   protected var defaultParameters: ModelLoader.ModelParameters       = new ModelLoader.ModelParameters()

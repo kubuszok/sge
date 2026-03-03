@@ -765,8 +765,8 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       var prefHeight = c.prefHeight.fold(0f)(_.get(a))
       var minWidth   = c.minWidth.fold(0f)(_.get(a))
       var minHeight  = c.minHeight.fold(0f)(_.get(a))
-      var maxWidth   = c.maxWidth.fold(0f)(_.get(a))
-      var maxHeight  = c.maxHeight.fold(0f)(_.get(a))
+      val maxWidth   = c.maxWidth.fold(0f)(_.get(a))
+      val maxHeight  = c.maxHeight.fold(0f)(_.get(a))
       if (prefWidth < minWidth) prefWidth = minWidth
       if (prefHeight < minHeight) prefHeight = minHeight
       if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth

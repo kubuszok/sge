@@ -11,8 +11,6 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
-
 /** Sets an actor's layout to enabled or disabled. The actor must implement Layout.
   * @author
   *   Nathan Sweet

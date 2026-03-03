@@ -14,7 +14,7 @@ import sge.graphics.Color
 import sge.graphics.Texture
 import sge.graphics.Texture.TextureFilter
 import sge.math.MathUtils
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.Nullable
 
 /** A 3x3 grid of texture regions. Any of the regions may be omitted. Padding may be set as a hint on how to inset content on top of the ninepatch (by default the eight "edge" textures of the
   * ninepatch define the padding). When drawn, the four corner patches will not be scaled, the interior patch will be scaled in both directions, and the middle patch for each edge will be scaled in

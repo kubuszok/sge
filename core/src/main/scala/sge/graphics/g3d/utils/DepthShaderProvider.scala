@@ -13,21 +13,17 @@ package utils
 
 import sge.files.FileHandle
 import sge.graphics.g3d.shaders.DepthShader
-import sge.utils.Nullable
 
-class DepthShaderProvider(val config: DepthShader.Config)(using sge: Sge) extends BaseShaderProvider {
+class DepthShaderProvider(val config: DepthShader.Config)(using Sge) extends BaseShaderProvider {
 
-  def this(vertexShader: String, fragmentShader: String)(using sge: Sge) = {
+  def this(vertexShader: String, fragmentShader: String)(using Sge) =
     this(new DepthShader.Config(vertexShader, fragmentShader))
-  }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
     this(vertexShader.readString(), fragmentShader.readString())
-  }
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(new DepthShader.Config())
-  }
 
   override protected def createShader(renderable: Renderable): Shader =
     new DepthShader(renderable, config)

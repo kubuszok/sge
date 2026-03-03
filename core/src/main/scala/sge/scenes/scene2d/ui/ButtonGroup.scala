@@ -21,7 +21,7 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
 class ButtonGroup[T <: Button]() {
 
   private val buttons:        DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  private var checkedButtons: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  private val checkedButtons: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
   private var minCheckCount:  Int             = 1
   private var maxCheckCount:  Int             = 1
   private var uncheckLast:    Boolean         = true

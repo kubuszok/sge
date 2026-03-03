@@ -28,7 +28,7 @@ class HorizontalGroup extends WidgetGroup {
   private var _prefHeight:    Float               = scala.compiletime.uninitialized
   private var lastPrefHeight: Float               = scala.compiletime.uninitialized
   private var sizeInvalid:    Boolean             = true
-  private var rowSizes:       DynamicArray[Float] = DynamicArray[Float]() // row width, row height, ...
+  private val rowSizes:       DynamicArray[Float] = DynamicArray[Float]() // row width, row height, ...
 
   private var _align:       Align   = Align.left
   private var _rowAlign:    Align   = Align.center

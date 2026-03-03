@@ -22,9 +22,8 @@ class CubemapAttribute(
 
   if (!CubemapAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) = {
+  def this(`type`: Long) =
     this(`type`, new TextureDescriptor[Cubemap]())
-  }
 
   def this(`type`: Long, texture: Cubemap) = {
     this(`type`)

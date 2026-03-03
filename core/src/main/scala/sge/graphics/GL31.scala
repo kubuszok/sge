@@ -9,7 +9,7 @@
 package sge
 package graphics
 
-import java.nio.{ Buffer, FloatBuffer, IntBuffer, LongBuffer }
+import java.nio.{ FloatBuffer, IntBuffer }
 
 trait GL31 extends GL30 {
 

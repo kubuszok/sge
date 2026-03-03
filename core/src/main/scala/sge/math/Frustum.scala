@@ -9,9 +9,6 @@
 package sge
 package math
 
-import sge.graphics.Camera
-import sge.graphics.OrthographicCamera
-import sge.graphics.PerspectiveCamera
 import sge.math.Plane.PlaneSide
 import sge.math.collision.BoundingBox
 import sge.math.collision.OrientedBoundingBox

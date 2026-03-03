@@ -63,7 +63,7 @@ class Model extends AutoCloseable {
     * @param modelData
     *   the {@link ModelData} got from e.g. ModelLoader
     */
-  def this(modelData: ModelData)(using sge: Sge) = {
+  def this(modelData: ModelData)(using Sge) = {
     this()
     load(modelData, new TextureProvider.FileTextureProvider())
   }
@@ -74,12 +74,12 @@ class Model extends AutoCloseable {
     * @param textureProvider
     *   the {@link TextureProvider} to use for loading the textures
     */
-  def this(modelData: ModelData, textureProvider: TextureProvider)(using sge: Sge) = {
+  def this(modelData: ModelData, textureProvider: TextureProvider)(using Sge) = {
     this()
     load(modelData, textureProvider)
   }
 
-  protected def load(modelData: ModelData, textureProvider: TextureProvider)(using sge: Sge): Unit = {
+  protected def load(modelData: ModelData, textureProvider: TextureProvider)(using Sge): Unit = {
     loadMeshes(modelData.meshes)
     loadMaterials(modelData.materials, textureProvider)
     loadNodes(modelData.nodes)
@@ -215,11 +215,11 @@ class Model extends AutoCloseable {
     node
   }
 
-  protected def loadMeshes(modelMeshes: DynamicArray[ModelMesh])(using sge: Sge): Unit =
+  protected def loadMeshes(modelMeshes: DynamicArray[ModelMesh])(using Sge): Unit =
     for (mesh <- modelMeshes)
       convertMesh(mesh)
 
-  protected def convertMesh(modelMesh: ModelMesh)(using sge: Sge): Unit = {
+  protected def convertMesh(modelMesh: ModelMesh)(using Sge): Unit = {
     var numIndices = 0
     for (part <- modelMesh.parts)
       numIndices += part.indices.length

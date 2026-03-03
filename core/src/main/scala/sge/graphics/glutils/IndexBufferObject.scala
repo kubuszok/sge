@@ -14,10 +14,10 @@ import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.ShortBuffer
 
-import sge.Application
 import sge.graphics.GL20
 import sge.utils.BufferUtils
 import sge.utils.SgeError
+import scala.annotation.nowarn
 import scala.compiletime.uninitialized
 
 /** <p> In IndexBufferObject wraps OpenGL's index buffer functionality to be used in conjunction with VBOs. This class can be seamlessly used with OpenGL ES 1.x and 2.0. </p>
@@ -37,10 +37,11 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
   private var byteBuffer:   ByteBuffer  = uninitialized
   private var ownsBuffer:   Boolean     = uninitialized
   private var bufferHandle: Int         = uninitialized
-  private var isDirect:     Boolean     = uninitialized
-  private var isDirty:      Boolean     = true
-  private var isBound:      Boolean     = false
-  private var usage:        Int         = uninitialized
+  @nowarn("msg=not read") // set in constructor, will be read when buffer operations implemented
+  private var isDirect: Boolean = uninitialized
+  private var isDirty:  Boolean = true
+  private var isBound:  Boolean = false
+  private var usage:    Int     = uninitialized
 
   // used to work around bug: https://android-review.googlesource.com/#/c/73175/
   private val empty: Boolean = maxIndices == 0
@@ -62,9 +63,8 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) = {
+  def this(maxIndices: Int)(using sde: Sge) =
     this(true, maxIndices)
-  }
 
   def this(isStatic: Boolean, data: ByteBuffer)(using sde: Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size

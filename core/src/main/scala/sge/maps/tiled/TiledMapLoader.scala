@@ -14,7 +14,7 @@ import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, JsonReader, JsonValue, Nullable, XmlReader }
+import sge.utils.{ DynamicArray, JsonReader, Nullable, XmlReader }
 
 import scala.language.implicitConversions
 import scala.util.boundary
@@ -24,7 +24,7 @@ import scala.util.boundary.break
   * map file's extension and content. A primary use case is for projects that need to load a mix of TMX and TMJ maps (with or without atlases) using a single loader instance inside an
   * [[AssetManager]]. For TMX and TMJ files, this loader checks for the presence of an `"atlas"` property. If found, it uses an atlas-based loader; otherwise, it falls back to the standard loader.
   */
-class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[TiledMap, BaseTiledMapLoader.Parameters](resolver) {
+class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[TiledMap, BaseTiledMapLoader.Parameters](resolver) {
 
   private val tmxMapLoader: TmxMapLoader = new TmxMapLoader(resolver)
   private val tmjMapLoader: TmjMapLoader = new TmjMapLoader(resolver)
@@ -35,7 +35,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
   private val atlasTmjMapLoader: AtlasTmjMapLoader = new AtlasTmjMapLoader(resolver)
   private val jsonReader:        JsonReader        = new JsonReader()
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   /** Universal synchronous loader. This method is a thin wrapper that picks the correct underlying loader (TMX vs TMJ, atlas vs non-atlas) and then delegates straight through to its synchronous
     * `load(...)` implementation.
@@ -152,12 +152,12 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
     if (extension == "tmx") {
       val root       = xmlReader.parse(file)
       val properties = root.getChildByName("properties")
-      if (properties.isDefined) {
-        val propertyElements = properties.orNull.getChildrenByName("property")
+      properties.foreach { props =>
+        val propertyElements = props.getChildrenByName("property")
         var pi               = 0
         while (pi < propertyElements.size) {
           val property = propertyElements(pi)
-          val name     = property.getAttribute("name", Nullable("")).orNull
+          val name     = property.getAttribute("name", Nullable("")).getOrElse("")
           if ("atlas" == name) {
             break(true)
           }
@@ -169,7 +169,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Async
       val properties = root.get("properties")
       properties.foreach { props =>
         for (property <- props) {
-          val name = property.getString("name", Nullable("")).orNull
+          val name = property.getString("name", Nullable("")).getOrElse("")
           if ("atlas" == name) {
             break(true)
           }

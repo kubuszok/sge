@@ -12,9 +12,6 @@ package g2d
 
 import sge.graphics.g2d.Sprite.{ SPRITE_SIZE, VERTEX_SIZE }
 
-import java.nio.Buffer
-import java.nio.FloatBuffer
-
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.glutils.ShaderProgram
 import sge.math.MathUtils
@@ -51,8 +48,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   private val projectionMatrix: Matrix4             = new Matrix4()
   private val caches:           DynamicArray[Cache] = DynamicArray[Cache]()
 
-  private val combinedMatrix: Matrix4       = new Matrix4()
-  private var shaderVar:      ShaderProgram = shader
+  private val combinedMatrix: Matrix4 = new Matrix4()
 
   private var currentCache: Nullable[Cache]       = Nullable.empty
   private val textures:     DynamicArray[Texture] = DynamicArray[Texture]()
@@ -113,9 +109,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   projectionMatrix.setToOrtho2D(0, 0, sde.graphics.getWidth().toFloat, sde.graphics.getHeight().toFloat)
 
   /** Creates a cache that uses indexed geometry and can contain up to 1000 images. */
-  def this()(using sde: Sge) = {
+  def this()(using sde: Sge) =
     this(1000, SpriteCache.createDefaultShader(), false)
-  }
 
   /** Creates a cache with the specified size, using a default shader if OpenGL ES 2.0 is being used.
     * @param size
@@ -123,9 +118,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     * @param useIndices
     *   If true, indexed geometry will be used.
     */
-  def this(size: Int, useIndices: Boolean)(using sde: Sge) = {
+  def this(size: Int, useIndices: Boolean)(using sde: Sge) =
     this(size, SpriteCache.createDefaultShader(), useIndices)
-  }
 
   /** Sets the color used to tint images when they are added to the SpriteCache. Default is {@link Color#WHITE}. */
   def setColor(tint: Color): Unit = {
@@ -156,8 +150,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   def beginCache(): Unit = {
     if (drawing) throw new IllegalStateException("end must be called before beginCache")
     if (currentCache.isDefined) throw new IllegalStateException("endCache must be called before begin.")
-    val verticesPerImage = if (maxIndices > 0) 4 else 6
-    val cache            = new Cache(caches.size, vertexIndex)
+    val cache = new Cache(caches.size, vertexIndex)
     currentCache = cache
     caches.add(cache)
   }
@@ -182,7 +175,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   /** Ends the definition of a cache, returning the cache ID to be used with {@link #draw(int)}. */
   def endCache(): Int = {
     if (currentCache.isEmpty) throw new IllegalStateException("beginCache must be called before endCache.")
-    val cache      = currentCache.orNull
+    val cache      = currentCache.getOrElse(throw new IllegalStateException("beginCache must be called before endCache."))
     val cacheCount = vertexIndex - cache.offset
     if (cache.textures.isEmpty) {
       // New cache.
@@ -208,7 +201,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
       cache.textureCount = textures.size
 
-      var tex = cache.textures.orNull
+      var tex = cache.textures.getOrElse(Array.empty[Texture])
       if (tex.length < cache.textureCount) {
         tex = Array.ofDim[Texture](cache.textureCount)
         cache.textures = tex
@@ -216,7 +209,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
       for (i <- 0 until cache.textureCount)
         tex(i) = textures(i)
 
-      var cnt = cache.counts.orNull
+      var cnt = cache.counts.getOrElse(Array.empty[Int])
       if (cnt.length < cache.textureCount) {
         cnt = Array.ofDim[Int](cache.textureCount)
         cache.counts = cnt
@@ -895,8 +888,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     val cache            = caches(cacheID)
     val verticesPerImage = if (maxIndices > 0) 4 else 6
     var offset           = cache.offset / (verticesPerImage * VERTEX_SIZE) * 6
-    val textures         = cache.textures.orNull
-    val counts           = cache.counts.orNull
+    val textures         = cache.textures.getOrElse(throw new IllegalStateException("Cache has no textures"))
+    val counts           = cache.counts.getOrElse(throw new IllegalStateException("Cache has no counts"))
     val textureCount     = cache.textureCount
     val activeShader     = customShader.getOrElse(shader)
     for (i <- 0 until textureCount) {
@@ -922,8 +915,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     val verticesPerImage = if (maxIndices > 0) 4 else 6
     var offsetVar        = cache.offset / (verticesPerImage * VERTEX_SIZE) * 6 + offset * 6
     var lengthVar        = length * 6
-    val textures         = cache.textures.orNull
-    val counts           = cache.counts.orNull
+    val textures         = cache.textures.getOrElse(throw new IllegalStateException("Cache has no textures"))
+    val counts           = cache.counts.getOrElse(throw new IllegalStateException("Cache has no counts"))
     val textureCount     = cache.textureCount
     val activeShader     = customShader.getOrElse(shader)
     var i                = 0

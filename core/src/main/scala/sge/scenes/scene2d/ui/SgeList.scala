@@ -25,7 +25,7 @@ import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with Cullable with Styleable[SgeList.ListStyle] {
+class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullable with Styleable[SgeList.ListStyle] {
   import SgeList._
 
   private var _style:      ListStyle           = scala.compiletime.uninitialized
@@ -138,8 +138,8 @@ class SgeList[T](style: SgeList.ListStyle)(using sge: Sge) extends Widget with C
     }
   )
 
-  def this(skin: Skin)(using sge: Sge) = this(skin.get(classOf[SgeList.ListStyle]))
-  def this(skin: Skin, styleName: String)(using sge: Sge) = this(skin.get(styleName, classOf[SgeList.ListStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get(classOf[SgeList.ListStyle]))
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[SgeList.ListStyle]))
 
   override def setStyle(style: ListStyle): Unit = {
     this._style = style

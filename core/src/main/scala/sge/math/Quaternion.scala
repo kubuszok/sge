@@ -28,9 +28,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) = {
+  def this(quaternion: Quaternion) =
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
-  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *
@@ -641,7 +640,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     */
   def slerp(end: Quaternion, alpha: Float): Quaternion = {
     val d      = this.x * end.x + this.y * end.y + this.z * end.z + this.w * end.w
-    var absDot = if (d < 0f) -d else d
+    val absDot = if (d < 0f) -d else d
 
     // Set the first and second scale for the interpolation
     var scale0 = 1f - alpha

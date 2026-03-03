@@ -171,9 +171,9 @@ class GlyphLayout extends Poolable {
               runWidth += lineRun.xAdvances(ii)
               ii += 1
             } else {
-              if (truncate.isDefined) {
+              truncate.foreach { truncateStr =>
                 // Truncate.
-                truncateRun(fontData, lineRun, adjustedTargetWidth, truncate.orNull)
+                truncateRun(fontData, lineRun, adjustedTargetWidth, truncateStr)
                 scala.util.boundary.break(())
               }
 

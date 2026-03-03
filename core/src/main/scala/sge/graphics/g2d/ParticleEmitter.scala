@@ -12,7 +12,6 @@ package g2d
 
 import sge.graphics.GL20
 import sge.math.MathUtils
-import sge.math.Rectangle
 import sge.math.collision.BoundingBox
 
 import sge.utils.{ DynamicArray, Nullable }
@@ -22,7 +21,6 @@ import scala.language.implicitConversions
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.Writer
-import java.util.Arrays
 
 class ParticleEmitter {
   import ParticleEmitter._
@@ -388,13 +386,14 @@ class ParticleEmitter {
         if (sprites.nonEmpty) sprite = Nullable(sprites(scala.util.Random.nextInt(sprites.size)))
     }
 
-    var particle = particles(index)
+    var particle  = particles(index)
+    val spriteVal = sprite.getOrElse(throw new IllegalStateException("No sprite available for particle activation"))
     if (Nullable(particle).isEmpty) {
-      particles(index) = newParticle(sprite.orNull)
+      particles(index) = newParticle(spriteVal)
       particle = particles(index)
       particle.flip(flipX, flipY)
     } else {
-      particle.set(sprite.orNull)
+      particle.set(spriteVal)
     }
 
     val percent     = durationTimer / duration.toFloat

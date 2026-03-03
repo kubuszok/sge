@@ -12,7 +12,6 @@ package utils
 import java.io.{ IOException, Reader }
 import java.util.{ ArrayList, List => JList, Locale, MissingResourceException }
 import scala.collection.mutable.{ LinkedHashSet, Set => MutableSet }
-import scala.jdk.CollectionConverters._
 import scala.util.boundary
 import sge.files.FileHandle
 import sge.utils.{ Nullable, ObjectMap, PropertiesUtils, TextFormatter }

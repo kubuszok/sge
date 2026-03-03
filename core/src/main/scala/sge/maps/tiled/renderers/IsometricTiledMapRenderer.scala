@@ -12,12 +12,11 @@ package tiled
 package renderers
 
 import sge.Sge
-import sge.graphics.Color
 import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
 import sge.math.{ Matrix4, Vector2, Vector3 }
 import sge.utils.Nullable
 
-class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using sge: Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
+class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
   private var isoTransform:    Matrix4 = scala.compiletime.uninitialized
   private var invIsotransform: Matrix4 = scala.compiletime.uninitialized
@@ -30,9 +29,9 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
 
   init()
 
-  def this(map: TiledMap)(using sge: Sge) = this(map, 1.0f, new SpriteBatch(), true)
-  def this(map: TiledMap, batch:     Batch)(using sge: Sge) = this(map, 1.0f, batch, false)
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
+  def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
 
   private def init(): Unit = {
     // create the isometric transform
@@ -150,12 +149,12 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
             if (rotations != 0) {
               rotations match {
                 case TiledMapTileLayer.Cell.ROTATE_90 =>
-                  var tempV = vertices(Batch.V1)
+                  val tempV = vertices(Batch.V1)
                   vertices(Batch.V1) = vertices(Batch.V2)
                   vertices(Batch.V2) = vertices(Batch.V3)
                   vertices(Batch.V3) = vertices(Batch.V4)
                   vertices(Batch.V4) = tempV
-                  var tempU = vertices(Batch.U1)
+                  val tempU = vertices(Batch.U1)
                   vertices(Batch.U1) = vertices(Batch.U2)
                   vertices(Batch.U2) = vertices(Batch.U3)
                   vertices(Batch.U3) = vertices(Batch.U4)
@@ -174,12 +173,12 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
                   vertices(Batch.V2) = vertices(Batch.V4)
                   vertices(Batch.V4) = tempV
                 case TiledMapTileLayer.Cell.ROTATE_270 =>
-                  var tempV = vertices(Batch.V1)
+                  val tempV = vertices(Batch.V1)
                   vertices(Batch.V1) = vertices(Batch.V4)
                   vertices(Batch.V4) = vertices(Batch.V3)
                   vertices(Batch.V3) = vertices(Batch.V2)
                   vertices(Batch.V2) = tempV
-                  var tempU = vertices(Batch.U1)
+                  val tempU = vertices(Batch.U1)
                   vertices(Batch.U1) = vertices(Batch.U4)
                   vertices(Batch.U4) = vertices(Batch.U3)
                   vertices(Batch.U3) = vertices(Batch.U2)

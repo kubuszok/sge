@@ -12,15 +12,14 @@ package tiled
 package renderers
 
 import sge.Sge
-import sge.graphics.Color
-import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
+import sge.graphics.g2d.{ Batch, SpriteBatch }
 import sge.utils.Nullable
 
-class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using sge: Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
+class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
-  def this(map: TiledMap)(using sge: Sge) = this(map, 1.0f, new SpriteBatch(), true)
-  def this(map: TiledMap, batch:     Batch)(using sge: Sge) = this(map, 1.0f, batch, false)
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
+  def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
     val batchColor = batch.getColor()
@@ -84,16 +83,16 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
             if (rotations != 0) {
               rotations match {
                 case TiledMapTileLayer.Cell.ROTATE_90 =>
-                  var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V4); vertices(Batch.V4) = tempV
-                  var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U4); vertices(Batch.U4) = tempU
+                  val tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V4); vertices(Batch.V4) = tempV
+                  val tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U4); vertices(Batch.U4) = tempU
                 case TiledMapTileLayer.Cell.ROTATE_180 =>
                   var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U3); vertices(Batch.U3) = tempU
                   tempU = vertices(Batch.U2); vertices(Batch.U2) = vertices(Batch.U4); vertices(Batch.U4) = tempU
                   var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V3); vertices(Batch.V3) = tempV
                   tempV = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V4); vertices(Batch.V4) = tempV
                 case TiledMapTileLayer.Cell.ROTATE_270 =>
-                  var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V4); vertices(Batch.V4) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V2); vertices(Batch.V2) = tempV
-                  var tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U4); vertices(Batch.U4) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U2); vertices(Batch.U2) = tempU
+                  val tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V4); vertices(Batch.V4) = vertices(Batch.V3); vertices(Batch.V3) = vertices(Batch.V2); vertices(Batch.V2) = tempV
+                  val tempU = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U4); vertices(Batch.U4) = vertices(Batch.U3); vertices(Batch.U3) = vertices(Batch.U2); vertices(Batch.U2) = tempU
                 case _ => ()
               }
             }

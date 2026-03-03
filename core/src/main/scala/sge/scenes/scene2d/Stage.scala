@@ -11,6 +11,7 @@ package scenes
 package scene2d
 
 import sge.utils.{ DynamicArray, Nullable, Pool, PoolManager, Scaling }
+import scala.annotation.nowarn
 
 import sge.graphics.{ Camera, Color, GL20, OrthographicCamera }
 import sge.graphics.g2d.{ Batch, SpriteBatch }
@@ -31,7 +32,7 @@ import sge.utils.viewport.{ ScalingViewport, Viewport }
   * @author
   *   Nathan Sweet
   */
-class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBatch: Boolean)(using sge: Sge) extends InputProcessor with AutoCloseable {
+class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBatch: Boolean)(using Sge) extends InputProcessor with AutoCloseable {
 
   protected val pools:                 PoolManager                    = new PoolManager()
   private val root:                    Group                          = new Group()
@@ -48,42 +49,40 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
   private[scene2d] val touchFocuses:   DynamicArray[Stage.TouchFocus] = DynamicArray[Stage.TouchFocus]()
   private var actionsRequestRendering: Boolean                        = true
 
-  private var debugShapes:           Nullable[ShapeRenderer] = Nullable.empty
-  private var debugInvisible:        Boolean                 = false
-  private var debugAll:              Boolean                 = false
-  private var debugUnderMouse:       Boolean                 = false
-  private var debugParentUnderMouse: Boolean                 = false
-  private var debugTableUnderMouse:  Table.Debug             = Table.Debug.none
-  private val debugColor:            Color                   = new Color(0, 1, 0, 0.85f)
+  private var debugShapes: Nullable[ShapeRenderer] = Nullable.empty
+  @nowarn("msg=not read") // set via setter, will be read in debug drawing
+  private var debugInvisible:        Boolean     = false
+  private var debugAll:              Boolean     = false
+  private var debugUnderMouse:       Boolean     = false
+  private var debugParentUnderMouse: Boolean     = false
+  private var debugTableUnderMouse:  Table.Debug = Table.Debug.none
+  private val debugColor:            Color       = new Color(0, 1, 0, 0.85f)
 
   pools.addPool(classOf[InputEvent], () => new InputEvent())
   pools.addPool(classOf[FocusListener.FocusEvent], () => new FocusListener.FocusEvent())
   pools.addPool(classOf[Stage.TouchFocus], () => new Stage.TouchFocus())
 
   root.setStage(Nullable(this))
-  viewport.update(sge.graphics.getWidth(), sge.graphics.getHeight(), true)
+  viewport.update(Sge().graphics.getWidth(), Sge().graphics.getHeight(), true)
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using sge: Sge) = {
-    this(viewport, new SpriteBatch()(using sge), true)
-  }
+  def this(viewport: Viewport)(using Sge) =
+    this(viewport, new SpriteBatch()(using Sge()), true)
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(
-      new ScalingViewport(Scaling.stretch, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat, new OrthographicCamera())
+      new ScalingViewport(Scaling.stretch, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, new OrthographicCamera())
     )
-  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using sge: Sge) = {
+  def this(viewport: Viewport, batch: Batch)(using Sge) =
     this(viewport, batch, false)
-  }
 
   def draw(): Unit = {
     val camera = viewport.getCamera()
@@ -107,7 +106,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
 
     var shouldDraw = true
     if (debugUnderMouse || debugParentUnderMouse || debugTableUnderMouse != Table.Debug.none) {
-      screenToStageCoordinates(tempCoords.set(sge.input.getX().toFloat, sge.input.getY().toFloat))
+      screenToStageCoordinates(tempCoords.set(Sge().input.getX().toFloat, Sge().input.getY().toFloat))
       var actor: Nullable[Actor] = hit(tempCoords.x, tempCoords.y, true)
 
       if (actor.isEmpty) {
@@ -150,7 +149,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     }
 
     if (shouldDraw) {
-      sge.graphics.gl.glEnable(GL20.GL_BLEND)
+      Sge().graphics.gl.glEnable(GL20.GL_BLEND)
       debugShapes.foreach { shapes =>
         shapes.setProjectionMatrix(viewport.getCamera().combined)
         shapes.setAutoShapeType(true)
@@ -158,7 +157,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
         root.drawDebug(shapes)
         shapes.end()
       }
-      sge.graphics.gl.glDisable(GL20.GL_BLEND)
+      Sge().graphics.gl.glDisable(GL20.GL_BLEND)
     }
   }
 
@@ -179,7 +178,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
 
   /** Calls {@link #act(float)} with {@link Graphics#getDeltaTime()}, limited to a minimum of 30fps. */
   def act(): Unit =
-    act(Math.min(sge.graphics.getDeltaTime(), 1 / 30f))
+    act(Math.min(Sge().graphics.getDeltaTime(), 1 / 30f))
 
   /** Calls the {@link Actor#act(float)} method on each actor in the stage. Typically called each frame. This method also fires enter and exit events.
     * @param delta
@@ -202,7 +201,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     }
 
     // Update over actor for the mouse on the desktop.
-    val appType = sge.application.getType()
+    val appType = Sge().application.getType()
     if (appType == Application.ApplicationType.Desktop || appType == Application.ApplicationType.Applet || appType == Application.ApplicationType.WebGL)
       mouseOverActor = fireEnterAndExit(mouseOverActor, mouseScreenX, mouseScreenY, -1)
 
@@ -800,7 +799,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     */
   def stageToScreenCoordinates(stageCoords: Vector2): Vector2 = {
     viewport.project(stageCoords)
-    stageCoords.y = sge.graphics.getHeight() - stageCoords.y
+    stageCoords.y = Sge().graphics.getHeight() - stageCoords.y
     stageCoords
   }
 
@@ -905,7 +904,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private var ownsBa
     val x1       = x0 + viewport.getScreenWidth()
     val y0       = viewport.getScreenY()
     val y1       = y0 + viewport.getScreenHeight()
-    val flippedY = sge.graphics.getHeight() - 1 - screenY
+    val flippedY = Sge().graphics.getHeight() - 1 - screenY
     screenX >= x0 && screenX < x1 && flippedY >= y0 && flippedY < y1
   }
 }

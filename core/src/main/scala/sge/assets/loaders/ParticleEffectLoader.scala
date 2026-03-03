@@ -17,7 +17,7 @@ import sge.utils.{ DynamicArray, Nullable }
 /** {@link AssetLoader} to load {@link ParticleEffect} instances. Passing a {@link ParticleEffectParameter} to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows to specify an
   * atlas file or an image directory to be used for the effect's images. Per default images are loaded from the directory in which the effect file is found.
   */
-class ParticleEffectLoader(resolver: FileHandleResolver)(using sge: Sge) extends SynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectParameter](resolver) {
+class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends SynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectParameter](resolver) {
 
   override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ParticleEffect = {
     val effect = new ParticleEffect()

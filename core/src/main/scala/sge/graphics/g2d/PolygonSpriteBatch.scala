@@ -38,7 +38,7 @@ import scala.language.implicitConversions
   * @author
   *   Nathan Sweet
   */
-class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nullable[ShaderProgram])(using sge: Sge) extends PolygonBatch {
+class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nullable[ShaderProgram])(using Sge) extends PolygonBatch {
 
   private var mesh: Mesh = uninitialized
 
@@ -63,7 +63,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
 
   private val shader:       ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
   private var customShader: Nullable[ShaderProgram] = Nullable.empty
-  private var ownsShader:   Boolean                 = defaultShader.isEmpty
+  private val ownsShader:   Boolean                 = defaultShader.isEmpty
 
   private val color:       Color = new Color(1, 1, 1, 1)
   private var colorPacked: Float = Color.WHITE_FLOAT_BITS
@@ -83,7 +83,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     if (maxVertices > 32767)
       throw new IllegalArgumentException("Can't have more than 32767 vertices per batch: " + maxVertices)
 
-    val vertexDataType: VertexDataType = if (sge.graphics.gl30.isDefined) {
+    val vertexDataType: VertexDataType = if (Sge().graphics.gl30.isDefined) {
       VertexDataType.VertexBufferObjectWithVAO
     } else {
       VertexDataType.VertexArray
@@ -101,16 +101,15 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       )
     )
 
-    projectionMatrix.setToOrtho2D(0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
   }
 
   /** Constructs a PolygonSpriteBatch with the default shader, 2000 vertices, and 4000 triangles.
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(2000, 4000, Nullable.empty)
-  }
 
   /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
     * @param size
@@ -118,9 +117,8 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int)(using sge: Sge) = {
+  def this(size: Int)(using Sge) =
     this(size, size * 2, Nullable.empty)
-  }
 
   /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
     * @param size
@@ -128,15 +126,14 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int, defaultShader: ShaderProgram)(using sge: Sge) = {
+  def this(size: Int, defaultShader: ShaderProgram)(using Sge) =
     this(size, size * 2, defaultShader)
-  }
 
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")
     renderCalls = 0
 
-    sge.graphics.gl.glDepthMask(false)
+    Sge().graphics.gl.glDepthMask(false)
     customShader.fold(shader.bind())(_.bind())
     setupMatrices()
 
@@ -149,7 +146,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     lastTexture = Nullable.empty
     drawing = false
 
-    val gl = sge.graphics.gl
+    val gl = Sge().graphics.gl
     gl.glDepthMask(true)
     if (isBlendingEnabled()) gl.glDisable(GL20.GL_BLEND)
   }
@@ -364,7 +361,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -466,7 +463,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x1
     vertices(idx + 1) = y1
     vertices(idx + 2) = color
@@ -504,7 +501,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -534,7 +531,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x
     vertices(idx + 1) = y
     vertices(idx + 2) = color
@@ -572,7 +569,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -590,7 +587,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val fy2 = y + srcHeight
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x
     vertices(idx + 1) = y
     vertices(idx + 2) = color
@@ -628,7 +625,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -642,7 +639,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val fy2 = y + height
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x
     vertices(idx + 1) = y
     vertices(idx + 2) = color
@@ -683,7 +680,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -701,7 +698,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val v2  = 0f
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x
     vertices(idx + 1) = y
     vertices(idx + 2) = color
@@ -750,7 +747,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     var vertexIdx   = this.vertexIndex
     val vertex      = (vertexIdx / VERTEX_SIZE).toShort
     var triangleIdx = this.triangleIndex
-    for (n <- triangleIdx until triangleIdx + triangleCount by 6) {
+    for (_ <- triangleIdx until triangleIdx + triangleCount by 6) {
       triangles(triangleIdx) = vertex
       triangles(triangleIdx + 1) = (vertex + 1).toShort
       triangles(triangleIdx + 2) = (vertex + 2).toShort
@@ -796,7 +793,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -814,7 +811,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val v2  = region.v
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x
     vertices(idx + 1) = y
     vertices(idx + 2) = color
@@ -853,7 +850,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -943,7 +940,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val v2 = region.v
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x1
     vertices(idx + 1) = y1
     vertices(idx + 2) = color
@@ -982,7 +979,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -1095,7 +1092,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
 
     val color = this.colorPacked
-    var idx   = this.vertexIndex
+    val idx   = this.vertexIndex
     vertices(idx) = x1
     vertices(idx + 1) = y1
     vertices(idx + 2) = color
@@ -1134,7 +1131,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     else if (triangleIndex + 6 > triangles.length || vertexIndex + SPRITE_SIZE > vertices.length)
       flush()
 
-    var triangleIdx = this.triangleIndex
+    val triangleIdx = this.triangleIndex
     val startVertex = vertexIndex / VERTEX_SIZE
     triangles(triangleIdx) = startVertex.toShort
     triangles(triangleIdx + 1) = (startVertex + 1).toShort
@@ -1160,7 +1157,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     val v2 = region.v
 
     val color = this.colorPacked
-    var idx   = vertexIndex
+    val idx   = vertexIndex
     vertices(idx) = x1
     vertices(idx + 1) = y1
     vertices(idx + 2) = color
@@ -1194,15 +1191,15 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       val trianglesInBatch = triangleIndex
       if (trianglesInBatch > maxTrianglesInBatch) maxTrianglesInBatch = trianglesInBatch
 
-      lastTexture.orNull.bind()
+      lastTexture.foreach(_.bind())
       val mesh = this.mesh
       mesh.setVertices(vertices, 0, vertexIndex)
       mesh.setIndices(triangles.slice(0, trianglesInBatch))
       if (blendingDisabled) {
-        sge.graphics.gl.glDisable(GL20.GL_BLEND)
+        Sge().graphics.gl.glDisable(GL20.GL_BLEND)
       } else {
-        sge.graphics.gl.glEnable(GL20.GL_BLEND)
-        if (blendSrcFunc != -1) sge.graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
+        Sge().graphics.gl.glEnable(GL20.GL_BLEND)
+        if (blendSrcFunc != -1) Sge().graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
       }
 
       mesh.render(customShader.getOrElse(shader), GL20.GL_TRIANGLES, 0, trianglesInBatch)

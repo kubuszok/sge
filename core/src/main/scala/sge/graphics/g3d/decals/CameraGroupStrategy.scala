@@ -27,7 +27,7 @@ import sge.utils.SgeError
   * <td>EV</td> </tr> <tr> <td>glDepthFunc</td> <td>GL_LESS | GL_LEQUAL</td> <td>EV</td> </tr> <tr> <td>GL_BLEND</td> <td>disabled</td> <td>EV | disabled</td> </tr> <tr> <td>glBlendFunc</td>
   * <td>*</td> <td>*</td> </tr> <tr> <td>GL_TEXTURE_2D</td> <td>*</td> <td>disabled</td> </tr> </table> </p>
   */
-class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(using sge: Sge) extends GroupStrategy with AutoCloseable {
+class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(using Sge) extends GroupStrategy with AutoCloseable {
 
   private val arrayPool: Pool[DynamicArray[Decal]] = new Pool.Default[DynamicArray[Decal]](
     () => DynamicArray[Decal](),
@@ -40,7 +40,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   createDefaultShader()
 
-  def this(camera: Camera)(using sge: Sge) = {
+  def this(camera: Camera)(using Sge) =
     this(
       camera,
       Ordering.fromLessThan[Decal] { (o1, o2) =>
@@ -49,7 +49,6 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
         Math.signum(dist2 - dist1).toInt > 0
       }
     )
-  }
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera
@@ -61,8 +60,8 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == CameraGroupStrategy.GROUP_BLEND) {
-      sge.graphics.gl.glEnable(GL20.GL_BLEND)
-      sge.graphics.gl.glDepthMask(false)
+      Sge().graphics.gl.glEnable(GL20.GL_BLEND)
+      Sge().graphics.gl.glDepthMask(false)
       contents.sort(cameraSorter)
     } else {
       var i = 0
@@ -92,19 +91,19 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   override def afterGroup(group: Int): Unit =
     if (group == CameraGroupStrategy.GROUP_BLEND) {
-      sge.graphics.gl.glDisable(GL20.GL_BLEND)
-      sge.graphics.gl.glDepthMask(true)
+      Sge().graphics.gl.glDisable(GL20.GL_BLEND)
+      Sge().graphics.gl.glDepthMask(true)
     }
 
   override def beforeGroups(): Unit = {
-    sge.graphics.gl.glEnable(GL20.GL_DEPTH_TEST)
+    Sge().graphics.gl.glEnable(GL20.GL_DEPTH_TEST)
     shader.bind()
     shader.setUniformMatrix("u_projectionViewMatrix", camera.combined)
     shader.setUniformi("u_texture", 0)
   }
 
   override def afterGroups(): Unit =
-    sge.graphics.gl.glDisable(GL20.GL_DEPTH_TEST)
+    Sge().graphics.gl.glDisable(GL20.GL_DEPTH_TEST)
 
   private def createDefaultShader(): Unit = {
     val vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //

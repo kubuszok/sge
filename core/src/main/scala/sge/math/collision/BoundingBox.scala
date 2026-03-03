@@ -11,7 +11,6 @@ package math
 package collision
 
 import sge.math.{ Matrix4, Vector3 }
-import scala.collection.mutable.ListBuffer
 
 /** Encapsulates an axis aligned bounding box represented by a minimum and a maximum Vector. Additionally you can query for the bounding box's center, dimensions and corner points.
   *

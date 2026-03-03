@@ -34,35 +34,35 @@ object UIUtils {
     os.contains("ios")
   }
 
-  def left()(using sge: Sge): Boolean =
-    sge.input.isButtonPressed(Input.Buttons.LEFT)
+  def left()(using Sge): Boolean =
+    Sge().input.isButtonPressed(Input.Buttons.LEFT)
 
   def left(button: Int): Boolean =
     button == Input.Buttons.LEFT
 
-  def right()(using sge: Sge): Boolean =
-    sge.input.isButtonPressed(Input.Buttons.RIGHT)
+  def right()(using Sge): Boolean =
+    Sge().input.isButtonPressed(Input.Buttons.RIGHT)
 
   def right(button: Int): Boolean =
     button == Input.Buttons.RIGHT
 
-  def middle()(using sge: Sge): Boolean =
-    sge.input.isButtonPressed(Input.Buttons.MIDDLE)
+  def middle()(using Sge): Boolean =
+    Sge().input.isButtonPressed(Input.Buttons.MIDDLE)
 
   def middle(button: Int): Boolean =
     button == Input.Buttons.MIDDLE
 
-  def shift()(using sge: Sge): Boolean =
-    sge.input.isKeyPressed(Input.Keys.SHIFT_LEFT) || sge.input.isKeyPressed(Input.Keys.SHIFT_RIGHT)
+  def shift()(using Sge): Boolean =
+    Sge().input.isKeyPressed(Input.Keys.SHIFT_LEFT) || Sge().input.isKeyPressed(Input.Keys.SHIFT_RIGHT)
 
   def shift(keycode: Int): Boolean =
     keycode == Input.Keys.SHIFT_LEFT || keycode == Input.Keys.SHIFT_RIGHT
 
-  def ctrl()(using sge: Sge): Boolean =
+  def ctrl()(using Sge): Boolean =
     if (isMac)
-      sge.input.isKeyPressed(Input.Keys.SYM)
+      Sge().input.isKeyPressed(Input.Keys.SYM)
     else
-      sge.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || sge.input.isKeyPressed(Input.Keys.CONTROL_RIGHT)
+      Sge().input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Sge().input.isKeyPressed(Input.Keys.CONTROL_RIGHT)
 
   def ctrl(keycode: Int): Boolean =
     if (isMac)
@@ -70,8 +70,8 @@ object UIUtils {
     else
       keycode == Input.Keys.CONTROL_LEFT || keycode == Input.Keys.CONTROL_RIGHT
 
-  def alt()(using sge: Sge): Boolean =
-    sge.input.isKeyPressed(Input.Keys.ALT_LEFT) || sge.input.isKeyPressed(Input.Keys.ALT_RIGHT)
+  def alt()(using Sge): Boolean =
+    Sge().input.isKeyPressed(Input.Keys.ALT_LEFT) || Sge().input.isKeyPressed(Input.Keys.ALT_RIGHT)
 
   def alt(keycode: Int): Boolean =
     keycode == Input.Keys.ALT_LEFT || keycode == Input.Keys.ALT_RIGHT

@@ -12,13 +12,13 @@ package tiled
 package renderers
 
 import sge.Sge
-import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
+import sge.graphics.g2d.{ Batch, SpriteBatch }
 
-class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using sge: Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
+class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
-  def this(map: TiledMap)(using sge: Sge) = this(map, 1.0f, new SpriteBatch(), true)
-  def this(map: TiledMap, batch:     Batch)(using sge: Sge) = this(map, 1.0f, batch, false)
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
+  def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
     val batchColor = batch.getColor()
@@ -67,10 +67,10 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
               val x2 = x1 + region.getRegionWidth() * unitScale
               val y2 = y1 + region.getRegionHeight() * unitScale
 
-              var u1 = region.getU()
-              var v1 = region.getV2()
-              var u2 = region.getU2()
-              var v2 = region.getV()
+              val u1 = region.getU()
+              val v1 = region.getV2()
+              val u2 = region.getU2()
+              val v2 = region.getV()
 
               vertices(Batch.X1) = x1
               vertices(Batch.Y1) = y1
@@ -115,13 +115,13 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
               if (rotations != 0) {
                 rotations match {
                   case TiledMapTileLayer.Cell.ROTATE_90 =>
-                    var tempV = vertices(Batch.V1)
+                    val tempV = vertices(Batch.V1)
                     vertices(Batch.V1) = vertices(Batch.V2)
                     vertices(Batch.V2) = vertices(Batch.V3)
                     vertices(Batch.V3) = vertices(Batch.V4)
                     vertices(Batch.V4) = tempV
 
-                    var tempU = vertices(Batch.U1)
+                    val tempU = vertices(Batch.U1)
                     vertices(Batch.U1) = vertices(Batch.U2)
                     vertices(Batch.U2) = vertices(Batch.U3)
                     vertices(Batch.U3) = vertices(Batch.U4)
@@ -140,13 +140,13 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
                     vertices(Batch.V2) = vertices(Batch.V4)
                     vertices(Batch.V4) = tempV
                   case TiledMapTileLayer.Cell.ROTATE_270 =>
-                    var tempV = vertices(Batch.V1)
+                    val tempV = vertices(Batch.V1)
                     vertices(Batch.V1) = vertices(Batch.V4)
                     vertices(Batch.V4) = vertices(Batch.V3)
                     vertices(Batch.V3) = vertices(Batch.V2)
                     vertices(Batch.V2) = tempV
 
-                    var tempU = vertices(Batch.U1)
+                    val tempU = vertices(Batch.U1)
                     vertices(Batch.U1) = vertices(Batch.U4)
                     vertices(Batch.U4) = vertices(Batch.U3)
                     vertices(Batch.U3) = vertices(Batch.U2)

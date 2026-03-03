@@ -11,15 +11,14 @@ package scenes
 package scene2d
 package ui
 
+import scala.annotation.nowarn
 import scala.language.implicitConversions
 import scala.util.boundary
 
 import sge.graphics.Color
-import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout, GlyphRun }
-import sge.input.NativeInputConfiguration
-import sge.input.TextInputWrapper
+import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.{ MathUtils, Vector2 }
-import sge.scenes.scene2d.{ Actor, Group, InputEvent, InputListener, Stage }
+import sge.scenes.scene2d.{ Actor, Group, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener, Disableable, Drawable, UIUtils }
 import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Timer }
 
@@ -34,7 +33,7 @@ import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Timer }
   * @author
   *   Nathan Sweet
   */
-class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using sge: Sge) extends Widget with Disableable with Styleable[TextField.TextFieldStyle] {
+class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using Sge) extends Widget with Disableable with Styleable[TextField.TextFieldStyle] {
 
   import TextField._
 
@@ -49,7 +48,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
   protected var _style:       TextField.TextFieldStyle    = scala.compiletime.uninitialized
   private var messageText:    Nullable[String]            = Nullable.empty
   protected var displayText:  CharSequence                = ""
-  var clipboard:              Clipboard                   = sge.application.getClipboard()
+  var clipboard:              Clipboard                   = Sge().application.getClipboard()
   var inputListener:          InputListener               = scala.compiletime.uninitialized
   var listener:               Nullable[TextFieldListener] = Nullable.empty
   var filter:                 Nullable[TextFieldFilter]   = Nullable.empty
@@ -68,16 +67,19 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
   private var passwordBuffer:    Nullable[java.lang.StringBuilder] = Nullable.empty
   private var passwordCharacter: Char                              = BULLET
 
-  protected var fontOffset:          Float                                           = 0
-  protected var textHeight:          Float                                           = 0
-  protected var textOffset:          Float                                           = 0
-  var renderOffset:                  Float                                           = 0
-  protected var visibleTextStart:    Int                                             = 0
-  protected var visibleTextEnd:      Int                                             = 0
-  private var maxLength:             Int                                             = 0
-  private var autocompleteOptions:   Nullable[Array[String]]                         = Nullable.empty
-  private var keyboardType:          Input.OnscreenKeyboardType.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
-  private var preventAutoCorrection: Boolean                                         = false
+  protected var fontOffset:       Float = 0
+  protected var textHeight:       Float = 0
+  protected var textOffset:       Float = 0
+  var renderOffset:               Float = 0
+  protected var visibleTextStart: Int   = 0
+  protected var visibleTextEnd:   Int   = 0
+  private var maxLength:          Int   = 0
+  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
+  private var autocompleteOptions: Nullable[Array[String]] = Nullable.empty
+  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
+  private var keyboardType: Input.OnscreenKeyboardType.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
+  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
+  private var preventAutoCorrection: Boolean = false
 
   var focused:   Boolean    = false
   var cursorOn:  Boolean    = false
@@ -88,7 +90,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
         cancel()
       } else {
         cursorOn = !cursorOn
-        sge.graphics.requestRendering()
+        Sge().graphics.requestRendering()
       }
   }
 
@@ -552,11 +554,11 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
   def next(up: Boolean): Nullable[TextField] = boundary {
     val stage = getStage
     if (stage.isEmpty) boundary.break(Nullable.empty)
-    val stg = stage.orNull
+    val stg = stage.getOrElse(throw new IllegalStateException("TextField must be on a stage"))
     var current: TextField = this
-    val currentCoords = current.getParent.orNull.localToStageCoordinates(tmp2.set(current.getX, current.getY))
+    val currentCoords = current.getParent.getOrElse(throw new IllegalStateException("TextField must have a parent")).localToStageCoordinates(tmp2.set(current.getX, current.getY))
     val bestCoords    = tmp1
-    var continue      = true
+    val continue      = true
     while (continue) {
       var textField = current.findNextTextField(stg.getActors, Nullable.empty, bestCoords, currentCoords, up)
       if (textField.isEmpty) { // Try to wrap around.
@@ -569,7 +571,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
       if (textField.isEmpty) {
         boundary.break(Nullable.empty)
       }
-      val tf = textField.orNull
+      val tf = textField.getOrElse(throw new IllegalStateException("textField must be defined"))
       if (stg.setKeyboardFocus(Nullable(tf))) {
         tf.selectAll()
         boundary.break(Nullable(tf))
@@ -590,7 +592,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
       actor match {
         case textField: TextField if !(textField eq this) =>
           if (!(textField.isDisabled || !textField.focusTraversal || !textField.ascendantsVisible())) {
-            val actorCoords = actor.getParent.orNull.localToStageCoordinates(tmp3.set(actor.getX, actor.getY))
+            val actorCoords = actor.getParent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.getX, actor.getY))
             val below       = actorCoords.y != currentCoords.y && (actorCoords.y < currentCoords.y ^ up)
             val right       = actorCoords.y == currentCoords.y && (actorCoords.x > currentCoords.x ^ up)
             if (below || right) {
@@ -1016,7 +1018,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
 
       if (!hasKeyboardFocus) boundary.break(false)
 
-      if (UIUtils.isMac && sge.input.isKeyPressed(Input.Keys.SYM)) boundary.break(true)
+      if (UIUtils.isMac && Sge().input.isKeyPressed(Input.Keys.SYM)) boundary.break(true)
 
       if (checkFocusTraversal(character)) {
         val transferred = next(UIUtils.shift())
@@ -1060,7 +1062,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using s
             _text = insert(cursor, insertion, _text)
             cursor += 1
           }
-          val tempUndoText = undoText
+          undoText
           if (changeText(oldText, _text)) {
             val time = System.currentTimeMillis()
             if (time - 750 > lastChangeTime) undoText = oldText
@@ -1137,12 +1139,12 @@ object TextField {
   class DefaultOnscreenKeyboard extends OnscreenKeyboard {
     def show(textField: TextField): Unit = {
       // TODO: requires using Sge context
-      // sge.input.setOnscreenKeyboardVisible(true)
+      // Sge().input.setOnscreenKeyboardVisible(true)
     }
 
     def close(): Unit = {
       // TODO: requires using Sge context
-      // sge.input.setOnscreenKeyboardVisible(false)
+      // Sge().input.setOnscreenKeyboardVisible(false)
     }
   }
 
@@ -1153,7 +1155,7 @@ object TextField {
   //   * {@link Input#setOnscreenKeyboardVisible(boolean)} API */
   // class NativeOnscreenKeyboard extends OnscreenKeyboard {
   //   def close(): Unit = {
-  //     sge.input.closeTextInputField(false)
+  //     Sge().input.closeTextInputField(false)
   //   }
   //
   //   def show(textField: TextField): Unit = {

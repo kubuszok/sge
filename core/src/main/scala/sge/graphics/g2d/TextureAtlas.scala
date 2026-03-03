@@ -10,17 +10,16 @@ package sge
 package graphics
 package g2d
 
-import java.io.BufferedReader
 import scala.collection.mutable.{ Map as MutableMap, Set as MutableSet }
 import sge.utils.DynamicArray
 import scala.util.boundary
 import scala.language.implicitConversions
 import sge.Sge
 import sge.files.FileHandle
-import sge.graphics.{ Pixmap, Texture }
+import sge.graphics.Texture
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
-import sge.graphics.g2d.{ Batch, NinePatch, Sprite, TextureRegion }
+import sge.graphics.g2d.{ NinePatch, Sprite, TextureRegion }
 import sge.utils.{ Nullable, SgeError, StreamUtils }
 
 /** Loads images from texture atlases created by TexturePacker.<br> <br> A TextureAtlas must be disposed to free up the resources consumed by the backing textures.
@@ -33,42 +32,42 @@ class TextureAtlas() extends AutoCloseable {
 
   /** Loads the specified pack file using FileType.Internal, using the parent directory of the pack file to find the page images.
     */
-  def this(internalPackFile: String)(using sge: Sge) = {
+  def this(internalPackFile: String)(using Sge) = {
     this()
-    val packFile = sge.files.internal(internalPackFile)
+    val packFile = Sge().files.internal(internalPackFile)
     load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
   }
 
   /** Loads the specified pack file, using the parent directory of the pack file to find the page images. */
-  def this(packFile: FileHandle)(using sge: Sge) = {
+  def this(packFile: FileHandle)(using Sge) = {
     this()
     load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
   }
 
   /** @param flip If true, all regions loaded will be flipped for use with a perspective where 0,0 is the upper left corner. */
-  def this(packFile: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(packFile: FileHandle, flip: Boolean)(using Sge) = {
     this()
     load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), flip))
   }
 
-  def this(packFile: FileHandle, imagesDir: FileHandle)(using sge: Sge) = {
+  def this(packFile: FileHandle, imagesDir: FileHandle)(using Sge) = {
     this()
     load(new TextureAtlas.TextureAtlasData(packFile, imagesDir, false))
   }
 
   /** @param flip If true, all regions loaded will be flipped for use with a perspective where 0,0 is the upper left corner. */
-  def this(packFile: FileHandle, imagesDir: FileHandle, flip: Boolean)(using sge: Sge) = {
+  def this(packFile: FileHandle, imagesDir: FileHandle, flip: Boolean)(using Sge) = {
     this()
     load(new TextureAtlas.TextureAtlasData(packFile, imagesDir, flip))
   }
 
-  def this(data: TextureAtlas.TextureAtlasData)(using sge: Sge) = {
+  def this(data: TextureAtlas.TextureAtlasData)(using Sge) = {
     this()
     load(data)
   }
 
   /** Adds the textures and regions from the specified texture atlas data. */
-  def load(data: TextureAtlas.TextureAtlasData)(using sge: Sge): Unit = {
+  def load(data: TextureAtlas.TextureAtlasData)(using Sge): Unit = {
     for (page <- data.pages) {
       if (page.texture.isEmpty) {
         page.texture = Nullable(
@@ -130,13 +129,13 @@ class TextureAtlas() extends AutoCloseable {
   /** Returns the first region found with the specified name. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple times.
     */
   def findRegion(name: String): Nullable[TextureAtlas.AtlasRegion] =
-    regions.iterator.find(_.name == name).orNull
+    Nullable.fromOption(regions.iterator.find(_.name == name))
 
   /** Returns the first region found with the specified name and index. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple
     * times.
     */
   def findRegion(name: String, index: Int): Nullable[TextureAtlas.AtlasRegion] =
-    regions.iterator.find(r => r.name == name && r.index == index).orNull
+    Nullable.fromOption(regions.iterator.find(r => r.name == name && r.index == index))
 
   /** Returns all regions with the specified name, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions, so the result should be
     * cached rather than calling this method multiple times.
@@ -155,7 +154,7 @@ class TextureAtlas() extends AutoCloseable {
     * been stripped. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached rather than calling this method multiple times.
     */
   def createSprite(name: String): Nullable[Sprite] =
-    regions.iterator.find(_.name == name).map(newSprite).orNull
+    Nullable.fromOption(regions.iterator.find(_.name == name).map(newSprite))
 
   /** Returns the first region found with the specified name and index as a sprite. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached
     * rather than calling this method multiple times.
@@ -163,7 +162,7 @@ class TextureAtlas() extends AutoCloseable {
     *   #createSprite(String)
     */
   def createSprite(name: String, index: Int): Nullable[Sprite] =
-    regions.iterator.find(r => r.name == name && r.index == index).map(newSprite).orNull
+    Nullable.fromOption(regions.iterator.find(r => r.name == name && r.index == index).map(newSprite))
 
   /** Returns all regions with the specified name as sprites, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions and constructs new
     * sprites, so the result should be cached rather than calling this method multiple times.
@@ -191,9 +190,8 @@ class TextureAtlas() extends AutoCloseable {
     * constructs a new ninepatch, so the result should be cached rather than calling this method multiple times.
     */
   def createPatch(name: String): Nullable[NinePatch] =
-    regions.iterator
-      .find(_.name == name)
-      .flatMap { region =>
+    Nullable.fromOption(
+      regions.iterator.find(_.name == name).flatMap { region =>
         val splits = region.findValue("split")
         if (splits.isEmpty) throw new IllegalArgumentException("Region does not have ninepatch splits: " + name)
         val s     = splits.getOrElse(throw new IllegalArgumentException("Region does not have ninepatch splits: " + name))
@@ -203,7 +201,7 @@ class TextureAtlas() extends AutoCloseable {
         }
         Some(patch)
       }
-      .orNull
+    )
 
   /** @return the textures of the pages, unordered */
   def getTextures(): MutableSet[Texture] =

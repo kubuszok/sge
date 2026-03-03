@@ -12,7 +12,7 @@ package g3d
 package utils
 package shapebuilders
 
-import sge.graphics.{ GL20, VertexAttributes }
+import sge.graphics.GL20
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g3d.utils.MeshPartBuilder
 import sge.graphics.g3d.utils.MeshPartBuilder.VertexInfo

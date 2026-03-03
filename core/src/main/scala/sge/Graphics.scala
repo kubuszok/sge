@@ -15,9 +15,6 @@ import sge.graphics.GL30
 import sge.graphics.GL31
 import sge.graphics.GL32
 import sge.graphics.Pixmap
-import sge.graphics.g2d.Batch
-import sge.graphics.g2d.BitmapFont
-import sge.graphics.glutils.ShaderProgram
 import sge.utils.Nullable
 
 /** This interface encapsulates communication with the graphics processor. Depending on the available hardware and the current {@link Application} configuration, access to {@link GL20} and

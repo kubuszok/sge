@@ -19,8 +19,7 @@ import sge.utils.{ DynamicArray, Nullable, Timer }
   * @author
   *   Nathan Sweet
   */
-class TooltipManager()(using sge: Sge) {
-  import TooltipManager._
+class TooltipManager()(using Sge) {
 
   /** Seconds from when an actor is hovered to when the tooltip is shown. Default is 2. Call {@link #hideAll()} after changing to reset internal state.
     */
@@ -163,9 +162,9 @@ object TooltipManager {
   private var instance: Nullable[TooltipManager] = Nullable.empty
   private var files:    Nullable[sge.Files]      = Nullable.empty
 
-  def getInstance()(using sge: Sge): TooltipManager = {
-    if (files.isEmpty || files.fold(true)(_ ne sge.files)) {
-      files = Nullable(sge.files)
+  def getInstance()(using Sge): TooltipManager = {
+    if (files.isEmpty || files.fold(true)(_ ne Sge().files)) {
+      files = Nullable(Sge().files)
       instance = Nullable(new TooltipManager())
     }
     instance.getOrElse(throw new IllegalStateException("TooltipManager instance not initialized"))

@@ -16,13 +16,14 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.glutils.KTXTextureData
 import sge.utils.{ DynamicArray, Nullable, SgeError }
+import scala.annotation.nowarn
 
 /** {@link AssetLoader} for {@link Cubemap} instances. The pixel data is loaded asynchronously. The texture is then created on the rendering thread, synchronously. Passing a {@link CubemapParameter}
   * to {@link AssetManager#load(String, Class, AssetLoaderParameters)} allows one to specify parameters as can be passed to the various Cubemap constructors, e.g. filtering and so on.
   * @author
   *   mzechner, Vincent Bousquet (original implementation)
   */
-class CubemapLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Cubemap, CubemapLoader.CubemapParameter](resolver) {
+class CubemapLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Cubemap, CubemapLoader.CubemapParameter](resolver) {
 
   private val info = new CubemapLoader.CubemapLoaderInfo()
 
@@ -30,8 +31,9 @@ class CubemapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynch
     val param = Nullable(parameter)
     info.filename = fileName
     if (param.fold(true)(_.cubemapData.isEmpty)) {
+      @nowarn("msg=not read") // format will be used when CubemapData loading is implemented
       var format: Nullable[Format] = Nullable.empty
-      var genMipMaps = false
+      val genMipMaps = false
       info.cubemap = Nullable.empty
 
       param.foreach { p =>

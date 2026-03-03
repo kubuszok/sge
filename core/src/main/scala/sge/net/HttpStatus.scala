@@ -15,15 +15,24 @@ package net
   * Contains information about the HTTP status line returned with the {@link HttpResponse} after a {@link HttpRequest} was performed. Also contains constants enumerating the HTTP Status Codes. All
   * status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and RFC2518 (WebDAV) are listed.
   */
-class HttpStatus(val statusCode: Int) {
-
-  /** Returns the status code of the HTTP response, normally 2xx status codes indicate success while 4xx and 5xx indicate client and server errors, respectively (see <a
-    * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">HTTP/1.1: Status Code Definitions</a> for more information about HTTP status codes).
-    */
-  def getStatusCode(): Int = statusCode
-}
-
+opaque type HttpStatus = Int
 object HttpStatus {
+
+  def apply(statusCode: Int): HttpStatus = statusCode
+
+  extension (status: HttpStatus) {
+
+    /** Returns the status code of the HTTP response, normally 2xx status codes indicate success while 4xx and 5xx indicate client and server errors, respectively (see <a
+      * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">HTTP/1.1: Status Code Definitions</a> for more information about HTTP status codes).
+      */
+    def statusCode: Int = status
+
+    /** Returns the status code of the HTTP response, normally 2xx status codes indicate success while 4xx and 5xx indicate client and server errors, respectively (see <a
+      * href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">HTTP/1.1: Status Code Definitions</a> for more information about HTTP status codes).
+      */
+    def getStatusCode(): Int = status
+  }
+
   /*
    * Constants enumerating the HTTP status codes. All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and RFC2518
    * (WebDAV) are listed.

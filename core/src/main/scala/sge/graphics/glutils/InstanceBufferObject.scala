@@ -13,14 +13,12 @@ package glutils
 import sge.graphics.VertexAttributes
 import sge.graphics.VertexAttribute
 import sge.graphics.GL20
-import sge.graphics.GL30
 import sge.utils.{ BufferUtils, Nullable, SgeError }
 import sge.Sge
 
 import java.nio.Buffer
 import java.nio.ByteBuffer
 import java.nio.FloatBuffer
-import scala.compiletime.uninitialized
 
 /** Modification of the VertexBufferObject class. Sets the glVertexAttribDivisor for every VertexAttribute automatically.
   *
@@ -29,9 +27,8 @@ import scala.compiletime.uninitialized
   */
 class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) =
     this(isStatic, numVertices, new VertexAttributes(attributes*))
-  }
 
   private var attributes:   VertexAttributes = scala.compiletime.uninitialized
   private var buffer:       FloatBuffer      = scala.compiletime.uninitialized

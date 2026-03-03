@@ -17,6 +17,7 @@ import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleControllerComponent
 import sge.graphics.g3d.particles.values.ScaledNumericValue
 import sge.math.{ MathUtils, Matrix4, Quaternion, Vector3 }
+import scala.annotation.nowarn
 
 /** It's the base class for any kind of influencer which operates on angular velocity and acceleration of the particles. All the classes that will inherit this base class can and should be used only
   * as sub-influencer of an instance of {@link DynamicsInfluencer} .
@@ -24,8 +25,6 @@ import sge.math.{ MathUtils, Matrix4, Quaternion, Vector3 }
   *   Inferno
   */
 abstract class DynamicsModifier extends Influencer {
-
-  import DynamicsModifier.*
 
   var isGlobal:              Boolean      = false
   protected var lifeChannel: FloatChannel = scala.compiletime.uninitialized
@@ -203,6 +202,7 @@ object DynamicsModifier {
   }
 
   class Rotational3D extends Angular {
+    @nowarn("msg=not read") // set in allocateChannels, will be read in update
     private var rotationChannel:        FloatChannel = scala.compiletime.uninitialized
     private var rotationalForceChannel: FloatChannel = scala.compiletime.uninitialized
 

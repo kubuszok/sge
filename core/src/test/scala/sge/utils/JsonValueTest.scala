@@ -13,7 +13,7 @@ class JsonValueTest extends munit.FunSuite {
   test("construct string value") {
     val jv = new JsonValue(Nullable("hello"))
     assert(jv.isString)
-    assertEquals(jv.asString().orNull, "hello")
+    assertEquals(jv.asString().getOrElse(fail("expected non-empty")), "hello")
   }
 
   test("construct null string creates null value") {
@@ -38,13 +38,13 @@ class JsonValueTest extends munit.FunSuite {
   test("construct double with string representation") {
     val jv = new JsonValue(3.14, Nullable("3.14"))
     assert(jv.isDouble)
-    assertEquals(jv.asString().orNull, "3.14")
+    assertEquals(jv.asString().getOrElse(fail("expected non-empty")), "3.14")
   }
 
   test("construct long with string representation") {
     val jv = new JsonValue(100L, Nullable("100"))
     assert(jv.isLong)
-    assertEquals(jv.asString().orNull, "100")
+    assertEquals(jv.asString().getOrElse(fail("expected non-empty")), "100")
   }
 
   test("construct boolean true") {
@@ -94,7 +94,7 @@ class JsonValueTest extends munit.FunSuite {
 
   test("asString from string") {
     val jv = new JsonValue(Nullable("hello"))
-    assertEquals(jv.asString().orNull, "hello")
+    assertEquals(jv.asString().getOrElse(fail("expected non-empty")), "hello")
   }
 
   test("asString from double") {
@@ -108,12 +108,12 @@ class JsonValueTest extends munit.FunSuite {
     val jv = new JsonValue(42L)
     val s  = jv.asString()
     assert(s.isDefined)
-    assertEquals(s.orNull, "42")
+    assertEquals(s.getOrElse(fail("expected non-empty")), "42")
   }
 
   test("asString from boolean") {
-    assertEquals(new JsonValue(true).asString().orNull, "true")
-    assertEquals(new JsonValue(false).asString().orNull, "false")
+    assertEquals(new JsonValue(true).asString().getOrElse(fail("expected non-empty")), "true")
+    assertEquals(new JsonValue(false).asString().getOrElse(fail("expected non-empty")), "false")
   }
 
   test("asString from null returns empty") {
@@ -229,7 +229,7 @@ class JsonValueTest extends munit.FunSuite {
     val obj   = makeObject()
     val child = obj.get("b")
     assert(child.isDefined)
-    assertEquals(child.orNull.asLong(), 42L)
+    assertEquals(child.getOrElse(fail("expected non-empty")).asLong(), 42L)
   }
 
   test("get by name returns empty for missing") {
@@ -246,28 +246,28 @@ class JsonValueTest extends munit.FunSuite {
   test("child returns first child") {
     val obj = makeObject()
     assert(obj.child.isDefined)
-    assertEquals(obj.child.orNull.name.orNull, "a")
+    assertEquals(obj.child.getOrElse(fail("expected non-empty")).name.getOrElse(fail("expected non-empty")), "a")
   }
 
   test("next traversal") {
     val obj   = makeObject()
-    val first = obj.child.orNull
-    assertEquals(first.name.orNull, "a")
-    val second = first.next.orNull
-    assertEquals(second.name.orNull, "b")
-    val third = second.next.orNull
-    assertEquals(third.name.orNull, "c")
+    val first = obj.child.getOrElse(fail("expected non-empty"))
+    assertEquals(first.name.getOrElse(fail("expected non-empty")), "a")
+    val second = first.next.getOrElse(fail("expected non-empty"))
+    assertEquals(second.name.getOrElse(fail("expected non-empty")), "b")
+    val third = second.next.getOrElse(fail("expected non-empty"))
+    assertEquals(third.name.getOrElse(fail("expected non-empty")), "c")
     assert(third.next.isEmpty)
   }
 
   test("prev traversal") {
     val obj  = makeObject()
-    val last = obj.lastChild.orNull
-    assertEquals(last.name.orNull, "c")
-    val middle = last.prev.orNull
-    assertEquals(middle.name.orNull, "b")
-    val first = middle.prev.orNull
-    assertEquals(first.name.orNull, "a")
+    val last = obj.lastChild.getOrElse(fail("expected non-empty"))
+    assertEquals(last.name.getOrElse(fail("expected non-empty")), "c")
+    val middle = last.prev.getOrElse(fail("expected non-empty"))
+    assertEquals(middle.name.getOrElse(fail("expected non-empty")), "b")
+    val first = middle.prev.getOrElse(fail("expected non-empty"))
+    assertEquals(first.name.getOrElse(fail("expected non-empty")), "a")
     assert(first.prev.isEmpty)
   }
 
@@ -279,7 +279,7 @@ class JsonValueTest extends munit.FunSuite {
   test("require by name returns child") {
     val obj   = makeObject()
     val child = obj.require("a")
-    assertEquals(child.asString().orNull, "valueA")
+    assertEquals(child.asString().getOrElse(fail("expected non-empty")), "valueA")
   }
 
   test("require by name throws for missing") {
@@ -301,15 +301,15 @@ class JsonValueTest extends munit.FunSuite {
 
   test("get by index") {
     val arr = makeArray()
-    assertEquals(arr.get(0).orNull.asString().orNull, "first")
-    assertEquals(arr.get(1).orNull.asString().orNull, "second")
-    assertEquals(arr.get(2).orNull.asString().orNull, "third")
+    assertEquals(arr.get(0).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "first")
+    assertEquals(arr.get(1).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "second")
+    assertEquals(arr.get(2).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "third")
   }
 
   test("get last index uses lastChild shortcut") {
     val arr = makeArray()
     // Index == size-1 should use the lastChild optimization
-    assertEquals(arr.get(2).orNull.asString().orNull, "third")
+    assertEquals(arr.get(2).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "third")
   }
 
   test("get out of bounds returns empty") {
@@ -319,7 +319,7 @@ class JsonValueTest extends munit.FunSuite {
 
   test("require by index") {
     val arr = makeArray()
-    assertEquals(arr.require(0).asString().orNull, "first")
+    assertEquals(arr.require(0).asString().getOrElse(fail("expected non-empty")), "first")
   }
 
   test("require by index throws for missing") {
@@ -334,7 +334,7 @@ class JsonValueTest extends munit.FunSuite {
   test("forEach on array nodes") {
     val arr    = makeArray()
     val values = scala.collection.mutable.ListBuffer[String]()
-    arr.foreach(child => values += child.asString().orNull)
+    arr.foreach(child => values += child.asString().getOrElse(fail("expected non-empty")))
     assertEquals(values.toList, List("first", "second", "third"))
   }
 
@@ -342,9 +342,9 @@ class JsonValueTest extends munit.FunSuite {
     val arr = makeArray()
     val it  = arr.iterator
     assert(it.hasNext)
-    assertEquals(it.next().asString().orNull, "first")
-    assertEquals(it.next().asString().orNull, "second")
-    assertEquals(it.next().asString().orNull, "third")
+    assertEquals(it.next().asString().getOrElse(fail("expected non-empty")), "first")
+    assertEquals(it.next().asString().getOrElse(fail("expected non-empty")), "second")
+    assertEquals(it.next().asString().getOrElse(fail("expected non-empty")), "third")
     assert(!it.hasNext)
   }
 
@@ -368,30 +368,30 @@ class JsonValueTest extends munit.FunSuite {
     arr.addChild(new JsonValue(Nullable("a")))
     arr.addChild(new JsonValue(Nullable("b")))
     assertEquals(arr.size, 2)
-    assertEquals(arr.get(0).orNull.asString().orNull, "a")
-    assertEquals(arr.get(1).orNull.asString().orNull, "b")
+    assertEquals(arr.get(0).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "a")
+    assertEquals(arr.get(1).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "b")
   }
 
   test("addChild with name for object") {
     val obj = new JsonValue(JsonValue.ValueType.`object`)
     obj.addChild("key", new JsonValue(Nullable("val")))
     assertEquals(obj.size, 1)
-    assertEquals(obj.get("key").orNull.asString().orNull, "val")
+    assertEquals(obj.get("key").getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "val")
   }
 
   test("addChildFirst adds to beginning") {
     val arr = new JsonValue(JsonValue.ValueType.array)
     arr.addChild(new JsonValue(Nullable("b")))
     arr.addChildFirst(new JsonValue(Nullable("a")))
-    assertEquals(arr.get(0).orNull.asString().orNull, "a")
-    assertEquals(arr.get(1).orNull.asString().orNull, "b")
+    assertEquals(arr.get(0).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "a")
+    assertEquals(arr.get(1).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "b")
   }
 
   test("remove by index") {
     val arr     = makeArray()
     val removed = arr.remove(1)
     assert(removed.isDefined)
-    assertEquals(removed.orNull.asString().orNull, "second")
+    assertEquals(removed.getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "second")
     assertEquals(arr.size, 2)
   }
 
@@ -399,7 +399,7 @@ class JsonValueTest extends munit.FunSuite {
     val obj     = makeObject()
     val removed = obj.remove("b")
     assert(removed.isDefined)
-    assertEquals(removed.orNull.asLong(), 42L)
+    assertEquals(removed.getOrElse(fail("expected non-empty")).asLong(), 42L)
     assertEquals(obj.size, 2)
     assert(!obj.has("b"))
   }
@@ -414,21 +414,21 @@ class JsonValueTest extends munit.FunSuite {
     val obj         = makeObject()
     val replacement = new JsonValue(Nullable("replaced"))
     obj.setChild("a", replacement)
-    assertEquals(obj.get("a").orNull.asString().orNull, "replaced")
+    assertEquals(obj.get("a").getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "replaced")
     assertEquals(obj.size, 3) // size unchanged, replaced in-place
 
     val newChild = new JsonValue(Nullable("new"))
     obj.setChild("d", newChild)
     assertEquals(obj.size, 4)
-    assertEquals(obj.get("d").orNull.asString().orNull, "new")
+    assertEquals(obj.get("d").getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "new")
   }
 
   // ---- Named child getters (with default) ----
 
   test("getString with default") {
     val obj = makeObject()
-    assertEquals(obj.getString("a", Nullable("default")).orNull, "valueA")
-    assertEquals(obj.getString("missing", Nullable("default")).orNull, "default")
+    assertEquals(obj.getString("a", Nullable("default")).getOrElse(fail("expected non-empty")), "valueA")
+    assertEquals(obj.getString("missing", Nullable("default")).getOrElse(fail("expected non-empty")), "default")
   }
 
   test("getInt with default") {
@@ -471,7 +471,7 @@ class JsonValueTest extends munit.FunSuite {
 
   test("getString required") {
     val obj = makeObject()
-    assertEquals(obj.getString("a").orNull, "valueA")
+    assertEquals(obj.getString("a").getOrElse(fail("expected non-empty")), "valueA")
   }
 
   test("getString required throws for missing") {
@@ -502,9 +502,9 @@ class JsonValueTest extends munit.FunSuite {
     nested.name = Nullable("nested")
     root.addChild(nested)
 
-    val result = root.get("nested").orNull.get("key")
+    val result = root.get("nested").getOrElse(fail("expected non-empty")).get("key")
     assert(result.isDefined)
-    assertEquals(result.orNull.asString().orNull, "innerValue")
+    assertEquals(result.getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "innerValue")
   }
 
   test("array of objects") {
@@ -517,7 +517,10 @@ class JsonValueTest extends munit.FunSuite {
       arr.addChild(obj)
     }
     assertEquals(arr.size, 3)
-    assertEquals(arr.get(1).orNull.get("name").orNull.asString().orNull, "item1")
+    assertEquals(
+      arr.get(1).getOrElse(fail("expected non-empty")).get("name").getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")),
+      "item1"
+    )
   }
 
   test("object with array child") {
@@ -531,8 +534,8 @@ class JsonValueTest extends munit.FunSuite {
 
     val items = obj.get("items")
     assert(items.isDefined)
-    assertEquals(items.orNull.size, 3)
-    assertEquals(items.orNull.get(1).orNull.asLong(), 2L)
+    assertEquals(items.getOrElse(fail("expected non-empty")).size, 3)
+    assertEquals(items.getOrElse(fail("expected non-empty")).get(1).getOrElse(fail("expected non-empty")).asLong(), 2L)
   }
 
   // ---- hasChild / getChild ----
@@ -560,7 +563,7 @@ class JsonValueTest extends munit.FunSuite {
 
     val firstChild = obj.getChild("list")
     assert(firstChild.isDefined)
-    assertEquals(firstChild.orNull.asString().orNull, "first")
+    assertEquals(firstChild.getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "first")
     assert(obj.getChild("missing").isEmpty)
   }
 
@@ -583,7 +586,7 @@ class JsonValueTest extends munit.FunSuite {
     val target = new JsonValue(42L)
     target.set(source)
     assert(target.isString)
-    assertEquals(target.asString().orNull, "hello")
+    assertEquals(target.asString().getOrElse(fail("expected non-empty")), "hello")
   }
 
   test("set to null") {
@@ -596,7 +599,7 @@ class JsonValueTest extends munit.FunSuite {
     val jv = new JsonValue(42L)
     jv.set(Nullable("changed"))
     assert(jv.isString)
-    assertEquals(jv.asString().orNull, "changed")
+    assertEquals(jv.asString().getOrElse(fail("expected non-empty")), "changed")
   }
 
   test("set double value") {
@@ -720,11 +723,11 @@ class JsonValueTest extends munit.FunSuite {
 
   test("removeFromParent") {
     val arr    = makeArray()
-    val middle = arr.get(1).orNull
+    val middle = arr.get(1).getOrElse(fail("expected non-empty"))
     middle.removeFromParent()
     assertEquals(arr.size, 2)
-    assertEquals(arr.get(0).orNull.asString().orNull, "first")
-    assertEquals(arr.get(1).orNull.asString().orNull, "third")
+    assertEquals(arr.get(0).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "first")
+    assertEquals(arr.get(1).getOrElse(fail("expected non-empty")).asString().getOrElse(fail("expected non-empty")), "third")
   }
 
   // ---- Array conversion methods ----

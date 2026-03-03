@@ -26,7 +26,7 @@ import sge.Sge
   * @author
   *   Nathan Sweet
   */
-abstract class Viewport(using sge: Sge) {
+abstract class Viewport(using Sge) {
   private var camera:       Camera = scala.compiletime.uninitialized
   private var worldWidth:   Float  = scala.compiletime.uninitialized
   private var worldHeight:  Float  = scala.compiletime.uninitialized
@@ -126,7 +126,7 @@ abstract class Viewport(using sge: Sge) {
     tmp.set(worldCoords.x, worldCoords.y, 0)
     tmp.mul(transformMatrix)
     camera.project(tmp, screenX.toFloat, screenY.toFloat, screenWidth.toFloat, screenHeight.toFloat)
-    tmp.y = sge.graphics.getHeight() - tmp.y
+    tmp.y = Sge().graphics.getHeight() - tmp.y
     worldCoords.set(tmp.x, tmp.y)
     worldCoords
   }
@@ -216,7 +216,7 @@ abstract class Viewport(using sge: Sge) {
 
   /** Returns the right gutter (black bar) width in screen coordinates. */
   def getRightGutterWidth(): Int =
-    sge.graphics.getWidth() - (screenX + screenWidth)
+    Sge().graphics.getWidth() - (screenX + screenWidth)
 
   /** Returns the bottom gutter (black bar) height in screen coordinates. */
   def getBottomGutterHeight(): Int =
@@ -228,5 +228,5 @@ abstract class Viewport(using sge: Sge) {
 
   /** Returns the top gutter (black bar) height in screen coordinates. */
   def getTopGutterHeight(): Int =
-    sge.graphics.getHeight() - (screenY + screenHeight)
+    Sge().graphics.getHeight() - (screenY + screenHeight)
 }

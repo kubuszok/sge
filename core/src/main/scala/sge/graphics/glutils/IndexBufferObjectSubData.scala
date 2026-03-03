@@ -16,6 +16,7 @@ import sge.Sge
 import sge.graphics.GL20
 import sge.utils.BufferUtils
 import sge.utils.SgeError
+import scala.annotation.nowarn
 import scala.compiletime.uninitialized
 
 /** <p> IndexBufferObject wraps OpenGL's index buffer functionality to be used in conjunction with VBOs. </p>
@@ -32,10 +33,11 @@ class IndexBufferObjectSubData(isStatic: Boolean, maxIndices: Int)(using sde: Sg
   private var buffer:       ShortBuffer = uninitialized
   private var byteBuffer:   ByteBuffer  = uninitialized
   private var bufferHandle: Int         = uninitialized
-  private var isDirect:     Boolean     = uninitialized
-  private var isDirty:      Boolean     = true
-  private var isBound:      Boolean     = false
-  private var usage:        Int         = uninitialized
+  @nowarn("msg=not read") // set in constructor, will be read when buffer operations implemented
+  private var isDirect: Boolean = uninitialized
+  private var isDirty:  Boolean = true
+  private var isBound:  Boolean = false
+  private var usage:    Int     = uninitialized
 
   byteBuffer = BufferUtils.newByteBuffer(maxIndices * 2)
   isDirect = true
@@ -51,9 +53,8 @@ class IndexBufferObjectSubData(isStatic: Boolean, maxIndices: Int)(using sde: Sg
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) = {
+  def this(maxIndices: Int)(using sde: Sge) =
     this(true, maxIndices)
-  }
 
   private def createBufferObject(): Int = {
     val result = sde.graphics.gl20.glGenBuffer()

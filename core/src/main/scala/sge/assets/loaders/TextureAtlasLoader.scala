@@ -21,7 +21,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * @author
   *   mzechner (original implementation)
   */
-class TextureAtlasLoader(resolver: FileHandleResolver)(using sge: Sge) extends SynchronousAssetLoader[TextureAtlas, TextureAtlasLoader.TextureAtlasParameter](resolver) {
+class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends SynchronousAssetLoader[TextureAtlas, TextureAtlasLoader.TextureAtlasParameter](resolver) {
 
   private var data: Nullable[TextureAtlasData] = Nullable.empty
 

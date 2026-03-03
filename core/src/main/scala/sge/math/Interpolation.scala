@@ -13,7 +13,7 @@ package math
   * @author
   *   Nathan Sweet (original implementation)
   */
-abstract class Interpolation {
+trait Interpolation {
 
   /** @param a Alpha value between 0 and 1. */
   def apply(a: Float): Float
@@ -24,27 +24,19 @@ abstract class Interpolation {
 }
 
 object Interpolation {
-  val linear: Interpolation = new Interpolation {
-    def apply(a: Float): Float = a
-  }
+  val linear: Interpolation = (a: Float) => a
 
   /** Aka "smoothstep". */
-  val smooth: Interpolation = new Interpolation {
-    def apply(a: Float): Float = a * a * (3 - 2 * a)
-  }
+  val smooth: Interpolation = (a: Float) => a * a * (3 - 2 * a)
 
-  val smooth2: Interpolation = new Interpolation {
-    def apply(a: Float): Float = {
-      val smoothed = a * a * (3 - 2 * a)
-      smoothed * smoothed * (3 - 2 * smoothed)
-    }
+  val smooth2: Interpolation = (a: Float) => {
+    val smoothed = a * a * (3 - 2 * a)
+    smoothed * smoothed * (3 - 2 * smoothed)
   }
 
   /** By Ken Perlin. */
-  val smoother: Interpolation = new Interpolation {
-    def apply(a: Float): Float = a * a * a * (a * (a * 6 - 15) + 10)
-  }
-  val fade: Interpolation = smoother
+  val smoother: Interpolation = (a: Float) => a * a * a * (a * (a * 6 - 15) + 10)
+  val fade:     Interpolation = smoother
 
   val pow2 = new Pow(2)
 
@@ -55,27 +47,19 @@ object Interpolation {
   /** Fast, then slow. */
   val pow2Out = new PowOut(2)
   val fastSlow:      Interpolation = pow2Out
-  val pow2InInverse: Interpolation = new Interpolation {
-    def apply(a: Float): Float =
-      if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f
-      else Math.sqrt(a).toFloat
-  }
-  val pow2OutInverse: Interpolation = new Interpolation {
-    def apply(a: Float): Float =
-      if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f
-      else if (a > 1) 1f
-      else 1 - Math.sqrt(-(a - 1)).toFloat
-  }
+  val pow2InInverse: Interpolation = (a: Float) =>
+    if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f
+    else Math.sqrt(a).toFloat
+  val pow2OutInverse: Interpolation = (a: Float) =>
+    if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f
+    else if (a > 1) 1f
+    else 1 - Math.sqrt(-(a - 1)).toFloat
 
   val pow3    = new Pow(3)
   val pow3In  = new PowIn(3)
   val pow3Out = new PowOut(3)
-  val pow3InInverse: Interpolation = new Interpolation {
-    def apply(a: Float): Float = Math.cbrt(a).toFloat
-  }
-  val pow3OutInverse: Interpolation = new Interpolation {
-    def apply(a: Float): Float = 1 - Math.cbrt(-(a - 1)).toFloat
-  }
+  val pow3InInverse:  Interpolation = (a: Float) => Math.cbrt(a).toFloat
+  val pow3OutInverse: Interpolation = (a: Float) => 1 - Math.cbrt(-(a - 1)).toFloat
 
   val pow4    = new Pow(4)
   val pow4In  = new PowIn(4)
@@ -85,17 +69,11 @@ object Interpolation {
   val pow5In  = new PowIn(5)
   val pow5Out = new PowOut(5)
 
-  val sine: Interpolation = new Interpolation {
-    def apply(a: Float): Float = (1 - MathUtils.cos(a * MathUtils.PI)) / 2
-  }
+  val sine: Interpolation = (a: Float) => (1 - MathUtils.cos(a * MathUtils.PI)) / 2
 
-  val sineIn: Interpolation = new Interpolation {
-    def apply(a: Float): Float = 1 - MathUtils.cos(a * MathUtils.HALF_PI)
-  }
+  val sineIn: Interpolation = (a: Float) => 1 - MathUtils.cos(a * MathUtils.HALF_PI)
 
-  val sineOut: Interpolation = new Interpolation {
-    def apply(a: Float): Float = MathUtils.sin(a * MathUtils.HALF_PI)
-  }
+  val sineOut: Interpolation = (a: Float) => MathUtils.sin(a * MathUtils.HALF_PI)
 
   val exp10    = new Exp(2, 10)
   val exp10In  = new ExpIn(2, 10)
@@ -105,26 +83,20 @@ object Interpolation {
   val exp5In  = new ExpIn(2, 5)
   val exp5Out = new ExpOut(2, 5)
 
-  val circle: Interpolation = new Interpolation {
-    def apply(a: Float): Float =
-      if (a <= 0.5f) {
-        val a2 = a * 2
-        (1 - Math.sqrt(1 - a2 * a2).toFloat) / 2
-      } else {
-        val a2 = (a - 1) * 2
-        (Math.sqrt(1 - a2 * a2).toFloat + 1) / 2
-      }
-  }
-
-  val circleIn: Interpolation = new Interpolation {
-    def apply(a: Float): Float = 1 - Math.sqrt(1 - a * a).toFloat
-  }
-
-  val circleOut: Interpolation = new Interpolation {
-    def apply(a: Float): Float = {
-      val a2 = a - 1
-      Math.sqrt(1 - a2 * a2).toFloat
+  val circle: Interpolation = (a: Float) =>
+    if (a <= 0.5f) {
+      val a2 = a * 2
+      (1 - Math.sqrt(1 - a2 * a2).toFloat) / 2
+    } else {
+      val a2 = (a - 1) * 2
+      (Math.sqrt(1 - a2 * a2).toFloat + 1) / 2
     }
+
+  val circleIn: Interpolation = (a: Float) => 1 - Math.sqrt(1 - a * a).toFloat
+
+  val circleOut: Interpolation = (a: Float) => {
+    val a2 = a - 1
+    Math.sqrt(1 - a2 * a2).toFloat
   }
 
   val elastic    = new Elastic(2, 10, 7, 1)

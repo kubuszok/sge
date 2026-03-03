@@ -16,11 +16,10 @@ import sge.files.FileHandle
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
 import sge.maps.objects._
-import sge.maps.tiled.TiledMapTileLayer.Cell
 import sge.maps.tiled.objects.TiledMapTileMapObject
 import sge.maps.tiled.tiles.{ AnimatedTiledMapTile, StaticTiledMapTile }
 import sge.math.{ Polygon, Polyline }
-import sge.utils.{ DynamicArray, JsonValue, Nullable, ObjectMap, ObjectSet, StreamUtils, XmlReader }
+import sge.utils.{ DynamicArray, Nullable, ObjectMap, ObjectSet, StreamUtils, XmlReader }
 
 import java.io.{ BufferedInputStream, ByteArrayInputStream, IOException, InputStream }
 import java.util.zip.{ GZIPInputStream, InflaterInputStream }
@@ -69,16 +68,16 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     this.templateCache = ObjectMap[String, XmlReader.Element]()
 
     val param = Nullable(parameter)
-    if (param.isDefined) {
-      this.convertObjectToTileSpace = param.orNull.convertObjectToTileSpace
-      this.flipY = param.orNull.flipY
-      loadProjectFile(param.orNull.projectFilePath)
-    } else {
+    param.fold {
       this.convertObjectToTileSpace = false
       this.flipY = true
+    } { p =>
+      this.convertObjectToTileSpace = p.convertObjectToTileSpace
+      this.flipY = p.flipY
+      loadProjectFile(p.projectFilePath)
     }
 
-    val r                  = root.orNull
+    val r                  = root.getOrElse(throw new IllegalStateException("root not initialized"))
     val mapOrientation     = r.getAttribute("orientation", Nullable.empty)
     val mapWidth           = r.getIntAttribute("width", 0)
     val mapHeight          = r.getIntAttribute("height", 0)
@@ -114,9 +113,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
     val properties = r.getChildByName("properties")
-    if (properties.isDefined) {
-      loadProperties(map.getProperties, properties.orNull)
-    }
+    properties.foreach(p => loadProperties(map.getProperties, p))
 
     val tilesets = r.getChildrenByName("tileset")
     var ti       = 0
@@ -186,9 +183,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       loadBasicLayerInfo(groupLayer, element)
 
       val properties = element.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(groupLayer.getProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(groupLayer.getProperties, p))
 
       var i = 0
       val j = element.getChildCount
@@ -237,9 +232,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       }
 
       val properties = element.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(layer.getProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(layer.getProperties, p))
       parentLayers.add(layer)
     }
 
@@ -253,9 +246,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val layer = new MapLayer()
       loadBasicLayerInfo(layer, element)
       val properties = element.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(layer.getProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(layer.getProperties, p))
 
       val objectElements = element.getChildrenByName("object")
       var oi             = 0
@@ -282,13 +273,13 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var x: Float = 0
       var y: Float = 0
       if (element.hasAttribute("offsetx"))
-        x = java.lang.Float.parseFloat(element.getAttribute("offsetx", Nullable("0")).orNull)
+        x = java.lang.Float.parseFloat(element.getAttribute("offsetx", Nullable("0")).getOrElse("0"))
       else
-        x = java.lang.Float.parseFloat(element.getAttribute("x", Nullable("0")).orNull)
+        x = java.lang.Float.parseFloat(element.getAttribute("x", Nullable("0")).getOrElse("0"))
       if (element.hasAttribute("offsety"))
-        y = java.lang.Float.parseFloat(element.getAttribute("offsety", Nullable("0")).orNull)
+        y = java.lang.Float.parseFloat(element.getAttribute("offsety", Nullable("0")).getOrElse("0"))
       else
-        y = java.lang.Float.parseFloat(element.getAttribute("y", Nullable("0")).orNull)
+        y = java.lang.Float.parseFloat(element.getAttribute("y", Nullable("0")).getOrElse("0"))
       if (flipY) y = mapHeightInPixels - y
 
       val repeatX = element.getIntAttribute("repeatx", 0) == 1
@@ -298,29 +289,29 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
       val image = element.getChildByName("image")
 
-      if (image.isDefined) {
-        val source = image.orNull.getAttribute("source")
+      image.foreach { img =>
+        val source = img.getAttribute("source")
         val handle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source)
         texture = imageResolver.getImage(handle.path())
         texture.foreach(t => y -= t.getRegionHeight())
       }
 
-      val layer = new TiledMapImageLayer(texture.orNull, x, y, repeatX, repeatY)
+      @annotation.nowarn("msg=deprecated") // TiledMapImageLayer takes TextureRegion, not Nullable -- null is valid per original LibGDX API
+      val textureValue: TextureRegion = texture.orNull
+      val layer = new TiledMapImageLayer(textureValue, x, y, repeatX, repeatY)
 
       loadBasicLayerInfo(layer, element)
 
       val properties = element.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(layer.getProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(layer.getProperties, p))
 
       parentLayers.add(layer)
     }
 
   protected def loadBasicLayerInfo(layer: MapLayer, element: XmlReader.Element): Unit = {
-    val name      = element.getAttribute("name", Nullable.empty).orNull
-    val opacity   = java.lang.Float.parseFloat(element.getAttribute("opacity", Nullable("1.0")).orNull)
-    val tintColor = element.getAttribute("tintcolor", Nullable("#ffffffff")).orNull
+    val name      = element.getAttribute("name", Nullable.empty).getOrElse("")
+    val opacity   = java.lang.Float.parseFloat(element.getAttribute("opacity", Nullable("1.0")).getOrElse("1.0"))
+    val tintColor = element.getAttribute("tintcolor", Nullable("#ffffffff")).getOrElse("#ffffffff")
     val visible   = element.getIntAttribute("visible", 1) == 1
     val offsetX   = element.getFloatAttribute("offsetx", 0)
     val offsetY   = element.getFloatAttribute("offsety", 0)
@@ -369,22 +360,8 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         var child: Nullable[XmlReader.Element] = Nullable.empty
         child = element.getChildByName("polygon")
         if (child.isDefined) {
-          val points   = child.orNull.getAttribute("points").split(" ")
-          val vertices = new Array[Float](points.length * 2)
-          var i        = 0
-          while (i < points.length) {
-            val point = points(i).split(",")
-            vertices(i * 2) = java.lang.Float.parseFloat(point(0)) * scaleX
-            vertices(i * 2 + 1) = java.lang.Float.parseFloat(point(1)) * scaleY * (if (flipY) -1 else 1)
-            i += 1
-          }
-          val polygon = new Polygon(vertices)
-          polygon.setPosition(x, y)
-          obj = Nullable(new PolygonMapObject(polygon))
-        } else {
-          child = element.getChildByName("polyline")
-          if (child.isDefined) {
-            val points   = child.orNull.getAttribute("points").split(" ")
+          child.foreach { c =>
+            val points   = c.getAttribute("points").split(" ")
             val vertices = new Array[Float](points.length * 2)
             var i        = 0
             while (i < points.length) {
@@ -393,9 +370,27 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
               vertices(i * 2 + 1) = java.lang.Float.parseFloat(point(1)) * scaleY * (if (flipY) -1 else 1)
               i += 1
             }
-            val polyline = new Polyline(vertices)
-            polyline.setPosition(x, y)
-            obj = Nullable(new PolylineMapObject(polyline))
+            val polygon = new Polygon(vertices)
+            polygon.setPosition(x, y)
+            obj = Nullable(new PolygonMapObject(polygon))
+          }
+        } else {
+          child = element.getChildByName("polyline")
+          if (child.isDefined) {
+            child.foreach { c =>
+              val points   = c.getAttribute("points").split(" ")
+              val vertices = new Array[Float](points.length * 2)
+              var i        = 0
+              while (i < points.length) {
+                val point = points(i).split(",")
+                vertices(i * 2) = java.lang.Float.parseFloat(point(0)) * scaleX
+                vertices(i * 2 + 1) = java.lang.Float.parseFloat(point(1)) * scaleY * (if (flipY) -1 else 1)
+                i += 1
+              }
+              val polyline = new Polyline(vertices)
+              polyline.setPosition(x, y)
+              obj = Nullable(new PolylineMapObject(polyline))
+            }
           } else {
             child = element.getChildByName("ellipse")
             if (child.isDefined) {
@@ -406,14 +401,13 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
                 obj = Nullable(new PointMapObject(x, if (flipY) y - height else y))
               } else {
                 child = element.getChildByName("text")
-                if (child.isDefined) {
-                  val textChild     = child.orNull
+                child.foreach { textChild =>
                   val textMapObject =
-                    new TextMapObject(x, if (flipY) y - height else y, width, height, textChild.getText.orNull)
-                  textMapObject.setFontFamily(textChild.getAttribute("fontfamily", Nullable("")).orNull)
+                    new TextMapObject(x, if (flipY) y - height else y, width, height, textChild.getText.getOrElse(""))
+                  textMapObject.setFontFamily(textChild.getAttribute("fontfamily", Nullable("")).getOrElse(""))
                   textMapObject.setPixelSize(textChild.getIntAttribute("pixelSize", 16))
-                  textMapObject.setHorizontalAlign(textChild.getAttribute("halign", Nullable("left")).orNull)
-                  textMapObject.setVerticalAlign(textChild.getAttribute("valign", Nullable("top")).orNull)
+                  textMapObject.setHorizontalAlign(textChild.getAttribute("halign", Nullable("left")).getOrElse("left"))
+                  textMapObject.setVerticalAlign(textChild.getAttribute("valign", Nullable("top")).getOrElse("top"))
                   textMapObject.setBold(textChild.getIntAttribute("bold", 0) == 1)
                   textMapObject.setItalic(textChild.getIntAttribute("italic", 0) == 1)
                   textMapObject.setUnderline(textChild.getIntAttribute("underline", 0) == 1)
@@ -422,7 +416,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
                   // When kerning is true, it won't be added as an attribute, it's true by default
                   textMapObject.setKerning(textChild.getIntAttribute("kerning", 1) == 1)
                   // Default color is #000000, not added as attribute
-                  val textColor = textChild.getAttribute("color", Nullable("#000000")).orNull
+                  val textColor = textChild.getAttribute("color", Nullable("#000000")).getOrElse("#000000")
                   textMapObject.setColor(Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(textColor)))
                   obj = Nullable(textMapObject)
                 }
@@ -433,22 +427,22 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       }
       if (obj.isEmpty) {
         val gid = element.getAttribute("gid", Nullable.empty)
-        if (gid.isDefined) {
-          val id               = java.lang.Long.parseLong(gid.orNull).toInt
+        gid.foreach { g =>
+          val id               = java.lang.Long.parseLong(g).toInt
           val flipHorizontally = (id & BaseTiledMapLoader.FLAG_FLIP_HORIZONTALLY) != 0
           val flipVertically   = (id & BaseTiledMapLoader.FLAG_FLIP_VERTICALLY) != 0
 
           val tile = map.getTileSets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
           tile.foreach { t =>
             val tiledMapTileMapObject = new TiledMapTileMapObject(t, flipHorizontally, flipVertically)
-            val textureRegion         = tiledMapTileMapObject.getTextureRegion
+            val texRegion             = tiledMapTileMapObject.getTextureRegion.getOrElse(throw new IllegalStateException("tile missing texture region"))
             tiledMapTileMapObject.getProperties.put("gid", id: java.lang.Integer)
             tiledMapTileMapObject.setX(x)
             tiledMapTileMapObject.setY(if (flipY) y else y - height)
-            val objectWidth  = element.getFloatAttribute("width", textureRegion.orNull.getRegionWidth().toFloat)
-            val objectHeight = element.getFloatAttribute("height", textureRegion.orNull.getRegionHeight().toFloat)
-            tiledMapTileMapObject.setScaleX(scaleX * (objectWidth / textureRegion.orNull.getRegionWidth()))
-            tiledMapTileMapObject.setScaleY(scaleY * (objectHeight / textureRegion.orNull.getRegionHeight()))
+            val objectWidth  = element.getFloatAttribute("width", texRegion.getRegionWidth().toFloat)
+            val objectHeight = element.getFloatAttribute("height", texRegion.getRegionHeight().toFloat)
+            tiledMapTileMapObject.setScaleX(scaleX * (objectWidth / texRegion.getRegionWidth()))
+            tiledMapTileMapObject.setScaleY(scaleY * (objectHeight / texRegion.getRegionHeight()))
             tiledMapTileMapObject.setRotation(element.getFloatAttribute("rotation", 0))
             obj = Nullable(tiledMapTileMapObject)
           }
@@ -457,11 +451,11 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           obj = Nullable(new RectangleMapObject(x, if (flipY) y - height else y, width, height))
         }
       }
-      val theObj = obj.orNull
-      theObj.setName(element.getAttribute("name", Nullable.empty).orNull)
+      val theObj = obj.getOrElse(throw new IllegalStateException("object could not be created"))
+      theObj.setName(element.getAttribute("name", Nullable.empty).getOrElse(""))
       val rotation = element.getAttribute("rotation", Nullable.empty)
-      if (rotation.isDefined) {
-        theObj.getProperties.put("rotation", java.lang.Float.parseFloat(rotation.orNull): java.lang.Float)
+      rotation.foreach { r =>
+        theObj.getProperties.put("rotation", java.lang.Float.parseFloat(r): java.lang.Float)
       }
       val objType = element.getAttribute("type", Nullable.empty)
       objType.foreach(t => theObj.getProperties.put("type", t))
@@ -479,9 +473,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       theObj.getProperties.put("height", height: java.lang.Float)
       theObj.setVisible(element.getIntAttribute("visible", 1) == 1)
       val properties = element.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(theObj.getProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(theObj.getProperties, p))
 
       // if there is a 'type' (=class) specified, then check if there are any other
       // class properties available and put their default values into the properties.
@@ -520,9 +512,10 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       templateElement = Nullable(parsed)
     }
     // Get the root object from the template file
-    val templateObjectElement = templateElement.orNull.getChildByName("object")
+    val te                    = templateElement.getOrElse(throw new IllegalStateException("template element not found"))
+    val templateObjectElement = te.getChildByName("object")
     // Merge the parent map element with its template element
-    mergeParentElementWithTemplate(mapElement, templateObjectElement.orNull)
+    mergeParentElementWithTemplate(mapElement, templateObjectElement.getOrElse(throw new IllegalStateException("template object element not found")))
   }
 
   /** Returns a shallow copy of the source element we pass in. */
@@ -531,8 +524,8 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val copyElement = new XmlReader.Element(sourceElement.name, Nullable.empty)
     // Get list of attributes from the source element
     val attrs = sourceElement.getAttributes
-    if (attrs.isDefined) {
-      attrs.orNull.foreachEntry { (key, value) =>
+    attrs.foreach { a =>
+      a.foreachEntry { (key, value) =>
         copyElement.setAttribute(key, value)
       }
     }
@@ -544,22 +537,24 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   /** Merges two <properties> tags from a parent and template. Matching properties from the parent will override the template's.
     */
   protected def mergeProperties(
-    parentProps:   XmlReader.Element,
-    templateProps: XmlReader.Element
+    parentProps:   Nullable[XmlReader.Element],
+    templateProps: Nullable[XmlReader.Element]
   ): XmlReader.Element = boundary {
-    if (Nullable(templateProps).isEmpty) break(parentProps)
-    if (Nullable(parentProps).isEmpty) break(templateProps)
+    if (templateProps.isEmpty) break(parentProps.getOrElse(throw new IllegalStateException("both properties absent")))
+    if (parentProps.isEmpty) break(templateProps.getOrElse(throw new IllegalStateException("both properties absent")))
+    val tProps = templateProps.getOrElse(throw new IllegalStateException("unreachable"))
+    val pProps = parentProps.getOrElse(throw new IllegalStateException("unreachable"))
     // Create a new merged properties element which will contain a combination of parent and template properties.
     val merged = new XmlReader.Element("properties", Nullable.empty)
     // Set properties from template
-    val templateProperties = templateProps.getChildrenByName("property")
+    val templateProperties = tProps.getChildrenByName("property")
     var ti                 = 0
     while (ti < templateProperties.size) {
       merged.addChild(cloneElementShallow(templateProperties(ti)))
       ti += 1
     }
     // Set properties from the parent, matching ones from template will be overridden
-    val parentProperties = parentProps.getChildrenByName("property")
+    val parentProperties = pProps.getChildrenByName("property")
     var pi               = 0
     while (pi < parentProperties.size) {
       val property = parentProperties(pi)
@@ -569,7 +564,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var i = 0
       while (i < merged.getChildCount) {
         val child = merged.getChild(i)
-        if ("property" == child.name && name.isDefined && name.orNull == child.getAttribute("name", Nullable.empty).orNull) {
+        if ("property" == child.name && name.isDefined && name.getOrElse("") == child.getAttribute("name", Nullable.empty).getOrElse("")) {
           existing = Nullable(child)
         }
         i += 1
@@ -584,31 +579,42 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   /** Recursively merges a "parent" (map) object element with its referenced template object element. Attributes and properties found in the template are allowed to be overwritten by any matching ones
     * found in its parent element. The returned element is a new detached tree (parent = null) so it can be handed straight to the loadObject() method without issues.
     */
+  /** Nullable-accepting variant for recursive merging where either child may be absent. */
+  private def mergeNullableElements(
+    parent:   Nullable[XmlReader.Element],
+    template: Nullable[XmlReader.Element]
+  ): XmlReader.Element =
+    if (template.isEmpty) parent.getOrElse(throw new IllegalStateException("both elements absent"))
+    else if (parent.isEmpty) template.getOrElse(throw new IllegalStateException("both elements absent"))
+    else
+      mergeParentElementWithTemplate(
+        parent.getOrElse(throw new IllegalStateException("unreachable")),
+        template.getOrElse(throw new IllegalStateException("unreachable"))
+      )
+
   protected def mergeParentElementWithTemplate(
     parent:   XmlReader.Element,
     template: XmlReader.Element
-  ): XmlReader.Element = boundary {
-    if (Nullable(template).isEmpty) break(parent)
-    if (Nullable(parent).isEmpty) break(template)
+  ): XmlReader.Element = {
     // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
     val merged = new XmlReader.Element(template.name, Nullable.empty)
     // Set attributes from template
     val templateAttrs = template.getAttributes
-    if (templateAttrs.isDefined) {
-      templateAttrs.orNull.foreachEntry { (k, v) =>
+    templateAttrs.foreach { ta =>
+      ta.foreachEntry { (k, v) =>
         merged.setAttribute(k, v)
       }
     }
     // Set attributes from the parent, matching ones from template will be overridden
     val parentAttrs = parent.getAttributes
-    if (parentAttrs.isDefined) {
-      parentAttrs.orNull.foreachEntry { (k, v) =>
+    parentAttrs.foreach { pa =>
+      pa.foreachEntry { (k, v) =>
         merged.setAttribute(k, v)
       }
     }
     // Specifically added for TextMapObjects since they are unique compared to other objects.
     val txt =
-      if (parent.getText.isDefined && parent.getText.orNull.length > 0) parent.getText else template.getText
+      if (parent.getText.isDefined && parent.getText.getOrElse("").length > 0) parent.getText else template.getText
     if (txt.isDefined) {
       merged.setText(txt)
     }
@@ -632,8 +638,8 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
       /** Look for properties tags so we can merge those as well. Recursive check if properties is not found. */
       val mergedChild =
-        if ("properties" == tag) mergeProperties(mapChild.orNull, tmplChild.orNull)
-        else mergeParentElementWithTemplate(mapChild.orNull, tmplChild.orNull)
+        if ("properties" == tag) mergeProperties(mapChild, tmplChild)
+        else mergeNullableElements(mapChild, tmplChild)
       merged.addChild(mergedChild)
     }
     merged
@@ -647,12 +653,12 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var pi               = 0
       while (pi < propertyElements.size) {
         val property = propertyElements(pi)
-        val name     = property.getAttribute("name", Nullable.empty).orNull
-        var value    = getPropertyValue(property)
+        val name     = property.getAttribute("name", Nullable.empty).getOrElse("")
+        val value    = getPropertyValue(property)
         val propType = property.getAttribute("type", Nullable.empty)
-        if (propType.isDefined && "object" == propType.orNull) {
+        if (propType.fold(false)(_ == "object")) {
           loadObjectProperty(properties, name, value)
-        } else if (propType.isDefined && "class" == propType.orNull) {
+        } else if (propType.fold(false)(_ == "class")) {
           // A 'class' property is a property which is itself a set of properties
           val classProperties = new MapProperties()
           val className       = property.getAttribute("propertytype")
@@ -660,7 +666,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           // the actual properties of a 'class' property are stored as a new properties tag
           properties.put(name, classProperties)
           val classPropsElement = property.getChildByName("properties")
-          loadClassProperties(className, classProperties, classPropsElement.orNull)
+          loadClassProperties(className, classProperties, classPropsElement)
         } else {
           loadBasicProperty(properties, name, value, propType)
         }
@@ -672,40 +678,40 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   protected def loadClassProperties(
     className:       String,
     classProperties: MapProperties,
-    classElement:    XmlReader.Element
+    classElement:    Nullable[XmlReader.Element]
   ): Unit = {
-    if (projectClassInfo.isEmpty) {
+    val pci = projectClassInfo.getOrElse(
       throw new IllegalStateException(
         "No class information loaded to support class properties. Did you set the 'projectFilePath' parameter?"
       )
-    }
-    if (projectClassInfo.orNull.isEmpty) {
+    )
+    if (pci.isEmpty) {
       throw new IllegalStateException(
         "No class information available. Did you set the correct Tiled project path in the 'projectFilePath' parameter?"
       )
     }
-    val projectClassMembers = projectClassInfo.orNull.get(className)
-    if (projectClassMembers.isEmpty) {
-      throw new IllegalStateException(
-        "There is no class with name '" + className + "' in given Tiled project file."
+    val members = pci
+      .get(className)
+      .getOrElse(
+        throw new IllegalStateException(
+          "There is no class with name '" + className + "' in given Tiled project file."
+        )
       )
-    }
 
-    for (projectClassMember <- projectClassMembers.orNull) {
+    for (projectClassMember <- members) {
       val propName = projectClassMember.name
       val classProp: Nullable[XmlReader.Element] =
-        if (Nullable(classElement).isEmpty) Nullable.empty
-        else Nullable(getPropertyByName(classElement, propName))
+        classElement.flatMap(ce => Nullable(getPropertyByName(ce, propName)))
       projectClassMember.`type` match {
         case "object" =>
           val value =
-            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).orNull
-            else getPropertyValue(classProp.orNull)
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).getOrElse("")
+            else getPropertyValue(classProp.getOrElse(throw new IllegalStateException("unreachable")))
           loadObjectProperty(classProperties, propName, value)
         case "class" =>
           // A 'class' property is a property which is itself a set of properties
           val nestedClassProperties = new MapProperties()
-          val nestedClassName       = projectClassMember.propertyType.orNull
+          val nestedClassName       = projectClassMember.propertyType.getOrElse("")
           nestedClassProperties.put("type", nestedClassName)
           // the actual properties of a 'class' property are stored as a new properties tag
           classProperties.put(propName, nestedClassProperties)
@@ -713,12 +719,12 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
             // no class values overridden -> use default class values
             loadJsonClassProperties(nestedClassName, nestedClassProperties, projectClassMember.defaultValue)
           } else {
-            loadClassProperties(nestedClassName, nestedClassProperties, classProp.orNull)
+            loadClassProperties(nestedClassName, nestedClassProperties, classProp)
           }
         case _ =>
           val value =
-            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).orNull
-            else getPropertyValue(classProp.orNull)
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).getOrElse("")
+            else getPropertyValue(classProp.getOrElse(throw new IllegalStateException("unreachable")))
           loadBasicProperty(classProperties, propName, value, Nullable(projectClassMember.`type`))
       }
     }
@@ -726,7 +732,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   private def getPropertyValue(classProp: XmlReader.Element): String = {
     val attrValue = classProp.getAttribute("value", Nullable.empty)
-    if (attrValue.isDefined) attrValue.orNull else classProp.getText.orNull
+    attrValue.getOrElse(classProp.getText.getOrElse(""))
   }
 
   protected def getPropertyByName(classElement: XmlReader.Element, propName: String): XmlReader.Element = boundary {
@@ -755,31 +761,32 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var image: FileHandle = null // scalastyle:ignore
 
       val source = el.getAttribute("source", Nullable.empty)
-      if (source.isDefined) {
-        val tsx = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source.orNull)
+      source.foreach { s =>
+        val tsx = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, s)
         try {
           el = xml.parse(tsx)
           val imageElement = el.getChildByName("image")
-          if (imageElement.isDefined) {
-            imageSource = imageElement.orNull.getAttribute("source")
-            imageWidth = imageElement.orNull.getIntAttribute("width", 0)
-            imageHeight = imageElement.orNull.getIntAttribute("height", 0)
+          imageElement.foreach { ie =>
+            imageSource = ie.getAttribute("source")
+            imageWidth = ie.getIntAttribute("width", 0)
+            imageHeight = ie.getIntAttribute("height", 0)
             image = BaseTiledMapLoader.getRelativeFileHandle(tsx, imageSource)
           }
         } catch {
           case e: Exception =>
             throw new IllegalArgumentException("Error parsing external tileset.", e)
         }
-      } else {
+      }
+      if (source.isEmpty) {
         val imageElement = el.getChildByName("image")
-        if (imageElement.isDefined) {
-          imageSource = imageElement.orNull.getAttribute("source")
-          imageWidth = imageElement.orNull.getIntAttribute("width", 0)
-          imageHeight = imageElement.orNull.getIntAttribute("height", 0)
+        imageElement.foreach { ie =>
+          imageSource = ie.getAttribute("source")
+          imageWidth = ie.getIntAttribute("width", 0)
+          imageHeight = ie.getIntAttribute("height", 0)
           image = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, imageSource)
         }
       }
-      val name       = el.get("name", Nullable.empty).orNull
+      val name       = el.get("name", Nullable.empty).getOrElse("")
       val tilewidth  = el.getIntAttribute("tilewidth", 0)
       val tileheight = el.getIntAttribute("tileheight", 0)
       val spacing    = el.getIntAttribute("spacing", 0)
@@ -788,9 +795,9 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val offset  = el.getChildByName("tileoffset")
       var offsetX = 0
       var offsetY = 0
-      if (offset.isDefined) {
-        offsetX = offset.orNull.getIntAttribute("x", 0)
-        offsetY = offset.orNull.getIntAttribute("y", 0)
+      offset.foreach { o =>
+        offsetX = o.getIntAttribute("x", 0)
+        offsetY = o.getIntAttribute("y", 0)
       }
       val tileSet = new TiledMapTileSet()
 
@@ -798,9 +805,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       tileSet.setName(name)
       val tileSetProperties = tileSet.getProperties
       val properties        = el.getChildByName("properties")
-      if (properties.isDefined) {
-        loadProperties(tileSetProperties, properties.orNull)
-      }
+      properties.foreach(p => loadProperties(tileSetProperties, p))
       tileSetProperties.put("firstgid", firstgid: java.lang.Integer)
 
       // Tiles
@@ -818,7 +823,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         tileheight,
         spacing,
         margin,
-        source.orNull,
+        source.getOrElse(""),
         offsetX,
         offsetY,
         imageSource,
@@ -881,19 +886,13 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   protected def addTileProperties(tile: TiledMapTile, tileElement: XmlReader.Element): Unit = {
     val terrain        = tileElement.getAttribute("terrain", Nullable.empty)
     val tileProperties = tile.getProperties
-    if (terrain.isDefined) {
-      tileProperties.put("terrain", terrain.orNull)
-    }
+    terrain.foreach(t => tileProperties.put("terrain", t))
     val probability = tileElement.getAttribute("probability", Nullable.empty)
-    if (probability.isDefined) {
-      tileProperties.put("probability", probability.orNull)
-    }
+    probability.foreach(p => tileProperties.put("probability", p))
     val tileType = tileElement.getAttribute("type", Nullable.empty)
     tileType.foreach(t => tileProperties.put("type", t))
     val properties = tileElement.getChildByName("properties")
-    if (properties.isDefined) {
-      loadProperties(tileProperties, properties.orNull)
-    }
+    properties.foreach(p => loadProperties(tileProperties, p))
 
     // if there is a 'type' (=class) specified, then check if there are any other
     // class properties available and put their default values into the properties.
@@ -902,8 +901,8 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   protected def addTileObjectGroup(tile: TiledMapTile, tileElement: XmlReader.Element): Unit = {
     val objectgroupElement = tileElement.getChildByName("objectgroup")
-    if (objectgroupElement.isDefined) {
-      val objectElements = objectgroupElement.orNull.getChildrenByName("object")
+    objectgroupElement.foreach { og =>
+      val objectElements = og.getChildrenByName("object")
       var oi             = 0
       while (oi < objectElements.size) {
         loadObject(map, tile, objectElements(oi))
@@ -919,23 +918,23 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     firstgid:    Int
   ): Nullable[AnimatedTiledMapTile] = {
     val animationElement = tileElement.getChildByName("animation")
-    if (animationElement.isDefined) {
+    animationElement.map { ae =>
       val staticTiles   = DynamicArray[StaticTiledMapTile]()
       val intervals     = DynamicArray[Int]()
-      val frameElements = animationElement.orNull.getChildrenByName("frame")
+      val frameElements = ae.getChildrenByName("frame")
       var fi            = 0
       while (fi < frameElements.size) {
         val frameElement = frameElements(fi)
-        staticTiles.add(tileSet.getTile(firstgid + frameElement.getIntAttribute("tileid", 0)).orNull.asInstanceOf[StaticTiledMapTile])
+        staticTiles.add(
+          tileSet.getTile(firstgid + frameElement.getIntAttribute("tileid", 0)).getOrElse(throw new IllegalStateException("missing tile for animation frame")).asInstanceOf[StaticTiledMapTile]
+        )
         intervals.add(frameElement.getIntAttribute("duration", 0))
         fi += 1
       }
 
       val animatedTile = new AnimatedTiledMapTile(intervals.toArray, staticTiles)
       animatedTile.setId(tile.getId)
-      Nullable(animatedTile)
-    } else {
-      Nullable.empty
+      animatedTile
     }
   }
 }
@@ -943,32 +942,34 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 object BaseTmxMapLoader {
 
   def getTileIds(element: XmlReader.Element, width: Int, height: Int): Array[Int] = {
-    val data     = element.getChildByName("data")
-    val encoding = data.orNull.getAttribute("encoding", Nullable.empty)
+    val d        = element.getChildByName("data").getOrElse(throw new IllegalArgumentException("missing data element"))
+    val encoding = d.getAttribute("encoding", Nullable.empty)
     if (encoding.isEmpty) { // no 'encoding' attribute means that the encoding is XML
       throw new IllegalArgumentException("Unsupported encoding (XML) for TMX Layer Data")
     }
+    val enc = encoding.getOrElse("")
     val ids = new Array[Int](width * height)
-    if (encoding.orNull == "csv") {
-      val array = data.orNull.getText.orNull.split(",")
+    if (enc == "csv") {
+      val array = d.getText.getOrElse("").split(",")
       var i     = 0
       while (i < array.length) {
         ids(i) = java.lang.Long.parseLong(array(i).trim).toInt
         i += 1
       }
-    } else if (encoding.orNull == "base64") {
+    } else if (enc == "base64") {
       var is: InputStream = null
       try {
-        val compression = data.orNull.getAttribute("compression", Nullable.empty)
-        val bytes       = java.util.Base64.getDecoder.decode(data.orNull.getText.orNull)
-        if (compression.isEmpty)
+        val compression = d.getAttribute("compression", Nullable.empty)
+        val bytes       = java.util.Base64.getDecoder.decode(d.getText.getOrElse(""))
+        val comp        = compression.getOrElse("")
+        if (comp.isEmpty)
           is = new ByteArrayInputStream(bytes)
-        else if (compression.orNull == "gzip")
+        else if (comp == "gzip")
           is = new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes), bytes.length))
-        else if (compression.orNull == "zlib")
+        else if (comp == "zlib")
           is = new BufferedInputStream(new InflaterInputStream(new ByteArrayInputStream(bytes)))
         else
-          throw new IllegalArgumentException("Unrecognised compression (" + compression.orNull + ") for TMX Layer Data")
+          throw new IllegalArgumentException("Unrecognised compression (" + comp + ") for TMX Layer Data")
 
         val temp = new Array[Byte](4)
         var y    = 0
@@ -999,7 +1000,7 @@ object BaseTmxMapLoader {
     } else {
       // any other value of 'encoding' is one we're not aware of, probably a feature of a future version of Tiled
       // or another editor
-      throw new IllegalArgumentException("Unrecognised encoding (" + encoding.orNull + ") for TMX Layer Data")
+      throw new IllegalArgumentException("Unrecognised encoding (" + enc + ") for TMX Layer Data")
     }
     ids
   }

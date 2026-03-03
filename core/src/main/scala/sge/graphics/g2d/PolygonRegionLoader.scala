@@ -10,7 +10,6 @@ package sge
 package graphics
 package g2d
 
-import java.io.BufferedReader
 import java.io.IOException
 
 import sge.assets.AssetDescriptor
@@ -36,9 +35,8 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
   private val triangulator = new EarClippingTriangulator()
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(new InternalFileHandleResolver())
-  }
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion =
     // TODO: Once AssetManager has get() and getDependencies() methods, uncomment the following:

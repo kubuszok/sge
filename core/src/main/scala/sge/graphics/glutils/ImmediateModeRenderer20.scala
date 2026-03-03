@@ -12,10 +12,10 @@ package glutils
 
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.{ Color, Mesh, VertexAttribute }
-import sge.graphics.g2d.SpriteBatch
 import sge.math.Matrix4
 import sge.utils.{ DynamicArray, SgeError }
 import sge.Sge
+import scala.annotation.nowarn
 import scala.compiletime.uninitialized
 
 /** Immediate mode rendering class for GLES 2.0. The renderer will allow you to specify vertices on the fly and provides a default shader for (unlit) rendering.
@@ -28,10 +28,11 @@ class ImmediateModeRenderer20(
   hasColors:    Boolean,
   numTexCoords: Int,
   shader:       ShaderProgram
-)(using sge: Sge)
+)(using Sge)
     extends ImmediateModeRenderer
     with AutoCloseable {
 
+  @nowarn("msg=not read") // set in begin(), will be read when actual rendering is implemented
   private var primitiveType:   Int = uninitialized
   private var vertexIdx:       Int = uninitialized
   private var numSetTexCoords: Int = uninitialized
@@ -59,12 +60,12 @@ class ImmediateModeRenderer20(
   for (i <- 0 until numTexCoords)
     shaderUniformNames(i) = "u_sampler" + i
 
-  def this(hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using sge: Sge) = {
+  def this(hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge) = {
     this(5000, hasNormals, hasColors, numTexCoords, ImmediateModeRenderer20.createDefaultShader(hasNormals, hasColors, numTexCoords))
     ownsShader = true
   }
 
-  def this(maxVertices: Int, hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using sge: Sge) = {
+  def this(maxVertices: Int, hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge) = {
     this(
       maxVertices,
       hasNormals,
@@ -216,7 +217,7 @@ object ImmediateModeRenderer20 {
   }
 
   /** Returns a new instance of the default shader used by SpriteBatch for GL2 when no shader is specified. */
-  def createDefaultShader(hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using sge: Sge): ShaderProgram = {
+  def createDefaultShader(hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge): ShaderProgram = {
     val vertexShader   = createVertexShader(hasNormals, hasColors, numTexCoords)
     val fragmentShader = createFragmentShader(hasNormals, hasColors, numTexCoords)
     val program        = new ShaderProgram(vertexShader, fragmentShader)

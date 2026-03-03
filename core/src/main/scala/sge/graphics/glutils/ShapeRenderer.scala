@@ -11,7 +11,7 @@ package graphics
 package glutils
 
 import sge.graphics.{ Color, GL20 }
-import sge.math.{ MathUtils, Matrix4, Vector2, Vector3 }
+import sge.math.Matrix4
 import sge.utils.Nullable
 import sge.Sge
 
@@ -41,7 +41,7 @@ import sge.Sge
   * @author
   *   Nathan Sweet
   */
-class ShapeRenderer(using sge: Sge) extends AutoCloseable {
+class ShapeRenderer(using Sge) extends AutoCloseable {
 
   /** Shape types to be used with begin(ShapeType).
     * @author
@@ -55,22 +55,20 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
     def getGlType(): Int = glType
   }
 
-  private var renderer:             ImmediateModeRenderer = scala.compiletime.uninitialized
-  private var matrixDirty:          Boolean               = false
-  private val projectionMatrix:     Matrix4               = new Matrix4()
-  private val transformMatrix:      Matrix4               = new Matrix4()
-  private val combinedMatrix:       Matrix4               = new Matrix4()
-  private val tmp:                  Vector2               = new Vector2()
-  private val color:                Color                 = new Color(1, 1, 1, 1)
-  private var shapeType:            Nullable[ShapeType]   = Nullable.empty
-  private var autoShapeType:        Boolean               = false
-  private var defaultRectLineWidth: Float                 = 0.75f
+  private var matrixDirty:          Boolean             = false
+  private val projectionMatrix:     Matrix4             = new Matrix4()
+  private val transformMatrix:      Matrix4             = new Matrix4()
+  private val combinedMatrix:       Matrix4             = new Matrix4()
+  private val color:                Color               = new Color(1, 1, 1, 1)
+  private var shapeType:            Nullable[ShapeType] = Nullable.empty
+  private var autoShapeType:        Boolean             = false
+  private val defaultRectLineWidth: Float               = 0.75f
 
   /** Create a new ShapeRenderer with default maxVertices of 5000 */
-  def this(maxVertices: Int)(using sge: Sge) = {
+  def this(maxVertices: Int)(using Sge) = {
     this()
     // TODO: Initialize renderer when implementation is available
-    projectionMatrix.setToOrtho2D(0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
     matrixDirty = true
   }
 
@@ -238,12 +236,6 @@ class ShapeRenderer(using sge: Sge) extends AutoCloseable {
   def circle(x: Float, y: Float, radius: Float, segments: Int): Unit = {
     if (segments <= 0) throw new IllegalArgumentException("segments must be > 0.")
     check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 2 + 2)
-
-    val angle = 2 * MathUtils.PI / segments
-    var cos   = MathUtils.cos(angle)
-    var sin   = MathUtils.sin(angle)
-    var cx    = radius
-    var cy    = 0f
 
     if (shapeType.fold(false)(_ == ShapeType.Line)) {
       // TODO: Implement line circle

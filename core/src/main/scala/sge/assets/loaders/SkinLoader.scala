@@ -24,7 +24,7 @@ import scala.collection.mutable
   * @author
   *   Nathan Sweet
   */
-class SkinLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Skin, SkinLoader.SkinParameter](resolver) {
+class SkinLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Skin, SkinLoader.SkinParameter](resolver) {
 
   override def getDependencies(
     fileName:  String,

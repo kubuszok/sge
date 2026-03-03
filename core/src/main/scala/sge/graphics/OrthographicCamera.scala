@@ -9,7 +9,6 @@
 package sge
 package graphics
 
-import sge.math.Matrix4
 import sge.math.Vector2
 import sge.math.Vector3
 
@@ -40,7 +39,7 @@ class OrthographicCamera(implicit sge: Sge) extends Camera {
     update()
   }
 
-  private val tmp = new Vector3()
+  new Vector3()
 
   override def update(): Unit =
     update(true)

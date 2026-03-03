@@ -12,12 +12,11 @@ package tiled
 package renderers
 
 import sge.Sge
-import sge.graphics.Color
-import sge.graphics.g2d.{ Batch, SpriteBatch, TextureRegion }
+import sge.graphics.g2d.{ Batch, SpriteBatch }
 import sge.maps.tiled.tiles.AnimatedTiledMapTile
 import sge.utils.Nullable
 
-class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using sge: Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
+class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
   /** true for X-Axis, false for Y-Axis */
   private var staggerAxisX: Boolean = true
@@ -32,9 +31,9 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
 
   initHex(map)
 
-  def this(map: TiledMap)(using sge: Sge) = this(map, 1.0f, new SpriteBatch(), true)
-  def this(map: TiledMap, unitScale: Float)(using sge: Sge) = this(map, unitScale, new SpriteBatch(), true)
-  def this(map: TiledMap, batch:     Batch)(using sge: Sge) = this(map, 1.0f, batch, false)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
 
   private def initHex(map: TiledMap): Unit = {
     Nullable(map.getProperties.get("staggeraxis", classOf[String])).foreach { axis =>

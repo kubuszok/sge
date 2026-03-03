@@ -14,7 +14,6 @@ package shapebuilders
 
 import sge.graphics.GL20
 import sge.graphics.g3d.utils.MeshPartBuilder
-import sge.graphics.g3d.utils.MeshPartBuilder.VertexInfo
 import sge.math.{ MathUtils, Vector3 }
 import sge.utils.{ Nullable, SgeError }
 

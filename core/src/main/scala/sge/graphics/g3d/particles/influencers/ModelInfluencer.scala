@@ -16,7 +16,6 @@ import sge.assets.AssetManager
 import sge.graphics.g3d.{ Model, ModelInstance }
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.{ ParticleChannels, ResourceData }
-import sge.graphics.g3d.particles.ResourceData.SaveData
 import sge.utils.{ DynamicArray, Nullable, Pool }
 
 /** It's an {@link Influencer} which controls which {@link Model} will be assigned to the particles as {@link ModelInstance}.

@@ -26,7 +26,7 @@ import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
   * @author
   *   realitix
   */
-class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes, defaultPrimitiveType: Int)(using sge: Sge) extends AutoCloseable with RenderableProvider {
+class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes, defaultPrimitiveType: Int)(using Sge) extends AutoCloseable with RenderableProvider {
 
   /** Builder used to update the mesh */
   private val builder: MeshBuilder = new MeshBuilder()
@@ -44,7 +44,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
   renderable.material = Nullable(new Material())
 
   /** Create a ShapeCache with default values */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(
       5000,
       5000,
@@ -54,7 +54,6 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
       ),
       GL20.GL_LINES
     )
-  }
 
   /** Initialize ShapeCache for mesh generation with GL_LINES primitive type */
   def begin(): MeshPartBuilder =

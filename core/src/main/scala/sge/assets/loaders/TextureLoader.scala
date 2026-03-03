@@ -24,7 +24,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * @author
   *   mzechner
   */
-class TextureLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Texture, TextureLoader.TextureParameter](resolver) {
+class TextureLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Texture, TextureLoader.TextureParameter](resolver) {
 
   private val info = new TextureLoader.TextureLoaderInfo()
 

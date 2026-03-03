@@ -33,9 +33,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) = {
+  def this(font: BitmapFont) =
     this(font, font.usesIntegerPositions())
-  }
 
   // Initialize fields in the primary constructor
   private val pageCount = font.regions.size
@@ -83,19 +82,17 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     currentTint = newTint
 
     val pageVerticesLocal   = this.pageVertices
-    val tempColor           = new Color(1, 1, 1, 1)
     val tempGlyphCountLocal = this.tempGlyphCount
     for (i <- tempGlyphCountLocal.indices)
       tempGlyphCountLocal(i) = 0
 
     var i = 0
     while (i < layouts.size) {
-      val layout              = layouts(i)
-      val colors              = layout.colors
-      var colorsIndex         = 0
-      var nextColorGlyphIndex = 0
+      val layout = layouts(i)
+
+      val nextColorGlyphIndex = 0
       var glyphIndex          = 0
-      var lastColorFloatBits  = 0f
+      val lastColorFloatBits  = 0f
       var ii                  = 0
       while (ii < layout.runs.size) {
         val run    = layout.runs(ii)
@@ -125,9 +122,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def setAlphas(alpha: Float): Unit = {
-    val alphaBits = ((254 * alpha).toInt) << 24
-    var prev      = 0f
-    var newColor  = 0f
+    var prev     = 0f
+    val newColor = 0f
     for (j <- pageVertices.indices) {
       val vertices = pageVertices(j)
       var i        = 2
@@ -316,7 +312,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     }
 
     val vertexCount = idx(page) + glyphCount * 20
-    var vertices    = pageVertices(page)
+    val vertices    = pageVertices(page)
     if (Nullable(vertices).isEmpty) {
       pageVertices(page) = Array.ofDim[Float](vertexCount)
     } else if (vertices.length < vertexCount) {
@@ -388,12 +384,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     var glyphIndex          = 0
     var lastColorFloatBits  = 0f
     for (i <- 0 until runCount) {
-      val run       = layout.runs(i)
-      val glyphs    = run.glyphs
-      val xAdvances = run.xAdvances
-      val gx        = x + run.x
-      val gy        = y + run.y
-      var ii        = 0
+      val run    = layout.runs(i)
+      val glyphs = run.glyphs
+      val gx     = x + run.x
+      val gy     = y + run.y
+      var ii     = 0
       while (ii < glyphs.size) {
         if (glyphIndex == nextColorGlyphIndex) {
           colorsIndex += 1

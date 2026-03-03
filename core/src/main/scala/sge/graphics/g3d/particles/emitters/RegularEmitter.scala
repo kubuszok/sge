@@ -12,9 +12,6 @@ package g3d
 package particles
 package emitters
 
-import scala.util.boundary
-import scala.util.boundary.break
-
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleControllerComponent

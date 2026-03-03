@@ -13,21 +13,17 @@ package utils
 
 import sge.files.FileHandle
 import sge.graphics.g3d.shaders.DefaultShader
-import sge.utils.Nullable
 
-class DefaultShaderProvider(val config: DefaultShader.Config)(using sge: Sge) extends BaseShaderProvider {
+class DefaultShaderProvider(val config: DefaultShader.Config)(using Sge) extends BaseShaderProvider {
 
-  def this(vertexShader: String, fragmentShader: String)(using sge: Sge) = {
+  def this(vertexShader: String, fragmentShader: String)(using Sge) =
     this(new DefaultShader.Config(vertexShader, fragmentShader))
-  }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using sge: Sge) = {
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
     this(vertexShader.readString(), fragmentShader.readString())
-  }
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(new DefaultShader.Config())
-  }
 
   override protected def createShader(renderable: Renderable): Shader =
     new DefaultShader(renderable, config)

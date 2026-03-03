@@ -23,12 +23,12 @@ import sge.utils.{ DynamicArray, Nullable, XmlReader }
 import java.io.IOException
 import scala.collection.mutable
 
-class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends SynchronousAssetLoader[TiledMap, TideMapLoader.Parameters](resolver) {
+class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends SynchronousAssetLoader[TiledMap, TideMapLoader.Parameters](resolver) {
 
-  private var xml:  XmlReader         = new XmlReader()
+  private val xml:  XmlReader         = new XmlReader()
   private var root: XmlReader.Element = scala.compiletime.uninitialized
 
-  def this()(using sge: Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new InternalFileHandleResolver())
 
   def load(fileName: String): TiledMap =
     try {
@@ -91,11 +91,11 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
   private def loadMap(root: XmlReader.Element, tmxFile: FileHandle, imageResolver: ImageResolver): TiledMap = {
     val map        = new TiledMap()
     val properties = root.getChildByName("Properties")
-    if (properties.isDefined) {
-      loadProperties(map.getProperties, properties.orNull)
+    properties.foreach { p =>
+      loadProperties(map.getProperties, p)
     }
     val tilesheets        = root.getChildByName("TileSheets")
-    val tilesheetElements = tilesheets.orNull.getChildrenByName("TileSheet")
+    val tilesheetElements = tilesheets.getOrElse(throw new IllegalStateException("missing TileSheets element")).getChildrenByName("TileSheet")
     var ti                = 0
     while (ti < tilesheetElements.size) {
       val tilesheet = tilesheetElements(ti)
@@ -103,7 +103,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       ti += 1
     }
     val layers        = root.getChildByName("Layers")
-    val layerElements = layers.orNull.getChildrenByName("Layer")
+    val layerElements = layers.getOrElse(throw new IllegalStateException("missing Layers element")).getChildrenByName("Layer")
     var li            = 0
     while (li < layerElements.size) {
       val layer = layerElements(li)
@@ -122,12 +122,12 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
   private def loadTileSheets(root: XmlReader.Element, tideFile: FileHandle): DynamicArray[FileHandle] = {
     val images          = DynamicArray[FileHandle]()
     val tilesheets      = root.getChildByName("TileSheets")
-    val tilesetElements = tilesheets.orNull.getChildrenByName("TileSheet")
+    val tilesetElements = tilesheets.getOrElse(throw new IllegalStateException("missing TileSheets element")).getChildrenByName("TileSheet")
     var ti              = 0
     while (ti < tilesetElements.size) {
       val tileset     = tilesetElements(ti)
       val imageSource = tileset.getChildByName("ImageSource")
-      val image       = getRelativeFileHandle(tideFile, imageSource.orNull.getText.orNull)
+      val image       = getRelativeFileHandle(tideFile, imageSource.getOrElse(throw new IllegalStateException("missing ImageSource")).getText.getOrElse(""))
       images.add(image)
       ti += 1
     }
@@ -142,17 +142,17 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
   ): Unit =
     if (element.name == "TileSheet") {
       val id          = element.getAttribute("Id")
-      val imageSource = element.getChildByName("ImageSource").orNull.getText.orNull
+      val imageSource = element.getChildByName("ImageSource").getOrElse(throw new IllegalStateException("missing ImageSource")).getText.getOrElse("")
 
-      val alignment = element.getChildByName("Alignment").orNull
+      val alignment = element.getChildByName("Alignment").getOrElse(throw new IllegalStateException("missing Alignment"))
       val sheetSize = alignment.getAttribute("SheetSize")
       val tileSize  = alignment.getAttribute("TileSize")
       val margin    = alignment.getAttribute("Margin")
-      val spacing   = alignment.getAttribute("Spacing")
+      alignment.getAttribute("Spacing")
 
       val sheetSizeParts = sheetSize.split(" x ")
-      val sheetSizeX     = Integer.parseInt(sheetSizeParts(0))
-      val sheetSizeY     = Integer.parseInt(sheetSizeParts(1))
+      Integer.parseInt(sheetSizeParts(0))
+      Integer.parseInt(sheetSizeParts(1))
 
       val tileSizeParts = tileSize.split(" x ")
       val tileSizeX     = Integer.parseInt(tileSizeParts(0))
@@ -199,8 +199,8 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       }
 
       val properties = element.getChildByName("Properties")
-      if (properties.isDefined) {
-        loadProperties(tileset.getProperties, properties.orNull)
+      properties.foreach { p =>
+        loadProperties(tileset.getProperties, p)
       }
 
       tilesets.addTileSet(tileset)
@@ -211,7 +211,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       val id      = element.getAttribute("Id")
       val visible = element.getAttribute("Visible")
 
-      val dimensions = element.getChildByName("Dimensions").orNull
+      val dimensions = element.getChildByName("Dimensions").getOrElse(throw new IllegalStateException("missing Dimensions"))
       val layerSize  = dimensions.getAttribute("LayerSize")
       val tileSize   = dimensions.getAttribute("TileSize")
 
@@ -226,7 +226,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       val layer = new TiledMapTileLayer(layerSizeX, layerSizeY, tileSizeX, tileSizeY)
       layer.setName(id)
       layer.setVisible(visible.equalsIgnoreCase("True"))
-      val tileArray = element.getChildByName("TileArray").orNull
+      val tileArray = element.getChildByName("TileArray").getOrElse(throw new IllegalStateException("missing TileArray"))
       val rows      = tileArray.getChildrenByName("Row")
       val tilesets  = map.getTileSets
       var currentTileSet: TiledMapTileSet = null // scalastyle:ignore
@@ -243,7 +243,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
           val currentChild = currentRow.getChild(child)
           val name         = currentChild.name
           if (name == "TileSheet") {
-            currentTileSet = tilesets.getTileSet(currentChild.getAttribute("Ref")).orNull
+            currentTileSet = tilesets.getTileSet(currentChild.getAttribute("Ref")).getOrElse(throw new IllegalStateException("missing TileSheet"))
             firstgid = currentTileSet.getProperties.get("firstgid", classOf[Integer]).intValue()
           } else if (name == "Null") {
             x += currentChild.getIntAttribute("Count", 0)
@@ -255,7 +255,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
           } else if (name == "Animated") {
             // Create an AnimatedTile
             val interval        = currentChild.getInt("Interval", 0)
-            val frames          = currentChild.getChildByName("Frames").orNull
+            val frames          = currentChild.getChildByName("Frames").getOrElse(throw new IllegalStateException("missing Frames"))
             val frameTiles      = DynamicArray[StaticTiledMapTile]()
             var frameChild      = 0
             val frameChildCount = frames.getChildCount
@@ -263,10 +263,12 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
               val frame     = frames.getChild(frameChild)
               val frameName = frame.name
               if (frameName == "TileSheet") {
-                currentTileSet = tilesets.getTileSet(frame.getAttribute("Ref")).orNull
+                currentTileSet = tilesets.getTileSet(frame.getAttribute("Ref")).getOrElse(throw new IllegalStateException("missing TileSheet"))
                 firstgid = currentTileSet.getProperties.get("firstgid", classOf[Integer]).intValue()
               } else if (frameName == "Static") {
-                frameTiles.add(currentTileSet.getTile(firstgid + frame.getIntAttribute("Index", 0)).orNull.asInstanceOf[StaticTiledMapTile])
+                frameTiles.add(
+                  currentTileSet.getTile(firstgid + frame.getIntAttribute("Index", 0)).getOrElse(throw new IllegalStateException("missing tile")).asInstanceOf[StaticTiledMapTile]
+                )
               }
               frameChild += 1
             }
@@ -281,8 +283,8 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       }
 
       val properties = element.getChildByName("Properties")
-      if (properties.isDefined) {
-        loadProperties(layer.getProperties, properties.orNull)
+      properties.foreach { p =>
+        loadProperties(layer.getProperties, p)
       }
 
       map.getLayers.add(layer)
@@ -294,9 +296,9 @@ class TideMapLoader(resolver: FileHandleResolver)(using sge: Sge) extends Synchr
       var pi               = 0
       while (pi < propertyElements.size) {
         val property = propertyElements(pi)
-        val key      = property.getAttribute("Key", Nullable.empty).orNull
-        val propType = property.getAttribute("Type", Nullable.empty).orNull
-        val value    = property.getText.orNull
+        val key      = property.getAttribute("Key", Nullable.empty).getOrElse("")
+        val propType = property.getAttribute("Type", Nullable.empty).getOrElse("")
+        val value    = property.getText.getOrElse("")
 
         if (propType == "Int32") {
           properties.put(key, Integer.parseInt(value): java.lang.Integer)

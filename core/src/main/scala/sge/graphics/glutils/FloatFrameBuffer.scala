@@ -22,7 +22,7 @@ import sge.utils.SgeError
 import sge.Sge
 
 /** This is a {@link FrameBuffer} variant backed by a float texture. */
-class FloatFrameBuffer()(using sge: Sge) extends FrameBuffer {
+class FloatFrameBuffer()(using Sge) extends FrameBuffer {
 
   checkExtensions()
 
@@ -31,7 +31,7 @@ class FloatFrameBuffer()(using sge: Sge) extends FrameBuffer {
     * @param bufferBuilder
     *   *
     */
-  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]])(using sge: Sge) = {
+  def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]])(using Sge) = {
     this()
     this.bufferBuilder = bufferBuilder
     build()
@@ -49,7 +49,7 @@ class FloatFrameBuffer()(using sge: Sge) extends FrameBuffer {
     * @throws SgeError.GraphicsError
     *   in case the FrameBuffer could not be created
     */
-  def this(width: Int, height: Int, hasDepth: Boolean)(using sge: Sge) = {
+  def this(width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
     this()
     checkExtensions()
     val bufferBuilder = new GLFrameBuffer.FloatFrameBufferBuilder(width, height)
@@ -70,7 +70,7 @@ class FloatFrameBuffer()(using sge: Sge) extends FrameBuffer {
       attachmentSpec.isGpuOnly
     )
     val result = new Texture(data)
-    if (sge.application.getType() == ApplicationType.Desktop || sge.application.getType() == ApplicationType.Applet)
+    if (Sge().application.getType() == ApplicationType.Desktop || Sge().application.getType() == ApplicationType.Applet)
       result.setFilter(TextureFilter.Linear, TextureFilter.Linear)
     else
       // no filtering for float textures in OpenGL ES
@@ -81,9 +81,9 @@ class FloatFrameBuffer()(using sge: Sge) extends FrameBuffer {
 
   /** Check for support for any required extensions on the current platform. */
   private def checkExtensions(): Unit =
-    if (sge.graphics.isGL30Available() && sge.application.getType() == ApplicationType.WebGL) {
+    if (Sge().graphics.isGL30Available() && Sge().application.getType() == ApplicationType.WebGL) {
       // For WebGL2, Rendering to a Floating Point Texture requires this extension
-      if (!sge.graphics.supportsExtension("EXT_color_buffer_float"))
+      if (!Sge().graphics.supportsExtension("EXT_color_buffer_float"))
         throw SgeError.GraphicsError("Extension EXT_color_buffer_float not supported!")
     }
 }

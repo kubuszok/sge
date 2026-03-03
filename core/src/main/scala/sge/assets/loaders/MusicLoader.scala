@@ -18,7 +18,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * @author
   *   mzechner (original implementation)
   */
-class MusicLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[Music, MusicLoader.MusicParameter](resolver) {
+class MusicLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Music, MusicLoader.MusicParameter](resolver) {
 
   private var music: Nullable[Music] = Nullable.empty
 
@@ -30,7 +30,7 @@ class MusicLoader(resolver: FileHandleResolver)(using sge: Sge) extends Asynchro
   protected def getLoadedMusic: Nullable[Music] = music
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: MusicLoader.MusicParameter): Unit =
-    music = Nullable(sge.audio.newMusic(file))
+    music = Nullable(Sge().audio.newMusic(file))
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: MusicLoader.MusicParameter): Music = {
     val result = music

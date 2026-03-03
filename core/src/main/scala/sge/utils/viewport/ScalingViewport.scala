@@ -12,7 +12,6 @@ package viewport
 
 import sge.graphics.Camera
 import sge.graphics.OrthographicCamera
-import sge.math.Vector2
 import sge.utils.Scaling
 
 /** A viewport that scales the world using {@link Scaling} . <p> {@link Scaling#fit} keeps the aspect ratio by scaling the world up to fit the screen, adding black bars (letterboxing) for the
@@ -24,16 +23,15 @@ import sge.utils.Scaling
   * @author
   *   Nathan Sweet
   */
-class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, camera: Camera)(using sge: Sge) extends Viewport {
+class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends Viewport {
   private var _scaling: Scaling = scaling
 
   setWorldSize(worldWidth, worldHeight)
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using sge: Sge) = {
+  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) =
     this(scaling, worldWidth, worldHeight, new OrthographicCamera())
-  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     val scaled         = _scaling.apply(getWorldWidth(), getWorldHeight(), screenWidth.toFloat, screenHeight.toFloat)

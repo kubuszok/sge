@@ -17,7 +17,6 @@ import java.io.DataOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.nio.Buffer
-import java.nio.ByteBuffer
 import java.util.zip.CRC32
 import java.util.zip.CheckedOutputStream
 import java.util.zip.Deflater
@@ -101,7 +100,7 @@ object PixmapIO {
         val iterations     = pixelBuf.capacity() / BUFFER_SIZE;
 
         writeBuffer.synchronized {
-          for (i <- 0 until iterations) {
+          for (_ <- 0 until iterations) {
             pixelBuf.get(writeBuffer);
             out.write(writeBuffer);
           }

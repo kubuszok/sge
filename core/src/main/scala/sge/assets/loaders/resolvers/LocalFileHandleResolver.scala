@@ -13,7 +13,7 @@ package resolvers
 
 import sge.files.FileHandle
 
-class LocalFileHandleResolver(using sge: Sge) extends FileHandleResolver {
+class LocalFileHandleResolver(using Sge) extends FileHandleResolver {
   override def resolve(fileName: String): FileHandle =
-    sge.files.local(fileName)
+    Sge().files.local(fileName)
 }

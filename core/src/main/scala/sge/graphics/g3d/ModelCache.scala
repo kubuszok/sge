@@ -24,7 +24,7 @@ import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
   * @author
   *   Xoppa
   */
-class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using sge: Sge) extends AutoCloseable with RenderableProvider {
+class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using Sge) extends AutoCloseable with RenderableProvider {
 
   private val renderables:     DynamicArray[Renderable]   = DynamicArray[Renderable]()
   private val renderablesPool: Pool.Flushable[Renderable] = new Pool.Flushable[Renderable] {
@@ -48,9 +48,8 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   /** Create a ModelCache using the default {@link Sorter} and the {@link SimpleMeshPool} implementation. This might not be the most optimal implementation for you use-case, but should be good to
     * start with.
     */
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(new ModelCache.Sorter(), new ModelCache.SimpleMeshPool())
-  }
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
     * cache and prepare it for creating a new cache. The cache is not valid until the call to {@link #end()} is made. Use one of the add methods (e.g. {@link #add(Renderable)} or
@@ -104,9 +103,6 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
 
     if (items.isEmpty) break(())
     sorter.sort(camera.getOrElse(null), items)
-
-    val itemCount = items.size
-    val initCount = renderables.size
 
     val first            = items(0)
     var vertexAttributes = first.meshPart.mesh.getVertexAttributes()
@@ -255,7 +251,7 @@ object ModelCache {
     * @author
     *   Xoppa
     */
-  class SimpleMeshPool(using sge: Sge) extends MeshPool {
+  class SimpleMeshPool(using Sge) extends MeshPool {
     // FIXME Make a better (preferable JNI) MeshPool implementation
     private val freeMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
     private val usedMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
@@ -302,7 +298,7 @@ object ModelCache {
     * @author
     *   Xoppa
     */
-  class TightMeshPool(using sge: Sge) extends MeshPool {
+  class TightMeshPool(using Sge) extends MeshPool {
     private val freeMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
     private val usedMeshes: DynamicArray[Mesh] = DynamicArray[Mesh]()
 

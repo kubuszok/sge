@@ -88,7 +88,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
       var i       = index
       while (current.isDefined && i > 0) {
         i -= 1
-        current = current.orNull.next
+        current = current.flatMap(_.next)
       }
       current
     }
@@ -96,16 +96,16 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   /** Returns the child with the specified name. */
   def get(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && (current.orNull.name.isEmpty || current.orNull.name.orNull != name))
-      current = current.orNull.next
+    while (current.isDefined && current.fold(false)(c => c.name.isEmpty || c.name.fold(true)(_ != name)))
+      current = current.flatMap(_.next)
     current
   }
 
   /** Returns the child with the specified name, ignoring case. */
   def getIgnoreCase(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && (current.orNull.name.isEmpty || !current.orNull.name.orNull.equalsIgnoreCase(name)))
-      current = current.orNull.next
+    while (current.isDefined && current.fold(false)(c => c.name.isEmpty || c.name.fold(true)(!_.equalsIgnoreCase(name))))
+      current = current.flatMap(_.next)
     current
   }
 
@@ -118,8 +118,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def require(index: Int): JsonValue = {
     val current = get(index)
-    if (current.isEmpty) throw new IllegalArgumentException("Child not found with index: " + index)
-    current.orNull
+    current.getOrElse(throw new IllegalArgumentException("Child not found with index: " + index))
   }
 
   /** Returns the child with the specified name.
@@ -128,53 +127,45 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def require(name: String): JsonValue = {
     val current = get(name)
-    if (current.isEmpty) throw new IllegalArgumentException("Child not found with name: " + name)
-    current.orNull
+    current.getOrElse(throw new IllegalArgumentException("Child not found with name: " + name))
   }
 
   /** Removes the child with the specified index. */
   def remove(index: Int): Nullable[JsonValue] = {
     val c = get(index)
-    if (c.isEmpty) Nullable.empty
-    else {
-      removeChild(c.orNull)
-      c
-    }
+    c.foreach(removeChild)
+    c
   }
 
   /** Removes the child with the specified name. */
   def remove(name: String): Nullable[JsonValue] = {
     val c = get(name)
-    if (c.isEmpty) Nullable.empty
-    else {
-      removeChild(c.orNull)
-      c
-    }
+    c.foreach(removeChild)
+    c
   }
 
   /** Removes this value from its parent. */
   def removeFromParent(): Unit = {
-    if (parent.isEmpty) throw new IllegalStateException()
-    val p = parent.orNull
-    if (p.lastChild.isDefined && (p.lastChild.orNull eq this)) p.lastChild = prev
+    val p = parent.getOrElse(throw new IllegalStateException())
+    if (p.lastChild.fold(false)(_ eq this)) p.lastChild = prev
     if (prev.isEmpty) {
       p.child = next
-      if (p.child.isDefined) p.child.orNull.prev = Nullable.empty
+      p.child.foreach(_.prev = Nullable.empty)
     } else {
-      prev.orNull.next = next
-      if (next.isDefined) next.orNull.prev = prev
+      prev.foreach(_.next = next)
+      next.foreach(_.prev = prev)
     }
     p.childCount -= 1
   }
 
   private def removeChild(c: JsonValue): Unit = {
-    if (lastChild.isDefined && (lastChild.orNull eq c)) lastChild = c.prev
+    if (lastChild.fold(false)(_ eq c)) lastChild = c.prev
     if (c.prev.isEmpty) {
       child = c.next
-      if (child.isDefined) child.orNull.prev = Nullable.empty
+      child.foreach(_.prev = Nullable.empty)
     } else {
-      c.prev.orNull.next = c.next
-      if (c.next.isDefined) c.next.orNull.prev = c.prev
+      c.prev.foreach(_.next = c.next)
+      c.next.foreach(_.prev = c.prev)
     }
     childCount -= 1
   }
@@ -184,6 +175,9 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
 
   /** Returns true if there are no children in the array or object. */
   override def isEmpty: Boolean = size == 0
+
+  /** Unwraps stringValue, assuming it is defined. Only call when `_type` guarantees a string is present. */
+  private def stringValueGet: String = stringValue.getOrElse(throw new IllegalStateException("Missing string value"))
 
   // -- Value conversion (as*) --
 
@@ -205,7 +199,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asFloat(): Float = _type match {
-    case ValueType.stringValue  => java.lang.Float.parseFloat(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Float.parseFloat(stringValueGet)
     case ValueType.doubleValue  => doubleValue.toFloat
     case ValueType.longValue    => longValue.toFloat
     case ValueType.booleanValue => if (longValue != 0) 1f else 0f
@@ -217,7 +211,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asDouble(): Double = _type match {
-    case ValueType.stringValue  => java.lang.Double.parseDouble(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Double.parseDouble(stringValueGet)
     case ValueType.doubleValue  => doubleValue
     case ValueType.longValue    => longValue.toDouble
     case ValueType.booleanValue => if (longValue != 0) 1.0 else 0.0
@@ -229,7 +223,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asLong(): Long = _type match {
-    case ValueType.stringValue  => java.lang.Long.parseLong(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Long.parseLong(stringValueGet)
     case ValueType.doubleValue  => doubleValue.toLong
     case ValueType.longValue    => longValue
     case ValueType.booleanValue => if (longValue != 0) 1L else 0L
@@ -241,7 +235,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asInt(): Int = _type match {
-    case ValueType.stringValue  => java.lang.Integer.parseInt(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Integer.parseInt(stringValueGet)
     case ValueType.doubleValue  => doubleValue.toInt
     case ValueType.longValue    => longValue.toInt
     case ValueType.booleanValue => if (longValue != 0) 1 else 0
@@ -253,7 +247,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asBoolean(): Boolean = _type match {
-    case ValueType.stringValue  => stringValue.orNull.equalsIgnoreCase("true")
+    case ValueType.stringValue  => stringValue.fold(false)(_.equalsIgnoreCase("true"))
     case ValueType.doubleValue  => doubleValue != 0
     case ValueType.longValue    => longValue != 0
     case ValueType.booleanValue => longValue != 0
@@ -265,7 +259,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asByte(): Byte = _type match {
-    case ValueType.stringValue  => java.lang.Byte.parseByte(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Byte.parseByte(stringValueGet)
     case ValueType.doubleValue  => doubleValue.toByte
     case ValueType.longValue    => longValue.toByte
     case ValueType.booleanValue => if (longValue != 0) 1.toByte else 0.toByte
@@ -277,7 +271,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asShort(): Short = _type match {
-    case ValueType.stringValue  => java.lang.Short.parseShort(stringValue.orNull)
+    case ValueType.stringValue  => java.lang.Short.parseShort(stringValueGet)
     case ValueType.doubleValue  => doubleValue.toShort
     case ValueType.longValue    => longValue.toShort
     case ValueType.booleanValue => if (longValue != 0) 1.toShort else 0.toShort
@@ -289,7 +283,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asChar(): Char = _type match {
-    case ValueType.stringValue  => if (stringValue.orNull.isEmpty) 0.toChar else stringValue.orNull.charAt(0)
+    case ValueType.stringValue  => stringValue.fold(0.toChar)(s => if (s.isEmpty) 0.toChar else s.charAt(0))
     case ValueType.doubleValue  => doubleValue.toChar
     case ValueType.longValue    => longValue.toChar
     case ValueType.booleanValue => if (longValue != 0) 1.toChar else 0.toChar
@@ -307,14 +301,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asStringArray(): Array[String] = {
     requireArray()
-    val array = new Array[String](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asString().orNull
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[String](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asString().getOrElse("")
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -324,14 +319,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asFloatArray(): Array[Float] = {
     requireArray()
-    val array = new Array[Float](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asFloat()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Float](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asFloat()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -341,14 +337,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asDoubleArray(): Array[Double] = {
     requireArray()
-    val array = new Array[Double](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asDouble()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Double](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asDouble()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -358,14 +355,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asLongArray(): Array[Long] = {
     requireArray()
-    val array = new Array[Long](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asLong()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Long](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asLong()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -375,14 +373,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asIntArray(): Array[Int] = {
     requireArray()
-    val array = new Array[Int](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asInt()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Int](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asInt()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -392,14 +391,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asBooleanArray(): Array[Boolean] = {
     requireArray()
-    val array = new Array[Boolean](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asBoolean()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Boolean](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asBoolean()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -409,14 +409,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asByteArray(): Array[Byte] = {
     requireArray()
-    val array = new Array[Byte](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asByte()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Byte](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asByte()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -426,14 +427,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asShortArray(): Array[Short] = {
     requireArray()
-    val array = new Array[Short](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asShort()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Short](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asShort()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -443,14 +445,15 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     */
   def asCharArray(): Array[Char] = {
     requireArray()
-    val array = new Array[Char](size)
-    var i     = 0
-    var value = child
-    while (value.isDefined) {
-      array(i) = value.orNull.asChar()
-      i += 1
-      value = value.orNull.next
-    }
+    val array   = new Array[Char](size)
+    var i       = 0
+    var current = child
+    while (current.isDefined)
+      current.foreach { value =>
+        array(i) = value.asChar()
+        i += 1
+        current = value.next
+      }
     array
   }
 
@@ -460,78 +463,52 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   def hasChild(name: String): Boolean = getChild(name).isDefined
 
   /** Finds the child with the specified name and returns its first child. */
-  def getChild(name: String): Nullable[JsonValue] = {
-    val c = get(name)
-    if (c.isEmpty) Nullable.empty else c.orNull.child
-  }
+  def getChild(name: String): Nullable[JsonValue] =
+    get(name).flatMap(_.child)
 
   /** Finds the child with the specified name and returns it as a string. Returns defaultValue if not found. */
-  def getString(name: String, defaultValue: Nullable[String]): Nullable[String] = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asString()
-  }
+  def getString(name: String, defaultValue: Nullable[String]): Nullable[String] =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asString())
 
   /** Finds the child with the specified name and returns it as a float. Returns defaultValue if not found. */
-  def getFloat(name: String, defaultValue: Float): Float = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asFloat()
-  }
+  def getFloat(name: String, defaultValue: Float): Float =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asFloat())
 
   /** Finds the child with the specified name and returns it as a double. Returns defaultValue if not found. */
-  def getDouble(name: String, defaultValue: Double): Double = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asDouble()
-  }
+  def getDouble(name: String, defaultValue: Double): Double =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asDouble())
 
   /** Finds the child with the specified name and returns it as a long. Returns defaultValue if not found. */
-  def getLong(name: String, defaultValue: Long): Long = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asLong()
-  }
+  def getLong(name: String, defaultValue: Long): Long =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asLong())
 
   /** Finds the child with the specified name and returns it as an int. Returns defaultValue if not found. */
-  def getInt(name: String, defaultValue: Int): Int = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asInt()
-  }
+  def getInt(name: String, defaultValue: Int): Int =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asInt())
 
   /** Finds the child with the specified name and returns it as a boolean. Returns defaultValue if not found. */
-  def getBoolean(name: String, defaultValue: Boolean): Boolean = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asBoolean()
-  }
+  def getBoolean(name: String, defaultValue: Boolean): Boolean =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asBoolean())
 
   /** Finds the child with the specified name and returns it as a byte. Returns defaultValue if not found. */
-  def getByte(name: String, defaultValue: Byte): Byte = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asByte()
-  }
+  def getByte(name: String, defaultValue: Byte): Byte =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asByte())
 
   /** Finds the child with the specified name and returns it as a short. Returns defaultValue if not found. */
-  def getShort(name: String, defaultValue: Short): Short = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asShort()
-  }
+  def getShort(name: String, defaultValue: Short): Short =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asShort())
 
   /** Finds the child with the specified name and returns it as a char. Returns defaultValue if not found. */
-  def getChar(name: String, defaultValue: Char): Char = {
-    val c = get(name)
-    if (c.isEmpty || !c.orNull.isValue || c.orNull.isNull) defaultValue else c.orNull.asChar()
-  }
+  def getChar(name: String, defaultValue: Char): Char =
+    get(name).fold(defaultValue)(v => if (!v.isValue || v.isNull) defaultValue else v.asChar())
 
   // -- Named child getters (required) --
 
-  private def requireChild(name: String): JsonValue = {
-    val c = get(name)
-    if (c.isEmpty) throw new IllegalArgumentException("Named value not found: " + name)
-    c.orNull
-  }
+  private def requireChild(name: String): JsonValue =
+    get(name).getOrElse(throw new IllegalArgumentException("Named value not found: " + name))
 
-  private def requireChild(index: Int): JsonValue = {
-    val c = get(index)
-    if (c.isEmpty) throw new IllegalArgumentException("Indexed value not found: " + name)
-    c.orNull
-  }
+  private def requireChild(index: Int): JsonValue =
+    get(index).getOrElse(throw new IllegalArgumentException("Indexed value not found: " + name))
 
   /** Finds the child with the specified name and returns it as a string.
     * @throws IllegalArgumentException
@@ -687,27 +664,28 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     val n = value.name
     if (n.isEmpty) throw new IllegalStateException("An object child requires a name: " + value)
     var current = child
-    while (current.isDefined) {
-      if (current.orNull.name.isDefined && current.orNull.name.orNull == n.orNull) {
-        current.orNull.replace(value)
-        break()
+    while (current.isDefined)
+      current.foreach { c =>
+        if (c.name.isDefined && c.name.fold(false)(cn => n.fold(false)(_ == cn))) {
+          c.replace(value)
+          break()
+        }
+        current = c.next
       }
-      current = current.orNull.next
-    }
     addChild(value)
   }
 
   /** Replaces this value in its parent with the specified value. */
   def replace(value: JsonValue): Unit = {
-    val p = parent.orNull
-    if (p.lastChild.isDefined && (p.lastChild.orNull eq this)) p.lastChild = Nullable(value)
+    val p = parent.getOrElse(throw new IllegalStateException("Cannot replace a value without a parent"))
+    if (p.lastChild.fold(false)(_ eq this)) p.lastChild = Nullable(value)
     if (prev.isDefined)
-      prev.orNull.next = Nullable(value)
+      prev.foreach(_.next = Nullable(value))
     else
       p.child = Nullable(value)
     value.prev = prev
     value.next = next
-    if (next.isDefined) next.orNull.prev = Nullable(value)
+    next.foreach(_.prev = Nullable(value))
     value.parent = parent
     prev = Nullable.empty
     next = Nullable.empty
@@ -733,7 +711,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
       value.prev = Nullable.empty
       child = Nullable(value)
     } else {
-      lastChild.orNull.next = Nullable(value)
+      lastChild.foreach(_.next = Nullable(value))
       value.prev = lastChild
     }
     lastChild = Nullable(value)
@@ -754,7 +732,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
       child = Nullable(value)
       lastChild = Nullable(value)
     } else {
-      child.orNull.prev = Nullable(value)
+      child.foreach(_.prev = Nullable(value))
       child = Nullable(value)
     }
     childCount += 1
@@ -802,21 +780,18 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
 
   // -- Comparison --
 
-  def equalsString(value: String): Boolean = {
-    val s = asString()
-    if (s.isEmpty) false else s.orNull == value
-  }
+  def equalsString(value: String): Boolean =
+    asString().fold(false)(_ == value)
 
   def nameEquals(value: String): Boolean =
-    if (name.isEmpty) false else name.orNull == value
+    name.fold(false)(_ == value)
 
   // -- Serialization --
 
   /** Returns a JSON string representation. */
   def toJson(): String =
     if (isValue) {
-      val s = asString()
-      if (s.isEmpty) "null" else s.orNull
+      asString().getOrElse("null")
     } else {
       val writer = new StringWriter(512)
       try
@@ -832,29 +807,29 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     if (isObject) {
       writer.write('{')
       var c = child
-      while (c.isDefined) {
-        val entry = c.orNull
-        writer.write('"')
-        writer.write(entry.name.orNull)
-        writer.write("\":")
-        entry.toJson(writer)
-        if (entry.next.isDefined) writer.write(',')
-        c = entry.next
-      }
+      while (c.isDefined)
+        c.foreach { entry =>
+          writer.write('"')
+          writer.write(entry.name.getOrElse(""))
+          writer.write("\":")
+          entry.toJson(writer)
+          if (entry.next.isDefined) writer.write(',')
+          c = entry.next
+        }
       writer.write('}')
     } else if (isArray) {
       writer.write('[')
       var c = child
-      while (c.isDefined) {
-        val entry = c.orNull
-        entry.toJson(writer)
-        if (entry.next.isDefined) writer.write(',')
-        c = entry.next
-      }
+      while (c.isDefined)
+        c.foreach { entry =>
+          entry.toJson(writer)
+          if (entry.next.isDefined) writer.write(',')
+          c = entry.next
+        }
       writer.write(']')
     } else if (isString) {
       writer.write('"')
-      writer.write(asString().orNull)
+      writer.write(stringValueGet)
       writer.write('"')
     } else if (isDouble) {
       val dv = asDouble()
@@ -879,8 +854,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     override def hasNext: Boolean = entry.isDefined
 
     override def next(): JsonValue = {
-      if (entry.isEmpty) throw new NoSuchElementException()
-      val current = entry.orNull
+      val current = entry.getOrElse(throw new NoSuchElementException())
       entry = current.next
       current
     }
@@ -888,38 +862,40 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
 
   /** Returns a human readable string representing the path from the root of the JSON object graph to this value. */
   def trace(): String =
-    if (parent.isEmpty) {
+    parent.fold {
       if (_type == ValueType.array) "[]"
       else if (_type == ValueType.`object`) "{}"
       else ""
-    } else {
+    } { p =>
       val t =
-        if (parent.orNull._type == ValueType.array) {
+        if (p._type == ValueType.array) {
           var tr = "[]"
           var i  = 0
-          var c  = parent.orNull.child
+          var c  = p.child
           while (c.isDefined)
-            if (c.orNull eq this) {
-              tr = "[" + i + "]"
-              c = Nullable.empty // break
-            } else {
-              i += 1
-              c = c.orNull.next
+            c.foreach { cv =>
+              if (cv eq this) {
+                tr = "[" + i + "]"
+                c = Nullable.empty // break
+              } else {
+                i += 1
+                c = cv.next
+              }
             }
           tr
-        } else if (name.isDefined && name.orNull.indexOf('.') != -1)
-          ".\"" + name.orNull.replace("\"", "\\\"") + "\""
+        } else if (name.fold(false)(_.indexOf('.') != -1))
+          name.fold("")(n => ".\"" + n.replace("\"", "\\\"") + "\"")
         else
           "." + name.fold("")(identity)
-      parent.orNull.trace() + t
+      p.trace() + t
     }
 
   override def toString(): String =
     if (isValue) {
       val s = asString()
-      if (name.isEmpty) s.fold("null")(identity) else name.orNull + ": " + s.fold("null")(identity)
+      name.fold(s.fold("null")(identity))(n => n + ": " + s.fold("null")(identity))
     } else {
-      (if (name.isEmpty) "" else name.orNull + ": ") + toJson()
+      name.fold("")(_ + ": ") + toJson()
     }
 }
 

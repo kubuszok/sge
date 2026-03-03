@@ -16,7 +16,6 @@ import sge.files.FileHandle
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
 import sge.maps.objects._
-import sge.maps.tiled.TiledMapTileLayer.Cell
 import sge.maps.tiled.objects.TiledMapTileMapObject
 import sge.maps.tiled.tiles.{ AnimatedTiledMapTile, StaticTiledMapTile }
 import sge.math.{ Polygon, Polyline }
@@ -67,16 +66,16 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     this.templateCache = ObjectMap[String, JsonValue]()
 
     val param = Nullable(parameter)
-    if (param.isDefined) {
-      this.convertObjectToTileSpace = param.orNull.convertObjectToTileSpace
-      this.flipY = param.orNull.flipY
-      loadProjectFile(param.orNull.projectFilePath)
-    } else {
+    param.fold {
       this.convertObjectToTileSpace = false
       this.flipY = true
+    } { p =>
+      this.convertObjectToTileSpace = p.convertObjectToTileSpace
+      this.flipY = p.flipY
+      loadProjectFile(p.projectFilePath)
     }
 
-    val r                  = root.orNull
+    val r                  = root.getOrElse(throw new IllegalStateException("root not initialized"))
     val mapOrientation     = r.getString("orientation", Nullable.empty)
     val mapWidth           = r.getInt("width", 0)
     val mapHeight          = r.getInt("height", 0)
@@ -158,7 +157,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     tmjFile:       FileHandle,
     imageResolver: ImageResolver
   ): Unit = {
-    val layerType = element.getString("type", Nullable(":")).orNull
+    val layerType = element.getString("type", Nullable(":")).getOrElse(":")
     layerType match {
       case "group"       => loadLayerGroup(map, parentLayers, element, tmjFile, imageResolver)
       case "tilelayer"   => loadTileLayer(map, parentLayers, element)
@@ -175,7 +174,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     tmjFile:       FileHandle,
     imageResolver: ImageResolver
   ): Unit =
-    if (element.getString("type", Nullable(":")).orNull == "group") {
+    if (element.getString("type", Nullable(":")).getOrElse(":") == "group") {
       val groupLayer = new MapGroupLayer()
       loadBasicLayerInfo(groupLayer, element)
 
@@ -195,7 +194,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
   protected def loadTileLayer(map: TiledMap, parentLayers: MapLayers, element: JsonValue): Unit =
-    if (element.getString("type", Nullable(":")).orNull == "tilelayer") {
+    if (element.getString("type", Nullable(":")).getOrElse(":") == "tilelayer") {
       val width      = element.getInt("width", 0)
       val height     = element.getInt("height", 0)
       val tileWidth  = map.getProperties.get("tilewidth", classOf[Integer]).intValue()
@@ -236,7 +235,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     element:      JsonValue,
     tmjFile:      FileHandle
   ): Unit =
-    if (element.getString("type", Nullable(":")).orNull == "objectgroup") {
+    if (element.getString("type", Nullable(":")).getOrElse(":") == "objectgroup") {
       val layer = new MapLayer()
       loadBasicLayerInfo(layer, element)
       val properties = element.get("properties")
@@ -262,12 +261,12 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     tmjFile:       FileHandle,
     imageResolver: ImageResolver
   ): Unit =
-    if (element.getString("type", Nullable(":")).orNull == "imagelayer") {
-      var x = element.getFloat("offsetx", 0)
+    if (element.getString("type", Nullable(":")).getOrElse(":") == "imagelayer") {
+      val x = element.getFloat("offsetx", 0)
       var y = element.getFloat("offsety", 0)
       if (flipY) y = mapHeightInPixels - y
 
-      val imageSrc = element.getString("image", Nullable("")).orNull
+      val imageSrc = element.getString("image", Nullable("")).getOrElse("")
 
       val repeatX = element.getInt("repeatx", 0) == 1
       val repeatY = element.getInt("repeaty", 0) == 1
@@ -280,7 +279,9 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         texture.foreach(t => y -= t.getRegionHeight())
       }
 
-      val layer = new TiledMapImageLayer(texture.orNull, x, y, repeatX, repeatY)
+      @annotation.nowarn("msg=deprecated") // TiledMapImageLayer takes TextureRegion, not Nullable -- null is valid per original LibGDX API
+      val textureValue: TextureRegion = texture.orNull
+      val layer = new TiledMapImageLayer(textureValue, x, y, repeatX, repeatY)
 
       loadBasicLayerInfo(layer, element)
 
@@ -291,9 +292,9 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
   protected def loadBasicLayerInfo(layer: MapLayer, element: JsonValue): Unit = {
-    val name      = element.getString("name", Nullable.empty).orNull
+    val name      = element.getString("name", Nullable.empty).getOrElse("")
     val opacity   = element.getFloat("opacity", 1.0f)
-    val tintColor = element.getString("tintcolor", Nullable("#ffffffff")).orNull
+    val tintColor = element.getString("tintcolor", Nullable("#ffffffff")).getOrElse("#ffffffff")
     val visible   = element.getBoolean("visible", true)
     val offsetX   = element.getFloat("offsetx", 0)
     val offsetY   = element.getFloat("offsety", 0)
@@ -335,22 +336,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var child: Nullable[JsonValue] = Nullable.empty
       child = element.get("polygon")
       if (child.isDefined) {
-        val c        = child.orNull
-        val vertices = new Array[Float](c.size * 2)
-        var index    = 0
-        for (point <- c) {
-          vertices(index) = point.getFloat("x", 0) * scaleX
-          index += 1
-          vertices(index) = point.getFloat("y", 0) * scaleY * (if (flipY) -1 else 1)
-          index += 1
-        }
-        val polygon = new Polygon(vertices)
-        polygon.setPosition(x, y)
-        obj = Nullable(new PolygonMapObject(polygon))
-      } else {
-        child = element.get("polyline")
-        if (child.isDefined) {
-          val c        = child.orNull
+        child.foreach { c =>
           val vertices = new Array[Float](c.size * 2)
           var index    = 0
           for (point <- c) {
@@ -359,28 +345,44 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
             vertices(index) = point.getFloat("y", 0) * scaleY * (if (flipY) -1 else 1)
             index += 1
           }
-          val polyline = new Polyline(vertices)
-          polyline.setPosition(x, y)
-          obj = Nullable(new PolylineMapObject(polyline))
+          val polygon = new Polygon(vertices)
+          polygon.setPosition(x, y)
+          obj = Nullable(new PolygonMapObject(polygon))
+        }
+      } else {
+        child = element.get("polyline")
+        if (child.isDefined) {
+          child.foreach { c =>
+            val vertices = new Array[Float](c.size * 2)
+            var index    = 0
+            for (point <- c) {
+              vertices(index) = point.getFloat("x", 0) * scaleX
+              index += 1
+              vertices(index) = point.getFloat("y", 0) * scaleY * (if (flipY) -1 else 1)
+              index += 1
+            }
+            val polyline = new Polyline(vertices)
+            polyline.setPosition(x, y)
+            obj = Nullable(new PolylineMapObject(polyline))
+          }
         } else if (element.get("ellipse").isDefined) {
           obj = Nullable(new EllipseMapObject(x, if (flipY) y - height else y, width, height))
         } else if (element.get("point").isDefined) {
           obj = Nullable(new PointMapObject(x, if (flipY) y - height else y))
         } else {
           child = element.get("text")
-          if (child.isDefined) {
-            val c             = child.orNull
+          child.foreach { c =>
             val textMapObject = new TextMapObject(
               x,
               if (flipY) y - height else y,
               width,
               height,
-              c.getString("text", Nullable("")).orNull
+              c.getString("text", Nullable("")).getOrElse("")
             )
-            textMapObject.setFontFamily(c.getString("fontfamily", Nullable("")).orNull)
+            textMapObject.setFontFamily(c.getString("fontfamily", Nullable("")).getOrElse(""))
             textMapObject.setPixelSize(c.getInt("pixelSize", 16))
-            textMapObject.setHorizontalAlign(c.getString("halign", Nullable("left")).orNull)
-            textMapObject.setVerticalAlign(c.getString("valign", Nullable("top")).orNull)
+            textMapObject.setHorizontalAlign(c.getString("halign", Nullable("left")).getOrElse("left"))
+            textMapObject.setVerticalAlign(c.getString("valign", Nullable("top")).getOrElse("top"))
             textMapObject.setBold(c.getBoolean("bold", false))
             textMapObject.setItalic(c.getBoolean("italic", false))
             textMapObject.setUnderline(c.getBoolean("underline", false))
@@ -389,7 +391,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
             // When kerning is true, it won't be added as an attribute, it's true by default
             textMapObject.setKerning(c.getBoolean("kerning", true))
             // Default color is #000000, not added as attribute
-            val textColor = c.getString("color", Nullable("#000000")).orNull
+            val textColor = c.getString("color", Nullable("#000000")).getOrElse("#000000")
             textMapObject.setColor(Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(textColor)))
             obj = Nullable(textMapObject)
           }
@@ -398,22 +400,22 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
     if (obj.isEmpty) {
       val gid = element.getString("gid", Nullable.empty)
-      if (gid.isDefined) {
-        val id               = java.lang.Long.parseLong(gid.orNull).toInt
+      gid.foreach { g =>
+        val id               = java.lang.Long.parseLong(g).toInt
         val flipHorizontally = (id & BaseTiledMapLoader.FLAG_FLIP_HORIZONTALLY) != 0
         val flipVertically   = (id & BaseTiledMapLoader.FLAG_FLIP_VERTICALLY) != 0
 
         val tile = map.getTileSets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
         tile.foreach { t =>
           val tiledMapTileMapObject = new TiledMapTileMapObject(t, flipHorizontally, flipVertically)
-          val textureRegion         = tiledMapTileMapObject.getTextureRegion.orNull
+          val texRegion             = tiledMapTileMapObject.getTextureRegion.getOrElse(throw new IllegalStateException("tile missing texture region"))
           tiledMapTileMapObject.getProperties.put("gid", id: java.lang.Integer)
           tiledMapTileMapObject.setX(x)
           tiledMapTileMapObject.setY(if (flipY) y else y - height)
-          val objectWidth  = element.getFloat("width", textureRegion.getRegionWidth().toFloat)
-          val objectHeight = element.getFloat("height", textureRegion.getRegionHeight().toFloat)
-          tiledMapTileMapObject.setScaleX(scaleX * (objectWidth / textureRegion.getRegionWidth()))
-          tiledMapTileMapObject.setScaleY(scaleY * (objectHeight / textureRegion.getRegionHeight()))
+          val objectWidth  = element.getFloat("width", texRegion.getRegionWidth().toFloat)
+          val objectHeight = element.getFloat("height", texRegion.getRegionHeight().toFloat)
+          tiledMapTileMapObject.setScaleX(scaleX * (objectWidth / texRegion.getRegionWidth()))
+          tiledMapTileMapObject.setScaleY(scaleY * (objectHeight / texRegion.getRegionHeight()))
           tiledMapTileMapObject.setRotation(element.getFloat("rotation", 0))
           obj = Nullable(tiledMapTileMapObject)
         }
@@ -422,8 +424,8 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         obj = Nullable(new RectangleMapObject(x, if (flipY) y - height else y, width, height))
       }
     }
-    val theObj = obj.orNull
-    theObj.setName(element.getString("name", Nullable.empty).orNull)
+    val theObj = obj.getOrElse(throw new IllegalStateException("object could not be created"))
+    theObj.setName(element.getString("name", Nullable.empty).getOrElse(""))
     val rotation = element.getString("rotation", Nullable.empty)
     rotation.foreach(r => theObj.getProperties.put("rotation", java.lang.Float.parseFloat(r): java.lang.Float))
     val objType = element.getString("type", Nullable.empty)
@@ -473,7 +475,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     tmjFile:    FileHandle
   ): JsonValue = {
     // Get template (.tj) file name from element
-    val tjFileName = mapElement.getString("template", Nullable.empty).orNull
+    val tjFileName = mapElement.getString("template", Nullable.empty).getOrElse("")
     // check for cached tj element
     var templateElement = templateCache.get(tjFileName)
     if (templateElement.isEmpty) {
@@ -484,28 +486,31 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         case e: Exception =>
           throw new IllegalArgumentException("Error parsing template file: " + tjFileName, e)
       }
-      templateCache.put(tjFileName, templateElement.orNull)
+      templateCache.put(tjFileName, templateElement.getOrElse(throw new IllegalStateException("template parse failed")))
     }
     // Get the root object from the template file
-    val templateObjectElement = templateElement.orNull.get("object")
+    val te                    = templateElement.getOrElse(throw new IllegalStateException("template element not found"))
+    val templateObjectElement = te.get("object")
     // Merge the parent map element with its template element
-    mergeParentElementWithTemplate(mapElement, templateObjectElement.orNull)
+    mergeParentElementWithTemplate(mapElement, templateObjectElement.getOrElse(throw new IllegalStateException("template object element not found")))
   }
 
   /** JSON TextMapObjects contain object nodes containing specific text related attributes. Here we merge them, parent attributes will override those found in templates.
     */
-  protected def mergeJsonObject(parentObject: JsonValue, templateObject: JsonValue): JsonValue =
-    if (Nullable(templateObject).isEmpty) parentObject // scalastyle:ignore
-    else if (Nullable(parentObject).isEmpty) templateObject // scalastyle:ignore
+  protected def mergeJsonObject(parentObject: Nullable[JsonValue], templateObject: Nullable[JsonValue]): JsonValue =
+    if (templateObject.isEmpty) parentObject.getOrElse(throw new IllegalStateException("both json objects absent")) // scalastyle:ignore
+    else if (parentObject.isEmpty) templateObject.getOrElse(throw new IllegalStateException("both json objects absent")) // scalastyle:ignore
     else {
+      val pObj = parentObject.getOrElse(throw new IllegalStateException("unreachable"))
+      val tObj = templateObject.getOrElse(throw new IllegalStateException("unreachable"))
       // Create a new merged element which will contain a combination of parent and template objects
       val merged = new JsonValue(JsonValue.ValueType.`object`)
       // Add children from template
-      for (child <- templateObject)
-        merged.addChild(child.name.orNull, cloneElementShallow(child))
+      for (child <- tObj)
+        merged.addChild(child.name.getOrElse(""), cloneElementShallow(child))
       // Add or override children from parent
-      for (child <- parentObject)
-        merged.setChild(child.name.orNull, cloneElementShallow(child))
+      for (child <- pObj)
+        merged.setChild(child.name.getOrElse(""), cloneElementShallow(child))
       merged
     }
 
@@ -528,22 +533,24 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   /** Merges two properties arrays from a parent and template. Matching properties from the parent will override the template's.
     */
-  protected def mergeJsonProperties(parentProps: JsonValue, templateProps: JsonValue): JsonValue =
-    if (Nullable(templateProps).isEmpty) parentProps // scalastyle:ignore
-    else if (Nullable(parentProps).isEmpty) templateProps // scalastyle:ignore
+  protected def mergeJsonProperties(parentProps: Nullable[JsonValue], templateProps: Nullable[JsonValue]): JsonValue =
+    if (templateProps.isEmpty) parentProps.getOrElse(throw new IllegalStateException("both properties absent")) // scalastyle:ignore
+    else if (parentProps.isEmpty) templateProps.getOrElse(throw new IllegalStateException("both properties absent")) // scalastyle:ignore
     else {
+      val pProps = parentProps.getOrElse(throw new IllegalStateException("unreachable"))
+      val tProps = templateProps.getOrElse(throw new IllegalStateException("unreachable"))
       // Create a new merged properties element which will contain a combination of parent and template properties.
       val merged = new JsonValue(JsonValue.ValueType.array)
       // Set properties from template
-      for (property <- templateProps)
+      for (property <- tProps)
         merged.addChild(deepCopyJsonValue(property)) // deep copy
       // Set properties from the parent, matching ones from template will be overridden
-      for (property <- parentProps) {
+      for (property <- pProps) {
         val propName = property.getString("name", Nullable.empty)
         if (propName.isDefined) {
           // Search for an existing property with the same name
           for (child <- merged)
-            if (propName.orNull == child.getString("name", Nullable.empty).orNull) {
+            if (propName.getOrElse("") == child.getString("name", Nullable.empty).getOrElse("")) {
               child.removeFromParent()
             }
           merged.addChild(deepCopyJsonValue(property)) // Add or replace with map copy
@@ -555,30 +562,27 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   /** Recursively merges a "parent" (map) object element with its referenced template object element. Attributes and properties found in the template are allowed to be overwritten by any matching ones
     * found in its parent element. The returned element is a new detached tree (parent = null) so it can be handed straight to the loadObject() method without issues.
     */
-  protected def mergeParentElementWithTemplate(parent: JsonValue, template: JsonValue): JsonValue =
-    if (Nullable(template).isEmpty) parent // scalastyle:ignore
-    else if (Nullable(parent).isEmpty) template // scalastyle:ignore
-    else {
-      // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
-      val merged = new JsonValue(JsonValue.ValueType.`object`)
-      // Set attributes from template
-      for (child <- template)
-        merged.addChild(cloneElementShallow(child))
-      // Set attributes from the parent, matching ones from template will be overridden
-      // Specifically added special case to handle JSON version of TextMapObjects since they are unique compared to other objects.
-      for (child <- parent) {
-        val key = child.name.orNull
-        key match {
-          case "properties" =>
-            merged.setChild(key, mergeJsonProperties(child, template.get("properties").orNull))
-          case "text" =>
-            merged.setChild(key, mergeJsonObject(child, template.get("text").orNull))
-          case _ =>
-            merged.setChild(key, cloneElementShallow(child))
-        }
+  protected def mergeParentElementWithTemplate(parent: JsonValue, template: JsonValue): JsonValue = {
+    // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
+    val merged = new JsonValue(JsonValue.ValueType.`object`)
+    // Set attributes from template
+    for (child <- template)
+      merged.addChild(cloneElementShallow(child))
+    // Set attributes from the parent, matching ones from template will be overridden
+    // Specifically added special case to handle JSON version of TextMapObjects since they are unique compared to other objects.
+    for (child <- parent) {
+      val key = child.name.getOrElse("")
+      key match {
+        case "properties" =>
+          merged.setChild(key, mergeJsonProperties(Nullable(child), template.get("properties")))
+        case "text" =>
+          merged.setChild(key, mergeJsonObject(Nullable(child), template.get("text")))
+        case _ =>
+          merged.setChild(key, cloneElementShallow(child))
       }
-      merged
     }
+    merged
+  }
 
   /** Creates a deep copy of a JsonValue tree, since JsonValue has no copy constructor. */
   private def deepCopyJsonValue(src: JsonValue): JsonValue = {
@@ -588,8 +592,9 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     // Copy children recursively
     var child = src.child
     while (child.isDefined) {
-      copy.addChild(deepCopyJsonValue(child.orNull))
-      child = child.orNull.next
+      val c = child.getOrElse(throw new IllegalStateException("unreachable"))
+      copy.addChild(deepCopyJsonValue(c))
+      child = c.next
     }
     copy
   }
@@ -599,19 +604,19 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   private def loadProperties(properties: MapProperties, element: JsonValue): Unit =
     if (Nullable(element).isDefined && element.name.fold(false)(_ == "properties")) { // scalastyle:ignore
       for (property <- element) {
-        val name     = property.getString("name", Nullable.empty).orNull
+        val name     = property.getString("name", Nullable.empty).getOrElse("")
         var value    = property.getString("value", Nullable.empty)
         val propType = property.getString("type", Nullable.empty)
         if (value.isEmpty && propType.fold(true)(_ != "class")) {
           value = property.asString()
         }
-        propType.orNull match {
+        propType.getOrElse("") match {
           case "object" =>
             value.foreach(v => loadObjectProperty(properties, name, v))
           case "class" =>
             // A 'class' property is a property which is itself a set of properties
             val classProperties = new MapProperties()
-            val className       = property.getString("propertytype", Nullable.empty).orNull
+            val className       = property.getString("propertytype", Nullable.empty).getOrElse("")
             classProperties.put("type", className)
             // the actual properties of a 'class' property are stored as a new properties tag
             properties.put(name, classProperties)
@@ -632,12 +637,12 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       var image: Nullable[FileHandle] = Nullable.empty
 
       val source = el.getString("source", Nullable.empty)
-      if (source.isDefined) {
-        val tsj = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, source.orNull)
+      source.foreach { s =>
+        val tsj = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
         try {
           el = json.parse(tsj)
           if (el.has("image")) {
-            imageSource = el.getString("image", Nullable.empty).orNull
+            imageSource = el.getString("image", Nullable.empty).getOrElse("")
             imageWidth = el.getInt("imagewidth", 0)
             imageHeight = el.getInt("imageheight", 0)
             image = Nullable(BaseTiledMapLoader.getRelativeFileHandle(tsj, imageSource))
@@ -646,9 +651,10 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           case e: Exception =>
             throw new IllegalArgumentException("Error parsing external tileSet.", e)
         }
-      } else {
+      }
+      if (source.isEmpty) {
         if (el.has("image")) {
-          imageSource = el.getString("image", Nullable.empty).orNull
+          imageSource = el.getString("image", Nullable.empty).getOrElse("")
           imageWidth = el.getInt("imagewidth", 0)
           imageHeight = el.getInt("imageheight", 0)
           image = Nullable(BaseTiledMapLoader.getRelativeFileHandle(tmjFile, imageSource))
@@ -670,7 +676,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val tileSet = new TiledMapTileSet()
 
       // TileSet
-      tileSet.setName(name.orNull)
+      tileSet.setName(name.getOrElse(""))
       val tileSetProperties = tileSet.getProperties
       val properties        = el.get("properties")
       properties.foreach(p => loadProperties(tileSetProperties, p))
@@ -688,25 +694,25 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         imageResolver,
         tileSet,
         el,
-        tiles.orNull,
-        name.orNull,
+        tiles.getOrElse(throw new IllegalStateException("unreachable")),
+        name.getOrElse(""),
         firstgid,
         tilewidth,
         tileheight,
         spacing,
         margin,
-        source.orNull,
+        source.getOrElse(""),
         offsetX,
         offsetY,
         imageSource,
         imageWidth,
         imageHeight,
-        image.orNull
+        image.getOrElse(null: FileHandle) // scalastyle:ignore -- null valid per original LibGDX API
       )
 
       val animatedTiles = DynamicArray[AnimatedTiledMapTile]()
 
-      for (tileElement <- tiles.orNull) {
+      for (tileElement <- tiles.getOrElse(throw new IllegalStateException("unreachable"))) {
         val localtid = tileElement.getInt("id", 0)
         val tile     = tileSet.getTile(firstgid + localtid)
         tile.foreach { t =>
@@ -787,7 +793,9 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val staticTiles = DynamicArray[StaticTiledMapTile]()
       val intervals   = DynamicArray[Int]()
       for (frameValue <- ae) {
-        staticTiles.add(tileSet.getTile(firstgid + frameValue.getInt("tileid", 0)).orNull.asInstanceOf[StaticTiledMapTile])
+        staticTiles.add(
+          tileSet.getTile(firstgid + frameValue.getInt("tileid", 0)).getOrElse(throw new IllegalStateException("missing tile for animation frame")).asInstanceOf[StaticTiledMapTile]
+        )
         intervals.add(frameValue.getInt("duration", 0))
       }
 
@@ -804,21 +812,24 @@ object BaseTmjMapLoader {
     val data     = element.get("data")
     val encoding = element.getString("encoding", Nullable.empty)
 
-    if (encoding.isEmpty || encoding.orNull.isEmpty || encoding.orNull == "csv") {
-      data.orNull.asIntArray()
-    } else if (encoding.orNull == "base64") {
+    val enc = encoding.getOrElse("")
+    if (enc.isEmpty || enc == "csv") {
+      data.getOrElse(throw new IllegalStateException("missing tile data")).asIntArray()
+    } else if (enc == "base64") {
       var is: InputStream = null
       try {
         val compression = element.getString("compression", Nullable.empty)
-        val bytes       = java.util.Base64.getDecoder.decode(data.orNull.asString().orNull)
-        if (compression.isEmpty || compression.orNull.isEmpty)
+        val comp        = compression.getOrElse("")
+        val dataValue   = data.getOrElse(throw new IllegalStateException("missing tile data"))
+        val bytes       = java.util.Base64.getDecoder.decode(dataValue.asString().getOrElse(""))
+        if (comp.isEmpty)
           is = new ByteArrayInputStream(bytes)
-        else if (compression.orNull == "gzip")
+        else if (comp == "gzip")
           is = new BufferedInputStream(new GZIPInputStream(new ByteArrayInputStream(bytes), bytes.length))
-        else if (compression.orNull == "zlib")
+        else if (comp == "zlib")
           is = new BufferedInputStream(new InflaterInputStream(new ByteArrayInputStream(bytes)))
         else
-          throw new IllegalArgumentException("Unrecognised compression (" + compression.orNull + ") for TMJ Layer Data")
+          throw new IllegalArgumentException("Unrecognised compression (" + comp + ") for TMJ Layer Data")
 
         val temp = new Array[Byte](4)
         val ids  = new Array[Int](width * height)
@@ -851,7 +862,7 @@ object BaseTmjMapLoader {
     } else {
       // any other value of 'encoding' is one we're not aware of, probably a feature of a future version of Tiled
       // or another editor
-      throw new IllegalArgumentException("Unrecognised encoding (" + encoding.orNull + ") for TMJ Layer Data")
+      throw new IllegalArgumentException("Unrecognised encoding (" + enc + ") for TMJ Layer Data")
     }
   }
 }

@@ -36,7 +36,7 @@ object Colors {
     * @return
     *   the color to which the specified {@code name} is mapped, or {@code null} if there was no mapping for {@code name} .
     */
-  def get(name: String): Nullable[Color] = map.get(name).orNull
+  def get(name: String): Nullable[Color] = Nullable.fromOption(map.get(name))
 
   /** Convenience method to add a {@code color} with its {@code name} . The invocation of this method is equivalent to the expression {@code Colors.getColors().put(name, color)}
     *
@@ -48,7 +48,7 @@ object Colors {
     *   the previous {@code color} associated with {@code name} , or {@code null} if there was no mapping for {@code name} .
     */
   def put(name: String, color: Color): Nullable[Color] = {
-    val previous = map.get(name).orNull
+    val previous = Nullable.fromOption(map.get(name))
     map.put(name, color)
     previous
   }

@@ -12,16 +12,17 @@ package glutils
 
 import sge.files.FileHandle
 import sge.utils.Nullable
+import scala.annotation.nowarn
 import sge.utils.SgeError
 
 /** @author Tomski * */
-class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: FileHandle*)(using sge: Sge) extends TextureArrayData {
+class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: FileHandle*)(using Sge) extends TextureArrayData {
 
   private var textureDatas:  Array[TextureData] = scala.compiletime.uninitialized
   private var prepared:      Boolean            = false
-  private var formatVar:     Pixmap.Format      = format
+  private val formatVar:     Pixmap.Format      = format
   private var depth:         Int                = files.length
-  private var useMipMapsVar: Boolean            = useMipMaps
+  private val useMipMapsVar: Boolean            = useMipMaps
 
   // Constructor body (equivalent to the Java constructor)
   locally {
@@ -68,7 +69,9 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
           pixmap = temp
           disposePixmap = true
         }
-        sge.graphics.gl30.orNull.glTexSubImage3D(
+        // orNull required: GL30 Java API needs direct reference for OpenGL call
+        @nowarn("msg=deprecated") val gl30 = Sge().graphics.gl30.orNull
+        gl30.glTexSubImage3D(
           GL30.GL_TEXTURE_2D_ARRAY,
           0,
           0,
@@ -84,7 +87,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
         if (disposePixmap) pixmap.close()
       }
     if (useMipMapsVar && !containsCustomData) {
-      sge.graphics.gl20.glGenerateMipmap(GL30.GL_TEXTURE_2D_ARRAY)
+      Sge().graphics.gl20.glGenerateMipmap(GL30.GL_TEXTURE_2D_ARRAY)
     }
   }
 

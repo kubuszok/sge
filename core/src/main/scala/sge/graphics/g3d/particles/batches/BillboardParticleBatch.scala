@@ -24,10 +24,8 @@ import sge.graphics.g3d.Shader
 import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.graphics.g3d.attributes.DepthTestAttribute
 import sge.graphics.g3d.attributes.TextureAttribute
-import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ResourceData
-import sge.graphics.g3d.particles.ResourceData.SaveData
 import sge.graphics.g3d.particles.renderers.BillboardControllerRenderData
 import sge.graphics.g3d.shaders.DefaultShader
 import sge.graphics.glutils.ShaderProgram
@@ -48,13 +46,13 @@ class BillboardParticleBatch(
   capacity:           Int,
   blendingAttribute:  Nullable[BlendingAttribute],
   depthTestAttribute: Nullable[DepthTestAttribute]
-)(using sge: Sge)
+)(using Sge)
     extends BufferedParticleBatch[BillboardControllerRenderData] {
 
   import BillboardParticleBatch.*
 
   private val renderablePool:       RenderablePool                   = new RenderablePool(this)
-  private var renderables:          DynamicArray[Renderable]         = DynamicArray[Renderable]()
+  private val renderables:          DynamicArray[Renderable]         = DynamicArray[Renderable]()
   private var vertices:             Array[Float]                     = scala.compiletime.uninitialized
   private var indices:              Array[Short]                     = scala.compiletime.uninitialized
   private var currentVertexSize:    Int                              = 0
@@ -85,17 +83,14 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, useGPU: Boolean, capacity: Int)(using sge: Sge) = {
+  def this(mode: BillboardParticleBatch.AlignMode, useGPU: Boolean, capacity: Int)(using Sge) =
     this(mode, useGPU, capacity, Nullable.empty, Nullable.empty)
-  }
 
-  def this()(using sge: Sge) = {
+  def this()(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
-  }
 
-  def this(capacity: Int)(using sge: Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
-  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)
@@ -757,7 +752,7 @@ object BillboardParticleBatch {
   private val MAX_PARTICLES_PER_MESH: Int = Short.MaxValue / 4
   private val MAX_VERTICES_PER_MESH:  Int = MAX_PARTICLES_PER_MESH * 4
 
-  private class RenderablePool(batch: BillboardParticleBatch)(using sge: Sge) extends Pool[Renderable] {
+  private class RenderablePool(batch: BillboardParticleBatch)(using Sge) extends Pool[Renderable] {
     override protected val max:             Int = Int.MaxValue
     override protected val initialCapacity: Int = 16
 

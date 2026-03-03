@@ -10,10 +10,8 @@ package sge
 package graphics
 package glutils
 
-import java.util.regex.Matcher
 import java.util.regex.Pattern
 import sge.Application
-import sge.utils.SgeError
 
 class GLVersion(
   appType:        Application.ApplicationType,
@@ -38,8 +36,6 @@ class GLVersion(
     case Application.ApplicationType.WebGL   => GLVersion.Type.WebGL
     case _                                   => GLVersion.Type.NONE
   }
-
-  private val TAG = "GLVersion"
 
   // Initialize version numbers based on type
   `type` match {

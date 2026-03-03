@@ -24,11 +24,9 @@ class OctreeTest extends munit.FunSuite {
         override def intersects(frustum: Frustum, geometry: BoundingBox): Boolean =
           false
 
-        private val tmp = new Vector3()
-
         override def intersects(ray: Ray, geometry: BoundingBox): Float =
           // TODO: Use Intersector.intersectRayBounds once it's ported
-          // Original: if (!Intersector.intersectRayBounds(ray, geometry, tmp)) tmp.dst2(ray.origin) else Float.PositiveInfinity
+          // Original: val tmp = new Vector3(); if (!Intersector.intersectRayBounds(ray, geometry, tmp)) tmp.dst2(ray.origin) else Float.PositiveInfinity
           Float.PositiveInfinity
       }
     )

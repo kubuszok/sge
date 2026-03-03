@@ -11,8 +11,8 @@ package graphics
 
 import sge.files.FileHandle
 import sge.utils.{ Nullable, SgeError }
+import scala.annotation.nowarn
 import sge.graphics.Pixmap.Format
-import scala.annotation.targetName
 
 import scala.collection.mutable
 import sge.utils.DynamicArray
@@ -21,37 +21,33 @@ import sge.utils.DynamicArray
   * @author
   *   Tomski
   */
-class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL30.GL_TEXTURE_2D_ARRAY, TextureHandle(sge.graphics.gl.glGenTexture())) {
+class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(GL30.GL_TEXTURE_2D_ARRAY, TextureHandle(Sge().graphics.gl.glGenTexture())) {
 
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using sge: Sge) = {
+  def this(internalPaths: Array[String])(using Sge) =
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
-  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using sge: Sge) = {
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) =
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
-  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using sge: Sge) = {
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) =
     this(useMipMaps, Format.RGBA8888, files)
-  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using sge: Sge) = {
+  def this(files: Array[FileHandle])(using Sge) =
     this(false, files)
-  }
 
-  if (sge.graphics.gl30.isEmpty) {
+  if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")
   }
 
   load(data)
 
-  if (data.isManaged()) TextureArray.addManagedTexture(sge.application, this)
+  if (data.isManaged()) TextureArray.addManagedTexture(Sge().application, this)
 
   private def load(data: TextureArrayData): Unit = {
     Nullable(this.textureData).foreach { existing =>
@@ -61,7 +57,9 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
     this.textureData = data
 
     bind()
-    sge.graphics.gl30.orNull.glTexImage3D(
+    // orNull required: GL30 Java API needs direct reference for OpenGL call
+    @nowarn("msg=deprecated") val gl30 = Sge().graphics.gl30.orNull
+    gl30.glTexImage3D(
       GL30.GL_TEXTURE_2D_ARRAY,
       0,
       data.getInternalFormat(),
@@ -80,7 +78,7 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
 
     setFilter(minFilter, magFilter)
     setWrap(uWrap, vWrap)
-    sge.graphics.gl.glBindTexture(glTarget, 0)
+    Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
   override def getWidth: Int = textureData.getWidth()
@@ -93,7 +91,7 @@ class TextureArray(data: TextureArrayData)(using sge: Sge) extends GLTexture(GL3
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
-    glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
+    glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }
 }
@@ -102,10 +100,10 @@ object TextureArray {
   final val managedTextureArrays: mutable.Map[Application, DynamicArray[TextureArray]] =
     mutable.Map[Application, DynamicArray[TextureArray]]()
 
-  private def getInternalHandles(internalPaths: String*)(using sge: Sge): Array[FileHandle] = {
+  private def getInternalHandles(internalPaths: String*)(using Sge): Array[FileHandle] = {
     val handles = new Array[FileHandle](internalPaths.length)
     for (i <- internalPaths.indices)
-      handles(i) = sge.files.internal(internalPaths(i))
+      handles(i) = Sge().files.internal(internalPaths(i))
     handles
   }
 
@@ -144,6 +142,6 @@ object TextureArray {
   }
 
   /** @return the number of managed TextureArrays currently loaded */
-  def getNumManagedTextureArrays()(using sge: Sge): Int =
-    managedTextureArrays.get(sge.application).map(_.size).getOrElse(0)
+  def getNumManagedTextureArrays()(using Sge): Int =
+    managedTextureArrays.get(Sge().application).map(_.size).getOrElse(0)
 }

@@ -10,8 +10,7 @@ package sge
 package graphics
 package g2d
 
-import java.io.{ IOException, Writer }
-import java.util.regex.Matcher
+import java.io.IOException
 import sge.files.FileHandle
 import sge.graphics.PixmapIO
 import sge.graphics.Texture.TextureFilter
