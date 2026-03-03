@@ -5,6 +5,24 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Largest file in compression package (~1240 lines); all inner classes + methods ported
+ * - Inner classes: LiteralEncoder, LiteralEncoder.Encoder2, LenEncoder, LenPriceTableEncoder,
+ *   Optimal -- moved to companion object (correct for Scala)
+ * - Static members: constants + g_FastPos + GetPosSlot/GetPosSlot2 -> companion object
+ * - Java `return` -> boundary/break throughout (getOptimum, setPrices, codeOneBlock, Code)
+ * - Raw null on _matchFinder, _inStream, m_Coders: should use Nullable[T] but wrapped with
+ *   Nullable() checks where tested (Nullable(_matchFinder).isEmpty etc.)
+ * - Null assigned to _inStream (line 715) and _matchFinder (line 980): Java interop boundary
+ * - getSubCoder: operator precedence issue -- `(pos & m_PosMask) << m_NumPrevBits + ...`
+ *   may parse differently from Java's `((pos & m_PosMask) << m_NumPrevBits) + ...`
+ *   due to Scala's `+` having same precedence as `<<` (potential bug)
+ * - Lzma.compress passes `null` for ICodeProgress to Code() (line 72 in Lzma.scala)
+ * - encoder() method: Java constructor body; Scala names it encoder() -- only called from
+ *   class body initialization (correct)
+ * - WriteCoderProperties: uses `|=` on properties bytes (Java uses `=`); this could produce
+ *   different results if properties array is not zeroed -- but Array.ofDim zeroes it, so OK
  */
 package sge
 package utils

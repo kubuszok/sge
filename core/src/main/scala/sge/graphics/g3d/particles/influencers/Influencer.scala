@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Faithful port. No public API differences.
+ * - write/read(Json) omitted (Json serialization not ported).
+ * - Status: pass
  */
 package sge
 package graphics

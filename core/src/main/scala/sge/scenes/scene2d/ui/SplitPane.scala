@@ -4,6 +4,12 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; (using Sge) context; GdxRuntimeException -> SgeError.GraphicsError; boundary/break in touchDown; Skin constructors present
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getSplitAmount/setSplitAmount, getMinSplitAmount/setMinSplitAmount, getMaxSplitAmount/setMaxSplitAmount, isVertical/setVertical, getStyle/setStyle
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

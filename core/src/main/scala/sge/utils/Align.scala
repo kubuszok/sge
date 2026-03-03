@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `int` constants -> opaque type `Align`; static methods -> extension methods
+ *   Convention: Java class with static int fields -> opaque type with extension methods; `toString(int)` -> `Show[Align]` type class; added bitwise operators and `isCenter`
+ *   Idiom: split packages
+ *   TODO: replace given Show[Align] with derived FastShowPretty[Align]
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

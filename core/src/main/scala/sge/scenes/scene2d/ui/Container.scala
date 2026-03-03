@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; Align opaque type
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getBackground/setBackground, getActor/setActor, getClip/setClip, getPad*Value, getFillX/Y, getAlign
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

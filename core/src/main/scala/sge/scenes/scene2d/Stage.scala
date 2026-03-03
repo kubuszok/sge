@@ -4,6 +4,17 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: InputAdapter -> InputProcessor; dispose() -> close(); SnapshotArray -> DynamicArray
+ *   Convention: null -> Nullable; no return (boundary/break); (using Sge) on constructors
+ *   Idiom: split packages
+ *   Issues: setRoot incomplete (root is val, not reassignable); TouchFocus.reset() uses raw null (uninitialized fields, acceptable)
+ *   TODO: Java-style getters/setters -- convert to var or def x/def x_= (getViewport/setViewport, getCamera, getRoot, getActors, etc.)
+ *   TODO: TouchFocus extends Pool.Poolable → define given Poolable[TouchFocus]
+ *   TODO: opaque Pixels for viewport pixel dimensions -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- EnableCap for glEnable/glDisable -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -67,22 +78,25 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using Sge) =
+  def this(viewport: Viewport)(using Sge) = {
     this(viewport, new SpriteBatch()(using Sge()), true)
+  }
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(
       new ScalingViewport(Scaling.stretch, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, new OrthographicCamera())
     )
+  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using Sge) =
+  def this(viewport: Viewport, batch: Batch)(using Sge) = {
     this(viewport, batch, false)
+  }
 
   def draw(): Unit = {
     val camera = viewport.getCamera()

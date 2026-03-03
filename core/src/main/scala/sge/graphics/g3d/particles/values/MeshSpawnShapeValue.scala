@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - All public methods ported: load, setMesh (x2), save, load(AssetManager), Triangle inner class
+ * - null -> Nullable[Mesh]/Nullable[Model] (correct pattern)
+ * - Java `mesh`/`model` are protected bare nulls; Scala uses Nullable[T] wrappers
+ * - Java load() passes null mesh freely; Scala uses getOrElse + SgeError
+ * - Triangle inner class: fields are `var` in Scala (Java package-private fields) -- minor visibility widening
+ * - Triangle.pick static method moved to companion object (correct pattern)
+ * - Java save uses `model.meshes.indexOf(mesh, true)` (Array identity); Scala uses DynamicArray.indexOf
+ * - Java load uses `manager.get(descriptor)` (AssetDescriptor overload); Scala uses fileName+type overload
+ * - Status: pass
  */
 package sge
 package graphics

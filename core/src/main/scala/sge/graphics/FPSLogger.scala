@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: log() uses placeholder `val fps = 60` instead of Sge().graphics.getFramesPerSecond(); named (using sde: Sge) instead of anonymous (using Sge)
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

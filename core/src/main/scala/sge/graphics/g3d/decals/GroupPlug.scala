@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Java interface -> Scala trait: correct
+ * - Array<Decal> -> DynamicArray[Decal]: correct (project-wide replacement)
+ * - All methods faithfully ported; no behavioral differences
+ * - Status: pass
  */
 package sge
 package graphics

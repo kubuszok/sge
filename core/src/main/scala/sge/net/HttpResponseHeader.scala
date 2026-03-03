@@ -4,6 +4,11 @@
  * Original authors: Daniel Holderbaum
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java `interface` with `static final` constants → `object` with `val`
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

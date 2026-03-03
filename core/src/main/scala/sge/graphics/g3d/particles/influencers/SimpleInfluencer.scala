@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - All public methods faithfully ported (allocateChannels, activateParticles, update).
+ * - write/read(Json) omitted (Json serialization not ported).
+ * - channel.data[] renamed to channel.floatData() per SGE ParallelArray API.
+ * - Status: pass
  */
 package sge
 package graphics

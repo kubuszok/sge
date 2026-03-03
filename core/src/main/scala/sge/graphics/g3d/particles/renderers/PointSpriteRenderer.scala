@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All 4 methods ported: allocateChannels, copy, isCompatible, secondary constructor
+ * - allocateChannels() wrapped in renderData.foreach (null safety; Java accesses directly)
+ * - import scala.language.implicitConversions is present but may be unused (minor)
+ * - Audited 2026-03-03: pass
  */
 package sge
 package graphics

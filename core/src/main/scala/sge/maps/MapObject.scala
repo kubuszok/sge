@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: (none)
+ *   Convention: all fields private with getter/setter defs, matching Java pattern
+ *   Idiom: 1:1 faithful port, no null usage (Color.WHITE.cpy() is non-null)
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (setName, setColor, setOpacity, setVisible)
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

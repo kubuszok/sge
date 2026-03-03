@@ -4,6 +4,12 @@
  * Original authors: mgsx
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: constructor params are private vals; Nullable used instead of null for isManaged check
+ *   Idiom: split packages
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

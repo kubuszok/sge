@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Disposable -> AutoCloseable; dispose() -> close()
+ *   Convention: split package (sge / maps)
+ *   Idiom: fields are private val with getter defs, matching Java's private field + getter pattern
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - shadowMap: Nullable[ShadowMap] (Java ShadowMap, nullable).
+ *   - Java remove(BaseLight...) renamed to removeLight() to avoid clash with Attributes.remove(Long).
+ *   - Java remove(Array<BaseLight>) renamed to removeLights().
+ *   - add(lights: BaseLight[?]*) uses varargs like Java, DynamicArray overload also present.
+ *   - removeLight uses .removeValue without identity flag (DynamicArray API differs from Array).
+ *   - All light types (Directional, Point, Spot) handled via pattern match.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

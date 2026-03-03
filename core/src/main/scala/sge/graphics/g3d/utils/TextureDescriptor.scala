@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Comparable[TextureDescriptor[T]] -> Ordered[TextureDescriptor[T]] (compareTo -> compare)
+ *   - Null fields -> Nullable[T] with fold-based null-safe access
+ *   - No return statements -> boundary/break
+ *   - All constructors, set(), equals(), hashCode(), compare() fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

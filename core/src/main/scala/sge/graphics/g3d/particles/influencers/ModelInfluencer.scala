@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Inner classes Single, Random moved to companion object (Java static classes).
+ * - Array<Model> replaced with DynamicArray[Model].
+ * - ModelInstancePool inner class replaced with Pool.Default + lambda.
+ * - Null check on loaded model removed (load does not throw if model is null).
+ * - data[i] = null replaced with clearSlot(i) in Random.killParticles.
+ * - write/read(Json) omitted (Json serialization not ported).
+ * - All public methods faithfully ported.
+ * - Status: pass
  */
 package sge
 package graphics

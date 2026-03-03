@@ -4,7 +4,18 @@
  * Original authors: badlogicgames@gmail.com, vesuvio, xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: set(6), cpy, len, len2, nor, conjugate, transform,
+ * mul(Quaternion/float), mulLeft(Quaternion/float), add(2), toMatrix, idt, isIdentity(2),
+ * setFromAxis(4), setFromAxes(2), setFromMatrix(2), setFromCross(2),
+ * setEulerAngles, setEulerAnglesRad, getGimbalPole, getYaw/Pitch/Roll(Rad/Deg),
+ * slerp(4), exp, dot(2), getAngle/Axis(Rad/Deg), getSwingTwist, getAxisAngle/AngleRad,
+ * toString, hashCode, equals, fromString. Static: tmp1, tmp2, dot.
  */
 package sge
 package math

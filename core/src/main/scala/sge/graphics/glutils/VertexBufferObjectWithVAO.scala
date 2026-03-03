@@ -4,6 +4,13 @@
  * Original authors: mzechner, Dave Clayton <contact@redskyforge.com>, Nate Austin <nate.austin gmail>
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses DynamicArray[Int] for cached locations; uses (using sde: Sge)
+ *   Idiom: split packages
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: typed GL enums -- BufferTarget, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

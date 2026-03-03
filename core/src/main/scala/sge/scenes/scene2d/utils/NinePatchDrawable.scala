@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Copy constructor: cannot call super(drawable) -> manual property copy
+ * - setPatch null-check -> Nullable(patch).foreach
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — setPatch
  */
 package sge
 package scenes

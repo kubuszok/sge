@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Copy constructor manually copies value and valueChannelDescriptor instead of
+ *   delegating to super(scaleInfluencer). Both approaches are functionally equivalent.
+ * - All public methods faithfully ported (activateParticles, copy).
+ * - Status: pass
  */
 package sge
 package graphics

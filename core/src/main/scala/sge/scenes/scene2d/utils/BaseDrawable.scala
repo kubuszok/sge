@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - toString uses getClass.getSimpleName (Java uses ClassReflection.getSimpleName)
+ * - name field: @Null String -> Nullable[String]
+ * - All methods faithfully ported, no API changes
+ * - TODO: Java-style getters/setters — getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getMinWidth/setMinWidth, getMinHeight/setMinHeight, getName/setName
  */
 package sge
 package scenes

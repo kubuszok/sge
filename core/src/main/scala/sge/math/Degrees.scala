@@ -1,5 +1,12 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   SGE-original opaque type, no LibGDX counterpart
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
+ * AUDIT: N/A (SGE-original opaque type, no LibGDX counterpart)
  */
 package sge
 package math

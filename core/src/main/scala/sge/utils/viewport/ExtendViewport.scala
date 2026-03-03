@@ -4,7 +4,20 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — 4 pairs: minWorldWidth/Height, maxWorldWidth/Height → vars
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * --- AUDIT (2026-03-03) ---
+ * API-complete: YES — all 4 constructors and all getters/setters ported
+ * Behavioural parity: YES — update logic (fit + extend) is identical
+ * Conventions: OK — no return, no null, split packages, braces on multiline defs
+ * Notes:
+ *   - _backing var pattern used for constructor params that need mutation
+ *   - Missing Javadoc on primary constructor (5-param) matches Java omission
  */
 package sge
 package utils

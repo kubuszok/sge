@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audit: pass (2026-03-03)
+ *   - All 13 methods ported: setPosition x2, setDirection x2, setIntensity,
+ *     setCutoffAngle, setExponent, set x4, setTarget, equals x2
+ *   - Null checks → Nullable.foreach
+ *   - equals(SpotLight) uses Nullable.fold for null safety
  */
 package sge
 package graphics

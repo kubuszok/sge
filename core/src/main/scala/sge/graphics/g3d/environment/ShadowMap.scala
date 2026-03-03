@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audit: pass (2026-03-03)
+ *   - Java interface → Scala trait
+ *   - Raw TextureDescriptor → TextureDescriptor[?] (existential wildcard)
  */
 package sge
 package graphics

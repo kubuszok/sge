@@ -4,7 +4,15 @@
  * Original authors: Xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: set(5), valueAt, derivativeAt, approximate(3),
+ * locate, approxLength. Static: linear(2), quadratic(2), cubic(2), linear_derivative(2),
+ * quadratic_derivative(2), cubic_derivative(2).
  */
 package sge
 package math

@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: dispose() -> close(); ObjectSet<Texture> -> MutableSet[Texture]; @Null -> Nullable
+ *   Convention: Nullable throughout; using Sge context parameter; MutableMap/MutableSet
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: Java-style getters/setters — getRegions, getTextures; AtlasSprite: getX/Y, getOriginX/Y, getWidth/Height; AtlasRegion: getRotatedPackedWidth/Height
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

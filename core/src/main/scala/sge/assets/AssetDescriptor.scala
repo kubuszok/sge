@@ -4,6 +4,11 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java class -> final case class; null fields -> Nullable[A]; raw Class -> Class[T]
+ *   Idiom: Nullable (2 null), split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -16,7 +21,7 @@ import sge.utils.Nullable
   * @author
   *   mzechner (original implementation)
   */
-case class AssetDescriptor[T](
+final case class AssetDescriptor[T](
   fileName: String,
   `type`:   Class[T],
   params:   Nullable[AssetLoaderParameters[T]] = Nullable.empty,

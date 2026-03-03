@@ -4,7 +4,16 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (redundant setX, setY, setRadius over public vars)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: constructors, set(4 overloads), setPosition(2),
+ * setX, setY, setRadius, contains(x,y), contains(V2), contains(Circle), overlaps,
+ * circumference, area, equals, hashCode, toString.
  */
 package sge
 package math

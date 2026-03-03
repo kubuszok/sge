@@ -4,6 +4,12 @@
  * Original authors: Tomski
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: constructor uses varargs files: FileHandle* instead of FileHandle[]; boundary/break for early return
+ *   Idiom: split packages
+ *   Issues: missing second constructor (Format, Boolean, TextureData[]); prepare() lacks isPrepared() guard present in Java source
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

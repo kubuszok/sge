@@ -4,6 +4,11 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: `null.asInstanceOf[P]` at 5 sites mirrors Java semantics but violates no-null convention; dead code in `loadSync` — `break(null.asInstanceOf[Model])` makes fold default unreachable
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

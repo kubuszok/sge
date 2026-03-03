@@ -1,4 +1,11 @@
 /*
+ * Migration notes:
+ *   SGE-original file, no LibGDX counterpart (extracted from inner interface in Pool.java)
+ *   Convention: type class pattern decouples reset behavior from pooled type; `fromTrait` given auto-derives from `Pool.Poolable`
+ *   Idiom: split packages
+ *   TODO: Poolable[A] type class should replace Pool.Poolable interface; define in companion objects
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

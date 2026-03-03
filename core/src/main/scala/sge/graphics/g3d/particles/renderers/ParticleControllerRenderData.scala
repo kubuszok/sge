@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Abstract class with 2 public fields faithfully ported
+ * - Fields use scala.compiletime.uninitialized (Java null default)
+ * - Audited 2026-03-03: pass
  */
 package sge
 package graphics

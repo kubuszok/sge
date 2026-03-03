@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - init(): null checks replaced with Nullable getChannel + getOrElse/isDefined/foreach.
+ * - update(): particleController.update(controller.deltaTime) passes deltaTime explicitly;
+ *   Java calls parameterless update() which reads Gdx.graphics.getDeltaTime() internally.
+ *   The SGE ParticleController.update() requires (using Sge) context, so the deltaTime
+ *   overload is used here instead. Functionally equivalent.
+ * - channel.data[] renamed to channel.floatData()/objectData() per SGE ParallelArray API.
+ * - Fields promoted from package-private to public vars.
+ * - Status: pass
  */
 package sge
 package graphics

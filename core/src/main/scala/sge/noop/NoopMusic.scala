@@ -1,5 +1,14 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockMusic.java
+ *   Renames: MockMusic -> NoopMusic, dispose() -> close(), setLooping/isLooping -> looping/looping_=,
+ *     setVolume/getVolume -> volume/volume_=, setPosition/getPosition -> position/position_=,
+ *     isPlaying -> playing, setOnCompletionListener -> onComplete (Music => Unit SAM)
+ *   Convention: tracks looping/volume/position state (Java ignores all); uses opaque Volume/Pan/Position types
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Inner class Comparator -> Ordering.fromLessThan lambda: correct
+ *   Java compare() returns {-1,0,1}; Scala Ordering via fromLessThan is equivalent
+ * - Sort.instance().sort(contents, comparator) -> Sort.sort(contents, comparator):
+ *   correct (Sort ported as object with static methods)
+ * - Gdx.gl -> Sge().graphics.gl: correct (project-wide Sge accessor pattern)
+ * - getGroupShader returns Nullable.empty (was null): correct
+ * - All methods faithfully ported
+ * - Status: pass
+ * TODO: typed GL enums -- EnableCap, BlendFactor, CompareFunc -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

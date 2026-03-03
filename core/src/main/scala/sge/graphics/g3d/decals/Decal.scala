@@ -5,6 +5,25 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - vertices: Java protected -> Scala private[decals]: correct (DecalBatch accesses it)
+ * - updated: Java protected -> Scala private[decals]: correct (DecalBatch accesses it)
+ * - update(): Java protected -> Scala private[decals]: correct (DecalBatch calls it)
+ * - transformationOffset: Java public null -> Scala Nullable[Vector2]: correct
+ * - transformVertices: Nullable.fold replaces null check — equivalent logic
+ * - material: Java protected field -> Scala public var param: slightly wider, acceptable
+ *   since getMaterial/setMaterial are public anyway
+ * - rotator: Java protected static -> Scala protected in companion: access works through
+ *   Decal.rotator in the class body — correct
+ * - All 6 newDecal factory overloads faithfully ported
+ * - All vertex index constants (X1..V4) in companion object: correct
+ * - All instance methods (setColor, setRotation*, translate*, setPosition*, setScale*,
+ *   setDimensions, getVertices, setTextureRegion, setBlending, lookAt, etc.): all match
+ * - No return statements, no null usage: correct
+ * - Status: pass
+ * TODO: Java-style getters/setters -- getX/setX, getY/setY, getZ/setZ, getColor/setColor, getPosition/setPosition, getScaleX/Y, getWidth/setWidth, getHeight/setHeight, getRotation/setRotation, getVertices, getTextureRegion/setTextureRegion, getMaterial/setMaterial
+ * TODO: typed GL enums -- BlendFactor, CompareFunc, EnableCap -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

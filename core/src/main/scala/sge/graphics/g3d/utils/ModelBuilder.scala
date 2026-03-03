@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Array<MeshBuilder> -> DynamicArray[MeshBuilder]
+ *   - model/node fields: null -> Nullable[Model]/Nullable[Node]
+ *   - manage(Disposable) -> manage(AutoCloseable)
+ *   - end() returns Model, requires (using Sge)
+ *   - Static rebuildReferences -> companion object method
+ *   - All factory methods (createBox, createRect, createCylinder, createCone,
+ *     createSphere, createCapsule, createXYZCoordinates, createArrow, createLineGrid) ported
+ *   - All part() overloads (5 total) ported
+ *   - @nowarn("msg=deprecated") on class to suppress deprecated shape builder calls
+ *   - Minor: `new Matrix4()` orphan on line 43 (appears to be unused tmpTransform allocation)
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

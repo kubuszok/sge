@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods (getWidth/Height, getTileWidth/Height, getCell, setCell) match Java 1:1
+ *   - Inner Cell class: 4 fields, 8 get/set methods, 4 rotation constants -- all match Java
+ *   - Java null returns from getCell/getTile → Nullable[A]
+ *   - Split package, braces, no-return conventions satisfied
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (4 pairs in Cell)
  */
 package sge
 package maps

@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - implements Disposable, RenderableProvider -> extends AutoCloseable with RenderableProvider
+ *   - dispose() -> close()
+ *   - Array<Renderable> -> DynamicArray[Renderable] in getRenderables
+ *   - GdxRuntimeException -> SgeError.InvalidInput
+ *   - renderable.material = new Material() -> renderable.material = Nullable(new Material())
+ *   - getMaterial() returns via Nullable fold (material is Nullable in Renderable)
+ *   - All methods (begin, end, getRenderables, getMaterial, getWorldTransform, close) ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

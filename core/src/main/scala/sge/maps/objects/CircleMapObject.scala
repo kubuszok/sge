@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `circle` field promoted from non-final to `val`
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getCircle
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

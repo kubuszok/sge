@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - extends InputAdapter -> extends InputProcessor (trait in SGE)
+ *   - IntIntMap -> scala.collection.mutable.Map[Int, Int]
+ *   - Gdx.input/Gdx.graphics -> Sge().input/Sge().graphics (implicit Sge)
+ *   - direction.rotate(up, angle) -> direction.rotateAroundDeg(up, angle) (renamed in SGE Vector3)
+ *   - keys.containsKey -> keys.contains (Scala Map API)
+ *   - Minor: uses `implicit sge: Sge` (old style) instead of `using Sge` (new style)
+ *   - All methods (keyDown, keyUp, touchDragged, update, setVelocity, setDegreesPerPixel) ported
+ *   - Audit: minor_issues (2026-03-03) -- implicit instead of using
+ *   TODO: Int key refs (Input.Keys) → opaque Key type when available
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package graphics

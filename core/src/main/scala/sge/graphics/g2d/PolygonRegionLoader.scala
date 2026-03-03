@@ -4,6 +4,13 @@
  * Original authors: dermetfan
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: GdxRuntimeException -> SgeError.FileReadError
+ *   Convention: boundary/break for early return; Nullable for null safety; using Sge context parameter
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: load(AssetManager,...) is a stub that throws at runtime -- requires AssetManager.get() and getDependencies()
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

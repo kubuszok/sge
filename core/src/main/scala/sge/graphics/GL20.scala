@@ -4,6 +4,13 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: constants moved to companion object
+ *   Idiom: split packages
+ *   TODO: opaque Pixels for width/height params in glViewport, glScissor, glReadPixels, glTexImage2D, glRenderbufferStorage -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- TextureTarget, BlendFactor, BlendEquation, CompareFunc, StencilOp, PrimitiveMode, BufferTarget, BufferUsage, ShaderType, PixelFormat, DataType, ClearMask, CullFace, EnableCap for method params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

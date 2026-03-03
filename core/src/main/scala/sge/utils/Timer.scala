@@ -4,6 +4,17 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Gdx.app` -> `sge.Sge` context; `GdxRuntimeException` -> `SgeError.MathError`; `null` -> `Option`/`Nullable`; `LifecycleListener` -> TODO
+ *   Convention: uses `implicit` keyword instead of `using` (needs updating); `timer` field uses `Option[Timer]`; `currentThread` uses `Option[TimerThread]`
+ *   Idiom: split packages
+ *   Issues: `implicit` instead of `using` (older convention); `LifecycleListener` integration and `postRunnable` are TODOs — posted tasks will not execute on main thread until implemented
+ *   TODO: Java-style getters/setters -- Task: isScheduled, getExecuteTimeMillis
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Seconds for delaySeconds/intervalSeconds params; opaque Millis for executeTimeMillis/intervalMillis/delayMillis
+ *   TODO: redesign with Gears structured concurrency -- Thread+synchronized won't work on JS/Native; see docs/improvements/dependencies.md B3
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

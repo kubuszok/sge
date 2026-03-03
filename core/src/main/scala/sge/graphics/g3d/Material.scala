@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - All 8 constructors match Java source.
+ *   - Static counter moved to companion object.
+ *   - copy(), hashCode(), equals() all match.
+ *   - id is constructor param (Java: public field set in constructors).
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

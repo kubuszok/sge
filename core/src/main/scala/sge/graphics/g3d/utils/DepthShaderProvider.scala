@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Same pattern as DefaultShaderProvider
+ *   - Java null-safe config -> Scala no-null with direct Config() instantiation
+ *   - All 4 constructors and createShader fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

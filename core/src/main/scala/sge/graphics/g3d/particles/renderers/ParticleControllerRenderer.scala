@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - renderData typed as Nullable[D] instead of bare D (null safety improvement)
+ * - update() wraps batch.draw(renderData) in renderData.foreach (skips if null, Java would NPE)
+ * - set() uses renderData.foreach instead of if (renderData != null) — equivalent
+ * - setBatch() uses isInstanceOf + asInstanceOf (matches Java unchecked cast)
+ * - All 4 methods faithfully ported: update, setBatch, isCompatible (abstract), set
+ * - Audited 2026-03-03: pass
  */
 package sge
 package graphics

@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Constructor params (keytime, value) match Java fields exactly
+ * - `value` is val (matching Java `final`), `keytime` is var (matching Java mutable)
+ * - No API differences from Java source
+ * - Status: pass
  */
 package sge
 package graphics

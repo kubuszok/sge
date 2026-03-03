@@ -5,6 +5,22 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Implements RenderableProvider trait.
+ *   - Java has ~15 constructor overloads; Scala consolidates into fewer with Nullable params.
+ *   - Some convenience constructors (Model, String, bool, bool) not individually ported
+ *     but equivalent functionality available through the main constructor variants.
+ *   - invalidate(Node) bone rebinding uses Nullable foreach instead of direct array key mutation.
+ *   - getRenderable(out, node, nodePart): simplified -- Java checks transform != null
+ *     (SGE transform is always non-null since it's a val Matrix4).
+ *   - copyAnimation: null/continue -> Nullable isDefined/foreach.
+ *   - defaultShareKeyframes in companion object.
+ *   - All public methods present: copy, getRenderables, getRenderable (3), calculateTransforms,
+ *     calculateBoundingBox, extendBoundingBox, getAnimation (2), getMaterial (2), getNode (3),
+ *     copyAnimations (2), copyAnimation (2).
+ *   - Audit: minor_issues (2026-03-03)
+ *     - invalidate() bone rebinding logic may not properly replace old ArrayMap keys.
  */
 package sge
 package graphics

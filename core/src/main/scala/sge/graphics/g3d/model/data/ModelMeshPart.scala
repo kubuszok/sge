@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source exactly
+ * - id/indices use scala.compiletime.uninitialized (Java null defaults)
+ * - primitiveType initialized to 0 (matches Java default)
+ * - No methods in Java source, none in Scala — pure data class
+ * - Status: pass
  */
 package sge
 package graphics

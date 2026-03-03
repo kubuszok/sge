@@ -5,7 +5,21 @@
  * Original authors: badlogicgames@gmail.com, mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: combines Matrix3.java + Matrix4.java into single file
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — Combines Matrix3.java + Matrix4.java. Matrix3: all methods ported (idt, mul,
+ * mulLeft, setToRotation, setToRotationRad, setToScaling, setToTranslation, det, inv, set,
+ * trn, getValues, getTranslation, getScale, getRotation, getRotationRad, scl, transpose,
+ * toString, hashCode, equals). Matrix4: all methods ported (set(16+), cpy, trn, idt,
+ * inv, det, det3x3, setToProjection, setToOrtho, setToOrtho2D, setToTranslation,
+ * setToRotation, setToScaling, setToWorld, setToLookAt, setAsAffine, scl, getTranslation,
+ * getRotation, getScale, toNormalMatrix, translate, rotate, scale, mul, mulLeft, tra, avg,
+ * lerp, setFromEulerAngles, extract4x3Matrix, hasRotationOrScaling). Static: prj, mul.
  */
 package sge
 package math

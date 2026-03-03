@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - FocusEvent inner class -> companion object nested class
+ * - FocusEvent.Type Java enum -> Scala 3 enum
+ * - @Null Actor relatedActor -> Nullable[Actor]
+ * - switch/case -> Scala pattern matching
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — FocusEvent.isFocused
  */
 package sge
 package scenes

@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: Serializable dropped; serialVersionUID dropped;
+ *     primary constructor stores Vector3 refs (Java copies + normalizes);
+ *     static tmp Vector3 replaced with local allocation in mul();
+ *     added 3-arg constructor (originVec, directionVec, normalize) not in Java
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package math

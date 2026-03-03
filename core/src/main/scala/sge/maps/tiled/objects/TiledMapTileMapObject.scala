@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructor match 1:1
+ * - Constructor body uses locally{} block for init (matches Java constructor body)
+ * - setTextureRegion called with Nullable(textureRegion) due to SGE's TextureMapObject accepting Nullable
+ * - 6 accessor methods (get/set for flipHorizontally, flipVertically, tile) all match Java
+ * TODO: Java-style getters/setters — isFlipHorizontally/setFlipHorizontally, isFlipVertically/setFlipVertically, getTile/setTile
  */
 package sge
 package maps

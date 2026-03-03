@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted
+ * - All public methods ported: newLowValue, setLow (x2), getLowMin, setLowMin, getLowMax, setLowMax, load
+ * - Status: pass
+ * TODO: Java-style getters/setters — getLowMin/setLowMin, getLowMax/setLowMax
  */
 
 package sge

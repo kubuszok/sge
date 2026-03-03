@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful 1:1 port
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - Two Java constructors merged into primary constructor with default value = 0f
+ *   - All constants, factory methods, and instance methods accounted for
  */
 package sge
 package graphics

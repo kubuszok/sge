@@ -4,6 +4,13 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: cancelTouchFocus() method -> cancelTouchFocusMethod() (avoids collision with cancelTouchFocus Boolean field)
+ *   Convention: null -> Nullable; (using Sge) context; Interpolation.fade SAM; boundary/break
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — ~50+ methods: getScrollX/Y, setScrollX/Y, getVisualScrollX/Y, getScrollPercentX/Y, isScrollX/Y, isDragging, isPanning, etc.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

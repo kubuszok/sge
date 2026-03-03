@@ -4,6 +4,14 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Disposable -> AutoCloseable; dispose() -> close()
+ *   Convention: JNI native methods replaced with stub implementations
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: (1) Flat package (package sge.graphics.g2d) should be split. (2) Native stubs return raw null (lines 195, 199, 203) without Nullable/nowarn. (3) Missing newPixmap(InputStream,Int) and newPixmap(Int,Int,Int) factory methods. (4) All JNI stubs need real platform-specific implementations.
+ *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package g2d)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.g2d

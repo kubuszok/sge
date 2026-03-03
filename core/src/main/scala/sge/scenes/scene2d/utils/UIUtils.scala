@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java final class with static methods -> Scala object
+ * - SharedLibraryLoader.os/Os enum -> System.getProperty os detection
+ * - Gdx.input -> Sge().input (using Sge context parameter)
+ * - No-arg methods require (using Sge); int-arg overloads are pure
+ * - All methods faithfully ported
+ * TODO: Int button refs (Input.Buttons) → opaque Button type when available
  */
 package sge
 package scenes

@@ -4,6 +4,13 @@
  * Original authors: badlogic
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: static methods as object methods; uses (using Sge) instead of Gdx. statics
+ *   Idiom: split packages
+ *   TODO: opaque Pixels for glScissor/glViewport params, toLogical/toBackBuffer conversions -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- viewport/scissor params via GL20 -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

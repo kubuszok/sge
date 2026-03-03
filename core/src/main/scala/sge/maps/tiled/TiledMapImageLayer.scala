@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All 11 methods match Java 1:1 (supportsTransparency, get/set for region, x, y, repeatX, repeatY)
+ *   - Private helper checkTransparencySupport + formatHasAlpha faithfully ported
+ *   - Java switch → Scala match in formatHasAlpha
+ *   - Split package, braces, no-return conventions satisfied
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (5 pairs → vars)
  */
 package sge
 package maps

@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Align opaque type with .isLeft/.isRight/.isTop/.isBottom; FloatArray -> DynamicArray[Float]; TODO: drawDebugBounds uses simplified rectangle (ShapeRenderer transform overload not yet ported)
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getReverse, getSpace, getWrapSpace, getPadTop/Left/Bottom/Right, getAlign, getFill, getExpand, getWrap
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

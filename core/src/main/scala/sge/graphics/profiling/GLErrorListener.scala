@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: GdxRuntimeException -> RuntimeException, Gdx.app.error -> println
+ *   Convention: Java interface -> Scala trait; static constants -> companion object vals
+ *   Idiom: boundary/break (1 return), Nullable (1 null), split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package graphics

@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Disposable -> Closeable
+ *   Convention: Java interface -> Scala trait; dispose() inherited via Closeable.close()
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package audio

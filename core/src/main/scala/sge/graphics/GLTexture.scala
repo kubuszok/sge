@@ -4,6 +4,15 @@
  * Original authors: badlogic, Xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses TextureHandle opaque type (SGE improvement)
+ *   Idiom: split packages
+ *   Issues: close() only sets handle to none; does not call GL delete like Java dispose() does
+ *   TODO: Java-style getters/setters -- getMinFilter, getMagFilter, getUWrap, getVWrap, getTextureObjectHandle, getAnisotropicFilter
+ *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
+ *   TODO: typed GL enums -- TextureTarget for glBindTexture/glDeleteTexture -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics
@@ -42,8 +51,9 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   def getDepth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: Int)(using Sge) =
+  def this(glTarget: Int)(using Sge) = {
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
+  }
 
   /** @return whether this texture is managed or not. */
   def isManaged: Boolean

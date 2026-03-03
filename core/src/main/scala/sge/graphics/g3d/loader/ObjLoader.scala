@@ -5,6 +5,24 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Java package-private MtlLoader class -> Scala private inner class MtlLoader in companion
+ * - Java package-private Group class -> Scala private inner class in companion
+ * - MtlLoader.ObjMaterial: null String fields -> Nullable[String]
+ * - MtlLoader.ObjMaterial: null Color field (ambientColor) -> Nullable[Color]
+ * - loadModelData returns Nullable[ModelData] (no null; boundary/break for early returns)
+ * - Java FloatArray -> DynamicArray[Float]; Java Array<Integer> -> DynamicArray[Int]
+ * - No-arg constructor passes null to resolver (Java interop boundary); needs review
+ * - Java Gdx.app.error -> Sge().application.error
+ * - (using Sge) context parameter on class constructor
+ * - Face parsing loop: Java `i--` decrement on line 148 (known Java bug) ->
+ *   Scala uses `i += 1` increment (corrected behavior)
+ * - loadModel(FileHandle, boolean) returns Nullable[Model] (matches Nullable pattern)
+ * - Group.faces initial capacity differs: Java 200 vs Scala unspecified default
+ * - All methods present: loadModel, loadModelData (2), setActiveGroup, getIndex
+ * - MtlLoader: load, parseColor, getMaterial all present
+ * - TODO comment preserved from Java source
  */
 package sge
 package graphics

@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source
+ * - id uses scala.compiletime.uninitialized (Java null default)
+ * - Array -> DynamicArray for nodeAnimations (standard SGE collection mapping)
+ * - No methods in Java source, none in Scala — pure data class
+ * - Status: pass
  */
 package sge
 package graphics

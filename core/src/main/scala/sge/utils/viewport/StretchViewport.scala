@@ -5,13 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * --- AUDIT (2026-03-03) ---
+ * API-complete: YES — both constructors ported
+ * Behavioural parity: YES — delegates to ScalingViewport(Scaling.stretch, ...)
+ * Conventions: OK — no return, no null, split packages
+ * Fix applied: removed trailing semicolons from imports
  */
 package sge
 package utils
 package viewport
 
-import sge.graphics.Camera;
-import sge.graphics.OrthographicCamera;
+import sge.graphics.Camera
+import sge.graphics.OrthographicCamera
 
 /** A ScalingViewport that uses {@link Scaling#stretch} so it does not keep the aspect ratio, the world is scaled to take the whole screen.
   * @author

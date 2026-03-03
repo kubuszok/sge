@@ -4,6 +4,12 @@
  * Original authors: Jon Renner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Comparator<? super T>` -> `Ordering[T]`
+ *   Convention: `return` eliminated in `recursiveSelect` via expression-based code
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully
+ * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
+ * - update() overload uses (using Sge) context parameter instead of Gdx.graphics.getDeltaTime()
+ * - dispose() calls emitter.close() / influencer.close() (Disposable → AutoCloseable mapping)
+ * - findInfluencer returns Nullable[K] instead of K|null
+ * - boundingBox: Nullable[BoundingBox] instead of BoundingBox|null
+ * - getBoundingBox javadoc says "copy of controller" but returns bounding box (matches Java)
+ * - ClassReflection.isAssignableFrom → direct Class.isAssignableFrom
+ * - DEFAULT_TIME_STEP: companion object protected val (Java protected static final)
+ * - TODO: opaque Seconds for deltaTime, deltaTimeSqr, update(deltaTime), setTimeStep params -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

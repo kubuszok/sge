@@ -4,6 +4,15 @@
  * Original authors: espitz
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Gdx.gl`/`Gdx.graphics` -> `Sge().graphics.gl`/`Sge().graphics`
+ *   Convention: methods take `(using Sge)` context parameter
+ *   Idiom: split packages
+ *   Issues: `getFrameBufferTexture` and `getFrameBufferPixmap` commented out, blocked on `Pixmap.createFromFrameBuffer` port
+ *   TODO: opaque Pixels for pixel dimension params in getFrameBufferPixels -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- PixelFormat, DataType, ClearMask -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

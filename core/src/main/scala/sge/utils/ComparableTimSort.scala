@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `return` -> `boundary`/`break`; Java arrays -> Scala arrays
+ *   Idiom: split packages
+ *   TODO: replace asInstanceOf[Comparable[AnyRef]] casts with Ordering[T] — make generic, accept Ordering param; merge with TimSort or replace entirely
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

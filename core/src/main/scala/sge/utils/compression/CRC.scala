@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java static Table + static initializer -> companion object val + initializer block
+ * - All public methods (Init, Update x2, UpdateByte, GetDigest) faithfully ported
+ * - Method names lowercased: Init->init, Update->update, UpdateByte->updateByte, GetDigest->getDigest
+ * - _value field: package-private in Java, private in Scala (correct)
+ * - No convention issues
  */
 package sge
 package utils

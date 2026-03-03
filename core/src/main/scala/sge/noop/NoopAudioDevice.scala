@@ -1,5 +1,12 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudioDevice.java
+ *   Renames: MockAudioDevice -> NoopAudioDevice, dispose() -> close(), setVolume(float) -> volume_=(Volume)
+ *   Convention: isMono is constructor val (Java returns hardcoded false); volume uses opaque Volume type
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

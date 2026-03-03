@@ -4,6 +4,13 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses (using sde: Sge) for GL calls
+ *   Idiom: split packages
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: typed GL enums -- BufferTarget -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -50,8 +57,9 @@ class VertexBufferObjectSubData(
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) =
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) = {
     this(isStatic, numVertices, new VertexAttributes(attributes*))
+  }
 
   private def createBufferObject(): Int = {
     val result = sde.graphics.gl20.glGenBuffer()

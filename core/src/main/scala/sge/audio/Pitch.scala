@@ -1,5 +1,10 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: SGE-original opaque type wrapping Float; replaces raw float pitch parameters
+ *     in Sound; validated range [0.5, 2.0]
+ *   Audited: 2026-03-03
  */
 package sge
 package audio

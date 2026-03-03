@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Array<DynamicsModifier> replaced with DynamicArray[DynamicsModifier].
+ * - velocities.items[k] replaced with velocities(k) (DynamicArray indexed access).
+ * - Null checks replaced with Nullable getChannel + isEmpty/foreach pattern.
+ * - TMP_Q moved to companion object (was instance-level in Java via superclass static).
+ * - write/read(Json) omitted (Json serialization not ported).
+ * - All public methods faithfully ported.
+ * - Status: pass
  */
 package sge
 package graphics

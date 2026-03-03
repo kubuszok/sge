@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All 12 fields and 10 methods faithfully ported
+ * - Java `return` in ReadBlock -> boundary/break (correct)
+ * - free(): sets _bufferBase = null (raw null at Java interop boundary)
+ * - releaseStream(): sets _stream = null (raw null at Java interop boundary)
+ * - create(): Java `_bufferBase == null` -> Nullable(_bufferBase).isEmpty (correct)
+ * - _bufferBase, _stream: scala.compiletime.uninitialized (correct for Java interop)
+ * - GetMatchLen: Java mutates `distance` param and `limit` param; Scala uses separate
+ *   `val dist` and `var lim` (correct)
+ * - Package: uses flat `package sge.utils.compression.lz` instead of split; functionally equivalent
+ * - Method names lowercased: MoveBlock->moveBlock, ReadBlock->readBlock, etc.
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package lz)
  */
 package sge.utils.compression.lz
 

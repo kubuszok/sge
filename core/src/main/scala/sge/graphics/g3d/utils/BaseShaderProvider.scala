@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - implements ShaderProvider -> extends ShaderProvider
+ *   - Array<Shader> -> DynamicArray[Shader]
+ *   - GdxRuntimeException -> SgeError.GraphicsError
+ *   - dispose() -> close() (AutoCloseable convention); shader.dispose() -> shader.close()
+ *   - No return statements -> boundary/break in getShader
+ *   - All methods (getShader, createShader, close) fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

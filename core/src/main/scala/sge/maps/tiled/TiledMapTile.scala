@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All 12 interface methods match Java 1:1
+ *   - BlendMode Java enum → Scala 3 enum in companion object
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

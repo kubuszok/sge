@@ -4,6 +4,11 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (16 pairs → vars)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

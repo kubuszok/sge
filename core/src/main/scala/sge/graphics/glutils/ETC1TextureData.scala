@@ -4,6 +4,13 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: fields use Nullable[A] instead of raw null
+ *   Idiom: split packages
+ *   Issues: consumeCustomData() is a no-op stub -- ETC1 textures will silently fail to upload; needs (using Sge) for GL calls
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -27,8 +34,9 @@ class ETC1TextureData(
   private var height:       Int                = 0
   private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle) =
+  def this(file: FileHandle) = {
     this(Nullable(file), false)
+  }
 
   def this(encodedImage: ETC1Data, useMipMaps: Boolean) = {
     this(file = Nullable.empty, useMipMapsValue = useMipMaps)

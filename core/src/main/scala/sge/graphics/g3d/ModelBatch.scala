@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Disposable -> AutoCloseable (dispose -> close).
+ *   - Java single 3-arg constructor with null checks -> Scala primary constructor + Nullable overloads.
+ *   - FlushablePool -> Pool.Default with Pool.Flushable mixin.
+ *   - RenderablePool.obtain: meshPart.set uses Nullable.empty for id (Java uses "").
+ *   - camera: Nullable[Camera] (Java Camera, nullable).
+ *   - All constructors match: 3-arg, context+provider, context+sorter, context, provider+sorter,
+ *     sorter, provider, FileHandle pair, String pair, no-arg.
+ *   - All public methods present: begin, setCamera, getCamera, ownsRenderContext, getRenderContext,
+ *     getShaderProvider, getRenderableSorter, flush, end, render (8 overloads), close.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

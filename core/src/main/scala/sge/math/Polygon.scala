@@ -4,7 +4,16 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: getVertices, getTransformedVertices, setOrigin,
+ * setPosition, setVertices, setVertex, translate, setRotation, rotate, setScale, scale,
+ * dirty, area, getVertexCount, getVertex, getCentroid, getBoundingRectangle, contains(2),
+ * getX/Y, getOriginX/Y, getRotation, getScaleX/Y, resetTransformations.
  */
 package sge
 package math

@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods/fields match Java source
+ * - parent: Java null -> Nullable[Node]
+ * - getChildren returns DynamicArray (Java returns Iterable)
+ * - addChildren/insertChildren take DynamicArray[T] (Java takes Iterable[T])
+ * - removeChild uses indexWhere/removeIndex (Java uses removeValue with identity)
+ * - getNode uses boundary/break (Java uses return)
+ * - calculateBoneTransforms: restructured with Nullable fold (Java uses null checks + continue)
+ * - hashCode() not overridden (same as Java — not implemented in Java either)
+ * - Unused import: scala.language.implicitConversions (no implicit conversions used)
+ * - DynamicArray initial capacity not specified (Java Array<NodePart>(2), Array<Node>(2))
+ * - Status: minor_issues
  */
 package sge
 package graphics

@@ -4,6 +4,14 @@
  * Original authors: mzechner, Stefan Bachmann, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: dispose() -> close()
+ *   Convention: Nullable for shader; using Sge context parameter; AutoCloseable
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: Java-style getters/setters -- getColor/setColor, getPackedColor/setPackedColor, getBlendSrcFunc/DstFunc, getProjectionMatrix/setProjectionMatrix, getTransformMatrix/setTransformMatrix, getShader/setShader, isBlendingEnabled, isDrawing
+ *   TODO: typed GL enums -- BlendFactor, BlendEquation, EnableCap -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -108,8 +116,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(2000, 4000, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
     * @param size
@@ -117,8 +126,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, size * 2, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
     * @param size
@@ -126,8 +136,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int, defaultShader: ShaderProgram)(using Sge) =
+  def this(size: Int, defaultShader: ShaderProgram)(using Sge) = {
     this(size, size * 2, defaultShader)
+  }
 
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")

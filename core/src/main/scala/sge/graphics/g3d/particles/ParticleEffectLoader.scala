@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Structure ported; getDependencies and save are stubbed (need JSON serialization)
+ * - loadSync ported with Nullable handling for effectData
+ * - Constructor requires (using Sge) context parameter
+ * - items: DynamicArray[(String, ResourceData)] instead of Array<ObjectMap.Entry>
+ * - find() private method omitted (used ClassReflection, not called internally)
+ * - ParticleEffectSaveParameter: jsonOutputType field omitted (no JsonWriter.OutputType)
+ * - ParticleEffectLoadParameter.batches: Nullable[DynamicArray] instead of Array|null
+ * - ParticleEffectSaveParameter.batches: Nullable[DynamicArray] instead of Array|null
  */
 package sge
 package graphics

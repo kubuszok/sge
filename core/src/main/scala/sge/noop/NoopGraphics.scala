@@ -1,5 +1,18 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/graphics/MockGraphics.java
+ *   Renames: MockGraphics -> NoopGraphics
+ *   Convention: extends Graphics directly (Java extends AbstractGraphics); configurable width/height (Java returns 0);
+ *     non-null monitor/displayMode stubs (Java returns null); getGL20 throws (Java returns null);
+ *     getGL30/31/32 return Nullable.empty (Java returns null); getGLVersion returns new Object (Java has GLVersion);
+ *     getPpi/Ppc return 96-based values (Java returns 0); getBufferFormat returns real instance (Java returns null);
+ *     setContinuousRendering/isContinuousRendering track state (Java ignores); incrementFrameId() merged into updateTime();
+ *     getTargetRenderInterval/targetRenderInterval omitted (backend-specific)
+ *   Idiom: Nullable (getGL30/31/32, newCursor), split packages
+ *   TODO: getGLVersion returns new Object() — needs real GLVersion once Graphics.GLVersion alias is fixed
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

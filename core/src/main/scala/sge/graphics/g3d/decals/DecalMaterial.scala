@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Fields: Java protected -> Scala public var: wider visibility, acceptable since
+ *   Decal.setTextureRegion/setBlending access them directly and they were effectively
+ *   package-private in Java usage
+ * - set() takes (using Sge) for Gdx.gl access: correct
+ * - equals: Java checks null then casts (throws ClassCastException on non-DecalMaterial);
+ *   Scala uses pattern match — safer, correct
+ * - hashCode: null check -> Nullable wrapping: correct
+ * - NO_BLEND constant in companion object: correct
+ * - Status: pass
+ * TODO: typed GL enums -- BlendFactor, EnableCap -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

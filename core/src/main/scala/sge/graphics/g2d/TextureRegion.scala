@@ -4,6 +4,15 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: static split(Texture,...) in companion object; splitWithMargins added (not in original)
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: (1) Flat package (package sge.graphics.g2d) should be split. (2) Missing instance split(Int, Int) method (only companion static split is ported).
+ *   TODO: Java-style boolean getters -- isFlipX, isFlipY → def flipX, def flipY
+ *   TODO: uses flat package declaration -- convert to split (package sge / package graphics / package g2d)
+ *   TODO: opaque Pixels for setRegion x/y/width/height, regionWidth/Height -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.g2d

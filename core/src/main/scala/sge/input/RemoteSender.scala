@@ -4,6 +4,15 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Gdx -> Sge (implicit/using context), dst -> distance
+ *   Convention: Java static constants -> companion object vals; Gdx singleton -> implicit Sge
+ *   Idiom: boundary/break (7 return), Nullable (1 null), flat package (should be split)
+ *   TODO: uses flat package declaration — convert to split (package sge / package input)
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Issues: Multitouch check hardcoded to true (placeholder); sendUpdate width/height hardcoded to 800/600
+ *     (should use sde.graphics); println used instead of sde.app.log; implicit instead of using
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.input

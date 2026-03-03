@@ -4,6 +4,14 @@
  * Original authors: mzechner, badlogic
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait; added convenience properties gl, gl20, gl30, gl31, gl32
+ *   Idiom: split packages; Nullable used
+ *   Issues: type GLVersion = AnyRef is a placeholder — should reference sge.graphics.glutils.GLVersion
+ *   TODO: type GLVersion = AnyRef is placeholder -- should use sge.graphics.glutils.GLVersion
+ *   TODO: opaque Pixels for width/height params in getWidth/Height, getBackBufferWidth/Height, setWindowedMode, newCursor hotspot -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

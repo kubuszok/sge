@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (load, getDependencies, loadMap, loadTileSheets,
+ *     loadTileSheet, loadLayer, loadProperties, getRelativeFileHandle)
+ *   - Java ObjectMap<String,Texture> → mutable.HashMap[String,Texture]
+ *   - Java setOwnedResources(textures.values().toArray()) → DynamicArray construction
+ *   - Minor: loadTileSheet skips reading Description child (Java reads it but never uses it)
+ *   - Minor: loadTileSheet wraps tile creation inside `texture.foreach` for null safety
+ *     (Java does not check null but Nullable ImageResolver.getImage requires it)
+ *   - currentTileSet var uses null // scalastyle:ignore (Java interop boundary for Tide format)
+ *   - Constructor requires `(using Sge)` (SGE context parameter, replaces Java Gdx.files)
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

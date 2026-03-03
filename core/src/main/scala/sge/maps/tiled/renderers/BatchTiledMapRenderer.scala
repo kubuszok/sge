@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all public/protected methods, fields, and constants match 1:1
+ * - Disposable.dispose() mapped to AutoCloseable.close()
+ * - null checks on region replaced with Nullable[A] idiom
+ * - Java return-early replaced with if/else control flow
+ * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary (matching signatures)
+ * - Added getImageLayerColor/getTileLayerColor helper methods (match Java source)
+ * - renderMapLayer uses Scala pattern match instead of Java instanceof chain
  */
 package sge
 package maps

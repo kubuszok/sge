@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; DynamicArray with MkArray.anyRef cast for generic T; varargs constructor
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getChecked, getCheckedIndex, getAllChecked, getButtons, setMinCheckCount, setMaxCheckCount
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

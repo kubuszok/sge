@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; Disposable -> AutoCloseable; ObjectMap -> scala.collection.mutable.Map; GdxRuntimeException -> SgeError; boundary/break
+ *   Issues: style field setting uses Java reflection (getDeclaredFields/getDeclaredField) — needs compile-time approach for JS/Native; getJsonClassTags not ported
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

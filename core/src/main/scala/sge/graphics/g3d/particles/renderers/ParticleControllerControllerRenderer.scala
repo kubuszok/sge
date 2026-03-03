@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java uses raw type ParticleControllerRenderer; Scala provides explicit type params
+ * - controllerChannel: Java package-private, Scala public var (visibility widened)
+ * - init(): Java null check + GdxRuntimeException -> Scala getOrElse + SgeError.InvalidInput
+ * - update(): Java data[i] -> Scala objectData(i) (ParallelArray rename)
+ * - All 4 methods ported: init, update, copy, isCompatible
+ * - Audited 2026-03-03: pass
  */
 package sge
 package graphics

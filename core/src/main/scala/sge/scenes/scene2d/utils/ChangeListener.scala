@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Faithful port, no API changes
+ * - ChangeEvent inner class -> companion object nested class
+ * - instanceof check -> Scala pattern matching
  */
 package sge
 package scenes

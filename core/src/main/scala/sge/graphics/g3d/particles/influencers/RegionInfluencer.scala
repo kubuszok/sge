@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Inner classes Single, Random, Animated, AspectTextureRegion moved to companion object.
+ * - Array<AspectTextureRegion> replaced with DynamicArray[AspectTextureRegion].
+ * - Default constructor logic extracted to initDefault() helper, called by subclasses.
+ * - atlasName: String replaced with Nullable[String].
+ * - AspectTextureRegion.imageName: String replaced with Nullable[String].
+ * - updateUV: null check + return replaced with Nullable isEmpty/foreach pattern.
+ *   Java calls atlas.findRegion directly; SGE wraps in foreach (handles missing region).
+ * - load: null check + return replaced with Nullable isEmpty check.
+ * - write/read(Json) omitted (Json serialization not ported).
+ * - All public methods faithfully ported.
+ * - Status: pass
  */
 package sge
 package graphics

@@ -4,6 +4,12 @@
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `useMessageFormat` -> `useAdvanced`
+ *   Idiom: split packages
+ *   Issues: implementation is a simplistic placeholder using basic `String.replace`; missing `MessageFormat`-based locale formatting, brace escaping (`{{`), and `simpleFormat` error checking from Java original
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

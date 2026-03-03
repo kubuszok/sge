@@ -4,6 +4,11 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   TODO: direct Color.a mutation — update when Color becomes immutable
+ *   TODO: Java-style getters/setters — getText/setText, getWrap/setWrap, getLabelAlign, getFontScaleX/Y, getGlyphLayout, getStyle/setStyle
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

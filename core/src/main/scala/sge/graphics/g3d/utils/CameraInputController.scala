@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - extends GestureDetector: uses named parameter `listener = gestureListener`
+ *   - CameraGestureListener: static protected class -> companion object protected class
+ *   - Gdx.graphics -> sge.graphics (implicit Sge)
+ *   - MathUtils.isPowerOfTwo: same name, ported
+ *   - All fields, overrides (touchDown, touchUp, touchDragged, scrolled, keyDown, keyUp) ported
+ *   - process(), zoom(), pinchZoom(), update(), setInvertedControls() ported
+ *   - Minor: uses `implicit val sge: Sge` (old style) instead of `using Sge` (new style)
+ *   - Audit: minor_issues (2026-03-03) -- implicit instead of using
+ *   TODO: Int key/button refs (Input.Keys/Buttons) → opaque Key/Button types when available
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package graphics

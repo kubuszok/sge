@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted
+ * - All public methods ported: setActive, isEdges, setEdges, getSpawnWidth/Height/Depth,
+ *   setDimensions, start, load
+ * - SpawnSide inner enum ported to Scala 3 enum in companion object
+ * - TMP_V1 static field moved to companion object (protected static final -> protected val)
+ * - Java `edges` is package-private; Scala version is `var edges` (public) -- minor visibility widening
+ * - isEdges/getSpawnWidth/Height/Depth use Scala property syntax (no parens) vs Java getter style
+ * - TODO: Java-style getters/setters — redundant isEdges/setEdges, getSpawnWidth/Height/Depth
+ * - Status: minor_issues (getter naming: isEdges/getSpawnWidth etc. missing parens)
  */
 package sge
 package graphics

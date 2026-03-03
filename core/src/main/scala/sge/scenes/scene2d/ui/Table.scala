@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; Align opaque type; DynamicArray for cells; boundary/break; Debug enum in companion object
+ *   Issues: add(CharSequence) and Label convenience methods missing (require Skin); stack() convenience missing
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getBackground/setBackground, getClip/setClip, getCells, getPadTopValue, getAlign, getRows, getColumns, getSkin, etc.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

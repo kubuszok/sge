@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: implements -> extends; static tmpCoords -> companion object val
+ *   Convention: null -> Nullable[A]; no return statements; split packages
+ *   Idiom: Java switch -> Scala match; instanceof+cast -> pattern match; getStage() null-check -> Nullable.foreach
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

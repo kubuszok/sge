@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: gl31 promoted from package-private final field to val constructor param (public)
+ *   Convention: check() promoted from protected to override protected
+ *   Idiom: split packages
+ *   TODO: typed GL enums -- all GL31 opaque types (passthrough interceptor) -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
  */
 package sge
 package graphics

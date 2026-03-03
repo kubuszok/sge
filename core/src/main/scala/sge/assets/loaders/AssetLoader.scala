@@ -4,6 +4,13 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `Array<AssetDescriptor>` -> `DynamicArray[AssetDescriptor[?]]`
+ *   Idiom: split packages
+ *   Issues: flat `package sge.assets.loaders` instead of split form
+ *   TODO: uses flat package declaration — convert to split (package sge / package assets / package loaders)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.assets.loaders

@@ -4,6 +4,12 @@
  * Original authors: Avetis Zakharyan
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Nullable[TextureRegion] for region; Nullable[Array[Float]] for nullable parts; DynamicArray instead of libGDX Array
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: (1) setPolygon uses simplified polygon intersection (vertex containment) instead of Intersector.intersectPolygons. (2) Missing density field from Java source.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

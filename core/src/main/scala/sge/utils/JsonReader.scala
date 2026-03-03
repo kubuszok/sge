@@ -4,6 +4,11 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: hand-written lexer/parser replaced with jsoniter-scala + kindlings library delegation; implements `BaseJsonReader` trait
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

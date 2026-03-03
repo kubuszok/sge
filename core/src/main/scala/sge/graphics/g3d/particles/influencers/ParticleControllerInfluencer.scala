@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Inner classes Single, Random moved to companion object (Java static classes).
+ * - Array<ParticleController> replaced with DynamicArray[ParticleController].
+ * - ParticleControllerPool inner class replaced with Pool.Default + lambda.
+ * - Random.dispose() renamed to close() per SGE convention.
+ * - Null checks replaced with Nullable pattern; data[i] = null replaced with clearSlot(i).
+ * - save/load: partially stubbed (AssetManager.getAll not yet available).
+ * - load: uses descriptor.fold pattern instead of while-null loop.
+ * - Random.init: uses pool.obtain() instead of pool.newObject() (Pool.Default behavior).
+ * - Status: minor_issues (save stub incomplete — getAll not available)
  */
 package sge
 package graphics

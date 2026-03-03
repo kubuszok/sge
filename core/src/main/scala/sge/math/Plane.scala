@@ -4,7 +4,18 @@
  * Original authors: badlogicgames@gmail.com, mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Issues: PlaneSide uses scala.Enumeration instead of Scala 3 enum
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS (with issues)
+ * - All public methods ported: set(3pts), set(nx,ny,nz,d), set(pt,normal), set(ptXYZ,norXYZ),
+ *   set(Plane), distance, testPoint(V3), testPoint(xyz), isFrontFacing, getNormal, getD, toString
+ * - ISSUE: PlaneSide uses scala.Enumeration instead of Scala 3 enum
+ * - INTENTIONAL: normal.set(x,y,z) instead of .set(v) in constructors (avoids mutation of input)
  */
 package sge
 package math

@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructors match 1:1
+ * - GdxRuntimeException replaced with SgeError.GraphicsError
+ * - Java return-in-loop (getCurrentFrameIndex) replaced with boundary/break
+ * - Java Array<StaticTiledMapTile> replaced with DynamicArray[StaticTiledMapTile]
+ * - Java IntArray replaced with Array[Int]
+ * - Java null-initialized properties/objects replaced with Nullable.empty
+ * - Private primary constructor + 2 public auxiliary constructors (matching Java's 2 public ctors)
+ * - Companion object holds lastTiledMapRenderTime, initialTimeOffset, updateAnimationBaseTime (match Java static)
+ * - TODO: opaque Millis for animationIntervals, loopDuration, lastTiledMapRenderTime -- see docs/improvements/opaque-types.md
  */
 package sge
 package maps
@@ -39,12 +50,13 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) =
+  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) = {
     this(
       frameTiles.toArray,
       Array.fill(frameTiles.size)((interval * 1000f).toInt),
       frameTiles.size * (interval * 1000f).toInt
     )
+  }
 
   /** Creates an animated tile with the given animation intervals and frame tiles.
     *
@@ -53,12 +65,13 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) =
+  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) = {
     this(
       frameTiles.toArray,
       intervals.clone(),
       intervals.sum
     )
+  }
 
   override def getId: Int = id
 

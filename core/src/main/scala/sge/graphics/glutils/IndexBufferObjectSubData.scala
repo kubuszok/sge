@@ -4,6 +4,14 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: package declaration uses flat package sge.graphics.glutils instead of split package convention
+ *   TODO: uses flat package declaration -- convert to split (package sge / package graphics / package glutils)
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: typed GL enums -- BufferTarget -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.glutils
@@ -53,8 +61,9 @@ class IndexBufferObjectSubData(isStatic: Boolean, maxIndices: Int)(using sde: Sg
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) =
+  def this(maxIndices: Int)(using sde: Sge) = {
     this(true, maxIndices)
+  }
 
   private def createBufferObject(): Int = {
     val result = sde.graphics.gl20.glGenBuffer()

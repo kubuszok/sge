@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all methods match 1:1
+ * - isoTransform/invIsotransform init via init() method called from class body (matches Java constructor pattern)
+ * - Java null checks on cell/tile replaced with Nullable.foreach chaining
+ * - Java null==region early return replaced with Nullable isEmpty/else
+ * - Java switch/break on rotations replaced with match/case
+ * - renderImageLayer override: isometric Y-offset logic faithfully ported
+ * - Private renderRepeatedImage helper extracted (same logic as Java inline block)
+ * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
  */
 package sge
 package maps

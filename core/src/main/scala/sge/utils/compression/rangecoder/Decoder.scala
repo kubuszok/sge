@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Class + companion object faithfully ported
+ * - 4 static constants -> companion object (kTopMask, kNumBitModelTotalBits, etc.)
+ * - 5 methods faithfully ported: SetStream->setStream, ReleaseStream->releaseStream,
+ *   Init->init, DecodeDirectBits->decodeDirectBits, DecodeBit->decodeBit
+ * - Static InitBitModels -> companion object initBitModels
+ * - releaseStream(): sets Stream = null (raw null at Java interop boundary)
+ * - Stream field: scala.compiletime.uninitialized (correct for Java interop)
+ * - No convention issues
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package rangecoder)
  */
 package sge.utils.compression.rangecoder
 

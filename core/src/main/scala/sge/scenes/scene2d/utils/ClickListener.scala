@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - No return statements, uses if/else expressions
+ * - @Null Actor -> Nullable[Actor] for enter/exit fromActor/toActor params
+ * - actor.hit returns Nullable[Actor] -> uses fold for null-safe check
+ * - visualPressedDuration static field -> companion object var
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — getTapSquareSize/setTapSquareSize, getTapCount/setTapCount, getTouchDownX/Y, getButton/setButton, isPressed, isOver
  */
 package sge
 package scenes

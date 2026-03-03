@@ -4,6 +4,13 @@
  * Original authors: Tomski
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: managed lifecycle; @nowarn for orNull at GL30 interop boundary
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters -- isManaged
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -26,20 +33,24 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(GL30.GL_
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using Sge) =
+  def this(internalPaths: Array[String])(using Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
+  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) =
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
+  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) =
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) = {
     this(useMipMaps, Format.RGBA8888, files)
+  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using Sge) =
+  def this(files: Array[FileHandle])(using Sge) = {
     this(false, files)
+  }
 
   if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")

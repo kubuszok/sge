@@ -1,6 +1,12 @@
 // SGE Native Ops — JVM implementation of ETC1Ops via Rust JNI
 //
 // Delegates all methods to ETC1Bridge, which loads libsge_native_ops via JNI.
+//
+// Migration notes:
+//   Origin: SGE-original (platform abstraction)
+//   Convention: thin JNI delegation to ETC1Bridge → Rust native lib
+//   Idiom: boundary/break (0 return), Nullable (0 null), split packages
+//   Audited: 2026-03-03
 
 package sge
 package platform

@@ -5,6 +5,21 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all public/protected methods and constants match 1:1
+ * - Does not extend BatchTiledMapRenderer (matches Java: standalone implements TiledMapRenderer, Disposable)
+ * - Disposable.dispose() mapped to AutoCloseable.close()
+ * - Java Gdx.gl replaced with Sge().graphics.gl
+ * - Java null checks on cell/tile replaced with Nullable.foreach chaining
+ * - Java null==region early return replaced with Nullable isEmpty/else
+ * - Java switch/break on rotations replaced with match/case
+ * - renderImageLayer: color calculation inlined (no batch color, uses combinedTint directly — matches Java)
+ * - Java map field is final; Scala uses protected val (matches Java final semantics)
+ * - Constructors: 3 Java ctors mapped to primary + 2 auxiliary
+ * - Companion object holds tolerance and NUM_VERTICES constants (match Java static fields)
+ * TODO: Java-style getters/setters -- isCached
+ * TODO: typed GL enums -- PrimitiveMode -- see docs/improvements/opaque-types.md
  */
 package sge
 package maps

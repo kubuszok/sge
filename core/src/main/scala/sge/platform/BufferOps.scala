@@ -5,6 +5,12 @@
 //   JS:     BufferOpsJs     (pure Scala fallback)
 //   Native: BufferOpsNative (delegates to Rust via C ABI)
 
+/*
+ * Migration notes:
+ *   SGE-original platform abstraction trait, no LibGDX counterpart
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ */
 package sge
 package platform
 

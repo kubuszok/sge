@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source exactly
+ * - All fields use scala.compiletime.uninitialized (Java null defaults)
+ * - ArrayMap[String, Matrix4] matches Java ArrayMap<String, Matrix4>
+ * - Array[Array[Int]] matches Java int[][] for uvMapping
+ * - No methods in Java source, none in Scala — pure data class
+ * - Status: pass
  */
 package sge
 package graphics

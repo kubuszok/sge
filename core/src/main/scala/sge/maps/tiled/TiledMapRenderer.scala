@@ -5,6 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All 4 interface methods match Java 1:1
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

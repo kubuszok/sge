@@ -4,6 +4,14 @@
  * Original authors: Stefan Bachmann, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: draw(PolygonSpriteBatch) -> draw(PolygonBatch) to use trait instead of concrete class
+ *   Convention: if (!dirty) guard instead of if (dirty) return; Nullable for setRegion null check
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: direct Color.a mutation for alpha modulation — update when Color becomes immutable
+ *   TODO: Java-style getters/setters — getX/setX, getY/setY, getOriginX/Y, getScaleX/Y, getRotation/setRotation, getColor/setColor, getRegion/setRegion, getVertices
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

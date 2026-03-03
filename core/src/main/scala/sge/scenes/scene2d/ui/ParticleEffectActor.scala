@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Disposable -> AutoCloseable; (using Sge) added to act() and one constructor
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — isResetOnStart/setResetOnStart, isAutoRemove/setAutoRemove, isRunning, getEffect
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

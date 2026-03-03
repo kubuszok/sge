@@ -4,7 +4,20 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Issues: OctreeNode.rayCast has placeholder `val intersect = true` instead of actual
+ *     Intersector.intersectRayBounds call — ray-bounds check is non-functional
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS (with issues)
+ * - All public API ported: add, remove, update, getAll, query(BoundingBox), query(Frustum),
+ *   rayCast, getNodesBoxes, Collider trait, RayCastResult
+ * - ISSUE: OctreeNode.rayCast has placeholder `val intersect = true` instead of
+ *   Intersector.intersectRayBounds(ray, bounds, tmp) — missing ray-bounds check
+ * - INTENTIONAL: uses scala.collection.mutable.Set instead of ObjectSet (Scala stdlib)
  */
 package sge
 package math

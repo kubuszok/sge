@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Pool.Poolable (Java interface) -> Pool.Poolable (Scala trait)
+ *   Convention: null -> Nullable[A]; no return statements; split packages
+ *   Idiom: Fields stored as Nullable; getTarget/getListenerActor use getOrElse(null) for API compat
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getTarget/setTarget, getBubbles/setBubbles, isCapture/setCapture, getStage/setStage)
+ *   TODO: extends Pool.Poolable → define given Poolable[Event] in companion
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

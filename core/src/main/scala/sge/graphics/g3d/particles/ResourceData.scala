@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully
+ * - Json.Serializable (write/read) on ResourceData, SaveData, AssetData: not implemented
+ *   (JSON serialization deferred)
+ * - resource field: Nullable[T] instead of T|null
+ * - SaveData.resources: Nullable[ResourceData[?]] instead of ResourceData|null
+ * - SaveData.loadAsset: returns Nullable[AssetDescriptor[?]] instead of AssetDescriptor|null
+ * - SaveData.load[K]: returns Nullable[K] instead of K|null
+ * - getSaveData(key): returns Nullable[SaveData] instead of SaveData|null
+ * - IntArray → DynamicArray[Int] for SaveData.assets
+ * - Configurable interface: Java used Configurable<T> generic; Scala uses ResourceData[?]
  */
 
 package sge

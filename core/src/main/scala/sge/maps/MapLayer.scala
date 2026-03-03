@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: GdxRuntimeException -> SgeError.InvalidInput
+ *   Convention: null parent field -> Nullable[MapLayer]; null checks -> .fold/.foreach
+ *   Idiom: getOpacity/getCombinedTintColor use Nullable.fold instead of null-check branches
+ *   Idiom: setParent validates via Nullable.foreach instead of == null check
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getName/setName, getOpacity/setOpacity, isVisible/setVisible, etc.)
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

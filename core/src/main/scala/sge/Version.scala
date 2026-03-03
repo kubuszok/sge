@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java class -> Scala object; static initializer -> lazy val
+ *   Idiom: split packages
+ *   Issues: VERSION is "1.13.5" but Java source is "1.14.1" — version string outdated
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

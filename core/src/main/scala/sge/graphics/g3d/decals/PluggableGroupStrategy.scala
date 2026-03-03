@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - IntMap<GroupPlug> -> ObjectMap[Int, GroupPlug]: correct (IntMap not ported)
+ * - beforeGroup/afterGroup: Java calls plugs.get(group).beforeGroup() which NPEs if
+ *   plug is absent; Scala uses .foreach() which silently skips — safer, intentional
+ * - unPlug return: null -> Nullable[GroupPlug]: correct Nullable conversion
+ * - All methods faithfully ported
+ * - Status: pass
  */
 package sge
 package graphics

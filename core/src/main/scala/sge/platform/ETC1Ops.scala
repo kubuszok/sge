@@ -5,6 +5,12 @@
 //   JS:     ETC1OpsJs     (pure Scala fallback)
 //   Native: ETC1OpsNative (delegates to Rust via C ABI)
 
+/*
+ * Migration notes:
+ *   SGE-original platform abstraction trait, no LibGDX counterpart
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ */
 package sge
 package platform
 

@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Disposable -> AutoCloseable (dispose -> close).
+ *   - FlushablePool -> Pool.Flushable.
+ *   - Inner types MeshPool, SimpleMeshPool, TightMeshPool, Sorter all in companion object.
+ *   - Constructor requires (using Sge) for Mesh creation.
+ *   - end(): uses boundary/break for early return instead of bare return.
+ *   - Sorter.compare: material accessed via .getOrElse with error throw (Java direct access).
+ *   - meshBuilder.setVertexTransform wrapped in Nullable.
+ *   - All public methods present: begin (2), end, add (3), getRenderables, close.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

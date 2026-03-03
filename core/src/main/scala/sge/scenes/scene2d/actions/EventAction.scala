@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: null -> Nullable[A]; no return; split packages; braces on class
+ *   Renames: ClassReflection.isInstance -> eventClass.isInstance; (T)event -> eventClass.cast(event)
+ *   Idiom: target null-check -> target.foreach/newTarget.foreach; anonymous class preserved
+ *   TODO: Java-style getters/setters -- isActive, getEvent
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

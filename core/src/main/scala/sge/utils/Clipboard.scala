@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `getContents()`/`setContents(String)` -> `contents`/`contents_=` property syntax; `@Null String` -> `Nullable[String]`
+ *   Convention: Java interface -> Scala trait; getter/setter -> Scala property syntax
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -23,6 +23,10 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 5. **Update tracking**: If all items pass, update `docs/progress/migration-status.tsv`
    to `verified`. If issues found, add notes.
 
+6. **Update audit entry**: Add or update the `Migration notes:` block in the file's
+   header comment following the format from `/audit-file`. If a per-package audit doc
+   exists at `docs/audit/<slug>.md`, update the file's section there as well.
+
 ## Important
 
 **Do NOT use shell commands directly.** Use `just compile` for compilation,

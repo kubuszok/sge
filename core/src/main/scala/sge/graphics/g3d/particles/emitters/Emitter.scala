@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully
+ * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
+ * - Extends ParticleControllerComponent (which maps Disposable → AutoCloseable)
  */
 package sge
 package graphics

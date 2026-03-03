@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Java interface -> Scala trait: correct
+ * - getGroupShader returns Nullable[ShaderProgram] (was nullable ShaderProgram): correct
+ * - Array<Decal> -> DynamicArray[Decal]: correct
+ * - All 6 methods faithfully ported with matching signatures
+ * - Status: pass
  */
 package sge
 package graphics

@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - All public methods ported: setMesh, spawnAux, copy
+ * - Java `indices` is bare null; Scala uses Nullable[Array[Short]] (correct pattern)
+ * - spawnAux logic: Java uses `if (indices == null)` for no-index path first;
+ *   Scala uses `indices.fold { noIndex } { withIndex }` -- fold reverses the branch order
+ *   but logic is equivalent (noIndex is the "empty/null" case)
+ * - Java `triangleCount = indices.length / 3`; Scala correctly uses `indicesCount / 3`
+ *   after assigning to `idx` local
+ * - Status: pass
  */
 package sge
 package graphics

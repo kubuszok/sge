@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Inner classes Random, Single moved to companion object (Java static classes).
+ * - colorChannel in abstract class promoted to public var (was package-private in Java).
+ * - Random.colorChannel removed (inherits from parent); Java had a separate field.
+ * - write/read(Json) in Single omitted (Json serialization not ported).
+ * - All public methods faithfully ported.
+ * - TODO: direct Color.r/g/b field mutation — update when Color becomes immutable
+ * - Status: pass
  */
 package sge
 package graphics

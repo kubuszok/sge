@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: dst2 -> distanceSq; NumberUtils.floatToRawIntBits -> java.lang.Float.floatToRawIntBits;
+ *     PI_4_3 -> companion object
+ *   Convention: Serializable dropped; serialVersionUID dropped;
+ *     constructor takes center by reference (Java copies via new Vector3(center));
+ *     added secondary (x,y,z,r) constructor not in Java
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package math

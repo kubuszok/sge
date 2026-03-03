@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods, enum, and fields ported faithfully
+ * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
+ * - EmissionMode: Java inner enum → Scala 3 enum in companion object
+ * - lifeChannel.data → lifeChannel.floatData (Scala FloatChannel rename)
+ * - Java `continue` in particle update loop → restructured if/else without continue
+ * - Java `return` in addParticles → restructured with if/else (no return)
+ * - update() loop: Java compound assignment in if condition → separated assignment and check
+ * - TODO: Java-style getters/setters -- isContinuous/setContinuous, getEmissionMode/setEmissionMode, etc.
+ * - TODO: opaque Seconds for duration, delay vars -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

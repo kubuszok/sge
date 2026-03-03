@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java public class with all static members -> Scala object (correct)
+ * - All 23 constants faithfully ported as val
+ * - 6 static methods faithfully ported: StateInit->stateInit, StateUpdateChar->stateUpdateChar, etc.
+ * - GetLenToPosState: Java mutates parameter `len`; Scala uses local `val l` (correct)
+ * - Package: uses flat `package sge.utils.compression.lzma` instead of split; minor inconsistency
+ *   with other files in this package but functionally equivalent
+ * - No convention issues
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package lzma)
  */
 package sge.utils.compression.lzma
 

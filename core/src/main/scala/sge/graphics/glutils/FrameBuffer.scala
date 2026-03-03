@@ -4,6 +4,12 @@
  * Original authors: mzechner, realitix
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses (using Sge) context parameter; handles WebGL depth texture workaround
+ *   Idiom: split packages
+ *   TODO: opaque Pixels for getWidth/Height, end(x, y, width, height) params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -67,8 +73,9 @@ class FrameBuffer(using Sge) extends GLFrameBuffer[Texture] {
   }
 
   /** Creates a new FrameBuffer having the given dimensions and potentially a depth buffer attached. */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
     this(format, width, height, hasDepth, false)
+  }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Texture = {
     val data   = new GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)

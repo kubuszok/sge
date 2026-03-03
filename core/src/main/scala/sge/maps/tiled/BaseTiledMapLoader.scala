@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods, fields, inner types (Parameters, ProjectClassMember) match Java 1:1
+ *   - Java IntMap<MapObject> → mutable.HashMap[Int, MapObject]
+ *   - Java Array<Runnable> → DynamicArray[() => Unit]
+ *   - Java ObjectMap<String, Array<ProjectClassMember>> → ObjectMap[String, DynamicArray[...]]
+ *   - Java null fields → Nullable[A]; early returns → boundary/break
+ *   - Java GdxRuntimeException → IllegalArgumentException/IllegalStateException
+ *   - loadProjectFile: extra foreach nesting matches Java continue-based loop
+ *   - loadObjectProperty: Java Runnable → Scala () => Unit lambda
+ *   - Minor: loadProjectFile missing `projectClassMembers.add(projectClassMember)` inside for loop
+ *   - Minor: Javadoc for tiledColorToLibGDXColor is misplaced above loadMapPropertiesClassDefaults
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

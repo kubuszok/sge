@@ -30,6 +30,10 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
 7. **Update tracking**: Update the file's row in `docs/progress/migration-status.tsv`
    to reflect the new status.
 
+8. **Write initial audit entry**: Add a `Migration notes:` block to the file's header
+   comment documenting renames, convention changes, and idiom compliance. Follow the
+   format described in `/audit-file`. Set `Audited:` to today's date.
+
 ## Important
 
 **Do NOT use shell commands directly.** Use `just compile` for compilation,

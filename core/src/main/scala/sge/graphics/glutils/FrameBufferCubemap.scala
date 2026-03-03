@@ -4,6 +4,13 @@
  * Original authors: realitix
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses (using Sge) context parameter
+ *   Idiom: split packages
+ *   Issues: getSide() returns raw null instead of Nullable when currentSide < 0 -- violates no-null convention
+ *   TODO: typed GL enums -- FramebufferTarget, TextureTarget, Attachment -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -84,8 +91,9 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
     * @param height
     * @param hasDepth
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
     this(format, width, height, hasDepth, false)
+  }
 
   // TODO: Convert and implement when all dependencies are converted
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Cubemap = {

@@ -4,6 +4,14 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Array<T>` -> `DynamicArray[T]`; `Comparator` -> `Ordering`
+ *   Convention: Java instance class with lazy singleton -> Scala `object` with direct methods
+ *   Idiom: split packages
+ *   Issues: missing `instance()` method (minor — Scala object serves as singleton); `sort(DynamicArray, Ordering)` copies array out and back instead of sorting `items` in-place
+ *   TODO: ComparableTimSort uses asInstanceOf — sort[T: Comparable] overloads should use Ordering derived from Comparable, eliminating ComparableTimSort or merging it with TimSort
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

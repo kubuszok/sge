@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: isChecked() getter -> getIsChecked (avoids collision with isChecked field)
+ *   Convention: null -> Nullable; Skin constructors commented out; TODO: requestRendering in draw() (no (using Sge) context)
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — setChecked, getClickListener, getButtonGroup, getStyle/setStyle, isPressed, isOver, isDisabled/setDisabled
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

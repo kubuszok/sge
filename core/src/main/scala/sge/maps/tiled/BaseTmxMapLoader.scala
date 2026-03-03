@@ -5,6 +5,22 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (loadTiledMap, loadLayer, loadLayerGroup, loadTileLayer,
+ *     loadObjectGroup, loadImageLayer, loadBasicLayerInfo, loadObject, resolveTemplateObject,
+ *     cloneElementShallow, mergeProperties, mergeParentElementWithTemplate, loadProperties,
+ *     loadClassProperties, getPropertyByName, loadTileSet, addStaticTiles, addTileProperties,
+ *     addTileObjectGroup, createAnimatedTile, getTileIds)
+ *   - Java null checks → Nullable patterns throughout
+ *   - Java XmlReader.Element returns → Nullable[XmlReader.Element]
+ *   - Java IntArray → DynamicArray[Int]; Java Array<T> → DynamicArray[T]
+ *   - getPropertyByName returns null via // scalastyle:ignore (Java interop boundary)
+ *   - resolveTemplateObject: parsed var uses null // scalastyle:ignore (Java interop)
+ *   - runOnEndOfLoadTiled = null after use (matches Java exactly, // scalastyle:ignore)
+ *   - Java Base64Coder.decode → java.util.Base64.getDecoder.decode
+ *   - boundary/break used for loadProperties, mergeProperties, getPropertyByName
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

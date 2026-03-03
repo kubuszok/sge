@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Java interface -> Scala trait
+ *   - Inner static classes (FileTextureProvider, AssetTextureProvider) -> companion object classes
+ *   - FileTextureProvider: Gdx.files.internal -> Sge().files.internal (using Sge)
+ *   - FileTextureProvider: fields promoted to constructor params (val)
+ *   - AssetTextureProvider: assetManager.get(fileName, Texture.class) -> assetManager.get[Texture](...)
+ *   - All methods fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

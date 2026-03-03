@@ -1,5 +1,12 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudio.java
+ *   Renames: MockAudio -> NoopAudio, mock.audio -> noop package
+ *   Convention: dispose() removed (Audio trait uses no Closeable); NoopAudioDevice(isMono) passes ctor arg (Java ignores it)
+ *   Idiom: Nullable (switchOutputDevice param), split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

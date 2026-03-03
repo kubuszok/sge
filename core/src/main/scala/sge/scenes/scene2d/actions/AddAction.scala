@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: null -> Nullable[A]; no return; split packages; braces on class
+ *   Idiom: target.addAction(action) -> target.foreach + actionToAdd.foreach with DynamicArray +=
+ *   TODO: Java-style getters/setters -- getAction/setAction
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

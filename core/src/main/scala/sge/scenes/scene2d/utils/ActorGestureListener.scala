@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - implicit Sge parameter added (replaces Gdx global)
+ * - Fields event/actor/touchDownTarget: Java package-private -> Scala private + Nullable
+ * - Null-safe foreach/fold used for nullable actor/event callbacks
+ * - stageToLocalAmount takes explicit actor param (Java accesses outer mutable field directly)
+ * - amount.-(v) used instead of amount.sub(v) (Scala operator convention)
+ * - getStage returns Nullable -> uses foreach for null-safety
+ * TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package scenes

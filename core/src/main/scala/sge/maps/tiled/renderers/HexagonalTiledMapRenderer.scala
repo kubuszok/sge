@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all methods match 1:1
+ * - initHex: Java null checks on map properties replaced with Nullable.foreach/fold
+ * - renderCell: Java null checks on cell/tile replaced with Nullable.foreach chaining
+ * - renderCell uses !isInstanceOf[AnimatedTiledMapTile] guard (matches Java instanceof return)
+ * - renderCell only handles rotations==2 (ROTATE_180), matching Java source
+ * - Java switch/break on rotations NOT present in renderCell (only ==2 check), matching Java
+ * - renderImageLayer: hex Y-offset logic faithfully ported
+ * - Public getters/setters for staggerAxisX, staggerIndexEven, hexSideLength match Java
+ * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
+ * TODO: Java-style getters/setters — isStaggerAxisX, isStaggerIndexEven
  */
 package sge
 package maps

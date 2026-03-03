@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted
+ * - All public methods ported: getTimeline, setTimeline, getColors, setColors, getColor (x2), load
+ * - static temp field moved to companion object (correct pattern)
+ * - getColor uses boundary/break instead of return (correct pattern)
+ * - Status: pass
  */
 
 package sge

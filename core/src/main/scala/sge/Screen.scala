@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait; dispose() -> close()
+ *   Idiom: split packages
+ *   TODO: opaque Pixels for resize(width, height) params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

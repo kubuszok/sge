@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: field "type" -> "eventType" (type is reserved in Scala); inner enum Type -> companion object enum
+ *   Convention: null -> Nullable[A]; no return statements; split packages; Scala 3 enum
+ *   Idiom: Java static inner enum -> companion object enum; Integer.MIN_VALUE -> Int.MinValue
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (11 pairs → vars)
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

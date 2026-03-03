@@ -4,6 +4,13 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: buffer is Nullable[FloatBuffer]; @nowarn for orNull at GL interop boundary
+ *   Idiom: split packages
+ *   Issues: prepare() checks all GL formats regardless of GL type (Java guards on GLVersion.Type == OpenGL); getBuffer() returns Nullable[FloatBuffer] instead of raw FloatBuffer
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

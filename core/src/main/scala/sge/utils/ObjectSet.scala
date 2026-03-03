@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet, Tommy Ettinger
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `@Null` -> `Nullable`; Java iterators -> `foreach` method
+ *   Convention: `final class` with `MkArray`-based internals; `filled: Array[Boolean]` for occupancy tracking; private constructor with factory methods; `return` -> `boundary`/`break`
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

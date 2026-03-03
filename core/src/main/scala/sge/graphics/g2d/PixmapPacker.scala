@@ -4,6 +4,15 @@
  * Original authors: mzechner, Nathan Sweet, Rob Rendell
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Disposable -> AutoCloseable; dispose() -> close()
+ *   Convention: Nullable for null safety; MutableMap instead of OrderedMap; using Sge context parameter
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: (1) Raw null for rect/pixmapToDispose (lines 168-169) -- should use Nullable. (2) Missing SkylineStrategy/SkylinePage inner classes.
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Pixels for pageWidth/pageHeight params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

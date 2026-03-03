@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields and methods match Java source
+ * - Array -> DynamicArray for collections (standard SGE collection mapping)
+ * - GdxRuntimeException -> SgeError.InvalidInput in addMesh()
+ * - String concatenation -> string interpolation in error message
+ * - No API differences from Java source
+ * - Status: pass
  */
 package sge
 package graphics

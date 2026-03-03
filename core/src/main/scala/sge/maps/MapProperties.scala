@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: ObjectMap -> mutable.HashMap; Object -> Any
+ *   Convention: containsKey uses .contains (Scala Map API)
+ *   Idiom: get(key) returns null via getOrElse(key, null) -- raw null at Java-interop boundary
+ *   Idiom: get(key, defaultValue, clazz) uses Nullable(obj).fold instead of == null check
+ *   Idiom: equals uses pattern match instead of instanceof
+ *   Idiom: toString uses string interpolation
+ *   TODO: Java-style getters/setters — getKeys, getValues
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

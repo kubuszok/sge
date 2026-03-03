@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
+ *     getDependencyFileHandles, collectImageLayerFileHandles, getTileSetDependencyFileHandle,
+ *     addStaticTiles)
+ *   - Java ObjectMap<String,Texture> → mutable.HashMap[String,Texture]
+ *   - Java setOwnedResources(textures.values().toArray()) → DynamicArray construction
+ *   - Constructor requires `(using Sge)` (SGE context parameter)
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

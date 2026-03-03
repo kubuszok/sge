@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
+ *     addStaticTiles, getAtlasFileHandle, setTextureFilters, parseRegionName)
+ *   - Java inner interface AtlasResolver + 2 inner classes → companion object trait + classes
+ *   - parseRegionName placed in companion object (Java: static package-private method)
+ *   - Java AtlasRegion return → Nullable[TextureRegion] via .map(r => r: TextureRegion)
+ *   - Constructor requires `(using Sge)` (SGE context parameter)
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

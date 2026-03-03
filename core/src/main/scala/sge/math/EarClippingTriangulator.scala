@@ -4,7 +4,14 @@
  * Original authors: badlogicgames@gmail.com, Nicolas Gramlich (optimizations, collinear edge support), Eric Spitz, Thomas ten Cate (bugfixes, optimizations), Nathan Sweet (rewrite, return indices, no allocation, optimizations)
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: computeTriangles(3). Private helpers:
+ * classifyVertices, isEarTip, areVerticesClockwise. Uses DynamicArray instead of ShortArray.
  */
 package sge
 package math

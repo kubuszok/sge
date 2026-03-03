@@ -4,6 +4,16 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: showUnmaskButton -> showPasswordButton (semantics differ from Java)
+ *   Convention: maxLength: int (-1 sentinel) -> Option[Int]; autoComplete: String[] -> Nullable[Array[String]]
+ *   Idiom: Nullable (1 null), split packages
+ *   TODOs: 0
+ *   Missing: maskInput field + isMaskInput/setMaskInput; NativeInputCloseCallback interface + closeCallback field + get/set
+ *   Missing: validate() null-safety checks for type/placeholder/closeCallback (non-applicable in Scala, but semantics diverge)
+ *   TODO: Java-style getters/setters — getType/setType, getMaxLength/setMaxLength, getValidator/setValidator, getPlaceholder/setPlaceholder, etc.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

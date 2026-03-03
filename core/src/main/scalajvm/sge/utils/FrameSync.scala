@@ -33,6 +33,12 @@
  * Original source: backends/gdx-backend-lwjgl3/src/com/badlogic/gdx/backends/lwjgl3/Sync.java
  * Original authors: Riven, kappaOne
  *
+ * Migration notes:
+ *   Renames: Sync -> FrameSync; static methods -> object methods
+ *   Convention: LWJGL Sync.java -> SGE FrameSync; JVM-only (uses Thread.sleep/System.nanoTime)
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

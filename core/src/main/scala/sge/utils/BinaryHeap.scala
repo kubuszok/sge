@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `return` eliminated via `boundary`/`break`; `Node` uses `var` fields
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — Node: getValue/setValue
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

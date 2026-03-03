@@ -4,6 +4,12 @@
  * Original authors: mzechner, Vincent Bousquet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: TextureDataType enum; Factory object replaces Java static inner class
+ *   Idiom: split packages
+ *   Issues: Factory.loadFromFile uses placeholder `new Pixmap(100, 100, ...)` for non-special file types
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

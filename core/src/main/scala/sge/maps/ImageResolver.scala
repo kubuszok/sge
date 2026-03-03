@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: ObjectMap[String,Texture] -> mutable.Map[String,Texture] (DirectImageResolver)
+ *   Convention: interface -> trait; static inner classes -> companion object classes
+ *   Idiom: getImage returns Nullable[TextureRegion] instead of nullable TextureRegion
+ *   Idiom: DirectImageResolver uses fold on Option from Map.get instead of direct null-returning ObjectMap.get
+ *   Idiom: TextureAtlasImageResolver maps AtlasRegion to TextureRegion via supertype cast
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

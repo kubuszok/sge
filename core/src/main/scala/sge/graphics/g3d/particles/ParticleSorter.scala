@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully (sort, setCamera, ensureCapacity, qsort)
+ * - TMP_V1 static field: orphan `new Vector3()` in companion object (side-effect preserved)
+ * - None.currentCapacity/indices: package-private in Java → private in Scala (stricter)
+ * - Distance.qsort: Java uses early return in insertion sort; Scala restructured without return
+ * - val → reserved word in Java; Scala uses `values` for camera.view.val → camera.view.values
+ * - positionChannel.data → positionChannel.floatData (Scala FloatChannel rename)
  */
 package sge
 package graphics

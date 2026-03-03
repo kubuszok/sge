@@ -4,7 +4,26 @@
  * Original authors: Daniel Holderbaum, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Gdx.graphics -> Sge().graphics
+ *   Convention: int-to-float widening done explicitly via .toFloat
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * --- AUDIT (2026-03-03) ---
+ * API-complete: YES — all methods and fields ported
+ * Behavioural parity: YES — logic identical
+ * Conventions: OK — no return, no null, split packages, braces on multiline defs
+ * Notes:
+ *   - toScreenCoordinates uses worldCoords.set(tmp.x, tmp.y) instead of direct field
+ *     assignment; functionally equivalent
+ *   - Java int-to-float widening done explicitly via .toFloat (correct)
+ *   - Sge() accessor used in place of Gdx.graphics (correct)
+ *   - Java-style getters/setters retained for LibGDX API compatibility (acceptable)
+ * TODO: Java-style getters/setters -- getCamera/setCamera, getWorldWidth/setWorldWidth, getWorldHeight/setWorldHeight, getScreenX/Y/setScreenX/Y, getScreenWidth/setScreenWidth, getScreenHeight/setScreenHeight
+ * TODO: opaque Pixels for update(screenWidth, screenHeight), getScreenX/Y/Width/Height params -- see docs/improvements/opaque-types.md
  */
 package sge
 package utils

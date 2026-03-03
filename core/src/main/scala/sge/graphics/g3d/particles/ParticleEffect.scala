@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully
+ * - Disposable → AutoCloseable; dispose() → close()
+ * - update() overload uses (using Sge) context parameter instead of Gdx.graphics.getDeltaTime()
+ * - findController returns Nullable[ParticleController] instead of ParticleController|null
+ * - bounds: Nullable[BoundingBox] instead of BoundingBox|null
+ * - setBatch uses boundary/break for inner break (Java labeled break)
+ * - Java string equals() → Scala == (structural equality)
+ * - TODO: opaque Seconds for update(deltaTime) param -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

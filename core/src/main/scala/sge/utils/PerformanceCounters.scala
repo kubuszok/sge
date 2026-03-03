@@ -4,6 +4,14 @@
  * Original authors: xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Array<PerformanceCounter>` -> `DynamicArray[PerformanceCounter]`
+ *   Idiom: split packages
+ *   Issues: uses flat `package sge.utils` instead of split packages
+ *   TODO: uses flat package declaration -- convert to split (package sge / package utils)
+ *   TODO: opaque Seconds for tick(deltaTime) param -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.utils

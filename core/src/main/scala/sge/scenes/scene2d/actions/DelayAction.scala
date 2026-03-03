@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: no return; split packages; braces on class
+ *   Renames: implements FinishableAction -> with FinishableAction
+ *   Idiom: action null-check + early return -> action.fold(true)(_.act(delta))
+ *   TODO: Java-style getters/setters -- getTime/setTime, getDuration/setDuration
+ *   TODO: opaque Seconds for duration/time params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

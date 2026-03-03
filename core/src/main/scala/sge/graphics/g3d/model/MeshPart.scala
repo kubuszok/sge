@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods/fields match Java source
+ * - id: Java String (nullable) -> Nullable[String]
+ * - bounds: static -> companion object private val (correct)
+ * - update(): Java `halfExtents.len()` -> Scala `halfExtents.length` (equivalent — SGE renamed len->length)
+ * - equals(MeshPart): Scala uses `eq` for reference equality (matches Java `==` for objects)
+ * - hashCode(): added (Java source does NOT override hashCode — Scala adds System.identityHashCode-based impl)
+ * - Status: minor_issues (hashCode is an SGE addition not in Java)
  */
 package sge
 package graphics

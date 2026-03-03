@@ -4,7 +4,15 @@
  * Original authors: badlogic
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: line(GridPoint2,GridPoint2), line(ints),
+ * line(ints,Pool,DynamicArray). Uses DynamicArray instead of gdx Array.
+ * Two-arg line returns Array[GridPoint2] via .toArray (Java returns Array<GridPoint2>).
  */
 package sge
 package math

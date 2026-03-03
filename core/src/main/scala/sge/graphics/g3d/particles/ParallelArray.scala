@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods and inner types ported faithfully
+ * - ChannelDescriptor: deprecated constructor (Class, count) omitted (used ArrayReflection)
+ * - Channel: inner class → nested in companion object; now takes explicit `owner: ParallelArray`
+ *   parameter (Java inner class had implicit outer reference to access `size`)
+ * - FloatChannel.data / IntChannel.data / ObjectChannel.data: renamed to floatData/intData/objectData
+ *   to disambiguate from Channel.data (Java shadowed the field; Scala can't)
+ * - ObjectChannel.clearSlot: added helper for null clearing at Java interop boundary
+ * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
+ * - getChannel returns Nullable[T] instead of T|null
+ * - GdxRuntimeException → SgeError.InvalidInput
  */
 
 package sge

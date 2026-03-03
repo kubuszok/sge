@@ -4,7 +4,16 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: toBarycoord(2), fromBarycoord(2), barycoordInsideTriangle,
+ * lowestPositiveRoot, colinear, triangleCentroid(2), circumscribedCircle, triangleQuality,
+ * triangleArea, quadrilateralCentroid, polygonCentroid(2), polygonArea, polygonSignedArea,
+ * ensureCCW, isClockwise. Static: tmp1, tmp2, tmp3.
  */
 package sge
 package math

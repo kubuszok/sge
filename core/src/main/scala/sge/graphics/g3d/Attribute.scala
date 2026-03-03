@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Comparable -> Ordered[Attribute].
+ *   - register() visibility: Java protected -> Scala private[g3d] (callers are companion objects).
+ *   - getAttributeAlias returns Nullable[String] (Java returns null).
+ *   - toString uses .getOrElse("unknown") instead of returning null.
+ *   - equals(Any) handles null via pattern match (no bare null check).
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

@@ -3,9 +3,18 @@
 // Faithful port of etc1_utils.cpp (Google, Apache 2.0) to pure Scala.
 // Produces identical output to the Rust/C++ reference implementation.
 // No native code — suitable for browser environments.
+//
+// Migration notes:
+//   Origin: SGE-original (platform abstraction)
+//   Convention: pure Scala ETC1 codec for JS — encode, decode, PKM headers
+//   Idiom: boundary/break (0 return), Nullable (0 null), split packages
+//   Audited: 2026-03-03
 
 package sge
 package platform
+
+import scala.util.boundary
+import scala.util.boundary.break
 
 private[platform] object ETC1OpsJs extends ETC1Ops {
 
@@ -160,7 +169,7 @@ private[platform] object ETC1OpsJs extends ETC1Ops {
   // ─── Block encode ────────────────────────────────────────────────────
 
   /** Mutable struct matching C's etc_compressed. score is compared as unsigned u32. */
-  private class EtcCompressed {
+  final private class EtcCompressed {
     var high:  Int = 0
     var low:   Int = 0
     var score: Int = 0 // Treated as unsigned — use Integer.compareUnsigned for comparisons
@@ -692,11 +701,11 @@ private[platform] object ETC1OpsJs extends ETC1Ops {
     writeBEUint16(header, offset + ETC1_PKM_HEIGHT_OFFSET, height)
   }
 
-  override def isValidPKM(header: Array[Byte], offset: Int): Boolean = {
+  override def isValidPKM(header: Array[Byte], offset: Int): Boolean = boundary {
     // Check magic bytes
     var i = 0
     while (i < PKM_MAGIC.length) {
-      if (header(offset + i) != PKM_MAGIC(i)) return false
+      if (header(offset + i) != PKM_MAGIC(i)) break(false)
       i += 1
     }
     val format        = readBEUint16(header, offset + ETC1_PKM_FORMAT_OFFSET)

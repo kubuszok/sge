@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All methods ported faithfully
+ * - Disposable → AutoCloseable; dispose() → close()
+ * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
+ * - Static temp fields (TMP_V1..TMP_V6, TMP_Q, TMP_Q2, TMP_M3, TMP_M4) → companion object
+ *   with private[particles] visibility (Java used protected static)
+ * - controller field uses scala.compiletime.uninitialized (Java null)
  */
 package sge
 package graphics

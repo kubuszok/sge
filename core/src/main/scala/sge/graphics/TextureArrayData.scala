@@ -4,6 +4,11 @@
  * Original authors: Tomski
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Factory object replaces Java static inner class
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

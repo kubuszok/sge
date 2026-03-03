@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source
+ * - Java inner enum MaterialType -> Scala 3 enum in companion object (correct)
+ * - Field renamed: Java `type` (reserved in Scala) -> `materialType`
+ * - Java Array<ModelTexture> -> DynamicArray[ModelTexture] for textures
+ * - Color fields use scala.compiletime.uninitialized (Java null defaults)
+ * - opacity initialized to 1.0f (matches Java)
+ * - Status: minor_issues (field rename: type -> materialType)
  */
 package sge
 package graphics

@@ -5,6 +5,21 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - implements MeshPartBuilder -> extends MeshPartBuilder
+ *   - Static constants (MAX_VERTICES, MAX_INDEX) -> companion object vals
+ *   - Static tmpIndices/tmpVertices -> companion object members
+ *   - Static helper methods (transformPosition, transformNormal, createAttributes) -> companion object
+ *   - FloatArray/ShortArray -> DynamicArray[Float]/DynamicArray[Short]
+ *   - Array<MeshPart> -> DynamicArray[MeshPart]
+ *   - indicesMap: IntIntMap -> Nullable[ObjectMap[Int,Int]]
+ *   - VertexAttributes field: Nullable wrapping
+ *   - Null params (Color, TextureRegion, Matrix4) -> Nullable[T]
+ *   - All deprecated shape builder delegate methods ported
+ *   - All core methods (begin, end, part, vertex, index, line, triangle, rect, addMesh) ported
+ *   - end() requires (using Sge) for Mesh creation
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

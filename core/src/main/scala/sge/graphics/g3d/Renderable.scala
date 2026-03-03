@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - All fields match Java source. null -> Nullable.
+ *   - worldTransform and meshPart are val (final in Java).
+ *   - material, environment, bones, shader, userData are Nullable.
+ *   - set() returns this (no explicit return).
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

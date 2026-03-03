@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Gdx.gl -> Sge().graphics.gl (using Sge context)
+ *   - All state management methods fully ported
+ *   - setDepthTest, setBlending, setCullFace: logic matches Java source
+ *   - begin()/end(): state initialization matches Java
+ *   - Audit: pass (2026-03-03)
+ *   TODO: typed GL enums -- EnableCap, CompareFunc, BlendFactor, CullFace -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

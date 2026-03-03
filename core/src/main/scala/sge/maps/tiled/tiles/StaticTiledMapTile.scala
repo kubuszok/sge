@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructors match 1:1
+ * - Java null-initialized properties/objects replaced with Nullable.empty
+ * - getProperties/getObjects use Nullable lazy-init pattern (matches Java null-check-then-create)
+ * - 2 constructors: primary (TextureRegion) + copy constructor (StaticTiledMapTile)
  */
 package sge
 package maps

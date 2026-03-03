@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - All public methods ported: init, calculateWeights, spawnAux, copy
+ * - Java `mesh` accessed directly (protected field); Scala uses `mesh.getOrElse(...)` via Nullable
+ * - Java uses `attributes.findByUsage(Usage.Position).offset`; Scala uses `.fold(throw ...)(_.offset)`
+ * - Java casts vertexSize/positionOffset to short then stores as int; Scala stores as Int directly (correct)
+ * - Status: pass
  */
 package sge
 package graphics

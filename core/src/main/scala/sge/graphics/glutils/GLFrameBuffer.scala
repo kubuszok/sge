@@ -4,6 +4,13 @@
  * Original authors: mzechner, realitix
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses DynamicArray for managed buffer tracking; unbind() moved to companion; builder uses Scala 3 type parameters
+ *   Idiom: split packages
+ *   TODO: opaque Pixels for getWidth/Height, builder width/height -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- FramebufferTarget, Attachment, ClearMask -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Java interface -> Scala trait.
+ *   - Array<Renderable> -> DynamicArray[Renderable].
+ *   - Pool<Renderable> -> sge.utils.Pool[Renderable].
+ *   - Single method matches exactly.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

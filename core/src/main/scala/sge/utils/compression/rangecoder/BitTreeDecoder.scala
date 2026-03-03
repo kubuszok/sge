@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Class + companion object faithfully ported
+ * - Constructor param stored as val NumBitLevels (matches Java field)
+ * - Instance methods: Init->init, Decode->decode, ReverseDecode->reverseDecode
+ * - Static ReverseDecode -> companion object reverseDecode
+ * - Decode: Java for-loop -> while-loop (correct)
+ * - No convention issues
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package rangecoder)
  */
 package sge.utils.compression.rangecoder
 

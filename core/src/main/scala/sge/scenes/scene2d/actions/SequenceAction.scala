@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: null -> Nullable[A]; no return; split packages; braces on class
+ *   Idiom: setPool(null) -> setPool(Nullable.empty); actor == null -> actor.isEmpty;
+ *          early returns -> if/else chain
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: Serializable dropped; serialVersionUID dropped;
+ *     static arrays (tempAxes, tempVertices, tmpVectors) moved to companion object;
+ *     Java init() replaced with inline field initializers + class body update() call;
+ *     flat package import instead of split packages
+ *   Renames: Intersector.hasOverlap called via sge.math.Intersector.hasOverlap
+ *   Issues: update() computes axes via set(1,0,0).mul(transform).nor() which includes
+ *     translation; Java extracts matrix columns directly (M00/M10/M20 etc.) — BUG
+ *   TODO: Java-style getters/setters — getBounds/setBounds, getTransform/setTransform, getVertices
+ *   TODO: uses flat package declaration — convert to split (package sge / package math / package collision)
+ *   Audited: 2026-03-03
  */
 package sge.math.collision
 

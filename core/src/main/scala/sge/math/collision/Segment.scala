@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: dst -> distance, dst2 -> distanceSq
+ *   Convention: Serializable dropped; serialVersionUID dropped;
+ *     primary constructor takes Vector3 refs with defaults (Java has no no-arg ctor);
+ *     Java 2-arg (Vector3,Vector3) ctor copies via set(); Scala stores refs directly
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package math

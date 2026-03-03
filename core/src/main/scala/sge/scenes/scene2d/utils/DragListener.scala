@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - getDragDistance: Java uses Vector2.len(dx,dy), Scala uses Math.sqrt (equivalent)
+ * - No return statements, uses if/else expressions
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — getTapSquareSize/setTapSquareSize, getTouchDownX/Y, getDragStartX/Y, getDragX/Y, getDeltaX/Y, getButton/setButton, isDragging
  */
 package sge
 package scenes

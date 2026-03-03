@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audit: pass (2026-03-03)
+ *   - All 4 methods ported: set(float[]), set(AmbientCubemap), set(Color), set(r,g,b)
+ *   - Constructors: no-arg + array validated via companion apply
+ *   - coeff array commented out (unused in upstream LibGDX)
+ *   - clamp method omitted (unused in upstream LibGDX)
+ *   - GdxRuntimeException → SgeError.InvalidInput
  */
 package sge
 package graphics

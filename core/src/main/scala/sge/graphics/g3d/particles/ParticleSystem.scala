@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods ported faithfully
+ * - Deprecated static get() singleton omitted (Java @Deprecated)
+ * - update()/updateAndDraw() overloads use (using Sge) context parameter for no-arg variants
+ * - remove uses removeValue without identity flag (DynamicArray uses == equality)
+ * - Class is final (matches Java)
+ * - TODO: opaque Seconds for update(deltaTime), updateAndDraw(deltaTime) params -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics

@@ -4,6 +4,13 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: dangling `new Vector3()` allocation (dead code, line 42); old-style implicit sge: Sge instead of (using Sge)
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Pixels for viewportWidth/Height constructor params, setToOrtho -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

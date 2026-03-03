@@ -4,6 +4,12 @@
  * Original authors: mrdlink
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait; Disposable -> AutoCloseable; int[] params -> Nullable[Array[Int]]
+ *   Idiom: split packages
+ *   TODO: typed GL enums -- BufferTarget, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

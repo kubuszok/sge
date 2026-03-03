@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java class with static methods -> Scala object
+ * - Gdx.gl/Gdx.graphics -> Sge().graphics (using Sge context parameter)
+ * - Array<Rectangle> -> DynamicArray[Rectangle]
+ * - @Null Rectangle peekScissors -> Nullable[Rectangle]
+ * - All methods faithfully ported
+ * TODO: typed GL enums -- EnableCap for GL_SCISSOR_TEST -- see docs/improvements/opaque-types.md
  */
 package sge
 package scenes

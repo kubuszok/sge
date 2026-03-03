@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: isPlaying -> playing, isLooping/setLooping -> looping/looping_=,
+ *     getVolume/setVolume -> volume/volume_=, getPosition/setPosition -> position/position_=,
+ *     setOnCompletionListener(OnCompletionListener) -> onComplete(Music => Unit),
+ *     Disposable -> Closeable
+ *   Convention: Java interface -> Scala trait; OnCompletionListener SAM replaced with function type;
+ *     raw float params replaced with opaque types (Volume, Pan, Position)
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package audio

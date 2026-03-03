@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Java interface -> Scala trait
+ *   - bind(TextureDescriptor) uses wildcard TextureDescriptor[?] (raw type in Java)
+ *   - bind(GLTexture) param type correctly widened from Texture to GLTexture (matches Java)
+ *   - getBindCount/getReuseCount: parentheses dropped (Scala property style)
+ *   - All 7 methods fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

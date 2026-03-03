@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java interface with default methods -> Scala trait with def implementations
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — trait methods: getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getMinWidth/setMinWidth, getMinHeight/setMinHeight
  */
 package sge
 package scenes

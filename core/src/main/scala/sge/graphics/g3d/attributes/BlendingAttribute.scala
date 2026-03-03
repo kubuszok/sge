@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful port, minor null-safety difference
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - Java copy-ctor has null-safe fallback (copyFrom==null -> defaults); Scala version
+ *     does not accept null — acceptable for no-null convention
+ *   - Java no-arg ctor delegates to BlendingAttribute(null) for the null path;
+ *     Scala no-arg ctor uses explicit defaults — same runtime behavior
+ *   - All constants, factory methods, constructors, and instance methods accounted for
  */
 package sge
 package graphics

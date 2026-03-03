@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful port, missing constructors
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - GdxRuntimeException -> SgeError.InvalidInput
+ *   - Missing: constructor (type, TextureDescriptor) — Java has 2 overloads accepting
+ *     TextureDescriptor with/without offset/scale/uvIndex; Scala only has the 7-arg primary ctor
+ *   - Missing: constructor (type, TextureDescriptor, offsetU, offsetV, scaleU, scaleV) (no uvIndex)
+ *   - Copy ctor sets fields individually instead of delegating to the full-arg ctor — same result
+ *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
+ *   - All 7 alias/type pairs, all 14 create* factory methods, set(region) accounted for
  */
 package sge
 package graphics

@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: GdxRuntimeException -> RuntimeException
+ *   Convention: null fields -> scala.compiletime.uninitialized; constructor GL level detection simplified (5 TODOs)
+ *   Convention: enable()/disable() bodies commented out pending Graphics trait setGL* methods
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — setListener/getListener, isEnabled, getCalls, etc.
+ *   Audited: 2026-03-03
  */
 package sge
 package graphics

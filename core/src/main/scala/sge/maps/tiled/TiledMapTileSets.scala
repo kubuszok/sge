@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All 6 methods (getTileSet(int), getTileSet(String), addTileSet, removeTileSet(int),
+ *     removeTileSet(TiledMapTileSet), getTile, iterator) match Java 1:1
+ *   - Java Array → DynamicArray; null returns → Nullable[A]
+ *   - boundary/break used for early returns in getTileSet(String) and getTile(int)
+ *   - Split package, braces, no-return conventions satisfied
+ *   TODO: Java-style getters/setters — getTileSet
  */
 package sge
 package maps

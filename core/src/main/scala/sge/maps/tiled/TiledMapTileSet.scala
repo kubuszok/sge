@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All 7 methods (getName, setName, getProperties, getTile, iterator, putTile, removeTile, size) match Java 1:1
+ *   - Java IntMap<TiledMapTile> → scala.collection.mutable.HashMap[Int, TiledMapTile]
+ *   - getTile returns Nullable[TiledMapTile] (Java returns null)
+ *   - Extends Iterable[TiledMapTile] (Java implements Iterable)
+ *   - Split package, braces, no-return conventions satisfied
+ *   TODO: Java-style getters/setters — getName/setName, getProperties, getTile
  */
 package sge
 package maps

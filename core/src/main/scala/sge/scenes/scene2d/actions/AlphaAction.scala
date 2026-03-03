@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: null -> Nullable[A]; no return; split packages; braces on class
+ *   Renames: end -> _end (reserved-ish name avoidance)
+ *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.getColor))
+ *   TODO: direct Color.a mutation -- update when Color becomes immutable
+ *   TODO: Java-style getters/setters -- getColor/setColor, setAlpha
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

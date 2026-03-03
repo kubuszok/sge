@@ -5,6 +5,20 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Java interface -> Scala trait
+ *   - VertexInfo inner static class -> companion object class
+ *   - VertexInfo implements Poolable -> extends Pool.Poolable
+ *   - Null params in VertexInfo.set(Vector3, Vector3, Color, Vector2) -> Nullable[T]
+ *   - setColor(Color) -> setColor(Nullable[Color])
+ *   - setUVRange(TextureRegion) -> setUVRange(Nullable[TextureRegion])
+ *   - setVertexTransform(Matrix4) -> setVertexTransform(Nullable[Matrix4])
+ *   - vertex(float...) -> vertex(Float*) (Scala varargs)
+ *   - All deprecated shape methods preserved with @deprecated annotations
+ *   - All 70+ method signatures match Java source
+ *   - TODO: VertexInfo extends Pool.Poolable → define given Poolable[VertexInfo]
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

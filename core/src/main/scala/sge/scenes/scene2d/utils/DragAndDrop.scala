@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - ObjectMap -> scala.collection.mutable.Map (MutableMap)
+ * - Array<Target> -> DynamicArray[Target]
+ * - Extensive null -> Nullable conversions throughout drag/drop logic
+ * - boundary/break used for loop-with-break in target search
+ * - Source.actor null-check in Java constructor -> Scala val parameter (cannot be null)
+ * - Payload fields: @Null Actor -> public var with uninitialized
+ * - Payload.object -> Payload.obj (object is Scala keyword)
+ * - Inner static classes -> companion object nested classes
+ * - All public API methods faithfully ported
+ * - TODO: Java-style getters/setters — getDragActor, getDragPayload, getDragSource, getDragTime/setDragTime, isDragging; Payload: getDragActor/setDragActor, getObject/setObject
  */
 package sge
 package scenes

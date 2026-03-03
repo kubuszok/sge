@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java interface -> Scala trait (faithful 1:1 port)
+ * - All methods and signatures match the original
+ * - No convention issues
  */
 package sge
 package utils

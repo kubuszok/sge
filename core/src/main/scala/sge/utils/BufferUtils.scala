@@ -4,6 +4,12 @@
  * Original authors: mzechner, xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: JNI native methods -> `PlatformOps.buffer` delegation
+ *   Convention: uses `PlatformOps` for cross-platform buffer operations
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

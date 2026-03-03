@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Array` -> `DynamicArray`; `ordered` -> `preserveOrder`; all primitive array variants unified into one generic class
+ *   Convention: `MkArray` type class for unboxed primitive arrays; private constructor with factory methods; `final class`; snapshot pattern uses raw null internally for performance
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 /*

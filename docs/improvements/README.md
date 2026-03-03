@@ -11,6 +11,8 @@ leveraging Scala 3's type system and standard library.
 | [type-safety.md](type-safety.md) | Opaque types, Nullable, AutoCloseable |
 | [api-design.md](api-design.md) | Ordering, adapter collapse, collections |
 | [bugs-and-ambiguities.md](bugs-and-ambiguities.md) | Discovered bugs and undocumented behavior |
+| [opaque-types.md](opaque-types.md) | Roadmap for new opaque types (Pixels, Time, GL enums) |
+| [dependencies.md](dependencies.md) | Library replacement candidates (scala-java-time, scribe, Gears) |
 
 ## Entry Format
 

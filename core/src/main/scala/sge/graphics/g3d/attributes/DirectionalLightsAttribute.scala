@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful 1:1 port
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - Array<DirectionalLight> -> DynamicArray[DirectionalLight]
+ *   - null check in hashCode -> Nullable(light).fold(0)(_.hashCode())
+ *   - Java Array(1) initial capacity; Scala DynamicArray() default capacity — minor
+ *   - FIXME comparing not implemented (same as Java source)
+ *   - All constants, factory methods, constructors, and instance methods accounted for
  */
 package sge
 package graphics

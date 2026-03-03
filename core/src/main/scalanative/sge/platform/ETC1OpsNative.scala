@@ -2,6 +2,12 @@
 //
 // Binds to the sge_native_ops Rust library using @link/@extern annotations.
 // Array data is passed to C functions via .at(offset) to obtain Ptr[Byte].
+//
+// Migration notes:
+//   Origin: SGE-original (platform abstraction)
+//   Convention: Scala Native @extern bindings to Rust C ABI for ETC1 codec
+//   Idiom: boundary/break (0 return), Nullable (0 null), split packages
+//   Audited: 2026-03-03
 
 package sge
 package platform

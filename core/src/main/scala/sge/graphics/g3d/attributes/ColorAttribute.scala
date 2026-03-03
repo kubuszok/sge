@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful 1:1 port
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - Java (type, color) ctor has null guard (`if (color != null)`); Scala version
+ *     always calls color.set — acceptable for no-null convention
+ *   - GdxRuntimeException -> SgeError.InvalidInput
+ *   - All 7 alias/type pairs, all 14 create* factory methods, all constructors accounted for
  */
 package sge
 package graphics

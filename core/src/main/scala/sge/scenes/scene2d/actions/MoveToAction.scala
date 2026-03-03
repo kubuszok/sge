@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: no return; split packages; braces on class
+ *   Renames: int alignment -> Align (opaque type); Align.bottomLeft constant
+ *   Idiom: target.getX -> target.foreach(t => startX = t.getX(alignment))
+ *   Missing: setStartPosition(x,y), getStartX, getStartY from Java source
+ *   TODO: Java-style getters/setters -- getX/setX, getY/setY, getAlignment/setAlignment
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

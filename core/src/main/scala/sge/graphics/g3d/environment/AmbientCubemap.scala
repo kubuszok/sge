@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audit: pass (2026-03-03)
+ *   - All 13 methods ported: set x4, getColor, clear, clamp, add x5, toString
+ *   - 3 constructors: no-arg, array (validated via companion apply), copy
+ *   - dst() → distance() (SGE Vector3 rename)
+ *   - GdxRuntimeException → SgeError.InvalidInput
+ *   - clamp helper preserved as private in companion object
  */
 package sge
 package graphics

@@ -4,6 +4,11 @@
  * Original authors: mzechner, Dave Clayton <contact@redskyforge.com>
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Nullable[Array[Int]] for optional locations parameter
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -5,6 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: split packages; braces on class
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

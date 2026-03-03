@@ -4,6 +4,11 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface LoadedCallback -> Scala trait in companion object; raw Class -> Class[?]
+ *   Idiom: split packages; loadedCallback uses uninitialized (nullable field, TODO: Nullable[LoadedCallback])
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

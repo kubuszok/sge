@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - implements RenderableSorter, Comparator<Renderable> -> extends RenderableSorter with given Ordering[Renderable]
+ *   - compare() extracted to private compareRenderables() used by given Ordering
+ *   - material access uses Nullable.fold (material can be null in Java)
+ *   - camera field: null -> Nullable[Camera]
+ *   - camera.position.dst2() -> camera.position.distanceSq() (renamed in SGE)
+ *   - Minor: Java casts int on each dst2 call separately: `(int)(1000f * dst2)`;
+ *     Scala version casts after multiply: `(1000f * distanceSq).toInt` -- equivalent
+ *   - All methods (sort, getTranslation, compare) fully ported
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

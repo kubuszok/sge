@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   TODO: Java-style getters/setters -- convert to var or def x/def x_= (Java getter getCurrentEventTime → def currentEventTime)
+ *   TODO: opaque Pixels for screenX/screenY params in event methods -- see docs/improvements/opaque-types.md
+ *   TODO: opaque Nanos for time params in event methods -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
  */
 package sge
 

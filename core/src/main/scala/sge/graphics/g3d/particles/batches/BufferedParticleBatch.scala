@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java Array<T> → DynamicArray[T]; Class<T>/ArraySupplier constructors collapsed to no-arg
+ * - Deprecated Class<T> constructor removed (erased generics not needed with DynamicArray)
+ * - `return` in ensureCapacity replaced with if/else guard (no-return convention)
+ * - camera: uninitialized (Java null) → scala.compiletime.uninitialized
+ * - All public methods faithfully ported: begin, draw, end, ensureCapacity, resetCapacity,
+ *   setCamera, getSorter, setSorter, getBufferedCount
+ * - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

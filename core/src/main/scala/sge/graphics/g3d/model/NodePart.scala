@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods/fields match Java source
+ * - invBoneBindTransforms/bones: Java nullable -> Nullable[]
+ * - setRenderable: wraps material in Nullable() since Renderable.material is Nullable[Material]
+ * - set(): uses Nullable fold pattern vs Java null checks (equivalent logic)
+ * - Java ArrayMap constructor uses `Node[]::new, Matrix4[]::new` array creators; Scala uses
+ *   `ArrayMap[Node, Matrix4](true, size)` — relies on SGE ArrayMap handling
+ * - FIXME comment preserved from Java source
+ * - Status: pass
  */
 package sge
 package graphics

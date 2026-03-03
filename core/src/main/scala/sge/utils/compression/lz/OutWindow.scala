@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All 5 fields and 7 methods faithfully ported
+ * - create(): Java `_buffer == null` -> Nullable(_buffer).isEmpty (correct)
+ * - releaseStream(): sets _stream = null (raw null at Java interop boundary)
+ * - CopyBlock: Java `_buffer[_pos++] = _buffer[pos++]` split into separate statements (correct)
+ * - PutByte: Java `_buffer[_pos++] = b` split into separate statements (correct)
+ * - _buffer, _stream: scala.compiletime.uninitialized (correct for Java interop)
+ * - Package: uses flat `package sge.utils.compression.lz` instead of split; functionally equivalent
+ * - Method names lowercased: Create->create, SetStream->setStream, etc.
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package lz)
  */
 package sge.utils.compression.lz
 

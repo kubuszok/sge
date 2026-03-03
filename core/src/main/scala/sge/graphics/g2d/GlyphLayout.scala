@@ -4,6 +4,14 @@
  * Original authors: Nathan Sweet, davebaol, Alexander Dorokhov, Thomas Creutzenberg
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: DynamicArray instead of libGDX Array/FloatArray
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: (1) Flat package (package sge.graphics.g2d) should be split. (2) Raw null usage for lineRun/lastGlyph (lines 70-71, 152, 208-209, 275, 336, 343, 349) -- should use Nullable[GlyphRun] and Nullable[BitmapFont.Glyph].
+ *   TODO: GlyphLayout + GlyphRun extend Pool.Poolable → define given Poolable instances in companions
+ *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package g2d)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.g2d

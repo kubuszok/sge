@@ -4,7 +4,18 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All constants ported: NANOTIME_TO_SECONDS, FLOAT_ROUNDING_ERROR, PI, PI2,
+ * HALF_PI, E, Sin/Cos tables, Atan2 table, BIG_ENOUGH_INT/FLOOR/ROUND, CEIL, degRad,
+ * radDeg, degreesToRadians, radiansToDegrees. All methods ported: sin, cos, sinDeg, cosDeg,
+ * atan2, acos, asin, nextPowerOfTwo, isPowerOfTwo, clamp(int/long/float/double),
+ * lerp, inverseLerp, lerpAngle, lerpAngleDeg, norm, map, log, log2, floor, floorPositive,
+ * ceil, ceilPositive, round, roundPositive, isZero(2), isEqual(2), random(8).
  */
 package sge
 package math

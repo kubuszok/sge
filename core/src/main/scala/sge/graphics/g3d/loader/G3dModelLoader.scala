@@ -5,6 +5,24 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Java 1-arg constructor G3dModelLoader(reader) with resolver=null removed
+ *   (Scala requires both args; resolver is passed to ModelLoader super)
+ * - reader field is val (public) vs Java protected final (visibility widened)
+ * - loadModelData returns Nullable[ModelData] (no null)
+ * - (using Sge) context parameter added to class constructor
+ * - JsonValue iteration: Java for(child; !=null; =next) -> while(isDefined)/foreach pattern
+ * - Bug: parseMeshes reads mesh part id from parent mesh node (mesh.getString("id",...))
+ *   instead of meshPart.getString("id",...) -- same bug exists in Java source
+ *   (Java reads meshPart.getString("id", null) -- actually this is correct in Java,
+ *   Scala bug: line 66 uses `mesh.getString` instead of `meshPart.getString`)
+ * - parseNodes return type: Java Array<ModelNode> -> Scala DynamicArray[ModelNode] (equivalent)
+ * - ArrayMap constructor: Java uses array factory lambdas, Scala uses (ordered, capacity)
+ * - VERSION_HI/VERSION_LO in companion object (matching Java static final)
+ * - All methods present: parseModel, parseMeshes, parseType, parseAttributes, parseMaterials,
+ *   parseTextureUsage, parseColor, readVector2, parseNodes, parseNodesRecursively,
+ *   parseAnimations
  */
 package sge
 package graphics

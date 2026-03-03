@@ -1,5 +1,10 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: SGE-original utility object; pan-to-stereo conversion extracted from backend
+ *     implementations into shared code; uses opaque types (Pan, Volume)
+ *   Audited: 2026-03-03
  */
 package sge
 package audio

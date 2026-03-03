@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audit: pass (2026-03-03)
+ *   - All 11 methods ported: update x2, begin x3, end, getFrameBuffer,
+ *     getCamera, getProjViewTrans, getDepthMap, close
+ *   - Disposable → AutoCloseable; dispose() → close()
+ *   - Gdx.gl → Sge().graphics.gl (using Sge context parameter)
+ *   - fbo: FrameBuffer → Nullable[FrameBuffer] for null safety
+ *   - begin() wraps in fbo.foreach for null safety
  */
 package sge
 package graphics

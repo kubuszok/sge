@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source
+ * - Java null -> Nullable.empty for translation/rotation/scaling
+ * - node field uses scala.compiletime.uninitialized (Java null default)
+ * - Array -> DynamicArray is standard SGE collection mapping
+ * - No API differences from Java source
+ * - Status: pass
  */
 package sge
 package graphics

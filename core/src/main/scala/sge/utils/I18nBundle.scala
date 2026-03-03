@@ -4,6 +4,12 @@
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java `static` -> companion object; `return` -> `boundary`/`break`; `null` -> `Nullable`
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getLocale, getSimpleFormatter/setSimpleFormatter, getExceptionOnMissingKey/setExceptionOnMissingKey
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

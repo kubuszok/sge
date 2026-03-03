@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: PooledEffect moved to companion object (was inner class in Java); Pool type parameter made explicit
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: PooledEffect.reset() calls this.reset(resetScaling=true, start=false) instead of Java's super.reset() via Pool.free()
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

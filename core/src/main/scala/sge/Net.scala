@@ -4,6 +4,11 @@
  * Original authors: mzechner, noblemaster, arielsan
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   TODO: HttpRequest extends Pool.Poolable → define given Poolable[HttpRequest] in companion
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (HttpRequest: 16 get/set methods → vars)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

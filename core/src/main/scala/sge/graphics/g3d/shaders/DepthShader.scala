@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Config.vertexShader/fragmentShader use Nullable[String] (no null)
+ * - getDefaultVertexShader/getDefaultFragmentShader require (using Sge) context parameter
+ * - Constructor ordering differs from Java: primary ctor is (Renderable, Config, ShaderProgram),
+ *   secondary constructors delegate upward (Scala 3 constraint)
+ * - Java Gdx.files -> Sge().files
+ * - combineAttributes is private to companion, not private static
+ * - Minor: DepthShader.Config secondary constructor doesn't set defaultCullFace = GL_FRONT
+ *   (handled by Config primary constructor init block)
+ * - All public methods match Java: begin, end, canRender, render, createPrefix
+ * - TODO comment preserved from Java source
+ * TODO: typed GL enums -- EnableCap, CompareFunc, CullFace -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics
@@ -50,7 +63,7 @@ class DepthShader(
   private val alphaTestAttribute: FloatAttribute =
     new FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(
       renderable,
       DepthShader.Config(), {
@@ -61,8 +74,9 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) = {
     this(
       renderable,
       config, {
@@ -72,8 +86,9 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config, {
@@ -82,6 +97,7 @@ class DepthShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -89,8 +105,9 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) =
+  )(using Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)

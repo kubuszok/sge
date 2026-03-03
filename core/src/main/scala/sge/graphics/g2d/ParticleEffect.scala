@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: dispose() -> close(); Disposable -> AutoCloseable; findEmitter returns Nullable
+ *   Convention: Nullable for null safety; using Sge context parameter; boundary/break for early returns
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

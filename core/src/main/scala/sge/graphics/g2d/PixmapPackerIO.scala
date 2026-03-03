@@ -4,6 +4,11 @@
  * Original authors: jshapcott
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java enum -> Scala 3 enum; IOException -> SgeError.FileWriteError; Nullable for null checks
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

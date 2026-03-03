@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: nullable `TextureRegion` field typed as `Nullable[TextureRegion]`
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getX/setX, getY/setY, getOriginX/Y/setOriginX/Y, getScaleX/Y/setScaleX/Y, getRotation/setRotation, getTextureRegion/setTextureRegion
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

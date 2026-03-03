@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Copy constructor: cannot call super(drawable) in Scala -> manual property copy
+ * - instanceof check -> Scala pattern matching for AtlasSprite in tint()
+ * - All methods faithfully ported
  */
 package sge
 package scenes

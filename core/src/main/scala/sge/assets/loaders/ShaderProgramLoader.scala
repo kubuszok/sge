@@ -4,6 +4,11 @@
  * Original authors: cypherdare
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: logging routes through `Sge().application.error()` instead of `manager.getLogger().error()` — different log level control
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

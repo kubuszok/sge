@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java Array<T> → DynamicArray[T]
+ * - ObjectChannel.data[i] → objectData(i) (field rename in ParallelArray port)
+ * - Java for-each + index loop → Scala for/while loops
+ * - All public methods faithfully ported: getRenderables, getBufferedCount, begin, end,
+ *   draw, save, load
+ * - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

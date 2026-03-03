@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: getLatency -> latency, setVolume(float) -> volume_=(Volume), Disposable -> Closeable
+ *   Convention: Java interface -> Scala trait; raw float params replaced with opaque Volume type
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package audio

@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Class + companion object faithfully ported
+ * - 6 static constants -> companion object
+ * - Static ProbPrices array + initializer -> companion object private val (correct)
+ * - 9 instance methods + 4 companion methods faithfully ported
+ * - Method names lowercased: SetStream->setStream, ShiftLow->shiftLow, etc.
+ * - releaseStream(): sets Stream = null (raw null at Java interop boundary)
+ * - Stream field: scala.compiletime.uninitialized (correct for Java interop)
+ * - shiftLow: Java do-while -> Scala while-with-body-returns-condition pattern (correct)
+ * - No convention issues
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package rangecoder)
  */
 package sge.utils.compression.rangecoder
 

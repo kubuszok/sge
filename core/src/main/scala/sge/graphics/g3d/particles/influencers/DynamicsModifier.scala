@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Inner classes moved to companion object (Java static classes).
+ * - TMP_V1/V2/V3/TMP_Q moved to companion object (Java protected static fields).
+ * - PolarAcceleration/TangentialAcceleration: TMP_V3.mul(TMP_Q) replaced with
+ *   TMP_Q.transform(TMP_V3) — Vector3.mul(Quaternion) not available in SGE.
+ * - write/read(Json) in base, Strength, Angular omitted (Json serialization not ported).
+ * - All 8 inner classes faithfully ported: FaceDirection, Strength, Angular,
+ *   Rotational2D, Rotational3D, CentripetalAcceleration, PolarAcceleration,
+ *   TangentialAcceleration, BrownianAcceleration.
+ * - Status: pass
  */
 package sge
 package graphics

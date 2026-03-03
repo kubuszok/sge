@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Array<T> -> DynamicArray[T]
+ * - choose requires (using Sge) for UIUtils.shift/ctrl calls
+ * - null rangeStart -> Nullable[T]
+ * - validate: iter.remove() -> collect-then-remove pattern (no ConcurrentModification)
+ * - validate uses DynamicArray.createWithMk for generic T collection
+ * - All methods faithfully ported
  */
 package sge
 package scenes

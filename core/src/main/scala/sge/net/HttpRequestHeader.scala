@@ -4,6 +4,12 @@
  * Original authors: Daniel Holderbaum
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java `interface` with `static final` constants → `object` with `val`
+ *   Idiom: split packages
+ *   TODO: uses flat package declaration — convert to split (package sge / package net)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.net

@@ -4,7 +4,21 @@
  * Original authors: Daniel Holderbaum, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Scaling is a SAM trait (not a Java enum)
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * --- AUDIT (2026-03-03) ---
+ * API-complete: YES — all methods ported (update, getScaling, setScaling)
+ * Behavioural parity: YES — update logic identical, centering calculation matches
+ * Conventions: OK — no return, no null, split packages, braces on multiline defs
+ * Notes:
+ *   - _scaling backing field pattern used correctly (constructor param + private var)
+ *   - Scaling is a SAM trait (not Java enum); apply() invocation matches
+ * TODO: Java-style getters/setters — getScaling/setScaling
  */
 package sge
 package utils

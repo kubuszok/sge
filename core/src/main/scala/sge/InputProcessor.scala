@@ -4,6 +4,13 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait; all 9 methods have default = false implementations (eliminates need for InputAdapter)
+ *   Idiom: split packages
+ *   TODO: Int key/button params → opaque Key/Button types when Input.Keys/Buttons are converted
+ *   TODO: opaque Pixels for screenX/screenY params in touchDown/Up/Cancelled/Dragged, mouseMoved -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

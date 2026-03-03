@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Audited 2026-03-03: faithful port, missing constructor
+ *   - compareTo -> compare (Ordered[Attribute])
+ *   - GdxRuntimeException -> SgeError.InvalidInput
+ *   - Missing: constructor (type, TextureDescriptor) — Java has generic ctor accepting
+ *     TextureDescriptor<T extends Cubemap>; Scala only has (type) and (type, Cubemap)
+ *   - Copy ctor: Java delegates to (type, TextureDescriptor); Scala delegates to (type)
+ *     then calls textureDescription.set — same result
+ *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
+ *   - All constants, factory methods, constructors, and instance methods accounted for
  */
 package sge
 package graphics

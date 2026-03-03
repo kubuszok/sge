@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All channel descriptors, offsets, and initializers ported faithfully
+ * - Static members → companion object vals
+ * - Initializer singletons use lazy val + get() (Java used null-check lazy init)
+ * - resetIds visibility: protected → protected[particles] (Java protected accessible to subpackage)
+ * - Initializer channel.data → channel.floatData (Scala FloatChannel rename)
+ * - Constructor calls resetIds() in Java; Scala initializes currentId = currentGlobalId directly
  */
 package sge
 package graphics

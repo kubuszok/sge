@@ -5,6 +5,27 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Config.vertexShader/fragmentShader use Nullable[String] instead of null Strings
+ * - Java static inner classes Inputs/Setters -> companion object members
+ * - Java Gdx.files/Gdx.graphics/Gdx.gl -> Sge().files/Sge().graphics/Sge().graphics.gl
+ * - (using Sge) context parameter added to constructor and related methods
+ * - Java dispose() -> Scala close() (AutoCloseable convention)
+ * - defaultCullFace/defaultDepthFunc are @deprecated vars in companion (matching Java @Deprecated)
+ * - createPrefix uses StringBuilder (matches Java string concatenation semantics)
+ * - Setters access camera/context/program via Nullable.foreach (safe null handling)
+ * - Bones.idtMatrix moved to Bones companion object (static-like field)
+ * - ACubemap.ones/tmpV1 moved to ACubemap companion object (static-like fields)
+ * - Java `normalMatrix` private field (line 779) -> Scala has `new Matrix3()` orphan on line 325
+ *   (appears to be a stray statement, but harmless)
+ * - combineAttributes is private[shaders] (needed by DepthShader companion)
+ * - All 5 constructors match Java constructor chain
+ * - All methods present: init, begin, render, end, close, canRender, compareTo, equals,
+ *   bindMaterial, bindLights, getDefaultCullFace, setDefaultCullFace, getDefaultDepthFunc,
+ *   setDefaultDepthFunc
+ * - Java equals(DefaultShader) overload -> Scala equals(Any) pattern match (equivalent)
+ * - FIXME comments preserved from Java source
  */
 package sge
 package graphics

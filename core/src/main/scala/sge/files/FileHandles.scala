@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: GdxRuntimeException -> SgeError.FileReadError/FileWriteError, type() -> fileType (val), file() -> file (val) + getFile()
+ *   Merged with: FileHandleStream.java (abstract class appended to this file)
+ *   Convention: static utility methods (tempFile, tempDirectory) omitted; static private helpers converted to private instance methods;
+ *     convenience constructors FileHandle(String), FileHandle(File), no-arg FileHandle() omitted — primary constructor is (File, FileType)
+ *   Idiom: Nullable (null -> Nullable for charset params, Java null returns), split packages (sge / files)
+ *   TODOs: 1 — getFile() needs rewriting once Files/Sge integration is available (external storage path)
+ *   Audited: 2026-03-03
  */
 package sge
 package files

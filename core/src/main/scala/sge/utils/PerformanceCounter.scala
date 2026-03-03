@@ -4,6 +4,15 @@
  * Original authors: xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Gdx.app.error(...)` -> `throw SgeError.InvalidInput(...)` (behavioral change: Java logs silently, Scala throws)
+ *   Convention: default parameter `windowSize = 5` instead of 2-arg constructor
+ *   Idiom: split packages
+ *   Issues: uses flat `package sge.utils` instead of split packages; `tick(delta)` throws on invalid data instead of logging silently
+ *   TODO: uses flat package declaration -- convert to split (package sge / package utils)
+ *   TODO: opaque Seconds for tick(delta) param -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.utils

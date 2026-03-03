@@ -4,6 +4,14 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: uses (using Sge) context parameter; ObjectMap for uniform/attribute maps; begin()/end() removed (Java begin() just calls bind())
+ *   Idiom: split packages
+ *   Issues: missing setUniform1iv/2iv/3iv/4iv (integer array uniform setters, 8 methods); missing begin()/end() convenience aliases used by some client code
+ *   TODO: Java-style boolean getter -- isCompiled → def compiled
+ *   TODO: typed GL enums -- ShaderType for glCreateShader -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -106,8 +114,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     ShaderProgram.addManagedShader(Sge().application, this)
   }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) = {
     this(vertexShader.readString(), fragmentShader.readString())
+  }
 
   /** Loads and compiles the shaders, creates a new program and links the shaders.
     *

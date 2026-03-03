@@ -4,6 +4,15 @@
  * Original authors: badlogicgames@gmail.com
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: TextureFilter/TextureWrap enums; managed texture support
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters -- getTextureData, isManaged, setAssetManager
+ *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
+ *   TODO: opaque Pixels for getWidth/Height, draw x/y params -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics
@@ -32,64 +41,73 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
 
   private val textureData = data
 
-  def this(internalPath: String)(using Sge) =
+  def this(internalPath: String)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(Sge().files.internal(internalPath), Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle)(using Sge) =
+  def this(file: FileHandle)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
+  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
+  }
 
-  def this(pixmap: Pixmap)(using Sge) =
+  def this(pixmap: Pixmap)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(pixmap, format, useMipMaps, false)
     )
+  }
 
-  def this(width: Int, height: Int, format: Format)(using Sge) =
+  def this(width: Int, height: Int, format: Format)(using Sge) = {
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       new PixmapTextureData(new Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
+  }
 
-  def this(data: TextureData)(using Sge) =
+  def this(data: TextureData)(using Sge) = {
     this(GL20.GL_TEXTURE_2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
+  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)

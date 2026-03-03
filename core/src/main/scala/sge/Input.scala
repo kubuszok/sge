@@ -4,6 +4,14 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait
+ *   Idiom: split packages; Nullable used
+ *   Issues: 4 enums use scala.Enumeration instead of Scala 3 enum (Peripheral, OnscreenKeyboardType, VibrationType, Orientation); missing closeTextInputField 2-arg overload; missing isTextInputFieldOpened default; KeyboardHeightObserver missing methods; Keys.toString returns raw null
+ *   TODO: Input.Buttons → opaque type Button with constants in companion + extension toString; Input.Keys → opaque type Key with constants in companion + extension toString/valueOf
+ *   TODO: opaque Pixels for getX/Y, getDeltaX/Y, setCursorPosition params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

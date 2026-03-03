@@ -4,6 +4,20 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: InputAdapter -> InputProcessor (no InputAdapter in SGE); dst -> distance
+ *   Convention: Java static inner classes -> companion object members; Gdx singleton -> implicit Sge
+ *   Idiom: boundary/break (7 return), split packages
+ *   TODOs: 0
+ *   Issues: setTapCountInterval/setMaxFlingDelay are no-ops (tapCountIntervalNanos/maxFlingDelayNanos are val);
+ *     setMaxFlingDelay signature changed from long to Float; VelocityTracker.getSum omitted (unused in Java);
+ *     VelocityTracker.getAverage(Long[]) returns Float instead of long; implicit instead of using
+ *   TODO: Java-style getters/setters -- isPanning, setLongPressSeconds
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Pixels for screen coordinate params in touch methods -- see docs/improvements/opaque-types.md
+ *   TODO: opaque Seconds for tapCountInterval, longPressDuration, maxFlingDelay; opaque Nanos for internal timing -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

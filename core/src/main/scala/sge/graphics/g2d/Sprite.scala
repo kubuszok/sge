@@ -4,6 +4,13 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: boundary/break for early returns; no null in API
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: direct Color.a mutation in setAlpha — update when Color becomes immutable
+ *   TODO: Java-style getters/setters — getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight, getOriginX/Y, getScaleX/Y, getRotation/setRotation, getColor/setColor, getVertices, getBoundingRectangle
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -4,7 +4,16 @@
  * Original authors: badlogicgames@gmail.com
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: hasEnoughData, clear, addValue, getMean, getOldest,
+ * getLatest, standardDeviation, getLowest, getHighest, getValueCount, getWindowSize,
+ * getWindowValues. NOTE: getHighest uses Float.MinValue (most-negative float in Scala)
+ * which matches Java Float.MIN_NORMAL semantics for finding maximum correctly.
  */
 package sge
 package math

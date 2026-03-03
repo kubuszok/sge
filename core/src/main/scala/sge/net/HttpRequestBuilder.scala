@@ -4,6 +4,12 @@
  * Original authors: Daniel Holderbaum
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `method()` takes `Net.HttpMethod` enum instead of `String` (type-safety improvement)
+ *   Idiom: split packages
+ *   Issues: `newRequest()` body commented out (builder non-functional); companion `json` field missing (jsonContent uses placeholder)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

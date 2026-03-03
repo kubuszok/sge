@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet, Tommy Ettinger
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `Array<K> keys` -> `DynamicArray[K] _keys`; accessor `orderedKeys()`
+ *   Convention: delegates to `ObjectMap` + `DynamicArray` internally; `final class`
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

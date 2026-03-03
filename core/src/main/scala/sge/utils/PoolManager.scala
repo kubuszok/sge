@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `GdxRuntimeException` -> `SgeError.InvalidInput`; libGDX `ObjectMap` -> `scala.collection.mutable.Map`
+ *   Convention: uses `Nullable` instead of null returns; Scala `MutableMap` for internal storage
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

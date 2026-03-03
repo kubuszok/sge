@@ -4,6 +4,12 @@
  * Original authors: noblemaster
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java `Disposable.dispose()` → `AutoCloseable.close()`
+ *   Idiom: split packages
+ *   Issues: secondary constructor `this(socket, hints)` delegates to primary (which creates and connects a new socket), then overwrites `this.socket`; Java 2-arg ctor directly assigns without connecting
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

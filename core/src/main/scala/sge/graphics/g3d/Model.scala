@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Disposable -> AutoCloseable (dispose -> close).
+ *   - All public fields match (materials, nodes, animations, meshes, meshParts, disposables).
+ *   - Constructors require (using Sge) for texture loading.
+ *   - nodePartBones uses scala.collection.mutable.Map instead of ObjectMap.
+ *   - loadAnimations: null/continue pattern -> Nullable.foreach with isDefined guard.
+ *   - convertMesh: indicesBuffer cast to Buffer for clear/position (same JDK9 workaround).
+ *   - convertMaterial: uses scala mutable.Map for texture dedup vs ObjectMap.
+ *   - TextureAttribute constructor called with extra index=0 arg (SGE signature difference).
+ *   - getManagedDisposables returns DynamicArray (Java returns Iterable).
+ *   - All lookup methods (getAnimation, getMaterial, getNode) return Nullable.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

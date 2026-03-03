@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; Scaling enum -> opaque type/trait; Skin constructor and setDrawable(Skin, String) commented out
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getDrawable/setDrawable, getAlign/setAlign, getImageX/Y, getImageWidth/Height
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

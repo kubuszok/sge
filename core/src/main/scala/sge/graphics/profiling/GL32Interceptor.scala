@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: gl32 promoted from package-private final field to val constructor param (public)
+ *   Convention: glDebugMessageCallback removed duplicate check() call (Java has check() twice)
+ *   Convention: DebugProc cast via asInstanceOf for path-dependent type
+ *   Convention: vertexCount.put(count) → vertexCount.put(count.toFloat) (FloatCounter takes Float)
+ *   Idiom: split packages
+ *   TODO: typed GL enums -- all GL32 opaque types (passthrough interceptor) -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
  */
 package sge
 package graphics

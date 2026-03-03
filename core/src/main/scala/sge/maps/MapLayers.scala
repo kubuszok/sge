@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Array -> DynamicArray; ClassReflection.isInstance -> clazz.isInstance
+ *   Convention: implements Iterable -> extends Iterable; for loop -> while loop
+ *   Idiom: get(name) returns Nullable[MapLayer] via boundary/break instead of return null
+ *   Idiom: getIndex(name) uses Nullable.fold(-1)(getIndex) instead of passing null to getIndex
+ *   Idiom: size() method -> override def size (Scala Iterable override)
+ *   TODO: Java-style getters/setters — getCount, getByType
+ *   Audited: 2026-03-03
  */
 package sge
 package maps

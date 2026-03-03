@@ -5,6 +5,22 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Disposable -> AutoCloseable, dispose() -> close(): correct
+ * - SortedIntList<Array<Decal>> -> mutable.TreeMap[Int, DynamicArray[Decal]]:
+ *   correct substitution (both provide sorted iteration by Int key)
+ * - Pool anonymous subclass -> Pool.Default lambda: correct
+ * - add(): SortedIntList.get/insert -> TreeMap.getOrElseUpdate: correct equivalent
+ * - render(shader, decals): flush protected method wraps shader in Nullable.foreach,
+ *   so render is skipped when shader is Nullable.empty; Java version passes null
+ *   shader to mesh.render() which could NPE — Scala is safer, minor behavioral delta
+ * - clear(): groupPool.freeAll(usedGroups) -> usedGroups.foreach(groupPool.free):
+ *   correct (DynamicArray is not Iterable, so manual iteration needed)
+ * - Constructor order: Scala primary constructor takes (size, groupStrategy), calls
+ *   initialize(size); Java calls initialize then setGroupStrategy — equivalent
+ * - Gdx.gl30 null check -> Sge().graphics.gl30.isDefined: correct
+ * - Status: pass
  */
 package sge
 package graphics

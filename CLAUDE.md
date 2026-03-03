@@ -12,6 +12,9 @@ SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
 - **No `return`**: use `scala.util.boundary`/`break`
 - **No `null`**: use `Nullable[A]` opaque type. **Never use `orNull`** except at Java interop boundaries (requires `@nowarn` + comment)
 - **No comment removal**: preserve all original comments
+- **No `scala.Enumeration`**: use Scala 3 `enum`, preferably `extends java.lang.Enum`
+- **Case classes must be `final`**: all `case class` declarations require `final`
+- **No Java-style getters/setters**: no-logic `getX()`/`setX(v)` → public `var x`; with-logic → `def x: T` + `def x_=(v: T): Unit`
 - Use `sbt --client` or `just compile` / `just fmt` — never bare `sbt`
 
 ## Bash Restrictions
@@ -60,6 +63,18 @@ Key `just` recipes:
 
 Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
 
+## Audit System
+
+Per-file audit trail comparing every SGE Scala file against its LibGDX Java source.
+Each audited file gets a `Migration notes:` block in its header comment, and each
+package gets a summary doc in `docs/audit/`.
+
+- **Skills**: `/audit-file <path>`, `/audit-package <pkg>`, `/audit-status [pkg]`
+- **Statuses**: `pass`, `minor_issues`, `major_issues`, `not_ported`
+- **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date
+- **Package docs**: `docs/audit/<slug>.md` (slug = path with `-` separators)
+- **Progress tracking**: `memory/audit-progress.md`
+
 ## Documentation
 
 | Path | Content |
@@ -67,5 +82,6 @@ Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>
 | `docs/contributing/` | All conversion guides, code style, tooling |
 | `docs/progress/migration-status.tsv` | Per-file status (605 files) |
 | `docs/progress/quality-issues.md` | Systemic issues (return, null, Java syntax, TODOs) |
+| `docs/audit/` | Per-package audit docs and index |
 | `docs/architecture/` | Platform targets, backend analysis |
 | `docs/improvements/` | Type safety, API design improvements |

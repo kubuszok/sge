@@ -7,7 +7,21 @@
  * Original authors: badlogicgames@gmail.com, Xoppa, Antz
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: combines Vector.java + Vector2.java + Vector3.java + Vector4.java into single
+ *     file; Vector is sealed trait (not abstract class)
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — Combines Vector.java, Vector2.java, Vector3.java, Vector4.java.
+ * Vector trait: all 19 methods ported (cpy, len, len2, limit, limit2, setLength, setLength2,
+ * clamp, set, sub, nor, add, dot, scl, dst, dst2, lerp, interpolate, setToRandomDirection,
+ * isUnit, isUnit(margin), isZero, isZero(margin), isOnLine, isOnLine(epsilon),
+ * isCollinear, isCollinearOpposite, isPerpendicular, hasSameDirection, hasOppositeDirection,
+ * epsilonEquals). Vector2: all methods + X/Y/Zero statics. Vector3: all methods + X/Y/Z/Zero
+ * statics + mul(Matrix4/Matrix3/Quaternion). Vector4: all methods + X/Y/Z/W/Zero statics.
  */
 package sge
 package math

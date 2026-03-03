@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted
+ * - All public/abstract methods ported: spawnAux, spawn, init, start, load, copy, save, load(AssetManager)
+ * - ResourceData.Configurable trait used instead of separate Json.Serializable interface
+ * - Status: pass
  */
 package sge
 package graphics

@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Copy constructor: cannot call super(drawable) -> manual property copy
+ * - int align -> Align opaque type (value class wrapper)
+ * - Align.isLeft/isRight etc: Java static methods -> Scala extension methods
+ * - Static draw method -> companion object method
+ * - for loops -> while loops (Scala convention for imperative code)
+ * - All methods faithfully ported
+ * - TODO: Java-style getters/setters — setScale, setAlign
  */
 package sge
 package scenes

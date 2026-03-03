@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audit 2026-03-03):
+ * - Java interfaces Validator/Setter -> Scala traits (correct)
+ * - Java IntIntMap -> ObjectMap[Int, Int] (functional equivalent)
+ * - Java IntArray -> DynamicArray[Int] (functional equivalent)
+ * - Java Array<String> -> DynamicArray[String] (functional equivalent)
+ * - Java dispose() -> Scala close() (AutoCloseable convention)
+ * - Nullable wrapping for program, context, camera, currentMesh (no null)
+ * - begin() passes null.asInstanceOf[Renderable] to global setters (matches Java null semantics)
+ * - set(float) renamed to setFloat, set(int) renamed to setInt (overload disambiguation)
+ * - getInstancedAttributeLocations returns Nullable[Array[Int]] instead of nullable array
+ * - combinedAttributes field is private val (matches Java private field)
  */
 package sge
 package graphics

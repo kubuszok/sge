@@ -4,6 +4,13 @@
  * Original authors: Vincent Bousquet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Nullable[ByteBuffer] for compressedData; static GL constants moved to companion object
+ *   Idiom: split packages
+ *   Issues: useMipMapsParam is a val but Java reassigns useMipMaps=true when numberOfMipmapLevels==0; mipmap auto-generation may not trigger in this edge case
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

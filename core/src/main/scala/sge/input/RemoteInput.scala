@@ -4,6 +4,20 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Gdx -> Sge; GdxRuntimeException -> SgeError.NetworkError; isTouched[] -> touchedPointers;
+ *     justTouched -> justTouchedFlag; RemoteInputListener extracted as top-level trait
+ *   Convention: Java constructor overloads -> default params + auxiliary constructors;
+ *     listener: null -> Option; processor: null -> Nullable; Gdx singleton -> implicit Sge
+ *   Idiom: boundary/break (6 return), Nullable (3 null), split packages
+ *   TODOs: 1 — postRunnable not yet wired (EventTrigger.run() called directly)
+ *   TODO: Int key/button params → opaque Key/Button types when Input.Keys/Buttons are converted
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Pixels for TouchEvent x/y fields -- see docs/improvements/opaque-types.md
+ *   Issues: Touch coordinate scaling uses hardcoded 800x600 instead of Gdx.graphics dimensions;
+ *     implicit instead of using; EventTrigger.run() processor.fold inverts null/non-null branch order
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: null -> Nullable[A]; no return; split packages; braces on class
+ *   Renames: end -> _end (reserved-ish name avoidance)
+ *   Idiom: Java constructor chaining super(duration) -> this() + setDuration();
+ *          super(duration, interpolation) -> this() + setDuration() + setInterpolation()
+ *   TODO: Java-style getters/setters -- getValue/setValue, getStart/setStart, getEnd/setEnd
+ *   TODO: opaque Seconds for duration constructor param -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

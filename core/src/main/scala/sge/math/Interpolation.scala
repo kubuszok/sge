@@ -4,7 +4,19 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: abstract class → SAM trait with apply(a: Float) as single abstract method
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — SAM trait with apply(a) abstract method. All 36 named interpolation
+ * instances ported in companion object: linear, smooth, smooth2, smoother, fade,
+ * pow2/3/4/5, powIn/Out variants, sine/sineIn/sineOut, exp5/10 variants, circle variants,
+ * elastic/elasticIn/elasticOut, swing/swingIn/swingOut, bounce/bounceIn/bounceOut,
+ * Pow, PowIn, PowOut, Exp, ExpIn, ExpOut, Elastic, ElasticIn, ElasticOut,
+ * Bounce, BounceIn, BounceOut, Swing, SwingIn, SwingOut inner classes.
  */
 package sge
 package math
@@ -188,7 +200,7 @@ object Interpolation {
   }
 
   class BounceOut(val widths: Array[Float], val heights: Array[Float]) extends Interpolation {
-    def this(bounces: Int) = {
+    def this(bounces: Int) =
       this(
         if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
         else {
@@ -239,7 +251,6 @@ object Interpolation {
           h
         }
       )
-    }
 
     def apply(a: Float): Float =
       if (a == 1) 1f

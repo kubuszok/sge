@@ -4,7 +4,17 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getX/Y, getOriginX/Y, getRotation, getScaleX/Y and setters with dirty flags
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: getVertices, getTransformedVertices, getLength,
+ * getScaledLength, getX/Y, getOriginX/Y, getRotation, getScaleX/Y, setOrigin, setPosition,
+ * setVertices, setRotation, rotate, setScale, scale, calculateLength, calculateScaledLength,
+ * dirty, translate, getBoundingRectangle, contains(2). Implements Shape2D (always false).
  */
 package sge
 package math

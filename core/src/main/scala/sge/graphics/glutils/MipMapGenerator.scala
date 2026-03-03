@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Issues: generateMipMap(target, pixmap, w, h) is an empty stub -- no GL texture upload occurs; generateMipMapChain returns only the original pixmap; missing generateMipMap 2-arg overload, setUseHardwareMipMap(), useHWMipMap field, and all private helper methods (generateMipMapCPU, generateMipMapGLES20, generateMipMapDesktop); package uses flat format instead of split
+ *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package glutils)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.glutils

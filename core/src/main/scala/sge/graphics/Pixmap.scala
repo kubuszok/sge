@@ -4,6 +4,16 @@
  * Original authors: badlogicgames@gmail.com, mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Blending/Filter/Format enums complete; Disposable -> AutoCloseable
+ *   Idiom: split packages
+ *   Issues: drawPixmap/getPixel/getPixels are stubs; missing setColor, drawLine, drawRect, fillRect, etc.
+ *   TODO: Java-style getters/setters -- getWidth, getHeight, getFormat
+ *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
+ *   TODO: opaque Pixels for getWidth/Height, drawPixmap x/y, getPixel x/y params -- see docs/improvements/opaque-types.md
+ *   TODO: typed GL enums -- PixelFormat, DataType for glReadPixels -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics
@@ -32,14 +42,17 @@ class Pixmap private (file: Nullable[FileHandle], private val width: Int, privat
   @nowarn("msg=not read") // will be read when drawing methods are implemented
   private var blending: Blending = Blending.SourceOver
 
-  def this(file: FileHandle) =
+  def this(file: FileHandle) = {
     this(Nullable(file), 100, 100, Format.RGBA8888)
+  }
 
-  def this(width: Int, height: Int, format: Format) =
+  def this(width: Int, height: Int, format: Format) = {
     this(Nullable.empty, width, height, format)
+  }
 
-  def this(pixmap: Gdx2DPixmap) =
+  def this(pixmap: Gdx2DPixmap) = {
     this(Nullable.empty, pixmap.getWidth(), pixmap.getHeight(), Format.fromGdx2DPixmapFormat(pixmap.getFormat()))
+  }
 
   def getWidth():  Int    = width
   def getHeight(): Int    = height

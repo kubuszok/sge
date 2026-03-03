@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Java interface -> Scala trait (SAM-compatible)
+ *   Convention: Split packages; braces on trait body
+ *   Idiom: Exact 1:1 port, no behavioral changes
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

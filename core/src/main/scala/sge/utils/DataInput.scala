@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `return` -> `boundary`/`break`; Java `switch/case` -> Scala `match/case`
+ *   Idiom: split packages
+ *   Issues: `readString()` returns `String | Null` instead of `Nullable[String]`
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

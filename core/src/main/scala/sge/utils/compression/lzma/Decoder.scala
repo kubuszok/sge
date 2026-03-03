@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Inner classes LenDecoder, LiteralDecoder, LiteralDecoder.Decoder2 faithfully ported
+ * - All fields and methods match original (16 array fields, 6 methods)
+ * - Java `return` in Code() -> boundary/break (correct)
+ * - Java `break` in DecodeWithMatchByte -> boolean flag `done` (correct)
+ * - m_Coders field: Java null -> Scala null (raw null); should use Nullable[Array[Decoder2]]
+ * - LiteralDecoder.Create: Java `m_Coders != null` -> Nullable(m_Coders).isDefined (correct)
+ * - m_PosSlotDecoder initialization: Java constructor loop -> Array.tabulate (correct)
+ * - No return statements present
  */
 package sge
 package utils

@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `toArray()` -> `getBytes`; missing `getBuffer()` and `size()` methods
+ *   Convention: different inheritance hierarchy; Java `DataBuffer` extends LibGDX `DataOutput`, Scala extends Java standard `DataOutput`; `OptimizedByteArrayOutputStream` inlined instead of reusing StreamUtils
+ *   Idiom: split packages
+ *   Issues: missing `getBuffer()` and `size()` from Java API; `OptimizedByteArrayOutputStream` duplicated from `StreamUtils`
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

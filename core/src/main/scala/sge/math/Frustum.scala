@@ -4,7 +4,16 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: update, pointInFrustum(2), sphereInFrustum(2),
+ * sphereInFrustumWithoutNearFar(2), boundsInFrustum(BoundingBox), boundsInFrustum(center,dim),
+ * boundsInFrustum(x,y,z,hw,hh,hd), boundsInFrustum(OrientedBoundingBox).
+ * Static: clipSpacePlanePoints, clipSpacePlanePointsArray, tmpV.
  */
 package sge
 package math

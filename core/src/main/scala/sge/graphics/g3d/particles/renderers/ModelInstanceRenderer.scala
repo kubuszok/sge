@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All 6 methods ported: allocateChannels, init, update, copy, isCompatible, secondary ctor
+ * - init(): Java null assignments + boolean checks -> Scala Nullable getChannel + isDefined/foreach
+ * - init(): modelInstanceChannel null -> getOrElse + SgeError.InvalidInput (matches Java exception)
+ * - update(): wrapped in renderData.foreach; Java data[] -> Scala floatData()/objectData()
+ * - update(): Java cast of BlendingAttribute + null check -> Scala Nullable().map().foreach
+ * - update() calls super.update() at end (matches Java)
+ * - Private boolean flags (hasColor/hasScale/hasRotation) faithfully preserved
+ * - Audited 2026-03-03: pass
  */
 package sge
 package graphics

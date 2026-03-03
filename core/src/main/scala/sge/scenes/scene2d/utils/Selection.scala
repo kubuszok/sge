@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - OrderedSet<T> -> scala.collection.mutable.LinkedHashSet[T]
+ * - Array<T> -> DynamicArray[T]
+ * - @Null Actor/T -> Nullable[Actor]/Nullable[T]
+ * - Implements Iterable[T] (Scala) instead of Iterable<T> (Java)
+ * - Deprecated hasItems() method omitted (use notEmpty)
+ * - choose/other methods: null item checks removed (Scala type safety)
+ * - choose requires (using Sge) for UIUtils.ctrl calls
+ * - toArray uses DynamicArray.createWithMk for generic T
+ * - All public API methods faithfully ported
+ * - TODO: Java-style getters/setters — getLastSelected, getToggle/setToggle, getMultiple/setMultiple, getRequired/setRequired, isDisabled/setDisabled
  */
 package sge
 package scenes

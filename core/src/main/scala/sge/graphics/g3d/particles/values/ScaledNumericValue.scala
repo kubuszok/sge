@@ -5,6 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted
+ * - All public methods ported: newHighValue, setHigh (x2), getHighMin, setHighMin, getHighMax,
+ *   setHighMax, getScaling, setScaling, getTimeline, setTimeline, isRelative, setRelative,
+ *   getScale, load
+ * - getScale uses boundary/break instead of return (correct pattern)
+ * - Array.copy used instead of System.arraycopy (correct Scala equivalent)
+ * - TODO: Java-style getters/setters — 5 pairs: highMin/Max, scaling, timeline, relative → vars
+ * - Status: pass
  */
 
 package sge

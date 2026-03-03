@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `load` delegates to `java.util.Properties` instead of reimplementing the parser
+ *   Idiom: split packages
+ *   Issues: missing `store(ObjectMap, Writer, String)` method; `load` delegates to `java.util.Properties` which may differ from original hand-written parser in edge cases
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

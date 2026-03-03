@@ -4,6 +4,13 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: keepWithinStage() method -> keepWithinStageMethod() (avoids collision with keepWithinStage Boolean field)
+ *   Convention: null -> Nullable; (using Sge) context; boundary/break; Skin constructors present
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — setMovable, setModal, setKeepWithinStage, setResizable, isDragging, getTitleTable, getTitleLabel, getStyle/setStyle
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

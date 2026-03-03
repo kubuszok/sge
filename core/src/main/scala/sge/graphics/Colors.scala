@@ -4,6 +4,12 @@
  * Original authors: davebaol
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: MutableMap replaces ObjectMap; Nullable[Color] for nullable returns
+ *   Idiom: split packages
+ *   TODO: update when Color becomes immutable case class
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

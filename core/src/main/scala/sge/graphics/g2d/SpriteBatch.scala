@@ -4,6 +4,14 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: dispose() -> close()
+ *   Convention: Nullable for shader/texture; using Sge context parameter; AutoCloseable; createDefaultShader in companion
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: Java-style getters/setters -- getColor/setColor, getPackedColor/setPackedColor, getBlendSrcFunc/DstFunc, getProjectionMatrix/setProjectionMatrix, getTransformMatrix/setTransformMatrix, getShader/setShader, isBlendingEnabled, isDrawing
+ *   TODO: typed GL enums -- BlendFactor, BlendEquation, EnableCap, ClearMask -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -126,15 +134,17 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, Nullable.empty)
+  }
 
   /** Constructs a SpriteBatch with one buffer and the default shader.
     * @see
     *   SpriteBatch#SpriteBatch(int, ShaderProgram)
     */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, Nullable.empty)
+  }
 
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.")

@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (load, getDependencies, loadAsync, loadSync, usesAtlas)
+ *   - Java null parameter checks → Nullable(param).isEmpty
+ *   - usesAtlas uses boundary/break for early return
+ *   - Constructor requires `(using Sge)` (SGE context parameter)
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

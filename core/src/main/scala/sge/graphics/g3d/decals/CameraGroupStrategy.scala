@@ -5,6 +5,27 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ * - Disposable -> AutoCloseable, dispose() -> close(): correct
+ * - cameraSorter: Java uses camera.position.dst(o1.position) accessing protected field;
+ *   Scala uses camera.position.distance(o1.getPosition) using public getter — correct
+ *   (dst renamed to distance in SGE Vector3)
+ * - Default comparator: Java casts Math.signum to int; Scala converts .toInt then > 0:
+ *   equivalent logic
+ * - arrayPool: Java Pool subclass -> Pool.Default lambda: correct
+ * - arrayPool.freeAll(usedArrays) -> usedArrays.foreach(arrayPool.free): correct
+ *   (DynamicArray not Iterable)
+ * - contents.sort(cameraSorter): uses DynamicArray.sort(Ordering): correct
+ * - materialGroups iteration: Java values() -> Scala foreachValue: correct
+ * - getGroupShader: returns Nullable(shader) instead of bare shader: correct
+ * - close(): Nullable(shader).foreach(_.close()): correct null-safe dispose
+ * - Shader strings: identical to Java source
+ * - Field visibility: Java package-private arrayPool/usedArrays/materialGroups/camera/shader;
+ *   Scala: camera is public var (with getter/setter), shader is private, pools are private
+ *   — slightly tighter, acceptable
+ * - Status: pass
+ * TODO: typed GL enums -- EnableCap, BlendFactor, CompareFunc, CullFace -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics
@@ -40,7 +61,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   createDefaultShader()
 
-  def this(camera: Camera)(using Sge) =
+  def this(camera: Camera)(using Sge) = {
     this(
       camera,
       Ordering.fromLessThan[Decal] { (o1, o2) =>
@@ -49,6 +70,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
         Math.signum(dist2 - dist1).toInt > 0
       }
     )
+  }
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera

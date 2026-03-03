@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java interface → Scala 3 trait
+ * - save/load not declared directly; inherited via ResourceData.Configurable mixin (equivalent API)
+ * - All public methods (begin, draw, end) faithfully ported
+ * - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

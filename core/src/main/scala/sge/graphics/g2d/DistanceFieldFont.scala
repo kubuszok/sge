@@ -4,6 +4,12 @@
  * Original authors: Florian Falkner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: static method -> companion object; using Sge context parameter
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: Vertex shader missing v_texCoords assignment (Java: v_texCoords = a_texCoord0;) in createDistanceFieldShader
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -4,6 +4,13 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: TextureRegion... patches varargs -> Nullable[TextureRegion]*
+ *   Convention: Nullable for optional patch regions
+ *   Idiom: boundary/break, Nullable, split packages
+ *   TODO: Java-style getters/setters — getColor/setColor, getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getPadLeft/Right/Top/Bottom
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

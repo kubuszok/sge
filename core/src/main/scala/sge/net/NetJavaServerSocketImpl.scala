@@ -4,6 +4,12 @@
  * Original authors: noblemaster
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java `Disposable.dispose()` → `AutoCloseable.close()`
+ *   Idiom: split packages
+ *   Issues: secondary constructor double-initializes server socket (primary always calls `initializeServer`; Java 3-arg ctor delegates to 4-arg, so init runs once)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

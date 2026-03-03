@@ -5,6 +5,22 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Transform inner class: static in Java -> in companion object
+ *   - Poolable -> Pool.Poolable
+ *   - ObjectMap<Node,Transform> -> scala.collection.mutable.Map[Node,Transform]
+ *   - Static fields (transforms, tmpT) -> companion object private vals
+ *   - Static helper methods -> companion object private methods
+ *   - applyAnimations: parameters Nullable[Animation] for null-safety
+ *   - applyAnimation: parameters Nullable[mutable.Map] / Nullable[Pool] for null-safe dispatch
+ *   - removeAnimation: iterates nodeAnimations via DynamicArray for-comprehension
+ *   - getFirstKeyframeIndexAtTime: uses boundary/break instead of return
+ *   - All methods fully ported; logic matches Java source
+ *   - Minor: transforms is mutable.Map (not ObjectMap) -- equivalent behavior
+ *   - TODO: Transform extends Pool.Poolable → define given Poolable[Transform]
+ *   - TODO: opaque Seconds for apply(animation, time, weight) time param -- see docs/improvements/opaque-types.md
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

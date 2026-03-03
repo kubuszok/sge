@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: no return; split packages; braces on class
+ *   Renames: static FOREVER -> companion object val; implements FinishableAction -> with
+ *   Idiom: action.act(delta) with multiple returns -> action.fold(true) with nested if/else
+ *   TODO: Java-style getters/setters -- getCount/setCount
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

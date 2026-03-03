@@ -4,6 +4,14 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: constants moved to companion object
+ *   Idiom: split packages
+ *   Issues: BUG in rotate(Matrix4) — uses direction.mul(transform) instead of direction.rot(transform); mul includes translation, rot is rotation-only; corrupts direction/up vectors with translated matrices; old-style implicit sge: Sge instead of (using Sge)
+ *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   TODO: opaque Pixels for viewportWidth/Height (Float -- may need ViewportSize type) -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

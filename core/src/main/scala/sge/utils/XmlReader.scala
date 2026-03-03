@@ -4,6 +4,12 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: hand-written XML parser replaced with scala-xml library delegation
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — Element: getParent, getAttributes, getChildren, getChild, getText/setText, getChildByName, etc.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

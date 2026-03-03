@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - All public methods ported: spawnAux, copy
+ * - Faithful conversion, no issues
+ * - Status: pass
  */
 package sge
 package graphics

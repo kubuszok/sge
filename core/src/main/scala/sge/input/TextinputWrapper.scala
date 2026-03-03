@@ -4,6 +4,14 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java interface -> Scala trait
+ *   Idiom: split packages
+ *   TODOs: 0
+ *   Missing: writeResults(String, Int, Int) replaced by setText + setPosition + shouldClose (API divergence)
+ *   Missing: Javadoc comments from original source
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

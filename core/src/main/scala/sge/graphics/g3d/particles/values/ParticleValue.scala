@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (2026-03-03):
+ * - Json.Serializable write/read methods intentionally omitted (serialization handled separately)
+ * - All public methods ported: isActive, setActive, load, copy constructor
+ * - TODO: Java-style getters/setters — redundant isActive/setActive wraps public var active
+ * - Status: pass
  */
 
 package sge

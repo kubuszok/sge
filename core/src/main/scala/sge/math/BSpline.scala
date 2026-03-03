@@ -4,7 +4,15 @@
  * Original authors: Xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: set(5), valueAt, derivativeAt, approximate(3),
+ * locate, approxLength, cubic(4), cubic_derivative(4). Static helpers ported.
+ * Uses ClassTag[T] for array creation instead of Java reflection.
  */
 package sge
 package math

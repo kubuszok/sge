@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods (getTileSets, setOwnedResources, close) match Java 1:1
+ *   - Java dispose() → close() (AutoCloseable)
+ *   - Java Disposable → AutoCloseable; Array<Disposable> → DynamicArray[AutoCloseable]
+ *   - ownedResources: Java null → Nullable[DynamicArray[AutoCloseable]]
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

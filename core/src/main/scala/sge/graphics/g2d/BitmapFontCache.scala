@@ -4,6 +4,15 @@
  * Original authors: Nathan Sweet, davebaol, Alexander Dorokhov
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: boundary/break for early returns; Nullable for null safety
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: Flat package declaration (package sge.graphics.g2d) -- should be split: package sge / package graphics / package g2d
+ *   TODO: direct Color.a mutation for alpha modulation — update when Color becomes immutable
+ *   TODO: Java-style getters/setters — getColor/setColor, getFont, getX, getY, getLayouts, getVertices
+ *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package g2d)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge.graphics.g2d
@@ -33,8 +42,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) =
+  def this(font: BitmapFont) = {
     this(font, font.usesIntegerPositions())
+  }
 
   // Initialize fields in the primary constructor
   private val pageCount = font.regions.size

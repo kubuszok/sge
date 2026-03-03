@@ -4,6 +4,13 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; (using Sge) context; Skin constructors present (not commented out)
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters -- getValue/setValue, getVisualValue, getPercent, getMinValue, getMaxValue, getStepSize, getStyle/setStyle, isAnimating, isDisabled/setDisabled
+ *   TODO: opaque Seconds for animateDuration, animateTime -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge
@@ -55,7 +62,7 @@ class ProgressBar(
   this._value = min
   setSize(getPrefWidth, getPrefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
     this(
       min,
       max,
@@ -63,9 +70,11 @@ class ProgressBar(
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBar.ProgressBarStyle])
     )
+  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBar.ProgressBarStyle]))
+  }
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style

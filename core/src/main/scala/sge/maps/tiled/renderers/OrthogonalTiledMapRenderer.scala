@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Audited 2026-03-03 against libGDX source: renderTileLayer matches 1:1
+ * - Java null checks on cell/tile replaced with Nullable.foreach chaining
+ * - Java continue replaced with if/else in inner loop
+ * - Java switch/break on rotations replaced with match/case
+ * - Does not override renderImageLayer (inherits from BatchTiledMapRenderer, matching Java)
+ * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
  */
 package sge
 package maps

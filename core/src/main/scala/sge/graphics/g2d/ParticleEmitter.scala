@@ -4,6 +4,15 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: allowCompletion() -> allowCompletionMethod() to avoid clash with allowCompletion field
+ *   Convention: Java enums -> Scala 3 enums; boundary/break for early returns; Nullable for null safety
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: Raw null on line 700 (sprites.first fallback) -- should use Nullable
+ *   TODO: Java-style getters/setters -- getName/setName, getMaxParticleCount/setMaxParticleCount, etc. in inner classes and emitter
+ *   TODO: opaque Seconds for timing values in numeric value objects -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

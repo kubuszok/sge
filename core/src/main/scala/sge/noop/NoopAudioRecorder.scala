@@ -1,5 +1,11 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudioRecorder.java
+ *   Renames: MockAudioRecorder -> NoopAudioRecorder, dispose() -> close()
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

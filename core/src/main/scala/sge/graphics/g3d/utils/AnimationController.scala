@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Inner classes AnimationListener (interface->trait) and AnimationDesc (static class->companion class)
+ *   - AnimationDesc moved to companion object AnimationController
+ *   - Pool anonymous subclass -> Pool.Default with lambda
+ *   - All null fields -> Nullable (current, queued, previous, listener, animation)
+ *   - GdxRuntimeException -> SgeError.InvalidInput
+ *   - No return statements -> boundary/break in update() and AnimationDesc.update()
+ *   - obtain() methods handle Nullable[Animation] / Nullable[String] via fold
+ *   - All 6 setAnimation, 7 animate, 3 queue, 4 action overloads ported
+ *   - TODO: opaque Seconds for update(delta), AnimationDesc time/offset/duration -- see docs/improvements/opaque-types.md
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

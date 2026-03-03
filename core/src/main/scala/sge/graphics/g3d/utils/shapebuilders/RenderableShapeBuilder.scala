@@ -4,6 +4,12 @@
  * Original authors: realitix
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java static utility class -> Scala object; Pool anonymous subclass ->
+ *     Pool.Flushable subclass; Array<Renderable> -> DynamicArray[Renderable]
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

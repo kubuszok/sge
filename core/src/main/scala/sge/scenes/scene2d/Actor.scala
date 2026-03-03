@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: DelayedRemovalArray -> DynamicArray + manual deferred removal; Align int -> Align opaque type;
+ *     Object userObject -> AnyRef userObject; debug field -> _debug (avoid keyword clash)
+ *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on act/addAction
+ *   Idiom: Alignment bitfield ops -> Align methods (isRight, isLeft, etc.); do-while -> while with Nullable;
+ *     POOLS static init block -> companion object vals; ancestorsVisible() deprecated method dropped
+ *   TODO: clipBegin/clipEnd/drawDebugBounds partially implemented (ScissorStack, ShapeRenderer.rect with
+ *     rotation/scale not yet ported)
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (~15 pairs: setX/getX, setVisible/isVisible, setTouchable/getTouchable, etc.)
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

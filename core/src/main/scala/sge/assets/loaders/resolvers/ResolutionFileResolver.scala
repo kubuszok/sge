@@ -4,6 +4,12 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: `Resolution` static inner class -> companion object `case class`; varargs constructor added alongside primary; `choose()` stubbed (TODO: needs `Sge().graphics.backBufferWidth/Height`)
+ *   Idiom: split packages
+ *   Issues: `choose()` always returns first descriptor — screen-size selection not implemented
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

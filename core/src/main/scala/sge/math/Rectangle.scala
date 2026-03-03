@@ -4,7 +4,17 @@
  * Original authors: badlogicgames@gmail.com
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — convert to var or def x/def x_= (redundant getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight over public vars)
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: constructors, set(2), getX/Y/Width/Height, setX/Y/Width/Height,
+ * getPosition, setPosition(2), setSize(2), getSize, contains(3), overlaps, merge(4), getAspectRatio,
+ * getCenter, setCenter(2), fitOutside, fitInside, toString, fromString, area, perimeter,
+ * hashCode, equals. Static: tmp, tmp2.
  */
 package sge
 package math

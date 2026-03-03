@@ -5,6 +5,17 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java static class -> Scala object with inner class CommandLine
+ * - CommandLine.kEncode/kDecode/kBenchmak: static final int in Java -> val (instance) in Scala;
+ *   should be companion object vals or inline vals for parity, but unused externally so low impact
+ * - CommandLine.InFile/OutFile: Java uninitialized String -> scala.compiletime.uninitialized (correct)
+ * - compress/decompress: faithfully ported, IOException not declared (Scala convention)
+ * - compress: Java assigns fileSize inside if-else with compound expression; Scala version
+ *   adds explicit var fileSize = 0L then assigns in branches (equivalent)
+ * - null passed to encoder.Code as ICodeProgress -> kept as null (Java interop boundary)
+ * - No return statements, uses boundary/break: N/A (no early returns needed)
  */
 package sge
 package utils

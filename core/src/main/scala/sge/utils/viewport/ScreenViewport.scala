@@ -4,7 +4,17 @@
  * Original authors: Daniel Holderbaum, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * --- AUDIT (2026-03-03) ---
+ * API-complete: YES — both constructors, update, getUnitsPerPixel, setUnitsPerPixel
+ * Behavioural parity: YES — update logic identical
+ * Conventions: OK — no return, no null, split packages, braces on multiline defs
+ * TODO: Java-style getters/setters — getUnitsPerPixel/setUnitsPerPixel
  */
 package sge
 package utils

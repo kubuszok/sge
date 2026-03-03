@@ -5,6 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Java interface -> Scala trait
+ * - @Null Rectangle -> Nullable[Rectangle]
+ * - Faithful port, no API changes
  */
 package sge
 package scenes

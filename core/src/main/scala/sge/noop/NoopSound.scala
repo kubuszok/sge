@@ -1,5 +1,12 @@
 /*
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Source: backends/gdx-backend-headless/.../mock/audio/MockSound.java
+ *   Renames: MockSound -> NoopSound, dispose() -> close()
+ *   Convention: returns SoundId(0L) (Java returns 0L); uses opaque Volume/Pitch/Pan/SoundId types
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
  */
 package sge
 package noop

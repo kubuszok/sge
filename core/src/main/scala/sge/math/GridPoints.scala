@@ -5,7 +5,17 @@
  * Original authors: badlogic
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: GridPoint2 and GridPoint3 as final case class (not plain class); combines
+ *     GridPoint2.java + GridPoint3.java into single file
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — GridPoint2: set, dst2, dst, add, sub all ported. cpy() provided by
+ * case class copy(). equals/hashCode/toString provided by case class.
+ * GridPoint3: same — all methods ported. INTENTIONAL: final case class (not plain class).
  */
 package sge
 package math

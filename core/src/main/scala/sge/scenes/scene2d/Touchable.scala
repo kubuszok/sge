@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Java enum -> Scala 3 enum
+ *   Convention: Split packages; braces on enum body
+ *   Idiom: Exact 1:1 port, no behavioral changes
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

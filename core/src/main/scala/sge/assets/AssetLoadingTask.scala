@@ -4,6 +4,15 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: AsyncExecutor -> ExecutionContext, AsyncResult -> Future, AsyncTask -> () => Unit
+ *   Renames: call() -> apply(), injectDependencies -> addDependencies
+ *   Convention: GdxRuntimeException -> SgeError.SerializationError; removeDuplicates O(n) via Set
+ *   Idiom: boundary/break (2 return), Nullable (6 null), split packages
+ *   Issues: stale AsynchronousAssetLoader/SynchronousAssetLoader stub traits (lines 193-202)
+ *     shadow real abstract classes from sge.assets.loaders — will break at runtime
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

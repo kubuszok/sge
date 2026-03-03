@@ -4,7 +4,21 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Issues: BUG in value() — raw null instead of Nullable[CumulativeValue[T]]; BUG in
+ *     ensureCapacity() — newValues array created but never assigned (commented out),
+ *     adding >10 values causes ArrayIndexOutOfBoundsException
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: FAIL
+ * - BUG: ensureCapacity() creates newValues array but never assigns it (line 148 commented out).
+ *   Adding more than 10 values will ArrayIndexOutOfBoundsException.
+ * - BUG: value(probability) uses raw null on line 87 — should use Nullable[CumulativeValue[T]]
+ * - All public methods ported: add, generate, generateNormalized, generateUniform, value,
+ *   size, getInterval, getValue, setInterval, clear
  */
 package sge
 package math

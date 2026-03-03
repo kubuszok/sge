@@ -4,6 +4,13 @@
  * Original authors: mzechner, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null -> Nullable; (using Sge) context; Java List<T> -> SgeList[T]; DynamicArray with MkArray.anyRef cast; boundary/break
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getStyle/setStyle, getItems/setItems, getSelected/setSelected, getSelectedIndex/setSelectedIndex, isDisabled/setDisabled
+ *   TODO: Int key refs (Input.Keys) → opaque Key type when available
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

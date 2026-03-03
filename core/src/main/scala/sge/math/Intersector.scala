@@ -4,7 +4,22 @@
  * Original authors: badlogicgames@gmail.com, jan.stria, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: isPointInTriangle(4), isPointInPolygon(2),
+ * distanceLinePoint(2), distanceSegmentPoint(3), nearestSegmentPoint(2),
+ * intersectSegmentPlane, intersectLinePlane, planeFrontFacing,
+ * intersectPointLinePerpendicular, intersectSegments(3), nearestPoints,
+ * intersectRayPlane, intersectRayTriangle(2), intersectRaySphere(2),
+ * intersectRayBounds(2), intersectRayBoundsFast(4), intersectRayOrientedBoundsFast,
+ * intersectSegmentRectangle(2), intersectSegmentCircle, isInsidePolygon(2),
+ * intersectRectangles, intersectSegmentPolygon, overlapConvexPolygons(3),
+ * splitTriangle(2), overlaps(Circle/Rect/2Circles), pointLineSide, pointLineSide2D.
+ * Inner classes: SplitTriangle, MinimumTranslationVector.
  */
 package sge
 package math

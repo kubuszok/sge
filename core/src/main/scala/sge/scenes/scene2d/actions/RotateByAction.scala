@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Convention: no return; split packages; braces on class
+ *   Idiom: target.rotateBy -> target.foreach(_.rotateBy(...))
+ *   TODO: Java-style getters/setters -- getAmount/setAmount
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

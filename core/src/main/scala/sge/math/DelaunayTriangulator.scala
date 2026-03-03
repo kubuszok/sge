@@ -4,7 +4,14 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: computeTriangles(4), trim. Uses DynamicArray
+ * instead of ShortArray/IntArray. Private helpers: quicksortPairs, end, circumCircle.
  */
 package sge
 package math

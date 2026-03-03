@@ -5,6 +5,21 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All public methods, enums, inner classes, and setters ported faithfully
+ * - Java enums → Scala 3 enums (ParticleType, AlignMode)
+ * - Config: null strings → Nullable[String]
+ * - Gdx.graphics.getWidth() in screenWidth setter → camera.viewportWidth (approximation)
+ * - Gdx.app.getType() → Sge().application.getType() via (using Sge) context parameter
+ * - Gdx.files.classpath → Sge().files.classpath for default shader loading
+ * - Setters use GlobalSetter/LocalSetter abstract classes instead of anonymous Setter
+ * - compareTo: Java returns -1 for null other; Scala omits null check
+ * - equals(ParticleShader): Java has overloaded equals; Scala uses pattern match
+ * - dispose() → close() (Disposable → AutoCloseable)
+ * - context field: Nullable in BaseShader; Scala uses context.foreach{} patterns
+ * - renderable.material: Nullable in Scala; uses fold/foreach instead of direct access
+ * - register() calls wrap setter in Nullable() (BaseShader API difference)
  */
 package sge
 package graphics

@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Implements Iterable[Attribute] with Ordered[Attributes] (Java: Iterable + Comparable).
+ *   - Comparator<Attribute> extracted to companion object given Ordering[Attribute].
+ *   - get(Long) returns Nullable[Attribute] (Java returns null).
+ *   - same() skips null check on other (Scala Ordered handles eq reference equality).
+ *   - All methods present: sort, getMask, get (3 overloads), clear, size, set (6 overloads),
+ *     remove, has, indexOf, same (2), iterator, attributesHash, hashCode, equals, compare.
+ *   - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

@@ -10,7 +10,7 @@
 - **Improvement**: Use Scala 3 opaque types to create zero-cost typed wrappers for GL
   constant categories (blend modes, texture formats, buffer targets, etc). This catches
   misuse at compile time with no runtime overhead.
-- **Status**: proposed
+- **Status**: proposed — detailed roadmap in [opaque-types.md](opaque-types.md)
 
 ## TS-002: Nullable Opaque Type
 

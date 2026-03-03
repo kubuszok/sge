@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: factory methods in companion object (Position, TexCoords, Normal, ColorPacked, etc.)
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getKey
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

@@ -5,6 +5,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: SnapshotArray -> DynamicArray (with toArray snapshots); implements -> extends/with
+ *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on act()
+ *   Idiom: Java for-loop -> while; continue -> if-guard; parent null-loop -> Nullable iteration;
+ *     indexOf(actor, true) -> indexOf(actor); children.swap -> manual swap; static tmp -> companion object
+ *   TODO: ShapeRenderer.flush calls commented out (not yet ported)
+ *   TODO: Java-style getters/setters — getCullingArea/setCullingArea, getChild, getChildren, hasChildren, isTransform/setTransform
+ *   Audited: 2026-03-03
  */
 package sge
 package scenes

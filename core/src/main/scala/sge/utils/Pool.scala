@@ -4,6 +4,15 @@
  * Original authors: Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Merged with: `DefaultPool.java` -> `Pool.Default`; `FlushablePool.java` -> `Pool.Flushable`; `QuadTreeFloat.java` -> `Pool.QuadTreeFloat`
+ *   Renames: `Pool` abstract class -> `Pool` trait; `freeAll(Array)` -> `freeAll(Iterable)` + `freeAll(DynamicArray)`
+ *   Convention: `Pool` is a trait (not abstract class); uses `MkArray.anyRef` for internal `freeObjects`; `return` -> `boundary`/`break`
+ *   Idiom: split packages
+ *   Issues: `Pool` changed from `abstract class` to `trait` — intentional design improvement but changes instantiation semantics
+ *   TODO: Pool.Poolable trait → Poolable[A] type class; Pool[A] should take given Poolable[A]
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

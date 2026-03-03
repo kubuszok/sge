@@ -5,6 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: Files.FileType (nested enum) -> sge.files.FileType (top-level enum)
+ *   Convention: extracted from Files interface into standalone enum; Files trait is in sge/Files.scala
+ *   Idiom: split packages (sge / files)
+ *   Audited: 2026-03-03
  */
 package sge
 package files

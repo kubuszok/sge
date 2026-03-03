@@ -4,7 +4,18 @@
  * Original authors: vmilea
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * AUDIT: PASS — All methods ported: idt, set(Affine2/Matrix3/Matrix4), setToTranslation(2),
+ * setToScaling(2), setToRotation(3), setToRotationRad(1), setToShearing(2),
+ * setToTrnScl(2), setToTrnRotScl(4), setToTrnRotRadScl(2), translate(2), preTranslate(2),
+ * scale(2), preScale(2), rotate(2), preRotate(2), rotateRad(1), preRotateRad(1),
+ * shear(2), preShear(2), det, getTranslation, isTranslation, isIdt, isEqual,
+ * mul(Affine2), preMul(Affine2), toString, hashCode, equals. Static: idt, shear, tmp.
  */
 package sge
 package math

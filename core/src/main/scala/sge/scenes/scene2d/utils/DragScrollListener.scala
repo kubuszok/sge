@@ -5,6 +5,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - INCOMPLETE: ScrollPane and Timer not yet ported
+ * - Constructor, drag, dragStop, isAbove, isBelow, scroll methods all commented out
+ * - Only setup, getScrollPixels, setPadding, and field declarations are active
+ * - Static tmpCoords -> companion object val
+ * - TODO: Java-style getters/setters — setPadding
  */
 package sge
 package scenes

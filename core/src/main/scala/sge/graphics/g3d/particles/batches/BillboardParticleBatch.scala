@@ -5,6 +5,31 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - ParticleShader.AlignMode → BillboardParticleBatch.AlignMode (local enum, not
+ *   referencing ParticleShader.AlignMode). Both exist with identical values; serialization
+ *   via Config uses the local enum.
+ * - getShader(): Java uses ParticleShader for GPU mode; Scala always uses DefaultShader
+ *   (ParticleShader not integrated into batch shader selection yet)
+ * - Config inner class: Java package-private fields; Scala uses var fields (public)
+ * - RenderablePool: Java extends Pool<Renderable> with no-arg constructor; Scala overrides
+ *   max/initialCapacity vals and requires (using Sge)
+ * - clearRenderablesPool: Java uses renderablePool.freeAll(renderables); Scala uses
+ *   renderables.foreach(renderablePool.free) (equivalent; DynamicArray is not Iterable)
+ * - allocRenderables: Java MathUtils.ceil(capacity / MAX_PARTICLES_PER_MESH) uses integer
+ *   division before ceil (no-op); Scala uses capacity.toFloat (actually more correct)
+ * - setTexture: Java direct cast; Scala navigates Nullable material/attribute chain
+ * - dispose() → close() (Disposable → AutoCloseable)
+ * - FloatChannel.data[] → floatData() (field rename in ParallelArray port)
+ * - findByUsage(usage).offset/4 → getOffset(usage) (helper in SGE VertexAttributes)
+ * - null fields → Nullable wrapping; static putVertex methods → private instance methods
+ * - Constructor chain: Java 4 constructors → Scala primary + 3 secondary; (using Sge) added
+ * - load(): Java inline null check + cast; Scala nested foreach for Nullable safety
+ * - All public methods faithfully ported: setTexture, getTexture, getBlendingAttribute,
+ *   setAlignMode, getAlignMode, setUseGpu, isUseGPU, setVertexData, flush,
+ *   getRenderables, save, load, allocParticlesData, allocRenderable, begin
+ * - Audit: pass (2026-03-03)
  */
 package sge
 package graphics

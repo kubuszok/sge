@@ -4,6 +4,14 @@
  * Original authors: Nathan Sweet, Matthias Mann
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Disposable -> AutoCloseable; ownsTexture() -> hasOwnTexture()
+ *   Convention: Nullable throughout; dispose() -> close(); using Sge context parameter
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Issues: BitmapFontData missing 7 public methods (setScale, scale, getImagePath, getImagePaths, getFontFile, isBreakChar); BitmapFontData.load() is a stub
+ *   TODO: Java-style getters/setters — getColor, getScaleX/Y, getRegion/s, getLineHeight, etc.
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

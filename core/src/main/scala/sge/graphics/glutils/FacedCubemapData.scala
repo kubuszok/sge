@@ -4,6 +4,13 @@
  * Original authors: Vincent Nousquet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: data array is Array[Nullable[TextureData]] instead of nullable TextureData[]
+ *   Idiom: split packages
+ *   Issues: raw null passed as Format argument to PixmapTextureData constructor (14 occurrences) -- should use Nullable.empty
+ *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

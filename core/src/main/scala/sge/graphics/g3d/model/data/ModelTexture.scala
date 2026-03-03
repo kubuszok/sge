@@ -5,6 +5,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - All fields match Java source exactly
+ * - All USAGE_* constants match Java values (moved to companion object)
+ * - Fields use scala.compiletime.uninitialized (Java null defaults)
+ * - usage initialized to 0 (matches Java default)
+ * - No methods in Java source, none in Scala — pure data class
+ * - Status: pass
  */
 package sge
 package graphics

@@ -5,6 +5,22 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - Extends InWindow; all 10 instance fields + 8 methods faithfully ported
+ * - Java static constants -> companion object (kHash2Size, kHash3Size, etc.)
+ * - Java static CrcTable + static initializer -> companion object val + init block
+ * - Java HASH_ARRAY -> Scala hashArray (renamed, instance var, correct)
+ * - Java `return 0` in getMatches early-exit -> returns 0 via if/else structure (correct)
+ * - Java `break` in getMatches/skip loops -> boolean `done` flag (correct)
+ * - Java `continue` in skip -> nesting structure change (correct)
+ * - init(): Java null check `_hash != null` elided; Scala uses Nullable(_hash).isDefined (correct)
+ * - normalizeLinks: Java compares `value <= subValue`; Scala compares
+ *   `value <= BinTree.kEmptyHashValue` -- different semantics! Java normalizes relative to
+ *   subValue; Scala always compares to 0. This is a **potential bug**.
+ * - _son, _hash: scala.compiletime.uninitialized (correct for Java interop)
+ * - Package: uses flat `package sge.utils.compression.lz` instead of split; functionally equivalent
+ * - TODO: uses flat package declaration — convert to split (package sge / package utils / package compression / package lz)
  */
 package sge.utils.compression.lz
 

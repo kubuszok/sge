@@ -5,6 +5,18 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes (audited 2026-03-03):
+ *   - All methods match Java 1:1 (loadTiledMap, loadLayer, loadLayerGroup, loadTileLayer,
+ *     loadObjectGroup, loadImageLayer, loadBasicLayerInfo, loadObject, resolveTemplateObject,
+ *     mergeJsonObject, cloneElementShallow, mergeJsonProperties, mergeParentElementWithTemplate,
+ *     loadProperties, loadTileSet, addStaticTiles, addTileProperties, addTileObjectGroup,
+ *     createAnimatedTile, deepCopyJsonValue, getTileIds)
+ *   - Java null checks → Nullable patterns throughout
+ *   - Java JsonValue copy constructor `new JsonValue(src)` → deepCopyJsonValue(src)
+ *   - runOnEndOfLoadTiled = null after use (matches Java exactly, // scalastyle:ignore)
+ *   - Java Base64Coder.decode → java.util.Base64.getDecoder.decode
+ *   - Split package, braces, no-return conventions satisfied
  */
 package sge
 package maps

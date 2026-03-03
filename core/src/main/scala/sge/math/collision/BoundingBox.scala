@@ -5,6 +5,19 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   Renames: add -> +, sub -> -, scl -> scale; min/max helpers -> Math.min/Math.max
+ *     and scala.math.min/max; java.util.List -> scala.collection.immutable.List;
+ *     static tmpVector -> companion object
+ *   Convention: Serializable dropped; serialVersionUID dropped;
+ *     package-local min/max helpers replaced with stdlib calls;
+ *     intersects uses min/max comparison (Java uses SAT center/dim approach);
+ *     contains(Vector3) delegates to contains(x,y,z) — Java inlines directly;
+ *     missing: contains(OrientedBoundingBox) present in Java source
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getCenterX/Y/Z, getWidth/Height/Depth → def centerX, etc.
+ *   Audited: 2026-03-03
  */
 package sge
 package math

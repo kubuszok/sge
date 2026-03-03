@@ -5,6 +5,24 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ * - ParticleShader not fully integrated: shader initialization deferred (renderable.shader
+ *   not assigned in constructor). Java passes ParticleShader.Config; Scala accepts Nullable[AnyRef]
+ * - Constructor chain: Java 4 constructors → Scala primary + 2 secondary; (using Sge) added
+ * - Gdx.gl/Gdx.app → Sge().graphics.gl/Sge().application via (using Sge)
+ * - null fields → Nullable wrapping (getTexture returns Nullable[Texture], setTexture
+ *   navigates Nullable material/attribute chain)
+ * - dispose() → close() (Disposable → AutoCloseable)
+ * - FloatChannel.data[] → floatData() (field rename in ParallelArray port)
+ * - findByUsage(usage).offset/4 → getOffset(usage) (helper method in SGE VertexAttributes)
+ * - Static fields → companion object vals; static method enablePointSprites → private def
+ * - load(): Java returns null check inline; Scala uses nested foreach/fold
+ * - save(): Java getTexture() inline; Scala getTexture().foreach
+ * - All public methods faithfully ported: setTexture, getTexture, getBlendingAttribute,
+ *   flush, getRenderables, save, load, allocParticlesData, allocRenderable
+ * - Audit: pass (2026-03-03)
+ * TODO: typed GL enums -- EnableCap, CullFace, CompareFunc -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics
@@ -61,11 +79,13 @@ class PointSpriteParticleBatch(
   // renderable.shader = new ParticleShader(renderable, shaderConfig)
   // renderable.shader.foreach(_.init())
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
+  }
 
-  def this(capacity: Int)(using Sge) =
+  def this(capacity: Int)(using Sge) = {
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
+  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)

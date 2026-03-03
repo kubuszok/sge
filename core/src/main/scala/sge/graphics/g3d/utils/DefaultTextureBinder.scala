@@ -5,6 +5,21 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Constants (ROUNDROBIN, LRU, MAX_GLES_UNITS) -> companion object vals
+ *   - Static getMaxTextureUnits -> companion object private method (using Sge)
+ *   - GLTexture[] -> Array[GLTexture]; int[] -> Array[Int]
+ *   - Gdx.gl -> Sge().graphics.gl
+ *   - bindTexture: Java switch -> Scala match; null texture check via Nullable fold
+ *   - unsafeSetWrap/unsafeSetFilter: Java passes nullable enums directly;
+ *     Scala wraps in for-comprehension on Nullable (only applies when both present)
+ *   - bindTextureLRU: complex loop with break -> boundary/break; logic matches Java
+ *   - bindTextureRoundRobin: loop with return -> boundary/break
+ *   - Minor: bindTextureLRU has slightly restructured loop but same semantics
+ *   - All methods fully ported
+ *   - Audit: pass (2026-03-03)
+ *   TODO: typed GL enums -- TextureTarget, TextureUnit -- see docs/improvements/opaque-types.md
  */
 package sge
 package graphics
@@ -44,16 +59,18 @@ final class DefaultTextureBinder(
   /** Flag to indicate the current texture is reused */
   private var reused: Boolean = false
 
-  private var reuseCount: Int = 0 // Profiling stats — used by getBindCount/getReuseCount
-  private var bindCount:  Int = 0 // Profiling stats — used by getBindCount/getReuseCount
+  private var reuseCount: Int = 0 // Profiling stats -- used by getBindCount/getReuseCount
+  private var bindCount:  Int = 0 // Profiling stats -- used by getBindCount/getReuseCount
 
   /** Uses all available texture units and reuse weight of 3 */
-  def this(method: Int)(using Sge) =
+  def this(method: Int)(using Sge) = {
     this(method, 0, -1)
+  }
 
   /** Uses all remaining texture units and reuse weight of 3 */
-  def this(method: Int, offset: Int)(using Sge) =
+  def this(method: Int, offset: Int)(using Sge) = {
     this(method, offset, -1)
+  }
 
   override def begin(): Unit =
     for (i <- 0 until _count) {

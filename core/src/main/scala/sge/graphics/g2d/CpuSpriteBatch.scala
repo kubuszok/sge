@@ -4,6 +4,11 @@
  * Original authors: Valentin Milea
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Nullable for default shader parameter; using Sge context parameter; companion object for affine math helpers
+ *   Idiom: boundary/break, Nullable, split packages
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

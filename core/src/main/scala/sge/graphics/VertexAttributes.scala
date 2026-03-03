@@ -4,6 +4,12 @@
  * Original authors: mzechner, Xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Usage constants in companion object; ReadonlyIterator/ReadonlyIterable wrappers
+ *   Idiom: split packages
+ *   TODO: Java-style getters/setters — getOffset, getMask, getMaskWithSizePacked
+ *   Audited: 2026-03-03
+ *
  * Scala port Copyright 2024-2026 Mateusz Kubuszok
  */
 package sge

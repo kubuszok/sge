@@ -3,12 +3,21 @@
 // Faithful port of the C++ JNI implementations from BufferUtils.java to pure Scala.
 // Provides copy, transform (matrix x vertex array), and find operations.
 // No native code — suitable for browser environments.
+//
+// Migration notes:
+//   Origin: SGE-original (platform abstraction)
+//   Convention: pure Scala fallback for JS — memory, copy, transform, find
+//   Idiom: boundary/break (0 return), Nullable (0 null), split packages
+//   Audited: 2026-03-03
 
 package sge
 package platform
 
 import java.nio.Buffer
 import java.nio.ByteBuffer
+
+import scala.util.boundary
+import scala.util.boundary.break
 
 private[platform] object BufferOpsJs extends BufferOps {
 
@@ -157,14 +166,14 @@ private[platform] object BufferOpsJs extends BufferOps {
     b:    Array[Float],
     bOff: Int,
     size: Int
-  ): Boolean = {
+  ): Boolean = boundary {
     var i = 0
     while (i < size) {
       if (
         java.lang.Float.floatToRawIntBits(a(aOff + i)) != java.lang.Float.floatToRawIntBits(b(bOff + i)) &&
         a(aOff + i) != b(bOff + i)
       ) {
-        return false
+        break(false)
       }
       i += 1
     }
@@ -180,7 +189,7 @@ private[platform] object BufferOpsJs extends BufferOps {
     bOff:    Int,
     size:    Int,
     epsilon: Float
-  ): Boolean = {
+  ): Boolean = boundary {
     var i = 0
     while (i < size) {
       val ai = a(aOff + i)
@@ -189,7 +198,7 @@ private[platform] object BufferOpsJs extends BufferOps {
         java.lang.Float.floatToRawIntBits(ai) != java.lang.Float.floatToRawIntBits(bi) &&
         Math.abs(ai - bi) > epsilon
       ) {
-        return false
+        break(false)
       }
       i += 1
     }
@@ -203,12 +212,12 @@ private[platform] object BufferOpsJs extends BufferOps {
     vertices:               Array[Float],
     verticesOffsetInFloats: Int,
     numVertices:            Int
-  ): Long = {
+  ): Long = boundary {
     val size = strideInFloats
     var i    = 0
     while (i < numVertices) {
       if (compareExact(vertex, vertexOffsetInFloats, vertices, verticesOffsetInFloats + i * size, size)) {
-        return i.toLong
+        break(i.toLong)
       }
       i += 1
     }
@@ -223,12 +232,12 @@ private[platform] object BufferOpsJs extends BufferOps {
     verticesOffsetInFloats: Int,
     numVertices:            Int,
     epsilon:                Float
-  ): Long = {
+  ): Long = boundary {
     val size = strideInFloats
     var i    = 0
     while (i < numVertices) {
       if (compareEpsilon(vertex, vertexOffsetInFloats, vertices, verticesOffsetInFloats + i * size, size, epsilon)) {
-        return i.toLong
+        break(i.toLong)
       }
       i += 1
     }
