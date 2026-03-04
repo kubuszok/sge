@@ -4,7 +4,7 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   Renames: dst -> distance, dst2 -> distanceSq
@@ -41,8 +41,9 @@ class Segment(val a: Vector3 = new Vector3(), val b: Vector3 = new Vector3()) {
     * @param bZ
     *   the z-coordinate of the second point
     */
-  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) =
+  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) = {
     this(new Vector3(aX, aY, aZ), new Vector3(bX, bY, bZ))
+  }
 
   def len(): Float = a.distance(b)
 

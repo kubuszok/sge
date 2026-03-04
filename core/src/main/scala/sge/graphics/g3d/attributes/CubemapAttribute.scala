@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Audited 2026-03-03: faithful port, missing constructor
@@ -33,8 +33,9 @@ class CubemapAttribute(
 
   if (!CubemapAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) =
+  def this(`type`: Long) = {
     this(`type`, new TextureDescriptor[Cubemap]())
+  }
 
   def this(`type`: Long, texture: Cubemap) = {
     this(`type`)

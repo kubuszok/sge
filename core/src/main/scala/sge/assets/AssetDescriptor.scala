@@ -9,7 +9,7 @@
  *   Idiom: Nullable (2 null), split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets
@@ -29,19 +29,23 @@ final case class AssetDescriptor[T](
   var file: Nullable[FileHandle] = Nullable.empty
 ) {
 
-  def this(fileName: String, assetType: Class[T]) =
+  def this(fileName: String, assetType: Class[T]) = {
     this(fileName, assetType, Nullable.empty, Nullable.empty)
+  }
 
   /** Creates an AssetDescriptor with an already resolved name. */
-  def this(file: FileHandle, assetType: Class[T]) =
+  def this(file: FileHandle, assetType: Class[T]) = {
     this(file.path(), assetType, Nullable.empty, Nullable(file))
+  }
 
-  def this(fileName: String, assetType: Class[T], params: AssetLoaderParameters[T]) =
+  def this(fileName: String, assetType: Class[T], params: AssetLoaderParameters[T]) = {
     this(fileName, assetType, Nullable(params), Nullable.empty)
+  }
 
   /** Creates an AssetDescriptor with an already resolved name. */
-  def this(file: FileHandle, assetType: Class[T], params: AssetLoaderParameters[T]) =
+  def this(file: FileHandle, assetType: Class[T], params: AssetLoaderParameters[T]) = {
     this(file.path(), assetType, Nullable(params), Nullable(file))
+  }
 
   override def toString: String =
     s"$fileName, ${`type`.getName}"

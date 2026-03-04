@@ -6,17 +6,19 @@
  *
  * Migration notes:
  *   Convention: Java interface LoadedCallback -> Scala trait in companion object; raw Class -> Class[?]
- *   Idiom: split packages; loadedCallback uses uninitialized (nullable field, TODO: Nullable[LoadedCallback])
+ *   Idiom: split packages; loadedCallback uses Nullable[LoadedCallback]
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets
 
+import sge.utils.Nullable
+
 class AssetLoaderParameters[T] {
 
-  var loadedCallback: AssetLoaderParameters.LoadedCallback = scala.compiletime.uninitialized
+  var loadedCallback: Nullable[AssetLoaderParameters.LoadedCallback] = Nullable.empty
 }
 object AssetLoaderParameters {
 

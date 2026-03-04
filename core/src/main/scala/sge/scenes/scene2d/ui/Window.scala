@@ -11,7 +11,7 @@
  *   TODO: Java-style getters/setters — setMovable, setModal, setKeepWithinStage, setResizable, isDragging, getTitleTable, getTitleLabel, getStyle/setStyle
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -192,11 +192,13 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     }
   )
 
-  def this(title: String, skin: Skin) =
+  def this(title: String, skin: Skin) = {
     this(title, skin.get(classOf[Window.WindowStyle]))
+  }
 
-  def this(title: String, skin: Skin, styleName: String) =
+  def this(title: String, skin: Skin, styleName: String) = {
     this(title, skin.get(styleName, classOf[Window.WindowStyle]))
+  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     new Label(Nullable(text), style)

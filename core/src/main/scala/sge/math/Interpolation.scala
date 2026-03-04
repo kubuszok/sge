@@ -9,7 +9,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — SAM trait with apply(a) abstract method. All 36 named interpolation
  * instances ported in companion object: linear, smooth, smooth2, smoother, fade,
@@ -200,7 +200,7 @@ object Interpolation {
   }
 
   class BounceOut(val widths: Array[Float], val heights: Array[Float]) extends Interpolation {
-    def this(bounces: Int) =
+    def this(bounces: Int) = {
       this(
         if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
         else {
@@ -251,6 +251,7 @@ object Interpolation {
           h
         }
       )
+    }
 
     def apply(a: Float): Float =
       if (a == 1) 1f

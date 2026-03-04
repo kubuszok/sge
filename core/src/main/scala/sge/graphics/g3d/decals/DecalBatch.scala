@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  * - Disposable -> AutoCloseable, dispose() -> close(): correct
@@ -61,8 +61,9 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
   /** Creates a new DecalBatch using the given {@link GroupStrategy}. The most commong strategy to use is a {@link CameraGroupStrategy}
     * @param groupStrategy
     */
-  def this(groupStrategy: GroupStrategy)(using Sge) =
+  def this(groupStrategy: GroupStrategy)(using Sge) = {
     this(DecalBatch.DEFAULT_SIZE, groupStrategy)
+  }
 
   /** Sets the {@link GroupStrategy} used
     * @param groupStrategy

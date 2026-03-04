@@ -6,9 +6,10 @@
  *
  * Migration notes:
  *   Idiom: split packages
+ *   TODOs: test: I18NBundleLoader loadAsync/loadSync with locale and encoding parameters
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets

@@ -1,0 +1,47 @@
+/*
+ * SGE - Scala Game Engine
+ * copyright 2025-2026 Mateusz Kubuszok
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Origin: SGE-original (type aliases + extension for jsoniter-scala codec derivation)
+ *   Convention: re-exports jsoniter-scala types so consumers don't import plokhotnyuk directly
+ *   Idiom: split packages, extension method on FileHandle
+ */
+package sge
+package utils
+
+import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonValueCodec, readFromStream }
+import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+
+/** Type alias for jsoniter-scala's codec. Consumers derive codecs with:
+  * {{{
+  *   given JsonCodec[MyType] = JsonCodec.make
+  * }}}
+  */
+type JsonCodec[A] = JsonValueCodec[A]
+
+/** Factory for deriving codecs at compile time. Delegates to jsoniter-scala's [[JsonCodecMaker]]. */
+val JsonCodec: JsonCodecMaker.type = JsonCodecMaker
+
+/** Re-export of kindlings' JSON AST type for polymorphic JSON fields. */
+type Json = hearth.kindlings.jsoniterjson.Json
+
+/** Companion for pattern matching and construction (`Json.Str`, `Json.Num`, etc.). */
+val Json: hearth.kindlings.jsoniterjson.Json.type = hearth.kindlings.jsoniterjson.Json
+
+extension (fh: sge.files.FileHandle) {
+
+  /** Decodes JSON content of this file directly into a typed value.
+    *
+    * {{{
+    *   given JsonCodec[MyModel] = JsonCodec.make
+    *   val model = fileHandle.readJson[MyModel]
+    * }}}
+    */
+  def readJson[T](using codec: JsonCodec[T]): T = {
+    val stream = fh.read()
+    try readFromStream[T](stream)
+    finally stream.close()
+  }
+}

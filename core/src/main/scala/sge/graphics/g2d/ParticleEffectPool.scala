@@ -10,7 +10,7 @@
  *   Issues: PooledEffect.reset() calls this.reset(resetScaling=true, start=false) instead of Java's super.reset() via Pool.free()
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

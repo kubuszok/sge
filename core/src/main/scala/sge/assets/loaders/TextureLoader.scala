@@ -6,9 +6,10 @@
  *
  * Migration notes:
  *   Idiom: split packages
+ *   TODOs: test: TextureLoader loadAsync/loadSync with parameter-supplied and file-loaded data (requires GL context)
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets

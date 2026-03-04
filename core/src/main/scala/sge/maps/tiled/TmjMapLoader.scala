@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
@@ -14,6 +14,9 @@
  *   - Java setOwnedResources(textures.values().toArray()) → DynamicArray construction
  *   - Constructor requires `(using Sge)` (SGE context parameter)
  *   - Split package, braces, no-return conventions satisfied
+ *   - JsonValue tree walking replaced with jsoniter-scala codec derivation (TmjJson DTOs)
+ *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
+ *   Audited: 2026-03-04
  */
 package sge
 package maps
@@ -21,21 +24,19 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ DynamicArray, JsonValue, Nullable }
+import sge.utils.{ DynamicArray, Nullable, readJson }
 
 import scala.collection.mutable
-import scala.language.implicitConversions
 
 /** @brief
   *   synchronous loader for TMJ maps created with the Tiled tool
   */
 class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file. The map will
     * be loaded for a y-up coordinate system.
@@ -60,7 +61,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
   def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
     val tmjFile = resolve(fileName)
 
-    this.root = Nullable(json.parse(tmjFile))
+    this.root = Nullable(tmjFile.readJson[TmjMapJson])
 
     val textures = mutable.HashMap.empty[String, Texture]
 
@@ -110,45 +111,35 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
     val fileHandles = DynamicArray[FileHandle]()
 
     // TileSet descriptors
-    val r        = root.getOrElse(throw new IllegalStateException("root not initialized"))
-    val tileSets = r.get("tilesets")
-    tileSets.foreach { ts =>
-      for (tileSet <- ts)
-        getTileSetDependencyFileHandle(fileHandles, tmjFile, tileSet)
-    }
+    val r = root.getOrElse(throw new IllegalStateException("root not initialized"))
+    for (tileSet <- r.tilesets)
+      getTileSetDependencyFileHandle(fileHandles, tmjFile, tileSet)
 
     // ImageLayer descriptors
-    r.get("layers").foreach { layers =>
-      collectImageLayerFileHandles(layers, tmjFile, fileHandles)
-    }
+    collectImageLayerFileHandles(r.layers, tmjFile, fileHandles)
 
     fileHandles
   }
 
   private def collectImageLayerFileHandles(
-    layers:      JsonValue,
+    layers:      List[TmjLayerJson],
     tmjFile:     FileHandle,
     fileHandles: DynamicArray[FileHandle]
   ): Unit =
-    if (Nullable(layers).isDefined) { // scalastyle:ignore
-      for (layer <- layers) {
-        val layerType = layer.getString("type", Nullable("")).getOrElse("")
-        if (layerType == "imagelayer") {
-          val source = layer.getString("image", Nullable.empty)
-          source.foreach { s =>
-            val handle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
-            fileHandles.add(handle)
-          }
-        } else if (layerType == "group") {
-          // Recursively process group layers
-          layer.get("layers").foreach(ls => collectImageLayerFileHandles(ls, tmjFile, fileHandles))
+    for (layer <- layers)
+      if (layer.tpe == "imagelayer") {
+        layer.image.foreach { s =>
+          val handle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
+          fileHandles.add(handle)
         }
+      } else if (layer.tpe == "group") {
+        // Recursively process group layers
+        collectImageLayerFileHandles(layer.layers, tmjFile, fileHandles)
       }
-    }
 
   protected def getTileSetDependencyFileHandle(
     tmjFile: FileHandle,
-    tileSet: JsonValue
+    tileSet: TmjTilesetRefJson
   ): DynamicArray[FileHandle] = {
     val fileHandles = DynamicArray[FileHandle]()
     getTileSetDependencyFileHandle(fileHandles, tmjFile, tileSet)
@@ -157,28 +148,24 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
   protected def getTileSetDependencyFileHandle(
     fileHandles: DynamicArray[FileHandle],
     tmjFile:     FileHandle,
-    tileSet:     JsonValue
+    tileSet:     TmjTilesetRefJson
   ): DynamicArray[FileHandle] = {
     var ts = tileSet
     var tsjFile: FileHandle = tmjFile
-    val source = ts.getString("source", Nullable.empty)
-    source.foreach { s =>
+    tileSet.source.foreach { s =>
       tsjFile = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, s)
-      ts = json.parse(tsjFile)
+      ts = tsjFile.readJson[TmjTilesetRefJson]
     }
-    if (ts.has("image")) {
-      val imageSource = ts.getString("image", Nullable.empty).getOrElse("")
+    if (ts.image.isDefined) {
+      val imageSource = ts.image.getOrElse("")
       val image       = BaseTiledMapLoader.getRelativeFileHandle(tsjFile, imageSource)
       fileHandles.add(image)
     } else {
-      val tiles = ts.get("tiles")
-      tiles.foreach { t =>
-        for (tile <- t) {
-          val imageSource = tile.getString("image", Nullable.empty).getOrElse("")
-          val image       = BaseTiledMapLoader.getRelativeFileHandle(tsjFile, imageSource)
+      for (tile <- ts.tiles)
+        tile.image.foreach { imgSource =>
+          val image = BaseTiledMapLoader.getRelativeFileHandle(tsjFile, imgSource)
           fileHandles.add(image)
         }
-      }
     }
     fileHandles
   }
@@ -187,8 +174,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
     tmjFile:       FileHandle,
     imageResolver: ImageResolver,
     tileSet:       TiledMapTileSet,
-    element:       JsonValue,
-    tiles:         JsonValue,
+    tiles:         List[TmjTileJson],
     name:          String,
     firstgid:      Int,
     tilewidth:     Int,
@@ -240,10 +226,8 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
       // Every tile has its own image source
       var currentImage = image
       for (tile <- tiles) {
-        if (tile.has("image")) {
-          val imgSource = tile.getString("image", Nullable.empty).getOrElse("")
-
-          if (Nullable(source).isDefined) {
+        tile.image.foreach { imgSource =>
+          if (source.nonEmpty) {
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(
               BaseTiledMapLoader.getRelativeFileHandle(tmjFile, source),
               imgSource
@@ -253,7 +237,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
           }
         }
         val texture = imageResolver.getImage(currentImage.path())
-        val tileId  = firstgid + tile.getInt("id", 0)
+        val tileId  = firstgid + tile.id
         texture.foreach(t => addStaticTiledMapTile(tileSet, t, tileId, offsetX.toFloat, offsetY.toFloat))
       }
     }

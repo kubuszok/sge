@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * --- AUDIT (2026-03-03) ---
  * API-complete: YES — both constructors, update, getUnitsPerPixel, setUnitsPerPixel
@@ -35,8 +35,9 @@ class ScreenViewport(camera: Camera)(using Sge) extends Viewport {
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(new OrthographicCamera())
+  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     setScreenBounds(0, 0, screenWidth, screenHeight)

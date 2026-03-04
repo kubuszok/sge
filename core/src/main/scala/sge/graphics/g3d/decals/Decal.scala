@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  * - vertices: Java protected -> Scala private[decals]: correct (DecalBatch accesses it)
@@ -60,8 +60,9 @@ class Decal(var material: DecalMaterial) {
   /** Set a multipurpose value which can be queried and used for things like group identification. */
   var value: Int = 0
 
-  def this() =
+  def this() = {
     this(new DecalMaterial())
+  }
 
   /** Sets the color of all four vertices to the specified color
     *

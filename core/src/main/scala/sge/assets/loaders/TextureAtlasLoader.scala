@@ -6,9 +6,10 @@
  *
  * Migration notes:
  *   Idiom: split packages
+ *   TODOs: test: TextureAtlasLoader getDependencies resolves page textures; load assembles atlas (requires GL context)
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets

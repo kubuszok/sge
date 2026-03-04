@@ -13,7 +13,7 @@
  *   Issues: Multitouch check hardcoded to true (placeholder); sendUpdate width/height hardcoded to 800/600
  *     (should use sde.graphics); println used instead of sde.app.log; implicit instead of using
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge.input
 

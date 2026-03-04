@@ -9,7 +9,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -44,8 +44,9 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     * @param attributes
     *   the {@link VertexAttribute} s
     */
-  def this(numVertices: Int, attributes: VertexAttribute*) =
+  def this(numVertices: Int, attributes: VertexAttribute*) = {
     this(numVertices, new VertexAttributes(attributes*))
+  }
 
   override def close(): Unit =
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)

@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Inner classes Single, Random moved to companion object (Java static classes).
@@ -53,7 +53,7 @@ abstract class ModelInfluencer extends Influencer {
   override def save(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData()
     for (model <- models)
-      data.saveAsset(manager.getAssetFileName(model), classOf[Model])
+      data.saveAsset(manager.getAssetFileName(model).getOrElse(""), classOf[Model])
   }
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {

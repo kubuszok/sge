@@ -15,7 +15,7 @@ and preserves attribution.
  * Original authors: <authors from @author tags, or "See AUTHORS file">
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 ```
 
@@ -26,7 +26,8 @@ and preserves attribution.
 - **`Original authors`**: Extract from `@author` Javadoc tags in the original file.
   If none are present, use `See AUTHORS file` (the AUTHORS file lists Mario Zechner
   and Nathan Sweet as the copyright holders).
-- **Copyright year range**: Starts at `2024` (project inception), ends at current year.
+- **Copyright year range**: Starts at `2025` (project inception), ends at current year.
+- **Lowercase `copyright`**: Use `copyright` (not `Copyright`) in the header.
 - **For new SGE-only files** (no LibGDX equivalent): Use just the Scala port copyright,
   no "Ported from" line.
 
@@ -42,7 +43,7 @@ and preserves attribution.
  * Original authors: badlogicgames@gmail.com, Xoppa
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 ```
 

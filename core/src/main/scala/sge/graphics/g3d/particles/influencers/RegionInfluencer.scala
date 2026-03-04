@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Inner classes Single, Random, Animated, AspectTextureRegion moved to companion object.
@@ -59,8 +59,9 @@ abstract class RegionInfluencer extends Influencer {
     add(textureRegions*)
   }
 
-  def this(texture: Texture) =
+  def this(texture: Texture) = {
     this(Array(new TextureRegion(texture)))
+  }
 
   def this(regionInfluencer: RegionInfluencer) = {
     this()
@@ -213,8 +214,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(new TextureRegion(texture))
+    }
 
     override def init(): Unit = {
       val region = regions(0)
@@ -257,8 +259,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(new TextureRegion(texture))
+    }
 
     override def activateParticles(startIndex: Int, count: Int): Unit = {
       var i = startIndex * regionChannel.strideSize
@@ -305,8 +308,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(new TextureRegion(texture))
+    }
 
     override def allocateChannels(): Unit = {
       super.allocateChannels()

@@ -4,7 +4,7 @@
  * Original authors: Xoppa
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Audited 2026-03-03: faithful 1:1 port
@@ -33,8 +33,9 @@ class PointLightsAttribute(
   val lights: DynamicArray[PointLight]
 ) extends Attribute(PointLightsAttribute.Type) {
 
-  def this() =
+  def this() = {
     this(DynamicArray[PointLight]())
+  }
 
   def this(copyFrom: PointLightsAttribute) = {
     this()

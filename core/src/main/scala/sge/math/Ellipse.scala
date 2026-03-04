@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: constructors(5), contains(x,y), contains(V2),
  * set(4 overloads), setPosition(2), setSize, area, circumference, toString, equals, hashCode.

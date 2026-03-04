@@ -18,7 +18,7 @@
  *   TODO: opaque Seconds for tapCountInterval, longPressDuration, maxFlingDelay; opaque Nanos for internal timing -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package input
@@ -43,11 +43,13 @@ class GestureDetector(
 )(implicit sde: sge.Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
+  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
     this(20f, 20f, 0.4f, 1.1f, Integer.MAX_VALUE, listener)
+  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) =
+  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
+  }
 
   private var tapRectangleWidth:     Float = halfTapRectangleWidth
   private var tapRectangleHeight:    Float = halfTapRectangleHeight

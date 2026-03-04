@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: nextLong, next, nextInt, nextInt(n), nextLong(n),
  * nextDouble, nextFloat, nextBoolean, nextBytes, setSeed, setState, getState, murmurHash3.

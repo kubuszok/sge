@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, getDependencies, loadMap, loadTileSheets,
@@ -17,6 +17,7 @@
  *   - currentTileSet var uses null // scalastyle:ignore (Java interop boundary for Tide format)
  *   - Constructor requires `(using Sge)` (SGE context parameter, replaces Java Gdx.files)
  *   - Split package, braces, no-return conventions satisfied
+ *   TODO: test: decode a real .tide file end-to-end through TideMapLoader
  */
 package sge
 package maps
@@ -24,7 +25,6 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, SynchronousAssetLoader }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
@@ -40,7 +40,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
   private val xml:  XmlReader         = new XmlReader()
   private var root: XmlReader.Element = scala.compiletime.uninitialized
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   def load(fileName: String): TiledMap =
     try {

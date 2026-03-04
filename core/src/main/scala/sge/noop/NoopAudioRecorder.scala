@@ -1,5 +1,5 @@
 /*
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudioRecorder.java

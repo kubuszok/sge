@@ -10,7 +10,7 @@
  *   TODO: Java-style getters/setters — getSplitAmount/setSplitAmount, getMinSplitAmount/setMinSplitAmount, getMaxSplitAmount/setMaxSplitAmount, isVertical/setVertical, getStyle/setStyle
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -65,13 +65,14 @@ class SplitPane(
   setSize(getPrefWidth, getPrefHeight)
   initialize()
 
-  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) =
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) = {
     this(
       firstWidget,
       secondWidget,
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SplitPane.SplitPaneStyle])
     )
+  }
 
   private def initialize(): Unit = {
     val self = this

@@ -4,7 +4,7 @@
  * Original authors: badlogic
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Java interface -> Scala trait
@@ -42,8 +42,9 @@ object TextureProvider {
   )(using Sge)
       extends TextureProvider {
 
-    def this()(using Sge) =
+    def this()(using Sge) = {
       this(TextureFilter.Linear, TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat, false)
+    }
 
     override def load(fileName: String): Texture = {
       val result = new Texture(Sge().files.internal(fileName), useMipMaps)

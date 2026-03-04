@@ -578,19 +578,19 @@ com/badlogic/gdx/utils/async/AsyncExecutor.java		skipped	use scala.concurrent.Fu
 com/badlogic/gdx/utils/async/AsyncResult.java		skipped	use scala.concurrent.Future
 com/badlogic/gdx/utils/async/AsyncTask.java		skipped	use scala.concurrent.Future
 com/badlogic/gdx/utils/async/ThreadUtils.java		skipped	use scala.concurrent.Future
-com/badlogic/gdx/utils/compression/CRC.java	sge/utils/compression/CRC.scala	ai_converted	
-com/badlogic/gdx/utils/compression/ICodeProgress.java	sge/utils/compression/ICodeProgress.scala	ai_converted	
-com/badlogic/gdx/utils/compression/Lzma.java	sge/utils/compression/Lzma.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lz/BinTree.java	sge/utils/compression/lz/BinTree.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lz/InWindow.java	sge/utils/compression/lz/InWindow.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lz/OutWindow.java	sge/utils/compression/lz/OutWindow.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lzma/Base.java	sge/utils/compression/lzma/Base.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lzma/Decoder.java	sge/utils/compression/lzma/Decoder.scala	ai_converted	
-com/badlogic/gdx/utils/compression/lzma/Encoder.java	sge/utils/compression/lzma/Encoder.scala	ai_converted	
-com/badlogic/gdx/utils/compression/rangecoder/BitTreeDecoder.java	sge/utils/compression/rangecoder/BitTreeDecoder.scala	ai_converted	
-com/badlogic/gdx/utils/compression/rangecoder/BitTreeEncoder.java	sge/utils/compression/rangecoder/BitTreeEncoder.scala	ai_converted	
-com/badlogic/gdx/utils/compression/rangecoder/Decoder.java	sge/utils/compression/rangecoder/Decoder.scala	ai_converted	
-com/badlogic/gdx/utils/compression/rangecoder/Encoder.java	sge/utils/compression/rangecoder/Encoder.scala	ai_converted	
+com/badlogic/gdx/utils/compression/CRC.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/ICodeProgress.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/Lzma.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lz/BinTree.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lz/InWindow.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lz/OutWindow.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lzma/Base.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lzma/Decoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/lzma/Encoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/rangecoder/BitTreeDecoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/rangecoder/BitTreeEncoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/rangecoder/Decoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
+com/badlogic/gdx/utils/compression/rangecoder/Encoder.java		skipped	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)
 com/badlogic/gdx/utils/reflect/Annotation.java		skipped	avoid runtime reflection
 com/badlogic/gdx/utils/reflect/ArrayReflection.java		skipped	avoid runtime reflection
 com/badlogic/gdx/utils/reflect/ClassReflection.java		skipped	avoid runtime reflection

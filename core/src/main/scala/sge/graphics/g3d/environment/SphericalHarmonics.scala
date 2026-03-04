@@ -4,7 +4,7 @@
  * Original authors: (see AUTHORS file)
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Audit: pass (2026-03-03)
@@ -23,8 +23,9 @@ import sge.utils.SgeError
 
 class SphericalHarmonics private[environment] (val data: Array[Float]) {
 
-  def this() =
+  def this() = {
     this(new Array[Float](SphericalHarmonics.NUM_VALUES))
+  }
 
   def set(values: Array[Float]): SphericalHarmonics = {
     var i = 0

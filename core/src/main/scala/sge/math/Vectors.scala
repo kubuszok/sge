@@ -13,7 +13,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — Combines Vector.java, Vector2.java, Vector3.java, Vector4.java.
  * Vector trait: all 19 methods ported (cpy, len, len2, limit, limit2, setLength, setLength2,
@@ -892,6 +892,21 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     val newY = x * matrix.values(Matrix4.M10) + y * matrix.values(Matrix4.M11) + z * matrix.values(Matrix4.M12) + matrix.values(Matrix4.M13)
     val newZ = x * matrix.values(Matrix4.M20) + y * matrix.values(Matrix4.M21) + z * matrix.values(Matrix4.M22) + matrix.values(Matrix4.M23)
     set(newX, newY, newZ)
+  }
+
+  /** Multiplies this vector by the first three columns of the matrix, essentially only applying rotation and scaling.
+    * @param matrix
+    *   The matrix
+    * @return
+    *   This vector for chaining
+    */
+  def rot(matrix: Matrix4): this.type = {
+    val l_mat = matrix.values
+    set(
+      x * l_mat(Matrix4.M00) + y * l_mat(Matrix4.M01) + z * l_mat(Matrix4.M02),
+      x * l_mat(Matrix4.M10) + y * l_mat(Matrix4.M11) + z * l_mat(Matrix4.M12),
+      x * l_mat(Matrix4.M20) + y * l_mat(Matrix4.M21) + z * l_mat(Matrix4.M22)
+    )
   }
 
   /** Left-multiplies the vector by the given matrix.

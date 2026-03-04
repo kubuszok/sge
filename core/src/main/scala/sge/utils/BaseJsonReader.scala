@@ -8,8 +8,9 @@
  *   Convention: Java interface -> Scala trait
  *   Idiom: split packages
  *   Audited: 2026-03-03
+ *   TODO: Remove once all consumers migrate to jsoniter-scala codec derivation (see docs/improvements/dependencies.md B5).
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

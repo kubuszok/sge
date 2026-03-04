@@ -11,7 +11,7 @@
  *   TODO: Java-style getters/setters — getColor/setColor, getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getPadLeft/Right/Top/Bottom
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

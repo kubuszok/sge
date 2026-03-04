@@ -10,7 +10,7 @@
  *   TODO: extends Pool.Poolable → define given Poolable[FloatCounter] in companion
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All fields/methods ported: count, total, min, max, average, latest, value,
  * mean, put, reset, toString. INTENTIONAL: mean is Option[WindowedMean] instead of nullable.

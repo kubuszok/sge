@@ -17,7 +17,15 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
    - For files > 1000 lines, use Grep to compare method signatures rather than
      reading the entire body; only read full methods when a discrepancy is found
 
-4. **Check conventions**:
+4. **Check for missing `val`/`var` fields in the class body**:
+   - Compare all fields (instance variables) in the Java class body against the Scala file
+   - If the Java class has fields that are part of the public API and they were removed
+     during migration (e.g. collapsed into constructor params or dropped entirely),
+     flag as a **major issue**
+   - If a Java `var`-equivalent field (non-final, reassigned somewhere) was converted to
+     a Scala `val` (making it immutable and useless), flag as a **major issue**
+
+5. **Check conventions**:
    - **No `return`**: verify `boundary`/`break` is used instead
    - **No `null`**: verify `Nullable[A]` is used (check for raw `null` outside interop)
    - **Split packages**: verify package declaration uses split form
@@ -27,14 +35,35 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
    - **Case classes must be `final`**: check all `case class` declarations have `final`
    - **No Java-style getters/setters**: if `getX()`/`setX(v)` have no extra logic,
      replace with a public `var x`. If they have logic, use `def x: T` + `def x_=(v: T): Unit`
+   - **Copyright header**: must be `Scala port copyright 2025-2026 Mateusz Kubuszok`
+     (lowercase `copyright`, starting year `2025`)
 
-5. **Document renames and convention changes**:
+6. **Check for SGE-specific TODOs**:
+   - Find all `TODO`, `FIXME`, `HACK` comments in the Scala file
+   - Compare against the Java source — TODOs inherited from LibGDX are fine
+   - TODOs that are **not** in the Java source are SGE migration debt:
+     add each to the issues list
+   - Stub implementations left as placeholders (e.g. `throw SgeError("not yet implemented")`,
+     `???`, or methods that return dummy values with a TODO comment) are **major issues**
+
+7. **Check for tests**:
+   - Check if a test exists in SGE: look under `core/src/test/scala/sge/` and
+     `core/src/test/scalajvm/sge/` for a matching `*Test.scala` or `*Suite.scala`
+   - Check if a test exists in LibGDX: look under `libgdx/gdx/tests/` and
+     `libgdx/tests/gdx-tests/src/` for a matching test
+   - **If LibGDX has a test and SGE does not**: **major issue** — the test must be ported
+   - **If LibGDX has a test and SGE has one but it's incomplete**: **major issue** —
+     all test cases should be covered
+   - **If LibGDX has no test and SGE has no test**: **minor issue** — we need to create one
+   - Add any missing/incomplete test to the TODO list
+
+8. **Document renames and convention changes**:
    - Renames: class/method/field name changes from Java to Scala
    - Merged with: if file combines multiple Java sources
    - Convention: structural changes (opaque types, companion objects, sealed traits, etc.)
    - TODOs: count any remaining TODO/FIXME/HACK comments
 
-6. **Add/update migration notes in the file header**:
+9. **Add/update migration notes in the file header**:
    Edit the existing header comment to include a `Migration notes:` block after
    the copyright line. Format:
    ```
@@ -48,18 +77,19 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
    ```
    Omit lines that don't apply (no renames = omit Renames line, etc.).
 
-7. **Determine audit status**:
+10. **Determine audit status**:
    - `pass`: All public API present, conventions followed, no issues
-   - `minor_issues`: Cosmetic issues (could merge overloads, naming style)
-   - `major_issues`: Missing methods, incorrect signatures, logic errors
+   - `minor_issues`: Cosmetic issues, missing test (when LibGDX has none either)
+   - `major_issues`: Missing methods, incorrect signatures, logic errors, stubs,
+     missing tests (when LibGDX has one), missing/incorrect fields, wrong var→val
 
-8. **Return structured result**: Output an `AUDIT_RESULT` block:
+11. **Return structured result**: Output an `AUDIT_RESULT` block:
    ```
    AUDIT_RESULT:
    file: <scala path>
    java_source: <java path(s)>
    status: pass|minor_issues|major_issues
-   tested: Yes — <test file> | No
+   tested: Yes — <test file> | No — <reason>
    completeness: <summary>
    renames: <comma-separated or "none">
    conventions: <summary>

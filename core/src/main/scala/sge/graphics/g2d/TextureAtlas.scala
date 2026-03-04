@@ -9,9 +9,10 @@
  *   Convention: Nullable throughout; using Sge context parameter; MutableMap/MutableSet
  *   Idiom: boundary/break, Nullable, split packages
  *   TODO: Java-style getters/setters — getRegions, getTextures; AtlasSprite: getX/Y, getOriginX/Y, getWidth/Height; AtlasRegion: getRotatedPackedWidth/Height
+ *   TODO: test: decode a real .atlas file end-to-end through TextureAtlasData
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - extends GestureDetector: uses named parameter `listener = gestureListener`
@@ -96,8 +96,9 @@ class CameraInputController protected (
   private val tmpV1:  Vector3 = new Vector3()
   private val tmpV2:  Vector3 = new Vector3()
 
-  def this(camera: Camera)(implicit sge: Sge) =
+  def this(camera: Camera)(implicit sge: Sge) = {
     this(new CameraInputController.CameraGestureListener(), camera)
+  }
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {

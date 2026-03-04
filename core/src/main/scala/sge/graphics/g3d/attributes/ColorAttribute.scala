@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Audited 2026-03-03: faithful 1:1 port
@@ -40,8 +40,9 @@ class ColorAttribute(
     this.color.set(r, g, b, a)
   }
 
-  def this(copyFrom: ColorAttribute) =
+  def this(copyFrom: ColorAttribute) = {
     this(copyFrom.`type`, copyFrom.color)
+  }
 
   override def copy(): Attribute =
     new ColorAttribute(this)

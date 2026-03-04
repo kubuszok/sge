@@ -9,7 +9,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * --- AUDIT (2026-03-03) ---
  * API-complete: YES — all methods ported (update, getScaling, setScaling)
@@ -44,8 +44,9 @@ class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, c
   setCamera(camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) =
+  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) = {
     this(scaling, worldWidth, worldHeight, new OrthographicCamera())
+  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     val scaled         = _scaling.apply(getWorldWidth(), getWorldHeight(), screenWidth.toFloat, screenHeight.toFloat)

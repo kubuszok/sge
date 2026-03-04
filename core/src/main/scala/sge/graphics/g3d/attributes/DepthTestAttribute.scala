@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Audited 2026-03-03: faithful 1:1 port
@@ -35,26 +35,33 @@ class DepthTestAttribute(
 
   if (!DepthTestAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this() =
+  def this() = {
     this(DepthTestAttribute.Type, GL20.GL_LEQUAL, 0f, 1f, true)
+  }
 
-  def this(depthMask: Boolean) =
+  def this(depthMask: Boolean) = {
     this(DepthTestAttribute.Type, GL20.GL_LEQUAL, 0f, 1f, depthMask)
+  }
 
-  def this(depthFunc: Int) =
+  def this(depthFunc: Int) = {
     this(DepthTestAttribute.Type, depthFunc, 0f, 1f, true)
+  }
 
-  def this(depthFunc: Int, depthMask: Boolean) =
+  def this(depthFunc: Int, depthMask: Boolean) = {
     this(DepthTestAttribute.Type, depthFunc, 0f, 1f, depthMask)
+  }
 
-  def this(depthFunc: Int, depthRangeNear: Float, depthRangeFar: Float) =
+  def this(depthFunc: Int, depthRangeNear: Float, depthRangeFar: Float) = {
     this(DepthTestAttribute.Type, depthFunc, depthRangeNear, depthRangeFar, true)
+  }
 
-  def this(depthFunc: Int, depthRangeNear: Float, depthRangeFar: Float, depthMask: Boolean) =
+  def this(depthFunc: Int, depthRangeNear: Float, depthRangeFar: Float, depthMask: Boolean) = {
     this(DepthTestAttribute.Type, depthFunc, depthRangeNear, depthRangeFar, depthMask)
+  }
 
-  def this(rhs: DepthTestAttribute) =
+  def this(rhs: DepthTestAttribute) = {
     this(rhs.`type`, rhs.depthFunc, rhs.depthRangeNear, rhs.depthRangeFar, rhs.depthMask)
+  }
 
   override def copy(): Attribute =
     new DepthTestAttribute(this)

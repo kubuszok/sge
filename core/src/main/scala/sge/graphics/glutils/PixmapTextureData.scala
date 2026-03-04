@@ -9,7 +9,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -24,11 +24,13 @@ import sge.utils.Nullable
 
 class PixmapTextureData private (format: Format, pixmap: Pixmap, val useMipMaps: Boolean, val disposePixmap: Boolean, val isManaged: Boolean) extends TextureData {
 
-  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) =
+  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) = {
     this(format.getOrElse(pixmap.getFormat()), pixmap, useMipMaps, disposePixmap, isManaged)
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) = {
     this(format, pixmap, useMipMaps, disposePixmap, isManaged = false)
+  }
 
   override def consumePixmap(): Pixmap = pixmap
 

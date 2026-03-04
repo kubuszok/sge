@@ -10,7 +10,7 @@
  *   TODO: Java-style getters/setters — getManager, getContainer, getActor/setActor, setInstant, setAlways
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -44,8 +44,9 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using Sge) =
+  def this(contents: Nullable[T])(using Sge) = {
     this(contents, TooltipManager.getInstance())
+  }
 
   def getManager: TooltipManager = manager
 

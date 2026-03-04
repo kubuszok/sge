@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, getDependencies, loadAsync, loadSync, usesAtlas)
@@ -19,7 +19,6 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.utils.{ DynamicArray, JsonReader, Nullable, XmlReader }
 
@@ -42,7 +41,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   private val atlasTmjMapLoader: AtlasTmjMapLoader = new AtlasTmjMapLoader(resolver)
   private val jsonReader:        JsonReader        = new JsonReader()
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   /** Universal synchronous loader. This method is a thin wrapper that picks the correct underlying loader (TMX vs TMJ, atlas vs non-atlas) and then delegates straight through to its synchronous
     * `load(...)` implementation.

@@ -11,7 +11,7 @@
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -47,11 +47,13 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[Slider.SliderStyle]))
+  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[Slider.SliderStyle]))
+  }
 
   addListener(
     new InputListener() {

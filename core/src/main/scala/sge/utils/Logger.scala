@@ -13,7 +13,7 @@
  *   TODO: evaluate scribe (com.outr %%% "scribe" % "3.17.0") as replacement -- cross-platform, compile-time optimization; see docs/improvements/dependencies.md B2
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

@@ -12,7 +12,7 @@
  *   TODO: ComparableTimSort uses asInstanceOf — sort[T: Comparable] overloads should use Ordering derived from Comparable, eliminating ComparableTimSort or merging it with TimSort
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

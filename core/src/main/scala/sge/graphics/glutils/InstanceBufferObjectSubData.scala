@@ -11,7 +11,7 @@
  *   TODO: typed GL enums -- BufferTarget -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -36,8 +36,9 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(implicit sge: Sge) =
+  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(implicit sge: Sge) = {
     this(isStatic, numInstances, new VertexAttributes(instanceAttributes*))
+  }
 
   val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else new VertexAttributes()
 

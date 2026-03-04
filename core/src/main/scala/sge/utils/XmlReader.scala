@@ -10,7 +10,7 @@
  *   TODO: Java-style getters/setters — Element: getParent, getAttributes, getChildren, getChild, getText/setText, getChildByName, etc.
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

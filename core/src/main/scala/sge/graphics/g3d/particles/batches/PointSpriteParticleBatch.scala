@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - ParticleShader not fully integrated: shader initialization deferred (renderable.shader
@@ -171,7 +171,7 @@ class PointSpriteParticleBatch(
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("pointSpriteBatch")
     getTexture().foreach { tex =>
-      data.saveAsset(manager.getAssetFileName(tex), classOf[Texture])
+      data.saveAsset(manager.getAssetFileName(tex).getOrElse(""), classOf[Texture])
     }
   }
 

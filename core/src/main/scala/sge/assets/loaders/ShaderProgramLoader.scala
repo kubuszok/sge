@@ -7,9 +7,10 @@
  * Migration notes:
  *   Idiom: split packages
  *   Issues: logging routes through `Sge().application.error()` instead of `manager.getLogger().error()` — different log level control
+ *   TODOs: test: ShaderProgramLoader file suffix resolution (.vert/.frag) and code prepend logic
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets

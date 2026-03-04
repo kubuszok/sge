@@ -4,7 +4,7 @@
  * Original authors: (see AUTHORS file)
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - Implements Iterable[Attribute] with Ordered[Attributes] (Java: Iterable + Comparable).

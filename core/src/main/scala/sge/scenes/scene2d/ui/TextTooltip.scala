@@ -9,7 +9,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -32,20 +32,25 @@ class TextTooltip(text: Nullable[String], manager: TooltipManager, style: TextTo
 
   setStyle(style)
 
-  def this(text: Nullable[String], skin: Skin)(using Sge) =
+  def this(text: Nullable[String], skin: Skin)(using Sge) = {
     this(text, TooltipManager.getInstance(), skin.get(classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) =
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
     this(text, TooltipManager.getInstance(), skin.get(styleName, classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) =
+  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) = {
     this(text, TooltipManager.getInstance(), style)
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) = {
     this(text, manager, skin.get(classOf[TextTooltip.TextTooltipStyle]))
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) = {
     this(text, manager, skin.get(styleName, classOf[TextTooltip.TextTooltipStyle]))
+  }
 
   protected def newLabel(text: Nullable[String], style: LabelStyle): Label =
     new Label(text.map(t => t: CharSequence), style)

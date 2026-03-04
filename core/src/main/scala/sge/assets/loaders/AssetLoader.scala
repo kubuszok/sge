@@ -7,13 +7,13 @@
  * Migration notes:
  *   Convention: `Array<AssetDescriptor>` -> `DynamicArray[AssetDescriptor[?]]`
  *   Idiom: split packages
- *   Issues: flat `package sge.assets.loaders` instead of split form
- *   TODO: uses flat package declaration — convert to split (package sge / package assets / package loaders)
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.assets.loaders
+package sge
+package assets
+package loaders
 
 import sge.files.FileHandle
 import sge.assets.AssetLoaderParameters

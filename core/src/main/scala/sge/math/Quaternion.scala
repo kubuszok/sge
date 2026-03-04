@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: set(6), cpy, len, len2, nor, conjugate, transform,
  * mul(Quaternion/float), mulLeft(Quaternion/float), add(2), toMatrix, idt, isIdentity(2),
@@ -39,8 +39,9 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) =
+  def this(quaternion: Quaternion) = {
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *

@@ -10,7 +10,7 @@
  *   Issues: implementation is a simplistic placeholder using basic `String.replace`; missing `MessageFormat`-based locale formatting, brace escaping (`{{`), and `simpleFormat` error checking from Java original
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

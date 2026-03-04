@@ -10,7 +10,7 @@
  *   Issues: (1) setPolygon uses simplified polygon intersection (vertex containment) instead of Intersector.intersectPolygons. (2) Missing density field from Java source.
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

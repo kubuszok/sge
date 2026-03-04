@@ -11,9 +11,10 @@
  *   Issues: Raw null on line 700 (sprites.first fallback) -- should use Nullable
  *   TODO: Java-style getters/setters -- getName/setName, getMaxParticleCount/setMaxParticleCount, etc. in inner classes and emitter
  *   TODO: opaque Seconds for timing values in numeric value objects -- see docs/improvements/opaque-types.md
+ *   TODO: test: decode a real .p particle effect file end-to-end through ParticleEmitter.load
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

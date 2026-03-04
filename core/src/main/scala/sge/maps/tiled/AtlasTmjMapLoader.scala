@@ -4,7 +4,7 @@
  * Original authors: Justin Shapcott, Manuel Bua
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
@@ -14,6 +14,10 @@
  *   - Java AtlasRegion return → Nullable[TextureRegion] via .map(r => r: TextureRegion)
  *   - Constructor requires `(using Sge)` (SGE context parameter)
  *   - Split package, braces, no-return conventions satisfied
+ *
+ *   - JsonValue tree walking replaced with jsoniter-scala codec derivation (TmjJson DTOs)
+ *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
+ *   Audited: 2026-03-04
  */
 package sge
 package maps
@@ -21,13 +25,10 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
-import sge.utils.{ DynamicArray, JsonValue, Nullable }
-
-import scala.language.implicitConversions
+import sge.utils.{ DynamicArray, Nullable, readJson }
 
 /** A TiledMap Loader which loads tiles from a TextureAtlas instead of separate images.
   *
@@ -45,7 +46,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
 
   protected var atlasResolver: AtlasTmjMapLoader.AtlasResolver = scala.compiletime.uninitialized
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   def load(fileName: String): TiledMap =
     load(fileName, new BaseTiledMapLoader.Parameters())
@@ -53,7 +54,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
   def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
     val tmjFile = resolve(fileName)
 
-    this.root = Nullable(json.parse(tmjFile))
+    this.root = Nullable(tmjFile.readJson[TmjMapJson])
 
     val atlasFileHandle = getAtlasFileHandle(tmjFile)
     val atlas           = new TextureAtlas(atlasFileHandle)
@@ -112,8 +113,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
     tmjFile:       FileHandle,
     imageResolver: ImageResolver,
     tileSet:       TiledMapTileSet,
-    element:       JsonValue,
-    tiles:         JsonValue,
+    tiles:         List[TmjTileJson],
     name:          String,
     firstgid:      Int,
     tilewidth:     Int,
@@ -156,13 +156,12 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
     }
 
     // Add tiles with individual image sources
-    for (tileElement <- tiles) {
-      val tileId = firstgid + tileElement.getInt("id", 0)
-      val tile   = tileSet.getTile(tileId)
-      if (tile.isEmpty) {
-        val imageElement = tileElement.get("image")
-        imageElement.foreach { ie =>
-          var regionName = ie.asString().getOrElse("")
+    for (tile <- tiles) {
+      val tileId   = firstgid + tile.id
+      val existing = tileSet.getTile(tileId)
+      if (existing.isEmpty) {
+        tile.image.foreach { imgSource =>
+          var regionName = imgSource
           regionName = regionName.substring(0, regionName.lastIndexOf('.'))
           val region = atlas.findRegion(regionName)
           if (region.isEmpty) throw new IllegalArgumentException("Tileset atlasRegion not found: " + regionName)
@@ -173,17 +172,16 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
   }
 
   protected def getAtlasFileHandle(tmjFile: FileHandle): FileHandle = {
-    val properties = root.getOrElse(throw new IllegalStateException("root not initialized")).get("properties")
+    val r = root.getOrElse(throw new IllegalStateException("root not initialized"))
 
     var atlasFilePath: Nullable[String] = Nullable.empty
-    properties.foreach { props =>
-      for (property <- props) {
-        val name = property.getString("name", Nullable("")).getOrElse("")
-        if (name.startsWith("atlas")) {
-          atlasFilePath = property.getString("value", Nullable(""))
+    for (property <- r.properties)
+      if (property.name.startsWith("atlas")) {
+        property.value match {
+          case sge.utils.Json.Str(s) => atlasFilePath = Nullable(s)
+          case _                     => ()
         }
       }
-    }
 
     if (atlasFilePath.isEmpty || atlasFilePath.getOrElse("").isEmpty) {
       throw new IllegalArgumentException("The map is missing the 'atlas' property")

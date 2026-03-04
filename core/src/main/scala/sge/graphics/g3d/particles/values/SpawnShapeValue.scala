@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
@@ -31,8 +31,9 @@ abstract class SpawnShapeValue extends ParticleValue with ResourceData.Configura
   var yOffsetValue: RangedNumericValue = new RangedNumericValue()
   var zOffsetValue: RangedNumericValue = new RangedNumericValue()
 
-  def this(spawnShapeValue: SpawnShapeValue) =
+  def this(spawnShapeValue: SpawnShapeValue) = {
     this()
+  }
 
   def spawnAux(vector: Vector3, percent: Float): Unit
 

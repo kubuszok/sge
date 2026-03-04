@@ -1,6 +1,13 @@
 Audit all SGE Scala files in the package `$ARGUMENTS` against their LibGDX Java sources.
 
-Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `graphics/g3d/particles`
+Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `graphics/g3d/particles`,
+or `/batch` to audit multiple packages in sequence.
+
+## Batch mode
+
+If `$ARGUMENTS` is `/batch`, prompt the user for a list of package paths (one per line or
+comma-separated) and audit each package in sequence. Between packages, write partial audit
+docs and commit progress so work isn't lost if the session is interrupted.
 
 ## Procedure
 
@@ -14,7 +21,10 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `graphics
 3. **Audit each file**: For each Scala file, run the `/audit-file` procedure:
    - Read the Scala file and its Java source
    - Compare public API (methods, constants, enums, inner types)
-   - Check conventions (no return, no null, split packages, braces, comments)
+   - Check conventions (no return, no null, split packages, braces, comments, copyright)
+   - Check for SGE-specific TODOs and stub implementations
+   - Check for missing `val`/`var` fields and incorrect `var`→`val` conversions
+   - Check for tests (in both SGE and LibGDX)
    - Add/update migration notes in the file header
    - Record the audit result
 
@@ -37,7 +47,7 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `graphics
    | SGE path | `core/src/main/scala/sge/<path>` |
    | Java source(s) | `com/badlogic/gdx/<path>` |
    | Status | pass/minor_issues/major_issues |
-   | Tested | Yes — `test path` / No |
+   | Tested | Yes — `test path` / No — reason |
 
    **Completeness**: Summary of API coverage.
    **Renames**: List or "None"

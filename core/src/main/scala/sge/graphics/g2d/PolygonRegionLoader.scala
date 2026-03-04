@@ -8,10 +8,11 @@
  *   Renames: GdxRuntimeException -> SgeError.FileReadError
  *   Convention: boundary/break for early return; Nullable for null safety; using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: load(AssetManager,...) is a stub that throws at runtime -- requires AssetManager.get() and getDependencies()
+ *   Convention: load(AssetManager,...) fully implemented using AssetManager.get() and getDependencies()
+ *   TODO: test: decode a real .psh polygon shape file end-to-end through PolygonRegionLoader
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -24,7 +25,6 @@ import sge.assets.AssetLoaderParameters
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
 import sge.assets.loaders.SynchronousAssetLoader
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.math.EarClippingTriangulator
@@ -42,16 +42,16 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
   private val triangulator = new EarClippingTriangulator()
 
-  def this()(using Sge) =
-    this(new InternalFileHandleResolver())
+  def this()(using Sge) = {
+    this(new FileHandleResolver.Internal())
+  }
 
-  override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion =
-    // TODO: Once AssetManager has get() and getDependencies() methods, uncomment the following:
-    // val texture = manager.get(manager.getDependencies(fileName).head)
-    // load(new TextureRegion(texture), file)
-
-    // For now, throw an error indicating this functionality is not yet implemented
-    throw SgeError.InvalidInput("PolygonRegionLoader.load not yet implemented - AssetManager missing required methods")
+  override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion = {
+    val texture: Texture = manager.get(
+      manager.getDependencies(fileName).getOrElse(throw SgeError.InvalidInput("No dependencies for: " + fileName)).first
+    )
+    load(new TextureRegion(texture), file)
+  }
 
   /** If the PSH file contains a line starting with {@link PolygonRegionParameters#texturePrefix params.texturePrefix} , an {@link AssetDescriptor} for the file referenced on that line will be added
     * to the returned Array. Otherwise a sibling of the given file with the same name and the first found extension in {@link PolygonRegionParameters#textureExtensions params.textureExtensions} will

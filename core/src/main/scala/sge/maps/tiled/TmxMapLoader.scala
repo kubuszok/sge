@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
@@ -20,7 +20,6 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.TextureRegion
@@ -34,7 +33,7 @@ import scala.language.implicitConversions
   */
 class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file. The map will
     * be loaded for a y-up coordinate system.

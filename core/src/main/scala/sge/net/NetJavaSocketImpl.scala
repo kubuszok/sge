@@ -6,11 +6,10 @@
  *
  * Migration notes:
  *   Convention: Java `Disposable.dispose()` → `AutoCloseable.close()`
- *   Idiom: split packages
- *   Issues: secondary constructor `this(socket, hints)` delegates to primary (which creates and connects a new socket), then overwrites `this.socket`; Java 2-arg ctor directly assigns without connecting
+ *   Idiom: split packages; 2-arg constructor (existing socket) is separate from connecting constructor
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package net
@@ -18,55 +17,35 @@ package net
 import java.net.{ InetSocketAddress, Socket => JSocket }
 import java.io.{ InputStream, OutputStream }
 import sge.utils.Nullable
-// import sge.utils.SgeError
 
 /** Socket implementation using java.net.Socket.
   *
   * @author
   *   noblemaster (original implementation)
   */
-class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: SocketHints) extends Socket {
+class NetJavaSocketImpl private (private var socket: JSocket) extends Socket {
 
-  /** Our socket or null for disposed, aka closed. */
-  private var socket: JSocket = scala.compiletime.uninitialized
-
-  try {
-    // create the socket
-    socket = new JSocket()
-    applyHints(hints) // better to call BEFORE socket is connected!
-
-    // and connect...
-    val address = new InetSocketAddress(host, port)
-    Nullable(hints).fold(socket.connect(address)) { h =>
-      socket.connect(address, h.connectTimeout)
-    }
-  } catch {
-    case e: Exception =>
-      throw new RuntimeException(s"Error making a socket connection to $host:$port", e)
-  }
-
-  def this(socket: JSocket, hints: SocketHints) = {
-    this(protocol = null, socket.getRemoteSocketAddress.toString, socket.getPort, hints)
-    this.socket = socket
-    applyHints(hints)
-  }
-
-  private def applyHints(hints: SocketHints): Unit =
-    Nullable(hints).foreach { h =>
-      try {
-        socket.setPerformancePreferences(h.performancePrefConnectionTime, h.performancePrefLatency, h.performancePrefBandwidth)
-        socket.setTrafficClass(h.trafficClass)
-        socket.setTcpNoDelay(h.tcpNoDelay)
-        socket.setKeepAlive(h.keepAlive)
-        socket.setSendBufferSize(h.sendBufferSize)
-        socket.setReceiveBufferSize(h.receiveBufferSize)
-        socket.setSoLinger(h.linger, h.lingerDuration)
-        socket.setSoTimeout(h.socketTimeout)
-      } catch {
-        case e: Exception =>
-          throw new RuntimeException("Error setting socket hints.", e)
+  /** Creates a new socket and connects to the given host:port. */
+  def this(protocol: Net.Protocol, host: String, port: Int, hints: SocketHints) = {
+    this(new JSocket())
+    try {
+      NetJavaSocketImpl.applyHints(socket, hints) // better to call BEFORE socket is connected!
+      // and connect...
+      val address = new InetSocketAddress(host, port)
+      Nullable(hints).fold(socket.connect(address)) { h =>
+        socket.connect(address, h.connectTimeout)
       }
+    } catch {
+      case e: Exception =>
+        throw new RuntimeException(s"Error making a socket connection to $host:$port", e)
     }
+  }
+
+  /** Wraps an already-connected socket. */
+  def this(socket: JSocket, hints: SocketHints) = {
+    this(socket)
+    NetJavaSocketImpl.applyHints(socket, hints)
+  }
 
   override def isConnected(): Boolean =
     Nullable(socket).fold(false)(_.isConnected())
@@ -94,10 +73,29 @@ class NetJavaSocketImpl(protocol: Net.Protocol, host: String, port: Int, hints: 
     Nullable(socket).foreach { s =>
       try {
         s.close()
-        socket = null
+        socket = null // raw null at Java interop boundary
       } catch {
         case e: Exception =>
           throw new RuntimeException("Error closing socket.", e)
+      }
+    }
+}
+
+object NetJavaSocketImpl {
+  private def applyHints(socket: JSocket, hints: SocketHints): Unit =
+    Nullable(hints).foreach { h =>
+      try {
+        socket.setPerformancePreferences(h.performancePrefConnectionTime, h.performancePrefLatency, h.performancePrefBandwidth)
+        socket.setTrafficClass(h.trafficClass)
+        socket.setTcpNoDelay(h.tcpNoDelay)
+        socket.setKeepAlive(h.keepAlive)
+        socket.setSendBufferSize(h.sendBufferSize)
+        socket.setReceiveBufferSize(h.receiveBufferSize)
+        socket.setSoLinger(h.linger, h.lingerDuration)
+        socket.setSoTimeout(h.socketTimeout)
+      } catch {
+        case e: Exception =>
+          throw new RuntimeException("Error setting socket hints.", e)
       }
     }
 }

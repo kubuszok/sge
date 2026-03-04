@@ -10,7 +10,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — Combines Matrix3.java + Matrix4.java. Matrix3: all methods ported (idt, mul,
  * mulLeft, setToRotation, setToRotationRad, setToScaling, setToTranslation, det, inv, set,

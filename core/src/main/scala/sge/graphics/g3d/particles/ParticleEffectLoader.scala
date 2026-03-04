@@ -4,7 +4,7 @@
  * Original authors: inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - Structure ported; getDependencies and save are stubbed (need JSON serialization)
@@ -141,8 +141,9 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) =
+    def this(batches: DynamicArray[ParticleBatch[?]]) = {
       this(Nullable(batches))
+    }
   }
 
   class ParticleEffectSaveParameter(

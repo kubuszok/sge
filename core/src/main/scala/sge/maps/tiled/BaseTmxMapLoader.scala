@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (loadTiledMap, loadLayer, loadLayerGroup, loadTileLayer,
@@ -721,7 +721,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       projectClassMember.`type` match {
         case "object" =>
           val value =
-            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).getOrElse("")
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(BaseTiledMapLoader.jsonAsString).getOrElse("")
             else getPropertyValue(classProp.getOrElse(throw new IllegalStateException("unreachable")))
           loadObjectProperty(classProperties, propName, value)
         case "class" =>
@@ -739,7 +739,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           }
         case _ =>
           val value =
-            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(_.asString()).getOrElse("")
+            if (classProp.isEmpty) projectClassMember.defaultValue.flatMap(BaseTiledMapLoader.jsonAsString).getOrElse("")
             else getPropertyValue(classProp.getOrElse(throw new IllegalStateException("unreachable")))
           loadBasicProperty(classProperties, propName, value, Nullable(projectClassMember.`type`))
       }

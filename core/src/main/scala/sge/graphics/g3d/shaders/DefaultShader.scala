@@ -4,7 +4,7 @@
  * Original authors: Xoppa
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Config.vertexShader/fragmentShader use Nullable[String] instead of null Strings
@@ -257,7 +257,7 @@ class DefaultShader(
   protected var spotLightsExponentOffset:    Int = 0
   protected var spotLightsSize:              Int = 0
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(
       renderable,
       new DefaultShader.Config(), {
@@ -268,8 +268,9 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) = {
     this(
       renderable,
       config, {
@@ -279,8 +280,9 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config, {
@@ -289,6 +291,7 @@ class DefaultShader(
         new ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -296,8 +299,9 @@ class DefaultShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) =
+  )(using Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def init(): Unit = {
     val prog = this.program.getOrElse(throw SgeError.GraphicsError("No shader program"))

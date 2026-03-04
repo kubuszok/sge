@@ -12,6 +12,8 @@ val versions = new {
   val scala = "3.8.2"
 
   val kindlings = "361026ca2b848637931d65ffece9023592179ada-SNAPSHOT"
+  val jsoniter  = "2.38.9"
+  val sttp      = "4.0.19"
   val xml       = "2.3.0"
 
   val munit           = "1.2.3"
@@ -54,6 +56,8 @@ val core = (projectMatrix in file("core"))
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % versions.jsoniter % "provided",
+      "com.softwaremill.sttp.client4" %%% "core" % versions.sttp,
       "org.scala-lang.modules" %%% "scala-xml" % versions.xml,
       "org.scalameta" %%% "munit" % versions.munit % Test,
       "org.scalameta" %%% "munit-scalacheck" % versions.munitScalacheck % Test

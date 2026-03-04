@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Inner classes Single, Random moved to companion object (Java static classes).
@@ -109,7 +109,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
       for (r <- toRemove) controllers.removeValue(r)
 
       indices.foreach { idx =>
-        data.saveAsset(manager.getAssetFileName(effect), classOf[ParticleEffect])
+        data.saveAsset(manager.getAssetFileName(effect).getOrElse(""), classOf[ParticleEffect])
         effectsIndices.add(idx)
       }
       i += 1

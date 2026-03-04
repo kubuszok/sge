@@ -11,7 +11,7 @@
  *   TODO: delegate to scala-java-time (io.github.cquiroz %%% "scala-java-time" % "2.6.0") -- cross-platform JVM/JS/Native; see docs/improvements/dependencies.md B1
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

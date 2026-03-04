@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods, fields, inner types (Parameters, ProjectClassMember) match Java 1:1
@@ -15,9 +15,12 @@
  *   - Java GdxRuntimeException → IllegalArgumentException/IllegalStateException
  *   - loadProjectFile: extra foreach nesting matches Java continue-based loop
  *   - loadObjectProperty: Java Runnable → Scala () => Unit lambda
- *   - Minor: loadProjectFile missing `projectClassMembers.add(projectClassMember)` inside for loop
+ *   - Fixed: loadProjectFile now calls `projectClassMembers.add(projectClassMember)` inside for loop
  *   - Minor: Javadoc for tiledColorToLibGDXColor is misplaced above loadMapPropertiesClassDefaults
  *   - Split package, braces, no-return conventions satisfied
+ *   - JsonValue tree walking replaced with jsoniter-scala codec derivation (TiledProjectJson)
+ *   Convention: jsoniter-scala codec derivation replaces JsonValue tree walking
+ *   Audited: 2026-03-04
  */
 package sge
 package maps
@@ -29,9 +32,7 @@ import sge.files.FileHandle
 import sge.graphics.Color
 import sge.graphics.g2d.TextureRegion
 import sge.maps.tiled.tiles.StaticTiledMapTile
-import sge.utils.{ JsonReader, JsonValue, Nullable, ObjectMap }
-
-import sge.utils.DynamicArray
+import sge.utils.{ DynamicArray, Json, Nullable, ObjectMap, readJson }
 
 import scala.collection.mutable
 import scala.util.boundary
@@ -169,40 +170,42 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
       break()
     }
 
-    val projectFile   = resolve(projectFilePath.getOrElse(""))
-    val projectRoot   = new JsonReader().parse(projectFile)
-    val propertyTypes = projectRoot.get("propertyTypes")
-    if (propertyTypes.isEmpty) {
+    val projectFile = resolve(projectFilePath.getOrElse(""))
+    val project     = projectFile.readJson[TiledProjectJson]
+
+    if (project.propertyTypes.isEmpty) {
       // no custom property types in project -> nothing to parse
       break()
     }
 
-    propertyTypes.foreach { pt =>
-      for (propertyType <- pt)
-        if ("class" == propertyType.getString("type", Nullable.empty).getOrElse("")) {
-          val className = propertyType.getString("name", Nullable.empty).getOrElse("")
-          val members   = propertyType.get("members")
-          members.foreach { ms =>
-            if (!ms.isEmpty) {
-              val projectClassMembers = DynamicArray[BaseTiledMapLoader.ProjectClassMember]()
-              classInfo.put(className, projectClassMembers)
-              for (member <- ms) {
-                val projectClassMember = new BaseTiledMapLoader.ProjectClassMember()
-                projectClassMember.name = member.getString("name", Nullable.empty).getOrElse("")
-                projectClassMember.`type` = member.getString("type", Nullable.empty).getOrElse("")
-                projectClassMember.propertyType = member.getString("propertyType", Nullable.empty)
-                projectClassMember.defaultValue = member.get("value")
-              }
+    for (propertyType <- project.propertyTypes)
+      if ("class" == propertyType.tpe) {
+        val className = propertyType.name
+        if (propertyType.members.nonEmpty) {
+          val projectClassMembers = DynamicArray[BaseTiledMapLoader.ProjectClassMember]()
+          classInfo.put(className, projectClassMembers)
+          for (member <- propertyType.members) {
+            val projectClassMember = new BaseTiledMapLoader.ProjectClassMember()
+            projectClassMember.name = member.name
+            projectClassMember.`type` = member.tpe
+            projectClassMember.propertyType = member.propertyType match {
+              case Some(s) => Nullable(s)
+              case None    => Nullable.empty
             }
+            projectClassMember.defaultValue = member.value match {
+              case Some(v) => Nullable(v)
+              case None    => Nullable.empty
+            }
+            projectClassMembers.add(projectClassMember)
           }
         }
-    }
+      }
   }
 
   protected def loadJsonClassProperties(
     className:       String,
     classProperties: MapProperties,
-    classElement:    Nullable[JsonValue]
+    classElement:    Nullable[Json]
   ): Unit = {
     val pci = projectClassInfo.getOrElse(
       throw new IllegalStateException(
@@ -224,12 +227,12 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
 
     for (projectClassMember <- members) {
       val propName     = projectClassMember.name
-      val classPropRaw = classElement.flatMap(_.get(propName))
+      val classPropRaw = classElement.flatMap(ce => BaseTiledMapLoader.jsonGetField(ce, propName))
       projectClassMember.`type` match {
         case "object" =>
           val value =
-            if (classPropRaw.isEmpty) projectClassMember.defaultValue.flatMap(_.asString())
-            else classPropRaw.flatMap(_.asString())
+            if (classPropRaw.isEmpty) projectClassMember.defaultValue.flatMap(BaseTiledMapLoader.jsonAsString)
+            else classPropRaw.flatMap(BaseTiledMapLoader.jsonAsString)
           value.foreach(v => loadObjectProperty(classProperties, propName, v))
         case "class" =>
           // A 'class' property is a property which is itself a set of properties
@@ -242,8 +245,8 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
           loadJsonClassProperties(nestedClassName, nestedClassProperties, classProp)
         case _ =>
           val value =
-            if (classPropRaw.isEmpty) projectClassMember.defaultValue.flatMap(_.asString())
-            else classPropRaw.flatMap(_.asString())
+            if (classPropRaw.isEmpty) projectClassMember.defaultValue.flatMap(BaseTiledMapLoader.jsonAsString)
+            else classPropRaw.flatMap(BaseTiledMapLoader.jsonAsString)
           value.foreach(v => loadBasicProperty(classProperties, propName, v, Nullable(projectClassMember.`type`)))
       }
     }
@@ -290,7 +293,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
             loadJsonClassProperties(nestedClassName, nestedClassProperties, classMember.defaultValue)
           } else {
             classMember.defaultValue.foreach { dv =>
-              val value = dv.asString()
+              val value = BaseTiledMapLoader.jsonAsString(dv)
               value.foreach { v =>
                 if ("object" == classMember.`type`) {
                   loadObjectProperty(mapProperties, propName, v)
@@ -341,10 +344,10 @@ object BaseTiledMapLoader {
     *   - a `defaultValue`
     */
   class ProjectClassMember {
-    var name:         String              = scala.compiletime.uninitialized
-    var `type`:       String              = scala.compiletime.uninitialized
-    var propertyType: Nullable[String]    = Nullable.empty
-    var defaultValue: Nullable[JsonValue] = Nullable.empty
+    var name:         String           = scala.compiletime.uninitialized
+    var `type`:       String           = scala.compiletime.uninitialized
+    var propertyType: Nullable[String] = Nullable.empty
+    var defaultValue: Nullable[Json]   = Nullable.empty
 
     override def toString: String =
       "ProjectClassMember{" +
@@ -377,5 +380,24 @@ object BaseTiledMapLoader {
     val alpha = if (tiledColor.length == 9) tiledColor.substring(1, 3) else "ff"
     val color = if (tiledColor.length == 9) tiledColor.substring(3) else tiledColor.substring(1)
     color + alpha
+  }
+
+  /** Looks up a field in a JSON object by name. */
+  protected[tiled] def jsonGetField(json: Json, name: String): Nullable[Json] = json match {
+    case Json.Obj(fields) =>
+      var result: Nullable[Json] = Nullable.empty
+      fields.fields.foreach { case (k, v) =>
+        if (k == name) result = Nullable(v)
+      }
+      result
+    case _ => Nullable.empty
+  }
+
+  /** Extracts a string representation from a simple JSON value. */
+  protected[tiled] def jsonAsString(json: Json): Nullable[String] = json match {
+    case Json.Str(s)  => Nullable(s)
+    case Json.Num(n)  => Nullable(n.value)
+    case Json.Bool(b) => Nullable(b.toString)
+    case _            => Nullable.empty
   }
 }

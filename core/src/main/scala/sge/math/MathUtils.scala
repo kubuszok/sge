@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All constants ported: NANOTIME_TO_SECONDS, FLOAT_ROUNDING_ERROR, PI, PI2,
  * HALF_PI, E, Sin/Cos tables, Atan2 table, BIG_ENOUGH_INT/FLOOR/ROUND, CEIL, degRad,

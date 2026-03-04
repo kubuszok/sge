@@ -7,9 +7,10 @@
  * Migration notes:
  *   Idiom: split packages
  *   Issues: `null.asInstanceOf[P]` at 5 sites mirrors Java semantics but violates no-null convention; dead code in `loadSync` — `break(null.asInstanceOf[Model])` makes fold default unreachable
+ *   TODOs: test: ModelLoader getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets

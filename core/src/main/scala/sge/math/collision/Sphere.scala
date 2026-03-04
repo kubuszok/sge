@@ -4,7 +4,7 @@
  * Original authors: badlogicgames@gmail.com
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   Renames: dst2 -> distanceSq; NumberUtils.floatToRawIntBits -> java.lang.Float.floatToRawIntBits;
@@ -26,8 +26,9 @@ package collision
   */
 class Sphere(val center: Vector3, var radius: Float) {
 
-  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) =
+  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) = {
     this(new Vector3(centerX, centerY, centerZ), radius)
+  }
 
   /** @param sphere
     *   the other sphere

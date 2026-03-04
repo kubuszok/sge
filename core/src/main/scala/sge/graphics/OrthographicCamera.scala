@@ -6,25 +6,23 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   Issues: dangling `new Vector3()` allocation (dead code, line 42); old-style implicit sge: Sge instead of (using Sge)
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   TODO: opaque Pixels for viewportWidth/Height constructor params, setToOrtho -- see docs/improvements/opaque-types.md
+ *   Convention: anonymous (using Sge) + Sge() accessor; removed dead Vector3 allocation
+ *   TODOs: opaque Pixels for viewportWidth/Height constructor params, setToOrtho — see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
 
 import sge.math.Vector2
-import sge.math.Vector3
 
 /** A camera with orthographic projection.
   *
   * @author
   *   mzechner
   */
-class OrthographicCamera(implicit sge: Sge) extends Camera {
+class OrthographicCamera(using Sge) extends Camera {
 
   /** the zoom of the camera * */
   var zoom: Float = 1
@@ -38,15 +36,13 @@ class OrthographicCamera(implicit sge: Sge) extends Camera {
     * @param viewportHeight
     *   the viewport height
     */
-  def this(viewportWidth: Float, viewportHeight: Float)(implicit sge: Sge) = {
+  def this(viewportWidth: Float, viewportHeight: Float)(using Sge) = {
     this()
     this.viewportWidth = viewportWidth
     this.viewportHeight = viewportHeight
     this.near = 0
     update()
   }
-
-  new Vector3()
 
   override def update(): Unit =
     update(true)
@@ -71,7 +67,7 @@ class OrthographicCamera(implicit sge: Sge) extends Camera {
     *   whether y should be pointing down
     */
   def setToOrtho(yDown: Boolean): Unit =
-    setToOrtho(yDown, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    setToOrtho(yDown, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
 
   /** Sets this camera to an orthographic projection, centered at (viewportWidth/2, viewportHeight/2), with the y-axis pointing up or down.
     * @param yDown

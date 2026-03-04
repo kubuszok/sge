@@ -4,7 +4,7 @@
  * Original authors: inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - All public methods, enums, inner classes, and setters ported faithfully
@@ -72,10 +72,11 @@ class ParticleShader private (
   // Object uniforms
   register(DefaultShader.Inputs.diffuseTexture, Nullable(DefaultShader.Setters.diffuseTexture))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) = {
     this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config,
@@ -83,12 +84,15 @@ class ParticleShader private (
       config.vertexShader.getOrElse(ParticleShader.getDefaultVertexShader()),
       config.fragmentShader.getOrElse(ParticleShader.getDefaultFragmentShader())
     )
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) = {
     this(renderable, config, ParticleShader.createPrefix(renderable, config))
+  }
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(renderable, new ParticleShader.Config())
+  }
 
   override def init(): Unit = {
     val prog = this.program

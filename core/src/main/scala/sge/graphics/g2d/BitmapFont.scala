@@ -10,9 +10,10 @@
  *   Idiom: boundary/break, Nullable, split packages
  *   Issues: BitmapFontData missing 7 public methods (setScale, scale, getImagePath, getImagePaths, getFontFile, isBreakChar); BitmapFontData.load() is a stub
  *   TODO: Java-style getters/setters — getColor, getScaleX/Y, getRegion/s, getLineHeight, etc.
+ *   TODO: test: decode a real .fnt file end-to-end through BitmapFontData.load
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -36,7 +37,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   private var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) = {
     this(
       new BitmapFontData(fontFile, false),
       region.map { r =>
@@ -44,8 +45,9 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
+  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) = {
     this(
       new BitmapFontData(fontFile, flip),
       region.map { r =>
@@ -53,12 +55,15 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
+  }
 
-  def this(fontFile: FileHandle)(using Sge) =
+  def this(fontFile: FileHandle)(using Sge) = {
     this(fontFile, Nullable.empty[TextureRegion])
+  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) = {
     this(new BitmapFontData(fontFile, flip), Nullable.empty, true)
+  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
     this(

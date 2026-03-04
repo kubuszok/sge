@@ -11,7 +11,7 @@
  *   TODO: Java-style getters/setters — ~50+ methods: getScrollX/Y, setScrollX/Y, getVisualScrollX/Y, getScrollPercentX/Y, isScrollX/Y, isDragging, isPanning, etc.
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
@@ -98,16 +98,19 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using Sge) =
+  def this(actor: Nullable[Actor])(using Sge) = {
     this(actor, new ScrollPane.ScrollPaneStyle())
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using Sge) =
+  def this(actor: Nullable[Actor], skin: Skin)(using Sge) = {
     this(actor, skin.get(classOf[ScrollPane.ScrollPaneStyle]))
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) =
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) = {
     this(actor, skin.get(styleName, classOf[ScrollPane.ScrollPaneStyle]))
+  }
 
   protected def addCaptureListener(): Unit = {
     val self = this

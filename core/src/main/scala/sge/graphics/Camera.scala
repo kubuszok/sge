@@ -7,12 +7,11 @@
  * Migration notes:
  *   Convention: constants moved to companion object
  *   Idiom: split packages
- *   Issues: BUG in rotate(Matrix4) — uses direction.mul(transform) instead of direction.rot(transform); mul includes translation, rot is rotation-only; corrupts direction/up vectors with translated matrices; old-style implicit sge: Sge instead of (using Sge)
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   TODO: opaque Pixels for viewportWidth/Height (Float -- may need ViewportSize type) -- see docs/improvements/opaque-types.md
+ *   Convention: anonymous (using Sge) + Sge() accessor; rot(Matrix4) for rotation-only transform
+ *   TODOs: opaque Pixels for viewportWidth/Height — see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -28,7 +27,7 @@ import sge.Sge
   * @author
   *   mzechner
   */
-abstract class Camera(implicit sge: Sge) {
+abstract class Camera(using Sge) {
 
   /** the position of the camera * */
   val position: Vector3 = new Vector3()
@@ -149,8 +148,8 @@ abstract class Camera(implicit sge: Sge) {
     *   The rotation matrix
     */
   def rotate(transform: Matrix4): Unit = {
-    direction.mul(transform)
-    up.mul(transform)
+    direction.rot(transform)
+    up.rot(transform)
   }
 
   /** Rotates the direction and up vector of this camera by the given Quaternion. The direction and up vector will not be orthogonalized.
@@ -228,7 +227,7 @@ abstract class Camera(implicit sge: Sge) {
     */
   def unproject(touchCoords: Vector3, viewportX: Float, viewportY: Float, viewportWidth: Float, viewportHeight: Float): Vector3 = {
     val x = touchCoords.x - viewportX
-    val y = sge.graphics.getHeight() - touchCoords.y - viewportY
+    val y = Sge().graphics.getHeight() - touchCoords.y - viewportY
     touchCoords.x = (2 * x) / viewportWidth - 1
     touchCoords.y = (2 * y) / viewportHeight - 1
     touchCoords.z = 2 * touchCoords.z - 1
@@ -245,7 +244,7 @@ abstract class Camera(implicit sge: Sge) {
     *   the mutated and unprojected touchCoords Vector3
     */
   def unproject(touchCoords: Vector3): Vector3 = {
-    unproject(touchCoords, 0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    unproject(touchCoords, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
     touchCoords
   }
 
@@ -255,7 +254,7 @@ abstract class Camera(implicit sge: Sge) {
     *   the mutated and projected worldCoords Vector3
     */
   def project(worldCoords: Vector3): Vector3 = {
-    project(worldCoords, 0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    project(worldCoords, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
     worldCoords
   }
 
@@ -308,5 +307,5 @@ abstract class Camera(implicit sge: Sge) {
     *   the picking Ray.
     */
   def getPickRay(touchX: Float, touchY: Float): Ray =
-    getPickRay(touchX, touchY, 0, 0, sge.graphics.getWidth().toFloat, sge.graphics.getHeight().toFloat)
+    getPickRay(touchX, touchY, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
 }

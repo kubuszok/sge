@@ -11,17 +11,17 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils
 
-enum SgeError extends Exception {
-  case FileReadError(file: files.FileHandle, message: String, cause: Option[Throwable] = None)
-  case FileWriteError(file: files.FileHandle, message: String, cause: Option[Throwable] = None)
-  case MathError(message: String, cause: Option[Throwable] = None)
-  case NetworkError(message: String, cause: Option[Throwable] = None)
-  case SerializationError(message: String, cause: Option[Throwable] = None)
-  case InvalidInput(message: String, cause: Option[Throwable] = None)
-  case GraphicsError(message: String, cause: Option[Throwable] = None)
+enum SgeError(message: String, cause: Option[Throwable]) extends Exception(message, cause.orNull) {
+  case FileReadError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case FileWriteError(file: files.FileHandle, message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case MathError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case NetworkError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case SerializationError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case InvalidInput(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case GraphicsError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
 }

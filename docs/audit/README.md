@@ -32,7 +32,7 @@ Last updated: 2026-03-03
 | maps/tiled/renderers | 6 | 6 | 0 | 0 | 0 | [maps-tiled-renderers.md](maps-tiled-renderers.md) |
 | maps/tiled/tiles | 2 | 2 | 0 | 0 | 0 | [maps-tiled-tiles.md](maps-tiled-tiles.md) |
 | maps/tiled/objects | 1 | 1 | 0 | 0 | 0 | [maps-tiled-objects.md](maps-tiled-objects.md) |
-| utils/compression | 13 | 8 | 3 | 2 | 0 | [utils-compression.md](utils-compression.md) |
+| utils/compression | 0 | 0 | 0 | 0 | 0 | [utils-compression.md](utils-compression.md) (REMOVED — dead code) |
 | maps/tiled | 16 | 14 | 1 | 1 | 0 | [maps-tiled.md](maps-tiled.md) |
 | scenes/scene2d/utils | 21 | 19 | 1 | 1 | 0 | [scenes-scene2d-utils.md](scenes-scene2d-utils.md) |
 | graphics/g2d | 25 | 14 | 9 | 2 | 0 | [graphics-g2d.md](graphics-g2d.md) |

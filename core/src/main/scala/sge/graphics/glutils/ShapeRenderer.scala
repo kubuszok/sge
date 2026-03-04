@@ -10,7 +10,7 @@
  *   Issues: ~25+ method overloads missing out of ~40+ in Java source, including: begin() (no-arg), point(x,y,z), curve(...), triangle (2 overloads), rect overloads with origin/rotation/scale, rectLine overloads, box(...), x(x,y,size), arc (2 overloads), ellipse (4 overloads), cone (2 overloads), polygon (2 overloads), polyline (2 overloads), flush(), getCurrentType()
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics

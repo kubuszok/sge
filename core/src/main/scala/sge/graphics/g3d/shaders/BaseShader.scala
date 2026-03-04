@@ -4,7 +4,7 @@
  * Original authors: Xoppa
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Java interfaces Validator/Setter -> Scala traits (correct)
@@ -394,14 +394,17 @@ object BaseShader {
     val overallMask:     Long = 0L
   ) extends Validator {
 
-    def this(alias: String, materialMask: Long, environmentMask: Long) =
+    def this(alias: String, materialMask: Long, environmentMask: Long) = {
       this(alias, materialMask, environmentMask, 0L)
+    }
 
-    def this(alias: String, overallMask: Long) =
+    def this(alias: String, overallMask: Long) = {
       this(alias, 0L, 0L, overallMask)
+    }
 
-    def this(alias: String) =
+    def this(alias: String) = {
       this(alias, 0L, 0L, 0L)
+    }
 
     override def validate(shader: BaseShader, inputID: Int, renderable: Renderable): Boolean = {
       val r        = Nullable(renderable)

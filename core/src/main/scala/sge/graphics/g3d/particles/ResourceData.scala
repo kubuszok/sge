@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - All public methods ported faithfully
@@ -130,8 +130,9 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) =
+    def this(resources: ResourceData[?]) = {
       this(Nullable(resources))
+    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>

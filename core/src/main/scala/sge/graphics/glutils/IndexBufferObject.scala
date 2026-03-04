@@ -11,7 +11,7 @@
  *   TODO: typed GL enums -- BufferTarget, BufferUsage -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -70,8 +70,9 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) =
+  def this(maxIndices: Int)(using sde: Sge) = {
     this(true, maxIndices)
+  }
 
   def this(isStatic: Boolean, data: ByteBuffer)(using sde: Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size

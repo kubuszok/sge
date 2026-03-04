@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: line(GridPoint2,GridPoint2), line(ints),
  * line(ints,Pool,DynamicArray). Uses DynamicArray instead of gdx Array.

@@ -4,7 +4,7 @@
  * Original authors: Daniel Holderbaum, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * --- AUDIT (2026-03-03) ---
  * API-complete: YES — both constructors ported
@@ -28,6 +28,7 @@ import sge.graphics.OrthographicCamera
 class StretchViewport(worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends ScalingViewport(Scaling.stretch, worldWidth, worldHeight, camera) {
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(worldWidth: Float, worldHeight: Float)(using Sge) =
+  def this(worldWidth: Float, worldHeight: Float)(using Sge) = {
     this(worldWidth, worldHeight, new OrthographicCamera())
+  }
 }

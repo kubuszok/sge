@@ -9,7 +9,7 @@
  *   TODO: Java-style getters/setters — convert to var or def x/def x_= (redundant getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight over public vars)
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: constructors, set(2), getX/Y/Width/Height, setX/Y/Width/Height,
  * getPosition, setPosition(2), setSize(2), getSize, contains(3), overlaps, merge(4), getAspectRatio,

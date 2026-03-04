@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (2026-03-03):
  * - All public methods ported: load, setMesh (x2), save, load(AssetManager), Triangle inner class
@@ -40,8 +40,9 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
   /** the model this mesh belongs to. It can be null, but this means the mesh will not be able to be serialized correctly. */
   protected var model: Nullable[Model] = Nullable.empty
 
-  def this(value: MeshSpawnShapeValue) =
+  def this(value: MeshSpawnShapeValue) = {
     this()
+  }
 
   override def load(value: ParticleValue): Unit = {
     super.load(value)
@@ -65,7 +66,7 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
   override def save(manager: AssetManager, data: ResourceData[?]): Unit =
     model.foreach { m =>
       val saveData = data.createSaveData()
-      saveData.saveAsset(manager.getAssetFileName(m), classOf[Model])
+      saveData.saveAsset(manager.getAssetFileName(m).getOrElse(""), classOf[Model])
       saveData.save("index", Integer.valueOf(m.meshes.indexOf(mesh.getOrElse(throw SgeError.InvalidInput("mesh is null")))))
     }
 

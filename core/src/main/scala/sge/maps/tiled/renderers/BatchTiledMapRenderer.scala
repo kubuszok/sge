@@ -4,7 +4,7 @@
  * Original authors: See AUTHORS file
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - Audited 2026-03-03 against libGDX source: all public/protected methods, fields, and constants match 1:1
@@ -42,14 +42,17 @@ abstract class BatchTiledMapRenderer(
   protected val repeatedImageBounds: Rectangle    = new Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using Sge) =
+  def this(map: TiledMap)(using Sge) = {
     this(map, 1.0f, new SpriteBatch(), true)
+  }
 
-  def this(map: TiledMap, unitScale: Float)(using Sge) =
+  def this(map: TiledMap, unitScale: Float)(using Sge) = {
     this(map, unitScale, new SpriteBatch(), true)
+  }
 
-  def this(map: TiledMap, batch: Batch)(using Sge) =
+  def this(map: TiledMap, batch: Batch)(using Sge) = {
     this(map, 1.0f, batch, false)
+  }
 
   def getMap: TiledMap = map
 

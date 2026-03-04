@@ -4,7 +4,7 @@
  * Original authors: realitix
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - implements Disposable, RenderableProvider -> extends AutoCloseable with RenderableProvider
@@ -54,7 +54,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
   renderable.material = Nullable(new Material())
 
   /** Create a ShapeCache with default values */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(
       5000,
       5000,
@@ -64,6 +64,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
       ),
       GL20.GL_LINES
     )
+  }
 
   /** Initialize ShapeCache for mesh generation with GL_LINES primitive type */
   def begin(): MeshPartBuilder =

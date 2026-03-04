@@ -9,11 +9,9 @@
  *   Renames: call() -> apply(), injectDependencies -> addDependencies
  *   Convention: GdxRuntimeException -> SgeError.SerializationError; removeDuplicates O(n) via Set
  *   Idiom: boundary/break (2 return), Nullable (6 null), split packages
- *   Issues: stale AsynchronousAssetLoader/SynchronousAssetLoader stub traits (lines 193-202)
- *     shadow real abstract classes from sge.assets.loaders — will break at runtime
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets
@@ -21,7 +19,7 @@ package assets
 import scala.annotation.nowarn
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, boundary }
-import sge.assets.loaders.AssetLoader
+import sge.assets.loaders.{ AssetLoader, AsynchronousAssetLoader, SynchronousAssetLoader }
 import sge.files.FileHandle
 import sge.utils.{ DynamicArray, Logger, Nullable, SgeError, TimeUtils }
 
@@ -47,8 +45,9 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
     this(manager, assetDesc, loader, threadPool, if (manager.getLogLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
+  }
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {
@@ -196,15 +195,4 @@ class AssetLoadingTask(
       }
     }
   }
-}
-
-// These would be defined elsewhere, but adding stubs for compilation
-trait AsynchronousAssetLoader[T, P <: AssetLoaderParameters[T]] extends AssetLoader[T, P] {
-  def loadAsync(manager:   AssetManager, fileName: String, file: FileHandle, parameter: P): Unit
-  def loadSync(manager:    AssetManager, fileName: String, file: FileHandle, parameter: P): T
-  def unloadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: P): Unit
-}
-
-trait SynchronousAssetLoader[T, P <: AssetLoaderParameters[T]] extends AssetLoader[T, P] {
-  def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: P): T
 }

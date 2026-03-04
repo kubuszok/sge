@@ -1,5 +1,5 @@
 /*
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   Convention: SGE-original opaque type wrapping Float; replaces raw float position (seconds)

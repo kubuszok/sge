@@ -10,7 +10,7 @@
  *   Idiom: boundary/break, Nullable, split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -62,8 +62,9 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     * @param keyFrames
     *   the objects representing the frames.
     */
-  def this(frameDuration: Float, keyFrames: T*) =
+  def this(frameDuration: Float, keyFrames: T*) = {
     this(frameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
+  }
 
   /** Returns a frame based on the so called state time. This is the amount of seconds an object has spent in the state this Animation instance represents, e.g. running, jumping and so on. The mode
     * specifies whether the animation is looping or not.

@@ -6,19 +6,18 @@
  *
  * Migration notes:
  *   Convention: null -> Nullable; Disposable -> AutoCloseable; ObjectMap -> scala.collection.mutable.Map; GdxRuntimeException -> SgeError; boundary/break
- *   Issues: style field setting uses Java reflection (getDeclaredFields/getDeclaredField) — needs compile-time approach for JS/Native; getJsonClassTags not ported
+ *   Renames: JsonValue tree walking -> kindlings Json AST; reflection-based field setting -> SkinStyleReader type class
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes
 package scene2d
 package ui
 
-import java.lang.reflect.Field
-import java.lang.reflect.Modifier
+import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
 
 import sge.files.FileHandle
 import sge.graphics.Color
@@ -38,12 +37,12 @@ import sge.scenes.scene2d.utils.SpriteDrawable
 import sge.scenes.scene2d.utils.TextureRegionDrawable
 import sge.scenes.scene2d.utils.TiledDrawable
 import sge.utils.DynamicArray
-import sge.utils.JsonValue
+import sge.utils.Json
 import sge.utils.Nullable
 import sge.utils.SgeError
+import sge.utils.readJson
 
 import scala.collection.mutable
-import scala.language.implicitConversions
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -92,78 +91,80 @@ class Skin() extends AutoCloseable {
   /** Adds all resources in the specified skin JSON file. */
   def load(skinFile: FileHandle)(using Sge): Unit =
     try {
-      val reader    = new _root_.sge.utils.JsonReader()
-      val root      = reader.parse(skinFile)
-      var typeEntry = root.child
-      while (typeEntry.isDefined)
-        typeEntry.foreach { te =>
-          val typeName = te.name.getOrElse("")
-          Skin.resolveClass(typeName) match {
-            case Some(tpe) => readNamedObjects(tpe, te, skinFile)
-            case None      => () // Unknown type, skip
+      val root = skinFile.readJson[Json]
+      root match {
+        case Json.Obj(rootObj) =>
+          rootObj.fields.foreach { case (typeName, typeValue) =>
+            Skin.resolveClass(typeName) match {
+              case Some(tpe) => readNamedObjects(tpe, typeValue, skinFile)
+              case None      => () // Unknown type, skip
+            }
           }
-          typeEntry = te.next
-        }
+        case _ => ()
+      }
     } catch {
       case ex: SgeError  => throw ex
       case ex: Exception =>
         throw SgeError.InvalidInput("Error reading skin file: " + skinFile + ": " + ex.getMessage)
     }
 
-  private def readNamedObjects(tpe: Class[?], valueMap: JsonValue, skinFile: FileHandle)(using Sge): Unit = {
-    val addType    = if (tpe == classOf[Skin.TintedDrawable]) classOf[Drawable] else tpe
-    var valueEntry = valueMap.child
-    while (valueEntry.isDefined)
-      valueEntry.foreach { entry =>
-        val entryName = entry.name.getOrElse("")
-        try {
-          val obj = readValue(tpe, entry, skinFile)
-          if (Nullable(obj).isDefined) {
-            add(entryName, obj, addType)
-            if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
-              add(entryName, obj, classOf[Drawable])
+  private def readNamedObjects(tpe: Class[?], valueMap: Json, skinFile: FileHandle)(using Sge): Unit = {
+    val addType = if (tpe == classOf[Skin.TintedDrawable]) classOf[Drawable] else tpe
+    valueMap match {
+      case Json.Obj(obj) =>
+        obj.fields.foreach { case (entryName, entryValue) =>
+          try {
+            val resource = readValue(tpe, entryName, entryValue, skinFile)
+            if (Nullable(resource).isDefined) {
+              add(entryName, resource, addType)
+              if (addType != classOf[Drawable] && classOf[Drawable].isAssignableFrom(addType))
+                add(entryName, resource, classOf[Drawable])
+            }
+          } catch {
+            case ex: Exception =>
+              throw SgeError.InvalidInput("Error reading " + tpe.getSimpleName + ": " + entryName + ": " + ex.getMessage)
           }
-        } catch {
-          case ex: Exception =>
-            throw SgeError.InvalidInput("Error reading " + tpe.getSimpleName + ": " + entryName + ": " + ex.getMessage)
         }
-        valueEntry = entry.next
-      }
+      case _ => ()
+    }
   }
 
   /** Reads a single value of the specified type from JSON. For string JSON values referencing named resources, looks them up in this skin. For Color, BitmapFont, and TintedDrawable, uses explicit
-    * readers. For all other types (typically widget style classes), uses reflection-based field setting.
+    * readers. For all other types (typically widget style classes), dispatches to SkinStyleReader.
     */
-  private def readValue(tpe: Class[?], jsonData: JsonValue, skinFile: FileHandle)(using Sge): Any =
-    // If the JSON is a string but the type is not a string, look up the resource by name.
-    if (jsonData.isString && !classOf[CharSequence].isAssignableFrom(tpe))
-      get(jsonData.asString().getOrElse(""), tpe.asInstanceOf[Class[Any]])
-    else if (tpe == classOf[Color]) readColor(jsonData)
-    else if (tpe == classOf[BitmapFont]) readBitmapFont(jsonData, skinFile)
-    else if (tpe == classOf[Skin.TintedDrawable]) readTintedDrawable(jsonData)
-    else readStyleObject(tpe, jsonData)
-
-  /** Reads a Color from JSON. Supports string references, hex notation, and r/g/b/a components. */
-  private def readColor(jsonData: JsonValue): Color =
-    if (jsonData.isString) get(jsonData.asString().getOrElse(""), classOf[Color])
-    else {
-      val hex = jsonData.getString("hex", Nullable.empty)
-      hex.map(Color.valueOf).getOrElse {
-        val r = jsonData.getFloat("r", 0f)
-        val g = jsonData.getFloat("g", 0f)
-        val b = jsonData.getFloat("b", 0f)
-        val a = jsonData.getFloat("a", 1f)
-        new Color(r, g, b, a)
-      }
+  private def readValue(tpe: Class[?], entryName: String, json: Json, skinFile: FileHandle)(using Sge): Any =
+    json match {
+      case Json.Str(s) if !classOf[CharSequence].isAssignableFrom(tpe) =>
+        get(s, tpe.asInstanceOf[Class[Any]])
+      case _ if tpe == classOf[Color]               => readColor(json)
+      case _ if tpe == classOf[BitmapFont]          => readBitmapFont(json, skinFile)
+      case _ if tpe == classOf[Skin.TintedDrawable] => readTintedDrawable(entryName, json)
+      case _                                        => readStyleObject(tpe, json)
     }
 
+  /** Reads a Color from JSON. Supports string references, hex notation, and r/g/b/a components. */
+  private def readColor(json: Json): Color = json match {
+    case Json.Str(name) => get(name, classOf[Color])
+    case _: Json.Obj =>
+      Skin.getField(json, "hex") match {
+        case Some(Json.Str(hex)) => Color.valueOf(hex)
+        case _                   =>
+          val r = Skin.getFloatField(json, "r", 0f)
+          val g = Skin.getFloatField(json, "g", 0f)
+          val b = Skin.getFloatField(json, "b", 0f)
+          val a = Skin.getFloatField(json, "a", 1f)
+          new Color(r, g, b, a)
+      }
+    case _ => throw SgeError.InvalidInput("Invalid color JSON")
+  }
+
   /** Reads a BitmapFont from JSON. */
-  private def readBitmapFont(jsonData: JsonValue, skinFile: FileHandle)(using Sge): BitmapFont = {
-    val path            = jsonData.getString("file").getOrElse("")
-    val scaledSize      = jsonData.getFloat("scaledSize", -1f)
-    val flip            = jsonData.getBoolean("flip", false)
-    val markupEnabled   = jsonData.getBoolean("markupEnabled", false)
-    val useIntPositions = jsonData.getBoolean("useIntegerPositions", true)
+  private def readBitmapFont(json: Json, skinFile: FileHandle)(using Sge): BitmapFont = {
+    val path            = Skin.getStringField(json, "file", "")
+    val scaledSize      = Skin.getFloatField(json, "scaledSize", -1f)
+    val flip            = Skin.getBoolField(json, "flip", false)
+    val markupEnabled   = Skin.getBoolField(json, "markupEnabled", false)
+    val useIntPositions = Skin.getBoolField(json, "useIntegerPositions", true)
 
     var fontFile = skinFile.parent().child(path)
     if (!fontFile.exists()) fontFile = Sge().files.internal(path)
@@ -205,92 +206,53 @@ class Skin() extends AutoCloseable {
   }
 
   /** Reads a TintedDrawable from JSON. Returns the tinted Drawable. */
-  private def readTintedDrawable(jsonData: JsonValue): Drawable = {
-    val drawableName = jsonData.getString("name").getOrElse("")
-    val color        = readColor(jsonData.require("color"))
+  private def readTintedDrawable(entryName: String, json: Json): Drawable = {
+    val drawableName = Skin.getStringField(json, "name", "")
+    val colorJson    = Skin.getField(json, "color").getOrElse(throw SgeError.InvalidInput("TintedDrawable requires 'color'"))
+    val color        = readColor(colorJson)
     val drawable     = newDrawable(drawableName, color)
     drawable match {
       case named: BaseDrawable =>
-        named.setName(Nullable(jsonData.name.getOrElse("") + " (" + drawableName + ", " + color + ")"))
+        named.setName(Nullable(entryName + " (" + drawableName + ", " + color + ")"))
       case _ =>
     }
     drawable
   }
 
-  /** Reads a style object (or any POJO-like class) from JSON using reflection. Supports "parent" field for style inheritance. */
-  private def readStyleObject(tpe: Class[?], jsonMap: JsonValue): Any = {
-    val obj = tpe.getDeclaredConstructor().newInstance()
+  /** Reads a style object from JSON using SkinStyleReader type class dispatch. Supports "parent" field for style inheritance. */
+  private[ui] def readStyleObject(tpe: Class[?], json: Json): Any = {
+    val reader = SkinStyleReader.registry.getOrElse(tpe, throw SgeError.InvalidInput("No style reader registered for: " + tpe.getName)).asInstanceOf[SkinStyleReader[Any]]
+    val obj    = reader.create()
 
     // Handle parent field: copy all fields from the named parent resource.
-    val parentJson = jsonMap.get("parent")
-    if (parentJson.isDefined) {
-      val parentName = parentJson.flatMap(_.asString()).getOrElse("")
-      var parentType: Class[?] = tpe
-      var found = false
-      while (!found && parentType != classOf[Object])
-        try {
-          val parentObj = get(parentName, parentType.asInstanceOf[Class[Any]])
-          Skin.copyFields(parentObj, obj)
-          found = true
-        } catch {
-          case _: SgeError =>
-            parentType = parentType.getSuperclass
-        }
-      if (!found)
-        throw SgeError.InvalidInput("Unable to find parent resource with name: " + parentName)
+    Skin.getField(json, "parent").foreach {
+      case Json.Str(parentName) =>
+        var parentType: Class[?] = tpe
+        var found = false
+        while (!found && parentType != classOf[Object])
+          try {
+            val parentObj = get(parentName, parentType.asInstanceOf[Class[Any]])
+            reader.copyFrom(parentObj, obj)
+            found = true
+          } catch {
+            case _: SgeError =>
+              parentType = parentType.getSuperclass
+          }
+        if (!found)
+          throw SgeError.InvalidInput("Unable to find parent resource with name: " + parentName)
+      case _ => ()
     }
 
     // Set fields from JSON.
-    var entry = jsonMap.child
-    while (entry.isDefined)
-      entry.foreach { e =>
-        val fieldName = e.name.getOrElse("")
-        if (fieldName != "parent") {
-          Skin.findField(tpe, fieldName).foreach { field =>
-            field.setAccessible(true)
-            setFieldValue(obj, field, e)
-          }
+    json match {
+      case Json.Obj(fields) =>
+        fields.fields.foreach { case (fieldName, fieldValue) =>
+          if (fieldName != "parent")
+            reader.setField(obj, fieldName, fieldValue, this, readColor, readStyleObject)
         }
-        entry = e.next
-      }
-    obj
-  }
-
-  /** Sets a field value on an object from a JsonValue entry. Resolves string references to named skin resources. */
-  private def setFieldValue(obj: Any, field: Field, json: JsonValue): Unit = {
-    val fieldType = field.getType
-
-    // String JSON value for a non-string field → look up resource by name in the skin.
-    if (json.isString && !classOf[CharSequence].isAssignableFrom(fieldType)) {
-      val resourceName = json.asString().getOrElse("")
-      try {
-        val value = get(resourceName, fieldType.asInstanceOf[Class[Any]])
-        field.set(obj, value)
-      } catch {
-        case _: SgeError => () // Resource not found, skip
-      }
-    } else if (fieldType == classOf[Color] || fieldType.getName == "sge.graphics.Color") {
-      field.set(obj, readColor(json))
-    } else if (json.isObject) {
-      // Nested object — could be an inline style reference. Try to read it as the field type.
-      try {
-        val nested = readStyleObject(fieldType, json)
-        field.set(obj, nested)
-      } catch {
-        case _: Exception => () // Can't instantiate, skip
-      }
-    } else if (fieldType == classOf[Float] || fieldType == java.lang.Float.TYPE) {
-      field.setFloat(obj, json.asFloat())
-    } else if (fieldType == classOf[Int] || fieldType == java.lang.Integer.TYPE) {
-      field.setInt(obj, json.asInt())
-    } else if (fieldType == classOf[Boolean] || fieldType == java.lang.Boolean.TYPE) {
-      field.setBoolean(obj, json.asBoolean())
-    } else if (fieldType == classOf[String]) {
-      // Java reflection: field.set requires null for absent string values
-      @scala.annotation.nowarn("msg=deprecated")
-      val stringValue = json.asString().orNull
-      field.set(obj, stringValue)
+      case _ => ()
     }
+    obj
   }
 
   /** Adds all named texture regions from the atlas. The atlas will not be automatically disposed when the skin is disposed. */
@@ -693,35 +655,37 @@ object Skin {
       catch { case _: ClassNotFoundException => None }
     }
 
-  /** Copies all non-static, non-synthetic fields from source to target using reflection. */
-  private def copyFields(source: Any, target: Any): Unit = {
-    var clazz: Class[?] = source.getClass
-    while (Nullable(clazz).isDefined && clazz != classOf[Object]) {
-      val fields = clazz.getDeclaredFields
-      var i      = 0
-      while (i < fields.length) {
-        val field = fields(i)
-        if (!Modifier.isStatic(field.getModifiers) && !field.isSynthetic && !field.getName.startsWith("$")) {
-          field.setAccessible(true)
-          try field.set(target, field.get(source))
-          catch { case _: Exception => () }
-        }
-        i += 1
-      }
-      clazz = clazz.getSuperclass
-    }
+  // ---------------------------------------------------------------------------
+  // JSON field access helpers
+  // ---------------------------------------------------------------------------
+
+  /** Extracts a named field from a Json.Obj. */
+  private[ui] def getField(json: Json, name: String): Option[Json] = json match {
+    case Json.Obj(obj) =>
+      var result: Option[Json] = None
+      obj.fields.foreach { case (k, v) => if (k == name) result = Some(v) }
+      result
+    case _ => None
   }
 
-  /** Finds a field by name on the class or its superclasses. */
-  private def findField(clazz: Class[?], name: String): Option[Field] = boundary {
-    var c: Class[?] = clazz
-    while (Nullable(c).isDefined && c != classOf[Object])
-      try {
-        val field = c.getDeclaredField(name)
-        break(Some(field))
-      } catch {
-        case _: NoSuchFieldException => c = c.getSuperclass
-      }
-    None
-  }
+  /** Extracts a String field with a default. */
+  private def getStringField(json: Json, name: String, default: String): String =
+    getField(json, name) match {
+      case Some(Json.Str(s)) => s
+      case _                 => default
+    }
+
+  /** Extracts a Float field with a default. */
+  private def getFloatField(json: Json, name: String, default: Float): Float =
+    getField(json, name) match {
+      case Some(Json.Num(n)) => n.toDouble.map(_.toFloat).getOrElse(default)
+      case _                 => default
+    }
+
+  /** Extracts a Boolean field with a default. */
+  private def getBoolField(json: Json, name: String, default: Boolean): Boolean =
+    getField(json, name) match {
+      case Some(Json.Bool(b)) => b
+      case _                  => default
+    }
 }

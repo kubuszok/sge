@@ -4,7 +4,7 @@
  * Original authors: Inferno
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  * - ParticleShader.AlignMode → BillboardParticleBatch.AlignMode (local enum, not
@@ -108,14 +108,17 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, useGPU: Boolean, capacity: Int)(using Sge) =
+  def this(mode: BillboardParticleBatch.AlignMode, useGPU: Boolean, capacity: Int)(using Sge) = {
     this(mode, useGPU, capacity, Nullable.empty, Nullable.empty)
+  }
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
+  }
 
-  def this(capacity: Int)(using Sge) =
+  def this(capacity: Int)(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
+  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)
@@ -703,7 +706,7 @@ class BillboardParticleBatch(
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("billboardBatch")
     data.save("cfg", new BillboardParticleBatch.Config(_useGPU, _mode))
-    data.saveAsset(manager.getAssetFileName(texture), classOf[Texture])
+    data.saveAsset(manager.getAssetFileName(texture).getOrElse(""), classOf[Texture])
   }
 
   override def load(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {

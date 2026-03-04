@@ -6,12 +6,11 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   Issues: old-style implicit sge: Sge instead of (using Sge)
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   TODO: opaque Pixels for viewportWidth/Height constructor params -- see docs/improvements/opaque-types.md
+ *   Convention: anonymous (using Sge) + Sge() accessor
+ *   TODOs: opaque Pixels for viewportWidth/Height constructor params — see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -23,7 +22,7 @@ import sge.math.Vector3
   * @author
   *   mzechner
   */
-class PerspectiveCamera(implicit sge: Sge) extends Camera {
+class PerspectiveCamera(using Sge) extends Camera {
 
   /** the field of view of the height, in degrees * */
   var fieldOfView: Float = 67
@@ -37,7 +36,7 @@ class PerspectiveCamera(implicit sge: Sge) extends Camera {
     * @param viewportHeight
     *   the viewport height
     */
-  def this(fieldOfViewY: Float, viewportWidth: Float, viewportHeight: Float)(implicit sge: Sge) = {
+  def this(fieldOfViewY: Float, viewportWidth: Float, viewportHeight: Float)(using Sge) = {
     this()
     this.fieldOfView = fieldOfViewY
     this.viewportWidth = viewportWidth

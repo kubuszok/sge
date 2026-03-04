@@ -5,20 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Issues: BUG in value() — raw null instead of Nullable[CumulativeValue[T]]; BUG in
- *     ensureCapacity() — newValues array created but never assigned (commented out),
- *     adding >10 values causes ArrayIndexOutOfBoundsException
- *   Idiom: split packages
+ *   Renames: none
+ *   Idiom: split packages; case class must be final
  *   Audited: 2026-03-03
+ *   TODOs: add test suite (no original LibGDX tests for this class)
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
- *
- * AUDIT: FAIL
- * - BUG: ensureCapacity() creates newValues array but never assigns it (line 148 commented out).
- *   Adding more than 10 values will ArrayIndexOutOfBoundsException.
- * - BUG: value(probability) uses raw null on line 87 — should use Nullable[CumulativeValue[T]]
- * - All public methods ported: add, generate, generateNormalized, generateUniform, value,
- *   size, getInterval, getValue, setInterval, clear
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package math
@@ -35,9 +27,9 @@ import scala.util.boundary.break
   */
 class CumulativeDistribution[T] {
 
-  private case class CumulativeValue[T](var value: T, var frequency: Float, var interval: Float)
+  final private case class CumulativeValue[T](var value: T, var frequency: Float, var interval: Float)
 
-  private val values:      Array[CumulativeValue[T]] = new Array[CumulativeValue[T]](10)
+  private var values:      Array[CumulativeValue[T]] = new Array[CumulativeValue[T]](10)
   private var currentSize: Int                       = 0
 
   /** Adds a value with a given interval size to the distribution */
@@ -97,22 +89,19 @@ class CumulativeDistribution[T] {
     *   the value whose interval contains the probability
     */
   def value(probability: Float): T =
-    scala.util.boundary {
-      var valueObj: CumulativeValue[T] = null
+    boundary {
       var imax = currentSize - 1
       var imin = 0
-      var imid = 0
       while (imin <= imax) {
-        imid = imin + ((imax - imin) / 2)
-        valueObj = values(imid)
+        val imid     = imin + ((imax - imin) / 2)
+        val valueObj = values(imid)
         if (probability < valueObj.frequency)
           imax = imid - 1
         else if (probability > valueObj.frequency)
           imin = imid + 1
         else
-          scala.util.boundary.break(valueObj.value)
+          break(valueObj.value)
       }
-
       values(imin).value
     }
 
@@ -158,6 +147,6 @@ class CumulativeDistribution[T] {
       val newCapacity = scala.math.max(values.length * 2, minCapacity)
       val newValues   = new Array[CumulativeValue[T]](newCapacity)
       Array.copy(values, 0, newValues, 0, currentSize)
-      // values = newValues // This would need to make values a var, but let's use a different approach
+      values = newValues
     }
 }

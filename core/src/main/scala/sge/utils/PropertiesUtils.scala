@@ -10,7 +10,7 @@
  *   Issues: missing `store(ObjectMap, Writer, String)` method; `load` delegates to `java.util.Properties` which may differ from original hand-written parser in edge cases
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

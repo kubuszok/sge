@@ -13,7 +13,7 @@
  *   TODO: Pool.Poolable trait → Poolable[A] type class; Pool[A] should take given Poolable[A]
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils

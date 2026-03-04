@@ -4,7 +4,7 @@
  * Original authors: (see AUTHORS file)
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
  *   - All 8 constructors match Java source.
@@ -22,8 +22,9 @@ import sge.utils.DynamicArray
 class Material(var id: String) extends Attributes {
 
   /** Create an empty material */
-  def this() =
+  def this() = {
     this("mtl" + Material.nextCounter())
+  }
 
   /** Create a material with the specified attributes */
   def this(attributes: Attribute*) = {
@@ -57,8 +58,9 @@ class Material(var id: String) extends Attributes {
   }
 
   /** Create a material which is an exact copy of the specified material */
-  def this(copyFrom: Material) =
+  def this(copyFrom: Material) = {
     this(copyFrom.id, copyFrom)
+  }
 
   /** Create a copy of this material */
   def copy(): Material = new Material(this)

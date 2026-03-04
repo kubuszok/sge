@@ -10,7 +10,7 @@
  *   TODO: Java-style getters/setters — getStyle/setStyle, getSelection, getOverNode/setOverNode, getIndentSpacing/setIndentSpacing; Node: getActor/setActor, isExpanded/setExpanded, getIcon/setIcon, getValue/setValue
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package scenes

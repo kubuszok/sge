@@ -4,7 +4,7 @@
  * Original authors: mzechner, espitz, xoppa
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audit 2026-03-03):
  * - Java package-private MtlLoader class -> Scala private inner class MtlLoader in companion
@@ -18,6 +18,7 @@
  * - (using Sge) context parameter on class constructor
  * - Face parsing loop: Java `i--` decrement on line 148 (known Java bug) ->
  *   Scala uses `i += 1` increment (corrected behavior)
+ * TODO: test: decode a real .obj/.mtl file (Wavefront) end-to-end through ObjLoader
  * - loadModel(FileHandle, boolean) returns Nullable[Model] (matches Nullable pattern)
  * - Group.faces initial capacity differs: Java 200 vs Scala unspecified default
  * - All methods present: loadModel, loadModelData (2), setActiveGroup, getIndex
@@ -59,8 +60,9 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(null)
+  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)

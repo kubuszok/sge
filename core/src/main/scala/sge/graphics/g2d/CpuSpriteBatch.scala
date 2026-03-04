@@ -9,7 +9,7 @@
  *   Idiom: boundary/break, Nullable, split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package graphics
@@ -44,12 +44,14 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, Nullable.empty)
+  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, Nullable.empty)
+  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>

@@ -4,7 +4,7 @@
  * Original authors: Justin Shapcott, Manuel Bua
  * Licensed under the Apache License, Version 2.0
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes (audited 2026-03-03):
  *   - All methods match Java 1:1 (load, loadAsync, loadSync, getDependencyAssetDescriptors,
@@ -21,7 +21,6 @@ package tiled
 
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ FileHandleResolver, TextureLoader }
-import sge.assets.loaders.resolvers.InternalFileHandleResolver
 import sge.files.FileHandle
 import sge.graphics.Texture
 import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
@@ -45,7 +44,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
 
   protected var atlasResolver: AtlasTmxMapLoader.AtlasResolver = scala.compiletime.uninitialized
 
-  def this()(using Sge) = this(new InternalFileHandleResolver())
+  def this()(using Sge) = this(new FileHandleResolver.Internal())
 
   def load(fileName: String): TiledMap =
     load(fileName, new BaseTiledMapLoader.Parameters())

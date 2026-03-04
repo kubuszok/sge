@@ -8,7 +8,7 @@
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
- * Scala port Copyright 2024-2026 Mateusz Kubuszok
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: hasEnoughData, clear, addValue, getMean, getOldest,
  * getLatest, standardDeviation, getLowest, getHighest, getValueCount, getWindowSize,
