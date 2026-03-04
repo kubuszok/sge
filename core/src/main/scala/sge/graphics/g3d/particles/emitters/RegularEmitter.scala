@@ -14,7 +14,10 @@
  * - Java `continue` in particle update loop → restructured if/else without continue
  * - Java `return` in addParticles → restructured with if/else (no return)
  * - update() loop: Java compound assignment in if condition → separated assignment and check
- * - TODO: Java-style getters/setters -- isContinuous/setContinuous, getEmissionMode/setEmissionMode, etc.
+ * - Fixes (2026-03-04): removed redundant getLife/getEmission/getDuration/getDelay/getLifeOffset
+ *   (fields already public var); isContinuous/setContinuous → public var continuous;
+ *   getEmissionMode/setEmissionMode → public var emissionMode;
+ *   getPercentComplete → percentComplete; isComplete() → isComplete (dropped parens)
  * - TODO: opaque Seconds for duration, delay vars -- see docs/improvements/opaque-types.md
  */
 package sge
@@ -35,11 +38,11 @@ import sge.graphics.g3d.particles.values.{ RangedNumericValue, ScaledNumericValu
 class RegularEmitter extends Emitter {
   import RegularEmitter.EmissionMode
 
-  var delayValue:      RangedNumericValue = new RangedNumericValue()
-  var durationValue:   RangedNumericValue = new RangedNumericValue()
-  var lifeOffsetValue: ScaledNumericValue = new ScaledNumericValue()
-  var lifeValue:       ScaledNumericValue = new ScaledNumericValue()
-  var emissionValue:   ScaledNumericValue = new ScaledNumericValue()
+  var delayValue:      RangedNumericValue = RangedNumericValue()
+  var durationValue:   RangedNumericValue = RangedNumericValue()
+  var lifeOffsetValue: ScaledNumericValue = ScaledNumericValue()
+  var lifeValue:       ScaledNumericValue = ScaledNumericValue()
+  var emissionValue:   ScaledNumericValue = ScaledNumericValue()
 
   protected var emission:       Int          = 0
   protected var emissionDiff:   Int          = 0
@@ -52,14 +55,14 @@ class RegularEmitter extends Emitter {
   protected var delay:          Float        = 0f
   protected var durationTimer:  Float        = 0f
   protected var delayTimer:     Float        = 0f
-  private var continuous:       Boolean      = true
-  private var emissionMode:     EmissionMode = EmissionMode.Enabled
+  var continuous:               Boolean      = true
+  var emissionMode:             EmissionMode = EmissionMode.Enabled
 
   private var lifeChannel: FloatChannel = scala.compiletime.uninitialized
 
-  durationValue.setActive(true)
-  emissionValue.setActive(true)
-  lifeValue.setActive(true)
+  durationValue.active = true
+  emissionValue.active = true
+  lifeValue.active = true
 
   def this(regularEmitter: RegularEmitter) = {
     this()
@@ -79,15 +82,15 @@ class RegularEmitter extends Emitter {
 
     emission = emissionValue.newLowValue().toInt
     emissionDiff = emissionValue.newHighValue().toInt
-    if (!emissionValue.isRelative()) emissionDiff -= emission
+    if (!emissionValue.relative) emissionDiff -= emission
 
     life = lifeValue.newLowValue().toInt
     lifeDiff = lifeValue.newHighValue().toInt
-    if (!lifeValue.isRelative()) lifeDiff -= life
+    if (!lifeValue.relative) lifeDiff -= life
 
     lifeOffset = if (lifeOffsetValue.active) lifeOffsetValue.newLowValue().toInt else 0
     lifeOffsetDiff = lifeOffsetValue.newHighValue().toInt
-    if (!lifeOffsetValue.isRelative()) lifeOffsetDiff -= lifeOffset
+    if (!lifeOffsetValue.relative) lifeOffsetDiff -= lifeOffset
   }
 
   override def init(): Unit = {
@@ -185,32 +188,11 @@ class RegularEmitter extends Emitter {
     }
   }
 
-  def getLife():       ScaledNumericValue = lifeValue
-  def getEmission():   ScaledNumericValue = emissionValue
-  def getDuration():   RangedNumericValue = durationValue
-  def getDelay():      RangedNumericValue = delayValue
-  def getLifeOffset(): ScaledNumericValue = lifeOffsetValue
-
-  def isContinuous():                     Boolean = continuous
-  def setContinuous(continuous: Boolean): Unit    = this.continuous = continuous
-
-  /** Gets current emission mode.
-    * @return
-    *   Current emission mode.
-    */
-  def getEmissionMode(): EmissionMode = emissionMode
-
-  /** Sets emission mode. Emission mode does not affect already emitted particles.
-    * @param emissionMode
-    *   Emission mode to set.
-    */
-  def setEmissionMode(emissionMode: EmissionMode): Unit = this.emissionMode = emissionMode
-
-  override def isComplete(): Boolean =
+  override def isComplete: Boolean =
     if (delayTimer < delay) false
     else durationTimer >= duration && controller.particles.size == 0
 
-  def getPercentComplete(): Float =
+  def percentComplete: Float =
     if (delayTimer < delay) 0
     else Math.min(1, durationTimer / duration)
 
@@ -236,7 +218,7 @@ class RegularEmitter extends Emitter {
   }
 
   override def copy(): ParticleControllerComponent =
-    new RegularEmitter(this)
+    RegularEmitter(this)
 }
 
 object RegularEmitter {

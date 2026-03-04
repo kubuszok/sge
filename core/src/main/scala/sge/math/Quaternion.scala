@@ -39,9 +39,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) = {
+  def this(quaternion: Quaternion) =
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
-  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *
@@ -98,7 +97,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
 
   /** @return a copy of this quaternion */
   def cpy(): Quaternion =
-    new Quaternion(this)
+    Quaternion(this)
 
   /** @return the euclidean length of this quaternion */
   def len(): Float =
@@ -992,8 +991,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
 }
 
 object Quaternion {
-  private val tmp1 = new Quaternion(0, 0, 0, 0)
-  private val tmp2 = new Quaternion(0, 0, 0, 0)
+  private val tmp1 = Quaternion(0, 0, 0, 0)
+  private val tmp2 = Quaternion(0, 0, 0, 0)
 
   /** @return the euclidean length of the specified quaternion */
   def len(x: Float, y: Float, z: Float, w: Float): Float =

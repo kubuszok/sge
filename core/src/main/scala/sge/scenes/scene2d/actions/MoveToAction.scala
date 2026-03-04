@@ -10,7 +10,6 @@
  *   Convention: no return; split packages; braces on class
  *   Renames: int alignment -> Align (opaque type); Align.bottomLeft constant
  *   Idiom: target.getX -> target.foreach(t => startX = t.getX(alignment))
- *   Missing: setStartPosition(x,y), getStartX, getStartY from Java source
  *   TODO: Java-style getters/setters -- getX/setX, getY/setY, getAlignment/setAlignment
  *   Audited: 2026-03-03
  */
@@ -45,6 +44,8 @@ class MoveToAction extends TemporalAction {
       t.setPosition(x, y, alignment)
     }
 
+  def setStartPosition(x: Float, y: Float): Unit = { startX = x; startY = y }
+
   def setPosition(x: Float, y: Float): Unit = { endX = x; endY = y }
 
   def setPosition(x: Float, y: Float, alignment: Align): Unit = { endX = x; endY = y; this.alignment = alignment }
@@ -56,6 +57,12 @@ class MoveToAction extends TemporalAction {
   def getY: Float = endY
 
   def setY(y: Float): Unit = this.endY = y
+
+  /** Gets the starting X value, set in {@link #begin()}. */
+  def getStartX: Float = startX
+
+  /** Gets the starting Y value, set in {@link #begin()}. */
+  def getStartY: Float = startY
 
   def getAlignment: Align = alignment
 

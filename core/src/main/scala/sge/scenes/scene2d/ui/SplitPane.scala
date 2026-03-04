@@ -50,14 +50,14 @@ class SplitPane(
   var minAmount:             Float           = 0f
   var maxAmount:             Float           = 1f
 
-  private val firstWidgetBounds:  Rectangle = new Rectangle()
-  private val secondWidgetBounds: Rectangle = new Rectangle()
-  val handleBounds:               Rectangle = new Rectangle()
+  private val firstWidgetBounds:  Rectangle = Rectangle()
+  private val secondWidgetBounds: Rectangle = Rectangle()
+  val handleBounds:               Rectangle = Rectangle()
   var cursorOverHandle:           Boolean   = false
-  private val tempScissors:       Rectangle = new Rectangle()
+  private val tempScissors:       Rectangle = Rectangle()
 
-  var lastPoint:      Vector2 = new Vector2()
-  var handlePosition: Vector2 = new Vector2()
+  var lastPoint:      Vector2 = Vector2()
+  var handlePosition: Vector2 = Vector2()
 
   setStyle(style)
   setFirstWidget(firstWidget)
@@ -65,14 +65,13 @@ class SplitPane(
   setSize(getPrefWidth, getPrefHeight)
   initialize()
 
-  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) = {
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) =
     this(
       firstWidget,
       secondWidget,
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[SplitPane.SplitPaneStyle])
     )
-  }
 
   private def initialize(): Unit = {
     val self = this
@@ -371,10 +370,10 @@ class SplitPane(
     throw new UnsupportedOperationException("Use SplitPane#setWidget.")
 
   override def removeActor(actor: Actor): Boolean =
-    if (_firstWidget.fold(false)(_ eq actor)) {
+    if (_firstWidget.exists(_ eq actor)) {
       setFirstWidget(Nullable.empty)
       true
-    } else if (_secondWidget.fold(false)(_ eq actor)) {
+    } else if (_secondWidget.exists(_ eq actor)) {
       setSecondWidget(Nullable.empty)
       true
     } else {
@@ -382,12 +381,12 @@ class SplitPane(
     }
 
   override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
-    if (_firstWidget.fold(false)(_ eq actor)) {
+    if (_firstWidget.exists(_ eq actor)) {
       super.removeActor(actor, unfocus)
       _firstWidget = Nullable.empty
       invalidate()
       true
-    } else if (_secondWidget.fold(false)(_ eq actor)) {
+    } else if (_secondWidget.exists(_ eq actor)) {
       super.removeActor(actor, unfocus)
       _secondWidget = Nullable.empty
       invalidate()
@@ -398,11 +397,11 @@ class SplitPane(
 
   override def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val actor = super.removeActorAt(index, unfocus)
-    if (_firstWidget.fold(false)(_ eq actor)) {
+    if (_firstWidget.exists(_ eq actor)) {
       super.removeActor(actor, unfocus)
       _firstWidget = Nullable.empty
       invalidate()
-    } else if (_secondWidget.fold(false)(_ eq actor)) {
+    } else if (_secondWidget.exists(_ eq actor)) {
       super.removeActor(actor, unfocus)
       _secondWidget = Nullable.empty
       invalidate()

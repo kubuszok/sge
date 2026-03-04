@@ -7,18 +7,22 @@
  * Migration notes:
  *   Convention: static split(Texture,...) in companion object; splitWithMargins added (not in original)
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: (1) Flat package (package sge.graphics.g2d) should be split. (2) Missing instance split(Int, Int) method (only companion static split is ported).
- *   TODO: Java-style boolean getters -- isFlipX, isFlipY → def flipX, def flipY
- *   TODO: uses flat package declaration -- convert to split (package sge / package graphics / package g2d)
- *   TODO: opaque Pixels for setRegion x/y/width/height, regionWidth/Height -- see docs/improvements/opaque-types.md
+ *   Fixes: Added instance split(Int, Int) method (was only companion static split).
+ *   Fixes: Java-style boolean getters -- isFlipX() → flipX, isFlipY() → flipY
+ *   Fixes: Java-style getters/setters → Scala property accessors (u, v, u2, v2, regionWidth, regionHeight,
+ *     regionX, regionY); removed redundant getTexture()/setTexture()
+ *   Improvement: opaque Pixels for setRegion x/y/width/height, regionWidth/Height -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics.g2d
+package sge
+package graphics
+package g2d
 
 import sge.graphics.Texture
 import scala.compiletime.uninitialized
+import scala.math.{ abs, round }
 
 /** Defines a rectangular area of a texture. The coordinate system used has its origin in the upper left corner with the x-axis pointing to the right and the y axis pointing downwards.
   * @author
@@ -27,13 +31,13 @@ import scala.compiletime.uninitialized
   *   Nathan Sweet (original implementation)
   */
 class TextureRegion() {
-  var texture:      Texture = uninitialized
-  var u:            Float   = 0f
-  var v:            Float   = 0f
-  var u2:           Float   = 0f
-  var v2:           Float   = 0f
-  var regionWidth:  Int     = 0
-  var regionHeight: Int     = 0
+  var texture:               Texture = uninitialized
+  private var _u:            Float   = 0f
+  private var _v:            Float   = 0f
+  private var _u2:           Float   = 0f
+  private var _v2:           Float   = 0f
+  private var _regionWidth:  Int     = 0
+  private var _regionHeight: Int     = 0
 
   /** Constructs a region the size of the specified texture. */
   def this(texture: Texture) = {
@@ -102,29 +106,29 @@ class TextureRegion() {
     val invTexWidth  = 1f / texture.getWidth
     val invTexHeight = 1f / texture.getHeight
     setRegion(x * invTexWidth, y * invTexHeight, (x + width) * invTexWidth, (y + height) * invTexHeight)
-    regionWidth = math.abs(width)
-    regionHeight = math.abs(height)
+    _regionWidth = abs(width)
+    _regionHeight = abs(height)
   }
 
   def setRegion(u: Float, v: Float, u2: Float, v2: Float): Unit = {
     val texWidth  = texture.getWidth
     val texHeight = texture.getHeight
-    regionWidth = math.round(math.abs(u2 - u) * texWidth)
-    regionHeight = math.round(math.abs(v2 - v) * texHeight)
+    _regionWidth = round(abs(u2 - u) * texWidth)
+    _regionHeight = round(abs(v2 - v) * texHeight)
 
     // For a 1x1 region, adjust UVs toward pixel center to avoid filtering artifacts on AMD GPUs when drawing very stretched.
-    if (regionWidth == 1 && regionHeight == 1) {
+    if (_regionWidth == 1 && _regionHeight == 1) {
       val adjustX = 0.25f / texWidth
-      this.u = u + adjustX
-      this.u2 = u2 - adjustX
+      _u = u + adjustX
+      _u2 = u2 - adjustX
       val adjustY = 0.25f / texHeight
-      this.v = v + adjustY
-      this.v2 = v2 - adjustY
+      _v = v + adjustY
+      _v2 = v2 - adjustY
     } else {
-      this.u = u
-      this.v = v
-      this.u2 = u2
-      this.v2 = v2
+      _u = u
+      _v = v
+      _u2 = u2
+      _v2 = v2
     }
   }
 
@@ -137,88 +141,83 @@ class TextureRegion() {
   /** Sets the texture to that of the specified region and sets the coordinates relative to the specified region. */
   def setRegion(region: TextureRegion, x: Int, y: Int, width: Int, height: Int): Unit = {
     texture = region.texture
-    setRegion(region.getRegionX() + x, region.getRegionY() + y, width, height)
+    setRegion(region.regionX + x, region.regionY + y, width, height)
   }
 
-  def getTexture(): Texture = texture
+  def u: Float = _u
 
-  def setTexture(texture: Texture): Unit =
-    this.texture = texture
-
-  def getU(): Float = u
-
-  def setU(u: Float): Unit = {
-    this.u = u
-    regionWidth = math.round(math.abs(u2 - u) * texture.getWidth)
+  def u_=(u: Float): Unit = {
+    _u = u
+    _regionWidth = round(abs(_u2 - _u) * texture.getWidth)
   }
 
-  def getV(): Float = v
+  def v: Float = _v
 
-  def setV(v: Float): Unit = {
-    this.v = v
-    regionHeight = math.round(math.abs(v2 - v) * texture.getHeight)
+  def v_=(v: Float): Unit = {
+    _v = v
+    _regionHeight = round(abs(_v2 - _v) * texture.getHeight)
   }
 
-  def getU2(): Float = u2
+  def u2: Float = _u2
 
-  def setU2(u2: Float): Unit = {
-    this.u2 = u2
-    regionWidth = math.round(math.abs(u2 - u) * texture.getWidth)
+  def u2_=(u2: Float): Unit = {
+    _u2 = u2
+    _regionWidth = round(abs(_u2 - _u) * texture.getWidth)
   }
 
-  def getV2(): Float = v2
+  def v2: Float = _v2
 
-  def setV2(v2: Float): Unit = {
-    this.v2 = v2
-    regionHeight = math.round(math.abs(v2 - v) * texture.getHeight)
+  def v2_=(v2: Float): Unit = {
+    _v2 = v2
+    _regionHeight = round(abs(_v2 - _v) * texture.getHeight)
   }
 
-  def getRegionX(): Int = math.round(u * texture.getWidth)
+  def regionX: Int = round(_u * texture.getWidth)
 
-  def setRegionX(x: Int): Unit =
-    setU(x / texture.getWidth.toFloat)
+  def regionX_=(x: Int): Unit =
+    u = x / texture.getWidth.toFloat
 
-  def getRegionY(): Int = math.round(v * texture.getHeight)
+  def regionY: Int = round(_v * texture.getHeight)
 
-  def setRegionY(y: Int): Unit =
-    setV(y / texture.getHeight.toFloat)
+  def regionY_=(y: Int): Unit =
+    v = y / texture.getHeight.toFloat
 
   /** Returns the region's width. */
-  def getRegionWidth(): Int = regionWidth
+  def regionWidth: Int = _regionWidth
 
-  def setRegionWidth(width: Int): Unit =
-    if (isFlipX()) {
-      setU(u2 + width / texture.getWidth.toFloat)
+  def regionWidth_=(width: Int): Unit =
+    if (flipX) {
+      u = _u2 + width / texture.getWidth.toFloat
     } else {
-      setU2(u + width / texture.getWidth.toFloat)
+      u2 = _u + width / texture.getWidth.toFloat
     }
 
   /** Returns the region's height. */
-  def getRegionHeight(): Int = regionHeight
+  def regionHeight: Int = _regionHeight
 
-  def setRegionHeight(height: Int): Unit =
-    if (isFlipY()) {
-      setV(v2 + height / texture.getHeight.toFloat)
+  def regionHeight_=(height: Int): Unit =
+    if (flipY) {
+      v = _v2 + height / texture.getHeight.toFloat
     } else {
-      setV2(v + height / texture.getHeight.toFloat)
+      v2 = _v + height / texture.getHeight.toFloat
     }
 
   def flip(x: Boolean, y: Boolean): Unit = {
     if (x) {
-      val temp = u
-      u = u2
-      u2 = temp
+      val temp = _u
+      _u = _u2
+      _u2 = temp
     }
     if (y) {
-      val temp = v
-      v = v2
-      v2 = temp
+      val temp = _v
+      _v = _v2
+      _v2 = temp
     }
   }
 
-  def isFlipX(): Boolean = u > u2
+  def flipX: Boolean = _u > _u2
 
-  def isFlipY(): Boolean = v > v2
+  def flipY: Boolean = _v > _v2
 
   /** Offsets the region relative to the current region. Generally the region's size should be the entire size of the texture in the direction(s) it is scrolled.
     * @param xAmount
@@ -228,15 +227,41 @@ class TextureRegion() {
     */
   def scroll(xAmount: Float, yAmount: Float): Unit = {
     if (xAmount != 0) {
-      val width = (u2 - u) * texture.getWidth
-      u = (u + xAmount) % 1
-      u2 = u + width / texture.getWidth
+      val width = (_u2 - _u) * texture.getWidth
+      _u = (_u + xAmount) % 1
+      _u2 = _u + width / texture.getWidth
     }
     if (yAmount != 0) {
-      val height = (v2 - v) * texture.getHeight
-      v = (v + yAmount) % 1
-      v2 = v + height / texture.getHeight
+      val height = (_v2 - _v) * texture.getHeight
+      _v = (_v + yAmount) % 1
+      _v2 = _v + height / texture.getHeight
     }
+  }
+
+  /** Splits this region into a two-dimensional array of TextureRegions.
+    * @param tileWidth
+    *   a tile's width in pixels
+    * @param tileHeight
+    *   a tile's height in pixels
+    * @return
+    *   a two-dimensional array of TextureRegions indexed [row][col]
+    */
+  def split(tileWidth: Int, tileHeight: Int): Array[Array[TextureRegion]] = {
+    var x      = regionX
+    var y      = regionY
+    val rows   = _regionHeight / tileHeight
+    val cols   = _regionWidth / tileWidth
+    val startX = x
+    val tiles  = Array.ofDim[TextureRegion](rows, cols)
+    for (row <- 0 until rows) {
+      x = startX
+      for (col <- 0 until cols) {
+        tiles(row)(col) = TextureRegion(texture, x, y, tileWidth, tileHeight)
+        x += tileWidth
+      }
+      y += tileHeight
+    }
+    tiles
   }
 }
 
@@ -257,7 +282,7 @@ object TextureRegion {
     *   The new TextureRegion
     */
   def createSubRegion(region: TextureRegion, x: Int, y: Int, width: Int, height: Int): TextureRegion =
-    new TextureRegion(region, x, y, width, height)
+    TextureRegion(region, x, y, width, height)
 
   /** Splits a texture into a two-dimensional array of TextureRegions based on the specified region, tile size, and margins.
     * @param region
@@ -274,9 +299,8 @@ object TextureRegion {
     *   a two-dimensional array of TextureRegions based on the specified region.
     */
   def splitWithMargins(region: TextureRegion, tileWidth: Int, tileHeight: Int, margin: Int, spacing: Int): Array[Array[TextureRegion]] = {
-    region.getTexture()
-    val regionWidth  = region.getRegionWidth()
-    val regionHeight = region.getRegionHeight()
+    val regionWidth  = region.regionWidth
+    val regionHeight = region.regionHeight
     val xSlices      = (regionWidth - 2 * margin + spacing) / (tileWidth + spacing)
     val ySlices      = (regionHeight - 2 * margin + spacing) / (tileHeight + spacing)
 
@@ -285,10 +309,10 @@ object TextureRegion {
       x <- 0 until xSlices
       y <- 0 until ySlices
     }
-      tiles(x)(y) = new TextureRegion(
+      tiles(x)(y) = TextureRegion(
         region,
-        region.getRegionX() + margin + x * (tileWidth + spacing),
-        region.getRegionY() + margin + y * (tileHeight + spacing),
+        region.regionX + margin + x * (tileWidth + spacing),
+        region.regionY + margin + y * (tileHeight + spacing),
         tileWidth,
         tileHeight
       )
@@ -306,16 +330,16 @@ object TextureRegion {
     *   a two-dimensional array of TextureRegions
     */
   def split(texture: Texture, tileWidth: Int, tileHeight: Int): Array[Array[TextureRegion]] = {
-    val region = new TextureRegion(texture)
-    val rows   = region.getRegionHeight() / tileHeight
-    val cols   = region.getRegionWidth() / tileWidth
+    val region = TextureRegion(texture)
+    val rows   = region.regionHeight / tileHeight
+    val cols   = region.regionWidth / tileWidth
 
     val tiles = Array.ofDim[TextureRegion](rows, cols)
     for {
       row <- 0 until rows
       col <- 0 until cols
     }
-      tiles(row)(col) = new TextureRegion(texture, col * tileWidth, row * tileHeight, tileWidth, tileHeight)
+      tiles(row)(col) = TextureRegion(texture, col * tileWidth, row * tileHeight, tileWidth, tileHeight)
     tiles
   }
 }

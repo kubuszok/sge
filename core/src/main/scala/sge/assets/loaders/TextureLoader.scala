@@ -31,12 +31,12 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   */
 class TextureLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Texture, TextureLoader.TextureParameter](resolver) {
 
-  private val info = new TextureLoader.TextureLoaderInfo()
+  private val info = TextureLoader.TextureLoaderInfo()
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): Unit = {
     val param = Nullable(parameter)
     info.filename = fileName
-    if (param.fold(true)(_.textureData.isEmpty)) {
+    if (param.forall(_.textureData.isEmpty)) {
       var format: Nullable[Format] = Nullable.empty
       var genMipMaps = false
       info.texture = Nullable.empty
@@ -59,7 +59,7 @@ class TextureLoader(resolver: FileHandleResolver)(using Sge) extends Asynchronou
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: TextureLoader.TextureParameter): Texture = {
     val texture = info.texture.fold {
-      new Texture(info.data)
+      Texture(info.data)
     } { existing =>
       existing.load(info.data)
       existing

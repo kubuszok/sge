@@ -29,7 +29,7 @@ import sge.utils.{ DynamicArray, Pool }
 final class Bresenham2 {
 
   private val points = DynamicArray[GridPoint2]()
-  private val pool   = new Pool.Default[GridPoint2](() => GridPoint2())
+  private val pool   = Pool.Default[GridPoint2](() => GridPoint2())
 
   /** Returns a list of {@link GridPoint2} instances along the given line, at integer coordinates.
     * @param start

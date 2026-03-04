@@ -236,7 +236,7 @@ object GLFrameBuffer {
 
   class FrameBufferRenderBufferAttachmentSpec(val internalFormat: Int)
 
-  abstract class GLFrameBufferBuilder[U <: GLFrameBuffer[? <: GLTexture]](val width: Int, val height: Int, val samples: Int = 0) {
+  abstract class GLFrameBufferBuilder[U <: GLFrameBuffer[? <: GLTexture]](val width: Int, val height: Int, val samples: Int = 0)(using Sge) {
 
     protected val textureAttachmentSpecs: DynamicArray[FrameBufferTextureAttachmentSpec]      = DynamicArray[FrameBufferTextureAttachmentSpec]()
     protected val colorRenderBufferSpecs: DynamicArray[FrameBufferRenderBufferAttachmentSpec] = DynamicArray[FrameBufferRenderBufferAttachmentSpec]()
@@ -249,10 +249,10 @@ object GLFrameBuffer {
     protected var hasDepthRenderBuffer:              Boolean = false
     protected var hasPackedStencilDepthRenderBuffer: Boolean = false
 
-    def this(width: Int, height: Int) = this(width, height, 0)
+    def this(width: Int, height: Int)(using Sge) = this(width, height, 0)
 
     def addColorTextureAttachment(internalFormat: Int, format: Int, `type`: Int): GLFrameBufferBuilder[U] = {
-      textureAttachmentSpecs.add(new FrameBufferTextureAttachmentSpec(internalFormat, format, `type`))
+      textureAttachmentSpecs.add(FrameBufferTextureAttachmentSpec(internalFormat, format, `type`))
       this
     }
 
@@ -263,7 +263,7 @@ object GLFrameBuffer {
     }
 
     def addFloatAttachment(internalFormat: Int, format: Int, `type`: Int, gpuOnly: Boolean): GLFrameBufferBuilder[U] = {
-      val spec = new FrameBufferTextureAttachmentSpec(internalFormat, format, `type`)
+      val spec = FrameBufferTextureAttachmentSpec(internalFormat, format, `type`)
       spec.isFloat = true
       spec.isGpuOnly = gpuOnly
       textureAttachmentSpecs.add(spec)
@@ -271,38 +271,38 @@ object GLFrameBuffer {
     }
 
     def addDepthTextureAttachment(internalFormat: Int, `type`: Int): GLFrameBufferBuilder[U] = {
-      val spec = new FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_DEPTH_COMPONENT, `type`)
+      val spec = FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_DEPTH_COMPONENT, `type`)
       spec.isDepth = true
       textureAttachmentSpecs.add(spec)
       this
     }
 
     def addStencilTextureAttachment(internalFormat: Int, `type`: Int): GLFrameBufferBuilder[U] = {
-      val spec = new FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_STENCIL_ATTACHMENT, `type`)
+      val spec = FrameBufferTextureAttachmentSpec(internalFormat, GL20.GL_STENCIL_ATTACHMENT, `type`)
       spec.isStencil = true
       textureAttachmentSpecs.add(spec)
       this
     }
 
     def addDepthRenderBuffer(internalFormat: Int): GLFrameBufferBuilder[U] = {
-      depthRenderBufferSpec = new FrameBufferRenderBufferAttachmentSpec(internalFormat)
+      depthRenderBufferSpec = FrameBufferRenderBufferAttachmentSpec(internalFormat)
       hasDepthRenderBuffer = true
       this
     }
 
     def addColorRenderBuffer(internalFormat: Int): GLFrameBufferBuilder[U] = {
-      colorRenderBufferSpecs.add(new FrameBufferRenderBufferAttachmentSpec(internalFormat))
+      colorRenderBufferSpecs.add(FrameBufferRenderBufferAttachmentSpec(internalFormat))
       this
     }
 
     def addStencilRenderBuffer(internalFormat: Int): GLFrameBufferBuilder[U] = {
-      stencilRenderBufferSpec = new FrameBufferRenderBufferAttachmentSpec(internalFormat)
+      stencilRenderBufferSpec = FrameBufferRenderBufferAttachmentSpec(internalFormat)
       hasStencilRenderBuffer = true
       this
     }
 
     def addStencilDepthPackedRenderBuffer(internalFormat: Int): GLFrameBufferBuilder[U] = {
-      packedStencilDepthRenderBufferSpec = new FrameBufferRenderBufferAttachmentSpec(internalFormat)
+      packedStencilDepthRenderBufferSpec = FrameBufferRenderBufferAttachmentSpec(internalFormat)
       hasPackedStencilDepthRenderBuffer = true
       this
     }
@@ -316,27 +316,27 @@ object GLFrameBuffer {
     def addBasicStencilDepthPackedRenderBuffer(): GLFrameBufferBuilder[U] =
       addStencilDepthPackedRenderBuffer(GL30.GL_DEPTH24_STENCIL8)
 
-    def build()(using Sge): U
+    def build(): U
   }
 
-  class FrameBufferBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FrameBuffer](width, height, samples) {
-    def this(width: Int, height: Int) = this(width, height, 0)
+  class FrameBufferBuilder(width: Int, height: Int, samples: Int = 0)(using Sge) extends GLFrameBufferBuilder[FrameBuffer](width, height, samples) {
+    def this(width: Int, height: Int)(using Sge) = this(width, height, 0)
 
-    override def build()(using Sge): FrameBuffer =
-      new FrameBuffer(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]]])
+    override def build(): FrameBuffer =
+      FrameBuffer(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Texture]]])
   }
 
-  class FloatFrameBufferBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FloatFrameBuffer](width, height, samples) {
-    def this(width: Int, height: Int) = this(width, height, 0)
+  class FloatFrameBufferBuilder(width: Int, height: Int, samples: Int = 0)(using Sge) extends GLFrameBufferBuilder[FloatFrameBuffer](width, height, samples) {
+    def this(width: Int, height: Int)(using Sge) = this(width, height, 0)
 
-    override def build()(using Sge): FloatFrameBuffer =
-      new FloatFrameBuffer(this)
+    override def build(): FloatFrameBuffer =
+      FloatFrameBuffer(this)
   }
 
-  class FrameBufferCubemapBuilder(width: Int, height: Int, samples: Int = 0) extends GLFrameBufferBuilder[FrameBufferCubemap](width, height, samples) {
-    def this(width: Int, height: Int) = this(width, height, 0)
+  class FrameBufferCubemapBuilder(width: Int, height: Int, samples: Int = 0)(using Sge) extends GLFrameBufferBuilder[FrameBufferCubemap](width, height, samples) {
+    def this(width: Int, height: Int)(using Sge) = this(width, height, 0)
 
-    override def build()(using Sge): FrameBufferCubemap =
-      new FrameBufferCubemap(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Cubemap]]])
+    override def build(): FrameBufferCubemap =
+      FrameBufferCubemap(this.asInstanceOf[GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[Cubemap]]])
   }
 }

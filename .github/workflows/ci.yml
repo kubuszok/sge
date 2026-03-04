@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, platform-validation]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 # Cancel in-progress runs for the same branch/PR
@@ -88,14 +88,14 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Compile + test Scala.js
         run: sbt 'coreJS/test'
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
@@ -170,7 +170,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: "21"
           cache: sbt
 
       - uses: sbt/setup-sbt@v1

@@ -5,12 +5,12 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: dispose() -> close(); getCustomShader returns Nullable[ShaderProgram]
+ *   Renames: dispose() -> close(); getCustomShader -> customShader; get/setProjectionMatrix -> projectionMatrix/projectionMatrix_=
  *   Convention: Nullable throughout; AutoCloseable; using Sge context parameter; createDefaultShader in companion
- *   Idiom: boundary/break, Nullable, split packages
- *   TODO: Java-style getters/setters -- getColor/setColor, getProjectionMatrix/setProjectionMatrix, getTransformMatrix/setTransformMatrix, getShader/setShader
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   TODO: typed GL enums -- BufferTarget, BufferUsage, PrimitiveMode, EnableCap -- see docs/improvements/opaque-types.md
+ *   Idiom: boundary/break, Nullable, split packages, Scala property-style accessors
+ *   Fixes: Named context parameter (using sde: Sge) -> anonymous (using Sge) + Sge() accessor.
+ *   Fixes: Java-style getters/setters converted to Scala property-style accessors.
+ *   Improvement: typed GL enums -- BufferTarget, BufferUsage, PrimitiveMode, EnableCap -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -40,24 +40,23 @@ import scala.language.implicitConversions
   * store the returned cache ID.<br> <br> To draw with SpriteCache, first call {@link #begin()} , then call {@link #draw(int)} with a cache ID. When SpriteCache drawing is complete, call
   * {@link #end()} .<br> <br> By default, SpriteCache draws using screen coordinates and uses an x-axis pointing to the right, an y-axis pointing upwards and the origin is the bottom left corner of
   * the screen. The default transformation and projection matrices can be changed. If the screen is {@link ApplicationListener#resize(int, int) resized} , the SpriteCache's matrices must be updated.
-  * For example:<br> <code>cache.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</code><br> <br> Note that SpriteCache does not manage blending. You will
-  * need to enable blending (<i>Gdx.gl.glEnable(GL10.GL_BLEND);</i>) and set the blend func as needed before or between calls to {@link #draw(int)} .<br> <br> SpriteCache is managed. If the OpenGL
-  * context is lost and the restored, all OpenGL resources a SpriteCache uses internally are restored.<br> <br> SpriteCache is a reasonably heavyweight object. Typically only one instance should be
-  * used for an entire application.<br> <br> SpriteCache works with OpenGL ES 1.x and 2.0. For 2.0, it uses its own custom shader to draw.<br> <br> SpriteCache must be disposed once it is no longer
-  * needed.
+  * For example:<br> <code>cache.projectionMatrix.setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());</code><br> <br> Note that SpriteCache does not manage blending. You will need
+  * to enable blending (<i>Gdx.gl.glEnable(GL10.GL_BLEND);</i>) and set the blend func as needed before or between calls to {@link #draw(int)} .<br> <br> SpriteCache is managed. If the OpenGL context
+  * is lost and the restored, all OpenGL resources a SpriteCache uses internally are restored.<br> <br> SpriteCache is a reasonably heavyweight object. Typically only one instance should be used for
+  * an entire application.<br> <br> SpriteCache works with OpenGL ES 1.x and 2.0. For 2.0, it uses its own custom shader to draw.<br> <br> SpriteCache must be disposed once it is no longer needed.
   * @author
   *   Nathan Sweet
   */
-class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using sde: Sge) extends AutoCloseable {
+class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using Sge) extends AutoCloseable {
   import SpriteCache._
 
-  private var mesh:             Mesh                = uninitialized
-  private var drawing:          Boolean             = false
-  private val transformMatrix:  Matrix4             = new Matrix4()
-  private val projectionMatrix: Matrix4             = new Matrix4()
-  private val caches:           DynamicArray[Cache] = DynamicArray[Cache]()
+  private var mesh:              Mesh                = uninitialized
+  private var _drawing:          Boolean             = false
+  private val _transformMatrix:  Matrix4             = Matrix4()
+  private val _projectionMatrix: Matrix4             = Matrix4()
+  private val caches:            DynamicArray[Cache] = DynamicArray[Cache]()
 
-  private val combinedMatrix: Matrix4 = new Matrix4()
+  private val combinedMatrix: Matrix4 = Matrix4()
 
   private var currentCache: Nullable[Cache]       = Nullable.empty
   private val textures:     DynamicArray[Texture] = DynamicArray[Texture]()
@@ -68,10 +67,10 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   private var vertices:    Array[Float] = uninitialized
   private var vertexIndex: Int          = 0 // Track current position in vertices array
 
-  private val color:       Color = new Color(1, 1, 1, 1)
-  private var colorPacked: Float = Color.WHITE_FLOAT_BITS
+  private val _color:       Color = Color(1, 1, 1, 1)
+  private var _colorPacked: Float = Color.WHITE_FLOAT_BITS
 
-  private var customShader: Nullable[ShaderProgram] = Nullable.empty
+  private var _customShader: Nullable[ShaderProgram] = Nullable.empty
 
   /** Number of render calls since the last {@link #begin()}. * */
   var renderCalls: Int = 0
@@ -115,12 +114,11 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     mesh.setIndices(indices)
   }
 
-  projectionMatrix.setToOrtho2D(0, 0, sde.graphics.getWidth().toFloat, sde.graphics.getHeight().toFloat)
+  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
 
   /** Creates a cache that uses indexed geometry and can contain up to 1000 images. */
-  def this()(using sde: Sge) = {
+  def this()(using Sge) =
     this(1000, SpriteCache.createDefaultShader(), false)
-  }
 
   /** Creates a cache with the specified size, using a default shader if OpenGL ES 2.0 is being used.
     * @param size
@@ -128,40 +126,39 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     * @param useIndices
     *   If true, indexed geometry will be used.
     */
-  def this(size: Int, useIndices: Boolean)(using sde: Sge) = {
+  def this(size: Int, useIndices: Boolean)(using Sge) =
     this(size, SpriteCache.createDefaultShader(), useIndices)
-  }
 
   /** Sets the color used to tint images when they are added to the SpriteCache. Default is {@link Color#WHITE}. */
-  def setColor(tint: Color): Unit = {
-    color.set(tint)
-    colorPacked = tint.toFloatBits()
+  def color_=(tint: Color): Unit = {
+    _color.set(tint)
+    _colorPacked = tint.toFloatBits()
   }
 
-  /** @see #setColor(Color) */
+  /** @see #color_=(Color) */
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
-    color.set(r, g, b, a)
-    colorPacked = color.toFloatBits()
+    _color.set(r, g, b, a)
+    _colorPacked = _color.toFloatBits()
   }
 
-  def getColor(): Color = color
+  def color: Color = _color
 
   /** Sets the color of this sprite cache, expanding the alpha from 0-254 to 0-255.
     * @see
     *   Color#toFloatBits()
     */
-  def setPackedColor(packedColor: Float): Unit = {
-    Color.abgr8888ToColor(color, packedColor)
-    colorPacked = packedColor
+  def packedColor_=(packedColor: Float): Unit = {
+    Color.abgr8888ToColor(_color, packedColor)
+    _colorPacked = packedColor
   }
 
-  def getPackedColor(): Float = colorPacked
+  def packedColor: Float = _colorPacked
 
   /** Starts the definition of a new cache, allowing the add and {@link #endCache()} methods to be called. */
   def beginCache(): Unit = {
-    if (drawing) throw new IllegalStateException("end must be called before beginCache")
+    if (_drawing) throw new IllegalStateException("end must be called before beginCache")
     if (currentCache.isDefined) throw new IllegalStateException("endCache must be called before begin.")
-    val cache = new Cache(caches.size, vertexIndex)
+    val cache = Cache(caches.size, vertexIndex)
     currentCache = cache
     caches.add(cache)
   }
@@ -170,7 +167,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     * when it was first created. To do that, use {@link #clear()} and then {@link #begin()} .
     */
   def beginCache(cacheID: Int): Unit = {
-    if (drawing) throw new IllegalStateException("end must be called before beginCache")
+    if (_drawing) throw new IllegalStateException("end must be called before beginCache")
     if (currentCache.isDefined) throw new IllegalStateException("endCache must be called before begin.")
     if (cacheID == caches.size - 1) {
       val oldCache = caches.removeIndex(cacheID)
@@ -274,45 +271,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x
     tempVertices(1) = y
-    tempVertices(2) = colorPacked
+    tempVertices(2) = _colorPacked
     tempVertices(3) = 0
     tempVertices(4) = 1
 
     tempVertices(5) = x
     tempVertices(6) = fy2
-    tempVertices(7) = colorPacked
+    tempVertices(7) = _colorPacked
     tempVertices(8) = 0
     tempVertices(9) = 0
 
     tempVertices(10) = fx2
     tempVertices(11) = fy2
-    tempVertices(12) = colorPacked
+    tempVertices(12) = _colorPacked
     tempVertices(13) = 1
     tempVertices(14) = 0
 
     if (maxIndices > 0) {
       tempVertices(15) = fx2
       tempVertices(16) = y
-      tempVertices(17) = colorPacked
+      tempVertices(17) = _colorPacked
       tempVertices(18) = 1
       tempVertices(19) = 1
       add(texture, tempVertices, 0, 20)
     } else {
       tempVertices(15) = fx2
       tempVertices(16) = fy2
-      tempVertices(17) = colorPacked
+      tempVertices(17) = _colorPacked
       tempVertices(18) = 1
       tempVertices(19) = 0
 
       tempVertices(20) = fx2
       tempVertices(21) = y
-      tempVertices(22) = colorPacked
+      tempVertices(22) = _colorPacked
       tempVertices(23) = 1
       tempVertices(24) = 1
 
       tempVertices(25) = x
       tempVertices(26) = y
-      tempVertices(27) = colorPacked
+      tempVertices(27) = _colorPacked
       tempVertices(28) = 0
       tempVertices(29) = 1
       add(texture, tempVertices, 0, 30)
@@ -384,45 +381,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x;
     tempVertices(1) = y;
-    tempVertices(2) = colorPacked;
+    tempVertices(2) = _colorPacked;
     tempVertices(3) = u;
     tempVertices(4) = v;
 
     tempVertices(5) = x;
     tempVertices(6) = fy2;
-    tempVertices(7) = colorPacked;
+    tempVertices(7) = _colorPacked;
     tempVertices(8) = u;
     tempVertices(9) = v2;
 
     tempVertices(10) = fx2;
     tempVertices(11) = fy2;
-    tempVertices(12) = colorPacked;
+    tempVertices(12) = _colorPacked;
     tempVertices(13) = u2;
     tempVertices(14) = v2;
 
     if (maxIndices > 0) {
       tempVertices(15) = fx2;
       tempVertices(16) = y;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v;
       add(texture, tempVertices, 0, 20);
     } else {
       tempVertices(15) = fx2;
       tempVertices(16) = fy2;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v2;
 
       tempVertices(20) = fx2;
       tempVertices(21) = y;
-      tempVertices(22) = colorPacked;
+      tempVertices(22) = _colorPacked;
       tempVertices(23) = u2;
       tempVertices(24) = v;
 
       tempVertices(25) = x;
       tempVertices(26) = y;
-      tempVertices(27) = colorPacked;
+      tempVertices(27) = _colorPacked;
       tempVertices(28) = u;
       tempVertices(29) = v;
       add(texture, tempVertices, 0, 30);
@@ -454,45 +451,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x;
     tempVertices(1) = y;
-    tempVertices(2) = colorPacked;
+    tempVertices(2) = _colorPacked;
     tempVertices(3) = u;
     tempVertices(4) = v;
 
     tempVertices(5) = x;
     tempVertices(6) = fy2;
-    tempVertices(7) = colorPacked;
+    tempVertices(7) = _colorPacked;
     tempVertices(8) = u;
     tempVertices(9) = v2;
 
     tempVertices(10) = fx2;
     tempVertices(11) = fy2;
-    tempVertices(12) = colorPacked;
+    tempVertices(12) = _colorPacked;
     tempVertices(13) = u2;
     tempVertices(14) = v2;
 
     if (maxIndices > 0) {
       tempVertices(15) = fx2;
       tempVertices(16) = y;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v;
       add(texture, tempVertices, 0, 20);
     } else {
       tempVertices(15) = fx2;
       tempVertices(16) = fy2;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v2;
 
       tempVertices(20) = fx2;
       tempVertices(21) = y;
-      tempVertices(22) = colorPacked;
+      tempVertices(22) = _colorPacked;
       tempVertices(23) = u2;
       tempVertices(24) = v;
 
       tempVertices(25) = x;
       tempVertices(26) = y;
-      tempVertices(27) = colorPacked;
+      tempVertices(27) = _colorPacked;
       tempVertices(28) = u;
       tempVertices(29) = v;
       add(texture, tempVertices, 0, 30);
@@ -614,45 +611,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x1;
     tempVertices(1) = y1;
-    tempVertices(2) = colorPacked;
+    tempVertices(2) = _colorPacked;
     tempVertices(3) = u;
     tempVertices(4) = v;
 
     tempVertices(5) = x2;
     tempVertices(6) = y2;
-    tempVertices(7) = colorPacked;
+    tempVertices(7) = _colorPacked;
     tempVertices(8) = u;
     tempVertices(9) = v2;
 
     tempVertices(10) = x3;
     tempVertices(11) = y3;
-    tempVertices(12) = colorPacked;
+    tempVertices(12) = _colorPacked;
     tempVertices(13) = u2;
     tempVertices(14) = v2;
 
     if (maxIndices > 0) {
       tempVertices(15) = x4;
       tempVertices(16) = y4;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v;
       add(texture, tempVertices, 0, 20);
     } else {
       tempVertices(15) = x3;
       tempVertices(16) = y3;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v2;
 
       tempVertices(20) = x4;
       tempVertices(21) = y4;
-      tempVertices(22) = colorPacked;
+      tempVertices(22) = _colorPacked;
       tempVertices(23) = u2;
       tempVertices(24) = v;
 
       tempVertices(25) = x1;
       tempVertices(26) = y1;
-      tempVertices(27) = colorPacked;
+      tempVertices(27) = _colorPacked;
       tempVertices(28) = u;
       tempVertices(29) = v;
       add(texture, tempVertices, 0, 30);
@@ -661,7 +658,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
   /** Adds the specified region to the cache. */
   def add(region: TextureRegion, x: Float, y: Float): Unit =
-    add(region, x, y, region.getRegionWidth().toFloat, region.getRegionHeight().toFloat);
+    add(region, x, y, region.regionWidth.toFloat, region.regionHeight.toFloat);
 
   /** Adds the specified region to the cache. */
   def add(region: TextureRegion, x: Float, y: Float, width: Float, height: Float): Unit = {
@@ -674,45 +671,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x;
     tempVertices(1) = y;
-    tempVertices(2) = colorPacked;
+    tempVertices(2) = _colorPacked;
     tempVertices(3) = u;
     tempVertices(4) = v;
 
     tempVertices(5) = x;
     tempVertices(6) = fy2;
-    tempVertices(7) = colorPacked;
+    tempVertices(7) = _colorPacked;
     tempVertices(8) = u;
     tempVertices(9) = v2;
 
     tempVertices(10) = fx2;
     tempVertices(11) = fy2;
-    tempVertices(12) = colorPacked;
+    tempVertices(12) = _colorPacked;
     tempVertices(13) = u2;
     tempVertices(14) = v2;
 
     if (maxIndices > 0) {
       tempVertices(15) = fx2;
       tempVertices(16) = y;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v;
       add(region.texture, tempVertices, 0, 20);
     } else {
       tempVertices(15) = fx2;
       tempVertices(16) = fy2;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v2;
 
       tempVertices(20) = fx2;
       tempVertices(21) = y;
-      tempVertices(22) = colorPacked;
+      tempVertices(22) = _colorPacked;
       tempVertices(23) = u2;
       tempVertices(24) = v;
 
       tempVertices(25) = x;
       tempVertices(26) = y;
-      tempVertices(27) = colorPacked;
+      tempVertices(27) = _colorPacked;
       tempVertices(28) = u;
       tempVertices(29) = v;
       add(region.texture, tempVertices, 0, 30);
@@ -803,45 +800,45 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
 
     tempVertices(0) = x1;
     tempVertices(1) = y1;
-    tempVertices(2) = colorPacked;
+    tempVertices(2) = _colorPacked;
     tempVertices(3) = u;
     tempVertices(4) = v;
 
     tempVertices(5) = x2;
     tempVertices(6) = y2;
-    tempVertices(7) = colorPacked;
+    tempVertices(7) = _colorPacked;
     tempVertices(8) = u;
     tempVertices(9) = v2;
 
     tempVertices(10) = x3;
     tempVertices(11) = y3;
-    tempVertices(12) = colorPacked;
+    tempVertices(12) = _colorPacked;
     tempVertices(13) = u2;
     tempVertices(14) = v2;
 
     if (maxIndices > 0) {
       tempVertices(15) = x4;
       tempVertices(16) = y4;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v;
       add(region.texture, tempVertices, 0, 20);
     } else {
       tempVertices(15) = x3;
       tempVertices(16) = y3;
-      tempVertices(17) = colorPacked;
+      tempVertices(17) = _colorPacked;
       tempVertices(18) = u2;
       tempVertices(19) = v2;
 
       tempVertices(20) = x4;
       tempVertices(21) = y4;
-      tempVertices(22) = colorPacked;
+      tempVertices(22) = _colorPacked;
       tempVertices(23) = u2;
       tempVertices(24) = v;
 
       tempVertices(25) = x1;
       tempVertices(26) = y1;
-      tempVertices(27) = colorPacked;
+      tempVertices(27) = _colorPacked;
       tempVertices(28) = u;
       tempVertices(29) = v;
       add(region.texture, tempVertices, 0, 30);
@@ -851,50 +848,50 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
   /** Adds the specified sprite to the cache. */
   def add(sprite: Sprite): Unit =
     if (maxIndices > 0) {
-      add(sprite.getTexture(), sprite.getVertices(), 0, SPRITE_SIZE);
+      add(sprite.texture, sprite.vertices, 0, SPRITE_SIZE);
     } else {
-      val spriteVertices = sprite.getVertices();
+      val spriteVertices = sprite.vertices;
       System.arraycopy(spriteVertices, 0, tempVertices, 0, 3 * VERTEX_SIZE); // temp0,1,2=sprite0,1,2
       System.arraycopy(spriteVertices, 2 * VERTEX_SIZE, tempVertices, 3 * VERTEX_SIZE, VERTEX_SIZE); // temp3=sprite2
       System.arraycopy(spriteVertices, 3 * VERTEX_SIZE, tempVertices, 4 * VERTEX_SIZE, VERTEX_SIZE); // temp4=sprite3
       System.arraycopy(spriteVertices, 0, tempVertices, 5 * VERTEX_SIZE, VERTEX_SIZE); // temp5=sprite0
-      add(sprite.getTexture(), tempVertices, 0, 30);
+      add(sprite.texture, tempVertices, 0, 30);
     }
 
   /** Prepares the OpenGL state for SpriteCache rendering. */
   def begin(): Unit = {
-    if (drawing) throw new IllegalStateException("end must be called before begin.");
+    if (_drawing) throw new IllegalStateException("end must be called before begin.");
     if (currentCache.isEmpty) throw new IllegalStateException("endCache must be called before begin");
     renderCalls = 0;
-    combinedMatrix.set(projectionMatrix).mul(transformMatrix);
+    combinedMatrix.set(_projectionMatrix).mul(_transformMatrix);
 
-    sde.graphics.gl.glDepthMask(false);
+    Sge().graphics.gl.glDepthMask(false);
 
-    customShader.fold {
+    _customShader.fold {
       shader.bind();
       shader.setUniformMatrix("u_projectionViewMatrix", combinedMatrix);
       shader.setUniformi("u_texture", 0);
     } { cs =>
       cs.bind();
-      cs.setUniformMatrix("u_proj", projectionMatrix);
-      cs.setUniformMatrix("u_trans", transformMatrix);
+      cs.setUniformMatrix("u_proj", _projectionMatrix);
+      cs.setUniformMatrix("u_trans", _transformMatrix);
       cs.setUniformMatrix("u_projTrans", combinedMatrix);
       cs.setUniformi("u_texture", 0);
     }
-    drawing = true;
+    _drawing = true;
   }
 
   /** Completes rendering for this SpriteCache. */
   def end(): Unit = {
-    if (!drawing) throw new IllegalStateException("begin must be called before end.");
-    drawing = false;
+    if (!_drawing) throw new IllegalStateException("begin must be called before end.");
+    _drawing = false;
 
-    sde.graphics.gl.glDepthMask(true);
+    Sge().graphics.gl.glDepthMask(true);
   }
 
   /** Draws all the images defined for the specified cache ID. */
   def draw(cacheID: Int): Unit = {
-    if (!drawing) throw new IllegalStateException("SpriteCache.begin must be called before draw.");
+    if (!_drawing) throw new IllegalStateException("SpriteCache.begin must be called before draw.");
 
     val cache            = caches(cacheID)
     val verticesPerImage = if (maxIndices > 0) 4 else 6
@@ -902,7 +899,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     val textures         = cache.textures.getOrElse(throw new IllegalStateException("Cache has no textures"))
     val counts           = cache.counts.getOrElse(throw new IllegalStateException("Cache has no counts"))
     val textureCount     = cache.textureCount
-    val activeShader     = customShader.getOrElse(shader)
+    val activeShader     = _customShader.getOrElse(shader)
     for (i <- 0 until textureCount) {
       val count = counts(i)
       textures(i).bind()
@@ -920,7 +917,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     *   The number of images from the first image (inclusive) to render.
     */
   def draw(cacheID: Int, offset: Int, length: Int): Unit = {
-    if (!drawing) throw new IllegalStateException("SpriteCache.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("SpriteCache.begin must be called before draw.")
 
     val cache            = caches(cacheID)
     val verticesPerImage = if (maxIndices > 0) 4 else 6
@@ -929,7 +926,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     val textures         = cache.textures.getOrElse(throw new IllegalStateException("Cache has no textures"))
     val counts           = cache.counts.getOrElse(throw new IllegalStateException("Cache has no counts"))
     val textureCount     = cache.textureCount
-    val activeShader     = customShader.getOrElse(shader)
+    val activeShader     = _customShader.getOrElse(shader)
     var i                = 0
     while (i < textureCount) {
       textures(i).bind()
@@ -953,20 +950,20 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     shader.close();
   }
 
-  def getProjectionMatrix(): Matrix4 =
-    projectionMatrix;
+  def projectionMatrix: Matrix4 =
+    _projectionMatrix;
 
-  def setProjectionMatrix(projection: Matrix4): Unit = {
-    if (drawing) throw new IllegalStateException("Can't set the matrix within begin/end.");
-    projectionMatrix.set(projection);
+  def projectionMatrix_=(projection: Matrix4): Unit = {
+    if (_drawing) throw new IllegalStateException("Can't set the matrix within begin/end.");
+    _projectionMatrix.set(projection);
   }
 
-  def getTransformMatrix(): Matrix4 =
-    transformMatrix;
+  def transformMatrix: Matrix4 =
+    _transformMatrix;
 
-  def setTransformMatrix(transform: Matrix4): Unit = {
-    if (drawing) throw new IllegalStateException("Can't set the matrix within begin/end.");
-    transformMatrix.set(transform);
+  def transformMatrix_=(transform: Matrix4): Unit = {
+    if (_drawing) throw new IllegalStateException("Can't set the matrix within begin/end.");
+    _transformMatrix.set(transform);
   }
 
   /** Sets the shader to be used in a GLES 2.0 environment. Vertex position attribute is called "a_position", the texture coordinates attribute is called called "a_texCoords", the color attribute is
@@ -978,15 +975,15 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using s
     * @param shader
     *   the {@link ShaderProgram} or null to use the default shader.
     */
-  def setShader(shader: Nullable[ShaderProgram]): Unit =
-    customShader = shader
+  def customShader_=(shader: Nullable[ShaderProgram]): Unit =
+    _customShader = shader
 
   /** Returns the custom shader, or Nullable.empty if the default shader is being used. */
-  def getCustomShader(): Nullable[ShaderProgram] =
-    customShader
+  def customShader: Nullable[ShaderProgram] =
+    _customShader
 
-  def isDrawing(): Boolean =
-    drawing;
+  def drawing: Boolean =
+    _drawing;
 }
 
 object SpriteCache {
@@ -999,7 +996,7 @@ object SpriteCache {
     var counts:       Nullable[Array[Int]]     = Nullable.empty
   }
 
-  def createDefaultShader()(using sde: Sge): ShaderProgram = {
+  def createDefaultShader()(using Sge): ShaderProgram = {
     val vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
       "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
       "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
@@ -1024,7 +1021,7 @@ object SpriteCache {
       "{\n" +
       "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" +
       "}"
-    val shader = new ShaderProgram(vertexShader, fragmentShader)
+    val shader = ShaderProgram(vertexShader, fragmentShader)
     if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
     shader
   }

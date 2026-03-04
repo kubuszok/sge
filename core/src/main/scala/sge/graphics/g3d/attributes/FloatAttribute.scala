@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful 1:1 port
+ *   - Audited 2026-03-04: faithful 1:1 port
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Two Java constructors merged into primary constructor with default value = 0f
  *   - All constants, factory methods, and instance methods accounted for
@@ -26,7 +26,7 @@ class FloatAttribute(
 ) extends Attribute(`type`) {
 
   override def copy(): Attribute =
-    new FloatAttribute(`type`, value)
+    FloatAttribute(`type`, value)
 
   override def hashCode(): Int = {
     var result = super.hashCode()
@@ -48,11 +48,11 @@ object FloatAttribute {
   val Shininess:      Long   = Attribute.register(ShininessAlias)
 
   def createShininess(value: Float): FloatAttribute =
-    new FloatAttribute(Shininess, value)
+    FloatAttribute(Shininess, value)
 
   val AlphaTestAlias: String = "alphaTest"
   val AlphaTest:      Long   = Attribute.register(AlphaTestAlias)
 
   def createAlphaTest(value: Float): FloatAttribute =
-    new FloatAttribute(AlphaTest, value)
+    FloatAttribute(AlphaTest, value)
 }

@@ -39,32 +39,31 @@ import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes, defaultPrimitiveType: Int)(using Sge) extends AutoCloseable with RenderableProvider {
 
   /** Builder used to update the mesh */
-  private val builder: MeshBuilder = new MeshBuilder()
+  private val builder: MeshBuilder = MeshBuilder()
 
   /** Mesh being rendered */
-  private val mesh: Mesh = new Mesh(false, maxVertices, maxIndices, attributes)
+  private val mesh: Mesh = Mesh(false, maxVertices, maxIndices, attributes)
 
   private var building:   Boolean    = false
   private val id:         String     = "id"
-  private val renderable: Renderable = new Renderable()
+  private val renderable: Renderable = Renderable()
 
   // Init renderable
   renderable.meshPart.mesh = mesh
   renderable.meshPart.primitiveType = defaultPrimitiveType
-  renderable.material = Nullable(new Material())
+  renderable.material = Nullable(Material())
 
   /** Create a ShapeCache with default values */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(
       5000,
       5000,
-      new VertexAttributes(
-        new VertexAttribute(Usage.Position, 3, "a_position"),
-        new VertexAttribute(Usage.ColorPacked, 4, "a_color")
+      VertexAttributes(
+        VertexAttribute(Usage.Position, 3, "a_position"),
+        VertexAttribute(Usage.ColorPacked, 4, "a_color")
       ),
       GL20.GL_LINES
     )
-  }
 
   /** Initialize ShapeCache for mesh generation with GL_LINES primitive type */
   def begin(): MeshPartBuilder =

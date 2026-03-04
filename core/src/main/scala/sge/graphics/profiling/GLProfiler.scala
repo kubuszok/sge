@@ -7,12 +7,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: GdxRuntimeException -> RuntimeException
- *   Convention: null fields -> scala.compiletime.uninitialized; constructor GL level detection simplified (5 TODOs)
+ *   Renames: GdxRuntimeException -> RuntimeException; getListener/setListener -> var listener;
+ *     isEnabled -> def enabled; getCalls/getTextureBindings/etc -> Scala-style defs
+ *   Convention: null fields -> scala.compiletime.uninitialized; constructor GL level detection simplified
  *   Convention: enable()/disable() bodies commented out pending Graphics trait setGL* methods
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — setListener/getListener, isEnabled, getCalls, etc.
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package graphics
@@ -33,9 +33,11 @@ package profiling
   */
 class GLProfiler(graphics: Graphics) {
 
-  private var glInterceptor: GLInterceptor   = scala.compiletime.uninitialized
-  private var listener:      GLErrorListener = scala.compiletime.uninitialized
-  private var enabled:       Boolean         = false
+  private var glInterceptor: GLInterceptor = scala.compiletime.uninitialized
+  private var _enabled:      Boolean       = false
+
+  /** The current {@link GLErrorListener}. */
+  var listener: GLErrorListener = scala.compiletime.uninitialized
 
   // Initialize in constructor
   locally {
@@ -47,7 +49,7 @@ class GLProfiler(graphics: Graphics) {
 
   /** Enables profiling by replacing the {@code GL20} and {@code GL30} instances with profiling ones. */
   def enable(): Unit =
-    if (!enabled) {
+    if (!_enabled) {
 
       // TODO: Graphics doesn't have these methods yet - commented out for compilation
       // if (glInterceptor.isInstanceOf[GL32]) {
@@ -68,12 +70,12 @@ class GLProfiler(graphics: Graphics) {
       // Gdx.gl20 = graphics.getGL20()
       // Gdx.gl = graphics.getGL20()
 
-      enabled = true
+      _enabled = true
     }
 
   /** Disables profiling by resetting the {@code GL20} and {@code GL30} instances with the original ones. */
   def disable(): Unit =
-    if (enabled) {
+    if (_enabled) {
 
       // TODO: Graphics doesn't have these methods yet - commented out for compilation
       // if (glInterceptor.isInstanceOf[GL32Interceptor]) {
@@ -96,40 +98,26 @@ class GLProfiler(graphics: Graphics) {
       // Gdx.gl20 = graphics.getGL20()
       // Gdx.gl = graphics.getGL20()
 
-      enabled = false
+      _enabled = false
     }
 
-  /** Set the current listener for the {@link GLProfiler} to {@code errorListener} */
-  def setListener(errorListener: GLErrorListener): Unit =
-    this.listener = errorListener
-
-  /** @return the current {@link GLErrorListener} */
-  def getListener(): GLErrorListener =
-    listener
-
   /** @return true if the GLProfiler is currently profiling */
-  def isEnabled(): Boolean =
-    enabled
+  def enabled: Boolean = _enabled
 
   /** @return the total gl calls made since the last reset */
-  def getCalls(): Int =
-    glInterceptor.getCalls()
+  def calls: Int = glInterceptor.getCalls()
 
   /** @return the total amount of texture bindings made since the last reset */
-  def getTextureBindings(): Int =
-    glInterceptor.getTextureBindings()
+  def textureBindings: Int = glInterceptor.getTextureBindings()
 
   /** @return the total amount of draw calls made since the last reset */
-  def getDrawCalls(): Int =
-    glInterceptor.getDrawCalls()
+  def drawCalls: Int = glInterceptor.getDrawCalls()
 
   /** @return the total amount of shader switches made since the last reset */
-  def getShaderSwitches(): Int =
-    glInterceptor.getShaderSwitches()
+  def shaderSwitches: Int = glInterceptor.getShaderSwitches()
 
   /** @return {@link FloatCounter} containing information about rendered vertices since the last reset */
-  def getVertexCount(): sge.math.FloatCounter =
-    glInterceptor.getVertexCount()
+  def vertexCount: sge.math.FloatCounter = glInterceptor.getVertexCount()
 
   /** Will reset the statistical information which has been collected so far. This should be called after every frame. Error listener is kept as it is.
     */

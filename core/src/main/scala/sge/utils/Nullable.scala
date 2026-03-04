@@ -70,6 +70,31 @@ object Nullable {
       case `None` => true
       case _      => false
     }
+
+    def orElse(alternative: => Nullable[A]): Nullable[A] = maybe match {
+      case `None` => alternative
+      case _      => maybe
+    }
+
+    def exists(p: A => Boolean): Boolean = maybe match {
+      case `None` => false
+      case a: A => p(a)
+    }
+
+    def forall(p: A => Boolean): Boolean = maybe match {
+      case `None` => true
+      case a: A => p(a)
+    }
+
+    def contains[A1 >: A](elem: A1): Boolean = maybe match {
+      case `None` => false
+      case a: A => a == elem
+    }
+
+    def filter(p: A => Boolean): Nullable[A] = maybe match {
+      case `None` => None
+      case a: A => if (p(a)) maybe else None
+    }
   }
   extension [A](maybe: Nullable[Nullable[A]]) {
 

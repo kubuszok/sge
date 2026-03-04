@@ -8,6 +8,9 @@
  *
  * Migration notes:
  * - All public methods, enums, inner classes, and setters ported faithfully
+ * - Fixes (2026-03-04): getDefaultCullFace/setDefaultCullFace → def defaultCullFace/defaultCullFace_=;
+ *   getDefaultDepthFunc/setDefaultDepthFunc → def defaultDepthFunc/defaultDepthFunc_=;
+ *   companion getDefaultVertexShader()/getDefaultFragmentShader() → def defaultVertexShader/defaultFragmentShader
  * - Java enums → Scala 3 enums (ParticleType, AlignMode)
  * - Config: null strings → Nullable[String]
  * - Gdx.graphics.getWidth() in screenWidth setter → camera.viewportWidth (approximation)
@@ -53,7 +56,7 @@ class ParticleShader private (
 
   /** The renderable used to create this shader, invalid after the call to init */
   private var renderable:   Nullable[Renderable] = Nullable(initRenderable)
-  private val materialMask: Long                 = initRenderable.material.fold(0L)(_.getMask) | optionalAttributes
+  private val materialMask: Long                 = initRenderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes
   private val vertexMask:   Long                 = initRenderable.meshPart.mesh.getVertexAttributes().getMask()
 
   if (!config.ignoreUnimplemented && (implementedFlags & materialMask) != materialMask)
@@ -72,27 +75,23 @@ class ParticleShader private (
   // Object uniforms
   register(DefaultShader.Inputs.diffuseTexture, Nullable(DefaultShader.Setters.diffuseTexture))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) = {
-    this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) =
+    this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) = {
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config,
       prefix,
-      config.vertexShader.getOrElse(ParticleShader.getDefaultVertexShader()),
-      config.fragmentShader.getOrElse(ParticleShader.getDefaultFragmentShader())
+      config.vertexShader.getOrElse(ParticleShader.defaultVertexShader),
+      config.fragmentShader.getOrElse(ParticleShader.defaultFragmentShader)
     )
-  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) = {
+  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) =
     this(renderable, config, ParticleShader.createPrefix(renderable, config))
-  }
 
-  def this(renderable: Renderable)(using Sge) = {
-    this(renderable, new ParticleShader.Config())
-  }
+  def this(renderable: Renderable)(using Sge) =
+    this(renderable, ParticleShader.Config())
 
   override def init(): Unit = {
     val prog = this.program
@@ -106,7 +105,7 @@ class ParticleShader private (
   }
 
   override def canRender(renderable: Renderable): Boolean =
-    (materialMask == (renderable.material.fold(0L)(_.getMask) | optionalAttributes)) &&
+    (materialMask == (renderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes)) &&
       (vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMask())
 
   override def compareTo(other: Shader): Int =
@@ -122,7 +121,7 @@ class ParticleShader private (
     super.begin(camera, context)
 
   override def render(renderable: Renderable): Unit = {
-    if (!renderable.material.fold(false)(_.has(BlendingAttribute.Type)))
+    if (!renderable.material.exists(_.has(BlendingAttribute.Type)))
       context.foreach(_.setBlending(false, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA))
     bindMaterial(renderable)
     super.render(renderable)
@@ -136,7 +135,7 @@ class ParticleShader private (
   var currentMaterial: Nullable[Material] = Nullable.empty
 
   protected def bindMaterial(renderable: Renderable): Unit =
-    if (currentMaterial.fold(false)(cm => renderable.material.fold(false)(rm => cm eq rm))) {
+    if (currentMaterial.exists(cm => renderable.material.exists(rm => cm eq rm))) {
       // same material, nothing to do
     } else {
       val cullFace       = if (config.defaultCullFace == -1) GL20.GL_BACK else config.defaultCullFace
@@ -176,16 +175,16 @@ class ParticleShader private (
     super.close()
   }
 
-  def getDefaultCullFace(): Int =
+  def defaultCullFace: Int =
     if (config.defaultCullFace == -1) GL20.GL_BACK else config.defaultCullFace
 
-  def setDefaultCullFace(cullFace: Int): Unit =
+  def defaultCullFace_=(cullFace: Int): Unit =
     config.defaultCullFace = cullFace
 
-  def getDefaultDepthFunc(): Int =
+  def defaultDepthFunc: Int =
     if (config.defaultDepthFunc == -1) GL20.GL_LEQUAL else config.defaultDepthFunc
 
-  def setDefaultDepthFunc(depthFunc: Int): Unit =
+  def defaultDepthFunc_=(depthFunc: Int): Unit =
     config.defaultDepthFunc = depthFunc
 }
 
@@ -239,33 +238,33 @@ object ParticleShader {
     }
   }
 
-  private var defaultVertexShader: Nullable[String] = Nullable.empty
+  private var _defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using Sge): String =
-    defaultVertexShader.getOrElse {
+  def defaultVertexShader(using Sge): String =
+    _defaultVertexShader.getOrElse {
       val s = Sge().files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.vertex.glsl").readString()
-      defaultVertexShader = Nullable(s)
+      _defaultVertexShader = Nullable(s)
       s
     }
 
-  private var defaultFragmentShader: Nullable[String] = Nullable.empty
+  private var _defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using Sge): String =
-    defaultFragmentShader.getOrElse {
+  def defaultFragmentShader(using Sge): String =
+    _defaultFragmentShader.getOrElse {
       val s = Sge().files.classpath("com/badlogic/gdx/graphics/g3d/particles/particles.fragment.glsl").readString()
-      defaultFragmentShader = Nullable(s)
+      _defaultFragmentShader = Nullable(s)
       s
     }
 
   protected val implementedFlags: Long = BlendingAttribute.Type | TextureAttribute.Diffuse
 
-  private val TMP_VECTOR3: Vector3 = new Vector3()
+  private val TMP_VECTOR3: Vector3 = Vector3()
 
   object Inputs {
-    val cameraRight:        BaseShader.Uniform = new BaseShader.Uniform("u_cameraRight")
-    val cameraInvDirection: BaseShader.Uniform = new BaseShader.Uniform("u_cameraInvDirection")
-    val screenWidth:        BaseShader.Uniform = new BaseShader.Uniform("u_screenWidth")
-    val regionSize:         BaseShader.Uniform = new BaseShader.Uniform("u_regionSize")
+    val cameraRight:        BaseShader.Uniform = BaseShader.Uniform("u_cameraRight")
+    val cameraInvDirection: BaseShader.Uniform = BaseShader.Uniform("u_cameraInvDirection")
+    val screenWidth:        BaseShader.Uniform = BaseShader.Uniform("u_screenWidth")
+    val regionSize:         BaseShader.Uniform = BaseShader.Uniform("u_regionSize")
   }
 
   object Setters {
@@ -306,7 +305,7 @@ object ParticleShader {
     }
 
     val worldViewTrans: BaseShader.Setter = new BaseShader.LocalSetter() {
-      private val temp:                                                                                           Matrix4 = new Matrix4()
+      private val temp:                                                                                           Matrix4 = Matrix4()
       override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit    =
         shader.camera.foreach { cam =>
           shader.set(inputID, temp.set(cam.view).mul(renderable.worldTransform))

@@ -5,9 +5,9 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
+ *   Renames: getRectangle() -> val rectangle
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getRectangle
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -18,13 +18,7 @@ package objects
 import sge.math.Rectangle
 
 /** @brief Represents a rectangle shaped map object */
-class RectangleMapObject(x: Float, y: Float, width: Float, height: Float) extends MapObject {
+class RectangleMapObject(x: Float = 0.0f, y: Float = 0.0f, width: Float = 1.0f, height: Float = 1.0f) extends MapObject {
 
-  private val rectangle: Rectangle = new Rectangle(x, y, width, height)
-
-  /** Creates a rectangle object which lower left corner is at (0, 0) with width=1 and height=1 */
-  def this() = this(0.0f, 0.0f, 1.0f, 1.0f)
-
-  /** @return rectangle shape */
-  def getRectangle: Rectangle = rectangle
+  val rectangle: Rectangle = Rectangle(x, y, width, height)
 }

@@ -36,12 +36,12 @@ import sge.utils.Sort
 class SimpleOrthoGroupStrategy(using Sge) extends GroupStrategy {
 
   private val comparator: Ordering[Decal] = Ordering.fromLessThan[Decal] { (a, b) =>
-    if (a.getZ == b.getZ) false
-    else a.getZ - b.getZ < 0
+    if (a.z == b.z) false
+    else a.z - b.z < 0
   }
 
   override def decideGroup(decal: Decal): Int =
-    if (decal.getMaterial.isOpaque) SimpleOrthoGroupStrategy.GROUP_OPAQUE else SimpleOrthoGroupStrategy.GROUP_BLEND
+    if (decal.material.isOpaque) SimpleOrthoGroupStrategy.GROUP_OPAQUE else SimpleOrthoGroupStrategy.GROUP_BLEND
 
   override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == SimpleOrthoGroupStrategy.GROUP_BLEND) {

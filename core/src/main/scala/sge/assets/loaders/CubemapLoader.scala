@@ -30,12 +30,12 @@ import scala.annotation.nowarn
   */
 class CubemapLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Cubemap, CubemapLoader.CubemapParameter](resolver) {
 
-  private val info = new CubemapLoader.CubemapLoaderInfo()
+  private val info = CubemapLoader.CubemapLoaderInfo()
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): Unit = {
     val param = Nullable(parameter)
     info.filename = fileName
-    if (param.fold(true)(_.cubemapData.isEmpty)) {
+    if (param.forall(_.cubemapData.isEmpty)) {
       @nowarn("msg=not read") // format will be used when CubemapData loading is implemented
       var format: Nullable[Format] = Nullable.empty
       val genMipMaps = false
@@ -47,7 +47,7 @@ class CubemapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchronou
       }
 
       if (fileName.contains(".ktx") || fileName.contains(".zktx")) {
-        info.data = new KTXTextureData(file, genMipMaps)
+        info.data = KTXTextureData(file, genMipMaps)
       }
     } else {
       param.foreach { p =>
@@ -60,7 +60,7 @@ class CubemapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchronou
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: CubemapLoader.CubemapParameter): Cubemap = {
     val cubemapResult: Cubemap = info.cubemap.fold {
-      new Cubemap(info.data)
+      Cubemap(info.data)
     } { existing =>
       existing.load(info.data)
       existing

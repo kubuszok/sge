@@ -8,7 +8,8 @@
  *
  * Migration notes (audit 2026-03-03):
  * - Config.vertexShader/fragmentShader use Nullable[String] (no null)
- * - getDefaultVertexShader/getDefaultFragmentShader require (using Sge) context parameter
+ * - defaultVertexShader/defaultFragmentShader require (using Sge) context parameter
+ * - Fixes (2026-03-04): getDefaultVertexShader()/getDefaultFragmentShader() → def defaultVertexShader/defaultFragmentShader
  * - Constructor ordering differs from Java: primary ctor is (Renderable, Config, ShaderProgram),
  *   secondary constructors delegate upward (Scala 3 constraint)
  * - Java Gdx.files -> Sge().files
@@ -42,9 +43,9 @@ class DepthShader(
   private val _depthNumBones: Int = {
     DepthShader.combineAttributes(renderable)
 
-    if (renderable.bones.isDefined && renderable.bones.fold(0)(_.length) > config.numBones) {
+    if (renderable.bones.isDefined && renderable.bones.map(_.length).getOrElse(0) > config.numBones) {
       throw SgeError.GraphicsError(
-        "too many bones: " + renderable.bones.fold(0)(_.length) + ", max configured: " + config.numBones
+        "too many bones: " + renderable.bones.map(_.length).getOrElse(0) + ", max configured: " + config.numBones
       )
     }
 
@@ -61,43 +62,40 @@ class DepthShader(
   val numBones: Int = _depthNumBones
 
   private val alphaTestAttribute: FloatAttribute =
-    new FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
+    FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using Sge) = {
+  def this(renderable: Renderable)(using Sge) =
     this(
       renderable,
       DepthShader.Config(), {
         val cfg    = DepthShader.Config()
         val prefix = DepthShader.createPrefix(renderable, cfg)
-        val vs     = DepthShader.getDefaultVertexShader()
-        val fs     = DepthShader.getDefaultFragmentShader()
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs     = DepthShader.defaultVertexShader
+        val fs     = DepthShader.defaultFragmentShader
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) = {
+  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) =
     this(
       renderable,
       config, {
         val prefix = DepthShader.createPrefix(renderable, config)
-        val vs     = config.vertexShader.getOrElse(DepthShader.getDefaultVertexShader())
-        val fs     = config.fragmentShader.getOrElse(DepthShader.getDefaultFragmentShader())
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs     = config.vertexShader.getOrElse(DepthShader.defaultVertexShader)
+        val fs     = config.fragmentShader.getOrElse(DepthShader.defaultFragmentShader)
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) = {
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config, {
-        val vs = config.vertexShader.getOrElse(DepthShader.getDefaultVertexShader())
-        val fs = config.fragmentShader.getOrElse(DepthShader.getDefaultFragmentShader())
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs = config.vertexShader.getOrElse(DepthShader.defaultVertexShader)
+        val fs = config.fragmentShader.getOrElse(DepthShader.defaultFragmentShader)
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
   def this(
     renderable:     Renderable,
@@ -105,9 +103,8 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) = {
-    this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
+  )(using Sge) =
+    this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
@@ -122,7 +119,7 @@ class DepthShader(
 
   override def canRender(renderable: Renderable): Boolean = boundary {
     if (renderable.bones.isDefined) {
-      if (renderable.bones.fold(0)(_.length) > config.numBones) break(false)
+      if (renderable.bones.map(_.length).getOrElse(0) > config.numBones) break(false)
       if (renderable.meshPart.mesh.getVertexAttributes().getBoneWeights() > config.numBoneWeights) break(false)
     }
     val attributes = DepthShader.combineAttributes(renderable)
@@ -144,7 +141,7 @@ class DepthShader(
       combinedAttributes.remove(BlendingAttribute.Type)
       val hasAlphaTest = combinedAttributes.has(FloatAttribute.AlphaTest)
       if (!hasAlphaTest) combinedAttributes.set(alphaTestAttribute)
-      if (blending.opacity >= combinedAttributes.get(FloatAttribute.AlphaTest).fold(0f)(_.asInstanceOf[FloatAttribute].value)) {
+      if (blending.opacity >= combinedAttributes.get(FloatAttribute.AlphaTest).map(_.asInstanceOf[FloatAttribute].value).getOrElse(0f)) {
         super.render(renderable, combinedAttributes)
       }
       if (!hasAlphaTest) combinedAttributes.remove(FloatAttribute.AlphaTest)
@@ -171,7 +168,7 @@ object DepthShader {
 
   private var _defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using Sge): String = {
+  def defaultVertexShader(using Sge): String = {
     if (_defaultVertexShader.isEmpty) {
       _defaultVertexShader = Nullable(Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.vertex.glsl").readString())
     }
@@ -180,7 +177,7 @@ object DepthShader {
 
   private var _defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using Sge): String = {
+  def defaultFragmentShader(using Sge): String = {
     if (_defaultFragmentShader.isEmpty) {
       _defaultFragmentShader = Nullable(Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/depth.fragment.glsl").readString())
     }
@@ -193,7 +190,7 @@ object DepthShader {
     prefix
   }
 
-  private val tmpAttributes: Attributes = new Attributes()
+  private val tmpAttributes: Attributes = Attributes()
 
   // TODO: Move responsibility for combining attributes to RenderableProvider
   private def combineAttributes(renderable: Renderable): Attributes = {

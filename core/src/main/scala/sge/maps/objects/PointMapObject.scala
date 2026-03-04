@@ -5,9 +5,9 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
+ *   Renames: getPoint() -> val point
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getPoint
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -18,13 +18,7 @@ package objects
 import sge.math.Vector2
 
 /** @brief Represents 2D points on the map */
-class PointMapObject(x: Float, y: Float) extends MapObject {
+class PointMapObject(x: Float = 0f, y: Float = 0f) extends MapObject {
 
-  private val point: Vector2 = new Vector2(x, y)
-
-  /** creates a 2D point map object at (0, 0) */
-  def this() = this(0f, 0f)
-
-  /** @return 2D point on the map as {@link Vector2} */
-  def getPoint: Vector2 = point
+  val point: Vector2 = new Vector2(x, y)
 }

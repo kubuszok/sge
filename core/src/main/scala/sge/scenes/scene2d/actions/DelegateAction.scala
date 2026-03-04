@@ -63,5 +63,5 @@ abstract class DelegateAction extends Action {
   }
 
   override def toString: String =
-    super.toString + action.fold("")(a => "(" + a + ")")
+    super.toString + action.map(a => "(" + a + ")").getOrElse("")
 }

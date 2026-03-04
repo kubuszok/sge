@@ -25,14 +25,14 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class WidgetGroup extends Group with Layout {
+class WidgetGroup()(using Sge) extends Group() with Layout {
 
   private var _needsLayout:  Boolean = true
   private var fillParent:    Boolean = false
   private var layoutEnabled: Boolean = true
 
   /** Creates a new widget group containing the specified actors. */
-  def this(actors: Actor*) = {
+  def this(actors: Actor*)(using Sge) = {
     this()
     actors.foreach(addActor)
   }
@@ -85,7 +85,7 @@ class WidgetGroup extends Group with Layout {
         // Widgets may call invalidateHierarchy during layout (eg, a wrapped label). The root-most widget group retries layout a
         // reasonable number of times.
         if (_needsLayout) {
-          if (!getParent.fold(false)(_.isInstanceOf[WidgetGroup])) { // The parent widget will layout again.
+          if (!getParent.exists(_.isInstanceOf[WidgetGroup])) { // The parent widget will layout again.
             var i = 0
             scala.util.boundary {
               while (i < 5) {

@@ -27,13 +27,12 @@ import sge.math.Vector3
   */
 abstract class SpawnShapeValue extends ParticleValue with ResourceData.Configurable {
 
-  var xOffsetValue: RangedNumericValue = new RangedNumericValue()
-  var yOffsetValue: RangedNumericValue = new RangedNumericValue()
-  var zOffsetValue: RangedNumericValue = new RangedNumericValue()
+  var xOffsetValue: RangedNumericValue = RangedNumericValue()
+  var yOffsetValue: RangedNumericValue = RangedNumericValue()
+  var zOffsetValue: RangedNumericValue = RangedNumericValue()
 
-  def this(spawnShapeValue: SpawnShapeValue) = {
+  def this(spawnShapeValue: SpawnShapeValue) =
     this()
-  }
 
   def spawnAux(vector: Vector3, percent: Float): Unit
 

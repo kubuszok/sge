@@ -50,13 +50,12 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) = {
+  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       Array.fill(frameTiles.size)((interval * 1000f).toInt),
       frameTiles.size * (interval * 1000f).toInt
     )
-  }
 
   /** Creates an animated tile with the given animation intervals and frame tiles.
     *
@@ -65,13 +64,12 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) = {
+  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       intervals.clone(),
       intervals.sum
     )
-  }
 
   override def getId: Int = id
 
@@ -139,16 +137,16 @@ class AnimatedTiledMapTile private (
 
   override def getProperties: MapProperties = {
     if (_properties.isEmpty) {
-      _properties = Nullable(new MapProperties())
+      _properties = Nullable(MapProperties())
     }
-    _properties.getOrElse(new MapProperties())
+    _properties.getOrElse(MapProperties())
   }
 
   override def getObjects: MapObjects = {
     if (_objects.isEmpty) {
-      _objects = Nullable(new MapObjects())
+      _objects = Nullable(MapObjects())
     }
-    _objects.getOrElse(new MapObjects())
+    _objects.getOrElse(MapObjects())
   }
 
   def getFrameTiles: Array[StaticTiledMapTile] = frameTiles

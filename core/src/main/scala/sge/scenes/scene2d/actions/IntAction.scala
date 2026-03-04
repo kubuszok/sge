@@ -26,10 +26,8 @@ import sge.math.Interpolation
   * @author
   *   Nathan Sweet
   */
-class IntAction(private var start: Int, private var _end: Int) extends TemporalAction {
+class IntAction(private var start: Int = 0, private var _end: Int = 1) extends TemporalAction {
   private var value: Int = 0
-
-  def this() = this(0, 1)
 
   def this(start: Int, _end: Int, duration: Float) = {
     this(start, _end)

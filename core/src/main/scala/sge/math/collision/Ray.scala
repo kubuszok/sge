@@ -12,7 +12,7 @@
  *     static tmp Vector3 replaced with local allocation in mul();
  *     added 3-arg constructor (originVec, directionVec, normalize) not in Java
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package math
@@ -23,7 +23,7 @@ package collision
   * @author
   *   badlogicgames@gmail.com (original implementation)
   */
-class Ray(val origin: Vector3 = new Vector3(), val direction: Vector3 = new Vector3()) {
+class Ray(val origin: Vector3 = Vector3(), val direction: Vector3 = Vector3()) {
 
   /** Alternative constructor with different parameter names to avoid conflicts.
     * @param originVec
@@ -40,7 +40,7 @@ class Ray(val origin: Vector3 = new Vector3(), val direction: Vector3 = new Vect
 
   /** @return a copy of this ray. */
   def cpy(): Ray =
-    new Ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z))
+    Ray(Vector3(origin.x, origin.y, origin.z), Vector3(direction.x, direction.y, direction.z))
 
   /** Returns the endpoint given the distance. This is calculated as startpoint + distance * direction.
     * @param out

@@ -25,7 +25,7 @@ import sge.utils.{ DynamicArray, Nullable }
 class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends SynchronousAssetLoader[ParticleEffect, ParticleEffectLoader.ParticleEffectParameter](resolver) {
 
   override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: ParticleEffectLoader.ParticleEffectParameter): ParticleEffect = {
-    val effect = new ParticleEffect()
+    val effect = ParticleEffect()
     Nullable(parameter).fold {
       effect.load(file, file.parent())
     } { p =>
@@ -36,7 +36,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Sync
           effect.load(file, imgDir)
         }
       } { atlasFile =>
-        effect.load(file, assetManager.get(atlasFile, classOf[TextureAtlas]), p.atlasPrefix)
+        effect.load(file, assetManager(atlasFile, classOf[TextureAtlas]), p.atlasPrefix)
       }
     }
     effect

@@ -1,7 +1,7 @@
 # Audit: sge.maps.objects
 
 Audited: 8/8 files | Pass: 8 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -14,8 +14,9 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors + `getCircle()` — 1:1 match.
-**Convention changes**: `circle` field changed from non-final to `val`
+**Completeness**: 2 constructors + `val circle` — 1:1 match.
+**Renames**: `getCircle()` -> `val circle`
+**Convention changes**: `circle` field promoted from non-final to `val`
 **Issues**: None
 
 ---
@@ -29,8 +30,9 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors + `getEllipse()` — 1:1 match.
-**Convention changes**: `ellipse` field changed from non-final to `val`
+**Completeness**: 2 constructors + `val ellipse` — 1:1 match.
+**Renames**: `getEllipse()` -> `val ellipse`
+**Convention changes**: `ellipse` field promoted from non-final to `val`
 **Issues**: None
 
 ---
@@ -44,7 +46,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors + `getPoint()` — 1:1 match.
+**Completeness**: 2 constructors + `val point` — 1:1 match.
+**Renames**: `getPoint()` -> `val point`
 **Issues**: None
 
 ---
@@ -58,7 +61,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 3 constructors + `getPolygon()`/`setPolygon()` — 1:1 match.
+**Completeness**: 3 constructors + `var polygon` — 1:1 match.
+**Renames**: `getPolygon()`/`setPolygon()` -> `var polygon`
 **Convention changes**: Idiomatic constructor reordering (no-arg is primary)
 **Issues**: None
 
@@ -73,7 +77,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 3 constructors + `getPolyline()`/`setPolyline()` — 1:1 match.
+**Completeness**: 3 constructors + `var polyline` — 1:1 match.
+**Renames**: `getPolyline()`/`setPolyline()` -> `var polyline`
 **Issues**: None
 
 ---
@@ -87,7 +92,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors + `getRectangle()` — 1:1 match.
+**Completeness**: 2 constructors + `val rectangle` — 1:1 match.
+**Renames**: `getRectangle()` -> `val rectangle`
 **Issues**: None
 
 ---
@@ -101,7 +107,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors, 12 fields, 24 accessor methods — all ported.
+**Completeness**: 2 constructors, 12 public vars, `val rectangle` — all ported.
+**Renames**: 16 getter/setter pairs -> public vars; `getRectangle()` -> `val rectangle`
 **Issues**: None
 
 ---
@@ -115,6 +122,7 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 constructors, 8 fields, 16 accessor methods — all ported.
+**Completeness**: 2 constructors, 8 public vars — all ported.
+**Renames**: 8 getter/setter pairs -> public vars
 **Convention changes**: Nullable `TextureRegion` properly wrapped as `Nullable[TextureRegion]`
 **Issues**: None

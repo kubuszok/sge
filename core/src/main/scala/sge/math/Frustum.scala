@@ -30,10 +30,10 @@ class Frustum {
   import Frustum._
 
   /** the six clipping planes, near, far, left, right, top, bottom * */
-  val planes: Array[Plane] = Array.fill(6)(new Plane(new Vector3(), 0))
+  val planes: Array[Plane] = Array.fill(6)(Plane(Vector3(), 0))
 
   /** eight points making up the near and far clipping "rectangles". order is counter clockwise, starting at bottom left * */
-  val planePoints:                Array[Vector3] = Array.fill(8)(new Vector3())
+  val planePoints:                Array[Vector3] = Array.fill(8)(Vector3())
   protected val planePointsArray: Array[Float]   = Array.ofDim[Float](8 * 3)
 
   /** Updates the clipping plane's based on the given inverse combined projection and view matrix, e.g. from an {@link OrthographicCamera} or {@link PerspectiveCamera} .
@@ -236,14 +236,14 @@ class Frustum {
 
 object Frustum {
   protected val clipSpacePlanePoints: Array[Vector3] = Array(
-    new Vector3(-1, -1, -1),
-    new Vector3(1, -1, -1),
-    new Vector3(1, 1, -1),
-    new Vector3(-1, 1, -1), // near clip
-    new Vector3(-1, -1, 1),
-    new Vector3(1, -1, 1),
-    new Vector3(1, 1, 1),
-    new Vector3(-1, 1, 1) // far clip
+    Vector3(-1, -1, -1),
+    Vector3(1, -1, -1),
+    Vector3(1, 1, -1),
+    Vector3(-1, 1, -1), // near clip
+    Vector3(-1, -1, 1),
+    Vector3(1, -1, 1),
+    Vector3(1, 1, 1),
+    Vector3(-1, 1, 1) // far clip
   )
 
   protected val clipSpacePlanePointsArray: Array[Float] = {
@@ -258,5 +258,5 @@ object Frustum {
     array
   }
 
-  private val tmpV = new Vector3()
+  private val tmpV = Vector3()
 }

@@ -13,7 +13,7 @@
  *     constructor takes center by reference (Java copies via new Vector3(center));
  *     added secondary (x,y,z,r) constructor not in Java
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package math
@@ -26,9 +26,8 @@ package collision
   */
 class Sphere(val center: Vector3, var radius: Float) {
 
-  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) = {
-    this(new Vector3(centerX, centerY, centerZ), radius)
-  }
+  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) =
+    this(Vector3(centerX, centerY, centerZ), radius)
 
   /** @param sphere
     *   the other sphere

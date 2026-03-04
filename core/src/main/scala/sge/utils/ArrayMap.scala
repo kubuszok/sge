@@ -87,6 +87,12 @@ final class ArrayMap[K, V] private (
     valArray(index)
   }
 
+  /** Replaces the key at the given index, keeping the same value. */
+  def setKeyAt(index: Int, key: K): Unit = {
+    if (index >= _size) throw new IndexOutOfBoundsException("index can't be >= size: " + index + " >= " + _size)
+    keyArray(index) = key
+  }
+
   /** Removes the key-value pair for the specified key, returning the value or `Nullable.empty`. */
   def removeKey(key: K): Nullable[V] = {
     val i = indexOfKey(key)

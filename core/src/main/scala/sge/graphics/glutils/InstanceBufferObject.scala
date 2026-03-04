@@ -34,9 +34,8 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) = {
-    this(isStatic, numVertices, new VertexAttributes(attributes*))
-  }
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(implicit sge: Sge) =
+    this(isStatic, numVertices, VertexAttributes(attributes*))
 
   private var attributes:   VertexAttributes = scala.compiletime.uninitialized
   private var buffer:       FloatBuffer      = scala.compiletime.uninitialized
@@ -175,7 +174,7 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     val numAttributes = attributes.size
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location >= 0) {
         val unitOffset = attribute.unit
         shader.enableVertexAttribute(location + unitOffset)
@@ -207,7 +206,7 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
     val numAttributes = attributes.size
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location >= 0) {
         val unitOffset = attribute.unit
         shader.disableVertexAttribute(location + unitOffset)

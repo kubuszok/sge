@@ -1,7 +1,7 @@
 # Audit: sge.scenes.scene2d.utils
 
-Audited: 21/21 files | Pass: 19 | Minor: 1 | Major: 1
-Last updated: 2026-03-03
+Audited: 21/21 files | Pass: 21 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -167,14 +167,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/utils/DragScrollListener.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/utils/DragScrollListener.java` |
-| Status | **major_issues** |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: INCOMPLETE. Constructor taking `ScrollPane`, `drag`, `dragStop`, `isAbove`, `isBelow`, `scroll` methods all commented out. Only `setup`, `getScrollPixels`, `setPadding` are active. `scrollUp`/`scrollDown` Timer.Task fields missing.
+**Completeness**: All 8 public methods: constructor, `setup`, `getScrollPixels`, `drag`, `dragStop`, `isAbove`, `isBelow`, `scroll`, `setPadding`. Private `scrollUp`/`scrollDown` Timer.Task fields present.
 **Renames**: Static tmpCoords -> companion object val
-**Convention changes**: Split packages
-**TODOs**: "TODO: uncomment when ScrollPane is ported" (3 occurrences)
-**Issues**: **Major** -- class is a skeleton. Depends on ScrollPane and Timer which are not yet ported. The no-arg constructor is a placeholder; Java has only a `ScrollPane` constructor. Most of the class's core behavior is missing.
+**Convention changes**: Split packages; `(using Sge)` required for Timer.Task and Timer.schedule
+**TODOs**: None
+**Issues**: None
 
 ---
 
@@ -266,15 +266,15 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/utils/Selection.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/utils/Selection.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All public methods accounted for: `setActor`, `choose`, `notEmpty`, `isEmpty`, `size`, `items`, `first`, `set`, `setAll`, `add`, `addAll`, `remove`, `removeAll`, `clear`, `changed`, `fireChangeEvent`, `contains`, `getLastSelected`, `iterator`, `toArray` (2 overloads), `setDisabled`, `isDisabled`, `getToggle`, `setToggle`, `getMultiple`, `setMultiple`, `getRequired`, `setRequired`, `setProgrammaticChangeEvents`, `getProgrammaticChangeEvents`, `toString`.
 **Renames**: `OrderedSet<T>` -> `LinkedHashSet[T]`; `Array<T>` -> `DynamicArray[T]`; `@Null` -> `Nullable`
-**Convention changes**: Deprecated `hasItems()` omitted; `choose` requires `(using Sge)`; null item checks removed (Scala type safety); split packages
+**Convention changes**: Deprecated `hasItems()` omitted; `choose` requires `(using Sge)`; null item checks removed (Scala type safety); split packages; `_isDisabled`/`multiple`/`required`/`lastSelected` now `protected` (was public, Java uses package-private)
 **Idiom**: `fireChangeEvent` uses `Actor.POOLS.obtain/free` pattern; `toArray` uses `DynamicArray.createWithMk`
 **TODOs**: None
-**Issues**: **Minor** -- `_isDisabled`, `multiple`, `required`, `lastSelected` fields are `var` with no access modifier (effectively public) rather than `private` with getters/setters. The Java source uses package-private access for `isDisabled`, `multiple`, `required`, `lastSelected` which is more restrictive. These should ideally be `private` with only getter/setter access.
+**Issues**: None
 
 ---
 

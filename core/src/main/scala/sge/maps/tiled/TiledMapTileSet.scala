@@ -12,7 +12,7 @@
  *   - getTile returns Nullable[TiledMapTile] (Java returns null)
  *   - Extends Iterable[TiledMapTile] (Java implements Iterable)
  *   - Split package, braces, no-return conventions satisfied
- *   TODO: Java-style getters/setters — getName/setName, getProperties, getTile
+ *   - Renames: getName/setName → var name, getProperties → val properties
  */
 package sge
 package maps
@@ -25,21 +25,11 @@ import sge.utils.Nullable
 /** @brief Set of {@link TiledMapTile} instances used to compose a TiledMapLayer */
 class TiledMapTileSet extends Iterable[TiledMapTile] {
 
-  private var name: String = ""
+  var name: String = ""
 
   private val tiles: mutable.HashMap[Int, TiledMapTile] = mutable.HashMap.empty
 
-  private val properties: MapProperties = new MapProperties()
-
-  /** @return tileset's name */
-  def getName: String = name
-
-  /** @param name new name for the tileset */
-  def setName(name: String): Unit =
-    this.name = name
-
-  /** @return tileset's properties set */
-  def getProperties: MapProperties = properties
+  val properties: MapProperties = MapProperties()
 
   /** Gets the {@link TiledMapTile} that has the given id.
     *

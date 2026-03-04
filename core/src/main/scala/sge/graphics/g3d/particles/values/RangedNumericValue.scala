@@ -8,9 +8,9 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: newLowValue, setLow (x2), getLowMin, setLowMin, getLowMax, setLowMax, load
+ * - All public methods ported: newLowValue, setLow (x2), lowMin/lowMax (public vars), load
+ * - Fixes (2026-03-04): getLowMin/setLowMin/getLowMax/setLowMax → public vars
  * - Status: pass
- * TODO: Java-style getters/setters — getLowMin/setLowMin, getLowMax/setLowMax
  */
 
 package sge
@@ -26,8 +26,8 @@ import sge.math.MathUtils
   *   Inferno
   */
 class RangedNumericValue extends ParticleValue {
-  private var lowMin: Float = 0f
-  private var lowMax: Float = 0f
+  var lowMin: Float = 0f
+  var lowMax: Float = 0f
 
   def newLowValue(): Float =
     lowMin + (lowMax - lowMin) * MathUtils.random()
@@ -41,18 +41,6 @@ class RangedNumericValue extends ParticleValue {
     lowMin = min
     lowMax = max
   }
-
-  def getLowMin(): Float =
-    lowMin
-
-  def setLowMin(lowMin: Float): Unit =
-    this.lowMin = lowMin
-
-  def getLowMax(): Float =
-    lowMax
-
-  def setLowMax(lowMax: Float): Unit =
-    this.lowMax = lowMax
 
   def load(value: RangedNumericValue): Unit = {
     super.load(value)

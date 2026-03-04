@@ -10,15 +10,16 @@ import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 /** Provides a minimal [[Sge]] context for unit tests that need one (e.g. Camera, ModelLoader). */
 object SgeTestFixture {
 
-  /** Creates a test [[Sge]] with noop implementations for all subsystems. */
-  def testSge: Sge = Sge(
-    application = NoopApplication,
-    graphics = new NoopGraphics(),
-    audio = new NoopAudio(),
-    files = NoopFiles,
-    input = new NoopInput(),
-    net = NoopNet
-  )
+  /** Creates a test [[Sge]] with noop implementations for all subsystems. Override individual parameters to inject custom implementations for testing.
+    */
+  def testSge(
+    application: Application = NoopApplication,
+    graphics:    Graphics = new NoopGraphics(),
+    audio:       Audio = new NoopAudio(),
+    files:       Files = NoopFiles,
+    input:       Input = new NoopInput(),
+    net:         Net = NoopNet
+  ): Sge = Sge(application, graphics, audio, files, input, net)
 
   private object NoopApplication extends Application {
     def getApplicationListener():                                                               ApplicationListener         = throw new UnsupportedOperationException

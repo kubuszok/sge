@@ -49,8 +49,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   protected var selectionStart: Int               = 0
   protected var hasSelection:   Boolean           = false
   protected var writeEnters:    Boolean           = false
-  protected val glyphLayout:    GlyphLayout       = new GlyphLayout()
-  protected val glyphPositions: DynamicFloatArray = new DynamicFloatArray()
+  protected val glyphLayout:    GlyphLayout       = GlyphLayout()
+  protected val glyphPositions: DynamicFloatArray = DynamicFloatArray()
 
   protected var _style:       TextField.TextFieldStyle    = scala.compiletime.uninitialized
   private var messageText:    Nullable[String]            = Nullable.empty
@@ -84,7 +84,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
   private var autocompleteOptions: Nullable[Array[String]] = Nullable.empty
   @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
-  private var keyboardType: Input.OnscreenKeyboardType.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
+  private var keyboardType: Input.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
   @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
   private var preventAutoCorrection: Boolean = false
 
@@ -101,7 +101,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       }
   }
 
-  val keyRepeatTask:            KeyRepeatTask = new KeyRepeatTask()
+  val keyRepeatTask:            KeyRepeatTask = KeyRepeatTask()
   var programmaticChangeEvents: Boolean       = false
 
   setStyle(style)
@@ -121,10 +121,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   }
 
   protected def createInputListener(): InputListener =
-    new TextFieldClickListener()
+    TextFieldClickListener()
 
   protected def letterUnderCursor(x: Float): Int = boundary {
-    var adjustedX  = x - textOffset - fontOffset + _style.font.getData().cursorX + glyphPositions(visibleTextStart)
+    var adjustedX  = x - textOffset - fontOffset + _style.font.data.cursorX + glyphPositions(visibleTextStart)
     val background = getBackgroundDrawable()
     background.foreach { bg =>
       adjustedX -= bg.getLeftWidth
@@ -189,7 +189,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     this.autocompleteOptions = autocompleteOptions
 
   /** Which {@link Input.OnscreenKeyboardType} to use. Mainly used for mobile, will also be referenced for password masking */
-  def setKeyboardType(keyboardType: Input.OnscreenKeyboardType.OnscreenKeyboardType): Unit =
+  def setKeyboardType(keyboardType: Input.OnscreenKeyboardType): Unit =
     this.keyboardType = keyboardType
 
   /** Whether if auto correction is provided by the system, it should be suppressed. Will be considered true, if {@link Input.OnscreenKeyboardType} is `Password`
@@ -206,7 +206,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   def setStyle(style: TextField.TextFieldStyle): Unit = {
     this._style = style
 
-    textHeight = style.font.getCapHeight() - style.font.getDescent() * 2
+    textHeight = style.font.capHeight - style.font.descent * 2
     updateDisplayText()
     invalidateHierarchy()
   }
@@ -290,7 +290,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       val minX     = Math.max(glyphPositions(minIndex) - glyphPositions(visibleTextStart), -textOffset)
       val maxX     = Math.min(glyphPositions(maxIndex) - glyphPositions(visibleTextStart), visibleWidth - textOffset)
       selectionX = minX
-      selectionWidth = maxX - minX - _style.font.getData().cursorX
+      selectionWidth = maxX - minX - _style.font.data.cursorX
     }
   }
 
@@ -346,7 +346,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       }
     }
 
-    val yOffset = if (font.isFlipped()) -textHeight else 0
+    val yOffset = if (font.flipped) -textHeight else 0
     if (displayText.length() == 0) {
       if ((!focused || disabled) && messageText.isDefined) {
         val messageFont = _style.messageFont.getOrElse(font)
@@ -358,7 +358,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
         drawMessageText(batch, messageFont, x + bgLeftWidth, y + textY + yOffset, width - bgLeftWidth - bgRightWidth)
       }
     } else {
-      val data          = font.getData()
+      val data          = font.data
       val markupEnabled = data.markupEnabled
       data.markupEnabled = false
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * color.a * parentAlpha)
@@ -374,14 +374,14 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
     val height = getHeight
-    var textY  = textHeight / 2 + font.getDescent()
+    var textY  = textHeight / 2 + font.descent
     background.fold {
       textY = textY + height / 2
     } { bg =>
       val bottom = bg.getBottomHeight
       textY = textY + (height - bg.getTopHeight - bottom) / 2 + bottom
     }
-    if (font.usesIntegerPositions()) textY = textY.toInt.toFloat
+    if (font.integerPositions) textY = textY.toInt.toFloat
     textY
   }
 
@@ -390,7 +390,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   /** Draws selection rectangle * */
   protected def drawSelection(selection: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
-    selection.draw(batch, x + textOffset + selectionX + fontOffset, y - textHeight - font.getDescent(), selectionWidth, textHeight)
+    selection.draw(batch, x + textOffset + selectionX + fontOffset, y - textHeight - font.descent, selectionWidth, textHeight)
 
   protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
     font.draw(batch, displayText, x + textOffset, y, visibleTextStart, visibleTextEnd, 0, Align.left.toInt, false)
@@ -403,15 +403,15 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
     cursorPatch.draw(
       batch,
-      x + textOffset + glyphPositions(cursor) - glyphPositions(visibleTextStart) + fontOffset + font.getData().cursorX,
-      y - textHeight - font.getDescent(),
+      x + textOffset + glyphPositions(cursor) - glyphPositions(visibleTextStart) + fontOffset + font.data.cursorX,
+      y - textHeight - font.descent,
       cursorPatch.getMinWidth,
       textHeight
     )
 
   protected def updateDisplayText(): Unit = {
     val font       = _style.font
-    val data       = font.getData()
+    val data       = font.data
     val text       = this._text
     val textLength = text.length()
 
@@ -495,7 +495,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       val buffer     = new java.lang.StringBuilder()
       var textLength = _text.length()
       if (hasSelection) textLength -= Math.abs(cursor - selectionStart)
-      val data = _style.font.getData()
+      val data = _style.font.data
       var i    = 0
       val n    = rawContent.length()
       boundary {
@@ -1034,7 +1034,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
         val enter     = character == CARRIAGE_RETURN || character == NEWLINE
         val delete    = character == DELETE
         val backspace = character == BACKSPACE
-        val add       = if (enter) writeEnters else !onlyFontChars || _style.font.getData().hasGlyph(character)
+        val add       = if (enter) writeEnters else !onlyFontChars || _style.font.data.hasGlyph(character)
         val remove    = backspace || delete
         if (add || remove) {
           val oldText   = _text
@@ -1096,11 +1096,11 @@ object TextField {
   private[ui] val DELETE:          Char = 127
   private[ui] val BULLET:          Char = 149
 
-  var DEFAULT_ONSCREEN_KEYBOARD: OnscreenKeyboard = new DefaultOnscreenKeyboard()
+  var DEFAULT_ONSCREEN_KEYBOARD: OnscreenKeyboard = DefaultOnscreenKeyboard()
 
-  private val tmp1: Vector2 = new Vector2()
-  private val tmp2: Vector2 = new Vector2()
-  private val tmp3: Vector2 = new Vector2()
+  private val tmp1: Vector2 = Vector2()
+  private val tmp2: Vector2 = Vector2()
+  private val tmp3: Vector2 = Vector2()
 
   var keyRepeatInitialTime: Float = 0.4f
   var keyRepeatTime:        Float = 0.1f
@@ -1201,9 +1201,9 @@ object TextField {
     def this(style: TextFieldStyle) = {
       this()
       font = style.font
-      Nullable(style.fontColor).foreach(c => fontColor = new Color(c))
-      focusedFontColor = style.focusedFontColor.map(c => new Color(c))
-      disabledFontColor = style.disabledFontColor.map(c => new Color(c))
+      Nullable(style.fontColor).foreach(c => fontColor = Color(c))
+      focusedFontColor = style.focusedFontColor.map(c => Color(c))
+      disabledFontColor = style.disabledFontColor.map(c => Color(c))
 
       background = style.background
       focusedBackground = style.focusedBackground
@@ -1212,7 +1212,7 @@ object TextField {
       selection = style.selection
 
       messageFont = style.messageFont
-      messageFontColor = style.messageFontColor.map(c => new Color(c))
+      messageFontColor = style.messageFontColor.map(c => Color(c))
     }
   }
 

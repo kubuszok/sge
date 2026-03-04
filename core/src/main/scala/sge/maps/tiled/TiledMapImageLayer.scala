@@ -6,12 +6,13 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Migration notes (audited 2026-03-03):
- *   - All 11 methods match Java 1:1 (supportsTransparency, get/set for region, x, y, repeatX, repeatY)
+ * Migration notes (audited 2026-03-04):
+ *   - All methods match Java 1:1
+ *   - Renames: getTextureRegion/setTextureRegion -> var region, getX/setX -> var x,
+ *     getY/setY -> var y, isRepeatX/setRepeatX -> var repeatX, isRepeatY/setRepeatY -> var repeatY
  *   - Private helper checkTransparencySupport + formatHasAlpha faithfully ported
- *   - Java switch → Scala match in formatHasAlpha
+ *   - Java switch -> Scala match in formatHasAlpha
  *   - Split package, braces, no-return conventions satisfied
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (5 pairs → vars)
  */
 package sge
 package maps
@@ -23,11 +24,11 @@ import sge.maps.MapLayer
 import sge.utils.Nullable
 
 class TiledMapImageLayer(
-  private var region:  TextureRegion,
-  private var x:       Float,
-  private var y:       Float,
-  private var repeatX: Boolean,
-  private var repeatY: Boolean
+  var region:  TextureRegion,
+  var x:       Float,
+  var y:       Float,
+  var repeatX: Boolean,
+  var repeatY: Boolean
 ) extends MapLayer {
 
   private val _supportsTransparency: Boolean = checkTransparencySupport(region)
@@ -41,7 +42,7 @@ class TiledMapImageLayer(
     *   boolean
     */
   private def checkTransparencySupport(region: TextureRegion): Boolean = {
-    val format = region.getTexture().getTextureData().getFormat
+    val format = region.texture.getTextureData().getFormat
     Nullable(format).isDefined && formatHasAlpha(format)
   }
 
@@ -55,29 +56,4 @@ class TiledMapImageLayer(
   }
 
   def supportsTransparency: Boolean = _supportsTransparency
-
-  def getTextureRegion: TextureRegion = region
-
-  def setTextureRegion(region: TextureRegion): Unit =
-    this.region = region
-
-  def getX: Float = x
-
-  def setX(x: Float): Unit =
-    this.x = x
-
-  def getY: Float = y
-
-  def setY(y: Float): Unit =
-    this.y = y
-
-  def isRepeatX: Boolean = repeatX
-
-  def setRepeatX(repeatX: Boolean): Unit =
-    this.repeatX = repeatX
-
-  def isRepeatY: Boolean = repeatY
-
-  def setRepeatY(repeatY: Boolean): Unit =
-    this.repeatY = repeatY
 }

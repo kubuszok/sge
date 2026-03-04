@@ -33,12 +33,12 @@ class AlphaAction extends TemporalAction {
   private var color: Nullable[Color] = Nullable.empty
 
   override protected def begin(): Unit = {
-    val c = this.color.getOrElse(target.fold(new Color())(_.getColor))
+    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
     start = c.a
   }
 
   override protected def update(percent: Float): Unit = {
-    val c = this.color.getOrElse(target.fold(new Color())(_.getColor))
+    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
     if (percent == 0)
       c.a = start
     else if (percent == 1)

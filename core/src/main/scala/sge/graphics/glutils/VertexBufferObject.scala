@@ -51,7 +51,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     */
   def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) = {
     this()
-    this.init(isStatic, numVertices, new VertexAttributes(attributes*))
+    this.init(isStatic, numVertices, VertexAttributes(attributes*))
   }
 
   /** Constructs a new interleaved VertexBufferObject.
@@ -180,7 +180,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     val numAttributes = attributes.size
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location >= 0) {
         shader.enableVertexAttribute(location)
         shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)

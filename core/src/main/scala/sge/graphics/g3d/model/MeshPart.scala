@@ -63,12 +63,12 @@ class MeshPart {
   var mesh: Mesh = scala.compiletime.uninitialized
 
   /** The offset to the center of the bounding box of the shape, only valid after the call to {@link #update()}. * */
-  val center: Vector3 = new Vector3()
+  val center: Vector3 = Vector3()
 
   /** The location, relative to {@link #center}, of the corner of the axis aligned bounding box of the shape. Or, in other words: half the dimensions of the bounding box of the shape, where
     * {@link Vector3#x} is half the width, {@link Vector3#y} is half the height and {@link Vector3#z} is half the depth. Only valid after the call to {@link #update()}. *
     */
-  val halfExtents: Vector3 = new Vector3()
+  val halfExtents: Vector3 = Vector3()
 
   /** The radius relative to {@link #center} of the bounding sphere of the shape, or negative if not calculated yet. This is the same as the length of the {@link #halfExtents} member. See
     * {@link #update()}. *
@@ -180,5 +180,5 @@ class MeshPart {
 object MeshPart {
 
   /** Temporary static {@link BoundingBox} instance, used in the {@link #update()} method. * */
-  private val bounds: BoundingBox = new BoundingBox()
+  private val bounds: BoundingBox = BoundingBox()
 }

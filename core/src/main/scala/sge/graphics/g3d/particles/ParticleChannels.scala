@@ -72,7 +72,7 @@ object ParticleChannels {
   }
 
   object TextureRegionInitializer {
-    private lazy val instance: TextureRegionInitializer = new TextureRegionInitializer()
+    private lazy val instance: TextureRegionInitializer = TextureRegionInitializer()
 
     def get(): TextureRegionInitializer = instance
   }
@@ -84,7 +84,7 @@ object ParticleChannels {
   }
 
   object ColorInitializer {
-    private lazy val instance: ColorInitializer = new ColorInitializer()
+    private lazy val instance: ColorInitializer = ColorInitializer()
 
     def get(): ColorInitializer = instance
   }
@@ -96,7 +96,7 @@ object ParticleChannels {
   }
 
   object ScaleInitializer {
-    private lazy val instance: ScaleInitializer = new ScaleInitializer()
+    private lazy val instance: ScaleInitializer = ScaleInitializer()
 
     def get(): ScaleInitializer = instance
   }
@@ -115,7 +115,7 @@ object ParticleChannels {
   }
 
   object Rotation2dInitializer {
-    private lazy val instance: Rotation2dInitializer = new Rotation2dInitializer()
+    private lazy val instance: Rotation2dInitializer = Rotation2dInitializer()
 
     def get(): Rotation2dInitializer = instance
   }
@@ -136,41 +136,41 @@ object ParticleChannels {
   }
 
   object Rotation3dInitializer {
-    private lazy val instance: Rotation3dInitializer = new Rotation3dInitializer()
+    private lazy val instance: Rotation3dInitializer = Rotation3dInitializer()
 
     def get(): Rotation3dInitializer = instance
   }
 
   // Channels
   /** Channels of common use like position, life, color, etc... */
-  val Life:     ChannelDescriptor = new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
+  val Life:     ChannelDescriptor = ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
   val Position: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3) // gl units
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3) // gl units
   val PreviousPosition: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
-  val Color:         ChannelDescriptor = new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 4)
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
+  val Color:         ChannelDescriptor = ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 4)
   val TextureRegion: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 6)
-  val Rotation2D:    ChannelDescriptor = new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 2)
-  val Rotation3D:    ChannelDescriptor = new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 4)
-  val Scale:         ChannelDescriptor = new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 1)
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 6)
+  val Rotation2D:    ChannelDescriptor = ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 2)
+  val Rotation3D:    ChannelDescriptor = ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 4)
+  val Scale:         ChannelDescriptor = ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 1)
   val ModelInstance: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[sge.graphics.g3d.ModelInstance](size), 1)
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[sge.graphics.g3d.ModelInstance](size), 1)
   val ParticleController: ChannelDescriptor =
-    new ChannelDescriptor(
+    ChannelDescriptor(
       newGlobalId(),
       (size: Int) => new Array[sge.graphics.g3d.particles.ParticleController](size),
       1
     )
   val Acceleration: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3) // gl units/s2
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3) // gl units/s2
   val AngularVelocity2D: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 1)
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 1)
   val AngularVelocity3D: ChannelDescriptor =
-    new ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
-  val Interpolation:  ChannelDescriptor = new ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 2)
-  val Interpolation4: ChannelDescriptor = new ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 4)
-  val Interpolation6: ChannelDescriptor = new ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 6)
+    ChannelDescriptor(newGlobalId(), (size: Int) => new Array[Float](size), 3)
+  val Interpolation:  ChannelDescriptor = ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 2)
+  val Interpolation4: ChannelDescriptor = ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 4)
+  val Interpolation6: ChannelDescriptor = ChannelDescriptor(-1, (size: Int) => new Array[Float](size), 6)
 
   // Offsets
   /** Offsets to acess a particular value inside a stride of a given channel */

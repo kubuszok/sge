@@ -20,7 +20,7 @@ import sge.utils.{ Align, Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle) extends TextButton(text, style) {
+class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge) extends TextButton(text, style) {
   import CheckBox._
 
   private var _style:    CheckBoxStyle = scala.compiletime.uninitialized
@@ -39,12 +39,12 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle) extends Te
     setSize(getPrefWidth, getPrefHeight)
   }
 
-  // def this(text: Nullable[String], skin: Skin) = this(text, skin.get(classOf[CheckBoxStyle]))
+  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get(classOf[CheckBox.CheckBoxStyle]))
 
-  // def this(text: Nullable[String], skin: Skin, styleName: String) = this(text, skin.get(styleName, classOf[CheckBoxStyle]))
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[CheckBox.CheckBoxStyle]))
 
   protected def newImage(): Image =
-    new Image(Nullable.empty, Scaling.none)
+    Image(Nullable.empty, Scaling.none)
 
   override def setStyle(style: Button.ButtonStyle): Unit = {
     if (!style.isInstanceOf[CheckBoxStyle]) throw new IllegalArgumentException("style must be a CheckBoxStyle.")
@@ -123,15 +123,15 @@ object CheckBox {
       checkedOffsetY = style.checkedOffsetY
 
       font = style.font
-      fontColor = style.fontColor.map(c => new Color(c))
-      downFontColor = style.downFontColor.map(c => new Color(c))
-      overFontColor = style.overFontColor.map(c => new Color(c))
-      focusedFontColor = style.focusedFontColor.map(c => new Color(c))
-      disabledFontColor = style.disabledFontColor.map(c => new Color(c))
-      checkedFontColor = style.checkedFontColor.map(c => new Color(c))
-      checkedDownFontColor = style.checkedDownFontColor.map(c => new Color(c))
-      checkedOverFontColor = style.checkedOverFontColor.map(c => new Color(c))
-      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => new Color(c))
+      fontColor = style.fontColor.map(c => Color(c))
+      downFontColor = style.downFontColor.map(c => Color(c))
+      overFontColor = style.overFontColor.map(c => Color(c))
+      focusedFontColor = style.focusedFontColor.map(c => Color(c))
+      disabledFontColor = style.disabledFontColor.map(c => Color(c))
+      checkedFontColor = style.checkedFontColor.map(c => Color(c))
+      checkedDownFontColor = style.checkedDownFontColor.map(c => Color(c))
+      checkedOverFontColor = style.checkedOverFontColor.map(c => Color(c))
+      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => Color(c))
 
       checkboxOff = style.checkboxOff
       checkboxOn = style.checkboxOn

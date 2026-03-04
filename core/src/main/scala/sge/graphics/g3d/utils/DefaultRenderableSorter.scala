@@ -28,8 +28,8 @@ import sge.utils.{ DynamicArray, Nullable }
 
 class DefaultRenderableSorter extends RenderableSorter {
   private var camera: Nullable[Camera] = Nullable.empty
-  private val tmpV1:  Vector3          = new Vector3()
-  private val tmpV2:  Vector3          = new Vector3()
+  private val tmpV1:  Vector3          = Vector3()
+  private val tmpV2:  Vector3          = Vector3()
 
   private given Ordering[Renderable] = (o1: Renderable, o2: Renderable) => compareRenderables(o1, o2)
 
@@ -49,13 +49,13 @@ class DefaultRenderableSorter extends RenderableSorter {
   }
 
   private def compareRenderables(o1: Renderable, o2: Renderable): Int = {
-    val b1 = o1.material.fold(false) { mat =>
+    val b1 = o1.material.exists { mat =>
       mat.has(BlendingAttribute.Type) &&
-      mat.get(BlendingAttribute.Type).fold(false)(_.asInstanceOf[BlendingAttribute].blended)
+      mat.get(BlendingAttribute.Type).exists(_.asInstanceOf[BlendingAttribute].blended)
     }
-    val b2 = o2.material.fold(false) { mat =>
+    val b2 = o2.material.exists { mat =>
       mat.has(BlendingAttribute.Type) &&
-      mat.get(BlendingAttribute.Type).fold(false)(_.asInstanceOf[BlendingAttribute].blended)
+      mat.get(BlendingAttribute.Type).exists(_.asInstanceOf[BlendingAttribute].blended)
     }
     if (b1 != b2) { if (b1) 1 else -1 }
     else {

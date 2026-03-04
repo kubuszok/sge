@@ -1,7 +1,7 @@
 # Audit: sge.maps.tiled
 
-Audited: 16/16 files | Pass: 14 | Minor: 1 | Major: 1
-Last updated: 2026-03-03
+Audited: 16/16 files | Pass: 15 | Minor: 1 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -44,8 +44,9 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: Constructor parameters, cells array, getWidth/getHeight/getTileWidth/getTileHeight/getCell/setCell all match Java 1:1. Inner Cell class: 4 fields (tile, flipHorizontally, flipVertically, rotation), 8 get/set methods returning `Cell` for chaining, 4 rotation constants (ROTATE_0/90/180/270) -- all match.
-**Convention changes**: Java null returns from getCell -> `Nullable.empty`. Cell.setTile takes `Nullable[TiledMapTile]`. Java `static class Cell` -> `object TiledMapTileLayer { class Cell }` with companion `object Cell` for constants.
+**Completeness**: Constructor parameters, cells array, getWidth/getHeight/getTileWidth/getTileHeight/getCell/setCell all match Java 1:1. Inner Cell class: 4 public vars (tile, flipHorizontally, flipVertically, rotation), 4 rotation constants (ROTATE_0/90/180/270) -- all match.
+**Renames**: Cell: getTile/setTile → var tile, getFlipHorizontally/setFlipHorizontally → var flipHorizontally, getFlipVertically/setFlipVertically → var flipVertically, getRotation/setRotation → var rotation
+**Convention changes**: Java null returns from getCell -> `Nullable.empty`. Cell.tile is `Nullable[TiledMapTile]`. Java `static class Cell` -> `object TiledMapTileLayer { class Cell }` with companion `object Cell` for constants.
 **Issues**: None
 
 ---
@@ -59,7 +60,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: All 8 methods (getName, setName, getProperties, getTile, iterator, putTile, removeTile, size) match Java 1:1.
+**Completeness**: All methods match Java 1:1: var name, val properties, getTile, iterator, putTile, removeTile, size.
+**Renames**: getName/setName → var name, getProperties → val properties
 **Convention changes**: Java `IntMap<TiledMapTile>` -> `scala.collection.mutable.HashMap[Int, TiledMapTile]`. getTile returns `Nullable[TiledMapTile]` (Java returns null). Extends `Iterable[TiledMapTile]` (Java implements `Iterable`).
 **Issues**: None
 
@@ -104,7 +106,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: Constructor with 5 parameters, private checkTransparencySupport/formatHasAlpha helpers, 11 public methods (supportsTransparency, getTextureRegion, setTextureRegion, getX, setX, getY, setY, isRepeatX, setRepeatX, isRepeatY, setRepeatY) -- all match Java 1:1.
+**Completeness**: Constructor with 5 public vars (region, x, y, repeatX, repeatY), private checkTransparencySupport/formatHasAlpha helpers, supportsTransparency method -- all match Java 1:1.
+**Renames**: getTextureRegion/setTextureRegion → var region, getX/setX → var x, getY/setY → var y, isRepeatX/setRepeatX → var repeatX, isRepeatY/setRepeatY → var repeatY
 **Convention changes**: Java `switch` -> Scala `match` in formatHasAlpha. Private field `_supportsTransparency` instead of `supportsTransparency` to avoid name clash with public method.
 **Issues**: None
 
@@ -116,14 +119,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/maps/tiled/BaseTiledMapLoader.scala` |
 | Java source(s) | `com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All public/protected methods (getDependencyAssetDescriptors, loadTiledMap, getIdToObject, castProperty, createTileLayerCell, addStaticTiledMapTile, loadObjectProperty, loadBasicProperty, loadProjectFile, loadJsonClassProperties, tiledColorToLibGDXColor, loadMapPropertiesClassDefaults), companion object statics (FLAG_FLIP_*, MASK_CLEAR, unsignedByteToInt, getRelativeFileHandle, tiledColorToLibGDXColor), and inner types (Parameters, ProjectClassMember) all present.
+**Renames**: Cell setters in createTileLayerCell → direct var assignments
 **Convention changes**: Java `IntMap<MapObject>` -> `mutable.HashMap[Int, MapObject]`. Java `Array<Runnable>` -> `DynamicArray[() => Unit]`. Java null fields -> `Nullable[A]`. Java `GdxRuntimeException` -> `IllegalArgumentException`/`IllegalStateException`. Java `StringTokenizer` -> `path.split("[/\\\\]+")`.
-**Issues**:
-- **BUG (major)**: `loadProjectFile` (line ~189-194) creates `projectClassMember` objects and sets their fields, but **never calls `projectClassMembers.add(projectClassMember)`**. The Java source (line 259) has `projectClassMembers.add(projectClassMember)`. This means Tiled project class properties are silently dropped, breaking class-typed property loading.
-- Misplaced Javadoc: the `tiledColorToLibGDXColor` doc comment is placed above `loadMapPropertiesClassDefaults` instead of above `tiledColorToLibGDXColor`.
+**Issues**: None (loadProjectFile bug fixed in prior commit; misplaced Javadoc is cosmetic)
 
 ---
 

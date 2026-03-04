@@ -21,9 +21,8 @@
  *     assignment; functionally equivalent
  *   - Java int-to-float widening done explicitly via .toFloat (correct)
  *   - Sge() accessor used in place of Gdx.graphics (correct)
- *   - Java-style getters/setters retained for LibGDX API compatibility (acceptable)
- * TODO: Java-style getters/setters -- getCamera/setCamera, getWorldWidth/setWorldWidth, getWorldHeight/setWorldHeight, getScreenX/Y/setScreenX/Y, getScreenWidth/setScreenWidth, getScreenHeight/setScreenHeight
- * TODO: opaque Pixels for update(screenWidth, screenHeight), getScreenX/Y/Width/Height params -- see docs/improvements/opaque-types.md
+ *   Idiom: Java-style getters/setters converted to public vars (camera, worldWidth/Height, screenX/Y/Width/Height)
+ * TODO: opaque Pixels for update(screenWidth, screenHeight), screenX/Y/Width/Height -- see docs/improvements/opaque-types.md
  */
 package sge
 package utils
@@ -46,15 +45,15 @@ import sge.Sge
   *   Nathan Sweet
   */
 abstract class Viewport(using Sge) {
-  private var camera:       Camera = scala.compiletime.uninitialized
-  private var worldWidth:   Float  = scala.compiletime.uninitialized
-  private var worldHeight:  Float  = scala.compiletime.uninitialized
-  private var screenX:      Int    = scala.compiletime.uninitialized
-  private var screenY:      Int    = scala.compiletime.uninitialized
-  private var screenWidth:  Int    = scala.compiletime.uninitialized
-  private var screenHeight: Int    = scala.compiletime.uninitialized
+  var camera:       Camera = scala.compiletime.uninitialized
+  var worldWidth:   Float  = scala.compiletime.uninitialized
+  var worldHeight:  Float  = scala.compiletime.uninitialized
+  var screenX:      Int    = scala.compiletime.uninitialized
+  var screenY:      Int    = scala.compiletime.uninitialized
+  var screenWidth:  Int    = scala.compiletime.uninitialized
+  var screenHeight: Int    = scala.compiletime.uninitialized
 
-  private val tmp = new Vector3()
+  private val tmp = Vector3()
 
   /** Calls {@link #apply(boolean)} with false. */
   def apply(): Unit =
@@ -150,60 +149,10 @@ abstract class Viewport(using Sge) {
     worldCoords
   }
 
-  def getCamera(): Camera =
-    camera
-
-  def setCamera(camera: Camera): Unit =
-    this.camera = camera
-
-  def getWorldWidth(): Float =
-    worldWidth
-
-  /** The virtual width of this viewport in world coordinates. This width is scaled to the viewport's screen width. */
-  def setWorldWidth(worldWidth: Float): Unit =
-    this.worldWidth = worldWidth
-
-  def getWorldHeight(): Float =
-    worldHeight
-
-  /** The virtual height of this viewport in world coordinates. This height is scaled to the viewport's screen height. */
-  def setWorldHeight(worldHeight: Float): Unit =
-    this.worldHeight = worldHeight
-
   def setWorldSize(worldWidth: Float, worldHeight: Float): Unit = {
     this.worldWidth = worldWidth
     this.worldHeight = worldHeight
   }
-
-  def getScreenX(): Int =
-    screenX
-
-  /** Sets the viewport's offset from the left edge of the screen. This is typically set by {@link #update(int, int, boolean)} .
-    */
-  def setScreenX(screenX: Int): Unit =
-    this.screenX = screenX
-
-  def getScreenY(): Int =
-    screenY
-
-  /** Sets the viewport's offset from the bottom edge of the screen. This is typically set by {@link #update(int, int, boolean)} .
-    */
-  def setScreenY(screenY: Int): Unit =
-    this.screenY = screenY
-
-  def getScreenWidth(): Int =
-    screenWidth
-
-  /** Sets the viewport's width in screen coordinates. This is typically set by {@link #update(int, int, boolean)}. */
-  def setScreenWidth(screenWidth: Int): Unit =
-    this.screenWidth = screenWidth
-
-  def getScreenHeight(): Int =
-    screenHeight
-
-  /** Sets the viewport's height in screen coordinates. This is typically set by {@link #update(int, int, boolean)}. */
-  def setScreenHeight(screenHeight: Int): Unit =
-    this.screenHeight = screenHeight
 
   /** Sets the viewport's position in screen coordinates. This is typically set by {@link #update(int, int, boolean)}. */
   def setScreenPosition(screenX: Int, screenY: Int): Unit = {

@@ -35,7 +35,7 @@ import sge.utils.{ Nullable, SgeError }
   */
 class ModelInstanceRenderer
     extends ParticleControllerRenderer[ModelInstanceControllerRenderData, ModelInstanceParticleBatch](
-      new ModelInstanceControllerRenderData()
+      ModelInstanceControllerRenderData()
     ) {
 
   private var hasColor:    Boolean = false
@@ -119,7 +119,7 @@ class ModelInstanceRenderer
   }
 
   override def copy(): ParticleControllerComponent =
-    new ModelInstanceRenderer(batch)
+    ModelInstanceRenderer(batch)
 
   override def isCompatible(batch: ParticleBatch[?]): Boolean =
     batch.isInstanceOf[ModelInstanceParticleBatch]

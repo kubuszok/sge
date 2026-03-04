@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.attributes
 
 Audited: 10/10 files | Pass: 7 | Minor: 3 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -155,10 +155,9 @@ Last updated: 2026-03-03
 
 **Completeness**: All 7 alias/type pairs (`Diffuse`, `Specular`, `Bump`, `Normal`, `Ambient`, `Emissive`, `Reflection`), `Mask`, `is()`, 14 factory methods (7 Texture + 7 TextureRegion), 6 fields (`textureDescription`, `offsetU`, `offsetV`, `scaleU`, `scaleV`, `uvIndex`), `set(TextureRegion)`, `copy`, `hashCode`, `compare` accounted for.
 **Renames**: `compareTo` -> `compare`; `GdxRuntimeException` -> `SgeError.InvalidInput`
-**Convention changes**: `textureDescription.texture` assignment uses `Nullable()` wrapper per no-null convention. Copy ctor sets fields individually instead of delegating to full-arg ctor (same result).
-**Missing constructors**: Java has `(type, TextureDescriptor)` and `(type, TextureDescriptor, offsetU, offsetV, scaleU, scaleV)` overloads that are not present in the Scala port. These are lower-level constructors unlikely to be used by application code (the factory methods and `(type, Texture)`/`(type, TextureRegion)` ctors cover normal use cases). No callers found in the codebase.
+**Convention changes**: `textureDescription.texture` assignment uses `Nullable()` wrapper per no-null convention. Java generic ctor `(type, TextureDescriptor<T>)` → Scala `(type, TextureDescriptor[? <: Texture])`. Copy ctor delegates to full 7-arg constructor.
 **TODOs**: None
-**Issues**: None -- missing constructors are a deliberate simplification, not a regression
+**Issues**: None
 
 ---
 
@@ -173,7 +172,6 @@ Last updated: 2026-03-03
 
 **Completeness**: All fields (`textureDescription`), `EnvironmentMapAlias`, `EnvironmentMap`, `Mask`, `is()`, 3 constructors (type-only, type+Cubemap, copy), `copy`, `hashCode`, `compare` accounted for.
 **Renames**: `compareTo` -> `compare`; `GdxRuntimeException` -> `SgeError.InvalidInput`
-**Convention changes**: `textureDescription.texture` assignment uses `Nullable()` wrapper per no-null convention. Copy ctor delegates to `(type)` then calls `textureDescription.set` (same result as Java's delegation to `(type, TextureDescriptor)`).
-**Missing constructors**: Java has `(type, TextureDescriptor<T>)` constructor not present in Scala. This is a lower-level constructor; no callers found in the codebase.
+**Convention changes**: `textureDescription.texture` assignment uses `Nullable()` wrapper per no-null convention. Java generic ctor `(type, TextureDescriptor<T>)` erases to same as primary constructor; covered by primary `(type, TextureDescriptor[Cubemap])`. Copy ctor uses `.set()` for deep copy.
 **TODOs**: None
-**Issues**: None -- missing constructor is a deliberate simplification, not a regression
+**Issues**: None

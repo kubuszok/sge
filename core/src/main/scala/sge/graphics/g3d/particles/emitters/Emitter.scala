@@ -10,6 +10,9 @@
  * - All public methods ported faithfully
  * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
  * - Extends ParticleControllerComponent (which maps Disposable → AutoCloseable)
+ * - Fixes (2026-03-04): removed redundant getMinParticleCount/setMinParticleCount,
+ *   getMaxParticleCount/setMaxParticleCount (fields already public var);
+ *   isComplete() → isComplete (dropped parens); setParticleCount updated to direct assignment
  */
 package sge
 package graphics
@@ -43,24 +46,12 @@ abstract class Emitter extends ParticleControllerComponent {
   override def end(): Unit =
     controller.particles.size = 0
 
-  def isComplete(): Boolean =
+  def isComplete: Boolean =
     percent >= 1.0f
 
-  def getMinParticleCount(): Int =
-    minParticleCount
-
-  def setMinParticleCount(minParticleCount: Int): Unit =
-    this.minParticleCount = minParticleCount
-
-  def getMaxParticleCount(): Int =
-    maxParticleCount
-
-  def setMaxParticleCount(maxParticleCount: Int): Unit =
-    this.maxParticleCount = maxParticleCount
-
   def setParticleCount(aMin: Int, aMax: Int): Unit = {
-    setMinParticleCount(aMin)
-    setMaxParticleCount(aMax)
+    minParticleCount = aMin
+    maxParticleCount = aMax
   }
 
   def set(emitter: Emitter): Unit = {

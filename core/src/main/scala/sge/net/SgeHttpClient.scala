@@ -35,7 +35,7 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
   private given ExecutionContext = ExecutionContext.global
 
   private val requestPool: Pool[SgeHttpRequest] =
-    Pool.Default[SgeHttpRequest](() => new SgeHttpRequest(), poolCapacity, poolMax)
+    Pool.Default[SgeHttpRequest](() => SgeHttpRequest(), poolCapacity, poolMax)
 
   final private class PendingEntry(
     val future:              Future[?],
@@ -68,7 +68,7 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
       if (!entry.cancelled) {
         result match {
           case Success(response) =>
-            listener.foreach(_.handleHttpResponse(new SgeHttpResponse(response)))
+            listener.foreach(_.handleHttpResponse(SgeHttpResponse(response)))
           case Failure(ex) =>
             listener.foreach(_.failed(ex))
         }

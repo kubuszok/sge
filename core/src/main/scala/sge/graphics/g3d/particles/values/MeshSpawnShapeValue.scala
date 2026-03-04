@@ -40,9 +40,8 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
   /** the model this mesh belongs to. It can be null, but this means the mesh will not be able to be serialized correctly. */
   protected var model: Nullable[Model] = Nullable.empty
 
-  def this(value: MeshSpawnShapeValue) = {
+  def this(value: MeshSpawnShapeValue) =
     this()
-  }
 
   override def load(value: ParticleValue): Unit = {
     super.load(value)
@@ -66,7 +65,7 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
   override def save(manager: AssetManager, data: ResourceData[?]): Unit =
     model.foreach { m =>
       val saveData = data.createSaveData()
-      saveData.saveAsset(manager.getAssetFileName(m).getOrElse(""), classOf[Model])
+      saveData.saveAsset(manager.assetFileName(m).getOrElse(""), classOf[Model])
       saveData.save("index", Integer.valueOf(m.meshes.indexOf(mesh.getOrElse(throw SgeError.InvalidInput("mesh is null")))))
     }
 
@@ -74,7 +73,7 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
     val saveData   = data.getSaveData()
     val descriptor = saveData.loadAsset()
     descriptor.foreach { desc =>
-      val m     = manager.get(desc.fileName, desc.`type`).asInstanceOf[Model]
+      val m     = manager(desc.fileName, desc.`type`).asInstanceOf[Model]
       val index = saveData.load[Int]("index").getOrElse(0)
       setMesh(m.meshes(index), Nullable(m))
     }

@@ -4,6 +4,10 @@
  * Original authors: Daniel Holderbaum, Nathan Sweet
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Idiom: split packages
+ *   Audited: 2026-03-04
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * --- AUDIT (2026-03-03) ---
@@ -28,7 +32,6 @@ import sge.graphics.OrthographicCamera
 class StretchViewport(worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends ScalingViewport(Scaling.stretch, worldWidth, worldHeight, camera) {
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(worldWidth: Float, worldHeight: Float)(using Sge) = {
-    this(worldWidth, worldHeight, new OrthographicCamera())
-  }
+  def this(worldWidth: Float, worldHeight: Float)(using Sge) =
+    this(worldWidth, worldHeight, OrthographicCamera())
 }

@@ -14,9 +14,11 @@
  * - renderCell only handles rotations==2 (ROTATE_180), matching Java source
  * - Java switch/break on rotations NOT present in renderCell (only ==2 check), matching Java
  * - renderImageLayer: hex Y-offset logic faithfully ported
- * - Public getters/setters for staggerAxisX, staggerIndexEven, hexSideLength match Java
+ * - Renames: isStaggerAxisX/setStaggerAxisX -> var staggerAxisX,
+ *           isStaggerIndexEven/setStaggerIndexEven -> var staggerIndexEven,
+ *           getHexSideLength/setHexSideLength -> var hexSideLength
  * - Constructors: 4 Java ctors mapped to primary + 3 auxiliary
- * TODO: Java-style getters/setters — isStaggerAxisX, isStaggerIndexEven
+ * - Audited: 2026-03-04
  */
 package sge
 package maps
@@ -31,42 +33,42 @@ import sge.utils.Nullable
 class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
   /** true for X-Axis, false for Y-Axis */
-  private var staggerAxisX: Boolean = true
+  var staggerAxisX: Boolean = true
 
   /** true for even StaggerIndex, false for odd */
-  private var staggerIndexEven: Boolean = false
+  var staggerIndexEven: Boolean = false
 
   /** the parameter defining the shape of the hexagon from tiled. more specifically it represents the length of the sides that are parallel to the stagger axis. e.g. with respect to the stagger axis a
     * value of 0 results in a rhombus shape, while a value equal to the tile length/height represents a square shape and a value of 0.5 represents a regular hexagon if tile length equals tile height
     */
-  private var hexSideLength: Float = 0f
+  var hexSideLength: Float = 0f
 
   initHex(map)
 
-  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
-  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, SpriteBatch(), true)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, SpriteBatch(), true)
   def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
 
   private def initHex(map: TiledMap): Unit = {
-    Nullable(map.getProperties.get("staggeraxis", classOf[String])).foreach { axis =>
+    Nullable(map.properties.getAs[String]("staggeraxis")).foreach { axis =>
       staggerAxisX = axis == "x"
     }
 
-    Nullable(map.getProperties.get("staggerindex", classOf[String])).foreach { index =>
+    Nullable(map.properties.getAs[String]("staggerindex")).foreach { index =>
       staggerIndexEven = index == "even"
     }
 
     // due to y-axis being different we need to change stagger index in even map height situations as else it would render
     // differently.
-    if (!staggerAxisX && map.getProperties.get("height", classOf[Integer]).intValue() % 2 == 0) {
+    if (!staggerAxisX && map.properties.getAs[Integer]("height").intValue() % 2 == 0) {
       staggerIndexEven = !staggerIndexEven
     }
 
-    Nullable(map.getProperties.get("hexsidelength", classOf[Integer])).fold {
+    Nullable(map.properties.getAs[Integer]("hexsidelength")).fold {
       if (staggerAxisX) {
-        Nullable(map.getProperties.get("tilewidth", classOf[Integer])).fold {
-          if (map.getLayers.size > 0) {
-            val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
+        Nullable(map.properties.getAs[Integer]("tilewidth")).fold {
+          if (map.layers.size > 0) {
+            val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
             hexSideLength = 0.5f * tmtl.getTileWidth
           } else {
             hexSideLength = 0f
@@ -75,9 +77,9 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
           hexSideLength = 0.5f * tw.intValue()
         }
       } else {
-        Nullable(map.getProperties.get("tileheight", classOf[Integer])).fold {
-          if (map.getLayers.size > 0) {
-            val tmtl = map.getLayers.get(0).asInstanceOf[TiledMapTileLayer]
+        Nullable(map.properties.getAs[Integer]("tileheight")).fold {
+          if (map.layers.size > 0) {
+            val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
             hexSideLength = 0.5f * tmtl.getTileHeight
           } else {
             hexSideLength = 0f
@@ -92,7 +94,7 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
   }
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
-    val batchColor = batch.getColor()
+    val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
     val layerWidth  = layer.getWidth
@@ -101,9 +103,9 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     val layerTileWidth  = layer.getTileWidth * unitScale
     val layerTileHeight = layer.getTileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.getParallaxX - 1)
+    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.getParallaxY - 1)
+    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val layerHexLength = hexSideLength * unitScale
 
@@ -169,28 +171,28 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
   /** render a single cell */
   private def renderCell(cell: Nullable[TiledMapTileLayer.Cell], x: Float, y: Float, color: Float): Unit =
     cell.foreach { c =>
-      val tile = c.getTile
+      val tile = c.tile
       tile.foreach { t =>
         if (!t.isInstanceOf[AnimatedTiledMapTile]) {
-          val flipX     = c.getFlipHorizontally
-          val flipY     = c.getFlipVertically
-          val rotations = c.getRotation
+          val flipX     = c.flipHorizontally
+          val flipY     = c.flipVertically
+          val rotations = c.rotation
 
           val region = t.getTextureRegion
 
           val x1 = x + t.getOffsetX * unitScale
           val y1 = y + t.getOffsetY * unitScale
-          val x2 = x1 + region.getRegionWidth() * unitScale
-          val y2 = y1 + region.getRegionHeight() * unitScale
+          val x2 = x1 + region.regionWidth * unitScale
+          val y2 = y1 + region.regionHeight * unitScale
 
           vertices(Batch.X1) = x1; vertices(Batch.Y1) = y1; vertices(Batch.C1) = color
-          vertices(Batch.U1) = region.getU(); vertices(Batch.V1) = region.getV2()
+          vertices(Batch.U1) = region.u; vertices(Batch.V1) = region.v2
           vertices(Batch.X2) = x1; vertices(Batch.Y2) = y2; vertices(Batch.C2) = color
-          vertices(Batch.U2) = region.getU(); vertices(Batch.V2) = region.getV()
+          vertices(Batch.U2) = region.u; vertices(Batch.V2) = region.v
           vertices(Batch.X3) = x2; vertices(Batch.Y3) = y2; vertices(Batch.C3) = color
-          vertices(Batch.U3) = region.getU2(); vertices(Batch.V3) = region.getV()
+          vertices(Batch.U3) = region.u2; vertices(Batch.V3) = region.v
           vertices(Batch.X4) = x2; vertices(Batch.Y4) = y1; vertices(Batch.C4) = color
-          vertices(Batch.U4) = region.getU2(); vertices(Batch.V4) = region.getV2()
+          vertices(Batch.U4) = region.u2; vertices(Batch.V4) = region.v2
 
           if (flipX) {
             var temp = vertices(Batch.U1); vertices(Batch.U1) = vertices(Batch.U3); vertices(Batch.U3) = temp
@@ -206,22 +208,22 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
             var tempV = vertices(Batch.V1); vertices(Batch.V1) = vertices(Batch.V3); vertices(Batch.V3) = tempV
             tempV = vertices(Batch.V2); vertices(Batch.V2) = vertices(Batch.V4); vertices(Batch.V4) = tempV
           }
-          batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+          batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
         }
       }
     }
 
   override def renderImageLayer(layer: TiledMapImageLayer): Unit = {
-    val batchColor = batch.getColor()
+    val batchColor = batch.color
     val color      = getImageLayerColor(layer, batchColor)
     val vertices   = this.vertices
-    val region     = layer.getTextureRegion
+    val region     = layer.region
 
     if (Nullable(region).isEmpty) {
       ()
     } else {
-      val tileHeight     = getMap.getProperties.get("tileheight", classOf[Integer]).intValue()
-      val mapHeight      = getMap.getProperties.get("height", classOf[Integer]).intValue()
+      val tileHeight     = getMap.properties.getAs[Integer]("tileheight").intValue()
+      val mapHeight      = getMap.properties.getAs[Integer]("height").intValue()
       val layerHexLength = hexSideLength
       // Map height if it were tiles
       val totalHeightPixels = (mapHeight * tileHeight) * unitScale
@@ -243,30 +245,30 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
         -(totalHeightPixels - hexMapHeightPixels)
       }
 
-      val x  = layer.getX
-      val y  = layer.getY
-      val x1 = x * unitScale - viewBounds.x * (layer.getParallaxX - 1)
-      val y1 = y * unitScale - viewBounds.y * (layer.getParallaxY - 1) + imageLayerYOffset
-      val x2 = x1 + region.getRegionWidth() * unitScale
-      val y2 = y1 + region.getRegionHeight() * unitScale
+      val x  = layer.x
+      val y  = layer.y
+      val x1 = x * unitScale - viewBounds.x * (layer.parallaxX - 1)
+      val y1 = y * unitScale - viewBounds.y * (layer.parallaxY - 1) + imageLayerYOffset
+      val x2 = x1 + region.regionWidth * unitScale
+      val y2 = y1 + region.regionHeight * unitScale
 
       imageBounds.set(x1, y1, x2 - x1, y2 - y1)
 
-      if (!layer.isRepeatX && !layer.isRepeatY) {
+      if (!layer.repeatX && !layer.repeatY) {
         if (viewBounds.contains(imageBounds) || viewBounds.overlaps(imageBounds)) {
           vertices(Batch.X1) = x1; vertices(Batch.Y1) = y1; vertices(Batch.C1) = color
-          vertices(Batch.U1) = region.getU(); vertices(Batch.V1) = region.getV2()
+          vertices(Batch.U1) = region.u; vertices(Batch.V1) = region.v2
           vertices(Batch.X2) = x1; vertices(Batch.Y2) = y2; vertices(Batch.C2) = color
-          vertices(Batch.U2) = region.getU(); vertices(Batch.V2) = region.getV()
+          vertices(Batch.U2) = region.u; vertices(Batch.V2) = region.v
           vertices(Batch.X3) = x2; vertices(Batch.Y3) = y2; vertices(Batch.C3) = color
-          vertices(Batch.U3) = region.getU2(); vertices(Batch.V3) = region.getV()
+          vertices(Batch.U3) = region.u2; vertices(Batch.V3) = region.v
           vertices(Batch.X4) = x2; vertices(Batch.Y4) = y1; vertices(Batch.C4) = color
-          vertices(Batch.U4) = region.getU2(); vertices(Batch.V4) = region.getV2()
-          batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+          vertices(Batch.U4) = region.u2; vertices(Batch.V4) = region.v2
+          batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
         }
       } else {
-        val repeatX = if (layer.isRepeatX) Math.ceil((viewBounds.width / imageBounds.width) + 4).toInt else 0
-        val repeatY = if (layer.isRepeatY) Math.ceil((viewBounds.height / imageBounds.height) + 4).toInt else 0
+        val repeatX = if (layer.repeatX) Math.ceil((viewBounds.width / imageBounds.width) + 4).toInt else 0
+        val repeatY = if (layer.repeatY) Math.ceil((viewBounds.height / imageBounds.height) + 4).toInt else 0
         var startX  = viewBounds.x; startX = startX - (startX % imageBounds.width)
         var startY  = viewBounds.y; startY = startY - (startY % imageBounds.height)
         var i       = 0
@@ -274,19 +276,19 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
           var j = 0
           while (j <= repeatY) {
             var rx1 = x1; var ry1 = y1; var rx2 = x2; var ry2 = y2
-            if (layer.isRepeatX) { rx1 = startX + ((i - 2) * imageBounds.width) + (x1 % imageBounds.width); rx2 = rx1 + imageBounds.width }
-            if (layer.isRepeatY) { ry1 = startY + ((j - 2) * imageBounds.height) + (y1 % imageBounds.height); ry2 = ry1 + imageBounds.height }
+            if (layer.repeatX) { rx1 = startX + ((i - 2) * imageBounds.width) + (x1 % imageBounds.width); rx2 = rx1 + imageBounds.width }
+            if (layer.repeatY) { ry1 = startY + ((j - 2) * imageBounds.height) + (y1 % imageBounds.height); ry2 = ry1 + imageBounds.height }
             repeatedImageBounds.set(rx1, ry1, rx2 - rx1, ry2 - ry1)
             if (viewBounds.contains(repeatedImageBounds) || viewBounds.overlaps(repeatedImageBounds)) {
               vertices(Batch.X1) = rx1; vertices(Batch.Y1) = ry1; vertices(Batch.C1) = color
-              vertices(Batch.U1) = region.getU(); vertices(Batch.V1) = region.getV2()
+              vertices(Batch.U1) = region.u; vertices(Batch.V1) = region.v2
               vertices(Batch.X2) = rx1; vertices(Batch.Y2) = ry2; vertices(Batch.C2) = color
-              vertices(Batch.U2) = region.getU(); vertices(Batch.V2) = region.getV()
+              vertices(Batch.U2) = region.u; vertices(Batch.V2) = region.v
               vertices(Batch.X3) = rx2; vertices(Batch.Y3) = ry2; vertices(Batch.C3) = color
-              vertices(Batch.U3) = region.getU2(); vertices(Batch.V3) = region.getV()
+              vertices(Batch.U3) = region.u2; vertices(Batch.V3) = region.v
               vertices(Batch.X4) = rx2; vertices(Batch.Y4) = ry1; vertices(Batch.C4) = color
-              vertices(Batch.U4) = region.getU2(); vertices(Batch.V4) = region.getV2()
-              batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+              vertices(Batch.U4) = region.u2; vertices(Batch.V4) = region.v2
+              batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
             }
             j += 1
           }
@@ -296,10 +298,4 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     }
   }
 
-  def isStaggerAxisX:                                 Boolean = staggerAxisX
-  def setStaggerAxisX(staggerAxisX:         Boolean): Unit    = this.staggerAxisX = staggerAxisX
-  def isStaggerIndexEven:                             Boolean = staggerIndexEven
-  def setStaggerIndexEven(staggerIndexEven: Boolean): Unit    = this.staggerIndexEven = staggerIndexEven
-  def getHexSideLength:                               Float   = hexSideLength
-  def setHexSideLength(hexSideLength:       Float):   Unit    = this.hexSideLength = hexSideLength
 }

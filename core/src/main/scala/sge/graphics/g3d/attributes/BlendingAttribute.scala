@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful port, minor null-safety difference
+ *   - Audited 2026-03-04: faithful port, minor null-safety difference
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Java copy-ctor has null-safe fallback (copyFrom==null -> defaults); Scala version
  *     does not accept null — acceptable for no-null convention
@@ -37,32 +37,26 @@ class BlendingAttribute(
   var opacity: Float
 ) extends Attribute(BlendingAttribute.Type) {
 
-  def this() = {
+  def this() =
     this(true, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f)
-  }
 
-  def this(sourceFunc: Int, destFunc: Int, opacity: Float) = {
+  def this(sourceFunc: Int, destFunc: Int, opacity: Float) =
     this(true, sourceFunc, destFunc, opacity)
-  }
 
-  def this(sourceFunc: Int, destFunc: Int) = {
+  def this(sourceFunc: Int, destFunc: Int) =
     this(true, sourceFunc, destFunc, 1f)
-  }
 
-  def this(blended: Boolean, opacity: Float) = {
+  def this(blended: Boolean, opacity: Float) =
     this(blended, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, opacity)
-  }
 
-  def this(opacity: Float) = {
+  def this(opacity: Float) =
     this(true, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, opacity)
-  }
 
-  def this(copyFrom: BlendingAttribute) = {
+  def this(copyFrom: BlendingAttribute) =
     this(copyFrom.blended, copyFrom.sourceFunction, copyFrom.destFunction, copyFrom.opacity)
-  }
 
   override def copy(): BlendingAttribute =
-    new BlendingAttribute(this)
+    BlendingAttribute(this)
 
   override def hashCode(): Int = {
     var result = super.hashCode()

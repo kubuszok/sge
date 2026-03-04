@@ -16,6 +16,7 @@ package sge
 package graphics
 package g2d
 
+import sge.Sge
 import sge.utils.Pool
 
 /** Pool for {@link ParticleEffect} instances. This is a convenient class that prevents {@link ParticleEffect} instances from being freed while they are still in use.
@@ -23,11 +24,11 @@ import sge.utils.Pool
   * @author
   *   Nathan Sweet
   */
-class ParticleEffectPool(effectTemplate: ParticleEffect, override protected val initialCapacity: Int = 16, override protected val max: Int = Int.MaxValue)
+class ParticleEffectPool(effectTemplate: ParticleEffect, override protected val initialCapacity: Int = 16, override protected val max: Int = Int.MaxValue)(using Sge)
     extends Pool[ParticleEffectPool.PooledEffect] {
 
   protected def newObject(): ParticleEffectPool.PooledEffect = {
-    val pooledEffect = new ParticleEffectPool.PooledEffect(effectTemplate, this)
+    val pooledEffect = ParticleEffectPool.PooledEffect(effectTemplate, this)
     pooledEffect.start()
     pooledEffect
   }
@@ -40,8 +41,8 @@ class ParticleEffectPool(effectTemplate: ParticleEffect, override protected val 
       effect.xSizeScale != this.effectTemplate.xSizeScale || effect.ySizeScale != this.effectTemplate.ySizeScale
       || effect.motionScale != this.effectTemplate.motionScale
     ) {
-      val emitters         = effect.getEmitters()
-      val templateEmitters = this.effectTemplate.getEmitters()
+      val emitters         = effect.emitters
+      val templateEmitters = this.effectTemplate.emitters
       for (i <- 0 until emitters.size) {
         val emitter         = emitters(i)
         val templateEmitter = templateEmitters(i)
@@ -59,7 +60,7 @@ object ParticleEffectPool {
 
   /** A ParticleEffect obtained from a {@link ParticleEffectPool} and that will be automatically freed when this effect has finished.
     */
-  class PooledEffect(effect: ParticleEffect, pool: Pool[ParticleEffectPool.PooledEffect]) extends ParticleEffect(effect) {
+  class PooledEffect(effect: ParticleEffect, pool: Pool[ParticleEffectPool.PooledEffect])(using Sge) extends ParticleEffect(effect) {
     override def reset(): Unit =
       this.reset(resetScaling = true, start = false)
 

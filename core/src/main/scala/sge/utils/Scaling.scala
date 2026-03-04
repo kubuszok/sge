@@ -24,7 +24,7 @@ trait Scaling {
 }
 
 object Scaling {
-  private val temp = new Vector2()
+  private val temp = Vector2()
 
   /** Scales the source to fit the target while keeping the same aspect ratio. This may cause the source to be smaller than the target in one direction.
     */

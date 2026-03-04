@@ -26,19 +26,16 @@ import sge.utils.Nullable
   */
 trait Value {
 
-  /** Calls {@link #get(Actor)} with null. */
-  def get(): Float = get(Nullable.empty)
-
   /** @param context
     *   May be null.
     */
-  def get(context: Nullable[Actor]): Float
+  def get(context: Nullable[Actor] = Nullable.empty): Float
 }
 
 object Value {
 
   /** A value that is always zero. */
-  val zero: Fixed = new Fixed(0)
+  val zero: Fixed = Fixed(0)
 
   /** A fixed value that is not computed each time it is used.
     * @author
@@ -59,11 +56,11 @@ object Value {
       else if (value >= -10 && value <= 100 && value == value.toInt.toFloat) {
         val idx = value.toInt + 10
         cache(idx).getOrElse {
-          val fixed = new Fixed(value)
+          val fixed = Fixed(value)
           cache(idx) = Nullable(fixed)
           fixed
         }
-      } else new Fixed(value)
+      } else Fixed(value)
   }
 
   /** Value that is the minWidth of the actor in the cell. */
@@ -109,10 +106,10 @@ object Value {
     }
 
   /** Returns a value that is a percentage of the actor's width. */
-  def percentWidth(percent: Float): Value = context => context.fold(0f)(_.getWidth * percent)
+  def percentWidth(percent: Float): Value = context => context.map(_.getWidth * percent).getOrElse(0f)
 
   /** Returns a value that is a percentage of the actor's height. */
-  def percentHeight(percent: Float): Value = context => context.fold(0f)(_.getHeight * percent)
+  def percentHeight(percent: Float): Value = context => context.map(_.getHeight * percent).getOrElse(0f)
 
   /** Returns a value that is a percentage of the specified actor's width. The context actor is ignored. */
   def percentWidth(percent: Float, actor: Actor): Value = _ => actor.getWidth * percent

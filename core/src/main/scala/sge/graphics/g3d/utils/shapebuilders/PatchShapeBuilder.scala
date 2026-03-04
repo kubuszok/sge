@@ -4,6 +4,12 @@
  * Original authors: xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: GdxRuntimeException → SgeError.InvalidInput
+ *   Convention: null → Nullable.empty
+ *   Idiom: Java static class → Scala object
+ *   Audited: 2026-03-04 — pass
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
@@ -11,8 +17,6 @@ package graphics
 package g3d
 package utils
 package shapebuilders
-
-import scala.language.implicitConversions
 
 import sge.graphics.g3d.utils.MeshPartBuilder
 import sge.graphics.g3d.utils.MeshPartBuilder.VertexInfo
@@ -69,10 +73,10 @@ object PatchShapeBuilder {
   ): Unit =
     build(
       builder,
-      vertTmp1.set(Nullable(corner00), Nullable(normal), Nullable.empty, Nullable.empty),
-      vertTmp2.set(Nullable(corner10), Nullable(normal), Nullable.empty, Nullable.empty),
-      vertTmp3.set(Nullable(corner11), Nullable(normal), Nullable.empty, Nullable.empty),
-      vertTmp4.set(Nullable(corner01), Nullable(normal), Nullable.empty, Nullable.empty),
+      vertTmp1.set(Nullable(corner00), Nullable(normal), Nullable.empty, Nullable.empty).setUV(0f, 1f),
+      vertTmp2.set(Nullable(corner10), Nullable(normal), Nullable.empty, Nullable.empty).setUV(1f, 1f),
+      vertTmp3.set(Nullable(corner11), Nullable(normal), Nullable.empty, Nullable.empty).setUV(1f, 0f),
+      vertTmp4.set(Nullable(corner01), Nullable(normal), Nullable.empty, Nullable.empty).setUV(0f, 0f),
       divisionsU,
       divisionsV
     )
@@ -99,10 +103,10 @@ object PatchShapeBuilder {
   ): Unit =
     build(
       builder,
-      vertTmp1.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x00, y00, z00).setNor(normalX, normalY, normalZ),
-      vertTmp2.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x10, y10, z10).setNor(normalX, normalY, normalZ),
-      vertTmp3.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x11, y11, z11).setNor(normalX, normalY, normalZ),
-      vertTmp4.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x01, y01, z01).setNor(normalX, normalY, normalZ),
+      vertTmp1.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x00, y00, z00).setNor(normalX, normalY, normalZ).setUV(0f, 1f),
+      vertTmp2.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x10, y10, z10).setNor(normalX, normalY, normalZ).setUV(1f, 1f),
+      vertTmp3.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x11, y11, z11).setNor(normalX, normalY, normalZ).setUV(1f, 0f),
+      vertTmp4.set(Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty).setPos(x01, y01, z01).setNor(normalX, normalY, normalZ).setUV(0f, 0f),
       divisionsU,
       divisionsV
     )

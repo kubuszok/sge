@@ -18,7 +18,7 @@ import sge.scenes.scene2d.utils.Layout
   * @author
   *   Nathan Sweet
   */
-class Stack extends WidgetGroup {
+class Stack()(using Sge) extends WidgetGroup() {
   private var _prefWidth:  Float   = 0
   private var _prefHeight: Float   = 0
   private var _minWidth:   Float   = 0
@@ -32,7 +32,7 @@ class Stack extends WidgetGroup {
   setHeight(150)
   setTouchable(Touchable.childrenOnly)
 
-  def this(actors: Actor*) = {
+  def this(actors: Actor*)(using Sge) = {
     this()
     actors.foreach(addActor)
   }

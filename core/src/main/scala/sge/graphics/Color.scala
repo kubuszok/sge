@@ -430,62 +430,62 @@ class Color(var r: Float = 0f, var g: Float = 0f, var b: Float = 0f, var a: Floa
 
   /** @return a copy of this color */
   def cpy(): Color =
-    new Color(this)
+    Color(this)
 }
 
 object Color {
-  val WHITE      = new Color(1, 1, 1, 1)
-  val LIGHT_GRAY = new Color(0xbfbfbfff)
-  val GRAY       = new Color(0x7f7f7fff)
-  val DARK_GRAY  = new Color(0x3f3f3fff)
-  val BLACK      = new Color(0, 0, 0, 1)
+  val WHITE      = Color(1, 1, 1, 1)
+  val LIGHT_GRAY = Color(0xbfbfbfff)
+  val GRAY       = Color(0x7f7f7fff)
+  val DARK_GRAY  = Color(0x3f3f3fff)
+  val BLACK      = Color(0, 0, 0, 1)
 
   /** Convenience for frequently used <code>WHITE.toFloatBits()</code> */
   val WHITE_FLOAT_BITS = WHITE.toFloatBits()
 
-  val CLEAR       = new Color(0, 0, 0, 0)
-  val CLEAR_WHITE = new Color(1, 1, 1, 0)
+  val CLEAR       = Color(0, 0, 0, 0)
+  val CLEAR_WHITE = Color(1, 1, 1, 0)
 
-  val BLUE  = new Color(0, 0, 1, 1)
-  val NAVY  = new Color(0, 0, 0.5f, 1)
-  val ROYAL = new Color(0x4169e1ff)
-  val SLATE = new Color(0x708090ff)
-  val SKY   = new Color(0x87ceebff)
-  val CYAN  = new Color(0, 1, 1, 1)
-  val TEAL  = new Color(0, 0.5f, 0.5f, 1)
+  val BLUE  = Color(0, 0, 1, 1)
+  val NAVY  = Color(0, 0, 0.5f, 1)
+  val ROYAL = Color(0x4169e1ff)
+  val SLATE = Color(0x708090ff)
+  val SKY   = Color(0x87ceebff)
+  val CYAN  = Color(0, 1, 1, 1)
+  val TEAL  = Color(0, 0.5f, 0.5f, 1)
 
-  val GREEN      = new Color(0x00ff00ff)
-  val CHARTREUSE = new Color(0x7fff00ff)
-  val LIME       = new Color(0x32cd32ff)
-  val FOREST     = new Color(0x228b22ff)
-  val OLIVE      = new Color(0x6b8e23ff)
+  val GREEN      = Color(0x00ff00ff)
+  val CHARTREUSE = Color(0x7fff00ff)
+  val LIME       = Color(0x32cd32ff)
+  val FOREST     = Color(0x228b22ff)
+  val OLIVE      = Color(0x6b8e23ff)
 
-  val YELLOW    = new Color(0xffff00ff)
-  val GOLD      = new Color(0xffd700ff)
-  val GOLDENROD = new Color(0xdaa520ff)
-  val ORANGE    = new Color(0xffa500ff)
+  val YELLOW    = Color(0xffff00ff)
+  val GOLD      = Color(0xffd700ff)
+  val GOLDENROD = Color(0xdaa520ff)
+  val ORANGE    = Color(0xffa500ff)
 
-  val BROWN     = new Color(0x8b4513ff)
-  val TAN       = new Color(0xd2b48cff)
-  val FIREBRICK = new Color(0xb22222ff)
+  val BROWN     = Color(0x8b4513ff)
+  val TAN       = Color(0xd2b48cff)
+  val FIREBRICK = Color(0xb22222ff)
 
-  val RED     = new Color(0xff0000ff)
-  val SCARLET = new Color(0xff341cff)
-  val CORAL   = new Color(0xff7f50ff)
-  val SALMON  = new Color(0xfa8072ff)
-  val PINK    = new Color(0xff69b4ff)
-  val MAGENTA = new Color(1, 0, 1, 1)
+  val RED     = Color(0xff0000ff)
+  val SCARLET = Color(0xff341cff)
+  val CORAL   = Color(0xff7f50ff)
+  val SALMON  = Color(0xfa8072ff)
+  val PINK    = Color(0xff69b4ff)
+  val MAGENTA = Color(1, 0, 1, 1)
 
-  val PURPLE = new Color(0xa020f0ff)
-  val VIOLET = new Color(0xee82eeff)
-  val MAROON = new Color(0xb03060ff)
+  val PURPLE = Color(0xa020f0ff)
+  val VIOLET = Color(0xee82eeff)
+  val MAROON = Color(0xb03060ff)
 
   /** Returns a new color from a hex string with the format RRGGBBAA.
     * @see
     *   #toString()
     */
   def valueOf(hex: String): Color =
-    valueOf(hex, new Color())
+    valueOf(hex, Color())
 
   /** Sets the specified color from a hex string with the format RRGGBBAA.
     * @see

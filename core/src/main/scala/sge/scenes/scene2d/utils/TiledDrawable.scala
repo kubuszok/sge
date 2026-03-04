@@ -31,7 +31,7 @@ import sge.utils.Align
   *   Thomas Creutzenberg
   */
 class TiledDrawable() extends TextureRegionDrawable {
-  private val color:  Color = new Color(1, 1, 1, 1)
+  private val color:  Color = Color(1, 1, 1, 1)
   private var scale:  Float = 1
   private var _align: Align = Align.bottomLeft
 
@@ -57,12 +57,12 @@ class TiledDrawable() extends TextureRegionDrawable {
   }
 
   override def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit = {
-    val oldColor = batch.getPackedColor()
-    batch.setColor(batch.getColor().mul(color))
+    val oldColor = batch.packedColor
+    batch.color = batch.color.mul(color)
 
     TiledDrawable.draw(batch, getRegion, x, y, width, height, scale, _align)
 
-    batch.setPackedColor(oldColor)
+    batch.packedColor = oldColor
   }
 
   override def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit =
@@ -79,7 +79,7 @@ class TiledDrawable() extends TextureRegionDrawable {
   def setAlign(align: Align): Unit = this._align = align
 
   override def tint(tint: Color): TiledDrawable = {
-    val drawable = new TiledDrawable(this)
+    val drawable = TiledDrawable(this)
     drawable.color.set(tint)
     drawable.setLeftWidth(getLeftWidth)
     drawable.setRightWidth(getRightWidth)
@@ -91,16 +91,16 @@ class TiledDrawable() extends TextureRegionDrawable {
 
 object TiledDrawable {
   def draw(batch: Batch, textureRegion: TextureRegion, x: Float, y: Float, width: Float, height: Float, scale: Float, align: Align): Unit = {
-    val regionWidth  = textureRegion.getRegionWidth() * scale
-    val regionHeight = textureRegion.getRegionHeight() * scale
+    val regionWidth  = textureRegion.regionWidth * scale
+    val regionHeight = textureRegion.regionHeight * scale
 
-    val texture       = textureRegion.getTexture()
+    val texture       = textureRegion.texture
     val textureWidth  = texture.getWidth * scale
     val textureHeight = texture.getHeight * scale
-    val u             = textureRegion.getU()
-    val v             = textureRegion.getV()
-    val u2            = textureRegion.getU2()
-    val v2            = textureRegion.getV2()
+    val u             = textureRegion.u
+    val v             = textureRegion.v
+    val u2            = textureRegion.u2
+    val v2            = textureRegion.v2
 
     var fullX = (width / regionWidth).toInt
     val leftPartialWidth: Float =

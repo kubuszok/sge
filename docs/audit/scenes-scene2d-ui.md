@@ -1,7 +1,7 @@
 # Audit: sge.scenes.scene2d.ui
 
-Audited: 35/35 files | Pass: 24 | Minor: 11 | Major: 0
-Last updated: 2026-03-03
+Audited: 35/35 files | Pass: 33 | Minor: 2 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -107,14 +107,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/Image.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/Image.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All major methods present. Skin constructor and `setDrawable(Skin, String)` commented out.
+**Completeness**: All major methods present including Skin constructor and `setDrawable(Skin, String)`.
 **Convention changes**: null -> Nullable; `Scaling` enum -> opaque type/trait; split packages
-**Commented-out**: `def this(skin: Skin, drawableName: String)`, `def setDrawable(skin: Skin, drawableName: String)` (Skin dependency)
 **TODOs**: None
-**Issues**: Two methods commented out due to Skin dependency chain. Minor since Skin is available in the codebase.
+**Issues**: None
 
 ---
 
@@ -124,14 +123,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/Label.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/Label.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All public methods present: `setStyle`, `getStyle`, `setText`, `getText`, `textEquals`, `getGlyphLayout`, `setWrap`, `getWrap`, `setAlignment`, `getAlignment`, `setFontScale`, `getFontScaleX`, `getFontScaleY`, `setFontScaleX`, `setFontScaleY`, `setEllipsis`, `layout`, `draw`, `getPrefWidth`, `getPrefHeight`, `toString`.
 **Convention changes**: null -> Nullable; `DynamicArray[Char]` instead of `CharArray`; split packages
-**Commented-out**: Skin constructors (`def this(text, skin)`, `def this(text, skin, styleName)`)
 **TODOs**: None
-**Issues**: Skin constructors commented out. Minor.
+**Issues**: None
 
 ---
 
@@ -147,9 +145,8 @@ Last updated: 2026-03-03
 **Completeness**: All public methods present including `setChecked`, `toggle`, `isPressed`, `isOver`, `getClickListener`, `isDisabled`, `setDisabled`, `setProgrammaticChangeEvents`, `getProgrammaticChangeEvents`, `setStyle`, `getStyle`, `getButtonGroup`, `draw`, `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`.
 **Renames**: `isChecked()` Java getter -> `getIsChecked` (name collision with `isChecked` field)
 **Convention changes**: null -> Nullable; split packages; `Disableable` trait
-**Commented-out**: Skin constructors (3 variants)
 **TODOs**: `// TODO: requestRendering - draw doesn't have 'using Sge' context`
-**Issues**: `requestRendering` TODO in `draw()` method. Skin constructors commented out. Minor.
+**Issues**: `requestRendering` TODO in `draw()` method. Minor — needs architectural change to add `using Sge` to draw.
 
 ---
 
@@ -159,14 +156,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/TextButton.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/TextButton.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All public methods present: constructors, `setStyle`, `getStyle`, `newLabel`, `getLabel`, `getLabelCell`, `setText`, `getText`, `toString`, `draw`.
+**Completeness**: All public methods present: constructors (including Skin), `setStyle`, `getStyle`, `newLabel`, `getLabel`, `getLabelCell`, `setText`, `getText`, `toString`, `draw`.
 **Convention changes**: null -> Nullable; split packages
-**Commented-out**: Skin constructors (2 variants)
 **TODOs**: None
-**Issues**: Skin constructors commented out. Minor.
+**Issues**: None
 
 ---
 
@@ -176,14 +172,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/CheckBox.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/CheckBox.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All public methods present: constructors, `getStyle`, `draw`, `getImage`, `getImageCell`, `getLabel`, `getLabelCell`, `getImageDrawable`.
+**Completeness**: All public methods present: constructors (including Skin), `getStyle`, `draw`, `getImage`, `getImageCell`, `getLabel`, `getLabelCell`, `getImageDrawable`.
 **Convention changes**: null -> Nullable; split packages
-**Commented-out**: Skin constructors (2 variants)
 **TODOs**: None
-**Issues**: Skin constructors commented out. Minor.
+**Issues**: None
 
 ---
 
@@ -193,14 +188,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/ImageButton.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All public methods present: constructors, `newImage`, `setStyle`, `getStyle`, `getImageDrawable`, `updateImage`, `draw`, `getImage`, `getImageCell`, `toString`.
+**Completeness**: All public methods present: constructors (including Skin), `newImage`, `setStyle`, `getStyle`, `getImageDrawable`, `updateImage`, `draw`, `getImage`, `getImageCell`, `toString`.
 **Convention changes**: null -> Nullable; split packages
-**Commented-out**: Skin constructors (2 variants)
 **TODOs**: None
-**Issues**: Skin constructors commented out. Minor.
+**Issues**: None
 
 ---
 
@@ -210,14 +204,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/ImageTextButton.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All public methods present: constructors, `newImage`, `newLabel`, `setStyle`, `getStyle`, `getImageDrawable`, `updateImage`, `draw`, `getImage`, `getImageCell`, `getLabel`, `getLabelCell`, `setText`, `getText`, `toString`.
+**Completeness**: All public methods present: constructors (including Skin), `newImage`, `newLabel`, `setStyle`, `getStyle`, `getImageDrawable`, `updateImage`, `draw`, `getImage`, `getImageCell`, `getLabel`, `getLabelCell`, `setText`, `getText`, `toString`.
 **Convention changes**: null -> Nullable; split packages
-**Commented-out**: Skin constructors (2 variants)
 **TODOs**: None
-**Issues**: Skin constructors commented out. Minor.
+**Issues**: None
 
 ---
 
@@ -455,14 +448,13 @@ Inner class `SelectBoxScrollPane` complete with `show`, `hide`, `draw`, `act`, `
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/ui/Table.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/ui/Table.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: Most public methods present. Core API: `draw`, `setBackground`, `background`, `getBackground`, `hit`, `clip`, `setClip`, `getClip`, `invalidate`, `add` (Actor, varargs, no-arg), `removeActor`, `removeActorAt`, `clearChildren`, `reset`, `row`, `columnDefaults`, `getCell`, `getCells`, `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`, `defaults`, `pad`/`padTop`/`padLeft`/`padBottom`/`padRight` (Value + Float overloads), `align`, `center`, `top`, `left`, `bottom`, `right`, `setDebug`, `debug`, `debugAll`, `debugTable`, `debugCell`, `debugActor`, `getTableDebug`, getters for pad values, `getAlign`, `getRow`, `setRound`, `getRows`, `getColumns`, `getRowHeight`, `getRowMinHeight`, `getRowPrefHeight`, `getColumnWidth`, `getColumnMinWidth`, `getColumnPrefWidth`, `layout`, `drawDebug`, `getSkin`.
-**Missing**: `add(CharSequence)`, `add(CharSequence, String)`, `add(CharSequence, String, Color)`, `add(CharSequence, String, String)` convenience methods (these create Label instances and require Skin); `stack(Actor...)` convenience method; `setSkin(Skin)` (present in Java but commented out or absent).
-**Convention changes**: null -> Nullable; `Align` opaque type; `DynamicArray` for cells; split packages; boundary/break; `Debug` enum in companion object
-**TODOs**: None explicitly marked
-**Issues**: Label-adding convenience methods missing (require Skin). `stack` convenience missing. Minor since core layout engine is complete.
+**Completeness**: All public methods present. Core API: `draw`, `setBackground` (Drawable + String), `background`, `getBackground`, `hit`, `clip`, `setClip`, `getClip`, `invalidate`, `add` (Actor, varargs, no-arg, CharSequence x4), `stack`, `removeActor`, `removeActorAt`, `clearChildren`, `reset`, `row`, `columnDefaults`, `getCell`, `getCells`, `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`, `defaults`, `pad`/`padTop`/`padLeft`/`padBottom`/`padRight` (Value + Float overloads), `align`, `center`, `top`, `left`, `bottom`, `right`, `setDebug`, `debug`, `debugAll`, `debugTable`, `debugCell`, `debugActor`, `getTableDebug`, getters for pad values, `getAlign`, `getRow`, `setRound`, `getRows`, `getColumns`, `getRowHeight`, `getRowMinHeight`, `getRowPrefHeight`, `getColumnWidth`, `getColumnMinWidth`, `getColumnPrefWidth`, `layout`, `drawDebug`, `getSkin`, `setSkin`.
+**Convention changes**: null -> Nullable; `Align` opaque type; `DynamicArray` for cells; split packages; boundary/break; `Debug` enum in companion object; `@targetName("addLabel")` for `add(Nullable[CharSequence])` to avoid erasure conflict with `add(Nullable[Actor])`
+**TODOs**: None
+**Issues**: None
 
 ---
 
@@ -600,7 +592,7 @@ Inner class `Node` complete with: constructors, `setExpanded`, `add`, `addAll`, 
 
 ### Recurring Patterns
 
-1. **Skin constructors commented out** (8 files): Button, TextButton, CheckBox, ImageButton, ImageTextButton, Label, Image (partially). These constructors require `Skin` to resolve styles and are omitted in classes that don't otherwise depend on Skin. Classes like ProgressBar, Slider, Tooltip, Dialog, SgeList, SelectBox, Tree etc. DO have working Skin constructors.
+1. **Skin constructors**: All UI classes now have working Skin constructors.
 
 2. **Java `List<T>` renamed to `SgeList[T]`**: Avoids clash with `scala.List`. Method `toString(T)` renamed to `itemToString(T)`.
 
@@ -614,6 +606,6 @@ Inner class `Node` complete with: constructors, `setExpanded`, `add`, `addAll`, 
 
 ### Files by Status
 
-**Pass (24)**: Widget, WidgetGroup, Styleable, Value, ParticleEffectActor, Stack, ButtonGroup, Touchpad, Container, ProgressBar, Slider, Tooltip, TextTooltip, TooltipManager, Dialog, Window, SplitPane, SgeList, SelectBox, Cell, HorizontalGroup, VerticalGroup, TextField, TextArea, ScrollPane, Tree
+**Pass (33)**: Widget, WidgetGroup, Styleable, Value, ParticleEffectActor, Stack, ButtonGroup, Touchpad, Container, ProgressBar, Slider, Tooltip, TextTooltip, TooltipManager, Dialog, Window, SplitPane, SgeList, SelectBox, Cell, HorizontalGroup, VerticalGroup, TextField, TextArea, ScrollPane, Tree, Image, Label, TextButton, CheckBox, ImageButton, ImageTextButton, Table
 
-**Minor Issues (11)**: Image (commented Skin methods), Label (commented Skin constructors), Button (commented Skin constructors + requestRendering TODO), TextButton (commented Skin constructors), CheckBox (commented Skin constructors), ImageButton (commented Skin constructors), ImageTextButton (commented Skin constructors), Table (missing Label convenience methods), Skin (reflection dependency, missing getJsonClassTags)
+**Minor Issues (2)**: Button (requestRendering TODO in draw — needs `using Sge` context), Skin (reflection dependency for style field setting, missing getJsonClassTags)

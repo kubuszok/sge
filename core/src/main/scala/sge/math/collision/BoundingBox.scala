@@ -12,12 +12,10 @@
  *     static tmpVector -> companion object
  *   Convention: Serializable dropped; serialVersionUID dropped;
  *     package-local min/max helpers replaced with stdlib calls;
- *     intersects uses min/max comparison (Java uses SAT center/dim approach);
- *     contains(Vector3) delegates to contains(x,y,z) — Java inlines directly;
- *     missing: contains(OrientedBoundingBox) present in Java source
+ *     intersects uses min/max comparison (Java uses SAT center/dim approach — logically equivalent);
+ *     contains(Vector3) delegates to contains(x,y,z) — Java inlines directly
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getCenterX/Y/Z, getWidth/Height/Depth → def centerX, etc.
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package math
@@ -34,14 +32,14 @@ class BoundingBox() {
 
   /** Minimum vector. All XYZ components should be inferior to corresponding {@link #max} components. Call {@link #update()} if you manually change this vector.
     */
-  val min = new Vector3()
+  val min = Vector3()
 
   /** Maximum vector. All XYZ components should be superior to corresponding {@link #min} components. Call {@link #update()} if you manually change this vector.
     */
-  val max = new Vector3()
+  val max = Vector3()
 
-  private val cnt = new Vector3()
-  private val dim = new Vector3()
+  private val cnt = Vector3()
+  private val dim = Vector3()
 
   // Initialize
   clr()
@@ -312,6 +310,18 @@ class BoundingBox() {
   def contains(b: BoundingBox): Boolean =
     (!isValid()) || (min.x <= b.min.x && min.y <= b.min.y && min.z <= b.min.z && max.x >= b.max.x && max.y >= b.max.y && max.z >= b.max.z)
 
+  /** Returns whether the given oriented bounding box is contained in this bounding box.
+    * @param obb
+    *   The bounding box
+    * @return
+    *   Whether the given oriented bounding box is contained
+    */
+  def contains(obb: OrientedBoundingBox): Boolean =
+    contains(obb.getCorner000(BoundingBox.tmpVector)) && contains(obb.getCorner001(BoundingBox.tmpVector)) &&
+      contains(obb.getCorner010(BoundingBox.tmpVector)) && contains(obb.getCorner011(BoundingBox.tmpVector)) &&
+      contains(obb.getCorner100(BoundingBox.tmpVector)) && contains(obb.getCorner101(BoundingBox.tmpVector)) &&
+      contains(obb.getCorner110(BoundingBox.tmpVector)) && contains(obb.getCorner111(BoundingBox.tmpVector))
+
   /** Returns whether the given vector is contained in this bounding box.
     * @param v
     *   The vector
@@ -367,5 +377,5 @@ class BoundingBox() {
 }
 
 object BoundingBox {
-  private val tmpVector = new Vector3()
+  private val tmpVector = Vector3()
 }

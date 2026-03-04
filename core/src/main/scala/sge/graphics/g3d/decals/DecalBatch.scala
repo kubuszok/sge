@@ -61,9 +61,8 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
   /** Creates a new DecalBatch using the given {@link GroupStrategy}. The most commong strategy to use is a {@link CameraGroupStrategy}
     * @param groupStrategy
     */
-  def this(groupStrategy: GroupStrategy)(using Sge) = {
+  def this(groupStrategy: GroupStrategy)(using Sge) =
     this(DecalBatch.DEFAULT_SIZE, groupStrategy)
-  }
 
   /** Sets the {@link GroupStrategy} used
     * @param groupStrategy
@@ -85,7 +84,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
     } else {
       Mesh.VertexDataType.VertexArray
     }
-    mesh = new Mesh(
+    mesh = Mesh(
       vertexDataType,
       false,
       size * 4,
@@ -159,7 +158,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
     var lastMaterial: Nullable[DecalMaterial] = Nullable.empty
     var idx = 0
     for (decal <- decals) {
-      if (lastMaterial.isEmpty || !lastMaterial.getOrElse(null).equals(decal.getMaterial)) {
+      if (lastMaterial.isEmpty || !lastMaterial.getOrElse(null).equals(decal.material)) {
         if (idx > 0) {
           flush(shader, idx)
           idx = 0
@@ -168,8 +167,8 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
         lastMaterial = Nullable(decal.material)
       }
       decal.update()
-      System.arraycopy(decal.vertices, 0, vertices, idx, decal.vertices.length)
-      idx += decal.vertices.length
+      System.arraycopy(decal._vertices, 0, vertices, idx, decal._vertices.length)
+      idx += decal._vertices.length
       // if our batch is full we have to flush it
       if (idx == vertices.length) {
         flush(shader, idx)

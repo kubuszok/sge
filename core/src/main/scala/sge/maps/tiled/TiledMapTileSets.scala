@@ -12,7 +12,7 @@
  *   - Java Array → DynamicArray; null returns → Nullable[A]
  *   - boundary/break used for early returns in getTileSet(String) and getTile(int)
  *   - Split package, braces, no-return conventions satisfied
- *   TODO: Java-style getters/setters — getTileSet
+ *   - getTileSet(int)/getTileSet(String)/getTile(int) are lookup methods with parameters, kept as-is
  */
 package sge
 package maps
@@ -45,7 +45,7 @@ class TiledMapTileSets extends Iterable[TiledMapTileSet] {
     val n = tilesets.size
     while (i < n) {
       val tileset = tilesets(i)
-      if (name == tileset.getName) {
+      if (name == tileset.name) {
         break(Nullable(tileset))
       }
       i += 1

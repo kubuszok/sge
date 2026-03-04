@@ -27,7 +27,7 @@ class PoolManager {
     * `poolManager.addPool(classOf[MyClass], () => new MyClass())`
     */
   def addPool[T](poolClass: Class[T], poolSupplier: () => T): Unit =
-    addPool(poolClass, new Pool.Default[T](poolSupplier))
+    addPool(poolClass, Pool.Default[T](poolSupplier))
 
   /** Registers the new pool. Will throw an exception, if a pool for the same class is already registered */
   def addPool[T](poolClass: Class[T], pool: Pool[T]): Unit = {

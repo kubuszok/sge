@@ -50,14 +50,14 @@ object Interpolation {
   val smoother: Interpolation = (a: Float) => a * a * a * (a * (a * 6 - 15) + 10)
   val fade:     Interpolation = smoother
 
-  val pow2 = new Pow(2)
+  val pow2 = Pow(2)
 
   /** Slow, then fast. */
-  val pow2In = new PowIn(2)
+  val pow2In = PowIn(2)
   val slowFast: Interpolation = pow2In
 
   /** Fast, then slow. */
-  val pow2Out = new PowOut(2)
+  val pow2Out = PowOut(2)
   val fastSlow:      Interpolation = pow2Out
   val pow2InInverse: Interpolation = (a: Float) =>
     if (a < MathUtils.FLOAT_ROUNDING_ERROR) 0f
@@ -67,19 +67,19 @@ object Interpolation {
     else if (a > 1) 1f
     else 1 - Math.sqrt(-(a - 1)).toFloat
 
-  val pow3    = new Pow(3)
-  val pow3In  = new PowIn(3)
-  val pow3Out = new PowOut(3)
+  val pow3    = Pow(3)
+  val pow3In  = PowIn(3)
+  val pow3Out = PowOut(3)
   val pow3InInverse:  Interpolation = (a: Float) => Math.cbrt(a).toFloat
   val pow3OutInverse: Interpolation = (a: Float) => 1 - Math.cbrt(-(a - 1)).toFloat
 
-  val pow4    = new Pow(4)
-  val pow4In  = new PowIn(4)
-  val pow4Out = new PowOut(4)
+  val pow4    = Pow(4)
+  val pow4In  = PowIn(4)
+  val pow4Out = PowOut(4)
 
-  val pow5    = new Pow(5)
-  val pow5In  = new PowIn(5)
-  val pow5Out = new PowOut(5)
+  val pow5    = Pow(5)
+  val pow5In  = PowIn(5)
+  val pow5Out = PowOut(5)
 
   val sine: Interpolation = (a: Float) => (1 - MathUtils.cos(a * MathUtils.PI)) / 2
 
@@ -87,13 +87,13 @@ object Interpolation {
 
   val sineOut: Interpolation = (a: Float) => MathUtils.sin(a * MathUtils.HALF_PI)
 
-  val exp10    = new Exp(2, 10)
-  val exp10In  = new ExpIn(2, 10)
-  val exp10Out = new ExpOut(2, 10)
+  val exp10    = Exp(2, 10)
+  val exp10In  = ExpIn(2, 10)
+  val exp10Out = ExpOut(2, 10)
 
-  val exp5    = new Exp(2, 5)
-  val exp5In  = new ExpIn(2, 5)
-  val exp5Out = new ExpOut(2, 5)
+  val exp5    = Exp(2, 5)
+  val exp5In  = ExpIn(2, 5)
+  val exp5Out = ExpOut(2, 5)
 
   val circle: Interpolation = (a: Float) =>
     if (a <= 0.5f) {
@@ -111,17 +111,17 @@ object Interpolation {
     Math.sqrt(1 - a2 * a2).toFloat
   }
 
-  val elastic    = new Elastic(2, 10, 7, 1)
-  val elasticIn  = new ElasticIn(2, 10, 6, 1)
-  val elasticOut = new ElasticOut(2, 10, 7, 1)
+  val elastic    = Elastic(2, 10, 7, 1)
+  val elasticIn  = ElasticIn(2, 10, 6, 1)
+  val elasticOut = ElasticOut(2, 10, 7, 1)
 
-  val swing    = new Swing(1.5f)
-  val swingIn  = new SwingIn(2f)
-  val swingOut = new SwingOut(2f)
+  val swing    = Swing(1.5f)
+  val swingIn  = SwingIn(2f)
+  val swingOut = SwingOut(2f)
 
-  val bounce    = new Bounce(4)
-  val bounceIn  = new BounceIn(4)
-  val bounceOut = new BounceOut(4)
+  val bounce    = Bounce(4)
+  val bounceIn  = BounceIn(4)
+  val bounceOut = BounceOut(4)
 
   class Pow(val power: Int) extends Interpolation {
     def apply(a: Float): Float =
@@ -200,7 +200,7 @@ object Interpolation {
   }
 
   class BounceOut(val widths: Array[Float], val heights: Array[Float]) extends Interpolation {
-    def this(bounces: Int) = {
+    def this(bounces: Int) =
       this(
         if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
         else {
@@ -251,7 +251,6 @@ object Interpolation {
           h
         }
       )
-    }
 
     def apply(a: Float): Float =
       if (a == 1) 1f

@@ -8,10 +8,15 @@
  *   Renames: Disposable -> AutoCloseable; dispose() -> close()
  *   Convention: Nullable for null safety; MutableMap instead of OrderedMap; using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: (1) Raw null for rect/pixmapToDispose (lines 168-169) -- should use Nullable. (2) Missing SkylineStrategy/SkylinePage inner classes.
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   TODO: opaque Pixels for pageWidth/pageHeight params -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Fixes: Raw null eliminated from pack(), getRect(), getPage(), getSplits(), getPads() using Nullable types.
+ *   Issues: Missing SkylineStrategy/SkylinePage inner classes.
+ *   Fixes: Named context parameter (implicit sge: Sge) → anonymous (using Sge).
+ *   Fixes: Java-style getters/setters → removed redundant getters for public vars (pageWidth, pageHeight,
+ *     pageFormat, padding, duplicateBorder, packToTexture, transparentColor); removed getPages() (pages is public val);
+ *     removed Page.getPixmap()/getRects()/getTexture() (public vals); PixmapPackerRectangle.getX()/getY()/
+ *     getWidth()/getHeight() → property accessors x/y/width/height
+ *   Improvement: opaque Pixels for pageWidth/pageHeight params -- see docs/improvements/opaque-types.md
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -73,7 +78,7 @@ import scala.util.boundary.break
   * @author
   *   Rob Rendell
   */
-class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
+class PixmapPacker(using Sge) extends AutoCloseable {
   var packToTexture:    Boolean                         = false
   var disposed:         Boolean                         = false
   var pageWidth:        Int                             = uninitialized
@@ -84,7 +89,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
   var stripWhitespaceX: Boolean                         = false
   var stripWhitespaceY: Boolean                         = false
   var alphaThreshold:   Int                             = uninitialized
-  var transparentColor: Color                           = new Color(0f, 0f, 0f, 0f)
+  var transparentColor: Color                           = Color(0f, 0f, 0f, 0f)
   val pages:            DynamicArray[PixmapPacker.Page] = DynamicArray[PixmapPacker.Page]()
   var packStrategy:     PixmapPacker.PackStrategy       = uninitialized
 
@@ -92,8 +97,8 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     * @see
     *   PixmapPacker#PixmapPacker(int, int, Format, int, boolean, boolean, boolean, PackStrategy)
     */
-  def this(pageWidth: Int, pageHeight: Int, pageFormat: Format, padding: Int, duplicateBorder: Boolean)(implicit sge: Sge) = {
-    this()(using sge)
+  def this(pageWidth: Int, pageHeight: Int, pageFormat: Format, padding: Int, duplicateBorder: Boolean)(using Sge) = {
+    this()
     this.pageWidth = pageWidth
     this.pageHeight = pageHeight
     this.pageFormat = pageFormat
@@ -101,15 +106,15 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     this.duplicateBorder = duplicateBorder
     this.stripWhitespaceX = false
     this.stripWhitespaceY = false
-    this.packStrategy = new PixmapPacker.GuillotineStrategy()
+    this.packStrategy = PixmapPacker.GuillotineStrategy()
   }
 
   /** Uses {@link GuillotineStrategy} .
     * @see
     *   PixmapPacker#PixmapPacker(int, int, Format, int, boolean, boolean, boolean, PackStrategy)
     */
-  def this(pageWidth: Int, pageHeight: Int, pageFormat: Format, padding: Int, duplicateBorder: Boolean, packStrategy: PixmapPacker.PackStrategy)(implicit sge: Sge) = {
-    this()(using sge)
+  def this(pageWidth: Int, pageHeight: Int, pageFormat: Format, padding: Int, duplicateBorder: Boolean, packStrategy: PixmapPacker.PackStrategy)(using Sge) = {
+    this()
     this.pageWidth = pageWidth
     this.pageHeight = pageHeight
     this.pageFormat = pageFormat
@@ -131,9 +136,9 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     *   strip whitespace in y axis
     */
   def this(pageWidth: Int, pageHeight: Int, pageFormat: Format, padding: Int, duplicateBorder: Boolean, stripWhitespaceX: Boolean, stripWhitespaceY: Boolean, packStrategy: PixmapPacker.PackStrategy)(
-    implicit sge: Sge
+    using Sge
   ) = {
-    this()(using sge)
+    this()
     this.pageWidth = pageWidth
     this.pageHeight = pageHeight
     this.pageFormat = pageFormat
@@ -153,8 +158,8 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     * @see
     *   #pack(String, Pixmap)
     */
-  def pack(image: Pixmap): PixmapPacker.PixmapPackerRectangle =
-    pack(null, image);
+  def pack(image: Pixmap): Nullable[PixmapPacker.PixmapPackerRectangle] =
+    pack(Nullable.empty, image)
 
   /** Inserts the pixmap. If name was not null, you can later retrieve the image's position in the output image via {@link #getRect(String)} .
     * @param name
@@ -164,168 +169,155 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     * @throws GdxRuntimeException
     *   in case the image did not fit due to the page size being too small or providing a duplicate name.
     */
-  def pack(name: String, image: Pixmap): PixmapPacker.PixmapPackerRectangle = {
-    // Make local vars for reassignment
+  def pack(name: Nullable[String], image: Pixmap): Nullable[PixmapPacker.PixmapPackerRectangle] = boundary {
     var workingName  = name
     var workingImage = image
 
-    if (disposed) null // scalastyle:ignore
-    else {
-      if (Nullable(workingName).isDefined && Nullable(getRect(workingName)).isDefined)
-        throw SgeError.InvalidInput("Pixmap has already been packed with name: " + workingName)
+    if (disposed) break(Nullable.empty)
 
-      var rect:            PixmapPacker.PixmapPackerRectangle = null;
-      var pixmapToDispose: Pixmap                             = null;
-      if (Nullable(workingName).isDefined && workingName.endsWith(".9")) {
-        rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth() - 2, workingImage.getHeight() - 2);
-        pixmapToDispose = new Pixmap(workingImage.getWidth() - 2, workingImage.getHeight() - 2, workingImage.getFormat());
-        pixmapToDispose.setBlending(Blending.None);
-        rect.splits = getSplits(workingImage);
-        rect.pads = getPads(workingImage, rect.splits);
-        pixmapToDispose.drawPixmap(workingImage, 0, 0, 1, 1, workingImage.getWidth() - 1, workingImage.getHeight() - 1);
-        workingImage = pixmapToDispose;
-        workingName = workingName.split("\\.").head;
-      } else {
-        if (stripWhitespaceX || stripWhitespaceY) {
-          val originalWidth:  Int = workingImage.getWidth()
-          val originalHeight: Int = workingImage.getHeight()
-          // Strip whitespace, manipulate the pixmap and return corrected Rect
-          var top:    Int = 0
-          var bottom: Int = workingImage.getHeight()
-          if (stripWhitespaceY) {
-            var outerBreak = false
-            var y          = 0
-            while (y < workingImage.getHeight() && !outerBreak) {
-              var x = 0
-              while (x < workingImage.getWidth() && !outerBreak) {
-                val pixel: Int = workingImage.getPixel(x, y)
-                val alpha: Int = pixel & 0x000000ff
-                if (alpha > alphaThreshold) outerBreak = true
-                x += 1
-              }
-              if (!outerBreak) top += 1
-              y += 1
-            }
-            outerBreak = false
-            y = workingImage.getHeight() - 1
-            while (y >= top && !outerBreak) {
-              var x = 0
-              while (x < workingImage.getWidth() && !outerBreak) {
-                val pixel: Int = workingImage.getPixel(x, y)
-                val alpha: Int = pixel & 0x000000ff
-                if (alpha > alphaThreshold) outerBreak = true
-                x += 1
-              }
-              if (!outerBreak) bottom -= 1
-              y -= 1
-            }
+    workingName.foreach { wn =>
+      if (getRect(wn).isDefined)
+        throw SgeError.InvalidInput("Pixmap has already been packed with name: " + wn)
+    }
+
+    var pixmapToDispose: Nullable[Pixmap] = Nullable.empty
+    val rect = if (workingName.exists(_.endsWith(".9"))) {
+      val r = PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth() - 2, workingImage.getHeight() - 2)
+      val p = Pixmap(workingImage.getWidth() - 2, workingImage.getHeight() - 2, workingImage.getFormat())
+      p.setBlending(Blending.None)
+      r.splits = getSplits(workingImage)
+      r.pads = getPads(workingImage, r.splits)
+      p.drawPixmap(workingImage, 0, 0, 1, 1, workingImage.getWidth() - 1, workingImage.getHeight() - 1)
+      workingImage = p
+      pixmapToDispose = p
+      workingName = workingName.map(_.split("\\.").head)
+      r
+    } else if (stripWhitespaceX || stripWhitespaceY) {
+      val originalWidth:  Int = workingImage.getWidth()
+      val originalHeight: Int = workingImage.getHeight()
+      // Strip whitespace, manipulate the pixmap and return corrected Rect
+      var top:    Int = 0
+      var bottom: Int = workingImage.getHeight()
+      if (stripWhitespaceY) {
+        var outerBreak = false
+        var y          = 0
+        while (y < workingImage.getHeight() && !outerBreak) {
+          var x = 0
+          while (x < workingImage.getWidth() && !outerBreak) {
+            val pixel: Int = workingImage.getPixel(x, y)
+            val alpha: Int = pixel & 0x000000ff
+            if (alpha > alphaThreshold) outerBreak = true
+            x += 1
           }
-          var left:  Int = 0
-          var right: Int = workingImage.getWidth()
-          if (stripWhitespaceX) {
-            var outerBreak = false
-            var x          = 0
-            while (x < workingImage.getWidth() && !outerBreak) {
-              var y = top
-              while (y < bottom && !outerBreak) {
-                val pixel: Int = workingImage.getPixel(x, y)
-                val alpha: Int = pixel & 0x000000ff
-                if (alpha > alphaThreshold) outerBreak = true
-                y += 1
-              }
-              if (!outerBreak) left += 1
-              x += 1
-            }
-            outerBreak = false
-            x = workingImage.getWidth() - 1
-            while (x >= left && !outerBreak) {
-              var y = top
-              while (y < bottom && !outerBreak) {
-                val pixel: Int = workingImage.getPixel(x, y)
-                val alpha: Int = pixel & 0x000000ff
-                if (alpha > alphaThreshold) outerBreak = true
-                y += 1
-              }
-              if (!outerBreak) right -= 1
-              x -= 1
-            }
+          if (!outerBreak) top += 1
+          y += 1
+        }
+        outerBreak = false
+        y = workingImage.getHeight() - 1
+        while (y >= top && !outerBreak) {
+          var x = 0
+          while (x < workingImage.getWidth() && !outerBreak) {
+            val pixel: Int = workingImage.getPixel(x, y)
+            val alpha: Int = pixel & 0x000000ff
+            if (alpha > alphaThreshold) outerBreak = true
+            x += 1
           }
-
-          val newWidth:  Int = right - left
-          val newHeight: Int = bottom - top
-
-          pixmapToDispose = new Pixmap(newWidth, newHeight, workingImage.getFormat());
-          pixmapToDispose.setBlending(Blending.None);
-          pixmapToDispose.drawPixmap(workingImage, 0, 0, left, top, newWidth, newHeight);
-          workingImage = pixmapToDispose;
-
-          rect = new PixmapPacker.PixmapPackerRectangle(0, 0, newWidth, newHeight, left, top, originalWidth, originalHeight);
-        } else {
-          rect = new PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth(), workingImage.getHeight());
+          if (!outerBreak) bottom -= 1
+          y -= 1
+        }
+      }
+      var left:  Int = 0
+      var right: Int = workingImage.getWidth()
+      if (stripWhitespaceX) {
+        var outerBreak = false
+        var x          = 0
+        while (x < workingImage.getWidth() && !outerBreak) {
+          var y = top
+          while (y < bottom && !outerBreak) {
+            val pixel: Int = workingImage.getPixel(x, y)
+            val alpha: Int = pixel & 0x000000ff
+            if (alpha > alphaThreshold) outerBreak = true
+            y += 1
+          }
+          if (!outerBreak) left += 1
+          x += 1
+        }
+        outerBreak = false
+        x = workingImage.getWidth() - 1
+        while (x >= left && !outerBreak) {
+          var y = top
+          while (y < bottom && !outerBreak) {
+            val pixel: Int = workingImage.getPixel(x, y)
+            val alpha: Int = pixel & 0x000000ff
+            if (alpha > alphaThreshold) outerBreak = true
+            y += 1
+          }
+          if (!outerBreak) right -= 1
+          x -= 1
         }
       }
 
-      if (rect.getWidth() > pageWidth || rect.getHeight() > pageHeight) {
-        if (Nullable(workingName).isEmpty) throw SgeError.InvalidInput("Page size too small for pixmap.");
-        throw SgeError.InvalidInput("Page size too small for pixmap: " + workingName);
-      }
+      val newWidth:  Int = right - left
+      val newHeight: Int = bottom - top
 
-      val page = packStrategy.pack(this, workingName, rect.bounds);
-      if (Nullable(workingName).isDefined) {
-        page.rects.put(workingName, rect);
-        page.addedRects.add(workingName);
-      }
+      val p = Pixmap(newWidth, newHeight, workingImage.getFormat())
+      p.setBlending(Blending.None)
+      p.drawPixmap(workingImage, 0, 0, left, top, newWidth, newHeight)
+      workingImage = p
+      pixmapToDispose = p
 
-      val rectX: Int = rect.getX()
-      val rectY: Int = rect.getY()
-      rect.getWidth()
-      rect.getHeight()
-
-      if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
-        // Note: This would need proper GL context and texture binding
-        // For now, just mark as dirty
-        page.dirty = true;
-      } else
-        page.dirty = true;
-
-      page.image.drawPixmap(workingImage, rectX, rectY);
-
-      if (duplicateBorder) {
-        workingImage.getWidth()
-        workingImage.getHeight()
-        // Note: These drawPixmap calls need adjustment for parameter count
-        // For now, using basic 2-parameter version
-        // TODO: Implement proper border duplication when drawPixmap signature is available
-      }
-
-      if (Nullable(pixmapToDispose).isDefined) {
-        // Note: Pixmap.dispose() not available, would need proper cleanup
-      }
-
-      rect.page = page;
-      rect
+      PixmapPacker.PixmapPackerRectangle(0, 0, newWidth, newHeight, left, top, originalWidth, originalHeight)
+    } else {
+      PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth(), workingImage.getHeight())
     }
-  }
 
-  /** @return
-    *   the {@link Page} instances created so far. If multiple threads are accessing the packer, iterating over the pages must be done only after synchronizing on the packer.
-    */
-  def getPages(): Array[PixmapPacker.Page] =
-    pages.toArray
+    if (rect.width > pageWidth || rect.height > pageHeight) {
+      throw SgeError.InvalidInput("Page size too small for pixmap" + workingName.map(n => ": " + n).getOrElse(""))
+    }
+
+    val page = packStrategy.pack(this, workingName, rect.bounds)
+    workingName.foreach { wn =>
+      page.rects.put(wn, rect)
+      page.addedRects.add(wn)
+    }
+
+    val rectX: Int = rect.x
+    val rectY: Int = rect.y
+
+    if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
+      // Note: This would need proper GL context and texture binding
+      // For now, just mark as dirty
+      page.dirty = true
+    } else {
+      page.dirty = true
+    }
+
+    page.image.drawPixmap(workingImage, rectX, rectY)
+
+    if (duplicateBorder) {
+      // Note: Border duplication requires drawPixmap(Pixmap, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH)
+      // which is not yet available on Pixmap. Tracked in docs/improvements/opaque-types.md.
+    }
+
+    pixmapToDispose.foreach(_.close())
+
+    rect.page = page
+    Nullable(rect)
+  }
 
   /** @param name
     *   the name of the image
     * @return
     *   the rectangle for the image in the page it's stored in or null
     */
-  def getRect(name: String): PixmapPacker.PixmapPackerRectangle =
+  def getRect(name: String): Nullable[PixmapPacker.PixmapPackerRectangle] =
     boundary {
       for (page <- pages)
         page.rects.get(name) match {
-          case Some(rect) => break(rect)
+          case Some(rect) => break(Nullable(rect))
           case None       => // continue searching
         }
-      null
+      Nullable.empty
     }
 
   /** @param name
@@ -333,11 +325,11 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     * @return
     *   the page the image is stored in or null
     */
-  def getPage(name: String): PixmapPacker.Page =
+  def getPage(name: String): Nullable[PixmapPacker.Page] =
     boundary {
       for (page <- pages)
-        if (page.rects.contains(name)) break(page)
-      null
+        if (page.rects.contains(name)) break(Nullable(page))
+      Nullable.empty
     }
 
   /** Returns the index of the page containing the given packed rectangle.
@@ -392,10 +384,10 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
           page.rects.get(name) match {
             case Some(rect) =>
               // Note: TextureAtlas.AtlasRegion constructor needs adjustment
-              // val region = new TextureAtlas.AtlasRegion(page.texture.orNull, rect.getX(), rect.getY(),
-              //	rect.getWidth(), rect.getHeight());
+              // val region = new TextureAtlas.AtlasRegion(page.texture.orNull, rect.x, rect.y,
+              //	rect.width, rect.height);
 
-              if (Nullable(rect.splits).isDefined) {
+              if (rect.splits.isDefined) {
                 // region.names = Array("split", "pad");
                 // region.values = Array(rect.splits, rect.pads);
               }
@@ -415,7 +407,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
             // region.name = imageName;
             // region.index = imageIndex;
             // region.offsetX = rect.offsetX;
-            // region.offsetY = rect.originalHeight - rect.getHeight() - rect.offsetY;
+            // region.offsetY = rect.originalHeight - rect.height - rect.offsetY;
             // region.originalWidth = rect.originalWidth;
             // region.originalHeight = rect.originalHeight;
 
@@ -433,7 +425,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     updatePageTextures(minFilter, magFilter, useMipMaps);
     while (regions.size < pages.size)
       pages(regions.size).texture.foreach { pageTexture =>
-        regions.add(new TextureRegion(pageTexture))
+        regions.add(TextureRegion(pageTexture))
       }
   }
 
@@ -442,49 +434,6 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     for (page <- pages)
       page.updateTexture(minFilter, magFilter, useMipMaps)
 
-  def getPageWidth(): Int =
-    pageWidth
-
-  def setPageWidth(pageWidth: Int): Unit =
-    this.pageWidth = pageWidth
-
-  def getPageHeight(): Int =
-    pageHeight
-
-  def setPageHeight(pageHeight: Int): Unit =
-    this.pageHeight = pageHeight
-
-  def getPageFormat(): Format =
-    pageFormat
-
-  def setPageFormat(pageFormat: Format): Unit =
-    this.pageFormat = pageFormat
-
-  def getPadding(): Int =
-    padding
-
-  def setPadding(padding: Int): Unit =
-    this.padding = padding
-
-  def getDuplicateBorder(): Boolean =
-    duplicateBorder
-
-  def setDuplicateBorder(duplicateBorder: Boolean): Unit =
-    this.duplicateBorder = duplicateBorder
-
-  def getPackToTexture(): Boolean =
-    packToTexture
-
-  /** If true, when a pixmap is packed to a page that has a texture, the portion of the texture where the pixmap was packed is updated using glTexSubImage2D. Note if packing many pixmaps, this may be
-    * slower than reuploading the whole texture. This setting is ignored if {@link #getDuplicateBorder()} is true.
-    */
-  def setPackToTexture(packToTexture: Boolean): Unit =
-    this.packToTexture = packToTexture
-
-  /** @see PixmapPacker#setTransparentColor(Color color) */
-  def getTransparentColor(): Color =
-    this.transparentColor
-
   /** Sets the default <code>color</code> of the whole {@link PixmapPacker.Page} when a new one created. Helps to avoid texture bleeding or to highlight the page for debugging.
     * @see
     *   Page#Page(PixmapPacker packer)
@@ -492,7 +441,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
   def setTransparentColor(color: Color): Unit =
     this.transparentColor.set(color)
 
-  private def getSplits(raster: Pixmap): Array[Int] = {
+  private def getSplits(raster: Pixmap): Nullable[Array[Int]] = {
     var startX = getSplitPoint(raster, 1, 0, true, true)
     var endX   = getSplitPoint(raster, startX, 0, false, true)
     var startY = getSplitPoint(raster, 0, 1, true, false)
@@ -503,7 +452,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     getSplitPoint(raster, 0, endY + 1, true, false)
 
     // No splits, or all splits.
-    if (startX == 0 && endX == 0 && startY == 0 && endY == 0) null
+    if (startX == 0 && endX == 0 && startY == 0 && endY == 0) Nullable.empty
     else {
       // Subtraction here is because the coordinates were computed before the 1px border was stripped.
       if (startX != 0) {
@@ -525,7 +474,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
     }
   }
 
-  private def getPads(raster: Pixmap, splits: Array[Int]): Array[Int] = {
+  private def getPads(raster: Pixmap, splits: Nullable[Array[Int]]): Nullable[Array[Int]] = {
     val bottom = raster.getHeight() - 1
     val right  = raster.getWidth() - 1
 
@@ -544,7 +493,7 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
     // No pads.
     if (startX == 0 && endX == 0 && startY == 0 && endY == 0) {
-      null
+      Nullable.empty
     } else {
       // -2 here is because the coordinates were computed before the 1px border was stripped.
       if (startX == 0 && endX == 0) {
@@ -574,15 +523,15 @@ class PixmapPacker(implicit sge: Sge) extends AutoCloseable {
 
       val pads = Array(startX, endX, startY, endY)
 
-      if (Nullable(splits).isDefined && Arrays.equals(pads, splits)) {
-        null
+      if (splits.isDefined && splits.exists(Arrays.equals(pads, _))) {
+        Nullable.empty
       } else {
         pads
       }
     }
   }
 
-  private val c = new Color()
+  private val c = Color()
 
   private def getSplitPoint(raster: Pixmap, startX: Int, startY: Int, startPoint: Boolean, xAxis: Boolean): Int = boundary {
     val rgba = Array.ofDim[Int](4)
@@ -629,7 +578,7 @@ object PixmapPacker {
     def sort(images: DynamicArray[Pixmap]): Unit
 
     /** Returns the page the bounds should be placed in and modifies the specified bounds position. */
-    def pack(packer: PixmapPacker, name: String, bounds: Bounds)(implicit sge: Sge): Page
+    def pack(packer: PixmapPacker, name: Nullable[String], bounds: Bounds): Page
   }
 
   /** @author
@@ -639,9 +588,9 @@ object PixmapPacker {
     * @author
     *   Rob Rendell
     */
-  class Page(packer: PixmapPacker)(implicit sge: Sge) {
+  class Page(packer: PixmapPacker)(using Sge) {
     val rects:      MutableMap[String, PixmapPackerRectangle] = MutableMap()
-    val image:      Pixmap                                    = new Pixmap(packer.pageWidth, packer.pageHeight, packer.pageFormat)
+    val image:      Pixmap                                    = Pixmap(packer.pageWidth, packer.pageHeight, packer.pageFormat)
     var texture:    Nullable[Texture]                         = Nullable.empty
     val addedRects: DynamicArray[String]                      = DynamicArray[String]()
     var dirty:      Boolean                                   = false
@@ -652,23 +601,13 @@ object PixmapPacker {
     // image.setColor(packer.getTransparentColor())
     // image.fill()
 
-    def getPixmap(): Pixmap = image
-
-    def getRects(): MutableMap[String, PixmapPackerRectangle] = rects
-
-    /** Returns the texture for this page, or null if the texture has not been created.
-      * @see
-      *   #updateTexture(TextureFilter, TextureFilter, boolean)
-      */
-    def getTexture(): Nullable[Texture] = texture
-
     /** Creates the texture if it has not been created, else reuploads the entire page pixmap to the texture if the pixmap has changed since this method was last called.
       * @return
       *   true if the texture was created or reuploaded.
       */
     def updateTexture(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Boolean = scala.util.boundary {
       if (texture.isEmpty) {
-        val tex = new Texture(new PixmapTextureData(image, image.getFormat(), useMipMaps, false, true)) {
+        val tex = new Texture(PixmapTextureData(image, image.getFormat(), useMipMaps, false, true)) {
           override def close(): Unit = {
             super.close()
             image.close()
@@ -707,15 +646,15 @@ object PixmapPacker {
     }
   }
 
-  class PixmapPackerRectangle(x: Int, y: Int, width: Int, height: Int) {
-    var page:           Page       = uninitialized
-    var splits:         Array[Int] = uninitialized
-    var pads:           Array[Int] = uninitialized
-    var offsetX:        Int        = 0
-    var offsetY:        Int        = 0
-    var originalWidth:  Int        = width
-    var originalHeight: Int        = height
-    val bounds:         Bounds     = new Bounds(x, y, width, height)
+  class PixmapPackerRectangle(initX: Int, initY: Int, initWidth: Int, initHeight: Int) {
+    var page:           Page                 = uninitialized
+    var splits:         Nullable[Array[Int]] = Nullable.empty
+    var pads:           Nullable[Array[Int]] = Nullable.empty
+    var offsetX:        Int                  = 0
+    var offsetY:        Int                  = 0
+    var originalWidth:  Int                  = initWidth
+    var originalHeight: Int                  = initHeight
+    val bounds:         Bounds               = Bounds(initX, initY, initWidth, initHeight)
 
     def this(x: Int, y: Int, width: Int, height: Int, left: Int, top: Int, originalWidth: Int, originalHeight: Int) = {
       this(x, y, width, height)
@@ -725,30 +664,29 @@ object PixmapPacker {
       this.originalHeight = originalHeight
     }
 
-    def getX():      Int = bounds.x
-    def getY():      Int = bounds.y
-    def getWidth():  Int = bounds.width
-    def getHeight(): Int = bounds.height
+    def x:      Int = bounds.x
+    def y:      Int = bounds.y
+    def width:  Int = bounds.width
+    def height: Int = bounds.height
   }
 
-  class GuillotineStrategy extends PackStrategy {
+  class GuillotineStrategy()(using Sge) extends PackStrategy {
     def sort(images: DynamicArray[Pixmap]): Unit =
       // Simple sorting by area (width * height) in descending order
       images.sort(Ordering.by[Pixmap, Int](pixmap => -(pixmap.getWidth() * pixmap.getHeight())))
 
-    def pack(packer: PixmapPacker, name: String, rect: Bounds)(implicit sge: Sge): Page = {
+    def pack(packer: PixmapPacker, name: Nullable[String], rect: Bounds): Page = {
       // Simplified implementation - would need full conversion for complex logic
       if (packer.pages.isEmpty) {
         // For now, create a basic Page - GuillotinePage would need proper Sge context
-        // val page = new GuillotinePage(packer)(using sge)
-        val page = new Page(packer)(using sge)
+        val page = Page(packer)
         packer.pages.add(page)
       }
       packer.pages.first
     }
   }
 
-  class GuillotinePage(packer: PixmapPacker)(implicit sge: Sge) extends Page(packer) {
+  class GuillotinePage(packer: PixmapPacker)(using Sge) extends Page(packer) {
     // Simplified for now
   }
 }

@@ -36,7 +36,7 @@ class ScaleInfluencer extends SimpleInfluencer {
   }
 
   override def activateParticles(startIndex: Int, count: Int): Unit =
-    if (value.isRelative()) {
+    if (value.relative) {
       var i = startIndex * valueChannel.strideSize
       var a = startIndex * interpolationChannel.strideSize
       val c = i + count * valueChannel.strideSize
@@ -65,5 +65,5 @@ class ScaleInfluencer extends SimpleInfluencer {
     }
 
   override def copy(): ParticleControllerComponent =
-    new ScaleInfluencer(this)
+    ScaleInfluencer(this)
 }

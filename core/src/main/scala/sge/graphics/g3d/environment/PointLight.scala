@@ -24,7 +24,7 @@ import sge.math.Vector3
 import sge.utils.Nullable
 
 class PointLight extends BaseLight[PointLight] {
-  val position:  Vector3 = new Vector3()
+  val position:  Vector3 = Vector3()
   var intensity: Float   = 0f
 
   def setPosition(positionX: Float, positionY: Float, positionZ: Float): PointLight = {
@@ -80,5 +80,5 @@ class PointLight extends BaseLight[PointLight] {
 
   @targetName("equalsPointLight")
   def equals(other: Nullable[PointLight]): Boolean =
-    other.fold(false)(o => (o eq this) || (color.equals(o.color) && position.equals(o.position) && intensity == o.intensity))
+    other.exists(o => (o eq this) || (color.equals(o.color) && position.equals(o.position) && intensity == o.intensity))
 }

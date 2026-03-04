@@ -1,7 +1,7 @@
 # Audit: sge.graphics.glutils
 
-Audited: 35/35 files | Pass: 23 | Minor: 9 | Major: 3
-Last updated: 2026-03-03
+Audited: 35/35 files | Pass: 25 | Minor: 8 | Major: 2
+Last updated: 2026-03-04
 
 ---
 

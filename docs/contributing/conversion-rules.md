@@ -58,7 +58,7 @@ Rewrite method implementations from Java to Scala, applying these adjustments:
 | e | `OrderedSet` | `OrderedSet[A]` of the respective type |
 | e2 | `OrderedMap` | `OrderedMap[K, V]` of the respective types |
 | f | `GdxException` / `GdxRuntimeException` | One of `SgeError`s |
-| g | Global `Gdx` | Implicit `Sge` (via `given`/`using`) |
+| g | Global `Gdx` | Implicit `Sge` (via `given`/`using`) — see **Sge propagation** below |
 | h | Uninitialized `var` (`= _`) | `= scala.compiletime.uninitialized` |
 | i | Nullable argument/return type | `Nullable[A]` — see [nullable-guide.md](nullable-guide.md) |
 | j | `math.methodName` | Check if it should be `Math.methodName` (java.lang.Math) |
@@ -71,6 +71,26 @@ Rewrite method implementations from Java to Scala, applying these adjustments:
 | q | `AsyncTask<T>` / `call()` | `() => T` / `def apply()` |
 | r | `AsyncResult<T>` | `scala.concurrent.Future[T]` (adjust for `Future`s and `ExecutionContext`s) |
 | s | `ApplicationAdapter` / `InputAdapter` / `ScreenAdapter` | `Application` / `Input` / `Screen` |
+
+### Sge propagation
+
+LibGDX uses global static `Gdx.graphics`, `Gdx.input`, etc. SGE replaces these with
+`(using Sge)` context parameters. **Never leave a TODO for missing Sge context.**
+
+Add `(using Sge)` to the **class constructor**, not individual methods. Within a
+single application, every class uses the same Sge instance — it's effectively a
+per-application singleton passed explicitly instead of via globals. This enables
+parallel testing and multiple application instances without global state conflicts.
+
+Key patterns:
+- `Gdx.graphics.getGL20()` → `Sge().graphics.getGL20()`
+- `Gdx.input.isKeyPressed(k)` → `Sge().input.isKeyPressed(k)`
+- Classes using `Sge()` calls need `(using Sge)` on their **constructor**
+- Subclasses inherit: `class Button()(using Sge) extends Table()`
+- Secondary constructors also need `(using Sge)`:
+  `def this(skin: Skin)(using Sge) = { this(); ... }`
+- Methods do NOT need `(using Sge)` — it's available from the class level
+- Example hierarchy: `Actor()(using Sge)` → `Group` → `WidgetGroup` → `Table` → `Button`
 
 ### Step 6: Verify compilation
 

@@ -22,8 +22,11 @@
  * - combineAttributes is private[shaders] (needed by DepthShader companion)
  * - All 5 constructors match Java constructor chain
  * - All methods present: init, begin, render, end, close, canRender, compareTo, equals,
- *   bindMaterial, bindLights, getDefaultCullFace, setDefaultCullFace, getDefaultDepthFunc,
- *   setDefaultDepthFunc
+ *   bindMaterial, bindLights, defaultCullFace, defaultCullFace_=, defaultDepthFunc,
+ *   defaultDepthFunc_=
+ * - Fixes (2026-03-04): getDefaultCullFace/setDefaultCullFace → def defaultCullFace/defaultCullFace_=;
+ *   getDefaultDepthFunc/setDefaultDepthFunc → def defaultDepthFunc/defaultDepthFunc_=;
+ *   companion getDefaultVertexShader()/getDefaultFragmentShader() → def defaultVertexShader/defaultFragmentShader
  * - Java equals(DefaultShader) overload -> Scala equals(Any) pattern match (equivalent)
  * - FIXME comments preserved from Java source
  */
@@ -67,7 +70,7 @@ class DefaultShader(
   protected val lighting:           Boolean = renderable.environment.isDefined
   protected val environmentCubemap: Boolean = _combinedAttributes.has(CubemapAttribute.EnvironmentMap) ||
     (lighting && _combinedAttributes.has(CubemapAttribute.EnvironmentMap))
-  protected val shadowMap: Boolean = lighting && renderable.environment.fold(false)(_.shadowMap.isDefined)
+  protected val shadowMap: Boolean = lighting && renderable.environment.exists(_.shadowMap.isDefined)
 
   /** The attributes that this shader supports */
   val attributesMask:     Long = _combinedAttributes.getMask | DefaultShader.optionalAttributes
@@ -82,7 +85,7 @@ class DefaultShader(
     val arr = new Array[DirectionalLight](n)
     var i   = 0
     while (i < arr.length) {
-      arr(i) = new DirectionalLight()
+      arr(i) = DirectionalLight()
       i += 1
     }
     arr
@@ -93,7 +96,7 @@ class DefaultShader(
     val arr = new Array[PointLight](n)
     var i   = 0
     while (i < arr.length) {
-      arr(i) = new PointLight()
+      arr(i) = PointLight()
       i += 1
     }
     arr
@@ -104,7 +107,7 @@ class DefaultShader(
     val arr = new Array[SpotLight](n)
     var i   = 0
     while (i < arr.length) {
-      arr(i) = new SpotLight()
+      arr(i) = SpotLight()
       i += 1
     }
     arr
@@ -118,9 +121,9 @@ class DefaultShader(
   if (!config.ignoreUnimplemented && (DefaultShader.implementedFlags & attributesMask) != attributesMask)
     throw SgeError.GraphicsError("Some attributes not implemented yet (" + attributesMask + ")")
 
-  if (renderable.bones.isDefined && renderable.bones.fold(0)(_.length) > config.numBones) {
+  if (renderable.bones.isDefined && renderable.bones.map(_.length).getOrElse(0) > config.numBones) {
     throw SgeError.GraphicsError(
-      "too many bones: " + renderable.bones.fold(0)(_.length) + ", max configured: " + config.numBones
+      "too many bones: " + renderable.bones.map(_.length).getOrElse(0) + ", max configured: " + config.numBones
     )
   }
 
@@ -148,7 +151,7 @@ class DefaultShader(
   val u_cameraUp:      Int = register(DefaultShader.Inputs.cameraUp, DefaultShader.Setters.cameraUp)
   val u_cameraNearFar: Int =
     register(DefaultShader.Inputs.cameraNearFar, DefaultShader.Setters.cameraNearFar)
-  val u_time: Int = register(new BaseShader.Uniform("u_time"))
+  val u_time: Int = register(BaseShader.Uniform("u_time"))
   // Object uniforms
   val u_worldTrans:     Int = register(DefaultShader.Inputs.worldTrans, DefaultShader.Setters.worldTrans)
   val u_viewWorldTrans: Int =
@@ -212,31 +215,31 @@ class DefaultShader(
     if (environmentCubemap)
       register(DefaultShader.Inputs.environmentCubemap, DefaultShader.Setters.environmentCubemap)
     else -1
-  protected val u_dirLights0color:      Int = register(new BaseShader.Uniform("u_dirLights[0].color"))
-  protected val u_dirLights0direction:  Int = register(new BaseShader.Uniform("u_dirLights[0].direction"))
-  protected val u_dirLights1color:      Int = register(new BaseShader.Uniform("u_dirLights[1].color"))
-  protected val u_pointLights0color:    Int = register(new BaseShader.Uniform("u_pointLights[0].color"))
+  protected val u_dirLights0color:      Int = register(BaseShader.Uniform("u_dirLights[0].color"))
+  protected val u_dirLights0direction:  Int = register(BaseShader.Uniform("u_dirLights[0].direction"))
+  protected val u_dirLights1color:      Int = register(BaseShader.Uniform("u_dirLights[1].color"))
+  protected val u_pointLights0color:    Int = register(BaseShader.Uniform("u_pointLights[0].color"))
   protected val u_pointLights0position: Int =
-    register(new BaseShader.Uniform("u_pointLights[0].position"))
+    register(BaseShader.Uniform("u_pointLights[0].position"))
   protected val u_pointLights0intensity: Int =
-    register(new BaseShader.Uniform("u_pointLights[0].intensity"))
-  protected val u_pointLights1color:   Int = register(new BaseShader.Uniform("u_pointLights[1].color"))
-  protected val u_spotLights0color:    Int = register(new BaseShader.Uniform("u_spotLights[0].color"))
+    register(BaseShader.Uniform("u_pointLights[0].intensity"))
+  protected val u_pointLights1color:   Int = register(BaseShader.Uniform("u_pointLights[1].color"))
+  protected val u_spotLights0color:    Int = register(BaseShader.Uniform("u_spotLights[0].color"))
   protected val u_spotLights0position: Int =
-    register(new BaseShader.Uniform("u_spotLights[0].position"))
+    register(BaseShader.Uniform("u_spotLights[0].position"))
   protected val u_spotLights0intensity: Int =
-    register(new BaseShader.Uniform("u_spotLights[0].intensity"))
+    register(BaseShader.Uniform("u_spotLights[0].intensity"))
   protected val u_spotLights0direction: Int =
-    register(new BaseShader.Uniform("u_spotLights[0].direction"))
+    register(BaseShader.Uniform("u_spotLights[0].direction"))
   protected val u_spotLights0cutoffAngle: Int =
-    register(new BaseShader.Uniform("u_spotLights[0].cutoffAngle"))
+    register(BaseShader.Uniform("u_spotLights[0].cutoffAngle"))
   protected val u_spotLights0exponent: Int =
-    register(new BaseShader.Uniform("u_spotLights[0].exponent"))
-  protected val u_spotLights1color:       Int = register(new BaseShader.Uniform("u_spotLights[1].color"))
-  protected val u_fogColor:               Int = register(new BaseShader.Uniform("u_fogColor"))
-  protected val u_shadowMapProjViewTrans: Int = register(new BaseShader.Uniform("u_shadowMapProjViewTrans"))
-  protected val u_shadowTexture:          Int = register(new BaseShader.Uniform("u_shadowTexture"))
-  protected val u_shadowPCFOffset:        Int = register(new BaseShader.Uniform("u_shadowPCFOffset"))
+    register(BaseShader.Uniform("u_spotLights[0].exponent"))
+  protected val u_spotLights1color:       Int = register(BaseShader.Uniform("u_spotLights[1].color"))
+  protected val u_fogColor:               Int = register(BaseShader.Uniform("u_fogColor"))
+  protected val u_shadowMapProjViewTrans: Int = register(BaseShader.Uniform("u_shadowMapProjViewTrans"))
+  protected val u_shadowTexture:          Int = register(BaseShader.Uniform("u_shadowTexture"))
+  protected val u_shadowPCFOffset:        Int = register(BaseShader.Uniform("u_shadowPCFOffset"))
   // FIXME Cache vertex attribute locations...
 
   protected var dirLightsLoc:                Int = 0
@@ -257,41 +260,38 @@ class DefaultShader(
   protected var spotLightsExponentOffset:    Int = 0
   protected var spotLightsSize:              Int = 0
 
-  def this(renderable: Renderable)(using Sge) = {
+  def this(renderable: Renderable)(using Sge) =
     this(
       renderable,
-      new DefaultShader.Config(), {
-        val cfg    = new DefaultShader.Config()
+      DefaultShader.Config(), {
+        val cfg    = DefaultShader.Config()
         val prefix = DefaultShader.createPrefix(renderable, cfg)
-        val vs     = cfg.vertexShader.getOrElse(DefaultShader.getDefaultVertexShader())
-        val fs     = cfg.fragmentShader.getOrElse(DefaultShader.getDefaultFragmentShader())
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs     = cfg.vertexShader.getOrElse(DefaultShader.defaultVertexShader)
+        val fs     = cfg.fragmentShader.getOrElse(DefaultShader.defaultFragmentShader)
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) = {
+  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) =
     this(
       renderable,
       config, {
         val prefix = DefaultShader.createPrefix(renderable, config)
-        val vs     = config.vertexShader.getOrElse(DefaultShader.getDefaultVertexShader())
-        val fs     = config.fragmentShader.getOrElse(DefaultShader.getDefaultFragmentShader())
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs     = config.vertexShader.getOrElse(DefaultShader.defaultVertexShader)
+        val fs     = config.fragmentShader.getOrElse(DefaultShader.defaultFragmentShader)
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) = {
+  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) =
     this(
       renderable,
       config, {
-        val vs = config.vertexShader.getOrElse(DefaultShader.getDefaultVertexShader())
-        val fs = config.fragmentShader.getOrElse(DefaultShader.getDefaultFragmentShader())
-        new ShaderProgram(prefix + vs, prefix + fs)
+        val vs = config.vertexShader.getOrElse(DefaultShader.defaultVertexShader)
+        val fs = config.fragmentShader.getOrElse(DefaultShader.defaultFragmentShader)
+        ShaderProgram(prefix + vs, prefix + fs)
       }
     )
-  }
 
   def this(
     renderable:     Renderable,
@@ -299,9 +299,8 @@ class DefaultShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) = {
-    this(renderable, config, new ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
-  }
+  )(using Sge) =
+    this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
 
   override def init(): Unit = {
     val prog = this.program.getOrElse(throw SgeError.GraphicsError("No shader program"))
@@ -343,7 +342,7 @@ class DefaultShader(
     }
   }
 
-  new Matrix3()
+  Matrix3()
   private var time:      Float   = 0f
   private var lightsSet: Boolean = false
 
@@ -421,24 +420,24 @@ class DefaultShader(
     }
   }
 
-  new Vector3()
+  Vector3()
 
   protected def bindLights(renderable: Renderable, attributes: Attributes): Unit = {
     val lights: Nullable[Environment]                = renderable.environment
     val dla:    Nullable[DirectionalLightsAttribute] =
-      attributes.get(classOf[DirectionalLightsAttribute], DirectionalLightsAttribute.Type)
+      attributes.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type)
     val dirs: Nullable[DynamicArray[DirectionalLight]] = dla.map(_.lights)
     val pla:  Nullable[PointLightsAttribute]           =
-      attributes.get(classOf[PointLightsAttribute], PointLightsAttribute.Type)
+      attributes.getAs[PointLightsAttribute](PointLightsAttribute.Type)
     val points: Nullable[DynamicArray[PointLight]] = pla.map(_.lights)
     val sla:    Nullable[SpotLightsAttribute]      =
-      attributes.get(classOf[SpotLightsAttribute], SpotLightsAttribute.Type)
+      attributes.getAs[SpotLightsAttribute](SpotLightsAttribute.Type)
     val spots: Nullable[DynamicArray[SpotLight]] = sla.map(_.lights)
 
     if (dirLightsLoc >= 0) {
       var i = 0
       while (i < directionalLights.length) {
-        if (dirs.isEmpty || dirs.fold(true)(d => i >= d.size)) {
+        if (dirs.isEmpty || dirs.forall(d => i >= d.size)) {
           if (
             lightsSet && directionalLights(i).color.r == 0f && directionalLights(i).color.g == 0f
             && directionalLights(i).color.b == 0f
@@ -465,7 +464,7 @@ class DefaultShader(
               i = directionalLights.length // break
             }
           }
-        } else if (lightsSet && dirs.fold(false)(d => directionalLights(i).equals(d(i)))) {
+        } else if (lightsSet && dirs.exists(d => directionalLights(i).equals(d(i)))) {
           // continue - skip this iteration
         } else {
           dirs.foreach(d => directionalLights(i).set(d(i)))
@@ -495,7 +494,7 @@ class DefaultShader(
     if (pointLightsLoc >= 0) {
       var i = 0
       while (i < pointLights.length) {
-        if (points.isEmpty || points.fold(true)(p => i >= p.size)) {
+        if (points.isEmpty || points.forall(p => i >= p.size)) {
           if (lightsSet && pointLights(i).intensity == 0f) {
             // continue
           } else {
@@ -521,7 +520,7 @@ class DefaultShader(
               i = pointLights.length // break
             }
           }
-        } else if (lightsSet && points.fold(false)(p => pointLights(i).equals(p(i)))) {
+        } else if (lightsSet && points.exists(p => pointLights(i).equals(p(i)))) {
           // continue
         } else {
           points.foreach(p => pointLights(i).set(p(i)))
@@ -553,7 +552,7 @@ class DefaultShader(
     if (spotLightsLoc >= 0) {
       var i = 0
       while (i < spotLights.length) {
-        if (spots.isEmpty || spots.fold(true)(s => i >= s.size)) {
+        if (spots.isEmpty || spots.forall(s => i >= s.size)) {
           if (lightsSet && spotLights(i).intensity == 0f) {
             // continue
           } else {
@@ -577,7 +576,7 @@ class DefaultShader(
               i = spotLights.length // break
             }
           }
-        } else if (lightsSet && spots.fold(false)(s => spotLights(i).equals(s(i)))) {
+        } else if (lightsSet && spots.exists(s => spotLights(i).equals(s(i)))) {
           // continue
         } else {
           spots.foreach(s => spotLights(i).set(s(i)))
@@ -612,10 +611,10 @@ class DefaultShader(
 
     lights.foreach { env =>
       env.shadowMap.foreach { sm =>
-        set(u_shadowMapProjViewTrans, sm.getProjViewTrans())
-        set(u_shadowTexture, sm.getDepthMap())
-        val depthMap = sm.getDepthMap().asInstanceOf[TextureDescriptor[GLTexture]]
-        setFloat(u_shadowPCFOffset, 1.0f / (2f * depthMap.texture.fold(1)(_.getWidth)))
+        set(u_shadowMapProjViewTrans, sm.projViewTrans)
+        set(u_shadowTexture, sm.depthMap)
+        val depthMap = sm.depthMap.asInstanceOf[TextureDescriptor[GLTexture]]
+        setFloat(u_shadowPCFOffset, 1.0f / (2f * depthMap.texture.map(_.getWidth).getOrElse(1)))
       }
     }
 
@@ -624,7 +623,7 @@ class DefaultShader(
 
   override def canRender(renderable: Renderable): Boolean =
     if (renderable.bones.isDefined) {
-      if (renderable.bones.fold(0)(_.length) > config.numBones) false
+      if (renderable.bones.map(_.length).getOrElse(0) > config.numBones) false
       else if (renderable.meshPart.mesh.getVertexAttributes().getBoneWeights() > config.numBoneWeights)
         false
       else {
@@ -663,18 +662,18 @@ class DefaultShader(
     super.close()
   }
 
-  def getDefaultCullFace(): Int =
+  def defaultCullFace: Int =
     if (config.defaultCullFace == -1) DefaultShader.defaultCullFace: @scala.annotation.nowarn("msg=deprecated")
     else config.defaultCullFace
 
-  def setDefaultCullFace(cullFace: Int): Unit =
+  def defaultCullFace_=(cullFace: Int): Unit =
     config.defaultCullFace = cullFace
 
-  def getDefaultDepthFunc(): Int =
+  def defaultDepthFunc: Int =
     if (config.defaultDepthFunc == -1) DefaultShader.defaultDepthFunc: @scala.annotation.nowarn("msg=deprecated")
     else config.defaultDepthFunc
 
-  def setDefaultDepthFunc(depthFunc: Int): Unit =
+  def defaultDepthFunc_=(depthFunc: Int): Unit =
     config.defaultDepthFunc = depthFunc
 }
 
@@ -720,62 +719,62 @@ object DefaultShader {
   }
 
   object Inputs {
-    val projTrans:       BaseShader.Uniform = new BaseShader.Uniform("u_projTrans")
-    val viewTrans:       BaseShader.Uniform = new BaseShader.Uniform("u_viewTrans")
-    val projViewTrans:   BaseShader.Uniform = new BaseShader.Uniform("u_projViewTrans")
-    val cameraPosition:  BaseShader.Uniform = new BaseShader.Uniform("u_cameraPosition")
-    val cameraDirection: BaseShader.Uniform = new BaseShader.Uniform("u_cameraDirection")
-    val cameraUp:        BaseShader.Uniform = new BaseShader.Uniform("u_cameraUp")
-    val cameraNearFar:   BaseShader.Uniform = new BaseShader.Uniform("u_cameraNearFar")
+    val projTrans:       BaseShader.Uniform = BaseShader.Uniform("u_projTrans")
+    val viewTrans:       BaseShader.Uniform = BaseShader.Uniform("u_viewTrans")
+    val projViewTrans:   BaseShader.Uniform = BaseShader.Uniform("u_projViewTrans")
+    val cameraPosition:  BaseShader.Uniform = BaseShader.Uniform("u_cameraPosition")
+    val cameraDirection: BaseShader.Uniform = BaseShader.Uniform("u_cameraDirection")
+    val cameraUp:        BaseShader.Uniform = BaseShader.Uniform("u_cameraUp")
+    val cameraNearFar:   BaseShader.Uniform = BaseShader.Uniform("u_cameraNearFar")
 
-    val worldTrans:         BaseShader.Uniform = new BaseShader.Uniform("u_worldTrans")
-    val viewWorldTrans:     BaseShader.Uniform = new BaseShader.Uniform("u_viewWorldTrans")
-    val projViewWorldTrans: BaseShader.Uniform = new BaseShader.Uniform("u_projViewWorldTrans")
-    val normalMatrix:       BaseShader.Uniform = new BaseShader.Uniform("u_normalMatrix")
-    val bones:              BaseShader.Uniform = new BaseShader.Uniform("u_bones")
+    val worldTrans:         BaseShader.Uniform = BaseShader.Uniform("u_worldTrans")
+    val viewWorldTrans:     BaseShader.Uniform = BaseShader.Uniform("u_viewWorldTrans")
+    val projViewWorldTrans: BaseShader.Uniform = BaseShader.Uniform("u_projViewWorldTrans")
+    val normalMatrix:       BaseShader.Uniform = BaseShader.Uniform("u_normalMatrix")
+    val bones:              BaseShader.Uniform = BaseShader.Uniform("u_bones")
 
     val shininess: BaseShader.Uniform =
-      new BaseShader.Uniform("u_shininess", FloatAttribute.Shininess)
-    val opacity:      BaseShader.Uniform = new BaseShader.Uniform("u_opacity", BlendingAttribute.Type)
+      BaseShader.Uniform("u_shininess", FloatAttribute.Shininess)
+    val opacity:      BaseShader.Uniform = BaseShader.Uniform("u_opacity", BlendingAttribute.Type)
     val diffuseColor: BaseShader.Uniform =
-      new BaseShader.Uniform("u_diffuseColor", ColorAttribute.Diffuse)
+      BaseShader.Uniform("u_diffuseColor", ColorAttribute.Diffuse)
     val diffuseTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_diffuseTexture", TextureAttribute.Diffuse)
+      BaseShader.Uniform("u_diffuseTexture", TextureAttribute.Diffuse)
     val diffuseUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_diffuseUVTransform", TextureAttribute.Diffuse)
+      BaseShader.Uniform("u_diffuseUVTransform", TextureAttribute.Diffuse)
     val specularColor: BaseShader.Uniform =
-      new BaseShader.Uniform("u_specularColor", ColorAttribute.Specular)
+      BaseShader.Uniform("u_specularColor", ColorAttribute.Specular)
     val specularTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_specularTexture", TextureAttribute.Specular)
+      BaseShader.Uniform("u_specularTexture", TextureAttribute.Specular)
     val specularUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_specularUVTransform", TextureAttribute.Specular)
+      BaseShader.Uniform("u_specularUVTransform", TextureAttribute.Specular)
     val emissiveColor: BaseShader.Uniform =
-      new BaseShader.Uniform("u_emissiveColor", ColorAttribute.Emissive)
+      BaseShader.Uniform("u_emissiveColor", ColorAttribute.Emissive)
     val emissiveTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_emissiveTexture", TextureAttribute.Emissive)
+      BaseShader.Uniform("u_emissiveTexture", TextureAttribute.Emissive)
     val emissiveUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_emissiveUVTransform", TextureAttribute.Emissive)
+      BaseShader.Uniform("u_emissiveUVTransform", TextureAttribute.Emissive)
     val reflectionColor: BaseShader.Uniform =
-      new BaseShader.Uniform("u_reflectionColor", ColorAttribute.Reflection)
+      BaseShader.Uniform("u_reflectionColor", ColorAttribute.Reflection)
     val reflectionTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_reflectionTexture", TextureAttribute.Reflection)
+      BaseShader.Uniform("u_reflectionTexture", TextureAttribute.Reflection)
     val reflectionUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_reflectionUVTransform", TextureAttribute.Reflection)
+      BaseShader.Uniform("u_reflectionUVTransform", TextureAttribute.Reflection)
     val normalTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_normalTexture", TextureAttribute.Normal)
+      BaseShader.Uniform("u_normalTexture", TextureAttribute.Normal)
     val normalUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_normalUVTransform", TextureAttribute.Normal)
+      BaseShader.Uniform("u_normalUVTransform", TextureAttribute.Normal)
     val ambientTexture: BaseShader.Uniform =
-      new BaseShader.Uniform("u_ambientTexture", TextureAttribute.Ambient)
+      BaseShader.Uniform("u_ambientTexture", TextureAttribute.Ambient)
     val ambientUVTransform: BaseShader.Uniform =
-      new BaseShader.Uniform("u_ambientUVTransform", TextureAttribute.Ambient)
-    val alphaTest: BaseShader.Uniform = new BaseShader.Uniform("u_alphaTest")
+      BaseShader.Uniform("u_ambientUVTransform", TextureAttribute.Ambient)
+    val alphaTest: BaseShader.Uniform = BaseShader.Uniform("u_alphaTest")
 
-    val ambientCube:        BaseShader.Uniform = new BaseShader.Uniform("u_ambientCubemap")
-    val dirLights:          BaseShader.Uniform = new BaseShader.Uniform("u_dirLights")
-    val pointLights:        BaseShader.Uniform = new BaseShader.Uniform("u_pointLights")
-    val spotLights:         BaseShader.Uniform = new BaseShader.Uniform("u_spotLights")
-    val environmentCubemap: BaseShader.Uniform = new BaseShader.Uniform("u_environmentCubemap")
+    val ambientCube:        BaseShader.Uniform = BaseShader.Uniform("u_ambientCubemap")
+    val dirLights:          BaseShader.Uniform = BaseShader.Uniform("u_dirLights")
+    val pointLights:        BaseShader.Uniform = BaseShader.Uniform("u_pointLights")
+    val spotLights:         BaseShader.Uniform = BaseShader.Uniform("u_spotLights")
+    val environmentCubemap: BaseShader.Uniform = BaseShader.Uniform("u_environmentCubemap")
   }
 
   object Setters {
@@ -860,7 +859,7 @@ object DefaultShader {
         shader.set(inputID, renderable.worldTransform)
     }
     val viewWorldTrans: BaseShader.Setter = new BaseShader.LocalSetter() {
-      private val temp: Matrix4 = new Matrix4()
+      private val temp: Matrix4 = Matrix4()
       override def set(
         shader:             BaseShader,
         inputID:            Int,
@@ -870,7 +869,7 @@ object DefaultShader {
         shader.camera.foreach(cam => shader.set(inputID, temp.set(cam.view).mul(renderable.worldTransform)))
     }
     val projViewWorldTrans: BaseShader.Setter = new BaseShader.LocalSetter() {
-      private val temp: Matrix4 = new Matrix4()
+      private val temp: Matrix4 = Matrix4()
       override def set(
         shader:             BaseShader,
         inputID:            Int,
@@ -880,7 +879,7 @@ object DefaultShader {
         shader.camera.foreach(cam => shader.set(inputID, temp.set(cam.combined).mul(renderable.worldTransform)))
     }
     val normalMatrix: BaseShader.Setter = new BaseShader.LocalSetter() {
-      private val tmpM: Matrix3 = new Matrix3()
+      private val tmpM: Matrix3 = Matrix3()
       override def set(
         shader:             BaseShader,
         inputID:            Int,
@@ -901,7 +900,7 @@ object DefaultShader {
         var i = 0
         while (i < bones.length) {
           val idx = i / 16
-          if (renderable.bones.isEmpty || renderable.bones.fold(true)(b => idx >= b.length || Nullable(b(idx)).isEmpty))
+          if (renderable.bones.isEmpty || renderable.bones.forall(b => idx >= b.length || Nullable(b(idx)).isEmpty))
             System.arraycopy(Bones.idtMatrix.values, 0, bones, i, 16)
           else
             renderable.bones.foreach { b =>
@@ -913,7 +912,7 @@ object DefaultShader {
       }
     }
     object Bones {
-      private val idtMatrix: Matrix4 = new Matrix4()
+      private val idtMatrix: Matrix4 = Matrix4()
     }
 
     val shininess: BaseShader.Setter = new BaseShader.LocalSetter() {
@@ -1188,7 +1187,7 @@ object DefaultShader {
     object ACubemap {
       private val ones: Array[Float] =
         Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-      private val tmpV1: Vector3 = new Vector3()
+      private val tmpV1: Vector3 = Vector3()
     }
 
     val environmentCubemap: BaseShader.Setter = new BaseShader.LocalSetter() {
@@ -1213,7 +1212,7 @@ object DefaultShader {
 
   private var _defaultVertexShader: Nullable[String] = Nullable.empty
 
-  def getDefaultVertexShader()(using Sge): String = {
+  def defaultVertexShader(using Sge): String = {
     if (_defaultVertexShader.isEmpty)
       _defaultVertexShader = Nullable(
         Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.vertex.glsl").readString()
@@ -1223,7 +1222,7 @@ object DefaultShader {
 
   private var _defaultFragmentShader: Nullable[String] = Nullable.empty
 
-  def getDefaultFragmentShader()(using Sge): String = {
+  def defaultFragmentShader(using Sge): String = {
     if (_defaultFragmentShader.isEmpty)
       _defaultFragmentShader = Nullable(
         Sge().files.classpath("com/badlogic/gdx/graphics/g3d/shaders/default.fragment.glsl").readString()
@@ -1251,7 +1250,7 @@ object DefaultShader {
   private def or(mask: Long, flag: Long): Boolean =
     (mask & flag) != 0
 
-  private val tmpAttributes: Attributes = new Attributes()
+  private val tmpAttributes: Attributes = Attributes()
 
   // TODO: Perhaps move responsibility for combining attributes to RenderableProvider?
   private[shaders] def combineAttributes(renderable: Renderable): Attributes = {
@@ -1294,7 +1293,7 @@ object DefaultShader {
         if (attributes.has(ColorAttribute.Fog)) {
           sb.append("#define fogFlag\n")
         }
-        if (renderable.environment.fold(false)(_.shadowMap.isDefined))
+        if (renderable.environment.exists(_.shadowMap.isDefined))
           sb.append("#define shadowMapFlag\n")
         if (attributes.has(CubemapAttribute.EnvironmentMap))
           sb.append("#define environmentCubemapFlag\n")

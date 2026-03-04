@@ -8,9 +8,9 @@
  *
  * Migration notes:
  *   Renames: (none)
- *   Convention: all fields private with getter/setter defs, matching Java pattern
- *   Idiom: 1:1 faithful port, no null usage (Color.WHITE.cpy() is non-null)
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (setName, setColor, setOpacity, setVisible)
+ *   Renames: getName/setName → var name, getColor/setColor → var color,
+ *     getOpacity/setOpacity → var opacity, isVisible/setVisible → var visible,
+ *     getProperties → val properties
  *   Audited: 2026-03-03
  */
 package sge
@@ -20,40 +20,9 @@ import sge.graphics.Color
 
 /** Generic Map entity with basic attributes like name, opacity, color */
 class MapObject {
-  private var name:       String        = ""
-  private var opacity:    Float         = 1.0f
-  private var visible:    Boolean       = true
-  private val properties: MapProperties = new MapProperties()
-  private var color:      Color         = Color.WHITE.cpy()
-
-  /** @return object's name */
-  def getName: String = name
-
-  /** @param name new name for the object */
-  def setName(name: String): Unit =
-    this.name = name
-
-  /** @return object's color */
-  def getColor: Color = color
-
-  /** @param color new color for the object */
-  def setColor(color: Color): Unit =
-    this.color = color
-
-  /** @return object's opacity */
-  def getOpacity: Float = opacity
-
-  /** @param opacity new opacity value for the object */
-  def setOpacity(opacity: Float): Unit =
-    this.opacity = opacity
-
-  /** @return whether the object is visible or not */
-  def isVisible: Boolean = visible
-
-  /** @param visible toggles object's visibility */
-  def setVisible(visible: Boolean): Unit =
-    this.visible = visible
-
-  /** @return object's properties set */
-  def getProperties: MapProperties = properties
+  var name:       String        = ""
+  var opacity:    Float         = 1.0f
+  var visible:    Boolean       = true
+  val properties: MapProperties = MapProperties()
+  var color:      Color         = Color.WHITE.cpy()
 }

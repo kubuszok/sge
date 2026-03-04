@@ -135,5 +135,5 @@ class InputListener extends EventListener {
 }
 
 object InputListener {
-  private val tmpCoords: Vector2 = new Vector2()
+  private val tmpCoords: Vector2 = Vector2()
 }

@@ -31,7 +31,7 @@ import scala.language.implicitConversions
   * @author
   *   Nathan Sweet
   */
-class Container[T <: Actor]() extends WidgetGroup {
+class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   private var actor:        Nullable[T]         = Nullable.empty
   private var _minWidth:    Value               = Value.minWidth
@@ -55,7 +55,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   setTouchable(Touchable.childrenOnly)
   setTransform(false)
 
-  def this(actor: Nullable[T]) = {
+  def this(actor: Nullable[T])(using Sge) = {
     this()
     setActor(actor)
   }
@@ -186,7 +186,7 @@ class Container[T <: Actor]() extends WidgetGroup {
             cullable.setCullingArea(Nullable.empty)
           } { ca =>
             val ac = actorCulling.getOrElse {
-              val r = new Rectangle()
+              val r = Rectangle()
               actorCulling = Nullable(r)
               r
             }
@@ -255,14 +255,14 @@ class Container[T <: Actor]() extends WidgetGroup {
     throw new UnsupportedOperationException("Use Container#setActor.")
 
   override def removeActor(actor: Actor): Boolean =
-    if (!this.actor.fold(false)(_ eq actor)) false
+    if (!this.actor.exists(_ eq actor)) false
     else {
       setActor(Nullable.empty)
       true
     }
 
   override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
-    if (!this.actor.fold(false)(_ eq actor)) false
+    if (!this.actor.exists(_ eq actor)) false
     else {
       this.actor = Nullable.empty
       super.removeActor(actor, unfocus)
@@ -270,7 +270,7 @@ class Container[T <: Actor]() extends WidgetGroup {
 
   override def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val removed = super.removeActorAt(index, unfocus)
-    if (this.actor.fold(false)(_ eq removed)) this.actor = Nullable.empty
+    if (this.actor.exists(_ eq removed)) this.actor = Nullable.empty
     removed
   }
 
@@ -485,17 +485,17 @@ class Container[T <: Actor]() extends WidgetGroup {
   def right(): Container[T] = { _align = (_align | Align.right) & ~Align.left; this }
 
   override def getMinWidth: Float =
-    actor.fold(0f)(a => _minWidth.get(a)) + _padLeft.get(this) + _padRight.get(this)
+    actor.map(a => _minWidth.get(a)).getOrElse(0f) + _padLeft.get(this) + _padRight.get(this)
 
   def getMinHeightValue: Value = _minHeight
 
   override def getMinHeight: Float =
-    actor.fold(0f)(a => _minHeight.get(a)) + _padTop.get(this) + _padBottom.get(this)
+    actor.map(a => _minHeight.get(a)).getOrElse(0f) + _padTop.get(this) + _padBottom.get(this)
 
   def getPrefWidthValue: Value = _prefWidth
 
   override def getPrefWidth: Float = {
-    var v = actor.fold(0f)(a => _prefWidth.get(a))
+    var v = actor.map(a => _prefWidth.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.getMinWidth) }
     Math.max(getMinWidth, v + _padLeft.get(this) + _padRight.get(this))
   }
@@ -503,7 +503,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getPrefHeightValue: Value = _prefHeight
 
   override def getPrefHeight: Float = {
-    var v = actor.fold(0f)(a => _prefHeight.get(a))
+    var v = actor.map(a => _prefHeight.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.getMinHeight) }
     Math.max(getMinHeight, v + _padTop.get(this) + _padBottom.get(this))
   }
@@ -511,7 +511,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getMaxWidthValue: Value = _maxWidth
 
   override def getMaxWidth: Float = {
-    var v = actor.fold(0f)(a => _maxWidth.get(a))
+    var v = actor.map(a => _maxWidth.get(a)).getOrElse(0f)
     if (v > 0) v += _padLeft.get(this) + _padRight.get(this)
     v
   }
@@ -519,7 +519,7 @@ class Container[T <: Actor]() extends WidgetGroup {
   def getMaxHeightValue: Value = _maxHeight
 
   override def getMaxHeight: Float = {
-    var v = actor.fold(0f)(a => _maxHeight.get(a))
+    var v = actor.map(a => _maxHeight.get(a)).getOrElse(0f)
     if (v > 0) v += _padTop.get(this) + _padBottom.get(this)
     v
   }

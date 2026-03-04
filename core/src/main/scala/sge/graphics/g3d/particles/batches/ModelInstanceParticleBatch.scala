@@ -10,8 +10,9 @@
  * - Java Array<T> → DynamicArray[T]
  * - ObjectChannel.data[i] → objectData(i) (field rename in ParallelArray port)
  * - Java for-each + index loop → Scala for/while loops
- * - All public methods faithfully ported: getRenderables, getBufferedCount, begin, end,
+ * - All public methods faithfully ported: getRenderables, bufferedCount, begin, end,
  *   draw, save, load
+ * - Fixes (2026-03-04): getBufferedCount → bufferedCount
  * - Audit: pass (2026-03-03)
  */
 package sge
@@ -45,7 +46,7 @@ class ModelInstanceParticleBatch extends ParticleBatch[ModelInstanceControllerRe
       }
     }
 
-  def getBufferedCount(): Int =
+  def bufferedCount: Int =
     bufferedParticlesCount
 
   override def begin(): Unit = {

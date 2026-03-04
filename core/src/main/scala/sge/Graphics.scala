@@ -7,10 +7,9 @@
  * Migration notes:
  *   Convention: Java interface -> Scala trait; added convenience properties gl, gl20, gl30, gl31, gl32
  *   Idiom: split packages; Nullable used
- *   Issues: type GLVersion = AnyRef is a placeholder — should reference sge.graphics.glutils.GLVersion
- *   TODO: type GLVersion = AnyRef is placeholder -- should use sge.graphics.glutils.GLVersion
+ *   Issues: None
  *   TODO: opaque Pixels for width/height params in getWidth/Height, getBackBufferWidth/Height, setWindowedMode, newCursor hotspot -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -347,7 +346,7 @@ object Graphics {
     * @author
     *   mzechner
     */
-  case class DisplayMode(
+  final case class DisplayMode(
     /** the width in physical pixels * */
     width: Int,
     /** the height in physical pixels * */
@@ -365,14 +364,14 @@ object Graphics {
     * @author
     *   badlogic
     */
-  case class Monitor(
+  final case class Monitor(
     virtualX: Int,
     virtualY: Int,
     name:     String
   )
 
   /** Class describing the bits per pixel, depth buffer precision, stencil precision and number of MSAA samples. */
-  case class BufferFormat(
+  final case class BufferFormat(
     /* number of bits per color channel */
     r: Int,
     g: Int,
@@ -390,6 +389,5 @@ object Graphics {
       s"r: $r, g: $g, b: $b, a: $a, depth: $depth, stencil: $stencil, num samples: $samples, coverage sampling: $coverageSampling"
   }
 
-  // Placeholder for GLVersion - this should be defined elsewhere
-  type GLVersion = AnyRef
+  type GLVersion = sge.graphics.glutils.GLVersion
 }

@@ -93,7 +93,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
     var i = 0
     while (i < effects.size && controllers.nonEmpty) {
       val effect            = effects(i)
-      val effectControllers = effect.getControllers()
+      val effectControllers = effect.controllers
       val toRemove          = DynamicArray[ParticleController]()
       var indices: Nullable[DynamicArray[Int]] = Nullable.empty
       for (ctrl <- controllers) {
@@ -109,7 +109,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
       for (r <- toRemove) controllers.removeValue(r)
 
       indices.foreach { idx =>
-        data.saveAsset(manager.getAssetFileName(effect).getOrElse(""), classOf[ParticleEffect])
+        data.saveAsset(manager.assetFileName(effect).getOrElse(""), classOf[ParticleEffect])
         effectsIndices.add(idx)
       }
       i += 1
@@ -129,9 +129,9 @@ abstract class ParticleControllerInfluencer extends Influencer {
         descriptor.fold {
           keepLoading = false
         } { desc =>
-          val effect = manager.get(desc.fileName, classOf[ParticleEffect])
+          val effect = manager(desc.fileName, classOf[ParticleEffect])
           if (Nullable(effect).isEmpty) throw new RuntimeException("Template is null")
-          val effectControllers = effect.getControllers()
+          val effectControllers = effect.controllers
           var j                 = 0
           while (j < effectIndices.size) {
             templates.add(effectControllers(effectIndices(j)))
@@ -193,7 +193,7 @@ object ParticleControllerInfluencer {
     }
 
     override def copy(): Single =
-      new Single(this)
+      Single(this)
   }
 
   /** Assigns a random controller of {@link ParticleControllerInfluencer#templates} to the particles. */
@@ -276,6 +276,6 @@ object ParticleControllerInfluencer {
     }
 
     override def copy(): Random =
-      new Random(this)
+      Random(this)
   }
 }

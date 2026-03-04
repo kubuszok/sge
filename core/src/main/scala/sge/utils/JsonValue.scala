@@ -103,7 +103,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   /** Returns the child with the specified name. */
   def get(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && current.fold(false)(c => c.name.isEmpty || c.name.fold(true)(_ != name)))
+    while (current.isDefined && current.exists(c => c.name.isEmpty || c.name.forall(_ != name)))
       current = current.flatMap(_.next)
     current
   }
@@ -111,7 +111,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   /** Returns the child with the specified name, ignoring case. */
   def getIgnoreCase(name: String): Nullable[JsonValue] = {
     var current = child
-    while (current.isDefined && current.fold(false)(c => c.name.isEmpty || c.name.fold(true)(!_.equalsIgnoreCase(name))))
+    while (current.isDefined && current.exists(c => c.name.isEmpty || c.name.forall(!_.equalsIgnoreCase(name))))
       current = current.flatMap(_.next)
     current
   }
@@ -154,7 +154,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   /** Removes this value from its parent. */
   def removeFromParent(): Unit = {
     val p = parent.getOrElse(throw new IllegalStateException())
-    if (p.lastChild.fold(false)(_ eq this)) p.lastChild = prev
+    if (p.lastChild.exists(_ eq this)) p.lastChild = prev
     if (prev.isEmpty) {
       p.child = next
       p.child.foreach(_.prev = Nullable.empty)
@@ -166,7 +166,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   }
 
   private def removeChild(c: JsonValue): Unit = {
-    if (lastChild.fold(false)(_ eq c)) lastChild = c.prev
+    if (lastChild.exists(_ eq c)) lastChild = c.prev
     if (c.prev.isEmpty) {
       child = c.next
       child.foreach(_.prev = Nullable.empty)
@@ -254,7 +254,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asBoolean(): Boolean = _type match {
-    case ValueType.stringValue  => stringValue.fold(false)(_.equalsIgnoreCase("true"))
+    case ValueType.stringValue  => stringValue.exists(_.equalsIgnoreCase("true"))
     case ValueType.doubleValue  => doubleValue != 0
     case ValueType.longValue    => longValue != 0
     case ValueType.booleanValue => longValue != 0
@@ -290,7 +290,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     *   if this is an array or object.
     */
   def asChar(): Char = _type match {
-    case ValueType.stringValue  => stringValue.fold(0.toChar)(s => if (s.isEmpty) 0.toChar else s.charAt(0))
+    case ValueType.stringValue  => stringValue.map(s => if (s.isEmpty) 0.toChar else s.charAt(0)).getOrElse(0.toChar)
     case ValueType.doubleValue  => doubleValue.toChar
     case ValueType.longValue    => longValue.toChar
     case ValueType.booleanValue => if (longValue != 0) 1.toChar else 0.toChar
@@ -673,7 +673,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
     var current = child
     while (current.isDefined)
       current.foreach { c =>
-        if (c.name.isDefined && c.name.fold(false)(cn => n.fold(false)(_ == cn))) {
+        if (c.name.isDefined && c.name.exists(cn => n.exists(_ == cn))) {
           c.replace(value)
           break()
         }
@@ -685,7 +685,7 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   /** Replaces this value in its parent with the specified value. */
   def replace(value: JsonValue): Unit = {
     val p = parent.getOrElse(throw new IllegalStateException("Cannot replace a value without a parent"))
-    if (p.lastChild.fold(false)(_ eq this)) p.lastChild = Nullable(value)
+    if (p.lastChild.exists(_ eq this)) p.lastChild = Nullable(value)
     if (prev.isDefined)
       prev.foreach(_.next = Nullable(value))
     else
@@ -788,10 +788,10 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
   // -- Comparison --
 
   def equalsString(value: String): Boolean =
-    asString().fold(false)(_ == value)
+    asString().contains(value)
 
   def nameEquals(value: String): Boolean =
-    name.fold(false)(_ == value)
+    name.contains(value)
 
   // -- Serialization --
 
@@ -890,19 +890,19 @@ class JsonValue(private var _type: JsonValue.ValueType) extends Iterable[JsonVal
               }
             }
           tr
-        } else if (name.fold(false)(_.indexOf('.') != -1))
-          name.fold("")(n => ".\"" + n.replace("\"", "\\\"") + "\"")
+        } else if (name.exists(_.indexOf('.') != -1))
+          name.map(n => ".\"" + n.replace("\"", "\\\"") + "\"").getOrElse("")
         else
-          "." + name.fold("")(identity)
+          "." + name.getOrElse("")
       p.trace() + t
     }
 
   override def toString(): String =
     if (isValue) {
       val s = asString()
-      name.fold(s.fold("null")(identity))(n => n + ": " + s.fold("null")(identity))
+      name.map(n => n + ": " + s.getOrElse("null")).getOrElse(s.getOrElse("null"))
     } else {
-      name.fold("")(_ + ": ") + toJson()
+      name.map(_ + ": ").getOrElse("") + toJson()
     }
 }
 
@@ -918,30 +918,30 @@ object JsonValue {
     import hearth.kindlings.jsoniterjson.Json
     json match {
       case Json.Null =>
-        new JsonValue(ValueType.nullValue)
+        JsonValue(ValueType.nullValue)
       case Json.Bool(v) =>
-        new JsonValue(v)
+        JsonValue(v)
       case Json.Num(n) =>
         // Prefer long if it fits, else double
         val raw = n.value
         n.toLong match {
-          case Some(l) if l.toString == raw => new JsonValue(l, Nullable(raw))
+          case Some(l) if l.toString == raw => JsonValue(l, Nullable(raw))
           case _                            =>
             n.toDouble match {
-              case Some(d) => new JsonValue(d, Nullable(raw))
-              case _       => new JsonValue(Nullable(raw): Nullable[String])
+              case Some(d) => JsonValue(d, Nullable(raw))
+              case _       => JsonValue(Nullable(raw): Nullable[String])
             }
         }
       case Json.Str(s) =>
-        new JsonValue(Nullable(s): Nullable[String])
+        JsonValue(Nullable(s): Nullable[String])
       case Json.Arr(values) =>
-        val result = new JsonValue(ValueType.array)
+        val result = JsonValue(ValueType.array)
         values.foreach { elem =>
           result.addChild(fromJson(elem))
         }
         result
       case Json.Obj(fields) =>
-        val result = new JsonValue(ValueType.`object`)
+        val result = JsonValue(ValueType.`object`)
         fields.fields.foreach { case (key, value) =>
           val child = fromJson(value)
           child.name = Nullable(key)

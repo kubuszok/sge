@@ -262,9 +262,9 @@ class DynamicsInfluencer extends Influencer {
   }
 
   override def copy(): DynamicsInfluencer =
-    new DynamicsInfluencer(this)
+    DynamicsInfluencer(this)
 }
 
 object DynamicsInfluencer {
-  private val TMP_Q: Quaternion = new Quaternion()
+  private val TMP_Q: Quaternion = Quaternion()
 }

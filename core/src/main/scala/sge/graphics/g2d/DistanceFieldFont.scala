@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: static method -> companion object; using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: Vertex shader missing v_texCoords assignment (Java: v_texCoords = a_texCoord0;) in createDistanceFieldShader
+ *   Fixes: Vertex shader was missing v_texCoords assignment in createDistanceFieldShader; Java-style getters/setters → Scala property accessors
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -30,64 +30,49 @@ import sge.utils.{ DynamicArray, Nullable }
 class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray[TextureRegion]], integer: Boolean)(using Sge) extends BitmapFont(data, pageRegions, integer) {
   super.load(data)
 
-  private var distanceFieldSmoothing: Float = scala.compiletime.uninitialized
+  var distanceFieldSmoothing: Float = scala.compiletime.uninitialized
 
-  def this(fontFile: FileHandle, flip: Boolean)(using Sge) = {
-    this(new BitmapFontData(Nullable(fontFile), flip), Nullable.empty, true)
-  }
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
+    this(BitmapFontData(Nullable(fontFile), flip), Nullable.empty, true)
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using Sge) = {
     this(
-      new BitmapFontData(Nullable(fontFile), flip),
-      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
+      BitmapFontData(Nullable(fontFile), flip),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(TextureRegion(Texture(imageFile, false))); da },
       integer
     )
-    setOwnsTexture(true)
+    ownsTexture = true
   }
 
-  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
+  def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) =
     this(fontFile, imageFile, flip, true)
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
     this(
-      new BitmapFontData(Nullable(fontFile), flip),
-      region.fold(Nullable.empty[DynamicArray[TextureRegion]]) { r =>
-        val da = DynamicArray[TextureRegion](); da.add(r); Nullable(da)
+      BitmapFontData(Nullable(fontFile), flip),
+      region.map { r =>
+        val da = DynamicArray[TextureRegion](); da.add(r); da
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
     this(fontFile, region, false)
-  }
 
-  def this(fontFile: FileHandle)(using Sge) = {
+  def this(fontFile: FileHandle)(using Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
   override protected def load(data: BitmapFontData): Unit = {
     super.load(data)
 
     // Distance field font rendering requires font texture to be filtered linear.
-    val regions = getRegions()
+    val regions = this.regions
     for (region <- regions)
-      region.getTexture().setFilter(TextureFilter.Linear, TextureFilter.Linear)
+      region.texture.setFilter(TextureFilter.Linear, TextureFilter.Linear)
   }
 
   override def newFontCache(): BitmapFontCache =
-    new DistanceFieldFontCache(this, integer)
-
-  /** @return The distance field smoothing factor for this font. */
-  def getDistanceFieldSmoothing(): Float =
-    distanceFieldSmoothing
-
-  /** @param distanceFieldSmoothing
-    *   Set the distance field smoothing factor for this font. SpriteBatch needs to have this shader set for rendering distance field fonts.
-    */
-  def setDistanceFieldSmoothing(distanceFieldSmoothing: Float): Unit =
-    this.distanceFieldSmoothing = distanceFieldSmoothing
+    DistanceFieldFontCache(this, integer)
 
   /** Provides a font cache that uses distance field shader for rendering fonts. Attention: breaks batching because uniform is needed for smoothing factor, so a flush is performed before and after
     * every font rendering.
@@ -95,18 +80,17 @@ class DistanceFieldFont(data: BitmapFontData, pageRegions: Nullable[DynamicArray
     *   Florian Falkner
     */
   private class DistanceFieldFontCache(font: DistanceFieldFont, integer: Boolean) extends BitmapFontCache(font, integer) {
-    def this(font: DistanceFieldFont) = {
-      this(font, font.usesIntegerPositions())
-    }
+    def this(font: DistanceFieldFont) =
+      this(font, font.integerPositions)
 
     private def getSmoothingFactor(): Float = {
-      val font = super.getFont().asInstanceOf[DistanceFieldFont]
-      font.getDistanceFieldSmoothing() * font.getScaleX()
+      val font = this.font.asInstanceOf[DistanceFieldFont]
+      font.distanceFieldSmoothing * font.scaleX
     }
 
     private def setSmoothingUniform(spriteBatch: Batch, smoothing: Float): Unit = {
       spriteBatch.flush()
-      spriteBatch.getShader().setUniformf("u_smoothing", smoothing)
+      spriteBatch.shader.setUniformf("u_smoothing", smoothing)
     }
 
     override def draw(spriteBatch: Batch): Unit = {
@@ -139,6 +123,7 @@ object DistanceFieldFont {
       "void main() {\n" +
       "	v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" +
       "	v_color.a = v_color.a * (255.0/254.0);\n" +
+      "	v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" +
       "	gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" +
       "}\n"
 
@@ -163,7 +148,7 @@ object DistanceFieldFont {
       "	}\n" +
       "}\n"
 
-    val shader = new ShaderProgram(vertexShader, fragmentShader)
+    val shader = ShaderProgram(vertexShader, fragmentShader)
     if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling distance field shader: " + shader.getLog())
     shader
   }

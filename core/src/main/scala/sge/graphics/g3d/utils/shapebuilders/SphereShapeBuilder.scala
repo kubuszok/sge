@@ -31,7 +31,7 @@ object SphereShapeBuilder {
   import BaseShapeBuilder._
 
   private val tmpIndices:      DynamicArray[Short] = DynamicArray[Short]()
-  private val normalTransform: Matrix3             = new Matrix3()
+  private val normalTransform: Matrix3             = Matrix3()
 
   def build(builder: MeshPartBuilder, width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int): Unit =
     build(builder, width, height, depth, divisionsU, divisionsV, 0, 360, 0, 180)

@@ -39,34 +39,34 @@ import scala.util.boundary.break
   *   Nathan Sweet (original implementation)
   */
 object Intersector {
-  private val v0          = new Vector3()
-  private val v1          = new Vector3()
-  private val v2          = new Vector3()
+  private val v0          = Vector3()
+  private val v1          = Vector3()
+  private val v2          = Vector3()
   private val floatArray  = DynamicArray[Float]()
   private val floatArray2 = DynamicArray[Float]()
 
-  private val ip  = new Vector2()
-  private val ep1 = new Vector2()
-  private val ep2 = new Vector2()
-  private val s   = new Vector2()
-  private val e   = new Vector2()
+  private val ip  = Vector2()
+  private val ep1 = Vector2()
+  private val ep2 = Vector2()
+  private val s   = Vector2()
+  private val e   = Vector2()
 
-  private val v2a = new Vector2()
-  private val v2b = new Vector2()
-  private val v2c = new Vector2()
-  private val v2d = new Vector2()
+  private val v2a = Vector2()
+  private val v2b = Vector2()
+  private val v2c = Vector2()
+  private val v2d = Vector2()
 
-  private val best = new Vector3()
-  private val tmp  = new Vector3()
-  private val tmp1 = new Vector3()
-  private val tmp2 = new Vector3()
-  private val tmp3 = new Vector3()
-  private val p    = new Plane(new Vector3(), 0)
-  private val i    = new Vector3()
-  new Vector3()
-  new Vector3()
+  private val best = Vector3()
+  private val tmp  = Vector3()
+  private val tmp1 = Vector3()
+  private val tmp2 = Vector3()
+  private val tmp3 = Vector3()
+  private val p    = Plane(Vector3(), 0)
+  private val i    = Vector3()
+  Vector3()
+  Vector3()
 
-  private val _intersection = new Vector3()
+  private val _intersection = Vector3()
 
   /** Returns whether the given point is inside the triangle. This assumes that the point is on the plane of the triangle. No check is performed that this is the case. <br> If the Vector3 parameters
     * contain both small and large values, such as one that contains 0.0001 and one that contains 10000000.0, this can fail due to floating-point imprecision.
@@ -1593,7 +1593,7 @@ object Intersector {
   class MinimumTranslationVector {
 
     /** Unit length vector that indicates the direction for the separation */
-    val normal: Vector2 = new Vector2()
+    val normal: Vector2 = Vector2()
 
     /** Distance of the translation required for the separation */
     var depth: Float = 0

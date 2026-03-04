@@ -101,9 +101,9 @@ object TextureData {
       loadFromFile(file, Nullable.empty, useMipMaps)
 
     def loadFromFile(file: FileHandle, format: Nullable[Format], useMipMaps: Boolean)(using Sge): TextureData =
-      if (file.name().endsWith(".cim")) new FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
-      else if (file.name().endsWith(".etc1")) new ETC1TextureData(file, useMipMaps)
-      else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) new KTXTextureData(file, useMipMaps)
-      else new FileTextureData(file, new Pixmap(100, 100, format.getOrElse(Format.RGBA8888)), format, useMipMaps)
+      if (file.name().endsWith(".cim")) FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
+      else if (file.name().endsWith(".etc1")) ETC1TextureData(file, useMipMaps)
+      else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) KTXTextureData(file, useMipMaps)
+      else FileTextureData(file, Pixmap(100, 100, format.getOrElse(Format.RGBA8888)), format, useMipMaps)
   }
 }

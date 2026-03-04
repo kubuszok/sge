@@ -36,22 +36,18 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(implicit sge: Sge) = {
-    this(isStatic, numInstances, new VertexAttributes(instanceAttributes*))
-  }
+  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(implicit sge: Sge) =
+    this(isStatic, numInstances, VertexAttributes(instanceAttributes*))
 
-  val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else new VertexAttributes()
+  val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else VertexAttributes()
 
-  val buffer: FloatBuffer = {
-    val bb = BufferUtils.newByteBuffer(this.attributes.vertexSize * numInstances)
-    bb.asFloatBuffer()
-  }
-  val byteBuffer:   ByteBuffer = BufferUtils.newByteBuffer(this.attributes.vertexSize * numInstances)
-  var bufferHandle: Int        = 0
-  val isDirect:     Boolean    = true
-  val usage:        Int        = if (isStatic) GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
-  var isDirty:      Boolean    = false
-  var isBound:      Boolean    = false
+  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(this.attributes.vertexSize * numInstances)
+  val buffer:       FloatBuffer = byteBuffer.asFloatBuffer()
+  var bufferHandle: Int         = 0
+  val isDirect:     Boolean     = true
+  val usage:        Int         = if (isStatic) GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
+  var isDirty:      Boolean     = false
+  var isBound:      Boolean     = false
 
   // Initialize
 
@@ -184,7 +180,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
     val numAttributes = attributes.size
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location >= 0) {
         val unitOffset = attribute.unit
         shader.enableVertexAttribute(location + unitOffset)

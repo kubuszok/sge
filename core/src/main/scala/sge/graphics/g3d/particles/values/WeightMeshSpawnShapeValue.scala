@@ -30,11 +30,11 @@ import sge.utils.{ Nullable, SgeError }
 final class WeightMeshSpawnShapeValue extends MeshSpawnShapeValue {
 
   private var distribution: CumulativeDistribution[MeshSpawnShapeValue.Triangle] =
-    new CumulativeDistribution[MeshSpawnShapeValue.Triangle]()
+    CumulativeDistribution[MeshSpawnShapeValue.Triangle]()
 
   def this(value: WeightMeshSpawnShapeValue) = {
     this()
-    distribution = new CumulativeDistribution[MeshSpawnShapeValue.Triangle]()
+    distribution = CumulativeDistribution[MeshSpawnShapeValue.Triangle]()
     load(value)
   }
 
@@ -70,7 +70,7 @@ final class WeightMeshSpawnShapeValue extends MeshSpawnShapeValue {
         val x3       = vertices(p3Offset); val y3 = vertices(p3Offset + 1); val z3 = vertices(p3Offset + 2)
         val area     = Math.abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2f)
         distribution.add(
-          new MeshSpawnShapeValue.Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3),
+          MeshSpawnShapeValue.Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3),
           area
         )
         i += 3
@@ -87,7 +87,7 @@ final class WeightMeshSpawnShapeValue extends MeshSpawnShapeValue {
         val x3       = vertices(p3Offset); val y3 = vertices(p3Offset + 1); val z3 = vertices(p3Offset + 2)
         val area     = Math.abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2f)
         distribution.add(
-          new MeshSpawnShapeValue.Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3),
+          MeshSpawnShapeValue.Triangle(x1, y1, z1, x2, y2, z2, x3, y3, z3),
           area
         )
         i += vertexSize
@@ -110,5 +110,5 @@ final class WeightMeshSpawnShapeValue extends MeshSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new WeightMeshSpawnShapeValue(this)
+    WeightMeshSpawnShapeValue(this)
 }

@@ -10,13 +10,11 @@
  *   Convention: Java constructor overloads -> default params + auxiliary constructors;
  *     listener: null -> Option; processor: null -> Nullable; Gdx singleton -> implicit Sge
  *   Idiom: boundary/break (6 return), Nullable (3 null), split packages
+ *   Convention: anonymous (using Sge) + Sge() accessor
  *   TODOs: 1 — postRunnable not yet wired (EventTrigger.run() called directly)
  *   TODO: Int key/button params → opaque Key/Button types when Input.Keys/Buttons are converted
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: opaque Pixels for TouchEvent x/y fields -- see docs/improvements/opaque-types.md
- *   Issues: Touch coordinate scaling uses hardcoded 800x600 instead of Gdx.graphics dimensions;
- *     implicit instead of using; EventTrigger.run() processor.fold inverts null/non-null branch order
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -46,11 +44,11 @@ trait RemoteInputListener {
   * @author
   *   mzechner (original implementation)
   */
-class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteInputListener] = None)(implicit sde: sge.Sge) extends Runnable with Input {
+class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteInputListener] = None)(using Sge) extends Runnable with Input {
 
-  def this()(implicit sde: sge.Sge) = this(RemoteInput.DEFAULT_PORT, None)
-  def this(listener:       RemoteInputListener)(implicit sde: sge.Sge) = this(RemoteInput.DEFAULT_PORT, Some(listener))
-  def this(port:           Int)(implicit sde:                 sge.Sge) = this(port, None)
+  def this()(using Sge) = this(RemoteInput.DEFAULT_PORT, None)
+  def this(listener: RemoteInputListener)(using Sge) = this(RemoteInput.DEFAULT_PORT, Some(listener))
+  def this(port:     Int)(using Sge) = this(port, None)
 
   class KeyEvent {
     var timeStamp: Long = scala.compiletime.uninitialized
@@ -241,45 +239,45 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
               gyrate(1) = in.readFloat()
               gyrate(2) = in.readFloat()
             case RemoteSender.KEY_DOWN =>
-              val ke = new KeyEvent()
+              val ke = KeyEvent()
               ke.keyCode = in.readInt()
               ke.`type` = KeyEvent.KEY_DOWN
               keyEvent = Nullable(ke)
             case RemoteSender.KEY_UP =>
-              val ke = new KeyEvent()
+              val ke = KeyEvent()
               ke.keyCode = in.readInt()
               ke.`type` = KeyEvent.KEY_UP
               keyEvent = Nullable(ke)
             case RemoteSender.KEY_TYPED =>
-              val ke = new KeyEvent()
+              val ke = KeyEvent()
               ke.keyChar = in.readChar()
               ke.`type` = KeyEvent.KEY_TYPED
               keyEvent = Nullable(ke)
             case RemoteSender.TOUCH_DOWN =>
-              val te = new TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              val te = TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth()).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight()).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_DOWN
               touchEvent = Nullable(te)
             case RemoteSender.TOUCH_UP =>
-              val te = new TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              val te = TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth()).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight()).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_UP
               touchEvent = Nullable(te)
             case RemoteSender.TOUCH_DRAGGED =>
-              val te = new TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * RemoteInput.DEFAULT_SCREEN_WIDTH).toInt
-              te.y = ((in.readInt() / remoteHeight) * RemoteInput.DEFAULT_SCREEN_HEIGHT).toInt
+              val te = TouchEvent()
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth()).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight()).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_DRAGGED
               touchEvent = Nullable(te)
           }
 
           // TODO: Post this to main thread when Application interface is available
-          new EventTrigger(touchEvent, keyEvent).run()
+          EventTrigger(touchEvent, keyEvent).run()
         }
       } catch {
         case e: IOException =>
@@ -328,26 +326,26 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   }
 
   override def getTextInput(listener: Input.TextInputListener, title: String, text: String, hint: String): Unit =
-    sde.input.getTextInput(listener, title, text, hint)
+    Sge().input.getTextInput(listener, title, text, hint)
 
-  override def getTextInput(listener: Input.TextInputListener, title: String, text: String, hint: String, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit =
-    sde.input.getTextInput(listener, title, text, hint, `type`)
+  override def getTextInput(listener: Input.TextInputListener, title: String, text: String, hint: String, `type`: OnscreenKeyboardType): Unit =
+    Sge().input.getTextInput(listener, title, text, hint, `type`)
 
-  override def setOnscreenKeyboardVisible(visible: Boolean):                                                    Unit    = {}
-  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit    = {}
-  override def openTextInputField(configuration:   NativeInputConfiguration):                                   Unit    = {}
-  override def closeTextInputField(sendReturn:     Boolean):                                                    Unit    = {}
-  override def setKeyboardHeightObserver(observer: KeyboardHeightObserver):                                     Unit    = {}
-  override def vibrate(milliseconds:               Int):                                                        Unit    = {}
-  override def vibrate(milliseconds:               Int, fallback:   Boolean):                                   Unit    = {}
-  override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean):                    Unit    = {}
-  override def vibrate(vibrationType:              VibrationType.VibrationType):                                Unit    = {}
-  override def getAzimuth():                                                                                    Float   = compass(0)
-  override def getPitch():                                                                                      Float   = compass(1)
-  override def getRoll():                                                                                       Float   = compass(2)
-  override def setCatchKey(keycode:                Int, catchKey:   Boolean):                                   Unit    = {}
-  override def isCatchKey(keycode:                 Int):                                                        Boolean = false
-  override def setInputProcessor(processor:        InputProcessor):                                             Unit    = this.processor = Nullable(processor)
+  override def setOnscreenKeyboardVisible(visible: Boolean):                                 Unit    = {}
+  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType):   Unit    = {}
+  override def openTextInputField(configuration:   NativeInputConfiguration):                Unit    = {}
+  override def closeTextInputField(sendReturn:     Boolean):                                 Unit    = {}
+  override def setKeyboardHeightObserver(observer: KeyboardHeightObserver):                  Unit    = {}
+  override def vibrate(milliseconds:               Int):                                     Unit    = {}
+  override def vibrate(milliseconds:               Int, fallback:   Boolean):                Unit    = {}
+  override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean): Unit    = {}
+  override def vibrate(vibrationType:              VibrationType):                           Unit    = {}
+  override def getAzimuth():                                                                 Float   = compass(0)
+  override def getPitch():                                                                   Float   = compass(1)
+  override def getRoll():                                                                    Float   = compass(2)
+  override def setCatchKey(keycode:                Int, catchKey:   Boolean):                Unit    = {}
+  override def isCatchKey(keycode:                 Int):                                     Boolean = false
+  override def setInputProcessor(processor:        InputProcessor):                          Unit    = this.processor = Nullable(processor)
   // Input trait returns InputProcessor (not Nullable) — orNull needed at API boundary
   @nowarn("msg=deprecated") override def getInputProcessor(): InputProcessor = this.processor.orNull
 
@@ -356,7 +354,7 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
     */
   def getIPs(): Array[String] = ips
 
-  override def isPeripheralAvailable(peripheral: Peripheral.Peripheral): Boolean =
+  override def isPeripheralAvailable(peripheral: Peripheral): Boolean =
     peripheral match {
       case Peripheral.Accelerometer    => true
       case Peripheral.Compass          => true
@@ -364,22 +362,20 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
       case _                           => false
     }
 
-  override def getRotation():                           Int                     = 0
-  override def getNativeOrientation():                  Orientation.Orientation = Orientation.Landscape
-  override def setCursorCatched(catched: Boolean):      Unit                    = {}
-  override def isCursorCatched():                       Boolean                 = false
-  override def getDeltaX():                             Int                     = deltaX(0)
-  override def getDeltaX(pointer:        Int):          Int                     = deltaX(pointer)
-  override def getDeltaY():                             Int                     = deltaY(0)
-  override def getDeltaY(pointer:        Int):          Int                     = deltaY(pointer)
-  override def setCursorPosition(x:      Int, y: Int):  Unit                    = {}
-  override def getCurrentEventTime():                   Long                    = 0L
-  override def getRotationMatrix(matrix: Array[Float]): Unit                    = {}
+  override def getRotation():                           Int         = 0
+  override def getNativeOrientation():                  Orientation = Orientation.Landscape
+  override def setCursorCatched(catched: Boolean):      Unit        = {}
+  override def isCursorCatched():                       Boolean     = false
+  override def getDeltaX():                             Int         = deltaX(0)
+  override def getDeltaX(pointer:        Int):          Int         = deltaX(pointer)
+  override def getDeltaY():                             Int         = deltaY(0)
+  override def getDeltaY(pointer:        Int):          Int         = deltaY(pointer)
+  override def setCursorPosition(x:      Int, y: Int):  Unit        = {}
+  override def getCurrentEventTime():                   Long        = 0L
+  override def getRotationMatrix(matrix: Array[Float]): Unit        = {}
 }
 
 object RemoteInput {
-  final val MAX_TOUCHES     = 20
-  val DEFAULT_PORT          = 8190
-  val DEFAULT_SCREEN_WIDTH  = 800
-  val DEFAULT_SCREEN_HEIGHT = 600
+  final val MAX_TOUCHES = 20
+  val DEFAULT_PORT      = 8190
 }

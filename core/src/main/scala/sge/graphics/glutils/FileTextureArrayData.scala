@@ -66,7 +66,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
         var pixmap        = texData.consumePixmap()
         var disposePixmap = texData.disposePixmap
         if (texData.getFormat != pixmap.getFormat()) {
-          val temp = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), texData.getFormat)
+          val temp = Pixmap(pixmap.getWidth(), pixmap.getHeight(), texData.getFormat)
           temp.setBlending(Pixmap.Blending.None)
           temp.drawPixmap(pixmap, 0, 0, 0, 0, pixmap.getWidth(), pixmap.getHeight())
           if (texData.disposePixmap) {

@@ -52,7 +52,7 @@ import scala.util.boundary.break
   * @author
   *   Nathan Sweet
   */
-class Skin() extends AutoCloseable {
+class Skin()(using Sge) extends AutoCloseable {
 
   val resources:      mutable.Map[Class[?], mutable.Map[String, Any]] = mutable.Map.empty
   private var _atlas: Nullable[TextureAtlas]                          = Nullable.empty
@@ -65,7 +65,7 @@ class Skin() extends AutoCloseable {
     this()
     val atlasFile = skinFile.sibling(skinFile.nameWithoutExtension() + ".atlas")
     if (atlasFile.exists()) {
-      _atlas = Nullable(new TextureAtlas(atlasFile))
+      _atlas = Nullable(TextureAtlas(atlasFile))
       _atlas.foreach(addRegions)
     }
     load(skinFile)
@@ -82,14 +82,14 @@ class Skin() extends AutoCloseable {
 
   /** Creates a skin containing the texture regions from the specified atlas. The atlas is automatically disposed when the skin is disposed.
     */
-  def this(atlas: TextureAtlas) = {
+  def this(atlas: TextureAtlas)(using Sge) = {
     this()
     _atlas = Nullable(atlas)
     addRegions(atlas)
   }
 
   /** Adds all resources in the specified skin JSON file. */
-  def load(skinFile: FileHandle)(using Sge): Unit =
+  def load(skinFile: FileHandle): Unit =
     try {
       val root = skinFile.readJson[Json]
       root match {
@@ -108,7 +108,7 @@ class Skin() extends AutoCloseable {
         throw SgeError.InvalidInput("Error reading skin file: " + skinFile + ": " + ex.getMessage)
     }
 
-  private def readNamedObjects(tpe: Class[?], valueMap: Json, skinFile: FileHandle)(using Sge): Unit = {
+  private def readNamedObjects(tpe: Class[?], valueMap: Json, skinFile: FileHandle): Unit = {
     val addType = if (tpe == classOf[Skin.TintedDrawable]) classOf[Drawable] else tpe
     valueMap match {
       case Json.Obj(obj) =>
@@ -132,7 +132,7 @@ class Skin() extends AutoCloseable {
   /** Reads a single value of the specified type from JSON. For string JSON values referencing named resources, looks them up in this skin. For Color, BitmapFont, and TintedDrawable, uses explicit
     * readers. For all other types (typically widget style classes), dispatches to SkinStyleReader.
     */
-  private def readValue(tpe: Class[?], entryName: String, json: Json, skinFile: FileHandle)(using Sge): Any =
+  private def readValue(tpe: Class[?], entryName: String, json: Json, skinFile: FileHandle): Any =
     json match {
       case Json.Str(s) if !classOf[CharSequence].isAssignableFrom(tpe) =>
         get(s, tpe.asInstanceOf[Class[Any]])
@@ -153,13 +153,13 @@ class Skin() extends AutoCloseable {
           val g = Skin.getFloatField(json, "g", 0f)
           val b = Skin.getFloatField(json, "b", 0f)
           val a = Skin.getFloatField(json, "a", 1f)
-          new Color(r, g, b, a)
+          Color(r, g, b, a)
       }
     case _ => throw SgeError.InvalidInput("Invalid color JSON")
   }
 
   /** Reads a BitmapFont from JSON. */
-  private def readBitmapFont(json: Json, skinFile: FileHandle)(using Sge): BitmapFont = {
+  private def readBitmapFont(json: Json, skinFile: FileHandle): BitmapFont = {
     val path            = Skin.getStringField(json, "file", "")
     val scaledSize      = Skin.getFloatField(json, "scaledSize", -1f)
     val flip            = Skin.getBoolField(json, "flip", false)
@@ -176,27 +176,27 @@ class Skin() extends AutoCloseable {
       val font: BitmapFont = {
         val regions = getRegions(regionName)
         if (regions.isDefined)
-          new BitmapFont(new BitmapFontData(Nullable(fontFile), flip), regions, true)
+          BitmapFont(BitmapFontData(Nullable(fontFile), flip), regions, true)
         else {
           val region = optional(regionName, classOf[TextureRegion])
           if (region.isDefined)
-            new BitmapFont(fontFile, region, flip)
+            BitmapFont(fontFile, region, flip)
           else {
             val imageFile = fontFile.parent().child(regionName + ".png")
             if (imageFile.exists())
-              new BitmapFont(fontFile, imageFile, flip)
+              BitmapFont(fontFile, imageFile, flip)
             else
-              new BitmapFont(fontFile, flip)
+              BitmapFont(fontFile, flip)
           }
         }
       }
-      font.getData().markupEnabled = markupEnabled
-      font.setUseIntegerPositions(useIntPositions)
+      font.data.markupEnabled = markupEnabled
+      font.integerPositions = useIntPositions
       // Scaled size is the desired cap height to scale the font to.
       if (scaledSize != -1) {
-        val s = scaledSize / font.getCapHeight()
-        font.getData().scaleX = s
-        font.getData().scaleY = s
+        val s = scaledSize / font.capHeight
+        font.data.scaleX = s
+        font.data.scaleY = s
       }
       font
     } catch {
@@ -257,7 +257,7 @@ class Skin() extends AutoCloseable {
 
   /** Adds all named texture regions from the atlas. The atlas will not be automatically disposed when the skin is disposed. */
   def addRegions(atlas: TextureAtlas): Unit = {
-    val regions = atlas.getRegions()
+    val regions = atlas.regions
     var i       = 0
     val n       = regions.length
     while (i < n) {
@@ -350,7 +350,7 @@ class Skin() extends AutoCloseable {
 
     val texture   = optional(name, classOf[Texture])
     val tex       = texture.getOrElse(throw SgeError.InvalidInput("No TextureRegion or Texture registered with name: " + name))
-    val newRegion = new TextureRegion(tex)
+    val newRegion = TextureRegion(tex)
     add(name, newRegion, classOf[TextureRegion])
     newRegion
   }
@@ -379,7 +379,7 @@ class Skin() extends AutoCloseable {
     val existing = optional(name, classOf[TiledDrawable])
     existing.foreach(e => break(e))
 
-    val tiled = new TiledDrawable(getRegion(name))
+    val tiled = TiledDrawable(getRegion(name))
     tiled.setName(Nullable(name))
     if (_scale != 1) {
       scale(tiled)
@@ -403,14 +403,14 @@ class Skin() extends AutoCloseable {
         case atlasRegion: AtlasRegion =>
           val splits = atlasRegion.findValue("split")
           splits.foreach { s =>
-            val p    = new NinePatch(region, s(0), s(1), s(2), s(3))
+            val p    = NinePatch(region, s(0), s(1), s(2), s(3))
             val pads = atlasRegion.findValue("pad")
             pads.foreach(pd => p.setPadding(pd(0).toFloat, pd(1).toFloat, pd(2).toFloat, pd(3).toFloat))
             patch = Nullable(p)
           }
         case _ =>
       }
-      val result = patch.getOrElse(new NinePatch(region))
+      val result = patch.getOrElse(NinePatch(region))
       if (_scale != 1) result.scale(_scale, _scale)
       add(name, result, classOf[NinePatch])
       result
@@ -433,11 +433,11 @@ class Skin() extends AutoCloseable {
       textureRegion match {
         case region: AtlasRegion =>
           if (region.rotate || region.packedWidth != region.originalWidth || region.packedHeight != region.originalHeight)
-            sprite = Nullable(new AtlasSprite(region))
+            sprite = Nullable(AtlasSprite(region))
         case _ =>
       }
-      val result = sprite.getOrElse(new Sprite(textureRegion))
-      if (_scale != 1) result.setSize(result.getWidth() * _scale, result.getHeight() * _scale)
+      val result = sprite.getOrElse(Sprite(textureRegion))
+      if (_scale != 1) result.setSize(result.width * _scale, result.height * _scale)
       add(name, result, classOf[Sprite])
       result
     } catch {
@@ -458,13 +458,13 @@ class Skin() extends AutoCloseable {
       textureRegion match {
         case region: AtlasRegion =>
           if (region.findValue("split").isDefined)
-            drawable = Nullable(new NinePatchDrawable(getPatch(name)))
+            drawable = Nullable(NinePatchDrawable(getPatch(name)))
           else if (region.rotate || region.packedWidth != region.originalWidth || region.packedHeight != region.originalHeight)
-            drawable = Nullable(new SpriteDrawable(getSprite(name)))
+            drawable = Nullable(SpriteDrawable(getSprite(name)))
         case _ =>
       }
       if (drawable.isEmpty) {
-        val d = new TextureRegionDrawable(textureRegion)
+        val d = TextureRegionDrawable(textureRegion)
         if (_scale != 1) scale(d)
         drawable = Nullable(d)
       }
@@ -476,12 +476,12 @@ class Skin() extends AutoCloseable {
     if (drawable.isEmpty) {
       val patch = optional(name, classOf[NinePatch])
       patch.foreach { p =>
-        drawable = Nullable(new NinePatchDrawable(p))
+        drawable = Nullable(NinePatchDrawable(p))
       }
       if (drawable.isEmpty) {
         val sprite = optional(name, classOf[Sprite])
         sprite.foreach { s =>
-          drawable = Nullable(new SpriteDrawable(s))
+          drawable = Nullable(SpriteDrawable(s))
         }
         if (drawable.isEmpty)
           throw SgeError.InvalidInput("No Drawable, NinePatch, TextureRegion, Texture, or Sprite registered with name: " + name)
@@ -517,7 +517,7 @@ class Skin() extends AutoCloseable {
 
   /** Returns a tinted copy of a drawable found in the skin via {@link #getDrawable(String)}. */
   def newDrawable(name: String, r: Float, g: Float, b: Float, a: Float): Drawable =
-    newDrawable(getDrawable(name), new Color(r, g, b, a))
+    newDrawable(getDrawable(name), Color(r, g, b, a))
 
   /** Returns a tinted copy of a drawable found in the skin via {@link #getDrawable(String)}. */
   def newDrawable(name: String, tint: Color): Drawable =
@@ -526,16 +526,16 @@ class Skin() extends AutoCloseable {
   /** Returns a copy of the specified drawable. */
   def newDrawable(drawable: Drawable): Drawable =
     drawable match {
-      case d: TiledDrawable         => new TiledDrawable(d)
-      case d: TextureRegionDrawable => new TextureRegionDrawable(d)
-      case d: NinePatchDrawable     => new NinePatchDrawable(d)
-      case d: SpriteDrawable        => new SpriteDrawable(d)
+      case d: TiledDrawable         => TiledDrawable(d)
+      case d: TextureRegionDrawable => TextureRegionDrawable(d)
+      case d: NinePatchDrawable     => NinePatchDrawable(d)
+      case d: SpriteDrawable        => SpriteDrawable(d)
       case _ => throw SgeError.InvalidInput("Unable to copy, unknown drawable type: " + drawable.getClass)
     }
 
   /** Returns a tinted copy of a drawable found in the skin via {@link #getDrawable(String)}. */
   def newDrawable(drawable: Drawable, r: Float, g: Float, b: Float, a: Float): Drawable =
-    newDrawable(drawable, new Color(r, g, b, a))
+    newDrawable(drawable, Color(r, g, b, a))
 
   /** Returns a tinted copy of a drawable found in the skin via {@link #getDrawable(String)}. */
   def newDrawable(drawable: Drawable, tint: Color): Drawable = {

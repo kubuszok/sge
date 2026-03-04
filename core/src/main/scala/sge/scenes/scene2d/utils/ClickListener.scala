@@ -27,7 +27,7 @@ import sge.utils.{ Nullable, TimeUtils }
   * @author
   *   Nathan Sweet
   */
-class ClickListener(private var button: Int) extends InputListener {
+class ClickListener(private var button: Int = 0) extends InputListener {
 
   private var tapSquareSize:     Float   = 14
   private var touchDownX:        Float   = -1
@@ -41,12 +41,6 @@ class ClickListener(private var button: Int) extends InputListener {
   private var tapCountInterval:  Long    = (0.4f * 1000000000L).toLong
   private var tapCount:          Int     = 0
   private var lastTapTime:       Long    = 0
-
-  /** Create a listener where {@link #clicked(InputEvent, float, float)} is only called for left clicks.
-    * @see
-    *   #ClickListener(int)
-    */
-  def this() = this(0)
 
   override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean =
     if (pressed) false

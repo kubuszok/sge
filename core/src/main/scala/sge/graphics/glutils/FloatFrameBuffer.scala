@@ -57,7 +57,7 @@ class FloatFrameBuffer()(using Sge) extends FrameBuffer {
   def this(width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
     this()
     checkExtensions()
-    val bufferBuilder = new GLFrameBuffer.FloatFrameBufferBuilder(width, height)
+    val bufferBuilder = GLFrameBuffer.FloatFrameBufferBuilder(width, height)
     bufferBuilder.addFloatAttachment(GL30.GL_RGBA32F, GL20.GL_RGBA, GL20.GL_FLOAT, false)
     if (hasDepth) bufferBuilder.addBasicDepthRenderBuffer()
     this.bufferBuilder = bufferBuilder
@@ -66,7 +66,7 @@ class FloatFrameBuffer()(using Sge) extends FrameBuffer {
   }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Texture = {
-    val data = new FloatTextureData(
+    val data = FloatTextureData(
       bufferBuilder.width,
       bufferBuilder.height,
       attachmentSpec.internalFormat,
@@ -74,7 +74,7 @@ class FloatFrameBuffer()(using Sge) extends FrameBuffer {
       attachmentSpec.`type`,
       attachmentSpec.isGpuOnly
     )
-    val result = new Texture(data)
+    val result = Texture(data)
     if (Sge().application.getType() == ApplicationType.Desktop || Sge().application.getType() == ApplicationType.Applet)
       result.setFilter(TextureFilter.Linear, TextureFilter.Linear)
     else

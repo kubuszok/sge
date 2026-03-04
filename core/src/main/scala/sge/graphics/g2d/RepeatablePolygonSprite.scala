@@ -7,7 +7,8 @@
  * Migration notes:
  *   Convention: Nullable[TextureRegion] for region; Nullable[Array[Float]] for nullable parts; DynamicArray instead of libGDX Array
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: (1) setPolygon uses simplified polygon intersection (vertex containment) instead of Intersector.intersectPolygons. (2) Missing density field from Java source.
+ *   Fixes: setPolygon now uses Intersector.intersectPolygons instead of simplified vertex containment
+ *   Notes: Java density field omitted — dead code (private, method parameter shadows it, this.density never accessed)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -17,8 +18,7 @@ package graphics
 package g2d
 
 import sge.math.*
-import sge.utils.Nullable
-import sge.utils.DynamicArray
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Renders polygon filled with a repeating TextureRegion with specified density Without causing an additional flush or render call
   *
@@ -69,18 +69,18 @@ class RepeatablePolygonSprite {
 
     val offsetVertices = offset(vertices)
 
-    val polygon = Polygon(offsetVertices)
-    val tmpPoly = Polygon()
-    Polygon()
-    val triangulator = EarClippingTriangulator()
+    val polygon          = Polygon(offsetVertices)
+    val tmpPoly          = Polygon()
+    val intersectionPoly = Polygon()
+    val triangulator     = EarClippingTriangulator()
 
     var idx: Int = 0
 
     val boundRect = polygon.getBoundingRectangle
 
-    val finalDensity = if (density == -1) boundRect.getWidth() / region.getRegionWidth() else density
+    val finalDensity = if (density == -1) boundRect.getWidth() / region.regionWidth else density
 
-    val regionAspectRatio = region.getRegionHeight().toFloat / region.getRegionWidth().toFloat
+    val regionAspectRatio = region.regionHeight.toFloat / region.regionWidth.toFloat
     cols = Math.ceil(finalDensity).toInt
     gridWidth = boundRect.getWidth() / finalDensity
     gridHeight = regionAspectRatio * gridWidth
@@ -88,7 +88,7 @@ class RepeatablePolygonSprite {
 
     for (col <- 0 until cols)
       for (row <- 0 until rows) {
-        val verts = Array.ofDim[Float](8)
+        var verts = Array.ofDim[Float](8)
         idx = 0
         verts(idx) = col * gridWidth
         idx += 1
@@ -107,22 +107,11 @@ class RepeatablePolygonSprite {
         verts(idx) = row * gridHeight
         tmpPoly.setVertices(verts)
 
-        // Simple intersection check - if polygon contains any vertex of tmpPoly, consider it intersecting
-        val tmpVertices     = tmpPoly.getTransformedVertices
-        var hasIntersection = false
-        var i               = 0
-        while (i < tmpVertices.length && !hasIntersection) {
-          if (polygon.contains(tmpVertices(i), tmpVertices(i + 1))) {
-            hasIntersection = true
-          }
-          i += 2
-        }
-
-        if (hasIntersection) {
-          // For simplicity, use the tmpPoly vertices as intersection result
-          val intersectionVerts = tmpVertices.clone()
-          parts.add(Nullable(snapToGrid(intersectionVerts)))
-          val triangleIndices = triangulator.computeTriangles(intersectionVerts)
+        Intersector.intersectPolygons(polygon, tmpPoly, Nullable(intersectionPoly))
+        verts = intersectionPoly.getVertices
+        if (verts.length > 0) {
+          parts.add(Nullable(snapToGrid(verts)))
+          val triangleIndices = triangulator.computeTriangles(verts)
           indices.add(triangleIndices.toArray)
         } else {
           // adding null for key consistency, needed to get col/row from key
@@ -213,8 +202,8 @@ class RepeatablePolygonSprite {
           if (verts(j + 1) == row * gridHeight) v = 0f
           if (verts(j + 1) == (row + 1) * gridHeight) v = 1f
           val reg = region.getOrElse(throw new IllegalStateException("region not set"))
-          u = reg.getU() + (reg.getU2() - reg.getU()) * u
-          v = reg.getV() + (reg.getV2() - reg.getV()) * v
+          u = reg.u + (reg.u2 - reg.u) * u
+          v = reg.v + (reg.v2 - reg.v) * v
           fullVerts(idx) = u
           idx += 1
           fullVerts(idx) = v
@@ -235,7 +224,7 @@ class RepeatablePolygonSprite {
     var i = 0
     while (i < vertices.size) {
       val reg = region.getOrElse(throw new IllegalStateException("region not set"))
-      batch.draw(reg.getTexture(), vertices(i), 0, vertices(i).length, indices(i), 0, indices(i).length)
+      batch.draw(reg.texture, vertices(i), 0, vertices(i).length, indices(i), 0, indices(i).length)
       i += 1
     }
   }

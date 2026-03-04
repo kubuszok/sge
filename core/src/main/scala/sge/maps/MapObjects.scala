@@ -11,7 +11,7 @@
  *   Convention: implements Iterable -> extends Iterable; for loop -> while loop
  *   Idiom: get(name) returns Nullable[MapObject] via boundary/break instead of return null
  *   Idiom: getIndex(name) uses Nullable.fold(-1)(getIndex) instead of passing null to getIndex
- *   TODO: Java-style getters/setters — getCount, getByType
+ *   - getCount/getByType are delegation methods with parameters, not simple getters — kept as-is
  *   Audited: 2026-03-03
  */
 package sge
@@ -19,6 +19,7 @@ package maps
 
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.reflect.ClassTag
 import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** @brief Collection of MapObject instances */
@@ -42,7 +43,7 @@ class MapObjects extends Iterable[MapObject] {
     val n = objects.size
     while (i < n) {
       val obj = objects(i)
-      if (name == obj.getName) {
+      if (name == obj.name) {
         break(Nullable(obj))
       }
       i += 1
@@ -78,23 +79,21 @@ class MapObjects extends Iterable[MapObject] {
     * @return
     *   array filled with all the objects in the collection matching type
     */
-  def getByType[T <: MapObject](clazz: Class[T]): DynamicArray[T] =
-    getByType(clazz, DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
+  def getByType[T <: MapObject](using tag: ClassTag[T]): DynamicArray[T] =
+    getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
 
-  /** @param type
-    *   class of the objects we want to retrieve
-    * @param fill
+  /** @param fill
     *   collection to put the returned objects in
     * @return
     *   array filled with all the objects in the collection matching type
     */
-  def getByType[T <: MapObject](clazz: Class[T], fill: DynamicArray[T]): DynamicArray[T] = {
+  def getByType[T <: MapObject](fill: DynamicArray[T])(using tag: ClassTag[T]): DynamicArray[T] = {
     fill.clear()
     var i = 0
     val n = objects.size
     while (i < n) {
       val obj = objects(i)
-      if (clazz.isInstance(obj)) {
+      if (tag.runtimeClass.isInstance(obj)) {
         fill.add(obj.asInstanceOf[T])
       }
       i += 1

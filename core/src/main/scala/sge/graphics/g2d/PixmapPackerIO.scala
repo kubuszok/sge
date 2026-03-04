@@ -7,7 +7,9 @@
  * Migration notes:
  *   Convention: Java enum -> Scala 3 enum; IOException -> SgeError.FileWriteError; Nullable for null checks
  *   Idiom: boundary/break, Nullable, split packages
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getter (getExtension) → public val extension
+ *   Fixes: PixmapPackerRectangle callers: rect.getX()/getY()/getWidth()/getHeight() → rect.x/y/width/height
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -38,7 +40,7 @@ class PixmapPackerIO {
     *   if the atlas file can not be written
     */
   def save(file: FileHandle, packer: PixmapPacker): Unit =
-    save(file, packer, new PixmapPackerIO.SaveParameters())
+    save(file, packer, PixmapPackerIO.SaveParameters())
 
   /** Saves the provided PixmapPacker to the provided file. The resulting file will use the standard TextureAtlas file format and can be loaded by TextureAtlas as if it had been created using
     * TexturePacker.
@@ -60,7 +62,7 @@ class PixmapPackerIO {
       for (page <- packer.pages)
         if (page.rects.size > 0) {
           index += 1
-          val pageFile = file.sibling(file.nameWithoutExtension() + "_" + index + parameters.format.getExtension())
+          val pageFile = file.sibling(file.nameWithoutExtension() + "_" + index + parameters.format.extension)
 
           parameters.format match {
             case PixmapPackerIO.ImageFormat.CIM =>
@@ -91,14 +93,14 @@ class PixmapPackerIO {
             writer.write(imageName + "\n")
             val rect = page.rects(name)
             writer.write("  rotate: false" + "\n")
-            writer.write("  xy: " + rect.getX() + "," + rect.getY() + "\n")
-            writer.write("  size: " + rect.getWidth() + "," + rect.getHeight() + "\n")
+            writer.write("  xy: " + rect.x + "," + rect.y + "\n")
+            writer.write("  size: " + rect.width + "," + rect.height + "\n")
 
-            Nullable(rect.splits).foreach { splits =>
+            rect.splits.foreach { splits =>
               writer.write(
                 "  split: " + splits(0) + ", " + splits(1) + ", " + splits(2) + ", " + splits(3) + "\n"
               )
-              Nullable(rect.pads).foreach { pads =>
+              rect.pads.foreach { pads =>
                 writer.write(
                   "  pad: " + pads(0) + ", " + pads(1) + ", " + pads(2) + ", " + pads(3) + "\n"
                 )
@@ -106,7 +108,7 @@ class PixmapPackerIO {
             }
 
             writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n")
-            writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.getHeight() - rect.offsetY) + "\n")
+            writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.height - rect.offsetY) + "\n")
             writer.write("  index: " + imageIndex + "\n")
           }
         }
@@ -120,16 +122,13 @@ class PixmapPackerIO {
 object PixmapPackerIO {
 
   /** Image formats which can be used when saving a PixmapPacker. */
-  enum ImageFormat(private val extension: String) {
+  enum ImageFormat(val extension: String) {
 
     /** A simple compressed image format which is libgdx specific. */
     case CIM extends ImageFormat(".cim")
 
     /** A standard compressed image format which is not libgdx specific. */
     case PNG extends ImageFormat(".png")
-
-    /** Returns the file extension for the image format. */
-    def getExtension(): String = extension
   }
 
   /** Additional parameters which will be used when writing a PixmapPacker. */

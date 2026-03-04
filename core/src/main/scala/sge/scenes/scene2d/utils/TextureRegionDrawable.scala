@@ -31,7 +31,7 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
 
   def this(texture: Texture) = {
     this()
-    setRegion(new TextureRegion(texture))
+    setRegion(TextureRegion(texture))
   }
 
   def this(region: TextureRegion) = {
@@ -64,8 +64,8 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
   def setRegion(region: TextureRegion): Unit = {
     this.region = region
     Nullable(region).foreach { r =>
-      setMinWidth(r.getRegionWidth().toFloat)
-      setMinHeight(r.getRegionHeight().toFloat)
+      setMinWidth(r.regionWidth.toFloat)
+      setMinHeight(r.regionHeight.toFloat)
     }
   }
 
@@ -74,12 +74,12 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): Drawable = {
     val sprite: Sprite = region match {
-      case ar: TextureAtlas.AtlasRegion => new TextureAtlas.AtlasSprite(ar)
-      case _ => new Sprite(region)
+      case ar: TextureAtlas.AtlasRegion => TextureAtlas.AtlasSprite(ar)
+      case _ => Sprite(region)
     }
-    sprite.setColor(tint)
+    sprite.color = tint
     sprite.setSize(getMinWidth, getMinHeight)
-    val drawable = new SpriteDrawable(sprite)
+    val drawable = SpriteDrawable(sprite)
     drawable.setLeftWidth(getLeftWidth)
     drawable.setRightWidth(getRightWidth)
     drawable.setTopHeight(getTopHeight)

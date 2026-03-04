@@ -132,7 +132,7 @@ object SkinStyleReader {
 
   given buttonStyleReader: SkinStyleReader[Button.ButtonStyle] with {
 
-    def create(): Button.ButtonStyle = new Button.ButtonStyle()
+    def create(): Button.ButtonStyle = Button.ButtonStyle()
 
     def copyFrom(source: Any, target: Button.ButtonStyle): Unit = source match {
       case s: Button.ButtonStyle =>
@@ -180,7 +180,7 @@ object SkinStyleReader {
 
   given textButtonStyleReader: SkinStyleReader[TextButton.TextButtonStyle] with {
 
-    def create(): TextButton.TextButtonStyle = new TextButton.TextButtonStyle()
+    def create(): TextButton.TextButtonStyle = TextButton.TextButtonStyle()
 
     def copyFrom(source: Any, target: TextButton.TextButtonStyle): Unit = source match {
       case s: TextButton.TextButtonStyle =>
@@ -221,7 +221,7 @@ object SkinStyleReader {
 
   given checkBoxStyleReader: SkinStyleReader[CheckBox.CheckBoxStyle] with {
 
-    def create(): CheckBox.CheckBoxStyle = new CheckBox.CheckBoxStyle()
+    def create(): CheckBox.CheckBoxStyle = CheckBox.CheckBoxStyle()
 
     def copyFrom(source: Any, target: CheckBox.CheckBoxStyle): Unit = source match {
       case s: CheckBox.CheckBoxStyle =>
@@ -256,7 +256,7 @@ object SkinStyleReader {
 
   given imageButtonStyleReader: SkinStyleReader[ImageButton.ImageButtonStyle] with {
 
-    def create(): ImageButton.ImageButtonStyle = new ImageButton.ImageButtonStyle()
+    def create(): ImageButton.ImageButtonStyle = ImageButton.ImageButtonStyle()
 
     def copyFrom(source: Any, target: ImageButton.ImageButtonStyle): Unit = source match {
       case s: ImageButton.ImageButtonStyle =>
@@ -291,7 +291,7 @@ object SkinStyleReader {
 
   given imageTextButtonStyleReader: SkinStyleReader[ImageTextButton.ImageTextButtonStyle] with {
 
-    def create(): ImageTextButton.ImageTextButtonStyle = new ImageTextButton.ImageTextButtonStyle()
+    def create(): ImageTextButton.ImageTextButtonStyle = ImageTextButton.ImageTextButtonStyle()
 
     def copyFrom(source: Any, target: ImageTextButton.ImageTextButtonStyle): Unit = source match {
       case s: ImageTextButton.ImageTextButtonStyle =>
@@ -328,7 +328,7 @@ object SkinStyleReader {
 
   given labelStyleReader: SkinStyleReader[Label.LabelStyle] with {
 
-    def create(): Label.LabelStyle = new Label.LabelStyle()
+    def create(): Label.LabelStyle = Label.LabelStyle()
 
     def copyFrom(source: Any, target: Label.LabelStyle): Unit = source match {
       case s: Label.LabelStyle =>
@@ -352,7 +352,7 @@ object SkinStyleReader {
 
   given listStyleReader: SkinStyleReader[SgeList.ListStyle] with {
 
-    def create(): SgeList.ListStyle = new SgeList.ListStyle()
+    def create(): SgeList.ListStyle = SgeList.ListStyle()
 
     def copyFrom(source: Any, target: SgeList.ListStyle): Unit = source match {
       case s: SgeList.ListStyle =>
@@ -384,7 +384,7 @@ object SkinStyleReader {
 
   given progressBarStyleReader: SkinStyleReader[ProgressBar.ProgressBarStyle] with {
 
-    def create(): ProgressBar.ProgressBarStyle = new ProgressBar.ProgressBarStyle()
+    def create(): ProgressBar.ProgressBarStyle = ProgressBar.ProgressBarStyle()
 
     def copyFrom(source: Any, target: ProgressBar.ProgressBarStyle): Unit = source match {
       case s: ProgressBar.ProgressBarStyle =>
@@ -418,7 +418,7 @@ object SkinStyleReader {
 
   given sliderStyleReader: SkinStyleReader[Slider.SliderStyle] with {
 
-    def create(): Slider.SliderStyle = new Slider.SliderStyle()
+    def create(): Slider.SliderStyle = Slider.SliderStyle()
 
     def copyFrom(source: Any, target: Slider.SliderStyle): Unit = source match {
       case s: Slider.SliderStyle =>
@@ -455,7 +455,7 @@ object SkinStyleReader {
 
   given scrollPaneStyleReader: SkinStyleReader[ScrollPane.ScrollPaneStyle] with {
 
-    def create(): ScrollPane.ScrollPaneStyle = new ScrollPane.ScrollPaneStyle()
+    def create(): ScrollPane.ScrollPaneStyle = ScrollPane.ScrollPaneStyle()
 
     def copyFrom(source: Any, target: ScrollPane.ScrollPaneStyle): Unit = source match {
       case s: ScrollPane.ScrollPaneStyle =>
@@ -485,14 +485,14 @@ object SkinStyleReader {
 
   given selectBoxStyleReader: SkinStyleReader[SelectBox.SelectBoxStyle] with {
 
-    def create(): SelectBox.SelectBoxStyle = new SelectBox.SelectBoxStyle()
+    def create(): SelectBox.SelectBoxStyle = SelectBox.SelectBoxStyle()
 
     def copyFrom(source: Any, target: SelectBox.SelectBoxStyle): Unit = source match {
       case s: SelectBox.SelectBoxStyle =>
         target.font = s.font
         target.fontColor.set(s.fontColor)
-        s.overFontColor.foreach(c => target.overFontColor = Nullable(new Color(c)))
-        s.disabledFontColor.foreach(c => target.disabledFontColor = Nullable(new Color(c)))
+        s.overFontColor.foreach(c => target.overFontColor = Nullable(Color(c)))
+        s.disabledFontColor.foreach(c => target.disabledFontColor = Nullable(Color(c)))
         target.background = s.background
         target.scrollStyle = s.scrollStyle
         target.listStyle = s.listStyle
@@ -523,7 +523,7 @@ object SkinStyleReader {
 
   given splitPaneStyleReader: SkinStyleReader[SplitPane.SplitPaneStyle] with {
 
-    def create(): SplitPane.SplitPaneStyle = new SplitPane.SplitPaneStyle()
+    def create(): SplitPane.SplitPaneStyle = SplitPane.SplitPaneStyle()
 
     def copyFrom(source: Any, target: SplitPane.SplitPaneStyle): Unit = source match {
       case s: SplitPane.SplitPaneStyle =>
@@ -543,21 +543,21 @@ object SkinStyleReader {
 
   given textFieldStyleReader: SkinStyleReader[TextField.TextFieldStyle] with {
 
-    def create(): TextField.TextFieldStyle = new TextField.TextFieldStyle()
+    def create(): TextField.TextFieldStyle = TextField.TextFieldStyle()
 
     def copyFrom(source: Any, target: TextField.TextFieldStyle): Unit = source match {
       case s: TextField.TextFieldStyle =>
         target.font = s.font
-        Nullable(s.fontColor).foreach(c => target.fontColor = new Color(c))
-        target.focusedFontColor = s.focusedFontColor.map(c => new Color(c))
-        target.disabledFontColor = s.disabledFontColor.map(c => new Color(c))
+        Nullable(s.fontColor).foreach(c => target.fontColor = Color(c))
+        target.focusedFontColor = s.focusedFontColor.map(c => Color(c))
+        target.disabledFontColor = s.disabledFontColor.map(c => Color(c))
         target.background = s.background
         target.focusedBackground = s.focusedBackground
         target.disabledBackground = s.disabledBackground
         target.cursor = s.cursor
         target.selection = s.selection
         target.messageFont = s.messageFont
-        target.messageFontColor = s.messageFontColor.map(c => new Color(c))
+        target.messageFontColor = s.messageFontColor.map(c => Color(c))
       case _ => ()
     }
 
@@ -583,7 +583,7 @@ object SkinStyleReader {
 
   given textTooltipStyleReader: SkinStyleReader[TextTooltip.TextTooltipStyle] with {
 
-    def create(): TextTooltip.TextTooltipStyle = new TextTooltip.TextTooltipStyle()
+    def create(): TextTooltip.TextTooltipStyle = TextTooltip.TextTooltipStyle()
 
     def copyFrom(source: Any, target: TextTooltip.TextTooltipStyle): Unit = source match {
       case s: TextTooltip.TextTooltipStyle =>
@@ -607,7 +607,7 @@ object SkinStyleReader {
 
   given touchpadStyleReader: SkinStyleReader[Touchpad.TouchpadStyle] with {
 
-    def create(): Touchpad.TouchpadStyle = new Touchpad.TouchpadStyle()
+    def create(): Touchpad.TouchpadStyle = Touchpad.TouchpadStyle()
 
     def copyFrom(source: Any, target: Touchpad.TouchpadStyle): Unit = source match {
       case s: Touchpad.TouchpadStyle =>
@@ -629,7 +629,7 @@ object SkinStyleReader {
 
   given treeStyleReader: SkinStyleReader[Tree.TreeStyle] with {
 
-    def create(): Tree.TreeStyle = new Tree.TreeStyle()
+    def create(): Tree.TreeStyle = Tree.TreeStyle()
 
     def copyFrom(source: Any, target: Tree.TreeStyle): Unit = source match {
       case s: Tree.TreeStyle =>
@@ -661,7 +661,7 @@ object SkinStyleReader {
 
   given windowStyleReader: SkinStyleReader[Window.WindowStyle] with {
 
-    def create(): Window.WindowStyle = new Window.WindowStyle()
+    def create(): Window.WindowStyle = Window.WindowStyle()
 
     def copyFrom(source: Any, target: Window.WindowStyle): Unit = source match {
       case s: Window.WindowStyle =>

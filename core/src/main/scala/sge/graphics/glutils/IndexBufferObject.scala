@@ -70,9 +70,8 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) = {
+  def this(maxIndices: Int)(using sde: Sge) =
     this(true, maxIndices)
-  }
 
   def this(isStatic: Boolean, data: ByteBuffer)(using sde: Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size

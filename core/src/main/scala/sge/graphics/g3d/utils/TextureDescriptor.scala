@@ -69,31 +69,31 @@ class TextureDescriptor[T <: GLTexture]() extends Ordered[TextureDescriptor[T]] 
   }
 
   override def hashCode(): Int = {
-    var result: Long = texture.fold(0L)(_.glTarget.toLong)
-    result = 811 * result + texture.fold(0L)(_.getTextureObjectHandle().toInt.toLong)
-    result = 811 * result + minFilter.fold(0L)(_.getGLEnum().toLong)
-    result = 811 * result + magFilter.fold(0L)(_.getGLEnum().toLong)
-    result = 811 * result + uWrap.fold(0L)(_.getGLEnum().toLong)
-    result = 811 * result + vWrap.fold(0L)(_.getGLEnum().toLong)
+    var result: Long = texture.map(_.glTarget.toLong).getOrElse(0L)
+    result = 811 * result + texture.map(_.getTextureObjectHandle().toInt.toLong).getOrElse(0L)
+    result = 811 * result + minFilter.map(_.getGLEnum().toLong).getOrElse(0L)
+    result = 811 * result + magFilter.map(_.getGLEnum().toLong).getOrElse(0L)
+    result = 811 * result + uWrap.map(_.getGLEnum().toLong).getOrElse(0L)
+    result = 811 * result + vWrap.map(_.getGLEnum().toLong).getOrElse(0L)
     (result ^ (result >> 32)).toInt
   }
 
   override def compare(that: TextureDescriptor[T]): Int = boundary {
     if (that eq this) break(0)
-    val t1 = texture.fold(0)(_.glTarget)
-    val t2 = that.texture.fold(0)(_.glTarget)
+    val t1 = texture.map(_.glTarget).getOrElse(0)
+    val t2 = that.texture.map(_.glTarget).getOrElse(0)
     if (t1 != t2) break(t1 - t2)
-    val h1 = texture.fold(0)(_.getTextureObjectHandle().toInt)
-    val h2 = that.texture.fold(0)(_.getTextureObjectHandle().toInt)
+    val h1 = texture.map(_.getTextureObjectHandle().toInt).getOrElse(0)
+    val h2 = that.texture.map(_.getTextureObjectHandle().toInt).getOrElse(0)
     if (h1 != h2) break(h1 - h2)
     if (minFilter != that.minFilter)
-      break(minFilter.fold(0)(_.getGLEnum()) - that.minFilter.fold(0)(_.getGLEnum()))
+      break(minFilter.map(_.getGLEnum()).getOrElse(0) - that.minFilter.map(_.getGLEnum()).getOrElse(0))
     if (magFilter != that.magFilter)
-      break(magFilter.fold(0)(_.getGLEnum()) - that.magFilter.fold(0)(_.getGLEnum()))
+      break(magFilter.map(_.getGLEnum()).getOrElse(0) - that.magFilter.map(_.getGLEnum()).getOrElse(0))
     if (uWrap != that.uWrap)
-      break(uWrap.fold(0)(_.getGLEnum()) - that.uWrap.fold(0)(_.getGLEnum()))
+      break(uWrap.map(_.getGLEnum()).getOrElse(0) - that.uWrap.map(_.getGLEnum()).getOrElse(0))
     if (vWrap != that.vWrap)
-      break(vWrap.fold(0)(_.getGLEnum()) - that.vWrap.fold(0)(_.getGLEnum()))
+      break(vWrap.map(_.getGLEnum()).getOrElse(0) - that.vWrap.map(_.getGLEnum()).getOrElse(0))
     0
   }
 }

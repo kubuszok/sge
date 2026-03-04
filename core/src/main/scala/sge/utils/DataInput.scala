@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: `return` -> `boundary`/`break`; Java `switch/case` -> Scala `match/case`
  *   Idiom: split packages
- *   Issues: `readString()` returns `String | Null` instead of `Nullable[String]`
+ *   Issues: None
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -16,6 +16,7 @@ package sge
 package utils
 
 import java.io.{ DataInputStream, IOException, InputStream }
+import sge.utils.Nullable
 
 /** Extends {@link DataInputStream} with additional convenience methods.
   * @author
@@ -53,11 +54,11 @@ class DataInput(in: InputStream) extends DataInputStream(in) {
     *   May be null.
     */
   @throws[IOException]
-  def readString(): String | Null = {
+  def readString(): Nullable[String] = {
     val charCount = readInt(true)
     charCount match {
-      case 0 => null
-      case 1 => ""
+      case 0 => Nullable.empty
+      case 1 => Nullable("")
       case _ =>
         val actualCharCount = charCount - 1
         if (chars.length < actualCharCount) chars = new Array[Char](actualCharCount)
@@ -77,7 +78,7 @@ class DataInput(in: InputStream) extends DataInputStream(in) {
             charIndex += 1
           }
         }
-        new String(localChars, 0, actualCharCount)
+        Nullable(new String(localChars, 0, actualCharCount))
     }
   }
 

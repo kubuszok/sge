@@ -9,7 +9,7 @@
  * Migration notes:
  *   Renames: Disposable -> AutoCloseable; dispose() -> close()
  *   Convention: split package (sge / maps)
- *   Idiom: fields are private val with getter defs, matching Java's private field + getter pattern
+ *   Renames: getLayers → val layers, getProperties → val properties
  *   Audited: 2026-03-03
  */
 package sge
@@ -30,14 +30,8 @@ package maps
   * Maps must be closed through a call to {@link #close()} when no longer used.
   */
 class Map extends AutoCloseable {
-  private val layers:     MapLayers     = new MapLayers()
-  private val properties: MapProperties = new MapProperties()
-
-  /** @return the map's layers */
-  def getLayers: MapLayers = layers
-
-  /** @return the map's properties */
-  def getProperties: MapProperties = properties
+  val layers:     MapLayers     = MapLayers()
+  val properties: MapProperties = MapProperties()
 
   /** Disposes all resources like {@link Texture} instances that the map may own. */
   override def close(): Unit = {}

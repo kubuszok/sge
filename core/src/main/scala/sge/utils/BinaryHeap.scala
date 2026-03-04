@@ -176,7 +176,7 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
 
         // May have a right child.
         val rightNodeOpt: Nullable[BinaryHeap.Node] = if (rightIndex >= size) Nullable.empty else Nullable(nodes(rightIndex))
-        val rightValue = rightNodeOpt.fold(if (isMaxHeap) -Float.MaxValue else Float.MaxValue)(_.value)
+        val rightValue = rightNodeOpt.map(_.value).getOrElse(if (isMaxHeap) -Float.MaxValue else Float.MaxValue)
 
         // The smallest of the three values is the parent.
         if (leftValue < rightValue ^ isMaxHeap) {

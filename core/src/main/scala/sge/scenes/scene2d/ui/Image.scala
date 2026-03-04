@@ -5,7 +5,7 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: null -> Nullable; Scaling enum -> opaque type/trait; Skin constructor and setDrawable(Skin, String) commented out
+ *   Convention: null -> Nullable; Scaling enum -> opaque type/trait
  *   Idiom: split packages
  *   TODO: Java-style getters/setters — getDrawable/setDrawable, getAlign/setAlign, getImageX/Y, getImageWidth/Height
  *   Audited: 2026-03-03
@@ -27,7 +27,7 @@ import sge.utils.{ Align, Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class Image(drawable: Nullable[Drawable], private var scaling: Scaling, private var align: Align) extends Widget {
+class Image(drawable: Nullable[Drawable] = Nullable.empty, private var scaling: Scaling = Scaling.stretch, private var align: Align = Align.center)(using Sge) extends Widget {
 
   private var imageX:      Float              = 0
   private var imageY:      Float              = 0
@@ -38,38 +38,23 @@ class Image(drawable: Nullable[Drawable], private var scaling: Scaling, private 
   setDrawable(drawable)
   setSize(getPrefWidth, getPrefHeight)
 
-  /** Creates an image with no drawable, stretched, and aligned center. */
-  def this() = this(Nullable.empty, Scaling.stretch, Align.center)
-
   /** Creates an image stretched, and aligned center.
     * @param patch
     *   May be null.
     */
-  def this(patch: NinePatch) = this(Nullable(new NinePatchDrawable(patch)), Scaling.stretch, Align.center)
+  def this(patch: NinePatch)(using Sge) = this(Nullable(NinePatchDrawable(patch)), Scaling.stretch, Align.center)
 
   /** Creates an image stretched, and aligned center.
     * @param region
     *   May be null.
     */
-  def this(region: TextureRegion) = this(Nullable(new TextureRegionDrawable(region)), Scaling.stretch, Align.center)
+  def this(region: TextureRegion)(using Sge) = this(Nullable(TextureRegionDrawable(region)), Scaling.stretch, Align.center)
 
   /** Creates an image stretched, and aligned center. */
-  def this(texture: Texture) = this(Nullable(new TextureRegionDrawable(new TextureRegion(texture))), Scaling.stretch, Align.center)
+  def this(texture: Texture)(using Sge) = this(Nullable(TextureRegionDrawable(TextureRegion(texture))), Scaling.stretch, Align.center)
 
-  // /** Creates an image stretched, and aligned center. */
-  // def this(skin: Skin, drawableName: String) = this(skin.getDrawable(drawableName), Scaling.stretch, Align.center)
-
-  /** Creates an image stretched, and aligned center.
-    * @param drawable
-    *   May be null.
-    */
-  def this(drawable: Nullable[Drawable]) = this(drawable, Scaling.stretch, Align.center)
-
-  /** Creates an image aligned center.
-    * @param drawable
-    *   May be null.
-    */
-  def this(drawable: Nullable[Drawable], scaling: Scaling) = this(drawable, scaling, Align.center)
+  /** Creates an image stretched, and aligned center. */
+  def this(skin: Skin, drawableName: String)(using Sge) = this(Nullable(skin.getDrawable(drawableName)), Scaling.stretch, Align.center)
 
   override def layout(): Unit =
     _drawable.foreach { d =>
@@ -123,9 +108,8 @@ class Image(drawable: Nullable[Drawable], private var scaling: Scaling, private 
     }
   }
 
-  // def setDrawable(skin: Skin, drawableName: String): Unit = {
-  //   setDrawable(skin.getDrawable(drawableName))
-  // }
+  def setDrawable(skin: Skin, drawableName: String): Unit =
+    setDrawable(Nullable(skin.getDrawable(drawableName)))
 
   /** Sets a new drawable for the image. The image's pref size is the drawable's min size. If using the image actor's size rather than the pref size, {@link #pack()} can be used to size the image to
     * its pref size.
@@ -161,9 +145,9 @@ class Image(drawable: Nullable[Drawable], private var scaling: Scaling, private 
 
   override def getMinHeight: Float = 0
 
-  override def getPrefWidth: Float = _drawable.fold(0f)(_.getMinWidth)
+  override def getPrefWidth: Float = _drawable.map(_.getMinWidth).getOrElse(0f)
 
-  override def getPrefHeight: Float = _drawable.fold(0f)(_.getMinHeight)
+  override def getPrefHeight: Float = _drawable.map(_.getMinHeight).getOrElse(0f)
 
   def getImageX: Float = imageX
 

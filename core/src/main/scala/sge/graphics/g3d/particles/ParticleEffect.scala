@@ -8,6 +8,8 @@
  *
  * Migration notes:
  * - All public methods ported faithfully
+ * - Fixes (2026-03-04): getControllers() removed → public var controllers;
+ *   getBoundingBox() → def boundingBox (with _boundingBox backing field)
  * - Disposable → AutoCloseable; dispose() → close()
  * - update() overload uses (using Sge) context parameter instead of Gdx.graphics.getDeltaTime()
  * - findController returns Nullable[ParticleController] instead of ParticleController|null
@@ -24,6 +26,7 @@ package particles
 import scala.util.boundary
 import scala.util.boundary.break
 
+import sge.Sge
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.batches.ParticleBatch
 import sge.utils.DynamicArray
@@ -35,12 +38,12 @@ import sge.utils.Nullable
   * @author
   *   inferno
   */
-class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
+class ParticleEffect()(using Sge) extends AutoCloseable with ResourceData.Configurable {
 
-  private var controllers: DynamicArray[ParticleController] = DynamicArray[ParticleController](3)
-  private var bounds:      Nullable[BoundingBox]            = Nullable.empty
+  var controllers:          DynamicArray[ParticleController] = DynamicArray[ParticleController](3)
+  private var _boundingBox: Nullable[BoundingBox]            = Nullable.empty
 
-  def this(effect: ParticleEffect) = {
+  def this(effect: ParticleEffect)(using Sge) = {
     this()
     controllers = DynamicArray[ParticleController](effect.controllers.size)
     var i = 0
@@ -51,7 +54,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
     }
   }
 
-  def this(emitters: ParticleController*) = {
+  def this(emitters: ParticleController*)(using Sge) = {
     this()
     this.controllers = DynamicArray[ParticleController](emitters.length)
     for (e <- emitters) this.controllers.add(e)
@@ -93,7 +96,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
     }
   }
 
-  def update()(using Sge): Unit = {
+  def update(): Unit = {
     var i = 0
     val n = controllers.size
     while (i < n) {
@@ -120,11 +123,11 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
     }
   }
 
-  def isComplete(): Boolean = boundary {
+  def isComplete: Boolean = boundary {
     var i = 0
     val n = controllers.size
     while (i < n) {
-      if (!controllers(i).isComplete()) break(false)
+      if (!controllers(i).isComplete) break(false)
       i += 1
     }
     true
@@ -195,10 +198,6 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
     }
   }
 
-  /** @return all particle controllers. */
-  def getControllers(): DynamicArray[ParticleController] =
-    controllers
-
   /** Returns the controller with the specified name, or null. */
   def findController(name: String): Nullable[ParticleController] = boundary {
     var i = 0
@@ -221,15 +220,15 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
   }
 
   /** @return the merged bounding box of all controllers. */
-  def getBoundingBox(): BoundingBox = {
-    if (bounds.isEmpty) bounds = Nullable(new BoundingBox())
+  def boundingBox: BoundingBox = {
+    if (_boundingBox.isEmpty) _boundingBox = Nullable(BoundingBox())
 
-    bounds.foreach { b =>
+    _boundingBox.foreach { b =>
       b.inf()
       for (emitter <- controllers)
-        b.ext(emitter.getBoundingBox())
+        b.ext(emitter.boundingBox)
     }
-    bounds.getOrElse(new BoundingBox())
+    _boundingBox.getOrElse(BoundingBox())
   }
 
   /** Assign one batch, among those passed in, to each controller. The batch must be compatible with the controller to be assigned.
@@ -243,7 +242,7 @@ class ParticleEffect extends AutoCloseable with ResourceData.Configurable {
 
   /** @return a copy of this effect, should be used after the particle effect has been loaded. */
   def copy(): ParticleEffect =
-    new ParticleEffect(this)
+    ParticleEffect(this)
 
   /** Saves all the assets required by all the controllers inside this effect. */
   override def save(assetManager: AssetManager, data: ResourceData[?]): Unit =

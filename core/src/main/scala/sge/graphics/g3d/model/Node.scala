@@ -15,9 +15,10 @@
  * - getNode uses boundary/break (Java uses return)
  * - calculateBoneTransforms: restructured with Nullable fold (Java uses null checks + continue)
  * - hashCode() not overridden (same as Java — not implemented in Java either)
- * - Unused import: scala.language.implicitConversions (no implicit conversions used)
+ * - Fixes (2026-03-04): getChildren → public val children;
+ *   getParent → def parent (renamed field to _parent); getChildCount → childCount
  * - DynamicArray initial capacity not specified (Java Array<NodePart>(2), Array<Node>(2))
- * - Status: minor_issues
+ * - Status: pass
  */
 package sge
 package graphics
@@ -51,25 +52,28 @@ class Node {
   var isAnimated: Boolean = false
 
   /** the translation, relative to the parent, not modified by animations * */
-  val translation: Vector3 = new Vector3()
+  val translation: Vector3 = Vector3()
 
   /** the rotation, relative to the parent, not modified by animations * */
-  val rotation: Quaternion = new Quaternion(0, 0, 0, 1)
+  val rotation: Quaternion = Quaternion(0, 0, 0, 1)
 
   /** the scale, relative to the parent, not modified by animations * */
-  val scale: Vector3 = new Vector3(1, 1, 1)
+  val scale: Vector3 = Vector3(1, 1, 1)
 
   /** the local transform, based on translation/rotation/scale ({@link #calculateLocalTransform()}) or any applied animation * */
-  val localTransform: Matrix4 = new Matrix4()
+  val localTransform: Matrix4 = Matrix4()
 
   /** the global transform, product of local transform and transform of the parent node, calculated via {@link #calculateWorldTransform()} *
     */
-  val globalTransform: Matrix4 = new Matrix4()
+  val globalTransform: Matrix4 = Matrix4()
 
   var parts: DynamicArray[NodePart] = DynamicArray[NodePart]()
 
-  protected var parent: Nullable[Node]     = Nullable.empty
-  private val children: DynamicArray[Node] = DynamicArray[Node]()
+  protected var _parent: Nullable[Node]     = Nullable.empty
+  val children:          DynamicArray[Node] = DynamicArray[Node]()
+
+  /** @return The parent node that holds this node as child node, may be null. */
+  def parent: Nullable[Node] = _parent
 
   /** Calculates the local transform based on the translation, scale and rotation
     * @return
@@ -169,7 +173,7 @@ class Node {
   def detach(): Unit =
     parent.foreach { p =>
       p.removeChild(this)
-      parent = Nullable.empty
+      _parent = Nullable.empty
     }
 
   /** @return whether this Node has one or more children (true) or not (false) */
@@ -180,7 +184,7 @@ class Node {
     * @see
     *   #getChild(int)
     */
-  def getChildCount: Int = children.size
+  def childCount: Int = children.size
 
   /** @param index
     *   The zero-based index of the child node to get, must be: 0 <= index < {@link #getChildCount()}.
@@ -229,7 +233,7 @@ class Node {
     var p: Nullable[Node] = Nullable(this: Node)
     while (p.isDefined) {
       p.foreach(n => if (n eq child) throw SgeError.InvalidInput("Cannot add a parent as a child"))
-      p = p.fold(Nullable.empty[Node])(_.parent)
+      p = p.flatMap(_.parent)
     }
     // Remove child from current parent
     child.parent.foreach { parentNode =>
@@ -242,7 +246,7 @@ class Node {
       children.insert(index, child)
       index
     }
-    child.parent = Nullable(this)
+    child._parent = Nullable(this)
     actualIndex
   }
 
@@ -277,16 +281,10 @@ class Node {
     if (idx < 0) false
     else {
       children.removeIndex(idx)
-      child.parent = Nullable.empty
+      child._parent = Nullable.empty
       true
     }
   }
-
-  /** @return A {@link DynamicArray} of all child nodes that this node contains. */
-  def getChildren: DynamicArray[Node] = children
-
-  /** @return The parent node that holds this node as child node, may be null. */
-  def getParent: Nullable[Node] = parent
 
   /** @return Whether (true) is this Node is a child node of another node or not (false). */
   def hasParent: Boolean = parent.isDefined
@@ -297,7 +295,7 @@ class Node {
     *
     * Override this method in your custom Node class to instantiate that class, in that case you should override the {@link #set(Node)} method as well.
     */
-  def copy(): Node = new Node().set(this)
+  def copy(): Node = Node().set(this)
 
   /** Creates a nested copy of this Node, any child nodes are copied using the {@link #copy()} method. This will detach this node from its parent, but does not attach it to the parent of node being
     * copied. The {@link #parts} are copied using the {@link NodePart#copy()} method. Note that that method copies the material and nodes (bones) by reference. If you intend to use this node in a
@@ -321,7 +319,7 @@ class Node {
     for (nodePart <- other.parts)
       parts.add(nodePart.copy())
     children.clear()
-    for (child <- other.getChildren)
+    for (child <- other.children)
       addChild(child.copy())
     this
   }

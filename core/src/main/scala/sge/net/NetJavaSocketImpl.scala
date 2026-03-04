@@ -48,7 +48,7 @@ class NetJavaSocketImpl private (private var socket: JSocket) extends Socket {
   }
 
   override def isConnected(): Boolean =
-    Nullable(socket).fold(false)(_.isConnected())
+    Nullable(socket).exists(_.isConnected())
 
   override def getInputStream(): InputStream =
     try

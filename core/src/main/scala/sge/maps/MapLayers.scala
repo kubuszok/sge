@@ -12,7 +12,7 @@
  *   Idiom: get(name) returns Nullable[MapLayer] via boundary/break instead of return null
  *   Idiom: getIndex(name) uses Nullable.fold(-1)(getIndex) instead of passing null to getIndex
  *   Idiom: size() method -> override def size (Scala Iterable override)
- *   TODO: Java-style getters/setters — getCount, getByType
+ *   - getCount/getByType are delegation methods with parameters, not simple getters — kept as-is
  *   Audited: 2026-03-03
  */
 package sge
@@ -20,6 +20,7 @@ package maps
 
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.reflect.ClassTag
 import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** Ordered list of {@link MapLayer} instances owned by a {@link Map} */
@@ -42,7 +43,7 @@ class MapLayers extends Iterable[MapLayer] {
     val n = layers.size
     while (i < n) {
       val layer = layers(i)
-      if (name == layer.getName) {
+      if (name == layer.name) {
         break(Nullable(layer))
       }
       i += 1
@@ -80,22 +81,21 @@ class MapLayers extends Iterable[MapLayer] {
     * @return
     *   array with all the layers matching type
     */
-  def getByType[T <: MapLayer](clazz: Class[T]): DynamicArray[T] =
-    getByType(clazz, DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
+  def getByType[T <: MapLayer](using tag: ClassTag[T]): DynamicArray[T] =
+    getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
 
-  /** @param type
-    * @param fill
+  /** @param fill
     *   array to be filled with the matching layers
     * @return
     *   array with all the layers matching type
     */
-  def getByType[T <: MapLayer](clazz: Class[T], fill: DynamicArray[T]): DynamicArray[T] = {
+  def getByType[T <: MapLayer](fill: DynamicArray[T])(using tag: ClassTag[T]): DynamicArray[T] = {
     fill.clear()
     var i = 0
     val n = layers.size
     while (i < n) {
       val layer = layers(i)
-      if (clazz.isInstance(layer)) {
+      if (tag.runtimeClass.isInstance(layer)) {
         fill.add(layer.asInstanceOf[T])
       }
       i += 1

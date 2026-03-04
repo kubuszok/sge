@@ -50,7 +50,7 @@ import sge.utils.{ ArrayMap, BufferUtils, DynamicArray, Nullable, SgeError }
   * @author
   *   badlogic, xoppa
   */
-class Model extends AutoCloseable {
+class Model()(using Sge) extends AutoCloseable {
 
   /** the materials of the model, used by nodes that have a graphical representation FIXME not sure if superfluous, allows modification of materials without having to traverse the nodes *
     */
@@ -92,7 +92,7 @@ class Model extends AutoCloseable {
     load(modelData, textureProvider)
   }
 
-  protected def load(modelData: ModelData, textureProvider: TextureProvider)(using Sge): Unit = {
+  protected def load(modelData: ModelData, textureProvider: TextureProvider): Unit = {
     loadMeshes(modelData.meshes)
     loadMaterials(modelData.materials, textureProvider)
     loadNodes(modelData.nodes)
@@ -102,23 +102,23 @@ class Model extends AutoCloseable {
 
   protected def loadAnimations(modelAnimations: DynamicArray[ModelAnimation]): Unit =
     for (anim <- modelAnimations) {
-      val animation = new Animation()
+      val animation = Animation()
       animation.id = anim.id
       for (nanim <- anim.nodeAnimations) {
         val node = getNode(nanim.nodeId)
         if (node.isDefined) {
           node.foreach { n =>
-            val nodeAnim = new NodeAnimation()
+            val nodeAnim = NodeAnimation()
             nodeAnim.node = n
 
             Nullable(nanim.translation).foreach { trans =>
               val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- trans) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
-                val v = new Vector3()
+                val v = Vector3()
                 v.set(n.translation)
                 kf.value.foreach(src => v.set(src))
-                buf.add(new NodeKeyframe[Vector3](kf.keytime, v))
+                buf.add(NodeKeyframe[Vector3](kf.keytime, v))
               }
               nodeAnim.translation = Nullable(buf)
             }
@@ -127,10 +127,10 @@ class Model extends AutoCloseable {
               val buf = DynamicArray[NodeKeyframe[Quaternion]]()
               for (kf <- rot) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
-                val q = new Quaternion(0, 0, 0, 1)
+                val q = Quaternion(0, 0, 0, 1)
                 q.set(n.rotation)
                 kf.value.foreach(src => q.set(src))
-                buf.add(new NodeKeyframe[Quaternion](kf.keytime, q))
+                buf.add(NodeKeyframe[Quaternion](kf.keytime, q))
               }
               nodeAnim.rotation = Nullable(buf)
             }
@@ -139,18 +139,18 @@ class Model extends AutoCloseable {
               val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- scl) {
                 if (kf.keytime > animation.duration) animation.duration = kf.keytime
-                val v = new Vector3()
+                val v = Vector3()
                 v.set(n.scale)
                 kf.value.foreach(src => v.set(src))
-                buf.add(new NodeKeyframe[Vector3](kf.keytime, v))
+                buf.add(NodeKeyframe[Vector3](kf.keytime, v))
               }
               nodeAnim.scaling = Nullable(buf)
             }
 
             if (
-              nodeAnim.translation.fold(false)(_.nonEmpty)
-              || nodeAnim.rotation.fold(false)(_.nonEmpty)
-              || nodeAnim.scaling.fold(false)(_.nonEmpty)
+              nodeAnim.translation.exists(_.nonEmpty)
+              || nodeAnim.rotation.exists(_.nonEmpty)
+              || nodeAnim.scaling.exists(_.nonEmpty)
             ) {
               animation.nodeAnimations.add(nodeAnim)
             }
@@ -176,7 +176,7 @@ class Model extends AutoCloseable {
           val key   = boneMap.getKeyAt(i)
           val value = boneMap.getValueAt(i)
           getNode(key).foreach { n =>
-            binds.put(n, new Matrix4(value).inv())
+            binds.put(n, Matrix4(value).inv())
           }
         }
       }
@@ -184,7 +184,7 @@ class Model extends AutoCloseable {
   }
 
   protected def loadNode(modelNode: ModelNode): Node = {
-    val node = new Node()
+    val node = Node()
     node.id = modelNode.id
 
     Nullable(modelNode.translation).foreach(v => node.translation.set(v))
@@ -212,7 +212,7 @@ class Model extends AutoCloseable {
 
         if (meshPart.isEmpty || meshMaterial.isEmpty) throw SgeError.InvalidInput("Invalid node: " + node.id)
 
-        val nodePart = new NodePart()
+        val nodePart = NodePart()
         meshPart.foreach(mp => nodePart.meshPart = mp)
         meshMaterial.foreach(mm => nodePart.material = mm)
         node.parts.add(nodePart)
@@ -228,19 +228,19 @@ class Model extends AutoCloseable {
     node
   }
 
-  protected def loadMeshes(modelMeshes: DynamicArray[ModelMesh])(using Sge): Unit =
+  protected def loadMeshes(modelMeshes: DynamicArray[ModelMesh]): Unit =
     for (mesh <- modelMeshes)
       convertMesh(mesh)
 
-  protected def convertMesh(modelMesh: ModelMesh)(using Sge): Unit = {
+  protected def convertMesh(modelMesh: ModelMesh): Unit = {
     var numIndices = 0
     for (part <- modelMesh.parts)
       numIndices += part.indices.length
     val hasIndices  = numIndices > 0
-    val attributes  = new VertexAttributes(modelMesh.attributes*)
+    val attributes  = VertexAttributes(modelMesh.attributes*)
     val numVertices = modelMesh.vertices.length / (attributes.vertexSize / 4)
 
-    val mesh = new Mesh(true, numVertices, numIndices, attributes)
+    val mesh = Mesh(true, numVertices, numIndices, attributes)
     meshes.add(mesh)
     disposables.add(mesh)
 
@@ -249,7 +249,7 @@ class Model extends AutoCloseable {
     val indicesBuffer = mesh.getIndicesBuffer(true)
     indicesBuffer.asInstanceOf[Buffer].clear()
     for (part <- modelMesh.parts) {
-      val meshPart = new MeshPart()
+      val meshPart = MeshPart()
       meshPart.id = Nullable(part.id)
       meshPart.primitiveType = part.primitiveType
       meshPart.offset = offset
@@ -271,15 +271,15 @@ class Model extends AutoCloseable {
       materials.add(convertMaterial(mtl, textureProvider))
 
   protected def convertMaterial(mtl: ModelMaterial, textureProvider: TextureProvider): Material = {
-    val result = new Material()
+    val result = Material()
     result.id = mtl.id
-    Nullable(mtl.ambient).foreach(c => result.set(new ColorAttribute(ColorAttribute.Ambient, c)))
-    Nullable(mtl.diffuse).foreach(c => result.set(new ColorAttribute(ColorAttribute.Diffuse, c)))
-    Nullable(mtl.specular).foreach(c => result.set(new ColorAttribute(ColorAttribute.Specular, c)))
-    Nullable(mtl.emissive).foreach(c => result.set(new ColorAttribute(ColorAttribute.Emissive, c)))
-    Nullable(mtl.reflection).foreach(c => result.set(new ColorAttribute(ColorAttribute.Reflection, c)))
-    if (mtl.shininess > 0f) result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess))
-    if (mtl.opacity != 1f) result.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, mtl.opacity))
+    Nullable(mtl.ambient).foreach(c => result.set(ColorAttribute(ColorAttribute.Ambient, c)))
+    Nullable(mtl.diffuse).foreach(c => result.set(ColorAttribute(ColorAttribute.Diffuse, c)))
+    Nullable(mtl.specular).foreach(c => result.set(ColorAttribute(ColorAttribute.Specular, c)))
+    Nullable(mtl.emissive).foreach(c => result.set(ColorAttribute(ColorAttribute.Emissive, c)))
+    Nullable(mtl.reflection).foreach(c => result.set(ColorAttribute(ColorAttribute.Reflection, c)))
+    if (mtl.shininess > 0f) result.set(FloatAttribute(FloatAttribute.Shininess, mtl.shininess))
+    if (mtl.opacity != 1f) result.set(BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, mtl.opacity))
 
     val textures = mutable.Map[String, Texture]()
 
@@ -293,32 +293,32 @@ class Model extends AutoCloseable {
                                                }
         )
 
-        val descriptor = new TextureDescriptor[Texture](texture)
+        val descriptor = TextureDescriptor[Texture](texture)
         descriptor.minFilter = Nullable(texture.getMinFilter())
         descriptor.magFilter = Nullable(texture.getMagFilter())
         descriptor.uWrap = Nullable(texture.getUWrap())
         descriptor.vWrap = Nullable(texture.getVWrap())
 
-        val offsetU = Nullable(tex.uvTranslation).fold(0f)(_.x)
-        val offsetV = Nullable(tex.uvTranslation).fold(0f)(_.y)
-        val scaleU  = Nullable(tex.uvScaling).fold(1f)(_.x)
-        val scaleV  = Nullable(tex.uvScaling).fold(1f)(_.y)
+        val offsetU = Nullable(tex.uvTranslation).map(_.x).getOrElse(0f)
+        val offsetV = Nullable(tex.uvTranslation).map(_.y).getOrElse(0f)
+        val scaleU  = Nullable(tex.uvScaling).map(_.x).getOrElse(1f)
+        val scaleV  = Nullable(tex.uvScaling).map(_.y).getOrElse(1f)
 
         tex.usage match {
           case ModelTexture.USAGE_DIFFUSE =>
-            result.set(new TextureAttribute(TextureAttribute.Diffuse, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Diffuse, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_SPECULAR =>
-            result.set(new TextureAttribute(TextureAttribute.Specular, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Specular, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_BUMP =>
-            result.set(new TextureAttribute(TextureAttribute.Bump, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Bump, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_NORMAL =>
-            result.set(new TextureAttribute(TextureAttribute.Normal, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Normal, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_AMBIENT =>
-            result.set(new TextureAttribute(TextureAttribute.Ambient, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Ambient, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_EMISSIVE =>
-            result.set(new TextureAttribute(TextureAttribute.Emissive, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Emissive, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case ModelTexture.USAGE_REFLECTION =>
-            result.set(new TextureAttribute(TextureAttribute.Reflection, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
+            result.set(TextureAttribute(TextureAttribute.Reflection, descriptor, offsetU, offsetV, scaleU, scaleV, 0))
           case _ => // ignore unknown usage
         }
       }
@@ -332,7 +332,7 @@ class Model extends AutoCloseable {
     *   the AutoCloseable
     */
   def manageDisposable(disposable: AutoCloseable): Unit =
-    if (!disposables.contains(disposable)) disposables.add(disposable)
+    if (!disposables.containsByRef(disposable)) disposables.add(disposable)
 
   /** @return the {@link AutoCloseable} objects that will be disposed when the {@link #close()} method is called. */
   def getManagedDisposables: DynamicArray[AutoCloseable] = disposables

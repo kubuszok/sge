@@ -44,7 +44,7 @@ class PerspectiveCamera(using Sge) extends Camera {
     update()
   }
 
-  private val tmp = new Vector3()
+  private val tmp = Vector3()
 
   override def update(): Unit =
     update(true)

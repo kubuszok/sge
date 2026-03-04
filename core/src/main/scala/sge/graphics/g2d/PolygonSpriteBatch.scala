@@ -5,11 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: dispose() -> close()
+ *   Renames: dispose() -> close(); Java getters/setters -> Scala property-style accessors
  *   Convention: Nullable for shader; using Sge context parameter; AutoCloseable
  *   Idiom: boundary/break, Nullable, split packages
- *   TODO: Java-style getters/setters -- getColor/setColor, getPackedColor/setPackedColor, getBlendSrcFunc/DstFunc, getProjectionMatrix/setProjectionMatrix, getTransformMatrix/setTransformMatrix, getShader/setShader, isBlendingEnabled, isDrawing
- *   TODO: typed GL enums -- BlendFactor, BlendEquation, EnableCap -- see docs/improvements/opaque-types.md
+ *   Improvement: typed GL enums -- BlendFactor, BlendEquation, EnableCap -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -57,23 +56,23 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   private var lastTexture:   Nullable[Texture] = Nullable.empty
   private var invTexWidth:   Float             = 0
   private var invTexHeight:  Float             = 0
-  private var drawing:       Boolean           = false
+  private var _drawing:      Boolean           = false
 
-  private val transformMatrix:  Matrix4 = new Matrix4()
-  private val projectionMatrix: Matrix4 = new Matrix4()
-  private val combinedMatrix:   Matrix4 = new Matrix4()
+  private val _transformMatrix:  Matrix4 = Matrix4()
+  private val _projectionMatrix: Matrix4 = Matrix4()
+  private val combinedMatrix:    Matrix4 = Matrix4()
 
-  private var blendingDisabled:  Boolean = false
-  private var blendSrcFunc:      Int     = GL20.GL_SRC_ALPHA
-  private var blendDstFunc:      Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
-  private var blendSrcFuncAlpha: Int     = GL20.GL_SRC_ALPHA
-  private var blendDstFuncAlpha: Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
+  private var blendingDisabled:   Boolean = false
+  private var _blendSrcFunc:      Int     = GL20.GL_SRC_ALPHA
+  private var _blendDstFunc:      Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
+  private var _blendSrcFuncAlpha: Int     = GL20.GL_SRC_ALPHA
+  private var _blendDstFuncAlpha: Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
 
-  private val shader:       ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
+  private val _shader:      ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
   private var customShader: Nullable[ShaderProgram] = Nullable.empty
   private val ownsShader:   Boolean                 = defaultShader.isEmpty
 
-  private val color:       Color = new Color(1, 1, 1, 1)
+  private val _color:      Color = Color(1, 1, 1, 1)
   private var colorPacked: Float = Color.WHITE_FLOAT_BITS
 
   /** Number of render calls since the last {@link #begin()}. * */
@@ -109,16 +108,15 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       )
     )
 
-    projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
   }
 
   /** Constructs a PolygonSpriteBatch with the default shader, 2000 vertices, and 4000 triangles.
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(2000, 4000, Nullable.empty)
-  }
 
   /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
     * @param size
@@ -126,9 +124,8 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int)(using Sge) = {
+  def this(size: Int)(using Sge) =
     this(size, size * 2, Nullable.empty)
-  }
 
   /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
     * @param size
@@ -136,62 +133,61 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int, defaultShader: ShaderProgram)(using Sge) = {
+  def this(size: Int, defaultShader: ShaderProgram)(using Sge) =
     this(size, size * 2, defaultShader)
-  }
 
   override def begin(): Unit = {
-    if (drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")
+    if (_drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")
     renderCalls = 0
 
     Sge().graphics.gl.glDepthMask(false)
-    customShader.fold(shader.bind())(_.bind())
+    customShader.getOrElse(_shader).bind()
     setupMatrices()
 
-    drawing = true
+    _drawing = true
   }
 
   override def end(): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before end.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before end.")
     if (vertexIndex > 0) flush()
     lastTexture = Nullable.empty
-    drawing = false
+    _drawing = false
 
     val gl = Sge().graphics.gl
     gl.glDepthMask(true)
-    if (isBlendingEnabled()) gl.glDisable(GL20.GL_BLEND)
+    if (blendingEnabled) gl.glDisable(GL20.GL_BLEND)
   }
 
-  override def setColor(tint: Color): Unit = {
-    color.set(tint)
+  override def color_=(tint: Color): Unit = {
+    _color.set(tint)
     colorPacked = tint.toFloatBits()
   }
 
   override def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
-    color.set(r, g, b, a)
-    colorPacked = color.toFloatBits()
+    _color.set(r, g, b, a)
+    colorPacked = _color.toFloatBits()
   }
 
-  override def setPackedColor(packedColor: Float): Unit = {
-    Color.abgr8888ToColor(color, packedColor)
+  override def packedColor_=(packedColor: Float): Unit = {
+    Color.abgr8888ToColor(_color, packedColor)
     colorPacked = packedColor
   }
 
-  override def getColor(): Color = color
+  override def color: Color = _color
 
-  override def getPackedColor(): Float = colorPacked
+  override def packedColor: Float = colorPacked
 
   override def draw(region: PolygonRegion, x: Float, y: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles             = this.triangles
     val vertices              = this.vertices
-    val regionTriangles       = region.getTriangles()
+    val regionTriangles       = region.triangles
     val regionTrianglesLength = regionTriangles.length
-    val regionVertices        = region.getVertices()
+    val regionVertices        = region.vertices
     val regionVerticesLength  = regionVertices.length
 
-    val texture = region.getRegion().texture
+    val texture = region.region.texture
     if (texture != lastTexture)
       switchTexture(texture)
     else if (
@@ -209,7 +205,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
     this.triangleIndex = triangleIdx
     val color         = this.colorPacked
-    val textureCoords = region.getTextureCoords()
+    val textureCoords = region.textureCoords
 
     for (i <- 0 until regionVerticesLength by 2) {
       vertices(vertexIdx) = regionVertices(i) + x
@@ -223,15 +219,15 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: PolygonRegion, x: Float, y: Float, width: Float, height: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles             = this.triangles
     val vertices              = this.vertices
-    val regionTriangles       = region.getTriangles()
+    val regionTriangles       = region.triangles
     val regionTrianglesLength = regionTriangles.length
-    val regionVertices        = region.getVertices()
+    val regionVertices        = region.vertices
     val regionVerticesLength  = regionVertices.length
-    val textureRegion         = region.getRegion()
+    val textureRegion         = region.region
 
     val texture = textureRegion.texture
     if (texture != lastTexture)
@@ -251,7 +247,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
     this.triangleIndex = triangleIdx
     val color         = this.colorPacked
-    val textureCoords = region.getTextureCoords()
+    val textureCoords = region.textureCoords
     val sX            = width / textureRegion.regionWidth
     val sY            = height / textureRegion.regionHeight
 
@@ -267,15 +263,15 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: PolygonRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles             = this.triangles
     val vertices              = this.vertices
-    val regionTriangles       = region.getTriangles()
+    val regionTriangles       = region.triangles
     val regionTrianglesLength = regionTriangles.length
-    val regionVertices        = region.getVertices()
+    val regionVertices        = region.vertices
     val regionVerticesLength  = regionVertices.length
-    val textureRegion         = region.getRegion()
+    val textureRegion         = region.region
 
     val texture = textureRegion.texture
     if (texture != lastTexture)
@@ -295,7 +291,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     }
     this.triangleIndex = triangleIdx
     val color         = this.colorPacked
-    val textureCoords = region.getTextureCoords()
+    val textureCoords = region.textureCoords
 
     val worldOriginX = x + originX
     val worldOriginY = y + originY
@@ -320,7 +316,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, polygonVertices: Array[Float], verticesOffset: Int, verticesCount: Int, polygonTriangles: Array[Short], trianglesOffset: Int, trianglesCount: Int): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -362,7 +358,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     flipX:     Boolean,
     flipY:     Boolean
   ): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -502,7 +498,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int, flipX: Boolean, flipY: Boolean): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -570,7 +566,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, x: Float, y: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -626,7 +622,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float, u: Float, v: Float, u2: Float, v2: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -681,7 +677,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     draw(texture, x, y, texture.getWidth.toFloat, texture.getHeight.toFloat)
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -737,7 +733,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, spriteVertices: Array[Float], offset: Int, count: Int): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -790,10 +786,10 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float): Unit =
-    draw(region, x, y, region.getRegionWidth().toFloat, region.getRegionHeight().toFloat)
+    draw(region, x, y, region.regionWidth.toFloat, region.regionHeight.toFloat)
 
   override def draw(region: TextureRegion, x: Float, y: Float, width: Float, height: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -850,7 +846,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -979,7 +975,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float, clockwise: Boolean): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -1131,7 +1127,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(region: TextureRegion, width: Float, height: Float, transform: Affine2): Unit = {
-    if (!drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.");
+    if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.");
 
     val triangles = this.triangles
     val vertices  = this.vertices
@@ -1210,10 +1206,10 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
         Sge().graphics.gl.glDisable(GL20.GL_BLEND)
       } else {
         Sge().graphics.gl.glEnable(GL20.GL_BLEND)
-        if (blendSrcFunc != -1) Sge().graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
+        if (_blendSrcFunc != -1) Sge().graphics.gl.glBlendFuncSeparate(_blendSrcFunc, _blendDstFunc, _blendSrcFuncAlpha, _blendDstFuncAlpha)
       }
 
-      mesh.render(customShader.getOrElse(shader), GL20.GL_TRIANGLES, 0, trianglesInBatch)
+      mesh.render(customShader.getOrElse(_shader), GL20.GL_TRIANGLES, 0, trianglesInBatch)
 
       vertexIndex = 0
       triangleIndex = 0
@@ -1234,48 +1230,48 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
 
   override def setBlendFunctionSeparate(srcFuncColor: Int, dstFuncColor: Int, srcFuncAlpha: Int, dstFuncAlpha: Int): Unit =
     if (
-      blendSrcFunc != srcFuncColor || blendDstFunc != dstFuncColor || blendSrcFuncAlpha != srcFuncAlpha
-      || blendDstFuncAlpha != dstFuncAlpha
+      _blendSrcFunc != srcFuncColor || _blendDstFunc != dstFuncColor || _blendSrcFuncAlpha != srcFuncAlpha
+      || _blendDstFuncAlpha != dstFuncAlpha
     ) {
       flush()
-      blendSrcFunc = srcFuncColor
-      blendDstFunc = dstFuncColor
-      blendSrcFuncAlpha = srcFuncAlpha
-      blendDstFuncAlpha = dstFuncAlpha
+      _blendSrcFunc = srcFuncColor
+      _blendDstFunc = dstFuncColor
+      _blendSrcFuncAlpha = srcFuncAlpha
+      _blendDstFuncAlpha = dstFuncAlpha
     }
 
-  override def getBlendSrcFunc(): Int = blendSrcFunc
+  override def blendSrcFunc: Int = _blendSrcFunc
 
-  override def getBlendDstFunc(): Int = blendDstFunc
+  override def blendDstFunc: Int = _blendDstFunc
 
-  override def getBlendSrcFuncAlpha(): Int = blendSrcFuncAlpha
+  override def blendSrcFuncAlpha: Int = _blendSrcFuncAlpha
 
-  override def getBlendDstFuncAlpha(): Int = blendDstFuncAlpha
+  override def blendDstFuncAlpha: Int = _blendDstFuncAlpha
 
   override def close(): Unit = {
     mesh.close()
-    if (ownsShader) shader.close()
+    if (ownsShader) _shader.close()
   }
 
-  override def getProjectionMatrix(): Matrix4 = projectionMatrix
+  override def projectionMatrix: Matrix4 = _projectionMatrix
 
-  override def getTransformMatrix(): Matrix4 = transformMatrix
+  override def transformMatrix: Matrix4 = _transformMatrix
 
-  override def setProjectionMatrix(projection: Matrix4): Unit = {
-    if (drawing) flush()
-    projectionMatrix.set(projection)
-    if (drawing) setupMatrices()
+  override def projectionMatrix_=(projection: Matrix4): Unit = {
+    if (_drawing) flush()
+    _projectionMatrix.set(projection)
+    if (_drawing) setupMatrices()
   }
 
-  override def setTransformMatrix(transform: Matrix4): Unit = {
-    if (drawing) flush()
-    transformMatrix.set(transform)
-    if (drawing) setupMatrices()
+  override def transformMatrix_=(transform: Matrix4): Unit = {
+    if (_drawing) flush()
+    _transformMatrix.set(transform)
+    if (_drawing) setupMatrices()
   }
 
   protected def setupMatrices(): Unit = {
-    combinedMatrix.set(projectionMatrix).mul(transformMatrix)
-    val activeShader = customShader.getOrElse(shader)
+    combinedMatrix.set(_projectionMatrix).mul(_transformMatrix)
+    val activeShader = customShader.getOrElse(_shader)
     activeShader.setUniformMatrix("u_projTrans", combinedMatrix)
     activeShader.setUniformi("u_texture", 0)
   }
@@ -1287,21 +1283,21 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     invTexHeight = 1.0f / texture.getHeight
   }
 
-  override def setShader(shader: Nullable[ShaderProgram]): Unit = {
-    if (drawing) {
+  override def shader_=(shader: Nullable[ShaderProgram]): Unit = {
+    if (_drawing) {
       flush()
     }
     customShader = shader
-    if (drawing) {
-      customShader.fold(this.shader.bind())(_.bind())
+    if (_drawing) {
+      customShader.getOrElse(_shader).bind()
       setupMatrices()
     }
   }
 
-  override def getShader(): ShaderProgram =
-    customShader.getOrElse(shader)
+  override def shader: ShaderProgram =
+    customShader.getOrElse(_shader)
 
-  override def isBlendingEnabled(): Boolean = !blendingDisabled
+  override def blendingEnabled: Boolean = !blendingDisabled
 
-  override def isDrawing(): Boolean = drawing
+  override def drawing: Boolean = _drawing
 }

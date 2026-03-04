@@ -44,9 +44,8 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     * @param attributes
     *   the {@link VertexAttribute} s
     */
-  def this(numVertices: Int, attributes: VertexAttribute*) = {
-    this(numVertices, new VertexAttributes(attributes*))
-  }
+  def this(numVertices: Int, attributes: VertexAttribute*) =
+    this(numVertices, VertexAttributes(attributes*))
 
   override def close(): Unit =
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
@@ -85,7 +84,7 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location < 0) {
         // continue to next iteration
       } else {

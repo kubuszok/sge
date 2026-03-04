@@ -1,7 +1,7 @@
 # Audit: sge.utils
 
-Audited: 47/47 files | Pass: 30 | Minor: 10 | Major: 0 | N/A (SGE-original): 7
-Last updated: 2026-03-03
+Audited: 48/48 files | Pass: 33 | Minor: 7 | Major: 0 | N/A (SGE-original): 8
+Last updated: 2026-03-04
 
 ---
 
@@ -160,14 +160,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/utils/DataInput.scala` |
 | Java source(s) | `com/badlogic/gdx/utils/DataInput.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: Both methods (`readInt(boolean)`, `readString()`) present.
 **Renames**: None
-**Convention changes**: `return` -> `boundary`/`break`; Java `switch/case` -> Scala `match/case`
+**Convention changes**: `return` -> `boundary`/`break`; Java `switch/case` -> Scala `match/case`; `@Null String` -> `Nullable[String]`
 **TODOs**: None
-**Issues**: `readString()` returns `String | Null` instead of `Nullable[String]`. Should use `Nullable[String]` for consistency with the project's null-safety approach.
+**Issues**: None
 
 ---
 
@@ -232,6 +232,19 @@ Last updated: 2026-03-03
 **Convention changes**: Java `static` -> companion object; `return` -> `boundary`/`break`; `null` -> `Nullable`
 **TODOs**: None
 **Issues**: None
+
+---
+
+### JsonCodecs.scala
+
+| Field | Value |
+|-------|-------|
+| SGE path | `core/src/main/scala/sge/utils/JsonCodecs.scala` |
+| Java source(s) | N/A |
+| Status | N/A |
+| Tested | No |
+
+**Notes**: SGE-original. Type aliases + extension for jsoniter-scala codec derivation. Re-exports `JsonCodec` (jsoniter-scala `JsonValueCodec`), `Json` (kindlings JSON AST), and `FileHandle.readJson[T]` extension method.
 
 ---
 
@@ -420,14 +433,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/utils/PerformanceCounter.scala` |
 | Java source(s) | `com/badlogic/gdx/utils/PerformanceCounter.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All methods present: `tick()`, `tick(delta)`, `start()`, `stop()`, `reset()`, `toString()`, `toString(sb)`. All fields: `name`, `time`, `load`, `current`, `valid`.
-**Renames**: `Gdx.app.error(...)` -> `throw SgeError.InvalidInput(...)` (behavior change: Java logs error and returns; Scala throws)
-**Convention changes**: Default parameter `windowSize = 5` instead of 2-arg constructor
+**Renames**: `Gdx.app.error(...)` -> `throw SgeError.InvalidInput(...)` (behavior change: Java logs error and returns; Scala throws — intentional)
+**Convention changes**: Default parameter `windowSize = 5` instead of 2-arg constructor; split packages
 **TODOs**: None
-**Issues**: Uses flat package `package sge.utils` instead of split `package sge` / `package utils`. The `tick(delta)` method throws on invalid data while the Java original logs an error and returns silently -- this is a behavioral difference.
+**Issues**: None
 
 ---
 
@@ -437,14 +450,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/utils/PerformanceCounters.scala` |
 | Java source(s) | `com/badlogic/gdx/utils/PerformanceCounters.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All methods present: `add` (2 overloads), `tick()`, `tick(deltaTime)`, `toString(sb)`. `counters` field present.
 **Renames**: `Array<PerformanceCounter>` -> `DynamicArray[PerformanceCounter]`
-**Convention changes**: None
+**Convention changes**: Split packages
 **TODOs**: None
-**Issues**: Uses flat package `package sge.utils` instead of split `package sge` / `package utils`.
+**Issues**: None
 
 ---
 

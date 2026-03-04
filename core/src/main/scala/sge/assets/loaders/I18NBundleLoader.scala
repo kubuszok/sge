@@ -38,8 +38,8 @@ class I18NBundleLoader(resolver: FileHandleResolver)(using Sge) extends Asynchro
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: I18NBundleLoader.I18NBundleParameter): Unit = {
     this.bundle = Nullable.empty
     val param    = Nullable(parameter)
-    val locale   = param.fold(Locale.getDefault())(_.locale.getOrElse(Locale.getDefault()))
-    val encoding = param.fold(Nullable.empty[String])(_.encoding)
+    val locale   = param.flatMap(_.locale).getOrElse(Locale.getDefault())
+    val encoding = param.flatMap(_.encoding)
 
     encoding.fold {
       this.bundle = Nullable(I18NBundle.createBundle(file, locale))

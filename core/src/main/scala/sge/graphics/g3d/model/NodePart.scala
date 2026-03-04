@@ -75,10 +75,10 @@ class NodePart {
     out
   }
 
-  def copy(): NodePart = new NodePart().set(this)
+  def copy(): NodePart = NodePart().set(this)
 
   protected def set(other: NodePart): NodePart = {
-    meshPart = new MeshPart(other.meshPart)
+    meshPart = MeshPart(other.meshPart)
     material = other.material
     enabled = other.enabled
     other.invBoneBindTransforms.fold {
@@ -99,7 +99,7 @@ class NodePart {
         if (existing.length != neededSize) new Array[Matrix4](neededSize) else existing
       }
       for (i <- boneArray.indices)
-        if (Nullable(boneArray(i)).isEmpty) boneArray(i) = new Matrix4()
+        if (Nullable(boneArray(i)).isEmpty) boneArray(i) = Matrix4()
       bones = Nullable(boneArray)
     }
     this

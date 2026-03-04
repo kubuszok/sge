@@ -62,7 +62,7 @@ class ProgressBar(
   this._value = min
   setSize(getPrefWidth, getPrefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
     this(
       min,
       max,
@@ -70,11 +70,9 @@ class ProgressBar(
       vertical,
       skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBar.ProgressBarStyle])
     )
-  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBar.ProgressBarStyle]))
-  }
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style
@@ -85,8 +83,8 @@ class ProgressBar(
     */
   override def getStyle: ProgressBarStyle = _style
 
-  override def act(delta: Float)(using Sge): Unit = {
-    super.act(delta)(using Sge())
+  override def act(delta: Float): Unit = {
+    super.act(delta)
     if (animateTime > 0) {
       animateTime -= delta
       val stage = getStage
@@ -109,8 +107,8 @@ class ProgressBar(
     val y          = getY
     var width      = getWidth
     var height     = getHeight
-    val knobHeight = knob.fold(0f)(_.getMinHeight)
-    val knobWidth  = knob.fold(0f)(_.getMinWidth)
+    val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
+    val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
     val percent    = getVisualPercent
 
     batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
@@ -301,7 +299,7 @@ class ProgressBar(
     if (vertical) {
       val knob = Nullable(_style.knob)
       val bg   = getBackgroundDrawable()
-      Math.max(knob.fold(0f)(_.getMinWidth), bg.fold(0f)(_.getMinWidth))
+      Math.max(knob.map(_.getMinWidth).getOrElse(0f), bg.map(_.getMinWidth).getOrElse(0f))
     } else 140
 
   override def getPrefHeight: Float =
@@ -309,7 +307,7 @@ class ProgressBar(
     else {
       val knob = Nullable(_style.knob)
       val bg   = getBackgroundDrawable()
-      Math.max(knob.fold(0f)(_.getMinHeight), bg.fold(0f)(_.getMinHeight))
+      Math.max(knob.map(_.getMinHeight).getOrElse(0f), bg.map(_.getMinHeight).getOrElse(0f))
     }
 
   def getMinValue: Float = this.min

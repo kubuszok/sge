@@ -8,7 +8,7 @@
  *   Renames: InputAdapter -> InputProcessor; dispose() -> close(); SnapshotArray -> DynamicArray
  *   Convention: null -> Nullable; no return (boundary/break); (using Sge) on constructors
  *   Idiom: split packages
- *   Issues: setRoot incomplete (root is val, not reassignable); TouchFocus.reset() uses raw null (uninitialized fields, acceptable)
+ *   Issues: TouchFocus.reset() uses raw null (uninitialized fields, acceptable)
  *   TODO: Java-style getters/setters -- convert to var or def x/def x_= (getViewport/setViewport, getCamera, getRoot, getActors, etc.)
  *   TODO: TouchFocus extends Pool.Poolable → define given Poolable[TouchFocus]
  *   TODO: opaque Pixels for viewport pixel dimensions -- see docs/improvements/opaque-types.md
@@ -45,9 +45,9 @@ import sge.utils.viewport.{ ScalingViewport, Viewport }
   */
 class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBatch: Boolean)(using Sge) extends InputProcessor with AutoCloseable {
 
-  protected val pools:                 PoolManager                    = new PoolManager()
-  private val root:                    Group                          = new Group()
-  private val tempCoords:              Vector2                        = new Vector2()
+  protected val pools:                 PoolManager                    = PoolManager()
+  private var root:                    Group                          = Group()
+  private val tempCoords:              Vector2                        = Vector2()
   private val pointerOverActors:       Array[Nullable[Actor]]         = Array.fill(20)(Nullable.empty)
   private val pointerTouched:          Array[Boolean]                 = new Array[Boolean](20)
   private val pointerScreenX:          Array[Int]                     = new Array[Int](20)
@@ -67,43 +67,40 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
   private var debugUnderMouse:       Boolean     = false
   private var debugParentUnderMouse: Boolean     = false
   private var debugTableUnderMouse:  Table.Debug = Table.Debug.none
-  private val debugColor:            Color       = new Color(0, 1, 0, 0.85f)
+  private val debugColor:            Color       = Color(0, 1, 0, 0.85f)
 
-  pools.addPool(classOf[InputEvent], () => new InputEvent())
-  pools.addPool(classOf[FocusListener.FocusEvent], () => new FocusListener.FocusEvent())
-  pools.addPool(classOf[Stage.TouchFocus], () => new Stage.TouchFocus())
+  pools.addPool(classOf[InputEvent], () => InputEvent())
+  pools.addPool(classOf[FocusListener.FocusEvent], () => FocusListener.FocusEvent())
+  pools.addPool(classOf[Stage.TouchFocus], () => Stage.TouchFocus())
 
   root.setStage(Nullable(this))
   viewport.update(Sge().graphics.getWidth(), Sge().graphics.getHeight(), true)
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using Sge) = {
-    this(viewport, new SpriteBatch()(using Sge()), true)
-  }
+  def this(viewport: Viewport)(using Sge) =
+    this(viewport, SpriteBatch()(using Sge()), true)
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(
-      new ScalingViewport(Scaling.stretch, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, new OrthographicCamera())
+      ScalingViewport(Scaling.stretch, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, OrthographicCamera())
     )
-  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using Sge) = {
+  def this(viewport: Viewport, batch: Batch)(using Sge) =
     this(viewport, batch, false)
-  }
 
   def draw(): Unit = {
-    val camera = viewport.getCamera()
+    val camera = viewport.camera
     camera.update()
 
     if (root.isVisible) {
-      batch.setProjectionMatrix(camera.combined)
+      batch.projectionMatrix = camera.combined
       batch.begin()
       root.draw(batch, 1)
       batch.end()
@@ -114,7 +111,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
   private def drawDebug(): Unit = {
     if (debugShapes.isEmpty) {
-      debugShapes = Nullable(new ShapeRenderer())
+      debugShapes = Nullable(ShapeRenderer())
       debugShapes.foreach(_.setAutoShapeType(true))
     }
 
@@ -165,7 +162,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     if (shouldDraw) {
       Sge().graphics.gl.glEnable(GL20.GL_BLEND)
       debugShapes.foreach { shapes =>
-        shapes.setProjectionMatrix(viewport.getCamera().combined)
+        shapes.setProjectionMatrix(viewport.camera.combined)
         shapes.setAutoShapeType(true)
         shapes.begin(shapes.ShapeType.Line)
         root.drawDebug(shapes)
@@ -571,7 +568,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     var i        = 0
     while (i < snapshot.length) {
       val focus       = snapshot(i)
-      val isException = exceptListener.fold(false)(_ eq focus.listener) && exceptActor.fold(false)(_ eq focus.listenerActor)
+      val isException = exceptListener.exists(_ eq focus.listener) && exceptActor.exists(_ eq focus.listenerActor)
       if (!isException) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
@@ -764,13 +761,13 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     this.viewport = viewport
 
   /** The viewport's world width. */
-  def getWidth: Float = viewport.getWorldWidth()
+  def getWidth: Float = viewport.worldWidth
 
   /** The viewport's world height. */
-  def getHeight: Float = viewport.getWorldHeight()
+  def getHeight: Float = viewport.worldHeight
 
   /** The viewport's camera. */
-  def getCamera: Camera = viewport.getCamera()
+  def getCamera: Camera = viewport.camera
 
   /** Returns the root group which holds all actors in the stage. */
   def getRoot: Group = root
@@ -779,11 +776,9 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   def setRoot(root: Group): Unit = {
     root.parent.foreach(_.removeActor(root, unfocus = false))
-    this.root.setParent(Nullable.empty)
-    this.root.setStage(Nullable.empty)
-    // Note: root is a val, so we cannot reassign it. Using the same approach as the original but
-    // since root is val, we must make it var if we want setRoot to work.
-    // For now, this method body shows the intent - actual mutability handled by making root a var.
+    this.root = root
+    root.setParent(Nullable.empty)
+    root.setStage(Nullable(this))
   }
 
   /** Returns the {@link Actor} at the specified location in stage coordinates. Hit testing is performed in the order the actors were inserted into the stage, last inserted actors being tested first.
@@ -831,9 +826,9 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   def calculateScissors(localRect: Rectangle, scissorRect: Rectangle): Unit = {
     val transformMatrix =
-      debugShapes.fold(batch.getTransformMatrix()) { shapes =>
+      debugShapes.fold(batch.transformMatrix) { shapes =>
         if (shapes.isDrawing) shapes.getTransformMatrix()
-        else batch.getTransformMatrix()
+        else batch.transformMatrix
       }
     viewport.calculateScissors(transformMatrix, localRect, scissorRect)
   }
@@ -914,10 +909,10 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
   /** Check if screen coordinates are inside the viewport's screen area. */
   protected def isInsideViewport(screenX: Int, screenY: Int): Boolean = {
-    val x0       = viewport.getScreenX()
-    val x1       = x0 + viewport.getScreenWidth()
-    val y0       = viewport.getScreenY()
-    val y1       = y0 + viewport.getScreenHeight()
+    val x0       = viewport.screenX
+    val x1       = x0 + viewport.screenWidth
+    val y0       = viewport.screenY
+    val y1       = y0 + viewport.screenHeight
     val flippedY = Sge().graphics.getHeight() - 1 - screenY
     screenX >= x0 && screenX < x1 && flippedY >= y0 && flippedY < y1
   }

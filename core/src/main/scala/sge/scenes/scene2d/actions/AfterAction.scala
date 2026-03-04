@@ -41,7 +41,7 @@ class AfterAction extends DelegateAction {
   }
 
   override protected def delegate(delta: Float): Boolean =
-    target.fold(true) { t =>
+    target.forall { t =>
       val currentActions = t.getActions
       if (currentActions.size == 1) waitForActions.clear()
       var i = waitForActions.size - 1
@@ -51,6 +51,6 @@ class AfterAction extends DelegateAction {
         i -= 1
       }
       if (waitForActions.nonEmpty) false
-      else action.fold(true)(_.act(delta))
+      else action.forall(_.act(delta))
     }
 }

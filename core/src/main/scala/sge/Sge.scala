@@ -4,6 +4,12 @@
  * Original authors: mzechner
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: Gdx -> Sge
+ *   Convention: static fields -> final case class with (using Sge) context; Sge() summons implicit
+ *   Idiom: split packages
+ *   Audited: 2026-03-04
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge

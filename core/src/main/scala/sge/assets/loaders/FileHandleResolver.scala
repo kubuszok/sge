@@ -8,6 +8,7 @@
  *   Convention: Java interface -> Scala trait
  *   Convention: resolver subpackage classes merged into companion object
  *   Idiom: split packages
+ *   Fixes: ForResolution.resolve used FileType.Internal instead of Absolute; validation moved to primary constructor
  *   TODOs: test: ForResolution.choose() picks best resolution for screen size; Prefix.resolve prepends prefix
  *   Audited: 2026-03-04
  *
@@ -106,6 +107,7 @@ object FileHandleResolver {
     * folder. </p>
     */
   class ForResolution(protected val baseResolver: FileHandleResolver, protected val descriptors: Array[Resolution])(using Sge) extends FileHandleResolver {
+    if (descriptors.isEmpty) throw new IllegalArgumentException("At least one Resolution needs to be supplied.")
 
     /** Creates a {@code ForResolution} based on a given {@link FileHandleResolver} and a list of {@link Resolution} s.
       * @param baseResolver
@@ -113,22 +115,22 @@ object FileHandleResolver {
       * @param descriptors
       *   A list of {@link Resolution} s. At least one has to be supplied.
       */
-    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) = {
+    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) =
       this(baseResolver, descriptors.toArray)
-      if (descriptors.isEmpty) throw new IllegalArgumentException("At least one Resolution needs to be supplied.")
-    }
 
     override def resolve(fileName: String): FileHandle = {
       val bestResolution = ForResolution.choose(descriptors*)
-      val originalHandle = new FileHandle(new java.io.File(fileName), FileType.Internal)
+      val originalHandle = FileHandle(new java.io.File(fileName), FileType.Absolute)
       val handle         = baseResolver.resolve(resolve(originalHandle, bestResolution.folder))
       if (!handle.exists()) baseResolver.resolve(fileName) else handle
     }
 
     protected def resolve(originalHandle: FileHandle, suffix: String): String = {
-      val parentString = Nullable(originalHandle.parent()).fold("") { parent =>
-        if (parent.name().equals("")) "" else parent.path() + "/"
-      }
+      val parentString = Nullable(originalHandle.parent())
+        .map { parent =>
+          if (parent.name().equals("")) "" else parent.path() + "/"
+        }
+        .getOrElse("")
       parentString + suffix + "/" + originalHandle.name()
     }
   }

@@ -62,10 +62,10 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
   }
 
   private var matrixDirty:          Boolean             = false
-  private val projectionMatrix:     Matrix4             = new Matrix4()
-  private val transformMatrix:      Matrix4             = new Matrix4()
-  private val combinedMatrix:       Matrix4             = new Matrix4()
-  private val color:                Color               = new Color(1, 1, 1, 1)
+  private val projectionMatrix:     Matrix4             = Matrix4()
+  private val transformMatrix:      Matrix4             = Matrix4()
+  private val combinedMatrix:       Matrix4             = Matrix4()
+  private val color:                Color               = Color(1, 1, 1, 1)
   private var shapeType:            Nullable[ShapeType] = Nullable.empty
   private var autoShapeType:        Boolean             = false
   private val defaultRectLineWidth: Float               = 0.75f
@@ -179,7 +179,7 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
   }
 
   def set(shapeType: ShapeType): Unit =
-    if (!this.shapeType.fold(false)(_ == shapeType)) {
+    if (!this.shapeType.contains(shapeType)) {
       if (this.shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
       if (!autoShapeType) throw new IllegalStateException("autoShapeType must be enabled.")
       end()
@@ -190,6 +190,12 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
   def end(): Unit =
     // TODO: renderer.end()
     shapeType = Nullable.empty
+
+  def flush(): Unit =
+    shapeType.foreach { st =>
+      end()
+      begin(st)
+    }
 
   def isDrawing: Boolean = shapeType.isDefined
 
@@ -204,7 +210,7 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
   /** Draws a line using ShapeType.Line or ShapeType.Filled. The line is drawn with two colors interpolated between the start and end points.
     */
   def line(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float, c1: Color, c2: Color): Unit =
-    if (shapeType.fold(false)(_ == ShapeType.Filled)) {
+    if (shapeType.contains(ShapeType.Filled)) {
       rectLine(x, y, x2, y2, defaultRectLineWidth, c1, c2)
     } else {
       check(ShapeType.Line, Nullable.empty, 2)
@@ -222,7 +228,7 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
   def rectangle(x: Float, y: Float, width: Float, height: Float, col1: Color, col2: Color, col3: Color, col4: Color): Unit = {
     check(ShapeType.Line, Nullable(ShapeType.Filled), 8)
 
-    if (shapeType.fold(false)(_ == ShapeType.Line)) {
+    if (shapeType.contains(ShapeType.Line)) {
       // TODO: Implement line rectangle
     } else {
       // TODO: Implement filled rectangle
@@ -243,7 +249,7 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
     if (segments <= 0) throw new IllegalArgumentException("segments must be > 0.")
     check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 2 + 2)
 
-    if (shapeType.fold(false)(_ == ShapeType.Line)) {
+    if (shapeType.contains(ShapeType.Line)) {
       // TODO: Implement line circle
     } else {
       // TODO: Implement filled circle
@@ -252,7 +258,7 @@ class ShapeRenderer(using Sge) extends AutoCloseable {
 
   private def check(preferred: ShapeType, other: Nullable[ShapeType], newVertices: Int): Unit = {
     if (shapeType.isEmpty) throw new IllegalStateException("begin must be called first.")
-    if (!shapeType.fold(false)(st => st == preferred || other.fold(false)(_ == st))) {
+    if (!shapeType.exists(st => st == preferred || other.contains(st))) {
       if (!autoShapeType) {
         other.fold {
           throw new IllegalStateException(s"Must call begin(ShapeType.${preferred.toString}).")

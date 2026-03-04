@@ -6,8 +6,9 @@
  *
  * Migration notes:
  *   Idiom: split packages
+ *   Fixes: Java-style getters/setters → Scala property accessors
  *   TODOs: test: MusicLoader loadAsync/loadSync (requires audio backend)
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -32,7 +33,7 @@ class MusicLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousA
     * @return
     *   the currently loaded {@link Music} , otherwise {@code null} if no {@link Music} has been loaded yet.
     */
-  protected def getLoadedMusic: Nullable[Music] = music
+  protected def loadedMusic: Nullable[Music] = music
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: MusicLoader.MusicParameter): Unit =
     music = Nullable(Sge().audio.newMusic(file))
@@ -48,5 +49,5 @@ class MusicLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousA
 }
 
 object MusicLoader {
-  class MusicParameter extends AssetLoaderParameters[Music]
+  class MusicParameter extends AssetLoaderParameters[Music] {}
 }

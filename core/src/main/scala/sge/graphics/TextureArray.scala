@@ -33,24 +33,20 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(GL30.GL_
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using Sge) = {
+  def this(internalPaths: Array[String])(using Sge) =
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
-  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) = {
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) =
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
-  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) = {
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) =
     this(useMipMaps, Format.RGBA8888, files)
-  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using Sge) = {
+  def this(files: Array[FileHandle])(using Sge) =
     this(false, files)
-  }
 
   if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")

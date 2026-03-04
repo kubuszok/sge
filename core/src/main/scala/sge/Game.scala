@@ -7,8 +7,9 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getScreen/setScreen)
- *   Audited: 2026-03-03
+ *   Convention: (using Sge) on class; Nullable screen field
+ *   Idiom: getScreen/setScreen → def screen/def screen_= (Scala property)
+ *   Audited: 2026-03-04
  */
 package sge
 
@@ -17,40 +18,37 @@ import sge.utils.Nullable
 /** <p> An {@link ApplicationListener} that delegates to a {@link Screen} . This allows an application to easily have multiple screens. </p> <p> Screens are not disposed automatically. You must handle
   * whether you want to keep screens around or dispose of them when another screen is set. </p>
   */
-abstract class Game extends ApplicationListener {
-  protected var screen: Nullable[Screen] = Nullable.empty
+abstract class Game()(using Sge) extends ApplicationListener {
+  private var _screen: Nullable[Screen] = Nullable.empty
 
-  override def dispose(): Unit =
-    screen.foreach(_.hide())
-
-  override def pause(): Unit =
-    screen.foreach(_.pause())
-
-  override def resume(): Unit =
-    screen.foreach(_.resume())
-
-  override def render(): Unit =
-    // TODO: Need to get delta time from somewhere - placeholder for now
-    screen.foreach(_.render(0.016f)) // 60 FPS default
-
-  override def resize(width: Int, height: Int): Unit =
-    screen.foreach(_.resize(width, height))
+  /** @return the currently active {@link Screen}. */
+  def screen: Nullable[Screen] = _screen
 
   /** Sets the current screen. {@link Screen#hide()} is called on any old screen, and {@link Screen#show()} is called on the new screen, if any.
-    * @param screen
+    * @param newScreen
     *   may be {@code null}
     */
-  def setScreen(newScreen: Nullable[Screen]): Unit = {
-    screen.foreach(_.hide())
-    this.screen = newScreen
-    screen.foreach { s =>
+  def screen_=(newScreen: Nullable[Screen]): Unit = {
+    _screen.foreach(_.hide())
+    _screen = newScreen
+    _screen.foreach { s =>
       s.show()
-      // TODO: Need to get screen dimensions from somewhere - using placeholder resize call
-      s.resize(800, 600) // Default size placeholder
+      s.resize(Sge().graphics.getWidth(), Sge().graphics.getHeight())
     }
   }
 
-  /** @return the currently active {@link Screen}. */
-  def getScreen(): Nullable[Screen] =
-    screen
+  override def dispose(): Unit =
+    _screen.foreach(_.hide())
+
+  override def pause(): Unit =
+    _screen.foreach(_.pause())
+
+  override def resume(): Unit =
+    _screen.foreach(_.resume())
+
+  override def render(): Unit =
+    _screen.foreach(_.render(Sge().graphics.getDeltaTime()))
+
+  override def resize(width: Int, height: Int): Unit =
+    _screen.foreach(_.resize(width, height))
 }

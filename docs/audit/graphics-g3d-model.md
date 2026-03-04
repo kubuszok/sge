@@ -1,11 +1,11 @@
 # Audit: sge.graphics.g3d.model
 
-Audited: 6/6 files | Pass: 4 | Minor: 2 | Major: 0
-Last updated: 2026-03-03
+Audited: 6/6 files | Pass: 5 | Minor: 1 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
-### NodeKeyframe.scala
+### NodeKeyframe.scala -- pass
 
 | Field | Value |
 |-------|-------|
@@ -22,7 +22,7 @@ Last updated: 2026-03-03
 
 ---
 
-### Animation.scala
+### Animation.scala -- pass
 
 | Field | Value |
 |-------|-------|
@@ -39,7 +39,7 @@ Last updated: 2026-03-03
 
 ---
 
-### NodeAnimation.scala
+### NodeAnimation.scala -- pass
 
 | Field | Value |
 |-------|-------|
@@ -56,26 +56,28 @@ Last updated: 2026-03-03
 
 ---
 
-### Node.scala
+### Node.scala -- pass
 
 | Field | Value |
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/g3d/model/Node.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g3d/model/Node.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All Java public methods and fields present. Static `getNode` correctly in companion object.
-**Renames**: None
-**Convention changes**: `parent` uses `Nullable[Node]`; `getChildren` returns `DynamicArray` (Java `Iterable`); `addChildren`/`insertChildren` take `DynamicArray[T]` (Java `Iterable<T>`); `removeChild` uses `indexWhere`/`removeIndex` (Java `removeValue` identity); `getNode` uses `boundary`/`break` (Java `return`); `calculateBoneTransforms` restructured with `Nullable.fold` (Java null checks + `continue`).
+**Renames**: `getChildren` → public `val children`; `getParent` → `def parent` (backing field `_parent`);
+`getChildCount` → `childCount`
+**Convention changes**: `parent` uses `Nullable[Node]`; `children` is public `DynamicArray` (Java `Iterable`);
+`addChildren`/`insertChildren` take `DynamicArray[T]` (Java `Iterable<T>`); `removeChild` uses
+`indexWhere`/`removeIndex` (Java `removeValue` identity); `getNode` uses `boundary`/`break` (Java `return`);
+`calculateBoneTransforms` restructured with `Nullable.fold` (Java null checks + `continue`).
 **TODOs**: FIXME comment preserved from Java (id uniqueness question)
-**Issues**:
-- `minor`: Unused import `scala.language.implicitConversions` (no implicit conversions used in file)
-- `minor`: `DynamicArray` default capacity not specified (Java uses `Array<NodePart>(2)` and `Array<Node>(2)` with initial capacity 2)
+**Issues**: None
 
 ---
 
-### MeshPart.scala
+### MeshPart.scala -- minor_issues
 
 | Field | Value |
 |-------|-------|
@@ -93,7 +95,7 @@ Last updated: 2026-03-03
 
 ---
 
-### NodePart.scala
+### NodePart.scala -- pass
 
 | Field | Value |
 |-------|-------|

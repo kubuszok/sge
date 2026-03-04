@@ -53,7 +53,7 @@ abstract class ModelInfluencer extends Influencer {
   override def save(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData()
     for (model <- models)
-      data.saveAsset(manager.getAssetFileName(model).getOrElse(""), classOf[Model])
+      data.saveAsset(manager.assetFileName(model).getOrElse(""), classOf[Model])
   }
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {
@@ -61,7 +61,7 @@ abstract class ModelInfluencer extends Influencer {
     var descriptor = data.loadAsset()
     while (descriptor.isDefined) {
       descriptor.foreach { desc =>
-        val model = manager.get(desc.fileName, desc.`type`).asInstanceOf[Model]
+        val model = manager(desc.fileName, desc.`type`).asInstanceOf[Model]
         models.add(model)
       }
       descriptor = data.loadAsset()
@@ -89,21 +89,21 @@ object ModelInfluencer {
       var i     = 0
       val c     = controller.emitter.maxParticleCount
       while (i < c) {
-        modelChannel.objectData(i) = new ModelInstance(first)
+        modelChannel.objectData(i) = ModelInstance(first)
         i += 1
       }
     }
 
     override def copy(): Single =
-      new Single(this)
+      Single(this)
   }
 
   /** Assigns a random model of {@link ModelInfluencer#models} to the particles. */
   class Random extends ModelInfluencer {
-    private val pool: Pool[ModelInstance] = new Pool.Default[ModelInstance](
+    private val pool: Pool[ModelInstance] = Pool.Default[ModelInstance](
       () => {
         val idx = sge.math.MathUtils.random(models.size - 1)
-        new ModelInstance(models(idx))
+        ModelInstance(models(idx))
       },
       initialCapacity = 16,
       max = Int.MaxValue
@@ -142,6 +142,6 @@ object ModelInfluencer {
     }
 
     override def copy(): Random =
-      new Random(this)
+      Random(this)
   }
 }

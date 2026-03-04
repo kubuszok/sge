@@ -7,10 +7,10 @@
  * Migration notes:
  *   Convention: Java interface -> Scala trait
  *   Idiom: split packages; Nullable used
- *   Issues: 4 enums use scala.Enumeration instead of Scala 3 enum (Peripheral, OnscreenKeyboardType, VibrationType, Orientation); missing closeTextInputField 2-arg overload; missing isTextInputFieldOpened default; KeyboardHeightObserver missing methods; Keys.toString returns raw null
+ *   Issues: None
  *   TODO: Input.Buttons → opaque type Button with constants in companion + extension toString; Input.Keys → opaque type Key with constants in companion + extension toString/valueOf
  *   TODO: opaque Pixels for getX/Y, getDeltaX/Y, setCursorPosition params -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -192,7 +192,7 @@ trait Input {
     * @param type
     *   which type of keyboard we wish to display
     */
-  def getTextInput(listener: TextInputListener, title: String, text: String, hint: String, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit
+  def getTextInput(listener: TextInputListener, title: String, text: String, hint: String, `type`: OnscreenKeyboardType): Unit
 
   /** Sets the on-screen keyboard visible if available. Will use the Default keyboard type.
     *
@@ -208,7 +208,7 @@ trait Input {
     * @param type
     *   which type of keyboard we wish to display. Can be null when hiding
     */
-  def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit
+  def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType): Unit
 
   /** Sets the on-screen keyboard visible if available.
     *
@@ -267,7 +267,7 @@ trait Input {
     * @param vibrationType
     *   the type of vibration
     */
-  def vibrate(vibrationType: VibrationType.VibrationType): Unit
+  def vibrate(vibrationType: VibrationType): Unit
 
   /** The azimuth is the angle of the device's orientation around the z-axis. The positive z-axis points towards the earths center.
     *
@@ -341,13 +341,13 @@ trait Input {
     * @return
     *   whether the peripheral is available or not.
     */
-  def isPeripheralAvailable(peripheral: Peripheral.Peripheral): Boolean
+  def isPeripheralAvailable(peripheral: Peripheral): Boolean
 
   /** @return the rotation of the device with respect to its native orientation. */
   def getRotation(): Int
 
   /** @return the native orientation of the device. */
-  def getNativeOrientation(): Orientation.Orientation
+  def getNativeOrientation(): Orientation
 
   /** Only viable on the desktop. Will confine the mouse cursor location to the window and hide the mouse cursor. X and y coordinates are still reported as if the mouse was not catched.
     * @param catched
@@ -609,350 +609,352 @@ object Input {
     /** @return
       *   a human readable representation of the keycode. The returned value can be used in {@link Input.Keys#valueOf(String)}
       */
-    def toString(keycode: Int): String = {
+    def toString(keycode: Int): Nullable[String] = {
       if (keycode < 0) throw new IllegalArgumentException("keycode cannot be negative, keycode: " + keycode)
       if (keycode > MAX_KEYCODE) throw new IllegalArgumentException("keycode cannot be greater than 255, keycode: " + keycode)
-      keycode match {
-        // META* variables should not be used with this method.
-        case UNKNOWN =>
-          "Unknown"
-        case SOFT_LEFT =>
-          "Soft Left"
-        case SOFT_RIGHT =>
-          "Soft Right"
-        case HOME =>
-          "Home"
-        case BACK =>
-          "Back"
-        case CALL =>
-          "Call"
-        case ENDCALL =>
-          "End Call"
-        case NUM_0 =>
-          "0"
-        case NUM_1 =>
-          "1"
-        case NUM_2 =>
-          "2"
-        case NUM_3 =>
-          "3"
-        case NUM_4 =>
-          "4"
-        case NUM_5 =>
-          "5"
-        case NUM_6 =>
-          "6"
-        case NUM_7 =>
-          "7"
-        case NUM_8 =>
-          "8"
-        case NUM_9 =>
-          "9"
-        case STAR =>
-          "*"
-        case POUND =>
-          "#"
-        case UP =>
-          "Up"
-        case DOWN =>
-          "Down"
-        case LEFT =>
-          "Left"
-        case RIGHT =>
-          "Right"
-        case CENTER =>
-          "Center"
-        case VOLUME_UP =>
-          "Volume Up"
-        case VOLUME_DOWN =>
-          "Volume Down"
-        case POWER =>
-          "Power"
-        case CAMERA =>
-          "Camera"
-        case CLEAR =>
-          "Clear"
-        case A =>
-          "A"
-        case B =>
-          "B"
-        case C =>
-          "C"
-        case D =>
-          "D"
-        case E =>
-          "E"
-        case F =>
-          "F"
-        case G =>
-          "G"
-        case H =>
-          "H"
-        case I =>
-          "I"
-        case J =>
-          "J"
-        case K =>
-          "K"
-        case L =>
-          "L"
-        case M =>
-          "M"
-        case N =>
-          "N"
-        case O =>
-          "O"
-        case P =>
-          "P"
-        case Q =>
-          "Q"
-        case R =>
-          "R"
-        case S =>
-          "S"
-        case T =>
-          "T"
-        case U =>
-          "U"
-        case V =>
-          "V"
-        case W =>
-          "W"
-        case X =>
-          "X"
-        case Y =>
-          "Y"
-        case Z =>
-          "Z"
-        case COMMA =>
-          ","
-        case PERIOD =>
-          "."
-        case ALT_LEFT =>
-          "L-Alt"
-        case ALT_RIGHT =>
-          "R-Alt"
-        case SHIFT_LEFT =>
-          "L-Shift"
-        case SHIFT_RIGHT =>
-          "R-Shift"
-        case TAB =>
-          "Tab"
-        case SPACE =>
-          "Space"
-        case SYM =>
-          "SYM"
-        case EXPLORER =>
-          "Explorer"
-        case ENVELOPE =>
-          "Envelope"
-        case ENTER =>
-          "Enter"
-        case DEL =>
-          "Delete" // also BACKSPACE
-        case GRAVE =>
-          "`"
-        case MINUS =>
-          "-"
-        case EQUALS =>
-          "="
-        case LEFT_BRACKET =>
-          "["
-        case RIGHT_BRACKET =>
-          "]"
-        case BACKSLASH =>
-          "\\"
-        case SEMICOLON =>
-          ";"
-        case APOSTROPHE =>
-          "'"
-        case SLASH =>
-          "/"
-        case AT =>
-          "@"
-        case NUM =>
-          "Num"
-        case HEADSETHOOK =>
-          "Headset Hook"
-        case FOCUS =>
-          "Focus"
-        case PLUS =>
-          "Plus"
-        case MENU =>
-          "Menu"
-        case NOTIFICATION =>
-          "Notification"
-        case SEARCH =>
-          "Search"
-        case MEDIA_PLAY_PAUSE =>
-          "Play/Pause"
-        case MEDIA_STOP =>
-          "Stop Media"
-        case MEDIA_NEXT =>
-          "Next Media"
-        case MEDIA_PREVIOUS =>
-          "Prev Media"
-        case MEDIA_REWIND =>
-          "Rewind"
-        case MEDIA_FAST_FORWARD =>
-          "Fast Forward"
-        case MUTE =>
-          "Mute"
-        case PAGE_UP =>
-          "Page Up"
-        case PAGE_DOWN =>
-          "Page Down"
-        case PICTSYMBOLS =>
-          "PICTSYMBOLS"
-        case SWITCH_CHARSET =>
-          "SWITCH_CHARSET"
-        case BUTTON_A =>
-          "A Button"
-        case BUTTON_B =>
-          "B Button"
-        case BUTTON_C =>
-          "C Button"
-        case BUTTON_X =>
-          "X Button"
-        case BUTTON_Y =>
-          "Y Button"
-        case BUTTON_Z =>
-          "Z Button"
-        case BUTTON_L1 =>
-          "L1 Button"
-        case BUTTON_R1 =>
-          "R1 Button"
-        case BUTTON_L2 =>
-          "L2 Button"
-        case BUTTON_R2 =>
-          "R2 Button"
-        case BUTTON_THUMBL =>
-          "Left Thumb"
-        case BUTTON_THUMBR =>
-          "Right Thumb"
-        case BUTTON_START =>
-          "Start"
-        case BUTTON_SELECT =>
-          "Select"
-        case BUTTON_MODE =>
-          "Button Mode"
-        case FORWARD_DEL =>
-          "Forward Delete"
-        case CONTROL_LEFT =>
-          "L-Ctrl"
-        case CONTROL_RIGHT =>
-          "R-Ctrl"
-        case ESCAPE =>
-          "Escape"
-        case END =>
-          "End"
-        case INSERT =>
-          "Insert"
-        case NUMPAD_0 =>
-          "Numpad 0"
-        case NUMPAD_1 =>
-          "Numpad 1"
-        case NUMPAD_2 =>
-          "Numpad 2"
-        case NUMPAD_3 =>
-          "Numpad 3"
-        case NUMPAD_4 =>
-          "Numpad 4"
-        case NUMPAD_5 =>
-          "Numpad 5"
-        case NUMPAD_6 =>
-          "Numpad 6"
-        case NUMPAD_7 =>
-          "Numpad 7"
-        case NUMPAD_8 =>
-          "Numpad 8"
-        case NUMPAD_9 =>
-          "Numpad 9"
-        case COLON =>
-          ":"
-        case F1 =>
-          "F1"
-        case F2 =>
-          "F2"
-        case F3 =>
-          "F3"
-        case F4 =>
-          "F4"
-        case F5 =>
-          "F5"
-        case F6 =>
-          "F6"
-        case F7 =>
-          "F7"
-        case F8 =>
-          "F8"
-        case F9 =>
-          "F9"
-        case F10 =>
-          "F10"
-        case F11 =>
-          "F11"
-        case F12 =>
-          "F12"
-        case F13 =>
-          "F13"
-        case F14 =>
-          "F14"
-        case F15 =>
-          "F15"
-        case F16 =>
-          "F16"
-        case F17 =>
-          "F17"
-        case F18 =>
-          "F18"
-        case F19 =>
-          "F19"
-        case F20 =>
-          "F20"
-        case F21 =>
-          "F21"
-        case F22 =>
-          "F22"
-        case F23 =>
-          "F23"
-        case F24 =>
-          "F24"
-        case NUMPAD_DIVIDE =>
-          "Num /"
-        case NUMPAD_MULTIPLY =>
-          "Num *"
-        case NUMPAD_SUBTRACT =>
-          "Num -"
-        case NUMPAD_ADD =>
-          "Num +"
-        case NUMPAD_DOT =>
-          "Num ."
-        case NUMPAD_COMMA =>
-          "Num ,"
-        case NUMPAD_ENTER =>
-          "Num Enter"
-        case NUMPAD_EQUALS =>
-          "Num ="
-        case NUMPAD_LEFT_PAREN =>
-          "Num ("
-        case NUMPAD_RIGHT_PAREN =>
-          "Num )"
-        case NUM_LOCK =>
-          "Num Lock"
-        case CAPS_LOCK =>
-          "Caps Lock"
-        case SCROLL_LOCK =>
-          "Scroll Lock"
-        case PAUSE =>
-          "Pause"
-        case PRINT_SCREEN =>
-          "Print"
-        // BUTTON_CIRCLE unhandled, as it conflicts with the more likely to be pressed F12
-        case _ =>
-          // key name not found
-          null
-      }
+      Nullable(
+        keycode match {
+          // META* variables should not be used with this method.
+          case UNKNOWN =>
+            "Unknown"
+          case SOFT_LEFT =>
+            "Soft Left"
+          case SOFT_RIGHT =>
+            "Soft Right"
+          case HOME =>
+            "Home"
+          case BACK =>
+            "Back"
+          case CALL =>
+            "Call"
+          case ENDCALL =>
+            "End Call"
+          case NUM_0 =>
+            "0"
+          case NUM_1 =>
+            "1"
+          case NUM_2 =>
+            "2"
+          case NUM_3 =>
+            "3"
+          case NUM_4 =>
+            "4"
+          case NUM_5 =>
+            "5"
+          case NUM_6 =>
+            "6"
+          case NUM_7 =>
+            "7"
+          case NUM_8 =>
+            "8"
+          case NUM_9 =>
+            "9"
+          case STAR =>
+            "*"
+          case POUND =>
+            "#"
+          case UP =>
+            "Up"
+          case DOWN =>
+            "Down"
+          case LEFT =>
+            "Left"
+          case RIGHT =>
+            "Right"
+          case CENTER =>
+            "Center"
+          case VOLUME_UP =>
+            "Volume Up"
+          case VOLUME_DOWN =>
+            "Volume Down"
+          case POWER =>
+            "Power"
+          case CAMERA =>
+            "Camera"
+          case CLEAR =>
+            "Clear"
+          case A =>
+            "A"
+          case B =>
+            "B"
+          case C =>
+            "C"
+          case D =>
+            "D"
+          case E =>
+            "E"
+          case F =>
+            "F"
+          case G =>
+            "G"
+          case H =>
+            "H"
+          case I =>
+            "I"
+          case J =>
+            "J"
+          case K =>
+            "K"
+          case L =>
+            "L"
+          case M =>
+            "M"
+          case N =>
+            "N"
+          case O =>
+            "O"
+          case P =>
+            "P"
+          case Q =>
+            "Q"
+          case R =>
+            "R"
+          case S =>
+            "S"
+          case T =>
+            "T"
+          case U =>
+            "U"
+          case V =>
+            "V"
+          case W =>
+            "W"
+          case X =>
+            "X"
+          case Y =>
+            "Y"
+          case Z =>
+            "Z"
+          case COMMA =>
+            ","
+          case PERIOD =>
+            "."
+          case ALT_LEFT =>
+            "L-Alt"
+          case ALT_RIGHT =>
+            "R-Alt"
+          case SHIFT_LEFT =>
+            "L-Shift"
+          case SHIFT_RIGHT =>
+            "R-Shift"
+          case TAB =>
+            "Tab"
+          case SPACE =>
+            "Space"
+          case SYM =>
+            "SYM"
+          case EXPLORER =>
+            "Explorer"
+          case ENVELOPE =>
+            "Envelope"
+          case ENTER =>
+            "Enter"
+          case DEL =>
+            "Delete" // also BACKSPACE
+          case GRAVE =>
+            "`"
+          case MINUS =>
+            "-"
+          case EQUALS =>
+            "="
+          case LEFT_BRACKET =>
+            "["
+          case RIGHT_BRACKET =>
+            "]"
+          case BACKSLASH =>
+            "\\"
+          case SEMICOLON =>
+            ";"
+          case APOSTROPHE =>
+            "'"
+          case SLASH =>
+            "/"
+          case AT =>
+            "@"
+          case NUM =>
+            "Num"
+          case HEADSETHOOK =>
+            "Headset Hook"
+          case FOCUS =>
+            "Focus"
+          case PLUS =>
+            "Plus"
+          case MENU =>
+            "Menu"
+          case NOTIFICATION =>
+            "Notification"
+          case SEARCH =>
+            "Search"
+          case MEDIA_PLAY_PAUSE =>
+            "Play/Pause"
+          case MEDIA_STOP =>
+            "Stop Media"
+          case MEDIA_NEXT =>
+            "Next Media"
+          case MEDIA_PREVIOUS =>
+            "Prev Media"
+          case MEDIA_REWIND =>
+            "Rewind"
+          case MEDIA_FAST_FORWARD =>
+            "Fast Forward"
+          case MUTE =>
+            "Mute"
+          case PAGE_UP =>
+            "Page Up"
+          case PAGE_DOWN =>
+            "Page Down"
+          case PICTSYMBOLS =>
+            "PICTSYMBOLS"
+          case SWITCH_CHARSET =>
+            "SWITCH_CHARSET"
+          case BUTTON_A =>
+            "A Button"
+          case BUTTON_B =>
+            "B Button"
+          case BUTTON_C =>
+            "C Button"
+          case BUTTON_X =>
+            "X Button"
+          case BUTTON_Y =>
+            "Y Button"
+          case BUTTON_Z =>
+            "Z Button"
+          case BUTTON_L1 =>
+            "L1 Button"
+          case BUTTON_R1 =>
+            "R1 Button"
+          case BUTTON_L2 =>
+            "L2 Button"
+          case BUTTON_R2 =>
+            "R2 Button"
+          case BUTTON_THUMBL =>
+            "Left Thumb"
+          case BUTTON_THUMBR =>
+            "Right Thumb"
+          case BUTTON_START =>
+            "Start"
+          case BUTTON_SELECT =>
+            "Select"
+          case BUTTON_MODE =>
+            "Button Mode"
+          case FORWARD_DEL =>
+            "Forward Delete"
+          case CONTROL_LEFT =>
+            "L-Ctrl"
+          case CONTROL_RIGHT =>
+            "R-Ctrl"
+          case ESCAPE =>
+            "Escape"
+          case END =>
+            "End"
+          case INSERT =>
+            "Insert"
+          case NUMPAD_0 =>
+            "Numpad 0"
+          case NUMPAD_1 =>
+            "Numpad 1"
+          case NUMPAD_2 =>
+            "Numpad 2"
+          case NUMPAD_3 =>
+            "Numpad 3"
+          case NUMPAD_4 =>
+            "Numpad 4"
+          case NUMPAD_5 =>
+            "Numpad 5"
+          case NUMPAD_6 =>
+            "Numpad 6"
+          case NUMPAD_7 =>
+            "Numpad 7"
+          case NUMPAD_8 =>
+            "Numpad 8"
+          case NUMPAD_9 =>
+            "Numpad 9"
+          case COLON =>
+            ":"
+          case F1 =>
+            "F1"
+          case F2 =>
+            "F2"
+          case F3 =>
+            "F3"
+          case F4 =>
+            "F4"
+          case F5 =>
+            "F5"
+          case F6 =>
+            "F6"
+          case F7 =>
+            "F7"
+          case F8 =>
+            "F8"
+          case F9 =>
+            "F9"
+          case F10 =>
+            "F10"
+          case F11 =>
+            "F11"
+          case F12 =>
+            "F12"
+          case F13 =>
+            "F13"
+          case F14 =>
+            "F14"
+          case F15 =>
+            "F15"
+          case F16 =>
+            "F16"
+          case F17 =>
+            "F17"
+          case F18 =>
+            "F18"
+          case F19 =>
+            "F19"
+          case F20 =>
+            "F20"
+          case F21 =>
+            "F21"
+          case F22 =>
+            "F22"
+          case F23 =>
+            "F23"
+          case F24 =>
+            "F24"
+          case NUMPAD_DIVIDE =>
+            "Num /"
+          case NUMPAD_MULTIPLY =>
+            "Num *"
+          case NUMPAD_SUBTRACT =>
+            "Num -"
+          case NUMPAD_ADD =>
+            "Num +"
+          case NUMPAD_DOT =>
+            "Num ."
+          case NUMPAD_COMMA =>
+            "Num ,"
+          case NUMPAD_ENTER =>
+            "Num Enter"
+          case NUMPAD_EQUALS =>
+            "Num ="
+          case NUMPAD_LEFT_PAREN =>
+            "Num ("
+          case NUMPAD_RIGHT_PAREN =>
+            "Num )"
+          case NUM_LOCK =>
+            "Num Lock"
+          case CAPS_LOCK =>
+            "Caps Lock"
+          case SCROLL_LOCK =>
+            "Scroll Lock"
+          case PAUSE =>
+            "Pause"
+          case PRINT_SCREEN =>
+            "Print"
+          // BUTTON_CIRCLE unhandled, as it conflicts with the more likely to be pressed F12
+          case _ =>
+            // key name not found
+            null
+        }
+      )
     }
 
     private var keyNames: collection.mutable.Map[String, Int] = scala.compiletime.uninitialized
@@ -971,7 +973,7 @@ object Input {
     private def initializeKeyNames(): Unit = {
       keyNames = collection.mutable.Map[String, Int]()
       for (i <- 0 until 256)
-        Nullable(toString(i)).foreach(name => keyNames.put(name, i))
+        toString(i).foreach(name => keyNames.put(name, i))
     }
   }
 
@@ -979,9 +981,8 @@ object Input {
     * @author
     *   mzechner
     */
-  object Peripheral extends Enumeration {
-    type Peripheral = Value
-    val HardwareKeyboard, OnscreenKeyboard, MultitouchScreen, Accelerometer, Compass, Vibrator, HapticFeedback, Gyroscope, RotationVector, Pressure = Value
+  enum Peripheral {
+    case HardwareKeyboard, OnscreenKeyboard, MultitouchScreen, Accelerometer, Compass, Vibrator, HapticFeedback, Gyroscope, RotationVector, Pressure
   }
 
   trait InputStringValidator {
@@ -998,18 +999,15 @@ object Input {
     def onKeyboardHeightChanged(height: Int): Unit
   }
 
-  object OnscreenKeyboardType extends Enumeration {
-    type OnscreenKeyboardType = Value
-    val Default, NumberPad, PhonePad, Email, Password, URI = Value
+  enum OnscreenKeyboardType {
+    case Default, NumberPad, PhonePad, Email, Password, URI
   }
 
-  object VibrationType extends Enumeration {
-    type VibrationType = Value
-    val LIGHT, MEDIUM, HEAVY = Value
+  enum VibrationType {
+    case LIGHT, MEDIUM, HEAVY
   }
 
-  object Orientation extends Enumeration {
-    type Orientation = Value
-    val Landscape, Portrait = Value
+  enum Orientation {
+    case Landscape, Portrait
   }
 }

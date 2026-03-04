@@ -62,12 +62,12 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
   def setPatch(patch: NinePatch): Unit = {
     this.patch = patch
     Nullable(patch).foreach { p =>
-      setMinWidth(p.getTotalWidth())
-      setMinHeight(p.getTotalHeight())
-      setTopHeight(p.getPadTop())
-      setRightWidth(p.getPadRight())
-      setBottomHeight(p.getPadBottom())
-      setLeftWidth(p.getPadLeft())
+      setMinWidth(p.totalWidth)
+      setMinHeight(p.totalHeight)
+      setTopHeight(p.padTop)
+      setRightWidth(p.padRight)
+      setBottomHeight(p.padBottom)
+      setLeftWidth(p.padLeft)
     }
   }
 
@@ -75,8 +75,8 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
 
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): NinePatchDrawable = {
-    val drawable = new NinePatchDrawable(this)
-    drawable.patch = new NinePatch(drawable.getPatch, tint)
+    val drawable = NinePatchDrawable(this)
+    drawable.patch = NinePatch(drawable.getPatch, tint)
     drawable
   }
 }

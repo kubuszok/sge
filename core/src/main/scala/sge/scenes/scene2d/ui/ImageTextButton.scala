@@ -26,7 +26,7 @@ import sge.utils.{ Align, DynamicArray, Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextButtonStyle) extends Button() {
+class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextButtonStyle)(using Sge) extends Button() {
   import ImageTextButton._
 
   private var _style: ImageTextButtonStyle = scala.compiletime.uninitialized
@@ -47,21 +47,21 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
 
   setSize(getPrefWidth, getPrefHeight)
 
-  // def this(text: Nullable[String], skin: Skin) = {
-  //   this(text, skin.get(classOf[ImageTextButtonStyle]))
-  //   setSkin(skin)
-  // }
+  def this(text: Nullable[String], skin: Skin)(using Sge) = {
+    this(text, skin.get(classOf[ImageTextButton.ImageTextButtonStyle]))
+    setSkin(Nullable(skin))
+  }
 
-  // def this(text: Nullable[String], skin: Skin, styleName: String) = {
-  //   this(text, skin.get(styleName, classOf[ImageTextButtonStyle]))
-  //   setSkin(skin)
-  // }
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
+    this(text, skin.get(styleName, classOf[ImageTextButton.ImageTextButtonStyle]))
+    setSkin(Nullable(skin))
+  }
 
   protected def newImage(): Image =
-    new Image(Nullable.empty, Scaling.fit)
+    Image(Nullable.empty, Scaling.fit)
 
   protected def newLabel(text: Nullable[String], style: Label.LabelStyle): Label =
-    new Label(text.map(s => s: CharSequence), style)
+    Label(text.map(s => s: CharSequence), style)
 
   override def setStyle(style: Button.ButtonStyle): Unit = {
     if (!style.isInstanceOf[ImageTextButtonStyle])
@@ -209,15 +209,15 @@ object ImageTextButton {
       checkedOffsetY = style.checkedOffsetY
 
       font = style.font
-      fontColor = style.fontColor.map(c => new Color(c))
-      downFontColor = style.downFontColor.map(c => new Color(c))
-      overFontColor = style.overFontColor.map(c => new Color(c))
-      focusedFontColor = style.focusedFontColor.map(c => new Color(c))
-      disabledFontColor = style.disabledFontColor.map(c => new Color(c))
-      checkedFontColor = style.checkedFontColor.map(c => new Color(c))
-      checkedDownFontColor = style.checkedDownFontColor.map(c => new Color(c))
-      checkedOverFontColor = style.checkedOverFontColor.map(c => new Color(c))
-      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => new Color(c))
+      fontColor = style.fontColor.map(c => Color(c))
+      downFontColor = style.downFontColor.map(c => Color(c))
+      overFontColor = style.overFontColor.map(c => Color(c))
+      focusedFontColor = style.focusedFontColor.map(c => Color(c))
+      disabledFontColor = style.disabledFontColor.map(c => Color(c))
+      checkedFontColor = style.checkedFontColor.map(c => Color(c))
+      checkedDownFontColor = style.checkedDownFontColor.map(c => Color(c))
+      checkedOverFontColor = style.checkedOverFontColor.map(c => Color(c))
+      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => Color(c))
 
       imageUp = style.imageUp
       imageDown = style.imageDown
@@ -247,15 +247,15 @@ object ImageTextButton {
       checkedOffsetY = style.checkedOffsetY
 
       font = style.font
-      fontColor = style.fontColor.map(c => new Color(c))
-      downFontColor = style.downFontColor.map(c => new Color(c))
-      overFontColor = style.overFontColor.map(c => new Color(c))
-      focusedFontColor = style.focusedFontColor.map(c => new Color(c))
-      disabledFontColor = style.disabledFontColor.map(c => new Color(c))
-      checkedFontColor = style.checkedFontColor.map(c => new Color(c))
-      checkedDownFontColor = style.checkedDownFontColor.map(c => new Color(c))
-      checkedOverFontColor = style.checkedOverFontColor.map(c => new Color(c))
-      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => new Color(c))
+      fontColor = style.fontColor.map(c => Color(c))
+      downFontColor = style.downFontColor.map(c => Color(c))
+      overFontColor = style.overFontColor.map(c => Color(c))
+      focusedFontColor = style.focusedFontColor.map(c => Color(c))
+      disabledFontColor = style.disabledFontColor.map(c => Color(c))
+      checkedFontColor = style.checkedFontColor.map(c => Color(c))
+      checkedDownFontColor = style.checkedDownFontColor.map(c => Color(c))
+      checkedOverFontColor = style.checkedOverFontColor.map(c => Color(c))
+      checkedFocusedFontColor = style.checkedFocusedFontColor.map(c => Color(c))
     }
   }
 }

@@ -30,7 +30,7 @@ class DelaunayTriangulator {
   private val edges           = DynamicArray[Int]()
   private val complete        = DynamicArray[Boolean]()
   private val superTriangle   = new Array[Float](6)
-  private val centroid        = new Vector2()
+  private val centroid        = Vector2()
 
   /** @see #computeTriangles(float[], int, int, boolean) */
   def computeTriangles(points: Array[Float], sorted: Boolean): DynamicArray[Short] =
@@ -56,7 +56,7 @@ class DelaunayTriangulator {
       var pointsArray = points
       var offsetVar   = offset
       if (!sorted) {
-        if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
+        if (Nullable(sortedPoints).forall(_.length < count)) sortedPoints = new Array[Float](count)
         Array.copy(points, offset, sortedPoints, 0, count)
         pointsArray = sortedPoints
         offsetVar = 0

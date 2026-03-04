@@ -6,7 +6,6 @@
  *
  * Migration notes:
  *   Convention: null -> Nullable; Align opaque type; DynamicArray for cells; boundary/break; Debug enum in companion object
- *   Issues: add(CharSequence) and Label convenience methods missing (require Skin); stack() convenience missing
  *   Idiom: split packages
  *   TODO: Java-style getters/setters — getBackground/setBackground, getClip/setClip, getCells, getPadTopValue, getAlign, getRows, getColumns, getSkin, etc.
  *   Audited: 2026-03-03
@@ -36,7 +35,7 @@ import sge.utils.{ Align, DynamicArray, Nullable, Pool }
   * @author
   *   Nathan Sweet
   */
-class Table(skin: Nullable[Any]) extends WidgetGroup {
+class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends WidgetGroup() {
   import Table._
 
   private var columns:        Int     = 0
@@ -77,8 +76,6 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   setTransform(false)
   setTouchable(Touchable.childrenOnly)
-
-  def this() = this(Nullable.empty)
 
   private def obtainCell(): Cell[?] = {
     val cell = cellPool.obtain()
@@ -124,11 +121,10 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
     * @see
     *   #setBackground(Drawable)
     */
-  // TODO: uncomment when Skin is ported
-  // def setBackground(drawableName: String): Unit = {
-  //   if (skin.isEmpty) throw new IllegalStateException("Table must have a skin set to use this method.")
-  //   setBackground(skin.get.asInstanceOf[Skin].getDrawable(drawableName))
-  // }
+  def setBackground(drawableName: String): Unit =
+    skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
+      setBackground(Nullable(s.asInstanceOf[Skin].getDrawable(drawableName)))
+    }
 
   /** @param background May be null to clear the background. */
   def setBackground(background: Nullable[Drawable]): Unit =
@@ -261,11 +257,34 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
   /** Adds a new cell with a label. This may only be called if a skin has been set with {@link Table#Table(Skin)} or {@link #setSkin(Skin)}.
     */
-  // TODO: uncomment when Label is ported
-  // def add(text: Nullable[CharSequence]): Cell[Label] = { ... }
-  // def add(text: Nullable[CharSequence], labelStyleName: String): Cell[Label] = { ... }
-  // def add(text: Nullable[CharSequence], fontName: String, color: Nullable[Color]): Cell[Label] = { ... }
-  // def add(text: Nullable[CharSequence], fontName: String, colorName: String): Cell[Label] = { ... }
+  @scala.annotation.targetName("addLabel")
+  def add(text: Nullable[CharSequence]): Cell[Label] =
+    skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
+      add(Nullable(Label(text, s.asInstanceOf[Skin]))).asInstanceOf[Cell[Label]]
+    }
+
+  /** Adds a new cell with a label. This may only be called if a skin has been set with {@link Table#Table(Skin)} or {@link #setSkin(Skin)}.
+    */
+  def add(text: Nullable[CharSequence], labelStyleName: String): Cell[Label] =
+    skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
+      add(Nullable(Label(text, s.asInstanceOf[Skin].get(labelStyleName, classOf[Label.LabelStyle])))).asInstanceOf[Cell[Label]]
+    }
+
+  /** Adds a new cell with a label. This may only be called if a skin has been set with {@link Table#Table(Skin)} or {@link #setSkin(Skin)}.
+    */
+  def add(text: Nullable[CharSequence], fontName: String, color: Nullable[Color]): Cell[Label] =
+    skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
+      val sk = s.asInstanceOf[Skin]
+      add(Nullable(Label(text, Label.LabelStyle(sk.getFont(fontName), color)))).asInstanceOf[Cell[Label]]
+    }
+
+  /** Adds a new cell with a label. This may only be called if a skin has been set with {@link Table#Table(Skin)} or {@link #setSkin(Skin)}.
+    */
+  def add(text: Nullable[CharSequence], fontName: String, colorName: String): Cell[Label] =
+    skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
+      val sk = s.asInstanceOf[Skin]
+      add(Nullable(Label(text, Label.LabelStyle(sk.getFont(fontName), Nullable(sk.getColor(colorName)))))).asInstanceOf[Cell[Label]]
+    }
 
   /** Adds a cell without an actor. */
   def add(): Cell[?] = add(Nullable.empty[Actor])
@@ -274,8 +293,11 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
     * @param actors
     *   May be null or empty to add a stack without any actors.
     */
-  // TODO: uncomment when Stack is ported
-  // def stack(actors: Actor*): Cell[Stack] = { ... }
+  def stack(actors: Actor*): Cell[Stack] = {
+    val s = Stack()
+    actors.foreach(a => s.addActor(a))
+    add(Nullable(s)).asInstanceOf[Cell[Stack]]
+  }
 
   override def removeActor(actor: Actor): Boolean =
     removeActor(actor, true)
@@ -395,7 +417,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       var i = 0
       while (i < cells.size) {
         val c = cells(i)
-        if (c.actor.fold(false)(_ eq actor)) scala.util.boundary.break(Nullable(c.asInstanceOf[Cell[T]]))
+        if (c.actor.exists(_ eq actor)) scala.util.boundary.break(Nullable(c.asInstanceOf[Cell[T]]))
         i += 1
       }
       Nullable.empty
@@ -658,8 +680,7 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
     -1
   }
 
-  // TODO: uncomment when Skin is ported
-  // def setSkin(skin: Nullable[Skin]): Unit = { this.skin = skin }
+  def setSkin(skin: Nullable[Skin]): Unit = this.skin = skin.map(s => s: Any)
 
   /** If true (the default), positions and sizes of child actors are rounded and ceiled to the nearest integer value. */
   def setRound(round: Boolean): Unit =
@@ -755,25 +776,25 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 
       // Compute combined padding/spacing for cells.
       // Spacing between actors isn't additive, the larger is used. Also, no spacing around edges.
-      c.computedPadLeft = c.padLeft.fold(0f)(_.get(a)) + (if (column == 0) 0f
-                                                          else Math.max(0f, c.spaceLeft.fold(0f)(_.get(a)) - spaceRightLast))
-      c.computedPadTop = c.padTop.fold(0f)(_.get(a))
+      c.computedPadLeft = c.padLeft.map(_.get(a)).getOrElse(0f) + (if (column == 0) 0f
+                                                                   else Math.max(0f, c.spaceLeft.map(_.get(a)).getOrElse(0f) - spaceRightLast))
+      c.computedPadTop = c.padTop.map(_.get(a)).getOrElse(0f)
       if (c.cellAboveIndex != -1) {
         val above = cells(c.cellAboveIndex)
-        c.computedPadTop += Math.max(0f, c.spaceTop.fold(0f)(_.get(a)) - above.spaceBottom.fold(0f)(_.get(a)))
+        c.computedPadTop += Math.max(0f, c.spaceTop.map(_.get(a)).getOrElse(0f) - above.spaceBottom.map(_.get(a)).getOrElse(0f))
       }
-      val spaceRight = c.spaceRight.fold(0f)(_.get(a))
-      c.computedPadRight = c.padRight.fold(0f)(_.get(a)) + (if ((column + colspan) == columns) 0f else spaceRight)
-      c.computedPadBottom = c.padBottom.fold(0f)(_.get(a)) + (if (row == rows - 1) 0f else c.spaceBottom.fold(0f)(_.get(a)))
+      val spaceRight = c.spaceRight.map(_.get(a)).getOrElse(0f)
+      c.computedPadRight = c.padRight.map(_.get(a)).getOrElse(0f) + (if ((column + colspan) == columns) 0f else spaceRight)
+      c.computedPadBottom = c.padBottom.map(_.get(a)).getOrElse(0f) + (if (row == rows - 1) 0f else c.spaceBottom.map(_.get(a)).getOrElse(0f))
       spaceRightLast = spaceRight
 
       // Determine minimum and preferred cell sizes.
-      var prefWidth  = c.prefWidth.fold(0f)(_.get(a))
-      var prefHeight = c.prefHeight.fold(0f)(_.get(a))
-      var minWidth   = c.minWidth.fold(0f)(_.get(a))
-      var minHeight  = c.minHeight.fold(0f)(_.get(a))
-      val maxWidth   = c.maxWidth.fold(0f)(_.get(a))
-      val maxHeight  = c.maxHeight.fold(0f)(_.get(a))
+      var prefWidth  = c.prefWidth.map(_.get(a)).getOrElse(0f)
+      var prefHeight = c.prefHeight.map(_.get(a)).getOrElse(0f)
+      var minWidth   = c.minWidth.map(_.get(a)).getOrElse(0f)
+      var minHeight  = c.minHeight.map(_.get(a)).getOrElse(0f)
+      val maxWidth   = c.maxWidth.map(_.get(a)).getOrElse(0f)
+      val maxHeight  = c.maxHeight.map(_.get(a)).getOrElse(0f)
       if (prefWidth < minWidth) prefWidth = minWidth
       if (prefHeight < minHeight) prefHeight = minHeight
       if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth
@@ -865,9 +886,9 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       if (colspan != 1) {
         val column    = c.column
         val a         = c.actor
-        var minWidth  = c.minWidth.fold(0f)(_.get(a))
-        var prefWidth = c.prefWidth.fold(0f)(_.get(a))
-        val maxWidth  = c.maxWidth.fold(0f)(_.get(a))
+        var minWidth  = c.minWidth.map(_.get(a)).getOrElse(0f)
+        var prefWidth = c.prefWidth.map(_.get(a)).getOrElse(0f)
+        val maxWidth  = c.maxWidth.map(_.get(a)).getOrElse(0f)
         if (prefWidth < minWidth) prefWidth = minWidth
         if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth
         if (round) {
@@ -997,12 +1018,12 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       }
       val weightedHeight = rowWeightedHeight(row)
 
-      var prefWidth  = c.prefWidth.fold(0f)(_.get(a))
-      var prefHeight = c.prefHeight.fold(0f)(_.get(a))
-      val minWidth   = c.minWidth.fold(0f)(_.get(a))
-      val minHeight  = c.minHeight.fold(0f)(_.get(a))
-      val maxWidth   = c.maxWidth.fold(0f)(_.get(a))
-      val maxHeight  = c.maxHeight.fold(0f)(_.get(a))
+      var prefWidth  = c.prefWidth.map(_.get(a)).getOrElse(0f)
+      var prefHeight = c.prefHeight.map(_.get(a)).getOrElse(0f)
+      val minWidth   = c.minWidth.map(_.get(a)).getOrElse(0f)
+      val minHeight  = c.minHeight.map(_.get(a)).getOrElse(0f)
+      val maxWidth   = c.maxWidth.map(_.get(a)).getOrElse(0f)
+      val maxHeight  = c.maxHeight.map(_.get(a)).getOrElse(0f)
       if (prefWidth < minWidth) prefWidth = minWidth
       if (prefHeight < minHeight) prefHeight = minHeight
       if (maxWidth > 0 && prefWidth > maxWidth) prefWidth = maxWidth
@@ -1155,13 +1176,13 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
       val fillX = c._fillX.getOrElse(0f)
       val fillY = c._fillY.getOrElse(0f)
       if (fillX > 0) {
-        c.actorWidth = Math.max(spannedCellWidth * fillX, c.minWidth.fold(0f)(_.get(c.actor)))
-        val maxWidth = c.maxWidth.fold(0f)(_.get(c.actor))
+        c.actorWidth = Math.max(spannedCellWidth * fillX, c.minWidth.map(_.get(c.actor)).getOrElse(0f))
+        val maxWidth = c.maxWidth.map(_.get(c.actor)).getOrElse(0f)
         if (maxWidth > 0) c.actorWidth = Math.min(c.actorWidth, maxWidth)
       }
       if (fillY > 0) {
-        c.actorHeight = Math.max(rowHeight(c._row) * fillY - c.computedPadTop - c.computedPadBottom, c.minHeight.fold(0f)(_.get(c.actor)))
-        val maxHeight = c.maxHeight.fold(0f)(_.get(c.actor))
+        c.actorHeight = Math.max(rowHeight(c._row) * fillY - c.computedPadTop - c.computedPadBottom, c.minHeight.map(_.get(c.actor)).getOrElse(0f))
+        val maxHeight = c.maxHeight.map(_.get(c.actor)).getOrElse(0f)
         if (maxHeight > 0) c.actorHeight = Math.min(c.actorHeight, maxHeight)
       }
 
@@ -1332,11 +1353,11 @@ class Table(skin: Nullable[Any]) extends WidgetGroup {
 }
 
 object Table {
-  var debugTableColor: Color = new Color(0, 0, 1, 1)
-  var debugCellColor:  Color = new Color(1, 0, 0, 1)
-  var debugActorColor: Color = new Color(0, 1, 0, 1)
+  var debugTableColor: Color = Color(0, 0, 1, 1)
+  var debugCellColor:  Color = Color(1, 0, 0, 1)
+  var debugActorColor: Color = Color(0, 1, 0, 1)
 
-  val cellPool: Pool[Cell[?]] = new Pool.Default[Cell[?]](() => new Cell[Actor]())
+  val cellPool: Pool[Cell[?]] = Pool.Default[Cell[?]](() => Cell[Actor]())
 
   private var _columnWeightedWidth: Array[Float] = Array.empty
   private var _rowWeightedHeight:   Array[Float] = Array.empty
@@ -1347,7 +1368,7 @@ object Table {
   }
 
   object DebugRect {
-    val pool: Pool[DebugRect] = new Pool.Default[DebugRect](() => new DebugRect())
+    val pool: Pool[DebugRect] = Pool.Default[DebugRect](() => DebugRect())
   }
 
   /** @author Nathan Sweet */
@@ -1362,7 +1383,7 @@ object Table {
   val backgroundTop: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.fold(0f)(_.getTopHeight)
+        case t: Table => t.background.map(_.getTopHeight).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1374,7 +1395,7 @@ object Table {
   val backgroundLeft: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.fold(0f)(_.getLeftWidth)
+        case t: Table => t.background.map(_.getLeftWidth).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1386,7 +1407,7 @@ object Table {
   val backgroundBottom: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.fold(0f)(_.getBottomHeight)
+        case t: Table => t.background.map(_.getBottomHeight).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1398,7 +1419,7 @@ object Table {
   val backgroundRight: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.fold(0f)(_.getRightWidth)
+        case t: Table => t.background.map(_.getRightWidth).getOrElse(0f)
         case _ => 0f
       }
   }

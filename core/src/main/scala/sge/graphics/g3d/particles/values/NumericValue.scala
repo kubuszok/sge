@@ -8,7 +8,8 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: getValue, setValue, load
+ * - All public methods ported: value (public var), load
+ * - Fixes (2026-03-04): getValue()/setValue() → public var value
  * - Status: pass
  */
 
@@ -23,16 +24,10 @@ package values
   *   Inferno
   */
 class NumericValue extends ParticleValue {
-  private var value: Float = 0f
+  var value: Float = 0f
 
-  def getValue(): Float =
-    value
-
-  def setValue(value: Float): Unit =
-    this.value = value
-
-  def load(value: NumericValue): Unit = {
-    super.load(value)
-    this.value = value.value
+  def load(numericValue: NumericValue): Unit = {
+    super.load(numericValue)
+    this.value = numericValue.value
   }
 }

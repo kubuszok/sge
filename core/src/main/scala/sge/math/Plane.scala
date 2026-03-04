@@ -5,17 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Issues: PlaneSide uses scala.Enumeration instead of Scala 3 enum
+ *   Convention: PlaneSide converted from scala.Enumeration to Scala 3 enum extends java.lang.Enum
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
- *
- * AUDIT: PASS (with issues)
- * - All public methods ported: set(3pts), set(nx,ny,nz,d), set(pt,normal), set(ptXYZ,norXYZ),
- *   set(Plane), distance, testPoint(V3), testPoint(xyz), isFrontFacing, getNormal, getD, toString
- * - ISSUE: PlaneSide uses scala.Enumeration instead of Scala 3 enum
- * - INTENTIONAL: normal.set(x,y,z) instead of .set(v) in constructors (avoids mutation of input)
  */
 package sge
 package math
@@ -29,7 +23,7 @@ class Plane {
 
   import Plane.PlaneSide
 
-  val normal = new Vector3()
+  val normal = Vector3()
   var d      = 0f
 
   /** Constructs a new plane based on the normal and distance to the origin.
@@ -117,7 +111,7 @@ class Plane {
     * @return
     *   The side the point lies relative to the plane
     */
-  def testPoint(point: Vector3): PlaneSide.Value = {
+  def testPoint(point: Vector3): PlaneSide = {
     val dist = normal.dot(point) + d
 
     if (dist == 0)
@@ -136,7 +130,7 @@ class Plane {
     * @return
     *   The side the point lies relative to the plane
     */
-  def testPoint(x: Float, y: Float, z: Float): PlaneSide.Value = {
+  def testPoint(x: Float, y: Float, z: Float): PlaneSide = {
     val dist = normal.dot(x, y, z) + d
 
     if (dist == 0)
@@ -203,7 +197,7 @@ object Plane {
     * @author
     *   mzechner
     */
-  object PlaneSide extends Enumeration {
-    val OnPlane, Back, Front = Value
+  enum PlaneSide extends java.lang.Enum[PlaneSide] {
+    case OnPlane, Back, Front
   }
 }

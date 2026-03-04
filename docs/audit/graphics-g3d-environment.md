@@ -1,16 +1,18 @@
 # Audit: sge.graphics.g3d.environment
 
 Audited: 8/8 files | Pass: 8 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
 ### BaseLight.scala -- pass
 All 2 methods ported: `setColor(r,g,b,a)`, `setColor(Color)`.
 Java `final` field mapped to Scala `val`. F-bounded type parameter `T <: BaseLight[T]` preserved.
+Fluent builder setters (return `this`) — correctly kept as named methods.
 
 ### ShadowMap.scala -- pass
-Java interface mapped to Scala trait. Both methods ported: `getProjViewTrans()`, `getDepthMap()`.
+Java interface mapped to Scala trait. Both methods ported as property accessors:
+`def projViewTrans: Matrix4`, `def depthMap: TextureDescriptor[?]`.
 Raw `TextureDescriptor` in Java mapped to `TextureDescriptor[?]` (existential wildcard).
 
 ### DirectionalLight.scala -- pass
@@ -30,12 +32,13 @@ Java null checks converted to `Nullable.foreach`.
 Typed `equals(SpotLight)` uses `Nullable.fold` with `MathUtils.isEqual` for float comparisons.
 
 ### DirectionalShadowLight.scala -- pass
-All 11 methods ported: `update` x2, `begin` x3, `end`, `getFrameBuffer`,
-`getCamera`, `getProjViewTrans`, `getDepthMap`, `close`.
+All 11 methods ported: `update` x2, `begin` x3, `end`, `frameBuffer`,
+`camera`, `projViewTrans`, `depthMap`, `close`.
 `Disposable` mapped to `AutoCloseable`; `dispose()` mapped to `close()`.
 `Gdx.gl` mapped to `Sge().graphics.gl` via context parameter `(using Sge)`.
 `fbo` changed from `FrameBuffer` to `Nullable[FrameBuffer]` for null safety;
-`begin()` wraps operations in `fbo.foreach`.
+`begin()` wraps operations in `fbo.foreach`. Java-style getters converted to
+property accessors: `frameBuffer`, `camera`, `projViewTrans`, `depthMap`.
 
 ### SphericalHarmonics.scala -- pass
 All 4 methods ported: `set(Array[Float])`, `set(AmbientCubemap)`, `set(Color)`, `set(r,g,b)`.

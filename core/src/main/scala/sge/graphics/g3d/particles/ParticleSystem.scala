@@ -8,6 +8,7 @@
  *
  * Migration notes:
  * - All public methods ported faithfully
+ * - Fixes (2026-03-04): getBatches() removed → public val batches
  * - Deprecated static get() singleton omitted (Java @Deprecated)
  * - update()/updateAndDraw() overloads use (using Sge) context parameter for no-arg variants
  * - remove uses removeValue without identity flag (DynamicArray uses == equality)
@@ -19,6 +20,7 @@ package graphics
 package g3d
 package particles
 
+import sge.Sge
 import sge.graphics.g3d.{ Renderable, RenderableProvider }
 import sge.graphics.g3d.particles.batches.ParticleBatch
 import sge.utils.DynamicArray
@@ -28,9 +30,9 @@ import sge.utils.Pool
   * @author
   *   inferno
   */
-final class ParticleSystem extends RenderableProvider {
+final class ParticleSystem()(using Sge) extends RenderableProvider {
 
-  private val batches: DynamicArray[ParticleBatch[?]] = DynamicArray[ParticleBatch[?]]()
+  val batches:         DynamicArray[ParticleBatch[?]] = DynamicArray[ParticleBatch[?]]()
   private val effects: DynamicArray[ParticleEffect]   = DynamicArray[ParticleEffect]()
 
   def add(batch: ParticleBatch[?]): Unit =
@@ -47,11 +49,11 @@ final class ParticleSystem extends RenderableProvider {
     effects.clear()
 
   /** Updates the simulation of all effects */
-  def update()(using Sge): Unit =
+  def update(): Unit =
     for (effect <- effects)
       effect.update()
 
-  def updateAndDraw()(using Sge): Unit =
+  def updateAndDraw(): Unit =
     for (effect <- effects) {
       effect.update()
       effect.draw()
@@ -86,6 +88,4 @@ final class ParticleSystem extends RenderableProvider {
     for (batch <- batches)
       batch.getRenderables(renderables, pool)
 
-  def getBatches(): DynamicArray[ParticleBatch[?]] =
-    batches
 }

@@ -7,7 +7,8 @@
  * Migration notes:
  *   Convention: Constructor parameters serve as val fields (class parameter equivalent)
  *   Idiom: boundary/break, Nullable, split packages
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getters (getVertices, getTriangles, getTextureCoords, getRegion) → val constructor params
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -28,7 +29,7 @@ package g2d
   * @author
   *   Nathan Sweet
   */
-class PolygonRegion(region: TextureRegion, vertices: Array[Float], triangles: Array[Short]) {
+class PolygonRegion(val region: TextureRegion, val vertices: Array[Float], val triangles: Array[Short]) {
   val textureCoords = new Array[Float](vertices.length) // texture coordinates in atlas coordinates
 
   {
@@ -44,12 +45,4 @@ class PolygonRegion(region: TextureRegion, vertices: Array[Float], triangles: Ar
     }
   }
 
-  /** Returns the vertices in local space. */
-  def getVertices(): Array[Float] = vertices
-
-  def getTriangles(): Array[Short] = triangles
-
-  def getTextureCoords(): Array[Float] = textureCoords
-
-  def getRegion(): TextureRegion = region
 }

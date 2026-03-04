@@ -8,10 +8,11 @@
  *   Renames: Disposable -> AutoCloseable; ownsTexture() -> hasOwnTexture()
  *   Convention: Nullable throughout; dispose() -> close(); using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: BitmapFontData missing 7 public methods (setScale, scale, getImagePath, getImagePaths, getFontFile, isBreakChar); BitmapFontData.load() is a stub
- *   TODO: Java-style getters/setters — getColor, getScaleX/Y, getRegion/s, getLineHeight, etc.
- *   TODO: test: decode a real .fnt file end-to-end through BitmapFontData.load
- *   Audited: 2026-03-03
+ *   Fixes: BitmapFontData.load(), setGlyphRegion(), getGlyphs(), getWrapIndex() fully implemented; added setScale, scale, getImagePath, isBreakChar
+ *   Fixes: Java-style getters/setters → Scala property accessors (color, scaleX/Y, region, lineHeight, capHeight, descent, etc.)
+ *   Fixes: Removed redundant getImagePaths()/getFontFile() (public fields); getFirstGlyph() → firstGlyph
+ *   Issue: test: needs .fnt fixture file to test BitmapFontData.load end-to-end
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -19,56 +20,56 @@ package sge
 package graphics
 package g2d
 
+import java.io.{ BufferedReader, InputStreamReader }
+import java.util.StringTokenizer
+import java.util.regex.Pattern
+
 import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.files.FileHandle
 import sge.graphics.{ Color, Texture }
 import sge.graphics.g2d.TextureRegion
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 import scala.language.implicitConversions
 
 class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[TextureRegion]], val integer: Boolean)(using Sge) extends AutoCloseable {
 
-  val regions:             DynamicArray[TextureRegion] = regionsParam.getOrElse(loadRegions())
-  private val cache:       BitmapFontCache             = newFontCache()
-  private val flipped:     Boolean                     = data.flipped
-  private var ownsTexture: Boolean                     = false
+  val regions:     DynamicArray[TextureRegion] = regionsParam.getOrElse(loadRegions())
+  val cache:       BitmapFontCache             = newFontCache()
+  val flipped:     Boolean                     = data.flipped
+  var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
     this(
-      new BitmapFontData(fontFile, false),
+      BitmapFontData(fontFile, false),
       region.map { r =>
         val da = DynamicArray[TextureRegion](); da.add(r); da
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
     this(
-      new BitmapFontData(fontFile, flip),
+      BitmapFontData(fontFile, flip),
       region.map { r =>
         val da = DynamicArray[TextureRegion](); da.add(r); da
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle)(using Sge) = {
+  def this(fontFile: FileHandle)(using Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using Sge) = {
-    this(new BitmapFontData(fontFile, flip), Nullable.empty, true)
-  }
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
+    this(BitmapFontData(fontFile, flip), Nullable.empty, true)
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
     this(
-      new BitmapFontData(fontFile, flip),
-      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
+      BitmapFontData(fontFile, flip),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(TextureRegion(Texture(imageFile, false))); da },
       true
     )
     ownsTexture = true
@@ -76,21 +77,21 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean, integer: Boolean)(using Sge) = {
     this(
-      new BitmapFontData(fontFile, flip),
-      Nullable { val da = DynamicArray[TextureRegion](); da.add(new TextureRegion(new Texture(imageFile, false))); da },
+      BitmapFontData(fontFile, flip),
+      Nullable { val da = DynamicArray[TextureRegion](); da.add(TextureRegion(Texture(imageFile, false))); da },
       integer
     )
     ownsTexture = true
   }
 
-  private def loadRegions()(using Sge): DynamicArray[TextureRegion] =
+  private def loadRegions(): DynamicArray[TextureRegion] =
     data.imagePaths.fold {
       throw new IllegalArgumentException("If no regions are specified, the font data must have an images path.")
     } { paths =>
       val n          = paths.length
       val newRegions = DynamicArray[TextureRegion]()
       for (i <- 0 until n)
-        newRegions.add(new TextureRegion(new Texture(paths(i))))
+        newRegions.add(TextureRegion(Texture(paths(i))))
       ownsTexture = true
       newRegions
     }
@@ -138,27 +139,25 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     cache.draw(batch)
   }
 
-  def getColor():                                            Color                       = cache.getColor()
-  def setColor(color:  Color):                               Unit                        = cache.getColor().set(color)
-  def setColor(r:      Float, g: Float, b: Float, a: Float): Unit                        = cache.getColor().set(r, g, b, a)
-  def getScaleX():                                           Float                       = data.scaleX
-  def getScaleY():                                           Float                       = data.scaleY
-  def getRegion():                                           TextureRegion               = regions.first
-  def getRegions():                                          DynamicArray[TextureRegion] = regions
-  def getRegion(index: Int):                                 TextureRegion               = regions(index)
-  def getLineHeight():                                       Float                       = data.lineHeight
-  def getSpaceXadvance():                                    Float                       = data.spaceXadvance
-  def getXHeight():                                          Float                       = data.xHeight
-  def getCapHeight():                                        Float                       = data.capHeight
-  def getAscent():                                           Float                       = data.ascent
-  def getDescent():                                          Float                       = data.descent
-  def isFlipped():                                           Boolean                     = flipped
+  def color:                                               Color         = cache.color
+  def color_=(color: Color):                               Unit          = cache.color.set(color)
+  def setColor(r:    Float, g: Float, b: Float, a: Float): Unit          = cache.color.set(r, g, b, a)
+  def scaleX:                                              Float         = data.scaleX
+  def scaleY:                                              Float         = data.scaleY
+  def region:                                              TextureRegion = regions.first
+  def region(index:  Int):                                 TextureRegion = regions(index)
+  def lineHeight:                                          Float         = data.lineHeight
+  def spaceXadvance:                                       Float         = data.spaceXadvance
+  def xHeight:                                             Float         = data.xHeight
+  def capHeight:                                           Float         = data.capHeight
+  def ascent:                                              Float         = data.ascent
+  def descent:                                             Float         = data.descent
 
   def close(): Unit =
     if (ownsTexture) {
       var i = 0
       while (i < regions.size)
-        // regions(i).getTexture().close() // Close method not available
+        // regions(i).texture.close() // Close method not available
         i += 1
     }
 
@@ -178,21 +177,10 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       }
   }
 
-  def setUseIntegerPositions(useInteger: Boolean): Unit =
-    cache.setUseIntegerPositions(useInteger)
+  def integerPositions:                        Boolean = integer
+  def integerPositions_=(useInteger: Boolean): Unit    = cache.integerPositions = useInteger
 
-  def usesIntegerPositions(): Boolean = integer
-
-  def getCache(): BitmapFontCache = cache
-
-  def getData(): BitmapFontData = data
-
-  def hasOwnTexture(): Boolean = ownsTexture
-
-  def setOwnsTexture(owns: Boolean): Unit =
-    this.ownsTexture = owns
-
-  def newFontCache(): BitmapFontCache = new BitmapFontCache(this, integer)
+  def newFontCache(): BitmapFontCache = BitmapFontCache(this, integer)
 
   override def toString(): String = data.name.getOrElse(super.toString())
 }
@@ -280,12 +268,305 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   var xChars:     Array[Char]           = Array('x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z')
   var capChars:   Array[Char]           = Array('M', 'N', 'B', 'D', 'C', 'E', 'F', 'K', 'A', 'G', 'H', 'I', 'J', 'L', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z')
 
+  // Load font data if fontFile is provided (matches Java constructor behavior)
+  fontFile.foreach(f => load(f, flipped))
+
   def load(fontFile: FileHandle, flip: Boolean): Unit = {
-    // Implementation would go here - simplified for now
+    if (imagePaths.isDefined) throw new IllegalStateException("Already loaded.")
+
+    name = Nullable(fontFile.nameWithoutExtension())
+
+    val reader = new BufferedReader(new InputStreamReader(fontFile.read()), 512)
+    try {
+      var line = reader.readLine() // info
+      if (line == null) throw SgeError.InvalidInput("File is empty.")
+
+      line = line.substring(line.indexOf("padding=") + 8)
+      val padding = line.substring(0, line.indexOf(' ')).split(",", 4)
+      if (padding.length != 4) throw SgeError.InvalidInput("Invalid padding.")
+      padTop = Integer.parseInt(padding(0)).toFloat
+      padRight = Integer.parseInt(padding(1)).toFloat
+      padBottom = Integer.parseInt(padding(2)).toFloat
+      padLeft = Integer.parseInt(padding(3)).toFloat
+      val padY = padTop + padBottom
+
+      line = reader.readLine()
+      if (line == null) throw SgeError.InvalidInput("Missing common header.")
+      val common = line.split(" ", 9)
+
+      if (common.length < 3) throw SgeError.InvalidInput("Invalid common header.")
+
+      if (!common(1).startsWith("lineHeight=")) throw SgeError.InvalidInput("Missing: lineHeight")
+      lineHeight = Integer.parseInt(common(1).substring(11)).toFloat
+
+      if (!common(2).startsWith("base=")) throw SgeError.InvalidInput("Missing: base")
+      val baseLine = Integer.parseInt(common(2).substring(5)).toFloat
+
+      var pageCount = 1
+      if (common.length >= 6 && Nullable(common(5)).isDefined && common(5).startsWith("pages=")) {
+        try
+          pageCount = Math.max(1, Integer.parseInt(common(5).substring(6)))
+        catch {
+          case _: NumberFormatException => // Use one page.
+        }
+      }
+
+      imagePaths = Nullable(new Array[String](pageCount))
+
+      // Read each page definition.
+      for (p <- 0 until pageCount) {
+        line = reader.readLine()
+        if (line == null) throw SgeError.InvalidInput("Missing additional page definitions.")
+
+        var matcher = Pattern.compile(".*id=(\\d+)").matcher(line)
+        if (matcher.find()) {
+          val id = matcher.group(1)
+          try {
+            val pageID = Integer.parseInt(id)
+            if (pageID != p) throw SgeError.InvalidInput("Page IDs must be indices starting at 0: " + id)
+          } catch {
+            case ex: NumberFormatException =>
+              throw SgeError.InvalidInput("Invalid page id: " + id, Some(ex))
+          }
+        }
+
+        matcher = Pattern.compile(".*file=\"?([^\"]+)\"?").matcher(line)
+        if (!matcher.find()) throw SgeError.InvalidInput("Missing: file")
+        val fileName = matcher.group(1)
+
+        imagePaths.foreach(_(p) = fontFile.parent().child(fileName).path().replaceAll("\\\\", "/"))
+      }
+      descent = 0
+
+      var keepParsing = true
+      while (keepParsing) {
+        line = reader.readLine()
+        if (line == null) { keepParsing = false }
+        else if (line.startsWith("kernings ")) { keepParsing = false }
+        else if (line.startsWith("metrics ")) { keepParsing = false }
+        else if (line.startsWith("char ")) {
+          val glyph = BitmapFont.Glyph()
+
+          val tokens = new StringTokenizer(line, " =")
+          tokens.nextToken()
+          tokens.nextToken()
+          val ch = Integer.parseInt(tokens.nextToken())
+          if (ch <= 0) {
+            missingGlyph = Nullable(glyph)
+          } else if (ch <= Character.MAX_VALUE) {
+            setGlyph(ch, glyph)
+          } else {
+            // skip — continue to next iteration
+          }
+          if (ch <= Character.MAX_VALUE) {
+            glyph.id = ch
+            tokens.nextToken()
+            glyph.srcX = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            glyph.srcY = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            glyph.width = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            glyph.height = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            glyph.xoffset = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            if (flip) {
+              glyph.yoffset = Integer.parseInt(tokens.nextToken())
+            } else {
+              glyph.yoffset = -(glyph.height + Integer.parseInt(tokens.nextToken()))
+            }
+            tokens.nextToken()
+            glyph.xadvance = Integer.parseInt(tokens.nextToken())
+
+            // Check for page safely, it could be omitted or invalid.
+            if (tokens.hasMoreTokens()) tokens.nextToken()
+            if (tokens.hasMoreTokens()) {
+              try
+                glyph.page = Integer.parseInt(tokens.nextToken())
+              catch {
+                case _: NumberFormatException =>
+              }
+            }
+
+            if (glyph.width > 0 && glyph.height > 0) descent = Math.min(baseLine + glyph.yoffset, descent)
+          }
+        }
+      }
+      descent += padBottom
+
+      // Parse kernings
+      var keepParsingKernings = true
+      while (keepParsingKernings) {
+        line = reader.readLine()
+        if (line == null) { keepParsingKernings = false }
+        else if (!line.startsWith("kerning ")) { keepParsingKernings = false }
+        else {
+          val tokens = new StringTokenizer(line, " =")
+          tokens.nextToken()
+          tokens.nextToken()
+          val first = Integer.parseInt(tokens.nextToken())
+          tokens.nextToken()
+          val second = Integer.parseInt(tokens.nextToken())
+          if (first >= 0 && first <= Character.MAX_VALUE && second >= 0 && second <= Character.MAX_VALUE) {
+            getGlyph(first.toChar).foreach { glyph =>
+              tokens.nextToken()
+              val amount = Integer.parseInt(tokens.nextToken())
+              glyph.setKerning(second, amount)
+            }
+          }
+        }
+      }
+
+      var hasMetricsOverride = false
+      var overrideAscent     = 0f
+      var overrideDescent    = 0f
+      var overrideDown       = 0f
+      var overrideCapHeight  = 0f
+      var overrideLineHeight = 0f
+      var overrideSpaceXAdv  = 0f
+      var overrideXHeight    = 0f
+
+      // Metrics override
+      if (line != null && line.startsWith("metrics ")) {
+        hasMetricsOverride = true
+        val tokens = new StringTokenizer(line, " =")
+        tokens.nextToken()
+        tokens.nextToken()
+        overrideAscent = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideDescent = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideDown = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideCapHeight = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideLineHeight = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideSpaceXAdv = java.lang.Float.parseFloat(tokens.nextToken())
+        tokens.nextToken()
+        overrideXHeight = java.lang.Float.parseFloat(tokens.nextToken())
+      }
+
+      val spaceGlyph = getGlyph(' ').getOrElse {
+        val sg = BitmapFont.Glyph()
+        sg.id = ' '
+        val xadvanceGlyph = getGlyph('l').getOrElse(firstGlyph)
+        sg.xadvance = xadvanceGlyph.xadvance
+        setGlyph(' ', sg)
+        sg
+      }
+      if (spaceGlyph.width == 0) {
+        spaceGlyph.width = (padLeft + spaceGlyph.xadvance + padRight).toInt
+        spaceGlyph.xoffset = (-padLeft).toInt
+      }
+      spaceXadvance = spaceGlyph.xadvance.toFloat
+
+      var xGlyph: Nullable[BitmapFont.Glyph] = Nullable.empty
+      for (xChar <- xChars if xGlyph.isEmpty)
+        xGlyph = getGlyph(xChar)
+      val resolvedXGlyph = xGlyph.getOrElse(firstGlyph)
+      xHeight = resolvedXGlyph.height - padY
+
+      var capGlyph: Nullable[BitmapFont.Glyph] = Nullable.empty
+      for (capChar <- capChars if capGlyph.isEmpty)
+        capGlyph = getGlyph(capChar)
+      capGlyph.fold {
+        for (page <- this.glyphs if Nullable(page).isDefined)
+          for (glyph <- page if Nullable(glyph).isDefined && glyph.height != 0 && glyph.width != 0)
+            capHeight = Math.max(capHeight, glyph.height.toFloat)
+      } { cg =>
+        capHeight = cg.height.toFloat
+      }
+      capHeight -= padY
+
+      ascent = baseLine - capHeight
+      down = -lineHeight
+      if (flip) {
+        ascent = -ascent
+        down = -down
+      }
+
+      if (hasMetricsOverride) {
+        this.ascent = overrideAscent
+        this.descent = overrideDescent
+        this.down = overrideDown
+        this.capHeight = overrideCapHeight
+        this.lineHeight = overrideLineHeight
+        this.spaceXadvance = overrideSpaceXAdv
+        this.xHeight = overrideXHeight
+      }
+
+    } catch {
+      case ex: Exception =>
+        throw SgeError.InvalidInput("Error loading font file: " + fontFile, Some(ex))
+    } finally
+      try reader.close()
+      catch { case _: Exception => }
   }
 
   def setGlyphRegion(glyph: BitmapFont.Glyph, region: TextureRegion): Unit = {
-    // Implementation would go here - simplified for now
+    val texture      = region.texture
+    val invTexWidth  = 1.0f / texture.getWidth
+    val invTexHeight = 1.0f / texture.getHeight
+
+    var offsetX      = 0f
+    var offsetY      = 0f
+    val u            = region.u
+    val v            = region.v
+    val regionWidth  = region.regionWidth.toFloat
+    val regionHeight = region.regionHeight.toFloat
+    region match {
+      case atlasRegion: TextureAtlas.AtlasRegion =>
+        offsetX = atlasRegion.offsetX
+        offsetY = atlasRegion.originalHeight - atlasRegion.packedHeight - atlasRegion.offsetY
+      case _ =>
+    }
+
+    var x  = glyph.srcX.toFloat
+    var x2 = (glyph.srcX + glyph.width).toFloat
+    var y  = glyph.srcY.toFloat
+    var y2 = (glyph.srcY + glyph.height).toFloat
+
+    // Shift glyph for left and top edge stripped whitespace. Clip glyph for right and bottom edge stripped whitespace.
+    if (offsetX > 0) {
+      x -= offsetX
+      if (x < 0) {
+        glyph.width += x.toInt
+        glyph.xoffset -= x.toInt
+        x = 0
+      }
+      x2 -= offsetX
+      if (x2 > regionWidth) {
+        glyph.width -= (x2 - regionWidth).toInt
+        x2 = regionWidth
+      }
+    }
+    if (offsetY > 0) {
+      y -= offsetY
+      if (y < 0) {
+        glyph.height += y.toInt
+        if (glyph.height < 0) glyph.height = 0
+        y = 0
+      }
+      y2 -= offsetY
+      if (y2 > regionHeight) {
+        val amount = y2 - regionHeight
+        glyph.height -= amount.toInt
+        glyph.yoffset += amount.toInt
+        y2 = regionHeight
+      }
+    }
+
+    glyph.u = u + x * invTexWidth
+    glyph.u2 = u + x2 * invTexWidth
+    if (flipped) {
+      glyph.v = v + y * invTexHeight
+      glyph.v2 = v + y2 * invTexHeight
+    } else {
+      glyph.v2 = v + y * invTexHeight
+      glyph.v = v + y2 * invTexHeight
+    }
   }
 
   def getGlyph(ch: Char): Nullable[BitmapFont.Glyph] = {
@@ -307,7 +588,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
     page(ch & BitmapFont.PAGE_SIZE - 1) = glyph
   }
 
-  def getFirstGlyph(): BitmapFont.Glyph = scala.util.boundary {
+  def firstGlyph: BitmapFont.Glyph = scala.util.boundary {
     for (page <- glyphs if Nullable(page).isDefined)
       for (glyph <- page if Nullable(glyph).isDefined && glyph.height != 0 && glyph.width != 0)
         scala.util.boundary.break(glyph)
@@ -317,27 +598,102 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   def hasGlyph(ch: Char): Boolean =
     missingGlyph.isDefined || getGlyph(ch).isDefined
 
-  // Missing methods that need to be implemented
-  def getGlyphs(run: GlyphRun, str: CharSequence, start: Int, end: Int, lastGlyph: BitmapFont.Glyph): Unit =
-    // Simplified implementation
-    for (i <- start until end) {
+  def getGlyphs(run: GlyphRun, str: CharSequence, start: Int, end: Int, lastGlyph: Nullable[BitmapFont.Glyph]): Unit = boundary {
+    val max = end - start
+    if (max == 0) break()
+    val markupEnabledLocal = this.markupEnabled
+    val scaleXLocal        = this.scaleX
+    val glyphsArray        = run.glyphs
+    val xAdvances          = run.xAdvances
+
+    glyphsArray.ensureCapacity(max)
+    xAdvances.ensureCapacity(max + 1)
+
+    var currentLastGlyph = lastGlyph
+    var i                = start
+    while (i < end) {
       val ch = str.charAt(i)
-      getGlyph(ch).fold(missingGlyph)(Nullable(_)).foreach { glyph =>
-        run.glyphs += glyph
-        run.xAdvances += glyph.xadvance.toFloat
+      i += 1
+      if (ch != '\r') {
+        var glyph = getGlyph(ch)
+        if (glyph.isEmpty) {
+          if (missingGlyph.isEmpty) {
+            // skip
+          } else {
+            glyph = missingGlyph
+          }
+        }
+        glyph.foreach { g =>
+          glyphsArray += g
+          xAdvances += (
+            if (currentLastGlyph.isEmpty) {
+              if (g.fixedWidth) 0f else -g.xoffset * scaleXLocal - padLeft
+            } else {
+              (currentLastGlyph.getOrElse(g).xadvance + currentLastGlyph.getOrElse(g).getKerning(ch)) * scaleXLocal
+            }
+          )
+          currentLastGlyph = Nullable(g)
+        }
+
+        // "[[" is an escaped left square bracket, skip second character.
+        if (markupEnabledLocal && ch == '[' && i < end && str.charAt(i) == '[') i += 1
       }
     }
-
-  def getWrapIndex(glyphs: DynamicArray[BitmapFont.Glyph], start: Int): Int = {
-    // Simplified implementation - find next whitespace
-    var i = start
-    while (i < glyphs.size && !isWhitespace(glyphs(i).id.toChar))
-      i += 1
-    i
+    currentLastGlyph.foreach { lg =>
+      val lastGlyphWidth =
+        if (lg.fixedWidth) lg.xadvance * scaleXLocal
+        else (lg.width + lg.xoffset) * scaleXLocal - padRight
+      xAdvances += lastGlyphWidth
+    }
   }
+
+  def getWrapIndex(glyphs: DynamicArray[BitmapFont.Glyph], start: Int): Int = boundary {
+    var i  = start - 1
+    val ch = glyphs(i).id.toChar
+    if (isWhitespace(ch)) break(i)
+    if (isBreakChar(ch)) i -= 1
+    while (i > 0) {
+      val c = glyphs(i).id.toChar
+      if (isWhitespace(c) || isBreakChar(c)) break(i + 1)
+      i -= 1
+    }
+    0
+  }
+
+  def isBreakChar(c: Char): Boolean =
+    breakChars.exists(_.contains(c))
 
   def isWhitespace(ch: Char): Boolean =
     ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r'
+
+  def getImagePath(index: Int): Nullable[String] =
+    imagePaths.map(_(index))
+
+  def setScale(scaleX: Float, scaleY: Float): Unit = {
+    if (scaleX == 0) throw new IllegalArgumentException("scaleX cannot be 0.")
+    if (scaleY == 0) throw new IllegalArgumentException("scaleY cannot be 0.")
+    val x = scaleX / this.scaleX
+    val y = scaleY / this.scaleY
+    lineHeight *= y
+    spaceXadvance *= x
+    xHeight *= y
+    capHeight *= y
+    ascent *= y
+    descent *= y
+    down *= y
+    padLeft *= x
+    padRight *= x
+    padTop *= y
+    padBottom *= y
+    this.scaleX = scaleX
+    this.scaleY = scaleY
+  }
+
+  def setScale(scaleXY: Float): Unit =
+    setScale(scaleXY, scaleXY)
+
+  def scale(amount: Float): Unit =
+    setScale(scaleX + amount, scaleY + amount)
 
   override def toString(): String = name.getOrElse(super.toString())
 }

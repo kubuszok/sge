@@ -32,14 +32,14 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends Synchr
 
   override def load(assetManager: AssetManager, fileName: String, file: FileHandle, parameter: TextureAtlasLoader.TextureAtlasParameter): TextureAtlas = {
     data.foreach { d =>
-      for (page <- d.getPages())
+      for (page <- d.pages)
         page.textureFile.foreach { tf =>
-          val texture = assetManager.get(tf.path().replaceAll("\\\\", "/"), classOf[Texture])
+          val texture = assetManager(tf.path().replaceAll("\\\\", "/"), classOf[Texture])
           page.texture = Nullable(texture)
         }
     }
 
-    val atlas = new TextureAtlas(data.getOrElse(throw SgeError.SerializationError("TextureAtlasData not loaded")))
+    val atlas = TextureAtlas(data.getOrElse(throw SgeError.SerializationError("TextureAtlasData not loaded")))
     data = Nullable.empty
     atlas
   }
@@ -48,12 +48,12 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends Synchr
     val atlasFile = file
     val imgDir    = atlasFile.parent()
 
-    data = Nullable(new TextureAtlasData(atlasFile, imgDir, Nullable(parameter).fold(false)(_.flip)))
+    data = Nullable(TextureAtlasData(atlasFile, imgDir, Nullable(parameter).exists(_.flip)))
 
     val dependencies = DynamicArray[AssetDescriptor[?]]()
     data.foreach { d =>
-      for (page <- d.getPages()) {
-        val params = new TextureLoader.TextureParameter()
+      for (page <- d.pages) {
+        val params = TextureLoader.TextureParameter()
         params.format = Nullable(page.format)
         params.genMipMaps = page.useMipMaps
         params.minFilter = page.minFilter
@@ -68,5 +68,5 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends Synchr
 }
 
 object TextureAtlasLoader {
-  class TextureAtlasParameter(var flip: Boolean = false) extends AssetLoaderParameters[TextureAtlas]
+  class TextureAtlasParameter(var flip: Boolean = false) extends AssetLoaderParameters[TextureAtlas] {}
 }

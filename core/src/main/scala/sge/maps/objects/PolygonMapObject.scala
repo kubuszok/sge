@@ -5,10 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
+ *   Renames: getPolygon()/setPolygon() -> var polygon
  *   Convention: no-arg constructor made primary; other constructors delegate to it
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getPolygon/setPolygon
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -21,12 +21,12 @@ import sge.math.Polygon
 /** @brief Represents {@link Polygon} map objects */
 class PolygonMapObject extends MapObject {
 
-  private var polygon: Polygon = new Polygon(Array.empty[Float])
+  var polygon: Polygon = Polygon(Array.empty[Float])
 
   /** @param vertices polygon defining vertices (at least 3) */
   def this(vertices: Array[Float]) = {
     this()
-    polygon = new Polygon(vertices)
+    polygon = Polygon(vertices)
   }
 
   /** @param polygon the polygon */
@@ -34,11 +34,4 @@ class PolygonMapObject extends MapObject {
     this()
     this.polygon = polygon
   }
-
-  /** @return polygon shape */
-  def getPolygon: Polygon = polygon
-
-  /** @param polygon new object's polygon shape */
-  def setPolygon(polygon: Polygon): Unit =
-    this.polygon = polygon
 }

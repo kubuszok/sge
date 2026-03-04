@@ -71,7 +71,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
 
   /** Saves the effect to the given file contained in the passed in parameter. */
   def save(effect: ParticleEffect, parameter: ParticleEffectSaveParameter): Unit = {
-    val data = new ResourceData[ParticleEffect](effect)
+    val data = ResourceData[ParticleEffect](effect)
 
     // effect assets
     effect.save(parameter.manager, data)
@@ -80,7 +80,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
     parameter.batches.foreach { batchList =>
       for (batch <- batchList) {
         var shouldSave = false
-        for (controller <- effect.getControllers())
+        for (controller <- effect.controllers)
           if (controller.renderer.isCompatible(batch)) {
             shouldSave = true
           }
@@ -141,9 +141,8 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) = {
+    def this(batches: DynamicArray[ParticleBatch[?]]) =
       this(Nullable(batches))
-    }
   }
 
   class ParticleEffectSaveParameter(

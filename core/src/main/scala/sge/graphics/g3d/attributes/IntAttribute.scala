@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful 1:1 port
+ *   - Audited 2026-03-04: faithful 1:1 port
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Two Java constructors merged into primary constructor with default value = 0
  *   - All constants, factory methods, and instance methods accounted for
@@ -23,7 +23,7 @@ class IntAttribute(
 ) extends Attribute(`type`) {
 
   override def copy(): Attribute =
-    new IntAttribute(`type`, value)
+    IntAttribute(`type`, value)
 
   override def hashCode(): Int = {
     var result = super.hashCode()
@@ -48,5 +48,5 @@ object IntAttribute {
     *   an attribute
     */
   def createCullFace(value: Int): IntAttribute =
-    new IntAttribute(CullFace, value)
+    IntAttribute(CullFace, value)
 }

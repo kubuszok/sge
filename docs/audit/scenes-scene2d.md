@@ -1,7 +1,7 @@
 # Audit: sge.scenes.scene2d
 
-Audited: 9/9 files | Pass: 6 | Minor: 3 | Major: 0
-Last updated: 2026-03-03
+Audited: 9/9 files | Pass: 7 | Minor: 2 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -124,8 +124,8 @@ Last updated: 2026-03-03
 **Convention changes**: null -> Nullable[A]; no return (boundary/break); split packages; `(using Sge)` on `act`/`addAction`
 **Idiom**: Alignment bitfield ops -> Align methods (`isRight`, `isLeft`, etc.); do-while -> while with Nullable; POOLS static init block -> companion object vals; `removeListener`/`removeCaptureListener` use manual deferred removal (iterating counter + pending list) instead of `DelayedRemovalArray`
 **TODOs**:
-- `clipBegin(x,y,w,h)` body is TODO (ScissorStack not yet ported) - always returns false
-- `clipEnd()` body is TODO (ScissorStack not yet ported) - no-op
+- `clipBegin(x,y,w,h)` body is TODO — ScissorStack is ported but requires `(using Sge)`; `draw()` methods lack Sge context
+- `clipEnd()` body is TODO — same Sge context issue
 - `drawDebugBounds` uses simplified `shapes.rectangle(x, y, width, height)` instead of full `shapes.rect(x, y, originX, originY, width, height, scaleX, scaleY, rotation)` (ShapeRenderer overload not yet ported)
 **Issues**: The 3 TODOs above are blocking for production use of clipping and debug rendering with rotated/scaled actors. Functionally correct for non-clipped, axis-aligned actors.
 
@@ -157,7 +157,7 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/Stage.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/Stage.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All ~45 public/protected methods accounted for. Inner class `TouchFocus` present with `reset()`. All input event methods (`touchDown`, `touchUp`, `touchDragged`, `touchCancelled`, `mouseMoved`, `scrolled`, `keyDown`, `keyUp`, `keyTyped`), focus management (`setKeyboardFocus`, `getKeyboardFocus`, `setScrollFocus`, `getScrollFocus`, `addTouchFocus`, `removeTouchFocus`, `cancelTouchFocus`, `cancelTouchFocusExcept`), stage operations (`draw`, `drawDebug`, `act`, `hit`, `addActor`, `addAction`, `getActors`, `addListener`, `removeListener`, `addCaptureListener`, `removeCaptureListener`, `actorRemoved`, `clear`, `unfocusAll`, `unfocus`), coordinate transforms (`screenToStageCoordinates`, `stageToScreenCoordinates`, `toScreenCoordinates`, `calculateScissors`), viewport/batch/camera (`getBatch`, `getViewport`, `setViewport`, `getWidth`, `getHeight`, `getCamera`, `getRoot`, `setRoot`), debug (`setDebugAll`, `isDebugAll`, `setDebugUnderMouse`, `setDebugParentUnderMouse`, `setDebugTableUnderMouse`, `setDebugInvisible`, `getDebugColor`, `setActionsRequestRendering`, `getActionsRequestRendering`), lifecycle (`close`, `isInsideViewport`).
@@ -166,5 +166,4 @@ Last updated: 2026-03-03
 **Idiom**: Java constructor chain -> Scala auxiliary constructors with `ownsBatch` flag; `Gdx.graphics`/`Gdx.input` -> `Sge().graphics`/`Sge().input`; SnapshotArray `begin()`/`end()` -> `toArray` snapshots; `drawDebug` uses `shouldDraw` flag variable instead of early returns
 **TODOs**: None
 **Issues**:
-- `setRoot` is incomplete: `root` is declared as `val`, so it cannot be reassigned. The method body shows intent but does not actually replace the root. Java source has `this.root = root` which mutates the field. To fix, `root` should be changed to `var`.
 - `TouchFocus.reset()` uses raw `null` assignments (`listenerActor = null`, `listener = null`, `target = null`). These fields use `scala.compiletime.uninitialized` which initializes to null for reference types. The `null` in `reset()` is acceptable as a Java interop boundary (fields are non-Nullable by design since they are always set before use via pool `obtain`).

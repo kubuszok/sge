@@ -40,25 +40,22 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
   private var _maxWorldHeight: Float   = maxWorldHeight
   private var scaling:         Scaling = Scaling.fit
 
-  setCamera(camera)
+  this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera} with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float)(using Sge) = {
-    this(minWorldWidth, minWorldHeight, 0, 0, new OrthographicCamera())
-  }
+  def this(minWorldWidth: Float, minWorldHeight: Float)(using Sge) =
+    this(minWorldWidth, minWorldHeight, 0, 0, OrthographicCamera())
 
   /** Creates a new viewport with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using Sge) = {
+  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using Sge) =
     this(minWorldWidth, minWorldHeight, 0, 0, camera)
-  }
 
   /** Creates a new viewport using a new {@link OrthographicCamera} and a maximum world size.
     * @see
     *   ExtendViewport#ExtendViewport(float, float, float, float, Camera)
     */
-  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using Sge) = {
-    this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, new OrthographicCamera())
-  }
+  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using Sge) =
+    this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, OrthographicCamera())
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     // Fit min size to the screen.

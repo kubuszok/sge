@@ -48,37 +48,37 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
   }
 
   override def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit = {
-    val spriteColor = sprite.getColor()
-    val oldColor    = sprite.getPackedColor()
-    sprite.setColor(spriteColor.mul(batch.getColor()))
+    val spriteColor = sprite.color
+    val oldColor    = sprite.packedColor
+    sprite.color = spriteColor.mul(batch.color)
 
-    sprite.setRotation(0)
+    sprite.rotation = 0
     sprite.setScale(1, 1)
     sprite.setBounds(x, y, width, height)
     sprite.draw(batch)
 
-    sprite.setPackedColor(oldColor)
+    sprite.packedColor = oldColor
   }
 
   override def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
 
-    val spriteColor = sprite.getColor()
-    val oldColor    = sprite.getPackedColor()
-    sprite.setColor(spriteColor.mul(batch.getColor()))
+    val spriteColor = sprite.color
+    val oldColor    = sprite.packedColor
+    sprite.color = spriteColor.mul(batch.color)
 
     sprite.setOrigin(originX, originY)
-    sprite.setRotation(rotation)
+    sprite.rotation = rotation
     sprite.setScale(scaleX, scaleY)
     sprite.setBounds(x, y, width, height)
     sprite.draw(batch)
 
-    sprite.setPackedColor(oldColor)
+    sprite.packedColor = oldColor
   }
 
   def setSprite(sprite: Sprite): Unit = {
     this.sprite = sprite
-    setMinWidth(sprite.getWidth())
-    setMinHeight(sprite.getHeight())
+    setMinWidth(sprite.width)
+    setMinHeight(sprite.height)
   }
 
   def getSprite: Sprite = sprite
@@ -86,12 +86,12 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): SpriteDrawable = {
     val newSprite: Sprite = sprite match {
-      case as: TextureAtlas.AtlasSprite => new TextureAtlas.AtlasSprite(as)
-      case _ => new Sprite(sprite)
+      case as: TextureAtlas.AtlasSprite => TextureAtlas.AtlasSprite(as)
+      case _ => Sprite(sprite)
     }
-    newSprite.setColor(tint)
+    newSprite.color = tint
     newSprite.setSize(getMinWidth, getMinHeight)
-    val drawable = new SpriteDrawable(newSprite)
+    val drawable = SpriteDrawable(newSprite)
     drawable.setLeftWidth(getLeftWidth)
     drawable.setRightWidth(getRightWidth)
     drawable.setTopHeight(getTopHeight)

@@ -8,9 +8,10 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: spawnAux, getSide, setSide, load, copy
+ * - All public methods ported: spawnAux, side (public var), load, copy
  * - Java `side` is package-private; Scala version is `var side` (public) -- minor visibility widening
  * - spawnAux uses boundary/break instead of return (correct pattern)
+ * - Fixes (2026-03-04): removed redundant getSide/setSide (field already public var)
  * - Status: pass
  */
 package sge
@@ -86,12 +87,6 @@ final class EllipseSpawnShapeValue extends PrimitiveSpawnShapeValue {
     vector.set(radiusX * r * MathUtils.cos(t), radiusY * r * MathUtils.sin(t), radiusZ * z)
   }
 
-  def getSide(): SpawnSide =
-    side
-
-  def setSide(side: SpawnSide): Unit =
-    this.side = side
-
   override def load(value: ParticleValue): Unit = {
     super.load(value)
     val shape = value.asInstanceOf[EllipseSpawnShapeValue]
@@ -99,5 +94,5 @@ final class EllipseSpawnShapeValue extends PrimitiveSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new EllipseSpawnShapeValue(this)
+    EllipseSpawnShapeValue(this)
 }

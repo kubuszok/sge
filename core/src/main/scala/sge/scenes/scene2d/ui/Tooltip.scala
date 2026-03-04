@@ -29,7 +29,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   import Tooltip._
 
   val container: Container[T] = new Container[T](contents) {
-    override def act(delta: Float)(using Sge): Unit = {
+    override def act(delta: Float): Unit = {
       super.act(delta)
       targetActor.foreach { ta =>
         if (ta.getStage.isEmpty) remove()
@@ -44,9 +44,8 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using Sge) = {
+  def this(contents: Nullable[T])(using Sge) =
     this(contents, TooltipManager.getInstance())
-  }
 
   def getManager: TooltipManager = manager
 
@@ -117,7 +116,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     else if (touchIndependent && Sge().input.isTouched()) ()
     else {
       val actor      = event.getListenerActor
-      val descendant = fromActor.fold(false)(fa => fa.isDescendantOf(actor))
+      val descendant = fromActor.exists(fa => fa.isDescendantOf(actor))
       if (!descendant) {
         setContainerPosition(actor, x, y)
         manager.enter(this)
@@ -125,7 +124,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     }
 
   override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit = {
-    val descendant = toActor.fold(false)(ta => ta.isDescendantOf(event.getListenerActor))
+    val descendant = toActor.exists(ta => ta.isDescendantOf(event.getListenerActor))
     if (!descendant) {
       hide()
     }

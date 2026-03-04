@@ -25,11 +25,11 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widget with Styleable[Label.LabelStyle] {
+class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) extends Widget with Styleable[Label.LabelStyle] {
   import Label._
 
   private var _style:           Label.LabelStyle   = scala.compiletime.uninitialized
-  private val glyphLayout:      GlyphLayout        = new GlyphLayout()
+  private val glyphLayout:      GlyphLayout        = GlyphLayout()
   private var prefWidth:        Float              = 0
   private var prefHeight:       Float              = 0
   private val _text:            DynamicArray[Char] = DynamicArray[Char]()
@@ -55,17 +55,17 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
   setStyle(style)
   if (text.isDefined && _text.nonEmpty) setSize(getPrefWidth, getPrefHeight)
 
-  // /** Creates a label, using a {@link LabelStyle} that has a BitmapFont with the specified name from the skin and the specified
-  //   * color. */
-  // def this(text: Nullable[CharSequence], skin: Skin) = this(text, skin.get(classOf[Label.LabelStyle]))
+  /** Creates a label, using a {@link LabelStyle} that has a BitmapFont with the specified name from the skin and the specified color.
+    */
+  def this(text: Nullable[CharSequence], skin: Skin)(using Sge) = this(text, skin.get(classOf[Label.LabelStyle]))
 
-  // def this(text: Nullable[CharSequence], skin: Skin, styleName: String) = this(text, skin.get(styleName, classOf[Label.LabelStyle]))
+  def this(text: Nullable[CharSequence], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[Label.LabelStyle]))
 
-  // def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color) =
-  //   this(text, new Label.LabelStyle(skin.getFont(fontName), color))
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color)(using Sge) =
+    this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(color)))
 
-  // def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String) =
-  //   this(text, new Label.LabelStyle(skin.getFont(fontName), skin.getColor(colorName)))
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String)(using Sge) =
+    this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(skin.getColor(colorName))))
 
   override def setStyle(style: Label.LabelStyle): Unit = {
     this._style = style
@@ -138,19 +138,19 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
   }
 
   private def scaleAndComputePrefSize(): Unit = {
-    val font      = cache.getFont()
-    val oldScaleX = font.getScaleX()
-    val oldScaleY = font.getScaleY()
+    val font      = cache.font
+    val oldScaleX = font.scaleX
+    val oldScaleY = font.scaleY
     if (fontScaleChanged) {
-      font.getData().scaleX = fontScaleX
-      font.getData().scaleY = fontScaleY
+      font.data.scaleX = fontScaleX
+      font.data.scaleY = fontScaleY
     }
 
     computePrefSize(Label.prefSizeLayout)
 
     if (fontScaleChanged) {
-      font.getData().scaleX = oldScaleX
-      font.getData().scaleY = oldScaleY
+      font.data.scaleX = oldScaleX
+      font.data.scaleY = oldScaleY
     }
   }
 
@@ -162,21 +162,21 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
       _style.background.foreach { bg =>
         width = Math.max(width, bg.getMinWidth) - bg.getLeftWidth - bg.getRightWidth
       }
-      layout.setText(cache.getFont(), textStr, Color.WHITE, width, Align.left.asInstanceOf[Int], true)
+      layout.setText(cache.font, textStr, Color.WHITE, width, Align.left.asInstanceOf[Int], true)
     } else {
-      layout.setText(cache.getFont(), textStr)
+      layout.setText(cache.font, textStr)
     }
     prefWidth = layout.width
     prefHeight = layout.height
   }
 
   override def layout(): Unit = {
-    val font      = cache.getFont()
-    val oldScaleX = font.getScaleX()
-    val oldScaleY = font.getScaleY()
+    val font      = cache.font
+    val oldScaleX = font.scaleX
+    val oldScaleY = font.scaleY
     if (fontScaleChanged) {
-      font.getData().scaleX = fontScaleX
-      font.getData().scaleY = fontScaleY
+      font.data.scaleX = fontScaleX
+      font.data.scaleY = fontScaleY
     }
 
     val doWrap = this.wrap && ellipsis.isEmpty
@@ -218,26 +218,26 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
       }
     } else {
       textWidth = width
-      textHeight = font.getData().capHeight
+      textHeight = font.data.capHeight
     }
 
     if (labelAlign.isTop) {
-      y += (if (cache.getFont().isFlipped()) 0 else height - textHeight)
-      y += _style.font.getDescent()
+      y += (if (cache.font.flipped) 0 else height - textHeight)
+      y += _style.font.descent
     } else if (labelAlign.isBottom) {
-      y += (if (cache.getFont().isFlipped()) height - textHeight else 0)
-      y -= _style.font.getDescent()
+      y += (if (cache.font.flipped) height - textHeight else 0)
+      y -= _style.font.descent
     } else {
       y += (height - textHeight) / 2
     }
-    if (!cache.getFont().isFlipped()) y += textHeight
+    if (!cache.font.flipped) y += textHeight
 
     layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, lineAlign.asInstanceOf[Int], doWrap, ellipsis)
     cache.setText(layout, x, y)
 
     if (fontScaleChanged) {
-      font.getData().scaleX = oldScaleX
-      font.getData().scaleY = oldScaleY
+      font.data.scaleX = oldScaleX
+      font.data.scaleY = oldScaleY
     }
   }
 
@@ -271,8 +271,8 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
   override def getPrefHeight: Float = {
     if (prefSizeInvalid) scaleAndComputePrefSize()
     var descentScaleCorrection = 1f
-    if (fontScaleChanged) descentScaleCorrection = fontScaleY / _style.font.getScaleY()
-    var height = prefHeight - _style.font.getDescent() * descentScaleCorrection * 2
+    if (fontScaleChanged) descentScaleCorrection = fontScaleY / _style.font.scaleY
+    var height = prefHeight - _style.font.descent * descentScaleCorrection * 2
     _style.background.foreach { bg =>
       height = Math.max(height + bg.getTopHeight + bg.getBottomHeight, bg.getMinHeight)
     }
@@ -297,14 +297,6 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
 
   def getLineAlign: Align = lineAlign
 
-  /** @param alignment
-    *   Aligns all the text within the label (default left center) and each line of text horizontally (default left).
-    * @see
-    *   Align
-    */
-  def setAlignment(alignment: Align): Unit =
-    setAlignment(alignment, alignment)
-
   /** @param labelAlign
     *   Aligns all the text within the label (default left center).
     * @param lineAlign
@@ -312,7 +304,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
     * @see
     *   Align
     */
-  def setAlignment(labelAlign: Align, lineAlign: Align): Unit = {
+  def setAlignment(labelAlign: Align, lineAlign: Align = labelAlign): Unit = {
     this.labelAlign = labelAlign
 
     if (lineAlign.isLeft)
@@ -325,10 +317,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
     invalidate()
   }
 
-  def setFontScale(fontScale: Float): Unit =
-    setFontScale(fontScale, fontScale)
-
-  def setFontScale(fontScaleX: Float, fontScaleY: Float): Unit = {
+  def setFontScale(fontScaleX: Float, fontScaleY: Float = fontScaleX): Unit = {
     fontScaleChanged = true
     this.fontScaleX = fontScaleX
     this.fontScaleY = fontScaleY
@@ -371,8 +360,8 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle) extends Widge
 }
 
 object Label {
-  private val tempColor:      Color       = new Color()
-  private val prefSizeLayout: GlyphLayout = new GlyphLayout()
+  private val tempColor:      Color       = Color()
+  private val prefSizeLayout: GlyphLayout = GlyphLayout()
 
   /** The style for a label, see {@link Label}.
     * @author
@@ -392,7 +381,7 @@ object Label {
     def this(style: LabelStyle) = {
       this()
       font = style.font
-      fontColor = style.fontColor.map(c => new Color(c))
+      fontColor = style.fontColor.map(c => Color(c))
       background = style.background
     }
   }

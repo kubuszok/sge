@@ -10,6 +10,7 @@
  *   - Audit: pass (2026-03-03)
  *   - Java interface → Scala trait
  *   - Raw TextureDescriptor → TextureDescriptor[?] (existential wildcard)
+ *   - Fixes (2026-03-04): getProjViewTrans()/getDepthMap() → property accessors
  */
 package sge
 package graphics
@@ -20,7 +21,7 @@ import sge.graphics.g3d.utils.TextureDescriptor
 import sge.math.Matrix4
 
 trait ShadowMap {
-  def getProjViewTrans(): Matrix4
+  def projViewTrans: Matrix4
 
-  def getDepthMap(): TextureDescriptor[?]
+  def depthMap: TextureDescriptor[?]
 }

@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.decals
 
 Audited: 8/8 files | Pass: 8 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -30,12 +30,10 @@ via `(using Sge)` context parameter. `getGroupShader` returns `Nullable.empty` (
 Companion object holds `GROUP_OPAQUE`/`GROUP_BLEND` constants with `final private` visibility.
 
 ### DecalMaterial.scala -- pass
-All 6 methods ported: `set()`, `isOpaque`, `getSrcBlendFactor`, `getDstBlendFactor`,
-`equals(Any)`, `hashCode()`. Fields changed from Java `protected` to Scala `var` (public) --
-wider visibility acceptable since `Decal` methods access them directly and getters are public.
-`set()` takes `(using Sge)` for GL access. `equals` uses pattern match instead of null check
-+ unsafe cast -- safer. `hashCode` uses `Nullable` wrapping for null-safe texture hash.
-`NO_BLEND` constant in companion object.
+All methods ported: `set()`, `isOpaque`, `equals(Any)`, `hashCode()`. Fields `srcBlendFactor`
+and `dstBlendFactor` are public `var` (no redundant getters). `set()` takes `(using Sge)` for
+GL access. `equals` uses pattern match instead of null check + unsafe cast -- safer. `hashCode`
+uses `Nullable` wrapping for null-safe texture hash. `NO_BLEND` constant in companion object.
 
 ### DecalBatch.scala -- pass
 All 10 methods ported: `initialize(Int)`, `getSize`, `add(Decal)`, `flush()`, `render()`,
@@ -52,24 +50,24 @@ mapped to `Sge().graphics.gl30.isDefined`. Two constructors preserved.
 ### CameraGroupStrategy.scala -- pass
 All `GroupStrategy` methods plus `setCamera`/`getCamera`/`close()` ported. `Disposable` mapped to
 `AutoCloseable`. Default comparator uses `camera.position.distance()` (renamed from `dst()`) and
-public `getPosition` getter instead of direct `position` field access. `Pool` anonymous subclass
-mapped to `Pool.Default` with lambda. `arrayPool.freeAll(usedArrays)` mapped to
-`usedArrays.foreach(arrayPool.free)`. `contents.sort(cameraSorter)` uses `DynamicArray.sort()`.
-`materialGroups.values()` iteration mapped to `foreachValue`. `getGroupShader` returns
-`Nullable(shader)`. `close()` uses `Nullable(shader).foreach(_.close())` for null safety.
-`IllegalArgumentException` mapped to `SgeError.GraphicsError`. Shader strings identical to Java.
-Field visibility slightly tighter (private pools/shader vs Java package-private) -- acceptable.
+public `position` val instead of getter. `Pool` anonymous subclass mapped to `Pool.Default` with
+lambda. `arrayPool.freeAll(usedArrays)` mapped to `usedArrays.foreach(arrayPool.free)`.
+`contents.sort(cameraSorter)` uses `DynamicArray.sort()`. `materialGroups.values()` iteration
+mapped to `foreachValue`. `getGroupShader` returns `Nullable(shader)`. `close()` uses
+`Nullable(shader).foreach(_.close())` for null safety. `IllegalArgumentException` mapped to
+`SgeError.GraphicsError`. Shader strings identical to Java. Field visibility slightly tighter
+(private pools/shader vs Java package-private) -- acceptable.
 
 ### Decal.scala -- pass
-All 40+ methods faithfully ported including: `setColor` x2, `setPackedColor`,
-`setRotationX/Y/Z`, `rotateX/Y/Z`, `setRotation` x3, `getRotation`, `translateX/Y/Z`,
-`setX/Y/Z`, `getX/Y/Z`, `translate` x2, `setPosition` x2, `getColor`, `getPosition`,
-`setScaleX/Y`, `getScaleX/Y`, `setScale` x2, `setWidth/Height`, `getWidth/Height`,
-`setDimensions`, `getVertices`, `update`, `transformVertices`, `resetVertices`, `updateUVs`,
-`setTextureRegion`, `getTextureRegion`, `setBlending`, `getMaterial`, `setMaterial`, `lookAt`.
-All 6 `newDecal` factory overloads in companion object. 24 vertex index constants
-(X1..V4) in companion. `vertices`/`updated`/`update()` scoped `private[decals]` (was Java
-`protected`) for `DecalBatch` access. `transformationOffset` uses `Nullable[Vector2]` with
-`Nullable.fold` replacing null check. `material` is public `var` constructor param (was Java
-`protected` field). `rotator` is `protected` in companion. `transformVertices` quaternion math
-is identical to Java source line-by-line. No `return` statements. No raw `null` usage.
+All 40+ methods faithfully ported. Java-style getters/setters converted to Scala property
+accessors: `x/x_=`, `y/y_=`, `z/z_=`, `scaleX/scaleX_=`, `scaleY/scaleY_=`, `width/width_=`,
+`height/height_=`, `color/color_=`, `textureRegion/textureRegion_=`. Multi-param methods
+preserved: `setColor(r,g,b,a)`, `setPosition(x,y,z)`, `setScale(x,y)`, `setDimensions(w,h)`,
+`setRotation(yaw,pitch,roll)`. Read-only access: `position` and `rotation` are public `val`.
+`vertices` property calls `update()` before returning backing `_vertices` array.
+`material` is public `var` (getMaterial/setMaterial removed). All 6 `newDecal` factory overloads
+in companion object. 24 vertex index constants (X1..V4) in companion. `_vertices`/`updated`/
+`update()` scoped `private[decals]` for `DecalBatch` access. `transformationOffset` uses
+`Nullable[Vector2]` with `Nullable.fold` replacing null check. `rotator` is `protected` in
+companion. `transformVertices` quaternion math identical to Java source. No `return` statements.
+No raw `null` usage.

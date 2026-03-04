@@ -20,7 +20,7 @@ class G3dModelLoaderTest extends munit.FunSuite {
   }
 
   private def makeLoader(): TestableLoader = {
-    given Sge = SgeTestFixture.testSge
+    given Sge = SgeTestFixture.testSge()
     new TestableLoader()
   }
 

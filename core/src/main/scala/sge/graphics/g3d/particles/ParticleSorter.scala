@@ -7,7 +7,8 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - All public methods ported faithfully (sort, setCamera, ensureCapacity, qsort)
+ * - All public methods ported faithfully (sort, ensureCapacity, qsort)
+ * - Fixes (2026-03-04): setCamera() removed → public var camera
  * - TMP_V1 static field: orphan `new Vector3()` in companion object (side-effect preserved)
  * - None.currentCapacity/indices: package-private in Java → private in Scala (stricter)
  * - Distance.qsort: Java uses early return in insertion sort; Scala restructured without return
@@ -30,15 +31,12 @@ import sge.utils.DynamicArray
   */
 abstract class ParticleSorter {
 
-  protected var camera: Camera = scala.compiletime.uninitialized
+  var camera: Camera = scala.compiletime.uninitialized
 
   /** @return
     *   an array of offsets where each particle should be put in the resulting mesh (also if more than one mesh will be generated, this is an absolute offset considering a BIG output array).
     */
   def sort[T <: ParticleControllerRenderData](renderData: DynamicArray[T]): Array[Int]
-
-  def setCamera(camera: Camera): Unit =
-    this.camera = camera
 
   /** This method is called when the batch has increased the underlying particle buffer. In this way the sorter can increase the data structures used to sort the particles (i.e increase backing array
     * size)
@@ -47,7 +45,7 @@ abstract class ParticleSorter {
 }
 
 object ParticleSorter {
-  new Vector3()
+  Vector3()
 
   /** Using this class will not apply sorting */
   class None extends ParticleSorter {

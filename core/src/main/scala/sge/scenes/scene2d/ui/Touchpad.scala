@@ -27,17 +27,17 @@ import sge.utils.Nullable
   * @author
   *   Josh Street
   */
-class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle) extends Widget with Styleable[Touchpad.TouchpadStyle] {
+class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)(using Sge) extends Widget() with Styleable[Touchpad.TouchpadStyle] {
   import Touchpad._
 
   private var _style:         TouchpadStyle = scala.compiletime.uninitialized
   var touched:                Boolean       = false
   var resetOnTouchUp:         Boolean       = true
-  private val knobBounds:     Circle        = new Circle(0, 0, 0)
-  private val touchBounds:    Circle        = new Circle(0, 0, 0)
-  private val deadzoneBounds: Circle        = new Circle(0, 0, 0)
-  private val knobPosition:   Vector2       = new Vector2()
-  private val knobPercent:    Vector2       = new Vector2()
+  private val knobBounds:     Circle        = Circle(0, 0, 0)
+  private val touchBounds:    Circle        = Circle(0, 0, 0)
+  private val deadzoneBounds: Circle        = Circle(0, 0, 0)
+  private val knobPosition:   Vector2       = Vector2()
+  private val knobPercent:    Vector2       = Vector2()
 
   if (deadzoneRadius < 0) throw new IllegalArgumentException("deadzoneRadius must be > 0")
 
@@ -156,9 +156,9 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
     }
   }
 
-  override def getPrefWidth: Float = _style.background.fold(0f)(_.getMinWidth)
+  override def getPrefWidth: Float = _style.background.map(_.getMinWidth).getOrElse(0f)
 
-  override def getPrefHeight: Float = _style.background.fold(0f)(_.getMinHeight)
+  override def getPrefHeight: Float = _style.background.map(_.getMinHeight).getOrElse(0f)
 
   def isTouched: Boolean = touched
 

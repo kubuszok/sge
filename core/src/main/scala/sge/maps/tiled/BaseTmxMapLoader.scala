@@ -45,7 +45,7 @@ import scala.util.boundary.break
 
 abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: FileHandleResolver) extends BaseTiledMapLoader[P](resolver) {
 
-  protected var xml:  XmlReader                   = new XmlReader()
+  protected var xml:  XmlReader                   = XmlReader()
   protected var root: Nullable[XmlReader.Element] = Nullable.empty
 
   protected var templateCache: ObjectMap[String, XmlReader.Element] = scala.compiletime.uninitialized
@@ -57,7 +57,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   ): DynamicArray[AssetDescriptor[?]] = {
     this.root = Nullable(xml.parse(tmxFile))
 
-    val textureParameter = new TextureLoader.TextureParameter()
+    val textureParameter = TextureLoader.TextureParameter()
     val param            = Nullable(parameter)
     param.foreach { p =>
       textureParameter.genMipMaps = p.generateMipMaps
@@ -78,7 +78,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     *   the [[TiledMap]]
     */
   override protected def loadTiledMap(tmxFile: FileHandle, parameter: P, imageResolver: ImageResolver): TiledMap = {
-    this.map = new TiledMap()
+    this.map = TiledMap()
     this.idToObject = new scala.collection.mutable.HashMap[Int, MapObject]()
     this.runOnEndOfLoadTiled = DynamicArray[() => Unit]()
     this.templateCache = ObjectMap[String, XmlReader.Element]()
@@ -104,7 +104,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val staggerIndex       = r.getAttribute("staggerindex", Nullable.empty)
     val mapBackgroundColor = r.getAttribute("backgroundcolor", Nullable.empty)
 
-    val mapProperties = map.getProperties
+    val mapProperties = map.properties
     mapOrientation.foreach(v => mapProperties.put("orientation", v))
     mapProperties.put("width", mapWidth:              java.lang.Integer)
     mapProperties.put("height", mapHeight:            java.lang.Integer)
@@ -129,7 +129,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
     val properties = r.getChildByName("properties")
-    properties.foreach(p => loadProperties(map.getProperties, p))
+    properties.foreach(p => loadProperties(map.properties, p))
 
     val tilesets = r.getChildrenByName("tileset")
     var ti       = 0
@@ -144,21 +144,21 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val j = r.getChildCount
     while (i < j) {
       val element = r.getChild(i)
-      loadLayer(map, map.getLayers, element, tmxFile, imageResolver)
+      loadLayer(map, map.layers, element, tmxFile, imageResolver)
       i += 1
     }
 
     // update hierarchical parallax scrolling factors
     // in Tiled the final parallax scrolling factor of a layer is the multiplication of its factor with all its parents
     // 1) get top level groups
-    val groups = map.getLayers.getByType(classOf[MapGroupLayer])
+    val groups = map.layers.getByType[MapGroupLayer]
     while (groups.nonEmpty) {
       val group = groups.first
       groups.removeIndex(0)
 
       for (child <- group.getLayers) {
-        child.setParallaxX(child.getParallaxX * group.getParallaxX)
-        child.setParallaxY(child.getParallaxY * group.getParallaxY)
+        child.parallaxX = child.parallaxX * group.parallaxX
+        child.parallaxY = child.parallaxY * group.parallaxY
         child match {
           case g: MapGroupLayer => groups.add(g)
           case _ =>
@@ -195,11 +195,11 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     imageResolver: ImageResolver
   ): Unit =
     if (element.name == "group") {
-      val groupLayer = new MapGroupLayer()
+      val groupLayer = MapGroupLayer()
       loadBasicLayerInfo(groupLayer, element)
 
       val properties = element.getChildByName("properties")
-      properties.foreach(p => loadProperties(groupLayer.getProperties, p))
+      properties.foreach(p => loadProperties(groupLayer.properties, p))
 
       var i = 0
       val j = element.getChildCount
@@ -219,9 +219,9 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     if (element.name == "layer") {
       val width      = element.getIntAttribute("width", 0)
       val height     = element.getIntAttribute("height", 0)
-      val tileWidth  = map.getProperties.get("tilewidth", classOf[Integer]).intValue()
-      val tileHeight = map.getProperties.get("tileheight", classOf[Integer]).intValue()
-      val layer      = new TiledMapTileLayer(width, height, tileWidth, tileHeight)
+      val tileWidth  = map.properties.getAs[Integer]("tilewidth").intValue()
+      val tileHeight = map.properties.getAs[Integer]("tileheight").intValue()
+      val layer      = TiledMapTileLayer(width, height, tileWidth, tileHeight)
 
       loadBasicLayerInfo(layer, element)
 
@@ -239,7 +239,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           val tile = tilesets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
           tile.foreach { t =>
             val cell = createTileLayerCell(flipHorizontally, flipVertically, flipDiagonally)
-            cell.setTile(Nullable(t))
+            cell.tile = Nullable(t)
             layer.setCell(x, if (flipY) height - 1 - y else y, Nullable(cell))
           }
           x += 1
@@ -248,7 +248,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       }
 
       val properties = element.getChildByName("properties")
-      properties.foreach(p => loadProperties(layer.getProperties, p))
+      properties.foreach(p => loadProperties(layer.properties, p))
       parentLayers.add(layer)
     }
 
@@ -259,10 +259,10 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     tmxFile:      FileHandle
   ): Unit =
     if (element.name == "objectgroup") {
-      val layer = new MapLayer()
+      val layer = MapLayer()
       loadBasicLayerInfo(layer, element)
       val properties = element.getChildByName("properties")
-      properties.foreach(p => loadProperties(layer.getProperties, p))
+      properties.foreach(p => loadProperties(layer.properties, p))
 
       val objectElements = element.getChildrenByName("object")
       var oi             = 0
@@ -309,17 +309,17 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         val source = img.getAttribute("source")
         val handle = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, source)
         texture = imageResolver.getImage(handle.path())
-        texture.foreach(t => y -= t.getRegionHeight())
+        texture.foreach(t => y -= t.regionHeight)
       }
 
       @annotation.nowarn("msg=deprecated") // TiledMapImageLayer takes TextureRegion, not Nullable -- null is valid per original LibGDX API
       val textureValue: TextureRegion = texture.orNull
-      val layer = new TiledMapImageLayer(textureValue, x, y, repeatX, repeatY)
+      val layer = TiledMapImageLayer(textureValue, x, y, repeatX, repeatY)
 
       loadBasicLayerInfo(layer, element)
 
       val properties = element.getChildByName("properties")
-      properties.foreach(p => loadProperties(layer.getProperties, p))
+      properties.foreach(p => loadProperties(layer.properties, p))
 
       parentLayers.add(layer)
     }
@@ -334,23 +334,23 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val parallaxX = element.getFloatAttribute("parallaxx", 1f)
     val parallaxY = element.getFloatAttribute("parallaxy", 1f)
 
-    layer.setName(name)
+    layer.name = name
     layer.setOpacity(opacity)
-    layer.setVisible(visible)
+    layer.visible = visible
     layer.setOffsetX(offsetX)
     layer.setOffsetY(offsetY)
-    layer.setParallaxX(parallaxX)
-    layer.setParallaxY(parallaxY)
+    layer.parallaxX = parallaxX
+    layer.parallaxY = parallaxY
 
     // set layer tint color after converting from #AARRGGBB to #RRGGBBAA
     layer.setTintColor(Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(tintColor)))
   }
 
   protected def loadObject(map: TiledMap, layer: MapLayer, element: XmlReader.Element): Unit =
-    loadObject(map, layer.getObjects, element, mapHeightInPixels.toFloat)
+    loadObject(map, layer.objects, element, mapHeightInPixels.toFloat)
 
   protected def loadObject(map: TiledMap, tile: TiledMapTile, element: XmlReader.Element): Unit =
-    loadObject(map, tile.getObjects, element, tile.getTextureRegion.getRegionHeight().toFloat)
+    loadObject(map, tile.getObjects, element, tile.getTextureRegion.regionHeight.toFloat)
 
   protected def loadObject(
     map:            TiledMap,
@@ -386,9 +386,9 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
               vertices(i * 2 + 1) = java.lang.Float.parseFloat(point(1)) * scaleY * (if (flipY) -1 else 1)
               i += 1
             }
-            val polygon = new Polygon(vertices)
+            val polygon = Polygon(vertices)
             polygon.setPosition(x, y)
-            obj = Nullable(new PolygonMapObject(polygon))
+            obj = Nullable(PolygonMapObject(polygon))
           }
         } else {
           child = element.getChildByName("polyline")
@@ -403,37 +403,37 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
                 vertices(i * 2 + 1) = java.lang.Float.parseFloat(point(1)) * scaleY * (if (flipY) -1 else 1)
                 i += 1
               }
-              val polyline = new Polyline(vertices)
+              val polyline = Polyline(vertices)
               polyline.setPosition(x, y)
-              obj = Nullable(new PolylineMapObject(polyline))
+              obj = Nullable(PolylineMapObject(polyline))
             }
           } else {
             child = element.getChildByName("ellipse")
             if (child.isDefined) {
-              obj = Nullable(new EllipseMapObject(x, if (flipY) y - height else y, width, height))
+              obj = Nullable(EllipseMapObject(x, if (flipY) y - height else y, width, height))
             } else {
               child = element.getChildByName("point")
               if (child.isDefined) {
-                obj = Nullable(new PointMapObject(x, if (flipY) y - height else y))
+                obj = Nullable(PointMapObject(x, if (flipY) y - height else y))
               } else {
                 child = element.getChildByName("text")
                 child.foreach { textChild =>
                   val textMapObject =
-                    new TextMapObject(x, if (flipY) y - height else y, width, height, textChild.getText.getOrElse(""))
-                  textMapObject.setFontFamily(textChild.getAttribute("fontfamily", Nullable("")).getOrElse(""))
-                  textMapObject.setPixelSize(textChild.getIntAttribute("pixelSize", 16))
-                  textMapObject.setHorizontalAlign(textChild.getAttribute("halign", Nullable("left")).getOrElse("left"))
-                  textMapObject.setVerticalAlign(textChild.getAttribute("valign", Nullable("top")).getOrElse("top"))
-                  textMapObject.setBold(textChild.getIntAttribute("bold", 0) == 1)
-                  textMapObject.setItalic(textChild.getIntAttribute("italic", 0) == 1)
-                  textMapObject.setUnderline(textChild.getIntAttribute("underline", 0) == 1)
-                  textMapObject.setStrikeout(textChild.getIntAttribute("strikeout", 0) == 1)
-                  textMapObject.setWrap(textChild.getIntAttribute("wrap", 0) == 1)
+                    TextMapObject(x, if (flipY) y - height else y, width, height, textChild.getText.getOrElse(""))
+                  textMapObject.fontFamily = textChild.getAttribute("fontfamily", Nullable("")).getOrElse("")
+                  textMapObject.pixelSize = textChild.getIntAttribute("pixelSize", 16)
+                  textMapObject.horizontalAlign = textChild.getAttribute("halign", Nullable("left")).getOrElse("left")
+                  textMapObject.verticalAlign = textChild.getAttribute("valign", Nullable("top")).getOrElse("top")
+                  textMapObject.bold = textChild.getIntAttribute("bold", 0) == 1
+                  textMapObject.italic = textChild.getIntAttribute("italic", 0) == 1
+                  textMapObject.underline = textChild.getIntAttribute("underline", 0) == 1
+                  textMapObject.strikeout = textChild.getIntAttribute("strikeout", 0) == 1
+                  textMapObject.wrap = textChild.getIntAttribute("wrap", 0) == 1
                   // When kerning is true, it won't be added as an attribute, it's true by default
-                  textMapObject.setKerning(textChild.getIntAttribute("kerning", 1) == 1)
+                  textMapObject.kerning = textChild.getIntAttribute("kerning", 1) == 1
                   // Default color is #000000, not added as attribute
                   val textColor = textChild.getAttribute("color", Nullable("#000000")).getOrElse("#000000")
-                  textMapObject.setColor(Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(textColor)))
+                  textMapObject.color = Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(textColor))
                   obj = Nullable(textMapObject)
                 }
               }
@@ -450,50 +450,50 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
           val tile = map.getTileSets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
           tile.foreach { t =>
-            val tiledMapTileMapObject = new TiledMapTileMapObject(t, flipHorizontally, flipVertically)
-            val texRegion             = tiledMapTileMapObject.getTextureRegion.getOrElse(throw new IllegalStateException("tile missing texture region"))
-            tiledMapTileMapObject.getProperties.put("gid", id: java.lang.Integer)
-            tiledMapTileMapObject.setX(x)
-            tiledMapTileMapObject.setY(if (flipY) y else y - height)
-            val objectWidth  = element.getFloatAttribute("width", texRegion.getRegionWidth().toFloat)
-            val objectHeight = element.getFloatAttribute("height", texRegion.getRegionHeight().toFloat)
-            tiledMapTileMapObject.setScaleX(scaleX * (objectWidth / texRegion.getRegionWidth()))
-            tiledMapTileMapObject.setScaleY(scaleY * (objectHeight / texRegion.getRegionHeight()))
-            tiledMapTileMapObject.setRotation(element.getFloatAttribute("rotation", 0))
+            val tiledMapTileMapObject = TiledMapTileMapObject(t, flipHorizontally, flipVertically)
+            val texRegion             = tiledMapTileMapObject.textureRegion.getOrElse(throw new IllegalStateException("tile missing texture region"))
+            tiledMapTileMapObject.properties.put("gid", id: java.lang.Integer)
+            tiledMapTileMapObject.x = x
+            tiledMapTileMapObject.y = if (flipY) y else y - height
+            val objectWidth  = element.getFloatAttribute("width", texRegion.regionWidth.toFloat)
+            val objectHeight = element.getFloatAttribute("height", texRegion.regionHeight.toFloat)
+            tiledMapTileMapObject.scaleX = scaleX * (objectWidth / texRegion.regionWidth)
+            tiledMapTileMapObject.scaleY = scaleY * (objectHeight / texRegion.regionHeight)
+            tiledMapTileMapObject.rotation = element.getFloatAttribute("rotation", 0)
             obj = Nullable(tiledMapTileMapObject)
           }
         }
         if (obj.isEmpty) {
-          obj = Nullable(new RectangleMapObject(x, if (flipY) y - height else y, width, height))
+          obj = Nullable(RectangleMapObject(x, if (flipY) y - height else y, width, height))
         }
       }
       val theObj = obj.getOrElse(throw new IllegalStateException("object could not be created"))
-      theObj.setName(element.getAttribute("name", Nullable.empty).getOrElse(""))
+      theObj.name = element.getAttribute("name", Nullable.empty).getOrElse("")
       val rotation = element.getAttribute("rotation", Nullable.empty)
       rotation.foreach { r =>
-        theObj.getProperties.put("rotation", java.lang.Float.parseFloat(r): java.lang.Float)
+        theObj.properties.put("rotation", java.lang.Float.parseFloat(r): java.lang.Float)
       }
       val objType = element.getAttribute("type", Nullable.empty)
-      objType.foreach(t => theObj.getProperties.put("type", t))
+      objType.foreach(t => theObj.properties.put("type", t))
       val id = element.getIntAttribute("id", 0)
       if (id != 0) {
-        theObj.getProperties.put("id", id: java.lang.Integer)
+        theObj.properties.put("id", id: java.lang.Integer)
       }
-      theObj.getProperties.put("x", x: java.lang.Float)
+      theObj.properties.put("x", x: java.lang.Float)
 
       theObj match {
-        case _: TiledMapTileMapObject => theObj.getProperties.put("y", y: java.lang.Float)
-        case _ => theObj.getProperties.put("y", (if (flipY) y - height else y): java.lang.Float)
+        case _: TiledMapTileMapObject => theObj.properties.put("y", y: java.lang.Float)
+        case _ => theObj.properties.put("y", (if (flipY) y - height else y): java.lang.Float)
       }
-      theObj.getProperties.put("width", width:   java.lang.Float)
-      theObj.getProperties.put("height", height: java.lang.Float)
-      theObj.setVisible(element.getIntAttribute("visible", 1) == 1)
+      theObj.properties.put("width", width:   java.lang.Float)
+      theObj.properties.put("height", height: java.lang.Float)
+      theObj.visible = element.getIntAttribute("visible", 1) == 1
       val properties = element.getChildByName("properties")
-      properties.foreach(p => loadProperties(theObj.getProperties, p))
+      properties.foreach(p => loadProperties(theObj.properties, p))
 
       // if there is a 'type' (=class) specified, then check if there are any other
       // class properties available and put their default values into the properties.
-      loadMapPropertiesClassDefaults(objType, theObj.getProperties)
+      loadMapPropertiesClassDefaults(objType, theObj.properties)
 
       idToObject.put(id, theObj)
       objects.add(theObj)
@@ -537,7 +537,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   /** Returns a shallow copy of the source element we pass in. */
   protected def cloneElementShallow(sourceElement: XmlReader.Element): XmlReader.Element = {
     // New element for our copy
-    val copyElement = new XmlReader.Element(sourceElement.name, Nullable.empty)
+    val copyElement = XmlReader.Element(sourceElement.name, Nullable.empty)
     // Get list of attributes from the source element
     val attrs = sourceElement.getAttributes
     attrs.foreach { a =>
@@ -561,7 +561,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val tProps = templateProps.getOrElse(throw new IllegalStateException("unreachable"))
     val pProps = parentProps.getOrElse(throw new IllegalStateException("unreachable"))
     // Create a new merged properties element which will contain a combination of parent and template properties.
-    val merged = new XmlReader.Element("properties", Nullable.empty)
+    val merged = XmlReader.Element("properties", Nullable.empty)
     // Set properties from template
     val templateProperties = tProps.getChildrenByName("property")
     var ti                 = 0
@@ -613,7 +613,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     template: XmlReader.Element
   ): XmlReader.Element = {
     // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
-    val merged = new XmlReader.Element(template.name, Nullable.empty)
+    val merged = XmlReader.Element(template.name, Nullable.empty)
     // Set attributes from template
     val templateAttrs = template.getAttributes
     templateAttrs.foreach { ta =>
@@ -672,11 +672,11 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         val name     = property.getAttribute("name", Nullable.empty).getOrElse("")
         val value    = getPropertyValue(property)
         val propType = property.getAttribute("type", Nullable.empty)
-        if (propType.fold(false)(_ == "object")) {
+        if (propType.contains("object")) {
           loadObjectProperty(properties, name, value)
-        } else if (propType.fold(false)(_ == "class")) {
+        } else if (propType.contains("class")) {
           // A 'class' property is a property which is itself a set of properties
-          val classProperties = new MapProperties()
+          val classProperties = MapProperties()
           val className       = property.getAttribute("propertytype")
           classProperties.put("type", className)
           // the actual properties of a 'class' property are stored as a new properties tag
@@ -726,7 +726,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
           loadObjectProperty(classProperties, propName, value)
         case "class" =>
           // A 'class' property is a property which is itself a set of properties
-          val nestedClassProperties = new MapProperties()
+          val nestedClassProperties = MapProperties()
           val nestedClassName       = projectClassMember.propertyType.getOrElse("")
           nestedClassProperties.put("type", nestedClassName)
           // the actual properties of a 'class' property are stored as a new properties tag
@@ -815,11 +815,11 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         offsetX = o.getIntAttribute("x", 0)
         offsetY = o.getIntAttribute("y", 0)
       }
-      val tileSet = new TiledMapTileSet()
+      val tileSet = TiledMapTileSet()
 
       // TileSet
-      tileSet.setName(name)
-      val tileSetProperties = tileSet.getProperties
+      tileSet.name = name
+      val tileSetProperties = tileSet.properties
       val properties        = el.getChildByName("properties")
       properties.foreach(p => loadProperties(tileSetProperties, p))
       tileSetProperties.put("firstgid", firstgid: java.lang.Integer)
@@ -948,7 +948,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         fi += 1
       }
 
-      val animatedTile = new AnimatedTiledMapTile(intervals.toArray, staticTiles)
+      val animatedTile = AnimatedTiledMapTile(intervals.toArray, staticTiles)
       animatedTile.setId(tile.getId)
       animatedTile
     }

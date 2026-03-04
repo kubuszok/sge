@@ -30,25 +30,25 @@ import sge.Sge
 abstract class Camera(using Sge) {
 
   /** the position of the camera * */
-  val position: Vector3 = new Vector3()
+  val position: Vector3 = Vector3()
 
   /** the unit length direction vector of the camera * */
-  val direction: Vector3 = new Vector3(0, 0, -1)
+  val direction: Vector3 = Vector3(0, 0, -1)
 
   /** the unit length up vector of the camera * */
-  val up: Vector3 = new Vector3(0, 1, 0)
+  val up: Vector3 = Vector3(0, 1, 0)
 
   /** the projection matrix * */
-  val projection: Matrix4 = new Matrix4()
+  val projection: Matrix4 = Matrix4()
 
   /** the view matrix * */
-  val view: Matrix4 = new Matrix4()
+  val view: Matrix4 = Matrix4()
 
   /** the combined projection and view matrix * */
-  val combined: Matrix4 = new Matrix4()
+  val combined: Matrix4 = Matrix4()
 
   /** the inverse combined projection and view matrix * */
-  val invProjectionView: Matrix4 = new Matrix4()
+  val invProjectionView: Matrix4 = Matrix4()
 
   /** the near clipping plane distance, has to be positive * */
   var near: Float = 1
@@ -63,10 +63,10 @@ abstract class Camera(using Sge) {
   var viewportHeight: Float = 0
 
   /** the frustum * */
-  val frustum: Frustum = new Frustum()
+  val frustum: Frustum = Frustum()
 
-  private val tmpVec = new Vector3()
-  private val ray    = new Ray(new Vector3(), new Vector3())
+  private val tmpVec = Vector3()
+  private val ray    = Ray(Vector3(), Vector3())
 
   /** Recalculates the projection and view matrix of this camera and the Frustum planes. Use this after you've manipulated any of the attributes of the camera.
     */

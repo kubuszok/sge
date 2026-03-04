@@ -24,7 +24,7 @@ import sge.math.Vector3
 import sge.utils.Nullable
 
 class DirectionalLight extends BaseLight[DirectionalLight] {
-  val direction: Vector3 = new Vector3()
+  val direction: Vector3 = Vector3()
 
   def setDirection(directionX: Float, directionY: Float, directionZ: Float): DirectionalLight = {
     this.direction.set(directionX, directionY, directionZ)
@@ -70,5 +70,5 @@ class DirectionalLight extends BaseLight[DirectionalLight] {
 
   @targetName("equalsDirectionalLight")
   def equals(other: Nullable[DirectionalLight]): Boolean =
-    other.fold(false)(o => (o eq this) || (color.equals(o.color) && direction.equals(o.direction)))
+    other.exists(o => (o eq this) || (color.equals(o.color) && direction.equals(o.direction)))
 }

@@ -8,14 +8,14 @@
  *   Renames: `Gdx.app.error(...)` -> `throw SgeError.InvalidInput(...)` (behavioral change: Java logs silently, Scala throws)
  *   Convention: default parameter `windowSize = 5` instead of 2-arg constructor
  *   Idiom: split packages
- *   Issues: uses flat `package sge.utils` instead of split packages; `tick(delta)` throws on invalid data instead of logging silently
- *   TODO: uses flat package declaration -- convert to split (package sge / package utils)
+ *   Issues: `tick(delta)` throws on invalid data instead of logging silently (intentional)
  *   TODO: opaque Seconds for tick(delta) param -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.utils
+package sge
+package utils
 
 import sge.math.{ FloatCounter, MathUtils }
 
@@ -31,10 +31,10 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
   private var lastTick     = 0L
 
   /** The time value of this counter (seconds) */
-  val time: FloatCounter = new FloatCounter(windowSize)
+  val time: FloatCounter = FloatCounter(windowSize)
 
   /** The load value of this counter */
-  val load: FloatCounter = new FloatCounter(1)
+  val load: FloatCounter = FloatCounter(1)
 
   /** The current value in seconds, you can manually increase this using your own timing mechanism if needed, if you do so, you also need to update valid.
     */

@@ -9,11 +9,10 @@
  * Migration notes:
  *   Renames: DelayedRemovalArray -> DynamicArray + manual deferred removal; Align int -> Align opaque type;
  *     Object userObject -> AnyRef userObject; debug field -> _debug (avoid keyword clash)
- *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on act/addAction
+ *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on constructor (class-level context)
  *   Idiom: Alignment bitfield ops -> Align methods (isRight, isLeft, etc.); do-while -> while with Nullable;
  *     POOLS static init block -> companion object vals; ancestorsVisible() deprecated method dropped
- *   TODO: clipBegin/clipEnd/drawDebugBounds partially implemented (ScissorStack, ShapeRenderer.rect with
- *     rotation/scale not yet ported)
+ *   TODO: drawDebugBounds — ShapeRenderer.rect with rotation/origin not yet ported
  *   TODO: Java-style getters/setters — convert to var or def x/def x_= (~15 pairs: setX/getX, setVisible/isVisible, setTouchable/getTouchable, etc.)
  *   Audited: 2026-03-03
  */
@@ -28,6 +27,7 @@ import sge.graphics.g2d.Batch
 import sge.graphics.g2d.GlyphLayout
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.{ MathUtils, Rectangle, Vector2 }
+import sge.scenes.scene2d.utils.ScissorStack
 
 /** 2D scene graph node. An actor has a position, rectangular size, origin, scale, rotation, Z index, and color. The position corresponds to the unrotated, unscaled bottom left corner of the actor.
   * The position is relative to the actor's parent. The origin is relative to the position and is used for scale and rotation. <p> An actor has a list of in progress {@link Action actions} that are
@@ -41,7 +41,7 @@ import sge.math.{ MathUtils, Rectangle, Vector2 }
   * @author
   *   Nathan Sweet
   */
-class Actor {
+class Actor()(using Sge) {
 
   private var stage:            Nullable[Stage]             = Nullable.empty
   private[scene2d] var parent:  Nullable[Group]             = Nullable.empty
@@ -68,7 +68,7 @@ class Actor {
   var scaleX:             Float            = 1
   var scaleY:             Float            = 1
   var rotation:           Float            = 0
-  val color:              Color            = new Color(1, 1, 1, 1)
+  val color:              Color            = Color(1, 1, 1, 1)
   private var userObject: Nullable[AnyRef] = Nullable.empty
 
   /** Draws the actor. The batch is configured to draw in the parent's coordinate system. {@link Batch#draw(com.badlogic.gdx.graphics.g2d.TextureRegion, float, float, float, float, float, float,
@@ -84,7 +84,7 @@ class Actor {
     * @param delta
     *   Time in seconds since the last frame.
     */
-  def act(delta: Float)(using Sge): Unit =
+  def act(delta: Float): Unit =
     if (actions.nonEmpty) {
       stage.foreach { s =>
         if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
@@ -234,7 +234,7 @@ class Actor {
     *   Group#removeActor(Actor)
     */
   def remove(): Boolean =
-    parent.fold(false)(_.removeActor(this, unfocus = true))
+    parent.exists(_.removeActor(this, unfocus = true))
 
   /** Add a listener to receive events that {@link #hit(float, float, boolean) hit} this actor. See {@link #fire(Event)}.
     * @see
@@ -283,7 +283,7 @@ class Actor {
 
   def getCaptureListeners: DynamicArray[EventListener] = captureListeners
 
-  def addAction(action: Action)(using Sge): Unit = {
+  def addAction(action: Action): Unit = {
     action.setActor(Nullable(this))
     actions.add(action)
 
@@ -363,11 +363,11 @@ class Actor {
 
   /** Returns this actor or the first ascendant of this actor that is assignable with the specified type, or null if none were found.
     */
-  def firstAscendant[T <: Actor](tpe: Class[T]): Nullable[T] = scala.util.boundary {
+  def firstAscendant[T <: Actor](using tag: scala.reflect.ClassTag[T]): Nullable[T] = scala.util.boundary {
     var a: Nullable[Actor] = Nullable(this)
     while (a.isDefined)
       a.foreach { current =>
-        if (tpe.isInstance(current)) scala.util.boundary.break(Nullable(tpe.cast(current)))
+        if (tag.runtimeClass.isInstance(current)) scala.util.boundary.break(Nullable(current.asInstanceOf[T]))
         a = current.parent.map(_.asInstanceOf[Actor])
       }
     Nullable.empty
@@ -414,18 +414,18 @@ class Actor {
 
   /** Returns true if this actor is the {@link Stage#getKeyboardFocus() keyboard focus} actor. */
   def hasKeyboardFocus: Boolean =
-    getStage.fold(false)(_.getKeyboardFocus.fold(false)(_ eq this))
+    getStage.exists(_.getKeyboardFocus.exists(_ eq this))
 
   /** Returns true if this actor is the {@link Stage#getScrollFocus() scroll focus} actor. */
   def hasScrollFocus: Boolean =
-    getStage.fold(false)(_.getScrollFocus.fold(false)(_ eq this))
+    getStage.exists(_.getScrollFocus.exists(_ eq this))
 
   /** Returns true if this actor is a target actor for touch focus.
     * @see
     *   Stage#addTouchFocus(EventListener, Actor, Actor, int, int)
     */
   def isTouchFocusTarget: Boolean =
-    getStage.fold(false) { stage =>
+    getStage.exists { stage =>
       stage.touchFocuses.exists(_.target eq this)
     }
 
@@ -434,7 +434,7 @@ class Actor {
     *   Stage#addTouchFocus(EventListener, Actor, Actor, int, int)
     */
   def isTouchFocusListener: Boolean =
-    getStage.fold(false) { stage =>
+    getStage.exists { stage =>
       stage.touchFocuses.exists(_.listenerActor eq this)
     }
 
@@ -759,7 +759,7 @@ class Actor {
     */
   def setZIndex(index: Int): Boolean = {
     if (index < 0) throw new IllegalArgumentException("ZIndex cannot be < 0.")
-    parent.fold(false) { p =>
+    parent.exists { p =>
       val children = p.children
       if (children.size <= 1) false
       else {
@@ -783,7 +783,7 @@ class Actor {
     *   #setZIndex(int)
     */
   def getZIndex: Int =
-    parent.fold(-1)(_.children.indexOf(this))
+    parent.map(_.children.indexOf(this)).getOrElse(-1)
 
   /** Calls {@link #clipBegin(float, float, float, float)} to clip this actor's bounds. */
   def clipBegin(): Boolean = clipBegin(x, y, width, height)
@@ -798,29 +798,25 @@ class Actor {
   def clipBegin(x: Float, y: Float, width: Float, height: Float): Boolean =
     if (width <= 0 || height <= 0) false
     else {
-      // TODO: uncomment when ScissorStack is ported
-      // stage.fold(false) { stage =>
-      //   val tableBounds = Rectangle.tmp
-      //   tableBounds.x = x
-      //   tableBounds.y = y
-      //   tableBounds.width = width
-      //   tableBounds.height = height
-      //   val scissorBounds = Actor.POOLS.obtain(classOf[Rectangle])
-      //   stage.calculateScissors(tableBounds, scissorBounds)
-      //   if (ScissorStack.pushScissors(scissorBounds)) true
-      //   else {
-      //     Actor.POOLS.free(scissorBounds)
-      //     false
-      //   }
-      // }
-      false
+      stage.exists { stage =>
+        val tableBounds = Rectangle.tmp
+        tableBounds.x = x
+        tableBounds.y = y
+        tableBounds.width = width
+        tableBounds.height = height
+        val scissorBounds = Actor.POOLS.obtain(classOf[Rectangle])
+        stage.calculateScissors(tableBounds, scissorBounds)
+        if (ScissorStack.pushScissors(scissorBounds)) true
+        else {
+          Actor.POOLS.free(scissorBounds)
+          false
+        }
+      }
     }
 
   /** Ends clipping begun by {@link #clipBegin(float, float, float, float)}. */
-  def clipEnd(): Unit = {
-    // TODO: uncomment when ScissorStack is ported
-    // Actor.POOLS.free(ScissorStack.popScissors())
-  }
+  def clipEnd(): Unit =
+    Actor.POOLS.free(ScissorStack.popScissors())
 
   /** Transforms the specified point in screen coordinates to the actor's local coordinate system.
     * @see
@@ -923,7 +919,7 @@ class Actor {
         if (ascendant.isEmpty) scala.util.boundary.break(localCoords)
         throw new IllegalArgumentException("Actor is not an ascendant: " + ascendant)
       } { pp =>
-        if (ascendant.fold(false)(_ eq pp)) scala.util.boundary.break(localCoords)
+        if (ascendant.exists(_ eq pp)) scala.util.boundary.break(localCoords)
         a = pp
       }
     }
@@ -974,10 +970,10 @@ class Actor {
 }
 
 object Actor {
-  val POOLS: PoolManager = new PoolManager()
+  val POOLS: PoolManager = PoolManager()
 
-  POOLS.addPool(classOf[Rectangle], () => new Rectangle())
+  POOLS.addPool(classOf[Rectangle], () => Rectangle())
   POOLS.addPool(classOf[DynamicArray[?]], () => DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[Any]], 16, true))
-  POOLS.addPool(classOf[GlyphLayout], () => new GlyphLayout())
-  POOLS.addPool(classOf[utils.ChangeListener.ChangeEvent], () => new utils.ChangeListener.ChangeEvent())
+  POOLS.addPool(classOf[GlyphLayout], () => GlyphLayout())
+  POOLS.addPool(classOf[utils.ChangeListener.ChangeEvent], () => utils.ChangeListener.ChangeEvent())
 }

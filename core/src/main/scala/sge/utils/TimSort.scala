@@ -234,7 +234,7 @@ object TimSort {
         binarySort(a, lo, hi, lo + initRunLen, comp)
       } else {
         // March over the array once, left to right, finding natural runs
-        val ts = new TimSort[T]()
+        val ts = TimSort[T]()
         ts.doSort(a, comp, lo, hi)
       }
     }

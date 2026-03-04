@@ -86,7 +86,7 @@ object StreamUtils {
     *   Used to allocate the output byte[] to possibly avoid an array copy.
     */
   def copyStreamToByteArray(input: InputStream, estimatedSize: Int): Array[Byte] = {
-    val baos = new OptimizedByteArrayOutputStream(Math.max(0, estimatedSize))
+    val baos = OptimizedByteArrayOutputStream(Math.max(0, estimatedSize))
     copyStream(input, baos)
     baos.toByteArray()
   }

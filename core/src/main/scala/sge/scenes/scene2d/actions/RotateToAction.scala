@@ -28,11 +28,9 @@ import sge.math.MathUtils
   * @author
   *   Tom Gall
   */
-class RotateToAction(private var useShortestDirection: Boolean) extends TemporalAction {
+class RotateToAction(private var useShortestDirection: Boolean = false) extends TemporalAction {
   private var start: Float = 0
   private var _end:  Float = 0
-
-  def this() = this(false)
 
   override protected def begin(): Unit =
     target.foreach(t => start = t.getRotation)

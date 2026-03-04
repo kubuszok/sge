@@ -50,7 +50,7 @@ class ConvexHull {
     var end         = offset + count
 
     if (!sorted) {
-      if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
+      if (Nullable(sortedPoints).forall(_.length < count)) sortedPoints = new Array[Float](count)
       Array.copy(points, offset, sortedPoints, 0, count)
       pointsArray = sortedPoints
       offsetVar = 0
@@ -102,7 +102,7 @@ class ConvexHull {
     var end         = offset + count
 
     if (!sorted) {
-      if (Nullable(sortedPoints).fold(true)(_.length < count)) sortedPoints = new Array[Float](count)
+      if (Nullable(sortedPoints).forall(_.length < count)) sortedPoints = new Array[Float](count)
       Array.copy(points, offset, sortedPoints, 0, count)
       pointsArray = sortedPoints
       offsetVar = 0

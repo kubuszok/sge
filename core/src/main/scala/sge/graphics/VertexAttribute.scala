@@ -55,9 +55,8 @@ final class VertexAttribute(
     * @param alias
     *   the alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, alias: String) = {
+  def this(usage: Int, numComponents: Int, alias: String) =
     this(usage, numComponents, false, if (usage == Usage.ColorPacked) GL20.GL_UNSIGNED_BYTE else GL20.GL_FLOAT, alias, 0)
-  }
 
   /** Constructs a new VertexAttribute. The GL data type is automatically selected based on the usage.
     *
@@ -70,7 +69,7 @@ final class VertexAttribute(
     * @param unit
     *   Optional unit/index specifier, used for texture coordinates and bone weights
     */
-  def this(usage: Int, numComponents: Int, alias: String, unit: Int) = {
+  def this(usage: Int, numComponents: Int, alias: String, unit: Int) =
     this(
       usage,
       numComponents,
@@ -79,7 +78,6 @@ final class VertexAttribute(
       alias,
       unit
     )
-  }
 
   /** Constructs a new VertexAttribute.
     *
@@ -95,16 +93,15 @@ final class VertexAttribute(
     * @param alias
     *   The alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) = {
+  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) =
     this(usage, numComponents, normalized, `type`, alias, 0)
-  }
 
   /** @return
     *   A copy of this VertexAttribute with the same parameters. The {@link #offset} is not copied and must be recalculated, as is typically done by the {@linkplain VertexAttributes} that owns the
     *   VertexAttribute.
     */
   def copy(): VertexAttribute =
-    new VertexAttribute(usage, numComponents, normalized, `type`, alias, unit)
+    VertexAttribute(usage, numComponents, normalized, `type`, alias, unit)
 
   /** Tests to determine if the passed object was created with the same parameters */
   override def equals(obj: Any): Boolean =
@@ -140,26 +137,26 @@ final class VertexAttribute(
 
 object VertexAttribute {
   def Position(): VertexAttribute =
-    new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE)
+    VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE)
 
   def TexCoords(unit: Int): VertexAttribute =
-    new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + unit, unit)
+    VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + unit, unit)
 
   def Normal(): VertexAttribute =
-    new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE)
+    VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE)
 
   def ColorPacked(): VertexAttribute =
-    new VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_BYTE, true, ShaderProgram.COLOR_ATTRIBUTE)
+    VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_BYTE, true, ShaderProgram.COLOR_ATTRIBUTE)
 
   def ColorUnpacked(): VertexAttribute =
-    new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, ShaderProgram.COLOR_ATTRIBUTE)
+    VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, ShaderProgram.COLOR_ATTRIBUTE)
 
   def Tangent(): VertexAttribute =
-    new VertexAttribute(Usage.Tangent, 3, ShaderProgram.TANGENT_ATTRIBUTE)
+    VertexAttribute(Usage.Tangent, 3, ShaderProgram.TANGENT_ATTRIBUTE)
 
   def Binormal(): VertexAttribute =
-    new VertexAttribute(Usage.BiNormal, 3, ShaderProgram.BINORMAL_ATTRIBUTE)
+    VertexAttribute(Usage.BiNormal, 3, ShaderProgram.BINORMAL_ATTRIBUTE)
 
   def BoneWeight(unit: Int): VertexAttribute =
-    new VertexAttribute(Usage.BoneWeight, 2, ShaderProgram.BONEWEIGHT_ATTRIBUTE + unit, unit)
+    VertexAttribute(Usage.BoneWeight, 2, ShaderProgram.BONEWEIGHT_ATTRIBUTE + unit, unit)
 }

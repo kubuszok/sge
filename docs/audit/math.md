@@ -1,7 +1,7 @@
 # Audit: sge.math
 
-Audited: 33/33 files | Pass: 27 | Minor: 2 | Major: 1 | N/A: 3
-Last updated: 2026-03-03
+Audited: 33/33 files | Pass: 30 | Minor: 0 | Major: 0 | N/A: 3
+Last updated: 2026-03-04
 
 ---
 
@@ -52,20 +52,14 @@ All methods ported.
 ### Frustum.scala — pass
 All methods ported including `boundsInFrustum(OrientedBoundingBox)`.
 
-### Plane.scala — minor_issues
-All methods ported.
-**Issues**:
-- `minor`: `PlaneSide` uses `scala.Enumeration` instead of Scala 3 `enum`
+### Plane.scala — pass
+All methods ported. `PlaneSide` converted from `scala.Enumeration` to Scala 3 `enum extends java.lang.Enum`.
 
-### CumulativeDistribution.scala — major_issues
-**Issues**:
-- `major`: **BUG** in `value()` — raw `null` on line 87: `var valueObj: CumulativeValue[T] = null`
-- `major`: **BUG** in `ensureCapacity()` — `values = newValues` assignment is commented out. Adding >10 values causes `ArrayIndexOutOfBoundsException`.
+### CumulativeDistribution.scala — pass
+All methods ported. Uses `boundary`/`break` for binary search.
 
-### Octree.scala — minor_issues
-All methods ported.
-**Issues**:
-- `minor`: `rayCast` uses placeholder `val intersect = true` instead of actual `Intersector.intersectRayBounds` call — ray-bounds check is non-functional
+### Octree.scala — pass
+All methods ported. `rayCast` now calls `Intersector.intersectRayBounds` (was placeholder).
 
 ### Affine2.scala — pass
 All methods ported.

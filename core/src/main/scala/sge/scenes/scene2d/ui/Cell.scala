@@ -76,7 +76,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
     if (actor != newActor) {
       actor.foreach { a =>
         table.foreach { t =>
-          if (a.getParent.fold(false)(_ eq t)) a.remove()
+          if (a.getParent.exists(_ eq t)) a.remove()
         }
       }
       actor = newActor.asInstanceOf[Nullable[Actor]]
@@ -682,78 +682,78 @@ class Cell[T <: Actor] extends Pool.Poolable {
   /** @return May be null if this cell is row defaults. */
   def getMinWidthValue: Nullable[Value] = minWidth
 
-  def getMinWidth: Float = minWidth.fold(0f)(_.get(actor))
+  def getMinWidth: Float = minWidth.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this cell is row defaults. */
   def getMinHeightValue: Nullable[Value] = minHeight
 
-  def getMinHeight: Float = minHeight.fold(0f)(_.get(actor))
+  def getMinHeight: Float = minHeight.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this cell is row defaults. */
   def getPrefWidthValue: Nullable[Value] = prefWidth
 
-  def getPrefWidth: Float = prefWidth.fold(0f)(_.get(actor))
+  def getPrefWidth: Float = prefWidth.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this cell is row defaults. */
   def getPrefHeightValue: Nullable[Value] = prefHeight
 
-  def getPrefHeight: Float = prefHeight.fold(0f)(_.get(actor))
+  def getPrefHeight: Float = prefHeight.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this cell is row defaults. */
   def getMaxWidthValue: Nullable[Value] = maxWidth
 
-  def getMaxWidth: Float = maxWidth.fold(0f)(_.get(actor))
+  def getMaxWidth: Float = maxWidth.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this cell is row defaults. */
   def getMaxHeightValue: Nullable[Value] = maxHeight
 
-  def getMaxHeight: Float = maxHeight.fold(0f)(_.get(actor))
+  def getMaxHeight: Float = maxHeight.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getSpaceTopValue: Nullable[Value] = spaceTop
 
-  def getSpaceTop: Float = spaceTop.fold(0f)(_.get(actor))
+  def getSpaceTop: Float = spaceTop.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getSpaceLeftValue: Nullable[Value] = spaceLeft
 
-  def getSpaceLeft: Float = spaceLeft.fold(0f)(_.get(actor))
+  def getSpaceLeft: Float = spaceLeft.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getSpaceBottomValue: Nullable[Value] = spaceBottom
 
-  def getSpaceBottom: Float = spaceBottom.fold(0f)(_.get(actor))
+  def getSpaceBottom: Float = spaceBottom.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getSpaceRightValue: Nullable[Value] = spaceRight
 
-  def getSpaceRight: Float = spaceRight.fold(0f)(_.get(actor))
+  def getSpaceRight: Float = spaceRight.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getPadTopValue: Nullable[Value] = padTop
 
-  def getPadTop: Float = padTop.fold(0f)(_.get(actor))
+  def getPadTop: Float = padTop.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getPadLeftValue: Nullable[Value] = padLeft
 
-  def getPadLeft: Float = padLeft.fold(0f)(_.get(actor))
+  def getPadLeft: Float = padLeft.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getPadBottomValue: Nullable[Value] = padBottom
 
-  def getPadBottom: Float = padBottom.fold(0f)(_.get(actor))
+  def getPadBottom: Float = padBottom.map(_.get(actor)).getOrElse(0f)
 
   /** @return May be null if this value is not set. */
   def getPadRightValue: Nullable[Value] = padRight
 
-  def getPadRight: Float = padRight.fold(0f)(_.get(actor))
+  def getPadRight: Float = padRight.map(_.get(actor)).getOrElse(0f)
 
   /** Returns {@link #getPadLeft()} plus {@link #getPadRight()}. */
-  def getPadX: Float = padLeft.fold(0f)(_.get(actor)) + padRight.fold(0f)(_.get(actor))
+  def getPadX: Float = padLeft.map(_.get(actor)).getOrElse(0f) + padRight.map(_.get(actor)).getOrElse(0f)
 
   /** Returns {@link #getPadTop()} plus {@link #getPadBottom()}. */
-  def getPadY: Float = padTop.fold(0f)(_.get(actor)) + padBottom.fold(0f)(_.get(actor))
+  def getPadY: Float = padTop.map(_.get(actor)).getOrElse(0f) + padBottom.map(_.get(actor)).getOrElse(0f)
 
   def getFillX: Nullable[Float] = _fillX
 
@@ -877,7 +877,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
       c._uniformY.foreach(v => _uniformY = Nullable(v))
     }
 
-  override def toString: String = actor.fold(super.toString)(_.toString)
+  override def toString: String = actor.map(_.toString).getOrElse(super.toString)
 }
 
 object Cell {
@@ -899,7 +899,7 @@ object Cell {
   def defaults(): Nullable[Cell[?]] = {
     if (_defaults.isEmpty && !_creatingDefaults) {
       _creatingDefaults = true
-      val d = new Cell[Actor]()
+      val d = Cell[Actor]()
       d.minWidth = Nullable(Value.minWidth)
       d.minHeight = Nullable(Value.minHeight)
       d.prefWidth = Nullable(Value.prefWidth)

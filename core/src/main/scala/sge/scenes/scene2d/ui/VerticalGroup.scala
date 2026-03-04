@@ -31,7 +31,7 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class VerticalGroup extends WidgetGroup {
+class VerticalGroup()(using Sge) extends WidgetGroup() {
 
   private var _prefWidth:    Float                         = 0
   private var _prefHeight:   Float                         = 0
@@ -330,7 +330,7 @@ class VerticalGroup extends WidgetGroup {
 
   /** When wrapping is enabled, the number of columns may be > 1. */
   def getColumns: Int =
-    if (_wrap) columnSizes.fold(0)(_.size >> 1) else 1
+    if (_wrap) columnSizes.map(_.size >> 1).getOrElse(0) else 1
 
   /** If true (the default), positions and sizes are rounded to integers. */
   def setRound(round: Boolean): Unit =

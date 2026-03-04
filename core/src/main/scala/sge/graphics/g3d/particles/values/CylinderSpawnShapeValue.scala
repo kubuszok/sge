@@ -67,5 +67,5 @@ final class CylinderSpawnShapeValue extends PrimitiveSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new CylinderSpawnShapeValue(this)
+    CylinderSpawnShapeValue(this)
 }

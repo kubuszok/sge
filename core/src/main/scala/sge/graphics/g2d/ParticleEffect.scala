@@ -8,7 +8,8 @@
  *   Renames: dispose() -> close(); Disposable -> AutoCloseable; findEmitter returns Nullable
  *   Convention: Nullable for null safety; using Sge context parameter; boundary/break for early returns
  *   Idiom: boundary/break, Nullable, split packages
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getters (getEmitters → def emitters, getBoundingBox → def boundingBox)
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -35,8 +36,8 @@ import scala.language.implicitConversions
   * @author
   *   mzechner
   */
-class ParticleEffect extends AutoCloseable {
-  private val emitters:    DynamicArray[ParticleEmitter] = DynamicArray[ParticleEmitter]()
+class ParticleEffect()(using Sge) extends AutoCloseable {
+  private val _emitters:   DynamicArray[ParticleEmitter] = DynamicArray[ParticleEmitter]()
   private var bounds:      BoundingBox                   = scala.compiletime.uninitialized
   private var ownsTexture: Boolean                       = scala.compiletime.uninitialized
   /*protected*/
@@ -46,19 +47,19 @@ class ParticleEffect extends AutoCloseable {
   /*protected*/
   var motionScale: Float = 1f
 
-  def this(effect: ParticleEffect) = {
+  def this(effect: ParticleEffect)(using Sge) = {
     this()
-    emitters.clear()
+    _emitters.clear()
     var i = 0
-    while (i < effect.emitters.size) {
-      emitters.add(newEmitter(effect.emitters(i)))
+    while (i < effect._emitters.size) {
+      _emitters.add(newEmitter(effect._emitters(i)))
       i += 1
     }
   }
 
   def start(): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).start()
+    for (i <- 0 until _emitters.size)
+      _emitters(i).start()
 
   /** Resets the effect so it can be started again like a new effect. Any changes to scale are reverted. See {@link #reset(boolean)} .
     */
@@ -79,8 +80,8 @@ class ParticleEffect extends AutoCloseable {
     *   Whether to start the effect after resetting.
     */
   def reset(resetScaling: Boolean, start: Boolean): Unit = {
-    for (i <- 0 until emitters.size)
-      emitters(i).reset(start)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).reset(start)
     if (resetScaling && (xSizeScale != 1f || ySizeScale != 1f || motionScale != 1f)) {
       scaleEffect(1f / xSizeScale, 1f / ySizeScale, 1f / motionScale)
       xSizeScale = 1f
@@ -90,77 +91,77 @@ class ParticleEffect extends AutoCloseable {
   }
 
   def update(delta: Float): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).update(delta)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).update(delta)
 
   def draw(spriteBatch: Batch): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).draw(spriteBatch)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).draw(spriteBatch)
 
   def draw(spriteBatch: Batch, delta: Float): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).draw(spriteBatch, delta)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).draw(spriteBatch, delta)
 
   def allowCompletion(): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).allowCompletionMethod()
+    for (i <- 0 until _emitters.size)
+      _emitters(i).allowCompletionMethod()
 
   def isComplete(): Boolean = scala.util.boundary {
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      if (!emitter.isComplete()) scala.util.boundary.break(false)
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
+      if (!emitter.isComplete) scala.util.boundary.break(false)
     }
     true
   }
 
   def setDuration(duration: Int): Unit =
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      emitter.setContinuous(false)
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
+      emitter.continuous = false
       emitter.duration = duration.toFloat
       emitter.durationTimer = 0
     }
 
   def setPosition(x: Float, y: Float): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).setPosition(x, y)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).setPosition(x, y)
 
   def setFlip(flipX: Boolean, flipY: Boolean): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).setFlip(flipX, flipY)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).setFlip(flipX, flipY)
 
   def flipY(): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).flipYValues()
+    for (i <- 0 until _emitters.size)
+      _emitters(i).flipYValues()
 
-  def getEmitters(): DynamicArray[ParticleEmitter] =
-    emitters
+  def emitters: DynamicArray[ParticleEmitter] =
+    _emitters
 
   /** Returns the emitter with the specified name, or empty. */
   def findEmitter(name: String): Nullable[ParticleEmitter] = scala.util.boundary {
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      if (emitter.getName().equals(name)) scala.util.boundary.break(Nullable(emitter))
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
+      if (emitter.name.equals(name)) scala.util.boundary.break(Nullable(emitter))
     }
     Nullable.empty
   }
 
   /** Allocates all emitters particles. See {@link com.badlogic.gdx.graphics.g2d.ParticleEmitter#preAllocateParticles()} */
   def preAllocateParticles(): Unit =
-    for (emitter <- emitters)
+    for (emitter <- _emitters)
       emitter.preAllocateParticles()
 
   def save(output: Writer): Unit = {
     var index = 0
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
       if (index > 0) output.write("\n")
       emitter.save(output)
       index += 1
     }
   }
 
-  def load(effectFile: FileHandle, imagesDir: FileHandle)(using Sge): Unit = {
+  def load(effectFile: FileHandle, imagesDir: FileHandle): Unit = {
     loadEmitters(effectFile)
     loadEmitterImages(imagesDir)
   }
@@ -175,13 +176,13 @@ class ParticleEffect extends AutoCloseable {
 
   def loadEmitters(effectFile: FileHandle): Unit = {
     val input = effectFile.read()
-    emitters.clear()
+    _emitters.clear()
     val reader = new BufferedReader(new InputStreamReader(input), 512)
     try {
       var shouldContinue = true
       while (shouldContinue) {
         val emitter = newEmitter(reader)
-        emitters.add(emitter)
+        _emitters.add(emitter)
         if (Nullable(reader.readLine()).isEmpty) shouldContinue = false
       }
     } catch {
@@ -195,12 +196,12 @@ class ParticleEffect extends AutoCloseable {
     loadEmitterImages(atlas, Nullable.empty)
 
   def loadEmitterImages(atlas: TextureAtlas, atlasPrefix: Nullable[String]): Unit =
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      if (emitter.getImagePaths().size == 0) { /* continue */ }
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
+      if (emitter.imagePaths.length == 0) { /* continue */ }
       else {
         val sprites = DynamicArray[Sprite]()
-        for (imagePath <- emitter.getImagePaths()) {
+        for (imagePath <- emitter.imagePaths) {
           var imageName    = new File(imagePath.replace('\\', '/')).getName()
           val lastDotIndex = imageName.lastIndexOf('.')
           if (lastDotIndex != -1) imageName = imageName.substring(0, lastDotIndex)
@@ -212,16 +213,16 @@ class ParticleEffect extends AutoCloseable {
       }
     }
 
-  def loadEmitterImages(imagesDir: FileHandle)(using Sge): Unit = {
+  def loadEmitterImages(imagesDir: FileHandle): Unit = {
     ownsTexture = true
     val loadedSprites = scala.collection.mutable.Map[String, Sprite]()
-    for (i <- 0 until emitters.size) {
-      val emitter = emitters(i)
-      if (emitter.getImagePaths().size != 0) {
+    for (i <- 0 until _emitters.size) {
+      val emitter = _emitters(i)
+      if (emitter.imagePaths.length != 0) {
         val sprites = DynamicArray[Sprite]()
-        for (imagePath <- emitter.getImagePaths()) {
+        for (imagePath <- emitter.imagePaths) {
           val imageName = new File(imagePath.replace('\\', '/')).getName()
-          val sprite    = loadedSprites.getOrElseUpdate(imageName, new Sprite(loadTexture(imagesDir.child(imageName))))
+          val sprite    = loadedSprites.getOrElseUpdate(imageName, Sprite(loadTexture(imagesDir.child(imageName))))
           sprites.add(sprite)
         }
         emitter.setSprites(sprites.toArray)
@@ -230,31 +231,31 @@ class ParticleEffect extends AutoCloseable {
   }
 
   protected def newEmitter(reader: BufferedReader): ParticleEmitter =
-    new ParticleEmitter(reader)
+    ParticleEmitter(reader)
 
   protected def newEmitter(emitter: ParticleEmitter): ParticleEmitter =
-    new ParticleEmitter(emitter)
+    ParticleEmitter(emitter)
 
-  protected def loadTexture(file: FileHandle)(using Sge): Texture =
-    new Texture(file, false)
+  protected def loadTexture(file: FileHandle): Texture =
+    Texture(file, false)
 
   /** Disposes the texture for each sprite for each ParticleEmitter. */
   def close(): Unit =
     if (ownsTexture) {
-      for (i <- 0 until emitters.size) {
-        val emitter = emitters(i)
-        for (sprite <- emitter.getSprites())
-          sprite.getTexture().close()
+      for (i <- 0 until _emitters.size) {
+        val emitter = _emitters(i)
+        for (sprite <- emitter.sprites)
+          sprite.texture.close()
       }
     }
 
   /** Returns the bounding box for all active particles. z axis will always be zero. */
-  def getBoundingBox(): BoundingBox = {
-    if (Nullable(bounds).isEmpty) bounds = new BoundingBox()
+  def boundingBox: BoundingBox = {
+    if (Nullable(bounds).isEmpty) bounds = BoundingBox()
 
     bounds.inf()
-    for (emitter <- this.emitters)
-      bounds.ext(emitter.getBoundingBox())
+    for (emitter <- this._emitters)
+      bounds.ext(emitter.boundingBox)
     bounds
   }
 
@@ -277,7 +278,7 @@ class ParticleEffect extends AutoCloseable {
     xSizeScale *= xSizeScaleFactor
     ySizeScale *= ySizeScaleFactor
     motionScale *= motionScaleFactor
-    for (particleEmitter <- emitters) {
+    for (particleEmitter <- _emitters) {
       particleEmitter.scaleSize(xSizeScaleFactor, ySizeScaleFactor)
       particleEmitter.scaleMotion(motionScaleFactor)
     }
@@ -289,6 +290,6 @@ class ParticleEffect extends AutoCloseable {
     * @param cleanUpBlendFunction
     */
   def setEmittersCleanUpBlendFunction(cleanUpBlendFunction: Boolean): Unit =
-    for (i <- 0 until emitters.size)
-      emitters(i).setCleansUpBlendFunction(cleanUpBlendFunction)
+    for (i <- 0 until _emitters.size)
+      _emitters(i).cleansUpBlendFunction = cleanUpBlendFunction
 }

@@ -93,7 +93,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     this._style = style
 
     // no extra descent to fake line height
-    textHeight = style.font.getCapHeight() - style.font.getDescent()
+    textHeight = style.font.capHeight - style.font.descent
     updateDisplayText()
     invalidateHierarchy()
   }
@@ -108,7 +108,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     } else {
       // without ceil we might end up with one less row then expected
       // due to how linesShowing is calculated in #sizeChanged and #getHeight() returning rounded value
-      var prefHeight = Math.ceil(getStyle.font.getLineHeight() * prefRows).toFloat
+      var prefHeight = Math.ceil(getStyle.font.lineHeight * prefRows).toFloat
       getStyle.background.foreach { bg =>
         prefHeight = Math.max(prefHeight + bg.getBottomHeight + bg.getTopHeight, bg.getMinHeight)
       }
@@ -202,8 +202,8 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     // The number of lines showed must be updated whenever the height is updated
     val font            = getStyle.font
     val background      = getStyle.background
-    val availableHeight = getHeight - background.fold(0f)(bg => bg.getBottomHeight + bg.getTopHeight)
-    linesShowing = Math.floor(availableHeight / font.getLineHeight()).toInt
+    val availableHeight = getHeight - background.map(bg => bg.getBottomHeight + bg.getTopHeight).getOrElse(0f)
+    linesShowing = Math.floor(availableHeight / font.lineHeight).toInt
   }
 
   override protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
@@ -211,7 +211,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     background.foreach { bg =>
       textY = textY - bg.getTopHeight
     }
-    if (font.usesIntegerPositions()) textY = textY.toInt.toFloat
+    if (font.integerPositions) textY = textY.toInt.toFloat
     textY
   }
 
@@ -220,8 +220,8 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     var offsetY    = 0f
     val minIndex   = Math.min(cursor, selectionStart)
     val maxIndex   = Math.max(cursor, selectionStart)
-    val fontData   = font.getData()
-    val lineHeight = getStyle.font.getLineHeight()
+    val fontData   = font.data
+    val lineHeight = getStyle.font.lineHeight
     while (i + 1 < linesBreak.size && i < (firstLineShowing + linesShowing) * 2) {
 
       val lineStart = linesBreak(i)
@@ -251,34 +251,34 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
         }
         val selectionX     = glyphPositions(start) - glyphPositions(lineStart)
         val selectionWidth = glyphPositions(end) - glyphPositions(start)
-        selection.draw(batch, x + selectionX + fontLineOffsetX, y - lineHeight - offsetY, selectionWidth + fontLineOffsetWidth, font.getLineHeight())
+        selection.draw(batch, x + selectionX + fontLineOffsetX, y - lineHeight - offsetY, selectionWidth + fontLineOffsetWidth, font.lineHeight)
       }
 
-      offsetY += font.getLineHeight()
+      offsetY += font.lineHeight
       i += 2
     }
   }
 
   override protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
-    var offsetY = -(getStyle.font.getLineHeight() - textHeight) / 2
+    var offsetY = -(getStyle.font.lineHeight - textHeight) / 2
     var i       = firstLineShowing * 2
     while (i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.size) {
       font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left.toInt, false)
-      offsetY -= font.getLineHeight()
+      offsetY -= font.lineHeight
       i += 2
     }
   }
 
   override protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
-    cursorPatch.draw(batch, x + getCursorX, y + getCursorY, cursorPatch.getMinWidth, font.getLineHeight())
+    cursorPatch.draw(batch, x + getCursorX, y + getCursorY, cursorPatch.getMinWidth, font.lineHeight)
 
   override protected def calculateOffsets(): Unit = {
     super.calculateOffsets()
-    if (lastText.fold(true)(_ != this._text)) {
+    if (lastText.forall(_ != this._text)) {
       this.lastText = Nullable(_text)
       val font         = getStyle.font
       val maxWidthLine = this.getWidth -
-        getStyle.background.fold(0f)(bg => bg.getLeftWidth + bg.getRightWidth)
+        getStyle.background.map(bg => bg.getLeftWidth + bg.getRightWidth).getOrElse(0f)
       linesBreak.clear()
       var lineStart = 0
       var lastSpace = 0
@@ -317,7 +317,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   }
 
   override protected def createInputListener(): InputListener =
-    new TextAreaListener()
+    TextAreaListener()
 
   override def setSelection(selectionStart: Int, selectionEnd: Int): Unit = {
     super.setSelection(selectionStart, selectionEnd)
@@ -356,7 +356,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
 
   def getCursorX: Float = {
     var textOffset = 0f
-    val fontData   = getStyle.font.getData()
+    val fontData   = getStyle.font.data
     if (!(cursor >= glyphPositions.size || cursorLine * 2 >= linesBreak.size)) {
       val lineStart   = linesBreak.items(cursorLine * 2)
       var glyphOffset = 0f
@@ -372,7 +372,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
 
   def getCursorY: Float = {
     val font = getStyle.font
-    -(cursorLine - firstLineShowing + 1) * font.getLineHeight()
+    -(cursorLine - firstLineShowing + 1) * font.lineHeight
   }
 
   /** Input listener for the text area * */
@@ -399,7 +399,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
         adjustedY -= bg.getTopHeight
       }
 
-      cursorLine = Math.floor((adjustedHeight - adjustedY) / font.getLineHeight()).toInt + firstLineShowing
+      cursorLine = Math.floor((adjustedHeight - adjustedY) / font.lineHeight).toInt + firstLineShowing
       cursorLine = Math.max(0, Math.min(cursorLine, getLines - 1))
 
       super.setCursorPosition(adjustedX, adjustedY)

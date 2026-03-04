@@ -68,7 +68,7 @@ class CameraInputController protected (
   var autoUpdate: Boolean = true
 
   /** The target to rotate around. */
-  var target: Vector3 = new Vector3()
+  var target: Vector3 = Vector3()
 
   /** Whether to update the target on translation */
   var translateTarget: Boolean = true
@@ -93,12 +93,11 @@ class CameraInputController protected (
 
   private var startX: Float   = 0f
   private var startY: Float   = 0f
-  private val tmpV1:  Vector3 = new Vector3()
-  private val tmpV2:  Vector3 = new Vector3()
+  private val tmpV1:  Vector3 = Vector3()
+  private val tmpV2:  Vector3 = Vector3()
 
-  def this(camera: Camera)(implicit sge: Sge) = {
-    this(new CameraInputController.CameraGestureListener(), camera)
-  }
+  def this(camera: Camera)(implicit sge: Sge) =
+    this(CameraInputController.CameraGestureListener(), camera)
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {

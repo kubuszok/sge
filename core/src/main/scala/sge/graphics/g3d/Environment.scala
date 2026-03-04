@@ -59,7 +59,7 @@ class Environment extends Attributes {
   def add(light: DirectionalLight): Environment = {
     val dirLights = get(DirectionalLightsAttribute.Type).map(_.asInstanceOf[DirectionalLightsAttribute])
     dirLights.fold {
-      val newDirLights = new DirectionalLightsAttribute()
+      val newDirLights = DirectionalLightsAttribute()
       set(newDirLights)
       newDirLights.lights.add(light)
     } { dl =>
@@ -71,7 +71,7 @@ class Environment extends Attributes {
   def add(light: PointLight): Environment = {
     val pointLights = get(PointLightsAttribute.Type).map(_.asInstanceOf[PointLightsAttribute])
     pointLights.fold {
-      val newPointLights = new PointLightsAttribute()
+      val newPointLights = PointLightsAttribute()
       set(newPointLights)
       newPointLights.lights.add(light)
     } { pl =>
@@ -83,7 +83,7 @@ class Environment extends Attributes {
   def add(light: SpotLight): Environment = {
     val spotLights = get(SpotLightsAttribute.Type).map(_.asInstanceOf[SpotLightsAttribute])
     spotLights.fold {
-      val newSpotLights = new SpotLightsAttribute()
+      val newSpotLights = SpotLightsAttribute()
       set(newSpotLights)
       newSpotLights.lights.add(light)
     } { sl =>

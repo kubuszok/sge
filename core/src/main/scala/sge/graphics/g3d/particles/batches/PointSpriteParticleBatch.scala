@@ -19,8 +19,10 @@
  * - Static fields → companion object vals; static method enablePointSprites → private def
  * - load(): Java returns null check inline; Scala uses nested foreach/fold
  * - save(): Java getTexture() inline; Scala getTexture().foreach
- * - All public methods faithfully ported: setTexture, getTexture, getBlendingAttribute,
+ * - All public methods faithfully ported: texture (property), blendingAttribute,
  *   flush, getRenderables, save, load, allocParticlesData, allocRenderable
+ * - Fixes (2026-03-04): setTexture/getTexture → texture/texture_=;
+ *   getBlendingAttribute → blendingAttribute
  * - Audit: pass (2026-03-03)
  * TODO: typed GL enums -- EnableCap, CullFace, CompareFunc -- see docs/improvements/opaque-types.md
  */
@@ -55,10 +57,10 @@ import sge.utils.Pool
   *   Inferno
   */
 class PointSpriteParticleBatch(
-  capacity:           Int,
-  shaderConfig:       Nullable[AnyRef], // ParticleShader.Config - not yet ported
-  blendingAttribute:  Nullable[BlendingAttribute],
-  depthTestAttribute: Nullable[DepthTestAttribute]
+  capacity:            Int,
+  shaderConfig:        Nullable[AnyRef], // ParticleShader.Config - not yet ported
+  initialBlendingAttr: Nullable[BlendingAttribute],
+  depthTestAttribute:  Nullable[DepthTestAttribute]
 )(using Sge)
     extends BufferedParticleBatch[PointSpriteControllerRenderData] {
 
@@ -69,9 +71,9 @@ class PointSpriteParticleBatch(
   private var vertices:             Array[Float]      = scala.compiletime.uninitialized
   var renderable:                   Renderable        = scala.compiletime.uninitialized
   protected var _blendingAttribute: BlendingAttribute =
-    blendingAttribute.getOrElse(new BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f))
+    initialBlendingAttr.getOrElse(BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f))
   protected var _depthTestAttribute: DepthTestAttribute =
-    depthTestAttribute.getOrElse(new DepthTestAttribute(GL20.GL_LEQUAL, false))
+    depthTestAttribute.getOrElse(DepthTestAttribute(GL20.GL_LEQUAL, false))
 
   allocRenderable()
   ensureCapacity(capacity)
@@ -79,42 +81,36 @@ class PointSpriteParticleBatch(
   // renderable.shader = new ParticleShader(renderable, shaderConfig)
   // renderable.shader.foreach(_.init())
 
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
-  def this(capacity: Int)(using Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)
     Nullable(renderable.meshPart.mesh).foreach(_.close())
-    renderable.meshPart.mesh = new Mesh(false, capacity, 0, CPU_ATTRIBUTES)
+    renderable.meshPart.mesh = Mesh(false, capacity, 0, CPU_ATTRIBUTES)
   }
 
   protected def allocRenderable(): Unit = {
-    renderable = new Renderable()
+    renderable = Renderable()
     renderable.meshPart.primitiveType = GL20.GL_POINTS
     renderable.meshPart.offset = 0
-    renderable.material = Nullable(new Material(_blendingAttribute, _depthTestAttribute, new TextureAttribute(TextureAttribute.Diffuse)))
+    renderable.material = Nullable(Material(_blendingAttribute, _depthTestAttribute, TextureAttribute(TextureAttribute.Diffuse)))
   }
 
-  def setTexture(texture: Texture): Unit =
+  def texture: Nullable[Texture] =
+    renderable.material.flatMap(_.get(TextureAttribute.Diffuse)).flatMap(attr => attr.asInstanceOf[TextureAttribute].textureDescription.texture)
+
+  def texture_=(texture: Texture): Unit =
     renderable.material.foreach { mat =>
       mat.get(TextureAttribute.Diffuse).foreach { attr =>
         attr.asInstanceOf[TextureAttribute].textureDescription.texture = Nullable(texture)
       }
     }
 
-  def getTexture(): Nullable[Texture] =
-    renderable.material.fold(Nullable.empty[Texture]) { mat =>
-      mat.get(TextureAttribute.Diffuse).fold(Nullable.empty[Texture]) { attr =>
-        attr.asInstanceOf[TextureAttribute].textureDescription.texture
-      }
-    }
-
-  def getBlendingAttribute(): BlendingAttribute =
+  def blendingAttribute: BlendingAttribute =
     _blendingAttribute
 
   override protected def flush(offsets: Array[Int]): Unit = {
@@ -170,8 +166,8 @@ class PointSpriteParticleBatch(
 
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("pointSpriteBatch")
-    getTexture().foreach { tex =>
-      data.saveAsset(manager.getAssetFileName(tex).getOrElse(""), classOf[Texture])
+    texture.foreach { tex =>
+      data.saveAsset(manager.assetFileName(tex).getOrElse(""), classOf[Texture])
     }
   }
 
@@ -179,7 +175,7 @@ class PointSpriteParticleBatch(
     val data = resources.getSaveData("pointSpriteBatch")
     data.foreach { d =>
       d.loadAsset().foreach { asset =>
-        setTexture(manager.get(asset.fileName, asset.`type`).asInstanceOf[Texture])
+        this.texture = manager(asset.fileName, asset.`type`).asInstanceOf[Texture]
       }
     }
   }
@@ -187,13 +183,13 @@ class PointSpriteParticleBatch(
 
 object PointSpriteParticleBatch {
   private var pointSpritesEnabled:    Boolean          = false
-  protected val TMP_V1:               Vector3          = new Vector3()
+  protected val TMP_V1:               Vector3          = Vector3()
   protected val sizeAndRotationUsage: Int              = 1 << 9
-  protected val CPU_ATTRIBUTES:       VertexAttributes = new VertexAttributes(
-    new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
-    new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
-    new VertexAttribute(Usage.TextureCoordinates, 4, "a_region"),
-    new VertexAttribute(sizeAndRotationUsage, 3, "a_sizeAndRotation")
+  protected val CPU_ATTRIBUTES:       VertexAttributes = VertexAttributes(
+    VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
+    VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
+    VertexAttribute(Usage.TextureCoordinates, 4, "a_region"),
+    VertexAttribute(sizeAndRotationUsage, 3, "a_sizeAndRotation")
   )
   protected val CPU_VERTEX_SIZE:              Int = CPU_ATTRIBUTES.vertexSize / 4
   protected val CPU_POSITION_OFFSET:          Int = CPU_ATTRIBUTES.getOffset(Usage.Position)

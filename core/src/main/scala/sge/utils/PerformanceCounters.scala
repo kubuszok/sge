@@ -7,14 +7,14 @@
  * Migration notes:
  *   Renames: `Array<PerformanceCounter>` -> `DynamicArray[PerformanceCounter]`
  *   Idiom: split packages
- *   Issues: uses flat `package sge.utils` instead of split packages
- *   TODO: uses flat package declaration -- convert to split (package sge / package utils)
+ *   Issues: None
  *   TODO: opaque Seconds for tick(deltaTime) param -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.utils
+package sge
+package utils
 
 import sge.math.MathUtils
 
@@ -26,13 +26,13 @@ class PerformanceCounters {
   val counters: DynamicArray[PerformanceCounter] = DynamicArray[PerformanceCounter]()
 
   def add(name: String, windowSize: Int): PerformanceCounter = {
-    val result = new PerformanceCounter(name, windowSize)
+    val result = PerformanceCounter(name, windowSize)
     counters.add(result)
     result
   }
 
   def add(name: String): PerformanceCounter = {
-    val result = new PerformanceCounter(name)
+    val result = PerformanceCounter(name)
     counters.add(result)
     result
   }

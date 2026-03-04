@@ -50,7 +50,7 @@ class ParticleControllerControllerRenderer extends ParticleControllerRenderer[Pa
   }
 
   override def copy(): ParticleControllerComponent =
-    new ParticleControllerControllerRenderer()
+    ParticleControllerControllerRenderer()
 
   override def isCompatible(batch: ParticleBatch[?]): Boolean =
     false

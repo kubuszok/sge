@@ -1,7 +1,7 @@
 # Audit: sge.scenes.scene2d.actions
 
-Audited: 34/34 files | Pass: 32 | Minor: 2 | Major: 0
-Last updated: 2026-03-03
+Audited: 34/34 files | Pass: 34 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -241,13 +241,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/actions/LayoutAction.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/actions/LayoutAction.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: 3 methods present: `act`, `isEnabled`, `setLayoutEnabled`. `setTarget` override commented out.
+**Completeness**: All 4 methods: `setTarget`, `act`, `isEnabled`, `setLayoutEnabled`.
 **Convention changes**: split packages
-**TODOs**: `setTarget()` and `act()` bodies are commented out pending Layout trait port. `act()` returns `true` unconditionally instead of calling `Layout.setLayoutEnabled`.
-**Issues**: Both `setTarget` and `act` are non-functional -- the action is a no-op until the Layout trait is ported. This blocks proper layout-enable/disable actions.
+**TODOs**: None
+**Issues**: None. Layout trait is now ported; `setTarget` validates actor type and `act` calls `setLayoutEnabled`. This blocks proper layout-enable/disable actions.
 
 ---
 
@@ -274,15 +274,15 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/scenes/scene2d/actions/MoveToAction.scala` |
 | Java source(s) | `com/badlogic/gdx/scenes/scene2d/actions/MoveToAction.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: 10 methods present: `begin`, `update`, `setPosition` (x2), `getX`, `setX`, `getY`, `setY`, `getAlignment`, `setAlignment`, `reset`. **Missing 3 methods from Java source**: `setStartPosition(float x, float y)`, `getStartX()`, `getStartY()`.
+**Completeness**: All 13 methods: `begin`, `update`, `setStartPosition`, `setPosition` (x2), `getX`, `setX`, `getY`, `setY`, `getStartX`, `getStartY`, `getAlignment`, `setAlignment`, `reset`.
 **Renames**: `int alignment` -> `Align` (opaque type); `Align.bottomLeft` constant
 **Convention changes**: no return; split packages
 **Idiom**: `target.getX(alignment)` -> `target.foreach(t => startX = t.getX(alignment))`
 **TODOs**: None
-**Issues**: Missing `setStartPosition`, `getStartX`, `getStartY`. These are used for testing/debugging to read or override the starting position captured in `begin()`. Low impact for typical usage but breaks API parity.
+**Issues**: None
 
 ---
 

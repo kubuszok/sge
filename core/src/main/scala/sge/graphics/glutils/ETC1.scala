@@ -188,7 +188,7 @@ object ETC1 {
     val height     = if (etc1Data.hasPKMHeader()) getHeightPKM(etc1Data.compressedData, 0) else etc1Data.height
 
     val pixelSize = getPixelSize(format)
-    val pixmap    = new Pixmap(width, height, format)
+    val pixmap    = Pixmap(width, height, format)
     decodeImage(etc1Data.compressedData, dataOffset, pixmap.getPixels(), 0, width, height, pixelSize)
     pixmap
   }

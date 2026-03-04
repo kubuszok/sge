@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful 1:1 port
+ *   - Audited 2026-03-04: faithful 1:1 port
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Array<SpotLight> -> DynamicArray[SpotLight]
  *   - null check in hashCode -> Nullable(light).fold(0)(_.hashCode())
@@ -33,9 +33,8 @@ class SpotLightsAttribute(
   val lights: DynamicArray[SpotLight]
 ) extends Attribute(SpotLightsAttribute.Type) {
 
-  def this() = {
+  def this() =
     this(DynamicArray[SpotLight]())
-  }
 
   def this(copyFrom: SpotLightsAttribute) = {
     this()
@@ -43,12 +42,12 @@ class SpotLightsAttribute(
   }
 
   override def copy(): SpotLightsAttribute =
-    new SpotLightsAttribute(this)
+    SpotLightsAttribute(this)
 
   override def hashCode(): Int = {
     var result = super.hashCode()
     for (light <- lights)
-      result = 1237 * result + Nullable(light).fold(0)(_.hashCode())
+      result = 1237 * result + Nullable(light).map(_.hashCode()).getOrElse(0)
     result
   }
 

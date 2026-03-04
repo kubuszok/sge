@@ -86,5 +86,5 @@ final class UnweightedMeshSpawnShapeValue extends MeshSpawnShapeValue {
     }
 
   override def copy(): SpawnShapeValue =
-    new UnweightedMeshSpawnShapeValue(this)
+    UnweightedMeshSpawnShapeValue(this)
 }

@@ -11,15 +11,16 @@
  *     setContinuousRendering/isContinuousRendering track state (Java ignores); incrementFrameId() merged into updateTime();
  *     getTargetRenderInterval/targetRenderInterval omitted (backend-specific)
  *   Idiom: Nullable (getGL30/31/32, newCursor), split packages
- *   TODO: getGLVersion returns new Object() — needs real GLVersion once Graphics.GLVersion alias is fixed
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package noop
 
+import sge.Application
 import sge.graphics.{ Cursor, Pixmap }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.{ GL20, GL30, GL31, GL32 }
+import sge.graphics.glutils.GLVersion
 import sge.utils.{ Nullable, TimeUtils }
 
 /** A no-op [[sge.Graphics]] implementation for headless/testing use. Tracks frame timing via [[updateTime]] but provides no GL context.
@@ -113,7 +114,8 @@ class NoopGraphics(
 
   override def getType(): Graphics.GraphicsType = Graphics.GraphicsType.Mock
 
-  override def getGLVersion(): Graphics.GLVersion = new Object()
+  override def getGLVersion(): Graphics.GLVersion =
+    GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
 
   // ---- density / PPI ----
 

@@ -444,6 +444,6 @@ object Pool {
     val Y       = 2
     val DISTSQR = 3
 
-    private val pool = new Pool.Default[QuadTreeFloat](() => new QuadTreeFloat(), 128, 4096)
+    private val pool = Pool.Default[QuadTreeFloat](() => QuadTreeFloat(), 128, 4096)
   }
 }

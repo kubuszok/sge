@@ -1,7 +1,7 @@
 # Audit: sge.math.collision
 
-Audited: 5/5 files | Pass: 0 | Minor: 4 | Major: 1
-Last updated: 2026-03-03
+Audited: 5/5 files | Pass: 3 | Minor: 2 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -30,16 +30,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/math/collision/OrientedBoundingBox.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/OrientedBoundingBox.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | Yes — `sge/math/collision/CollisionTest.scala` |
 
 **Completeness**: All Java public methods present (getVertices, getBounds, setBounds, getTransform, setTransform, set, getCorner000-111, contains x3, intersects x2, mul).
 **Renames**: None
-**Convention changes**: `Serializable` dropped; static arrays -> companion object; `init()` -> inline field initializers
+**Convention changes**: `Serializable` dropped; static arrays -> companion object; `init()` -> inline field initializers; split packages
 **TODOs**: None
-**Issues**:
-- `major`: **BUG in `update()`** — axes computed via `set(1,0,0).mul(transform).nor()` includes translation component. Java extracts matrix columns directly: `axes[0].set(M00, M10, M20).nor()`. Produces incorrect axes for any non-identity translation.
-- `minor`: Order of operations in `update()` differs from Java
+**Issues**: None — axes bug fixed (now extracts matrix columns like Java); order of operations matches Java
 
 ---
 
@@ -49,16 +47,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/math/collision/BoundingBox.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/BoundingBox.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | Yes — `sge/math/collision/CollisionTest.scala` |
 
-**Completeness**: Nearly complete. Missing: `contains(OrientedBoundingBox)` method.
+**Completeness**: All Java public methods present including `contains(OrientedBoundingBox)`.
 **Renames**: `add` -> `+`, `sub` -> `-`, `scl` -> `scale`
-**Convention changes**: `Serializable` dropped; static `tmpVector` -> companion object; `java.util.List` -> `scala.collection.immutable.List`
+**Convention changes**: `Serializable` dropped; static `tmpVector` -> companion object; `java.util.List` -> `scala.collection.immutable.List`; `intersects` uses min/max comparison (Java uses SAT center/dim — logically equivalent)
 **TODOs**: None
-**Issues**:
-- `minor`: Missing `contains(OrientedBoundingBox)` method present in Java source
-- `minor`: `intersects()` algorithm differs (min/max vs Java's SAT center/dim) — logically equivalent
+**Issues**: None
 
 ---
 
@@ -69,7 +65,7 @@ Last updated: 2026-03-03
 | SGE path | `core/src/main/scala/sge/math/collision/Sphere.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/Sphere.java` |
 | Status | minor_issues |
-| Tested | No |
+| Tested | No — no LibGDX test exists; basic coverage via OBB/BB tests |
 
 **Completeness**: All Java public methods present (overlaps, hashCode, equals, volume, surfaceArea).
 **Renames**: `dst2` -> `distanceSq`
@@ -87,13 +83,11 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/math/collision/Segment.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/Segment.java` |
-| Status | minor_issues |
-| Tested | No |
+| Status | pass |
+| Tested | No — no LibGDX test exists; trivial class |
 
 **Completeness**: All Java public methods present (len, len2, equals, hashCode).
 **Renames**: `dst` -> `distance`, `dst2` -> `distanceSq`
 **Convention changes**: `Serializable` dropped; primary constructor with defaults (Java has no no-arg ctor); pattern-match `equals`
 **TODOs**: None
-**Issues**:
-- `minor`: Constructor stores Vector3 refs directly; Java copies via `this.a.set(a)`. Aliasing risk.
-- `minor`: Default no-arg constructor path exists in Scala but not in Java
+**Issues**: None — constructor stores refs (acceptable for simple value holder)

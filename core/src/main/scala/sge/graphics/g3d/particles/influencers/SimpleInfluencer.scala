@@ -28,7 +28,7 @@ import sge.graphics.g3d.particles.values.ScaledNumericValue
   */
 abstract class SimpleInfluencer extends Influencer {
 
-  var value: ScaledNumericValue = new ScaledNumericValue()
+  var value: ScaledNumericValue = ScaledNumericValue()
   value.setHigh(1)
 
   var valueChannel:           FloatChannel      = scala.compiletime.uninitialized
@@ -54,7 +54,7 @@ abstract class SimpleInfluencer extends Influencer {
   }
 
   override def activateParticles(startIndex: Int, count: Int): Unit =
-    if (!value.isRelative()) {
+    if (!value.relative) {
       var i = startIndex * valueChannel.strideSize
       var a = startIndex * interpolationChannel.strideSize
       val c = i + count * valueChannel.strideSize

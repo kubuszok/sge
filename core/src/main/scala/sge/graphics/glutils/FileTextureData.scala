@@ -51,7 +51,7 @@ class FileTextureData(
       if (file.extension().equals("cim"))
         pixmap = Nullable(PixmapIO.readCIM(file))
       else
-        pixmap = Nullable(new Pixmap(file))
+        pixmap = Nullable(Pixmap(file))
     }
     pixmap.foreach { p =>
       width = p.getWidth()

@@ -23,10 +23,8 @@ package actions
   * @author
   *   Nathan Sweet
   */
-class DelayAction(private var duration: Float) extends DelegateAction with FinishableAction {
+class DelayAction(private var duration: Float = 0) extends DelegateAction with FinishableAction {
   private var time: Float = 0
-
-  def this() = this(0)
 
   override protected def delegate(delta: Float): Boolean =
     if (time < duration) {
@@ -35,10 +33,10 @@ class DelayAction(private var duration: Float) extends DelegateAction with Finis
       else {
         val actionDelta = time - duration
         time = duration
-        action.fold(true)(_.act(actionDelta))
+        action.forall(_.act(actionDelta))
       }
     } else {
-      action.fold(true)(_.act(delta))
+      action.forall(_.act(delta))
     }
 
   def finish(): Unit = time = duration

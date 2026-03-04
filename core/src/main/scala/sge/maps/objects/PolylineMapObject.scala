@@ -5,9 +5,9 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
+ *   Renames: getPolyline()/setPolyline() -> var polyline
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getPolyline/setPolyline
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -20,12 +20,12 @@ import sge.math.Polyline
 /** @brief Represents {@link Polyline} map objects */
 class PolylineMapObject extends MapObject {
 
-  private var polyline: Polyline = new Polyline(Array.empty[Float])
+  var polyline: Polyline = Polyline(Array.empty[Float])
 
   /** @param vertices polyline defining vertices */
   def this(vertices: Array[Float]) = {
     this()
-    polyline = new Polyline(vertices)
+    polyline = Polyline(vertices)
   }
 
   /** @param polyline the polyline */
@@ -33,11 +33,4 @@ class PolylineMapObject extends MapObject {
     this()
     this.polyline = polyline
   }
-
-  /** @return polyline shape */
-  def getPolyline: Polyline = polyline
-
-  /** @param polyline new object's polyline shape */
-  def setPolyline(polyline: Polyline): Unit =
-    this.polyline = polyline
 }

@@ -25,7 +25,7 @@ import sge.scenes.scene2d.utils.Layout
   * @author
   *   Nathan Sweet
   */
-class Widget extends Actor with Layout {
+class Widget()(using Sge) extends Actor() with Layout {
 
   private var _needsLayout:  Boolean = true
   private var fillParent:    Boolean = false

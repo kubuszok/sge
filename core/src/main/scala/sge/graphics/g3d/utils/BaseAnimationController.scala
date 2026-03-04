@@ -46,7 +46,7 @@ class BaseAnimationController(
 ) {
 
   private val transformPool: Pool[BaseAnimationController.Transform] =
-    new Pool.Default[BaseAnimationController.Transform](() => new BaseAnimationController.Transform())
+    Pool.Default[BaseAnimationController.Transform](() => BaseAnimationController.Transform())
 
   private var applying: Boolean = false
 
@@ -110,9 +110,9 @@ class BaseAnimationController(
 object BaseAnimationController {
 
   class Transform extends Pool.Poolable {
-    val translation: Vector3    = new Vector3()
-    val rotation:    Quaternion = new Quaternion()
-    val scale:       Vector3    = new Vector3(1, 1, 1)
+    val translation: Vector3    = Vector3()
+    val rotation:    Quaternion = Quaternion()
+    val scale:       Vector3    = Vector3(1, 1, 1)
 
     def idt(): Transform = {
       translation.set(0, 0, 0)
@@ -152,7 +152,7 @@ object BaseAnimationController {
   }
 
   private val transforms: mutable.Map[Node, Transform] = mutable.Map.empty
-  private val tmpT:       Transform                    = new Transform()
+  private val tmpT:       Transform                    = Transform()
 
   /** Find first key frame index just before a given time
     * @param arr

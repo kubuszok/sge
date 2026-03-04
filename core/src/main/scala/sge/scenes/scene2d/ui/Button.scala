@@ -6,7 +6,7 @@
  *
  * Migration notes:
  *   Renames: isChecked() getter -> getIsChecked (avoids collision with isChecked field)
- *   Convention: null -> Nullable; Skin constructors commented out; TODO: requestRendering in draw() (no (using Sge) context)
+ *   Convention: null -> Nullable; TODO: requestRendering in draw() (no (using Sge) context)
  *   Idiom: split packages
  *   TODO: Java-style getters/setters — setChecked, getClickListener, getButtonGroup, getStyle/setStyle, isPressed, isOver, isDisabled/setDisabled
  *   Audited: 2026-03-03
@@ -29,7 +29,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class Button() extends Table() with Disableable with Styleable[Button.ButtonStyle] {
+class Button()(using Sge) extends Table() with Disableable with Styleable[Button.ButtonStyle] {
   import Button._
 
   private var _style:                   ButtonStyle              = scala.compiletime.uninitialized
@@ -41,38 +41,41 @@ class Button() extends Table() with Disableable with Styleable[Button.ButtonStyl
 
   initialize()
 
-  // def this(skin: Skin) = {
-  //   this()
-  //   initialize()
-  //   setSkin(skin)
-  //   setStyle(skin.get(classOf[ButtonStyle]))
-  //   setSize(getPrefWidth, getPrefHeight)
-  // }
+  def this(style: Button.ButtonStyle)(using Sge) = {
+    this()
+    setStyle(style)
+    setSize(getPrefWidth, getPrefHeight)
+  }
 
-  // def this(skin: Skin, styleName: String) = {
-  //   this()
-  //   initialize()
-  //   setSkin(skin)
-  //   setStyle(skin.get(styleName, classOf[ButtonStyle]))
-  //   setSize(getPrefWidth, getPrefHeight)
-  // }
+  def this(skin: Skin)(using Sge) = {
+    this()
+    setSkin(Nullable(skin))
+    setStyle(skin.get(classOf[Button.ButtonStyle]))
+    setSize(getPrefWidth, getPrefHeight)
+  }
 
-  // def this(child: Actor, skin: Skin, styleName: String) = {
-  //   this(child, skin.get(styleName, classOf[ButtonStyle]))
-  //   setSkin(skin)
-  // }
+  def this(skin: Skin, styleName: String)(using Sge) = {
+    this()
+    setSkin(Nullable(skin))
+    setStyle(skin.get(styleName, classOf[Button.ButtonStyle]))
+    setSize(getPrefWidth, getPrefHeight)
+  }
 
-  def this(child: Actor, style: Button.ButtonStyle) = {
+  def this(child: Actor, style: Button.ButtonStyle)(using Sge) = {
     this()
     add(Nullable[Actor](child))
     setStyle(style)
     setSize(getPrefWidth, getPrefHeight)
   }
 
-  def this(style: Button.ButtonStyle) = {
-    this()
-    setStyle(style)
-    setSize(getPrefWidth, getPrefHeight)
+  def this(child: Actor, skin: Skin)(using Sge) = {
+    this(child, skin.get(classOf[Button.ButtonStyle]))
+    setSkin(Nullable(skin))
+  }
+
+  def this(child: Actor, skin: Skin, styleName: String)(using Sge) = {
+    this(child, skin.get(styleName, classOf[Button.ButtonStyle]))
+    setSkin(Nullable(skin))
   }
 
   private def initialize(): Unit = {
@@ -84,25 +87,20 @@ class Button() extends Table() with Disableable with Styleable[Button.ButtonStyl
     addListener(clickListener)
   }
 
-  def this(up: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, Nullable.empty, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable]) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, checked))
-  }
-
-  // def this(child: Actor, skin: Skin) = this(child, skin.get(classOf[ButtonStyle]))
 
   def setChecked(isChecked: Boolean): Unit =
     setChecked(isChecked, programmaticChangeEvents)
 
   private[ui] def setChecked(isChecked: Boolean, fireEvent: Boolean): Unit =
-    if (this.isChecked != isChecked && buttonGroup.fold(true)(bg => bg.asInstanceOf[ButtonGroup[Button]].canCheck(this, isChecked))) {
+    if (this.isChecked != isChecked && buttonGroup.forall(bg => bg.asInstanceOf[ButtonGroup[Button]].canCheck(this, isChecked))) {
       this.isChecked = isChecked
 
       if (fireEvent) {
@@ -234,11 +232,10 @@ class Button() extends Table() with Disableable with Styleable[Button.ButtonStyl
       }
     }
 
-    // TODO: requestRendering - draw doesn't have `using Sge` context
-    // getStage.foreach { stage =>
-    //   if (stage.getActionsRequestRendering && isPressed != clickListener.isPressed)
-    //     Sge().graphics.requestRendering()
-    // }
+    getStage.foreach { stage =>
+      if (stage.getActionsRequestRendering && isPressed != clickListener.isPressed)
+        Sge().graphics.requestRendering()
+    }
   }
 
   override def getPrefWidth: Float = {

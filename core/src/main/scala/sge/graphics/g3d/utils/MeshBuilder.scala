@@ -42,15 +42,15 @@ import sge.utils.{ DynamicArray, Nullable, ObjectMap, SgeError }
   * @author
   *   Xoppa
   */
-class MeshBuilder extends MeshPartBuilder {
+class MeshBuilder()(using Sge) extends MeshPartBuilder {
   import MeshPartBuilder.VertexInfo
 
-  protected val vertTmp1: VertexInfo = new VertexInfo()
-  protected val vertTmp2: VertexInfo = new VertexInfo()
-  protected val vertTmp3: VertexInfo = new VertexInfo()
-  protected val vertTmp4: VertexInfo = new VertexInfo()
+  protected val vertTmp1: VertexInfo = VertexInfo()
+  protected val vertTmp2: VertexInfo = VertexInfo()
+  protected val vertTmp3: VertexInfo = VertexInfo()
+  protected val vertTmp4: VertexInfo = VertexInfo()
 
-  protected val tempC1: Color = new Color()
+  protected val tempC1: Color = Color()
 
   /** The vertex attributes of the resulting mesh */
   protected var attributes: Nullable[VertexAttributes] = Nullable.empty
@@ -104,7 +104,7 @@ class MeshBuilder extends MeshPartBuilder {
   protected var parts: DynamicArray[MeshPart] = DynamicArray[MeshPart]()
 
   /** The color used if no vertex color is specified. */
-  protected val color:    Color   = new Color(Color.WHITE)
+  protected val color:    Color   = Color(Color.WHITE)
   protected var hasColor: Boolean = false
 
   /** The current primitiveType */
@@ -119,9 +119,9 @@ class MeshBuilder extends MeshPartBuilder {
   protected var vertex:         Array[Float] = scala.compiletime.uninitialized
 
   protected var vertexTransformationEnabled: Boolean     = false
-  protected val positionTransform:           Matrix4     = new Matrix4()
-  protected val normalTransform:             Matrix3     = new Matrix3()
-  protected val bounds:                      BoundingBox = new BoundingBox()
+  protected val positionTransform:           Matrix4     = Matrix4()
+  protected val normalTransform:             Matrix3     = Matrix3()
+  protected val bounds:                      BoundingBox = BoundingBox()
 
   private var _lastIndex: Int = -1
 
@@ -155,7 +155,7 @@ class MeshBuilder extends MeshPartBuilder {
     this.istart = 0
     this.part = Nullable.empty
     this.stride = attributes.vertexSize / 4
-    if (Nullable(this.vertex).fold(true)(_.length < stride)) this.vertex = new Array[Float](stride)
+    if (Nullable(this.vertex).forall(_.length < stride)) this.vertex = new Array[Float](stride)
     val a = attributes.findByUsage(Usage.Position)
     if (a.isEmpty) throw SgeError.InvalidInput("Cannot build mesh without position attribute")
     a.foreach { attr =>
@@ -163,18 +163,18 @@ class MeshBuilder extends MeshPartBuilder {
       posSize = attr.numComponents
     }
     val aNor = attributes.findByUsage(Usage.Normal)
-    norOffset = aNor.fold(-1)(_.offset / 4)
+    norOffset = aNor.map(_.offset / 4).getOrElse(-1)
     val aBiNor = attributes.findByUsage(Usage.BiNormal)
-    biNorOffset = aBiNor.fold(-1)(_.offset / 4)
+    biNorOffset = aBiNor.map(_.offset / 4).getOrElse(-1)
     val aTangent = attributes.findByUsage(Usage.Tangent)
-    tangentOffset = aTangent.fold(-1)(_.offset / 4)
+    tangentOffset = aTangent.map(_.offset / 4).getOrElse(-1)
     val aCol = attributes.findByUsage(Usage.ColorUnpacked)
-    colOffset = aCol.fold(-1)(_.offset / 4)
-    colSize = aCol.fold(0)(_.numComponents)
+    colOffset = aCol.map(_.offset / 4).getOrElse(-1)
+    colSize = aCol.map(_.numComponents).getOrElse(0)
     val aCp = attributes.findByUsage(Usage.ColorPacked)
-    cpOffset = aCp.fold(-1)(_.offset / 4)
+    cpOffset = aCp.map(_.offset / 4).getOrElse(-1)
     val aUv = attributes.findByUsage(Usage.TextureCoordinates)
-    uvOffset = aUv.fold(-1)(_.offset / 4)
+    uvOffset = aUv.map(_.offset / 4).getOrElse(-1)
     setColor(Nullable.empty)
     setVertexTransform(Nullable.empty)
     setUVRange(Nullable.empty[TextureRegion])
@@ -200,7 +200,7 @@ class MeshBuilder extends MeshPartBuilder {
     *   #part(String, int, MeshPart)
     */
   def part(id: String, primitiveType: Int): MeshPart =
-    part(id, primitiveType, new MeshPart())
+    part(id, primitiveType, MeshPart())
 
   /** Starts a new MeshPart. The mesh part is not usable until end() is called. This will reset the current color and vertex transformation.
     * @param id
@@ -260,9 +260,9 @@ class MeshBuilder extends MeshPartBuilder {
   }
 
   /** End building the mesh and returns the mesh */
-  def end()(using Sge): Mesh =
+  def end(): Mesh =
     end(
-      new Mesh(
+      Mesh(
         true,
         Math.min(vertices.size / stride, MeshBuilder.MAX_VERTICES),
         indices.size,
@@ -363,7 +363,7 @@ class MeshBuilder extends MeshPartBuilder {
       vScale = 1f
     } { r =>
       hasUVTransform = true
-      setUVRange(r.getU(), r.getV(), r.getU2(), r.getV2())
+      setUVRange(r.u, r.v, r.u2, r.v2)
     }
 
   override def getVertexTransform(out: Matrix4): Matrix4 =
@@ -479,7 +479,7 @@ class MeshBuilder extends MeshPartBuilder {
     }
   }
 
-  private val tmpNormal: Vector3 = new Vector3()
+  private val tmpNormal: Vector3 = Vector3()
 
   override def vertex(pos: Vector3, nor: Nullable[Vector3], col: Nullable[Color], uv: Nullable[Vector2]): Short = {
     if (vindex > MeshBuilder.MAX_INDEX) throw SgeError.InvalidInput("Too many vertices used")
@@ -737,7 +737,7 @@ class MeshBuilder extends MeshPartBuilder {
     ensureVertices(if (numVertices < numIndices) numVertices else numIndices)
     for (i <- 0.until(numIndices)) {
       val sidx = indices(indexOffset + i) & 0xffff
-      var didx = MeshBuilder.indicesMap.fold(-1)(_.get(sidx).getOrElse(-1))
+      var didx = MeshBuilder.indicesMap.flatMap(_.get(sidx)).getOrElse(-1)
       if (didx < 0) {
         addVertex(vertices, sidx * stride)
         didx = _lastIndex
@@ -763,6 +763,7 @@ class MeshBuilder extends MeshPartBuilder {
       index(((indices(i) & 0xffff) + offset).toShort)
   }
 
+  @deprecated("use PatchShapeBuilder.build instead", "")
   override def patch(
     corner00:   VertexInfo,
     corner10:   VertexInfo,
@@ -1308,7 +1309,7 @@ object MeshBuilder {
   protected val tmpIndices:  DynamicArray[Short] = DynamicArray[Short]()
   protected val tmpVertices: DynamicArray[Float] = DynamicArray[Float]()
 
-  private val vTmp: Vector3 = new Vector3()
+  private val vTmp: Vector3 = Vector3()
 
   private var indicesMap: Nullable[ObjectMap[Int, Int]] = Nullable.empty
 
@@ -1344,15 +1345,15 @@ object MeshBuilder {
   def createAttributes(usage: Long): VertexAttributes = {
     val attrs = DynamicArray[VertexAttribute]()
     if ((usage & Usage.Position) == Usage.Position)
-      attrs.add(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
+      attrs.add(VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
     if ((usage & Usage.ColorUnpacked) == Usage.ColorUnpacked)
-      attrs.add(new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
+      attrs.add(VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     if ((usage & Usage.ColorPacked) == Usage.ColorPacked)
-      attrs.add(new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
+      attrs.add(VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     if ((usage & Usage.Normal) == Usage.Normal)
-      attrs.add(new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
+      attrs.add(VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
     if ((usage & Usage.TextureCoordinates) == Usage.TextureCoordinates)
-      attrs.add(new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"))
-    new VertexAttributes(attrs.toArray*)
+      attrs.add(VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"))
+    VertexAttributes(attrs.toArray*)
   }
 }

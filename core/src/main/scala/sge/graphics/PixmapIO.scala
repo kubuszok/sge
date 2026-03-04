@@ -65,7 +65,7 @@ object PixmapIO {
     */
   def writePNG(file: FileHandle, pixmap: Pixmap, compression: Int, flipY: Boolean): Unit =
     try {
-      val writer = new PNG((pixmap.getWidth() * pixmap.getHeight() * 1.5f).toInt); // Guess at deflated size.
+      val writer = PNG((pixmap.getWidth() * pixmap.getHeight() * 1.5f).toInt); // Guess at deflated size.
       try {
         writer.setFlipY(flipY);
         writer.setCompression(compression);
@@ -127,7 +127,7 @@ object PixmapIO {
         val width  = in.readInt();
         val height = in.readInt();
         val format = Format.fromGdx2DPixmapFormat(in.readInt());
-        val pixmap = new Pixmap(width, height, format);
+        val pixmap = Pixmap(width, height, format);
 
         val pixelBuf = pixmap.getPixels();
         pixelBuf.asInstanceOf[Buffer].position(0);
@@ -189,7 +189,7 @@ object PixmapIO {
     private val INTERLACE_NONE:      Byte = 0
     private val PAETH:               Byte = 4
 
-    private val buffer:        ChunkBuffer = new ChunkBuffer(initialBufferSize)
+    private val buffer:        ChunkBuffer = ChunkBuffer(initialBufferSize)
     private val deflater:      Deflater    = new Deflater()
     private var lineOutBytes:  Array[Byte] = scala.compiletime.uninitialized
     private var curLineBytes:  Array[Byte] = scala.compiletime.uninitialized
@@ -235,13 +235,13 @@ object PixmapIO {
 
       val lineLen = pixmap.getWidth() * 4;
 
-      if (Nullable(lineOutBytes).fold(true)(_.length < lineLen)) {
+      if (Nullable(lineOutBytes).forall(_.length < lineLen)) {
         lineOutBytes = new Array[Byte](lineLen);
       }
-      if (Nullable(curLineBytes).fold(true)(_.length < lineLen)) {
+      if (Nullable(curLineBytes).forall(_.length < lineLen)) {
         curLineBytes = new Array[Byte](lineLen);
       }
-      if (Nullable(prevLineBytes).fold(true)(_.length < lineLen)) {
+      if (Nullable(prevLineBytes).forall(_.length < lineLen)) {
         prevLineBytes = new Array[Byte](lineLen);
         for (i <- 0 until lineLen)
           prevLineBytes(i) = 0;

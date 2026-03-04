@@ -691,13 +691,13 @@ object MeshPartBuilder {
     *   Xoppa
     */
   class VertexInfo extends Pool.Poolable {
-    val position:    Vector3 = new Vector3()
+    val position:    Vector3 = Vector3()
     var hasPosition: Boolean = false
-    val normal:      Vector3 = new Vector3(0, 1, 0)
+    val normal:      Vector3 = Vector3(0, 1, 0)
     var hasNormal:   Boolean = false
-    val color:       Color   = new Color(1, 1, 1, 1)
+    val color:       Color   = Color(1, 1, 1, 1)
     var hasColor:    Boolean = false
-    val uv:          Vector2 = new Vector2()
+    val uv:          Vector2 = Vector2()
     var hasUV:       Boolean = false
 
     override def reset(): Unit = {

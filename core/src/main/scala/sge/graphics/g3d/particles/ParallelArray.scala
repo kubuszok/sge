@@ -70,9 +70,9 @@ class ParallelArray(
   private def allocateChannel[T <: Channel](channelDescriptor: ChannelDescriptor): T = {
     val channel: Channel =
       if (channelDescriptor.`type` == classOf[Float]) {
-        new FloatChannel(this, channelDescriptor.id, channelDescriptor.count, capacity)
+        FloatChannel(this, channelDescriptor.id, channelDescriptor.count, capacity)
       } else if (channelDescriptor.`type` == classOf[Int]) {
-        new IntChannel(this, channelDescriptor.id, channelDescriptor.count, capacity)
+        IntChannel(this, channelDescriptor.id, channelDescriptor.count, capacity)
       } else {
         new ObjectChannel[Any](
           this,

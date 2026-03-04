@@ -26,7 +26,7 @@ import sge.utils.{ DynamicArray, Nullable }
   *   Map
   */
 class TiledMap extends maps.Map {
-  private val tilesets:       TiledMapTileSets                      = new TiledMapTileSets()
+  private val tilesets:       TiledMapTileSets                      = TiledMapTileSets()
   private var ownedResources: Nullable[DynamicArray[AutoCloseable]] = Nullable.empty
 
   /** @return collection of tilesets for this map. */

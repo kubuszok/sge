@@ -27,15 +27,12 @@ import sge.math.Interpolation
   * @author
   *   Nathan Sweet
   */
-abstract class TemporalAction(private var duration: Float, private var interpolation: Nullable[Interpolation]) extends Action with FinishableAction {
+abstract class TemporalAction(private var duration: Float = 0, private var interpolation: Nullable[Interpolation] = Nullable.empty) extends Action with FinishableAction {
 
   private var time:     Float   = 0
   private var reverse:  Boolean = false
   private var began:    Boolean = false
   private var complete: Boolean = false
-
-  def this() = this(0, Nullable.empty)
-  def this(duration: Float) = this(duration, Nullable.empty)
 
   def act(delta: Float): Boolean =
     if (complete) true

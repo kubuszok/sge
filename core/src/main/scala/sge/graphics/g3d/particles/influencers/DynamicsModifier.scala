@@ -51,10 +51,10 @@ abstract class DynamicsModifier extends Influencer {
 
 object DynamicsModifier {
 
-  private val TMP_V1: Vector3    = new Vector3()
-  private val TMP_V2: Vector3    = new Vector3()
-  private val TMP_V3: Vector3    = new Vector3()
-  private val TMP_Q:  Quaternion = new Quaternion()
+  private val TMP_V1: Vector3    = Vector3()
+  private val TMP_V2: Vector3    = Vector3()
+  private val TMP_V3: Vector3    = Vector3()
+  private val TMP_Q:  Quaternion = Quaternion()
 
   class FaceDirection extends DynamicsModifier {
     private var rotationChannel:      FloatChannel = scala.compiletime.uninitialized
@@ -95,17 +95,17 @@ object DynamicsModifier {
     }
 
     override def copy(): ParticleControllerComponent =
-      new FaceDirection(this)
+      FaceDirection(this)
   }
 
   abstract class Strength extends DynamicsModifier {
     protected var strengthChannel: FloatChannel       = scala.compiletime.uninitialized
-    var strengthValue:             ScaledNumericValue = new ScaledNumericValue()
+    var strengthValue:             ScaledNumericValue = ScaledNumericValue()
 
     def this(rotation: Strength) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
     }
 
@@ -121,7 +121,7 @@ object DynamicsModifier {
       while (i < c) {
         val start = strengthValue.newLowValue()
         var diff  = strengthValue.newHighValue()
-        if (!strengthValue.isRelative()) diff -= start
+        if (!strengthValue.relative) diff -= start
         strengthChannel.floatData(i + ParticleChannels.VelocityStrengthStartOffset) = start
         strengthChannel.floatData(i + ParticleChannels.VelocityStrengthDiffOffset) = diff
         i += strengthChannel.strideSize
@@ -133,18 +133,18 @@ object DynamicsModifier {
     protected var angularChannel: FloatChannel = scala.compiletime.uninitialized
 
     /** Polar angle, XZ plane */
-    var thetaValue: ScaledNumericValue = new ScaledNumericValue()
+    var thetaValue: ScaledNumericValue = ScaledNumericValue()
 
     /** Azimuth, Y */
-    var phiValue: ScaledNumericValue = new ScaledNumericValue()
+    var phiValue: ScaledNumericValue = ScaledNumericValue()
 
     def this(value: Angular) = {
       this()
       this.isGlobal = value.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(value.strengthValue)
-      thetaValue = new ScaledNumericValue()
-      phiValue = new ScaledNumericValue()
+      thetaValue = ScaledNumericValue()
+      phiValue = ScaledNumericValue()
       thetaValue.load(value.thetaValue)
       phiValue.load(value.phiValue)
     }
@@ -163,14 +163,14 @@ object DynamicsModifier {
         // Theta
         var start = thetaValue.newLowValue()
         var diff  = thetaValue.newHighValue()
-        if (!thetaValue.isRelative()) diff -= start
+        if (!thetaValue.relative) diff -= start
         angularChannel.floatData(i + ParticleChannels.VelocityThetaStartOffset) = start
         angularChannel.floatData(i + ParticleChannels.VelocityThetaDiffOffset) = diff
 
         // Phi
         start = phiValue.newLowValue()
         diff = phiValue.newHighValue()
-        if (!phiValue.isRelative()) diff -= start
+        if (!phiValue.relative) diff -= start
         angularChannel.floatData(i + ParticleChannels.VelocityPhiStartOffset) = start
         angularChannel.floatData(i + ParticleChannels.VelocityPhiDiffOffset) = diff
         i += angularChannel.strideSize
@@ -184,7 +184,7 @@ object DynamicsModifier {
     def this(rotation: Rotational2D) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
     }
 
@@ -209,7 +209,7 @@ object DynamicsModifier {
     }
 
     override def copy(): Rotational2D =
-      new Rotational2D(this)
+      Rotational2D(this)
   }
 
   class Rotational3D extends Angular {
@@ -220,10 +220,10 @@ object DynamicsModifier {
     def this(rotation: Rotational3D) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
-      thetaValue = new ScaledNumericValue()
-      phiValue = new ScaledNumericValue()
+      thetaValue = ScaledNumericValue()
+      phiValue = ScaledNumericValue()
       thetaValue.load(rotation.thetaValue)
       phiValue.load(rotation.phiValue)
     }
@@ -295,7 +295,7 @@ object DynamicsModifier {
     }
 
     override def copy(): Rotational3D =
-      new Rotational3D(this)
+      Rotational3D(this)
   }
 
   class CentripetalAcceleration extends Strength {
@@ -305,7 +305,7 @@ object DynamicsModifier {
     def this(rotation: CentripetalAcceleration) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
     }
 
@@ -356,7 +356,7 @@ object DynamicsModifier {
     }
 
     override def copy(): CentripetalAcceleration =
-      new CentripetalAcceleration(this)
+      CentripetalAcceleration(this)
   }
 
   class PolarAcceleration extends Angular {
@@ -365,10 +365,10 @@ object DynamicsModifier {
     def this(rotation: PolarAcceleration) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
-      thetaValue = new ScaledNumericValue()
-      phiValue = new ScaledNumericValue()
+      thetaValue = ScaledNumericValue()
+      phiValue = ScaledNumericValue()
       thetaValue.load(rotation.thetaValue)
       phiValue.load(rotation.phiValue)
     }
@@ -416,7 +416,7 @@ object DynamicsModifier {
     }
 
     override def copy(): PolarAcceleration =
-      new PolarAcceleration(this)
+      PolarAcceleration(this)
   }
 
   class TangentialAcceleration extends Angular {
@@ -426,10 +426,10 @@ object DynamicsModifier {
     def this(rotation: TangentialAcceleration) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
-      thetaValue = new ScaledNumericValue()
-      phiValue = new ScaledNumericValue()
+      thetaValue = ScaledNumericValue()
+      phiValue = ScaledNumericValue()
       thetaValue.load(rotation.thetaValue)
       phiValue.load(rotation.phiValue)
     }
@@ -486,7 +486,7 @@ object DynamicsModifier {
     }
 
     override def copy(): TangentialAcceleration =
-      new TangentialAcceleration(this)
+      TangentialAcceleration(this)
   }
 
   class BrownianAcceleration extends Strength {
@@ -495,7 +495,7 @@ object DynamicsModifier {
     def this(rotation: BrownianAcceleration) = {
       this()
       this.isGlobal = rotation.isGlobal
-      strengthValue = new ScaledNumericValue()
+      strengthValue = ScaledNumericValue()
       strengthValue.load(rotation.strengthValue)
     }
 
@@ -526,6 +526,6 @@ object DynamicsModifier {
     }
 
     override def copy(): BrownianAcceleration =
-      new BrownianAcceleration(this)
+      BrownianAcceleration(this)
   }
 }

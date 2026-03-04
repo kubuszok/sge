@@ -37,5 +37,5 @@ final class PointSpawnShapeValue extends PrimitiveSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new PointSpawnShapeValue(this)
+    PointSpawnShapeValue(this)
 }

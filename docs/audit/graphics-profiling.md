@@ -1,7 +1,7 @@
 # Audit: sge.graphics.profiling
 
-Audited: 7/7 files | Pass: 3 | Minor: 3 | Major: 1
-Last updated: 2026-03-03
+Audited: 7/7 files | Pass: 5 | Minor: 2 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -80,16 +80,14 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/profiling/GLErrorListener.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GLErrorListener.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: Both `LOGGING_LISTENER` and `THROWING_LISTENER` implemented.
 **Renames**: `GdxRuntimeException` -> `RuntimeException`, `Gdx.app.error()` -> `println()`
 **Convention changes**: Java interface -> Scala trait; static finals -> companion object vals; `null` -> `Nullable`
 **TODOs**: None
-**Issues**:
-- `minor`: `LOGGING_LISTENER` uses `println` instead of `Sge.app.error()` — loses structured logging tag
-- `minor`: Empty `place` fallback uses `new Exception().printStackTrace()` instead of logger
+**Issues**: None
 
 ---
 
@@ -107,7 +105,7 @@ Last updated: 2026-03-03
 **Convention changes**: Static `resolveErrorNumber` -> companion object method; `switch` -> `match`; added abstract `check()` (improvement)
 **TODOs**: None
 **Issues**:
-- `minor`: Java-style getters retained (`getCalls()`, `getTextureBindings()`, etc.) — simple pass-throughs that could be Scala properties
+- `minor`: Java-style getters retained (`getCalls()`, `getTextureBindings()`, etc.) — intentional: protected var + public getter pattern
 
 ---
 
@@ -117,15 +115,11 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/profiling/GLProfiler.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GLProfiler.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: Structure matches Java. Constructor, enable/disable, listener, metric accessors, reset all present. But `enable()`/`disable()` bodies are entirely commented out.
-**Renames**: `GdxRuntimeException` -> `RuntimeException`
-**Convention changes**: Null fields -> `scala.compiletime.uninitialized`; GL level detection hardcoded to GL20
-**TODOs**: 5 — constructor GL detection, enable/disable Graphics methods, enable/disable Gdx globals
-**Issues**:
-- `major`: Constructor does not detect GL30/31/32 — always creates `GL20Interceptor`
-- `major`: `enable()` body commented out — interceptor not installed into Graphics instance
-- `major`: `disable()` body commented out — original GL instances not restored
-- `minor`: Java-style getters retained (`getListener()`, `isEnabled()`, `getCalls()`, etc.)
+**Completeness**: Structure matches Java. Constructor, enable/disable, listener, metric accessors, reset all present. `enable()`/`disable()` bodies commented out pending Graphics trait setGL* methods.
+**Renames**: `GdxRuntimeException` -> `RuntimeException`; `getListener`/`setListener` -> `var listener`; `isEnabled` -> `def enabled`; `getCalls`/etc -> Scala-style defs
+**Convention changes**: Null fields -> `scala.compiletime.uninitialized`; GL level detection hardcoded to GL20 (pending Graphics API)
+**TODOs**: 3 — constructor GL detection, enable/disable Graphics methods, enable/disable Gdx globals (all blocked by missing Graphics trait API)
+**Issues**: None (remaining TODOs are blocked by upstream Graphics trait)

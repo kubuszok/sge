@@ -7,12 +7,12 @@
  * Migration notes:
  *   Convention: Java `interface` with `static final` constants → `object` with `val`
  *   Idiom: split packages
- *   TODO: uses flat package declaration — convert to split (package sge / package net)
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.net
+package sge
+package net
 
 /** A list of common request header constants of the HTTP protocol. See http://en.wikipedia.org/wiki/List_of_HTTP_header_fields.
   * @author

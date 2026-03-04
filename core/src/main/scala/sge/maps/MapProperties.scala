@@ -13,7 +13,7 @@
  *   Idiom: get(key, defaultValue, clazz) uses Nullable(obj).fold instead of == null check
  *   Idiom: equals uses pattern match instead of instanceof
  *   Idiom: toString uses string interpolation
- *   TODO: Java-style getters/setters — getKeys, getValues
+ *   - getKeys/getValues are delegation methods returning iterators, not simple getters — kept as-is
  *   Audited: 2026-03-03
  */
 package sge
@@ -55,24 +55,22 @@ class MapProperties {
     * @throws ClassCastException
     *   if the object with the given key is not of type clazz
     */
-  def get[T](key: String, clazz: Class[T]): T =
+  def getAs[T](key: String)(using tag: scala.reflect.ClassTag[T]): T =
     get(key).asInstanceOf[T]
 
-  /** Returns the object for the given key, casting it to clazz.
+  /** Returns the object for the given key, casting it to T.
     * @param key
     *   the key of the object
     * @param defaultValue
     *   the default value
-    * @param clazz
-    *   the class of the object
     * @return
     *   the object or the defaultValue if the object is not in the map
     * @throws ClassCastException
-    *   if the object with the given key is not of type clazz
+    *   if the object with the given key is not of type T
     */
-  def get[T](key: String, defaultValue: T, clazz: Class[T]): T = {
+  def getAs[T](key: String, defaultValue: T)(using tag: scala.reflect.ClassTag[T]): T = {
     val obj = get(key)
-    Nullable(obj).fold(defaultValue)(_.asInstanceOf[T])
+    Nullable(obj).map(_.asInstanceOf[T]).getOrElse(defaultValue)
   }
 
   /** @param key

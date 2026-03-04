@@ -84,12 +84,12 @@ class NoopInput extends Input {
     title:    String,
     text:     String,
     hint:     String,
-    `type`:   OnscreenKeyboardType.OnscreenKeyboardType
+    `type`:   OnscreenKeyboardType
   ): Unit = {}
 
   override def setOnscreenKeyboardVisible(visible: Boolean): Unit = {}
 
-  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType.OnscreenKeyboardType): Unit = {}
+  override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType): Unit = {}
 
   override def openTextInputField(configuration: input.NativeInputConfiguration): Unit = {}
 
@@ -105,7 +105,7 @@ class NoopInput extends Input {
 
   override def vibrate(milliseconds: Int, amplitude: Int, fallback: Boolean): Unit = {}
 
-  override def vibrate(vibrationType: VibrationType.VibrationType): Unit = {}
+  override def vibrate(vibrationType: VibrationType): Unit = {}
 
   // ---- orientation / rotation ----
 
@@ -134,11 +134,11 @@ class NoopInput extends Input {
 
   // ---- peripherals ----
 
-  override def isPeripheralAvailable(peripheral: Peripheral.Peripheral): Boolean = false
+  override def isPeripheralAvailable(peripheral: Peripheral): Boolean = false
 
   override def getRotation(): Int = 0
 
-  override def getNativeOrientation(): Orientation.Orientation = Orientation.Landscape
+  override def getNativeOrientation(): Orientation = Orientation.Landscape
 
   // ---- cursor ----
 

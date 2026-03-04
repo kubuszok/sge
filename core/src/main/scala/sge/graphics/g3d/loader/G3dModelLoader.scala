@@ -38,12 +38,12 @@ import sge.utils.{ ArrayMap, DynamicArray, Nullable, SgeError, readJson }
 /** Loads G3D models from `.g3dj` (JSON text) files. Binary `.g3db` format (UBJson) is not yet supported. */
 class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ModelLoader.ModelParameters](resolver) {
 
-  override def loadModelData(fileHandle: FileHandle, parameters: ModelLoader.ModelParameters): Nullable[ModelData] =
+  override def loadModelData(fileHandle: FileHandle, parameters: Nullable[ModelLoader.ModelParameters]): Nullable[ModelData] =
     Nullable(parseModel(fileHandle))
 
   def parseModel(handle: FileHandle): ModelData = {
     val json  = handle.readJson[G3dModelJson]
-    val model = new ModelData()
+    val model = ModelData()
 
     model.version(0) = json.version(0)
     model.version(1) = json.version(1)
@@ -61,7 +61,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
   protected def parseMeshes(model: ModelData, meshes: List[G3dMeshJson]): Unit = {
     model.meshes.ensureCapacity(meshes.size)
     for (mesh <- meshes) {
-      val jsonMesh = new ModelMesh()
+      val jsonMesh = ModelMesh()
       jsonMesh.id = mesh.id
       jsonMesh.attributes = parseAttributes(mesh.attributes)
       jsonMesh.vertices = mesh.vertices.toArray
@@ -75,7 +75,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
           if (other.id.equals(partId))
             throw SgeError.InvalidInput("Mesh part with id '" + partId + "' already in defined")
 
-        val jsonPart = new ModelMeshPart()
+        val jsonPart = ModelMeshPart()
         jsonPart.id = partId
         jsonPart.primitiveType = parseType(meshPart.tpe)
         jsonPart.indices = meshPart.indices.toArray
@@ -132,7 +132,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
     // we should probably create some default material in this case
     model.materials.ensureCapacity(materials.size)
     for (material <- materials) {
-      val jsonMaterial = new ModelMaterial()
+      val jsonMaterial = ModelMaterial()
 
       jsonMaterial.id = material.id
       if (jsonMaterial.id.isEmpty)
@@ -151,7 +151,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
 
       // Read textures
       for (texture <- material.textures) {
-        val jsonTexture = new ModelTexture()
+        val jsonTexture = ModelTexture()
 
         jsonTexture.id = texture.id
         if (jsonTexture.id.isEmpty)
@@ -164,12 +164,12 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
           fileName
 
         jsonTexture.uvTranslation = texture.uvTranslation match {
-          case Some(arr) if arr.size == 2 => new Vector2(arr(0), arr(1))
-          case _                          => new Vector2(0f, 0f)
+          case Some(arr) if arr.size == 2 => Vector2(arr(0), arr(1))
+          case _                          => Vector2(0f, 0f)
         }
         jsonTexture.uvScaling = texture.uvScaling match {
-          case Some(arr) if arr.size == 2 => new Vector2(arr(0), arr(1))
-          case _                          => new Vector2(1f, 1f)
+          case Some(arr) if arr.size == 2 => Vector2(arr(0), arr(1))
+          case _                          => Vector2(1f, 1f)
         }
 
         jsonTexture.usage = parseTextureUsage(texture.tpe)
@@ -197,7 +197,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
 
   protected def parseColor(colorArray: List[Float]): Color =
     if (colorArray.size >= 3)
-      new Color(colorArray(0), colorArray(1), colorArray(2), 1.0f)
+      Color(colorArray(0), colorArray(1), colorArray(2), 1.0f)
     else
       throw SgeError.InvalidInput("Expected Color values <> than three.")
 
@@ -208,10 +208,10 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
     model.nodes
   }
 
-  protected val tempQ: Quaternion = new Quaternion()
+  protected val tempQ: Quaternion = Quaternion()
 
   protected def parseNodesRecursively(json: G3dNodeJson): ModelNode = {
-    val jsonNode = new ModelNode()
+    val jsonNode = ModelNode()
 
     jsonNode.id = json.id
     if (jsonNode.id.isEmpty)
@@ -219,17 +219,17 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
 
     json.translation.foreach { t =>
       if (t.size != 3) throw SgeError.InvalidInput("Node translation incomplete")
-      jsonNode.translation = new Vector3(t(0), t(1), t(2))
+      jsonNode.translation = Vector3(t(0), t(1), t(2))
     }
 
     json.rotation.foreach { r =>
       if (r.size != 4) throw SgeError.InvalidInput("Node rotation incomplete")
-      jsonNode.rotation = new Quaternion(r(0), r(1), r(2), r(3))
+      jsonNode.rotation = Quaternion(r(0), r(1), r(2), r(3))
     }
 
     json.scale.foreach { s =>
       if (s.size != 3) throw SgeError.InvalidInput("Node scale incomplete")
-      jsonNode.scale = new Vector3(s(0), s(1), s(2))
+      jsonNode.scale = Vector3(s(0), s(1), s(2))
     }
 
     json.mesh.foreach(m => jsonNode.meshId = m)
@@ -238,7 +238,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
       jsonNode.parts = new Array[ModelNodePart](json.parts.size)
       var i = 0
       for (material <- json.parts) {
-        val nodePart = new ModelNodePart()
+        val nodePart = ModelNodePart()
 
         if (material.meshpartid.isEmpty || material.materialid.isEmpty)
           throw SgeError.InvalidInput("Node " + jsonNode.id + " part is missing meshPartId or materialId")
@@ -252,7 +252,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
             if (nodeId.isEmpty)
               throw SgeError.InvalidInput("Bone node ID missing")
 
-            val transform = new Matrix4()
+            val transform = Matrix4()
 
             bone.translation.foreach { v =>
               if (v.size >= 3) transform.translate(v(0), v(1), v(2))
@@ -291,13 +291,13 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
 
     for (anim <- animations)
       if (anim.bones.nonEmpty) {
-        val animation = new ModelAnimation()
+        val animation = ModelAnimation()
         model.animations.add(animation)
         animation.nodeAnimations.ensureCapacity(anim.bones.size)
         animation.id = anim.id
 
         for (node <- anim.bones) {
-          val nodeAnim = new ModelNodeAnimation()
+          val nodeAnim = ModelNodeAnimation()
           animation.nodeAnimations.add(nodeAnim)
           nodeAnim.nodeId = node.boneId
 
@@ -309,27 +309,27 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                 keyframe.translation.foreach { translation =>
                   if (translation.size == 3) {
                     if (Nullable(nodeAnim.translation).isEmpty) nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
-                    val tkf = new ModelNodeKeyframe[Vector3]()
+                    val tkf = ModelNodeKeyframe[Vector3]()
                     tkf.keytime = keytime
-                    tkf.value = Nullable(new Vector3(translation(0), translation(1), translation(2)))
+                    tkf.value = Nullable(Vector3(translation(0), translation(1), translation(2)))
                     nodeAnim.translation.add(tkf)
                   }
                 }
                 keyframe.rotation.foreach { rotation =>
                   if (rotation.size == 4) {
                     if (Nullable(nodeAnim.rotation).isEmpty) nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
-                    val rkf = new ModelNodeKeyframe[Quaternion]()
+                    val rkf = ModelNodeKeyframe[Quaternion]()
                     rkf.keytime = keytime
-                    rkf.value = Nullable(new Quaternion(rotation(0), rotation(1), rotation(2), rotation(3)))
+                    rkf.value = Nullable(Quaternion(rotation(0), rotation(1), rotation(2), rotation(3)))
                     nodeAnim.rotation.add(rkf)
                   }
                 }
                 keyframe.scale.foreach { scale =>
                   if (scale.size == 3) {
                     if (Nullable(nodeAnim.scaling).isEmpty) nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
-                    val skf = new ModelNodeKeyframe[Vector3]()
+                    val skf = ModelNodeKeyframe[Vector3]()
                     skf.keytime = keytime
-                    skf.value = Nullable(new Vector3(scale(0), scale(1), scale(2)))
+                    skf.value = Nullable(Vector3(scale(0), scale(1), scale(2)))
                     nodeAnim.scaling.add(skf)
                   }
                 }
@@ -340,12 +340,12 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                 nodeAnim.translation = DynamicArray[ModelNodeKeyframe[Vector3]]()
                 nodeAnim.translation.ensureCapacity(translationKFs.size)
                 for (kfVal <- translationKFs) {
-                  val kf = new ModelNodeKeyframe[Vector3]()
+                  val kf = ModelNodeKeyframe[Vector3]()
                   nodeAnim.translation.add(kf)
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 3)
-                    kf.value = Nullable(new Vector3(v(0), v(1), v(2)))
+                    kf.value = Nullable(Vector3(v(0), v(1), v(2)))
                 }
               }
 
@@ -353,12 +353,12 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                 nodeAnim.rotation = DynamicArray[ModelNodeKeyframe[Quaternion]]()
                 nodeAnim.rotation.ensureCapacity(rotationKFs.size)
                 for (kfVal <- rotationKFs) {
-                  val kf = new ModelNodeKeyframe[Quaternion]()
+                  val kf = ModelNodeKeyframe[Quaternion]()
                   nodeAnim.rotation.add(kf)
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 4)
-                    kf.value = Nullable(new Quaternion(v(0), v(1), v(2), v(3)))
+                    kf.value = Nullable(Quaternion(v(0), v(1), v(2), v(3)))
                 }
               }
 
@@ -366,12 +366,12 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
                 nodeAnim.scaling = DynamicArray[ModelNodeKeyframe[Vector3]]()
                 nodeAnim.scaling.ensureCapacity(scalingKFs.size)
                 for (kfVal <- scalingKFs) {
-                  val kf = new ModelNodeKeyframe[Vector3]()
+                  val kf = ModelNodeKeyframe[Vector3]()
                   nodeAnim.scaling.add(kf)
                   kf.keytime = kfVal.keytime / 1000.0f
                   val v = kfVal.value
                   if (v.size >= 3)
-                    kf.value = Nullable(new Vector3(v(0), v(1), v(2)))
+                    kf.value = Nullable(Vector3(v(0), v(1), v(2)))
                 }
               }
           }

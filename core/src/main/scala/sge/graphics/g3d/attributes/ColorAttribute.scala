@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful 1:1 port
+ *   - Audited 2026-03-04: faithful 1:1 port
  *   - compareTo -> compare (Ordered[Attribute])
  *   - Java (type, color) ctor has null guard (`if (color != null)`); Scala version
  *     always calls color.set — acceptable for no-null convention
@@ -28,7 +28,7 @@ class ColorAttribute(
 
   if (!ColorAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  val color: Color = new Color()
+  val color: Color = Color()
 
   def this(`type`: Long, color: Color) = {
     this(`type`)
@@ -40,12 +40,11 @@ class ColorAttribute(
     this.color.set(r, g, b, a)
   }
 
-  def this(copyFrom: ColorAttribute) = {
+  def this(copyFrom: ColorAttribute) =
     this(copyFrom.`type`, copyFrom.color)
-  }
 
   override def copy(): Attribute =
-    new ColorAttribute(this)
+    ColorAttribute(this)
 
   override def hashCode(): Int = {
     var result = super.hashCode()
@@ -81,44 +80,44 @@ object ColorAttribute {
     (mask & Mask) != 0
 
   def createAmbient(color: Color): ColorAttribute =
-    new ColorAttribute(Ambient, color)
+    ColorAttribute(Ambient, color)
 
   def createAmbient(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Ambient, r, g, b, a)
+    ColorAttribute(Ambient, r, g, b, a)
 
   def createDiffuse(color: Color): ColorAttribute =
-    new ColorAttribute(Diffuse, color)
+    ColorAttribute(Diffuse, color)
 
   def createDiffuse(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Diffuse, r, g, b, a)
+    ColorAttribute(Diffuse, r, g, b, a)
 
   def createSpecular(color: Color): ColorAttribute =
-    new ColorAttribute(Specular, color)
+    ColorAttribute(Specular, color)
 
   def createSpecular(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Specular, r, g, b, a)
+    ColorAttribute(Specular, r, g, b, a)
 
   def createReflection(color: Color): ColorAttribute =
-    new ColorAttribute(Reflection, color)
+    ColorAttribute(Reflection, color)
 
   def createReflection(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Reflection, r, g, b, a)
+    ColorAttribute(Reflection, r, g, b, a)
 
   def createEmissive(color: Color): ColorAttribute =
-    new ColorAttribute(Emissive, color)
+    ColorAttribute(Emissive, color)
 
   def createEmissive(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Emissive, r, g, b, a)
+    ColorAttribute(Emissive, r, g, b, a)
 
   def createAmbientLight(color: Color): ColorAttribute =
-    new ColorAttribute(AmbientLight, color)
+    ColorAttribute(AmbientLight, color)
 
   def createAmbientLight(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(AmbientLight, r, g, b, a)
+    ColorAttribute(AmbientLight, r, g, b, a)
 
   def createFog(color: Color): ColorAttribute =
-    new ColorAttribute(Fog, color)
+    ColorAttribute(Fog, color)
 
   def createFog(r: Float, g: Float, b: Float, a: Float): ColorAttribute =
-    new ColorAttribute(Fog, r, g, b, a)
+    ColorAttribute(Fog, r, g, b, a)
 }

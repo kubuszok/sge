@@ -31,7 +31,7 @@ import sge.graphics.g3d.particles.batches.{ ParticleBatch, PointSpriteParticleBa
   */
 class PointSpriteRenderer
     extends ParticleControllerRenderer[PointSpriteControllerRenderData, PointSpriteParticleBatch](
-      new PointSpriteControllerRenderData()
+      PointSpriteControllerRenderData()
     ) {
 
   def this(batch: PointSpriteParticleBatch) = {
@@ -52,5 +52,5 @@ class PointSpriteRenderer
     batch.isInstanceOf[PointSpriteParticleBatch]
 
   override def copy(): ParticleControllerComponent =
-    new PointSpriteRenderer(batch)
+    PointSpriteRenderer(batch)
 }

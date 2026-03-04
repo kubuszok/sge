@@ -30,7 +30,7 @@ class PixmapLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): Unit = {
     pixmap = Nullable.empty
-    pixmap = Nullable(new Pixmap(file))
+    pixmap = Nullable(Pixmap(file))
   }
 
   override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameter: PixmapLoader.PixmapParameter): Pixmap = {
@@ -44,5 +44,5 @@ class PixmapLoader(resolver: FileHandleResolver) extends AsynchronousAssetLoader
 }
 
 object PixmapLoader {
-  class PixmapParameter extends AssetLoaderParameters[Pixmap]
+  class PixmapParameter extends AssetLoaderParameters[Pixmap] {}
 }

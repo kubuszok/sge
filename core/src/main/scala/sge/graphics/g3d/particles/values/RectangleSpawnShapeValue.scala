@@ -81,5 +81,5 @@ final class RectangleSpawnShapeValue extends PrimitiveSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new RectangleSpawnShapeValue(this)
+    RectangleSpawnShapeValue(this)
 }

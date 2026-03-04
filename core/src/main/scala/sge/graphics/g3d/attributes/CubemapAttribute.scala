@@ -7,13 +7,11 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful port, missing constructor
+ *   - Audited 2026-03-04: faithful port, all constructors present
  *   - compareTo -> compare (Ordered[Attribute])
  *   - GdxRuntimeException -> SgeError.InvalidInput
- *   - Missing: constructor (type, TextureDescriptor) — Java has generic ctor accepting
- *     TextureDescriptor<T extends Cubemap>; Scala only has (type) and (type, Cubemap)
- *   - Copy ctor: Java delegates to (type, TextureDescriptor); Scala delegates to (type)
- *     then calls textureDescription.set — same result
+ *   - Java generic ctor (type, TextureDescriptor<T>) erases to same as primary → covered by
+ *     primary constructor (type, TextureDescriptor[Cubemap]); copy ctor uses .set() for deep copy
  *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
  *   - All constants, factory methods, constructors, and instance methods accounted for
  */
@@ -33,9 +31,8 @@ class CubemapAttribute(
 
   if (!CubemapAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) = {
-    this(`type`, new TextureDescriptor[Cubemap]())
-  }
+  def this(`type`: Long) =
+    this(`type`, TextureDescriptor[Cubemap]())
 
   def this(`type`: Long, texture: Cubemap) = {
     this(`type`)
@@ -48,7 +45,7 @@ class CubemapAttribute(
   }
 
   override def copy(): Attribute =
-    new CubemapAttribute(this)
+    CubemapAttribute(this)
 
   override def hashCode(): Int = {
     var result = super.hashCode()

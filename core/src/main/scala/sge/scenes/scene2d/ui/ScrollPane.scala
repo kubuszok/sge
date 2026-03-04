@@ -39,12 +39,12 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   private var _style: ScrollPaneStyle = scala.compiletime.uninitialized
   private var _actor: Nullable[Actor] = Nullable.empty
 
-  val actorArea:                   Rectangle            = new Rectangle()
-  val hScrollBounds:               Rectangle            = new Rectangle()
-  val hKnobBounds:                 Rectangle            = new Rectangle()
-  val vScrollBounds:               Rectangle            = new Rectangle()
-  val vKnobBounds:                 Rectangle            = new Rectangle()
-  private val actorCullingArea:    Rectangle            = new Rectangle()
+  val actorArea:                   Rectangle            = Rectangle()
+  val hScrollBounds:               Rectangle            = Rectangle()
+  val hKnobBounds:                 Rectangle            = Rectangle()
+  val vScrollBounds:               Rectangle            = Rectangle()
+  val vKnobBounds:                 Rectangle            = Rectangle()
+  private val actorCullingArea:    Rectangle            = Rectangle()
   private var flickScrollListener: ActorGestureListener = scala.compiletime.uninitialized
 
   var scrollX:          Boolean = false
@@ -59,7 +59,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   var maxY:             Float   = 0f
   var touchScrollH:     Boolean = false
   var touchScrollV:     Boolean = false
-  val lastPoint:        Vector2 = new Vector2()
+  val lastPoint:        Vector2 = Vector2()
   var fadeScrollBars:   Boolean = true
   var smoothScrolling:  Boolean = true
   var scrollBarTouch:   Boolean = true
@@ -98,19 +98,16 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using Sge) = {
-    this(actor, new ScrollPane.ScrollPaneStyle())
-  }
+  def this(actor: Nullable[Actor])(using Sge) =
+    this(actor, ScrollPane.ScrollPaneStyle())
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin)(using Sge) =
     this(actor, skin.get(classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) =
     this(actor, skin.get(styleName, classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   protected def addCaptureListener(): Unit = {
     val self = this
@@ -308,7 +305,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     */
   override def getStyle: ScrollPaneStyle = _style
 
-  override def act(delta: Float)(using Sge): Unit = {
+  override def act(delta: Float): Unit = {
     super.act(delta)
 
     val panning   = flickScrollListener.getGestureDetector.isPanning()
@@ -743,14 +740,14 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     throw new UnsupportedOperationException("Use ScrollPane#setActor.")
 
   override def removeActor(actor: Actor): Boolean =
-    if (_actor.fold(true)(a => !(a eq actor))) false
+    if (!_actor.exists(_ eq actor)) false
     else {
       setActor(Nullable.empty)
       true
     }
 
   override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
-    if (_actor.fold(true)(a => !(a eq actor))) false
+    if (!_actor.exists(_ eq actor)) false
     else {
       _actor = Nullable.empty
       super.removeActor(actor, unfocus)

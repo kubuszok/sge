@@ -32,16 +32,16 @@ import scala.util.boundary.break
   */
 class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[TiledMap, BaseTiledMapLoader.Parameters](resolver) {
 
-  private val tmxMapLoader: TmxMapLoader = new TmxMapLoader(resolver)
-  private val tmjMapLoader: TmjMapLoader = new TmjMapLoader(resolver)
+  def this()(using Sge) = this(FileHandleResolver.Internal())
 
-  private val atlasTmxMapLoader: AtlasTmxMapLoader = new AtlasTmxMapLoader(resolver)
-  private val xmlReader:         XmlReader         = new XmlReader()
+  private val tmxMapLoader: TmxMapLoader = TmxMapLoader(resolver)
+  private val tmjMapLoader: TmjMapLoader = TmjMapLoader(resolver)
 
-  private val atlasTmjMapLoader: AtlasTmjMapLoader = new AtlasTmjMapLoader(resolver)
-  private val jsonReader:        JsonReader        = new JsonReader()
+  private val atlasTmxMapLoader: AtlasTmxMapLoader = AtlasTmxMapLoader(resolver)
+  private val xmlReader:         XmlReader         = XmlReader()
 
-  def this()(using Sge) = this(new FileHandleResolver.Internal())
+  private val atlasTmjMapLoader: AtlasTmjMapLoader = AtlasTmjMapLoader(resolver)
+  private val jsonReader:        JsonReader        = JsonReader()
 
   /** Universal synchronous loader. This method is a thin wrapper that picks the correct underlying loader (TMX vs TMJ, atlas vs non-atlas) and then delegates straight through to its synchronous
     * `load(...)` implementation.
@@ -51,7 +51,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     *   a loaded [[TiledMap]]
     */
   def load(fileName: String): TiledMap =
-    load(fileName, new BaseTiledMapLoader.Parameters())
+    load(fileName, BaseTiledMapLoader.Parameters())
 
   /** Universal synchronous loader with custom parameters. Resolves the file and inspects the extension (tmx vs tmj). Check whether the 'atlas' property exists in the map and delegates to the
     * appropriate loader's `load(...)`.
@@ -64,7 +64,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     */
   def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
     var param = parameter
-    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
     val file      = resolve(fileName)
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
@@ -88,7 +88,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     parameter: BaseTiledMapLoader.Parameters
   ): DynamicArray[AssetDescriptor[?]] = {
     var param = parameter
-    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
@@ -112,7 +112,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     parameter: BaseTiledMapLoader.Parameters
   ): Unit = {
     var param = parameter
-    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
@@ -136,7 +136,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     parameter: BaseTiledMapLoader.Parameters
   ): TiledMap = {
     var param = parameter
-    if (Nullable(param).isEmpty) param = new BaseTiledMapLoader.Parameters()
+    if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
     val extension = file.extension().toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))

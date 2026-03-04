@@ -102,22 +102,22 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     flipVertically:   Boolean,
     flipDiagonally:   Boolean
   ): TiledMapTileLayer.Cell = {
-    val cell = new TiledMapTileLayer.Cell()
+    val cell = TiledMapTileLayer.Cell()
     if (flipDiagonally) {
       if (flipHorizontally && flipVertically) {
-        cell.setFlipHorizontally(true)
-        cell.setRotation(TiledMapTileLayer.Cell.ROTATE_270)
+        cell.flipHorizontally = true
+        cell.rotation = TiledMapTileLayer.Cell.ROTATE_270
       } else if (flipHorizontally) {
-        cell.setRotation(TiledMapTileLayer.Cell.ROTATE_270)
+        cell.rotation = TiledMapTileLayer.Cell.ROTATE_270
       } else if (flipVertically) {
-        cell.setRotation(TiledMapTileLayer.Cell.ROTATE_90)
+        cell.rotation = TiledMapTileLayer.Cell.ROTATE_90
       } else {
-        cell.setFlipVertically(true)
-        cell.setRotation(TiledMapTileLayer.Cell.ROTATE_270)
+        cell.flipVertically = true
+        cell.rotation = TiledMapTileLayer.Cell.ROTATE_270
       }
     } else {
-      cell.setFlipHorizontally(flipHorizontally)
-      cell.setFlipVertically(flipVertically)
+      cell.flipHorizontally = flipHorizontally
+      cell.flipVertically = flipVertically
     }
     cell
   }
@@ -129,7 +129,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     offsetX:       Float,
     offsetY:       Float
   ): Unit = {
-    val tile: TiledMapTile = new StaticTiledMapTile(textureRegion)
+    val tile: TiledMapTile = StaticTiledMapTile(textureRegion)
     tile.setId(tileId)
     tile.setOffsetX(offsetX)
     tile.setOffsetY(if (flipY) -offsetY else offsetY)
@@ -185,7 +185,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
           val projectClassMembers = DynamicArray[BaseTiledMapLoader.ProjectClassMember]()
           classInfo.put(className, projectClassMembers)
           for (member <- propertyType.members) {
-            val projectClassMember = new BaseTiledMapLoader.ProjectClassMember()
+            val projectClassMember = BaseTiledMapLoader.ProjectClassMember()
             projectClassMember.name = member.name
             projectClassMember.`type` = member.tpe
             projectClassMember.propertyType = member.propertyType match {
@@ -237,7 +237,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
         case "class" =>
           // A 'class' property is a property which is itself a set of properties
           val classProp             = if (classPropRaw.isEmpty) projectClassMember.defaultValue else classPropRaw
-          val nestedClassProperties = new MapProperties()
+          val nestedClassProperties = MapProperties()
           val nestedClassName       = projectClassMember.propertyType.getOrElse("")
           nestedClassProperties.put("type", nestedClassName)
           // the actual properties of a 'class' property are stored as a new properties tag
@@ -286,7 +286,7 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
             // and assigns it as a "class" to an object/tile without overruling any of its values.
             // In that case we need to load the default values of the class
             // which are stored inside the 'projectClassInfo' field.
-            val nestedClassProperties = new MapProperties()
+            val nestedClassProperties = MapProperties()
             val nestedClassName       = classMember.propertyType.getOrElse("")
             nestedClassProperties.put("type", nestedClassName)
             mapProperties.put(propName, nestedClassProperties)
@@ -354,7 +354,7 @@ object BaseTiledMapLoader {
         "name='" + name + "'" +
         ", type='" + `type` + "'" +
         ", propertyType='" + propertyType.getOrElse("") + "'" +
-        ", defaultValue=" + defaultValue.fold("")(_.toString) + "}"
+        ", defaultValue=" + defaultValue.map(_.toString).getOrElse("") + "}"
   }
 
   protected[tiled] val FLAG_FLIP_HORIZONTALLY: Int = 0x80000000

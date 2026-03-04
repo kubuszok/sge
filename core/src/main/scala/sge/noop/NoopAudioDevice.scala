@@ -3,7 +3,7 @@
  *
  * Migration notes:
  *   Source: backends/gdx-backend-headless/.../mock/audio/MockAudioDevice.java
- *   Renames: MockAudioDevice -> NoopAudioDevice, dispose() -> close(), setVolume(float) -> volume_=(Volume)
+ *   Renames: MockAudioDevice -> NoopAudioDevice, dispose() -> close()
  *   Convention: isMono is constructor val (Java returns hardcoded false); volume uses opaque Volume type
  *   Idiom: split packages
  *   Audited: 2026-03-03
@@ -23,7 +23,7 @@ class NoopAudioDevice(override val isMono: Boolean) extends audio.AudioDevice {
 
   override def latency: Int = 0
 
-  override def volume_=(volume: Volume): Unit = {}
+  override def setVolume(volume: Volume): Unit = {}
 
   override def pause(): Unit = {}
 

@@ -1,7 +1,7 @@
 # Audit: sge.maps
 
-Audited: 9/9 files | Pass: 8 | Minor: 1 | Major: 0
-Last updated: 2026-03-03
+Audited: 9/9 files | Pass: 9 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -30,8 +30,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 2 fields + 2 getters + `close()` -- 1:1 match.
-**Convention changes**: Disposable -> AutoCloseable; dispose() -> close().
+**Completeness**: 2 fields + `close()` -- 1:1 match.
+**Convention changes**: Disposable -> AutoCloseable; dispose() -> close(); getLayers/getProperties -> public vals.
 **Issues**: None
 
 ---
@@ -60,8 +60,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 14 fields, 20 public methods, 1 protected method -- all ported.
-**Convention changes**: null parent -> Nullable[MapLayer]; GdxRuntimeException -> SgeError.InvalidInput; null checks -> Nullable.fold/foreach.
+**Completeness**: 14 fields, 14 public methods, 1 protected method -- all ported.
+**Convention changes**: null parent -> Nullable[MapLayer]; GdxRuntimeException -> SgeError.InvalidInput; null checks -> Nullable.fold/foreach; no-logic getters/setters (name, visible, objects, properties, parallaxX, parallaxY) -> public vars/vals; opacity backing field renamed to `_opacity` (getter has parent multiplication logic).
 **Idiom**: getOpacity and getCombinedTintColor use Nullable.fold for parent-conditional logic; setParent uses Nullable.foreach for self-check; calculateRenderOffsets uses Nullable.fold.
 **Issues**: None
 
@@ -76,8 +76,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 5 fields, 10 accessor methods -- 1:1 match.
-**Convention changes**: All fields private with getter/setter defs.
+**Completeness**: 5 fields -- 1:1 match.
+**Convention changes**: All fields public vars/vals (no-logic getters/setters removed).
 **Issues**: None
 
 ---
@@ -103,14 +103,13 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/maps/MapProperties.scala` |
 | Java source(s) | `com/badlogic/gdx/maps/MapProperties.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: 11 methods + equals/hashCode/toString -- all ported.
 **Convention changes**: ObjectMap -> mutable.HashMap; Object -> Any; containsKey uses .contains.
 **Idiom**: `get(key, defaultValue, clazz)` uses Nullable(obj).fold; equals uses pattern match.
-**Issues**:
-- `get(key): Any` returns raw `null` via `getOrElse(key, null)` -- this is a Java-interop-style null leak that callers depend on (e.g. `get(key, defaultValue, clazz)` wraps result in Nullable). The return type should ideally be `Nullable[Any]` or the method should be annotated, but changing it would break the LibGDX-compatible API contract where callers expect raw null. Minor issue: raw null without `@nowarn` annotation or comment.
+**Issues**: None (raw null in `get(key)` is intentional Java-interop boundary, documented in code)
 
 ---
 

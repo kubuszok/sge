@@ -7,10 +7,9 @@
  * Migration notes:
  *   Convention: Disposable -> AutoCloseable; managed mesh lifecycle
  *   Idiom: split packages
- *   Issues: missing calculateRadius, scale, transform, transformUV, copy, calculateBoundingBox(offset,count)
- *   TODO: Java-style getters/setters -- getVerticesBuffer, getIndicesBuffer, getVertexAttributes, getVertexSize
+ *   Convention: calculateRadius uses Nullable[Matrix4] instead of null; copy uses Nullable[Array[Int]]
  *   TODO: typed GL enums -- PrimitiveMode for glDrawArrays/glDrawElements -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -35,7 +34,9 @@ import sge.graphics.glutils.VertexBufferObject
 import sge.graphics.glutils.VertexBufferObjectSubData
 import sge.graphics.glutils.VertexBufferObjectWithVAO
 import sge.graphics.glutils.VertexData
+import sge.math.Matrix3
 import sge.math.Matrix4
+import sge.math.Vector2
 import sge.math.Vector3
 import sge.math.collision.BoundingBox
 import sge.utils.DynamicArray
@@ -61,7 +62,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
   var autoBind:        Boolean                = true
   var instances:       Nullable[InstanceData] = Nullable.empty
   var isInstancedFlag: Boolean                = false
-  private val tmpV = new Vector3()
+  private val tmpV = Vector3()
 
   // Add to managed meshes
   Mesh.addManagedMesh(Sge().application, this)
@@ -77,13 +78,12 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} . Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
     this(
       vertices = Mesh.makeVertexBuffer(isStatic, maxVertices, attributes),
-      indices = new IndexBufferObject(isStatic, maxIndices),
+      indices = IndexBufferObject(isStatic, maxIndices),
       isVertexArray = false
     )
-  }
 
   /** Creates a new Mesh with the given attributes.
     *
@@ -96,9 +96,8 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using Sge) = {
-    this(isStatic = isStatic, maxVertices = maxVertices, maxIndices = maxIndices, attributes = new VertexAttributes(attributes*))
-  }
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using Sge) =
+    this(isStatic = isStatic, maxVertices = maxVertices, maxIndices = maxIndices, attributes = VertexAttributes(attributes*))
 
   /** Creates a new Mesh with the given attributes. Adds extra optimizations for dynamic (frequently modified) meshes.
     *
@@ -116,13 +115,12 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @author
     *   Jaroslaw Wisniewski <j.wisniewski@appsisle.com> *
     */
-  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
+  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
     this(
       vertices = Mesh.makeVertexBuffer(staticVertices, maxVertices, attributes),
-      indices = new IndexBufferObject(staticIndices, maxIndices),
+      indices = IndexBufferObject(staticIndices, maxIndices),
       isVertexArray = false
     )
-  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -137,13 +135,12 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
     this(
       Mesh.createVertexData(meshType, isStatic, maxVertices, attributes),
       Mesh.createIndexData(meshType, isStatic, maxIndices),
       meshType == Mesh.VertexDataType.VertexArray
     )
-  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -158,20 +155,19 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using Sge) = {
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using Sge) =
     this(
       meshType = meshType,
       isStatic = isStatic,
       maxVertices = maxVertices,
       maxIndices = maxIndices,
-      attributes = new VertexAttributes(attributes*)
+      attributes = VertexAttributes(attributes*)
     )
-  }
 
   def enableInstancedRendering(isStatic: Boolean, maxInstances: Int, attributes: VertexAttribute*): Mesh = {
     if (!isInstancedFlag) {
       isInstancedFlag = true
-      instances = Nullable(new InstanceBufferObject(isStatic, maxInstances, attributes*))
+      instances = Nullable(InstanceBufferObject(isStatic, maxInstances, attributes*))
     } else {
       throw new SgeError.GraphicsError(
         "Trying to enable InstancedRendering on same Mesh instance twice." +
@@ -653,7 +649,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
           summon[Sge].graphics.gl20.glDrawArrays(primitiveType, offset, count)
         }
       } else {
-        val numInstances = if (isInstancedFlag) instances.fold(0)(_.getNumInstances()) else 0
+        val numInstances = if (isInstancedFlag) instances.map(_.getNumInstances()).getOrElse(0) else 0
 
         if (indices.getNumIndices() > 0) {
           if (count + offset > indices.getNumMaxIndices()) {
@@ -712,7 +708,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
 
   /** @return the instanced attributes of this Mesh if any */
   def getInstancedAttributes(): Nullable[VertexAttributes] =
-    instances.fold(Nullable.empty[VertexAttributes])(inst => Nullable(inst.getAttributes()))
+    instances.map(_.getAttributes())
 
   /** @return
     *   the backing FloatBuffer holding the vertices. Does not have to be a direct buffer on Android!
@@ -733,7 +729,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     *   the bounding box.
     */
   def calculateBoundingBox(): BoundingBox = {
-    val bbox = new BoundingBox()
+    val bbox = BoundingBox()
     calculateBoundingBox(bbox)
     bbox
   }
@@ -908,8 +904,290 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     out
   }
 
-  // TODO: Add remaining methods (calculateRadius, scale, transform, etc.)
-  // For now, I'll add just a few more critical ones to get compilation working
+  /** Calculates the squared radius of the bounding sphere around the specified center for the specified part.
+    * @param centerX
+    *   The X coordinate of the center of the bounding sphere
+    * @param centerY
+    *   The Y coordinate of the center of the bounding sphere
+    * @param centerZ
+    *   The Z coordinate of the center of the bounding sphere
+    * @param offset
+    *   the start index of the part.
+    * @param count
+    *   the amount of indices the part contains.
+    * @param transform
+    *   optional transformation matrix
+    * @return
+    *   the squared radius of the bounding sphere.
+    */
+  def calculateRadiusSquared(centerX: Float, centerY: Float, centerZ: Float, offset: Int, count: Int, transform: Nullable[Matrix4]): Float = {
+    val numIndicesVal = getNumIndices()
+    if (offset < 0 || count < 1 || offset + count > numIndicesVal) {
+      throw SgeError.GraphicsError("Not enough indices")
+    }
+
+    val verts      = getVerticesBuffer(false)
+    val index      = getIndicesBuffer(false)
+    val posAttrib  = getVertexAttribute(Usage.Position).getOrElse(throw SgeError.GraphicsError("No position attribute"))
+    val posoff     = posAttrib.offset / 4
+    val vertexSize = vertices.getAttributes().vertexSize / 4
+    val end        = offset + count
+
+    var result = 0f
+
+    posAttrib.numComponents match {
+      case 1 =>
+        for (i <- offset until end) {
+          val idx = (index.get(i) & 0xffff) * vertexSize + posoff
+          tmpV.set(verts.get(idx), 0, 0)
+          transform.foreach(t => tmpV.mul(t))
+          val r = tmpV.sub(centerX, centerY, centerZ).lengthSq
+          if (r > result) result = r
+        }
+      case 2 =>
+        for (i <- offset until end) {
+          val idx = (index.get(i) & 0xffff) * vertexSize + posoff
+          tmpV.set(verts.get(idx), verts.get(idx + 1), 0)
+          transform.foreach(t => tmpV.mul(t))
+          val r = tmpV.sub(centerX, centerY, centerZ).lengthSq
+          if (r > result) result = r
+        }
+      case 3 =>
+        for (i <- offset until end) {
+          val idx = (index.get(i) & 0xffff) * vertexSize + posoff
+          tmpV.set(verts.get(idx), verts.get(idx + 1), verts.get(idx + 2))
+          transform.foreach(t => tmpV.mul(t))
+          val r = tmpV.sub(centerX, centerY, centerZ).lengthSq
+          if (r > result) result = r
+        }
+      case _ => // do nothing for unsupported component counts
+    }
+    result
+  }
+
+  /** Calculates the radius of the bounding sphere around the specified center for the specified part. */
+  def calculateRadius(centerX: Float, centerY: Float, centerZ: Float, offset: Int, count: Int, transform: Nullable[Matrix4]): Float =
+    Math.sqrt(calculateRadiusSquared(centerX, centerY, centerZ, offset, count, transform).toDouble).toFloat
+
+  /** Calculates the radius of the bounding sphere around the specified center for the specified part. */
+  def calculateRadius(center: Vector3, offset: Int, count: Int, transform: Nullable[Matrix4]): Float =
+    calculateRadius(center.x, center.y, center.z, offset, count, transform)
+
+  /** Calculates the radius of the bounding sphere around the specified center for the specified part. */
+  def calculateRadius(centerX: Float, centerY: Float, centerZ: Float, offset: Int, count: Int): Float =
+    calculateRadius(centerX, centerY, centerZ, offset, count, Nullable.empty)
+
+  /** Calculates the radius of the bounding sphere around the specified center for the specified part. */
+  def calculateRadius(center: Vector3, offset: Int, count: Int): Float =
+    calculateRadius(center.x, center.y, center.z, offset, count, Nullable.empty)
+
+  /** Calculates the radius of the bounding sphere around the specified center. */
+  def calculateRadius(centerX: Float, centerY: Float, centerZ: Float): Float =
+    calculateRadius(centerX, centerY, centerZ, 0, getNumIndices(), Nullable.empty)
+
+  /** Calculates the radius of the bounding sphere around the specified center. */
+  def calculateRadius(center: Vector3): Float =
+    calculateRadius(center.x, center.y, center.z, 0, getNumIndices(), Nullable.empty)
+
+  /** Method to scale the positions in the mesh. Normals will be kept as is. This is a potentially slow operation, use with care. It will also create a temporary float[] which will be garbage
+    * collected.
+    *
+    * @param scaleX
+    *   scale on x
+    * @param scaleY
+    *   scale on y
+    * @param scaleZ
+    *   scale on z
+    */
+  def scale(scaleX: Float, scaleY: Float, scaleZ: Float): Unit = {
+    val posAttr        = getVertexAttribute(Usage.Position).getOrElse(throw SgeError.GraphicsError("No position attribute"))
+    val offset         = posAttr.offset / 4
+    val numComponents  = posAttr.numComponents
+    val numVerticesVal = getNumVertices()
+    val vertexSize     = getVertexSize() / 4
+
+    val verts = new Array[Float](numVerticesVal * vertexSize)
+    getVertices(verts)
+
+    var idx = offset
+    numComponents match {
+      case 1 =>
+        for (_ <- 0 until numVerticesVal) {
+          verts(idx) *= scaleX
+          idx += vertexSize
+        }
+      case 2 =>
+        for (_ <- 0 until numVerticesVal) {
+          verts(idx) *= scaleX
+          verts(idx + 1) *= scaleY
+          idx += vertexSize
+        }
+      case 3 =>
+        for (_ <- 0 until numVerticesVal) {
+          verts(idx) *= scaleX
+          verts(idx + 1) *= scaleY
+          verts(idx + 2) *= scaleZ
+          idx += vertexSize
+        }
+      case _ => // do nothing
+    }
+
+    setVertices(verts)
+  }
+
+  /** Method to transform the positions in the mesh. Normals will be kept as is. This is a potentially slow operation, use with care. It will also create a temporary float[] which will be garbage
+    * collected.
+    *
+    * @param matrix
+    *   the transformation matrix
+    */
+  def transform(matrix: Matrix4): Unit =
+    transform(matrix, 0, getNumVertices())
+
+  /** Transforms positions in the mesh for a portion of vertices. */
+  def transform(matrix: Matrix4, start: Int, count: Int): Unit = {
+    val posAttr       = getVertexAttribute(Usage.Position).getOrElse(throw SgeError.GraphicsError("No position attribute"))
+    val posOffset     = posAttr.offset / 4
+    val stride        = getVertexSize() / 4
+    val numComponents = posAttr.numComponents
+
+    val verts = new Array[Float](count * stride)
+    getVertices(start * stride, count * stride, verts)
+    Mesh.transform(matrix, verts, stride, posOffset, numComponents, 0, count)
+    updateVertices(start * stride, verts)
+  }
+
+  /** Method to transform the texture coordinates in the mesh. This is a potentially slow operation, use with care. It will also create a temporary float[] which will be garbage collected.
+    *
+    * @param matrix
+    *   the transformation matrix
+    */
+  def transformUV(matrix: Matrix3): Unit =
+    transformUV(matrix, 0, getNumVertices())
+
+  /** Transforms UV coordinates for a portion of vertices. */
+  protected def transformUV(matrix: Matrix3, start: Int, count: Int): Unit = {
+    val posAttr        = getVertexAttribute(Usage.TextureCoordinates).getOrElse(throw SgeError.GraphicsError("No texture coordinates attribute"))
+    val offset         = posAttr.offset / 4
+    val vertexSize     = getVertexSize() / 4
+    val numVerticesVal = getNumVertices()
+
+    val verts = new Array[Float](numVerticesVal * vertexSize)
+    getVertices(0, verts.length, verts)
+    Mesh.transformUV(matrix, verts, vertexSize, offset, start, count)
+    setVertices(verts, 0, verts.length)
+  }
+
+  /** Copies this mesh optionally removing duplicate vertices and/or reducing the amount of attributes.
+    * @param isStatic
+    *   whether the new mesh is static or not. Allows for internal optimizations.
+    * @param removeDuplicates
+    *   whether to remove duplicate vertices if possible. Only the vertices specified by usage are checked.
+    * @param usage
+    *   which attributes (if available) to copy
+    * @return
+    *   the copy of this mesh
+    */
+  def copy(isStatic: Boolean, removeDuplicates: Boolean, usage: Nullable[Array[Int]]): Mesh = {
+    val vertexSize     = getVertexSize() / 4
+    var numVerticesVal = getNumVertices()
+    var verts          = new Array[Float](numVerticesVal * vertexSize)
+    getVertices(0, verts.length, verts)
+    var checks: Array[Short]           = null.asInstanceOf[Array[Short]] // @nowarn — local temp only
+    var attrs:  Array[VertexAttribute] = null.asInstanceOf[Array[VertexAttribute]] // @nowarn — local temp only
+    var newVertexSize = 0
+    usage.foreach { usageArr =>
+      var size = 0
+      var as   = 0
+      for (i <- usageArr.indices)
+        getVertexAttribute(usageArr(i)).foreach { a =>
+          size += a.numComponents
+          as += 1
+        }
+      if (size > 0) {
+        attrs = new Array[VertexAttribute](as)
+        checks = new Array[Short](size)
+        var idx = -1
+        var ai  = -1
+        for (i <- usageArr.indices)
+          getVertexAttribute(usageArr(i)).foreach { a =>
+            for (j <- 0 until a.numComponents) {
+              idx += 1
+              checks(idx) = (a.offset + j).toShort
+            }
+            ai += 1
+            attrs(ai) = a.copy()
+            newVertexSize += a.numComponents
+          }
+      }
+    }
+    if (checks == null.asInstanceOf[Array[Short]]) { // @nowarn — null check for local temp
+      checks = new Array[Short](vertexSize)
+      for (i <- 0 until vertexSize)
+        checks(i) = i.toShort
+      newVertexSize = vertexSize
+    }
+
+    val numIndicesVal = getNumIndices()
+    var indices: Array[Short] = null.asInstanceOf[Array[Short]] // @nowarn — local temp only
+    if (numIndicesVal > 0) {
+      indices = new Array[Short](numIndicesVal)
+      getIndices(indices)
+      if (removeDuplicates || newVertexSize != vertexSize) {
+        val tmp  = new Array[Float](verts.length)
+        var size = 0
+        for (i <- 0 until numIndicesVal) {
+          val idx1     = indices(i) * vertexSize
+          var newIndex = -1.toShort
+          if (removeDuplicates) {
+            var j = 0.toShort
+            while (j < size && newIndex < 0) {
+              val idx2  = j * newVertexSize
+              var found = true
+              var k     = 0
+              while (k < checks.length && found) {
+                if (tmp(idx2 + k) != verts(idx1 + checks(k))) found = false
+                k += 1
+              }
+              if (found) newIndex = j
+              j = (j + 1).toShort
+            }
+          }
+          if (newIndex > 0) {
+            indices(i) = newIndex
+          } else {
+            val idx = size * newVertexSize
+            for (j <- checks.indices)
+              tmp(idx + j) = verts(idx1 + checks(j))
+            indices(i) = size.toShort
+            size += 1
+          }
+        }
+        verts = tmp
+        numVerticesVal = size
+      }
+    }
+
+    val numInd = if (indices == null.asInstanceOf[Array[Short]]) 0 else indices.length // @nowarn — null check for local temp
+    val result =
+      if (attrs == null.asInstanceOf[Array[VertexAttribute]]) { // @nowarn — null check for local temp
+        Mesh(isStatic, numVerticesVal, numInd, getVertexAttributes())
+      } else {
+        Mesh(isStatic, numVerticesVal, numInd)(attrs*)
+      }
+    result.setVertices(verts, 0, numVerticesVal * newVertexSize)
+    if (indices != null.asInstanceOf[Array[Short]]) result.setIndices(indices)
+    result
+  }
+
+  /** Copies this mesh.
+    * @param isStatic
+    *   whether the new mesh is static or not. Allows for internal optimizations.
+    * @return
+    *   the copy of this mesh
+    */
+  def copy(isStatic: Boolean): Mesh =
+    copy(isStatic, false, Nullable.empty)
 }
 
 object Mesh {
@@ -922,34 +1200,115 @@ object Mesh {
 
   private def makeVertexBuffer(isStatic: Boolean, maxVertices: Int, vertexAttributes: VertexAttributes)(using Sge): VertexData =
     if (Sge().graphics.gl30.isDefined) {
-      new VertexBufferObjectWithVAO(isStatic, maxVertices, vertexAttributes)
+      VertexBufferObjectWithVAO(isStatic, maxVertices, vertexAttributes)
     } else {
-      new VertexBufferObject(isStatic, maxVertices, vertexAttributes)
+      VertexBufferObject(isStatic, maxVertices, vertexAttributes)
     }
 
   private def createVertexData(meshType: VertexDataType, isStatic: Boolean, maxVertices: Int, attributes: VertexAttributes)(using Sge): VertexData =
     meshType match {
       case VertexDataType.VertexBufferObject =>
-        new VertexBufferObject(isStatic, maxVertices, attributes)
+        VertexBufferObject(isStatic, maxVertices, attributes)
       case VertexDataType.VertexBufferObjectSubData =>
-        new VertexBufferObjectSubData(isStatic, maxVertices, attributes)
+        VertexBufferObjectSubData(isStatic, maxVertices, attributes)
       case VertexDataType.VertexBufferObjectWithVAO =>
-        new VertexBufferObjectWithVAO(isStatic, maxVertices, attributes)
+        VertexBufferObjectWithVAO(isStatic, maxVertices, attributes)
       case VertexDataType.VertexArray =>
-        new VertexArray(maxVertices, attributes)
+        VertexArray(maxVertices, attributes)
     }
 
   private def createIndexData(meshType: VertexDataType, isStatic: Boolean, maxIndices: Int)(using Sge): IndexData =
     meshType match {
       case VertexDataType.VertexBufferObject =>
-        new IndexBufferObject(isStatic, maxIndices)
+        IndexBufferObject(isStatic, maxIndices)
       case VertexDataType.VertexBufferObjectSubData =>
-        new IndexBufferObjectSubData(isStatic, maxIndices)
+        IndexBufferObjectSubData(isStatic, maxIndices)
       case VertexDataType.VertexBufferObjectWithVAO =>
-        new IndexBufferObjectSubData(isStatic, maxIndices)
+        IndexBufferObjectSubData(isStatic, maxIndices)
       case VertexDataType.VertexArray =>
-        new IndexArray(maxIndices)
+        IndexArray(maxIndices)
     }
+
+  /** Method to transform the positions in the float array. Normals will be kept as is. This is a potentially slow operation, use with care.
+    * @param matrix
+    *   the transformation matrix
+    * @param vertices
+    *   the float array
+    * @param vertexSize
+    *   the number of floats in each vertex
+    * @param offset
+    *   the offset within a vertex to the position
+    * @param dimensions
+    *   the size of the position
+    * @param start
+    *   the vertex to start with
+    * @param count
+    *   the amount of vertices to transform
+    */
+  def transform(matrix: Matrix4, vertices: Array[Float], vertexSize: Int, offset: Int, dimensions: Int, start: Int, count: Int): Unit = {
+    if (offset < 0 || dimensions < 1 || (offset + dimensions) > vertexSize) throw new IndexOutOfBoundsException()
+    if (start < 0 || count < 1 || ((start + count) * vertexSize) > vertices.length)
+      throw new IndexOutOfBoundsException(
+        s"start = $start, count = $count, vertexSize = $vertexSize, length = ${vertices.length}"
+      )
+
+    val tmp = Vector3()
+    var idx = offset + (start * vertexSize)
+    dimensions match {
+      case 1 =>
+        for (_ <- 0 until count) {
+          tmp.set(vertices(idx), 0, 0).mul(matrix)
+          vertices(idx) = tmp.x
+          idx += vertexSize
+        }
+      case 2 =>
+        for (_ <- 0 until count) {
+          tmp.set(vertices(idx), vertices(idx + 1), 0).mul(matrix)
+          vertices(idx) = tmp.x
+          vertices(idx + 1) = tmp.y
+          idx += vertexSize
+        }
+      case 3 =>
+        for (_ <- 0 until count) {
+          tmp.set(vertices(idx), vertices(idx + 1), vertices(idx + 2)).mul(matrix)
+          vertices(idx) = tmp.x
+          vertices(idx + 1) = tmp.y
+          vertices(idx + 2) = tmp.z
+          idx += vertexSize
+        }
+      case _ => // do nothing
+    }
+  }
+
+  /** Method to transform the texture coordinates (UV) in the float array. This is a potentially slow operation, use with care.
+    * @param matrix
+    *   the transformation matrix
+    * @param vertices
+    *   the float array
+    * @param vertexSize
+    *   the number of floats in each vertex
+    * @param offset
+    *   the offset within a vertex to the texture location
+    * @param start
+    *   the vertex to start with
+    * @param count
+    *   the amount of vertices to transform
+    */
+  def transformUV(matrix: Matrix3, vertices: Array[Float], vertexSize: Int, offset: Int, start: Int, count: Int): Unit = {
+    if (start < 0 || count < 1 || ((start + count) * vertexSize) > vertices.length)
+      throw new IndexOutOfBoundsException(
+        s"start = $start, count = $count, vertexSize = $vertexSize, length = ${vertices.length}"
+      )
+
+    val tmp = Vector2()
+    var idx = offset + (start * vertexSize)
+    for (_ <- 0 until count) {
+      tmp.set(vertices(idx), vertices(idx + 1)).*(matrix)
+      vertices(idx) = tmp.x
+      vertices(idx + 1) = tmp.y
+      idx += vertexSize
+    }
+  }
 
   private def addManagedMesh(app: Application, mesh: Mesh): Unit = {
     val managedResources = meshes.getOrElseUpdate(app, DynamicArray[Mesh]())

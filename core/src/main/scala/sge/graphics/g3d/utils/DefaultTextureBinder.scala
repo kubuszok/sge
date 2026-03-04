@@ -63,14 +63,12 @@ final class DefaultTextureBinder(
   private var bindCount:  Int = 0 // Profiling stats -- used by getBindCount/getReuseCount
 
   /** Uses all available texture units and reuse weight of 3 */
-  def this(method: Int)(using Sge) = {
+  def this(method: Int)(using Sge) =
     this(method, 0, -1)
-  }
 
   /** Uses all remaining texture units and reuse weight of 3 */
-  def this(method: Int, offset: Int)(using Sge) = {
+  def this(method: Int, offset: Int)(using Sge) =
     this(method, offset, -1)
-  }
 
   override def begin(): Unit =
     for (i <- 0 until _count) {
@@ -89,7 +87,7 @@ final class DefaultTextureBinder(
   override def bind(textureDescriptor: TextureDescriptor[?]): Int =
     bindTexture(textureDescriptor, false)
 
-  private val tempDesc: TextureDescriptor[GLTexture] = new TextureDescriptor[GLTexture]()
+  private val tempDesc: TextureDescriptor[GLTexture] = TextureDescriptor[GLTexture]()
 
   override def bind(texture: GLTexture): Int = {
     tempDesc.set(texture, Nullable.empty, Nullable.empty, Nullable.empty, Nullable.empty)

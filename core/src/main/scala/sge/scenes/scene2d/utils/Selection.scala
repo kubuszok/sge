@@ -24,29 +24,30 @@ package scene2d
 package utils
 
 import scala.collection.mutable.LinkedHashSet
+import sge.Sge
 import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** Manages selected objects. Optionally fires a {@link ChangeEvent} on an actor. Selection changes can be vetoed via {@link ChangeEvent#cancel()}.
   * @author
   *   Nathan Sweet
   */
-class Selection[T] extends Disableable with Iterable[T] {
+class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   private var actor:                    Nullable[Actor]  = Nullable.empty
   val selected:                         LinkedHashSet[T] = LinkedHashSet.empty
   private val old:                      LinkedHashSet[T] = LinkedHashSet.empty
-  var _isDisabled:                      Boolean          = false
+  protected var _isDisabled:            Boolean          = false
   private var toggle:                   Boolean          = false
-  var multiple:                         Boolean          = false
-  var required:                         Boolean          = false
+  protected var multiple:               Boolean          = false
+  protected var required:               Boolean          = false
   private var programmaticChangeEvents: Boolean          = true
-  var lastSelected:                     Nullable[T]      = Nullable.empty
+  protected var lastSelected:           Nullable[T]      = Nullable.empty
 
   /** @param actor An actor to fire {@link ChangeEvent} on when the selection changes, or null. */
   def setActor(actor: Nullable[Actor]): Unit = this.actor = actor
 
   /** Selects or deselects the specified item based on how the selection is configured, whether ctrl is currently pressed, etc. This is typically invoked by user interaction.
     */
-  def choose(item: T)(using Sge): Unit =
+  def choose(item: T): Unit =
     if (_isDisabled) ()
     else {
       snapshot()
@@ -227,7 +228,7 @@ class Selection[T] extends Disableable with Iterable[T] {
     *   true if the change should be undone.
     */
   def fireChangeEvent(): Boolean =
-    actor.fold(false) { a =>
+    actor.exists { a =>
       val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
       try
         a.fire(changeEvent)
@@ -237,7 +238,7 @@ class Selection[T] extends Disableable with Iterable[T] {
 
   /** @param item May be null (returns false). */
   def contains(item: Nullable[T]): Boolean =
-    item.fold(false)(selected.contains)
+    item.exists(selected.contains)
 
   /** Makes a best effort to return the last item selected, else returns an arbitrary item or null if the selection is empty. */
   def getLastSelected: Nullable[T] =

@@ -17,7 +17,7 @@ package g3d
 package environment
 
 abstract class BaseLight[T <: BaseLight[T]] {
-  val color: Color = new Color(0, 0, 0, 1)
+  val color: Color = Color(0, 0, 0, 1)
 
   def setColor(r: Float, g: Float, b: Float, a: Float): T = {
     this.color.set(r, g, b, a)

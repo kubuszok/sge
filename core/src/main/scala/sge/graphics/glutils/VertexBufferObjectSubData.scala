@@ -57,9 +57,8 @@ class VertexBufferObjectSubData(
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) = {
-    this(isStatic, numVertices, new VertexAttributes(attributes*))
-  }
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) =
+    this(isStatic, numVertices, VertexAttributes(attributes*))
 
   private def createBufferObject(): Int = {
     val result = sde.graphics.gl20.glGenBuffer()
@@ -145,7 +144,7 @@ class VertexBufferObjectSubData(
     val numAttributes = attributes.size
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
-      val location  = locations.fold(shader.getAttributeLocation(attribute.alias))(_(i))
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
       if (location >= 0) {
         shader.enableVertexAttribute(location)
         shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)

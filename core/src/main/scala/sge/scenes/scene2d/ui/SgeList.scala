@@ -38,7 +38,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
 
   private var _style:      ListStyle           = scala.compiletime.uninitialized
   val items:               DynamicArray[T]     = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  var selection:           ArraySelection[T]   = new ArraySelection(items)
+  var selection:           ArraySelection[T]   = ArraySelection(items)
   private var cullingArea: Nullable[Rectangle] = Nullable.empty
   private var _prefWidth:  Float               = 0f
   private var _prefHeight: Float               = 0f
@@ -76,12 +76,12 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
           self.setSelectedIndex(self.items.size - 1)
           scala.util.boundary.break(true)
         case Input.Keys.DOWN =>
-          var index = self.getSelected.fold(-1)(s => self.items.indexOf(s)) + 1
+          var index = self.getSelected.map(s => self.items.indexOf(s)).getOrElse(-1) + 1
           if (index >= self.items.size) index = 0
           self.setSelectedIndex(index)
           scala.util.boundary.break(true)
         case Input.Keys.UP =>
-          var index = self.getSelected.fold(-1)(s => self.items.indexOf(s)) - 1
+          var index = self.getSelected.map(s => self.items.indexOf(s)).getOrElse(-1) - 1
           if (index < 0) index = self.items.size - 1
           self.setSelectedIndex(index)
           scala.util.boundary.break(true)
@@ -162,7 +162,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     val font             = _style.font
     val selectedDrawable = _style.selection
 
-    itemHeight = font.getCapHeight() - font.getDescent() * 2
+    itemHeight = font.capHeight - font.descent * 2
     itemHeight += selectedDrawable.getTopHeight + selectedDrawable.getBottomHeight
 
     _prefWidth = 0
@@ -212,12 +212,12 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
 
     val textOffsetX = selectedDrawable.getLeftWidth
     val textWidth   = width - textOffsetX - selectedDrawable.getRightWidth
-    val textOffsetY = selectedDrawable.getTopHeight - font.getDescent()
+    val textOffsetY = selectedDrawable.getTopHeight - font.descent
 
     font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
     var i = 0
     while (i < items.size) {
-      val canDraw = cullingArea.fold(true) { ca =>
+      val canDraw = cullingArea.forall { ca =>
         itemY - itemHeight <= ca.y + ca.height && itemY >= ca.y
       }
       if (canDraw) {
@@ -236,7 +236,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
         if (selected) {
           font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
         }
-      } else if (cullingArea.fold(false)(ca => itemY < ca.y)) {
+      } else if (cullingArea.exists(ca => itemY < ca.y)) {
         scala.util.boundary.break()
       }
       itemY -= itemHeight
@@ -323,7 +323,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     _style.background.foreach { background =>
       adjustedY -= background.getBottomHeight
     }
-    val bgHeight = _style.background.fold(height)(bg => height - bg.getTopHeight - bg.getBottomHeight)
+    val bgHeight = _style.background.map(bg => height - bg.getTopHeight - bg.getBottomHeight).getOrElse(height)
     val index    = ((bgHeight - adjustedY) / itemHeight).toInt
     if (index < 0 || index >= items.size) -1 else index
   }
@@ -402,8 +402,8 @@ object SgeList {
     */
   class ListStyle() {
     var font:                BitmapFont         = scala.compiletime.uninitialized
-    var fontColorSelected:   Color              = new Color(1, 1, 1, 1)
-    var fontColorUnselected: Color              = new Color(1, 1, 1, 1)
+    var fontColorSelected:   Color              = Color(1, 1, 1, 1)
+    var fontColorUnselected: Color              = Color(1, 1, 1, 1)
     var selection:           Drawable           = scala.compiletime.uninitialized
     var down:                Nullable[Drawable] = Nullable.empty
     var over:                Nullable[Drawable] = Nullable.empty

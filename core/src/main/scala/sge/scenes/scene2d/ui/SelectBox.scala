@@ -85,7 +85,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
   /** Allows a subclass to customize the scroll pane shown when the select box is open. */
   protected def newScrollPane(): SelectBoxScrollPane[T] =
-    new SelectBoxScrollPane(this)
+    SelectBoxScrollPane(this)
 
   /** Set the max number of items to display when the select box is opened. Set to 0 (the default) to display as many as fit in the stage height.
     */
@@ -160,9 +160,9 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     val font = _style.font
 
     bg.fold {
-      prefHeight = font.getCapHeight() - font.getDescent() * 2
+      prefHeight = font.capHeight - font.descent * 2
     } { background =>
-      prefHeight = Math.max(background.getTopHeight + background.getBottomHeight + font.getCapHeight() - font.getDescent() * 2, background.getMinHeight)
+      prefHeight = Math.max(background.getTopHeight + background.getBottomHeight + font.capHeight - font.descent * 2, background.getMinHeight)
     }
 
     val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
@@ -195,8 +195,11 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
       scrollStyle.background.foreach { scrollBg =>
         scrollWidth = Math.max(scrollWidth + scrollBg.getLeftWidth + scrollBg.getRightWidth, scrollBg.getMinWidth)
       }
-      if (Nullable(scrollPane).fold(true)(!_.disableY)) {
-        scrollWidth += Math.max(_style.scrollStyle.vScroll.fold(0f)(_.getMinWidth), _style.scrollStyle.vScrollKnob.fold(0f)(_.getMinWidth))
+      if (Nullable(scrollPane).forall(!_.disableY)) {
+        scrollWidth += Math.max(
+          _style.scrollStyle.vScroll.map(_.getMinWidth).getOrElse(0f),
+          _style.scrollStyle.vScrollKnob.map(_.getMinWidth).getOrElse(0f)
+        )
       }
       prefWidth = Math.max(prefWidth, scrollWidth)
     }
@@ -235,12 +238,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     val selected: Nullable[T] = selection.first
     selected.foreach { sel =>
       background.fold {
-        y += (height / 2 + font.getData().capHeight / 2).toInt.toFloat
+        y += (height / 2 + font.data.capHeight / 2).toInt.toFloat
       } { bg =>
         width -= bg.getLeftWidth + bg.getRightWidth
         height -= bg.getBottomHeight + bg.getTopHeight
         x += bg.getLeftWidth
-        y += (height / 2 + bg.getBottomHeight + font.getData().capHeight / 2).toInt.toFloat
+        y += (height / 2 + bg.getBottomHeight + font.data.capHeight / 2).toInt.toFloat
       }
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha)
       drawItem(batch, font, sel, x, y, width)
@@ -364,12 +367,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
   def getClickListener: ClickListener = clickListener
 
-  protected def onShow(scrollPane: Actor, below: Boolean)(using Sge): Unit = {
+  protected def onShow(scrollPane: Actor, below: Boolean): Unit = {
     scrollPane.getColor.a = 0
     scrollPane.addAction(Actions.fadeIn(0.3f, Nullable(Interpolation.fade)))
   }
 
-  protected def onHide(scrollPane: Actor)(using Sge): Unit = {
+  protected def onHide(scrollPane: Actor): Unit = {
     scrollPane.getColor.a = 1
     scrollPane.addAction(Actions.sequence(Actions.fadeOut(0.15f, Nullable(Interpolation.fade)), Actions.removeActor()))
   }
@@ -377,7 +380,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
 object SelectBox {
 
-  private val temp: Vector2 = new Vector2()
+  private val temp: Vector2 = Vector2()
 
   /** The scroll pane shown when a select box is open.
     * @author
@@ -386,7 +389,7 @@ object SelectBox {
   class SelectBoxScrollPane[T](val selectBox: SelectBox[T])(using Sge) extends ScrollPane(Nullable.empty, selectBox._style.scrollStyle) {
 
     var maxListCount:                Int             = 0
-    private val stagePosition:       Vector2         = new Vector2()
+    private val stagePosition:       Vector2         = Vector2()
     val list:                        SgeList[T]      = newList()
     private var hideListener:        InputListener   = scala.compiletime.uninitialized
     private var previousScrollFocus: Nullable[Actor] = Nullable.empty
@@ -421,7 +424,7 @@ object SelectBox {
     addListener(
       new InputListener() {
         override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit =
-          if (toActor.fold(true)(a => !scrollPaneSelf.isAscendantOf(a))) {
+          if (toActor.forall(a => !scrollPaneSelf.isAscendantOf(a))) {
             val selected = selectBox.getSelected
             selected.foreach(sel => list.selection.set(sel))
           }
@@ -540,7 +543,7 @@ object SelectBox {
             if (psf.getStage.isEmpty) previousScrollFocus = Nullable.empty
           }
           val actor = s.getScrollFocus
-          if (actor.isEmpty || actor.fold(false)(a => isAscendantOf(a))) {
+          if (actor.isEmpty || actor.exists(a => isAscendantOf(a))) {
             s.setScrollFocus(previousScrollFocus)
           }
         }
@@ -555,7 +558,7 @@ object SelectBox {
       super.draw(batch, parentAlpha)
     }
 
-    override def act(delta: Float)(using Sge): Unit = {
+    override def act(delta: Float): Unit = {
       super.act(delta)
       toFront()
     }
@@ -582,7 +585,7 @@ object SelectBox {
     */
   class SelectBoxStyle() {
     var font:               BitmapFont                 = scala.compiletime.uninitialized
-    var fontColor:          Color                      = new Color(1, 1, 1, 1)
+    var fontColor:          Color                      = Color(1, 1, 1, 1)
     var overFontColor:      Nullable[Color]            = Nullable.empty
     var disabledFontColor:  Nullable[Color]            = Nullable.empty
     var background:         Nullable[Drawable]         = Nullable.empty
@@ -606,12 +609,12 @@ object SelectBox {
       font = style.font
       fontColor.set(style.fontColor)
 
-      style.overFontColor.foreach { c => overFontColor = Nullable(new Color(c)) }
-      style.disabledFontColor.foreach { c => disabledFontColor = Nullable(new Color(c)) }
+      style.overFontColor.foreach { c => overFontColor = Nullable(Color(c)) }
+      style.disabledFontColor.foreach { c => disabledFontColor = Nullable(Color(c)) }
 
       background = style.background
-      scrollStyle = new ScrollPane.ScrollPaneStyle(style.scrollStyle)
-      listStyle = new SgeList.ListStyle(style.listStyle)
+      scrollStyle = ScrollPane.ScrollPaneStyle(style.scrollStyle)
+      listStyle = SgeList.ListStyle(style.listStyle)
 
       backgroundOver = style.backgroundOver
       backgroundOpen = style.backgroundOpen

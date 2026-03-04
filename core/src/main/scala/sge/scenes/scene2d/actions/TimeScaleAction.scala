@@ -25,7 +25,7 @@ class TimeScaleAction extends DelegateAction {
   private var scale: Float = 0
 
   override protected def delegate(delta: Float): Boolean =
-    action.fold(true)(_.act(delta * scale))
+    action.forall(_.act(delta * scale))
 
   def getScale: Float = scale
 

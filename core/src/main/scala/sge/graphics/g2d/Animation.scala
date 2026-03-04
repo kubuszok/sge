@@ -8,7 +8,8 @@
  *   Renames: Array<T> -> DynamicArray[? <: T]; generic <T> -> [T: ClassTag]
  *   Convention: Java enum -> Scala 3 enum; return eliminated; match instead of switch
  *   Idiom: boundary/break, Nullable, split packages
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getters/setters (getPlayMode/setPlayMode → var playMode, getFrameDuration/setFrameDuration → property, getAnimationDuration → def, getKeyFrames → def)
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -28,19 +29,19 @@ import scala.reflect.ClassTag
   * @author
   *   mzechner (original implementation)
   */
-class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: T]) {
+class Animation[T: ClassTag](initialFrameDuration: Float, initialKeyFrames: DynamicArray[? <: T]) {
 
   /** Length must not be modified without updating {@link #animationDuration}. See {@link #setKeyFrames(T[])}. */
-  private var keyFramesArray:    Array[T] = uninitialized
-  private var frameDurationVar:  Float    = frameDuration
-  private var animationDuration: Float    = uninitialized
-  private var lastFrameNumber:   Int      = 0
-  private var lastStateTime:     Float    = 0f
+  private var _keyFrames:         Array[T] = uninitialized
+  private var _frameDuration:     Float    = initialFrameDuration
+  private var _animationDuration: Float    = uninitialized
+  private var lastFrameNumber:    Int      = 0
+  private var lastStateTime:      Float    = 0f
 
-  private var playMode: Animation.PlayMode = Animation.PlayMode.NORMAL
+  var playMode: Animation.PlayMode = Animation.PlayMode.NORMAL
 
   // Initialize keyframes from the DynamicArray
-  val frames = keyFrames.toArray.asInstanceOf[Array[T]]
+  val frames = initialKeyFrames.toArray.asInstanceOf[Array[T]]
   setKeyFrames(frames*)
 
   /** Constructor, storing the frame duration and key frames.
@@ -52,7 +53,7 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     */
   def this(frameDuration: Float, keyFrames: DynamicArray[? <: T], playMode: Animation.PlayMode) = {
     this(frameDuration, keyFrames)
-    setPlayMode(playMode)
+    this.playMode = playMode
   }
 
   /** Constructor, storing the frame duration and key frames.
@@ -62,9 +63,8 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     * @param keyFrames
     *   the objects representing the frames.
     */
-  def this(frameDuration: Float, keyFrames: T*) = {
-    this(frameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
-  }
+  def this(initialFrameDuration: Float, keyFrames: T*) =
+    this(initialFrameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
 
   /** Returns a frame based on the so called state time. This is the amount of seconds an object has spent in the state this Animation instance represents, e.g. running, jumping and so on. The mode
     * specifies whether the animation is looping or not.
@@ -106,7 +106,7 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     */
   def getKeyFrame(stateTime: Float): T = {
     val frameNumber = getKeyFrameIndex(stateTime)
-    keyFramesArray(frameNumber)
+    _keyFrames(frameNumber)
   }
 
   /** Returns the current frame number.
@@ -115,32 +115,32 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     *   current frame number
     */
   def getKeyFrameIndex(stateTime: Float): Int =
-    if (keyFramesArray.length == 1) 0
+    if (_keyFrames.length == 1) 0
     else {
-      var frameNumber = (stateTime / frameDurationVar).toInt
+      var frameNumber = (stateTime / _frameDuration).toInt
       frameNumber = playMode match {
         case Animation.PlayMode.NORMAL =>
-          Math.min(keyFramesArray.length - 1, frameNumber)
+          Math.min(_keyFrames.length - 1, frameNumber)
         case Animation.PlayMode.LOOP =>
-          frameNumber % keyFramesArray.length
+          frameNumber % _keyFrames.length
         case Animation.PlayMode.LOOP_PINGPONG =>
-          frameNumber = frameNumber % ((keyFramesArray.length * 2) - 2)
-          if (frameNumber >= keyFramesArray.length)
-            keyFramesArray.length - 2 - (frameNumber - keyFramesArray.length)
+          frameNumber = frameNumber % ((_keyFrames.length * 2) - 2)
+          if (frameNumber >= _keyFrames.length)
+            _keyFrames.length - 2 - (frameNumber - _keyFrames.length)
           else
             frameNumber
         case Animation.PlayMode.LOOP_RANDOM =>
-          val lastFrameNumberTemp = (lastStateTime / frameDurationVar).toInt
+          val lastFrameNumberTemp = (lastStateTime / _frameDuration).toInt
           if (lastFrameNumberTemp != frameNumber) {
-            MathUtils.random(keyFramesArray.length - 1)
+            MathUtils.random(_keyFrames.length - 1)
           } else {
             this.lastFrameNumber
           }
         case Animation.PlayMode.REVERSED =>
-          Math.max(keyFramesArray.length - frameNumber - 1, 0)
+          Math.max(_keyFrames.length - frameNumber - 1, 0)
         case Animation.PlayMode.LOOP_REVERSED =>
-          frameNumber = frameNumber % keyFramesArray.length
-          keyFramesArray.length - frameNumber - 1
+          frameNumber = frameNumber % _keyFrames.length
+          _keyFrames.length - frameNumber - 1
       }
 
       lastFrameNumber = frameNumber
@@ -153,25 +153,13 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     * @return
     *   The keyframes[] field. This array is an Object[] if the animation was instantiated with an Array that was not type-aware.
     */
-  def getKeyFrames(): Array[T] =
-    keyFramesArray
+  def keyFrames: Array[T] =
+    _keyFrames
 
   protected def setKeyFrames(keyFrames: T*): Unit = {
-    this.keyFramesArray = keyFrames.toArray
-    this.animationDuration = keyFrames.length * frameDurationVar
+    this._keyFrames = keyFrames.toArray
+    this._animationDuration = keyFrames.length * _frameDuration
   }
-
-  /** Returns the animation play mode. */
-  def getPlayMode(): Animation.PlayMode =
-    playMode
-
-  /** Sets the animation play mode.
-    *
-    * @param playMode
-    *   The animation {@link PlayMode} to use.
-    */
-  def setPlayMode(playMode: Animation.PlayMode): Unit =
-    this.playMode = playMode
 
   /** Whether the animation would be finished if played without looping (PlayMode#NORMAL), given the state time.
     * @param stateTime
@@ -179,26 +167,26 @@ class Animation[T: ClassTag](frameDuration: Float, keyFrames: DynamicArray[? <: 
     *   whether the animation is finished.
     */
   def isAnimationFinished(stateTime: Float): Boolean = {
-    val frameNumber = (stateTime / frameDurationVar).toInt
-    keyFramesArray.length - 1 < frameNumber
+    val frameNumber = (stateTime / _frameDuration).toInt
+    _keyFrames.length - 1 < frameNumber
   }
+
+  /** @return the duration of a frame in seconds */
+  def frameDuration: Float =
+    _frameDuration
 
   /** Sets duration a frame will be displayed.
     * @param frameDuration
     *   in seconds
     */
-  def setFrameDuration(frameDuration: Float): Unit = {
-    this.frameDurationVar = frameDuration
-    this.animationDuration = keyFramesArray.length * frameDuration
+  def frameDuration_=(frameDuration: Float): Unit = {
+    this._frameDuration = frameDuration
+    this._animationDuration = _keyFrames.length * frameDuration
   }
 
-  /** @return the duration of a frame in seconds */
-  def getFrameDuration(): Float =
-    frameDurationVar
-
   /** @return the duration of the entire animation, number of frames times frame duration, in seconds */
-  def getAnimationDuration(): Float =
-    animationDuration
+  def animationDuration: Float =
+    _animationDuration
 }
 
 object Animation {

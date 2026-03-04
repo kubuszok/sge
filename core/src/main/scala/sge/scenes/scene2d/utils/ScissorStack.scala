@@ -32,7 +32,7 @@ import sge.utils.{ DynamicArray, Nullable }
 object ScissorStack {
   private val scissors: DynamicArray[Rectangle] = DynamicArray[Rectangle]()
   private val tmp:      Vector3                 = Vector3()
-  private val viewport: Rectangle               = new Rectangle()
+  private val viewport: Rectangle               = Rectangle()
 
   /** Pushes a new scissor {@link Rectangle} onto the stack, merging it with the current top of the stack. The minimal area of overlap between the top of stack rectangle and the provided rectangle is
     * pushed onto the stack. This will invoke {@link GL20#glScissor(int, int, int, int)} with the final top of stack rectangle. In case no scissor is yet on the stack this will also enable

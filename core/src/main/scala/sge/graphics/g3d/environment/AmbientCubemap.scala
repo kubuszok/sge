@@ -24,13 +24,11 @@ import sge.utils.SgeError
 
 class AmbientCubemap private[environment] (val data: Array[Float]) {
 
-  def this() = {
+  def this() =
     this(new Array[Float](AmbientCubemap.NUM_VALUES))
-  }
 
-  def this(copyFrom: AmbientCubemap) = {
+  def this(copyFrom: AmbientCubemap) =
     this(AmbientCubemap.copyArray(copyFrom.data))
-  }
 
   def set(values: Array[Float]): AmbientCubemap = {
     var i = 0
@@ -164,7 +162,7 @@ object AmbientCubemap {
     if (copyFrom.length != NUM_VALUES) throw SgeError.InvalidInput("Incorrect array size")
     val arr = new Array[Float](copyFrom.length)
     System.arraycopy(copyFrom, 0, arr, 0, arr.length)
-    new AmbientCubemap(arr)
+    AmbientCubemap(arr)
   }
 
   private[environment] def copyArray(src: Array[Float]): Array[Float] = {

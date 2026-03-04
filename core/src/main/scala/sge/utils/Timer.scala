@@ -12,7 +12,8 @@
  *   TODO: Java-style getters/setters -- Task: isScheduled, getExecuteTimeMillis
  *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: opaque Seconds for delaySeconds/intervalSeconds params; opaque Millis for executeTimeMillis/intervalMillis/delayMillis
- *   TODO: redesign with Gears structured concurrency -- Thread+synchronized won't work on JS/Native; see docs/improvements/dependencies.md B3
+ *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll replaced with Thread.sleep
+ *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -21,6 +22,7 @@ package sge
 package utils
 
 import scala.annotation.nowarn
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -37,21 +39,13 @@ class Timer(implicit sde: sge.Sge) {
   start()
 
   /** Schedules a task to occur once as soon as possible, but not sooner than the start of the next frame. */
-  def postTask(task: Task): Task = scheduleTask(task, 0, 0, 0)
-
-  /** Schedules a task to occur once after the specified delay. */
-  def scheduleTask(task: Task, delaySeconds: Float): Task =
-    scheduleTask(task, delaySeconds, 0, 0)
-
-  /** Schedules a task to occur once after the specified delay and then repeatedly at the specified interval until cancelled. */
-  def scheduleTask(task: Task, delaySeconds: Float, intervalSeconds: Float): Task =
-    scheduleTask(task, delaySeconds, intervalSeconds, -1)
+  def postTask(task: Task): Task = scheduleTask(task)
 
   /** Schedules a task to occur once after the specified delay and then a number of additional times at the specified interval.
     * @param repeatCount
     *   If negative, the task will repeat forever.
     */
-  def scheduleTask(task: Task, delaySeconds: Float, intervalSeconds: Float, repeatCount: Int): Task = {
+  def scheduleTask(task: Task, delaySeconds: Float = 0, intervalSeconds: Float = 0, repeatCount: Int = 0): Task = {
     threadLock.synchronized {
       this.synchronized {
         task.synchronized {
@@ -67,7 +61,7 @@ class Timer(implicit sde: sge.Sge) {
           tasks.add(task)
         }
       }
-      threadLock.notifyAll()
+      // Thread.sleep-based loop will re-check on next iteration
     }
     task
   }
@@ -89,7 +83,7 @@ class Timer(implicit sde: sge.Sge) {
           delay(System.nanoTime() / 1000000 - stopTimeMillis)
           stopTimeMillis = 0
         }
-        threadLock.notifyAll()
+        // Thread.sleep-based loop will re-check on next iteration
       }
     }
 
@@ -162,7 +156,7 @@ object Timer {
   def instance()(implicit sde: sge.Sge): Timer =
     threadLock.synchronized {
       val t = thread()
-      if (t.instance.isEmpty) t.instance = Some(new Timer())
+      if (t.instance.isEmpty) t.instance = Some(Timer())
       t.instance.get
     }
 
@@ -170,7 +164,7 @@ object Timer {
     threadLock.synchronized {
       if (currentThread.isEmpty || currentThread.get.files != sde.files) {
         currentThread.foreach(_.dispose())
-        currentThread = Some(new TimerThread())
+        currentThread = Some(TimerThread())
       }
       currentThread.get
     }
@@ -190,10 +184,10 @@ object Timer {
 
   /** Schedules a task on {@link #instance} .
     * @see
-    *   Timer#scheduleTask(Task, Float, Float)
+    *   Timer#scheduleTask(Task, Float, Float, Int)
     */
   def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float)(implicit sde: sge.Sge): Task =
-    instance().scheduleTask(task, delaySeconds, intervalSeconds)
+    instance().scheduleTask(task, delaySeconds, intervalSeconds, -1)
 
   /** Schedules a task on {@link #instance} .
     * @see
@@ -262,9 +256,7 @@ object Timer {
     // app.addLifecycleListener(this) // TODO: Implement LifecycleListener
     resume()
 
-    val thread = new Thread(this, "Timer")
-    thread.setDaemon(true)
-    thread.start()
+    Future(this.run())(using ExecutionContext.global)
 
     def run(): Unit = {
       boundary {
@@ -290,7 +282,7 @@ object Timer {
             if (currentThread.exists(_ != this) || files != sde.files) break(())
 
             try
-              if (waitMillis > 0) threadLock.wait(waitMillis)
+              if (waitMillis > 0) Thread.sleep(waitMillis)
             catch {
               case _: InterruptedException => // ignored
             }
@@ -318,13 +310,13 @@ object Timer {
         val delayMillis = System.nanoTime() / 1000000 - pauseTimeMillis
         instances.foreach(_.delay(delayMillis))
         pauseTimeMillis = 0
-        threadLock.notifyAll()
+        // Thread.sleep-based loop will re-check on next iteration
       }
 
     def pause(): Unit =
       threadLock.synchronized {
         pauseTimeMillis = System.nanoTime() / 1000000
-        threadLock.notifyAll()
+        // Thread.sleep-based loop will re-check on next iteration
       }
 
     def dispose(): Unit = // OK to call multiple times.
@@ -334,7 +326,7 @@ object Timer {
         }
         if (currentThread.exists(_ == this)) currentThread = None
         instances.clear()
-        threadLock.notifyAll()
+        // Thread.sleep-based loop will re-check on next iteration
       }
     // app.removeLifecycleListener(this) // TODO: Implement LifecycleListener
   }

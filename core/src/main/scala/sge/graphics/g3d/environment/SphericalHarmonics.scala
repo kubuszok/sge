@@ -23,9 +23,8 @@ import sge.utils.SgeError
 
 class SphericalHarmonics private[environment] (val data: Array[Float]) {
 
-  def this() = {
+  def this() =
     this(new Array[Float](SphericalHarmonics.NUM_VALUES))
-  }
 
   def set(values: Array[Float]): SphericalHarmonics = {
     var i = 0
@@ -68,6 +67,6 @@ object SphericalHarmonics {
     */
   def apply(copyFrom: Array[Float]): SphericalHarmonics = {
     if (copyFrom.length != NUM_VALUES) throw SgeError.InvalidInput("Incorrect array size")
-    new SphericalHarmonics(copyFrom.clone())
+    SphericalHarmonics(copyFrom.clone())
   }
 }

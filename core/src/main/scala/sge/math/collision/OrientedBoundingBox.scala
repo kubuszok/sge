@@ -9,30 +9,28 @@
  * Migration notes:
  *   Convention: Serializable dropped; serialVersionUID dropped;
  *     static arrays (tempAxes, tempVertices, tmpVectors) moved to companion object;
- *     Java init() replaced with inline field initializers + class body update() call;
- *     flat package import instead of split packages
+ *     Java init() replaced with inline field initializers + class body update() call
  *   Renames: Intersector.hasOverlap called via sge.math.Intersector.hasOverlap
- *   Issues: update() computes axes via set(1,0,0).mul(transform).nor() which includes
- *     translation; Java extracts matrix columns directly (M00/M10/M20 etc.) — BUG
- *   TODO: Java-style getters/setters — getBounds/setBounds, getTransform/setTransform, getVertices
- *   TODO: uses flat package declaration — convert to split (package sge / package math / package collision)
- *   Audited: 2026-03-03
+ *   Idiom: split packages
+ *   Audited: 2026-03-04
  */
-package sge.math.collision
+package sge
+package math
+package collision
 
 import sge.math.{ Matrix4, Vector3 }
 
 class OrientedBoundingBox() {
 
   /** Bounds used as size. */
-  private val bounds = new BoundingBox()
+  private val bounds = BoundingBox()
 
   /** Transform matrix. */
-  val transform                = new Matrix4()
-  private val inverseTransform = new Matrix4()
+  val transform                = Matrix4()
+  private val inverseTransform = Matrix4()
 
-  private val axes     = Array.fill(3)(new Vector3())
-  private val vertices = Array.fill(8)(new Vector3())
+  private val axes     = Array.fill(3)(Vector3())
+  private val vertices = Array.fill(8)(Vector3())
 
   // Initialize
   bounds.clr()
@@ -224,21 +222,23 @@ class OrientedBoundingBox() {
   }
 
   private def update(): Unit = {
-    inverseTransform.set(transform).inv()
-    // Update axes
-    axes(0).set(1, 0, 0).mul(transform).nor()
-    axes(1).set(0, 1, 0).mul(transform).nor()
-    axes(2).set(0, 0, 1).mul(transform).nor()
-
     // Update vertices
-    bounds.getCorner000(vertices(0)).mul(transform)
-    bounds.getCorner001(vertices(1)).mul(transform)
-    bounds.getCorner010(vertices(2)).mul(transform)
-    bounds.getCorner011(vertices(3)).mul(transform)
-    bounds.getCorner100(vertices(4)).mul(transform)
-    bounds.getCorner101(vertices(5)).mul(transform)
-    bounds.getCorner110(vertices(6)).mul(transform)
-    bounds.getCorner111(vertices(7)).mul(transform)
+    bounds.getCorner000(vertices(0b000)).mul(transform)
+    bounds.getCorner001(vertices(0b001)).mul(transform)
+    bounds.getCorner010(vertices(0b010)).mul(transform)
+    bounds.getCorner011(vertices(0b011)).mul(transform)
+    bounds.getCorner100(vertices(0b100)).mul(transform)
+    bounds.getCorner101(vertices(0b101)).mul(transform)
+    bounds.getCorner110(vertices(0b110)).mul(transform)
+    bounds.getCorner111(vertices(0b111)).mul(transform)
+
+    // Update axes by extracting matrix columns (not multiplying unit vectors, which includes translation)
+    val v = transform.values
+    axes(0).set(v(Matrix4.M00), v(Matrix4.M10), v(Matrix4.M20)).nor()
+    axes(1).set(v(Matrix4.M01), v(Matrix4.M11), v(Matrix4.M21)).nor()
+    axes(2).set(v(Matrix4.M02), v(Matrix4.M12), v(Matrix4.M22)).nor()
+
+    inverseTransform.set(transform).inv()
   }
 
   private def getVertices(b: BoundingBox): Array[Vector3] = {
@@ -255,7 +255,7 @@ class OrientedBoundingBox() {
 }
 
 object OrientedBoundingBox {
-  private val tempAxes     = Array.fill(15)(new Vector3())
-  private val tempVertices = Array.fill(8)(new Vector3())
-  private val tmpVectors   = Array.fill(9)(new Vector3())
+  private val tempAxes     = Array.fill(15)(Vector3())
+  private val tempVertices = Array.fill(8)(Vector3())
+  private val tmpVectors   = Array.fill(9)(Vector3())
 }

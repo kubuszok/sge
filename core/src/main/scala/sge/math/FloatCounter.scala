@@ -49,7 +49,7 @@ class FloatCounter(windowSize: Int) extends Poolable {
   var value: Float = 0f
 
   /** Provides access to the WindowedMean if any (can be null) */
-  val mean: Option[WindowedMean] = if (windowSize > 1) Some(new WindowedMean(windowSize)) else None
+  val mean: Option[WindowedMean] = if (windowSize > 1) Some(WindowedMean(windowSize)) else None
 
   reset()
 

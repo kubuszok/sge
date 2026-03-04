@@ -12,8 +12,11 @@
  *   Convention: static utility methods (tempFile, tempDirectory) omitted; static private helpers converted to private instance methods;
  *     convenience constructors FileHandle(String), FileHandle(File), no-arg FileHandle() omitted — primary constructor is (File, FileType)
  *   Idiom: Nullable (null -> Nullable for charset params, Java null returns), split packages (sge / files)
- *   TODOs: 1 — getFile() needs rewriting once Files/Sge integration is available (external storage path)
- *   Audited: 2026-03-03
+ *   Convention: getFile() External path resolution via externalStoragePath constructor param
+ *     (replaces Java's Gdx.files.getExternalStoragePath() global static)
+ *   Fixes: read() uses getFile() for resolved path; toString() uses raw file (matching Java);
+ *     RuntimeException → SgeError.FileReadError in list()/sibling(); trailing semicolons removed
+ *   Audited: 2026-03-04
  */
 package sge
 package files
@@ -27,7 +30,7 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.FilenameFilter
 import java.io.IOException
-import java.io.InputStream;
+import java.io.InputStream
 import java.io.InputStreamReader
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -35,8 +38,8 @@ import java.io.RandomAccessFile
 import java.io.Reader
 import java.io.UnsupportedEncodingException
 import java.io.Writer
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.channels.FileChannel
 import java.nio.channels.FileChannel.MapMode
 import sge.utils.Nullable
@@ -51,7 +54,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet (original implementation)
   */
-class FileHandle(val file: File, val fileType: FileType) {
+class FileHandle(val file: File, val fileType: FileType, private val externalStoragePath: Nullable[String] = Nullable.empty) {
 
   /** @return
     *   the path of the file as specified on construction, e.g. Gdx.files.internal("dir/file.png") -> dir/file.png. backward slashes will be replaced by forward slashes.
@@ -92,10 +95,8 @@ class FileHandle(val file: File, val fileType: FileType) {
   /** Returns a java.io.File that represents this file handle. Note the returned file will only be usable for {@link FileType#Absolute} and {@link FileType#External} file handles.
     */
   def getFile(): File =
-    // TODO: rewrite this once using Files is available
-    // if (fileType == FileType.External) new File(Gdx.files.getExternalStoragePath(), file.getPath())
-    // else
-    file
+    if (fileType == FileType.External) externalStoragePath.fold(file)(path => new File(path, file.getPath()))
+    else file
 
   /** Returns a stream for reading this file as bytes.
     * @throws [[sge.utils.SgeError]]
@@ -114,10 +115,10 @@ class FileHandle(val file: File, val fileType: FileType) {
       }
     } else {
       try
-        new FileInputStream(file)
+        new FileInputStream(getFile())
       catch {
         case ex: Exception =>
-          if (file.isDirectory())
+          if (getFile().isDirectory())
             throw utils.SgeError.FileReadError(this, "Cannot open a stream to a directory", Some(ex))
           throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
       }
@@ -163,20 +164,16 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws [[sge.utils.SgeError]]
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
-  def reader(bufferSize: Int, charset: String): BufferedReader =
+  def reader(bufferSize: Int, charset: String): BufferedReader = {
+    val stream = read()
     try
-      new BufferedReader(new InputStreamReader(read(), charset), bufferSize)
+      new BufferedReader(new InputStreamReader(stream, charset), bufferSize)
     catch {
       case ex: UnsupportedEncodingException =>
-        utils.StreamUtils.closeQuietly(read())
+        utils.StreamUtils.closeQuietly(stream)
         throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
     }
-
-  /** Reads the entire file into a string using the platform's default charset.
-    * @throws [[sge.utils.SgeError]]
-    *   if the file handle represents a directory, doesn't exist, or could not be read.
-    */
-  def readString(): String = readString(Nullable.empty[String])
+  }
 
   /** Reads the entire file into a string using the specified charset.
     * @param charset
@@ -184,7 +181,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
-  def readString(charset: Nullable[String]): String = {
+  def readString(charset: Nullable[String] = Nullable.empty): String = {
     val output = new StringBuilder(estimateLength())
     val reader = charset.fold(new InputStreamReader(read()))(cs => new InputStreamReader(read(), cs))
     try {
@@ -249,17 +246,11 @@ class FileHandle(val file: File, val fileType: FileType) {
       utils.StreamUtils.closeQuietly(input)
   }
 
-  /** Attempts to memory map this file in READ_ONLY mode. Android files must not be compressed.
-    * @throws GdxRuntimeException
-    *   if this file handle represents a directory, doesn't exist, or could not be read, or memory mapping fails, or is a {@link FileType#Classpath} file.
-    */
-  def map(): ByteBuffer = map(MapMode.READ_ONLY)
-
   /** Attempts to memory map this file. Android files must not be compressed.
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, doesn't exist, or could not be read, or memory mapping fails, or is a {@link FileType#Classpath} file.
     */
-  def map(mode: FileChannel.MapMode): ByteBuffer = {
+  def map(mode: FileChannel.MapMode = MapMode.READ_ONLY): ByteBuffer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot map a classpath file")
     val f   = getFile()
     val raf = new RandomAccessFile(f, if (mode == MapMode.READ_ONLY) "r" else "rw")
@@ -325,14 +316,6 @@ class FileHandle(val file: File, val fileType: FileType) {
     }
   }
 
-  /** Returns a writer for writing to this file using the default charset. Parent directories will be created if necessary.
-    * @param append
-    *   If false, this file will be overwritten if it exists, otherwise it will be appended.
-    * @throws GdxRuntimeException
-    *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
-    */
-  def writer(append: Boolean): Writer = writer(append, Nullable.empty[String])
-
   /** Returns a writer for writing to this file. Parent directories will be created if necessary.
     * @param append
     *   If false, this file will be overwritten if it exists, otherwise it will be appended.
@@ -341,7 +324,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writer(append: Boolean, charset: Nullable[String]): Writer = {
+  def writer(append: Boolean, charset: Nullable[String] = Nullable.empty): Writer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot write to a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
@@ -356,14 +339,6 @@ class FileHandle(val file: File, val fileType: FileType) {
     }
   }
 
-  /** Writes the specified string to the file using the default charset. Parent directories will be created if necessary.
-    * @param append
-    *   If false, this file will be overwritten if it exists, otherwise it will be appended.
-    * @throws GdxRuntimeException
-    *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
-    */
-  def writeString(string: String, append: Boolean): Unit = writeString(string, append, Nullable.empty[String])
-
   /** Writes the specified string to the file using the specified charset. Parent directories will be created if necessary.
     * @param append
     *   If false, this file will be overwritten if it exists, otherwise it will be appended.
@@ -372,7 +347,7 @@ class FileHandle(val file: File, val fileType: FileType) {
     * @throws GdxRuntimeException
     *   if this file handle represents a directory, if it is a {@link FileType#Classpath} or {@link FileType#Internal} file, or if it could not be written.
     */
-  def writeString(string: String, append: Boolean, charset: Nullable[String]): Unit = {
+  def writeString(string: String, append: Boolean, charset: Nullable[String] = Nullable.empty): Unit = {
     val writer = this.writer(append, charset)
     try
       writer.write(string)
@@ -419,53 +394,59 @@ class FileHandle(val file: File, val fileType: FileType) {
 
   /** Returns the paths to the children of this directory. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an {@link FileType#Internal} handle to a
     * directory on the classpath will return a zero length array.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if this file is an {@link FileType#Classpath} file.
     */
   def list(): Array[FileHandle] = {
-    if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    Nullable(getFile().list()).fold(Array.empty[FileHandle])(_.map(child))
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
+    Nullable(getFile().list()).map(_.map(child)).getOrElse(Array.empty[FileHandle])
   }
 
   /** Returns the paths to the children of this directory that satisfy the specified filter. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an
     * {@link FileType#Internal} handle to a directory on the classpath will return a zero length array.
     * @param filter
     *   the {@link FileFilter} to filter files
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if this file is an {@link FileType#Classpath} file.
     */
   def list(filter: FileFilter): Array[FileHandle] = {
-    if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    Nullable(getFile().list()).fold(Array.empty[FileHandle]) { relativePaths =>
-      relativePaths.map(path => child(path)).filter(childHandle => filter.accept(childHandle.getFile()))
-    }
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
+    Nullable(getFile().list())
+      .map { relativePaths =>
+        relativePaths.map(path => child(path)).filter(childHandle => filter.accept(childHandle.getFile()))
+      }
+      .getOrElse(Array.empty[FileHandle])
   }
 
   /** Returns the paths to the children of this directory that satisfy the specified filter. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an
     * {@link FileType#Internal} handle to a directory on the classpath will return a zero length array.
     * @param filter
     *   the {@link FilenameFilter} to filter files
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if this file is an {@link FileType#Classpath} file.
     */
   def list(filter: FilenameFilter): Array[FileHandle] = {
-    if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
     val fileObj = getFile()
-    Nullable(fileObj.list()).fold(Array.empty[FileHandle]) { relativePaths =>
-      relativePaths.filter(path => filter.accept(fileObj, path)).map(path => child(path))
-    }
+    Nullable(fileObj.list())
+      .map { relativePaths =>
+        relativePaths.filter(path => filter.accept(fileObj, path)).map(path => child(path))
+      }
+      .getOrElse(Array.empty[FileHandle])
   }
 
   /** Returns the paths to the children of this directory with the specified suffix. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an
     * {@link FileType#Internal} handle to a directory on the classpath will return a zero length array.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if this file is an {@link FileType#Classpath} file.
     */
   def list(suffix: String): Array[FileHandle] = {
-    if (fileType == FileType.Classpath) throw new RuntimeException("Cannot list a classpath directory: " + file)
-    Nullable(getFile().list()).fold(Array.empty[FileHandle]) { relativePaths =>
-      relativePaths.filter(_.endsWith(suffix)).map(child)
-    }
+    if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
+    Nullable(getFile().list())
+      .map { relativePaths =>
+        relativePaths.filter(_.endsWith(suffix)).map(child)
+      }
+      .getOrElse(Array.empty[FileHandle])
   }
 
   /** Returns true if this file is a directory. Always returns false for classpath files. On Android, an {@link FileType#Internal} handle to an empty directory will return false. On the desktop, an
@@ -477,24 +458,24 @@ class FileHandle(val file: File, val fileType: FileType) {
 
   /** Returns a handle to the child with the specified name. */
   def child(name: String): FileHandle =
-    if (file.getPath().length() == 0) new FileHandle(new File(name), fileType)
-    else new FileHandle(new File(file, name), fileType)
+    if (file.getPath().length() == 0) FileHandle(new File(name), fileType, externalStoragePath)
+    else FileHandle(new File(file, name), fileType, externalStoragePath)
 
   /** Returns a handle to the sibling with the specified name.
-    * @throws GdxRuntimeException
+    * @throws [[sge.utils.SgeError]]
     *   if this file is the root.
     */
   def sibling(name: String): FileHandle = {
-    if (file.getPath().length() == 0) throw new RuntimeException("Cannot get the sibling of the root.")
-    new FileHandle(new File(file.getParent(), name), fileType)
+    if (file.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root")
+    FileHandle(new File(file.getParent(), name), fileType, externalStoragePath)
   }
 
   def parent(): FileHandle =
     Nullable(file.getParentFile()).fold {
-      if (fileType == FileType.Absolute) new FileHandle(new File("/"), fileType)
-      else new FileHandle(new File(""), fileType)
+      if (fileType == FileType.Absolute) FileHandle(new File("/"), fileType, externalStoragePath)
+      else FileHandle(new File(""), fileType, externalStoragePath)
     } { parent =>
-      new FileHandle(parent, fileType)
+      FileHandle(parent, fileType, externalStoragePath)
     }
 
   /** @throws [[sge.utils.SgeError]] if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file. */
@@ -538,17 +519,11 @@ class FileHandle(val file: File, val fileType: FileType) {
     deleteDirectory(getFile())
   }
 
-  /** Deletes all children of this directory, recursively.
-    * @throws GdxRuntimeException
-    *   if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file.
-    */
-  def emptyDirectory(): Unit = emptyDirectory(false)
-
   /** Deletes all children of this directory, recursively. Optionally preserving the folder structure.
     * @throws GdxRuntimeException
     *   if this file handle is a {@link FileType#Classpath} or {@link FileType#Internal} file.
     */
-  def emptyDirectory(preserveTree: Boolean): Unit = {
+  def emptyDirectory(preserveTree: Boolean = false): Unit = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
     emptyDirectory(getFile(), preserveTree)
@@ -629,7 +604,7 @@ class FileHandle(val file: File, val fileType: FileType) {
   }
 
   override def toString(): String =
-    getFile().getPath().replace('\\', '/')
+    file.getPath().replace('\\', '/')
 
   // Utility methods for file operations
   private def copyFile(source: FileHandle, dest: FileHandle): Unit = {
@@ -650,8 +625,10 @@ class FileHandle(val file: File, val fileType: FileType) {
       }
   }
 
-  private def deleteDirectory(file: File): Boolean =
-    file.isDirectory() && utils.Nullable(file.listFiles()).fold(true)(_.forall(deleteDirectory)) && file.delete()
+  private def deleteDirectory(file: File): Boolean = {
+    emptyDirectory(file, false)
+    file.delete()
+  }
 
   private def emptyDirectory(file: File, preserveTree: Boolean): Unit =
     if (file.isDirectory()) {
@@ -716,9 +693,6 @@ abstract class FileHandleStream(path: String) extends FileHandle(new File(path),
   override def moveTo(dest: FileHandle): Unit =
     throw new UnsupportedOperationException()
 
-  override def emptyDirectory(): Unit =
-    throw new UnsupportedOperationException()
-
-  override def emptyDirectory(preserveTree: Boolean): Unit =
+  override def emptyDirectory(preserveTree: Boolean = false): Unit =
     throw new UnsupportedOperationException()
 }

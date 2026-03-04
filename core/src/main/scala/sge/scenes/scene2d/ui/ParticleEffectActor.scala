@@ -23,22 +23,22 @@ import sge.graphics.g2d.{ Batch, ParticleEffect, TextureAtlas }
 /** ParticleEffectActor holds an {@link ParticleEffect} to use in Scene2d applications. The particle effect is positioned at 0, 0 in the ParticleEffectActor. Its bounding box is not limited to the
   * size of this actor.
   */
-class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetOnStart: Boolean) extends Actor with AutoCloseable {
+class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetOnStart: Boolean)(using Sge) extends Actor() with AutoCloseable {
 
   protected var lastDelta:  Float   = 0
   protected var _isRunning: Boolean = false
   protected var ownsEffect: Boolean = false
   private var autoRemove:   Boolean = false
 
-  def this(particleFile: FileHandle, atlas: TextureAtlas) = {
-    this(new ParticleEffect(), true)
+  def this(particleFile: FileHandle, atlas: TextureAtlas)(using Sge) = {
+    this(ParticleEffect(), true)
     particleEffect.load(particleFile, atlas)
     ownsEffect = true
     resetOnStart = false
   }
 
   def this(particleFile: FileHandle, imagesDir: FileHandle)(using Sge) = {
-    this(new ParticleEffect(), true)
+    this(ParticleEffect(), true)
     particleEffect.load(particleFile, imagesDir)
     ownsEffect = true
     resetOnStart = false
@@ -56,7 +56,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
     }
   }
 
-  override def act(delta: Float)(using Sge): Unit = {
+  override def act(delta: Float): Unit = {
     super.act(delta)
     // don't do particleEffect.update() here - the correct position is set just while we
     // are in draw() method. We save the delta here to update in draw()

@@ -55,7 +55,7 @@ class Polyline() extends Shape2D {
       isDirty = false
 
       val localVertices = this.localVertices
-      if (Nullable(this.worldVertices).fold(true)(_.length < localVertices.length))
+      if (Nullable(this.worldVertices).forall(_.length < localVertices.length))
         this.worldVertices = new Array[Float](localVertices.length)
 
       val worldVertices = this.worldVertices
@@ -230,7 +230,7 @@ class Polyline() extends Shape2D {
       i += 2
     }
 
-    if (Nullable(bounds).isEmpty) bounds = new Rectangle()
+    if (Nullable(bounds).isEmpty) bounds = Rectangle()
     bounds.x = minX
     bounds.y = minY
     bounds.width = maxX - minX

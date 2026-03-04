@@ -30,8 +30,8 @@ import sge.utils.Nullable
   *   realitix
   */
 class SpotLight extends BaseLight[SpotLight] {
-  val position:    Vector3 = new Vector3()
-  val direction:   Vector3 = new Vector3()
+  val position:    Vector3 = Vector3()
+  val direction:   Vector3 = Vector3()
   var intensity:   Float   = 0f
   var cutoffAngle: Float   = 0f
   var exponent:    Float   = 0f
@@ -126,7 +126,7 @@ class SpotLight extends BaseLight[SpotLight] {
 
   @targetName("equalsSpotLight")
   def equals(other: Nullable[SpotLight]): Boolean =
-    other.fold(false)(o =>
+    other.exists(o =>
       (o eq this) || (color.equals(o.color) && position.equals(o.position)
         && direction.equals(o.direction) && MathUtils.isEqual(intensity, o.intensity)
         && MathUtils.isEqual(cutoffAngle, o.cutoffAngle) && MathUtils.isEqual(exponent, o.exponent))

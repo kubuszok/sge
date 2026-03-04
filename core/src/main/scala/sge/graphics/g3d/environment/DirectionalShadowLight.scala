@@ -8,12 +8,13 @@
  *
  * Migration notes:
  *   - Audit: pass (2026-03-03)
- *   - All 11 methods ported: update x2, begin x3, end, getFrameBuffer,
- *     getCamera, getProjViewTrans, getDepthMap, close
+ *   - All 11 methods ported: update x2, begin x3, end, frameBuffer,
+ *     camera, projViewTrans, depthMap, close
  *   - Disposable → AutoCloseable; dispose() → close()
  *   - Gdx.gl → Sge().graphics.gl (using Sge context parameter)
  *   - fbo: FrameBuffer → Nullable[FrameBuffer] for null safety
  *   - begin() wraps in fbo.foreach for null safety
+ *   - Fixes (2026-03-04): getFrameBuffer/getCamera/getProjViewTrans/getDepthMap → property accessors
  */
 package sge
 package graphics
@@ -45,18 +46,18 @@ class DirectionalShadowLight(
     with AutoCloseable {
 
   protected var fbo: Nullable[FrameBuffer] =
-    Nullable(new FrameBuffer(Pixmap.Format.RGBA8888, shadowMapWidth, shadowMapHeight, true))
+    Nullable(FrameBuffer(Pixmap.Format.RGBA8888, shadowMapWidth, shadowMapHeight, true))
   protected val cam: Camera = {
-    val c = new OrthographicCamera(shadowViewportWidth, shadowViewportHeight)
+    val c = OrthographicCamera(shadowViewportWidth, shadowViewportHeight)
     c.near = shadowNear
     c.far = shadowFar
     c
   }
   protected val halfDepth:   Float                      = shadowNear + 0.5f * (shadowFar - shadowNear)
   protected val halfHeight:  Float                      = shadowViewportHeight * 0.5f
-  protected val tmpV:        Vector3                    = new Vector3()
+  protected val tmpV:        Vector3                    = Vector3()
   protected val textureDesc: TextureDescriptor[Texture] = {
-    val td = new TextureDescriptor[Texture]()
+    val td = TextureDescriptor[Texture]()
     td.minFilter = Nullable(Texture.TextureFilter.Nearest)
     td.magFilter = Nullable(Texture.TextureFilter.Nearest)
     td.uWrap = Nullable(Texture.TextureWrap.ClampToEdge)
@@ -101,14 +102,14 @@ class DirectionalShadowLight(
     fbo.foreach(_.end())
   }
 
-  def getFrameBuffer(): Nullable[FrameBuffer] = fbo
+  def frameBuffer: Nullable[FrameBuffer] = fbo
 
-  def getCamera(): Camera = cam
+  def camera: Camera = cam
 
-  override def getProjViewTrans(): Matrix4 =
+  override def projViewTrans: Matrix4 =
     cam.combined
 
-  override def getDepthMap(): TextureDescriptor[Texture] = {
+  override def depthMap: TextureDescriptor[Texture] = {
     fbo.foreach { fb =>
       textureDesc.texture = Nullable(fb.getColorBufferTexture())
     }

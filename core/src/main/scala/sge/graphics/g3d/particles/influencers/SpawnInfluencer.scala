@@ -31,7 +31,7 @@ import sge.graphics.g3d.particles.values.{ PointSpawnShapeValue, SpawnShapeValue
 class SpawnInfluencer extends Influencer {
   import ParticleControllerComponent.{ TMP_Q, TMP_V1 }
 
-  var spawnShapeValue: SpawnShapeValue = new PointSpawnShapeValue()
+  var spawnShapeValue: SpawnShapeValue = PointSpawnShapeValue()
   var positionChannel: FloatChannel    = scala.compiletime.uninitialized
   var rotationChannel: FloatChannel    = scala.compiletime.uninitialized
 
@@ -81,7 +81,7 @@ class SpawnInfluencer extends Influencer {
   }
 
   override def copy(): SpawnInfluencer =
-    new SpawnInfluencer(this)
+    SpawnInfluencer(this)
 
   override def save(manager: AssetManager, data: ResourceData[?]): Unit =
     spawnShapeValue.save(manager, data)

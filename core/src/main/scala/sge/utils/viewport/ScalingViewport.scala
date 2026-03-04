@@ -41,15 +41,14 @@ class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, c
   private var _scaling: Scaling = scaling
 
   setWorldSize(worldWidth, worldHeight)
-  setCamera(camera)
+  this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) = {
-    this(scaling, worldWidth, worldHeight, new OrthographicCamera())
-  }
+  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) =
+    this(scaling, worldWidth, worldHeight, OrthographicCamera())
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
-    val scaled         = _scaling.apply(getWorldWidth(), getWorldHeight(), screenWidth.toFloat, screenHeight.toFloat)
+    val scaled         = _scaling.apply(worldWidth, worldHeight, screenWidth.toFloat, screenHeight.toFloat)
     val viewportWidth  = Math.round(scaled.x)
     val viewportHeight = Math.round(scaled.y)
 

@@ -45,7 +45,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
   import AnimationController._
 
   protected val animationPool: Pool[AnimationDesc] =
-    new Pool.Default[AnimationDesc](() => new AnimationDesc())
+    Pool.Default[AnimationDesc](() => AnimationDesc())
 
   /** The animation currently playing. Do not alter this value. */
   var current: Nullable[AnimationDesc] = Nullable.empty
@@ -77,7 +77,7 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
   private var justChangedAnimation: Boolean = false
 
   private def obtain(anim: Nullable[Animation], offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
-    anim.fold(Nullable.empty[AnimationDesc]) { a =>
+    anim.map { a =>
       val result = animationPool.obtain()
       result.animation = Nullable(a)
       result.listener = listener
@@ -86,14 +86,14 @@ class AnimationController(target: ModelInstance) extends BaseAnimationController
       result.offset = offset
       result.duration = if (duration < 0) a.duration - offset else duration
       result.time = if (speed < 0) result.duration else 0f
-      Nullable(result)
+      result
     }
 
   private def obtainByName(id: Nullable[String], offset: Float, duration: Float, loopCount: Int, speed: Float, listener: Nullable[AnimationListener]): Nullable[AnimationDesc] =
-    id.fold(Nullable.empty[AnimationDesc]) { name =>
+    id.flatMap { name =>
       val anim = target.getAnimation(name)
       if (anim.isEmpty) throw SgeError.InvalidInput("Unknown animation: " + name)
-      anim.fold(Nullable.empty[AnimationDesc]) { a =>
+      anim.flatMap { a =>
         obtain(a, offset, duration, loopCount, speed, listener)
       }
     }

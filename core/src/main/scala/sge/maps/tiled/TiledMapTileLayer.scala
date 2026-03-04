@@ -11,7 +11,7 @@
  *   - Inner Cell class: 4 fields, 8 get/set methods, 4 rotation constants -- all match Java
  *   - Java null returns from getCell/getTile → Nullable[A]
  *   - Split package, braces, no-return conventions satisfied
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (4 pairs in Cell)
+ *   - Cell: private vars tile/flipHorizontally/flipVertically/rotation → public vars, removed 8 getter/setter methods
  */
 package sge
 package maps
@@ -69,74 +69,10 @@ object TiledMapTileLayer {
 
   /** @brief represents a cell in a TiledLayer: TiledMapTile, flip and rotation properties. */
   class Cell {
-
-    private var tile: Nullable[TiledMapTile] = Nullable.empty
-
-    private var flipHorizontally: Boolean = false
-
-    private var flipVertically: Boolean = false
-
-    private var rotation: Int = 0
-
-    /** @return The tile currently assigned to this cell. */
-    def getTile: Nullable[TiledMapTile] = tile
-
-    /** Sets the tile to be used for this cell.
-      *
-      * @param tile
-      *   the {@link TiledMapTile} to use for this cell.
-      * @return
-      *   this, for method chaining
-      */
-    def setTile(tile: Nullable[TiledMapTile]): Cell = {
-      this.tile = tile
-      this
-    }
-
-    /** @return Whether the tile should be flipped horizontally. */
-    def getFlipHorizontally: Boolean = flipHorizontally
-
-    /** Sets whether to flip the tile horizontally.
-      *
-      * @param flipHorizontally
-      *   whether or not to flip the tile horizontally.
-      * @return
-      *   this, for method chaining
-      */
-    def setFlipHorizontally(flipHorizontally: Boolean): Cell = {
-      this.flipHorizontally = flipHorizontally
-      this
-    }
-
-    /** @return Whether the tile should be flipped vertically. */
-    def getFlipVertically: Boolean = flipVertically
-
-    /** Sets whether to flip the tile vertically.
-      *
-      * @param flipVertically
-      *   whether or not this tile should be flipped vertically.
-      * @return
-      *   this, for method chaining
-      */
-    def setFlipVertically(flipVertically: Boolean): Cell = {
-      this.flipVertically = flipVertically
-      this
-    }
-
-    /** @return The rotation of this cell, in 90 degree increments. */
-    def getRotation: Int = rotation
-
-    /** Sets the rotation of this cell, in 90 degree increments.
-      *
-      * @param rotation
-      *   the rotation in 90 degree increments (see ints below).
-      * @return
-      *   this, for method chaining
-      */
-    def setRotation(rotation: Int): Cell = {
-      this.rotation = rotation
-      this
-    }
+    var tile:             Nullable[TiledMapTile] = Nullable.empty
+    var flipHorizontally: Boolean                = false
+    var flipVertically:   Boolean                = false
+    var rotation:         Int                    = 0
   }
 
   object Cell {

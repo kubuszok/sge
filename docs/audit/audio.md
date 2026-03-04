@@ -1,7 +1,7 @@
 # Audit: sge.audio
 
-Audited: 10/10 files | Pass: 9 | Minor: 1 | Major: 0
-Last updated: 2026-03-03
+Audited: 10/10 files | Pass: 10 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -17,7 +17,6 @@ Last updated: 2026-03-03
 **Completeness**: All 7 interface methods accounted for. `dispose()` inherited via `Closeable.close()`.
 **Renames**: `getLatency` -> `latency`, `setVolume(float)` -> `volume_=(Volume)`, `Disposable` -> `Closeable`
 **Convention changes**: Java interface -> Scala trait; raw float volume -> opaque `Volume` type; getter/setter -> property syntax
-**TODOs**: None
 **Issues**: None
 
 ---
@@ -34,7 +33,6 @@ Last updated: 2026-03-03
 **Completeness**: All 2 interface methods accounted for. `dispose()` inherited via `Closeable.close()`.
 **Renames**: `Disposable` -> `Closeable`
 **Convention changes**: Java interface -> Scala trait; `dispose()` -> `close()`
-**TODOs**: None
 **Issues**: None
 
 ---
@@ -51,7 +49,6 @@ Last updated: 2026-03-03
 **Completeness**: All 11 interface methods + inner `OnCompletionListener` accounted for.
 **Renames**: `isPlaying` -> `playing`, `isLooping`/`setLooping` -> `looping`/`looping_=`, `getVolume`/`setVolume` -> `volume`/`volume_=`, `getPosition`/`setPosition` -> `position`/`position_=`, `setOnCompletionListener(OnCompletionListener)` -> `onComplete(Music => Unit)`
 **Convention changes**: `OnCompletionListener` SAM -> `Music => Unit` function type; getter/setter pairs -> Scala property syntax; raw float -> opaque types (`Volume`, `Pan`, `Position`)
-**TODOs**: None
 **Issues**: None
 
 ---
@@ -68,7 +65,6 @@ Last updated: 2026-03-03
 **Completeness**: All 15 interface methods accounted for.
 **Renames**: `long` return/param -> `SoundId`, `float volume` -> `Volume`, `float pitch` -> `Pitch`, `float pan` -> `Pan`
 **Convention changes**: Raw long IDs -> opaque `SoundId`; raw float params -> opaque types; `setLooping`/`setPitch`/`setVolume`/`setPan` retain Java-style names (operate on `soundId`, not simple properties)
-**TODOs**: None
 **Issues**: None
 
 ---
@@ -121,13 +117,11 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/audio/SoundId.scala` |
 | Java source(s) | SGE-original |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: SGE-original opaque type wrapping `Long`.
-**TODOs**: 1 — "extension methods using Sound" placeholder
-**Issues**:
-- `minor`: TODO for future convenience extension methods
+**Issues**: None
 
 ---
 

@@ -7,8 +7,7 @@
  * Migration notes:
  *   Renames: none
  *   Idiom: split packages; case class must be final
- *   Audited: 2026-03-03
- *   TODOs: add test suite (no original LibGDX tests for this class)
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

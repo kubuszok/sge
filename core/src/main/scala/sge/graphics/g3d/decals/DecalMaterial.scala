@@ -16,6 +16,7 @@
  * - hashCode: null check -> Nullable wrapping: correct
  * - NO_BLEND constant in companion object: correct
  * - Status: pass
+ * - Fixes (2026-03-04): removed redundant getSrcBlendFactor/getDstBlendFactor (public vars)
  * TODO: typed GL enums -- BlendFactor, EnableCap -- see docs/improvements/opaque-types.md
  */
 package sge
@@ -29,15 +30,15 @@ import sge.utils.Nullable
 import scala.compiletime.uninitialized
 
 /** Material used by the {@link Decal} class */
-class DecalMaterial {
+class DecalMaterial()(using Sge) {
 
   var textureRegion:  TextureRegion = uninitialized
   var srcBlendFactor: Int           = 0
   var dstBlendFactor: Int           = 0
 
   /** Binds the material's texture to the OpenGL context and changes the glBlendFunc to the values used by it. */
-  def set()(using Sge): Unit = {
-    textureRegion.getTexture().bind(0)
+  def set(): Unit = {
+    textureRegion.texture.bind(0)
     if (!isOpaque) {
       Sge().graphics.gl.glBlendFunc(srcBlendFactor, dstBlendFactor)
     }
@@ -47,20 +48,16 @@ class DecalMaterial {
   def isOpaque: Boolean =
     srcBlendFactor == DecalMaterial.NO_BLEND
 
-  def getSrcBlendFactor: Int = srcBlendFactor
-
-  def getDstBlendFactor: Int = dstBlendFactor
-
   override def equals(o: Any): Boolean =
     o match {
       case material: DecalMaterial =>
         dstBlendFactor == material.dstBlendFactor && srcBlendFactor == material.srcBlendFactor &&
-        textureRegion.getTexture() == material.textureRegion.getTexture()
+        textureRegion.texture == material.textureRegion.texture
       case _ => false
     }
 
   override def hashCode(): Int = {
-    var result = Nullable(textureRegion.getTexture()).fold(0)(_.hashCode())
+    var result = Nullable(textureRegion.texture).map(_.hashCode()).getOrElse(0)
     result = 31 * result + srcBlendFactor
     result = 31 * result + dstBlendFactor
     result

@@ -87,5 +87,5 @@ class ParticleControllerFinalizerInfluencer extends Influencer {
   }
 
   override def copy(): ParticleControllerFinalizerInfluencer =
-    new ParticleControllerFinalizerInfluencer()
+    ParticleControllerFinalizerInfluencer()
 }

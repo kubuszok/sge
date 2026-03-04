@@ -1,6 +1,6 @@
 # Audit: sge.assets.loaders
 
-Audited: 16/16 files | Pass: 14 | Minor: 2 | Major: 0
+Audited: 16/16 files | Pass: 16 | Minor: 0 | Major: 0
 Last updated: 2026-03-04
 
 Note: resolver subpackage classes consolidated into `FileHandleResolver` companion object — see [assets-loaders-resolvers.md](assets-loaders-resolvers.md).
@@ -17,7 +17,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: `resolve()` and `getDependencies()` ported.
-**Convention changes**: `Array<AssetDescriptor>` -> `DynamicArray[AssetDescriptor[?]]`; split packages (fixed 2026-03-04)
+**Convention changes**: `Array<AssetDescriptor>` -> `DynamicArray[AssetDescriptor[?]]`; split packages
 **Issues**: None
 
 ---
@@ -60,6 +60,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: Trait with single `resolve` method + companion object containing all 7 resolver classes (`Absolute`, `Classpath`, `External`, `Internal`, `Local`, `Prefix`, `ForResolution`).
+**Fixes**: `ForResolution.resolve` used `FileType.Internal` instead of `FileType.Absolute` (matching Java's `new FileHandle(fileName)` default); empty-array validation moved to primary constructor
 **TODOs**: test: ForResolution.choose() picks best resolution for screen size; Prefix.resolve prepends prefix
 **Issues**: None
 
@@ -75,8 +76,8 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `BitmapFontParameter` with 6 fields (flip, genMipMaps, minFilter, magFilter, bitmapFontData, atlasName).
-**Convention changes**: `null` fields → `Nullable[T]`; `(using Sge)` constructor
-**TODOs**: test: getDependencies resolves font textures; loadSync assembles BitmapFont
+**Convention changes**: `null` fields → `Nullable[T]`; `(using Sge)` constructor; `manager(...)` apply syntax
+**TODOs**: test: getDependencies resolves font textures; loadSync assembles BitmapFont (requires GL context)
 **Issues**: None
 
 ---
@@ -91,7 +92,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `CubemapParameter` with 7 fields. Java dead code `if (info == null) return null` in `loadSync` correctly omitted.
-**TODOs**: test: loadAsync/loadSync with KTX and parameter-supplied data
+**TODOs**: test: loadAsync/loadSync with KTX and parameter-supplied data (requires GL context)
 **Issues**: None
 
 ---
@@ -118,15 +119,13 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/assets/loaders/ModelLoader.scala` |
 | Java source(s) | `com/badlogic/gdx/assets/loaders/ModelLoader.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All 8 methods present. `ModelParameters` with textureParameter field.
-**Convention changes**: `ObjectMap.Entry<String, ModelData>` → `DynamicArray[(String, ModelData)]`
-**TODOs**: test: getDependencies collects texture dependencies; loadSync assembles Model
-**Issues**:
-- `minor`: `null.asInstanceOf[P]` at 5 sites — mirrors Java `null` parameter semantics but violates no-null convention
-- `minor`: Dead code in `loadSync` — `break(null.asInstanceOf[Model])` makes fold default unreachable
+**Convention changes**: `ObjectMap.Entry<String, ModelData>` → `DynamicArray[(String, ModelData)]`; `loadModelData`/`loadModel` parameters changed from `P` to `Nullable[P]`; `loadSync` uses `fold` pattern; `null.asInstanceOf[Model]` at Java API boundary (documented)
+**TODOs**: test: getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)
+**Issues**: None
 
 ---
 
@@ -140,7 +139,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `getLoadedMusic` returns `Nullable[Music]`.
-**Convention changes**: `Gdx.audio` → `Sge().audio`; `loadSync` throws `SgeError` instead of returning null
+**Convention changes**: `Gdx.audio` → `Sge().audio`; `loadSync` throws `SgeError` instead of returning null; `getDependencies` returns empty DynamicArray instead of Java null
 **TODOs**: test: loadAsync/loadSync (requires audio backend)
 **Issues**: None
 
@@ -156,7 +155,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: `load()` and `getDependencies()` ported. `ParticleEffectParameter` with 3 fields.
-**Convention changes**: `getDependencies` returns empty `DynamicArray` instead of Java `null` when no atlas
+**Convention changes**: `getDependencies` returns empty `DynamicArray` instead of Java `null` when no atlas; `manager(...)` apply syntax
 **TODOs**: test: load with atlas file, images directory, and default parameters
 **Issues**: None
 
@@ -184,13 +183,14 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala` |
 | Java source(s) | `com/badlogic/gdx/assets/loaders/ShaderProgramLoader.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All methods ported. `ShaderProgramParameter` with 5 fields. Two constructors (default params).
+**Completeness**: All methods ported. `ShaderProgramParameter` with 5 fields. Primary constructor with default suffix params covers Java's 2 constructors.
+**Convention changes**: Logging uses `manager.getLogger.error()` matching Java source; `getDependencies` returns empty DynamicArray instead of Java null
+**Fixes**: Removed redundant secondary constructor (primary constructor defaults cover it)
 **TODOs**: test: file suffix resolution (.vert/.frag) and code prepend logic
-**Issues**:
-- `minor`: Logging routes through `Sge().application.error()` instead of `manager.getLogger().error()` — different log level control
+**Issues**: None
 
 ---
 
@@ -204,8 +204,8 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `newSkin` protected factory preserved.
-**Convention changes**: `ObjectMap<String, Object>` → `mutable.Map[String, Any]`; `SkinParameter` uses default params instead of 4 constructors
-**TODOs**: test: getDependencies resolves atlas; loadSync applies resources
+**Convention changes**: `ObjectMap<String, Object>` → `mutable.Map[String, Any]`; `SkinParameter` uses default params instead of 4 constructors; `manager(...)` apply syntax
+**TODOs**: test: getDependencies resolves atlas; loadSync applies resources (requires GL context)
 **Issues**: None
 
 ---
@@ -220,7 +220,7 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `getLoadedSound` returns `Nullable[Sound]`.
-**Convention changes**: `Gdx.audio` → `Sge().audio`; `loadSync` throws `SgeError` instead of returning null
+**Convention changes**: `Gdx.audio` → `Sge().audio`; `loadSync` throws `SgeError` instead of returning null; `getDependencies` returns empty DynamicArray instead of Java null
 **TODOs**: test: loadAsync/loadSync (requires audio backend)
 **Issues**: None
 
@@ -236,8 +236,8 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: `load()` and `getDependencies()` ported. `TextureAtlasParameter` with flip field.
-**Convention changes**: `data` wrapped in `Nullable`; `TextureParameter.format` wrapped in `Nullable`
-**TODOs**: test: getDependencies resolves page textures; load assembles atlas
+**Convention changes**: `data` wrapped in `Nullable`; `TextureParameter.format` wrapped in `Nullable`; null-safe iteration via `page.textureFile.foreach`; `manager(...)` apply syntax
+**TODOs**: test: getDependencies resolves page textures; load assembles atlas (requires GL context)
 **Issues**: None
 
 ---
@@ -252,5 +252,6 @@ Note: resolver subpackage classes consolidated into `FileHandleResolver` compani
 | Tested | No |
 
 **Completeness**: All methods ported. `TextureParameter` with 8 fields. Java dead code `if (info == null) return null` in `loadSync` correctly omitted.
-**TODOs**: test: loadAsync/loadSync with parameter-supplied and file-loaded data
+**Convention changes**: `getDependencies` returns empty DynamicArray instead of Java null
+**TODOs**: test: loadAsync/loadSync with parameter-supplied and file-loaded data (requires GL context)
 **Issues**: None

@@ -51,7 +51,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     *   The usage of the VertexAttribute.
     */
   def getOffset(usage: Int, defaultIfNotFound: Int): Int =
-    findByUsage(usage).fold(defaultIfNotFound)(_.offset / 4)
+    findByUsage(usage).map(_.offset / 4).getOrElse(defaultIfNotFound)
 
   /** Returns the offset for the first VertexAttribute with the specified usage.
     * @param usage
@@ -237,7 +237,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   private class ReadonlyIterable[T](array: Array[T]) extends Iterable[T] {
     override def iterator(): Iterator[T] =
       // For now, always create new iterators to avoid complexity
-      new ReadonlyIterator(array)
+      ReadonlyIterator(array)
   }
 }
 

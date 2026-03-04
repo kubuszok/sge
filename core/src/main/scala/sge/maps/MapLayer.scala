@@ -7,11 +7,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: GdxRuntimeException -> SgeError.InvalidInput
+ *   Renames: GdxRuntimeException -> SgeError.InvalidInput; getName/setName → var name,
+ *     isVisible/setVisible → var visible, getObjects → val objects, getProperties → val properties,
+ *     getParallaxX/setParallaxX → var parallaxX, getParallaxY/setParallaxY → var parallaxY
  *   Convention: null parent field -> Nullable[MapLayer]; null checks -> .fold/.foreach
  *   Idiom: getOpacity/getCombinedTintColor use Nullable.fold instead of null-check branches
  *   Idiom: setParent validates via Nullable.foreach instead of == null check
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getName/setName, getOpacity/setOpacity, isVisible/setVisible, etc.)
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,36 +23,29 @@ import sge.utils.{ Nullable, SgeError }
 
 /** Map layer containing a set of objects and properties */
 class MapLayer {
-  private var name:              String             = ""
-  private var opacity:           Float              = 1.0f
-  private val tintColor:         Color              = new Color(Color.WHITE)
-  private val tempColor:         Color              = new Color(Color.WHITE)
-  private var visible:           Boolean            = true
+  var name:                      String             = ""
+  private var _opacity:          Float              = 1.0f
+  private val tintColor:         Color              = Color(Color.WHITE)
+  private val tempColor:         Color              = Color(Color.WHITE)
+  var visible:                   Boolean            = true
   private var offsetX:           Float              = 0f
   private var offsetY:           Float              = 0f
   private var renderOffsetX:     Float              = 0f
   private var renderOffsetY:     Float              = 0f
-  private var parallaxX:         Float              = 1f
-  private var parallaxY:         Float              = 1f
+  var parallaxX:                 Float              = 1f
+  var parallaxY:                 Float              = 1f
   private var renderOffsetDirty: Boolean            = true
   private var parent:            Nullable[MapLayer] = Nullable.empty
-  private val objects:           MapObjects         = new MapObjects()
-  private val properties:        MapProperties      = new MapProperties()
+  val objects:                   MapObjects         = MapObjects()
+  val properties:                MapProperties      = MapProperties()
 
-  /** @return layer's name */
-  def getName: String = name
-
-  /** @param name new name for the layer */
-  def setName(name: String): Unit =
-    this.name = name
-
-  /** @return layer's opacity */
+  /** @return layer's opacity (combined with parent opacity) */
   def getOpacity: Float =
-    parent.fold(opacity)(p => opacity * p.getOpacity)
+    parent.fold(_opacity)(p => _opacity * p.getOpacity)
 
   /** @param opacity new opacity for the layer */
   def setOpacity(opacity: Float): Unit =
-    this.opacity = opacity
+    this._opacity = opacity
 
   /** Returns a temporary color that is the combination of this layer's tint color and its parent's tint color. The returned color is reused internally, so it should not be held onto or modified.
     * @return
@@ -85,17 +79,7 @@ class MapLayer {
     invalidateRenderOffset()
   }
 
-  /** @return layer's parallax scrolling factor for x-axis */
-  def getParallaxX: Float = parallaxX
-
-  def setParallaxX(parallaxX: Float): Unit =
-    this.parallaxX = parallaxX
-
-  /** @return layer's parallax scrolling factor for y-axis */
-  def getParallaxY: Float = parallaxY
-
-  def setParallaxY(parallaxY: Float): Unit =
-    this.parallaxY = parallaxY
+  // parallaxX and parallaxY are public vars
 
   /** @return the layer's x render offset, this takes into consideration all parent layers' offsets */
   def getRenderOffsetX: Float = {
@@ -124,18 +108,7 @@ class MapLayer {
     this.parent = parent
   }
 
-  /** @return collection of objects contained in the layer */
-  def getObjects: MapObjects = objects
-
-  /** @return whether the layer is visible or not */
-  def isVisible: Boolean = visible
-
-  /** @param visible toggles layer's visibility */
-  def setVisible(visible: Boolean): Unit =
-    this.visible = visible
-
-  /** @return layer's set of properties */
-  def getProperties: MapProperties = properties
+  // objects, visible, and properties are public vars/vals
 
   protected def calculateRenderOffsets(): Unit = {
     parent.fold {

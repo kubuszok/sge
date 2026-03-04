@@ -8,6 +8,7 @@
  *
  * Migration notes:
  * - All public methods ported faithfully
+ * - Fixes (2026-03-04): getBoundingBox() → def boundingBox (with _boundingBox backing field)
  * - Json.Serializable (write/read): not implemented (JSON serialization deferred)
  * - update() overload uses (using Sge) context parameter instead of Gdx.graphics.getDeltaTime()
  * - dispose() calls emitter.close() / influencer.close() (Disposable → AutoCloseable mapping)
@@ -26,6 +27,7 @@ package particles
 import scala.util.boundary
 import scala.util.boundary.break
 
+import sge.Sge
 import sge.assets.AssetManager
 import sge.graphics.g3d.particles.ParallelArray.FloatChannel
 import sge.utils.DynamicArray
@@ -40,7 +42,7 @@ import sge.utils.Nullable
   * @author
   *   Inferno
   */
-class ParticleController extends ResourceData.Configurable {
+class ParticleController()(using Sge) extends ResourceData.Configurable {
 
   /** Name of the controller */
   var name: String = scala.compiletime.uninitialized
@@ -59,13 +61,13 @@ class ParticleController extends ResourceData.Configurable {
   var particleChannels: ParticleChannels = scala.compiletime.uninitialized
 
   /** Current transform of the controller DO NOT CHANGE MANUALLY */
-  var transform: Matrix4 = new Matrix4()
+  var transform: Matrix4 = Matrix4()
 
   /** Transform flags */
-  var scale: Vector3 = new Vector3(1, 1, 1)
+  var scale: Vector3 = Vector3(1, 1, 1)
 
   /** Not used by the simulation, it should represent the bounding box containing all the particles */
-  protected var boundingBox: Nullable[BoundingBox] = Nullable.empty
+  protected var _boundingBox: Nullable[BoundingBox] = Nullable.empty
 
   /** Time step, DO NOT CHANGE MANUALLY */
   var deltaTime:    Float = 0f
@@ -73,12 +75,12 @@ class ParticleController extends ResourceData.Configurable {
 
   setTimeStep(ParticleController.DEFAULT_TIME_STEP)
 
-  def this(name: String, emitter: Emitter, renderer: ParticleControllerRenderer[?, ?], influencers: Influencer*) = {
+  def this(name: String, emitter: Emitter, renderer: ParticleControllerRenderer[?, ?], influencers: Influencer*)(using Sge) = {
     this()
     this.name = name
     this.emitter = emitter
     this.renderer = renderer
-    this.particleChannels = new ParticleChannels()
+    this.particleChannels = ParticleChannels()
     this.influencers = DynamicArray[Influencer](influencers.length)
     for (inf <- influencers)
       this.influencers.add(inf)
@@ -145,8 +147,8 @@ class ParticleController extends ResourceData.Configurable {
   def getTransform(transform: Matrix4): Unit =
     transform.set(this.transform)
 
-  def isComplete(): Boolean =
-    emitter.isComplete()
+  def isComplete: Boolean =
+    emitter.isComplete
 
   /** Initialize the controller. All the sub systems will be initialized and binded to the controller. Must be called before any other method.
     */
@@ -165,7 +167,7 @@ class ParticleController extends ResourceData.Configurable {
   }
 
   protected def allocateChannels(maxParticleCount: Int): Unit = {
-    particles = new ParallelArray(maxParticleCount)
+    particles = ParallelArray(maxParticleCount)
     // Alloc additional channels
     emitter.allocateChannels()
     for (influencer <- influencers)
@@ -218,7 +220,7 @@ class ParticleController extends ResourceData.Configurable {
   }
 
   /** Updates the particles data */
-  def update()(using Sge): Unit =
+  def update(): Unit =
     update(Sge().graphics.getDeltaTime())
 
   /** Updates the particles data */
@@ -245,7 +247,7 @@ class ParticleController extends ResourceData.Configurable {
       copiedInfluencers.add(this.influencers(ci).copy().asInstanceOf[Influencer])
       ci += 1
     }
-    new ParticleController(new String(this.name), copiedEmitter, copiedRenderer, copiedInfluencers.toArray.toSeq*)
+    ParticleController(new String(this.name), copiedEmitter, copiedRenderer, copiedInfluencers.toArray.toSeq*)
   }
 
   def dispose(): Unit = {
@@ -254,16 +256,16 @@ class ParticleController extends ResourceData.Configurable {
       influencer.close()
   }
 
-  /** @return a copy of this controller, should be used after the particle effect has been loaded. */
-  def getBoundingBox(): BoundingBox = {
-    if (boundingBox.isEmpty) boundingBox = Nullable(new BoundingBox())
+  /** @return the bounding box of this controller, should be used after the particle effect has been loaded. */
+  def boundingBox: BoundingBox = {
+    if (_boundingBox.isEmpty) _boundingBox = Nullable(BoundingBox())
     calculateBoundingBox()
-    boundingBox.getOrElse(throw new IllegalStateException("boundingBox"))
+    _boundingBox.getOrElse(throw new IllegalStateException("boundingBox"))
   }
 
   /** Updates the bounding box using the position channel. */
   protected def calculateBoundingBox(): Unit = {
-    val bb = boundingBox.getOrElse(throw new IllegalStateException("boundingBox"))
+    val bb = _boundingBox.getOrElse(throw new IllegalStateException("boundingBox"))
     bb.clr()
     val positionChannel: FloatChannel =
       particles.getChannel[FloatChannel](ParticleChannels.Position).getOrElse(throw new IllegalStateException("positionChannel"))
@@ -280,11 +282,11 @@ class ParticleController extends ResourceData.Configurable {
   }
 
   /** @return the index of the Influencer of the given type. */
-  private def findIndex[K <: Influencer](`type`: Class[K]): Int = boundary {
+  private def findIndex[K <: Influencer](using tag: scala.reflect.ClassTag[K]): Int = boundary {
     var i = 0
     while (i < influencers.size) {
       val influencer = influencers(i)
-      if (`type`.isAssignableFrom(influencer.getClass)) {
+      if (tag.runtimeClass.isAssignableFrom(influencer.getClass)) {
         break(i)
       }
       i += 1
@@ -293,21 +295,21 @@ class ParticleController extends ResourceData.Configurable {
   }
 
   /** @return the influencer having the given type. */
-  def findInfluencer[K <: Influencer](influencerClass: Class[K]): Nullable[K] = {
-    val index = findIndex(influencerClass)
+  def findInfluencer[K <: Influencer](using tag: scala.reflect.ClassTag[K]): Nullable[K] = {
+    val index = findIndex[K]
     if (index > -1) Nullable(influencers(index).asInstanceOf[K])
     else Nullable.empty
   }
 
   /** Removes the Influencer of the given type. */
-  def removeInfluencer[K <: Influencer](`type`: Class[K]): Unit = {
-    val index = findIndex(`type`)
+  def removeInfluencer[K <: Influencer](using tag: scala.reflect.ClassTag[K]): Unit = {
+    val index = findIndex[K]
     if (index > -1) influencers.removeIndex(index)
   }
 
   /** Replaces the Influencer of the given type with the one passed as parameter. */
-  def replaceInfluencer[K <: Influencer](`type`: Class[K], newInfluencer: K): Boolean = {
-    val index = findIndex(`type`)
+  def replaceInfluencer[K <: Influencer](newInfluencer: K)(using tag: scala.reflect.ClassTag[K]): Boolean = {
+    val index = findIndex[K]
     if (index > -1) {
       influencers.insert(index, newInfluencer)
       influencers.removeIndex(index + 1)

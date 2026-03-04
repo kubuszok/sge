@@ -9,7 +9,7 @@
  * Migration notes (audited 2026-03-03):
  * - Disposable -> AutoCloseable, dispose() -> close(): correct
  * - cameraSorter: Java uses camera.position.dst(o1.position) accessing protected field;
- *   Scala uses camera.position.distance(o1.getPosition) using public getter — correct
+ *   Scala uses camera.position.distance(o1.position) using public getter — correct
  *   (dst renamed to distance in SGE Vector3)
  * - Default comparator: Java casts Math.signum to int; Scala converts .toInt then > 0:
  *   equivalent logic
@@ -61,16 +61,15 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   createDefaultShader()
 
-  def this(camera: Camera)(using Sge) = {
+  def this(camera: Camera)(using Sge) =
     this(
       camera,
       Ordering.fromLessThan[Decal] { (o1, o2) =>
-        val dist1 = camera.position.distance(o1.getPosition)
-        val dist2 = camera.position.distance(o2.getPosition)
+        val dist1 = camera.position.distance(o1.position)
+        val dist2 = camera.position.distance(o2.position)
         Math.signum(dist2 - dist1).toInt > 0
       }
     )
-  }
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera
@@ -78,7 +77,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
   def getCamera: Camera = camera
 
   override def decideGroup(decal: Decal): Int =
-    if (decal.getMaterial.isOpaque) CameraGroupStrategy.GROUP_OPAQUE else CameraGroupStrategy.GROUP_BLEND
+    if (decal.material.isOpaque) CameraGroupStrategy.GROUP_OPAQUE else CameraGroupStrategy.GROUP_BLEND
 
   override def beforeGroup(group: Int, contents: DynamicArray[Decal]): Unit =
     if (group == CameraGroupStrategy.GROUP_BLEND) {
@@ -153,7 +152,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
       + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" //
       + "}"
 
-    shader = new ShaderProgram(vertexShader, fragmentShader)
+    shader = ShaderProgram(vertexShader, fragmentShader)
     if (!shader.isCompiled()) throw SgeError.GraphicsError("couldn't compile shader: " + shader.getLog())
   }
 

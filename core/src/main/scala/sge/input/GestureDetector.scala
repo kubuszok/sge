@@ -9,14 +9,10 @@
  *   Convention: Java static inner classes -> companion object members; Gdx singleton -> implicit Sge
  *   Idiom: boundary/break (7 return), split packages
  *   TODOs: 0
- *   Issues: setTapCountInterval/setMaxFlingDelay are no-ops (tapCountIntervalNanos/maxFlingDelayNanos are val);
- *     setMaxFlingDelay signature changed from long to Float; VelocityTracker.getSum omitted (unused in Java);
- *     VelocityTracker.getAverage(Long[]) returns Float instead of long; implicit instead of using
- *   TODO: Java-style getters/setters -- isPanning, setLongPressSeconds
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Convention: anonymous (using Sge) + Sge() accessor
  *   TODO: opaque Pixels for screen coordinate params in touch methods -- see docs/improvements/opaque-types.md
  *   TODO: opaque Seconds for tapCountInterval, longPressDuration, maxFlingDelay; opaque Nanos for internal timing -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -40,22 +36,20 @@ class GestureDetector(
   longPressDuration:      Float = 1.1f,
   maxFlingDelay:          Float = Integer.MAX_VALUE,
   val listener:           GestureDetector.GestureListener
-)(implicit sde: sge.Sge)
+)(using Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(listener: GestureDetector.GestureListener)(using Sge) =
     this(20f, 20f, 0.4f, 1.1f, Integer.MAX_VALUE, listener)
-  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(implicit sde: sge.Sge) = {
+  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(using Sge) =
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
-  }
 
   private var tapRectangleWidth:     Float = halfTapRectangleWidth
   private var tapRectangleHeight:    Float = halfTapRectangleHeight
-  private val tapCountIntervalNanos: Long  = (tapCountInterval * 1000000000L).toLong
+  private var tapCountIntervalNanos: Long  = (tapCountInterval * 1000000000L).toLong
   private var longPressSeconds:      Float = longPressDuration
-  private val maxFlingDelayNanos:    Long  = (maxFlingDelay * 1000000000L).toLong
+  private var maxFlingDelayNanos:    Long  = (maxFlingDelay * 1000000000L).toLong
 
   private var inTapRectangle: Boolean = false
   private var tapCount:       Int     = 0
@@ -68,14 +62,14 @@ class GestureDetector(
   private var pinching:       Boolean = false
   private var panning:        Boolean = false
 
-  private val tracker = new GestureDetector.VelocityTracker()
+  private val tracker = GestureDetector.VelocityTracker()
   private var tapRectangleCenterX: Float = 0f
   private var tapRectangleCenterY: Float = 0f
   private var touchDownTime:       Long  = 0L
-  val pointer1                = new Vector2()
-  private val pointer2        = new Vector2()
-  private val initialPointer1 = new Vector2()
-  private val initialPointer2 = new Vector2()
+  val pointer1                = Vector2()
+  private val pointer2        = Vector2()
+  private val initialPointer1 = Vector2()
+  private val initialPointer2 = Vector2()
 
   private val longPressTask = new Task() {
     override def run(): Unit =
@@ -90,9 +84,9 @@ class GestureDetector(
 
     if (pointer == 0) {
       pointer1.set(x, y)
-      touchDownTime = sde.input.getCurrentEventTime()
+      touchDownTime = Sge().input.getCurrentEventTime()
       tracker.start(x, y, touchDownTime)
-      if (sde.input.isTouched(1)) {
+      if (Sge().input.isTouched(1)) {
         // Start pinch.
         inTapRectangle = false
         pinching = true
@@ -139,7 +133,7 @@ class GestureDetector(
     }
 
     // update tracker
-    tracker.update(x, y, sde.input.getCurrentEventTime())
+    tracker.update(x, y, Sge().input.getCurrentEventTime())
 
     // check if we are still tapping.
     if (inTapRectangle && !isWithinTapRectangle(x, y, tapRectangleCenterX, tapRectangleCenterY)) {
@@ -199,10 +193,10 @@ class GestureDetector(
       // we are in pan mode again, reset velocity tracker
       if (pointer == 0) {
         // first pointer has lifted off, set up panning to use the second pointer...
-        tracker.start(pointer2.x, pointer2.y, sde.input.getCurrentEventTime())
+        tracker.start(pointer2.x, pointer2.y, Sge().input.getCurrentEventTime())
       } else {
         // second pointer has lifted off, set up panning to use the first pointer...
-        tracker.start(pointer1.x, pointer1.y, sde.input.getCurrentEventTime())
+        tracker.start(pointer1.x, pointer1.y, Sge().input.getCurrentEventTime())
       }
       scala.util.boundary.break(false)
     }
@@ -212,7 +206,7 @@ class GestureDetector(
     if (wasPanning && !panning) handled = listener.panStop(x, y, pointer, button)
 
     // handle fling
-    val time = sde.input.getCurrentEventTime()
+    val time = Sge().input.getCurrentEventTime()
     if (time - touchDownTime <= maxFlingDelayNanos) {
       tracker.update(x, y, time)
       handled = listener.fling(tracker.getVelocityX(), tracker.getVelocityY(), button) || handled
@@ -271,16 +265,14 @@ class GestureDetector(
   /** @param tapCountInterval
     *   time in seconds that must pass for two touch down/up sequences to be detected as consecutive taps.
     */
-  def setTapCountInterval(tapCountInterval: Float): Unit = {
-    // this.tapCountIntervalNanos = (tapCountInterval * 1000000000L).toLong
-  }
+  def setTapCountInterval(tapCountInterval: Float): Unit =
+    this.tapCountIntervalNanos = (tapCountInterval * 1000000000L).toLong
 
   def setLongPressSeconds(longPressSeconds: Float): Unit =
     this.longPressSeconds = longPressSeconds
 
-  def setMaxFlingDelay(maxFlingDelay: Float): Unit = {
-    // this.maxFlingDelayNanos = (maxFlingDelay * 1000000000L).toLong
-  }
+  def setMaxFlingDelay(maxFlingDelay: Long): Unit =
+    this.maxFlingDelayNanos = maxFlingDelay
 
   // Additional methods that might be missing from InputProcessor
   override def keyDown(keycode:    Int):                   Boolean = false

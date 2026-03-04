@@ -10,7 +10,8 @@
  *   Convention: static resolveErrorNumber -> companion object; switch -> match
  *   Convention: added abstract protected def check() (Java subclasses each had private check())
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Convention: getCalls/getTextureBindings/etc kept (protected var + public getter pattern)
+ *   Audited: 2026-03-04
  */
 package sge
 package graphics
@@ -24,7 +25,7 @@ abstract class GLInterceptor(profiler: GLProfiler) extends GL20 {
   protected var textureBindings: Int = 0
   protected var drawCalls:       Int = 0
   protected var shaderSwitches:  Int = 0
-  final protected val vertexCount = new FloatCounter(0)
+  final protected val vertexCount = FloatCounter(0)
 
   protected var glProfiler: GLProfiler = profiler
 

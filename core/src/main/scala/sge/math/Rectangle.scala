@@ -494,8 +494,8 @@ class Rectangle() extends Shape2D {
 object Rectangle {
 
   /** Static temporary rectangle. Use with care! Use only when sure other code will not also use this. */
-  val tmp = new Rectangle()
+  val tmp = Rectangle()
 
   /** Static temporary rectangle. Use with care! Use only when sure other code will not also use this. */
-  val tmp2 = new Rectangle()
+  val tmp2 = Rectangle()
 }

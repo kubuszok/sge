@@ -8,14 +8,14 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: setActive, isEdges, setEdges, getSpawnWidth/Height/Depth,
- *   setDimensions, start, load
+ * - All public methods ported: active_= (override), edges (public var),
+ *   spawnWidthValue/spawnHeightValue/spawnDepthValue (public vars), setDimensions, start, load
  * - SpawnSide inner enum ported to Scala 3 enum in companion object
  * - TMP_V1 static field moved to companion object (protected static final -> protected val)
  * - Java `edges` is package-private; Scala version is `var edges` (public) -- minor visibility widening
- * - isEdges/getSpawnWidth/Height/Depth use Scala property syntax (no parens) vs Java getter style
- * - TODO: Java-style getters/setters — redundant isEdges/setEdges, getSpawnWidth/Height/Depth
- * - Status: minor_issues (getter naming: isEdges/getSpawnWidth etc. missing parens)
+ * - Fixes (2026-03-04): override setActive → active_=; removed redundant isEdges/setEdges,
+ *   getSpawnWidth/Height/Depth; .setActive() → .active = ; .relative → .relative
+ * - Status: pass
  */
 package sge
 package graphics
@@ -31,9 +31,9 @@ import sge.math.Vector3
   */
 abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
 
-  var spawnWidthValue:           ScaledNumericValue = new ScaledNumericValue()
-  var spawnHeightValue:          ScaledNumericValue = new ScaledNumericValue()
-  var spawnDepthValue:           ScaledNumericValue = new ScaledNumericValue()
+  var spawnWidthValue:           ScaledNumericValue = ScaledNumericValue()
+  var spawnHeightValue:          ScaledNumericValue = ScaledNumericValue()
+  var spawnDepthValue:           ScaledNumericValue = ScaledNumericValue()
   protected var spawnWidth:      Float              = 0f
   protected var spawnWidthDiff:  Float              = 0f
   protected var spawnHeight:     Float              = 0f
@@ -47,23 +47,12 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
     // Note: super(value) is called implicitly via this() then load pattern
   }
 
-  override def setActive(active: Boolean): Unit = {
-    super.setActive(active)
-    spawnWidthValue.setActive(true)
-    spawnHeightValue.setActive(true)
-    spawnDepthValue.setActive(true)
+  override def active_=(value: Boolean): Unit = {
+    super.active_=(value)
+    spawnWidthValue.active = true
+    spawnHeightValue.active = true
+    spawnDepthValue.active = true
   }
-
-  def isEdges: Boolean = edges
-
-  def setEdges(edges: Boolean): Unit =
-    this.edges = edges
-
-  def getSpawnWidth: ScaledNumericValue = spawnWidthValue
-
-  def getSpawnHeight: ScaledNumericValue = spawnHeightValue
-
-  def getSpawnDepth: ScaledNumericValue = spawnDepthValue
 
   def setDimensions(width: Float, height: Float, depth: Float): Unit = {
     spawnWidthValue.setHigh(width)
@@ -74,15 +63,15 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
   override def start(): Unit = {
     spawnWidth = spawnWidthValue.newLowValue()
     spawnWidthDiff = spawnWidthValue.newHighValue()
-    if (!spawnWidthValue.isRelative()) spawnWidthDiff -= spawnWidth
+    if (!spawnWidthValue.relative) spawnWidthDiff -= spawnWidth
 
     spawnHeight = spawnHeightValue.newLowValue()
     spawnHeightDiff = spawnHeightValue.newHighValue()
-    if (!spawnHeightValue.isRelative()) spawnHeightDiff -= spawnHeight
+    if (!spawnHeightValue.relative) spawnHeightDiff -= spawnHeight
 
     spawnDepth = spawnDepthValue.newLowValue()
     spawnDepthDiff = spawnDepthValue.newHighValue()
-    if (!spawnDepthValue.isRelative()) spawnDepthDiff -= spawnDepth
+    if (!spawnDepthValue.relative) spawnDepthDiff -= spawnDepth
   }
 
   override def load(value: ParticleValue): Unit = {
@@ -98,7 +87,7 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
 
 object PrimitiveSpawnShapeValue {
 
-  protected val TMP_V1: Vector3 = new Vector3()
+  protected val TMP_V1: Vector3 = Vector3()
 
   enum SpawnSide {
     case both, top, bottom

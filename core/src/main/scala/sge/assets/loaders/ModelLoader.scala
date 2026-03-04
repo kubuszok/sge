@@ -5,19 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Idiom: split packages
- *   Issues: `null.asInstanceOf[P]` at 5 sites mirrors Java semantics but violates no-null convention; dead code in `loadSync` — `break(null.asInstanceOf[Model])` makes fold default unreachable
+ *   Idiom: split packages; loadModelData/loadModel parameters changed from P to Nullable[P] to eliminate null.asInstanceOf
+ *   Convention: loadSync returns null.asInstanceOf[Model] at Java API boundary (AssetManager expects null for missing data)
  *   TODOs: test: ModelLoader getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package assets
 package loaders
-
-import scala.util.boundary
-import scala.util.boundary.break
 
 import sge.files.FileHandle
 import sge.graphics.Texture
@@ -30,36 +27,36 @@ import sge.utils.{ DynamicArray, Nullable }
 abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 
   protected var items:             DynamicArray[(String, ModelData)] = DynamicArray[(String, ModelData)]()
-  protected var defaultParameters: ModelLoader.ModelParameters       = new ModelLoader.ModelParameters()
+  protected var defaultParameters: ModelLoader.ModelParameters       = ModelLoader.ModelParameters()
 
   /** Directly load the raw model data on the calling thread. */
-  def loadModelData(fileHandle: FileHandle, parameters: P): Nullable[ModelData]
+  def loadModelData(fileHandle: FileHandle, parameters: Nullable[P]): Nullable[ModelData]
 
   /** Directly load the raw model data on the calling thread. */
   def loadModelData(fileHandle: FileHandle): Nullable[ModelData] =
-    loadModelData(fileHandle, null.asInstanceOf[P])
+    loadModelData(fileHandle, Nullable.empty)
 
   /** Directly load the model on the calling thread. The model with not be managed by an {@link AssetManager}. */
-  def loadModel(fileHandle: FileHandle, textureProvider: TextureProvider, parameters: P): Nullable[Model] = {
+  def loadModel(fileHandle: FileHandle, textureProvider: TextureProvider, parameters: Nullable[P]): Nullable[Model] = {
     val data = loadModelData(fileHandle, parameters)
-    data.fold(Nullable.empty[Model])(d => Nullable(new Model(d, textureProvider)))
+    data.map(d => Model(d, textureProvider))
   }
 
   /** Directly load the model on the calling thread. The model with not be managed by an {@link AssetManager}. */
-  def loadModel(fileHandle: FileHandle, parameters: P): Nullable[Model] =
-    loadModel(fileHandle, new TextureProvider.FileTextureProvider(), parameters)
+  def loadModel(fileHandle: FileHandle, parameters: Nullable[P]): Nullable[Model] =
+    loadModel(fileHandle, TextureProvider.FileTextureProvider(), parameters)
 
   /** Directly load the model on the calling thread. The model with not be managed by an {@link AssetManager}. */
   def loadModel(fileHandle: FileHandle, textureProvider: TextureProvider): Nullable[Model] =
-    loadModel(fileHandle, textureProvider, null.asInstanceOf[P])
+    loadModel(fileHandle, textureProvider, Nullable.empty)
 
   /** Directly load the model on the calling thread. The model with not be managed by an {@link AssetManager}. */
   def loadModel(fileHandle: FileHandle): Nullable[Model] =
-    loadModel(fileHandle, new TextureProvider.FileTextureProvider(), null.asInstanceOf[P])
+    loadModel(fileHandle, TextureProvider.FileTextureProvider(), Nullable.empty)
 
   override def getDependencies(fileName: String, file: FileHandle, parameters: P): DynamicArray[AssetDescriptor[?]] = {
     val deps = DynamicArray[AssetDescriptor[?]]()
-    val data = loadModelData(file, parameters)
+    val data = loadModelData(file, Nullable(parameters))
     if (data.isEmpty) deps
     else {
       data.foreach { d =>
@@ -70,8 +67,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
       }
 
       val textureParameter: TextureLoader.TextureParameter =
-        if (Nullable(parameters).isDefined) Nullable(parameters).fold(defaultParameters.textureParameter)(_.textureParameter)
-        else defaultParameters.textureParameter
+        Nullable(parameters).map(_.textureParameter).getOrElse(defaultParameters.textureParameter)
 
       data.foreach { d =>
         for (modelMaterial <- d.materials)
@@ -86,7 +82,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
 
   override def loadAsync(manager: AssetManager, fileName: String, file: FileHandle, parameters: P): Unit = {}
 
-  override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameters: P): Model = boundary {
+  override def loadSync(manager: AssetManager, fileName: String, file: FileHandle, parameters: P): Model = {
     var data: Nullable[ModelData] = Nullable.empty
     items.synchronized {
       var i = 0
@@ -98,9 +94,9 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
           i += 1
         }
     }
-    if (data.isEmpty) break(null.asInstanceOf[Model])
+    // Java API boundary: AssetManager expects null when data not found
     data.fold(null.asInstanceOf[Model]) { d =>
-      val result = new Model(d, new TextureProvider.AssetTextureProvider(manager))
+      val result = Model(d, TextureProvider.AssetTextureProvider(manager))
       // need to remove the textures from the managed disposables, or else ref counting
       // doesn't work!
       val filtered = result.getManagedDisposables
@@ -118,7 +114,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
 object ModelLoader {
   class ModelParameters extends AssetLoaderParameters[Model] {
     var textureParameter: TextureLoader.TextureParameter = {
-      val p = new TextureLoader.TextureParameter()
+      val p = TextureLoader.TextureParameter()
       p.minFilter = TextureFilter.Linear
       p.magFilter = TextureFilter.Linear
       p.wrapU = TextureWrap.Repeat

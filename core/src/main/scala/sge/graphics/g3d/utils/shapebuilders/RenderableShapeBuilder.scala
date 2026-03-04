@@ -35,7 +35,7 @@ object RenderableShapeBuilder {
     override protected val max:             Int = Int.MaxValue
     override protected val initialCapacity: Int = 16
 
-    override protected def newObject(): Renderable = new Renderable()
+    override protected def newObject(): Renderable = Renderable()
 
     override def obtain(): Renderable = {
       val renderable = super.obtain()
@@ -48,7 +48,7 @@ object RenderableShapeBuilder {
     }
   }
 
-  private val renderablesPool: RenderablePoolImpl = new RenderablePoolImpl()
+  private val renderablesPool: RenderablePoolImpl = RenderablePoolImpl()
 
   private var indices:     Array[Short]             = Array.empty[Short]
   private var vertices:    Array[Float]             = Array.empty[Float]

@@ -55,11 +55,11 @@ class ImmediateModeRenderer20(
 
   private val vertices: Array[Float] = Array.ofDim[Float](maxVertices * vertexSize)
 
-  private val normalOffset: Int = mesh.getVertexAttribute(Usage.Normal).fold(0)(_.offset / 4)
+  private val normalOffset: Int = mesh.getVertexAttribute(Usage.Normal).map(_.offset / 4).getOrElse(0)
 
-  private val colorOffset: Int = mesh.getVertexAttribute(Usage.ColorPacked).fold(0)(_.offset / 4)
+  private val colorOffset: Int = mesh.getVertexAttribute(Usage.ColorPacked).map(_.offset / 4).getOrElse(0)
 
-  private val texCoordOffset: Int = mesh.getVertexAttribute(Usage.TextureCoordinates).fold(0)(_.offset / 4)
+  private val texCoordOffset: Int = mesh.getVertexAttribute(Usage.TextureCoordinates).map(_.offset / 4).getOrElse(0)
 
   private val shaderUniformNames: Array[String] = Array.ofDim[String](numTexCoords)
   for (i <- 0 until numTexCoords)
@@ -83,11 +83,11 @@ class ImmediateModeRenderer20(
 
   private def buildVertexAttributes(hasNormals: Boolean, hasColor: Boolean, numTexCoords: Int): Array[VertexAttribute] = {
     val attribs = DynamicArray[VertexAttribute]()
-    attribs.add(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
-    if (hasNormals) attribs.add(new VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
-    if (hasColor) attribs.add(new VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
+    attribs.add(VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
+    if (hasNormals) attribs.add(VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
+    if (hasColor) attribs.add(VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
     for (i <- 0 until numTexCoords)
-      attribs.add(new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + i))
+      attribs.add(VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + i))
     attribs.toArray
   }
 
@@ -225,7 +225,7 @@ object ImmediateModeRenderer20 {
   def createDefaultShader(hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge): ShaderProgram = {
     val vertexShader   = createVertexShader(hasNormals, hasColors, numTexCoords)
     val fragmentShader = createFragmentShader(hasNormals, hasColors, numTexCoords)
-    val program        = new ShaderProgram(vertexShader, fragmentShader)
+    val program        = ShaderProgram(vertexShader, fragmentShader)
     if (!program.isCompiled()) throw SgeError.GraphicsError("Error compiling shader: " + program.getLog())
     program
   }

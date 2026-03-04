@@ -59,7 +59,7 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     * @return
     *   The attribute if any, otherwise null
     */
-  final def get[T <: Attribute](clazz: Class[T], tpe: Long): Nullable[T] =
+  final def getAs[T <: Attribute](tpe: Long)(using tag: scala.reflect.ClassTag[T]): Nullable[T] =
     get(tpe).map(_.asInstanceOf[T])
 
   /** Get multiple attributes at once. Example: material.get(out, ColorAttribute.Diffuse | ColorAttribute.Specular | TextureAttribute.Diffuse);
@@ -178,7 +178,7 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     * @return
     *   True if this collection contains the same attributes (and optionally attribute values) as the other.
     */
-  final def same(other: Attributes, compareValues: Boolean): Boolean = boundary {
+  final def same(other: Attributes, compareValues: Boolean = false): Boolean = boundary {
     if (other eq this) break(true)
     if (mask != other.mask) break(false)
     if (!compareValues) break(true)
@@ -191,12 +191,6 @@ class Attributes extends Iterable[Attribute] with Ordered[Attributes] {
     }
     true
   }
-
-  /** See [[same(Attributes, Boolean)]]
-    * @return
-    *   True if this collection contains the same attributes (but not values) as the other.
-    */
-  final def same(other: Attributes): Boolean = same(other, false)
 
   /** Used for iterating through the attributes */
   final override def iterator: Iterator[Attribute] = attributes.iterator

@@ -42,14 +42,14 @@ import sge.utils.{ DynamicArray, Nullable, readJson }
   */
 class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
+  def this()(using Sge) = this(FileHandleResolver.Internal())
+
   protected var trackedTextures: DynamicArray[Texture] = DynamicArray[Texture]()
 
   protected var atlasResolver: AtlasTmjMapLoader.AtlasResolver = scala.compiletime.uninitialized
 
-  def this()(using Sge) = this(new FileHandleResolver.Internal())
-
   def load(fileName: String): TiledMap =
-    load(fileName, new BaseTiledMapLoader.Parameters())
+    load(fileName, BaseTiledMapLoader.Parameters())
 
   def load(fileName: String, parameter: BaseTiledMapLoader.Parameters): TiledMap = {
     val tmjFile = resolve(fileName)
@@ -57,8 +57,8 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
     this.root = Nullable(tmjFile.readJson[TmjMapJson])
 
     val atlasFileHandle = getAtlasFileHandle(tmjFile)
-    val atlas           = new TextureAtlas(atlasFileHandle)
-    this.atlasResolver = new AtlasTmjMapLoader.DirectAtlasResolver(atlas)
+    val atlas           = TextureAtlas(atlasFileHandle)
+    this.atlasResolver = AtlasTmjMapLoader.DirectAtlasResolver(atlas)
 
     val map            = loadTiledMap(tmjFile, parameter, atlasResolver)
     val ownedResources = DynamicArray[AutoCloseable]()
@@ -75,7 +75,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
     parameter: BaseTiledMapLoader.Parameters
   ): Unit = {
     val atlasHandle = getAtlasFileHandle(tmjFile)
-    this.atlasResolver = new AtlasTmjMapLoader.AssetManagerAtlasResolver(manager, atlasHandle.path())
+    this.atlasResolver = AtlasTmjMapLoader.AssetManagerAtlasResolver(manager, atlasHandle.path())
 
     this.map = loadTiledMap(tmjFile, parameter, atlasResolver)
   }
@@ -131,10 +131,10 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
 
     val atlas = atlasResolver.getAtlas()
 
-    for (texture <- atlas.getTextures())
+    for (texture <- atlas.textures)
       trackedTextures.add(texture)
 
-    val props = tileSet.getProperties
+    val props = tileSet.properties
     props.put("imagesource", imageSource)
     props.put("imagewidth", imageWidth:   java.lang.Integer)
     props.put("imageheight", imageHeight: java.lang.Integer)
@@ -220,7 +220,7 @@ object AtlasTmjMapLoader {
 
   class AssetManagerAtlasResolver(assetManager: AssetManager, atlasName: String) extends AtlasResolver {
     override def getAtlas(): TextureAtlas =
-      assetManager.get(atlasName, classOf[TextureAtlas])
+      assetManager(atlasName, classOf[TextureAtlas])
 
     override def getImage(name: String): Nullable[TextureRegion] = {
       // check for imagelayer and strip if needed

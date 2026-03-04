@@ -29,7 +29,7 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class HorizontalGroup extends WidgetGroup {
+class HorizontalGroup()(using Sge) extends WidgetGroup() {
   private var _prefWidth:     Float               = scala.compiletime.uninitialized
   private var _prefHeight:    Float               = scala.compiletime.uninitialized
   private var lastPrefHeight: Float               = scala.compiletime.uninitialized

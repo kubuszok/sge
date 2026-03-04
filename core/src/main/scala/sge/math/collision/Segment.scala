@@ -12,7 +12,7 @@
  *     primary constructor takes Vector3 refs with defaults (Java has no no-arg ctor);
  *     Java 2-arg (Vector3,Vector3) ctor copies via set(); Scala stores refs directly
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  */
 package sge
 package math
@@ -25,7 +25,7 @@ import sge.math.Vector3
   * @author
   *   mzechner (original implementation)
   */
-class Segment(val a: Vector3 = new Vector3(), val b: Vector3 = new Vector3()) {
+class Segment(val a: Vector3 = Vector3(), val b: Vector3 = Vector3()) {
 
   /** Constructs a new Segment from the two points given.
     * @param aX
@@ -41,9 +41,8 @@ class Segment(val a: Vector3 = new Vector3(), val b: Vector3 = new Vector3()) {
     * @param bZ
     *   the z-coordinate of the second point
     */
-  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) = {
-    this(new Vector3(aX, aY, aZ), new Vector3(bX, bY, bZ))
-  }
+  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) =
+    this(Vector3(aX, aY, aZ), Vector3(bX, bY, bZ))
 
   def len(): Float = a.distance(b)
 

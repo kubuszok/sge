@@ -85,14 +85,14 @@ class ResourceData[T]() {
 
   /** Creates and adds a new SaveData object to the save data list */
   def createSaveData(): SaveData = {
-    val saveData = new SaveData(this)
+    val saveData = SaveData(this)
     data.add(saveData)
     saveData
   }
 
   /** Creates and adds a new and unique SaveData object to the save data map */
   def createSaveData(key: String): SaveData = {
-    val saveData = new SaveData(this)
+    val saveData = SaveData(this)
     if (uniqueData.containsKey(key)) throw new RuntimeException("Key already used, data must be unique, use a different key")
     uniqueData.put(key, saveData)
     saveData
@@ -130,15 +130,14 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) = {
+    def this(resources: ResourceData[?]) =
       this(Nullable(resources))
-    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>
         var i = res.getAssetData(filename, `type`)
         if (i == -1) {
-          res.sharedAssets.add(new AssetData(filename, `type`))
+          res.sharedAssets.add(AssetData(filename, `type`))
           i = res.sharedAssets.size - 1
         }
         assets.add(i)

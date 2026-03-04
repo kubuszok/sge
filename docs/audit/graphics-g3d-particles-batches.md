@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.particles.batches
 
 Audited: 5/5 files | Pass: 5 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -14,7 +14,7 @@ and `ResourceData.Configurable` matching the Java `implements` clause.
 
 ### BufferedParticleBatch.scala -- pass
 All 9 public/protected methods ported: `begin`, `draw`, `end`, `ensureCapacity`,
-`resetCapacity`, `setCamera`, `getSorter`, `setSorter`, `getBufferedCount`, plus abstract
+`resetCapacity`, `camera` (property), `sorter` (property), `bufferedCount`, plus abstract
 `allocParticlesData` and `flush`. Java `Array<T>` replaced with `DynamicArray[T]`. Deprecated
 `Class<T>` constructor and `ArraySupplier` constructor both collapsed to a no-arg approach
 (DynamicArray handles type erasure differently). `return` statement in `ensureCapacity`
@@ -23,7 +23,7 @@ replaced with if/else guard (no-return convention). `camera` field uses
 (`protected`) preserved faithfully.
 
 ### ModelInstanceParticleBatch.scala -- pass
-All 7 public methods ported: `getRenderables`, `getBufferedCount`, `begin`, `end`, `draw`,
+All 7 public methods ported: `getRenderables`, `bufferedCount`, `begin`, `end`, `draw`,
 `save`, `load`. Java `Array<T>` replaced with `DynamicArray[T]`. `ObjectChannel.data[i]`
 correctly mapped to `objectData(i)` (field rename in ParallelArray port). Constructor
 initializes `DynamicArray` with capacity 5 matching Java source. `save`/`load` are empty
@@ -31,8 +31,8 @@ stubs matching Java. `getRenderables` uses `for`/`while` loops faithfully reprod
 nested Java loop structure.
 
 ### PointSpriteParticleBatch.scala -- pass
-All 10 public/protected methods ported: `allocParticlesData`, `allocRenderable`, `setTexture`,
-`getTexture`, `getBlendingAttribute`, `flush`, `getRenderables`, `save`, `load`, plus
+All 10 public/protected methods ported: `allocParticlesData`, `allocRenderable`, `texture`
+(property), `blendingAttribute`, `flush`, `getRenderables`, `save`, `load`, plus
 inherited overrides. Constructor chain: Java's 4 constructors mapped to Scala primary
 constructor with 3 Nullable parameters + 2 secondary constructors. Key differences:
 (1) ParticleShader not fully integrated -- shader initialization is deferred with a comment;
@@ -46,8 +46,8 @@ moved to companion object. `dispose()` mapped to `close()`. All vertex data asse
 `flush` is identical to Java.
 
 ### BillboardParticleBatch.scala -- pass
-All 18 public/protected methods ported: `allocParticlesData`, `allocRenderable`, `setTexture`,
-`getTexture`, `getBlendingAttribute`, `setAlignMode`, `getAlignMode`, `setUseGpu`, `isUseGPU`,
+All 18 public/protected methods ported: `allocParticlesData`, `allocRenderable`, `texture`
+(property), `blendingAttribute`, `alignMode` (property), `useGPU` (property),
 `setVertexData`, `flush`, `getRenderables`, `save`, `load`, `begin`, plus private helpers
 (`allocIndices`, `allocRenderables`, `allocShader`, `clearRenderablesPool`, `initRenderData`,
 `fillVerticesGPU`, `fillVerticesToViewPointCPU`, `fillVerticesToScreenCPU`, `putVertexGPU`,

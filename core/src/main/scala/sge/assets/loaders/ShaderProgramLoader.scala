@@ -6,9 +6,9 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   Issues: logging routes through `Sge().application.error()` instead of `manager.getLogger().error()` — different log level control
+ *   Convention: logging uses manager.log.error()
  *   TODOs: test: ShaderProgramLoader file suffix resolution (.vert/.frag) and code prepend logic
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -30,8 +30,6 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSuffix: String = ".vert", private val fragmentFileSuffix: String = ".frag")(using Sge)
     extends AsynchronousAssetLoader[ShaderProgram, ShaderProgramLoader.ShaderProgramParameter](resolver) {
-
-  def this(resolver: FileHandleResolver)(using Sge) = this(resolver, ".vert", ".frag")
 
   override def getDependencies(fileName: String, file: FileHandle, parameter: ShaderProgramLoader.ShaderProgramParameter): DynamicArray[AssetDescriptor[?]] =
     DynamicArray[AssetDescriptor[?]]()
@@ -57,8 +55,8 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
       fragFileName = Nullable(fileName.substring(0, fileName.length() - vertexFileSuffix.length()) + fragmentFileSuffix)
     }
 
-    val vertexFile   = vertFileName.fold(file)(resolve(_))
-    val fragmentFile = fragFileName.fold(file)(resolve(_))
+    val vertexFile   = vertFileName.map(resolve(_)).getOrElse(file)
+    val fragmentFile = fragFileName.map(resolve(_)).getOrElse(file)
     var vertexCode   = vertexFile.readString()
     var fragmentCode = if (vertexFile.equals(fragmentFile)) vertexCode else fragmentFile.readString()
 
@@ -67,9 +65,9 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
       p.prependFragmentCode.foreach(code => fragmentCode = code + fragmentCode)
     }
 
-    val shaderProgram = new ShaderProgram(vertexCode, fragmentCode)
-    if (param.fold(true)(_.logOnCompileFailure) && !shaderProgram.isCompiled()) {
-      Sge().application.error("ShaderProgramLoader", s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
+    val shaderProgram = ShaderProgram(vertexCode, fragmentCode)
+    if (param.forall(_.logOnCompileFailure) && !shaderProgram.isCompiled()) {
+      manager.log.error(s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
     }
 
     shaderProgram

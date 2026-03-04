@@ -30,7 +30,7 @@ class GL30Interceptor(glProfiler: GLProfiler, val gl30: GL30) extends GLIntercep
   override protected def check(): Unit = {
     var error = gl30.glGetError()
     while (error != GL20.GL_NO_ERROR) {
-      glProfiler.getListener().onError(error)
+      glProfiler.listener.onError(error)
       error = gl30.glGetError()
     }
   }

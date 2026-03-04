@@ -8,6 +8,7 @@
  *   Renames: Disposable -> AutoCloseable; dispose() -> close(); null ShaderProgram -> Nullable[ShaderProgram]
  *   Convention: Java interface -> Scala trait extending AutoCloseable
  *   Idiom: boundary/break, Nullable, split packages
+ *   Fixes: Java-style getters/setters -> Scala property accessors (color, packedColor, projectionMatrix, etc.)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -47,7 +48,7 @@ trait Batch extends AutoCloseable {
   def end(): Unit
 
   /** Sets the color used to tint images when they are added to the Batch. Default is {@link Color#WHITE}. */
-  def setColor(tint: Color): Unit
+  def color_=(tint: Color): Unit
 
   /** @see #setColor(Color) */
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit
@@ -55,7 +56,7 @@ trait Batch extends AutoCloseable {
   /** @return
     *   the rendering color of this Batch. If the returned instance is manipulated, {@link #setColor(Color)} must be called afterward.
     */
-  def getColor(): Color
+  def color: Color
 
   /** Sets the rendering color of this Batch, expanding the alpha from 0-254 to 0-255.
     * @see
@@ -63,14 +64,14 @@ trait Batch extends AutoCloseable {
     * @see
     *   Color#toFloatBits()
     */
-  def setPackedColor(packedColor: Float): Unit
+  def packedColor_=(packedColor: Float): Unit
 
   /** @return
     *   the rendering color of this Batch in vertex format (alpha compressed to 0-254)
     * @see
     *   Color#toFloatBits()
     */
-  def getPackedColor(): Float
+  def packedColor: Float
 
   /** Draws a rectangle with the bottom left corner at x,y having the given width and height in pixels. The rectangle is offset by originX, originY relative to the origin. Scale specifies the scaling
     * factor by which the rectangle should be scaled around originX, originY. Rotation specifies the angle of counter clockwise rotation of the rectangle around originX, originY. The portion of the
@@ -251,28 +252,28 @@ trait Batch extends AutoCloseable {
     */
   def setBlendFunctionSeparate(srcFuncColor: Int, dstFuncColor: Int, srcFuncAlpha: Int, dstFuncAlpha: Int): Unit
 
-  def getBlendSrcFunc(): Int
+  def blendSrcFunc: Int
 
-  def getBlendDstFunc(): Int
+  def blendDstFunc: Int
 
-  def getBlendSrcFuncAlpha(): Int
+  def blendSrcFuncAlpha: Int
 
-  def getBlendDstFuncAlpha(): Int
+  def blendDstFuncAlpha: Int
 
   /** Returns the current projection matrix. Changing this within {@link #begin()} /{@link #end()} results in undefined behaviour.
     */
-  def getProjectionMatrix(): Matrix4
+  def projectionMatrix: Matrix4
 
   /** Returns the current transform matrix. Changing this within {@link #begin()} /{@link #end()} results in undefined behaviour.
     */
-  def getTransformMatrix(): Matrix4
+  def transformMatrix: Matrix4
 
   /** Sets the projection matrix to be used by this Batch. If this is called inside a {@link #begin()} /{@link #end()} block, the current batch is flushed to the gpu.
     */
-  def setProjectionMatrix(projection: Matrix4): Unit
+  def projectionMatrix_=(projection: Matrix4): Unit
 
   /** Sets the transform matrix to be used by this Batch. */
-  def setTransformMatrix(transform: Matrix4): Unit
+  def transformMatrix_=(transform: Matrix4): Unit
 
   /** Sets the shader to be used in a GLES 2.0 environment. Vertex position attribute is called "a_position", the texture coordinates attribute is called "a_texCoord0", the color attribute is called
     * "a_color". See {@link ShaderProgram#POSITION_ATTRIBUTE} , {@link ShaderProgram#COLOR_ATTRIBUTE} and {@link ShaderProgram#TEXCOORD_ATTRIBUTE} which gets "0" appended to indicate the use of the
@@ -282,16 +283,16 @@ trait Batch extends AutoCloseable {
     * @param shader
     *   the {@link ShaderProgram} or Nullable.empty to use the default shader.
     */
-  def setShader(shader: Nullable[ShaderProgram]): Unit
+  def shader_=(shader: Nullable[ShaderProgram]): Unit
 
   /** @return the current {@link ShaderProgram} set by {@link #setShader(ShaderProgram)} or the defaultShader */
-  def getShader(): ShaderProgram
+  def shader: ShaderProgram
 
   /** @return true if blending for sprites is enabled */
-  def isBlendingEnabled(): Boolean
+  def blendingEnabled: Boolean
 
   /** @return true if currently between begin and end. */
-  def isDrawing(): Boolean
+  def drawing: Boolean
 }
 
 object Batch {

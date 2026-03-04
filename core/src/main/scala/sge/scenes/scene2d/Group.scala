@@ -33,16 +33,16 @@ import sge.scenes.scene2d.utils.Cullable
   * @author
   *   Nathan Sweet
   */
-class Group extends Actor with Cullable {
+class Group()(using Sge) extends Actor() with Cullable {
 
   val children:                  DynamicArray[Actor] = DynamicArray[Actor]()
-  private val worldTransform:    Affine2             = new Affine2()
-  private val computedTransform: Matrix4             = new Matrix4()
-  private val oldTransform:      Matrix4             = new Matrix4()
+  private val worldTransform:    Affine2             = Affine2()
+  private val computedTransform: Matrix4             = Matrix4()
+  private val oldTransform:      Matrix4             = Matrix4()
   var transform:                 Boolean             = true
   private var cullingArea:       Nullable[Rectangle] = Nullable.empty
 
-  override def act(delta: Float)(using Sge): Unit = {
+  override def act(delta: Float): Unit = {
     super.act(delta)
     val snapshot = children.toArray
     var i        = 0
@@ -227,14 +227,14 @@ class Group extends Actor with Cullable {
     * to what it was before this call.
     */
   protected def applyTransform(batch: Batch, transform: Matrix4): Unit = {
-    oldTransform.set(batch.getTransformMatrix())
-    batch.setTransformMatrix(transform)
+    oldTransform.set(batch.transformMatrix)
+    batch.transformMatrix = transform
   }
 
   /** Restores the batch transform to what it was before {@link #applyTransform(Batch, Matrix4)}. Note this causes the batch to be flushed.
     */
   protected def resetTransform(batch: Batch): Unit =
-    batch.setTransformMatrix(oldTransform)
+    batch.transformMatrix = oldTransform
 
   /** Set the shape renderer transformation matrix, often with the result of {@link #computeTransform()}. Note this causes the shape renderer to be flushed. {@link #resetTransform(ShapeRenderer)} will
     * restore the transform to what it was before this call.
@@ -242,8 +242,7 @@ class Group extends Actor with Cullable {
   protected def applyTransform(shapes: ShapeRenderer, transform: Matrix4): Unit = {
     oldTransform.set(shapes.getTransformMatrix())
     shapes.setTransformMatrix(transform)
-    // TODO: uncomment when ShapeRenderer.flush is ported
-    // shapes.flush()
+    shapes.flush()
   }
 
   /** Restores the shape renderer transform to what it was before {@link #applyTransform(Batch, Matrix4)}. Note this causes the shape renderer to be flushed.
@@ -288,7 +287,7 @@ class Group extends Actor with Cullable {
   /** Adds an actor as a child of this group, removing it from its previous parent. If the actor is already a child of this group, no changes are made.
     */
   def addActor(actor: Actor): Unit =
-    if (!actor.parent.fold(false)(_ eq this)) {
+    if (!actor.parent.exists(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       children.add(actor)
       actor.setParent(Nullable(this))
@@ -301,7 +300,7 @@ class Group extends Actor with Cullable {
     *   May be greater than the number of children.
     */
   def addActorAt(index: Int, actor: Actor): Unit =
-    if (!actor.parent.fold(false)(_ eq this)) {
+    if (!actor.parent.exists(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       if (index >= children.size)
         children.add(actor)
@@ -315,7 +314,7 @@ class Group extends Actor with Cullable {
   /** Adds an actor as a child of this group immediately before another child actor, removing it from its previous parent. If the actor is already a child of this group, no changes are made.
     */
   def addActorBefore(actorBefore: Actor, actor: Actor): Unit =
-    if (!actor.parent.fold(false)(_ eq this)) {
+    if (!actor.parent.exists(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       val index = children.indexOf(actorBefore)
       children.insert(index, actor)
@@ -328,7 +327,7 @@ class Group extends Actor with Cullable {
     * <code>actorAfter</code> is not in this group, the actor is added as the last child.
     */
   def addActorAfter(actorAfter: Actor, actor: Actor): Unit =
-    if (!actor.parent.fold(false)(_ eq this)) {
+    if (!actor.parent.exists(_ eq this)) {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       val index = children.indexOf(actorAfter)
       if (index == children.size || index == -1)
@@ -341,7 +340,8 @@ class Group extends Actor with Cullable {
     }
 
   /** Removes an actor from this group and unfocuses it. Calls {@link #removeActor(Actor, boolean)} with true. */
-  def removeActor(actor: Actor): Boolean = removeActor(actor, unfocus = true)
+  def removeActor(actor: Actor): Boolean =
+    removeActor(actor, true)
 
   /** Removes an actor from this group. Calls {@link #removeActorAt(int, boolean)} with the actor's child index. */
   def removeActor(actor: Actor, unfocus: Boolean): Boolean = {
@@ -372,11 +372,8 @@ class Group extends Actor with Cullable {
     actor
   }
 
-  /** Removes all actors from this group and unfocuses them. Calls {@link #clearChildren(boolean)} with true. */
-  def clearChildren(): Unit = clearChildren(unfocus = true)
-
   /** Removes all actors from this group. */
-  def clearChildren(unfocus: Boolean): Unit = {
+  def clearChildren(unfocus: Boolean = true): Unit = {
     val snapshot = children.toArray
     var i        = 0
     while (i < snapshot.length) {
@@ -546,5 +543,5 @@ class Group extends Actor with Cullable {
 }
 
 object Group {
-  private val tmp: Vector2 = new Vector2()
+  private val tmp: Vector2 = Vector2()
 }

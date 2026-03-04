@@ -515,7 +515,7 @@ object ComparableTimSort {
 
     // March over the array once, left to right, finding natural runs, extending short natural runs to minRun elements, and
     // merging runs to maintain stack invariant.
-    val ts        = new ComparableTimSort()
+    val ts        = ComparableTimSort()
     val minRun    = minRunLength(nRemaining)
     var currentLo = lo
     var remaining = nRemaining

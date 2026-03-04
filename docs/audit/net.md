@@ -1,184 +1,55 @@
 # Audit: sge.net
 
-Audited: 12/12 files | Pass: 8 | Minor: 1 | Major: 3
-Last updated: 2026-03-03
+Audited: 15/15 files | Pass: 15 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
-### HttpParametersUtils.scala
+### HttpParametersUtils.scala — pass
+All methods and fields match. Java `final class` → `object`; `Map<String,String>` → `mutable.Map`.
 
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/HttpParametersUtils.scala` |
-| Java source(s) | `com/badlogic/gdx/net/HttpParametersUtils.java` |
-| Status | pass |
-| Tested | No |
+### HttpRequestHeader.scala — pass
+All 31 string constants match exactly. Java `interface` with `static final` → `object` with `val`.
 
-**Completeness**: All methods and fields match.
-**Convention changes**: Java `final class` -> `object`; `Map<String,String>` -> `mutable.Map`
-**Issues**: None
+### HttpResponseHeader.scala — pass
+All 36 string constants match exactly.
 
----
+### HttpStatus.scala — pass
+All 40 status code constants match. Java `class HttpStatus(int)` → `opaque type HttpStatus = Int`.
 
-### HttpRequestHeader.scala
+### ServerSocket.scala — pass
+All methods ported. `Disposable` → `AutoCloseable`.
 
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/HttpRequestHeader.scala` |
-| Java source(s) | `com/badlogic/gdx/net/HttpRequestHeader.java` |
-| Status | pass |
-| Tested | No |
+### ServerSocketHints.scala — pass
+All 7 fields with correct defaults.
 
-**Completeness**: All 31 string constants match exactly.
-**Convention changes**: Java interface with `static final` -> `object` with `val`
-**Issues**: None
+### Socket.scala — pass
+All 4 methods. `Disposable` → `AutoCloseable`.
 
----
+### SocketHints.scala — pass
+All 11 fields with correct defaults.
 
-### HttpResponseHeader.scala
+### NetJavaServerSocketImpl.scala — pass
+All methods present. 4-arg primary constructor with 3-arg secondary delegating correctly.
 
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/HttpResponseHeader.scala` |
-| Java source(s) | `com/badlogic/gdx/net/HttpResponseHeader.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All 36 string constants match exactly.
-**Issues**: None
+### NetJavaSocketImpl.scala — pass
+All methods present. Private primary constructor; connect and wrap constructors both correct.
 
 ---
 
-### NetJavaServerSocketImpl.scala
+### SGE-Original Files (5 files — N/A for Java source comparison)
 
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/NetJavaServerSocketImpl.scala` |
-| Java source(s) | `com/badlogic/gdx/net/NetJavaServerSocketImpl.java` |
-| Status | major_issues |
-| Tested | No |
+### SgeHttpClient.scala — pass (SGE-original)
+Replaces `NetJavaImpl` with sttp-backed HTTP client. Pooled requests, Future-based dispatch.
 
-**Completeness**: All methods present.
-**Issues**:
-- `major`: **Double initialization bug** — secondary constructor delegates to primary (which calls `initializeServer`), then calls `initializeServer` again. Java delegates 3-arg to 4-arg so init runs once.
-- `minor`: Raw `null` assignment in `close()` without `@nowarn`
+### SgeHttpRequest.scala — pass (SGE-original)
+Replaces `Net.HttpRequest` with sttp-backed poolable request. Fluent setters.
 
----
+### SgeHttpResponse.scala — pass (SGE-original)
+Wraps sttp `Response` into `Net.HttpResponse` interface.
 
-### NetJavaSocketImpl.scala
+### HttpBackendFactory.scala — pass (SGE-original)
+Platform abstraction trait for sttp HTTP backends.
 
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/NetJavaSocketImpl.scala` |
-| Java source(s) | `com/badlogic/gdx/net/NetJavaSocketImpl.java` |
-| Status | major_issues |
-| Tested | No |
-
-**Completeness**: All methods present.
-**Issues**:
-- `major`: **Secondary constructor creates throwaway socket** — delegates to primary (which creates + connects socket), then overwrites `this.socket` with the passed-in socket. Java's 2-arg constructor directly assigns.
-- `minor`: Raw `null` assignments without `@nowarn`
-
----
-
-### ServerSocket.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/ServerSocket.scala` |
-| Java source(s) | `com/badlogic/gdx/net/ServerSocket.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All methods ported. `Disposable` -> `AutoCloseable`.
-**Issues**: None
-
----
-
-### ServerSocketHints.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/ServerSocketHints.scala` |
-| Java source(s) | `com/badlogic/gdx/net/ServerSocketHints.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All 7 fields with correct defaults.
-**Issues**: None
-
----
-
-### Socket.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/Socket.scala` |
-| Java source(s) | `com/badlogic/gdx/net/Socket.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All 4 methods. `Disposable` -> `AutoCloseable`.
-**Issues**: None
-
----
-
-### SocketHints.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/SocketHints.scala` |
-| Java source(s) | `com/badlogic/gdx/net/SocketHints.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All 11 fields with correct defaults.
-**Issues**: None
-
----
-
-### HttpRequestBuilder.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/HttpRequestBuilder.scala` |
-| Java source(s) | `com/badlogic/gdx/net/HttpRequestBuilder.java` |
-| Status | major_issues |
-| Tested | No |
-
-**Completeness**: Structure matches but key methods are stubbed out.
-**Convention changes**: `method()` takes `Net.HttpMethod` enum instead of `String`
-**Issues**:
-- `major`: `newRequest()` body commented out — builder cannot create requests
-- `major`: Companion `json` field commented out; `jsonContent()` uses placeholder
-- `minor`: Raw `null` in `build()` without `@nowarn`
-
----
-
-### HttpStatus.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/HttpStatus.scala` |
-| Java source(s) | `com/badlogic/gdx/net/HttpStatus.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All 40 status code constants match.
-**Convention changes**: Java class with `int statusCode` -> `opaque type HttpStatus = Int` with extension methods
-**Issues**: None
-
----
-
-### NetJavaImpl.scala
-
-| Field | Value |
-|-------|-------|
-| SGE path | `core/src/main/scala/sge/net/NetJavaImpl.scala` |
-| Java source(s) | `com/badlogic/gdx/net/NetJavaImpl.java` |
-| Status | pass |
-| Tested | No |
-
-**Completeness**: All public + private methods ported. Inner `HttpClientResponse` fully functional.
-**Renames**: `sendHttpRequest` listener param -> `Option[HttpResponseListener]`
-**Issues**: None
+### HttpBackendFactoryImpl.scala — pass (SGE-original, JVM-only)
+JVM implementation using sttp `HttpClientFutureBackend`.

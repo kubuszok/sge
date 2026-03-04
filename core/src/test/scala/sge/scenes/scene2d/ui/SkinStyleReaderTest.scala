@@ -11,6 +11,8 @@ package ui
 
 import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
 
+import sge.Sge
+import sge.SgeTestFixture
 import sge.graphics.Color
 import sge.scenes.scene2d.utils.BaseDrawable
 import sge.scenes.scene2d.utils.Drawable
@@ -18,6 +20,8 @@ import sge.utils.Json
 import sge.utils.Nullable
 
 class SkinStyleReaderTest extends munit.FunSuite {
+
+  private given Sge = SgeTestFixture.testSge()
 
   private given codec: sge.utils.JsonCodec[Json] = {
     import hearth.kindlings.jsoniterjson.codec.JsonCodec.given

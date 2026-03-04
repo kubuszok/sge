@@ -46,7 +46,7 @@ class Select {
         fastMax(items, comp, size)
       } else {
         // quickselect a better choice for cases of k between min and max
-        if (quickSelect.isEmpty) quickSelect = Nullable(new QuickSelect[AnyRef]())
+        if (quickSelect.isEmpty) quickSelect = Nullable(QuickSelect[AnyRef]())
         quickSelect.getOrElse(throw new AssertionError("unreachable")).select(items.asInstanceOf[Array[AnyRef]], comp.asInstanceOf[Ordering[AnyRef]], kthLowest, size)
       }
     idx
@@ -81,7 +81,7 @@ object Select {
 
   /** Provided for convenience */
   def instance(): Select = {
-    if (_instance.isEmpty) _instance = Nullable(new Select())
+    if (_instance.isEmpty) _instance = Nullable(Select())
     _instance.getOrElse(throw new AssertionError("unreachable"))
   }
 

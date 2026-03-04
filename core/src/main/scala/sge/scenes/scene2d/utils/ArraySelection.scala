@@ -19,22 +19,23 @@ package scenes
 package scene2d
 package utils
 
+import sge.Sge
 import sge.utils.{ DynamicArray, MkArray, Nullable }
 
 /** A selection that supports range selection by knowing about the array of items being selected.
   * @author
   *   Nathan Sweet
   */
-class ArraySelection[T](private val array: DynamicArray[T]) extends Selection[T] {
+class ArraySelection[T](private val array: DynamicArray[T])(using Sge) extends Selection[T]() {
   private var rangeSelect: Boolean     = true
   private var rangeStart:  Nullable[T] = Nullable.empty
 
-  override def choose(item: T)(using Sge): Unit =
+  override def choose(item: T): Unit =
     if (_isDisabled) ()
     else if (!rangeSelect || !multiple) {
       super.choose(item)
     } else if (selected.nonEmpty && UIUtils.shift()) {
-      val rangeStartIndex = rangeStart.fold(-1)(rs => array.indexOf(rs))
+      val rangeStartIndex = rangeStart.map(rs => array.indexOf(rs)).getOrElse(-1)
       if (rangeStartIndex != -1) {
         val oldRangeStart = rangeStart
         snapshot()

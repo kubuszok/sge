@@ -68,7 +68,7 @@ class ModelInstance(
     *   The {@link Model} to create an instance of.
     */
   def this(model: Model) = {
-    this(model, new Matrix4())
+    this(model, Matrix4())
     copyNodes(model.nodes)
     copyAnimations(model.animations, ModelInstance.defaultShareKeyframes)
     calculateTransforms()
@@ -76,7 +76,7 @@ class ModelInstance(
 
   /** Constructs a new ModelInstance with only the specified nodes and materials of the given model. */
   def this(model: Model, rootNodeIds: Nullable[Seq[String]]) = {
-    this(model, new Matrix4())
+    this(model, Matrix4())
     rootNodeIds.fold(copyNodes(model.nodes)) { ids =>
       if (ids.nonEmpty) copyNodesById(model.nodes, ids)
       else copyNodes(model.nodes)
@@ -87,7 +87,7 @@ class ModelInstance(
 
   /** Constructs a new ModelInstance with the specified transform. */
   def this(model: Model, transform: Nullable[Matrix4], rootNodeIds: Nullable[Seq[String]]) = {
-    this(model, transform.getOrElse(new Matrix4()))
+    this(model, transform.getOrElse(Matrix4()))
     rootNodeIds.fold(copyNodes(model.nodes)) { ids =>
       if (ids.nonEmpty) copyNodesById(model.nodes, ids)
       else copyNodes(model.nodes)
@@ -108,7 +108,7 @@ class ModelInstance(
     *   True to apply the source node transform to the instance transform, resetting the node transform.
     */
   def this(model: Model, transform: Nullable[Matrix4], nodeId: String, recursive: Boolean, parentTransform: Boolean, mergeTransform: Boolean, shareKeyframes: Boolean) = {
-    this(model, transform.getOrElse(new Matrix4()))
+    this(model, transform.getOrElse(Matrix4()))
     val node = model.getNode(nodeId, recursive)
     node.foreach { n =>
       val nodeCopy = n.copy()
@@ -119,7 +119,7 @@ class ModelInstance(
         nodeCopy.rotation.idt()
         nodeCopy.scale.set(1, 1, 1)
       } else if (parentTransform && nodeCopy.hasParent) {
-        n.getParent.foreach(p => this.transform.mul(p.globalTransform))
+        n.parent.foreach(p => this.transform.mul(p.globalTransform))
       }
     }
     invalidate()
@@ -141,24 +141,22 @@ class ModelInstance(
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
   def this(copyFrom: ModelInstance, transform: Nullable[Matrix4], shareKeyframes: Boolean) = {
-    this(copyFrom.model, transform.getOrElse(new Matrix4()))
+    this(copyFrom.model, transform.getOrElse(Matrix4()))
     copyNodes(copyFrom.nodes)
     copyAnimations(copyFrom.animations, shareKeyframes)
     calculateTransforms()
   }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance, transform: Matrix4) = {
+  def this(copyFrom: ModelInstance, transform: Matrix4) =
     this(copyFrom, transform, ModelInstance.defaultShareKeyframes)
-  }
 
   /** Constructs a new ModelInstance which is a copy of the specified ModelInstance. */
-  def this(copyFrom: ModelInstance) = {
+  def this(copyFrom: ModelInstance) =
     this(copyFrom, copyFrom.transform.cpy())
-  }
 
   /** @return A newly created ModelInstance which is a copy of this ModelInstance */
-  def copy(): ModelInstance = new ModelInstance(this)
+  def copy(): ModelInstance = ModelInstance(this)
 
   private def copyNodes(nodes: DynamicArray[Node]): Unit = {
     for (node <- nodes)
@@ -183,15 +181,11 @@ class ModelInstance(
         for (j <- 0 until bindPose.size) {
           val boneNode = bindPose.getKeyAt(j)
           getNode(boneNode.id).foreach { replacement =>
-            bindPose.put(replacement, bindPose.getValueAt(j))
-            // Remove old entry if key changed
-            if (!(replacement eq boneNode)) {
-              // The ArrayMap put with the new key replaces at the found index
-            }
+            bindPose.setKeyAt(j, replacement)
           }
         }
       }
-      if (!materials.contains(part.material)) {
+      if (!materials.containsByRef(part.material)) {
         val midx = materials.indexWhere(_.id == part.material.id)
         if (midx < 0)
           materials.add { part.material = part.material.copy(); part.material }
@@ -199,7 +193,7 @@ class ModelInstance(
           part.material = materials(midx)
       }
     }
-    for (i <- 0 until node.getChildCount)
+    for (i <- 0 until node.childCount)
       invalidate(node.getChild(i))
   }
 
@@ -241,14 +235,14 @@ class ModelInstance(
     *   Shallow copy of {@link NodeKeyframe}'s if it's true, otherwise make a deep copy.
     */
   def copyAnimation(sourceAnim: Animation, shareKeyframes: Boolean): Unit = {
-    val animation = new Animation()
+    val animation = Animation()
     animation.id = sourceAnim.id
     animation.duration = sourceAnim.duration
     for (nanim <- sourceAnim.nodeAnimations) {
       val node = getNode(nanim.node.id)
       if (node.isDefined) {
         node.foreach { n =>
-          val nodeAnim = new NodeAnimation()
+          val nodeAnim = NodeAnimation()
           nodeAnim.node = n
           if (shareKeyframes) {
             nodeAnim.translation = nanim.translation
@@ -258,19 +252,19 @@ class ModelInstance(
             nanim.translation.foreach { trans =>
               val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- trans)
-                buf.add(new NodeKeyframe[Vector3](kf.keytime, kf.value))
+                buf.add(NodeKeyframe[Vector3](kf.keytime, kf.value))
               nodeAnim.translation = Nullable(buf)
             }
             nanim.rotation.foreach { rot =>
               val buf = DynamicArray[NodeKeyframe[Quaternion]]()
               for (kf <- rot)
-                buf.add(new NodeKeyframe[Quaternion](kf.keytime, kf.value))
+                buf.add(NodeKeyframe[Quaternion](kf.keytime, kf.value))
               nodeAnim.rotation = Nullable(buf)
             }
             nanim.scaling.foreach { scl =>
               val buf = DynamicArray[NodeKeyframe[Vector3]]()
               for (kf <- scl)
-                buf.add(new NodeKeyframe[Vector3](kf.keytime, kf.value))
+                buf.add(NodeKeyframe[Vector3](kf.keytime, kf.value))
               nodeAnim.scaling = Nullable(buf)
             }
           }
@@ -319,7 +313,7 @@ class ModelInstance(
         if (nodePart.enabled) renderables.add(getRenderable(pool.obtain(), node, nodePart))
     }
 
-    for (child <- node.getChildren)
+    for (child <- node.children)
       getRenderables(child, renderables, pool)
   }
 

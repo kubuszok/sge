@@ -26,17 +26,17 @@ import sge.graphics.Color
   *   Nathan Sweet
   */
 class ColorAction extends TemporalAction {
-  private val startColor: Color           = new Color()
+  private val startColor: Color           = Color()
   private var color:      Nullable[Color] = Nullable.empty
-  private val endColor:   Color           = new Color()
+  private val endColor:   Color           = Color()
 
   override protected def begin(): Unit = {
-    val c = this.color.getOrElse(target.fold(new Color())(_.getColor))
+    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
     startColor.set(c)
   }
 
   override protected def update(percent: Float): Unit = {
-    val c = this.color.getOrElse(target.fold(new Color())(_.getColor))
+    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
     if (percent == 0)
       c.set(startColor)
     else if (percent == 1)

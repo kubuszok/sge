@@ -7,10 +7,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: getLatency -> latency, setVolume(float) -> volume_=(Volume), Disposable -> Closeable
- *   Convention: Java interface -> Scala trait; raw float params replaced with opaque Volume type
+ *   Renames: getLatency -> latency, Disposable -> Closeable
+ *   Convention: Java interface -> Scala trait; raw float params replaced with opaque Volume type;
+ *     setVolume kept as method (no getVolume in Java source)
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Fixes: volume_= without getter → setVolume (lone setter is non-idiomatic)
+ *   Audited: 2026-03-04
  */
 package sge
 package audio
@@ -53,7 +55,7 @@ trait AudioDevice extends java.io.Closeable {
   def latency: Int
 
   /** Sets the volume in the range [0,1]. */
-  def volume_=(volume: Volume): Unit
+  def setVolume(volume: Volume): Unit
 
   /** Pauses the audio device if supported */
   def pause(): Unit

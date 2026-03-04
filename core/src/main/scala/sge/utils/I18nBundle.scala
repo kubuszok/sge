@@ -89,7 +89,7 @@ class I18NBundle {
     */
   private def setLocale(locale: Locale): Unit = {
     this.locale = locale
-    this.formatter = new TextFormatter(locale, !I18NBundle.simpleFormatter)
+    this.formatter = TextFormatter(locale, !I18NBundle.simpleFormatter)
   }
 
   /** Gets a string for the given key from this bundle or one of its parents.

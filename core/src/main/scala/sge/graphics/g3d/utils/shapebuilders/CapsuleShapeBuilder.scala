@@ -4,6 +4,11 @@
  * Original authors: xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: GdxRuntimeException → SgeError.InvalidInput; null → Nullable
+ *   Idiom: Java static class → Scala object
+ *   Audited: 2026-03-04 — pass
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge

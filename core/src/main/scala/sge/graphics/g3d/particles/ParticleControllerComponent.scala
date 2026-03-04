@@ -65,14 +65,14 @@ abstract class ParticleControllerComponent extends AutoCloseable with ResourceDa
 }
 
 object ParticleControllerComponent {
-  private[particles] val TMP_V1: Vector3    = new Vector3()
-  private[particles] val TMP_V2: Vector3    = new Vector3()
-  private[particles] val TMP_V3: Vector3    = new Vector3()
-  private[particles] val TMP_V4: Vector3    = new Vector3()
-  private[particles] val TMP_V5: Vector3    = new Vector3()
-  private[particles] val TMP_V6: Vector3    = new Vector3()
-  private[particles] val TMP_Q:  Quaternion = new Quaternion()
-  private[particles] val TMP_Q2: Quaternion = new Quaternion()
-  private[particles] val TMP_M3: Matrix3    = new Matrix3()
-  private[particles] val TMP_M4: Matrix4    = new Matrix4()
+  private[particles] val TMP_V1: Vector3    = Vector3()
+  private[particles] val TMP_V2: Vector3    = Vector3()
+  private[particles] val TMP_V3: Vector3    = Vector3()
+  private[particles] val TMP_V4: Vector3    = Vector3()
+  private[particles] val TMP_V5: Vector3    = Vector3()
+  private[particles] val TMP_V6: Vector3    = Vector3()
+  private[particles] val TMP_Q:  Quaternion = Quaternion()
+  private[particles] val TMP_Q2: Quaternion = Quaternion()
+  private[particles] val TMP_M3: Matrix3    = Matrix3()
+  private[particles] val TMP_M4: Matrix4    = Matrix4()
 }

@@ -58,15 +58,15 @@ object ColorInfluencer {
     }
 
     override def copy(): Random =
-      new Random()
+      Random()
   }
 
   /** It's an {@link Influencer} which manages the particle color during its life time. */
   class Single extends ColorInfluencer {
     var alphaInterpolationChannel: FloatChannel       = scala.compiletime.uninitialized
     var lifeChannel:               FloatChannel       = scala.compiletime.uninitialized
-    var alphaValue:                ScaledNumericValue = new ScaledNumericValue()
-    var colorValue:                GradientColorValue = new GradientColorValue()
+    var alphaValue:                ScaledNumericValue = ScaledNumericValue()
+    var colorValue:                GradientColorValue = GradientColorValue()
 
     alphaValue.setHigh(1)
 
@@ -125,6 +125,6 @@ object ColorInfluencer {
     }
 
     override def copy(): Single =
-      new Single(this)
+      Single(this)
   }
 }

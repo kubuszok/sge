@@ -42,5 +42,5 @@ final class LineSpawnShapeValue extends PrimitiveSpawnShapeValue {
   }
 
   override def copy(): SpawnShapeValue =
-    new LineSpawnShapeValue(this)
+    LineSpawnShapeValue(this)
 }

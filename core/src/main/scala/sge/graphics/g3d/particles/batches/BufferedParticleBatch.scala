@@ -12,7 +12,9 @@
  * - `return` in ensureCapacity replaced with if/else guard (no-return convention)
  * - camera: uninitialized (Java null) → scala.compiletime.uninitialized
  * - All public methods faithfully ported: begin, draw, end, ensureCapacity, resetCapacity,
- *   setCamera, getSorter, setSorter, getBufferedCount
+ *   camera (property), sorter (property), bufferedCount
+ * - Fixes (2026-03-04): setCamera → camera_=; getSorter/setSorter → sorter/sorter_=;
+ *   getBufferedCount → bufferedCount; renamed backing fields to _camera/_sorter
  * - Audit: pass (2026-03-03)
  */
 package sge
@@ -34,8 +36,8 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
   protected var renderData:             DynamicArray[T] = DynamicArray[ParticleControllerRenderData](10).asInstanceOf[DynamicArray[T]]
   protected var bufferedParticlesCount: Int             = 0
   protected var currentCapacity:        Int             = 0
-  protected var sorter:                 ParticleSorter  = new ParticleSorter.Distance()
-  protected var camera:                 Camera          = scala.compiletime.uninitialized
+  protected var _sorter:                ParticleSorter  = ParticleSorter.Distance()
+  protected var _camera:                Camera          = scala.compiletime.uninitialized
 
   override def begin(): Unit = {
     renderData.clear()
@@ -51,7 +53,7 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
   override def end(): Unit =
     if (bufferedParticlesCount > 0) {
       ensureCapacity(bufferedParticlesCount)
-      flush(sorter.sort(renderData))
+      flush(_sorter.sort(renderData))
     }
 
   /** Ensure the batch can contain the passed in amount of particles */
@@ -59,7 +61,7 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
     if (currentCapacity >= capacity) {
       // already big enough
     } else {
-      sorter.ensureCapacity(capacity)
+      _sorter.ensureCapacity(capacity)
       allocParticlesData(capacity)
       currentCapacity = capacity
     }
@@ -71,17 +73,18 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
 
   protected def allocParticlesData(capacity: Int): Unit
 
-  def setCamera(camera: Camera): Unit = {
-    this.camera = camera
-    sorter.setCamera(camera)
+  def camera: Camera = _camera
+
+  def camera_=(camera: Camera): Unit = {
+    this._camera = camera
+    _sorter.camera = camera
   }
 
-  def getSorter(): ParticleSorter =
-    sorter
+  def sorter: ParticleSorter = _sorter
 
-  def setSorter(sorter: ParticleSorter): Unit = {
-    this.sorter = sorter
-    sorter.setCamera(camera)
+  def sorter_=(sorter: ParticleSorter): Unit = {
+    this._sorter = sorter
+    sorter.camera = _camera
     sorter.ensureCapacity(currentCapacity)
   }
 
@@ -92,6 +95,6 @@ abstract class BufferedParticleBatch[T <: ParticleControllerRenderData] extends 
     */
   protected def flush(offsets: Array[Int]): Unit
 
-  def getBufferedCount(): Int =
+  def bufferedCount: Int =
     bufferedParticlesCount
 }

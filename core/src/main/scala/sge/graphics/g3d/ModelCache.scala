@@ -41,27 +41,26 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   private val renderablesPool: Pool.Flushable[Renderable] = new Pool.Flushable[Renderable] {
     override protected val max:             Int        = Int.MaxValue
     override protected val initialCapacity: Int        = 16
-    override def newObject():               Renderable = new Renderable()
+    override def newObject():               Renderable = Renderable()
   }
   private val meshPartPool: Pool.Flushable[MeshPart] = new Pool.Flushable[MeshPart] {
     override protected val max:             Int      = Int.MaxValue
     override protected val initialCapacity: Int      = 16
-    override def newObject():               MeshPart = new MeshPart()
+    override def newObject():               MeshPart = MeshPart()
   }
 
   private val items: DynamicArray[Renderable] = DynamicArray[Renderable]()
   private val tmp:   DynamicArray[Renderable] = DynamicArray[Renderable]()
 
-  private val meshBuilder: MeshBuilder      = new MeshBuilder()
+  private val meshBuilder: MeshBuilder      = MeshBuilder()
   private var building:    Boolean          = false
   private var camera:      Nullable[Camera] = Nullable.empty
 
   /** Create a ModelCache using the default {@link Sorter} and the {@link SimpleMeshPool} implementation. This might not be the most optimal implementation for you use-case, but should be good to
     * start with.
     */
-  def this()(using Sge) = {
-    this(new ModelCache.Sorter(), new ModelCache.SimpleMeshPool())
-  }
+  def this()(using Sge) =
+    this(ModelCache.Sorter(), ModelCache.SimpleMeshPool())
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
     * cache and prepare it for creating a new cache. The cache is not valid until the call to {@link #end()} is made. Use one of the add methods (e.g. {@link #add(Renderable)} or
@@ -291,7 +290,7 @@ object ModelCache {
         }
         val vc     = MeshBuilder.MAX_VERTICES
         val ic     = Math.max(vc, 1 << (32 - Integer.numberOfLeadingZeros(indexCount - 1)))
-        val result = new Mesh(false, vc, ic, vertexAttributes)
+        val result = Mesh(false, vc, ic, vertexAttributes)
         usedMeshes.add(result)
         result
       }
@@ -335,7 +334,7 @@ object ModelCache {
           }
           i += 1
         }
-        val result = new Mesh(true, vertexCount, indexCount, vertexAttributes)
+        val result = Mesh(true, vertexCount, indexCount, vertexAttributes)
         usedMeshes.add(result)
         result
       }

@@ -37,7 +37,7 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
   private var _actor:           Nullable[Actor]      = Nullable.empty
   private var _touchDownTarget: Nullable[Actor]      = Nullable.empty
 
-  private val detector: GestureDetector = new GestureDetector(
+  private val detector: GestureDetector = GestureDetector(
     halfTapSquareSize,
     tapCountInterval,
     longPressDuration,
@@ -57,7 +57,7 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
       }
 
       override def longPress(stageX: Float, stageY: Float): Boolean =
-        _actor.fold(false) { a =>
+        _actor.exists { a =>
           a.stageToLocalCoordinates(tmpCoords.set(stageX, stageY))
           ActorGestureListener.this.longPress(a, tmpCoords.x, tmpCoords.y)
         }

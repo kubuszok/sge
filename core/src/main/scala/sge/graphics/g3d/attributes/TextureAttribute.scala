@@ -7,13 +7,10 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   - Audited 2026-03-03: faithful port, missing constructors
+ *   - Audited 2026-03-04: faithful port, all constructors present
  *   - compareTo -> compare (Ordered[Attribute])
  *   - GdxRuntimeException -> SgeError.InvalidInput
- *   - Missing: constructor (type, TextureDescriptor) — Java has 2 overloads accepting
- *     TextureDescriptor with/without offset/scale/uvIndex; Scala only has the 7-arg primary ctor
- *   - Missing: constructor (type, TextureDescriptor, offsetU, offsetV, scaleU, scaleV) (no uvIndex)
- *   - Copy ctor sets fields individually instead of delegating to the full-arg ctor — same result
+ *   - Java generic ctor (type, TextureDescriptor<T>) → Scala (type, TextureDescriptor[? <: Texture])
  *   - textureDescription.texture assignment uses Nullable() wrapper (no-null convention)
  *   - All 7 alias/type pairs, all 14 create* factory methods, set(region) accounted for
  */
@@ -43,8 +40,20 @@ class TextureAttribute(
 
   if (!TextureAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) = {
-    this(`type`, new TextureDescriptor[Texture](), 0f, 0f, 1f, 1f, 0)
+  def this(`type`: Long) =
+    this(`type`, TextureDescriptor[Texture](), 0f, 0f, 1f, 1f, 0)
+
+  def this(`type`: Long, textureDescription: TextureDescriptor[? <: Texture]) = {
+    this(`type`)
+    this.textureDescription.set(textureDescription)
+  }
+
+  def this(`type`: Long, textureDescription: TextureDescriptor[? <: Texture], offsetU: Float, offsetV: Float, scaleU: Float, scaleV: Float) = {
+    this(`type`, textureDescription)
+    this.offsetU = offsetU
+    this.offsetV = offsetV
+    this.scaleU = scaleU
+    this.scaleV = scaleV
   }
 
   def this(`type`: Long, texture: Texture) = {
@@ -57,26 +66,27 @@ class TextureAttribute(
     set(region)
   }
 
-  def this(copyFrom: TextureAttribute) = {
-    this(copyFrom.`type`)
-    this.textureDescription.set(copyFrom.textureDescription)
-    this.offsetU = copyFrom.offsetU
-    this.offsetV = copyFrom.offsetV
-    this.scaleU = copyFrom.scaleU
-    this.scaleV = copyFrom.scaleV
-    this.uvIndex = copyFrom.uvIndex
-  }
+  def this(copyFrom: TextureAttribute) =
+    this(
+      copyFrom.`type`,
+      copyFrom.textureDescription,
+      copyFrom.offsetU,
+      copyFrom.offsetV,
+      copyFrom.scaleU,
+      copyFrom.scaleV,
+      copyFrom.uvIndex
+    )
 
   def set(region: TextureRegion): Unit = {
-    textureDescription.texture = Nullable(region.getTexture())
-    offsetU = region.getU()
-    offsetV = region.getV()
-    scaleU = region.getU2() - offsetU
-    scaleV = region.getV2() - offsetV
+    textureDescription.texture = Nullable(region.texture)
+    offsetU = region.u
+    offsetV = region.v
+    scaleU = region.u2 - offsetU
+    scaleV = region.v2 - offsetV
   }
 
   override def copy(): Attribute =
-    new TextureAttribute(this)
+    TextureAttribute(this)
 
   override def hashCode(): Int = {
     var result = super.hashCode()
@@ -127,44 +137,44 @@ object TextureAttribute {
     (mask & Mask) != 0
 
   def createDiffuse(texture: Texture): TextureAttribute =
-    new TextureAttribute(Diffuse, texture)
+    TextureAttribute(Diffuse, texture)
 
   def createDiffuse(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Diffuse, region)
+    TextureAttribute(Diffuse, region)
 
   def createSpecular(texture: Texture): TextureAttribute =
-    new TextureAttribute(Specular, texture)
+    TextureAttribute(Specular, texture)
 
   def createSpecular(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Specular, region)
+    TextureAttribute(Specular, region)
 
   def createNormal(texture: Texture): TextureAttribute =
-    new TextureAttribute(Normal, texture)
+    TextureAttribute(Normal, texture)
 
   def createNormal(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Normal, region)
+    TextureAttribute(Normal, region)
 
   def createBump(texture: Texture): TextureAttribute =
-    new TextureAttribute(Bump, texture)
+    TextureAttribute(Bump, texture)
 
   def createBump(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Bump, region)
+    TextureAttribute(Bump, region)
 
   def createAmbient(texture: Texture): TextureAttribute =
-    new TextureAttribute(Ambient, texture)
+    TextureAttribute(Ambient, texture)
 
   def createAmbient(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Ambient, region)
+    TextureAttribute(Ambient, region)
 
   def createEmissive(texture: Texture): TextureAttribute =
-    new TextureAttribute(Emissive, texture)
+    TextureAttribute(Emissive, texture)
 
   def createEmissive(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Emissive, region)
+    TextureAttribute(Emissive, region)
 
   def createReflection(texture: Texture): TextureAttribute =
-    new TextureAttribute(Reflection, texture)
+    TextureAttribute(Reflection, texture)
 
   def createReflection(region: TextureRegion): TextureAttribute =
-    new TextureAttribute(Reflection, region)
+    TextureAttribute(Reflection, region)
 }

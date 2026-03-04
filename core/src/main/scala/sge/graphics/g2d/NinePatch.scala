@@ -8,8 +8,8 @@
  *   Renames: TextureRegion... patches varargs -> Nullable[TextureRegion]*
  *   Convention: Nullable for optional patch regions
  *   Idiom: boundary/break, Nullable, split packages
- *   TODO: Java-style getters/setters — getColor/setColor, getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getPadLeft/Right/Top/Bottom
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getters/setters → Scala properties (color, leftWidth, rightWidth, topHeight, bottomHeight, middleWidth, middleHeight, padLeft/Right/Top/Bottom, totalWidth/Height, texture)
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -30,7 +30,7 @@ import sge.utils.Nullable
   * files.
   */
 class NinePatch {
-  private var texture:      Texture      = scala.compiletime.uninitialized
+  private var _texture:     Texture      = scala.compiletime.uninitialized
   private var bottomLeft:   Int          = scala.compiletime.uninitialized
   private var bottomCenter: Int          = scala.compiletime.uninitialized
   private var bottomRight:  Int          = scala.compiletime.uninitialized
@@ -40,19 +40,19 @@ class NinePatch {
   private var topLeft:      Int          = scala.compiletime.uninitialized
   private var topCenter:    Int          = scala.compiletime.uninitialized
   private var topRight:     Int          = scala.compiletime.uninitialized
-  private var leftWidth:    Float        = scala.compiletime.uninitialized
-  private var rightWidth:   Float        = scala.compiletime.uninitialized
-  private var middleWidth:  Float        = scala.compiletime.uninitialized
-  private var middleHeight: Float        = scala.compiletime.uninitialized
-  private var topHeight:    Float        = scala.compiletime.uninitialized
-  private var bottomHeight: Float        = scala.compiletime.uninitialized
+  var leftWidth:            Float        = scala.compiletime.uninitialized
+  var rightWidth:           Float        = scala.compiletime.uninitialized
+  var middleWidth:          Float        = scala.compiletime.uninitialized
+  var middleHeight:         Float        = scala.compiletime.uninitialized
+  var topHeight:            Float        = scala.compiletime.uninitialized
+  var bottomHeight:         Float        = scala.compiletime.uninitialized
   private var vertices:     Array[Float] = new Array[Float](9 * 4 * 5)
   private var idx:          Int          = scala.compiletime.uninitialized
-  private val color:        Color        = new Color(Color.WHITE)
-  private var padLeft:      Float        = -1
-  private var padRight:     Float        = -1
-  private var padTop:       Float        = -1
-  private var padBottom:    Float        = -1
+  private val _color:       Color        = Color(Color.WHITE)
+  private var _padLeft:     Float        = -1
+  private var _padRight:    Float        = -1
+  private var _padTop:      Float        = -1
+  private var _padBottom:   Float        = -1
 
   /** Create a ninepatch by cutting up the given texture into nine patches. The subsequent parameters define the 4 lines that will cut the texture region into 9 pieces.
     * @param left
@@ -66,7 +66,7 @@ class NinePatch {
     */
   def this(texture: Texture, left: Int, right: Int, top: Int, bottom: Int) = {
     this()
-    val region = new TextureRegion(texture)
+    val region = TextureRegion(texture)
     initializeFromRegion(region, left, right, top, bottom)
   }
 
@@ -89,7 +89,7 @@ class NinePatch {
   def this(texture: Texture, color: Color) = {
     this()
     initializeFromTexture(texture)
-    setColor(color)
+    this.color = color
   }
 
   /** Construct a degenerate "nine" patch with only a center component. */
@@ -102,7 +102,7 @@ class NinePatch {
   def this(region: TextureRegion, color: Color) = {
     this()
     initializeFromRegion(region)
-    setColor(color)
+    this.color = color
   }
 
   /** Construct a degenerate "nine" patch with only a center component. */
@@ -134,24 +134,24 @@ class NinePatch {
   }
 
   private def initializeFromRegion(region: TextureRegion, left: Int, right: Int, top: Int, bottom: Int): Unit = {
-    val middleWidth  = region.getRegionWidth() - left - right
-    val middleHeight = region.getRegionHeight() - top - bottom
+    val middleWidth  = region.regionWidth - left - right
+    val middleHeight = region.regionHeight - top - bottom
 
     val patches = Array.fill(9)(Nullable.empty[TextureRegion])
     if (top > 0) {
-      if (left > 0) patches(NinePatch.TOP_LEFT) = Nullable(new TextureRegion(region, 0, 0, left, top))
-      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = Nullable(new TextureRegion(region, left, 0, middleWidth, top))
-      if (right > 0) patches(NinePatch.TOP_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, 0, right, top))
+      if (left > 0) patches(NinePatch.TOP_LEFT) = Nullable(TextureRegion(region, 0, 0, left, top))
+      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = Nullable(TextureRegion(region, left, 0, middleWidth, top))
+      if (right > 0) patches(NinePatch.TOP_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, 0, right, top))
     }
     if (middleHeight > 0) {
-      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = Nullable(new TextureRegion(region, 0, top, left, middleHeight))
-      if (middleWidth > 0) patches(NinePatch.MIDDLE_CENTER) = Nullable(new TextureRegion(region, left, top, middleWidth, middleHeight))
-      if (right > 0) patches(NinePatch.MIDDLE_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, top, right, middleHeight))
+      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = Nullable(TextureRegion(region, 0, top, left, middleHeight))
+      if (middleWidth > 0) patches(NinePatch.MIDDLE_CENTER) = Nullable(TextureRegion(region, left, top, middleWidth, middleHeight))
+      if (right > 0) patches(NinePatch.MIDDLE_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, top, right, middleHeight))
     }
     if (bottom > 0) {
-      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = Nullable(new TextureRegion(region, 0, top + middleHeight, left, bottom))
-      if (middleWidth > 0) patches(NinePatch.BOTTOM_CENTER) = Nullable(new TextureRegion(region, left, top + middleHeight, middleWidth, bottom))
-      if (right > 0) patches(NinePatch.BOTTOM_RIGHT) = Nullable(new TextureRegion(region, left + middleWidth, top + middleHeight, right, bottom))
+      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = Nullable(TextureRegion(region, 0, top + middleHeight, left, bottom))
+      if (middleWidth > 0) patches(NinePatch.BOTTOM_CENTER) = Nullable(TextureRegion(region, left, top + middleHeight, middleWidth, bottom))
+      if (right > 0) patches(NinePatch.BOTTOM_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, top + middleHeight, right, bottom))
     }
 
     // If split only vertical, move splits from right to center.
@@ -177,7 +177,7 @@ class NinePatch {
   }
 
   private def initializeFromTexture(texture: Texture): Unit = {
-    val region = new TextureRegion(texture)
+    val region = TextureRegion(texture)
     initializeFromRegion(region)
   }
 
@@ -199,37 +199,37 @@ class NinePatch {
 
   private def validatePatches(patches: Array[Nullable[TextureRegion]]): Unit = {
     if (
-      patches(NinePatch.TOP_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
-      || patches(NinePatch.MIDDLE_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
-      || patches(NinePatch.BOTTOM_LEFT).fold(false)(_.getRegionWidth() != leftWidth)
+      patches(NinePatch.TOP_LEFT).exists(_.regionWidth != leftWidth)
+      || patches(NinePatch.MIDDLE_LEFT).exists(_.regionWidth != leftWidth)
+      || patches(NinePatch.BOTTOM_LEFT).exists(_.regionWidth != leftWidth)
     ) {
       throw new IllegalArgumentException("Left side patches must have the same width")
     }
     if (
-      patches(NinePatch.TOP_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
-      || patches(NinePatch.MIDDLE_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
-      || patches(NinePatch.BOTTOM_RIGHT).fold(false)(_.getRegionWidth() != rightWidth)
+      patches(NinePatch.TOP_RIGHT).exists(_.regionWidth != rightWidth)
+      || patches(NinePatch.MIDDLE_RIGHT).exists(_.regionWidth != rightWidth)
+      || patches(NinePatch.BOTTOM_RIGHT).exists(_.regionWidth != rightWidth)
     ) {
       throw new IllegalArgumentException("Right side patches must have the same width")
     }
     if (
-      patches(NinePatch.BOTTOM_LEFT).fold(false)(_.getRegionHeight() != bottomHeight)
-      || patches(NinePatch.BOTTOM_CENTER).fold(false)(_.getRegionHeight() != bottomHeight)
-      || patches(NinePatch.BOTTOM_RIGHT).fold(false)(_.getRegionHeight() != bottomHeight)
+      patches(NinePatch.BOTTOM_LEFT).exists(_.regionHeight != bottomHeight)
+      || patches(NinePatch.BOTTOM_CENTER).exists(_.regionHeight != bottomHeight)
+      || patches(NinePatch.BOTTOM_RIGHT).exists(_.regionHeight != bottomHeight)
     ) {
       throw new IllegalArgumentException("Bottom side patches must have the same height")
     }
     if (
-      patches(NinePatch.TOP_LEFT).fold(false)(_.getRegionHeight() != topHeight)
-      || patches(NinePatch.TOP_CENTER).fold(false)(_.getRegionHeight() != topHeight)
-      || patches(NinePatch.TOP_RIGHT).fold(false)(_.getRegionHeight() != topHeight)
+      patches(NinePatch.TOP_LEFT).exists(_.regionHeight != topHeight)
+      || patches(NinePatch.TOP_CENTER).exists(_.regionHeight != topHeight)
+      || patches(NinePatch.TOP_RIGHT).exists(_.regionHeight != topHeight)
     ) {
       throw new IllegalArgumentException("Top side patches must have the same height")
     }
   }
 
   private def copyFrom(ninePatch: NinePatch, color: Color): Unit = {
-    texture = ninePatch.texture
+    _texture = ninePatch._texture
 
     bottomLeft = ninePatch.bottomLeft
     bottomCenter = ninePatch.bottomCenter
@@ -248,15 +248,15 @@ class NinePatch {
     topHeight = ninePatch.topHeight
     bottomHeight = ninePatch.bottomHeight
 
-    padLeft = ninePatch.padLeft
-    padTop = ninePatch.padTop
-    padBottom = ninePatch.padBottom
-    padRight = ninePatch.padRight
+    _padLeft = ninePatch._padLeft
+    _padTop = ninePatch._padTop
+    _padBottom = ninePatch._padBottom
+    _padRight = ninePatch._padRight
 
     vertices = new Array[Float](ninePatch.vertices.length)
     System.arraycopy(ninePatch.vertices, 0, vertices, 0, ninePatch.vertices.length)
     idx = ninePatch.idx
-    this.color.set(color)
+    this._color.set(color)
   }
 
   private def load(patches: Array[Nullable[TextureRegion]]): Unit = {
@@ -264,29 +264,29 @@ class NinePatch {
       bottomLeft = -1
     } { p =>
       bottomLeft = add(p, isStretchW = false, isStretchH = false)
-      leftWidth = p.getRegionWidth().toFloat
-      bottomHeight = p.getRegionHeight().toFloat
+      leftWidth = p.regionWidth.toFloat
+      bottomHeight = p.regionHeight.toFloat
     }
     patches(NinePatch.BOTTOM_CENTER).fold {
       bottomCenter = -1
     } { p =>
       bottomCenter = add(p, patches(NinePatch.BOTTOM_LEFT).isDefined || patches(NinePatch.BOTTOM_RIGHT).isDefined, isStretchH = false)
-      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
-      bottomHeight = Math.max(bottomHeight, p.getRegionHeight().toFloat)
+      middleWidth = Math.max(middleWidth, p.regionWidth.toFloat)
+      bottomHeight = Math.max(bottomHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.BOTTOM_RIGHT).fold {
       bottomRight = -1
     } { p =>
       bottomRight = add(p, isStretchW = false, isStretchH = false)
-      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
-      bottomHeight = Math.max(bottomHeight, p.getRegionHeight().toFloat)
+      rightWidth = Math.max(rightWidth, p.regionWidth.toFloat)
+      bottomHeight = Math.max(bottomHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.MIDDLE_LEFT).fold {
       middleLeft = -1
     } { p =>
       middleLeft = add(p, isStretchW = false, patches(NinePatch.TOP_LEFT).isDefined || patches(NinePatch.BOTTOM_LEFT).isDefined)
-      leftWidth = Math.max(leftWidth, p.getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+      leftWidth = Math.max(leftWidth, p.regionWidth.toFloat)
+      middleHeight = Math.max(middleHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.MIDDLE_CENTER).fold {
       middleCenter = -1
@@ -296,36 +296,36 @@ class NinePatch {
         patches(NinePatch.MIDDLE_LEFT).isDefined || patches(NinePatch.MIDDLE_RIGHT).isDefined,
         patches(NinePatch.TOP_CENTER).isDefined || patches(NinePatch.BOTTOM_CENTER).isDefined
       )
-      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+      middleWidth = Math.max(middleWidth, p.regionWidth.toFloat)
+      middleHeight = Math.max(middleHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.MIDDLE_RIGHT).fold {
       middleRight = -1
     } { p =>
       middleRight = add(p, isStretchW = false, patches(NinePatch.TOP_RIGHT).isDefined || patches(NinePatch.BOTTOM_RIGHT).isDefined)
-      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
-      middleHeight = Math.max(middleHeight, p.getRegionHeight().toFloat)
+      rightWidth = Math.max(rightWidth, p.regionWidth.toFloat)
+      middleHeight = Math.max(middleHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.TOP_LEFT).fold {
       topLeft = -1
     } { p =>
       topLeft = add(p, isStretchW = false, isStretchH = false)
-      leftWidth = Math.max(leftWidth, p.getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+      leftWidth = Math.max(leftWidth, p.regionWidth.toFloat)
+      topHeight = Math.max(topHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.TOP_CENTER).fold {
       topCenter = -1
     } { p =>
       topCenter = add(p, patches(NinePatch.TOP_LEFT).isDefined || patches(NinePatch.TOP_RIGHT).isDefined, isStretchH = false)
-      middleWidth = Math.max(middleWidth, p.getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+      middleWidth = Math.max(middleWidth, p.regionWidth.toFloat)
+      topHeight = Math.max(topHeight, p.regionHeight.toFloat)
     }
     patches(NinePatch.TOP_RIGHT).fold {
       topRight = -1
     } { p =>
       topRight = add(p, isStretchW = false, isStretchH = false)
-      rightWidth = Math.max(rightWidth, p.getRegionWidth().toFloat)
-      topHeight = Math.max(topHeight, p.getRegionHeight().toFloat)
+      rightWidth = Math.max(rightWidth, p.regionWidth.toFloat)
+      topHeight = Math.max(topHeight, p.regionHeight.toFloat)
     }
     if (idx < vertices.length) {
       val newVertices = new Array[Float](idx)
@@ -335,26 +335,26 @@ class NinePatch {
   }
 
   private def add(region: TextureRegion, isStretchW: Boolean, isStretchH: Boolean): Int = {
-    if (Nullable(texture).isEmpty)
-      texture = region.getTexture()
-    else if (texture != region.getTexture())
+    if (Nullable(_texture).isEmpty)
+      _texture = region.texture
+    else if (_texture != region.texture)
       throw new IllegalArgumentException("All regions must be from the same texture.")
 
     // Add half pixel offsets on stretchable dimensions to avoid color bleeding when GL_LINEAR
     // filtering is used for the texture. This nudges the texture coordinate to the center
     // of the texel where the neighboring pixel has 0% contribution in linear blending mode.
-    var u  = region.getU()
-    var v  = region.getV()
-    var u2 = region.getU2()
-    var v2 = region.getV2()
-    if (texture.getMagFilter() == TextureFilter.Linear || texture.getMinFilter() == TextureFilter.Linear) {
+    var u  = region.u
+    var v  = region.v
+    var u2 = region.u2
+    var v2 = region.v2
+    if (_texture.getMagFilter() == TextureFilter.Linear || _texture.getMinFilter() == TextureFilter.Linear) {
       if (isStretchW) {
-        val halfTexelWidth = 0.5f * 1f / texture.getWidth
+        val halfTexelWidth = 0.5f * 1f / _texture.getWidth
         u += halfTexelWidth
         u2 -= halfTexelWidth
       }
       if (isStretchH) {
-        val halfTexelHeight = 0.5f * 1f / texture.getHeight
+        val halfTexelHeight = 0.5f * 1f / _texture.getHeight
         v -= halfTexelHeight
         v2 += halfTexelHeight
       }
@@ -406,7 +406,7 @@ class NinePatch {
     val centerHeight = height - topHeight - bottomHeight
     val rightX       = x + width - rightWidth
     val topY         = y + height - topHeight
-    val c            = NinePatch.tmpDrawColor.set(color).mul(batch.getColor()).toFloatBits()
+    val c            = NinePatch.tmpDrawColor.set(_color).mul(batch.color).toFloatBits()
     if (bottomLeft != -1) set(bottomLeft, x, y, leftWidth, bottomHeight, c)
     if (bottomCenter != -1) set(bottomCenter, centerX, y, centerWidth, bottomHeight, c)
     if (bottomRight != -1) set(bottomRight, rightX, y, rightWidth, bottomHeight, c)
@@ -420,7 +420,7 @@ class NinePatch {
 
   def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit = {
     prepareVertices(batch, x, y, width, height)
-    batch.draw(texture, vertices, 0, idx)
+    batch.draw(_texture, vertices, 0, idx)
   }
 
   def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
@@ -444,110 +444,64 @@ class NinePatch {
         vertices(i + 1) = (vertices(i + 1) - worldOriginY) * scaleY + worldOriginY
       }
     }
-    batch.draw(texture, vertices, 0, n)
+    batch.draw(_texture, vertices, 0, n)
   }
 
   /** Copy given color. The color will be blended with the batch color, then combined with the texture colors at {@link NinePatch#draw(Batch, float, float, float, float) draw} time. Default is
     * {@link Color#WHITE} .
     */
-  def setColor(color: Color): Unit =
-    this.color.set(color)
+  def color_=(color: Color): Unit =
+    this._color.set(color)
 
-  def getColor(): Color =
-    color
+  def color: Color =
+    _color
 
-  def getLeftWidth(): Float =
-    leftWidth
-
-  /** Set the draw-time width of the three left edge patches */
-  def setLeftWidth(leftWidth: Float): Unit =
-    this.leftWidth = leftWidth
-
-  def getRightWidth(): Float =
-    rightWidth
-
-  /** Set the draw-time width of the three right edge patches */
-  def setRightWidth(rightWidth: Float): Unit =
-    this.rightWidth = rightWidth
-
-  def getTopHeight(): Float =
-    topHeight
-
-  /** Set the draw-time height of the three top edge patches */
-  def setTopHeight(topHeight: Float): Unit =
-    this.topHeight = topHeight
-
-  def getBottomHeight(): Float =
-    bottomHeight
-
-  /** Set the draw-time height of the three bottom edge patches */
-  def setBottomHeight(bottomHeight: Float): Unit =
-    this.bottomHeight = bottomHeight
-
-  def getMiddleWidth(): Float =
-    middleWidth
-
-  /** Set the width of the middle column of the patch. At render time, this is implicitly the requested render-width of the entire nine patch, minus the left and right width. This value is only used
-    * for computing the {@link #getTotalWidth() default total width} .
-    */
-  def setMiddleWidth(middleWidth: Float): Unit =
-    this.middleWidth = middleWidth
-
-  def getMiddleHeight(): Float =
-    middleHeight
-
-  /** Set the height of the middle row of the patch. At render time, this is implicitly the requested render-height of the entire nine patch, minus the top and bottom height. This value is only used
-    * for computing the {@link #getTotalHeight() default total height} .
-    */
-  def setMiddleHeight(middleHeight: Float): Unit =
-    this.middleHeight = middleHeight
-
-  def getTotalWidth(): Float =
+  def totalWidth: Float =
     leftWidth + middleWidth + rightWidth
 
-  def getTotalHeight(): Float =
+  def totalHeight: Float =
     topHeight + middleHeight + bottomHeight
 
   /** Set the padding for content inside this ninepatch. By default the padding is set to match the exterior of the ninepatch, so the content should fit exactly within the middle patch.
     */
   def setPadding(left: Float, right: Float, top: Float, bottom: Float): Unit = {
-    this.padLeft = left
-    this.padRight = right
-    this.padTop = top
-    this.padBottom = bottom
+    this._padLeft = left
+    this._padRight = right
+    this._padTop = top
+    this._padBottom = bottom
   }
 
-  /** Returns the left padding if set, else returns {@link #getLeftWidth()}. */
-  def getPadLeft(): Float =
-    if (padLeft == -1) getLeftWidth() else padLeft
+  /** Returns the left padding if set, else returns {@link #leftWidth}. */
+  def padLeft: Float =
+    if (_padLeft == -1) leftWidth else _padLeft
 
   /** See {@link #setPadding(float, float, float, float)} */
-  def setPadLeft(left: Float): Unit =
-    this.padLeft = left
+  def padLeft_=(left: Float): Unit =
+    this._padLeft = left
 
-  /** Returns the right padding if set, else returns {@link #getRightWidth()}. */
-  def getPadRight(): Float =
-    if (padRight == -1) getRightWidth() else padRight
-
-  /** See {@link #setPadding(float, float, float, float)} */
-  def setPadRight(right: Float): Unit =
-    this.padRight = right
-
-  /** Returns the top padding if set, else returns {@link #getTopHeight()}. */
-  def getPadTop(): Float =
-    if (padTop == -1) getTopHeight() else padTop
+  /** Returns the right padding if set, else returns {@link #rightWidth}. */
+  def padRight: Float =
+    if (_padRight == -1) rightWidth else _padRight
 
   /** See {@link #setPadding(float, float, float, float)} */
-  def setPadTop(top: Float): Unit =
-    this.padTop = top
+  def padRight_=(right: Float): Unit =
+    this._padRight = right
 
-  /** Returns the bottom padding if set, else returns {@link #getBottomHeight()}. */
-  def getPadBottom(): Float =
-    if (padBottom == -1) getBottomHeight() else padBottom
+  /** Returns the top padding if set, else returns {@link #topHeight}. */
+  def padTop: Float =
+    if (_padTop == -1) topHeight else _padTop
 
   /** See {@link #setPadding(float, float, float, float)} */
-  def setPadBottom(bottom: Float): Unit =
-    this.padBottom = bottom
+  def padTop_=(top: Float): Unit =
+    this._padTop = top
+
+  /** Returns the bottom padding if set, else returns {@link #bottomHeight}. */
+  def padBottom: Float =
+    if (_padBottom == -1) bottomHeight else _padBottom
+
+  /** See {@link #setPadding(float, float, float, float)} */
+  def padBottom_=(bottom: Float): Unit =
+    this._padBottom = bottom
 
   /** Multiplies the top/left/bottom/right sizes and padding by the specified amount. */
   def scale(scaleX: Float, scaleY: Float): Unit = {
@@ -557,14 +511,14 @@ class NinePatch {
     bottomHeight *= scaleY
     middleWidth *= scaleX
     middleHeight *= scaleY
-    if (padLeft != -1) padLeft *= scaleX
-    if (padRight != -1) padRight *= scaleX
-    if (padTop != -1) padTop *= scaleY
-    if (padBottom != -1) padBottom *= scaleY
+    if (_padLeft != -1) _padLeft *= scaleX
+    if (_padRight != -1) _padRight *= scaleX
+    if (_padTop != -1) _padTop *= scaleY
+    if (_padBottom != -1) _padBottom *= scaleY
   }
 
-  def getTexture(): Texture =
-    texture
+  def texture: Texture =
+    _texture
 }
 
 object NinePatch {
@@ -580,5 +534,5 @@ object NinePatch {
   val BOTTOM_CENTER = 7 // This field has the javadoc comment because it appears first in the javadocs.
   val BOTTOM_RIGHT  = 8
 
-  private val tmpDrawColor = new Color()
+  private val tmpDrawColor = Color()
 }

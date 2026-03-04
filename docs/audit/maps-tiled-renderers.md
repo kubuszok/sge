@@ -1,7 +1,7 @@
 # Audit: sge.maps.tiled.renderers
 
 Audited: 6/6 files | Pass: 6 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -74,7 +74,8 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 4 constructors, 3 private fields (staggerAxisX, staggerIndexEven, hexSideLength), initHex(), renderTileLayer() (staggerAxisX and Y branches), private renderCell(), renderImageLayer() (hex Y-offset), 6 public accessor methods -- all match Java 1:1.
+**Completeness**: 4 constructors, 3 public vars (staggerAxisX, staggerIndexEven, hexSideLength), initHex(), renderTileLayer() (staggerAxisX and Y branches), private renderCell(), renderImageLayer() (hex Y-offset) -- all match Java 1:1.
+**Renames**: `isStaggerAxisX`/`setStaggerAxisX` -> `var staggerAxisX`, `isStaggerIndexEven`/`setStaggerIndexEven` -> `var staggerIndexEven`, `getHexSideLength`/`setHexSideLength` -> `var hexSideLength`
 **Convention changes**: Java null checks on map properties replaced with Nullable.foreach/fold. renderCell: Java null checks on cell/tile replaced with Nullable.foreach. `instanceof AnimatedTiledMapTile` return guard replaced with `!isInstanceOf` guard. renderCell only handles rotations==2 (ROTATE_180), matching Java. Java null==region early return replaced with Nullable isEmpty/else.
 **Issues**: None
 

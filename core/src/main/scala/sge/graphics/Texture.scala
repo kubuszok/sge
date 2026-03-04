@@ -41,78 +41,69 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
 
   private val textureData = data
 
-  def this(internalPath: String)(using Sge) = {
+  def this(internalPath: String)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(Sge().files.internal(internalPath), Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle)(using Sge) = {
+  def this(file: FileHandle)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
-  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) = {
+  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
-  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) = {
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
-  }
 
-  def this(pixmap: Pixmap)(using Sge) = {
+  def this(pixmap: Pixmap)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
-      new PixmapTextureData(pixmap, Nullable.empty, false, false, false)
+      PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
-  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) = {
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
-      new PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
+      PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
-  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) = {
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
-      new PixmapTextureData(pixmap, format, useMipMaps, false)
+      PixmapTextureData(pixmap, format, useMipMaps, false)
     )
-  }
 
-  def this(width: Int, height: Int, format: Format)(using Sge) = {
+  def this(width: Int, height: Int, format: Format)(using Sge) =
     this(
       GL20.GL_TEXTURE_2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
-      new PixmapTextureData(new Pixmap(width, height, format), Nullable.empty, false, true, false)
+      PixmapTextureData(Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
-  }
 
-  def this(data: TextureData)(using Sge) = {
+  def this(data: TextureData)(using Sge) =
     this(GL20.GL_TEXTURE_2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
-  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)
 
-  def load(data: TextureData)(using Sge): Unit = {
+  def load(data: TextureData): Unit = {
     Nullable(this.textureData).foreach { existing =>
       if (data.isManaged != existing.isManaged)
         throw SgeError.GraphicsError("New data must have the same managed status as the old data")
@@ -147,7 +138,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
     * @param y
     *   The y coordinate in pixels
     */
-  def draw(pixmap: Pixmap, x: Int, y: Int)(using Sge): Unit = {
+  def draw(pixmap: Pixmap, x: Int, y: Int): Unit = {
     if (textureData.isManaged) throw SgeError.GraphicsError("can't draw to a managed texture")
 
     bind()
@@ -215,7 +206,7 @@ object Texture {
           // asset manager.
           val textures = DynamicArray.from(managedTextureArray)
           for (texture <- textures)
-            // val fileName = assetManager.getAssetFileName(texture)
+            // val fileName = assetManager.assetFileName(texture)
             // if (fileName == null) {
             texture.reload()
           // } else {
@@ -247,7 +238,7 @@ object Texture {
 
   /** @return the number of managed textures currently loaded */
   def getNumManagedTextures()(using Sge): Int =
-    managedTextures.get(Sge().application).fold(0)(_.size)
+    managedTextures.get(Sge().application).map(_.size).getOrElse(0)
 
   /** Defines the filtering mode for textures. */
   enum TextureFilter(val glEnum: Int) {

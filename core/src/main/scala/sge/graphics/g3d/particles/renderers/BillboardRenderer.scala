@@ -31,7 +31,7 @@ import sge.graphics.g3d.particles.batches.{ BillboardParticleBatch, ParticleBatc
   */
 class BillboardRenderer
     extends ParticleControllerRenderer[BillboardControllerRenderData, BillboardParticleBatch](
-      new BillboardControllerRenderData()
+      BillboardControllerRenderData()
     ) {
 
   def this(batch: BillboardParticleBatch) = {
@@ -49,7 +49,7 @@ class BillboardRenderer
     }
 
   override def copy(): ParticleControllerComponent =
-    new BillboardRenderer(batch)
+    BillboardRenderer(batch)
 
   override def isCompatible(batch: ParticleBatch[?]): Boolean =
     batch.isInstanceOf[BillboardParticleBatch]

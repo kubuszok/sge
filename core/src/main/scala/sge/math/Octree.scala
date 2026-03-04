@@ -5,19 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Issues: OctreeNode.rayCast has placeholder `val intersect = true` instead of actual
- *     Intersector.intersectRayBounds call — ray-bounds check is non-functional
+ *   Convention: uses scala.collection.mutable.Set instead of ObjectSet (Scala stdlib)
  *   Idiom: split packages
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
- *
- * AUDIT: PASS (with issues)
- * - All public API ported: add, remove, update, getAll, query(BoundingBox), query(Frustum),
- *   rayCast, getNodesBoxes, Collider trait, RayCastResult
- * - ISSUE: OctreeNode.rayCast has placeholder `val intersect = true` instead of
- *   Intersector.intersectRayBounds(ray, bounds, tmp) — missing ray-bounds check
- * - INTENTIONAL: uses scala.collection.mutable.Set instead of ObjectSet (Scala stdlib)
  */
 package sge
 package math
@@ -51,7 +43,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
   val nodePool = new Pool[OctreeNode]() {
     override protected val initialCapacity: Int        = 16
     override protected val max:             Int        = Int.MaxValue
-    override protected def newObject():     OctreeNode = new OctreeNode()
+    override protected def newObject():     OctreeNode = OctreeNode()
   }
 
   protected val root: OctreeNode = createNode(
@@ -129,7 +121,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
   protected class OctreeNode {
 
     var level: Int = scala.compiletime.uninitialized
-    val bounds = new BoundingBox()
+    val bounds = BoundingBox()
     var leaf:             Boolean                     = scala.compiletime.uninitialized
     private var children: Nullable[Array[OctreeNode]] = Nullable.empty
     private val geometries = DynamicArray[T]()
@@ -265,13 +257,12 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
       }
 
     def rayCast(ray: Ray, result: Octree.RayCastResult[T]): Unit = scala.util.boundary {
-      val tmp = Octree.tmp
-      // Placeholder for ray-bounds intersection since the method is not available
-      val intersect = true // Intersector.intersectRayBounds(ray, bounds, tmp)
+      val tmp       = Octree.tmp
+      val intersect = Intersector.intersectRayBounds(ray, bounds, Nullable(tmp))
       if (!intersect) {
         scala.util.boundary.break(())
       } else {
-        val dst2 = tmp.distanceSq(ray.origin) // Using distanceSq instead of dst2
+        val dst2 = tmp.distanceSq(ray.origin)
         if (dst2 >= result.maxDistanceSq) {
           scala.util.boundary.break(())
         }
@@ -324,7 +315,7 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
 }
 
 object Octree {
-  val tmp = new Vector3()
+  val tmp = Vector3()
 
   /** Interface used by octree to handle geometries' collisions against BoundingBox, Frustum and Ray.
     * @param <T>

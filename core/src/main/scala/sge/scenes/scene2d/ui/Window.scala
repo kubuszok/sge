@@ -31,7 +31,7 @@ import sge.utils.{ Align, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.empty) with Styleable[Window.WindowStyle] {
+class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(Nullable.empty) with Styleable[Window.WindowStyle] {
   import Window._
 
   private var _style:  WindowStyle = scala.compiletime.uninitialized
@@ -50,7 +50,7 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
   setTouchable(Touchable.enabled)
   setClip(true)
 
-  titleLabel = newLabel(title, new LabelStyle(style.titleFont, style.titleFontColor))
+  titleLabel = newLabel(title, LabelStyle(style.titleFont, style.titleFontColor))
   titleLabel.setEllipsis(true)
 
   val self = this
@@ -132,7 +132,7 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
           val minWidth      = getMinWidth
           val minHeight     = getMinHeight
           val stage         = getStage
-          val clampPosition = self.keepWithinStage && stage.fold(false)(s => getParent.fold(false)(_ eq s.getRoot))
+          val clampPosition = self.keepWithinStage && stage.exists(s => getParent.exists(_ eq s.getRoot))
 
           if ((self.edge & MOVE) != 0) {
             val amountX = x - startX
@@ -192,22 +192,20 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     }
   )
 
-  def this(title: String, skin: Skin) = {
+  def this(title: String, skin: Skin)(using Sge) =
     this(title, skin.get(classOf[Window.WindowStyle]))
-  }
 
-  def this(title: String, skin: Skin, styleName: String) = {
+  def this(title: String, skin: Skin, styleName: String)(using Sge) =
     this(title, skin.get(styleName, classOf[Window.WindowStyle]))
-  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
-    new Label(Nullable(text), style)
+    Label(Nullable(text), style)
 
   override def setStyle(style: WindowStyle): Unit = {
     this._style = style
 
     setBackground(Nullable(style.background))
-    titleLabel.setStyle(new LabelStyle(style.titleFont, style.titleFontColor))
+    titleLabel.setStyle(LabelStyle(style.titleFont, style.titleFontColor))
     invalidateHierarchy()
   }
 
@@ -231,7 +229,7 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
           if (getY(Align.bottom) - camera.position.y < -parentHeight / 2 / orthographicCamera.zoom)
             setPosition(getX(Align.bottom), camera.position.y - parentHeight / 2 / orthographicCamera.zoom, Align.bottom)
         case _ =>
-          if (getParent.fold(false)(_ eq stage.getRoot)) {
+          if (getParent.exists(_ eq stage.getRoot)) {
             val parentWidth  = stage.getWidth
             val parentHeight = stage.getHeight
             if (getX < 0) setX(0)
@@ -282,12 +280,12 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
     val hitResult = super.hit(x, y, touchable)
     if (hitResult.isEmpty && isModal && (!touchable || getTouchable == Touchable.enabled)) scala.util.boundary.break(Nullable(this: Actor))
     val height = getHeight
-    if (hitResult.isEmpty || hitResult.fold(false)(_ eq this)) scala.util.boundary.break(hitResult)
+    if (hitResult.isEmpty || hitResult.exists(_ eq this)) scala.util.boundary.break(hitResult)
     if (y <= height && y >= height - getPadTop && x >= 0 && x <= getWidth) {
       // Hit the title bar, don't use the hit child if it is in the Window's table.
       hitResult.foreach { hr =>
         var current: Actor = hr
-        while (!current.getParent.fold(false)(_ eq this))
+        while (!current.getParent.exists(_ eq this))
           current.getParent.foreach { p => current = p }
         if (getCell(current).isDefined) scala.util.boundary.break(Nullable(this: Actor))
       }
@@ -310,8 +308,8 @@ class Window(title: String, style: Window.WindowStyle) extends Table(Nullable.em
 }
 
 object Window {
-  private val tmpPosition: Vector2 = new Vector2()
-  private val tmpSize:     Vector2 = new Vector2()
+  private val tmpPosition: Vector2 = Vector2()
+  private val tmpSize:     Vector2 = Vector2()
   private val MOVE:        Int     = 1 << 5
 
   /** The style for a window, see {@link Window}.
@@ -321,7 +319,7 @@ object Window {
   class WindowStyle() {
     var background:      Drawable           = scala.compiletime.uninitialized
     var titleFont:       BitmapFont         = scala.compiletime.uninitialized
-    var titleFontColor:  Nullable[Color]    = Nullable(new Color(1, 1, 1, 1))
+    var titleFontColor:  Nullable[Color]    = Nullable(Color(1, 1, 1, 1))
     var stageBackground: Nullable[Drawable] = Nullable.empty
 
     def this(titleFont: BitmapFont, titleFontColor: Color, background: Drawable) = {
@@ -334,7 +332,7 @@ object Window {
     def this(style: WindowStyle) = {
       this()
       titleFont = style.titleFont
-      titleFontColor = style.titleFontColor.map(c => new Color(c))
+      titleFontColor = style.titleFontColor.map(c => Color(c))
       background = style.background
       stageBackground = style.stageBackground
     }

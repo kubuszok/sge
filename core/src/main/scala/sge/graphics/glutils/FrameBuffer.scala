@@ -63,7 +63,7 @@ class FrameBuffer(using Sge) extends GLFrameBuffer[Texture] {
     */
   def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean, hasStencil: Boolean)(using Sge) = {
     this()
-    val frameBufferBuilder = new GLFrameBuffer.FrameBufferBuilder(width, height)
+    val frameBufferBuilder = GLFrameBuffer.FrameBufferBuilder(width, height)
     frameBufferBuilder.addBasicColorTextureAttachment(format)
     if (hasDepth) frameBufferBuilder.addBasicDepthRenderBuffer()
     if (hasStencil) frameBufferBuilder.addBasicStencilRenderBuffer()
@@ -73,13 +73,12 @@ class FrameBuffer(using Sge) extends GLFrameBuffer[Texture] {
   }
 
   /** Creates a new FrameBuffer having the given dimensions and potentially a depth buffer attached. */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
     this(format, width, height, hasDepth, false)
-  }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Texture = {
-    val data   = new GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)
-    val result = new Texture(data)
+    val data   = GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)
+    val result = Texture(data)
     // Filtering support for depth textures on WebGL is spotty https://github.com/KhronosGroup/OpenGL-API/issues/84
     val webGLDepth = attachmentSpec.isDepth && Sge().application.getType() == Application.ApplicationType.WebGL
     if (!webGLDepth) {

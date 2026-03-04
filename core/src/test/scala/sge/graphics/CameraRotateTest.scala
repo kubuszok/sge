@@ -14,7 +14,7 @@ class CameraRotateTest extends munit.FunSuite {
   }
 
   private def makeCamera(): OrthographicCamera = {
-    given Sge = SgeTestFixture.testSge
+    given Sge = SgeTestFixture.testSge()
     new OrthographicCamera(100f, 100f)
   }
 

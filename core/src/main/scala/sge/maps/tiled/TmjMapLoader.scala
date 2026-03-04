@@ -36,7 +36,7 @@ import scala.collection.mutable
   */
 class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLoader[BaseTiledMapLoader.Parameters](resolver) {
 
-  def this()(using Sge) = this(new FileHandleResolver.Internal())
+  def this()(using Sge) = this(FileHandleResolver.Internal())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file. The map will
     * be loaded for a y-up coordinate system.
@@ -47,7 +47,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
     *   the TiledMap
     */
   def load(fileName: String): TiledMap =
-    load(fileName, new BaseTiledMapLoader.Parameters())
+    load(fileName, BaseTiledMapLoader.Parameters())
 
   /** Loads the [[TiledMap]] from the given file. The file is resolved via the [[FileHandleResolver]] set in the constructor of this class. By default it will resolve to an internal file.
     *
@@ -67,12 +67,12 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
 
     val textureFiles = getDependencyFileHandles(tmjFile)
     for (textureFile <- textureFiles) {
-      val texture = new Texture(textureFile, parameter.generateMipMaps)
+      val texture = Texture(textureFile, parameter.generateMipMaps)
       texture.setFilter(parameter.textureMinFilter, parameter.textureMagFilter)
       textures.put(textureFile.path(), texture)
     }
 
-    val map            = loadTiledMap(tmjFile, parameter, new ImageResolver.DirectImageResolver(textures))
+    val map            = loadTiledMap(tmjFile, parameter, ImageResolver.DirectImageResolver(textures))
     val ownedResources = DynamicArray[AutoCloseable]()
     textures.values.foreach(t => ownedResources.add(t))
     map.setOwnedResources(ownedResources)
@@ -85,7 +85,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
     tmjFile:   FileHandle,
     parameter: BaseTiledMapLoader.Parameters
   ): Unit =
-    this.map = loadTiledMap(tmjFile, parameter, new ImageResolver.AssetManagerImageResolver(manager))
+    this.map = loadTiledMap(tmjFile, parameter, ImageResolver.AssetManagerImageResolver(manager))
 
   override def loadSync(
     manager:   AssetManager,
@@ -190,7 +190,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
     image:         FileHandle
   ): Unit = {
 
-    val props = tileSet.getProperties
+    val props = tileSet.properties
     if (Nullable(image).isDefined) {
       // One image for the whole tileSet
       val texture = imageResolver.getImage(image.path())
@@ -204,8 +204,8 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
       props.put("spacing", spacing:         java.lang.Integer)
 
       texture.foreach { tex =>
-        val stopWidth  = tex.getRegionWidth() - tilewidth
-        val stopHeight = tex.getRegionHeight() - tileheight
+        val stopWidth  = tex.regionWidth - tilewidth
+        val stopHeight = tex.regionHeight - tileheight
 
         var id = firstgid
 
@@ -213,7 +213,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
         while (y <= stopHeight) {
           var x = margin
           while (x <= stopWidth) {
-            val tileRegion = new TextureRegion(tex, x, y, tilewidth, tileheight)
+            val tileRegion = TextureRegion(tex, x, y, tilewidth, tileheight)
             val tileId     = id
             id += 1
             addStaticTiledMapTile(tileSet, tileRegion, tileId, offsetX.toFloat, offsetY.toFloat)

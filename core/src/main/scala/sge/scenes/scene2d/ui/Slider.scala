@@ -47,13 +47,11 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
     this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[Slider.SliderStyle]))
-  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
     this(min, max, stepSize, vertical, skin.get(styleName, classOf[Slider.SliderStyle]))
-  }
 
   addListener(
     new InputListener() {
@@ -141,7 +139,7 @@ class Slider(
     val value: Float = if (vertical) {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
       val h          = getHeight - bgDrawable.getTopHeight - bgDrawable.getBottomHeight
-      val knobHeight = knob.fold(0f)(_.getMinHeight)
+      val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
       position = y - bgDrawable.getBottomHeight - knobHeight * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (h - knobHeight))
       position = Math.max(Math.min(0, bgDrawable.getBottomHeight), position)
@@ -150,7 +148,7 @@ class Slider(
     } else {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
       val w          = getWidth - bgDrawable.getLeftWidth - bgDrawable.getRightWidth
-      val knobWidth  = knob.fold(0f)(_.getMinWidth)
+      val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
       position = x - bgDrawable.getLeftWidth - knobWidth * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (w - knobWidth))
       position = Math.max(Math.min(0, bgDrawable.getLeftWidth), position)

@@ -78,7 +78,7 @@ object XmlReader {
     }
 
     def hasAttribute(attrName: String): Boolean =
-      attributes.fold(false)(_.containsKey(attrName))
+      attributes.exists(_.containsKey(attrName))
 
     def setAttribute(attrName: String, value: String): Unit = {
       if (attributes.isEmpty) attributes = Nullable(ObjectMap[String, String](8))
@@ -86,7 +86,7 @@ object XmlReader {
     }
 
     def getChildCount: Int =
-      children.fold(0)(_.size)
+      children.map(_.size).getOrElse(0)
 
     def getChildren: Nullable[DynamicArray[Element]] = children
 
@@ -123,7 +123,7 @@ object XmlReader {
 
     /** Returns the first child having the given name or empty, does not recurse. */
     def getChildByName(childName: String): Nullable[Element] =
-      children.fold(Nullable.empty[Element]) { c =>
+      children.flatMap { c =>
         boundary {
           var i = 0
           while (i < c.size) {
@@ -140,7 +140,7 @@ object XmlReader {
 
     /** Returns the first child having the given name or empty, recurses. */
     def getChildByNameRecursive(childName: String): Nullable[Element] =
-      children.fold(Nullable.empty[Element]) { c =>
+      children.flatMap { c =>
         boundary {
           var i = 0
           while (i < c.size) {
@@ -194,21 +194,21 @@ object XmlReader {
       java.lang.Float.parseFloat(getAttribute(attrName))
 
     def getFloatAttribute(attrName: String, defaultValue: Float): Float =
-      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Float.parseFloat(v))
+      getAttribute(attrName, Nullable.empty).map(v => java.lang.Float.parseFloat(v)).getOrElse(defaultValue)
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getIntAttribute(attrName: String): Int =
       java.lang.Integer.parseInt(getAttribute(attrName))
 
     def getIntAttribute(attrName: String, defaultValue: Int): Int =
-      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Integer.parseInt(v))
+      getAttribute(attrName, Nullable.empty).map(v => java.lang.Integer.parseInt(v)).getOrElse(defaultValue)
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getBooleanAttribute(attrName: String): Boolean =
       java.lang.Boolean.parseBoolean(getAttribute(attrName))
 
     def getBooleanAttribute(attrName: String, defaultValue: Boolean): Boolean =
-      getAttribute(attrName, Nullable.empty).fold(defaultValue)(v => java.lang.Boolean.parseBoolean(v))
+      getAttribute(attrName, Nullable.empty).map(v => java.lang.Boolean.parseBoolean(v)).getOrElse(defaultValue)
 
     /** Returns the attribute value with the specified name, or if no attribute is found, the text of a child with the name.
       * @throws SgeError.InvalidInput
@@ -228,22 +228,22 @@ object XmlReader {
     }
 
     def getInt(fieldName: String): Int =
-      get(fieldName, Nullable.empty).fold[Int](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Integer.parseInt(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Integer.parseInt(v)).getOrElse(throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))
 
     def getInt(fieldName: String, defaultValue: Int): Int =
-      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Integer.parseInt(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Integer.parseInt(v)).getOrElse(defaultValue)
 
     def getFloat(fieldName: String): Float =
-      get(fieldName, Nullable.empty).fold[Float](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Float.parseFloat(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Float.parseFloat(v)).getOrElse(throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))
 
     def getFloat(fieldName: String, defaultValue: Float): Float =
-      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Float.parseFloat(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Float.parseFloat(v)).getOrElse(defaultValue)
 
     def getBoolean(fieldName: String): Boolean =
-      get(fieldName, Nullable.empty).fold[Boolean](throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))(v => java.lang.Boolean.parseBoolean(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Boolean.parseBoolean(v)).getOrElse(throw SgeError.InvalidInput("Element " + name + " doesn't have attribute or child: " + fieldName))
 
     def getBoolean(fieldName: String, defaultValue: Boolean): Boolean =
-      get(fieldName, Nullable.empty).fold(defaultValue)(v => java.lang.Boolean.parseBoolean(v))
+      get(fieldName, Nullable.empty).map(v => java.lang.Boolean.parseBoolean(v)).getOrElse(defaultValue)
 
     override def toString(): String = toString("")
 
@@ -261,7 +261,7 @@ object XmlReader {
           buffer.append('"')
         }
       }
-      if (children.isEmpty && _text.fold(true)(_.isEmpty))
+      if (children.isEmpty && _text.forall(_.isEmpty))
         buffer.append("/>")
       else {
         buffer.append(">\n")
@@ -291,10 +291,8 @@ object XmlReader {
   }
 
   /** Converts a scala.xml.Elem to an XmlReader.Element. */
-  private def fromScalaXml(elem: Elem): Element = fromScalaXml(elem, Nullable.empty)
-
-  private def fromScalaXml(node: Elem, parent: Nullable[Element]): Element = {
-    val element = new Element(node.label, parent)
+  private def fromScalaXml(node: Elem, parent: Nullable[Element] = Nullable.empty): Element = {
+    val element = Element(node.label, parent)
     // Attributes
     node.attributes.foreach { attr =>
       element.setAttribute(attr.key, attr.value.text)

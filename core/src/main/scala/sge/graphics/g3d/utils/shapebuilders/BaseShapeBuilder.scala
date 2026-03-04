@@ -4,6 +4,11 @@
  * Original authors: realitix, xoppa
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: Java protected static → Scala protected[shapebuilders]; FlushablePool → Pool.Flushable
+ *   Idiom: Java static class → Scala object
+ *   Audited: 2026-03-04 — pass
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
@@ -23,50 +28,50 @@ import sge.utils.Pool
   */
 object BaseShapeBuilder {
   /* Color */
-  protected[shapebuilders] val tmpColor0: Color = new Color()
-  protected[shapebuilders] val tmpColor1: Color = new Color()
-  protected[shapebuilders] val tmpColor2: Color = new Color()
-  protected[shapebuilders] val tmpColor3: Color = new Color()
-  protected[shapebuilders] val tmpColor4: Color = new Color()
+  protected[shapebuilders] val tmpColor0: Color = Color()
+  protected[shapebuilders] val tmpColor1: Color = Color()
+  protected[shapebuilders] val tmpColor2: Color = Color()
+  protected[shapebuilders] val tmpColor3: Color = Color()
+  protected[shapebuilders] val tmpColor4: Color = Color()
 
   /* Vector3 */
-  protected[shapebuilders] val tmpV0: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV1: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV2: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV3: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV4: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV5: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV6: Vector3 = new Vector3()
-  protected[shapebuilders] val tmpV7: Vector3 = new Vector3()
+  protected[shapebuilders] val tmpV0: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV1: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV2: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV3: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV4: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV5: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV6: Vector3 = Vector3()
+  protected[shapebuilders] val tmpV7: Vector3 = Vector3()
 
   /* VertexInfo */
-  protected[shapebuilders] val vertTmp0: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp1: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp2: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp3: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp4: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp5: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp6: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp7: VertexInfo = new VertexInfo()
-  protected[shapebuilders] val vertTmp8: VertexInfo = new VertexInfo()
+  protected[shapebuilders] val vertTmp0: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp1: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp2: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp3: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp4: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp5: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp6: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp7: VertexInfo = VertexInfo()
+  protected[shapebuilders] val vertTmp8: VertexInfo = VertexInfo()
 
   /* Matrix4 */
-  protected[shapebuilders] val matTmp1: Matrix4 = new Matrix4()
+  protected[shapebuilders] val matTmp1: Matrix4 = Matrix4()
 
   private class FlushableVectorPool extends Pool.Flushable[Vector3] {
     override protected val max:             Int     = Int.MaxValue
     override protected val initialCapacity: Int     = 16
-    override protected def newObject():     Vector3 = new Vector3()
+    override protected def newObject():     Vector3 = Vector3()
   }
 
   private class FlushableMatrixPool extends Pool.Flushable[Matrix4] {
     override protected val max:             Int     = Int.MaxValue
     override protected val initialCapacity: Int     = 16
-    override protected def newObject():     Matrix4 = new Matrix4()
+    override protected def newObject():     Matrix4 = Matrix4()
   }
 
-  private val vectorPool:    FlushableVectorPool = new FlushableVectorPool()
-  private val matrices4Pool: FlushableMatrixPool = new FlushableMatrixPool()
+  private val vectorPool:    FlushableVectorPool = FlushableVectorPool()
+  private val matrices4Pool: FlushableMatrixPool = FlushableMatrixPool()
 
   /** Obtain a temporary {@link Vector3} object, must be free'd using {@link #freeAll()}. */
   protected[shapebuilders] def obtainV3(): Vector3 = vectorPool.obtain()

@@ -7,15 +7,14 @@
  * Migration notes:
  *   Convention: boundary/break for early returns; Nullable for null safety
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: Flat package declaration (package sge.graphics.g2d) -- should be split: package sge / package graphics / package g2d
- *   TODO: direct Color.a mutation for alpha modulation — update when Color becomes immutable
- *   TODO: Java-style getters/setters — getColor/setColor, getFont, getX, getY, getLayouts, getVertices
- *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package g2d)
+ *   Fixes: Java-style getters/setters → Scala property accessors (color, x, y, integerPositions, pageCount, vertices, vertexCount, layouts)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics.g2d
+package sge
+package graphics
+package g2d
 
 import sge.graphics.Color
 import sge.utils.{ DynamicArray, Nullable }
@@ -25,12 +24,12 @@ import scala.util.boundary.break
 
 class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
-  private val layouts       = DynamicArray[GlyphLayout]()
+  private val _layouts      = DynamicArray[GlyphLayout]()
   private val pooledLayouts = DynamicArray[GlyphLayout]()
   private var glyphCount: Int   = 0
-  private var x:          Float = 0f
-  private var y:          Float = 0f
-  private val color = new Color(1, 1, 1, 1)
+  private var _x:         Float = 0f
+  private var _y:         Float = 0f
+  private val _color = Color(1, 1, 1, 1)
   private var currentTint: Float = 0f
 
   // Vertex data per page
@@ -42,26 +41,25 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) = {
-    this(font, font.usesIntegerPositions())
-  }
+  def this(font: BitmapFont) =
+    this(font, font.integer)
 
   // Initialize fields in the primary constructor
-  private val pageCount = font.regions.size
-  if (pageCount == 0) throw new IllegalArgumentException("The specified font must contain at least one texture page.")
+  private val _pageCount = font.regions.size
+  if (_pageCount == 0) throw new IllegalArgumentException("The specified font must contain at least one texture page.")
 
-  pageVertices = Array.ofDim[Float](pageCount, 0)
-  idx = Array.ofDim[Int](pageCount)
-  if (pageCount > 1) {
+  pageVertices = Array.ofDim[Float](_pageCount, 0)
+  idx = Array.ofDim[Int](_pageCount)
+  if (_pageCount > 1) {
     // Contains the indices of the glyph in the cache as they are added.
-    pageGlyphIndices = Array.ofDim[DynamicArray[Int]](pageCount)
-    for (i <- 0 until pageCount)
+    pageGlyphIndices = Array.ofDim[DynamicArray[Int]](_pageCount)
+    for (i <- 0 until _pageCount)
       pageGlyphIndices(i) = DynamicArray[Int]()
   }
-  tempGlyphCount = Array.ofDim[Int](pageCount)
+  tempGlyphCount = Array.ofDim[Int](_pageCount)
 
   def setPosition(x: Float, y: Float): Unit =
-    translate(x - this.x, y - this.y)
+    translate(x - this._x, y - this._y)
 
   def translate(xAmount: Float, yAmount: Float): Unit = boundary {
     if (xAmount == 0 && yAmount == 0) break()
@@ -71,8 +69,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       adjXAmount = Math.round(xAmount).toFloat
       adjYAmount = Math.round(yAmount).toFloat
     }
-    x += adjXAmount
-    y += adjYAmount
+    _x += adjXAmount
+    _y += adjYAmount
 
     val pageVerticesLocal = this.pageVertices
     for (i <- pageVerticesLocal.indices) {
@@ -97,8 +95,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       tempGlyphCountLocal(i) = 0
 
     var i = 0
-    while (i < layouts.size) {
-      val layout = layouts(i)
+    while (i < _layouts.size) {
+      val layout = _layouts(i)
 
       val nextColorGlyphIndex = 0
       var glyphIndex          = 0
@@ -211,31 +209,31 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     }
   }
 
-  def getColor(): Color = color
+  def color: Color = _color
 
-  def setColor(color: Color): Unit =
-    this.color.set(color)
+  def color_=(color: Color): Unit =
+    this._color.set(color)
 
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    color.set(r, g, b, a)
+    _color.set(r, g, b, a)
 
   def draw(spriteBatch: Batch): Unit = {
-    val regions = font.getRegions()
+    val regions = font.regions
     for (j <- pageVertices.indices)
       if (idx(j) > 0) { // ignore if this texture has no glyphs
         val vertices = pageVertices(j)
-        spriteBatch.draw(regions(j).getTexture(), vertices, 0, idx(j))
+        spriteBatch.draw(regions(j).texture, vertices, 0, idx(j))
       }
   }
 
   def draw(spriteBatch: Batch, start: Int, end: Int): Unit = scala.util.boundary {
     if (pageVertices.length == 1) { // 1 page.
-      spriteBatch.draw(font.getRegion().getTexture(), pageVertices(0), start * 20, (end - start) * 20)
+      spriteBatch.draw(font.region.texture, pageVertices(0), start * 20, (end - start) * 20)
       scala.util.boundary.break()
     }
 
     // Determine vertex offset and count to render for each page. Some pages might not need to be rendered at all.
-    val regions = font.getRegions()
+    val regions = font.regions
     for (i <- pageVertices.indices) {
       var offset = -1
       var count  = 0
@@ -261,7 +259,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       if (offset == -1 || count == 0) scala.util.boundary.break()
 
       // Render the page vertex data with the offset and count.
-      spriteBatch.draw(regions(i).getTexture(), pageVertices(i), offset * 20, count * 20)
+      spriteBatch.draw(regions(i).texture, pageVertices(i), offset * 20, count * 20)
     }
   }
 
@@ -270,7 +268,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       draw(spriteBatch)
       scala.util.boundary.break()
     }
-    val color    = getColor()
+    val color    = this.color
     val oldAlpha = color.a
     color.a *= alphaModulation
     setColors(color)
@@ -280,11 +278,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def clear(): Unit = {
-    x = 0
-    y = 0
+    _x = 0
+    _y = 0
     // Pools.freeAll(pooledLayouts, true)
     pooledLayouts.clear()
-    layouts.clear()
+    _layouts.clear()
     for (i <- idx.indices) {
       if (pageGlyphIndices.nonEmpty) pageGlyphIndices(i).clear()
       idx(i) = 0
@@ -368,9 +366,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
     // val layout = Pools.obtain(() => new GlyphLayout)
-    val layout = new GlyphLayout()
+    val layout = GlyphLayout()
     pooledLayouts.add(layout)
-    layout.setText(font, str, start, end, color, targetWidth, halign, wrap, truncate)
+    layout.setText(font, str, start, end, _color, targetWidth, halign, wrap, truncate)
     addText(layout, x, y)
     layout
   }
@@ -385,7 +383,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     // Check if the number of font pages has changed.
     if (pageVertices.length < font.regions.size) setPageCount(font.regions.size)
 
-    layouts.add(layout)
+    _layouts.add(layout)
     requireGlyphs(layout)
 
     val colors              = layout.colors
@@ -496,14 +494,13 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     tempGlyphCount = Array.ofDim[Int](pageCount)
   }
 
-  def getX():                               Float                     = x
-  def getY():                               Float                     = y
-  def getFont():                            BitmapFont                = font
-  def setUseIntegerPositions(use: Boolean): Unit                      = this.integer = use
-  def usesIntegerPositions():               Boolean                   = integer
-  def getPageCount():                       Int                       = pageVertices.length
-  def getVertices():                        Array[Float]              = getVertices(0)
-  def getVertices(page:           Int):     Array[Float]              = pageVertices(page)
-  def getVertexCount(page:        Int):     Int                       = idx(page)
-  def getLayouts():                         DynamicArray[GlyphLayout] = layouts
+  def x:                                Float                     = _x
+  def y:                                Float                     = _y
+  def integerPositions:                 Boolean                   = integer
+  def integerPositions_=(use: Boolean): Unit                      = this.integer = use
+  def pageCount:                        Int                       = pageVertices.length
+  def vertices:                         Array[Float]              = pageVertices(0)
+  def vertices(page:          Int):     Array[Float]              = pageVertices(page)
+  def vertexCount(page:       Int):     Int                       = idx(page)
+  def layouts:                          DynamicArray[GlyphLayout] = _layouts
 }

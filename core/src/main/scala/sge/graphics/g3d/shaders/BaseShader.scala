@@ -114,7 +114,7 @@ abstract class BaseShader extends Shader {
       val input     = uniforms(i)
       val validator = validators(i)
       val setter    = setters(i)
-      if (validator.isDefined && !validator.fold(false)(_.validate(this, i, renderable))) {
+      if (validator.isDefined && !validator.exists(_.validate(this, i, renderable))) {
         locs(i) = -1
       } else {
         locs(i) = program.fetchUniformLocation(input, false)
@@ -200,7 +200,7 @@ abstract class BaseShader extends Shader {
       Nullable(tempArray2.items)
     }
 
-  private val combinedAttributes: Attributes = new Attributes()
+  private val combinedAttributes: Attributes = Attributes()
 
   override def render(renderable: Renderable): Unit = boundary {
     if (renderable.worldTransform.det3x3() == 0) break(())
@@ -217,7 +217,7 @@ abstract class BaseShader extends Shader {
       setters(u).foreach(_.set(this, u, renderable, combinedAttributes))
       i += 1
     }
-    val meshChanged = currentMesh.fold(true)(m => !(m eq renderable.meshPart.mesh))
+    val meshChanged = currentMesh.forall(m => !(m eq renderable.meshPart.mesh))
     if (meshChanged) {
       program.foreach { prog =>
         currentMesh.foreach(_.unbind(prog, tempArray.items, tempArray2.items))
@@ -251,7 +251,7 @@ abstract class BaseShader extends Shader {
 
   /** Whether this Shader instance implements the specified uniform, only valid after a call to init(). */
   final def has(inputID: Int): Boolean =
-    locations.fold(false) { locs =>
+    locations.exists { locs =>
       inputID >= 0 && inputID < locs.length && locs(inputID) >= 0
     }
 
@@ -394,24 +394,21 @@ object BaseShader {
     val overallMask:     Long = 0L
   ) extends Validator {
 
-    def this(alias: String, materialMask: Long, environmentMask: Long) = {
+    def this(alias: String, materialMask: Long, environmentMask: Long) =
       this(alias, materialMask, environmentMask, 0L)
-    }
 
-    def this(alias: String, overallMask: Long) = {
+    def this(alias: String, overallMask: Long) =
       this(alias, 0L, 0L, overallMask)
-    }
 
-    def this(alias: String) = {
+    def this(alias: String) =
       this(alias, 0L, 0L, 0L)
-    }
 
     override def validate(shader: BaseShader, inputID: Int, renderable: Renderable): Boolean = {
       val r        = Nullable(renderable)
       val matFlags =
-        r.fold(0L)(_.material.fold(0L)(_.getMask))
+        r.flatMap(_.material).map(_.getMask).getOrElse(0L)
       val envFlags =
-        r.fold(0L)(_.environment.fold(0L)(_.getMask))
+        r.flatMap(_.environment).map(_.getMask).getOrElse(0L)
       ((matFlags & materialMask) == materialMask) && ((envFlags & environmentMask) == environmentMask) &&
       (((matFlags | envFlags) & overallMask) == overallMask)
     }

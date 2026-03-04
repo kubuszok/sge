@@ -8,9 +8,10 @@
  *   Renames: dispose() -> close(); ObjectSet<Texture> -> MutableSet[Texture]; @Null -> Nullable
  *   Convention: Nullable throughout; using Sge context parameter; MutableMap/MutableSet
  *   Idiom: boundary/break, Nullable, split packages
- *   TODO: Java-style getters/setters — getRegions, getTextures; AtlasSprite: getX/Y, getOriginX/Y, getWidth/Height; AtlasRegion: getRotatedPackedWidth/Height
- *   TODO: test: decode a real .atlas file end-to-end through TextureAtlasData
- *   Audited: 2026-03-03
+ *   Fixes: Java-style getters/setters -> Scala property accessors (regions, textures, rotatedPackedWidth/Height, widthRatio/heightRatio, atlasRegion)
+ *   Fixes: Removed redundant TextureAtlasData.getPages()/getRegions() — pages/regions are public vals
+ *   Issue: test: needs .atlas fixture file to test TextureAtlasData end-to-end
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -34,39 +35,39 @@ import sge.utils.{ Nullable, SgeError, StreamUtils }
   * @author
   *   Nathan Sweet
   */
-class TextureAtlas() extends AutoCloseable {
-  private val textures: MutableSet[Texture]                    = MutableSet.empty[Texture]
-  private val regions:  DynamicArray[TextureAtlas.AtlasRegion] = DynamicArray[TextureAtlas.AtlasRegion]()
+class TextureAtlas()(using Sge) extends AutoCloseable {
+  private val _textures: MutableSet[Texture]                    = MutableSet.empty[Texture]
+  private val _regions:  DynamicArray[TextureAtlas.AtlasRegion] = DynamicArray[TextureAtlas.AtlasRegion]()
 
   /** Loads the specified pack file using FileType.Internal, using the parent directory of the pack file to find the page images.
     */
   def this(internalPackFile: String)(using Sge) = {
     this()
     val packFile = Sge().files.internal(internalPackFile)
-    load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
+    load(TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
   }
 
   /** Loads the specified pack file, using the parent directory of the pack file to find the page images. */
   def this(packFile: FileHandle)(using Sge) = {
     this()
-    load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
+    load(TextureAtlas.TextureAtlasData(packFile, packFile.parent(), false))
   }
 
   /** @param flip If true, all regions loaded will be flipped for use with a perspective where 0,0 is the upper left corner. */
   def this(packFile: FileHandle, flip: Boolean)(using Sge) = {
     this()
-    load(new TextureAtlas.TextureAtlasData(packFile, packFile.parent(), flip))
+    load(TextureAtlas.TextureAtlasData(packFile, packFile.parent(), flip))
   }
 
   def this(packFile: FileHandle, imagesDir: FileHandle)(using Sge) = {
     this()
-    load(new TextureAtlas.TextureAtlasData(packFile, imagesDir, false))
+    load(TextureAtlas.TextureAtlasData(packFile, imagesDir, false))
   }
 
   /** @param flip If true, all regions loaded will be flipped for use with a perspective where 0,0 is the upper left corner. */
   def this(packFile: FileHandle, imagesDir: FileHandle, flip: Boolean)(using Sge) = {
     this()
-    load(new TextureAtlas.TextureAtlasData(packFile, imagesDir, flip))
+    load(TextureAtlas.TextureAtlasData(packFile, imagesDir, flip))
   }
 
   def this(data: TextureAtlas.TextureAtlasData)(using Sge) = {
@@ -75,22 +76,22 @@ class TextureAtlas() extends AutoCloseable {
   }
 
   /** Adds the textures and regions from the specified texture atlas data. */
-  def load(data: TextureAtlas.TextureAtlasData)(using Sge): Unit = {
+  def load(data: TextureAtlas.TextureAtlasData): Unit = {
     for (page <- data.pages) {
       if (page.texture.isEmpty) {
         page.texture = Nullable(
-          new Texture(page.textureFile.getOrElse(throw SgeError.GraphicsError("Page has no texture file")), page.format, page.useMipMaps)
+          Texture(page.textureFile.getOrElse(throw SgeError.GraphicsError("Page has no texture file")), page.format, page.useMipMaps)
         )
       }
       page.texture.foreach { tex =>
         tex.setFilter(page.minFilter, page.magFilter)
         tex.setWrap(page.uWrap, page.vWrap)
-        textures.addOne(tex)
+        _textures.addOne(tex)
       }
     }
 
     for (region <- data.regions) {
-      val atlasRegion = new TextureAtlas.AtlasRegion(
+      val atlasRegion = TextureAtlas.AtlasRegion(
         region.page.texture.getOrElse(throw SgeError.GraphicsError("Region page has no texture")),
         region.left,
         region.top,
@@ -108,61 +109,61 @@ class TextureAtlas() extends AutoCloseable {
       atlasRegion.names = region.names
       atlasRegion.values = region.values
       if (region.flip) atlasRegion.flip(false, true)
-      regions.add(atlasRegion)
+      _regions.add(atlasRegion)
     }
   }
 
   /** Adds a region to the atlas. The specified texture will be disposed when the atlas is disposed. */
   def addRegion(name: String, texture: Texture, x: Int, y: Int, width: Int, height: Int): TextureAtlas.AtlasRegion = {
-    textures.addOne(texture)
-    val region = new TextureAtlas.AtlasRegion(texture, x, y, width, height)
+    _textures.addOne(texture)
+    val region = TextureAtlas.AtlasRegion(texture, x, y, width, height)
     region.name = name
-    regions.add(region)
+    _regions.add(region)
     region
   }
 
   /** Adds a region to the atlas. The texture for the specified region will be disposed when the atlas is disposed. */
   def addRegion(name: String, textureRegion: TextureRegion): TextureAtlas.AtlasRegion = {
-    textures.addOne(textureRegion.texture)
-    val region = new TextureAtlas.AtlasRegion(textureRegion)
+    _textures.addOne(textureRegion.texture)
+    val region = TextureAtlas.AtlasRegion(textureRegion)
     region.name = name
-    regions.add(region)
+    _regions.add(region)
     region
   }
 
   /** Returns all regions in the atlas. */
-  def getRegions(): Array[TextureAtlas.AtlasRegion] =
-    regions.toArray
+  def regions: Array[TextureAtlas.AtlasRegion] =
+    _regions.toArray
 
   /** Returns the first region found with the specified name. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple times.
     */
   def findRegion(name: String): Nullable[TextureAtlas.AtlasRegion] =
-    Nullable.fromOption(regions.iterator.find(_.name == name))
+    Nullable.fromOption(_regions.iterator.find(_.name == name))
 
   /** Returns the first region found with the specified name and index. This method uses string comparison to find the region, so the result should be cached rather than calling this method multiple
     * times.
     */
   def findRegion(name: String, index: Int): Nullable[TextureAtlas.AtlasRegion] =
-    Nullable.fromOption(regions.iterator.find(r => r.name == name && r.index == index))
+    Nullable.fromOption(_regions.iterator.find(r => r.name == name && r.index == index))
 
   /** Returns all regions with the specified name, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions, so the result should be
     * cached rather than calling this method multiple times.
     */
   def findRegions(name: String): Array[TextureAtlas.AtlasRegion] =
-    regions.iterator.filter(_.name == name).map(r => new TextureAtlas.AtlasRegion(r)).toArray
+    _regions.iterator.filter(_.name == name).map(r => TextureAtlas.AtlasRegion(r)).toArray
 
   /** Returns all regions in the atlas as sprites. This method creates a new sprite for each region, so the result should be stored rather than calling this method multiple times.
     * @see
     *   #createSprite(String)
     */
   def createSprites(): Array[Sprite] =
-    regions.iterator.map(newSprite).toArray
+    _regions.iterator.map(newSprite).toArray
 
   /** Returns the first region found with the specified name as a sprite. If whitespace was stripped from the region when it was packed, the sprite is automatically positioned as if whitespace had not
     * been stripped. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached rather than calling this method multiple times.
     */
   def createSprite(name: String): Nullable[Sprite] =
-    Nullable.fromOption(regions.iterator.find(_.name == name).map(newSprite))
+    Nullable.fromOption(_regions.iterator.find(_.name == name).map(newSprite))
 
   /** Returns the first region found with the specified name and index as a sprite. This method uses string comparison to find the region and constructs a new sprite, so the result should be cached
     * rather than calling this method multiple times.
@@ -170,7 +171,7 @@ class TextureAtlas() extends AutoCloseable {
     *   #createSprite(String)
     */
   def createSprite(name: String, index: Int): Nullable[Sprite] =
-    Nullable.fromOption(regions.iterator.find(r => r.name == name && r.index == index).map(newSprite))
+    Nullable.fromOption(_regions.iterator.find(r => r.name == name && r.index == index).map(newSprite))
 
   /** Returns all regions with the specified name as sprites, ordered by smallest to largest {@link AtlasRegion#index index} . This method uses string comparison to find the regions and constructs new
     * sprites, so the result should be cached rather than calling this method multiple times.
@@ -178,20 +179,20 @@ class TextureAtlas() extends AutoCloseable {
     *   #createSprite(String)
     */
   def createSprites(name: String): Array[Sprite] =
-    regions.iterator.filter(_.name == name).map(newSprite).toArray
+    _regions.iterator.filter(_.name == name).map(newSprite).toArray
 
   private def newSprite(region: TextureAtlas.AtlasRegion): Sprite =
     if (region.packedWidth == region.originalWidth && region.packedHeight == region.originalHeight) {
       if (region.rotate) {
-        val sprite = new Sprite(region)
-        sprite.setBounds(0, 0, region.getRegionHeight().toFloat, region.getRegionWidth().toFloat)
+        val sprite = Sprite(region)
+        sprite.setBounds(0, 0, region.regionHeight.toFloat, region.regionWidth.toFloat)
         sprite.rotate90(true)
         sprite
       } else {
-        new Sprite(region)
+        Sprite(region)
       }
     } else {
-      new TextureAtlas.AtlasSprite(region)
+      TextureAtlas.AtlasSprite(region)
     }
 
   /** Returns the first region found with the specified name as a {@link NinePatch} . The region must have been packed with ninepatch splits. This method uses string comparison to find the region and
@@ -199,11 +200,11 @@ class TextureAtlas() extends AutoCloseable {
     */
   def createPatch(name: String): Nullable[NinePatch] =
     Nullable.fromOption(
-      regions.iterator.find(_.name == name).flatMap { region =>
+      _regions.iterator.find(_.name == name).flatMap { region =>
         val splits = region.findValue("split")
         if (splits.isEmpty) throw new IllegalArgumentException("Region does not have ninepatch splits: " + name)
         val s     = splits.getOrElse(throw new IllegalArgumentException("Region does not have ninepatch splits: " + name))
-        val patch = new NinePatch(region, s(0), s(1), s(2), s(3))
+        val patch = NinePatch(region, s(0), s(1), s(2), s(3))
         region.findValue("pad").foreach { p =>
           patch.setPadding(p(0).toFloat, p(1).toFloat, p(2).toFloat, p(3).toFloat)
         }
@@ -212,14 +213,14 @@ class TextureAtlas() extends AutoCloseable {
     )
 
   /** @return the textures of the pages, unordered */
-  def getTextures(): MutableSet[Texture] =
-    textures
+  def textures: MutableSet[Texture] =
+    _textures
 
   /** Releases all resources associated with this TextureAtlas instance. This releases all the textures backing all TextureRegions and Sprites, which should no longer be used after calling dispose.
     */
   override def close(): Unit = {
-    textures.foreach(_.close()) // AutoCloseable instead of Disposable
-    textures.clear()
+    _textures.foreach(_.close()) // AutoCloseable instead of Disposable
+    _textures.clear()
   }
 }
 
@@ -372,7 +373,7 @@ object TextureAtlas {
         // Header entries.
         boundary {
           while (true) {
-            if (line.fold(true)(_.trim().length == 0)) boundary.break()
+            if (line.forall(_.trim().length == 0)) boundary.break()
             if (readEntry(entry, line.getOrElse("")) == 0) boundary.break() // Silently ignore all header fields.
             line = Nullable(reader.readLine())
           }
@@ -388,7 +389,7 @@ object TextureAtlas {
               page = Nullable.empty
               line = Nullable(reader.readLine())
             } else if (page.isEmpty) {
-              val p = new Page()
+              val p = Page()
               p.name = line.getOrElse("")
               p.textureFile = Nullable(imagesDir.child(line.getOrElse("")))
               boundary {
@@ -401,7 +402,7 @@ object TextureAtlas {
               pages.add(p)
               page = Nullable(p)
             } else {
-              val region = new Region()
+              val region = Region()
               region.page = page.getOrElse(throw SgeError.GraphicsError("Region has no page"))
               region.name = line.getOrElse("").trim()
               if (flip) region.flip = true
@@ -447,7 +448,7 @@ object TextureAtlas {
         }
       } catch {
         case ex: Exception =>
-          throw SgeError.FileReadError(packFile, "Error reading texture atlas file: " + packFile + line.fold("")(l => "\nLine: " + l), Some(ex))
+          throw SgeError.FileReadError(packFile, "Error reading texture atlas file: " + packFile + line.map(l => "\nLine: " + l).getOrElse(""), Some(ex))
       } finally
         StreamUtils.closeQuietly(reader)
 
@@ -461,12 +462,6 @@ object TextureAtlas {
         )
       }
     }
-
-    def getPages(): Array[Page] =
-      pages.toArray
-
-    def getRegions(): Array[Region] =
-      regions.toArray
 
     private def readEntry(entry: Array[String], line: String): Int =
       boundary {
@@ -622,26 +617,26 @@ object TextureAtlas {
     def this(region: TextureRegion) = {
       this()
       setRegion(region)
-      packedWidth = region.getRegionWidth()
-      packedHeight = region.getRegionHeight()
+      packedWidth = region.regionWidth
+      packedHeight = region.regionHeight
       originalWidth = packedWidth
       originalHeight = packedHeight
     }
 
     override def flip(x: Boolean, y: Boolean): Unit = {
       super.flip(x, y)
-      if (x) offsetX = originalWidth - offsetX - getRotatedPackedWidth()
-      if (y) offsetY = originalHeight - offsetY - getRotatedPackedHeight()
+      if (x) offsetX = originalWidth - offsetX - rotatedPackedWidth
+      if (y) offsetY = originalHeight - offsetY - rotatedPackedHeight
     }
 
     /** Returns the packed width considering the {@link #rotate} value, if it is true then it returns the packedHeight, otherwise it returns the packedWidth.
       */
-    def getRotatedPackedWidth(): Float =
+    def rotatedPackedWidth: Float =
       if (rotate) packedHeight.toFloat else packedWidth.toFloat
 
     /** Returns the packed height considering the {@link #rotate} value, if it is true then it returns the packedWidth, otherwise it returns the packedHeight.
       */
-    def getRotatedPackedHeight(): Float =
+    def rotatedPackedHeight: Float =
       if (rotate) packedWidth.toFloat else packedHeight.toFloat
 
     def findValue(name: String): Nullable[Array[Int]] =
@@ -664,11 +659,11 @@ object TextureAtlas {
     private var originalOffsetX: Float = region.offsetX
     private var originalOffsetY: Float = region.offsetY
 
-    this.region = new AtlasRegion(region)
+    this.region = AtlasRegion(region)
     setRegion(region)
     setOrigin(region.originalWidth / 2f, region.originalHeight / 2f)
-    val w = region.getRegionWidth()
-    val h = region.getRegionHeight()
+    val w = region.regionWidth
+    val h = region.regionHeight
     if (region.rotate) {
       super.rotate90(true)
       super.setBounds(region.offsetX, region.offsetY, h.toFloat, w.toFloat)
@@ -686,11 +681,11 @@ object TextureAtlas {
     override def setPosition(x: Float, y: Float): Unit =
       super.setPosition(x + region.offsetX, y + region.offsetY)
 
-    override def setX(x: Float): Unit =
-      super.setX(x + region.offsetX)
+    override def x_=(x: Float): Unit =
+      super.x_=(x + region.offsetX)
 
-    override def setY(y: Float): Unit =
-      super.setY(y + region.offsetY)
+    override def y_=(y: Float): Unit =
+      super.y_=(y + region.offsetY)
 
     override def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
       val widthRatio  = width / region.originalWidth
@@ -703,13 +698,13 @@ object TextureAtlas {
     }
 
     override def setSize(width: Float, height: Float): Unit =
-      setBounds(getX(), getY(), width, height)
+      setBounds(x, y, width, height)
 
     override def setOrigin(originX: Float, originY: Float): Unit =
       super.setOrigin(originX - region.offsetX, originY - region.offsetY)
 
     override def setOriginCenter(): Unit =
-      super.setOrigin(getWidth() / 2 - region.offsetX, getHeight() / 2 - region.offsetY)
+      super.setOrigin(width / 2 - region.offsetX, height / 2 - region.offsetY)
 
     override def flip(x: Boolean, y: Boolean): Unit = {
       // Flip texture.
@@ -718,21 +713,21 @@ object TextureAtlas {
       else
         super.flip(x, y)
 
-      val oldOriginX = getOriginX()
-      val oldOriginY = getOriginY()
+      val oldOriginX = originX
+      val oldOriginY = originY
       val oldOffsetX = region.offsetX
       val oldOffsetY = region.offsetY
 
-      val widthRatio  = getWidthRatio()
-      val heightRatio = getHeightRatio()
+      val wr = this.widthRatio
+      val hr = this.heightRatio
 
       region.offsetX = originalOffsetX
       region.offsetY = originalOffsetY
       region.flip(x, y) // Updates x and y offsets.
       originalOffsetX = region.offsetX
       originalOffsetY = region.offsetY
-      region.offsetX *= widthRatio
-      region.offsetY *= heightRatio
+      region.offsetX *= wr
+      region.offsetY *= hr
 
       // Update position and origin with new offsets.
       translate(region.offsetX - oldOffsetX, region.offsetY - oldOffsetY)
@@ -743,19 +738,19 @@ object TextureAtlas {
       // Rotate texture.
       super.rotate90(clockwise)
 
-      val oldOriginX = getOriginX()
-      val oldOriginY = getOriginY()
+      val oldOriginX = originX
+      val oldOriginY = originY
       val oldOffsetX = region.offsetX
       val oldOffsetY = region.offsetY
 
-      val widthRatio  = getWidthRatio()
-      val heightRatio = getHeightRatio()
+      val wr = this.widthRatio
+      val hr = this.heightRatio
 
       if (clockwise) {
         region.offsetX = oldOffsetY
-        region.offsetY = region.originalHeight * heightRatio - oldOffsetX - region.packedWidth * widthRatio
+        region.offsetY = region.originalHeight * hr - oldOffsetX - region.packedWidth * wr
       } else {
-        region.offsetX = region.originalWidth * widthRatio - oldOffsetY - region.packedHeight * heightRatio
+        region.offsetX = region.originalWidth * wr - oldOffsetY - region.packedHeight * hr
         region.offsetY = oldOffsetX
       }
 
@@ -764,31 +759,31 @@ object TextureAtlas {
       setOrigin(oldOriginX, oldOriginY)
     }
 
-    override def getX(): Float =
-      super.getX() - region.offsetX
+    override def x: Float =
+      super.x - region.offsetX
 
-    override def getY(): Float =
-      super.getY() - region.offsetY
+    override def y: Float =
+      super.y - region.offsetY
 
-    override def getOriginX(): Float =
-      super.getOriginX() + region.offsetX
+    override def originX: Float =
+      super.originX + region.offsetX
 
-    override def getOriginY(): Float =
-      super.getOriginY() + region.offsetY
+    override def originY: Float =
+      super.originY + region.offsetY
 
-    override def getWidth(): Float =
-      super.getWidth() / region.getRotatedPackedWidth() * region.originalWidth
+    override def width: Float =
+      super.width / region.rotatedPackedWidth * region.originalWidth
 
-    override def getHeight(): Float =
-      super.getHeight() / region.getRotatedPackedHeight() * region.originalHeight
+    override def height: Float =
+      super.height / region.rotatedPackedHeight * region.originalHeight
 
-    def getWidthRatio(): Float =
-      super.getWidth() / region.getRotatedPackedWidth()
+    def widthRatio: Float =
+      super.width / region.rotatedPackedWidth
 
-    def getHeightRatio(): Float =
-      super.getHeight() / region.getRotatedPackedHeight()
+    def heightRatio: Float =
+      super.height / region.rotatedPackedHeight
 
-    def getAtlasRegion(): AtlasRegion =
+    def atlasRegion: AtlasRegion =
       region
 
     override def toString(): String =

@@ -26,9 +26,12 @@
  * - null fields → Nullable wrapping; static putVertex methods → private instance methods
  * - Constructor chain: Java 4 constructors → Scala primary + 3 secondary; (using Sge) added
  * - load(): Java inline null check + cast; Scala nested foreach for Nullable safety
- * - All public methods faithfully ported: setTexture, getTexture, getBlendingAttribute,
- *   setAlignMode, getAlignMode, setUseGpu, isUseGPU, setVertexData, flush,
+ * - All public methods faithfully ported: texture (property), blendingAttribute,
+ *   alignMode (property), useGPU (property), setVertexData, flush,
  *   getRenderables, save, load, allocParticlesData, allocRenderable, begin
+ * - Fixes (2026-03-04): setAlignMode/getAlignMode → alignMode/alignMode_=;
+ *   setUseGpu/isUseGPU → useGPU/useGPU_=; setTexture/getTexture → texture/texture_=;
+ *   getBlendingAttribute → blendingAttribute; renamed backing field texture → _texture
  * - Audit: pass (2026-03-03)
  */
 package sge
@@ -66,17 +69,17 @@ import sge.utils.Pool
   *   Inferno
   */
 class BillboardParticleBatch(
-  mode:               BillboardParticleBatch.AlignMode,
-  useGPU:             Boolean,
-  capacity:           Int,
-  blendingAttribute:  Nullable[BlendingAttribute],
-  depthTestAttribute: Nullable[DepthTestAttribute]
+  mode:                BillboardParticleBatch.AlignMode,
+  initialUseGPU:       Boolean,
+  capacity:            Int,
+  initialBlendingAttr: Nullable[BlendingAttribute],
+  depthTestAttribute:  Nullable[DepthTestAttribute]
 )(using Sge)
     extends BufferedParticleBatch[BillboardControllerRenderData] {
 
   import BillboardParticleBatch.*
 
-  private val renderablePool:       RenderablePool                   = new RenderablePool(this)
+  private val renderablePool:       RenderablePool                   = RenderablePool(this)
   private val renderables:          DynamicArray[Renderable]         = DynamicArray[Renderable]()
   private var vertices:             Array[Float]                     = scala.compiletime.uninitialized
   private var indices:              Array[Short]                     = scala.compiletime.uninitialized
@@ -84,18 +87,18 @@ class BillboardParticleBatch(
   private var currentAttributes:    VertexAttributes                 = scala.compiletime.uninitialized
   protected var _useGPU:            Boolean                          = false
   protected var _mode:              BillboardParticleBatch.AlignMode = BillboardParticleBatch.AlignMode.Screen
-  protected var texture:            Texture                          = scala.compiletime.uninitialized
+  protected var _texture:           Texture                          = scala.compiletime.uninitialized
   protected var _blendingAttribute: BlendingAttribute                =
-    blendingAttribute.getOrElse(new BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f))
+    initialBlendingAttr.getOrElse(BlendingAttribute(GL20.GL_ONE, GL20.GL_ONE_MINUS_SRC_ALPHA, 1f))
   protected var _depthTestAttribute: DepthTestAttribute =
-    depthTestAttribute.getOrElse(new DepthTestAttribute(GL20.GL_LEQUAL, false))
+    depthTestAttribute.getOrElse(DepthTestAttribute(GL20.GL_LEQUAL, false))
   var shader: Nullable[Shader] = Nullable.empty
 
   allocIndices()
   initRenderData()
   ensureCapacity(capacity)
-  setUseGpu(useGPU)
-  setAlignMode(mode)
+  this.useGPU = initialUseGPU
+  this.alignMode = mode
 
   /** Create a new BillboardParticleBatch
     * @param mode
@@ -108,17 +111,14 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, useGPU: Boolean, capacity: Int)(using Sge) = {
-    this(mode, useGPU, capacity, Nullable.empty, Nullable.empty)
-  }
+  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) =
+    this(mode, initialUseGPU, capacity, Nullable.empty, Nullable.empty)
 
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
-  }
 
-  def this(capacity: Int)(using Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
-  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)
@@ -126,11 +126,11 @@ class BillboardParticleBatch(
   }
 
   protected def allocRenderable(): Renderable = {
-    val renderable = new Renderable()
+    val renderable = Renderable()
     renderable.meshPart.primitiveType = GL20.GL_TRIANGLES
     renderable.meshPart.offset = 0
-    renderable.material = Nullable(new Material(_blendingAttribute, _depthTestAttribute, TextureAttribute.createDiffuse(texture)))
-    renderable.meshPart.mesh = new Mesh(false, MAX_VERTICES_PER_MESH, MAX_PARTICLES_PER_MESH * 6, currentAttributes)
+    renderable.material = Nullable(Material(_blendingAttribute, _depthTestAttribute, TextureAttribute.createDiffuse(_texture)))
+    renderable.meshPart.mesh = Mesh(false, MAX_VERTICES_PER_MESH, MAX_PARTICLES_PER_MESH * 6, currentAttributes)
     renderable.meshPart.mesh.setIndices(indices)
     renderable.shader = shader
     renderable
@@ -169,7 +169,7 @@ class BillboardParticleBatch(
 
   protected def getShader(renderable: Renderable): Shader = {
     // ParticleShader is not yet ported; use DefaultShader for now
-    val s: Shader = new DefaultShader(renderable)
+    val s: Shader = DefaultShader(renderable)
     s.init()
     s
   }
@@ -217,8 +217,10 @@ class BillboardParticleBatch(
     resetCapacity()
   }
 
-  /** Sets the current align mode. It will reallocate internal data, use only when necessary. */
-  def setAlignMode(mode: BillboardParticleBatch.AlignMode): Unit =
+  /** The current align mode. Setting will reallocate internal data, use only when necessary. */
+  def alignMode: BillboardParticleBatch.AlignMode = _mode
+
+  def alignMode_=(mode: BillboardParticleBatch.AlignMode): Unit =
     if (mode != this._mode) {
       this._mode = mode
       if (_useGPU) {
@@ -227,21 +229,19 @@ class BillboardParticleBatch(
       }
     }
 
-  def getAlignMode(): BillboardParticleBatch.AlignMode =
-    _mode
+  /** Whether to use GPU. Setting will reallocate internal data, use only when necessary. */
+  def useGPU: Boolean = _useGPU
 
-  /** Sets the current align mode. It will reallocate internal data, use only when necessary. */
-  def setUseGpu(useGPU: Boolean): Unit =
+  def useGPU_=(useGPU: Boolean): Unit =
     if (this._useGPU != useGPU) {
       this._useGPU = useGPU
       initRenderData()
       allocRenderables(bufferedParticlesCount)
     }
 
-  def isUseGPU(): Boolean =
-    _useGPU
+  def texture: Texture = _texture
 
-  def setTexture(texture: Texture): Unit = {
+  def texture_=(texture: Texture): Unit = {
     renderables.foreach(renderablePool.free)
     renderables.clear()
     var i    = 0
@@ -255,13 +255,10 @@ class BillboardParticleBatch(
       }
       i += 1
     }
-    this.texture = texture
+    this._texture = texture
   }
 
-  def getTexture(): Texture =
-    texture
-
-  def getBlendingAttribute(): BlendingAttribute =
+  def blendingAttribute: BlendingAttribute =
     _blendingAttribute
 
   override def begin(): Unit = {
@@ -705,19 +702,19 @@ class BillboardParticleBatch(
 
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("billboardBatch")
-    data.save("cfg", new BillboardParticleBatch.Config(_useGPU, _mode))
-    data.saveAsset(manager.getAssetFileName(texture).getOrElse(""), classOf[Texture])
+    data.save("cfg", BillboardParticleBatch.Config(_useGPU, _mode))
+    data.saveAsset(manager.assetFileName(_texture).getOrElse(""), classOf[Texture])
   }
 
   override def load(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.getSaveData("billboardBatch")
     data.foreach { d =>
       d.loadAsset().foreach { asset =>
-        setTexture(manager.get(asset.fileName, asset.`type`).asInstanceOf[Texture])
+        this.texture = manager(asset.fileName, asset.`type`).asInstanceOf[Texture]
       }
       d.load[BillboardParticleBatch.Config]("cfg").foreach { cfg =>
-        setUseGpu(cfg.useGPU)
-        setAlignMode(cfg.mode)
+        this.useGPU = cfg.useGPU
+        this.alignMode = cfg.mode
       }
     }
   }
@@ -725,23 +722,23 @@ class BillboardParticleBatch(
 
 object BillboardParticleBatch {
 
-  protected val TMP_V1: Vector3 = new Vector3()
-  protected val TMP_V2: Vector3 = new Vector3()
-  protected val TMP_V3: Vector3 = new Vector3()
-  protected val TMP_V4: Vector3 = new Vector3()
-  protected val TMP_V5: Vector3 = new Vector3()
-  protected val TMP_V6: Vector3 = new Vector3()
-  protected val TMP_M3: Matrix3 = new Matrix3()
+  protected val TMP_V1: Vector3 = Vector3()
+  protected val TMP_V2: Vector3 = Vector3()
+  protected val TMP_V3: Vector3 = Vector3()
+  protected val TMP_V4: Vector3 = Vector3()
+  protected val TMP_V5: Vector3 = Vector3()
+  protected val TMP_V6: Vector3 = Vector3()
+  protected val TMP_M3: Matrix3 = Matrix3()
 
   // Attributes
   protected val sizeAndRotationUsage: Int = 1 << 9
   protected val directionUsage:       Int = 1 << 10
 
-  private val GPU_ATTRIBUTES: VertexAttributes = new VertexAttributes(
-    new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
-    new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
-    new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
-    new VertexAttribute(sizeAndRotationUsage, 4, "a_sizeAndRotation")
+  private val GPU_ATTRIBUTES: VertexAttributes = VertexAttributes(
+    VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
+    VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
+    VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE),
+    VertexAttribute(sizeAndRotationUsage, 4, "a_sizeAndRotation")
   )
   /*
    * GPU_EXT_ATTRIBUTES = new VertexAttributes(new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE), new
@@ -749,10 +746,10 @@ object BillboardParticleBatch {
    * ShaderProgram.COLOR_ATTRIBUTE), new VertexAttribute(sizeAndRotationUsage, 4, "a_sizeAndRotation"), new
    * VertexAttribute(directionUsage, 3, "a_direction")),
    */
-  private val CPU_ATTRIBUTES: VertexAttributes = new VertexAttributes(
-    new VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
-    new VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
-    new VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE)
+  private val CPU_ATTRIBUTES: VertexAttributes = VertexAttributes(
+    VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE),
+    VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + "0"),
+    VertexAttribute(Usage.ColorUnpacked, 4, ShaderProgram.COLOR_ATTRIBUTE)
   )
 
   // Offsets

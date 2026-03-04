@@ -7,11 +7,10 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - INCOMPLETE: ScrollPane and Timer not yet ported
- * - Constructor, drag, dragStop, isAbove, isBelow, scroll methods all commented out
- * - Only setup, getScrollPixels, setPadding, and field declarations are active
  * - Static tmpCoords -> companion object val
+ * - Timer.Task and Timer.schedule require (using Sge)
  * - TODO: Java-style getters/setters — setPadding
+ * - Audited: 2026-03-04
  */
 package sge
 package scenes
@@ -19,9 +18,9 @@ package scene2d
 package utils
 
 import sge.math.{ Interpolation, Vector2 }
-
-// TODO: uncomment when ScrollPane is ported
-// import sge.scenes.scene2d.ui.ScrollPane
+import sge.scenes.scene2d.InputEvent
+import sge.scenes.scene2d.ui.ScrollPane
+import sge.utils.Timer
 
 /** Causes a scroll pane to scroll when a drag goes outside the bounds of the scroll pane. Attach the listener to the actor which will cause scrolling when dragged, usually the scroll pane or the
   * scroll pane's actor. <p> If {@link ScrollPane#setFlickScroll(boolean)} is true, the scroll pane must have {@link ScrollPane#setCancelTouchFocus(boolean)} false. When a drag starts that should drag
@@ -30,12 +29,9 @@ import sge.math.{ Interpolation, Vector2 }
   * @author
   *   Nathan Sweet
   */
-// TODO: uncomment when ScrollPane is ported
-// class DragScrollListener(scroll: ScrollPane) extends DragListener {
-class DragScrollListener extends DragListener {
+class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
+  import DragScrollListener._
 
-  // TODO: uncomment when ScrollPane is ported
-  // private var scroll: ScrollPane = _
   var interpolation: Interpolation = Interpolation.exp5In
   var minSpeed:      Float         = 15
   var maxSpeed:      Float         = 75
@@ -45,21 +41,15 @@ class DragScrollListener extends DragListener {
   var padTop:        Float         = 0
   var padBottom:     Float         = 0
 
-  // TODO: uncomment when ScrollPane is ported
-  // def this(scroll: ScrollPane) = {
-  //   this()
-  //   this.scroll = scroll
-  //   scrollUp = new Timer.Task {
-  //     override def run(): Unit = {
-  //       scroll(scroll.getScrollY - getScrollPixels)
-  //     }
-  //   }
-  //   scrollDown = new Timer.Task {
-  //     override def run(): Unit = {
-  //       scroll(scroll.getScrollY + getScrollPixels)
-  //     }
-  //   }
-  // }
+  private val scrollUp: Timer.Task = new Timer.Task {
+    override def run(): Unit =
+      scroll(scroll.getScrollY - getScrollPixels)
+  }
+
+  private val scrollDown: Timer.Task = new Timer.Task {
+    override def run(): Unit =
+      scroll(scroll.getScrollY + getScrollPixels)
+  }
 
   def setup(minSpeedPixels: Float, maxSpeedPixels: Float, tickSecs: Float, rampSecs: Float): Unit = {
     this.minSpeed = minSpeedPixels
@@ -71,43 +61,39 @@ class DragScrollListener extends DragListener {
   def getScrollPixels: Float =
     interpolation.apply(minSpeed, maxSpeed, Math.min(1f, (System.currentTimeMillis() - startTime) / rampTime.toFloat))
 
-  // TODO: uncomment when ScrollPane is ported
-  // override def drag(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-  //   event.getListenerActor.localToActorCoordinates(scroll, tmpCoords.set(x, y))
-  //   if (isAbove(tmpCoords.y)) {
-  //     scrollDown.cancel()
-  //     if (!scrollUp.isScheduled) {
-  //       startTime = System.currentTimeMillis()
-  //       Timer.schedule(scrollUp, tickSecs, tickSecs)
-  //     }
-  //   } else if (isBelow(tmpCoords.y)) {
-  //     scrollUp.cancel()
-  //     if (!scrollDown.isScheduled) {
-  //       startTime = System.currentTimeMillis()
-  //       Timer.schedule(scrollDown, tickSecs, tickSecs)
-  //     }
-  //   } else {
-  //     scrollUp.cancel()
-  //     scrollDown.cancel()
-  //   }
-  // }
-  //
-  // override def dragStop(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-  //   scrollUp.cancel()
-  //   scrollDown.cancel()
-  // }
-  //
-  // protected def isAbove(y: Float): Boolean = {
-  //   y >= scroll.getHeight - padTop
-  // }
-  //
-  // protected def isBelow(y: Float): Boolean = {
-  //   y < padBottom
-  // }
-  //
-  // protected def scroll(y: Float): Unit = {
-  //   scroll.setScrollY(y)
-  // }
+  override def drag(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
+    event.getListenerActor.localToActorCoordinates(scroll, tmpCoords.set(x, y))
+    if (isAbove(tmpCoords.y)) {
+      scrollDown.cancel()
+      if (!scrollUp.isScheduled) {
+        startTime = System.currentTimeMillis()
+        Timer.schedule(scrollUp, tickSecs, tickSecs)
+      }
+    } else if (isBelow(tmpCoords.y)) {
+      scrollUp.cancel()
+      if (!scrollDown.isScheduled) {
+        startTime = System.currentTimeMillis()
+        Timer.schedule(scrollDown, tickSecs, tickSecs)
+      }
+    } else {
+      scrollUp.cancel()
+      scrollDown.cancel()
+    }
+  }
+
+  override def dragStop(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
+    scrollUp.cancel()
+    scrollDown.cancel()
+  }
+
+  protected def isAbove(y: Float): Boolean =
+    y >= scroll.getHeight - padTop
+
+  protected def isBelow(y: Float): Boolean =
+    y < padBottom
+
+  protected def scroll(y: Float): Unit =
+    scroll.setScrollY(y)
 
   def setPadding(padTop: Float, padBottom: Float): Unit = {
     this.padTop = padTop

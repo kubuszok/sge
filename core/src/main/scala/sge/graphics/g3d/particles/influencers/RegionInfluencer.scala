@@ -17,6 +17,7 @@
  * - load: null check + return replaced with Nullable isEmpty check.
  * - write/read(Json) omitted (Json serialization not ported).
  * - All public methods faithfully ported.
+ * - Fixes (2026-03-04): removed redundant setAtlasName (field already public var)
  * - Status: pass
  */
 package sge
@@ -59,16 +60,15 @@ abstract class RegionInfluencer extends Influencer {
     add(textureRegions*)
   }
 
-  def this(texture: Texture) = {
-    this(Array(new TextureRegion(texture)))
-  }
+  def this(texture: Texture) =
+    this(Array(TextureRegion(texture)))
 
   def this(regionInfluencer: RegionInfluencer) = {
     this()
     this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
     var i = 0
     while (i < regionInfluencer.regions.size) {
-      regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
+      regions.add(AspectTextureRegion(regionInfluencer.regions(i)))
       i += 1
     }
   }
@@ -76,7 +76,7 @@ abstract class RegionInfluencer extends Influencer {
   /** Initializes with a single default region covering the full texture */
   protected def initDefault(): Unit = {
     this.regions = DynamicArray[AspectTextureRegion](1)
-    val aspectRegion = new AspectTextureRegion()
+    val aspectRegion = AspectTextureRegion()
     aspectRegion.u = 0
     aspectRegion.v = 0
     aspectRegion.u2 = 1
@@ -85,12 +85,9 @@ abstract class RegionInfluencer extends Influencer {
     regions.add(aspectRegion)
   }
 
-  def setAtlasName(atlasName: Nullable[String]): Unit =
-    this.atlasName = atlasName
-
   def add(regions: TextureRegion*): Unit =
     for (region <- regions)
-      this.regions.add(new AspectTextureRegion(region))
+      this.regions.add(AspectTextureRegion(region))
 
   def clear(): Unit = {
     atlasName = Nullable.empty
@@ -105,7 +102,7 @@ abstract class RegionInfluencer extends Influencer {
     } else {
       data.foreach { d =>
         d.loadAsset().foreach { assetDesc =>
-          val atlas = manager.get(assetDesc.fileName, classOf[TextureAtlas])
+          val atlas = manager(assetDesc.fileName, classOf[TextureAtlas])
           for (atr <- regions)
             atr.updateUV(atlas)
         }
@@ -155,11 +152,11 @@ object RegionInfluencer {
     }
 
     def set(region: TextureRegion): Unit = {
-      this.u = region.getU()
-      this.v = region.getV()
-      this.u2 = region.getU2()
-      this.v2 = region.getV2()
-      this.halfInvAspectRatio = 0.5f * (region.getRegionHeight().toFloat / region.getRegionWidth())
+      this.u = region.u
+      this.v = region.v
+      this.u2 = region.u2
+      this.v2 = region.v2
+      this.halfInvAspectRatio = 0.5f * (region.regionHeight.toFloat / region.regionWidth)
       region match {
         case atlasRegion: TextureAtlas.AtlasRegion =>
           this.imageName = Nullable(atlasRegion.name)
@@ -182,11 +179,11 @@ object RegionInfluencer {
       } else {
         imageName.foreach { name =>
           atlas.findRegion(name).foreach { region =>
-            this.u = region.getU()
-            this.v = region.getV()
-            this.u2 = region.getU2()
-            this.v2 = region.getV2()
-            this.halfInvAspectRatio = 0.5f * (region.getRegionHeight().toFloat / region.getRegionWidth())
+            this.u = region.u
+            this.v = region.v
+            this.u2 = region.u2
+            this.v2 = region.v2
+            this.halfInvAspectRatio = 0.5f * (region.regionHeight.toFloat / region.regionWidth)
           }
         }
       }
@@ -202,7 +199,7 @@ object RegionInfluencer {
       this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
+        regions.add(AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -214,9 +211,8 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) = {
-      this(new TextureRegion(texture))
-    }
+    def this(texture: Texture) =
+      this(TextureRegion(texture))
 
     override def init(): Unit = {
       val region = regions(0)
@@ -234,7 +230,7 @@ object RegionInfluencer {
     }
 
     override def copy(): Single =
-      new Single(this)
+      Single(this)
   }
 
   /** Assigns a random region of {@link RegionInfluencer#regions} to the particles. */
@@ -247,7 +243,7 @@ object RegionInfluencer {
       this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
+        regions.add(AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -259,9 +255,8 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) = {
-      this(new TextureRegion(texture))
-    }
+    def this(texture: Texture) =
+      this(TextureRegion(texture))
 
     override def activateParticles(startIndex: Int, count: Int): Unit = {
       var i = startIndex * regionChannel.strideSize
@@ -280,7 +275,7 @@ object RegionInfluencer {
     }
 
     override def copy(): Random =
-      new Random(this)
+      Random(this)
   }
 
   /** Assigns a region to the particles using the particle life percent to calculate the current index in the {@link RegionInfluencer#regions} array.
@@ -296,7 +291,7 @@ object RegionInfluencer {
       this.regions = DynamicArray[AspectTextureRegion](regionInfluencer.regions.size)
       var i = 0
       while (i < regionInfluencer.regions.size) {
-        regions.add(new AspectTextureRegion(regionInfluencer.regions(i)))
+        regions.add(AspectTextureRegion(regionInfluencer.regions(i)))
         i += 1
       }
     }
@@ -308,9 +303,8 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) = {
-      this(new TextureRegion(texture))
-    }
+    def this(texture: Texture) =
+      this(TextureRegion(texture))
 
     override def allocateChannels(): Unit = {
       super.allocateChannels()
@@ -335,6 +329,6 @@ object RegionInfluencer {
     }
 
     override def copy(): Animated =
-      new Animated(this)
+      Animated(this)
   }
 }

@@ -34,9 +34,8 @@ class ETC1TextureData(
   private var height:       Int                = 0
   private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle) = {
+  def this(file: FileHandle) =
     this(Nullable(file), false)
-  }
 
   def this(encodedImage: ETC1Data, useMipMaps: Boolean) = {
     this(file = Nullable.empty, useMipMapsValue = useMipMaps)

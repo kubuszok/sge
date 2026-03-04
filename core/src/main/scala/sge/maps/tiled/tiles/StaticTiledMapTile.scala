@@ -62,16 +62,16 @@ class StaticTiledMapTile(private var textureRegion: TextureRegion) extends Tiled
 
   override def getProperties: MapProperties = {
     if (_properties.isEmpty) {
-      _properties = Nullable(new MapProperties())
+      _properties = Nullable(MapProperties())
     }
-    _properties.getOrElse(new MapProperties())
+    _properties.getOrElse(MapProperties())
   }
 
   override def getObjects: MapObjects = {
     if (_objects.isEmpty) {
-      _objects = Nullable(new MapObjects())
+      _objects = Nullable(MapObjects())
     }
-    _objects.getOrElse(new MapObjects())
+    _objects.getOrElse(MapObjects())
   }
 
   override def getTextureRegion: TextureRegion = textureRegion

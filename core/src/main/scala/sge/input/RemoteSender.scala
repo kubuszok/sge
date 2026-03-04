@@ -5,17 +5,16 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: Gdx -> Sge (implicit/using context), dst -> distance
- *   Convention: Java static constants -> companion object vals; Gdx singleton -> implicit Sge
- *   Idiom: boundary/break (7 return), Nullable (1 null), flat package (should be split)
- *   TODO: uses flat package declaration — convert to split (package sge / package input)
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
- *   Issues: Multitouch check hardcoded to true (placeholder); sendUpdate width/height hardcoded to 800/600
- *     (should use sde.graphics); println used instead of sde.app.log; implicit instead of using
+ *   Renames: Gdx -> Sge (using context), dst -> distance
+ *   Convention: Java static constants -> companion object vals; Gdx singleton -> using Sge
+ *   Convention: anonymous (using Sge) + Sge() accessor
+ *   Idiom: boundary/break (7 return), Nullable (1 null), split packages
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.input
+package sge
+package input
 
 import java.io.DataOutputStream
 import java.net.Socket
@@ -42,7 +41,7 @@ object RemoteSender {
   * @author
   *   mzechner (original implementation)
   */
-class RemoteSender(ip: String, port: Int)(implicit sde: sge.Sge) extends InputProcessor {
+class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
   private var out:       Nullable[DataOutputStream] = Nullable.empty
   private var connected: Boolean                    = false
 
@@ -52,12 +51,12 @@ class RemoteSender(ip: String, port: Int)(implicit sde: sge.Sge) extends InputPr
     socket.setTcpNoDelay(true)
     socket.setSoTimeout(3000)
     out = Nullable(new DataOutputStream(socket.getOutputStream()))
-    out.foreach(_.writeBoolean(true)) // placeholder
+    out.foreach(_.writeBoolean(Sge().input.isPeripheralAvailable(Input.Peripheral.MultitouchScreen)))
     connected = true
-    sde.input.setInputProcessor(this)
+    Sge().input.setInputProcessor(this)
   } catch {
     case _: Exception =>
-      println("RemoteSender: couldn't connect to " + ip + ":" + port)
+      Sge().application.log("RemoteSender", "couldn't connect to " + ip + ":" + port)
   }
 
   def sendUpdate(): Unit = scala.util.boundary {
@@ -67,20 +66,20 @@ class RemoteSender(ip: String, port: Int)(implicit sde: sge.Sge) extends InputPr
     try
       out.foreach { o =>
         o.writeInt(RemoteSender.ACCEL)
-        o.writeFloat(sde.input.getAccelerometerX())
-        o.writeFloat(sde.input.getAccelerometerY())
-        o.writeFloat(sde.input.getAccelerometerZ())
+        o.writeFloat(Sge().input.getAccelerometerX())
+        o.writeFloat(Sge().input.getAccelerometerY())
+        o.writeFloat(Sge().input.getAccelerometerZ())
         o.writeInt(RemoteSender.COMPASS)
-        o.writeFloat(sde.input.getAzimuth())
-        o.writeFloat(sde.input.getPitch())
-        o.writeFloat(sde.input.getRoll())
+        o.writeFloat(Sge().input.getAzimuth())
+        o.writeFloat(Sge().input.getPitch())
+        o.writeFloat(Sge().input.getRoll())
         o.writeInt(RemoteSender.SIZE)
-        o.writeFloat(800.0f) // placeholder width
-        o.writeFloat(600.0f) // placeholder height
+        o.writeFloat(Sge().graphics.getWidth().toFloat)
+        o.writeFloat(Sge().graphics.getHeight().toFloat)
         o.writeInt(RemoteSender.GYRO)
-        o.writeFloat(sde.input.getGyroscopeX())
-        o.writeFloat(sde.input.getGyroscopeY())
-        o.writeFloat(sde.input.getGyroscopeZ())
+        o.writeFloat(Sge().input.getGyroscopeX())
+        o.writeFloat(Sge().input.getGyroscopeY())
+        o.writeFloat(Sge().input.getGyroscopeZ())
       }
     catch {
       case _: Throwable =>

@@ -8,16 +8,20 @@
  *   Renames: Disposable -> AutoCloseable; dispose() -> close()
  *   Convention: JNI native methods replaced with stub implementations
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: (1) Flat package (package sge.graphics.g2d) should be split. (2) Native stubs return raw null (lines 195, 199, 203) without Nullable/nowarn. (3) Missing newPixmap(InputStream,Int) and newPixmap(Int,Int,Int) factory methods. (4) All JNI stubs need real platform-specific implementations.
- *   TODO: uses flat package declaration — convert to split (package sge / package graphics / package g2d)
- *   Audited: 2026-03-03
+ *   Fixes: Native stubs now use Nullable.empty.orNull with @nowarn at JNI boundary.
+ *   Issues: (1) Missing newPixmap(InputStream,Int) and newPixmap(Int,Int,Int) factory methods. (2) All JNI stubs need real platform-specific implementations.
+ *   Fixes: Java-style getters (getWidth/getHeight/getFormat/getPixels/getGLInternalFormat/getGLFormat/getGLType/getFormatString) → Scala properties
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics.g2d
+package sge
+package graphics
+package g2d
 
 import sge.graphics.GL20
 import sge.utils.{ Nullable, SgeError }
+import scala.annotation.nowarn
 import java.nio.ByteBuffer
 import java.io.{ ByteArrayOutputStream, IOException, InputStream }
 import scala.compiletime.uninitialized
@@ -27,24 +31,24 @@ class Gdx2DPixmap extends AutoCloseable {
   import Gdx2DPixmap.*
 
   private var basePtr:    Long        = uninitialized
-  private var width:      Int         = uninitialized
-  private var height:     Int         = uninitialized
-  private var format:     Int         = uninitialized
-  private var pixelPtr:   ByteBuffer  = uninitialized
+  private var _width:     Int         = uninitialized
+  private var _height:    Int         = uninitialized
+  private var _format:    Int         = uninitialized
+  private var _pixelPtr:  ByteBuffer  = uninitialized
   private var nativeData: Array[Long] = Array.ofDim[Long](4)
 
   def this(encodedData: Array[Byte], offset: Int, len: Int, requestedFormat: Int) = {
     this()
     try {
-      pixelPtr = load(nativeData, encodedData, offset, len)
-      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
+      _pixelPtr = load(nativeData, encodedData, offset, len)
+      if (Nullable(_pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
-      width = nativeData(1).toInt
-      height = nativeData(2).toInt
-      format = nativeData(3).toInt
+      _width = nativeData(1).toInt
+      _height = nativeData(2).toInt
+      _format = nativeData(3).toInt
 
-      if (requestedFormat != 0 && requestedFormat != format) {
+      if (requestedFormat != 0 && requestedFormat != _format) {
         convert(requestedFormat)
       }
     } catch {
@@ -56,15 +60,15 @@ class Gdx2DPixmap extends AutoCloseable {
     this()
     try {
       if (!encodedData.isDirect()) throw new IOException("Couldn't load pixmap from non-direct ByteBuffer")
-      pixelPtr = loadByteBuffer(nativeData, encodedData, offset, len)
-      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
+      _pixelPtr = loadByteBuffer(nativeData, encodedData, offset, len)
+      if (Nullable(_pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
-      width = nativeData(1).toInt
-      height = nativeData(2).toInt
-      format = nativeData(3).toInt
+      _width = nativeData(1).toInt
+      _height = nativeData(2).toInt
+      _format = nativeData(3).toInt
 
-      if (requestedFormat != 0 && requestedFormat != format) {
+      if (requestedFormat != 0 && requestedFormat != _format) {
         convert(requestedFormat)
       }
     } catch {
@@ -86,15 +90,15 @@ class Gdx2DPixmap extends AutoCloseable {
       }
 
       val finalBuffer = bytes.toByteArray()
-      pixelPtr = load(nativeData, finalBuffer, 0, finalBuffer.length)
-      if (Nullable(pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
+      _pixelPtr = load(nativeData, finalBuffer, 0, finalBuffer.length)
+      if (Nullable(_pixelPtr).isEmpty) throw new IOException("Error loading pixmap: " + getFailureReason())
 
       basePtr = nativeData(0)
-      width = nativeData(1).toInt
-      height = nativeData(2).toInt
-      format = nativeData(3).toInt
+      _width = nativeData(1).toInt
+      _height = nativeData(2).toInt
+      _format = nativeData(3).toInt
 
-      if (requestedFormat != 0 && requestedFormat != format) {
+      if (requestedFormat != 0 && requestedFormat != _format) {
         convert(requestedFormat)
       }
     } catch {
@@ -105,35 +109,35 @@ class Gdx2DPixmap extends AutoCloseable {
   /** @throws SgeError.GraphicsError if allocation failed. */
   def this(width: Int, height: Int, format: Int) = {
     this()
-    pixelPtr = newPixmap(nativeData, width, height, format)
-    if (Nullable(pixelPtr).isEmpty) throw SgeError.GraphicsError(s"Unable to allocate memory for pixmap: ${width}x$height, ${getFormatString(format)}")
+    _pixelPtr = newPixmap(nativeData, width, height, format)
+    if (Nullable(_pixelPtr).isEmpty) throw SgeError.GraphicsError(s"Unable to allocate memory for pixmap: ${width}x$height, ${getFormatString(format)}")
 
     this.basePtr = nativeData(0)
-    this.width = nativeData(1).toInt
-    this.height = nativeData(2).toInt
-    this.format = nativeData(3).toInt
+    this._width = nativeData(1).toInt
+    this._height = nativeData(2).toInt
+    this._format = nativeData(3).toInt
   }
 
   def this(pixelPtr: ByteBuffer, nativeData: Array[Long]) = {
     this()
-    this.pixelPtr = pixelPtr
+    this._pixelPtr = pixelPtr
     this.basePtr = nativeData(0)
-    this.width = nativeData(1).toInt
-    this.height = nativeData(2).toInt
-    this.format = nativeData(3).toInt
+    this._width = nativeData(1).toInt
+    this._height = nativeData(2).toInt
+    this._format = nativeData(3).toInt
   }
 
   private def convert(requestedFormat: Int): Unit = {
-    val pixmap = new Gdx2DPixmap(width, height, requestedFormat)
+    val pixmap = Gdx2DPixmap(_width, _height, requestedFormat)
     pixmap.setBlend(GDX2D_BLEND_NONE)
-    pixmap.drawPixmap(this, 0, 0, 0, 0, width, height)
+    pixmap.drawPixmap(this, 0, 0, 0, 0, _width, _height)
     close()
     this.basePtr = pixmap.basePtr
-    this.format = pixmap.format
-    this.height = pixmap.height
+    this._format = pixmap._format
+    this._height = pixmap._height
     this.nativeData = pixmap.nativeData
-    this.pixelPtr = pixmap.pixelPtr
-    this.width = pixmap.width
+    this._pixelPtr = pixmap._pixelPtr
+    this._width = pixmap._width
   }
 
   override def close(): Unit =
@@ -178,37 +182,41 @@ class Gdx2DPixmap extends AutoCloseable {
   def setScale(scale: Int): Unit =
     setScale(basePtr, scale)
 
-  def getGLInternalFormat(): Int =
-    toGlFormat(format)
+  def glInternalFormat: Int =
+    toGlFormat(_format)
 
-  def getGLFormat(): Int =
-    toGlFormat(format)
+  def glFormat: Int =
+    toGlFormat(_format)
 
-  def getGLType(): Int =
-    toGlType(format)
+  def glType: Int =
+    toGlType(_format)
 
-  def getFormatString(): String = getFormatString(format)
+  def formatString: String = getFormatString(_format)
 
-  def getPixels(): ByteBuffer = pixelPtr
+  def pixels: ByteBuffer = _pixelPtr
 
-  def getHeight(): Int = height
+  def height: Int = _height
 
-  def getWidth(): Int = width
+  def width: Int = _width
 
-  def getFormat(): Int = format
+  def format: Int = _format
 
-  // Native method stubs - these would be implemented as JNI calls
+  // Native method stubs - these would be implemented as JNI calls.
+  // Returns null: JNI native boundary — callers check with Nullable().
+  @nowarn("msg=deprecated")
   private def load(nativeData: Array[Long], buffer: Array[Byte], offset: Int, len: Int): ByteBuffer =
-    // Stub implementation
-    null
+    // Stub implementation — JNI native method
+    Nullable.empty[ByteBuffer].orNull
 
+  @nowarn("msg=deprecated")
   private def loadByteBuffer(nativeData: Array[Long], buffer: ByteBuffer, offset: Int, len: Int): ByteBuffer =
-    // Stub implementation
-    null
+    // Stub implementation — JNI native method
+    Nullable.empty[ByteBuffer].orNull
 
+  @nowarn("msg=deprecated")
   private def newPixmap(nativeData: Array[Long], width: Int, height: Int, format: Int): ByteBuffer =
-    // Stub implementation
-    null
+    // Stub implementation — JNI native method
+    Nullable.empty[ByteBuffer].orNull
 
   private def free(basePtr: Long): Unit = {
     // Stub implementation

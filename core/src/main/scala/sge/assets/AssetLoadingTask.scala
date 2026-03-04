@@ -45,9 +45,8 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
-    this(manager, assetDesc, loader, threadPool, if (manager.getLogLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
-  }
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
+    this(manager, assetDesc, loader, threadPool, if (manager.logLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {

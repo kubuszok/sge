@@ -1,7 +1,7 @@
 # Audit: sge.maps.tiled.objects
 
 Audited: 1/1 files | Pass: 1 | Minor: 0 | Major: 0
-Last updated: 2026-03-03
+Last updated: 2026-03-04
 
 ---
 
@@ -14,6 +14,7 @@ Last updated: 2026-03-03
 | Status | pass |
 | Tested | No |
 
-**Completeness**: 1 constructor, 3 fields (tile, flipHorizontally, flipVertically), 6 accessor methods (isFlipHorizontally, setFlipHorizontally, isFlipVertically, setFlipVertically, getTile, setTile) -- all match Java 1:1.
-**Convention changes**: Constructor body uses `locally{}` block for TextureRegion creation and flip (matches Java constructor body). `setTextureRegion` called with `Nullable(textureRegion)` because SGE's `TextureMapObject.setTextureRegion` accepts `Nullable[TextureRegion]` (Java version accepts nullable TextureRegion implicitly).
+**Completeness**: 1 constructor, 3 public vars (tile, flipHorizontally, flipVertically) — all match Java 1:1.
+**Renames**: `isFlipHorizontally`/`setFlipHorizontally` -> `var flipHorizontally`, `isFlipVertically`/`setFlipVertically` -> `var flipVertically`, `getTile`/`setTile` -> `var tile`
+**Convention changes**: Constructor body uses `locally{}` block for TextureRegion creation and flip. `textureRegion` assigned with `Nullable()` because SGE uses `Nullable[TextureRegion]`.
 **Issues**: None

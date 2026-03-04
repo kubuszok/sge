@@ -8,11 +8,12 @@
  *   Renames: allowCompletion() -> allowCompletionMethod() to avoid clash with allowCompletion field
  *   Convention: Java enums -> Scala 3 enums; boundary/break for early returns; Nullable for null safety
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: Raw null on line 700 (sprites.first fallback) -- should use Nullable
- *   TODO: Java-style getters/setters -- getName/setName, getMaxParticleCount/setMaxParticleCount, etc. in inner classes and emitter
- *   TODO: opaque Seconds for timing values in numeric value objects -- see docs/improvements/opaque-types.md
- *   TODO: test: decode a real .p particle effect file end-to-end through ParticleEmitter.load
- *   Audited: 2026-03-03
+ *   Fixes: Raw null on line 710 removed (dead code — sprites guaranteed non-empty by line 705)
+ *   Fixes: Java-style getters/setters → Scala property accessors
+ *   Fixes: Inner class redundant getters/setters removed (ParticleValue, NumericValue, RangedNumericValue, ScaledNumericValue, IndependentScaledNumericValue, GradientColorValue, SpawnShapeValue)
+ *   Improvement: opaque Seconds for timing values in numeric value objects -- see docs/improvements/opaque-types.md
+ *   Issue: test: needs .p fixture file to test ParticleEmitter.load end-to-end
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -35,48 +36,48 @@ import java.io.Writer
 class ParticleEmitter {
   import ParticleEmitter._
 
-  private val delayValue        = new RangedNumericValue()
-  private val lifeOffsetValue   = new IndependentScaledNumericValue()
-  private val durationValue     = new RangedNumericValue()
-  private val lifeValue         = new IndependentScaledNumericValue()
-  private val emissionValue     = new ScaledNumericValue()
-  private val xScaleValue       = new ScaledNumericValue()
-  private val yScaleValue       = new ScaledNumericValue()
-  private val rotationValue     = new ScaledNumericValue()
-  private val velocityValue     = new ScaledNumericValue()
-  private val angleValue        = new ScaledNumericValue()
-  private val windValue         = new ScaledNumericValue()
-  private val gravityValue      = new ScaledNumericValue()
-  private val transparencyValue = new ScaledNumericValue()
-  private val tintValue         = new GradientColorValue()
-  private val xOffsetValue      = new ScaledNumericValue()
-  private val yOffsetValue      = new ScaledNumericValue()
-  private val spawnWidthValue   = new ScaledNumericValue()
-  private val spawnHeightValue  = new ScaledNumericValue()
-  private val spawnShapeValue   = new SpawnShapeValue()
+  private val delayValue        = RangedNumericValue()
+  private val lifeOffsetValue   = IndependentScaledNumericValue()
+  private val durationValue     = RangedNumericValue()
+  private val lifeValue         = IndependentScaledNumericValue()
+  private val emissionValue     = ScaledNumericValue()
+  private val xScaleValue       = ScaledNumericValue()
+  private val yScaleValue       = ScaledNumericValue()
+  private val rotationValue     = ScaledNumericValue()
+  private val velocityValue     = ScaledNumericValue()
+  private val angleValue        = ScaledNumericValue()
+  private val windValue         = ScaledNumericValue()
+  private val gravityValue      = ScaledNumericValue()
+  private val transparencyValue = ScaledNumericValue()
+  private val tintValue         = GradientColorValue()
+  private val xOffsetValue      = ScaledNumericValue()
+  private val yOffsetValue      = ScaledNumericValue()
+  private val spawnWidthValue   = ScaledNumericValue()
+  private val spawnHeightValue  = ScaledNumericValue()
+  private val spawnShapeValue   = SpawnShapeValue()
 
-  private var xSizeValues:  Array[RangedNumericValue] = scala.compiletime.uninitialized
-  private var ySizeValues:  Array[RangedNumericValue] = scala.compiletime.uninitialized
-  private var motionValues: Array[RangedNumericValue] = scala.compiletime.uninitialized
+  private var _xSizeValues:  Array[RangedNumericValue] = scala.compiletime.uninitialized
+  private var _ySizeValues:  Array[RangedNumericValue] = scala.compiletime.uninitialized
+  private var _motionValues: Array[RangedNumericValue] = scala.compiletime.uninitialized
 
-  private var accumulator:      Float                = 0f
-  private var sprites:          DynamicArray[Sprite] = scala.compiletime.uninitialized
-  private var spriteMode:       SpriteMode           = SpriteMode.single
-  private var particles:        Array[Particle]      = scala.compiletime.uninitialized
-  private var minParticleCount: Int                  = 0
-  private var maxParticleCount: Int                  = 4
-  private var x:                Float                = 0f
-  private var y:                Float                = 0f
-  private var name:             String               = scala.compiletime.uninitialized
-  private var imagePaths:       DynamicArray[String] = scala.compiletime.uninitialized
-  private var activeCount:      Int                  = 0
-  private var active:           Array[Boolean]       = scala.compiletime.uninitialized
-  private var firstUpdate:      Boolean              = false
-  private var flipX:            Boolean              = false
-  private var flipY:            Boolean              = false
-  private var updateFlags:      Int                  = 0
-  private var allowCompletion:  Boolean              = false
-  private var bounds:           BoundingBox          = scala.compiletime.uninitialized
+  private var accumulator:       Float                = 0f
+  private var _sprites:          DynamicArray[Sprite] = scala.compiletime.uninitialized
+  var spriteMode:                SpriteMode           = SpriteMode.single
+  private var _particles:        Array[Particle]      = scala.compiletime.uninitialized
+  var minParticleCount:          Int                  = 0
+  private var _maxParticleCount: Int                  = 4
+  private var _x:                Float                = 0f
+  private var _y:                Float                = 0f
+  var name:                      String               = scala.compiletime.uninitialized
+  private var _imagePaths:       DynamicArray[String] = scala.compiletime.uninitialized
+  private var _activeCount:      Int                  = 0
+  private var _active:           Array[Boolean]       = scala.compiletime.uninitialized
+  private var firstUpdate:       Boolean              = false
+  private var flipX:             Boolean              = false
+  private var flipY:             Boolean              = false
+  private var updateFlags:       Int                  = 0
+  var allowCompletion:           Boolean              = false
+  private var _bounds:           BoundingBox          = scala.compiletime.uninitialized
 
   private var emission:        Int   = 0
   private var emissionDiff:    Int   = 0
@@ -94,13 +95,13 @@ class ParticleEmitter {
   private var delay:           Float = 0f
   private var delayTimer:      Float = 0f
 
-  private var attached:           Boolean = false
-  private var continuous:         Boolean = false
-  private var aligned:            Boolean = false
-  private var behind:             Boolean = false
-  private var additive:           Boolean = true
-  private var premultipliedAlpha: Boolean = false
-  var cleansUpBlendFunction:      Boolean = true
+  var attached:              Boolean = false
+  var continuous:            Boolean = false
+  var aligned:               Boolean = false
+  var behind:                Boolean = false
+  var additive:              Boolean = true
+  var premultipliedAlpha:    Boolean = false
+  var cleansUpBlendFunction: Boolean = true
 
   // Initialize in primary constructor
   initialize()
@@ -113,10 +114,10 @@ class ParticleEmitter {
 
   def this(emitter: ParticleEmitter) = {
     this()
-    sprites = DynamicArray.from(emitter.sprites)
+    _sprites = DynamicArray.from(emitter._sprites)
     name = emitter.name
-    imagePaths = DynamicArray.from(emitter.imagePaths)
-    setMaxParticleCount(emitter.maxParticleCount)
+    _imagePaths = DynamicArray.from(emitter._imagePaths)
+    maxParticleCount = emitter._maxParticleCount
     minParticleCount = emitter.minParticleCount
     // Copy values - simplified for now
     attached = emitter.attached
@@ -127,46 +128,48 @@ class ParticleEmitter {
     premultipliedAlpha = emitter.premultipliedAlpha
     cleansUpBlendFunction = emitter.cleansUpBlendFunction
     // spriteMode = emitter.spriteMode // Commented out due to type incompatibility
-    setPosition(emitter.getX(), emitter.getY())
+    setPosition(emitter._x, emitter._y)
   }
 
   private def initialize(): Unit = {
-    sprites = DynamicArray[Sprite]()
-    imagePaths = DynamicArray[String]()
-    durationValue.setAlwaysActive(true)
-    emissionValue.setAlwaysActive(true)
-    lifeValue.setAlwaysActive(true)
-    xScaleValue.setAlwaysActive(true)
-    transparencyValue.setAlwaysActive(true)
-    spawnShapeValue.setAlwaysActive(true)
-    spawnWidthValue.setAlwaysActive(true)
-    spawnHeightValue.setAlwaysActive(true)
+    _sprites = DynamicArray[Sprite]()
+    _imagePaths = DynamicArray[String]()
+    durationValue.alwaysActive = true
+    emissionValue.alwaysActive = true
+    lifeValue.alwaysActive = true
+    xScaleValue.alwaysActive = true
+    transparencyValue.alwaysActive = true
+    spawnShapeValue.alwaysActive = true
+    spawnWidthValue.alwaysActive = true
+    spawnHeightValue.alwaysActive = true
   }
 
-  def setMaxParticleCount(maxParticleCount: Int): Unit = {
-    this.maxParticleCount = maxParticleCount
-    active = new Array[Boolean](maxParticleCount)
-    activeCount = 0
-    particles = new Array[Particle](maxParticleCount)
+  def maxParticleCount: Int = _maxParticleCount
+
+  def maxParticleCount_=(maxParticleCount: Int): Unit = {
+    this._maxParticleCount = maxParticleCount
+    _active = new Array[Boolean](maxParticleCount)
+    _activeCount = 0
+    _particles = new Array[Particle](maxParticleCount)
   }
 
   def addParticle(): Unit = scala.util.boundary {
-    val activeCount = this.activeCount
-    if (activeCount == maxParticleCount) scala.util.boundary.break()
-    val active = this.active
+    val activeCount = this._activeCount
+    if (activeCount == _maxParticleCount) scala.util.boundary.break()
+    val active = this._active
     for (i <- active.indices)
       if (!active(i)) {
         activateParticle(i)
         active(i) = true
-        this.activeCount = activeCount + 1
+        this._activeCount = activeCount + 1
         scala.util.boundary.break()
       }
   }
 
   def addParticles(count: Int): Unit = scala.util.boundary {
-    val actualCount = Math.min(count, maxParticleCount - activeCount)
+    val actualCount = Math.min(count, _maxParticleCount - _activeCount)
     if (actualCount == 0) scala.util.boundary.break(())
-    val active = this.active
+    val active = this._active
     var index  = 0
     val n      = active.length
     var i      = 0
@@ -184,7 +187,7 @@ class ParticleEmitter {
       if (!found) scala.util.boundary.break(())
       i += 1
     }
-    this.activeCount += actualCount
+    this._activeCount += actualCount
   }
 
   def update(delta: Float): Unit = {
@@ -218,25 +221,25 @@ class ParticleEmitter {
             emissionTime = 1000 / emissionTime
             if (emissionDelta >= emissionTime) {
               var emitCount = (emissionDelta / emissionTime).toInt
-              emitCount = Math.min(emitCount, maxParticleCount - this.activeCount)
+              emitCount = Math.min(emitCount, _maxParticleCount - this._activeCount)
               emissionDelta -= emitCount * emissionTime
               emissionDelta %= emissionTime
               addParticles(emitCount)
             }
           }
-          if (this.activeCount < minParticleCount) addParticles(minParticleCount - this.activeCount)
+          if (this._activeCount < minParticleCount) addParticles(minParticleCount - this._activeCount)
         }
       }
 
-      val active      = this.active
-      var activeCount = this.activeCount
-      val particles   = this.particles
+      val active      = this._active
+      var activeCount = this._activeCount
+      val particles   = this._particles
       for (i <- active.indices)
         if (active(i) && !updateParticle(particles(i), delta, deltaMillis)) {
           active(i) = false
           activeCount -= 1
         }
-      this.activeCount = activeCount
+      this._activeCount = activeCount
     }
   }
 
@@ -248,8 +251,8 @@ class ParticleEmitter {
     } else {
       batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
     }
-    val particles = this.particles
-    val active    = this.active
+    val particles = this._particles
+    val active    = this._active
 
     for (i <- active.indices)
       if (active(i)) particles(i).draw(batch)
@@ -277,9 +280,9 @@ class ParticleEmitter {
       batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
     }
 
-    val particles   = this.particles
-    val active      = this.active
-    var activeCount = this.activeCount
+    val particles   = this._particles
+    val active      = this._active
+    var activeCount = this._activeCount
     for (i <- active.indices)
       if (active(i)) {
         val particle = particles(i)
@@ -290,7 +293,7 @@ class ParticleEmitter {
           activeCount -= 1
         }
       }
-    this.activeCount = activeCount
+    this._activeCount = activeCount
 
     if (cleansUpBlendFunction && (additive || premultipliedAlpha))
       batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
@@ -318,7 +321,7 @@ class ParticleEmitter {
       emissionTime = 1000 / emissionTime
       if (emissionDelta >= emissionTime) {
         var emitCount = (emissionDelta / emissionTime).toInt
-        emitCount = Math.min(emitCount, maxParticleCount - activeCount)
+        emitCount = Math.min(emitCount, _maxParticleCount - activeCount)
         emissionDelta -= emitCount * emissionTime
         emissionDelta %= emissionTime
         addParticles(emitCount)
@@ -339,10 +342,10 @@ class ParticleEmitter {
   def reset(startEmitter: Boolean): Unit = {
     emissionDelta = 0
     durationTimer = duration
-    val active = this.active
+    val active = this._active
     for (i <- active.indices)
       active(i) = false
-    activeCount = 0
+    _activeCount = 0
     if (startEmitter) start()
   }
 
@@ -382,25 +385,25 @@ class ParticleEmitter {
   }
 
   protected def newParticle(sprite: Sprite): Particle =
-    new Particle(sprite)
+    Particle(sprite)
 
-  protected def getParticles(): Array[Particle] =
-    particles
+  protected def particles: Array[Particle] =
+    _particles
 
   private def activateParticle(index: Int): Unit = {
     var sprite: Nullable[Sprite] = Nullable.empty
     spriteMode match {
       case SpriteMode.single | SpriteMode.animated =>
-        if (sprites.nonEmpty) sprite = Nullable(sprites.first)
+        if (_sprites.nonEmpty) sprite = Nullable(_sprites.first)
       case SpriteMode.random =>
-        if (sprites.nonEmpty) sprite = Nullable(sprites(scala.util.Random.nextInt(sprites.size)))
+        if (_sprites.nonEmpty) sprite = Nullable(_sprites(scala.util.Random.nextInt(_sprites.size)))
     }
 
-    var particle  = particles(index)
+    var particle  = _particles(index)
     val spriteVal = sprite.getOrElse(throw new IllegalStateException("No sprite available for particle activation"))
     if (Nullable(particle).isEmpty) {
-      particles(index) = newParticle(spriteVal)
-      particle = particles(index)
+      _particles(index) = newParticle(spriteVal)
+      particle = _particles(index)
       particle.flip(flipX, flipY)
     } else {
       particle.set(spriteVal)
@@ -433,8 +436,8 @@ class ParticleEmitter {
       particle.angleSin = MathUtils.sinDeg(angle)
     }
 
-    val spriteWidth  = sprite.fold(1f)(_.getWidth())
-    val spriteHeight = sprite.fold(1f)(_.getHeight())
+    val spriteWidth  = sprite.map(_.width).getOrElse(1f)
+    val spriteHeight = sprite.map(_.height).getOrElse(1f)
 
     particle.xScale = xScaleValue.newLowValue() / spriteWidth
     particle.xScaleDiff = xScaleValue.newHighValue() / spriteWidth
@@ -453,12 +456,12 @@ class ParticleEmitter {
     }
 
     if (rotationValue.isActive) {
-      particle.rotation = rotationValue.newLowValue()
+      particle.particleRotation = rotationValue.newLowValue()
       particle.rotationDiff = rotationValue.newHighValue()
-      if (!rotationValue.relative) particle.rotationDiff -= particle.rotation
-      val rotation      = particle.rotation + particle.rotationDiff * rotationValue.getScale(0)
+      if (!rotationValue.relative) particle.rotationDiff -= particle.particleRotation
+      val rotation      = particle.particleRotation + particle.rotationDiff * rotationValue.getScale(0)
       val finalRotation = if (aligned) rotation + angle else rotation
-      particle.setRotation(finalRotation)
+      particle.rotation = finalRotation
     }
 
     if (windValue.isActive) {
@@ -487,9 +490,9 @@ class ParticleEmitter {
     particle.transparencyDiff = transparencyValue.newHighValue() - particle.transparency
 
     // Spawn.
-    var x = this.x
+    var x = this._x
     if (xOffsetValue.isActive) x += xOffsetValue.newLowValue()
-    var y = this.y
+    var y = this._y
     if (yOffsetValue.isActive) y += yOffsetValue.newLowValue()
 
     spawnShapeValue.shape match {
@@ -584,18 +587,18 @@ class ParticleEmitter {
           val vx    = velocity * MathUtils.cosDeg(angle)
           val vy    = velocity * MathUtils.sinDeg(angle)
           if ((updateFlags & UPDATE_ROTATION) != 0) {
-            val rotation      = particle.rotation + particle.rotationDiff * rotationValue.getScale(percent)
+            val rotation      = particle.particleRotation + particle.rotationDiff * rotationValue.getScale(percent)
             val finalRotation = if (aligned) rotation + angle else rotation
-            particle.setRotation(finalRotation)
+            particle.rotation = finalRotation
           }
           (vx, vy)
         } else {
           val vx = velocity * particle.angleCos
           val vy = velocity * particle.angleSin
           if (aligned || (updateFlags & UPDATE_ROTATION) != 0) {
-            val rotation      = particle.rotation + particle.rotationDiff * rotationValue.getScale(percent)
+            val rotation      = particle.particleRotation + particle.rotationDiff * rotationValue.getScale(percent)
             val finalRotation = if (aligned) rotation + particle.angle else rotation
-            particle.setRotation(finalRotation)
+            particle.rotation = finalRotation
           }
           (vx, vy)
         }
@@ -613,7 +616,7 @@ class ParticleEmitter {
         particle.translate(finalVelocityX, finalVelocityY)
       } else {
         if ((updateFlags & UPDATE_ROTATION) != 0)
-          particle.setRotation(particle.rotation + particle.rotationDiff * rotationValue.getScale(percent))
+          particle.rotation = particle.particleRotation + particle.rotationDiff * rotationValue.getScale(percent)
       }
 
       val color =
@@ -631,15 +634,15 @@ class ParticleEmitter {
       }
 
       if ((updateFlags & UPDATE_SPRITE) != 0) {
-        val frame = Math.min((percent * sprites.size).toInt, sprites.size - 1)
+        val frame = Math.min((percent * _sprites.size).toInt, _sprites.size - 1)
         if (particle.frame != frame) {
-          val sprite           = sprites(frame)
-          val prevSpriteWidth  = particle.getWidth()
-          val prevSpriteHeight = particle.getHeight()
+          val sprite           = _sprites(frame)
+          val prevSpriteWidth  = particle.width
+          val prevSpriteHeight = particle.height
           particle.setRegion(sprite)
-          particle.setSize(sprite.getWidth(), sprite.getHeight())
-          particle.setOrigin(sprite.getOriginX(), sprite.getOriginY())
-          particle.translate((prevSpriteWidth - sprite.getWidth()) * 0.5f, (prevSpriteHeight - sprite.getHeight()) * 0.5f)
+          particle.setSize(sprite.width, sprite.height)
+          particle.setOrigin(sprite.originX, sprite.originY)
+          particle.translate((prevSpriteWidth - sprite.width) * 0.5f, (prevSpriteHeight - sprite.height) * 0.5f)
           particle.frame = frame
         }
       }
@@ -662,21 +665,21 @@ class ParticleEmitter {
 
   def setPosition(x: Float, y: Float): Unit = {
     if (attached) {
-      val xAmount = x - this.x
-      val yAmount = y - this.y
-      val active  = this.active
+      val xAmount = x - this._x
+      val yAmount = y - this._y
+      val active  = this._active
       for (i <- active.indices)
-        if (active(i)) particles(i).translate(xAmount, yAmount)
+        if (active(i)) _particles(i).translate(xAmount, yAmount)
     }
-    this.x = x
-    this.y = y
+    this._x = x
+    this._y = y
   }
 
   def setSprites(sprites: Array[Sprite]): Unit = scala.util.boundary {
-    this.sprites = DynamicArray.from(sprites)
+    this._sprites = DynamicArray.from(sprites)
     if (sprites.size == 0) scala.util.boundary.break()
-    for (i <- particles.indices) {
-      val particle = particles(i)
+    for (i <- _particles.indices) {
+      val particle = _particles(i)
       if (Nullable(particle).isEmpty) scala.util.boundary.break()
       val sprite: Nullable[Sprite] = spriteMode match {
         case SpriteMode.single =>
@@ -691,24 +694,21 @@ class ParticleEmitter {
       }
       sprite.foreach { s =>
         particle.setRegion(s)
-        particle.setOrigin(s.getOriginX(), s.getOriginY())
+        particle.setOrigin(s.originX, s.originY)
       }
     }
   }
 
-  def setSpriteMode(spriteMode: SpriteMode): Unit =
-    this.spriteMode = spriteMode
-
   /** Allocates max particles emitter can hold. Usually called early on to avoid allocation on updates. {@link #setSprites(Array)} must have been set before calling this method
     */
   def preAllocateParticles(): Unit = {
-    if (sprites.isEmpty)
+    if (_sprites.isEmpty)
       throw new IllegalStateException("ParticleEmitter.setSprites() must have been called before preAllocateParticles()")
-    for (index <- particles.indices) {
-      var particle = particles(index)
+    for (index <- _particles.indices) {
+      var particle = _particles(index)
       if (Nullable(particle).isEmpty) {
-        particles(index) = newParticle(if (sprites.nonEmpty) sprites.first else null)
-        particle = particles(index)
+        _particles(index) = newParticle(_sprites.first)
+        particle = _particles(index)
         particle.flip(flipX, flipY)
       }
     }
@@ -722,157 +722,147 @@ class ParticleEmitter {
     durationTimer = duration
   }
 
-  def getAllowCompletion(): Boolean =
-    allowCompletion
+  // --- Property accessors (replacing Java-style getters/setters) ---
 
-  def getSprites(): Array[Sprite] =
-    sprites.toArray
+  def sprites: Array[Sprite] =
+    _sprites.toArray
 
-  def getSpriteMode(): SpriteMode =
-    spriteMode
+  def x: Float = _x
+  def y: Float = _y
 
-  def getName(): String =
-    name
+  def activeCount: Int = _activeCount
 
-  def setName(name: String): Unit =
-    this.name = name
-
-  def getLife(): ScaledNumericValue =
-    lifeValue
-
-  def getXScale(): ScaledNumericValue =
-    xScaleValue
-
-  def getYScale(): ScaledNumericValue =
-    yScaleValue
-
-  def getRotation(): ScaledNumericValue =
-    rotationValue
-
-  def getTint(): GradientColorValue =
-    tintValue
-
-  def getVelocity(): ScaledNumericValue =
-    velocityValue
-
-  def getWind(): ScaledNumericValue =
-    windValue
-
-  def getGravity(): ScaledNumericValue =
-    gravityValue
-
-  def getAngle(): ScaledNumericValue =
-    angleValue
-
-  def getEmission(): ScaledNumericValue =
-    emissionValue
-
-  def getTransparency(): ScaledNumericValue =
-    transparencyValue
-
-  def getDuration(): RangedNumericValue =
-    durationValue
-
-  def getDelay(): RangedNumericValue =
-    delayValue
-
-  def getLifeOffset(): ScaledNumericValue =
-    lifeOffsetValue
-
-  def getXOffsetValue(): RangedNumericValue =
-    xOffsetValue
-
-  def getYOffsetValue(): RangedNumericValue =
-    yOffsetValue
-
-  def getSpawnWidth(): ScaledNumericValue =
-    spawnWidthValue
-
-  def getSpawnHeight(): ScaledNumericValue =
-    spawnHeightValue
-
-  def getSpawnShape(): SpawnShapeValue =
-    spawnShapeValue
-
-  def isAttached(): Boolean =
-    attached
-
-  def setAttached(attached: Boolean): Unit =
-    this.attached = attached
-
-  def isContinuous(): Boolean =
-    continuous
-
-  def setContinuous(continuous: Boolean): Unit =
-    this.continuous = continuous
-
-  def isAligned(): Boolean =
-    aligned
-
-  def setAligned(aligned: Boolean): Unit =
-    this.aligned = aligned
-
-  def isAdditive(): Boolean =
-    additive
-
-  def setAdditive(additive: Boolean): Unit =
-    this.additive = additive
-
-  /** Set whether to automatically return the {@link com.badlogic.gdx.graphics.g2d.Batch Batch} 's blend function to the alpha-blending default (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) when done
-    * drawing. Is true by default. If set to false, the Batch's blend function is left as it was for drawing this ParticleEmitter, which prevents the Batch from being flushed repeatedly if consecutive
-    * ParticleEmitters with the same additive or pre-multiplied alpha state are drawn in a row. <p> IMPORTANT: If set to false and if the next object to use this Batch expects alpha blending, you are
-    * responsible for setting the Batch's blend function to (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA) before that next object is drawn.
-    * @param cleansUpBlendFunction
-    */
-  def setCleansUpBlendFunction(cleansUpBlendFunction: Boolean): Unit =
-    this.cleansUpBlendFunction = cleansUpBlendFunction
-
-  def isBehind(): Boolean =
-    behind
-
-  def setBehind(behind: Boolean): Unit =
-    this.behind = behind
-
-  def isPremultipliedAlpha(): Boolean =
-    premultipliedAlpha
-
-  def setPremultipliedAlpha(premultipliedAlpha: Boolean): Unit =
-    this.premultipliedAlpha = premultipliedAlpha
-
-  def getMinParticleCount(): Int =
-    minParticleCount
-
-  def setMinParticleCount(minParticleCount: Int): Unit =
-    this.minParticleCount = minParticleCount
-
-  def getMaxParticleCount(): Int =
-    maxParticleCount
-
-  def isComplete(): Boolean =
+  def isComplete: Boolean =
     if (continuous && !allowCompletion) false
     else if (delayTimer < delay) false
-    else durationTimer >= duration && activeCount == 0
+    else durationTimer >= duration && _activeCount == 0
 
-  def getPercentComplete(): Float =
+  def percentComplete: Float =
     if (delayTimer < delay) 0
     else Math.min(1, durationTimer / duration)
 
-  def getX(): Float = x
-  def getY(): Float = y
+  def imagePaths: Array[String] =
+    Nullable(_imagePaths).map(_.toArray).getOrElse(Array.empty[String])
 
-  def getActiveCount(): Int =
-    activeCount
+  def imagePaths_=(imagePaths: Array[String]): Unit =
+    this._imagePaths = DynamicArray.from(imagePaths)
 
-  def getImagePaths(): Array[String] =
-    Nullable(imagePaths).fold(Array.empty[String])(_.toArray)
+  /** Returns the bounding box for all active particles. z axis will always be zero. */
+  def boundingBox: BoundingBox = {
+    if (Nullable(_bounds).isEmpty) _bounds = BoundingBox()
 
-  def setImagePaths(imagePaths: Array[String]): Unit =
-    this.imagePaths = DynamicArray.from(imagePaths)
+    val particles   = this._particles
+    val active      = this._active
+    val boundingBox = this._bounds
+
+    boundingBox.inf()
+    for (i <- active.indices)
+      if (active(i)) {
+        val r = particles(i).boundingRectangle
+        boundingBox.ext(r.x, r.y, 0)
+        boundingBox.ext(r.x + r.width, r.y + r.height, 0)
+      }
+
+    boundingBox
+  }
+
+  // --- Value object getters ---
+
+  def lifeVal: ScaledNumericValue =
+    lifeValue
+
+  def xScale: ScaledNumericValue =
+    xScaleValue
+
+  def yScale: ScaledNumericValue =
+    yScaleValue
+
+  def rotation: ScaledNumericValue =
+    rotationValue
+
+  def tint: GradientColorValue =
+    tintValue
+
+  def velocity: ScaledNumericValue =
+    velocityValue
+
+  def wind: ScaledNumericValue =
+    windValue
+
+  def gravity: ScaledNumericValue =
+    gravityValue
+
+  def angle: ScaledNumericValue =
+    angleValue
+
+  def emissionVal: ScaledNumericValue =
+    emissionValue
+
+  def transparency: ScaledNumericValue =
+    transparencyValue
+
+  def durationVal: RangedNumericValue =
+    durationValue
+
+  def delayVal: RangedNumericValue =
+    delayValue
+
+  def lifeOffsetVal: ScaledNumericValue =
+    lifeOffsetValue
+
+  def xOffset: RangedNumericValue =
+    xOffsetValue
+
+  def yOffset: RangedNumericValue =
+    yOffsetValue
+
+  def spawnWidthVal: ScaledNumericValue =
+    spawnWidthValue
+
+  def spawnHeightVal: ScaledNumericValue =
+    spawnHeightValue
+
+  def spawnShape: SpawnShapeValue =
+    spawnShapeValue
+
+  // --- Protected accessors ---
+
+  protected def xSizeValues: Array[RangedNumericValue] = {
+    if (Nullable(_xSizeValues).isEmpty) {
+      _xSizeValues = new Array[RangedNumericValue](3)
+      _xSizeValues(0) = xScaleValue
+      _xSizeValues(1) = spawnWidthValue
+      _xSizeValues(2) = xOffsetValue
+    }
+    _xSizeValues
+  }
+
+  protected def ySizeValues: Array[RangedNumericValue] = {
+    if (Nullable(_ySizeValues).isEmpty) {
+      _ySizeValues = new Array[RangedNumericValue](3)
+      _ySizeValues(0) = yScaleValue
+      _ySizeValues(1) = spawnHeightValue
+      _ySizeValues(2) = yOffsetValue
+    }
+    _ySizeValues
+  }
+
+  protected def motionValues: Array[RangedNumericValue] = {
+    if (Nullable(_motionValues).isEmpty) {
+      _motionValues = new Array[RangedNumericValue](3)
+      _motionValues(0) = velocityValue
+      _motionValues(1) = windValue
+      _motionValues(2) = gravityValue
+    }
+    _motionValues
+  }
+
+  // --- Flip and scale methods ---
 
   def setFlip(flipX: Boolean, flipY: Boolean): Unit = {
     this.flipX = flipX
     this.flipY = flipY
-    Nullable(particles).foreach { ps =>
+    Nullable(_particles).foreach { ps =>
       for (i <- ps.indices) {
         val particle = ps(i)
         Nullable(particle).foreach(_.flip(flipX, flipY))
@@ -881,68 +871,19 @@ class ParticleEmitter {
   }
 
   def flipYValues(): Unit = {
-    angleValue.setHigh(-angleValue.getHighMin, -angleValue.getHighMax)
-    angleValue.setLow(-angleValue.getLowMin, -angleValue.getLowMax)
+    angleValue.setHigh(-angleValue.highMin, -angleValue.highMax)
+    angleValue.setLow(-angleValue.lowMin, -angleValue.lowMax)
 
-    gravityValue.setHigh(-gravityValue.getHighMin, -gravityValue.getHighMax)
-    gravityValue.setLow(-gravityValue.getLowMin, -gravityValue.getLowMax)
+    gravityValue.setHigh(-gravityValue.highMin, -gravityValue.highMax)
+    gravityValue.setLow(-gravityValue.lowMin, -gravityValue.lowMax)
 
-    windValue.setHigh(-windValue.getHighMin, -windValue.getHighMax)
-    windValue.setLow(-windValue.getLowMin, -windValue.getLowMax)
+    windValue.setHigh(-windValue.highMin, -windValue.highMax)
+    windValue.setLow(-windValue.lowMin, -windValue.lowMax)
 
-    rotationValue.setHigh(-rotationValue.getHighMin, -rotationValue.getHighMax)
-    rotationValue.setLow(-rotationValue.getLowMin, -rotationValue.getLowMax)
+    rotationValue.setHigh(-rotationValue.highMin, -rotationValue.highMax)
+    rotationValue.setLow(-rotationValue.lowMin, -rotationValue.lowMax)
 
-    yOffsetValue.setLow(-yOffsetValue.getLowMin, -yOffsetValue.getLowMax)
-  }
-
-  /** Returns the bounding box for all active particles. z axis will always be zero. */
-  def getBoundingBox(): BoundingBox = {
-    if (Nullable(bounds).isEmpty) bounds = new BoundingBox()
-
-    val particles   = this.particles
-    val active      = this.active
-    val boundingBox = this.bounds
-
-    boundingBox.inf()
-    for (i <- active.indices)
-      if (active(i)) {
-        val r = particles(i).getBoundingRectangle()
-        boundingBox.ext(r.x, r.y, 0)
-        boundingBox.ext(r.x + r.width, r.y + r.height, 0)
-      }
-
-    boundingBox
-  }
-
-  protected def getXSizeValues(): Array[RangedNumericValue] = {
-    if (Nullable(xSizeValues).isEmpty) {
-      xSizeValues = new Array[RangedNumericValue](3)
-      xSizeValues(0) = xScaleValue
-      xSizeValues(1) = spawnWidthValue
-      xSizeValues(2) = xOffsetValue
-    }
-    xSizeValues
-  }
-
-  protected def getYSizeValues(): Array[RangedNumericValue] = {
-    if (Nullable(ySizeValues).isEmpty) {
-      ySizeValues = new Array[RangedNumericValue](3)
-      ySizeValues(0) = yScaleValue
-      ySizeValues(1) = spawnHeightValue
-      ySizeValues(2) = yOffsetValue
-    }
-    ySizeValues
-  }
-
-  protected def getMotionValues(): Array[RangedNumericValue] = {
-    if (Nullable(motionValues).isEmpty) {
-      motionValues = new Array[RangedNumericValue](3)
-      motionValues(0) = velocityValue
-      motionValues(1) = windValue
-      motionValues(2) = gravityValue
-    }
-    motionValues
+    yOffsetValue.setLow(-yOffsetValue.lowMin, -yOffsetValue.lowMax)
   }
 
   /** Permanently scales the size of the emitter by scaling all its ranged values related to size. */
@@ -954,16 +895,16 @@ class ParticleEmitter {
   /** Permanently scales the size of the emitter by scaling all its ranged values related to size. */
   def scaleSize(scaleX: Float, scaleY: Float): Unit =
     if (scaleX != 1f || scaleY != 1f) {
-      for (value <- getXSizeValues())
+      for (value <- xSizeValues)
         value.scale(scaleX)
-      for (value <- getYSizeValues())
+      for (value <- ySizeValues)
         value.scale(scaleY)
     }
 
   /** Permanently scales the speed of the emitter by scaling all its ranged values related to motion. */
   def scaleMotion(scale: Float): Unit =
     if (scale != 1f) {
-      for (value <- getMotionValues())
+      for (value <- motionValues)
         value.scale(scale)
     }
 
@@ -975,24 +916,24 @@ class ParticleEmitter {
 
   /** Sets all horizontal size-related ranged values to match those of the template emitter. */
   def matchXSize(template: ParticleEmitter): Unit = {
-    val values         = getXSizeValues()
-    val templateValues = template.getXSizeValues()
+    val values         = xSizeValues
+    val templateValues = template.xSizeValues
     for (i <- values.indices)
       copyValue(values(i), templateValues(i))
   }
 
   /** Sets all vertical size-related ranged values to match those of the template emitter. */
   def matchYSize(template: ParticleEmitter): Unit = {
-    val values         = getYSizeValues()
-    val templateValues = template.getYSizeValues()
+    val values         = ySizeValues
+    val templateValues = template.ySizeValues
     for (i <- values.indices)
       copyValue(values(i), templateValues(i))
   }
 
   /** Sets all motion-related ranged values to match those of the template emitter. */
   def matchMotion(template: ParticleEmitter): Unit = {
-    val values         = getMotionValues()
-    val templateValues = template.getMotionValues()
+    val values         = motionValues
+    val templateValues = template.motionValues
     for (i <- values.indices)
       copyValue(values(i), templateValues(i))
   }
@@ -1001,7 +942,7 @@ class ParticleEmitter {
     // Simplified copy implementation
     source match {
       case src: RangedNumericValue =>
-        target.setLow(src.getLowMin, src.getLowMax)
+        target.setLow(src.lowMin, src.lowMax)
       // Additional copying as needed
       case _ => // ignore for now
     }
@@ -1014,7 +955,7 @@ class ParticleEmitter {
     durationValue.save(output)
     output.write("- Count - \n")
     output.write("min: " + minParticleCount + "\n")
-    output.write("max: " + maxParticleCount + "\n")
+    output.write("max: " + _maxParticleCount + "\n")
     output.write("- Emission - \n")
     emissionValue.save(output)
     output.write("- Life - \n")
@@ -1058,7 +999,7 @@ class ParticleEmitter {
     output.write("premultipliedAlpha: " + premultipliedAlpha + "\n")
     output.write("spriteMode: " + spriteMode.toString + "\n")
     output.write("- Image Paths -\n")
-    for (imagePath <- imagePaths)
+    for (imagePath <- _imagePaths)
       output.write(imagePath + "\n")
     output.write("\n")
   }
@@ -1071,8 +1012,8 @@ class ParticleEmitter {
       reader.readLine()
       durationValue.load(reader)
       reader.readLine()
-      setMinParticleCount(ParticleEmitter.readInt(reader, "minParticleCount"))
-      setMaxParticleCount(ParticleEmitter.readInt(reader, "maxParticleCount"))
+      minParticleCount = ParticleEmitter.readInt(reader, "minParticleCount")
+      maxParticleCount = ParticleEmitter.readInt(reader, "maxParticleCount")
       reader.readLine()
       emissionValue.load(reader)
       reader.readLine()
@@ -1092,7 +1033,7 @@ class ParticleEmitter {
       var line = reader.readLine()
       if (line.trim.equals("- Scale -")) {
         xScaleValue.load(reader)
-        yScaleValue.setActive(false)
+        yScaleValue.active = false
       } else {
         xScaleValue.load(reader)
         reader.readLine()
@@ -1136,7 +1077,7 @@ class ParticleEmitter {
         imagePaths.add(currentLine)
         currentLine = reader.readLine()
       }
-      setImagePaths(imagePaths.toArray)
+      this.imagePaths = imagePaths.toArray
     } catch {
       case ex: RuntimeException =>
         if (Nullable(name).isEmpty) throw ex
@@ -1182,7 +1123,7 @@ object ParticleEmitter {
     var xScaleDiff:       Float        = 0f
     var yScale:           Float        = 0f
     var yScaleDiff:       Float        = 0f
-    var rotation:         Float        = 0f
+    var particleRotation: Float        = 0f
     var rotationDiff:     Float        = 0f
     var velocity:         Float        = 0f
     var velocityDiff:     Float        = 0f
@@ -1204,15 +1145,7 @@ object ParticleEmitter {
     var active:       Boolean = false
     var alwaysActive: Boolean = false
 
-    def setAlwaysActive(alwaysActive: Boolean): Unit =
-      this.alwaysActive = alwaysActive
-
-    def isAlwaysActive: Boolean = alwaysActive
-
     def isActive: Boolean = alwaysActive || active
-
-    def setActive(active: Boolean): Unit =
-      this.active = active
 
     def save(output: Writer): Unit =
       if (!alwaysActive)
@@ -1233,13 +1166,7 @@ object ParticleEmitter {
   }
 
   class NumericValue extends ParticleValue {
-    private var value: Float = 0f
-
-    def getValue(): Float =
-      value
-
-    def setValue(value: Float): Unit =
-      this.value = value
+    var value: Float = 0f
 
     override def save(output: Writer): Unit = {
       super.save(output)
@@ -1260,8 +1187,8 @@ object ParticleEmitter {
   }
 
   class RangedNumericValue extends ParticleValue {
-    private var lowMin: Float = 0f
-    private var lowMax: Float = 0f
+    var lowMin: Float = 0f
+    var lowMax: Float = 0f
 
     def newLowValue(): Float =
       lowMin + (lowMax - lowMin) * scala.util.Random.nextFloat()
@@ -1275,11 +1202,6 @@ object ParticleEmitter {
       lowMin = min
       lowMax = max
     }
-
-    def getLowMin:                Float = lowMin
-    def setLowMin(lowMin: Float): Unit  = this.lowMin = lowMin
-    def getLowMax:                Float = lowMax
-    def setLowMax(lowMax: Float): Unit  = this.lowMax = lowMax
 
     def scale(scale: Float): Unit = {
       lowMin *= scale
@@ -1315,11 +1237,11 @@ object ParticleEmitter {
   }
 
   class ScaledNumericValue extends RangedNumericValue {
-    private var scaling: Array[Float] = Array(1f)
-    var timeline:        Array[Float] = Array(0f)
-    private var highMin: Float        = 0f
-    private var highMax: Float        = 0f
-    var relative:        Boolean      = false
+    var scaling:  Array[Float] = Array(1f)
+    var timeline: Array[Float] = Array(0f)
+    var highMin:  Float        = 0f
+    var highMax:  Float        = 0f
+    var relative: Boolean      = false
 
     def newHighValue(): Float =
       highMin + (highMax - highMin) * scala.util.Random.nextFloat()
@@ -1333,11 +1255,6 @@ object ParticleEmitter {
       highMin = min
       highMax = max
     }
-
-    def getHighMin:                 Float = highMin
-    def setHighMin(highMin: Float): Unit  = this.highMin = highMin
-    def getHighMax:                 Float = highMax
-    def setHighMax(highMax: Float): Unit  = this.highMax = highMax
 
     override def scale(scale: Float): Unit = {
       super.scale(scale)
@@ -1375,21 +1292,6 @@ object ParticleEmitter {
         case _ =>
           super.set(value)
       }
-
-    def getScaling(): Array[Float] = scaling
-
-    def setScaling(values: Array[Float]): Unit =
-      this.scaling = values
-
-    def getTimeline(): Array[Float] = timeline
-
-    def setTimeline(timeline: Array[Float]): Unit =
-      this.timeline = timeline
-
-    def isRelative(): Boolean = relative
-
-    def setRelative(relative: Boolean): Unit =
-      this.relative = relative
 
     override def save(output: Writer): Unit = {
       super.save(output)
@@ -1435,9 +1337,6 @@ object ParticleEmitter {
 
   class IndependentScaledNumericValue extends ScaledNumericValue {
     var independent: Boolean = false
-
-    def isIndependent:                        Boolean = independent
-    def setIndependent(independent: Boolean): Unit    = this.independent = independent
 
     override def set(value: RangedNumericValue): Unit =
       value match {
@@ -1495,22 +1394,10 @@ object ParticleEmitter {
   class GradientColorValue extends ParticleValue {
     import GradientColorValue._
 
-    private var colors: Array[Float] = Array(1f, 1f, 1f)
-    var timeline:       Array[Float] = Array(0f)
+    var colors:   Array[Float] = Array(1f, 1f, 1f)
+    var timeline: Array[Float] = Array(0f)
 
     alwaysActive = true
-
-    def getTimeline(): Array[Float] = timeline
-
-    def setTimeline(timeline: Array[Float]): Unit =
-      this.timeline = timeline
-
-    /** @return the r, g and b values for every timeline position */
-    def getColors(): Array[Float] = colors
-
-    /** @param colors the r, g and b values for every timeline position */
-    def setColors(colors: Array[Float]): Unit =
-      this.colors = colors
 
     def getColor(percent: Float): Array[Float] = scala.util.boundary {
       var startIndex = 0
@@ -1591,21 +1478,6 @@ object ParticleEmitter {
     var shape: SpawnShape       = SpawnShape.point
     var edges: Boolean          = false
     var side:  SpawnEllipseSide = SpawnEllipseSide.both
-
-    def getShape(): SpawnShape = shape
-
-    def setShape(shape: SpawnShape): Unit =
-      this.shape = shape
-
-    def isEdges(): Boolean = edges
-
-    def setEdges(edges: Boolean): Unit =
-      this.edges = edges
-
-    def getSide(): SpawnEllipseSide = side
-
-    def setSide(side: SpawnEllipseSide): Unit =
-      this.side = side
 
     override def save(output: Writer): Unit = {
       super.save(output)

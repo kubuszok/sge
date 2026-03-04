@@ -7,11 +7,9 @@
  * Migration notes:
  *   Convention: managed texture lifecycle
  *   Idiom: split packages
- *   Issues: uses named (using sde: Sge) instead of anonymous (using Sge)
- *   TODO: Java-style getters/setters -- getData, getWidth, getHeight, getDepth, isManaged
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Convention: anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -30,26 +28,25 @@ import sge.utils.SgeError
   * @author
   *   mgsx
   */
-class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_TEXTURE_3D, TextureHandle(sde.graphics.gl.glGenTexture())) {
+class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(GL30.GL_TEXTURE_3D, TextureHandle(Sge().graphics.gl.glGenTexture())) {
 
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
 
-  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using sde: Sge) = {
-    this(new CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
-  }
+  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using Sge) =
+    this(CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
 
-  if (sde.graphics.gl30.isEmpty) {
+  if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("Texture3D requires a device running with GLES 3.0 compatibility")
   }
 
-  load(data)(using sde)
+  load(data)
 
   if (data.isManaged()) {
-    Texture3D.addManagedTexture(sde.application, this)
+    Texture3D.addManagedTexture(Sge().application, this)
   }
 
-  private def load(data: Texture3DData)(using sde: Sge): Unit = {
+  private def load(data: Texture3DData): Unit = {
     Nullable(this.textureData).foreach { existing =>
       if (data.isManaged() != existing.isManaged())
         throw SgeError.GraphicsError("New data must have the same managed status as the old data")
@@ -65,7 +62,7 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
     setFilter(minFilter, magFilter)
     setWrap(uWrap, vWrap, rWrap)
 
-    sde.graphics.gl.glBindTexture(glTarget, 0)
+    Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
   def getData(): Texture3DData = textureData
@@ -85,20 +82,20 @@ class Texture3D(data: Texture3DData)(using sde: Sge) extends GLTexture(GL30.GL_T
 
   override protected def reload(): Unit = {
     if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
-    glHandle = TextureHandle(sde.graphics.gl.glGenTexture())
+    glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }
 
   def setWrap(u: TextureWrap, v: TextureWrap, r: TextureWrap): Unit = {
     this.rWrap = r
     super.setWrap(u, v)
-    sde.graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
   }
 
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, r: TextureWrap, force: Boolean): Unit = {
     unsafeSetWrap(u, v, force)
     if (force || rWrap != r) {
-      sde.graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
       rWrap = r
     }
   }
@@ -137,6 +134,6 @@ object Texture3D {
   }
 
   /** @return the number of managed Texture3D currently loaded */
-  def getNumManagedTextures3D()(using sde: Sge): Int =
-    managedTexture3Ds.get(sde.application).map(_.size).getOrElse(0)
+  def getNumManagedTextures3D()(using Sge): Int =
+    managedTexture3Ds.get(Sge().application).map(_.size).getOrElse(0)
 }

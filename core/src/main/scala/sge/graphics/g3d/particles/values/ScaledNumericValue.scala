@@ -8,12 +8,12 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: newHighValue, setHigh (x2), getHighMin, setHighMin, getHighMax,
- *   setHighMax, getScaling, setScaling, getTimeline, setTimeline, isRelative, setRelative,
- *   getScale, load
+ * - All public methods ported: newHighValue, setHigh (x2), highMin/highMax/scaling/relative
+ *   (public vars), getScale, load
  * - getScale uses boundary/break instead of return (correct pattern)
  * - Array.copy used instead of System.arraycopy (correct Scala equivalent)
- * - TODO: Java-style getters/setters — 5 pairs: highMin/Max, scaling, timeline, relative → vars
+ * - Fixes (2026-03-04): removed 8 redundant getters/setters (highMin/Max, scaling, timeline,
+ *   relative); made fields public vars
  * - Status: pass
  */
 
@@ -33,11 +33,11 @@ import sge.math.MathUtils
   *   Inferno
   */
 class ScaledNumericValue extends RangedNumericValue {
-  private var scaling:  Array[Float] = Array(1f)
-  var timeline:         Array[Float] = Array(0f)
-  private var highMin:  Float        = 0f
-  private var highMax:  Float        = 0f
-  private var relative: Boolean      = false
+  var scaling:  Array[Float] = Array(1f)
+  var timeline: Array[Float] = Array(0f)
+  var highMin:  Float        = 0f
+  var highMax:  Float        = 0f
+  var relative: Boolean      = false
 
   def newHighValue(): Float =
     highMin + (highMax - highMin) * MathUtils.random()
@@ -51,36 +51,6 @@ class ScaledNumericValue extends RangedNumericValue {
     highMin = min
     highMax = max
   }
-
-  def getHighMin(): Float =
-    highMin
-
-  def setHighMin(highMin: Float): Unit =
-    this.highMin = highMin
-
-  def getHighMax(): Float =
-    highMax
-
-  def setHighMax(highMax: Float): Unit =
-    this.highMax = highMax
-
-  def getScaling(): Array[Float] =
-    scaling
-
-  def setScaling(values: Array[Float]): Unit =
-    this.scaling = values
-
-  def getTimeline(): Array[Float] =
-    timeline
-
-  def setTimeline(timeline: Array[Float]): Unit =
-    this.timeline = timeline
-
-  def isRelative(): Boolean =
-    relative
-
-  def setRelative(relative: Boolean): Unit =
-    this.relative = relative
 
   def getScale(percent: Float): Float = boundary {
     var endIndex = -1

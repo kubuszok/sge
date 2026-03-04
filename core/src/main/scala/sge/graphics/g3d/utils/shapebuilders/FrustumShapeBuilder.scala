@@ -4,6 +4,12 @@
  * Original authors: realitix
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Convention: null → Nullable
+ *   Renames: len → length
+ *   Idiom: Java static class → Scala object
+ *   Audited: 2026-03-04 — pass
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge

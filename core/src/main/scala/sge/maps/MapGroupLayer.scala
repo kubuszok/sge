@@ -18,7 +18,7 @@ package maps
 /** Map layer containing a set of MapLayers, objects and properties */
 class MapGroupLayer extends MapLayer {
 
-  private val layers: MapLayers = new MapLayers()
+  private val layers: MapLayers = MapLayers()
 
   /** @return the {@link MapLayers} owned by this group */
   def getLayers: MapLayers = layers

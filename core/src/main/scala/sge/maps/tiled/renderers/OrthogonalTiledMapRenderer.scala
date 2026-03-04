@@ -24,12 +24,12 @@ import sge.graphics.g2d.{ Batch, SpriteBatch }
 
 class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, ownsBatch: Boolean)(using Sge) extends BatchTiledMapRenderer(map, unitScale, batch, ownsBatch) {
 
-  def this(map: TiledMap)(using Sge) = this(map, 1.0f, new SpriteBatch(), true)
+  def this(map: TiledMap)(using Sge) = this(map, 1.0f, SpriteBatch(), true)
   def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
-  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, new SpriteBatch(), true)
+  def this(map: TiledMap, unitScale: Float)(using Sge) = this(map, unitScale, SpriteBatch(), true)
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
-    val batchColor = batch.getColor()
+    val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
     val layerWidth  = layer.getWidth
@@ -38,9 +38,9 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
     val layerTileWidth  = layer.getTileWidth * unitScale
     val layerTileHeight = layer.getTileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.getParallaxX - 1)
+    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.getParallaxY - 1)
+    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val col1 = Math.max(0, ((viewBounds.x - layerOffsetX) / layerTileWidth).toInt)
     val col2 = Math.min(layerWidth, ((viewBounds.x + viewBounds.width + layerTileWidth - layerOffsetX) / layerTileWidth).toInt)
@@ -62,23 +62,23 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
           x += layerTileWidth
         } else {
           cell.foreach { c =>
-            val tile = c.getTile
+            val tile = c.tile
             tile.foreach { t =>
-              val flipX     = c.getFlipHorizontally
-              val flipY     = c.getFlipVertically
-              val rotations = c.getRotation
+              val flipX     = c.flipHorizontally
+              val flipY     = c.flipVertically
+              val rotations = c.rotation
 
               val region = t.getTextureRegion
 
               val x1 = x + t.getOffsetX * unitScale
               val y1 = y + t.getOffsetY * unitScale
-              val x2 = x1 + region.getRegionWidth() * unitScale
-              val y2 = y1 + region.getRegionHeight() * unitScale
+              val x2 = x1 + region.regionWidth * unitScale
+              val y2 = y1 + region.regionHeight * unitScale
 
-              val u1 = region.getU()
-              val v1 = region.getV2()
-              val u2 = region.getU2()
-              val v2 = region.getV()
+              val u1 = region.u
+              val v1 = region.v2
+              val u2 = region.u2
+              val v2 = region.v
 
               vertices(Batch.X1) = x1
               vertices(Batch.Y1) = y1
@@ -162,7 +162,7 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
                   case _ => ()
                 }
               }
-              batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+              batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
             }
           }
           x += layerTileWidth

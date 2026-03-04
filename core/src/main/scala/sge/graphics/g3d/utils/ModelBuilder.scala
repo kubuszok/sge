@@ -30,7 +30,7 @@ import scala.util.boundary.break
 
 import sge.graphics.{ Color, GL20, Mesh, VertexAttributes }
 import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
-import sge.math.{ Matrix4, Vector3 }
+import sge.math.Vector3
 import sge.Sge
 import sge.utils.{ DynamicArray, Nullable, SgeError }
 
@@ -42,7 +42,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   *   Xoppa
   */
 @nowarn("msg=deprecated")
-class ModelBuilder {
+class ModelBuilder()(using Sge) {
 
   /** The model currently being build */
   protected var model: Nullable[Model] = Nullable.empty
@@ -53,12 +53,10 @@ class ModelBuilder {
   /** The mesh builders created between begin and end */
   protected var builders: DynamicArray[MeshBuilder] = DynamicArray[MeshBuilder]()
 
-  new Matrix4()
-
   private def getBuilder(attributes: VertexAttributes): MeshBuilder = boundary {
     for (mb <- builders)
       if (mb.getAttributes().equals(attributes) && mb.lastIndex() < MeshBuilder.MAX_VERTICES / 2) break(mb)
-    val result = new MeshBuilder()
+    val result = MeshBuilder()
     result.begin(attributes)
     builders.add(result)
     result
@@ -68,7 +66,7 @@ class ModelBuilder {
   def begin(): Unit = {
     if (model.isDefined) throw SgeError.InvalidInput("Call end() first")
     currentNode = Nullable.empty
-    model = Nullable(new Model())
+    model = Nullable(Model())
     builders.clear()
   }
 
@@ -76,7 +74,7 @@ class ModelBuilder {
     * @return
     *   The newly created model. Call the {@link Model#close()} method when no longer used.
     */
-  def end()(using Sge): Model = {
+  def end(): Model = {
     if (model.isEmpty) throw SgeError.InvalidInput("Call begin() first")
     val result = model.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
     endnode()
@@ -112,7 +110,7 @@ class ModelBuilder {
     *   The node being created.
     */
   def node(): Node = {
-    val n = new Node()
+    val n = Node()
     node(n)
     model.foreach(m => n.id = "node" + m.nodes.size)
     n
@@ -123,7 +121,7 @@ class ModelBuilder {
     *   The newly created node containing the nodes of the given model.
     */
   def node(id: String, model: Model): Node = {
-    val n = new Node()
+    val n = Node()
     n.id = id
     n.addChildren(model.nodes)
     node(n)
@@ -143,7 +141,7 @@ class ModelBuilder {
     */
   def part(meshpart: MeshPart, material: Material): Unit = {
     if (currentNode.isEmpty) this.node()
-    currentNode.foreach(_.parts.add(new NodePart(meshpart, material)))
+    currentNode.foreach(_.parts.add(NodePart(meshpart, material)))
   }
 
   /** Adds the specified mesh part to the current node. The Mesh will be managed by the model and disposed when the model is disposed. The resources the Material might contain are not managed, use
@@ -152,7 +150,7 @@ class ModelBuilder {
     *   The added MeshPart.
     */
   def part(id: String, mesh: Mesh, primitiveType: Int, offset: Int, size: Int, material: Material): MeshPart = {
-    val meshPart = new MeshPart()
+    val meshPart = MeshPart()
     meshPart.id = Nullable(id)
     meshPart.primitiveType = primitiveType
     meshPart.mesh = mesh
@@ -198,7 +196,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createBox(width: Float, height: Float, depth: Float, material: Material, attributes: Long)(using Sge): Model =
+  def createBox(width: Float, height: Float, depth: Float, material: Material, attributes: Long): Model =
     createBox(width, height, depth, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a box shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to add
@@ -206,7 +204,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createBox(width: Float, height: Float, depth: Float, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model = {
+  def createBox(width: Float, height: Float, depth: Float, primitiveType: Int, material: Material, attributes: Long): Model = {
     begin()
     part("box", primitiveType, attributes, material).box(width, height, depth)
     end()
@@ -235,7 +233,7 @@ class ModelBuilder {
     normalZ:    Float,
     material:   Material,
     attributes: Long
-  )(using Sge): Model =
+  ): Model =
     createRect(x00, y00, z00, x10, y10, z10, x11, y11, z11, x01, y01, z01, normalX, normalY, normalZ, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a rectangle shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)}
@@ -262,7 +260,7 @@ class ModelBuilder {
     primitiveType: Int,
     material:      Material,
     attributes:    Long
-  )(using Sge): Model = {
+  ): Model = {
     begin()
     part("rect", primitiveType, attributes, material).rect(x00, y00, z00, x10, y10, z10, x11, y11, z11, x01, y01, z01, normalX, normalY, normalZ)
     end()
@@ -273,7 +271,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long): Model =
     createCylinder(width, height, depth, divisions, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a cylinder shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)}
@@ -281,7 +279,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long): Model =
     createCylinder(width, height, depth, divisions, primitiveType, material, attributes, 0, 360)
 
   /** Convenience method to create a model with a single node containing a cylinder shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)}
@@ -289,7 +287,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float)(using Sge): Model =
+  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model =
     createCylinder(width, height, depth, divisions, GL20.GL_TRIANGLES, material, attributes, angleFrom, angleTo)
 
   /** Convenience method to create a model with a single node containing a cylinder shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)}
@@ -297,7 +295,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float)(using Sge): Model = {
+  def createCylinder(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model = {
     begin()
     part("cylinder", primitiveType, attributes, material).cylinder(width, height, depth, divisions, angleFrom, angleTo)
     end()
@@ -308,7 +306,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCone(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createCone(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long): Model =
     createCone(width, height, depth, divisions, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a cone shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -316,7 +314,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCone(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createCone(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long): Model =
     createCone(width, height, depth, divisions, primitiveType, material, attributes, 0, 360)
 
   /** Convenience method to create a model with a single node containing a cone shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -324,7 +322,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCone(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float)(using Sge): Model =
+  def createCone(width: Float, height: Float, depth: Float, divisions: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model =
     createCone(width, height, depth, divisions, GL20.GL_TRIANGLES, material, attributes, angleFrom, angleTo)
 
   /** Convenience method to create a model with a single node containing a cone shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -332,7 +330,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCone(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float)(using Sge): Model = {
+  def createCone(width: Float, height: Float, depth: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long, angleFrom: Float, angleTo: Float): Model = {
     begin()
     part("cone", primitiveType, attributes, material).cone(width, height, depth, divisions, angleFrom, angleTo)
     end()
@@ -343,7 +341,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createSphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createSphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int, material: Material, attributes: Long): Model =
     createSphere(width, height, depth, divisionsU, divisionsV, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a sphere shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -351,7 +349,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createSphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createSphere(width: Float, height: Float, depth: Float, divisionsU: Int, divisionsV: Int, primitiveType: Int, material: Material, attributes: Long): Model =
     createSphere(width, height, depth, divisionsU, divisionsV, primitiveType, material, attributes, 0, 360, 0, 180)
 
   /** Convenience method to create a model with a single node containing a sphere shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -371,7 +369,7 @@ class ModelBuilder {
     angleUTo:   Float,
     angleVFrom: Float,
     angleVTo:   Float
-  )(using Sge): Model =
+  ): Model =
     createSphere(
       width,
       height,
@@ -405,7 +403,7 @@ class ModelBuilder {
     angleUTo:      Float,
     angleVFrom:    Float,
     angleVTo:      Float
-  )(using Sge): Model = {
+  ): Model = {
     begin()
     part("sphere", primitiveType, attributes, material).sphere(width, height, depth, divisionsU, divisionsV, angleUFrom, angleUTo, angleVFrom, angleVTo)
     end()
@@ -416,7 +414,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCapsule(radius: Float, height: Float, divisions: Int, material: Material, attributes: Long)(using Sge): Model =
+  def createCapsule(radius: Float, height: Float, divisions: Int, material: Material, attributes: Long): Model =
     createCapsule(radius, height, divisions, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with a single node containing a capsule shape. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to
@@ -424,7 +422,7 @@ class ModelBuilder {
     * @param attributes
     *   bitwise mask of the {@link com.badlogic.gdx.graphics.VertexAttributes.Usage}, only Position, Color, Normal and TextureCoordinates is supported.
     */
-  def createCapsule(radius: Float, height: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model = {
+  def createCapsule(radius: Float, height: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long): Model = {
     begin()
     part("capsule", primitiveType, attributes, material).capsule(radius, height, divisions)
     end()
@@ -441,7 +439,7 @@ class ModelBuilder {
     * @param divisions
     *   the amount of vertices used to generate the cap and stem ellipsoidal bases
     */
-  def createXYZCoordinates(axisLength: Float, capLength: Float, stemThickness: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long)(using Sge): Model = {
+  def createXYZCoordinates(axisLength: Float, capLength: Float, stemThickness: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long): Model = {
     begin()
     node()
 
@@ -456,7 +454,7 @@ class ModelBuilder {
     end()
   }
 
-  def createXYZCoordinates(axisLength: Float, material: Material, attributes: Long)(using Sge): Model =
+  def createXYZCoordinates(axisLength: Float, material: Material, attributes: Long): Model =
     createXYZCoordinates(axisLength, 0.1f, 0.1f, 5, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model with an arrow. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to add those to the model.
@@ -468,8 +466,19 @@ class ModelBuilder {
     * @param divisions
     *   the amount of vertices used to generate the cap and stem ellipsoidal bases
     */
-  def createArrow(x1: Float, y1: Float, z1: Float, x2: Float, y2: Float, z2: Float, capLength: Float, stemThickness: Float, divisions: Int, primitiveType: Int, material: Material, attributes: Long)(
-    using Sge
+  def createArrow(
+    x1:            Float,
+    y1:            Float,
+    z1:            Float,
+    x2:            Float,
+    y2:            Float,
+    z2:            Float,
+    capLength:     Float,
+    stemThickness: Float,
+    divisions:     Int,
+    primitiveType: Int,
+    material:      Material,
+    attributes:    Long
   ): Model = {
     begin()
     part("arrow", primitiveType, attributes, material).arrow(x1, y1, z1, x2, y2, z2, capLength, stemThickness, divisions)
@@ -478,7 +487,7 @@ class ModelBuilder {
 
   /** Convenience method to create a model with an arrow. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)} to add those to the model.
     */
-  def createArrow(from: Vector3, to: Vector3, material: Material, attributes: Long)(using Sge): Model =
+  def createArrow(from: Vector3, to: Vector3, material: Material, attributes: Long): Model =
     createArrow(from.x, from.y, from.z, to.x, to.y, to.z, 0.1f, 0.1f, 5, GL20.GL_TRIANGLES, material, attributes)
 
   /** Convenience method to create a model which represents a grid of lines on the XZ plane. The resources the Material might contain are not managed, use {@link Model#manageDisposable(AutoCloseable)}
@@ -492,7 +501,7 @@ class ModelBuilder {
     * @param zSize
     *   Length of a single row on z.
     */
-  def createLineGrid(xDivisions: Int, zDivisions: Int, xSize: Float, zSize: Float, material: Material, attributes: Long)(using Sge): Model = {
+  def createLineGrid(xDivisions: Int, zDivisions: Int, xSize: Float, zSize: Float, material: Material, attributes: Long): Model = {
     begin()
     val partBuilder = part("lines", GL20.GL_LINES, attributes, material)
     val xlength     = xDivisions * xSize
@@ -542,14 +551,14 @@ object ModelBuilder {
 
   private def rebuildReferences(model: Model, node: Node): Unit = {
     for (mpm <- node.parts) {
-      if (!model.materials.contains(mpm.material)) model.materials.add(mpm.material)
-      if (!model.meshParts.contains(mpm.meshPart)) {
+      if (!model.materials.containsByRef(mpm.material)) model.materials.add(mpm.material)
+      if (!model.meshParts.containsByRef(mpm.meshPart)) {
         model.meshParts.add(mpm.meshPart)
-        if (!model.meshes.contains(mpm.meshPart.mesh)) model.meshes.add(mpm.meshPart.mesh)
+        if (!model.meshes.containsByRef(mpm.meshPart.mesh)) model.meshes.add(mpm.meshPart.mesh)
         model.manageDisposable(mpm.meshPart.mesh)
       }
     }
-    for (child <- node.getChildren)
+    for (child <- node.children)
       rebuildReferences(model, child)
   }
 }

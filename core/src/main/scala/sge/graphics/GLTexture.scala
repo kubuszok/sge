@@ -7,20 +7,17 @@
  * Migration notes:
  *   Convention: uses TextureHandle opaque type (SGE improvement)
  *   Idiom: split packages
- *   Issues: close() only sets handle to none; does not call GL delete like Java dispose() does
- *   TODO: Java-style getters/setters -- getMinFilter, getMagFilter, getUWrap, getVWrap, getTextureObjectHandle, getAnisotropicFilter
- *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
+ *   Convention: close() calls delete() for GL cleanup (Java dispose() -> close())
  *   TODO: typed GL enums -- TextureTarget for glBindTexture/glDeleteTexture -- see docs/improvements/opaque-types.md
- *   Audited: 2026-03-03
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics
+package sge
+package graphics
 
-import sge.Sge
 import sge.graphics.Pixmap.Blending
 import sge.graphics.glutils.MipMapGenerator
-import sge.graphics.Pixmap
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.utils.BufferUtils
 import sge.math.MathUtils
@@ -51,9 +48,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   def getDepth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: Int)(using Sge) = {
+  def this(glTarget: Int)(using Sge) =
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
-  }
 
   /** @return whether this texture is managed or not. */
   def isManaged: Boolean
@@ -221,12 +217,7 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
     }
 
   override def close(): Unit =
-    // Note: close() cannot access GL context without Sge parameter
-    // This should be called from a context where Sge is available
-    if (glHandle != TextureHandle.none) {
-      // Mark as deleted, actual GL cleanup needs to be done with proper context
-      glHandle = TextureHandle.none
-    }
+    delete()
 
   def uploadImageData(target: Int, data: TextureData): Unit =
     GLTexture.uploadImageData(target, data, 0)
@@ -263,7 +254,7 @@ object GLTexture {
     var pixmap        = data.consumePixmap()
     var disposePixmap = data.disposePixmap
     if (data.getFormat != pixmap.getFormat()) {
-      val tmp = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), data.getFormat)
+      val tmp = Pixmap(pixmap.getWidth(), pixmap.getHeight(), data.getFormat)
       tmp.setBlending(Blending.None)
       tmp.drawPixmap(pixmap, 0, 0, 0, 0, pixmap.getWidth(), pixmap.getHeight())
       if (data.disposePixmap) {

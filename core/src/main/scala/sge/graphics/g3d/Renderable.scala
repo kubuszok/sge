@@ -55,10 +55,10 @@ class Renderable {
 
   /** Used to specify the transformations (like translation, scale and rotation) to apply to the shape. In other words: it is used to transform the vertices from model space into world space.
     */
-  val worldTransform: Matrix4 = new Matrix4()
+  val worldTransform: Matrix4 = Matrix4()
 
   /** The [[MeshPart]] that contains the shape to render */
-  val meshPart: MeshPart = new MeshPart()
+  val meshPart: MeshPart = MeshPart()
 
   /** The [[Material]] to be applied to the shape (part of the mesh), must not be null.
     * @see

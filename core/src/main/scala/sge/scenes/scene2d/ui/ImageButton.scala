@@ -5,7 +5,7 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: null -> Nullable; Skin constructors commented out
+ *   Convention: null -> Nullable
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
@@ -25,7 +25,7 @@ import sge.utils.{ Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class ImageButton(style: ImageButton.ImageButtonStyle) extends Button() {
+class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button() {
   import ImageButton._
 
   private var _style: ImageButtonStyle = scala.compiletime.uninitialized
@@ -35,30 +35,27 @@ class ImageButton(style: ImageButton.ImageButtonStyle) extends Button() {
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
 
-  // def this(skin: Skin) = {
-  //   this(skin.get(classOf[ImageButtonStyle]))
-  //   setSkin(skin)
-  // }
-
-  // def this(skin: Skin, styleName: String) = {
-  //   this(skin.get(styleName, classOf[ImageButtonStyle]))
-  //   setSkin(skin)
-  // }
-
-  def this(imageUp: Nullable[Drawable]) = {
-    this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
+  def this(skin: Skin)(using Sge) = {
+    this(skin.get(classOf[ImageButton.ImageButtonStyle]))
+    setSkin(Nullable(skin))
   }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable]) = {
-    this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
+  def this(skin: Skin, styleName: String)(using Sge) = {
+    this(skin.get(styleName, classOf[ImageButton.ImageButtonStyle]))
+    setSkin(Nullable(skin))
   }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable]) = {
-    this(new ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
-  }
+  def this(imageUp: Nullable[Drawable])(using Sge) =
+    this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
+
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) =
+    this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
+
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) =
+    this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
 
   protected def newImage(): Image =
-    new Image(Nullable.empty, Scaling.fit)
+    Image(Nullable.empty, Scaling.fit)
 
   override def setStyle(style: Button.ButtonStyle): Unit = {
     if (!style.isInstanceOf[ImageButtonStyle]) throw new IllegalArgumentException("style must be an ImageButtonStyle.")

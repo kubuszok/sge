@@ -169,9 +169,9 @@ object TooltipManager {
   private var files:    Nullable[sge.Files]      = Nullable.empty
 
   def getInstance()(using Sge): TooltipManager = {
-    if (files.isEmpty || files.fold(true)(_ ne Sge().files)) {
+    if (files.isEmpty || files.forall(_ ne Sge().files)) {
       files = Nullable(Sge().files)
-      instance = Nullable(new TooltipManager())
+      instance = Nullable(TooltipManager())
     }
     instance.getOrElse(throw new IllegalStateException("TooltipManager instance not initialized"))
   }

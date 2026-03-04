@@ -37,22 +37,19 @@ abstract class BatchTiledMapRenderer(
     extends TiledMapRenderer
     with AutoCloseable {
 
-  protected val viewBounds:          Rectangle    = new Rectangle()
-  protected val imageBounds:         Rectangle    = new Rectangle()
-  protected val repeatedImageBounds: Rectangle    = new Rectangle()
+  protected val viewBounds:          Rectangle    = Rectangle()
+  protected val imageBounds:         Rectangle    = Rectangle()
+  protected val repeatedImageBounds: Rectangle    = Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using Sge) = {
-    this(map, 1.0f, new SpriteBatch(), true)
-  }
+  def this(map: TiledMap)(using Sge) =
+    this(map, 1.0f, SpriteBatch(), true)
 
-  def this(map: TiledMap, unitScale: Float)(using Sge) = {
-    this(map, unitScale, new SpriteBatch(), true)
-  }
+  def this(map: TiledMap, unitScale: Float)(using Sge) =
+    this(map, unitScale, SpriteBatch(), true)
 
-  def this(map: TiledMap, batch: Batch)(using Sge) = {
+  def this(map: TiledMap, batch: Batch)(using Sge) =
     this(map, 1.0f, batch, false)
-  }
 
   def getMap: TiledMap = map
 
@@ -66,7 +63,7 @@ abstract class BatchTiledMapRenderer(
   def getViewBounds: Rectangle = viewBounds
 
   override def setView(camera: OrthographicCamera): Unit = {
-    batch.setProjectionMatrix(camera.combined)
+    batch.projectionMatrix = camera.combined
     val width  = camera.viewportWidth * camera.zoom
     val height = camera.viewportHeight * camera.zoom
     val w      = width * Math.abs(camera.up.y) + height * Math.abs(camera.up.x)
@@ -75,13 +72,13 @@ abstract class BatchTiledMapRenderer(
   }
 
   override def setView(projection: Matrix4, x: Float, y: Float, width: Float, height: Float): Unit = {
-    batch.setProjectionMatrix(projection)
+    batch.projectionMatrix = projection
     viewBounds.set(x, y, width, height)
   }
 
   override def render(): Unit = {
     beginRender()
-    map.getLayers.foreach { layer =>
+    map.layers.foreach { layer =>
       renderMapLayer(layer)
     }
     endRender()
@@ -90,14 +87,14 @@ abstract class BatchTiledMapRenderer(
   override def render(layers: Array[Int]): Unit = {
     beginRender()
     layers.foreach { layerIdx =>
-      val layer = map.getLayers.get(layerIdx)
+      val layer = map.layers.get(layerIdx)
       renderMapLayer(layer)
     }
     endRender()
   }
 
   def renderMapLayer(layer: MapLayer): Unit =
-    if (!layer.isVisible) ()
+    if (!layer.visible) ()
     else
       layer match {
         case groupLayer: MapGroupLayer =>
@@ -105,7 +102,7 @@ abstract class BatchTiledMapRenderer(
           var i           = 0
           while (i < childLayers.size) {
             val childLayer = childLayers.get(i)
-            if (childLayer.isVisible) {
+            if (childLayer.visible) {
               renderMapLayer(childLayer)
             }
             i += 1
@@ -119,39 +116,39 @@ abstract class BatchTiledMapRenderer(
       }
 
   override def renderObjects(layer: MapLayer): Unit =
-    layer.getObjects.foreach { obj =>
+    layer.objects.foreach { obj =>
       renderObject(obj)
     }
 
   override def renderObject(obj: MapObject): Unit = {}
 
   override def renderImageLayer(layer: TiledMapImageLayer): Unit = {
-    val batchColor = batch.getColor()
+    val batchColor = batch.color
 
     val color = getImageLayerColor(layer, batchColor)
 
     val vertices = this.vertices
 
-    val region = layer.getTextureRegion
+    val region = layer.region
 
     if (Nullable(region).isEmpty) {
       ()
     } else {
-      val x  = layer.getX
-      val y  = layer.getY
-      val x1 = x * unitScale - viewBounds.x * (layer.getParallaxX - 1)
-      val y1 = y * unitScale - viewBounds.y * (layer.getParallaxY - 1)
-      val x2 = x1 + region.getRegionWidth() * unitScale
-      val y2 = y1 + region.getRegionHeight() * unitScale
+      val x  = layer.x
+      val y  = layer.y
+      val x1 = x * unitScale - viewBounds.x * (layer.parallaxX - 1)
+      val y1 = y * unitScale - viewBounds.y * (layer.parallaxY - 1)
+      val x2 = x1 + region.regionWidth * unitScale
+      val y2 = y1 + region.regionHeight * unitScale
 
       imageBounds.set(x1, y1, x2 - x1, y2 - y1)
 
-      if (!layer.isRepeatX && !layer.isRepeatY) {
+      if (!layer.repeatX && !layer.repeatY) {
         if (viewBounds.contains(imageBounds) || viewBounds.overlaps(imageBounds)) {
-          val u1 = region.getU()
-          val v1 = region.getV2()
-          val u2 = region.getU2()
-          val v2 = region.getV()
+          val u1 = region.u
+          val v1 = region.v2
+          val u2 = region.u2
+          val v2 = region.v
 
           vertices(Batch.X1) = x1
           vertices(Batch.Y1) = y1
@@ -177,12 +174,12 @@ abstract class BatchTiledMapRenderer(
           vertices(Batch.U4) = u2
           vertices(Batch.V4) = v1
 
-          batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+          batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
         }
       } else {
         // Determine number of times to repeat image across X and Y, + 4 for padding to avoid pop in/out
-        val repeatX = if (layer.isRepeatX) Math.ceil((viewBounds.width / imageBounds.width) + 4).toInt else 0
-        val repeatY = if (layer.isRepeatY) Math.ceil((viewBounds.height / imageBounds.height) + 4).toInt else 0
+        val repeatX = if (layer.repeatX) Math.ceil((viewBounds.width / imageBounds.width) + 4).toInt else 0
+        val repeatY = if (layer.repeatY) Math.ceil((viewBounds.height / imageBounds.height) + 4).toInt else 0
 
         // Calculate the offset of the first image to align with the camera
         var startX = viewBounds.x
@@ -202,12 +199,12 @@ abstract class BatchTiledMapRenderer(
             // Use (i -2)/(j-2) to begin placing our repeating images outside the camera.
             // In case the image is offset, we must negate this using + (x1% imageBounds.width)
             // It's a way to get the remainder of how many images would fit between its starting position and 0
-            if (layer.isRepeatX) {
+            if (layer.repeatX) {
               rx1 = startX + ((i - 2) * imageBounds.width) + (x1 % imageBounds.width)
               rx2 = rx1 + imageBounds.width
             }
 
-            if (layer.isRepeatY) {
+            if (layer.repeatY) {
               ry1 = startY + ((j - 2) * imageBounds.height) + (y1 % imageBounds.height)
               ry2 = ry1 + imageBounds.height
             }
@@ -215,10 +212,10 @@ abstract class BatchTiledMapRenderer(
             repeatedImageBounds.set(rx1, ry1, rx2 - rx1, ry2 - ry1)
 
             if (viewBounds.contains(repeatedImageBounds) || viewBounds.overlaps(repeatedImageBounds)) {
-              val ru1 = region.getU()
-              val rv1 = region.getV2()
-              val ru2 = region.getU2()
-              val rv2 = region.getV()
+              val ru1 = region.u
+              val rv1 = region.v2
+              val ru2 = region.u2
+              val rv2 = region.v
 
               vertices(Batch.X1) = rx1
               vertices(Batch.Y1) = ry1
@@ -244,7 +241,7 @@ abstract class BatchTiledMapRenderer(
               vertices(Batch.U4) = ru2
               vertices(Batch.V4) = rv1
 
-              batch.draw(region.getTexture(), vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
+              batch.draw(region.texture, vertices, 0, BatchTiledMapRenderer.NUM_VERTICES)
             }
             j += 1
           }

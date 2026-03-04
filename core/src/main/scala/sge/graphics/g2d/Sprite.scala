@@ -7,8 +7,9 @@
  * Migration notes:
  *   Convention: boundary/break for early returns; no null in API
  *   Idiom: boundary/break, Nullable, split packages
- *   TODO: direct Color.a mutation in setAlpha — update when Color becomes immutable
- *   TODO: Java-style getters/setters — getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight, getOriginX/Y, getScaleX/Y, getRotation/setRotation, getColor/setColor, getVertices, getBoundingRectangle
+ *   Fixes: Java-style getters/setters -> Scala property accessors (x, y, width, height, originX, originY,
+ *          scaleX, scaleY, rotation, color, packedColor, vertices, boundingRectangle);
+ *          overrides u_=, v_=, u2_=, v2_= from TextureRegion; removed getTexture()/setTexture() calls
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -38,20 +39,20 @@ import scala.util.boundary.break
   */
 class Sprite() extends TextureRegion {
 
-  final val vertices:      Array[Float] = Array.ofDim[Float](20) // 4 * (2 + 1 + 2) = 4 * 5 = 20
-  final private val color: Color        = new Color(1, 1, 1, 1)
-  private var packedColor: Float        = Color.WHITE_FLOAT_BITS
-  private var x:           Float        = uninitialized
-  private var y:           Float        = uninitialized
-  var width:               Float        = uninitialized
-  var height:              Float        = uninitialized
-  private var originX:     Float        = uninitialized
-  private var originY:     Float        = uninitialized
-  private var rotation:    Float        = uninitialized
-  private var scaleX:      Float        = 1
-  private var scaleY:      Float        = 1
-  private var dirty:       Boolean      = true
-  private var bounds:      Rectangle    = uninitialized
+  final val _vertices:      Array[Float] = Array.ofDim[Float](20) // 4 * (2 + 1 + 2) = 4 * 5 = 20
+  final private val _color: Color        = Color(1, 1, 1, 1)
+  private var _packedColor: Float        = Color.WHITE_FLOAT_BITS
+  private var _x:           Float        = uninitialized
+  private var _y:           Float        = uninitialized
+  private var _width:       Float        = uninitialized
+  private var _height:      Float        = uninitialized
+  private var _originX:     Float        = uninitialized
+  private var _originY:     Float        = uninitialized
+  private var _rotation:    Float        = uninitialized
+  private var _scaleX:      Float        = 1
+  private var _scaleY:      Float        = 1
+  private var dirty:        Boolean      = true
+  private var bounds:       Rectangle    = uninitialized
 
   /** Creates an uninitialized sprite. The sprite will need a texture region and bounds set before it can be drawn. */
   setColor(1, 1, 1, 1)
@@ -59,11 +60,11 @@ class Sprite() extends TextureRegion {
   /** Creates a sprite with width, height, and texture region equal to the size of the texture. */
   def this(texture: Texture) = {
     this()
-    setTexture(texture)
+    this.texture = texture
     super.setRegion(0, 0, texture.getWidth, texture.getHeight)
     setColor(1, 1, 1, 1)
     setSize(texture.getWidth.toFloat, texture.getHeight.toFloat)
-    setOrigin(width / 2, height / 2)
+    setOrigin(_width / 2, _height / 2)
   }
 
   /** Creates a sprite with width, height, and texture region equal to the specified size. The texture region's upper left corner will be 0,0.
@@ -74,11 +75,11 @@ class Sprite() extends TextureRegion {
     */
   def this(texture: Texture, srcWidth: Int, srcHeight: Int) = {
     this()
-    setTexture(texture)
+    this.texture = texture
     super.setRegion(0, 0, srcWidth, srcHeight): Unit
     setColor(1, 1, 1, 1)
     setSize(scala.math.abs(srcWidth).toFloat, scala.math.abs(srcHeight).toFloat)
-    setOrigin(width / 2, height / 2)
+    setOrigin(_width / 2, _height / 2)
   }
 
   /** Creates a sprite with width, height, and texture region equal to the specified size.
@@ -89,11 +90,11 @@ class Sprite() extends TextureRegion {
     */
   def this(texture: Texture, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int) = {
     this()
-    setTexture(texture)
+    this.texture = texture
     super.setRegion(srcX, srcY, srcWidth, srcHeight)
     setColor(1, 1, 1, 1)
     setSize(scala.math.abs(srcWidth).toFloat, scala.math.abs(srcHeight).toFloat)
-    setOrigin(width / 2, height / 2)
+    setOrigin(_width / 2, _height / 2)
   }
 
   // Note the region is copied.
@@ -103,8 +104,8 @@ class Sprite() extends TextureRegion {
     this()
     setRegion(region)
     setColor(1, 1, 1, 1)
-    setSize(region.getRegionWidth().toFloat, region.getRegionHeight().toFloat)
-    setOrigin(width / 2, height / 2)
+    setSize(region.regionWidth.toFloat, region.regionHeight.toFloat)
+    setOrigin(_width / 2, _height / 2)
   }
 
   /** Creates a sprite with width, height, and texture region equal to the specified size, relative to specified sprite's texture region.
@@ -118,7 +119,7 @@ class Sprite() extends TextureRegion {
     setRegion(region, srcX, srcY, srcWidth, srcHeight)
     setColor(1, 1, 1, 1)
     setSize(scala.math.abs(srcWidth).toFloat, scala.math.abs(srcHeight).toFloat)
-    setOrigin(width / 2, height / 2)
+    setOrigin(_width / 2, _height / 2)
   }
 
   /** Creates a sprite that is a copy in every way of the specified sprite. */
@@ -130,24 +131,24 @@ class Sprite() extends TextureRegion {
   /** Make this sprite a copy in every way of the specified sprite */
   def set(sprite: Sprite): Unit = {
     // sprite: Sprite is non-nullable in Scala
-    System.arraycopy(sprite.vertices, 0, vertices, 0, Sprite.SPRITE_SIZE)
-    setTexture(sprite.getTexture())
-    setU(sprite.getU())
-    setV(sprite.getV())
-    setU2(sprite.getU2())
-    setV2(sprite.getV2())
-    x = sprite.x
-    y = sprite.y
-    width = sprite.width
-    height = sprite.height
-    setRegionWidth(sprite.getRegionWidth())
-    setRegionHeight(sprite.getRegionHeight())
-    originX = sprite.originX
-    originY = sprite.originY
-    rotation = sprite.rotation
-    scaleX = sprite.scaleX
-    scaleY = sprite.scaleY
-    color.set(sprite.color)
+    System.arraycopy(sprite._vertices, 0, _vertices, 0, Sprite.SPRITE_SIZE)
+    texture = sprite.texture
+    u = sprite.u
+    v = sprite.v
+    u2 = sprite.u2
+    v2 = sprite.v2
+    _x = sprite._x
+    _y = sprite._y
+    _width = sprite._width
+    _height = sprite._height
+    regionWidth = sprite.regionWidth
+    regionHeight = sprite.regionHeight
+    _originX = sprite._originX
+    _originY = sprite._originY
+    _rotation = sprite._rotation
+    _scaleX = sprite._scaleX
+    _scaleY = sprite._scaleY
+    _color.set(sprite._color)
     dirty = sprite.dirty
   }
 
@@ -155,20 +156,20 @@ class Sprite() extends TextureRegion {
     * those operations.
     */
   def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = boundary {
-    this.x = x
-    this.y = y
-    this.width = width
-    this.height = height
+    this._x = x
+    this._y = y
+    this._width = width
+    this._height = height
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
     val x2       = x + width
     val y2       = y + height
-    val vertices = this.vertices
+    val vertices = this._vertices
     vertices(X1) = x
     vertices(Y1) = y
 
@@ -186,47 +187,47 @@ class Sprite() extends TextureRegion {
     * If both position and size are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
   def setSize(width: Float, height: Float): Unit = boundary {
-    this.width = width
-    this.height = height
+    this._width = width
+    this._height = height
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val x2       = x + width
-    val y2       = y + height
-    val vertices = this.vertices
-    vertices(X1) = x
-    vertices(Y1) = y
+    val x2       = _x + width
+    val y2       = _y + height
+    val vertices = this._vertices
+    vertices(X1) = _x
+    vertices(Y1) = _y
 
-    vertices(X2) = x
+    vertices(X2) = _x
     vertices(Y2) = y2
 
     vertices(X3) = x2
     vertices(Y3) = y2
 
     vertices(X4) = x2
-    vertices(Y4) = y
+    vertices(Y4) = _y
   }
 
   /** Sets the position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
   def setPosition(x: Float, y: Float): Unit = boundary {
-    this.x = x
-    this.y = y
+    this._x = x
+    this._y = y
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val x2       = x + width
-    val y2       = y + height
-    val vertices = this.vertices
+    val x2       = x + _width
+    val y2       = y + _height
+    val vertices = this._vertices
     vertices(X1) = x
     vertices(Y1) = y
 
@@ -242,22 +243,22 @@ class Sprite() extends TextureRegion {
 
   /** Sets the position where the sprite will be drawn, relative to its current origin. */
   def setOriginBasedPosition(x: Float, y: Float): Unit =
-    setPosition(x - this.originX, y - this.originY)
+    setPosition(x - this._originX, y - this._originY)
 
   /** Sets the x position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setX(x: Float): Unit = boundary {
-    this.x = x
+  def x_=(x: Float): Unit = boundary {
+    this._x = x
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val x2       = x + width
-    val vertices = this.vertices
+    val x2       = x + _width
+    val vertices = this._vertices
     vertices(X1) = x
     vertices(X2) = x
     vertices(X3) = x2
@@ -267,47 +268,51 @@ class Sprite() extends TextureRegion {
   /** Sets the y position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to set the position after those operations. If both position and size
     * are to be changed, it is better to use {@link #setBounds(float, float, float, float)} .
     */
-  def setY(y: Float): Unit = boundary {
-    this.y = y
+  def y_=(y: Float): Unit = boundary {
+    this._y = y
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val y2       = y + height
-    val vertices = this.vertices
+    val y2       = y + _height
+    val vertices = this._vertices
     vertices(Y1) = y
     vertices(Y2) = y2
     vertices(Y3) = y2
     vertices(Y4) = y
   }
 
+  def x: Float = _x
+
+  def y: Float = _y
+
   /** Sets the x position so that it is centered on the given x parameter */
   def setCenterX(x: Float): Unit =
-    setX(x - width / 2)
+    this.x = x - _width / 2
 
   /** Sets the y position so that it is centered on the given y parameter */
   def setCenterY(y: Float): Unit =
-    setY(y - height / 2)
+    this.y = y - _height / 2
 
   /** Sets the position so that the sprite is centered on (x, y) */
   def setCenter(x: Float, y: Float): Unit =
-    setPosition(x - width / 2, y - height / 2)
+    setPosition(x - _width / 2, y - _height / 2)
 
   /** Sets the x position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
   def translateX(xAmount: Float): Unit = boundary {
-    this.x += xAmount
+    this._x += xAmount
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val vertices = this.vertices
+    val vertices = this._vertices
     vertices(X1) += xAmount
     vertices(X2) += xAmount
     vertices(X3) += xAmount
@@ -317,15 +322,15 @@ class Sprite() extends TextureRegion {
   /** Sets the y position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
   def translateY(yAmount: Float): Unit = boundary {
-    y += yAmount
+    _y += yAmount
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val vertices = this.vertices
+    val vertices = this._vertices
     vertices(Y1) += yAmount
     vertices(Y2) += yAmount
     vertices(Y3) += yAmount
@@ -335,16 +340,16 @@ class Sprite() extends TextureRegion {
   /** Sets the position relative to the current position where the sprite will be drawn. If origin, rotation, or scale are changed, it is slightly more efficient to translate after those operations.
     */
   def translate(xAmount: Float, yAmount: Float): Unit = boundary {
-    x += xAmount
-    y += yAmount
+    _x += xAmount
+    _y += yAmount
 
     if (dirty) break()
-    if (rotation != 0 || scaleX != 1 || scaleY != 1) {
+    if (_rotation != 0 || _scaleX != 1 || _scaleY != 1) {
       dirty = true
       break()
     }
 
-    val vertices = this.vertices
+    val vertices = this._vertices
     vertices(X1) += xAmount
     vertices(Y1) += yAmount
 
@@ -359,36 +364,36 @@ class Sprite() extends TextureRegion {
   }
 
   /** Sets the color used to tint this sprite. Default is {@link Color#WHITE}. */
-  def setColor(tint: Color): Unit = {
-    color.set(tint)
-    packedColor = tint.toFloatBits()
-    val vertices = this.vertices
-    vertices(C1) = packedColor
-    vertices(C2) = packedColor
-    vertices(C3) = packedColor
-    vertices(C4) = packedColor
+  def color_=(tint: Color): Unit = {
+    _color.set(tint)
+    _packedColor = tint.toFloatBits()
+    val vertices = this._vertices
+    vertices(C1) = _packedColor
+    vertices(C2) = _packedColor
+    vertices(C3) = _packedColor
+    vertices(C4) = _packedColor
   }
 
   /** Sets the alpha portion of the color used to tint this sprite. */
   def setAlpha(a: Float): Unit =
-    if (color.a != a) {
-      color.a = a
-      packedColor = color.toFloatBits()
-      vertices(C1) = packedColor
-      vertices(C2) = packedColor
-      vertices(C3) = packedColor
-      vertices(C4) = packedColor
+    if (_color.a != a) {
+      _color.a = a
+      _packedColor = _color.toFloatBits()
+      _vertices(C1) = _packedColor
+      _vertices(C2) = _packedColor
+      _vertices(C3) = _packedColor
+      _vertices(C4) = _packedColor
     }
 
   /** @see #setColor(Color) */
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
-    color.set(r, g, b, a)
-    packedColor = color.toFloatBits()
-    val vertices = this.vertices
-    vertices(C1) = packedColor
-    vertices(C2) = packedColor
-    vertices(C3) = packedColor
-    vertices(C4) = packedColor
+    _color.set(r, g, b, a)
+    _packedColor = _color.toFloatBits()
+    val vertices = this._vertices
+    vertices(C1) = _packedColor
+    vertices(C2) = _packedColor
+    vertices(C3) = _packedColor
+    vertices(C4) = _packedColor
   }
 
   /** Sets the packed color used to tint this sprite.
@@ -397,57 +402,92 @@ class Sprite() extends TextureRegion {
     * @see
     *   Color#toFloatBits()
     */
-  def setPackedColor(packedColor: Float): Unit =
+  def packedColor_=(packedColor: Float): Unit =
     // Handle 0f/-0f special case
     if (
-      packedColor != this.packedColor || (packedColor == 0f && this.packedColor == 0f
-        && java.lang.Float.floatToIntBits(packedColor) != java.lang.Float.floatToIntBits(this.packedColor))
+      packedColor != this._packedColor || (packedColor == 0f && this._packedColor == 0f
+        && java.lang.Float.floatToIntBits(packedColor) != java.lang.Float.floatToIntBits(this._packedColor))
     ) {
-      this.packedColor = packedColor
-      Color.abgr8888ToColor(color, packedColor)
-      val vertices = this.vertices
+      this._packedColor = packedColor
+      Color.abgr8888ToColor(_color, packedColor)
+      val vertices = this._vertices
       vertices(C1) = packedColor
       vertices(C2) = packedColor
       vertices(C3) = packedColor
       vertices(C4) = packedColor
     }
 
+  /** Returns the color of this sprite. If the returned instance is manipulated, {@link #setColor(Color)} must be called afterward.
+    */
+  def color: Color =
+    _color
+
+  /** Returns the packed color of this sprite. */
+  def packedColor: Float =
+    _packedColor
+
   /** Sets the origin in relation to the sprite's position for scaling and rotation. */
   def setOrigin(originX: Float, originY: Float): Unit = {
-    this.originX = originX
-    this.originY = originY
+    this._originX = originX
+    this._originY = originY
     dirty = true
   }
 
   /** Place origin in the center of the sprite */
   def setOriginCenter(): Unit = {
-    this.originX = width / 2
-    this.originY = height / 2
+    this._originX = _width / 2
+    this._originY = _height / 2
     dirty = true
   }
 
   /** Sets the rotation of the sprite in degrees. Rotation is centered on the origin set in {@link #setOrigin(float, float)} */
-  def setRotation(degrees: Float): Unit = {
-    this.rotation = degrees
+  def rotation_=(degrees: Float): Unit = {
+    this._rotation = degrees
     dirty = true
   }
 
   /** @return the rotation of the sprite in degrees */
-  def getRotation(): Float =
-    rotation
+  def rotation: Float =
+    _rotation
+
+  /** The origin influences {@link #setPosition(float, float)} , {@link #setRotation(float)} and the expansion direction of scaling {@link #setScale(float, float)}
+    */
+  def originX: Float =
+    _originX
+
+  /** The origin influences {@link #setPosition(float, float)} , {@link #setRotation(float)} and the expansion direction of scaling {@link #setScale(float, float)}
+    */
+  def originY: Float =
+    _originY
+
+  /** X scale of the sprite, independent of size set by {@link #setSize(float, float)} */
+  def scaleX: Float =
+    _scaleX
+
+  /** Y scale of the sprite, independent of size set by {@link #setSize(float, float)} */
+  def scaleY: Float =
+    _scaleY
+
+  /** @return the width of the sprite, not accounting for scale. */
+  def width: Float =
+    _width
+
+  /** @return the height of the sprite, not accounting for scale. */
+  def height: Float =
+    _height
 
   /** Sets the sprite's rotation in degrees relative to the current rotation. Rotation is centered on the origin set in {@link #setOrigin(float, float)}
     */
   def rotate(degrees: Float): Unit = boundary {
     if (degrees == 0) break()
-    rotation += degrees
+    _rotation += degrees
     dirty = true
   }
 
   /** Rotates this sprite 90 degrees in-place by rotating the texture coordinates. This rotation is unaffected by {@link #setRotation(float)} and {@link #rotate(float)} .
     */
   def rotate90(clockwise: Boolean): Unit = {
-    val vertices = this.vertices
+    val vertices = this._vertices
 
     if (clockwise) {
       var temp = vertices(V1)
@@ -479,16 +519,16 @@ class Sprite() extends TextureRegion {
   /** Sets the sprite's scale for both X and Y uniformly. The sprite scales out from the origin. This will not affect the values returned by {@link #getWidth()} and {@link #getHeight()}
     */
   def setScale(scaleXY: Float): Unit = {
-    this.scaleX = scaleXY
-    this.scaleY = scaleXY
+    this._scaleX = scaleXY
+    this._scaleY = scaleXY
     dirty = true
   }
 
   /** Sets the sprite's scale for both X and Y. The sprite scales out from the origin. This will not affect the values returned by {@link #getWidth()} and {@link #getHeight()}
     */
   def setScale(scaleX: Float, scaleY: Float): Unit = {
-    this.scaleX = scaleX
-    this.scaleY = scaleY
+    this._scaleX = scaleX
+    this._scaleY = scaleY
     dirty = true
   }
 
@@ -496,32 +536,32 @@ class Sprite() extends TextureRegion {
     * returned by {@link #getWidth()} and {@link #getHeight()}
     */
   def scale(amount: Float): Unit = {
-    this.scaleX += amount
-    this.scaleY += amount
+    this._scaleX += amount
+    this._scaleY += amount
     dirty = true
   }
 
   /** Returns the packed vertices, colors, and texture coordinates for this sprite. */
-  def getVertices(): Array[Float] = {
+  def vertices: Array[Float] = {
     if (dirty) {
       dirty = false
 
-      val vertices     = this.vertices
-      var localX       = -originX
-      var localY       = -originY
-      var localX2      = localX + width
-      var localY2      = localY + height
-      val worldOriginX = this.x - localX
-      val worldOriginY = this.y - localY
-      if (scaleX != 1 || scaleY != 1) {
-        localX *= scaleX
-        localY *= scaleY
-        localX2 *= scaleX
-        localY2 *= scaleY
+      val vertices     = this._vertices
+      var localX       = -_originX
+      var localY       = -_originY
+      var localX2      = localX + _width
+      var localY2      = localY + _height
+      val worldOriginX = this._x - localX
+      val worldOriginY = this._y - localY
+      if (_scaleX != 1 || _scaleY != 1) {
+        localX *= _scaleX
+        localY *= _scaleY
+        localX2 *= _scaleX
+        localY2 *= _scaleY
       }
-      if (rotation != 0) {
-        val cos        = MathUtils.cosDeg(rotation)
-        val sin        = MathUtils.sinDeg(rotation)
+      if (_rotation != 0) {
+        val cos        = MathUtils.cosDeg(_rotation)
+        val sin        = MathUtils.sinDeg(_rotation)
         val localXCos  = localX * cos
         val localXSin  = localX * sin
         val localYCos  = localY * cos
@@ -567,7 +607,7 @@ class Sprite() extends TextureRegion {
         vertices(Y4) = y1
       }
     }
-    vertices
+    _vertices
   }
 
   /** Returns the bounding axis aligned {@link Rectangle} that bounds this sprite. The rectangles x and y coordinates describe its bottom left corner. If you change the position or size of the sprite,
@@ -576,31 +616,31 @@ class Sprite() extends TextureRegion {
     * @return
     *   the bounding Rectangle
     */
-  def getBoundingRectangle(): Rectangle = {
-    val vertices = getVertices()
+  def boundingRectangle: Rectangle = {
+    val verts = vertices
 
-    var minx = vertices(X1)
-    var miny = vertices(Y1)
-    var maxx = vertices(X1)
-    var maxy = vertices(Y1)
+    var minx = verts(X1)
+    var miny = verts(Y1)
+    var maxx = verts(X1)
+    var maxy = verts(Y1)
 
-    minx = if (minx > vertices(X2)) vertices(X2) else minx
-    minx = if (minx > vertices(X3)) vertices(X3) else minx
-    minx = if (minx > vertices(X4)) vertices(X4) else minx
+    minx = if (minx > verts(X2)) verts(X2) else minx
+    minx = if (minx > verts(X3)) verts(X3) else minx
+    minx = if (minx > verts(X4)) verts(X4) else minx
 
-    maxx = if (maxx < vertices(X2)) vertices(X2) else maxx
-    maxx = if (maxx < vertices(X3)) vertices(X3) else maxx
-    maxx = if (maxx < vertices(X4)) vertices(X4) else maxx
+    maxx = if (maxx < verts(X2)) verts(X2) else maxx
+    maxx = if (maxx < verts(X3)) verts(X3) else maxx
+    maxx = if (maxx < verts(X4)) verts(X4) else maxx
 
-    miny = if (miny > vertices(Y2)) vertices(Y2) else miny
-    miny = if (miny > vertices(Y3)) vertices(Y3) else miny
-    miny = if (miny > vertices(Y4)) vertices(Y4) else miny
+    miny = if (miny > verts(Y2)) verts(Y2) else miny
+    miny = if (miny > verts(Y3)) verts(Y3) else miny
+    miny = if (miny > verts(Y4)) verts(Y4) else miny
 
-    maxy = if (maxy < vertices(Y2)) vertices(Y2) else maxy
-    maxy = if (maxy < vertices(Y3)) vertices(Y3) else maxy
-    maxy = if (maxy < vertices(Y4)) vertices(Y4) else maxy
+    maxy = if (maxy < verts(Y2)) verts(Y2) else maxy
+    maxy = if (maxy < verts(Y3)) verts(Y3) else maxy
+    maxy = if (maxy < verts(Y4)) verts(Y4) else maxy
 
-    if (Nullable(bounds).isEmpty) bounds = new Rectangle()
+    if (Nullable(bounds).isEmpty) bounds = Rectangle()
     bounds.x = minx
     bounds.y = miny
     bounds.width = maxx - minx
@@ -609,60 +649,19 @@ class Sprite() extends TextureRegion {
   }
 
   def draw(batch: Batch): Unit =
-    batch.draw(getTexture(), getVertices(), 0, Sprite.SPRITE_SIZE)
+    batch.draw(texture, vertices, 0, Sprite.SPRITE_SIZE)
 
   def draw(batch: Batch, alphaModulation: Float): Unit = {
-    val oldAlpha = getColor().a
+    val oldAlpha = color.a
     setAlpha(oldAlpha * alphaModulation)
     draw(batch)
     setAlpha(oldAlpha)
   }
 
-  def getX(): Float =
-    x
-
-  def getY(): Float =
-    y
-
-  /** @return the width of the sprite, not accounting for scale. */
-  def getWidth(): Float =
-    width
-
-  /** @return the height of the sprite, not accounting for scale. */
-  def getHeight(): Float =
-    height
-
-  /** The origin influences {@link #setPosition(float, float)} , {@link #setRotation(float)} and the expansion direction of scaling {@link #setScale(float, float)}
-    */
-  def getOriginX(): Float =
-    originX
-
-  /** The origin influences {@link #setPosition(float, float)} , {@link #setRotation(float)} and the expansion direction of scaling {@link #setScale(float, float)}
-    */
-  def getOriginY(): Float =
-    originY
-
-  /** X scale of the sprite, independent of size set by {@link #setSize(float, float)} */
-  def getScaleX(): Float =
-    scaleX
-
-  /** Y scale of the sprite, independent of size set by {@link #setSize(float, float)} */
-  def getScaleY(): Float =
-    scaleY
-
-  /** Returns the color of this sprite. If the returned instance is manipulated, {@link #setColor(Color)} must be called afterward.
-    */
-  def getColor(): Color =
-    color
-
-  /** Returns the packed color of this sprite. */
-  def getPackedColor(): Float =
-    packedColor
-
   override def setRegion(u: Float, v: Float, u2: Float, v2: Float): Unit = {
     super.setRegion(u, v, u2, v2)
 
-    val vertices = this.vertices
+    val vertices = this._vertices
     vertices(U1) = u
     vertices(V1) = v2
 
@@ -676,28 +675,28 @@ class Sprite() extends TextureRegion {
     vertices(V4) = v2
   }
 
-  override def setU(u: Float): Unit = {
-    super.setU(u)
-    vertices(U1) = u
-    vertices(U2) = u
+  override def u_=(u: Float): Unit = {
+    super.u_=(u)
+    _vertices(U1) = u
+    _vertices(U2) = u
   }
 
-  override def setV(v: Float): Unit = {
-    super.setV(v)
-    vertices(V2) = v
-    vertices(V3) = v
+  override def v_=(v: Float): Unit = {
+    super.v_=(v)
+    _vertices(V2) = v
+    _vertices(V3) = v
   }
 
-  override def setU2(u2: Float): Unit = {
-    super.setU2(u2)
-    vertices(U3) = u2
-    vertices(U4) = u2
+  override def u2_=(u2: Float): Unit = {
+    super.u2_=(u2)
+    _vertices(U3) = u2
+    _vertices(U4) = u2
   }
 
-  override def setV2(v2: Float): Unit = {
-    super.setV2(v2)
-    vertices(V1) = v2
-    vertices(V4) = v2
+  override def v2_=(v2: Float): Unit = {
+    super.v2_=(v2)
+    _vertices(V1) = v2
+    _vertices(V4) = v2
   }
 
   /** Set the sprite's flip state regardless of current condition
@@ -709,10 +708,10 @@ class Sprite() extends TextureRegion {
   def setFlip(x: Boolean, y: Boolean): Unit = {
     var performX = false
     var performY = false
-    if (isFlipX() != x) {
+    if (flipX != x) {
       performX = true
     }
-    if (isFlipY() != y) {
+    if (flipY != y) {
       performY = true
     }
     flip(performX, performY)
@@ -726,7 +725,7 @@ class Sprite() extends TextureRegion {
     */
   override def flip(x: Boolean, y: Boolean): Unit = {
     super.flip(x, y)
-    val vertices = this.vertices
+    val vertices = this._vertices
     if (x) {
       var temp = vertices(U1)
       vertices(U1) = vertices(U3)
@@ -746,39 +745,39 @@ class Sprite() extends TextureRegion {
   }
 
   override def scroll(xAmount: Float, yAmount: Float): Unit = {
-    val vertices = this.vertices
+    val vertices = this._vertices
     if (xAmount != 0) {
-      val u  = (vertices(U1) + xAmount) % 1
-      val u2 = u + width / getTexture().getWidth
-      setU(u)
-      setU2(u2)
-      vertices(U1) = u
-      vertices(U2) = u
-      vertices(U3) = u2
-      vertices(U4) = u2
+      val newU  = (vertices(U1) + xAmount) % 1
+      val newU2 = newU + _width / texture.getWidth
+      this.u = newU
+      this.u2 = newU2
+      vertices(U1) = newU
+      vertices(U2) = newU
+      vertices(U3) = newU2
+      vertices(U4) = newU2
     }
     if (yAmount != 0) {
-      val v  = (vertices(V2) + yAmount) % 1
-      val v2 = v + height / getTexture().getHeight
-      setV(v)
-      setV2(v2)
-      vertices(V1) = v2
-      vertices(V2) = v
-      vertices(V3) = v
-      vertices(V4) = v2
+      val newV  = (vertices(V2) + yAmount) % 1
+      val newV2 = newV + _height / texture.getHeight
+      this.v = newV
+      this.v2 = newV2
+      vertices(V1) = newV2
+      vertices(V2) = newV
+      vertices(V3) = newV
+      vertices(V4) = newV2
     }
   }
 
   def setU(u: Float, width: Float): Unit = {
-    val u2 = u + width / getTexture().getWidth
-    setU(u)
-    setU2(u2)
+    val newU2 = u + width / texture.getWidth
+    this.u = u
+    this.u2 = newU2
   }
 
   def setV(v: Float, height: Float): Unit = {
-    val v2 = v + height / getTexture().getHeight
-    setV(v)
-    setV2(v2)
+    val newV2 = v + height / texture.getHeight
+    this.v = v
+    this.v2 = newV2
   }
 }
 

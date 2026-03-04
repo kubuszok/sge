@@ -40,12 +40,12 @@ object ImageResolver {
 
   class DirectImageResolver(images: mutable.Map[String, Texture]) extends ImageResolver {
     override def getImage(name: String): Nullable[TextureRegion] =
-      images.get(name).fold(Nullable.empty[TextureRegion])(t => Nullable(new TextureRegion(t)))
+      images.get(name).fold(Nullable.empty[TextureRegion])(t => Nullable(TextureRegion(t)))
   }
 
   class AssetManagerImageResolver(assetManager: AssetManager) extends ImageResolver {
     override def getImage(name: String): Nullable[TextureRegion] =
-      Nullable(new TextureRegion(assetManager.get(name, classOf[Texture])))
+      Nullable(TextureRegion(assetManager(name, classOf[Texture])))
   }
 
   class TextureAtlasImageResolver(atlas: TextureAtlas) extends ImageResolver {

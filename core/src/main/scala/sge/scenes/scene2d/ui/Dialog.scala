@@ -65,10 +65,10 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     setModal(true)
 
     defaults().space(6)
-    contentTable = new Table(skin.map(s => s: Any))
+    contentTable = Table(skin.map(s => s: Any))
     add(Nullable[Actor](contentTable)).grow()
     row()
-    buttonTable = new Table(skin.map(s => s: Any))
+    buttonTable = Table(skin.map(s => s: Any))
     add(Nullable[Actor](buttonTable)).fillX()
 
     contentTable.defaults().space(6)
@@ -79,7 +79,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
         override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
           if (values.contains(actor)) {
             var current = actor
-            while (current.getParent.fold(false)(_ ne buttonTable))
+            while (current.getParent.exists(_ ne buttonTable))
               current.getParent.foreach { p => current = p }
             result(values.getOrElse(current, Nullable.empty))
             if (!cancelHide) hide()
@@ -105,7 +105,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
             newFocusedActor.foreach { nfa =>
               if (
                 !nfa.isDescendantOf(Dialog.this)
-                && !(previousKeyboardFocus.fold(false)(_ eq nfa) || previousScrollFocus.fold(false)(_ eq nfa))
+                && !(previousKeyboardFocus.exists(_ eq nfa) || previousScrollFocus.exists(_ eq nfa))
               ) {
                 event.cancel()
               }
@@ -136,7 +136,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
 
   /** Adds a label to the content table. */
   def text(text: Nullable[String], labelStyle: LabelStyle): Dialog =
-    this.text(new Label(text.map(_.asInstanceOf[CharSequence]), labelStyle))
+    this.text(Label(text.map(_.asInstanceOf[CharSequence]), labelStyle))
 
   /** Adds the given Label to the content table */
   def text(label: Label): Dialog = {
@@ -164,7 +164,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     *   The object that will be passed to {@link #result(Object)} if this button is clicked. May be null.
     */
   def button(text: Nullable[String], obj: Nullable[AnyRef], buttonStyle: TextButtonStyle): Dialog =
-    button(new TextButton(text, buttonStyle), obj)
+    button(TextButton(text, buttonStyle), obj)
 
   /** Adds the given button to the button table. */
   def button(button: Button): Dialog =
@@ -230,13 +230,13 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
         if (pkf.getStage.isEmpty) previousKeyboardFocus = Nullable.empty
       }
       val kbActor = stage.getKeyboardFocus
-      if (kbActor.isEmpty || kbActor.fold(false)(_.isDescendantOf(this))) stage.setKeyboardFocus(previousKeyboardFocus)
+      if (kbActor.isEmpty || kbActor.exists(_.isDescendantOf(this))) stage.setKeyboardFocus(previousKeyboardFocus)
 
       previousScrollFocus.foreach { psf =>
         if (psf.getStage.isEmpty) previousScrollFocus = Nullable.empty
       }
       val scrollActor = stage.getScrollFocus
-      if (scrollActor.isEmpty || scrollActor.fold(false)(_.isDescendantOf(this))) stage.setScrollFocus(previousScrollFocus)
+      if (scrollActor.isEmpty || scrollActor.exists(_.isDescendantOf(this))) stage.setScrollFocus(previousScrollFocus)
     }
     action.fold {
       remove()

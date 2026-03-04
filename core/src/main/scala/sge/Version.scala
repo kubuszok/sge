@@ -7,8 +7,8 @@
  * Migration notes:
  *   Convention: Java class -> Scala object; static initializer -> lazy val
  *   Idiom: split packages
- *   Issues: VERSION is "1.13.5" but Java source is "1.14.1" — version string outdated
- *   Audited: 2026-03-03
+ *   Issues: None
+ *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -24,7 +24,7 @@ import sge.utils.SgeError
 object Version {
 
   /** The current version of libGDX as a String in the major.minor.revision format * */
-  final val VERSION: String = "1.13.5"
+  final val VERSION: String = "1.14.1"
 
   /** The current major version of libGDX * */
   lazy val MAJOR: Int =

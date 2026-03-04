@@ -77,7 +77,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
           if (node.isEmpty) scala.util.boundary.break(())
           node.foreach { n =>
             val nodeAtTouchDown: Nullable[N] = self.getNodeAt(getTouchDownY)
-            if (nodeAtTouchDown.fold(true)(_ ne n)) scala.util.boundary.break(())
+            if (nodeAtTouchDown.forall(_ ne n)) scala.util.boundary.break(())
             if (self.selection.getMultiple && self.selection.notEmpty && UIUtils.shift()) {
               // Select range (shift).
               if (self.rangeStart.isEmpty) self.rangeStart = Nullable(n)
@@ -344,7 +344,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
             style.selection.foreach { sel =>
               drawSelection(node, sel, batch, x, y + actorY - ySpacing / 2, getWidth, height + ySpacing)
             }
-          } else if (_overNode.fold(false)(_ eq node) && style.over.isDefined) {
+          } else if (_overNode.exists(_ eq node) && style.over.isDefined) {
             style.over.foreach { ov =>
               drawOver(node, ov, batch, x, y + actorY - ySpacing / 2, getWidth, height + ySpacing)
             }
@@ -392,7 +392,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     */
   protected def getExpandIcon(node: N, iconX: Float): Drawable =
     if (
-      _overNode.fold(false)(_ eq node) //
+      _overNode.exists(_ eq node) //
       && Sge().application.getType() == Application.ApplicationType.Desktop //
       && (!selection.getMultiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
     ) {
@@ -463,7 +463,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   /** Returns the first selected value, or null. */
   def getSelectedValue: Nullable[V] = {
     val node = selection.first
-    node.fold(Nullable.empty[V])(n => n.getValue)
+    node.flatMap(n => n.getValue)
   }
 
   /** If the order of the root nodes is changed, {@link #updateRootNodes()} must be called to ensure the nodes' actors are in the correct order.
@@ -501,7 +501,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
   /** @return May be null. */
   def getOverValue: Nullable[V] =
-    _overNode.fold(Nullable.empty[V])(n => n.getValue)
+    _overNode.flatMap(n => n.getValue)
 
   /** @param overNode May be null. */
   def setOverNode(overNode: Nullable[N]): Unit =
@@ -579,7 +579,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 }
 
 object Tree {
-  private val tmp: Vector2 = new Vector2()
+  private val tmp: Vector2 = Vector2()
 
   /** Helper to remove a node from a tree without running into F-bounded type bounds issues. Replicates the logic of Tree.remove() to avoid the type system constraints.
     */
@@ -908,7 +908,7 @@ object Tree {
       var current: Nullable[Node[?, ?, ?]] = Nullable(this)
       while (current.isDefined) {
         level += 1
-        current = current.fold(Nullable.empty[Node[?, ?, ?]])(_.getParent.asInstanceOf[Nullable[Node[?, ?, ?]]])
+        current = current.flatMap(_.getParent.asInstanceOf[Nullable[Node[?, ?, ?]]])
       }
       level
     }
@@ -971,8 +971,8 @@ object Tree {
     def isAscendantOf(node: N): Boolean = scala.util.boundary {
       var current: Nullable[Node[?, ?, ?]] = Nullable(node)
       while (current.isDefined) {
-        if (current.fold(false)(_ eq this)) scala.util.boundary.break(true)
-        current = current.fold(Nullable.empty[Node[?, ?, ?]])(_.parent.asInstanceOf[Nullable[Node[?, ?, ?]]])
+        if (current.exists(_ eq this)) scala.util.boundary.break(true)
+        current = current.flatMap(_.parent.asInstanceOf[Nullable[Node[?, ?, ?]]])
       }
       false
     }
@@ -981,8 +981,8 @@ object Tree {
     def isDescendantOf(node: N): Boolean = scala.util.boundary {
       var current: Nullable[Node[?, ?, ?]] = Nullable(this)
       while (current.isDefined) {
-        if (current.fold(false)(_ eq node)) scala.util.boundary.break(true)
-        current = current.fold(Nullable.empty[Node[?, ?, ?]])(_.parent.asInstanceOf[Nullable[Node[?, ?, ?]]])
+        if (current.exists(_ eq node)) scala.util.boundary.break(true)
+        current = current.flatMap(_.parent.asInstanceOf[Nullable[Node[?, ?, ?]]])
       }
       false
     }

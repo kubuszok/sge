@@ -44,14 +44,12 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty)
-  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using Sge) = {
+  def this(size: Int)(using Sge) =
     this(size, Nullable.empty)
-  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>
@@ -69,24 +67,24 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
         throw SgeError.GraphicsError("Transform matrix is singular, can't sync")
 
       adjustNeeded = false;
-      super.setTransformMatrix(virtualMatrix)
+      super.transformMatrix = virtualMatrix
     }
   }
 
-  override def getTransformMatrix(): Matrix4 =
-    if (adjustNeeded) virtualMatrix else super.getTransformMatrix()
+  override def transformMatrix: Matrix4 =
+    if (adjustNeeded) virtualMatrix else super.transformMatrix
 
   /** Sets the transform matrix to be used by this Batch. Even if this is called inside a {@link #begin()} /{@link #end()} block, the current batch is <em>not</em> flushed to the GPU. Instead, for
     * every subsequent draw() the vertices will be transformed on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by restoring the
     * original matrix, or by calling {@link #flushAndSyncTransformMatrix()} .
     */
-  override def setTransformMatrix(transform: Matrix4): Unit = {
-    val realMatrix = super.getTransformMatrix()
+  override def transformMatrix_=(transform: Matrix4): Unit = {
+    val realMatrix = super.transformMatrix
 
     if (checkEqual(realMatrix, transform)) {
       adjustNeeded = false;
     } else {
-      if (isDrawing()) {
+      if (drawing) {
         virtualMatrix.setAsAffine(transform);
         adjustNeeded = true;
 
@@ -110,15 +108,15 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     * every subsequent draw() the vertices will be transformed on the CPU to match the original batch matrix. This adjustment must be performed until the matrices are realigned by restoring the
     * original matrix, or by calling {@link #flushAndSyncTransformMatrix()} or {@link #end()} .
     */
-  def setTransformMatrix(transform: Affine2): Unit = {
-    val realMatrix = super.getTransformMatrix()
+  def transformMatrix_=(transform: Affine2): Unit = {
+    val realMatrix = super.transformMatrix
 
     if (checkEqual(realMatrix, transform)) {
       adjustNeeded = false;
     } else {
       virtualMatrix.setAsAffine(transform);
 
-      if (isDrawing()) {
+      if (drawing) {
         adjustNeeded = true;
 
         // adjust = inverse(real) x virtual
@@ -199,7 +197,7 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     if (!adjustNeeded) {
       super.draw(region, x, y);
     } else {
-      drawAdjusted(region, x, y, 0, 0, region.getRegionWidth().toFloat, region.getRegionHeight().toFloat, 1, 1, 0);
+      drawAdjusted(region, x, y, 0, 0, region.regionWidth.toFloat, region.regionHeight.toFloat, 1, 1, 0);
     }
 
   override def draw(region: TextureRegion, x: Float, y: Float, width: Float, height: Float): Unit =
@@ -243,7 +241,7 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private def drawAdjusted(region: TextureRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit =
     // v must be flipped
     drawAdjustedUV(
-      region.getTexture(),
+      region.texture,
       x,
       y,
       originX,
@@ -253,10 +251,10 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
       scaleX,
       scaleY,
       rotation,
-      region.getU(),
-      region.getV2(),
-      region.getU2(),
-      region.getV(),
+      region.u,
+      region.v2,
+      region.u2,
+      region.v,
       false,
       false
     );
@@ -448,8 +446,8 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   ): Unit = {
     if (!drawing) throw new IllegalStateException("CpuSpriteBatch.begin must be called before draw.");
 
-    if (region.getTexture() != lastTexture)
-      switchTexture(region.getTexture());
+    if (region.texture != lastTexture)
+      switchTexture(region.texture);
     else if (idx == vertices.length) super.flush();
 
     // bottom left and top right corner points relative to origin
@@ -527,9 +525,9 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     y4 += worldOriginY;
 
     val (u1, v1, u2, v2, u3, v3, u4, v4) = if (clockwise) {
-      (region.getU2(), region.getV2(), region.getU(), region.getV2(), region.getU(), region.getV(), region.getU2(), region.getV())
+      (region.u2, region.v2, region.u, region.v2, region.u, region.v, region.u2, region.v)
     } else {
-      (region.getU(), region.getV(), region.getU2(), region.getV(), region.getU2(), region.getV2(), region.getU(), region.getV2())
+      (region.u, region.v, region.u2, region.v, region.u2, region.v2, region.u, region.v2)
     };
 
     val t = adjustAffine;
@@ -564,8 +562,8 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private def drawAdjusted(region: TextureRegion, width: Float, height: Float, transform: Affine2): Unit = {
     if (!drawing) throw new IllegalStateException("CpuSpriteBatch.begin must be called before draw.");
 
-    if (region.getTexture() != lastTexture)
-      switchTexture(region.getTexture());
+    if (region.texture != lastTexture)
+      switchTexture(region.texture);
     else if (idx == vertices.length) super.flush();
 
     val t = transform;
@@ -581,10 +579,10 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     val y4 = t.m10 * width + t.m12;
 
     // v must be flipped
-    val u  = region.getU();
-    val v  = region.getV2();
-    val u2 = region.getU2();
-    val v2 = region.getV();
+    val u  = region.u;
+    val v  = region.v2;
+    val u2 = region.u2;
+    val v2 = region.v;
 
     val tAdjust = adjustAffine;
 

@@ -30,7 +30,7 @@ class RepeatAction extends DelegateAction with FinishableAction {
   override protected def delegate(delta: Float): Boolean =
     if (executedCount == repeatCount) true
     else {
-      action.fold(true) { a =>
+      action.forall { a =>
         if (a.act(delta)) {
           if (finished) true
           else {

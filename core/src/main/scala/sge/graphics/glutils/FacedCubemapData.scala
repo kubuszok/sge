@@ -62,12 +62,12 @@ class FacedCubemapData(using Sge) extends CubemapData {
     sge: Sge
   ) = {
     this()
-    data(0) = positiveX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
-    data(1) = negativeX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
-    data(2) = positiveY.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
-    data(3) = negativeY.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
-    data(4) = positiveZ.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
-    data(5) = negativeZ.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
+    data(0) = positiveX.map(px => PixmapTextureData(px, null, false, false))
+    data(1) = negativeX.map(px => PixmapTextureData(px, null, false, false))
+    data(2) = positiveY.map(px => PixmapTextureData(px, null, false, false))
+    data(3) = negativeY.map(px => PixmapTextureData(px, null, false, false))
+    data(4) = positiveZ.map(px => PixmapTextureData(px, null, false, false))
+    data(5) = negativeZ.map(px => PixmapTextureData(px, null, false, false))
   }
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, optionally generating mipmaps. */
@@ -81,23 +81,23 @@ class FacedCubemapData(using Sge) extends CubemapData {
     useMipMaps: Boolean
   )(using Sge) = {
     this()
-    data(0) = positiveX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
-    data(1) = negativeX.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
-    data(2) = positiveY.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
-    data(3) = negativeY.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
-    data(4) = positiveZ.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
-    data(5) = negativeZ.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, useMipMaps, false)))
+    data(0) = positiveX.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(1) = negativeX.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(2) = positiveY.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(3) = negativeY.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(4) = positiveZ.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(5) = negativeZ.map(px => PixmapTextureData(px, null, useMipMaps, false))
   }
 
   /** Construct a Cubemap with {@link Pixmap}s for each side of the specified size. */
   def this(width: Int, height: Int, depth: Int, format: Format)(using Sge) = {
     this()
-    data(0) = Nullable(new PixmapTextureData(new Pixmap(depth, height, format), null, false, true))
-    data(1) = Nullable(new PixmapTextureData(new Pixmap(depth, height, format), null, false, true))
-    data(2) = Nullable(new PixmapTextureData(new Pixmap(width, depth, format), null, false, true))
-    data(3) = Nullable(new PixmapTextureData(new Pixmap(width, depth, format), null, false, true))
-    data(4) = Nullable(new PixmapTextureData(new Pixmap(width, height, format), null, false, true))
-    data(5) = Nullable(new PixmapTextureData(new Pixmap(width, height, format), null, false, true))
+    data(0) = Nullable(PixmapTextureData(Pixmap(depth, height, format), null, false, true))
+    data(1) = Nullable(PixmapTextureData(Pixmap(depth, height, format), null, false, true))
+    data(2) = Nullable(PixmapTextureData(Pixmap(width, depth, format), null, false, true))
+    data(3) = Nullable(PixmapTextureData(Pixmap(width, depth, format), null, false, true))
+    data(4) = Nullable(PixmapTextureData(Pixmap(width, height, format), null, false, true))
+    data(5) = Nullable(PixmapTextureData(Pixmap(width, height, format), null, false, true))
   }
 
   /** Construct a Cubemap with the specified {@link TextureData}'s for the sides */
@@ -112,7 +112,7 @@ class FacedCubemapData(using Sge) extends CubemapData {
   }
 
   override def isManaged: Boolean =
-    data.forall(d => d.fold(false)(_.isManaged))
+    data.forall(d => d.exists(_.isManaged))
 
   /** Loads the texture specified using the {@link FileHandle} and sets it to specified side, overwriting any previous data set to that side. Note that you need to reload through
     * {@link Cubemap#load(CubemapData)} any cubemap using this data for the change to be taken in account.
@@ -121,7 +121,7 @@ class FacedCubemapData(using Sge) extends CubemapData {
     * @param file
     *   The texture {@link FileHandle}
     */
-  def load(side: CubemapSide, file: FileHandle)(using Sge): Unit =
+  def load(side: CubemapSide, file: FileHandle): Unit =
     data(side.index) = Nullable(TextureData.Factory.loadFromFile(file, false))
 
   /** Sets the specified side of this cubemap to the specified {@link Pixmap} , overwriting any previous data set to that side. Note that you need to reload through {@link Cubemap#load(CubemapData)}
@@ -132,7 +132,7 @@ class FacedCubemapData(using Sge) extends CubemapData {
     *   The {@link Pixmap}
     */
   def load(side: CubemapSide, pixmap: Nullable[Pixmap]): Unit =
-    data(side.index) = pixmap.fold(Nullable.empty[TextureData])(px => Nullable(new PixmapTextureData(px, null, false, false)))
+    data(side.index) = pixmap.map(px => PixmapTextureData(px, null, false, false))
 
   /** @return True if all sides of this cubemap are set, false otherwise. */
   def isComplete(): Boolean =
@@ -201,7 +201,7 @@ class FacedCubemapData(using Sge) extends CubemapData {
           var pixmap        = di.consumePixmap()
           var disposePixmap = di.disposePixmap
           if (di.getFormat != pixmap.getFormat()) {
-            val tmp = new Pixmap(pixmap.getWidth(), pixmap.getHeight(), di.getFormat)
+            val tmp = Pixmap(pixmap.getWidth(), pixmap.getHeight(), di.getFormat)
             tmp.setBlending(Blending.None)
             tmp.drawPixmap(pixmap, 0, 0, 0, 0, pixmap.getWidth(), pixmap.getHeight())
             if (di.disposePixmap) pixmap.close()

@@ -25,7 +25,7 @@ import scala.language.implicitConversions
   *   Nathan Sweet (original implementation)
   */
 object Sort {
-  private val comparableTimSort = new ComparableTimSort()
+  private val comparableTimSort = ComparableTimSort()
 
   def sort[T <: Comparable[T]](a: DynamicArray[T]): Unit =
     comparableTimSort.doSort(a.toArray.asInstanceOf[Array[AnyRef]], 0, a.size)

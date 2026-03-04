@@ -8,8 +8,9 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted (serialization handled separately)
- * - All public methods ported: isActive, setActive, load, copy constructor
- * - TODO: Java-style getters/setters — redundant isActive/setActive wraps public var active
+ * - All public methods ported: active (property), load, copy constructor
+ * - Fixes (2026-03-04): isActive()/setActive() → virtual property active/active_=
+ *   with backing field _active (PrimitiveSpawnShapeValue overrides active_=)
  * - Status: pass
  */
 
@@ -24,19 +25,18 @@ package values
   *   Inferno
   */
 class ParticleValue {
-  var active: Boolean = false
+  protected var _active: Boolean = false
 
   def this(value: ParticleValue) = {
     this()
-    this.active = value.active
+    this._active = value._active
   }
 
-  def isActive(): Boolean =
-    active
+  def active: Boolean = _active
 
-  def setActive(active: Boolean): Unit =
-    this.active = active
+  def active_=(value: Boolean): Unit =
+    _active = value
 
   def load(value: ParticleValue): Unit =
-    active = value.active
+    _active = value._active
 }

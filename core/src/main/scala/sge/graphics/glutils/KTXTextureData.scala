@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Nullable[ByteBuffer] for compressedData; static GL constants moved to companion object
  *   Idiom: split packages
- *   Issues: useMipMapsParam is a val but Java reassigns useMipMaps=true when numberOfMipmapLevels==0; mipmap auto-generation may not trigger in this edge case
+ *   Convention: useMipMapsParam shadowed by mutable useMipMapsFlag to handle numberOfMipmapLevels==0 case
  *   TODO: typed GL enums -- TextureTarget, PixelFormat -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -45,6 +45,8 @@ import scala.annotation.nowarn
   *   Vincent Bousquet
   */
 class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) extends TextureData, CubemapData {
+
+  private var useMipMapsFlag: Boolean = useMipMapsParam
 
   // KTX header (only available after preparing)
   private var glType: Int = scala.compiletime.uninitialized
@@ -123,7 +125,7 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
     numberOfMipmapLevels = cd.getInt()
     if (numberOfMipmapLevels == 0) {
       numberOfMipmapLevels = 1
-      // useMipMapsParam = true // This was a val parameter, can't be reassigned
+      useMipMapsFlag = true
     }
     val bytesOfKeyValueData = cd.getInt()
     imagePos = cd.position() + bytesOfKeyValueData
@@ -334,7 +336,7 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
   override def getFormat: Format =
     throw SgeError.GraphicsError("This TextureData implementation directly handles texture formats.")
 
-  override def useMipMaps: Boolean = useMipMapsParam
+  override def useMipMaps: Boolean = useMipMapsFlag
 
   override def isManaged: Boolean = true
 }

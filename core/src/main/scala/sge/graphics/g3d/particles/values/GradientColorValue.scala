@@ -8,9 +8,11 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: getTimeline, setTimeline, getColors, setColors, getColor (x2), load
+ * - All public methods ported: colors/timeline (public vars), getColor (x2), load
  * - static temp field moved to companion object (correct pattern)
  * - getColor uses boundary/break instead of return (correct pattern)
+ * - Fixes (2026-03-04): removed redundant getTimeline/setTimeline/getColors/setColors;
+ *   made colors public var
  * - Status: pass
  */
 
@@ -29,20 +31,8 @@ import scala.util.boundary.break
   */
 class GradientColorValue extends ParticleValue {
 
-  private var colors: Array[Float] = Array(1f, 1f, 1f)
-  var timeline:       Array[Float] = Array(0f)
-
-  def getTimeline(): Array[Float] =
-    timeline
-
-  def setTimeline(timeline: Array[Float]): Unit =
-    this.timeline = timeline
-
-  def getColors(): Array[Float] =
-    colors
-
-  def setColors(colors: Array[Float]): Unit =
-    this.colors = colors
+  var colors:   Array[Float] = Array(1f, 1f, 1f)
+  var timeline: Array[Float] = Array(0f)
 
   def getColor(percent: Float): Array[Float] = {
     getColor(percent, GradientColorValue.temp, 0)

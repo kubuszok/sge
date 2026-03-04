@@ -984,7 +984,7 @@ class Matrix4 {
 
   /** @return a copy of this matrix */
   def cpy(): Matrix4 =
-    new Matrix4(this)
+    Matrix4(this)
 
   /** Adds a translational component to the matrix in the 4th column. The other columns are untouched.
     * @param vector
@@ -2210,16 +2210,16 @@ object Matrix4 {
   val M33 = 15
 
   // Static fields that were moved from the class
-  private val quat       = new Quaternion()
-  private val quat2      = new Quaternion()
-  private val l_vez      = new Vector3()
-  private val l_vex      = new Vector3()
-  private val l_vey      = new Vector3()
-  private val tmpVec     = new Vector3()
-  private val tmpMat     = new Matrix4()
-  private val right      = new Vector3()
-  private val tmpForward = new Vector3()
-  private val tmpUp      = new Vector3()
+  private val quat       = Quaternion()
+  private val quat2      = Quaternion()
+  private val l_vez      = Vector3()
+  private val l_vex      = Vector3()
+  private val l_vey      = Vector3()
+  private val tmpVec     = Vector3()
+  private val tmpMat     = Matrix4()
+  private val right      = Vector3()
+  private val tmpForward = Vector3()
+  private val tmpUp      = Vector3()
   // @off
   /*JNI
   #include <memory.h>

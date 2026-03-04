@@ -8,8 +8,8 @@
  *   Renames: dispose() -> close()
  *   Convention: Nullable for shader/texture; using Sge context parameter; AutoCloseable; createDefaultShader in companion
  *   Idiom: boundary/break, Nullable, split packages
- *   TODO: Java-style getters/setters -- getColor/setColor, getPackedColor/setPackedColor, getBlendSrcFunc/DstFunc, getProjectionMatrix/setProjectionMatrix, getTransformMatrix/setTransformMatrix, getShader/setShader, isBlendingEnabled, isDrawing
- *   TODO: typed GL enums -- BlendFactor, BlendEquation, EnableCap, ClearMask -- see docs/improvements/opaque-types.md
+ *   Fixes: Java-style getters/setters -> Scala property accessors (matching Batch trait)
+ *   Improvement: typed GL enums -- BlendFactor, BlendEquation, EnableCap, ClearMask -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -40,7 +40,7 @@ import java.nio.Buffer
   * @author
   *   Nathan Sweet
   */
-class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) extends Batch with AutoCloseable {
+class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using Sge) extends Batch with AutoCloseable {
 
   private var currentDataType: VertexDataType = uninitialized
 
@@ -54,22 +54,22 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
   var drawing: Boolean = false
 
-  private val transformMatrix:  Matrix4 = new Matrix4()
-  private val projectionMatrix: Matrix4 = new Matrix4()
-  private val combinedMatrix:   Matrix4 = new Matrix4()
+  private val _transformMatrix:  Matrix4 = Matrix4()
+  private val _projectionMatrix: Matrix4 = Matrix4()
+  private val combinedMatrix:    Matrix4 = Matrix4()
 
-  private var blendingDisabled:  Boolean = false
-  private var blendSrcFunc:      Int     = GL20.GL_SRC_ALPHA
-  private var blendDstFunc:      Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
-  private var blendSrcFuncAlpha: Int     = GL20.GL_SRC_ALPHA
-  private var blendDstFuncAlpha: Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
+  private var blendingDisabled:   Boolean = false
+  private var _blendSrcFunc:      Int     = GL20.GL_SRC_ALPHA
+  private var _blendDstFunc:      Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
+  private var _blendSrcFuncAlpha: Int     = GL20.GL_SRC_ALPHA
+  private var _blendDstFuncAlpha: Int     = GL20.GL_ONE_MINUS_SRC_ALPHA
 
-  private val shader:       ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
+  private val _shader:      ShaderProgram           = defaultShader.getOrElse(SpriteBatch.createDefaultShader())
   private var customShader: Nullable[ShaderProgram] = Nullable.empty
   private val ownsShader:   Boolean                 = defaultShader.isEmpty
 
-  private val color: Color = new Color(1, 1, 1, 1)
-  var colorPacked:   Float = Color.WHITE_FLOAT_BITS
+  private val _color: Color = Color(1, 1, 1, 1)
+  var colorPacked:    Float = Color.WHITE_FLOAT_BITS
 
   /** Number of render calls since the last {@link #begin()}. * */
   var renderCalls: Int = 0
@@ -108,7 +108,7 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     )
   )
 
-  projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
 
   val len     = size * 6
   val indices = Array.ofDim[Short](len)
@@ -130,28 +130,12 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     mesh.getIndexData().unbind()
   }
 
-  /** Constructs a new SpriteBatch with a size of 1000, one buffer, and the default shader.
-    * @see
-    *   SpriteBatch#SpriteBatch(int, ShaderProgram)
-    */
-  def this()(using Sge) = {
-    this(1000, Nullable.empty)
-  }
-
-  /** Constructs a SpriteBatch with one buffer and the default shader.
-    * @see
-    *   SpriteBatch#SpriteBatch(int, ShaderProgram)
-    */
-  def this(size: Int)(using Sge) = {
-    this(size, Nullable.empty)
-  }
-
   override def begin(): Unit = {
     if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.")
     renderCalls = 0
 
     Sge().graphics.gl.glDepthMask(false)
-    customShader.fold(shader.bind())(_.bind())
+    customShader.getOrElse(_shader).bind()
     setupMatrices()
 
     drawing = true
@@ -165,28 +149,28 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
     val gl = Sge().graphics.gl
     gl.glDepthMask(true)
-    if (isBlendingEnabled()) gl.glDisable(GL20.GL_BLEND)
+    if (blendingEnabled) gl.glDisable(GL20.GL_BLEND)
   }
 
-  override def setColor(tint: Color): Unit = {
-    color.set(tint)
+  override def color_=(tint: Color): Unit = {
+    _color.set(tint)
     colorPacked = tint.toFloatBits()
   }
 
   override def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
-    color.set(r, g, b, a)
-    colorPacked = color.toFloatBits()
+    _color.set(r, g, b, a)
+    colorPacked = _color.toFloatBits()
   }
 
-  override def getColor(): Color =
-    color
+  override def color: Color =
+    _color
 
-  override def setPackedColor(packedColor: Float): Unit = {
-    Color.abgr8888ToColor(color, packedColor)
+  override def packedColor_=(packedColor: Float): Unit = {
+    Color.abgr8888ToColor(_color, packedColor)
     this.colorPacked = packedColor
   }
 
-  override def getPackedColor(): Float =
+  override def packedColor: Float =
     colorPacked
 
   override def draw(
@@ -557,14 +541,14 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float): Unit =
-    draw(region, x, y, region.getRegionWidth().toFloat, region.getRegionHeight().toFloat)
+    draw(region, x, y, region.regionWidth.toFloat, region.regionHeight.toFloat)
 
   override def draw(region: TextureRegion, x: Float, y: Float, width: Float, height: Float): Unit = {
     if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before draw.")
 
     val vertices = this.vertices
 
-    val texture = region.getTexture()
+    val texture = region.texture
     if (texture != lastTexture) {
       switchTexture(texture)
     } else if (idx == vertices.length) {
@@ -573,10 +557,10 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
     val fx2 = x + width
     val fy2 = y + height
-    val u   = region.getU()
-    val v   = region.getV2()
-    val u2  = region.getU2()
-    val v2  = region.getV()
+    val u   = region.u
+    val v   = region.v2
+    val u2  = region.u2
+    val v2  = region.v
 
     val color    = this.colorPacked
     val localIdx = this.idx
@@ -611,7 +595,7 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
     val vertices = this.vertices
 
-    val texture = region.getTexture()
+    val texture = region.texture
     if (texture != lastTexture) {
       switchTexture(texture)
     } else if (idx == vertices.length) {
@@ -692,10 +676,10 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     x4 += worldOriginX
     y4 += worldOriginY
 
-    val u  = region.getU()
-    val v  = region.getV2()
-    val u2 = region.getU2()
-    val v2 = region.getV()
+    val u  = region.u
+    val v  = region.v2
+    val u2 = region.u2
+    val v2 = region.v
 
     val color    = this.colorPacked
     val localIdx = this.idx
@@ -730,7 +714,7 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
     val vertices = this.vertices
 
-    val texture = region.getTexture()
+    val texture = region.texture
     if (texture != lastTexture) {
       switchTexture(texture)
     } else if (idx == vertices.length) {
@@ -812,9 +796,9 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     y4 += worldOriginY
 
     val (u1, v1, u2, v2, u3, v3, u4, v4) = if (clockwise) {
-      (region.getU2(), region.getV2(), region.getU(), region.getV2(), region.getU(), region.getV(), region.getU2(), region.getV())
+      (region.u2, region.v2, region.u, region.v2, region.u, region.v, region.u2, region.v)
     } else {
-      (region.getU(), region.getV(), region.getU2(), region.getV(), region.getU2(), region.getV2(), region.getU(), region.getV2())
+      (region.u, region.v, region.u2, region.v, region.u2, region.v2, region.u, region.v2)
     }
 
     val color    = this.colorPacked
@@ -850,7 +834,7 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
 
     val vertices = this.vertices
 
-    val texture = region.getTexture()
+    val texture = region.texture
     if (texture != lastTexture) {
       switchTexture(texture)
     } else if (idx == vertices.length) {
@@ -867,10 +851,10 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     val x4 = transform.m00 * width + transform.m02
     val y4 = transform.m10 * width + transform.m12
 
-    val u  = region.getU()
-    val v  = region.getV2()
-    val u2 = region.getU2()
-    val v2 = region.getV()
+    val u  = region.u
+    val v  = region.v2
+    val u2 = region.u2
+    val v2 = region.v
 
     val color    = this.colorPacked
     val localIdx = this.idx
@@ -923,52 +907,52 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
         Sge().graphics.gl.glDisable(GL20.GL_BLEND)
       } else {
         Sge().graphics.gl.glEnable(GL20.GL_BLEND)
-        if (blendSrcFunc != -1) Sge().graphics.gl.glBlendFuncSeparate(blendSrcFunc, blendDstFunc, blendSrcFuncAlpha, blendDstFuncAlpha)
+        if (_blendSrcFunc != -1) Sge().graphics.gl.glBlendFuncSeparate(_blendSrcFunc, _blendDstFunc, _blendSrcFuncAlpha, _blendDstFuncAlpha)
       }
 
-      mesh.render(customShader.getOrElse(shader), GL20.GL_TRIANGLES, 0, count)
+      mesh.render(customShader.getOrElse(_shader), GL20.GL_TRIANGLES, 0, count)
 
       idx = 0
     }
 
-  override def getBlendSrcFunc(): Int =
-    blendSrcFunc
+  override def blendSrcFunc: Int =
+    _blendSrcFunc
 
-  override def getBlendDstFunc(): Int =
-    blendDstFunc
+  override def blendDstFunc: Int =
+    _blendDstFunc
 
-  override def getBlendSrcFuncAlpha(): Int =
-    blendSrcFuncAlpha
+  override def blendSrcFuncAlpha: Int =
+    _blendSrcFuncAlpha
 
-  override def getBlendDstFuncAlpha(): Int =
-    blendDstFuncAlpha
+  override def blendDstFuncAlpha: Int =
+    _blendDstFuncAlpha
 
   override def close(): Unit = {
     mesh.close()
-    if (ownsShader) shader.close()
+    if (ownsShader) _shader.close()
   }
 
-  override def getProjectionMatrix(): Matrix4 =
-    projectionMatrix
+  override def projectionMatrix: Matrix4 =
+    _projectionMatrix
 
-  override def getTransformMatrix(): Matrix4 =
-    transformMatrix
+  override def transformMatrix: Matrix4 =
+    _transformMatrix
 
-  override def setProjectionMatrix(projection: Matrix4): Unit = {
+  override def projectionMatrix_=(projection: Matrix4): Unit = {
     if (drawing) flush()
-    projectionMatrix.set(projection)
+    _projectionMatrix.set(projection)
     if (drawing) setupMatrices()
   }
 
-  override def setTransformMatrix(transform: Matrix4): Unit = {
+  override def transformMatrix_=(transform: Matrix4): Unit = {
     if (drawing) flush()
-    transformMatrix.set(transform)
+    _transformMatrix.set(transform)
     if (drawing) setupMatrices()
   }
 
   protected def setupMatrices(): Unit = {
-    combinedMatrix.set(projectionMatrix).mul(transformMatrix)
-    val activeShader = customShader.getOrElse(shader)
+    combinedMatrix.set(_projectionMatrix).mul(_transformMatrix)
+    val activeShader = customShader.getOrElse(_shader)
     activeShader.setUniformMatrix("u_projTrans", combinedMatrix)
     activeShader.setUniformi("u_texture", 0)
   }
@@ -980,22 +964,22 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     invTexHeight = 1.0f / texture.getHeight
   }
 
-  override def setShader(shader: Nullable[ShaderProgram]): Unit =
+  override def shader_=(shader: Nullable[ShaderProgram]): Unit =
     if (shader != customShader) { // avoid unnecessary flushing in case we are drawing
       if (drawing) {
         flush()
       }
       customShader = shader
       if (drawing) {
-        customShader.fold(this.shader.bind())(_.bind())
+        customShader.getOrElse(this._shader).bind()
         setupMatrices()
       }
     }
 
-  override def getShader(): ShaderProgram =
-    customShader.getOrElse(shader)
+  override def shader: ShaderProgram =
+    customShader.getOrElse(_shader)
 
-  override def isBlendingEnabled(): Boolean =
+  override def blendingEnabled: Boolean =
     !blendingDisabled
 
   override def disableBlending(): Unit = {
@@ -1012,16 +996,13 @@ class SpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram])(using Sge) 
     setBlendFunctionSeparate(srcFunc, dstFunc, srcFunc, dstFunc)
 
   override def setBlendFunctionSeparate(srcFuncColor: Int, dstFuncColor: Int, srcFuncAlpha: Int, dstFuncAlpha: Int): Unit =
-    if (blendSrcFunc != srcFuncColor || blendDstFunc != dstFuncColor || blendSrcFuncAlpha != srcFuncAlpha || blendDstFuncAlpha != dstFuncAlpha) {
+    if (_blendSrcFunc != srcFuncColor || _blendDstFunc != dstFuncColor || _blendSrcFuncAlpha != srcFuncAlpha || _blendDstFuncAlpha != dstFuncAlpha) {
       if (drawing) flush()
-      blendSrcFunc = srcFuncColor
-      blendDstFunc = dstFuncColor
-      blendSrcFuncAlpha = srcFuncAlpha
-      blendDstFuncAlpha = dstFuncAlpha
+      _blendSrcFunc = srcFuncColor
+      _blendDstFunc = dstFuncColor
+      _blendSrcFuncAlpha = srcFuncAlpha
+      _blendDstFuncAlpha = dstFuncAlpha
     }
-
-  def isDrawing(): Boolean =
-    drawing
 }
 
 object SpriteBatch {
@@ -1067,7 +1048,7 @@ object SpriteBatch {
       "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" +
       "}"
 
-    val shader = new ShaderProgram(vertexShader, fragmentShader)
+    val shader = ShaderProgram(vertexShader, fragmentShader)
     if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
     shader
   }

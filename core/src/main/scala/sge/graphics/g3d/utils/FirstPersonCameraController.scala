@@ -47,7 +47,7 @@ class FirstPersonCameraController(
   var autoUpdate:                Boolean               = true
   protected var velocity:        Float                 = 5f
   protected var degreesPerPixel: Float                 = 0.5f
-  protected val tmp:             Vector3               = new Vector3()
+  protected val tmp:             Vector3               = Vector3()
 
   override def keyDown(keycode: Int): Boolean = {
     keys.put(keycode, keycode)

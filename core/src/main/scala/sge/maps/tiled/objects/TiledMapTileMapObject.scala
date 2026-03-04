@@ -7,11 +7,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructor match 1:1
+ * - Audited 2026-03-04 against libGDX source: all methods, fields, and constructor match 1:1
  * - Constructor body uses locally{} block for init (matches Java constructor body)
- * - setTextureRegion called with Nullable(textureRegion) due to SGE's TextureMapObject accepting Nullable
- * - 6 accessor methods (get/set for flipHorizontally, flipVertically, tile) all match Java
- * TODO: Java-style getters/setters — isFlipHorizontally/setFlipHorizontally, isFlipVertically/setFlipVertically, getTile/setTile
+ * - textureRegion assigned with Nullable() due to SGE's TextureMapObject using Nullable
+ * - Renames: isFlipHorizontally/setFlipHorizontally -> var flipHorizontally,
+ *            isFlipVertically/setFlipVertically -> var flipVertically,
+ *            getTile/setTile -> var tile
  */
 package sge
 package maps
@@ -28,29 +29,14 @@ import sge.utils.Nullable
   *   Daniel Holderbaum
   */
 class TiledMapTileMapObject(
-  private var tile:             TiledMapTile,
-  private var flipHorizontally: Boolean,
-  private var flipVertically:   Boolean
+  var tile:             TiledMapTile,
+  var flipHorizontally: Boolean,
+  var flipVertically:   Boolean
 ) extends TextureMapObject() {
 
   locally {
-    val textureRegion = new TextureRegion(tile.getTextureRegion)
-    textureRegion.flip(flipHorizontally, flipVertically)
-    setTextureRegion(Nullable(textureRegion))
+    val region = TextureRegion(tile.getTextureRegion)
+    region.flip(flipHorizontally, flipVertically)
+    this.textureRegion = Nullable(region)
   }
-
-  def isFlipHorizontally: Boolean = flipHorizontally
-
-  def setFlipHorizontally(flipHorizontally: Boolean): Unit =
-    this.flipHorizontally = flipHorizontally
-
-  def isFlipVertically: Boolean = flipVertically
-
-  def setFlipVertically(flipVertically: Boolean): Unit =
-    this.flipVertically = flipVertically
-
-  def getTile: TiledMapTile = tile
-
-  def setTile(tile: TiledMapTile): Unit =
-    this.tile = tile
 }

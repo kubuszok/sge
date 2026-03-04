@@ -9,7 +9,7 @@
  *   Convention: boundary/break for early return; Nullable for null safety; using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
  *   Convention: load(AssetManager,...) fully implemented using AssetManager.get() and getDependencies()
- *   TODO: test: decode a real .psh polygon shape file end-to-end through PolygonRegionLoader
+ *   Issue: test: needs .psh fixture file to test PolygonRegionLoader end-to-end
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -38,19 +38,19 @@ import scala.language.implicitConversions
   */
 class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAssetLoader[PolygonRegion, PolygonRegionLoader.PolygonRegionParameters](resolver) {
 
-  private val defaultParameters = new PolygonRegionLoader.PolygonRegionParameters()
+  private val defaultParameters = PolygonRegionLoader.PolygonRegionParameters()
 
-  private val triangulator = new EarClippingTriangulator()
+  private val triangulator = EarClippingTriangulator()
 
-  def this()(using Sge) = {
-    this(new FileHandleResolver.Internal())
-  }
+  def this()(using Sge) =
+    this(FileHandleResolver.Internal())
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion = {
-    val texture: Texture = manager.get(
-      manager.getDependencies(fileName).getOrElse(throw SgeError.InvalidInput("No dependencies for: " + fileName)).first
+    val texture: Texture = manager(
+      manager.dependencies(fileName).getOrElse(throw SgeError.InvalidInput("No dependencies for: " + fileName)).first,
+      classOf[Texture]
     )
-    load(new TextureRegion(texture), file)
+    load(TextureRegion(texture), file)
   }
 
   /** If the PSH file contains a line starting with {@link PolygonRegionParameters#texturePrefix params.texturePrefix} , an {@link AssetDescriptor} for the file referenced on that line will be added
@@ -110,7 +110,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
           for (i <- vertices.indices)
             vertices(i) = java.lang.Float.parseFloat(polygonStrings(i))
           // It would probably be better if PSH stored the vertices and triangles, then we don't have to triangulate here.
-          scala.util.boundary.break(new PolygonRegion(textureRegion, vertices, triangulator.computeTriangles(vertices).toArray))
+          scala.util.boundary.break(PolygonRegion(textureRegion, vertices, triangulator.computeTriangles(vertices).toArray))
         }
         line = reader.readLine()
       }

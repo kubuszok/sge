@@ -10,11 +10,15 @@ package graphics
 package g3d
 package utils
 
+import sge.Sge
+import sge.SgeTestFixture
 import sge.graphics.g3d.model.{ Animation, NodeKeyframe }
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
 import sge.utils.{ DynamicArray, Nullable }
 
 class AnimationControllerTest extends munit.FunSuite {
+
+  private given Sge = SgeTestFixture.testSge()
 
   test("getFirstKeyframeIndexAtTime nominal") {
     val keyFrames = DynamicArray[NodeKeyframe[String]]()
