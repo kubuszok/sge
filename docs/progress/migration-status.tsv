@@ -1,5 +1,7 @@
-# SGE Migration Status - Updated: 2026-02-27
+# SGE Migration Status - Updated: 2026-03-05
 # libgdx_path	sge_path	status	notes
+# === Status values: ai_converted | skipped | not_started | deferred ===
+# === Target values (backend files): core-shared | desktop-shared | desktop-jvm | browser | android | ios | skip ===
 com/badlogic/gdx/AbstractGraphics.java	sge/Graphics.scala	ai_converted	merged into Graphics
 com/badlogic/gdx/AbstractInput.java	sge/Input.scala	ai_converted	merged into Input
 com/badlogic/gdx/Application.java	sge/Application.scala	ai_converted	
@@ -604,4 +606,152 @@ com/badlogic/gdx/utils/viewport/FitViewport.java	sge/utils/viewport/FitViewport.
 com/badlogic/gdx/utils/viewport/ScalingViewport.java	sge/utils/viewport/ScalingViewport.scala	ai_converted	
 com/badlogic/gdx/utils/viewport/ScreenViewport.java	sge/utils/viewport/ScreenViewport.scala	ai_converted	
 com/badlogic/gdx/utils/viewport/StretchViewport.java	sge/utils/viewport/StretchViewport.scala	ai_converted	
-com/badlogic/gdx/utils/viewport/Viewport.java	sge/utils/viewport/Viewport.scala	ai_converted	
+com/badlogic/gdx/utils/viewport/Viewport.java	sge/utils/viewport/Viewport.scala	ai_converted
+# ══════════════════════════════════════════════════════════════════
+# BACKEND FILES (added 2026-03-05)
+# ══════════════════════════════════════════════════════════════════
+# ── LWJGL3 → backend-desktop ─────────────────────────────────────
+backends/lwjgl3/Lwjgl3Application.java	sge/backend/desktop/DesktopApplication.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3ApplicationBase.java	sge/backend/desktop/DesktopApplicationBase.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3ApplicationConfiguration.java	sge/backend/desktop/DesktopApplicationConfig.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3ApplicationLogger.java		skipped	target:skip println logger in noop
+backends/lwjgl3/Lwjgl3NativesLoader.java		skipped	target:skip Panama loads libs directly
+backends/lwjgl3/Lwjgl3Graphics.java	sge/backend/desktop/DesktopGraphics.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3GL20.java	sge/backend/desktop/AngleGL20.scala	not_started	target:desktop-jvm+native P0 codegen
+backends/lwjgl3/Lwjgl3GL30.java	sge/backend/desktop/AngleGL30.scala	not_started	target:desktop-jvm+native P0 codegen
+backends/lwjgl3/Lwjgl3GL31.java	sge/backend/desktop/AngleGL31.scala	not_started	target:desktop-jvm+native P1 codegen
+backends/lwjgl3/Lwjgl3GL32.java	sge/backend/desktop/AngleGL32.scala	not_started	target:desktop-jvm+native P1 codegen
+backends/lwjgl3/Lwjgl3Window.java	sge/backend/desktop/DesktopWindow.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3WindowConfiguration.java	sge/backend/desktop/DesktopWindowConfig.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3WindowListener.java	sge/backend/desktop/DesktopWindowListener.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/DefaultLwjgl3Input.java	sge/backend/desktop/DesktopInput.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3Files.java	sge/backend/desktop/DesktopFiles.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3FileHandle.java	sge/backend/desktop/DesktopFileHandle.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/Lwjgl3Preferences.java	sge/backend/desktop/DesktopPreferences.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/Lwjgl3Net.java	sge/backend/desktop/DesktopNet.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/Lwjgl3Clipboard.java	sge/backend/desktop/DesktopClipboard.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/Lwjgl3Cursor.java	sge/backend/desktop/DesktopCursor.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/Sync.java	sge/backend/desktop/FrameSync.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/audio/OpenALLwjgl3Audio.java	sge/backend/desktop/MiniaudioEngine.scala	not_started	target:desktop-shared P0 rewrite:miniaudio
+backends/lwjgl3/audio/OpenALSound.java	sge/backend/desktop/DesktopSound.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/audio/OpenALMusic.java	sge/backend/desktop/DesktopMusic.scala	not_started	target:desktop-shared P0
+backends/lwjgl3/audio/OpenALAudioDevice.java	sge/backend/desktop/DesktopAudioDevice.scala	not_started	target:desktop-shared P1
+backends/lwjgl3/audio/OpenALUtils.java		skipped	target:skip OpenAL-specific
+backends/lwjgl3/audio/JavaSoundAudioRecorder.java	sge/backend/desktop/DesktopAudioRecorder.scala	not_started	target:desktop-jvm P2
+backends/lwjgl3/audio/Wav.java	sge/audio/decoders/WavDecoder.scala	not_started	target:core-shared P1
+backends/lwjgl3/audio/Ogg.java	sge/audio/decoders/OggDecoder.scala	not_started	target:core-shared P1
+backends/lwjgl3/audio/OggInputStream.java	sge/audio/decoders/OggDecoder.scala	not_started	target:core-shared P1 merge
+backends/lwjgl3/audio/Mp3.java	sge/audio/decoders/Mp3Decoder.scala	not_started	target:core-shared P1
+backends/lwjgl3/audio/mock/MockAudio.java	sge/noop/NoopAudio.scala	ai_converted	target:core-shared done
+backends/lwjgl3/audio/mock/MockAudioDevice.java	sge/noop/NoopAudioDevice.scala	ai_converted	target:core-shared done
+backends/lwjgl3/audio/mock/MockMusic.java	sge/noop/NoopMusic.scala	ai_converted	target:core-shared done
+backends/lwjgl3/audio/mock/MockSound.java	sge/noop/NoopSound.scala	ai_converted	target:core-shared done
+backends/lwjgl3/audio/mock/MockAudioRecorder.java	sge/noop/NoopAudioRecorder.scala	ai_converted	target:core-shared done
+# ── GWT → backend-browser ────────────────────────────────────────
+backends/gwt/GwtApplication.java	sge/backend/browser/BrowserApplication.scala	done	target:browser P0
+backends/gwt/GwtApplicationConfiguration.java	sge/backend/browser/BrowserApplicationConfig.scala	not_started	target:browser P0
+backends/gwt/GwtApplicationLogger.java	sge/backend/browser/BrowserLogger.scala	not_started	target:browser P1
+backends/gwt/GwtGraphics.java	sge/backend/browser/BrowserGraphics.scala	not_started	target:browser P0
+backends/gwt/GwtGL20.java	sge/backend/browser/WebGL20.scala	not_started	target:browser P0 handle-mapping
+backends/gwt/GwtGL30.java	sge/backend/browser/WebGL30.scala	not_started	target:browser P0
+backends/gwt/GwtGL20Debug.java		skipped	target:skip debug wrapper
+backends/gwt/GwtGL30Debug.java		skipped	target:skip debug wrapper
+backends/gwt/DefaultGwtInput.java	sge/backend/browser/BrowserInput.scala	not_started	target:browser P0
+backends/gwt/DefaultGwtAudio.java	sge/backend/browser/BrowserAudio.scala	not_started	target:browser P0
+backends/gwt/GwtFiles.java	sge/backend/browser/BrowserFiles.scala	not_started	target:browser P0
+backends/gwt/GwtFileHandle.java	sge/backend/browser/BrowserFileHandle.scala	not_started	target:browser P0
+backends/gwt/GwtNet.java	sge/backend/browser/BrowserNet.scala	not_started	target:browser P1
+backends/gwt/GwtPreferences.java	sge/backend/browser/BrowserPreferences.scala	not_started	target:browser P1
+backends/gwt/GwtClipboard.java	sge/backend/browser/BrowserClipboard.scala	not_started	target:browser P1
+backends/gwt/GwtCursor.java	sge/backend/browser/BrowserCursor.scala	not_started	target:browser P1
+backends/gwt/GwtAccelerometer.java	sge/backend/browser/BrowserSensors.scala	not_started	target:browser P2
+backends/gwt/GwtGyroscope.java	sge/backend/browser/BrowserSensors.scala	not_started	target:browser P2 merge
+backends/gwt/GwtSensor.java	sge/backend/browser/BrowserSensors.scala	not_started	target:browser P2 merge
+backends/gwt/GwtPermissions.java		skipped	target:skip GWT-specific
+backends/gwt/GwtFeaturePolicy.java		skipped	target:skip GWT-specific
+backends/gwt/GwtUtils.java		skipped	target:skip GWT-specific
+# ── Android → backend-android ────────────────────────────────────
+backends/android/AndroidApplication.java	sge/backend/android/AndroidApplication.scala	not_started	target:android P2
+backends/android/AndroidApplicationBase.java	sge/backend/android/AndroidApplicationBase.scala	not_started	target:android P2
+backends/android/AndroidApplicationConfiguration.java	sge/backend/android/AndroidApplicationConfig.scala	not_started	target:android P2
+backends/android/AndroidApplicationLogger.java	sge/backend/android/AndroidLogger.scala	not_started	target:android P2
+backends/android/AndroidFragmentApplication.java	sge/backend/android/AndroidFragmentApp.scala	not_started	target:android P2
+backends/android/AndroidGraphics.java	sge/backend/android/AndroidGraphics.scala	not_started	target:android P2
+backends/android/AndroidGL20.java	sge/backend/android/AndroidGL20.scala	not_started	target:android P2 codegen
+backends/android/AndroidGL30.java	sge/backend/android/AndroidGL30.scala	not_started	target:android P2 codegen
+backends/android/DefaultAndroidInput.java	sge/backend/android/AndroidInput.scala	not_started	target:android P2
+backends/android/AndroidTouchHandler.java	sge/backend/android/AndroidTouchHandler.scala	not_started	target:android P2
+backends/android/AndroidMouseHandler.java	sge/backend/android/AndroidMouseHandler.scala	not_started	target:android P2
+backends/android/AndroidHaptics.java	sge/backend/android/AndroidHaptics.scala	not_started	target:android P2
+backends/android/DefaultAndroidAudio.java	sge/backend/android/AndroidAudio.scala	not_started	target:android P2
+backends/android/AndroidAudioDevice.java	sge/backend/android/AndroidAudioDevice.scala	not_started	target:android P2
+backends/android/AndroidAudioRecorder.java	sge/backend/android/AndroidAudioRecorder.scala	not_started	target:android P2
+backends/android/AndroidSound.java	sge/backend/android/AndroidSound.scala	not_started	target:android P2
+backends/android/AndroidMusic.java	sge/backend/android/AndroidMusic.scala	not_started	target:android P2
+backends/android/DefaultAndroidFiles.java	sge/backend/android/AndroidFiles.scala	not_started	target:android P2
+backends/android/AndroidFileHandle.java	sge/backend/android/AndroidFileHandle.scala	not_started	target:android P2
+backends/android/AndroidNet.java	sge/backend/android/AndroidNet.scala	not_started	target:android P2
+backends/android/AndroidPreferences.java	sge/backend/android/AndroidPreferences.scala	not_started	target:android P2
+backends/android/AndroidClipboard.java	sge/backend/android/AndroidClipboard.scala	not_started	target:android P2
+backends/android/AndroidCursor.java	sge/backend/android/AndroidCursor.scala	not_started	target:android P2
+backends/android/surfaceview/GLSurfaceView20.java	sge/backend/android/SgeGLSurfaceView.scala	not_started	target:android P2
+backends/android/surfaceview/GdxEglConfigChooser.java	sge/backend/android/EglConfigChooser.scala	not_started	target:android P2
+backends/android/surfaceview/ResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2
+backends/android/surfaceview/FillResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
+backends/android/surfaceview/FixedResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
+backends/android/surfaceview/RatioResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
+backends/android/AndroidDaydream.java		skipped	target:skip niche
+backends/android/AndroidLiveWallpaperService.java		skipped	target:skip niche
+backends/android/AndroidLiveWallpaper.java		skipped	target:skip niche
+backends/android/AndroidGraphicsLiveWallpaper.java		skipped	target:skip niche
+backends/android/AndroidWallpaperListener.java		skipped	target:skip niche
+backends/android/AndroidZipFileHandle.java		skipped	target:skip OBB niche
+backends/android/ZipResourceFile.java		skipped	target:skip OBB niche
+backends/android/APKExpansionSupport.java		skipped	target:skip OBB niche
+backends/android/DisabledAndroidAudio.java	sge/noop/NoopAudio.scala	ai_converted	target:core-shared done
+backends/android/AsynchronousAndroidAudio.java	sge/backend/android/AsyncAndroidAudio.scala	not_started	target:android P3
+backends/android/AsynchronousSound.java	sge/backend/android/AsyncAndroidSound.scala	not_started	target:android P3
+backends/android/InputProcessorLW.java		skipped	target:skip wallpaper-specific
+backends/android/AndroidVisibilityListener.java		skipped	target:skip immersive mode
+backends/android/AndroidEventListener.java		skipped	target:skip onActivityResult
+backends/android/GdxNativeLoader.java		skipped	target:skip JNI loader
+backends/android/keyboardheight/KeyboardHeightProvider.java		not_started	target:android P3
+backends/android/keyboardheight/KeyboardHeightObserver.java		not_started	target:android P3
+backends/android/keyboardheight/StandardKeyboardHeightProvider.java		not_started	target:android P3
+backends/android/keyboardheight/AndroidXKeyboardHeightProvider.java		not_started	target:android P3
+# ── iOS/RoboVM → backend-ios ─────────────────────────────────────
+backends/iosrobovm/IOSApplication.java	sge/backend/ios/IOSApplication.scala	deferred	target:ios P3 blocked:scala-native-ios
+backends/iosrobovm/IOSApplicationConfiguration.java	sge/backend/ios/IOSApplicationConfig.scala	deferred	target:ios P3
+backends/iosrobovm/IOSApplicationLogger.java	sge/backend/ios/IOSLogger.scala	deferred	target:ios P3
+backends/iosrobovm/IOSGraphics.java	sge/backend/ios/IOSGraphics.scala	deferred	target:ios P3
+backends/iosrobovm/IOSGLES20.java	sge/backend/desktop/AngleGL20.scala	deferred	target:ios P3 share-with-desktop
+backends/iosrobovm/IOSGLES30.java	sge/backend/desktop/AngleGL30.scala	deferred	target:ios P3 share-with-desktop
+backends/iosrobovm/DefaultIOSInput.java	sge/backend/ios/IOSInput.scala	deferred	target:ios P3
+backends/iosrobovm/IOSAudio.java	sge/backend/ios/IOSAudio.scala	deferred	target:ios P3
+backends/iosrobovm/IOSMusic.java	sge/backend/desktop/DesktopMusic.scala	deferred	target:ios P3 share-miniaudio
+backends/iosrobovm/IOSSound.java	sge/backend/desktop/DesktopSound.scala	deferred	target:ios P3 share-miniaudio
+backends/iosrobovm/IOSFiles.java	sge/backend/ios/IOSFiles.scala	deferred	target:ios P3
+backends/iosrobovm/IOSFileHandle.java	sge/backend/ios/IOSFileHandle.scala	deferred	target:ios P3
+backends/iosrobovm/IOSNet.java	sge/backend/ios/IOSNet.scala	deferred	target:ios P3
+backends/iosrobovm/IOSPreferences.java	sge/backend/ios/IOSPreferences.scala	deferred	target:ios P3
+backends/iosrobovm/IOSHaptics.java	sge/backend/ios/IOSHaptics.scala	deferred	target:ios P3
+backends/iosrobovm/DisabledIOSAudio.java	sge/noop/NoopAudio.scala	ai_converted	target:core-shared done
+backends/iosrobovm/IOSDevice.java	sge/backend/ios/IOSDevice.scala	deferred	target:ios P3
+backends/iosrobovm/IOSScreenBounds.java	sge/backend/ios/IOSScreenBounds.scala	deferred	target:ios P3
+backends/iosrobovm/objectal/*		skipped	target:skip replaced by miniaudio (13 files)
+# ── Headless → core noop ─────────────────────────────────────────
+backends/headless/HeadlessApplication.java	sge/HeadlessApplication.scala	not_started	target:core-shared P1
+backends/headless/HeadlessApplicationConfiguration.java	sge/HeadlessApplication.scala	not_started	target:core-shared P1 merge
+backends/headless/mock/graphics/MockGraphics.java	sge/noop/NoopGraphics.scala	ai_converted	target:core-shared done
+backends/headless/mock/input/MockInput.java	sge/noop/NoopInput.scala	ai_converted	target:core-shared done
+backends/headless/mock/audio/MockAudio.java	sge/noop/NoopAudio.scala	ai_converted	target:core-shared done
+backends/headless/mock/audio/MockAudioDevice.java	sge/noop/NoopAudioDevice.scala	ai_converted	target:core-shared done
+backends/headless/mock/audio/MockAudioRecorder.java	sge/noop/NoopAudioRecorder.scala	ai_converted	target:core-shared done
+backends/headless/mock/audio/MockMusic.java	sge/noop/NoopMusic.scala	ai_converted	target:core-shared done
+backends/headless/mock/audio/MockSound.java	sge/noop/NoopSound.scala	ai_converted	target:core-shared done
+backends/headless/HeadlessFiles.java	sge/backend/desktop/DesktopFiles.scala	not_started	target:desktop-shared P0 reuse
+backends/headless/HeadlessFileHandle.java	sge/backend/desktop/DesktopFileHandle.scala	not_started	target:desktop-shared P0 reuse
+backends/headless/HeadlessNet.java	sge/backend/desktop/DesktopNet.scala	not_started	target:desktop-shared P1 reuse
+backends/headless/HeadlessPreferences.java	sge/backend/desktop/DesktopPreferences.scala	not_started	target:desktop-shared P1 reuse
+backends/headless/HeadlessApplicationLogger.java		skipped	target:skip println in noop
+backends/headless/HeadlessNativesLoader.java		skipped	target:skip not needed

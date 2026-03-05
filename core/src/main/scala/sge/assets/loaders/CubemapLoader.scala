@@ -38,11 +38,12 @@ class CubemapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchronou
     if (param.forall(_.cubemapData.isEmpty)) {
       @nowarn("msg=not read") // format will be used when CubemapData loading is implemented
       var format: Nullable[Format] = Nullable.empty
-      val genMipMaps = false
+      var genMipMaps = false
       info.cubemap = Nullable.empty
 
       param.foreach { p =>
         format = p.format
+        genMipMaps = p.genMipMaps
         info.cubemap = p.cubemap
       }
 
@@ -90,6 +91,8 @@ object CubemapLoader {
 
     /** The texture to put the {@link TextureData} in, optional. * */
     var cubemap: Nullable[Cubemap] = Nullable.empty
+
+    var genMipMaps: Boolean = false
 
     /** CubemapData for textures created on the fly, optional. When set, all format and genMipMaps are ignored */
     var cubemapData: Nullable[CubemapData] = Nullable.empty

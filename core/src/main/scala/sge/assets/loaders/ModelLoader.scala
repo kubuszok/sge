@@ -6,7 +6,7 @@
  *
  * Migration notes:
  *   Idiom: split packages; loadModelData/loadModel parameters changed from P to Nullable[P] to eliminate null.asInstanceOf
- *   Convention: loadSync returns null.asInstanceOf[Model] at Java API boundary (AssetManager expects null for missing data)
+ *   Convention: loadSync throws on missing data (Java original returned null, caught by Nullable wrapping in AssetLoadingTask)
  *   TODOs: test: ModelLoader getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)
  *   Audited: 2026-03-04
  *
@@ -22,7 +22,7 @@ import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.Model
 import sge.graphics.g3d.model.data.ModelData
 import sge.graphics.g3d.utils.TextureProvider
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[Model, P](resolver) {
 
@@ -94,8 +94,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
           i += 1
         }
     }
-    // Java API boundary: AssetManager expects null when data not found
-    data.fold(null.asInstanceOf[Model]) { d =>
+    data.fold(throw SgeError.InvalidInput(s"Model data for '$fileName' not found; was loadAsync called?")) { d =>
       val result = Model(d, TextureProvider.AssetTextureProvider(manager))
       // need to remove the textures from the managed disposables, or else ref counting
       // doesn't work!

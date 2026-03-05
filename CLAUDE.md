@@ -16,6 +16,7 @@ SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
 - **Case classes must be `final`**: all `case class` declarations require `final`
 - **No Java-style getters/setters**: no-logic `getX()`/`setX(v)` → public `var x`; with-logic → `def x: T` + `def x_=(v: T): Unit`
 - **`(using Sge)` propagation**: pass `Sge` context wherever needed (replaces LibGDX global `Gdx.*`). Add `(using Sge)` to **class constructors** so it's available in all methods. Never leave TODOs for missing Sge. Sge is effectively a per-application singleton passed explicitly instead of via globals.
+- **Fix bugs, don't work around them**: when a test reveals a pre-existing bug in the codebase, fix the bug in the source code — never patch the test to avoid it
 - Use `sbt --client` or `just compile` / `just fmt` — never bare `sbt`
 
 ## Bash Restrictions

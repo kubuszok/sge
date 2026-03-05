@@ -1,4 +1,5 @@
-# Use JDK 21 LTS to avoid accidentally relying on APIs absent from Scala.js/Native javalib.
-# Install with: sdk install java 21.0.6-graal
-# See also: sdk env install
-java=21.0.6-graal
+# JDK 25 for Project Panama (Foreign Function & Memory API, finalized in JDK 22).
+# Panama replaces JNI for calling native libraries from JVM — see docs/architecture/backend-graphics-strategy.md.
+# Install with: sdk install java 25.0.1-graalce
+# Or via coursier: cs java --jvm graalvm-community:25.0.1 -- -version
+java=25.0.1-graalce

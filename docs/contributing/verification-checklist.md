@@ -40,6 +40,10 @@ Use this checklist when verifying an AI-converted file. A file can be marked as 
 - [ ] `Gdx` global replaced with implicit `Sge`
 - [ ] `math.method` calls verified (java.lang.Math vs sge.math package)
 
+## Testing
+
+- [ ] If a test reveals a pre-existing bug in the codebase, fix the bug — never patch the test to work around it
+
 ## Status Progression
 
 After verification, update `docs/progress/migration-status.tsv`:

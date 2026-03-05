@@ -952,7 +952,7 @@ object Input {
           // BUTTON_CIRCLE unhandled, as it conflicts with the more likely to be pressed F12
           case _ =>
             // key name not found
-            null
+            null: String
         }
       )
     }

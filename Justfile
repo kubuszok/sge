@@ -453,6 +453,34 @@ gh-run-view id:
 gh-repo:
     gh repo view
 
+# List PR review comments (inline code review comments)
+gh-pr-comments pr="2":
+    gh api repos/{owner}/{repo}/pulls/{{pr}}/comments --jq '.[] | "---\n\(.path):\(.line // .original_line) (@\(.user.login)):\n\(.body)\n"'
+
+# List PR review comments — summary only (file:line + description)
+gh-pr-comments-summary pr="2":
+    gh api repos/{owner}/{repo}/pulls/{{pr}}/comments --jq '.[] | "\(.path):\(.line // .original_line) | \(.body | split("### ")[1:] | .[0] | split("\n")[0])"'
+
+# List PR review comments for a specific file
+gh-pr-comments-file pr="2" file="":
+    gh api repos/{owner}/{repo}/pulls/{{pr}}/comments --jq '[.[] | select(.path == "{{file}}")] | .[] | "---\nL\(.line // .original_line) (@\(.user.login)):\n\(.body)\n"'
+
+# List PR issue comments (top-level conversation comments)
+gh-pr-issue-comments pr="2":
+    gh api repos/{owner}/{repo}/issues/{{pr}}/comments --jq '.[] | "---\n@\(.user.login):\n\(.body)\n"'
+
+# List PR reviews (approve/request changes/comment)
+gh-pr-reviews pr="2":
+    gh api repos/{owner}/{repo}/pulls/{{pr}}/reviews --jq '.[] | "---\n@\(.user.login) [\(.state)]:\n\(.body)\n"'
+
+# Show PR checks with conclusions
+gh-pr-check-runs pr="2":
+    gh api "repos/{owner}/{repo}/commits/$(gh pr view {{pr}} --json headRefOid --jq .headRefOid)/check-runs" --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+
+# Show failed CI run logs
+gh-run-log id:
+    gh run view {{id}} --log-failed
+
 # Call GitHub API (GET requests)
 gh-api endpoint:
     gh api {{endpoint}}
@@ -489,13 +517,17 @@ sge-count pattern:
 
 # ── Native Components (Rust library) ─────────────────────────────
 
-# Build the Rust native library (release mode, JVM feature enabled)
+# Build the Rust native library (release mode, C ABI for Panama + Scala Native)
 rust-build:
-    cd native-components && cargo build --release --features jvm
+    cd native-components && cargo build --release
+
+# Build the Rust native library with Android JNI bridge
+rust-build-android:
+    cd native-components && cargo build --release --features android
 
 # Build Rust and remove .dylib so Scala Native links statically
 rust-build-static:
-    cd native-components && cargo build --release --features jvm
+    cd native-components && cargo build --release
     rm -f native-components/target/release/libsge_native_ops.dylib native-components/target/release/libsge_native_ops.so
 
 # Run Rust unit tests
@@ -504,15 +536,10 @@ rust-test:
 
 # ── Metals MCP ────────────────────────────────────────────────────
 
-# metals-mcp snapshot version (check https://github.com/scalameta/metals/actions for latest)
-metals_mcp_version := "1.6.5+61-683485a8-SNAPSHOT"
-
 # Install metals-mcp-server binary via Coursier (snapshot)
 metals-install:
-    cs bootstrap org.scalameta:metals-mcp_2.13:{{metals_mcp_version}} \
-      -r https://central.sonatype.com/repository/maven-snapshots/ \
-      -o metals-mcp-server -f
+    cs install metals-mcp
 
 # Start metals-mcp server
 metals:
-    ./metals-mcp-server --workspace . --port 7845 --client claude --default-bsp-to-build-tool
+    metals-mcp --workspace . --port 7845 --client claude --default-bsp-to-build-tool

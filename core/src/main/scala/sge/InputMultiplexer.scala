@@ -13,6 +13,7 @@
 package sge
 
 import sge.utils.DynamicArray
+import scala.util.boundary, boundary.break
 
 /** An {@link InputProcessor} that delegates to an ordered list of other InputProcessors. Delegation for an event stops if a processor returns true, which indicates that the event was handled.
   * @author
@@ -20,7 +21,6 @@ import sge.utils.DynamicArray
   */
 class InputMultiplexer extends InputProcessor {
   private val processors = DynamicArray[InputProcessor]()
-  private val processingCopy: DynamicArray[InputProcessor] = DynamicArray[InputProcessor]()
 
   def this(processors: InputProcessor*) = {
     this()
@@ -59,12 +59,21 @@ class InputMultiplexer extends InputProcessor {
   def getProcessors(): DynamicArray[InputProcessor] =
     processors
 
-  private def processEvent[T](event: InputProcessor => Boolean): Boolean = {
-    // Create a copy for safe iteration
-    processingCopy.clear()
-    processingCopy.addAll(processors)
-
-    processingCopy.exists(event)
+  private def processEvent(event: InputProcessor => Boolean): Boolean = {
+    // Use snapshot iteration (begin/end) for re-entrant safety, matching Java's SnapshotArray usage
+    val items = processors.begin()
+    try
+      boundary {
+        val n = processors.size
+        var i = 0
+        while (i < n) {
+          if (event(items(i))) break(true)
+          i += 1
+        }
+        false
+      }
+    finally
+      processors.end()
   }
 
   override def keyDown(keycode: Int): Boolean =

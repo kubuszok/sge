@@ -215,7 +215,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
 
   private class ReadonlyIterator[T](array: Array[T]) extends Iterator[T] {
     private var index: Int     = 0
-    private val valid: Boolean = true
+    var valid:         Boolean = true
 
     override def hasNext: Boolean = {
       if (!valid) throw new RuntimeException("#iterator() cannot be used nested.")
@@ -235,9 +235,21 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   }
 
   private class ReadonlyIterable[T](array: Array[T]) extends Iterable[T] {
+    private val iterator1: ReadonlyIterator[T] = ReadonlyIterator(array)
+    private val iterator2: ReadonlyIterator[T] = ReadonlyIterator(array)
+
     override def iterator(): Iterator[T] =
-      // For now, always create new iterators to avoid complexity
-      ReadonlyIterator(array)
+      if (!iterator1.valid) {
+        iterator1.reset()
+        iterator1.valid = true
+        iterator2.valid = false
+        iterator1
+      } else {
+        iterator2.reset()
+        iterator2.valid = true
+        iterator1.valid = false
+        iterator2
+      }
   }
 }
 

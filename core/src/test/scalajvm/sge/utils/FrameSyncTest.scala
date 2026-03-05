@@ -16,9 +16,10 @@ class FrameSyncTest extends munit.FunSuite {
     val elapsed   = TimeUtils.nanoTime() - before
     val elapsedMs = elapsed / 1000000.0
 
-    // Should be roughly 16.6ms (1000/60). Allow wide tolerance for CI.
+    // Should be roughly 16.6ms (1000/60). Allow wide tolerance for CI — Windows runners
+    // have poor timer precision and can report 140ms+ for a single frame.
     assert(elapsedMs > 5.0, s"sync(60) should block at least 5ms, was ${elapsedMs}ms")
-    assert(elapsedMs < 50.0, s"sync(60) should block less than 50ms, was ${elapsedMs}ms")
+    assert(elapsedMs < 200.0, s"sync(60) should block less than 200ms, was ${elapsedMs}ms")
   }
 
   test("sync(0) returns immediately") {

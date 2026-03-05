@@ -425,6 +425,70 @@ pub unsafe extern "C" fn sge_find_vertex_epsilon(
 }
 
 // ---------------------------------------------------------------------------
+// C ABI exports — memory management (for Panama FFM on desktop JVM)
+// ---------------------------------------------------------------------------
+
+/// Allocates `num_bytes` of zeroed memory via `malloc` + `memset`.
+/// Returns a pointer to the allocated memory, or null on failure.
+///
+/// # Safety
+///
+/// Caller must ensure the returned pointer is eventually freed via `sge_free_memory`.
+#[no_mangle]
+pub unsafe extern "C" fn sge_alloc_memory(num_bytes: i32) -> *mut u8 {
+    let ptr = unsafe { libc::malloc(num_bytes as libc::size_t) };
+    if ptr.is_null() {
+        return std::ptr::null_mut();
+    }
+    unsafe { libc::memset(ptr, 0, num_bytes as libc::size_t) };
+    ptr as *mut u8
+}
+
+/// Frees memory previously allocated by `sge_alloc_memory`.
+///
+/// # Safety
+///
+/// `ptr` must be a pointer returned by `sge_alloc_memory`, or null (no-op).
+#[no_mangle]
+pub unsafe extern "C" fn sge_free_memory(ptr: *mut u8) {
+    if !ptr.is_null() {
+        unsafe { libc::free(ptr as *mut libc::c_void) };
+    }
+}
+
+/// Zeroes `num_bytes` bytes starting at `ptr`.
+///
+/// # Safety
+///
+/// Caller must ensure `ptr` points to at least `num_bytes` bytes of valid memory.
+#[no_mangle]
+pub unsafe extern "C" fn sge_clear_memory(ptr: *mut u8, num_bytes: i32) {
+    if !ptr.is_null() {
+        unsafe { std::ptr::write_bytes(ptr, 0, num_bytes as usize) };
+    }
+}
+
+/// Copies `num_bytes` floats from `src` to `dst` (both as f32 pointers).
+/// This is a simple float-to-float memcpy equivalent.
+///
+/// # Safety
+///
+/// Caller must ensure both pointers are valid and non-overlapping for the given count.
+#[no_mangle]
+pub unsafe extern "C" fn sge_copy_floats(
+    src: *const f32,
+    src_offset: i32,
+    dst: *mut f32,
+    dst_offset: i32,
+    num_floats: i32,
+) {
+    let num = num_floats as usize;
+    let s = unsafe { core::slice::from_raw_parts(src.add(src_offset as usize), num) };
+    let d = unsafe { core::slice::from_raw_parts_mut(dst.add(dst_offset as usize), num) };
+    d.copy_from_slice(s);
+}
+
+// ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 

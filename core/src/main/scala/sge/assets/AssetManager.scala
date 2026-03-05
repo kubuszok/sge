@@ -161,8 +161,12 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   /** Returns true if an asset with the specified name is loading, queued to be loaded, or has been loaded. */
   def contains(fileName: String): Boolean = synchronized {
     boundary {
-      if (tasks.size > 0 && tasks.first.assetDesc.fileName == fileName) boundary.break(true)
       var i = 0
+      while (i < tasks.size) {
+        if (tasks(i).assetDesc.fileName == fileName) boundary.break(true)
+        i += 1
+      }
+      i = 0
       while (i < loadQueue.size) {
         if (loadQueue(i).fileName == fileName) boundary.break(true)
         i += 1
@@ -174,11 +178,13 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   /** Returns true if an asset with the specified name and type is loading, queued to be loaded, or has been loaded. */
   def contains(fileName: String, `type`: Class[?]): Boolean = synchronized {
     boundary {
-      if (tasks.size > 0) {
-        val assetDesc = tasks.first.assetDesc
-        if (assetDesc.`type` == `type` && assetDesc.fileName == fileName) boundary.break(true)
-      }
       var i = 0
+      while (i < tasks.size) {
+        val assetDesc = tasks(i).assetDesc
+        if (assetDesc.`type` == `type` && assetDesc.fileName == fileName) boundary.break(true)
+        i += 1
+      }
+      i = 0
       while (i < loadQueue.size) {
         val assetDesc = loadQueue(i)
         if (assetDesc.`type` == `type` && assetDesc.fileName == fileName) boundary.break(true)
@@ -230,7 +236,6 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         boundary.break(())
       }
 
-      if (tpe.isEmpty) throw SgeError.InvalidInput("Asset not loaded: " + fileName)
       val loadedType = tpe.getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
 
       val assetRef =
@@ -311,26 +316,29 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   }
 
   /** Returns the default loader for the given type. */
-  def loader[T](`type`: Class[T]): Nullable[AssetLoader[?, ?]] =
+  def loader[T](`type`: Class[T]): Nullable[AssetLoader[?, ?]] = synchronized {
     loader(`type`, Nullable.empty)
+  }
 
   /** Returns the loader for the given type and the specified filename. If no loader exists for the specific filename, the default loader for that type is returned.
     */
-  def loader[T](`type`: Class[T], fileName: Nullable[String]): Nullable[AssetLoader[?, ?]] = boundary {
-    val typeLoaders = this.loaders.get(`type`)
-    if (typeLoaders.isEmpty) boundary.break(Nullable.empty)
-    val loaderMap = typeLoaders.getOrElse(boundary.break(Nullable.empty))
-    if (loaderMap.size < 1) boundary.break(Nullable.empty)
-    if (fileName.isEmpty) boundary.break(loaderMap.get(""))
-    var result: Nullable[AssetLoader[?, ?]] = Nullable.empty
-    var length = -1
-    loaderMap.foreachEntry { (suffix, loader) =>
-      if (suffix.length > length && fileName.getOrElse("").endsWith(suffix)) {
-        result = Nullable(loader)
-        length = suffix.length
+  def loader[T](`type`: Class[T], fileName: Nullable[String]): Nullable[AssetLoader[?, ?]] = synchronized {
+    boundary {
+      val typeLoaders = this.loaders.get(`type`)
+      if (typeLoaders.isEmpty) boundary.break(Nullable.empty)
+      val loaderMap = typeLoaders.getOrElse(boundary.break(Nullable.empty))
+      if (loaderMap.size < 1) boundary.break(Nullable.empty)
+      if (fileName.isEmpty) boundary.break(loaderMap.get(""))
+      var result: Nullable[AssetLoader[?, ?]] = Nullable.empty
+      var length = -1
+      loaderMap.foreachEntry { (suffix, loader) =>
+        if (suffix.length > length && fileName.getOrElse("").endsWith(suffix)) {
+          result = Nullable(loader)
+          length = suffix.length
+        }
       }
+      result
     }
-    result
   }
 
   /** Adds the given asset to the loading queue of the AssetManager. */
@@ -390,7 +398,12 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Adds the given asset to the loading queue of the AssetManager. */
   def load(desc: AssetDescriptor[?]): Unit = synchronized {
-    load(desc.fileName, desc.`type`, desc.params)
+    // Cast is safe: the descriptor's type and params were created together
+    load(
+      desc.fileName,
+      desc.`type`.asInstanceOf[Class[Any]],
+      desc.params.asInstanceOf[Nullable[AssetLoaderParameters[Any]]]
+    )
   }
 
   /** Updates the AssetManager for a single task. Returns if the current task is still being processed or there are no tasks, otherwise it finishes the current task and starts the next task.
@@ -459,7 +472,15 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
             log.debug("Asset loaded: " + fileName)
             boundary.break(result.getOrElse(throw SgeError.InvalidInput("unreachable")))
           }
-          update()
+          // If update() returns true, all queues are empty. The asset either loaded (caught above)
+          // or failed with an error listener swallowing the exception. Break to avoid infinite loop.
+          if (update()) {
+            boundary.break(
+              lookup[T](fileName, Nullable.empty).getOrElse(
+                throw SgeError.InvalidInput("Asset not loaded: " + fileName)
+              )
+            )
+          }
         }
         Thread.`yield`()
       }
@@ -696,6 +717,11 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       }
       Math.min(1f, fractionalLoaded / toLoad.toFloat)
     }
+  }
+
+  /** Returns the AssetErrorListener to be invoked in case loading an asset failed. */
+  def errorListener: Nullable[AssetErrorListener] = synchronized {
+    this.listener
   }
 
   /** Sets an AssetErrorListener to be invoked in case loading an asset failed. */

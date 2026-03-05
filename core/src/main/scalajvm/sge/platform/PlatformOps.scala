@@ -15,4 +15,10 @@ package platform
 private[sge] object PlatformOps {
   val etc1:   ETC1Ops   = ETC1OpsJvm
   val buffer: BufferOps = BufferOpsJvm
+
+  // Desktop backend FFI — set by the DesktopApplication during initialization.
+  // Null until a desktop backend is running (headless mode doesn't need them).
+  @volatile private[sge] var windowing: WindowingOps = scala.compiletime.uninitialized
+  @volatile private[sge] var audio:     AudioOps     = scala.compiletime.uninitialized
+  @volatile private[sge] var gl:        GlOps        = scala.compiletime.uninitialized
 }

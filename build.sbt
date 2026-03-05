@@ -15,6 +15,7 @@ val versions = new {
   val jsoniter  = "2.38.9"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"
+  val scalajsDom = "2.8.1"
 
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
@@ -68,6 +69,10 @@ val core = (projectMatrix in file("core"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = Seq(
+      libraryDependencies ++= Seq(
+        "org.jcraft" % "jorbis" % "0.0.17",
+        "com.badlogicgames.jlayer" % "jlayer" % "1.0.1-gdx"
+      ),
       Test / fork := true,
       Test / javaOptions += {
         val base = (ThisBuild / baseDirectory).value
@@ -75,7 +80,12 @@ val core = (projectMatrix in file("core"))
       }
     )
   )
-  .jsPlatform(scalaVersions = Seq(versions.scala))
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = Seq(
+      libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom
+    )
+  )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = Seq(
@@ -87,7 +97,9 @@ val core = (projectMatrix in file("core"))
           s"-L$base/native-components/target/release",
           "-lsge_native_ops"
         )
-        // Rust std on Windows uses NtWriteFile/RtlNtStatusToDosError from ntdll
+        // Rust std on Windows uses NtWriteFile/RtlNtStatusToDosError from ntdll.
+        // sttp's curl backend declares @link("idn2") but Windows curl uses WinAPI for IDN,
+        // not libidn2. We create an empty stub lib in CI to satisfy the linker.
         val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
         c.withLinkingOptions(c.linkingOptions ++ rustLibOpts ++ windowsOpts)
       }

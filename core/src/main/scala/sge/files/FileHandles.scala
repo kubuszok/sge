@@ -188,7 +188,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       val buffer = new Array[Char](256)
       var length = reader.read(buffer)
       while (length != -1) {
-        output.append(buffer, 0, length)
+        output.appendAll(buffer, 0, length)
         length = reader.read(buffer)
       }
       output.toString()

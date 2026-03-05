@@ -179,7 +179,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libstdc++-12-dev
+          sudo apt-get install -y clang libstdc++-12-dev libidn2-dev libcurl4-openssl-dev
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
@@ -195,5 +195,17 @@ jobs:
         shell: bash
         run: rm -f native-components/target/release/libsge_native_ops.{dylib,so} native-components/target/release/sge_native_ops.dll
 
+      # sttp's curl backend declares @link("idn2") in its Scala Native IR, but
+      # Windows curl uses WinAPI for IDN — libidn2 is never actually called.
+      # Create an empty stub so the MSVC linker is satisfied.
+      - name: Create empty idn2 stub library (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          echo "void __idn2_stub(void) {}" > native-components/target/release/idn2_stub.c
+          clang -c native-components/target/release/idn2_stub.c -o native-components/target/release/idn2_stub.obj
+          llvm-lib /OUT:native-components/target/release/idn2.lib native-components/target/release/idn2_stub.obj
+
       - name: Run Scala Native tests
         run: sbt 'coreNative/test'
+
