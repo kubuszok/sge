@@ -12,10 +12,11 @@
  * - ParticleControllerPool inner class replaced with Pool.Default + lambda.
  * - Random.dispose() renamed to close() per SGE convention.
  * - Null checks replaced with Nullable pattern; data[i] = null replaced with clearSlot(i).
- * - save/load: partially stubbed (AssetManager.getAll not yet available).
+ * - save/load: fully implemented. save uses AssetManager.getAll[ParticleEffect].
  * - load: uses descriptor.fold pattern instead of while-null loop.
  * - Random.init: uses pool.obtain() instead of pool.newObject() (Pool.Default behavior).
- * - Status: minor_issues (save stub incomplete — getAll not available)
+ * - Fixes (2026-03-06): save stub completed — AssetManager.getAll now available
+ * - Status: pass
  */
 package sge
 package graphics
@@ -83,8 +84,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
 
   override def save(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data    = resources.createSaveData()
-    val effects = DynamicArray[ParticleEffect]()
-    // NOTE: AssetManager.getAll not yet available; save is a stub for now
+    val effects = manager.getAll[ParticleEffect](DynamicArray[ParticleEffect]())
 
     val controllers = DynamicArray[ParticleController]()
     controllers.addAll(templates)

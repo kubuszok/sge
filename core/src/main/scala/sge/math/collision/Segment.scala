@@ -41,9 +41,8 @@ class Segment(val a: Vector3 = Vector3(), val b: Vector3 = Vector3()) {
     * @param bZ
     *   the z-coordinate of the second point
     */
-  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) = {
+  def this(aX: Float, aY: Float, aZ: Float, bX: Float, bY: Float, bZ: Float) =
     this(Vector3(aX, aY, aZ), Vector3(bX, bY, bZ))
-  }
 
   def len(): Float = a.distance(b)
 

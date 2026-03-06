@@ -6,12 +6,12 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: uses flat package declaration — convert to split (package sge / package graphics)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics
+package sge
+package graphics
 
 /** Used by a {@link Cubemap} to load the pixel data. The Cubemap will request the CubemapData to prepare itself through {@link #prepare()} and upload its data using {@link #consumeCubemapData()} .
   * These are the first methods to be called by Cubemap. After that the Cubemap will invoke the other methods to find out about the size of the image data, the format, whether the CubemapData is able

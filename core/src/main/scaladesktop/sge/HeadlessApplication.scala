@@ -71,6 +71,10 @@ class HeadlessApplication(
   // ---- main loop ----
 
   private def mainLoop(): Unit = {
+    listener match {
+      case aware: SgeAware => aware.sgeAvailable(sgeContext)
+      case _ => ()
+    }
     listener.create()
 
     val targetInterval = targetRenderInterval()

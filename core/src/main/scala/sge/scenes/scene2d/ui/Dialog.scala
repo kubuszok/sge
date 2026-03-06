@@ -65,10 +65,10 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     setModal(true)
 
     defaults().space(6)
-    contentTable = Table(skin.map(s => s: Any))
+    contentTable = Table(skin)
     add(Nullable[Actor](contentTable)).grow()
     row()
-    buttonTable = Table(skin.map(s => s: Any))
+    buttonTable = Table(skin)
     add(Nullable[Actor](buttonTable)).fillX()
 
     contentTable.defaults().space(6)

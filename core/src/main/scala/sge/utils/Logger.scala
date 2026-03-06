@@ -9,7 +9,6 @@
  *   Convention: methods take `(using Sge)` context parameter; constants in companion object
  *   Idiom: split packages
  *   TODO: Java-style getters/setters -- redundant setLevel/getLevel wraps public var level
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: evaluate scribe (com.outr %%% "scribe" % "3.17.0") as replacement -- cross-platform, compile-time optimization; see docs/improvements/dependencies.md B2
  *   Audited: 2026-03-03
  *
@@ -26,23 +25,23 @@ package utils
   */
 class Logger(val tag: String, var level: Int = Logger.ERROR) {
 
-  def debug(message: String)(using sde: sge.Sge): Unit =
-    if (level >= Logger.DEBUG) sde.application.debug(tag, message)
+  def debug(message: String)(using sge.Sge): Unit =
+    if (level >= Logger.DEBUG) sge.Sge().application.debug(tag, message)
 
-  def debug(message: String, exception: Exception)(using sde: sge.Sge): Unit =
-    if (level >= Logger.DEBUG) sde.application.debug(tag, message, exception)
+  def debug(message: String, exception: Exception)(using sge.Sge): Unit =
+    if (level >= Logger.DEBUG) sge.Sge().application.debug(tag, message, exception)
 
-  def info(message: String)(using sde: sge.Sge): Unit =
-    if (level >= Logger.INFO) sde.application.log(tag, message)
+  def info(message: String)(using sge.Sge): Unit =
+    if (level >= Logger.INFO) sge.Sge().application.log(tag, message)
 
-  def info(message: String, exception: Exception)(using sde: sge.Sge): Unit =
-    if (level >= Logger.INFO) sde.application.log(tag, message, exception)
+  def info(message: String, exception: Exception)(using sge.Sge): Unit =
+    if (level >= Logger.INFO) sge.Sge().application.log(tag, message, exception)
 
-  def error(message: String)(using sde: sge.Sge): Unit =
-    if (level >= Logger.ERROR) sde.application.error(tag, message)
+  def error(message: String)(using sge.Sge): Unit =
+    if (level >= Logger.ERROR) sge.Sge().application.error(tag, message)
 
-  def error(message: String, exception: Throwable)(using sde: sge.Sge): Unit =
-    if (level >= Logger.ERROR) sde.application.error(tag, message, exception)
+  def error(message: String, exception: Throwable)(using sge.Sge): Unit =
+    if (level >= Logger.ERROR) sge.Sge().application.error(tag, message, exception)
 
   /** Sets the log level. {@link #NONE} will mute all log output. {@link #ERROR} will only let error messages through. {@link #INFO} will let all non-debug messages through, and {@link #DEBUG} will
     * let all messages through.

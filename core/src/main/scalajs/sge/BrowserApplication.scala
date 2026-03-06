@@ -84,6 +84,9 @@ class BrowserApplication(
 
   private var _sge: Sge = scala.compiletime.uninitialized
 
+  /** The [[Sge]] context for this application. Available after [[start]] has been called. */
+  def sgeContext: Sge = _sge
+
   /** Start the application. Creates the canvas, WebGL context, subsystems, and begins the main loop.
     *
     * @param baseUrl
@@ -147,6 +150,10 @@ class BrowserApplication(
     lastHeight = _graphics.getHeight()
 
     // Notify the listener
+    listener match {
+      case aware: SgeAware => aware.sgeAvailable(_sge)
+      case _ => ()
+    }
     listener.create()
     listener.resize(_graphics.getWidth(), _graphics.getHeight())
 

@@ -27,9 +27,8 @@ class NetJavaServerSocketImpl(val protocol: Net.Protocol, hostname: Nullable[Str
   /** Our server or null for disposed, aka closed. */
   private var server: JServerSocket = scala.compiletime.uninitialized
 
-  def this(protocol: Net.Protocol, port: Int, hints: ServerSocketHints) = {
+  def this(protocol: Net.Protocol, port: Int, hints: ServerSocketHints) =
     this(protocol, Nullable.empty, port, hints)
-  }
 
   // Initialize in primary constructor
   initializeServer(hostname, port, hints)

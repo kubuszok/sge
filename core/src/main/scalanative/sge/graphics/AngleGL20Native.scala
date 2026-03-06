@@ -27,173 +27,172 @@ import NativeGlHelper.*
 @extern
 private[graphics] object GL20C {
   // Texture state
-  def glActiveTexture(texture: CInt): Unit                                                              = extern
-  def glBindTexture(target: CInt, texture: CInt): Unit                                                  = extern
-  def glGenTextures(n: CInt, textures: Ptr[CInt]): Unit                                                 = extern
-  def glDeleteTextures(n: CInt, textures: Ptr[CInt]): Unit                                              = extern
-  def glIsTexture(texture: CInt): CUnsignedChar                                                         = extern
-  def glTexImage2D(target: CInt, level: CInt, intfmt: CInt, w: CInt, h: CInt, border: CInt, fmt: CInt, tp: CInt, pixels: Ptr[Byte]): Unit = extern
-  def glTexSubImage2D(target: CInt, level: CInt, xo: CInt, yo: CInt, w: CInt, h: CInt, fmt: CInt, tp: CInt, pixels: Ptr[Byte]): Unit     = extern
-  def glCopyTexImage2D(target: CInt, level: CInt, intfmt: CInt, x: CInt, y: CInt, w: CInt, h: CInt, border: CInt): Unit                  = extern
-  def glCopyTexSubImage2D(target: CInt, level: CInt, xo: CInt, yo: CInt, x: CInt, y: CInt, w: CInt, h: CInt): Unit                       = extern
-  def glCompressedTexImage2D(target: CInt, level: CInt, intfmt: CInt, w: CInt, h: CInt, border: CInt, sz: CInt, data: Ptr[Byte]): Unit    = extern
-  def glCompressedTexSubImage2D(target: CInt, level: CInt, xo: CInt, yo: CInt, w: CInt, h: CInt, fmt: CInt, sz: CInt, data: Ptr[Byte]): Unit = extern
-  def glTexParameterf(target: CInt, pname: CInt, param: CFloat): Unit                                  = extern
-  def glTexParameteri(target: CInt, pname: CInt, param: CInt): Unit                                     = extern
-  def glTexParameterfv(target: CInt, pname: CInt, params: Ptr[CFloat]): Unit                            = extern
-  def glTexParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit                              = extern
-  def glGetTexParameterfv(target: CInt, pname: CInt, params: Ptr[CFloat]): Unit                         = extern
-  def glGetTexParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit                           = extern
-  def glGenerateMipmap(target: CInt): Unit                                                              = extern
+  def glActiveTexture(texture:          CInt):                                                                                                            Unit          = extern
+  def glBindTexture(target:             CInt, texture:  CInt):                                                                                            Unit          = extern
+  def glGenTextures(n:                  CInt, textures: Ptr[CInt]):                                                                                       Unit          = extern
+  def glDeleteTextures(n:               CInt, textures: Ptr[CInt]):                                                                                       Unit          = extern
+  def glIsTexture(texture:              CInt):                                                                                                            CUnsignedChar = extern
+  def glTexImage2D(target:              CInt, level:    CInt, intfmt: CInt, w:  CInt, h: CInt, border: CInt, fmt: CInt, tp:     CInt, pixels: Ptr[Byte]): Unit          = extern
+  def glTexSubImage2D(target:           CInt, level:    CInt, xo:     CInt, yo: CInt, w: CInt, h:      CInt, fmt: CInt, tp:     CInt, pixels: Ptr[Byte]): Unit          = extern
+  def glCopyTexImage2D(target:          CInt, level:    CInt, intfmt: CInt, x:  CInt, y: CInt, w:      CInt, h:   CInt, border: CInt):                    Unit          = extern
+  def glCopyTexSubImage2D(target:       CInt, level:    CInt, xo:     CInt, yo: CInt, x: CInt, y:      CInt, w:   CInt, h:      CInt):                    Unit          = extern
+  def glCompressedTexImage2D(target:    CInt, level:    CInt, intfmt: CInt, w:  CInt, h: CInt, border: CInt, sz:  CInt, data:   Ptr[Byte]):               Unit          = extern
+  def glCompressedTexSubImage2D(target: CInt, level:    CInt, xo:     CInt, yo: CInt, w: CInt, h:      CInt, fmt: CInt, sz:     CInt, data:   Ptr[Byte]): Unit          = extern
+  def glTexParameterf(target:           CInt, pname:    CInt, param:  CFloat):                                                                            Unit          = extern
+  def glTexParameteri(target:           CInt, pname:    CInt, param:  CInt):                                                                              Unit          = extern
+  def glTexParameterfv(target:          CInt, pname:    CInt, params: Ptr[CFloat]):                                                                       Unit          = extern
+  def glTexParameteriv(target:          CInt, pname:    CInt, params: Ptr[CInt]):                                                                         Unit          = extern
+  def glGetTexParameterfv(target:       CInt, pname:    CInt, params: Ptr[CFloat]):                                                                       Unit          = extern
+  def glGetTexParameteriv(target:       CInt, pname:    CInt, params: Ptr[CInt]):                                                                         Unit          = extern
+  def glGenerateMipmap(target:          CInt):                                                                                                            Unit          = extern
 
   // Blend / Color / Depth / Stencil
-  def glBlendFunc(sfactor: CInt, dfactor: CInt): Unit                                                   = extern
-  def glBlendFuncSeparate(srcRGB: CInt, dstRGB: CInt, srcA: CInt, dstA: CInt): Unit                    = extern
-  def glBlendColor(r: CFloat, g: CFloat, b: CFloat, a: CFloat): Unit                                  = extern
-  def glBlendEquation(mode: CInt): Unit                                                                 = extern
-  def glBlendEquationSeparate(modeRGB: CInt, modeA: CInt): Unit                                        = extern
-  def glClear(mask: CInt): Unit                                                                         = extern
-  def glClearColor(r: CFloat, g: CFloat, b: CFloat, a: CFloat): Unit                                  = extern
-  def glClearDepthf(depth: CFloat): Unit                                                                = extern
-  def glClearStencil(s: CInt): Unit                                                                     = extern
-  def glColorMask(r: CUnsignedChar, g: CUnsignedChar, b: CUnsignedChar, a: CUnsignedChar): Unit       = extern
-  def glDepthFunc(func: CInt): Unit                                                                     = extern
-  def glDepthMask(flag: CUnsignedChar): Unit                                                            = extern
-  def glDepthRangef(zNear: CFloat, zFar: CFloat): Unit                                                 = extern
-  def glStencilFunc(func: CInt, ref: CInt, mask: CInt): Unit                                            = extern
-  def glStencilFuncSeparate(face: CInt, func: CInt, ref: CInt, mask: CInt): Unit                       = extern
-  def glStencilMask(mask: CInt): Unit                                                                   = extern
-  def glStencilMaskSeparate(face: CInt, mask: CInt): Unit                                               = extern
-  def glStencilOp(fail: CInt, zfail: CInt, zpass: CInt): Unit                                           = extern
-  def glStencilOpSeparate(face: CInt, fail: CInt, zfail: CInt, zpass: CInt): Unit                      = extern
+  def glBlendFunc(sfactor:             CInt, dfactor:    CInt):                                              Unit = extern
+  def glBlendFuncSeparate(srcRGB:      CInt, dstRGB:     CInt, srcA:       CInt, dstA:       CInt):          Unit = extern
+  def glBlendColor(r:                  CFloat, g:        CFloat, b:        CFloat, a:        CFloat):        Unit = extern
+  def glBlendEquation(mode:            CInt):                                                                Unit = extern
+  def glBlendEquationSeparate(modeRGB: CInt, modeA:      CInt):                                              Unit = extern
+  def glClear(mask:                    CInt):                                                                Unit = extern
+  def glClearColor(r:                  CFloat, g:        CFloat, b:        CFloat, a:        CFloat):        Unit = extern
+  def glClearDepthf(depth:             CFloat):                                                              Unit = extern
+  def glClearStencil(s:                CInt):                                                                Unit = extern
+  def glColorMask(r:                   CUnsignedChar, g: CUnsignedChar, b: CUnsignedChar, a: CUnsignedChar): Unit = extern
+  def glDepthFunc(func:                CInt):                                                                Unit = extern
+  def glDepthMask(flag:                CUnsignedChar):                                                       Unit = extern
+  def glDepthRangef(zNear:             CFloat, zFar:     CFloat):                                            Unit = extern
+  def glStencilFunc(func:              CInt, ref:        CInt, mask:       CInt):                            Unit = extern
+  def glStencilFuncSeparate(face:      CInt, func:       CInt, ref:        CInt, mask:       CInt):          Unit = extern
+  def glStencilMask(mask:              CInt):                                                                Unit = extern
+  def glStencilMaskSeparate(face:      CInt, mask:       CInt):                                              Unit = extern
+  def glStencilOp(fail:                CInt, zfail:      CInt, zpass:      CInt):                            Unit = extern
+  def glStencilOpSeparate(face:        CInt, fail:       CInt, zfail:      CInt, zpass:      CInt):          Unit = extern
 
   // Enable / Disable / Viewport
-  def glEnable(cap: CInt): Unit                                                                         = extern
-  def glDisable(cap: CInt): Unit                                                                        = extern
-  def glIsEnabled(cap: CInt): CUnsignedChar                                                             = extern
-  def glViewport(x: CInt, y: CInt, w: CInt, h: CInt): Unit                                             = extern
-  def glScissor(x: CInt, y: CInt, w: CInt, h: CInt): Unit                                              = extern
-  def glCullFace(mode: CInt): Unit                                                                      = extern
-  def glFrontFace(mode: CInt): Unit                                                                     = extern
-  def glLineWidth(width: CFloat): Unit                                                                  = extern
-  def glPolygonOffset(factor: CFloat, units: CFloat): Unit                                              = extern
-  def glPixelStorei(pname: CInt, param: CInt): Unit                                                     = extern
-  def glHint(target: CInt, mode: CInt): Unit                                                            = extern
-  def glSampleCoverage(value: CFloat, invert: CUnsignedChar): Unit                                     = extern
-  def glFinish(): Unit                                                                                  = extern
-  def glFlush(): Unit                                                                                   = extern
+  def glEnable(cap:           CInt):                                   Unit          = extern
+  def glDisable(cap:          CInt):                                   Unit          = extern
+  def glIsEnabled(cap:        CInt):                                   CUnsignedChar = extern
+  def glViewport(x:           CInt, y:        CInt, w: CInt, h: CInt): Unit          = extern
+  def glScissor(x:            CInt, y:        CInt, w: CInt, h: CInt): Unit          = extern
+  def glCullFace(mode:        CInt):                                   Unit          = extern
+  def glFrontFace(mode:       CInt):                                   Unit          = extern
+  def glLineWidth(width:      CFloat):                                 Unit          = extern
+  def glPolygonOffset(factor: CFloat, units:  CFloat):                 Unit          = extern
+  def glPixelStorei(pname:    CInt, param:    CInt):                   Unit          = extern
+  def glHint(target:          CInt, mode:     CInt):                   Unit          = extern
+  def glSampleCoverage(value: CFloat, invert: CUnsignedChar):          Unit          = extern
+  def glFinish():                                                      Unit          = extern
+  def glFlush():                                                       Unit          = extern
 
   // Get state
-  def glGetError(): CInt                                                                                = extern
-  def glGetIntegerv(pname: CInt, params: Ptr[CInt]): Unit                                               = extern
-  def glGetFloatv(pname: CInt, params: Ptr[CFloat]): Unit                                               = extern
-  def glGetBooleanv(pname: CInt, params: Ptr[Byte]): Unit                                               = extern
-  def glGetString(name: CInt): CString                                                                  = extern
+  def glGetError():                                    CInt    = extern
+  def glGetIntegerv(pname: CInt, params: Ptr[CInt]):   Unit    = extern
+  def glGetFloatv(pname:   CInt, params: Ptr[CFloat]): Unit    = extern
+  def glGetBooleanv(pname: CInt, params: Ptr[Byte]):   Unit    = extern
+  def glGetString(name:    CInt):                      CString = extern
 
   // Draw
-  def glDrawArrays(mode: CInt, first: CInt, count: CInt): Unit                                          = extern
-  def glDrawElements(mode: CInt, count: CInt, tp: CInt, indices: Ptr[Byte]): Unit                       = extern
-  def glReadPixels(x: CInt, y: CInt, w: CInt, h: CInt, fmt: CInt, tp: CInt, pixels: Ptr[Byte]): Unit   = extern
+  def glDrawArrays(mode:   CInt, first: CInt, count: CInt):                                                        Unit = extern
+  def glDrawElements(mode: CInt, count: CInt, tp:    CInt, indices: Ptr[Byte]):                                    Unit = extern
+  def glReadPixels(x:      CInt, y:     CInt, w:     CInt, h:       CInt, fmt: CInt, tp: CInt, pixels: Ptr[Byte]): Unit = extern
 
   // Buffer objects
-  def glGenBuffers(n: CInt, buffers: Ptr[CInt]): Unit                                                   = extern
-  def glDeleteBuffers(n: CInt, buffers: Ptr[CInt]): Unit                                                = extern
-  def glBindBuffer(target: CInt, buffer: CInt): Unit                                                    = extern
-  def glBufferData(target: CInt, size: CInt, data: Ptr[Byte], usage: CInt): Unit                        = extern
-  def glBufferSubData(target: CInt, offset: CInt, size: CInt, data: Ptr[Byte]): Unit                    = extern
-  def glIsBuffer(buffer: CInt): CUnsignedChar                                                           = extern
-  def glGetBufferParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit                        = extern
+  def glGenBuffers(n:                CInt, buffers: Ptr[CInt]):                                 Unit          = extern
+  def glDeleteBuffers(n:             CInt, buffers: Ptr[CInt]):                                 Unit          = extern
+  def glBindBuffer(target:           CInt, buffer:  CInt):                                      Unit          = extern
+  def glBufferData(target:           CInt, size:    CInt, data:   Ptr[Byte], usage: CInt):      Unit          = extern
+  def glBufferSubData(target:        CInt, offset:  CInt, size:   CInt, data:       Ptr[Byte]): Unit          = extern
+  def glIsBuffer(buffer:             CInt):                                                     CUnsignedChar = extern
+  def glGetBufferParameteriv(target: CInt, pname:   CInt, params: Ptr[CInt]):                   Unit          = extern
 
   // Framebuffer objects
-  def glGenFramebuffers(n: CInt, fbs: Ptr[CInt]): Unit                                                  = extern
-  def glDeleteFramebuffers(n: CInt, fbs: Ptr[CInt]): Unit                                               = extern
-  def glBindFramebuffer(target: CInt, fb: CInt): Unit                                                   = extern
-  def glCheckFramebufferStatus(target: CInt): CInt                                                      = extern
-  def glFramebufferTexture2D(target: CInt, attach: CInt, textarget: CInt, texture: CInt, level: CInt): Unit = extern
-  def glFramebufferRenderbuffer(target: CInt, attach: CInt, rbtarget: CInt, rb: CInt): Unit             = extern
-  def glGetFramebufferAttachmentParameteriv(target: CInt, attach: CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
-  def glIsFramebuffer(fb: CInt): CUnsignedChar                                                          = extern
+  def glGenFramebuffers(n:                          CInt, fbs:    Ptr[CInt]):                                         Unit          = extern
+  def glDeleteFramebuffers(n:                       CInt, fbs:    Ptr[CInt]):                                         Unit          = extern
+  def glBindFramebuffer(target:                     CInt, fb:     CInt):                                              Unit          = extern
+  def glCheckFramebufferStatus(target:              CInt):                                                            CInt          = extern
+  def glFramebufferTexture2D(target:                CInt, attach: CInt, textarget: CInt, texture: CInt, level: CInt): Unit          = extern
+  def glFramebufferRenderbuffer(target:             CInt, attach: CInt, rbtarget:  CInt, rb:      CInt):              Unit          = extern
+  def glGetFramebufferAttachmentParameteriv(target: CInt, attach: CInt, pname:     CInt, params:  Ptr[CInt]):         Unit          = extern
+  def glIsFramebuffer(fb:                           CInt):                                                            CUnsignedChar = extern
 
   // Renderbuffer objects
-  def glGenRenderbuffers(n: CInt, rbs: Ptr[CInt]): Unit                                                 = extern
-  def glDeleteRenderbuffers(n: CInt, rbs: Ptr[CInt]): Unit                                              = extern
-  def glBindRenderbuffer(target: CInt, rb: CInt): Unit                                                  = extern
-  def glRenderbufferStorage(target: CInt, intfmt: CInt, w: CInt, h: CInt): Unit                         = extern
-  def glGetRenderbufferParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit                  = extern
-  def glIsRenderbuffer(rb: CInt): CUnsignedChar                                                         = extern
+  def glGenRenderbuffers(n:                CInt, rbs:    Ptr[CInt]):                   Unit          = extern
+  def glDeleteRenderbuffers(n:             CInt, rbs:    Ptr[CInt]):                   Unit          = extern
+  def glBindRenderbuffer(target:           CInt, rb:     CInt):                        Unit          = extern
+  def glRenderbufferStorage(target:        CInt, intfmt: CInt, w:      CInt, h: CInt): Unit          = extern
+  def glGetRenderbufferParameteriv(target: CInt, pname:  CInt, params: Ptr[CInt]):     Unit          = extern
+  def glIsRenderbuffer(rb:                 CInt):                                      CUnsignedChar = extern
 
   // Shader / Program
-  def glCreateShader(tp: CInt): CInt                                                                    = extern
-  def glDeleteShader(shader: CInt): Unit                                                                = extern
-  def glIsShader(shader: CInt): CUnsignedChar                                                           = extern
-  def glShaderSource(shader: CInt, count: CInt, string: Ptr[CString], length: Ptr[CInt]): Unit          = extern
-  def glCompileShader(shader: CInt): Unit                                                               = extern
-  def glGetShaderiv(shader: CInt, pname: CInt, params: Ptr[CInt]): Unit                                 = extern
-  def glGetShaderInfoLog(shader: CInt, bufSize: CInt, length: Ptr[CInt], infoLog: CString): Unit        = extern
-  def glCreateProgram(): CInt                                                                           = extern
-  def glDeleteProgram(program: CInt): Unit                                                              = extern
-  def glIsProgram(program: CInt): CUnsignedChar                                                         = extern
-  def glAttachShader(program: CInt, shader: CInt): Unit                                                 = extern
-  def glDetachShader(program: CInt, shader: CInt): Unit                                                 = extern
-  def glLinkProgram(program: CInt): Unit                                                                = extern
-  def glUseProgram(program: CInt): Unit                                                                 = extern
-  def glValidateProgram(program: CInt): Unit                                                            = extern
-  def glGetProgramiv(program: CInt, pname: CInt, params: Ptr[CInt]): Unit                               = extern
-  def glGetProgramInfoLog(program: CInt, bufSize: CInt, length: Ptr[CInt], infoLog: CString): Unit      = extern
-  def glGetAttachedShaders(program: CInt, maxcount: CInt, count: Ptr[CInt], shaders: Ptr[CInt]): Unit   = extern
+  def glCreateShader(tp:            CInt):                                                          CInt          = extern
+  def glDeleteShader(shader:        CInt):                                                          Unit          = extern
+  def glIsShader(shader:            CInt):                                                          CUnsignedChar = extern
+  def glShaderSource(shader:        CInt, count:    CInt, string: Ptr[CString], length: Ptr[CInt]): Unit          = extern
+  def glCompileShader(shader:       CInt):                                                          Unit          = extern
+  def glGetShaderiv(shader:         CInt, pname:    CInt, params: Ptr[CInt]):                       Unit          = extern
+  def glGetShaderInfoLog(shader:    CInt, bufSize:  CInt, length: Ptr[CInt], infoLog:   CString):   Unit          = extern
+  def glCreateProgram():                                                                            CInt          = extern
+  def glDeleteProgram(program:      CInt):                                                          Unit          = extern
+  def glIsProgram(program:          CInt):                                                          CUnsignedChar = extern
+  def glAttachShader(program:       CInt, shader:   CInt):                                          Unit          = extern
+  def glDetachShader(program:       CInt, shader:   CInt):                                          Unit          = extern
+  def glLinkProgram(program:        CInt):                                                          Unit          = extern
+  def glUseProgram(program:         CInt):                                                          Unit          = extern
+  def glValidateProgram(program:    CInt):                                                          Unit          = extern
+  def glGetProgramiv(program:       CInt, pname:    CInt, params: Ptr[CInt]):                       Unit          = extern
+  def glGetProgramInfoLog(program:  CInt, bufSize:  CInt, length: Ptr[CInt], infoLog:   CString):   Unit          = extern
+  def glGetAttachedShaders(program: CInt, maxcount: CInt, count:  Ptr[CInt], shaders:   Ptr[CInt]): Unit          = extern
 
   // Attributes
-  def glBindAttribLocation(program: CInt, index: CInt, name: CString): Unit                             = extern
-  def glGetAttribLocation(program: CInt, name: CString): CInt                                           = extern
-  def glGetActiveAttrib(program: CInt, index: CInt, bufSize: CInt, length: Ptr[CInt], size: Ptr[CInt], tp: Ptr[CInt], name: CString): Unit = extern
-  def glEnableVertexAttribArray(index: CInt): Unit                                                      = extern
-  def glDisableVertexAttribArray(index: CInt): Unit                                                     = extern
-  def glGetVertexAttribfv(index: CInt, pname: CInt, params: Ptr[CFloat]): Unit                          = extern
-  def glGetVertexAttribiv(index: CInt, pname: CInt, params: Ptr[CInt]): Unit                            = extern
+  def glBindAttribLocation(program:     CInt, index: CInt, name:    CString):                                                                Unit = extern
+  def glGetAttribLocation(program:      CInt, name:  CString):                                                                               CInt = extern
+  def glGetActiveAttrib(program:        CInt, index: CInt, bufSize: CInt, length: Ptr[CInt], size: Ptr[CInt], tp: Ptr[CInt], name: CString): Unit = extern
+  def glEnableVertexAttribArray(index:  CInt):                                                                                               Unit = extern
+  def glDisableVertexAttribArray(index: CInt):                                                                                               Unit = extern
+  def glGetVertexAttribfv(index:        CInt, pname: CInt, params:  Ptr[CFloat]):                                                            Unit = extern
+  def glGetVertexAttribiv(index:        CInt, pname: CInt, params:  Ptr[CInt]):                                                              Unit = extern
 
   // Vertex attrib values
-  def glVertexAttrib1f(indx: CInt, x: CFloat): Unit                                                    = extern
-  def glVertexAttrib2f(indx: CInt, x: CFloat, y: CFloat): Unit                                         = extern
-  def glVertexAttrib3f(indx: CInt, x: CFloat, y: CFloat, z: CFloat): Unit                              = extern
-  def glVertexAttrib4f(indx: CInt, x: CFloat, y: CFloat, z: CFloat, w: CFloat): Unit                  = extern
-  def glVertexAttribPointer(indx: CInt, size: CInt, tp: CInt, norm: CUnsignedChar, stride: CInt, ptr: Ptr[Byte]): Unit = extern
+  def glVertexAttrib1f(indx:      CInt, x:    CFloat):                                                             Unit = extern
+  def glVertexAttrib2f(indx:      CInt, x:    CFloat, y: CFloat):                                                  Unit = extern
+  def glVertexAttrib3f(indx:      CInt, x:    CFloat, y: CFloat, z:  CFloat):                                      Unit = extern
+  def glVertexAttrib4f(indx:      CInt, x:    CFloat, y: CFloat, z:  CFloat, w:             CFloat):               Unit = extern
+  def glVertexAttribPointer(indx: CInt, size: CInt, tp:  CInt, norm: CUnsignedChar, stride: CInt, ptr: Ptr[Byte]): Unit = extern
 
   // Uniforms
-  def glGetUniformLocation(program: CInt, name: CString): CInt                                          = extern
-  def glGetActiveUniform(program: CInt, index: CInt, bufSize: CInt, length: Ptr[CInt], size: Ptr[CInt], tp: Ptr[CInt], name: CString): Unit = extern
-  def glGetUniformfv(program: CInt, location: CInt, params: Ptr[CFloat]): Unit                          = extern
-  def glGetUniformiv(program: CInt, location: CInt, params: Ptr[CInt]): Unit                            = extern
+  def glGetUniformLocation(program: CInt, name:     CString):                                                                               CInt = extern
+  def glGetActiveUniform(program:   CInt, index:    CInt, bufSize: CInt, length: Ptr[CInt], size: Ptr[CInt], tp: Ptr[CInt], name: CString): Unit = extern
+  def glGetUniformfv(program:       CInt, location: CInt, params:  Ptr[CFloat]):                                                            Unit = extern
+  def glGetUniformiv(program:       CInt, location: CInt, params:  Ptr[CInt]):                                                              Unit = extern
 
   // Uniform setters
-  def glUniform1f(loc: CInt, x: CFloat): Unit                                                          = extern
-  def glUniform2f(loc: CInt, x: CFloat, y: CFloat): Unit                                               = extern
-  def glUniform3f(loc: CInt, x: CFloat, y: CFloat, z: CFloat): Unit                                   = extern
-  def glUniform4f(loc: CInt, x: CFloat, y: CFloat, z: CFloat, w: CFloat): Unit                        = extern
-  def glUniform1i(loc: CInt, x: CInt): Unit                                                             = extern
-  def glUniform2i(loc: CInt, x: CInt, y: CInt): Unit                                                   = extern
-  def glUniform3i(loc: CInt, x: CInt, y: CInt, z: CInt): Unit                                          = extern
-  def glUniform4i(loc: CInt, x: CInt, y: CInt, z: CInt, w: CInt): Unit                                 = extern
-  def glUniform1fv(loc: CInt, count: CInt, v: Ptr[CFloat]): Unit                                       = extern
-  def glUniform2fv(loc: CInt, count: CInt, v: Ptr[CFloat]): Unit                                       = extern
-  def glUniform3fv(loc: CInt, count: CInt, v: Ptr[CFloat]): Unit                                       = extern
-  def glUniform4fv(loc: CInt, count: CInt, v: Ptr[CFloat]): Unit                                       = extern
-  def glUniform1iv(loc: CInt, count: CInt, v: Ptr[CInt]): Unit                                         = extern
-  def glUniform2iv(loc: CInt, count: CInt, v: Ptr[CInt]): Unit                                         = extern
-  def glUniform3iv(loc: CInt, count: CInt, v: Ptr[CInt]): Unit                                         = extern
-  def glUniform4iv(loc: CInt, count: CInt, v: Ptr[CInt]): Unit                                         = extern
+  def glUniform1f(loc:  CInt, x:     CFloat):                                  Unit = extern
+  def glUniform2f(loc:  CInt, x:     CFloat, y: CFloat):                       Unit = extern
+  def glUniform3f(loc:  CInt, x:     CFloat, y: CFloat, z: CFloat):            Unit = extern
+  def glUniform4f(loc:  CInt, x:     CFloat, y: CFloat, z: CFloat, w: CFloat): Unit = extern
+  def glUniform1i(loc:  CInt, x:     CInt):                                    Unit = extern
+  def glUniform2i(loc:  CInt, x:     CInt, y:   CInt):                         Unit = extern
+  def glUniform3i(loc:  CInt, x:     CInt, y:   CInt, z:   CInt):              Unit = extern
+  def glUniform4i(loc:  CInt, x:     CInt, y:   CInt, z:   CInt, w:   CInt):   Unit = extern
+  def glUniform1fv(loc: CInt, count: CInt, v:   Ptr[CFloat]):                  Unit = extern
+  def glUniform2fv(loc: CInt, count: CInt, v:   Ptr[CFloat]):                  Unit = extern
+  def glUniform3fv(loc: CInt, count: CInt, v:   Ptr[CFloat]):                  Unit = extern
+  def glUniform4fv(loc: CInt, count: CInt, v:   Ptr[CFloat]):                  Unit = extern
+  def glUniform1iv(loc: CInt, count: CInt, v:   Ptr[CInt]):                    Unit = extern
+  def glUniform2iv(loc: CInt, count: CInt, v:   Ptr[CInt]):                    Unit = extern
+  def glUniform3iv(loc: CInt, count: CInt, v:   Ptr[CInt]):                    Unit = extern
+  def glUniform4iv(loc: CInt, count: CInt, v:   Ptr[CInt]):                    Unit = extern
 
   // Uniform matrices
-  def glUniformMatrix2fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
-  def glUniformMatrix3fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
-  def glUniformMatrix4fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
+  def glUniformMatrix2fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
+  def glUniformMatrix3fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
+  def glUniformMatrix4fv(loc: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
 }
 
 // ─── GL20 wrapper ─────────────────────────────────────────────────────────────
 
 /** OpenGL ES 2.0 implementation via ANGLE (libGLESv2) using Scala Native @extern bindings.
   *
-  * Each GL method delegates to the corresponding C function via the GL20C @extern object. Buffer parameters are
-  * converted to native pointers via NativeGlHelper.bufPtr.
+  * Each GL method delegates to the corresponding C function via the GL20C @extern object. Buffer parameters are converted to native pointers via NativeGlHelper.bufPtr.
   */
 class AngleGL20Native extends GL20 {
 
@@ -477,8 +476,8 @@ class AngleGL20Native extends GL20 {
   override def glShaderSource(shader: Int, string: String): Unit = {
     val zone = Zone.open()
     try {
-      val cstr    = toCString(string)(using zone)
-      val strPtr  = stackalloc[CString]()
+      val cstr   = toCString(string)(using zone)
+      val strPtr = stackalloc[CString]()
       !strPtr = cstr
       GL20C.glShaderSource(shader, 1, strPtr, null)
     } finally zone.close()
@@ -630,14 +629,14 @@ class AngleGL20Native extends GL20 {
 
   // ─── Uniform setters ──────────────────────────────────────────────────────
 
-  override def glUniform1f(location: Int, x: Float): Unit = GL20C.glUniform1f(location, x)
-  override def glUniform2f(location: Int, x: Float, y: Float): Unit = GL20C.glUniform2f(location, x, y)
-  override def glUniform3f(location: Int, x: Float, y: Float, z: Float): Unit = GL20C.glUniform3f(location, x, y, z)
+  override def glUniform1f(location: Int, x: Float):                               Unit = GL20C.glUniform1f(location, x)
+  override def glUniform2f(location: Int, x: Float, y: Float):                     Unit = GL20C.glUniform2f(location, x, y)
+  override def glUniform3f(location: Int, x: Float, y: Float, z: Float):           Unit = GL20C.glUniform3f(location, x, y, z)
   override def glUniform4f(location: Int, x: Float, y: Float, z: Float, w: Float): Unit = GL20C.glUniform4f(location, x, y, z, w)
-  override def glUniform1i(location: Int, x: Int): Unit = GL20C.glUniform1i(location, x)
-  override def glUniform2i(location: Int, x: Int, y: Int): Unit = GL20C.glUniform2i(location, x, y)
-  override def glUniform3i(location: Int, x: Int, y: Int, z: Int): Unit = GL20C.glUniform3i(location, x, y, z)
-  override def glUniform4i(location: Int, x: Int, y: Int, z: Int, w: Int): Unit = GL20C.glUniform4i(location, x, y, z, w)
+  override def glUniform1i(location: Int, x: Int):                                 Unit = GL20C.glUniform1i(location, x)
+  override def glUniform2i(location: Int, x: Int, y:   Int):                       Unit = GL20C.glUniform2i(location, x, y)
+  override def glUniform3i(location: Int, x: Int, y:   Int, z:   Int):             Unit = GL20C.glUniform3i(location, x, y, z)
+  override def glUniform4i(location: Int, x: Int, y:   Int, z:   Int, w:   Int):   Unit = GL20C.glUniform4i(location, x, y, z, w)
 
   // ─── Uniform vector setters (buffer variants) ─────────────────────────────
 
@@ -645,10 +644,10 @@ class AngleGL20Native extends GL20 {
   override def glUniform2fv(location: Int, count: Int, v: FloatBuffer): Unit = GL20C.glUniform2fv(location, count, bufPtr(v).asInstanceOf[Ptr[CFloat]])
   override def glUniform3fv(location: Int, count: Int, v: FloatBuffer): Unit = GL20C.glUniform3fv(location, count, bufPtr(v).asInstanceOf[Ptr[CFloat]])
   override def glUniform4fv(location: Int, count: Int, v: FloatBuffer): Unit = GL20C.glUniform4fv(location, count, bufPtr(v).asInstanceOf[Ptr[CFloat]])
-  override def glUniform1iv(location: Int, count: Int, v: IntBuffer): Unit = GL20C.glUniform1iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
-  override def glUniform2iv(location: Int, count: Int, v: IntBuffer): Unit = GL20C.glUniform2iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
-  override def glUniform3iv(location: Int, count: Int, v: IntBuffer): Unit = GL20C.glUniform3iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
-  override def glUniform4iv(location: Int, count: Int, v: IntBuffer): Unit = GL20C.glUniform4iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
+  override def glUniform1iv(location: Int, count: Int, v: IntBuffer):   Unit = GL20C.glUniform1iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
+  override def glUniform2iv(location: Int, count: Int, v: IntBuffer):   Unit = GL20C.glUniform2iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
+  override def glUniform3iv(location: Int, count: Int, v: IntBuffer):   Unit = GL20C.glUniform3iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
+  override def glUniform4iv(location: Int, count: Int, v: IntBuffer):   Unit = GL20C.glUniform4iv(location, count, bufPtr(v).asInstanceOf[Ptr[CInt]])
 
   // ─── Uniform vector setters (array variants) ──────────────────────────────
 

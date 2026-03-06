@@ -17,15 +17,16 @@ package graphics
 package g2d
 
 import sge.graphics.Color
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Pool }
 import sge.utils.NumberUtils
 import scala.util.boundary
 import scala.util.boundary.break
 
 class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
+  import BitmapFontCache.tempColor
 
   private val _layouts      = DynamicArray[GlyphLayout]()
-  private val pooledLayouts = DynamicArray[GlyphLayout]()
+  private val pooledLayouts = new Pool.Default[GlyphLayout](() => GlyphLayout()) with Pool.Flushable[GlyphLayout]
   private var glyphCount: Int   = 0
   private var _x:         Float = 0f
   private var _y:         Float = 0f
@@ -41,9 +42,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) = {
+  def this(font: BitmapFont) =
     this(font, font.integer)
-  }
 
   // Initialize fields in the primary constructor
   private val _pageCount = font.regions.size
@@ -99,9 +99,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     while (i < _layouts.size) {
       val layout = _layouts(i)
 
-      val nextColorGlyphIndex = 0
+      val colors              = layout.colors
+      var colorsIndex         = 0
+      var nextColorGlyphIndex = 0
       var glyphIndex          = 0
-      val lastColorFloatBits  = 0f
+      var lastColorFloatBits  = 0f
       var ii                  = 0
       while (ii < layout.runs.size) {
         val run    = layout.runs(ii)
@@ -109,9 +111,11 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
         var iii    = 0
         while (iii < glyphs.size) {
           if (glyphIndex == nextColorGlyphIndex) {
-            // Color.abgr8888ToColor(tempColor, colors.get(++colorsIndex))
-            // lastColorFloatBits = tempColor.mul(tint).toFloatBits()
-            // nextColorGlyphIndex = ++colorsIndex < colors.size ? colors.get(colorsIndex) : -1
+            colorsIndex += 1
+            Color.abgr8888ToColor(tempColor, colors(colorsIndex))
+            lastColorFloatBits = tempColor.mul(tint).toFloatBits()
+            colorsIndex += 1
+            nextColorGlyphIndex = if (colorsIndex < colors.size) colors(colorsIndex) else -1
           }
           val page   = glyphs(iii).page
           val offset = tempGlyphCountLocal(page) * 20 + 2
@@ -281,8 +285,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def clear(): Unit = {
     _x = 0
     _y = 0
-    // Pools.freeAll(pooledLayouts, true)
-    pooledLayouts.clear()
+    pooledLayouts.flush()
     _layouts.clear()
     for (i <- idx.indices) {
       if (pageGlyphIndices.nonEmpty) pageGlyphIndices(i).clear()
@@ -366,9 +369,7 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
     addText(str, x, y, start, end, targetWidth, halign, wrap, Nullable.empty)
 
   def addText(str: CharSequence, x: Float, y: Float, start: Int, end: Int, targetWidth: Float, halign: Int, wrap: Boolean, truncate: Nullable[String]): GlyphLayout = {
-    // val layout = Pools.obtain(() => new GlyphLayout)
-    val layout = GlyphLayout()
-    pooledLayouts.add(layout)
+    val layout = pooledLayouts.obtain()
     layout.setText(font, str, start, end, _color, targetWidth, halign, wrap, truncate)
     addText(layout, x, y)
     layout
@@ -504,4 +505,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   def vertices(page:          Int):     Array[Float]              = pageVertices(page)
   def vertexCount(page:       Int):     Int                       = idx(page)
   def layouts:                          DynamicArray[GlyphLayout] = _layouts
+}
+
+object BitmapFontCache {
+  private val tempColor: Color = Color(1, 1, 1, 1)
 }

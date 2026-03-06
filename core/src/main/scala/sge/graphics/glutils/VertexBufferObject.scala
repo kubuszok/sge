@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: uses (using sde: Sge) for GL calls
+ *   Convention: uses (using Sge) for GL calls
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- BufferTarget, BufferUsage, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -30,7 +29,7 @@ import sge.utils.{ BufferUtils, Nullable, SgeError };
   * @author
   *   mzechner, Dave Clayton <contact@redskyforge.com>
   */
-class VertexBufferObject(using sde: Sge) extends VertexData {
+class VertexBufferObject(using Sge) extends VertexData {
   private var attributes:   VertexAttributes = scala.compiletime.uninitialized
   private var buffer:       FloatBuffer      = scala.compiletime.uninitialized
   private var byteBuffer:   ByteBuffer       = scala.compiletime.uninitialized
@@ -49,7 +48,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     * @param attributes
     *   the {@link VertexAttribute} s.
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
     this()
     this.init(isStatic, numVertices, VertexAttributes(attributes*))
   }
@@ -63,20 +62,20 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes)(using sde: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes)(using Sge) = {
     this()
     this.init(isStatic, numVertices, attributes)
   }
 
-  protected def this(usage: Int, data: ByteBuffer, ownsBuffer: Boolean, attributes: VertexAttributes)(using sde: Sge) = {
+  protected def this(usage: Int, data: ByteBuffer, ownsBuffer: Boolean, attributes: VertexAttributes)(using Sge) = {
     this()
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     setBuffer(data, ownsBuffer, attributes)
     setUsage(usage)
   }
 
   private def init(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes): Unit = {
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
 
     val data = BufferUtils.newUnsafeByteBuffer(attributes.vertexSize * numVertices)
     data.asInstanceOf[Buffer].limit(0)
@@ -126,7 +125,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
 
   private def bufferChanged(): Unit =
     if (isBound) {
-      sde.graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
 
@@ -168,7 +167,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     bind(shader, Nullable.empty)
 
   override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl = sde.graphics.gl20
+    val gl = Sge().graphics.gl20
 
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
     if (isDirty) {
@@ -198,7 +197,7 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
     unbind(shader, Nullable.empty)
 
   override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl            = sde.graphics.gl20
+    val gl            = Sge().graphics.gl20
     val numAttributes = attributes.size
     locations.fold {
       for (i <- 0 until numAttributes)
@@ -215,13 +214,13 @@ class VertexBufferObject(using sde: Sge) extends VertexData {
 
   /** Invalidates the VertexBufferObject so a new OpenGL buffer handle is created. Use this in case of a context loss. */
   override def invalidate(): Unit = {
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     isDirty = true
   }
 
   /** Disposes of all resources this VertexBufferObject uses. */
   override def close(): Unit = {
-    val gl = sde.graphics.gl20
+    val gl = Sge().graphics.gl20
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
     gl.glDeleteBuffer(bufferHandle)
     bufferHandle = 0

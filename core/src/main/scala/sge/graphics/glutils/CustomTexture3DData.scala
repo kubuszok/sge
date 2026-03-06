@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: constructor params are private vals; Nullable used instead of null for isManaged check
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -40,7 +39,7 @@ class CustomTexture3DData(
   private val glFormat:         Int,
   private val glInternalFormat: Int,
   private val glType:           Int
-)(using sde: Sge)
+)(using Sge)
     extends Texture3DData {
 
   private var pixels: ByteBuffer = scala.compiletime.uninitialized
@@ -91,7 +90,7 @@ class CustomTexture3DData(
   }
 
   override def consume3DData(): Unit = {
-    val gl30 = sde.graphics.gl30
+    val gl30 = Sge().graphics.gl30
     gl30.fold(
       onEmpty = throw SgeError.GraphicsError("GL30 is not available")
     )(

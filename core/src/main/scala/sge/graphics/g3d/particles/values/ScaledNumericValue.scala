@@ -55,8 +55,7 @@ class ScaledNumericValue extends RangedNumericValue {
   def getScale(percent: Float): Float = boundary {
     var endIndex = -1
     val n        = timeline.length
-    // if (percent >= timeline[n-1])
-    // return scaling[n - 1];
+    if (percent >= timeline(n - 1)) break(scaling(n - 1))
     boundary[Unit] {
       var i = 1
       while (i < n) {

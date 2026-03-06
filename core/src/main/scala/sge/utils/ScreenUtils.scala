@@ -8,7 +8,7 @@
  *   Renames: `Gdx.gl`/`Gdx.graphics` -> `Sge().graphics.gl`/`Sge().graphics`
  *   Convention: methods take `(using Sge)` context parameter
  *   Idiom: split packages
- *   Issues: `getFrameBufferTexture` and `getFrameBufferPixmap` commented out, blocked on `Pixmap.createFromFrameBuffer` port
+ *   Fixes: `getFrameBufferTexture` and `getFrameBufferPixmap` unblocked by `Pixmap.createFromFrameBuffer` port
  *   TODO: opaque Pixels for pixel dimension params in getFrameBufferPixels -- see docs/improvements/opaque-types.md
  *   TODO: typed GL enums -- PixelFormat, DataType, ClearMask -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
@@ -19,12 +19,10 @@ package sge
 package utils
 
 import java.nio.Buffer
-import sge.graphics.{ Color, GL20 }
-// TODO: Uncomment when Pixmap.createFromFrameBuffer is ported
-// import sge.graphics.{ Pixmap, Texture }
-// import sge.graphics.Pixmap.{ Blending, Format }
-// import sge.graphics.g2d.TextureRegion
-// import sge.math.MathUtils
+import sge.graphics.{ Color, GL20, Pixmap, Texture }
+import sge.graphics.Pixmap.{ Blending, Format }
+import sge.graphics.g2d.TextureRegion
+import sge.math.MathUtils
 
 /** Class with static helper methods related to currently bound OpenGL frame buffer, including access to the current OpenGL FrameBuffer. These methods can be used to get the entire screen content or a
   * portion thereof.
@@ -76,17 +74,15 @@ object ScreenUtils {
     Sge().graphics.gl.glClear(mask)
   }
 
-  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
-  // /** Returns the current framebuffer contents as a {@link TextureRegion} with a width and height equal to the current screen size.
-  //   * The base {@link Texture} always has {@link MathUtils#nextPowerOfTwo} dimensions and RGBA8888 {@link Format}. It can be
-  //   * accessed via {@link TextureRegion#getTexture}. The texture is not managed and has to be reloaded manually on a context loss.
-  //   * The returned TextureRegion is flipped along the Y axis by default.
-  //   */
-  // def getFrameBufferTexture()(using Sge): TextureRegion = {
-  //   val w = sge.graphics.getBackBufferWidth()
-  //   val h = sge.graphics.getBackBufferHeight()
-  //   getFrameBufferTexture(0, 0, w, h)
-  // }
+  /** Returns the current framebuffer contents as a {@link TextureRegion} with a width and height equal to the current screen size. The base {@link Texture} always has {@link MathUtils#nextPowerOfTwo}
+    * dimensions and RGBA8888 {@link Format}. It can be accessed via {@link TextureRegion#getTexture}. The texture is not managed and has to be reloaded manually on a context loss. The returned
+    * TextureRegion is flipped along the Y axis by default.
+    */
+  def getFrameBufferTexture()(using Sge): TextureRegion = {
+    val w = Sge().graphics.getBackBufferWidth()
+    val h = Sge().graphics.getBackBufferHeight()
+    getFrameBufferTexture(0, 0, w, h)
+  }
 
   /** Returns a portion of the current framebuffer contents specified by x, y, width and height as a {@link TextureRegion} with the same dimensions. The base {@link Texture} always has
     * {@link MathUtils#nextPowerOfTwo} dimensions and RGBA8888 {@link Format}. It can be accessed via {@link TextureRegion#getTexture}. This texture is not managed and has to be reloaded manually on a
@@ -102,28 +98,26 @@ object ScreenUtils {
     * @param h
     *   the height of the framebuffer contents to capture
     */
-  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
-  // def getFrameBufferTexture(x: Int, y: Int, w: Int, h: Int)(using Sge): TextureRegion = {
-  //   val potW = MathUtils.nextPowerOfTwo(w)
-  //   val potH = MathUtils.nextPowerOfTwo(h)
-  //
-  //   val pixmap = Pixmap.createFromFrameBuffer(x, y, w, h)
-  //   val potPixmap = new Pixmap(potW, potH, Format.RGBA8888)
-  //   potPixmap.setBlending(Blending.None)
-  //   potPixmap.drawPixmap(pixmap, 0, 0)
-  //   val texture = new Texture(potPixmap)
-  //   val textureRegion = new TextureRegion(texture, 0, h, w, -h)
-  //   potPixmap.close()
-  //   pixmap.close()
-  //
-  //   textureRegion
-  // }
+  def getFrameBufferTexture(x: Int, y: Int, w: Int, h: Int)(using Sge): TextureRegion = {
+    val potW = MathUtils.nextPowerOfTwo(w)
+    val potH = MathUtils.nextPowerOfTwo(h)
 
-  // TODO: Requires Pixmap.createFromFrameBuffer which is not yet ported
-  // /** @deprecated use {@link Pixmap#createFromFrameBuffer(int, int, int, int)} instead. */
-  // @deprecated("use Pixmap.createFromFrameBuffer instead", "")
-  // def getFrameBufferPixmap(x: Int, y: Int, w: Int, h: Int)(using Sge): Pixmap =
-  //   Pixmap.createFromFrameBuffer(x, y, w, h)
+    val pixmap    = Pixmap.createFromFrameBuffer(x, y, w, h)
+    val potPixmap = Pixmap(potW, potH, Format.RGBA8888)
+    potPixmap.setBlending(Blending.None)
+    potPixmap.drawPixmap(pixmap, 0, 0)
+    val texture       = Texture(potPixmap)
+    val textureRegion = TextureRegion(texture, 0, h, w, -h)
+    potPixmap.close()
+    pixmap.close()
+
+    textureRegion
+  }
+
+  /** @deprecated use {@link Pixmap#createFromFrameBuffer(int, int, int, int)} instead. */
+  @deprecated("use Pixmap.createFromFrameBuffer instead", "")
+  def getFrameBufferPixmap(x: Int, y: Int, w: Int, h: Int)(using Sge): Pixmap =
+    Pixmap.createFromFrameBuffer(x, y, w, h)
 
   /** Returns the current framebuffer contents as a byte[] array with a length equal to screen width * height * 4. The byte[] will always contain RGBA8888 data. Because of differences in screen and
     * image origins the framebuffer contents should be flipped along the Y axis if you intend save them to disk as a bitmap. Flipping is not a cheap operation, so use this functionality wisely.

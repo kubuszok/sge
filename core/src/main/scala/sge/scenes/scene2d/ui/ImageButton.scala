@@ -45,17 +45,14 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
     setSkin(Nullable(skin))
   }
 
-  def this(imageUp: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
-  }
 
   protected def newImage(): Image =
     Image(Nullable.empty, Scaling.fit)

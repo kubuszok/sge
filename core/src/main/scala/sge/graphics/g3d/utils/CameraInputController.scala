@@ -9,14 +9,12 @@
  * Migration notes:
  *   - extends GestureDetector: uses named parameter `listener = gestureListener`
  *   - CameraGestureListener: static protected class -> companion object protected class
- *   - Gdx.graphics -> sge.graphics (implicit Sge)
+ *   - Gdx.graphics -> Sge().graphics (using Sge)
  *   - MathUtils.isPowerOfTwo: same name, ported
  *   - All fields, overrides (touchDown, touchUp, touchDragged, scrolled, keyDown, keyUp) ported
  *   - process(), zoom(), pinchZoom(), update(), setInvertedControls() ported
- *   - Minor: uses `implicit val sge: Sge` (old style) instead of `using Sge` (new style)
- *   - Audit: minor_issues (2026-03-03) -- implicit instead of using
+ *   - Audit: pass (2026-03-03)
  *   TODO: Int key/button refs (Input.Keys/Buttons) → opaque Key/Button types when available
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package graphics
@@ -30,7 +28,7 @@ import sge.math.{ MathUtils, Vector2, Vector3 }
 class CameraInputController protected (
   val gestureListener: CameraInputController.CameraGestureListener,
   var camera:          Camera
-)(implicit val sge: Sge)
+)(using Sge)
     extends GestureDetector(listener = gestureListener) {
 
   gestureListener.controller = this
@@ -96,13 +94,12 @@ class CameraInputController protected (
   private val tmpV1:  Vector3 = Vector3()
   private val tmpV2:  Vector3 = Vector3()
 
-  def this(camera: Camera)(implicit sge: Sge) = {
+  def this(camera: Camera)(using Sge) =
     this(CameraInputController.CameraGestureListener(), camera)
-  }
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {
-      val delta = sge.graphics.getDeltaTime()
+      val delta = Sge().graphics.getDeltaTime()
       if (rotateRightPressed) camera.rotate(camera.up, -delta * rotateAngle)
       if (rotateLeftPressed) camera.rotate(camera.up, delta * rotateAngle)
       if (forwardPressed) {
@@ -172,8 +169,8 @@ class CameraInputController protected (
     val result = super.touchDragged(screenX, screenY, pointer)
     if (result || this.button < 0) result
     else {
-      val deltaX = (screenX - startX) / sge.graphics.getWidth()
-      val deltaY = (startY - screenY) / sge.graphics.getHeight()
+      val deltaX = (screenX - startX) / Sge().graphics.getWidth()
+      val deltaY = (startY - screenY) / Sge().graphics.getHeight()
       startX = screenX.toFloat
       startY = screenY.toFloat
       process(deltaX, deltaY, button)
@@ -225,7 +222,7 @@ class CameraInputController protected (
 
 object CameraInputController {
 
-  protected class CameraGestureListener extends GestureDetector.GestureAdapter {
+  protected class CameraGestureListener(using Sge) extends GestureDetector.GestureAdapter {
     var controller:           CameraInputController = scala.compiletime.uninitialized
     private var previousZoom: Float                 = 0f
 
@@ -246,8 +243,8 @@ object CameraInputController {
       val newZoom = distance - initialDistance
       val amount  = newZoom - previousZoom
       previousZoom = newZoom
-      val w = controller.sge.graphics.getWidth().toFloat
-      val h = controller.sge.graphics.getHeight().toFloat
+      val w = Sge().graphics.getWidth().toFloat
+      val h = Sge().graphics.getHeight().toFloat
       controller.pinchZoom(amount / (if (w > h) h else w))
     }
 

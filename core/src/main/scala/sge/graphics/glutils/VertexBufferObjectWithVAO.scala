@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: uses DynamicArray[Int] for cached locations; uses (using sde: Sge)
+ *   Convention: uses DynamicArray[Int] for cached locations; uses (using Sge)
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- BufferTarget, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -37,7 +36,7 @@ import sge.utils.Nullable
   * @author
   *   mzechner, Dave Clayton <contact@redskyforge.com>, Nate Austin <nate.austin gmail>
   */
-class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
+class VertexBufferObjectWithVAO(using Sge) extends VertexData {
 
   var attributes:   VertexAttributes = scala.compiletime.uninitialized
   var buffer:       FloatBuffer      = scala.compiletime.uninitialized
@@ -51,7 +50,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
   var vaoHandle       = -1
   var cachedLocations = DynamicArray[Int]()
 
-  private def gl30: GL30 = sde.graphics.gl30.getOrElse(
+  private def gl30: GL30 = Sge().graphics.gl30.getOrElse(
     throw SgeError.GraphicsError("VertexBufferObjectWithVAO requires GL30")
   )
 
@@ -64,7 +63,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     * @param attributes
     *   the {@link com.badlogic.gdx.graphics.VertexAttribute} s.
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
     this()
     init(isStatic, numVertices, VertexAttributes(attributes*))
   }
@@ -78,12 +77,12 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes)(using sde: Sge) = {
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes)(using Sge) = {
     this()
     init(isStatic, numVertices, attributes)
   }
 
-  def this(isStatic: Boolean, unmanagedBuffer: ByteBuffer, attributes: VertexAttributes)(using sde: Sge) = {
+  def this(isStatic: Boolean, unmanagedBuffer: ByteBuffer, attributes: VertexAttributes)(using Sge) = {
     this()
     this.isStatic = isStatic
     this.attributes = attributes
@@ -93,7 +92,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     buffer = byteBuffer.asFloatBuffer()
     buffer.asInstanceOf[Buffer].flip()
     byteBuffer.asInstanceOf[Buffer].flip()
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     usage = if (isStatic) GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
     createVAO()
   }
@@ -107,7 +106,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     ownsBuffer = true
     buffer.asInstanceOf[Buffer].flip()
     byteBuffer.asInstanceOf[Buffer].flip()
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     usage = if (isStatic) GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
     createVAO()
   }
@@ -132,8 +131,8 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
 
   private def bufferChanged(): Unit =
     if (isBound) {
-      sde.graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
-      sde.graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
 
@@ -169,7 +168,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     bindAttributes(shader, locations)
 
     // if our data has changed upload it:
-    bindData(sde.graphics.gl20)
+    bindData(Sge().graphics.gl20)
 
     isBound = true
   }
@@ -193,7 +192,7 @@ class VertexBufferObjectWithVAO(using sde: Sge) extends VertexData {
     }
 
     if (!stillValid) {
-      sde.graphics.gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
+      Sge().graphics.gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
       unbindAttributes(shader)
       cachedLocations.clear()
 

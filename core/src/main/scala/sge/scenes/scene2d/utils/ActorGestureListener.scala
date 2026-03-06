@@ -7,13 +7,12 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - implicit Sge parameter added (replaces Gdx global)
+ * - Sge context parameter added (replaces Gdx global)
  * - Fields event/actor/touchDownTarget: Java package-private -> Scala private + Nullable
  * - Null-safe foreach/fold used for nullable actor/event callbacks
  * - stageToLocalAmount takes explicit actor param (Java accesses outer mutable field directly)
  * - amount.-(v) used instead of amount.sub(v) (Scala operator convention)
  * - getStage returns Nullable -> uses foreach for null-safety
- * TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package scenes
@@ -30,7 +29,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float)(implicit sge: Sge) extends EventListener {
+class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float)(using Sge) extends EventListener {
   import ActorGestureListener.*
 
   private var event:            Nullable[InputEvent] = Nullable.empty
@@ -113,7 +112,7 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
   )
 
   /** @see GestureDetector#GestureDetector(com.badlogic.gdx.input.GestureDetector.GestureListener) */
-  def this()(implicit sge: Sge) = this(20, 0.4f, 1.1f, Integer.MAX_VALUE.toFloat)
+  def this()(using Sge) = this(20, 0.4f, 1.1f, Integer.MAX_VALUE.toFloat)
 
   override def handle(e: Event): Boolean =
     e match {

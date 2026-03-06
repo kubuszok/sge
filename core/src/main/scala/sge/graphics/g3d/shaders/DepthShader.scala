@@ -64,7 +64,7 @@ class DepthShader(
   private val alphaTestAttribute: FloatAttribute =
     FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(
       renderable,
       DepthShader.Config(), {
@@ -75,8 +75,9 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) = {
     this(
       renderable,
       config, {
@@ -86,8 +87,9 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config, {
@@ -96,6 +98,7 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -103,18 +106,19 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) =
+  )(using Sge) = {
     this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
-    // Gdx.gl20.glEnable(GL20.GL_POLYGON_OFFSET_FILL);
-    // Gdx.gl20.glPolygonOffset(2.f, 100.f);
+    Sge().graphics.gl20.glEnable(GL20.GL_POLYGON_OFFSET_FILL)
+    Sge().graphics.gl20.glPolygonOffset(2f, 100f)
   }
 
   override def end(): Unit = {
     super.end()
-    // Gdx.gl20.glDisable(GL20.GL_POLYGON_OFFSET_FILL);
+    Sge().graphics.gl20.glDisable(GL20.GL_POLYGON_OFFSET_FILL)
   }
 
   override def canRender(renderable: Renderable): Boolean = boundary {

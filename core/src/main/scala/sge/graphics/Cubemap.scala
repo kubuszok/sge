@@ -5,7 +5,7 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: CubemapSide enum with 6 faces matches; AssetManager reload path is TODO/commented
+ *   Convention: CubemapSide enum with 6 faces matches; AssetManager reload path fully implemented
  *   Idiom: split packages
  *   TODO: Java-style getters/setters -- getCubemapData, isManaged
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
@@ -18,8 +18,8 @@ package graphics
 
 import scala.collection.mutable
 
-import sge.assets.AssetManager
-// import sge.assets.loaders.CubemapLoader.CubemapParameter // TODO: Create CubemapLoader
+import sge.assets.{ AssetLoaderParameters, AssetManager }
+import sge.assets.loaders.CubemapLoader.CubemapParameter
 import sge.files.FileHandle
 import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.FacedCubemapData
@@ -173,64 +173,59 @@ object Cubemap {
     managedCubemaps.remove(app)
 
   /** Invalidate all managed cubemaps. This is an internal method. Do not use it! */
-  def invalidateAllCubemaps(app: Application): Unit =
+  def invalidateAllCubemaps(app: Application)(using Sge): Unit =
     managedCubemaps.get(app) match {
       case Some(managedCubemapSet) =>
         if (assetManager.isEmpty) {
           for (cubemap <- managedCubemapSet)
             cubemap.reload()
         } else {
-          // TODO: Implement full AssetManager functionality when available
-          /*
-          // first we have to make sure the AssetManager isn't loading anything anymore,
-          // otherwise the ref counting trick below wouldn't work (when a cubemap is
-          // currently on the task stack of the manager.)
-          assetManager.orNull.finishLoading()
+          assetManager.foreach { am =>
+            // first we have to make sure the AssetManager isn't loading anything anymore,
+            // otherwise the ref counting trick below wouldn't work (when a cubemap is
+            // currently on the task stack of the manager.)
+            am.finishLoading()
 
-          // next we go through each cubemap and reload either directly or via the
-          // asset manager.
-          val cubemaps = managedCubemapSet.toSet // Copy to avoid concurrent modification
-          for (cubemap <- cubemaps) {
-            val fileName = assetManager.orNull.assetFileName(cubemap)
-            if (fileName == null) {
-              cubemap.reload()
-            } else {
-              // TODO: Implement CubemapParameter and CubemapLoader when they are available
-              // get the ref count of the cubemap, then set it to 0 so we
-              // can actually remove it from the assetmanager. Also set the
-              // handle to zero, otherwise we might accidentially dispose
-              // already reloaded cubemaps.
-              val refCount = assetManager.orNull.referenceCount(fileName)
-              assetManager.orNull.setReferenceCount(fileName, 0)
-              cubemap.glHandle = TextureHandle.none
+            // next we go through each cubemap and reload either directly or via the
+            // asset manager.
+            val cubemaps = managedCubemapSet.toSet // Copy to avoid concurrent modification
+            for (cubemap <- cubemaps)
+              am.assetFileName(cubemap)
+                .fold {
+                  cubemap.reload()
+                } { fn =>
+                  // get the ref count of the cubemap, then set it to 0 so we
+                  // can actually remove it from the assetmanager. Also set the
+                  // handle to zero, otherwise we might accidentially dispose
+                  // already reloaded cubemaps.
+                  val refCount = am.referenceCount(fn)
+                  am.setReferenceCount(fn, 0)
+                  cubemap.glHandle = TextureHandle.none
 
-              // create the parameters, passing the reference to the cubemap as
-              // well as a callback that sets the ref count.
-              val params = CubemapParameter()
-              params.cubemapData = cubemap.getCubemapData()
-              params.minFilter = cubemap.getMinFilter()
-              params.magFilter = cubemap.getMagFilter()
-              params.wrapU = cubemap.getUWrap()
-              params.wrapV = cubemap.getVWrap()
-              params.cubemap = cubemap // special parameter which will ensure that the references stay the same.
-              params.loadedCallback = new LoadedCallback() {
-                override def finishedLoading(assetManager: AssetManager, fileName: String, tpe: Class[_]): Unit = {
-                  assetManager.setReferenceCount(fileName, refCount)
+                  // create the parameters, passing the reference to the cubemap as
+                  // well as a callback that sets the ref count.
+                  val params = CubemapParameter()
+                  params.cubemapData = Nullable(cubemap.getCubemapData())
+                  params.minFilter = cubemap.getMinFilter()
+                  params.magFilter = cubemap.getMagFilter()
+                  params.wrapU = cubemap.getUWrap()
+                  params.wrapV = cubemap.getVWrap()
+                  params.cubemap = Nullable(cubemap) // special parameter which will ensure that the references stay the same.
+                  params.loadedCallback = Nullable(
+                    new AssetLoaderParameters.LoadedCallback() {
+                      override def finishedLoading(assetManager: AssetManager, fileName: String, `type`: Class[?]): Unit =
+                        assetManager.setReferenceCount(fileName, refCount)
+                    }
+                  )
+
+                  // unload the cubemap, create a new gl handle then reload it.
+                  am.unload(fn)
+                  cubemap.glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
+                  am.load(fn, classOf[Cubemap], Nullable(params))
                 }
-              }
-
-              // unload the c, create a new gl handle then reload it.
-              assetManager.orNull.unload(fileName)
-              cubemap.glHandle = TextureHandle(sge.graphics.gl.glGenTexture())
-              assetManager.orNull.load(fileName, classOf[Cubemap], params)
-            }
+            managedCubemapSet.clear()
+            managedCubemapSet ++= cubemaps
           }
-          managedCubemapSet.clear()
-          managedCubemapSet ++= cubemaps
-           */
-          // For now, just reload all cubemaps directly
-          for (cubemap <- managedCubemapSet)
-            cubemap.reload()
         }
       case None => // no cubemaps for this app
     }

@@ -150,23 +150,28 @@ Categorized as of 2026-02-28:
 - `ParticleEffectLoader.scala` (2): reclassified as blocked (needs Json framework)
 - `SgeNativesLoader.scala` (1): reclassified as blocked (needs native loading strategy)
 
-**Major blocked dependency groups:**
-- ShapeRenderer infrastructure: 22 markers (ShapeRenderer, Actor, Group, Table,
-  Container, ScrollPane, HorizontalGroup, VerticalGroup)
+**Resolved blocked TODOs:**
+- ShapeRenderer infrastructure: 22 markers resolved (ShapeRenderer full implementation,
+  Actor/Group/Table/Container/ScrollPane/HorizontalGroup/VerticalGroup debug drawing)
+- Named context parameter: 19 markers resolved (14 files converted to anonymous
+  `(using Sge)` + 5 flat package declarations fixed)
+- TextField.DefaultOnscreenKeyboard: 2 markers resolved (added `(using Sge)` to methods)
+- Button.requestRendering: 1 marker resolved (already working)
+
+**Remaining blocked dependency groups:**
 - Skin/UI port: 5 markers (Table)
-- Graphics/Sge trait: 8 markers (GLProfiler, FPSLogger, Game, Button, ETC1TextureData)
+- Graphics/Sge trait: 7 markers (GLProfiler setGL*, FPSLogger, Game, ETC1TextureData)
 - AssetManager: 4 markers (Cubemap, PolygonRegionLoader, AssetManager)
 - ScrollPane: 5 markers (DragScrollListener)
 
 Run `just sge-quality todo` to see current occurrences.
 
-## 6. Naming Issues
+## 6. Naming Issues — COMPLETE
 
-- **`SdeError.scala`** and **`SdeNativesLoader.scala`** — Still use old "Sde" prefix instead of
-  "Sge". The enum inside `SdeError.scala` was renamed to `SgeError` but the filenames were not
-  updated.
-- **`NativeImputConfiguration.scala`** — Typo: "Imput" should be "Input"
-- **`TextinputWrapper.scala`** — Inconsistent casing: "input" should be "Input"
+All naming issues have been resolved:
+- `SdeError.scala` → `SgeError.scala`, `SdeNativesLoader.scala` → `SgeNativesLoader.scala`
+- `NativeImputConfiguration.scala` → `NativeInputConfiguration.scala`
+- `TextinputWrapper.scala` → `TextInputWrapper.scala`
 
 ## 7. ArrayBuffer→DynamicArray Migration — COMPLETE
 

@@ -35,7 +35,7 @@ import sge.utils.{ Align, DynamicArray, Nullable, Pool }
   * @author
   *   Nathan Sweet
   */
-class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends WidgetGroup() {
+class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extends WidgetGroup() {
   import Table._
 
   private var columns:        Int     = 0
@@ -123,7 +123,7 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
     */
   def setBackground(drawableName: String): Unit =
     skin.fold(throw new IllegalStateException("Table must have a skin set to use this method.")) { s =>
-      setBackground(Nullable(s.asInstanceOf[Skin].getDrawable(drawableName)))
+      setBackground(Nullable(s.getDrawable(drawableName)))
     }
 
   /** @param background May be null to clear the background. */
@@ -151,11 +151,10 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
   }
 
   /** @see #setBackground(String) */
-  // TODO: uncomment when Skin is ported
-  // def background(drawableName: String): Table = {
-  //   setBackground(drawableName)
-  //   this
-  // }
+  def background(drawableName: String): Table = {
+    setBackground(drawableName)
+    this
+  }
 
   def getBackground: Nullable[Drawable] = background
 
@@ -680,7 +679,7 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
     -1
   }
 
-  def setSkin(skin: Nullable[Skin]): Unit = this.skin = skin.map(s => s: Any)
+  def setSkin(skin: Nullable[Skin]): Unit = this.skin = skin
 
   /** If true (the default), positions and sizes of child actors are rounded and ceiled to the nearest integer value. */
   def setRound(round: Boolean): Unit =
@@ -1300,7 +1299,7 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
       applyTransform(shapes, computeTransform())
       drawDebugRects(shapes)
       if (_clip) {
-        // TODO: add shapes.flush() when ShapeRenderer supports it
+        shapes.flush()
         var x      = 0f
         var y      = 0f
         var width  = getWidth
@@ -1329,7 +1328,7 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
   private def drawDebugRects(shapes: ShapeRenderer): Unit =
     debugRects.foreach { rects =>
       if (getDebug) {
-        shapes.set(shapes.ShapeType.Line)
+        shapes.set(ShapeRenderer.ShapeType.Line)
         getStage.foreach(s => shapes.setColor(s.getDebugColor))
         var x = 0f
         var y = 0f
@@ -1348,8 +1347,7 @@ class Table(private var skin: Nullable[Any] = Nullable.empty)(using Sge) extends
     }
 
   /** @return The skin that was passed to this table in its constructor, or null if none was given. */
-  // TODO: change to Nullable[Skin] when Skin is ported
-  def getSkin: Nullable[Any] = skin
+  def getSkin: Nullable[Skin] = skin
 }
 
 object Table {

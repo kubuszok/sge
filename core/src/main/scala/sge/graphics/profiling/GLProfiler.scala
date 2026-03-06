@@ -10,7 +10,7 @@
  *   Renames: GdxRuntimeException -> RuntimeException; getListener/setListener -> var listener;
  *     isEnabled -> def enabled; getCalls/getTextureBindings/etc -> Scala-style defs
  *   Convention: null fields -> scala.compiletime.uninitialized; constructor GL level detection simplified
- *   Convention: enable()/disable() bodies commented out pending Graphics trait setGL* methods
+ *   Fixes: enable()/disable() fully implemented — Graphics trait has setGL* methods; Gdx.gl* globals replaced by Sge() delegation
  *   Idiom: split packages
  *   Audited: 2026-03-04
  */
@@ -39,65 +39,36 @@ class GLProfiler(graphics: Graphics) {
   /** The current {@link GLErrorListener}. */
   var listener: GLErrorListener = scala.compiletime.uninitialized
 
-  // Initialize in constructor
+  // Initialize in constructor — pick the highest available GL level
   locally {
-    // TODO: These methods don't exist on Graphics trait yet - need proper Graphics implementation
-    // For now, create a basic GL20 interceptor
-    glInterceptor = new GL20Interceptor(this, graphics.gl20)
+    glInterceptor = graphics
+      .getGL32()
+      .map[GLInterceptor](gl => GL32Interceptor(this, gl))
+      .orElse(graphics.getGL31().map[GLInterceptor](gl => GL31Interceptor(this, gl)))
+      .orElse(graphics.getGL30().map[GLInterceptor](gl => GL30Interceptor(this, gl)))
+      .getOrElse(GL20Interceptor(this, graphics.getGL20()))
     listener = GLErrorListener.LOGGING_LISTENER
   }
 
   /** Enables profiling by replacing the {@code GL20} and {@code GL30} instances with profiling ones. */
   def enable(): Unit =
     if (!_enabled) {
-
-      // TODO: Graphics doesn't have these methods yet - commented out for compilation
-      // if (glInterceptor.isInstanceOf[GL32]) {
-      //   graphics.setGL32(glInterceptor.asInstanceOf[GL32])
-      // }
-      // if (glInterceptor.isInstanceOf[GL31]) {
-      //   graphics.setGL31(glInterceptor.asInstanceOf[GL31])
-      // }
-      // if (glInterceptor.isInstanceOf[GL30]) {
-      //   graphics.setGL30(glInterceptor.asInstanceOf[GL30])
-      // }
-      // graphics.setGL20(glInterceptor)
-
-      // TODO: Gdx object doesn't exist yet - commented out
-      // Gdx.gl32 = graphics.getGL32()
-      // Gdx.gl31 = graphics.getGL31()
-      // Gdx.gl30 = graphics.getGL30()
-      // Gdx.gl20 = graphics.getGL20()
-      // Gdx.gl = graphics.getGL20()
-
+      if (glInterceptor.isInstanceOf[GL32]) graphics.setGL32(glInterceptor.asInstanceOf[GL32])
+      if (glInterceptor.isInstanceOf[GL31]) graphics.setGL31(glInterceptor.asInstanceOf[GL31])
+      if (glInterceptor.isInstanceOf[GL30]) graphics.setGL30(glInterceptor.asInstanceOf[GL30])
+      graphics.setGL20(glInterceptor)
+      // In SGE, Sge().graphics delegates to the Graphics trait getters, so no global Gdx.gl* update needed
       _enabled = true
     }
 
   /** Disables profiling by resetting the {@code GL20} and {@code GL30} instances with the original ones. */
   def disable(): Unit =
     if (_enabled) {
-
-      // TODO: Graphics doesn't have these methods yet - commented out for compilation
-      // if (glInterceptor.isInstanceOf[GL32Interceptor]) {
-      //   graphics.setGL32(glInterceptor.asInstanceOf[GL32Interceptor].gl32)
-      // }
-      // if (glInterceptor.isInstanceOf[GL31Interceptor]) {
-      //   graphics.setGL31(glInterceptor.asInstanceOf[GL31Interceptor].gl31)
-      // }
-      // if (glInterceptor.isInstanceOf[GL30Interceptor]) {
-      //   graphics.setGL30(glInterceptor.asInstanceOf[GL30Interceptor].gl30)
-      // }
-      // if (glInterceptor.isInstanceOf[GL20Interceptor]) {
-      //   graphics.setGL20(glInterceptor.asInstanceOf[GL20Interceptor].gl20)
-      // }
-
-      // TODO: Gdx object doesn't exist yet - commented out
-      // Gdx.gl32 = graphics.getGL32()
-      // Gdx.gl31 = graphics.getGL31()
-      // Gdx.gl30 = graphics.getGL30()
-      // Gdx.gl20 = graphics.getGL20()
-      // Gdx.gl = graphics.getGL20()
-
+      if (glInterceptor.isInstanceOf[GL32Interceptor]) graphics.setGL32(glInterceptor.asInstanceOf[GL32Interceptor].gl32)
+      if (glInterceptor.isInstanceOf[GL31Interceptor]) graphics.setGL31(glInterceptor.asInstanceOf[GL31Interceptor].gl31)
+      if (glInterceptor.isInstanceOf[GL30Interceptor]) graphics.setGL30(glInterceptor.asInstanceOf[GL30Interceptor].gl30)
+      if (glInterceptor.isInstanceOf[GL20Interceptor]) graphics.setGL20(glInterceptor.asInstanceOf[GL20Interceptor].gl20)
+      // In SGE, Sge().graphics delegates to the Graphics trait getters, so no global Gdx.gl* update needed
       _enabled = false
     }
 

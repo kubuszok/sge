@@ -5,7 +5,7 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: Align opaque type with .isLeft/.isRight/.isTop/.isBottom; FloatArray -> DynamicArray[Float]; TODO: drawDebugBounds uses simplified rectangle (ShapeRenderer transform overload not yet ported)
+ *   Convention: Align opaque type with .isLeft/.isRight/.isTop/.isBottom; FloatArray -> DynamicArray[Float]
  *   Idiom: split packages
  *   TODO: Java-style getters/setters — getReverse, getSpace, getWrapSpace, getPadTop/Left/Bottom/Right, getAlign, getFill, getExpand, getWrap
  *   Audited: 2026-03-03
@@ -558,12 +558,19 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   override protected def drawDebugBounds(shapes: ShapeRenderer): Unit = {
     super.drawDebugBounds(shapes)
     if (getDebug) {
-      shapes.set(shapes.ShapeType.Line)
+      shapes.set(ShapeRenderer.ShapeType.Line)
       getStage.foreach(s => shapes.setColor(s.getDebugColor))
-      // TODO: uncomment when ShapeRenderer.rectangle with transform params is ported
-      // shapes.rectangle(getX + _padLeft, getY + _padBottom, getOriginX, getOriginY, getWidth - _padLeft - _padRight,
-      //   getHeight - _padBottom - _padTop, getScaleX, getScaleY, getRotation)
-      shapes.rectangle(getX + _padLeft, getY + _padBottom, getWidth - _padLeft - _padRight, getHeight - _padBottom - _padTop)
+      shapes.rectangle(
+        getX + _padLeft,
+        getY + _padBottom,
+        getOriginX,
+        getOriginY,
+        getWidth - _padLeft - _padRight,
+        getHeight - _padBottom - _padTop,
+        getScaleX,
+        getScaleY,
+        getRotation
+      )
     }
   }
 }

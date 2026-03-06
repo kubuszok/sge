@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: uses (implicit sge: Sge) style (older form of context parameter)
+ *   Convention: uses (using Sge) for GL calls
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- BufferTarget -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -34,9 +33,9 @@ import java.nio.FloatBuffer
   * @author
   *   mrdlink
   */
-class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(implicit sge: Sge) extends InstanceData {
+class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(implicit sge: Sge) =
+  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(using Sge) =
     this(isStatic, numInstances, VertexAttributes(instanceAttributes*))
 
   val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else VertexAttributes()
@@ -55,11 +54,11 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
   buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
 
-  private def createBufferObject()(implicit sge: Sge): Int = {
-    val result = sge.graphics.gl20.glGenBuffer()
-    sge.graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, result)
-    sge.graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.capacity(), null, usage)
-    sge.graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
+  private def createBufferObject()(using Sge): Int = {
+    val result = Sge().graphics.gl20.glGenBuffer()
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, result)
+    Sge().graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.capacity(), null, usage)
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
     result
   }
 
@@ -91,10 +90,10 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
     buffer
   }
 
-  private def bufferChanged()(implicit sge: Sge): Unit =
+  private def bufferChanged()(using Sge): Unit =
     if (isBound) {
-      sge.graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), null, usage)
-      sge.graphics.gl20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, byteBuffer.limit(), byteBuffer)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.limit(), null, usage)
+      Sge().graphics.gl20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, byteBuffer.limit(), byteBuffer)
       isDirty = false
     }
 
@@ -168,7 +167,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
     bind(shader, Nullable.empty)
 
   override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
 
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
     if (isDirty) {
@@ -193,7 +192,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
           attributes.vertexSize,
           attribute.offset
         )
-        sge.graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
+        Sge().graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
       }
     }
     isBound = true
@@ -208,7 +207,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
     unbind(shader, Nullable.empty)
 
   override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl            = sge.graphics.gl20
+    val gl            = Sge().graphics.gl20
     val numAttributes = attributes.size
     locations.fold {
       for (i <- 0 until numAttributes) {
@@ -241,7 +240,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
 
   /** Disposes of all resources this InstanceBufferObject uses. */
   override def close(): Unit = {
-    val gl = sge.graphics.gl20
+    val gl = Sge().graphics.gl20
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
     gl.glDeleteBuffer(bufferHandle)
     bufferHandle = 0

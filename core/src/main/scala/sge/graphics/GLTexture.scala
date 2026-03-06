@@ -30,7 +30,7 @@ import scala.util.boundary.break
   * @author
   *   badlogic, Xoppa
   */
-abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandle)(using Sge) extends AutoCloseable {
+abstract class GLTexture(val glTarget: Int, private[graphics] var glHandle: TextureHandle)(using Sge) extends AutoCloseable {
 
   protected var minFilter:              TextureFilter = TextureFilter.Nearest
   protected var magFilter:              TextureFilter = TextureFilter.Nearest
@@ -48,9 +48,8 @@ abstract class GLTexture(val glTarget: Int, protected var glHandle: TextureHandl
   def getDepth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: Int)(using Sge) = {
+  def this(glTarget: Int)(using Sge) =
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
-  }
 
   /** @return whether this texture is managed or not. */
   def isManaged: Boolean

@@ -7,8 +7,8 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - ParticleShader not fully integrated: shader initialization deferred (renderable.shader
- *   not assigned in constructor). Java passes ParticleShader.Config; Scala accepts Nullable[AnyRef]
+ * - ParticleShader integrated: shader initialized in constructor with Config or default Point type
+ * - Fixes (2026-03-06): shaderConfig Nullable[AnyRef] → Nullable[ParticleShader.Config]; shader init enabled
  * - Constructor chain: Java 4 constructors → Scala primary + 2 secondary; (using Sge) added
  * - Gdx.gl/Gdx.app → Sge().graphics.gl/Sge().application via (using Sge)
  * - null fields → Nullable wrapping (getTexture returns Nullable[Texture], setTexture
@@ -44,6 +44,7 @@ import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.graphics.g3d.attributes.DepthTestAttribute
 import sge.graphics.g3d.attributes.TextureAttribute
 import sge.graphics.g3d.particles.ParticleChannels
+import sge.graphics.g3d.particles.ParticleShader
 import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.PointSpriteControllerRenderData
 import sge.graphics.glutils.ShaderProgram
@@ -58,7 +59,7 @@ import sge.utils.Pool
   */
 class PointSpriteParticleBatch(
   capacity:            Int,
-  shaderConfig:        Nullable[AnyRef], // ParticleShader.Config - not yet ported
+  shaderConfig:        Nullable[ParticleShader.Config],
   initialBlendingAttr: Nullable[BlendingAttribute],
   depthTestAttribute:  Nullable[DepthTestAttribute]
 )(using Sge)
@@ -77,17 +78,18 @@ class PointSpriteParticleBatch(
 
   allocRenderable()
   ensureCapacity(capacity)
-  // ParticleShader is not yet ported; shader initialization deferred
-  // renderable.shader = new ParticleShader(renderable, shaderConfig)
-  // renderable.shader.foreach(_.init())
+  locally {
+    val cfg    = shaderConfig.getOrElse(ParticleShader.Config(ParticleShader.ParticleType.Point))
+    val shader = ParticleShader(renderable, cfg)
+    shader.init()
+    renderable.shader = Nullable(shader)
+  }
 
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
-  def this(capacity: Int)(using Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)

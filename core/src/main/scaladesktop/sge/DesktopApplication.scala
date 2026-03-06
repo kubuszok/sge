@@ -78,6 +78,9 @@ class DesktopApplication(
   // ─── Sge context (created after first window + GL init) ─────────────
   private var _sge: Sge = scala.compiletime.uninitialized
 
+  /** The [[Sge]] context for this application. Available after initialization is complete. */
+  def sgeContext: Sge = _sge
+
   // ─── Initialization ─────────────────────────────────────────────────
 
   {

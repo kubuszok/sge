@@ -221,7 +221,19 @@ trait Input {
     * @param sendReturn
     *   Whether a "return" key should be send after processing
     */
-  def closeTextInputField(sendReturn: Boolean): Unit
+  def closeTextInputField(sendReturn: Boolean): Unit =
+    closeTextInputField(sendReturn, Nullable.empty)
+
+  /** Closes the native input field and applies the result to the input wrapper.
+    * @param isConfirmative
+    *   Whether the closing can be considered confirmative. Will be passed to the {@link NativeInputCloseCallback}
+    * @param callback
+    *   An optional callback to also run, when the close was processed. Will be called on the main thread. Will be called after {@link NativeInputCloseCallback}
+    */
+  def closeTextInputField(isConfirmative: Boolean, callback: Nullable[input.NativeInputConfiguration.NativeInputCloseCallback]): Unit = {}
+
+  /** Returns if a native input field is currently open */
+  def isTextInputFieldOpened(): Boolean = false
 
   /** This will set a keyboard height callback. This will get called, whenever the keyboard height changes. Note: When using openTextInputField, it will report the height of the native input field
     * too.

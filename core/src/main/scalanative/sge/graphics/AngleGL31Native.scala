@@ -27,66 +27,66 @@ import NativeGlHelper.*
 @extern
 private[graphics] object GL31C {
   // Compute shaders
-  def glDispatchCompute(x: CInt, y: CInt, z: CInt): Unit                                                    = extern
-  def glDispatchComputeIndirect(indirect: CLong): Unit                                                       = extern
+  def glDispatchCompute(x:                CInt, y: CInt, z: CInt): Unit = extern
+  def glDispatchComputeIndirect(indirect: CLong):                  Unit = extern
 
   // Indirect draw
-  def glDrawArraysIndirect(mode: CInt, indirect: Ptr[Byte]): Unit                                           = extern
-  def glDrawElementsIndirect(mode: CInt, tp: CInt, indirect: Ptr[Byte]): Unit                               = extern
+  def glDrawArraysIndirect(mode:   CInt, indirect: Ptr[Byte]):                 Unit = extern
+  def glDrawElementsIndirect(mode: CInt, tp:       CInt, indirect: Ptr[Byte]): Unit = extern
 
   // Framebuffer parameters
-  def glFramebufferParameteri(target: CInt, pname: CInt, param: CInt): Unit                                 = extern
-  def glGetFramebufferParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit                       = extern
+  def glFramebufferParameteri(target:     CInt, pname: CInt, param:  CInt):      Unit = extern
+  def glGetFramebufferParameteriv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
 
   // Program interface queries
-  def glGetProgramInterfaceiv(program: CInt, iface: CInt, pname: CInt, params: Ptr[CInt]): Unit             = extern
-  def glGetProgramResourceIndex(program: CInt, iface: CInt, name: CString): CInt                            = extern
-  def glGetProgramResourceName(program: CInt, iface: CInt, index: CInt, bufSize: CInt, length: Ptr[CInt], name: CString): Unit = extern
-  def glGetProgramResourceiv(program: CInt, iface: CInt, index: CInt, propCount: CInt, props: Ptr[CInt], bufSize: CInt, length: Ptr[CInt], params: Ptr[CInt]): Unit = extern
-  def glGetProgramResourceLocation(program: CInt, iface: CInt, name: CString): CInt                        = extern
+  def glGetProgramInterfaceiv(program:      CInt, iface: CInt, pname: CInt, params:    Ptr[CInt]):                                                                    Unit = extern
+  def glGetProgramResourceIndex(program:    CInt, iface: CInt, name:  CString):                                                                                       CInt = extern
+  def glGetProgramResourceName(program:     CInt, iface: CInt, index: CInt, bufSize:   CInt, length: Ptr[CInt], name:    CString):                                    Unit = extern
+  def glGetProgramResourceiv(program:       CInt, iface: CInt, index: CInt, propCount: CInt, props:  Ptr[CInt], bufSize: CInt, length: Ptr[CInt], params: Ptr[CInt]): Unit = extern
+  def glGetProgramResourceLocation(program: CInt, iface: CInt, name:  CString):                                                                                       CInt = extern
 
   // Program pipelines
-  def glUseProgramStages(pipeline: CInt, stages: CInt, program: CInt): Unit                                 = extern
-  def glActiveShaderProgram(pipeline: CInt, program: CInt): Unit                                            = extern
-  def glCreateShaderProgramv(tp: CInt, count: CInt, strings: Ptr[CString]): CInt                            = extern
-  def glBindProgramPipeline(pipeline: CInt): Unit                                                            = extern
-  def glDeleteProgramPipelines(n: CInt, pipelines: Ptr[CInt]): Unit                                         = extern
-  def glGenProgramPipelines(n: CInt, pipelines: Ptr[CInt]): Unit                                            = extern
-  def glIsProgramPipeline(pipeline: CInt): CUnsignedChar                                                    = extern
-  def glGetProgramPipelineiv(pipeline: CInt, pname: CInt, params: Ptr[CInt]): Unit                          = extern
+  def glUseProgramStages(pipeline:     CInt, stages:    CInt, program: CInt):         Unit          = extern
+  def glActiveShaderProgram(pipeline:  CInt, program:   CInt):                        Unit          = extern
+  def glCreateShaderProgramv(tp:       CInt, count:     CInt, strings: Ptr[CString]): CInt          = extern
+  def glBindProgramPipeline(pipeline:  CInt):                                         Unit          = extern
+  def glDeleteProgramPipelines(n:      CInt, pipelines: Ptr[CInt]):                   Unit          = extern
+  def glGenProgramPipelines(n:         CInt, pipelines: Ptr[CInt]):                   Unit          = extern
+  def glIsProgramPipeline(pipeline:    CInt):                                         CUnsignedChar = extern
+  def glGetProgramPipelineiv(pipeline: CInt, pname:     CInt, params:  Ptr[CInt]):    Unit          = extern
 
   // Program uniforms (scalar)
-  def glProgramUniform1i(program: CInt, location: CInt, v0: CInt): Unit                                    = extern
-  def glProgramUniform2i(program: CInt, location: CInt, v0: CInt, v1: CInt): Unit                          = extern
-  def glProgramUniform3i(program: CInt, location: CInt, v0: CInt, v1: CInt, v2: CInt): Unit               = extern
-  def glProgramUniform4i(program: CInt, location: CInt, v0: CInt, v1: CInt, v2: CInt, v3: CInt): Unit     = extern
-  def glProgramUniform1ui(program: CInt, location: CInt, v0: CInt): Unit                                   = extern
-  def glProgramUniform2ui(program: CInt, location: CInt, v0: CInt, v1: CInt): Unit                         = extern
-  def glProgramUniform3ui(program: CInt, location: CInt, v0: CInt, v1: CInt, v2: CInt): Unit              = extern
-  def glProgramUniform4ui(program: CInt, location: CInt, v0: CInt, v1: CInt, v2: CInt, v3: CInt): Unit    = extern
-  def glProgramUniform1f(program: CInt, location: CInt, v0: CFloat): Unit                                  = extern
-  def glProgramUniform2f(program: CInt, location: CInt, v0: CFloat, v1: CFloat): Unit                     = extern
-  def glProgramUniform3f(program: CInt, location: CInt, v0: CFloat, v1: CFloat, v2: CFloat): Unit         = extern
-  def glProgramUniform4f(program: CInt, location: CInt, v0: CFloat, v1: CFloat, v2: CFloat, v3: CFloat): Unit = extern
+  def glProgramUniform1i(program:  CInt, location: CInt, v0: CInt):                                       Unit = extern
+  def glProgramUniform2i(program:  CInt, location: CInt, v0: CInt, v1:   CInt):                           Unit = extern
+  def glProgramUniform3i(program:  CInt, location: CInt, v0: CInt, v1:   CInt, v2:   CInt):               Unit = extern
+  def glProgramUniform4i(program:  CInt, location: CInt, v0: CInt, v1:   CInt, v2:   CInt, v3:   CInt):   Unit = extern
+  def glProgramUniform1ui(program: CInt, location: CInt, v0: CInt):                                       Unit = extern
+  def glProgramUniform2ui(program: CInt, location: CInt, v0: CInt, v1:   CInt):                           Unit = extern
+  def glProgramUniform3ui(program: CInt, location: CInt, v0: CInt, v1:   CInt, v2:   CInt):               Unit = extern
+  def glProgramUniform4ui(program: CInt, location: CInt, v0: CInt, v1:   CInt, v2:   CInt, v3:   CInt):   Unit = extern
+  def glProgramUniform1f(program:  CInt, location: CInt, v0: CFloat):                                     Unit = extern
+  def glProgramUniform2f(program:  CInt, location: CInt, v0: CFloat, v1: CFloat):                         Unit = extern
+  def glProgramUniform3f(program:  CInt, location: CInt, v0: CFloat, v1: CFloat, v2: CFloat):             Unit = extern
+  def glProgramUniform4f(program:  CInt, location: CInt, v0: CFloat, v1: CFloat, v2: CFloat, v3: CFloat): Unit = extern
 
   // Program uniforms (buffer/vector)
-  def glProgramUniform1iv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit              = extern
-  def glProgramUniform2iv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit              = extern
-  def glProgramUniform3iv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit              = extern
-  def glProgramUniform4iv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit              = extern
-  def glProgramUniform1uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit             = extern
-  def glProgramUniform2uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit             = extern
-  def glProgramUniform3uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit             = extern
-  def glProgramUniform4uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]): Unit             = extern
-  def glProgramUniform1fv(program: CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit            = extern
-  def glProgramUniform2fv(program: CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit            = extern
-  def glProgramUniform3fv(program: CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit            = extern
-  def glProgramUniform4fv(program: CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit            = extern
+  def glProgramUniform1iv(program:  CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform2iv(program:  CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform3iv(program:  CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform4iv(program:  CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform1uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform2uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform3uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform4uiv(program: CInt, location: CInt, count: CInt, value: Ptr[CInt]):   Unit = extern
+  def glProgramUniform1fv(program:  CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit = extern
+  def glProgramUniform2fv(program:  CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit = extern
+  def glProgramUniform3fv(program:  CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit = extern
+  def glProgramUniform4fv(program:  CInt, location: CInt, count: CInt, value: Ptr[CFloat]): Unit = extern
 
   // Program uniform matrices
-  def glProgramUniformMatrix2fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
-  def glProgramUniformMatrix3fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
-  def glProgramUniformMatrix4fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit   = extern
+  def glProgramUniformMatrix2fv(program:   CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
+  def glProgramUniformMatrix3fv(program:   CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
+  def glProgramUniformMatrix4fv(program:   CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
   def glProgramUniformMatrix2x3fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
   def glProgramUniformMatrix3x2fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
   def glProgramUniformMatrix2x4fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
@@ -95,34 +95,34 @@ private[graphics] object GL31C {
   def glProgramUniformMatrix4x3fv(program: CInt, location: CInt, count: CInt, transpose: CUnsignedChar, value: Ptr[CFloat]): Unit = extern
 
   // Pipeline validation
-  def glValidateProgramPipeline(pipeline: CInt): Unit                                                       = extern
-  def glGetProgramPipelineInfoLog(program: CInt, bufSize: CInt, length: Ptr[CInt], infoLog: CString): Unit  = extern
+  def glValidateProgramPipeline(pipeline:  CInt):                                                     Unit = extern
+  def glGetProgramPipelineInfoLog(program: CInt, bufSize: CInt, length: Ptr[CInt], infoLog: CString): Unit = extern
 
   // Image textures
   def glBindImageTexture(unit: CInt, texture: CInt, level: CInt, layered: CUnsignedChar, layer: CInt, access: CInt, format: CInt): Unit = extern
 
   // Boolean indexed queries
-  def glGetBooleani_v(target: CInt, index: CInt, data: Ptr[CUnsignedChar]): Unit                            = extern
+  def glGetBooleani_v(target: CInt, index: CInt, data: Ptr[CUnsignedChar]): Unit = extern
 
   // Memory barriers
-  def glMemoryBarrier(barriers: CInt): Unit                                                                  = extern
-  def glMemoryBarrierByRegion(barriers: CInt): Unit                                                          = extern
+  def glMemoryBarrier(barriers:         CInt): Unit = extern
+  def glMemoryBarrierByRegion(barriers: CInt): Unit = extern
 
   // Multisample textures
   def glTexStorage2DMultisample(target: CInt, samples: CInt, intfmt: CInt, w: CInt, h: CInt, fixed: CUnsignedChar): Unit = extern
-  def glGetMultisamplefv(pname: CInt, index: CInt, value: Ptr[CFloat]): Unit                                = extern
-  def glSampleMaski(maskNumber: CInt, mask: CInt): Unit                                                      = extern
+  def glGetMultisamplefv(pname:         CInt, index:   CInt, value:  Ptr[CFloat]):                                  Unit = extern
+  def glSampleMaski(maskNumber:         CInt, mask:    CInt):                                                       Unit = extern
 
   // Texture level parameters
-  def glGetTexLevelParameteriv(target: CInt, level: CInt, pname: CInt, params: Ptr[CInt]): Unit             = extern
-  def glGetTexLevelParameterfv(target: CInt, level: CInt, pname: CInt, params: Ptr[CFloat]): Unit           = extern
+  def glGetTexLevelParameteriv(target: CInt, level: CInt, pname: CInt, params: Ptr[CInt]):   Unit = extern
+  def glGetTexLevelParameterfv(target: CInt, level: CInt, pname: CInt, params: Ptr[CFloat]): Unit = extern
 
   // Vertex attribute binding
-  def glBindVertexBuffer(bindingindex: CInt, buffer: CInt, offset: CLong, stride: CInt): Unit               = extern
-  def glVertexAttribFormat(attribindex: CInt, size: CInt, tp: CInt, normalized: CUnsignedChar, relativeoffset: CInt): Unit = extern
-  def glVertexAttribIFormat(attribindex: CInt, size: CInt, tp: CInt, relativeoffset: CInt): Unit            = extern
-  def glVertexAttribBinding(attribindex: CInt, bindingindex: CInt): Unit                                    = extern
-  def glVertexBindingDivisor(bindingindex: CInt, divisor: CInt): Unit                                       = extern
+  def glBindVertexBuffer(bindingindex:     CInt, buffer:       CInt, offset: CLong, stride:        CInt):                                Unit = extern
+  def glVertexAttribFormat(attribindex:    CInt, size:         CInt, tp:     CInt, normalized:     CUnsignedChar, relativeoffset: CInt): Unit = extern
+  def glVertexAttribIFormat(attribindex:   CInt, size:         CInt, tp:     CInt, relativeoffset: CInt):                                Unit = extern
+  def glVertexAttribBinding(attribindex:   CInt, bindingindex: CInt):                                                                    Unit = extern
+  def glVertexBindingDivisor(bindingindex: CInt, divisor:      CInt):                                                                    Unit = extern
 }
 
 // ─── GL31 wrapper ─────────────────────────────────────────────────────────────
@@ -212,7 +212,7 @@ class AngleGL31Native extends AngleGL30Native with GL31 {
     val zone = Zone.open()
     try {
       val ptrs = stackalloc[CString](strings.length)
-      var i = 0
+      var i    = 0
       while (i < strings.length) { ptrs(i) = toCString(strings(i))(using zone); i += 1 }
       GL31C.glCreateShaderProgramv(`type`, strings.length, ptrs)
     } finally zone.close()
@@ -353,7 +353,7 @@ class AngleGL31Native extends AngleGL30Native with GL31 {
     val tmpBuf = stackalloc[CUnsignedChar](16)
     GL31C.glGetBooleani_v(target, index, tmpBuf)
     val remaining = scala.math.min(data.remaining(), 16)
-    var i = 0
+    var i         = 0
     while (i < remaining) {
       data.put(if (tmpBuf(i) != 0.toUByte) 1 else 0)
       i += 1
@@ -362,7 +362,7 @@ class AngleGL31Native extends AngleGL30Native with GL31 {
 
   // ─── Memory barriers ─────────────────────────────────────────────────────
 
-  override def glMemoryBarrier(barriers: Int): Unit = GL31C.glMemoryBarrier(barriers)
+  override def glMemoryBarrier(barriers:         Int): Unit = GL31C.glMemoryBarrier(barriers)
   override def glMemoryBarrierByRegion(barriers: Int): Unit = GL31C.glMemoryBarrierByRegion(barriers)
 
   // ─── Multisample textures ─────────────────────────────────────────────────

@@ -578,7 +578,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     if (isTransform) {
       applyTransform(shapes, computeTransform())
       if (_clip) {
-        // TODO: shapes.flush() - ShapeRenderer.flush() not yet ported
+        shapes.flush()
         val padLeft   = this._padLeft.get(this)
         val padBottom = this._padBottom.get(this)
         val draw      =

@@ -145,8 +145,7 @@ class ImmediateModeRenderer20(
       for (i <- 0 until numTexCoords)
         shaderVar.setUniformi(shaderUniformNames(i), i)
       mesh.setVertices(vertices, 0, vertexIdx)
-      // TODO: Fix mesh.render call when proper Mesh implementation is available
-      // mesh.render(shaderVar, primitiveType)
+      mesh.render(shaderVar, primitiveType)
 
       numSetTexCoords = 0
       vertexIdx = 0

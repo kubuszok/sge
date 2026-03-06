@@ -98,19 +98,16 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using Sge) = {
+  def this(actor: Nullable[Actor])(using Sge) =
     this(actor, ScrollPane.ScrollPaneStyle())
-  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin)(using Sge) =
     this(actor, skin.get(classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) = {
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) =
     this(actor, skin.get(styleName, classOf[ScrollPane.ScrollPaneStyle]))
-  }
 
   protected def addCaptureListener(): Unit = {
     val self = this
@@ -1051,7 +1048,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     applyTransform(shapes, computeTransform())
     if (clipBegin(actorArea.x, actorArea.y, actorArea.width, actorArea.height)) {
       drawDebugChildren(shapes)
-      // TODO: add shapes.flush() when ShapeRenderer supports it
+      shapes.flush()
       clipEnd()
     }
     resetTransform(shapes)

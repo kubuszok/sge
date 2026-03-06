@@ -94,7 +94,6 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
   def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
     this(format, width, height, hasDepth, false)
 
-  // TODO: Convert and implement when all dependencies are converted
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Cubemap = {
     val data   = GLOnlyTextureData(bufferBuilder.width, bufferBuilder.height, 0, attachmentSpec.internalFormat, attachmentSpec.format, attachmentSpec.`type`)
     val result = Cubemap(data, data, data, data, data, data)

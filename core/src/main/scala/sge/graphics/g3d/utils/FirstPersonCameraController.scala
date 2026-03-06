@@ -9,14 +9,12 @@
  * Migration notes:
  *   - extends InputAdapter -> extends InputProcessor (trait in SGE)
  *   - IntIntMap -> scala.collection.mutable.Map[Int, Int]
- *   - Gdx.input/Gdx.graphics -> Sge().input/Sge().graphics (implicit Sge)
+ *   - Gdx.input/Gdx.graphics -> Sge().input/Sge().graphics (using Sge)
  *   - direction.rotate(up, angle) -> direction.rotateAroundDeg(up, angle) (renamed in SGE Vector3)
  *   - keys.containsKey -> keys.contains (Scala Map API)
- *   - Minor: uses `implicit sge: Sge` (old style) instead of `using Sge` (new style)
  *   - All methods (keyDown, keyUp, touchDragged, update, setVelocity, setDegreesPerPixel) ported
- *   - Audit: minor_issues (2026-03-03) -- implicit instead of using
+ *   - Audit: pass (2026-03-03)
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  */
 package sge
 package graphics
@@ -34,7 +32,7 @@ import sge.math.Vector3
   */
 class FirstPersonCameraController(
   protected val camera: Camera
-)(implicit sge: Sge)
+)(using Sge)
     extends InputProcessor {
 
   protected val keys:            mutable.Map[Int, Int] = mutable.Map.empty

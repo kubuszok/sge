@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: uses (using Sge) instead of Gdx.gl20 statics
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- BufferTarget, BufferUsage -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -39,7 +38,7 @@ import scala.compiletime.uninitialized
   * @author
   *   mzechner, Thorsten Schleinzer
   */
-class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) extends IndexData with AutoCloseable {
+class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends IndexData with AutoCloseable {
   private var buffer:       ShortBuffer = uninitialized
   private var byteBuffer:   ByteBuffer  = uninitialized
   private var ownsBuffer:   Boolean     = uninitialized
@@ -62,7 +61,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
   ownsBuffer = true
   buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
-  bufferHandle = sde.graphics.gl20.glGenBuffer()
+  bufferHandle = Sge().graphics.gl20.glGenBuffer()
   usage = if isStatic then GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
 
   /** Creates a new static IndexBufferObject to be used with vertex arrays.
@@ -70,10 +69,10 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using sde: Sge) =
+  def this(maxIndices: Int)(using Sge) =
     this(true, maxIndices)
 
-  def this(isStatic: Boolean, data: ByteBuffer)(using sde: Sge) = {
+  def this(isStatic: Boolean, data: ByteBuffer)(using Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size
 
     // Override the initialization for ByteBuffer constructor
@@ -82,7 +81,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
 
     buffer = byteBuffer.asShortBuffer()
     ownsBuffer = false
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     usage = if isStatic then GL20.GL_STATIC_DRAW else GL20.GL_DYNAMIC_DRAW
   }
 
@@ -114,7 +113,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     byteBuffer.asInstanceOf[Buffer].limit(count << 1)
 
     if isBound then {
-      sde.graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
   }
@@ -130,7 +129,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() << 1)
 
     if isBound then {
-      sde.graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
   }
@@ -144,7 +143,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
     buffer.asInstanceOf[Buffer].position(0)
 
     if isBound then {
-      sde.graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
   }
@@ -165,10 +164,10 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
   def bind(): Unit = {
     if bufferHandle == 0 then throw SgeError.GraphicsError("No buffer allocated!")
 
-    sde.graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, bufferHandle)
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, bufferHandle)
     if isDirty then {
       byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 2)
-      sde.graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
+      Sge().graphics.gl20.glBufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
     isBound = true
@@ -176,20 +175,20 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using sde: Sge) exte
 
   /** Unbinds this IndexBufferObject. */
   def unbind(): Unit = {
-    sde.graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0)
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0)
     isBound = false
   }
 
   /** Invalidates the IndexBufferObject so a new OpenGL buffer handle is created. Use this in case of a context loss. */
   def invalidate(): Unit = {
-    bufferHandle = sde.graphics.gl20.glGenBuffer()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
     isDirty = true
   }
 
   /** Closes this IndexBufferObject and all its associated OpenGL resources. */
   override def close(): Unit = {
-    sde.graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0)
-    sde.graphics.gl20.glDeleteBuffer(bufferHandle)
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0)
+    Sge().graphics.gl20.glDeleteBuffer(bufferHandle)
     bufferHandle = 0
 
     if ownsBuffer then BufferUtils.disposeUnsafeByteBuffer(byteBuffer)

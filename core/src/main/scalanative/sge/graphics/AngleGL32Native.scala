@@ -32,46 +32,58 @@ private[graphics] object GL32C {
 
   // Copy image sub data
   def glCopyImageSubData(
-    srcName: CInt, srcTarget: CInt, srcLevel: CInt, srcX: CInt, srcY: CInt, srcZ: CInt,
-    dstName: CInt, dstTarget: CInt, dstLevel: CInt, dstX: CInt, dstY: CInt, dstZ: CInt,
-    srcWidth: CInt, srcHeight: CInt, srcDepth: CInt
+    srcName:   CInt,
+    srcTarget: CInt,
+    srcLevel:  CInt,
+    srcX:      CInt,
+    srcY:      CInt,
+    srcZ:      CInt,
+    dstName:   CInt,
+    dstTarget: CInt,
+    dstLevel:  CInt,
+    dstX:      CInt,
+    dstY:      CInt,
+    dstZ:      CInt,
+    srcWidth:  CInt,
+    srcHeight: CInt,
+    srcDepth:  CInt
   ): Unit = extern
 
   // Debug messages
-  def glDebugMessageControl(source: CInt, tp: CInt, severity: CInt, count: CInt, ids: Ptr[CInt], enabled: CUnsignedChar): Unit = extern
-  def glDebugMessageInsert(source: CInt, tp: CInt, id: CInt, severity: CInt, length: CInt, buf: CString): Unit                = extern
-  def glDebugMessageCallback(callback: Ptr[Byte], userParam: Ptr[Byte]): Unit                                                  = extern
-  def glGetDebugMessageLog(count: CInt, bufSize: CInt, sources: Ptr[CInt], types: Ptr[CInt], ids: Ptr[CInt], severities: Ptr[CInt], lengths: Ptr[CInt], messageLog: CString): CInt = extern
+  def glDebugMessageControl(source:    CInt, tp:             CInt, severity: CInt, count:      CInt, ids:      Ptr[CInt], enabled:    CUnsignedChar):                                      Unit = extern
+  def glDebugMessageInsert(source:     CInt, tp:             CInt, id:       CInt, severity:   CInt, length:   CInt, buf:             CString):                                            Unit = extern
+  def glDebugMessageCallback(callback: Ptr[Byte], userParam: Ptr[Byte]):                                                                                                                   Unit = extern
+  def glGetDebugMessageLog(count:      CInt, bufSize:        CInt, sources:  Ptr[CInt], types: Ptr[CInt], ids: Ptr[CInt], severities: Ptr[CInt], lengths: Ptr[CInt], messageLog: CString): CInt = extern
 
   // Debug groups
   def glPushDebugGroup(source: CInt, id: CInt, length: CInt, message: CString): Unit = extern
-  def glPopDebugGroup(): Unit                                                         = extern
+  def glPopDebugGroup():                                                        Unit = extern
 
   // Object labels
-  def glObjectLabel(identifier: CInt, name: CInt, length: CInt, label: CString): Unit                      = extern
+  def glObjectLabel(identifier:    CInt, name: CInt, length:  CInt, label:  CString):                   Unit = extern
   def glGetObjectLabel(identifier: CInt, name: CInt, bufSize: CInt, length: Ptr[CInt], label: CString): Unit = extern
 
   // Pointer queries
   def glGetPointerv(pname: CInt, params: Ptr[Ptr[Byte]]): Unit = extern
 
   // Indexed enable/disable
-  def glEnablei(target: CInt, index: CInt): Unit  = extern
+  def glEnablei(target:  CInt, index: CInt): Unit = extern
   def glDisablei(target: CInt, index: CInt): Unit = extern
 
   // Indexed blend
-  def glBlendEquationi(buf: CInt, mode: CInt): Unit                                                  = extern
-  def glBlendEquationSeparatei(buf: CInt, modeRGB: CInt, modeAlpha: CInt): Unit                      = extern
-  def glBlendFunci(buf: CInt, src: CInt, dst: CInt): Unit                                            = extern
-  def glBlendFuncSeparatei(buf: CInt, srcRGB: CInt, dstRGB: CInt, srcAlpha: CInt, dstAlpha: CInt): Unit = extern
+  def glBlendEquationi(buf:         CInt, mode:    CInt):                                                  Unit = extern
+  def glBlendEquationSeparatei(buf: CInt, modeRGB: CInt, modeAlpha: CInt):                                 Unit = extern
+  def glBlendFunci(buf:             CInt, src:     CInt, dst:       CInt):                                 Unit = extern
+  def glBlendFuncSeparatei(buf:     CInt, srcRGB:  CInt, dstRGB:    CInt, srcAlpha: CInt, dstAlpha: CInt): Unit = extern
 
   // Indexed color mask
-  def glColorMaski(index: CInt, r: CUnsignedChar, g: CUnsignedChar, b: CUnsignedChar, a: CUnsignedChar): Unit = extern
-  def glIsEnabledi(target: CInt, index: CInt): CUnsignedChar                                                   = extern
+  def glColorMaski(index:  CInt, r:     CUnsignedChar, g: CUnsignedChar, b: CUnsignedChar, a: CUnsignedChar): Unit          = extern
+  def glIsEnabledi(target: CInt, index: CInt):                                                                CUnsignedChar = extern
 
   // Draw elements with base vertex
-  def glDrawElementsBaseVertex(mode: CInt, count: CInt, tp: CInt, indices: Ptr[Byte], basevertex: CInt): Unit                                       = extern
-  def glDrawRangeElementsBaseVertex(mode: CInt, start: CInt, end: CInt, count: CInt, tp: CInt, indices: Ptr[Byte], basevertex: CInt): Unit           = extern
-  def glDrawElementsInstancedBaseVertex(mode: CInt, count: CInt, tp: CInt, indices: Ptr[Byte], instanceCount: CInt, basevertex: CInt): Unit          = extern
+  def glDrawElementsBaseVertex(mode:          CInt, count: CInt, tp:  CInt, indices: Ptr[Byte], basevertex:    CInt):                                          Unit = extern
+  def glDrawRangeElementsBaseVertex(mode:     CInt, start: CInt, end: CInt, count:   CInt, tp:                 CInt, indices:    Ptr[Byte], basevertex: CInt): Unit = extern
+  def glDrawElementsInstancedBaseVertex(mode: CInt, count: CInt, tp:  CInt, indices: Ptr[Byte], instanceCount: CInt, basevertex: CInt):                        Unit = extern
 
   // Framebuffer texture
   def glFramebufferTexture(target: CInt, attachment: CInt, texture: CInt, level: CInt): Unit = extern
@@ -83,29 +95,29 @@ private[graphics] object GL32C {
   def glReadnPixels(x: CInt, y: CInt, w: CInt, h: CInt, format: CInt, tp: CInt, bufSize: CInt, data: Ptr[Byte]): Unit = extern
 
   // Robust uniform getters
-  def glGetnUniformfv(program: CInt, location: CInt, bufSize: CInt, params: Ptr[CFloat]): Unit = extern
-  def glGetnUniformiv(program: CInt, location: CInt, bufSize: CInt, params: Ptr[CInt]): Unit   = extern
-  def glGetnUniformuiv(program: CInt, location: CInt, bufSize: CInt, params: Ptr[CInt]): Unit  = extern
+  def glGetnUniformfv(program:  CInt, location: CInt, bufSize: CInt, params: Ptr[CFloat]): Unit = extern
+  def glGetnUniformiv(program:  CInt, location: CInt, bufSize: CInt, params: Ptr[CInt]):   Unit = extern
+  def glGetnUniformuiv(program: CInt, location: CInt, bufSize: CInt, params: Ptr[CInt]):   Unit = extern
 
   // Sample shading / patches
-  def glMinSampleShading(value: CFloat): Unit           = extern
-  def glPatchParameteri(pname: CInt, value: CInt): Unit = extern
+  def glMinSampleShading(value: CFloat):            Unit = extern
+  def glPatchParameteri(pname:  CInt, value: CInt): Unit = extern
 
   // Texture parameter integer variants
-  def glTexParameterIiv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit    = extern
-  def glTexParameterIuiv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit   = extern
-  def glGetTexParameterIiv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit  = extern
+  def glTexParameterIiv(target:     CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
+  def glTexParameterIuiv(target:    CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
+  def glGetTexParameterIiv(target:  CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
   def glGetTexParameterIuiv(target: CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
 
   // Sampler parameter integer variants
-  def glSamplerParameterIiv(sampler: CInt, pname: CInt, param: Ptr[CInt]): Unit     = extern
-  def glSamplerParameterIuiv(sampler: CInt, pname: CInt, param: Ptr[CInt]): Unit    = extern
-  def glGetSamplerParameterIiv(sampler: CInt, pname: CInt, params: Ptr[CInt]): Unit  = extern
+  def glSamplerParameterIiv(sampler:     CInt, pname: CInt, param:  Ptr[CInt]): Unit = extern
+  def glSamplerParameterIuiv(sampler:    CInt, pname: CInt, param:  Ptr[CInt]): Unit = extern
+  def glGetSamplerParameterIiv(sampler:  CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
   def glGetSamplerParameterIuiv(sampler: CInt, pname: CInt, params: Ptr[CInt]): Unit = extern
 
   // Texture buffer
-  def glTexBuffer(target: CInt, internalformat: CInt, buffer: CInt): Unit                                    = extern
-  def glTexBufferRange(target: CInt, internalformat: CInt, buffer: CInt, offset: CInt, size: CInt): Unit     = extern
+  def glTexBuffer(target:      CInt, internalformat: CInt, buffer: CInt):                           Unit = extern
+  def glTexBufferRange(target: CInt, internalformat: CInt, buffer: CInt, offset: CInt, size: CInt): Unit = extern
 
   // 3D multisample texture storage
   def glTexStorage3DMultisample(target: CInt, samples: CInt, intfmt: CInt, w: CInt, h: CInt, depth: CInt, fixed: CUnsignedChar): Unit = extern
@@ -159,7 +171,7 @@ class AngleGL32Native extends AngleGL31Native with GL32 {
     ids:      IntBuffer,
     enabled:  Boolean
   ): Unit = {
-    val count = if (ids == null) 0 else ids.remaining()
+    val count  = if (ids == null) 0 else ids.remaining()
     val idsPtr = if (ids == null) null.asInstanceOf[Ptr[CInt]] else bufPtr(ids).asInstanceOf[Ptr[CInt]]
     GL32C.glDebugMessageControl(source, `type`, severity, count, idsPtr, glBool(enabled))
   }
@@ -176,14 +188,15 @@ class AngleGL32Native extends AngleGL31Native with GL32 {
     if (callback == null) {
       GL32C.glDebugMessageCallback(null.asInstanceOf[Ptr[Byte]], null.asInstanceOf[Ptr[Byte]])
     } else {
-      val fp = CFuncPtr.toPtr(CFuncPtr7.fromScalaFunction {
-        (source: CInt, tp: CInt, id: CInt, severity: CInt, length: CInt, message: CString, _userParam: Ptr[Byte]) =>
+      val fp = CFuncPtr.toPtr(
+        CFuncPtr7.fromScalaFunction { (source: CInt, tp: CInt, id: CInt, severity: CInt, length: CInt, message: CString, _userParam: Ptr[Byte]) =>
           val cb = AngleGL32Native.debugCallback
           if (cb != null) {
             val msg = if (length > 0 && message != null) fromCString(message) else ""
             cb.onMessage(source, tp, id, severity, msg)
           }
-      })
+        }
+      )
       GL32C.glDebugMessageCallback(fp.asInstanceOf[Ptr[Byte]], null.asInstanceOf[Ptr[Byte]])
     }
   }
@@ -245,15 +258,15 @@ class AngleGL32Native extends AngleGL31Native with GL32 {
 
   // ─── Indexed enable/disable ───────────────────────────────────────────────
 
-  override def glEnablei(target: Int, index: Int): Unit = GL32C.glEnablei(target, index)
+  override def glEnablei(target:  Int, index: Int): Unit = GL32C.glEnablei(target, index)
   override def glDisablei(target: Int, index: Int): Unit = GL32C.glDisablei(target, index)
 
   // ─── Indexed blend ────────────────────────────────────────────────────────
 
-  override def glBlendEquationi(buf: Int, mode: Int): Unit = GL32C.glBlendEquationi(buf, mode)
-  override def glBlendEquationSeparatei(buf: Int, modeRGB: Int, modeAlpha: Int): Unit = GL32C.glBlendEquationSeparatei(buf, modeRGB, modeAlpha)
-  override def glBlendFunci(buf: Int, src: Int, dst: Int): Unit = GL32C.glBlendFunci(buf, src, dst)
-  override def glBlendFuncSeparatei(buf: Int, srcRGB: Int, dstRGB: Int, srcAlpha: Int, dstAlpha: Int): Unit = GL32C.glBlendFuncSeparatei(buf, srcRGB, dstRGB, srcAlpha, dstAlpha)
+  override def glBlendEquationi(buf:         Int, mode:    Int):                                               Unit = GL32C.glBlendEquationi(buf, mode)
+  override def glBlendEquationSeparatei(buf: Int, modeRGB: Int, modeAlpha: Int):                               Unit = GL32C.glBlendEquationSeparatei(buf, modeRGB, modeAlpha)
+  override def glBlendFunci(buf:             Int, src:     Int, dst:       Int):                               Unit = GL32C.glBlendFunci(buf, src, dst)
+  override def glBlendFuncSeparatei(buf:     Int, srcRGB:  Int, dstRGB:    Int, srcAlpha: Int, dstAlpha: Int): Unit = GL32C.glBlendFuncSeparatei(buf, srcRGB, dstRGB, srcAlpha, dstAlpha)
 
   // ─── Indexed color mask ───────────────────────────────────────────────────
 
@@ -335,8 +348,8 @@ class AngleGL32Native extends AngleGL31Native with GL32 {
 
   // ─── Sample shading / patches ─────────────────────────────────────────────
 
-  override def glMinSampleShading(value: Float): Unit = GL32C.glMinSampleShading(value)
-  override def glPatchParameteri(pname: Int, value: Int): Unit = GL32C.glPatchParameteri(pname, value)
+  override def glMinSampleShading(value: Float):           Unit = GL32C.glMinSampleShading(value)
+  override def glPatchParameteri(pname:  Int, value: Int): Unit = GL32C.glPatchParameteri(pname, value)
 
   // ─── Texture parameter integer variants ───────────────────────────────────
 

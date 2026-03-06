@@ -18,14 +18,15 @@ package sge
 package graphics
 package g2d
 
-import sge.graphics.Color
-import sge.utils.{ DynamicArray, Nullable }
+import sge.graphics.{ Color, Colors }
+import sge.utils.{ DynamicArray, Nullable, Pool }
 import sge.utils.Pool.Poolable
 
 import scala.annotation.nowarn
 import scala.language.implicitConversions
 
 class GlyphLayout extends Poolable {
+  import GlyphLayout.glyphRunPool
 
   val runs:       DynamicArray[GlyphRun] = DynamicArray[GlyphRun]()
   val colors:     DynamicArray[Int]      = DynamicArray[Int]()
@@ -128,7 +129,7 @@ class GlyphLayout extends Poolable {
 
       if (runEnd > 0 || isLastRun) {
         // Store the run that has ended.
-        val run = GlyphRun()
+        val run = glyphRunPool.obtain()
         run.x = 0
         run.y = y
         fontData.getGlyphs(run, str, runStart, runEnd, lastGlyph)
@@ -146,7 +147,7 @@ class GlyphLayout extends Poolable {
         }
 
         if (run.glyphs.isEmpty) {
-          // glyphRunPool.free(run)
+          glyphRunPool.free(run)
           if (Nullable(lineRun).isEmpty) {
             runEnded = true // Otherwise wrap and truncate must still be processed for lineRun.
           }
@@ -155,7 +156,7 @@ class GlyphLayout extends Poolable {
           runs.add(lineRun)
         } else {
           lineRun.appendRun(run)
-          // glyphRunPool.free(run)
+          glyphRunPool.free(run)
         }
 
         if (newline || isLastRun) {
@@ -287,7 +288,7 @@ class GlyphLayout extends Poolable {
     val glyphCount = run.glyphs.size
 
     // Determine truncate string size.
-    val truncateRun = GlyphRun()
+    val truncateRun = glyphRunPool.obtain()
     fontData.getGlyphs(truncateRun, truncate, 0, truncate.length(), Nullable.empty)
     var truncateWidth = 0f
     if (truncateRun.xAdvances.nonEmpty) {
@@ -338,7 +339,7 @@ class GlyphLayout extends Poolable {
     run.glyphs.addAll(truncateRun.glyphs)
     this.glyphCount += truncate.length()
 
-    // glyphRunPool.free(truncateRun)
+    glyphRunPool.free(truncateRun)
   }
 
   private def wrapGlyphs(fontData: BitmapFontData, first: GlyphRun, wrapIndex: Int): Nullable[GlyphRun] = scala.util.boundary {
@@ -364,7 +365,7 @@ class GlyphLayout extends Poolable {
     // The second run will contain the remaining glyph data, so swap instances rather than copying.
     var second: Nullable[GlyphRun] = Nullable.empty
     if (secondStart < glyphCount) {
-      val s = GlyphRun()
+      val s = glyphRunPool.obtain()
       second = s
 
       val glyphs1 = DynamicArray[BitmapFont.Glyph]() // Starts empty.
@@ -418,7 +419,7 @@ class GlyphLayout extends Poolable {
 
     if (firstEnd == 0) {
       // If the first run is now empty, remove it.
-      // glyphRunPool.free(first)
+      glyphRunPool.free(first)
       runs.removeIndex(runs.size - 1)
     } else {
       setLastGlyphXAdvance(fontData, first)
@@ -482,9 +483,9 @@ class GlyphLayout extends Poolable {
           if (ch != ']') {
             i += 1
           } else {
-            // val color = Colors.get(str.subSequence(start, i).toString())
-            // if (color == null) return -1 // Unknown color name.
-            // colorStack += color.toIntBits()
+            val color = Colors.get(str.subSequence(start, i).toString())
+            if (color.isEmpty) scala.util.boundary.break(-1) // Unknown color name.
+            colorStack.add(color.map(_.toIntBits()).getOrElse(0))
             scala.util.boundary.break(i - start)
           }
         }
@@ -493,7 +494,7 @@ class GlyphLayout extends Poolable {
   }
 
   def reset(): Unit = {
-    // glyphRunPool.freeAll(runs)
+    glyphRunPool.freeAll(runs)
     runs.clear()
     colors.clear()
     glyphCount = 0
@@ -518,6 +519,10 @@ class GlyphLayout extends Poolable {
       buffer.setLength(buffer.length() - 1)
       buffer.toString()
     }
+}
+
+object GlyphLayout {
+  private[g2d] val glyphRunPool: Pool[GlyphRun] = Pool.Default[GlyphRun](() => GlyphRun())
 }
 
 class GlyphRun extends Poolable {

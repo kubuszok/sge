@@ -21,8 +21,8 @@ import scala.scalajs.js
 
 /** Wraps the [[https://w3c.github.io/permissions/ W3C Permissions API]].
   *
-  * Queries the browser for the permission status of a given feature (e.g. "accelerometer", "gyroscope") and reports the
-  * result via a [[PermissionResult]] callback. Also installs an `onchange` handler to track permission state changes.
+  * Queries the browser for the permission status of a given feature (e.g. "accelerometer", "gyroscope") and reports the result via a [[PermissionResult]] callback. Also installs an `onchange` handler
+  * to track permission state changes.
   */
 object BrowserPermissions {
 

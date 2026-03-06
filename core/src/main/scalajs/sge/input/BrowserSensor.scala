@@ -20,8 +20,7 @@ import scala.scalajs.js
 
 /** Implementation of the [[https://www.w3.org/TR/generic-sensor/#the-sensor-interface Sensor Interface]].
   *
-  * Wraps a browser Generic Sensor API object via `js.Dynamic`. Subclasses provide typed access to specific sensor data
-  * (accelerometer, gyroscope, etc.).
+  * Wraps a browser Generic Sensor API object via `js.Dynamic`. Subclasses provide typed access to specific sensor data (accelerometer, gyroscope, etc.).
   *
   * @param underlying
   *   the JavaScript Sensor object

@@ -7,8 +7,7 @@
  * Migration notes:
  *   Convention: varargs constructor; mips is Array[TextureData]
  *   Idiom: split packages
- *   Issues: constructor takes (implicit sge: Sge) but the Java source requires no application context -- Sge context is unused and unnecessary
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
+ *   Issues: constructor takes (using Sge) but the Java source requires no application context -- Sge context is unused and unnecessary
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -27,7 +26,7 @@ import sge.Sge
 
 /** This class will load each contained TextureData to the chosen mipmap level. All the mipmap levels must be defined and cannot be null.
   */
-class MipMapTextureData(mipMapData: TextureData*)(implicit sge: Sge) extends TextureData {
+class MipMapTextureData(mipMapData: TextureData*)(using Sge) extends TextureData {
   val mips: Array[TextureData] = mipMapData.toArray
 
   override def getType(): TextureDataType = TextureDataType.Custom

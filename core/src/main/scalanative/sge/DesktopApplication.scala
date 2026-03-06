@@ -12,8 +12,7 @@ object DesktopApplicationFactory {
 
   /** Creates and runs a desktop application on Scala Native using @extern C FFI.
     *
-    * The shared libraries (GLFW, ANGLE, miniaudio) must be available on the system library path. Initializes the
-    * windowing/audio/GL subsystems and blocks until the application exits.
+    * The shared libraries (GLFW, ANGLE, miniaudio) must be available on the system library path. Initializes the windowing/audio/GL subsystems and blocks until the application exits.
     *
     * @param listener
     *   the application logic callbacks

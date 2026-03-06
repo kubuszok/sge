@@ -276,8 +276,7 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
               touchEvent = Nullable(te)
           }
 
-          // TODO: Post this to main thread when Application interface is available
-          EventTrigger(touchEvent, keyEvent).run()
+          Sge().application.postRunnable(() => EventTrigger(touchEvent, keyEvent).run())
         }
       } catch {
         case e: IOException =>

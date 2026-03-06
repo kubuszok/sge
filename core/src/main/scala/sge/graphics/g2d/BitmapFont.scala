@@ -156,9 +156,10 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   def close(): Unit =
     if (ownsTexture) {
       var i = 0
-      while (i < regions.size)
-        // regions(i).texture.close() // Close method not available
+      while (i < regions.size) {
+        regions(i).texture.close()
         i += 1
+      }
     }
 
   def setFixedWidthGlyphs(glyphs: CharSequence): Unit = {

@@ -8,14 +8,14 @@
  *   Convention: TextureFilter/TextureWrap enums; managed texture support
  *   Idiom: split packages
  *   TODO: Java-style getters/setters -- getTextureData, isManaged, setAssetManager
- *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
  *   TODO: opaque Pixels for getWidth/Height, draw x/y params -- see docs/improvements/opaque-types.md
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics
+package sge
+package graphics
 
 import sge.{ Application, Sge }
 import sge.graphics.Pixmap.Format
@@ -23,7 +23,8 @@ import sge.graphics.glutils.FileTextureData
 import sge.graphics.glutils.PixmapTextureData
 import sge.files.FileHandle
 import sge.utils.{ Nullable, SgeError }
-import sge.assets.AssetManager
+import sge.assets.{ AssetLoaderParameters, AssetManager }
+import sge.assets.loaders.TextureLoader.TextureParameter
 import sge.utils.DynamicArray
 import scala.collection.mutable.Map
 
@@ -176,7 +177,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
 }
 
 object Texture {
-  private var assetManager:    AssetManager                            = scala.compiletime.uninitialized
+  private var assetManager:    Nullable[AssetManager]                  = Nullable.empty
   private val managedTextures: Map[Application, DynamicArray[Texture]] = Map.empty
 
   private def addManagedTexture(app: Application, texture: Texture): Unit = {
@@ -193,27 +194,57 @@ object Texture {
     managedTextures.get(app) match {
       case None                      => ()
       case Some(managedTextureArray) =>
-        if (Nullable(assetManager).isEmpty) {
+        if (assetManager.isEmpty) {
           for (texture <- managedTextureArray)
             texture.reload()
         } else {
-          // first we have to make sure the AssetManager isn't loading anything anymore,
-          // otherwise the ref counting trick below wouldn't work (when a texture is
-          // currently on the task stack of the manager.)
-          // assetManager.finishLoading()
+          assetManager.foreach { am =>
+            // first we have to make sure the AssetManager isn't loading anything anymore,
+            // otherwise the ref counting trick below wouldn't work (when a texture is
+            // currently on the task stack of the manager.)
+            am.finishLoading()
 
-          // next we go through each texture and reload either directly or via the
-          // asset manager.
-          val textures = DynamicArray.from(managedTextureArray)
-          for (texture <- textures)
-            // val fileName = assetManager.assetFileName(texture)
-            // if (fileName == null) {
-            texture.reload()
-          // } else {
-          // Implementation for asset manager reloading would go here
-          // }
-          managedTextureArray.clear()
-          managedTextureArray.addAll(textures)
+            // next we go through each texture and reload either directly or via the
+            // asset manager.
+            val textures = DynamicArray.from(managedTextureArray)
+            for (texture <- textures)
+              am.assetFileName(texture)
+                .fold {
+                  texture.reload()
+                } { fn =>
+                  // get the ref count of the texture, then set it to 0 so we
+                  // can actually remove it from the assetmanager. Also set the
+                  // handle to zero, otherwise we might accidentially dispose
+                  // already reloaded textures.
+                  val refCount = am.referenceCount(fn)
+                  am.setReferenceCount(fn, 0)
+                  texture.glHandle = TextureHandle.none
+
+                  // create the parameters, passing the reference to the texture as
+                  // well as a callback that sets the ref count.
+                  val params = TextureParameter()
+                  params.textureData = Nullable(texture.getTextureData())
+                  params.minFilter = texture.getMinFilter()
+                  params.magFilter = texture.getMagFilter()
+                  params.wrapU = texture.getUWrap()
+                  params.wrapV = texture.getVWrap()
+                  params.genMipMaps = texture.getTextureData().useMipMaps
+                  params.texture = Nullable(texture) // special parameter which will ensure that the references stay the same.
+                  params.loadedCallback = Nullable(
+                    new AssetLoaderParameters.LoadedCallback() {
+                      override def finishedLoading(assetManager: AssetManager, fileName: String, `type`: Class[?]): Unit =
+                        assetManager.setReferenceCount(fileName, refCount)
+                    }
+                  )
+
+                  // unload the texture, create a new gl handle then reload it.
+                  am.unload(fn)
+                  texture.glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
+                  am.load(fn, classOf[Texture], Nullable(params))
+                }
+            managedTextureArray.clear()
+            managedTextureArray.addAll(textures)
+          }
         }
     }
 
@@ -223,7 +254,7 @@ object Texture {
     *   the asset manager.
     */
   def setAssetManager(manager: AssetManager): Unit =
-    Texture.assetManager = manager
+    Texture.assetManager = Nullable(manager)
 
   def getManagedStatus(): String = {
     val builder = new StringBuilder()

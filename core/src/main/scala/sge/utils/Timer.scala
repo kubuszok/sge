@@ -5,12 +5,11 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: `Gdx.app` -> `sge.Sge` context; `GdxRuntimeException` -> `SgeError.MathError`; `null` -> `Option`/`Nullable`; `LifecycleListener` -> TODO
- *   Convention: uses `implicit` keyword instead of `using` (needs updating); `timer` field uses `Option[Timer]`; `currentThread` uses `Option[TimerThread]`
+ *   Renames: `Gdx.app` -> `sge.Sge` context; `GdxRuntimeException` -> `SgeError.MathError`; `null` -> `Option`/`Nullable`
+ *   Convention: uses `using` keyword; `timer` field uses `Option[Timer]`; `currentThread` uses `Option[TimerThread]`
  *   Idiom: split packages
- *   Issues: `implicit` instead of `using` (older convention); `LifecycleListener` integration and `postRunnable` are TODOs — posted tasks will not execute on main thread until implemented
+ *   Fixes: LifecycleListener integration and postRunnable wiring implemented — posted tasks execute on main thread
  *   TODO: Java-style getters/setters -- Task: isScheduled, getExecuteTimeMillis
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: opaque Seconds for delaySeconds/intervalSeconds params; opaque Millis for executeTimeMillis/intervalMillis/delayMillis
  *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll replaced with Thread.sleep
  *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
@@ -21,7 +20,6 @@
 package sge
 package utils
 
-import scala.annotation.nowarn
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.boundary
 import scala.util.boundary.break
@@ -30,7 +28,7 @@ import scala.util.boundary.break
   * @author
   *   Nathan Sweet (original implementation)
   */
-class Timer(implicit sde: sge.Sge) {
+class Timer(using sge.Sge) {
   import Timer._
 
   private val tasks = DynamicArray[Task]()
@@ -153,16 +151,16 @@ object Timer {
 
   /** Timer instance singleton for general application wide usage. Static methods on {@link Timer} make convenient use of this instance.
     */
-  def instance()(implicit sde: sge.Sge): Timer =
+  def instance()(using sge.Sge): Timer =
     threadLock.synchronized {
       val t = thread()
       if (t.instance.isEmpty) t.instance = Some(Timer())
       t.instance.get
     }
 
-  private def thread()(implicit sde: sge.Sge): TimerThread =
+  private def thread()(using sge.Sge): TimerThread =
     threadLock.synchronized {
-      if (currentThread.isEmpty || currentThread.get.files != sde.files) {
+      if (currentThread.isEmpty || currentThread.get.files != sge.Sge().files) {
         currentThread.foreach(_.dispose())
         currentThread = Some(TimerThread())
       }
@@ -173,34 +171,34 @@ object Timer {
     * @see
     *   Timer#postTask(Task)
     */
-  def post(task: Task)(implicit sde: sge.Sge): Task = instance().postTask(task)
+  def post(task: Task)(using sge.Sge): Task = instance().postTask(task)
 
   /** Schedules a task on {@link #instance} .
     * @see
     *   Timer#scheduleTask(Task, Float)
     */
-  def schedule(task: Task, delaySeconds: Float)(implicit sde: sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Float)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds)
 
   /** Schedules a task on {@link #instance} .
     * @see
     *   Timer#scheduleTask(Task, Float, Float, Int)
     */
-  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float)(implicit sde: sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds, intervalSeconds, -1)
 
   /** Schedules a task on {@link #instance} .
     * @see
     *   Timer#scheduleTask(Task, Float, Float, Int)
     */
-  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float, repeatCount: Int)(implicit sde: sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float, repeatCount: Int)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds, intervalSeconds, repeatCount)
 
   /** Runnable that can be scheduled on a {@link Timer} .
     * @author
     *   Nathan Sweet
     */
-  abstract class Task(implicit sde: sge.Sge) extends Runnable {
+  abstract class Task(using sge.Sge) extends Runnable {
     private[Timer] var executeTimeMillis: Long          = 0
     private[Timer] var intervalMillis:    Long          = 0
     private[Timer] var repeatCount:       Int           = 0
@@ -243,17 +241,17 @@ object Timer {
     * @author
     *   Nathan Sweet
     */
-  private class TimerThread(implicit sde: sge.Sge) extends Runnable {
-    val files     = sde.files
+  private class TimerThread(using sge.Sge) extends Runnable with LifecycleListener {
+    val files     = sge.Sge().files
     val instances = DynamicArray[Timer]()
     var instance:        Option[Timer] = None
     var pauseTimeMillis: Long          = 0
 
-    val postedTasks = DynamicArray[Task]()
-    @nowarn("msg=unused") // will be used when postRunnable is implemented
+    val postedTasks      = DynamicArray[Task]()
     private val runTasks = DynamicArray[Task]()
+    private val runPostedTasksRunnable: Runnable = () => runPostedTasks()
 
-    // app.addLifecycleListener(this) // TODO: Implement LifecycleListener
+    sge.Sge().application.addLifecycleListener(this)
     resume()
 
     Future(this.run())(using ExecutionContext.global)
@@ -262,7 +260,7 @@ object Timer {
       boundary {
         while (true)
           threadLock.synchronized {
-            if (currentThread.exists(_ != this) || files != sde.files) break(())
+            if (currentThread.exists(_ != this) || files != sge.Sge().files) break(())
 
             var waitMillis = 5000L
             if (pauseTimeMillis == 0) {
@@ -279,7 +277,7 @@ object Timer {
               }
             }
 
-            if (currentThread.exists(_ != this) || files != sde.files) break(())
+            if (currentThread.exists(_ != this) || files != sge.Sge().files) break(())
 
             try
               if (waitMillis > 0) Thread.sleep(waitMillis)
@@ -291,12 +289,18 @@ object Timer {
       dispose()
     }
 
+    private def runPostedTasks(): Unit = {
+      postedTasks.synchronized {
+        runTasks.addAll(postedTasks)
+        postedTasks.clear()
+      }
+      runTasks.foreach(_.run())
+      runTasks.clear()
+    }
+
     def addPostedTask(task: Task): Unit =
       postedTasks.synchronized {
-        if (postedTasks.isEmpty) {
-          // TODO: Implement postRunnable when Application interface is converted
-          // app.postRunnable(runPostedTasks)
-        }
+        if (postedTasks.isEmpty) sge.Sge().application.postRunnable(runPostedTasksRunnable)
         postedTasks.add(task)
       }
 
@@ -328,7 +332,7 @@ object Timer {
         instances.clear()
         // Thread.sleep-based loop will re-check on next iteration
       }
-    // app.removeLifecycleListener(this) // TODO: Implement LifecycleListener
+    sge.Sge().application.removeLifecycleListener(this)
   }
 
 }

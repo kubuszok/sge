@@ -130,9 +130,8 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) = {
+    def this(resources: ResourceData[?]) =
       this(Nullable(resources))
-    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>

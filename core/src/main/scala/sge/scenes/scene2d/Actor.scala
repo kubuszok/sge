@@ -12,7 +12,6 @@
  *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on constructor (class-level context)
  *   Idiom: Alignment bitfield ops -> Align methods (isRight, isLeft, etc.); do-while -> while with Nullable;
  *     POOLS static init block -> companion object vals; ancestorsVisible() deprecated method dropped
- *   TODO: drawDebugBounds — ShapeRenderer.rect with rotation/origin not yet ported
  *   TODO: Java-style getters/setters — convert to var or def x/def x_= (~15 pairs: setX/getX, setVisible/isVisible, setTouchable/getTouchable, etc.)
  *   Audited: 2026-03-03
  */
@@ -939,11 +938,9 @@ class Actor()(using Sge) {
   /** Draws a rectangle for the bounds of this actor if {@link #getDebug()} is true. */
   protected def drawDebugBounds(shapes: ShapeRenderer): Unit =
     if (_debug) {
-      shapes.set(shapes.ShapeType.Line)
+      shapes.set(ShapeRenderer.ShapeType.Line)
       stage.foreach(s => shapes.setColor(s.getDebugColor))
-      // TODO: uncomment when ShapeRenderer.rectangle with transform params is ported
-      // shapes.rectangle(x, y, originX, originY, width, height, scaleX, scaleY, rotation)
-      shapes.rectangle(x, y, width, height)
+      shapes.rectangle(x, y, originX, originY, width, height, scaleX, scaleY, rotation)
     }
 
   /** If true, {@link #drawDebug(ShapeRenderer)} will be called for this actor. */

@@ -280,6 +280,32 @@ test-tail n="20":
 test-only suite:
     sbt --client "core/testOnly {{suite}}"
 
+# ── Demo ─────────────────────────────────────────────────────────
+
+# Compile the demo module (JVM)
+demo-compile:
+    sbt --client 'demo/compile'
+
+# Compile the demo module (JS)
+demo-compile-js:
+    sbt --client 'demoJS/compile'
+
+# Compile the demo module (Native)
+demo-compile-native:
+    sbt --client 'demoNative/compile'
+
+# Run the demo application (JVM — requires GLFW + ANGLE + miniaudio)
+demo-jvm:
+    sbt --client 'demo/run'
+
+# Link the demo application (JS — produces .js bundle)
+demo-link-js:
+    sbt --client 'demoJS/fastLinkJS'
+
+# Run the demo application (Native — requires static Rust lib + GLFW + ANGLE + miniaudio)
+demo-native: rust-build-static
+    sbt --client 'demoNative/run'
+
 # ── Git — read-only ──────────────────────────────────────────────
 
 # Show git status

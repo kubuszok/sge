@@ -240,9 +240,9 @@ class DesktopWindow private[sge] (
   // ─── Frame update ─────────────────────────────────────────────────────
 
   /** Called each frame by the application loop. Returns true if the window rendered this frame. */
-  private[sge] def update(): Boolean = {
+  private[sge] def update()(using sge: Sge): Boolean = {
     if (!_listenerInitialized) {
-      initializeListener()
+      initializeListener(sge)
     }
 
     runnables.synchronized {
@@ -287,8 +287,12 @@ class DesktopWindow private[sge] (
     }
   }
 
-  private[sge] def initializeListener(): Unit =
+  private[sge] def initializeListener(sge: Sge): Unit =
     if (!_listenerInitialized) {
+      listener match {
+        case aware: SgeAware => aware.sgeAvailable(sge)
+        case _ => ()
+      }
       listener.create()
       listener.resize(_graphics.getWidth(), _graphics.getHeight())
       _listenerInitialized = true

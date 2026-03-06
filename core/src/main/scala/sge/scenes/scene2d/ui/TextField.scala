@@ -18,7 +18,6 @@ package scenes
 package scene2d
 package ui
 
-import scala.annotation.nowarn
 import scala.language.implicitConversions
 import scala.util.boundary
 
@@ -74,19 +73,16 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   private var passwordBuffer:    Nullable[java.lang.StringBuilder] = Nullable.empty
   private var passwordCharacter: Char                              = BULLET
 
-  protected var fontOffset:       Float = 0
-  protected var textHeight:       Float = 0
-  protected var textOffset:       Float = 0
-  var renderOffset:               Float = 0
-  protected var visibleTextStart: Int   = 0
-  protected var visibleTextEnd:   Int   = 0
-  private var maxLength:          Int   = 0
-  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
-  private var autocompleteOptions: Nullable[Array[String]] = Nullable.empty
-  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
-  private var keyboardType: Input.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
-  @nowarn("msg=not read") // set via API, will be read when keyboard integration is implemented
-  private var preventAutoCorrection: Boolean = false
+  protected var fontOffset:          Float                      = 0
+  protected var textHeight:          Float                      = 0
+  protected var textOffset:          Float                      = 0
+  var renderOffset:                  Float                      = 0
+  protected var visibleTextStart:    Int                        = 0
+  protected var visibleTextEnd:      Int                        = 0
+  private var maxLength:             Int                        = 0
+  private var autocompleteOptions:   Nullable[Array[String]]    = Nullable.empty
+  private var keyboardType:          Input.OnscreenKeyboardType = Input.OnscreenKeyboardType.Default
+  private var preventAutoCorrection: Boolean                    = false
 
   var focused:   Boolean    = false
   var cursorOn:  Boolean    = false
@@ -1133,9 +1129,9 @@ object TextField {
     *   mzechner
     */
   trait OnscreenKeyboard {
-    def show(textField: TextField): Unit
+    def show(textField: TextField)(using Sge): Unit
 
-    def close(): Unit
+    def close()(using Sge): Unit
   }
 
   /** The default {@link OnscreenKeyboard} used by all {@link TextField} instances. Just uses {@link Input#setOnscreenKeyboardVisible(boolean)} as appropriate. Might overlap your actual rendering, so
@@ -1144,31 +1140,105 @@ object TextField {
     *   mzechner
     */
   class DefaultOnscreenKeyboard extends OnscreenKeyboard {
-    def show(textField: TextField): Unit = {
-      // TODO: requires using Sge context
-      // Sge().input.setOnscreenKeyboardVisible(true)
-    }
+    def show(textField: TextField)(using Sge): Unit =
+      Sge().input.setOnscreenKeyboardVisible(true)
 
-    def close(): Unit = {
-      // TODO: requires using Sge context
-      // Sge().input.setOnscreenKeyboardVisible(false)
-    }
+    def close()(using Sge): Unit =
+      Sge().input.setOnscreenKeyboardVisible(false)
   }
 
-  // TODO: NativeOnscreenKeyboard requires closeTextInputField overload with callback, and
-  //  TextInputWrapper.writeResults, neither of which are ported yet. Commenting out for now.
-  // /** An advanced {@link OnscreenKeyboard} utilising {@link Input#openTextInputField}. Might overlap your actual rendering, so
-  //   * use with care! This is mutually exclusive with using the {@link DefaultOnscreenKeyboard} or
-  //   * {@link Input#setOnscreenKeyboardVisible(boolean)} API */
-  // class NativeOnscreenKeyboard extends OnscreenKeyboard {
-  //   def close(): Unit = {
-  //     Sge().input.closeTextInputField(false)
-  //   }
-  //
-  //   def show(textField: TextField): Unit = {
-  //     // ... requires closeTextInputField with callback and TextInputWrapper.writeResults
-  //   }
-  // }
+  /** An advanced {@link OnscreenKeyboard} utilising {@link Input#openTextInputField}. Might overlap your actual rendering, so use with care! This is mutually exclusive with using the
+    * {@link DefaultOnscreenKeyboard} or {@link Input#setOnscreenKeyboardVisible(boolean)} API
+    */
+  class NativeOnscreenKeyboard extends OnscreenKeyboard {
+    def close()(using Sge): Unit =
+      Sge().input.closeTextInputField(false)
+
+    def show(textField: TextField)(using Sge): Unit =
+      if (Sge().input.isTextInputFieldOpened()) {
+        Sge().input.closeTextInputField(
+          false,
+          Nullable(
+            new input.NativeInputConfiguration.NativeInputCloseCallback {
+              override def onClose(confirmativeAction: Boolean): Boolean = {
+                openNativeInputField(textField)
+                true
+              }
+            }
+          )
+        )
+      } else {
+        openNativeInputField(textField)
+      }
+
+    private def openNativeInputField(textField: TextField)(using Sge): Unit = {
+      val configuration = input.NativeInputConfiguration()
+      // If we are in password mode, assume that the user wants to show password keyboard
+      val resolvedType =
+        if (textField.passwordMode && textField.keyboardType == Input.OnscreenKeyboardType.Default)
+          Input.OnscreenKeyboardType.Password
+        else textField.keyboardType
+
+      configuration
+        .setType(resolvedType)
+        .setMaskInput(textField.passwordMode)
+        .setShowUnmaskButton(textField.passwordMode)
+        .setMaxLength(if (textField.maxLength <= 0) None else Some(textField.maxLength))
+        .setMultiLine(textField.writeEnters)
+        .setPreventCorrection(textField.preventAutoCorrection || resolvedType == Input.OnscreenKeyboardType.Password)
+        .setPlaceholder(textField.messageText.getOrElse(""))
+        .setAutoComplete(textField.autocompleteOptions)
+
+      textField.filter.foreach { f =>
+        configuration.setValidator { toCheck =>
+          boundary {
+            var i = 0
+            while (i < toCheck.length()) {
+              if (!f.acceptChar(textField, toCheck.charAt(i))) boundary.break(false)
+              i += 1
+            }
+            true
+          }
+        }
+      }
+
+      configuration.setCloseCallback((confirmativeAction: Boolean) =>
+        if (confirmativeAction) {
+          val focused = textField.next(false)
+          focused.fold(false) { f =>
+            f.getOnscreenKeyboard.show(f)
+            true
+          }
+        } else false
+      )
+
+      configuration.setTextInputWrapper(
+        new input.TextInputWrapper {
+          override def getText(): String = textField.getText
+
+          override def getSelectionStart(): Int = textField.getSelectionStart
+
+          override def getSelectionEnd(): Int = textField.getCursorPosition
+
+          override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit = {
+            var t  = text
+            var ss = selectionStart
+            var se = selectionEnd
+            if (textField.preventAutoCorrection) {
+              t = t.trim()
+              ss = Math.min(ss, t.length())
+              se = Math.min(se, t.length())
+            }
+            textField.setText(t)
+            if (ss == se) textField.setCursorPosition(se)
+            else textField.setSelection(ss, se)
+          }
+        }
+      )
+
+      Sge().input.openTextInputField(configuration)
+    }
+  }
 
   /** The style for a text field, see {@link TextField}.
     * @author

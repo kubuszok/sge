@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: fields use Nullable[A] instead of raw null
  *   Idiom: split packages
- *   Issues: consumeCustomData() is a no-op stub -- ETC1 textures will silently fail to upload; needs (using Sge) for GL calls
+ *   Fixes: consumeCustomData() fully implemented with ETC1 decode fallback + compressed upload; added (using Sge)
  *   TODO: typed GL enums -- TextureTarget, PixelFormat -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -26,18 +26,19 @@ import sge.utils.{ Nullable, SgeError }
 
 class ETC1TextureData(
   val file:            Nullable[FileHandle],
-  val useMipMapsValue: Boolean
-) extends TextureData {
+  var useMipMapsValue: Boolean
+)(using Sge)
+    extends TextureData {
 
   private var data:         Nullable[ETC1Data] = Nullable.empty
   private var width:        Int                = 0
   private var height:       Int                = 0
   private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle) =
+  def this(file: FileHandle)(using Sge) =
     this(Nullable(file), false)
 
-  def this(encodedImage: ETC1Data, useMipMaps: Boolean) = {
+  def this(encodedImage: ETC1Data, useMipMaps: Boolean)(using Sge) = {
     this(file = Nullable.empty, useMipMapsValue = useMipMaps)
     this.data = Nullable(encodedImage)
   }
@@ -64,19 +65,29 @@ class ETC1TextureData(
   override def consumeCustomData(target: Int): Unit = {
     if (!preparedFlag) throw SgeError.GraphicsError("Call prepare() before calling consumeCompressedData()")
 
-    // TODO: Add graphics support check
-    // if (!sge.graphics.supportsExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
-    //   val pixmap = ETC1.decodeImage(data, Format.RGB565)
-    //   sge.graphics.gl.glTexImage2D(target, 0, pixmap.getGLInternalFormat(), pixmap.getWidth(), pixmap.getHeight(), 0,
-    //     pixmap.getGLFormat(), pixmap.getGLType(), pixmap.getPixels())
-    //   if (useMipMapsValue) MipMapGenerator.generateMipMap(target, pixmap, pixmap.getWidth(), pixmap.getHeight())
-    //   pixmap.close()
-    //   useMipMapsValue = false
-    // } else {
-    //   sge.graphics.gl.glCompressedTexImage2D(target, 0, ETC1.ETC1_RGB8_OES, width, height, 0,
-    //     data.compressedData.capacity() - data.dataOffset, data.compressedData)
-    //   if (useMipMapsValue) sge.graphics.gl20.glGenerateMipmap(GL20.GL_TEXTURE_2D)
-    // }
+    val gl = Sge().graphics
+    data.foreach { d =>
+      if (!gl.supportsExtension("GL_OES_compressed_ETC1_RGB8_texture")) {
+        val pixmap = ETC1.decodeImage(d, Format.RGB565)
+        gl.gl.glTexImage2D(
+          target,
+          0,
+          pixmap.getGLInternalFormat(),
+          pixmap.getWidth(),
+          pixmap.getHeight(),
+          0,
+          pixmap.getGLFormat(),
+          pixmap.getGLType(),
+          pixmap.getPixels()
+        )
+        if (useMipMapsValue) MipMapGenerator.generateMipMap(target, pixmap, pixmap.getWidth(), pixmap.getHeight())
+        pixmap.close()
+        useMipMapsValue = false
+      } else {
+        gl.gl.glCompressedTexImage2D(target, 0, ETC1.ETC1_RGB8_OES, width, height, 0, d.compressedData.capacity() - d.dataOffset, d.compressedData)
+        if (useMipMapsValue) gl.gl20.glGenerateMipmap(GL20.GL_TEXTURE_2D)
+      }
+    }
     data.foreach(_.close())
     data = Nullable.empty
     preparedFlag = false

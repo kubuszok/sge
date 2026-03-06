@@ -19,8 +19,7 @@ import scala.scalanative.unsigned.*
 
 /** Shared helpers for Scala Native OpenGL ES implementations.
   *
-  * Provides buffer-to-pointer conversion, GLboolean helpers, and string conversion utilities used by AngleGL20Native
-  * through AngleGL32Native.
+  * Provides buffer-to-pointer conversion, GLboolean helpers, and string conversion utilities used by AngleGL20Native through AngleGL32Native.
   */
 private[graphics] object NativeGlHelper {
 
@@ -40,7 +39,7 @@ private[graphics] object NativeGlHelper {
     case _: FloatBuffer => 4
     case _: IntBuffer   => 4
     case _: LongBuffer  => 8
-    case _              => 1
+    case _ => 1
   }
 
   /** Get a native pointer to the buffer's current position.
@@ -49,14 +48,13 @@ private[graphics] object NativeGlHelper {
     *   Ptr[Byte] to buffer data at the current position, or null if buf is null
     */
   @SuppressWarnings(Array("all"))
-  def bufPtr(buf: Buffer): Ptr[Byte] = {
+  def bufPtr(buf: Buffer): Ptr[Byte] =
     if (buf == null) null
     else {
       val baseAddr = addressField.getLong(buf)
       val addr     = baseAddr + (buf.position().toLong * elementSize(buf).toLong)
       fromRawPtr[Byte](Intrinsics.castLongToRawPtr(addr))
     }
-  }
 
   /** Get a native pointer to the buffer at a specific byte offset (for GL offset parameters). */
   def offsetPtr(offset: Int): Ptr[Byte] =

@@ -132,8 +132,11 @@ object BufferUtils {
     * @param dst
     *   the destination Buffer, its position is used as an offset.
     */
-  // def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit =
-  // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
+  def copy(src: Array[Int], srcOffset: Int, numElements: Int, dst: Buffer): Unit = {
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asIntBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position and limit will stay the same. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.
@@ -220,10 +223,12 @@ object BufferUtils {
     * @param numElements
     *   the number of elements to copy.
     */
-  // def copy(src: Array[Int], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
-  //   dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
-  // }
-  // Disabled: JNI bridge (BufferUtils.java) does not expose Array[Int] overloads of copyJni
+  def copy(src: Array[Int], srcOffset: Int, dst: Buffer, numElements: Int): Unit = {
+    dst.limit(dst.position() + bytesToElements(dst, numElements << 2))
+    val bb = asByteBuffer(dst)
+    bb.position(positionInBytes(dst))
+    bb.asIntBuffer().put(src, srcOffset, numElements)
+  }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position will stay the same, the limit will be set to position + numElements. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.

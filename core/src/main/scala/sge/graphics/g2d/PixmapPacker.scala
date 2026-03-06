@@ -34,7 +34,6 @@ import sge.graphics.g2d.{ TextureAtlas, TextureRegion }
 import sge.graphics.Texture.TextureFilter
 import sge.graphics.glutils.PixmapTextureData
 import sge.utils.{ DynamicArray, Nullable, SgeError }
-import scala.annotation.nowarn
 import scala.collection.mutable.Map as MutableMap
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
@@ -285,9 +284,22 @@ class PixmapPacker(using Sge) extends AutoCloseable {
     val rectY: Int = rect.y
 
     if (packToTexture && !duplicateBorder && page.texture.isDefined && !page.dirty) {
-      // Note: This would need proper GL context and texture binding
-      // For now, just mark as dirty
-      page.dirty = true
+      page.texture.foreach { tex =>
+        tex.bind()
+        val rectWidth  = rect.width
+        val rectHeight = rect.height
+        Sge().graphics.gl.glTexSubImage2D(
+          tex.glTarget,
+          0,
+          rectX,
+          rectY,
+          rectWidth,
+          rectHeight,
+          workingImage.getGLFormat(),
+          workingImage.getGLType(),
+          workingImage.getPixels()
+        )
+      }
     } else {
       page.dirty = true
     }
@@ -295,8 +307,18 @@ class PixmapPacker(using Sge) extends AutoCloseable {
     page.image.drawPixmap(workingImage, rectX, rectY)
 
     if (duplicateBorder) {
-      // Note: Border duplication requires drawPixmap(Pixmap, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH)
-      // which is not yet available on Pixmap. Tracked in docs/improvements/opaque-types.md.
+      val imageWidth  = workingImage.getWidth()
+      val imageHeight = workingImage.getHeight()
+      // Copy corner pixels to fill corners of the padding.
+      page.image.drawPixmap(workingImage, 0, 0, 1, 1, rectX - 1, rectY - 1, 1, 1)
+      page.image.drawPixmap(workingImage, imageWidth - 1, 0, 1, 1, rectX + rect.width, rectY - 1, 1, 1)
+      page.image.drawPixmap(workingImage, 0, imageHeight - 1, 1, 1, rectX - 1, rectY + rect.height, 1, 1)
+      page.image.drawPixmap(workingImage, imageWidth - 1, imageHeight - 1, 1, 1, rectX + rect.width, rectY + rect.height, 1, 1)
+      // Copy edge pixels into padding.
+      page.image.drawPixmap(workingImage, 0, 0, imageWidth, 1, rectX, rectY - 1, rect.width, 1)
+      page.image.drawPixmap(workingImage, 0, imageHeight - 1, imageWidth, 1, rectX, rectY + rect.height, rect.width, 1)
+      page.image.drawPixmap(workingImage, 0, 0, 1, imageHeight, rectX - 1, rectY, 1, rect.height)
+      page.image.drawPixmap(workingImage, imageWidth - 1, 0, 1, imageHeight, rectX + rect.width, rectY, 1, rect.height)
     }
 
     pixmapToDispose.foreach(_.close())
@@ -350,20 +372,18 @@ class PixmapPacker(using Sge) extends AutoCloseable {
   def dispose() = {
     for (page <- pages)
       if (page.texture.isEmpty) {
-        // Note: page.image.dispose() not available, would need proper cleanup
+        page.image.close()
       }
     disposed = true
   }
 
   /** Generates a new {@link TextureAtlas} from the pixmaps inserted so far. After calling this method, disposing the packer will no longer dispose the page pixmaps.
     */
-  def generateTextureAtlas(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): TextureAtlas =
-    // Note: TextureAtlas is abstract and cannot be instantiated directly
-    // This would need a concrete implementation
-    // val atlas = new TextureAtlas();
-    // updateTextureAtlas(atlas, minFilter, magFilter, useMipMaps);
-    // return atlas;
-    throw new NotImplementedError("generateTextureAtlas not yet implemented")
+  def generateTextureAtlas(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): TextureAtlas = {
+    val atlas = TextureAtlas()
+    updateTextureAtlas(atlas, minFilter, magFilter, useMipMaps)
+    atlas
+  }
 
   /** Updates the {@link TextureAtlas} , adding any new {@link Pixmap} instances packed since the last call to this method. This can be used to insert Pixmap instances on a separate thread via
     * {@link #pack(String, Pixmap)} and update the TextureAtlas on the rendering thread. This method must be called on the rendering thread. After calling this method, disposing the packer will no
@@ -380,42 +400,36 @@ class PixmapPacker(using Sge) extends AutoCloseable {
     updatePageTextures(minFilter, magFilter, useMipMaps)
     for (page <- pages)
       if (page.addedRects.size > 0) {
-        for (name <- page.addedRects)
-          page.rects.get(name) match {
-            case Some(rect) =>
-              // Note: TextureAtlas.AtlasRegion constructor needs adjustment
-              // val region = new TextureAtlas.AtlasRegion(page.texture.orNull, rect.x, rect.y,
-              //	rect.width, rect.height);
+        page.texture.foreach { pageTexture =>
+          for (name <- page.addedRects)
+            page.rects.get(name) match {
+              case Some(rect) =>
+                var imageIndex = -1
+                var imageName  = name
 
-              if (rect.splits.isDefined) {
-                // region.names = Array("split", "pad");
-                // region.values = Array(rect.splits, rect.pads);
-              }
-
-              @nowarn("msg=not read") // set during search, will be used when full packing algorithm is complete
-              var imageIndex = -1
-              var imageName  = name
-
-              if (useIndexes) {
-                val matcher = PixmapPacker.indexPattern.matcher(imageName)
-                if (matcher.matches()) {
-                  imageName = matcher.group(1)
-                  imageIndex = Integer.parseInt(matcher.group(2))
+                if (useIndexes) {
+                  val matcher = PixmapPacker.indexPattern.matcher(imageName)
+                  if (matcher.matches()) {
+                    imageName = matcher.group(1)
+                    imageIndex = Integer.parseInt(matcher.group(2))
+                  }
                 }
-              }
 
-            // region.name = imageName;
-            // region.index = imageIndex;
-            // region.offsetX = rect.offsetX;
-            // region.offsetY = rect.originalHeight - rect.height - rect.offsetY;
-            // region.originalWidth = rect.originalWidth;
-            // region.originalHeight = rect.originalHeight;
+                val region = atlas.addRegion(imageName, pageTexture, rect.x, rect.y, rect.width, rect.height)
+                region.index = imageIndex
+                region.offsetX = rect.offsetX.toFloat
+                region.offsetY = (rect.originalHeight - rect.height - rect.offsetY).toFloat
+                region.originalWidth = rect.originalWidth
+                region.originalHeight = rect.originalHeight
 
-            // atlas.getRegions().add(region);
-            case None => // skip
-          }
-        page.addedRects.clear()
-        // atlas.getTextures().add(page.texture);
+                rect.splits.foreach { s =>
+                  region.names = Nullable(Array("split", "pad"))
+                  region.values = Nullable(Array(s, rect.pads.getOrElse(Array(0, 0, 0, 0))))
+                }
+              case None => // skip
+            }
+          page.addedRects.clear()
+        }
       }
   }
 
@@ -597,9 +611,8 @@ object PixmapPacker {
 
     // Initialize page
     image.setBlending(Blending.None)
-    // Note: setColor and fill methods not available on Pixmap
-    // image.setColor(packer.getTransparentColor())
-    // image.fill()
+    image.setColor(packer.transparentColor)
+    image.fill()
 
     /** Creates the texture if it has not been created, else reuploads the entire page pixmap to the texture if the pixmap has changed since this method was last called.
       * @return
@@ -670,23 +683,88 @@ object PixmapPacker {
     def height: Int = bounds.height
   }
 
+  /** Does bin packing by inserting to the right or below previously packed rectangles. This is good at packing arbitrarily sized images.
+    */
   class GuillotineStrategy()(using Sge) extends PackStrategy {
-    def sort(images: DynamicArray[Pixmap]): Unit =
-      // Simple sorting by area (width * height) in descending order
-      images.sort(Ordering.by[Pixmap, Int](pixmap => -(pixmap.getWidth() * pixmap.getHeight())))
+    private var comparator: Nullable[Ordering[Pixmap]] = Nullable.empty
+
+    def sort(images: DynamicArray[Pixmap]): Unit = {
+      if (comparator.isEmpty) {
+        comparator = Nullable(Ordering.fromLessThan[Pixmap] { (o1, o2) =>
+          Math.max(o1.getWidth(), o1.getHeight()) < Math.max(o2.getWidth(), o2.getHeight())
+        })
+      }
+      comparator.foreach(images.sort(_))
+    }
 
     def pack(packer: PixmapPacker, name: Nullable[String], rect: Bounds): Page = {
-      // Simplified implementation - would need full conversion for complex logic
-      if (packer.pages.isEmpty) {
-        // For now, create a basic Page - GuillotinePage would need proper Sge context
-        val page = Page(packer)
-        packer.pages.add(page)
+      var page: GuillotinePage = if (packer.pages.isEmpty) {
+        // Add a page if empty.
+        val p = GuillotinePage(packer)
+        packer.pages.add(p)
+        p
+      } else {
+        // Always try to pack into the last page.
+        packer.pages.last.asInstanceOf[GuillotinePage]
       }
-      packer.pages.first
+
+      val padding = packer.padding
+      rect.width += padding
+      rect.height += padding
+      var node = insert(page.root, rect)
+      if (node.isEmpty) {
+        // Didn't fit, pack into a new page.
+        page = GuillotinePage(packer)
+        packer.pages.add(page)
+        node = insert(page.root, rect)
+      }
+      node.foreach { n =>
+        n.full = true
+        rect.set(n.rect.x, n.rect.y, n.rect.width - padding, n.rect.height - padding)
+      }
+      page
+    }
+
+    private def insert(node: GuillotineStrategy.Node, rect: Bounds): Nullable[GuillotineStrategy.Node] = boundary {
+      if (!node.full && node.leftChild.isDefined && node.rightChild.isDefined) {
+        val newNode = node.leftChild.flatMap(insert(_, rect))
+        if (newNode.isDefined) break(newNode)
+        else break(node.rightChild.flatMap(insert(_, rect)))
+      }
+      if (node.full) break(Nullable.empty)
+      if (node.rect.width == rect.width && node.rect.height == rect.height) break(Nullable(node))
+      if (node.rect.width < rect.width || node.rect.height < rect.height) break(Nullable.empty)
+
+      val left  = GuillotineStrategy.Node()
+      val right = GuillotineStrategy.Node()
+      node.leftChild = Nullable(left)
+      node.rightChild = Nullable(right)
+
+      val deltaWidth  = node.rect.width - rect.width
+      val deltaHeight = node.rect.height - rect.height
+      if (deltaWidth > deltaHeight) {
+        left.rect.set(node.rect.x, node.rect.y, rect.width, node.rect.height)
+        right.rect.set(node.rect.x + rect.width, node.rect.y, node.rect.width - rect.width, node.rect.height)
+      } else {
+        left.rect.set(node.rect.x, node.rect.y, node.rect.width, rect.height)
+        right.rect.set(node.rect.x, node.rect.y + rect.height, node.rect.width, node.rect.height - rect.height)
+      }
+
+      insert(left, rect)
+    }
+  }
+
+  object GuillotineStrategy {
+    final class Node() {
+      var leftChild:  Nullable[Node] = Nullable.empty
+      var rightChild: Nullable[Node] = Nullable.empty
+      val rect:       Bounds         = Bounds()
+      var full:       Boolean        = false
     }
   }
 
   class GuillotinePage(packer: PixmapPacker)(using Sge) extends Page(packer) {
-    // Simplified for now
+    val root: GuillotineStrategy.Node = GuillotineStrategy.Node()
+    root.rect.set(packer.padding, packer.padding, packer.pageWidth - packer.padding * 2, packer.pageHeight - packer.padding * 2)
   }
 }

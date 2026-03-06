@@ -7,22 +7,24 @@
  * Migration notes:
  *   Convention: Blending/Filter/Format enums complete; Disposable -> AutoCloseable
  *   Idiom: split packages
- *   Issues: drawPixmap/getPixel/getPixels are stubs; missing setColor, drawLine, drawRect, fillRect, etc.
- *   TODO: Java-style getters/setters -- getWidth, getHeight, getFormat
- *   TODO: uses flat package declaration -- convert to split (package sge / package graphics)
+ *   Fixes: Complete rewrite — all drawing methods (setColor, fill, drawLine, drawRectangle, fillRectangle, drawCircle,
+ *     fillCircle, fillTriangle, drawPixel, drawPixmap), pixel access (getPixel, getPixels, setPixels), and all constructors
+ *     now delegate to Gdx2DPixmap. Previously stubs with no functionality.
+ *   Issues: Gdx2DPixmap native methods (load, newPixmap) are stubs — actual pixmap creation requires platform-specific native implementation.
  *   TODO: opaque Pixels for getWidth/Height, drawPixmap x/y, getPixel x/y params -- see docs/improvements/opaque-types.md
  *   TODO: typed GL enums -- PixelFormat, DataType for glReadPixels -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
-package sge.graphics
+package sge
+package graphics
 
 import sge.files.FileHandle
 import sge.graphics.g2d.Gdx2DPixmap
-import sge.utils.Nullable
+import sge.utils.{ BufferUtils, SgeError }
+import java.io.IOException
 import java.nio.ByteBuffer
-import scala.annotation.nowarn
 
 import Pixmap.*
 
@@ -35,35 +37,166 @@ import Pixmap.*
   * @author
   *   Nathan Sweet (original implementation)
   */
-class Pixmap private (file: Nullable[FileHandle], private val width: Int, private val height: Int, private val format: Format) extends AutoCloseable {
+class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseable {
 
-  private var pixmap: Nullable[Gdx2DPixmap] = Nullable.empty
+  private var _blending: Blending = Blending.SourceOver
+  private var _filter:   Filter   = Filter.BiLinear
+  private var color:     Int      = 0
+  private var disposed:  Boolean  = false
 
-  @nowarn("msg=not read") // will be read when drawing methods are implemented
-  private var blending: Blending = Blending.SourceOver
-
-  def this(file: FileHandle) = {
-    this(Nullable(file), 100, 100, Format.RGBA8888)
-  }
-
+  /** Creates a new Pixmap instance with the given width, height and format.
+    * @param width
+    *   the width in pixels
+    * @param height
+    *   the height in pixels
+    * @param format
+    *   the {@link Format}
+    */
   def this(width: Int, height: Int, format: Format) = {
-    this(Nullable.empty, width, height, format)
+    this(Gdx2DPixmap(width, height, Format.toGdx2DPixmapFormat(format)))
+    setColor(0, 0, 0, 0)
+    fill()
   }
 
-  def this(pixmap: Gdx2DPixmap) = {
-    this(Nullable.empty, pixmap.width, pixmap.height, Format.fromGdx2DPixmapFormat(pixmap.format))
-  }
+  /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
+    *
+    * @param encodedData
+    *   the encoded image data
+    * @param offset
+    *   the offset
+    * @param len
+    *   the length
+    */
+  def this(encodedData: Array[Byte], offset: Int, len: Int) =
+    this(
+      try Gdx2DPixmap(encodedData, offset, len, 0)
+      catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
+    )
 
-  def getWidth():  Int    = width
-  def getHeight(): Int    = height
-  def getFormat(): Format = format
+  /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
+    *
+    * @param encodedData
+    *   the encoded image data
+    * @param offset
+    *   the offset relative to the base address of encodedData
+    * @param len
+    *   the length
+    */
+  def this(encodedData: ByteBuffer, offset: Int, len: Int) =
+    this(
+      {
+        if (!encodedData.isDirect()) throw SgeError.GraphicsError("Couldn't load pixmap from non-direct ByteBuffer")
+        try Gdx2DPixmap(encodedData, offset, len, 0)
+        catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
+      }
+    )
+
+  /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
+    *
+    * Offset is based on the position of the buffer. Length is based on the remaining bytes of the buffer.
+    *
+    * @param encodedData
+    *   the encoded image data
+    */
+  def this(encodedData: ByteBuffer) =
+    this(encodedData, encodedData.position(), encodedData.remaining())
+
+  /** Creates a new Pixmap instance from the given file. The file must be a Png, Jpeg or Bitmap. Paletted formats are not supported.
+    *
+    * @param file
+    *   the {@link FileHandle}
+    */
+  def this(file: FileHandle) =
+    this(
+      try {
+        val bytes = file.readBytes()
+        Gdx2DPixmap(bytes, 0, bytes.length, 0)
+      } catch { case e: Exception => throw SgeError.GraphicsError("Couldn't load file: " + file, Some(e)) }
+    )
 
   /** Sets the type of {@link Blending} to be used for all operations. Default is {@link Blending#SourceOver} .
     * @param blending
     *   the blending type
     */
-  def setBlending(blending: Blending): Unit =
-    this.blending = blending
+  def setBlending(blending: Blending): Unit = {
+    this._blending = blending
+    gdx2dPixmap.setBlend(if (blending == Blending.None) 0 else 1)
+  }
+
+  /** @return the currently set {@link Blending} */
+  def getBlending(): Blending = _blending
+
+  /** Sets the type of interpolation {@link Filter} to be used in conjunction with {@link Pixmap#drawPixmap(Pixmap, int, int, int, int, int, int, int, int)} .
+    * @param filter
+    *   the filter.
+    */
+  def setFilter(filter: Filter): Unit = {
+    this._filter = filter
+    gdx2dPixmap.setScale(if (filter == Filter.NearestNeighbour) Gdx2DPixmap.GDX2D_SCALE_NEAREST else Gdx2DPixmap.GDX2D_SCALE_LINEAR)
+  }
+
+  /** @return the currently set {@link Filter} */
+  def getFilter(): Filter = _filter
+
+  /** Sets the color for the following drawing operations
+    * @param color
+    *   the color, encoded as RGBA8888
+    */
+  def setColor(color: Int): Unit =
+    this.color = color
+
+  /** Sets the color for the following drawing operations.
+    *
+    * @param r
+    *   The red component.
+    * @param g
+    *   The green component.
+    * @param b
+    *   The blue component.
+    * @param a
+    *   The alpha component.
+    */
+  def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
+    color = Color.rgba8888(r, g, b, a)
+
+  /** Sets the color for the following drawing operations.
+    * @param color
+    *   The color.
+    */
+  def setColor(color: Color): Unit =
+    this.color = Color.rgba8888(color.r, color.g, color.b, color.a)
+
+  /** Fills the complete bitmap with the currently set color. */
+  def fill(): Unit =
+    gdx2dPixmap.clear(color)
+
+  /** Draws a line between the given coordinates using the currently set color.
+    *
+    * @param x
+    *   The x-coodinate of the first point
+    * @param y
+    *   The y-coordinate of the first point
+    * @param x2
+    *   The x-coordinate of the second point
+    * @param y2
+    *   The y-coordinate of the second point
+    */
+  def drawLine(x: Int, y: Int, x2: Int, y2: Int): Unit =
+    gdx2dPixmap.drawLine(x, y, x2, y2, color)
+
+  /** Draws a rectangle outline starting at x, y extending by width to the right and by height downwards (y-axis points downwards) using the current color.
+    *
+    * @param x
+    *   The x coordinate
+    * @param y
+    *   The y coordinate
+    * @param width
+    *   The width in pixels
+    * @param height
+    *   The height in pixels
+    */
+  def drawRectangle(x: Int, y: Int, width: Int, height: Int): Unit =
+    gdx2dPixmap.drawRect(x, y, width, height, color)
 
   /** Draws an area form another Pixmap to this Pixmap.
     * @param pixmap
@@ -92,11 +225,91 @@ class Pixmap private (file: Nullable[FileHandle], private val width: Int, privat
     * @param srcHeight
     *   The height of the area form the other Pixmap in pixels
     */
-  def drawPixmap(pixmap: Pixmap, x: Int, y: Int, srcx: Int, srcy: Int, srcWidth: Int, srcHeight: Int): Unit = {
-    // Stub implementation
-  }
+  def drawPixmap(pixmap: Pixmap, x: Int, y: Int, srcx: Int, srcy: Int, srcWidth: Int, srcHeight: Int): Unit =
+    gdx2dPixmap.drawPixmap(pixmap.gdx2dPixmap, srcx, srcy, x, y, srcWidth, srcHeight)
 
-  /** Returns the 32-bit RGBA8888 value of the pixel at x, y. For Alpha formats the RGB components will be zero.
+  /** Draws an area from another Pixmap to this Pixmap. This will automatically scale and stretch the source image to the specified target rectangle. Use {@link Pixmap#setFilter(Filter)} to specify
+    * the type of filtering to be used (nearest neighbour or bilinear).
+    *
+    * @param pixmap
+    *   The other Pixmap
+    * @param srcx
+    *   The source x-coordinate (top left corner)
+    * @param srcy
+    *   The source y-coordinate (top left corner);
+    * @param srcWidth
+    *   The width of the area from the other Pixmap in pixels
+    * @param srcHeight
+    *   The height of the area from the other Pixmap in pixels
+    * @param dstx
+    *   The target x-coordinate (top left corner)
+    * @param dsty
+    *   The target y-coordinate (top left corner)
+    * @param dstWidth
+    *   The target width
+    * @param dstHeight
+    *   the target height
+    */
+  def drawPixmap(pixmap: Pixmap, srcx: Int, srcy: Int, srcWidth: Int, srcHeight: Int, dstx: Int, dsty: Int, dstWidth: Int, dstHeight: Int): Unit =
+    gdx2dPixmap.drawPixmap(pixmap.gdx2dPixmap, srcx, srcy, srcWidth, srcHeight, dstx, dsty, dstWidth, dstHeight)
+
+  /** Fills a rectangle starting at x, y extending by width to the right and by height downwards (y-axis points downwards) using the current color.
+    *
+    * @param x
+    *   The x coordinate
+    * @param y
+    *   The y coordinate
+    * @param width
+    *   The width in pixels
+    * @param height
+    *   The height in pixels
+    */
+  def fillRectangle(x: Int, y: Int, width: Int, height: Int): Unit =
+    gdx2dPixmap.fillRect(x, y, width, height, color)
+
+  /** Draws a circle outline with the center at x,y and a radius using the current color and stroke width.
+    *
+    * @param x
+    *   The x-coordinate of the center
+    * @param y
+    *   The y-coordinate of the center
+    * @param radius
+    *   The radius in pixels
+    */
+  def drawCircle(x: Int, y: Int, radius: Int): Unit =
+    gdx2dPixmap.drawCircle(x, y, radius, color)
+
+  /** Fills a circle with the center at x,y and a radius using the current color.
+    *
+    * @param x
+    *   The x-coordinate of the center
+    * @param y
+    *   The y-coordinate of the center
+    * @param radius
+    *   The radius in pixels
+    */
+  def fillCircle(x: Int, y: Int, radius: Int): Unit =
+    gdx2dPixmap.fillCircle(x, y, radius, color)
+
+  /** Fills a triangle with vertices at x1,y1 and x2,y2 and x3,y3 using the current color.
+    *
+    * @param x1
+    *   The x-coordinate of vertex 1
+    * @param y1
+    *   The y-coordinate of vertex 1
+    * @param x2
+    *   The x-coordinate of vertex 2
+    * @param y2
+    *   The y-coordinate of vertex 2
+    * @param x3
+    *   The x-coordinate of vertex 3
+    * @param y3
+    *   The y-coordinate of vertex 3
+    */
+  def fillTriangle(x1: Int, y1: Int, x2: Int, y2: Int, x3: Int, y3: Int): Unit =
+    gdx2dPixmap.fillTriangle(x1, y1, x2, y2, x3, y3, color)
+
+  /** Returns the 32-bit RGBA8888 value of the pixel at x, y. For Alpha formats the RGB components will be one.
     * @param x
     *   The x-coordinate
     * @param y
@@ -105,43 +318,34 @@ class Pixmap private (file: Nullable[FileHandle], private val width: Int, privat
     *   The pixel color in RGBA8888 format.
     */
   def getPixel(x: Int, y: Int): Int =
-    pixmap.fold(0) { _ =>
-      // Return pixel data from underlying pixmap
-      0 // Stub implementation
-    }
+    gdx2dPixmap.getPixel(x, y)
+
+  /** @return The width of the Pixmap in pixels. */
+  def getWidth(): Int = gdx2dPixmap.width
+
+  /** @return The height of the Pixmap in pixels. */
+  def getHeight(): Int = gdx2dPixmap.height
+
+  /** @return the {@link Format} of this Pixmap. */
+  def getFormat(): Format = Format.fromGdx2DPixmapFormat(gdx2dPixmap.format)
 
   /** Returns the OpenGL ES format of this Pixmap. Used as the seventh parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   one of GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE, or GL_LUMINANCE_ALPHA.
     */
-  def getGLFormat(): Int =
-    format match {
-      case Format.Alpha          => 0x1906 // GL_ALPHA
-      case Format.RGB888         => 0x1907 // GL_RGB
-      case Format.RGBA8888       => 0x1908 // GL_RGBA
-      case Format.Intensity      => 0x1909 // GL_LUMINANCE
-      case Format.LuminanceAlpha => 0x190a // GL_LUMINANCE_ALPHA
-      case _                     => 0x1908 // GL_RGBA as default
-    }
+  def getGLFormat(): Int = gdx2dPixmap.glFormat
 
   /** Returns the OpenGL ES type of this Pixmap. Used as the eighth parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   one of GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_4_4_4_4
     */
-  def getGLType(): Int =
-    format match {
-      case Format.RGB565   => 0x8363 // GL_UNSIGNED_SHORT_5_6_5
-      case Format.RGBA4444 => 0x8033 // GL_UNSIGNED_SHORT_4_4_4_4
-      case _               => 0x1401 // GL_UNSIGNED_BYTE
-    }
+  def getGLType(): Int = gdx2dPixmap.glType
 
   /** Returns the OpenGL ES internal format of this Pixmap. Used as the third parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   the internal format for OpenGL texture creation.
     */
-  def getGLInternalFormat(): Int =
-    // For OpenGL ES 2.0, internal format should match the format parameter
-    getGLFormat()
+  def getGLInternalFormat(): Int = gdx2dPixmap.glInternalFormat
 
   /** Returns direct ByteBuffer holding the pixel data. For the format Alpha each value is encoded as a byte. For the format LuminanceAlpha the luminance is the first byte and the alpha is the second
     * byte of the pixel. For the formats RGB888 and RGBA8888 the color components are stored in a single byte each in the order red, green, blue (alpha). For the formats RGB565 and RGBA4444 the pixel
@@ -149,18 +353,73 @@ class Pixmap private (file: Nullable[FileHandle], private val width: Int, privat
     * @return
     *   the direct {@link ByteBuffer} holding the pixel data.
     */
-  def getPixels(): ByteBuffer =
-    pixmap.fold(ByteBuffer.allocateDirect(0)) { _ =>
-      // Return pixel buffer from underlying pixmap
-      ByteBuffer.allocateDirect(0) // Stub implementation
-    }
-
-  override def close(): Unit = {
-    pixmap.foreach(_.close())
-    pixmap = Nullable.empty
+  def getPixels(): ByteBuffer = {
+    if (disposed) throw SgeError.GraphicsError("Pixmap already disposed")
+    gdx2dPixmap.pixels
   }
+
+  /** Sets pixels from a provided direct byte buffer.
+    * @param pixels
+    *   Pixels to copy from, should be a direct ByteBuffer and match Pixmap data size (see {@link #getPixels()} ).
+    */
+  def setPixels(pixels: ByteBuffer): Unit = {
+    if (!pixels.isDirect()) throw SgeError.GraphicsError("Couldn't setPixels from non-direct ByteBuffer")
+    val dst = gdx2dPixmap.pixels
+    BufferUtils.copy(pixels, dst, dst.limit())
+  }
+
+  /** Draws a pixel at the given location with the current color.
+    *
+    * @param x
+    *   the x-coordinate
+    * @param y
+    *   the y-coordinate
+    */
+  def drawPixel(x: Int, y: Int): Unit =
+    gdx2dPixmap.setPixel(x, y, color)
+
+  /** Draws a pixel at the given location with the given color.
+    *
+    * @param x
+    *   the x-coordinate
+    * @param y
+    *   the y-coordinate
+    * @param color
+    *   the color in RGBA8888 format.
+    */
+  def drawPixel(x: Int, y: Int, color: Int): Unit =
+    gdx2dPixmap.setPixel(x, y, color)
+
+  /** Releases all resources associated with this Pixmap. */
+  override def close(): Unit = {
+    if (disposed) return // already disposed
+    gdx2dPixmap.close()
+    disposed = true
+  }
+
+  def isDisposed: Boolean = disposed
 }
 object Pixmap {
+
+  /** Creates a Pixmap from a part of the current framebuffer.
+    * @param x
+    *   framebuffer region x
+    * @param y
+    *   framebuffer region y
+    * @param w
+    *   framebuffer region width
+    * @param h
+    *   framebuffer region height
+    * @return
+    *   the pixmap
+    */
+  def createFromFrameBuffer(x: Int, y: Int, w: Int, h: Int)(using Sge): Pixmap = {
+    Sge().graphics.gl.glPixelStorei(GL20.GL_PACK_ALIGNMENT, 1)
+    val pixmap = Pixmap(w, h, Format.RGBA8888)
+    val pixels = pixmap.getPixels()
+    Sge().graphics.gl.glReadPixels(x, y, w, h, GL20.GL_RGBA, GL20.GL_UNSIGNED_BYTE, pixels)
+    pixmap
+  }
 
   /** Blending functions to be set with {@link Pixmap#setBlending} .
     * @author
@@ -196,7 +455,6 @@ object Pixmap {
       case RGBA4444       => Gdx2DPixmap.GDX2D_FORMAT_RGBA4444
       case RGB888         => Gdx2DPixmap.GDX2D_FORMAT_RGB888
       case RGBA8888       => Gdx2DPixmap.GDX2D_FORMAT_RGBA8888
-      // case _ => throw SgeError.GraphicsError("Unknown Format: " + format)
     }
 
     def fromGdx2DPixmapFormat(format: Int): Format = format match {

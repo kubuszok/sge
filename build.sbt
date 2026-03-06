@@ -1,4 +1,5 @@
 import _root_.scalafix.sbt.{ BuildInfo => ScalafixBuildInfo }
+import sge.sbt.SgePlugin
 
 // Reload sbt when build files change (avoids stale --client sessions).
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -9,7 +10,7 @@ ThisBuild / scalafmtOnCompile := !isCI
 ThisBuild / semanticdbEnabled := true
 
 val versions = new {
-  val scala = "3.8.2"
+  val scala = SgePlugin.scalaVersion
 
   val kindlings = "361026ca2b848637931d65ffece9023592179ada-SNAPSHOT"
   val jsoniter  = "2.38.9"
@@ -21,24 +22,6 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 }
 
-val commonSettings = Seq(
-  scalaVersion := versions.scala,
-  organization := "com.kubuszok",
-  scalacOptions ++= Seq(
-    "-deprecation",
-    "-feature",
-    "-no-indent",
-    "-rewrite",
-    "-Werror",
-    // Linter flags (Tier 1 — safe)
-    "-Wimplausible-patterns",
-    "-Wrecurse-with-default",
-    "-Wenum-comment-discard",
-    "-Wunused:imports,privates,locals,patvars,nowarn",
-    // E198 (unused symbols) is no longer suppressed — -Werror catches regressions
-    "-Wconf:cat=deprecation:info" // deprecation (including orNull trick)
-  )
-)
 // Scalafix custom rules — separate module so rules can lint `core`
 lazy val `scalafix-rules` = (project in file("scalafix-rules"))
   .disablePlugins(ScalafixPlugin)
@@ -51,9 +34,10 @@ lazy val `scalafix-rules` = (project in file("scalafix-rules"))
 
 val core = (projectMatrix in file("core"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
-  .settings(commonSettings *)
+  .settings(SgePlugin.commonSettings *)
   .settings(
     name := "sge-core",
+    organization := "com.kubuszok",
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
@@ -68,39 +52,22 @@ val core = (projectMatrix in file("core"))
   .dependsOn(`scalafix-rules` % ScalafixConfig)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = Seq(
-      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "core" / "src" / "main" / "scaladesktop",
+    settings = SgePlugin.jvmSettings() ++ Seq(
       libraryDependencies ++= Seq(
         "org.jcraft" % "jorbis" % "0.0.17",
         "com.badlogicgames.jlayer" % "jlayer" % "1.0.1-gdx"
-      ),
-      Test / fork := true,
-      Test / javaOptions ++= {
-        val base = (ThisBuild / baseDirectory).value
-        val rustLib = s"$base/native-components/target/release"
-        // Include Homebrew lib paths for GLFW/ANGLE integration tests
-        val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
-          val arm = "/opt/homebrew/lib"
-          val x86 = "/usr/local/lib"
-          s"${java.io.File.pathSeparator}$arm${java.io.File.pathSeparator}$x86"
-        } else ""
-        Seq(
-          s"-Djava.library.path=$rustLib$brewLib",
-          "--enable-native-access=ALL-UNNAMED"
-        )
-      }
+      )
     )
   )
   .jsPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = Seq(
+    settings = SgePlugin.jsSettings ++ Seq(
       libraryDependencies += "org.scala-js" %%% "scalajs-dom" % versions.scalajsDom
     )
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = Seq(
-      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "core" / "src" / "main" / "scaladesktop",
+    settings = SgePlugin.nativeSettings() ++ Seq(
       nativeConfig := {
         val base        = (ThisBuild / baseDirectory).value
         val c           = nativeConfig.value
@@ -112,6 +79,43 @@ val core = (projectMatrix in file("core"))
         // Rust std on Windows uses NtWriteFile/RtlNtStatusToDosError from ntdll.
         // sttp's curl backend declares @link("idn2") but Windows curl uses WinAPI for IDN,
         // not libidn2. We create an empty stub lib in CI to satisfy the linker.
+        val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
+        c.withLinkingOptions(c.linkingOptions ++ rustLibOpts ++ windowsOpts)
+      }
+    )
+  )
+
+val demo = (projectMatrix in file("demo"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(SgePlugin.relaxedSettings *)
+  .settings(
+    name := "sge-demo",
+    organization := "com.kubuszok",
+    publish / skip := true
+  )
+  .dependsOn(core)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings()
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings ++ Seq(
+      scalaJSUseMainModuleInitializer := true
+    )
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings() ++ Seq(
+      nativeConfig := {
+        val base      = (ThisBuild / baseDirectory).value
+        val c         = nativeConfig.value
+        val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
+        val rustLibOpts = Seq(
+          s"-L$base/native-components/target/release",
+          "-lsge_native_ops"
+        )
         val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
         c.withLinkingOptions(c.linkingOptions ++ rustLibOpts ++ windowsOpts)
       }

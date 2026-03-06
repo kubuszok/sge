@@ -11,7 +11,6 @@
  *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on act()
  *   Idiom: Java for-loop -> while; continue -> if-guard; parent null-loop -> Nullable iteration;
  *     indexOf(actor, true) -> indexOf(actor); children.swap -> manual swap; static tmp -> companion object
- *   TODO: ShapeRenderer.flush calls commented out (not yet ported)
  *   TODO: Java-style getters/setters — getCullingArea/setCullingArea, getChild, getChildren, hasChildren, isTransform/setTransform
  *   Audited: 2026-03-03
  */
@@ -172,8 +171,7 @@ class Group()(using Sge) extends Actor() with Cullable {
           child.drawDebug(shapes)
         i += 1
       }
-      // TODO: uncomment when ShapeRenderer.flush is ported
-      // shapes.flush()
+      shapes.flush()
     } else {
       // No transform for this group, offset each child.
       val offsetX = x

@@ -119,7 +119,25 @@ class ParticleEmitter {
     _imagePaths = DynamicArray.from(emitter._imagePaths)
     maxParticleCount = emitter._maxParticleCount
     minParticleCount = emitter.minParticleCount
-    // Copy values - simplified for now
+    delayValue.load(emitter.delayValue)
+    durationValue.load(emitter.durationValue)
+    emissionValue.load(emitter.emissionValue)
+    lifeValue.load(emitter.lifeValue)
+    lifeOffsetValue.load(emitter.lifeOffsetValue)
+    xScaleValue.load(emitter.xScaleValue)
+    yScaleValue.load(emitter.yScaleValue)
+    rotationValue.load(emitter.rotationValue)
+    velocityValue.load(emitter.velocityValue)
+    angleValue.load(emitter.angleValue)
+    windValue.load(emitter.windValue)
+    gravityValue.load(emitter.gravityValue)
+    transparencyValue.load(emitter.transparencyValue)
+    tintValue.load(emitter.tintValue)
+    xOffsetValue.load(emitter.xOffsetValue)
+    yOffsetValue.load(emitter.yOffsetValue)
+    spawnWidthValue.load(emitter.spawnWidthValue)
+    spawnHeightValue.load(emitter.spawnHeightValue)
+    spawnShapeValue.load(emitter.spawnShapeValue)
     attached = emitter.attached
     continuous = emitter.continuous
     aligned = emitter.aligned
@@ -127,7 +145,7 @@ class ParticleEmitter {
     additive = emitter.additive
     premultipliedAlpha = emitter.premultipliedAlpha
     cleansUpBlendFunction = emitter.cleansUpBlendFunction
-    // spriteMode = emitter.spriteMode // Commented out due to type incompatibility
+    spriteMode = emitter.spriteMode
     setPosition(emitter._x, emitter._y)
   }
 
@@ -938,14 +956,8 @@ class ParticleEmitter {
       copyValue(values(i), templateValues(i))
   }
 
-  private def copyValue(target: RangedNumericValue, source: Any): Unit =
-    // Simplified copy implementation
-    source match {
-      case src: RangedNumericValue =>
-        target.setLow(src.lowMin, src.lowMax)
-      // Additional copying as needed
-      case _ => // ignore for now
-    }
+  private def copyValue(target: RangedNumericValue, source: RangedNumericValue): Unit =
+    target.set(source)
 
   def save(output: Writer): Unit = {
     output.write(name + "\n")

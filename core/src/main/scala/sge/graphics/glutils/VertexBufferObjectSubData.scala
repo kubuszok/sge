@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: uses (using sde: Sge) for GL calls
+ *   Convention: uses (using Sge) for GL calls
  *   Idiom: split packages
- *   TODO: named context parameter (implicit/using sge/sde: Sge) → anonymous (using Sge) + Sge() accessor
  *   TODO: typed GL enums -- BufferTarget -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -34,7 +33,7 @@ class VertexBufferObjectSubData(
   val isStatic:   Boolean,
   numVertices:    Int,
   val attributes: VertexAttributes
-)(using sde: Sge)
+)(using Sge)
     extends VertexData {
 
   val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(attributes.vertexSize * numVertices)
@@ -57,14 +56,14 @@ class VertexBufferObjectSubData(
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using sde: Sge) =
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) =
     this(isStatic, numVertices, VertexAttributes(attributes*))
 
   private def createBufferObject(): Int = {
-    val result = sde.graphics.gl20.glGenBuffer()
-    sde.graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, result)
-    sde.graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.capacity(), null, usage)
-    sde.graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
+    val result = Sge().graphics.gl20.glGenBuffer()
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, result)
+    Sge().graphics.gl20.glBufferData(GL20.GL_ARRAY_BUFFER, byteBuffer.capacity(), null, usage)
+    Sge().graphics.gl20.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
     result
   }
 
@@ -88,7 +87,7 @@ class VertexBufferObjectSubData(
 
   private def bufferChanged(): Unit =
     if (isBound) {
-      sde.graphics.gl20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, byteBuffer.limit(), byteBuffer)
+      Sge().graphics.gl20.glBufferSubData(GL20.GL_ARRAY_BUFFER, 0, byteBuffer.limit(), byteBuffer)
       isDirty = false
     }
 
@@ -132,7 +131,7 @@ class VertexBufferObjectSubData(
     bind(shader, Nullable.empty)
 
   override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl = sde.graphics.gl20
+    val gl = Sge().graphics.gl20
 
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, bufferHandle)
     if (isDirty) {
@@ -162,7 +161,7 @@ class VertexBufferObjectSubData(
     unbind(shader, Nullable.empty)
 
   override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
-    val gl            = sde.graphics.gl20
+    val gl            = Sge().graphics.gl20
     val numAttributes = attributes.size
     locations.fold {
       for (i <- 0 until numAttributes)
@@ -185,7 +184,7 @@ class VertexBufferObjectSubData(
 
   /** Disposes of all resources this VertexBufferObject uses. */
   override def close(): Unit = {
-    val gl = sde.graphics.gl20
+    val gl = Sge().graphics.gl20
     gl.glBindBuffer(GL20.GL_ARRAY_BUFFER, 0)
     gl.glDeleteBuffer(bufferHandle)
     bufferHandle = 0
