@@ -19,7 +19,7 @@
 package sge
 
 import org.scalajs.dom
-import org.scalajs.dom.{ document, window, HTMLCanvasElement }
+import org.scalajs.dom.{ HTMLCanvasElement, document, window }
 import scala.collection.mutable.ArrayBuffer
 import scala.scalajs.js
 import sge.audio.DefaultBrowserAudio
@@ -30,9 +30,8 @@ import sge.input.DefaultBrowserInput
 import _root_.sge.noop.{ NoopAudio, PrintApplicationLogger }
 import sge.utils.{ Clipboard, Nullable }
 
-/** Browser (Scala.js) application entry point. Creates an HTML canvas, obtains a WebGL context,
-  * sets up all subsystems (graphics, audio, input, files, net), and runs a
-  * `requestAnimationFrame`-based main loop.
+/** Browser (Scala.js) application entry point. Creates an HTML canvas, obtains a WebGL context, sets up all subsystems (graphics, audio, input, files, net), and runs a `requestAnimationFrame`-based
+  * main loop.
   *
   * Usage:
   * {{{
@@ -52,17 +51,17 @@ class BrowserApplication(
 
   // --- Logging ---
 
-  private var _logLevel: Int                     = Application.LOG_ERROR
+  private var _logLevel:          Int               = Application.LOG_ERROR
   private var _applicationLogger: ApplicationLogger = PrintApplicationLogger
 
   // --- Subsystems (initialized in start()) ---
 
-  private var _graphics:  BrowserGraphics     = scala.compiletime.uninitialized
-  private var _audio:     Audio               = scala.compiletime.uninitialized
-  private var _input:     Input               = scala.compiletime.uninitialized
-  private var _files:     Files               = scala.compiletime.uninitialized
-  private var _net:       Net                 = scala.compiletime.uninitialized
-  private var _clipboard: Clipboard           = scala.compiletime.uninitialized
+  private var _graphics:  BrowserGraphics = scala.compiletime.uninitialized
+  private var _audio:     Audio           = scala.compiletime.uninitialized
+  private var _input:     Input           = scala.compiletime.uninitialized
+  private var _files:     Files           = scala.compiletime.uninitialized
+  private var _net:       Net             = scala.compiletime.uninitialized
+  private var _clipboard: Clipboard       = scala.compiletime.uninitialized
 
   private var lastWidth:  Int = 0
   private var lastHeight: Int = 0
@@ -85,14 +84,13 @@ class BrowserApplication(
 
   private var _sge: Sge = scala.compiletime.uninitialized
 
-  /** Start the application. Creates the canvas, WebGL context, subsystems, and begins the
-    * main loop.
+  /** Start the application. Creates the canvas, WebGL context, subsystems, and begins the main loop.
     *
     * @param baseUrl
     *   base URL for asset loading (default: "assets/")
     */
   def start(baseUrl: String = "assets/"): Unit = {
-    val canvas = createCanvas()
+    val canvas                     = createCanvas()
     val (gl20, gl30Opt, glVersion) = createGLContext(canvas)
 
     _graphics = new BrowserGraphics(canvas, config, gl20, gl30Opt, glVersion)
@@ -181,7 +179,7 @@ class BrowserApplication(
       val density = if (config.usePhysicalPixels) {
         window.asInstanceOf[js.Dynamic].devicePixelRatio.asInstanceOf[js.UndefOr[Double]].getOrElse(1.0)
       } else 1.0
-      val width = ((window.innerWidth.toInt - config.padHorizontal) * density).toInt
+      val width  = ((window.innerWidth.toInt - config.padHorizontal) * density).toInt
       val height = ((window.innerHeight.toInt - config.padVertical) * density).toInt
       canvas.width = width
       canvas.height = height
@@ -217,14 +215,13 @@ class BrowserApplication(
       xrCompatible = config.xrCompatible
     )
 
-    var context: js.Dynamic = null.asInstanceOf[js.Dynamic]
-    var gl20: GL20 = null.asInstanceOf[GL20]
-    var gl30: Nullable[GL30] = Nullable.empty
+    var context: js.Dynamic     = null.asInstanceOf[js.Dynamic]
+    var gl20:    GL20           = null.asInstanceOf[GL20]
+    var gl30:    Nullable[GL30] = Nullable.empty
     var isWebGL2 = false
 
     if (config.useGL30) {
-      context = canvas.asInstanceOf[js.Dynamic].getContext("webgl2", attributes)
-        .asInstanceOf[js.Dynamic]
+      context = canvas.asInstanceOf[js.Dynamic].getContext("webgl2", attributes).asInstanceOf[js.Dynamic]
       if (context != null && !js.isUndefined(context)) {
         isWebGL2 = true
       } else {
@@ -237,11 +234,9 @@ class BrowserApplication(
       gl30 = Nullable(webgl30)
       gl20 = webgl30 // WebGL30 extends WebGL20 which extends GL20
     } else {
-      context = canvas.asInstanceOf[js.Dynamic].getContext("webgl", attributes)
-        .asInstanceOf[js.Dynamic]
+      context = canvas.asInstanceOf[js.Dynamic].getContext("webgl", attributes).asInstanceOf[js.Dynamic]
       if (context == null || js.isUndefined(context)) {
-        context = canvas.asInstanceOf[js.Dynamic].getContext("experimental-webgl", attributes)
-          .asInstanceOf[js.Dynamic]
+        context = canvas.asInstanceOf[js.Dynamic].getContext("experimental-webgl", attributes).asInstanceOf[js.Dynamic]
       }
       if (context == null || js.isUndefined(context)) {
         throw utils.SgeError.GraphicsError("WebGL not supported by this browser")
@@ -249,10 +244,10 @@ class BrowserApplication(
       gl20 = new WebGL20(context)
     }
 
-    val versionString = gl20.glGetString(GL20.GL_VERSION)
-    val vendorString = gl20.glGetString(GL20.GL_VENDOR)
+    val versionString  = gl20.glGetString(GL20.GL_VERSION)
+    val vendorString   = gl20.glGetString(GL20.GL_VENDOR)
     val rendererString = gl20.glGetString(GL20.GL_RENDERER)
-    val glVersion = new GLVersion(Application.ApplicationType.WebGL, versionString, vendorString, rendererString)
+    val glVersion      = new GLVersion(Application.ApplicationType.WebGL, versionString, vendorString, rendererString)
 
     (gl20, gl30, glVersion)
   }
@@ -260,9 +255,9 @@ class BrowserApplication(
   // --- Main loop ---
 
   private val mainLoopCallback: js.Function1[Double, Unit] = { (_: Double) =>
-    try {
+    try
       mainLoop()
-    } catch {
+    catch {
       case t: Throwable =>
         error("BrowserApplication", s"exception: ${t.getMessage}", t)
         throw t
@@ -270,9 +265,8 @@ class BrowserApplication(
     window.requestAnimationFrame(mainLoopCallback)
   }
 
-  private def setupMainLoop(): Unit = {
+  private def setupMainLoop(): Unit =
     window.requestAnimationFrame(mainLoopCallback)
-  }
 
   private def mainLoop(): Unit = {
     _graphics.update()
@@ -306,9 +300,8 @@ class BrowserApplication(
 
   // --- Visibility change (pause/resume) ---
 
-  private def addVisibilityChangeListener(): Unit = {
+  private def addVisibilityChangeListener(): Unit =
     document.addEventListener("visibilitychange", (_: dom.Event) => onVisibilityChange())
-  }
 
   private def onVisibilityChange(): Unit = {
     val hidden = document.asInstanceOf[js.Dynamic].hidden.asInstanceOf[Boolean]
@@ -323,12 +316,11 @@ class BrowserApplication(
 
   // --- Resize handler ---
 
-  private def addResizeListener(): Unit = {
+  private def addResizeListener(): Unit =
     window.addEventListener("resize", (_: dom.Event) => onResize())
-  }
 
   private def onResize(): Unit = {
-    var width = window.innerWidth.toInt - config.padHorizontal
+    var width  = window.innerWidth.toInt - config.padHorizontal
     var height = window.innerHeight.toInt - config.padVertical
 
     // Ignore degenerate sizes
@@ -372,7 +364,7 @@ class BrowserApplication(
     if (_logLevel >= Application.LOG_DEBUG) _applicationLogger.debug(tag, message, exception)
 
   override def setLogLevel(logLevel: Int): Unit = _logLevel = logLevel
-  override def getLogLevel(): Int = _logLevel
+  override def getLogLevel():              Int  = _logLevel
 
   override def setApplicationLogger(applicationLogger: ApplicationLogger): Unit =
     _applicationLogger = applicationLogger
@@ -407,8 +399,7 @@ class BrowserApplication(
   override def removeLifecycleListener(listener: LifecycleListener): Unit =
     lifecycleListeners -= listener
 
-  /** Returns the Sge context for this application. Can be used to provide `given Sge` in user
-    * code.
+  /** Returns the Sge context for this application. Can be used to provide `given Sge` in user code.
     */
   def sge: Sge = _sge
 }

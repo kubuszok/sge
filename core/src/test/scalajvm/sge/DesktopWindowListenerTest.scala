@@ -7,10 +7,14 @@ package sge
 
 class DesktopWindowListenerTest extends munit.FunSuite {
 
+  // The listener methods are all no-ops that ignore their arguments,
+  // so a null window is safe here.
+  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
+  private val dummyWindow: DesktopWindow = null.asInstanceOf[DesktopWindow]
+
   test("default implementations do not throw") {
     val listener = new DesktopWindowListener {}
-    val window   = DesktopWindow()
-    listener.created(window)
+    listener.created(dummyWindow)
     listener.iconified(true)
     listener.iconified(false)
     listener.maximized(true)

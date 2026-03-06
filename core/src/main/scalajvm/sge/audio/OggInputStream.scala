@@ -62,9 +62,8 @@ class OggInputStream(input: InputStream, previousStream: Nullable[OggInputStream
 
   import OggInputStream.*
 
-  def this(input: InputStream)(using Sge) = {
+  def this(input: InputStream)(using Sge) =
     this(input, Nullable.empty)
-  }
 
   /** The conversion buffer size */
   private var convsize: Int = BufferSize * 4

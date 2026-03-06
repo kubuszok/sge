@@ -24,4 +24,5 @@ enum SgeError(message: String, cause: Option[Throwable]) extends Exception(messa
   case SerializationError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case InvalidInput(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
   case GraphicsError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
+  case AudioError(message: String, cause: Option[Throwable] = None) extends SgeError(message, cause)
 }

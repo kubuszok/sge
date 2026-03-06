@@ -82,7 +82,7 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `Lwjgl3Application.java` | `DesktopApplication.scala` | desktop-shared | P0 | not_started | Main loop, window mgmt. SDL3/GLFW init via FFI trait |
+| `Lwjgl3Application.java` | `DesktopApplication.scala` | desktop-shared | P0 | done | Main loop, window mgmt, Sge context. WindowingOps FFI |
 | `Lwjgl3ApplicationBase.java` | `DesktopApplicationBase.scala` | desktop-shared | P0 | done | Factory interface (12 LOC) |
 | `Lwjgl3ApplicationConfiguration.java` | `DesktopApplicationConfig.scala` | desktop-shared | P0 | done | Config class (data portion); GLFW monitor queries deferred |
 | `Lwjgl3ApplicationLogger.java` | — | core-shared | P1 | done | println logger already in noop; upgrade to shared |
@@ -92,17 +92,17 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `Lwjgl3Graphics.java` | `DesktopGraphics.scala` | desktop-shared | P0 | not_started | Context, display modes, frame timing. FFI for GLFW queries |
-| `Lwjgl3GL20.java` | `AngleGL20.scala` | desktop-jvm + desktop-native | P0 | not_started | **Codegen candidate**: ~850 LOC of 1:1 ANGLE ES 2.0 delegation |
-| `Lwjgl3GL30.java` | `AngleGL30.scala` | desktop-jvm + desktop-native | P0 | not_started | **Codegen candidate**: ~400 LOC ES 3.0 |
-| `Lwjgl3GL31.java` | `AngleGL31.scala` | desktop-jvm + desktop-native | P1 | not_started | **Codegen candidate**: ~200 LOC ES 3.1 |
-| `Lwjgl3GL32.java` | `AngleGL32.scala` | desktop-jvm + desktop-native | P1 | not_started | **Codegen candidate**: ~200 LOC ES 3.2 |
+| `Lwjgl3Graphics.java` | `DesktopGraphics.scala` | desktop-shared | P0 | done | GL init, display modes, frame timing, DPI, fullscreen/windowed via WindowingOps |
+| `Lwjgl3GL20.java` | `AngleGL20.scala` | desktop-jvm + desktop-native | P0 | done (JVM) | Panama FFM downcall handles to ANGLE libGLESv2; ~570 LOC; Native @extern TODO |
+| `Lwjgl3GL30.java` | `AngleGL30.scala` | desktop-jvm + desktop-native | P0 | done (JVM) | ~460 LOC ES 3.0 Panama downcall; Native @extern TODO |
+| `Lwjgl3GL31.java` | `AngleGL31.scala` | desktop-jvm + desktop-native | P1 | done (JVM) | ~380 LOC ES 3.1 Panama downcall; Native @extern TODO |
+| `Lwjgl3GL32.java` | `AngleGL32.scala` | desktop-jvm + desktop-native | P1 | done (JVM) | ~380 LOC ES 3.2 Panama downcall + upcall (debug callback); Native @extern TODO |
 
 #### Window Management
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `Lwjgl3Window.java` | `DesktopWindow.scala` | desktop-shared | P0 | not_started | Window lifecycle, GLFW callbacks via FFI trait |
+| `Lwjgl3Window.java` | `DesktopWindow.scala` | desktop-shared | P0 | done | Window lifecycle, GLFW callbacks via FFI trait |
 | `Lwjgl3WindowConfiguration.java` | `DesktopWindowConfig.scala` | desktop-shared | P0 | done | Per-window config (mutable class with vars) |
 | `Lwjgl3WindowListener.java` | `DesktopWindowListener.scala` | desktop-shared | P0 | done | Event trait with default methods (merged Adapter) |
 | `Lwjgl3WindowAdapter.java` | — | desktop-shared | P0 | done | Merged into DesktopWindowListener trait defaults |
@@ -111,7 +111,7 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `DefaultLwjgl3Input.java` | `DesktopInput.scala` | desktop-shared | P0 | not_started | GLFW callbacks. Key mapping table generated |
+| `DefaultLwjgl3Input.java` | `DefaultDesktopInput.scala` | desktop-shared | P0 | done | GLFW callbacks via WindowingOps. Key mapping table, AbstractInput merged |
 | `Lwjgl3Input.java` | `DesktopInput.scala` | desktop-shared | P0 | done | Input trait with lifecycle methods (merged into DesktopInput) |
 
 #### Files / Preferences / Net / Clipboard
@@ -129,22 +129,22 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
 | `Lwjgl3Cursor.java` | `DesktopCursor.scala` | desktop-shared | P1 | done | GLFW cursor via WindowingOps FFI; Pixmap cursor deferred |
-| `Sync.java` | `FrameSync.scala` | desktop-shared | P1 | done | Frame rate limiter (pure math + sleep); glfwGetTime→System.nanoTime |
+| `Sync.java` | `Sync.scala` | desktop-shared | P1 | done | Frame rate limiter (pure math + sleep); WindowingOps.getTime() |
 
 #### Audio (OpenAL → miniaudio)
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `OpenALLwjgl3Audio.java` | `MiniaudioEngine.scala` | desktop-shared | P0 | not_started | Rewrite: miniaudio instead of OpenAL |
-| `OpenALSound.java` | `DesktopSound.scala` | desktop-shared | P0 | not_started | Sound effect via miniaudio |
-| `OpenALMusic.java` | `DesktopMusic.scala` | desktop-shared | P0 | not_started | Streaming music via miniaudio |
-| `OpenALAudioDevice.java` | `DesktopAudioDevice.scala` | desktop-shared | P1 | not_started | Raw PCM output via miniaudio |
+| `OpenALLwjgl3Audio.java` | `MiniaudioEngine.scala` | desktop-shared | P0 | done | Rewrite: miniaudio instead of OpenAL. AudioOps FFI |
+| `OpenALSound.java` | `MiniaudioSound.scala` | desktop-shared | P0 | done | Sound effect via AudioOps FFI |
+| `OpenALMusic.java` | `MiniaudioMusic.scala` | desktop-shared | P0 | done | Streaming music via AudioOps FFI |
+| `OpenALAudioDevice.java` | `DesktopAudioDevice.scala` | desktop-shared | P1 | done | Raw PCM output via AudioOps FFI |
 | `Lwjgl3Audio.java` | `DesktopAudio.scala` | desktop-shared | P0 | done | Audio trait with update() + AutoCloseable |
 | `OpenALUtils.java` | — | skip | — | done | OpenAL-specific, not needed with miniaudio |
 | `JavaSoundAudioRecorder.java` | `DesktopAudioRecorder.scala` | desktop-jvm | P2 | done | JVM-only (javax.sound) |
 | `Wav.java` | `WavInputStream.scala` | core-shared | P1 | done | RIFF parser extracted to `sge.audio.WavInputStream`; Music/Sound wrappers need audio engine |
 | `OggInputStream.java` | `OggInputStream.scala` | scalajvm/sge/audio | P1 | done | JVM-only (JOrbis dep); Music/Sound wrappers (Ogg.java) need audio engine |
-| `Mp3.java` | `Mp3Decoder.scala` | core-shared | P1 | not_started | JLayer pure Java, shareable; Music/Sound wrappers need audio engine |
+| `Mp3.java` | `Mp3Decoder.scala` | scalajvm/sge/audio | P1 | done | JLayer decoder; streaming + decodeAll; JVM-only (javazoom dep) |
 
 #### Mock Audio (already equivalent in noop/)
 
@@ -332,15 +332,15 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 | Module | Total Files | Done | Not Started | Deferred | Skipped |
 |--------|------------|------|-------------|----------|---------|
-| core-shared (noop, decoders, utils) | 16 | 12 | 4 | 0 | 0 |
-| desktop-shared | 21 | 14 | 7 | 0 | 0 |
-| desktop-jvm | 1 | 0 | 1 | 0 | 0 |
-| desktop-native | 0 | 0 | 0 | 0 | 0 |
-| browser | 18 | 8 | 10 | 0 | 0 |
+| core-shared (noop, decoders, utils) | 16 | 16 | 0 | 0 | 0 |
+| desktop-shared | 21 | 21 | 0 | 0 | 0 |
+| desktop-jvm (Panama FFI) | 4 | 4 | 0 | 0 | 0 |
+| desktop-native (@extern) | 4 | 0 | 4 | 0 | 0 |
+| browser | 20 | 16 | 4 | 0 | 0 |
 | android | 25 | 0 | 25 | 0 | 0 |
 | ios | 14 | 0 | 0 | 14 | 0 |
 | skip | 28 | — | — | — | 28 |
-| **Total** | **123** | **34** | **47** | **14** | **28** |
+| **Total** | **132** | **57** | **33** | **14** | **28** |
 
 ### By Priority
 

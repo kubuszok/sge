@@ -71,8 +71,32 @@ private[sge] trait AudioOps {
   /** Stops a sound instance. */
   def stopSound(instanceId: Long): Unit
 
+  /** Pauses a sound instance. */
+  def pauseSound(instanceId: Long): Unit
+
+  /** Resumes a paused sound instance. */
+  def resumeSound(instanceId: Long): Unit
+
   /** Stops all instances of a sound. */
   def stopAllInstances(soundHandle: Long): Unit
+
+  /** Pauses all instances of a sound. */
+  def pauseAllInstances(soundHandle: Long): Unit
+
+  /** Resumes all paused instances of a sound. */
+  def resumeAllInstances(soundHandle: Long): Unit
+
+  /** Sets the volume of a sound instance. */
+  def setSoundVolume(instanceId: Long, volume: Float): Unit
+
+  /** Sets the pitch of a sound instance. */
+  def setSoundPitch(instanceId: Long, pitch: Float): Unit
+
+  /** Sets the pan and volume of a sound instance. */
+  def setSoundPan(instanceId: Long, pan: Float, volume: Float): Unit
+
+  /** Sets whether a sound instance loops. */
+  def setSoundLooping(instanceId: Long, looping: Boolean): Unit
 
   // ─── Music (streamed from disk) ────────────────────────────────────────
 
@@ -97,14 +121,73 @@ private[sge] trait AudioOps {
   /** Returns true if the music is currently playing. */
   def isMusicPlaying(musicHandle: Long): Boolean
 
+  /** Gets the music volume (0.0 to 1.0). */
+  def getMusicVolume(musicHandle: Long): Float
+
   /** Sets the music volume (0.0 to 1.0). */
   def setMusicVolume(musicHandle: Long, volume: Float): Unit
+
+  /** Sets the music pitch multiplier. */
+  def setMusicPitch(musicHandle: Long, pitch: Float): Unit
+
+  /** Sets the music pan (-1.0 left, 0.0 center, 1.0 right) and volume. */
+  def setMusicPan(musicHandle: Long, pan: Float, volume: Float): Unit
+
+  /** Returns true if the music is set to loop. */
+  def isMusicLooping(musicHandle: Long): Boolean
+
+  /** Sets whether the music loops. */
+  def setMusicLooping(musicHandle: Long, looping: Boolean): Unit
 
   /** Sets the music playback position in seconds. */
   def setMusicPosition(musicHandle: Long, position: Float): Unit
 
   /** Gets the current playback position in seconds. */
   def getMusicPosition(musicHandle: Long): Float
+
+  /** Gets the total duration of the music in seconds. */
+  def getMusicDuration(musicHandle: Long): Float
+
+  // ─── AudioDevice (raw PCM output) ─────────────────────────────────────
+
+  /** Creates an audio device for raw PCM output.
+    * @param engineHandle
+    *   the audio engine handle
+    * @param sampleRate
+    *   samples per second
+    * @param isMono
+    *   true for mono, false for stereo
+    * @return
+    *   a native audio device handle, or 0 on failure
+    */
+  def createAudioDevice(engineHandle: Long, sampleRate: Int, isMono: Boolean): Long
+
+  /** Disposes of an audio device. */
+  def disposeAudioDevice(deviceHandle: Long): Unit
+
+  /** Writes raw PCM bytes to an audio device. Blocks until the data has been queued.
+    * @param deviceHandle
+    *   the audio device handle
+    * @param data
+    *   raw PCM byte data (16-bit signed, little-endian)
+    * @param offset
+    *   byte offset into the data array
+    * @param length
+    *   number of bytes to write
+    */
+  def writeAudioDevice(deviceHandle: Long, data: Array[Byte], offset: Int, length: Int): Unit
+
+  /** Sets the volume of an audio device. */
+  def setAudioDeviceVolume(deviceHandle: Long, volume: Float): Unit
+
+  /** Pauses an audio device. */
+  def pauseAudioDevice(deviceHandle: Long): Unit
+
+  /** Resumes an audio device. */
+  def resumeAudioDevice(deviceHandle: Long): Unit
+
+  /** Returns the latency of an audio device in samples. */
+  def getAudioDeviceLatency(deviceHandle: Long): Int
 
   // ─── Output device ─────────────────────────────────────────────────────
 
