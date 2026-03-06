@@ -16,6 +16,7 @@ package platform
 import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.MethodHandle
+import scala.jdk.CollectionConverters.*
 
 /** JVM implementation of [[WindowingOps]] via Panama FFM downcall handles to the GLFW shared library.
   *
@@ -133,6 +134,11 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private val upcallArena: Arena = Arena.ofAuto()
 
   // ─── Initialization ────────────────────────────────────────────────────
+
+  private lazy val hInitHint = h("glfwInitHint", FunctionDescriptor.ofVoid(I, I))
+
+  override def setInitHint(hint: Int, value: Int): Unit =
+    hInitHint.invoke(hint, value)
 
   override def init(): Boolean = {
     val result = hInit.invoke().asInstanceOf[Int]
@@ -662,16 +668,64 @@ object WindowingOpsJvm {
     *   the library name (e.g. "glfw", "glfw3")
     */
   def apply(libName: String = "glfw"): WindowingOpsJvm = {
+    val found = findLibrary(libName)
+    // Use System.load to load the library via the system's dynamic linker,
+    // which correctly handles macOS framework dependencies (Cocoa, IOKit, etc.)
+    System.load(found.toAbsolutePath.toString)
+    val lookup = SymbolLookup.loaderLookup()
+    new WindowingOpsJvm(lookup)
+  }
+
+  /** Locates a shared library on the library path or in the Homebrew Cellar. */
+  private def findLibrary(libName: String): java.nio.file.Path = {
     val mappedName = System.mapLibraryName(libName)
     val libPath    = System.getProperty("java.library.path", "")
-    val paths      = libPath.split(java.io.File.pathSeparator)
-    val found      = paths.iterator
-      .map(p => java.nio.file.Path.of(p, mappedName))
-      .find(java.nio.file.Files.exists(_))
+    val searchDirs = libPath.split(java.io.File.pathSeparator).toSeq ++
+      brewCellarLibDirs(libName)
+    // Search for exact mapped name, then versioned dylibs (e.g. libglfw.3.4.dylib)
+    val candidates = searchDirs.iterator.flatMap { dir =>
+      val base = java.nio.file.Path.of(dir)
+      if (!java.nio.file.Files.isDirectory(base)) Iterator.empty
+      else {
+        val exact = base.resolve(mappedName)
+        if (java.nio.file.Files.exists(exact)) Iterator(exact)
+        else {
+          // Look for versioned variants: libglfw.3.dylib, libglfw.3.4.dylib, etc.
+          val prefix = s"lib$libName."
+          try {
+            val stream = java.nio.file.Files.list(base)
+            try
+              stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.filter { p =>
+                val name = p.getFileName.toString
+                name.startsWith(prefix) && name.endsWith(".dylib") && name != mappedName
+              }
+            finally stream.close()
+          } catch {
+            case _: java.io.IOException => Iterator.empty
+          }
+        }
+      }
+    }
+    candidates
+      .nextOption()
       .getOrElse(
-        throw new UnsatisfiedLinkError(s"Cannot find $mappedName in java.library.path: $libPath")
+        throw new UnsatisfiedLinkError(
+          s"Cannot find $mappedName in java.library.path: $libPath"
+        )
       )
-    val lookup = SymbolLookup.libraryLookup(found, Arena.global())
-    new WindowingOpsJvm(lookup)
+  }
+
+  /** Homebrew Cellar lib directories for the given library name. */
+  private def brewCellarLibDirs(libName: String): Seq[String] = {
+    val cellar = java.nio.file.Path.of("/opt/homebrew/Cellar", libName)
+    if (!java.nio.file.Files.isDirectory(cellar)) return Seq.empty
+    try {
+      val stream = java.nio.file.Files.list(cellar)
+      try
+        stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.map(_.resolve("lib").toString).toSeq
+      finally stream.close()
+    } catch {
+      case _: java.io.IOException => Seq.empty
+    }
   }
 }

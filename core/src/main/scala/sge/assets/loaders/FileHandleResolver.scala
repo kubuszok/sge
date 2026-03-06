@@ -115,8 +115,9 @@ object FileHandleResolver {
       * @param descriptors
       *   A list of {@link Resolution} s. At least one has to be supplied.
       */
-    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) =
+    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) = {
       this(baseResolver, descriptors.toArray)
+    }
 
     override def resolve(fileName: String): FileHandle = {
       val bestResolution = ForResolution.choose(descriptors*)

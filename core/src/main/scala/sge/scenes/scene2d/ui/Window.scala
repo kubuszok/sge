@@ -192,11 +192,13 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
     }
   )
 
-  def this(title: String, skin: Skin)(using Sge) =
+  def this(title: String, skin: Skin)(using Sge) = {
     this(title, skin.get(classOf[Window.WindowStyle]))
+  }
 
-  def this(title: String, skin: Skin, styleName: String)(using Sge) =
+  def this(title: String, skin: Skin, styleName: String)(using Sge) = {
     this(title, skin.get(styleName, classOf[Window.WindowStyle]))
+  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     Label(Nullable(text), style)

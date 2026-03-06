@@ -93,10 +93,10 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
 | `Lwjgl3Graphics.java` | `DesktopGraphics.scala` | desktop-shared | P0 | done | GL init, display modes, frame timing, DPI, fullscreen/windowed via WindowingOps |
-| `Lwjgl3GL20.java` | `AngleGL20.scala` | desktop-jvm + desktop-native | P0 | done (JVM) | Panama FFM downcall handles to ANGLE libGLESv2; ~570 LOC; Native @extern TODO |
-| `Lwjgl3GL30.java` | `AngleGL30.scala` | desktop-jvm + desktop-native | P0 | done (JVM) | ~460 LOC ES 3.0 Panama downcall; Native @extern TODO |
-| `Lwjgl3GL31.java` | `AngleGL31.scala` | desktop-jvm + desktop-native | P1 | done (JVM) | ~380 LOC ES 3.1 Panama downcall; Native @extern TODO |
-| `Lwjgl3GL32.java` | `AngleGL32.scala` | desktop-jvm + desktop-native | P1 | done (JVM) | ~380 LOC ES 3.2 Panama downcall + upcall (debug callback); Native @extern TODO |
+| `Lwjgl3GL20.java` | `AngleGL20.scala` + `AngleGL20Native.scala` | desktop-jvm + desktop-native | P0 | done | JVM: Panama FFM ~570 LOC; Native: @extern ~570 LOC |
+| `Lwjgl3GL30.java` | `AngleGL30.scala` + `AngleGL30Native.scala` | desktop-jvm + desktop-native | P0 | done | JVM: Panama ~460 LOC; Native: @extern ~350 LOC |
+| `Lwjgl3GL31.java` | `AngleGL31.scala` + `AngleGL31Native.scala` | desktop-jvm + desktop-native | P1 | done | JVM: Panama ~380 LOC; Native: @extern ~310 LOC |
+| `Lwjgl3GL32.java` | `AngleGL32.scala` + `AngleGL32Native.scala` | desktop-jvm + desktop-native | P1 | done | JVM: Panama ~380 LOC + upcall; Native: @extern ~260 LOC + CFuncPtr7 |
 
 #### Window Management
 
@@ -172,10 +172,10 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 | `GwtGL30Debug.java` | — | skip | — | — | Debug wrapper |
 | `DefaultGwtInput.java` | `DefaultBrowserInput.scala` | browser | P0 | done | DOM events + key mapping |
 | `GwtInput.java` | `BrowserInput.scala` | browser | P0 | done | Input trait with reset() lifecycle method |
-| `GwtAccelerometer.java` | — | browser | P2 | not_started | Generic Sensor API |
-| `GwtGyroscope.java` | — | browser | P2 | not_started | Generic Sensor API |
-| `GwtSensor.java` | — | browser | P2 | not_started | Sensor base |
-| `GwtPermissions.java` | — | browser | P2 | not_started | Permissions API |
+| `GwtAccelerometer.java` | `BrowserAccelerometer.scala` | browser | P2 | done | Generic Sensor API via js.Dynamic |
+| `GwtGyroscope.java` | `BrowserGyroscope.scala` | browser | P2 | done | Generic Sensor API via js.Dynamic |
+| `GwtSensor.java` | `BrowserSensor.scala` | browser | P2 | done | Sensor base wrapping js.Dynamic |
+| `GwtPermissions.java` | `BrowserPermissions.scala` | browser | P2 | done | W3C Permissions API via js.Dynamic |
 | `DefaultGwtAudio.java` | `DefaultBrowserAudio.scala` | browser | P0 | done | Web Audio API (+ WebAudioManager, WebAudioSound, WebAudioMusic, AudioControlGraph, AudioControlGraphPool) |
 | `GwtAudio.java` | `BrowserAudio.scala` | browser | P0 | done | Audio trait with AutoCloseable |
 | `GwtFiles.java` | `BrowserFiles.scala` | browser | P0 | done | BrowserAssetLoader replaces GWT Preloader |
@@ -333,14 +333,24 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 | Module | Total Files | Done | Not Started | Deferred | Skipped |
 |--------|------------|------|-------------|----------|---------|
 | core-shared (noop, decoders, utils) | 16 | 16 | 0 | 0 | 0 |
-| desktop-shared | 21 | 21 | 0 | 0 | 0 |
-| desktop-jvm (Panama FFI) | 4 | 4 | 0 | 0 | 0 |
-| desktop-native (@extern) | 4 | 0 | 4 | 0 | 0 |
-| browser | 20 | 16 | 4 | 0 | 0 |
+| desktop-shared (`scaladesktop/`) | 27 | 27 | 0 | 0 | 0 |
+| desktop-jvm (`scalajvm/`) | 15 | 15 | 0 | 0 | 0 |
+| desktop-native (`scalanative/`) | 12 | 12 | 0 | 0 | 0 |
+| browser | 20 | 20 | 0 | 0 | 0 |
 | android | 25 | 0 | 25 | 0 | 0 |
 | ios | 14 | 0 | 0 | 14 | 0 |
 | skip | 28 | — | — | — | 28 |
-| **Total** | **132** | **57** | **33** | **14** | **28** |
+| **Total** | **152** | **86** | **25** | **14** | **28** |
+
+### Source Directory Layout
+
+| Directory | Files | Platforms | Purpose |
+|-----------|-------|-----------|---------|
+| `scala/` | ~557 | JVM/JS/Native | Cross-platform core |
+| `scaladesktop/` | 27 | JVM+Native | Desktop backend shared logic |
+| `scalajvm/` | 15 | JVM only | Panama FFI, audio codecs, factory |
+| `scalajs/` | ~24 | JS only | Browser backend |
+| `scalanative/` | 12 | Native only | @extern FFI impls + GL bindings |
 
 ### By Priority
 

@@ -69,14 +69,25 @@ val core = (projectMatrix in file("core"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = Seq(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "core" / "src" / "main" / "scaladesktop",
       libraryDependencies ++= Seq(
         "org.jcraft" % "jorbis" % "0.0.17",
         "com.badlogicgames.jlayer" % "jlayer" % "1.0.1-gdx"
       ),
       Test / fork := true,
-      Test / javaOptions += {
+      Test / javaOptions ++= {
         val base = (ThisBuild / baseDirectory).value
-        s"-Djava.library.path=$base/native-components/target/release"
+        val rustLib = s"$base/native-components/target/release"
+        // Include Homebrew lib paths for GLFW/ANGLE integration tests
+        val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
+          val arm = "/opt/homebrew/lib"
+          val x86 = "/usr/local/lib"
+          s"${java.io.File.pathSeparator}$arm${java.io.File.pathSeparator}$x86"
+        } else ""
+        Seq(
+          s"-Djava.library.path=$rustLib$brewLib",
+          "--enable-native-access=ALL-UNNAMED"
+        )
       }
     )
   )
@@ -89,6 +100,7 @@ val core = (projectMatrix in file("core"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = Seq(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "core" / "src" / "main" / "scaladesktop",
       nativeConfig := {
         val base        = (ThisBuild / baseDirectory).value
         val c           = nativeConfig.value

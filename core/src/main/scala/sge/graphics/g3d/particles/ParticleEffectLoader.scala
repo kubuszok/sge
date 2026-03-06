@@ -141,8 +141,9 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) =
+    def this(batches: DynamicArray[ParticleBatch[?]]) = {
       this(Nullable(batches))
+    }
   }
 
   class ParticleEffectSaveParameter(

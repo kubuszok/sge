@@ -6,6 +6,7 @@ Documentation for SGE's architecture, platform targets, and build structure.
 |----------|---------|
 | [platform-validation.md](platform-validation.md) | **Practical validation** — hello-world running on JVM, JS, Native |
 | [cross-platform-settings.md](cross-platform-settings.md) | **Settings reference** — plugin versions, build.sbt patterns, gotchas |
+| [platform-ffi-gotchas.md](platform-ffi-gotchas.md) | **FFI gotchas** — Panama, Scala Native, macOS, GLFW pitfalls |
 | [platform-targets.md](platform-targets.md) | Four compilation targets and their strategies |
 | [backend-analysis.md](backend-analysis.md) | Analysis of each LibGDX backend's porting feasibility |
 | [build-structure.md](build-structure.md) | SBT cross-project layout and migration path |

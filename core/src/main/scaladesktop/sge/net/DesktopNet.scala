@@ -16,8 +16,6 @@
 package sge
 package net
 
-import java.awt.{ Desktop, GraphicsEnvironment }
-
 /** A [[sge.Net]] implementation for desktop and headless environments. HTTP is handled by [[SgeHttpClient]]; sockets by [[NetJavaServerSocketImpl]] / [[NetJavaSocketImpl]].
   *
   * @param app
@@ -42,20 +40,16 @@ class DesktopNet(app: Application) extends sge.Net {
 
   override def openURI(URI: String): Boolean = {
     val osName = System.getProperty("os.name", "").toLowerCase
+    val uri    = java.net.URI.create(URI).toString
     try
       if (osName.contains("mac")) {
-        // macOS: use the `open` command directly — more reliable than java.awt.Desktop
-        new ProcessBuilder("open", java.net.URI.create(URI).toString).start()
+        new ProcessBuilder("open", uri).start()
         true
-      } else if (
-        !GraphicsEnvironment.isHeadless() && Desktop.isDesktopSupported()
-        && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)
-      ) {
-        Desktop.getDesktop().browse(java.net.URI.create(URI))
+      } else if (osName.contains("win")) {
+        new ProcessBuilder("cmd", "/c", "start", uri).start()
         true
-      } else if (osName.contains("linux")) {
-        // Linux: fall back to xdg-open when Desktop is unavailable
-        new ProcessBuilder("xdg-open", java.net.URI.create(URI).toString).start()
+      } else if (osName.contains("linux") || osName.contains("nix") || osName.contains("nux")) {
+        new ProcessBuilder("xdg-open", uri).start()
         true
       } else {
         app.error("DesktopNet", "Opening URIs on this environment is not supported. Ignoring.")

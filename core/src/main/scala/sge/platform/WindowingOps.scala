@@ -23,6 +23,14 @@ private[sge] trait WindowingOps {
 
   // ─── Initialization ────────────────────────────────────────────────────
 
+  /** Sets a GLFW init hint before calling init(). Must be called before init().
+    * @param hint
+    *   the init hint (e.g. GLFW_PLATFORM)
+    * @param value
+    *   the value (e.g. GLFW_PLATFORM_NULL)
+    */
+  def setInitHint(hint: Int, value: Int): Unit
+
   /** Initializes the windowing library. Must be called before any other windowing ops.
     * @return
     *   true on success
@@ -327,6 +335,11 @@ object WindowingOps {
   val GLFW_OPENGL_ES_API:         Int = 0x00030002
   val GLFW_CONTEXT_VERSION_MAJOR: Int = 0x00022002
   val GLFW_CONTEXT_VERSION_MINOR: Int = 0x00022003
+
+  // GLFW platform constants (3.4+)
+  val GLFW_PLATFORM:      Int = 0x00050003
+  val GLFW_ANY_PLATFORM:  Int = 0x00060000
+  val GLFW_PLATFORM_NULL: Int = 0x00060005
 
   // GLFW boolean constants
   val GLFW_TRUE:  Int = 1

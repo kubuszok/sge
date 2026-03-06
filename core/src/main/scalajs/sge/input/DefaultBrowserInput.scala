@@ -11,7 +11,7 @@
  *   Convention: DOM KeyboardEvent.keyCode for key mapping (same numeric codes as GWT KeyCodes)
  *   Convention: Pointer Lock API via scalajs-dom (replaces JSNI pointer lock)
  *   Idiom: GdxRuntimeException -> SgeError; Gdx.graphics -> Sge().graphics
- *   Idiom: No accelerometer/gyroscope (deferred — needs Generic Sensor API)
+ *   Idiom: Accelerometer/Gyroscope via Generic Sensor API (BrowserAccelerometer/BrowserGyroscope)
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -58,18 +58,23 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
   private var processor:             InputProcessor                         = uninitialized
   private var hasFocus:              Boolean                                = true
 
+  // --- Sensor state ---
+  private var accelerometer: BrowserAccelerometer = scala.compiletime.uninitialized
+  private var gyroscope:     BrowserGyroscope     = scala.compiletime.uninitialized
+
   // Hook events on construction
   hookEvents()
   setCatchKey(Keys.BACKSPACE, true)
+  setupSensors()
 
   // --- Input trait implementation ---
 
-  override def getAccelerometerX(): Float = 0f
-  override def getAccelerometerY(): Float = 0f
-  override def getAccelerometerZ(): Float = 0f
-  override def getGyroscopeX():     Float = 0f
-  override def getGyroscopeY():     Float = 0f
-  override def getGyroscopeZ():     Float = 0f
+  override def getAccelerometerX(): Float = if (accelerometer != null) accelerometer.x.toFloat else 0f
+  override def getAccelerometerY(): Float = if (accelerometer != null) accelerometer.y.toFloat else 0f
+  override def getAccelerometerZ(): Float = if (accelerometer != null) accelerometer.z.toFloat else 0f
+  override def getGyroscopeX():     Float = if (gyroscope != null) gyroscope.x.toFloat else 0f
+  override def getGyroscopeY():     Float = if (gyroscope != null) gyroscope.y.toFloat else 0f
+  override def getGyroscopeZ():     Float = if (gyroscope != null) gyroscope.z.toFloat else 0f
 
   override def getMaxPointers(): Int = MaxTouches
 
@@ -162,7 +167,15 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       case Peripheral.HardwareKeyboard => !isMobileDevice
       case Peripheral.MultitouchScreen => isTouchScreen
       case Peripheral.OnscreenKeyboard => isMobileDevice
-      case _                           => false
+      case Peripheral.Accelerometer    =>
+        BrowserAccelerometer.isSupported && isAccelerometerPresent && BrowserFeaturePolicy.allowsFeature(
+          BrowserAccelerometer.Permission
+        )
+      case Peripheral.Gyroscope =>
+        BrowserGyroscope.isSupported && isGyroscopePresent && BrowserFeaturePolicy.allowsFeature(
+          BrowserGyroscope.Permission
+        )
+      case _ => false
     }
 
   override def getRotation(): Int = {
@@ -207,6 +220,57 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       }
     }
   }
+
+  // --- Sensor setup ---
+
+  private def setupSensors(): Unit = {
+    if (config.useAccelerometer && BrowserFeaturePolicy.allowsFeature(BrowserAccelerometer.Permission)) {
+      if (BrowserAccelerometer.isSupported) {
+        setupAccelerometer()
+      } else {
+        BrowserPermissions.queryPermission(
+          BrowserAccelerometer.Permission,
+          new BrowserPermissions.PermissionResult {
+            override def granted(): Unit = setupAccelerometer()
+            override def denied():  Unit = ()
+            override def prompt():  Unit = setupAccelerometer()
+          }
+        )
+      }
+    }
+    if (config.useGyroscope) {
+      if (BrowserGyroscope.isSupported) {
+        setupGyroscope()
+      } else {
+        BrowserPermissions.queryPermission(
+          BrowserGyroscope.Permission,
+          new BrowserPermissions.PermissionResult {
+            override def granted(): Unit = setupGyroscope()
+            override def denied():  Unit = ()
+            override def prompt():  Unit = setupGyroscope()
+          }
+        )
+      }
+    }
+  }
+
+  private def setupAccelerometer(): Unit =
+    if (BrowserAccelerometer.isSupported && BrowserFeaturePolicy.allowsFeature(BrowserAccelerometer.Permission)) {
+      if (accelerometer == null) accelerometer = BrowserAccelerometer.getInstance()
+      if (!accelerometer.activated) accelerometer.start()
+    }
+
+  private def setupGyroscope(): Unit =
+    if (BrowserGyroscope.isSupported && BrowserFeaturePolicy.allowsFeature(BrowserGyroscope.Permission)) {
+      if (gyroscope == null) gyroscope = BrowserGyroscope.getInstance()
+      if (!gyroscope.activated) gyroscope.start()
+    }
+
+  private def isAccelerometerPresent: Boolean =
+    getAccelerometerX() != 0f || getAccelerometerY() != 0f || getAccelerometerZ() != 0f
+
+  private def isGyroscopePresent: Boolean =
+    getGyroscopeX() != 0f || getGyroscopeY() != 0f || getGyroscopeZ() != 0f
 
   // --- Event hooking ---
 

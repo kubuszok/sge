@@ -96,8 +96,9 @@ class CameraInputController protected (
   private val tmpV1:  Vector3 = Vector3()
   private val tmpV2:  Vector3 = Vector3()
 
-  def this(camera: Camera)(implicit sge: Sge) =
+  def this(camera: Camera)(implicit sge: Sge) = {
     this(CameraInputController.CameraGestureListener(), camera)
+  }
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {

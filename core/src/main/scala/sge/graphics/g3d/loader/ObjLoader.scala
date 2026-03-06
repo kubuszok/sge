@@ -60,8 +60,9 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(null)
+  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)

@@ -61,8 +61,9 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
   /** Creates a new DecalBatch using the given {@link GroupStrategy}. The most commong strategy to use is a {@link CameraGroupStrategy}
     * @param groupStrategy
     */
-  def this(groupStrategy: GroupStrategy)(using Sge) =
+  def this(groupStrategy: GroupStrategy)(using Sge) = {
     this(DecalBatch.DEFAULT_SIZE, groupStrategy)
+  }
 
   /** Sets the {@link GroupStrategy} used
     * @param groupStrategy
