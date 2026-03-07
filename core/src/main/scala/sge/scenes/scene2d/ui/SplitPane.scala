@@ -101,7 +101,7 @@ class SplitPane(
             val handle = self._style.handle
             if (!self.vertical) {
               val delta      = x - self.lastPoint.x
-              val availWidth = getWidth - handle.getMinWidth
+              val availWidth = self.width - handle.getMinWidth
               var dragX      = self.handlePosition.x + delta
               self.handlePosition.x = dragX
               dragX = Math.max(0, dragX)
@@ -110,7 +110,7 @@ class SplitPane(
               self.lastPoint.set(x, y)
             } else {
               val delta       = y - self.lastPoint.y
-              val availHeight = getHeight - handle.getMinHeight
+              val availHeight = self.height - handle.getMinHeight
               var dragY       = self.handlePosition.y + delta
               self.handlePosition.y = dragY
               dragY = Math.max(0, dragY)
@@ -165,12 +165,12 @@ class SplitPane(
 
   private def widgetPrefWidth(w: Nullable[Actor]): Float = w.fold(0f) {
     case l: Layout => l.getPrefWidth
-    case a => a.getWidth
+    case a => a.width
   }
 
   private def widgetPrefHeight(w: Nullable[Actor]): Float = w.fold(0f) {
     case l: Layout => l.getPrefHeight
-    case a => a.getHeight
+    case a => a.height
   }
 
   private def widgetMinWidth(w: Nullable[Actor]): Float = w.fold(0f) {
@@ -221,8 +221,8 @@ class SplitPane(
 
   private def calculateHorizBoundsAndPositions(): Unit = {
     val handle         = _style.handle
-    val height         = getHeight
-    val availWidth     = getWidth - handle.getMinWidth
+    val height         = this.height
+    val availWidth     = this.width - handle.getMinWidth
     val leftAreaWidth  = (availWidth * splitAmount).toInt.toFloat
     val rightAreaWidth = availWidth - leftAreaWidth
     val handleWidth    = handle.getMinWidth
@@ -234,8 +234,8 @@ class SplitPane(
 
   private def calculateVertBoundsAndPositions(): Unit = {
     val handle           = _style.handle
-    val width            = getWidth
-    val height           = getHeight
+    val width            = this.width
+    val height           = this.height
     val availHeight      = height - handle.getMinHeight
     val topAreaHeight    = (availHeight * splitAmount).toInt.toFloat
     val bottomAreaHeight = availHeight - topAreaHeight
@@ -247,18 +247,18 @@ class SplitPane(
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit =
-    if (getStage.isEmpty) ()
+    if (stage.isEmpty) ()
     else {
 
       validate()
 
-      val color = getColor
+      val color = this.color
       val alpha = color.a * parentAlpha
 
       applyTransform(batch, computeTransform())
-      getStage.foreach { stage =>
+      stage.foreach { stage =>
         _firstWidget.foreach { fw =>
-          if (fw.isVisible) {
+          if (fw.visible) {
             batch.flush()
             stage.calculateScissors(firstWidgetBounds, tempScissors)
             if (ScissorStack.pushScissors(tempScissors)) {
@@ -269,7 +269,7 @@ class SplitPane(
           }
         }
         _secondWidget.foreach { sw =>
-          if (sw.isVisible) {
+          if (sw.visible) {
             batch.flush()
             stage.calculateScissors(secondWidgetBounds, tempScissors)
             if (ScissorStack.pushScissors(tempScissors)) {
@@ -303,7 +303,7 @@ class SplitPane(
     var effectiveMaxAmount = maxAmount
 
     if (vertical) {
-      val availableHeight = getHeight - _style.handle.getMinHeight
+      val availableHeight = height - _style.handle.getMinHeight
       _firstWidget.foreach {
         case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinHeight / availableHeight, 1))
         case _ =>
@@ -313,7 +313,7 @@ class SplitPane(
         case _ =>
       }
     } else {
-      val availableWidth = getWidth - _style.handle.getMinWidth
+      val availableWidth = width - _style.handle.getMinWidth
       _firstWidget.foreach {
         case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinWidth / availableWidth, 1))
         case _ =>

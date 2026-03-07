@@ -225,7 +225,7 @@ object ImmediateModeRenderer20 {
     val vertexShader   = createVertexShader(hasNormals, hasColors, numTexCoords)
     val fragmentShader = createFragmentShader(hasNormals, hasColors, numTexCoords)
     val program        = ShaderProgram(vertexShader, fragmentShader)
-    if (!program.isCompiled()) throw SgeError.GraphicsError("Error compiling shader: " + program.getLog())
+    if (!program.compiled) throw SgeError.GraphicsError("Error compiling shader: " + program.getLog())
     program
   }
 }

@@ -6,7 +6,6 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — 4 pairs: minWorldWidth/Height, maxWorldWidth/Height → vars
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -34,11 +33,11 @@ import sge.utils.Scaling
   *   Nathan Sweet
   */
 class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float, camera: Camera)(using Sge) extends Viewport {
-  private var _minWorldWidth:  Float   = minWorldWidth
-  private var _minWorldHeight: Float   = minWorldHeight
-  private var _maxWorldWidth:  Float   = maxWorldWidth
-  private var _maxWorldHeight: Float   = maxWorldHeight
-  private var scaling:         Scaling = Scaling.fit
+  var minWidth:  Float   = minWorldWidth
+  var minHeight: Float   = minWorldHeight
+  var maxWidth:  Float   = maxWorldWidth
+  var maxHeight: Float   = maxWorldHeight
+  var scaling:   Scaling = Scaling.fit
 
   this.camera = camera
 
@@ -59,8 +58,8 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
     // Fit min size to the screen.
-    var worldWidth  = _minWorldWidth
-    var worldHeight = _minWorldHeight
+    var worldWidth  = minWidth
+    var worldHeight = minHeight
     val scaled      = scaling.apply(worldWidth, worldHeight, screenWidth.toFloat, screenHeight.toFloat)
 
     // Extend, possibly in both directions depending on the scaling.
@@ -70,7 +69,7 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
       val toViewportSpace = viewportHeight / worldHeight
       val toWorldSpace    = worldHeight / viewportHeight
       var lengthen        = (screenWidth - viewportWidth) * toWorldSpace
-      if (_maxWorldWidth > 0) lengthen = Math.min(lengthen, _maxWorldWidth - _minWorldWidth)
+      if (maxWidth > 0) lengthen = Math.min(lengthen, maxWidth - minWidth)
       worldWidth += lengthen
       viewportWidth += Math.round(lengthen * toViewportSpace)
     }
@@ -78,7 +77,7 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
       val toViewportSpace = viewportWidth / worldWidth
       val toWorldSpace    = worldWidth / viewportWidth
       var lengthen        = (screenHeight - viewportHeight) * toWorldSpace
-      if (_maxWorldHeight > 0) lengthen = Math.min(lengthen, _maxWorldHeight - _minWorldHeight)
+      if (maxHeight > 0) lengthen = Math.min(lengthen, maxHeight - minHeight)
       worldHeight += lengthen
       viewportHeight += Math.round(lengthen * toViewportSpace)
     }
@@ -91,30 +90,4 @@ class ExtendViewport(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth:
     apply(centerCamera)
   }
 
-  def getMinWorldWidth(): Float =
-    _minWorldWidth
-
-  def setMinWorldWidth(minWorldWidth: Float): Unit =
-    this._minWorldWidth = minWorldWidth
-
-  def getMinWorldHeight(): Float =
-    _minWorldHeight
-
-  def setMinWorldHeight(minWorldHeight: Float): Unit =
-    this._minWorldHeight = minWorldHeight
-
-  def getMaxWorldWidth(): Float =
-    _maxWorldWidth
-
-  def setMaxWorldWidth(maxWorldWidth: Float): Unit =
-    this._maxWorldWidth = maxWorldWidth
-
-  def getMaxWorldHeight(): Float =
-    _maxWorldHeight
-
-  def setMaxWorldHeight(maxWorldHeight: Float): Unit =
-    this._maxWorldHeight = maxWorldHeight
-
-  def setScaling(scaling: Scaling): Unit =
-    this.scaling = scaling
 }

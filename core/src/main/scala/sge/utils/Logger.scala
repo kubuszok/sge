@@ -8,7 +8,7 @@
  *   Renames: `Gdx.app` -> `sge.Sge` context parameter
  *   Convention: methods take `(using Sge)` context parameter; constants in companion object
  *   Idiom: split packages
- *   TODO: Java-style getters/setters -- redundant setLevel/getLevel wraps public var level
+ *   Fixes: removed redundant getLevel/setLevel (level is public var)
  *   TODO: evaluate scribe (com.outr %%% "scribe" % "3.17.0") as replacement -- cross-platform, compile-time optimization; see docs/improvements/dependencies.md B2
  *   Audited: 2026-03-03
  *
@@ -43,15 +43,6 @@ class Logger(val tag: String, var level: Int = Logger.ERROR) {
   def error(message: String, exception: Throwable)(using sge.Sge): Unit =
     if (level >= Logger.ERROR) sge.Sge().application.error(tag, message, exception)
 
-  /** Sets the log level. {@link #NONE} will mute all log output. {@link #ERROR} will only let error messages through. {@link #INFO} will let all non-debug messages through, and {@link #DEBUG} will
-    * let all messages through.
-    * @param level
-    *   {@link #NONE} , {@link #ERROR} , {@link #INFO} , {@link #DEBUG} .
-    */
-  def setLevel(level: Int): Unit =
-    this.level = level
-
-  def getLevel: Int = level
 }
 
 object Logger {

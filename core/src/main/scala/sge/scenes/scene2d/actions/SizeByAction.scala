@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.sizeBy -> target.foreach(_.sizeBy(...))
- *   TODO: Java-style getters/setters -- getAmountWidth/setAmountWidth, getAmountHeight/setAmountHeight
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,19 +21,11 @@ package actions
   *   Nathan Sweet
   */
 class SizeByAction extends RelativeTemporalAction {
-  private var amountWidth:  Float = 0
-  private var amountHeight: Float = 0
+  var amountWidth:  Float = 0
+  var amountHeight: Float = 0
 
   override protected def updateRelative(percentDelta: Float): Unit =
     target.foreach(_.sizeBy(amountWidth * percentDelta, amountHeight * percentDelta))
 
   def setAmount(width: Float, height: Float): Unit = { amountWidth = width; amountHeight = height }
-
-  def getAmountWidth: Float = amountWidth
-
-  def setAmountWidth(width: Float): Unit = amountWidth = width
-
-  def getAmountHeight: Float = amountHeight
-
-  def setAmountHeight(height: Float): Unit = amountHeight = height
 }

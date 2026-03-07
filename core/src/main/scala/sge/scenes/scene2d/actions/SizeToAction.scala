@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.getWidth -> target.foreach; tuple destructure for (w,h)
- *   TODO: Java-style getters/setters -- getWidth/setWidth, getHeight/setHeight
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,13 +23,13 @@ package actions
 class SizeToAction extends TemporalAction {
   private var startWidth:  Float = 0
   private var startHeight: Float = 0
-  private var endWidth:    Float = 0
-  private var endHeight:   Float = 0
+  var endWidth:            Float = 0
+  var endHeight:           Float = 0
 
   override protected def begin(): Unit =
     target.foreach { t =>
-      startWidth = t.getWidth
-      startHeight = t.getHeight
+      startWidth = t.width
+      startHeight = t.height
     }
 
   override protected def update(percent: Float): Unit =
@@ -43,12 +42,4 @@ class SizeToAction extends TemporalAction {
     }
 
   def setSize(width: Float, height: Float): Unit = { endWidth = width; endHeight = height }
-
-  def getWidth: Float = endWidth
-
-  def setWidth(width: Float): Unit = endWidth = width
-
-  def getHeight: Float = endHeight
-
-  def setHeight(height: Float): Unit = endHeight = height
 }

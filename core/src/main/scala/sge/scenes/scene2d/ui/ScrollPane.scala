@@ -118,7 +118,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
         override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = scala.util.boundary {
           if (self.draggingPointer != -1) scala.util.boundary.break(false)
           if (pointer == 0 && button != 0) scala.util.boundary.break(false)
-          self.getStage.foreach { stage =>
+          self.stage.foreach { stage =>
             stage.setScrollFocus(Nullable(self))
           }
 
@@ -216,7 +216,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       override def handle(event: Event): Boolean =
         if (super.handle(event)) {
           event match {
-            case ie: InputEvent if ie.getType == InputEvent.Type.touchDown => self.flingTimer = 0
+            case ie: InputEvent if ie.eventType == InputEvent.Type.touchDown => self.flingTimer = 0
             case _ =>
           }
           true
@@ -271,7 +271,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     *   #setCancelTouchFocus(boolean)
     */
   def cancelTouchFocusMethod(): Unit =
-    getStage.foreach { stage =>
+    stage.foreach { stage =>
       stage.cancelTouchFocusExcept(Nullable(flickScrollListener), Nullable(this))
     }
 
@@ -397,7 +397,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
     if (animating) {
-      getStage.foreach { stage =>
+      stage.foreach { stage =>
         if (stage.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
@@ -417,8 +417,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       bgTopHeight = b.getTopHeight
       bgBottomHeight = b.getBottomHeight
     }
-    val width  = getWidth
-    val height = getHeight
+    val width  = this.width
+    val height = this.height
     actorArea.set(bgLeftWidth, bgBottomHeight, width - bgLeftWidth - bgRightWidth, height - bgTopHeight - bgBottomHeight)
 
     if (_actor.isEmpty) {}
@@ -438,8 +438,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
           actorWidth = layout.getPrefWidth
           actorHeight = layout.getPrefHeight
         case a =>
-          actorWidth = a.getWidth
-          actorHeight = a.getHeight
+          actorWidth = a.width
+          actorHeight = a.height
       }
 
       // Determine if horizontal/vertical scrollbars are needed.
@@ -568,11 +568,11 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       updateActorPosition()
 
       // Draw the background ninepatch.
-      val color = getColor
-      val alpha = color.a * parentAlpha
+      val c     = this.color
+      val alpha = c.a * parentAlpha
       _style.background.foreach { bg =>
-        batch.setColor(color.r, color.g, color.b, alpha)
-        bg.draw(batch, 0, 0, getWidth, getHeight)
+        batch.setColor(c.r, c.g, c.b, alpha)
+        bg.draw(batch, 0, 0, width, height)
       }
 
       batch.flush()
@@ -639,7 +639,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     var width = 0f
     _actor.foreach {
       case layout: Layout => width = layout.getPrefWidth
-      case a => width = a.getWidth
+      case a => width = a.width
     }
 
     _style.background.foreach { background =>
@@ -659,7 +659,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     var height = 0f
     _actor.foreach {
       case layout: Layout => height = layout.getPrefHeight
-      case a => height = a.getHeight
+      case a => height = a.height
     }
 
     _style.background.foreach { background =>
@@ -762,8 +762,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   }
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] =
-    if (x < 0 || x >= getWidth || y < 0 || y >= getHeight) Nullable.empty
-    else if (touchable && getTouchable == Touchable.enabled && isVisible) {
+    if (x < 0 || x >= width || y < 0 || y >= height) Nullable.empty
+    else if (touchable && this.touchable == Touchable.enabled && visible) {
       if (scrollX && touchScrollH && hScrollBounds.contains(x, y)) Nullable(this)
       else if (scrollY && touchScrollV && vScrollBounds.contains(x, y)) Nullable(this)
       else super.hit(x, y, touchable)

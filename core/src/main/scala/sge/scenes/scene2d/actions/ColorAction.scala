@@ -9,8 +9,7 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Renames: 4 separate startR/startG/startB/startA floats -> startColor: Color object
- *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.getColor))
- *   TODO: Java-style getters/setters -- getColor/setColor, getEndColor/setEndColor
+ *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.color))
  *   Audited: 2026-03-03
  */
 package sge
@@ -27,16 +26,16 @@ import sge.graphics.Color
   */
 class ColorAction extends TemporalAction {
   private val startColor: Color           = Color()
-  private var color:      Nullable[Color] = Nullable.empty
-  private val endColor:   Color           = Color()
+  var color:              Nullable[Color] = Nullable.empty
+  val endColor:           Color           = Color()
 
   override protected def begin(): Unit = {
-    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
+    val c = this.color.getOrElse(target.map(_.color).getOrElse(Color()))
     startColor.set(c)
   }
 
   override protected def update(percent: Float): Unit = {
-    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
+    val c = this.color.getOrElse(target.map(_.color).getOrElse(Color()))
     if (percent == 0)
       c.set(startColor)
     else if (percent == 1)
@@ -54,12 +53,6 @@ class ColorAction extends TemporalAction {
     super.reset()
     color = Nullable.empty
   }
-
-  def getColor: Nullable[Color] = color
-
-  def setColor(color: Nullable[Color]): Unit = this.color = color
-
-  def getEndColor: Color = endColor
 
   def setEndColor(color: Color): Unit = endColor.set(color)
 }

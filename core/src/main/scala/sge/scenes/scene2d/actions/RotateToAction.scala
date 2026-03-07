@@ -8,9 +8,8 @@
  *
  * Migration notes:
  *   Convention: no return; split packages; braces on class
- *   Renames: end -> _end
+ *   Renames: end -> rotation (public var)
  *   Idiom: target.getRotation -> target.foreach; target.setRotation -> target.foreach
- *   TODO: Java-style getters/setters -- isUseShortestDirection/setUseShortestDirection
  *   Audited: 2026-03-03
  */
 package sge
@@ -28,28 +27,20 @@ import sge.math.MathUtils
   * @author
   *   Tom Gall
   */
-class RotateToAction(private var useShortestDirection: Boolean = false) extends TemporalAction {
+class RotateToAction(var useShortestDirection: Boolean = false) extends TemporalAction {
   private var start: Float = 0
-  private var _end:  Float = 0
+  var rotation:      Float = 0
 
   override protected def begin(): Unit =
-    target.foreach(t => start = t.getRotation)
+    target.foreach(t => start = t.rotation)
 
   override protected def update(percent: Float): Unit =
     target.foreach { t =>
-      val rotation =
+      val r =
         if (percent == 0) start
-        else if (percent == 1) _end
-        else if (useShortestDirection) MathUtils.lerpAngleDeg(this.start, this._end, percent)
-        else start + (_end - start) * percent
-      t.setRotation(rotation)
+        else if (percent == 1) rotation
+        else if (useShortestDirection) MathUtils.lerpAngleDeg(this.start, this.rotation, percent)
+        else start + (rotation - start) * percent
+      t.setRotation(r)
     }
-
-  def getRotation: Float = _end
-
-  def setRotation(rotation: Float): Unit = this._end = rotation
-
-  def isUseShortestDirection: Boolean = useShortestDirection
-
-  def setUseShortestDirection(useShortestDirection: Boolean): Unit = this.useShortestDirection = useShortestDirection
 }

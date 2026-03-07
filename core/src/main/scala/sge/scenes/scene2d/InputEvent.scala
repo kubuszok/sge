@@ -10,7 +10,6 @@
  *   Renames: field "type" -> "eventType" (type is reserved in Scala); inner enum Type -> companion object enum
  *   Convention: null -> Nullable[A]; no return statements; split packages; Scala 3 enum
  *   Idiom: Java static inner enum -> companion object enum; Integer.MIN_VALUE -> Int.MinValue
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (11 pairs → vars)
  *   Audited: 2026-03-03
  */
 package sge
@@ -25,91 +24,53 @@ import sge.math.Vector2
   *   InputListener
   */
 class InputEvent extends Event {
-  private var eventType:     InputEvent.Type = scala.compiletime.uninitialized
-  private var stageX:        Float           = 0
-  private var stageY:        Float           = 0
-  private var scrollAmountX: Float           = 0
-  private var scrollAmountY: Float           = 0
-  private var pointer:       Int             = 0
-  private var button:        Int             = 0
-  private var keyCode:       Int             = 0
-  private var character:     Char            = 0
-  private var relatedActor:  Nullable[Actor] = Nullable.empty
-  private var touchFocus:    Boolean         = true
+
+  /** The type of input event. */
+  var eventType: InputEvent.Type = scala.compiletime.uninitialized
+
+  /** The stage x coordinate where the event occurred. Valid for: touchDown, touchDragged, touchUp, mouseMoved, enter, and exit.
+    */
+  var stageX: Float = 0
+
+  /** The stage x coordinate where the event occurred. Valid for: touchDown, touchDragged, touchUp, mouseMoved, enter, and exit.
+    */
+  var stageY: Float = 0
+
+  /** The amount the mouse was scrolled horizontally. Valid for: scrolled. */
+  var scrollAmountX: Float = 0
+
+  /** The amount the mouse was scrolled vertically. Valid for: scrolled. */
+  var scrollAmountY: Float = 0
+
+  /** The pointer index for the event. The first touch is index 0, second touch is index 1, etc. Always -1 on desktop. Valid for: touchDown, touchDragged, touchUp, enter, and exit.
+    */
+  var pointer: Int = 0
+
+  /** The index for the mouse button pressed. Always 0 on Android. Valid for: touchDown and touchUp.
+    * @see
+    *   Buttons
+    */
+  var button: Int = 0
+
+  /** The key code of the key that was pressed. Valid for: keyDown and keyUp. */
+  var keyCode: Int = 0
+
+  /** The character for the key that was typed. Valid for: keyTyped. */
+  var character: Char = 0
+
+  /** The actor related to the event. Valid for: enter and exit. For enter, this is the actor being exited, or null. For exit, this is the actor being entered, or null.
+    */
+  var relatedActor: Nullable[Actor] = Nullable.empty
+
+  /** If false, {@link InputListener#handle(Event)} will not add the listener to the stage's touch focus when a touch down event is handled. Default is true.
+    */
+  var touchFocus: Boolean = true
 
   override def reset(): Unit = {
     super.reset()
     relatedActor = Nullable.empty
     button = -1
   }
-
-  /** The stage x coordinate where the event occurred. Valid for: touchDown, touchDragged, touchUp, mouseMoved, enter, and exit.
-    */
-  def getStageX: Float = stageX
-
-  def setStageX(stageX: Float): Unit =
-    this.stageX = stageX
-
-  /** The stage x coordinate where the event occurred. Valid for: touchDown, touchDragged, touchUp, mouseMoved, enter, and exit.
-    */
-  def getStageY: Float = stageY
-
-  def setStageY(stageY: Float): Unit =
-    this.stageY = stageY
-
-  /** The type of input event. */
-  def getType: InputEvent.Type = eventType
-
-  def setType(eventType: InputEvent.Type): Unit =
-    this.eventType = eventType
-
-  /** The pointer index for the event. The first touch is index 0, second touch is index 1, etc. Always -1 on desktop. Valid for: touchDown, touchDragged, touchUp, enter, and exit.
-    */
-  def getPointer: Int = pointer
-
-  def setPointer(pointer: Int): Unit =
-    this.pointer = pointer
-
-  /** The index for the mouse button pressed. Always 0 on Android. Valid for: touchDown and touchUp.
-    * @see
-    *   Buttons
-    */
-  def getButton: Int = button
-
-  def setButton(button: Int): Unit =
-    this.button = button
-
-  /** The key code of the key that was pressed. Valid for: keyDown and keyUp. */
-  def getKeyCode: Int = keyCode
-
-  def setKeyCode(keyCode: Int): Unit =
-    this.keyCode = keyCode
-
-  /** The character for the key that was typed. Valid for: keyTyped. */
-  def getCharacter: Char = character
-
-  def setCharacter(character: Char): Unit =
-    this.character = character
-
-  /** The amount the mouse was scrolled horizontally. Valid for: scrolled. */
-  def getScrollAmountX: Float = scrollAmountX
-
-  /** The amount the mouse was scrolled vertically. Valid for: scrolled. */
-  def getScrollAmountY: Float = scrollAmountY
-
-  def setScrollAmountX(scrollAmount: Float): Unit =
-    this.scrollAmountX = scrollAmount
-
-  def setScrollAmountY(scrollAmount: Float): Unit =
-    this.scrollAmountY = scrollAmount
-
-  /** The actor related to the event. Valid for: enter and exit. For enter, this is the actor being exited, or null. For exit, this is the actor being entered, or null.
-    */
-  def getRelatedActor: Nullable[Actor] = relatedActor
-
-  /** @param relatedActor May be null. */
-  def setRelatedActor(relatedActor: Nullable[Actor]): Unit =
-    this.relatedActor = relatedActor
 
   /** Sets actorCoords to this event's coordinates relative to the specified actor.
     * @param actorCoords
@@ -123,13 +84,6 @@ class InputEvent extends Event {
 
   /** Returns true if this event is a touchUp triggered by {@link Stage#cancelTouchFocus()}. */
   def isTouchFocusCancel: Boolean = stageX == Int.MinValue || stageY == Int.MinValue
-
-  /** If false, {@link InputListener#handle(Event)} will not add the listener to the stage's touch focus when a touch down event is handled. Default is true.
-    */
-  def getTouchFocus: Boolean = touchFocus
-
-  def setTouchFocus(touchFocus: Boolean): Unit =
-    this.touchFocus = touchFocus
 
   override def toString: String = eventType.toString
 }

@@ -11,7 +11,6 @@
  *   Renames: implements FinishableAction -> with FinishableAction
  *   Idiom: setPool(null) -> setPool(Nullable.empty); early return -> if/else;
  *          interpolation null-check -> interpolation.foreach; ternary -> if/else
- *   TODO: Java-style getters/setters -- getTime/setTime, getDuration/setDuration, getInterpolation/setInterpolation, isReverse/setReverse, isComplete
  *   TODO: opaque Seconds for duration, time, act(delta) params -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  */
@@ -27,18 +26,23 @@ import sge.math.Interpolation
   * @author
   *   Nathan Sweet
   */
-abstract class TemporalAction(private var duration: Float = 0, private var interpolation: Nullable[Interpolation] = Nullable.empty) extends Action with FinishableAction {
+abstract class TemporalAction(var duration: Float = 0, var interpolation: Nullable[Interpolation] = Nullable.empty) extends Action with FinishableAction {
 
-  private var time:     Float   = 0
-  private var reverse:  Boolean = false
-  private var began:    Boolean = false
-  private var complete: Boolean = false
+  /** The transition time so far. */
+  var time: Float = 0
+
+  /** When true, the action's progress will go from 100% to 0%. */
+  var reverse:       Boolean = false
+  private var began: Boolean = false
+
+  /** Returns true after {@link #act(float)} has been called where time >= duration. */
+  var complete: Boolean = false
 
   def act(delta: Float): Boolean =
     if (complete) true
     else {
-      val pool = getPool
-      setPool(Nullable.empty) // Ensure this action can't be returned to the pool while executing.
+      val savedPool = pool
+      pool = Nullable.empty // Ensure this action can't be returned to the pool while executing.
       try {
         if (!began) {
           begin()
@@ -52,7 +56,7 @@ abstract class TemporalAction(private var duration: Float = 0, private var inter
         if (complete) end()
         complete
       } finally
-        setPool(pool)
+        pool = savedPool
     }
 
   /** Called the first time {@link #act(float)} is called. This is a good place to query the {@link #actor actor's} starting state.
@@ -83,31 +87,4 @@ abstract class TemporalAction(private var duration: Float = 0, private var inter
     reverse = false
     interpolation = Nullable.empty
   }
-
-  /** Gets the transition time so far. */
-  def getTime: Float = time
-
-  /** Sets the transition time so far. */
-  def setTime(time: Float): Unit =
-    this.time = time
-
-  def getDuration: Float = duration
-
-  /** Sets the length of the transition in seconds. */
-  def setDuration(duration: Float): Unit =
-    this.duration = duration
-
-  def getInterpolation: Nullable[Interpolation] = interpolation
-
-  def setInterpolation(interpolation: Nullable[Interpolation]): Unit =
-    this.interpolation = interpolation
-
-  def isReverse: Boolean = reverse
-
-  /** When true, the action's progress will go from 100% to 0%. */
-  def setReverse(reverse: Boolean): Unit =
-    this.reverse = reverse
-
-  /** Returns true after {@link #act(float)} has been called where time >= duration. */
-  def isComplete: Boolean = complete
 }

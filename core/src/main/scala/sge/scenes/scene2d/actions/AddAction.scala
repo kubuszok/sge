@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: target.addAction(action) -> target.foreach + actionToAdd.foreach with DynamicArray +=
- *   TODO: Java-style getters/setters -- getAction/setAction
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,7 +23,7 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class AddAction extends Action {
-  private var actionToAdd: Nullable[Action] = Nullable.empty
+  var actionToAdd: Nullable[Action] = Nullable.empty
 
   def act(delta: Float): Boolean = {
     target.foreach { t =>
@@ -35,10 +34,6 @@ class AddAction extends Action {
     }
     true
   }
-
-  def getAction: Nullable[Action] = actionToAdd
-
-  def setAction(action: Action): Unit = this.actionToAdd = Nullable(action)
 
   override def restart(): Unit = actionToAdd.foreach(_.restart())
 

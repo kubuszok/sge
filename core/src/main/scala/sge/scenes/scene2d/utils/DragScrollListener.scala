@@ -62,7 +62,7 @@ class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
     interpolation.apply(minSpeed, maxSpeed, Math.min(1f, (System.currentTimeMillis() - startTime) / rampTime.toFloat))
 
   override def drag(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-    event.getListenerActor.localToActorCoordinates(scroll, tmpCoords.set(x, y))
+    event.listenerActor.foreach(_.localToActorCoordinates(scroll, tmpCoords.set(x, y)))
     if (isAbove(tmpCoords.y)) {
       scrollDown.cancel()
       if (!scrollUp.isScheduled) {
@@ -87,7 +87,7 @@ class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
   }
 
   protected def isAbove(y: Float): Boolean =
-    y >= scroll.getHeight - padTop
+    y >= scroll.height - padTop
 
   protected def isBelow(y: Float): Boolean =
     y < padBottom

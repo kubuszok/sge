@@ -14,7 +14,6 @@
  * API-complete: YES — both constructors, update, getUnitsPerPixel, setUnitsPerPixel
  * Behavioural parity: YES — update logic identical
  * Conventions: OK — no return, no null, split packages, braces on multiline defs
- * TODO: Java-style getters/setters — getUnitsPerPixel/setUnitsPerPixel
  */
 package sge
 package utils
@@ -30,7 +29,9 @@ import sge.graphics.OrthographicCamera
   *   Nathan Sweet
   */
 class ScreenViewport(camera: Camera)(using Sge) extends Viewport {
-  private var unitsPerPixel: Float = 1
+
+  /** The number of pixels for each world unit. Eg, a scale of 2.5 means there are 2.5 world units for every 1 screen pixel. Default is 1. */
+  var unitsPerPixel: Float = 1
 
   this.camera = camera
 
@@ -44,11 +45,4 @@ class ScreenViewport(camera: Camera)(using Sge) extends Viewport {
     apply(centerCamera)
   }
 
-  def getUnitsPerPixel(): Float =
-    unitsPerPixel
-
-  /** Sets the number of pixels for each world unit. Eg, a scale of 2.5 means there are 2.5 world units for every 1 screen pixel. Default is 1.
-    */
-  def setUnitsPerPixel(unitsPerPixel: Float): Unit =
-    this.unitsPerPixel = unitsPerPixel
 }

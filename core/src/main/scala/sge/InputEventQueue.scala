@@ -7,7 +7,6 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   TODO: Java-style getters/setters -- convert to var or def x/def x_= (Java getter getCurrentEventTime → def currentEventTime)
  *   TODO: opaque Pixels for screenX/screenY params in event methods -- see docs/improvements/opaque-types.md
  *   TODO: opaque Nanos for time params in event methods -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
@@ -25,7 +24,7 @@ class InputEventQueue {
 
   private val queue           = DynamicArray[Int]()
   private val processingQueue = DynamicArray[Int]()
-  private var currentEventTime: Long = 0L
+  private var _currentEventTime: Long = 0L
 
   def drain(processor: Nullable[InputProcessor]): Unit = scala.util.boundary {
     synchronized {
@@ -46,7 +45,7 @@ class InputEventQueue {
       while (i < n) {
         val eventType = q(i)
         i += 1
-        currentEventTime = (q(i).toLong << 32) | (q(i + 1) & 0xffffffffL)
+        _currentEventTime = (q(i).toLong << 32) | (q(i + 1) & 0xffffffffL)
         i += 2
         eventType match {
           case SKIP =>
@@ -215,7 +214,7 @@ class InputEventQueue {
       false
     }
 
-  def getCurrentEventTime(): Long = currentEventTime
+  def currentEventTime: Long = _currentEventTime
 }
 
 object InputEventQueue {

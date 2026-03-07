@@ -8,8 +8,7 @@
  *
  * Migration notes:
  *   Convention: split packages; braces on class
- *   Idiom: target.setTouchable -> target.foreach(_.setTouchable); uninitialized Touchable field
- *   TODO: Java-style getters/setters -- getTouchable/setTouchable
+ *   Idiom: target.setTouchable -> target.foreach(_.touchable = ...); uninitialized Touchable field
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,14 +21,10 @@ package actions
   *   Nathan Sweet
   */
 class TouchableAction extends Action {
-  private var touchable: Touchable = scala.compiletime.uninitialized
+  var touchable: Touchable = scala.compiletime.uninitialized
 
   def act(delta: Float): Boolean = {
-    target.foreach(_.setTouchable(touchable))
+    target.foreach(_.touchable = touchable)
     true
   }
-
-  def getTouchable: Touchable = touchable
-
-  def setTouchable(touchable: Touchable): Unit = this.touchable = touchable
 }

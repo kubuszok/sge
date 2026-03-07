@@ -138,7 +138,7 @@ class Slider(
 
     val value: Float = if (vertical) {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
-      val h          = getHeight - bgDrawable.getTopHeight - bgDrawable.getBottomHeight
+      val h          = height - bgDrawable.getTopHeight - bgDrawable.getBottomHeight
       val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
       position = y - bgDrawable.getBottomHeight - knobHeight * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (h - knobHeight))
@@ -147,7 +147,7 @@ class Slider(
       v
     } else {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
-      val w          = getWidth - bgDrawable.getLeftWidth - bgDrawable.getRightWidth
+      val w          = width - bgDrawable.getLeftWidth - bgDrawable.getRightWidth
       val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
       position = x - bgDrawable.getLeftWidth - knobWidth * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (w - knobWidth))

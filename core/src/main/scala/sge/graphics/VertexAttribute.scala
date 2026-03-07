@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: factory methods in companion object (Position, TexCoords, Normal, ColorPacked, etc.)
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getKey
+ *   Renames: getKey() → key
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -55,8 +55,9 @@ final class VertexAttribute(
     * @param alias
     *   the alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, alias: String) =
+  def this(usage: Int, numComponents: Int, alias: String) = {
     this(usage, numComponents, false, if (usage == Usage.ColorPacked) GL20.GL_UNSIGNED_BYTE else GL20.GL_FLOAT, alias, 0)
+  }
 
   /** Constructs a new VertexAttribute. The GL data type is automatically selected based on the usage.
     *
@@ -69,7 +70,7 @@ final class VertexAttribute(
     * @param unit
     *   Optional unit/index specifier, used for texture coordinates and bone weights
     */
-  def this(usage: Int, numComponents: Int, alias: String, unit: Int) =
+  def this(usage: Int, numComponents: Int, alias: String, unit: Int) = {
     this(
       usage,
       numComponents,
@@ -78,6 +79,7 @@ final class VertexAttribute(
       alias,
       unit
     )
+  }
 
   /** Constructs a new VertexAttribute.
     *
@@ -93,8 +95,9 @@ final class VertexAttribute(
     * @param alias
     *   The alias used in a shader for this attribute. Can be changed after construction.
     */
-  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) =
+  def this(usage: Int, numComponents: Int, `type`: Int, normalized: Boolean, alias: String) = {
     this(usage, numComponents, normalized, `type`, alias, 0)
+  }
 
   /** @return
     *   A copy of this VertexAttribute with the same parameters. The {@link #offset} is not copied and must be recalculated, as is typically done by the {@linkplain VertexAttributes} that owns the
@@ -115,7 +118,7 @@ final class VertexAttribute(
       normalized == other.normalized && alias.equals(other.alias) && unit == other.unit
 
   /** @return A unique number specifying the usage index (3 MSB) and unit (1 LSB). */
-  def getKey(): Int =
+  def key: Int =
     (usageIndex << 8) + (unit & 0xff)
 
   /** @return How many bytes this attribute uses. */
@@ -124,11 +127,12 @@ final class VertexAttribute(
       case GL20.GL_FLOAT | GL20.GL_FIXED          => 4 * numComponents
       case GL20.GL_UNSIGNED_BYTE | GL20.GL_BYTE   => numComponents
       case GL20.GL_UNSIGNED_SHORT | GL20.GL_SHORT => 2 * numComponents
+      case GL20.GL_UNSIGNED_INT | GL20.GL_INT     => 4 * numComponents
       case _                                      => 0
     }
 
   override def hashCode(): Int = {
-    var result = getKey()
+    var result = key
     result = 541 * result + numComponents
     result = 541 * result + alias.hashCode()
     result

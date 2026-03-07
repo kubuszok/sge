@@ -6,13 +6,13 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (redundant setX, setY, setRadius over public vars)
+ *   Convention: removed redundant setX, setY, setRadius (fields are public vars)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: constructors, set(4 overloads), setPosition(2),
- * setX, setY, setRadius, contains(x,y), contains(V2), contains(Circle), overlaps,
+ * x/y/radius (public vars), contains(x,y), contains(V2), contains(Circle), overlaps,
  * circumference, area, equals, hashCode, toString.
  */
 package sge
@@ -158,27 +158,6 @@ class Circle() extends Shape2D {
     this.x = x
     this.y = y
   }
-
-  /** Sets the x-coordinate of circle center
-    * @param x
-    *   The x-coordinate
-    */
-  def setX(x: Float): Unit =
-    this.x = x
-
-  /** Sets the y-coordinate of circle center
-    * @param y
-    *   The y-coordinate
-    */
-  def setY(y: Float): Unit =
-    this.y = y
-
-  /** Sets the radius of circle
-    * @param radius
-    *   The radius
-    */
-  def setRadius(radius: Float): Unit =
-    this.radius = radius
 
   /** Checks whether or not this circle contains a given point.
     *

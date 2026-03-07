@@ -71,9 +71,9 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
     if (layoutEnabled) {
       getParent.foreach { parent =>
         if (fillParent) {
-          getStage.fold(setSize(parent.getWidth, parent.getHeight)) { stage =>
+          stage.fold(setSize(parent.width, parent.height)) { stage =>
             if (parent eq stage.getRoot) setSize(stage.getWidth, stage.getHeight)
-            else setSize(parent.getWidth, parent.getHeight)
+            else setSize(parent.width, parent.height)
           }
         }
       }

@@ -52,7 +52,7 @@ abstract class GLTexture(val glTarget: Int, private[graphics] var glHandle: Text
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
 
   /** @return whether this texture is managed or not. */
-  def isManaged: Boolean
+  def managed: Boolean
 
   protected def reload(): Unit
 

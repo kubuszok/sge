@@ -30,7 +30,7 @@ class Stack()(using Sge) extends WidgetGroup() {
   setTransform(false)
   setWidth(150)
   setHeight(150)
-  setTouchable(Touchable.childrenOnly)
+  touchable = Touchable.childrenOnly
 
   def this(actors: Actor*)(using Sge) = {
     this()
@@ -66,10 +66,10 @@ class Stack()(using Sge) extends WidgetGroup() {
           childMaxWidth = layout.getMaxWidth
           childMaxHeight = layout.getMaxHeight
         case _ =>
-          _prefWidth = Math.max(_prefWidth, child.getWidth)
-          _prefHeight = Math.max(_prefHeight, child.getHeight)
-          _minWidth = Math.max(_minWidth, child.getWidth)
-          _minHeight = Math.max(_minHeight, child.getHeight)
+          _prefWidth = Math.max(_prefWidth, child.width)
+          _prefHeight = Math.max(_prefHeight, child.height)
+          _minWidth = Math.max(_minWidth, child.width)
+          _minHeight = Math.max(_minHeight, child.height)
           childMaxWidth = 0
           childMaxHeight = 0
       }
@@ -84,8 +84,8 @@ class Stack()(using Sge) extends WidgetGroup() {
 
   override def layout(): Unit = {
     if (sizeInvalid) computeSize()
-    val width    = getWidth
-    val height   = getHeight
+    val width    = this.width
+    val height   = this.height
     val children = getChildren
     var i        = 0
     val n        = children.size

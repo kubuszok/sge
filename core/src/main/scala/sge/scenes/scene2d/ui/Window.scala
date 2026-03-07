@@ -47,7 +47,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
   protected var edge:     Int     = 0
   protected var dragging: Boolean = false
 
-  setTouchable(Touchable.enabled)
+  touchable = Touchable.enabled
   setClip(true)
 
   titleLabel = newLabel(title, LabelStyle(style.titleFont, style.titleFontColor))
@@ -83,8 +83,8 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
 
       private def updateEdge(x: Float, y: Float): Unit = {
         var border    = self.resizeBorder / 2f
-        val width     = getWidth
-        val height    = getHeight
+        val width     = self.width
+        val height    = self.height
         val padTop    = getPadTop
         val padLeft   = getPadLeft
         val padBottom = getPadBottom
@@ -112,8 +112,8 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           self.dragging = self.edge != 0
           startX = x
           startY = y
-          lastX = x - getWidth
-          lastY = y - getHeight
+          lastX = x - self.width
+          lastY = y - self.height
         }
         self.edge != 0 || self.isModal
       }
@@ -124,15 +124,14 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
       override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
         if (!self.dragging) ()
         else {
-          var width   = getWidth
-          var height  = getHeight
-          var windowX = getX
-          var windowY = getY
+          var width   = self.width
+          var height  = self.height
+          var windowX = self.x
+          var windowY = self.y
 
           val minWidth      = getMinWidth
           val minHeight     = getMinHeight
-          val stage         = getStage
-          val clampPosition = self.keepWithinStage && stage.exists(s => getParent.exists(_ eq s.getRoot))
+          val clampPosition = self.keepWithinStage && self.stage.exists(s => self.getParent.exists(_ eq s.getRoot))
 
           if ((self.edge & MOVE) != 0) {
             val amountX = x - startX
@@ -157,7 +156,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           if ((self.edge & Align.right.toInt) != 0) {
             var amountX = x - lastX - width
             if (width + amountX < minWidth) amountX = minWidth - width
-            if (clampPosition) stage.foreach { s =>
+            if (clampPosition) self.stage.foreach { s =>
               if (windowX + width + amountX > s.getWidth) amountX = s.getWidth - windowX - width
             }
             width += amountX
@@ -165,7 +164,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           if ((self.edge & Align.top.toInt) != 0) {
             var amountY = y - lastY - height
             if (height + amountY < minHeight) amountY = minHeight - height
-            if (clampPosition) stage.foreach { s =>
+            if (clampPosition) self.stage.foreach { s =>
               if (windowY + height + amountY > s.getHeight) amountY = s.getHeight - windowY - height
             }
             height += amountY
@@ -214,7 +213,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
   override def getStyle: WindowStyle = _style
 
   def keepWithinStageMethod(): Unit =
-    if (keepWithinStage) getStage.foreach { stage =>
+    if (keepWithinStage) stage.foreach { stage =>
       val camera = stage.getCamera
       camera match {
         case orthographicCamera: OrthographicCamera =>
@@ -232,16 +231,16 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           if (getParent.exists(_ eq stage.getRoot)) {
             val parentWidth  = stage.getWidth
             val parentHeight = stage.getHeight
-            if (getX < 0) setX(0)
-            if (getRight > parentWidth) setX(parentWidth - getWidth)
-            if (getY < 0) setY(0)
-            if (getTop > parentHeight) setY(parentHeight - getHeight)
+            if (x < 0) setX(0)
+            if (x + width > parentWidth) setX(parentWidth - width)
+            if (y < 0) setY(0)
+            if (y + height > parentHeight) setY(parentHeight - height)
           }
       }
     }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    getStage.foreach { stage =>
+    stage.foreach { stage =>
       if (stage.getKeyboardFocus.isEmpty) stage.setKeyboardFocus(Nullable(this))
 
       keepWithinStageMethod()
@@ -249,15 +248,15 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
       _style.stageBackground.foreach { stageBackground =>
         stageToLocalCoordinates(tmpPosition.set(0, 0))
         stageToLocalCoordinates(tmpSize.set(stage.getWidth, stage.getHeight))
-        drawStageBackground(batch, parentAlpha, getX + tmpPosition.x, getY + tmpPosition.y, getX + tmpSize.x, getY + tmpSize.y)
+        drawStageBackground(batch, parentAlpha, x + tmpPosition.x, y + tmpPosition.y, x + tmpSize.x, y + tmpSize.y)
       }
     }
     super.draw(batch, parentAlpha)
   }
 
   protected def drawStageBackground(batch: Batch, parentAlpha: Float, x: Float, y: Float, width: Float, height: Float): Unit = {
-    val color = getColor
-    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+    val c = this.color
+    batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
     _style.stageBackground.foreach(_.draw(batch, x, y, width, height))
   }
 
@@ -265,23 +264,23 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
     super.drawBackground(batch, parentAlpha, x, y)
 
     // Manually draw the title table before clipping is done.
-    titleTable.getColor.a = getColor.a
+    titleTable.color.a = this.color.a
     val padTop  = getPadTop
     val padLeft = getPadLeft
-    titleTable.setSize(getWidth - padLeft - getPadRight, padTop)
-    titleTable.setPosition(padLeft, getHeight - padTop)
+    titleTable.setSize(width - padLeft - getPadRight, padTop)
+    titleTable.setPosition(padLeft, height - padTop)
     drawTitleTable = true
     titleTable.draw(batch, parentAlpha)
     drawTitleTable = false // Avoid drawing the title table again in drawChildren.
   }
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
-    if (!isVisible) scala.util.boundary.break(Nullable.empty)
+    if (!visible) scala.util.boundary.break(Nullable.empty)
     val hitResult = super.hit(x, y, touchable)
-    if (hitResult.isEmpty && isModal && (!touchable || getTouchable == Touchable.enabled)) scala.util.boundary.break(Nullable(this: Actor))
-    val height = getHeight
+    if (hitResult.isEmpty && isModal && (!touchable || this.touchable == Touchable.enabled)) scala.util.boundary.break(Nullable(this: Actor))
+    val h = this.height
     if (hitResult.isEmpty || hitResult.exists(_ eq this)) scala.util.boundary.break(hitResult)
-    if (y <= height && y >= height - getPadTop && x >= 0 && x <= getWidth) {
+    if (y <= h && y >= h - getPadTop && x >= 0 && x <= width) {
       // Hit the title bar, don't use the hit child if it is in the Window's table.
       hitResult.foreach { hr =>
         var current: Actor = hr

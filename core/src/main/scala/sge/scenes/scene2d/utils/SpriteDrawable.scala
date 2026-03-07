@@ -36,13 +36,13 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
     // Copy base drawable properties
     drawable match {
       case bd: BaseDrawable =>
-        setLeftWidth(bd.getLeftWidth)
-        setRightWidth(bd.getRightWidth)
-        setTopHeight(bd.getTopHeight)
-        setBottomHeight(bd.getBottomHeight)
-        setMinWidth(bd.getMinWidth)
-        setMinHeight(bd.getMinHeight)
-        setName(bd.getName)
+        leftWidth = bd.leftWidth
+        rightWidth = bd.rightWidth
+        topHeight = bd.topHeight
+        bottomHeight = bd.bottomHeight
+        minWidth = bd.minWidth
+        minHeight = bd.minHeight
+        name = bd.name
     }
     setSprite(drawable.sprite)
   }
@@ -77,8 +77,8 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
 
   def setSprite(sprite: Sprite): Unit = {
     this.sprite = sprite
-    setMinWidth(sprite.width)
-    setMinHeight(sprite.height)
+    minWidth = sprite.width
+    minHeight = sprite.height
   }
 
   def getSprite: Sprite = sprite
@@ -90,12 +90,12 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
       case _ => Sprite(sprite)
     }
     newSprite.color = tint
-    newSprite.setSize(getMinWidth, getMinHeight)
+    newSprite.setSize(minWidth, minHeight)
     val drawable = SpriteDrawable(newSprite)
-    drawable.setLeftWidth(getLeftWidth)
-    drawable.setRightWidth(getRightWidth)
-    drawable.setTopHeight(getTopHeight)
-    drawable.setBottomHeight(getBottomHeight)
+    drawable.leftWidth = leftWidth
+    drawable.rightWidth = rightWidth
+    drawable.topHeight = topHeight
+    drawable.bottomHeight = bottomHeight
     drawable
   }
 }

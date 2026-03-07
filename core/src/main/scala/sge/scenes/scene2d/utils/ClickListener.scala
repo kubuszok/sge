@@ -57,7 +57,7 @@ class ClickListener(private var button: Int = 0) extends InputListener {
 
   override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
     if (pointer == pressedPointer && !cancelled) {
-      pressed = isOver(event.getListenerActor, x, y)
+      pressed = event.listenerActor.exists(isOver(_, x, y))
       if (!pressed) {
         // Once outside the tap square, don't use the tap square anymore.
         invalidateTapSquare()
@@ -67,7 +67,7 @@ class ClickListener(private var button: Int = 0) extends InputListener {
   override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Unit =
     if (pointer == pressedPointer) {
       if (!cancelled) {
-        var touchUpOver = isOver(event.getListenerActor, x, y)
+        var touchUpOver = event.listenerActor.exists(isOver(_, x, y))
         // Ignore touch up if the wrong mouse button.
         if (touchUpOver && pointer == 0 && this.button != -1 && button != this.button) touchUpOver = false
         if (touchUpOver) {

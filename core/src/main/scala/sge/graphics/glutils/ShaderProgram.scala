@@ -8,7 +8,7 @@
  *   Convention: uses (using Sge) context parameter; ObjectMap for uniform/attribute maps; begin()/end() removed (Java begin() just calls bind())
  *   Idiom: split packages
  *   Issues: missing setUniform1iv/2iv/3iv/4iv (integer array uniform setters, 8 methods); missing begin()/end() convenience aliases used by some client code
- *   TODO: Java-style boolean getter -- isCompiled → def compiled
+ *   Renames: compiled → compiled
  *   TODO: typed GL enums -- ShaderType for glCreateShader -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -108,7 +108,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
   /** reference count * */
 
   compileShaders(actualVertexShader, actualFragmentShader)
-  if (isCompiled()) {
+  if (compiled) {
     fetchAttributes()
     fetchUniforms()
     ShaderProgram.addManagedShader(Sge().application, this)
@@ -192,7 +192,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     *   the log info for the shader compilation and program linking stage. The shader needs to be bound for this method to have an effect.
     */
   def getLog(): String =
-    if (isCompiled()) {
+    if (compiled) {
       log = Sge().graphics.gl20.glGetProgramInfoLog(program)
       log
     } else {
@@ -200,7 +200,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     }
 
   /** @return whether this ShaderProgram compiled successfully. */
-  def isCompiled(): Boolean = compiledSuccessfully
+  def compiled: Boolean = compiledSuccessfully
 
   private def fetchAttributeLocation(name: String): Int = {
     val gl = Sge().graphics.gl20
@@ -226,7 +226,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
       case None           =>
         val location = Sge().graphics.gl20.glGetUniformLocation(program, name)
         if (location == -1 && pedantic) {
-          if (isCompiled()) throw new IllegalArgumentException(s"No uniform with name '$name' in shader")
+          if (compiled) throw new IllegalArgumentException(s"No uniform with name '$name' in shader")
           throw new IllegalStateException(s"An attempted fetch uniform from uncompiled shader \n${getLog()}")
         }
         uniforms.put(name, location)

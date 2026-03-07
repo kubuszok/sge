@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: setPool(null) -> setPool(Nullable.empty); runnable.run() -> runnable.foreach(_.run())
- *   TODO: Java-style getters/setters -- getRunnable/setRunnable, getResult
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,8 +23,8 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class RunnableAction extends Action {
-  private var runnable: Nullable[Runnable] = Nullable.empty
-  private var ran:      Boolean            = false
+  var runnable:    Nullable[Runnable] = Nullable.empty
+  private var ran: Boolean            = false
 
   def act(delta: Float): Boolean = {
     if (!ran) {
@@ -37,12 +36,12 @@ class RunnableAction extends Action {
 
   /** Called to run the runnable. */
   def run(): Unit = {
-    val pool = getPool
-    setPool(Nullable.empty) // Ensure this action can't be returned to the pool inside the runnable.
+    val savedPool = pool
+    pool = Nullable.empty // Ensure this action can't be returned to the pool inside the runnable.
     try
       runnable.foreach(_.run())
     finally
-      setPool(pool)
+      pool = savedPool
   }
 
   override def restart(): Unit = ran = false
@@ -51,8 +50,4 @@ class RunnableAction extends Action {
     super.reset()
     runnable = Nullable.empty
   }
-
-  def getRunnable: Nullable[Runnable] = runnable
-
-  def setRunnable(runnable: Runnable): Unit = this.runnable = Nullable(runnable)
 }

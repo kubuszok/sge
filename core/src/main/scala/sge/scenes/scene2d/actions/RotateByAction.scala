@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: no return; split packages; braces on class
  *   Idiom: target.rotateBy -> target.foreach(_.rotateBy(...))
- *   TODO: Java-style getters/setters -- getAmount/setAmount
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,12 +21,8 @@ package actions
   *   Nathan Sweet
   */
 class RotateByAction extends RelativeTemporalAction {
-  private var amount: Float = 0
+  var amount: Float = 0
 
   override protected def updateRelative(percentDelta: Float): Unit =
     target.foreach(_.rotateBy(amount * percentDelta))
-
-  def getAmount: Float = amount
-
-  def setAmount(rotationAmount: Float): Unit = amount = rotationAmount
 }

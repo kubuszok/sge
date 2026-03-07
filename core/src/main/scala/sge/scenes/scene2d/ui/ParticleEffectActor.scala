@@ -45,7 +45,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    particleEffect.setPosition(getX, getY)
+    particleEffect.setPosition(x, y)
     if (lastDelta > 0) {
       particleEffect.update(lastDelta)
       lastDelta = 0
@@ -95,7 +95,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
 
   override protected def scaleChanged(): Unit = {
     super.scaleChanged()
-    particleEffect.scaleEffect(getScaleX, getScaleY, getScaleY)
+    particleEffect.scaleEffect(scaleX, scaleY, scaleY)
   }
 
   def cancel(): Unit =

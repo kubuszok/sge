@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: Align opaque type with .isLeft/.isRight/.isTop/.isBottom; FloatArray -> DynamicArray[Float]
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getReverse, getSpace, getWrapSpace, getPadTop/Left/Bottom/Right, getAlign, getFill, getExpand, getWrap
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -52,7 +51,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   private var _padRight:    Float   = 0
 
   setTransform(false)
-  setTouchable(Touchable.childrenOnly)
+  touchable = Touchable.childrenOnly
 
   override def invalidate(): Unit = {
     super.invalidate()
@@ -70,7 +69,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
       val space      = this._space
       val wrapSpace  = this._wrapSpace
       val pad        = _padLeft + _padRight
-      val groupWidth = getWidth - pad
+      val groupWidth = width - pad
       var x          = 0f
       var y          = 0f
       var rowHeight  = 0f
@@ -88,8 +87,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
             if (width > groupWidth) width = Math.max(groupWidth, layout.getMinWidth)
             height = layout.getPrefHeight
           case _ =>
-            width = child.getWidth
-            height = child.getHeight
+            width = child.width
+            height = child.height
         }
 
         var incrX = width + (if (x > 0) space else 0)
@@ -122,8 +121,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
             _prefWidth += layout.getPrefWidth
             _prefHeight = Math.max(_prefHeight, layout.getPrefHeight)
           case _ =>
-            _prefWidth += child.getWidth
-            _prefHeight = Math.max(_prefHeight, child.getHeight)
+            _prefWidth += child.width
+            _prefHeight = Math.max(_prefHeight, child.height)
         }
         i += 1
       }
@@ -145,21 +144,21 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
       val space     = this._space
       val padBottom = this._padBottom
       val fill      = this._fill
-      val rowHeight = (if (_expand) getHeight else _prefHeight) - _padTop - padBottom
+      val rowHeight = (if (_expand) height else _prefHeight) - _padTop - padBottom
       var x         = _padLeft
 
       if (_align.isRight)
-        x += getWidth - _prefWidth
+        x += width - _prefWidth
       else if (!_align.isLeft) // center
-        x += (getWidth - _prefWidth) / 2
+        x += (width - _prefWidth) / 2
 
       var startY = 0f
       if (_align.isBottom)
         startY = padBottom
       else if (_align.isTop)
-        startY = getHeight - _padTop - rowHeight
+        startY = height - _padTop - rowHeight
       else
-        startY = padBottom + (getHeight - padBottom - _padTop - rowHeight) / 2
+        startY = padBottom + (height - padBottom - _padTop - rowHeight) / 2
 
       val align = _rowAlign
 
@@ -179,8 +178,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
             width = l.getPrefWidth
             height = l.getPrefHeight
           case _ =>
-            width = child.getWidth
-            height = child.getHeight
+            width = child.width
+            height = child.height
         }
 
         if (fill > 0) height = rowHeight * fill
@@ -227,16 +226,16 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     val wrapSpace  = this._wrapSpace
     val maxWidth   = _prefWidth - _padLeft - _padRight
     var rowY       = prefHeight - _padTop
-    var groupWidth = getWidth
+    var groupWidth = width
     val xStart     = _padLeft
     var x          = 0f
     var rowHeight  = 0f
     var rowDir     = -1f
 
     if (_align.isTop)
-      rowY += getHeight - prefHeight
+      rowY += height - prefHeight
     else if (!_align.isBottom) // center
-      rowY += (getHeight - prefHeight) / 2
+      rowY += (height - prefHeight) / 2
     if (_wrapReverse) {
       rowY -= prefHeight + rowSizes(1)
       rowDir = 1
@@ -269,8 +268,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
           if (width > groupWidth) width = Math.max(groupWidth, l.getMinWidth)
           height = l.getPrefHeight
         case _ =>
-          width = child.getWidth
-          height = child.getHeight
+          width = child.width
+          height = child.height
       }
 
       if (x + width > groupWidth || r == 0) {
@@ -559,17 +558,17 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     super.drawDebugBounds(shapes)
     if (getDebug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      getStage.foreach(s => shapes.setColor(s.getDebugColor))
+      stage.foreach(s => shapes.setColor(s.getDebugColor))
       shapes.rectangle(
-        getX + _padLeft,
-        getY + _padBottom,
-        getOriginX,
-        getOriginY,
-        getWidth - _padLeft - _padRight,
-        getHeight - _padBottom - _padTop,
-        getScaleX,
-        getScaleY,
-        getRotation
+        x + _padLeft,
+        y + _padBottom,
+        originX,
+        originY,
+        width - _padLeft - _padRight,
+        height - _padBottom - _padTop,
+        scaleX,
+        scaleY,
+        rotation
       )
     }
   }

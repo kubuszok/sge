@@ -9,7 +9,7 @@
  * Migration notes:
  * - Java interface with default methods -> Scala trait with def implementations
  * - All methods faithfully ported
- * - TODO: Java-style getters/setters — trait methods: getLeftWidth/setLeftWidth, getRightWidth/setRightWidth, getTopHeight/setTopHeight, getBottomHeight/setBottomHeight, getMinWidth/setMinWidth, getMinHeight/setMinHeight
+ * - Renames: getLeftWidth→leftWidth, setLeftWidth→leftWidth_=, getRightWidth→rightWidth, etc.
  */
 package sge
 package scenes
@@ -28,45 +28,45 @@ trait Drawable {
     */
   def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit
 
-  def getLeftWidth: Float
+  def leftWidth: Float
 
-  def setLeftWidth(leftWidth: Float): Unit
+  def leftWidth_=(leftWidth: Float): Unit
 
-  def getRightWidth: Float
+  def rightWidth: Float
 
-  def setRightWidth(rightWidth: Float): Unit
+  def rightWidth_=(rightWidth: Float): Unit
 
-  def getTopHeight: Float
+  def topHeight: Float
 
-  def setTopHeight(topHeight: Float): Unit
+  def topHeight_=(topHeight: Float): Unit
 
-  def getBottomHeight: Float
+  def bottomHeight: Float
 
-  def setBottomHeight(bottomHeight: Float): Unit
+  def bottomHeight_=(bottomHeight: Float): Unit
 
-  def setPadding(topHeight: Float, leftWidth: Float, bottomHeight: Float, rightWidth: Float): Unit = {
-    setTopHeight(topHeight)
-    setLeftWidth(leftWidth)
-    setBottomHeight(bottomHeight)
-    setRightWidth(rightWidth)
+  def setPadding(top: Float, left: Float, bottom: Float, right: Float): Unit = {
+    topHeight = top
+    leftWidth = left
+    bottomHeight = bottom
+    rightWidth = right
   }
 
   def setPadding(padding: Float): Unit =
     setPadding(padding, padding, padding, padding)
 
   def setPadding(from: Drawable): Unit =
-    setPadding(from.getTopHeight, from.getLeftWidth, from.getBottomHeight, from.getRightWidth)
+    setPadding(from.topHeight, from.leftWidth, from.bottomHeight, from.rightWidth)
 
-  def getMinWidth: Float
+  def minWidth: Float
 
-  def setMinWidth(minWidth: Float): Unit
+  def minWidth_=(minWidth: Float): Unit
 
-  def getMinHeight: Float
+  def minHeight: Float
 
-  def setMinHeight(minHeight: Float): Unit
+  def minHeight_=(minHeight: Float): Unit
 
-  def setMinSize(minWidth: Float, minHeight: Float): Unit = {
-    setMinWidth(minWidth)
-    setMinHeight(minHeight)
+  def setMinSize(mw: Float, mh: Float): Unit = {
+    minWidth = mw
+    minHeight = mh
   }
 }

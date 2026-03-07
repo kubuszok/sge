@@ -103,7 +103,7 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
   def getImageCell: Nullable[Cell[Image]] = getCell(image)
 
   override def toString: String =
-    getName.getOrElse {
+    name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)

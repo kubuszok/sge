@@ -10,7 +10,6 @@
  *   Convention: no return; split packages; braces on class
  *   Renames: static FOREVER -> companion object val; implements FinishableAction -> with
  *   Idiom: action.act(delta) with multiple returns -> action.fold(true) with nested if/else
- *   TODO: Java-style getters/setters -- getCount/setCount
  *   Audited: 2026-03-03
  */
 package sge
@@ -23,19 +22,19 @@ package actions
   *   Nathan Sweet
   */
 class RepeatAction extends DelegateAction with FinishableAction {
-  private var repeatCount:   Int     = 0
+  var count:                 Int     = 0
   private var executedCount: Int     = 0
   private var finished:      Boolean = false
 
   override protected def delegate(delta: Float): Boolean =
-    if (executedCount == repeatCount) true
+    if (executedCount == count) true
     else {
       action.forall { a =>
         if (a.act(delta)) {
           if (finished) true
           else {
-            if (repeatCount > 0) executedCount += 1
-            if (executedCount == repeatCount) true
+            if (count > 0) executedCount += 1
+            if (executedCount == count) true
             else {
               a.restart()
               false
@@ -52,10 +51,6 @@ class RepeatAction extends DelegateAction with FinishableAction {
     executedCount = 0
     finished = false
   }
-
-  def setCount(count: Int): Unit = this.repeatCount = count
-
-  def getCount: Int = repeatCount
 }
 
 object RepeatAction {

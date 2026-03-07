@@ -64,8 +64,8 @@ class SequenceAction extends ParallelAction {
   override def act(delta: Float): Boolean =
     if (index >= actions.size) true
     else {
-      val pool = getPool
-      setPool(Nullable.empty) // Ensure this action can't be returned to the pool while executing.
+      val savedPool = pool
+      pool = Nullable.empty // Ensure this action can't be returned to the pool while executing.
       try
         if (actions(index).act(delta)) {
           if (actor.isEmpty) true // This action was removed.
@@ -75,7 +75,7 @@ class SequenceAction extends ParallelAction {
           }
         } else false
       finally
-        setPool(pool)
+        pool = savedPool
     }
 
   override def restart(): Unit = {

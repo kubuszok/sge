@@ -370,7 +370,7 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   override def getDeltaY():                             Int         = deltaY(0)
   override def getDeltaY(pointer:        Int):          Int         = deltaY(pointer)
   override def setCursorPosition(x:      Int, y: Int):  Unit        = {}
-  override def getCurrentEventTime():                   Long        = 0L
+  override def currentEventTime:                        Long        = 0L
   override def getRotationMatrix(matrix: Array[Float]): Unit        = {}
 }
 

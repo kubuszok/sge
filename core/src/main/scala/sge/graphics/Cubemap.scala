@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: CubemapSide enum with 6 faces matches; AssetManager reload path fully implemented
  *   Idiom: split packages
- *   TODO: Java-style getters/setters -- getCubemapData, isManaged
+ *   Renames: getCubemapData() → cubemapData (public def); isManaged → managed
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -91,12 +91,12 @@ class Cubemap(protected var data: CubemapData)(using Sge) extends GLTexture(GL20
     Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
-  def getCubemapData(): CubemapData = data
+  def cubemapData: CubemapData = data
 
-  override def isManaged: Boolean = data.isManaged
+  override def managed: Boolean = data.isManaged
 
   override protected def reload(): Unit = {
-    if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged Cubemap")
+    if (!managed) throw SgeError.GraphicsError("Tried to reload an unmanaged Cubemap")
     glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(data)
   }
@@ -115,7 +115,7 @@ class Cubemap(protected var data: CubemapData)(using Sge) extends GLTexture(GL20
     // removal from the asset manager.
     if (glHandle != TextureHandle.none) {
       delete()
-      if (data.isManaged) {
+      if (managed) {
         Cubemap.managedCubemaps.get(Sge().application) match {
           case Some(cubemaps) => cubemaps -= this
           case None           => // no cubemaps for this app
@@ -205,7 +205,7 @@ object Cubemap {
                   // create the parameters, passing the reference to the cubemap as
                   // well as a callback that sets the ref count.
                   val params = CubemapParameter()
-                  params.cubemapData = Nullable(cubemap.getCubemapData())
+                  params.cubemapData = Nullable(cubemap.cubemapData)
                   params.minFilter = cubemap.getMinFilter()
                   params.magFilter = cubemap.getMagFilter()
                   params.wrapU = cubemap.getUWrap()

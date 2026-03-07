@@ -41,7 +41,7 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
 
   if (deadzoneRadius < 0) throw new IllegalArgumentException("deadzoneRadius must be > 0")
 
-  knobPosition.set(getWidth / 2f, getHeight / 2f)
+  knobPosition.set(width / 2f, height / 2f)
 
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
@@ -115,15 +115,15 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   override def getStyle: TouchpadStyle = _style
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
-    if (touchable && this.getTouchable != Touchable.enabled) scala.util.boundary.break(Nullable.empty)
-    if (!isVisible) scala.util.boundary.break(Nullable.empty)
+    if (touchable && this.touchable != Touchable.enabled) scala.util.boundary.break(Nullable.empty)
+    if (!visible) scala.util.boundary.break(Nullable.empty)
     if (touchBounds.contains(x, y)) Nullable(this) else Nullable.empty
   }
 
   override def layout(): Unit = {
     // Recalc pad and deadzone bounds
-    val halfWidth  = getWidth / 2
-    val halfHeight = getHeight / 2
+    val halfWidth  = width / 2
+    val halfHeight = height / 2
     val radius     = Math.min(halfWidth, halfHeight)
     touchBounds.set(halfWidth, halfHeight, radius)
     val knobRadius = _style.knob.fold(radius) { knob =>
@@ -139,22 +139,22 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
 
-    val c = getColor
+    val c = this.color
     batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
 
-    var x = getX
-    var y = getY
-    val w = getWidth
-    val h = getHeight
+    var dx = this.x
+    var dy = this.y
+    val w  = this.width
+    val h  = this.height
 
     _style.background.foreach { bg =>
-      bg.draw(batch, x, y, w, h)
+      bg.draw(batch, dx, dy, w, h)
     }
 
     _style.knob.foreach { knob =>
-      x += knobPosition.x - knob.getMinWidth / 2f
-      y += knobPosition.y - knob.getMinHeight / 2f
-      knob.draw(batch, x, y, knob.getMinWidth, knob.getMinHeight)
+      dx += knobPosition.x - knob.getMinWidth / 2f
+      dy += knobPosition.y - knob.getMinHeight / 2f
+      knob.draw(batch, dx, dy, knob.getMinWidth, knob.getMinHeight)
     }
   }
 

@@ -10,7 +10,6 @@
  *   Convention: no return; split packages; braces on class
  *   Renames: implements FinishableAction -> with FinishableAction
  *   Idiom: action null-check + early return -> action.fold(true)(_.act(delta))
- *   TODO: Java-style getters/setters -- getTime/setTime, getDuration/setDuration
  *   TODO: opaque Seconds for duration/time params -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  */
@@ -23,8 +22,8 @@ package actions
   * @author
   *   Nathan Sweet
   */
-class DelayAction(private var duration: Float = 0) extends DelegateAction with FinishableAction {
-  private var time: Float = 0
+class DelayAction(var duration: Float = 0) extends DelegateAction with FinishableAction {
+  var time: Float = 0
 
   override protected def delegate(delta: Float): Boolean =
     if (time < duration) {
@@ -45,12 +44,4 @@ class DelayAction(private var duration: Float = 0) extends DelegateAction with F
     super.restart()
     time = 0
   }
-
-  def getTime: Float = time
-
-  def setTime(time: Float): Unit = this.time = time
-
-  def getDuration: Float = duration
-
-  def setDuration(duration: Float): Unit = this.duration = duration
 }

@@ -1022,7 +1022,7 @@ object SpriteCache {
       "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" +
       "}"
     val shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
+    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
     shader
   }
 }

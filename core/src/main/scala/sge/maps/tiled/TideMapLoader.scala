@@ -139,7 +139,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
     while (ti < tilesetElements.size) {
       val tileset     = tilesetElements(ti)
       val imageSource = tileset.getChildByName("ImageSource")
-      val image       = getRelativeFileHandle(tideFile, imageSource.getOrElse(throw new IllegalStateException("missing ImageSource")).getText.getOrElse(""))
+      val image       = getRelativeFileHandle(tideFile, imageSource.getOrElse(throw new IllegalStateException("missing ImageSource")).text.getOrElse(""))
       images.add(image)
       ti += 1
     }
@@ -154,7 +154,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
   ): Unit =
     if (element.name == "TileSheet") {
       val id          = element.getAttribute("Id")
-      val imageSource = element.getChildByName("ImageSource").getOrElse(throw new IllegalStateException("missing ImageSource")).getText.getOrElse("")
+      val imageSource = element.getChildByName("ImageSource").getOrElse(throw new IllegalStateException("missing ImageSource")).text.getOrElse("")
 
       val alignment = element.getChildByName("Alignment").getOrElse(throw new IllegalStateException("missing Alignment"))
       val sheetSize = alignment.getAttribute("SheetSize")
@@ -250,7 +250,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
         val y          = rowCount - 1 - row
         var x          = 0
         var child      = 0
-        val childCount = currentRow.getChildCount
+        val childCount = currentRow.childCount
         while (child < childCount) {
           val currentChild = currentRow.getChild(child)
           val name         = currentChild.name
@@ -270,7 +270,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
             val frames          = currentChild.getChildByName("Frames").getOrElse(throw new IllegalStateException("missing Frames"))
             val frameTiles      = DynamicArray[StaticTiledMapTile]()
             var frameChild      = 0
-            val frameChildCount = frames.getChildCount
+            val frameChildCount = frames.childCount
             while (frameChild < frameChildCount) {
               val frame     = frames.getChild(frameChild)
               val frameName = frame.name
@@ -310,7 +310,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
         val property = propertyElements(pi)
         val key      = property.getAttribute("Key", Nullable.empty).getOrElse("")
         val propType = property.getAttribute("Type", Nullable.empty).getOrElse("")
-        val value    = property.getText.getOrElse("")
+        val value    = property.text.getOrElse("")
 
         if (propType == "Int32") {
           properties.put(key, Integer.parseInt(value): java.lang.Integer)

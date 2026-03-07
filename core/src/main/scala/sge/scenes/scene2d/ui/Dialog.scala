@@ -96,12 +96,12 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
         if (!focused) focusChanged(event)
 
       private def focusChanged(event: FocusListener.FocusEvent): Unit =
-        getStage.foreach { stage =>
+        stage.foreach { stage =>
           if (
             isModal && stage.getRoot.getChildren.nonEmpty
             && (stage.getRoot.getChildren.last eq Dialog.this)
           ) { // Dialog is top most actor.
-            val newFocusedActor = event.getRelatedActor
+            val newFocusedActor = event.relatedActor
             newFocusedActor.foreach { nfa =>
               if (
                 !nfa.isDescendantOf(Dialog.this)
@@ -215,7 +215,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     */
   def show(stage: Stage): Dialog = {
     show(stage, Nullable(Actions.sequence(Actions.alpha(0), Actions.fadeIn(0.4f, Nullable(Interpolation.fade)))))
-    setPosition(Math.round((stage.getWidth - getWidth) / 2).toFloat, Math.round((stage.getHeight - getHeight) / 2).toFloat)
+    setPosition(Math.round((stage.getWidth - width) / 2).toFloat, Math.round((stage.getHeight - height) / 2).toFloat)
     this
   }
 
@@ -224,16 +224,16 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     *   If null, the dialog is removed immediately. Otherwise, the dialog is removed when the action completes. The dialog will not respond to touch down events during the action.
     */
   def hide(action: Nullable[Action]): Unit = {
-    getStage.foreach { stage =>
+    stage.foreach { stage =>
       removeListener(focusListener)
       previousKeyboardFocus.foreach { pkf =>
-        if (pkf.getStage.isEmpty) previousKeyboardFocus = Nullable.empty
+        if (pkf.stage.isEmpty) previousKeyboardFocus = Nullable.empty
       }
       val kbActor = stage.getKeyboardFocus
       if (kbActor.isEmpty || kbActor.exists(_.isDescendantOf(this))) stage.setKeyboardFocus(previousKeyboardFocus)
 
       previousScrollFocus.foreach { psf =>
-        if (psf.getStage.isEmpty) previousScrollFocus = Nullable.empty
+        if (psf.stage.isEmpty) previousScrollFocus = Nullable.empty
       }
       val scrollActor = stage.getScrollFocus
       if (scrollActor.isEmpty || scrollActor.exists(_.isDescendantOf(this))) stage.setScrollFocus(previousScrollFocus)

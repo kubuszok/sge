@@ -42,7 +42,7 @@ class TiledMapImageLayer(
     *   boolean
     */
   private def checkTransparencySupport(region: TextureRegion): Boolean = {
-    val format = region.texture.getTextureData().getFormat
+    val format = region.texture.textureData.getFormat
     Nullable(format).isDefined && formatHasAlpha(format)
   }
 

@@ -69,7 +69,7 @@ class TooltipManager()(using Sge) {
     def run(): Unit =
       showTooltip.foreach { tooltip =>
         tooltip.targetActor.foreach { ta =>
-          ta.getStage.foreach { stage =>
+          ta.stage.foreach { stage =>
             stage.addActor(tooltip.container)
             tooltip.container.toFront()
             shown.add(tooltip)
@@ -122,7 +122,7 @@ class TooltipManager()(using Sge) {
   protected def showAction(tooltip: Tooltip[?]): Unit = {
     val actionTime = if (animations) if (time > 0) 0.5f else 0.15f else 0.1f
     tooltip.container.setTransform(true)
-    tooltip.container.getColor.a = 0.2f
+    tooltip.container.color.a = 0.2f
     tooltip.container.setScale(0.05f)
     tooltip.container.addAction(
       Actions.parallel(

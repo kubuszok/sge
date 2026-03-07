@@ -89,7 +89,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   var blinkTime: Float      = 0.32f
   val blinkTask: Timer.Task = new Timer.Task {
     def run(): Unit =
-      if (getStage.isEmpty) {
+      if (stage.isEmpty) {
         cancel()
       } else {
         cursorOn = !cursorOn
@@ -212,7 +212,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   def getStyle: TextField.TextFieldStyle = _style
 
   protected def calculateOffsets(): Unit = {
-    var visibleWidth = getWidth
+    var visibleWidth = this.width
     val background   = getBackgroundDrawable()
     background.foreach { bg =>
       visibleWidth -= bg.getLeftWidth + bg.getRightWidth
@@ -318,17 +318,17 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     val cursorPatch = _style.cursor
     val background  = getBackgroundDrawable()
 
-    val color  = getColor
-    val x      = getX
-    val y      = getY
-    val width  = getWidth
-    val height = getHeight
+    val color = this.color
+    val tx    = this.x
+    val ty    = this.y
+    val tw    = this.width
+    val th    = this.height
 
     batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
     var bgLeftWidth  = 0f
     var bgRightWidth = 0f
     background.foreach { bg =>
-      drawBackground(bg, batch, x, y, width, height)
+      drawBackground(bg, batch, tx, ty, tw, th)
       bgLeftWidth = bg.getLeftWidth
       bgRightWidth = bg.getRightWidth
     }
@@ -338,7 +338,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
     if (focused && hasSelection) {
       selection.foreach { sel =>
-        drawSelection(sel, batch, font, x + bgLeftWidth, y + textY)
+        drawSelection(sel, batch, font, tx + bgLeftWidth, ty + textY)
       }
     }
 
@@ -351,25 +351,25 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
         } { mfc =>
           messageFont.setColor(mfc.r, mfc.g, mfc.b, mfc.a * color.a * parentAlpha)
         }
-        drawMessageText(batch, messageFont, x + bgLeftWidth, y + textY + yOffset, width - bgLeftWidth - bgRightWidth)
+        drawMessageText(batch, messageFont, tx + bgLeftWidth, ty + textY + yOffset, tw - bgLeftWidth - bgRightWidth)
       }
     } else {
       val data          = font.data
       val markupEnabled = data.markupEnabled
       data.markupEnabled = false
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * color.a * parentAlpha)
-      drawText(batch, font, x + bgLeftWidth, y + textY + yOffset)
+      drawText(batch, font, tx + bgLeftWidth, ty + textY + yOffset)
       data.markupEnabled = markupEnabled
     }
     if (!disabled && cursorOn) {
       cursorPatch.foreach { cp =>
-        drawCursor(cp, batch, font, x + bgLeftWidth, y + textY)
+        drawCursor(cp, batch, font, tx + bgLeftWidth, ty + textY)
       }
     }
   }
 
   protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
-    val height = getHeight
+    val height = this.height
     var textY  = textHeight / 2 + font.descent
     background.fold {
       textY = textY + height / 2
@@ -555,11 +555,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     *   The textfield, the focus has been transferred to
     */
   def next(up: Boolean): Nullable[TextField] = boundary {
-    val stage = getStage
-    if (stage.isEmpty) boundary.break(Nullable.empty)
-    val stg = stage.getOrElse(throw new IllegalStateException("TextField must be on a stage"))
+    if (this.stage.isEmpty) boundary.break(Nullable.empty)
+    val stg = this.stage.getOrElse(throw new IllegalStateException("TextField must be on a stage"))
     var current: TextField = this
-    val currentCoords = current.getParent.getOrElse(throw new IllegalStateException("TextField must have a parent")).localToStageCoordinates(tmp2.set(current.getX, current.getY))
+    val currentCoords = current.getParent.getOrElse(throw new IllegalStateException("TextField must have a parent")).localToStageCoordinates(tmp2.set(current.x, current.y))
     val bestCoords    = tmp1
     val continue      = true
     while (continue) {
@@ -595,7 +594,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       actor match {
         case textField: TextField if !(textField eq this) =>
           if (!(textField.isDisabled || !textField.focusTraversal || !textField.ascendantsVisible())) {
-            val actorCoords = actor.getParent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.getX, actor.getY))
+            val actorCoords = actor.getParent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.x, actor.y))
             val below       = actorCoords.y != currentCoords.y && (actorCoords.y < currentCoords.y ^ up)
             val right       = actorCoords.y == currentCoords.y && (actorCoords.x > currentCoords.x ^ up)
             if (below || right) {
@@ -816,7 +815,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     var keycode: Int = 0
 
     def run(): Unit =
-      if (getStage.isEmpty) {
+      if (stage.isEmpty) {
         cancel()
       } else {
         inputListener.keyDown(null, keycode)
@@ -843,7 +842,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       else {
         setCursorPosition(x, y)
         selectionStart = cursor
-        getStage.foreach { stage =>
+        stage.foreach { stage =>
           stage.setKeyboardFocus(Nullable(TextField.this))
         }
         keyboard.show(TextField.this)

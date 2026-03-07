@@ -196,10 +196,10 @@ object PointSpriteParticleBatch {
     VertexAttribute(sizeAndRotationUsage, 3, "a_sizeAndRotation")
   )
   protected val CPU_VERTEX_SIZE:              Int = CPU_ATTRIBUTES.vertexSize / 4
-  protected val CPU_POSITION_OFFSET:          Int = CPU_ATTRIBUTES.getOffset(Usage.Position)
-  protected val CPU_COLOR_OFFSET:             Int = CPU_ATTRIBUTES.getOffset(Usage.ColorUnpacked)
-  protected val CPU_REGION_OFFSET:            Int = CPU_ATTRIBUTES.getOffset(Usage.TextureCoordinates)
-  protected val CPU_SIZE_AND_ROTATION_OFFSET: Int = CPU_ATTRIBUTES.getOffset(sizeAndRotationUsage)
+  protected val CPU_POSITION_OFFSET:          Int = CPU_ATTRIBUTES.offset(Usage.Position)
+  protected val CPU_COLOR_OFFSET:             Int = CPU_ATTRIBUTES.offset(Usage.ColorUnpacked)
+  protected val CPU_REGION_OFFSET:            Int = CPU_ATTRIBUTES.offset(Usage.TextureCoordinates)
+  protected val CPU_SIZE_AND_ROTATION_OFFSET: Int = CPU_ATTRIBUTES.offset(sizeAndRotationUsage)
 
   private def enablePointSprites()(using Sge): Unit = {
     Sge().graphics.gl.glEnable(GL20.GL_VERTEX_PROGRAM_POINT_SIZE)

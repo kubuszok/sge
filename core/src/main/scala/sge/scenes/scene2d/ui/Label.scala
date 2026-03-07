@@ -158,7 +158,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     prefSizeInvalid = false
     val textStr = new String(_text.toArray)
     if (wrap && ellipsis.isEmpty) {
-      var width = getWidth
+      var width = this.width
       _style.background.foreach { bg =>
         width = Math.max(width, bg.getMinWidth) - bg.getLeftWidth - bg.getRightWidth
       }
@@ -188,8 +188,8 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
       }
     }
 
-    var width      = getWidth
-    var height     = getHeight
+    var width      = this.width
+    var height     = this.height
     val background = _style.background
     var x          = 0f
     var y          = 0f
@@ -243,17 +243,17 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
-    val color = tempColor.set(getColor)
-    color.a *= parentAlpha
+    val c = tempColor.set(this.color)
+    c.a *= parentAlpha
     _style.background.foreach { bg =>
-      batch.setColor(color.r, color.g, color.b, color.a)
-      bg.draw(batch, getX, getY, getWidth, getHeight)
+      batch.setColor(c.r, c.g, c.b, c.a)
+      bg.draw(batch, x, y, width, height)
     }
     _style.fontColor.foreach { fc =>
-      color.mul(fc)
+      c.mul(fc)
     }
-    cache.tint(color)
-    cache.setPosition(getX, getY)
+    cache.tint(c)
+    cache.setPosition(x, y)
     cache.draw(batch)
   }
 
@@ -351,7 +351,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   protected def getBitmapFontCache: BitmapFontCache = cache
 
   override def toString: String =
-    getName.getOrElse {
+    name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)

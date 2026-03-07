@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: managed lifecycle; @nowarn for orNull at GL30 interop boundary
  *   Idiom: split packages
- *   TODO: Java-style getters/setters -- isManaged
+ *   Renames: isManaged → managed
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  *
@@ -94,10 +94,10 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(GL30.GL_
 
   override def getDepth: Int = textureData.getDepth()
 
-  override def isManaged: Boolean = textureData.isManaged()
+  override def managed: Boolean = textureData.isManaged()
 
   override protected def reload(): Unit = {
-    if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
+    if (!managed) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
     glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }

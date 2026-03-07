@@ -1049,7 +1049,7 @@ object SpriteBatch {
       "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
+    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
     shader
   }
 }

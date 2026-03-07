@@ -67,20 +67,20 @@ class ParallelAction extends Action {
   def act(delta: Float): Boolean = scala.util.boundary {
     if (complete) scala.util.boundary.break(true)
     complete = true
-    val pool = getPool
-    setPool(Nullable.empty) // Ensure this action can't be returned to the pool while executing.
+    val savedPool = pool
+    pool = Nullable.empty // Ensure this action can't be returned to the pool while executing.
     try {
       var i = 0
       val n = actions.size
       while (i < n && actor.isDefined) {
         val currentAction = actions(i)
-        if (currentAction.getActor.isDefined && !currentAction.act(delta)) complete = false
+        if (currentAction.actor.isDefined && !currentAction.act(delta)) complete = false
         if (actor.isEmpty) scala.util.boundary.break(true) // This action was removed.
         i += 1
       }
       complete
     } finally
-      setPool(pool)
+      pool = savedPool
   }
 
   override def restart(): Unit = {

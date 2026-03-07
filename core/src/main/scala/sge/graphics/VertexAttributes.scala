@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Usage constants in companion object; ReadonlyIterator/ReadonlyIterable wrappers
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getOffset, getMask, getMaskWithSizePacked
+ *   Renames: getOffset → offset; getMask() → mask; getMaskWithSizePacked() → maskWithSizePacked
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -36,7 +36,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   val vertexSize: Int = calculateOffsets()
 
   /** cache of the value calculated by {@link #getMask()} * */
-  private var mask: Long = -1
+  private var cachedMask: Long = -1
 
   /** cache for bone weight units. */
   private var boneWeightUnits: Int = -1
@@ -50,15 +50,15 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     * @param usage
     *   The usage of the VertexAttribute.
     */
-  def getOffset(usage: Int, defaultIfNotFound: Int): Int =
+  def offset(usage: Int, defaultIfNotFound: Int): Int =
     findByUsage(usage).map(_.offset / 4).getOrElse(defaultIfNotFound)
 
   /** Returns the offset for the first VertexAttribute with the specified usage.
     * @param usage
     *   The usage of the VertexAttribute.
     */
-  def getOffset(usage: Int): Int =
-    getOffset(usage, 0)
+  def offset(usage: Int): Int =
+    offset(usage, 0)
 
   /** Returns the first VertexAttribute for the given usage.
     * @param usage
@@ -140,22 +140,22 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     * @return
     *   the mask
     */
-  def getMask(): Long = {
-    if (mask == -1) {
+  def mask: Long = {
+    if (cachedMask == -1) {
       var result = 0L
       for (i <- attributesArray.indices)
         result |= attributesArray(i).usage
-      mask = result
+      cachedMask = result
     }
-    mask
+    cachedMask
   }
 
   /** Calculates the mask based on {@link VertexAttributes#getMask()} and packs the attributes count into the last 32 bits.
     * @return
     *   the mask with attributes count packed into the last 32 bits.
     */
-  def getMaskWithSizePacked(): Long =
-    getMask() | (attributesArray.length.toLong << 32)
+  def maskWithSizePacked: Long =
+    mask | (attributesArray.length.toLong << 32)
 
   /** @return Number of bone weights based on {@link VertexAttribute#unit} */
   def getBoneWeights(): Int = {
@@ -189,8 +189,8 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     if (attributesArray.length != o.attributesArray.length)
       attributesArray.length - o.attributesArray.length
     else {
-      val m1 = getMask()
-      val m2 = o.getMask()
+      val m1 = mask
+      val m2 = o.mask
       if (m1 != m2)
         if (m1 < m2) -1 else 1
       else

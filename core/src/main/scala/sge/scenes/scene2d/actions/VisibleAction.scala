@@ -8,8 +8,7 @@
  *
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
- *   Idiom: target.setVisible(visible) -> target.foreach(_.setVisible(visible))
- *   TODO: Java-style getters/setters -- isVisible/setVisible
+ *   Idiom: target.setVisible(visible) -> target.foreach(_.visible = visible)
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,14 +21,10 @@ package actions
   *   Nathan Sweet
   */
 class VisibleAction extends Action {
-  private var visible: Boolean = false
+  var visible: Boolean = false
 
   def act(delta: Float): Boolean = {
-    target.foreach(_.setVisible(visible))
+    target.foreach(_.visible = visible)
     true
   }
-
-  def isVisible: Boolean = visible
-
-  def setVisible(visible: Boolean): Unit = this.visible = visible
 }

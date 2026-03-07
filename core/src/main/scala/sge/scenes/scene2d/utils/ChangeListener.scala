@@ -24,7 +24,7 @@ abstract class ChangeListener extends EventListener {
   override def handle(event: Event): Boolean =
     event match {
       case ce: ChangeListener.ChangeEvent =>
-        changed(ce, event.getTarget)
+        event.target.foreach(t => changed(ce, t))
         false
       case _ => false
     }

@@ -149,7 +149,7 @@ object DistanceFieldFont {
       "}\n"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.isCompiled()) throw new IllegalArgumentException("Error compiling distance field shader: " + shader.getLog())
+    if (!shader.compiled) throw new IllegalArgumentException("Error compiling distance field shader: " + shader.getLog())
     shader
   }
 }

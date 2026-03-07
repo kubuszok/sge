@@ -79,7 +79,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   }
 
   private def initialize(): Unit = {
-    setTouchable(Touchable.enabled)
+    touchable = Touchable.enabled
     clickListener = new ClickListener() {
       override def clicked(event: InputEvent, x: Float, y: Float): Unit =
         if (!isDisabled) setChecked(!isChecked, true)
@@ -232,7 +232,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
       }
     }
 
-    getStage.foreach { stage =>
+    stage.foreach { stage =>
       if (stage.getActionsRequestRendering && isPressed != clickListener.isPressed)
         Sge().graphics.requestRendering()
     }

@@ -71,7 +71,7 @@ class DragAndDrop {
           event.stop()
 
           if (_cancelTouchFocus && payload.isDefined) {
-            source.getActor.getStage.foreach(_.cancelTouchFocusExcept(Nullable(this), Nullable(source.getActor)))
+            source.getActor.stage.foreach(_.cancelTouchFocusExcept(Nullable(this), Nullable(source.getActor)))
           }
         }
 
@@ -80,19 +80,19 @@ class DragAndDrop {
         else {
           source.drag(event, x, y, pointer)
 
-          event.getStage.foreach { stage =>
+          event.stage.foreach { stage =>
             // Move the drag actor away, so it cannot be hit.
             val oldDragActor  = dragActor
             var oldDragActorX = 0f
             var oldDragActorY = 0f
             oldDragActor.foreach { oda =>
-              oldDragActorX = oda.getX
-              oldDragActorY = oda.getY
+              oldDragActorX = oda.x
+              oldDragActorY = oda.y
               oda.setPosition(Integer.MAX_VALUE.toFloat, Integer.MAX_VALUE.toFloat)
             }
 
-            val stageX = event.getStageX + touchOffsetX
-            val stageY = event.getStageY + touchOffsetY
+            val stageX = event.stageX + touchOffsetX
+            val stageY = event.stageY + touchOffsetY
             var hit: Nullable[Actor] = stage.hit(stageX, stageY, true) // Prefer touchable actors.
             if (hit.isEmpty) hit = stage.hit(stageX, stageY, false)
 
@@ -150,7 +150,7 @@ class DragAndDrop {
               if (oldDragActor.isDefined && removeDragActor) oldDragActor.foreach(_.remove())
               dragActor = actor
               actor.foreach { a =>
-                removeDragActor = a.getStage.isEmpty // Only remove later if not already in the stage now.
+                removeDragActor = a.stage.isEmpty // Only remove later if not already in the stage now.
                 if (removeDragActor) stage.addActor(a)
               }
             }
@@ -158,13 +158,13 @@ class DragAndDrop {
             else {
               actor.foreach { a =>
                 // Position the drag actor.
-                var actorX = event.getStageX - a.getWidth + dragActorX
-                var actorY = event.getStageY + dragActorY
+                var actorX = event.stageX - a.width + dragActorX
+                var actorY = event.stageY + dragActorY
                 if (_keepWithinStage) {
                   if (actorX < 0) actorX = 0
                   if (actorY < 0) actorY = 0
-                  if (actorX + a.getWidth > stage.getWidth) actorX = stage.getWidth - a.getWidth
-                  if (actorY + a.getHeight > stage.getHeight) actorY = stage.getHeight - a.getHeight
+                  if (actorX + a.width > stage.getWidth) actorX = stage.getWidth - a.width
+                  if (actorY + a.height > stage.getHeight) actorY = stage.getHeight - a.height
                 }
                 a.setPosition(actorX, actorY)
               }
@@ -181,8 +181,8 @@ class DragAndDrop {
             if (System.currentTimeMillis() < dragValidTime)
               isValidTarget = false
             else if (!isValidTarget && _target.isDefined) {
-              val stageX = event.getStageX + touchOffsetX
-              val stageY = event.getStageY + touchOffsetY
+              val stageX = event.stageX + touchOffsetX
+              val stageY = event.stageY + touchOffsetY
               _target.foreach { t =>
                 t.actor.stageToLocalCoordinates(tmpVector.set(stageX, stageY))
                 dragSource.foreach { ds =>
@@ -194,8 +194,8 @@ class DragAndDrop {
             }
             if (dragActor.isDefined && removeDragActor) dragActor.foreach(_.remove())
             if (isValidTarget) {
-              val stageX = event.getStageX + touchOffsetX
-              val stageY = event.getStageY + touchOffsetY
+              val stageX = event.stageX + touchOffsetX
+              val stageY = event.stageY + touchOffsetY
               _target.foreach { t =>
                 dragSource.foreach { ds =>
                   payload.foreach { p =>
@@ -250,7 +250,7 @@ class DragAndDrop {
   /** Cancels the touch focus for everything except the specified source. */
   def cancelTouchFocusExcept(except: Source): Unit =
     sourceListeners.get(except).foreach { listener =>
-      except.getActor.getStage.foreach(_.cancelTouchFocusExcept(Nullable(listener), Nullable(except.getActor)))
+      except.getActor.stage.foreach(_.cancelTouchFocusExcept(Nullable(listener), Nullable(except.getActor)))
     }
 
   /** Sets the distance a touch must travel before being considered a drag. */
@@ -333,7 +333,7 @@ object DragAndDrop {
     *   Nathan Sweet
     */
   abstract class Target(val actor: Actor) {
-    actor.getStage.foreach { stage =>
+    actor.stage.foreach { stage =>
       if (actor == stage.getRoot)
         throw new IllegalArgumentException("The stage root cannot be a drag and drop target.")
     }

@@ -8,8 +8,7 @@
  *   Renames: `Gdx.app` -> `sge.Sge` context; `GdxRuntimeException` -> `SgeError.MathError`; `null` -> `Option`/`Nullable`
  *   Convention: uses `using` keyword; `timer` field uses `Option[Timer]`; `currentThread` uses `Option[TimerThread]`
  *   Idiom: split packages
- *   Fixes: LifecycleListener integration and postRunnable wiring implemented — posted tasks execute on main thread
- *   TODO: Java-style getters/setters -- Task: isScheduled, getExecuteTimeMillis
+ *   Fixes: LifecycleListener integration and postRunnable wiring implemented; getExecuteTimeMillis → executeTime
  *   TODO: opaque Seconds for delaySeconds/intervalSeconds params; opaque Millis for executeTimeMillis/intervalMillis/delayMillis
  *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll replaced with Thread.sleep
  *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
@@ -234,7 +233,7 @@ object Timer {
     def isScheduled: Boolean = timer.isDefined
 
     /** Returns the time in milliseconds when this task will be executed next. */
-    def getExecuteTimeMillis: Long = synchronized(executeTimeMillis)
+    def executeTime: Long = synchronized(executeTimeMillis)
   }
 
   /** Manages a single thread for updating timers. Uses application events to pause, resume, and dispose the thread.

@@ -105,7 +105,7 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle)(usin
   def getText: DynamicArray[Char] = label.getText
 
   override def toString: String =
-    getName.getOrElse {
+    name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)

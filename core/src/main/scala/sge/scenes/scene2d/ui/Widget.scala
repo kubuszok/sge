@@ -52,9 +52,9 @@ class Widget()(using Sge) extends Actor() with Layout {
     if (layoutEnabled) {
       getParent.foreach { parent =>
         if (fillParent) {
-          val (parentWidth, parentHeight) = getStage.fold((parent.getWidth, parent.getHeight)) { stage =>
+          val (parentWidth, parentHeight) = stage.fold((parent.width, parent.height)) { stage =>
             if (parent eq stage.getRoot) (stage.getWidth, stage.getHeight)
-            else (parent.getWidth, parent.getHeight)
+            else (parent.width, parent.height)
           }
           setSize(parentWidth, parentHeight)
         }

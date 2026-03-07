@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: `return` eliminated via `boundary`/`break`; `Node` uses `var` fields
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — Node: getValue/setValue
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -249,8 +248,6 @@ object BinaryHeap {
     */
   class Node(var value: Float) {
     var index: Int = scala.compiletime.uninitialized
-
-    def getValue: Float = value
 
     override def toString: String = value.toString
   }

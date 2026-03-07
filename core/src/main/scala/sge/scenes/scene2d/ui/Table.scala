@@ -75,7 +75,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   var round:         Boolean            = true
 
   setTransform(false)
-  setTouchable(Touchable.childrenOnly)
+  touchable = Touchable.childrenOnly
 
   private def obtainCell(): Cell[?] = {
     val cell = cellPool.obtain()
@@ -92,7 +92,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
         batch.flush()
         val pl = this.padLeft.get(Nullable(this))
         val pb = this.padBottom.get(Nullable(this))
-        if (clipBegin(pl, pb, getWidth - pl - padRight.get(Nullable(this)), getHeight - pb - padTop.get(Nullable(this)))) {
+        if (clipBegin(pl, pb, width - pl - padRight.get(Nullable(this)), height - pb - padTop.get(Nullable(this)))) {
           drawChildren(batch, parentAlpha)
           batch.flush()
           clipEnd()
@@ -102,7 +102,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
       }
       resetTransform(batch)
     } else {
-      drawBackground(batch, parentAlpha, getX, getY)
+      drawBackground(batch, parentAlpha, x, y)
       super.draw(batch, parentAlpha)
     }
   }
@@ -111,9 +111,9 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     */
   protected def drawBackground(batch: Batch, parentAlpha: Float, x: Float, y: Float): Unit =
     background.foreach { bg =>
-      val color = getColor
-      batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
-      bg.draw(batch, x, y, getWidth, getHeight)
+      val c = this.color
+      batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
+      bg.draw(batch, x, y, width, height)
     }
 
   /** Sets the background drawable from the skin and adjusts the table's padding to match the background. This may only be called if a skin has been set with {@link Table#Table(Skin)} or
@@ -160,8 +160,8 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (_clip) {
-      if (touchable && getTouchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
-      if (x < 0 || x >= getWidth || y < 0 || y >= getHeight) scala.util.boundary.break(Nullable.empty)
+      if (touchable && this.touchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
+      if (x < 0 || x >= width || y < 0 || y >= height) scala.util.boundary.break(Nullable.empty)
     }
     super.hit(x, y, touchable)
   }
@@ -948,8 +948,8 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   override def layout(): Unit = {
     if (sizeInvalid) computeSize()
 
-    val layoutWidth  = getWidth
-    val layoutHeight = getHeight
+    val layoutWidth  = width
+    val layoutHeight = height
     val columns      = this.columns
     val rows         = this.rows
     val columnWidth  = this._columnWidth
@@ -1238,9 +1238,9 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     clearDebugRects()
     if (tableDebug == Table.Debug.table || tableDebug == Table.Debug.all) {
       // Table actor bounds.
-      addDebugRect(0, 0, getWidth, getHeight, debugTableColor)
+      addDebugRect(0, 0, this.width, this.height, debugTableColor)
       // Table bounds.
-      addDebugRect(currentX, getHeight - currentY, width, -height, debugTableColor)
+      addDebugRect(currentX, this.height - currentY, width, -height, debugTableColor)
     }
     val x  = currentX
     var cx = currentX
@@ -1266,7 +1266,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
       if (tableDebug == Table.Debug.cell || tableDebug == Table.Debug.all) {
         val h = _rowHeight(c._row) - c.computedPadTop - c.computedPadBottom
         val y = cy + c.computedPadTop
-        addDebugRect(cx, getHeight - y, spannedCellWidth, -h, debugCellColor)
+        addDebugRect(cx, this.height - y, spannedCellWidth, -h, debugCellColor)
       }
 
       if (c.endRow) {
@@ -1302,8 +1302,8 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
         shapes.flush()
         var x      = 0f
         var y      = 0f
-        var width  = getWidth
-        var height = getHeight
+        var width  = this.width
+        var height = this.height
         background.foreach { bg =>
           x = padLeft.get(Nullable(this))
           y = padBottom.get(Nullable(this))
@@ -1329,12 +1329,12 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     debugRects.foreach { rects =>
       if (getDebug) {
         shapes.set(ShapeRenderer.ShapeType.Line)
-        getStage.foreach(s => shapes.setColor(s.getDebugColor))
+        stage.foreach(s => shapes.setColor(s.getDebugColor))
         var x = 0f
         var y = 0f
         if (!isTransform) {
-          x = getX
-          y = getY
+          x = this.x
+          y = this.y
         }
         var i = 0
         while (i < rects.size) {

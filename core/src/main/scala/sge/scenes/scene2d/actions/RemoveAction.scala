@@ -23,16 +23,12 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class RemoveAction extends Action {
-  private var actionToRemove: Nullable[Action] = Nullable.empty
+  var actionToRemove: Nullable[Action] = Nullable.empty
 
   def act(delta: Float): Boolean = {
     target.foreach(_.removeAction(actionToRemove))
     true
   }
-
-  def getAction: Nullable[Action] = actionToRemove
-
-  def setAction(action: Action): Unit = this.actionToRemove = Nullable(action)
 
   override def reset(): Unit = {
     super.reset()

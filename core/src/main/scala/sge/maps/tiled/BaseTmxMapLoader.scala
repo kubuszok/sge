@@ -141,7 +141,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
 
     var i = 0
-    val j = r.getChildCount
+    val j = r.childCount
     while (i < j) {
       val element = r.getChild(i)
       loadLayer(map, map.layers, element, tmxFile, imageResolver)
@@ -202,7 +202,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       properties.foreach(p => loadProperties(groupLayer.properties, p))
 
       var i = 0
-      val j = element.getChildCount
+      val j = element.childCount
       while (i < j) {
         val child = element.getChild(i)
         loadLayer(map, groupLayer.getLayers, child, tmxFile, imageResolver)
@@ -372,7 +372,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       val width  = element.getFloatAttribute("width", 0) * scaleX
       val height = element.getFloatAttribute("height", 0) * scaleY
 
-      if (element.getChildCount > 0) {
+      if (element.childCount > 0) {
         var child: Nullable[XmlReader.Element] = Nullable.empty
         child = element.getChildByName("polygon")
         if (child.isDefined) {
@@ -419,7 +419,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
                 child = element.getChildByName("text")
                 child.foreach { textChild =>
                   val textMapObject =
-                    TextMapObject(x, if (flipY) y - height else y, width, height, textChild.getText.getOrElse(""))
+                    TextMapObject(x, if (flipY) y - height else y, width, height, textChild.text.getOrElse(""))
                   textMapObject.fontFamily = textChild.getAttribute("fontfamily", Nullable("")).getOrElse("")
                   textMapObject.pixelSize = textChild.getIntAttribute("pixelSize", 16)
                   textMapObject.horizontalAlign = textChild.getAttribute("halign", Nullable("left")).getOrElse("left")
@@ -539,14 +539,14 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     // New element for our copy
     val copyElement = XmlReader.Element(sourceElement.name, Nullable.empty)
     // Get list of attributes from the source element
-    val attrs = sourceElement.getAttributes
+    val attrs = sourceElement.attributes
     attrs.foreach { a =>
       a.foreachEntry { (key, value) =>
         copyElement.setAttribute(key, value)
       }
     }
     // Checking for text
-    if (sourceElement.getText.isDefined) copyElement.setText(sourceElement.getText)
+    if (sourceElement.text.isDefined) copyElement.text = sourceElement.text
     copyElement
   }
 
@@ -578,7 +578,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       // Find & remove a duplicate by name, if any
       var existing: Nullable[XmlReader.Element] = Nullable.empty
       var i = 0
-      while (i < merged.getChildCount) {
+      while (i < merged.childCount) {
         val child = merged.getChild(i)
         if ("property" == child.name && name.isDefined && name.getOrElse("") == child.getAttribute("name", Nullable.empty).getOrElse("")) {
           existing = Nullable(child)
@@ -615,14 +615,14 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     // Create a new merged element which will contain a combination of parent and template attributes, properties etc...
     val merged = XmlReader.Element(template.name, Nullable.empty)
     // Set attributes from template
-    val templateAttrs = template.getAttributes
+    val templateAttrs = template.attributes
     templateAttrs.foreach { ta =>
       ta.foreachEntry { (k, v) =>
         merged.setAttribute(k, v)
       }
     }
     // Set attributes from the parent, matching ones from template will be overridden
-    val parentAttrs = parent.getAttributes
+    val parentAttrs = parent.attributes
     parentAttrs.foreach { pa =>
       pa.foreachEntry { (k, v) =>
         merged.setAttribute(k, v)
@@ -630,20 +630,20 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     }
     // Specifically added for TextMapObjects since they are unique compared to other objects.
     val txt =
-      if (parent.getText.isDefined && parent.getText.getOrElse("").length > 0) parent.getText else template.getText
+      if (parent.text.isDefined && parent.text.getOrElse("").length > 0) parent.text else template.text
     if (txt.isDefined) {
-      merged.setText(txt)
+      merged.text = txt
     }
     // Handle Child Elements
     // Collect all child tag names that appear in either element
     val tagNames = ObjectSet[String]()
     var i        = 0
-    while (i < template.getChildCount) {
+    while (i < template.childCount) {
       tagNames.add(template.getChild(i).name)
       i += 1
     }
     i = 0
-    while (i < parent.getChildCount) {
+    while (i < parent.childCount) {
       tagNames.add(parent.getChild(i).name)
       i += 1
     }
@@ -748,7 +748,7 @@ abstract class BaseTmxMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
   private def getPropertyValue(classProp: XmlReader.Element): String = {
     val attrValue = classProp.getAttribute("value", Nullable.empty)
-    attrValue.getOrElse(classProp.getText.getOrElse(""))
+    attrValue.getOrElse(classProp.text.getOrElse(""))
   }
 
   protected def getPropertyByName(classElement: XmlReader.Element, propName: String): XmlReader.Element = boundary {
@@ -966,7 +966,7 @@ object BaseTmxMapLoader {
     val enc = encoding.getOrElse("")
     val ids = new Array[Int](width * height)
     if (enc == "csv") {
-      val array = d.getText.getOrElse("").split(",")
+      val array = d.text.getOrElse("").split(",")
       var i     = 0
       while (i < array.length) {
         ids(i) = java.lang.Long.parseLong(array(i).trim).toInt
@@ -976,7 +976,7 @@ object BaseTmxMapLoader {
       var is: InputStream = null
       try {
         val compression = d.getAttribute("compression", Nullable.empty)
-        val bytes       = java.util.Base64.getDecoder.decode(d.getText.getOrElse(""))
+        val bytes       = java.util.Base64.getDecoder.decode(d.text.getOrElse(""))
         val comp        = compression.getOrElse("")
         if (comp.isEmpty)
           is = new ByteArrayInputStream(bytes)

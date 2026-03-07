@@ -9,9 +9,8 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Renames: end -> _end (reserved-ish name avoidance)
- *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.getColor))
+ *   Idiom: null color fallback -> Nullable.getOrElse(target.fold(...)(_.color))
  *   TODO: direct Color.a mutation -- update when Color becomes immutable
- *   TODO: Java-style getters/setters -- getColor/setColor, setAlpha
  *   Audited: 2026-03-03
  */
 package sge
@@ -29,34 +28,26 @@ import sge.graphics.Color
   */
 class AlphaAction extends TemporalAction {
   private var start: Float           = 0
-  private var _end:  Float           = 0
-  private var color: Nullable[Color] = Nullable.empty
+  var alpha:         Float           = 0
+  var color:         Nullable[Color] = Nullable.empty
 
   override protected def begin(): Unit = {
-    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
+    val c = this.color.getOrElse(target.map(_.color).getOrElse(Color()))
     start = c.a
   }
 
   override protected def update(percent: Float): Unit = {
-    val c = this.color.getOrElse(target.map(_.getColor).getOrElse(Color()))
+    val c = this.color.getOrElse(target.map(_.color).getOrElse(Color()))
     if (percent == 0)
       c.a = start
     else if (percent == 1)
-      c.a = _end
+      c.a = alpha
     else
-      c.a = start + (_end - start) * percent
+      c.a = start + (alpha - start) * percent
   }
 
   override def reset(): Unit = {
     super.reset()
     color = Nullable.empty
   }
-
-  def getColor: Nullable[Color] = color
-
-  def setColor(color: Nullable[Color]): Unit = this.color = color
-
-  def getAlpha: Float = _end
-
-  def setAlpha(alpha: Float): Unit = this._end = alpha
 }

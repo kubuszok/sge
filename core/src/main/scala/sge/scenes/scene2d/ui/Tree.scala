@@ -83,8 +83,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
               if (self.rangeStart.isEmpty) self.rangeStart = Nullable(n)
               self.rangeStart.foreach { rs =>
                 if (!UIUtils.ctrl()) self.selection.clear()
-                val start = rs.actor.getY
-                val end   = n.actor.getY
+                val start = rs.actor.y
+                val end   = n.actor.y
                 if (start > end)
                   self.selectNodes(self.rootNodes, end, start)
                 else {
@@ -100,7 +100,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
             }
             if (n.children.size > 0 && (!self.selection.getMultiple || !UIUtils.ctrl())) {
               // Toggle expanded if left of icon.
-              var rowX = n.actor.getX
+              var rowX = n.actor.x
               n.icon.foreach { icon =>
                 rowX -= self.iconSpacingRight + icon.getMinWidth
               }
@@ -236,8 +236,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
           rowWidth += layout.getPrefWidth
           node.height = layout.getPrefHeight
         case _ =>
-          rowWidth += actor.getWidth
-          node.height = actor.getHeight
+          rowWidth += actor.width
+          node.height = actor.height
       }
       node.icon.foreach { icon =>
         rowWidth += spacing + icon.getMinWidth
@@ -252,7 +252,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
   override def layout(): Unit = {
     if (sizeInvalid) computeSize()
-    layout(rootNodes, paddingLeft, getHeight - ySpacing / 2, plusMinusWidth())
+    layout(rootNodes, paddingLeft, this.height - ySpacing / 2, plusMinusWidth())
   }
 
   private def layout(nodes: DynamicArray[N], indent: Float, y: Float, plusMinusWidth: Float): Float = {
@@ -285,7 +285,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     drawBackground(batch, parentAlpha)
-    val color = getColor
+    val color = this.color
     val a     = color.a * parentAlpha
     batch.setColor(color.r, color.g, color.b, a)
     drawIcons(batch, color.r, color.g, color.b, a, Nullable.empty, rootNodes, paddingLeft, plusMinusWidth())
@@ -295,9 +295,9 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   /** Called to draw the background. Default implementation draws the style background drawable. */
   protected def drawBackground(batch: Batch, parentAlpha: Float): Unit =
     _style.background.foreach { bg =>
-      val color = getColor
+      val color = this.color
       batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
-      bg.draw(batch, getX, getY, getWidth, getHeight)
+      bg.draw(batch, this.x, this.y, this.width, this.height)
     }
 
   /** Draws selection, icons, and expand icons.
@@ -326,8 +326,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       cullTop = cullBottom + ca.height
     }
     val style   = this._style
-    val x       = getX
-    val y       = getY
+    val x       = this.x
+    val y       = this.y
     val expandX = x + indent
     val iconX   = expandX + plusMinusWidth + iconSpacingLeft
     var actorY  = 0f
@@ -337,22 +337,22 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       while (i < n) {
         val node  = nodes(i)
         val actor = node.actor
-        actorY = actor.getY
+        actorY = actor.y
         val height = node.height
         if (cullingArea.isEmpty || (actorY + height >= cullBottom && actorY <= cullTop)) {
           if (selection.contains(Nullable(node)) && style.selection.isDefined) {
             style.selection.foreach { sel =>
-              drawSelection(node, sel, batch, x, y + actorY - ySpacing / 2, getWidth, height + ySpacing)
+              drawSelection(node, sel, batch, x, y + actorY - ySpacing / 2, this.width, height + ySpacing)
             }
           } else if (_overNode.exists(_ eq node) && style.over.isDefined) {
             style.over.foreach { ov =>
-              drawOver(node, ov, batch, x, y + actorY - ySpacing / 2, getWidth, height + ySpacing)
+              drawOver(node, ov, batch, x, y + actorY - ySpacing / 2, this.width, height + ySpacing)
             }
           }
 
           node.icon.foreach { icon =>
             val iconY      = y + actorY + Math.round((height - icon.getMinHeight) / 2)
-            val actorColor = actor.getColor
+            val actorColor = actor.color
             batch.setColor(actorColor.r, actorColor.g, actorColor.b, actorColor.a * a)
             drawIcon(node, icon, batch, iconX, iconY)
             batch.setColor(r, g, b, a)
@@ -396,7 +396,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       && Sge().application.getType() == Application.ApplicationType.Desktop //
       && (!selection.getMultiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
     ) {
-      val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.getX().toFloat, 0)).x + getX
+      val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.getX().toFloat, 0)).x + this.x
       if (mouseX >= 0 && mouseX < iconX) {
         val icon: Nullable[Drawable] = if (node.expanded) _style.minusOver else _style.plusOver
         val defaultIcon = if (node.expanded) _style.minus else _style.plus
@@ -411,7 +411,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   /** @return May be null. */
   def getNodeAt(y: Float): Nullable[N] = {
     foundNode = Nullable.empty
-    getNodeAt(rootNodes, y, getHeight)
+    getNodeAt(rootNodes, y, this.height)
     val result = foundNode
     foundNode = Nullable.empty
     result
@@ -445,10 +445,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       val n = nodes.size
       while (i < n) {
         val node = nodes(i)
-        if (node.actor.getY < low) scala.util.boundary.break(())
+        if (node.actor.y < low) scala.util.boundary.break(())
         scala.util.boundary {
           if (!node.isSelectable) scala.util.boundary.break(())
-          if (node.actor.getY <= high) selection.add(node)
+          if (node.actor.y <= high) selection.add(node)
           if (node.expanded) selectNodes(node.children, low, high)
         }
         i += 1

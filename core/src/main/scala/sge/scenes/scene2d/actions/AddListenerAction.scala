@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: target null-access -> target.foreach + listener.foreach
- *   TODO: Java-style getters/setters -- setListener, setCapture
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,8 +23,8 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class AddListenerAction extends Action {
-  private var listener: Nullable[EventListener] = Nullable.empty
-  private var capture:  Boolean                 = false
+  var listener: Nullable[EventListener] = Nullable.empty
+  var capture:  Boolean                 = false
 
   def act(delta: Float): Boolean = {
     target.foreach { t =>
@@ -36,14 +35,6 @@ class AddListenerAction extends Action {
     }
     true
   }
-
-  def getListener: Nullable[EventListener] = listener
-
-  def setListener(listener: EventListener): Unit = this.listener = Nullable(listener)
-
-  def getCapture: Boolean = capture
-
-  def setCapture(capture: Boolean): Unit = this.capture = capture
 
   override def reset(): Unit = {
     super.reset()

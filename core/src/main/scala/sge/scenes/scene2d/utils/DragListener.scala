@@ -45,8 +45,8 @@ class DragListener extends InputListener {
       pressedPointer = pointer
       touchDownX = x
       touchDownY = y
-      stageTouchDownX = event.getStageX
-      stageTouchDownY = event.getStageY
+      stageTouchDownX = event.stageX
+      stageTouchDownY = event.stageY
       true
     }
 

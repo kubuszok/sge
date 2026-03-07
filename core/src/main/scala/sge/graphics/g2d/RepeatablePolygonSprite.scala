@@ -78,13 +78,13 @@ class RepeatablePolygonSprite {
 
     val boundRect = polygon.getBoundingRectangle
 
-    val finalDensity = if (density == -1) boundRect.getWidth() / region.regionWidth else density
+    val finalDensity = if (density == -1) boundRect.width / region.regionWidth else density
 
     val regionAspectRatio = region.regionHeight.toFloat / region.regionWidth.toFloat
     cols = Math.ceil(finalDensity).toInt
-    gridWidth = boundRect.getWidth() / finalDensity
+    gridWidth = boundRect.width / finalDensity
     gridHeight = regionAspectRatio * gridWidth
-    rows = Math.ceil(boundRect.getHeight() / gridHeight).toInt
+    rows = Math.ceil(boundRect.height / gridHeight).toInt
 
     for (col <- 0 until cols)
       for (row <- 0 until rows) {

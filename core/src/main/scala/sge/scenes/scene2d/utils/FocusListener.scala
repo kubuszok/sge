@@ -12,7 +12,6 @@
  * - @Null Actor relatedActor -> Nullable[Actor]
  * - switch/case -> Scala pattern matching
  * - All methods faithfully ported
- * - TODO: Java-style getters/setters — FocusEvent.isFocused
  */
 package sge
 package scenes
@@ -29,11 +28,11 @@ abstract class FocusListener extends EventListener {
   def handle(event: Event): Boolean =
     event match {
       case focusEvent: FocusListener.FocusEvent =>
-        focusEvent.getType match {
+        focusEvent.focusType match {
           case FocusListener.FocusEvent.Type.keyboard =>
-            keyboardFocusChanged(focusEvent, event.getTarget, focusEvent.isFocused)
+            event.target.foreach(t => keyboardFocusChanged(focusEvent, t, focusEvent.focused))
           case FocusListener.FocusEvent.Type.scroll =>
-            scrollFocusChanged(focusEvent, event.getTarget, focusEvent.isFocused)
+            event.target.foreach(t => scrollFocusChanged(focusEvent, t, focusEvent.focused))
         }
         false
       case _ => false
@@ -53,32 +52,17 @@ object FocusListener {
     *   Nathan Sweet
     */
   class FocusEvent extends Event {
-    private var focused:      Boolean         = false
-    private var focusType:    FocusEvent.Type = scala.compiletime.uninitialized
-    private var relatedActor: Nullable[Actor] = Nullable.empty
+    var focused:   Boolean         = false
+    var focusType: FocusEvent.Type = scala.compiletime.uninitialized
+
+    /** The actor related to the event. When focus is lost, this is the new actor being focused, or null. When focus is gained, this is the previous actor that was focused, or null.
+      */
+    var relatedActor: Nullable[Actor] = Nullable.empty
 
     override def reset(): Unit = {
       super.reset()
       relatedActor = Nullable.empty
     }
-
-    def isFocused: Boolean = focused
-
-    def setFocused(focused: Boolean): Unit =
-      this.focused = focused
-
-    def getType: FocusEvent.Type = focusType
-
-    def setType(focusType: FocusEvent.Type): Unit =
-      this.focusType = focusType
-
-    /** The actor related to the event. When focus is lost, this is the new actor being focused, or null. When focus is gained, this is the previous actor that was focused, or null.
-      */
-    def getRelatedActor: Nullable[Actor] = relatedActor
-
-    /** @param relatedActor May be null. */
-    def setRelatedActor(relatedActor: Nullable[Actor]): Unit =
-      this.relatedActor = relatedActor
   }
 
   object FocusEvent {

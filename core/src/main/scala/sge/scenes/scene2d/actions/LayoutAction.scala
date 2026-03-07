@@ -8,7 +8,6 @@
  *
  * Migration notes:
  *   Convention: split packages; braces on class
- *   TODO: Java-style getters/setters -- isEnabled/setLayoutEnabled
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,7 +23,7 @@ import sge.utils.{ Nullable, SgeError }
   *   Nathan Sweet
   */
 class LayoutAction extends Action {
-  private var enabled: Boolean = false
+  var enabled: Boolean = false
 
   override def setTarget(actor: Nullable[Actor]): Unit = {
     actor.foreach { a =>
@@ -39,8 +38,4 @@ class LayoutAction extends Action {
     }
     true
   }
-
-  def isEnabled: Boolean = enabled
-
-  def setLayoutEnabled(enabled: Boolean): Unit = this.enabled = enabled
 }

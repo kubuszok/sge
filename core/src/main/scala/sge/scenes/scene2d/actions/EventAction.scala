@@ -10,7 +10,6 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Renames: ClassReflection.isInstance -> eventClass.isInstance; (T)event -> eventClass.cast(event)
  *   Idiom: target null-check -> target.foreach/newTarget.foreach; anonymous class preserved
- *   TODO: Java-style getters/setters -- isActive, getEvent
  *   Audited: 2026-03-03
  */
 package sge
@@ -58,8 +57,4 @@ abstract class EventAction[T <: Event](val eventClass: Class[? <: T]) extends Ac
     active = true
     result
   }
-
-  def isActive: Boolean = active
-
-  def setActive(active: Boolean): Unit = this.active = active
 }

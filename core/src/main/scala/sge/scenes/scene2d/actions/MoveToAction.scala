@@ -10,7 +10,6 @@
  *   Convention: no return; split packages; braces on class
  *   Renames: int alignment -> Align (opaque type); Align.bottomLeft constant
  *   Idiom: target.getX -> target.foreach(t => startX = t.getX(alignment))
- *   TODO: Java-style getters/setters -- getX/setX, getY/setY, getAlignment/setAlignment
  *   Audited: 2026-03-03
  */
 package sge
@@ -25,11 +24,15 @@ import sge.utils.Align
   *   Nathan Sweet
   */
 class MoveToAction extends TemporalAction {
-  private var startX:    Float = 0
-  private var startY:    Float = 0
-  private var endX:      Float = 0
-  private var endY:      Float = 0
-  private var alignment: Align = Align.bottomLeft
+
+  /** Gets the starting X value, set in {@link #begin()}. */
+  var startX: Float = 0
+
+  /** Gets the starting Y value, set in {@link #begin()}. */
+  var startY:    Float = 0
+  var endX:      Float = 0
+  var endY:      Float = 0
+  var alignment: Align = Align.bottomLeft
 
   override protected def begin(): Unit =
     target.foreach { t =>
@@ -49,24 +52,6 @@ class MoveToAction extends TemporalAction {
   def setPosition(x: Float, y: Float): Unit = { endX = x; endY = y }
 
   def setPosition(x: Float, y: Float, alignment: Align): Unit = { endX = x; endY = y; this.alignment = alignment }
-
-  def getX: Float = endX
-
-  def setX(x: Float): Unit = this.endX = x
-
-  def getY: Float = endY
-
-  def setY(y: Float): Unit = this.endY = y
-
-  /** Gets the starting X value, set in {@link #begin()}. */
-  def getStartX: Float = startX
-
-  /** Gets the starting Y value, set in {@link #begin()}. */
-  def getStartY: Float = startY
-
-  def getAlignment: Align = alignment
-
-  def setAlignment(alignment: Align): Unit = this.alignment = alignment
 
   override def reset(): Unit = {
     super.reset()

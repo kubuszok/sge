@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: TextureFilter/TextureWrap enums; managed texture support
  *   Idiom: split packages
- *   TODO: Java-style getters/setters -- getTextureData, isManaged, setAssetManager
+ *   Renames: getTextureData() → textureData (public val); isManaged → managed; setAssetManager → assetManager_=
  *   TODO: opaque Pixels for getWidth/Height, draw x/y params -- see docs/improvements/opaque-types.md
  *   TODO: typed GL enums -- TextureTarget, PixelFormat, DataType -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
@@ -40,7 +40,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
 
   // TextureFilter and TextureWrap enums are now defined in TextureEnums.scala
 
-  private val textureData = data
+  val textureData: TextureData = data
 
   def this(internalPath: String)(using Sge) =
     this(
@@ -102,7 +102,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
     this(GL20.GL_TEXTURE_2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
 
   load(data)
-  if (data.isManaged) Texture.addManagedTexture(summon[Sge].application, this)
+  if (data.isManaged) Texture.addManagedTexture(Sge().application, this)
 
   def load(data: TextureData): Unit = {
     Nullable(this.textureData).foreach { existing =>
@@ -124,7 +124,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
   /** Used internally to reload after context loss. Creates a new GL handle then calls {@link #load(TextureData)} . Use this only if you know what you do!
     */
   override protected def reload(): Unit = {
-    if (!isManaged) throw SgeError.GraphicsError("Tried to reload unmanaged Texture")
+    if (!managed) throw SgeError.GraphicsError("Tried to reload unmanaged Texture")
     glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }
@@ -152,10 +152,8 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
 
   override def getDepth: Int = 0
 
-  def getTextureData(): TextureData = textureData
-
   /** @return whether this texture is managed or not. */
-  override def isManaged: Boolean = textureData.isManaged
+  override def managed: Boolean = textureData.isManaged
 
   /** Disposes all resources associated with the texture */
   override def close(): Unit =
@@ -165,7 +163,7 @@ class Texture(glTarget: Int, glHandle: TextureHandle, data: TextureData)(using S
     // removal from the asset manager.
     if (glHandle != TextureHandle.none) {
       delete()
-      if (textureData.isManaged)
+      if (managed)
         Texture.managedTextures.get(Sge().application).foreach(_.removeValue(this))
     }
 
@@ -223,12 +221,12 @@ object Texture {
                   // create the parameters, passing the reference to the texture as
                   // well as a callback that sets the ref count.
                   val params = TextureParameter()
-                  params.textureData = Nullable(texture.getTextureData())
+                  params.textureData = Nullable(texture.textureData)
                   params.minFilter = texture.getMinFilter()
                   params.magFilter = texture.getMagFilter()
                   params.wrapU = texture.getUWrap()
                   params.wrapV = texture.getVWrap()
-                  params.genMipMaps = texture.getTextureData().useMipMaps
+                  params.genMipMaps = texture.textureData.useMipMaps
                   params.texture = Nullable(texture) // special parameter which will ensure that the references stay the same.
                   params.loadedCallback = Nullable(
                     new AssetLoaderParameters.LoadedCallback() {
@@ -253,7 +251,7 @@ object Texture {
     * @param manager
     *   the asset manager.
     */
-  def setAssetManager(manager: AssetManager): Unit =
+  def assetManager_=(manager: AssetManager): Unit =
     Texture.assetManager = Nullable(manager)
 
   def getManagedStatus(): String = {

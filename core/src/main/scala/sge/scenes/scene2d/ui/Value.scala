@@ -67,53 +67,53 @@ object Value {
   val minWidth: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getMinWidth
-      case a => a.getWidth
+      case a => a.width
     }
 
   /** Value that is the minHeight of the actor in the cell. */
   val minHeight: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getMinHeight
-      case a => a.getHeight
+      case a => a.height
     }
 
   /** Value that is the prefWidth of the actor in the cell. */
   val prefWidth: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getPrefWidth
-      case a => a.getWidth
+      case a => a.width
     }
 
   /** Value that is the prefHeight of the actor in the cell. */
   val prefHeight: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getPrefHeight
-      case a => a.getHeight
+      case a => a.height
     }
 
   /** Value that is the maxWidth of the actor in the cell. */
   val maxWidth: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getMaxWidth
-      case a => a.getWidth
+      case a => a.width
     }
 
   /** Value that is the maxHeight of the actor in the cell. */
   val maxHeight: Value = context =>
     context.fold(0f) {
       case l: Layout => l.getMaxHeight
-      case a => a.getHeight
+      case a => a.height
     }
 
   /** Returns a value that is a percentage of the actor's width. */
-  def percentWidth(percent: Float): Value = context => context.map(_.getWidth * percent).getOrElse(0f)
+  def percentWidth(percent: Float): Value = context => context.map(_.width * percent).getOrElse(0f)
 
   /** Returns a value that is a percentage of the actor's height. */
-  def percentHeight(percent: Float): Value = context => context.map(_.getHeight * percent).getOrElse(0f)
+  def percentHeight(percent: Float): Value = context => context.map(_.height * percent).getOrElse(0f)
 
   /** Returns a value that is a percentage of the specified actor's width. The context actor is ignored. */
-  def percentWidth(percent: Float, actor: Actor): Value = _ => actor.getWidth * percent
+  def percentWidth(percent: Float, actor: Actor): Value = _ => actor.width * percent
 
   /** Returns a value that is a percentage of the specified actor's height. The context actor is ignored. */
-  def percentHeight(percent: Float, actor: Actor): Value = _ => actor.getHeight * percent
+  def percentHeight(percent: Float, actor: Actor): Value = _ => actor.height * percent
 }

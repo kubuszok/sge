@@ -104,7 +104,7 @@ abstract class BaseShader extends Shader {
   /** Initialize this shader, causing all registered uniforms/attributes to be fetched. */
   def init(program: ShaderProgram, renderable: Renderable): Unit = {
     if (locations.isDefined) throw SgeError.GraphicsError("Already initialized")
-    if (!program.isCompiled()) throw SgeError.GraphicsError(program.getLog())
+    if (!program.compiled) throw SgeError.GraphicsError(program.getLog())
     this.program = Nullable(program)
 
     val n    = uniforms.size
@@ -141,7 +141,7 @@ abstract class BaseShader extends Shader {
       while (j < c) {
         val attr     = attrs.get(j)
         val location = program.getAttributeLocation(attr.alias)
-        if (location >= 0) _attributes.put(attr.getKey(), location)
+        if (location >= 0) _attributes.put(attr.key, location)
         j += 1
       }
       val iattrs = r.meshPart.mesh.getInstancedAttributes()
@@ -151,7 +151,7 @@ abstract class BaseShader extends Shader {
         while (k < ic) {
           val attr     = ia.get(k)
           val location = program.getAttributeLocation(attr.alias)
-          if (location >= 0) instancedAttributes.put(attr.getKey(), location)
+          if (location >= 0) instancedAttributes.put(attr.key, location)
           k += 1
         }
       }
@@ -179,7 +179,7 @@ abstract class BaseShader extends Shader {
     val n = attrs.size
     var i = 0
     while (i < n) {
-      tempArray.add(_attributes.get(attrs.get(i).getKey(), -1))
+      tempArray.add(_attributes.get(attrs.get(i).key, -1))
       i += 1
     }
     tempArray.shrink()
@@ -193,7 +193,7 @@ abstract class BaseShader extends Shader {
       val n = a.size
       var i = 0
       while (i < n) {
-        tempArray2.add(instancedAttributes.get(a.get(i).getKey(), -1))
+        tempArray2.add(instancedAttributes.get(a.get(i).key, -1))
         i += 1
       }
       tempArray2.shrink()

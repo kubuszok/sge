@@ -12,7 +12,7 @@
  *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on constructor (class-level context)
  *   Idiom: Alignment bitfield ops -> Align methods (isRight, isLeft, etc.); do-while -> while with Nullable;
  *     POOLS static init block -> companion object vals; ancestorsVisible() deprecated method dropped
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (~15 pairs: setX/getX, setVisible/isVisible, setTouchable/getTouchable, etc.)
+ *   TODO: drawDebugBounds — ShapeRenderer.rect with rotation/origin not yet ported
  *   Audited: 2026-03-03
  */
 package sge
@@ -42,7 +42,7 @@ import sge.scenes.scene2d.utils.ScissorStack
   */
 class Actor()(using Sge) {
 
-  private var stage:            Nullable[Stage]             = Nullable.empty
+  private[scene2d] var _stage:  Nullable[Stage]             = Nullable.empty
   private[scene2d] var parent:  Nullable[Group]             = Nullable.empty
   private val listeners:        DynamicArray[EventListener] = DynamicArray[EventListener]()
   private val captureListeners: DynamicArray[EventListener] = DynamicArray[EventListener]()
@@ -54,21 +54,31 @@ class Actor()(using Sge) {
   private val pendingListenerRemovals:        DynamicArray[EventListener] = DynamicArray[EventListener]()
   private val pendingCaptureListenerRemovals: DynamicArray[EventListener] = DynamicArray[EventListener]()
 
-  private var name:       Nullable[String] = Nullable.empty
-  private var touchable:  Touchable        = Touchable.enabled
-  private var visible:    Boolean          = true
-  private var _debug:     Boolean          = false
-  var x:                  Float            = 0
-  var y:                  Float            = 0
-  var width:              Float            = 0
-  var height:             Float            = 0
-  var originX:            Float            = 0
-  var originY:            Float            = 0
-  var scaleX:             Float            = 1
-  var scaleY:             Float            = 1
-  var rotation:           Float            = 0
-  val color:              Color            = Color(1, 1, 1, 1)
-  private var userObject: Nullable[AnyRef] = Nullable.empty
+  /** Set the actor's name, which is used for identification convenience and by {@link #toString()}.
+    * @see
+    *   Group#findActor(String)
+    */
+  var name: Nullable[String] = Nullable.empty
+
+  /** Determines how touch events are distributed to this actor. Default is {@link Touchable#enabled}. */
+  var touchable: Touchable = Touchable.enabled
+
+  /** If false, the actor will not be drawn and will not receive touch events. Default is true. */
+  var visible:        Boolean = true
+  private var _debug: Boolean = false
+  var x:              Float   = 0
+  var y:              Float   = 0
+  var width:          Float   = 0
+  var height:         Float   = 0
+  var originX:        Float   = 0
+  var originY:        Float   = 0
+  var scaleX:         Float   = 1
+  var scaleY:         Float   = 1
+  var rotation:       Float   = 0
+  val color:          Color   = Color(1, 1, 1, 1)
+
+  /** An application specific object for convenience. */
+  var userObject: Nullable[AnyRef] = Nullable.empty
 
   /** Draws the actor. The batch is configured to draw in the parent's coordinate system. {@link Batch#draw(com.badlogic.gdx.graphics.g2d.TextureRegion, float, float, float, float, float, float,
     * float, float, float) This draw method} is convenient to draw a rotated and scaled TextureRegion. {@link Batch#begin()} has already been called on the batch. If {@link Batch#end()} is called to
@@ -85,7 +95,7 @@ class Actor()(using Sge) {
     */
   def act(delta: Float): Unit =
     if (actions.nonEmpty) {
-      stage.foreach { s =>
+      _stage.foreach { s =>
         if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
       try {
@@ -118,8 +128,8 @@ class Actor()(using Sge) {
     *   true if the event was {@link Event#cancel() cancelled}.
     */
   def fire(event: Event): Boolean = scala.util.boundary {
-    if (event.getStage.isEmpty) stage.foreach(s => event.setStage(s))
-    event.setTarget(this)
+    if (event.stage.isEmpty) _stage.foreach(s => event.stage = Nullable(s))
+    event.target = Nullable(this)
 
     // Collect ascendants so event propagation is unaffected by hierarchy changes.
     val ascendants = DynamicArray[Group]()
@@ -150,7 +160,7 @@ class Actor()(using Sge) {
 
       // Notify the target listeners.
       notify(event, capture = false)
-      if (!event.getBubbles) scala.util.boundary.break(event.isCancelled)
+      if (!event.bubbles) scala.util.boundary.break(event.isCancelled)
       if (event.isStopped) scala.util.boundary.break(event.isCancelled)
 
       // Notify ascendants' actor listeners, starting at the target. Children may stop an event before ascendants receive it.
@@ -175,14 +185,14 @@ class Actor()(using Sge) {
     *   true if the event was {@link Event#cancel() cancelled}.
     */
   def notify(event: Event, capture: Boolean): Boolean = scala.util.boundary {
-    if (Nullable(event.getTarget).isEmpty) throw new IllegalArgumentException("The event target cannot be null.")
+    if (event.target.isEmpty) throw new IllegalArgumentException("The event target cannot be null.")
 
     val listenersToNotify = if (capture) captureListeners else listeners
     if (listenersToNotify.isEmpty) scala.util.boundary.break(event.isCancelled)
 
-    event.setListenerActor(this)
-    event.setCapture(capture)
-    if (event.getStage.isEmpty) stage.foreach(s => event.setStage(s))
+    event.listenerActor = Nullable(this)
+    event.capture = capture
+    if (event.stage.isEmpty) _stage.foreach(s => event.stage = Nullable(s))
 
     try {
       if (capture) iteratingCaptureListeners += 1 else iteratingListeners += 1
@@ -224,7 +234,7 @@ class Actor()(using Sge) {
     */
   def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] =
     if (touchable && this.touchable != Touchable.enabled) Nullable.empty
-    else if (!isVisible) Nullable.empty
+    else if (!visible) Nullable.empty
     else if (x >= 0 && x < width && y >= 0 && y < height) Nullable(this)
     else Nullable.empty
 
@@ -286,7 +296,7 @@ class Actor()(using Sge) {
     action.setActor(Nullable(this))
     actions.add(action)
 
-    stage.foreach { s =>
+    _stage.foreach { s =>
       if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
     }
   }
@@ -329,14 +339,14 @@ class Actor()(using Sge) {
   }
 
   /** Returns the stage that this actor is currently in, or null if not in a stage. */
-  def getStage: Nullable[Stage] = stage
+  def stage: Nullable[Stage] = _stage
 
   /** Called by the framework when this actor or any ascendant is added to a group that is in the stage.
     * @param stage
     *   May be null if the actor or any ascendant is no longer in a stage.
     */
   protected[scene2d] def setStage(stage: Nullable[Stage]): Unit =
-    this.stage = stage
+    this._stage = stage
 
   /** Returns true if this actor is the same as or is the descendant of the specified actor. */
   def isDescendantOf(actor: Actor): Boolean = scala.util.boundary {
@@ -388,24 +398,12 @@ class Actor()(using Sge) {
   /** Returns true if input events are processed by this actor. */
   def isTouchable: Boolean = touchable == Touchable.enabled
 
-  def getTouchable: Touchable = touchable
-
-  /** Determines how touch events are distributed to this actor. Default is {@link Touchable#enabled}. */
-  def setTouchable(touchable: Touchable): Unit =
-    this.touchable = touchable
-
-  def isVisible: Boolean = visible
-
-  /** If false, the actor will not be drawn and will not receive touch events. Default is true. */
-  def setVisible(visible: Boolean): Unit =
-    this.visible = visible
-
   /** Returns true if this actor and all ascendants are visible. */
   def ascendantsVisible(): Boolean = scala.util.boundary {
     var a: Nullable[Actor] = Nullable(this)
     while (a.isDefined)
       a.foreach { actor =>
-        if (!actor.isVisible) scala.util.boundary.break(false)
+        if (!actor.visible) scala.util.boundary.break(false)
         a = actor.parent.map(_.asInstanceOf[Actor])
       }
     true
@@ -413,19 +411,19 @@ class Actor()(using Sge) {
 
   /** Returns true if this actor is the {@link Stage#getKeyboardFocus() keyboard focus} actor. */
   def hasKeyboardFocus: Boolean =
-    getStage.exists(_.getKeyboardFocus.exists(_ eq this))
+    stage.exists(_.getKeyboardFocus.exists(_ eq this))
 
   /** Returns true if this actor is the {@link Stage#getScrollFocus() scroll focus} actor. */
   def hasScrollFocus: Boolean =
-    getStage.exists(_.getScrollFocus.exists(_ eq this))
+    stage.exists(_.getScrollFocus.exists(_ eq this))
 
   /** Returns true if this actor is a target actor for touch focus.
     * @see
     *   Stage#addTouchFocus(EventListener, Actor, Actor, int, int)
     */
   def isTouchFocusTarget: Boolean =
-    getStage.exists { stage =>
-      stage.touchFocuses.exists(_.target eq this)
+    stage.exists { s =>
+      s.touchFocuses.exists(_.target eq this)
     }
 
   /** Returns true if this actor is a listener actor for touch focus.
@@ -433,19 +431,9 @@ class Actor()(using Sge) {
     *   Stage#addTouchFocus(EventListener, Actor, Actor, int, int)
     */
   def isTouchFocusListener: Boolean =
-    getStage.exists { stage =>
-      stage.touchFocuses.exists(_.listenerActor eq this)
+    stage.exists { s =>
+      s.touchFocuses.exists(_.listenerActor eq this)
     }
-
-  /** Returns an application specific object for convenience, or null. */
-  def getUserObject: Nullable[AnyRef] = userObject
-
-  /** Sets an application specific object for convenience. */
-  def setUserObject(userObject: Nullable[AnyRef]): Unit =
-    this.userObject = userObject
-
-  /** Returns the X position of the actor's left edge. */
-  def getX: Float = x
 
   /** Returns the X position of the specified {@link Align alignment}. */
   def getX(alignment: Align): Float = {
@@ -477,9 +465,6 @@ class Actor()(using Sge) {
       positionChanged()
     }
   }
-
-  /** Returns the Y position of the actor's bottom edge. */
-  def getY: Float = y
 
   def setY(y: Float): Unit =
     if (this.y != y) {
@@ -550,15 +535,11 @@ class Actor()(using Sge) {
       positionChanged()
     }
 
-  def getWidth: Float = width
-
   def setWidth(width: Float): Unit =
     if (this.width != width) {
       this.width = width
       sizeChanged()
     }
-
-  def getHeight: Float = height
 
   def setHeight(height: Float): Unit =
     if (this.height != height) {
@@ -622,16 +603,6 @@ class Actor()(using Sge) {
     }
   }
 
-  def getOriginX: Float = originX
-
-  def setOriginX(originX: Float): Unit =
-    this.originX = originX
-
-  def getOriginY: Float = originY
-
-  def setOriginY(originY: Float): Unit =
-    this.originY = originY
-
   /** Sets the origin position which is relative to the actor's bottom left corner. */
   def setOrigin(originX: Float, originY: Float): Unit = {
     this.originX = originX
@@ -655,15 +626,11 @@ class Actor()(using Sge) {
       originY = height / 2
   }
 
-  def getScaleX: Float = scaleX
-
   def setScaleX(scaleX: Float): Unit =
     if (this.scaleX != scaleX) {
       this.scaleX = scaleX
       scaleChanged()
     }
-
-  def getScaleY: Float = scaleY
 
   def setScaleY(scaleY: Float): Unit =
     if (this.scaleY != scaleY) {
@@ -703,8 +670,6 @@ class Actor()(using Sge) {
       scaleChanged()
     }
 
-  def getRotation: Float = rotation
-
   def setRotation(degrees: Float): Unit =
     if (this.rotation != degrees) {
       this.rotation = degrees
@@ -723,25 +688,6 @@ class Actor()(using Sge) {
 
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
     color.set(r, g, b, a)
-
-  /** Returns the color the actor will be tinted when drawn. The returned instance can be modified to change the color. */
-  def getColor: Color = color
-
-  /** @see
-    *   #setName(String)
-    * @return
-    *   May be null.
-    */
-  def getName: Nullable[String] = name
-
-  /** Set the actor's name, which is used for identification convenience and by {@link #toString()}.
-    * @param name
-    *   May be null.
-    * @see
-    *   Group#findActor(String)
-    */
-  def setName(name: Nullable[String]): Unit =
-    this.name = name
 
   /** Changes the z-order for this actor so it is in front of all siblings. */
   def toFront(): Unit =
@@ -797,7 +743,7 @@ class Actor()(using Sge) {
   def clipBegin(x: Float, y: Float, width: Float, height: Float): Boolean =
     if (width <= 0 || height <= 0) false
     else {
-      stage.exists { stage =>
+      _stage.exists { stage =>
         val tableBounds = Rectangle.tmp
         tableBounds.x = x
         tableBounds.y = y
@@ -822,7 +768,7 @@ class Actor()(using Sge) {
     *   Stage#screenToStageCoordinates(Vector2)
     */
   def screenToLocalCoordinates(screenCoords: Vector2): Vector2 =
-    stage.fold(screenCoords) { s =>
+    _stage.fold(screenCoords) { s =>
       stageToLocalCoordinates(s.screenToStageCoordinates(screenCoords))
     }
 
@@ -868,7 +814,7 @@ class Actor()(using Sge) {
     *   Stage#stageToScreenCoordinates(Vector2)
     */
   def localToScreenCoordinates(localCoords: Vector2): Vector2 =
-    stage.fold(localCoords) { s =>
+    _stage.fold(localCoords) { s =>
       s.stageToScreenCoordinates(localToAscendantCoordinates(Nullable.empty, localCoords))
     }
 

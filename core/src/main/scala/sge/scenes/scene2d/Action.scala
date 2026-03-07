@@ -10,7 +10,6 @@
  *   Renames: Pool.Poolable (Java interface) -> Pool.Poolable (Scala trait)
  *   Convention: null -> Nullable[A]; no return statements; split packages
  *   Idiom: setActor null-check -> Nullable.fold; Pool raw type -> Pool[?]
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getActor/setActor, getTarget/setTarget, getPool/setPool)
  *   TODO: extends Pool.Poolable → define given Poolable[Action] in companion
  *   Audited: 2026-03-03
  */
@@ -28,12 +27,16 @@ import sge.utils.Pool
 abstract class Action extends Pool.Poolable {
 
   /** The actor this action is attached to, or null if it is not attached. */
-  protected var actor: Nullable[Actor] = Nullable.empty
+  private[scene2d] var actor: Nullable[Actor] = Nullable.empty
 
   /** The actor this action targets, or null if a target has not been set. */
-  protected var target: Nullable[Actor] = Nullable.empty
+  private[scene2d] var target: Nullable[Actor] = Nullable.empty
 
-  private var pool: Nullable[Pool[?]] = Nullable.empty
+  /** The pool that the action will be returned to when removed from the actor.
+    * @see
+    *   #setActor(Actor)
+    */
+  var pool: Nullable[Pool[?]] = Nullable.empty
 
   /** Updates the action based on time. Typically this is called each frame by {@link Actor#act(float)}.
     * @param delta
@@ -63,16 +66,10 @@ abstract class Action extends Pool.Poolable {
     }(_ => ())
   }
 
-  /** @return null if the action is not attached to an actor. */
-  def getActor: Nullable[Actor] = actor
-
   /** Sets the actor this action will manipulate. If no target actor is set, {@link #setActor(Actor)} will set the target actor when the action is added to an actor.
     */
   def setTarget(target: Nullable[Actor]): Unit =
     this.target = target
-
-  /** @return null if the action has no target. */
-  def getTarget: Nullable[Actor] = target
 
   /** Resets the optional state of this action to as if it were newly created, allowing the action to be pooled and reused. State required to be set for every usage of this action or computed during
     * the action does not need to be reset. <p> The default implementation calls {@link #restart()}. <p> If a subclass has optional state, it must override this method, call super, and reset the
@@ -84,17 +81,6 @@ abstract class Action extends Pool.Poolable {
     pool = Nullable.empty
     restart()
   }
-
-  def getPool: Nullable[Pool[?]] = pool
-
-  /** Sets the pool that the action will be returned to when removed from the actor.
-    * @param pool
-    *   May be null.
-    * @see
-    *   #setActor(Actor)
-    */
-  def setPool(pool: Nullable[Pool[?]]): Unit =
-    this.pool = pool
 
   override def toString: String = {
     var name     = getClass.getName

@@ -86,7 +86,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
           self.setSelectedIndex(index)
           scala.util.boundary.break(true)
         case Input.Keys.ESCAPE =>
-          self.getStage.foreach(_.setKeyboardFocus(Nullable.empty))
+          self.stage.foreach(_.setKeyboardFocus(Nullable.empty))
           scala.util.boundary.break(true)
         case _ =>
       }
@@ -117,7 +117,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
       override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = scala.util.boundary {
         if (pointer != 0 || button != 0) scala.util.boundary.break(true)
         if (self.selection.isDisabled) scala.util.boundary.break(true)
-        self.getStage.foreach(_.setKeyboardFocus(Nullable(self)))
+        self.stage.foreach(_.setKeyboardFocus(Nullable(self)))
         if (self.items.isEmpty) scala.util.boundary.break(true)
         val index = self.getItemIndexAt(y)
         if (index == -1) scala.util.boundary.break(true)
@@ -194,24 +194,24 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     val fontColorSelected   = _style.fontColorSelected
     val fontColorUnselected = _style.fontColorUnselected
 
-    val color = getColor
-    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+    val c = this.color
+    batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
 
-    var x      = getX
-    val y      = getY
-    var width  = getWidth
-    val height = getHeight
-    var itemY  = height
+    var lx    = this.x
+    val ly    = this.y
+    var lw    = this.width
+    val lh    = this.height
+    var itemY = lh
 
     _style.background.foreach { background =>
       val leftWidth = background.getLeftWidth
-      x += leftWidth
+      lx += leftWidth
       itemY -= background.getTopHeight
-      width -= leftWidth + background.getRightWidth
+      lw -= leftWidth + background.getRightWidth
     }
 
     val textOffsetX = selectedDrawable.getLeftWidth
-    val textWidth   = width - textOffsetX - selectedDrawable.getRightWidth
+    val textWidth   = lw - textOffsetX - selectedDrawable.getRightWidth
     val textOffsetY = selectedDrawable.getTopHeight - font.descent
 
     font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
@@ -231,8 +231,8 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
           font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
         } else if (overIndex == i && _style.over.isDefined)
           drawable = _style.over
-        drawSelection(batch, drawable, x, y + itemY - itemHeight, width, itemHeight)
-        drawItem(batch, font, i, item, x + textOffsetX, y + itemY - textOffsetY, textWidth)
+        drawSelection(batch, drawable, lx, ly + itemY - itemHeight, lw, itemHeight)
+        drawItem(batch, font, i, item, lx + textOffsetX, ly + itemY - textOffsetY, textWidth)
         if (selected) {
           font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
         }
@@ -250,9 +250,9 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
   /** Called to draw the background. Default implementation draws the style background drawable. */
   protected def drawBackground(batch: Batch, parentAlpha: Float): Unit =
     _style.background.foreach { background =>
-      val color = getColor
-      batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
-      background.draw(batch, getX, getY, getWidth, getHeight)
+      val c = this.color
+      batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
+      background.draw(batch, x, y, width, height)
     }
 
   protected def drawItem(batch: Batch, font: BitmapFont, index: Int, item: T, x: Float, y: Float, width: Float): GlyphLayout = {
@@ -319,7 +319,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
   /** @return -1 if not over an item. */
   def getItemIndexAt(y: Float): Int = {
     var adjustedY = y
-    val height    = getHeight
+    val height    = this.height
     _style.background.foreach { background =>
       adjustedY -= background.getBottomHeight
     }

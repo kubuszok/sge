@@ -630,7 +630,7 @@ object PixmapPacker {
         tex.setFilter(minFilter, magFilter)
       } else {
         if (!dirty) scala.util.boundary.break(false)
-        texture.foreach(tex => tex.load(tex.getTextureData()))
+        texture.foreach(tex => tex.load(tex.textureData))
       }
       dirty = false
       true

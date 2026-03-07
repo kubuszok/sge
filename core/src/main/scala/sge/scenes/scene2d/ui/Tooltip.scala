@@ -32,11 +32,11 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     override def act(delta: Float): Unit = {
       super.act(delta)
       targetActor.foreach { ta =>
-        if (ta.getStage.isEmpty) remove()
+        if (ta.stage.isEmpty) remove()
       }
     }
   }
-  container.setTouchable(Touchable.disabled)
+  container.touchable = Touchable.disabled
 
   var instant:          Boolean         = false
   var always:           Boolean         = false
@@ -80,33 +80,33 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean =
     if (container.hasParent) false
     else {
-      setContainerPosition(event.getListenerActor, x, y)
+      event.listenerActor.foreach(a => setContainerPosition(a, x, y))
       true
     }
 
   private def setContainerPosition(actor: Actor, x: Float, y: Float): Unit = {
     this.targetActor = Nullable(actor)
-    val stage = actor.getStage
+    val stage = actor.stage
     stage.foreach { stg =>
       container.setSize(manager.maxWidth, Int.MaxValue.toFloat)
       container.validate()
       container.getActor.foreach { a =>
-        container.width(a.getWidth)
+        container.width(a.width)
       }
       container.pack()
 
       val offsetX = manager.offsetX
       val offsetY = manager.offsetY
       val dist    = manager.edgeDistance
-      var point   = actor.localToStageCoordinates(tmp.set(x + offsetX, y - offsetY - container.getHeight))
+      var point   = actor.localToStageCoordinates(tmp.set(x + offsetX, y - offsetY - container.height))
       if (point.y < dist) point = actor.localToStageCoordinates(tmp.set(x + offsetX, y + offsetY))
       if (point.x < dist) point.x = dist
-      if (point.x + container.getWidth > stg.getWidth - dist) point.x = stg.getWidth - dist - container.getWidth
-      if (point.y + container.getHeight > stg.getHeight - dist) point.y = stg.getHeight - dist - container.getHeight
+      if (point.x + container.width > stg.getWidth - dist) point.x = stg.getWidth - dist - container.width
+      if (point.y + container.height > stg.getHeight - dist) point.y = stg.getHeight - dist - container.height
       container.setPosition(point.x, point.y)
 
-      point = actor.localToStageCoordinates(tmp.set(actor.getWidth / 2, actor.getHeight / 2))
-      point.-(container.getX, container.getY)
+      point = actor.localToStageCoordinates(tmp.set(actor.width / 2, actor.height / 2))
+      point.-(container.x, container.y)
       container.setOrigin(point.x, point.y)
     }
   }
@@ -115,16 +115,17 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     if (pointer != -1) ()
     else if (touchIndependent && Sge().input.isTouched()) ()
     else {
-      val actor      = event.getListenerActor
-      val descendant = fromActor.exists(fa => fa.isDescendantOf(actor))
-      if (!descendant) {
-        setContainerPosition(actor, x, y)
-        manager.enter(this)
+      event.listenerActor.foreach { actor =>
+        val descendant = fromActor.exists(fa => fa.isDescendantOf(actor))
+        if (!descendant) {
+          setContainerPosition(actor, x, y)
+          manager.enter(this)
+        }
       }
     }
 
   override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit = {
-    val descendant = toActor.exists(ta => ta.isDescendantOf(event.getListenerActor))
+    val descendant = event.listenerActor.exists(la => toActor.exists(ta => ta.isDescendantOf(la)))
     if (!descendant) {
       hide()
     }

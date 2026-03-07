@@ -11,7 +11,7 @@
  *   Convention: null -> Nullable[A]; no return (boundary/break); split packages; (using Sge) on act()
  *   Idiom: Java for-loop -> while; continue -> if-guard; parent null-loop -> Nullable iteration;
  *     indexOf(actor, true) -> indexOf(actor); children.swap -> manual swap; static tmp -> companion object
- *   TODO: Java-style getters/setters — getCullingArea/setCullingArea, getChild, getChildren, hasChildren, isTransform/setTransform
+ *   TODO: ShapeRenderer.flush calls commented out (not yet ported)
  *   Audited: 2026-03-03
  */
 package sge
@@ -74,7 +74,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         var i = 0
         while (i < n) {
           val child = snapshot(i)
-          if (child.isVisible) child.draw(batch, alpha)
+          if (child.visible) child.draw(batch, alpha)
           i += 1
         }
       } else {
@@ -86,7 +86,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         var i = 0
         while (i < n) {
           val child = snapshot(i)
-          if (child.isVisible) {
+          if (child.visible) {
             val cx = child.x
             val cy = child.y
             child.x = cx + offsetX
@@ -110,7 +110,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         var i = 0
         while (i < n) {
           val child = snapshot(i)
-          if (child.isVisible) {
+          if (child.visible) {
             val cx = child.x
             val cy = child.y
             if (cx <= cullRight && cy <= cullTop && cx + child.width >= cullLeft && cy + child.height >= cullBottom)
@@ -127,7 +127,7 @@ class Group()(using Sge) extends Actor() with Cullable {
         var i = 0
         while (i < n) {
           val child = snapshot(i)
-          if (child.isVisible) {
+          if (child.visible) {
             val cx = child.x
             val cy = child.y
             if (cx <= cullRight && cy <= cullTop && cx + child.width >= cullLeft && cy + child.height >= cullBottom) {
@@ -167,7 +167,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       var i = 0
       while (i < n) {
         val child = snapshot(i)
-        if (child.isVisible && (child.getDebug || child.isInstanceOf[Group]))
+        if (child.visible && (child.getDebug || child.isInstanceOf[Group]))
           child.drawDebug(shapes)
         i += 1
       }
@@ -181,7 +181,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       var i = 0
       while (i < n) {
         val child = snapshot(i)
-        if (child.isVisible && (child.getDebug || child.isInstanceOf[Group])) {
+        if (child.visible && (child.getDebug || child.isInstanceOf[Group])) {
           val cx = child.x
           val cy = child.y
           child.x = cx + offsetX
@@ -263,8 +263,8 @@ class Group()(using Sge) extends Actor() with Cullable {
   def getCullingArea: Nullable[Rectangle] = cullingArea
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
-    if (touchable && getTouchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
-    else if (!isVisible) scala.util.boundary.break(Nullable.empty)
+    if (touchable && this.touchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
+    else if (!visible) scala.util.boundary.break(Nullable.empty)
     else {
       val point = Group.tmp
       var i     = children.size - 1
@@ -289,7 +289,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       actor.parent.foreach(_.removeActor(actor, unfocus = false))
       children.add(actor)
       actor.setParent(Nullable(this))
-      getStage.foreach(s => actor.setStage(Nullable(s)))
+      stage.foreach(s => actor.setStage(Nullable(s)))
       childrenChanged()
     }
 
@@ -305,7 +305,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       else
         children.insert(index, actor)
       actor.setParent(Nullable(this))
-      getStage.foreach(s => actor.setStage(Nullable(s)))
+      stage.foreach(s => actor.setStage(Nullable(s)))
       childrenChanged()
     }
 
@@ -317,7 +317,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       val index = children.indexOf(actorBefore)
       children.insert(index, actor)
       actor.setParent(Nullable(this))
-      getStage.foreach(s => actor.setStage(Nullable(s)))
+      stage.foreach(s => actor.setStage(Nullable(s)))
       childrenChanged()
     }
 
@@ -333,7 +333,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       else
         children.insert(index + 1, actor)
       actor.setParent(Nullable(this))
-      getStage.foreach(s => actor.setStage(Nullable(s)))
+      stage.foreach(s => actor.setStage(Nullable(s)))
       childrenChanged()
     }
 
@@ -360,7 +360,7 @@ class Group()(using Sge) extends Actor() with Cullable {
     */
   def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val actor = children.removeIndex(index)
-    getStage.foreach { stage =>
+    stage.foreach { stage =>
       if (unfocus) stage.unfocus(actor)
       stage.actorRemoved(actor)
     }
@@ -377,7 +377,7 @@ class Group()(using Sge) extends Actor() with Cullable {
     while (i < snapshot.length) {
       val child = snapshot(i)
       if (unfocus) {
-        getStage.foreach(_.unfocus(child))
+        stage.foreach(_.unfocus(child))
       }
       child.setStage(Nullable.empty)
       child.setParent(Nullable.empty)
@@ -404,7 +404,7 @@ class Group()(using Sge) extends Actor() with Cullable {
   def findActor[T <: Actor](name: String): Nullable[T] = scala.util.boundary {
     var i = 0
     while (i < children.size) {
-      children(i).getName.foreach { n =>
+      children(i).name.foreach { n =>
         if (name == n) scala.util.boundary.break(Nullable(children(i).asInstanceOf[T]))
       }
       i += 1

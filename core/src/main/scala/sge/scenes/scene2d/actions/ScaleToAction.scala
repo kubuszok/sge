@@ -8,8 +8,7 @@
  *
  * Migration notes:
  *   Convention: no return; split packages; braces on class
- *   Idiom: target.getScaleX -> target.foreach; tuple destructure for (x,y)
- *   TODO: Java-style getters/setters -- getX/setX, getY/setY
+ *   Idiom: target.scaleX -> target.foreach; tuple destructure for (x,y)
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,13 +23,13 @@ package actions
 class ScaleToAction extends TemporalAction {
   private var startX: Float = 0
   private var startY: Float = 0
-  private var endX:   Float = 0
-  private var endY:   Float = 0
+  var endX:           Float = 0
+  var endY:           Float = 0
 
   override protected def begin(): Unit =
     target.foreach { t =>
-      startX = t.getScaleX
-      startY = t.getScaleY
+      startX = t.scaleX
+      startY = t.scaleY
     }
 
   override protected def update(percent: Float): Unit =
@@ -45,12 +44,4 @@ class ScaleToAction extends TemporalAction {
   def setScale(x: Float, y: Float): Unit = { endX = x; endY = y }
 
   def setScale(scale: Float): Unit = { endX = scale; endY = scale }
-
-  def getX: Float = endX
-
-  def setX(x: Float): Unit = this.endX = x
-
-  def getY: Float = endY
-
-  def setY(y: Float): Unit = this.endY = y
 }

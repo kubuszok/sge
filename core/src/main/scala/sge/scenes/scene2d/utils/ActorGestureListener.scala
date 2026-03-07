@@ -12,7 +12,7 @@
  * - Null-safe foreach/fold used for nullable actor/event callbacks
  * - stageToLocalAmount takes explicit actor param (Java accesses outer mutable field directly)
  * - amount.-(v) used instead of amount.sub(v) (Scala operator convention)
- * - getStage returns Nullable -> uses foreach for null-safety
+ * - stage returns Nullable -> uses foreach for null-safety
  */
 package sge
 package scenes
@@ -117,16 +117,22 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
   override def handle(e: Event): Boolean =
     e match {
       case event: InputEvent =>
-        event.getType match {
+        event.eventType match {
           case InputEvent.Type.touchDown =>
-            _actor = Nullable(event.getListenerActor)
-            _touchDownTarget = Nullable(event.getTarget)
-            detector.touchDown(event.getStageX, event.getStageY, event.getPointer, event.getButton)
+            _actor = event.listenerActor
+            _touchDownTarget = event.target
+            detector.touchDown(event.stageX, event.stageY, event.pointer, event.button)
             _actor.foreach { a =>
-              a.stageToLocalCoordinates(tmpCoords.set(event.getStageX, event.getStageY))
-              touchDown(event, tmpCoords.x, tmpCoords.y, event.getPointer, event.getButton)
+              a.stageToLocalCoordinates(tmpCoords.set(event.stageX, event.stageY))
+              touchDown(event, tmpCoords.x, tmpCoords.y, event.pointer, event.button)
             }
-            if (event.getTouchFocus) event.getStage.foreach(_.addTouchFocus(this, event.getListenerActor, event.getTarget, event.getPointer, event.getButton))
+            if (event.touchFocus) event.stage.foreach { stg =>
+              event.listenerActor.foreach { la =>
+                event.target.foreach { tgt =>
+                  stg.addTouchFocus(this, la, tgt, event.pointer, event.button)
+                }
+              }
+            }
             true
           case InputEvent.Type.touchUp =>
             val touchFocusCancel = event.isTouchFocusCancel
@@ -134,11 +140,11 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
               detector.reset()
             else {
               this.event = Nullable(event)
-              _actor = Nullable(event.getListenerActor)
-              detector.touchUp(event.getStageX, event.getStageY, event.getPointer, event.getButton)
+              _actor = event.listenerActor
+              detector.touchUp(event.stageX, event.stageY, event.pointer, event.button)
               _actor.foreach { a =>
-                a.stageToLocalCoordinates(tmpCoords.set(event.getStageX, event.getStageY))
-                touchUp(event, tmpCoords.x, tmpCoords.y, event.getPointer, event.getButton)
+                a.stageToLocalCoordinates(tmpCoords.set(event.stageX, event.stageY))
+                touchUp(event, tmpCoords.x, tmpCoords.y, event.pointer, event.button)
               }
             }
             this.event = Nullable.empty
@@ -147,8 +153,8 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
             !touchFocusCancel
           case InputEvent.Type.touchDragged =>
             this.event = Nullable(event)
-            _actor = Nullable(event.getListenerActor)
-            detector.touchDragged(event.getStageX, event.getStageY, event.getPointer)
+            _actor = event.listenerActor
+            detector.touchDragged(event.stageX, event.stageY, event.pointer)
             true
           case _ => false
         }

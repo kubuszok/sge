@@ -226,27 +226,27 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     val fontColor  = getFontColor()
     val font       = _style.font
 
-    val color  = getColor
-    var x      = getX
-    var y      = getY
-    var width  = getWidth
-    var height = getHeight
+    val c  = this.color
+    var bx = this.x
+    var by = this.y
+    var bw = this.width
+    var bh = this.height
 
-    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
-    background.foreach(_.draw(batch, x, y, width, height))
+    batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
+    background.foreach(_.draw(batch, bx, by, bw, bh))
 
     val selected: Nullable[T] = selection.first
     selected.foreach { sel =>
       background.fold {
-        y += (height / 2 + font.data.capHeight / 2).toInt.toFloat
+        by += (bh / 2 + font.data.capHeight / 2).toInt.toFloat
       } { bg =>
-        width -= bg.getLeftWidth + bg.getRightWidth
-        height -= bg.getBottomHeight + bg.getTopHeight
-        x += bg.getLeftWidth
-        y += (height / 2 + bg.getBottomHeight + font.data.capHeight / 2).toInt.toFloat
+        bw -= bg.getLeftWidth + bg.getRightWidth
+        bh -= bg.getBottomHeight + bg.getTopHeight
+        bx += bg.getLeftWidth
+        by += (bh / 2 + bg.getBottomHeight + font.data.capHeight / 2).toInt.toFloat
       }
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha)
-      drawItem(batch, font, sel, x, y, width)
+      drawItem(batch, font, sel, bx, by, bw)
     }
   }
 
@@ -342,7 +342,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
   def showScrollPane(): Unit =
     if (items.isEmpty) ()
-    else getStage.foreach(stage => scrollPane.show(stage))
+    else stage.foreach(stage => scrollPane.show(stage))
 
   /** @deprecated Use {@link #hideScrollPane()}. */
   @deprecated("Use hideScrollPane", "")
@@ -368,12 +368,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   def getClickListener: ClickListener = clickListener
 
   protected def onShow(scrollPane: Actor, below: Boolean): Unit = {
-    scrollPane.getColor.a = 0
+    scrollPane.color.a = 0
     scrollPane.addAction(Actions.fadeIn(0.3f, Nullable(Interpolation.fade)))
   }
 
   protected def onHide(scrollPane: Actor): Unit = {
-    scrollPane.getColor.a = 1
+    scrollPane.color.a = 1
     scrollPane.addAction(Actions.sequence(Actions.fadeOut(0.15f, Nullable(Interpolation.fade)), Actions.removeActor()))
   }
 }
@@ -398,7 +398,7 @@ object SelectBox {
     setFadeScrollBars(false)
     setScrollingDisabled(true, false)
 
-    list.setTouchable(Touchable.disabled)
+    list.touchable = Touchable.disabled
     list.setTypeToSelect(true)
     setActor(Nullable(list))
 
@@ -433,8 +433,8 @@ object SelectBox {
 
     hideListener = new InputListener() {
       override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean = {
-        val target = event.getTarget
-        if (scrollPaneSelf.isAscendantOf(target)) ()
+        val target = event.target
+        if (target.exists(scrollPaneSelf.isAscendantOf)) ()
         else {
           selectBox.getSelected.foreach(sel => list.selection.set(sel))
           hide()
@@ -485,7 +485,7 @@ object SelectBox {
         listBackground.foreach(bg => height += bg.getTopHeight + bg.getBottomHeight)
 
         val heightBelow = stagePosition.y
-        val heightAbove = stage.getHeight - heightBelow - selectBox.getHeight
+        val heightAbove = stage.getHeight - heightBelow - selectBox.height
         var below       = true
         if (height > heightBelow) {
           if (heightAbove > heightBelow) {
@@ -499,22 +499,22 @@ object SelectBox {
         if (below)
           setY(stagePosition.y - height)
         else
-          setY(stagePosition.y + selectBox.getHeight)
+          setY(stagePosition.y + selectBox.height)
 
         setHeight(height)
         validate()
-        val width = Math.max(getPrefWidth, selectBox.getWidth)
+        val width = Math.max(getPrefWidth, selectBox.width)
         setWidth(width)
 
         var x = stagePosition.x
         if (x + width > stage.getWidth) {
-          x -= getWidth - selectBox.getWidth - 1
+          x -= this.width - selectBox.width - 1
           if (x < 0) x = 0
         }
         setX(x)
 
         validate()
-        scrollTo(0, list.getHeight - selectBox.getSelectedIndex * itemHeight - itemHeight / 2, 0, 0, centerHorizontal = true, centerVertical = true)
+        scrollTo(0, list.height - selectBox.getSelectedIndex * itemHeight - itemHeight / 2, 0, 0, centerHorizontal = true, centerVertical = true)
         updateVisualScroll()
 
         previousScrollFocus = Nullable.empty
@@ -525,7 +525,7 @@ object SelectBox {
         stage.setScrollFocus(Nullable(this))
 
         selectBox.getSelected.foreach(sel => list.selection.set(sel))
-        list.setTouchable(Touchable.enabled)
+        list.touchable = Touchable.enabled
         clearActions()
         selectBox.onShow(this, below)
       }
@@ -533,14 +533,13 @@ object SelectBox {
     def hide(): Unit =
       if (!list.isTouchable || !hasParent) ()
       else {
-        list.setTouchable(Touchable.disabled)
+        list.touchable = Touchable.disabled
 
-        val stage = getStage
-        stage.foreach { s =>
+        this.stage.foreach { s =>
           s.removeCaptureListener(hideListener)
           s.removeListener(list.getKeyListener)
           previousScrollFocus.foreach { psf =>
-            if (psf.getStage.isEmpty) previousScrollFocus = Nullable.empty
+            if (psf.stage.isEmpty) previousScrollFocus = Nullable.empty
           }
           val actor = s.getScrollFocus
           if (actor.isEmpty || actor.exists(a => isAscendantOf(a))) {
@@ -564,8 +563,7 @@ object SelectBox {
     }
 
     override protected[scene2d] def setStage(stage: Nullable[Stage]): Unit = {
-      val oldStage = getStage
-      oldStage.foreach { os =>
+      this.stage.foreach { os =>
         os.removeCaptureListener(hideListener)
         os.removeListener(list.getKeyListener)
       }

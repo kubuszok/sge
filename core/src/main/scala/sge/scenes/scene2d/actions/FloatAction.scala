@@ -8,10 +8,8 @@
  *
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
- *   Renames: end -> _end (reserved-ish name avoidance)
  *   Idiom: Java constructor chaining super(duration) -> this() + setDuration();
  *          super(duration, interpolation) -> this() + setDuration() + setInterpolation()
- *   TODO: Java-style getters/setters -- getValue/setValue, getStart/setStart, getEnd/setEnd
  *   TODO: opaque Seconds for duration constructor param -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  */
@@ -27,18 +25,20 @@ import sge.math.Interpolation
   * @author
   *   Nathan Sweet
   */
-class FloatAction(private var start: Float = 0, private var _end: Float = 1) extends TemporalAction {
-  private var value: Float = 0
+class FloatAction(var start: Float = 0, private var _end: Float = 1) extends TemporalAction {
+  var value: Float = 0
 
-  def this(start: Float, _end: Float, duration: Float) = {
-    this(start, _end)
-    setDuration(duration)
+  def getEnd:             Float = _end
+  def setEnd(end: Float): Unit  = _end = end
+
+  def this(start: Float, end: Float, duration: Float) = {
+    this(start, end)
+    this.duration = duration
   }
 
-  def this(start: Float, _end: Float, duration: Float, interpolation: Nullable[Interpolation]) = {
-    this(start, _end)
-    setDuration(duration)
-    setInterpolation(interpolation)
+  def this(start: Float, end: Float, duration: Float, interpolation: Nullable[Interpolation]) = {
+    this(start, end, duration)
+    this.interpolation = interpolation
   }
 
   override protected def begin(): Unit = value = start
@@ -47,16 +47,4 @@ class FloatAction(private var start: Float = 0, private var _end: Float = 1) ext
     if (percent == 0) value = start
     else if (percent == 1) value = _end
     else value = start + (_end - start) * percent
-
-  def getValue: Float = value
-
-  def setValue(value: Float): Unit = this.value = value
-
-  def getStart: Float = start
-
-  def setStart(start: Float): Unit = this.start = start
-
-  def getEnd: Float = _end
-
-  def setEnd(end: Float): Unit = this._end = end
 }

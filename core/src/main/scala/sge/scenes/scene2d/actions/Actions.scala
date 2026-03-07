@@ -74,34 +74,34 @@ object Actions {
       )
     ) { p =>
       val a = p.obtain()
-      a.setPool(Nullable(p.asInstanceOf[Pool[?]]))
+      a.pool = Nullable(p.asInstanceOf[Pool[?]])
       a
     }
   }
 
   def addAction(action: Action): AddAction = {
     val addAction = this.action(classOf[AddAction])
-    addAction.setAction(action)
+    addAction.actionToAdd = Nullable(action)
     addAction
   }
 
   def addAction(action: Action, targetActor: Actor): AddAction = {
     val addAction = this.action(classOf[AddAction])
     addAction.setTarget(Nullable(targetActor))
-    addAction.setAction(action)
+    addAction.actionToAdd = Nullable(action)
     addAction
   }
 
   def removeAction(action: Action): RemoveAction = {
     val removeAction = this.action(classOf[RemoveAction])
-    removeAction.setAction(action)
+    removeAction.actionToRemove = Nullable(action)
     removeAction
   }
 
   def removeAction(action: Action, targetActor: Actor): RemoveAction = {
     val removeAction = this.action(classOf[RemoveAction])
     removeAction.setTarget(Nullable(targetActor))
-    removeAction.setAction(action)
+    removeAction.actionToRemove = Nullable(action)
     removeAction
   }
 
@@ -115,8 +115,8 @@ object Actions {
   def moveTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): MoveToAction = {
     val action = this.action(classOf[MoveToAction])
     action.setPosition(x, y)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -129,8 +129,8 @@ object Actions {
   def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align, duration: Float, interpolation: Nullable[Interpolation]): MoveToAction = {
     val action = this.action(classOf[MoveToAction])
     action.setPosition(x, y, alignment)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -144,8 +144,8 @@ object Actions {
   def moveBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): MoveByAction = {
     val action = this.action(classOf[MoveByAction])
     action.setAmount(amountX, amountY)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -159,8 +159,8 @@ object Actions {
   def sizeTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): SizeToAction = {
     val action = this.action(classOf[SizeToAction])
     action.setSize(x, y)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -174,8 +174,8 @@ object Actions {
   def sizeBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): SizeByAction = {
     val action = this.action(classOf[SizeByAction])
     action.setAmount(amountX, amountY)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -189,8 +189,8 @@ object Actions {
   def scaleTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): ScaleToAction = {
     val action = this.action(classOf[ScaleToAction])
     action.setScale(x, y)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -204,8 +204,8 @@ object Actions {
   def scaleBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): ScaleByAction = {
     val action = this.action(classOf[ScaleByAction])
     action.setAmount(amountX, amountY)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -218,9 +218,9 @@ object Actions {
 
   def rotateTo(rotation: Float, duration: Float, interpolation: Nullable[Interpolation]): RotateToAction = {
     val action = this.action(classOf[RotateToAction])
-    action.setRotation(rotation)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.rotation = rotation
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -233,9 +233,9 @@ object Actions {
 
   def rotateBy(rotationAmount: Float, duration: Float, interpolation: Nullable[Interpolation]): RotateByAction = {
     val action = this.action(classOf[RotateByAction])
-    action.setAmount(rotationAmount)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.amount = rotationAmount
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -251,8 +251,8 @@ object Actions {
   def color(color: Color, duration: Float, interpolation: Nullable[Interpolation]): ColorAction = {
     val action = this.action(classOf[ColorAction])
     action.setEndColor(color)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -267,9 +267,9 @@ object Actions {
   /** Transitions from the alpha at the time this action starts to the specified alpha. */
   def alpha(a: Float, duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
-    action.setAlpha(a)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.alpha = a
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -280,9 +280,9 @@ object Actions {
   /** Transitions from the alpha at the time this action starts to an alpha of 0. */
   def fadeOut(duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
-    action.setAlpha(0)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.alpha = 0
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -293,9 +293,9 @@ object Actions {
   /** Transitions from the alpha at the time this action starts to an alpha of 1. */
   def fadeIn(duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
-    action.setAlpha(1)
-    action.setDuration(duration)
-    action.setInterpolation(interpolation)
+    action.alpha = 1
+    action.duration = duration
+    action.interpolation = interpolation
     action
   }
 
@@ -307,13 +307,13 @@ object Actions {
 
   def visible(visible: Boolean): VisibleAction = {
     val action = this.action(classOf[VisibleAction])
-    action.setVisible(visible)
+    action.visible = visible
     action
   }
 
   def touchable(touchable: Touchable): TouchableAction = {
     val action = this.action(classOf[TouchableAction])
-    action.setTouchable(touchable)
+    action.touchable = touchable
     action
   }
 
@@ -328,21 +328,21 @@ object Actions {
 
   def delay(duration: Float): DelayAction = {
     val action = this.action(classOf[DelayAction])
-    action.setDuration(duration)
+    action.duration = duration
     action
   }
 
   def delay(duration: Float, delayedAction: Action): DelayAction = {
     val action = this.action(classOf[DelayAction])
-    action.setDuration(duration)
-    action.setAction(delayedAction)
+    action.duration = duration
+    action.action = Nullable(delayedAction)
     action
   }
 
   def timeScale(scale: Float, scaledAction: Action): TimeScaleAction = {
     val action = this.action(classOf[TimeScaleAction])
-    action.setScale(scale)
-    action.setAction(scaledAction)
+    action.scale = scale
+    action.action = Nullable(scaledAction)
     action
   }
 
@@ -456,63 +456,63 @@ object Actions {
 
   def repeat(count: Int, repeatedAction: Action): RepeatAction = {
     val action = this.action(classOf[RepeatAction])
-    action.setCount(count)
-    action.setAction(repeatedAction)
+    action.count = count
+    action.action = Nullable(repeatedAction)
     action
   }
 
   def forever(repeatedAction: Action): RepeatAction = {
     val action = this.action(classOf[RepeatAction])
-    action.setCount(RepeatAction.FOREVER)
-    action.setAction(repeatedAction)
+    action.count = RepeatAction.FOREVER
+    action.action = Nullable(repeatedAction)
     action
   }
 
   def run(runnable: Runnable): RunnableAction = {
     val action = this.action(classOf[RunnableAction])
-    action.setRunnable(runnable)
+    action.runnable = Nullable(runnable)
     action
   }
 
   def layout(enabled: Boolean): LayoutAction = {
     val action = this.action(classOf[LayoutAction])
-    action.setLayoutEnabled(enabled)
+    action.enabled = enabled
     action
   }
 
   def after(action: Action): AfterAction = {
     val afterAction = this.action(classOf[AfterAction])
-    afterAction.setAction(action)
+    afterAction.action = Nullable(action)
     afterAction
   }
 
   def addListener(listener: EventListener, capture: Boolean): AddListenerAction = {
     val addAction = action(classOf[AddListenerAction])
-    addAction.setListener(listener)
-    addAction.setCapture(capture)
+    addAction.listener = Nullable(listener)
+    addAction.capture = capture
     addAction
   }
 
   def addListener(listener: EventListener, capture: Boolean, targetActor: Actor): AddListenerAction = {
     val addAction = action(classOf[AddListenerAction])
     addAction.setTarget(Nullable(targetActor))
-    addAction.setListener(listener)
-    addAction.setCapture(capture)
+    addAction.listener = Nullable(listener)
+    addAction.capture = capture
     addAction
   }
 
   def removeListener(listener: EventListener, capture: Boolean): RemoveListenerAction = {
     val removeAction = action(classOf[RemoveListenerAction])
-    removeAction.setListener(listener)
-    removeAction.setCapture(capture)
+    removeAction.listener = Nullable(listener)
+    removeAction.capture = capture
     removeAction
   }
 
   def removeListener(listener: EventListener, capture: Boolean, targetActor: Actor): RemoveListenerAction = {
     val removeAction = action(classOf[RemoveListenerAction])
     removeAction.setTarget(Nullable(targetActor))
-    removeAction.setListener(listener)
-    removeAction.setCapture(capture)
+    removeAction.listener = Nullable(listener)
+    removeAction.capture = capture
     removeAction
   }
 

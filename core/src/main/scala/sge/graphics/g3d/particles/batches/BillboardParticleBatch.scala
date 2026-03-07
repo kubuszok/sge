@@ -10,8 +10,9 @@
  * - ParticleShader.AlignMode → BillboardParticleBatch.AlignMode (local enum, not
  *   referencing ParticleShader.AlignMode). Both exist with identical values; serialization
  *   via Config uses the local enum.
- * - getShader(): Java uses ParticleShader for GPU mode; Scala always uses DefaultShader
- *   (ParticleShader not integrated into batch shader selection yet)
+ * - getShader(): Java uses ParticleShader for GPU mode, DefaultShader for CPU mode;
+ *   Scala now matches this behavior, converting local AlignMode to ParticleShader.AlignMode
+ * - Fixes (2026-03-06): getShader now uses ParticleShader for GPU mode (was always DefaultShader)
  * - Config inner class: Java package-private fields; Scala uses var fields (public)
  * - RenderablePool: Java extends Pool<Renderable> with no-arg constructor; Scala overrides
  *   max/initialCapacity vals and requires (using Sge)
@@ -53,6 +54,7 @@ import sge.graphics.g3d.attributes.BlendingAttribute
 import sge.graphics.g3d.attributes.DepthTestAttribute
 import sge.graphics.g3d.attributes.TextureAttribute
 import sge.graphics.g3d.particles.ParticleChannels
+import sge.graphics.g3d.particles.ParticleShader
 import sge.graphics.g3d.particles.ResourceData
 import sge.graphics.g3d.particles.renderers.BillboardControllerRenderData
 import sge.graphics.g3d.shaders.DefaultShader
@@ -111,14 +113,17 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) =
+  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) = {
     this(mode, initialUseGPU, capacity, Nullable.empty, Nullable.empty)
+  }
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
+  }
 
-  def this(capacity: Int)(using Sge) =
+  def this(capacity: Int)(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
+  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)
@@ -168,8 +173,15 @@ class BillboardParticleBatch(
   }
 
   protected def getShader(renderable: Renderable): Shader = {
-    // ParticleShader is not yet ported; use DefaultShader for now
-    val s: Shader = DefaultShader(renderable)
+    val s: Shader = if (_useGPU) {
+      val alignMode = _mode match {
+        case BillboardParticleBatch.AlignMode.Screen    => ParticleShader.AlignMode.Screen
+        case BillboardParticleBatch.AlignMode.ViewPoint => ParticleShader.AlignMode.ViewPoint
+      }
+      ParticleShader(renderable, ParticleShader.Config(alignMode))
+    } else {
+      DefaultShader(renderable)
+    }
     s.init()
     s
   }
@@ -753,10 +765,10 @@ object BillboardParticleBatch {
   )
 
   // Offsets
-  private val GPU_POSITION_OFFSET:      Int = GPU_ATTRIBUTES.getOffset(Usage.Position)
-  private val GPU_UV_OFFSET:            Int = GPU_ATTRIBUTES.getOffset(Usage.TextureCoordinates)
-  private val GPU_SIZE_ROTATION_OFFSET: Int = GPU_ATTRIBUTES.getOffset(sizeAndRotationUsage)
-  private val GPU_COLOR_OFFSET:         Int = GPU_ATTRIBUTES.getOffset(Usage.ColorUnpacked)
+  private val GPU_POSITION_OFFSET:      Int = GPU_ATTRIBUTES.offset(Usage.Position)
+  private val GPU_UV_OFFSET:            Int = GPU_ATTRIBUTES.offset(Usage.TextureCoordinates)
+  private val GPU_SIZE_ROTATION_OFFSET: Int = GPU_ATTRIBUTES.offset(sizeAndRotationUsage)
+  private val GPU_COLOR_OFFSET:         Int = GPU_ATTRIBUTES.offset(Usage.ColorUnpacked)
   private val GPU_VERTEX_SIZE:          Int = GPU_ATTRIBUTES.vertexSize / 4
 
   // Ext
@@ -769,9 +781,9 @@ object BillboardParticleBatch {
    */
 
   // Cpu
-  private val CPU_POSITION_OFFSET: Int = CPU_ATTRIBUTES.getOffset(Usage.Position)
-  private val CPU_UV_OFFSET:       Int = CPU_ATTRIBUTES.getOffset(Usage.TextureCoordinates)
-  private val CPU_COLOR_OFFSET:    Int = CPU_ATTRIBUTES.getOffset(Usage.ColorUnpacked)
+  private val CPU_POSITION_OFFSET: Int = CPU_ATTRIBUTES.offset(Usage.Position)
+  private val CPU_UV_OFFSET:       Int = CPU_ATTRIBUTES.offset(Usage.TextureCoordinates)
+  private val CPU_COLOR_OFFSET:    Int = CPU_ATTRIBUTES.offset(Usage.ColorUnpacked)
   private val CPU_VERTEX_SIZE:     Int = CPU_ATTRIBUTES.vertexSize / 4
 
   private val MAX_PARTICLES_PER_MESH: Int = Short.MaxValue / 4

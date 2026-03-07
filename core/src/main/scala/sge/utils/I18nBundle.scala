@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: Java `static` -> companion object; `return` -> `boundary`/`break`; `null` -> `Nullable`
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getLocale, getSimpleFormatter/setSimpleFormatter, getExceptionOnMissingKey/setExceptionOnMissingKey
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -54,7 +53,7 @@ class I18NBundle {
   private var parent: Nullable[I18NBundle] = Nullable.empty
 
   /** The locale for this bundle. */
-  private var locale: Locale = scala.compiletime.uninitialized
+  var locale: Locale = scala.compiletime.uninitialized
 
   /** The properties for this bundle. */
   private var properties: ObjectMap[String, String] = scala.compiletime.uninitialized
@@ -74,14 +73,6 @@ class I18NBundle {
     properties = ObjectMap[String, String]()
     PropertiesUtils.load(properties, reader)
   }
-
-  /** Returns the locale of this bundle. This method can be used after a call to <code>createBundle()</code> to determine whether the resource bundle returned really corresponds to the requested
-    * locale or is a fallback.
-    *
-    * @return
-    *   the locale of this bundle
-    */
-  def getLocale: Locale = locale
 
   /** Sets the bundle locale. This method is private because a bundle can't change the locale during its life.
     *
@@ -151,29 +142,15 @@ class I18NBundle {
 object I18NBundle {
   private val DEFAULT_ENCODING = "UTF-8"
 
-  private var simpleFormatter       = false
-  private var exceptionOnMissingKey = true
-
-  /** Returns the flag indicating whether to use the simplified message pattern syntax (default is false). This flag is always assumed to be true on GWT backend.
+  /** The flag indicating whether to use the simplified message pattern syntax (default is false). This flag is always assumed to be true on GWT backend. The flag must be set before calling the
+    * factory methods {@code createBundle} . Notice that this method has no effect on the GWT backend where it's always assumed to be true.
     */
-  def getSimpleFormatter: Boolean = simpleFormatter
+  var simpleFormatter: Boolean = false
 
-  /** Sets the flag indicating whether to use the simplified message pattern. The flag must be set before calling the factory methods {@code createBundle} . Notice that this method has no effect on
-    * the GWT backend where it's always assumed to be true.
+  /** The flag indicating whether to throw a {@link MissingResourceException} from the {@link #get(String) get(key)} method if no string for the given key can be found. If this flag is {@code false}
+    * the missing key surrounded by {@code ???} is returned.
     */
-  def setSimpleFormatter(enabled: Boolean): Unit =
-    simpleFormatter = enabled
-
-  /** Returns the flag indicating whether to throw a {@link MissingResourceException} from the {@link #get(String) get(key)} method if no string for the given key can be found. If this flag is
-    * {@code false} the missing key surrounded by {@code ???} is returned.
-    */
-  def getExceptionOnMissingKey: Boolean = exceptionOnMissingKey
-
-  /** Sets the flag indicating whether to throw a {@link MissingResourceException} from the {@link #get(String) get(key)} method if no string for the given key can be found. If this flag is
-    * {@code false} the missing key surrounded by {@code ???} is returned.
-    */
-  def setExceptionOnMissingKey(enabled: Boolean): Unit =
-    exceptionOnMissingKey = enabled
+  var exceptionOnMissingKey: Boolean = true
 
   /** Creates a new bundle using the specified <code>baseFileHandle</code>, the default locale and the default encoding "UTF-8".
     *
@@ -253,7 +230,7 @@ object I18NBundle {
 
       // Check the loaded bundle (if any)
       bundle.foreach { b =>
-        val bundleLocale = b.getLocale // WTH? GWT can't access bundle.locale directly
+        val bundleLocale = b.locale // WTH? GWT can't access bundle.locale directly
         val isBaseBundle = bundleLocale.equals(Locale.ROOT)
 
         if (!isBaseBundle || bundleLocale.equals(locale)) {

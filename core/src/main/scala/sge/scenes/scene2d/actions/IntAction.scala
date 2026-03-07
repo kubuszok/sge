@@ -8,9 +8,7 @@
  *
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
- *   Renames: end -> _end (reserved-ish name avoidance)
  *   Idiom: Java (int) cast -> .toInt; constructor chaining like FloatAction
- *   TODO: Java-style getters/setters -- getValue/setValue, getStart/setStart, getEnd/setEnd
  *   TODO: opaque Seconds for duration constructor param -- see docs/improvements/opaque-types.md
  *   Audited: 2026-03-03
  */
@@ -26,18 +24,20 @@ import sge.math.Interpolation
   * @author
   *   Nathan Sweet
   */
-class IntAction(private var start: Int = 0, private var _end: Int = 1) extends TemporalAction {
-  private var value: Int = 0
+class IntAction(var start: Int = 0, private var _end: Int = 1) extends TemporalAction {
+  var value: Int = 0
 
-  def this(start: Int, _end: Int, duration: Float) = {
-    this(start, _end)
-    setDuration(duration)
+  def getEnd:           Int  = _end
+  def setEnd(end: Int): Unit = _end = end
+
+  def this(start: Int, end: Int, duration: Float) = {
+    this(start, end)
+    this.duration = duration
   }
 
-  def this(start: Int, _end: Int, duration: Float, interpolation: Nullable[Interpolation]) = {
-    this(start, _end)
-    setDuration(duration)
-    setInterpolation(interpolation)
+  def this(start: Int, end: Int, duration: Float, interpolation: Nullable[Interpolation]) = {
+    this(start, end, duration)
+    this.interpolation = interpolation
   }
 
   override protected def begin(): Unit = value = start
@@ -46,16 +46,4 @@ class IntAction(private var start: Int = 0, private var _end: Int = 1) extends T
     if (percent == 0) value = start
     else if (percent == 1) value = _end
     else value = (start + (_end - start) * percent).toInt
-
-  def getValue: Int = value
-
-  def setValue(value: Int): Unit = this.value = value
-
-  def getStart: Int = start
-
-  def setStart(start: Int): Unit = this.start = start
-
-  def getEnd: Int = _end
-
-  def setEnd(end: Int): Unit = this._end = end
 }

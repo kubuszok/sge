@@ -316,7 +316,7 @@ trait Input {
   def getRotationMatrix(matrix: Array[Float]): Unit
 
   /** @return the time of the event currently reported to the {@link InputProcessor}. */
-  def getCurrentEventTime(): Long
+  def currentEventTime: Long
 
   /** Sets whether the given key on Android or GWT should be caught. No effect on other platforms. All keys that are not caught may be handled by other apps or background processes on Android, or may
     * trigger default browser behaviour on GWT. For example, media or volume buttons are handled by background media players if present, or Space key triggers a scroll. All keys you need to control

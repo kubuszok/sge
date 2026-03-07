@@ -78,10 +78,10 @@ class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(GL30.GL_TEXTUR
 
   override def getDepth: Int = textureData.getDepth()
 
-  override def isManaged: Boolean = textureData.isManaged()
+  override def managed: Boolean = textureData.isManaged()
 
   override protected def reload(): Unit = {
-    if (!isManaged) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
+    if (!managed) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
     glHandle = TextureHandle(Sge().graphics.gl.glGenTexture())
     load(textureData)
   }

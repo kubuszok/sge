@@ -13,7 +13,7 @@
  * - Static draw method -> companion object method
  * - for loops -> while loops (Scala convention for imperative code)
  * - All methods faithfully ported
- * - TODO: Java-style getters/setters — setScale, setAlign
+ * - Renames: getLeftWidth→leftWidth etc. via Drawable trait; getScale→scale, getAlign→align (public vars)
  */
 package sge
 package scenes
@@ -31,9 +31,9 @@ import sge.utils.Align
   *   Thomas Creutzenberg
   */
 class TiledDrawable() extends TextureRegionDrawable {
-  private val color:  Color = Color(1, 1, 1, 1)
-  private var scale:  Float = 1
-  private var _align: Align = Align.bottomLeft
+  private val color: Color = Color(1, 1, 1, 1)
+  var scale:         Float = 1
+  var align:         Align = Align.bottomLeft
 
   def this(region: TextureRegion) = {
     this()
@@ -45,13 +45,13 @@ class TiledDrawable() extends TextureRegionDrawable {
     // Copy base drawable properties
     drawable match {
       case bd: BaseDrawable =>
-        setLeftWidth(bd.getLeftWidth)
-        setRightWidth(bd.getRightWidth)
-        setTopHeight(bd.getTopHeight)
-        setBottomHeight(bd.getBottomHeight)
-        setMinWidth(bd.getMinWidth)
-        setMinHeight(bd.getMinHeight)
-        setName(bd.getName)
+        leftWidth = bd.leftWidth
+        rightWidth = bd.rightWidth
+        topHeight = bd.topHeight
+        bottomHeight = bd.bottomHeight
+        minWidth = bd.minWidth
+        minHeight = bd.minHeight
+        name = bd.name
     }
     setRegion(drawable.getRegion)
   }
@@ -60,7 +60,7 @@ class TiledDrawable() extends TextureRegionDrawable {
     val oldColor = batch.packedColor
     batch.color = batch.color.mul(color)
 
-    TiledDrawable.draw(batch, getRegion, x, y, width, height, scale, _align)
+    TiledDrawable.draw(batch, getRegion, x, y, width, height, scale, align)
 
     batch.packedColor = oldColor
   }
@@ -70,21 +70,13 @@ class TiledDrawable() extends TextureRegionDrawable {
 
   def getColor: Color = color
 
-  def setScale(scale: Float): Unit = this.scale = scale
-
-  def getScale: Float = scale
-
-  def getAlign: Align = _align
-
-  def setAlign(align: Align): Unit = this._align = align
-
   override def tint(tint: Color): TiledDrawable = {
     val drawable = TiledDrawable(this)
     drawable.color.set(tint)
-    drawable.setLeftWidth(getLeftWidth)
-    drawable.setRightWidth(getRightWidth)
-    drawable.setTopHeight(getTopHeight)
-    drawable.setBottomHeight(getBottomHeight)
+    drawable.leftWidth = leftWidth
+    drawable.rightWidth = rightWidth
+    drawable.topHeight = topHeight
+    drawable.bottomHeight = bottomHeight
     drawable
   }
 }

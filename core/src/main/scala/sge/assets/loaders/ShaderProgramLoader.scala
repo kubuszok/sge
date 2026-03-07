@@ -66,7 +66,7 @@ class ShaderProgramLoader(resolver: FileHandleResolver, private val vertexFileSu
     }
 
     val shaderProgram = ShaderProgram(vertexCode, fragmentCode)
-    if (param.forall(_.logOnCompileFailure) && !shaderProgram.isCompiled()) {
+    if (param.forall(_.logOnCompileFailure) && !shaderProgram.compiled) {
       manager.log.error(s"ShaderProgram $fileName failed to compile:\n${shaderProgram.getLog()}")
     }
 

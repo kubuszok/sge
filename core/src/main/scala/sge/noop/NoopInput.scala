@@ -117,7 +117,7 @@ class NoopInput extends Input {
 
   override def getRotationMatrix(matrix: Array[Float]): Unit = {}
 
-  override def getCurrentEventTime(): Long = 0L
+  override def currentEventTime: Long = 0L
 
   // ---- catch keys ----
 

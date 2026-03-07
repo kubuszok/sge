@@ -87,8 +87,7 @@ class ProgressBar(
     super.act(delta)
     if (animateTime > 0) {
       animateTime -= delta
-      val stage = getStage
-      stage.foreach { s =>
+      this.stage.foreach { s =>
         if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
@@ -102,41 +101,41 @@ class ProgressBar(
     val knobBefore  = getKnobBeforeDrawable()
     val knobAfter   = getKnobAfterDrawable()
 
-    val color      = getColor
-    val x          = getX
-    val y          = getY
-    var width      = getWidth
-    var height     = getHeight
+    val c          = this.color
+    val bx         = this.x
+    val by         = this.y
+    var bw         = this.width
+    var bh         = this.height
     val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
     val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
     val percent    = getVisualPercent
 
-    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+    batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
 
     if (vertical) {
       var bgTopHeight    = 0f
       var bgBottomHeight = 0f
       bg.foreach { bgDrawable =>
-        drawRound(batch, bgDrawable, x + (width - bgDrawable.getMinWidth) * 0.5f, y, bgDrawable.getMinWidth, height)
+        drawRound(batch, bgDrawable, bx + (bw - bgDrawable.getMinWidth) * 0.5f, by, bgDrawable.getMinWidth, bh)
         bgTopHeight = bgDrawable.getTopHeight
         bgBottomHeight = bgDrawable.getBottomHeight
-        height -= bgTopHeight + bgBottomHeight
+        bh -= bgTopHeight + bgBottomHeight
       }
 
-      val total        = height - knobHeight
+      val total        = bh - knobHeight
       val beforeHeight = MathUtils.clamp(total * percent, 0, total)
       position = bgBottomHeight + beforeHeight
 
       val knobHeightHalf = knobHeight * 0.5f
       knobBefore.foreach { kb =>
-        drawRound(batch, kb, x + (width - kb.getMinWidth) * 0.5f, y + bgBottomHeight, kb.getMinWidth, beforeHeight + knobHeightHalf)
+        drawRound(batch, kb, bx + (bw - kb.getMinWidth) * 0.5f, by + bgBottomHeight, kb.getMinWidth, beforeHeight + knobHeightHalf)
       }
       knobAfter.foreach { ka =>
         drawRound(
           batch,
           ka,
-          x + (width - ka.getMinWidth) * 0.5f,
-          y + position + knobHeightHalf,
+          bx + (bw - ka.getMinWidth) * 0.5f,
+          by + position + knobHeightHalf,
           ka.getMinWidth,
           total - (if (round) Math.ceil((beforeHeight - knobHeightHalf).toDouble).toFloat else beforeHeight - knobHeightHalf)
         )
@@ -144,7 +143,7 @@ class ProgressBar(
       currentKnob.foreach { ck =>
         val w = ck.getMinWidth
         val h = ck.getMinHeight
-        drawRound(batch, ck, x + (width - w) * 0.5f, y + position + (knobHeight - h) * 0.5f, w, h)
+        drawRound(batch, ck, bx + (bw - w) * 0.5f, by + position + (knobHeight - h) * 0.5f, w, h)
       }
     } else {
       var bgLeftWidth  = 0f
@@ -153,30 +152,30 @@ class ProgressBar(
         drawRound(
           batch,
           bgDrawable,
-          x,
-          Math.round(y + (height - bgDrawable.getMinHeight) * 0.5f).toFloat,
-          width,
+          bx,
+          Math.round(by + (bh - bgDrawable.getMinHeight) * 0.5f).toFloat,
+          bw,
           Math.round(bgDrawable.getMinHeight).toFloat
         )
         bgLeftWidth = bgDrawable.getLeftWidth
         bgRightWidth = bgDrawable.getRightWidth
-        width -= bgLeftWidth + bgRightWidth
+        bw -= bgLeftWidth + bgRightWidth
       }
 
-      val total       = width - knobWidth
+      val total       = bw - knobWidth
       val beforeWidth = MathUtils.clamp(total * percent, 0, total)
       position = bgLeftWidth + beforeWidth
 
       val knobWidthHalf = knobWidth * 0.5f
       knobBefore.foreach { kb =>
-        drawRound(batch, kb, x + bgLeftWidth, y + (height - kb.getMinHeight) * 0.5f, beforeWidth + knobWidthHalf, kb.getMinHeight)
+        drawRound(batch, kb, bx + bgLeftWidth, by + (bh - kb.getMinHeight) * 0.5f, beforeWidth + knobWidthHalf, kb.getMinHeight)
       }
       knobAfter.foreach { ka =>
         drawRound(
           batch,
           ka,
-          x + position + knobWidthHalf,
-          y + (height - ka.getMinHeight) * 0.5f,
+          bx + position + knobWidthHalf,
+          by + (bh - ka.getMinHeight) * 0.5f,
           total - (if (round) Math.ceil((beforeWidth - knobWidthHalf).toDouble).toFloat else beforeWidth - knobWidthHalf),
           ka.getMinHeight
         )
@@ -184,7 +183,7 @@ class ProgressBar(
       currentKnob.foreach { ck =>
         val w = ck.getMinWidth
         val h = ck.getMinHeight
-        drawRound(batch, ck, x + position + (knobWidth - w) * 0.5f, y + (height - h) * 0.5f, w, h)
+        drawRound(batch, ck, bx + position + (knobWidth - w) * 0.5f, by + (bh - h) * 0.5f, w, h)
       }
     }
   }

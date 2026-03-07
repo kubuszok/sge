@@ -84,7 +84,7 @@ class GestureDetector(
 
     if (pointer == 0) {
       pointer1.set(x, y)
-      touchDownTime = Sge().input.getCurrentEventTime()
+      touchDownTime = Sge().input.currentEventTime
       tracker.start(x, y, touchDownTime)
       if (Sge().input.isTouched(1)) {
         // Start pinch.
@@ -133,7 +133,7 @@ class GestureDetector(
     }
 
     // update tracker
-    tracker.update(x, y, Sge().input.getCurrentEventTime())
+    tracker.update(x, y, Sge().input.currentEventTime)
 
     // check if we are still tapping.
     if (inTapRectangle && !isWithinTapRectangle(x, y, tapRectangleCenterX, tapRectangleCenterY)) {
@@ -193,10 +193,10 @@ class GestureDetector(
       // we are in pan mode again, reset velocity tracker
       if (pointer == 0) {
         // first pointer has lifted off, set up panning to use the second pointer...
-        tracker.start(pointer2.x, pointer2.y, Sge().input.getCurrentEventTime())
+        tracker.start(pointer2.x, pointer2.y, Sge().input.currentEventTime)
       } else {
         // second pointer has lifted off, set up panning to use the first pointer...
-        tracker.start(pointer1.x, pointer1.y, Sge().input.getCurrentEventTime())
+        tracker.start(pointer1.x, pointer1.y, Sge().input.currentEventTime)
       }
       scala.util.boundary.break(false)
     }
@@ -206,7 +206,7 @@ class GestureDetector(
     if (wasPanning && !panning) handled = listener.panStop(x, y, pointer, button)
 
     // handle fling
-    val time = Sge().input.getCurrentEventTime()
+    val time = Sge().input.currentEventTime
     if (time - touchDownTime <= maxFlingDelayNanos) {
       tracker.update(x, y, time)
       handled = listener.fling(tracker.getVelocityX(), tracker.getVelocityY(), button) || handled

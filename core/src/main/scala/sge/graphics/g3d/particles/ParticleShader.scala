@@ -57,7 +57,7 @@ class ParticleShader private (
   /** The renderable used to create this shader, invalid after the call to init */
   private var renderable:   Nullable[Renderable] = Nullable(initRenderable)
   private val materialMask: Long                 = initRenderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes
-  private val vertexMask:   Long                 = initRenderable.meshPart.mesh.getVertexAttributes().getMask()
+  private val vertexMask:   Long                 = initRenderable.meshPart.mesh.getVertexAttributes().mask
 
   if (!config.ignoreUnimplemented && (implementedFlags & materialMask) != materialMask)
     throw SgeError.GraphicsError("Some attributes not implemented yet (" + materialMask + ")")
@@ -106,7 +106,7 @@ class ParticleShader private (
 
   override def canRender(renderable: Renderable): Boolean =
     (materialMask == (renderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes)) &&
-      (vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMask())
+      (vertexMask == renderable.meshPart.mesh.getVertexAttributes().mask)
 
   override def compareTo(other: Shader): Int =
     if (other eq this) 0

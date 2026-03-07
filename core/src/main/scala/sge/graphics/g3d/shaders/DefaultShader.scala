@@ -75,7 +75,7 @@ class DefaultShader(
   /** The attributes that this shader supports */
   val attributesMask:     Long = _combinedAttributes.getMask | DefaultShader.optionalAttributes
   private val vertexMask: Long =
-    renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()
+    renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked
   private val textureCoordinates: Int =
     renderable.meshPart.mesh.getVertexAttributes().getTextureCoordinates()
   private var boneWeightsLocations: Nullable[Array[Int]] = Nullable.empty
@@ -632,7 +632,7 @@ class DefaultShader(
         else {
           val renderableMask = DefaultShader.combineAttributeMasks(renderable)
           (attributesMask == (renderableMask | DefaultShader.optionalAttributes)) &&
-          (vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()) &&
+          (vertexMask == renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked) &&
           renderable.environment.isDefined == lighting
         }
       }
@@ -642,7 +642,7 @@ class DefaultShader(
       else {
         val renderableMask = DefaultShader.combineAttributeMasks(renderable)
         (attributesMask == (renderableMask | DefaultShader.optionalAttributes)) &&
-        (vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()) &&
+        (vertexMask == renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked) &&
         renderable.environment.isDefined == lighting
       }
     }
@@ -1271,7 +1271,7 @@ object DefaultShader {
     val attributes     = combineAttributes(renderable)
     val sb             = new StringBuilder
     val attributesMask = attributes.getMask
-    val vertexMask     = renderable.meshPart.mesh.getVertexAttributes().getMask()
+    val vertexMask     = renderable.meshPart.mesh.getVertexAttributes().mask
     if (and(vertexMask, VertexAttributes.Usage.Position)) sb.append("#define positionFlag\n")
     if (or(vertexMask, VertexAttributes.Usage.ColorUnpacked | VertexAttributes.Usage.ColorPacked))
       sb.append("#define colorFlag\n")

@@ -202,12 +202,12 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     // The number of lines showed must be updated whenever the height is updated
     val font            = getStyle.font
     val background      = getStyle.background
-    val availableHeight = getHeight - background.map(bg => bg.getBottomHeight + bg.getTopHeight).getOrElse(0f)
+    val availableHeight = height - background.map(bg => bg.getBottomHeight + bg.getTopHeight).getOrElse(0f)
     linesShowing = Math.floor(availableHeight / font.lineHeight).toInt
   }
 
   override protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
-    var textY = getHeight
+    var textY = height
     background.foreach { bg =>
       textY = textY - bg.getTopHeight
     }
@@ -277,7 +277,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     if (lastText.forall(_ != this._text)) {
       this.lastText = Nullable(_text)
       val font         = getStyle.font
-      val maxWidthLine = this.getWidth -
+      val maxWidthLine = this.width -
         getStyle.background.map(bg => bg.getLeftWidth + bg.getRightWidth).getOrElse(0f)
       linesBreak.clear()
       var lineStart = 0
@@ -384,7 +384,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       val background = getStyle.background
       val font       = getStyle.font
 
-      val height = getHeight
+      val height = TextArea.this.height
 
       var adjustedX      = x
       var adjustedY      = y

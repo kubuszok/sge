@@ -60,8 +60,8 @@ class Image(drawable: Nullable[Drawable] = Nullable.empty, private var scaling: 
     _drawable.foreach { d =>
       val regionWidth  = d.getMinWidth
       val regionHeight = d.getMinHeight
-      val width        = getWidth
-      val height       = getHeight
+      val width        = this.width
+      val height       = this.height
 
       val size = scaling.apply(regionWidth, regionHeight, width, height)
       imageWidth = size.x
@@ -85,25 +85,25 @@ class Image(drawable: Nullable[Drawable] = Nullable.empty, private var scaling: 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
 
-    val color = getColor
-    batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
+    val c = this.color
+    batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
 
-    val x      = getX
-    val y      = getY
-    val scaleX = getScaleX
-    val scaleY = getScaleY
+    val ax = this.x
+    val ay = this.y
+    val sx = this.scaleX
+    val sy = this.scaleY
 
     _drawable.foreach { d =>
       d match {
         case td: TransformDrawable =>
-          val rotation = getRotation
-          if (scaleX != 1 || scaleY != 1 || rotation != 0) {
-            td.draw(batch, x + imageX, y + imageY, getOriginX - imageX, getOriginY - imageY, imageWidth, imageHeight, scaleX, scaleY, rotation)
+          val r = this.rotation
+          if (sx != 1 || sy != 1 || r != 0) {
+            td.draw(batch, ax + imageX, ay + imageY, originX - imageX, originY - imageY, imageWidth, imageHeight, sx, sy, r)
           } else {
-            d.draw(batch, x + imageX, y + imageY, imageWidth * scaleX, imageHeight * scaleY)
+            d.draw(batch, ax + imageX, ay + imageY, imageWidth * sx, imageHeight * sy)
           }
         case _ =>
-          d.draw(batch, x + imageX, y + imageY, imageWidth * scaleX, imageHeight * scaleY)
+          d.draw(batch, ax + imageX, ay + imageY, imageWidth * sx, imageHeight * sy)
       }
     }
   }
@@ -158,7 +158,7 @@ class Image(drawable: Nullable[Drawable] = Nullable.empty, private var scaling: 
   def getImageHeight: Float = imageHeight
 
   override def toString: String =
-    getName.getOrElse {
+    name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)

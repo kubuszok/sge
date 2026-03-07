@@ -7,7 +7,6 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getProcessors, setProcessors)
  *   Audited: 2026-03-03
  */
 package sge
@@ -20,7 +19,7 @@ import scala.util.boundary, boundary.break
   *   Nathan Sweet (original implementation)
   */
 class InputMultiplexer extends InputProcessor {
-  private val processors = DynamicArray[InputProcessor]()
+  val processors = DynamicArray[InputProcessor]()
 
   def this(processors: InputProcessor*) = {
     this()
@@ -55,9 +54,6 @@ class InputMultiplexer extends InputProcessor {
     this.processors.clear()
     this.processors.addAll(processors)
   }
-
-  def getProcessors(): DynamicArray[InputProcessor] =
-    processors
 
   private def processEvent(event: InputProcessor => Boolean): Boolean = {
     // Use snapshot iteration (begin/end) for re-entrant safety, matching Java's SnapshotArray usage

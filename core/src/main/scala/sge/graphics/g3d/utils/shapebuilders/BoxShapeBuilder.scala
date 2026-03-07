@@ -105,7 +105,7 @@ object BoxShapeBuilder {
     corner101: Vector3,
     corner111: Vector3
   ): Unit =
-    if ((builder.getAttributes().getMask() & (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) == 0) {
+    if ((builder.getAttributes().mask & (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) == 0) {
       build(
         builder,
         vertTmp1.set(Nullable(corner000), Nullable.empty, Nullable.empty, Nullable.empty),

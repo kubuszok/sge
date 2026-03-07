@@ -6,13 +6,13 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getX/Y, getOriginX/Y, getRotation, getScaleX/Y and setters with dirty flags
+ *   Convention: replaced getX/Y, getOriginX/Y, getRotation, getScaleX/Y with public read accessors over private _x/_y fields
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * AUDIT: PASS — All methods ported: getVertices, getTransformedVertices, getLength,
- * getScaledLength, getX/Y, getOriginX/Y, getRotation, getScaleX/Y, setOrigin, setPosition,
+ * getScaledLength, x/y/originX/Y/rotation/scaleX/Y (read accessors), setOrigin, setPosition,
  * setVertices, setRotation, rotate, setScale, scale, calculateLength, calculateScaledLength,
  * dirty, translate, getBoundingRectangle, contains(2). Implements Shape2D (always false).
  */
@@ -24,13 +24,13 @@ import sge.utils.Nullable
 class Polyline() extends Shape2D {
   private var localVertices:               Array[Float] = Array.empty[Float]
   private var worldVertices:               Array[Float] = scala.compiletime.uninitialized
-  private var x:                           Float        = 0f
-  private var y:                           Float        = 0f
-  private var originX:                     Float        = 0f
-  private var originY:                     Float        = 0f
-  private var rotation:                    Float        = 0f
-  private var scaleX:                      Float        = 1f
-  private var scaleY:                      Float        = 1f
+  private var _x:                          Float        = 0f
+  private var _y:                          Float        = 0f
+  private var _originX:                    Float        = 0f
+  private var _originY:                    Float        = 0f
+  private var _rotation:                   Float        = 0f
+  private var _scaleX:                     Float        = 1f
+  private var _scaleY:                     Float        = 1f
   private var length:                      Float        = 0f
   private var scaledLength:                Float        = 0f
   private var shouldCalculateScaledLength: Boolean      = true
@@ -59,14 +59,14 @@ class Polyline() extends Shape2D {
         this.worldVertices = new Array[Float](localVertices.length)
 
       val worldVertices = this.worldVertices
-      val positionX     = x
-      val positionY     = y
-      val originX       = this.originX
-      val originY       = this.originY
-      val scaleX        = this.scaleX
-      val scaleY        = this.scaleY
+      val positionX     = _x
+      val positionY     = _y
+      val originX       = this._originX
+      val originY       = this._originY
+      val scaleX        = this._scaleX
+      val scaleY        = this._scaleY
       val scale         = scaleX != 1 || scaleY != 1
-      val rotation      = this.rotation
+      val rotation      = this._rotation
       val cos           = MathUtils.cosDeg(rotation)
       val sin           = MathUtils.sinDeg(rotation)
 
@@ -125,8 +125,8 @@ class Polyline() extends Shape2D {
       var i = 0
       val n = localVertices.length - 2
       while (i < n) {
-        val x = localVertices(i + 2) * scaleX - localVertices(i) * scaleX
-        val y = localVertices(i + 1) * scaleY - localVertices(i + 3) * scaleY
+        val x = localVertices(i + 2) * _scaleX - localVertices(i) * _scaleX
+        val y = localVertices(i + 1) * _scaleY - localVertices(i + 3) * _scaleY
         scaledLength += Math.sqrt(x * x + y * y).toFloat
         i += 2
       }
@@ -134,29 +134,29 @@ class Polyline() extends Shape2D {
       scaledLength
     }
 
-  def getX(): Float = x
+  def x: Float = _x
 
-  def getY(): Float = y
+  def y: Float = _y
 
-  def getOriginX(): Float = originX
+  def originX: Float = _originX
 
-  def getOriginY(): Float = originY
+  def originY: Float = _originY
 
-  def getRotation(): Float = rotation
+  def rotation: Float = _rotation
 
-  def getScaleX(): Float = scaleX
+  def scaleX: Float = _scaleX
 
-  def getScaleY(): Float = scaleY
+  def scaleY: Float = _scaleY
 
   def setOrigin(originX: Float, originY: Float): Unit = {
-    this.originX = originX
-    this.originY = originY
+    this._originX = originX
+    this._originY = originY
     isDirty = true
   }
 
   def setPosition(x: Float, y: Float): Unit = {
-    this.x = x
-    this.y = y
+    this._x = x
+    this._y = y
     isDirty = true
   }
 
@@ -167,25 +167,25 @@ class Polyline() extends Shape2D {
   }
 
   def setRotation(degrees: Float): Unit = {
-    this.rotation = degrees
+    this._rotation = degrees
     isDirty = true
   }
 
   def rotate(degrees: Float): Unit = {
-    rotation += degrees
+    _rotation += degrees
     isDirty = true
   }
 
   def setScale(scaleX: Float, scaleY: Float): Unit = {
-    this.scaleX = scaleX
-    this.scaleY = scaleY
+    this._scaleX = scaleX
+    this._scaleY = scaleY
     isDirty = true
     shouldCalculateScaledLength = true
   }
 
   def scale(amount: Float): Unit = {
-    this.scaleX += amount
-    this.scaleY += amount
+    this._scaleX += amount
+    this._scaleY += amount
     isDirty = true
     shouldCalculateScaledLength = true
   }
@@ -200,8 +200,8 @@ class Polyline() extends Shape2D {
     isDirty = true
 
   def translate(x: Float, y: Float): Unit = {
-    this.x += x
-    this.y += y
+    this._x += x
+    this._y += y
     isDirty = true
   }
 

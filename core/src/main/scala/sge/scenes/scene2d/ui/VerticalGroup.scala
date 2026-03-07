@@ -54,7 +54,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
   private var _padRight:    Float   = 0
 
   setTransform(false)
-  setTouchable(Touchable.childrenOnly)
+  touchable = Touchable.childrenOnly
 
   override def invalidate(): Unit = {
     super.invalidate()
@@ -77,7 +77,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
       val space       = this._space
       val wrapSpace   = this._wrapSpace
       val pad         = _padTop + _padBottom
-      val groupHeight = getHeight - pad
+      val groupHeight = height - pad
       var x           = 0f
       var y           = 0f
       var columnWidth = 0f
@@ -95,8 +95,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
             height = layout.getPrefHeight
             if (height > groupHeight) height = Math.max(groupHeight, layout.getMinHeight)
           case _ =>
-            width = child.getWidth
-            height = child.getHeight
+            width = child.width
+            height = child.height
         }
 
         val incrY0 = height + (if (y > 0) space else 0)
@@ -130,8 +130,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
             _prefWidth = Math.max(_prefWidth, layout.getPrefWidth)
             _prefHeight += layout.getPrefHeight
           case _ =>
-            _prefWidth = Math.max(_prefWidth, child.getWidth)
-            _prefHeight += child.getHeight
+            _prefWidth = Math.max(_prefWidth, child.width)
+            _prefHeight += child.height
         }
         i += 1
       }
@@ -154,21 +154,21 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
       val space       = this._space
       val padLeft     = this._padLeft
       val fill        = this._fill
-      val columnWidth = (if (_expand) getWidth else _prefWidth) - _padLeft - _padRight
+      val columnWidth = (if (_expand) width else _prefWidth) - _padLeft - _padRight
       var y           = _prefHeight - _padTop + space
 
       if (align.isTop)
-        y += getHeight - _prefHeight
+        y += height - _prefHeight
       else if (!align.isBottom) // center
-        y += (getHeight - _prefHeight) / 2
+        y += (height - _prefHeight) / 2
 
       var startX: Float = 0
       if (align.isLeft)
         startX = padLeft
       else if (align.isRight)
-        startX = getWidth - _padRight - columnWidth
+        startX = width - _padRight - columnWidth
       else
-        startX = padLeft + (getWidth - _padLeft - _padRight - columnWidth) / 2
+        startX = padLeft + (width - _padLeft - _padRight - columnWidth) / 2
 
       align = _columnAlign
 
@@ -189,8 +189,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
             width = l.getPrefWidth
             height = l.getPrefHeight
           case _ =>
-            width = child.getWidth
-            height = child.getHeight
+            width = child.width
+            height = child.height
         }
 
         if (fill > 0) width = columnWidth * fill
@@ -234,15 +234,15 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     val wrapSpace   = this._wrapSpace
     val maxHeight   = _prefHeight - _padTop - _padBottom
     var columnX     = padLeft
-    var groupHeight = getHeight
+    var groupHeight = height
     var yStart      = _prefHeight - _padTop + space
     var y           = 0f
     var columnWidth = 0f
 
     if (align.isRight)
-      columnX += getWidth - prefWidth
+      columnX += width - prefWidth
     else if (!align.isLeft) // center
-      columnX += (getWidth - prefWidth) / 2
+      columnX += (width - prefWidth) / 2
 
     if (align.isTop)
       yStart += groupHeight - _prefHeight
@@ -272,8 +272,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
           height = l.getPrefHeight
           if (height > groupHeight) height = Math.max(groupHeight, l.getMinHeight)
         case _ =>
-          width = child.getWidth
-          height = child.getHeight
+          width = child.width
+          height = child.height
       }
 
       if (y - height - space < _padBottom || r == 0) {
@@ -557,17 +557,17 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     super.drawDebugBounds(shapes)
     if (getDebug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      getStage.foreach(s => shapes.setColor(s.getDebugColor))
+      stage.foreach(s => shapes.setColor(s.getDebugColor))
       shapes.rectangle(
-        getX + _padLeft,
-        getY + _padBottom,
-        getOriginX,
-        getOriginY,
-        getWidth - _padLeft - _padRight,
-        getHeight - _padBottom - _padTop,
-        getScaleX,
-        getScaleY,
-        getRotation
+        x + _padLeft,
+        y + _padBottom,
+        originX,
+        originY,
+        width - _padLeft - _padRight,
+        height - _padBottom - _padTop,
+        scaleX,
+        scaleY,
+        rotation
       )
     }
   }

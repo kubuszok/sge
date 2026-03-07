@@ -11,7 +11,7 @@
  * - setRegion null-check -> Nullable(region).foreach
  * - instanceof check -> pattern matching for AtlasRegion in tint()
  * - All methods faithfully ported
- * - TODO: Java-style getters/setters — setRegion
+ * - Renames: setRegion kept (has logic); getLeftWidth→leftWidth etc. via Drawable trait rename
  */
 package sge
 package scenes
@@ -44,13 +44,13 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
     // Copy base drawable properties
     drawable match {
       case bd: BaseDrawable =>
-        setLeftWidth(bd.getLeftWidth)
-        setRightWidth(bd.getRightWidth)
-        setTopHeight(bd.getTopHeight)
-        setBottomHeight(bd.getBottomHeight)
-        setMinWidth(bd.getMinWidth)
-        setMinHeight(bd.getMinHeight)
-        setName(bd.getName)
+        leftWidth = bd.leftWidth
+        rightWidth = bd.rightWidth
+        topHeight = bd.topHeight
+        bottomHeight = bd.bottomHeight
+        minWidth = bd.minWidth
+        minHeight = bd.minHeight
+        name = bd.name
     }
     setRegion(drawable.region)
   }
@@ -64,8 +64,8 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
   def setRegion(region: TextureRegion): Unit = {
     this.region = region
     Nullable(region).foreach { r =>
-      setMinWidth(r.regionWidth.toFloat)
-      setMinHeight(r.regionHeight.toFloat)
+      minWidth = r.regionWidth.toFloat
+      minHeight = r.regionHeight.toFloat
     }
   }
 
@@ -78,12 +78,12 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
       case _ => Sprite(region)
     }
     sprite.color = tint
-    sprite.setSize(getMinWidth, getMinHeight)
+    sprite.setSize(minWidth, minHeight)
     val drawable = SpriteDrawable(sprite)
-    drawable.setLeftWidth(getLeftWidth)
-    drawable.setRightWidth(getRightWidth)
-    drawable.setTopHeight(getTopHeight)
-    drawable.setBottomHeight(getBottomHeight)
+    drawable.leftWidth = leftWidth
+    drawable.rightWidth = rightWidth
+    drawable.topHeight = topHeight
+    drawable.bottomHeight = bottomHeight
     drawable
   }
 }

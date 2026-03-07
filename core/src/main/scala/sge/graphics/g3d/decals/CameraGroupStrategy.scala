@@ -153,7 +153,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
       + "}"
 
     shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.isCompiled()) throw SgeError.GraphicsError("couldn't compile shader: " + shader.getLog())
+    if (!shader.compiled) throw SgeError.GraphicsError("couldn't compile shader: " + shader.getLog())
   }
 
   override def getGroupShader(group: Int): Nullable[ShaderProgram] = Nullable(shader)

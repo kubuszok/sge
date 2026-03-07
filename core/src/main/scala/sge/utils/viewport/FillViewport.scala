@@ -32,6 +32,7 @@ import sge.graphics.OrthographicCamera
 class FillViewport(worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends ScalingViewport(Scaling.fill, worldWidth, worldHeight, camera) {
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(worldWidth: Float, worldHeight: Float)(using Sge) =
+  def this(worldWidth: Float, worldHeight: Float)(using Sge) = {
     this(worldWidth, worldHeight, OrthographicCamera())
+  }
 }

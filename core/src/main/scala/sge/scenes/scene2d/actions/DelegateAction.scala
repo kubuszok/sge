@@ -10,7 +10,6 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: action null-check -> action.foreach; setPool(null) -> setPool(Nullable.empty);
  *          action == null ? "" : "(" + action + ")" -> action.fold("")(a => ...)
- *   TODO: Java-style getters/setters -- getAction/setAction
  *   Audited: 2026-03-03
  */
 package sge
@@ -25,23 +24,17 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 abstract class DelegateAction extends Action {
-  protected var action: Nullable[Action] = Nullable.empty
-
-  /** Sets the wrapped action. */
-  def setAction(action: Action): Unit =
-    this.action = Nullable(action)
-
-  def getAction: Nullable[Action] = action
+  var action: Nullable[Action] = Nullable.empty
 
   protected def delegate(delta: Float): Boolean
 
   final def act(delta: Float): Boolean = {
-    val pool = getPool
-    setPool(Nullable.empty) // Ensure this action can't be returned to the pool inside the delegate action.
+    val savedPool = pool
+    pool = Nullable.empty // Ensure this action can't be returned to the pool inside the delegate action.
     try
       delegate(delta)
     finally
-      setPool(pool)
+      pool = savedPool
   }
 
   override def restart(): Unit =

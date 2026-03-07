@@ -6,12 +6,12 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (redundant getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight over public vars)
+ *   Convention: removed redundant getX/setX, getY/setY, getWidth/setWidth, getHeight/setHeight (fields are public vars)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * AUDIT: PASS — All methods ported: constructors, set(2), getX/Y/Width/Height, setX/Y/Width/Height,
+ * AUDIT: PASS — All methods ported: constructors, set(2), x/y/width/height (public vars),
  * getPosition, setPosition(2), setSize(2), getSize, contains(3), overlaps, merge(4), getAspectRatio,
  * getCenter, setCenter(2), fitOutside, fitInside, toString, fromString, area, perimeter,
  * hashCode, equals. Static: tmp, tmp2.
@@ -75,62 +75,6 @@ class Rectangle() extends Shape2D {
     this.x = x
     this.y = y
     this.width = width
-    this.height = height
-    this
-  }
-
-  /** @return the x-coordinate of the bottom left corner */
-  def getX(): Float = x
-
-  /** Sets the x-coordinate of the bottom left corner
-    * @param x
-    *   The x-coordinate
-    * @return
-    *   this rectangle for chaining
-    */
-  def setX(x: Float): Rectangle = {
-    this.x = x
-    this
-  }
-
-  /** @return the y-coordinate of the bottom left corner */
-  def getY(): Float = y
-
-  /** Sets the y-coordinate of the bottom left corner
-    * @param y
-    *   The y-coordinate
-    * @return
-    *   this rectangle for chaining
-    */
-  def setY(y: Float): Rectangle = {
-    this.y = y
-    this
-  }
-
-  /** @return the width */
-  def getWidth(): Float = width
-
-  /** Sets the width of this rectangle
-    * @param width
-    *   The width
-    * @return
-    *   this rectangle for chaining
-    */
-  def setWidth(width: Float): Rectangle = {
-    this.width = width
-    this
-  }
-
-  /** @return the height */
-  def getHeight(): Float = height
-
-  /** Sets the height of this rectangle
-    * @param height
-    *   The height
-    * @return
-    *   this rectangle for chaining
-    */
-  def setHeight(height: Float): Rectangle = {
     this.height = height
     this
   }

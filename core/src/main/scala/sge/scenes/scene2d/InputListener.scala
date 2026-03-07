@@ -9,7 +9,7 @@
  * Migration notes:
  *   Renames: implements -> extends; static tmpCoords -> companion object val
  *   Convention: null -> Nullable[A]; no return statements; split packages
- *   Idiom: Java switch -> Scala match; instanceof+cast -> pattern match; getStage() null-check -> Nullable.foreach
+ *   Idiom: Java switch -> Scala match; instanceof+cast -> pattern match; stage() null-check -> Nullable.foreach
  *   Audited: 2026-03-03
  */
 package sge
@@ -37,37 +37,41 @@ class InputListener extends EventListener {
   def handle(e: Event): Boolean =
     e match {
       case event: InputEvent =>
-        event.getType match {
-          case InputEvent.Type.keyDown  => keyDown(event, event.getKeyCode)
-          case InputEvent.Type.keyUp    => keyUp(event, event.getKeyCode)
-          case InputEvent.Type.keyTyped => keyTyped(event, event.getCharacter)
+        event.eventType match {
+          case InputEvent.Type.keyDown  => keyDown(event, event.keyCode)
+          case InputEvent.Type.keyUp    => keyUp(event, event.keyCode)
+          case InputEvent.Type.keyTyped => keyTyped(event, event.character)
           case _                        =>
-            event.toCoordinates(event.getListenerActor, InputListener.tmpCoords)
+            event.listenerActor.foreach(la => event.toCoordinates(la, InputListener.tmpCoords))
 
-            event.getType match {
+            event.eventType match {
               case InputEvent.Type.touchDown =>
-                val handled = touchDown(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getPointer, event.getButton)
-                if (handled && event.getTouchFocus) {
-                  event.getStage.foreach { stage =>
-                    stage.addTouchFocus(this, event.getListenerActor, event.getTarget, event.getPointer, event.getButton)
+                val handled = touchDown(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.button)
+                if (handled && event.touchFocus) {
+                  event.stage.foreach { stage =>
+                    event.listenerActor.foreach { la =>
+                      event.target.foreach { t =>
+                        stage.addTouchFocus(this, la, t, event.pointer, event.button)
+                      }
+                    }
                   }
                 }
                 handled
               case InputEvent.Type.touchUp =>
-                touchUp(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getPointer, event.getButton)
+                touchUp(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.button)
                 true
               case InputEvent.Type.touchDragged =>
-                touchDragged(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getPointer)
+                touchDragged(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer)
                 true
               case InputEvent.Type.mouseMoved =>
                 mouseMoved(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y)
               case InputEvent.Type.scrolled =>
-                scrolled(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getScrollAmountX, event.getScrollAmountY)
+                scrolled(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.scrollAmountX, event.scrollAmountY)
               case InputEvent.Type.enter =>
-                enter(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getPointer, event.getRelatedActor)
+                enter(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.relatedActor)
                 false
               case InputEvent.Type.exit =>
-                exit(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.getPointer, event.getRelatedActor)
+                exit(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.relatedActor)
                 false
               case _ => false
             }

@@ -7,7 +7,6 @@
  * Migration notes:
  *   Convention: hand-written XML parser replaced with scala-xml library delegation
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — Element: getParent, getAttributes, getChildren, getChild, getText/setText, getChildByName, etc.
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -59,14 +58,10 @@ class XmlReader {
 object XmlReader {
 
   /** An XML element with attributes, children, and text content. */
-  class Element(val name: String, private var _parent: Nullable[Element]) {
-    private var attributes: Nullable[ObjectMap[String, String]] = Nullable.empty
-    private var children:   Nullable[DynamicArray[Element]]     = Nullable.empty
-    private var _text:      Nullable[String]                    = Nullable.empty
-
-    def getParent: Nullable[Element] = _parent
-
-    def getAttributes: Nullable[ObjectMap[String, String]] = attributes
+  class Element(val name: String, var parent: Nullable[Element]) {
+    var attributes: Nullable[ObjectMap[String, String]] = Nullable.empty
+    var children:   Nullable[DynamicArray[Element]]     = Nullable.empty
+    var text:       Nullable[String]                    = Nullable.empty
 
     /** @throws SgeError.InvalidInput if the attribute was not found. */
     def getAttribute(attrName: String): String =
@@ -85,10 +80,8 @@ object XmlReader {
       attributes.foreach(_.put(attrName, value))
     }
 
-    def getChildCount: Int =
+    def childCount: Int =
       children.map(_.size).getOrElse(0)
-
-    def getChildren: Nullable[DynamicArray[Element]] = children
 
     /** @throws SgeError.InvalidInput if the element has no children. */
     def getChild(index: Int): Element =
@@ -97,28 +90,24 @@ object XmlReader {
     def addChild(element: Element): Unit = {
       if (children.isEmpty) children = Nullable(DynamicArray[Element](8))
       children.foreach(_.add(element))
-      element._parent = Nullable(this)
+      element.parent = Nullable(this)
     }
-
-    def getText: Nullable[String] = _text
-
-    def setText(text: Nullable[String]): Unit = _text = text
 
     def removeChild(index: Int): Unit =
       children.foreach { c =>
         val removedChild = c.removeIndex(index)
-        removedChild._parent = Nullable.empty
+        removedChild.parent = Nullable.empty
       }
 
     def removeChild(child: Element): Unit =
       children.foreach { c =>
         val removeSuccess = c.removeValueByRef(child)
-        if (removeSuccess) child._parent = Nullable.empty
+        if (removeSuccess) child.parent = Nullable.empty
       }
 
     def remove(): Unit = {
-      _parent.foreach(_.removeChild(this))
-      _parent = Nullable.empty
+      parent.foreach(_.removeChild(this))
+      parent = Nullable.empty
     }
 
     /** Returns the first child having the given name or empty, does not recurse. */
@@ -222,7 +211,7 @@ object XmlReader {
       val fromAttr = attributes.flatMap(_.get(fieldName))
       if (fromAttr.isDefined) fromAttr
       else {
-        val t = getChildByName(fieldName).flatMap(_.getText)
+        val t = getChildByName(fieldName).flatMap(_.text)
         if (t.isEmpty) defaultValue else t
       }
     }
@@ -261,12 +250,12 @@ object XmlReader {
           buffer.append('"')
         }
       }
-      if (children.isEmpty && _text.forall(_.isEmpty))
+      if (children.isEmpty && text.forall(_.isEmpty))
         buffer.append("/>")
       else {
         buffer.append(">\n")
         val childIndent = indent + "\t"
-        _text.foreach { t =>
+        text.foreach { t =>
           if (t.nonEmpty) {
             buffer.append(childIndent)
             buffer.append(t)
@@ -306,7 +295,7 @@ object XmlReader {
         textParts.append(t.text)
       case _ => ()
     }
-    if (textParts.nonEmpty) element.setText(Nullable(textParts.toString))
+    if (textParts.nonEmpty) element.text = Nullable(textParts.toString)
     element
   }
 }

@@ -16,9 +16,8 @@
  * Behavioural parity: YES — update logic identical, centering calculation matches
  * Conventions: OK — no return, no null, split packages, braces on multiline defs
  * Notes:
- *   - _scaling backing field pattern used correctly (constructor param + private var)
+ *   - currentScaling backing field pattern used correctly (constructor param + private var)
  *   - Scaling is a SAM trait (not Java enum); apply() invocation matches
- * TODO: Java-style getters/setters — getScaling/setScaling
  */
 package sge
 package utils
@@ -37,18 +36,19 @@ import sge.utils.Scaling
   * @author
   *   Nathan Sweet
   */
-class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends Viewport {
-  private var _scaling: Scaling = scaling
+class ScalingViewport(scaling: Scaling, initialWorldWidth: Float, initialWorldHeight: Float, camera: Camera)(using Sge) extends Viewport {
+  var currentScaling: Scaling = scaling
 
-  setWorldSize(worldWidth, worldHeight)
+  setWorldSize(initialWorldWidth, initialWorldHeight)
   this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) =
+  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) = {
     this(scaling, worldWidth, worldHeight, OrthographicCamera())
+  }
 
   override def update(screenWidth: Int, screenHeight: Int, centerCamera: Boolean): Unit = {
-    val scaled         = _scaling.apply(worldWidth, worldHeight, screenWidth.toFloat, screenHeight.toFloat)
+    val scaled         = currentScaling.apply(worldWidth, worldHeight, screenWidth.toFloat, screenHeight.toFloat)
     val viewportWidth  = Math.round(scaled.x)
     val viewportHeight = Math.round(scaled.y)
 
@@ -58,9 +58,4 @@ class ScalingViewport(scaling: Scaling, worldWidth: Float, worldHeight: Float, c
     apply(centerCamera)
   }
 
-  def getScaling(): Scaling =
-    _scaling
-
-  def setScaling(scaling: Scaling): Unit =
-    this._scaling = scaling
 }

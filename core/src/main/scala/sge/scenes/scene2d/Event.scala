@@ -9,8 +9,7 @@
  * Migration notes:
  *   Renames: Pool.Poolable (Java interface) -> Pool.Poolable (Scala trait)
  *   Convention: null -> Nullable[A]; no return statements; split packages
- *   Idiom: Fields stored as Nullable; getTarget/getListenerActor use getOrElse(null) for API compat
- *   TODO: Java-style getters/setters — convert to var or def x/def x_= (getTarget/setTarget, getBubbles/setBubbles, isCapture/setCapture, getStage/setStage)
+ *   Idiom: Fields stored as Nullable; target/listenerActor return Nullable directly
  *   TODO: extends Pool.Poolable → define given Poolable[Event] in companion
  *   Audited: 2026-03-03
  */
@@ -32,14 +31,27 @@ import sge.utils.Pool
   *   Actor#fire(Event)
   */
 class Event extends Pool.Poolable {
-  private var stage:         Nullable[Stage] = Nullable.empty
-  private var targetActor:   Nullable[Actor] = Nullable.empty
-  private var listenerActor: Nullable[Actor] = Nullable.empty
-  private var capture:       Boolean         = false // true means event occurred during the capture phase
-  private var bubbles:       Boolean         = true // true means propagate to target's parents
-  private var handled:       Boolean         = false // true means the event was handled (the stage will eat the input)
-  private var stopped:       Boolean         = false // true means event propagation was stopped
-  private var cancelled:     Boolean         = false // true means propagation was stopped and any action that this event would cause should not happen
+
+  /** The stage for the actor the event was fired on. */
+  var stage: Nullable[Stage] = Nullable.empty
+
+  /** Returns the actor that the event originated from. */
+  var target: Nullable[Actor] = Nullable.empty
+
+  /** Returns the actor that this listener is attached to. */
+  var listenerActor: Nullable[Actor] = Nullable.empty
+
+  /** If true, the event was fired during the capture phase.
+    * @see
+    *   Actor#fire(Event)
+    */
+  var capture: Boolean = false // true means event occurred during the capture phase
+  /** If true, after the event is fired on the target actor, it will also be fired on each of the parent actors, all the way to the root.
+    */
+  var bubbles:           Boolean = true // true means propagate to target's parents
+  private var handled:   Boolean = false // true means the event was handled (the stage will eat the input)
+  private var stopped:   Boolean = false // true means event propagation was stopped
+  private var cancelled: Boolean = false // true means propagation was stopped and any action that this event would cause should not happen
 
   /** Marks this event as handled. This does not affect event propagation inside scene2d, but causes the {@link Stage} {@link InputProcessor} methods to return true, which will eat the event so it is
     * not passed on to the application under the stage.
@@ -64,7 +76,7 @@ class Event extends Pool.Poolable {
 
   def reset(): Unit = {
     stage = Nullable.empty
-    targetActor = Nullable.empty
+    target = Nullable.empty
     listenerActor = Nullable.empty
     capture = false
     bubbles = true
@@ -72,25 +84,6 @@ class Event extends Pool.Poolable {
     stopped = false
     cancelled = false
   }
-
-  /** Returns the actor that the event originated from. */
-  def getTarget: Actor = targetActor.getOrElse(null)
-
-  def setTarget(targetActor: Actor): Unit =
-    this.targetActor = Nullable(targetActor)
-
-  /** Returns the actor that this listener is attached to. */
-  def getListenerActor: Actor = listenerActor.getOrElse(null)
-
-  def setListenerActor(listenerActor: Actor): Unit =
-    this.listenerActor = Nullable(listenerActor)
-
-  def getBubbles: Boolean = bubbles
-
-  /** If true, after the event is fired on the target actor, it will also be fired on each of the parent actors, all the way to the root.
-    */
-  def setBubbles(bubbles: Boolean): Unit =
-    this.bubbles = bubbles
 
   /** {@link #handle()} */
   def isHandled: Boolean = handled
@@ -100,19 +93,4 @@ class Event extends Pool.Poolable {
 
   /** @see #cancel() */
   def isCancelled: Boolean = cancelled
-
-  def setCapture(capture: Boolean): Unit =
-    this.capture = capture
-
-  /** If true, the event was fired during the capture phase.
-    * @see
-    *   Actor#fire(Event)
-    */
-  def isCapture: Boolean = capture
-
-  def setStage(stage: Stage): Unit =
-    this.stage = Nullable(stage)
-
-  /** The stage for the actor the event was fired on. */
-  def getStage: Nullable[Stage] = stage
 }

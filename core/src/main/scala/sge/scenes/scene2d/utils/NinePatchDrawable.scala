@@ -10,7 +10,7 @@
  * - Copy constructor: cannot call super(drawable) -> manual property copy
  * - setPatch null-check -> Nullable(patch).foreach
  * - All methods faithfully ported
- * - TODO: Java-style getters/setters — setPatch
+ * - Renames: setPatch kept (has logic); getLeftWidth→leftWidth etc. via Drawable trait rename
  */
 package sge
 package scenes
@@ -40,13 +40,13 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
     // Call super copy manually
     drawable match {
       case bd: BaseDrawable =>
-        setLeftWidth(bd.getLeftWidth)
-        setRightWidth(bd.getRightWidth)
-        setTopHeight(bd.getTopHeight)
-        setBottomHeight(bd.getBottomHeight)
-        setMinWidth(bd.getMinWidth)
-        setMinHeight(bd.getMinHeight)
-        setName(bd.getName)
+        leftWidth = bd.leftWidth
+        rightWidth = bd.rightWidth
+        topHeight = bd.topHeight
+        bottomHeight = bd.bottomHeight
+        minWidth = bd.minWidth
+        minHeight = bd.minHeight
+        name = bd.name
     }
     this.patch = drawable.patch
   }
@@ -62,12 +62,12 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
   def setPatch(patch: NinePatch): Unit = {
     this.patch = patch
     Nullable(patch).foreach { p =>
-      setMinWidth(p.totalWidth)
-      setMinHeight(p.totalHeight)
-      setTopHeight(p.padTop)
-      setRightWidth(p.padRight)
-      setBottomHeight(p.padBottom)
-      setLeftWidth(p.padLeft)
+      minWidth = p.totalWidth
+      minHeight = p.totalHeight
+      topHeight = p.padTop
+      rightWidth = p.padRight
+      bottomHeight = p.padBottom
+      leftWidth = p.padLeft
     }
   }
 

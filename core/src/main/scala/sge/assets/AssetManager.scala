@@ -780,7 +780,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   }
 
   /** Convenience for AssetLoadingTask secondary constructor. */
-  def logLevel: Int = log.getLevel
+  def logLevel: Int = log.level
 
   /** Returns the reference count of an asset. */
   def referenceCount(fileName: String): Int = synchronized {

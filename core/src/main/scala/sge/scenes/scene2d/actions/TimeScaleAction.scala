@@ -9,7 +9,6 @@
  * Migration notes:
  *   Convention: no return; split packages; braces on class
  *   Idiom: action null-check -> action.fold(true)(_.act(delta * scale))
- *   TODO: Java-style getters/setters -- getScale/setScale
  *   Audited: 2026-03-03
  */
 package sge
@@ -22,12 +21,8 @@ package actions
   *   Nathan Sweet
   */
 class TimeScaleAction extends DelegateAction {
-  private var scale: Float = 0
+  var scale: Float = 0
 
   override protected def delegate(delta: Float): Boolean =
     action.forall(_.act(delta * scale))
-
-  def getScale: Float = scale
-
-  def setScale(scale: Float): Unit = this.scale = scale
 }

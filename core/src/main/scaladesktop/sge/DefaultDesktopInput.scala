@@ -302,7 +302,7 @@ class DefaultDesktopInput private[sge] (
     // FIXME getTextInput does nothing on desktop
     listener.canceled()
 
-  override def getCurrentEventTime(): Long = eventQueue.getCurrentEventTime()
+  override def currentEventTime: Long = eventQueue.currentEventTime
 
   override def setInputProcessor(processor: InputProcessor): Unit =
     _inputProcessor = Nullable(processor)

@@ -52,7 +52,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   private var _round:       Boolean             = true
   private var actorCulling: Nullable[Rectangle] = Nullable.empty
 
-  setTouchable(Touchable.childrenOnly)
+  touchable = Touchable.childrenOnly
   setTransform(false)
 
   def this(actor: Nullable[T])(using Sge) = {
@@ -69,7 +69,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
         batch.flush()
         val padLeft   = this._padLeft.get(this)
         val padBottom = this._padBottom.get(this)
-        if (clipBegin(padLeft, padBottom, getWidth - padLeft - _padRight.get(this), getHeight - padBottom - _padTop.get(this))) {
+        if (clipBegin(padLeft, padBottom, width - padLeft - _padRight.get(this), height - padBottom - _padTop.get(this))) {
           drawChildren(batch, parentAlpha)
           batch.flush()
           clipEnd()
@@ -79,7 +79,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
       }
       resetTransform(batch)
     } else {
-      drawBackground(batch, parentAlpha, getX, getY)
+      drawBackground(batch, parentAlpha, x, y)
       super.draw(batch, parentAlpha)
     }
   }
@@ -88,9 +88,9 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     */
   protected def drawBackground(batch: Batch, parentAlpha: Float, x: Float, y: Float): Unit =
     _background.foreach { bg =>
-      val color = getColor
+      val color = this.color
       batch.setColor(color.r, color.g, color.b, color.a * parentAlpha)
-      bg.draw(batch, x, y, getWidth, getHeight)
+      bg.draw(batch, x, y, width, height)
     }
 
   /** Sets the background drawable and adjusts the container's padding to match the background.
@@ -130,8 +130,8 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     actor.foreach { a =>
       val padLeft         = this._padLeft.get(this)
       val padBottom       = this._padBottom.get(this)
-      val containerWidth  = getWidth - padLeft - _padRight.get(this)
-      val containerHeight = getHeight - padBottom - _padTop.get(this)
+      val containerWidth  = this.width - padLeft - _padRight.get(this)
+      val containerHeight = this.height - padBottom - _padTop.get(this)
       val minW            = this._minWidth.get(a)
       val minH            = this._minHeight.get(a)
       val prefW           = this._prefWidth.get(a)
@@ -139,38 +139,38 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
       val maxW            = this._maxWidth.get(a)
       val maxH            = this._maxHeight.get(a)
 
-      var width =
+      var cw =
         if (_fillX > 0) containerWidth * _fillX
         else Math.min(prefW, containerWidth)
-      if (width < minW) width = minW
-      if (maxW > 0 && width > maxW) width = maxW
+      if (cw < minW) cw = minW
+      if (maxW > 0 && cw > maxW) cw = maxW
 
-      var height =
+      var ch =
         if (_fillY > 0) containerHeight * _fillY
         else Math.min(prefH, containerHeight)
-      if (height < minH) height = minH
-      if (maxH > 0 && height > maxH) height = maxH
+      if (ch < minH) ch = minH
+      if (maxH > 0 && ch > maxH) ch = maxH
 
-      var x = padLeft
+      var cx = padLeft
       if (_align.isRight)
-        x += containerWidth - width
+        cx += containerWidth - cw
       else if (_align.isCenterHorizontal) // center
-        x += (containerWidth - width) / 2
+        cx += (containerWidth - cw) / 2
 
-      var y = padBottom
+      var cy = padBottom
       if (_align.isTop)
-        y += containerHeight - height
+        cy += containerHeight - ch
       else if (_align.isCenterVertical) // center
-        y += (containerHeight - height) / 2
+        cy += (containerHeight - ch) / 2
 
       if (_round) {
-        x = Math.floor(x.toDouble).toFloat
-        y = Math.floor(y.toDouble).toFloat
-        width = Math.ceil(width.toDouble).toFloat
-        height = Math.ceil(height.toDouble).toFloat
+        cx = Math.floor(cx.toDouble).toFloat
+        cy = Math.floor(cy.toDouble).toFloat
+        cw = Math.ceil(cw.toDouble).toFloat
+        ch = Math.ceil(ch.toDouble).toFloat
       }
 
-      a.setBounds(x, y, width, height)
+      a.setBounds(cx, cy, cw, ch)
       a match {
         case l: Layout => l.validate()
         case _ =>
@@ -190,8 +190,8 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
               actorCulling = Nullable(r)
               r
             }
-            ac.x = ca.x - a.getX
-            ac.y = ca.y - a.getY
+            ac.x = ca.x - a.x
+            ac.y = ca.y - a.y
             ac.width = ca.width
             ac.height = ca.height
             cullable.setCullingArea(Nullable(ac))
@@ -567,8 +567,8 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (_clip) {
-      if (touchable && getTouchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
-      if (x < 0 || x >= getWidth || y < 0 || y >= getHeight) scala.util.boundary.break(Nullable.empty)
+      if (touchable && this.touchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
+      if (x < 0 || x >= width || y < 0 || y >= height) scala.util.boundary.break(Nullable.empty)
     }
     super.hit(x, y, touchable)
   }
@@ -582,8 +582,8 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
         val padLeft   = this._padLeft.get(this)
         val padBottom = this._padBottom.get(this)
         val draw      =
-          if (_background.isEmpty) clipBegin(0, 0, getWidth, getHeight)
-          else clipBegin(padLeft, padBottom, getWidth - padLeft - _padRight.get(this), getHeight - padBottom - _padTop.get(this))
+          if (_background.isEmpty) clipBegin(0, 0, width, height)
+          else clipBegin(padLeft, padBottom, width - padLeft - _padRight.get(this), height - padBottom - _padTop.get(this))
         if (draw) {
           drawDebugChildren(shapes)
           clipEnd()
