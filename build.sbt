@@ -1,5 +1,5 @@
 import _root_.scalafix.sbt.{ BuildInfo => ScalafixBuildInfo }
-import sge.sbt.SgePlugin
+import _root_.sge.sbt.SgePlugin
 
 // Reload sbt when build files change (avoids stale --client sessions).
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -32,7 +32,7 @@ lazy val `scalafix-rules` = (project in file("scalafix-rules"))
       ("ch.epfl.scala" %% "scalafix-core" % ScalafixBuildInfo.scalafixVersion).cross(CrossVersion.for3Use2_13)
   )
 
-val core = (projectMatrix in file("core"))
+val sge = (projectMatrix in file("sge"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(
@@ -94,10 +94,10 @@ val demo = (projectMatrix in file("demo"))
     organization := "com.kubuszok",
     publish / skip := true
   )
-  .dependsOn(core)
+  .dependsOn(sge)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings()
+    settings = SgePlugin.jvmSettings(projectDir = "demo")
   )
   .jsPlatform(
     scalaVersions = Seq(versions.scala),
@@ -107,7 +107,7 @@ val demo = (projectMatrix in file("demo"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings() ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "demo") ++ Seq(
       nativeConfig := {
         val base      = (ThisBuild / baseDirectory).value
         val c         = nativeConfig.value

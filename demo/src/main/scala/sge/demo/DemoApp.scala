@@ -7,8 +7,7 @@ package demo
 
 /** Main demo application that cycles through [[DemoScene]]s.
   *
-  * Each scene runs for `sceneDuration` seconds, then the app advances to the next scene. Press SPACE to skip to the next
-  * scene, ESCAPE to exit.
+  * Each scene runs for `sceneDuration` seconds, then the app advances to the next scene. Press SPACE to skip to the next scene, ESCAPE to exit.
   *
   * Implements [[SgeAware]] to receive the Sge context before `create()` is called by the platform application.
   *

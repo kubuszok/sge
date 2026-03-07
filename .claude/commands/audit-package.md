@@ -12,7 +12,7 @@ docs and commit progress so work isn't lost if the session is interrupted.
 ## Procedure
 
 1. **Enumerate files**: Use Glob to find all `.scala` files under
-   `core/src/main/scala/sge/$ARGUMENTS/` (non-recursive — only direct children).
+   `sge/src/main/scala/sge/$ARGUMENTS/` (non-recursive — only direct children).
    For platform packages, also check `scalajvm/`, `scalajs/`, `scalanative/` paths.
 
 2. **Check for existing audit doc**: Look for `docs/audit/<slug>.md` where the slug
@@ -44,7 +44,7 @@ docs and commit progress so work isn't lost if the session is interrupted.
 
    | Field | Value |
    |-------|-------|
-   | SGE path | `core/src/main/scala/sge/<path>` |
+   | SGE path | `sge/src/main/scala/sge/<path>` |
    | Java source(s) | `com/badlogic/gdx/<path>` |
    | Status | pass/minor_issues/major_issues |
    | Tested | Yes — `test path` / No — reason |

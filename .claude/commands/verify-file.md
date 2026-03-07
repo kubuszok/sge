@@ -2,7 +2,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 
 ## Procedure
 
-1. **Read the SGE file**: Open `core/src/main/scala/$ARGUMENTS` with the Read tool.
+1. **Read the SGE file**: Open `sge/src/main/scala/$ARGUMENTS` with the Read tool.
 
 2. **Find the LibGDX source**: Determine the original Java file path. The mapping is:
    `sge/<path>.scala` → `com/badlogic/gdx/<path>.java`.

@@ -14,7 +14,7 @@ If omitted, show overall progress.
    Count them and list packages with their pass/minor/major counts.
 
 3. **Count migration notes**: Use Grep to search for `Audited:` in Scala file headers
-   under `core/src/main/scala/sge/`. Report how many files have migration notes
+   under `sge/src/main/scala/sge/`. Report how many files have migration notes
    vs total files.
 
 4. **Summary**: Display:

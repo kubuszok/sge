@@ -21,7 +21,7 @@ object ClearColorScene extends DemoScene {
 
   override def render(elapsed: Float)(using Sge): Unit = {
     // Rotate hue over time (full cycle every 3 seconds)
-    val hue = (elapsed / 3f) % 1f
+    val hue       = (elapsed / 3f) % 1f
     val (r, g, b) = DemoUtils.hsvToRgb(hue, 0.8f, 0.9f)
     ScreenUtils.clear(r, g, b, 1f)
   }

@@ -4,7 +4,7 @@ Argument: `$ARGUMENTS` — a rule name, optionally followed by a file path or gl
 
 ## Available Rules
 
-### Local rules (in `core/src/scalafix/scala/fix/`)
+### Local rules (in `sge/src/scalafix/scala/fix/`)
 
 - **`NullToNullable`** — Lint-only: reports `== null` and `!= null` comparisons with
   suggested Nullable replacements (isEmpty, isDefined, fold, foreach, getOrElse).

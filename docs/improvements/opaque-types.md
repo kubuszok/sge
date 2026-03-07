@@ -28,12 +28,27 @@ See also: [type-safety.md](type-safety.md) for already-implemented type safety i
 | `Epsilon` | `Float` | `sge.math` | Floating-point tolerance |
 | `Align` | `Int` | `sge.utils` | Bitfield alignment flags |
 | `Nullable[A]` | `A \| Null` | `sge.utils` | Nullable wrapper |
+| `Pixels` | `Int` | `sge` | Screen pixel coordinates/dimensions |
+| `TextureTarget` | `Int` | `sge.graphics` | GL texture target enum |
+| `BlendFactor` | `Int` | `sge.graphics` | GL blend factor enum |
+| `BlendEquation` | `Int` | `sge.graphics` | GL blend equation enum |
+| `CompareFunc` | `Int` | `sge.graphics` | GL comparison function enum |
+| `StencilOp` | `Int` | `sge.graphics` | GL stencil operation enum |
+| `PrimitiveMode` | `Int` | `sge.graphics` | GL primitive draw mode enum |
+| `BufferTarget` | `Int` | `sge.graphics` | GL buffer target enum |
+| `BufferUsage` | `Int` | `sge.graphics` | GL buffer usage enum |
+| `ShaderType` | `Int` | `sge.graphics` | GL shader type enum |
+| `PixelFormat` | `Int` | `sge.graphics` | GL pixel format enum |
+| `DataType` | `Int` | `sge.graphics` | GL data type enum |
+| `ClearMask` | `Int` | `sge.graphics` | GL clear buffer bitfield |
+| `CullFace` | `Int` | `sge.graphics` | GL cull face enum |
+| `EnableCap` | `Int` | `sge.graphics` | GL capability enable/disable enum |
 
-## Proposed: Pixel Dimensions
+## Implemented: Pixel Dimensions (2026-03-07)
 
 **Type:** `opaque type Pixels = Int`
-**Package:** `sge.graphics` (or `sge.utils`)
-**Priority:** Medium — large surface area (~28 files), but low confusion risk in practice
+**Package:** `sge` (top-level, visible to all sub-packages without import)
+**Status:** Complete — ~151 files updated across JVM, JS, and Native backends
 
 Single type for all pixel coordinates and dimensions. Don't split into
 ScreenX/ScreenY/PixelWidth — too granular, same underlying unit.
@@ -179,11 +194,10 @@ ScreenX/ScreenY/PixelWidth — too granular, same underlying unit.
 
 ---
 
-## Proposed: GL Enum Opaque Types
+## Implemented: GL Enum Opaque Types (2026-03-07)
 
-**Priority:** Low-Medium — very large surface area (4 GL traits + 47 consumers),
-high impact but complex cross-cutting change affecting backend implementations.
-Should be done incrementally, one opaque type at a time.
+**Status:** Complete — 14 opaque types in `GLEnum.scala`, ~147 consumer files updated.
+All GL20/GL30/GL31/GL32 trait methods, interceptors, and AngleGL/WebGL backends updated.
 
 ### Proposed Types (14)
 

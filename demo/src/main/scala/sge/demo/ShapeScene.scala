@@ -50,12 +50,12 @@ class ShapeScene extends DemoScene {
 
     // Rotating rectangles around the center
     val count = 6
-    var i = 0
+    var i     = 0
     while (i < count) {
-      val angle = elapsed + i * (scala.math.Pi.toFloat * 2f / count)
-      val cx = w / 2f + 150f * scala.math.cos(angle).toFloat
-      val cy = h / 2f + 150f * scala.math.sin(angle).toFloat
-      val hue = (i.toFloat / count + elapsed * 0.1f) % 1f
+      val angle     = elapsed + i * (scala.math.Pi.toFloat * 2f / count)
+      val cx        = w / 2f + 150f * scala.math.cos(angle).toFloat
+      val cy        = h / 2f + 150f * scala.math.sin(angle).toFloat
+      val hue       = (i.toFloat / count + elapsed * 0.1f) % 1f
       val (r, g, b) = DemoUtils.hsvToRgb(hue, 0.9f, 1f)
       renderer.setColor(r, g, b, 1f)
       renderer.rectangle(cx - 20f, cy - 20f, 40f, 40f)
@@ -70,7 +70,7 @@ class ShapeScene extends DemoScene {
 
     // Grid lines
     val step = 80f
-    var x = step
+    var x    = step
     while (x < w) {
       renderer.line(x, 0f, x, h)
       x += step

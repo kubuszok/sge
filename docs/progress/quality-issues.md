@@ -14,7 +14,7 @@ Last updated: 2026-03-07
 | Direct `null` checks | 2 | 2 | **Complete** (only Nullable internals + 1 deferred remain) |
 | `null.asInstanceOf` | 4 | 9 | **Mostly complete** (49 removed, 9 deferred) |
 | Remaining Java syntax | 2 | 4 | **Triaged** — false positives only (`void` as method name) |
-| TODO/FIXME markers | 111 | 134 | **Triaged** (all actionable resolved; ~59 opaque type, ~8 key/button, ~5 upstream, rest blocked/info) |
+| TODO/FIXME markers | 65 | 93 | **Triaged** (all actionable resolved; ~5 upstream, rest blocked/info) |
 | ArrayBuffer→DynamicArray | 0 | 0 | **Complete** (145 files) |
 
 ## 1. Missing License Headers — COMPLETE
@@ -131,15 +131,15 @@ in `Eval.scala` and `Resource.scala` — no code changes needed.
 
 Run `just sge-quality java_syntax` to see current occurrences.
 
-## 5. TODO/FIXME Markers (111 files, 134 occurrences) — TRIAGED
+## 5. TODO/FIXME Markers (65 files, 93 occurrences) — TRIAGED
 
 Categorized as of 2026-03-07:
 
 | Category | Markers | Files | Action |
 |----------|---------|-------|--------|
-| Typed GL enums | ~44 | ~44 | Blocked (future, see `docs/improvements/opaque-types.md`) |
-| Opaque Pixels | ~15 | ~15 | Blocked (future, see `docs/improvements/opaque-types.md`) |
-| Input.Keys/Buttons opaque type | ~8 | ~8 | Blocked (future) |
+| Typed GL enums | 0 | 0 | **Complete** (14 opaque types in GLEnum.scala, ~147 consumer files) |
+| Opaque Pixels | 0 | 0 | **Complete** (opaque Pixels type, ~151 files updated) |
+| Input.Keys/Buttons opaque type | 0 | 0 | **Complete** (opaque Key/Button types, ~35 consumer files) |
 | Upstream FIXMEs | ~5 | ~5 | Preserve (inherited from LibGDX source) |
 | Pool.Poolable type class | ~5 | ~5 | Blocked (design decision) |
 | Color immutability | ~4 | ~4 | Blocked (future) |

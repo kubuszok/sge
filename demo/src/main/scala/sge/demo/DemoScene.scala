@@ -7,9 +7,8 @@ package demo
 
 /** A single demo scene that exercises a specific SGE feature.
   *
-  * Each scene has a lifecycle: `init` is called once when the scene becomes active, `render` is called every frame, and
-  * `dispose` is called when switching to the next scene. The scene receives the elapsed time since it became active and
-  * the total duration it will be shown.
+  * Each scene has a lifecycle: `init` is called once when the scene becomes active, `render` is called every frame, and `dispose` is called when switching to the next scene. The scene receives the
+  * elapsed time since it became active and the total duration it will be shown.
   */
 trait DemoScene {
 

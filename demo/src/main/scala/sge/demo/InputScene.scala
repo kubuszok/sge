@@ -41,8 +41,8 @@ class InputScene extends DemoScene {
   override def render(elapsed: Float)(using Sge): Unit = {
     ScreenUtils.clear(0.05f, 0.05f, 0.1f, 1f)
 
-    val w = Sge().graphics.getWidth().toFloat
-    val h = Sge().graphics.getHeight().toFloat
+    val w     = Sge().graphics.getWidth().toFloat
+    val h     = Sge().graphics.getHeight().toFloat
     val input = Sge().input
 
     // Record mouse trail (flip Y: screen coords are top-down, GL is bottom-up)
@@ -57,7 +57,7 @@ class InputScene extends DemoScene {
     // Draw trail as fading line segments
     renderer.begin(ShapeRenderer.ShapeType.Line)
     val count = scala.math.min(trailIdx, trailSize)
-    var i = 1
+    var i     = 1
     while (i < count) {
       val prevI = (trailIdx - count + i - 1) % trailSize
       val currI = (trailIdx - count + i) % trailSize
@@ -73,8 +73,8 @@ class InputScene extends DemoScene {
     var p = 0
     while (p < input.getMaxPointers() && p < 5) {
       if (input.isTouched(p)) {
-        val px = input.getX(p).toFloat
-        val py = h - input.getY(p).toFloat
+        val px        = input.getX(p).toFloat
+        val py        = h - input.getY(p).toFloat
         val (r, g, b) = DemoUtils.hsvToRgb(p.toFloat / 5f, 1f, 1f)
         renderer.setColor(r, g, b, 0.8f)
         renderer.circle(px, py, 20f)

@@ -1,0 +1,141 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/g3d/utils/RenderContext.java
+ * Original authors: badlogic, Xoppa
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Migration notes:
+ *   - Gdx.gl -> Sge().graphics.gl (using Sge context)
+ *   - All state management methods fully ported
+ *   - setDepthTest, setBlending, setCullFace: logic matches Java source
+ *   - begin()/end(): state initialization matches Java
+ *   - Audit: pass (2026-03-03)
+ */
+package sge
+package graphics
+package g3d
+package utils
+
+/** Manages OpenGL state and tries to reduce state changes. Uses a [[TextureBinder]] to reduce texture binds as well. Call [[begin]] to setup the context, call [[end]] to undo all state changes. Use
+  * the setters to change state, use [[textureBinder]] to bind textures.
+  * @author
+  *   badlogic, Xoppa
+  */
+class RenderContext(
+  /** used to bind textures * */
+  val textureBinder: TextureBinder
+)(using Sge) {
+
+  private var blending:               Boolean = false
+  private var blendSourceRgbFactor:   Int     = 0
+  private var blendDestRgbFactor:     Int     = 0
+  private var blendSourceAlphaFactor: Int     = 0
+  private var blendDestAlphaFactor:   Int     = 0
+  private var depthFunc:              Int     = 0
+  private var depthRangeNear:         Float   = 0f
+  private var depthRangeFar:          Float   = 0f
+  private var depthMask:              Boolean = false
+  private var cullFace:               Int     = 0
+
+  /** Sets up the render context, must be matched with a call to [[end]]. */
+  def begin(): Unit = {
+    val gl = Sge().graphics.gl
+    gl.glDisable(EnableCap.DepthTest)
+    depthFunc = 0
+    gl.glDepthMask(true)
+    depthMask = true
+    gl.glDisable(EnableCap.Blend)
+    blending = false
+    gl.glDisable(EnableCap.CullFace)
+    cullFace = 0
+    blendSourceRgbFactor = 0
+    blendDestRgbFactor = 0
+    blendSourceAlphaFactor = 0
+    blendDestAlphaFactor = 0
+    textureBinder.begin()
+  }
+
+  /** Resets all changed OpenGL states to their defaults. */
+  def end(): Unit = {
+    val gl = Sge().graphics.gl
+    if (depthFunc != 0) gl.glDisable(EnableCap.DepthTest)
+    if (!depthMask) gl.glDepthMask(true)
+    if (blending) gl.glDisable(EnableCap.Blend)
+    if (cullFace > 0) gl.glDisable(EnableCap.CullFace)
+    textureBinder.end()
+  }
+
+  def setDepthMask(depthMask: Boolean): Unit =
+    if (this.depthMask != depthMask) {
+      this.depthMask = depthMask
+      Sge().graphics.gl.glDepthMask(depthMask)
+    }
+
+  def setDepthTest(depthFunction: Int): Unit =
+    setDepthTest(depthFunction, 0f, 1f)
+
+  def setDepthTest(depthFunction: Int, depthRangeNear: Float, depthRangeFar: Float): Unit = {
+    val gl         = Sge().graphics.gl
+    val wasEnabled = depthFunc != 0
+    val enabled    = depthFunction != 0
+    if (depthFunc != depthFunction) {
+      depthFunc = depthFunction
+      if (enabled) {
+        gl.glEnable(EnableCap.DepthTest)
+        gl.glDepthFunc(CompareFunc(depthFunction))
+      } else {
+        gl.glDisable(EnableCap.DepthTest)
+      }
+    }
+    if (enabled) {
+      if (!wasEnabled || depthFunc != depthFunction) {
+        depthFunc = depthFunction
+        gl.glDepthFunc(CompareFunc(depthFunction))
+      }
+      if (!wasEnabled || this.depthRangeNear != depthRangeNear || this.depthRangeFar != depthRangeFar) {
+        this.depthRangeNear = depthRangeNear
+        this.depthRangeFar = depthRangeFar
+        gl.glDepthRangef(depthRangeNear, depthRangeFar)
+      }
+    }
+  }
+
+  def setBlending(enabled: Boolean, sFactor: Int, dFactor: Int): Unit =
+    setBlending(enabled, sFactor, dFactor, sFactor, dFactor)
+
+  def setBlending(enabled: Boolean, sRgbFactor: Int, dRgbFactor: Int, sAlphaFactor: Int, dAlphaFactor: Int): Unit = {
+    val gl = Sge().graphics.gl
+    if (enabled != blending) {
+      blending = enabled
+      if (enabled)
+        gl.glEnable(EnableCap.Blend)
+      else
+        gl.glDisable(EnableCap.Blend)
+    }
+    if (
+      enabled && (blendSourceRgbFactor != sRgbFactor || blendDestRgbFactor != dRgbFactor
+        || blendSourceAlphaFactor != sAlphaFactor || blendDestAlphaFactor != dAlphaFactor)
+    ) {
+      gl.glBlendFuncSeparate(BlendFactor(sRgbFactor), BlendFactor(dRgbFactor), BlendFactor(sAlphaFactor), BlendFactor(dAlphaFactor))
+      blendSourceRgbFactor = sRgbFactor
+      blendDestRgbFactor = dRgbFactor
+      blendSourceAlphaFactor = sAlphaFactor
+      blendDestAlphaFactor = dAlphaFactor
+    }
+  }
+
+  def setCullFace(face: Int): Unit = {
+    val gl = Sge().graphics.gl
+    if (face != cullFace) {
+      cullFace = face
+      if (face == CullFace.Front.toInt || face == CullFace.Back.toInt || face == CullFace.FrontAndBack.toInt) {
+        gl.glEnable(EnableCap.CullFace)
+        gl.glCullFace(CullFace(face))
+      } else {
+        gl.glDisable(EnableCap.CullFace)
+      }
+    }
+  }
+}

@@ -63,7 +63,7 @@ Key `just` recipes:
 
 ## Source Reference
 
-Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
+Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.scala`
 
 ## Audit System
 

@@ -33,7 +33,7 @@ The original LibGDX source is available locally as a git submodule:
 
 **NEVER fetch LibGDX source from GitHub.** Always read from the local submodule.
 
-Path mapping: `com/badlogic/gdx/<path>.java` → `core/src/main/scala/sge/<path>.scala`
+Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.scala`
 
 ## SBT
 

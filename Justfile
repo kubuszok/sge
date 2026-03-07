@@ -4,7 +4,7 @@
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
 tsv := "docs/progress/migration-status.tsv"
-sge_src := "core/src/main/scala/sge"
+sge_src := "sge/src/main/scala/sge"
 gdx_src := "libgdx/gdx/src/com/badlogic/gdx"
 
 # ── LibGDX reference ──────────────────────────────────────────────
@@ -214,25 +214,25 @@ stub-deprecated +files:
 
 # Compile the project (JVM)
 compile:
-    sbt --client 'core/compile'
+    sbt --client 'sge/compile'
 
 # Compile Scala.js target
 compile-js:
-    sbt --client 'coreJS/compile'
+    sbt --client 'sgeJS/compile'
 
 # Compile Scala Native target
 compile-native:
-    sbt --client 'coreNative/compile'
+    sbt --client 'sgeNative/compile'
 
 # Compile and show last N lines (default 30)
 compile-tail n="30":
     #!/usr/bin/env bash
-    sbt --client 'core/compile' 2>&1 | tail -n {{n}}
+    sbt --client 'sge/compile' 2>&1 | tail -n {{n}}
 
 # Compile and show only errors (no info/warn noise)
 compile-errors:
     #!/usr/bin/env bash
-    output=$(sbt --client 'core/compile' 2>&1)
+    output=$(sbt --client 'sge/compile' 2>&1)
     echo "$output" | grep '^\[error\]' || echo "No errors"
     echo ""
     echo "$output" | tail -3
@@ -240,7 +240,7 @@ compile-errors:
 # Compile and show warnings + errors (skip info)
 compile-warnings:
     #!/usr/bin/env bash
-    output=$(sbt --client 'core/compile' 2>&1)
+    output=$(sbt --client 'sge/compile' 2>&1)
     echo "$output" | grep -E '^\[(warn|error)\]' || echo "Clean"
     echo ""
     echo "$output" | tail -3
@@ -254,19 +254,19 @@ compile-fmt: compile fmt compile
 
 # Run JVM tests
 test:
-    sbt --client 'core/test'
+    sbt --client 'sge/test'
 
 # Run JVM tests (explicit)
 test-jvm:
-    sbt --client 'core/test'
+    sbt --client 'sge/test'
 
 # Run Scala.js tests
 test-js:
-    sbt --client 'coreJS/test'
+    sbt --client 'sgeJS/test'
 
 # Run Scala Native tests (requires static-only Rust lib)
 test-native: rust-build-static
-    sbt --client 'coreNative/test'
+    sbt --client 'sgeNative/test'
 
 # Build Rust + run all platform tests (JVM + JS + Native)
 test-all: rust-build test-jvm test-js test-native
@@ -274,11 +274,11 @@ test-all: rust-build test-jvm test-js test-native
 # Run all tests and show last N lines (default 20)
 test-tail n="20":
     #!/usr/bin/env bash
-    sbt --client 'core/test' 2>&1 | tail -n {{n}}
+    sbt --client 'sge/test' 2>&1 | tail -n {{n}}
 
 # Run a specific test suite
 test-only suite:
-    sbt --client "core/testOnly {{suite}}"
+    sbt --client "sge/testOnly {{suite}}"
 
 # ── Demo ─────────────────────────────────────────────────────────
 
@@ -515,19 +515,19 @@ gh-api endpoint:
 
 # Run a scalafix rule on the whole project (e.g. `just scalafix NullToNullable`)
 scalafix rule:
-    sbt --client 'core / scalafix {{rule}}'
+    sbt --client 'sge / scalafix {{rule}}'
 
 # Run a scalafix rule on a specific file
 scalafix-file rule file:
-    sbt --client 'core / scalafix {{rule}} --files={{file}}'
+    sbt --client 'sge / scalafix {{rule}} --files={{file}}'
 
 # Check for null patterns (lint only, no changes)
 lint-null:
-    sbt --client 'core / scalafix NullToNullable'
+    sbt --client 'sge / scalafix NullToNullable'
 
 # Check for banned syntax (return, null literals, etc.)
 lint-syntax:
-    sbt --client 'core / scalafix DisableSyntax'
+    sbt --client 'sge / scalafix DisableSyntax'
 
 # ── Search helpers ───────────────────────────────────────────────
 
@@ -559,6 +559,120 @@ rust-build-static:
 # Run Rust unit tests
 rust-test:
     cd native-components && cargo test
+
+# ── Rust Cross-Compilation ───────────────────────────────────────
+
+# All 6 desktop targets: (Linux, macOS, Windows) × (x86_64, aarch64)
+rust_targets := "x86_64-apple-darwin aarch64-apple-darwin x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu x86_64-pc-windows-msvc aarch64-pc-windows-msvc"
+rust_out := "native-components/target/cross"
+
+# Build Rust for a specific target triple
+rust-cross target:
+    #!/usr/bin/env bash
+    cd native-components
+    case "{{target}}" in
+        *-apple-darwin)
+            # macOS targets: native cross-compile (both archs available on macOS)
+            rustup target add "{{target}}" 2>/dev/null || true
+            cargo build --release --target "{{target}}"
+            ;;
+        *-linux-gnu)
+            # Linux targets: use cargo-zigbuild (no Docker needed)
+            rustup target add "{{target}}" 2>/dev/null || true
+            cargo zigbuild --release --target "{{target}}"
+            ;;
+        *-windows-msvc)
+            # Windows targets: use cargo-xwin (downloads MSVC CRT automatically)
+            rustup target add "{{target}}" 2>/dev/null || true
+            cargo xwin build --release --target "{{target}}"
+            ;;
+        *)
+            echo "Unknown target: {{target}}"
+            exit 1
+            ;;
+    esac
+
+# Build Rust for Android NDK targets (JNI bridge)
+rust-cross-android target:
+    #!/usr/bin/env bash
+    cd native-components
+    rustup target add "{{target}}" 2>/dev/null || true
+    cargo build --release --target "{{target}}" --features android
+
+# Build all 6 desktop targets and collect into cross/ output directory
+rust-cross-all:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for target in {{rust_targets}}; do
+        echo "=== Building $target ==="
+        just rust-cross "$target"
+    done
+    echo ""
+    echo "=== Collecting artifacts ==="
+    just rust-collect
+
+# Build all Android targets
+rust-cross-android-all:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    for target in aarch64-linux-android armv7-linux-androideabi x86_64-linux-android; do
+        echo "=== Building $target ==="
+        just rust-cross-android "$target"
+    done
+
+# Collect cross-compiled artifacts into a flat output directory
+rust-collect:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    out="{{rust_out}}"
+    rm -rf "$out"
+    for target in {{rust_targets}}; do
+        dir="native-components/target/$target/release"
+        case "$target" in
+            x86_64-apple-darwin)      plat="macos-x86_64" ;;
+            aarch64-apple-darwin)     plat="macos-aarch64" ;;
+            x86_64-unknown-linux-gnu) plat="linux-x86_64" ;;
+            aarch64-unknown-linux-gnu) plat="linux-aarch64" ;;
+            x86_64-pc-windows-msvc)   plat="windows-x86_64" ;;
+            aarch64-pc-windows-msvc)  plat="windows-aarch64" ;;
+        esac
+        mkdir -p "$out/$plat"
+        # Copy whichever library files exist for this target
+        cp "$dir"/libsge_native_ops.dylib "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libsge_native_ops.so    "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/sge_native_ops.dll      "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libsge_native_ops.a     "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/sge_native_ops.lib      "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/sge_native_ops.dll.lib  "$out/$plat/" 2>/dev/null || true
+        echo "  $plat: $(ls "$out/$plat/" | tr '\n' ' ')"
+    done
+    echo ""
+    echo "Artifacts collected in $out/"
+
+# Install cross-compilation toolchain prerequisites
+rust-cross-setup:
+    #!/usr/bin/env bash
+    echo "Installing Rust cross-compilation tools..."
+    echo ""
+    echo "1. cargo-zigbuild (for Linux targets):"
+    cargo install cargo-zigbuild
+    echo ""
+    echo "2. cargo-xwin (for Windows targets):"
+    cargo install cargo-xwin
+    echo ""
+    echo "3. Zig (required by cargo-zigbuild):"
+    if command -v brew &>/dev/null; then
+        brew install zig
+    else
+        echo "  Install Zig from https://ziglang.org/download/"
+    fi
+    echo ""
+    echo "4. Adding Rust targets..."
+    for target in {{rust_targets}}; do
+        rustup target add "$target"
+    done
+    echo ""
+    echo "Done! Run 'just rust-cross-all' to build all targets."
 
 # ── Metals MCP ────────────────────────────────────────────────────
 

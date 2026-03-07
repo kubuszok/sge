@@ -12,7 +12,7 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
    (`$ARGUMENTS`) and authors from `@author` tags (or "See AUTHORS file" if none).
 
 3. **Check existing conversion**: Look for an existing Scala file at the mapped path under
-   `core/src/main/scala/sge/`. The path mapping is: `com/badlogic/gdx/<path>.java` → `sge/<path>.scala`.
+   `sge/src/main/scala/sge/`. The path mapping is: `com/badlogic/gdx/<path>.java` → `sge/<path>.scala`.
    Check `docs/contributing/type-mappings.md` for renamed/merged files.
 
 4. **Plan the conversion** following `docs/contributing/conversion-rules.md`:

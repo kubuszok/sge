@@ -64,7 +64,7 @@ jobs:
 
       - name: Build Rust library (release, JVM feature)
         working-directory: native-components
-        run: cargo build --release --features jvm
+        run: cargo build --release
 
       - name: Run Rust tests
         working-directory: native-components
@@ -98,7 +98,7 @@ jobs:
           node-version: "22"
 
       - name: Compile + test Scala.js
-        run: sbt 'coreJS/test'
+        run: sbt 'sgeJS/test'
 
   # ─── JVM compile + test (requires Rust JNI library) ────────────────
 
@@ -140,7 +140,7 @@ jobs:
           path: native-components/target/release
 
       - name: Run JVM tests
-        run: sbt 'core/test'
+        run: sbt 'sge/test'
 
   # ─── Scala Native compile + test (requires Rust static library) ────
 
@@ -207,5 +207,5 @@ jobs:
           llvm-lib /OUT:native-components/target/release/idn2.lib native-components/target/release/idn2_stub.obj
 
       - name: Run Scala Native tests
-        run: sbt 'coreNative/test'
+        run: sbt 'sgeNative/test'
 

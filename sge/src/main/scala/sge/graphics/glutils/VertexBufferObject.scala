@@ -1,0 +1,229 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: com/badlogic/gdx/graphics/glutils/VertexBufferObject.java
+ * Original authors: mzechner, Dave Clayton <contact@redskyforge.com>
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Convention: uses (using Sge) for GL calls
+ *   Idiom: split packages
+ *   Idiom: typed GL enums -- BufferTarget, BufferUsage
+ *   Audited: 2026-03-03
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ */
+package sge
+package graphics
+package glutils
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
+import sge.utils.{ BufferUtils, Nullable, SgeError };
+
+/** <p> A {@link VertexData} implementation based on OpenGL vertex buffer objects. <p> If the OpenGL ES context was lost you can call {@link #invalidate()} to recreate a new OpenGL vertex buffer
+  * object. <p> The data is bound via glVertexAttribPointer() according to the attribute aliases specified via {@link VertexAttributes} in the constructor. <p> VertexBufferObjects must be disposed via
+  * the {@link #dispose()} method when no longer needed
+  *
+  * @author
+  *   mzechner, Dave Clayton <contact@redskyforge.com>
+  */
+class VertexBufferObject(using Sge) extends VertexData {
+  private var attributes:   VertexAttributes = scala.compiletime.uninitialized
+  private var buffer:       FloatBuffer      = scala.compiletime.uninitialized
+  private var byteBuffer:   ByteBuffer       = scala.compiletime.uninitialized
+  private var ownsBuffer:   Boolean          = scala.compiletime.uninitialized
+  private var bufferHandle: Int              = scala.compiletime.uninitialized
+  private var usage:        BufferUsage      = scala.compiletime.uninitialized
+  var isDirty = false
+  var isBound = false
+
+  /** Constructs a new interleaved VertexBufferObject.
+    *
+    * @param isStatic
+    *   whether the vertex data is static.
+    * @param numVertices
+    *   the maximum number of vertices
+    * @param attributes
+    *   the {@link VertexAttribute} s.
+    */
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
+    this()
+    this.init(isStatic, numVertices, VertexAttributes(attributes*))
+  }
+
+  /** Constructs a new interleaved VertexBufferObject.
+    *
+    * @param isStatic
+    *   whether the vertex data is static.
+    * @param numVertices
+    *   the maximum number of vertices
+    * @param attributes
+    *   the {@link VertexAttributes} .
+    */
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes)(using Sge) = {
+    this()
+    this.init(isStatic, numVertices, attributes)
+  }
+
+  protected def this(usage: BufferUsage, data: ByteBuffer, ownsBuffer: Boolean, attributes: VertexAttributes)(using Sge) = {
+    this()
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
+    setBuffer(data, ownsBuffer, attributes)
+    setUsage(usage)
+  }
+
+  private def init(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes): Unit = {
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
+
+    val data = BufferUtils.newUnsafeByteBuffer(attributes.vertexSize * numVertices)
+    data.asInstanceOf[Buffer].limit(0)
+    setBuffer(data, true, attributes)
+    setUsage(if (isStatic) BufferUsage.StaticDraw else BufferUsage.DynamicDraw)
+  }
+
+  override def getAttributes(): VertexAttributes = attributes
+
+  override def getNumVertices(): Int = buffer.limit() * 4 / attributes.vertexSize
+
+  override def getNumMaxVertices(): Int = byteBuffer.capacity() / attributes.vertexSize
+
+  /** @deprecated use {@link #getBuffer(boolean)} instead */
+  @deprecated("use getBuffer(boolean) instead", "")
+  override def getBuffer(): FloatBuffer = {
+    isDirty = true
+    buffer
+  }
+
+  override def getBuffer(forWriting: Boolean): FloatBuffer = {
+    isDirty = isDirty || forWriting
+    buffer
+  }
+
+  /** Low level method to reset the buffer and attributes to the specified values. Use with care!
+    * @param data
+    * @param ownsBuffer
+    * @param value
+    */
+  protected def setBuffer(data: Buffer, ownsBuffer: Boolean, value: VertexAttributes): Unit = {
+    if (isBound) throw SgeError.GraphicsError("Cannot change attributes while VBO is bound")
+    if (this.ownsBuffer && Nullable(byteBuffer).isDefined) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
+    attributes = value
+    data match {
+      case bb: ByteBuffer => byteBuffer = bb
+      case _ => throw SgeError.GraphicsError("Only ByteBuffer is currently supported")
+    }
+    this.ownsBuffer = ownsBuffer
+
+    val l = byteBuffer.limit()
+    byteBuffer.asInstanceOf[Buffer].limit(byteBuffer.capacity())
+    buffer = byteBuffer.asFloatBuffer()
+    byteBuffer.asInstanceOf[Buffer].limit(l)
+    buffer.asInstanceOf[Buffer].limit(l / 4)
+  }
+
+  private def bufferChanged(): Unit =
+    if (isBound) {
+      Sge().graphics.gl20.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
+      isDirty = false
+    }
+
+  override def setVertices(vertices: Array[Float], offset: Int, count: Int): Unit = {
+    isDirty = true
+    BufferUtils.copy(vertices, byteBuffer, count, offset)
+    buffer.asInstanceOf[Buffer].position(0)
+    buffer.asInstanceOf[Buffer].limit(count)
+    bufferChanged()
+  }
+
+  override def updateVertices(targetOffset: Int, vertices: Array[Float], sourceOffset: Int, count: Int): Unit = {
+    isDirty = true
+    val pos = byteBuffer.position()
+    byteBuffer.asInstanceOf[Buffer].position(targetOffset * 4)
+    BufferUtils.copy(vertices, sourceOffset, count, byteBuffer)
+    byteBuffer.asInstanceOf[Buffer].position(pos)
+    buffer.asInstanceOf[Buffer].position(0)
+    bufferChanged()
+  }
+
+  /** @return
+    *   The GL enum used in the call to {@link GL20#glBufferData(int, int, java.nio.Buffer, int)} , e.g. GL_STATIC_DRAW or GL_DYNAMIC_DRAW
+    */
+  protected def getUsage(): BufferUsage = usage
+
+  /** Set the GL enum used in the call to {@link GL20#glBufferData(int, int, java.nio.Buffer, int)} , can only be called when the VBO is not bound.
+    */
+  protected def setUsage(value: BufferUsage): Unit = {
+    if (isBound) throw SgeError.GraphicsError("Cannot change usage while VBO is bound")
+    usage = value
+  }
+
+  /** Binds this VertexBufferObject for rendering via glDrawArrays or glDrawElements
+    * @param shader
+    *   the shader
+    */
+  override def bind(shader: ShaderProgram): Unit =
+    bind(shader, Nullable.empty)
+
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+    val gl = Sge().graphics.gl20
+
+    gl.glBindBuffer(BufferTarget.ArrayBuffer, bufferHandle)
+    if (isDirty) {
+      byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
+      gl.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
+      isDirty = false
+    }
+
+    val numAttributes = attributes.size
+    for (i <- 0 until numAttributes) {
+      val attribute = attributes.get(i)
+      val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
+      if (location >= 0) {
+        shader.enableVertexAttribute(location)
+        shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, attribute.offset)
+      }
+    }
+    isBound = true
+  }
+
+  /** Unbinds this VertexBufferObject.
+    *
+    * @param shader
+    *   the shader
+    */
+  override def unbind(shader: ShaderProgram): Unit =
+    unbind(shader, Nullable.empty)
+
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+    val gl            = Sge().graphics.gl20
+    val numAttributes = attributes.size
+    locations.fold {
+      for (i <- 0 until numAttributes)
+        shader.disableVertexAttribute(attributes.get(i).alias)
+    } { locs =>
+      for (i <- 0 until numAttributes) {
+        val location = locs(i)
+        if (location >= 0) shader.disableVertexAttribute(location)
+      }
+    }
+    gl.glBindBuffer(BufferTarget.ArrayBuffer, 0)
+    isBound = false
+  }
+
+  /** Invalidates the VertexBufferObject so a new OpenGL buffer handle is created. Use this in case of a context loss. */
+  override def invalidate(): Unit = {
+    bufferHandle = Sge().graphics.gl20.glGenBuffer()
+    isDirty = true
+  }
+
+  /** Disposes of all resources this VertexBufferObject uses. */
+  override def close(): Unit = {
+    val gl = Sge().graphics.gl20
+    gl.glBindBuffer(BufferTarget.ArrayBuffer, 0)
+    gl.glDeleteBuffer(bufferHandle)
+    bufferHandle = 0
+    if (ownsBuffer) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
+  }
+}

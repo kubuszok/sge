@@ -28,7 +28,7 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
    - **Convention violations**: Fix return→boundary/break, null→Nullable, copyright header,
      missing braces, flat packages, etc.
    - **Missing tests**:
-     - If LibGDX has a test: port it to `core/src/test/scala/sge/` using munit.
+     - If LibGDX has a test: port it to `sge/src/test/scala/sge/` using munit.
      - If no test exists anywhere: create a basic test covering the public API.
    - **Copyright header**: Fix `Copyright` → `copyright`, `2024` → `2025`.
 

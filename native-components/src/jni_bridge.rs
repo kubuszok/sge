@@ -1,7 +1,7 @@
 // JNI bridge — exports for JVM via System.loadLibrary("sge_native_ops")
 //
 // Maps Java native method signatures to Rust etc1/buffer_ops functions.
-// Only compiled with --features jvm.
+// Only compiled with --features android.
 //
 // Java bridge classes:
 //   sge.platform.ETC1Bridge      — ETC1 texture compression codec

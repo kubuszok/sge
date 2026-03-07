@@ -2,7 +2,7 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
 
 ## Procedure
 
-1. **Read the SGE file**: Open `core/src/main/scala/$ARGUMENTS` with the Read tool.
+1. **Read the SGE file**: Open `sge/src/main/scala/$ARGUMENTS` with the Read tool.
    Extract the current header comment, note any existing migration notes.
 
 2. **Find the LibGDX source**: Determine the original Java file path. The mapping is:
@@ -47,8 +47,8 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
      `???`, or methods that return dummy values with a TODO comment) are **major issues**
 
 7. **Check for tests**:
-   - Check if a test exists in SGE: look under `core/src/test/scala/sge/` and
-     `core/src/test/scalajvm/sge/` for a matching `*Test.scala` or `*Suite.scala`
+   - Check if a test exists in SGE: look under `sge/src/test/scala/sge/` and
+     `sge/src/test/scalajvm/sge/` for a matching `*Test.scala` or `*Suite.scala`
    - Check if a test exists in LibGDX: look under `libgdx/gdx/tests/` and
      `libgdx/tests/gdx-tests/src/` for a matching test
    - **If LibGDX has a test and SGE does not**: **major issue** — the test must be ported
