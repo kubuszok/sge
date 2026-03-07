@@ -15,7 +15,7 @@
 package sge
 package graphics
 
-import sge.utils.TimeUtils
+import sge.utils.{ Nanos, TimeUtils }
 
 /** A simple helper class to log the frames per seconds achieved. Just invoke the {@link #log()} method in your rendering method. The output will be logged once per second.
   *
@@ -23,8 +23,8 @@ import sge.utils.TimeUtils
   *   mzechner (original implementation)
   */
 class FPSLogger(bound: Int = Int.MaxValue)(using Sge) {
-  private var startTime: Long = TimeUtils.nanoTime()
-  private var _bound:    Int  = bound
+  private var startTime: Nanos = TimeUtils.nanoTime()
+  private var _bound:    Int   = bound
 
   def setBound(bound: Int): Unit = {
     this._bound = bound
@@ -34,7 +34,7 @@ class FPSLogger(bound: Int = Int.MaxValue)(using Sge) {
   /** Logs the current frames per seconds to the console. */
   def log(): Unit = {
     val nanoTime = TimeUtils.nanoTime()
-    if (nanoTime - startTime > 1000000000L) { /* 1,000,000,000ns == one second */
+    if (nanoTime - startTime > Nanos(1000000000L)) { /* 1,000,000,000ns == one second */
       val fps = Sge().graphics.getFramesPerSecond()
       if (fps < _bound) {
         Sge().application.log("FPSLogger", s"fps: $fps")

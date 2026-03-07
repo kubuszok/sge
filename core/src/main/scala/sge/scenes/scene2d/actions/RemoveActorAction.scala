@@ -21,9 +21,11 @@ package actions
   *   Nathan Sweet
   */
 class RemoveActorAction extends Action {
+  import sge.utils.Seconds
+
   private var removed: Boolean = false
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     if (!removed) {
       removed = true
       target.foreach(_.remove())

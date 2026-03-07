@@ -27,7 +27,7 @@ import sge.graphics.GL30
 import sge.graphics.GLTexture
 import sge.graphics.Pixmap
 import sge.Sge
-import sge.utils.{ BufferUtils, DynamicArray, MkArray }
+import sge.utils.{ BufferUtils, DynamicArray, MkArray, Nullable }
 
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a gltexture for the color attachment and a
   * renderbuffer for the depth buffer. You can get a hold of the gltexture by GLFrameBuffer.getColorBufferTexture(). This class will only work with OpenGL ES 2.0. </p>
@@ -68,9 +68,9 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
 
   protected var bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[T]] = scala.compiletime.uninitialized
 
-  private var defaultDrawBuffers: IntBuffer = scala.compiletime.uninitialized
+  private var defaultDrawBuffers: Nullable[IntBuffer] = Nullable.empty
 
-  private var drawBuffersForTransfer: IntBuffer = scala.compiletime.uninitialized
+  private var drawBuffersForTransfer: Nullable[IntBuffer] = Nullable.empty
 
   /** Creates a GLFrameBuffer from the specifications provided by bufferBuilder * */
   protected def this(bufferBuilder: GLFrameBuffer.GLFrameBufferBuilder[? <: GLFrameBuffer[T]])(using Sge) = {
@@ -244,16 +244,17 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     }
 
     if (isMRT || bufferBuilder.samples > 0) {
-      defaultDrawBuffers = BufferUtils.newIntBuffer(colorAttachmentCounter)
-      var i = 0
+      val drawBuffers = BufferUtils.newIntBuffer(colorAttachmentCounter)
+      var i           = 0
       while (i < colorAttachmentCounter) {
-        defaultDrawBuffers.put(GL20.GL_COLOR_ATTACHMENT0 + i)
+        drawBuffers.put(GL20.GL_COLOR_ATTACHMENT0 + i)
         i += 1
       }
-      defaultDrawBuffers.asInstanceOf[Buffer].position(0)
+      drawBuffers.asInstanceOf[Buffer].position(0)
+      defaultDrawBuffers = Nullable(drawBuffers)
       @scala.annotation.nowarn("msg=deprecated")
       val gl30 = Sge().graphics.gl30.orNull // Nullable -> GL30 at Java interop boundary
-      gl30.glDrawBuffers(colorAttachmentCounter, defaultDrawBuffers)
+      gl30.glDrawBuffers(colorAttachmentCounter, drawBuffers)
     } else if (bufferBuilder.textureAttachmentSpecs.size > 0) {
       attachFrameBufferColorTexture(textureAttachments.first)
     }
@@ -430,11 +431,11 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   def transfer(destination: GLFrameBuffer[T], copyBits: Int): Unit = {
     var bits = copyBits
 
-    if (drawBuffersForTransfer == null) {
+    if (drawBuffersForTransfer.isEmpty) {
       // set it to max color attachments
-      drawBuffersForTransfer = BufferUtils.newIntBuffer(1)
-      Sge().graphics.gl.glGetIntegerv(GL30.GL_MAX_COLOR_ATTACHMENTS, drawBuffersForTransfer)
-      drawBuffersForTransfer = BufferUtils.newIntBuffer(drawBuffersForTransfer.get(0))
+      val tempBuf = BufferUtils.newIntBuffer(1)
+      Sge().graphics.gl.glGetIntegerv(GL30.GL_MAX_COLOR_ATTACHMENTS, tempBuf)
+      drawBuffersForTransfer = Nullable(BufferUtils.newIntBuffer(tempBuf.get(0)))
     }
 
     if (destination.getWidth() != getWidth() || destination.getHeight() != getHeight()) {
@@ -456,7 +457,8 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
       }
 
       var colorBufferIndex = 0
-      drawBuffersForTransfer.clear()
+      val transferBuf      = drawBuffersForTransfer.getOrElse(throw new AssertionError("unreachable"))
+      transferBuf.clear()
       destination.bufferBuilder.textureAttachmentSpecs.foreach { attachment =>
         if (attachment.isColorTexture()) {
           gl30.glReadBuffer(GL20.GL_COLOR_ATTACHMENT0 + colorBufferIndex)
@@ -472,15 +474,15 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
           var i = 0
           while (i < totalColorAttachments) {
             if (colorBufferIndex == i) {
-              drawBuffersForTransfer.put(GL20.GL_COLOR_ATTACHMENT0 + i)
+              transferBuf.put(GL20.GL_COLOR_ATTACHMENT0 + i)
             } else {
-              drawBuffersForTransfer.put(GL20.GL_NONE)
+              transferBuf.put(GL20.GL_NONE)
             }
             i += 1
           }
-          drawBuffersForTransfer.flip()
+          transferBuf.flip()
 
-          gl30.glDrawBuffers(drawBuffersForTransfer.limit(), drawBuffersForTransfer)
+          gl30.glDrawBuffers(transferBuf.limit(), transferBuf)
 
           gl30.glBlitFramebuffer(0, 0, getWidth(), getHeight(), 0, 0, destination.getWidth(), destination.getHeight(), bits, GL20.GL_NEAREST)
 
@@ -496,8 +498,8 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     }
 
     // restore draw buffers for destination (in case of MRT only)
-    if (destination.defaultDrawBuffers != null) {
-      gl30.glDrawBuffers(destination.defaultDrawBuffers.limit(), destination.defaultDrawBuffers)
+    destination.defaultDrawBuffers.foreach { destDrawBuffers =>
+      gl30.glDrawBuffers(destDrawBuffers.limit(), destDrawBuffers)
     }
 
     Sge().graphics.gl.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, 0)
@@ -550,8 +552,7 @@ object GLFrameBuffer {
     Sge().graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, defaultFramebufferHandle)
 
   private def addManagedFrameBuffer(app: Application, frameBuffer: GLFrameBuffer[?]): Unit = {
-    var managedResources = buffers.getOrElse(app, null)
-    if (managedResources == null) managedResources = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[GLFrameBuffer[?]]], 16, true)
+    val managedResources = buffers.getOrElse(app, DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[GLFrameBuffer[?]]], 16, true))
     managedResources.add(frameBuffer)
     buffers.put(app, managedResources)
   }

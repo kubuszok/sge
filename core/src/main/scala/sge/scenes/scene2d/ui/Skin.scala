@@ -213,7 +213,7 @@ class Skin()(using Sge) extends AutoCloseable {
     val drawable     = newDrawable(drawableName, color)
     drawable match {
       case named: BaseDrawable =>
-        named.setName(Nullable(entryName + " (" + drawableName + ", " + color + ")"))
+        named.name = Nullable(entryName + " (" + drawableName + ", " + color + ")")
       case _ =>
     }
     drawable
@@ -380,10 +380,10 @@ class Skin()(using Sge) extends AutoCloseable {
     existing.foreach(e => break(e))
 
     val tiled = TiledDrawable(getRegion(name))
-    tiled.setName(Nullable(name))
+    tiled.name = Nullable(name)
     if (_scale != 1) {
       scale(tiled)
-      tiled.setScale(_scale)
+      tiled.scale = _scale
     }
     add(name, tiled, classOf[TiledDrawable])
     tiled
@@ -490,7 +490,7 @@ class Skin()(using Sge) extends AutoCloseable {
 
     val result = drawable.getOrElse(throw SgeError.InvalidInput("No Drawable registered with name: " + name))
     result match {
-      case bd: BaseDrawable => bd.setName(Nullable(name))
+      case bd: BaseDrawable => bd.name = Nullable(name)
       case _ =>
     }
 
@@ -549,8 +549,8 @@ class Skin()(using Sge) extends AutoCloseable {
     result match {
       case named: BaseDrawable =>
         drawable match {
-          case bd: BaseDrawable => named.setName(Nullable(bd.getName.getOrElse("") + " (" + tint + ")"))
-          case _ => named.setName(Nullable(" (" + tint + ")"))
+          case bd: BaseDrawable => named.name = Nullable(bd.name.getOrElse("") + " (" + tint + ")")
+          case _ => named.name = Nullable(" (" + tint + ")")
         }
       case _ =>
     }
@@ -562,12 +562,12 @@ class Skin()(using Sge) extends AutoCloseable {
     * {@link Drawable#getMinHeight()}.
     */
   def scale(drawable: Drawable): Unit = {
-    drawable.setLeftWidth(drawable.getLeftWidth * _scale)
-    drawable.setRightWidth(drawable.getRightWidth * _scale)
-    drawable.setBottomHeight(drawable.getBottomHeight * _scale)
-    drawable.setTopHeight(drawable.getTopHeight * _scale)
-    drawable.setMinWidth(drawable.getMinWidth * _scale)
-    drawable.setMinHeight(drawable.getMinHeight * _scale)
+    drawable.leftWidth = drawable.leftWidth * _scale
+    drawable.rightWidth = drawable.rightWidth * _scale
+    drawable.bottomHeight = drawable.bottomHeight * _scale
+    drawable.topHeight = drawable.topHeight * _scale
+    drawable.minWidth = drawable.minWidth * _scale
+    drawable.minHeight = drawable.minHeight * _scale
   }
 
   /** The scale used to size drawables created by this skin. <p> This can be useful when scaling an entire UI (eg with a stage's viewport) then using an atlas with images whose resolution matches the

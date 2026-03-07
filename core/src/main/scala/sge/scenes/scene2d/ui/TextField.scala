@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; boundary/break; Clipboard from sge; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getMaxLength/setMaxLength, getStyle/setStyle, getText/setText, getCursorPosition/setCursorPosition, isPasswordMode/setPasswordMode, isDisabled/setDisabled, etc.
+ *   Note: Java-style getters/setters retained — many methods have validation/events logic, getText conflicts with constructor param name; converting would be a large refactor
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
@@ -26,7 +26,7 @@ import sge.graphics.g2d.{ Batch, BitmapFont, GlyphLayout }
 import sge.math.{ MathUtils, Vector2 }
 import sge.scenes.scene2d.{ Actor, Group, InputEvent, InputListener }
 import sge.scenes.scene2d.utils.{ ChangeListener, ClickListener, Disableable, Drawable, UIUtils }
-import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Timer }
+import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Seconds, Timer }
 
 /** A single-line text input field. <p> The preferred height of a text field is the height of the {@link TextFieldStyle#font} and {@link TextFieldStyle#background}. The preferred width of a text field
   * is 150, a relatively arbitrary size. <p> The text field will copy the currently selected text when ctrl+c is pressed, and paste any text in the clipboard when ctrl+v is pressed. Clipboard
@@ -86,7 +86,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   var focused:   Boolean    = false
   var cursorOn:  Boolean    = false
-  var blinkTime: Float      = 0.32f
+  var blinkTime: Seconds    = Seconds(0.32f)
   val blinkTask: Timer.Task = new Timer.Task {
     def run(): Unit =
       if (stage.isEmpty) {
@@ -123,7 +123,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     var adjustedX  = x - textOffset - fontOffset + _style.font.data.cursorX + glyphPositions(visibleTextStart)
     val background = getBackgroundDrawable()
     background.foreach { bg =>
-      adjustedX -= bg.getLeftWidth
+      adjustedX -= bg.leftWidth
     }
     val n = this.glyphPositions.size
     var i = 1
@@ -215,7 +215,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     var visibleWidth = this.width
     val background   = getBackgroundDrawable()
     background.foreach { bg =>
-      visibleWidth -= bg.getLeftWidth + bg.getRightWidth
+      visibleWidth -= bg.leftWidth + bg.rightWidth
     }
 
     val glyphCount = glyphPositions.size
@@ -329,8 +329,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     var bgRightWidth = 0f
     background.foreach { bg =>
       drawBackground(bg, batch, tx, ty, tw, th)
-      bgLeftWidth = bg.getLeftWidth
-      bgRightWidth = bg.getRightWidth
+      bgLeftWidth = bg.leftWidth
+      bgRightWidth = bg.rightWidth
     }
 
     val textY = getTextY(font, background)
@@ -374,8 +374,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     background.fold {
       textY = textY + height / 2
     } { bg =>
-      val bottom = bg.getBottomHeight
-      textY = textY + (height - bg.getTopHeight - bottom) / 2 + bottom
+      val bottom = bg.bottomHeight
+      textY = textY + (height - bg.topHeight - bottom) / 2 + bottom
     }
     if (font.integerPositions) textY = textY.toInt.toFloat
     textY
@@ -401,7 +401,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       batch,
       x + textOffset + glyphPositions(cursor) - glyphPositions(visibleTextStart) + fontOffset + font.data.cursorX,
       y - textHeight - font.descent,
-      cursorPatch.getMinWidth,
+      cursorPatch.minWidth,
       textHeight
     )
 
@@ -743,16 +743,16 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     var topAndBottom = 0f
     var minHeight    = 0f
     _style.background.foreach { bg =>
-      topAndBottom = Math.max(topAndBottom, bg.getBottomHeight + bg.getTopHeight)
-      minHeight = Math.max(minHeight, bg.getMinHeight)
+      topAndBottom = Math.max(topAndBottom, bg.bottomHeight + bg.topHeight)
+      minHeight = Math.max(minHeight, bg.minHeight)
     }
     _style.focusedBackground.foreach { fb =>
-      topAndBottom = Math.max(topAndBottom, fb.getBottomHeight + fb.getTopHeight)
-      minHeight = Math.max(minHeight, fb.getMinHeight)
+      topAndBottom = Math.max(topAndBottom, fb.bottomHeight + fb.topHeight)
+      minHeight = Math.max(minHeight, fb.minHeight)
     }
     _style.disabledBackground.foreach { db =>
-      topAndBottom = Math.max(topAndBottom, db.getBottomHeight + db.getTopHeight)
-      minHeight = Math.max(minHeight, db.getMinHeight)
+      topAndBottom = Math.max(topAndBottom, db.bottomHeight + db.topHeight)
+      minHeight = Math.max(minHeight, db.minHeight)
     }
     Math.max(topAndBottom + textHeight, minHeight)
   }
@@ -785,7 +785,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   }
 
   def setBlinkTime(blinkTime: Float): Unit =
-    this.blinkTime = blinkTime
+    this.blinkTime = Seconds(blinkTime)
 
   def setDisabled(isDisabled: Boolean): Unit =
     this.disabled = isDisabled
@@ -826,7 +826,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   class TextFieldClickListener extends ClickListener {
 
     override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
-      val count = getTapCount % 4
+      val count = tapCount % 4
       if (count == 0) clearSelection()
       if (count == 2) {
         val array = wordUnderCursor(x)
@@ -1097,8 +1097,8 @@ object TextField {
   private val tmp2: Vector2 = Vector2()
   private val tmp3: Vector2 = Vector2()
 
-  var keyRepeatInitialTime: Float = 0.4f
-  var keyRepeatTime:        Float = 0.1f
+  var keyRepeatInitialTime: Seconds = Seconds(0.4f)
+  var keyRepeatTime:        Seconds = Seconds(0.1f)
 
   /** Interface for listening to typed characters.
     * @author

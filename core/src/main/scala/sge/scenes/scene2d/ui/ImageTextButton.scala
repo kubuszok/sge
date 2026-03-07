@@ -106,7 +106,7 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
   /** Sets the image drawable based on the current button state. The default implementation sets the image drawable using {@link #getImageDrawable()}.
     */
   protected def updateImage(): Unit =
-    image.setDrawable(getImageDrawable)
+    image.drawable = getImageDrawable
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor: Nullable[Color] = scala.util.boundary {
@@ -161,7 +161,7 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)
-      (if (className.indexOf('$') != -1) "ImageTextButton " else "") + className + ": " + image.getDrawable + " " + new String(
+      (if (className.indexOf('$') != -1) "ImageTextButton " else "") + className + ": " + image.drawable + " " + new String(
         label.getText.toArray
       )
     }

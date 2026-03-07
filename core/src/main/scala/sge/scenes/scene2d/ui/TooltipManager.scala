@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Singleton pattern adapted with Nullable; Gdx.files check -> _defaults.isEmpty + _creatingDefaults guard
  *   Idiom: split packages
- *   TODO: opaque Seconds for initialTime, subsequentTime, resetTime -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for initialTime, subsequentTime, resetTime
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -19,7 +19,7 @@ package ui
 
 import sge.math.Interpolation
 import sge.scenes.scene2d.actions.Actions
-import sge.utils.{ DynamicArray, Nullable, Timer }
+import sge.utils.{ DynamicArray, Nullable, Seconds, Timer }
 
 /** Keeps track of an application's tooltips.
   * @author
@@ -29,13 +29,13 @@ class TooltipManager()(using Sge) {
 
   /** Seconds from when an actor is hovered to when the tooltip is shown. Default is 2. Call {@link #hideAll()} after changing to reset internal state.
     */
-  var initialTime: Float = 2
+  var initialTime: Seconds = Seconds(2)
 
   /** Once a tooltip is shown, this is used instead of {@link #initialTime}. Default is 0. */
-  var subsequentTime: Float = 0
+  var subsequentTime: Seconds = Seconds.zero
 
   /** Seconds to use {@link #subsequentTime}. Default is 1.5. */
-  var resetTime: Float = 1.5f
+  var resetTime: Seconds = Seconds(1.5f)
 
   /** If false, tooltips will not be shown. Default is true. */
   var enabled: Boolean = true
@@ -56,7 +56,7 @@ class TooltipManager()(using Sge) {
 
   val shown: DynamicArray[Tooltip[?]] = DynamicArray[Tooltip[?]]()
 
-  var time: Float = initialTime
+  var time: Seconds = initialTime
 
   val resetTask: Timer.Task = new Timer.Task() {
     def run(): Unit =
@@ -100,7 +100,7 @@ class TooltipManager()(using Sge) {
     showTooltip = Nullable(tooltip)
     showTask.cancel()
     if (enabled || tooltip.always) {
-      if (time == 0 || tooltip.instant)
+      if (time == Seconds.zero || tooltip.instant)
         showTask.run()
       else
         Timer.schedule(showTask, time)
@@ -120,7 +120,7 @@ class TooltipManager()(using Sge) {
 
   /** Called when tooltip is shown. Default implementation sets actions to animate showing. */
   protected def showAction(tooltip: Tooltip[?]): Unit = {
-    val actionTime = if (animations) if (time > 0) 0.5f else 0.15f else 0.1f
+    val actionTime = Seconds(if (animations) if (time > Seconds.zero) 0.5f else 0.15f else 0.1f)
     tooltip.container.setTransform(true)
     tooltip.container.color.a = 0.2f
     tooltip.container.setScale(0.05f)
@@ -139,8 +139,8 @@ class TooltipManager()(using Sge) {
     tooltip.container.addAction(
       Actions.sequence(
         Actions.parallel(
-          Actions.alpha(0.2f, 0.2f, Nullable(Interpolation.fade)),
-          Actions.scaleTo(0.05f, 0.05f, 0.2f, Nullable(Interpolation.fade))
+          Actions.alpha(0.2f, Seconds(0.2f), Nullable(Interpolation.fade)),
+          Actions.scaleTo(0.05f, 0.05f, Seconds(0.2f), Nullable(Interpolation.fade))
         ),
         Actions.removeActor()
       )
@@ -158,7 +158,7 @@ class TooltipManager()(using Sge) {
 
   /** Shows all tooltips on hover without a delay for {@link #resetTime} seconds. */
   def instant(): Unit = {
-    time = 0
+    time = Seconds.zero
     showTask.run()
     showTask.cancel()
   }

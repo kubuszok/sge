@@ -21,7 +21,7 @@ import sge.graphics.{ Cursor, Pixmap }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.{ GL20, GL30, GL31, GL32 }
 import sge.graphics.glutils.GLVersion
-import sge.utils.{ Nullable, TimeUtils }
+import sge.utils.{ Nanos, Nullable, TimeUtils }
 
 /** A no-op [[sge.Graphics]] implementation for headless/testing use. Tracks frame timing via [[updateTime]] but provides no GL context.
   */
@@ -30,24 +30,24 @@ class NoopGraphics(
   val noopHeight: Int = 480
 ) extends Graphics {
 
-  private var _deltaTime:         Float   = 0.0f
-  private var _frameId:           Long    = 0L
-  private var _fps:               Int     = 0
-  private var _lastFrameTime:     Long    = TimeUtils.nanoTime()
-  private var _frameCounterStart: Long    = _lastFrameTime
-  private var _frameCounter:      Int     = 0
-  private var _continuous:        Boolean = true
+  private var _deltaTime:         Float           = 0.0f
+  private var _frameId:           Long            = 0L
+  private var _fps:               Int             = 0
+  private var _lastFrameTime:     sge.utils.Nanos = TimeUtils.nanoTime()
+  private var _frameCounterStart: sge.utils.Nanos = _lastFrameTime
+  private var _frameCounter:      Int             = 0
+  private var _continuous:        Boolean         = true
 
   /** Advances frame timing. Call once per headless app loop iteration. */
   def updateTime(): Unit = {
     val now = TimeUtils.nanoTime()
-    _deltaTime = (now - _lastFrameTime) / 1000000000.0f
+    _deltaTime = (now - _lastFrameTime).toFloat / 1000000000.0f
     _lastFrameTime = now
     _frameId += 1L
     _frameCounter += 1
 
     val elapsed = now - _frameCounterStart
-    if (elapsed >= 1000000000L) {
+    if (elapsed >= sge.utils.Nanos(1000000000L)) {
       _fps = _frameCounter
       _frameCounter = 0
       _frameCounterStart = now

@@ -31,7 +31,7 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge)
     val label = getLabel
     label.setAlignment(Align.left)
 
-    image.setDrawable(style.checkboxOff)
+    image.drawable = style.checkboxOff
 
     clearChildren()
     imageCell = add(Nullable(image))
@@ -57,7 +57,7 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge)
   override def getStyle: CheckBoxStyle = _style
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    image.setDrawable(getImageDrawable)
+    image.drawable = getImageDrawable
     super.draw(batch, parentAlpha)
   }
 

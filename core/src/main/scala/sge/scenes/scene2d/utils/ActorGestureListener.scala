@@ -21,7 +21,7 @@ package utils
 
 import sge.input.GestureDetector
 import sge.math.Vector2
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Detects tap, long press, fling, pan, zoom, and pinch gestures on an actor. If there is only a need to detect tap, use {@link ClickListener}.
   * @see
@@ -38,9 +38,9 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
 
   private val detector: GestureDetector = GestureDetector(
     halfTapSquareSize,
-    tapCountInterval,
-    longPressDuration,
-    maxFlingDelay,
+    Seconds(tapCountInterval),
+    Seconds(longPressDuration),
+    Seconds(maxFlingDelay),
     new GestureDetector.GestureAdapter {
       private val initialPointer1 = Vector2()
       private val initialPointer2 = Vector2()

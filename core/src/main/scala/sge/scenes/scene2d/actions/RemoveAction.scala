@@ -16,7 +16,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Removes an action from an actor.
   * @author
@@ -25,7 +25,7 @@ import sge.utils.Nullable
 class RemoveAction extends Action {
   var actionToRemove: Nullable[Action] = Nullable.empty
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach(_.removeAction(actionToRemove))
     true
   }

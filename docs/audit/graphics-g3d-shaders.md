@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.shaders
 
-Audited: 3/3 files | Pass: 2 | Minor: 1 | Major: 0
-Last updated: 2026-03-03
+Audited: 3/3 files | Pass: 3 | Minor: 0 | Major: 0
+Last updated: 2026-03-04
 
 ---
 
@@ -48,7 +48,7 @@ All public methods match: `begin`, `end`, `canRender`, `render`.
 
 Companion object:
 - `Config` class extends `DefaultShader.Config` with `depthBufferOnly` and `defaultAlphaTest` fields
-- `getDefaultVertexShader()` / `getDefaultFragmentShader()` (lazy-init, `(using Sge)`)
+- `defaultVertexShader` / `defaultFragmentShader` (lazy-init, `(using Sge)`)
 - `createPrefix(Renderable, Config)` -- delegates to `DefaultShader.createPrefix` + PackedDepthFlag
 - `combineAttributes` -- private helper (matches Java private static)
 
@@ -62,16 +62,16 @@ explicitly sets it. Behavior is equivalent.
 `numBones` val and `alphaTestAttribute` private val match Java `final int numBones` and
 `private final FloatAttribute alphaTestAttribute`.
 
-`Sge().files.classpath(...)` replaces `Gdx.files.classpath(...)`.
+`sge.files.classpath(...)` replaces `Gdx.files.classpath(...)`.
 
-TODO comment preserved from Java source (line 185).
+TODO comment preserved from Java source.
 
-### DefaultShader.scala -- minor_issues
+### DefaultShader.scala -- pass
 
 | SGE path | `core/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java` |
 
-This is the largest file (1340 lines Scala, 958 lines Java). All major structures match.
+This is the largest file (1350 lines Scala, 958 lines Java). All major structures match.
 
 **Config class** (companion object):
 All 9 fields match Java: `vertexShader`, `fragmentShader`, `numDirectionalLights`, `numPointLights`,
@@ -98,35 +98,28 @@ light arrays, ambientCubemap): all match Java.
 
 **Methods**:
 All present: `init`, `begin`, `render`, `end`, `close`, `canRender`, `compareTo`, `equals`,
-`bindMaterial`, `bindLights`, `getDefaultCullFace`, `setDefaultCullFace`, `getDefaultDepthFunc`,
-`setDefaultDepthFunc`.
+`bindMaterial`, `bindLights`, `defaultCullFace`/`defaultCullFace_=`,
+`defaultDepthFunc`/`defaultDepthFunc_=`.
 
 **Static/companion members**:
 `implementedFlags`, `defaultCullFace` (@deprecated), `defaultDepthFunc` (@deprecated),
 `optionalAttributes`, `combineAttributes`, `combineAttributeMasks`, `createPrefix`,
-`getDefaultVertexShader`, `getDefaultFragmentShader` -- all present.
+`defaultVertexShader`, `defaultFragmentShader` -- all present.
 
-**Minor issues found:**
+**Convention fixes applied (2026-03-04):**
 
-1. **Stray `new Matrix3()` on line 325**: Java has `private final Matrix3 normalMatrix = new Matrix3()`
-   as a field (used in `bindMaterial` in Java but not referenced in Scala). The Scala port has
-   `new Matrix3()` as a bare expression (creates and discards an object). This is harmless but is
-   dead code.
+1. `getDefaultCullFace()`/`setDefaultCullFace(int)` -> `def defaultCullFace: Int`/`def defaultCullFace_=(Int): Unit`
+2. `getDefaultDepthFunc()`/`setDefaultDepthFunc(int)` -> `def defaultDepthFunc: Int`/`def defaultDepthFunc_=(Int): Unit`
+3. `getDefaultVertexShader()` -> `def defaultVertexShader` (companion)
+4. `getDefaultFragmentShader()` -> `def defaultFragmentShader` (companion)
 
-2. **Stray `new Vector3()` on line 403**: Similar to above -- Java has
-   `private final Vector3 tmpV1 = new Vector3()` used in `bindLights`. The Scala port doesn't use
-   a `tmpV1` in `bindLights`. This bare `new Vector3()` statement creates and discards an object.
-   Harmless but dead code.
+**Notes on `bindLights` control flow**: The Java version uses `continue` and `break` in
+light-binding loops. The Scala version emulates `continue` by nesting `if`/`else` blocks, and
+emulates `break` by setting `i = array.length`. This is functionally equivalent but more complex
+to read.
 
-3. **`bindLights` control flow**: The Java version uses `continue` and `break` in light-binding
-   loops. The Scala version emulates `continue` by nesting `if`/`else` blocks, and emulates `break`
-   by setting `i = array.length`. This is functionally equivalent but more complex to read.
-
-4. **`bindLights` uniform setting is inside `program.foreach`**: In Java, `program.setUniformf(...)`
-   is called directly (program is never null at this point). The Scala port wraps every call in
-   `program.foreach { prog => ... }`. This is safe but adds nesting. Correct behavior.
-
-5. **`equals` method**: Java has two overloads: `equals(Object)` and `equals(DefaultShader)`.
-   Scala has only `equals(Any)` with pattern match. Functionally equivalent.
+**Notes on uniform setting**: In Java, `program.setUniformf(...)` is called directly (program is
+never null at this point). The Scala port wraps every call in `program.foreach { prog => ... }`.
+This is safe but adds nesting. Correct behavior.
 
 All FIXME comments preserved from Java source.

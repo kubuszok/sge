@@ -10,7 +10,7 @@
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: Java constructor chaining super(duration) -> this() + setDuration();
  *          super(duration, interpolation) -> this() + setDuration() + setInterpolation()
- *   TODO: opaque Seconds for duration constructor param -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for duration constructor param
  *   Audited: 2026-03-03
  */
 package sge
@@ -18,7 +18,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 import sge.math.Interpolation
 
 /** An action that has a float, whose value is transitioned over time.
@@ -31,13 +31,13 @@ class FloatAction(var start: Float = 0, private var _end: Float = 1) extends Tem
   def getEnd:             Float = _end
   def setEnd(end: Float): Unit  = _end = end
 
-  def this(start: Float, end: Float, duration: Float) = {
-    this(start, end)
+  def this(start: Float, _end: Float, duration: Seconds) = {
+    this(start, _end)
     this.duration = duration
   }
 
-  def this(start: Float, end: Float, duration: Float, interpolation: Nullable[Interpolation]) = {
-    this(start, end, duration)
+  def this(start: Float, _end: Float, duration: Seconds, interpolation: Nullable[Interpolation]) = {
+    this(start, _end, duration)
     this.interpolation = interpolation
   }
 

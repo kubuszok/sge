@@ -10,7 +10,7 @@
  *   Convention: no return; split packages; braces on class
  *   Renames: implements FinishableAction -> with FinishableAction
  *   Idiom: action null-check + early return -> action.fold(true)(_.act(delta))
- *   TODO: opaque Seconds for duration/time params -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for duration/time params
  *   Audited: 2026-03-03
  */
 package sge
@@ -18,14 +18,16 @@ package scenes
 package scene2d
 package actions
 
+import sge.utils.Seconds
+
 /** Delays execution of an action or inserts a pause in a {@link SequenceAction}.
   * @author
   *   Nathan Sweet
   */
-class DelayAction(var duration: Float = 0) extends DelegateAction with FinishableAction {
-  var time: Float = 0
+class DelayAction(var duration: Seconds = Seconds.zero) extends DelegateAction with FinishableAction {
+  var time: Seconds = Seconds.zero
 
-  override protected def delegate(delta: Float): Boolean =
+  override protected def delegate(delta: Seconds): Boolean =
     if (time < duration) {
       time += delta
       if (time < duration) false
@@ -42,6 +44,6 @@ class DelayAction(var duration: Float = 0) extends DelegateAction with Finishabl
 
   override def restart(): Unit = {
     super.restart()
-    time = 0
+    time = Seconds.zero
   }
 }

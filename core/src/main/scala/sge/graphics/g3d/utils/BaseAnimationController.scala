@@ -19,7 +19,7 @@
  *   - All methods fully ported; logic matches Java source
  *   - Minor: transforms is mutable.Map (not ObjectMap) -- equivalent behavior
  *   - TODO: Transform extends Pool.Poolable → define given Poolable[Transform]
- *   - TODO: opaque Seconds for apply(animation, time, weight) time param -- see docs/improvements/opaque-types.md
+ *   - Convention: opaque Seconds for apply(animation, time, weight) time param
  *   - Audit: pass (2026-03-03)
  */
 package sge
@@ -32,7 +32,7 @@ import scala.language.implicitConversions
 
 import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe }
 import sge.math.{ Matrix4, Quaternion, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
+import sge.utils.{ DynamicArray, Nullable, Pool, Seconds, SgeError }
 
 /** Base class for applying one or more {@link Animation}s to a {@link ModelInstance}. This class only applies the actual {@link Node} transformations, it does not manage animations or keep track of
   * animation states. See {@link AnimationController} for an implementation of this class which does manage animations.
@@ -61,7 +61,7 @@ class BaseAnimationController(
     * @param weight
     *   The blend weight of this animation relative to the previous applied animations.
     */
-  protected def apply(animation: Animation, time: Float, weight: Float): Unit = {
+  protected def apply(animation: Animation, time: Seconds, weight: Float): Unit = {
     if (!applying) throw SgeError.InvalidInput("You must call begin() before adding an animation")
     BaseAnimationController.applyAnimation(BaseAnimationController.transforms, transformPool, weight, animation, time)
   }
@@ -79,14 +79,14 @@ class BaseAnimationController(
   }
 
   /** Apply a single animation to the {@link ModelInstance} and update the it to reflect the changes. */
-  protected def applyAnimation(animation: Animation, time: Float): Unit = {
+  protected def applyAnimation(animation: Animation, time: Seconds): Unit = {
     if (applying) throw SgeError.InvalidInput("Call end() first")
     BaseAnimationController.applyAnimation(Nullable.empty, Nullable.empty, 1f, animation, time)
     target.calculateTransforms()
   }
 
   /** Apply two animations, blending the second onto to first using weight. */
-  protected def applyAnimations(anim1: Nullable[Animation], time1: Float, anim2: Nullable[Animation], time2: Float, weight: Float): Unit =
+  protected def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit =
     if (anim2.isEmpty || weight == 0f)
       anim1.foreach(a => applyAnimation(a, time1))
     else if (anim1.isEmpty || weight == 1f)
@@ -162,11 +162,11 @@ object BaseAnimationController {
     * @return
     *   key frame index, 0 if time is out of key frames time range
     */
-  def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = scala.util.boundary {
+  def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Seconds): Int = scala.util.boundary {
     val lastIndex = arr.size - 1
 
     // edges cases : time out of range always return first index
-    if (lastIndex <= 0 || time < arr(0).keytime || time > arr(lastIndex).keytime) {
+    if (lastIndex <= 0 || time < Seconds(arr(0).keytime) || time > Seconds(arr(lastIndex).keytime)) {
       0
     } else {
       // binary search
@@ -175,9 +175,9 @@ object BaseAnimationController {
 
       while (minIndex < maxIndex) {
         val i = (minIndex + maxIndex) / 2
-        if (time > arr(i + 1).keytime) {
+        if (time > Seconds(arr(i + 1).keytime)) {
           minIndex = i + 1
-        } else if (time < arr(i).keytime) {
+        } else if (time < Seconds(arr(i).keytime)) {
           maxIndex = i - 1
         } else {
           scala.util.boundary.break(i)
@@ -187,7 +187,7 @@ object BaseAnimationController {
     }
   }
 
-  private def getTranslationAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 =
+  private def getTranslationAtTime(nodeAnim: NodeAnimation, time: Seconds, out: Vector3): Vector3 =
     nodeAnim.translation.fold(out.set(nodeAnim.node.translation)) { trans =>
       if (trans.size == 1) out.set(trans(0).value)
       else {
@@ -197,14 +197,14 @@ object BaseAnimationController {
         index += 1
         if (index < trans.size) {
           val secondKeyframe = trans(index)
-          val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+          val t              = (time - Seconds(firstKeyframe.keytime)) / (Seconds(secondKeyframe.keytime) - Seconds(firstKeyframe.keytime))
           out.lerp(secondKeyframe.value, t)
         }
         out
       }
     }
 
-  private def getRotationAtTime(nodeAnim: NodeAnimation, time: Float, out: Quaternion): Quaternion =
+  private def getRotationAtTime(nodeAnim: NodeAnimation, time: Seconds, out: Quaternion): Quaternion =
     nodeAnim.rotation.fold(out.set(nodeAnim.node.rotation)) { rot =>
       if (rot.size == 1) out.set(rot(0).value)
       else {
@@ -214,14 +214,14 @@ object BaseAnimationController {
         index += 1
         if (index < rot.size) {
           val secondKeyframe = rot(index)
-          val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+          val t              = (time - Seconds(firstKeyframe.keytime)) / (Seconds(secondKeyframe.keytime) - Seconds(firstKeyframe.keytime))
           out.slerp(secondKeyframe.value, t)
         }
         out
       }
     }
 
-  private def getScalingAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 =
+  private def getScalingAtTime(nodeAnim: NodeAnimation, time: Seconds, out: Vector3): Vector3 =
     nodeAnim.scaling.fold(out.set(nodeAnim.node.scale)) { scl =>
       if (scl.size == 1) out.set(scl(0).value)
       else {
@@ -231,14 +231,14 @@ object BaseAnimationController {
         index += 1
         if (index < scl.size) {
           val secondKeyframe = scl(index)
-          val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+          val t              = (time - Seconds(firstKeyframe.keytime)) / (Seconds(secondKeyframe.keytime) - Seconds(firstKeyframe.keytime))
           out.lerp(secondKeyframe.value, t)
         }
         out
       }
     }
 
-  private def getNodeAnimationTransform(nodeAnim: NodeAnimation, time: Float): Transform = {
+  private def getNodeAnimationTransform(nodeAnim: NodeAnimation, time: Seconds): Transform = {
     val transform = tmpT
     getTranslationAtTime(nodeAnim, time, transform.translation)
     getRotationAtTime(nodeAnim, time, transform.rotation)
@@ -246,14 +246,14 @@ object BaseAnimationController {
     transform
   }
 
-  private def applyNodeAnimationDirectly(nodeAnim: NodeAnimation, time: Float): Unit = {
+  private def applyNodeAnimationDirectly(nodeAnim: NodeAnimation, time: Seconds): Unit = {
     val node = nodeAnim.node
     node.isAnimated = true
     val transform = getNodeAnimationTransform(nodeAnim, time)
     transform.toMatrix4(node.localTransform)
   }
 
-  private def applyNodeAnimationBlending(nodeAnim: NodeAnimation, out: mutable.Map[Node, Transform], pool: Pool[Transform], alpha: Float, time: Float): Unit = {
+  private def applyNodeAnimationBlending(nodeAnim: NodeAnimation, out: mutable.Map[Node, Transform], pool: Pool[Transform], alpha: Float, time: Seconds): Unit = {
 
     val node = nodeAnim.node
     node.isAnimated = true
@@ -274,7 +274,7 @@ object BaseAnimationController {
   }
 
   /** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-  protected def applyAnimation(out: Nullable[mutable.Map[Node, Transform]], pool: Nullable[Pool[Transform]], alpha: Float, animation: Animation, time: Float): Unit =
+  protected def applyAnimation(out: Nullable[mutable.Map[Node, Transform]], pool: Nullable[Pool[Transform]], alpha: Float, animation: Animation, time: Seconds): Unit =
 
     if (out.isEmpty) {
       for (nodeAnim <- animation.nodeAnimations)

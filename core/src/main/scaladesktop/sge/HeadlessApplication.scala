@@ -19,7 +19,7 @@ package sge
 import sge.files.{ DesktopFiles, DesktopPreferences }
 import sge.net.DesktopNet
 import sge.noop.{ NoopAudio, NoopGraphics, NoopInput, PrintApplicationLogger }
-import sge.utils.{ DynamicArray, Nullable, ObjectMap, TimeUtils }
+import sge.utils.{ DynamicArray, Nanos, Nullable, ObjectMap, TimeUtils }
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -77,19 +77,19 @@ class HeadlessApplication(
     }
     listener.create()
 
-    val targetInterval = targetRenderInterval()
-    if (targetInterval < 0L) {
+    val targetInterval = Nanos(targetRenderInterval())
+    if (targetInterval < Nanos.zero) {
       // Negative updatesPerSecond — never call render
       awaitExit()
     } else {
       var t = TimeUtils.nanoTime() + targetInterval
       boundary {
         while (running) {
-          if (targetInterval > 0L) {
+          if (targetInterval > Nanos.zero) {
             val n = TimeUtils.nanoTime()
             if (t > n) {
               val sleep = t - n
-              try Thread.sleep(sleep / 1000000L, (sleep % 1000000L).toInt)
+              try Thread.sleep(sleep.toLong / 1000000L, (sleep.toLong % 1000000L).toInt)
               catch { case _: InterruptedException => () }
               t = t + targetInterval
             } else {

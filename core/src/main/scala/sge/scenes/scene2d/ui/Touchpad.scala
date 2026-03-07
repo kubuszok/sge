@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getStyle/setStyle, getResetOnTouchUp/setResetOnTouchUp, getKnobX/Y, getKnobPercentX/Y, isTouched
+ *   Fixes: Removed redundant Java-style getters/setters (touched/resetOnTouchUp are public vars; knobX/Y/knobPercentX/Y exposed as defs; style via Styleable)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -127,7 +127,7 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
     val radius     = Math.min(halfWidth, halfHeight)
     touchBounds.set(halfWidth, halfHeight, radius)
     val knobRadius = _style.knob.fold(radius) { knob =>
-      radius - Math.max(knob.getMinWidth, knob.getMinHeight) / 2
+      radius - Math.max(knob.minWidth, knob.minHeight) / 2
     }
     knobBounds.set(halfWidth, halfHeight, knobRadius)
     deadzoneBounds.set(halfWidth, halfHeight, deadzoneRadius)
@@ -152,23 +152,15 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
     }
 
     _style.knob.foreach { knob =>
-      dx += knobPosition.x - knob.getMinWidth / 2f
-      dy += knobPosition.y - knob.getMinHeight / 2f
-      knob.draw(batch, dx, dy, knob.getMinWidth, knob.getMinHeight)
+      dx += knobPosition.x - knob.minWidth / 2f
+      dy += knobPosition.y - knob.minHeight / 2f
+      knob.draw(batch, dx, dy, knob.minWidth, knob.minHeight)
     }
   }
 
-  override def getPrefWidth: Float = _style.background.map(_.getMinWidth).getOrElse(0f)
+  override def getPrefWidth: Float = _style.background.map(_.minWidth).getOrElse(0f)
 
-  override def getPrefHeight: Float = _style.background.map(_.getMinHeight).getOrElse(0f)
-
-  def isTouched: Boolean = touched
-
-  def getResetOnTouchUp: Boolean = resetOnTouchUp
-
-  /** @param reset Whether to reset the knob to the center on touch up. */
-  def setResetOnTouchUp(reset: Boolean): Unit =
-    this.resetOnTouchUp = reset
+  override def getPrefHeight: Float = _style.background.map(_.minHeight).getOrElse(0f)
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
   def setDeadzone(deadzoneRadius: Float): Unit = {
@@ -178,18 +170,18 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   }
 
   /** Returns the x-position of the knob relative to the center of the widget. The positive direction is right. */
-  def getKnobX: Float = knobPosition.x
+  def knobX: Float = knobPosition.x
 
   /** Returns the y-position of the knob relative to the center of the widget. The positive direction is up. */
-  def getKnobY: Float = knobPosition.y
+  def knobY: Float = knobPosition.y
 
   /** Returns the x-position of the knob as a percentage from the center of the touchpad to the edge of the circular movement area. The positive direction is right.
     */
-  def getKnobPercentX: Float = knobPercent.x
+  def knobPercentX: Float = knobPercent.x
 
   /** Returns the y-position of the knob as a percentage from the center of the touchpad to the edge of the circular movement area. The positive direction is up.
     */
-  def getKnobPercentY: Float = knobPercent.y
+  def knobPercentY: Float = knobPercent.y
 }
 
 object Touchpad {

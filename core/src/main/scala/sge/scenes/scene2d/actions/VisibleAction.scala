@@ -21,9 +21,11 @@ package actions
   *   Nathan Sweet
   */
 class VisibleAction extends Action {
+  import sge.utils.Seconds
+
   var visible: Boolean = false
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach(_.visible = visible)
     true
   }

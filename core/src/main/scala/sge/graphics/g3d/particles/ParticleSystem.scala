@@ -13,7 +13,7 @@
  * - update()/updateAndDraw() overloads use (using Sge) context parameter for no-arg variants
  * - remove uses removeValue without identity flag (DynamicArray uses == equality)
  * - Class is final (matches Java)
- * - TODO: opaque Seconds for update(deltaTime), updateAndDraw(deltaTime) params -- see docs/improvements/opaque-types.md
+ * - Convention: opaque Seconds for update(deltaTime), updateAndDraw(deltaTime) params
  */
 package sge
 package graphics
@@ -59,11 +59,11 @@ final class ParticleSystem()(using Sge) extends RenderableProvider {
       effect.draw()
     }
 
-  def update(deltaTime: Float): Unit =
+  def update(deltaTime: sge.utils.Seconds): Unit =
     for (effect <- effects)
       effect.update(deltaTime)
 
-  def updateAndDraw(deltaTime: Float): Unit =
+  def updateAndDraw(deltaTime: sge.utils.Seconds): Unit =
     for (effect <- effects) {
       effect.update(deltaTime)
       effect.draw()

@@ -14,7 +14,7 @@ import sge.Sge
 import sge.SgeTestFixture
 import sge.graphics.g3d.model.{ Animation, NodeKeyframe }
 import sge.graphics.g3d.utils.AnimationController.AnimationDesc
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Seconds }
 
 class AnimationControllerTest extends munit.FunSuite {
 
@@ -28,13 +28,13 @@ class AnimationControllerTest extends munit.FunSuite {
     keyFrames.add(new NodeKeyframe[String](12f, "3rd"))
     keyFrames.add(new NodeKeyframe[String](13f, "4th"))
 
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, -1f), 0)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 0f), 0)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 2f), 0)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 9f), 1)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 12.5f), 2)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 13f), 2)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 14f), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(-1f)), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(0f)), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(2f)), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(9f)), 1)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(12.5f)), 2)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(13f)), 2)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(14f)), 0)
   }
 
   test("getFirstKeyframeIndexAtTime single key") {
@@ -42,15 +42,15 @@ class AnimationControllerTest extends munit.FunSuite {
 
     keyFrames.add(new NodeKeyframe[String](10f, "1st"))
 
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 9f), 0)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 10f), 0)
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 11f), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(9f)), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(10f)), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(11f)), 0)
   }
 
   test("getFirstKeyframeIndexAtTime empty") {
     val keyFrames = DynamicArray[NodeKeyframe[String]]()
 
-    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, 3f), 0)
+    assertEquals(BaseAnimationController.getFirstKeyframeIndexAtTime(keyFrames, Seconds(3f)), 0)
   }
 
   private def assertSameAnimation(expected: Animation, actual: Nullable[AnimationDesc]): Unit = {
@@ -81,16 +81,16 @@ class AnimationControllerTest extends munit.FunSuite {
     animationController.setAnimation("loop", -1)
     assertSameAnimation(loop, animationController.current)
 
-    animationController.update(1)
+    animationController.update(Seconds(1f))
     assertSameAnimation(loop, animationController.current)
 
-    animationController.update(0.01f)
+    animationController.update(Seconds(0.01f))
     assertSameAnimation(loop, animationController.current)
 
-    animationController.action("action", 1, 1f, Nullable.empty, 0f)
+    animationController.action("action", 1, 1f, Nullable.empty, Seconds.zero)
     assertSameAnimation(action, animationController.current)
 
-    animationController.update(0.2f)
+    animationController.update(Seconds(0.2f))
     assertSameAnimation(loop, animationController.current)
   }
 
@@ -112,16 +112,16 @@ class AnimationControllerTest extends munit.FunSuite {
     animationController.setAnimation("loop", -1, -1f, Nullable.empty)
     assertSameAnimation(loop, animationController.current)
 
-    animationController.update(1)
+    animationController.update(Seconds(1f))
     assertSameAnimation(loop, animationController.current)
 
-    animationController.update(0.01f)
+    animationController.update(Seconds(0.01f))
     assertSameAnimation(loop, animationController.current)
 
-    animationController.action("action", 1, -1f, Nullable.empty, 0f)
+    animationController.action("action", 1, -1f, Nullable.empty, Seconds.zero)
     assertSameAnimation(action, animationController.current)
 
-    animationController.update(0.2f)
+    animationController.update(Seconds(0.2f))
     assertSameAnimation(loop, animationController.current)
   }
 }

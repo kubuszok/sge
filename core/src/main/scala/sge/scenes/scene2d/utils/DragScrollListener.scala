@@ -9,7 +9,7 @@
  * Migration notes:
  * - Static tmpCoords -> companion object val
  * - Timer.Task and Timer.schedule require (using Sge)
- * - TODO: Java-style getters/setters — setPadding
+ * - Convention: setPadding kept as method (distributes to padTop/padBottom)
  * - Audited: 2026-03-04
  */
 package sge
@@ -20,7 +20,7 @@ package utils
 import sge.math.{ Interpolation, Vector2 }
 import sge.scenes.scene2d.InputEvent
 import sge.scenes.scene2d.ui.ScrollPane
-import sge.utils.Timer
+import sge.utils.{ Seconds, Timer }
 
 /** Causes a scroll pane to scroll when a drag goes outside the bounds of the scroll pane. Attach the listener to the actor which will cause scrolling when dragged, usually the scroll pane or the
   * scroll pane's actor. <p> If {@link ScrollPane#setFlickScroll(boolean)} is true, the scroll pane must have {@link ScrollPane#setCancelTouchFocus(boolean)} false. When a drag starts that should drag
@@ -35,7 +35,7 @@ class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
   var interpolation: Interpolation = Interpolation.exp5In
   var minSpeed:      Float         = 15
   var maxSpeed:      Float         = 75
-  var tickSecs:      Float         = 0.05f
+  var tickSecs:      Seconds       = Seconds(0.05f)
   var startTime:     Long          = 0
   var rampTime:      Long          = 1750
   var padTop:        Float         = 0
@@ -54,7 +54,7 @@ class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
   def setup(minSpeedPixels: Float, maxSpeedPixels: Float, tickSecs: Float, rampSecs: Float): Unit = {
     this.minSpeed = minSpeedPixels
     this.maxSpeed = maxSpeedPixels
-    this.tickSecs = tickSecs
+    this.tickSecs = Seconds(tickSecs)
     rampTime = (rampSecs * 1000).toLong
   }
 

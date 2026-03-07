@@ -16,7 +16,7 @@ package scene2d
 package actions
 
 import sge.scenes.scene2d.utils.Layout
-import sge.utils.{ Nullable, SgeError }
+import sge.utils.{ Nullable, Seconds, SgeError }
 
 /** Sets an actor's layout to enabled or disabled. The actor must implement Layout.
   * @author
@@ -32,7 +32,7 @@ class LayoutAction extends Action {
     super.setTarget(actor)
   }
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach { t =>
       t.asInstanceOf[Layout].setLayoutEnabled(enabled)
     }

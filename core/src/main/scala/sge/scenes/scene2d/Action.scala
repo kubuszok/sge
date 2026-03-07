@@ -17,8 +17,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.Nullable
-import sge.utils.Pool
+import sge.utils.{ Nullable, Pool, Seconds }
 
 /** Actions attach to an {@link Actor} and perform some task, often over time.
   * @author
@@ -44,7 +43,7 @@ abstract class Action extends Pool.Poolable {
     * @return
     *   true if the action is done. This method may continue to be called after the action is done.
     */
-  def act(delta: Float): Boolean
+  def act(delta: Seconds): Boolean
 
   /** Sets the state of the action so it can be run again. */
   def restart(): Unit = {}

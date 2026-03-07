@@ -42,7 +42,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
     this(
       BitmapFontData(fontFile, false),
       region.map { r =>
@@ -50,9 +50,8 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) = {
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
     this(
       BitmapFontData(fontFile, flip),
       region.map { r =>
@@ -60,15 +59,12 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
-  }
 
-  def this(fontFile: FileHandle)(using Sge) = {
+  def this(fontFile: FileHandle)(using Sge) =
     this(fontFile, Nullable.empty[TextureRegion])
-  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using Sge) = {
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
     this(BitmapFontData(fontFile, flip), Nullable.empty, true)
-  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
     this(
@@ -283,11 +279,12 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
 
     val reader = new BufferedReader(new InputStreamReader(fontFile.read()), 512)
     try {
-      var line = reader.readLine() // info
-      if (line == null) throw SgeError.InvalidInput("File is empty.")
+      val infoLine = Nullable(reader.readLine()).getOrElse { // info
+        throw SgeError.InvalidInput("File is empty.")
+      }
 
-      line = line.substring(line.indexOf("padding=") + 8)
-      val padding = line.substring(0, line.indexOf(' ')).split(",", 4)
+      val paddingStr = infoLine.substring(infoLine.indexOf("padding=") + 8)
+      val padding    = paddingStr.substring(0, paddingStr.indexOf(' ')).split(",", 4)
       if (padding.length != 4) throw SgeError.InvalidInput("Invalid padding.")
       padTop = Integer.parseInt(padding(0)).toFloat
       padRight = Integer.parseInt(padding(1)).toFloat
@@ -295,9 +292,10 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
       padLeft = Integer.parseInt(padding(3)).toFloat
       val padY = padTop + padBottom
 
-      line = reader.readLine()
-      if (line == null) throw SgeError.InvalidInput("Missing common header.")
-      val common = line.split(" ", 9)
+      val commonLine = Nullable(reader.readLine()).getOrElse {
+        throw SgeError.InvalidInput("Missing common header.")
+      }
+      val common = commonLine.split(" ", 9)
 
       if (common.length < 3) throw SgeError.InvalidInput("Invalid common header.")
 
@@ -320,10 +318,11 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
 
       // Read each page definition.
       for (p <- 0 until pageCount) {
-        line = reader.readLine()
-        if (line == null) throw SgeError.InvalidInput("Missing additional page definitions.")
+        val pageLine = Nullable(reader.readLine()).getOrElse {
+          throw SgeError.InvalidInput("Missing additional page definitions.")
+        }
 
-        var matcher = Pattern.compile(".*id=(\\d+)").matcher(line)
+        var matcher = Pattern.compile(".*id=(\\d+)").matcher(pageLine)
         if (matcher.find()) {
           val id = matcher.group(1)
           try {
@@ -335,7 +334,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
           }
         }
 
-        matcher = Pattern.compile(".*file=\"?([^\"]+)\"?").matcher(line)
+        matcher = Pattern.compile(".*file=\"?([^\"]+)\"?").matcher(pageLine)
         if (!matcher.find()) throw SgeError.InvalidInput("Missing: file")
         val fileName = matcher.group(1)
 
@@ -343,81 +342,86 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
       }
       descent = 0
 
-      var keepParsing = true
-      while (keepParsing) {
-        line = reader.readLine()
-        if (line == null) { keepParsing = false }
-        else if (line.startsWith("kernings ")) { keepParsing = false }
-        else if (line.startsWith("metrics ")) { keepParsing = false }
-        else if (line.startsWith("char ")) {
-          val glyph = BitmapFont.Glyph()
+      var lastLine: Nullable[String] = Nullable.empty
+      boundary {
+        while (true) {
+          val line = Nullable(reader.readLine()).getOrElse(break())
+          if (line.startsWith("kernings ") || line.startsWith("metrics ")) {
+            lastLine = Nullable(line)
+            break()
+          } else if (line.startsWith("char ")) {
+            val glyph = BitmapFont.Glyph()
 
-          val tokens = new StringTokenizer(line, " =")
-          tokens.nextToken()
-          tokens.nextToken()
-          val ch = Integer.parseInt(tokens.nextToken())
-          if (ch <= 0) {
-            missingGlyph = Nullable(glyph)
-          } else if (ch <= Character.MAX_VALUE) {
-            setGlyph(ch, glyph)
-          } else {
-            // skip — continue to next iteration
-          }
-          if (ch <= Character.MAX_VALUE) {
-            glyph.id = ch
+            val tokens = new StringTokenizer(line, " =")
             tokens.nextToken()
-            glyph.srcX = Integer.parseInt(tokens.nextToken())
             tokens.nextToken()
-            glyph.srcY = Integer.parseInt(tokens.nextToken())
-            tokens.nextToken()
-            glyph.width = Integer.parseInt(tokens.nextToken())
-            tokens.nextToken()
-            glyph.height = Integer.parseInt(tokens.nextToken())
-            tokens.nextToken()
-            glyph.xoffset = Integer.parseInt(tokens.nextToken())
-            tokens.nextToken()
-            if (flip) {
-              glyph.yoffset = Integer.parseInt(tokens.nextToken())
+            val ch = Integer.parseInt(tokens.nextToken())
+            if (ch <= 0) {
+              missingGlyph = Nullable(glyph)
+            } else if (ch <= Character.MAX_VALUE) {
+              setGlyph(ch, glyph)
             } else {
-              glyph.yoffset = -(glyph.height + Integer.parseInt(tokens.nextToken()))
+              // skip — continue to next iteration
             }
-            tokens.nextToken()
-            glyph.xadvance = Integer.parseInt(tokens.nextToken())
-
-            // Check for page safely, it could be omitted or invalid.
-            if (tokens.hasMoreTokens()) tokens.nextToken()
-            if (tokens.hasMoreTokens()) {
-              try
-                glyph.page = Integer.parseInt(tokens.nextToken())
-              catch {
-                case _: NumberFormatException =>
+            if (ch <= Character.MAX_VALUE) {
+              glyph.id = ch
+              tokens.nextToken()
+              glyph.srcX = Integer.parseInt(tokens.nextToken())
+              tokens.nextToken()
+              glyph.srcY = Integer.parseInt(tokens.nextToken())
+              tokens.nextToken()
+              glyph.width = Integer.parseInt(tokens.nextToken())
+              tokens.nextToken()
+              glyph.height = Integer.parseInt(tokens.nextToken())
+              tokens.nextToken()
+              glyph.xoffset = Integer.parseInt(tokens.nextToken())
+              tokens.nextToken()
+              if (flip) {
+                glyph.yoffset = Integer.parseInt(tokens.nextToken())
+              } else {
+                glyph.yoffset = -(glyph.height + Integer.parseInt(tokens.nextToken()))
               }
-            }
+              tokens.nextToken()
+              glyph.xadvance = Integer.parseInt(tokens.nextToken())
 
-            if (glyph.width > 0 && glyph.height > 0) descent = Math.min(baseLine + glyph.yoffset, descent)
+              // Check for page safely, it could be omitted or invalid.
+              if (tokens.hasMoreTokens()) tokens.nextToken()
+              if (tokens.hasMoreTokens()) {
+                try
+                  glyph.page = Integer.parseInt(tokens.nextToken())
+                catch {
+                  case _: NumberFormatException =>
+                }
+              }
+
+              if (glyph.width > 0 && glyph.height > 0) descent = Math.min(baseLine + glyph.yoffset, descent)
+            }
           }
         }
       }
       descent += padBottom
 
-      // Parse kernings
-      var keepParsingKernings = true
-      while (keepParsingKernings) {
-        line = reader.readLine()
-        if (line == null) { keepParsingKernings = false }
-        else if (!line.startsWith("kerning ")) { keepParsingKernings = false }
-        else {
-          val tokens = new StringTokenizer(line, " =")
-          tokens.nextToken()
-          tokens.nextToken()
-          val first = Integer.parseInt(tokens.nextToken())
-          tokens.nextToken()
-          val second = Integer.parseInt(tokens.nextToken())
-          if (first >= 0 && first <= Character.MAX_VALUE && second >= 0 && second <= Character.MAX_VALUE) {
-            getGlyph(first.toChar).foreach { glyph =>
-              tokens.nextToken()
-              val amount = Integer.parseInt(tokens.nextToken())
-              glyph.setKerning(second, amount)
+      // Parse kernings — lastLine carries the line that ended char parsing
+      if (lastLine.exists(_.startsWith("kernings "))) {
+        boundary {
+          while (true) {
+            val line = Nullable(reader.readLine()).getOrElse(break())
+            if (!line.startsWith("kerning ")) {
+              lastLine = Nullable(line)
+              break()
+            }
+            val tokens = new StringTokenizer(line, " =")
+            tokens.nextToken()
+            tokens.nextToken()
+            val first = Integer.parseInt(tokens.nextToken())
+            tokens.nextToken()
+            val second = Integer.parseInt(tokens.nextToken())
+            if (first >= 0 && first <= Character.MAX_VALUE && second >= 0 && second <= Character.MAX_VALUE) {
+              getGlyph(first.toChar).foreach { glyph =>
+                tokens.nextToken()
+                val amount = Integer.parseInt(tokens.nextToken())
+                glyph.setKerning(second, amount)
+              }
             }
           }
         }
@@ -433,9 +437,9 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
       var overrideXHeight    = 0f
 
       // Metrics override
-      if (line != null && line.startsWith("metrics ")) {
+      lastLine.filter(_.startsWith("metrics ")).foreach { metricsLine =>
         hasMetricsOverride = true
-        val tokens = new StringTokenizer(line, " =")
+        val tokens = new StringTokenizer(metricsLine, " =")
         tokens.nextToken()
         tokens.nextToken()
         overrideAscent = java.lang.Float.parseFloat(tokens.nextToken())

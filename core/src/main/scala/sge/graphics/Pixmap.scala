@@ -391,11 +391,11 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     gdx2dPixmap.setPixel(x, y, color)
 
   /** Releases all resources associated with this Pixmap. */
-  override def close(): Unit = {
-    if (disposed) return // already disposed
-    gdx2dPixmap.close()
-    disposed = true
-  }
+  override def close(): Unit =
+    if (!disposed) {
+      gdx2dPixmap.close()
+      disposed = true
+    }
 
   def isDisposed: Boolean = disposed
 }

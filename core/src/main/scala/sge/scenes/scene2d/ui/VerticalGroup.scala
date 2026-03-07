@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Align opaque type; Nullable[DynamicArray[Float]] for columnSizes (lazy init)
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getReverse, getSpace, getWrapSpace, getPadTop/Left/Bottom/Right, getAlign, getFill, getExpand, getWrap
+ *   Note: getXyz getters retained — fluent builder pattern (space(v), pad(v), fill(v), wrap(v)) conflicts with Scala var naming
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok

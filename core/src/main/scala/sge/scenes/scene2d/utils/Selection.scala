@@ -16,7 +16,9 @@
  * - choose requires (using Sge) for UIUtils.ctrl calls
  * - toArray uses DynamicArray.createWithMk for generic T
  * - All public API methods faithfully ported
- * - TODO: Java-style getters/setters — getLastSelected, getToggle/setToggle, getMultiple/setMultiple, getRequired/setRequired, isDisabled/setDisabled
+ * - Renames: getLastSelected → def lastSelected, getToggle/setToggle → var toggle,
+ *   getMultiple/setMultiple → var multiple, getRequired/setRequired → var required,
+ *   isDisabled/setDisabled → var disabled, getProgrammaticChangeEvents/setProgrammaticChangeEvents → var programmaticChangeEvents
  */
 package sge
 package scenes
@@ -32,15 +34,15 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   *   Nathan Sweet
   */
 class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
-  private var actor:                    Nullable[Actor]  = Nullable.empty
-  val selected:                         LinkedHashSet[T] = LinkedHashSet.empty
-  private val old:                      LinkedHashSet[T] = LinkedHashSet.empty
-  protected var _isDisabled:            Boolean          = false
-  private var toggle:                   Boolean          = false
-  protected var multiple:               Boolean          = false
-  protected var required:               Boolean          = false
-  private var programmaticChangeEvents: Boolean          = true
-  protected var lastSelected:           Nullable[T]      = Nullable.empty
+  private var actor:            Nullable[Actor]  = Nullable.empty
+  val selected:                 LinkedHashSet[T] = LinkedHashSet.empty
+  private val old:              LinkedHashSet[T] = LinkedHashSet.empty
+  protected var _isDisabled:    Boolean          = false
+  var toggle:                   Boolean          = false
+  var multiple:                 Boolean          = false
+  var required:                 Boolean          = false
+  var programmaticChangeEvents: Boolean          = true
+  protected var _lastSelected:  Nullable[T]      = Nullable.empty
 
   /** @param actor An actor to fire {@link ChangeEvent} on when the selection changes, or null. */
   def setActor(actor: Nullable[Actor]): Unit = this.actor = actor
@@ -56,7 +58,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
           if (required && selected.size == 1) ()
           else {
             selected.remove(item)
-            lastSelected = Nullable.empty
+            _lastSelected = Nullable.empty
           }
         } else {
           var modified = false
@@ -68,7 +70,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
             }
           }
           if (selected.add(item) || modified) {
-            lastSelected = Nullable(item)
+            _lastSelected = Nullable(item)
           }
         }
         if (fireChangeEvent())
@@ -115,7 +117,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else {
-        lastSelected = Nullable(item)
+        _lastSelected = Nullable(item)
         changed()
       }
       cleanup()
@@ -124,7 +126,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   def setAll(items: DynamicArray[T]): Unit = {
     var added = false
     snapshot()
-    lastSelected = Nullable.empty
+    _lastSelected = Nullable.empty
     selected.clear()
     var i = 0
     val n = items.size
@@ -137,7 +139,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else if (items.size > 0) {
-        lastSelected = Nullable(items(items.size - 1))
+        _lastSelected = Nullable(items(items.size - 1))
         changed()
       }
     }
@@ -150,7 +152,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
     else if (programmaticChangeEvents && fireChangeEvent())
       selected.remove(item)
     else {
-      lastSelected = Nullable(item)
+      _lastSelected = Nullable(item)
       changed()
     }
 
@@ -168,7 +170,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else {
-        lastSelected = Nullable(items(items.size - 1))
+        _lastSelected = Nullable(items(items.size - 1))
         changed()
       }
     }
@@ -180,7 +182,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
     else if (programmaticChangeEvents && fireChangeEvent())
       selected.add(item)
     else {
-      lastSelected = Nullable.empty
+      _lastSelected = Nullable.empty
       changed()
     }
 
@@ -198,7 +200,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else {
-        lastSelected = Nullable.empty
+        _lastSelected = Nullable.empty
         changed()
       }
     }
@@ -207,14 +209,14 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
 
   def clear(): Unit =
     if (selected.isEmpty) {
-      lastSelected = Nullable.empty
+      _lastSelected = Nullable.empty
     } else {
       snapshot()
       selected.clear()
       if (programmaticChangeEvents && fireChangeEvent())
         revert()
       else {
-        lastSelected = Nullable.empty
+        _lastSelected = Nullable.empty
         changed()
       }
       cleanup()
@@ -241,8 +243,8 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
     item.exists(selected.contains)
 
   /** Makes a best effort to return the last item selected, else returns an arbitrary item or null if the selection is empty. */
-  def getLastSelected: Nullable[T] =
-    if (lastSelected.isDefined) lastSelected
+  def lastSelected: Nullable[T] =
+    if (_lastSelected.isDefined) _lastSelected
     else if (selected.nonEmpty) Nullable(selected.head)
     else Nullable.empty
 
@@ -263,27 +265,6 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   def setDisabled(isDisabled: Boolean): Unit = this._isDisabled = isDisabled
 
   def isDisabled: Boolean = _isDisabled
-
-  def getToggle: Boolean = toggle
-
-  /** If true, prevents {@link #choose(Object)} from clearing the selection. Default is false. */
-  def setToggle(toggle: Boolean): Unit = this.toggle = toggle
-
-  def getMultiple: Boolean = multiple
-
-  /** If true, allows {@link #choose(Object)} to select multiple items. Default is false. */
-  def setMultiple(multiple: Boolean): Unit = this.multiple = multiple
-
-  def getRequired: Boolean = required
-
-  /** If true, prevents {@link #choose(Object)} from selecting none. Default is false. */
-  def setRequired(required: Boolean): Unit = this.required = required
-
-  /** If false, only {@link #choose(Object)} will fire a change event. Default is true. */
-  def setProgrammaticChangeEvents(programmaticChangeEvents: Boolean): Unit =
-    this.programmaticChangeEvents = programmaticChangeEvents
-
-  def getProgrammaticChangeEvents: Boolean = programmaticChangeEvents
 
   override def toString: String = selected.toString
 }

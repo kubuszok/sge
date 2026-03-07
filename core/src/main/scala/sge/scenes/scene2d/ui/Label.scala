@@ -6,7 +6,7 @@
  *
  * Migration notes:
  *   TODO: direct Color.a mutation — update when Color becomes immutable
- *   TODO: Java-style getters/setters — getText/setText, getWrap/setWrap, getLabelAlign, getFontScaleX/Y, getGlyphLayout, getStyle/setStyle
+ *   Fixes: Removed redundant Java-style getters/setters (getGlyphLayout removed — field accessible, getWrap→wrap property, getLabelAlign/getLineAlign→labelAlign/lineAlign properties, getFontScaleX/Y→fontScaleX/Y properties, getBitmapFontCache→bitmapFontCache; style via Styleable; getText retained — constructor param name conflict)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -29,19 +29,19 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   import Label._
 
   private var _style:           Label.LabelStyle   = scala.compiletime.uninitialized
-  private val glyphLayout:      GlyphLayout        = GlyphLayout()
+  val glyphLayout:              GlyphLayout        = GlyphLayout()
   private var prefWidth:        Float              = 0
   private var prefHeight:       Float              = 0
   private val _text:            DynamicArray[Char] = DynamicArray[Char]()
   private var intValue:         Int                = Int.MinValue
-  private var cache:            BitmapFontCache    = scala.compiletime.uninitialized
-  private var labelAlign:       Align              = Align.left
-  private var lineAlign:        Align              = Align.left
-  private var wrap:             Boolean            = false
+  private var _cache:           BitmapFontCache    = scala.compiletime.uninitialized
+  private var _labelAlign:      Align              = Align.left
+  private var _lineAlign:       Align              = Align.left
+  private var _wrap:            Boolean            = false
   private var lastPrefHeight:   Float              = 0
   private var prefSizeInvalid:  Boolean            = true
-  private var fontScaleX:       Float              = 1
-  private var fontScaleY:       Float              = 1
+  private var _fontScaleX:      Float              = 1
+  private var _fontScaleY:      Float              = 1
   private var fontScaleChanged: Boolean            = false
   private var ellipsis:         Nullable[String]   = Nullable.empty
 
@@ -70,7 +70,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   override def setStyle(style: Label.LabelStyle): Unit = {
     this._style = style
 
-    cache = style.font.newFontCache()
+    _cache = style.font.newFontCache()
     invalidateHierarchy()
   }
 
@@ -138,12 +138,12 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   }
 
   private def scaleAndComputePrefSize(): Unit = {
-    val font      = cache.font
+    val font      = _cache.font
     val oldScaleX = font.scaleX
     val oldScaleY = font.scaleY
     if (fontScaleChanged) {
-      font.data.scaleX = fontScaleX
-      font.data.scaleY = fontScaleY
+      font.data.scaleX = _fontScaleX
+      font.data.scaleY = _fontScaleY
     }
 
     computePrefSize(Label.prefSizeLayout)
@@ -157,29 +157,29 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   protected def computePrefSize(layout: GlyphLayout): Unit = {
     prefSizeInvalid = false
     val textStr = new String(_text.toArray)
-    if (wrap && ellipsis.isEmpty) {
+    if (_wrap && ellipsis.isEmpty) {
       var width = this.width
       _style.background.foreach { bg =>
-        width = Math.max(width, bg.getMinWidth) - bg.getLeftWidth - bg.getRightWidth
+        width = Math.max(width, bg.minWidth) - bg.leftWidth - bg.rightWidth
       }
-      layout.setText(cache.font, textStr, Color.WHITE, width, Align.left.asInstanceOf[Int], true)
+      layout.setText(_cache.font, textStr, Color.WHITE, width, Align.left.asInstanceOf[Int], true)
     } else {
-      layout.setText(cache.font, textStr)
+      layout.setText(_cache.font, textStr)
     }
     prefWidth = layout.width
     prefHeight = layout.height
   }
 
   override def layout(): Unit = {
-    val font      = cache.font
+    val font      = _cache.font
     val oldScaleX = font.scaleX
     val oldScaleY = font.scaleY
     if (fontScaleChanged) {
-      font.data.scaleX = fontScaleX
-      font.data.scaleY = fontScaleY
+      font.data.scaleX = _fontScaleX
+      font.data.scaleY = _fontScaleY
     }
 
-    val doWrap = this.wrap && ellipsis.isEmpty
+    val doWrap = this._wrap && ellipsis.isEmpty
     if (doWrap) {
       val ph = getPrefHeight
       if (ph != lastPrefHeight) {
@@ -194,10 +194,10 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     var x          = 0f
     var y          = 0f
     background.foreach { bg =>
-      x = bg.getLeftWidth
-      y = bg.getBottomHeight
-      width -= bg.getLeftWidth + bg.getRightWidth
-      height -= bg.getBottomHeight + bg.getTopHeight
+      x = bg.leftWidth
+      y = bg.bottomHeight
+      width -= bg.leftWidth + bg.rightWidth
+      height -= bg.bottomHeight + bg.topHeight
     }
 
     val textStr = new String(_text.toArray)
@@ -206,12 +206,12 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     var textHeight: Float = 0
     if (doWrap || _text.contains('\n')) {
       // If the text can span multiple lines, determine the text's actual size so it can be aligned within the label.
-      layout.setText(font, textStr, 0, textStr.length, Color.WHITE, width, lineAlign.asInstanceOf[Int], doWrap, ellipsis)
+      layout.setText(font, textStr, 0, textStr.length, Color.WHITE, width, _lineAlign.asInstanceOf[Int], doWrap, ellipsis)
       textWidth = layout.width
       textHeight = layout.height
 
-      if (!labelAlign.isLeft) {
-        if (labelAlign.isRight)
+      if (!_labelAlign.isLeft) {
+        if (_labelAlign.isRight)
           x += width - textWidth
         else
           x += (width - textWidth) / 2
@@ -221,19 +221,19 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
       textHeight = font.data.capHeight
     }
 
-    if (labelAlign.isTop) {
-      y += (if (cache.font.flipped) 0 else height - textHeight)
+    if (_labelAlign.isTop) {
+      y += (if (_cache.font.flipped) 0 else height - textHeight)
       y += _style.font.descent
-    } else if (labelAlign.isBottom) {
-      y += (if (cache.font.flipped) height - textHeight else 0)
+    } else if (_labelAlign.isBottom) {
+      y += (if (_cache.font.flipped) height - textHeight else 0)
       y -= _style.font.descent
     } else {
       y += (height - textHeight) / 2
     }
-    if (!cache.font.flipped) y += textHeight
+    if (!_cache.font.flipped) y += textHeight
 
-    layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, lineAlign.asInstanceOf[Int], doWrap, ellipsis)
-    cache.setText(layout, x, y)
+    layout.setText(font, textStr, 0, textStr.length, Color.WHITE, textWidth, _lineAlign.asInstanceOf[Int], doWrap, ellipsis)
+    _cache.setText(layout, x, y)
 
     if (fontScaleChanged) {
       font.data.scaleX = oldScaleX
@@ -252,9 +252,9 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     _style.fontColor.foreach { fc =>
       c.mul(fc)
     }
-    cache.tint(c)
-    cache.setPosition(x, y)
-    cache.draw(batch)
+    _cache.tint(c)
+    _cache.setPosition(x, y)
+    _cache.draw(batch)
   }
 
   override def getPrefWidth: Float =
@@ -263,7 +263,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
       if (prefSizeInvalid) scaleAndComputePrefSize()
       var width = prefWidth
       _style.background.foreach { bg =>
-        width = Math.max(width + bg.getLeftWidth + bg.getRightWidth, bg.getMinWidth)
+        width = Math.max(width + bg.leftWidth + bg.rightWidth, bg.minWidth)
       }
       width
     }
@@ -271,31 +271,32 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   override def getPrefHeight: Float = {
     if (prefSizeInvalid) scaleAndComputePrefSize()
     var descentScaleCorrection = 1f
-    if (fontScaleChanged) descentScaleCorrection = fontScaleY / _style.font.scaleY
+    if (fontScaleChanged) descentScaleCorrection = _fontScaleY / _style.font.scaleY
     var height = prefHeight - _style.font.descent * descentScaleCorrection * 2
     _style.background.foreach { bg =>
-      height = Math.max(height + bg.getTopHeight + bg.getBottomHeight, bg.getMinHeight)
+      height = Math.max(height + bg.topHeight + bg.bottomHeight, bg.minHeight)
     }
     height
   }
 
-  def getGlyphLayout: GlyphLayout = glyphLayout
+  def wrap: Boolean = _wrap
 
   /** If false, the text will only wrap where it contains newlines (\n). The preferred size of the label will be the text bounds. If true, the text will word wrap using the width of the label. The
     * preferred width of the label will be 0, it is expected that something external will set the width of the label. Wrapping will not occur when ellipsis is enabled. Default is false. <p> When wrap
     * is enabled, the label's preferred height depends on the width of the label. In some cases the parent of the label will need to layout twice: once to set the width of the label and a second time
     * to adjust to the label's new preferred height.
     */
-  def setWrap(wrap: Boolean): Unit = {
-    this.wrap = wrap
+  def wrap_=(wrap: Boolean): Unit = {
+    this._wrap = wrap
     invalidateHierarchy()
   }
 
-  def getWrap: Boolean = wrap
+  /** @deprecated Use `wrap = value` instead */
+  def setWrap(wrap: Boolean): Unit = this.wrap_=(wrap)
 
-  def getLabelAlign: Align = labelAlign
+  def labelAlign: Align = _labelAlign
 
-  def getLineAlign: Align = lineAlign
+  def lineAlign: Align = _lineAlign
 
   /** @param labelAlign
     *   Aligns all the text within the label (default left center).
@@ -304,35 +305,40 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     * @see
     *   Align
     */
-  def setAlignment(labelAlign: Align, lineAlign: Align = labelAlign): Unit = {
-    this.labelAlign = labelAlign
+  def setAlignment(newLabelAlign: Align): Unit =
+    setAlignment(newLabelAlign, newLabelAlign)
 
-    if (lineAlign.isLeft)
-      this.lineAlign = Align.left
-    else if (lineAlign.isRight)
-      this.lineAlign = Align.right
+  def setAlignment(newLabelAlign: Align, newLineAlign: Align): Unit = {
+    this._labelAlign = newLabelAlign
+
+    if (newLineAlign.isLeft)
+      this._lineAlign = Align.left
+    else if (newLineAlign.isRight)
+      this._lineAlign = Align.right
     else
-      this.lineAlign = Align.center
+      this._lineAlign = Align.center
 
     invalidate()
   }
 
-  def setFontScale(fontScaleX: Float, fontScaleY: Float = fontScaleX): Unit = {
+  def fontScaleX: Float = _fontScaleX
+
+  def fontScaleY: Float = _fontScaleY
+
+  def setFontScale(scale: Float): Unit = setFontScale(scale, scale)
+
+  def setFontScale(newFontScaleX: Float, newFontScaleY: Float): Unit = {
     fontScaleChanged = true
-    this.fontScaleX = fontScaleX
-    this.fontScaleY = fontScaleY
+    this._fontScaleX = newFontScaleX
+    this._fontScaleY = newFontScaleY
     invalidateHierarchy()
   }
 
-  def getFontScaleX: Float = fontScaleX
+  def setFontScaleX(scaleX: Float): Unit =
+    setFontScale(scaleX, _fontScaleY)
 
-  def setFontScaleX(fontScaleX: Float): Unit =
-    setFontScale(fontScaleX, fontScaleY)
-
-  def getFontScaleY: Float = fontScaleY
-
-  def setFontScaleY(fontScaleY: Float): Unit =
-    setFontScale(fontScaleX, fontScaleY)
+  def setFontScaleY(scaleY: Float): Unit =
+    setFontScale(_fontScaleX, scaleY)
 
   /** When non-null the text will be truncated "..." if it does not fit within the width of the label. Wrapping will not occur when ellipsis is enabled. Default is false.
     */
@@ -348,7 +354,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
       this.ellipsis = Nullable.empty
 
   /** Allows subclasses to access the cache in {@link #draw(Batch, float)}. */
-  protected def getBitmapFontCache: BitmapFontCache = cache
+  protected def bitmapFontCache: BitmapFontCache = _cache
 
   override def toString: String =
     name.getOrElse {

@@ -19,7 +19,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Seconds }
 
 /** Executes an action only after all other actions on the actor at the time this action's target was set have finished.
   * @author
@@ -40,7 +40,7 @@ class AfterAction extends DelegateAction {
     waitForActions.clear()
   }
 
-  override protected def delegate(delta: Float): Boolean =
+  override protected def delegate(delta: Seconds): Boolean =
     target.forall { t =>
       val currentActions = t.getActions
       if (currentActions.size == 1) waitForActions.clear()

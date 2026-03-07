@@ -8,7 +8,7 @@
  *   Renames: isChecked() getter -> getIsChecked (avoids collision with isChecked field)
  *   Convention: null -> Nullable
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — setChecked, getClickListener, getButtonGroup, getStyle/setStyle, isPressed, isOver, isDisabled/setDisabled
+ *   Fixes: Removed redundant Java-style getters/setters (programmaticChangeEvents is public var; clickListener/buttonGroup accessed directly; isPressed/isOver/isDisabled/setDisabled/setChecked retained — have logic or implement trait)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -32,12 +32,12 @@ import sge.utils.Nullable
 class Button()(using Sge) extends Table() with Disableable with Styleable[Button.ButtonStyle] {
   import Button._
 
-  private var _style:                   ButtonStyle              = scala.compiletime.uninitialized
-  private[ui] var isChecked:            Boolean                  = false
-  private[ui] var _isDisabled:          Boolean                  = false
-  private[ui] var buttonGroup:          Nullable[ButtonGroup[?]] = Nullable.empty
-  private var clickListener:            ClickListener            = scala.compiletime.uninitialized
-  private var programmaticChangeEvents: Boolean                  = true
+  private var _style:            ButtonStyle              = scala.compiletime.uninitialized
+  private[ui] var isChecked:     Boolean                  = false
+  private[ui] var _isDisabled:   Boolean                  = false
+  private[ui] var buttonGroup:   Nullable[ButtonGroup[?]] = Nullable.empty
+  private[ui] var clickListener: ClickListener            = scala.compiletime.uninitialized
+  var programmaticChangeEvents:  Boolean                  = true
 
   initialize()
 
@@ -119,22 +119,13 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
 
   def isPressed: Boolean = clickListener.isVisualPressed
 
-  def isOver: Boolean = clickListener.isOver
-
-  def getClickListener: ClickListener = clickListener
+  def isOver: Boolean = clickListener.over
 
   override def isDisabled: Boolean = _isDisabled
 
   /** When true, the button will not toggle {@link #isChecked()} when clicked and will not fire a {@link ChangeEvent}. */
   override def setDisabled(isDisabled: Boolean): Unit =
     this._isDisabled = isDisabled
-
-  /** If false, {@link #setChecked(boolean)} and {@link #toggle()} will not fire {@link ChangeEvent}. The event will only be fired only when the user clicks the button
-    */
-  def setProgrammaticChangeEvents(programmaticChangeEvents: Boolean): Unit =
-    this.programmaticChangeEvents = programmaticChangeEvents
-
-  def getProgrammaticChangeEvents: Boolean = programmaticChangeEvents
 
   override def setStyle(style: ButtonStyle): Unit = {
     this._style = style
@@ -145,9 +136,6 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   /** Returns the button's style. Modifying the returned style may not have an effect until {@link #setStyle(ButtonStyle)} is called.
     */
   override def getStyle: ButtonStyle = _style
-
-  /** @return May be null. */
-  def getButtonGroup: Nullable[ButtonGroup[?]] = buttonGroup
 
   /** Returns appropriate background drawable from the style based on the current button state. */
   protected def getBackgroundDrawable: Nullable[Drawable] =
@@ -233,24 +221,24 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     }
 
     stage.foreach { stage =>
-      if (stage.getActionsRequestRendering && isPressed != clickListener.isPressed)
+      if (stage.getActionsRequestRendering && isPressed != clickListener.pressed)
         Sge().graphics.requestRendering()
     }
   }
 
   override def getPrefWidth: Float = {
     var width = super.getPrefWidth
-    _style.up.foreach(d => width = Math.max(width, d.getMinWidth))
-    _style.down.foreach(d => width = Math.max(width, d.getMinWidth))
-    _style.checked.foreach(d => width = Math.max(width, d.getMinWidth))
+    _style.up.foreach(d => width = Math.max(width, d.minWidth))
+    _style.down.foreach(d => width = Math.max(width, d.minWidth))
+    _style.checked.foreach(d => width = Math.max(width, d.minWidth))
     width
   }
 
   override def getPrefHeight: Float = {
     var height = super.getPrefHeight
-    _style.up.foreach(d => height = Math.max(height, d.getMinHeight))
-    _style.down.foreach(d => height = Math.max(height, d.getMinHeight))
-    _style.checked.foreach(d => height = Math.max(height, d.getMinHeight))
+    _style.up.foreach(d => height = Math.max(height, d.minHeight))
+    _style.down.foreach(d => height = Math.max(height, d.minHeight))
+    _style.checked.foreach(d => height = Math.max(height, d.minHeight))
     height
   }
 

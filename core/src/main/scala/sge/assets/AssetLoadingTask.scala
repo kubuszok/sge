@@ -33,7 +33,7 @@ class AssetLoadingTask(
   val assetDesc: AssetDescriptor[?],
   val loader:    AssetLoader[?, ?],
   val executor:  ExecutionContext,
-  val startTime: Long
+  val startTime: sge.utils.Nanos
 ) extends (() => Unit) {
 
   @volatile var asyncDone:          Boolean                                    = false
@@ -46,7 +46,7 @@ class AssetLoadingTask(
   @volatile var cancel: Boolean = false
 
   def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
-    this(manager, assetDesc, loader, threadPool, if (manager.logLevel == Logger.DEBUG) TimeUtils.nanoTime() else 0)
+    this(manager, assetDesc, loader, threadPool, if (manager.logLevel == Logger.DEBUG) TimeUtils.nanoTime() else sge.utils.Nanos.zero)
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {

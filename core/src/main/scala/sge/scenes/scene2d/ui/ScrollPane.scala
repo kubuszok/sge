@@ -8,7 +8,7 @@
  *   Renames: cancelTouchFocus() method -> cancelTouchFocusMethod() (avoids collision with cancelTouchFocus Boolean field)
  *   Convention: null -> Nullable; (using Sge) context; Interpolation.fade SAM; boundary/break
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — ~50+ methods: getScrollX/Y, setScrollX/Y, getVisualScrollX/Y, getScrollPercentX/Y, isScrollX/Y, isDragging, isPanning, etc.
+ *   Note: Java-style getters/setters retained — ~50 methods with complex state coordination; converting would be a large refactor
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -412,10 +412,10 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     var bgTopHeight    = 0f
     var bgBottomHeight = 0f
     bg.foreach { b =>
-      bgLeftWidth = b.getLeftWidth
-      bgRightWidth = b.getRightWidth
-      bgTopHeight = b.getTopHeight
-      bgBottomHeight = b.getBottomHeight
+      bgLeftWidth = b.leftWidth
+      bgRightWidth = b.rightWidth
+      bgTopHeight = b.topHeight
+      bgBottomHeight = b.bottomHeight
     }
     val width  = this.width
     val height = this.height
@@ -425,10 +425,10 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     else {
       var scrollbarHeight = 0f
       var scrollbarWidth  = 0f
-      hScrollKnob.foreach { hsk => scrollbarHeight = hsk.getMinHeight }
-      _style.hScroll.foreach { hs => scrollbarHeight = Math.max(scrollbarHeight, hs.getMinHeight) }
-      vScrollKnob.foreach { vsk => scrollbarWidth = vsk.getMinWidth }
-      _style.vScroll.foreach { vs => scrollbarWidth = Math.max(scrollbarWidth, vs.getMinWidth) }
+      hScrollKnob.foreach { hsk => scrollbarHeight = hsk.minHeight }
+      _style.hScroll.foreach { hs => scrollbarHeight = Math.max(scrollbarHeight, hs.minHeight) }
+      vScrollKnob.foreach { vsk => scrollbarWidth = vsk.minWidth }
+      _style.vScroll.foreach { vs => scrollbarWidth = Math.max(scrollbarWidth, vs.minWidth) }
 
       // Get actor's desired width.
       var actorWidth:  Float = 0f
@@ -490,11 +490,11 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
           }
 
           if (variableSizeKnobs)
-            hKnobBounds.width = Math.max(hsk.getMinWidth, (hScrollBounds.width * actorArea.width / actorWidth).toInt.toFloat)
+            hKnobBounds.width = Math.max(hsk.minWidth, (hScrollBounds.width * actorArea.width / actorWidth).toInt.toFloat)
           else
-            hKnobBounds.width = hsk.getMinWidth
+            hKnobBounds.width = hsk.minWidth
           if (hKnobBounds.width > actorWidth) hKnobBounds.width = 0
-          hKnobBounds.height = hsk.getMinHeight
+          hKnobBounds.height = hsk.minHeight
           hKnobBounds.x = hScrollBounds.x + ((hScrollBounds.width - hKnobBounds.width) * getScrollPercentX).toInt.toFloat
           hKnobBounds.y = hScrollBounds.y
         }
@@ -512,13 +512,13 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
             if (hScrollOnBottom) vScrollBounds.y += scrollbarHeight
           }
 
-          vKnobBounds.width = vsk.getMinWidth
+          vKnobBounds.width = vsk.minWidth
           if (variableSizeKnobs)
-            vKnobBounds.height = Math.max(vsk.getMinHeight, (vScrollBounds.height * actorArea.height / actorHeight).toInt.toFloat)
+            vKnobBounds.height = Math.max(vsk.minHeight, (vScrollBounds.height * actorArea.height / actorHeight).toInt.toFloat)
           else
-            vKnobBounds.height = vsk.getMinHeight
+            vKnobBounds.height = vsk.minHeight
           if (vKnobBounds.height > actorHeight) vKnobBounds.height = 0
-          vKnobBounds.x = if (vScrollOnRight) width - bgRightWidth - vsk.getMinWidth else bgLeftWidth
+          vKnobBounds.x = if (vScrollOnRight) width - bgRightWidth - vsk.minWidth else bgLeftWidth
           vKnobBounds.y = vScrollBounds.y + ((vScrollBounds.height - vKnobBounds.height) * (1 - getScrollPercentY)).toInt.toFloat
         }
       }
@@ -643,13 +643,13 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
     _style.background.foreach { background =>
-      width = Math.max(width + background.getLeftWidth + background.getRightWidth, background.getMinWidth)
+      width = Math.max(width + background.leftWidth + background.rightWidth, background.minWidth)
     }
 
     if (scrollY) {
       var scrollbarWidth = 0f
-      _style.vScrollKnob.foreach { vsk => scrollbarWidth = vsk.getMinWidth }
-      _style.vScroll.foreach { vs => scrollbarWidth = Math.max(scrollbarWidth, vs.getMinWidth) }
+      _style.vScrollKnob.foreach { vsk => scrollbarWidth = vsk.minWidth }
+      _style.vScroll.foreach { vs => scrollbarWidth = Math.max(scrollbarWidth, vs.minWidth) }
       width += scrollbarWidth
     }
     width
@@ -663,13 +663,13 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
     _style.background.foreach { background =>
-      height = Math.max(height + background.getTopHeight + background.getBottomHeight, background.getMinHeight)
+      height = Math.max(height + background.topHeight + background.bottomHeight, background.minHeight)
     }
 
     if (scrollX) {
       var scrollbarHeight = 0f
-      _style.hScrollKnob.foreach { hsk => scrollbarHeight = hsk.getMinHeight }
-      _style.hScroll.foreach { hs => scrollbarHeight = Math.max(scrollbarHeight, hs.getMinHeight) }
+      _style.hScrollKnob.foreach { hsk => scrollbarHeight = hsk.minHeight }
+      _style.hScroll.foreach { hs => scrollbarHeight = Math.max(scrollbarHeight, hs.minHeight) }
       height += scrollbarHeight
     }
     height
@@ -891,8 +891,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     if (!scrollX) 0
     else {
       var height = 0f
-      _style.hScrollKnob.foreach { hsk => height = hsk.getMinHeight }
-      _style.hScroll.foreach { hs => height = Math.max(height, hs.getMinHeight) }
+      _style.hScrollKnob.foreach { hsk => height = hsk.minHeight }
+      _style.hScroll.foreach { hs => height = Math.max(height, hs.minHeight) }
       height
     }
 
@@ -900,8 +900,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     if (!scrollY) 0
     else {
       var width = 0f
-      _style.vScrollKnob.foreach { vsk => width = vsk.getMinWidth }
-      _style.vScroll.foreach { vs => width = Math.max(width, vs.getMinWidth) }
+      _style.vScrollKnob.foreach { vsk => width = vsk.minWidth }
+      _style.vScroll.foreach { vs => width = Math.max(width, vs.minWidth) }
       width
     }
 

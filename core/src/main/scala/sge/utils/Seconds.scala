@@ -20,7 +20,15 @@ object Seconds {
     def +(other:  Seconds): Seconds = s + other
     def -(other:  Seconds): Seconds = s - other
     def *(scalar: Float):   Seconds = s * scalar
+    def /(other:  Seconds): Float   = s / other
+    @scala.annotation.targetName("divScalar")
+    def /(scalar: Float):   Seconds = s / scalar
+    def %(other:  Seconds): Seconds = s % other
+    def unary_-           : Seconds = -s
     def >(other:  Seconds): Boolean = s > other
+    def >=(other: Seconds): Boolean = s >= other
     def <(other:  Seconds): Boolean = s < other
+    def <=(other: Seconds): Boolean = s <= other
+    inline def abs:         Seconds = Math.abs(s)
   }
 }

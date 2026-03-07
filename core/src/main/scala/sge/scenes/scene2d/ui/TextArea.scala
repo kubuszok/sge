@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; boundary/break; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getCursorLine, getFirstLineShowing, getLinesShowing, getCursorX/Y, getLines
+ *   Fixes: Removed redundant Java-style getters/setters (cursorLine/firstLineShowing/linesShowing accessible directly; lines→lines, cursorX→cursorX, cursorY→cursorY)
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
@@ -43,7 +43,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   private[ui] var firstLineShowing: Int = 0
 
   /** Number of lines showed by the text area * */
-  private var linesShowing: Int = 0
+  private[ui] var linesShowing: Int = 0
 
   /** Variable to maintain the x offset of the cursor when moving up and down. If it's set to -1, the offset is reset * */
   private[ui] var moveOffset: Float = 0
@@ -110,13 +110,13 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       // due to how linesShowing is calculated in #sizeChanged and #getHeight() returning rounded value
       var prefHeight = Math.ceil(getStyle.font.lineHeight * prefRows).toFloat
       getStyle.background.foreach { bg =>
-        prefHeight = Math.max(prefHeight + bg.getBottomHeight + bg.getTopHeight, bg.getMinHeight)
+        prefHeight = Math.max(prefHeight + bg.bottomHeight + bg.topHeight, bg.minHeight)
       }
       prefHeight
     }
 
   /** Returns total number of lines that the text occupies * */
-  def getLines: Int =
+  def lines: Int =
     linesBreak.size / 2 + (if (newLineAtEnd()) 1 else 0)
 
   /** Returns if there's a new line at then end of the text * */
@@ -130,10 +130,10 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       cursorLine = 0
       cursor = 0
       moveOffset = -1
-    } else if (line >= getLines) {
-      val newLine = getLines - 1
+    } else if (line >= lines) {
+      val newLine = lines - 1
       cursor = _text.length()
-      if (line > getLines || newLine == cursorLine) {
+      if (line > lines || newLine == cursorLine) {
         moveOffset = -1
       }
       cursorLine = newLine
@@ -202,14 +202,14 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     // The number of lines showed must be updated whenever the height is updated
     val font            = getStyle.font
     val background      = getStyle.background
-    val availableHeight = height - background.map(bg => bg.getBottomHeight + bg.getTopHeight).getOrElse(0f)
+    val availableHeight = height - background.map(bg => bg.bottomHeight + bg.topHeight).getOrElse(0f)
     linesShowing = Math.floor(availableHeight / font.lineHeight).toInt
   }
 
   override protected def getTextY(font: BitmapFont, background: Nullable[Drawable]): Float = {
     var textY = height
     background.foreach { bg =>
-      textY = textY - bg.getTopHeight
+      textY = textY - bg.topHeight
     }
     if (font.integerPositions) textY = textY.toInt.toFloat
     textY
@@ -270,7 +270,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   }
 
   override protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit =
-    cursorPatch.draw(batch, x + getCursorX, y + getCursorY, cursorPatch.getMinWidth, font.lineHeight)
+    cursorPatch.draw(batch, x + cursorX, y + cursorY, cursorPatch.minWidth, font.lineHeight)
 
   override protected def calculateOffsets(): Unit = {
     super.calculateOffsets()
@@ -278,7 +278,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       this.lastText = Nullable(_text)
       val font         = getStyle.font
       val maxWidthLine = this.width -
-        getStyle.background.map(bg => bg.getLeftWidth + bg.getRightWidth).getOrElse(0f)
+        getStyle.background.map(bg => bg.leftWidth + bg.rightWidth).getOrElse(0f)
       linesBreak.clear()
       var lineStart = 0
       var lastSpace = 0
@@ -348,13 +348,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       || (linesBreak.items(pos + 1) == linesBreak.items(pos + 2)))
   }
 
-  def getCursorLine: Int = cursorLine
-
-  def getFirstLineShowing: Int = firstLineShowing
-
-  def getLinesShowing: Int = linesShowing
-
-  def getCursorX: Float = {
+  def cursorX: Float = {
     var textOffset = 0f
     val fontData   = getStyle.font.data
     if (!(cursor >= glyphPositions.size || cursorLine * 2 >= linesBreak.size)) {
@@ -370,7 +364,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     textOffset + fontData.cursorX
   }
 
-  def getCursorY: Float = {
+  def cursorY: Float = {
     val font = getStyle.font
     -(cursorLine - firstLineShowing + 1) * font.lineHeight
   }
@@ -391,16 +385,16 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       var adjustedHeight = height
 
       background.foreach { bg =>
-        adjustedHeight -= bg.getTopHeight
-        adjustedX -= bg.getLeftWidth
+        adjustedHeight -= bg.topHeight
+        adjustedX -= bg.leftWidth
       }
       adjustedX = Math.max(0, adjustedX)
       background.foreach { bg =>
-        adjustedY -= bg.getTopHeight
+        adjustedY -= bg.topHeight
       }
 
       cursorLine = Math.floor((adjustedHeight - adjustedY) / font.lineHeight).toInt + firstLineShowing
-      cursorLine = Math.max(0, Math.min(cursorLine, getLines - 1))
+      cursorLine = Math.max(0, Math.min(cursorLine, lines - 1))
 
       super.setCursorPosition(adjustedX, adjustedY)
       updateCurrentLine()
@@ -465,7 +459,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       }
 
     override protected def goEnd(jump: Boolean): Unit =
-      if (jump || cursorLine >= getLines) {
+      if (jump || cursorLine >= lines) {
         cursor = _text.length()
       } else if (cursorLine * 2 + 1 < linesBreak.size) {
         cursor = linesBreak(cursorLine * 2 + 1)

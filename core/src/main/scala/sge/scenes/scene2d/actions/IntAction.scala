@@ -9,7 +9,7 @@
  * Migration notes:
  *   Convention: null -> Nullable[A]; no return; split packages; braces on class
  *   Idiom: Java (int) cast -> .toInt; constructor chaining like FloatAction
- *   TODO: opaque Seconds for duration constructor param -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for duration constructor param
  *   Audited: 2026-03-03
  */
 package sge
@@ -17,7 +17,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 import sge.math.Interpolation
 
 /** An action that has an int, whose value is transitioned over time.
@@ -30,13 +30,13 @@ class IntAction(var start: Int = 0, private var _end: Int = 1) extends TemporalA
   def getEnd:           Int  = _end
   def setEnd(end: Int): Unit = _end = end
 
-  def this(start: Int, end: Int, duration: Float) = {
-    this(start, end)
+  def this(start: Int, _end: Int, duration: Seconds) = {
+    this(start, _end)
     this.duration = duration
   }
 
-  def this(start: Int, end: Int, duration: Float, interpolation: Nullable[Interpolation]) = {
-    this(start, end, duration)
+  def this(start: Int, _end: Int, duration: Seconds, interpolation: Nullable[Interpolation]) = {
+    this(start, _end, duration)
     this.interpolation = interpolation
   }
 

@@ -8,7 +8,7 @@
  *   Renames: keepWithinStage() method -> keepWithinStageMethod() (avoids collision with keepWithinStage Boolean field)
  *   Convention: null -> Nullable; (using Sge) context; boundary/break; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — setMovable, setModal, setKeepWithinStage, setResizable, isDragging, getTitleTable, getTitleLabel, getStyle/setStyle
+ *   Fixes: Removed redundant Java-style getters/setters (isMovable/isModal/keepWithinStage/isResizable/resizeBorder are public vars; titleTable/titleLabel are public vals; dragging via isDragging; style via Styleable)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -292,18 +292,10 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
     hitResult
   }
 
-  def setMovable(isMovable:               Boolean): Unit    = this.isMovable = isMovable
-  def setModal(isModal:                   Boolean): Unit    = this.isModal = isModal
-  def setKeepWithinStage(keepWithinStage: Boolean): Unit    = this.keepWithinStage = keepWithinStage
-  def setResizable(isResizable:           Boolean): Unit    = this.isResizable = isResizable
-  def setResizeBorder(resizeBorder:       Int):     Unit    = this.resizeBorder = resizeBorder
-  def isDragging:                                   Boolean = dragging
+  def isDragging: Boolean = dragging
 
   override def getPrefWidth: Float =
     Math.max(super.getPrefWidth, titleTable.getPrefWidth + getPadLeft + getPadRight)
-
-  def getTitleTable: Table = titleTable
-  def getTitleLabel: Label = titleLabel
 }
 
 object Window {

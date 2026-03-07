@@ -7,8 +7,8 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; Skin constructors present (not commented out)
  *   Idiom: split packages
- *   TODO: Java-style getters/setters -- getValue/setValue, getVisualValue, getPercent, getMinValue, getMaxValue, getStepSize, getStyle/setStyle, isAnimating, isDisabled/setDisabled
- *   TODO: opaque Seconds for animateDuration, animateTime -- see docs/improvements/opaque-types.md
+ *   Fixes: Removed redundant Java-style getters/setters (min/max/stepSize/vertical/disabled are public; getValue→value, getVisualValue→visualValue, getPercent→percent, getVisualPercent→visualPercent, isAnimating→animating, getKnobPosition removed, programmaticChangeEvents is public var; style via Styleable)
+ *   Convention: opaque Seconds for animateDuration, animateTime
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -44,17 +44,17 @@ class ProgressBar(
     with Styleable[ProgressBar.ProgressBarStyle] {
   import ProgressBar._
 
-  private var _style:                   ProgressBarStyle = scala.compiletime.uninitialized
-  private var _value:                   Float            = scala.compiletime.uninitialized
-  private var animateFromValue:         Float            = scala.compiletime.uninitialized
-  var position:                         Float            = scala.compiletime.uninitialized
-  private var animateDuration:          Float            = scala.compiletime.uninitialized
-  private var animateTime:              Float            = scala.compiletime.uninitialized
-  private var animateInterpolation:     Interpolation    = Interpolation.linear
-  private var visualInterpolation:      Interpolation    = Interpolation.linear
-  var disabled:                         Boolean          = false
-  private var round:                    Boolean          = true
-  private var programmaticChangeEvents: Boolean          = true
+  private var _style:               ProgressBarStyle  = scala.compiletime.uninitialized
+  private var _value:               Float             = scala.compiletime.uninitialized
+  private var animateFromValue:     Float             = scala.compiletime.uninitialized
+  var position:                     Float             = scala.compiletime.uninitialized
+  private var animateDuration:      sge.utils.Seconds = sge.utils.Seconds.zero
+  private var animateTime:          sge.utils.Seconds = sge.utils.Seconds.zero
+  private var animateInterpolation: Interpolation     = Interpolation.linear
+  private var visualInterpolation:  Interpolation     = Interpolation.linear
+  var disabled:                     Boolean           = false
+  private var round:                Boolean           = true
+  var programmaticChangeEvents:     Boolean           = true
 
   if (min > max) throw new IllegalArgumentException("max must be > min. min,max: " + min + ", " + max)
   if (stepSize <= 0) throw new IllegalArgumentException("stepSize must be > 0: " + stepSize)
@@ -85,8 +85,8 @@ class ProgressBar(
 
   override def act(delta: Float): Unit = {
     super.act(delta)
-    if (animateTime > 0) {
-      animateTime -= delta
+    if (animateTime > sge.utils.Seconds.zero) {
+      animateTime = animateTime - sge.utils.Seconds(delta)
       this.stage.foreach { s =>
         if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
       }
@@ -106,9 +106,9 @@ class ProgressBar(
     val by         = this.y
     var bw         = this.width
     var bh         = this.height
-    val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
-    val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
-    val percent    = getVisualPercent
+    val knobHeight = knob.map(_.minHeight).getOrElse(0f)
+    val knobWidth  = knob.map(_.minWidth).getOrElse(0f)
+    val percent    = visualPercent
 
     batch.setColor(c.r, c.g, c.b, c.a * parentAlpha)
 
@@ -116,9 +116,9 @@ class ProgressBar(
       var bgTopHeight    = 0f
       var bgBottomHeight = 0f
       bg.foreach { bgDrawable =>
-        drawRound(batch, bgDrawable, bx + (bw - bgDrawable.getMinWidth) * 0.5f, by, bgDrawable.getMinWidth, bh)
-        bgTopHeight = bgDrawable.getTopHeight
-        bgBottomHeight = bgDrawable.getBottomHeight
+        drawRound(batch, bgDrawable, bx + (bw - bgDrawable.minWidth) * 0.5f, by, bgDrawable.minWidth, bh)
+        bgTopHeight = bgDrawable.topHeight
+        bgBottomHeight = bgDrawable.bottomHeight
         bh -= bgTopHeight + bgBottomHeight
       }
 
@@ -128,21 +128,21 @@ class ProgressBar(
 
       val knobHeightHalf = knobHeight * 0.5f
       knobBefore.foreach { kb =>
-        drawRound(batch, kb, bx + (bw - kb.getMinWidth) * 0.5f, by + bgBottomHeight, kb.getMinWidth, beforeHeight + knobHeightHalf)
+        drawRound(batch, kb, bx + (bw - kb.minWidth) * 0.5f, by + bgBottomHeight, kb.minWidth, beforeHeight + knobHeightHalf)
       }
       knobAfter.foreach { ka =>
         drawRound(
           batch,
           ka,
-          bx + (bw - ka.getMinWidth) * 0.5f,
+          bx + (bw - ka.minWidth) * 0.5f,
           by + position + knobHeightHalf,
-          ka.getMinWidth,
+          ka.minWidth,
           total - (if (round) Math.ceil((beforeHeight - knobHeightHalf).toDouble).toFloat else beforeHeight - knobHeightHalf)
         )
       }
       currentKnob.foreach { ck =>
-        val w = ck.getMinWidth
-        val h = ck.getMinHeight
+        val w = ck.minWidth
+        val h = ck.minHeight
         drawRound(batch, ck, bx + (bw - w) * 0.5f, by + position + (knobHeight - h) * 0.5f, w, h)
       }
     } else {
@@ -153,12 +153,12 @@ class ProgressBar(
           batch,
           bgDrawable,
           bx,
-          Math.round(by + (bh - bgDrawable.getMinHeight) * 0.5f).toFloat,
+          Math.round(by + (bh - bgDrawable.minHeight) * 0.5f).toFloat,
           bw,
-          Math.round(bgDrawable.getMinHeight).toFloat
+          Math.round(bgDrawable.minHeight).toFloat
         )
-        bgLeftWidth = bgDrawable.getLeftWidth
-        bgRightWidth = bgDrawable.getRightWidth
+        bgLeftWidth = bgDrawable.leftWidth
+        bgRightWidth = bgDrawable.rightWidth
         bw -= bgLeftWidth + bgRightWidth
       }
 
@@ -168,21 +168,21 @@ class ProgressBar(
 
       val knobWidthHalf = knobWidth * 0.5f
       knobBefore.foreach { kb =>
-        drawRound(batch, kb, bx + bgLeftWidth, by + (bh - kb.getMinHeight) * 0.5f, beforeWidth + knobWidthHalf, kb.getMinHeight)
+        drawRound(batch, kb, bx + bgLeftWidth, by + (bh - kb.minHeight) * 0.5f, beforeWidth + knobWidthHalf, kb.minHeight)
       }
       knobAfter.foreach { ka =>
         drawRound(
           batch,
           ka,
           bx + position + knobWidthHalf,
-          by + (bh - ka.getMinHeight) * 0.5f,
+          by + (bh - ka.minHeight) * 0.5f,
           total - (if (round) Math.ceil((beforeWidth - knobWidthHalf).toDouble).toFloat else beforeWidth - knobWidthHalf),
-          ka.getMinHeight
+          ka.minHeight
         )
       }
       currentKnob.foreach { ck =>
-        val w = ck.getMinWidth
-        val h = ck.getMinHeight
+        val w = ck.minWidth
+        val h = ck.minHeight
         drawRound(batch, ck, bx + position + (knobWidth - w) * 0.5f, by + (bh - h) * 0.5f, w, h)
       }
     }
@@ -202,24 +202,24 @@ class ProgressBar(
     drawable.draw(batch, dx, dy, dw, dh)
   }
 
-  def getValue: Float = _value
+  def value: Float = _value
 
   /** If {@link #setAnimateDuration(float) animating} the progress bar value, this returns the value current displayed. */
-  def getVisualValue: Float =
-    if (animateTime > 0) animateInterpolation.apply(animateFromValue, _value, 1 - animateTime / animateDuration)
+  def visualValue: Float =
+    if (animateTime > sge.utils.Seconds.zero) animateInterpolation.apply(animateFromValue, _value, 1 - (animateTime / animateDuration))
     else _value
 
   /** Sets the visual value equal to the actual value. This can be used to set the value without animating. */
   def updateVisualValue(): Unit =
-    animateTime = 0
+    animateTime = sge.utils.Seconds.zero
 
-  def getPercent: Float =
+  def percent: Float =
     if (min == max) 0
     else (_value - min) / (max - min)
 
-  def getVisualPercent: Float =
+  def visualPercent: Float =
     if (min == max) 0
-    else visualInterpolation.apply((getVisualValue - min) / (max - min))
+    else visualInterpolation.apply((visualValue - min) / (max - min))
 
   protected def getBackgroundDrawable(): Nullable[Drawable] =
     if (disabled && _style.disabledBackground.isDefined) _style.disabledBackground
@@ -237,9 +237,6 @@ class ProgressBar(
     if (disabled && _style.disabledKnobAfter.isDefined) _style.disabledKnobAfter
     else _style.knobAfter
 
-  /** Returns progress bar visual position within the range (as it was last calculated in {@link #draw(Batch, float)}). */
-  protected def getKnobPosition: Float = this.position
-
   /** Sets the progress bar position, rounded to the nearest step size and clamped to the minimum and maximum values. {@link #clamp(float)} can be overridden to allow values outside of the progress
     * bar's min/max range.
     * @return
@@ -249,7 +246,7 @@ class ProgressBar(
     val clampedValue = clamp(round(value))
     val oldValue     = this._value
     if (clampedValue == oldValue) scala.util.boundary.break(false)
-    val oldVisualValue = getVisualValue
+    val oldVisualValue = visualValue
     this._value = clampedValue
 
     if (programmaticChangeEvents) {
@@ -262,7 +259,7 @@ class ProgressBar(
       }
     }
 
-    if (animateDuration > 0) {
+    if (animateDuration > sge.utils.Seconds.zero) {
       animateFromValue = oldVisualValue
       animateTime = animateDuration
     }
@@ -298,7 +295,7 @@ class ProgressBar(
     if (vertical) {
       val knob = Nullable(_style.knob)
       val bg   = getBackgroundDrawable()
-      Math.max(knob.map(_.getMinWidth).getOrElse(0f), bg.map(_.getMinWidth).getOrElse(0f))
+      Math.max(knob.map(_.minWidth).getOrElse(0f), bg.map(_.minWidth).getOrElse(0f))
     } else 140
 
   override def getPrefHeight: Float =
@@ -306,18 +303,12 @@ class ProgressBar(
     else {
       val knob = Nullable(_style.knob)
       val bg   = getBackgroundDrawable()
-      Math.max(knob.map(_.getMinHeight).getOrElse(0f), bg.map(_.getMinHeight).getOrElse(0f))
+      Math.max(knob.map(_.minHeight).getOrElse(0f), bg.map(_.minHeight).getOrElse(0f))
     }
-
-  def getMinValue: Float = this.min
-
-  def getMaxValue: Float = this.max
-
-  def getStepSize: Float = this.stepSize
 
   /** If > 0, changes to the progress bar value via {@link #setValue(float)} will happen over this duration in seconds. */
   def setAnimateDuration(duration: Float): Unit =
-    this.animateDuration = duration
+    this.animateDuration = sge.utils.Seconds(duration)
 
   /** Sets the interpolation to use for {@link #setAnimateDuration(float)}. */
   def setAnimateInterpolation(animateInterpolation: Interpolation): Unit =
@@ -334,19 +325,9 @@ class ProgressBar(
   override def setDisabled(isDisabled: Boolean): Unit =
     this.disabled = isDisabled
 
-  def isAnimating: Boolean = animateTime > 0
+  def animating: Boolean = animateTime > sge.utils.Seconds.zero
 
   override def isDisabled: Boolean = disabled
-
-  /** True if the progress bar is vertical, false if it is horizontal. * */
-  def isVertical: Boolean = vertical
-
-  /** If false, {@link #setValue(float)} will not fire {@link ChangeEvent}. The event will only be fired when the user changes the slider.
-    */
-  def setProgrammaticChangeEvents(programmaticChangeEvents: Boolean): Unit =
-    this.programmaticChangeEvents = programmaticChangeEvents
-
-  def getProgrammaticChangeEvents: Boolean = programmaticChangeEvents
 }
 
 object ProgressBar {

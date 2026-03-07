@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) with Sge().input.isKeyPressed; Interpolation.linear SAM trait; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getSliderStyle, getSnapToValues/setSnapToValues, isOver, isDragging
+ *   Fixes: Removed redundant Java-style getters/setters (button is public var; getSliderStyle→sliderStyle, getSnapToValues→snapToValues def, getSnapToValuesThreshold→snapToValuesThreshold def, isOver→over, setButton removed)
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
@@ -90,15 +90,15 @@ class Slider(
 
   /** Returns the slider's style. Modifying the returned style may not have an effect until {@link #setStyle(ProgressBarStyle)} is called.
     */
-  def getSliderStyle: SliderStyle = super.getStyle.asInstanceOf[SliderStyle]
+  def sliderStyle: SliderStyle = super.getStyle.asInstanceOf[SliderStyle]
 
-  def isOver: Boolean = mouseOver
+  def over: Boolean = mouseOver
 
   override protected def getBackgroundDrawable(): Nullable[Drawable] = {
     val style = super.getStyle.asInstanceOf[SliderStyle]
     if (disabled && style.disabledBackground.isDefined) style.disabledBackground
     else if (isDragging && style.backgroundDown.isDefined) style.backgroundDown
-    else if (mouseOver && style.backgroundOver.isDefined) style.backgroundOver
+    else if (over && style.backgroundOver.isDefined) style.backgroundOver
     else style.background
   }
 
@@ -106,7 +106,7 @@ class Slider(
     val style = super.getStyle.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnob.isDefined) style.disabledKnob
     else if (isDragging && style.knobDown.isDefined) style.knobDown
-    else if (mouseOver && style.knobOver.isDefined) style.knobOver
+    else if (over && style.knobOver.isDefined) style.knobOver
     else Nullable(style.knob)
   }
 
@@ -114,7 +114,7 @@ class Slider(
     val style = super.getStyle.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnobBefore.isDefined) style.disabledKnobBefore
     else if (isDragging && style.knobBeforeDown.isDefined) style.knobBeforeDown
-    else if (mouseOver && style.knobBeforeOver.isDefined) style.knobBeforeOver
+    else if (over && style.knobBeforeOver.isDefined) style.knobBeforeOver
     else style.knobBefore
   }
 
@@ -122,36 +122,36 @@ class Slider(
     val style = super.getStyle.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnobAfter.isDefined) style.disabledKnobAfter
     else if (isDragging && style.knobAfterDown.isDefined) style.knobAfterDown
-    else if (mouseOver && style.knobAfterOver.isDefined) style.knobAfterOver
+    else if (over && style.knobAfterOver.isDefined) style.knobAfterOver
     else style.knobAfter
   }
 
   private[ui] def calculatePositionAndValue(x: Float, y: Float): Boolean = {
-    val style = getSliderStyle
+    val style = sliderStyle
     val knob  = Nullable(style.knob)
     val bg    = getBackgroundDrawable()
 
     val oldPosition = position
 
-    val minVal = getMinValue
-    val maxVal = getMaxValue
+    val minVal = min
+    val maxVal = max
 
     val value: Float = if (vertical) {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
-      val h          = height - bgDrawable.getTopHeight - bgDrawable.getBottomHeight
-      val knobHeight = knob.map(_.getMinHeight).getOrElse(0f)
-      position = y - bgDrawable.getBottomHeight - knobHeight * 0.5f
+      val h          = height - bgDrawable.topHeight - bgDrawable.bottomHeight
+      val knobHeight = knob.map(_.minHeight).getOrElse(0f)
+      position = y - bgDrawable.bottomHeight - knobHeight * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (h - knobHeight))
-      position = Math.max(Math.min(0, bgDrawable.getBottomHeight), position)
+      position = Math.max(Math.min(0, bgDrawable.bottomHeight), position)
       position = Math.min(h - knobHeight, position)
       v
     } else {
       val bgDrawable = bg.getOrElse(throw new IllegalStateException("Slider background drawable must not be null"))
-      val w          = width - bgDrawable.getLeftWidth - bgDrawable.getRightWidth
-      val knobWidth  = knob.map(_.getMinWidth).getOrElse(0f)
-      position = x - bgDrawable.getLeftWidth - knobWidth * 0.5f
+      val w          = width - bgDrawable.leftWidth - bgDrawable.rightWidth
+      val knobWidth  = knob.map(_.minWidth).getOrElse(0f)
+      position = x - bgDrawable.leftWidth - knobWidth * 0.5f
       val v = minVal + (maxVal - minVal) * visualInterpolationInverse.apply(position / (w - knobWidth))
-      position = Math.max(Math.min(0, bgDrawable.getLeftWidth), position)
+      position = Math.max(Math.min(0, bgDrawable.leftWidth), position)
       position = Math.min(w - knobWidth, position)
       v
     }
@@ -211,16 +211,12 @@ class Slider(
   def setSnapToValues(values: Nullable[Array[Float]], threshold: Float): Unit =
     setSnapToValues(threshold, values)
 
-  def getSnapToValues: Nullable[Array[Float]] = snapValues
+  def snapToValues: Nullable[Array[Float]] = snapValues
 
-  def getSnapToValuesThreshold: Float = threshold
+  def snapToValuesThreshold: Float = threshold
 
   /** Returns true if the slider is being dragged. */
   def isDragging: Boolean = draggingPointer != -1
-
-  /** Sets the mouse button, which can trigger a change of the slider. Is -1, so every button, by default. */
-  def setButton(button: Int): Unit =
-    this.button = button
 
   /** Sets the inverse interpolation to use for display. This should perform the inverse of the {@link #setVisualInterpolation(Interpolation) visual interpolation}.
     */

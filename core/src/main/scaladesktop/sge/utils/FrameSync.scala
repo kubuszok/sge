@@ -144,7 +144,7 @@ class FrameSync {
     * @return
     *   will return the current time in nano's
     */
-  private def getTime(): Long = TimeUtils.nanoTime()
+  private def getTime(): Long = TimeUtils.nanoTime().toLong
 }
 
 /** Fixed-size circular buffer for computing running averages of sleep/yield durations. */

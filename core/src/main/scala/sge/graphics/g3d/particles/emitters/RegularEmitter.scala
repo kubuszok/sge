@@ -18,7 +18,7 @@
  *   (fields already public var); isContinuous/setContinuous → public var continuous;
  *   getEmissionMode/setEmissionMode → public var emissionMode;
  *   getPercentComplete → percentComplete; isComplete() → isComplete (dropped parens)
- * - TODO: opaque Seconds for duration, delay vars -- see docs/improvements/opaque-types.md
+ * - Note: duration, delay are internal millisecond-based floats (from RangedNumericValue), not seconds
  */
 package sge
 package graphics
@@ -120,7 +120,7 @@ class RegularEmitter extends Emitter {
   }
 
   override def update(): Unit = {
-    val deltaMillis = controller.deltaTime * 1000
+    val deltaMillis = (controller.deltaTime * 1000).toFloat
 
     if (delayTimer < delay) {
       delayTimer += deltaMillis

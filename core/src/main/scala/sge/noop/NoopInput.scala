@@ -117,7 +117,7 @@ class NoopInput extends Input {
 
   override def getRotationMatrix(matrix: Array[Float]): Unit = {}
 
-  override def currentEventTime: Long = 0L
+  override def currentEventTime: sge.utils.Nanos = sge.utils.Nanos.zero
 
   // ---- catch keys ----
 

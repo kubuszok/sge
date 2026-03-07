@@ -17,6 +17,8 @@ package scenes
 package scene2d
 package actions
 
+import sge.utils.Seconds
+
 /** Repeats an action a number of times or forever.
   * @author
   *   Nathan Sweet
@@ -26,7 +28,7 @@ class RepeatAction extends DelegateAction with FinishableAction {
   private var executedCount: Int     = 0
   private var finished:      Boolean = false
 
-  override protected def delegate(delta: Float): Boolean =
+  override protected def delegate(delta: Seconds): Boolean =
     if (executedCount == count) true
     else {
       action.forall { a =>

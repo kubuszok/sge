@@ -3,18 +3,18 @@
 Systemic code quality issues found across the SGE codebase. These should be addressed
 during verification and idiomatization passes.
 
-Last updated: 2026-02-28
+Last updated: 2026-03-07
 
 ## Summary
 
 | Issue Type | Files Affected | Total Occurrences | Status |
 |-----------|---------------|-------------------|--------|
 | Missing license header | 0 | 0 | **Complete** (454 files) |
-| `return` keyword usage | 0 | 0 | **Complete** (53 files, 4 batches) |
-| Direct `null` checks | 0 | 0 | **Complete** (~200 files) |
+| `return` keyword usage | 0 | 0 | **Complete** (54 files, 4 batches + Pixmap) |
+| Direct `null` checks | 2 | 2 | **Complete** (only Nullable internals + 1 deferred remain) |
 | `null.asInstanceOf` | 4 | 9 | **Mostly complete** (49 removed, 9 deferred) |
 | Remaining Java syntax | 2 | 4 | **Triaged** — false positives only (`void` as method name) |
-| TODO/FIXME markers | 63 | 129 | **Triaged** (0 actionable, 82 blocked, 40 upstream, 7 info) |
+| TODO/FIXME markers | 111 | 134 | **Triaged** (all actionable resolved; ~59 opaque type, ~8 key/button, ~5 upstream, rest blocked/info) |
 | ArrayBuffer→DynamicArray | 0 | 0 | **Complete** (145 files) |
 
 ## 1. Missing License Headers — COMPLETE
@@ -131,16 +131,31 @@ in `Eval.scala` and `Resource.scala` — no code changes needed.
 
 Run `just sge-quality java_syntax` to see current occurrences.
 
-## 5. TODO/FIXME Markers (63 files, 129 occurrences) — TRIAGED
+## 5. TODO/FIXME Markers (111 files, 134 occurrences) — TRIAGED
 
-Categorized as of 2026-02-28:
+Categorized as of 2026-03-07:
 
 | Category | Markers | Files | Action |
 |----------|---------|-------|--------|
-| Upstream FIXMEs | 40 | 27 | Preserve (inherited from LibGDX source) |
-| Blocked TODOs | 82 | 36 | Waiting on dependencies (ShapeRenderer, Skin, AssetManager, etc.) |
-| Actionable TODOs | 0 | 0 | **All resolved** |
-| Informational | 7 | 7 | Future improvement notes, no action needed |
+| Typed GL enums | ~44 | ~44 | Blocked (future, see `docs/improvements/opaque-types.md`) |
+| Opaque Pixels | ~15 | ~15 | Blocked (future, see `docs/improvements/opaque-types.md`) |
+| Input.Keys/Buttons opaque type | ~8 | ~8 | Blocked (future) |
+| Upstream FIXMEs | ~5 | ~5 | Preserve (inherited from LibGDX source) |
+| Pool.Poolable type class | ~5 | ~5 | Blocked (design decision) |
+| Color immutability | ~4 | ~4 | Blocked (future) |
+| Dependencies (scribe, scala-java-time, Gears) | ~3 | ~3 | Blocked (future) |
+| Other (ComparableTimSort, Show, JsonReader) | ~5 | ~5 | Informational |
+| Java-style getters/setters | 0 | 0 | **Complete** |
+| Actionable (non-getter) | 0 | 0 | **All resolved** |
+
+**Java-style getter/setter cleanup — COMPLETE** (3 batches):
+- **Batch 1** (3 files): Image, ParticleEffectActor, ButtonGroup + callers (CheckBox,
+  ImageButton, ImageTextButton)
+- **Batch 2** (16 files): Window, Dialog, Touchpad, Slider, Button, ProgressBar, Label,
+  TextArea, Tooltip, SplitPane, VerticalGroup, TextButton, ImageTextButton, ButtonGroup,
+  ImageButton, TextTooltip
+- **Retained** (7 files): Container, Table (fluent builder pattern); ScrollPane, TextField
+  (complex state); SelectBox, SgeList, Tree (validation/events logic)
 
 **Resolved actionable TODOs** (10 markers across 6 files):
 - `ComparableTimSort.scala` (2): implemented `mergeLo`/`mergeHi`/`ensureCapacity`
@@ -157,12 +172,6 @@ Categorized as of 2026-02-28:
   `(using Sge)` + 5 flat package declarations fixed)
 - TextField.DefaultOnscreenKeyboard: 2 markers resolved (added `(using Sge)` to methods)
 - Button.requestRendering: 1 marker resolved (already working)
-
-**Remaining blocked dependency groups:**
-- Skin/UI port: 5 markers (Table)
-- Graphics/Sge trait: 7 markers (GLProfiler setGL*, FPSLogger, Game, ETC1TextureData)
-- AssetManager: 4 markers (Cubemap, PolygonRegionLoader, AssetManager)
-- ScrollPane: 5 markers (DragScrollListener)
 
 Run `just sge-quality todo` to see current occurrences.
 

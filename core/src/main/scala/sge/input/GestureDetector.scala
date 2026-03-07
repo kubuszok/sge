@@ -11,7 +11,7 @@
  *   TODOs: 0
  *   Convention: anonymous (using Sge) + Sge() accessor
  *   TODO: opaque Pixels for screen coordinate params in touch methods -- see docs/improvements/opaque-types.md
- *   TODO: opaque Seconds for tapCountInterval, longPressDuration, maxFlingDelay; opaque Nanos for internal timing -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for tapCountInterval, longPressDuration, maxFlingDelay; opaque Nanos for internal timing
  *   Audited: 2026-03-04
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -20,7 +20,7 @@ package sge
 package input
 
 import sge.math.Vector2
-import sge.utils.{ TimeUtils, Timer }
+import sge.utils.{ Nanos, Seconds, TimeUtils, Timer }
 import sge.utils.Timer.Task
 import sge.InputProcessor
 import scala.math.min
@@ -32,28 +32,28 @@ import scala.math.min
 class GestureDetector(
   halfTapRectangleWidth:  Float = 20f,
   halfTapRectangleHeight: Float = 20f,
-  tapCountInterval:       Float = 0.4f,
-  longPressDuration:      Float = 1.1f,
-  maxFlingDelay:          Float = Integer.MAX_VALUE,
+  tapCountInterval:       Seconds = Seconds(0.4f),
+  longPressDuration:      Seconds = Seconds(1.1f),
+  maxFlingDelay:          Seconds = Seconds(Integer.MAX_VALUE),
   val listener:           GestureDetector.GestureListener
 )(using Sge)
     extends InputProcessor {
 
   def this(listener: GestureDetector.GestureListener)(using Sge) =
-    this(20f, 20f, 0.4f, 1.1f, Integer.MAX_VALUE, listener)
+    this(20f, 20f, Seconds(0.4f), Seconds(1.1f), Seconds(Integer.MAX_VALUE), listener)
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Float, longPressDuration: Float, maxFlingDelay: Float, listener: GestureDetector.GestureListener)(using Sge) =
+  def this(halfTapSquareSize: Float, tapCountInterval: Seconds, longPressDuration: Seconds, maxFlingDelay: Seconds, listener: GestureDetector.GestureListener)(using Sge) =
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
 
-  private var tapRectangleWidth:     Float = halfTapRectangleWidth
-  private var tapRectangleHeight:    Float = halfTapRectangleHeight
-  private var tapCountIntervalNanos: Long  = (tapCountInterval * 1000000000L).toLong
-  private var longPressSeconds:      Float = longPressDuration
-  private var maxFlingDelayNanos:    Long  = (maxFlingDelay * 1000000000L).toLong
+  private var tapRectangleWidth:     Float   = halfTapRectangleWidth
+  private var tapRectangleHeight:    Float   = halfTapRectangleHeight
+  private var tapCountIntervalNanos: Nanos   = Nanos((tapCountInterval.toFloat * 1000000000L).toLong)
+  private var longPressSeconds:      Seconds = longPressDuration
+  private var maxFlingDelayNanos:    Nanos   = Nanos((maxFlingDelay.toFloat * 1000000000L).toLong)
 
   private var inTapRectangle: Boolean = false
   private var tapCount:       Int     = 0
-  private var lastTapTime:    Long    = 0L
+  private var lastTapTime:    Nanos   = Nanos.zero
   private var lastTapX:       Float   = 0f
   private var lastTapY:       Float   = 0f
   private var lastTapButton:  Int     = 0
@@ -65,7 +65,7 @@ class GestureDetector(
   private val tracker = GestureDetector.VelocityTracker()
   private var tapRectangleCenterX: Float = 0f
   private var tapRectangleCenterY: Float = 0f
-  private var touchDownTime:       Long  = 0L
+  private var touchDownTime:       Nanos = Nanos.zero
   val pointer1                = Vector2()
   private val pointer2        = Vector2()
   private val initialPointer1 = Vector2()
@@ -181,7 +181,7 @@ class GestureDetector(
       lastTapY = y
       lastTapButton = button
       lastTapPointer = pointer
-      touchDownTime = 0
+      touchDownTime = Nanos.zero
       scala.util.boundary.break(listener.tap(x, y, tapCount, button))
     }
 
@@ -211,7 +211,7 @@ class GestureDetector(
       tracker.update(x, y, time)
       handled = listener.fling(tracker.getVelocityX(), tracker.getVelocityY(), button) || handled
     }
-    touchDownTime = 0
+    touchDownTime = Nanos.zero
     handled
   }
 
@@ -233,18 +233,18 @@ class GestureDetector(
     * @return
     *   whether the user touched the screen for as much or more than the given duration.
     */
-  def isLongPressed(duration: Float): Boolean =
-    if (touchDownTime == 0) false
-    else TimeUtils.nanoTime() - touchDownTime > (duration * 1000000000L).toLong
+  def isLongPressed(duration: Seconds): Boolean =
+    if (touchDownTime == Nanos.zero) false
+    else TimeUtils.nanoTime() - touchDownTime > Nanos((duration.toFloat * 1000000000L).toLong)
 
   def isPanning(): Boolean = panning
 
   def reset(): Unit = {
     longPressTask.cancel()
-    touchDownTime = 0
+    touchDownTime = Nanos.zero
     panning = false
     inTapRectangle = false
-    tracker.lastTime = 0
+    tracker.lastTime = Nanos.zero
   }
 
   private def isWithinTapRectangle(x: Float, y: Float, centerX: Float, centerY: Float): Boolean =
@@ -265,13 +265,13 @@ class GestureDetector(
   /** @param tapCountInterval
     *   time in seconds that must pass for two touch down/up sequences to be detected as consecutive taps.
     */
-  def setTapCountInterval(tapCountInterval: Float): Unit =
-    this.tapCountIntervalNanos = (tapCountInterval * 1000000000L).toLong
+  def setTapCountInterval(tapCountInterval: Seconds): Unit =
+    this.tapCountIntervalNanos = Nanos((tapCountInterval.toFloat * 1000000000L).toLong)
 
-  def setLongPressSeconds(longPressSeconds: Float): Unit =
+  def setLongPressSeconds(longPressSeconds: Seconds): Unit =
     this.longPressSeconds = longPressSeconds
 
-  def setMaxFlingDelay(maxFlingDelay: Long): Unit =
+  def setMaxFlingDelay(maxFlingDelay: Nanos): Unit =
     this.maxFlingDelayNanos = maxFlingDelay
 
   // Additional methods that might be missing from InputProcessor
@@ -364,13 +364,13 @@ object GestureDetector {
     var lastY:      Float        = 0f
     var deltaX:     Float        = 0f
     var deltaY:     Float        = 0f
-    var lastTime:   Long         = 0L
+    var lastTime:   Nanos        = Nanos.zero
     var numSamples: Int          = 0
     val meanX:      Array[Float] = Array.ofDim[Float](sampleSize)
     val meanY:      Array[Float] = Array.ofDim[Float](sampleSize)
     val meanTime:   Array[Long]  = Array.ofDim[Long](sampleSize)
 
-    def start(x: Float, y: Float, timeStamp: Long): Unit = {
+    def start(x: Float, y: Float, timeStamp: Nanos): Unit = {
       lastX = x
       lastY = y
       deltaX = 0
@@ -384,12 +384,12 @@ object GestureDetector {
       lastTime = timeStamp
     }
 
-    def update(x: Float, y: Float, currTime: Long): Unit = {
+    def update(x: Float, y: Float, currTime: Nanos): Unit = {
       deltaX = x - lastX
       deltaY = y - lastY
       lastX = x
       lastY = y
-      val deltaTime = currTime - lastTime
+      val deltaTime = (currTime - lastTime).toLong
       lastTime = currTime
       val index = numSamples % sampleSize
       meanX(index) = deltaX

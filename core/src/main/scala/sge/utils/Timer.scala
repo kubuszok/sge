@@ -9,7 +9,7 @@
  *   Convention: uses `using` keyword; `timer` field uses `Option[Timer]`; `currentThread` uses `Option[TimerThread]`
  *   Idiom: split packages
  *   Fixes: LifecycleListener integration and postRunnable wiring implemented; getExecuteTimeMillis → executeTime
- *   TODO: opaque Seconds for delaySeconds/intervalSeconds params; opaque Millis for executeTimeMillis/intervalMillis/delayMillis
+ *   Convention: opaque Seconds for delaySeconds/intervalSeconds params
  *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll replaced with Thread.sleep
  *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
  *   Audited: 2026-03-03
@@ -42,18 +42,18 @@ class Timer(using sge.Sge) {
     * @param repeatCount
     *   If negative, the task will repeat forever.
     */
-  def scheduleTask(task: Task, delaySeconds: Float = 0, intervalSeconds: Float = 0, repeatCount: Int = 0): Task = {
+  def scheduleTask(task: Task, delaySeconds: Seconds = Seconds.zero, intervalSeconds: Seconds = Seconds.zero, repeatCount: Int = 0): Task = {
     threadLock.synchronized {
       this.synchronized {
         task.synchronized {
           if (task.timer.isDefined) throw new IllegalArgumentException("The same task may not be scheduled twice.")
           task.timer = Some(this)
           val timeMillis        = System.nanoTime() / 1000000
-          var executeTimeMillis = timeMillis + (delaySeconds * 1000).toLong
+          var executeTimeMillis = timeMillis + delaySeconds.toMillis
           val currentThread     = thread()
           if (currentThread.pauseTimeMillis > 0) executeTimeMillis -= timeMillis - currentThread.pauseTimeMillis
           task.executeTimeMillis = executeTimeMillis
-          task.intervalMillis = (intervalSeconds * 1000).toLong
+          task.intervalMillis = intervalSeconds.toMillis
           task.repeatCount = repeatCount
           tasks.add(task)
         }
@@ -176,21 +176,21 @@ object Timer {
     * @see
     *   Timer#scheduleTask(Task, Float)
     */
-  def schedule(task: Task, delaySeconds: Float)(using sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Seconds)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds)
 
   /** Schedules a task on {@link #instance} .
     * @see
     *   Timer#scheduleTask(Task, Float, Float, Int)
     */
-  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float)(using sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Seconds, intervalSeconds: Seconds)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds, intervalSeconds, -1)
 
   /** Schedules a task on {@link #instance} .
     * @see
     *   Timer#scheduleTask(Task, Float, Float, Int)
     */
-  def schedule(task: Task, delaySeconds: Float, intervalSeconds: Float, repeatCount: Int)(using sge.Sge): Task =
+  def schedule(task: Task, delaySeconds: Seconds, intervalSeconds: Seconds, repeatCount: Int)(using sge.Sge): Task =
     instance().scheduleTask(task, delaySeconds, intervalSeconds, repeatCount)
 
   /** Runnable that can be scheduled on a {@link Timer} .

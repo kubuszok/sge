@@ -16,7 +16,7 @@
  * - bounds: Nullable[BoundingBox] instead of BoundingBox|null
  * - setBatch uses boundary/break for inner break (Java labeled break)
  * - Java string equals() → Scala == (structural equality)
- * - TODO: opaque Seconds for update(deltaTime) param -- see docs/improvements/opaque-types.md
+ * - Convention: opaque Seconds for update(deltaTime) param
  */
 package sge
 package graphics
@@ -32,7 +32,7 @@ import sge.graphics.g3d.particles.batches.ParticleBatch
 import sge.utils.DynamicArray
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** It's a set of particles controllers. It can be updated, rendered, transformed which means the changes will be applied on all the particles controllers.
   * @author
@@ -105,7 +105,7 @@ class ParticleEffect()(using Sge) extends AutoCloseable with ResourceData.Config
     }
   }
 
-  def update(deltaTime: Float): Unit = {
+  def update(deltaTime: Seconds): Unit = {
     var i = 0
     val n = controllers.size
     while (i < n) {

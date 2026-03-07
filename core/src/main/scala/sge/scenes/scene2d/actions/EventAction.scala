@@ -17,7 +17,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Waits for an event to be fired by the target actor, then executes.
   * @author
@@ -53,7 +53,7 @@ abstract class EventAction[T <: Event](val eventClass: Class[? <: T]) extends Ac
     */
   def handle(event: T): Boolean
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     active = true
     result
   }

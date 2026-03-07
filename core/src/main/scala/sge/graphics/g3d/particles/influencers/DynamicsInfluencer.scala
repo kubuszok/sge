@@ -223,7 +223,7 @@ class DynamicsInfluencer extends Influencer {
       var i      = 0
       var offset = 0
       while (i < controller.particles.size) {
-        val rotation = angularVelocityChannel.floatData(i) * controller.deltaTime
+        val rotation = angularVelocityChannel.floatData(i) * controller.deltaTime.toFloat
         if (rotation != 0) {
           val cosBeta       = MathUtils.cosDeg(rotation)
           val sinBeta       = MathUtils.sinDeg(rotation)
@@ -249,7 +249,7 @@ class DynamicsInfluencer extends Influencer {
         val qy = rotationChannel.floatData(offset + ParticleChannels.YOffset)
         val qz = rotationChannel.floatData(offset + ParticleChannels.ZOffset)
         val qw = rotationChannel.floatData(offset + ParticleChannels.WOffset)
-        TMP_Q.set(wx, wy, wz, 0).mul(qx, qy, qz, qw).mul(0.5f * controller.deltaTime).add(qx, qy, qz, qw).nor()
+        TMP_Q.set(wx, wy, wz, 0).mul(qx, qy, qz, qw).mul(0.5f * controller.deltaTime.toFloat).add(qx, qy, qz, qw).nor()
         rotationChannel.floatData(offset + ParticleChannels.XOffset) = TMP_Q.x
         rotationChannel.floatData(offset + ParticleChannels.YOffset) = TMP_Q.y
         rotationChannel.floatData(offset + ParticleChannels.ZOffset) = TMP_Q.z

@@ -14,7 +14,7 @@
  *   Idiom: Java static init block -> top-level object statements;
  *          pool == null throw -> pool.fold(throw ...)(p => ...);
  *          @Null Interpolation -> Nullable[Interpolation]
- *   TODO: opaque Seconds for duration params in ~13 factory methods -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for duration params in factory methods
  *   Audited: 2026-03-03
  */
 package sge
@@ -24,7 +24,7 @@ package actions
 
 import sge.graphics.Color
 import sge.math.Interpolation
-import sge.utils.{ Nullable, Pool, PoolManager, SgeError }
+import sge.utils.{ Nullable, Pool, PoolManager, Seconds, SgeError }
 
 /** Static convenience methods for using pooled actions, intended for import.
   * @author
@@ -107,12 +107,12 @@ object Actions {
 
   /** Moves the actor instantly. */
   def moveTo(x: Float, y: Float): MoveToAction =
-    moveTo(x, y, 0, Nullable.empty)
+    moveTo(x, y, Seconds.zero, Nullable.empty)
 
-  def moveTo(x: Float, y: Float, duration: Float): MoveToAction =
+  def moveTo(x: Float, y: Float, duration: Seconds): MoveToAction =
     moveTo(x, y, duration, Nullable.empty)
 
-  def moveTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): MoveToAction = {
+  def moveTo(x: Float, y: Float, duration: Seconds, interpolation: Nullable[Interpolation]): MoveToAction = {
     val action = this.action(classOf[MoveToAction])
     action.setPosition(x, y)
     action.duration = duration
@@ -121,12 +121,12 @@ object Actions {
   }
 
   def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align): MoveToAction =
-    moveToAligned(x, y, alignment, 0, Nullable.empty)
+    moveToAligned(x, y, alignment, Seconds.zero, Nullable.empty)
 
-  def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align, duration: Float): MoveToAction =
+  def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align, duration: Seconds): MoveToAction =
     moveToAligned(x, y, alignment, duration, Nullable.empty)
 
-  def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align, duration: Float, interpolation: Nullable[Interpolation]): MoveToAction = {
+  def moveToAligned(x: Float, y: Float, alignment: sge.utils.Align, duration: Seconds, interpolation: Nullable[Interpolation]): MoveToAction = {
     val action = this.action(classOf[MoveToAction])
     action.setPosition(x, y, alignment)
     action.duration = duration
@@ -136,12 +136,12 @@ object Actions {
 
   /** Moves the actor instantly. */
   def moveBy(amountX: Float, amountY: Float): MoveByAction =
-    moveBy(amountX, amountY, 0, Nullable.empty)
+    moveBy(amountX, amountY, Seconds.zero, Nullable.empty)
 
-  def moveBy(amountX: Float, amountY: Float, duration: Float): MoveByAction =
+  def moveBy(amountX: Float, amountY: Float, duration: Seconds): MoveByAction =
     moveBy(amountX, amountY, duration, Nullable.empty)
 
-  def moveBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): MoveByAction = {
+  def moveBy(amountX: Float, amountY: Float, duration: Seconds, interpolation: Nullable[Interpolation]): MoveByAction = {
     val action = this.action(classOf[MoveByAction])
     action.setAmount(amountX, amountY)
     action.duration = duration
@@ -151,12 +151,12 @@ object Actions {
 
   /** Sizes the actor instantly. */
   def sizeTo(x: Float, y: Float): SizeToAction =
-    sizeTo(x, y, 0, Nullable.empty)
+    sizeTo(x, y, Seconds.zero, Nullable.empty)
 
-  def sizeTo(x: Float, y: Float, duration: Float): SizeToAction =
+  def sizeTo(x: Float, y: Float, duration: Seconds): SizeToAction =
     sizeTo(x, y, duration, Nullable.empty)
 
-  def sizeTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): SizeToAction = {
+  def sizeTo(x: Float, y: Float, duration: Seconds, interpolation: Nullable[Interpolation]): SizeToAction = {
     val action = this.action(classOf[SizeToAction])
     action.setSize(x, y)
     action.duration = duration
@@ -166,12 +166,12 @@ object Actions {
 
   /** Sizes the actor instantly. */
   def sizeBy(amountX: Float, amountY: Float): SizeByAction =
-    sizeBy(amountX, amountY, 0, Nullable.empty)
+    sizeBy(amountX, amountY, Seconds.zero, Nullable.empty)
 
-  def sizeBy(amountX: Float, amountY: Float, duration: Float): SizeByAction =
+  def sizeBy(amountX: Float, amountY: Float, duration: Seconds): SizeByAction =
     sizeBy(amountX, amountY, duration, Nullable.empty)
 
-  def sizeBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): SizeByAction = {
+  def sizeBy(amountX: Float, amountY: Float, duration: Seconds, interpolation: Nullable[Interpolation]): SizeByAction = {
     val action = this.action(classOf[SizeByAction])
     action.setAmount(amountX, amountY)
     action.duration = duration
@@ -181,12 +181,12 @@ object Actions {
 
   /** Scales the actor instantly. */
   def scaleTo(x: Float, y: Float): ScaleToAction =
-    scaleTo(x, y, 0, Nullable.empty)
+    scaleTo(x, y, Seconds.zero, Nullable.empty)
 
-  def scaleTo(x: Float, y: Float, duration: Float): ScaleToAction =
+  def scaleTo(x: Float, y: Float, duration: Seconds): ScaleToAction =
     scaleTo(x, y, duration, Nullable.empty)
 
-  def scaleTo(x: Float, y: Float, duration: Float, interpolation: Nullable[Interpolation]): ScaleToAction = {
+  def scaleTo(x: Float, y: Float, duration: Seconds, interpolation: Nullable[Interpolation]): ScaleToAction = {
     val action = this.action(classOf[ScaleToAction])
     action.setScale(x, y)
     action.duration = duration
@@ -196,12 +196,12 @@ object Actions {
 
   /** Scales the actor instantly. */
   def scaleBy(amountX: Float, amountY: Float): ScaleByAction =
-    scaleBy(amountX, amountY, 0, Nullable.empty)
+    scaleBy(amountX, amountY, Seconds.zero, Nullable.empty)
 
-  def scaleBy(amountX: Float, amountY: Float, duration: Float): ScaleByAction =
+  def scaleBy(amountX: Float, amountY: Float, duration: Seconds): ScaleByAction =
     scaleBy(amountX, amountY, duration, Nullable.empty)
 
-  def scaleBy(amountX: Float, amountY: Float, duration: Float, interpolation: Nullable[Interpolation]): ScaleByAction = {
+  def scaleBy(amountX: Float, amountY: Float, duration: Seconds, interpolation: Nullable[Interpolation]): ScaleByAction = {
     val action = this.action(classOf[ScaleByAction])
     action.setAmount(amountX, amountY)
     action.duration = duration
@@ -211,12 +211,12 @@ object Actions {
 
   /** Rotates the actor instantly. */
   def rotateTo(rotation: Float): RotateToAction =
-    rotateTo(rotation, 0, Nullable.empty)
+    rotateTo(rotation, Seconds.zero, Nullable.empty)
 
-  def rotateTo(rotation: Float, duration: Float): RotateToAction =
+  def rotateTo(rotation: Float, duration: Seconds): RotateToAction =
     rotateTo(rotation, duration, Nullable.empty)
 
-  def rotateTo(rotation: Float, duration: Float, interpolation: Nullable[Interpolation]): RotateToAction = {
+  def rotateTo(rotation: Float, duration: Seconds, interpolation: Nullable[Interpolation]): RotateToAction = {
     val action = this.action(classOf[RotateToAction])
     action.rotation = rotation
     action.duration = duration
@@ -226,12 +226,12 @@ object Actions {
 
   /** Rotates the actor instantly. */
   def rotateBy(rotationAmount: Float): RotateByAction =
-    rotateBy(rotationAmount, 0, Nullable.empty)
+    rotateBy(rotationAmount, Seconds.zero, Nullable.empty)
 
-  def rotateBy(rotationAmount: Float, duration: Float): RotateByAction =
+  def rotateBy(rotationAmount: Float, duration: Seconds): RotateByAction =
     rotateBy(rotationAmount, duration, Nullable.empty)
 
-  def rotateBy(rotationAmount: Float, duration: Float, interpolation: Nullable[Interpolation]): RotateByAction = {
+  def rotateBy(rotationAmount: Float, duration: Seconds, interpolation: Nullable[Interpolation]): RotateByAction = {
     val action = this.action(classOf[RotateByAction])
     action.amount = rotationAmount
     action.duration = duration
@@ -241,14 +241,14 @@ object Actions {
 
   /** Sets the actor's color instantly. */
   def color(color: Color): ColorAction =
-    this.color(color, 0, Nullable.empty)
+    this.color(color, Seconds.zero, Nullable.empty)
 
   /** Transitions from the color at the time this action starts to the specified color. */
-  def color(color: Color, duration: Float): ColorAction =
+  def color(color: Color, duration: Seconds): ColorAction =
     this.color(color, duration, Nullable.empty)
 
   /** Transitions from the color at the time this action starts to the specified color. */
-  def color(color: Color, duration: Float, interpolation: Nullable[Interpolation]): ColorAction = {
+  def color(color: Color, duration: Seconds, interpolation: Nullable[Interpolation]): ColorAction = {
     val action = this.action(classOf[ColorAction])
     action.setEndColor(color)
     action.duration = duration
@@ -258,14 +258,14 @@ object Actions {
 
   /** Sets the actor's alpha instantly. */
   def alpha(a: Float): AlphaAction =
-    alpha(a, 0, Nullable.empty)
+    alpha(a, Seconds.zero, Nullable.empty)
 
   /** Transitions from the alpha at the time this action starts to the specified alpha. */
-  def alpha(a: Float, duration: Float): AlphaAction =
+  def alpha(a: Float, duration: Seconds): AlphaAction =
     alpha(a, duration, Nullable.empty)
 
   /** Transitions from the alpha at the time this action starts to the specified alpha. */
-  def alpha(a: Float, duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
+  def alpha(a: Float, duration: Seconds, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
     action.alpha = a
     action.duration = duration
@@ -274,11 +274,11 @@ object Actions {
   }
 
   /** Transitions from the alpha at the time this action starts to an alpha of 0. */
-  def fadeOut(duration: Float): AlphaAction =
+  def fadeOut(duration: Seconds): AlphaAction =
     alpha(0, duration, Nullable.empty)
 
   /** Transitions from the alpha at the time this action starts to an alpha of 0. */
-  def fadeOut(duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
+  def fadeOut(duration: Seconds, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
     action.alpha = 0
     action.duration = duration
@@ -287,11 +287,11 @@ object Actions {
   }
 
   /** Transitions from the alpha at the time this action starts to an alpha of 1. */
-  def fadeIn(duration: Float): AlphaAction =
+  def fadeIn(duration: Seconds): AlphaAction =
     alpha(1, duration, Nullable.empty)
 
   /** Transitions from the alpha at the time this action starts to an alpha of 1. */
-  def fadeIn(duration: Float, interpolation: Nullable[Interpolation]): AlphaAction = {
+  def fadeIn(duration: Seconds, interpolation: Nullable[Interpolation]): AlphaAction = {
     val action = this.action(classOf[AlphaAction])
     action.alpha = 1
     action.duration = duration
@@ -326,13 +326,13 @@ object Actions {
     action
   }
 
-  def delay(duration: Float): DelayAction = {
+  def delay(duration: Seconds): DelayAction = {
     val action = this.action(classOf[DelayAction])
     action.duration = duration
     action
   }
 
-  def delay(duration: Float, delayedAction: Action): DelayAction = {
+  def delay(duration: Seconds, delayedAction: Action): DelayAction = {
     val action = this.action(classOf[DelayAction])
     action.duration = duration
     action.action = Nullable(delayedAction)

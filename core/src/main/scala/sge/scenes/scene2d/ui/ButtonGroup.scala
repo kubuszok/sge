@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; DynamicArray with MkArray.anyRef cast for generic T; varargs constructor
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getChecked, getCheckedIndex, getAllChecked, getButtons, setMinCheckCount, setMaxCheckCount
+ *   Fixes: Java-style getters/setters → Scala property accessors (checked, checkedIndex, allChecked, buttons, minCheckCount, maxCheckCount)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -26,12 +26,12 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   */
 class ButtonGroup[T <: Button]() {
 
-  private val buttons:        DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  private val checkedButtons: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  private var minCheckCount:  Int             = 1
-  private var maxCheckCount:  Int             = 1
-  private var uncheckLast:    Boolean         = true
-  private var lastChecked:    Nullable[T]     = Nullable.empty
+  val buttons:             DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  val allChecked:          DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  var minCheckCount:       Int             = 1
+  var maxCheckCount:       Int             = 1
+  var uncheckLast:         Boolean         = true
+  private var lastChecked: Nullable[T]     = Nullable.empty
 
   def this(buttons: T*) = {
     this()
@@ -55,7 +55,7 @@ class ButtonGroup[T <: Button]() {
   def remove(button: T): Unit = {
     button.buttonGroup = Nullable.empty
     buttons.removeValue(button)
-    checkedButtons.removeValue(button)
+    allChecked.removeValue(button)
   }
 
   def removeAll(buttons: T*): Unit =
@@ -63,7 +63,7 @@ class ButtonGroup[T <: Button]() {
 
   def clear(): Unit = {
     buttons.clear()
-    checkedButtons.clear()
+    allChecked.clear()
   }
 
   /** Sets the first {@link TextButton} with the specified text to checked. */
@@ -93,11 +93,11 @@ class ButtonGroup[T <: Button]() {
 
     if (!newState) {
       // Keep button checked to enforce minCheckCount.
-      if (checkedButtons.size <= minCheckCount) scala.util.boundary.break(false)
-      checkedButtons.removeValue(button)
+      if (allChecked.size <= minCheckCount) scala.util.boundary.break(false)
+      allChecked.removeValue(button)
     } else {
       // Keep button unchecked to enforce maxCheckCount.
-      if (maxCheckCount != -1 && checkedButtons.size >= maxCheckCount) {
+      if (maxCheckCount != -1 && allChecked.size >= maxCheckCount) {
         if (!uncheckLast) scala.util.boundary.break(false)
         var tries = 0
         scala.util.boundary {
@@ -107,13 +107,13 @@ class ButtonGroup[T <: Button]() {
             lastChecked.foreach(_.setChecked(false)) // May have listeners that change button states.
             minCheckCount = old
             if (button.isChecked == newState) scala.util.boundary.break(false)
-            if (checkedButtons.size < maxCheckCount) scala.util.boundary.break()
+            if (allChecked.size < maxCheckCount) scala.util.boundary.break()
             tries += 1
             if (tries > 10) scala.util.boundary.break(false) // Unable to uncheck another button.
           }
         }
       }
-      checkedButtons.add(button)
+      allChecked.add(button)
       lastChecked = Nullable(button)
     }
 
@@ -133,31 +133,13 @@ class ButtonGroup[T <: Button]() {
     minCheckCount = old
   }
 
-  /** @return The first checked button, or null. */
-  def getChecked: Nullable[T] =
-    if (checkedButtons.nonEmpty) Nullable(checkedButtons(0))
+  /** @return The first checked button, or empty. */
+  def checked: Nullable[T] =
+    if (allChecked.nonEmpty) Nullable(allChecked(0))
     else Nullable.empty
 
   /** @return The first checked button index, or -1. */
-  def getCheckedIndex: Int =
-    if (checkedButtons.nonEmpty) buttons.indexOf(checkedButtons(0))
+  def checkedIndex: Int =
+    if (allChecked.nonEmpty) buttons.indexOf(allChecked(0))
     else -1
-
-  def getAllChecked: DynamicArray[T] = checkedButtons
-
-  def getButtons: DynamicArray[T] = buttons
-
-  /** Sets the minimum number of buttons that must be checked. Default is 1. */
-  def setMinCheckCount(minCheckCount: Int): Unit =
-    this.minCheckCount = minCheckCount
-
-  /** Sets the maximum number of buttons that can be checked. Set to -1 for no maximum. Default is 1. */
-  def setMaxCheckCount(maxCheckCount: Int): Unit =
-    this.maxCheckCount = if (maxCheckCount == 0) -1 else maxCheckCount
-
-  /** If true, when the maximum number of buttons are checked and an additional button is checked, the last button to be checked is unchecked so that the maximum is not exceeded. If false, additional
-    * buttons beyond the maximum are not allowed to be checked. Default is true.
-    */
-  def setUncheckLast(uncheckLast: Boolean): Unit =
-    this.uncheckLast = uncheckLast
 }

@@ -16,6 +16,8 @@ package scenes
 package scene2d
 package actions
 
+import sge.utils.Seconds
+
 /** Scales the delta time of an action.
   * @author
   *   Nathan Sweet
@@ -23,6 +25,6 @@ package actions
 class TimeScaleAction extends DelegateAction {
   var scale: Float = 0
 
-  override protected def delegate(delta: Float): Boolean =
+  override protected def delegate(delta: Seconds): Boolean =
     action.forall(_.act(delta * scale))
 }

@@ -25,7 +25,7 @@ import sge.scenes.scene2d.ui.Label.LabelStyle
 import sge.scenes.scene2d.ui.TextButton.TextButtonStyle
 import sge.scenes.scene2d.ui.Window.WindowStyle
 import sge.scenes.scene2d.utils.{ ChangeListener, FocusListener }
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Displays a dialog, which is a window with a title, a content table, and a button table. Methods are provided to add a label to the content table and buttons to the button table, but any widgets
   * can be added. When a button is clicked, {@link #result(Object)} is called and the dialog is removed from the stage.
@@ -62,7 +62,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
   initialize()
 
   private def initialize(): Unit = {
-    setModal(true)
+    isModal = true
 
     defaults().space(6)
     contentTable = Table(skin)
@@ -214,7 +214,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
   /** Centers the dialog in the stage and calls {@link #show(Stage, Action)} with a {@link Actions#fadeIn(float, Interpolation)} action.
     */
   def show(stage: Stage): Dialog = {
-    show(stage, Nullable(Actions.sequence(Actions.alpha(0), Actions.fadeIn(0.4f, Nullable(Interpolation.fade)))))
+    show(stage, Nullable(Actions.sequence(Actions.alpha(0), Actions.fadeIn(Seconds(0.4f), Nullable(Interpolation.fade)))))
     setPosition(Math.round((stage.getWidth - width) / 2).toFloat, Math.round((stage.getHeight - height) / 2).toFloat)
     this
   }
@@ -250,7 +250,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
   /** Hides the dialog. Called automatically when a button is clicked. The default implementation fades out the dialog over 400 milliseconds.
     */
   def hide(): Unit =
-    hide(Nullable(Actions.fadeOut(0.4f, Nullable(Interpolation.fade))))
+    hide(Nullable(Actions.fadeOut(Seconds(0.4f), Nullable(Interpolation.fade))))
 
   def setObject(actor: Actor, obj: Nullable[AnyRef]): Unit =
     values(actor) = obj

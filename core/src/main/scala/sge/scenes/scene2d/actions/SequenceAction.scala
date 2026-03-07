@@ -17,7 +17,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Executes a number of actions one at a time.
   * @author
@@ -61,7 +61,7 @@ class SequenceAction extends ParallelAction {
     addAction(action5)
   }
 
-  override def act(delta: Float): Boolean =
+  override def act(delta: Seconds): Boolean =
     if (index >= actions.size) true
     else {
       val savedPool = pool

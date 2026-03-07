@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; DynamicArray with MkArray.anyRef cast; boundary/break; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getStyle/setStyle, getSelection, getOverNode/setOverNode, getIndentSpacing/setIndentSpacing; Node: getActor/setActor, isExpanded/setExpanded, getIcon/setIcon, getValue/setValue
+ *   Note: Java-style getters/setters retained — setOverNode/setExpanded/setValue have side effects; Node inner class has many interdependent setters; style via Styleable
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -61,7 +61,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   private var _clickListener: ClickListener = scala.compiletime.uninitialized
 
   selection.setActor(Nullable(this))
-  selection.setMultiple(true)
+  selection.multiple = true
   setStyle(style)
   initialize()
 
@@ -76,9 +76,9 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
           val node: Nullable[N] = self.getNodeAt(y)
           if (node.isEmpty) scala.util.boundary.break(())
           node.foreach { n =>
-            val nodeAtTouchDown: Nullable[N] = self.getNodeAt(getTouchDownY)
+            val nodeAtTouchDown: Nullable[N] = self.getNodeAt(touchDownY)
             if (nodeAtTouchDown.forall(_ ne n)) scala.util.boundary.break(())
-            if (self.selection.getMultiple && self.selection.notEmpty && UIUtils.shift()) {
+            if (self.selection.multiple && self.selection.notEmpty && UIUtils.shift()) {
               // Select range (shift).
               if (self.rangeStart.isEmpty) self.rangeStart = Nullable(n)
               self.rangeStart.foreach { rs =>
@@ -98,11 +98,11 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
               }
               scala.util.boundary.break(())
             }
-            if (n.children.size > 0 && (!self.selection.getMultiple || !UIUtils.ctrl())) {
+            if (n.children.size > 0 && (!self.selection.multiple || !UIUtils.ctrl())) {
               // Toggle expanded if left of icon.
               var rowX = n.actor.x
               n.icon.foreach { icon =>
-                rowX -= self.iconSpacingRight + icon.getMinWidth
+                rowX -= self.iconSpacingRight + icon.minWidth
               }
               if (x < rowX) {
                 n.setExpanded(!n.expanded)
@@ -204,12 +204,12 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   }
 
   private def plusMinusWidth(): Float = {
-    var width = Math.max(_style.plus.getMinWidth, _style.minus.getMinWidth)
+    var width = Math.max(_style.plus.minWidth, _style.minus.minWidth)
     _style.plusOver.foreach { po =>
-      width = Math.max(width, po.getMinWidth)
+      width = Math.max(width, po.minWidth)
     }
     _style.minusOver.foreach { mo =>
-      width = Math.max(width, mo.getMinWidth)
+      width = Math.max(width, mo.minWidth)
     }
     width
   }
@@ -240,8 +240,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
           node.height = actor.height
       }
       node.icon.foreach { icon =>
-        rowWidth += spacing + icon.getMinWidth
-        node.height = Math.max(node.height, icon.getMinHeight)
+        rowWidth += spacing + icon.minWidth
+        node.height = Math.max(node.height, icon.minHeight)
       }
       prefWidth = Math.max(prefWidth, rowWidth)
       prefHeight += node.height + ySpacing
@@ -268,7 +268,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       node.icon.fold {
         x += iconSpacingLeft
       } { icon =>
-        x += spacing + icon.getMinWidth
+        x += spacing + icon.minWidth
       }
       node.actor match {
         case layout: Layout => layout.pack()
@@ -351,7 +351,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
           }
 
           node.icon.foreach { icon =>
-            val iconY      = y + actorY + Math.round((height - icon.getMinHeight) / 2)
+            val iconY      = y + actorY + Math.round((height - icon.minHeight) / 2)
             val actorColor = actor.color
             batch.setColor(actorColor.r, actorColor.g, actorColor.b, actorColor.a * a)
             drawIcon(node, icon, batch, iconX, iconY)
@@ -360,7 +360,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
           if (node.children.size > 0) {
             val expandIcon = getExpandIcon(node, iconX)
-            val iconY      = y + actorY + Math.round((height - expandIcon.getMinHeight) / 2)
+            val iconY      = y + actorY + Math.round((height - expandIcon.minHeight) / 2)
             drawExpandIcon(node, expandIcon, batch, expandX, iconY)
           }
         } else if (actorY < cullBottom) //
@@ -380,10 +380,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     over.draw(batch, x, y, width, height)
 
   protected def drawExpandIcon(node: N, expandIcon: Drawable, batch: Batch, x: Float, y: Float): Unit =
-    expandIcon.draw(batch, x, y, expandIcon.getMinWidth, expandIcon.getMinHeight)
+    expandIcon.draw(batch, x, y, expandIcon.minWidth, expandIcon.minHeight)
 
   protected def drawIcon(node: N, icon: Drawable, batch: Batch, x: Float, y: Float): Unit =
-    icon.draw(batch, x, y, icon.getMinWidth, icon.getMinHeight)
+    icon.draw(batch, x, y, icon.minWidth, icon.minHeight)
 
   /** Returns the drawable for the expand icon. The default implementation returns {@link TreeStyle#plusOver} or {@link TreeStyle#minusOver} on the desktop if the node is the
     * {@link #getOverNode() over node}, the mouse is left of <code>iconX</code>, and clicking would expand the node.
@@ -394,7 +394,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     if (
       _overNode.exists(_ eq node) //
       && Sge().application.getType() == Application.ApplicationType.Desktop //
-      && (!selection.getMultiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
+      && (!selection.multiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
     ) {
       val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.getX().toFloat, 0)).x + this.x
       if (mouseX >= 0 && mouseX < iconX) {

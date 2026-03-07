@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; Java List<T> -> SgeList[T]; DynamicArray with MkArray.anyRef cast; boundary/break
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getStyle/setStyle, getItems/setItems, getSelected/setSelected, getSelectedIndex/setSelectedIndex, isDisabled/setDisabled
+ *   Note: Java-style getters/setters retained — setItems/setSelected/setSelectedIndex have validation/events logic; isDisabled/setDisabled from Disableable trait; style via Styleable
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
@@ -24,7 +24,7 @@ import sge.math.{ Interpolation, Vector2 }
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage, Touchable }
 import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.{ ArraySelection, ClickListener, Disableable, Drawable }
-import sge.utils.{ Align, DynamicArray, MkArray, Nullable }
+import sge.utils.{ Align, DynamicArray, MkArray, Nullable, Seconds }
 
 /** A select box (aka a drop-down list) allows a user to choose one of a number of values from a list. When inactive, the selected value is displayed. When activated, it shows the list of values that
   * may be selected. <p> {@link ChangeEvent} is fired when the selectbox selection changes. <p> The preferred size of the select box is determined by the maximum text bounds of the items and the size
@@ -62,7 +62,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   setSize(getPrefWidth, getPrefHeight)
 
   selection.setActor(Nullable(this))
-  selection.setRequired(true)
+  selection.required = true
 
   scrollPane = newScrollPane()
 
@@ -162,14 +162,14 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     bg.fold {
       prefHeight = font.capHeight - font.descent * 2
     } { background =>
-      prefHeight = Math.max(background.getTopHeight + background.getBottomHeight + font.capHeight - font.descent * 2, background.getMinHeight)
+      prefHeight = Math.max(background.topHeight + background.bottomHeight + font.capHeight - font.descent * 2, background.minHeight)
     }
 
     val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
     val glyphLayout = layoutPool.obtain()
     if (selectedPrefWidth) {
       prefWidth = 0
-      bg.foreach { background => prefWidth = background.getLeftWidth + background.getRightWidth }
+      bg.foreach { background => prefWidth = background.leftWidth + background.rightWidth }
       val selected = getSelected
       selected.foreach { sel =>
         glyphLayout.setText(font, itemToString(sel))
@@ -186,19 +186,19 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
       prefWidth = maxItemWidth
       bg.foreach { background =>
-        prefWidth = Math.max(prefWidth + background.getLeftWidth + background.getRightWidth, background.getMinWidth)
+        prefWidth = Math.max(prefWidth + background.leftWidth + background.rightWidth, background.minWidth)
       }
 
       val listStyle   = _style.listStyle
       val scrollStyle = _style.scrollStyle
-      var scrollWidth = maxItemWidth + listStyle.selection.getLeftWidth + listStyle.selection.getRightWidth
+      var scrollWidth = maxItemWidth + listStyle.selection.leftWidth + listStyle.selection.rightWidth
       scrollStyle.background.foreach { scrollBg =>
-        scrollWidth = Math.max(scrollWidth + scrollBg.getLeftWidth + scrollBg.getRightWidth, scrollBg.getMinWidth)
+        scrollWidth = Math.max(scrollWidth + scrollBg.leftWidth + scrollBg.rightWidth, scrollBg.minWidth)
       }
       if (Nullable(scrollPane).forall(!_.disableY)) {
         scrollWidth += Math.max(
-          _style.scrollStyle.vScroll.map(_.getMinWidth).getOrElse(0f),
-          _style.scrollStyle.vScrollKnob.map(_.getMinWidth).getOrElse(0f)
+          _style.scrollStyle.vScroll.map(_.minWidth).getOrElse(0f),
+          _style.scrollStyle.vScrollKnob.map(_.minWidth).getOrElse(0f)
         )
       }
       prefWidth = Math.max(prefWidth, scrollWidth)
@@ -240,10 +240,10 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
       background.fold {
         by += (bh / 2 + font.data.capHeight / 2).toInt.toFloat
       } { bg =>
-        bw -= bg.getLeftWidth + bg.getRightWidth
-        bh -= bg.getBottomHeight + bg.getTopHeight
-        bx += bg.getLeftWidth
-        by += (bh / 2 + bg.getBottomHeight + font.data.capHeight / 2).toInt.toFloat
+        bw -= bg.leftWidth + bg.rightWidth
+        bh -= bg.bottomHeight + bg.topHeight
+        bx += bg.leftWidth
+        by += (bh / 2 + bg.bottomHeight + font.data.capHeight / 2).toInt.toFloat
       }
       font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha)
       drawItem(batch, font, sel, bx, by, bw)
@@ -312,7 +312,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     }
     layoutPool.free(glyphLayout)
     _style.background.foreach { bg =>
-      width = Math.max(width + bg.getLeftWidth + bg.getRightWidth, bg.getMinWidth)
+      width = Math.max(width + bg.leftWidth + bg.rightWidth, bg.minWidth)
     }
     width
   }
@@ -363,18 +363,18 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   /** Returns the scroll pane containing the list that is shown when the select box is open. */
   def getScrollPane: SelectBoxScrollPane[T] = scrollPane
 
-  def isOver: Boolean = clickListener.isOver
+  def isOver: Boolean = clickListener.over
 
   def getClickListener: ClickListener = clickListener
 
   protected def onShow(scrollPane: Actor, below: Boolean): Unit = {
     scrollPane.color.a = 0
-    scrollPane.addAction(Actions.fadeIn(0.3f, Nullable(Interpolation.fade)))
+    scrollPane.addAction(Actions.fadeIn(Seconds(0.3f), Nullable(Interpolation.fade)))
   }
 
   protected def onHide(scrollPane: Actor): Unit = {
     scrollPane.color.a = 1
-    scrollPane.addAction(Actions.sequence(Actions.fadeOut(0.15f, Nullable(Interpolation.fade)), Actions.removeActor()))
+    scrollPane.addAction(Actions.sequence(Actions.fadeOut(Seconds(0.15f), Nullable(Interpolation.fade)), Actions.removeActor()))
   }
 }
 
@@ -480,9 +480,9 @@ object SelectBox {
         val itemHeight           = list.getItemHeight
         var height               = itemHeight * (if (maxListCount <= 0) selectBox.items.size else Math.min(maxListCount, selectBox.items.size))
         val scrollPaneBackground = getStyle.background
-        scrollPaneBackground.foreach(bg => height += bg.getTopHeight + bg.getBottomHeight)
+        scrollPaneBackground.foreach(bg => height += bg.topHeight + bg.bottomHeight)
         val listBackground = list.getStyle.background
-        listBackground.foreach(bg => height += bg.getTopHeight + bg.getBottomHeight)
+        listBackground.foreach(bg => height += bg.topHeight + bg.bottomHeight)
 
         val heightBelow = stagePosition.y
         val heightAbove = stage.getHeight - heightBelow - selectBox.height

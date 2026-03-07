@@ -51,7 +51,7 @@ class NoopInputTest extends munit.FunSuite {
     assertEquals(input.getRoll(), 0.0f)
     assertEquals(input.getNativeOrientation(), Input.Orientation.Landscape)
     assertEquals(input.getMaxPointers(), 1)
-    assertEquals(input.currentEventTime, 0L)
+    assertEquals(input.currentEventTime, sge.utils.Nanos.zero)
   }
 
   // ---- input processor round-trip ----

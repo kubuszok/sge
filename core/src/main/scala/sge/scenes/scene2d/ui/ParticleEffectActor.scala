@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Disposable -> AutoCloseable; (using Sge) added to act() and one constructor
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — isResetOnStart/setResetOnStart, isAutoRemove/setAutoRemove, isRunning, getEffect
+ *   Fixes: Java-style getters/setters → Scala property accessors (resetOnStart, autoRemove, running, effect→particleEffect)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -23,12 +23,12 @@ import sge.graphics.g2d.{ Batch, ParticleEffect, TextureAtlas }
 /** ParticleEffectActor holds an {@link ParticleEffect} to use in Scene2d applications. The particle effect is positioned at 0, 0 in the ParticleEffectActor. Its bounding box is not limited to the
   * size of this actor.
   */
-class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetOnStart: Boolean)(using Sge) extends Actor() with AutoCloseable {
+class ParticleEffectActor(val particleEffect: ParticleEffect, var resetOnStart: Boolean)(using Sge) extends Actor() with AutoCloseable {
 
   protected var lastDelta:  Float   = 0
-  protected var _isRunning: Boolean = false
+  var running:              Boolean = false
   protected var ownsEffect: Boolean = false
-  private var autoRemove:   Boolean = false
+  var autoRemove:           Boolean = false
 
   def this(particleFile: FileHandle, atlas: TextureAtlas)(using Sge) = {
     this(ParticleEffect(), true)
@@ -50,9 +50,9 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
       particleEffect.update(lastDelta)
       lastDelta = 0
     }
-    if (_isRunning) {
+    if (running) {
       particleEffect.draw(batch)
-      _isRunning = !particleEffect.isComplete()
+      running = !particleEffect.isComplete()
     }
   }
 
@@ -68,30 +68,12 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
   }
 
   def start(): Unit = {
-    _isRunning = true
+    running = true
     if (resetOnStart) {
       particleEffect.reset(false)
     }
     particleEffect.start()
   }
-
-  def isResetOnStart: Boolean = resetOnStart
-
-  def setResetOnStart(resetOnStart: Boolean): ParticleEffectActor = {
-    this.resetOnStart = resetOnStart
-    this
-  }
-
-  def isAutoRemove: Boolean = autoRemove
-
-  def setAutoRemove(autoRemove: Boolean): ParticleEffectActor = {
-    this.autoRemove = autoRemove
-    this
-  }
-
-  def isRunning: Boolean = _isRunning
-
-  def getEffect: ParticleEffect = this.particleEffect
 
   override protected def scaleChanged(): Unit = {
     super.scaleChanged()
@@ -99,7 +81,7 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, private var resetO
   }
 
   def cancel(): Unit =
-    _isRunning = true
+    running = true
 
   def allowCompletion(): Unit =
     particleEffect.allowCompletion()

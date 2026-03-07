@@ -16,7 +16,10 @@
  * - Payload.object -> Payload.obj (object is Scala keyword)
  * - Inner static classes -> companion object nested classes
  * - All public API methods faithfully ported
- * - TODO: Java-style getters/setters — getDragActor, getDragPayload, getDragSource, getDragTime/setDragTime, isDragging; Payload: getDragActor/setDragActor, getObject/setObject
+ * - Renames: getDragActor → def currentDragActor, getDragPayload → def currentPayload,
+ *   getDragSource → def currentSource, getDragTime/setDragTime → var dragTime,
+ *   isDragging → def dragging; Source/Target: getActor removed (actor is public val);
+ *   Payload: getDragActor/setDragActor/getObject/setObject/etc removed (fields are public vars)
  */
 package sge
 package scenes
@@ -36,25 +39,33 @@ import sge.utils.{ DynamicArray, Nullable }
 class DragAndDrop {
   import DragAndDrop.*
 
-  private var dragSource:        Nullable[Source]                 = Nullable.empty
-  private var payload:           Nullable[Payload]                = Nullable.empty
-  private var dragActor:         Nullable[Actor]                  = Nullable.empty
-  private var removeDragActor:   Boolean                          = false
-  private var _target:           Nullable[Target]                 = Nullable.empty
-  private var isValidTarget:     Boolean                          = false
-  private val targets:           DynamicArray[Target]             = DynamicArray[Target]()
-  private val sourceListeners:   MutableMap[Source, DragListener] = MutableMap.empty
-  private var tapSquareSize:     Float                            = 8
-  private var button:            Int                              = 0
-  private var dragActorX:        Float                            = 0
-  private var dragActorY:        Float                            = 0
-  private var touchOffsetX:      Float                            = 0
-  private var touchOffsetY:      Float                            = 0
-  private var dragValidTime:     Long                             = 0
-  private var _dragTime:         Int                              = 250
-  private var activePointer:     Int                              = -1
-  private var _cancelTouchFocus: Boolean                          = true
-  private var _keepWithinStage:  Boolean                          = true
+  private var dragSource:      Nullable[Source]                 = Nullable.empty
+  private var payload:         Nullable[Payload]                = Nullable.empty
+  private var dragActor:       Nullable[Actor]                  = Nullable.empty
+  private var removeDragActor: Boolean                          = false
+  private var _target:         Nullable[Target]                 = Nullable.empty
+  private var isValidTarget:   Boolean                          = false
+  private val targets:         DynamicArray[Target]             = DynamicArray[Target]()
+  private val sourceListeners: MutableMap[Source, DragListener] = MutableMap.empty
+
+  /** The distance a touch must travel before being considered a drag. */
+  var tapSquareSize: Float = 8
+
+  /** The button to listen for, all other buttons are ignored. Default is {@link Buttons#LEFT}. Use -1 for any button. */
+  var button:                Int   = 0
+  private var dragActorX:    Float = 0
+  private var dragActorY:    Float = 0
+  private var touchOffsetX:  Float = 0
+  private var touchOffsetY:  Float = 0
+  private var dragValidTime: Long  = 0
+  var dragTime:              Int   = 250
+  private var activePointer: Int   = -1
+
+  /** When true (default), the {@link Stage#cancelTouchFocus()} touch focus} is cancelled if {@link Source#dragStart(InputEvent, float, float, int) dragStart} returns non-null. This ensures the
+    * DragAndDrop is the only touch focus listener, eg when the source is inside a {@link ScrollPane} with flick scroll enabled.
+    */
+  var cancelTouchFocus: Boolean = true
+  var keepWithinStage:  Boolean = true
 
   def addSource(source: Source): Unit = {
     val self     = this
@@ -65,13 +76,13 @@ class DragAndDrop {
         } else {
           activePointer = pointer
 
-          dragValidTime = System.currentTimeMillis() + _dragTime
+          dragValidTime = System.currentTimeMillis() + dragTime
           dragSource = Nullable(source)
-          payload = Nullable(source.dragStart(event, getTouchDownX, getTouchDownY, pointer))
+          payload = Nullable(source.dragStart(event, touchDownX, touchDownY, pointer))
           event.stop()
 
-          if (_cancelTouchFocus && payload.isDefined) {
-            source.getActor.stage.foreach(_.cancelTouchFocusExcept(Nullable(this), Nullable(source.getActor)))
+          if (cancelTouchFocus && payload.isDefined) {
+            source.actor.stage.foreach(_.cancelTouchFocusExcept(Nullable(this), Nullable(source.actor)))
           }
         }
 
@@ -160,7 +171,7 @@ class DragAndDrop {
                 // Position the drag actor.
                 var actorX = event.stageX - a.width + dragActorX
                 var actorY = event.stageY + dragActorY
-                if (_keepWithinStage) {
+                if (keepWithinStage) {
                   if (actorX < 0) actorX = 0
                   if (actorY < 0) actorY = 0
                   if (actorX + a.width > stage.getWidth) actorX = stage.getWidth - a.width
@@ -221,8 +232,8 @@ class DragAndDrop {
           }
         }
     }
-    listener.setTapSquareSize(tapSquareSize)
-    listener.setButton(button)
+    listener.tapSquareSize = tapSquareSize
+    listener.button = button
     source.actor.addCaptureListener(listener)
     sourceListeners.put(source, listener)
   }
@@ -250,14 +261,8 @@ class DragAndDrop {
   /** Cancels the touch focus for everything except the specified source. */
   def cancelTouchFocusExcept(except: Source): Unit =
     sourceListeners.get(except).foreach { listener =>
-      except.getActor.stage.foreach(_.cancelTouchFocusExcept(Nullable(listener), Nullable(except.getActor)))
+      except.actor.stage.foreach(_.cancelTouchFocusExcept(Nullable(listener), Nullable(except.actor)))
     }
-
-  /** Sets the distance a touch must travel before being considered a drag. */
-  def setTapSquareSize(halfTapSquareSize: Float): Unit = tapSquareSize = halfTapSquareSize
-
-  /** Sets the button to listen for, all other buttons are ignored. Default is {@link Buttons#LEFT}. Use -1 for any button. */
-  def setButton(button: Int): Unit = this.button = button
 
   def setDragActorPosition(dragActorX: Float, dragActorY: Float): Unit = {
     this.dragActorX = dragActorX
@@ -271,32 +276,19 @@ class DragAndDrop {
     this.touchOffsetY = touchOffsetY
   }
 
-  def isDragging: Boolean = payload.isDefined
+  def dragging: Boolean = payload.isDefined
 
   /** Returns the current drag actor, or null. */
-  def getDragActor: Nullable[Actor] = dragActor
+  def currentDragActor: Nullable[Actor] = dragActor
 
   /** Returns the current drag payload, or null. */
-  def getDragPayload: Nullable[Payload] = payload
+  def currentPayload: Nullable[Payload] = payload
 
   /** Returns the current drag source, or null. */
-  def getDragSource: Nullable[Source] = dragSource
-
-  /** Time in milliseconds that a drag must take before a drop will be considered valid. This ignores an accidental drag and drop that was meant to be a click. Default is 250.
-    */
-  def setDragTime(dragMillis: Int): Unit = this._dragTime = dragMillis
-
-  def getDragTime: Int = _dragTime
+  def currentSource: Nullable[Source] = dragSource
 
   /** Returns true if a drag is in progress and the {@link #setDragTime(int) drag time} has elapsed since the drag started. */
   def isDragValid: Boolean = payload.isDefined && System.currentTimeMillis() >= dragValidTime
-
-  /** When true (default), the {@link Stage#cancelTouchFocus()} touch focus} is cancelled if {@link Source#dragStart(InputEvent, float, float, int) dragStart} returns non-null. This ensures the
-    * DragAndDrop is the only touch focus listener, eg when the source is inside a {@link ScrollPane} with flick scroll enabled.
-    */
-  def setCancelTouchFocus(cancelTouchFocus: Boolean): Unit = this._cancelTouchFocus = cancelTouchFocus
-
-  def setKeepWithinStage(keepWithinStage: Boolean): Unit = this._keepWithinStage = keepWithinStage
 }
 
 object DragAndDrop {
@@ -324,8 +316,6 @@ object DragAndDrop {
       *   null if not dropped on a valid target.
       */
     def dragStop(event: InputEvent, x: Float, y: Float, pointer: Int, payload: Nullable[Payload], target: Nullable[Target]): Unit = {}
-
-    def getActor: Actor = actor
   }
 
   /** A target where a payload can be dropped to.
@@ -353,8 +343,6 @@ object DragAndDrop {
       * false.
       */
     def drop(source: Source, payload: Payload, x: Float, y: Float, pointer: Int): Unit
-
-    def getActor: Actor = actor
   }
 
   /** The payload of a drag and drop operation. Actors can be optionally provided to follow the cursor and change when over a target. Such actors will be added the stage automatically during the drag
@@ -365,17 +353,5 @@ object DragAndDrop {
     var validDragActor:   Actor            = scala.compiletime.uninitialized
     var invalidDragActor: Actor            = scala.compiletime.uninitialized
     var obj:              Nullable[AnyRef] = Nullable.empty
-
-    def setDragActor(dragActor: Actor): Unit  = this.dragActor = dragActor
-    def getDragActor:                   Actor = dragActor
-
-    def setValidDragActor(validDragActor: Actor): Unit  = this.validDragActor = validDragActor
-    def getValidDragActor:                        Actor = validDragActor
-
-    def setInvalidDragActor(invalidDragActor: Actor): Unit  = this.invalidDragActor = invalidDragActor
-    def getInvalidDragActor:                          Actor = invalidDragActor
-
-    def getObject:                        Nullable[AnyRef] = obj
-    def setObject(obj: Nullable[AnyRef]): Unit             = this.obj = obj
   }
 }

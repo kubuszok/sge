@@ -15,7 +15,7 @@
  * - Java null-initialized properties/objects replaced with Nullable.empty
  * - Private primary constructor + 2 public auxiliary constructors (matching Java's 2 public ctors)
  * - Companion object holds lastTiledMapRenderTime, initialTimeOffset, updateAnimationBaseTime (match Java static)
- * - TODO: opaque Millis for animationIntervals, loopDuration, lastTiledMapRenderTime -- see docs/improvements/opaque-types.md
+ * - Convention: opaque Millis for lastTiledMapRenderTime, initialTimeOffset
  */
 package sge
 package maps
@@ -26,7 +26,7 @@ import scala.util.boundary
 import scala.util.boundary.break
 import sge.graphics.g2d.TextureRegion
 import sge.maps.{ MapObjects, MapProperties }
-import sge.utils.{ DynamicArray, Nullable, SgeError, TimeUtils }
+import sge.utils.{ DynamicArray, Millis, Nullable, SgeError, TimeUtils }
 
 /** @brief Represents a changing {@link TiledMapTile}. */
 class AnimatedTiledMapTile private (
@@ -82,7 +82,7 @@ class AnimatedTiledMapTile private (
     this.blendMode = blendMode
 
   def getCurrentFrameIndex: Int = boundary {
-    var currentTime = (AnimatedTiledMapTile.lastTiledMapRenderTime % loopDuration).toInt
+    var currentTime = (AnimatedTiledMapTile.lastTiledMapRenderTime % Millis(loopDuration.toLong)).toInt
 
     var i = 0
     while (i < animationIntervals.length) {
@@ -153,8 +153,8 @@ class AnimatedTiledMapTile private (
 }
 
 object AnimatedTiledMapTile {
-  private var lastTiledMapRenderTime: Long = 0
-  private val initialTimeOffset:      Long = TimeUtils.millis()
+  private var lastTiledMapRenderTime: Millis = Millis.zero
+  private val initialTimeOffset:      Millis = TimeUtils.millis()
 
   /** Function is called by BatchTiledMapRenderer render(), lastTiledMapRenderTime is used to keep all of the tiles in lock-step animation and avoids having to call TimeUtils.millis() in
     * getTextureRegion()

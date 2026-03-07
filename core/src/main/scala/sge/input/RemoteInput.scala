@@ -361,17 +361,17 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
       case _                           => false
     }
 
-  override def getRotation():                           Int         = 0
-  override def getNativeOrientation():                  Orientation = Orientation.Landscape
-  override def setCursorCatched(catched: Boolean):      Unit        = {}
-  override def isCursorCatched():                       Boolean     = false
-  override def getDeltaX():                             Int         = deltaX(0)
-  override def getDeltaX(pointer:        Int):          Int         = deltaX(pointer)
-  override def getDeltaY():                             Int         = deltaY(0)
-  override def getDeltaY(pointer:        Int):          Int         = deltaY(pointer)
-  override def setCursorPosition(x:      Int, y: Int):  Unit        = {}
-  override def currentEventTime:                        Long        = 0L
-  override def getRotationMatrix(matrix: Array[Float]): Unit        = {}
+  override def getRotation():                           Int             = 0
+  override def getNativeOrientation():                  Orientation     = Orientation.Landscape
+  override def setCursorCatched(catched: Boolean):      Unit            = {}
+  override def isCursorCatched():                       Boolean         = false
+  override def getDeltaX():                             Int             = deltaX(0)
+  override def getDeltaX(pointer:        Int):          Int             = deltaX(pointer)
+  override def getDeltaY():                             Int             = deltaY(0)
+  override def getDeltaY(pointer:        Int):          Int             = deltaY(pointer)
+  override def setCursorPosition(x:      Int, y: Int):  Unit            = {}
+  override def currentEventTime:                        sge.utils.Nanos = sge.utils.Nanos.zero
+  override def getRotationMatrix(matrix: Array[Float]): Unit            = {}
 }
 
 object RemoteInput {

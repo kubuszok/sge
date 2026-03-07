@@ -8,12 +8,12 @@
  *
  * Migration notes:
  *   TODO: opaque Pixels for screenX/screenY params in event methods -- see docs/improvements/opaque-types.md
- *   TODO: opaque Nanos for time params in event methods -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Nanos for time params in event methods
  *   Audited: 2026-03-03
  */
 package sge
 
-import sge.utils.{ DynamicArray, Nullable, NumberUtils }
+import sge.utils.{ DynamicArray, Nanos, Nullable, NumberUtils }
 
 /** Queues events that are later passed to an {@link InputProcessor} .
   * @author
@@ -24,7 +24,7 @@ class InputEventQueue {
 
   private val queue           = DynamicArray[Int]()
   private val processingQueue = DynamicArray[Int]()
-  private var _currentEventTime: Long = 0L
+  private var _currentEventTime: Nanos = Nanos.zero
 
   def drain(processor: Nullable[InputProcessor]): Unit = scala.util.boundary {
     synchronized {
@@ -45,7 +45,7 @@ class InputEventQueue {
       while (i < n) {
         val eventType = q(i)
         i += 1
-        _currentEventTime = (q(i).toLong << 32) | (q(i + 1) & 0xffffffffL)
+        _currentEventTime = Nanos((q(i).toLong << 32) | (q(i + 1) & 0xffffffffL))
         i += 2
         eventType match {
           case SKIP =>
@@ -119,12 +119,12 @@ class InputEventQueue {
       }
     }
 
-  private def queueTime(time: Long): Unit = {
-    queue.add((time >> 32).toInt)
-    queue.add(time.toInt)
+  private def queueTime(time: Nanos): Unit = {
+    queue.add((time.toLong >> 32).toInt)
+    queue.add(time.toLong.toInt)
   }
 
-  def keyDown(keycode: Int, time: Long): Boolean =
+  def keyDown(keycode: Int, time: Nanos): Boolean =
     synchronized {
       queue.add(KEY_DOWN)
       queueTime(time)
@@ -132,7 +132,7 @@ class InputEventQueue {
       false
     }
 
-  def keyUp(keycode: Int, time: Long): Boolean =
+  def keyUp(keycode: Int, time: Nanos): Boolean =
     synchronized {
       queue.add(KEY_UP)
       queueTime(time)
@@ -140,7 +140,7 @@ class InputEventQueue {
       false
     }
 
-  def keyTyped(character: Char, time: Long): Boolean =
+  def keyTyped(character: Char, time: Nanos): Boolean =
     synchronized {
       queue.add(KEY_TYPED)
       queueTime(time)
@@ -148,7 +148,7 @@ class InputEventQueue {
       false
     }
 
-  def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Long): Boolean =
+  def touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Nanos): Boolean =
     synchronized {
       queue.add(TOUCH_DOWN)
       queueTime(time)
@@ -159,7 +159,7 @@ class InputEventQueue {
       false
     }
 
-  def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Long): Boolean =
+  def touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int, time: Nanos): Boolean =
     synchronized {
       queue.add(TOUCH_UP)
       queueTime(time)
@@ -170,7 +170,7 @@ class InputEventQueue {
       false
     }
 
-  def touchDragged(screenX: Int, screenY: Int, pointer: Int, time: Long): Boolean =
+  def touchDragged(screenX: Int, screenY: Int, pointer: Int, time: Nanos): Boolean =
     synchronized {
       // Skip any queued touch dragged events for the same pointer.
       var i = next(TOUCH_DRAGGED, 0)
@@ -189,7 +189,7 @@ class InputEventQueue {
       false
     }
 
-  def mouseMoved(screenX: Int, screenY: Int, time: Long): Boolean =
+  def mouseMoved(screenX: Int, screenY: Int, time: Nanos): Boolean =
     synchronized {
       // Skip any queued mouse moved events.
       var i = next(MOUSE_MOVED, 0)
@@ -205,7 +205,7 @@ class InputEventQueue {
       false
     }
 
-  def scrolled(amountX: Float, amountY: Float, time: Long): Boolean =
+  def scrolled(amountX: Float, amountY: Float, time: Nanos): Boolean =
     synchronized {
       queue.add(SCROLLED)
       queueTime(time)
@@ -214,7 +214,7 @@ class InputEventQueue {
       false
     }
 
-  def currentEventTime: Long = _currentEventTime
+  def currentEventTime: Nanos = _currentEventTime
 }
 
 object InputEventQueue {

@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; GdxRuntimeException -> SgeError.GraphicsError; boundary/break in touchDown; Skin constructors present
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getSplitAmount/setSplitAmount, getMinSplitAmount/setMinSplitAmount, getMaxSplitAmount/setMaxSplitAmount, isVertical/setVertical, getStyle/setStyle
+ *   Fixes: Removed redundant Java-style getters (splitAmount, minAmount, maxAmount, vertical are public vars; style via Styleable)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -101,7 +101,7 @@ class SplitPane(
             val handle = self._style.handle
             if (!self.vertical) {
               val delta      = x - self.lastPoint.x
-              val availWidth = self.width - handle.getMinWidth
+              val availWidth = self.width - handle.minWidth
               var dragX      = self.handlePosition.x + delta
               self.handlePosition.x = dragX
               dragX = Math.max(0, dragX)
@@ -110,7 +110,7 @@ class SplitPane(
               self.lastPoint.set(x, y)
             } else {
               val delta       = y - self.lastPoint.y
-              val availHeight = self.height - handle.getMinHeight
+              val availHeight = self.height - handle.minHeight
               var dragY       = self.handlePosition.y + delta
               self.handlePosition.y = dragY
               dragY = Math.max(0, dragY)
@@ -187,28 +187,28 @@ class SplitPane(
     val first  = widgetPrefWidth(_firstWidget)
     val second = widgetPrefWidth(_secondWidget)
     if (vertical) Math.max(first, second)
-    else first + _style.handle.getMinWidth + second
+    else first + _style.handle.minWidth + second
   }
 
   override def getPrefHeight: Float = {
     val first  = widgetPrefHeight(_firstWidget)
     val second = widgetPrefHeight(_secondWidget)
     if (!vertical) Math.max(first, second)
-    else first + _style.handle.getMinHeight + second
+    else first + _style.handle.minHeight + second
   }
 
   override def getMinWidth: Float = {
     val first  = widgetMinWidth(_firstWidget)
     val second = widgetMinWidth(_secondWidget)
     if (vertical) Math.max(first, second)
-    else first + _style.handle.getMinWidth + second
+    else first + _style.handle.minWidth + second
   }
 
   override def getMinHeight: Float = {
     val first  = widgetMinHeight(_firstWidget)
     val second = widgetMinHeight(_secondWidget)
     if (!vertical) Math.max(first, second)
-    else first + _style.handle.getMinHeight + second
+    else first + _style.handle.minHeight + second
   }
 
   def setVertical(vertical: Boolean): Unit =
@@ -217,15 +217,13 @@ class SplitPane(
       invalidateHierarchy()
     }
 
-  def isVertical: Boolean = vertical
-
   private def calculateHorizBoundsAndPositions(): Unit = {
     val handle         = _style.handle
     val height         = this.height
-    val availWidth     = this.width - handle.getMinWidth
+    val availWidth     = this.width - handle.minWidth
     val leftAreaWidth  = (availWidth * splitAmount).toInt.toFloat
     val rightAreaWidth = availWidth - leftAreaWidth
-    val handleWidth    = handle.getMinWidth
+    val handleWidth    = handle.minWidth
 
     firstWidgetBounds.set(0, 0, leftAreaWidth, height)
     secondWidgetBounds.set(leftAreaWidth + handleWidth, 0, rightAreaWidth, height)
@@ -236,10 +234,10 @@ class SplitPane(
     val handle           = _style.handle
     val width            = this.width
     val height           = this.height
-    val availHeight      = height - handle.getMinHeight
+    val availHeight      = height - handle.minHeight
     val topAreaHeight    = (availHeight * splitAmount).toInt.toFloat
     val bottomAreaHeight = availHeight - topAreaHeight
-    val handleHeight     = handle.getMinHeight
+    val handleHeight     = handle.minHeight
 
     firstWidgetBounds.set(0, height - topAreaHeight, width, topAreaHeight)
     secondWidgetBounds.set(0, 0, width, bottomAreaHeight)
@@ -293,8 +291,6 @@ class SplitPane(
     invalidate()
   }
 
-  def getSplitAmount: Float = splitAmount
-
   /** Called during layout to clamp the {@link #splitAmount} within the set limits. By default it imposes the limits of the {@linkplain #getMinSplitAmount() min amount},
     * {@linkplain #getMaxSplitAmount() max amount}, and min sizes of the children. This method is internally called in response to layout, so it should not call {@link #invalidate()}.
     */
@@ -303,7 +299,7 @@ class SplitPane(
     var effectiveMaxAmount = maxAmount
 
     if (vertical) {
-      val availableHeight = height - _style.handle.getMinHeight
+      val availableHeight = height - _style.handle.minHeight
       _firstWidget.foreach {
         case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinHeight / availableHeight, 1))
         case _ =>
@@ -313,7 +309,7 @@ class SplitPane(
         case _ =>
       }
     } else {
-      val availableWidth = width - _style.handle.getMinWidth
+      val availableWidth = width - _style.handle.minWidth
       _firstWidget.foreach {
         case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinWidth / availableWidth, 1))
         case _ =>
@@ -330,15 +326,13 @@ class SplitPane(
       splitAmount = Math.max(Math.min(splitAmount, effectiveMaxAmount), effectiveMinAmount)
   }
 
-  def getMinSplitAmount: Float = minAmount
-
+  /** @throws SgeError.GraphicsError if minAmount is not between 0 and 1 */
   def setMinSplitAmount(minAmount: Float): Unit = {
     if (minAmount < 0 || minAmount > 1) throw SgeError.GraphicsError("minAmount has to be >= 0 and <= 1")
     this.minAmount = minAmount
   }
 
-  def getMaxSplitAmount: Float = maxAmount
-
+  /** @throws SgeError.GraphicsError if maxAmount is not between 0 and 1 */
   def setMaxSplitAmount(maxAmount: Float): Unit = {
     if (maxAmount < 0 || maxAmount > 1) throw SgeError.GraphicsError("maxAmount has to be >= 0 and <= 1")
     this.maxAmount = maxAmount

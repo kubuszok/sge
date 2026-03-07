@@ -16,7 +16,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** An action that runs a {@link Runnable}. Alternatively, the {@link #run()} method can be overridden instead of setting a runnable.
   * @author
@@ -26,7 +26,7 @@ class RunnableAction extends Action {
   var runnable:    Nullable[Runnable] = Nullable.empty
   private var ran: Boolean            = false
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     if (!ran) {
       ran = true
       run()

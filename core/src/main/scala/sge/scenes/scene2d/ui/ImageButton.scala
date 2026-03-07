@@ -91,7 +91,7 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
   /** Sets the image drawable based on the current button state. The default implementation sets the image drawable using {@link #getImageDrawable()}.
     */
   protected def updateImage(): Unit =
-    image.setDrawable(getImageDrawable)
+    image.drawable = getImageDrawable
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     updateImage()
@@ -107,7 +107,7 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)
-      (if (className.indexOf('$') != -1) "ImageButton " else "") + className + ": " + image.getDrawable
+      (if (className.indexOf('$') != -1) "ImageButton " else "") + className + ": " + image.drawable
     }
 }
 

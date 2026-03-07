@@ -21,9 +21,11 @@ package actions
   *   Nathan Sweet
   */
 class TouchableAction extends Action {
+  import sge.utils.Seconds
+
   var touchable: Touchable = scala.compiletime.uninitialized
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach(_.touchable = touchable)
     true
   }

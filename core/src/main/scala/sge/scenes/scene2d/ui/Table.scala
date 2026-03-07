@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; Align opaque type; DynamicArray for cells; boundary/break; Debug enum in companion object
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getBackground/setBackground, getClip/setClip, getCells, getPadTopValue, getAlign, getRows, getColumns, getSkin, etc.
+ *   Note: Java-style getters/setters retained — fluent builder pattern and widely-inherited API; converting would cascade across all Table subclasses
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -428,13 +428,13 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   override def getPrefWidth: Float = {
     if (sizeInvalid) computeSize()
     val width = tablePrefWidth
-    background.fold(width)(bg => Math.max(width, bg.getMinWidth))
+    background.fold(width)(bg => Math.max(width, bg.minWidth))
   }
 
   override def getPrefHeight: Float = {
     if (sizeInvalid) computeSize()
     val height = tablePrefHeight
-    background.fold(height)(bg => Math.max(height, bg.getMinHeight))
+    background.fold(height)(bg => Math.max(height, bg.minHeight))
   }
 
   override def getMinWidth: Float = {
@@ -1381,7 +1381,7 @@ object Table {
   val backgroundTop: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.map(_.getTopHeight).getOrElse(0f)
+        case t: Table => t.background.map(_.topHeight).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1393,7 +1393,7 @@ object Table {
   val backgroundLeft: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.map(_.getLeftWidth).getOrElse(0f)
+        case t: Table => t.background.map(_.leftWidth).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1405,7 +1405,7 @@ object Table {
   val backgroundBottom: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.map(_.getBottomHeight).getOrElse(0f)
+        case t: Table => t.background.map(_.bottomHeight).getOrElse(0f)
         case _ => 0f
       }
   }
@@ -1417,7 +1417,7 @@ object Table {
   val backgroundRight: Value = new Value {
     def get(context: Nullable[Actor]): Float =
       context.fold(0f) {
-        case t: Table => t.background.map(_.getRightWidth).getOrElse(0f)
+        case t: Table => t.background.map(_.rightWidth).getOrElse(0f)
         case _ => 0f
       }
   }

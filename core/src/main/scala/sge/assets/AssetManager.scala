@@ -434,7 +434,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     */
   def update(millis: Int): Boolean = boundary {
     if (Sge().application.getType() == Application.ApplicationType.WebGL) boundary.break(update())
-    val endTime = TimeUtils.millis() + millis
+    val endTime = TimeUtils.millis() + sge.utils.Millis(millis.toLong)
     while (true) {
       val done = update()
       if (done || TimeUtils.millis() > endTime) boundary.break(done)
@@ -626,7 +626,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       }
 
       val endTime = TimeUtils.nanoTime()
-      log.debug("Loaded: " + (endTime - task.startTime) / 1000000f + "ms " + task.assetDesc)
+      log.debug("Loaded: " + (endTime - task.startTime).toFloat / 1000000f + "ms " + task.assetDesc)
 
       true
     } else {

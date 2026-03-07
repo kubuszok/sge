@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; Align opaque type
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getBackground/setBackground, getActor/setActor, getClip/setClip, getPad*Value, getFillX/Y, getAlign
+ *   Note: Java-style getters/setters retained — fluent builder pattern (returns Container[T] for chaining) conflicts with Scala property naming
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -112,7 +112,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
         background.fold {
           pad(Value.zero)
         } { bg =>
-          pad(bg.getTopHeight, bg.getLeftWidth, bg.getBottomHeight, bg.getRightWidth)
+          pad(bg.topHeight, bg.leftWidth, bg.bottomHeight, bg.rightWidth)
         }
         invalidate()
       }
@@ -496,7 +496,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def getPrefWidth: Float = {
     var v = actor.map(a => _prefWidth.get(a)).getOrElse(0f)
-    _background.foreach { bg => v = Math.max(v, bg.getMinWidth) }
+    _background.foreach { bg => v = Math.max(v, bg.minWidth) }
     Math.max(getMinWidth, v + _padLeft.get(this) + _padRight.get(this))
   }
 
@@ -504,7 +504,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def getPrefHeight: Float = {
     var v = actor.map(a => _prefHeight.get(a)).getOrElse(0f)
-    _background.foreach { bg => v = Math.max(v, bg.getMinHeight) }
+    _background.foreach { bg => v = Math.max(v, bg.minHeight) }
     Math.max(getMinHeight, v + _padTop.get(this) + _padBottom.get(this))
   }
 

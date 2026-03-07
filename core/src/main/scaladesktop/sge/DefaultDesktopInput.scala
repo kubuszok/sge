@@ -18,7 +18,7 @@ package sge
 import sge.graphics.glutils.HdpiMode
 import sge.input.NativeInputConfiguration
 import sge.platform.WindowingOps
-import sge.utils.Nullable
+import sge.utils.{ Nanos, Nullable }
 import scala.collection.mutable
 
 /** Default desktop input implementation using GLFW/SDL3 callbacks via [[WindowingOps]].
@@ -71,7 +71,7 @@ class DefaultDesktopInput private[sge] (
     action match {
       case GLFW_PRESS =>
         val gdxKey = getGdxKeyCode(key)
-        eventQueue.keyDown(gdxKey, System.nanoTime())
+        eventQueue.keyDown(gdxKey, Nanos(System.nanoTime()))
         pressedKeyCount += 1
         keyJustPressed = true
         pressedKeys(gdxKey) = true
@@ -85,11 +85,11 @@ class DefaultDesktopInput private[sge] (
         pressedKeyCount -= 1
         pressedKeys(gdxKey) = false
         window.getGraphics().requestRendering()
-        eventQueue.keyUp(gdxKey, System.nanoTime())
+        eventQueue.keyUp(gdxKey, Nanos(System.nanoTime()))
       case GLFW_REPEAT =>
         if (_lastCharacter != 0) {
           window.getGraphics().requestRendering()
-          eventQueue.keyTyped(_lastCharacter, System.nanoTime())
+          eventQueue.keyTyped(_lastCharacter, Nanos(System.nanoTime()))
         }
       case _ => ()
     }
@@ -99,13 +99,13 @@ class DefaultDesktopInput private[sge] (
     if ((codepoint & 0xff00) != 0xf700) {
       _lastCharacter = codepoint.toChar
       window.getGraphics().requestRendering()
-      eventQueue.keyTyped(codepoint.toChar, System.nanoTime())
+      eventQueue.keyTyped(codepoint.toChar, Nanos(System.nanoTime()))
     }
   }
 
   private val onScroll: (Long, Double, Double) => Unit = { (_, scrollX, scrollY) =>
     window.getGraphics().requestRendering()
-    eventQueue.scrolled(-scrollX.toFloat, -scrollY.toFloat, System.nanoTime())
+    eventQueue.scrolled(-scrollX.toFloat, -scrollY.toFloat, Nanos(System.nanoTime()))
   }
 
   private val onCursorPos: (Long, Double, Double) => Unit = { (_, x, y) =>
@@ -127,7 +127,7 @@ class DefaultDesktopInput private[sge] (
     }
 
     window.getGraphics().requestRendering()
-    val time = System.nanoTime()
+    val time = Nanos(System.nanoTime())
     if (_mousePressed > 0) {
       eventQueue.touchDragged(_mouseX, _mouseY, 0, time)
     } else {
@@ -138,7 +138,7 @@ class DefaultDesktopInput private[sge] (
   private val onMouseButton: (Long, Int, Int, Int) => Unit = { (_, button, action, _) =>
     val gdxButton = toGdxButton(button)
     if (button == -1 || gdxButton != -1) {
-      val time = System.nanoTime()
+      val time = Nanos(System.nanoTime())
       if (action == GLFW_PRESS) {
         _mousePressed += 1
         _justTouched = true
@@ -302,7 +302,7 @@ class DefaultDesktopInput private[sge] (
     // FIXME getTextInput does nothing on desktop
     listener.canceled()
 
-  override def currentEventTime: Long = eventQueue.currentEventTime
+  override def currentEventTime: Nanos = eventQueue.currentEventTime
 
   override def setInputProcessor(processor: InputProcessor): Unit =
     _inputProcessor = Nullable(processor)

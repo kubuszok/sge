@@ -16,7 +16,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Adds an action to an actor.
   * @author
@@ -25,7 +25,7 @@ import sge.utils.Nullable
 class AddAction extends Action {
   var actionToAdd: Nullable[Action] = Nullable.empty
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach { t =>
       actionToAdd.foreach { a =>
         a.setActor(Nullable(t))

@@ -17,7 +17,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Base class for an action that wraps another action.
   * @author
@@ -26,9 +26,9 @@ import sge.utils.Nullable
 abstract class DelegateAction extends Action {
   var action: Nullable[Action] = Nullable.empty
 
-  protected def delegate(delta: Float): Boolean
+  protected def delegate(delta: Seconds): Boolean
 
-  final def act(delta: Float): Boolean = {
+  final def act(delta: Seconds): Boolean = {
     val savedPool = pool
     pool = Nullable.empty // Ensure this action can't be returned to the pool inside the delegate action.
     try

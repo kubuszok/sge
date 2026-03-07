@@ -17,7 +17,7 @@
  * - getBoundingBox javadoc says "copy of controller" but returns bounding box (matches Java)
  * - ClassReflection.isAssignableFrom → direct Class.isAssignableFrom
  * - DEFAULT_TIME_STEP: companion object protected val (Java protected static final)
- * - TODO: opaque Seconds for deltaTime, deltaTimeSqr, update(deltaTime), setTimeStep params -- see docs/improvements/opaque-types.md
+ * - Convention: opaque Seconds for deltaTime, deltaTimeSqr, update(deltaTime), setTimeStep params
  */
 package sge
 package graphics
@@ -36,7 +36,7 @@ import sge.graphics.g3d.particles.influencers.Influencer
 import sge.graphics.g3d.particles.renderers.ParticleControllerRenderer
 import sge.math.{ Matrix4, Quaternion, Vector3 }
 import sge.math.collision.BoundingBox
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Base class of all the particle controllers. Encapsulate the generic structure of a controller and methods to update the particles simulation.
   * @author
@@ -70,8 +70,8 @@ class ParticleController()(using Sge) extends ResourceData.Configurable {
   protected var _boundingBox: Nullable[BoundingBox] = Nullable.empty
 
   /** Time step, DO NOT CHANGE MANUALLY */
-  var deltaTime:    Float = 0f
-  var deltaTimeSqr: Float = 0f
+  var deltaTime:    Seconds = Seconds.zero
+  var deltaTimeSqr: Float   = 0f
 
   setTimeStep(ParticleController.DEFAULT_TIME_STEP)
 
@@ -87,9 +87,9 @@ class ParticleController()(using Sge) extends ResourceData.Configurable {
   }
 
   /** Sets the delta used to step the simulation */
-  private def setTimeStep(timeStep: Float): Unit = {
+  private def setTimeStep(timeStep: Seconds): Unit = {
     deltaTime = timeStep
-    deltaTimeSqr = deltaTime * deltaTime
+    deltaTimeSqr = deltaTime.toFloat * deltaTime.toFloat
   }
 
   /** Sets the current transformation to the given one.
@@ -221,10 +221,10 @@ class ParticleController()(using Sge) extends ResourceData.Configurable {
 
   /** Updates the particles data */
   def update(): Unit =
-    update(Sge().graphics.getDeltaTime())
+    update(Seconds(Sge().graphics.getDeltaTime()))
 
   /** Updates the particles data */
-  def update(deltaTime: Float): Unit = {
+  def update(deltaTime: Seconds): Unit = {
     setTimeStep(deltaTime)
     emitter.update()
     for (influencer <- influencers)
@@ -335,5 +335,5 @@ class ParticleController()(using Sge) extends ResourceData.Configurable {
 object ParticleController {
 
   /** the default time step used to update the simulation */
-  protected val DEFAULT_TIME_STEP: Float = 1f / 60
+  protected val DEFAULT_TIME_STEP: Seconds = Seconds(1f / 60)
 }

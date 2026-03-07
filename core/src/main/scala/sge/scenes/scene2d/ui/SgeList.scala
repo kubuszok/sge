@@ -8,7 +8,7 @@
  *   Renames: class List<T> -> SgeList[T] (avoids clash with scala.List); toString(T) -> itemToString(T)
  *   Convention: null -> Nullable; (using Sge) context; DynamicArray with MkArray.anyRef cast
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getStyle/setStyle, getSelection/setSelection, getSelected/setSelected, getSelectedIndex/setSelectedIndex, getItems/setItems, getAlignment/setAlignment
+ *   Note: Java-style getters/setters retained — setItems/setSelected/setSelectedIndex have validation/events logic; style via Styleable
  *   TODO: Int key refs (Input.Keys) → opaque Key type when available
  *   Audited: 2026-03-03
  *
@@ -50,7 +50,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
   var typeToSelect:        Boolean             = false
 
   selection.setActor(Nullable(this))
-  selection.setRequired(true)
+  selection.required = true
 
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
@@ -64,7 +64,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
       if (self.items.isEmpty) scala.util.boundary.break(false)
       keycode match {
         case Input.Keys.A =>
-          if (UIUtils.ctrl() && self.selection.getMultiple) {
+          if (UIUtils.ctrl() && self.selection.multiple) {
             self.selection.clear()
             self.selection.addAll(self.items)
             scala.util.boundary.break(true)
@@ -163,7 +163,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     val selectedDrawable = _style.selection
 
     itemHeight = font.capHeight - font.descent * 2
-    itemHeight += selectedDrawable.getTopHeight + selectedDrawable.getBottomHeight
+    itemHeight += selectedDrawable.topHeight + selectedDrawable.bottomHeight
 
     _prefWidth = 0
     val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
@@ -175,12 +175,12 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
       i += 1
     }
     layoutPool.free(glyphLayout)
-    _prefWidth += selectedDrawable.getLeftWidth + selectedDrawable.getRightWidth
+    _prefWidth += selectedDrawable.leftWidth + selectedDrawable.rightWidth
     _prefHeight = items.size * itemHeight
 
     _style.background.foreach { background =>
-      _prefWidth = Math.max(_prefWidth + background.getLeftWidth + background.getRightWidth, background.getMinWidth)
-      _prefHeight = Math.max(_prefHeight + background.getTopHeight + background.getBottomHeight, background.getMinHeight)
+      _prefWidth = Math.max(_prefWidth + background.leftWidth + background.rightWidth, background.minWidth)
+      _prefHeight = Math.max(_prefHeight + background.topHeight + background.bottomHeight, background.minHeight)
     }
   }
 
@@ -204,15 +204,15 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     var itemY = lh
 
     _style.background.foreach { background =>
-      val leftWidth = background.getLeftWidth
+      val leftWidth = background.leftWidth
       lx += leftWidth
-      itemY -= background.getTopHeight
-      lw -= leftWidth + background.getRightWidth
+      itemY -= background.topHeight
+      lw -= leftWidth + background.rightWidth
     }
 
-    val textOffsetX = selectedDrawable.getLeftWidth
-    val textWidth   = lw - textOffsetX - selectedDrawable.getRightWidth
-    val textOffsetY = selectedDrawable.getTopHeight - font.descent
+    val textOffsetX = selectedDrawable.leftWidth
+    val textWidth   = lw - textOffsetX - selectedDrawable.rightWidth
+    val textOffsetY = selectedDrawable.topHeight - font.descent
 
     font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
     var i = 0
@@ -274,11 +274,11 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     */
   def setSelected(item: Nullable[T]): Unit =
     item.fold {
-      if (selection.getRequired && items.nonEmpty) selection.set(items.first)
+      if (selection.required && items.nonEmpty) selection.set(items.first)
       else selection.clear()
     } { i =>
       if (items.contains(i)) selection.set(i)
-      else if (selection.getRequired && items.nonEmpty) selection.set(items.first)
+      else if (selection.required && items.nonEmpty) selection.set(items.first)
       else selection.clear()
     }
 
@@ -321,9 +321,9 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     var adjustedY = y
     val height    = this.height
     _style.background.foreach { background =>
-      adjustedY -= background.getBottomHeight
+      adjustedY -= background.bottomHeight
     }
-    val bgHeight = _style.background.map(bg => height - bg.getTopHeight - bg.getBottomHeight).getOrElse(height)
+    val bgHeight = _style.background.map(bg => height - bg.topHeight - bg.bottomHeight).getOrElse(height)
     val index    = ((bgHeight - adjustedY) / itemHeight).toInt
     if (index < 0 || index >= items.size) -1 else index
   }

@@ -16,7 +16,7 @@
  */
 package sge
 
-import sge.utils.Nullable
+import sge.utils.{ Nanos, Nullable }
 
 /** <p> Interface to the input facilities. This allows polling the state of the keyboard, the touch screen and the accelerometer. On some backends (desktop, gwt, etc) the touch screen is replaced by
   * mouse input. The accelerometer is of course not available on all backends. </p>
@@ -316,7 +316,7 @@ trait Input {
   def getRotationMatrix(matrix: Array[Float]): Unit
 
   /** @return the time of the event currently reported to the {@link InputProcessor}. */
-  def currentEventTime: Long
+  def currentEventTime: Nanos
 
   /** Sets whether the given key on Android or GWT should be caught. No effect on other platforms. All keys that are not caught may be handled by other apps or background processes on Android, or may
     * trigger default browser behaviour on GWT. For example, media or volume buttons are handled by background media players if present, or Space key triggers a scroll. All keys you need to control

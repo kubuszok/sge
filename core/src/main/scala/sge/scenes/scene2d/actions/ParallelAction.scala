@@ -19,7 +19,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Seconds }
 
 /** Executes a number of actions at the same time.
   * @author
@@ -64,7 +64,7 @@ class ParallelAction extends Action {
     addAction(action5)
   }
 
-  def act(delta: Float): Boolean = scala.util.boundary {
+  def act(delta: Seconds): Boolean = scala.util.boundary {
     if (complete) scala.util.boundary.break(true)
     complete = true
     val savedPool = pool

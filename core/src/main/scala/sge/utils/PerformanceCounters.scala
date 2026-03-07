@@ -8,7 +8,7 @@
  *   Renames: `Array<PerformanceCounter>` -> `DynamicArray[PerformanceCounter]`
  *   Idiom: split packages
  *   Issues: None
- *   TODO: opaque Seconds for tick(deltaTime) param -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for tick(deltaTime) param; opaque Nanos for internal timestamps
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -22,7 +22,7 @@ import sge.math.MathUtils
 class PerformanceCounters {
   private val nano2seconds = MathUtils.nanoToSec
 
-  private var lastTick = 0L
+  private var lastTick = Nanos.zero
   val counters: DynamicArray[PerformanceCounter] = DynamicArray[PerformanceCounter]()
 
   def add(name: String, windowSize: Int): PerformanceCounter = {
@@ -39,11 +39,11 @@ class PerformanceCounters {
 
   def tick(): Unit = {
     val t = TimeUtils.nanoTime()
-    if (lastTick > 0L) tick((t - lastTick) * nano2seconds)
+    if (lastTick > Nanos.zero) tick(Seconds((t - lastTick).toFloat * nano2seconds))
     lastTick = t
   }
 
-  def tick(deltaTime: Float): Unit = {
+  def tick(deltaTime: Seconds): Unit = {
     var i = 0
     while (i < counters.size) {
       counters(i).tick(deltaTime)

@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context
  *   Idiom: split packages
- *   TODO: Java-style getters/setters — getManager, getContainer, getActor/setActor, setInstant, setAlways
+ *   Fixes: Java-style getters/setters removed (manager/container already public vals, instant/always/touchIndependent already public vars)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -46,27 +46,6 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   /** @param contents May be null. */
   def this(contents: Nullable[T])(using Sge) =
     this(contents, TooltipManager.getInstance())
-
-  def getManager: TooltipManager = manager
-
-  def getContainer: Container[T] = container
-
-  def setActor(contents: Nullable[T]): Unit =
-    container.setActor(contents)
-
-  def getActor: Nullable[T] = container.getActor
-
-  /** If true, this tooltip is shown without delay when hovered. */
-  def setInstant(instant: Boolean): Unit =
-    this.instant = instant
-
-  /** If true, this tooltip is shown even when tooltips are not {@link TooltipManager#enabled}. */
-  def setAlways(always: Boolean): Unit =
-    this.always = always
-
-  /** If true, this tooltip will be shown even when screen is touched simultaneously with entering tooltip's targetActor */
-  def setTouchIndependent(touchIndependent: Boolean): Unit =
-    this.touchIndependent = touchIndependent
 
   override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Int): Boolean =
     if (instant) {

@@ -9,7 +9,7 @@
  *   Convention: default parameter `windowSize = 5` instead of 2-arg constructor
  *   Idiom: split packages
  *   Issues: `tick(delta)` throws on invalid data instead of logging silently (intentional)
- *   TODO: opaque Seconds for tick(delta) param -- see docs/improvements/opaque-types.md
+ *   Convention: opaque Seconds for tick(delta) param; opaque Nanos for internal timestamps
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -27,8 +27,8 @@ import sge.math.{ FloatCounter, MathUtils }
   */
 class PerformanceCounter(val name: String, windowSize: Int = 5) {
   private val nano2seconds = MathUtils.nanoToSec
-  private var startTime    = 0L
-  private var lastTick     = 0L
+  private var startTime    = Nanos.zero
+  private var lastTick     = Nanos.zero
 
   /** The time value of this counter (seconds) */
   val time: FloatCounter = FloatCounter(windowSize)
@@ -47,7 +47,7 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
     */
   def tick(): Unit = {
     val t = TimeUtils.nanoTime()
-    if (lastTick > 0L) tick((t - lastTick) * nano2seconds)
+    if (lastTick > Nanos.zero) tick(Seconds((t - lastTick).toFloat * nano2seconds))
     lastTick = t
   }
 
@@ -55,15 +55,16 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
     * @param delta
     *   The time since the last call to this method
     */
-  def tick(delta: Float): Unit = {
+  def tick(delta: Seconds): Unit = {
     if (!valid) {
       throw SgeError.InvalidInput("Invalid data, check if you called PerformanceCounter#stop()")
     }
 
     time.put(current)
 
-    val currentLoad = if (delta == 0f) 0f else current / delta
-    load.put(if (delta > 1f) currentLoad else delta * currentLoad + (1f - delta) * load.latest)
+    val d           = delta.toFloat
+    val currentLoad = if (d == 0f) 0f else current / d
+    load.put(if (d > 1f) currentLoad else d * currentLoad + (1f - d) * load.latest)
 
     current = 0f
     valid = false
@@ -79,9 +80,9 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
   /** Stop counting, call this method right after you performed the task you want to keep track of. Call start() again when you perform more of that task.
     */
   def stop(): Unit =
-    if (startTime > 0L) {
-      current += (TimeUtils.nanoTime() - startTime) * nano2seconds
-      startTime = 0L
+    if (startTime > Nanos.zero) {
+      current += (TimeUtils.nanoTime() - startTime).toFloat * nano2seconds
+      startTime = Nanos.zero
       valid = true
     }
 
@@ -89,8 +90,8 @@ class PerformanceCounter(val name: String, windowSize: Int = 5) {
   def reset(): Unit = {
     time.reset()
     load.reset()
-    startTime = 0L
-    lastTick = 0L
+    startTime = Nanos.zero
+    lastTick = Nanos.zero
     current = 0f
     valid = false
   }

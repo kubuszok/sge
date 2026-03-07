@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: Java `final class` with static methods -> Scala `object`
+ *   Convention: Java `final class` with static methods -> Scala `object`; opaque Millis/Nanos for type-safe time values
  *   Idiom: split packages
- *   TODO: opaque Millis for millis()/timeSinceMillis(); opaque Nanos for nanoTime()/timeSinceNanos(); typed conversions
  *   TODO: delegate to scala-java-time (io.github.cquiroz %%% "scala-java-time" % "2.6.0") -- cross-platform JVM/JS/Native; see docs/improvements/dependencies.md B1
  *   Audited: 2026-03-03
  *
@@ -23,12 +22,10 @@ package utils
 object TimeUtils {
 
   /** @return The current value of the system timer, in nanoseconds. */
-  def nanoTime(): Long = System.nanoTime()
+  def nanoTime(): Nanos = Nanos(System.nanoTime())
 
   /** @return the difference, measured in milliseconds, between the current time and midnight, January 1, 1970 UTC. */
-  def millis(): Long = System.currentTimeMillis()
-
-  private val nanosPerMilli = 1000000L
+  def millis(): Millis = Millis(System.currentTimeMillis())
 
   /** Convert nanoseconds time to milliseconds
     * @param nanos
@@ -36,7 +33,7 @@ object TimeUtils {
     * @return
     *   time value in milliseconds
     */
-  def nanosToMillis(nanos: Long): Long = nanos / nanosPerMilli
+  def nanosToMillis(nanos: Nanos): Millis = nanos.toMillis
 
   /** Convert milliseconds time to nanoseconds
     * @param millis
@@ -44,7 +41,7 @@ object TimeUtils {
     * @return
     *   time value in nanoseconds
     */
-  def millisToNanos(millis: Long): Long = millis * nanosPerMilli
+  def millisToNanos(millis: Millis): Nanos = millis.toNanos
 
   /** Get the time in nanos passed since a previous time
     * @param prevTime
@@ -52,7 +49,7 @@ object TimeUtils {
     * @return
     *   \- time passed since prevTime in nanoseconds
     */
-  def timeSinceNanos(prevTime: Long): Long = nanoTime() - prevTime
+  def timeSinceNanos(prevTime: Nanos): Nanos = nanoTime() - prevTime
 
   /** Get the time in millis passed since a previous time
     * @param prevTime
@@ -60,5 +57,5 @@ object TimeUtils {
     * @return
     *   \- time passed since prevTime in milliseconds
     */
-  def timeSinceMillis(prevTime: Long): Long = millis() - prevTime
+  def timeSinceMillis(prevTime: Millis): Millis = millis() - prevTime
 }

@@ -19,7 +19,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ Align, DynamicArray, MkArray, Nullable, PoolManager }
+import sge.utils.{ Align, DynamicArray, MkArray, Nullable, PoolManager, Seconds }
 
 import sge.graphics.Color
 import sge.graphics.g2d.Batch
@@ -102,7 +102,7 @@ class Actor()(using Sge) {
         var i = 0
         while (i < actions.size) {
           val action = actions(i)
-          if (action.act(delta) && i < actions.size) {
+          if (action.act(Seconds(delta)) && i < actions.size) {
             val current     = actions(i)
             val actionIndex = if (current eq action) i else actions.indexOf(action)
             if (actionIndex != -1) {

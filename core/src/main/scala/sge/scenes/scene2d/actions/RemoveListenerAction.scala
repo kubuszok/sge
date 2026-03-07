@@ -16,7 +16,7 @@ package scenes
 package scene2d
 package actions
 
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Removes a listener from an actor.
   * @author
@@ -26,7 +26,7 @@ class RemoveListenerAction extends Action {
   var listener: Nullable[EventListener] = Nullable.empty
   var capture:  Boolean                 = false
 
-  def act(delta: Float): Boolean = {
+  def act(delta: Seconds): Boolean = {
     target.foreach { t =>
       listener.foreach { l =>
         if (capture) t.removeCaptureListener(l)
