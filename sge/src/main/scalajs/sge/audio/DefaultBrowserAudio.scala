@@ -9,6 +9,7 @@
  *   Convention: Scala.js only; delegates to WebAudioManager for Sound/Music creation
  *   Idiom: AudioDevice/AudioRecorder not supported in browser — throws SgeError
  *   Idiom: Output device enumeration via navigator.mediaDevices.enumerateDevices
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

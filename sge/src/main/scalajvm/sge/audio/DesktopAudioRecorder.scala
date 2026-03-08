@@ -9,6 +9,7 @@
  *   Convention: JVM-only (javax.sound.sampled); placed in scalajvm/sge/audio/
  *   Convention: dispose() -> close() via Closeable
  *   Idiom: GdxRuntimeException -> SgeError.InvalidInput
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

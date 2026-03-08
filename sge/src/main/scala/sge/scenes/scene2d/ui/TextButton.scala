@@ -33,12 +33,12 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle)(usin
   setSize(getPrefWidth, getPrefHeight)
 
   def this(text: Nullable[String], skin: Skin)(using Sge) = {
-    this(text, skin.get(classOf[TextButton.TextButtonStyle]))
+    this(text, skin.get[TextButton.TextButtonStyle])
     setSkin(Nullable(skin))
   }
 
   def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
-    this(text, skin.get(styleName, classOf[TextButton.TextButtonStyle]))
+    this(text, skin.get[TextButton.TextButtonStyle](styleName))
     setSkin(Nullable(skin))
   }
 

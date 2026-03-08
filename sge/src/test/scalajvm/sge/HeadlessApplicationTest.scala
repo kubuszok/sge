@@ -138,33 +138,6 @@ class HeadlessApplicationTest extends FunSuite {
     }
   }
 
-  // ---- logging ----
-
-  test("log level filtering works") {
-    val listener = new ApplicationListener {
-      def create():                              Unit = ()
-      def render():                              Unit = ()
-      def resize(width: Pixels, height: Pixels): Unit = ()
-      def pause():                               Unit = ()
-      def resume():                              Unit = ()
-      def dispose():                             Unit = ()
-    }
-
-    val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 0))
-    try {
-      assertEquals(app.getLogLevel(), Application.LOG_INFO)
-      app.setLogLevel(Application.LOG_NONE)
-      assertEquals(app.getLogLevel(), Application.LOG_NONE)
-      // Should not throw even when logging is disabled
-      app.log("test", "msg")
-      app.error("test", "msg")
-      app.debug("test", "msg")
-    } finally {
-      app.exit()
-      Thread.sleep(200)
-    }
-  }
-
   // ---- lifecycle listeners ----
 
   test("lifecycle listeners receive pause and dispose on exit") {

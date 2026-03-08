@@ -47,13 +47,11 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
-    this(min, max, stepSize, vertical, skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[Slider.SliderStyle]))
-  }
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+    this(min, max, stepSize, vertical, skin.get[Slider.SliderStyle]("default-" + (if (vertical) "vertical" else "horizontal")))
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
-    this(min, max, stepSize, vertical, skin.get(styleName, classOf[Slider.SliderStyle]))
-  }
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+    this(min, max, stepSize, vertical, skin.get[Slider.SliderStyle](styleName))
 
   addListener(
     new InputListener() {
@@ -73,7 +71,7 @@ class Slider(
           // The position is invalid when focus is cancelled
           if (event.isTouchFocusCancel || !calculatePositionAndValue(x, y)) {
             // Fire an event on touchUp even if the value didn't change, so listeners can see when a drag ends via isDragging.
-            val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+            val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
             fire(changeEvent)
             Actor.POOLS.free(changeEvent)
           }

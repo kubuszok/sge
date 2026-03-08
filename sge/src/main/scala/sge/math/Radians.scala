@@ -26,9 +26,13 @@ object Radians {
     def sin:              Float   = MathUtils.Sin.table((r * MathUtils.radToIndex).toInt & MathUtils.SIN_MASK)
     def cos:              Float   =
       MathUtils.Sin.table(((r + MathUtils.HALF_PI) * MathUtils.radToIndex).toInt & MathUtils.SIN_MASK)
-    def +(other:  Radians): Radians = r + other
-    def -(other:  Radians): Radians = r - other
-    def *(scalar: Float):   Radians = r * scalar
-    def unary_-           : Radians = -r
+    @annotation.targetName("plus")
+    def +(other: Radians): Radians = r + other
+    @annotation.targetName("minus")
+    def -(other: Radians): Radians = r - other
+    @annotation.targetName("times")
+    def *(scalar: Float): Radians = r * scalar
+    @annotation.targetName("negate")
+    def unary_- : Radians = -r
   }
 }

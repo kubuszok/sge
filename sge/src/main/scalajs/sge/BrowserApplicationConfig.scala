@@ -9,6 +9,7 @@
  *   Convention: GWT Panel/TextArea fields dropped (DOM element access via canvasId instead)
  *   Convention: OrientationLockType enum extracted as companion object member
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

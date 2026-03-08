@@ -10,6 +10,7 @@
  *   Convention: Handle types use Long (C int64_t / long long)
  *   Convention: String params allocated in Zone (auto-freed)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform

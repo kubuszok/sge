@@ -33,9 +33,8 @@ class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(TextureTarget.
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
 
-  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using Sge) = {
+  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using Sge) =
     this(CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
-  }
 
   if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("Texture3D requires a device running with GLES 3.0 compatibility")

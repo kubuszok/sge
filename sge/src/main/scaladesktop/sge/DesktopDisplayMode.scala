@@ -8,6 +8,7 @@
  *   Renames: Lwjgl3Graphics.Lwjgl3DisplayMode -> DesktopDisplayMode
  *   Convention: extracted from inner class to standalone; wraps core DisplayMode with monitor handle
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

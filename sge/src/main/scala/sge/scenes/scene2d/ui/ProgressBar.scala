@@ -62,19 +62,17 @@ class ProgressBar(
   this._value = min
   setSize(getPrefWidth, getPrefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
     this(
       min,
       max,
       stepSize,
       vertical,
-      skin.get("default-" + (if (vertical) "vertical" else "horizontal"), classOf[ProgressBar.ProgressBarStyle])
+      skin.get[ProgressBar.ProgressBarStyle]("default-" + (if (vertical) "vertical" else "horizontal"))
     )
-  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
-    this(min, max, stepSize, vertical, skin.get(styleName, classOf[ProgressBar.ProgressBarStyle]))
-  }
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+    this(min, max, stepSize, vertical, skin.get[ProgressBar.ProgressBarStyle](styleName))
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style
@@ -252,7 +250,7 @@ class ProgressBar(
     this._value = clampedValue
 
     if (programmaticChangeEvents) {
-      val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+      val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
       val cancelled   = fire(changeEvent)
       Actor.POOLS.free(changeEvent)
       if (cancelled) {

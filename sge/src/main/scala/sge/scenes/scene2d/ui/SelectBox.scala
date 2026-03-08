@@ -55,8 +55,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     }
   }
 
-  def this(skin: Skin)(using Sge) = this(skin.get(classOf[SelectBox.SelectBoxStyle]))
-  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[SelectBox.SelectBoxStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get[SelectBox.SelectBoxStyle])
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get[SelectBox.SelectBoxStyle](styleName))
 
   setStyle(style)
   setSize(getPrefWidth, getPrefHeight)
@@ -165,7 +165,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
       prefHeight = Math.max(background.topHeight + background.bottomHeight + font.capHeight - font.descent * 2, background.minHeight)
     }
 
-    val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
+    val layoutPool  = Actor.POOLS.getPool[GlyphLayout]
     val glyphLayout = layoutPool.obtain()
     if (selectedPrefWidth) {
       prefWidth = 0
@@ -301,7 +301,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   /** Returns the pref width of the select box if the widest item was selected, for use when {@link #setSelectedPrefWidth(boolean)} is true.
     */
   def getMaxSelectedPrefWidth: Float = {
-    val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
+    val layoutPool  = Actor.POOLS.getPool[GlyphLayout]
     val glyphLayout = layoutPool.obtain()
     var width       = 0f
     var i           = 0

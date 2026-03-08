@@ -10,6 +10,7 @@
  *   Convention: GL instances created based on ANGLE config, not reflective Class.forName
  *   Convention: Lwjgl3Monitor/Lwjgl3DisplayMode inner classes -> DesktopMonitor/DesktopDisplayMode
  *   Idiom: split packages; Nullable; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -367,6 +368,7 @@ class DesktopGraphics private[sge] (
     true
   }
 
+  @scala.annotation.nowarn("msg=deprecated") // null check — callers may pass null title from Java interop
   override def setTitle(title: String): Unit =
     windowing.setWindowTitle(window.getWindowHandle(), if (title == null) "" else title)
 

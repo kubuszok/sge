@@ -57,7 +57,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
     Sge().input.setInputProcessor(this)
   } catch {
     case _: Exception =>
-      Sge().application.log("RemoteSender", "couldn't connect to " + ip + ":" + port)
+      scribe.info("couldn't connect to " + ip + ":" + port)
   }
 
   def sendUpdate(): Unit = scala.util.boundary {
@@ -83,7 +83,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeFloat(Sge().input.getGyroscopeZ())
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         out = Nullable.empty
         connected = false
     }
@@ -100,7 +100,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeInt(keycode.toInt)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }
@@ -119,7 +119,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeInt(keycode.toInt)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }
@@ -138,7 +138,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeChar(character)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }
@@ -159,7 +159,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeInt(pointer)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }
@@ -180,7 +180,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeInt(pointer)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }
@@ -204,7 +204,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
         o.writeInt(pointer)
       }
     catch {
-      case _: Throwable =>
+      case scala.util.control.NonFatal(_) =>
         this.synchronized {
           connected = false
         }

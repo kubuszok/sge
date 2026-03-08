@@ -65,8 +65,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   setStyle(style)
   initialize()
 
-  def this(skin: Skin)(using Sge) = this(skin.get(classOf[Tree.TreeStyle]))
-  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[Tree.TreeStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get[Tree.TreeStyle])
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get[Tree.TreeStyle](styleName))
 
   private def initialize(): Unit = {
     val self = this

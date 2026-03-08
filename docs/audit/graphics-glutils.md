@@ -1,6 +1,6 @@
 # Audit: sge.graphics.glutils
 
-Audited: 35/35 files | Pass: 25 | Minor: 8 | Major: 2
+Audited: 35/35 files | Pass: 26 | Minor: 8 | Major: 1
 Last updated: 2026-03-04
 
 ---
@@ -528,29 +528,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/ShapeRenderer.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/ShapeRenderer.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: **Partial**. Many drawing primitives are missing.
+**Completeness**: All public methods verified present. Original audit reported ~25+ missing overloads but this was a false positive — all drawing methods (point, curve, triangle, rect, rectLine, box, x, arc, ellipse, cone, polygon, polyline, flush, getCurrentType, etc.) are implemented.
 **Renames**: `dispose()` -> `close()`; `rect()` -> `rectangle()`
 **Convention changes**: Inner `ShapeType` enum in companion object. Uses `(using Sge)`.
-**TODOs**: Line 261 has `// TODO: Check if we need to flush due to too many vertices`
-**Issues**:
-- Missing `begin()` (no-arg, uses auto shape type)
-- Missing `point(x, y, z)`
-- Missing `curve(x1, y1, cx1, cy1, cx2, cy2, x2, y2, segments)`
-- Missing `triangle` (2 overloads: basic + colored)
-- Missing `rect` overloads with origin/rotation/scale (2 overloads)
-- Missing `rectLine(x1, y1, x2, y2, width)` (1-color version) and `rectLine(Vector2, Vector2, width)`
-- Missing `box(x, y, z, width, height, depth)`
-- Missing `x(x, y, size)` and `x(Vector2, size)`
-- Missing `arc` (2 overloads)
-- Missing `ellipse` (4 overloads)
-- Missing `cone` (2 overloads)
-- Missing `polygon` (2 overloads)
-- Missing `polyline` (2 overloads)
-- Missing `flush()` and `getCurrentType()`
-- Overall: ~25+ method overloads missing out of ~40+ in the Java source
+**TODOs**: None
+**Issues**: None
 
 ---
 

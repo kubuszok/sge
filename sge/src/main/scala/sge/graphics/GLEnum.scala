@@ -232,7 +232,8 @@ object ClearMask {
   val ColorBufferBit:   ClearMask = 0x00004000 // GL_COLOR_BUFFER_BIT
 
   extension (m: ClearMask) {
-    inline def toInt:        Int       = m
+    inline def toInt: Int = m
+    @annotation.targetName("or")
     def |(other: ClearMask): ClearMask = m | other
   }
 }

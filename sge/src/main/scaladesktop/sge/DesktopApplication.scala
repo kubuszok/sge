@@ -13,6 +13,7 @@
  *   Convention: GLDebugMessageSeverity removed (ANGLE doesn't support ARB/KHR debug)
  *   Convention: loadANGLE/postLoadANGLE removed (SGE loads ANGLE libs at init time)
  *   Idiom: split packages; Nullable; no return; ArrayBuffer for window list
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -44,11 +45,12 @@ import scala.collection.mutable.ArrayBuffer
   *   See AUTHORS file (original implementation)
   */
 class DesktopApplication(
-  listener:              ApplicationListener,
-  config:                DesktopApplicationConfig,
-  private val windowing: WindowingOps,
-  private val audioOps:  sge.platform.AudioOps,
-  private val glFactory: () => sge.graphics.GL32
+  listener:                    ApplicationListener,
+  config:                      DesktopApplicationConfig,
+  private val windowing:       WindowingOps,
+  private val audioOps:        sge.platform.AudioOps,
+  private val glFactory:       () => sge.graphics.GL32,
+  private val recorderFactory: (Int, Boolean) => sge.audio.AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")
 ) extends DesktopApplicationBase {
 
   // ─── State ──────────────────────────────────────────────────────────
@@ -66,9 +68,7 @@ class DesktopApplication(
     s => windowing.setClipboardString(0L, s)
   )
 
-  private var _logLevel:          Int               = Application.LOG_INFO
-  private var _applicationLogger: ApplicationLogger = scala.compiletime.uninitialized
-  @volatile private var _running: Boolean           = true
+  @volatile private var _running: Boolean = true
 
   private val _runnables:          ArrayBuffer[Runnable]          = ArrayBuffer.empty
   private val _executedRunnables:  ArrayBuffer[Runnable]          = ArrayBuffer.empty
@@ -93,29 +93,6 @@ class DesktopApplication(
       throw SgeError.GraphicsError("Unable to initialize windowing system")
     }
 
-    setApplicationLogger(
-      new ApplicationLogger {
-        override def log(tag: String, message: String): Unit =
-          System.out.println(s"[$tag] $message")
-        override def log(tag: String, message: String, exception: Throwable): Unit = {
-          System.out.println(s"[$tag] $message")
-          exception.printStackTrace(System.out)
-        }
-        override def error(tag: String, message: String): Unit =
-          System.err.println(s"[$tag] $message")
-        override def error(tag: String, message: String, exception: Throwable): Unit = {
-          System.err.println(s"[$tag] $message")
-          exception.printStackTrace(System.err)
-        }
-        override def debug(tag: String, message: String): Unit =
-          System.out.println(s"[DEBUG $tag] $message")
-        override def debug(tag: String, message: String, exception: Throwable): Unit = {
-          System.out.println(s"[DEBUG $tag] $message")
-          exception.printStackTrace(System.out)
-        }
-      }
-    )
-
     if (_config.title.isEmpty) _config.title = listener.getClass.getSimpleName
 
     // Audio
@@ -124,7 +101,7 @@ class DesktopApplication(
         _audio = createAudio(_config)
       catch {
         case t: Throwable =>
-          log("DesktopApplication", "Couldn't initialize audio, disabling audio", t)
+          scribe.warn("Couldn't initialize audio, disabling audio", t)
           _audio = NoopDesktopAudio()
       }
     } else {
@@ -305,6 +282,17 @@ class DesktopApplication(
     val gl32 = glFactory()
     window.getGraphics().initGL(gl32, Nullable(gl32), Nullable(gl32), Nullable(gl32))
 
+    // Apply window icon from config if set
+    config.windowIconPaths.foreach { paths =>
+      config.windowIconFileType.foreach { fileType =>
+        val pixmaps = paths.map { path =>
+          new sge.graphics.Pixmap(_files.getFileHandle(path, fileType))
+        }
+        window.setIcon(pixmaps*)
+        pixmaps.foreach(_.close())
+      }
+    }
+
     window.setVisible(config.initialVisible)
 
     // Clear to initial background color (double-buffered)
@@ -391,44 +379,19 @@ class DesktopApplication(
   override def getApplicationListener(): ApplicationListener =
     _currentWindow.fold(listener)(_.listener)
 
+  @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
   override def getGraphics(): Graphics =
-    _currentWindow.fold(null: Graphics)(_.getGraphics())
+    _currentWindow.map(_.getGraphics()).orNull
 
   override def getAudio(): Audio = _audio
 
+  @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
   override def getInput(): Input =
-    _currentWindow.fold(null: Input)(_.getInput())
+    _currentWindow.map(_.getInput()).orNull
 
   override def getFiles(): Files = _files
 
   override def getNet(): Net = _net
-
-  override def log(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_INFO) getApplicationLogger().log(tag, message)
-
-  override def log(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_INFO) getApplicationLogger().log(tag, message, exception)
-
-  override def error(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_ERROR) getApplicationLogger().error(tag, message)
-
-  override def error(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_ERROR) getApplicationLogger().error(tag, message, exception)
-
-  override def debug(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_DEBUG) getApplicationLogger().debug(tag, message)
-
-  override def debug(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_DEBUG) getApplicationLogger().debug(tag, message, exception)
-
-  override def setLogLevel(logLevel: Int): Unit = _logLevel = logLevel
-
-  override def getLogLevel(): Int = _logLevel
-
-  override def setApplicationLogger(applicationLogger: ApplicationLogger): Unit =
-    _applicationLogger = applicationLogger
-
-  override def getApplicationLogger(): ApplicationLogger = _applicationLogger
 
   override def getType(): Application.ApplicationType = Application.ApplicationType.Desktop
 
@@ -474,7 +437,8 @@ class DesktopApplication(
       config.audioDeviceSimultaneousSources,
       config.audioDeviceBufferSize,
       config.audioDeviceBufferCount,
-      audioOps
+      audioOps,
+      recorderFactory
     )
 
   override def createInput(window: DesktopWindow): DesktopInput =

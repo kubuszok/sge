@@ -13,6 +13,7 @@
  *   Convention: LoadingListener callback replaced by simple onReady/onSetup hooks
  *   Idiom: Gdx.* globals -> Sge context (given); postRunnable uses scala.collection.mutable.ArrayBuffer
  *   Idiom: GdxRuntimeException -> SgeError.GraphicsError
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -27,7 +28,7 @@ import sge.files.{ BrowserAssetLoader, BrowserFiles }
 import sge.graphics.{ GL20, GL30, WebGL20, WebGL30 }
 import sge.graphics.glutils.GLVersion
 import sge.input.DefaultBrowserInput
-import _root_.sge.noop.{ NoopAudio, PrintApplicationLogger }
+import _root_.sge.noop.NoopAudio
 import sge.utils.{ Clipboard, Nullable }
 
 /** Browser (Scala.js) application entry point. Creates an HTML canvas, obtains a WebGL context, sets up all subsystems (graphics, audio, input, files, net), and runs a `requestAnimationFrame`-based
@@ -48,11 +49,6 @@ class BrowserApplication(
   private val listener: ApplicationListener,
   private val config:   BrowserApplicationConfig
 ) extends Application {
-
-  // --- Logging ---
-
-  private var _logLevel:          Int               = Application.LOG_ERROR
-  private var _applicationLogger: ApplicationLogger = PrintApplicationLogger
 
   // --- Subsystems (initialized in start()) ---
 
@@ -104,12 +100,14 @@ class BrowserApplication(
     _clipboard = new BrowserClipboard
 
     // Construct initial Sge context (audio may be noop placeholder)
+    @scala.annotation.nowarn("msg=deprecated") // orNull — temporary placeholder before real Input is created below
+    val placeholderInput: Input = Nullable.empty[Input].orNull
     _sge = Sge(
       application = this,
       graphics = _graphics,
       audio = _audio,
       files = _files,
-      input = null.asInstanceOf[Input], // will be set after input creation
+      input = placeholderInput,
       net = _net
     )
 
@@ -266,7 +264,7 @@ class BrowserApplication(
       mainLoop()
     catch {
       case t: Throwable =>
-        error("BrowserApplication", s"exception: ${t.getMessage}", t)
+        scribe.error(s"BrowserApplication exception: ${t.getMessage}", t)
         throw t
     }
     window.requestAnimationFrame(mainLoopCallback)
@@ -351,32 +349,6 @@ class BrowserApplication(
   override def getInput():    Input    = _input
   override def getFiles():    Files    = _files
   override def getNet():      Net      = _net
-
-  override def log(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_INFO) _applicationLogger.log(tag, message)
-
-  override def log(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_INFO) _applicationLogger.log(tag, message, exception)
-
-  override def error(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_ERROR) _applicationLogger.error(tag, message)
-
-  override def error(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_ERROR) _applicationLogger.error(tag, message, exception)
-
-  override def debug(tag: String, message: String): Unit =
-    if (_logLevel >= Application.LOG_DEBUG) _applicationLogger.debug(tag, message)
-
-  override def debug(tag: String, message: String, exception: Throwable): Unit =
-    if (_logLevel >= Application.LOG_DEBUG) _applicationLogger.debug(tag, message, exception)
-
-  override def setLogLevel(logLevel: Int): Unit = _logLevel = logLevel
-  override def getLogLevel():              Int  = _logLevel
-
-  override def setApplicationLogger(applicationLogger: ApplicationLogger): Unit =
-    _applicationLogger = applicationLogger
-
-  override def getApplicationLogger(): ApplicationLogger = _applicationLogger
 
   override def getType(): Application.ApplicationType = Application.ApplicationType.WebGL
 

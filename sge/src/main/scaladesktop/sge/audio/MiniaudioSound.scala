@@ -9,6 +9,7 @@
  *   Convention: OpenAL source/buffer -> miniaudio engine sound via AudioOps FFI
  *   Convention: opaque types (Volume, Pitch, Pan, SoundId) used in public API
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

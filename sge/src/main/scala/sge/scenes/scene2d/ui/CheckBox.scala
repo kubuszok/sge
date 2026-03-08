@@ -39,9 +39,9 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge)
     setSize(getPrefWidth, getPrefHeight)
   }
 
-  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get(classOf[CheckBox.CheckBoxStyle]))
+  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get[CheckBox.CheckBoxStyle])
 
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[CheckBox.CheckBoxStyle]))
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get[CheckBox.CheckBoxStyle](styleName))
 
   protected def newImage(): Image =
     Image(Nullable.empty, Scaling.none)

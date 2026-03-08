@@ -8,6 +8,7 @@
  *   Renames: Lwjgl3Audio -> DesktopAudio
  *   Convention: Java interface -> Scala trait; extends AutoCloseable for lifecycle management
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

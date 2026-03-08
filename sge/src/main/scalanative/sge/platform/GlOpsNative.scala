@@ -9,6 +9,7 @@
  *   Convention: EGL types (EGLDisplay, EGLContext, EGLSurface, EGLConfig) as Ptr[Byte]
  *   Convention: EGL context state packed in malloc'd struct (4 pointers)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform
@@ -16,6 +17,8 @@ package platform
 import scala.scalanative.libc.stdlib
 import scala.scalanative.runtime.{ Intrinsics, fromRawPtr, toRawPtr }
 import scala.scalanative.unsafe.*
+import scala.util.boundary
+import scala.util.boundary.break
 
 @link("EGL")
 @extern
@@ -73,16 +76,16 @@ private[sge] object GlOpsNative extends GlOps {
     depth:        Int,
     stencil:      Int,
     samples:      Int
-  ): Long = {
+  ): Long = boundary {
     // Get display
     val display = EglC.eglGetDisplay(null)
-    if (display == null) return 0L
+    if (display == null) break(0L)
 
     // Initialize
     val major      = stackalloc[CInt]()
     val minor      = stackalloc[CInt]()
     val initResult = EglC.eglInitialize(display, major, minor)
-    if (initResult == 0) return 0L
+    if (initResult == 0) break(0L)
 
     // Choose config
     val attribs = stackalloc[CInt](19)
@@ -102,7 +105,7 @@ private[sge] object GlOpsNative extends GlOps {
     val configOut  = stackalloc[Ptr[Byte]]()
     val numConfigs = stackalloc[CInt]()
     val chooseOk   = EglC.eglChooseConfig(display, attribs, configOut, 1, numConfigs)
-    if (chooseOk == 0 || !numConfigs == 0) return 0L
+    if (chooseOk == 0 || !numConfigs == 0) break(0L)
     val config = !configOut
 
     // Create context (ES 3.0)
@@ -112,7 +115,7 @@ private[sge] object GlOpsNative extends GlOps {
     ctxAttribs(4) = EGL_NONE
 
     val context = EglC.eglCreateContext(display, config, null, ctxAttribs)
-    if (context == null) return 0L
+    if (context == null) break(0L)
 
     // Create window surface
     val surfAttribs = stackalloc[CInt](1)
@@ -120,7 +123,7 @@ private[sge] object GlOpsNative extends GlOps {
     val surface = EglC.eglCreateWindowSurface(display, config, ptrFromLong(windowHandle), surfAttribs)
     if (surface == null) {
       EglC.eglDestroyContext(display, context)
-      return 0L
+      break(0L)
     }
 
     // Make current

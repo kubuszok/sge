@@ -48,12 +48,12 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
   setSize(getPrefWidth, getPrefHeight)
 
   def this(text: Nullable[String], skin: Skin)(using Sge) = {
-    this(text, skin.get(classOf[ImageTextButton.ImageTextButtonStyle]))
+    this(text, skin.get[ImageTextButton.ImageTextButtonStyle])
     setSkin(Nullable(skin))
   }
 
   def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
-    this(text, skin.get(styleName, classOf[ImageTextButton.ImageTextButtonStyle]))
+    this(text, skin.get[ImageTextButton.ImageTextButtonStyle](styleName))
     setSkin(Nullable(skin))
   }
 

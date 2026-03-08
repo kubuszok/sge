@@ -9,6 +9,7 @@
  *   Convention: Extends AngleGL31 — inherits all GL ES 2.0/3.0/3.1 bindings
  *   Convention: glDebugMessageCallback uses Panama upcall stub for native callback
  *   Idiom: split packages; no return; SgeError.GraphicsError
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

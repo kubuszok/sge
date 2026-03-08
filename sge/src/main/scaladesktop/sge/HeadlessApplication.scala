@@ -18,7 +18,7 @@ package sge
 
 import sge.files.{ DesktopFiles, DesktopPreferences }
 import sge.net.DesktopNet
-import sge.noop.{ NoopAudio, NoopGraphics, NoopInput, PrintApplicationLogger }
+import sge.noop.{ NoopAudio, NoopGraphics, NoopInput }
 import sge.utils.{ DynamicArray, Nanos, Nullable, ObjectMap, TimeUtils }
 import scala.util.boundary
 import scala.util.boundary.break
@@ -52,9 +52,7 @@ class HeadlessApplication(
   private val preferences:        ObjectMap[String, Preferences]  = ObjectMap[String, Preferences]()
   private val preferencesDir:     String                          = config.preferencesDirectory
 
-  @volatile private var running:  Boolean           = true
-  private var logLevel:           Int               = Application.LOG_INFO
-  private var _applicationLogger: ApplicationLogger = PrintApplicationLogger
+  @volatile private var running: Boolean = true
 
   private val mainLoopThread: Thread = Thread(
     () =>
@@ -209,35 +207,6 @@ class HeadlessApplication(
       lifecycleListeners.removeValue(listener)
     }
 
-  // ---- logging ----
-
-  override def log(tag: String, message: String): Unit =
-    if (logLevel >= Application.LOG_INFO) _applicationLogger.log(tag, message)
-
-  override def log(tag: String, message: String, exception: Throwable): Unit =
-    if (logLevel >= Application.LOG_INFO) _applicationLogger.log(tag, message, exception)
-
-  override def error(tag: String, message: String): Unit =
-    if (logLevel >= Application.LOG_ERROR) _applicationLogger.error(tag, message)
-
-  override def error(tag: String, message: String, exception: Throwable): Unit =
-    if (logLevel >= Application.LOG_ERROR) _applicationLogger.error(tag, message, exception)
-
-  override def debug(tag: String, message: String): Unit =
-    if (logLevel >= Application.LOG_DEBUG) _applicationLogger.debug(tag, message)
-
-  override def debug(tag: String, message: String, exception: Throwable): Unit =
-    if (logLevel >= Application.LOG_DEBUG) _applicationLogger.debug(tag, message, exception)
-
-  override def setLogLevel(logLevel: Int): Unit =
-    this.logLevel = logLevel
-
-  override def getLogLevel(): Int = logLevel
-
-  override def setApplicationLogger(applicationLogger: ApplicationLogger): Unit =
-    _applicationLogger = applicationLogger
-
-  override def getApplicationLogger(): ApplicationLogger = _applicationLogger
 }
 
 object HeadlessApplication {

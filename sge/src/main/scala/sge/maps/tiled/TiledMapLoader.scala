@@ -20,7 +20,7 @@ package tiled
 import sge.assets.{ AssetDescriptor, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, JsonReader, Nullable, XmlReader }
+import sge.utils.{ DynamicArray, Nullable, XmlReader }
 
 import scala.language.implicitConversions
 import scala.util.boundary
@@ -41,7 +41,6 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   private val xmlReader:         XmlReader         = XmlReader()
 
   private val atlasTmjMapLoader: AtlasTmjMapLoader = AtlasTmjMapLoader(resolver)
-  private val jsonReader:        JsonReader        = JsonReader()
 
   /** Universal synchronous loader. This method is a thin wrapper that picks the correct underlying loader (TMX vs TMJ, atlas vs non-atlas) and then delegates straight through to its synchronous
     * `load(...)` implementation.
@@ -171,16 +170,12 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
         }
       }
     } else if (extension == "tmj") {
-      val root       = jsonReader.parse(file)
-      val properties = root.get("properties")
-      properties.foreach { props =>
-        for (property <- props) {
-          val name = property.getString("name", Nullable("")).getOrElse("")
-          if ("atlas" == name) {
-            break(true)
-          }
+      import sge.utils.readJson
+      val map = file.readJson[TmjMapJson]
+      for (prop <- map.properties)
+        if (prop.name == "atlas") {
+          break(true)
         }
-      }
     }
     false
   }

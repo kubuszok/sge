@@ -748,7 +748,7 @@ class Actor()(using Sge) {
         tableBounds.y = y
         tableBounds.width = width
         tableBounds.height = height
-        val scissorBounds = Actor.POOLS.obtain(classOf[Rectangle])
+        val scissorBounds = Actor.POOLS.obtain[Rectangle]
         stage.calculateScissors(tableBounds, scissorBounds)
         if (ScissorStack.pushScissors(scissorBounds)) true
         else {
@@ -914,8 +914,8 @@ class Actor()(using Sge) {
 object Actor {
   val POOLS: PoolManager = PoolManager()
 
-  POOLS.addPool(classOf[Rectangle], () => Rectangle())
-  POOLS.addPool(classOf[DynamicArray[?]], () => DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[Any]], 16, true))
-  POOLS.addPool(classOf[GlyphLayout], () => GlyphLayout())
-  POOLS.addPool(classOf[utils.ChangeListener.ChangeEvent], () => utils.ChangeListener.ChangeEvent())
+  POOLS.addPool[Rectangle](() => Rectangle())
+  POOLS.addPool[DynamicArray[?]](() => DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[Any]], 16, true))
+  POOLS.addPool[GlyphLayout](() => GlyphLayout())
+  POOLS.addPool[utils.ChangeListener.ChangeEvent](() => utils.ChangeListener.ChangeEvent())
 }

@@ -9,6 +9,7 @@
  *   Convention: OpenAL buffer management -> miniaudio engine audio device via AudioOps FFI
  *   Convention: opaque types (Volume) used in public API
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -41,6 +42,7 @@ class DesktopAudioDevice private[sge] (
 
   override def isMono: Boolean = _isMono
 
+  @scala.annotation.nowarn("msg=deprecated") // null check — bytes is uninitialized (null) until first write
   override def writeSamples(samples: Array[Short], offset: Int, numSamples: Int): Unit = {
     if (bytes == null || bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
     val end = scala.math.min(offset + numSamples, samples.length)
@@ -57,6 +59,7 @@ class DesktopAudioDevice private[sge] (
     audioOps.writeAudioDevice(deviceHandle, bytes, 0, numSamples * 2)
   }
 
+  @scala.annotation.nowarn("msg=deprecated") // null check — bytes is uninitialized (null) until first write
   override def writeSamples(samples: Array[Float], offset: Int, numSamples: Int): Unit = {
     if (bytes == null || bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
     val end = scala.math.min(offset + numSamples, samples.length)

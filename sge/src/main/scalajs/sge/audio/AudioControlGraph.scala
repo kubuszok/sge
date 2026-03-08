@@ -9,6 +9,7 @@
  *   Convention: Scala.js only; JSNI native methods replaced with js.Dynamic calls
  *   Convention: JavaScriptObject -> js.Dynamic for Web Audio nodes
  *   Idiom: GainNode + StereoPannerNode for volume/pan control
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

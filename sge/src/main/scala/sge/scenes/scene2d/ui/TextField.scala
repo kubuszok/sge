@@ -107,10 +107,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   setSize(getPrefWidth, getPrefHeight)
 
   /** Creates a new TextField. */
-  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get(classOf[TextField.TextFieldStyle]))
+  def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get[TextField.TextFieldStyle])
 
   /** Creates a new TextField. */
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get(styleName, classOf[TextField.TextFieldStyle]))
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = this(text, skin.get[TextField.TextFieldStyle](styleName))
 
   protected def initialize(): Unit = {
     inputListener = createInputListener()
@@ -674,7 +674,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     if (newText == oldText) false
     else {
       _text = newText
-      val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+      val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
       val cancelled   = fire(changeEvent)
       if (cancelled) _text = oldText
       Actor.POOLS.free(changeEvent)

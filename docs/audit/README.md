@@ -5,7 +5,7 @@ Last updated: 2026-03-03
 
 ## Summary
 
-**531 files audited** across 45 packages | **423 pass** | **82 minor** | **19 major** | **7 N/A**
+**531 files audited** across 45 packages | **424 pass** | **82 minor** | **18 major** | **7 N/A**
 
 | Package | Files | Pass | Minor | Major | N/A | Doc |
 |---------|-------|------|-------|-------|-----|-----|
@@ -38,7 +38,7 @@ Last updated: 2026-03-03
 | graphics/g2d | 25 | 14 | 9 | 2 | 0 | [graphics-g2d.md](graphics-g2d.md) |
 | scenes/scene2d/actions | 34 | 32 | 2 | 0 | 0 | [scenes-scene2d-actions.md](scenes-scene2d-actions.md) |
 | scenes/scene2d/ui | 35 | 24 | 11 | 0 | 0 | [scenes-scene2d-ui.md](scenes-scene2d-ui.md) |
-| graphics/glutils | 35 | 23 | 9 | 3 | 0 | [graphics-glutils.md](graphics-glutils.md) |
+| graphics/glutils | 35 | 24 | 9 | 2 | 0 | [graphics-glutils.md](graphics-glutils.md) |
 | utils | 47 | 30 | 10 | 0 | 7 | [utils.md](utils.md) |
 | graphics/g3d | 11 | 10 | 1 | 0 | 0 | [graphics-g3d.md](graphics-g3d.md) |
 | graphics/g3d/attributes | 10 | 7 | 3 | 0 | 0 | [graphics-g3d-attributes.md](graphics-g3d-attributes.md) |
@@ -55,7 +55,7 @@ Last updated: 2026-03-03
 | graphics/g3d/particles/influencers | 11 | 10 | 1 | 0 | 0 | [graphics-g3d-particles-influencers.md](graphics-g3d-particles-influencers.md) |
 | graphics/g3d/particles/renderers | 9 | 9 | 0 | 0 | 0 | [graphics-g3d-particles-renderers.md](graphics-g3d-particles-renderers.md) |
 | graphics/g3d/particles/batches | 5 | 5 | 0 | 0 | 0 | [graphics-g3d-particles-batches.md](graphics-g3d-particles-batches.md) |
-| **TOTAL** | **531** | **423** | **82** | **19** | **7** | |
+| **TOTAL** | **531** | **424** | **82** | **18** | **7** | |
 
 ## Module Status
 
@@ -70,21 +70,23 @@ Last updated: 2026-03-03
 
 ## Critical Bugs Found
 
-| Location | Description |
-|----------|-------------|
-| `math.collision.OrientedBoundingBox.update()` | axes via `mul(transform)` includes translation — should extract matrix columns |
-| `graphics.Camera.rotate(Matrix4)` | uses `mul()` instead of `rot()` — corrupts direction/up with translated matrices |
-| `math.CumulativeDistribution.ensureCapacity()` | `values = newValues` assignment commented out — silently drops data |
-| `utils.compression.lzma.Encoder.getSubCoder` | operator precedence: `<<` vs `+` differs from Java |
-| `utils.compression.lz.BinTree.normalizeLinks` | compares against constant 0 instead of runtime `subValue` |
-| `graphics.g2d.DistanceFieldFont` | vertex shader missing `v_texCoords = a_texCoord0;` — breaks rendering |
-| `maps.tiled.BaseTiledMapLoader.loadProjectFile` | never calls `projectClassMembers.add()` — drops class properties |
-| `graphics.g3d.loader.G3dModelLoader.parseMeshes` | reads mesh ID instead of meshPart ID |
-| `graphics.Pixmap` | multiple drawing methods are stubs (drawPixmap, getPixel, getPixels) |
-| `graphics.Mesh` | missing calculateRadius, scale, transform methods |
-| `graphics.glutils.ShapeRenderer` | ~25+ method overloads missing |
-| `graphics.glutils.MipMapGenerator` | both public methods are stubs |
-| `graphics.glutils.ETC1TextureData` | consumeCustomData entirely commented out |
+All 13 critical bugs have been resolved. See [bugs-and-ambiguities.md](../progress/bugs-and-ambiguities.md) for full resolution details.
+
+| Location | Description | Status |
+|----------|-------------|--------|
+| `math.collision.OrientedBoundingBox.update()` | axes via `mul(transform)` includes translation | **Not a bug** — identical to LibGDX |
+| `graphics.Camera.rotate(Matrix4)` | uses `mul()` instead of `rot()` | **Fixed** |
+| `math.CumulativeDistribution.ensureCapacity()` | `values = newValues` assignment commented out | **Fixed** |
+| `utils.compression.lzma.Encoder.getSubCoder` | operator precedence: `<<` vs `+` differs from Java | **Removed** (package deleted) |
+| `utils.compression.lz.BinTree.normalizeLinks` | compares against constant 0 instead of runtime `subValue` | **Removed** (package deleted) |
+| `graphics.g2d.DistanceFieldFont` | vertex shader missing `v_texCoords = a_texCoord0;` | **Fixed** |
+| `maps.tiled.BaseTiledMapLoader.loadProjectFile` | never calls `projectClassMembers.add()` | **Fixed** |
+| `graphics.g3d.loader.G3dModelLoader.parseMeshes` | reads mesh ID instead of meshPart ID | **Fixed** |
+| `graphics.Pixmap` | multiple drawing methods are stubs | **Fixed** |
+| `graphics.Mesh` | missing calculateRadius, scale, transform methods | **Fixed** |
+| `graphics.glutils.ShapeRenderer` | ~25+ method overloads missing | **False positive** — all verified present |
+| `graphics.glutils.MipMapGenerator` | both public methods are stubs | **Fixed** |
+| `graphics.glutils.ETC1TextureData` | consumeCustomData entirely commented out | **Fixed** |
 
 ## Audit Statuses
 

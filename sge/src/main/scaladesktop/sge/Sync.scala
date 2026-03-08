@@ -7,6 +7,7 @@
  *   Convention: Java class -> Scala class; inner RunningAvg -> private class
  *   Convention: glfwGetTime() abstracted via WindowingOps.getTime()
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

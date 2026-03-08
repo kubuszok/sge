@@ -68,14 +68,12 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   )
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin)(using Sge) = {
-    this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle](classOf[Touchpad.TouchpadStyle]))
-  }
+  def this(deadzoneRadius: Float, skin: Skin)(using Sge) =
+    this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle])
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) = {
-    this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle](styleName, classOf[Touchpad.TouchpadStyle]))
-  }
+  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) =
+    this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle](styleName))
 
   private[ui] def calculatePositionAndValue(x: Float, y: Float, isTouchUp: Boolean): Unit = {
     val oldPositionX = knobPosition.x
@@ -99,7 +97,7 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
       }
     }
     if (oldPercentX != knobPercent.x || oldPercentY != knobPercent.y) {
-      val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+      val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
       if (fire(changeEvent)) {
         knobPercent.set(oldPercentX, oldPercentY)
         knobPosition.set(oldPositionX, oldPositionY)

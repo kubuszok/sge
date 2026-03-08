@@ -26,7 +26,14 @@ object DesktopApplicationFactory {
     val windowing = sge.platform.WindowingOpsJvm()
     val audioOps  = sge.platform.AudioOpsJvm()
     val glLookup  = loadLibrary("GLESv2")
-    new DesktopApplication(listener, config, windowing, audioOps, () => sge.graphics.AngleGL32(glLookup))
+    new DesktopApplication(
+      listener,
+      config,
+      windowing,
+      audioOps,
+      () => sge.graphics.AngleGL32(glLookup),
+      (rate, mono) => new sge.audio.DesktopAudioRecorder(rate, mono)
+    )
   }
 
   private def loadLibrary(libName: String): java.lang.foreign.SymbolLookup = {

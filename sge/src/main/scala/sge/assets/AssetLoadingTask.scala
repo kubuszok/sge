@@ -21,7 +21,7 @@ import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success, boundary }
 import sge.assets.loaders.{ AssetLoader, AsynchronousAssetLoader, SynchronousAssetLoader }
 import sge.files.FileHandle
-import sge.utils.{ DynamicArray, Logger, Nullable, SgeError, TimeUtils }
+import sge.utils.{ DynamicArray, Nullable, SgeError, TimeUtils }
 
 /** Responsible for loading an asset through an AssetLoader based on an AssetDescriptor. Please don't forget to update the overriding emu file on GWT backend when changing this file!
   *
@@ -45,9 +45,14 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
-    this(manager, assetDesc, loader, threadPool, if (manager.logLevel == Logger.DEBUG) TimeUtils.nanoTime() else sge.utils.Nanos.zero)
-  }
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
+    this(
+      manager,
+      assetDesc,
+      loader,
+      threadPool,
+      if (scribe.includes(scribe.Level.Debug)) TimeUtils.nanoTime() else sge.utils.Nanos.zero
+    )
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {

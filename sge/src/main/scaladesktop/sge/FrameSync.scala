@@ -30,7 +30,8 @@
  *   Renames: Sync -> FrameSync
  *   Convention: glfwGetTime() replaced with System.nanoTime() (no FFI dependency)
  *   Convention: inner class RunningAvg -> private class
- *   Idiom: boundary/break (0 return), split packages
+ *   Idiom: no return, split packages
+ *   Audited: 2026-03-08
  *
  * Ported to Scala 3 for SGE
  */
@@ -63,38 +64,38 @@ private[sge] class FrameSync {
     * @param fps
     *   the desired frame rate, in frames per second
     */
-  def sync(fps: Int): Unit = {
-    if (fps <= 0) return
-    if (!initialised) initialise()
+  def sync(fps: Int): Unit =
+    if (fps > 0) {
+      if (!initialised) initialise()
 
-    try {
-      // sleep until the average sleep time is greater than the time remaining till nextFrame
-      var t0 = getTime()
-      while ((nextFrame - t0) > sleepDurations.avg()) {
-        Thread.sleep(1)
-        val t1 = getTime()
-        sleepDurations.add(t1 - t0) // update average sleep time
-        t0 = t1
+      try {
+        // sleep until the average sleep time is greater than the time remaining till nextFrame
+        var t0 = getTime()
+        while ((nextFrame - t0) > sleepDurations.avg()) {
+          Thread.sleep(1)
+          val t1 = getTime()
+          sleepDurations.add(t1 - t0) // update average sleep time
+          t0 = t1
+        }
+
+        // slowly dampen sleep average if too high to avoid yielding too much
+        sleepDurations.dampenForLowResTicker()
+
+        // yield until the average yield time is greater than the time remaining till nextFrame
+        t0 = getTime()
+        while ((nextFrame - t0) > yieldDurations.avg()) {
+          Thread.`yield`()
+          val t1 = getTime()
+          yieldDurations.add(t1 - t0) // update average yield time
+          t0 = t1
+        }
+      } catch {
+        case _: InterruptedException => // ignored
       }
 
-      // slowly dampen sleep average if too high to avoid yielding too much
-      sleepDurations.dampenForLowResTicker()
-
-      // yield until the average yield time is greater than the time remaining till nextFrame
-      t0 = getTime()
-      while ((nextFrame - t0) > yieldDurations.avg()) {
-        Thread.`yield`()
-        val t1 = getTime()
-        yieldDurations.add(t1 - t0) // update average yield time
-        t0 = t1
-      }
-    } catch {
-      case _: InterruptedException => // ignored
+      // schedule next frame, drop frame(s) if already too late for next frame
+      nextFrame = Math.max(nextFrame + NanosInSecond / fps, getTime())
     }
-
-    // schedule next frame, drop frame(s) if already too late for next frame
-    nextFrame = Math.max(nextFrame + NanosInSecond / fps, getTime())
-  }
 
   /** This method will initialise the sync method by setting initial values for sleepDurations/yieldDurations and nextFrame.
     *

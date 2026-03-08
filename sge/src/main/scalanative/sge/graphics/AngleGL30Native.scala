@@ -8,6 +8,7 @@
  *   Convention: Scala Native @extern bindings to ANGLE libGLESv2
  *   Convention: Extends AngleGL20Native — inherits all GL ES 2.0 bindings
  *   Idiom: split packages; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

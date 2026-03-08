@@ -9,6 +9,7 @@
  *   Convention: GLFW callbacks use Panama upcall stubs
  *   Convention: String params allocated in confined arenas (auto-freed)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform
@@ -91,6 +92,8 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private lazy val hGetMouseBtn    = h("glfwGetMouseButton", FunctionDescriptor.of(I, P, I))
   private lazy val hSetCursorPos   = h("glfwSetCursorPos", FunctionDescriptor.ofVoid(P, D, D))
   private lazy val hGetTime        = h("glfwGetTime", FunctionDescriptor.of(D))
+  private lazy val hGetPlatform    = h("glfwGetPlatform", FunctionDescriptor.of(I))
+  private lazy val hSetWinIcon     = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
 
   // Callback setters
   private lazy val hSetFbSizeCb   = h("glfwSetFramebufferSizeCallback", FunctionDescriptor.of(P, P, P))
@@ -147,6 +150,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   override def terminate(): Unit =
     hTerminate.invoke()
+
+  override def getPlatform(): Int =
+    hGetPlatform.invoke().asInstanceOf[Int]
 
   // ─── Window lifecycle ──────────────────────────────────────────────────
 
@@ -280,10 +286,12 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     try {
       val countSeg = arena.allocate(I)
       val result   = hGetMonitors.invoke(countSeg).asInstanceOf[MemorySegment]
-      if (result == MemorySegment.NULL || result.address() == 0L) return Array.empty
-      val count = countSeg.get(I, 0)
-      val ptrs  = result.reinterpret(P.byteSize() * count.toLong)
-      Array.tabulate(count)(i => ptrs.getAtIndex(P, i.toLong).address())
+      if (result == MemorySegment.NULL || result.address() == 0L) Array.empty
+      else {
+        val count = countSeg.get(I, 0)
+        val ptrs  = result.reinterpret(P.byteSize() * count.toLong)
+        Array.tabulate(count)(i => ptrs.getAtIndex(P, i.toLong).address())
+      }
     } finally arena.close()
   }
 
@@ -323,35 +331,39 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     try {
       val countSeg = arena.allocate(I)
       val result   = hGetVidModes.invoke(ptr(monitorHandle), countSeg).asInstanceOf[MemorySegment]
-      if (result == MemorySegment.NULL || result.address() == 0L) return Array.empty
-      val count = countSeg.get(I, 0)
-      val buf   = result.reinterpret(VidModeSize * count.toLong)
-      Array.tabulate(count) { i =>
-        val off = VidModeSize * i.toLong
-        (
-          buf.get(I, off),
-          buf.get(I, off + 4),
-          buf.get(I, off + 20),
-          buf.get(I, off + 8),
-          buf.get(I, off + 12),
-          buf.get(I, off + 16)
-        )
+      if (result == MemorySegment.NULL || result.address() == 0L) Array.empty
+      else {
+        val count = countSeg.get(I, 0)
+        val buf   = result.reinterpret(VidModeSize * count.toLong)
+        Array.tabulate(count) { i =>
+          val off = VidModeSize * i.toLong
+          (
+            buf.get(I, off),
+            buf.get(I, off + 4),
+            buf.get(I, off + 20),
+            buf.get(I, off + 8),
+            buf.get(I, off + 12),
+            buf.get(I, off + 16)
+          )
+        }
       }
     } finally arena.close()
   }
 
   override def getVideoMode(monitorHandle: Long): (Int, Int, Int, Int, Int, Int) = {
     val result = hGetVidMode.invoke(ptr(monitorHandle)).asInstanceOf[MemorySegment]
-    if (result == MemorySegment.NULL || result.address() == 0L) return (0, 0, 0, 0, 0, 0)
-    val buf = result.reinterpret(VidModeSize)
-    (
-      buf.get(I, 0),
-      buf.get(I, 4),
-      buf.get(I, 20),
-      buf.get(I, 8),
-      buf.get(I, 12),
-      buf.get(I, 16)
-    )
+    if (result == MemorySegment.NULL || result.address() == 0L) (0, 0, 0, 0, 0, 0)
+    else {
+      val buf = result.reinterpret(VidModeSize)
+      (
+        buf.get(I, 0),
+        buf.get(I, 4),
+        buf.get(I, 20),
+        buf.get(I, 8),
+        buf.get(I, 12),
+        buf.get(I, 16)
+      )
+    }
   }
 
   // ─── Window hints ───────────────────────────────────────────────────────
@@ -653,12 +665,39 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     hSetMouseBtnCb.invoke(ptr(windowHandle), stub)
   }
 
-  // ─── Window icon (stub — requires Pixmap → native image conversion) ──
+  // ─── Window icon ────────────────────────────────────────────────────
 
-  override def setWindowIcon(windowHandle: Long, images: Array[sge.graphics.Pixmap]): Unit = {
-    // TODO: implement Pixmap → GLFWimage conversion
-    // For now, this is a no-op
-  }
+  // GLFWimage struct layout: { int width; int height; unsigned char* pixels; }
+  // 64-bit: 4 + 4 + 8 = 16 bytes (pointer aligned)
+  private val GlfwImageSize: Long = 16L
+
+  override def setWindowIcon(windowHandle: Long, images: Array[sge.graphics.Pixmap]): Unit =
+    if (images.isEmpty) {
+      hSetWinIcon.invoke(ptr(windowHandle), 0, MemorySegment.NULL)
+    } else {
+      val arena = Arena.ofConfined()
+      try {
+        val buf = arena.allocate(GlfwImageSize * images.length)
+        var i   = 0
+        while (i < images.length) {
+          val pixmap = images(i)
+          val pixels = pixmap.getPixels()
+          pixels.position(0)
+          val numBytes  = pixels.remaining()
+          val nativeBuf = arena.allocate(numBytes.toLong)
+          // Copy pixel bytes from Java ByteBuffer to native memory
+          val slice = MemorySegment.ofBuffer(pixels)
+          nativeBuf.copyFrom(slice)
+          // Write GLFWimage fields
+          val base = buf.asSlice(GlfwImageSize * i.toLong, GlfwImageSize)
+          base.set(I, 0L, pixmap.getWidth().toInt)
+          base.set(I, 4L, pixmap.getHeight().toInt)
+          base.set(P, 8L, nativeBuf)
+          i += 1
+        }
+        hSetWinIcon.invoke(ptr(windowHandle), images.length, buf)
+      } finally arena.close()
+    }
 }
 
 object WindowingOpsJvm {
@@ -718,14 +757,15 @@ object WindowingOpsJvm {
   /** Homebrew Cellar lib directories for the given library name. */
   private def brewCellarLibDirs(libName: String): Seq[String] = {
     val cellar = java.nio.file.Path.of("/opt/homebrew/Cellar", libName)
-    if (!java.nio.file.Files.isDirectory(cellar)) return Seq.empty
-    try {
-      val stream = java.nio.file.Files.list(cellar)
-      try
-        stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.map(_.resolve("lib").toString).toSeq
-      finally stream.close()
-    } catch {
-      case _: java.io.IOException => Seq.empty
-    }
+    if (!java.nio.file.Files.isDirectory(cellar)) Seq.empty
+    else
+      try {
+        val stream = java.nio.file.Files.list(cellar)
+        try
+          stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.map(_.resolve("lib").toString).toSeq
+        finally stream.close()
+      } catch {
+        case _: java.io.IOException => Seq.empty
+      }
   }
 }

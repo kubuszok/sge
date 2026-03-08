@@ -8,6 +8,7 @@
  *   Convention: JVM-only; Panama FFM downcall handles to ANGLE libGLESv2
  *   Convention: Extends AngleGL30 — inherits all GL ES 2.0/3.0 bindings
  *   Idiom: split packages; no return; SgeError.GraphicsError
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

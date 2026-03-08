@@ -40,13 +40,11 @@ class GestureDetector(
 )(using Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(using Sge) = {
+  def this(listener: GestureDetector.GestureListener)(using Sge) =
     this(20f, 20f, Seconds(0.4f), Seconds(1.1f), Seconds(Integer.MAX_VALUE), listener)
-  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Seconds, longPressDuration: Seconds, maxFlingDelay: Seconds, listener: GestureDetector.GestureListener)(using Sge) = {
+  def this(halfTapSquareSize: Float, tapCountInterval: Seconds, longPressDuration: Seconds, maxFlingDelay: Seconds, listener: GestureDetector.GestureListener)(using Sge) =
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
-  }
 
   private var tapRectangleWidth:     Float   = halfTapRectangleWidth
   private var tapRectangleHeight:    Float   = halfTapRectangleHeight

@@ -22,32 +22,22 @@ object SgeTestFixture {
   ): Sge = Sge(application, graphics, audio, files, input, net)
 
   private object NoopApplication extends Application {
-    def getApplicationListener():                                                               ApplicationListener         = throw new UnsupportedOperationException
-    def getGraphics():                                                                          Graphics                    = throw new UnsupportedOperationException
-    def getAudio():                                                                             Audio                       = throw new UnsupportedOperationException
-    def getInput():                                                                             Input                       = throw new UnsupportedOperationException
-    def getFiles():                                                                             Files                       = throw new UnsupportedOperationException
-    def getNet():                                                                               Net                         = throw new UnsupportedOperationException
-    def log(tag:                                String, message: String):                       Unit                        = ()
-    def log(tag:                                String, message: String, exception: Throwable): Unit                        = ()
-    def error(tag:                              String, message: String):                       Unit                        = ()
-    def error(tag:                              String, message: String, exception: Throwable): Unit                        = ()
-    def debug(tag:                              String, message: String):                       Unit                        = ()
-    def debug(tag:                              String, message: String, exception: Throwable): Unit                        = ()
-    def setLogLevel(logLevel:                   Int):                                           Unit                        = ()
-    def getLogLevel():                                                                          Int                         = Application.LOG_NONE
-    def setApplicationLogger(applicationLogger: ApplicationLogger):                             Unit                        = ()
-    def getApplicationLogger():                                                                 ApplicationLogger           = throw new UnsupportedOperationException
-    def getType():                                                                              Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def getVersion():                                                                           Int                         = 0
-    def getJavaHeap():                                                                          Long                        = 0L
-    def getNativeHeap():                                                                        Long                        = 0L
-    def getPreferences(name:                    String):                                        Preferences                 = throw new UnsupportedOperationException
-    def getClipboard():                                                                         sge.utils.Clipboard         = throw new UnsupportedOperationException
-    def postRunnable(runnable:                  Runnable):                                      Unit                        = ()
-    def exit():                                                                                 Unit                        = ()
-    def addLifecycleListener(listener:          LifecycleListener):                             Unit                        = ()
-    def removeLifecycleListener(listener:       LifecycleListener):                             Unit                        = ()
+    def getApplicationListener():                             ApplicationListener         = throw new UnsupportedOperationException
+    def getGraphics():                                        Graphics                    = throw new UnsupportedOperationException
+    def getAudio():                                           Audio                       = throw new UnsupportedOperationException
+    def getInput():                                           Input                       = throw new UnsupportedOperationException
+    def getFiles():                                           Files                       = throw new UnsupportedOperationException
+    def getNet():                                             Net                         = throw new UnsupportedOperationException
+    def getType():                                            Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def getVersion():                                         Int                         = 0
+    def getJavaHeap():                                        Long                        = 0L
+    def getNativeHeap():                                      Long                        = 0L
+    def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
+    def getClipboard():                                       sge.utils.Clipboard         = throw new UnsupportedOperationException
+    def postRunnable(runnable:            Runnable):          Unit                        = ()
+    def exit():                                               Unit                        = ()
+    def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
+    def removeLifecycleListener(listener: LifecycleListener): Unit                        = ()
   }
 
   private object NoopFiles extends Files {

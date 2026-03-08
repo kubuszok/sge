@@ -42,9 +42,8 @@ object TextureProvider {
   )(using Sge)
       extends TextureProvider {
 
-    def this()(using Sge) = {
+    def this()(using Sge) =
       this(TextureFilter.Linear, TextureFilter.Linear, TextureWrap.Repeat, TextureWrap.Repeat, false)
-    }
 
     override def load(fileName: String): Texture = {
       val result = Texture(Sge().files.internal(fileName), useMipMaps)

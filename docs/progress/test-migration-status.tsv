@@ -1,37 +1,113 @@
 # Test Migration Status
 # Tracks porting of LibGDX unit tests to SGE munit + new SGE-specific test suites
 # Statuses: migrated, skipped_no_target, new_sge_test
-# Last updated: 2026-02-27
+# Last updated: 2026-03-08
 libgdx_test	sge_test	status	notes
-math/Vector2Test	sge/math/Vector2Test.scala	migrated	toString, fromString, angle/angleRad (instance + static)
-math/Vector3Test	sge/math/Vector3Test.scala	migrated	toString, fromString
-math/Vector4Test	sge/math/Vector4Test.scala	migrated	toString, fromString
-math/RectangleTest	sge/math/RectangleTest.scala	migrated	toString, fromString
-math/Shape2DTest	sge/math/Shape2DTest.scala	migrated	Circle and Rectangle overlap/contains tests
-math/collision/CollisionTest	sge/math/collision/CollisionTest.scala	migrated	BoundingBox + OBB contains/intersects (OBB.contains(OBB) unblocked)
-math/MathUtilsTest	sge/math/MathUtilsTest.scala	migrated	lerpAngle, norm, map, trig, atan2 tests
-math/PolygonTest	sge/math/PolygonTest.scala	migrated	Rotation and area tests
-math/ConvexHullTest	sge/math/ConvexHullTest.scala	migrated	computePolygon with cyclic equality
-math/OctreeTest	sge/math/OctreeTest.scala	migrated	Insert, remove, getAll tests
-math/IntersectorTest	sge/math/IntersectorTest.scala	migrated	42 tests: isPointInTriangle, pointLineSide, isPointInPolygon, splitTriangle, intersectSegmentCircle, intersectPlanes, intersectPolygons, intersectRayPlane, intersectRayTriangle, intersectRaySphere, intersectRayBounds, intersectLines, intersectSegments, intersectRectangles, overlaps, overlapConvexPolygons, intersectRayRay, distanceLinePoint, distanceSegmentPoint, nearestSegmentPoint, intersectSegmentPlane, intersectLinePlane, intersectBoundsPlaneFast, intersectSegmentRectangle, intersectLinePolygon, intersectSegmentPolygon
-math/BSplineTest	sge/math/BSplineTest.scala	migrated	Cubic spline, derivative, approximation tests
-math/BezierTest	sge/math/BezierTest.scala	migrated	Parameterized over ImportType x useSetter
-utils/SortTest	sge/utils/SortTest.scala	migrated	Array and DynamicArray sorting, edge cases
-utils/FlushablePoolTest	sge/utils/FlushablePoolTest.scala	migrated	Pool.Flushable obtain/flush/free lifecycle
-utils/MixedPutRemoveTest	sge/utils/ObjectMapTest.scala	migrated	Stress tests merged into ObjectMapTest
+# === Math (shared, 21 files) ===
+math/Vector2Test	sge/src/test/scala/sge/math/Vector2Test.scala	migrated	toString, fromString, angle/angleRad (instance + static)
+math/Vector3Test	sge/src/test/scala/sge/math/Vector3Test.scala	migrated	toString, fromString
+math/Vector4Test	sge/src/test/scala/sge/math/Vector4Test.scala	migrated	toString, fromString
+math/RectangleTest	sge/src/test/scala/sge/math/RectangleTest.scala	migrated	toString, fromString
+math/Shape2DTest	sge/src/test/scala/sge/math/Shape2DTest.scala	migrated	Circle and Rectangle overlap/contains tests
+math/MathUtilsTest	sge/src/test/scala/sge/math/MathUtilsTest.scala	migrated	lerpAngle, norm, map, trig, atan2 tests
+math/PolygonTest	sge/src/test/scala/sge/math/PolygonTest.scala	migrated	Rotation and area tests
+math/ConvexHullTest	sge/src/test/scala/sge/math/ConvexHullTest.scala	migrated	computePolygon with cyclic equality
+math/OctreeTest	sge/src/test/scala/sge/math/OctreeTest.scala	migrated	Insert, remove, getAll tests
+math/IntersectorTest	sge/src/test/scala/sge/math/IntersectorTest.scala	migrated	42 tests: triangles, planes, polygons, rays, segments, rectangles
+math/BSplineTest	sge/src/test/scala/sge/math/BSplineTest.scala	migrated	Cubic spline, derivative, approximation tests
+math/BezierTest	sge/src/test/scala/sge/math/BezierTest.scala	migrated	Parameterized over ImportType x useSetter
+math/collision/CollisionTest	sge/src/test/scala/sge/math/collision/CollisionTest.scala	migrated	BoundingBox + OBB contains/intersects
+-	sge/src/test/scala/sge/math/Matrix4Test.scala	new_sge_test	det, inv (identity, translation, rotation, arbitrary, singular), setTranslation
+-	sge/src/test/scala/sge/math/CumulativeDistributionTest.scala	new_sge_test	ensureCapacity bug fix verification
+-	sge/src/test/scala/sge/math/Vector3RotTest.scala	new_sge_test	Vector3 rotation edge cases
+-	sge/src/test/scala/sge/math/VectorArithmeticTest.scala	new_sge_test	Cross-vector arithmetic ops
+-	sge/src/test/scala/sge/math/QuaternionTest.scala	new_sge_test	Quaternion construction, multiplication, slerp
+-	sge/src/test/scala/sge/math/Matrix3Test.scala	new_sge_test	Matrix3 operations
+-	sge/src/test/scala/sge/math/InterpolationTest.scala	new_sge_test	Interpolation function correctness
+-	sge/src/test/scala/sge/math/Affine2Test.scala	new_sge_test	Affine2 transform operations
+# === Utils (shared, 9 files) ===
+utils/SortTest	sge/src/test/scala/sge/utils/SortTest.scala	migrated	Array and DynamicArray sorting, edge cases
+utils/FlushablePoolTest	sge/src/test/scala/sge/utils/FlushablePoolTest.scala	migrated	Pool.Flushable obtain/flush/free lifecycle
+utils/MixedPutRemoveTest	sge/src/test/scala/sge/utils/ObjectMapTest.scala	migrated	Stress tests merged into ObjectMapTest
+-	sge/src/test/scala/sge/utils/DynamicArrayTest.scala	new_sge_test	55 tests: construction, add/remove, iteration, snapshot, sort
+-	sge/src/test/scala/sge/utils/ObjectMapTest.scala	new_sge_test	41 tests: put/get/remove, iteration, equals, stress
+-	sge/src/test/scala/sge/utils/JsonValueTest.scala	new_sge_test	72 tests: construction, navigation, type accessors, mutation, serialization
+-	sge/src/test/scala/sge/utils/ObjectSetTest.scala	new_sge_test	ObjectSet operations
+-	sge/src/test/scala/sge/utils/ArrayMapTest.scala	new_sge_test	ArrayMap put/get/remove/iteration
+-	sge/src/test/scala/sge/utils/OrderedSetTest.scala	new_sge_test	OrderedSet insertion-order iteration
+-	sge/src/test/scala/sge/utils/OrderedMapTest.scala	new_sge_test	OrderedMap insertion-order iteration
+# === Audio (shared, 2 files) ===
+-	sge/src/test/scala/sge/audio/AudioUtilsTest.scala	new_sge_test	Audio utility functions
+-	sge/src/test/scala/sge/audio/WavInputStreamTest.scala	new_sge_test	WAV RIFF parser tests
+# === Graphics (shared, 5 files) ===
+-	sge/src/test/scala/sge/graphics/CameraRotateTest.scala	new_sge_test	Camera.rotate(Matrix4) bug fix verification
+-	sge/src/test/scala/sge/graphics/ColorTest.scala	new_sge_test	Color construction, conversion, packing
+-	sge/src/test/scala/sge/graphics/OrthographicCameraTest.scala	new_sge_test	OrthographicCamera projection tests
+-	sge/src/test/scala/sge/graphics/PerspectiveCameraTest.scala	new_sge_test	PerspectiveCamera projection tests
+-	sge/src/test/scala/sge/graphics/CameraViewportPipelineTest.scala	new_sge_test	Camera+Viewport integration pipeline
+# === Graphics 3D (shared, 4 files) ===
+g3d/utils/AnimationControllerTest	sge/src/test/scala/sge/graphics/g3d/utils/AnimationControllerTest.scala	migrated	Keyframe index + end-up action tests
+g3d/utils/AnimationDescTest	sge/src/test/scala/sge/graphics/g3d/utils/AnimationDescTest.scala	migrated	Update forward/reverse with various deltas
+-	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelJsonTest.scala	new_sge_test	G3D JSON model parsing
+-	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	new_sge_test	G3D model loader integration
+# === Maps (shared, 3 files) ===
+-	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	new_sge_test	BaseTiledMapLoader bug fix verification
+-	sge/src/test/scala/sge/maps/tiled/TiledProjectJsonTest.scala	new_sge_test	Tiled project JSON parsing
+-	sge/src/test/scala/sge/maps/tiled/TmjJsonTest.scala	new_sge_test	TMJ format JSON parsing
+# === Net (shared, 2 files) ===
+-	sge/src/test/scala/sge/net/SgeHttpRequestTest.scala	new_sge_test	HTTP request builder
+-	sge/src/test/scala/sge/net/SgeHttpResponseTest.scala	new_sge_test	HTTP response parsing
+# === Noop (shared, 3 files) ===
+-	sge/src/test/scala/sge/noop/NoopAudioTest.scala	new_sge_test	Noop audio impl validation
+-	sge/src/test/scala/sge/noop/NoopGraphicsTest.scala	new_sge_test	Noop graphics impl validation
+-	sge/src/test/scala/sge/noop/NoopInputTest.scala	new_sge_test	Noop input impl validation
+-	sge/src/test/scala/sge/noop/PrintApplicationLoggerTest.scala	new_sge_test	PrintApplicationLogger output
+# === Platform (shared, 2 files) ===
+-	sge/src/test/scala/sge/platform/BufferOpsSuite.scala	new_sge_test	BufferOps cross-platform contract
+-	sge/src/test/scala/sge/platform/ETC1OpsSuite.scala	new_sge_test	ETC1Ops cross-platform contract
+# === Scenes (shared, 1 file) ===
+-	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	new_sge_test	Skin style reader JSON parsing
+# === Viewport (shared, 1 file) ===
+-	sge/src/test/scala/sge/utils/viewport/ViewportTest.scala	new_sge_test	Viewport apply/update calculations
+# === Input (shared, 1 file) ===
+-	sge/src/test/scala/sge/input/GestureDetectorTest.scala	new_sge_test	GestureDetector event handling
+# === Assets (shared, 1 file) ===
+-	sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala	new_sge_test	AssetManager unit-level tests
+# === Net (JVM-only, 2 files) ===
+-	sge/src/test/scalajvm/sge/net/NetJavaSocketTest.scala	new_sge_test	JVM NetJava socket impl
+-	sge/src/test/scalajvm/sge/net/SgeHttpClientTest.scala	new_sge_test	JVM HTTP client integration
+# === Desktop (JVM-only, 10 files) ===
+-	sge/src/test/scalajvm/sge/DesktopApplicationConfigTest.scala	new_sge_test	Desktop application config defaults + validation
+-	sge/src/test/scalajvm/sge/DesktopClipboardTest.scala	new_sge_test	Desktop clipboard read/write
+-	sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala	new_sge_test	Desktop interface trait contracts
+-	sge/src/test/scalajvm/sge/DesktopWindowListenerTest.scala	new_sge_test	Desktop window listener callbacks
+-	sge/src/test/scalajvm/sge/FrameSyncTest.scala	new_sge_test	Frame sync timing (desktop-level)
+-	sge/src/test/scalajvm/sge/HeadlessApplicationTest.scala	new_sge_test	HeadlessApplication lifecycle
+-	sge/src/test/scalajvm/sge/files/DesktopFileHandleTest.scala	new_sge_test	Desktop file handle read/write/list
+-	sge/src/test/scalajvm/sge/files/DesktopFilesTest.scala	new_sge_test	Desktop files path resolution
+-	sge/src/test/scalajvm/sge/files/DesktopPreferencesTest.scala	new_sge_test	Desktop preferences XML storage
+-	sge/src/test/scalajvm/sge/platform/DesktopFfiIntegrationTest.scala	new_sge_test	Desktop FFI Panama integration
+# === Utils (JVM-only, 1 file) ===
+-	sge/src/test/scalajvm/sge/utils/FrameSyncTest.scala	new_sge_test	FrameSync utility timing tests
+# === Android (JVM-only, 8 files) ===
+-	sge/src/test/scalajvm/sge/graphics/AndroidGL20AdapterTest.scala	new_sge_test	AndroidGL20Adapter opaque type bridging
+-	sge/src/test/scalajvm/sge/platform/AndroidTouchHandlerTest.scala	new_sge_test	Android touch handler event processing
+-	sge/src/test/scalajvm/sge/platform/AndroidMouseHandlerTest.scala	new_sge_test	Android mouse handler event processing
+-	sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala	new_sge_test	Android graphics adapter + display metrics
+-	sge/src/test/scalajvm/sge/files/AndroidFileHandleTest.scala	new_sge_test	Android file handle via FilesOps
+-	sge/src/test/scalajvm/sge/AndroidAudioAdapterTest.scala	new_sge_test	Android audio adapter wiring
+-	sge/src/test/scalajvm/sge/platform/DefaultAndroidInputStateTest.scala	new_sge_test	Default Android input state management
+-	sge/src/test/scalajvm/sge/AndroidInputTest.scala	new_sge_test	Android input adapter integration
+# === Graphics GL (JVM-only, 1 file) ===
+-	sge/src/test/scalajvm/sge/graphics/GL20OpaqueTypeCoverageTest.scala	new_sge_test	GL20 opaque type coverage verification
+# === Skipped LibGDX tests (no SGE target) ===
 utils/BitsTest	-	skipped_no_target	Bits replaced by scala.collection.mutable.BitSet
 utils/AtomicQueueTest	-	skipped_no_target	AtomicQueue not ported (use java.util.concurrent)
 utils/JsonTest	-	skipped_no_target	LibGDX JsonReader replaced by jsoniter bridge
-utils/JsonValueTest (libgdx)	-	skipped_no_target	LibGDX JsonValue tests; SGE has its own below
+utils/JsonValueTest (libgdx)	-	skipped_no_target	LibGDX JsonValue tests; SGE has its own
 utils/CharArrayTest	-	skipped_no_target	CharArray replaced by DynamicArray[Char]
 utils/LongArrayTest	-	skipped_no_target	LongArray replaced by DynamicArray[Long]
 utils/LongQueueTest	-	skipped_no_target	LongQueue not ported (use standard Queue)
 utils/QueueTest	-	skipped_no_target	Queue replaced by scala.collection.mutable.Queue
 utils/PooledLinkedListTest	-	skipped_no_target	PooledLinkedList not ported
 utils/SortedIntListTest	-	skipped_no_target	SortedIntList not ported
-g3d/utils/AnimationControllerTest	sge/graphics/g3d/utils/AnimationControllerTest.scala	migrated	keyframe index + end-up action tests
-g3d/utils/AnimationDescTest	sge/graphics/g3d/utils/AnimationDescTest.scala	migrated	Update forward/reverse with various deltas
--	sge/utils/DynamicArrayTest.scala	new_sge_test	55 tests: construction, add/remove, iteration, snapshot, sort, edge cases
--	sge/utils/ObjectMapTest.scala	new_sge_test	41 tests: put/get/remove, iteration, equals, stress tests
--	sge/utils/JsonValueTest.scala	new_sge_test	72 tests: construction, navigation, type accessors, mutation, serialization
--	sge/math/Matrix4Test.scala	new_sge_test	7 tests: det, inv (identity, translation, rotation, arbitrary, singular), setTranslation

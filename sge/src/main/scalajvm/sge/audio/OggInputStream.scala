@@ -34,6 +34,7 @@
  *   Idiom: Gdx.app.error → Sge().app.error
  *   Idiom: GdxRuntimeException → SgeError
  *   Idiom: Nullable[OggInputStream] for previousStream parameter
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -62,8 +63,9 @@ class OggInputStream(input: InputStream, previousStream: Nullable[OggInputStream
 
   import OggInputStream.*
 
-  def this(input: InputStream)(using Sge) =
+  def this(input: InputStream)(using Sge) = {
     this(input, Nullable.empty)
+  }
 
   /** The conversion buffer size */
   private var convsize: Int = BufferSize * 4
@@ -323,7 +325,7 @@ class OggInputStream(input: InputStream, previousStream: Nullable[OggInputStream
               if (result == 0) {
                 innerDone = true // need more data
               } else if (result == -1) { // missing or corrupt data at this page position
-                Sge().application.error("sge-audio", "Error reading OGG: Corrupt or missing data in bitstream.")
+                scribe.error("Error reading OGG: Corrupt or missing data in bitstream.")
               } else {
                 streamState.pagein(page) // can safely ignore errors at this point
                 var packetsDone = false

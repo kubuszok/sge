@@ -9,6 +9,7 @@
  *   Convention: Extends AngleGL31Native — inherits all GL ES 2.0/3.0/3.1 bindings
  *   Convention: glDebugMessageCallback uses CFuncPtr for native callback (vs Panama upcall on JVM)
  *   Idiom: split packages; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

@@ -24,7 +24,6 @@ target/
 *.iml
 
 ## Metals MCP
-metals-mcp-server
 .mcp.json
 
 ## Rust

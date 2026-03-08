@@ -7,6 +7,7 @@
  *   Convention: Scala.js only; uses scalajs-dom fetch API instead of GWT XMLHttpRequest/JSNI
  *   Convention: Assets preloaded before game start, served synchronously from in-memory cache
  *   Idiom: scala.scalajs.js.Promise for async preloading
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

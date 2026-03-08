@@ -1,0 +1,273 @@
+/*
+ * Ported from libGDX - https://github.com/libgdx/libgdx
+ * Original source: backends/gdx-backend-android/.../AndroidGraphics.java
+ * Original authors: mzechner
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Renames: AndroidGraphics (same name, different package)
+ *   Convention: delegates to ops interfaces; no Activity subclass needed in sge core
+ *   Convention: GL setup via ops-based adapters (AndroidGL20Adapter/AndroidGL30Adapter)
+ *   Idiom: split packages; Nullable; no return
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ */
+package sge
+
+import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap }
+import sge.graphics.Cursor.SystemCursor
+import sge.graphics.glutils.GLVersion
+import sge.graphics.{ AndroidGL20Adapter, AndroidGL30Adapter }
+import sge.platform.android._
+import sge.utils.Nullable
+
+/** An implementation of [[Graphics]] for Android.
+  *
+  * Unlike LibGDX's AndroidGraphics (which implements GLSurfaceView.Renderer), this is a plain class that delegates all Android-specific operations to ops interfaces. The GL surface view's renderer
+  * callback drives the frame loop externally.
+  *
+  * @param config
+  *   the Android application configuration
+  * @param provider
+  *   the Android platform provider
+  * @param displayMetrics
+  *   display metrics operations
+  * @param glSurfaceView
+  *   the GL surface view operations
+  * @param cursorOps
+  *   cursor operations
+  */
+class AndroidGraphics(
+  private val config:         AndroidConfigOps,
+  private val provider:       AndroidPlatformProvider,
+  private val displayMetrics: DisplayMetricsOps,
+  private val glSurfaceView:  GLSurfaceViewOps,
+  private val cursorOps:      CursorOps
+) extends Graphics {
+
+  // ─── GL instances ─────────────────────────────────────────────────────
+
+  private var _gl20:       GL20             = scala.compiletime.uninitialized
+  private var _gl30:       Nullable[GL30]   = Nullable.empty
+  private var _glVersion:  GLVersion        = scala.compiletime.uninitialized
+  private var _extensions: Nullable[String] = Nullable.empty
+
+  // ─── Frame state ──────────────────────────────────────────────────────
+
+  @volatile private[sge] var width:  Int = 0
+  @volatile private[sge] var height: Int = 0
+
+  private var _bufferFormat:  Graphics.BufferFormat = Graphics.BufferFormat(config.r, config.g, config.b, config.a, config.depth, config.stencil, config.numSamples, false)
+  private var _lastFrameTime: Long                  = System.nanoTime()
+  private var _deltaTime:     Float                 = 0f
+  private var _frameId:       Long                  = -1L
+  private var _frameStart:    Long                  = System.nanoTime()
+  private var _frames:        Int                   = 0
+  private var _fps:           Int                   = 0
+  private var _isContinuous:  Boolean               = true
+
+  // ─── Safe insets ──────────────────────────────────────────────────────
+
+  @volatile private[sge] var safeInsetLeft:   Int = 0
+  @volatile private[sge] var safeInsetTop:    Int = 0
+  @volatile private[sge] var safeInsetRight:  Int = 0
+  @volatile private[sge] var safeInsetBottom: Int = 0
+
+  // ─── GL setup (called from renderer's onSurfaceCreated) ───────────────
+
+  /** Sets up GL instances based on config and detected GL version.
+    *
+    * Called from the GL thread when the surface is created.
+    *
+    * @param versionString
+    *   the GL_VERSION string
+    * @param vendorString
+    *   the GL_VENDOR string
+    * @param rendererString
+    *   the GL_RENDERER string
+    */
+  private[sge] def setupGL(versionString: String, vendorString: String, rendererString: String): Unit = {
+    _glVersion = new GLVersion(Application.ApplicationType.Android, versionString, vendorString, rendererString)
+    if (config.useGL30 && _glVersion.getMajorVersion() > 2) {
+      if (_gl30.isEmpty) {
+        val gl30Ops = provider.createGL30()
+        val gl30    = AndroidGL30Adapter(gl30Ops)
+        _gl30 = Nullable(gl30)
+        _gl20 = gl30
+      }
+    } else {
+      if (_gl20 == null) { // scalafix:ok
+        val gl20Ops = provider.createGL20()
+        _gl20 = AndroidGL20Adapter(gl20Ops)
+      }
+    }
+  }
+
+  /** Updates display metrics. Called when the surface changes or is created. */
+  private[sge] def updatePpi(): Unit = {
+    // DisplayMetricsOps caches the values — just trigger a refresh if needed
+  }
+
+  /** Updates safe area insets from display cutouts. */
+  private[sge] def updateSafeInsets(window: AnyRef): Unit = {
+    displayMetrics.updateSafeInsets(window)
+    safeInsetLeft = displayMetrics.safeInsetLeft
+    safeInsetTop = displayMetrics.safeInsetTop
+    safeInsetRight = displayMetrics.safeInsetRight
+    safeInsetBottom = displayMetrics.safeInsetBottom
+  }
+
+  /** Updates frame timing. Called from the render loop (onDrawFrame equivalent). */
+  private[sge] def updateFrameTiming(isResuming: Boolean): Unit = {
+    val time = System.nanoTime()
+    // After pause, deltaTime can be huge — cut it off on resume
+    if (!isResuming) {
+      _deltaTime = (time - _lastFrameTime) / 1000000000.0f
+    } else {
+      _deltaTime = 0f
+    }
+    _lastFrameTime = time
+
+    if (time - _frameStart > 1000000000L) {
+      _fps = _frames
+      _frames = 0
+      _frameStart = time
+    }
+    _frames += 1
+    _frameId += 1
+  }
+
+  /** Updates the buffer format after EGL config is determined. */
+  private[sge] def updateBufferFormat(r: Int, g: Int, b: Int, a: Int, depth: Int, stencil: Int, samples: Int, coverageSampling: Boolean): Unit =
+    _bufferFormat = Graphics.BufferFormat(r, g, b, a, depth, stencil, samples, coverageSampling)
+
+  // ─── GL availability ──────────────────────────────────────────────────
+
+  override def isGL30Available(): Boolean = _gl30.isDefined
+  override def isGL31Available(): Boolean = false
+  override def isGL32Available(): Boolean = false
+
+  override def getGL20(): GL20           = _gl20
+  override def getGL30(): Nullable[GL30] = _gl30
+  override def getGL31(): Nullable[GL31] = Nullable.empty
+  override def getGL32(): Nullable[GL32] = Nullable.empty
+
+  override def setGL20(gl20: GL20): Unit =
+    _gl20 = gl20
+
+  override def setGL30(gl30: GL30): Unit = {
+    _gl30 = Nullable(gl30)
+    _gl20 = gl30
+  }
+
+  override def setGL31(gl31: GL31): Unit = () // Not supported on Android in SGE
+  override def setGL32(gl32: GL32): Unit = () // Not supported on Android in SGE
+
+  // ─── Dimensions ───────────────────────────────────────────────────────
+
+  override def getWidth():  Pixels = Pixels(width)
+  override def getHeight(): Pixels = Pixels(height)
+
+  // On Android, back buffer size equals logical size
+  override def getBackBufferWidth():  Pixels = Pixels(width)
+  override def getBackBufferHeight(): Pixels = Pixels(height)
+
+  override def getBackBufferScale(): Float = 1f
+
+  // ─── Safe insets ──────────────────────────────────────────────────────
+
+  override def getSafeInsetLeft():   Pixels = Pixels(safeInsetLeft)
+  override def getSafeInsetTop():    Pixels = Pixels(safeInsetTop)
+  override def getSafeInsetBottom(): Pixels = Pixels(safeInsetBottom)
+  override def getSafeInsetRight():  Pixels = Pixels(safeInsetRight)
+
+  // ─── Frame timing ────────────────────────────────────────────────────
+
+  override def getFrameId():         Long  = _frameId
+  override def getDeltaTime():       Float = _deltaTime
+  override def getRawDeltaTime():    Float = _deltaTime
+  override def getFramesPerSecond(): Int   = _fps
+
+  // ─── Type / version ──────────────────────────────────────────────────
+
+  override def getType():      Graphics.GraphicsType = Graphics.GraphicsType.AndroidGL
+  override def getGLVersion(): Graphics.GLVersion    = _glVersion
+
+  // ─── DPI / density ───────────────────────────────────────────────────
+
+  override def getPpiX():    Float = displayMetrics.ppiX
+  override def getPpiY():    Float = displayMetrics.ppiY
+  override def getPpcX():    Float = displayMetrics.ppcX
+  override def getPpcY():    Float = displayMetrics.ppcY
+  override def getDensity(): Float = displayMetrics.density
+
+  // ─── Display modes / monitors ─────────────────────────────────────────
+
+  override def supportsDisplayModeChange(): Boolean = false
+
+  override def getPrimaryMonitor(): Graphics.Monitor        = Graphics.Monitor(0, 0, "Primary Monitor")
+  override def getMonitor():        Graphics.Monitor        = getPrimaryMonitor()
+  override def getMonitors():       Array[Graphics.Monitor] = Array(getPrimaryMonitor())
+
+  override def getDisplayModes(): Array[Graphics.DisplayMode] = Array(getDisplayMode())
+
+  override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = getDisplayModes()
+
+  override def getDisplayMode(): Graphics.DisplayMode = {
+    val bpp                 = config.r + config.g + config.b + config.a
+    val (w, h, refresh, bp) = displayMetrics.displayMode(glSurfaceView.view, bpp)
+    Graphics.DisplayMode(w, h, refresh, bp)
+  }
+
+  override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = getDisplayMode()
+
+  override def setFullscreenMode(displayMode: Graphics.DisplayMode): Boolean = false
+
+  override def setWindowedMode(width: Pixels, height: Pixels): Boolean = false
+
+  override def setTitle(title: String): Unit = () // Ignored on Android
+
+  override def setUndecorated(undecorated: Boolean): Unit = () // Handled by Activity flags
+
+  override def setResizable(resizable: Boolean): Unit = () // Ignored on Android
+
+  override def setVSync(vsync: Boolean): Unit = () // No-op on Android
+
+  override def setForegroundFPS(fps: Int): Unit = () // Not applicable on Android
+
+  // ─── Buffer format / extensions ──────────────────────────────────────
+
+  override def getBufferFormat(): Graphics.BufferFormat = _bufferFormat
+
+  override def supportsExtension(extension: String): Boolean = {
+    val ext = _extensions.fold {
+      val e = _gl20.glGetString(GL20.GL_EXTENSIONS)
+      _extensions = Nullable(e)
+      e
+    }(identity)
+    ext.contains(extension)
+  }
+
+  // ─── Continuous rendering ─────────────────────────────────────────────
+
+  override def setContinuousRendering(isContinuous: Boolean): Unit = {
+    _isContinuous = isContinuous
+    glSurfaceView.setContinuousRendering(isContinuous)
+  }
+
+  override def isContinuousRendering(): Boolean = _isContinuous
+
+  override def requestRendering(): Unit = glSurfaceView.requestRender()
+
+  override def isFullscreen(): Boolean = true
+
+  // ─── Cursor ───────────────────────────────────────────────────────────
+
+  override def newCursor(pixmap: Pixmap, xHotspot: Pixels, yHotspot: Pixels): Nullable[Cursor] =
+    Nullable.empty
+
+  override def setCursor(cursor: Cursor): Unit = () // Custom pixmap cursors not supported on Android
+
+  override def setSystemCursor(systemCursor: SystemCursor): Unit =
+    cursorOps.setSystemCursor(glSurfaceView.view, systemCursor.ordinal)
+}

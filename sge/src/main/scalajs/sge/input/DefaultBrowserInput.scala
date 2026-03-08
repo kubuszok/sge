@@ -12,6 +12,7 @@
  *   Convention: Pointer Lock API via scalajs-dom (replaces JSNI pointer lock)
  *   Idiom: GdxRuntimeException -> SgeError; Gdx.graphics -> Sge().graphics
  *   Idiom: Accelerometer/Gyroscope via Generic Sensor API (BrowserAccelerometer/BrowserGyroscope)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

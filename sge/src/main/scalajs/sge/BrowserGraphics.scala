@@ -11,6 +11,7 @@
  *   Convention: GL20/GL30 created externally and passed in (WebGL20/WebGL30 are separate files)
  *   Idiom: OrientationLockType moved to BrowserApplicationConfig companion
  *   Idiom: Nullable for GL30/GL31/GL32 return types
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

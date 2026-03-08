@@ -186,7 +186,7 @@ object Interpolation {
   }
 
   class Bounce(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
-    def this(bounces: Int) = this(Array.empty, Array.empty) // Will be set in BounceOut constructor
+    def this(bounces: Int) = this(BounceOut.computeWidths(bounces), BounceOut.computeHeights(bounces))
 
     private def out(a: Float): Float = {
       val test = a + widths(0) / 2
@@ -200,7 +200,7 @@ object Interpolation {
   }
 
   class BounceOut(val widths: Array[Float], val heights: Array[Float]) extends Interpolation {
-    def this(bounces: Int) = {
+    def this(bounces: Int) =
       this(
         if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
         else {
@@ -251,7 +251,6 @@ object Interpolation {
           h
         }
       )
-    }
 
     def apply(a: Float): Float =
       if (a == 1) 1f
@@ -280,8 +279,35 @@ object Interpolation {
         }
   }
 
+  object BounceOut {
+    private[Interpolation] def computeWidths(bounces: Int): Array[Float] = {
+      if (bounces < 2 || bounces > 5) throw new IllegalArgumentException(s"bounces cannot be < 2 or > 5: $bounces")
+      val w = new Array[Float](bounces)
+      bounces match {
+        case 2 => w(0) = 0.6f; w(1) = 0.4f
+        case 3 => w(0) = 0.4f; w(1) = 0.4f; w(2) = 0.2f
+        case 4 => w(0) = 0.34f; w(1) = 0.34f; w(2) = 0.2f; w(3) = 0.15f
+        case 5 => w(0) = 0.3f; w(1) = 0.3f; w(2) = 0.2f; w(3) = 0.1f; w(4) = 0.1f
+      }
+      w(0) *= 2
+      w
+    }
+
+    private[Interpolation] def computeHeights(bounces: Int): Array[Float] = {
+      val h = new Array[Float](bounces)
+      h(0) = 1
+      bounces match {
+        case 2 => h(1) = 0.33f
+        case 3 => h(1) = 0.33f; h(2) = 0.1f
+        case 4 => h(1) = 0.26f; h(2) = 0.11f; h(3) = 0.03f
+        case 5 => h(1) = 0.45f; h(2) = 0.3f; h(3) = 0.15f; h(4) = 0.06f
+      }
+      h
+    }
+  }
+
   class BounceIn(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
-    def this(bounces: Int) = this(Array.empty, Array.empty) // Will be handled by BounceOut constructor
+    def this(bounces: Int) = this(BounceOut.computeWidths(bounces), BounceOut.computeHeights(bounces))
 
     override def apply(a: Float): Float = 1 - super.apply(1 - a)
   }

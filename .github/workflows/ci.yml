@@ -13,7 +13,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ─── Native Components (Rust library) ────────────────────────────────
+  # ─── Native Components (Rust library) — native builds ──────────────
+  # Build natively on each runner where we can also run tests.
 
   build-native:
     name: Native Components (${{ matrix.label }})
@@ -23,26 +24,30 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            label: Linux
-            artifact: rust-lib-linux
+            label: linux-x86_64
+            platform: linux-x86_64
+            artifact: rust-lib-linux-x86_64
             lib-glob: |
               native-components/target/release/libsge_native_ops.so
               native-components/target/release/libsge_native_ops.a
-          - os: macos-26-intel
-            label: macOS Intel
-            artifact: rust-lib-macos-intel
+          - os: macos-13
+            label: macos-x86_64
+            platform: macos-x86_64
+            artifact: rust-lib-macos-x86_64
             lib-glob: |
               native-components/target/release/libsge_native_ops.dylib
               native-components/target/release/libsge_native_ops.a
           - os: macos-latest
-            label: macOS ARM
-            artifact: rust-lib-macos-arm
+            label: macos-aarch64
+            platform: macos-aarch64
+            artifact: rust-lib-macos-aarch64
             lib-glob: |
               native-components/target/release/libsge_native_ops.dylib
               native-components/target/release/libsge_native_ops.a
           - os: windows-latest
-            label: Windows
-            artifact: rust-lib-windows
+            label: windows-x86_64
+            platform: windows-x86_64
+            artifact: rust-lib-windows-x86_64
             lib-glob: |
               native-components/target/release/sge_native_ops.dll
               native-components/target/release/sge_native_ops.dll.lib
@@ -59,16 +64,89 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             native-components/target
-          key: rust-${{ runner.os }}-${{ hashFiles('native-components/Cargo.lock') }}
-          restore-keys: rust-${{ runner.os }}-
+          key: rust-${{ matrix.platform }}-${{ hashFiles('native-components/Cargo.lock') }}
+          restore-keys: rust-${{ matrix.platform }}-
 
-      - name: Build Rust library (release, JVM feature)
+      - name: Build Rust library (release)
         working-directory: native-components
         run: cargo build --release
 
       - name: Run Rust tests
         working-directory: native-components
         run: cargo test
+
+      - name: Upload Rust artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.lib-glob }}
+          retention-days: 1
+
+  # ─── Native Components (Rust library) — cross-compiled builds ──────
+  # Build for platforms where we don't have native runners (aarch64 Linux/Windows).
+
+  build-native-cross:
+    name: Native Components (${{ matrix.label }}, cross)
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: linux-aarch64
+            platform: linux-aarch64
+            target: aarch64-unknown-linux-gnu
+            artifact: rust-lib-linux-aarch64
+            tool: zigbuild
+            lib-glob: |
+              native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
+              native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
+          - label: windows-aarch64
+            platform: windows-aarch64
+            target: aarch64-pc-windows-msvc
+            artifact: rust-lib-windows-aarch64
+            tool: xwin
+            lib-glob: |
+              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
+              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
+              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Cargo registry and target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            native-components/target
+          key: rust-cross-${{ matrix.platform }}-${{ hashFiles('native-components/Cargo.lock') }}
+          restore-keys: rust-cross-${{ matrix.platform }}-
+
+      - name: Install Zig (for cargo-zigbuild)
+        if: matrix.tool == 'zigbuild'
+        uses: mlugg/setup-zig@v2
+
+      - name: Install cargo-zigbuild
+        if: matrix.tool == 'zigbuild'
+        run: cargo install cargo-zigbuild --locked
+
+      - name: Install cargo-xwin
+        if: matrix.tool == 'xwin'
+        run: cargo install cargo-xwin --locked
+
+      - name: Cross-compile Rust library
+        working-directory: native-components
+        run: |
+          if [ "${{ matrix.tool }}" = "zigbuild" ]; then
+            cargo zigbuild --release --target ${{ matrix.target }}
+          else
+            cargo xwin build --release --target ${{ matrix.target }}
+          fi
 
       - name: Upload Rust artifacts
         uses: actions/upload-artifact@v4
@@ -100,7 +178,7 @@ jobs:
       - name: Compile + test Scala.js
         run: sbt 'sgeJS/test'
 
-  # ─── JVM compile + test (requires Rust JNI library) ────────────────
+  # ─── JVM compile + test (requires Rust library) ────────────────────
 
   test-jvm:
     name: JVM tests (${{ matrix.label }})
@@ -111,17 +189,17 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            label: Linux
-            artifact: rust-lib-linux
-          - os: macos-26-intel
-            label: macOS Intel
-            artifact: rust-lib-macos-intel
+            label: linux-x86_64
+            artifact: rust-lib-linux-x86_64
+          - os: macos-13
+            label: macos-x86_64
+            artifact: rust-lib-macos-x86_64
           - os: macos-latest
-            label: macOS ARM
-            artifact: rust-lib-macos-arm
+            label: macos-aarch64
+            artifact: rust-lib-macos-aarch64
           - os: windows-latest
-            label: Windows
-            artifact: rust-lib-windows
+            label: windows-x86_64
+            artifact: rust-lib-windows-x86_64
     steps:
       - uses: actions/checkout@v4
 
@@ -153,17 +231,17 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            label: Linux
-            artifact: rust-lib-linux
-          - os: macos-26-intel
-            label: macOS Intel
-            artifact: rust-lib-macos-intel
+            label: linux-x86_64
+            artifact: rust-lib-linux-x86_64
+          - os: macos-13
+            label: macos-x86_64
+            artifact: rust-lib-macos-x86_64
           - os: macos-latest
-            label: macOS ARM
-            artifact: rust-lib-macos-arm
+            label: macos-aarch64
+            artifact: rust-lib-macos-aarch64
           - os: windows-latest
-            label: Windows
-            artifact: rust-lib-windows
+            label: windows-x86_64
+            artifact: rust-lib-windows-x86_64
     steps:
       - uses: actions/checkout@v4
 
@@ -208,4 +286,3 @@ jobs:
 
       - name: Run Scala Native tests
         run: sbt 'sgeNative/test'
-

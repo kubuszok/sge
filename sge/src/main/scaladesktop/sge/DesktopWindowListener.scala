@@ -10,6 +10,7 @@
  *   Merged with: Lwjgl3WindowAdapter (default no-op methods in trait)
  *   Convention: trait with default implementations replaces interface + adapter pair
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

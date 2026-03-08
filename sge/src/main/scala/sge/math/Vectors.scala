@@ -80,9 +80,9 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
     * @see
     *   #len2()
     */
-  final def setLengthSq(lengthSq: Float): this.type = {
-    val oldLenSq = lengthSq
-    if (oldLenSq == 0 || oldLenSq == lengthSq) this else scale(Math.sqrt(lengthSq / oldLenSq).toFloat)
+  final def setLengthSq(targetLengthSq: Float): this.type = {
+    val oldLenSq = this.lengthSq
+    if (oldLenSq == 0 || oldLenSq == targetLengthSq) this else scale(Math.sqrt(targetLengthSq / oldLenSq).toFloat)
   }
 
   /** Scales this vector by a scalar
@@ -111,7 +111,7 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
     */
   final def normalize(): this.type = {
     val len = length
-    if (len != 1) downScale(len) // originally it was 0, but it makes no sense
+    if (len != 0) downScale(len)
     else this
   }
 
@@ -158,6 +158,7 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
     * @return
     *   This vector for chaining
     */
+  @annotation.targetName("minus")
   def -(v: T): this.type
 
   /** Adds the given vector to this vector
@@ -166,6 +167,7 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
     * @return
     *   This vector for chaining
     */
+  @annotation.targetName("plus")
   def +(v: T): this.type
 
   /** @param v
@@ -173,7 +175,7 @@ sealed trait Vector[T <: Vector[T]] { self: T =>
     * @return
     *   The dot product between this and the other vector
     */
-  def dot(v: T): Float
+  infix def dot(v: T): Float
 
   /** Scales this vector by another vector
     * @return
@@ -325,12 +327,14 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
 
   override def setZero(): this.type = set(0, 0)
 
+  @annotation.targetName("minusXY")
   def -(x: Float, y: Float): this.type = {
     this.x -= x
     this.y -= y
     this
   }
 
+  @annotation.targetName("plusXY")
   def +(x: Float, y: Float): this.type = {
     this.x += x
     this.y += y
@@ -343,13 +347,16 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
     * @return
     *   this vector
     */
+  @annotation.targetName("times")
   def *(mat: Matrix3): this.type = {
-    x = this.x * mat.values(0) + this.y * mat.values(3) + mat.values(6)
-    y = this.x * mat.values(1) + this.y * mat.values(4) + mat.values(7)
+    val newX = this.x * mat.values(0) + this.y * mat.values(3) + mat.values(6)
+    val newY = this.x * mat.values(1) + this.y * mat.values(4) + mat.values(7)
+    x = newX
+    y = newY
     this
   }
 
-  def dot(x: Float, y: Float): Float = this.x * x + this.y * y
+  infix def dot(x: Float, y: Float): Float = this.x * x + this.y * y
 
   /** Calculates the 2D cross product between this and the given vector.
     * @param v
@@ -357,7 +364,7 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
     * @return
     *   the cross product
     */
-  def cross(v: Vector2): Float = x * v.y - y * v.x
+  infix def cross(v: Vector2): Float = x * v.y - y * v.x
 
   /** Calculates the 2D cross product between this and the given vector.
     * @param x
@@ -367,7 +374,7 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
     * @return
     *   the cross product
     */
-  def cross(x: Float, y: Float): Float = this.x * y - this.y * x
+  infix def cross(x: Float, y: Float): Float = this.x * y - this.y * x
 
   /** @return
     *   the angle in degrees of this vector (point) relative to the x-axis. Angles are towards the positive y-axis (typically counter-clockwise) and in the [0, 360) range.
@@ -474,11 +481,13 @@ final case class Vector2(var x: Float = 0, var y: Float = 0) extends Vector[Vect
 
   override def set(v: Vector2): this.type = set(v.x, v.y)
 
+  @annotation.targetName("minus")
   override def -(v: Vector2): this.type = this.-(v.x, v.y)
 
+  @annotation.targetName("plus")
   override def +(v: Vector2): this.type = this.+(v.x, v.y)
 
-  override def dot(v: Vector2): Float = dot(v.x, v.y)
+  override infix def dot(v: Vector2): Float = dot(v.x, v.y)
 
   override def scale(v: Vector2): this.type = {
     x *= v.x
@@ -649,6 +658,7 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
 
   override def setZero(): this.type = set(0, 0, 0)
 
+  @annotation.targetName("minusXYZ")
   def -(x: Float, y: Float, z: Float): this.type = {
     this.x -= x
     this.y -= y
@@ -656,6 +666,7 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     this
   }
 
+  @annotation.targetName("plusXYZ")
   def +(x: Float, y: Float, z: Float): this.type = {
     this.x += x
     this.y += y
@@ -663,6 +674,7 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     this
   }
 
+  @annotation.targetName("plusScalar")
   def +(value: Float): this.type = {
     x += value
     y += value
@@ -670,6 +682,7 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     this
   }
 
+  @annotation.targetName("minusScalar")
   def -(value: Float): this.type = {
     x -= value
     y -= value
@@ -702,12 +715,12 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     this
   }
 
-  def dot(x: Float, y: Float, z: Float): Float = this.x * x + this.y * y + this.z * z
+  infix def dot(x: Float, y: Float, z: Float): Float = this.x * x + this.y * y + this.z * z
 
-  def cross(vector: Vector3): this.type =
+  infix def cross(vector: Vector3): this.type =
     set(y * vector.z - z * vector.y, z * vector.x - x * vector.z, x * vector.y - y * vector.x)
 
-  def cross(x: Float, y: Float, z: Float): this.type =
+  infix def cross(x: Float, y: Float, z: Float): this.type =
     set(this.y * z - this.z * y, this.z * x - this.x * z, this.x * y - this.y * x)
 
   def distance(x: Float, y: Float, z: Float): Float = {
@@ -742,9 +755,19 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
   def rotateDeg(degrees: Float, axisX: Float, axisY: Float, axisZ: Float): this.type =
     rotateRad(degrees * MathUtils.degreesToRadians, axisX, axisY, axisZ)
 
-  def rotateRad(radians: Float, axisX: Float, axisY: Float, axisZ: Float): this.type =
-    // This would need Matrix3 implementation - placeholder for now
+  def rotateRad(radians: Float, axisX: Float, axisY: Float, axisZ: Float): this.type = {
+    // Rodrigues' rotation formula: v' = v*cos(a) + (k x v)*sin(a) + k*(k.v)*(1-cos(a))
+    val cos    = Math.cos(radians).toFloat
+    val sin    = Math.sin(radians).toFloat
+    val dot    = axisX * x + axisY * y + axisZ * z
+    val crossX = axisY * z - axisZ * y
+    val crossY = axisZ * x - axisX * z
+    val crossZ = axisX * y - axisY * x
+    x = x * cos + crossX * sin + axisX * dot * (1f - cos)
+    y = y * cos + crossY * sin + axisY * dot * (1f - cos)
+    z = z * cos + crossZ * sin + axisZ * dot * (1f - cos)
     this
+  }
 
   def sphericalLerp(target: Vector3, alpha: Float): this.type = {
     val dotProduct = dot(target.x, target.y, target.z)
@@ -810,11 +833,13 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
 
   override def set(v: Vector3): this.type = set(v.x, v.y, v.z)
 
+  @annotation.targetName("minus")
   override def -(v: Vector3): this.type = this.-(v.x, v.y, v.z)
 
+  @annotation.targetName("plus")
   override def +(v: Vector3): this.type = this.+(v.x, v.y, v.z)
 
-  override def dot(v: Vector3): Float = dot(v.x, v.y, v.z)
+  override infix def dot(v: Vector3): Float = dot(v.x, v.y, v.z)
 
   override def scale(v: Vector3): this.type = {
     x *= v.x
@@ -876,15 +901,15 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     this
 
   // Alias methods for compatibility with existing code
-  def nor():                                    this.type = normalize()
-  def crs(vector: Vector3):                     this.type = cross(vector)
-  def crs(x:      Float, y:  Float, z:  Float): this.type = cross(x, y, z)
-  def scl(scalar: Float):                       this.type = scale(scalar)
-  def scl(vx:     Float, vy: Float, vz: Float): this.type = scale(vx, vy, vz)
-  def sub(v:      Vector3):                     this.type = this.-(v)
-  def sub(x:      Float, y:  Float, z:  Float): this.type = this.-(x, y, z)
-  def add(v:      Vector3):                     this.type = this.+(v)
-  def add(x:      Float, y:  Float, z:  Float): this.type = this.+(x, y, z)
+  def nor():                                          this.type = normalize()
+  infix def crs(vector: Vector3):                     this.type = cross(vector)
+  infix def crs(x:      Float, y:  Float, z:  Float): this.type = cross(x, y, z)
+  def scl(scalar:       Float):                       this.type = scale(scalar)
+  def scl(vx:           Float, vy: Float, vz: Float): this.type = scale(vx, vy, vz)
+  def sub(v:            Vector3):                     this.type = this.-(v)
+  def sub(x:            Float, y:  Float, z:  Float): this.type = this.-(x, y, z)
+  def add(v:            Vector3):                     this.type = this.+(v)
+  def add(x:            Float, y:  Float, z:  Float): this.type = this.+(x, y, z)
 
   // Matrix multiplication methods
   def mul(matrix: Matrix4): this.type = {
@@ -1119,6 +1144,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
 
   override def copy: Vector4 = Vector4(x, y, z, w)
 
+  @annotation.targetName("plus")
   override def +(vector: Vector4): this.type =
     this.+(vector.x, vector.y, vector.z, vector.w)
 
@@ -1134,6 +1160,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     * @return
     *   This vector for chaining.
     */
+  @annotation.targetName("plusXYZW")
   def +(x: Float, y: Float, z: Float, w: Float): this.type = {
     this.x += x
     this.y += y
@@ -1148,6 +1175,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     * @return
     *   This vector for chaining
     */
+  @annotation.targetName("plusScalar")
   def +(values: Float): this.type = {
     this.x += values
     this.y += values
@@ -1156,6 +1184,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     this
   }
 
+  @annotation.targetName("minus")
   override def -(vector: Vector4): this.type =
     this.-(vector.x, vector.y, vector.z, vector.w)
 
@@ -1171,6 +1200,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     * @return
     *   This vector for chaining
     */
+  @annotation.targetName("minusXYZW")
   def -(x: Float, y: Float, z: Float, w: Float): this.type = {
     this.x -= x
     this.y -= y
@@ -1185,6 +1215,7 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     * @return
     *   This vector for chaining
     */
+  @annotation.targetName("minusScalar")
   def -(value: Float): this.type = {
     this.x -= value
     this.y -= value
@@ -1221,9 +1252,9 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
     this
   }
 
-  override def dot(v: Vector4): Float = dot(v.x, v.y, v.z, v.w)
+  override infix def dot(v: Vector4): Float = dot(v.x, v.y, v.z, v.w)
 
-  def dot(x: Float, y: Float, z: Float, w: Float): Float =
+  infix def dot(x: Float, y: Float, z: Float, w: Float): Float =
     this.x * x + this.y * y + this.z * z + this.w * w
 
   override def distanceSq(v: Vector4): Float = {

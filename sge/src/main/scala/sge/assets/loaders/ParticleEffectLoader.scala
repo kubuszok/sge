@@ -36,7 +36,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Sync
           effect.load(file, imgDir)
         }
       } { atlasFile =>
-        effect.load(file, assetManager(atlasFile, classOf[TextureAtlas]), p.atlasPrefix)
+        effect.load(file, assetManager[TextureAtlas](atlasFile), p.atlasPrefix)
       }
     }
     effect

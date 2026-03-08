@@ -11,6 +11,7 @@
  *   Convention: AssetDownloader XHR -> fetch API for loading sound data
  *   Idiom: LifecycleListener pause/resume for mute/unmute on focus loss
  *   Idiom: Sound unlock via user interaction events (Web Audio autoplay policy)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -79,7 +80,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
     lazy val unlock: js.Function1[dom.Event, Unit] = { (_: dom.Event) =>
       audioContext.resume()
       WebAudioManager.soundUnlocked = true
-      Sge().application.log("WebAudio", "AudioContext unlocked")
+      scribe.info("WebAudio: AudioContext unlocked")
       eventNames.foreach(name => document.removeEventListener(name, unlock))
     }
     eventNames.foreach(name => document.addEventListener(name, unlock))
@@ -117,7 +118,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
             sound.setAudioBuffer(decodedBuffer)
           }: js.Function1[js.Dynamic, Unit],
           { () =>
-            Sge().application.error("WebAudio", "Error: decodeAudioData failed")
+            scribe.error("WebAudio: decodeAudioData failed")
           }: js.Function0[Unit]
         )
       }

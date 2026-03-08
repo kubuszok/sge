@@ -42,6 +42,8 @@ import sge.utils.Nullable
 import sge.utils.SgeError
 import sge.utils.readJson
 
+import scala.reflect.ClassTag
+
 import scala.collection.mutable
 import scala.util.boundary
 import scala.util.boundary.break
@@ -335,6 +337,26 @@ class Skin()(using Sge) extends AutoCloseable {
       case Some(m) => Nullable(m.asInstanceOf[mutable.Map[String, T]])
       case None    => Nullable.empty
     }
+
+  /** Returns a resource named "default" for the specified type. */
+  def get[T: ClassTag]: T =
+    get("default", summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
+
+  /** Returns a named resource of the specified type. */
+  def get[T: ClassTag](name: String): T =
+    get(name, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
+
+  /** Returns a named resource of the specified type, or Nullable.empty if not found. */
+  def optional[T: ClassTag](name: String): Nullable[T] =
+    optional(name, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
+
+  /** Whether a resource with the specified name and type exists. */
+  def has[T: ClassTag](name: String): Boolean =
+    has(name, summon[ClassTag[T]].runtimeClass)
+
+  /** Returns the name to resource mapping for the specified type, or Nullable.empty if no resources of that type exist. */
+  def getAll[T: ClassTag]: Nullable[mutable.Map[String, T]] =
+    getAll(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]])
 
   def getColor(name: String): Color =
     get(name, classOf[Color])

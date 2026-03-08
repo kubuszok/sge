@@ -51,9 +51,9 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
 
   private var prefRows: Float = 0
 
-  def this(text: String, skin: Skin)(using Sge) = this(Nullable(text), skin.get(classOf[TextField.TextFieldStyle]))
+  def this(text: String, skin: Skin)(using Sge) = this(Nullable(text), skin.get[TextField.TextFieldStyle])
 
-  def this(text: String, skin: Skin, styleName: String)(using Sge) = this(Nullable(text), skin.get(styleName, classOf[TextField.TextFieldStyle]))
+  def this(text: String, skin: Skin, styleName: String)(using Sge) = this(Nullable(text), skin.get[TextField.TextFieldStyle](styleName))
 
   override protected def initialize(): Unit = {
     super.initialize()
@@ -284,7 +284,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
       var lineStart = 0
       var lastSpace = 0
       var lastCharacter: Char = 0
-      val layout = Actor.POOLS.obtain(classOf[GlyphLayout])
+      val layout = Actor.POOLS.obtain[GlyphLayout]
       var i      = 0
       while (i < _text.length()) {
         lastCharacter = _text.charAt(i)

@@ -12,6 +12,7 @@
  *   Convention: GWT WebGLRenderingContext typed methods -> js.Dynamic WebGL API calls
  *   Idiom: GdxRuntimeException -> SgeError.GraphicsError
  *   TODO: Pixmap-based texImage2D/texSubImage2D path (requires browser Pixmap implementation)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

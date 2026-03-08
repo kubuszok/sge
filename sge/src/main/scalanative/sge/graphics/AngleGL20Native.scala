@@ -9,6 +9,7 @@
  *   Convention: Buffer -> Ptr[Byte] via NativeGlHelper.bufPtr
  *   Convention: String -> CString via Zone; GLboolean -> CUnsignedChar
  *   Idiom: split packages; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

@@ -9,6 +9,7 @@
  *   Convention: navigator.clipboard.writeText via scalajs-dom (async, fire-and-forget)
  *   Convention: paste only works within the app (browser security restriction)
  *   Idiom: Nullable (0 null), split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

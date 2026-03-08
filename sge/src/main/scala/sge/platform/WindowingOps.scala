@@ -40,6 +40,9 @@ private[sge] trait WindowingOps {
   /** Terminates the windowing library and frees all resources. */
   def terminate(): Unit
 
+  /** Returns the platform that was selected during initialization (e.g. GLFW_PLATFORM_COCOA, GLFW_PLATFORM_WAYLAND). */
+  def getPlatform(): Int
+
   // ─── Window lifecycle ──────────────────────────────────────────────────
 
   /** Creates a new window with the given dimensions and title.
@@ -337,9 +340,13 @@ object WindowingOps {
   val GLFW_CONTEXT_VERSION_MINOR: Int = 0x00022003
 
   // GLFW platform constants (3.4+)
-  val GLFW_PLATFORM:      Int = 0x00050003
-  val GLFW_ANY_PLATFORM:  Int = 0x00060000
-  val GLFW_PLATFORM_NULL: Int = 0x00060005
+  val GLFW_PLATFORM:         Int = 0x00050003
+  val GLFW_ANY_PLATFORM:     Int = 0x00060000
+  val GLFW_PLATFORM_WIN32:   Int = 0x00060001
+  val GLFW_PLATFORM_COCOA:   Int = 0x00060002
+  val GLFW_PLATFORM_WAYLAND: Int = 0x00060003
+  val GLFW_PLATFORM_X11:     Int = 0x00060004
+  val GLFW_PLATFORM_NULL:    Int = 0x00060005
 
   // GLFW boolean constants
   val GLFW_TRUE:  Int = 1

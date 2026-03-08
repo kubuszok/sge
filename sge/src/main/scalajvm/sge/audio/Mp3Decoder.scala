@@ -10,6 +10,7 @@
  *   Convention: boundary/break instead of return
  *   Convention: extracted decoder logic from backend Sound/Music wrappers into reusable utility
  *   Idiom: split packages; SgeError instead of GdxRuntimeException
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -77,25 +78,25 @@ class Mp3Decoder private (private val file: FileHandle) extends java.io.Closeabl
     *   the number of bytes written, or 0 if the stream is exhausted
     */
   def read(buffer: Array[Byte]): Int =
-    try {
-      if (!_setup) {
-        // Re-read first header to set up output buffer on fresh stream
-        val header = bitstream.readFrame()
-        if (header == null) return 0
-        channels = if (header.mode() == Header.SINGLE_CHANNEL) 1 else 2
-        outputBuffer = new OutputBuffer(channels, false)
-        decoder.setOutputBuffer(outputBuffer)
-        sampleRate = header.getSampleRate
-        _setup = true
-        bitstream.closeFrame()
-      }
-
-      var totalLength       = 0
-      val minRequiredLength = buffer.length - OutputBuffer.BUFFERSIZE * 2
+    try
       boundary {
+        if (!_setup) {
+          // Re-read first header to set up output buffer on fresh stream
+          val header = bitstream.readFrame()
+          if (header == null) break(0)
+          channels = if (header.mode() == Header.SINGLE_CHANNEL) 1 else 2
+          outputBuffer = new OutputBuffer(channels, false)
+          decoder.setOutputBuffer(outputBuffer)
+          sampleRate = header.getSampleRate
+          _setup = true
+          bitstream.closeFrame()
+        }
+
+        var totalLength       = 0
+        val minRequiredLength = buffer.length - OutputBuffer.BUFFERSIZE * 2
         while (totalLength <= minRequiredLength) {
           val header = bitstream.readFrame()
-          if (header == null) break()
+          if (header == null) break(totalLength)
           try
             decoder.decodeFrame(header, bitstream)
           catch {
@@ -108,9 +109,9 @@ class Mp3Decoder private (private val file: FileHandle) extends java.io.Closeabl
           System.arraycopy(outputBuffer.getBuffer, 0, buffer, totalLength, length)
           totalLength += length
         }
+        totalLength
       }
-      totalLength
-    } catch {
+    catch {
       case t: Throwable =>
         reset()
         throw SgeError.AudioError(s"Error reading MP3 audio data: ${file.name()}", Some(t))

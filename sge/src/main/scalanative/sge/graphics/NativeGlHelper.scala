@@ -7,6 +7,7 @@
  *   Origin: SGE-original (Scala Native GL buffer/string helpers)
  *   Convention: Scala Native @extern; buffer address via reflection
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package graphics

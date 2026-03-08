@@ -1,7 +1,7 @@
 # Backend Migration Plan
 
-**Date**: 2026-03-05
-**Status**: Planning
+**Date**: 2026-03-08
+**Status**: Complete (except iOS deferred)
 **Architecture**: ANGLE + Panama FFM + SDL3/GLFW (see `docs/architecture/backend-graphics-strategy.md`)
 
 ---
@@ -57,13 +57,103 @@ between JVM (Panama) and Scala Native (@extern) compilations.
 ### 2.3 `backend-browser` (NEW — Scala.js only)
 Browser backend using WebGL2, Web Audio API, DOM events via scalajs-dom.
 
-### 2.4 `backend-android` (FUTURE — JVM only)
-Android backend. Uses ANGLE (via Android's native EGL) + Android SDK APIs.
-JNI bridge retained for native ops (ART doesn't support Panama).
+### 2.4 Android Platform Support (COMPLETE — JVM only)
+Android support uses a **self-contained ops interface** pattern to avoid circular
+dependencies. The `sge-jvm-platform-api` module defines JDK-only traits
+(`ClipboardOps`, `PreferencesOps`, `LoggerOps`, `AndroidPlatformProvider`), and
+`sge-jvm-platform-android` provides concrete implementations using the Android SDK.
+sge core discovers and adapts these at runtime via reflection.
+
+**Module layout** (see section 2.6 below for details):
+- `sge-jvm-platform-api/` — PanamaProvider trait + Android ops interfaces (JDK 17)
+- `sge-jvm-platform-jdk/` — JdkPanama impl (JDK 22+, `java.lang.foreign`)
+- `sge-jvm-platform-android/` — PanamaPort + Android backend impls (JDK 17, android.jar)
+
+None are published separately; their class files are merged into sge's JVM JAR.
 
 ### 2.5 `backend-ios` (FUTURE — Scala Native only)
 iOS backend. Deferred until Scala Native gains iOS target support.
 Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
+
+### 2.6 JVM Platform Modules (sge-jvm-platform-*)
+
+Three internal modules isolate JDK-version-dependent and platform-specific code.
+They are **not published** — their class files are merged into sge's JVM JAR at
+package time. Runtime feature detection in sge picks the right provider.
+
+```
+sge-jvm-platform-api (JDK 17)
+├── sge.platform.PanamaProvider          — path-dependent types for FFM abstraction
+└── sge.platform.android.*               — self-contained ops interfaces (JDK types only)
+    ├── AndroidPlatformProvider           — top-level factory (context as AnyRef)
+    ├── AndroidConfigOps                  — application configuration (data class)
+    ├── ClipboardOps                      — clipboard read/write
+    ├── PreferencesOps                    — SharedPreferences mirror
+    ├── LoggerOps                         — android.util.Log mirror
+    ├── FilesOps                          — asset/storage file access
+    ├── AudioEngineOps                    — audio factory (SoundPool + MediaPlayer)
+    ├── SoundOps / MusicOps              — sound/music playback control
+    ├── AudioDeviceOps / AudioRecorderOps — raw PCM I/O
+    ├── HapticsOps                        — vibration/haptic feedback
+    ├── CursorOps                         — system cursor (PointerIcon)
+    ├── DisplayMetricsOps                 — PPI, density, safe insets, display modes
+    ├── SensorOps                         — accelerometer, gyroscope, compass
+    ├── InputMethodOps                    — soft keyboard, text input dialogs
+    ├── GLSurfaceViewOps                  — GL surface lifecycle, EGL config
+    ├── GL20Ops                           — GL ES 2.0 mirror (133 methods, plain Int)
+    ├── GL30Ops                           — GL ES 3.0 mirror (extends GL20Ops, 88 methods)
+    ├── ResolutionStrategyOps             — surface dimension calculation
+    ├── FillResolutionStrategy            — pass-through (singleton)
+    ├── FixedResolutionStrategy           — fixed pixel size (case class)
+    ├── RatioResolutionStrategy           — aspect ratio lock (case class)
+    └── InputDialogCallback               — text input dialog result callback
+
+sge-jvm-platform-jdk (JDK 22+)
+└── sge.platform.JdkPanama               — concrete PanamaProvider using java.lang.foreign
+
+sge-jvm-platform-android (JDK 17 + android.jar)
+├── sge.platform.PanamaPortProvider      — PanamaProvider using PanamaPort (always compiles)
+└── sge.platform.android.* (scala-android/, conditional on Android SDK)
+    ├── AndroidPlatformProviderImpl       — top-level factory delegating to:
+    ├── AndroidClipboardImpl              — ClipboardManager
+    ├── AndroidPreferencesImpl            — SharedPreferences
+    ├── AndroidLoggerImpl                 — android.util.Log
+    ├── AndroidFilesOpsImpl               — AssetManager + ContextWrapper
+    ├── AndroidAudioEngineImpl            — SoundPool + MediaPlayer
+    ├── AndroidSoundOpsImpl               — SoundPool ring buffer
+    ├── AndroidMusicOpsImpl               — MediaPlayer
+    ├── AndroidAudioDeviceImpl            — AudioTrack
+    ├── AndroidAudioRecorderImpl          — AudioRecord
+    ├── AndroidHapticsImpl                — Vibrator / VibratorManager
+    ├── AndroidCursorImpl                 — PointerIcon (API 24+)
+    ├── AndroidDisplayMetricsImpl         — DisplayMetrics + DisplayCutout
+    ├── AndroidSensorImpl                 — SensorManager + SensorEventListener
+    ├── AndroidInputMethodImpl            — InputMethodManager + AlertDialog
+    ├── AndroidGLSurfaceViewImpl          — GLSurfaceView + EGL context factory
+    ├── AndroidEglConfigChooser           — MSAA/CSAA-aware EGL config selection
+    ├── AndroidGL20Impl                   — GL20Ops impl via GLES20 static methods
+    └── AndroidGL30Impl                   — GL30Ops impl via GLES30 (extends AndroidGL20Impl)
+```
+
+**Key design decisions:**
+- **No circular dependencies**: ops interfaces use only JDK types (AnyRef for Context).
+  sge depends on API; Android module depends on API + android.jar; neither depends on sge.
+- **Conditional compilation**: `scala-android/` sources only included when android.jar is
+  found (via `AndroidSdk.findSdkRoot()`). Builds succeed without Android SDK.
+- **`_root_.android.*`**: Required in `scala-android/` files because Scala resolves
+  `android` as the current package (`sge.platform.android`) otherwise.
+
+**IMPORTANT — failed approach (do NOT retry):**
+A separate `sge-android-adapter` module depending on both `sge` (JVM) and android.jar
+was attempted and **failed**: sbt freezes on circular dependency because sge merges the
+platform module JARs into its own classpath. The adapter would depend on sge, which
+depends on the merged JARs, creating a deadlock.
+
+**Correct approach for adapter files** (GL20/GL30, FileHandle, Net, Application lifecycle):
+Copy the minimal sge trait definitions needed into `sge-jvm-platform-api` (as slim
+mirror traits), implement in `sge-jvm-platform-android`, then use Scala 3 `export`
+clauses or mixin traits in sge core to bridge the mirror types to sge's real types.
+This keeps the dependency graph acyclic: api ← android ← (merged into) sge.
 
 ---
 
@@ -195,85 +285,85 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `AndroidApplication.java` | `AndroidApplication.scala` | android | P2 | not_started | Activity lifecycle |
-| `AndroidApplicationBase.java` | `AndroidApplicationBase.scala` | android | P2 | not_started | Base interface |
-| `AndroidApplicationConfiguration.java` | `AndroidApplicationConfig.scala` | android | P2 | not_started | Config POJO |
-| `AndroidApplicationLogger.java` | `AndroidLogger.scala` | android | P2 | not_started | android.util.Log |
-| `AndroidFragmentApplication.java` | `AndroidFragmentApp.scala` | android | P2 | not_started | Fragment support |
+| `AndroidApplication.java` | `AndroidApplication.scala` | sge (scalajvm) | P2 | done | Application impl + adapters (Files, Audio, Prefs, Clipboard) |
+| `AndroidApplicationBase.java` | merged into `AndroidApplication.scala` | sge (scalajvm) | P2 | done | Lifecycle callbacks (onResume/onPause/onDestroy) |
+| `AndroidApplicationConfiguration.java` | `AndroidConfigOps.scala` | sge-jvm-platform-api | P2 | done | Self-contained data class (JDK types only) |
+| `AndroidApplicationLogger.java` | `AndroidLoggerImpl.scala` | sge-jvm-platform-android | P2 | done | LoggerOps impl via android.util.Log |
+| `AndroidFragmentApplication.java` | reuses `AndroidApplication.scala` | sge (scalajvm) | P2 | done | Fragment uses same AndroidApplication (lifecycle ops abstract the difference) |
 | `AndroidDaydream.java` | — | skip | — | — | Niche feature |
 
 #### Graphics
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `AndroidGraphics.java` | `AndroidGraphics.scala` | android | P2 | not_started | GLSurfaceView + EGL |
-| `AndroidGL20.java` | `AndroidGL20.scala` | android | P2 | not_started | **Codegen**: android.opengl.GLES20 |
-| `AndroidGL30.java` | `AndroidGL30.scala` | android | P2 | not_started | **Codegen**: android.opengl.GLES30 |
-| `AndroidCursor.java` | `AndroidCursor.scala` | android | P2 | not_started | PointerIcon (API 24+) |
-| `GLSurfaceView20.java` | `SgeGLSurfaceView.scala` | android | P2 | not_started | Custom surface view |
-| `GdxEglConfigChooser.java` | `EglConfigChooser.scala` | android | P2 | not_started | EGL config selection |
+| `AndroidGraphics.java` | `AndroidGraphics.scala` + `AndroidGL20Adapter.scala` + `AndroidGL30Adapter.scala` | sge scalajvm + sge-jvm-platform-android | P2 | done | Graphics impl with GL adapter bridging opaque types, DisplayMetricsOps, CursorOps, GLSurfaceViewOps |
+| `AndroidGL20.java` | `GL20Ops.scala` + `AndroidGL20Impl.scala` | sge-jvm-platform-api + android | P2 | done | GL20Ops mirror trait (all Int); AndroidGL20Impl delegates to GLES20 |
+| `AndroidGL30.java` | `GL30Ops.scala` + `AndroidGL30Impl.scala` | sge-jvm-platform-api + android | P2 | done | GL30Ops extends GL20Ops; AndroidGL30Impl delegates to GLES30 |
+| `AndroidCursor.java` | `AndroidCursorImpl.scala` | sge-jvm-platform-android | P2 | done | CursorOps impl via PointerIcon |
+| `GLSurfaceView20.java` | `AndroidGLSurfaceViewImpl.scala` | sge-jvm-platform-android | P2 | done | GLSurfaceViewOps impl via GLSurfaceView |
+| `GdxEglConfigChooser.java` | `AndroidEglConfigChooser` | sge-jvm-platform-android | P2 | done | Part of AndroidGLSurfaceViewImpl |
 | `AndroidGraphicsLiveWallpaper.java` | — | skip | — | — | Niche |
 
 #### Input
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `DefaultAndroidInput.java` | `AndroidInput.scala` | android | P2 | not_started | Touch + sensors + IME |
-| `AndroidTouchHandler.java` | `AndroidTouchHandler.scala` | android | P2 | not_started | Multitouch parsing |
-| `AndroidMouseHandler.java` | `AndroidMouseHandler.scala` | android | P2 | not_started | External mouse |
-| `AndroidHaptics.java` | `AndroidHaptics.scala` | android | P2 | not_started | Vibration |
+| `DefaultAndroidInput.java` | `AndroidInputMethodImpl.scala` + `AndroidSensorImpl.scala` | sge-jvm-platform-android | P2 | done | InputMethodOps + SensorOps (ops split); touch handler adapters deferred to sge-side |
+| `AndroidTouchHandler.java` | `AndroidTouchHandler.scala` | sge (scalajvm) | P2 | done | Uses TouchInputOps for MotionEvent extraction |
+| `AndroidMouseHandler.java` | `AndroidMouseHandler.scala` | sge (scalajvm) | P2 | done | Uses TouchInputOps for MotionEvent extraction |
+| `AndroidHaptics.java` | `AndroidHapticsImpl.scala` | sge-jvm-platform-android | P2 | done | HapticsOps impl via Vibrator |
 | `InputProcessorLW.java` | — | skip | — | — | Live wallpaper specific |
 
 #### Audio
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `DefaultAndroidAudio.java` | `AndroidAudio.scala` | android | P2 | not_started | SoundPool + MediaPlayer |
-| `AndroidAudioDevice.java` | `AndroidAudioDevice.scala` | android | P2 | not_started | AudioTrack PCM |
-| `AndroidAudioRecorder.java` | `AndroidAudioRecorder.scala` | android | P2 | not_started | AudioRecord |
-| `AndroidSound.java` | `AndroidSound.scala` | android | P2 | not_started | SoundPool wrapper |
-| `AndroidMusic.java` | `AndroidMusic.scala` | android | P2 | not_started | MediaPlayer wrapper |
+| `DefaultAndroidAudio.java` | `AndroidAudioEngineImpl.scala` | sge-jvm-platform-android | P2 | done | AudioEngineOps impl via SoundPool + MediaPlayer |
+| `AndroidAudioDevice.java` | `AndroidAudioDeviceImpl.scala` | sge-jvm-platform-android | P2 | done | AudioDeviceOps impl via AudioTrack |
+| `AndroidAudioRecorder.java` | `AndroidAudioRecorderImpl.scala` | sge-jvm-platform-android | P2 | done | AudioRecorderOps impl via AudioRecord |
+| `AndroidSound.java` | `AndroidSoundOpsImpl.scala` | sge-jvm-platform-android | P2 | done | SoundOps impl via SoundPool |
+| `AndroidMusic.java` | `AndroidMusicOpsImpl.scala` | sge-jvm-platform-android | P2 | done | MusicOps impl via MediaPlayer |
 | `DisabledAndroidAudio.java` | — | core-shared | — | done | NoopAudio covers this |
-| `AsynchronousAndroidAudio.java` | `AsyncAndroidAudio.scala` | android | P3 | not_started | Background thread loading |
-| `AsynchronousSound.java` | `AsyncAndroidSound.scala` | android | P3 | not_started | Async sound ops |
-| `AndroidAudio.java` | — | android | P2 | not_started | Interface (merge) |
+| `AsynchronousAndroidAudio.java` | `AsynchronousAndroidAudioImpl.scala` | sge-jvm-platform-android | P3 | done | Decorator wrapping AudioEngineOps with HandlerThread |
+| `AsynchronousSound.java` | `AsynchronousSoundOps.scala` | sge-jvm-platform-android | P3 | done | Decorator wrapping SoundOps with Handler circular buffer |
+| `AndroidAudio.java` | — | android | P2 | done | Merged into AudioEngineOps trait |
 
 #### Files
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `DefaultAndroidFiles.java` | `AndroidFiles.scala` | android | P2 | not_started | AssetManager paths |
-| `AndroidFileHandle.java` | `AndroidFileHandle.scala` | android | P2 | not_started | Asset/storage access |
+| `DefaultAndroidFiles.java` | `AndroidFilesOpsImpl.scala` | sge-jvm-platform-android | P2 | done | FilesOps impl via AssetManager |
+| `AndroidFileHandle.java` | `AndroidFileHandle.scala` | sge (scalajvm) | P2 | done | sge FileHandle adapter using FilesOps |
 | `AndroidZipFileHandle.java` | — | skip | — | — | OBB/expansion files (niche) |
 | `ZipResourceFile.java` | — | skip | — | — | OBB support (niche) |
 | `APKExpansionSupport.java` | — | skip | — | — | OBB support (niche) |
-| `AndroidFiles.java` | — | android | P2 | not_started | Interface (merge) |
+| `AndroidFiles.java` | — | android | P2 | done | Merged into FilesOps trait |
 
 #### Net / Preferences / Clipboard
 
 | LibGDX File | SGE Target | Target Module | Priority | Status | Notes |
 |-------------|-----------|---------------|----------|--------|-------|
-| `AndroidNet.java` | `AndroidNet.scala` | android | P2 | not_started | Delegates to NetJavaImpl |
-| `AndroidPreferences.java` | `AndroidPreferences.scala` | android | P2 | not_started | SharedPreferences |
-| `AndroidClipboard.java` | `AndroidClipboard.scala` | android | P2 | not_started | ClipboardManager |
+| `AndroidNet.java` | `AndroidNet.scala` | sge (scalajvm) | P2 | done | sge Net adapter, delegates to provider.openURI |
+| `AndroidPreferences.java` | `AndroidPreferencesImpl.scala` | sge-jvm-platform-android | P2 | done | PreferencesOps impl via SharedPreferences |
+| `AndroidClipboard.java` | `AndroidClipboardImpl.scala` | sge-jvm-platform-android | P2 | done | ClipboardOps impl via ClipboardManager |
 
 #### Live Wallpaper / Keyboard / Resolution (skip or P3)
 
 | LibGDX File | SGE Target | Priority | Status | Notes |
 |-------------|-----------|----------|--------|-------|
-| `AndroidLiveWallpaperService.java` | — | P3 | not_started | Niche feature |
-| `AndroidLiveWallpaper.java` | — | P3 | not_started | Niche feature |
-| `AndroidWallpaperListener.java` | — | P3 | not_started | Niche feature |
-| `StandardKeyboardHeightProvider.java` | — | P3 | not_started | API 21-29 |
-| `AndroidXKeyboardHeightProvider.java` | — | P3 | not_started | API 30+ |
-| `KeyboardHeightProvider.java` | — | P3 | not_started | Interface |
-| `KeyboardHeightObserver.java` | — | P3 | not_started | Callback |
-| `ResolutionStrategy.java` | `ResolutionStrategy.scala` | core-shared | P2 | not_started | Abstract (shareable) |
-| `FillResolutionStrategy.java` | — | core-shared | P2 | not_started | Fill screen |
-| `FixedResolutionStrategy.java` | — | core-shared | P2 | not_started | Fixed size |
-| `RatioResolutionStrategy.java` | — | core-shared | P2 | not_started | Aspect ratio |
-| `AndroidVisibilityListener.java` | — | P3 | not_started | Immersive mode |
-| `AndroidEventListener.java` | — | P3 | not_started | onActivityResult |
+| `AndroidLiveWallpaperService.java` | `AndroidLiveWallpaperServiceImpl.scala` + `LiveWallpaperServiceOps.scala` + `LiveWallpaperAppCallbacks.scala` | sge-jvm-platform-android + api | P3 | done | WallpaperService with engine management, ops callbacks |
+| `AndroidLiveWallpaper.java` | `AndroidLiveWallpaper.scala` | sge (scalajvm) | P3 | done | Application impl for live wallpapers |
+| `AndroidWallpaperListener.java` | `AndroidWallpaperListenerOps.scala` | sge-jvm-platform-api | P3 | done | Callback interface (offsetChange, previewState, iconDrop) |
+| `StandardKeyboardHeightProvider.java` | `StandardKeyboardHeightProviderImpl.scala` | sge-jvm-platform-android | P3 | done | PopupWindow-based keyboard height (API 21-29) |
+| `AndroidXKeyboardHeightProvider.java` | `AndroidXKeyboardHeightProviderImpl.scala` | sge-jvm-platform-android | P3 | done | WindowInsets-based keyboard height (API 30+) |
+| `KeyboardHeightProvider.java` | `KeyboardHeightProviderOps.scala` | sge-jvm-platform-api | P3 | done | Lifecycle interface for keyboard height detection |
+| `KeyboardHeightObserver.java` | `KeyboardHeightObserverOps.scala` | sge-jvm-platform-api | P3 | done | Callback for keyboard height changes |
+| `ResolutionStrategy.java` | `ResolutionStrategyOps.scala` | sge-jvm-platform-api | P2 | done | Pure JDK trait (pixel sizes, not MeasureSpec) |
+| `FillResolutionStrategy.java` | `FillResolutionStrategy.scala` | sge-jvm-platform-api | P2 | done | Singleton object |
+| `FixedResolutionStrategy.java` | `FixedResolutionStrategy.scala` | sge-jvm-platform-api | P2 | done | Final case class |
+| `RatioResolutionStrategy.java` | `RatioResolutionStrategy.scala` | sge-jvm-platform-api | P2 | done | Final case class with companion factory |
+| `AndroidVisibilityListener.java` | `AndroidVisibilityListenerImpl.scala` + `VisibilityListenerOps.scala` | sge-jvm-platform-android + api | P3 | done | DecorView visibility listener for immersive mode recovery |
+| `AndroidEventListener.java` | `AndroidEventListenerOps.scala` | sge-jvm-platform-api | P3 | done | onActivityResult callback interface |
 | `GdxNativeLoader.java` | — | skip | — | — | JNI loader |
 
 ---
@@ -330,17 +420,25 @@ Architecture: Scala Native + SDL3 + ANGLE (Metal backend) + miniaudio.
 
 ### By Target Module
 
-| Module | Total Files | Done | Not Started | Deferred | Skipped |
-|--------|------------|------|-------------|----------|---------|
-| core-shared (noop, decoders, utils) | 16 | 16 | 0 | 0 | 0 |
-| desktop-shared (`scaladesktop/`) | 27 | 27 | 0 | 0 | 0 |
-| desktop-jvm (`scalajvm/`) | 15 | 15 | 0 | 0 | 0 |
-| desktop-native (`scalanative/`) | 12 | 12 | 0 | 0 | 0 |
-| browser | 20 | 20 | 0 | 0 | 0 |
-| android | 25 | 0 | 25 | 0 | 0 |
-| ios | 14 | 0 | 0 | 14 | 0 |
-| skip | 28 | — | — | — | 28 |
-| **Total** | **152** | **86** | **25** | **14** | **28** |
+| Module | Total Files | Done | Partial | Deferred | Not Started | Skipped |
+|--------|------------|------|---------|----------|-------------|---------|
+| core-shared (noop, decoders, utils) | 16 | 16 | 0 | 0 | 0 | 0 |
+| desktop-shared (`scaladesktop/`) | 27 | 27 | 0 | 0 | 0 | 0 |
+| desktop-jvm (`scalajvm/`) | 15 | 15 | 0 | 0 | 0 | 0 |
+| desktop-native (`scalanative/`) | 12 | 12 | 0 | 0 | 0 | 0 |
+| browser | 20 | 20 | 0 | 0 | 0 | 0 |
+| android P2 (ops interfaces + impls) | 34 | 34 | 0 | 0 | 0 | 0 |
+| android P3 (niche/async) | 11 | 11 | 0 | 0 | 0 | 0 |
+| ios | 14 | 0 | 0 | 14 | 0 | 0 |
+| skip | 28 | — | — | — | — | 28 |
+| **Total** | **177** | **135** | **0** | **14** | **0** | **28** |
+
+Note: All Android P2 and P3 files complete. Application lifecycle, touch/mouse handlers,
+FileHandle, Net adapters, and Graphics adapter (with GL20/GL30 opaque type bridging) all done.
+P3 niche features: live wallpaper service/app, async sound/audio, keyboard height providers
+(Standard + AndroidX), visibility listener, event listener, wallpaper listener.
+All ops interfaces and Android SDK implementations are complete in `sge-jvm-platform-api` and `sge-jvm-platform-android`.
+Only iOS (14 deferred) and skip (28) remain.
 
 ### Source Directory Layout
 
@@ -431,12 +529,15 @@ logic sits above and is shared.
 3. Frame sync, GL31/32
 4. Integration tests
 
-### Phase 5: Android (P2)
-1. Create `backend-android` sbt module
-2. Port application lifecycle (Activity/Fragment)
-3. Port graphics (GLSurfaceView + EGL)
-4. Port input, audio (SoundPool/MediaPlayer)
-5. Keep JNI bridge for native-ops
+### Phase 5: Android (P2) — COMPLETE
+1. ~~Define self-contained ops interfaces in `sge-jvm-platform-api`~~ (done)
+2. ~~Implement Android ops in `sge-jvm-platform-android` (conditional on android.jar)~~ (done)
+3. ~~Restructure sbt modules: `sge-jvm-platform-{api,jdk,android}`~~ (done)
+4. ~~Add runtime adapter in sge core to bridge ops → sge traits~~ (done)
+5. ~~Port application lifecycle (Activity/Fragment)~~ (done)
+6. ~~Port graphics (GLSurfaceView + EGL)~~ (done)
+7. ~~Port input, audio (SoundPool/MediaPlayer)~~ (done)
+8. ~~Integration tests with separate classpaths~~ (done)
 
 ### Phase 6: iOS (P3, deferred)
 1. Wait for Scala Native iOS support

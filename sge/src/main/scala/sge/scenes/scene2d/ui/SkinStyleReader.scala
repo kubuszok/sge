@@ -84,7 +84,7 @@ object SkinStyleReader {
 
   /** Resolves a Color from JSON (string reference or inline object). */
   private[ui] def resolveColor(skin: Skin, json: Json, readColor: Json => Color): Color = json match {
-    case Json.Str(name) => skin.get(name, classOf[Color])
+    case Json.Str(name) => skin.get[Color](name)
     case _              => readColor(json)
   }
 

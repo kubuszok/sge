@@ -9,6 +9,7 @@
  *   Convention: uses window.localStorage via scalajs-dom
  *   Convention: type suffix in storage keys (b/i/l/f/s) preserved from GWT original
  *   Idiom: Scala Map, union types for get(), split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

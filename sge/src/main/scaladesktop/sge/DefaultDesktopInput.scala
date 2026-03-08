@@ -10,6 +10,7 @@
  *   Convention: GLFW callbacks -> Scala lambdas via WindowingOps
  *   Convention: GLFW constants from WindowingOps companion object
  *   Idiom: split packages; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -217,6 +218,7 @@ class DefaultDesktopInput private[sge] (
     eventQueue.drain(Nullable.empty)
   }
 
+  @scala.annotation.nowarn("msg=deprecated") // null — GLFW FFI interop: passing null unregisters the callback
   override def close(): Unit = {
     windowing.setKeyCallback(window.getWindowHandle(), null)
     windowing.setCharCallback(window.getWindowHandle(), null)

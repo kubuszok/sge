@@ -9,6 +9,7 @@
  *   Merged with: DefaultLwjgl3Input interface portion (Disposable -> AutoCloseable)
  *   Convention: Java interface -> Scala trait; AutoCloseable replaces Disposable
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

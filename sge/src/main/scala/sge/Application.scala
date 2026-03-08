@@ -6,7 +6,7 @@
  *
  * Migration notes:
  *   Convention: Java interface -> Scala trait; ApplicationType uses Scala 3 enum
- *   Idiom: split packages
+ *   Idiom: split packages; logging decoupled to scribe library (was Application.log/error/debug)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -74,41 +74,6 @@ trait Application {
   /** @return the {@link Net} instance */
   def getNet(): Net
 
-  /** Logs a message to the console or logcat */
-  def log(tag: String, message: String): Unit
-
-  /** Logs a message to the console or logcat */
-  def log(tag: String, message: String, exception: Throwable): Unit
-
-  /** Logs an error message to the console or logcat */
-  def error(tag: String, message: String): Unit
-
-  /** Logs an error message to the console or logcat */
-  def error(tag: String, message: String, exception: Throwable): Unit
-
-  /** Logs a debug message to the console or logcat */
-  def debug(tag: String, message: String): Unit
-
-  /** Logs a debug message to the console or logcat */
-  def debug(tag: String, message: String, exception: Throwable): Unit
-
-  /** Sets the log level. {@link #LOG_NONE} will mute all log output. {@link #LOG_ERROR} will only let error messages through. {@link #LOG_INFO} will let all non-debug messages through, and
-    * {@link #LOG_DEBUG} will let all messages through.
-    * @param logLevel
-    *   {@link #LOG_NONE} , {@link #LOG_ERROR} , {@link #LOG_INFO} , {@link #LOG_DEBUG} .
-    */
-  def setLogLevel(logLevel: Int): Unit
-
-  /** Gets the log level. */
-  def getLogLevel(): Int
-
-  /** Sets the current Application logger. Calls to {@link #log(String, String)} are delegated to this {@link ApplicationLogger}
-    */
-  def setApplicationLogger(applicationLogger: ApplicationLogger): Unit
-
-  /** @return the current {@link ApplicationLogger} */
-  def getApplicationLogger(): ApplicationLogger
-
   /** @return what {@link ApplicationType} this application has, e.g. Android or Desktop */
   def getType(): Application.ApplicationType
 
@@ -168,9 +133,4 @@ object Application {
   enum ApplicationType {
     case Android, Desktop, HeadlessDesktop, Applet, WebGL, iOS
   }
-
-  val LOG_NONE  = 0
-  val LOG_DEBUG = 3
-  val LOG_INFO  = 2
-  val LOG_ERROR = 1
 }

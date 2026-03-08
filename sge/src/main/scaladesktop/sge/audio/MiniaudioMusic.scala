@@ -10,6 +10,7 @@
  *   Convention: opaque types (Volume, Pitch, Pan, Position) used in public API
  *   Convention: OnCompletionListener SAM -> (Music => Unit) function type
  *   Idiom: split packages; Nullable for completion listener
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

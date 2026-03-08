@@ -52,11 +52,11 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
   }
 
   def this(title: String, skin: Skin)(using Sge) = {
-    this(title, skin.get(classOf[Window.WindowStyle]))
+    this(title, skin.get[Window.WindowStyle])
     this.skin = Nullable(skin)
   }
   def this(title: String, skin: Skin, windowStyleName: String)(using Sge) = {
-    this(title, skin.get(windowStyleName, classOf[Window.WindowStyle]))
+    this(title, skin.get[Window.WindowStyle](windowStyleName))
     this.skin = Nullable(skin)
   }
 

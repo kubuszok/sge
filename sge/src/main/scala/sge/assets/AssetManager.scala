@@ -24,6 +24,7 @@ package assets
 import scala.concurrent.ExecutionContext
 import scala.reflect.ClassTag
 import scala.util.boundary
+import scala.util.control.NonFatal
 
 import sge.assets.loaders.{
   AssetLoader,
@@ -42,7 +43,7 @@ import sge.assets.loaders.{
 }
 import sge.graphics.g2d.PolygonRegionLoader
 import sge.graphics.g3d.loader.{ G3dModelLoader, ObjLoader }
-import sge.utils.{ DynamicArray, Logger, Nullable, ObjectMap, ObjectSet, SgeError, TimeUtils }
+import sge.utils.{ DynamicArray, Nullable, ObjectMap, ObjectSet, SgeError, TimeUtils }
 
 /** Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
   * @author
@@ -72,28 +73,25 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private var toLoad:    Int                            = 0
   private var peakTasks: Int                            = 0
 
-  var log: Logger = Logger("AssetManager", Application.LOG_NONE)
+  private val log: scribe.Logger = scribe.Logger("AssetManager")
 
   if (defaultLoaders) {
-    setLoader(classOf[sge.graphics.g2d.BitmapFont], BitmapFontLoader(resolver))
-    setLoader(classOf[sge.audio.Music], MusicLoader(resolver))
-    setLoader(classOf[sge.graphics.Pixmap], PixmapLoader(resolver))
-    setLoader(classOf[sge.audio.Sound], SoundLoader(resolver))
-    setLoader(classOf[sge.graphics.g2d.TextureAtlas], TextureAtlasLoader(resolver))
-    setLoader(classOf[sge.graphics.Texture], TextureLoader(resolver))
-    setLoader(classOf[sge.scenes.scene2d.ui.Skin], SkinLoader(resolver))
-    setLoader(classOf[sge.graphics.g2d.ParticleEffect], ParticleEffectLoader(resolver))
-    setLoader(
-      classOf[sge.graphics.g3d.particles.ParticleEffect],
-      sge.graphics.g3d.particles.ParticleEffectLoader(resolver)
-    )
-    setLoader(classOf[sge.graphics.g2d.PolygonRegion], PolygonRegionLoader(resolver))
-    setLoader(classOf[sge.utils.I18NBundle], I18NBundleLoader(resolver))
-    setLoader(classOf[sge.graphics.g3d.Model], Nullable(".g3dj"), G3dModelLoader(resolver))
+    setLoader[sge.graphics.g2d.BitmapFont](BitmapFontLoader(resolver))
+    setLoader[sge.audio.Music](MusicLoader(resolver))
+    setLoader[sge.graphics.Pixmap](PixmapLoader(resolver))
+    setLoader[sge.audio.Sound](SoundLoader(resolver))
+    setLoader[sge.graphics.g2d.TextureAtlas](TextureAtlasLoader(resolver))
+    setLoader[sge.graphics.Texture](TextureLoader(resolver))
+    setLoader[sge.scenes.scene2d.ui.Skin](SkinLoader(resolver))
+    setLoader[sge.graphics.g2d.ParticleEffect](ParticleEffectLoader(resolver))
+    setLoader[sge.graphics.g3d.particles.ParticleEffect](sge.graphics.g3d.particles.ParticleEffectLoader(resolver))
+    setLoader[sge.graphics.g2d.PolygonRegion](PolygonRegionLoader(resolver))
+    setLoader[sge.utils.I18NBundle](I18NBundleLoader(resolver))
+    setLoader[sge.graphics.g3d.Model](".g3dj", G3dModelLoader(resolver))
     // .g3db skipped: UBJsonReader not ported
-    setLoader(classOf[sge.graphics.g3d.Model], Nullable(".obj"), ObjLoader(resolver))
-    setLoader(classOf[sge.graphics.glutils.ShaderProgram], ShaderProgramLoader(resolver))
-    setLoader(classOf[sge.graphics.Cubemap], CubemapLoader(resolver))
+    setLoader[sge.graphics.g3d.Model](".obj", ObjLoader(resolver))
+    setLoader[sge.graphics.glutils.ShaderProgram](ShaderProgramLoader(resolver))
+    setLoader[sge.graphics.Cubemap](CubemapLoader(resolver))
   }
 
   /** Single code path for all asset lookups. Callers acquire locks at the public method level. */
@@ -115,11 +113,6 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     lookup[T](fileName, Nullable(summon[ClassTag[T]].runtimeClass)).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
   }
 
-  /** @return
-    *   the asset
-    * @throws SgeError.InvalidInput
-    *   if the asset is not loaded
-    */
   def apply[T](fileName: String, tpe: Class[T]): T = synchronized {
     lookup[T](fileName, Nullable(tpe)).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
   }
@@ -342,6 +335,16 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   }
 
   /** Adds the given asset to the loading queue of the AssetManager. */
+  def load[T: ClassTag](fileName: String): Unit = synchronized {
+    load(fileName, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty)
+  }
+
+  /** Adds the given asset to the loading queue of the AssetManager. */
+  def load[T: ClassTag](fileName: String, parameter: AssetLoaderParameters[T]): Unit = synchronized {
+    load(fileName, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable(parameter))
+  }
+
+  /** Adds the given asset to the loading queue of the AssetManager. */
   def load[T](fileName: String, `type`: Class[T]): Unit = synchronized {
     load(fileName, `type`, Nullable.empty)
   }
@@ -411,8 +414,8 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     *   true if all loading is finished.
     */
   def update(): Boolean = synchronized {
-    boundary {
-      try {
+    try
+      boundary {
         if (tasks.size == 0) {
           // loop until we have a new task ready to be processed
           while (loadQueue.size != 0 && tasks.size == 0)
@@ -421,11 +424,11 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
           if (tasks.size == 0) boundary.break(true)
         }
         updateTask() && loadQueue.size == 0 && tasks.size == 0
-      } catch {
-        case t: Throwable =>
-          handleTaskError(t)
-          loadQueue.size == 0
       }
+    catch {
+      case NonFatal(t) =>
+        handleTaskError(t)
+        loadQueue.size == 0
     }
   }
 
@@ -685,6 +688,16 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   }
 
   /** Sets a new AssetLoader for the given type. */
+  def setLoader[T: ClassTag](loader: AssetLoader[?, ?]): Unit = synchronized {
+    setLoader(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty, loader)
+  }
+
+  /** Sets a new AssetLoader for the given type. */
+  def setLoader[T: ClassTag](suffix: String, loader: AssetLoader[?, ?]): Unit = synchronized {
+    setLoader(summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable(suffix), loader)
+  }
+
+  /** Sets a new AssetLoader for the given type. */
   def setLoader[T](`type`: Class[T], loader: AssetLoader[?, ?]): Unit = synchronized {
     setLoader(`type`, Nullable.empty, loader)
   }
@@ -778,9 +791,6 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       this.tasks.clear()
     }
   }
-
-  /** Convenience for AssetLoadingTask secondary constructor. */
-  def logLevel: Int = log.level
 
   /** Returns the reference count of an asset. */
   def referenceCount(fileName: String): Int = synchronized {

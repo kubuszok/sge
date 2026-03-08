@@ -10,7 +10,7 @@
  *   Idiom: split packages
  *   Fixes: LifecycleListener integration and postRunnable wiring implemented; getExecuteTimeMillis → executeTime
  *   Convention: opaque Seconds for delaySeconds/intervalSeconds params
- *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll replaced with Thread.sleep
+ *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll preserved for monitor release
  *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
  *   Audited: 2026-03-03
  *
@@ -58,7 +58,7 @@ class Timer(using sge.Sge) {
           tasks.add(task)
         }
       }
-      // Thread.sleep-based loop will re-check on next iteration
+      // wait-based loop will re-check on next iteration
     }
     task
   }
@@ -80,7 +80,7 @@ class Timer(using sge.Sge) {
           delay(System.nanoTime() / 1000000 - stopTimeMillis)
           stopTimeMillis = 0
         }
-        // Thread.sleep-based loop will re-check on next iteration
+        // wait-based loop will re-check on next iteration
       }
     }
 
@@ -147,6 +147,14 @@ object Timer {
 
   private val threadLock = new Object()
   private var currentThread: Option[TimerThread] = None
+
+  /** Disposes the current timer thread, stopping its background loop. Called during application shutdown or test cleanup. */
+  private[sge] def disposeThread(): Unit =
+    threadLock.synchronized {
+      currentThread.foreach(_.dispose())
+      currentThread = None
+      threadLock.notifyAll() // wake the sleeping timer thread so it can exit
+    }
 
   /** Timer instance singleton for general application wide usage. Static methods on {@link Timer} make convenient use of this instance.
     */
@@ -259,27 +267,22 @@ object Timer {
       boundary {
         while (true)
           threadLock.synchronized {
-            if (currentThread.exists(_ != this) || files != sge.Sge().files) break(())
+            if (!currentThread.contains(this) || files != sge.Sge().files) break(())
 
             var waitMillis = 5000L
             if (pauseTimeMillis == 0) {
               val timeMillis = System.nanoTime() / 1000000
               var i          = 0
               while (i < instances.size) {
-                try
-                  waitMillis = instances(i).update(this, timeMillis, waitMillis)
-                catch {
-                  case ex: Throwable =>
-                    throw SgeError.MathError(s"Task failed: ${instances(i).getClass.getName}", Some(ex))
-                }
+                waitMillis = instances(i).update(this, timeMillis, waitMillis)
                 i += 1
               }
             }
 
-            if (currentThread.exists(_ != this) || files != sge.Sge().files) break(())
+            if (!currentThread.contains(this) || files != sge.Sge().files) break(())
 
             try
-              if (waitMillis > 0) Thread.sleep(waitMillis)
+              if (waitMillis > 0) threadLock.wait(waitMillis) // wait() releases the monitor, unlike Thread.sleep()
             catch {
               case _: InterruptedException => // ignored
             }
@@ -313,13 +316,13 @@ object Timer {
         val delayMillis = System.nanoTime() / 1000000 - pauseTimeMillis
         instances.foreach(_.delay(delayMillis))
         pauseTimeMillis = 0
-        // Thread.sleep-based loop will re-check on next iteration
+        // wait-based loop will re-check on next iteration
       }
 
     def pause(): Unit =
       threadLock.synchronized {
         pauseTimeMillis = System.nanoTime() / 1000000
-        // Thread.sleep-based loop will re-check on next iteration
+        // wait-based loop will re-check on next iteration
       }
 
     def dispose(): Unit = // OK to call multiple times.
@@ -329,7 +332,7 @@ object Timer {
         }
         if (currentThread.exists(_ == this)) currentThread = None
         instances.clear()
-        // Thread.sleep-based loop will re-check on next iteration
+        // wait-based loop will re-check on next iteration
       }
     sge.Sge().application.removeLifecycleListener(this)
   }

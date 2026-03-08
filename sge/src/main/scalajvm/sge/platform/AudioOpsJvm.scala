@@ -8,6 +8,7 @@
  *   Convention: Panama FFM downcall handles to miniaudio shared library
  *   Convention: String params allocated in confined arenas (auto-freed)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform
@@ -243,16 +244,20 @@ class AudioOpsJvm(lib: SymbolLookup) extends AudioOps {
     try {
       val countSeg = arena.allocate(I)
       val result   = hGetOutputDevices.invoke(engineHandle, countSeg).asInstanceOf[MemorySegment]
-      if (result == MemorySegment.NULL || result.address() == 0L) return Array.empty
-      val count = countSeg.get(I, 0)
-      if (count <= 0) return Array.empty
-      val ptrs    = result.reinterpret(P.byteSize() * count.toLong)
-      val devices = Array.tabulate(count) { i =>
-        val strPtr = ptrs.getAtIndex(P, i.toLong)
-        strPtr.reinterpret(Long.MaxValue).getString(0)
+      if (result == MemorySegment.NULL || result.address() == 0L) Array.empty
+      else {
+        val count = countSeg.get(I, 0)
+        if (count <= 0) Array.empty
+        else {
+          val ptrs    = result.reinterpret(P.byteSize() * count.toLong)
+          val devices = Array.tabulate(count) { i =>
+            val strPtr = ptrs.getAtIndex(P, i.toLong)
+            strPtr.reinterpret(Long.MaxValue).getString(0)
+          }
+          hFreeOutputDevices.invoke(result, count)
+          devices
+        }
       }
-      hFreeOutputDevices.invoke(result, count)
-      devices
     } finally arena.close()
   }
 

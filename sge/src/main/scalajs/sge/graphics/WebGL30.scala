@@ -10,6 +10,7 @@
  *   Convention: GWT IntMap<JSO> -> js.Array[js.Dynamic] for GL30 handle maps
  *   Idiom: GdxRuntimeException -> SgeError.GraphicsError
  *   TODO: Pixmap-based texImage3D/texSubImage3D path (requires browser Pixmap implementation)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

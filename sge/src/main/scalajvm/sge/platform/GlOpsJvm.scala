@@ -9,6 +9,7 @@
  *   Convention: EGL types (EGLDisplay, EGLContext, EGLSurface, EGLConfig) represented as Long (pointer addresses)
  *   Convention: String params allocated in confined arenas (auto-freed)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform
@@ -16,6 +17,8 @@ package platform
 import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.MethodHandle
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** JVM implementation of [[GlOps]] via Panama FFM downcall handles to the ANGLE EGL shared library.
   *
@@ -117,80 +120,82 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
     samples:      Int
   ): Long = {
     val arena = Arena.ofConfined()
-    try {
-      // Get EGL display
-      val display = hGetDisplay.invoke(ptr(EGL_DEFAULT_DISPLAY)).asInstanceOf[MemorySegment]
-      if (display == MemorySegment.NULL || display.address() == EGL_NO_DISPLAY) return 0L
+    try
+      boundary {
+        // Get EGL display
+        val display = hGetDisplay.invoke(ptr(EGL_DEFAULT_DISPLAY)).asInstanceOf[MemorySegment]
+        if (display == MemorySegment.NULL || display.address() == EGL_NO_DISPLAY) break(0L)
 
-      // Initialize EGL
-      val majorSeg   = arena.allocate(I)
-      val minorSeg   = arena.allocate(I)
-      val initResult = hInitialize.invoke(display, majorSeg, minorSeg).asInstanceOf[Int]
-      if (initResult == 0) return 0L
+        // Initialize EGL
+        val majorSeg   = arena.allocate(I)
+        val minorSeg   = arena.allocate(I)
+        val initResult = hInitialize.invoke(display, majorSeg, minorSeg).asInstanceOf[Int]
+        if (initResult == 0) break(0L)
 
-      // Choose config
-      val attribList = arena.allocate(JAVA_INT, 19)
-      attribList.setAtIndex(I, 0, EGL_RED_SIZE)
-      attribList.setAtIndex(I, 1, r)
-      attribList.setAtIndex(I, 2, EGL_GREEN_SIZE)
-      attribList.setAtIndex(I, 3, g)
-      attribList.setAtIndex(I, 4, EGL_BLUE_SIZE)
-      attribList.setAtIndex(I, 5, b)
-      attribList.setAtIndex(I, 6, EGL_ALPHA_SIZE)
-      attribList.setAtIndex(I, 7, a)
-      attribList.setAtIndex(I, 8, EGL_DEPTH_SIZE)
-      attribList.setAtIndex(I, 9, depth)
-      attribList.setAtIndex(I, 10, EGL_STENCIL_SIZE)
-      attribList.setAtIndex(I, 11, stencil)
-      attribList.setAtIndex(I, 12, EGL_RENDERABLE_TYPE)
-      attribList.setAtIndex(I, 13, EGL_OPENGL_ES3_BIT)
-      attribList.setAtIndex(I, 14, EGL_SURFACE_TYPE)
-      attribList.setAtIndex(I, 15, EGL_WINDOW_BIT)
-      if (samples > 0) {
-        attribList.setAtIndex(I, 16, EGL_SAMPLE_BUFFERS)
-        attribList.setAtIndex(I, 17, 1)
-        // Rewrite: we'd need a longer array for SAMPLES + EGL_NONE
-        // For simplicity, omit MSAA in the config — ANGLE handles it internally
+        // Choose config
+        val attribList = arena.allocate(JAVA_INT, 19)
+        attribList.setAtIndex(I, 0, EGL_RED_SIZE)
+        attribList.setAtIndex(I, 1, r)
+        attribList.setAtIndex(I, 2, EGL_GREEN_SIZE)
+        attribList.setAtIndex(I, 3, g)
+        attribList.setAtIndex(I, 4, EGL_BLUE_SIZE)
+        attribList.setAtIndex(I, 5, b)
+        attribList.setAtIndex(I, 6, EGL_ALPHA_SIZE)
+        attribList.setAtIndex(I, 7, a)
+        attribList.setAtIndex(I, 8, EGL_DEPTH_SIZE)
+        attribList.setAtIndex(I, 9, depth)
+        attribList.setAtIndex(I, 10, EGL_STENCIL_SIZE)
+        attribList.setAtIndex(I, 11, stencil)
+        attribList.setAtIndex(I, 12, EGL_RENDERABLE_TYPE)
+        attribList.setAtIndex(I, 13, EGL_OPENGL_ES3_BIT)
+        attribList.setAtIndex(I, 14, EGL_SURFACE_TYPE)
+        attribList.setAtIndex(I, 15, EGL_WINDOW_BIT)
+        if (samples > 0) {
+          attribList.setAtIndex(I, 16, EGL_SAMPLE_BUFFERS)
+          attribList.setAtIndex(I, 17, 1)
+          // Rewrite: we'd need a longer array for SAMPLES + EGL_NONE
+          // For simplicity, omit MSAA in the config — ANGLE handles it internally
+        }
+        attribList.setAtIndex(I, 18, EGL_NONE)
+
+        val configSeg    = arena.allocate(P)
+        val numConfigs   = arena.allocate(I)
+        val chooseResult = hChooseConfig.invoke(display, attribList, configSeg, 1, numConfigs).asInstanceOf[Int]
+        if (chooseResult == 0 || numConfigs.get(I, 0) == 0) break(0L)
+        val config = configSeg.get(P, 0)
+
+        // Create context (ES 3.0)
+        val ctxAttribs = arena.allocate(JAVA_INT, 5)
+        ctxAttribs.setAtIndex(I, 0, EGL_CONTEXT_MAJOR_VERSION)
+        ctxAttribs.setAtIndex(I, 1, 3)
+        ctxAttribs.setAtIndex(I, 2, EGL_CONTEXT_MINOR_VERSION)
+        ctxAttribs.setAtIndex(I, 3, 0)
+        ctxAttribs.setAtIndex(I, 4, EGL_NONE)
+
+        val context = hCreateCtx.invoke(display, config, ptr(EGL_NO_CONTEXT), ctxAttribs).asInstanceOf[MemorySegment]
+        if (context == MemorySegment.NULL || context.address() == EGL_NO_CONTEXT) break(0L)
+
+        // Create window surface
+        val surfAttribs = arena.allocate(JAVA_INT, 1)
+        surfAttribs.setAtIndex(I, 0, EGL_NONE)
+        val surface = hCreateSurface.invoke(display, config, ptr(windowHandle), surfAttribs).asInstanceOf[MemorySegment]
+        if (surface == MemorySegment.NULL || surface.address() == EGL_NO_SURFACE) {
+          hDestroyCtx.invoke(display, context)
+          break(0L)
+        }
+
+        // Make current
+        hMakeCurrent.invoke(display, surface, surface, context)
+
+        // Store state in a long-lived struct
+        val state = contextArena.allocate(ContextLayout)
+        state.set(JAVA_LONG, displayOffset, display.address())
+        state.set(JAVA_LONG, configOffset, config.address())
+        state.set(JAVA_LONG, contextOffset, context.address())
+        state.set(JAVA_LONG, surfaceOffset, surface.address())
+        state.address()
       }
-      attribList.setAtIndex(I, 18, EGL_NONE)
-
-      val configSeg    = arena.allocate(P)
-      val numConfigs   = arena.allocate(I)
-      val chooseResult = hChooseConfig.invoke(display, attribList, configSeg, 1, numConfigs).asInstanceOf[Int]
-      if (chooseResult == 0 || numConfigs.get(I, 0) == 0) return 0L
-      val config = configSeg.get(P, 0)
-
-      // Create context (ES 3.0)
-      val ctxAttribs = arena.allocate(JAVA_INT, 5)
-      ctxAttribs.setAtIndex(I, 0, EGL_CONTEXT_MAJOR_VERSION)
-      ctxAttribs.setAtIndex(I, 1, 3)
-      ctxAttribs.setAtIndex(I, 2, EGL_CONTEXT_MINOR_VERSION)
-      ctxAttribs.setAtIndex(I, 3, 0)
-      ctxAttribs.setAtIndex(I, 4, EGL_NONE)
-
-      val context = hCreateCtx.invoke(display, config, ptr(EGL_NO_CONTEXT), ctxAttribs).asInstanceOf[MemorySegment]
-      if (context == MemorySegment.NULL || context.address() == EGL_NO_CONTEXT) return 0L
-
-      // Create window surface
-      val surfAttribs = arena.allocate(JAVA_INT, 1)
-      surfAttribs.setAtIndex(I, 0, EGL_NONE)
-      val surface = hCreateSurface.invoke(display, config, ptr(windowHandle), surfAttribs).asInstanceOf[MemorySegment]
-      if (surface == MemorySegment.NULL || surface.address() == EGL_NO_SURFACE) {
-        hDestroyCtx.invoke(display, context)
-        return 0L
-      }
-
-      // Make current
-      hMakeCurrent.invoke(display, surface, surface, context)
-
-      // Store state in a long-lived struct
-      val state = contextArena.allocate(ContextLayout)
-      state.set(JAVA_LONG, displayOffset, display.address())
-      state.set(JAVA_LONG, configOffset, config.address())
-      state.set(JAVA_LONG, contextOffset, context.address())
-      state.set(JAVA_LONG, surfaceOffset, surface.address())
-      state.address()
-    } finally arena.close()
+    finally arena.close()
   }
 
   private def readState(contextHandle: Long): (MemorySegment, MemorySegment, MemorySegment, MemorySegment) = {

@@ -7,6 +7,7 @@
  *   Origin: SGE-original (JVM HTTP backend via sttp + Java HttpClient)
  *   Convention: platform-specific impl in scalajvm/
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package net

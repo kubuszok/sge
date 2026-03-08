@@ -8,6 +8,7 @@
  *   Renames: Lwjgl3WindowConfiguration -> DesktopWindowConfig
  *   Convention: Java-style setters -> public vars; batch setters kept as convenience methods
  *   Idiom: Nullable for optional fields; split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

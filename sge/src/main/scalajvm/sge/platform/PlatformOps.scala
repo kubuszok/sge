@@ -1,11 +1,11 @@
-// SGE Native Ops — JVM platform bridge for shared tests
+// SGE Native Ops — JVM platform bridge
 //
-// Provides JVM-specific ETC1Ops and BufferOps implementations
-// to the shared test suites.
+// Wires Panama-based ETC1Ops and BufferOps implementations using the
+// runtime-detected PanamaProvider (JdkPanama on Desktop, PanamaPortProvider on Android).
 //
 // Migration notes:
 //   Origin: SGE-original (platform abstraction)
-//   Convention: wires JVM-specific impls (BufferOpsJvm, ETC1OpsJvm) into PlatformOps
+//   Convention: wires Panama-based impls into PlatformOps via Panama.provider
 //   Idiom: boundary/break (0 return), Nullable (0 null), split packages
 //   Audited: 2026-03-03
 
@@ -13,8 +13,10 @@ package sge
 package platform
 
 private[sge] object PlatformOps {
-  val etc1:   ETC1Ops   = ETC1OpsJvm
-  val buffer: BufferOps = BufferOpsJvm
+  private val panama: PanamaProvider = Panama.provider
+
+  val etc1:   ETC1Ops   = new ETC1OpsPanama(panama)
+  val buffer: BufferOps = new BufferOpsPanama(panama)
 
   // Desktop backend FFI — set by the DesktopApplication during initialization.
   // Null until a desktop backend is running (headless mode doesn't need them).

@@ -9,6 +9,7 @@
  *   Convention: GLFW opaque pointers (window, monitor, cursor) -> Ptr[Byte], Long via intrinsics
  *   Convention: Callbacks via CFuncPtr.fromScalaFunction
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package platform
@@ -28,6 +29,7 @@ private object GlfwC {
   def glfwInitHint(hint: CInt, value: CInt): Unit = extern
   def glfwInit():                            CInt = extern
   def glfwTerminate():                       Unit = extern
+  def glfwGetPlatform():                     CInt = extern
 
   // Window lifecycle
   def glfwCreateWindow(
@@ -163,6 +165,9 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   override def terminate(): Unit =
     GlfwC.glfwTerminate()
+
+  override def getPlatform(): Int =
+    GlfwC.glfwGetPlatform()
 
   // ─── Window lifecycle ────────────────────────────────────────────────
 

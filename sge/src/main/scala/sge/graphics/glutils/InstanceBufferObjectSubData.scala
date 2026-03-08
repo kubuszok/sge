@@ -35,9 +35,8 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(using Sge) = {
+  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(using Sge) =
     this(isStatic, numInstances, VertexAttributes(instanceAttributes*))
-  }
 
   val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else VertexAttributes()
 

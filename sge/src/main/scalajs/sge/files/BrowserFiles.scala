@@ -9,6 +9,7 @@
  *   Convention: Scala.js only; uses BrowserAssetLoader instead of GWT Preloader
  *   Convention: Only Internal FileType supported (browser has no filesystem)
  *   Idiom: GdxRuntimeException -> SgeError.InvalidInput
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

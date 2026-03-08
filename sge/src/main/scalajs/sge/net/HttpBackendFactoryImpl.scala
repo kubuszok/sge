@@ -7,6 +7,7 @@
  *   Origin: SGE-original (JS HTTP backend via sttp + Fetch API)
  *   Convention: platform-specific impl in scalajs/
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package net

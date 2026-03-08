@@ -26,9 +26,13 @@ object Degrees {
     def sin:              Float   = MathUtils.Sin.table((d * MathUtils.degToIndex).toInt & MathUtils.SIN_MASK)
     def cos:              Float   =
       MathUtils.Sin.table(((d + 90) * MathUtils.degToIndex).toInt & MathUtils.SIN_MASK)
-    def +(other:  Degrees): Degrees = d + other
-    def -(other:  Degrees): Degrees = d - other
-    def *(scalar: Float):   Degrees = d * scalar
-    def unary_-           : Degrees = -d
+    @annotation.targetName("plus")
+    def +(other: Degrees): Degrees = d + other
+    @annotation.targetName("minus")
+    def -(other: Degrees): Degrees = d - other
+    @annotation.targetName("times")
+    def *(scalar: Float): Degrees = d * scalar
+    @annotation.targetName("negate")
+    def unary_- : Degrees = -d
   }
 }

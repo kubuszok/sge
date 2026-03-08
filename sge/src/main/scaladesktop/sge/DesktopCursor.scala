@@ -10,6 +10,7 @@
  *   Convention: custom Pixmap cursor deferred (needs WindowingOps.createCursor with image data)
  *   Convention: system cursor cache + setSystemCursor use WindowingOps.createStandardCursor/setCursor
  *   Idiom: Nullable (0 null), split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

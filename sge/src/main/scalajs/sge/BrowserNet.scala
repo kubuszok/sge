@@ -10,6 +10,7 @@
  *   Convention: openURI uses window.open/location.assign via scalajs-dom
  *   Convention: sockets not supported in browser (throw UnsupportedOperationException)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

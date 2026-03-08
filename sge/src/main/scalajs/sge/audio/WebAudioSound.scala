@@ -10,6 +10,7 @@
  *   Convention: JavaScriptObject -> js.Dynamic; IntMap -> mutable.HashMap
  *   Idiom: Sound trait uses opaque types (SoundId, Volume, Pitch, Pan)
  *   Idiom: dispose() -> close() (Closeable)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

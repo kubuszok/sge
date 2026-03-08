@@ -12,6 +12,7 @@
  *   Convention: Source pool (idleSources, soundIdToSource, sourceToSoundId) -> native engine handles all instance tracking
  *   Convention: Observer thread for device reconnection -> deferred to native AudioOps
  *   Idiom: split packages; Nullable; DynamicArray for music list
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -40,10 +41,11 @@ import scala.collection.mutable.ArrayBuffer
   *   Nathan Sweet (original implementation)
   */
 class MiniaudioEngine private[sge] (
-  simultaneousSources:  Int,
-  deviceBufferSize:     Int,
-  deviceBufferCount:    Int,
-  private val audioOps: AudioOps
+  simultaneousSources:         Int,
+  deviceBufferSize:            Int,
+  deviceBufferCount:           Int,
+  private val audioOps:        AudioOps,
+  private val recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")
 ) extends DesktopAudio {
 
   private val engineHandle: Long    = audioOps.initEngine(simultaneousSources, deviceBufferSize, deviceBufferCount)
@@ -54,72 +56,72 @@ class MiniaudioEngine private[sge] (
 
   // ─── Audio trait ────────────────────────────────────────────────────
 
-  override def newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice = {
-    if (noDevice) return sge.noop.NoopAudioDevice(isMono)
-    val deviceHandle = audioOps.createAudioDevice(engineHandle, samplingRate, isMono)
-    if (deviceHandle == 0L) {
-      throw sge.utils.SgeError.AudioError("Could not create audio device")
+  override def newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice =
+    if (noDevice) sge.noop.NoopAudioDevice(isMono)
+    else {
+      val deviceHandle = audioOps.createAudioDevice(engineHandle, samplingRate, isMono)
+      if (deviceHandle == 0L) {
+        throw sge.utils.SgeError.AudioError("Could not create audio device")
+      }
+      DesktopAudioDevice(deviceHandle, isMono, audioOps)
     }
-    DesktopAudioDevice(deviceHandle, isMono, audioOps)
-  }
 
   override def newAudioRecorder(samplingRate: Int, isMono: Boolean): AudioRecorder =
-    // TODO: implement when AudioRecorder backend is ported
-    throw new UnsupportedOperationException("AudioRecorder not yet implemented for miniaudio backend")
+    recorderFactory(samplingRate, isMono)
 
-  override def newSound(fileHandle: files.FileHandle): Sound = {
-    if (noDevice) return sge.noop.NoopSound()
-    val pcmData = fileHandle.readBytes()
-    // Assume 16-bit stereo 44100Hz — the native engine will decode the actual format from the data.
-    // In practice, createSound receives raw file bytes and the native side determines format.
-    val soundHandle = audioOps.createSound(engineHandle, pcmData, 2, 16, 44100)
-    if (soundHandle == 0L) {
-      throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name()}")
+  override def newSound(fileHandle: files.FileHandle): Sound =
+    if (noDevice) sge.noop.NoopSound()
+    else {
+      val pcmData = fileHandle.readBytes()
+      // Assume 16-bit stereo 44100Hz — the native engine will decode the actual format from the data.
+      // In practice, createSound receives raw file bytes and the native side determines format.
+      val soundHandle = audioOps.createSound(engineHandle, pcmData, 2, 16, 44100)
+      if (soundHandle == 0L) {
+        throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name()}")
+      }
+      val sound = MiniaudioSound(this, soundHandle, audioOps)
+      soundInstances += sound
+      sound
     }
-    val sound = MiniaudioSound(this, soundHandle, audioOps)
-    soundInstances += sound
-    sound
-  }
 
-  override def newMusic(file: files.FileHandle): Music = {
-    if (noDevice) return sge.noop.NoopMusic()
-    val musicHandle = audioOps.createMusic(engineHandle, file.path())
-    if (musicHandle == 0L) {
-      throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name()}")
+  override def newMusic(file: files.FileHandle): Music =
+    if (noDevice) sge.noop.NoopMusic()
+    else {
+      val musicHandle = audioOps.createMusic(engineHandle, file.path())
+      if (musicHandle == 0L) {
+        throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name()}")
+      }
+      val music = MiniaudioMusic(this, musicHandle, audioOps)
+      musicInstances += music
+      music
     }
-    val music = MiniaudioMusic(this, musicHandle, audioOps)
-    musicInstances += music
-    music
-  }
 
-  override def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean = {
-    if (noDevice) return false
-    @nowarn("msg=deprecated") // orNull needed at FFI boundary — null means "default device"
-    val name = deviceIdentifier.orNull
-    audioOps.switchOutputDevice(engineHandle, name)
-  }
+  override def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean =
+    if (noDevice) false
+    else {
+      @nowarn("msg=deprecated") // orNull needed at FFI boundary — null means "default device"
+      val name = deviceIdentifier.orNull
+      audioOps.switchOutputDevice(engineHandle, name)
+    }
 
-  override def getAvailableOutputDevices: Array[String] = {
-    if (noDevice) return Array.empty[String]
-    audioOps.getAvailableOutputDevices(engineHandle)
-  }
+  override def getAvailableOutputDevices: Array[String] =
+    if (noDevice) Array.empty[String]
+    else audioOps.getAvailableOutputDevices(engineHandle)
 
   // ─── DesktopAudio ──────────────────────────────────────────────────
 
-  override def update(): Unit = {
-    if (noDevice) return
-    audioOps.updateEngine(engineHandle)
-  }
+  override def update(): Unit =
+    if (!noDevice) audioOps.updateEngine(engineHandle)
 
-  override def close(): Unit = {
-    if (noDevice) return
-    // Dispose all tracked music and sounds
-    musicInstances.foreach(_.close())
-    musicInstances.clear()
-    soundInstances.foreach(_.close())
-    soundInstances.clear()
-    audioOps.shutdownEngine(engineHandle)
-  }
+  override def close(): Unit =
+    if (!noDevice) {
+      // Dispose all tracked music and sounds
+      musicInstances.foreach(_.close())
+      musicInstances.clear()
+      soundInstances.foreach(_.close())
+      soundInstances.clear()
+      audioOps.shutdownEngine(engineHandle)
+    }
 
   // ─── Internal bookkeeping ──────────────────────────────────────────
 
@@ -135,7 +137,9 @@ object MiniaudioEngine {
   /** Creates a new MiniaudioEngine with default settings.
     * @param audioOps
     *   the audio FFI operations
+    * @param recorderFactory
+    *   factory for creating [[AudioRecorder]] instances (platform-specific)
     */
-  def apply(audioOps: AudioOps): MiniaudioEngine =
-    new MiniaudioEngine(16, 512, 9, audioOps)
+  def apply(audioOps: AudioOps, recorderFactory: (Int, Boolean) => AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")): MiniaudioEngine =
+    new MiniaudioEngine(16, 512, 9, audioOps, recorderFactory)
 }

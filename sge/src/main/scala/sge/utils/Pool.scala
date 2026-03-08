@@ -10,7 +10,7 @@
  *   Convention: `Pool` is a trait (not abstract class); uses `MkArray.anyRef` for internal `freeObjects`; `return` -> `boundary`/`break`
  *   Idiom: split packages
  *   Issues: `Pool` changed from `abstract class` to `trait` — intentional design improvement but changes instantiation semantics
- *   TODO: Pool.Poolable trait → Poolable[A] type class; Pool[A] should take given Poolable[A]
+ *   Convention: Pool.Default takes `(using Poolable[A])` type class for reset; Pool.Poolable trait kept for backward compat
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -121,8 +121,9 @@ object Pool {
     def reset(): Unit
   }
 
-  class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue) extends Pool[A] {
-    override def newObject(): A = createNewObject()
+  class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue)(using poolable: _root_.sge.utils.Poolable[A]) extends Pool[A] {
+    override def newObject():             A    = createNewObject()
+    override protected def reset(obj: A): Unit = poolable.reset(obj)
   }
 
   trait Flushable[A] extends Pool[A] {

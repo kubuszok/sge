@@ -6,9 +6,9 @@
       "Bash(git:*)",
       "Bash(sbt --client:*)",
       "WebFetch",
-      "WebSearch"
+      "WebSearch",
+      "Bash(pkill:*)"
     ],
-    "alwaysAsk": ["Edit(Justfile)"],
     "deny": [
       "Bash(rg:*)",
       "Bash(grep:*)",
@@ -28,6 +28,9 @@
       "Bash(gh:*)",
       "Bash(for:*)",
       "Bash(while:*)"
+    ],
+    "alwaysAsk": [
+      "Edit(Justfile)"
     ]
   }
 }

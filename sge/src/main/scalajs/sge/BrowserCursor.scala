@@ -9,6 +9,7 @@
  *   Convention: CSS cursor property; system cursor mapping to CSS names
  *   Convention: custom Pixmap cursor deferred (needs browser-specific canvas Pixmap)
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

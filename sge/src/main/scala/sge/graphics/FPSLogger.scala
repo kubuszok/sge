@@ -5,8 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: Gdx.app.log -> Sge().application.log; Gdx.graphics -> Sge().graphics
- *   Convention: anonymous (using Sge) + Sge() accessor
+ *   Renames: Gdx.app.log -> scribe.info; Gdx.graphics -> Sge().graphics
+ *   Convention: anonymous (using Sge) + Sge() accessor; logging via scribe
  *   Idiom: split packages
  *   Audited: 2026-03-04
  *
@@ -37,7 +37,7 @@ class FPSLogger(bound: Int = Int.MaxValue)(using Sge) {
     if (nanoTime - startTime > Nanos(1000000000L)) { /* 1,000,000,000ns == one second */
       val fps = Sge().graphics.getFramesPerSecond()
       if (fps < _bound) {
-        Sge().application.log("FPSLogger", s"fps: $fps")
+        scribe.info(s"fps: $fps")
         startTime = nanoTime
       }
     }

@@ -52,6 +52,13 @@ object Nullable {
       case a: A => a
     }
 
+    /** Force-unwraps the value, throwing NullPointerException if empty. Named `get` to avoid shadowing Scala 3's built-in `.nn` extension on `T | Null`.
+      */
+    def get: A = maybe match {
+      case `None` => throw new NullPointerException("Nullable.get called on empty value")
+      case a: A => a
+    }
+
     /** Unwraps to the raw value or null. NOT actually deprecated — the annotation is used to trigger -Werror with -deprecation, forcing callers to add @nowarn("msg=deprecated") with an explicit
       * comment explaining why orNull is needed (e.g., passing to a Java API that expects null). For all other cases, use fold, foreach, getOrElse, map, isDefined, or isEmpty instead.
       */

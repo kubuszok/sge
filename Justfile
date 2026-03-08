@@ -280,6 +280,26 @@ test-tail n="20":
 test-only suite:
     sbt --client "sge/testOnly {{suite}}"
 
+# Kill all sbt/Java processes started from this project directory
+kill-sbt:
+    #!/usr/bin/env bash
+    set +e
+    # Kill sbt server and any forked test JVMs for this project
+    pids=$(ps aux | grep '[s]bt' | grep 'sge-porting' | awk '{print $2}')
+    if [ -n "$pids" ]; then
+        echo "Killing sbt processes: $pids"
+        echo "$pids" | xargs kill -9
+    fi
+    # Also kill any sbt.ForkMain (forked test runner) for this project
+    fork_pids=$(ps aux | grep '[s]bt.ForkMain' | awk '{print $2}')
+    if [ -n "$fork_pids" ]; then
+        echo "Killing forked test processes: $fork_pids"
+        echo "$fork_pids" | xargs kill -9
+    fi
+    # Clean up sbt server socket
+    rm -f /Users/dev/.sbt/1.0/server/bd760fdeec54161195a7/sock 2>/dev/null
+    echo "Done. sbt processes cleaned up."
+
 # ── Demo ─────────────────────────────────────────────────────────
 
 # Compile the demo module (JVM)
@@ -540,6 +560,51 @@ sge-count pattern:
     #!/usr/bin/env bash
     rg -c '{{pattern}}' {{sge_src}} --type scala 2>/dev/null \
         | awk -F: '{s+=$2; n++; print} END{print ""; print "  Files: " n "  Occurrences: " s}'
+
+# ── Extension Modules ────────────────────────────────────────────
+
+# Compile sge-tools (JVM-only)
+compile-tools:
+    sbt --client 'sge-tools/compile'
+
+# Compile sge-freetype (JVM)
+compile-freetype:
+    sbt --client 'sge-freetype/compile'
+
+# Compile sge-physics (JVM)
+compile-physics:
+    sbt --client 'sge-physics/compile'
+
+# Compile all extension modules
+compile-extensions: compile-tools compile-freetype compile-physics
+
+# Run sge-tools tests
+test-tools:
+    sbt --client 'sge-tools/test'
+
+# Run sge-freetype tests
+test-freetype:
+    sbt --client 'sge-freetype/test'
+
+# Run sge-physics tests
+test-physics:
+    sbt --client 'sge-physics/test'
+
+# Run TexturePacker CLI
+texture-pack *args:
+    sbt --client 'sge-tools/run {{args}}'
+
+# Build Rust with FreeType support
+rust-build-freetype:
+    cd native-components && cargo build --release --features freetype_support
+
+# Build Rust with physics support
+rust-build-physics:
+    cd native-components && cargo build --release --features physics
+
+# Build Rust with all extensions
+rust-build-all:
+    cd native-components && cargo build --release --features all
 
 # ── Native Components (Rust library) ─────────────────────────────
 

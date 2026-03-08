@@ -10,6 +10,7 @@
  *   Convention: Write operations throw SgeError (browser has no writable filesystem)
  *   Idiom: Overrides all I/O methods from FileHandle base class
  *   Idiom: No java.io.File dependency for actual I/O — path string only
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

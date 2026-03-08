@@ -9,6 +9,7 @@
  *   Convention: GLFW calls replaced by constructor-injected functions (FFI-agnostic)
  *   Convention: property syntax (contents/contents_=) instead of getContents/setContents
  *   Idiom: split packages; Nullable for optional clipboard content
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

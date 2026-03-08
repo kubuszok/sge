@@ -10,6 +10,7 @@
  *   Convention: OnCompletionListener -> Music => Unit function type
  *   Idiom: Music trait property-style methods (playing, looping, volume, position)
  *   Idiom: dispose() -> close() (Closeable)
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

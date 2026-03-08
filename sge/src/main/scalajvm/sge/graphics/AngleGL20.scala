@@ -9,6 +9,7 @@
  *   Convention: Buffer → MemorySegment.ofBuffer; Array → arena-allocated segment
  *   Convention: GLboolean → JAVA_BYTE (0/1 conversion)
  *   Idiom: split packages; no return; SgeError.GraphicsError
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

@@ -36,26 +36,23 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
   setSize(getPrefWidth, getPrefHeight)
 
   def this(skin: Skin)(using Sge) = {
-    this(skin.get(classOf[ImageButton.ImageButtonStyle]))
+    this(skin.get[ImageButton.ImageButtonStyle])
     setSkin(Nullable(skin))
   }
 
   def this(skin: Skin, styleName: String)(using Sge) = {
-    this(skin.get(styleName, classOf[ImageButton.ImageButtonStyle]))
+    this(skin.get[ImageButton.ImageButtonStyle](styleName))
     setSkin(Nullable(skin))
   }
 
-  def this(imageUp: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
-  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) = {
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) =
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
-  }
 
   protected def newImage(): Image =
     Image(Nullable.empty, Scaling.fit)

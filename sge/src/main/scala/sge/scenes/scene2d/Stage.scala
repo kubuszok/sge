@@ -68,34 +68,31 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
   private var debugTableUnderMouse:  Table.Debug = Table.Debug.none
   private val debugColor:            Color       = Color(0, 1, 0, 0.85f)
 
-  pools.addPool(classOf[InputEvent], () => InputEvent())
-  pools.addPool(classOf[FocusListener.FocusEvent], () => FocusListener.FocusEvent())
-  pools.addPool(classOf[Stage.TouchFocus], () => Stage.TouchFocus())
+  pools.addPool[InputEvent](() => InputEvent())
+  pools.addPool[FocusListener.FocusEvent](() => FocusListener.FocusEvent())
+  pools.addPool[Stage.TouchFocus](() => Stage.TouchFocus())
 
   root.setStage(Nullable(this))
   viewport.update(Sge().graphics.getWidth(), Sge().graphics.getHeight(), true)
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using Sge) = {
+  def this(viewport: Viewport)(using Sge) =
     this(viewport, SpriteBatch()(using Sge()), true)
-  }
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(
       ScalingViewport(Scaling.stretch, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, OrthographicCamera())
     )
-  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using Sge) = {
+  def this(viewport: Viewport, batch: Batch)(using Sge) =
     this(viewport, batch, false)
-  }
 
   def draw(): Unit = {
     val camera = viewport.camera
@@ -229,7 +226,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     else {
       // Exit overLast.
       overLast.foreach { lastActor =>
-        val event = pools.obtain(classOf[InputEvent])
+        val event = pools.obtain[InputEvent]
         event.eventType = InputEvent.Type.exit
         event.stage = Nullable(this)
         event.stageX = tempCoords.x
@@ -242,7 +239,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
       // Enter over.
       over.foreach { overActor =>
-        val event = pools.obtain(classOf[InputEvent])
+        val event = pools.obtain[InputEvent]
         event.eventType = InputEvent.Type.enter
         event.stage = Nullable(this)
         event.stageX = tempCoords.x
@@ -258,7 +255,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
   private def fireExit(actor: Actor, screenX: Int, screenY: Int, pointer: Int): Unit = {
     screenToStageCoordinates(tempCoords.set(screenX.toFloat, screenY.toFloat))
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.exit
     event.stage = Nullable(this)
     event.stageX = tempCoords.x
@@ -280,7 +277,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
       screenToStageCoordinates(tempCoords.set(screenX.toFloat, screenY.toFloat))
 
-      val event = pools.obtain(classOf[InputEvent])
+      val event = pools.obtain[InputEvent]
       event.eventType = InputEvent.Type.touchDown
       event.stage = Nullable(this)
       event.stageX = tempCoords.x
@@ -313,7 +310,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     else {
       screenToStageCoordinates(tempCoords.set(screenX.toFloat, screenY.toFloat))
 
-      val event = pools.obtain(classOf[InputEvent])
+      val event = pools.obtain[InputEvent]
       event.eventType = InputEvent.Type.touchDragged
       event.stage = Nullable(this)
       event.stageX = tempCoords.x
@@ -350,7 +347,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     else {
       screenToStageCoordinates(tempCoords.set(screenX.toFloat, screenY.toFloat))
 
-      val event = pools.obtain(classOf[InputEvent])
+      val event = pools.obtain[InputEvent]
       event.eventType = InputEvent.Type.touchUp
       event.stage = Nullable(this)
       event.stageX = tempCoords.x
@@ -396,7 +393,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     else {
       screenToStageCoordinates(tempCoords.set(screenX.toFloat, screenY.toFloat))
 
-      val event = pools.obtain(classOf[InputEvent])
+      val event = pools.obtain[InputEvent]
       event.eventType = InputEvent.Type.mouseMoved
       event.stage = Nullable(this)
       event.stageX = tempCoords.x
@@ -419,7 +416,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
 
     screenToStageCoordinates(tempCoords.set(mouseScreenX.toFloat, mouseScreenY.toFloat))
 
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.scrolled
     event.stage = Nullable(this)
     event.stageX = tempCoords.x
@@ -436,7 +433,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   override def keyDown(keyCode: Key): Boolean = {
     val target: Actor = keyboardFocus.getOrElse(root)
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.keyDown
     event.stage = Nullable(this)
     event.keyCode = keyCode
@@ -450,7 +447,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   override def keyUp(keyCode: Key): Boolean = {
     val target: Actor = keyboardFocus.getOrElse(root)
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.keyUp
     event.stage = Nullable(this)
     event.keyCode = keyCode
@@ -464,7 +461,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   override def keyTyped(character: Char): Boolean = {
     val target: Actor = keyboardFocus.getOrElse(root)
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.keyTyped
     event.stage = Nullable(this)
     event.character = character
@@ -479,7 +476,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     * {@link Event#getTarget() target} for the touchDragged and touchUp events.
     */
   def addTouchFocus(listener: EventListener, listenerActor: Actor, target: Actor, pointer: Int, button: Button): Unit = {
-    val focus = pools.obtain(classOf[Stage.TouchFocus])
+    val focus = pools.obtain[Stage.TouchFocus]
     focus.listenerActor = listenerActor
     focus.target = target
     focus.listener = listener
@@ -523,7 +520,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
           touchFocuses.removeIndex(idx)
 
           if (event.isEmpty) {
-            val e = pools.obtain(classOf[InputEvent])
+            val e = pools.obtain[InputEvent]
             e.eventType = InputEvent.Type.touchUp
             e.stage = Nullable(this)
             e.stageX = Int.MinValue
@@ -558,7 +555,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     *   #cancelTouchFocus()
     */
   def cancelTouchFocusExcept(exceptListener: Nullable[EventListener], exceptActor: Nullable[Actor]): Unit = {
-    val event = pools.obtain(classOf[InputEvent])
+    val event = pools.obtain[InputEvent]
     event.eventType = InputEvent.Type.touchUp
     event.stage = Nullable(this)
     event.stageX = Int.MinValue
@@ -686,7 +683,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
   def setKeyboardFocus(actor: Nullable[Actor]): Boolean =
     if (keyboardFocus == actor) true
     else {
-      val event = pools.obtain(classOf[FocusListener.FocusEvent])
+      val event = pools.obtain[FocusListener.FocusEvent]
       event.stage = Nullable(this)
       event.focusType = FocusListener.FocusEvent.Type.keyboard
       val oldKeyboardFocus = keyboardFocus
@@ -725,7 +722,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
   def setScrollFocus(actor: Nullable[Actor]): Boolean =
     if (scrollFocus == actor) true
     else {
-      val event = pools.obtain(classOf[FocusListener.FocusEvent])
+      val event = pools.obtain[FocusListener.FocusEvent]
       event.stage = Nullable(this)
       event.focusType = FocusListener.FocusEvent.Type.scroll
       val oldScrollFocus = scrollFocus

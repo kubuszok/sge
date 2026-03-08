@@ -146,8 +146,8 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     }
   )
 
-  def this(skin: Skin)(using Sge) = this(skin.get(classOf[SgeList.ListStyle]))
-  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get(styleName, classOf[SgeList.ListStyle]))
+  def this(skin: Skin)(using Sge) = this(skin.get[SgeList.ListStyle])
+  def this(skin: Skin, styleName: String)(using Sge) = this(skin.get[SgeList.ListStyle](styleName))
 
   override def setStyle(style: ListStyle): Unit = {
     this._style = style
@@ -166,7 +166,7 @@ class SgeList[T](style: SgeList.ListStyle)(using Sge) extends Widget with Cullab
     itemHeight += selectedDrawable.topHeight + selectedDrawable.bottomHeight
 
     _prefWidth = 0
-    val layoutPool  = Actor.POOLS.getPool(classOf[GlyphLayout])
+    val layoutPool  = Actor.POOLS.getPool[GlyphLayout]
     val glyphLayout = layoutPool.obtain()
     var i           = 0
     while (i < items.size) {

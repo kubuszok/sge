@@ -50,14 +50,14 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   def this(skin: Skin)(using Sge) = {
     this()
     setSkin(Nullable(skin))
-    setStyle(skin.get(classOf[Button.ButtonStyle]))
+    setStyle(skin.get[Button.ButtonStyle])
     setSize(getPrefWidth, getPrefHeight)
   }
 
   def this(skin: Skin, styleName: String)(using Sge) = {
     this()
     setSkin(Nullable(skin))
-    setStyle(skin.get(styleName, classOf[Button.ButtonStyle]))
+    setStyle(skin.get[Button.ButtonStyle](styleName))
     setSize(getPrefWidth, getPrefHeight)
   }
 
@@ -69,12 +69,12 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   }
 
   def this(child: Actor, skin: Skin)(using Sge) = {
-    this(child, skin.get(classOf[Button.ButtonStyle]))
+    this(child, skin.get[Button.ButtonStyle])
     setSkin(Nullable(skin))
   }
 
   def this(child: Actor, skin: Skin, styleName: String)(using Sge) = {
-    this(child, skin.get(styleName, classOf[Button.ButtonStyle]))
+    this(child, skin.get[Button.ButtonStyle](styleName))
     setSkin(Nullable(skin))
   }
 
@@ -87,17 +87,14 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     addListener(clickListener)
   }
 
-  def this(up: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, Nullable.empty, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, checked))
-  }
 
   def setChecked(isChecked: Boolean): Unit =
     setChecked(isChecked, programmaticChangeEvents)
@@ -107,7 +104,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
       this.isChecked = isChecked
 
       if (fireEvent) {
-        val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+        val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
         if (fire(changeEvent)) this.isChecked = !isChecked
         Actor.POOLS.free(changeEvent)
       }

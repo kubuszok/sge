@@ -10,6 +10,7 @@
  *   Convention: GLFW callbacks -> Scala lambdas via WindowingOps
  *   Convention: synchronized -> synchronized (same semantics on JVM)
  *   Idiom: split packages; Nullable for optional fields; no return
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
@@ -217,6 +218,45 @@ class DesktopWindow private[sge] (
   /** Sets minimum and maximum size limits for the window. Use -1 for unrestricted. */
   def setSizeLimits(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int): Unit =
     windowing.setWindowSizeLimits(_windowHandle, minWidth, minHeight, maxWidth, maxHeight)
+
+  /** Sets the window icon from one or more Pixmap images. Each Pixmap should be RGBA8888 format; non-RGBA8888 Pixmaps are converted automatically. Has no effect on macOS or Wayland.
+    *
+    * @param images
+    *   one or more Pixmaps at different sizes (e.g. 16x16, 32x32, 48x48). Pass no arguments to reset to default.
+    */
+  def setIcon(images: sge.graphics.Pixmap*): Unit = {
+    val platform = windowing.getPlatform()
+    if (platform != WindowingOps.GLFW_PLATFORM_COCOA && platform != WindowingOps.GLFW_PLATFORM_WAYLAND) {
+      if (images.isEmpty) {
+        windowing.setWindowIcon(_windowHandle, Array.empty)
+      } else {
+        // Convert non-RGBA8888 pixmaps
+        val pixmaps    = new Array[sge.graphics.Pixmap](images.length)
+        val tmpPixmaps = new Array[sge.graphics.Pixmap](images.length)
+        var i          = 0
+        while (i < images.length) {
+          val pixmap = images(i)
+          if (pixmap.getFormat() != sge.graphics.Pixmap.Format.RGBA8888) {
+            val rgba = new sge.graphics.Pixmap(pixmap.getWidth().toInt, pixmap.getHeight().toInt, sge.graphics.Pixmap.Format.RGBA8888)
+            rgba.setBlending(sge.graphics.Pixmap.Blending.None)
+            rgba.drawPixmap(pixmap, Pixels.zero, Pixels.zero)
+            tmpPixmaps(i) = rgba
+            pixmaps(i) = rgba
+          } else {
+            pixmaps(i) = pixmap
+          }
+          i += 1
+        }
+        windowing.setWindowIcon(_windowHandle, pixmaps)
+        // Dispose temporary format-converted pixmaps
+        i = 0
+        while (i < tmpPixmaps.length) {
+          if (tmpPixmaps(i) != null) tmpPixmaps(i).close()
+          i += 1
+        }
+      }
+    }
+  }
 
   /** Requests user attention (e.g. taskbar flash). */
   def flash(): Unit =

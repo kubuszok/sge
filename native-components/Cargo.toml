@@ -2,7 +2,7 @@
 name = "sge-native-ops"
 version = "0.1.0"
 edition = "2021"
-description = "ETC1 codec + buffer operations for SGE (C ABI + optional JNI for Android)"
+description = "ETC1 codec + buffer operations + FreeType + 2D physics for SGE (C ABI + optional JNI for Android)"
 
 [lib]
 name = "sge_native_ops"
@@ -12,10 +12,23 @@ crate-type = ["cdylib", "staticlib"]
 libc = "0.2"
 jni = { version = "0.21", optional = true }
 
+# FreeType bindings (vendored C source — no system dependency)
+freetype = { version = "0.7", optional = true, features = ["freetype-sys"] }
+
+# 2D physics engine (pure Rust — cross-compiles to all targets)
+rapier2d = { version = "0.22", optional = true }
+crossbeam = { version = "0.8", optional = true }
+
 [features]
 default = []
 # JNI bridge for Android (ART doesn't support Panama). Desktop JVM uses Panama FFM via C ABI.
 android = ["jni"]
+# FreeType font rasterization
+freetype_support = ["freetype"]
+# 2D physics via Rapier2D
+physics = ["rapier2d", "crossbeam"]
+# All extensions
+all = ["freetype_support", "physics"]
 
 [profile.release]
 opt-level = 3

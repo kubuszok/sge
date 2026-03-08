@@ -8,6 +8,7 @@
  *   Renames: AudioControlGraphPool -> AudioControlGraphPool (same name)
  *   Convention: Scala.js only; extends SGE Pool trait
  *   Convention: JavaScriptObject -> js.Dynamic
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

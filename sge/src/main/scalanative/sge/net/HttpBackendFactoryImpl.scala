@@ -7,6 +7,7 @@
  *   Origin: SGE-original (Native HTTP backend via sttp + curl)
  *   Convention: platform-specific impl in scalanative/
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package net

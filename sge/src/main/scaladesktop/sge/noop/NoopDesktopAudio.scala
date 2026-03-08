@@ -7,6 +7,7 @@
  *   SGE-original: noop DesktopAudio for when audio is disabled or init fails
  *   Convention: extends DesktopAudio (Audio + AutoCloseable + update())
  *   Idiom: split packages
+ *   Audited: 2026-03-08
  */
 package sge
 package noop

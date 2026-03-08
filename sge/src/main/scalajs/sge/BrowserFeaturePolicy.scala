@@ -9,6 +9,7 @@
  *   Convention: Scala.js only; JSNI -> js.Dynamic
  *   Convention: GwtUtils.toStringArray removed (not needed in Scala.js)
  *   Idiom: Nullable[Array[String]] for null-returning methods
+ *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */

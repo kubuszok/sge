@@ -231,7 +231,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
     */
   def fireChangeEvent(): Boolean =
     actor.exists { a =>
-      val changeEvent = Actor.POOLS.obtain(classOf[ChangeListener.ChangeEvent])
+      val changeEvent = Actor.POOLS.obtain[ChangeListener.ChangeEvent]
       try
         a.fire(changeEvent)
       finally
