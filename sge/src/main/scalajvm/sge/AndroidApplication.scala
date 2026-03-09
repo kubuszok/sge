@@ -153,6 +153,30 @@ class AndroidApplication(
     }
   }
 
+  /** Build and store the [[Sge]] context from initialized subsystems.
+    *
+    * Must be called after [[initializeGraphicsAndInput]] so that graphics and input are available. Also notifies `SgeAware` listeners.
+    *
+    * @return
+    *   the newly created Sge context
+    */
+  def initializeSge(): Sge = {
+    val sge = Sge(
+      application = this,
+      graphics = _graphics,
+      audio = _audio,
+      files = _files,
+      input = _input,
+      net = _net
+    )
+    sgeContext = sge
+    listener match {
+      case aware: SgeAware => aware.sgeAvailable(sge)
+      case _ => ()
+    }
+    sge
+  }
+
   /** Initialize graphics and input subsystems. Call after the GL surface view is created.
     *
     * @param windowManager
@@ -161,12 +185,14 @@ class AndroidApplication(
     *   the Android Handler (as AnyRef) for UI thread posting
     * @param resolutionStrategy
     *   the resolution strategy for measuring GL surface size
+    * @return
+    *   the GL surface view (as AnyRef — cast to `android.opengl.GLSurfaceView`) for setting as content view
     */
   def initializeGraphicsAndInput(
     windowManager:      AnyRef,
     handler:            AnyRef,
     resolutionStrategy: ResolutionStrategyOps = null // scalafix:ok
-  ): Unit = {
+  ): AnyRef = {
     val displayMetrics = provider.createDisplayMetrics(windowManager)
     val sensorOps      = provider.createSensors(context, windowManager)
     val inputMethodOps = provider.createInputMethod(context, handler)
@@ -180,6 +206,8 @@ class AndroidApplication(
     _graphics = AndroidGraphics(config, provider, displayMetrics, glSurface, cursorOps)
     _input = AndroidInput(config, sensorOps, inputMethodOps, hapticsOps, touchInputOps, lifecycle)
     _input.registerSensors()
+    lifecycle.setGLSurfaceView(glSurface)
+    glSurface.view
   }
 
   /** Process touch/scroll/key events through the input processor. Call once per frame. */

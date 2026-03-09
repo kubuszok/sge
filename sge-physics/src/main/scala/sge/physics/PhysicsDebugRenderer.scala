@@ -75,17 +75,17 @@ class PhysicsDebugRenderer(maxVertices: Int = 5000)(using Sge) extends AutoClose
     shapeRenderer.end()
   }
 
-  private def drawShape(shape: Shape, px: Float, py: Float, cosA: Float, sinA: Float): Unit = {
+  private def drawShape(shape: Shape, px: Float, py: Float, cosA: Float, sinA: Float): Unit =
     shape match {
       case Shape.Circle(radius) =>
         shapeRenderer.circle(px, py, radius, circleSegments)
 
       case Shape.Box(hw, hh) =>
         // Rotate the four corners of the box
-        val x0 = -hw; val y0 = -hh
-        val x1 = hw;  val y1 = -hh
-        val x2 = hw;  val y2 = hh
-        val x3 = -hw; val y3 = hh
+        val x0  = -hw; val y0                         = -hh
+        val x1  = hw; val y1                          = -hh
+        val x2  = hw; val y2                          = hh
+        val x3  = -hw; val y3                         = hh
         val rx0 = px + x0 * cosA - y0 * sinA; val ry0 = py + x0 * sinA + y0 * cosA
         val rx1 = px + x1 * cosA - y1 * sinA; val ry1 = py + x1 * sinA + y1 * cosA
         val rx2 = px + x2 * cosA - y2 * sinA; val ry2 = py + x2 * sinA + y2 * cosA
@@ -100,15 +100,15 @@ class PhysicsDebugRenderer(maxVertices: Int = 5000)(using Sge) extends AutoClose
         val top    = halfHeight
         val bottom = -halfHeight
         // Left and right lines
-        val lx = -radius; val rx = radius
-        val tlx = px + lx * cosA - top * sinA;    val tly = py + lx * sinA + top * cosA
-        val trx = px + rx * cosA - top * sinA;    val try_ = py + rx * sinA + top * cosA
+        val lx  = -radius; val rx                         = radius
+        val tlx = px + lx * cosA - top * sinA; val tly    = py + lx * sinA + top * cosA
+        val trx = px + rx * cosA - top * sinA; val try_   = py + rx * sinA + top * cosA
         val blx = px + lx * cosA - bottom * sinA; val bly = py + lx * sinA + bottom * cosA
         val brx = px + rx * cosA - bottom * sinA; val bry = py + rx * sinA + bottom * cosA
         shapeRenderer.line(tlx, tly, blx, bly)
         shapeRenderer.line(trx, try_, brx, bry)
         // Top and bottom semicircular caps (approximated as circles)
-        val topCenterX = px - top * sinA;    val topCenterY = py + top * cosA
+        val topCenterX = px - top * sinA; val topCenterY    = py + top * cosA
         val botCenterX = px - bottom * sinA; val botCenterY = py + bottom * cosA
         shapeRenderer.circle(topCenterX, topCenterY, radius, circleSegments)
         shapeRenderer.circle(botCenterX, botCenterY, radius, circleSegments)
@@ -132,7 +132,6 @@ class PhysicsDebugRenderer(maxVertices: Int = 5000)(using Sge) extends AutoClose
           }
         }
     }
-  }
 
   /** Releases the internal [[ShapeRenderer]]. */
   override def close(): Unit =

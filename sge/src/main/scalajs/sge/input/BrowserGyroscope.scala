@@ -49,7 +49,7 @@ object BrowserGyroscope {
   val Permission: String = "gyroscope"
 
   def isSupported: Boolean =
-    !js.isUndefined(js.Dynamic.global.Gyroscope)
+    js.typeOf(js.Dynamic.global.Gyroscope) != "undefined"
 
   def getInstance(): BrowserGyroscope =
     new BrowserGyroscope(js.Dynamic.newInstance(js.Dynamic.global.Gyroscope)())

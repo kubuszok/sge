@@ -32,8 +32,7 @@ import sge.graphics.g2d.freetype.FreeType.*
 import sge.math.MathUtils
 import sge.utils.{ DynamicArray, Nullable, SgeError }
 
-/** Generates {@link BitmapFont} and {@link BitmapFont.BitmapFontData} instances from TrueType, OTF, and other FreeType supported
-  * fonts.
+/** Generates {@link BitmapFont} and {@link BitmapFont.BitmapFontData} instances from TrueType, OTF, and other FreeType supported fonts.
   *
   * Usage example:
   * {{{
@@ -44,8 +43,7 @@ import sge.utils.{ DynamicArray, Nullable, SgeError }
   * gen.close() // Don't close if doing incremental glyph generation.
   * }}}
   *
-  * The generator has to be closed once it is no longer used. The returned {@link BitmapFont} instances are managed by the user and
-  * have to be closed as usual.
+  * The generator has to be closed once it is no longer used. The returned {@link BitmapFont} instances are managed by the user and have to be closed as usual.
   *
   * @author
   *   mzechner
@@ -61,7 +59,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
   import FreeTypeFontGenerator.*
 
   val library: Library = FreeType.initFreeType()
-  val face: Face = {
+  val face:    Face    = {
     val data = fontFile.readBytes()
     library.newMemoryFace(data, data.length, faceIndex)
   }
@@ -95,8 +93,10 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
 
   private def checkForBitmapFont(): Boolean = {
     val faceFlags = face.faceFlags
-    if (((faceFlags & FreeType.FT_FACE_FLAG_FIXED_SIZES) == FreeType.FT_FACE_FLAG_FIXED_SIZES)
-      && ((faceFlags & FreeType.FT_FACE_FLAG_HORIZONTAL) == FreeType.FT_FACE_FLAG_HORIZONTAL)) {
+    if (
+      ((faceFlags & FreeType.FT_FACE_FLAG_FIXED_SIZES) == FreeType.FT_FACE_FLAG_FIXED_SIZES)
+      && ((faceFlags & FreeType.FT_FACE_FLAG_HORIZONTAL) == FreeType.FT_FACE_FLAG_HORIZONTAL)
+    ) {
       if (loadChar(32)) {
         val slot = face.getGlyph
         if (slot.format == 1651078259) {
@@ -110,8 +110,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
   def generateFont(parameter: FreeTypeFontParameter): BitmapFont =
     generateFont(parameter, FreeTypeBitmapFontData(parameter.flip))
 
-  /** Generates a new {@link BitmapFont}. The size is expressed in pixels. Throws a SgeError if the font could not be generated.
-    * Using big sizes might cause such an exception.
+  /** Generates a new {@link BitmapFont}. The size is expressed in pixels. Throws a SgeError if the font could not be generated. Using big sizes might cause such an exception.
     * @param parameter
     *   configures how the font is generated
     */
@@ -135,13 +134,12 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
   def scaleForPixelHeight(height: Int): Int = {
     setPixelSizes(0, height)
     val fontMetrics = face.getSize.getMetrics
-    val ascent  = FreeType.toInt(fontMetrics.ascender)
-    val descent = FreeType.toInt(fontMetrics.descender)
+    val ascent      = FreeType.toInt(fontMetrics.ascender)
+    val descent     = FreeType.toInt(fontMetrics.descender)
     height * height / (ascent - descent)
   }
 
-  /** Uses max advance, ascender and descender of font to calculate real height that makes any n glyphs to fit in given pixel
-    * width.
+  /** Uses max advance, ascender and descender of font to calculate real height that makes any n glyphs to fit in given pixel width.
     */
   def scaleForPixelWidth(width: Int, numChars: Int): Int = {
     val fontMetrics    = face.getSize.getMetrics
@@ -157,10 +155,9 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
   def scaleToFitSquare(width: Int, height: Int, numChars: Int): Int =
     Math.min(scaleForPixelHeight(height), scaleForPixelWidth(width, numChars))
 
-  def setPixelSizes(pixelWidth: Int, pixelHeight: Int): Unit = {
+  def setPixelSizes(pixelWidth: Int, pixelHeight: Int): Unit =
     if (!bitmapped && !face.setPixelSizes(pixelWidth, pixelHeight))
       throw SgeError.GraphicsError("Couldn't set size for font")
-  }
 
   /** Generates a new {@link BitmapFont.BitmapFontData} instance. */
   def generateData(size: Int): FreeTypeBitmapFontData = {
@@ -248,7 +245,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
         maxTextureSize
       } else {
         val maxGlyphHeight = Math.ceil(data.lineHeight).toInt
-        var s = MathUtils.nextPowerOfTwo(Math.sqrt(maxGlyphHeight.toDouble * maxGlyphHeight * charactersLength).toInt)
+        var s              = MathUtils.nextPowerOfTwo(Math.sqrt(maxGlyphHeight.toDouble * maxGlyphHeight * charactersLength).toInt)
         if (maxTextureSize > 0) s = Math.min(s, maxTextureSize)
         s
       }
@@ -351,7 +348,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
             val second     = data.getGlyph(secondChar)
             if (second.isDefined) {
               val secondIndex = face.getCharIndex(secondChar)
-              val k1 = face.getKerning(firstIndex, secondIndex, 0) // FT_KERNING_DEFAULT
+              val k1          = face.getKerning(firstIndex, secondIndex, 0) // FT_KERNING_DEFAULT
               if (k1 != 0) first.foreach(_.setKerning(secondChar, FreeType.toInt(k1)))
               val k2 = face.getKerning(secondIndex, firstIndex, 0)
               if (k2 != 0) second.foreach(_.setKerning(firstChar, FreeType.toInt(k2)))
@@ -398,173 +395,174 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
     val missing = face.getCharIndex(c) == 0 && c != 0
     if (missing) Nullable.empty
     else if (!loadChar(c, getLoadingFlags(parameter))) Nullable.empty
-    else boundary {
-      val slot      = face.getGlyph
-      var mainGlyph = slot.getGlyph
-      try {
-        mainGlyph.toBitmap(if (parameter.mono) FreeType.FT_RENDER_MODE_MONO else FreeType.FT_RENDER_MODE_NORMAL)
-      } catch {
-        case _: SgeError =>
-          mainGlyph.close()
-          scribe.info(s"FreeTypeFontGenerator: Couldn't render char: $c")
-          break(Nullable.empty)
-      }
-      val mainBitmap = mainGlyph.getBitmap
-      var mainPixmap = mainBitmap.getPixmap(Format.RGBA8888, parameter.color, parameter.gamma)
+    else
+      boundary {
+        val slot      = face.getGlyph
+        var mainGlyph = slot.getGlyph
+        try
+          mainGlyph.toBitmap(if (parameter.mono) FreeType.FT_RENDER_MODE_MONO else FreeType.FT_RENDER_MODE_NORMAL)
+        catch {
+          case _: SgeError =>
+            mainGlyph.close()
+            scribe.info(s"FreeTypeFontGenerator: Couldn't render char: $c")
+            break(Nullable.empty)
+        }
+        val mainBitmap = mainGlyph.getBitmap
+        var mainPixmap = mainBitmap.getPixmap(Format.RGBA8888, parameter.color, parameter.gamma)
 
-      if (mainBitmap.width != 0 && mainBitmap.rows != 0) {
-        var offsetX = 0
-        var offsetY = 0
-        if (parameter.borderWidth > 0) {
-          stroker.foreach { str =>
-            // execute stroker; this generates a glyph "extended" along the outline
-            val top  = mainGlyph.getTop
-            val left = mainGlyph.getLeft
-            val borderGlyph = slot.getGlyph
-            borderGlyph.strokeBorder(str, false)
-            borderGlyph.toBitmap(if (parameter.mono) FreeType.FT_RENDER_MODE_MONO else FreeType.FT_RENDER_MODE_NORMAL)
-            offsetX = left - borderGlyph.getLeft
-            offsetY = -(top - borderGlyph.getTop)
+        if (mainBitmap.width != 0 && mainBitmap.rows != 0) {
+          var offsetX = 0
+          var offsetY = 0
+          if (parameter.borderWidth > 0) {
+            stroker.foreach { str =>
+              // execute stroker; this generates a glyph "extended" along the outline
+              val top         = mainGlyph.getTop
+              val left        = mainGlyph.getLeft
+              val borderGlyph = slot.getGlyph
+              borderGlyph.strokeBorder(str, false)
+              borderGlyph.toBitmap(if (parameter.mono) FreeType.FT_RENDER_MODE_MONO else FreeType.FT_RENDER_MODE_NORMAL)
+              offsetX = left - borderGlyph.getLeft
+              offsetY = -(top - borderGlyph.getTop)
 
-            // Render border (pixmap is bigger than main).
-            val borderBitmap = borderGlyph.getBitmap
-            val borderPixmap = borderBitmap.getPixmap(Format.RGBA8888, parameter.borderColor, parameter.borderGamma)
+              // Render border (pixmap is bigger than main).
+              val borderBitmap = borderGlyph.getBitmap
+              val borderPixmap = borderBitmap.getPixmap(Format.RGBA8888, parameter.borderColor, parameter.borderGamma)
 
-            // Draw main glyph on top of border.
+              // Draw main glyph on top of border.
+              var ri = 0
+              while (ri < parameter.renderCount) {
+                borderPixmap.drawPixmap(mainPixmap, Pixels(offsetX), Pixels(offsetY))
+                ri += 1
+              }
+
+              mainPixmap.close()
+              mainGlyph.close()
+              mainPixmap = borderPixmap
+              mainGlyph = borderGlyph
+            }
+          }
+
+          if (parameter.shadowOffsetX != 0 || parameter.shadowOffsetY != 0) {
+            val mainW        = mainPixmap.getWidth().toInt
+            val mainH        = mainPixmap.getHeight().toInt
+            val shadowOffX   = Math.max(parameter.shadowOffsetX, 0)
+            val shadowOffY   = Math.max(parameter.shadowOffsetY, 0)
+            val shadowW      = mainW + Math.abs(parameter.shadowOffsetX)
+            val shadowH      = mainH + Math.abs(parameter.shadowOffsetY)
+            val shadowPixmap = Pixmap(shadowW, shadowH, mainPixmap.getFormat())
+            shadowPixmap.setColor(packer.transparentColor)
+            shadowPixmap.fill()
+
+            val shadowColor = parameter.shadowColor
+            val a           = shadowColor.a
+            if (a != 0) {
+              val r            = (shadowColor.r * 255).toByte
+              val g            = (shadowColor.g * 255).toByte
+              val b            = (shadowColor.b * 255).toByte
+              val mainPixels   = mainPixmap.getPixels()
+              val shadowPixels = shadowPixmap.getPixels()
+              var y            = 0
+              while (y < mainH) {
+                val shadowRow = shadowW * (y + shadowOffY) + shadowOffX
+                var x         = 0
+                while (x < mainW) {
+                  val mainPixel = (mainW * y + x) * 4
+                  val mainA     = mainPixels.get(mainPixel + 3)
+                  if (mainA != 0) {
+                    val shadowPixel = (shadowRow + x) * 4
+                    shadowPixels.put(shadowPixel, r)
+                    shadowPixels.put(shadowPixel + 1, g)
+                    shadowPixels.put(shadowPixel + 2, b)
+                    shadowPixels.put(shadowPixel + 3, ((mainA & 0xff) * a).toByte)
+                  }
+                  x += 1
+                }
+                y += 1
+              }
+            }
+
+            // Draw main glyph (with any border) on top of shadow.
             var ri = 0
             while (ri < parameter.renderCount) {
-              borderPixmap.drawPixmap(mainPixmap, Pixels(offsetX), Pixels(offsetY))
+              shadowPixmap.drawPixmap(mainPixmap, Pixels(Math.max(-parameter.shadowOffsetX, 0)), Pixels(Math.max(-parameter.shadowOffsetY, 0)))
               ri += 1
             }
-
             mainPixmap.close()
-            mainGlyph.close()
-            mainPixmap = borderPixmap
-            mainGlyph = borderGlyph
-          }
-        }
-
-        if (parameter.shadowOffsetX != 0 || parameter.shadowOffsetY != 0) {
-          val mainW        = mainPixmap.getWidth().toInt
-          val mainH        = mainPixmap.getHeight().toInt
-          val shadowOffX   = Math.max(parameter.shadowOffsetX, 0)
-          val shadowOffY   = Math.max(parameter.shadowOffsetY, 0)
-          val shadowW      = mainW + Math.abs(parameter.shadowOffsetX)
-          val shadowH      = mainH + Math.abs(parameter.shadowOffsetY)
-          val shadowPixmap = Pixmap(shadowW, shadowH, mainPixmap.getFormat())
-          shadowPixmap.setColor(packer.transparentColor)
-          shadowPixmap.fill()
-
-          val shadowColor = parameter.shadowColor
-          val a           = shadowColor.a
-          if (a != 0) {
-            val r          = (shadowColor.r * 255).toByte
-            val g          = (shadowColor.g * 255).toByte
-            val b          = (shadowColor.b * 255).toByte
-            val mainPixels   = mainPixmap.getPixels()
-            val shadowPixels = shadowPixmap.getPixels()
-            var y = 0
-            while (y < mainH) {
-              val shadowRow = shadowW * (y + shadowOffY) + shadowOffX
-              var x = 0
-              while (x < mainW) {
-                val mainPixel = (mainW * y + x) * 4
-                val mainA     = mainPixels.get(mainPixel + 3)
-                if (mainA != 0) {
-                  val shadowPixel = (shadowRow + x) * 4
-                  shadowPixels.put(shadowPixel, r)
-                  shadowPixels.put(shadowPixel + 1, g)
-                  shadowPixels.put(shadowPixel + 2, b)
-                  shadowPixels.put(shadowPixel + 3, ((mainA & 0xff) * a).toByte)
-                }
-                x += 1
-              }
-              y += 1
+            mainPixmap = shadowPixmap
+          } else if (parameter.borderWidth == 0) {
+            // No shadow and no border, draw glyph additional times.
+            var ri = 0
+            while (ri < parameter.renderCount - 1) {
+              mainPixmap.drawPixmap(mainPixmap, Pixels(0), Pixels(0))
+              ri += 1
             }
           }
 
-          // Draw main glyph (with any border) on top of shadow.
-          var ri = 0
-          while (ri < parameter.renderCount) {
-            shadowPixmap.drawPixmap(mainPixmap, Pixels(Math.max(-parameter.shadowOffsetX, 0)), Pixels(Math.max(-parameter.shadowOffsetY, 0)))
-            ri += 1
-          }
-          mainPixmap.close()
-          mainPixmap = shadowPixmap
-        } else if (parameter.borderWidth == 0) {
-          // No shadow and no border, draw glyph additional times.
-          var ri = 0
-          while (ri < parameter.renderCount - 1) {
-            mainPixmap.drawPixmap(mainPixmap, Pixels(0), Pixels(0))
-            ri += 1
+          if (parameter.padTop > 0 || parameter.padLeft > 0 || parameter.padBottom > 0 || parameter.padRight > 0) {
+            val padPixmap = Pixmap(
+              mainPixmap.getWidth().toInt + parameter.padLeft + parameter.padRight,
+              mainPixmap.getHeight().toInt + parameter.padTop + parameter.padBottom,
+              mainPixmap.getFormat()
+            )
+            padPixmap.setBlending(Blending.None)
+            padPixmap.drawPixmap(mainPixmap, Pixels(parameter.padLeft), Pixels(parameter.padTop))
+            mainPixmap.close()
+            mainPixmap = padPixmap
           }
         }
 
-        if (parameter.padTop > 0 || parameter.padLeft > 0 || parameter.padBottom > 0 || parameter.padRight > 0) {
-          val padPixmap = Pixmap(
-            mainPixmap.getWidth().toInt + parameter.padLeft + parameter.padRight,
-            mainPixmap.getHeight().toInt + parameter.padTop + parameter.padBottom,
-            mainPixmap.getFormat()
-          )
-          padPixmap.setBlending(Blending.None)
-          padPixmap.drawPixmap(mainPixmap, Pixels(parameter.padLeft), Pixels(parameter.padTop))
-          mainPixmap.close()
-          mainPixmap = padPixmap
-        }
-      }
+        val metrics = slot.getMetrics
+        val glyph   = BitmapFont.Glyph()
+        glyph.id = c.toInt
+        glyph.width = mainPixmap.getWidth().toInt
+        glyph.height = mainPixmap.getHeight().toInt
+        glyph.xoffset = mainGlyph.getLeft
+        if (parameter.flip)
+          glyph.yoffset = -mainGlyph.getTop + baseLine.toInt
+        else
+          glyph.yoffset = -(glyph.height - mainGlyph.getTop) - baseLine.toInt
+        glyph.xadvance = FreeType.toInt(metrics.horiAdvance) + parameter.borderWidth.toInt + parameter.spaceX
 
-      val metrics = slot.getMetrics
-      val glyph   = BitmapFont.Glyph()
-      glyph.id = c.toInt
-      glyph.width = mainPixmap.getWidth().toInt
-      glyph.height = mainPixmap.getHeight().toInt
-      glyph.xoffset = mainGlyph.getLeft
-      if (parameter.flip)
-        glyph.yoffset = -mainGlyph.getTop + baseLine.toInt
-      else
-        glyph.yoffset = -(glyph.height - mainGlyph.getTop) - baseLine.toInt
-      glyph.xadvance = FreeType.toInt(metrics.horiAdvance) + parameter.borderWidth.toInt + parameter.spaceX
-
-      if (bitmapped) {
-        mainPixmap.setColor(Color.CLEAR)
-        mainPixmap.fill()
-        val buf           = mainBitmap.getBuffer
-        val whiteIntBits  = Color.WHITE.toIntBits()
-        val clearIntBits  = Color.CLEAR.toIntBits()
-        var h             = 0
-        while (h < glyph.height) {
-          val idx = h * mainBitmap.pitch
-          var w   = 0
-          while (w < (glyph.width + glyph.xoffset)) {
-            val bit = (buf(idx + (w / 8)) >>> (7 - (w % 8))) & 1
-            mainPixmap.drawPixel(Pixels(w), Pixels(h), if (bit == 1) whiteIntBits else clearIntBits)
-            w += 1
-          }
-          h += 1
-        }
-      }
-
-      val rectOpt = packer.pack(mainPixmap)
-      rectOpt.foreach { rect =>
-        glyph.page = packer.pages.indexOf(rect.page)
-        glyph.srcX = rect.x
-        glyph.srcY = rect.y
-      }
-
-      // If a page was added, create a new texture region for the incrementally added glyph.
-      if (parameter.incremental && data.regions.isDefined) {
-        data.regions.foreach { r =>
-          if (r.size <= glyph.page) {
-            packer.updateTextureRegions(r, parameter.minFilter, parameter.magFilter, parameter.genMipMaps)
+        if (bitmapped) {
+          mainPixmap.setColor(Color.CLEAR)
+          mainPixmap.fill()
+          val buf          = mainBitmap.getBuffer
+          val whiteIntBits = Color.WHITE.toIntBits()
+          val clearIntBits = Color.CLEAR.toIntBits()
+          var h            = 0
+          while (h < glyph.height) {
+            val idx = h * mainBitmap.pitch
+            var w   = 0
+            while (w < (glyph.width + glyph.xoffset)) {
+              val bit = (buf(idx + (w / 8)) >>> (7 - (w % 8))) & 1
+              mainPixmap.drawPixel(Pixels(w), Pixels(h), if (bit == 1) whiteIntBits else clearIntBits)
+              w += 1
+            }
+            h += 1
           }
         }
+
+        val rectOpt = packer.pack(mainPixmap)
+        rectOpt.foreach { rect =>
+          glyph.page = packer.pages.indexOf(rect.page)
+          glyph.srcX = rect.x
+          glyph.srcY = rect.y
+        }
+
+        // If a page was added, create a new texture region for the incrementally added glyph.
+        if (parameter.incremental && data.regions.isDefined) {
+          data.regions.foreach { r =>
+            if (r.size <= glyph.page) {
+              packer.updateTextureRegions(r, parameter.minFilter, parameter.magFilter, parameter.genMipMaps)
+            }
+          }
+        }
+
+        mainPixmap.close()
+        mainGlyph.close()
+
+        Nullable(glyph)
       }
-
-      mainPixmap.close()
-      mainGlyph.close()
-
-      Nullable(glyph)
-    }
   }
 
   /** Check if the font glyph exists for a single UTF-32 code point. */
@@ -588,13 +586,13 @@ object FreeTypeFontGenerator {
   /** A hint to scale the texture as needed, without capping it at any maximum size. */
   val NO_MAXIMUM: Int = -1
 
-  /** The maximum texture size allowed by generateData, when storing in a texture atlas. Multiple texture pages will be created if
-    * necessary. Default is 1024.
+  /** The maximum texture size allowed by generateData, when storing in a texture atlas. Multiple texture pages will be created if necessary. Default is 1024.
     */
   var maxTextureSize: Int = 1024
 
   /** Font smoothing algorithm. */
   enum Hinting extends java.lang.Enum[Hinting] {
+
     /** Disable hinting. Generated glyphs will look blurry. */
     case None
 
@@ -617,10 +615,10 @@ object FreeTypeFontGenerator {
     case AutoFull
   }
 
-  /** Parameter container class that helps configure how {@link FreeTypeBitmapFontData} and {@link BitmapFont} instances are
-    * generated.
+  /** Parameter container class that helps configure how {@link FreeTypeBitmapFontData} and {@link BitmapFont} instances are generated.
     */
   class FreeTypeFontParameter {
+
     /** The size in pixels. */
     var size: Int = 16
 
@@ -695,19 +693,19 @@ object FreeTypeFontGenerator {
     var incremental: Boolean = false
   }
 
-  /** {@link BitmapFont.BitmapFontData} used for fonts generated via the {@link FreeTypeFontGenerator}. The texture storing the
-    * glyphs is held in memory, thus the imagePaths and fontFile will be empty/null.
+  /** {@link BitmapFont.BitmapFontData} used for fonts generated via the {@link FreeTypeFontGenerator}. The texture storing the glyphs is held in memory, thus the imagePaths and fontFile will be
+    * empty/null.
     */
   class FreeTypeBitmapFontData(isFlipped: Boolean = false) extends BitmapFontData(flipped = isFlipped) {
     var regions: Nullable[DynamicArray[TextureRegion]] = Nullable.empty
 
     // Fields for incremental glyph generation.
-    var generator:        Nullable[FreeTypeFontGenerator]  = Nullable.empty
-    var parameter:        Nullable[FreeTypeFontParameter]  = Nullable.empty
-    var stroker:          Nullable[Stroker]                 = Nullable.empty
-    var incrementalPacker: Nullable[PixmapPacker]           = Nullable.empty
+    var generator:         Nullable[FreeTypeFontGenerator]          = Nullable.empty
+    var parameter:         Nullable[FreeTypeFontParameter]          = Nullable.empty
+    var stroker:           Nullable[Stroker]                        = Nullable.empty
+    var incrementalPacker: Nullable[PixmapPacker]                   = Nullable.empty
     var incrementalGlyphs: Nullable[DynamicArray[BitmapFont.Glyph]] = Nullable.empty
-    private var dirty: Boolean = false
+    private var dirty:     Boolean                                  = false
 
     override def getGlyph(ch: Char): Nullable[BitmapFont.Glyph] = {
       var glyph = super.getGlyph(ch)
@@ -770,7 +768,7 @@ object FreeTypeFontGenerator {
 
   /** Container for a glyph and its bitmap, used by generateGlyphAndBitmap. */
   class GlyphAndBitmap {
-    var glyph:  BitmapFont.Glyph            = BitmapFont.Glyph()
+    var glyph:  BitmapFont.Glyph          = BitmapFont.Glyph()
     var bitmap: Nullable[FreeType.Bitmap] = Nullable.empty
   }
 }

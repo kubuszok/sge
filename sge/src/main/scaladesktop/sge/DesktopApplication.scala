@@ -22,7 +22,7 @@ package sge
 import sge.graphics.ClearMask
 import sge.net.DesktopNet
 import sge.noop.NoopDesktopAudio
-import sge.platform.WindowingOps
+import sge.platform.{ GlOps, WindowingOps }
 import sge.utils.{ Clipboard, Nullable, SgeError }
 
 import scala.collection.mutable.ArrayBuffer
@@ -39,6 +39,8 @@ import scala.collection.mutable.ArrayBuffer
   *   the windowing FFI operations
   * @param audioOps
   *   the audio FFI operations
+  * @param glOps
+  *   EGL context management operations (platform-specific: Panama on JVM, @extern on Native)
   * @param glFactory
   *   factory for creating GL32 bindings (platform-specific: Panama on JVM, @extern on Native)
   * @author
@@ -49,6 +51,7 @@ class DesktopApplication(
   config:                      DesktopApplicationConfig,
   private val windowing:       WindowingOps,
   private val audioOps:        sge.platform.AudioOps,
+  private val glOps:           GlOps,
   private val glFactory:       () => sge.graphics.GL32,
   private val recorderFactory: (Int, Boolean) => sge.audio.AudioRecorder = (_, _) => throw new UnsupportedOperationException("AudioRecorder not available on this platform")
 ) extends DesktopApplicationBase {
@@ -88,6 +91,7 @@ class DesktopApplication(
     // Wire platform FFI so DesktopCursor et al. can access windowing ops
     sge.platform.PlatformOps.windowing = windowing
     sge.platform.PlatformOps.audio = audioOps
+    sge.platform.PlatformOps.gl = glOps
 
     if (!windowing.init()) {
       throw SgeError.GraphicsError("Unable to initialize windowing system")
@@ -256,7 +260,7 @@ class DesktopApplication(
     listener:      ApplicationListener,
     sharedContext: Long
   ): DesktopWindow = {
-    val win = DesktopWindow(listener, _lifecycleListeners, config, this, windowing)
+    val win = DesktopWindow(listener, _lifecycleListeners, config, this, windowing, glOps)
     if (sharedContext == 0L) {
       // the main window is created immediately
       setupWindow(win, config, sharedContext)
@@ -277,6 +281,18 @@ class DesktopApplication(
   ): Unit = {
     val windowHandle = createGlfwWindow(config, sharedContext)
     window.create(windowHandle)
+
+    // Create EGL context for this window (ANGLE manages the GL context, not GLFW)
+    // EGL needs the platform-native window handle (NSWindow/X11 Window/HWND), not the GLFW handle
+    val nativeHandle = windowing.getNativeWindowHandle(windowHandle)
+    val eglCtx       = glOps.createContext(nativeHandle, config.r, config.g, config.b, config.a, config.depth, config.stencil, config.samples)
+    if (eglCtx == 0L) {
+      throw SgeError.GraphicsError("Failed to create EGL context")
+    }
+    window.setEglContext(eglCtx)
+
+    // Set swap interval via EGL (not GLFW, since we use GLFW_NO_API)
+    glOps.setSwapInterval(if (config.vSyncEnabled) 1 else 0)
 
     // Initialize GL bindings (ANGLE on JVM, @extern on Native)
     val gl32 = glFactory()
@@ -301,7 +317,7 @@ class DesktopApplication(
       val c = config.initialBackgroundColor
       window.getGraphics().getGL20().glClearColor(c.r, c.g, c.b, c.a)
       window.getGraphics().getGL20().glClear(ClearMask.ColorBufferBit)
-      windowing.swapBuffers(windowHandle)
+      glOps.swapEglBuffers(eglCtx)
       i += 1
     }
 
@@ -368,8 +384,8 @@ class DesktopApplication(
       }
     }
 
-    windowing.makeContextCurrent(windowHandle)
-    windowing.setSwapInterval(if (config.vSyncEnabled) 1 else 0)
+    // Note: no makeContextCurrent or setSwapInterval here — with GLFW_NO_API,
+    // EGL manages the GL context. See setupWindow() for EGL context creation.
 
     windowHandle
   }

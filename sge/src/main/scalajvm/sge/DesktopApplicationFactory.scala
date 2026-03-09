@@ -25,12 +25,14 @@ object DesktopApplicationFactory {
   ): DesktopApplication = {
     val windowing = sge.platform.WindowingOpsJvm()
     val audioOps  = sge.platform.AudioOpsJvm()
+    val glOps     = sge.platform.GlOpsJvm()
     val glLookup  = loadLibrary("GLESv2")
     new DesktopApplication(
       listener,
       config,
       windowing,
       audioOps,
+      glOps,
       () => sge.graphics.AngleGL32(glLookup),
       (rate, mono) => new sge.audio.DesktopAudioRecorder(rate, mono)
     )

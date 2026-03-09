@@ -87,7 +87,7 @@ addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.10")
 lazy val core = projectMatrix
   .in(file("core"))
   .settings(
-    name := "sge-core",
+    name := "sge",
     scalaVersion := "3.8.2"
   )
   .jvmPlatform(scalaVersions = Seq("3.8.2"))
@@ -134,7 +134,7 @@ In sbt 2.x, `projectMatrix` is built-in — no plugin needed:
 lazy val core = projectMatrix
   .in(file("core"))
   .settings(
-    name := "sge-core"
+    name := "sge"
   )
   .jvmPlatform(scalaVersions = Seq("3.8.2"))
   .jsPlatform(scalaVersions = Seq("3.8.2"))

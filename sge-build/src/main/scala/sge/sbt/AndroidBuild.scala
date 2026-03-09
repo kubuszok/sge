@@ -34,9 +34,14 @@ object AndroidBuild {
 
   // ── Settings ────────────────────────────────────────────────────────
 
-  val settings: Seq[Setting[_]] = SgePlugin.commonSettings ++ Seq(
-    scalaVersion := SgePlugin.scalaVersion,
-
+  /** Android build tasks only — no SgePlugin.commonSettings.
+    *
+    * Use this when adding Android APK support to a project that already
+    * has its own Scala/sbt settings (e.g. projectMatrix JVM axis).
+    * Adds: androidDex, androidPackage, androidSign, androidInstall tasks
+    * plus android.jar on the compile classpath.
+    */
+  val taskSettings: Seq[Setting[_]] = Seq(
     // SDK config (static, no download)
     androidMinSdk := AndroidSdk.minSdkVersion,
     androidTargetSdk := AndroidSdk.targetSdkVersion,
@@ -50,7 +55,6 @@ object AndroidBuild {
     },
 
     // Add android.jar to compile classpath IF present (non-blocking for sbt load).
-    // When the SDK is not installed, compilation still works for non-Android-API code.
     Compile / unmanagedJars ++= {
       val base = (ThisBuild / baseDirectory).value
       AndroidSdk.findSdkRoot(base).toSeq.flatMap { sdkRoot =>
@@ -59,7 +63,7 @@ object AndroidBuild {
       }
     },
 
-    // Fork for JVM tests (Android code can be unit-tested on JVM)
+    // Fork for JVM tests
     fork := true,
 
     // ── DEX compilation ───────────────────────────────────────────────
@@ -146,7 +150,6 @@ object AndroidBuild {
       val target = crossTarget.value / "android"
       val dexDir = androidDex.value
 
-      // Minimal AndroidManifest.xml (user should provide their own)
       val manifestDir = (Compile / resourceDirectory).value
       val manifest    = manifestDir / "AndroidManifest.xml"
       if (!manifest.exists()) {
@@ -158,7 +161,6 @@ object AndroidBuild {
       val aapt2Path = AndroidSdk.aapt2(sdk)
       val apkBase   = target / "app-unsigned.apk"
 
-      // Link resources + manifest into APK
       log.info("Packaging APK with aapt2...")
       val linkCmd = Seq(
         aapt2Path.getAbsolutePath,
@@ -172,10 +174,8 @@ object AndroidBuild {
       val linkExit = SysProcess(linkCmd).!(log)
       if (linkExit != 0) throw new RuntimeException(s"aapt2 link failed with exit code $linkExit")
 
-      // Add DEX to APK (aapt2 link creates a minimal APK, we add DEX manually)
       addFilesToZip(apkBase, dexDir, Seq("classes.dex"))
 
-      // Add native libraries if present (e.g. lib/arm64-v8a/libsge_native_ops.so)
       val nativeLibsDir = (Compile / resourceDirectory).value / "lib"
       if (nativeLibsDir.isDirectory) {
         val basePath = nativeLibsDir.toPath
@@ -186,7 +186,6 @@ object AndroidBuild {
         addFilesToZipWithPaths(apkBase, nativeFiles)
       }
 
-      // Zipalign
       val aligned = target / "app-aligned.apk"
       val zPath   = AndroidSdk.zipalign(sdk)
       log.info("Zipaligning APK...")
@@ -210,28 +209,23 @@ object AndroidBuild {
       val target  = crossTarget.value / "android"
       val aligned = androidPackage.value
 
-      // Debug keystore (auto-created if missing)
       val debugKs = target / "debug.keystore"
       if (!debugKs.exists()) {
         log.info("Creating debug keystore...")
         val keytoolCmd = Seq(
           "keytool",
-          "-genkeypair",
-          "-v",
+          "-genkeypair", "-v",
           "-keystore", debugKs.getAbsolutePath,
           "-alias", "androiddebugkey",
-          "-keyalg", "RSA",
-          "-keysize", "2048",
+          "-keyalg", "RSA", "-keysize", "2048",
           "-validity", "10000",
-          "-storepass", "android",
-          "-keypass", "android",
+          "-storepass", "android", "-keypass", "android",
           "-dname", "CN=Debug,O=SGE,L=Unknown,S=Unknown,C=US"
         )
         val ksExit = SysProcess(keytoolCmd).!(log)
         if (ksExit != 0) throw new RuntimeException(s"keytool failed with exit code $ksExit")
       }
 
-      // Sign with apksigner
       val signed = target / "app-debug.apk"
       IO.copyFile(aligned, signed)
 
@@ -270,6 +264,13 @@ object AndroidBuild {
       log.info("APK installed successfully.")
     }
   )
+
+  /** Full settings including SgePlugin.commonSettings.
+    *
+    * Use this for standalone Android modules (e.g. sge-android-smoke).
+    */
+  val settings: Seq[Setting[_]] = SgePlugin.commonSettings ++ taskSettings
+
 
   // ── Helpers ─────────────────────────────────────────────────────────
 

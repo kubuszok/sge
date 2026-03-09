@@ -13,8 +13,7 @@ package physics
 
 /** A handle to a rigid body in the physics world.
   *
-  * Provides access to position, velocity, forces, and collider attachment. Bodies are created via
-  * [[PhysicsWorld.createBody]] and destroyed via [[PhysicsWorld.destroyBody]].
+  * Provides access to position, velocity, forces, and collider attachment. Bodies are created via [[PhysicsWorld.createBody]] and destroyed via [[PhysicsWorld.destroyBody]].
   */
 class RigidBody private[physics] (
   private[physics] val world:  PhysicsWorld,
@@ -118,9 +117,9 @@ class RigidBody private[physics] (
   ): Collider = {
     val ops = world.ops
     val wh  = world.handle
-    val ch = shape match {
+    val ch  = shape match {
       case Shape.Circle(radius)              => ops.createCircleCollider(wh, handle, radius)
-      case Shape.Box(halfWidth, halfHeight)   => ops.createBoxCollider(wh, handle, halfWidth, halfHeight)
+      case Shape.Box(halfWidth, halfHeight)  => ops.createBoxCollider(wh, handle, halfWidth, halfHeight)
       case Shape.Capsule(halfHeight, radius) => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
       case Shape.Polygon(vertices)           => ops.createPolygonCollider(wh, handle, vertices, vertices.length / 2)
     }

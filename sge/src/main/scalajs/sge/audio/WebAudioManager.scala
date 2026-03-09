@@ -31,10 +31,10 @@ import scala.scalajs.js
 class WebAudioManager()(using Sge) extends LifecycleListener {
 
   private val audioContext: js.Dynamic = {
-    val AudioContext       = js.Dynamic.global.AudioContext
-    val webkitAudioContext = js.Dynamic.global.webkitAudioContext
-    val Ctor               = if (!js.isUndefined(AudioContext)) AudioContext else webkitAudioContext
-    if (!js.isUndefined(Ctor)) js.Dynamic.newInstance(Ctor)()
+    val hasStandard = js.typeOf(js.Dynamic.global.AudioContext) != "undefined"
+    val hasWebkit   = js.typeOf(js.Dynamic.global.webkitAudioContext) != "undefined"
+    if (hasStandard) js.Dynamic.newInstance(js.Dynamic.global.AudioContext)()
+    else if (hasWebkit) js.Dynamic.newInstance(js.Dynamic.global.webkitAudioContext)()
     else null // no Web Audio support
   }
 
@@ -160,9 +160,7 @@ object WebAudioManager {
   var soundUnlocked: Boolean = false
 
   /** Check if the Web Audio API is available in this browser. */
-  def isSupported: Boolean = {
-    val AudioContext       = js.Dynamic.global.AudioContext
-    val webkitAudioContext = js.Dynamic.global.webkitAudioContext
-    !js.isUndefined(AudioContext) || !js.isUndefined(webkitAudioContext)
-  }
+  def isSupported: Boolean =
+    js.typeOf(js.Dynamic.global.AudioContext) != "undefined" ||
+      js.typeOf(js.Dynamic.global.webkitAudioContext) != "undefined"
 }

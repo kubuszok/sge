@@ -137,6 +137,11 @@ private object GlfwC {
 
   // Time
   def glfwGetTime(): CDouble = extern
+
+  // Native window handle (glfw3native.h) — platform-specific, may not be available on all targets
+  def glfwGetCocoaWindow(window: Ptr[Byte]): Ptr[Byte]  = extern
+  def glfwGetX11Window(window:   Ptr[Byte]): CUnsignedLongLong = extern
+  def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]  = extern
 }
 
 // ─── GLFWvidmode struct layout ─────────────────────────────────────────────
@@ -190,6 +195,18 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   override def pollEvents(): Unit =
     GlfwC.glfwPollEvents()
+
+  override def getNativeWindowHandle(windowHandle: Long): Long = {
+    val platform = getPlatform()
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA)
+      longFromPtr(GlfwC.glfwGetCocoaWindow(ptrFromLong(windowHandle)))
+    else if (platform == WindowingOps.GLFW_PLATFORM_X11)
+      GlfwC.glfwGetX11Window(ptrFromLong(windowHandle)).toLong
+    else if (platform == WindowingOps.GLFW_PLATFORM_WIN32)
+      longFromPtr(GlfwC.glfwGetWin32Window(ptrFromLong(windowHandle)))
+    else
+      throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
+  }
 
   // ─── Window properties ──────────────────────────────────────────────
 

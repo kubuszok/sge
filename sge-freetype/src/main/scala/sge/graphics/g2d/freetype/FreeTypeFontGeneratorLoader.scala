@@ -41,12 +41,11 @@ class FreeTypeFontGeneratorLoader(resolver: FileHandleResolver)(using Sge)
     fileName:     String,
     file:         FileHandle,
     parameter:    FreeTypeFontGeneratorLoader.FreeTypeFontGeneratorParameters
-  ): FreeTypeFontGenerator = {
+  ): FreeTypeFontGenerator =
     if (file.extension() == "gen")
       FreeTypeFontGenerator(file.sibling(file.nameWithoutExtension()))
     else
       FreeTypeFontGenerator(file)
-  }
 
   override def getDependencies(
     fileName:  String,

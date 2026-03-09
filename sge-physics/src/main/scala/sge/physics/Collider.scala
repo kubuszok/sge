@@ -13,9 +13,8 @@ package physics
 
 /** A handle to a collision shape attached to a [[RigidBody]].
   *
-  * Colliders define the shape, density, friction, and restitution of a body's collision geometry. A body can have
-  * multiple colliders. Colliders are created via [[RigidBody.attachCollider]] and destroyed via
-  * [[PhysicsWorld.destroyCollider]].
+  * Colliders define the shape, density, friction, and restitution of a body's collision geometry. A body can have multiple colliders. Colliders are created via [[RigidBody.attachCollider]] and
+  * destroyed via [[PhysicsWorld.destroyCollider]].
   */
 class Collider private[physics] (
   private[physics] val world:  PhysicsWorld,

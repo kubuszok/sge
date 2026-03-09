@@ -404,7 +404,7 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     val arena = p.Arena.ofConfined()
     try {
       // out layout: [hitX, hitY, normalX, normalY, toi, bodyHandle(as float bits)]
-      val seg = arena.allocateElems(p.JAVA_FLOAT, 6L)
+      val seg    = arena.allocateElems(p.JAVA_FLOAT, 6L)
       val hitInt = hRayCast.invoke(world, originX, originY, dirX, dirY, maxDist, seg).asInstanceOf[Int]
       val hit    = hitInt != 0
       if (hit) {
@@ -442,7 +442,7 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
       val seg1  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
       val seg2  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
       val count = hPollContactStartEvents.invoke(world, seg1, seg2, maxEvents).asInstanceOf[Int]
-      var i = 0
+      var i     = 0
       while (i < count) {
         outCollider1(i) = seg1.getLong(i.toLong * 8L)
         outCollider2(i) = seg2.getLong(i.toLong * 8L)
@@ -463,7 +463,7 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
       val seg1  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
       val seg2  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
       val count = hPollContactStopEvents.invoke(world, seg1, seg2, maxEvents).asInstanceOf[Int]
-      var i = 0
+      var i     = 0
       while (i < count) {
         outCollider1(i) = seg1.getLong(i.toLong * 8L)
         outCollider2(i) = seg2.getLong(i.toLong * 8L)

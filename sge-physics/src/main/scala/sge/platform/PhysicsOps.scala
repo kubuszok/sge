@@ -13,8 +13,7 @@ package platform
 
 /** Physics operations for 2D rigid body simulation backed by Rapier2D.
   *
-  * All methods use primitives and Long handles to Rust-side Rapier2D objects. Platform implementations delegate to Rust
-  * via Panama FFM (JVM), C ABI (Native), or stub (JS).
+  * All methods use primitives and Long handles to Rust-side Rapier2D objects. Platform implementations delegate to Rust via Panama FFM (JVM), C ABI (Native), or stub (JS).
   */
 private[sge] trait PhysicsOps {
 
@@ -175,15 +174,13 @@ private[sge] trait PhysicsOps {
 
   /** Polls contact-start events since the last step.
     *
-    * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at
-    * `maxEvents`).
+    * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at `maxEvents`).
     */
   def pollContactStartEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
 
   /** Polls contact-stop events since the last step.
     *
-    * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at
-    * `maxEvents`).
+    * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at `maxEvents`).
     */
   def pollContactStopEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
 }

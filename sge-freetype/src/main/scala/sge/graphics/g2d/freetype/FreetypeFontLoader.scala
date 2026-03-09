@@ -25,12 +25,10 @@ import sge.graphics.g2d.BitmapFont
 import sge.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter
 import sge.utils.{ DynamicArray, Nullable }
 
-/** Creates {@link BitmapFont} instances from FreeType font files. Requires a {@link FreeTypeFontLoaderParameter} to be passed to
-  * {@link AssetManager#load} which specifies the name of the TTF file as well the parameters used to generate the BitmapFont
-  * (size, characters, etc.)
+/** Creates {@link BitmapFont} instances from FreeType font files. Requires a {@link FreeTypeFontLoaderParameter} to be passed to {@link AssetManager#load} which specifies the name of the TTF file as
+  * well the parameters used to generate the BitmapFont (size, characters, etc.)
   */
-class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge)
-    extends AsynchronousAssetLoader[BitmapFont, FreetypeFontLoader.FreeTypeFontLoaderParameter](resolver) {
+class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[BitmapFont, FreetypeFontLoader.FreeTypeFontLoaderParameter](resolver) {
 
   @scala.annotation.nowarn("msg=deprecated") // null check — parameter arrives from AssetManager which may pass null
   override def loadAsync(
@@ -38,10 +36,9 @@ class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge)
     fileName:  String,
     file:      FileHandle,
     parameter: FreetypeFontLoader.FreeTypeFontLoaderParameter
-  ): Unit = {
+  ): Unit =
     if (parameter == null)
       throw new RuntimeException("FreetypeFontParameter must be set in AssetManager#load to point at a TTF file!")
-  }
 
   @scala.annotation.nowarn("msg=deprecated") // null check — parameter arrives from AssetManager which may pass null
   override def loadSync(
@@ -53,7 +50,7 @@ class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge)
     if (parameter == null)
       throw new RuntimeException("FreetypeFontParameter must be set in AssetManager#load to point at a TTF file!")
     val generatorOpt = manager.get(parameter.fontFileName + ".gen", classOf[FreeTypeFontGenerator])
-    val generator = generatorOpt.getOrElse(
+    val generator    = generatorOpt.getOrElse(
       throw new RuntimeException(s"FreeTypeFontGenerator not found for: ${parameter.fontFileName}.gen")
     )
     generator.generateFont(parameter.fontParameters)
@@ -73,6 +70,7 @@ class FreetypeFontLoader(resolver: FileHandleResolver)(using Sge)
 object FreetypeFontLoader {
 
   class FreeTypeFontLoaderParameter extends AssetLoaderParameters[BitmapFont] {
+
     /** The name of the TTF file to be used to load the font. */
     var fontFileName: String = ""
 

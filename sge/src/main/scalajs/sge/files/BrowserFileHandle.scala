@@ -9,7 +9,8 @@
  *   Convention: Scala.js only; reads from BrowserAssetLoader's in-memory cache
  *   Convention: Write operations throw SgeError (browser has no writable filesystem)
  *   Idiom: Overrides all I/O methods from FileHandle base class
- *   Idiom: No java.io.File dependency for actual I/O — path string only
+ *   Idiom: No java.io.File dependency — passes null to parent constructor and overrides
+ *     all methods that would touch the file field (path, name, extension, etc.)
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -34,7 +35,44 @@ class BrowserFileHandle(
   private val assetLoader: BrowserAssetLoader,
   filePath:                String,
   fileType:                FileType
-) extends FileHandle(new File(filePath), fileType) {
+) extends FileHandle(BrowserFileHandle.noFile, fileType) {
+
+  // ─── Path/name methods (override to avoid touching null file field) ──
+
+  override def path(): String =
+    filePath.replace('\\', '/')
+
+  override def name(): String = {
+    val p   = path()
+    val idx = p.lastIndexOf('/')
+    if (idx < 0) p else p.substring(idx + 1)
+  }
+
+  override def extension(): String = {
+    val n        = name()
+    val dotIndex = n.lastIndexOf('.')
+    if (dotIndex == -1) ""
+    else n.substring(dotIndex + 1)
+  }
+
+  override def nameWithoutExtension(): String = {
+    val n        = name()
+    val dotIndex = n.lastIndexOf('.')
+    if (dotIndex == -1) n
+    else n.substring(0, dotIndex)
+  }
+
+  override def pathWithoutExtension(): String = {
+    val p        = path()
+    val dotIndex = p.lastIndexOf('.')
+    if (dotIndex == -1) p
+    else p.substring(0, dotIndex)
+  }
+
+  override def getFile(): File =
+    throw new UnsupportedOperationException("BrowserFileHandle does not support java.io.File")
+
+  // ─── Read methods ─────────────────────────────────────────────────────
 
   override def read(): InputStream = {
     val p = path()
@@ -78,6 +116,8 @@ class BrowserFileHandle(
     }
   }
 
+  // ─── Directory/listing ────────────────────────────────────────────────
+
   override def exists(): Boolean =
     assetLoader.contains(path())
 
@@ -92,6 +132,8 @@ class BrowserFileHandle(
 
   override def list(suffix: String): Array[FileHandle] =
     assetLoader.list(path()).filter(_.endsWith(suffix)).map(p => BrowserFileHandle(assetLoader, p, fileType))
+
+  // ─── Navigation ───────────────────────────────────────────────────────
 
   override def child(name: String): FileHandle = {
     val p         = path()
@@ -118,4 +160,10 @@ class BrowserFileHandle(
   }
 
   override def toString: String = path()
+}
+
+private object BrowserFileHandle {
+
+  // java.io.File is not available in Scala.js — pass null since all File-dependent methods are overridden below
+  val noFile: File = null.asInstanceOf[File] // scalastyle:ignore null
 }

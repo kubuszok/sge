@@ -5,6 +5,7 @@
 //   buffer_ops — Memory copy, vertex transforms, vertex find/compare, memory management
 //   jni_bridge — JNI exports for Android (behind "android" feature flag)
 //   freetype   — FreeType font rasterization bindings (behind "freetype_support" feature flag)
+//   audio      — Audio C ABI stubs (unconditional — no external dependency)
 //   physics    — 2D physics via Rapier2D (behind "physics" feature flag)
 //
 // C ABI functions are exported from etc1 and buffer_ops for:
@@ -20,6 +21,8 @@ pub mod jni_bridge;
 
 #[cfg(feature = "freetype_support")]
 pub mod freetype;
+
+pub mod audio;
 
 #[cfg(feature = "physics")]
 pub mod physics;

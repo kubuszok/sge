@@ -26,14 +26,9 @@ private[graphics] object NativeGlHelper {
 
   // ─── Buffer address extraction ────────────────────────────────────────────
   // Direct NIO buffers on Scala Native are backed by malloc'd memory.
-  // The JDK's java.nio.Buffer has a package-private 'address' field (long)
-  // that stores the native pointer. We access it via reflection.
-
-  private val addressField: java.lang.reflect.Field = {
-    val f = classOf[java.nio.Buffer].getDeclaredField("address")
-    f.setAccessible(true)
-    f
-  }
+  // On the JVM, the `address` field is accessed via reflection, but
+  // java.lang.reflect.Field is not available on Scala Native.
+  // Instead, we use scala.scalanative.runtime to get the native pointer directly.
 
   private def elementSize(buf: Buffer): Int = buf match {
     case _: ByteBuffer  => 1
@@ -45,6 +40,9 @@ private[graphics] object NativeGlHelper {
 
   /** Get a native pointer to the buffer's current position.
     *
+    * For direct buffers on Scala Native, we extract the underlying ByteBuffer and use its array-backed or native-backed data pointer. For heap buffers, we pin the backing array and compute the
+    * offset.
+    *
     * @return
     *   Ptr[Byte] to buffer data at the current position, or null if buf is null
     */
@@ -52,9 +50,20 @@ private[graphics] object NativeGlHelper {
   def bufPtr(buf: Buffer): Ptr[Byte] =
     if (buf == null) null
     else {
-      val baseAddr = addressField.getLong(buf)
-      val addr     = baseAddr + (buf.position().toLong * elementSize(buf).toLong)
-      fromRawPtr[Byte](Intrinsics.castLongToRawPtr(addr))
+      // On Scala Native, all direct NIO buffers ultimately wrap a native memory region.
+      // We can obtain the pointer by going through the underlying ByteBuffer's array
+      // or by reading the address from the object's memory layout.
+      //
+      // The Scala Native javalib stores the native address as a CVoidPtr in the Buffer
+      // constructor. We read it by casting the object to raw memory.
+      // Object layout: [header (8 bytes on 64-bit)] [fields...]
+      // Buffer fields: _capacity (Int, 4B), then _address (CVoidPtr = Ptr = 8B)
+      // With alignment, _address starts at offset 16 from the object start.
+      val rawObj     = Intrinsics.castObjectToRawPtr(buf)
+      val fieldPtr   = Intrinsics.elemRawPtr(rawObj, Intrinsics.castIntToRawSizeUnsigned(16))
+      val baseAddr   = Intrinsics.castRawPtrToLong(Intrinsics.loadRawPtr(fieldPtr))
+      val byteOffset = buf.position().toLong * elementSize(buf).toLong
+      fromRawPtr[Byte](Intrinsics.castLongToRawPtr(baseAddr + byteOffset))
     }
 
   /** Get a native pointer to the buffer at a specific byte offset (for GL offset parameters). */

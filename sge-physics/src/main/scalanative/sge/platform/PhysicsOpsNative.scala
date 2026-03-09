@@ -18,59 +18,59 @@ import scala.scalanative.unsafe.*
 @extern
 private object PhysicsC {
   // World lifecycle
-  def sge_phys_create_world(gravityX: CFloat, gravityY: CFloat): Long                   = extern
-  def sge_phys_destroy_world(world: Long): Unit                                          = extern
-  def sge_phys_world_step(world: Long, dt: CFloat): Unit                                = extern
-  def sge_phys_world_set_gravity(world: Long, gx: CFloat, gy: CFloat): Unit             = extern
-  def sge_phys_world_get_gravity(world: Long, out: Ptr[CFloat]): Unit                   = extern
+  def sge_phys_create_world(gravityX:   CFloat, gravityY: CFloat):             Long = extern
+  def sge_phys_destroy_world(world:     Long):                                 Unit = extern
+  def sge_phys_world_step(world:        Long, dt:         CFloat):             Unit = extern
+  def sge_phys_world_set_gravity(world: Long, gx:         CFloat, gy: CFloat): Unit = extern
+  def sge_phys_world_get_gravity(world: Long, out:        Ptr[CFloat]):        Unit = extern
 
   // Rigid body
-  def sge_phys_create_dynamic_body(world: Long, x: CFloat, y: CFloat, angle: CFloat): Long   = extern
-  def sge_phys_create_static_body(world: Long, x: CFloat, y: CFloat, angle: CFloat): Long    = extern
-  def sge_phys_create_kinematic_body(world: Long, x: CFloat, y: CFloat, angle: CFloat): Long = extern
-  def sge_phys_destroy_body(world: Long, body: Long): Unit                                    = extern
-  def sge_phys_body_get_position(world: Long, body: Long, out: Ptr[CFloat]): Unit             = extern
-  def sge_phys_body_get_angle(world: Long, body: Long): CFloat                                = extern
-  def sge_phys_body_get_linear_velocity(world: Long, body: Long, out: Ptr[CFloat]): Unit      = extern
-  def sge_phys_body_get_angular_velocity(world: Long, body: Long): CFloat                     = extern
-  def sge_phys_body_set_position(world: Long, body: Long, x: CFloat, y: CFloat): Unit        = extern
-  def sge_phys_body_set_angle(world: Long, body: Long, angle: CFloat): Unit                   = extern
-  def sge_phys_body_set_linear_velocity(world: Long, body: Long, vx: CFloat, vy: CFloat): Unit   = extern
-  def sge_phys_body_set_angular_velocity(world: Long, body: Long, omega: CFloat): Unit            = extern
-  def sge_phys_body_apply_force(world: Long, body: Long, fx: CFloat, fy: CFloat): Unit           = extern
-  def sge_phys_body_apply_impulse(world: Long, body: Long, ix: CFloat, iy: CFloat): Unit         = extern
-  def sge_phys_body_apply_torque(world: Long, body: Long, torque: CFloat): Unit                   = extern
-  def sge_phys_body_set_linear_damping(world: Long, body: Long, damping: CFloat): Unit            = extern
-  def sge_phys_body_set_angular_damping(world: Long, body: Long, damping: CFloat): Unit           = extern
-  def sge_phys_body_set_gravity_scale(world: Long, body: Long, scale: CFloat): Unit               = extern
-  def sge_phys_body_is_awake(world: Long, body: Long): CInt                                       = extern
-  def sge_phys_body_wake_up(world: Long, body: Long): Unit                                         = extern
-  def sge_phys_body_set_fixed_rotation(world: Long, body: Long, fixed: CInt): Unit                 = extern
+  def sge_phys_create_dynamic_body(world:       Long, x:    CFloat, y:     CFloat, angle: CFloat): Long   = extern
+  def sge_phys_create_static_body(world:        Long, x:    CFloat, y:     CFloat, angle: CFloat): Long   = extern
+  def sge_phys_create_kinematic_body(world:     Long, x:    CFloat, y:     CFloat, angle: CFloat): Long   = extern
+  def sge_phys_destroy_body(world:              Long, body: Long):                                 Unit   = extern
+  def sge_phys_body_get_position(world:         Long, body: Long, out:     Ptr[CFloat]):           Unit   = extern
+  def sge_phys_body_get_angle(world:            Long, body: Long):                                 CFloat = extern
+  def sge_phys_body_get_linear_velocity(world:  Long, body: Long, out:     Ptr[CFloat]):           Unit   = extern
+  def sge_phys_body_get_angular_velocity(world: Long, body: Long):                                 CFloat = extern
+  def sge_phys_body_set_position(world:         Long, body: Long, x:       CFloat, y:     CFloat): Unit   = extern
+  def sge_phys_body_set_angle(world:            Long, body: Long, angle:   CFloat):                Unit   = extern
+  def sge_phys_body_set_linear_velocity(world:  Long, body: Long, vx:      CFloat, vy:    CFloat): Unit   = extern
+  def sge_phys_body_set_angular_velocity(world: Long, body: Long, omega:   CFloat):                Unit   = extern
+  def sge_phys_body_apply_force(world:          Long, body: Long, fx:      CFloat, fy:    CFloat): Unit   = extern
+  def sge_phys_body_apply_impulse(world:        Long, body: Long, ix:      CFloat, iy:    CFloat): Unit   = extern
+  def sge_phys_body_apply_torque(world:         Long, body: Long, torque:  CFloat):                Unit   = extern
+  def sge_phys_body_set_linear_damping(world:   Long, body: Long, damping: CFloat):                Unit   = extern
+  def sge_phys_body_set_angular_damping(world:  Long, body: Long, damping: CFloat):                Unit   = extern
+  def sge_phys_body_set_gravity_scale(world:    Long, body: Long, scale:   CFloat):                Unit   = extern
+  def sge_phys_body_is_awake(world:             Long, body: Long):                                 CInt   = extern
+  def sge_phys_body_wake_up(world:              Long, body: Long):                                 Unit   = extern
+  def sge_phys_body_set_fixed_rotation(world:   Long, body: Long, fixed:   CInt):                  Unit   = extern
 
   // Collider
-  def sge_phys_create_circle_collider(world: Long, body: Long, radius: CFloat): Long                           = extern
-  def sge_phys_create_box_collider(world: Long, body: Long, halfWidth: CFloat, halfHeight: CFloat): Long       = extern
-  def sge_phys_create_capsule_collider(world: Long, body: Long, halfHeight: CFloat, radius: CFloat): Long      = extern
-  def sge_phys_create_polygon_collider(world: Long, body: Long, vertices: Ptr[CFloat], vertexCount: CInt): Long = extern
-  def sge_phys_destroy_collider(world: Long, collider: Long): Unit                                               = extern
-  def sge_phys_collider_set_density(world: Long, collider: Long, density: CFloat): Unit                          = extern
-  def sge_phys_collider_set_friction(world: Long, collider: Long, friction: CFloat): Unit                        = extern
-  def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat): Unit                  = extern
-  def sge_phys_collider_set_sensor(world: Long, collider: Long, sensor: CInt): Unit                              = extern
+  def sge_phys_create_circle_collider(world:   Long, body:     Long, radius:      CFloat):                           Long = extern
+  def sge_phys_create_box_collider(world:      Long, body:     Long, halfWidth:   CFloat, halfHeight:       CFloat): Long = extern
+  def sge_phys_create_capsule_collider(world:  Long, body:     Long, halfHeight:  CFloat, radius:           CFloat): Long = extern
+  def sge_phys_create_polygon_collider(world:  Long, body:     Long, vertices:    Ptr[CFloat], vertexCount: CInt):   Long = extern
+  def sge_phys_destroy_collider(world:         Long, collider: Long):                                                Unit = extern
+  def sge_phys_collider_set_density(world:     Long, collider: Long, density:     CFloat):                           Unit = extern
+  def sge_phys_collider_set_friction(world:    Long, collider: Long, friction:    CFloat):                           Unit = extern
+  def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat):                           Unit = extern
+  def sge_phys_collider_set_sensor(world:      Long, collider: Long, sensor:      CInt):                             Unit = extern
 
   // Joints
-  def sge_phys_create_revolute_joint(world: Long, body1: Long, body2: Long, anchorX: CFloat, anchorY: CFloat): Long = extern
-  def sge_phys_create_prismatic_joint(world: Long, body1: Long, body2: Long, axisX: CFloat, axisY: CFloat): Long    = extern
-  def sge_phys_create_fixed_joint(world: Long, body1: Long, body2: Long): Long                                       = extern
-  def sge_phys_destroy_joint(world: Long, joint: Long): Unit                                                            = extern
+  def sge_phys_create_revolute_joint(world:  Long, body1: Long, body2: Long, anchorX: CFloat, anchorY: CFloat): Long = extern
+  def sge_phys_create_prismatic_joint(world: Long, body1: Long, body2: Long, axisX:   CFloat, axisY:   CFloat): Long = extern
+  def sge_phys_create_fixed_joint(world:     Long, body1: Long, body2: Long):                                   Long = extern
+  def sge_phys_destroy_joint(world:          Long, joint: Long):                                                Unit = extern
 
   // Queries
-  def sge_phys_ray_cast(world: Long, originX: CFloat, originY: CFloat, dirX: CFloat, dirY: CFloat, maxDist: CFloat, out: Ptr[CFloat]): CInt = extern
-  def sge_phys_query_point(world: Long, x: CFloat, y: CFloat, outBodies: Ptr[Long], maxResults: CInt): CInt                                 = extern
+  def sge_phys_ray_cast(world:    Long, originX: CFloat, originY: CFloat, dirX:      CFloat, dirY:          CFloat, maxDist: CFloat, out: Ptr[CFloat]): CInt = extern
+  def sge_phys_query_point(world: Long, x:       CFloat, y:       CFloat, outBodies: Ptr[Long], maxResults: CInt):                                      CInt = extern
 
   // Contact events
   def sge_phys_poll_contact_start_events(world: Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
-  def sge_phys_poll_contact_stop_events(world: Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt  = extern
+  def sge_phys_poll_contact_stop_events(world:  Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
 }
 
 /** Scala Native implementation of [[PhysicsOps]] using `@extern` bindings to the Rust `sge_physics` library. */
@@ -239,7 +239,7 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
   override def queryPoint(world: Long, x: Float, y: Float, outBodies: Array[Long], maxResults: Int): Int = {
     val buf   = stackalloc[Long](maxResults)
     val count = PhysicsC.sge_phys_query_point(world, x, y, buf, maxResults)
-    var i = 0
+    var i     = 0
     while (i < count) {
       outBodies(i) = buf(i).toLong
       i += 1
@@ -258,7 +258,7 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
     val buf1  = stackalloc[Long](maxEvents)
     val buf2  = stackalloc[Long](maxEvents)
     val count = PhysicsC.sge_phys_poll_contact_start_events(world, buf1, buf2, maxEvents)
-    var i = 0
+    var i     = 0
     while (i < count) {
       outCollider1(i) = buf1(i).toLong
       outCollider2(i) = buf2(i).toLong
@@ -276,7 +276,7 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
     val buf1  = stackalloc[Long](maxEvents)
     val buf2  = stackalloc[Long](maxEvents)
     val count = PhysicsC.sge_phys_poll_contact_stop_events(world, buf1, buf2, maxEvents)
-    var i = 0
+    var i     = 0
     while (i < count) {
       outCollider1(i) = buf1(i).toLong
       outCollider2(i) = buf2(i).toLong

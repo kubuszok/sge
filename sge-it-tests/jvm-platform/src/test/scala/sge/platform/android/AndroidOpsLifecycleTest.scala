@@ -34,6 +34,7 @@ class AndroidOpsLifecycleTest extends FunSuite {
 
   test("AndroidLifecycleOps has GL surface view methods") {
     val cls = classOf[AndroidLifecycleOps]
+    assert(cls.getMethod("setGLSurfaceView", classOf[GLSurfaceViewOps]) != null)
     assert(cls.getMethod("getGLSurfaceView") != null)
     assert(cls.getMethod("resumeGLSurfaceView") != null)
     assert(cls.getMethod("pauseGLSurfaceView") != null)

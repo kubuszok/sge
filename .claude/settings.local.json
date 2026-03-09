@@ -7,7 +7,12 @@
       "Bash(sbt --client:*)",
       "WebFetch",
       "WebSearch",
-      "Bash(pkill:*)"
+      "Bash(pkill:*)",
+      "Bash(sbt:*)",
+      "Bash(npx:*)",
+      "Bash(cargo:*)",
+      "Bash(nm:*)",
+      "Bash(otool:*)"
     ],
     "deny": [
       "Bash(rg:*)",

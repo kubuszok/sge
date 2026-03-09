@@ -39,7 +39,7 @@ class DemoApp(scenes: Array[DemoScene], sceneDuration: Float = 10f) extends Appl
     initialized = true
   }
 
-  override def resize(width: Int, height: Int): Unit = ()
+  override def resize(width: Pixels, height: Pixels): Unit = ()
 
   override def render(): Unit = {
     if (!initialized) return

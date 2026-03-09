@@ -17,7 +17,6 @@ package platform
 import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.MethodHandle
-import scala.jdk.CollectionConverters.*
 
 /** JVM implementation of [[WindowingOps]] via Panama FFM downcall handles to the GLFW shared library.
   *
@@ -94,6 +93,39 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private lazy val hGetTime        = h("glfwGetTime", FunctionDescriptor.of(D))
   private lazy val hGetPlatform    = h("glfwGetPlatform", FunctionDescriptor.of(I))
   private lazy val hSetWinIcon     = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
+
+  // Platform-native window handle getters (from glfw3native.h)
+  private lazy val hGetCocoaWindow: Option[MethodHandle] = {
+    val opt = lib.find("glfwGetCocoaWindow")
+    if (opt.isPresent) Some(linker.downcallHandle(opt.get(), FunctionDescriptor.of(P, P))) else None
+  }
+
+  // Objective-C runtime handles for getting the contentView from an NSWindow.
+  // ANGLE on macOS (Metal backend) may not recognize NSWindow directly;
+  // it reliably accepts NSView (contentView) for eglCreateWindowSurface.
+  // Objective-C runtime symbols — already loaded by GLFW's Cocoa backend.
+  // Use loaderLookup + defaultLookup to find them without needing explicit dlopen.
+  private lazy val objcLookup: SymbolLookup = {
+    val loader  = SymbolLookup.loaderLookup()
+    val default = linker.defaultLookup()
+    // Chain: first try loader (loaded libs), then default (system C library)
+    name => { val r = loader.find(name); if (r.isPresent) r else default.find(name) }
+  }
+  private lazy val hSelRegisterName: MethodHandle =
+    linker.downcallHandle(objcLookup.find("sel_registerName").orElseThrow(), FunctionDescriptor.of(P, P))
+  private lazy val hObjcMsgSend: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.of(P, P, P))
+  // objc_msgSend variant for sending a BOOL (int) argument
+  private lazy val hObjcMsgSendBool: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.ofVoid(P, P, JAVA_INT))
+  private lazy val hGetX11Window: Option[MethodHandle] = {
+    val opt = lib.find("glfwGetX11Window")
+    if (opt.isPresent) Some(linker.downcallHandle(opt.get(), FunctionDescriptor.of(JAVA_LONG, P))) else None
+  }
+  private lazy val hGetWin32Window: Option[MethodHandle] = {
+    val opt = lib.find("glfwGetWin32Window")
+    if (opt.isPresent) Some(linker.downcallHandle(opt.get(), FunctionDescriptor.of(P, P))) else None
+  }
 
   // Callback setters
   private lazy val hSetFbSizeCb   = h("glfwSetFramebufferSizeCallback", FunctionDescriptor.of(P, P, P))
@@ -180,6 +212,46 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   override def pollEvents(): Unit =
     hPollEvents.invoke()
+
+  override def getNativeWindowHandle(windowHandle: Long): Long = {
+    val platform = getPlatform()
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val nsWindow = hGetCocoaWindow
+        .map { mh =>
+          mh.invoke(ptr(windowHandle)).asInstanceOf[MemorySegment]
+        }
+        .getOrElse(throw new UnsupportedOperationException("glfwGetCocoaWindow not available"))
+      // Get the contentView's CALayer from NSWindow — ANGLE's Metal backend needs a CALayer
+      val arena = Arena.ofConfined()
+      try {
+        val selContentView = hSelRegisterName.invoke(arena.allocateFrom("contentView")).asInstanceOf[MemorySegment]
+        val contentView    = hObjcMsgSend.invoke(nsWindow, selContentView).asInstanceOf[MemorySegment]
+
+        // Enable layer-backing on the contentView (needed for ANGLE Metal)
+        val selSetWantsLayer = hSelRegisterName.invoke(arena.allocateFrom("setWantsLayer:")).asInstanceOf[MemorySegment]
+        hObjcMsgSendBool.invoke(contentView, selSetWantsLayer, 1) // YES
+
+        // Get the CALayer
+        val selLayer = hSelRegisterName.invoke(arena.allocateFrom("layer")).asInstanceOf[MemorySegment]
+        val layer    = hObjcMsgSend.invoke(contentView, selLayer).asInstanceOf[MemorySegment]
+        layer.address()
+      } finally arena.close()
+    } else if (platform == WindowingOps.GLFW_PLATFORM_X11) {
+      hGetX11Window
+        .map { mh =>
+          mh.invoke(ptr(windowHandle)).asInstanceOf[Long]
+        }
+        .getOrElse(throw new UnsupportedOperationException("glfwGetX11Window not available"))
+    } else if (platform == WindowingOps.GLFW_PLATFORM_WIN32) {
+      hGetWin32Window
+        .map { mh =>
+          ptrVal(mh.invoke(ptr(windowHandle)).asInstanceOf[MemorySegment])
+        }
+        .getOrElse(throw new UnsupportedOperationException("glfwGetWin32Window not available"))
+    } else {
+      throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
+    }
+  }
 
   // ─── Window properties ─────────────────────────────────────────────────
 
@@ -703,8 +775,12 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 object WindowingOpsJvm {
 
   /** Creates a WindowingOpsJvm from a GLFW library loaded from the system library path.
+    *
+    * GLFW is compiled from vendored source as part of the native-components Rust build, so it is always available alongside libsge_native_ops in `java.library.path`. No external GLFW installation
+    * required.
+    *
     * @param libName
-    *   the library name (e.g. "glfw", "glfw3")
+    *   the library name (e.g. "glfw")
     */
   def apply(libName: String = "glfw"): WindowingOpsJvm = {
     val found = findLibrary(libName)
@@ -715,57 +791,18 @@ object WindowingOpsJvm {
     new WindowingOpsJvm(lookup)
   }
 
-  /** Locates a shared library on the library path or in the Homebrew Cellar. */
+  /** Locates a shared library on the java.library.path. */
   private def findLibrary(libName: String): java.nio.file.Path = {
     val mappedName = System.mapLibraryName(libName)
     val libPath    = System.getProperty("java.library.path", "")
-    val searchDirs = libPath.split(java.io.File.pathSeparator).toSeq ++
-      brewCellarLibDirs(libName)
-    // Search for exact mapped name, then versioned dylibs (e.g. libglfw.3.4.dylib)
-    val candidates = searchDirs.iterator.flatMap { dir =>
-      val base = java.nio.file.Path.of(dir)
-      if (!java.nio.file.Files.isDirectory(base)) Iterator.empty
-      else {
-        val exact = base.resolve(mappedName)
-        if (java.nio.file.Files.exists(exact)) Iterator(exact)
-        else {
-          // Look for versioned variants: libglfw.3.dylib, libglfw.3.4.dylib, etc.
-          val prefix = s"lib$libName."
-          try {
-            val stream = java.nio.file.Files.list(base)
-            try
-              stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.filter { p =>
-                val name = p.getFileName.toString
-                name.startsWith(prefix) && name.endsWith(".dylib") && name != mappedName
-              }
-            finally stream.close()
-          } catch {
-            case _: java.io.IOException => Iterator.empty
-          }
-        }
-      }
-    }
-    candidates
-      .nextOption()
+    val paths      = libPath.split(java.io.File.pathSeparator)
+    paths.iterator
+      .map(p => java.nio.file.Path.of(p, mappedName))
+      .find(java.nio.file.Files.exists(_))
       .getOrElse(
         throw new UnsatisfiedLinkError(
           s"Cannot find $mappedName in java.library.path: $libPath"
         )
       )
-  }
-
-  /** Homebrew Cellar lib directories for the given library name. */
-  private def brewCellarLibDirs(libName: String): Seq[String] = {
-    val cellar = java.nio.file.Path.of("/opt/homebrew/Cellar", libName)
-    if (!java.nio.file.Files.isDirectory(cellar)) Seq.empty
-    else
-      try {
-        val stream = java.nio.file.Files.list(cellar)
-        try
-          stream.iterator.nn.asInstanceOf[java.util.Iterator[java.nio.file.Path]].asScala.map(_.resolve("lib").toString).toSeq
-        finally stream.close()
-      } catch {
-        case _: java.io.IOException => Seq.empty
-      }
   }
 }

@@ -1,4 +1,5 @@
-import _root_.sge.sbt.{SgeNativeLibs, SgePackaging, SgePlugin}
+import _root_.sge.sbt.{AndroidBuild, AndroidSdk, JvmReleases, BrowserReleases, NativeReleases, Platform, SgePackaging, SgePlugin, SgeProject}
+import sbt.internal.ProjectMatrix
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -14,183 +15,171 @@ ThisBuild / resolvers ++= Seq(
 // Disable cached resolution — stale Coursier cache misses local SNAPSHOT JARs.
 ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
 
-// ── JVM runtime: native libs live in the main repo (one level up) ───
+Global / excludeLintKeys += SgeProject.autoImport.sgeRustLibDir
 
-val demoJvmOpts: Def.Initialize[Seq[String]] = Def.setting {
-  val repoRoot = (ThisBuild / baseDirectory).value / ".."
-  val rustLib  = (repoRoot / "native-components" / "target" / "release").getAbsolutePath
-  val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
-    s"${java.io.File.pathSeparator}/opt/homebrew/lib${java.io.File.pathSeparator}/usr/local/lib"
-  } else ""
-  Seq(
-    s"-Djava.library.path=$rustLib$brewLib",
-    "--enable-native-access=ALL-UNNAMED"
-  )
+// ── Rust library lives in the main repo (one level up) ──────────────
+
+ThisBuild / SgeProject.autoImport.sgeRustLibDir := {
+  (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
 }
-
-val demoJvmFixes: Seq[Setting[_]] = Seq(
-  javaOptions      := demoJvmOpts.value,
-  Test / javaOptions := demoJvmOpts.value
-)
-
-// ── Scala Native linking: Rust library in main repo ─────────────────
-
-val demoNativeLibSettings: Seq[Setting[_]] = SgeNativeLibs.settings ++ Seq(
-  SgeNativeLibs.sgeNativeLibDir := {
-    val repoRoot = (ThisBuild / baseDirectory).value / ".."
-    repoRoot / "native-components" / "target" / "release"
-  }
-)
-
-val demoNativeLinking: Seq[Setting[_]] = demoNativeLibSettings ++ Seq(
-  nativeConfig := {
-    val c      = nativeConfig.value
-    val libDir = SgeNativeLibs.sgeNativeLibDir.value
-    c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
-  }
-)
-
-// ── Common demo settings ────────────────────────────────────────────
-
-val demoCommon: Seq[Setting[_]] =
-  (SgePlugin.commonSettings ++ SgePlugin.relaxedSettings) :+
-    (organization := "com.kubuszok") :+
-    (publish / skip := true)
 
 // ── Adoptium JDK 22 URLs for distribution packaging ──────────────
 
 val adoptiumBase = "https://github.com/adoptium/temurin22-binaries/releases/download/jdk-22.0.2%2B9"
 
-val adoptiumJdkUrls: Map[String, String] = Map(
-  "linux-x86_64"    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_linux_hotspot_22.0.2_9.tar.gz",
-  "linux-aarch64"   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_linux_hotspot_22.0.2_9.tar.gz",
-  "macos-x86_64"    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_mac_hotspot_22.0.2_9.tar.gz",
-  "macos-aarch64"   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_mac_hotspot_22.0.2_9.tar.gz",
-  "windows-x86_64"  -> s"$adoptiumBase/OpenJDK22U-jdk_x64_windows_hotspot_22.0.2_9.zip",
-  "windows-aarch64" -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_windows_hotspot_22.0.2_9.zip"
+val adoptiumJdkUrls: Map[Platform, String] = Map(
+  Platform.LinuxX86_64    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_linux_hotspot_22.0.2_9.tar.gz",
+  Platform.LinuxAarch64   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_linux_hotspot_22.0.2_9.tar.gz",
+  Platform.MacosX86_64    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_mac_hotspot_22.0.2_9.tar.gz",
+  Platform.MacosAarch64   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_mac_hotspot_22.0.2_9.tar.gz",
+  Platform.WindowsX86_64  -> s"$adoptiumBase/OpenJDK22U-jdk_x64_windows_hotspot_22.0.2_9.zip"
+  // WindowsAarch64 omitted: Adoptium JDK 22 has no Windows ARM64 build
 )
 
-def demoJvm(dir: String, pkg: String, title: String): Seq[Setting[_]] =
-  SgePlugin.jvmSettings(projectDir = dir) ++ demoJvmFixes ++
-    SgePackaging.jvmSettings ++ SgePackaging.distSettings ++ Seq(
-      Compile / mainClass        := Some(s"sge.demos.$pkg.DesktopMain"),
-      SgePackaging.sgeAppName    := title,
-      SgePackaging.sgeNativeLibDirs := Seq(
-        (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
-      ),
-      SgePackaging.sgeTargets    := adoptiumJdkUrls,
-      SgePackaging.sgeJlinkModules := Seq(
-        "java.base", "java.desktop", "java.logging", "java.management",
-        "jdk.unsupported", "jdk.zipfs", "java.net.http"
-      )
+// ── Android SDK detection ────────────────────────────────────────────
+
+lazy val hasAndroidSdk: Boolean = AndroidSdk
+  .findSdkRoot(new File(".."))
+  .exists(r => AndroidSdk.androidJar(r).exists())
+
+// ── Per-axis settings ────────────────────────────────────────────────
+
+def androidJvmSettings(dir: String): Seq[Setting[_]] =
+  AndroidBuild.taskSettings ++ Seq(
+    // Conditional scala-android/ sources (only when android.jar is present)
+    Compile / unmanagedSourceDirectories ++= {
+      if (hasAndroidSdk)
+        Seq((ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android")
+      else Seq.empty
+    }
+  )
+
+def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
+  JvmReleases.axisSettings ++ androidJvmSettings(dir) ++ Seq(
+    SgeProject.autoImport.sgeProjectDir := dir,
+    Compile / mainClass := Some(s"sge.demos.$pkg.DesktopMain"),
+    SgePackaging.sgeTargets := adoptiumJdkUrls,
+    SgePackaging.sgeJlinkModules := Seq(
+      "java.base", "java.desktop", "java.logging", "java.management",
+      "jdk.unsupported", "jdk.zipfs", "java.net.http"
     )
+  )
 
-val demoJs: Seq[Setting[_]] =
-  SgePlugin.jsSettings :+ (scalaJSUseMainModuleInitializer := true)
+def jsAxis: Seq[Setting[_]] = BrowserReleases.axisSettings
 
-def demoNative(dir: String): Seq[Setting[_]] =
-  SgePlugin.nativeSettings(projectDir = dir) ++ demoNativeLinking
+def nativeAxis(dir: String): Seq[Setting[_]] =
+  NativeReleases.axisSettings ++ Seq(
+    SgeProject.autoImport.sgeProjectDir := dir
+  )
 
 // ── Shared demo framework ───────────────────────────────────────────
 
 val shared = (projectMatrix in file("shared"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(SgePlugin.commonSettings *)
-  .settings(SgePlugin.relaxedSettings *)
+  .enablePlugins(SgeProject)
   .settings(
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
     publish / skip := true,
     libraryDependencies ++= Seq(
-      "com.kubuszok" %%% "sge-core" % sgeVersion
+      "com.kubuszok" %%% "sge" % sgeVersion
     )
   )
   .jvmPlatform(scalaVersions = Seq(sv),
-    settings = SgePlugin.jvmSettings(projectDir = "shared") ++ demoJvmFixes)
+    settings = SgePlugin.jvmSettings(projectDir = "shared") ++ androidJvmSettings("shared") ++ Seq(
+      fork := true,
+      javaOptions ++= {
+        val rustLib = SgeProject.autoImport.sgeRustLibDir.value.getAbsolutePath
+        val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
+          s"${java.io.File.pathSeparator}/opt/homebrew/lib${java.io.File.pathSeparator}/usr/local/lib"
+        } else ""
+        Seq(s"-Djava.library.path=$rustLib$brewLib", "--enable-native-access=ALL-UNNAMED")
+      },
+      Test / fork := true,
+      Test / javaOptions ++= (javaOptions).value
+    ))
   .jsPlatform(scalaVersions = Seq(sv),
     settings = SgePlugin.jsSettings)
   .nativePlatform(scalaVersions = Seq(sv),
-    settings = SgePlugin.nativeSettings(projectDir = "shared") ++ demoNativeLinking)
+    settings = SgePlugin.nativeSettings(projectDir = "shared") ++ _root_.sge.sbt.SgeNativeLibs.settings ++ Seq(
+      _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
+      nativeConfig := {
+        val c = nativeConfig.value
+        val libDir = _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir.value
+        c.withLinkingOptions(c.linkingOptions ++ _root_.sge.sbt.SgeNativeLibs.linkerFlags(libDir))
+      }
+    ))
 
 // ── Demo projects ───────────────────────────────────────────────────
 // projectMatrix must be assigned directly to a val (sbt macro constraint).
 
-val pong = (projectMatrix in file("pong"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-pong")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("pong", "pong", "SGE Pong"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("pong"))
+def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix =
+  matrix
+    .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
+    .enablePlugins(SgeProject)
+    .settings(name := sbtName, organization := "com.kubuszok", publish / skip := true,
+      SgeProject.autoImport.sgeAppName := title)
+    .dependsOn(shared)
+    .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis(dir, pkg))
+    .jsPlatform(scalaVersions = Seq(sv), settings = jsAxis)
+    .nativePlatform(scalaVersions = Seq(sv), settings = nativeAxis(dir))
 
-val spaceShooter = (projectMatrix in file("space-shooter"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-spaceshooter")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("space-shooter", "spaceshooter", "SGE Space Shooter"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("space-shooter"))
+val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
+val spaceShooter     = demo("space-shooter",     "sge-demo-spaceshooter", "spaceshooter", "SGE Space Shooter")(projectMatrix in file("space-shooter"))
+val tileWorld        = demo("tile-world",        "sge-demo-tileworld",    "tileworld",    "SGE Tile World")(projectMatrix in file("tile-world"))
+val hexTactics       = demo("hex-tactics",       "sge-demo-hextactics",   "hextactics",   "SGE Hex Tactics")(projectMatrix in file("hex-tactics"))
+val curvePlayground  = demo("curve-playground",  "sge-demo-curves",       "curves",       "SGE Curves")(projectMatrix in file("curve-playground"))
+val shaderLab        = demo("shader-lab",        "sge-demo-shaders",      "shaders",      "SGE Shader Lab")(projectMatrix in file("shader-lab"))
+val viewer3d         = demo("viewer-3d",         "sge-demo-viewer3d",     "viewer3d",     "SGE 3D Viewer")(projectMatrix in file("viewer-3d"))
+val particleShow     = demo("particle-show",     "sge-demo-particles",    "particles",    "SGE Particles")(projectMatrix in file("particle-show"))
+val netChat          = demo("net-chat",          "sge-demo-netchat",      "netchat",      "SGE Net Chat")(projectMatrix in file("net-chat"))
+val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
 
-val tileWorld = (projectMatrix in file("tile-world"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-tileworld")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("tile-world", "tileworld", "SGE Tile World"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("tile-world"))
+// ── Release aliases ─────────────────────────────────────────────────
+// Usage: sbt releasePong    — builds JVM (all 6 platforms) + Browser + Native
+//        sbt releaseAll     — builds all demos
 
-val hexTactics = (projectMatrix in file("hex-tactics"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-hextactics")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("hex-tactics", "hextactics", "SGE Hex Tactics"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("hex-tactics"))
+def releaseAlias(name: String, jvm: String, js: String, native: String): Seq[Setting[_]] =
+  addCommandAlias(s"release${name}", s"$jvm/sgePackageAll; $js/sgePackageBrowser; $native/sgePackageNative")
 
-val curvePlayground = (projectMatrix in file("curve-playground"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-curves")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("curve-playground", "curves", "SGE Curves"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("curve-playground"))
+releaseAlias("Pong",         "pong",            "pongJS",            "pongNative")
+releaseAlias("SpaceShooter", "spaceShooter",    "spaceShooterJS",    "spaceShooterNative")
+releaseAlias("TileWorld",    "tileWorld",       "tileWorldJS",       "tileWorldNative")
+releaseAlias("HexTactics",   "hexTactics",      "hexTacticsJS",      "hexTacticsNative")
+releaseAlias("Curves",       "curvePlayground", "curvePlaygroundJS", "curvePlaygroundNative")
+releaseAlias("ShaderLab",    "shaderLab",       "shaderLabJS",       "shaderLabNative")
+releaseAlias("Viewer3d",     "viewer3d",        "viewer3dJS",        "viewer3dNative")
+releaseAlias("Particles",    "particleShow",    "particleShowJS",    "particleShowNative")
+releaseAlias("NetChat",      "netChat",         "netChatJS",         "netChatNative")
+releaseAlias("Viewports",    "viewportGallery", "viewportGalleryJS", "viewportGalleryNative")
 
-val shaderLab = (projectMatrix in file("shader-lab"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-shaders")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("shader-lab", "shaders", "SGE Shader Lab"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("shader-lab"))
+addCommandAlias("releaseAll",
+  "releasePong; releaseSpaceShooter; releaseTileWorld; releaseHexTactics; " +
+  "releaseCurves; releaseShaderLab; releaseViewer3d; releaseParticles; " +
+  "releaseNetChat; releaseViewports"
+)
 
-val viewer3d = (projectMatrix in file("viewer-3d"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-viewer3d")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("viewer-3d", "viewer3d", "SGE 3D Viewer"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("viewer-3d"))
+// ── Android APK aliases ───────────────────────────────────────────────
+// Usage: sbt androidPong        — builds APK for Pong
+//        sbt androidAll         — builds APKs for all demos
+// Requires Android SDK: just android-sdk-setup
 
-val particleShow = (projectMatrix in file("particle-show"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-particles")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("particle-show", "particles", "SGE Particles"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("particle-show"))
+def androidAlias(name: String, jvm: String): Seq[Setting[_]] =
+  addCommandAlias(s"android${name}", s"$jvm/androidSign")
 
-val netChat = (projectMatrix in file("net-chat"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-netchat")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("net-chat", "netchat", "SGE Net Chat"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("net-chat"))
+androidAlias("Pong",         "pong")
+androidAlias("SpaceShooter", "spaceShooter")
+androidAlias("TileWorld",    "tileWorld")
+androidAlias("HexTactics",   "hexTactics")
+androidAlias("Curves",       "curvePlayground")
+androidAlias("ShaderLab",    "shaderLab")
+androidAlias("Viewer3d",     "viewer3d")
+androidAlias("Particles",    "particleShow")
+androidAlias("NetChat",      "netChat")
+androidAlias("Viewports",    "viewportGallery")
 
-val viewportGallery = (projectMatrix in file("viewport-gallery"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .settings(demoCommon *).settings(name := "sge-demo-viewports")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = demoJvm("viewport-gallery", "viewports", "SGE Viewports"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = demoJs)
-  .nativePlatform(scalaVersions = Seq(sv), settings = demoNative("viewport-gallery"))
+addCommandAlias("androidAll",
+  "androidPong; androidSpaceShooter; androidTileWorld; androidHexTactics; " +
+  "androidCurves; androidShaderLab; androidViewer3d; androidParticles; " +
+  "androidNetChat; androidViewports"
+)

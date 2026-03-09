@@ -47,9 +47,8 @@ object SgeNativeLibs {
     "Directory containing platform-specific native libraries for Scala Native linking"
   )
 
-  val sgeNativeLibPlatform = settingKey[String](
-    "Target platform for native library extraction (e.g. 'macos-aarch64'). " +
-      "Defaults to the host platform."
+  val sgeNativeLibPlatform = settingKey[Platform](
+    "Target platform for native library extraction. Defaults to the host platform."
   )
 
   val sgeNativeLibExtract = taskKey[File](
@@ -96,13 +95,13 @@ object SgeNativeLibs {
   /** Find the sge-native-libs JAR for the given platform in the classpath. */
   private def findNativeLibsJar(
       classpath: Seq[Attributed[File]],
-      platform: String,
+      platform: Platform,
       log: sbt.util.Logger
   ): Option[File] = {
     // Look for a JAR whose name matches the platform classifier pattern
     val candidates = classpath.map(_.data).filter { jar =>
       val name = jar.getName
-      name.startsWith("sge-native-libs") && name.contains(platform)
+      name.startsWith("sge-native-libs") && name.contains(platform.classifier)
     }
     candidates.headOption.orElse {
       // Fallback: look for any sge-native-libs JAR and check its contents
@@ -131,8 +130,8 @@ object SgeNativeLibs {
     * └── ...
     * }}}
     */
-  private def localPlatformDir(crossDir: File, platform: String): File =
-    crossDir / platform
+  private def localPlatformDir(crossDir: File, platform: Platform): File =
+    crossDir / platform.classifier
 
   // ── Settings ──────────────────────────────────────────────────────
 
@@ -140,12 +139,12 @@ object SgeNativeLibs {
     * Resolves native libraries from the sge-native-libs classifier JAR.
     */
   lazy val settings: Seq[Setting[_]] = Seq(
-    sgeNativeLibPlatform := SgePlugin.hostPlatform,
+    sgeNativeLibPlatform := Platform.host,
     sgeNativeLibSourceDir := None,
     sgeNativeLibExtract := {
       val log      = streams.value.log
       val platform = sgeNativeLibPlatform.value
-      val outDir   = target.value / "sge-native-libs" / platform
+      val outDir   = target.value / "sge-native-libs" / platform.classifier
       val cp       = (Compile / dependencyClasspathAsJars).value
 
       sgeNativeLibSourceDir.value match {
@@ -187,7 +186,7 @@ object SgeNativeLibs {
     sgeNativeLibDir := {
       sgeNativeLibSourceDir.value match {
         case Some(crossDir) => localPlatformDir(crossDir, sgeNativeLibPlatform.value)
-        case None           => target.value / "sge-native-libs" / sgeNativeLibPlatform.value
+        case None           => target.value / "sge-native-libs" / sgeNativeLibPlatform.value.classifier
       }
     }
   )
@@ -230,8 +229,18 @@ object SgeNativeLibs {
 
   /** Linker flags snippet for use in nativeConfig. */
   def linkerFlags(libDir: File, libName: String = "sge_native_ops"): Seq[String] = {
-    val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
+    val os = System.getProperty("os.name", "").toLowerCase
+    val isWindows = os.contains("win")
+    val isMac = os.contains("mac")
     val base = Seq(s"-L${libDir.getAbsolutePath}", s"-l$libName")
-    if (isWindows) base :+ "-lntdll" else base
+    if (isWindows) base :+ "-lntdll"
+    else if (isMac) {
+      // Homebrew paths for ANGLE (libGLESv2, libEGL), GLFW (libglfw3), etc.
+      val brewPaths = Seq("/opt/homebrew/lib", "/usr/local/lib")
+        .filter(p => new File(p).isDirectory)
+        .flatMap(p => Seq("-L", p))
+      base ++ brewPaths
+    }
+    else base
   }
 }

@@ -13,110 +13,73 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ─── Native Components (Rust library) — native builds ──────────────
-  # Build natively on each runner where we can also run tests.
+  # ─── Native Components (Rust library) ──────────────────────────────
+  # Cross-compile all 6 desktop targets using 2 runners:
+  #   - macOS:  macos-x86_64, macos-aarch64 (native cross-arch)
+  #   - Linux:  linux-x86_64, linux-aarch64 (zigbuild), windows-x86_64, windows-aarch64 (xwin)
+  # Each runner also runs Rust tests for the host platform.
 
-  build-native:
-    name: Native Components (${{ matrix.label }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            label: linux-x86_64
-            platform: linux-x86_64
-            artifact: rust-lib-linux-x86_64
-            lib-glob: |
-              native-components/target/release/libsge_native_ops.so
-              native-components/target/release/libsge_native_ops.a
-          - os: macos-13
-            label: macos-x86_64
-            platform: macos-x86_64
-            artifact: rust-lib-macos-x86_64
-            lib-glob: |
-              native-components/target/release/libsge_native_ops.dylib
-              native-components/target/release/libsge_native_ops.a
-          - os: macos-latest
-            label: macos-aarch64
-            platform: macos-aarch64
-            artifact: rust-lib-macos-aarch64
-            lib-glob: |
-              native-components/target/release/libsge_native_ops.dylib
-              native-components/target/release/libsge_native_ops.a
-          - os: windows-latest
-            label: windows-x86_64
-            platform: windows-x86_64
-            artifact: rust-lib-windows-x86_64
-            lib-glob: |
-              native-components/target/release/sge_native_ops.dll
-              native-components/target/release/sge_native_ops.dll.lib
-              native-components/target/release/sge_native_ops.lib
+  build-native-macos:
+    name: Native Components (macOS x86_64 + aarch64)
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
 
-      - name: Cache Cargo registry and target
+      - name: Cache Cargo
         uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             native-components/target
-          key: rust-${{ matrix.platform }}-${{ hashFiles('native-components/Cargo.lock') }}
-          restore-keys: rust-${{ matrix.platform }}-
+          key: rust-macos-cross-${{ hashFiles('native-components/Cargo.lock') }}
+          restore-keys: rust-macos-cross-
 
-      - name: Build Rust library (release)
-        working-directory: native-components
-        run: cargo build --release
-
-      - name: Run Rust tests
+      - name: Run Rust tests (host)
         working-directory: native-components
         run: cargo test
 
-      - name: Upload Rust artifacts
+      - name: Build macos-aarch64
+        working-directory: native-components
+        run: cargo build --release --target aarch64-apple-darwin
+
+      - name: Build macos-x86_64
+        working-directory: native-components
+        run: cargo build --release --target x86_64-apple-darwin
+
+      - name: Upload macos-aarch64
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.lib-glob }}
+          name: rust-lib-macos-aarch64
           retention-days: 1
+          path: |
+            native-components/target/aarch64-apple-darwin/release/libsge_native_ops.dylib
+            native-components/target/aarch64-apple-darwin/release/libsge_native_ops.a
 
-  # ─── Native Components (Rust library) — cross-compiled builds ──────
-  # Build for platforms where we don't have native runners (aarch64 Linux/Windows).
+      - name: Upload macos-x86_64
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-lib-macos-x86_64
+          retention-days: 1
+          path: |
+            native-components/target/x86_64-apple-darwin/release/libsge_native_ops.dylib
+            native-components/target/x86_64-apple-darwin/release/libsge_native_ops.a
 
-  build-native-cross:
-    name: Native Components (${{ matrix.label }}, cross)
+  build-native-linux-windows:
+    name: Native Components (Linux + Windows, x86_64 + aarch64)
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: linux-aarch64
-            platform: linux-aarch64
-            target: aarch64-unknown-linux-gnu
-            artifact: rust-lib-linux-aarch64
-            tool: zigbuild
-            lib-glob: |
-              native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
-              native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
-          - label: windows-aarch64
-            platform: windows-aarch64
-            target: aarch64-pc-windows-msvc
-            artifact: rust-lib-windows-aarch64
-            tool: xwin
-            lib-glob: |
-              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
-              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
-              native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
     steps:
       - uses: actions/checkout@v4
-
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,x86_64-pc-windows-msvc,aarch64-pc-windows-msvc
 
-      - name: Cache Cargo registry and target
+      - uses: mlugg/setup-zig@v2
+
+      - name: Cache Cargo
         uses: actions/cache@v4
         with:
           path: |
@@ -124,36 +87,71 @@ jobs:
             ~/.cargo/git
             ~/.cargo/bin
             native-components/target
-          key: rust-cross-${{ matrix.platform }}-${{ hashFiles('native-components/Cargo.lock') }}
-          restore-keys: rust-cross-${{ matrix.platform }}-
+          key: rust-linux-cross-${{ hashFiles('native-components/Cargo.lock') }}
+          restore-keys: rust-linux-cross-
 
-      - name: Install Zig (for cargo-zigbuild)
-        if: matrix.tool == 'zigbuild'
-        uses: mlugg/setup-zig@v2
-
-      - name: Install cargo-zigbuild
-        if: matrix.tool == 'zigbuild'
-        run: cargo install cargo-zigbuild --locked
-
-      - name: Install cargo-xwin
-        if: matrix.tool == 'xwin'
-        run: cargo install cargo-xwin --locked
-
-      - name: Cross-compile Rust library
-        working-directory: native-components
+      - name: Install cross-compilation tools
         run: |
-          if [ "${{ matrix.tool }}" = "zigbuild" ]; then
-            cargo zigbuild --release --target ${{ matrix.target }}
-          else
-            cargo xwin build --release --target ${{ matrix.target }}
-          fi
+          cargo install cargo-zigbuild --locked 2>/dev/null || true
+          cargo install cargo-xwin --locked 2>/dev/null || true
 
-      - name: Upload Rust artifacts
+      - name: Run Rust tests (host)
+        working-directory: native-components
+        run: cargo test
+
+      - name: Build linux-x86_64
+        working-directory: native-components
+        run: cargo zigbuild --release --target x86_64-unknown-linux-gnu
+
+      - name: Build linux-aarch64
+        working-directory: native-components
+        run: cargo zigbuild --release --target aarch64-unknown-linux-gnu
+
+      - name: Build windows-x86_64
+        working-directory: native-components
+        run: cargo xwin build --release --target x86_64-pc-windows-msvc
+
+      - name: Build windows-aarch64
+        working-directory: native-components
+        run: cargo xwin build --release --target aarch64-pc-windows-msvc
+
+      - name: Upload linux-x86_64
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: ${{ matrix.lib-glob }}
+          name: rust-lib-linux-x86_64
           retention-days: 1
+          path: |
+            native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.so
+            native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.a
+
+      - name: Upload linux-aarch64
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-lib-linux-aarch64
+          retention-days: 1
+          path: |
+            native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
+            native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
+
+      - name: Upload windows-x86_64
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-lib-windows-x86_64
+          retention-days: 1
+          path: |
+            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll
+            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll.lib
+            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.lib
+
+      - name: Upload windows-aarch64
+        uses: actions/upload-artifact@v4
+        with:
+          name: rust-lib-windows-aarch64
+          retention-days: 1
+          path: |
+            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
+            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
+            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
 
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
@@ -182,7 +180,7 @@ jobs:
 
   test-jvm:
     name: JVM tests (${{ matrix.label }})
-    needs: build-native
+    needs: [build-native-macos, build-native-linux-windows]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -224,7 +222,7 @@ jobs:
 
   test-native:
     name: Scala Native tests (${{ matrix.label }})
-    needs: build-native
+    needs: [build-native-macos, build-native-linux-windows]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

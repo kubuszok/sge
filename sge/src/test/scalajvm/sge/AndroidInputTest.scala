@@ -92,15 +92,16 @@ class AndroidInputTest extends FunSuite {
   }
 
   private class StubLifecycleOps extends AndroidLifecycleOps {
-    override def runOnUiThread(runnable: Runnable): Unit          = runnable.run()
-    override def useImmersiveMode(use:   Boolean):  Unit          = ()
-    override def getAndroidVersion():               Int           = 33
-    override def getNativeHeapAllocatedSize():      Long          = 0L
-    override def finish():                          Unit          = ()
-    override def hasHardwareKeyboard():             Boolean       = false
-    override def getGLSurfaceView():                AnyRef | Null = null
-    override def resumeGLSurfaceView():             Unit          = ()
-    override def pauseGLSurfaceView():              Unit          = ()
+    override def runOnUiThread(runnable: Runnable):         Unit          = runnable.run()
+    override def useImmersiveMode(use:   Boolean):          Unit          = ()
+    override def getAndroidVersion():                       Int           = 33
+    override def getNativeHeapAllocatedSize():              Long          = 0L
+    override def finish():                                  Unit          = ()
+    override def hasHardwareKeyboard():                     Boolean       = false
+    override def setGLSurfaceView(view:  GLSurfaceViewOps): Unit          = ()
+    override def getGLSurfaceView():                        AnyRef | Null = null
+    override def resumeGLSurfaceView():                     Unit          = ()
+    override def pauseGLSurfaceView():                      Unit          = ()
   }
 
   private def createInput(): (AndroidInput, StubSensorOps, StubInputMethodOps, StubHapticsOps) = {

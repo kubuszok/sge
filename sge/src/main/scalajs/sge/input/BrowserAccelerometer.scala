@@ -49,7 +49,7 @@ object BrowserAccelerometer {
   val Permission: String = "accelerometer"
 
   def isSupported: Boolean =
-    !js.isUndefined(js.Dynamic.global.Accelerometer)
+    js.typeOf(js.Dynamic.global.Accelerometer) != "undefined"
 
   def getInstance(): BrowserAccelerometer =
     new BrowserAccelerometer(js.Dynamic.newInstance(js.Dynamic.global.Accelerometer)())

@@ -43,6 +43,9 @@ trait AndroidLifecycleOps {
 
   // ── GL surface ────────────────────────────────────────────────────────
 
+  /** Store the GL surface view ops for lifecycle management (pause/resume). */
+  def setGLSurfaceView(view: GLSurfaceViewOps): Unit
+
   /** Get the GL surface view (as AnyRef) for setting as content view. */
   def getGLSurfaceView(): AnyRef | Null
 

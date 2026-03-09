@@ -268,6 +268,91 @@ test-js:
 test-native: rust-build-static
     sbt --client 'sgeNative/test'
 
+# Run browser integration tests (headless Chromium via Playwright)
+test-browser:
+    sbt --client 'sge-it-browser/test'
+
+# Run Android integration tests (headless AVD emulator via adb)
+# Prerequisites: just android-sdk-setup && just android-emulator-start
+test-android:
+    sbt --client 'sge-it-android/test'
+
+# ── Cross-platform integration tests ────────────────────────────
+
+# Run all integration tests (desktop + browser + android)
+it-all: it-desktop it-browser it-android
+
+# Quick integration tests (desktop only — no emulator/browser needed)
+it-quick: it-desktop
+
+# Desktop integration tests (GLFW + ANGLE + miniaudio, real GL context)
+it-desktop: rust-build angle-setup
+    sbt --client 'sge-it-desktop/test'
+
+# Browser integration tests (headless Chromium via Playwright)
+it-browser:
+    sbt --client 'demoJS/fastLinkJS' && sbt --client 'sge-it-browser/test'
+
+# Android integration tests (headless AVD emulator)
+# Prerequisites: just android-sdk-setup && just android-emulator-start
+it-android:
+    sbt --client 'sge-android-smoke/androidSign' && sbt --client 'sge-it-android/test'
+
+# ── Android SDK & emulator setup ─────────────────────────────────
+
+# Download Android SDK, system image, and emulator (one-time setup)
+android-sdk-setup:
+    sbt --client 'sge-android-smoke/androidSdkRoot'
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    SDKMANAGER="$SDK/cmdline-tools/latest/bin/sdkmanager"
+    echo "Installing emulator + system image..."
+    echo "y" | "$SDKMANAGER" --sdk_root="$SDK" \
+        "emulator" \
+        "platform-tools" \
+        "system-images;android-35;google_apis;arm64-v8a"
+    echo "Creating AVD sge-test-avd..."
+    echo "no" | "$SDK/cmdline-tools/latest/bin/avdmanager" create avd \
+        --name sge-test-avd \
+        --package "system-images;android-35;google_apis;arm64-v8a" \
+        --force
+    echo "Android SDK setup complete."
+
+# Start headless Android emulator in background
+android-emulator-start:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    ADB="$SDK/platform-tools/adb"
+    # Check if already running
+    if "$ADB" devices 2>/dev/null | grep -q "emulator-"; then
+        echo "Emulator already running."
+        exit 0
+    fi
+    echo "Starting headless emulator..."
+    "$SDK/emulator/emulator" -avd sge-test-avd \
+        -no-window -gpu swiftshader_indirect \
+        -no-snapshot -noaudio -no-boot-anim &
+    echo "Waiting for device..."
+    "$ADB" wait-for-device
+    while [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
+        sleep 2
+    done
+    echo "Emulator booted."
+
+# Stop the Android emulator
+android-emulator-stop:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" emu kill 2>/dev/null || true
+    echo "Emulator stopped."
+
+# Build the Android smoke test APK
+android-build-smoke:
+    sbt --client 'sge-android-smoke/androidSign'
+
 # Build Rust + run all platform tests (JVM + JS + Native)
 test-all: rust-build test-jvm test-js test-native
 
@@ -609,8 +694,56 @@ rust-build-all:
 # ── Native Components (Rust library) ─────────────────────────────
 
 # Build the Rust native library (release mode, C ABI for Panama + Scala Native)
+# Also builds vendored GLFW and miniaudio as separate shared libraries.
 rust-build:
     cd native-components && cargo build --release
+
+# Copy pre-built ANGLE libraries (libEGL, libGLESv2) into native-components/target/release/
+# so they're found alongside other native libs via java.library.path.
+# On macOS: uses Homebrew-installed ANGLE (brew install startergo/angle/angle).
+# On Linux/Windows: download from LibGDX Maven artifacts (TODO).
+angle-setup:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    dest="native-components/target/release"
+    mkdir -p "$dest"
+    # Check if ANGLE is already in place
+    if [[ -f "$dest/libEGL.dylib" && -f "$dest/libGLESv2.dylib" ]]; then
+        echo "ANGLE libraries already present in $dest"
+        exit 0
+    fi
+    # macOS: copy from Homebrew Cellar
+    if [[ "$(uname)" == "Darwin" ]]; then
+        angle_lib=""
+        for cellar in /opt/homebrew/Cellar/angle /usr/local/Cellar/angle; do
+            if [[ -d "$cellar" ]]; then
+                # Find latest version
+                angle_lib="$(ls -d "$cellar"/*/lib 2>/dev/null | sort -V | tail -1)"
+                break
+            fi
+        done
+        if [[ -z "$angle_lib" ]]; then
+            echo "ERROR: ANGLE not found in Homebrew. Install with: brew install startergo/angle/angle"
+            exit 1
+        fi
+        echo "Copying ANGLE from $angle_lib to $dest"
+        cp "$angle_lib/libEGL.dylib" "$dest/"
+        cp "$angle_lib/libGLESv2.dylib" "$dest/"
+        # Fix install names so the dynamic linker finds them in the same directory
+        # (Homebrew copies have install names pointing to /opt/homebrew/opt/angle/lib/)
+        install_name_tool -id @rpath/libEGL.dylib "$dest/libEGL.dylib"
+        install_name_tool -id @rpath/libGLESv2.dylib "$dest/libGLESv2.dylib"
+        # libGLESv2 depends on libEGL — fix the reference to use @rpath
+        install_name_tool -change /opt/homebrew/opt/angle/lib/libEGL.dylib @rpath/libEGL.dylib "$dest/libGLESv2.dylib" 2>/dev/null || true
+        install_name_tool -change /usr/local/opt/angle/lib/libEGL.dylib @rpath/libEGL.dylib "$dest/libGLESv2.dylib" 2>/dev/null || true
+        # Re-sign after install_name_tool (macOS SIP kills unsigned modified binaries)
+        codesign --force --sign - "$dest/libEGL.dylib"
+        codesign --force --sign - "$dest/libGLESv2.dylib"
+        echo "ANGLE libraries installed to $dest"
+    else
+        echo "ERROR: Automatic ANGLE setup not yet implemented for $(uname). Place libEGL and libGLESv2 in $dest manually."
+        exit 1
+    fi
 
 # Build the Rust native library with Android JNI bridge
 rust-build-android:

@@ -16,8 +16,7 @@ import sge.utils.Nullable
 
 /** A 2D physics simulation world backed by Rapier2D.
   *
-  * Manages rigid bodies, colliders, joints, and provides ray cast / point query functionality. Each world is
-  * independent and can be stepped at its own rate.
+  * Manages rigid bodies, colliders, joints, and provides ray cast / point query functionality. Each world is independent and can be stepped at its own rate.
   *
   * The world must be [[close]]d when no longer needed to free native resources.
   *
@@ -28,9 +27,9 @@ import sge.utils.Nullable
   */
 class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoCloseable {
 
-  private[physics] val ops: sge.platform.PhysicsOps = PhysicsPlatform.ops
-  private[physics] val handle: Long                 = ops.createWorld(gravityX, gravityY)
-  private var closed: Boolean                       = false
+  private[physics] val ops:    sge.platform.PhysicsOps = PhysicsPlatform.ops
+  private[physics] val handle: Long                    = ops.createWorld(gravityX, gravityY)
+  private var closed:          Boolean                 = false
 
   /** Maximum number of contact events polled per step. */
   private val MaxEvents = 256
@@ -149,14 +148,16 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
   def rayCast(originX: Float, originY: Float, dirX: Float, dirY: Float, maxDist: Float): Nullable[RayCastHit] = {
     checkNotClosed()
     if (ops.rayCast(handle, originX, originY, dirX, dirY, maxDist, rayBuf)) {
-      Nullable(RayCastHit(
-        hitX = rayBuf(0),
-        hitY = rayBuf(1),
-        normalX = rayBuf(2),
-        normalY = rayBuf(3),
-        timeOfImpact = rayBuf(4),
-        bodyHandle = java.lang.Float.floatToRawIntBits(rayBuf(5)).toLong
-      ))
+      Nullable(
+        RayCastHit(
+          hitX = rayBuf(0),
+          hitY = rayBuf(1),
+          normalX = rayBuf(2),
+          normalY = rayBuf(3),
+          timeOfImpact = rayBuf(4),
+          bodyHandle = java.lang.Float.floatToRawIntBits(rayBuf(5)).toLong
+        )
+      )
     } else {
       Nullable.empty
     }
@@ -174,7 +175,7 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       scala.collection.immutable.Seq.empty
     } else {
       val builder = scala.collection.immutable.Seq.newBuilder[Long]
-      var i = 0
+      var i       = 0
       while (i < count) {
         builder += pointBuf(i)
         i += 1
@@ -205,25 +206,23 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
     buildEventPairs(count)
   }
 
-  private def buildEventPairs(count: Int): scala.collection.immutable.Seq[(Long, Long)] = {
+  private def buildEventPairs(count: Int): scala.collection.immutable.Seq[(Long, Long)] =
     if (count == 0) {
       scala.collection.immutable.Seq.empty
     } else {
       val builder = scala.collection.immutable.Seq.newBuilder[(Long, Long)]
-      var i = 0
+      var i       = 0
       while (i < count) {
         builder += ((eventBuf1(i), eventBuf2(i)))
         i += 1
       }
       builder.result()
     }
-  }
 
   /** Releases all native resources held by this world. */
-  override def close(): Unit = {
+  override def close(): Unit =
     if (!closed) {
       closed = true
       ops.destroyWorld(handle)
     }
-  }
 }

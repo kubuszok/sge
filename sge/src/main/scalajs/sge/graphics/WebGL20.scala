@@ -53,6 +53,32 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
   private var shortBuf: Int16Array   = new Int16Array(2000 * 6)
   private var byteBuf:  Int8Array    = new Int8Array(2000 * 6)
 
+  /** Check if a JS value is null or undefined (JS arrays return undefined for out-of-bounds). */
+  protected def isNullOrUndefined(v: js.Dynamic): Boolean =
+    v == null || js.isUndefined(v.asInstanceOf[js.Any])
+
+  // ------ Scala Array → JS TypedArray conversion ------
+
+  protected def toFloat32Array(v: Array[Float], offset: Int): Float32Array = {
+    val arr = new Float32Array(v.length - offset)
+    var i   = 0
+    while (i < arr.length) {
+      arr(i) = v(i + offset)
+      i += 1
+    }
+    arr
+  }
+
+  protected def toInt32Array(v: Array[Int], offset: Int): Int32Array = {
+    val arr = new Int32Array(v.length - offset)
+    var i   = 0
+    while (i < arr.length) {
+      arr(i) = v(i + offset)
+      i += 1
+    }
+    arr
+  }
+
   // ------ Init: disable premultiplied alpha ------
   locally {
     gl.pixelStorei(0x9241, 0) // UNPACK_PREMULTIPLY_ALPHA_WEBGL
@@ -294,7 +320,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
   override def glDeleteProgram(program: Int): Unit = {
     val prog = programs(program)
     removeHandle(programs, program)
-    uniforms(program) = null.asInstanceOf[js.Array[js.Dynamic]]
+    if (program < uniforms.length) uniforms(program) = null.asInstanceOf[js.Array[js.Dynamic]]
     gl.deleteProgram(prog)
   }
 
@@ -499,7 +525,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
         params.flip()
       case GL20.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME =>
         val tex = gl.getFramebufferAttachmentParameter(target, attachment, pname)
-        if (tex == null) params.put(0)
+        if (isNullOrUndefined(tex)) params.put(0)
         else params.put(findKey(textures, tex))
         params.flip()
       case _ =>
@@ -539,7 +565,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
       params.flip()
     } else if (pname == GL20.GL_FRAMEBUFFER_BINDING) {
       val fbo = gl.getParameter(pname)
-      if (fbo == null) params.put(0)
+      if (isNullOrUndefined(fbo)) params.put(0)
       else params.put(findKey(frameBuffers, fbo))
       params.flip()
     } else {
@@ -595,10 +621,12 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
 
   override def glGetUniformLocation(program: Int, name: String): Int = {
     val location = gl.getUniformLocation(programs(program), name)
-    if (location == null) -1
+    if (isNullOrUndefined(location)) -1
     else {
+      // Grow uniforms array if needed (JS arrays return undefined for out-of-bounds)
+      while (uniforms.length <= program) uniforms.push(null.asInstanceOf[js.Array[js.Dynamic]])
       var progUniforms = uniforms(program)
-      if (progUniforms == null) {
+      if (isNullOrUndefined(progUniforms.asInstanceOf[js.Dynamic])) {
         progUniforms = js.Array(js.undefined.asInstanceOf[js.Dynamic])
         uniforms(program) = progUniforms
       }
@@ -721,7 +749,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     pixels:         Buffer
   ): Unit = {
     val t = target.toInt; val w = width.toInt; val h = height.toInt; val f = format.toInt; val dt = `type`.toInt
-    if (pixels == null) {
+    if (pixels == null || js.isUndefined(pixels.asInstanceOf[js.Any])) {
       gl.texImage2D(t, level, internalformat, w, h, border, f, dt, null)
     } else {
       pixels match {
@@ -790,7 +818,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform1fv(getUniformLocation(location), copy(v))
 
   override def glUniform1fv(location: Int, count: Int, v: Array[Float], offset: Int): Unit =
-    gl.uniform1fv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform1fv(getUniformLocation(location), toFloat32Array(v, offset))
 
   override def glUniform1i(location: Int, x: Int): Unit =
     gl.uniform1i(getUniformLocation(location), x)
@@ -799,7 +827,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform1iv(getUniformLocation(location), copy(v))
 
   override def glUniform1iv(location: Int, count: Int, v: Array[Int], offset: Int): Unit =
-    gl.uniform1iv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform1iv(getUniformLocation(location), toInt32Array(v, offset))
 
   override def glUniform2f(location: Int, x: Float, y: Float): Unit =
     gl.uniform2f(getUniformLocation(location), x, y)
@@ -808,7 +836,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform2fv(getUniformLocation(location), copy(v))
 
   override def glUniform2fv(location: Int, count: Int, v: Array[Float], offset: Int): Unit =
-    gl.uniform2fv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform2fv(getUniformLocation(location), toFloat32Array(v, offset))
 
   override def glUniform2i(location: Int, x: Int, y: Int): Unit =
     gl.uniform2i(getUniformLocation(location), x, y)
@@ -817,7 +845,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform2iv(getUniformLocation(location), copy(v))
 
   override def glUniform2iv(location: Int, count: Int, v: Array[Int], offset: Int): Unit =
-    gl.uniform2iv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform2iv(getUniformLocation(location), toInt32Array(v, offset))
 
   override def glUniform3f(location: Int, x: Float, y: Float, z: Float): Unit =
     gl.uniform3f(getUniformLocation(location), x, y, z)
@@ -826,7 +854,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform3fv(getUniformLocation(location), copy(v))
 
   override def glUniform3fv(location: Int, count: Int, v: Array[Float], offset: Int): Unit =
-    gl.uniform3fv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform3fv(getUniformLocation(location), toFloat32Array(v, offset))
 
   override def glUniform3i(location: Int, x: Int, y: Int, z: Int): Unit =
     gl.uniform3i(getUniformLocation(location), x, y, z)
@@ -835,7 +863,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform3iv(getUniformLocation(location), copy(v))
 
   override def glUniform3iv(location: Int, count: Int, v: Array[Int], offset: Int): Unit =
-    gl.uniform3iv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform3iv(getUniformLocation(location), toInt32Array(v, offset))
 
   override def glUniform4f(location: Int, x: Float, y: Float, z: Float, w: Float): Unit =
     gl.uniform4f(getUniformLocation(location), x, y, z, w)
@@ -844,7 +872,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform4fv(getUniformLocation(location), copy(v))
 
   override def glUniform4fv(location: Int, count: Int, v: Array[Float], offset: Int): Unit =
-    gl.uniform4fv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform4fv(getUniformLocation(location), toFloat32Array(v, offset))
 
   override def glUniform4i(location: Int, x: Int, y: Int, z: Int, w: Int): Unit =
     gl.uniform4i(getUniformLocation(location), x, y, z, w)
@@ -853,25 +881,25 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
     gl.uniform4iv(getUniformLocation(location), copy(v))
 
   override def glUniform4iv(location: Int, count: Int, v: Array[Int], offset: Int): Unit =
-    gl.uniform4iv(getUniformLocation(location), v.asInstanceOf[js.Any])
+    gl.uniform4iv(getUniformLocation(location), toInt32Array(v, offset))
 
   override def glUniformMatrix2fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): Unit =
     gl.uniformMatrix2fv(getUniformLocation(location), transpose, copy(value))
 
   override def glUniformMatrix2fv(location: Int, count: Int, transpose: Boolean, value: Array[Float], offset: Int): Unit =
-    gl.uniformMatrix2fv(getUniformLocation(location), transpose, value.asInstanceOf[js.Any])
+    gl.uniformMatrix2fv(getUniformLocation(location), transpose, toFloat32Array(value, offset))
 
   override def glUniformMatrix3fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): Unit =
     gl.uniformMatrix3fv(getUniformLocation(location), transpose, copy(value))
 
   override def glUniformMatrix3fv(location: Int, count: Int, transpose: Boolean, value: Array[Float], offset: Int): Unit =
-    gl.uniformMatrix3fv(getUniformLocation(location), transpose, value.asInstanceOf[js.Any])
+    gl.uniformMatrix3fv(getUniformLocation(location), transpose, toFloat32Array(value, offset))
 
   override def glUniformMatrix4fv(location: Int, count: Int, transpose: Boolean, value: FloatBuffer): Unit =
     gl.uniformMatrix4fv(getUniformLocation(location), transpose, copy(value))
 
   override def glUniformMatrix4fv(location: Int, count: Int, transpose: Boolean, value: Array[Float], offset: Int): Unit =
-    gl.uniformMatrix4fv(getUniformLocation(location), transpose, value.asInstanceOf[js.Any])
+    gl.uniformMatrix4fv(getUniformLocation(location), transpose, toFloat32Array(value, offset))
 
   override def glUseProgram(program: Int): Unit = {
     currProgram = program

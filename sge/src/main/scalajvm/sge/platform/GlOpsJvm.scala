@@ -47,41 +47,46 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
 
   // ─── EGL constants ──────────────────────────────────────────────────────
 
-  private val EGL_DEFAULT_DISPLAY: Long = 0L
-  private val EGL_NO_DISPLAY:      Long = 0L
-  private val EGL_NO_CONTEXT:      Long = 0L
-  private val EGL_NO_SURFACE:      Long = 0L
-  private val EGL_NONE:            Int  = 0x3038
-  private val EGL_RED_SIZE:        Int  = 0x3024
-  private val EGL_GREEN_SIZE:      Int  = 0x3023
-  private val EGL_BLUE_SIZE:       Int  = 0x3022
-  private val EGL_ALPHA_SIZE:      Int  = 0x3021
-  private val EGL_DEPTH_SIZE:      Int  = 0x3025
-  private val EGL_STENCIL_SIZE:    Int  = 0x3026
-  private val EGL_SAMPLE_BUFFERS:  Int  = 0x3032
-  @scala.annotation.nowarn("id=E198") // reserved for future MSAA support
-  private val EGL_SAMPLES:               Int = 0x3031
-  private val EGL_RENDERABLE_TYPE:       Int = 0x3040
-  private val EGL_OPENGL_ES3_BIT:        Int = 0x0040
-  private val EGL_SURFACE_TYPE:          Int = 0x3033
-  private val EGL_WINDOW_BIT:            Int = 0x0004
-  private val EGL_CONTEXT_MAJOR_VERSION: Int = 0x3098
-  private val EGL_CONTEXT_MINOR_VERSION: Int = 0x30fb
+  private val EGL_DEFAULT_DISPLAY:       Long = 0L
+  private val EGL_NO_DISPLAY:            Long = 0L
+  private val EGL_NO_CONTEXT:            Long = 0L
+  private val EGL_NO_SURFACE:            Long = 0L
+  private val EGL_NONE:                  Int  = 0x3038
+  private val EGL_RED_SIZE:              Int  = 0x3024
+  private val EGL_GREEN_SIZE:            Int  = 0x3023
+  private val EGL_BLUE_SIZE:             Int  = 0x3022
+  private val EGL_ALPHA_SIZE:            Int  = 0x3021
+  private val EGL_DEPTH_SIZE:            Int  = 0x3025
+  private val EGL_STENCIL_SIZE:          Int  = 0x3026
+  private val EGL_SAMPLE_BUFFERS:        Int  = 0x3032
+  private val EGL_SAMPLES:               Int  = 0x3031
+  private val EGL_RENDERABLE_TYPE:       Int  = 0x3040
+  private val EGL_OPENGL_ES3_BIT:        Int  = 0x0040
+  private val EGL_SURFACE_TYPE:          Int  = 0x3033
+  private val EGL_WINDOW_BIT:            Int  = 0x0004
+  private val EGL_CONTEXT_MAJOR_VERSION: Int  = 0x3098
+  private val EGL_CONTEXT_MINOR_VERSION: Int  = 0x30fb
+
+  // ANGLE platform display extension constants
+  private val EGL_PLATFORM_ANGLE_ANGLE:              Int = 0x3202
+  private val EGL_PLATFORM_ANGLE_TYPE_ANGLE:         Int = 0x3203
+  private val EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE: Int = 0x3206
 
   // ─── EGL method handles ─────────────────────────────────────────────────
 
-  private lazy val hGetDisplay     = h("eglGetDisplay", FunctionDescriptor.of(P, P))
-  private lazy val hInitialize     = h("eglInitialize", FunctionDescriptor.of(I, P, P, P))
-  private lazy val hChooseConfig   = h("eglChooseConfig", FunctionDescriptor.of(I, P, P, P, I, P))
-  private lazy val hCreateCtx      = h("eglCreateContext", FunctionDescriptor.of(P, P, P, P, P))
-  private lazy val hCreateSurface  = h("eglCreateWindowSurface", FunctionDescriptor.of(P, P, P, P, P))
-  private lazy val hMakeCurrent    = h("eglMakeCurrent", FunctionDescriptor.of(I, P, P, P, P))
-  private lazy val hSwapBuffers    = h("eglSwapBuffers", FunctionDescriptor.of(I, P, P))
-  private lazy val hSwapInterval   = h("eglSwapInterval", FunctionDescriptor.of(I, P, I))
-  private lazy val hDestroyCtx     = h("eglDestroyContext", FunctionDescriptor.of(I, P, P))
-  private lazy val hDestroySurface = h("eglDestroySurface", FunctionDescriptor.of(I, P, P))
-  private lazy val hTerminate      = h("eglTerminate", FunctionDescriptor.of(I, P))
-  private lazy val hGetProcAddr    = h("eglGetProcAddress", FunctionDescriptor.of(P, P))
+  private lazy val hGetPlatformDisplay = h("eglGetPlatformDisplay", FunctionDescriptor.of(P, I, P, P))
+  private lazy val hInitialize         = h("eglInitialize", FunctionDescriptor.of(I, P, P, P))
+  private lazy val hChooseConfig       = h("eglChooseConfig", FunctionDescriptor.of(I, P, P, P, I, P))
+  private lazy val hCreateCtx          = h("eglCreateContext", FunctionDescriptor.of(P, P, P, P, P))
+  private lazy val hCreateSurface      = h("eglCreateWindowSurface", FunctionDescriptor.of(P, P, P, P, P))
+  private lazy val hMakeCurrent        = h("eglMakeCurrent", FunctionDescriptor.of(I, P, P, P, P))
+  private lazy val hSwapBuffers        = h("eglSwapBuffers", FunctionDescriptor.of(I, P, P))
+  private lazy val hSwapInterval       = h("eglSwapInterval", FunctionDescriptor.of(I, P, I))
+  private lazy val hDestroyCtx         = h("eglDestroyContext", FunctionDescriptor.of(I, P, P))
+  private lazy val hDestroySurface     = h("eglDestroySurface", FunctionDescriptor.of(I, P, P))
+  private lazy val hTerminate          = h("eglTerminate", FunctionDescriptor.of(I, P))
+  private lazy val hGetProcAddr        = h("eglGetProcAddress", FunctionDescriptor.of(P, P))
+  private lazy val hGetError           = h("eglGetError", FunctionDescriptor.of(I))
 
   // ─── Helpers ────────────────────────────────────────────────────────────
 
@@ -107,6 +112,9 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
   // We use a global arena so the context struct stays alive for the process
   private val contextArena: Arena = Arena.ofAuto()
 
+  // Cache the EGL display from the last createContext call for setSwapInterval
+  @volatile private var cachedDisplay: MemorySegment = MemorySegment.NULL
+
   // ─── GlOps implementation ──────────────────────────────────────────────
 
   override def createContext(
@@ -122,46 +130,62 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
     val arena = Arena.ofConfined()
     try
       boundary {
-        // Get EGL display
-        val display = hGetDisplay.invoke(ptr(EGL_DEFAULT_DISPLAY)).asInstanceOf[MemorySegment]
-        if (display == MemorySegment.NULL || display.address() == EGL_NO_DISPLAY) break(0L)
+        // Get EGL display using ANGLE platform extension
+        // eglGetPlatformDisplay(EGL_PLATFORM_ANGLE_ANGLE, EGL_DEFAULT_DISPLAY, attribs)
+        // tells ANGLE to use its own backend selection (Metal on macOS, D3D on Windows, etc.)
+        // Note: EGLAttrib is intptr_t (64-bit on 64-bit platforms), NOT EGLint (32-bit)
+        val platformAttribs = arena.allocate(JAVA_LONG, 3)
+        platformAttribs.setAtIndex(JAVA_LONG, 0, EGL_PLATFORM_ANGLE_TYPE_ANGLE.toLong)
+        platformAttribs.setAtIndex(JAVA_LONG, 1, EGL_PLATFORM_ANGLE_TYPE_DEFAULT_ANGLE.toLong)
+        platformAttribs.setAtIndex(JAVA_LONG, 2, EGL_NONE.toLong)
+
+        val display = hGetPlatformDisplay.invoke(EGL_PLATFORM_ANGLE_ANGLE, ptr(EGL_DEFAULT_DISPLAY), platformAttribs).asInstanceOf[MemorySegment]
+        if (display == MemorySegment.NULL || display.address() == EGL_NO_DISPLAY) {
+          scribe.error(s"eglGetPlatformDisplay failed: error=0x${eglError()}")
+          break(0L)
+        }
+        cachedDisplay = display
 
         // Initialize EGL
         val majorSeg   = arena.allocate(I)
         val minorSeg   = arena.allocate(I)
         val initResult = hInitialize.invoke(display, majorSeg, minorSeg).asInstanceOf[Int]
-        if (initResult == 0) break(0L)
-
-        // Choose config
-        val attribList = arena.allocate(JAVA_INT, 19)
-        attribList.setAtIndex(I, 0, EGL_RED_SIZE)
-        attribList.setAtIndex(I, 1, r)
-        attribList.setAtIndex(I, 2, EGL_GREEN_SIZE)
-        attribList.setAtIndex(I, 3, g)
-        attribList.setAtIndex(I, 4, EGL_BLUE_SIZE)
-        attribList.setAtIndex(I, 5, b)
-        attribList.setAtIndex(I, 6, EGL_ALPHA_SIZE)
-        attribList.setAtIndex(I, 7, a)
-        attribList.setAtIndex(I, 8, EGL_DEPTH_SIZE)
-        attribList.setAtIndex(I, 9, depth)
-        attribList.setAtIndex(I, 10, EGL_STENCIL_SIZE)
-        attribList.setAtIndex(I, 11, stencil)
-        attribList.setAtIndex(I, 12, EGL_RENDERABLE_TYPE)
-        attribList.setAtIndex(I, 13, EGL_OPENGL_ES3_BIT)
-        attribList.setAtIndex(I, 14, EGL_SURFACE_TYPE)
-        attribList.setAtIndex(I, 15, EGL_WINDOW_BIT)
-        if (samples > 0) {
-          attribList.setAtIndex(I, 16, EGL_SAMPLE_BUFFERS)
-          attribList.setAtIndex(I, 17, 1)
-          // Rewrite: we'd need a longer array for SAMPLES + EGL_NONE
-          // For simplicity, omit MSAA in the config — ANGLE handles it internally
+        if (initResult == 0) {
+          scribe.error(s"eglInitialize failed: error=0x${eglError()}")
+          break(0L)
         }
-        attribList.setAtIndex(I, 18, EGL_NONE)
+        scribe.info(s"EGL initialized: ${majorSeg.get(I, 0)}.${minorSeg.get(I, 0)}")
+
+        // Choose config — build attribute list dynamically to avoid uninitialized slots
+        val attribs = Array(
+          EGL_RED_SIZE,
+          r,
+          EGL_GREEN_SIZE,
+          g,
+          EGL_BLUE_SIZE,
+          b,
+          EGL_ALPHA_SIZE,
+          a,
+          EGL_DEPTH_SIZE,
+          depth,
+          EGL_STENCIL_SIZE,
+          stencil,
+          EGL_RENDERABLE_TYPE,
+          EGL_OPENGL_ES3_BIT,
+          EGL_SURFACE_TYPE,
+          EGL_WINDOW_BIT
+        ) ++ (if (samples > 0) Array(EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES, samples) else Array.empty[Int]) ++ Array(EGL_NONE)
+
+        val attribList = arena.allocate(JAVA_INT, attribs.length.toLong)
+        attribs.zipWithIndex.foreach { case (v, i) => attribList.setAtIndex(I, i.toLong, v) }
 
         val configSeg    = arena.allocate(P)
         val numConfigs   = arena.allocate(I)
         val chooseResult = hChooseConfig.invoke(display, attribList, configSeg, 1, numConfigs).asInstanceOf[Int]
-        if (chooseResult == 0 || numConfigs.get(I, 0) == 0) break(0L)
+        if (chooseResult == 0 || numConfigs.get(I, 0) == 0) {
+          scribe.error(s"eglChooseConfig failed: result=$chooseResult, numConfigs=${numConfigs.get(I, 0)}, error=0x${eglError()}")
+          break(0L)
+        }
         val config = configSeg.get(P, 0)
 
         // Create context (ES 3.0)
@@ -173,19 +197,26 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         ctxAttribs.setAtIndex(I, 4, EGL_NONE)
 
         val context = hCreateCtx.invoke(display, config, ptr(EGL_NO_CONTEXT), ctxAttribs).asInstanceOf[MemorySegment]
-        if (context == MemorySegment.NULL || context.address() == EGL_NO_CONTEXT) break(0L)
+        if (context == MemorySegment.NULL || context.address() == EGL_NO_CONTEXT) {
+          scribe.error(s"eglCreateContext failed: error=0x${eglError()}")
+          break(0L)
+        }
 
         // Create window surface
         val surfAttribs = arena.allocate(JAVA_INT, 1)
         surfAttribs.setAtIndex(I, 0, EGL_NONE)
         val surface = hCreateSurface.invoke(display, config, ptr(windowHandle), surfAttribs).asInstanceOf[MemorySegment]
         if (surface == MemorySegment.NULL || surface.address() == EGL_NO_SURFACE) {
+          scribe.error(s"eglCreateWindowSurface failed: error=0x${eglError()}")
           hDestroyCtx.invoke(display, context)
           break(0L)
         }
 
         // Make current
-        hMakeCurrent.invoke(display, surface, surface, context)
+        val mcResult = hMakeCurrent.invoke(display, surface, surface, context).asInstanceOf[Int]
+        if (mcResult == 0) {
+          scribe.error(s"eglMakeCurrent failed: error=0x${eglError()}")
+        }
 
         // Store state in a long-lived struct
         val state = contextArena.allocate(ContextLayout)
@@ -196,6 +227,11 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         state.address()
       }
     finally arena.close()
+  }
+
+  private def eglError(): String = {
+    val err = hGetError.invoke().asInstanceOf[Int]
+    f"$err%04x"
   }
 
   private def readState(contextHandle: Long): (MemorySegment, MemorySegment, MemorySegment, MemorySegment) = {
@@ -225,11 +261,9 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
     hSwapBuffers.invoke(display, surface)
   }
 
-  override def setSwapInterval(interval: Int): Unit = {
-    // EGL swap interval applies to the current display
-    val display = hGetDisplay.invoke(ptr(EGL_DEFAULT_DISPLAY)).asInstanceOf[MemorySegment]
-    hSwapInterval.invoke(display, interval)
-  }
+  override def setSwapInterval(interval: Int): Unit =
+    // EGL swap interval applies to the current display (cached from createContext)
+    hSwapInterval.invoke(cachedDisplay, interval)
 
   override def getProcAddress(name: String): Long = {
     val arena = Arena.ofConfined()

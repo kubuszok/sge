@@ -25,6 +25,7 @@ object DesktopApplicationFactory {
   ): DesktopApplication = {
     val windowing = sge.platform.WindowingOpsNative
     val audioOps  = sge.platform.AudioOpsNative
-    new DesktopApplication(listener, config, windowing, audioOps, () => new sge.graphics.AngleGL32Native())
+    val glOps     = sge.platform.GlOpsNative
+    new DesktopApplication(listener, config, windowing, audioOps, glOps, () => new sge.graphics.AngleGL32Native())
   }
 }

@@ -16,8 +16,8 @@ package platform
 
 /** Low-level FreeType operations for font rasterization.
   *
-  * All FreeType objects (Library, Face, GlyphSlot, Glyph, Stroker) are represented as opaque `Long` handles. Bitmap and metrics
-  * data is copied into Scala arrays to avoid cross-platform pointer issues.
+  * All FreeType objects (Library, Face, GlyphSlot, Glyph, Stroker) are represented as opaque `Long` handles. Bitmap and metrics data is copied into Scala arrays to avoid cross-platform pointer
+  * issues.
   */
 private[sge] trait FreetypeOps {
 
@@ -72,15 +72,15 @@ private[sge] trait FreetypeOps {
 
   // ─── Face metrics ───────────────────────────────────────────────────────
 
-  def getFaceFlags(face: Long): Int
-  def getStyleFlags(face: Long): Int
-  def getNumGlyphs(face: Long): Int
-  def getAscender(face: Long): Int
-  def getDescender(face: Long): Int
-  def getHeight(face: Long): Int
-  def getMaxAdvanceWidth(face: Long): Int
-  def getMaxAdvanceHeight(face: Long): Int
-  def getUnderlinePosition(face: Long): Int
+  def getFaceFlags(face:          Long): Int
+  def getStyleFlags(face:         Long): Int
+  def getNumGlyphs(face:          Long): Int
+  def getAscender(face:           Long): Int
+  def getDescender(face:          Long): Int
+  def getHeight(face:             Long): Int
+  def getMaxAdvanceWidth(face:    Long): Int
+  def getMaxAdvanceHeight(face:   Long): Int
+  def getUnderlinePosition(face:  Long): Int
   def getUnderlineThickness(face: Long): Int
 
   // ─── Glyph slot access ─────────────────────────────────────────────────
@@ -92,23 +92,23 @@ private[sge] trait FreetypeOps {
   def getGlyphMetrics(glyphSlot: Long, out: Array[Int]): Unit
 
   def getGlyphLinearHoriAdvance(glyphSlot: Long): Int
-  def getGlyphAdvanceX(glyphSlot: Long): Int
-  def getGlyphAdvanceY(glyphSlot: Long): Int
-  def getGlyphFormat(glyphSlot: Long): Int
+  def getGlyphAdvanceX(glyphSlot:          Long): Int
+  def getGlyphAdvanceY(glyphSlot:          Long): Int
+  def getGlyphFormat(glyphSlot:            Long): Int
 
   // ─── Glyph slot bitmap ──────────────────────────────────────────────────
 
-  def getGlyphBitmapRows(glyphSlot: Long): Int
+  def getGlyphBitmapRows(glyphSlot:  Long): Int
   def getGlyphBitmapWidth(glyphSlot: Long): Int
   def getGlyphBitmapPitch(glyphSlot: Long): Int
 
   /** Copies the glyph slot bitmap buffer into `buffer`. */
   def getGlyphBitmapBuffer(glyphSlot: Long, buffer: Array[Byte], bufferSize: Int): Unit
 
-  def getGlyphBitmapNumGray(glyphSlot: Long): Int
+  def getGlyphBitmapNumGray(glyphSlot:   Long): Int
   def getGlyphBitmapPixelMode(glyphSlot: Long): Int
-  def getGlyphBitmapLeft(glyphSlot: Long): Int
-  def getGlyphBitmapTop(glyphSlot: Long): Int
+  def getGlyphBitmapLeft(glyphSlot:      Long): Int
+  def getGlyphBitmapTop(glyphSlot:       Long): Int
 
   // ─── Size metrics ───────────────────────────────────────────────────────
 

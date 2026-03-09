@@ -26,8 +26,7 @@ import sge.utils.SgeError
 
 /** FreeType font rasterization wrapper.
   *
-  * Provides typed Scala wrappers around opaque FreeType handles (Library, Face, GlyphSlot, Glyph, Stroker, etc). All native
-  * operations are delegated to `FreetypePlatform.ops`.
+  * Provides typed Scala wrappers around opaque FreeType handles (Library, Face, GlyphSlot, Glyph, Stroker, etc). All native operations are delegated to `FreetypePlatform.ops`.
   */
 object FreeType {
 
@@ -241,8 +240,7 @@ object FreeType {
 
   // ─── SizeMetrics ────────────────────────────────────────────────────────
 
-  /** Cached size metrics. Fields correspond to FT_Size_Metrics: xPpem, yPpem, xScale, yScale, ascender, descender, height,
-    * maxAdvance.
+  /** Cached size metrics. Fields correspond to FT_Size_Metrics: xPpem, yPpem, xScale, yScale, ascender, descender, height, maxAdvance.
     */
   class SizeMetrics(private val data: Array[Int]) {
     def xPpem:      Int = data(0)
@@ -255,13 +253,13 @@ object FreeType {
     def maxAdvance: Int = data(7)
 
     // Compatibility aliases matching LibGDX API names
-    def getXppem: Int      = xPpem
-    def getYppem: Int      = yPpem
-    def getXScale: Int     = xScale
-    def getYscale: Int     = yScale
-    def getAscender: Int   = ascender
-    def getDescender: Int  = descender
-    def getHeight: Int     = height
+    def getXppem:      Int = xPpem
+    def getYppem:      Int = yPpem
+    def getXScale:     Int = xScale
+    def getYscale:     Int = yScale
+    def getAscender:   Int = ascender
+    def getDescender:  Int = descender
+    def getHeight:     Int = height
     def getMaxAdvance: Int = maxAdvance
   }
 
@@ -284,11 +282,11 @@ object FreeType {
 
     // Compatibility aliases
     def getLinearHoriAdvance: Int = linearHoriAdvance
-    def getAdvanceX: Int         = advanceX
-    def getAdvanceY: Int         = advanceY
-    def getFormat: Int           = format
-    def getBitmapLeft: Int       = bitmapLeft
-    def getBitmapTop: Int        = bitmapTop
+    def getAdvanceX:          Int = advanceX
+    def getAdvanceY:          Int = advanceY
+    def getFormat:            Int = format
+    def getBitmapLeft:        Int = bitmapLeft
+    def getBitmapTop:         Int = bitmapTop
 
     def getBitmap: Bitmap =
       new Bitmap(address)
@@ -309,9 +307,8 @@ object FreeType {
   class Glyph(private[freetype] var address: Long) extends AutoCloseable {
     private var rendered: Boolean = false
 
-    def strokeBorder(stroker: Stroker, inside: Boolean): Unit = {
+    def strokeBorder(stroker: Stroker, inside: Boolean): Unit =
       address = ops.strokeBorder(address, stroker.address, inside)
-    }
 
     def toBitmap(renderMode: Int): Unit = {
       val bitmap = ops.glyphToBitmap(address, renderMode)
@@ -355,10 +352,10 @@ object FreeType {
     def pixelMode: Int = ops.getGlyphBitmapPixelMode(slotAddress)
 
     // Compatibility aliases
-    def getRows: Int      = rows
-    def getWidth: Int     = width
-    def getPitch: Int     = pitch
-    def getNumGray: Int   = numGray
+    def getRows:      Int = rows
+    def getWidth:     Int = width
+    def getPitch:     Int = pitch
+    def getNumGray:   Int = numGray
     def getPixelMode: Int = pixelMode
 
     /** Returns the bitmap buffer as a byte array. */
@@ -377,11 +374,11 @@ object FreeType {
 
     /** Creates a Pixmap from the bitmap data with the given format, color, and gamma correction. */
     def getPixmap(format: Format, color: Color, gamma: Float)(using Sge): Pixmap = {
-      val w          = width
-      val r          = rows
-      val src        = getBuffer
-      val pMode      = pixelMode
-      val rowBytes   = Math.abs(pitch)
+      val w        = width
+      val r        = rows
+      val src      = getBuffer
+      val pMode    = pixelMode
+      val rowBytes = Math.abs(pitch)
       val pixmap: Pixmap =
         if (color == Color.WHITE && pMode == FT_PIXEL_MODE_GRAY && rowBytes == w && gamma == 1) {
           val pm     = Pixmap(w, r, Format.Alpha)
@@ -390,11 +387,11 @@ object FreeType {
           pixels.rewind()
           pm
         } else {
-          val pm   = Pixmap(w, r, Format.RGBA8888)
-          val rgba = Color.rgba8888(color)
-          val srcRow  = new Array[Byte](rowBytes)
-          val dstRow  = new Array[Int](w)
-          val dst     = pm.getPixels().asIntBuffer()
+          val pm     = Pixmap(w, r, Format.RGBA8888)
+          val rgba   = Color.rgba8888(color)
+          val srcRow = new Array[Byte](rowBytes)
+          val dstRow = new Array[Int](w)
+          val dst    = pm.getPixels().asIntBuffer()
           if (pMode == FT_PIXEL_MODE_MONO) {
             // Use the specified color for each set bit.
             var y = 0
@@ -403,9 +400,9 @@ object FreeType {
               var i = 0
               var x = 0
               while (x < w) {
-                val b = srcRow(i)
+                val b  = srcRow(i)
                 var ii = 0
-                val n = Math.min(8, w - x)
+                val n  = Math.min(8, w - x)
                 while (ii < n) {
                   if ((b & (1 << (7 - ii))) != 0)
                     dstRow(x + ii) = rgba
@@ -466,10 +463,10 @@ object FreeType {
       out
     }
 
-    override def rows: Int      = info(0)
-    override def width: Int     = info(1)
-    override def pitch: Int     = info(2)
-    override def numGray: Int   = info(3)
+    override def rows:      Int = info(0)
+    override def width:     Int = info(1)
+    override def pitch:     Int = info(2)
+    override def numGray:   Int = info(3)
     override def pixelMode: Int = info(4)
 
     override def getBuffer: Array[Byte] = {
@@ -497,11 +494,11 @@ object FreeType {
     def horiAdvance:  Int = data(4)
 
     // Compatibility aliases
-    def getWidth: Int        = width
-    def getHeight: Int       = height
+    def getWidth:        Int = width
+    def getHeight:       Int = height
     def getHoriBearingX: Int = horiBearingX
     def getHoriBearingY: Int = horiBearingY
-    def getHoriAdvance: Int  = horiAdvance
+    def getHoriAdvance:  Int = horiAdvance
   }
 
   // ─── Stroker ────────────────────────────────────────────────────────────

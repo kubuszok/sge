@@ -60,9 +60,9 @@ object SgePlugin {
 
   // ── Dependencies ────────────────────────────────────────────────────
 
-  /** Add sge-core as a JVM dependency. For cross-platform, use %%% in your build.sbt directly. */
+  /** Add sge as a JVM dependency. For cross-platform, use %%% in your build.sbt directly. */
   def coreDep(version: String): Seq[Setting[_]] = Seq(
-    libraryDependencies += "com.kubuszok" %% "sge-core" % version
+    libraryDependencies += "com.kubuszok" %% "sge" % version
   )
 
   // ── Platform settings ───────────────────────────────────────────────
@@ -82,7 +82,7 @@ object SgePlugin {
     Test / javaOptions ++= jvmRuntimeOpts(rustLibPath).value
   )
 
-  /** Scala.js platform settings. Currently empty — scalajs-dom comes transitively from sge-core. */
+  /** Scala.js platform settings. Currently empty — scalajs-dom comes transitively from sge. */
   val jsSettings: Seq[Setting[_]] = Seq.empty
 
   /** Scala Native platform settings: scaladesktop source dir, Rust library linking.
@@ -116,60 +116,20 @@ object SgePlugin {
 
   // ── Native Library Packaging ───────────────────────────────────────
 
-  /** All supported desktop platform classifiers for native library distribution. */
-  val desktopPlatforms: Seq[String] = Seq(
-    "linux-x86_64",
-    "linux-aarch64",
-    "macos-x86_64",
-    "macos-aarch64",
-    "windows-x86_64",
-    "windows-aarch64"
-  )
+  /** @deprecated Use [[Platform.desktop]] instead. */
+  val desktopPlatforms: Seq[String] = Platform.desktop.map(_.classifier)
 
-  /** All supported Android ABI names for native library distribution. */
-  val androidAbis: Seq[String] = Seq(
-    "arm64-v8a",
-    "armeabi-v7a",
-    "x86_64"
-  )
+  /** @deprecated Use [[AndroidAbi.all]] instead. */
+  val androidAbis: Seq[String] = AndroidAbi.all.map(_.name)
 
-  /** Detect the current host platform classifier (e.g. "macos-aarch64"). */
-  def hostPlatform: String = {
-    val os = sys.props("os.name").toLowerCase match {
-      case n if n.contains("linux")  => "linux"
-      case n if n.contains("mac")    => "macos"
-      case n if n.contains("win")    => "windows"
-      case n => throw new RuntimeException(s"Unsupported OS: $n")
-    }
-    val arch = sys.props("os.arch") match {
-      case "amd64" | "x86_64" => "x86_64"
-      case "aarch64" | "arm64" => "aarch64"
-      case a => throw new RuntimeException(s"Unsupported arch: $a")
-    }
-    s"$os-$arch"
-  }
+  /** @deprecated Use [[Platform.host]] instead. */
+  def hostPlatform: String = Platform.host.classifier
 
-  /** Maps platform classifier to Rust target triple. */
-  def platformToRustTarget(platform: String): String = platform match {
-    case "linux-x86_64"    => "x86_64-unknown-linux-gnu"
-    case "linux-aarch64"   => "aarch64-unknown-linux-gnu"
-    case "macos-x86_64"    => "x86_64-apple-darwin"
-    case "macos-aarch64"   => "aarch64-apple-darwin"
-    case "windows-x86_64"  => "x86_64-pc-windows-msvc"
-    case "windows-aarch64" => "aarch64-pc-windows-msvc"
-    case p => throw new RuntimeException(s"Unknown platform: $p")
-  }
+  /** @deprecated Use [[Platform#rustTarget]] instead. */
+  def platformToRustTarget(platform: String): String = Platform.fromClassifier(platform).rustTarget
 
-  /** Maps platform classifier to Scala Native target triple (for future cross-compilation). */
-  def platformToScalaNativeTarget(platform: String): String = platform match {
-    case "linux-x86_64"    => "x86_64-unknown-linux-gnu"
-    case "linux-aarch64"   => "aarch64-unknown-linux-gnu"
-    case "macos-x86_64"    => "x86_64-apple-darwin"
-    case "macos-aarch64"   => "aarch64-apple-darwin"
-    case "windows-x86_64"  => "x86_64-pc-windows-msvc"
-    case "windows-aarch64" => "aarch64-pc-windows-msvc"
-    case p => throw new RuntimeException(s"Unknown platform: $p")
-  }
+  /** @deprecated Use [[Platform#rustTarget]] instead (identical to Rust target). */
+  def platformToScalaNativeTarget(platform: String): String = Platform.fromClassifier(platform).rustTarget
 
   // ── Internal ────────────────────────────────────────────────────────
 
@@ -186,18 +146,17 @@ object SgePlugin {
     if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
   }
 
-  /** JVM runtime options: library path for Rust + Homebrew libs, Panama native access. */
+  /** JVM runtime options: library path for Rust native libs, Panama native access.
+    *
+    * All native libraries (libsge_native_ops, libsge_audio, libglfw) are built from vendored source by the Rust build system and placed in native-components/target/release/. ANGLE (libEGL, libGLESv2) is
+    * bundled there as well. No external Homebrew or system library installations required.
+    */
   private def jvmRuntimeOpts(rustLibPath: Option[String]): Def.Initialize[Seq[String]] = Def.setting {
     val rustLib = rustLibPath.getOrElse {
       ((ThisBuild / baseDirectory).value / "native-components" / "target" / "release").getAbsolutePath
     }
-    val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
-      val arm = "/opt/homebrew/lib"
-      val x86 = "/usr/local/lib"
-      s"${java.io.File.pathSeparator}$arm${java.io.File.pathSeparator}$x86"
-    } else ""
     Seq(
-      s"-Djava.library.path=$rustLib$brewLib",
+      s"-Djava.library.path=$rustLib",
       "--enable-native-access=ALL-UNNAMED"
     )
   }

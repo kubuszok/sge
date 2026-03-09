@@ -96,7 +96,7 @@ val sgeSettings = Seq(
 ```scala
 lazy val core = (projectMatrix in file("core"))
   .settings(commonSettings)
-  .settings(name := "sge-core")
+  .settings(name := "sge")
   .jvmPlatform(scalaVersions = Seq(scala3))
   .jsPlatform(scalaVersions = Seq(scala3))
   .nativePlatform(scalaVersions = Seq(scala3))

@@ -42,7 +42,7 @@ val sge = (projectMatrix in file("sge"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(
-    name := "sge-core",
+    name := "sge",
     organization := "com.kubuszok",
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
@@ -60,10 +60,6 @@ val sge = (projectMatrix in file("sge"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings() ++ Seq(
-      libraryDependencies ++= Seq(
-        "org.jcraft" % "jorbis" % "0.0.17",
-        "com.badlogicgames.jlayer" % "jlayer" % "1.0.1-gdx"
-      ),
       // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
       // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
       Compile / unmanagedClasspath ++= {
@@ -310,19 +306,153 @@ val `sge-physics` = (projectMatrix in file("sge-physics"))
     )
   )
 
+// ── Android smoke test APK ────────────────────────────────────────────
+//
+// Minimal Android app that bootstraps SGE, renders 30 frames, and
+// exits. Built into an APK via AndroidBuild pipeline (d8 → aapt2 →
+// apksigner). Used by sge-it-android to catch runtime crashes.
+//
+// Build: sbt 'sge-android-smoke/androidSign'
+// Prerequisites: Android SDK (run 'just android-sdk-setup')
+
+lazy val `sge-android-smoke` = (project in file("sge-android-smoke"))
+  .disablePlugins(ScalafixPlugin)
+  .settings(_root_.sge.sbt.AndroidBuild.settings *)
+  .settings(
+    name := "sge-android-smoke",
+    organization := "com.kubuszok",
+    publish / skip := true,
+    // Conditional android sources
+    Compile / unmanagedSourceDirectories ++= {
+      if (hasAndroidSdk)
+        Seq(baseDirectory.value / "src" / "main" / "scala-android")
+      else Seq.empty
+    },
+    // Also add sge's JVM platform modules to classpath
+    Compile / unmanagedClasspath ++= {
+      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
+      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
+      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+    }
+  )
+  .dependsOn(sge.jvm(versions.scala))
+
 // ── Integration tests ─────────────────────────────────────────────────
 //
 // Separate non-published modules with isolated classpaths to verify:
 //   - JVM platform provider discovery (PanamaProvider, JdkPanama)
 //   - Android ops API interfaces (self-contained, JDK types only)
-//   - Runtime feature detection in sge core (future)
+//   - Desktop end-to-end: GLFW + ANGLE + miniaudio + FileIO + JSON/XML
+//   - Browser JS output in real headless Chromium (Playwright)
+//   - Android APK on headless emulator with SwiftShader GL ES
 //
 // These modules depend directly on the platform modules (NOT sge) so
 // they test the API/impl boundaries in isolation.
 
+// Desktop integration tests — launches a real GLFW + ANGLE window with
+// miniaudio audio engine and exercises all subsystems end-to-end:
+// bootstrap, GL2D, GL3D, audio, file I/O, JSON/XML parsing.
+//
+// Prerequisites: Rust native lib built (just rust-build)
+//
+// Run: sbt 'sge-it-desktop/test'  or  just it-desktop
+lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
+  .disablePlugins(ScalafixPlugin)
+  .dependsOn(sge.jvm(versions.scala))
+  .settings(
+    scalaVersion := versions.scala,
+    organization := "com.kubuszok",
+    publish / skip := true,
+    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %% "munit"  % versions.munit % Test,
+      "com.outr"      %% "scribe" % versions.scribe,
+      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter % "provided"
+    ),
+    testFrameworks += new TestFramework("munit.Framework"),
+    // Need JVM platform modules on classpath
+    Compile / unmanagedClasspath ++= {
+      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
+      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
+      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+    },
+    Test / unmanagedClasspath ++= {
+      val apiDirs     = (`sge-jvm-platform-api` / Compile / products).value
+      val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
+      val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
+      (apiDirs ++ jdkDirs ++ androidDirs).map(Attributed.blank)
+    },
+    Test / fork := true,
+    Test / javaOptions ++= {
+      // All native libs (sge_native_ops, sge_audio, glfw) are built from vendored source
+      // and placed in native-components/target/release/. ANGLE (EGL, GLESv2) needs to be
+      // bundled there as well (see just angle-setup).
+      val rustLib = ((ThisBuild / baseDirectory).value / "native-components" / "target" / "release").getAbsolutePath
+      // Note: -XstartOnFirstThread is NOT passed here — the munit test launches
+      // the harness as a subprocess with that flag so GLFW runs on thread 0.
+      Seq(
+        s"-Djava.library.path=$rustLib",
+        "--enable-native-access=ALL-UNNAMED"
+      )
+    }
+  )
+
 lazy val `sge-it-jvm-platform` = (project in file("sge-it-tests/jvm-platform"))
   .disablePlugins(ScalafixPlugin)
   .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-jdk`, `sge-jvm-platform-android`)
+  .settings(
+    scalaVersion := versions.scala,
+    organization := "com.kubuszok",
+    publish / skip := true,
+    libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+
+// Browser integration tests — JVM-based Playwright tests that exercise compiled
+// Scala.js output in a real headless Chromium browser. Catches runtime JS errors
+// (ReferenceError, TypeError, null/undefined, TypedArray conversions) that
+// Node.js can't detect.
+//
+// Prerequisites: run `npx playwright@1.49.0 install chromium` once to install
+// the browser binary. Playwright Java auto-manages the driver.
+//
+// Run: sbt 'sge-it-browser/test'  or  just test-browser
+lazy val `sge-it-browser` = (project in file("sge-it-tests/browser"))
+  .disablePlugins(ScalafixPlugin)
+  .settings(
+    scalaVersion := versions.scala,
+    organization := "com.kubuszok",
+    publish / skip := true,
+    // Playwright builds its own JS test harness and loads it in a real browser.
+    libraryDependencies ++= Seq(
+      "org.scalameta"           %% "munit"      % versions.munit % Test,
+      "com.microsoft.playwright" % "playwright"  % "1.49.0"      % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework"),
+    // The test needs the fastLinkJS output from sge. We make it a resource generator
+    // so it's available on the test classpath.
+    Test / resourceGenerators += Def.task {
+      val jsDir = (sge.js(versions.scala) / Compile / fullClasspath).value
+      Seq.empty[File] // resources come from sgeJS classpath, not generated
+    }.taskValue
+  )
+
+// Android integration tests — JVM-based tests that deploy the smoke APK
+// to a headless Android emulator (AVD with SwiftShader) and monitor
+// logcat for runtime crashes. Catches ClassNotFoundException, NPE,
+// UnsatisfiedLinkError, GL errors, and any FATAL exception during
+// app startup.
+//
+// Prerequisites:
+//   1. Android SDK + emulator + system image: just android-sdk-setup
+//   2. Build smoke APK: sbt 'sge-android-smoke/androidSign'
+//   3. Create + start AVD: just android-emulator-start
+//
+// Run: sbt 'sge-it-android/test'  or  just test-android
+lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
+  .disablePlugins(ScalafixPlugin)
   .settings(
     scalaVersion := versions.scala,
     organization := "com.kubuszok",

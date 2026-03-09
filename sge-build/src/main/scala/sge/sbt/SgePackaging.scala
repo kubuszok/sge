@@ -46,7 +46,7 @@ object SgePackaging {
 
   // ── Keys: distribution mode ───────────────────────────────────────
 
-  val sgeTargets          = settingKey[Map[String, String]]("Target platforms and their JDK download URLs")
+  val sgeTargets          = settingKey[Map[Platform, String]]("Target platforms and their JDK download URLs")
   val sgeJlinkModules     = settingKey[Seq[String]]("Java modules to include in the jlinked runtime")
   val sgeRoastVersion     = settingKey[String]("Roast native launcher version")
   val sgeVmArgs           = settingKey[Seq[String]]("JVM arguments passed via Roast config")
@@ -282,11 +282,11 @@ object SgePackaging {
   }
 
   /** Download and extract a JDK, returning the JDK root directory. */
-  private def resolveJdk(url: String, platform: String, cacheDir: File, log: sbt.util.Logger): File = {
+  private def resolveJdk(url: String, platform: Platform, cacheDir: File, log: sbt.util.Logger): File = {
     val jdkCache = cacheDir / "jdks"
     val archive  = downloadToCache(url, jdkCache, log)
     // Use a platform-specific extraction dir to avoid collisions
-    val extractDir = jdkCache / s"extracted-$platform"
+    val extractDir = jdkCache / s"extracted-${platform.classifier}"
     if (!extractDir.exists() || IO.listFiles(extractDir).isEmpty) {
       log.info(s"[sge] Extracting JDK for $platform...")
       IO.delete(extractDir)
@@ -295,30 +295,22 @@ object SgePackaging {
     findJdkRoot(extractDir)
   }
 
-  /** Map SGE platform name to Roast asset name. */
-  private def roastAssetName(platform: String): String = {
-    val (os, arch) = platform.split('-') match {
-      case Array(o, a) => (o, a)
-      case _           => throw new RuntimeException(s"Invalid platform: $platform")
-    }
-    val roastOs = os match {
-      case "linux"   => "linux"
-      case "macos"   => "macos"
-      case "windows" => "win"
-      case _         => throw new RuntimeException(s"Unsupported OS for Roast: $os")
-    }
-    if (os == "windows") s"roast-$roastOs-$arch.exe.zip"
+  /** Map SGE platform to Roast asset name. */
+  private def roastAssetName(platform: Platform): String = {
+    val roastOs = if (platform.isWindows) "win" else platform.os
+    val arch    = platform.arch
+    if (platform.isWindows) s"roast-$roastOs-$arch.exe.zip"
     else s"roast-$roastOs-$arch.zip"
   }
 
   /** Download Roast native launcher binary, returning the executable file. */
-  private def resolveRoast(version: String, platform: String, cacheDir: File, log: sbt.util.Logger): File = {
+  private def resolveRoast(version: String, platform: Platform, cacheDir: File, log: sbt.util.Logger): File = {
     val asset     = roastAssetName(platform)
     val roastDir  = cacheDir / "roast" / version
     val url       = s"https://github.com/fourlastor-alexandria/roast/releases/download/$version/$asset"
     val archive   = downloadToCache(url, roastDir, log)
 
-    val extractDir = roastDir / platform
+    val extractDir = roastDir / platform.classifier
     if (!extractDir.exists() || IO.listFiles(extractDir).isEmpty) {
       IO.delete(extractDir)
       extractZip(archive, extractDir, log)
@@ -330,43 +322,75 @@ object SgePackaging {
       .getOrElse(throw new RuntimeException(s"Roast binary not found in $extractDir"))
   }
 
-  /** Run jlink to create a minimal JRE. */
+  /** Run jlink to create a minimal JRE.
+    *
+    * When the target OS matches the host OS, uses the target JDK's own jlink
+    * binary directly (avoids version mismatch).
+    *
+    * For cross-OS targets (e.g. packaging Windows from macOS), extracts jlink
+    * classes from the target JDK's jmod files and runs them via the host JVM's
+    * classpath. This avoids both the "can't run .exe on macOS" problem and the
+    * "jlink version X does not match target java.base version Y" mismatch.
+    */
   private def runJlink(
       targetJdkRoot: File,
+      targetPlatform: Platform,
       modules: Seq[String],
       outputDir: File,
       log: sbt.util.Logger
   ): File = {
-    // Use the target JDK's own jlink to avoid version mismatch
-    // (e.g. host JDK 25 cannot jlink target JDK 22 modules)
-    val jlink = targetJdkRoot / "bin" / "jlink"
-    if (!jlink.exists()) {
+    val targetJmodsDir = targetJdkRoot / "jmods"
+    if (!targetJmodsDir.exists()) {
       throw new RuntimeException(
-        s"jlink not found at ${jlink.getAbsolutePath}. " +
-          "Ensure the JDK download URL points to a full JDK (not a JRE)."
-      )
-    }
-
-    val jmodsDir = targetJdkRoot / "jmods"
-    if (!jmodsDir.exists()) {
-      throw new RuntimeException(
-        s"jmods directory not found in target JDK: ${jmodsDir.getAbsolutePath}. " +
+        s"jmods directory not found in target JDK: ${targetJmodsDir.getAbsolutePath}. " +
           "Ensure the JDK download URL points to a full JDK (not a JRE)."
       )
     }
 
     IO.delete(outputDir)
 
-    val cmd = Seq(
-      jlink.getAbsolutePath,
-      "--module-path", jmodsDir.getAbsolutePath,
-      "--add-modules", modules.mkString(","),
-      "--output", outputDir.getAbsolutePath,
-      "--strip-debug",
-      "--no-header-files",
-      "--no-man-pages",
-      "--compress", "zip-6"
-    )
+    val hostOs = Platform.host.os
+    val targetOs = targetPlatform.os
+
+    val cmd = if (targetOs == hostOs) {
+      // Same OS: use the target JDK's own jlink binary (version always matches)
+      val jlink = {
+        val unix = targetJdkRoot / "bin" / "jlink"
+        val exe  = targetJdkRoot / "bin" / "jlink.exe"
+        if (unix.exists()) unix else if (exe.exists()) exe
+        else throw new RuntimeException(
+          s"jlink not found in target JDK at ${targetJdkRoot / "bin"}. " +
+            "Ensure the JDK download URL points to a full JDK (not a JRE)."
+        )
+      }
+      log.info(s"[sge] Using target JDK's jlink: ${jlink.getAbsolutePath}")
+      Seq(
+        jlink.getAbsolutePath,
+        "--module-path", targetJmodsDir.getAbsolutePath,
+        "--add-modules", modules.mkString(","),
+        "--output", outputDir.getAbsolutePath,
+        "--strip-debug",
+        "--no-header-files",
+        "--no-man-pages",
+        "--compress", "zip-6"
+      )
+    } else {
+      // Cross-OS: can't run target jlink binary, and host jlink's version check
+      // uses Runtime.version() which can't be overridden. Copy the full target
+      // JDK runtime instead (larger but always correct).
+      log.info(s"[sge] Cross-OS: copying full target JDK runtime for ${targetPlatform.classifier}")
+      IO.createDirectory(outputDir)
+      val dirsToKeep = Set("bin", "lib", "conf", "legal")
+      val children = targetJdkRoot.listFiles()
+      if (children != null) {
+        children.foreach { child =>
+          if (dirsToKeep.contains(child.getName)) {
+            IO.copyDirectory(child, outputDir / child.getName)
+          }
+        }
+      }
+      return outputDir
+    }
 
     log.info(s"[sge] Running jlink with modules: ${modules.mkString(", ")}")
     val proc = new ProcessBuilder(cmd: _*)
@@ -390,7 +414,7 @@ object SgePackaging {
       vmArgs: Seq[String],
       useZgc: Boolean,
       runOnFirstThread: Boolean,
-      platform: String,
+      platform: Platform,
       hasNativeLibs: Boolean
   ): Unit = {
     val cpEntries = jars.map(j => s""""app/$j"""").mkString(",\n    ")
@@ -399,15 +423,13 @@ object SgePackaging {
     val allVmArgs = {
       val base = vmArgs :+ "--enable-native-access=ALL-UNNAMED"
       val withNative =
-        if (hasNativeLibs) {
-          val sep = if (platform.startsWith("windows")) "\\\\" else "/"
-          base :+ s"-Djava.library.path=native"
-        } else base
+        if (hasNativeLibs) base :+ s"-Djava.library.path=native"
+        else base
       withNative
     }
     val vmArgsJson = allVmArgs.map(a => s""""$a"""").mkString(",\n    ")
 
-    val isMac = platform.startsWith("macos")
+    val isMac = platform.isMac
     val json =
       s"""{
          |  "classPath": [
@@ -465,7 +487,7 @@ object SgePackaging {
 
   /** Assemble a distribution package for a single platform. Returns the archive file. */
   private def assemblePlatform(
-      platform: String,
+      platform: Platform,
       appName: String,
       mainClass: String,
       appJar: File,
@@ -481,9 +503,9 @@ object SgePackaging {
       distDir: File,
       log: sbt.util.Logger
   ): File = {
-    val isMac     = platform.startsWith("macos")
-    val isWindows = platform.startsWith("windows")
-    val archiveName = s"$appName-$platform"
+    val isMac     = platform.isMac
+    val isWindows = platform.isWindows
+    val archiveName = s"$appName-${platform.classifier}"
     val workDir   = distDir / archiveName
 
     IO.delete(workDir)
@@ -594,9 +616,10 @@ object SgePackaging {
   // ── Distribution mode tasks ───────────────────────────────────────
 
   private val packagePlatformTask: Def.Initialize[InputTask[File]] = Def.inputTask {
-    val platform = token(Space ~> StringBasic).parsed
-    val log      = streams.value.log
-    val targets  = sgeTargets.value
+    val platformStr = token(Space ~> StringBasic).parsed
+    val platform    = Platform.fromClassifier(platformStr)
+    val log         = streams.value.log
+    val targets     = sgeTargets.value
 
     if (!targets.contains(platform)) {
       val available = if (targets.isEmpty) "none configured" else targets.keys.mkString(", ")
@@ -621,7 +644,7 @@ object SgePackaging {
 
     // Step 3: Create jlinked runtime
     val runtimeDir = distDir / s"runtime-$platform"
-    val jlinked    = runJlink(jdkRoot, sgeJlinkModules.value, runtimeDir, log)
+    val jlinked    = runJlink(jdkRoot, platform, sgeJlinkModules.value, runtimeDir, log)
 
     // Step 4: Download Roast launcher
     val roast = resolveRoast(sgeRoastVersion.value, platform, cacheDir, log)
@@ -667,7 +690,7 @@ object SgePackaging {
 
         val jdkRoot    = resolveJdk(jdkUrl, platform, cacheDir, log)
         val runtimeDir = distDir / s"runtime-$platform"
-        val jlinked    = runJlink(jdkRoot, modules, runtimeDir, log)
+        val jlinked    = runJlink(jdkRoot, platform, modules, runtimeDir, log)
         val roast      = resolveRoast(version, platform, cacheDir, log)
 
         assemblePlatform(
@@ -698,4 +721,136 @@ object SgePackaging {
     sgePackagePlatform  := packagePlatformTask.evaluated,
     sgePackageAll       := packageAllTask.value
   )
+
+  // ── Browser (Scala.js) packaging ───────────────────────────────────
+
+  val sgePackageBrowser = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
+  val sgeBrowserTitle   = settingKey[String]("HTML page title for the browser package")
+
+  /** The fullLinkJS output directory must be provided by the caller, since
+    * sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
+    * {{{
+    * SgePackaging.sgeJsOutputDir := (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
+    * }}}
+    */
+  val sgeJsOutputDir = taskKey[File]("Directory containing fullLinkJS output (main.js)")
+
+  private val packageBrowserTask: Def.Initialize[Task[File]] = Def.task {
+    val log     = streams.value.log
+    val appName = sgeAppName.value
+    val title   = sgeBrowserTitle.value
+    val jsDir   = sgeJsOutputDir.value
+    val outDir  = target.value / "sge-browser" / appName
+
+    IO.delete(outDir)
+    IO.createDirectory(outDir)
+
+    // Copy all JS files from fullLinkJS output
+    IO.listFiles(jsDir).foreach { f =>
+      IO.copyFile(f, outDir / f.getName)
+    }
+
+    // Generate index.html
+    val html = generateHtml(title, appName)
+    IO.write(outDir / "index.html", html)
+
+    log.info(s"[sge] Browser package: ${outDir.getAbsolutePath}")
+    log.info(s"[sge] Serve with: python3 -m http.server -d ${outDir.getAbsolutePath}")
+    outDir
+  }
+
+  private def generateHtml(title: String, appName: String): String =
+    s"""<!DOCTYPE html>
+       |<html lang="en">
+       |<head>
+       |  <meta charset="UTF-8">
+       |  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       |  <title>$title</title>
+       |  <style>
+       |    * { margin: 0; padding: 0; box-sizing: border-box; }
+       |    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+       |    canvas { display: block; }
+       |    #loading {
+       |      position: absolute; top: 50%; left: 50%;
+       |      transform: translate(-50%, -50%);
+       |      color: #ccc; font-family: sans-serif; font-size: 1.2em;
+       |    }
+       |  </style>
+       |</head>
+       |<body>
+       |  <div id="loading">Loading $appName&#8230;</div>
+       |  <script src="main.js"></script>
+       |</body>
+       |</html>
+       |""".stripMargin
+
+  /** Browser packaging settings. Apply to JS platform projects.
+    * Requires the caller to wire `sgeJsOutputDir` to `fullLinkJS / scalaJSLinkerOutputDirectory`.
+    */
+  lazy val browserSettings: Seq[Setting[_]] = Seq(
+    sgeBrowserTitle    := sgeAppName.value,
+    sgePackageBrowser  := packageBrowserTask.value
+  )
+
+  // ── Scala Native packaging ─────────────────────────────────────────
+
+  val sgePackageNative = taskKey[File]("Package Scala Native executable into a distributable directory")
+
+  /** The nativeLink output file must be provided by the caller, since
+    * sbt-scala-native types are not on this plugin's classpath. Wire it in build.sbt:
+    * {{{
+    * SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
+    * }}}
+    */
+  val sgeNativeBinary = taskKey[File]("Scala Native linked executable")
+
+  private val packageNativeTask: Def.Initialize[Task[File]] = Def.task {
+    val log     = streams.value.log
+    val appName = sgeAppName.value
+    val binary  = sgeNativeBinary.value
+    val outDir  = target.value / "sge-native" / appName
+
+    IO.delete(outDir)
+    IO.createDirectory(outDir)
+
+    // Copy the native executable
+    val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
+    val exeName   = if (isWindows) s"$appName.exe" else appName
+    val dest      = outDir / exeName
+    IO.copyFile(binary, dest)
+    dest.setExecutable(true)
+
+    // Copy native shared libraries (if any)
+    val nativeDir = outDir / "lib"
+    var hasNativeLibs = false
+    for {
+      dir  <- sgeNativeLibDirs.value if dir.exists()
+      file <- IO.listFiles(dir) if NativeLibExts.exists(file.getName.endsWith)
+    } {
+      if (!hasNativeLibs) { IO.createDirectory(nativeDir); hasNativeLibs = true }
+      IO.copyFile(file, nativeDir / file.getName)
+    }
+
+    // Create archive
+    val platform  = Platform.host
+    val archive   = if (isWindows) {
+      createZipArchive(outDir, target.value / "sge-native" / s"$appName-native-${platform.classifier}.zip", log)
+    } else {
+      createTarGzArchive(outDir, target.value / "sge-native" / s"$appName-native-${platform.classifier}.tar.gz", log)
+    }
+
+    log.info(s"[sge] Native package: ${archive.getAbsolutePath} (${archive.length() / 1024 / 1024} MB)")
+    archive
+  }
+
+  /** Scala Native packaging settings. Apply to Native platform projects.
+    * Requires the caller to wire `sgeNativeBinary` to `Compile / nativeLink`.
+    */
+  lazy val nativeSettings: Seq[Setting[_]] = Seq(
+    sgePackageNative := packageNativeTask.value
+  )
+
+  // ── Unified release ────────────────────────────────────────────────
+
+  val sgeRelease = taskKey[Seq[File]]("Build all distribution packages: JVM (all platforms) + Browser + Native")
 }

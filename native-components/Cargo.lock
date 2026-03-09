@@ -482,6 +482,7 @@ dependencies = [
 name = "sge-native-ops"
 version = "0.1.0"
 dependencies = [
+ "cc",
  "crossbeam",
  "freetype",
  "jni",

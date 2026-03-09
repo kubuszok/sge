@@ -14,5 +14,5 @@ package platform
 
 private[sge] object FreetypePlatform {
   private val panama: PanamaProvider = Panama.provider
-  val ops: FreetypeOps = new FreetypeOpsPanama(panama)
+  val ops:            FreetypeOps    = new FreetypeOpsPanama(panama)
 }

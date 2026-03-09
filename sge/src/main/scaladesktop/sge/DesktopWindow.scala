@@ -16,7 +16,7 @@
  */
 package sge
 
-import sge.platform.WindowingOps
+import sge.platform.{ GlOps, WindowingOps }
 import sge.utils.Nullable
 import scala.collection.mutable.ArrayBuffer
 
@@ -42,10 +42,12 @@ class DesktopWindow private[sge] (
   private val lifecycleListeners: ArrayBuffer[LifecycleListener],
   private[sge] val config:        DesktopApplicationConfig,
   val application:                DesktopApplicationBase,
-  private val windowing:          WindowingOps
+  private val windowing:          WindowingOps,
+  private val glOps:              GlOps
 ) extends AutoCloseable {
 
   private var _windowHandle:        Long                            = 0L
+  private var _eglContext:          Long                            = 0L
   private var _listenerInitialized: Boolean                         = false
   private var _graphics:            DesktopGraphics                 = scala.compiletime.uninitialized
   private var _input:               DesktopInput                    = scala.compiletime.uninitialized
@@ -154,6 +156,10 @@ class DesktopWindow private[sge] (
   // ─── Accessors ──────────────────────────────────────────────────────────
 
   def getWindowHandle(): Long = _windowHandle
+
+  private[sge] def getEglContext(): Long = _eglContext
+
+  private[sge] def setEglContext(ctx: Long): Unit = _eglContext = ctx
 
   private[sge] def getGraphics(): DesktopGraphics = _graphics
 
@@ -313,12 +319,12 @@ class DesktopWindow private[sge] (
       listener.resize(_graphics.getWidth(), _graphics.getHeight())
       _graphics.update()
       listener.render()
-      windowing.swapBuffers(_windowHandle)
+      glOps.swapEglBuffers(_eglContext)
       true
     } else if (shouldRender) {
       _graphics.update()
       listener.render()
-      windowing.swapBuffers(_windowHandle)
+      glOps.swapEglBuffers(_eglContext)
       if (!iconified) _input.prepareNext()
       true
     } else {
@@ -338,9 +344,9 @@ class DesktopWindow private[sge] (
       _listenerInitialized = true
     }
 
-  /** Makes this window's GL context current and updates the Sge context. */
+  /** Makes this window's EGL context current. ANGLE manages the GL context, not GLFW. */
   private[sge] def makeCurrent(): Unit =
-    windowing.makeContextCurrent(_windowHandle)
+    glOps.makeCurrent(_eglContext)
 
   // ─── Lifecycle ────────────────────────────────────────────────────────
 
@@ -353,6 +359,10 @@ class DesktopWindow private[sge] (
     windowing.setWindowIconifyCallback(_windowHandle, null)
     windowing.setWindowCloseCallback(_windowHandle, null)
     windowing.setDropCallback(_windowHandle, null)
+    if (_eglContext != 0L) {
+      glOps.destroyContext(_eglContext)
+      _eglContext = 0L
+    }
     windowing.destroyWindow(_windowHandle)
   }
 

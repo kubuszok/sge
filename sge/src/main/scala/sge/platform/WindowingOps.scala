@@ -54,6 +54,15 @@ private[sge] trait WindowingOps {
   /** Destroys a previously created window. */
   def destroyWindow(windowHandle: Long): Unit
 
+  /** Returns the platform-native window handle for EGL surface creation.
+    *
+    * On macOS: returns the NSWindow pointer (via `glfwGetCocoaWindow`). On Linux/X11: returns the X11 Window ID (via `glfwGetX11Window`). On Windows: returns the HWND (via `glfwGetWin32Window`).
+    *
+    * @return
+    *   a native window handle suitable for `eglCreateWindowSurface`
+    */
+  def getNativeWindowHandle(windowHandle: Long): Long
+
   /** Returns true if the window has been requested to close. */
   def windowShouldClose(windowHandle: Long): Boolean
 

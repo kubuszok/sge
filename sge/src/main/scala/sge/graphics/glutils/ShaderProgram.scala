@@ -107,6 +107,10 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
 
   /** reference count * */
 
+  // These must be initialized BEFORE compileShaders, because fetchAttributes/fetchUniforms use them.
+  private val params     = BufferUtils.newIntBuffer(1)
+  private val shaderType = BufferUtils.newIntBuffer(1)
+
   compileShaders(actualVertexShader, actualFragmentShader)
   if (compiled) {
     fetchAttributes()
@@ -771,9 +775,6 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     val location = fetchAttributeLocation(name)
     gl.glVertexAttrib4f(location, value1, value2, value3, value4)
   }
-
-  private val params     = BufferUtils.newIntBuffer(1)
-  private val shaderType = BufferUtils.newIntBuffer(1)
 
   private def fetchUniforms(): Unit = {
     params.asInstanceOf[Buffer].clear()

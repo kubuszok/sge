@@ -56,13 +56,26 @@ object BrowserPermissions {
       result.granted()
     } else {
       val query = js.Dynamic.literal(name = permission)
-      nav.permissions.query(query).asInstanceOf[js.Promise[js.Dynamic]].`then` { (status: js.Dynamic) =>
-        val state = status.state.asInstanceOf[String]
-        dispatchState(state, result)
-        status.onchange = { () =>
-          val newState = status.state.asInstanceOf[String]
-          dispatchState(newState, result)
-        }: js.Function0[Unit]
+      try
+        nav.permissions
+          .query(query)
+          .asInstanceOf[js.Promise[js.Dynamic]]
+          .`then`(
+            { (status: js.Dynamic) =>
+              val state = status.state.asInstanceOf[String]
+              dispatchState(state, result)
+              status.onchange = { () =>
+                val newState = status.state.asInstanceOf[String]
+                dispatchState(newState, result)
+              }: js.Function0[Unit]
+            }: js.Function1[js.Dynamic, Unit],
+            { (_: Any) =>
+              // Browser rejected the permission name (e.g. Firefox doesn't support "accelerometer")
+              result.granted() // permissive default
+            }: js.Function1[Any, Unit]
+          )
+      catch {
+        case _: Throwable => result.granted() // permissive default
       }
       ()
     }

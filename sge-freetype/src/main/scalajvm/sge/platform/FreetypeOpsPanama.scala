@@ -112,88 +112,53 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
   )
 
   // Face metrics
-  private val hGetFaceFlags: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_face_flags"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetStyleFlags: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_style_flags"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetNumGlyphs: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_num_glyphs"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetAscender: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_ascender"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetDescender: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_descender"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetHeight: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_height"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetMaxAdvanceWidth: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_max_advance_width"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetMaxAdvanceHeight: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_max_advance_height"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetUnderlinePosition: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_underline_position"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetUnderlineThickness: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_underline_thickness"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetFaceFlags:          MethodHandle = linker.downcallHandle(lookup("sge_ft_get_face_flags"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetStyleFlags:         MethodHandle = linker.downcallHandle(lookup("sge_ft_get_style_flags"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetNumGlyphs:          MethodHandle = linker.downcallHandle(lookup("sge_ft_get_num_glyphs"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetAscender:           MethodHandle = linker.downcallHandle(lookup("sge_ft_get_ascender"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetDescender:          MethodHandle = linker.downcallHandle(lookup("sge_ft_get_descender"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetHeight:             MethodHandle = linker.downcallHandle(lookup("sge_ft_get_height"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetMaxAdvanceWidth:    MethodHandle = linker.downcallHandle(lookup("sge_ft_get_max_advance_width"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetMaxAdvanceHeight:   MethodHandle = linker.downcallHandle(lookup("sge_ft_get_max_advance_height"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetUnderlinePosition:  MethodHandle = linker.downcallHandle(lookup("sge_ft_get_underline_position"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetUnderlineThickness: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_underline_thickness"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
 
   // Glyph slot access
-  private val hGetGlyphSlot: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_slot"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
-  private val hGetGlyphMetrics: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_metrics"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
-  private val hGetGlyphLinearHoriAdvance: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_linear_hori_advance"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphAdvanceX: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_advance_x"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphAdvanceY: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_advance_y"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphFormat: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_format"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphSlot:              MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_slot"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
+  private val hGetGlyphMetrics:           MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_metrics"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
+  private val hGetGlyphLinearHoriAdvance: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_linear_hori_advance"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphAdvanceX:          MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_advance_x"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphAdvanceY:          MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_advance_y"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphFormat:            MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_format"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
 
   // Glyph slot bitmap
-  private val hGetGlyphBitmapRows: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_rows"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapWidth: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_width"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapPitch: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_pitch"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapBuffer: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_buffer"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS, p.JAVA_INT))
-  private val hGetGlyphBitmapNumGray: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_num_gray"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapPixelMode: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_pixel_mode"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapLeft: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_left"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
-  private val hGetGlyphBitmapTop: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph_bitmap_top"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapRows:      MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_rows"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapWidth:     MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_width"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapPitch:     MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_pitch"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapBuffer:    MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_buffer"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS, p.JAVA_INT))
+  private val hGetGlyphBitmapNumGray:   MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_num_gray"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapPixelMode: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_pixel_mode"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapLeft:      MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_left"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
+  private val hGetGlyphBitmapTop:       MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph_bitmap_top"), p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG))
 
   // Size metrics
-  private val hGetSizeMetrics: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_size_metrics"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
+  private val hGetSizeMetrics: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_size_metrics"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
 
   // Stroker
-  private val hStrokerNew: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_stroker_new"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
-  private val hStrokerSet: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_stroker_set"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_INT, p.JAVA_INT, p.JAVA_INT, p.JAVA_INT))
-  private val hStrokerDone: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_stroker_done"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG))
+  private val hStrokerNew:  MethodHandle = linker.downcallHandle(lookup("sge_ft_stroker_new"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
+  private val hStrokerSet:  MethodHandle = linker.downcallHandle(lookup("sge_ft_stroker_set"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_INT, p.JAVA_INT, p.JAVA_INT, p.JAVA_INT))
+  private val hStrokerDone: MethodHandle = linker.downcallHandle(lookup("sge_ft_stroker_done"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG))
 
   // Glyph outline operations
-  private val hGetGlyphAsStroke: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_glyph"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
-  private val hStrokeBorder: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_stroke_border"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT))
-  private val hGlyphToBitmap: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_glyph_to_bitmap"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT))
-  private val hGetBitmapGlyphBitmap: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_bitmap_glyph_bitmap"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
-  private val hGetBitmapGlyphBuffer: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_bitmap_glyph_buffer"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS, p.JAVA_INT))
-  private val hDoneGlyph: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_done_glyph"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG))
+  private val hGetGlyphAsStroke:     MethodHandle = linker.downcallHandle(lookup("sge_ft_get_glyph"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG))
+  private val hStrokeBorder:         MethodHandle = linker.downcallHandle(lookup("sge_ft_stroke_border"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT))
+  private val hGlyphToBitmap:        MethodHandle = linker.downcallHandle(lookup("sge_ft_glyph_to_bitmap"), p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT))
+  private val hGetBitmapGlyphBitmap: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_bitmap_glyph_bitmap"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS))
+  private val hGetBitmapGlyphBuffer: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_bitmap_glyph_buffer"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.ADDRESS, p.JAVA_INT))
+  private val hDoneGlyph:            MethodHandle = linker.downcallHandle(lookup("sge_ft_done_glyph"), p.FunctionDescriptor.ofVoid(p.JAVA_LONG))
 
   // Error
-  private val hGetLastErrorCode: MethodHandle = linker.downcallHandle(
-    lookup("sge_ft_get_last_error_code"), p.FunctionDescriptor.of(p.JAVA_INT))
+  private val hGetLastErrorCode: MethodHandle = linker.downcallHandle(lookup("sge_ft_get_last_error_code"), p.FunctionDescriptor.of(p.JAVA_INT))
 
   // ─── Implementation ────────────────────────────────────────────────────
 

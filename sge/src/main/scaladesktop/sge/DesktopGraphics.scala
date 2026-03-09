@@ -99,7 +99,7 @@ class DesktopGraphics private[sge] (
       window.listener.resize(getWidth(), getHeight())
       update()
       window.listener.render()
-      windowing.swapBuffers(window.getWindowHandle())
+      sge.platform.PlatformOps.gl.swapEglBuffers(window.getEglContext())
     }
   }
 
@@ -384,7 +384,7 @@ class DesktopGraphics private[sge] (
 
   override def setVSync(vsync: Boolean): Unit = {
     window.config.vSyncEnabled = vsync
-    windowing.setSwapInterval(if (vsync) 1 else 0)
+    sge.platform.PlatformOps.gl.setSwapInterval(if (vsync) 1 else 0)
   }
 
   override def setForegroundFPS(fps: Int): Unit =
