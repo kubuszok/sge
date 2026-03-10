@@ -25,9 +25,9 @@ object DesktopHarnessMain {
     config.disableAudio = false
     config.vSyncEnabled = false
 
-    try {
+    try
       sge.DesktopApplicationFactory(harness, config)
-    } catch {
+    catch {
       case e: UnsatisfiedLinkError =>
         System.err.println(s"Native library not found: ${e.getMessage}")
         System.err.println(s"java.library.path: ${System.getProperty("java.library.path", "(not set)")}")

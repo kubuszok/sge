@@ -31,7 +31,21 @@ class DesktopHarness(resultsFile: File) extends ApplicationListener with SgeAwar
     (6, () => { given Sge = sge; JsonXmlCheck.run() }),
     (8, () => { given Sge = sge; GL2DCheck.run() }),
     (10, () => { given Sge = sge; GL3DCheck.run() }),
-    (12, () => { given Sge = sge; AudioCheck.run() })
+    (12, () => { given Sge = sge; AudioCheck.run() }),
+    (14, () => { given Sge = sge; InputCheck.run() }),
+    (16, () => { given Sge = sge; PixmapCheck.run() }),
+    (18, () => { given Sge = sge; TextureCheck.run() }),
+    (20, () => { given Sge = sge; SpriteBatchCheck.run() }),
+    (22, () => { given Sge = sge; FBOCheck.run() }),
+    (24, () => { given Sge = sge; ClipboardCheck.run() }),
+    (26, () => { given Sge = sge; WindowCheck.run() }),
+    (28, () => { given Sge = sge; MusicCheck.run() }),
+    (30, () => { given Sge = sge; MultiSoundCheck.run() }),
+    (32, () => { given Sge = sge; TextureAtlasCheck.run() }),
+    (34, () => { given Sge = sge; WindowResizeCheck.run() }),
+    (36, () => { given Sge = sge; CursorCheck.run() }),
+    (38, () => { given Sge = sge; InputDispatchCheck.run() }),
+    (40, () => { given Sge = sge; FullscreenCheck.run() })
   )
 
   override def sgeAvailable(sge: Sge): Unit =

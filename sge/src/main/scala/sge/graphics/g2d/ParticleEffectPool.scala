@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: PooledEffect moved to companion object (was inner class in Java); Pool type parameter made explicit
  *   Idiom: boundary/break, Nullable, split packages
- *   Issues: PooledEffect.reset() calls this.reset(resetScaling=true, start=false) instead of Java's super.reset() via Pool.free()
+ *   Convention: PooledEffect.reset() delegates to super.reset() matching Java (no reset() override in Java PooledEffect)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -62,7 +62,7 @@ object ParticleEffectPool {
     */
   class PooledEffect(effect: ParticleEffect, pool: Pool[ParticleEffectPool.PooledEffect])(using Sge) extends ParticleEffect(effect) {
     override def reset(): Unit =
-      this.reset(resetScaling = true, start = false)
+      super.reset()
 
     def free(): Unit =
       pool.free(this)

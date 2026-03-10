@@ -173,7 +173,7 @@ class PointSpriteParticleBatch(
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("pointSpriteBatch")
     texture.foreach { tex =>
-      data.saveAsset(manager.assetFileName(tex).getOrElse(""), classOf[Texture])
+      data.saveAsset[Texture](manager.assetFileName(tex).getOrElse(""))
     }
   }
 

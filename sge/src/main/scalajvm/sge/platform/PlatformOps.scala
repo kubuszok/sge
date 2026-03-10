@@ -17,6 +17,7 @@ private[sge] object PlatformOps {
 
   val etc1:   ETC1Ops   = new ETC1OpsPanama(panama)
   val buffer: BufferOps = new BufferOpsPanama(panama)
+  val gdx2d:  Gdx2dOps  = Gdx2dOpsJvm
 
   // Desktop backend FFI — set by the DesktopApplication during initialization.
   // Null until a desktop backend is running (headless mode doesn't need them).

@@ -14,6 +14,8 @@ object SoundId {
 
   def apply(value: Long): SoundId = value
 
+  given utils.MkArray[SoundId] = utils.MkArray.mkLong.asInstanceOf[utils.MkArray[SoundId]]
+
   extension (soundId: SoundId) {
     inline def toLong: Long = soundId
   }

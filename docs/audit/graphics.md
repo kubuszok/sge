@@ -1,6 +1,6 @@
 # Audit: sge.graphics
 
-Audited: 26/26 files | Pass: 25 | Minor: 0 | Major: 1
+Audited: 26/26 files | Pass: 26 | Minor: 0 | Major: 0
 Last updated: 2026-03-04
 
 ---
@@ -151,17 +151,12 @@ Complete trait with `Factory` object.
 
 All methods match.
 
-### Pixmap.scala — major_issues
+### Pixmap.scala — pass
 
 | SGE path | `core/src/main/scala/sge/graphics/Pixmap.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/Pixmap.java` |
 
-**Issues**:
-- `major`: `drawPixmap(7-arg)` is a STUB — empty body
-- `major`: `getPixel()` is a STUB — always returns 0
-- `major`: `getPixels()` is a STUB — returns empty ByteBuffer
-- `major`: Missing many Java methods: `setColor(Color)`, `setColor(float,float,float,float)`, `drawLine`, `drawRect`, `drawCircle`, `fillRect`, `fillCircle`, `drawPixmap(9-arg scaled)`, `fill`, `getBlending`, `setFilter`
-- Blending/Filter/Format enums are COMPLETE
+All drawing methods implemented: `setColor` (3 overloads), `fill`, `drawLine`, `drawRectangle`, `fillRectangle`, `drawCircle`, `fillCircle`, `fillTriangle`, `drawPixmap` (3 overloads), `getPixel`, `getPixels`, `setBlending`, `getBlending`, `setFilter`. Blending/Filter/Format enums complete.
 
 ### PixmapIO.scala — pass
 

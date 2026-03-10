@@ -26,7 +26,7 @@ class PoolManager {
 
   /** Registers a new pool with the given supplier. Will throw an exception, if a pool for the same class is already registered.
     */
-  def addPool[T: ClassTag](poolSupplier: () => T): Unit =
+  def addPool[T: ClassTag](poolSupplier: () => T)(using Poolable[T]): Unit =
     addPool(Pool.Default[T](poolSupplier))
 
   /** Registers the new pool. Will throw an exception, if a pool for the same class is already registered */

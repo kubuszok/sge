@@ -9,12 +9,16 @@
 package sge
 package graphics
 
+import sge.utils.MkArray
+
 /** Opaque types for GL object handles, preventing accidental mixing of texture handles with buffer handles, shader handles, etc.
   */
 opaque type TextureHandle = Int
 object TextureHandle {
   def apply(raw: Int): TextureHandle = raw
   val none:            TextureHandle = 0
+
+  given MkArray[TextureHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[TextureHandle]]
 
   extension (h: TextureHandle) {
     inline def toInt: Int = h
@@ -26,6 +30,8 @@ object BufferHandle {
   def apply(raw: Int): BufferHandle = raw
   val none:            BufferHandle = 0
 
+  given MkArray[BufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[BufferHandle]]
+
   extension (h: BufferHandle) {
     inline def toInt: Int = h
   }
@@ -35,6 +41,8 @@ opaque type ShaderHandle = Int
 object ShaderHandle {
   def apply(raw: Int): ShaderHandle = raw
   val none:            ShaderHandle = 0
+
+  given MkArray[ShaderHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[ShaderHandle]]
 
   extension (h: ShaderHandle) {
     inline def toInt: Int = h
@@ -46,6 +54,8 @@ object ProgramHandle {
   def apply(raw: Int): ProgramHandle = raw
   val none:            ProgramHandle = 0
 
+  given MkArray[ProgramHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[ProgramHandle]]
+
   extension (h: ProgramHandle) {
     inline def toInt: Int = h
   }
@@ -56,6 +66,8 @@ object FramebufferHandle {
   def apply(raw: Int): FramebufferHandle = raw
   val none:            FramebufferHandle = 0
 
+  given MkArray[FramebufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[FramebufferHandle]]
+
   extension (h: FramebufferHandle) {
     inline def toInt: Int = h
   }
@@ -65,6 +77,8 @@ opaque type RenderbufferHandle = Int
 object RenderbufferHandle {
   def apply(raw: Int): RenderbufferHandle = raw
   val none:            RenderbufferHandle = 0
+
+  given MkArray[RenderbufferHandle] = utils.MkArray.mkInt.asInstanceOf[MkArray[RenderbufferHandle]]
 
   extension (h: RenderbufferHandle) {
     inline def toInt: Int = h

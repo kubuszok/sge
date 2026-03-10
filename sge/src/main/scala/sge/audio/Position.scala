@@ -12,6 +12,8 @@ package audio
 opaque type Position = Float
 object Position {
 
+  given utils.MkArray[Position] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Position]]
+
   def parse(seconds: Float): Either[String, Position] =
     if (seconds < 0.0) Left(s"Position must be greater than 0, got $seconds")
     else Right(seconds)

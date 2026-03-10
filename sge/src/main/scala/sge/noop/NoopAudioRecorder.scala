@@ -11,7 +11,7 @@ package sge
 package noop
 
 /** A no-op [[sge.audio.AudioRecorder]] implementation for headless/testing use. */
-class NoopAudioRecorder extends audio.AudioRecorder {
+final class NoopAudioRecorder extends audio.AudioRecorder {
 
   override def read(samples: Array[Short], offset: Int, numSamples: Int): Unit = {}
 

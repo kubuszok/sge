@@ -301,8 +301,39 @@ class DefaultDesktopInput private[sge] (
     hint:     String,
     `type`:   OnscreenKeyboardType
   ): Unit =
-    // FIXME getTextInput does nothing on desktop
-    listener.canceled()
+    // Swing is only available on JVM, not Scala Native. Use reflection to detect it.
+    try {
+      val jOptionPaneClass = Class.forName("javax.swing.JOptionPane")
+      val swingUtilsClass  = Class.forName("javax.swing.SwingUtilities")
+      val componentClass   = Class.forName("java.awt.Component")
+      val iconClass        = Class.forName("javax.swing.Icon")
+      val invokeLater      = swingUtilsClass.getMethod("invokeLater", classOf[Runnable])
+      val showInputDialog  = jOptionPaneClass.getMethod(
+        "showInputDialog",
+        componentClass,
+        classOf[Object],
+        classOf[String],
+        classOf[Int],
+        iconClass,
+        classOf[Array[Object]],
+        classOf[Object]
+      )
+      val plainMessage = jOptionPaneClass.getField("PLAIN_MESSAGE").get(null)
+      invokeLater.invoke(
+        null,
+        (() => {
+          val message = if (hint.nonEmpty) hint else title
+          val result  = showInputDialog.invoke(null, null, message, title, plainMessage, null, null, text)
+          window.application.postRunnable(() =>
+            if (result != null) listener.input(result.toString)
+            else listener.canceled()
+          )
+        }): Runnable
+      )
+    } catch {
+      case _: Exception =>
+        listener.canceled()
+    }
 
   override def currentEventTime: Nanos = eventQueue.currentEventTime
 

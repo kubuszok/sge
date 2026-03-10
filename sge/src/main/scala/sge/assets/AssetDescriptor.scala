@@ -14,6 +14,8 @@
 package sge
 package assets
 
+import scala.reflect.ClassTag
+
 import sge.files.FileHandle
 import sge.utils.Nullable
 
@@ -45,4 +47,16 @@ final case class AssetDescriptor[T](
 
   override def toString: String =
     s"$fileName, ${`type`.getName}"
+}
+
+object AssetDescriptor {
+
+  def apply[T: ClassTag](fileName: String): AssetDescriptor[T] =
+    AssetDescriptor[T](fileName, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty, Nullable.empty)
+
+  def apply[T: ClassTag](fileName: String, params: AssetLoaderParameters[T]): AssetDescriptor[T] =
+    AssetDescriptor(fileName, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable(params))
+
+  def apply[T: ClassTag](file: FileHandle): AssetDescriptor[T] =
+    AssetDescriptor(file.path(), summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty, Nullable(file))
 }

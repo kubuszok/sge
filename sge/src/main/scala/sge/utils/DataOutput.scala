@@ -22,7 +22,7 @@ import scala.util.boundary
   * @author
   *   Nathan Sweet (original implementation)
   */
-class DataOutput(out: OutputStream) extends DataOutputStream(out) {
+final class DataOutput(out: OutputStream) extends DataOutputStream(out) {
 
   /** Writes a 1-5 byte int.
     * @param optimizePositive

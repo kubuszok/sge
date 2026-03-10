@@ -42,7 +42,7 @@ import sge.assets.loaders.{
   TextureLoader
 }
 import sge.graphics.g2d.PolygonRegionLoader
-import sge.graphics.g3d.loader.{ G3dModelLoader, ObjLoader }
+import sge.graphics.g3d.loader.{ G3dBinaryModelLoader, G3dModelLoader, ObjLoader }
 import sge.utils.{ DynamicArray, Nullable, ObjectMap, ObjectSet, SgeError, TimeUtils }
 
 /** Loads and stores assets like textures, bitmapfonts, tile maps, sounds, music and so on.
@@ -88,7 +88,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     setLoader[sge.graphics.g2d.PolygonRegion](PolygonRegionLoader(resolver))
     setLoader[sge.utils.I18NBundle](I18NBundleLoader(resolver))
     setLoader[sge.graphics.g3d.Model](".g3dj", G3dModelLoader(resolver))
-    // .g3db skipped: UBJsonReader not ported
+    setLoader[sge.graphics.g3d.Model](".g3db", G3dBinaryModelLoader(resolver))
     setLoader[sge.graphics.g3d.Model](".obj", ObjLoader(resolver))
     setLoader[sge.graphics.glutils.ShaderProgram](ShaderProgramLoader(resolver))
     setLoader[sge.graphics.Cubemap](CubemapLoader(resolver))
@@ -851,5 +851,5 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
 object AssetManager {
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
-  private[assets] class RefCountedContainer(var obj: Any = null, var refCount: Int = 1) // null: internal mutable container
+  final private[assets] class RefCountedContainer(var obj: Any = null, var refCount: Int = 1) // null: internal mutable container
 }

@@ -42,7 +42,7 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
   private val gravBuf = new Array[Float](2)
 
   /** Scratch buffer for ray cast results. */
-  private val rayBuf = new Array[Float](6)
+  private val rayBuf = new Array[Float](7)
 
   /** Scratch buffer for point query results. */
   private val pointBuf = new Array[Long](64)
@@ -155,7 +155,8 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
           normalX = rayBuf(2),
           normalY = rayBuf(3),
           timeOfImpact = rayBuf(4),
-          bodyHandle = java.lang.Float.floatToRawIntBits(rayBuf(5)).toLong
+          bodyHandle = (java.lang.Float.floatToRawIntBits(rayBuf(5)).toLong & 0xffffffffL) |
+            ((java.lang.Float.floatToRawIntBits(rayBuf(6)).toLong & 0xffffffffL) << 32)
         )
       )
     } else {

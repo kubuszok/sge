@@ -39,10 +39,10 @@ class SkinLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAs
     val deps  = DynamicArray[AssetDescriptor[?]]()
     val param = Nullable(parameter)
     if (param.forall(_.textureAtlasPath.isEmpty))
-      deps.add(new AssetDescriptor[TextureAtlas](file.pathWithoutExtension() + ".atlas", classOf[TextureAtlas]))
+      deps.add(AssetDescriptor[TextureAtlas](file.pathWithoutExtension() + ".atlas"))
     else
       param.foreach(_.textureAtlasPath.foreach { path =>
-        deps.add(new AssetDescriptor[TextureAtlas](path, classOf[TextureAtlas]))
+        deps.add(AssetDescriptor[TextureAtlas](path))
       })
     deps
   }
@@ -69,7 +69,7 @@ class SkinLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAs
       }
       resources = p.resources
     }
-    val atlas = manager(textureAtlasPath, classOf[TextureAtlas])
+    val atlas = manager[TextureAtlas](textureAtlasPath)
     val skin  = newSkin(atlas)
     resources.foreach { res =>
       for ((key, value) <- res)

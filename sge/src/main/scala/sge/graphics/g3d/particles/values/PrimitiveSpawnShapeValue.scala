@@ -8,13 +8,14 @@
  *
  * Migration notes (2026-03-03):
  * - Json.Serializable write/read methods intentionally omitted
- * - All public methods ported: active_= (override), edges (public var),
+ * - All public methods ported: active_= (override), edges (private[particles] var),
  *   spawnWidthValue/spawnHeightValue/spawnDepthValue (public vars), setDimensions, start, load
  * - SpawnSide inner enum ported to Scala 3 enum in companion object
  * - TMP_V1 static field moved to companion object (protected static final -> protected val)
- * - Java `edges` is package-private; Scala version is `var edges` (public) -- minor visibility widening
- * - Fixes (2026-03-04): override setActive → active_=; removed redundant isEdges/setEdges,
- *   getSpawnWidth/Height/Depth; .setActive() → .active = ; .relative → .relative
+ * - Java `edges` is package-private; Scala version is `private[particles] var edges` -- matching visibility
+ * - Java API methods isEdges()/setEdges()/getSpawnWidth()/getSpawnHeight()/getSpawnDepth() retained
+ *   as parenthesized methods delegating to the underlying vars, for API parity with LibGDX
+ * - Fixes (2026-03-04): override setActive → active_=; .setActive() → .active = ; .relative → .relative
  * - Status: pass
  */
 package sge
@@ -40,7 +41,7 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
   protected var spawnHeightDiff: Float              = 0f
   protected var spawnDepth:      Float              = 0f
   protected var spawnDepthDiff:  Float              = 0f
-  var edges:                     Boolean            = false
+  private[particles] var edges:  Boolean            = false
 
   def this(value: PrimitiveSpawnShapeValue) = {
     this()
@@ -53,6 +54,21 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
     spawnHeightValue.active = true
     spawnDepthValue.active = true
   }
+
+  /** @return whether particles are spawned on the primitive's edge rather than its interior */
+  def isEdges(): Boolean = edges
+
+  /** Sets whether particles are spawned on the primitive's edge rather than its interior. */
+  def setEdges(e: Boolean): Unit = edges = e
+
+  /** @return the width value used for spawn size calculations */
+  def getSpawnWidth(): ScaledNumericValue = spawnWidthValue
+
+  /** @return the height value used for spawn size calculations */
+  def getSpawnHeight(): ScaledNumericValue = spawnHeightValue
+
+  /** @return the depth value used for spawn size calculations */
+  def getSpawnDepth(): ScaledNumericValue = spawnDepthValue
 
   def setDimensions(width: Float, height: Float, depth: Float): Unit = {
     spawnWidthValue.setHigh(width)

@@ -10,18 +10,13 @@
  *   Idiom: split packages
  *   Fixes: LifecycleListener integration and postRunnable wiring implemented; getExecuteTimeMillis → executeTime
  *   Convention: opaque Seconds for delaySeconds/intervalSeconds params
- *   Idiom: Thread replaced with Future(ExecutionContext.global); wait/notifyAll preserved for monitor release
- *   TODO: redesign with Gears structured concurrency -- synchronized+Thread.sleep won't work well on JS; see docs/improvements/dependencies.md B3
+ *   Idiom: background loop via TimerPlatformOps.runLoop — Gears async on JVM/Native, setTimeout on JS
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  */
 package sge
 package utils
-
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.util.boundary
-import scala.util.boundary.break
 
 /** Executes tasks in the future on the main loop thread.
   * @author
@@ -58,7 +53,6 @@ class Timer(using sge.Sge) {
           tasks.add(task)
         }
       }
-      // wait-based loop will re-check on next iteration
     }
     task
   }
@@ -80,7 +74,6 @@ class Timer(using sge.Sge) {
           delay(System.nanoTime() / 1000000 - stopTimeMillis)
           stopTimeMillis = 0
         }
-        // wait-based loop will re-check on next iteration
       }
     }
 
@@ -153,7 +146,6 @@ object Timer {
     threadLock.synchronized {
       currentThread.foreach(_.dispose())
       currentThread = None
-      threadLock.notifyAll() // wake the sleeping timer thread so it can exit
     }
 
   /** Timer instance singleton for general application wide usage. Static methods on {@link Timer} make convenient use of this instance.
@@ -244,11 +236,16 @@ object Timer {
     def executeTime: Long = synchronized(executeTimeMillis)
   }
 
-  /** Manages a single thread for updating timers. Uses application events to pause, resume, and dispose the thread.
+  /** Manages the background loop for updating timers. Uses application events to pause, resume, and dispose the loop.
+    *
+    * The background loop is driven by `TimerPlatformOps.runLoop`:
+    *   - JVM/Native: Gears `Async.blocking` + `AsyncOperations.sleep` (virtual threads on JVM, continuations on Native)
+    *   - JS: `setTimeout` callbacks on the event loop
+    *
     * @author
     *   Nathan Sweet
     */
-  private class TimerThread(using sge.Sge) extends Runnable with LifecycleListener {
+  private class TimerThread(using sge.Sge) extends LifecycleListener {
     val files     = sge.Sge().files
     val instances = DynamicArray[Timer]()
     var instance:        Option[Timer] = None
@@ -261,40 +258,34 @@ object Timer {
     sge.Sge().application.addLifecycleListener(this)
     resume()
 
-    Future(this.run())(using ExecutionContext.global)
+    // Launch the background timer loop via platform-specific mechanism.
+    TimerPlatformOps.runLoop(
+      step = () => loopStep(),
+      onDone = () => dispose()
+    )
 
-    def run(): Unit = {
-      boundary {
-        while (true)
-          threadLock.synchronized {
-            if (!currentThread.contains(this) || files != sge.Sge().files) break(())
-
-            var waitMillis = 5000L
-            if (pauseTimeMillis == 0) {
-              val timeMillis = System.nanoTime() / 1000000
-              var i          = 0
-              while (i < instances.size) {
-                try
-                  waitMillis = instances(i).update(this, timeMillis, waitMillis)
-                catch {
-                  case e:  Error     => throw e // Never swallow OOM, SOE, etc.
-                  case ex: Exception =>
-                    scribe.error(s"Task failed: ${instances(i).getClass.getName}", ex)
-                }
-                i += 1
-              }
-            }
-
-            if (!currentThread.contains(this) || files != sge.Sge().files) break(())
-
+    /** Single step of the timer loop. Returns millis to sleep, or negative to exit. */
+    private def loopStep(): Long = threadLock.synchronized {
+      if (!currentThread.contains(this) || files != sge.Sge().files) -1L
+      else {
+        var waitMillis = 5000L
+        if (pauseTimeMillis == 0) {
+          val timeMillis = System.nanoTime() / 1000000
+          var i          = 0
+          while (i < instances.size) {
             try
-              if (waitMillis > 0) threadLock.wait(waitMillis) // wait() releases the monitor, unlike Thread.sleep()
+              waitMillis = instances(i).update(this, timeMillis, waitMillis)
             catch {
-              case _: InterruptedException => // ignored
+              case e:  Error     => throw e // Never swallow OOM, SOE, etc.
+              case ex: Exception =>
+                scribe.error(s"Task failed: ${instances(i).getClass.getName}", ex)
             }
+            i += 1
           }
+        }
+        if (!currentThread.contains(this) || files != sge.Sge().files) -1L
+        else waitMillis
       }
-      dispose()
     }
 
     private def runPostedTasks(): Unit = {
@@ -329,25 +320,23 @@ object Timer {
         val delayMillis = System.nanoTime() / 1000000 - pauseTimeMillis
         instances.foreach(_.delay(delayMillis))
         pauseTimeMillis = 0
-        // wait-based loop will re-check on next iteration
       }
 
     def pause(): Unit =
       threadLock.synchronized {
         pauseTimeMillis = System.nanoTime() / 1000000
-        // wait-based loop will re-check on next iteration
       }
 
-    def dispose(): Unit = // OK to call multiple times.
+    def dispose(): Unit = { // OK to call multiple times.
       threadLock.synchronized {
         postedTasks.synchronized {
           postedTasks.clear()
         }
         if (currentThread.exists(_ == this)) currentThread = None
         instances.clear()
-        // wait-based loop will re-check on next iteration
       }
-    sge.Sge().application.removeLifecycleListener(this)
+      sge.Sge().application.removeLifecycleListener(this)
+    }
   }
 
 }

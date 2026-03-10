@@ -218,6 +218,39 @@ jobs:
       - name: Run JVM tests
         run: sbt 'sge/test'
 
+      - name: JVM Platform IT tests
+        run: sbt 'sge-it-jvm-platform/test'
+
+  # ─── Browser integration tests (Scala.js + Playwright) ─────────────
+
+  test-browser-it:
+    name: Browser integration tests
+    needs: [test-js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Playwright Chromium
+        run: npx playwright@1.49.0 install chromium
+
+      - name: Compile Scala.js demo
+        run: sbt 'demoJS/fastLinkJS'
+
+      - name: Run browser integration tests
+        run: sbt 'sge-it-browser/test'
+
   # ─── Scala Native compile + test (requires Rust static library) ────
 
   test-native:
@@ -284,3 +317,45 @@ jobs:
 
       - name: Run Scala Native tests
         run: sbt 'sgeNative/test'
+
+  # ─── Android smoke + integration tests (emulator) ──────────────
+  # Builds the smoke APK and runs it on a headless Android emulator
+  # with SwiftShader (CPU-based GL ES). Verifies all 6 subsystem
+  # checks pass: bootstrap, GL2D, GL3D, file I/O, JSON/XML, audio.
+
+  test-android:
+    name: Android smoke + integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: latest
+
+      - name: Install Android SDK components
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Build smoke APK
+        run: sbt 'sge-android-smoke/androidSign'
+
+      - name: Run Android integration tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: true
+          avd-name: sge-test-avd
+          emulator-options: -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          script: sbt 'sge-it-android/test'

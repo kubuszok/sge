@@ -23,6 +23,8 @@ package graphics
 package g3d
 package particles
 
+import scala.reflect.ClassTag
+
 import sge.assets.AssetDescriptor
 import sge.assets.AssetManager
 import sge.utils.DynamicArray
@@ -60,6 +62,35 @@ class ResourceData[T]() {
   def this(resource: T) = {
     this()
     this.resource = Nullable(resource)
+  }
+
+  /** Serializes this ResourceData to a JSON AST. Produces the same structure consumed by [[ResourceData.fromJson]]. */
+  def toJson: Json = {
+    val fields = Vector.newBuilder[(String, Json)]
+
+    // assets
+    val assetJsons = Vector.newBuilder[Json]
+    for (ad <- sharedAssets)
+      assetJsons += Json.obj(
+        "filename" -> Json.fromString(ad.filename),
+        "type" -> Json.fromString(ad.`type`.getName)
+      )
+    fields += "assets" -> Json.arr(assetJsons.result()*)
+
+    // data (ordered SaveData list)
+    val dataJsons = Vector.newBuilder[Json]
+    for (sd <- this.data)
+      dataJsons += ResourceData.saveDataToJson(sd)
+    fields += "data" -> Json.arr(dataJsons.result()*)
+
+    // unique (keyed SaveData map)
+    val uniqueFields = Vector.newBuilder[(String, Json)]
+    uniqueData.foreachEntry { (k, v) =>
+      uniqueFields += k -> ResourceData.saveDataToJson(v)
+    }
+    fields += "unique" -> Json.fromJsonObject(hearth.kindlings.jsoniterjson.JsonObject(uniqueFields.result()))
+
+    Json.obj(fields.result()*)
   }
 
   private[particles] def getAssetData[K](filename: String, `type`: Class[K]): Int =
@@ -144,6 +175,9 @@ object ResourceData {
         assets.add(i)
       }
 
+    def saveAsset[K: ClassTag](filename: String): Unit =
+      saveAsset(filename, summon[ClassTag[K]].runtimeClass.asInstanceOf[Class[K]])
+
     def save(key: String, value: AnyRef): Unit =
       data.put(key, value)
 
@@ -166,6 +200,35 @@ object ResourceData {
     var filename: String,
     var `type`:   Class[T]
   )
+
+  /** Converts a SaveData to JSON AST. */
+  private[particles] def saveDataToJson(sd: SaveData): Json = {
+    val fields = Vector.newBuilder[(String, Json)]
+
+    // data map
+    val dataFields = Vector.newBuilder[(String, Json)]
+    sd.data.foreachEntry { (k, v) =>
+      val jsonVal: Json = v match {
+        case s: String            => Json.fromString(s)
+        case l: java.lang.Long    => Json.fromLong(l)
+        case d: java.lang.Double  => Json.fromBigDecimal(BigDecimal(d))
+        case b: java.lang.Boolean => Json.fromBoolean(b)
+        case i: java.lang.Integer => Json.fromInt(i)
+        case f: java.lang.Float   => Json.fromBigDecimal(BigDecimal(f.toDouble))
+        case other => Json.fromString(other.toString)
+      }
+      dataFields += k -> jsonVal
+    }
+    fields += "data" -> Json.fromJsonObject(hearth.kindlings.jsoniterjson.JsonObject(dataFields.result()))
+
+    // indices
+    val indices = Vector.newBuilder[Json]
+    for (i <- 0 until sd.assets.size)
+      indices += Json.fromInt(sd.assets(i))
+    fields += "indices" -> Json.arr(indices.result()*)
+
+    Json.obj(fields.result()*)
+  }
 
   /** Resolves a class name from a particle effect JSON file. Handles both LibGDX (com.badlogic.gdx) and SGE (sge) class names.
     */

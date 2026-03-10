@@ -65,7 +65,7 @@ abstract class MeshSpawnShapeValue extends SpawnShapeValue {
   override def save(manager: AssetManager, data: ResourceData[?]): Unit =
     model.foreach { m =>
       val saveData = data.createSaveData()
-      saveData.saveAsset(manager.assetFileName(m).getOrElse(""), classOf[Model])
+      saveData.saveAsset[Model](manager.assetFileName(m).getOrElse(""))
       saveData.save("index", Integer.valueOf(m.meshes.indexOf(mesh.getOrElse(throw SgeError.InvalidInput("mesh is null")))))
     }
 

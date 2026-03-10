@@ -1,14 +1,13 @@
 // SGE — Android smoke test Activity
 //
-// Minimal Activity that bootstraps an SGE application, renders a few
-// frames, and exits. Used by the Android IT test to catch runtime
-// crashes (ClassNotFoundException, NPE, GL errors, missing deps).
+// Activity that bootstraps a full SGE application using AndroidApplication
+// and SmokeListener. Creates all subsystems (graphics, audio, files, input,
+// net), runs 6 subsystem checks, and exits after 30 frames.
+//
+// Results are logged via both scribe (SmokeListener) and android.util.Log
+// (this Activity) so they're visible in logcat regardless of the scribe backend.
 //
 // Compiled only when android.jar is on the classpath.
-//
-// The Activity bypasses AndroidApplication's full lifecycle to keep
-// the bootstrap minimal. It directly creates ops instances, builds
-// an AndroidGraphics, and wires a GLSurfaceView.Renderer bridge.
 
 package sge
 package smoke
@@ -22,10 +21,15 @@ import javax.microedition.khronos.opengles.GL10
 
 import sge.platform.android._
 
-/** Smoke test Activity. Renders 30 frames then exits. */
+/** Smoke test Activity. Creates a full Sge context with all subsystems,
+  * runs SmokeListener's 6 subsystem checks, then exits after 30 frames.
+  */
 class SmokeActivity extends Activity {
 
   private val TAG = "SGE-SMOKE"
+
+  private var app:      AndroidApplication = scala.compiletime.uninitialized
+  private var listener: SmokeListener      = scala.compiletime.uninitialized
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
@@ -35,27 +39,25 @@ class SmokeActivity extends Activity {
 
       val provider = AndroidPlatformProviderImpl
       val config   = provider.defaultConfig()
-      config.useAccelerometer = false
+      config.useAccelerometer = true
+      config.useGyroscope     = true
       config.useCompass       = false
-      config.disableAudio     = true
+      // Audio enabled — subsystem checks verify audio accessibility
 
-      // Create ops instances (exercises class loading + SDK bindings)
+      listener = new SmokeListener()
+
       val lifecycle = provider.createLifecycle(this).asInstanceOf[AndroidLifecycleImpl]
-      val rs        = FillResolutionStrategy
-      val glSurface = provider.createGLSurfaceView(this, config, rs)
-      lifecycle.setGLSurfaceView(glSurface)
+      app = new AndroidApplication(listener, config, provider, lifecycle, this)
 
-      val displayMetrics = provider.createDisplayMetrics(getWindowManager())
-      val cursorOps      = provider.createCursor(this)
+      Log.i(TAG, "AndroidApplication created, initializing graphics...")
 
-      // Create SGE Graphics (plain class, no Activity inheritance)
-      val graphics = new AndroidGraphics(config, provider, displayMetrics, glSurface, cursorOps)
+      val surfaceView = app.initializeGraphicsAndInput(
+        getWindowManager(), new Handler(Looper.getMainLooper())
+      ).asInstanceOf[GLSurfaceView]
 
-      Log.i(TAG, "SGE subsystems created, setting up GL surface...")
-
-      // Wire the GL renderer bridge
-      val surfaceView = glSurface.view.asInstanceOf[GLSurfaceView]
       surfaceView.setRenderer(new GLSurfaceView.Renderer {
+
+        private var created = false
 
         override def onSurfaceCreated(gl: GL10, eglConfig: AndroidEGLConfig): Unit = {
           val versionStr  = gl.glGetString(GL10.GL_VERSION)
@@ -63,29 +65,41 @@ class SmokeActivity extends Activity {
           val rendererStr = gl.glGetString(GL10.GL_RENDERER)
           Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
 
+          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
           graphics.setupGL(versionStr, vendorStr, rendererStr)
-          Log.i(TAG, "SGE graphics initialized")
+          app.initializeSge()
+
+          if (!created) {
+            listener.create()
+            created = true
+          }
+          Log.i(TAG, "SGE fully initialized with all subsystems")
         }
 
         override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
+          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
           graphics.width = w
           graphics.height = h
           Log.i(TAG, s"Surface changed: ${w}x${h}")
+          listener.resize(Pixels(w), Pixels(h))
         }
 
         override def onDrawFrame(gl: GL10): Unit = {
+          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
           graphics.updateFrameTiming(false)
-          val gl20  = graphics.getGL20()
+          app.processInputEvents()
+          app.executeRunnables()
+
           val frame = graphics.getFrameId()
-
-          // Clear to green
-          gl20.glClearColor(0f, 0.4f, 0f, 1f)
-          gl20.glClear(sge.graphics.ClearMask.ColorBufferBit)
-
           if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
-          if (frame >= 30) {
-            Log.i(TAG, "SMOKE_TEST_PASSED")
-            runOnUiThread(() => finish())
+
+          listener.render()
+
+          // Echo the pass/fail marker via Log.i so logcat captures it reliably
+          if (!app.running) {
+            if (listener.allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
+            else Log.i(TAG, "SMOKE_TEST_FAILED")
+            listener.dispose()
           }
         }
       })
@@ -98,5 +112,26 @@ class SmokeActivity extends Activity {
         Log.e(TAG, "SMOKE_TEST_FAILED: " + e.getMessage, e)
         finish()
     }
+  }
+
+  override def onResume(): Unit = {
+    super.onResume()
+    if (app != null) { // scalafix:ok
+      app.onResume()
+      listener.resume()
+    }
+  }
+
+  override def onPause(): Unit = {
+    if (app != null) { // scalafix:ok
+      listener.pause()
+      app.onPause()
+    }
+    super.onPause()
+  }
+
+  override def onDestroy(): Unit = {
+    if (app != null) app.onDestroy() // scalafix:ok
+    super.onDestroy()
   }
 }

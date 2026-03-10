@@ -39,7 +39,7 @@ import scala.util.boundary.break
   * While the API to this class consists solely of static methods, it is (privately) instantiable; a TimSort instance holds the state of an ongoing sort, assuming the input array is large enough to
   * warrant the full-blown TimSort. Small arrays are sorted in place, using a binary insertion sort.
   */
-class TimSort[T] {
+final class TimSort[T] {
 
   /** The array being sorted. */
   private var a: Array[T] = scala.compiletime.uninitialized
@@ -51,9 +51,9 @@ class TimSort[T] {
     */
   private var minGallop: Int = TimSort.MIN_GALLOP
 
-  /** Temp storage for merges. */
-  private var tmp:      Array[AnyRef] = scala.compiletime.uninitialized
-  private var tmpCount: Int           = 0
+  /** Temp storage for merges. Allocated lazily to match the component type of the array being sorted, so that System.arraycopy works correctly for both primitive and reference arrays. */
+  private var tmp:      Array[T] = scala.compiletime.uninitialized
+  private var tmpCount: Int      = 0
 
   /** A stack of pending runs yet to be merged. Run i starts at address base[i] and extends for len[i] elements. It's always true (so long as the indices are in bounds) that:
     *
@@ -64,8 +64,6 @@ class TimSort[T] {
   private var stackSize: Int        = 0 // Number of pending runs on stack
   private val runBase:   Array[Int] = new Array[Int](40)
   private val runLen:    Array[Int] = new Array[Int](40)
-
-  tmp = new Array[AnyRef](TimSort.INITIAL_TMP_STORAGE_LENGTH)
 
   def doSort(a: Array[T], c: Ordering[T], lo: Int, hi: Int): Unit = {
     stackSize = 0
@@ -80,6 +78,9 @@ class TimSort[T] {
       this.a = a
       this.c = c
       tmpCount = 0
+      // Allocate tmp with same component type as source array so System.arraycopy works for primitives
+      if (tmp == null || tmp.getClass.getComponentType != a.getClass.getComponentType)
+        tmp = java.lang.reflect.Array.newInstance(a.getClass.getComponentType, TimSort.INITIAL_TMP_STORAGE_LENGTH).asInstanceOf[Array[T]]
 
       // March over the array once, left to right, finding natural runs, extending short natural runs to minRun elements, and
       // merging runs to maintain stack invariant.
@@ -114,9 +115,12 @@ class TimSort[T] {
 
       this.a = null.asInstanceOf[Array[T]]
       this.c = null.asInstanceOf[Ordering[T]]
-      val tmp = this.tmp
-      for (i <- 0 until tmpCount)
-        tmp(i) = null
+      // Clear temp storage for GC — only needed for reference arrays (primitive arrays don't hold references)
+      if (!this.tmp.getClass.getComponentType.isPrimitive) {
+        val tmp = this.tmp
+        for (i <- 0 until tmpCount)
+          tmp(i) = null.asInstanceOf[T]
+      }
     }
   }
 
@@ -196,7 +200,7 @@ class TimSort[T] {
     * @return
     *   tmp, whether or not it grew
     */
-  private def ensureCapacity(minCapacity: Int): Array[AnyRef] = {
+  private def ensureCapacity(minCapacity: Int): Array[T] = {
     tmpCount = Math.max(tmpCount, minCapacity)
     if (tmp.length < minCapacity) {
       // Compute smallest power of 2 > minCapacity
@@ -213,8 +217,7 @@ class TimSort[T] {
       else
         newSize = Math.min(newSize, a.length >>> 1)
 
-      val newArray = new Array[AnyRef](newSize)
-      tmp = newArray
+      tmp = java.lang.reflect.Array.newInstance(a.getClass.getComponentType, newSize).asInstanceOf[Array[T]]
     }
     tmp
   }
@@ -257,7 +260,7 @@ class TimSort[T] {
     }
     if (len1 == 1) {
       System.arraycopy(a, cursor2, a, dest, len2)
-      a(dest + len2) = tmp(cursor1).asInstanceOf[T] // Last elt of run 1 to end of merge
+      a(dest + len2) = tmp(cursor1) // Last elt of run 1 to end of merge
       break()
     }
 
@@ -275,14 +278,14 @@ class TimSort[T] {
       var doContinue = true
       while (doContinue) {
         if (TimSort.DEBUG) assert(len1 > 1 && len2 > 0)
-        if (c.compare(a(cursor2), tmp(cursor1).asInstanceOf[T]) < 0) {
+        if (c.compare(a(cursor2), tmp(cursor1)) < 0) {
           a(dest) = a(cursor2); dest += 1; cursor2 += 1
           count2 += 1
           count1 = 0
           len2 -= 1
           if (len2 == 0) { breakOuter = true; doContinue = false }
         } else {
-          a(dest) = tmp(cursor1).asInstanceOf[T]; dest += 1; cursor1 += 1
+          a(dest) = tmp(cursor1); dest += 1; cursor1 += 1
           count1 += 1
           count2 = 0
           len1 -= 1
@@ -300,7 +303,7 @@ class TimSort[T] {
         var gallopContinue = true
         while (gallopContinue) {
           if (TimSort.DEBUG) assert(len1 > 1 && len2 > 0)
-          count1 = TimSort.gallopRight(a(cursor2), tmp.asInstanceOf[Array[T]], cursor1, len1, 0, c)
+          count1 = TimSort.gallopRight(a(cursor2), tmp, cursor1, len1, 0, c)
           if (count1 != 0) {
             System.arraycopy(tmp, cursor1, a, dest, count1)
             dest += count1
@@ -317,7 +320,7 @@ class TimSort[T] {
           }
 
           if (gallopContinue) {
-            count2 = TimSort.gallopLeft(tmp(cursor1).asInstanceOf[T], a, cursor2, len2, 0, c)
+            count2 = TimSort.gallopLeft(tmp(cursor1), a, cursor2, len2, 0, c)
             if (count2 != 0) {
               System.arraycopy(a, cursor2, a, dest, count2)
               dest += count2
@@ -326,7 +329,7 @@ class TimSort[T] {
               if (len2 == 0) { done = true; gallopContinue = false }
             }
             if (gallopContinue) {
-              a(dest) = tmp(cursor1).asInstanceOf[T]; dest += 1; cursor1 += 1
+              a(dest) = tmp(cursor1); dest += 1; cursor1 += 1
               len1 -= 1
               if (len1 == 1) { done = true; gallopContinue = false }
               else localMinGallop -= 1
@@ -347,7 +350,7 @@ class TimSort[T] {
     if (len1 == 1) {
       if (TimSort.DEBUG) assert(len2 > 0)
       System.arraycopy(a, cursor2, a, dest, len2)
-      a(dest + len2) = tmp(cursor1).asInstanceOf[T] // Last elt of run 1 to end of merge
+      a(dest + len2) = tmp(cursor1) // Last elt of run 1 to end of merge
     } else if (len1 == 0) {
       throw new IllegalArgumentException("Comparison method violates its general contract!")
     } else {
@@ -394,7 +397,7 @@ class TimSort[T] {
       dest -= len1
       cursor1 -= len1
       System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
-      a(dest) = tmp(cursor2).asInstanceOf[T]
+      a(dest) = tmp(cursor2)
       break()
     }
 
@@ -412,14 +415,14 @@ class TimSort[T] {
       var doContinue = true
       while (doContinue) {
         if (TimSort.DEBUG) assert(len1 > 0 && len2 > 1)
-        if (c.compare(tmp(cursor2).asInstanceOf[T], a(cursor1)) < 0) {
+        if (c.compare(tmp(cursor2), a(cursor1)) < 0) {
           a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
           count1 += 1
           count2 = 0
           len1 -= 1
           if (len1 == 0) { breakOuter = true; doContinue = false }
         } else {
-          a(dest) = tmp(cursor2).asInstanceOf[T]; dest -= 1; cursor2 -= 1
+          a(dest) = tmp(cursor2); dest -= 1; cursor2 -= 1
           count2 += 1
           count1 = 0
           len2 -= 1
@@ -437,7 +440,7 @@ class TimSort[T] {
         var gallopContinue = true
         while (gallopContinue) {
           if (TimSort.DEBUG) assert(len1 > 0 && len2 > 1)
-          count1 = len1 - TimSort.gallopRight(tmp(cursor2).asInstanceOf[T], a, base1, len1, len1 - 1, c)
+          count1 = len1 - TimSort.gallopRight(tmp(cursor2), a, base1, len1, len1 - 1, c)
           if (count1 != 0) {
             dest -= count1
             cursor1 -= count1
@@ -446,13 +449,13 @@ class TimSort[T] {
             if (len1 == 0) { done = true; gallopContinue = false }
           }
           if (gallopContinue) {
-            a(dest) = tmp(cursor2).asInstanceOf[T]; dest -= 1; cursor2 -= 1
+            a(dest) = tmp(cursor2); dest -= 1; cursor2 -= 1
             len2 -= 1
             if (len2 == 1) { done = true; gallopContinue = false }
           }
 
           if (gallopContinue) {
-            count2 = len2 - TimSort.gallopLeft(a(cursor1), tmp.asInstanceOf[Array[T]], 0, len2, len2 - 1, c)
+            count2 = len2 - TimSort.gallopLeft(a(cursor1), tmp, 0, len2, len2 - 1, c)
             if (count2 != 0) {
               dest -= count2
               cursor2 -= count2
@@ -486,7 +489,7 @@ class TimSort[T] {
       dest -= len1
       cursor1 -= len1
       System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
-      a(dest) = tmp(cursor2).asInstanceOf[T] // Move first elt of run2 to front of merge
+      a(dest) = tmp(cursor2) // Move first elt of run2 to front of merge
     } else if (len2 == 0) {
       throw new IllegalArgumentException("Comparison method violates its general contract!")
     } else {

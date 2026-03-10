@@ -5,9 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: uses (using Sge) context parameter; ObjectMap for uniform/attribute maps; begin()/end() removed (Java begin() just calls bind())
+ *   Convention: uses (using Sge) context parameter; ObjectMap for uniform/attribute maps; begin() calls bind(), end() is a no-op (deprecated aliases)
  *   Idiom: split packages
- *   Issues: missing setUniform1iv/2iv/3iv/4iv (integer array uniform setters, 8 methods); missing begin()/end() convenience aliases used by some client code
  *   Renames: compiled → compiled
  *   Convention: typed GL enums — ShaderType for glCreateShader, DataType for glVertexAttribPointer
  *   Audited: 2026-03-03
@@ -327,6 +326,58 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     val gl = Sge().graphics.gl20
     checkManaged()
     gl.glUniform4i(location, value1, value2, value3, value4)
+  }
+
+  def setUniform1iv(name: String, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    val location = fetchUniformLocation(name)
+    gl.glUniform1iv(location, length, values, offset)
+  }
+
+  def setUniform1iv(location: Int, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    gl.glUniform1iv(location, length, values, offset)
+  }
+
+  def setUniform2iv(name: String, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    val location = fetchUniformLocation(name)
+    gl.glUniform2iv(location, length / 2, values, offset)
+  }
+
+  def setUniform2iv(location: Int, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    gl.glUniform2iv(location, length / 2, values, offset)
+  }
+
+  def setUniform3iv(name: String, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    val location = fetchUniformLocation(name)
+    gl.glUniform3iv(location, length / 3, values, offset)
+  }
+
+  def setUniform3iv(location: Int, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    gl.glUniform3iv(location, length / 3, values, offset)
+  }
+
+  def setUniform4iv(name: String, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    val location = fetchUniformLocation(name)
+    gl.glUniform4iv(location, length / 4, values, offset)
+  }
+
+  def setUniform4iv(location: Int, values: Array[Int], offset: Int, length: Int): Unit = {
+    val gl = Sge().graphics.gl20
+    checkManaged()
+    gl.glUniform4iv(location, length / 4, values, offset)
   }
 
   /** Sets the uniform with the given name. The {@link ShaderProgram} must be bound for this to work.
@@ -695,6 +746,14 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     checkManaged()
     gl.glUseProgram(program)
   }
+
+  /** @deprecated use {@link #bind()} instead */
+  @deprecated("use bind() instead", since = "0.1")
+  def begin(): Unit = bind()
+
+  /** @deprecated no longer necessary */
+  @deprecated("no longer necessary", since = "0.1")
+  def end(): Unit = {}
 
   /** Disposes all resources associated with this shader. Must be called when the shader is no longer used. */
   def close(): Unit = {

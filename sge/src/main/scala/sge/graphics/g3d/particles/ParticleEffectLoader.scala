@@ -9,7 +9,7 @@
  * Migration notes:
  * - getDependencies: parses JSON AST to extract asset dependencies and caches ResourceData
  * - loadSync: retrieves cached ResourceData, loads resource and batches
- * - save: serialization blocked (needs full particle system JSON write support)
+ * - save: serializes ResourceData to JSON AST via toJson, writes with jsoniter-scala
  * - Constructor requires (using Sge) context parameter
  * - items: DynamicArray[(String, ResourceData)] instead of Array<ObjectMap.Entry>
  * - find() private method omitted (used ClassReflection, not called internally)
@@ -27,6 +27,7 @@ import _root_.sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import _root_.sge.files.FileHandle
 import _root_.sge.graphics.g3d.particles.batches.ParticleBatch
 import _root_.sge.utils.{ DynamicArray, Json, Nullable, readJson }
+import com.github.plokhotnyuk.jsoniter_scala.core.{ WriterConfig, writeToString }
 
 import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
 
@@ -75,11 +76,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
 
       if (assetData.`type` == classOf[ParticleEffect]) {
         descriptors.add(
-          AssetDescriptor[ParticleEffect](
-            assetData.filename,
-            classOf[ParticleEffect],
-            Nullable(parameter)
-          )
+          AssetDescriptor[ParticleEffect](assetData.filename, parameter)
         )
       } else {
         descriptors.add(new AssetDescriptor(assetData.filename, assetData.`type`))
@@ -108,11 +105,11 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
       }
     }
 
-    // Blocked: needs Json serialization framework (not yet ported)
-    // Once JSON bridge is available:
-    // val json = new Json(parameter.jsonOutputType)
-    // if (parameter.prettyPrint) parameter.file.writeString(json.prettyPrint(data), false)
-    // else json.toJson(data, parameter.file)
+    val jsonAst = data.toJson
+    val config  =
+      if (parameter.prettyPrint) WriterConfig.withIndentionStep(2)
+      else WriterConfig
+    parameter.file.writeString(writeToString[Json](jsonAst, config), false)
   }
 
   override def loadSync(

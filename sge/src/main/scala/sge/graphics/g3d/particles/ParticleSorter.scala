@@ -48,7 +48,7 @@ object ParticleSorter {
   Vector3()
 
   /** Using this class will not apply sorting */
-  class None extends ParticleSorter {
+  final class None extends ParticleSorter {
     private var currentCapacity: Int        = 0
     private var indices:         Array[Int] = Array.empty
 
@@ -68,7 +68,7 @@ object ParticleSorter {
   }
 
   /** This class will sort all the particles using the distance from camera. */
-  class Distance extends ParticleSorter {
+  final class Distance extends ParticleSorter {
     private var distances:       Array[Float] = Array.empty
     private var particleIndices: Array[Int]   = Array.empty
     private var particleOffsets: Array[Int]   = Array.empty

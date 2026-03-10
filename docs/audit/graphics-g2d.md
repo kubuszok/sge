@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g2d
 
-Audited: 25/25 files | Pass: 21 | Minor: 3 | Major: 1
-Last updated: 2026-03-04
+Audited: 25/25 files | Pass: 24 | Minor: 1 | Major: 0
+Last updated: 2026-03-10
 
 ---
 
@@ -112,15 +112,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g2d/Gdx2DPixmap.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All instance methods present: 5 constructors, `close`, `clear`, `setPixel`, `getPixel`, `drawLine`, `drawRect`, `drawCircle`, `fillRect`, `fillCircle`, `fillTriangle`, `drawPixmap(2)`, `setBlend`, `setScale`, `getGLInternalFormat`, `getGLFormat`, `getGLType`, `getFormatString`, `getPixels`, `getHeight`, `getWidth`, `getFormat`. Companion object has all constants and `toGlFormat`/`toGlType`.
-**Missing**: Static factory methods `newPixmap(InputStream, Int)` and `newPixmap(Int, Int, Int)` from companion object. `getFailureReason` is a stub returning "Unknown error" (Java is a JNI native method).
 **Renames**: `Disposable` -> `AutoCloseable`; `dispose()` -> `close()`
-**Convention changes**: JNI native methods replaced with stub implementations; `Nullable.empty.orNull` with `@nowarn` at JNI boundary; split packages
+**Convention changes**: Drawing ops implemented as pure Scala (`Gdx2dDraw`); image decoding delegated to platform-specific `Gdx2dOps`; `Nullable.empty.orNull` with `@nowarn` at interop boundaries; split packages
 **TODOs**: None
-**Issues**: (1) Missing 2 static factory methods. (2) All JNI stubs need real platform-specific implementations.
+**Issues**: None
 
 ---
 
@@ -181,14 +180,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/g2d/ParticleEffectPool.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g2d/ParticleEffectPool.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All methods present: `newObject`, `free`. Inner class `PooledEffect` with `free` and `reset`.
 **Renames**: None significant
 **Convention changes**: `PooledEffect` is in companion object (was inner class in Java). Pool type parameter made explicit.
 **TODOs**: None
-**Issues**: `minor`: `PooledEffect.reset()` in Java calls `super.reset()` (Pool's reset), but the Scala version calls `this.reset(resetScaling = true, start = false)` which is different from the Java behavior where Pool.free() triggers `reset()` which just calls `super.reset()`.
+**Issues**: None — `PooledEffect.reset()` fixed to correctly delegate to pool reset semantics.
 
 ---
 
@@ -215,15 +214,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/g2d/PixmapPacker.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g2d/PixmapPacker.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All public methods present: 3 constructors, `sort`, `pack(2)`, `getPages`, `getRect`, `getPage`, `getPageIndex`, `dispose`, `generateTextureAtlas`, `updateTextureAtlas(2)`, `updateTextureRegions`, `updatePageTextures`, getters/setters for all properties. Inner types: `PackStrategy`, `Page`, `Bounds`, `PixmapPackerRectangle`, `GuillotineStrategy`, `GuillotinePage`. Also has `getTransparentColor`/`setTransparentColor`, `getSplitPoint`, `getSplits`, `getPads`.
-**Missing**: `SkylineStrategy` and `SkylinePage` classes from Java source not ported (only `GuillotineStrategy` present).
+**Completeness**: All public methods present: 3 constructors, `sort`, `pack(2)`, `getPages`, `getRect`, `getPage`, `getPageIndex`, `dispose`, `generateTextureAtlas`, `updateTextureAtlas(2)`, `updateTextureRegions`, `updatePageTextures`, getters/setters for all properties. Inner types: `PackStrategy`, `Page`, `Bounds`, `PixmapPackerRectangle`, `GuillotineStrategy`, `GuillotinePage`, `SkylineStrategy`, `SkylinePage`. Also has `getTransparentColor`/`setTransparentColor`, `getSplitPoint`, `getSplits`, `getPads`.
 **Renames**: `dispose()` -> also has `close()` via `AutoCloseable`; `Disposable` -> `AutoCloseable`
 **Convention changes**: Uses `Nullable` for null safety; `MutableMap` instead of `OrderedMap`; `using Sge` context parameter
 **TODOs**: None
-**Issues**: `minor`: Missing `SkylineStrategy`/`SkylinePage` inner classes from Java source.
+**Issues**: None — `SkylineStrategy`/`SkylinePage` inner classes implemented.
 
 ---
 

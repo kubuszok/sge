@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Type enum moved to companion; pattern match instead of if-else chain; TAG field removed
  *   Idiom: split packages
- *   Idiom: Gdx.app.log/error -> scribe.info/error; NONE case retains original constructor args instead of empty strings
+ *   Idiom: Gdx.app.log -> scribe.info, Gdx.app.error -> scribe.error; NONE case sets vendorString/rendererString to "" as Java does
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -33,9 +33,7 @@ class GLVersion(
   private var minorVersion:   Int = scala.compiletime.uninitialized
   private var releaseVersion: Int = scala.compiletime.uninitialized
 
-  private val versionStringVal:  String = versionString
-  private val vendorStringVal:   String = vendorString
-  private val rendererStringVal: String = rendererString
+  private val versionStringVal: String = versionString
 
   private val `type`: GLVersion.Type = appType match {
     case Application.ApplicationType.Android => GLVersion.Type.GLES
@@ -46,7 +44,10 @@ class GLVersion(
     case _                                   => GLVersion.Type.NONE
   }
 
-  // Initialize version numbers based on type
+  // Initialize version numbers based on type; NONE case overrides vendor/renderer to "" as Java does
+  private val vendorStringVal:   String = if (`type` == GLVersion.Type.NONE) "" else vendorString
+  private val rendererStringVal: String = if (`type` == GLVersion.Type.NONE) "" else rendererString
+
   `type` match {
     case GLVersion.Type.GLES =>
       // OpenGL<space>ES<space><version number><space><vendor-specific information>.

@@ -403,12 +403,12 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   ): Boolean = {
     val arena = p.Arena.ofConfined()
     try {
-      // out layout: [hitX, hitY, normalX, normalY, toi, bodyHandle(as float bits)]
-      val seg    = arena.allocateElems(p.JAVA_FLOAT, 6L)
+      // out layout: [hitX, hitY, normalX, normalY, toi, bodyHandleLo, bodyHandleHi]
+      val seg    = arena.allocateElems(p.JAVA_FLOAT, 7L)
       val hitInt = hRayCast.invoke(world, originX, originY, dirX, dirY, maxDist, seg).asInstanceOf[Int]
       val hit    = hitInt != 0
       if (hit) {
-        p.MemorySegment.copyToFloats(seg, 0L, out, 0, 6)
+        p.MemorySegment.copyToFloats(seg, 0L, out, 0, 7)
       }
       hit
     } finally arena.arenaClose()

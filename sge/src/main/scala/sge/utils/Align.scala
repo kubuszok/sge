@@ -24,6 +24,8 @@ package utils
 opaque type Align = Int
 object Align {
 
+  given MkArray[Align] = MkArray.mkInt.asInstanceOf[MkArray[Align]]
+
   val center: Align = 1 << 0
   val top:    Align = 1 << 1
   val bottom: Align = 1 << 2

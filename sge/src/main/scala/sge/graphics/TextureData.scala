@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: TextureDataType enum; Factory object replaces Java static inner class
  *   Idiom: split packages
- *   Issues: Factory.loadFromFile uses placeholder `new Pixmap(100, 100, ...)` for non-special file types
+ *   Fixes: Factory.loadFromFile now decodes actual image file instead of 100x100 placeholder
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -104,6 +104,6 @@ object TextureData {
       if (file.name().endsWith(".cim")) FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
       else if (file.name().endsWith(".etc1")) ETC1TextureData(file, useMipMaps)
       else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) KTXTextureData(file, useMipMaps)
-      else FileTextureData(file, Pixmap(100, 100, format.getOrElse(Format.RGBA8888)), format, useMipMaps)
+      else FileTextureData(file, Pixmap(file), format, useMipMaps)
   }
 }

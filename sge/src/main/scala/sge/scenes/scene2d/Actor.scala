@@ -131,7 +131,7 @@ class Actor()(using Sge) {
     event.target = Nullable(this)
 
     // Collect ascendants so event propagation is unaffected by hierarchy changes.
-    val ascendants = DynamicArray[Group]()
+    val ascendants = Actor.POOLS.obtain[DynamicArray[?]].asInstanceOf[DynamicArray[Group]]
     var p          = this.parent
     p.foreach { pp =>
       ascendants.add(pp)
@@ -172,8 +172,10 @@ class Actor()(using Sge) {
       }
 
       event.isCancelled
-    } finally
+    } finally {
       ascendants.clear()
+      Actor.POOLS.free(ascendants)
+    }
   }
 
   /** Notifies this actor's listeners of the event. The event is not propagated to any ascendants. The event {@link Event#setTarget(Actor) target} must be set before calling this method. Before

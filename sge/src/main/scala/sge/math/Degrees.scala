@@ -15,6 +15,8 @@ opaque type Degrees = Float
 object Degrees {
   def apply(value: Float): Degrees = value
 
+  given utils.MkArray[Degrees] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Degrees]]
+
   inline def Full:    Degrees = 360f
   inline def Half:    Degrees = 180f
   inline def Quarter: Degrees = 90f

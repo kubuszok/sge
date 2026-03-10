@@ -12,9 +12,8 @@
  * - bounds: static -> companion object private val (correct)
  * - update(): Java `halfExtents.len()` -> Scala `halfExtents.length` (equivalent — SGE renamed len->length)
  * - equals(MeshPart): Scala uses `eq` for reference equality (matches Java `==` for objects)
- * - hashCode(): added (Java source does NOT override hashCode — Scala adds System.identityHashCode-based impl)
  * - Convention: typed GL enums (PrimitiveMode)
- * - Status: minor_issues (hashCode is an SGE addition not in Java)
+ * - Status: pass
  */
 package sge
 package graphics
@@ -152,14 +151,6 @@ class MeshPart {
       case other: MeshPart => equals(other)
       case _ => false
     }
-
-  override def hashCode(): Int = {
-    var result = System.identityHashCode(mesh)
-    result = 31 * result + primitiveType.toInt
-    result = 31 * result + offset
-    result = 31 * result + size
-    result
-  }
 
   /** Renders the mesh part using the specified shader, must be called after {@link ShaderProgram#bind()}.
     * @param shader

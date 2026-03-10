@@ -25,7 +25,7 @@ import sge.math.{ FloatCounter, MathUtils }
   * @author
   *   xoppa (original implementation)
   */
-class PerformanceCounter(val name: String, windowSize: Int = 5) {
+final class PerformanceCounter(val name: String, windowSize: Int = 5) {
   private val nano2seconds = MathUtils.nanoToSec
   private var startTime    = Nanos.zero
   private var lastTick     = Nanos.zero

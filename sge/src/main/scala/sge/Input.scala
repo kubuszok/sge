@@ -386,6 +386,8 @@ object Input {
   object Key {
     inline def apply(value: Int): Key = value
 
+    given sge.utils.MkArray[Key] = sge.utils.MkArray.mkInt.asInstanceOf[sge.utils.MkArray[Key]]
+
     extension (k: Key) {
       inline def toInt: Int = k
     }
@@ -397,6 +399,8 @@ object Input {
   opaque type Button = Int
   object Button {
     inline def apply(value: Int): Button = value
+
+    given sge.utils.MkArray[Button] = sge.utils.MkArray.mkInt.asInstanceOf[sge.utils.MkArray[Button]]
 
     extension (b: Button) {
       inline def toInt: Int = b

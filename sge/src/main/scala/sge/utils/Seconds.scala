@@ -14,6 +14,8 @@ object Seconds {
   def apply(value: Float): Seconds = value
   val zero:                Seconds = 0f
 
+  given MkArray[Seconds] = MkArray.mkFloat.asInstanceOf[MkArray[Seconds]]
+
   extension (s: Seconds) {
     inline def toFloat:     Float   = s
     inline def toMillis:    Long    = (s * 1000).toLong

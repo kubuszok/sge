@@ -25,6 +25,8 @@ object HttpStatus {
 
   def apply(statusCode: Int): HttpStatus = statusCode
 
+  given utils.MkArray[HttpStatus] = utils.MkArray.mkInt.asInstanceOf[utils.MkArray[HttpStatus]]
+
   extension (status: HttpStatus) {
 
     /** Returns the status code of the HTTP response, normally 2xx status codes indicate success while 4xx and 5xx indicate client and server errors, respectively (see <a

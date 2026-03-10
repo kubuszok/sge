@@ -13,6 +13,8 @@ package utils
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonValueCodec, readFromStream }
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import hearth.kindlings.ubjsonderivation.{ KindlingsUBJsonValueCodec, UBJsonValueCodec }
+import hearth.kindlings.ubjsonderivation.internal.runtime.UBJsonDerivationUtils
 
 /** Type alias for jsoniter-scala's codec. Consumers derive codecs with:
   * {{{
@@ -30,6 +32,16 @@ type Json = hearth.kindlings.jsoniterjson.Json
 /** Companion for pattern matching and construction (`Json.Str`, `Json.Num`, etc.). */
 val Json: hearth.kindlings.jsoniterjson.Json.type = hearth.kindlings.jsoniterjson.Json
 
+/** Type alias for kindlings' UBJSON codec. Consumers derive codecs with:
+  * {{{
+  *   given UBJsonCodec[MyType] = UBJsonCodec.derive[MyType]
+  * }}}
+  */
+type UBJsonCodec[A] = UBJsonValueCodec[A]
+
+/** Factory for deriving UBJSON codecs at compile time. */
+val UBJsonCodec: KindlingsUBJsonValueCodec.type = KindlingsUBJsonValueCodec
+
 extension (fh: sge.files.FileHandle) {
 
   /** Decodes JSON content of this file directly into a typed value.
@@ -43,5 +55,17 @@ extension (fh: sge.files.FileHandle) {
     val stream = fh.read()
     try readFromStream[T](stream)
     finally stream.close()
+  }
+
+  /** Decodes UBJSON (Universal Binary JSON) content of this file directly into a typed value.
+    *
+    * {{{
+    *   given UBJsonCodec[MyModel] = UBJsonCodec.derive[MyModel]
+    *   val model = fileHandle.readUBJson[MyModel]
+    * }}}
+    */
+  def readUBJson[T](using codec: UBJsonCodec[T]): T = {
+    val bytes = fh.readBytes()
+    UBJsonDerivationUtils.readFromBytes[T](bytes)(codec)
   }
 }

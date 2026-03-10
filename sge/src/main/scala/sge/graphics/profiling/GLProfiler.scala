@@ -76,19 +76,19 @@ class GLProfiler(graphics: Graphics) {
   def enabled: Boolean = _enabled
 
   /** @return the total gl calls made since the last reset */
-  def calls: Int = glInterceptor.getCalls()
+  def calls: Int = glInterceptor.calls
 
   /** @return the total amount of texture bindings made since the last reset */
-  def textureBindings: Int = glInterceptor.getTextureBindings()
+  def textureBindings: Int = glInterceptor.textureBindings
 
   /** @return the total amount of draw calls made since the last reset */
-  def drawCalls: Int = glInterceptor.getDrawCalls()
+  def drawCalls: Int = glInterceptor.drawCalls
 
   /** @return the total amount of shader switches made since the last reset */
-  def shaderSwitches: Int = glInterceptor.getShaderSwitches()
+  def shaderSwitches: Int = glInterceptor.shaderSwitches
 
   /** @return {@link FloatCounter} containing information about rendered vertices since the last reset */
-  def vertexCount: sge.math.FloatCounter = glInterceptor.getVertexCount()
+  def vertexCount: sge.math.FloatCounter = glInterceptor.vertexCount
 
   /** Will reset the statistical information which has been collected so far. This should be called after every frame. Error listener is kept as it is.
     */

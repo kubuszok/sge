@@ -56,7 +56,7 @@ object DynamicsModifier {
   private val TMP_V3: Vector3    = Vector3()
   private val TMP_Q:  Quaternion = Quaternion()
 
-  class FaceDirection extends DynamicsModifier {
+  final class FaceDirection extends DynamicsModifier {
     private var rotationChannel:      FloatChannel = scala.compiletime.uninitialized
     private var accellerationChannel: FloatChannel = scala.compiletime.uninitialized
 
@@ -178,7 +178,7 @@ object DynamicsModifier {
     }
   }
 
-  class Rotational2D extends Strength {
+  final class Rotational2D extends Strength {
     private var rotationalVelocity2dChannel: FloatChannel = scala.compiletime.uninitialized
 
     def this(rotation: Rotational2D) = {
@@ -212,7 +212,7 @@ object DynamicsModifier {
       Rotational2D(this)
   }
 
-  class Rotational3D extends Angular {
+  final class Rotational3D extends Angular {
     @nowarn("msg=not read") // set in allocateChannels, will be read in update
     private var rotationChannel:        FloatChannel = scala.compiletime.uninitialized
     private var rotationalForceChannel: FloatChannel = scala.compiletime.uninitialized
@@ -298,7 +298,7 @@ object DynamicsModifier {
       Rotational3D(this)
   }
 
-  class CentripetalAcceleration extends Strength {
+  final class CentripetalAcceleration extends Strength {
     private var accelerationChannel: FloatChannel = scala.compiletime.uninitialized
     private var positionChannel:     FloatChannel = scala.compiletime.uninitialized
 
@@ -359,7 +359,7 @@ object DynamicsModifier {
       CentripetalAcceleration(this)
   }
 
-  class PolarAcceleration extends Angular {
+  final class PolarAcceleration extends Angular {
     private var directionalVelocityChannel: FloatChannel = scala.compiletime.uninitialized
 
     def this(rotation: PolarAcceleration) = {
@@ -419,7 +419,7 @@ object DynamicsModifier {
       PolarAcceleration(this)
   }
 
-  class TangentialAcceleration extends Angular {
+  final class TangentialAcceleration extends Angular {
     private var directionalVelocityChannel: FloatChannel = scala.compiletime.uninitialized
     private var positionChannel:            FloatChannel = scala.compiletime.uninitialized
 
@@ -489,7 +489,7 @@ object DynamicsModifier {
       TangentialAcceleration(this)
   }
 
-  class BrownianAcceleration extends Strength {
+  final class BrownianAcceleration extends Strength {
     private var accelerationChannel: FloatChannel = scala.compiletime.uninitialized
 
     def this(rotation: BrownianAcceleration) = {

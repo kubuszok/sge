@@ -712,7 +712,7 @@ class BillboardParticleBatch(
   override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("billboardBatch")
     data.save("cfg", BillboardParticleBatch.Config(_useGPU, _mode))
-    data.saveAsset(manager.assetFileName(_texture).getOrElse(""), classOf[Texture])
+    data.saveAsset[Texture](manager.assetFileName(_texture).getOrElse(""))
   }
 
   override def load(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {

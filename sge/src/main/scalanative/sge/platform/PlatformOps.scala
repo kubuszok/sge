@@ -15,6 +15,7 @@ package platform
 private[sge] object PlatformOps {
   val etc1:   ETC1Ops   = ETC1OpsNative
   val buffer: BufferOps = BufferOpsNative
+  val gdx2d:  Gdx2dOps  = Gdx2dOpsNative
 
   // Desktop backend FFI — set by the DesktopApplication during initialization.
   // Null until a desktop backend is running (headless mode doesn't need them).

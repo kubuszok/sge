@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.model
 
-Audited: 6/6 files | Pass: 5 | Minor: 1 | Major: 0
-Last updated: 2026-03-04
+Audited: 6/6 files | Pass: 6 | Minor: 0 | Major: 0
+Last updated: 2026-03-10
 
 ---
 
@@ -77,21 +77,20 @@ Last updated: 2026-03-04
 
 ---
 
-### MeshPart.scala -- minor_issues
+### MeshPart.scala -- pass
 
 | Field | Value |
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/g3d/model/MeshPart.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/g3d/model/MeshPart.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All Java public methods and fields present. Constructors (no-arg, 5-arg, copy) all present. `set(MeshPart)`, `set(5-arg)`, `update()`, `equals(MeshPart)`, `equals(Any)`, `render(ShaderProgram, Boolean)`, `render(ShaderProgram)` all present.
 **Renames**: `id` type changed from `String` to `Nullable[String]` (Java allows null id); `halfExtents.len()` -> `halfExtents.length` (SGE Vector3 renames `len` to `length`)
 **Convention changes**: Static `bounds` -> companion object `private val`; pattern-match `equals(Any)`
 **TODOs**: None
-**Issues**:
-- `minor`: `hashCode()` override added in Scala but NOT present in Java source (SGE improvement/addition)
+**Issues**: None — non-standard `hashCode()` override removed; `equals`/`hashCode` contract now consistent with Java source.
 
 ---
 

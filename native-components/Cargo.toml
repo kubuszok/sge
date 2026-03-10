@@ -15,6 +15,9 @@ jni = { version = "0.21", optional = true }
 # FreeType bindings (vendored C source — no system dependency)
 freetype = { version = "0.7", optional = true, features = ["freetype-sys"] }
 
+# Image decoding (pure Rust — cross-compiles to all targets)
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "bmp"], optional = true }
+
 # 2D physics engine (pure Rust — cross-compiles to all targets)
 rapier2d = { version = "0.22", optional = true }
 crossbeam = { version = "0.8", optional = true }
@@ -23,15 +26,17 @@ crossbeam = { version = "0.8", optional = true }
 cc = "1"
 
 [features]
-default = ["freetype_support", "physics"]
+default = ["freetype_support", "physics", "image_decode"]
 # JNI bridge for Android (ART doesn't support Panama). Desktop JVM uses Panama FFM via C ABI.
 android = ["jni"]
 # FreeType font rasterization
 freetype_support = ["freetype"]
 # 2D physics via Rapier2D
 physics = ["rapier2d", "crossbeam"]
+# Image decoding via pure-Rust `image` crate (PNG, JPEG, BMP)
+image_decode = ["image"]
 # All extensions
-all = ["freetype_support", "physics"]
+all = ["freetype_support", "physics", "image_decode"]
 
 [profile.release]
 opt-level = 3

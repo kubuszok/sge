@@ -20,7 +20,7 @@ package utils
   * @author
   *   Jon Renner (original implementation)
   */
-class QuickSelect[T] {
+final class QuickSelect[T] {
   private var array: Array[T]    = scala.compiletime.uninitialized
   private var comp:  Ordering[T] = scala.compiletime.uninitialized
 

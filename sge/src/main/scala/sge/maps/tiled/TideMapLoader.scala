@@ -82,7 +82,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
     try {
       root = xml.parse(tmxFile)
       for (image <- loadTileSheets(root, tmxFile))
-        dependencies.add(new AssetDescriptor[Texture](image.path(), classOf[Texture]))
+        dependencies.add(AssetDescriptor[Texture](image.path()))
       dependencies
     } catch {
       case e: IOException =>

@@ -10,7 +10,7 @@
  *   Renames: dst2 -> distanceSq; NumberUtils.floatToRawIntBits -> java.lang.Float.floatToRawIntBits;
  *     PI_4_3 -> companion object
  *   Convention: Serializable dropped; serialVersionUID dropped;
- *     constructor takes center by reference (Java copies via new Vector3(center));
+ *     constructor copies center via Vector3(center) (matches Java's new Vector3(center));
  *     added secondary (x,y,z,r) constructor not in Java
  *   Idiom: split packages
  *   Audited: 2026-03-04
@@ -24,7 +24,8 @@ package collision
   * @author
   *   badlogicgames@gmail.com (original implementation)
   */
-class Sphere(val center: Vector3, var radius: Float) {
+class Sphere(centerArg: Vector3, var radius: Float) {
+  val center: Vector3 = Vector3(centerArg.x, centerArg.y, centerArg.z)
 
   def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) =
     this(Vector3(centerX, centerY, centerZ), radius)

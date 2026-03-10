@@ -109,7 +109,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
       for (r <- toRemove) controllers.removeValue(r)
 
       indices.foreach { idx =>
-        data.saveAsset(manager.assetFileName(effect).getOrElse(""), classOf[ParticleEffect])
+        data.saveAsset[ParticleEffect](manager.assetFileName(effect).getOrElse(""))
         effectsIndices.add(idx)
       }
       i += 1
@@ -129,7 +129,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
         descriptor.fold {
           keepLoading = false
         } { desc =>
-          val effect = manager(desc.fileName, classOf[ParticleEffect])
+          val effect = manager[ParticleEffect](desc.fileName)
           if (Nullable(effect).isEmpty) throw new RuntimeException("Template is null")
           val effectControllers = effect.controllers
           var j                 = 0
@@ -146,7 +146,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
 object ParticleControllerInfluencer {
 
   /** Assigns the first controller of {@link ParticleControllerInfluencer#templates} to the particles. */
-  class Single extends ParticleControllerInfluencer {
+  final class Single extends ParticleControllerInfluencer {
 
     def this(templateControllers: ParticleController*) = {
       this()
@@ -197,7 +197,7 @@ object ParticleControllerInfluencer {
   }
 
   /** Assigns a random controller of {@link ParticleControllerInfluencer#templates} to the particles. */
-  class Random extends ParticleControllerInfluencer {
+  final class Random extends ParticleControllerInfluencer {
 
     private var pool: Pool[ParticleController] = createPool()
 

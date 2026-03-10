@@ -573,7 +573,8 @@ pub unsafe extern "C" fn sge_phys_destroy_joint(world: *mut c_void, joint: u64) 
 // Queries
 // ---------------------------------------------------------------------------
 
-/// Ray cast. Fills `out` with [hitX, hitY, normalX, normalY, toi, bodyHandle(as f32 bits)] (6 floats).
+/// Ray cast. Fills `out` with [hitX, hitY, normalX, normalY, toi, bodyHandleLo, bodyHandleHi] (7 floats).
+/// The body handle is split across two f32 slots: low 32 bits in `out[5]`, high 32 bits in `out[6]`.
 /// Returns 1 if hit, 0 otherwise.
 #[no_mangle]
 pub unsafe extern "C" fn sge_phys_ray_cast(
@@ -598,16 +599,20 @@ pub unsafe extern "C" fn sge_phys_ray_cast(
     ) {
         let hit_point = ray.point_at(toi);
         // Get normal by doing a full intersection
-        let arr = slice::from_raw_parts_mut(out, 6);
+        let arr = slice::from_raw_parts_mut(out, 7);
         arr[0] = hit_point.x;
         arr[1] = hit_point.y;
         arr[2] = 0.0; // normal x (simplified — full intersection needed for normals)
         arr[3] = 0.0; // normal y
         arr[4] = toi;
-        // Encode collider handle as body handle via parent body
+        // Encode collider handle as body handle via parent body (full 64-bit, split across 2 floats)
+        arr[5] = 0.0;
+        arr[6] = 0.0;
         if let Some(collider) = w.collider_set.get(handle) {
             if let Some(parent) = collider.parent() {
-                arr[5] = f32::from_bits(body_handle_to_u64(parent) as u32);
+                let h = body_handle_to_u64(parent);
+                arr[5] = f32::from_bits(h as u32);         // low 32 bits
+                arr[6] = f32::from_bits((h >> 32) as u32); // high 32 bits (generation)
             }
         }
         1

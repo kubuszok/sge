@@ -12,6 +12,8 @@ package audio
 opaque type Pan = Float
 object Pan {
 
+  given utils.MkArray[Pan] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Pan]]
+
   def parse(value: Float): Either[String, Pan] =
     if (value < -1.0 || value > 1.0) Left(s"Pan must be between -1 and 1, got $value")
     else Right(value)

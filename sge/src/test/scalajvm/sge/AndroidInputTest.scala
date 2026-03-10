@@ -45,9 +45,12 @@ class AndroidInputTest extends FunSuite {
   }
 
   private class StubInputMethodOps extends InputMethodOps {
-    var keyboardShown:   Boolean = false
-    var lastInputType:   Int     = -1
-    var _keyboardHeight: Int     = 0
+    var keyboardShown:     Boolean            = false
+    var lastInputType:     Int                = -1
+    var _keyboardHeight:   Int                = 0
+    var nativeFieldOpen:   Boolean            = false
+    var lastNativeText:    String             = ""
+    var lastNativeOnClose: Boolean => Boolean = _ => false
 
     override def showKeyboard(inputType: Int): Unit = {
       keyboardShown = true
@@ -59,7 +62,28 @@ class AndroidInputTest extends FunSuite {
     override def setKeyboardHeight(height: Int):                                                                                                Unit    = _keyboardHeight = height
     override def showTextInputDialog(title: String, text: String, hint: String, maxLength: Int, inputType: Int, callback: InputDialogCallback): Unit    =
       callback.onInput("test-result")
-    override def setView(view: AnyRef): Unit = ()
+    override def openNativeTextField(
+      text:              String,
+      selectionStart:    Int,
+      selectionEnd:      Int,
+      inputType:         Int,
+      maxLength:         Int,
+      placeholder:       String,
+      maskInput:         Boolean,
+      multiLine:         Boolean,
+      preventCorrection: Boolean,
+      autoComplete:      Array[String],
+      onTextChanged:     (String, Int, Int) => Unit,
+      onClose:           Boolean => Boolean,
+      validator:         String => Boolean
+    ): Unit = {
+      nativeFieldOpen = true
+      lastNativeText = text
+      lastNativeOnClose = onClose
+    }
+    override def closeNativeTextField(confirmative: Boolean): Unit    = nativeFieldOpen = false
+    override def isNativeTextFieldOpen:                       Boolean = nativeFieldOpen
+    override def setView(view:                      AnyRef):  Unit    = ()
   }
 
   private class StubHapticsOps extends HapticsOps {
@@ -219,6 +243,41 @@ class AndroidInputTest extends FunSuite {
       "hint"
     )
     assertEquals(result, "test-result")
+  }
+
+  // ── Native text input field ───────────────────────────────────────
+
+  test("openTextInputField delegates to InputMethodOps") {
+    val (input, _, inputMethod, _) = createInput()
+    val wrapper                    = new sge.input.TextInputWrapper {
+      override def getText():                                                          String = "hello"
+      override def getSelectionStart():                                                Int    = 0
+      override def getSelectionEnd():                                                  Int    = 5
+      override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit   = ()
+    }
+    val config = sge.input.NativeInputConfiguration().setTextInputWrapper(wrapper).setPlaceholder("Type here").setMaxLength(Some(100))
+
+    input.openTextInputField(config)
+    assert(inputMethod.nativeFieldOpen)
+    assertEquals(inputMethod.lastNativeText, "hello")
+    assert(input.isTextInputFieldOpened())
+  }
+
+  test("closeTextInputField delegates to InputMethodOps") {
+    val (input, _, _, _) = createInput()
+    val wrapper          = new sge.input.TextInputWrapper {
+      override def getText():                                                          String = "test"
+      override def getSelectionStart():                                                Int    = 0
+      override def getSelectionEnd():                                                  Int    = 4
+      override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit   = ()
+    }
+    val config = sge.input.NativeInputConfiguration().setTextInputWrapper(wrapper)
+
+    input.openTextInputField(config)
+    assert(input.isTextInputFieldOpened())
+
+    input.closeTextInputField(true)
+    assert(!input.isTextInputFieldOpened())
   }
 
   // ── Haptics ────────────────────────────────────────────────────────

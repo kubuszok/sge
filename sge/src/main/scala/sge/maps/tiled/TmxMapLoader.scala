@@ -97,7 +97,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLo
 
     val fileHandles = getDependencyFileHandles(tmxFile)
     for (handle <- fileHandles)
-      descriptors.add(new AssetDescriptor[Texture](handle, classOf[Texture], textureParameter))
+      descriptors.add(AssetDescriptor[Texture](handle.path(), textureParameter))
 
     descriptors
   }

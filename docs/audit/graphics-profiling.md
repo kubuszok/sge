@@ -1,7 +1,7 @@
 # Audit: sge.graphics.profiling
 
-Audited: 7/7 files | Pass: 5 | Minor: 2 | Major: 0
-Last updated: 2026-03-04
+Audited: 7/7 files | Pass: 6 | Minor: 1 | Major: 0
+Last updated: 2026-03-10
 
 ---
 
@@ -9,7 +9,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GL20Interceptor.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GL20Interceptor.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GL20Interceptor.java` |
 | Status | pass |
 | Tested | No |
@@ -26,7 +26,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GL30Interceptor.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GL30Interceptor.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GL30Interceptor.java` |
 | Status | pass |
 | Tested | No |
@@ -43,7 +43,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GL31Interceptor.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GL31Interceptor.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GL31Interceptor.java` |
 | Status | pass |
 | Tested | No |
@@ -60,7 +60,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GL32Interceptor.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GL32Interceptor.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GL32Interceptor.java` |
 | Status | minor_issues |
 | Tested | No |
@@ -78,7 +78,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GLErrorListener.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GLErrorListener.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GLErrorListener.java` |
 | Status | pass |
 | Tested | No |
@@ -95,17 +95,16 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GLInterceptor.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GLInterceptor.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GLInterceptor.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All fields, getters, `reset()`, and `resolveErrorNumber()` present. Added abstract `protected def check()`.
 **Renames**: None
-**Convention changes**: Static `resolveErrorNumber` -> companion object method; `switch` -> `match`; added abstract `check()` (improvement)
+**Convention changes**: Static `resolveErrorNumber` -> companion object method; `switch` -> `match`; added abstract `check()` (improvement); Java-style getters (`getCalls()`, etc.) → public `var` fields following SGE convention.
 **TODOs**: None
-**Issues**:
-- `minor`: Java-style getters retained (`getCalls()`, `getTextureBindings()`, etc.) — intentional: protected var + public getter pattern
+**Issues**: None — Java-style getters converted to public vars.
 
 ---
 
@@ -113,13 +112,13 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/graphics/profiling/GLProfiler.scala` |
+| SGE path | `sge/src/main/scala/sge/graphics/profiling/GLProfiler.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/profiling/GLProfiler.java` |
 | Status | pass |
 | Tested | No |
 
-**Completeness**: Structure matches Java. Constructor, enable/disable, listener, metric accessors, reset all present. `enable()`/`disable()` bodies commented out pending Graphics trait setGL* methods.
+**Completeness**: Structure matches Java. Constructor, enable/disable, listener, metric accessors, reset all present. `enable()`/`disable()` fully implemented using `Graphics.setGL20/30/31/32()`.
 **Renames**: `GdxRuntimeException` -> `RuntimeException`; `getListener`/`setListener` -> `var listener`; `isEnabled` -> `def enabled`; `getCalls`/etc -> Scala-style defs
-**Convention changes**: Null fields -> `scala.compiletime.uninitialized`; GL level detection hardcoded to GL20 (pending Graphics API)
-**TODOs**: 3 — constructor GL detection, enable/disable Graphics methods, enable/disable Gdx globals (all blocked by missing Graphics trait API)
-**Issues**: None (remaining TODOs are blocked by upstream Graphics trait)
+**Convention changes**: Null fields -> `scala.compiletime.uninitialized`; GL level detection uses `graphics.getGL32()/.getGL31()/.getGL30()` cascade in `locally {}` block
+**TODOs**: None — all previously blocked TODOs resolved: GL detection uses Graphics API, enable/disable use setGL*, Gdx globals replaced by `Sge()` delegation
+**Issues**: None

@@ -23,7 +23,7 @@ import scala.util.boundary.break
   * If you are using an optimizing VM, you may find that ComparableTimSort offers no performance benefit over TimSort in conjunction with a comparator that simply returns
   * ((Comparable)first).compareTo(Second). If this is the case, you are better off deleting ComparableTimSort to eliminate the code duplication. (See Arrays.java for details.)
   */
-class ComparableTimSort {
+final class ComparableTimSort {
 
   /** The array being sorted. */
   private var a: Array[AnyRef] = scala.compiletime.uninitialized

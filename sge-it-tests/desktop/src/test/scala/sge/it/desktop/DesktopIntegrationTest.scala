@@ -71,7 +71,7 @@ class DesktopIntegrationTest extends FunSuite {
       fail(s"${failed.size} subsystem check(s) failed:\n$details")
     }
 
-    assertEquals(checks.size, 6, s"Expected 6 checks, got ${checks.size}")
+    assertEquals(checks.size, 20, s"Expected 20 checks, got ${checks.size}")
   }
 
   /** Minimal JSON parsing for check results. */

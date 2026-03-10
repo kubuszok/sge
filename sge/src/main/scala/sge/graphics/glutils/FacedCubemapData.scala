@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: data array is Array[Nullable[TextureData]] instead of nullable TextureData[]
  *   Idiom: split packages
- *   Issues: raw null passed as Format argument to PixmapTextureData constructor (14 occurrences) -- should use Nullable.empty
+ *   Convention: Nullable.empty passed as Format to PixmapTextureData (14 call sites fixed, no raw null remains)
  *   Convention: typed GL enums — TextureTarget, PixelFormat, DataType for consumeCubemapData GL calls
  *   Audited: 2026-03-03
  *
@@ -62,12 +62,12 @@ class FacedCubemapData(using Sge) extends CubemapData {
     sge: Sge
   ) = {
     this()
-    data(0) = positiveX.map(px => PixmapTextureData(px, null, false, false))
-    data(1) = negativeX.map(px => PixmapTextureData(px, null, false, false))
-    data(2) = positiveY.map(px => PixmapTextureData(px, null, false, false))
-    data(3) = negativeY.map(px => PixmapTextureData(px, null, false, false))
-    data(4) = positiveZ.map(px => PixmapTextureData(px, null, false, false))
-    data(5) = negativeZ.map(px => PixmapTextureData(px, null, false, false))
+    data(0) = positiveX.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
+    data(1) = negativeX.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
+    data(2) = positiveY.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
+    data(3) = negativeY.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
+    data(4) = positiveZ.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
+    data(5) = negativeZ.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
   }
 
   /** Construct a Cubemap with the specified {@link Pixmap}s for the sides, optionally generating mipmaps. */
@@ -81,23 +81,23 @@ class FacedCubemapData(using Sge) extends CubemapData {
     useMipMaps: Boolean
   )(using Sge) = {
     this()
-    data(0) = positiveX.map(px => PixmapTextureData(px, null, useMipMaps, false))
-    data(1) = negativeX.map(px => PixmapTextureData(px, null, useMipMaps, false))
-    data(2) = positiveY.map(px => PixmapTextureData(px, null, useMipMaps, false))
-    data(3) = negativeY.map(px => PixmapTextureData(px, null, useMipMaps, false))
-    data(4) = positiveZ.map(px => PixmapTextureData(px, null, useMipMaps, false))
-    data(5) = negativeZ.map(px => PixmapTextureData(px, null, useMipMaps, false))
+    data(0) = positiveX.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
+    data(1) = negativeX.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
+    data(2) = positiveY.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
+    data(3) = negativeY.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
+    data(4) = positiveZ.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
+    data(5) = negativeZ.map(px => PixmapTextureData(px, Nullable.empty, useMipMaps, false, false))
   }
 
   /** Construct a Cubemap with {@link Pixmap}s for each side of the specified size. */
   def this(width: Int, height: Int, depth: Int, format: Format)(using Sge) = {
     this()
-    data(0) = Nullable(PixmapTextureData(Pixmap(depth, height, format), null, false, true))
-    data(1) = Nullable(PixmapTextureData(Pixmap(depth, height, format), null, false, true))
-    data(2) = Nullable(PixmapTextureData(Pixmap(width, depth, format), null, false, true))
-    data(3) = Nullable(PixmapTextureData(Pixmap(width, depth, format), null, false, true))
-    data(4) = Nullable(PixmapTextureData(Pixmap(width, height, format), null, false, true))
-    data(5) = Nullable(PixmapTextureData(Pixmap(width, height, format), null, false, true))
+    data(0) = Nullable(PixmapTextureData(Pixmap(depth, height, format), Nullable.empty, false, true, false))
+    data(1) = Nullable(PixmapTextureData(Pixmap(depth, height, format), Nullable.empty, false, true, false))
+    data(2) = Nullable(PixmapTextureData(Pixmap(width, depth, format), Nullable.empty, false, true, false))
+    data(3) = Nullable(PixmapTextureData(Pixmap(width, depth, format), Nullable.empty, false, true, false))
+    data(4) = Nullable(PixmapTextureData(Pixmap(width, height, format), Nullable.empty, false, true, false))
+    data(5) = Nullable(PixmapTextureData(Pixmap(width, height, format), Nullable.empty, false, true, false))
   }
 
   /** Construct a Cubemap with the specified {@link TextureData}'s for the sides */
@@ -132,7 +132,7 @@ class FacedCubemapData(using Sge) extends CubemapData {
     *   The {@link Pixmap}
     */
   def load(side: CubemapSide, pixmap: Nullable[Pixmap]): Unit =
-    data(side.index) = pixmap.map(px => PixmapTextureData(px, null, false, false))
+    data(side.index) = pixmap.map(px => PixmapTextureData(px, Nullable.empty, false, false, false))
 
   /** @return True if all sides of this cubemap are set, false otherwise. */
   def isComplete(): Boolean =

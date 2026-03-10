@@ -40,7 +40,7 @@ abstract class ColorInfluencer extends Influencer {
 object ColorInfluencer {
 
   /** It's an {@link Influencer} which assigns a random color when a particle is activated. */
-  class Random extends ColorInfluencer {
+  final class Random extends ColorInfluencer {
 
     override def allocateChannels(): Unit =
       colorChannel = controller.particles.addChannel(ParticleChannels.Color)
@@ -62,7 +62,7 @@ object ColorInfluencer {
   }
 
   /** It's an {@link Influencer} which manages the particle color during its life time. */
-  class Single extends ColorInfluencer {
+  final class Single extends ColorInfluencer {
     var alphaInterpolationChannel: FloatChannel       = scala.compiletime.uninitialized
     var lifeChannel:               FloatChannel       = scala.compiletime.uninitialized
     var alphaValue:                ScaledNumericValue = ScaledNumericValue()

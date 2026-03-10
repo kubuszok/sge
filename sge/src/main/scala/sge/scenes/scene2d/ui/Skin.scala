@@ -227,18 +227,18 @@ class Skin()(using Sge) extends AutoCloseable {
     val obj    = reader.create()
 
     // Handle parent field: copy all fields from the named parent resource.
+    // Uses a compile-time type hierarchy instead of getSuperclass() for Scala.js compatibility.
     Skin.getField(json, "parent").foreach {
       case Json.Str(parentName) =>
-        var parentType: Class[?] = tpe
-        var found = false
-        while (!found && parentType != classOf[Object])
+        val typesToTry = tpe :: Skin.styleParentTypes.getOrElse(tpe, Nil)
+        var found      = false
+        for (parentType <- typesToTry if !found)
           try {
             val parentObj = get(parentName, parentType.asInstanceOf[Class[Any]])
             reader.copyFrom(parentObj, obj)
             found = true
           } catch {
-            case _: SgeError =>
-              parentType = parentType.getSuperclass
+            case _: SgeError => ()
           }
         if (!found)
           throw SgeError.InvalidInput("Unable to find parent resource with name: " + parentName)
@@ -635,47 +635,76 @@ object Skin {
     var color: Color  = scala.compiletime.uninitialized
   }
 
-  /** Maps short class names to their Class objects for JSON type resolution. */
-  private lazy val classTagMap: Map[String, Class[?]] = {
-    val classes: Array[Class[?]] = Array(
-      classOf[BitmapFont],
-      classOf[Color],
-      classOf[TintedDrawable],
-      classOf[NinePatchDrawable],
-      classOf[SpriteDrawable],
-      classOf[TextureRegionDrawable],
-      classOf[TiledDrawable],
-      classOf[Button.ButtonStyle],
-      classOf[CheckBox.CheckBoxStyle],
-      classOf[ImageButton.ImageButtonStyle],
-      classOf[ImageTextButton.ImageTextButtonStyle],
-      classOf[Label.LabelStyle],
-      classOf[SgeList.ListStyle],
-      classOf[ProgressBar.ProgressBarStyle],
-      classOf[ScrollPane.ScrollPaneStyle],
-      classOf[SelectBox.SelectBoxStyle],
-      classOf[Slider.SliderStyle],
-      classOf[SplitPane.SplitPaneStyle],
-      classOf[TextButton.TextButtonStyle],
-      classOf[TextField.TextFieldStyle],
-      classOf[TextTooltip.TextTooltipStyle],
-      classOf[Touchpad.TouchpadStyle],
-      classOf[Tree.TreeStyle],
-      classOf[Window.WindowStyle]
-    )
-    val map = mutable.Map.empty[String, Class[?]]
-    for (c <- classes) map.put(c.getSimpleName, c)
-    // Also add LibGDX-compatible aliases for List (renamed to SgeList in SGE).
-    map.put("ListStyle", classOf[SgeList.ListStyle])
-    map.toMap
-  }
+  /** Maps type name strings to Class objects for JSON type resolution. Hardcoded instead of using getSimpleName/Class.forName for Scala.js/Native compatibility. Includes short names, LibGDX
+    * fully-qualified names, and SGE fully-qualified names.
+    */
+  private lazy val classTagMap: Map[String, Class[?]] = Map(
+    // Short names (used in modern skin JSON files)
+    "BitmapFont" -> classOf[BitmapFont],
+    "Color" -> classOf[Color],
+    "TintedDrawable" -> classOf[TintedDrawable],
+    "NinePatchDrawable" -> classOf[NinePatchDrawable],
+    "SpriteDrawable" -> classOf[SpriteDrawable],
+    "TextureRegionDrawable" -> classOf[TextureRegionDrawable],
+    "TiledDrawable" -> classOf[TiledDrawable],
+    "ButtonStyle" -> classOf[Button.ButtonStyle],
+    "CheckBoxStyle" -> classOf[CheckBox.CheckBoxStyle],
+    "ImageButtonStyle" -> classOf[ImageButton.ImageButtonStyle],
+    "ImageTextButtonStyle" -> classOf[ImageTextButton.ImageTextButtonStyle],
+    "LabelStyle" -> classOf[Label.LabelStyle],
+    "ListStyle" -> classOf[SgeList.ListStyle],
+    "ProgressBarStyle" -> classOf[ProgressBar.ProgressBarStyle],
+    "ScrollPaneStyle" -> classOf[ScrollPane.ScrollPaneStyle],
+    "SelectBoxStyle" -> classOf[SelectBox.SelectBoxStyle],
+    "SliderStyle" -> classOf[Slider.SliderStyle],
+    "SplitPaneStyle" -> classOf[SplitPane.SplitPaneStyle],
+    "TextButtonStyle" -> classOf[TextButton.TextButtonStyle],
+    "TextFieldStyle" -> classOf[TextField.TextFieldStyle],
+    "TextTooltipStyle" -> classOf[TextTooltip.TextTooltipStyle],
+    "TouchpadStyle" -> classOf[Touchpad.TouchpadStyle],
+    "TreeStyle" -> classOf[Tree.TreeStyle],
+    "WindowStyle" -> classOf[Window.WindowStyle],
+    // LibGDX fully-qualified names (for compatibility with existing skin JSON files)
+    "com.badlogic.gdx.graphics.g2d.BitmapFont" -> classOf[BitmapFont],
+    "com.badlogic.gdx.graphics.Color" -> classOf[Color],
+    "com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable" -> classOf[TintedDrawable],
+    "com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable" -> classOf[NinePatchDrawable],
+    "com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable" -> classOf[SpriteDrawable],
+    "com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable" -> classOf[TextureRegionDrawable],
+    "com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable" -> classOf[TiledDrawable],
+    "com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle" -> classOf[Button.ButtonStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.CheckBox$CheckBoxStyle" -> classOf[CheckBox.CheckBoxStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle" -> classOf[ImageButton.ImageButtonStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle" -> classOf[ImageTextButton.ImageTextButtonStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle" -> classOf[Label.LabelStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle" -> classOf[SgeList.ListStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle" -> classOf[ProgressBar.ProgressBarStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle" -> classOf[ScrollPane.ScrollPaneStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle" -> classOf[SelectBox.SelectBoxStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle" -> classOf[Slider.SliderStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle" -> classOf[SplitPane.SplitPaneStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle" -> classOf[TextButton.TextButtonStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle" -> classOf[TextField.TextFieldStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle" -> classOf[TextTooltip.TextTooltipStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle" -> classOf[Touchpad.TouchpadStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle" -> classOf[Tree.TreeStyle],
+    "com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle" -> classOf[Window.WindowStyle]
+  )
 
-  /** Resolves a type name from skin JSON to a Class. Tries the class tag map first, then fully qualified class name. */
+  /** Style class inheritance hierarchy for parent style lookup. Maps each subclass to its parent types (in order). Replaces getSuperclass() for Scala.js compatibility.
+    */
+  private val styleParentTypes: Map[Class[?], List[Class[?]]] = Map(
+    classOf[TextButton.TextButtonStyle] -> List(classOf[Button.ButtonStyle]),
+    classOf[CheckBox.CheckBoxStyle] -> List(classOf[TextButton.TextButtonStyle], classOf[Button.ButtonStyle]),
+    classOf[ImageButton.ImageButtonStyle] -> List(classOf[Button.ButtonStyle]),
+    classOf[ImageTextButton.ImageTextButtonStyle] -> List(classOf[TextButton.TextButtonStyle], classOf[Button.ButtonStyle]),
+    classOf[Slider.SliderStyle] -> List(classOf[ProgressBar.ProgressBarStyle])
+  )
+
+  /** Resolves a type name from skin JSON to a Class. Uses a hardcoded map instead of Class.forName for Scala.js/Native compatibility.
+    */
   private def resolveClass(name: String): Option[Class[?]] =
-    classTagMap.get(name).orElse {
-      try Some(Class.forName(name))
-      catch { case _: ClassNotFoundException => None }
-    }
+    classTagMap.get(name)
 
   // ---------------------------------------------------------------------------
   // JSON field access helpers

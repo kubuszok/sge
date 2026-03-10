@@ -671,54 +671,54 @@ backends/gwt/GwtPermissions.java		skipped	target:skip GWT-specific
 backends/gwt/GwtFeaturePolicy.java		skipped	target:skip GWT-specific
 backends/gwt/GwtUtils.java		skipped	target:skip GWT-specific
 # ── Android → backend-android ────────────────────────────────────
-backends/android/AndroidApplication.java	sge/backend/android/AndroidApplication.scala	not_started	target:android P2
-backends/android/AndroidApplicationBase.java	sge/backend/android/AndroidApplicationBase.scala	not_started	target:android P2
-backends/android/AndroidApplicationConfiguration.java	sge/backend/android/AndroidApplicationConfig.scala	not_started	target:android P2
-backends/android/AndroidApplicationLogger.java	sge/backend/android/AndroidLogger.scala	not_started	target:android P2
-backends/android/AndroidFragmentApplication.java	sge/backend/android/AndroidFragmentApp.scala	not_started	target:android P2
-backends/android/AndroidGraphics.java	sge/backend/android/AndroidGraphics.scala	not_started	target:android P2
-backends/android/AndroidGL20.java	sge/backend/android/AndroidGL20.scala	not_started	target:android P2 codegen
-backends/android/AndroidGL30.java	sge/backend/android/AndroidGL30.scala	not_started	target:android P2 codegen
-backends/android/DefaultAndroidInput.java	sge/backend/android/AndroidInput.scala	not_started	target:android P2
-backends/android/AndroidTouchHandler.java	sge/backend/android/AndroidTouchHandler.scala	not_started	target:android P2
-backends/android/AndroidMouseHandler.java	sge/backend/android/AndroidMouseHandler.scala	not_started	target:android P2
-backends/android/AndroidHaptics.java	sge/backend/android/AndroidHaptics.scala	not_started	target:android P2
-backends/android/DefaultAndroidAudio.java	sge/backend/android/AndroidAudio.scala	not_started	target:android P2
-backends/android/AndroidAudioDevice.java	sge/backend/android/AndroidAudioDevice.scala	not_started	target:android P2
-backends/android/AndroidAudioRecorder.java	sge/backend/android/AndroidAudioRecorder.scala	not_started	target:android P2
-backends/android/AndroidSound.java	sge/backend/android/AndroidSound.scala	not_started	target:android P2
-backends/android/AndroidMusic.java	sge/backend/android/AndroidMusic.scala	not_started	target:android P2
-backends/android/DefaultAndroidFiles.java	sge/backend/android/AndroidFiles.scala	not_started	target:android P2
-backends/android/AndroidFileHandle.java	sge/backend/android/AndroidFileHandle.scala	not_started	target:android P2
-backends/android/AndroidNet.java	sge/backend/android/AndroidNet.scala	not_started	target:android P2
-backends/android/AndroidPreferences.java	sge/backend/android/AndroidPreferences.scala	not_started	target:android P2
-backends/android/AndroidClipboard.java	sge/backend/android/AndroidClipboard.scala	not_started	target:android P2
-backends/android/AndroidCursor.java	sge/backend/android/AndroidCursor.scala	not_started	target:android P2
-backends/android/surfaceview/GLSurfaceView20.java	sge/backend/android/SgeGLSurfaceView.scala	not_started	target:android P2
-backends/android/surfaceview/GdxEglConfigChooser.java	sge/backend/android/EglConfigChooser.scala	not_started	target:android P2
-backends/android/surfaceview/ResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2
-backends/android/surfaceview/FillResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
-backends/android/surfaceview/FixedResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
-backends/android/surfaceview/RatioResolutionStrategy.java	sge/utils/ResolutionStrategy.scala	not_started	target:core-shared P2 merge
-backends/android/AndroidDaydream.java		skipped	target:skip niche
-backends/android/AndroidLiveWallpaperService.java		skipped	target:skip niche
-backends/android/AndroidLiveWallpaper.java		skipped	target:skip niche
-backends/android/AndroidGraphicsLiveWallpaper.java		skipped	target:skip niche
-backends/android/AndroidWallpaperListener.java		skipped	target:skip niche
+backends/android/AndroidApplication.java	scalajvm/sge/AndroidApplication.scala + api/AndroidLifecycleOps.scala + android/AndroidLifecycleImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidApplicationBase.java	scalajvm/sge/AndroidApplication.scala	ai_converted	target:android P2 done (merged)
+backends/android/AndroidApplicationConfiguration.java	api/AndroidConfigOps.scala	ai_converted	target:android P2 done
+backends/android/AndroidApplicationLogger.java	api/LoggerOps.scala	ai_converted	target:android P2 done (merged into provider)
+backends/android/AndroidFragmentApplication.java	scalajvm/sge/AndroidApplication.scala	ai_converted	target:android P2 done (merged)
+backends/android/AndroidGraphics.java	scalajvm/sge/AndroidGraphics.scala + api/GLSurfaceViewOps.scala + api/DisplayMetricsOps.scala	ai_converted	target:android P2 done
+backends/android/AndroidGL20.java	api/GL20Ops.scala + android/AndroidGL20Impl.scala	ai_converted	target:android P2 done
+backends/android/AndroidGL30.java	api/GL30Ops.scala + android/AndroidGL30Impl.scala	ai_converted	target:android P2 done
+backends/android/DefaultAndroidInput.java	scalajvm/sge/AndroidInput.scala + api/InputMethodOps.scala + api/SensorOps.scala + android/AndroidInputMethodImpl.scala + android/AndroidSensorImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidTouchHandler.java	scalajvm/sge/platform/AndroidTouchHandler.scala + api/TouchInputOps.scala + android/AndroidTouchInputImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidMouseHandler.java	scalajvm/sge/platform/AndroidMouseHandler.scala	ai_converted	target:android P2 done
+backends/android/AndroidHaptics.java	api/HapticsOps.scala + android/AndroidHapticsImpl.scala	ai_converted	target:android P2 done
+backends/android/DefaultAndroidAudio.java	api/AudioEngineOps.scala + android/AndroidAudioEngineImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidAudioDevice.java	api/AudioDeviceOps.scala + android/AndroidAudioDeviceImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidAudioRecorder.java	api/AudioRecorderOps.scala + android/AndroidAudioRecorderImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidSound.java	api/SoundOps.scala + android/AndroidSoundOpsImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidMusic.java	api/MusicOps.scala + android/AndroidMusicOpsImpl.scala	ai_converted	target:android P2 done
+backends/android/DefaultAndroidFiles.java	api/FilesOps.scala + android/AndroidFilesOpsImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidFileHandle.java	scalajvm/sge/files/AndroidFileHandle.scala	ai_converted	target:android P2 done
+backends/android/AndroidNet.java	scalajvm/sge/net/AndroidNet.scala	ai_converted	target:android P2 done
+backends/android/AndroidPreferences.java	api/PreferencesOps.scala + android/AndroidPreferencesImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidClipboard.java	api/ClipboardOps.scala + android/AndroidClipboardImpl.scala	ai_converted	target:android P2 done
+backends/android/AndroidCursor.java	api/CursorOps.scala + android/AndroidCursorImpl.scala	ai_converted	target:android P2 done
+backends/android/surfaceview/GLSurfaceView20.java	api/GLSurfaceViewOps.scala + android/AndroidGLSurfaceViewImpl.scala	ai_converted	target:android P2 done
+backends/android/surfaceview/GdxEglConfigChooser.java	android/AndroidGLSurfaceViewImpl.scala	ai_converted	target:android P2 done (merged)
+backends/android/surfaceview/ResolutionStrategy.java	api/ResolutionStrategyOps.scala	ai_converted	target:android P2 done
+backends/android/surfaceview/FillResolutionStrategy.java	api/FillResolutionStrategy.scala	ai_converted	target:android P2 done
+backends/android/surfaceview/FixedResolutionStrategy.java	api/FixedResolutionStrategy.scala	ai_converted	target:android P2 done
+backends/android/surfaceview/RatioResolutionStrategy.java	api/RatioResolutionStrategy.scala	ai_converted	target:android P2 done
+backends/android/AndroidDaydream.java		skipped	target:skip niche (deprecated API)
+backends/android/AndroidLiveWallpaperService.java	api/LiveWallpaperServiceOps.scala + android/AndroidLiveWallpaperServiceImpl.scala	ai_converted	target:android P3 done
+backends/android/AndroidLiveWallpaper.java	scalajvm/sge/AndroidLiveWallpaper.scala	ai_converted	target:android P3 done
+backends/android/AndroidGraphicsLiveWallpaper.java	scalajvm/sge/AndroidGraphics.scala	ai_converted	target:android P3 done (merged)
+backends/android/AndroidWallpaperListener.java	api/AndroidWallpaperListenerOps.scala	ai_converted	target:android P3 done
 backends/android/AndroidZipFileHandle.java		skipped	target:skip OBB niche
 backends/android/ZipResourceFile.java		skipped	target:skip OBB niche
 backends/android/APKExpansionSupport.java		skipped	target:skip OBB niche
 backends/android/DisabledAndroidAudio.java	sge/noop/NoopAudio.scala	ai_converted	target:core-shared done
-backends/android/AsynchronousAndroidAudio.java	sge/backend/android/AsyncAndroidAudio.scala	not_started	target:android P3
-backends/android/AsynchronousSound.java	sge/backend/android/AsyncAndroidSound.scala	not_started	target:android P3
-backends/android/InputProcessorLW.java		skipped	target:skip wallpaper-specific
-backends/android/AndroidVisibilityListener.java		skipped	target:skip immersive mode
-backends/android/AndroidEventListener.java		skipped	target:skip onActivityResult
-backends/android/GdxNativeLoader.java		skipped	target:skip JNI loader
-backends/android/keyboardheight/KeyboardHeightProvider.java		not_started	target:android P3
-backends/android/keyboardheight/KeyboardHeightObserver.java		not_started	target:android P3
-backends/android/keyboardheight/StandardKeyboardHeightProvider.java		not_started	target:android P3
-backends/android/keyboardheight/AndroidXKeyboardHeightProvider.java		not_started	target:android P3
+backends/android/AsynchronousAndroidAudio.java	android/AsynchronousAndroidAudioImpl.scala	ai_converted	target:android P3 done
+backends/android/AsynchronousSound.java	android/AsynchronousSoundOps.scala	ai_converted	target:android P3 done
+backends/android/InputProcessorLW.java	api/LiveWallpaperAppCallbacks.scala	ai_converted	target:android P3 done (merged)
+backends/android/AndroidVisibilityListener.java	api/VisibilityListenerOps.scala + android/AndroidVisibilityListenerImpl.scala	ai_converted	target:android P3 done
+backends/android/AndroidEventListener.java	api/AndroidEventListenerOps.scala	ai_converted	target:android P3 done
+backends/android/GdxNativeLoader.java		skipped	target:skip JNI loader (not needed)
+backends/android/keyboardheight/KeyboardHeightProvider.java	api/KeyboardHeightProviderOps.scala	ai_converted	target:android P3 done
+backends/android/keyboardheight/KeyboardHeightObserver.java	api/KeyboardHeightObserverOps.scala	ai_converted	target:android P3 done
+backends/android/keyboardheight/StandardKeyboardHeightProvider.java	android/StandardKeyboardHeightProviderImpl.scala	ai_converted	target:android P3 done
+backends/android/keyboardheight/AndroidXKeyboardHeightProvider.java	android/AndroidXKeyboardHeightProviderImpl.scala	ai_converted	target:android P3 done
 # ── iOS/RoboVM → backend-ios ─────────────────────────────────────
 backends/iosrobovm/IOSApplication.java	sge/backend/ios/IOSApplication.scala	deferred	target:ios P3 blocked:scala-native-ios
 backends/iosrobovm/IOSApplicationConfiguration.java	sge/backend/ios/IOSApplicationConfig.scala	deferred	target:ios P3

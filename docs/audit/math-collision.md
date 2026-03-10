@@ -1,7 +1,7 @@
 # Audit: sge.math.collision
 
-Audited: 5/5 files | Pass: 3 | Minor: 2 | Major: 0
-Last updated: 2026-03-04
+Audited: 5/5 files | Pass: 5 | Minor: 0 | Major: 0
+Last updated: 2026-03-10
 
 ---
 
@@ -9,18 +9,16 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/math/collision/Ray.scala` |
+| SGE path | `sge/src/main/scala/sge/math/collision/Ray.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/Ray.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | Yes — `sge/math/collision/CollisionTest.scala` (indirect) |
 
 **Completeness**: All Java public methods present (cpy, getEndPoint, mul, set x3, toString, equals, hashCode).
 **Renames**: None
 **Convention changes**: `Serializable` dropped; static `tmp` -> local allocation in `mul()`; pattern-match `equals`
 **TODOs**: None
-**Issues**:
-- `minor`: Primary constructor stores Vector3 refs directly; Java copies and normalizes direction
-- `minor`: 3-arg secondary constructor (with normalize flag) is an SGE addition
+**Issues**: None — constructor copy semantics fixed; 3-arg secondary constructor (with normalize flag) is an intentional SGE addition
 
 ---
 
@@ -28,7 +26,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/math/collision/OrientedBoundingBox.scala` |
+| SGE path | `sge/src/main/scala/sge/math/collision/OrientedBoundingBox.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/OrientedBoundingBox.java` |
 | Status | pass |
 | Tested | Yes — `sge/math/collision/CollisionTest.scala` |
@@ -45,7 +43,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/math/collision/BoundingBox.scala` |
+| SGE path | `sge/src/main/scala/sge/math/collision/BoundingBox.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/BoundingBox.java` |
 | Status | pass |
 | Tested | Yes — `sge/math/collision/CollisionTest.scala` |
@@ -62,18 +60,16 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/math/collision/Sphere.scala` |
+| SGE path | `sge/src/main/scala/sge/math/collision/Sphere.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/Sphere.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No — no LibGDX test exists; basic coverage via OBB/BB tests |
 
 **Completeness**: All Java public methods present (overlaps, hashCode, equals, volume, surfaceArea).
 **Renames**: `dst2` -> `distanceSq`
 **Convention changes**: `Serializable` dropped; `PI_4_3` constant -> companion object; pattern-match `equals`
 **TODOs**: None
-**Issues**:
-- `minor`: Constructor takes center Vector3 by reference; Java copies. Aliasing risk.
-- `minor`: Secondary constructor `(centerX, centerY, centerZ, radius)` is an SGE addition
+**Issues**: None — constructor copy semantics fixed; secondary constructor `(centerX, centerY, centerZ, radius)` is an intentional SGE addition
 
 ---
 
@@ -81,7 +77,7 @@ Last updated: 2026-03-04
 
 | Field | Value |
 |-------|-------|
-| SGE path | `core/src/main/scala/sge/math/collision/Segment.scala` |
+| SGE path | `sge/src/main/scala/sge/math/collision/Segment.scala` |
 | Java source(s) | `com/badlogic/gdx/math/collision/Segment.java` |
 | Status | pass |
 | Tested | No — no LibGDX test exists; trivial class |

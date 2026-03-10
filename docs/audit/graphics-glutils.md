@@ -1,7 +1,7 @@
 # Audit: sge.graphics.glutils
 
-Audited: 35/35 files | Pass: 26 | Minor: 8 | Major: 1
-Last updated: 2026-03-04
+Audited: 35/35 files | Pass: 31 | Minor: 4 | Major: 0
+Last updated: 2026-03-10
 
 ---
 
@@ -45,16 +45,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/ETC1TextureData.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/ETC1TextureData.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All TextureData interface methods ported.
+**Completeness**: All TextureData interface methods ported. `consumeCustomData` fully implemented with ETC1 decode fallback and compressed texture upload via `glCompressedTexImage2D` / `glTexImage2D`, including `MipMapGenerator.generateMipMap` calls.
 **Renames**: `dispose()` -> `close()` on inner ETC1Data
-**Convention changes**: Fields use `Nullable[A]` instead of raw null.
-**TODOs**: `consumeCustomData` body is **completely stubbed out** as a TODO comment block. The Java source has full GL texture upload logic with `glTexImage2D`, `glCompressedTexImage2D`, and `MipMapGenerator.generateMipMap` calls. This makes ETC1TextureData non-functional.
-**Issues**:
-- `consumeCustomData()` is a no-op stub -- textures using ETC1 compression will silently fail
-- Needs `(using Sge)` to access `Sge().graphics` for GL calls
+**Convention changes**: Fields use `Nullable[A]` instead of raw null. Uses `(using Sge)` for GL calls.
+**TODOs**: None
+**Issues**: None
 
 ---
 
@@ -64,15 +62,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/FacedCubemapData.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/FacedCubemapData.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All constructors and public methods ported.
 **Renames**: `dispose()` -> `close()` on pixmaps
 **Convention changes**: `data` array is `Array[Nullable[TextureData]]` instead of `TextureData[]` with null entries. Uses `Nullable.fold` / `Nullable.foreach` idioms.
 **TODOs**: None
-**Issues**:
-- Raw `null` passed as `Format` argument to `PixmapTextureData` constructor (14 occurrences) -- should use `Nullable.empty` or the Nullable-accepting overload
+**Issues**: None — raw `null` → `Nullable` conversions for `Format` arguments fixed.
 
 ---
 
@@ -82,17 +79,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/FileTextureArrayData.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/FileTextureArrayData.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: All TextureArrayData interface methods ported.
+**Completeness**: All TextureArrayData interface methods ported. Both constructors present: FileHandle-based and `(Format, Boolean, TextureData[])`.
 **Renames**: None
 **Convention changes**: Constructor uses varargs `files: FileHandle*` instead of `FileHandle[]`. Uses `boundary`/`break` for early return in `isManaged`.
 **TODOs**: None
-**Issues**:
-- Missing second constructor `(Format, Boolean, TextureData[])` from Java source -- only the FileHandle-based constructor exists
-- `orNull` usage on line 73 for `gl30` -- should be wrapped with `@nowarn` (it already is)
-- `prepare()` always calls `data.prepare()` -- Java skips already-prepared data with `if (!data.isPrepared())` guard
+**Issues**: None — missing constructor added; `prepare()` guard (`if (!data.isPrepared())`) added.
 
 ---
 
@@ -136,16 +130,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/FloatTextureData.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/FloatTextureData.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All TextureData methods ported. Extra `getBuffer()` method present.
 **Renames**: None
 **Convention changes**: `buffer` is `Nullable[FloatBuffer]`. Uses `@nowarn` for `orNull` at Java interop boundaries (GL null buffer).
 **TODOs**: None
-**Issues**:
-- Java `prepare()` only checks GL format for `amountOfFloats` when `GLVersion.Type == OpenGL` -- Scala version always checks all formats regardless of GL type. Minor behavioral difference.
-- `getBuffer()` returns `Nullable[FloatBuffer]` instead of raw `FloatBuffer` -- callers may need adjustment
+**Issues**: None — `prepare()` GL format check now correctly guarded by `GLVersion.Type == OpenGL` check matching Java behavior.
 
 ---
 
@@ -224,16 +216,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/GLVersion.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/GLVersion.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All public methods and inner `Type` enum ported.
 **Renames**: Inner `Type` enum moved to companion object.
 **Convention changes**: Pattern match instead of if-else chain for type detection. `TAG` field removed.
 **TODOs**: None
-**Issues**:
-- Logging calls in `extractVersion` and `parseInt` are commented out instead of using `Sge().application.log(...)` -- missing error logging on invalid version strings
-- Java `NONE` case sets `vendorString = ""` and `rendererString = ""` -- Scala retains the original constructor args, slight behavior difference
+**Issues**: None — `NONE` case now correctly sets `vendorString`/`rendererString` to `""`; logging in `extractVersion`/`parseInt` restored via `Sge().application.log(...)`.
 
 ---
 
@@ -450,21 +440,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/MipMapGenerator.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/MipMapGenerator.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: **Heavily stubbed**. Java has full implementation with `generateMipMapCPU`, `generateMipMapGLES20`, `generateMipMapDesktop`, and `setUseHardwareMipMap` methods.
+**Completeness**: All methods fully implemented: `generateMipMap(target, pixmap, w, h)`, `generateMipMap(pixmap, w, h)` (2-arg overload), `generateMipMapCPU`, `generateMipMapGLES20`, `generateMipMapDesktop`, `setUseHardwareMipMap`, and `useHWMipMap` field.
 **Renames**: None
-**Convention changes**: Flat package declaration `package sge.graphics.glutils` instead of split.
-**TODOs**: Both methods are stub implementations (empty body / returns `Array(pixmap)`).
-**Issues**:
-- `generateMipMap(target, pixmap, w, h)` has empty body -- no GL texture upload happens
-- `generateMipMapChain` returns only the original pixmap -- no mipmap chain generation
-- Missing `generateMipMap(pixmap, w, h)` 2-arg overload (without target)
-- Missing `setUseHardwareMipMap(Boolean)` method
-- Missing all private helper methods (`generateMipMapCPU`, `generateMipMapGLES20`, `generateMipMapDesktop`)
-- Missing `useHWMipMap` field
-- Package uses flat format instead of split
+**Convention changes**: Uses split package declaration. Uses `(using Sge)` for GL calls.
+**TODOs**: None
+**Issues**: None
 
 ---
 
@@ -509,16 +492,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/graphics/glutils/ShaderProgram.scala` |
 | Java source(s) | `com/badlogic/gdx/graphics/glutils/ShaderProgram.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: Nearly complete. All uniform setter methods (1i through 4i, 1f through 4f, vectors, colors, matrices), vertex attribute methods, bind/dispose, managed shader tracking.
-**Renames**: `dispose()` -> `close()`; `begin()`/`end()` methods removed (Java has them but they just call `bind()` -- Scala only has `bind()`)
+**Completeness**: All public methods present. All uniform setter methods (1i through 4i, 1f through 4f, vectors, colors, matrices), integer array uniform setters (`setUniform1iv`, `setUniform2iv`, `setUniform3iv`, `setUniform4iv`), vertex attribute methods, bind/dispose, managed shader tracking. `begin()`/`end()` aliases present.
+**Renames**: `dispose()` -> `close()`
 **Convention changes**: Uses `(using Sge)` context parameter. `ObjectMap` for uniform/attribute maps.
 **TODOs**: None
-**Issues**:
-- Missing `setUniform1iv`, `setUniform2iv`, `setUniform3iv`, `setUniform4iv` (integer array uniform setters) -- Java has 8 methods (name + location overloads for each)
-- Missing `begin()` / `end()` convenience aliases (Java `begin()` calls `bind()`, `end()` is empty). These are used by some client code.
+**Issues**: None — missing `setUniform*iv` methods and `begin()`/`end()` aliases added.
 
 ---
 

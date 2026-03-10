@@ -102,7 +102,7 @@ abstract class RegionInfluencer extends Influencer {
     } else {
       data.foreach { d =>
         d.loadAsset().foreach { assetDesc =>
-          val atlas = manager(assetDesc.fileName, classOf[TextureAtlas])
+          val atlas = manager[TextureAtlas](assetDesc.fileName)
           for (atr <- regions)
             atr.updateUV(atlas)
         }
@@ -118,7 +118,7 @@ abstract class RegionInfluencer extends Influencer {
         data = Nullable(resources.createSaveData(ASSET_DATA))
       }
       data.foreach { d =>
-        d.saveAsset(name, classOf[TextureAtlas])
+        d.saveAsset[TextureAtlas](name)
       }
     }
   }
@@ -133,7 +133,7 @@ object RegionInfluencer {
 
   /** It's a class used internally by the {@link RegionInfluencer} to represent a texture region. It contains the uv coordinates of the region and the region inverse aspect ratio.
     */
-  class AspectTextureRegion {
+  final class AspectTextureRegion {
     var u:                  Float            = 0f
     var v:                  Float            = 0f
     var u2:                 Float            = 0f
@@ -190,7 +190,7 @@ object RegionInfluencer {
   }
 
   /** Assigns the first region of {@link RegionInfluencer#regions} to the particles. */
-  class Single extends RegionInfluencer {
+  final class Single extends RegionInfluencer {
 
     initDefault()
 
@@ -234,7 +234,7 @@ object RegionInfluencer {
   }
 
   /** Assigns a random region of {@link RegionInfluencer#regions} to the particles. */
-  class Random extends RegionInfluencer {
+  final class Random extends RegionInfluencer {
 
     initDefault()
 
@@ -280,7 +280,7 @@ object RegionInfluencer {
 
   /** Assigns a region to the particles using the particle life percent to calculate the current index in the {@link RegionInfluencer#regions} array.
     */
-  class Animated extends RegionInfluencer {
+  final class Animated extends RegionInfluencer {
 
     initDefault()
 

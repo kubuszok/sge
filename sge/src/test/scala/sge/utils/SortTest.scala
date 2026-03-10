@@ -145,4 +145,81 @@ class SortTest extends munit.FunSuite {
     Sort.sort(da)
     assertEquals((0 until da.size).map(i => da(i).intValue()).toSeq, Seq(1, 2, 3, 4, 5))
   }
+
+  // Large array tests to exercise full TimSort merge/gallop paths (MIN_MERGE = 32)
+
+  test("sort large random array via ComparableTimSort") {
+    val rng   = java.util.Random(42)
+    val n     = 500
+    val array = Array.fill[AnyRef](n)(Int.box(rng.nextInt(1000)))
+    Sort.sort(array)
+    for (i <- 1 until n)
+      assert(
+        array(i - 1).asInstanceOf[java.lang.Integer].compareTo(array(i).asInstanceOf[java.lang.Integer]) <= 0,
+        s"Out of order at $i: ${array(i - 1)} > ${array(i)}"
+      )
+  }
+
+  test("sort large random array via TimSort with Ordering") {
+    val rng   = java.util.Random(42)
+    val n     = 500
+    val array = Array.fill(n)(rng.nextInt(1000))
+    Sort.sort(array, Ordering.Int)
+    for (i <- 1 until n)
+      assert(array(i - 1) <= array(i), s"Out of order at $i: ${array(i - 1)} > ${array(i)}")
+  }
+
+  test("sort large reverse-sorted array triggers merge") {
+    val n     = 200
+    val array = (n to 1 by -1).map(Int.box).toArray[AnyRef]
+    Sort.sort(array)
+    for (i <- 0 until n)
+      assertEquals(array(i).asInstanceOf[java.lang.Integer].intValue(), i + 1)
+  }
+
+  test("sort large already-sorted array") {
+    val n     = 200
+    val array = (1 to n).map(Int.box).toArray[AnyRef]
+    Sort.sort(array)
+    for (i <- 0 until n)
+      assertEquals(array(i).asInstanceOf[java.lang.Integer].intValue(), i + 1)
+  }
+
+  test("sort stability with equal keys") {
+    // Pairs of (key, original-index) — stable sort should preserve original order for equal keys
+    final case class Pair(key: Int, idx: Int) extends Comparable[Pair] {
+      override def compareTo(o: Pair): Int = Integer.compare(key, o.key)
+    }
+    val n     = 100
+    val array = Array.tabulate[AnyRef](n)(i => Pair(i % 10, i)) // 10 groups of 10
+    Sort.sort(array)
+    val sorted = array.map(_.asInstanceOf[Pair])
+    for (i <- 1 until n) {
+      assert(sorted(i - 1).key <= sorted(i).key, s"Out of order at $i")
+      if (sorted(i - 1).key == sorted(i).key) {
+        assert(sorted(i - 1).idx < sorted(i).idx, s"Stability violated at $i: idx ${sorted(i - 1).idx} >= ${sorted(i).idx}")
+      }
+    }
+  }
+
+  test("sort alternating runs pattern exercises gallop") {
+    // Interleave two sorted runs to trigger gallop mode
+    val n     = 200
+    val run1  = (0 until n by 2).map(Int.box).toArray[AnyRef] // 0,2,4,...
+    val run2  = (1 until n by 2).map(Int.box).toArray[AnyRef] // 1,3,5,...
+    val array = run1 ++ run2 // Two sorted runs concatenated
+    Sort.sort(array)
+    for (i <- 0 until n)
+      assertEquals(array(i).asInstanceOf[java.lang.Integer].intValue(), i)
+  }
+
+  test("sort large DynamicArray with Ordering") {
+    val rng = java.util.Random(123)
+    val n   = 300
+    val da  = DynamicArray[Int]()
+    (0 until n).foreach(_ => da.add(rng.nextInt(1000)))
+    Sort.sort(da, Ordering.Int)
+    for (i <- 1 until da.size)
+      assert(da(i - 1) <= da(i), s"Out of order at $i: ${da(i - 1)} > ${da(i)}")
+  }
 }

@@ -224,11 +224,11 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
     maxDist: Float,
     out:     Array[Float]
   ): Boolean = {
-    val buf = stackalloc[CFloat](6)
+    val buf = stackalloc[CFloat](7)
     val hit = PhysicsC.sge_phys_ray_cast(world, originX, originY, dirX, dirY, maxDist, buf) != 0
     if (hit) {
       var i = 0
-      while (i < 6) {
+      while (i < 7) {
         out(i) = buf(i)
         i += 1
       }

@@ -15,7 +15,7 @@ import sge.audio.{ Pan, Pitch, SoundId, Volume }
 
 /** A no-op [[sge.audio.Sound]] implementation for headless/testing use. All play/loop methods return `SoundId(0L)`, all other methods are no-ops.
   */
-class NoopSound extends audio.Sound {
+final class NoopSound extends audio.Sound {
 
   override def play(): SoundId = SoundId(0L)
 

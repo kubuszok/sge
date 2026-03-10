@@ -11,16 +11,16 @@
  *   - Java has ~15 constructor overloads; Scala consolidates into fewer with Nullable params.
  *   - Some convenience constructors (Model, String, bool, bool) not individually ported
  *     but equivalent functionality available through the main constructor variants.
- *   - invalidate(Node) bone rebinding uses Nullable foreach instead of direct array key mutation.
- *   - getRenderable(out, node, nodePart): simplified -- Java checks transform != null
- *     (SGE transform is always non-null since it's a val Matrix4).
+ *   - invalidate(Node) bone rebinding: uses setKeyAt(j, replacement) which directly overwrites the
+ *     key array slot in-place, matching Java's `bindPose.keys[j] = getNode(...)` semantics.
+ *   - getRenderable(out, node, nodePart): Java has a third branch `else out.worldTransform.idt()`
+ *     when transform is null; SGE's transform is a non-nullable Matrix4 so that branch is unreachable.
  *   - copyAnimation: null/continue -> Nullable isDefined/foreach.
  *   - defaultShareKeyframes in companion object.
  *   - All public methods present: copy, getRenderables, getRenderable (3), calculateTransforms,
  *     calculateBoundingBox, extendBoundingBox, getAnimation (2), getMaterial (2), getNode (3),
  *     copyAnimations (2), copyAnimation (2).
- *   - Audit: minor_issues (2026-03-03)
- *     - invalidate() bone rebinding logic may not properly replace old ArrayMap keys.
+ *   - Audit: pass (2026-03-10)
  */
 package sge
 package graphics
@@ -303,6 +303,8 @@ class ModelInstance(
       out.worldTransform.set(transform).mul(node.globalTransform)
     else
       out.worldTransform.set(transform)
+    // Note: Java has a third branch `else out.worldTransform.idt()` when transform is null,
+    // but SGE's transform is a non-nullable Matrix4 so that branch is unreachable here.
     out.userData = userData
     out
   }

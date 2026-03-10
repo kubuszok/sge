@@ -26,7 +26,8 @@ package sge.android
 
 import munit.FunSuite
 
-import java.io.File
+import java.io.{ BufferedReader, File, InputStreamReader, PrintWriter }
+import java.net.Socket
 import java.nio.file.{ Files, Path, Paths }
 import scala.collection.mutable
 import scala.sys.process.{ Process, ProcessLogger }
@@ -104,6 +105,46 @@ class AndroidSmokeTest extends FunSuite {
     exit == 0 && out.contains("emulator-")
   }
 
+  // ── Emulator console helpers ───────────────────────────────────────
+
+  /** Sends a command to the emulator console (telnet on localhost:5554). Returns true if the command was sent successfully. The emulator console may require authentication via a token file.
+    */
+  private def emulatorConsole(command: String): Boolean =
+    try {
+      val socket = new Socket("localhost", 5554)
+      socket.setSoTimeout(5000)
+      val reader = new BufferedReader(new InputStreamReader(socket.getInputStream))
+      val writer = new PrintWriter(socket.getOutputStream, true)
+
+      // Read the greeting (e.g., "Android Console: ...")
+      var line = reader.readLine()
+      while (line != null && !line.contains("OK"))
+        line = reader.readLine()
+
+      // Authenticate if needed — read token from ~/.emulator_console_auth_token
+      val tokenFile = Paths.get(System.getProperty("user.home"), ".emulator_console_auth_token")
+      if (Files.exists(tokenFile)) {
+        val token = new String(Files.readAllBytes(tokenFile)).trim
+        writer.println(s"auth $token")
+        line = reader.readLine()
+        while (line != null && !line.contains("OK"))
+          line = reader.readLine()
+      }
+
+      // Send the sensor command
+      writer.println(command)
+      line = reader.readLine()
+      val success = line != null && line.contains("OK")
+
+      writer.println("quit")
+      socket.close()
+      success
+    } catch {
+      case e: Exception =>
+        System.err.println(s"Emulator console error: ${e.getMessage}")
+        false
+    }
+
   // ── APK helpers ─────────────────────────────────────────────────────
 
   /** Finds the signed smoke test APK. */
@@ -168,11 +209,33 @@ class AndroidSmokeTest extends FunSuite {
       val (launchExit, _, launchErr) = adb(adbPath, "shell", "am", "start", "-n", s"$PACKAGE/$ACTIVITY")
       assert(launchExit == 0, s"Activity launch failed:\n$launchErr")
 
-      // Wait for the app to run (30 frames at ~60fps = ~0.5s, plus startup overhead)
-      Thread.sleep(15000)
+      // Phase 1: Let app start and run initial checks (frame 5)
+      Thread.sleep(3000)
 
-      // Capture logcat
-      val (_, logcat, _) = adb(adbPath, "logcat", "-d", "-s", s"$TAG:*", "AndroidRuntime:*")
+      // Phase 2: Inject touch event — adb sends tap to center of screen
+      System.err.println("Sending adb input tap 320 240 ...")
+      adb(adbPath, "shell", "input", "tap", "320", "240")
+
+      // Phase 2b: Inject sensor values via emulator console
+      System.err.println("Injecting accelerometer values via emulator console ...")
+      val sensorInjected = emulatorConsole("sensor set acceleration 5:3:8")
+      System.err.println(s"Sensor injection ${if (sensorInjected) "succeeded" else "failed (console may not be available)"}")
+
+      Thread.sleep(2000)
+
+      // Phase 3: Test lifecycle — send HOME key to trigger pause
+      System.err.println("Sending HOME key to trigger pause ...")
+      adb(adbPath, "shell", "input", "keyevent", "KEYCODE_HOME")
+      Thread.sleep(2000)
+
+      // Phase 4: Bring app back to trigger resume
+      System.err.println("Re-launching activity to trigger resume ...")
+      adb(adbPath, "shell", "am", "start", "-n", s"$PACKAGE/$ACTIVITY")
+      Thread.sleep(8000)
+
+      // Capture logcat — use broad filter to catch both Log.i (SGE-SMOKE tag)
+      // and scribe/System.out output (SGE-IT structured results)
+      val (_, logcat, _) = adb(adbPath, "logcat", "-d", "-s", s"$TAG:*", "System.out:*", "AndroidRuntime:*")
       System.err.println("=== Logcat output ===")
       System.err.println(logcat)
 

@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: constructor uses varargs files: FileHandle* instead of FileHandle[]; boundary/break for early return
  *   Idiom: split packages
- *   Issues: missing second constructor (Format, Boolean, TextureData[]); prepare() lacks isPrepared() guard present in Java source
+ *   Convention: secondary constructor (Format, Boolean, TextureData[]) added for pre-built TextureData arrays
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -30,12 +30,19 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
   private var depth:         Int                = files.length
   private val useMipMapsVar: Boolean            = useMipMaps
 
-  // Constructor body (equivalent to the Java constructor)
+  // Constructor body (equivalent to the Java FileHandle[] constructor)
   locally {
     this.depth = files.length
     textureDatas = Array.ofDim[TextureData](files.length)
     for (i <- files.indices)
       textureDatas(i) = TextureData.Factory.loadFromFile(files(i), Nullable(format), useMipMaps)
+  }
+
+  /** Secondary constructor accepting pre-built TextureData array (matches Java's {@code (Format, Boolean, TextureData[])} constructor) */
+  def this(format: Pixmap.Format, useMipMaps: Boolean, textureDatas: Array[TextureData])(using Sge) = {
+    this(format, useMipMaps)
+    this.depth = textureDatas.length
+    this.textureDatas = textureDatas
   }
 
   override def isPrepared(): Boolean = prepared
@@ -44,7 +51,7 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
     var width  = -1
     var height = -1
     for (data <- textureDatas) {
-      data.prepare()
+      if (!data.isPrepared) data.prepare()
       if (width == -1) {
         width = data.getWidth
         height = data.getHeight

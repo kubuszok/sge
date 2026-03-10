@@ -6,19 +6,19 @@
 package sge
 package utils
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{readFromString, writeToString}
+import com.github.plokhotnyuk.jsoniter_scala.core.{ readFromString, writeToString }
 import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
 
 class JsonTest extends munit.FunSuite {
 
   // ---- Typed codec (JsonReader equivalent) ----
 
-  private final case class SimpleModel(name: String, version: Int, active: Boolean)
+  final private case class SimpleModel(name: String, version: Int, active: Boolean)
   private given JsonCodec[SimpleModel] = JsonCodec.make
 
   test("parse simple object via typed codec") {
     val json = """{"name":"sge","version":2,"active":true}"""
-    val m = readFromString[SimpleModel](json)
+    val m    = readFromString[SimpleModel](json)
     assertEquals(m.name, "sge")
     assertEquals(m.version, 2)
     assert(m.active)
@@ -26,29 +26,29 @@ class JsonTest extends munit.FunSuite {
 
   test("round-trip typed codec preserves values") {
     val original = SimpleModel("test", 42, active = false)
-    val json = writeToString(original)
+    val json     = writeToString(original)
     val restored = readFromString[SimpleModel](json)
     assertEquals(restored, original)
   }
 
-  private final case class Nested(label: String, child: SimpleModel)
+  final private case class Nested(label: String, child: SimpleModel)
   private given JsonCodec[Nested] = JsonCodec.make
 
   test("parse nested objects via typed codec") {
     val json = """{"label":"outer","child":{"name":"inner","version":1,"active":false}}"""
-    val n = readFromString[Nested](json)
+    val n    = readFromString[Nested](json)
     assertEquals(n.label, "outer")
     assertEquals(n.child.name, "inner")
     assertEquals(n.child.version, 1)
     assert(!n.child.active)
   }
 
-  private final case class WithList(items: List[Int])
+  final private case class WithList(items: List[Int])
   private given JsonCodec[WithList] = JsonCodec.make
 
   test("parse array via typed codec") {
     val json = """{"items":[10,20,30]}"""
-    val w = readFromString[WithList](json)
+    val w    = readFromString[WithList](json)
     assertEquals(w.items, List(10, 20, 30))
   }
 
@@ -60,8 +60,8 @@ class JsonTest extends munit.FunSuite {
     val root = parseJson("""{"name":"sge","count":3,"enabled":true}""")
     root match {
       case Json.Obj(obj) =>
-        var nameFound = false
-        var countFound = false
+        var nameFound    = false
+        var countFound   = false
         var enabledFound = false
         obj.fields.foreach { case (k, v) =>
           k match {
@@ -151,9 +151,9 @@ class JsonTest extends munit.FunSuite {
   }
 
   test("Json AST: round-trip preserves structure") {
-    val input = """{"key":"value","nums":[1,2],"flag":false}"""
-    val ast = parseJson(input)
-    val output = writeToString(ast)
+    val input    = """{"key":"value","nums":[1,2],"flag":false}"""
+    val ast      = parseJson(input)
+    val output   = writeToString(ast)
     val reparsed = parseJson(output)
     assertEquals(ast, reparsed)
   }

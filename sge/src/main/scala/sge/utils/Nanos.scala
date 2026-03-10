@@ -14,6 +14,8 @@ object Nanos {
   def apply(value: Long): Nanos = value
   val zero:               Nanos = 0L
 
+  given MkArray[Nanos] = MkArray.mkLong.asInstanceOf[MkArray[Nanos]]
+
   private val nanosPerMilli: Long = 1000000L
 
   extension (n: Nanos) {

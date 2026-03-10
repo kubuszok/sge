@@ -12,6 +12,8 @@ package audio
 opaque type Volume = Float
 object Volume {
 
+  given utils.MkArray[Volume] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Volume]]
+
   def parse(value: Float): Either[String, Volume] =
     if (value < 0 || value > 1) Left(s"Volume must be between 0 and 1, got $value")
     else Right(value)

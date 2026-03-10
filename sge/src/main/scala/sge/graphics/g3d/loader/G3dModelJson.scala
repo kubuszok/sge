@@ -14,7 +14,8 @@ package g3d
 package loader
 
 import com.github.plokhotnyuk.jsoniter_scala.macros.{ CodecMakerConfig, named }
-import sge.utils.JsonCodec
+import hearth.kindlings.ubjsonderivation.annotations.fieldName
+import sge.utils.{ JsonCodec, UBJsonCodec }
 
 /** JSON DTO case classes for the .g3dj 3D model format (LibGDX G3D).
   *
@@ -37,9 +38,9 @@ final case class G3dMeshJson(
 )
 
 final case class G3dMeshPartJson(
-  id:                 String,
-  @named("type") tpe: String,
-  indices:            List[Short]
+  id:                                    String,
+  @named("type") @fieldName("type") tpe: String,
+  indices:                               List[Short]
 )
 
 final case class G3dMaterialJson(
@@ -55,11 +56,11 @@ final case class G3dMaterialJson(
 )
 
 final case class G3dTextureJson(
-  id:                 String,
-  filename:           String,
-  uvTranslation:      Option[List[Float]] = None,
-  uvScaling:          Option[List[Float]] = None,
-  @named("type") tpe: String
+  id:                                    String,
+  filename:                              String,
+  uvTranslation:                         Option[List[Float]] = None,
+  uvScaling:                             Option[List[Float]] = None,
+  @named("type") @fieldName("type") tpe: String
 )
 
 final case class G3dNodeJson(
@@ -117,4 +118,19 @@ object G3dModelJson {
   given codec: sge.utils.JsonCodec[G3dModelJson] = JsonCodec.make(
     CodecMakerConfig.withAllowRecursiveTypes(true)
   )
+
+  // UBJSON codecs derived bottom-up to avoid infinite macro expansion on recursive G3dNodeJson
+  private given sge.utils.UBJsonCodec[G3dKeyframeV1Json] = UBJsonCodec.derive[G3dKeyframeV1Json]
+  private given sge.utils.UBJsonCodec[G3dKeyframeV2Json] = UBJsonCodec.derive[G3dKeyframeV2Json]
+  private given sge.utils.UBJsonCodec[G3dAnimBoneJson]   = UBJsonCodec.derive[G3dAnimBoneJson]
+  private given sge.utils.UBJsonCodec[G3dAnimationJson]  = UBJsonCodec.derive[G3dAnimationJson]
+  private given sge.utils.UBJsonCodec[G3dMeshPartJson]   = UBJsonCodec.derive[G3dMeshPartJson]
+  private given sge.utils.UBJsonCodec[G3dMeshJson]       = UBJsonCodec.derive[G3dMeshJson]
+  private given sge.utils.UBJsonCodec[G3dTextureJson]    = UBJsonCodec.derive[G3dTextureJson]
+  private given sge.utils.UBJsonCodec[G3dMaterialJson]   = UBJsonCodec.derive[G3dMaterialJson]
+  private given sge.utils.UBJsonCodec[G3dBoneJson]       = UBJsonCodec.derive[G3dBoneJson]
+  private given sge.utils.UBJsonCodec[G3dNodePartJson]   = UBJsonCodec.derive[G3dNodePartJson]
+  private lazy val _nodeCodec: sge.utils.UBJsonCodec[G3dNodeJson] = UBJsonCodec.derive[G3dNodeJson]
+  private given sge.utils.UBJsonCodec[G3dNodeJson] = _nodeCodec
+  given ubJsonCodec: sge.utils.UBJsonCodec[G3dModelJson] = UBJsonCodec.derive[G3dModelJson]
 }

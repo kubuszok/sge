@@ -22,7 +22,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet (original implementation)
   */
-class DataInput(in: InputStream) extends DataInputStream(in) {
+final class DataInput(in: InputStream) extends DataInputStream(in) {
   private var chars = new Array[Char](32)
 
   /** Reads a 1-5 byte int. */

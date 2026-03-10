@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: buffer is Nullable[FloatBuffer]; @nowarn for orNull at GL interop boundary
  *   Idiom: split packages
- *   Issues: prepare() checks all GL formats regardless of GL type (Java guards on GLVersion.Type == OpenGL); getBuffer() returns Nullable[FloatBuffer] instead of raw FloatBuffer
+ *   Convention: getBuffer() returns Nullable[FloatBuffer] instead of raw FloatBuffer
  *   Convention: typed GL enums (TextureTarget, PixelFormat, DataType) for consumeCustomData and glTexImage2D
  *   Audited: 2026-03-03
  *
@@ -53,12 +53,13 @@ class FloatTextureData(
     if (isPreparedState) throw SgeError.InvalidInput("Already prepared")
     if (!isGpuOnly) {
       var amountOfFloats = 4
-      // Determine amount of floats based on internal format
-      if (internalFormat == GL30.GL_RGBA16F || internalFormat == GL30.GL_RGBA32F) amountOfFloats = 4
-      if (internalFormat == GL30.GL_RGB16F || internalFormat == GL30.GL_RGB32F) amountOfFloats = 3
-      if (internalFormat == GL30.GL_RG16F || internalFormat == GL30.GL_RG32F) amountOfFloats = 2
-      if (internalFormat == GL30.GL_R16F || internalFormat == GL30.GL_R32F) amountOfFloats = 1
-
+      // Determine amount of floats based on internal format — only applicable on desktop OpenGL
+      if (Sge().graphics.getGLVersion().getType() == GLVersion.Type.OpenGL) {
+        if (internalFormat == GL30.GL_RGBA16F || internalFormat == GL30.GL_RGBA32F) amountOfFloats = 4
+        if (internalFormat == GL30.GL_RGB16F || internalFormat == GL30.GL_RGB32F) amountOfFloats = 3
+        if (internalFormat == GL30.GL_RG16F || internalFormat == GL30.GL_RG32F) amountOfFloats = 2
+        if (internalFormat == GL30.GL_R16F || internalFormat == GL30.GL_R32F) amountOfFloats = 1
+      }
       this.buffer = Nullable(BufferUtils.newFloatBuffer(width * height * amountOfFloats))
     }
     isPreparedState = true

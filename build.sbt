@@ -17,12 +17,15 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "361026ca2b848637931d65ffece9023592179ada-SNAPSHOT"
+  val kindlings = "d3d582311aedca0c6bb8b9e3476e7069fad2bba0-SNAPSHOT"
   val jsoniter  = "2.38.9"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"
   val scribe    = "3.17.0"
   val scalajsDom = "2.8.1"
+  val gears      = "0.2.0"
+
+  val panamaPort = "v0.1.2"
 
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
@@ -47,6 +50,7 @@ val sge = (projectMatrix in file("sge"))
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
+      "com.kubuszok" %%% "kindlings-ubjson-derivation" % versions.kindlings,
       "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % versions.jsoniter % "provided",
       "com.softwaremill.sttp.client4" %%% "core" % versions.sttp,
       "org.scala-lang.modules" %%% "scala-xml" % versions.xml,
@@ -60,6 +64,7 @@ val sge = (projectMatrix in file("sge"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings() ++ Seq(
+      libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
       // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
       Compile / unmanagedClasspath ++= {
@@ -93,6 +98,7 @@ val sge = (projectMatrix in file("sge"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings() ++ SgeNativeLibs.hostSettings ++ Seq(
+      libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value
@@ -190,11 +196,34 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android
         Seq(baseDirectory.value / "src" / "main" / "scala-android")
       else Seq.empty
     },
-    libraryDependencies ++= Seq(
-      // PanamaPort — Panama FFM backport for Android (API 26+)
-      // TODO: add when published to Maven Central
-      // "com.v7878" % "panama-port-core" % versions.panamaPort
-    )
+    // PanamaPort — Panama FFM backport for Android (API 26+).
+    // Published as AAR (not JAR), so we resolve via coursier, extract classes.jar, and add as unmanaged.
+    Compile / unmanagedJars ++= {
+      val aarUrl  = s"https://repo1.maven.org/maven2/io/github/vova7878/panama/Core/${versions.panamaPort}/Core-${versions.panamaPort}-release.aar"
+      val cacheDir = streams.value.cacheDirectory / "panama-port"
+      val aarFile  = cacheDir / s"Core-${versions.panamaPort}-release.aar"
+      val jarFile  = cacheDir / s"Core-${versions.panamaPort}-classes.jar"
+      if (!jarFile.exists()) {
+        IO.createDirectory(cacheDir)
+        if (!aarFile.exists()) {
+          streams.value.log.info(s"Downloading PanamaPort AAR from $aarUrl")
+          val in = new java.net.URL(aarUrl).openStream()
+          try { IO.transfer(in, aarFile) }
+          finally { in.close() }
+        }
+        // AAR is a ZIP; extract classes.jar from it
+        streams.value.log.info(s"Extracting classes.jar from PanamaPort AAR")
+        val zip = new java.util.zip.ZipFile(aarFile)
+        try {
+          val entry = zip.getEntry("classes.jar")
+          if (entry == null) sys.error("PanamaPort AAR does not contain classes.jar")
+          val in = zip.getInputStream(entry)
+          try { IO.transfer(in, jarFile) }
+          finally { in.close() }
+        } finally { zip.close() }
+      }
+      Seq(Attributed.blank(jarFile))
+    }
   )
 
 // ── Extension modules ─────────────────────────────────────────────────

@@ -46,9 +46,8 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
     this(FileHandleResolver.Internal())
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion = {
-    val texture: Texture = manager(
-      manager.dependencies(fileName).getOrElse(throw SgeError.InvalidInput("No dependencies for: " + fileName)).first,
-      classOf[Texture]
+    val texture: Texture = manager[Texture](
+      manager.dependencies(fileName).getOrElse(throw SgeError.InvalidInput("No dependencies for: " + fileName)).first
     )
     load(TextureRegion(texture), file)
   }
@@ -86,7 +85,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
     if (image.isDefined) {
       val deps = DynamicArray[AssetDescriptor[?]]()
-      deps.add(new AssetDescriptor[Texture](file.sibling(image.getOrElse("")), classOf[Texture]))
+      deps.add(AssetDescriptor[Texture](file.sibling(image.getOrElse(""))))
       deps
     } else {
       DynamicArray[AssetDescriptor[?]]()

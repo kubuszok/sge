@@ -44,13 +44,13 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   import TextField._
 
-  protected var _text:          String            = ""
-  protected var cursor:         Int               = 0
-  protected var selectionStart: Int               = 0
-  protected var hasSelection:   Boolean           = false
-  protected var writeEnters:    Boolean           = false
-  protected val glyphLayout:    GlyphLayout       = GlyphLayout()
-  protected val glyphPositions: DynamicFloatArray = DynamicFloatArray()
+  protected var _text:          String              = ""
+  protected var cursor:         Int                 = 0
+  protected var selectionStart: Int                 = 0
+  protected var hasSelection:   Boolean             = false
+  protected var writeEnters:    Boolean             = false
+  protected val glyphLayout:    GlyphLayout         = GlyphLayout()
+  protected val glyphPositions: DynamicArray[Float] = DynamicArray[Float]()
 
   protected var _style:       TextField.TextFieldStyle    = scala.compiletime.uninitialized
   private var messageText:    Nullable[String]            = Nullable.empty
@@ -1286,27 +1286,4 @@ object TextField {
     }
   }
 
-  /** Simple dynamic float array to replace libGDX FloatArray for glyphPositions. Uses a raw float array internally for performance.
-    */
-  private[ui] class DynamicFloatArray() {
-    private var _items: Array[Float] = new Array[Float](16)
-    private var _size:  Int          = 0
-
-    def apply(index: Int): Float = _items(index)
-
-    def size: Int = _size
-
-    def add(value: Float): Unit = {
-      if (_size == _items.length) {
-        val newItems = new Array[Float](_items.length * 2)
-        System.arraycopy(_items, 0, newItems, 0, _items.length)
-        _items = newItems
-      }
-      _items(_size) = value
-      _size += 1
-    }
-
-    def clear(): Unit =
-      _size = 0
-  }
 }

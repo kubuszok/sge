@@ -17,7 +17,7 @@ package sge
 import sge.Input.*
 import sge.platform.{ AndroidInputState, AndroidMouseHandler, AndroidTouchHandler, DefaultAndroidInputState }
 import sge.platform.android.{ AndroidConfigOps, HapticsOps, InputDialogCallback, InputMethodOps, SensorOps, TouchInputOps }
-import sge.utils.Nanos
+import sge.utils.{ Nanos, Nullable }
 
 /** An implementation of [[Input]] for Android.
   *
@@ -212,7 +212,48 @@ class AndroidInput(
     if (visible) inputMethodOps.showKeyboard(onscreenKeyboardTypeToAndroidInputType(`type`))
     else inputMethodOps.hideKeyboard()
 
-  override def openTextInputField(configuration: input.NativeInputConfiguration): Unit = {} // TODO: wire when needed
+  override def openTextInputField(configuration: input.NativeInputConfiguration): Unit = {
+    configuration.validate()
+    val wrapper   = configuration.getTextInputWrapper()
+    val text      = wrapper.getText()
+    val selStart  = wrapper.getSelectionStart()
+    val selEnd    = wrapper.getSelectionEnd()
+    val inputType = onscreenKeyboardTypeToAndroidInputType(configuration.getType())
+    val maxLen    = configuration.getMaxLength().getOrElse(0)
+    val hint      = configuration.getPlaceholder()
+    val mask      = configuration.isMaskInput()
+    val multi     = configuration.isMultiLine()
+    val noCorrect = configuration.isPreventCorrection()
+    val autoComp  = configuration.getAutoComplete()
+    val validator = configuration.getValidator()
+    val closeCb   = configuration.getCloseCallback()
+
+    inputMethodOps.openNativeTextField(
+      text,
+      selStart,
+      selEnd,
+      inputType,
+      maxLen,
+      hint,
+      mask,
+      multi,
+      noCorrect,
+      if (autoComp.isDefined) autoComp.get else null, // scalafix:ok — Java interop boundary
+      (t, ss, se) => wrapper.writeResults(t, ss, se),
+      confirmative =>
+        if (closeCb != null) closeCb.onClose(confirmative) // scalafix:ok — may be uninitialized
+        else false,
+      if (validator != null) s => validator.validate(s) else null // scalafix:ok — may be uninitialized
+    )
+  }
+
+  override def closeTextInputField(isConfirmative: Boolean, callback: Nullable[input.NativeInputConfiguration.NativeInputCloseCallback]): Unit = {
+    inputMethodOps.closeNativeTextField(isConfirmative)
+    callback.foreach(cb => cb.onClose(isConfirmative))
+  }
+
+  override def isTextInputFieldOpened(): Boolean =
+    inputMethodOps.isNativeTextFieldOpen
 
   override def setKeyboardHeightObserver(observer: KeyboardHeightObserver): Unit =
     _keyboardHeightObserver = observer

@@ -9,7 +9,7 @@
  *   Convention: Nullable for null safety; MutableMap instead of OrderedMap; using Sge context parameter
  *   Idiom: boundary/break, Nullable, split packages
  *   Fixes: Raw null eliminated from pack(), getRect(), getPage(), getSplits(), getPads() using Nullable types.
- *   Issues: Missing SkylineStrategy/SkylinePage inner classes.
+ *   Fixes: Added missing SkylineStrategy/SkylinePage inner classes (row-based bin packing).
  *   Fixes: Named context parameter (implicit sge: Sge) → anonymous (using Sge).
  *   Fixes: Java-style getters/setters → removed redundant getters for public vars (pageWidth, pageHeight,
  *     pageFormat, padding, duplicateBorder, packToTexture, transparentColor); removed getPages() (pages is public val);
@@ -826,5 +826,90 @@ object PixmapPacker {
   class GuillotinePage(packer: PixmapPacker)(using Sge) extends Page(packer) {
     val root: GuillotineStrategy.Node = GuillotineStrategy.Node()
     root.rect.set(packer.padding, packer.padding, packer.pageWidth - packer.padding * 2, packer.pageHeight - packer.padding * 2)
+  }
+
+  /** Does bin packing by inserting in rows. This is good at packing images that have similar heights.
+    * @author
+    *   Nathan Sweet
+    */
+  class SkylineStrategy()(using Sge) extends PackStrategy {
+    private var comparator: Nullable[Ordering[Pixmap]] = Nullable.empty
+
+    def sort(images: DynamicArray[Pixmap]): Unit = {
+      if (comparator.isEmpty) {
+        comparator = Nullable(
+          Ordering.fromLessThan[Pixmap] { (o1, o2) =>
+            o1.getHeight().toInt < o2.getHeight().toInt
+          }
+        )
+      }
+      comparator.foreach(images.sort(_))
+    }
+
+    def pack(packer: PixmapPacker, name: Nullable[String], rect: Bounds): Page = boundary {
+      val padding    = packer.padding
+      val pageWidth  = packer.pageWidth - padding * 2
+      val pageHeight = packer.pageHeight - padding * 2
+      val rectWidth  = rect.width + padding
+      val rectHeight = rect.height + padding
+      for (i <- 0 until packer.pages.size) {
+        val page = packer.pages(i).asInstanceOf[SkylinePage]
+        var bestRow: Nullable[SkylineStrategy.Row] = Nullable.empty
+        // Fit in any row before the last.
+        for (ii <- 0 until (page.rows.size - 1)) {
+          val row = page.rows(ii)
+          if (row.x + rectWidth < pageWidth && row.y + rectHeight < pageHeight && rectHeight <= row.height) {
+            if (bestRow.isEmpty || row.height < bestRow.map(_.height).getOrElse(Int.MaxValue))
+              bestRow = Nullable(row)
+          }
+        }
+        if (bestRow.isEmpty) {
+          // Fit in last row, increasing height.
+          val row = page.rows.last
+          if (row.y + rectHeight < pageHeight) {
+            if (row.x + rectWidth < pageWidth) {
+              row.height = Math.max(row.height, rectHeight)
+              bestRow = Nullable(row)
+            } else if (row.y + row.height + rectHeight < pageHeight) {
+              // Fit in new row.
+              val newRow = SkylineStrategy.Row()
+              newRow.y = row.y + row.height
+              newRow.height = rectHeight
+              page.rows.add(newRow)
+              bestRow = Nullable(newRow)
+            }
+          }
+        }
+        bestRow.foreach { row =>
+          rect.x = row.x
+          rect.y = row.y
+          row.x += rectWidth
+          break(page)
+        }
+      }
+      // Fit in new page.
+      val page = SkylinePage(packer)
+      packer.pages.add(page)
+      val row = SkylineStrategy.Row()
+      row.x = padding + rectWidth
+      row.y = padding
+      row.height = rectHeight
+      page.rows.add(row)
+      rect.x = padding
+      rect.y = padding
+      page
+    }
+  }
+
+  object SkylineStrategy {
+    final class Row() {
+      var x:      Int = 0
+      var y:      Int = 0
+      var height: Int = 0
+    }
+  }
+
+  class SkylinePage(packer: PixmapPacker)(using Sge) extends Page(packer) {
+    val rows: DynamicArray[SkylineStrategy.Row] = DynamicArray[SkylineStrategy.Row]()
   }
 }

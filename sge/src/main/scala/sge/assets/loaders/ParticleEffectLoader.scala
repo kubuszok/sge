@@ -46,7 +46,7 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Sync
     val deps = DynamicArray[AssetDescriptor[?]]()
     Nullable(parameter).foreach { p =>
       p.atlasFile.foreach { atlasFile =>
-        deps.add(new AssetDescriptor[TextureAtlas](atlasFile, classOf[TextureAtlas]))
+        deps.add(AssetDescriptor[TextureAtlas](atlasFile))
       }
     }
     deps

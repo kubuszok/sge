@@ -16,7 +16,7 @@ import sge.Input.*
 
 /** A no-op [[sge.Input]] implementation for headless/testing use. All input queries return zero/false defaults.
   */
-class NoopInput extends Input {
+final class NoopInput extends Input {
 
   private var _inputProcessor: InputProcessor = new InputProcessor {}
   private var _cursorCatched:  Boolean        = false

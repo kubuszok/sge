@@ -1,0 +1,10 @@
+
+test.png
+size: 4, 4
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+region1
+  bounds: 0, 0, 2, 2
+region2
+  bounds: 2, 0, 2, 2

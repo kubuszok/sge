@@ -139,9 +139,9 @@ private object GlfwC {
   def glfwGetTime(): CDouble = extern
 
   // Native window handle (glfw3native.h) — platform-specific, may not be available on all targets
-  def glfwGetCocoaWindow(window: Ptr[Byte]): Ptr[Byte]  = extern
+  def glfwGetCocoaWindow(window: Ptr[Byte]): Ptr[Byte]         = extern
   def glfwGetX11Window(window:   Ptr[Byte]): CUnsignedLongLong = extern
-  def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]  = extern
+  def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]         = extern
 }
 
 // ─── GLFWvidmode struct layout ─────────────────────────────────────────────

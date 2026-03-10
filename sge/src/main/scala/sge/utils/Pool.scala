@@ -42,7 +42,7 @@ trait Pool[A] {
 
   /** Returns an object from this pool. The object may be new (from [[newObject]]) or reused (previously [[free]]). */
   def obtain(): A =
-    if (freeObjects.isEmpty) newObject() else freeObjects.removeIndex(0)
+    if (freeObjects.isEmpty) newObject() else freeObjects.pop()
 
   /** Puts the specified object in the pool, making it eligible to be returned by {@link #obtain()} . If the pool already contains {@link #max} free objects, the specified object is
     * {@link #discard(Object) discarded} , it is not reset and not added to the pool. <p> The pool does not check if an object is already freed, so the same object must not be freed multiple times.

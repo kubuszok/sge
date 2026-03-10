@@ -10,7 +10,7 @@
  *   Convention: static resolveErrorNumber -> companion object; switch -> match
  *   Convention: added abstract protected def check() (Java subclasses each had private check())
  *   Idiom: split packages
- *   Convention: getCalls/getTextureBindings/etc kept (protected var + public getter pattern)
+ *   Convention: getCalls/getTextureBindings/etc -> public vars (no-logic getters eliminated per SGE convention)
  *   Audited: 2026-03-04
  */
 package sge
@@ -21,23 +21,13 @@ import sge.math.FloatCounter
 
 abstract class GLInterceptor(profiler: GLProfiler) extends GL20 {
 
-  protected var calls:           Int = 0
-  protected var textureBindings: Int = 0
-  protected var drawCalls:       Int = 0
-  protected var shaderSwitches:  Int = 0
-  final protected val vertexCount = FloatCounter(0)
+  var calls:           Int = 0
+  var textureBindings: Int = 0
+  var drawCalls:       Int = 0
+  var shaderSwitches:  Int = 0
+  final val vertexCount = FloatCounter(0)
 
   protected var glProfiler: GLProfiler = profiler
-
-  def getCalls(): Int = calls
-
-  def getTextureBindings(): Int = textureBindings
-
-  def getDrawCalls(): Int = drawCalls
-
-  def getShaderSwitches(): Int = shaderSwitches
-
-  def getVertexCount(): FloatCounter = vertexCount
 
   def reset(): Unit = {
     calls = 0

@@ -152,7 +152,7 @@ private[sge] trait PhysicsOps {
 
   /** Casts a ray and returns the first hit.
     *
-    * Fills `out` with [hitX, hitY, normalX, normalY, toi, bodyHandle]. Returns true if a hit was found.
+    * Fills `out` with [hitX, hitY, normalX, normalY, toi, bodyHandleLo, bodyHandleHi] (7 floats). Returns true if a hit was found.
     */
   def rayCast(
     world:   Long,

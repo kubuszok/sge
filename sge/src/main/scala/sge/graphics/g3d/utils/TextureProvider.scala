@@ -33,7 +33,7 @@ trait TextureProvider {
 
 object TextureProvider {
 
-  class FileTextureProvider(
+  final class FileTextureProvider(
     val minFilter:  TextureFilter,
     val magFilter:  TextureFilter,
     val uWrap:      TextureWrap,
@@ -53,8 +53,8 @@ object TextureProvider {
     }
   }
 
-  class AssetTextureProvider(val assetManager: sge.assets.AssetManager) extends TextureProvider {
+  final class AssetTextureProvider(val assetManager: sge.assets.AssetManager) extends TextureProvider {
     override def load(fileName: String): Texture =
-      assetManager(fileName, classOf[Texture])
+      assetManager[Texture](fileName)
   }
 }

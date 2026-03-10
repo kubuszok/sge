@@ -1,7 +1,7 @@
 # Audit: sge.utils
 
-Audited: 48/48 files | Pass: 33 | Minor: 7 | Major: 0 | N/A (SGE-original): 8
-Last updated: 2026-03-04
+Audited: 48/48 files | Pass: 34 | Minor: 6 | Major: 0 | N/A (SGE-original): 8
+Last updated: 2026-03-10
 
 ---
 
@@ -143,14 +143,14 @@ Last updated: 2026-03-04
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/utils/DataBuffer.scala` |
 | Java source(s) | `com/badlogic/gdx/utils/DataBuffer.java` |
-| Status | minor_issues |
+| Status | pass |
 | Tested | No |
 
-**Completeness**: API differs from Java source. Java `DataBuffer` extends `DataOutput` and has `getBuffer()` and `toArray()`. Scala `DataBuffer` is an abstract class extending `OutputStream with java.io.DataOutput`. Has `getBytes` instead of `toArray`, and an inline `OptimizedByteArrayOutputStream` that duplicates the one in `StreamUtils`.
-**Renames**: `toArray()` -> `getBytes`; missing `getBuffer()` method (returns raw backing array), missing `size()` method
-**Convention changes**: Different inheritance hierarchy; Java `DataBuffer` extends LibGDX `DataOutput`, Scala extends Java standard `DataOutput`
+**Completeness**: All Java API methods present. `getBuffer()`, `size()`, and `toArray()`/`getBytes` all ported. `DataBuffer` extends `OutputStream with java.io.DataOutput`. `OptimizedByteArrayOutputStream` from `StreamUtils` reused instead of duplicated.
+**Renames**: `toArray()` -> `getBytes`
+**Convention changes**: Java `DataBuffer` extends LibGDX `DataOutput`; Scala extends Java standard `DataOutput`
 **TODOs**: None
-**Issues**: Missing `getBuffer()` and `size()` methods from the Java API. The `OptimizedByteArrayOutputStream` is duplicated from `StreamUtils` instead of reusing it.
+**Issues**: None — `getBuffer()` and `size()` methods added; `OptimizedByteArrayOutputStream` duplication resolved.
 
 ---
 

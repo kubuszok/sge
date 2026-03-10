@@ -8,6 +8,8 @@
 package sge
 package graphics
 
+import sge.utils.MkArray
+
 /** Opaque types for OpenGL enum parameters, preventing accidental mixing of unrelated GL constants.
   *
   * Each opaque type wraps `Int` and provides named constants matching the GL spec. Raw GL20/GL30 companion constants remain as `Int` for backward compatibility; prefer the typed companion constants
@@ -22,6 +24,8 @@ object ShaderType {
 
   val Vertex:   ShaderType = 0x8b31 // GL_VERTEX_SHADER
   val Fragment: ShaderType = 0x8b30 // GL_FRAGMENT_SHADER
+
+  given MkArray[ShaderType] = MkArray.mkInt.asInstanceOf[MkArray[ShaderType]]
 
   extension (s: ShaderType) {
     inline def toInt: Int = s
@@ -43,6 +47,8 @@ object StencilOp {
   val IncrWrap: StencilOp = 0x8507 // GL_INCR_WRAP
   val DecrWrap: StencilOp = 0x8508 // GL_DECR_WRAP
 
+  given MkArray[StencilOp] = MkArray.mkInt.asInstanceOf[MkArray[StencilOp]]
+
   extension (s: StencilOp) {
     inline def toInt: Int = s
   }
@@ -62,6 +68,8 @@ object CompareFunc {
   val Notequal: CompareFunc = 0x0205 // GL_NOTEQUAL
   val Gequal:   CompareFunc = 0x0206 // GL_GEQUAL
   val Always:   CompareFunc = 0x0207 // GL_ALWAYS
+
+  given MkArray[CompareFunc] = MkArray.mkInt.asInstanceOf[MkArray[CompareFunc]]
 
   extension (f: CompareFunc) {
     inline def toInt: Int = f
@@ -90,6 +98,8 @@ object BlendFactor {
   val ConstantAlpha:         BlendFactor = 0x8003 // GL_CONSTANT_ALPHA
   val OneMinusConstantAlpha: BlendFactor = 0x8004 // GL_ONE_MINUS_CONSTANT_ALPHA
 
+  given MkArray[BlendFactor] = MkArray.mkInt.asInstanceOf[MkArray[BlendFactor]]
+
   extension (f: BlendFactor) {
     inline def toInt: Int = f
   }
@@ -106,6 +116,8 @@ object BlendEquation {
   val Max:                 BlendEquation = 0x8008 // GL_MAX (GL30+)
   val FuncSubtract:        BlendEquation = 0x800a // GL_FUNC_SUBTRACT
   val FuncReverseSubtract: BlendEquation = 0x800b // GL_FUNC_REVERSE_SUBTRACT
+
+  given MkArray[BlendEquation] = MkArray.mkInt.asInstanceOf[MkArray[BlendEquation]]
 
   extension (e: BlendEquation) {
     inline def toInt: Int = e
@@ -125,6 +137,8 @@ object PrimitiveMode {
   val Triangles:     PrimitiveMode = 0x0004 // GL_TRIANGLES
   val TriangleStrip: PrimitiveMode = 0x0005 // GL_TRIANGLE_STRIP
   val TriangleFan:   PrimitiveMode = 0x0006 // GL_TRIANGLE_FAN
+
+  given MkArray[PrimitiveMode] = MkArray.mkInt.asInstanceOf[MkArray[PrimitiveMode]]
 
   extension (m: PrimitiveMode) {
     inline def toInt: Int = m
@@ -146,6 +160,8 @@ object BufferTarget {
   val TransformFeedbackBuffer: BufferTarget = 0x8c8e // GL_TRANSFORM_FEEDBACK_BUFFER (GL30+)
   val UniformBuffer:           BufferTarget = 0x8a11 // GL_UNIFORM_BUFFER (GL30+)
 
+  given MkArray[BufferTarget] = MkArray.mkInt.asInstanceOf[MkArray[BufferTarget]]
+
   extension (t: BufferTarget) {
     inline def toInt: Int = t
   }
@@ -166,6 +182,8 @@ object BufferUsage {
   val DynamicDraw: BufferUsage = 0x88e8 // GL_DYNAMIC_DRAW
   val DynamicRead: BufferUsage = 0x88e9 // GL_DYNAMIC_READ (GL30+)
   val DynamicCopy: BufferUsage = 0x88ea // GL_DYNAMIC_COPY (GL30+)
+
+  given MkArray[BufferUsage] = MkArray.mkInt.asInstanceOf[MkArray[BufferUsage]]
 
   extension (u: BufferUsage) {
     inline def toInt: Int = u
@@ -192,6 +210,8 @@ object PixelFormat {
   val RGBAInteger:    PixelFormat = 0x8d99 // GL_RGBA_INTEGER (GL30+)
   val DepthStencil:   PixelFormat = 0x84f9 // GL_DEPTH_STENCIL (GL30+)
 
+  given MkArray[PixelFormat] = MkArray.mkInt.asInstanceOf[MkArray[PixelFormat]]
+
   extension (f: PixelFormat) {
     inline def toInt: Int = f
   }
@@ -216,6 +236,8 @@ object DataType {
   val UnsignedShort565:  DataType = 0x8363 // GL_UNSIGNED_SHORT_5_6_5
   val HalfFloat:         DataType = 0x140b // GL_HALF_FLOAT (GL30+)
 
+  given MkArray[DataType] = MkArray.mkInt.asInstanceOf[MkArray[DataType]]
+
   extension (t: DataType) {
     inline def toInt: Int = t
   }
@@ -230,6 +252,8 @@ object ClearMask {
   val DepthBufferBit:   ClearMask = 0x00000100 // GL_DEPTH_BUFFER_BIT
   val StencilBufferBit: ClearMask = 0x00000400 // GL_STENCIL_BUFFER_BIT
   val ColorBufferBit:   ClearMask = 0x00004000 // GL_COLOR_BUFFER_BIT
+
+  given MkArray[ClearMask] = MkArray.mkInt.asInstanceOf[MkArray[ClearMask]]
 
   extension (m: ClearMask) {
     inline def toInt: Int = m
@@ -247,6 +271,8 @@ object CullFace {
   val Front:        CullFace = 0x0404 // GL_FRONT
   val Back:         CullFace = 0x0405 // GL_BACK
   val FrontAndBack: CullFace = 0x0408 // GL_FRONT_AND_BACK
+
+  given MkArray[CullFace] = MkArray.mkInt.asInstanceOf[MkArray[CullFace]]
 
   extension (f: CullFace) {
     inline def toInt: Int = f
@@ -270,6 +296,8 @@ object EnableCap {
   val SampleCoverage:         EnableCap = 0x80a0 // GL_SAMPLE_COVERAGE
   val VertexProgramPointSize: EnableCap = 0x8642 // GL_VERTEX_PROGRAM_POINT_SIZE
 
+  given MkArray[EnableCap] = MkArray.mkInt.asInstanceOf[MkArray[EnableCap]]
+
   extension (c: EnableCap) {
     inline def toInt: Int = c
   }
@@ -291,6 +319,8 @@ object TextureTarget {
   val TextureCubeMapNegativeZ: TextureTarget = 0x851a // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
   val Texture3D:               TextureTarget = 0x806f // GL_TEXTURE_3D (GL30+)
   val Texture2DArray:          TextureTarget = 0x8c1a // GL_TEXTURE_2D_ARRAY (GL30+)
+
+  given MkArray[TextureTarget] = MkArray.mkInt.asInstanceOf[MkArray[TextureTarget]]
 
   extension (t: TextureTarget) {
     inline def toInt: Int = t

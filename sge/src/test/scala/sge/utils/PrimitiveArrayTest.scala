@@ -6,9 +6,7 @@
 package sge
 package utils
 
-/** Tests DynamicArray with primitive element types (Int, Float, Long),
-  * verifying that the unified DynamicArray correctly replaces the
-  * LibGDX IntArray, FloatArray, and LongArray classes.
+/** Tests DynamicArray with primitive element types (Int, Float, Long), verifying that the unified DynamicArray correctly replaces the LibGDX IntArray, FloatArray, and LongArray classes.
   */
 class PrimitiveArrayTest extends munit.FunSuite {
 

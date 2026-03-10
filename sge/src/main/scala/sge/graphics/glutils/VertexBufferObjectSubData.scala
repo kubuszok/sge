@@ -136,7 +136,7 @@ class VertexBufferObjectSubData(
     gl.glBindBuffer(BufferTarget.ArrayBuffer, bufferHandle)
     if (isDirty) {
       byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
-      gl.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
+      gl.glBufferSubData(BufferTarget.ArrayBuffer, 0, byteBuffer.limit(), byteBuffer)
       isDirty = false
     }
 

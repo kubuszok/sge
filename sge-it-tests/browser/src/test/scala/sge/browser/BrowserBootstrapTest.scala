@@ -185,6 +185,153 @@ class BrowserBootstrapTest extends FunSuite {
       server.stop(0)
   }
 
+  test("WebGL shader compilation succeeds") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(3000)
+
+      // Compile a minimal vertex + fragment shader pair in WebGL
+      val result = page
+        .evaluate(
+          """(() => {
+            |  const canvas = document.querySelector('canvas');
+            |  if (!canvas) return 'no_canvas';
+            |  const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+            |  if (!gl) return 'no_context';
+            |  const vs = gl.createShader(gl.VERTEX_SHADER);
+            |  gl.shaderSource(vs, 'attribute vec4 a_pos; void main() { gl_Position = a_pos; }');
+            |  gl.compileShader(vs);
+            |  if (!gl.getShaderParameter(vs, gl.COMPILE_STATUS)) return 'vs_fail: ' + gl.getShaderInfoLog(vs);
+            |  const fs = gl.createShader(gl.FRAGMENT_SHADER);
+            |  gl.shaderSource(fs, 'precision mediump float; void main() { gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); }');
+            |  gl.compileShader(fs);
+            |  if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) return 'fs_fail: ' + gl.getShaderInfoLog(fs);
+            |  const prog = gl.createProgram();
+            |  gl.attachShader(prog, vs);
+            |  gl.attachShader(prog, fs);
+            |  gl.linkProgram(prog);
+            |  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return 'link_fail: ' + gl.getProgramInfoLog(prog);
+            |  gl.deleteProgram(prog);
+            |  gl.deleteShader(vs);
+            |  gl.deleteShader(fs);
+            |  return 'ok';
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(result == "ok", s"WebGL shader compilation failed: $result")
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("JSON and XML parsing works in browser context") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(3000)
+
+      // Verify JavaScript JSON parsing works (proxy for jsoniter-scala cross-compiled to JS)
+      val jsonResult = page
+        .evaluate(
+          """(() => {
+            |  try {
+            |    const obj = JSON.parse('{"name":"test","value":42}');
+            |    return obj.name === 'test' && obj.value === 42 ? 'ok' : 'mismatch';
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(jsonResult == "ok", s"JSON parsing failed: $jsonResult")
+
+      // Verify DOMParser XML parsing works (proxy for scala-xml cross-compiled to JS)
+      val xmlResult = page
+        .evaluate(
+          """(() => {
+            |  try {
+            |    const parser = new DOMParser();
+            |    const doc = parser.parseFromString('<root><item key="a">hello</item></root>', 'text/xml');
+            |    const item = doc.querySelector('item');
+            |    return item && item.getAttribute('key') === 'a' && item.textContent === 'hello' ? 'ok' : 'mismatch';
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(xmlResult == "ok", s"XML parsing failed: $xmlResult")
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("FileIO: fetch bundled text asset from server") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+
+    // Create a test asset file that the HTTP server will serve
+    val testContent = "SGE browser integration test asset"
+    val assetPath   = jsDir.resolve("test-asset.txt")
+    Files.writeString(assetPath, testContent)
+
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+
+      // Fetch the text asset via the same HTTP server (mirrors how BrowserFileHandle works)
+      val result = page
+        .evaluate(
+          """(async () => {
+            |  try {
+            |    const resp = await fetch('/test-asset.txt');
+            |    if (!resp.ok) return 'http_' + resp.status;
+            |    const text = await resp.text();
+            |    return text;
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assertEquals(result, testContent)
+
+      browser.close()
+      pw.close()
+    } finally {
+      server.stop(0)
+      Files.deleteIfExists(assetPath)
+    }
+  }
+
   test("canvas has non-zero pixels after rendering") {
     val jsDir = findDemoJsDir()
     createTestHtml(jsDir)
@@ -201,29 +348,416 @@ class BrowserBootstrapTest extends FunSuite {
       // Wait a bit longer for render frames
       page.waitForTimeout(5000)
 
-      // Sample a pixel from the canvas to verify rendering happened
-      val pixelSum = page
+      // Use toDataURL to capture the composited canvas contents.
+      // gl.readPixels returns zeros when preserveDrawingBuffer is false (default)
+      // because WebGL clears the drawing buffer after compositing.
+      val result = page
         .evaluate(
           """(() => {
             |  const canvas = document.querySelector('canvas');
-            |  if (!canvas) return -1;
-            |  const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
-            |  if (!gl) return -2;
-            |  const pixels = new Uint8Array(4);
-            |  gl.readPixels(50, 50, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-            |  return pixels[0] + pixels[1] + pixels[2] + pixels[3];
+            |  if (!canvas) return 'no_canvas';
+            |  const dataUrl = canvas.toDataURL('image/png');
+            |  if (!dataUrl || dataUrl === 'data:,') return 'empty';
+            |  // A blank (transparent) 100x100 PNG is ~
+            |  // 'data:image/png;base64,iVBORw0KGgo...' with a short base64.
+            |  // A rendered frame has significantly more data.
+            |  // Blank PNGs for a 100x100 canvas are typically < 200 chars.
+            |  if (dataUrl.length < 300) return 'likely_blank:' + dataUrl.length;
+            |  return 'ok:' + dataUrl.length;
             |})()""".stripMargin
         )
         .toString
-        .toDouble
-        .toInt
 
-      // The demo clears to an HSV-cycling color, so at least some channel should be non-zero.
-      // pixelSum of 0 means nothing was rendered (all black with 0 alpha).
-      // A value > 0 means at least one color channel or alpha has content.
       assert(
-        pixelSum > 0,
-        s"Canvas pixel sum is $pixelSum — nothing appears to have been rendered"
+        result.startsWith("ok"),
+        s"Canvas appears blank after rendering: $result"
+      )
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("Web Audio API context is available") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(2000)
+
+      // Check that AudioContext is available and can be created
+      val result = page
+        .evaluate(
+          """(() => {
+            |  try {
+            |    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            |    if (!AudioCtx) return 'no_audio_context';
+            |    const ctx = new AudioCtx();
+            |    const state = ctx.state;
+            |    const rate = ctx.sampleRate;
+            |    ctx.close();
+            |    return 'ok:' + state + ':' + rate;
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(result.startsWith("ok"), s"Web Audio API failed: $result")
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("localStorage read/write roundtrip") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+
+      // Write a value to localStorage, read it back, verify, then clean up
+      val result = page
+        .evaluate(
+          """(() => {
+            |  try {
+            |    const key = 'sge-it-test-' + Date.now();
+            |    const value = 'hello-sge';
+            |    localStorage.setItem(key, value);
+            |    const readBack = localStorage.getItem(key);
+            |    localStorage.removeItem(key);
+            |    if (readBack !== value) return 'mismatch: ' + readBack;
+            |    // Verify removal
+            |    const afterRemove = localStorage.getItem(key);
+            |    if (afterRemove !== null) return 'remove_failed';
+            |    return 'ok';
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(result == "ok", s"localStorage roundtrip failed: $result")
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("mouse click event dispatches to canvas") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(3000)
+
+      // Set up a listener on the canvas to capture mouse events
+      val setup = page
+        .evaluate(
+          """(() => {
+            |  const canvas = document.querySelector('canvas');
+            |  if (!canvas) return 'no_canvas';
+            |  window.__sgeMouseEvents = [];
+            |  canvas.addEventListener('mousedown', e => window.__sgeMouseEvents.push('down:' + e.button));
+            |  canvas.addEventListener('mouseup', e => window.__sgeMouseEvents.push('up:' + e.button));
+            |  return 'ok';
+            |})()""".stripMargin
+        )
+        .toString
+
+      if (setup != "ok") {
+        fail(s"Canvas mouse setup failed: $setup")
+      }
+
+      // Click on the canvas via Playwright
+      val canvas = page.querySelector("canvas")
+      assert(canvas != null, "Canvas element not found")
+      canvas.click()
+      page.waitForTimeout(200)
+
+      // Check captured events
+      val result = page
+        .evaluate(
+          """(() => {
+            |  return window.__sgeMouseEvents.join(',');
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(
+        result.contains("down:0"),
+        s"Expected mousedown event, got: '$result'"
+      )
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("BrowserPreferences localStorage protocol roundtrip") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+
+      // Test the localStorage protocol that BrowserPreferences uses:
+      // prefix:keyTYPE_SUFFIX = value
+      val result = page
+        .evaluate(
+          """(() => {
+            |  try {
+            |    const prefix = 'sge-it-test:';
+            |    // Write typed values using BrowserPreferences' key format
+            |    localStorage.setItem(prefix + 'names', 'Alice');
+            |    localStorage.setItem(prefix + 'agei', '42');
+            |    localStorage.setItem(prefix + 'activeb', 'true');
+            |    localStorage.setItem(prefix + 'scoref', '3.14');
+            |    // Read back and verify
+            |    const name = localStorage.getItem(prefix + 'names');
+            |    const age = localStorage.getItem(prefix + 'agei');
+            |    const active = localStorage.getItem(prefix + 'activeb');
+            |    const score = localStorage.getItem(prefix + 'scoref');
+            |    // Clean up
+            |    localStorage.removeItem(prefix + 'names');
+            |    localStorage.removeItem(prefix + 'agei');
+            |    localStorage.removeItem(prefix + 'activeb');
+            |    localStorage.removeItem(prefix + 'scoref');
+            |    if (name !== 'Alice') return 'name_mismatch:' + name;
+            |    if (age !== '42') return 'age_mismatch:' + age;
+            |    if (active !== 'true') return 'active_mismatch:' + active;
+            |    if (score !== '3.14') return 'score_mismatch:' + score;
+            |    // Verify removal
+            |    if (localStorage.getItem(prefix + 'names') !== null) return 'remove_failed';
+            |    return 'ok';
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(result == "ok", s"BrowserPreferences protocol failed: $result")
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("touch event dispatches to canvas") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(3000)
+
+      // Set up touch event listeners on the canvas
+      val setup = page
+        .evaluate(
+          """(() => {
+            |  const canvas = document.querySelector('canvas');
+            |  if (!canvas) return 'no_canvas';
+            |  window.__sgeTouchEvents = [];
+            |  canvas.addEventListener('touchstart', e => {
+            |    e.preventDefault();
+            |    window.__sgeTouchEvents.push('start:' + e.touches.length);
+            |  });
+            |  canvas.addEventListener('touchend', e => {
+            |    e.preventDefault();
+            |    window.__sgeTouchEvents.push('end');
+            |  });
+            |  return 'ok';
+            |})()""".stripMargin
+        )
+        .toString
+
+      if (setup != "ok") {
+        fail(s"Canvas touch setup failed: $setup")
+      }
+
+      // Dispatch a synthetic TouchEvent from JavaScript
+      val result = page
+        .evaluate(
+          """(() => {
+            |  const canvas = document.querySelector('canvas');
+            |  const rect = canvas.getBoundingClientRect();
+            |  const touch = new Touch({
+            |    identifier: 0,
+            |    target: canvas,
+            |    clientX: rect.left + 50,
+            |    clientY: rect.top + 50,
+            |    radiusX: 5,
+            |    radiusY: 5
+            |  });
+            |  canvas.dispatchEvent(new TouchEvent('touchstart', {
+            |    touches: [touch],
+            |    targetTouches: [touch],
+            |    changedTouches: [touch],
+            |    cancelable: true,
+            |    bubbles: true
+            |  }));
+            |  canvas.dispatchEvent(new TouchEvent('touchend', {
+            |    touches: [],
+            |    targetTouches: [],
+            |    changedTouches: [touch],
+            |    cancelable: true,
+            |    bubbles: true
+            |  }));
+            |  return window.__sgeTouchEvents.join(',');
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(
+        result.contains("start:1"),
+        s"Expected touchstart event, got: '$result'"
+      )
+
+      browser.close()
+      pw.close()
+    } finally
+      server.stop(0)
+  }
+
+  test("HTTP fetch roundtrip via server") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+
+    // Create a JSON endpoint file to simulate an API response
+    val apiContent = """{"status":"ok","value":42}"""
+    val apiPath    = jsDir.resolve("api-test.json")
+    Files.writeString(apiPath, apiContent)
+
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+
+      // Test fetch() API which is the same transport BrowserNet uses via sttp
+      val result = page
+        .evaluate(
+          """(async () => {
+            |  try {
+            |    const resp = await fetch('/api-test.json');
+            |    if (!resp.ok) return 'http_error:' + resp.status;
+            |    const contentType = resp.headers.get('Content-Type') || '';
+            |    const data = await resp.json();
+            |    if (data.status !== 'ok') return 'status_mismatch:' + data.status;
+            |    if (data.value !== 42) return 'value_mismatch:' + data.value;
+            |    return 'ok';
+            |  } catch(e) { return 'error: ' + e.message; }
+            |})()""".stripMargin
+        )
+        .toString
+
+      assert(result == "ok", s"HTTP fetch failed: $result")
+
+      browser.close()
+      pw.close()
+    } finally {
+      server.stop(0)
+      Files.deleteIfExists(apiPath)
+    }
+  }
+
+  test("keyboard input event dispatches to canvas") {
+    val jsDir = findDemoJsDir()
+    createTestHtml(jsDir)
+    val (server, port) = startServer(jsDir)
+
+    try {
+      val pw      = Playwright.create()
+      val browser = pw.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true))
+      val context = browser.newContext()
+      val page    = context.newPage()
+
+      page.navigate(s"http://localhost:$port/")
+      page.waitForLoadState(LoadState.NETWORKIDLE)
+      page.waitForTimeout(3000)
+
+      // Set up a listener on the canvas to capture keyboard events
+      val setup = page
+        .evaluate(
+          """(() => {
+            |  const canvas = document.querySelector('canvas');
+            |  if (!canvas) return 'no_canvas';
+            |  window.__sgeKeyEvents = [];
+            |  canvas.tabIndex = 0;
+            |  canvas.focus();
+            |  canvas.addEventListener('keydown', e => window.__sgeKeyEvents.push('down:' + e.key));
+            |  canvas.addEventListener('keyup', e => window.__sgeKeyEvents.push('up:' + e.key));
+            |  return 'ok';
+            |})()""".stripMargin
+        )
+        .toString
+
+      if (setup != "ok") {
+        fail(s"Canvas setup failed: $setup")
+      }
+
+      // Simulate keyboard press via Playwright
+      page.keyboard().press("a")
+      page.waitForTimeout(200)
+
+      // Check captured events
+      val result = page
+        .evaluate(
+          """(() => {
+            |  return window.__sgeKeyEvents.join(',');
+            |})()""".stripMargin
+        )
+        .toString
+
+      // Should have at least a keydown event
+      assert(
+        result.contains("down:a"),
+        s"Expected keyboard event, got: '$result'"
       )
 
       browser.close()

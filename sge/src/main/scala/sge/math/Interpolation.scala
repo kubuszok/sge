@@ -129,11 +129,11 @@ object Interpolation {
       else Math.pow((a - 1) * 2, power).toFloat / (if (power % 2 == 0) -2 else 2) + 1
   }
 
-  class PowIn(power: Int) extends Pow(power) {
+  final class PowIn(power: Int) extends Pow(power) {
     override def apply(a: Float): Float = Math.pow(a, power).toFloat
   }
 
-  class PowOut(power: Int) extends Pow(power) {
+  final class PowOut(power: Int) extends Pow(power) {
     override def apply(a: Float): Float =
       Math.pow(a - 1, power).toFloat * (if (power % 2 == 0) -1 else 1) + 1
   }
@@ -147,12 +147,12 @@ object Interpolation {
       else (2 - (Math.pow(value, -power * (a * 2 - 1)).toFloat - min) * scale) / 2
   }
 
-  class ExpIn(value: Float, power: Float) extends Exp(value, power) {
+  final class ExpIn(value: Float, power: Float) extends Exp(value, power) {
     override def apply(a: Float): Float =
       (Math.pow(value, power * (a - 1)).toFloat - min) * scale
   }
 
-  class ExpOut(value: Float, power: Float) extends Exp(value, power) {
+  final class ExpOut(value: Float, power: Float) extends Exp(value, power) {
     override def apply(a: Float): Float =
       1 - (Math.pow(value, -power * a).toFloat - min) * scale
   }
@@ -170,13 +170,13 @@ object Interpolation {
       }
   }
 
-  class ElasticIn(value: Float, power: Float, bounces: Int, scale: Float) extends Elastic(value, power, bounces, scale) {
+  final class ElasticIn(value: Float, power: Float, bounces: Int, scale: Float) extends Elastic(value, power, bounces, scale) {
     override def apply(a: Float): Float =
       if (a >= 0.99f) 1f
       else Math.pow(value, power * (a - 1)).toFloat * MathUtils.sin(a * bouncesFinal) * scale
   }
 
-  class ElasticOut(value: Float, power: Float, bounces: Int, scale: Float) extends Elastic(value, power, bounces, scale) {
+  final class ElasticOut(value: Float, power: Float, bounces: Int, scale: Float) extends Elastic(value, power, bounces, scale) {
     override def apply(a: Float): Float =
       if (a == 0) 0f
       else {
@@ -185,7 +185,7 @@ object Interpolation {
       }
   }
 
-  class Bounce(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
+  final class Bounce(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
     def this(bounces: Int) = this(BounceOut.computeWidths(bounces), BounceOut.computeHeights(bounces))
 
     private def out(a: Float): Float = {
@@ -306,7 +306,7 @@ object Interpolation {
     }
   }
 
-  class BounceIn(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
+  final class BounceIn(widths: Array[Float], heights: Array[Float]) extends BounceOut(widths, heights) {
     def this(bounces: Int) = this(BounceOut.computeWidths(bounces), BounceOut.computeHeights(bounces))
 
     override def apply(a: Float): Float = 1 - super.apply(1 - a)
@@ -325,14 +325,14 @@ object Interpolation {
       }
   }
 
-  class SwingOut(val scale: Float) extends Interpolation {
+  final class SwingOut(val scale: Float) extends Interpolation {
     def apply(a: Float): Float = {
       val a2 = a - 1
       a2 * a2 * ((scale + 1) * a2 + scale) + 1
     }
   }
 
-  class SwingIn(val scale: Float) extends Interpolation {
+  final class SwingIn(val scale: Float) extends Interpolation {
     def apply(a: Float): Float =
       a * a * ((scale + 1) * a - scale)
   }

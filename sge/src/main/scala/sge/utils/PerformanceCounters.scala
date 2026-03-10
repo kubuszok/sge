@@ -19,7 +19,7 @@ package utils
 import sge.math.MathUtils
 
 /** @author xoppa (original implementation) */
-class PerformanceCounters {
+final class PerformanceCounters {
   private val nano2seconds = MathUtils.nanoToSec
 
   private var lastTick = Nanos.zero

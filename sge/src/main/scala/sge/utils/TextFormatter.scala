@@ -22,7 +22,7 @@ import java.util.Locale
   *
   * Supports placeholder syntax `{0}`, `{1}`, etc. Doubled left curly brackets `{{` are escaped to a literal `{`. Single quotes do not need escaping (unlike java.text.MessageFormat).
   */
-class TextFormatter(locale: Locale, useAdvanced: Boolean) {
+final class TextFormatter(locale: Locale, useAdvanced: Boolean) {
   private val buffer = new StringBuilder()
 
   /** Formats the given pattern replacing its placeholders with the actual arguments specified by args.

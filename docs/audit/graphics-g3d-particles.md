@@ -39,10 +39,9 @@ All 27 public methods ported: `setTransform` x2, `rotate` x2, `translate`, `setT
 `replaceInfluencer`, `save`, `load`.
 Minor issues:
 - Json.Serializable (`write`/`read`) not implemented -- blocks JSON de/serialization
-- `getBoundingBox()` Scaladoc says "copy of this controller" (copied from Java; should say
-  "bounding box")
 - `update()` uses `(using Sge)` context parameter (correct SGE pattern)
 - `dispose()` calls `emitter.close()`/`influencer.close()` (correct AutoCloseable mapping)
+Note: `getBoundingBox()` Scaladoc corrected to describe bounding box return (not "copy of controller").
 
 ### ParticleEffect.scala -- pass
 All 18 public methods ported: `init`, `start`, `end`, `reset`, `update` x2, `draw`,

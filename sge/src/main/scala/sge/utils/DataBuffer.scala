@@ -5,10 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: `toArray()` -> `getBytes`; missing `getBuffer()` and `size()` methods
+ *   Renames: `toArray()` -> `getBytes`
  *   Convention: different inheritance hierarchy; Java `DataBuffer` extends LibGDX `DataOutput`, Scala extends Java standard `DataOutput`; `OptimizedByteArrayOutputStream` inlined instead of reusing StreamUtils
  *   Idiom: split packages
- *   Issues: missing `getBuffer()` and `size()` from Java API; `OptimizedByteArrayOutputStream` duplicated from `StreamUtils`
+ *   Fixes: added `getBuffer()` and `size()` delegating to inner OptimizedByteArrayOutputStream
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -22,6 +22,12 @@ import java.io.{ DataOutput, OutputStream }
 abstract class DataBuffer extends OutputStream with DataOutput {
 
   private val buffer = new OptimizedByteArrayOutputStream(256)
+
+  /** Returns the backing array, which has 0 to [[size]] items. */
+  def getBuffer(): Array[Byte] = buffer.getBuffer()
+
+  /** Returns the number of bytes written to this buffer. */
+  def size(): Int = buffer.size()
 
   def getBytes: Array[Byte] = buffer.toByteArray()
 

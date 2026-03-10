@@ -18,6 +18,8 @@ object Epsilon {
 
   inline def apply(value: Float): Epsilon = value
 
+  given utils.MkArray[Epsilon] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Epsilon]]
+
   extension (epsilon: Epsilon) {
     inline def toFloat: Float = epsilon
   }

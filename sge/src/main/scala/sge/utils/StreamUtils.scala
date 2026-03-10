@@ -127,7 +127,7 @@ object StreamUtils {
     }
 
   /** A ByteArrayOutputStream which avoids copying of the byte array if possible. */
-  class OptimizedByteArrayOutputStream(initialSize: Int) extends ByteArrayOutputStream(initialSize) {
+  final class OptimizedByteArrayOutputStream(initialSize: Int) extends ByteArrayOutputStream(initialSize) {
 
     override def toByteArray(): Array[Byte] =
       if (count == buf.length) buf

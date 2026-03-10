@@ -15,6 +15,8 @@ opaque type Radians = Float
 object Radians {
   def apply(value: Float): Radians = value
 
+  given utils.MkArray[Radians] = utils.MkArray.mkFloat.asInstanceOf[utils.MkArray[Radians]]
+
   inline def Pi:     Radians = 3.1415927f
   inline def TwoPi:  Radians = 6.2831855f
   inline def HalfPi: Radians = 1.5707964f

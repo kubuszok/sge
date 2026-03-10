@@ -20,7 +20,7 @@ import java.io.{ DataInput, DataInputStream, FilterInputStream, IOException, Inp
   * @author
   *   mzechner
   */
-class LittleEndianInputStream(in: InputStream) extends FilterInputStream(in) with DataInput {
+final class LittleEndianInputStream(in: InputStream) extends FilterInputStream(in) with DataInput {
 
   private val din = new DataInputStream(in)
 

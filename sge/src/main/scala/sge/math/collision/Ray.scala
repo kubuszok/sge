@@ -8,7 +8,7 @@
  *
  * Migration notes:
  *   Convention: Serializable dropped; serialVersionUID dropped;
- *     primary constructor stores Vector3 refs (Java copies + normalizes);
+ *     primary constructor copies Vector3 values and normalizes direction (matches Java);
  *     static tmp Vector3 replaced with local allocation in mul();
  *     added 3-arg constructor (originVec, directionVec, normalize) not in Java
  *   Idiom: split packages
@@ -23,7 +23,21 @@ package collision
   * @author
   *   badlogicgames@gmail.com (original implementation)
   */
-class Ray(val origin: Vector3 = Vector3(), val direction: Vector3 = Vector3()) {
+class Ray() {
+  val origin:    Vector3 = Vector3()
+  val direction: Vector3 = Vector3()
+
+  /** Constructor, sets the starting position of the ray and the direction.
+    * @param origin
+    *   The starting position
+    * @param direction
+    *   The direction
+    */
+  def this(origin: Vector3, direction: Vector3) = {
+    this()
+    this.origin.set(origin)
+    this.direction.set(direction).nor()
+  }
 
   /** Alternative constructor with different parameter names to avoid conflicts.
     * @param originVec

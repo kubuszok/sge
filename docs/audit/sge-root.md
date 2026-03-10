@@ -1,6 +1,6 @@
 # Audit: sge (root)
 
-Audited: 17/17 files | Pass: 12 | Minor: 1 | Major: 4
+Audited: 17/17 files | Pass: 16 | Minor: 1 | Major: 0
 Last updated: 2026-03-03
 
 ---
@@ -83,16 +83,12 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/Input.scala` |
 | Java source(s) | `com/badlogic/gdx/Input.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All major methods present. Keys object (137 constants) matches. Buttons object (5 values) matches.
-**Issues**:
-- `major`: **4 enums use `scala.Enumeration`** (Peripheral, OnscreenKeyboardType, VibrationType, Orientation) — must be Scala 3 `enum`
-- `major`: Missing `closeTextInputField(boolean, NativeInputCloseCallback)` 2-arg overload
-- `major`: Missing `isTextInputFieldOpened()` default method
-- `major`: `KeyboardHeightObserver` missing `onKeyboardShow` and `onKeyboardHide` methods
-- `minor`: `Keys.toString` returns raw `null` — should return `Nullable[String]`
+**Convention changes**: `Keys` is now an opaque `Key` type; enums (Peripheral, OnscreenKeyboardType, VibrationType, Orientation) are proper Scala 3 `enum extends java.lang.Enum`.
+**Issues**: None
 
 ---
 
@@ -175,13 +171,12 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/Graphics.scala` |
 | Java source(s) | `com/badlogic/gdx/Graphics.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All 37 trait methods present. `GraphicsType` enum (7 values), `DisplayMode`, `Monitor`, `BufferFormat` all match.
 **Convention changes**: Added convenience properties `gl`, `gl20`, `gl30`, `gl31`, `gl32`
-**Issues**:
-- `major`: `type GLVersion = AnyRef` is a placeholder — should reference real `sge.graphics.glutils.GLVersion`
+**Issues**: None (`GLVersion` now resolves to `sge.graphics.glutils.GLVersion`)
 
 ---
 
@@ -251,11 +246,9 @@ Last updated: 2026-03-03
 |-------|-------|
 | SGE path | `core/src/main/scala/sge/Game.scala` |
 | Java source(s) | `com/badlogic/gdx/Game.java` |
-| Status | major_issues |
+| Status | pass |
 | Tested | No |
 
 **Completeness**: All methods present.
-**Issues**:
-- `major`: `render()` uses hardcoded `0.016f` instead of `Sge().graphics.getDeltaTime()`
-- `major`: `setScreen()` uses hardcoded `800x600` instead of `Sge().graphics.getWidth()/getHeight()`
-- `minor`: Needs `(using Sge)` context parameter to access runtime environment
+**Convention changes**: `(using Sge)` context parameter added; `render()` uses `Sge().graphics.getDeltaTime()`; `setScreen()` uses `Sge().graphics.getWidth()/getHeight()`.
+**Issues**: None

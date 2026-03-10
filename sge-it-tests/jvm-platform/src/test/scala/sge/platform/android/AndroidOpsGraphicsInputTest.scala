@@ -94,6 +94,8 @@ class AndroidOpsGraphicsInputTest extends FunSuite {
       ) != null
     )
     assert(cls.getMethod("setView", classOf[AnyRef]) != null)
+    assert(cls.getMethod("closeNativeTextField", classOf[Boolean]) != null)
+    assert(cls.getMethod("isNativeTextFieldOpen") != null)
   }
 
   test("InputDialogCallback trait has expected methods") {

@@ -103,7 +103,7 @@ class AtlasTmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmj
     // Atlas dependencies
     val atlasFileHandle = getAtlasFileHandle(tmxFile)
     Nullable(atlasFileHandle).foreach { handle =>
-      descriptors.add(new AssetDescriptor[TextureAtlas](handle, classOf[TextureAtlas]))
+      descriptors.add(AssetDescriptor[TextureAtlas](handle))
     }
 
     descriptors
@@ -220,7 +220,7 @@ object AtlasTmjMapLoader {
 
   class AssetManagerAtlasResolver(assetManager: AssetManager, atlasName: String) extends AtlasResolver {
     override def getAtlas(): TextureAtlas =
-      assetManager(atlasName, classOf[TextureAtlas])
+      assetManager[TextureAtlas](atlasName)
 
     override def getImage(name: String): Nullable[TextureRegion] = {
       // check for imagelayer and strip if needed

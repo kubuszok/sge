@@ -96,4 +96,103 @@ class Matrix4Test extends munit.FunSuite {
     // (1,0,0) * scale(2) = (2,0,0), then + translate(5,0,0) = (7,0,0)
     assertEqualsFloat(v.x, 7f, epsilon)
   }
+
+  // ---------------------------------------------------------------------------
+  // Rotation
+  // ---------------------------------------------------------------------------
+
+  test("rotate 90 degrees around Z maps X to Y") {
+    val m = new Matrix4().idt().rotate(Vector3(0, 0, 1), 90f)
+    val v = new Vector3(1, 0, 0)
+    v.rot(m)
+    assertEqualsFloat(v.x, 0f, 1e-3f)
+    assertEqualsFloat(v.y, 1f, 1e-3f)
+    assertEqualsFloat(v.z, 0f, 1e-3f)
+  }
+
+  test("rotate 180 degrees around Y maps Z to -Z") {
+    val m = new Matrix4().idt().rotate(Vector3(0, 1, 0), 180f)
+    val v = new Vector3(0, 0, 1)
+    v.rot(m)
+    assertEqualsFloat(v.x, 0f, 1e-3f)
+    assertEqualsFloat(v.y, 0f, 1e-3f)
+    assertEqualsFloat(v.z, -1f, 1e-3f)
+  }
+
+  test("setToRotation and getRotation roundtrip") {
+    val q  = new Quaternion().setEulerAngles(45f, 30f, 0f)
+    val m  = new Matrix4().idt().set(q)
+    val q2 = new Quaternion()
+    m.getRotation(q2)
+    // Quaternion may be negated (represents same rotation)
+    val dot = q.x * q2.x + q.y * q2.y + q.z * q2.z + q.w * q2.w
+    assert(Math.abs(Math.abs(dot) - 1f) < 1e-3f, s"Quaternion dot product: $dot")
+  }
+
+  // ---------------------------------------------------------------------------
+  // Scale
+  // ---------------------------------------------------------------------------
+
+  test("scale modifies matrix correctly") {
+    val m = new Matrix4().idt().scale(2f, 3f, 4f)
+    val v = new Vector3(1, 1, 1)
+    v.mul(m)
+    assertEqualsFloat(v.x, 2f, epsilon)
+    assertEqualsFloat(v.y, 3f, epsilon)
+    assertEqualsFloat(v.z, 4f, epsilon)
+  }
+
+  test("getScale extracts scale factors") {
+    val m     = new Matrix4().idt().scale(2f, 3f, 4f)
+    val scale = m.getScale(new Vector3())
+    assertEqualsFloat(scale.x, 2f, epsilon)
+    assertEqualsFloat(scale.y, 3f, epsilon)
+    assertEqualsFloat(scale.z, 4f, epsilon)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Compose: translate + rotate + scale
+  // ---------------------------------------------------------------------------
+
+  test("TRS decomposition roundtrip") {
+    // Build matrix from translate, rotate, scale
+    val pos   = new Vector3(10, 20, 30)
+    val rot   = new Quaternion().setEulerAngles(45f, 0f, 0f)
+    val scale = new Vector3(2, 2, 2)
+
+    val m = new Matrix4().set(pos, rot, scale)
+
+    // Extract back
+    val ePos   = m.getTranslation(new Vector3())
+    val eScale = m.getScale(new Vector3())
+    val eRot   = new Quaternion()
+    m.getRotation(eRot)
+
+    assertEqualsFloat(ePos.x, 10f, 1e-3f)
+    assertEqualsFloat(ePos.y, 20f, 1e-3f)
+    assertEqualsFloat(ePos.z, 30f, 1e-3f)
+    assertEqualsFloat(eScale.x, 2f, 1e-3f)
+    assertEqualsFloat(eScale.y, 2f, 1e-3f)
+    assertEqualsFloat(eScale.z, 2f, 1e-3f)
+  }
+
+  test("transpose of identity is identity") {
+    val m = new Matrix4().idt().tra()
+    assertMatrixEquals(m, new Matrix4().idt())
+  }
+
+  test("det property: det(A * B) = det(A) * det(B)") {
+    val a = new Matrix4().idt()
+    a.values(Matrix4.M00) = 1; a.values(Matrix4.M01) = 2; a.values(Matrix4.M02) = 0; a.values(Matrix4.M03) = 0
+    a.values(Matrix4.M10) = 3; a.values(Matrix4.M11) = 4; a.values(Matrix4.M12) = 0; a.values(Matrix4.M13) = 0
+    a.values(Matrix4.M20) = 0; a.values(Matrix4.M21) = 0; a.values(Matrix4.M22) = 1; a.values(Matrix4.M23) = 0
+    a.values(Matrix4.M30) = 0; a.values(Matrix4.M31) = 0; a.values(Matrix4.M32) = 0; a.values(Matrix4.M33) = 1
+
+    val b = new Matrix4().idt()
+    b.values(Matrix4.M00) = 5; b.values(Matrix4.M01) = 6; b.values(Matrix4.M02) = 0; b.values(Matrix4.M03) = 0
+    b.values(Matrix4.M10) = 7; b.values(Matrix4.M11) = 8; b.values(Matrix4.M12) = 0; b.values(Matrix4.M13) = 0
+
+    val ab = new Matrix4().set(a).mul(b)
+    assertEqualsFloat(ab.det(), a.det() * b.det(), 1e-2f)
+  }
 }

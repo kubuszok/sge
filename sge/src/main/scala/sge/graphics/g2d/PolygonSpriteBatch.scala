@@ -772,7 +772,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     while (continue) {
       Array.copy(spriteVertices, currentOffset, vertices, vertexIdx, batch)
       this.vertexIndex = vertexIdx + batch
-      this.triangleIndex = triangleIdx
+      this.triangleIndex = ti
       remainingCount -= batch
       if (remainingCount == 0) {
         continue = false

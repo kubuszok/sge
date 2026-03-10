@@ -7,9 +7,8 @@ package utils
 
 import scala.collection.mutable
 
-/** Tests for stdlib replacements of LibGDX Queue (ArrayDeque) and Bits (BitSet).
-  * Queue.java -> skipped (use stdlib ArrayDeque)
-  * Bits.java  -> skipped (use stdlib BitSet) */
+/** Tests for stdlib replacements of LibGDX Queue (ArrayDeque) and Bits (BitSet). Queue.java -> skipped (use stdlib ArrayDeque) Bits.java -> skipped (use stdlib BitSet)
+  */
 class QueueBitsTest extends munit.FunSuite {
 
   // ---------------------------------------------------------------------------
@@ -82,13 +81,13 @@ class QueueBitsTest extends munit.FunSuite {
   test("Bits: and, or, xor operations") {
     val a = mutable.BitSet(1, 2, 3, 4)
     val b = mutable.BitSet(3, 4, 5, 6)
-    assertEquals((a & b), mutable.BitSet(3, 4))
-    assertEquals((a | b), mutable.BitSet(1, 2, 3, 4, 5, 6))
-    assertEquals((a ^ b), mutable.BitSet(1, 2, 5, 6))
+    assertEquals(a & b, mutable.BitSet(3, 4))
+    assertEquals(a | b, mutable.BitSet(1, 2, 3, 4, 5, 6))
+    assertEquals(a ^ b, mutable.BitSet(1, 2, 5, 6))
   }
 
   test("Bits: nextSetBit equivalent via iterator") {
-    val bits = mutable.BitSet(3, 7, 15, 100)
+    val bits      = mutable.BitSet(3, 7, 15, 100)
     val fromSeven = bits.iteratorFrom(7).toList
     assertEquals(fromSeven, List(7, 15, 100))
   }
@@ -97,7 +96,7 @@ class QueueBitsTest extends munit.FunSuite {
     val bits = mutable.BitSet(0, 1, 2, 4)
     // first clear bit starting from 0 is 3
     var i = 0
-    while (bits.contains(i)) { i += 1 }
+    while (bits.contains(i)) i += 1
     assertEquals(i, 3)
   }
 
@@ -111,8 +110,8 @@ class QueueBitsTest extends munit.FunSuite {
   }
 
   test("Bits: containsAll (subsetOf)") {
-    val superset = mutable.BitSet(1, 2, 3, 4, 5)
-    val subset = mutable.BitSet(2, 4)
+    val superset  = mutable.BitSet(1, 2, 3, 4, 5)
+    val subset    = mutable.BitSet(2, 4)
     val notSubset = mutable.BitSet(2, 6)
     assert(subset.subsetOf(superset))
     assert(!notSubset.subsetOf(superset))

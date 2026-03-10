@@ -53,7 +53,7 @@ abstract class ModelInfluencer extends Influencer {
   override def save(manager: AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData()
     for (model <- models)
-      data.saveAsset(manager.assetFileName(model).getOrElse(""), classOf[Model])
+      data.saveAsset[Model](manager.assetFileName(model).getOrElse(""))
   }
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {
@@ -72,7 +72,7 @@ abstract class ModelInfluencer extends Influencer {
 object ModelInfluencer {
 
   /** Assigns the first model of {@link ModelInfluencer#models} to the particles. */
-  class Single extends ModelInfluencer {
+  final class Single extends ModelInfluencer {
 
     def this(influencer: Single) = {
       this()
@@ -99,7 +99,7 @@ object ModelInfluencer {
   }
 
   /** Assigns a random model of {@link ModelInfluencer#models} to the particles. */
-  class Random extends ModelInfluencer {
+  final class Random extends ModelInfluencer {
     private val pool: Pool[ModelInstance] = Pool.Default[ModelInstance](
       () => {
         val idx = sge.math.MathUtils.random(models.size - 1)

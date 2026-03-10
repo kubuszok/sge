@@ -102,7 +102,7 @@ class TmjMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmjMapLo
 
     val fileHandles = getDependencyFileHandles(tmjFile)
     for (handle <- fileHandles)
-      descriptors.add(new AssetDescriptor[Texture](handle, classOf[Texture], textureParameter))
+      descriptors.add(AssetDescriptor[Texture](handle.path(), textureParameter))
 
     descriptors
   }

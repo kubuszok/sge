@@ -20,6 +20,8 @@ object Pixels {
   inline def apply(value: Int): Pixels = value
   val zero:                     Pixels = 0
 
+  given utils.MkArray[Pixels] = utils.MkArray.mkInt.asInstanceOf[utils.MkArray[Pixels]]
+
   extension (p: Pixels) {
     inline def toInt:    Int    = p
     inline def toFloat:  Float  = p.toFloat

@@ -38,17 +38,17 @@ trait ImageResolver {
 
 object ImageResolver {
 
-  class DirectImageResolver(images: mutable.Map[String, Texture]) extends ImageResolver {
+  final class DirectImageResolver(images: mutable.Map[String, Texture]) extends ImageResolver {
     override def getImage(name: String): Nullable[TextureRegion] =
       images.get(name).fold(Nullable.empty[TextureRegion])(t => Nullable(TextureRegion(t)))
   }
 
-  class AssetManagerImageResolver(assetManager: AssetManager) extends ImageResolver {
+  final class AssetManagerImageResolver(assetManager: AssetManager) extends ImageResolver {
     override def getImage(name: String): Nullable[TextureRegion] =
-      Nullable(TextureRegion(assetManager(name, classOf[Texture])))
+      Nullable(TextureRegion(assetManager[Texture](name)))
   }
 
-  class TextureAtlasImageResolver(atlas: TextureAtlas) extends ImageResolver {
+  final class TextureAtlasImageResolver(atlas: TextureAtlas) extends ImageResolver {
     override def getImage(name: String): Nullable[TextureRegion] =
       atlas.findRegion(name).map(r => r: TextureRegion)
   }

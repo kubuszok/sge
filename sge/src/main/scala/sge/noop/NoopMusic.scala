@@ -18,7 +18,7 @@ import scala.annotation.nowarn
 
 /** A no-op [[sge.audio.Music]] implementation for headless/testing use. Tracks looping/volume/position state but never actually plays audio.
   */
-class NoopMusic extends audio.Music {
+final class NoopMusic extends audio.Music {
 
   private var _looping:  Boolean  = false
   private var _volume:   Volume   = Volume.min

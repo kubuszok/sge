@@ -385,11 +385,13 @@ class GlyphLayout extends Poolable {
       if (fontData.markupEnabled && droppedGlyphCount > 0) {
         val reductionThreshold = this.glyphCount - secondGlyphCount
         var i                  = colors.size - 2
-        while (i >= 2) { // i >= 1 because first 2 values always determine the base color.
-          val colorChangeIndex = colors(i)
-          if (colorChangeIndex <= reductionThreshold) scala.util.boundary.break(second)
-          colors(i) = colorChangeIndex - droppedGlyphCount
-          i -= 2
+        scala.util.boundary {
+          while (i >= 2) { // i >= 1 because first 2 values always determine the base color.
+            val colorChangeIndex = colors(i)
+            if (colorChangeIndex <= reductionThreshold) scala.util.boundary.break(())
+            colors(i) = colorChangeIndex - droppedGlyphCount
+            i -= 2
+          }
         }
       }
     } else {

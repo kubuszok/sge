@@ -8,8 +8,8 @@ class FrustumTest extends munit.FunSuite {
 
   /** Creates an orthographic frustum centered at origin with the given half-extents. */
   private def orthoFrustum(hw: Float, hh: Float, near: Float, far: Float): Frustum = {
-    val f      = Frustum()
-    val proj   = Matrix4()
+    val f    = Frustum()
+    val proj = Matrix4()
     proj.setToOrtho(-hw, hw, -hh, hh, near, far)
     val invProj = Matrix4().set(proj).inv()
     f.update(invProj)
@@ -102,7 +102,7 @@ class EllipseTest extends munit.FunSuite {
 
   test("circumference approximation") {
     // For a circle (width == height), circumference should be 2*PI*r
-    val e = Ellipse(0f, 0f, 10f, 10f)
+    val e        = Ellipse(0f, 0f, 10f, 10f)
     val expected = MathUtils.PI2 * 5f
     assertEqualsFloat(e.circumference(), expected, 0.1f)
   }

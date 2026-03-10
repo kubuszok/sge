@@ -73,7 +73,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
         for (modelMaterial <- d.materials)
           Nullable(modelMaterial.textures).foreach { textures =>
             for (modelTexture <- textures)
-              deps.add(AssetDescriptor[Texture](modelTexture.fileName, classOf[Texture], Nullable(textureParameter)))
+              deps.add(AssetDescriptor[Texture](modelTexture.fileName, textureParameter))
           }
       }
       deps

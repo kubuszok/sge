@@ -213,7 +213,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     iterable.iterator()
   }
 
-  private class ReadonlyIterator[T](array: Array[T]) extends Iterator[T] {
+  final private class ReadonlyIterator[T](array: Array[T]) extends Iterator[T] {
     private var index: Int     = 0
     var valid:         Boolean = true
 
@@ -234,7 +234,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
       index = 0
   }
 
-  private class ReadonlyIterable[T](array: Array[T]) extends Iterable[T] {
+  final private class ReadonlyIterable[T](array: Array[T]) extends Iterable[T] {
     private val iterator1: ReadonlyIterator[T] = ReadonlyIterator(array)
     private val iterator2: ReadonlyIterator[T] = ReadonlyIterator(array)
 

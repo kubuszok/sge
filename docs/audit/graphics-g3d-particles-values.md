@@ -1,7 +1,7 @@
 # Audit: sge.graphics.g3d.particles.values
 
 Audited: 15/15 files | Pass: 15 | Minor: 0 | Major: 0
-Last updated: 2026-03-04
+Last updated: 2026-03-10
 
 ---
 
@@ -47,20 +47,18 @@ Implements `ResourceData.Configurable` (Java source also implements `Json.Serial
 that part intentionally omitted). `xOffsetValue`/`yOffsetValue`/`zOffsetValue` are `var`
 (matches Java `public`). No null, no return.
 
-### PrimitiveSpawnShapeValue.scala -- minor_issues
+### PrimitiveSpawnShapeValue.scala -- pass
 All public methods ported: `setActive`, `isEdges`, `setEdges`, `getSpawnWidth`,
 `getSpawnHeight`, `getSpawnDepth`, `setDimensions`, `start`, `load`.
 Inner enum `SpawnSide` moved to companion object -- correct Scala 3 enum pattern.
 `TMP_V1` static field moved to companion object as `protected val`.
-Minor issues:
-- `isEdges`/`getSpawnWidth`/`getSpawnHeight`/`getSpawnDepth` use Scala property syntax
-  (no parens) while Java uses getter-style `isEdges()`/`getSpawnWidth()` -- inconsistent
-  with Java API convention and other getter methods in this codebase that use `()`
-- Java `edges` is package-private (`boolean edges`); Scala is `var edges: Boolean` (public)
-  -- minor visibility widening
-- `spawnWidthValue`/`spawnHeightValue`/`spawnDepthValue` are `var` (matches Java `public`)
-- `spawnWidth`/`spawnWidthDiff` etc. are `protected var` (matches Java `protected float`)
-- Json.Serializable intentionally omitted
+`spawnWidthValue`/`spawnHeightValue`/`spawnDepthValue` are `var` (matches Java `public`).
+`spawnWidth`/`spawnWidthDiff` etc. are `protected var` (matches Java `protected float`).
+Json.Serializable intentionally omitted.
+Fixed:
+- `isEdges`/`getSpawnWidth`/`getSpawnHeight`/`getSpawnDepth` now use `()` getter style
+  matching Java API convention
+- Java `edges` visibility corrected to `private[particles]` (was public, now package-scoped)
 
 ### EllipseSpawnShapeValue.scala -- pass
 All public methods ported: `spawnAux`, `getSide`, `setSide`, `load`, `copy`.
