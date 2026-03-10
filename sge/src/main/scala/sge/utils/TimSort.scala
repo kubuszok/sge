@@ -17,6 +17,8 @@ package utils
 
 import java.util.Arrays
 import scala.language.implicitConversions
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** A stable, adaptive, iterative mergesort that requires far fewer than n lg(n) comparisons when running on partially sorted arrays, while offering performance comparable to a traditional mergesort
   * when run on random arrays. Like all proper mergesorts, this sort is stable and runs O(n log n) time (worst case). In the worst case, this sort requires temporary storage space for n/2 object
@@ -47,7 +49,7 @@ class TimSort[T] {
 
   /** This controls when we get *into* galloping mode. It is initialized to MIN_GALLOP. The mergeLo and mergeHi methods nudge it higher for random data, and lower for highly structured data.
     */
-  TimSort.MIN_GALLOP
+  private var minGallop: Int = TimSort.MIN_GALLOP
 
   /** Temp storage for merges. */
   private var tmp:      Array[AnyRef] = scala.compiletime.uninitialized
@@ -187,19 +189,311 @@ class TimSort[T] {
       mergeHi(base1, len1, base2, len2)
   }
 
-  // Placeholder implementations for merge methods
-  private def mergeLo(base1: Int, len1: Int, base2: Int, len2: Int): Unit = {
-    // Implementation would go here - for now, just a simple fallback
-    val start = Math.min(base1, base2)
-    val end   = Math.max(base1 + len1, base2 + len2)
-    java.util.Arrays.sort(a.asInstanceOf[Array[AnyRef]], start, end, c.asInstanceOf[java.util.Comparator[AnyRef]])
+  /** Ensures that the external array tmp has at least the specified number of elements, increasing its size if necessary. The size increases exponentially to ensure amortized linear time complexity.
+    *
+    * @param minCapacity
+    *   the minimum required capacity of the tmp array
+    * @return
+    *   tmp, whether or not it grew
+    */
+  private def ensureCapacity(minCapacity: Int): Array[AnyRef] = {
+    tmpCount = Math.max(tmpCount, minCapacity)
+    if (tmp.length < minCapacity) {
+      // Compute smallest power of 2 > minCapacity
+      var newSize = minCapacity
+      newSize |= newSize >> 1
+      newSize |= newSize >> 2
+      newSize |= newSize >> 4
+      newSize |= newSize >> 8
+      newSize |= newSize >> 16
+      newSize += 1
+
+      if (newSize < 0) // Not bloody likely!
+        newSize = minCapacity
+      else
+        newSize = Math.min(newSize, a.length >>> 1)
+
+      val newArray = new Array[AnyRef](newSize)
+      tmp = newArray
+    }
+    tmp
   }
 
-  private def mergeHi(base1: Int, len1: Int, base2: Int, len2: Int): Unit = {
-    // Implementation would go here - for now, just a simple fallback
-    val start = Math.min(base1, base2)
-    val end   = Math.max(base1 + len1, base2 + len2)
-    java.util.Arrays.sort(a.asInstanceOf[Array[AnyRef]], start, end, c.asInstanceOf[java.util.Comparator[AnyRef]])
+  /** Merges two adjacent runs in place, in a stable fashion. The first element of the first run must be greater than the first element of the second run (a[base1] > a[base2]), and the last element of
+    * the first run (a[base1 + len1-1]) must be greater than all elements of the second run.
+    *
+    * For performance, this method should be called only when len1 <= len2; its twin, mergeHi should be called if len1 >= len2. (Either method may be called if len1 == len2.)
+    *
+    * @param _base1
+    *   index of first element in first run to be merged
+    * @param _len1
+    *   length of first run to be merged (must be > 0)
+    * @param base2
+    *   index of first element in second run to be merged (must be aBase + aLen)
+    * @param _len2
+    *   length of second run to be merged (must be > 0)
+    */
+  private def mergeLo(_base1: Int, _len1: Int, base2: Int, _len2: Int): Unit = boundary {
+    if (TimSort.DEBUG) assert(_len1 > 0 && _len2 > 0 && _base1 + _len1 == base2)
+
+    var len1 = _len1
+    var len2 = _len2
+
+    // Copy first run into temp array
+    val a   = this.a // For performance
+    val tmp = ensureCapacity(len1)
+    System.arraycopy(a, _base1, tmp, 0, len1)
+
+    var cursor1 = 0 // Indexes into tmp array
+    var cursor2 = base2 // Indexes int a
+    var dest    = _base1 // Indexes int a
+
+    // Move first element of second run and deal with degenerate cases
+    a(dest) = a(cursor2); dest += 1; cursor2 += 1
+    len2 -= 1
+    if (len2 == 0) {
+      System.arraycopy(tmp, cursor1, a, dest, len1)
+      break()
+    }
+    if (len1 == 1) {
+      System.arraycopy(a, cursor2, a, dest, len2)
+      a(dest + len2) = tmp(cursor1).asInstanceOf[T] // Last elt of run 1 to end of merge
+      break()
+    }
+
+    val c              = this.c // Use local variable for performance
+    var localMinGallop = this.minGallop // " " " " "
+    var done           = false
+    while (!done) {
+      var count1 = 0 // Number of times in a row that first run won
+      var count2 = 0 // Number of times in a row that second run won
+
+      /*
+       * Do the straightforward thing until (if ever) one run starts winning consistently.
+       */
+      var breakOuter = false
+      var doContinue = true
+      while (doContinue) {
+        if (TimSort.DEBUG) assert(len1 > 1 && len2 > 0)
+        if (c.compare(a(cursor2), tmp(cursor1).asInstanceOf[T]) < 0) {
+          a(dest) = a(cursor2); dest += 1; cursor2 += 1
+          count2 += 1
+          count1 = 0
+          len2 -= 1
+          if (len2 == 0) { breakOuter = true; doContinue = false }
+        } else {
+          a(dest) = tmp(cursor1).asInstanceOf[T]; dest += 1; cursor1 += 1
+          count1 += 1
+          count2 = 0
+          len1 -= 1
+          if (len1 == 1) { breakOuter = true; doContinue = false }
+        }
+        if (doContinue && !((count1 | count2) < localMinGallop)) doContinue = false
+      }
+      if (breakOuter) { done = true }
+
+      /*
+       * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+       * ever) neither run appears to be winning consistently anymore.
+       */
+      if (!done) {
+        var gallopContinue = true
+        while (gallopContinue) {
+          if (TimSort.DEBUG) assert(len1 > 1 && len2 > 0)
+          count1 = TimSort.gallopRight(a(cursor2), tmp.asInstanceOf[Array[T]], cursor1, len1, 0, c)
+          if (count1 != 0) {
+            System.arraycopy(tmp, cursor1, a, dest, count1)
+            dest += count1
+            cursor1 += count1
+            len1 -= count1
+            if (len1 <= 1) { // len1 == 1 || len1 == 0
+              done = true; gallopContinue = false
+            }
+          }
+          if (gallopContinue) {
+            a(dest) = a(cursor2); dest += 1; cursor2 += 1
+            len2 -= 1
+            if (len2 == 0) { done = true; gallopContinue = false }
+          }
+
+          if (gallopContinue) {
+            count2 = TimSort.gallopLeft(tmp(cursor1).asInstanceOf[T], a, cursor2, len2, 0, c)
+            if (count2 != 0) {
+              System.arraycopy(a, cursor2, a, dest, count2)
+              dest += count2
+              cursor2 += count2
+              len2 -= count2
+              if (len2 == 0) { done = true; gallopContinue = false }
+            }
+            if (gallopContinue) {
+              a(dest) = tmp(cursor1).asInstanceOf[T]; dest += 1; cursor1 += 1
+              len1 -= 1
+              if (len1 == 1) { done = true; gallopContinue = false }
+              else localMinGallop -= 1
+            }
+          }
+
+          if (gallopContinue && !(count1 >= TimSort.MIN_GALLOP || count2 >= TimSort.MIN_GALLOP))
+            gallopContinue = false
+        }
+        if (!done) {
+          if (localMinGallop < 0) localMinGallop = 0
+          localMinGallop += 2 // Penalize for leaving gallop mode
+        }
+      }
+    } // End of "outer" loop
+    this.minGallop = if (localMinGallop < 1) 1 else localMinGallop // Write back to field
+
+    if (len1 == 1) {
+      if (TimSort.DEBUG) assert(len2 > 0)
+      System.arraycopy(a, cursor2, a, dest, len2)
+      a(dest + len2) = tmp(cursor1).asInstanceOf[T] // Last elt of run 1 to end of merge
+    } else if (len1 == 0) {
+      throw new IllegalArgumentException("Comparison method violates its general contract!")
+    } else {
+      if (TimSort.DEBUG) assert(len2 == 0)
+      if (TimSort.DEBUG) assert(len1 > 1)
+      System.arraycopy(tmp, cursor1, a, dest, len1)
+    }
+  }
+
+  /** Like mergeLo, except that this method should be called only if len1 >= len2; mergeLo should be called if len1 <= len2. (Either method may be called if len1 == len2.)
+    *
+    * @param base1
+    *   index of first element in first run to be merged
+    * @param _len1
+    *   length of first run to be merged (must be > 0)
+    * @param base2
+    *   index of first element in second run to be merged (must be aBase + aLen)
+    * @param _len2
+    *   length of second run to be merged (must be > 0)
+    */
+  private def mergeHi(base1: Int, _len1: Int, base2: Int, _len2: Int): Unit = boundary {
+    if (TimSort.DEBUG) assert(_len1 > 0 && _len2 > 0 && base1 + _len1 == base2)
+
+    var len1 = _len1
+    var len2 = _len2
+
+    // Copy second run into temp array
+    val a   = this.a // For performance
+    val tmp = ensureCapacity(len2)
+    System.arraycopy(a, base2, tmp, 0, len2)
+
+    var cursor1 = base1 + len1 - 1 // Indexes into a
+    var cursor2 = len2 - 1 // Indexes into tmp array
+    var dest    = base2 + len2 - 1 // Indexes into a
+
+    // Move last element of first run and deal with degenerate cases
+    a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+    len1 -= 1
+    if (len1 == 0) {
+      System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2)
+      break()
+    }
+    if (len2 == 1) {
+      dest -= len1
+      cursor1 -= len1
+      System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
+      a(dest) = tmp(cursor2).asInstanceOf[T]
+      break()
+    }
+
+    val c              = this.c // Use local variable for performance
+    var localMinGallop = this.minGallop // " " " " "
+    var done           = false
+    while (!done) {
+      var count1 = 0 // Number of times in a row that first run won
+      var count2 = 0 // Number of times in a row that second run won
+
+      /*
+       * Do the straightforward thing until (if ever) one run appears to win consistently.
+       */
+      var breakOuter = false
+      var doContinue = true
+      while (doContinue) {
+        if (TimSort.DEBUG) assert(len1 > 0 && len2 > 1)
+        if (c.compare(tmp(cursor2).asInstanceOf[T], a(cursor1)) < 0) {
+          a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+          count1 += 1
+          count2 = 0
+          len1 -= 1
+          if (len1 == 0) { breakOuter = true; doContinue = false }
+        } else {
+          a(dest) = tmp(cursor2).asInstanceOf[T]; dest -= 1; cursor2 -= 1
+          count2 += 1
+          count1 = 0
+          len2 -= 1
+          if (len2 == 1) { breakOuter = true; doContinue = false }
+        }
+        if (doContinue && !((count1 | count2) < localMinGallop)) doContinue = false
+      }
+      if (breakOuter) { done = true }
+
+      /*
+       * One run is winning so consistently that galloping may be a huge win. So try that, and continue galloping until (if
+       * ever) neither run appears to be winning consistently anymore.
+       */
+      if (!done) {
+        var gallopContinue = true
+        while (gallopContinue) {
+          if (TimSort.DEBUG) assert(len1 > 0 && len2 > 1)
+          count1 = len1 - TimSort.gallopRight(tmp(cursor2).asInstanceOf[T], a, base1, len1, len1 - 1, c)
+          if (count1 != 0) {
+            dest -= count1
+            cursor1 -= count1
+            len1 -= count1
+            System.arraycopy(a, cursor1 + 1, a, dest + 1, count1)
+            if (len1 == 0) { done = true; gallopContinue = false }
+          }
+          if (gallopContinue) {
+            a(dest) = tmp(cursor2).asInstanceOf[T]; dest -= 1; cursor2 -= 1
+            len2 -= 1
+            if (len2 == 1) { done = true; gallopContinue = false }
+          }
+
+          if (gallopContinue) {
+            count2 = len2 - TimSort.gallopLeft(a(cursor1), tmp.asInstanceOf[Array[T]], 0, len2, len2 - 1, c)
+            if (count2 != 0) {
+              dest -= count2
+              cursor2 -= count2
+              len2 -= count2
+              System.arraycopy(tmp, cursor2 + 1, a, dest + 1, count2)
+              if (len2 <= 1) { // len2 == 1 || len2 == 0
+                done = true; gallopContinue = false
+              }
+            }
+            if (gallopContinue) {
+              a(dest) = a(cursor1); dest -= 1; cursor1 -= 1
+              len1 -= 1
+              if (len1 == 0) { done = true; gallopContinue = false }
+              else localMinGallop -= 1
+            }
+          }
+
+          if (gallopContinue && !(count1 >= TimSort.MIN_GALLOP || count2 >= TimSort.MIN_GALLOP))
+            gallopContinue = false
+        }
+        if (!done) {
+          if (localMinGallop < 0) localMinGallop = 0
+          localMinGallop += 2 // Penalize for leaving gallop mode
+        }
+      }
+    } // End of "outer" loop
+    this.minGallop = if (localMinGallop < 1) 1 else localMinGallop // Write back to field
+
+    if (len2 == 1) {
+      if (TimSort.DEBUG) assert(len1 > 0)
+      dest -= len1
+      cursor1 -= len1
+      System.arraycopy(a, cursor1 + 1, a, dest + 1, len1)
+      a(dest) = tmp(cursor2).asInstanceOf[T] // Move first elt of run2 to front of merge
+    } else if (len2 == 0) {
+      throw new IllegalArgumentException("Comparison method violates its general contract!")
+    } else {
+      if (TimSort.DEBUG) assert(len1 == 0)
+      if (TimSort.DEBUG) assert(len2 > 0)
+      System.arraycopy(tmp, 0, a, dest - (len2 - 1), len2)
+    }
   }
 }
 
@@ -326,21 +620,139 @@ object TimSort {
     n_var + r
   }
 
-  // Placeholder implementations for gallop methods
+  /** Locates the position at which to insert the specified key into the specified sorted range; if the range contains an element equal to key, returns the index of the leftmost equal element.
+    *
+    * @param key
+    *   the key whose insertion point to search for
+    * @param a
+    *   the array in which to search
+    * @param base
+    *   the index of the first element in the range
+    * @param len
+    *   the length of the range; must be > 0
+    * @param hint
+    *   the index at which to begin the search, 0 <= hint < n. The closer hint is to the result, the faster this method will run.
+    * @param c
+    *   the comparator used to order the range, and to search
+    * @return
+    *   the int k, 0 <= k <= n such that a[b + k - 1] < key <= a[b + k], pretending that a[b - 1] is minus infinity and a[b + n] is infinity. In other words, key belongs at index b + k; or in other
+    *   words, the first k elements of a should precede key, and the last n - k should follow it.
+    */
   private def gallopLeft[T](key: T, a: Array[T], base: Int, len: Int, hint: Int, c: Ordering[T]): Int = {
-    // Simple linear search as placeholder
-    var i = 0
-    while (i < len && c.compare(a(base + i), key) < 0)
-      i += 1
-    i
+    if (DEBUG) assert(len > 0 && hint >= 0 && hint < len)
+
+    var lastOfs = 0
+    var ofs     = 1
+    if (c.compare(key, a(base + hint)) > 0) {
+      // Gallop right until a[base+hint+lastOfs] < key <= a[base+hint+ofs]
+      val maxOfs = len - hint
+      while (ofs < maxOfs && c.compare(key, a(base + hint + ofs)) > 0) {
+        lastOfs = ofs
+        ofs = (ofs << 1) + 1
+        if (ofs <= 0) ofs = maxOfs // int overflow
+      }
+      if (ofs > maxOfs) ofs = maxOfs
+
+      // Make offsets relative to base
+      lastOfs += hint
+      ofs += hint
+    } else { // key <= a[base + hint]
+      // Gallop left until a[base+hint-ofs] < key <= a[base+hint-lastOfs]
+      val maxOfs = hint + 1
+      while (ofs < maxOfs && c.compare(key, a(base + hint - ofs)) <= 0) {
+        lastOfs = ofs
+        ofs = (ofs << 1) + 1
+        if (ofs <= 0) ofs = maxOfs // int overflow
+      }
+      if (ofs > maxOfs) ofs = maxOfs
+
+      // Make offsets relative to base
+      val tmp = lastOfs
+      lastOfs = hint - ofs
+      ofs = hint - tmp
+    }
+    if (DEBUG) assert(-1 <= lastOfs && lastOfs < ofs && ofs <= len)
+
+    // Now a[base+lastOfs] < key <= a[base+ofs], so key belongs somewhere to the right of lastOfs but no farther right than ofs
+    lastOfs += 1
+    while (lastOfs < ofs) {
+      val m = lastOfs + ((ofs - lastOfs) >>> 1)
+
+      if (c.compare(key, a(base + m)) > 0) {
+        lastOfs = m + 1 // a[base + m] < key
+      } else {
+        ofs = m // key <= a[base + m]
+      }
+    }
+    if (DEBUG) assert(lastOfs == ofs) // so a[base + ofs - 1] < key <= a[base + ofs]
+    ofs
   }
 
+  /** Like gallopLeft, except that if the range contains an element equal to key, gallopRight returns the index after the rightmost equal element.
+    *
+    * @param key
+    *   the key whose insertion point to search for
+    * @param a
+    *   the array in which to search
+    * @param base
+    *   the index of the first element in the range
+    * @param len
+    *   the length of the range; must be > 0
+    * @param hint
+    *   the index at which to begin the search, 0 <= hint < n. The closer hint is to the result, the faster this method will run.
+    * @param c
+    *   the comparator used to order the range, and to search
+    * @return
+    *   the int k, 0 <= k <= n such that a[b + k - 1] <= key < a[b + k]
+    */
   private def gallopRight[T](key: T, a: Array[T], base: Int, len: Int, hint: Int, c: Ordering[T]): Int = {
-    // Simple linear search as placeholder
-    var i = 0
-    while (i < len && c.compare(a(base + i), key) <= 0)
-      i += 1
-    i
+    if (DEBUG) assert(len > 0 && hint >= 0 && hint < len)
+
+    var ofs     = 1
+    var lastOfs = 0
+    if (c.compare(key, a(base + hint)) < 0) {
+      // Gallop left until a[base+hint-ofs] <= key < a[base+hint-lastOfs]
+      val maxOfs = hint + 1
+      while (ofs < maxOfs && c.compare(key, a(base + hint - ofs)) < 0) {
+        lastOfs = ofs
+        ofs = (ofs << 1) + 1
+        if (ofs <= 0) ofs = maxOfs // int overflow
+      }
+      if (ofs > maxOfs) ofs = maxOfs
+
+      // Make offsets relative to base
+      val tmp = lastOfs
+      lastOfs = hint - ofs
+      ofs = hint - tmp
+    } else { // a[base + hint] <= key
+      // Gallop right until a[base+hint+lastOfs] <= key < a[base+hint+ofs]
+      val maxOfs = len - hint
+      while (ofs < maxOfs && c.compare(key, a(base + hint + ofs)) >= 0) {
+        lastOfs = ofs
+        ofs = (ofs << 1) + 1
+        if (ofs <= 0) ofs = maxOfs // int overflow
+      }
+      if (ofs > maxOfs) ofs = maxOfs
+
+      // Make offsets relative to base
+      lastOfs += hint
+      ofs += hint
+    }
+    if (DEBUG) assert(-1 <= lastOfs && lastOfs < ofs && ofs <= len)
+
+    // Now a[base+lastOfs] <= key < a[base+ofs], so key belongs somewhere to the right of lastOfs but no farther right than ofs
+    lastOfs += 1
+    while (lastOfs < ofs) {
+      val m = lastOfs + ((ofs - lastOfs) >>> 1)
+
+      if (c.compare(key, a(base + m)) < 0) {
+        ofs = m // key < a[base + m]
+      } else {
+        lastOfs = m + 1 // a[base + m] <= key
+      }
+    }
+    if (DEBUG) assert(lastOfs == ofs) // so a[base + ofs - 1] <= key < a[base + ofs]
+    ofs
   }
 
   /** Checks that fromIndex and toIndex are in range, and throws an appropriate exception if they aren't. */

@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: mean field changed from nullable WindowedMean to Option[WindowedMean]
  *   Idiom: split packages
- *   TODO: extends Pool.Poolable → define given Poolable[FloatCounter] in companion
+ *   Convention: extends Pool.Poolable — given Poolable[FloatCounter] auto-derived via Poolable.fromTrait
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok

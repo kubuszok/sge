@@ -10,7 +10,7 @@
  *   Renames: Pool.Poolable (Java interface) -> Pool.Poolable (Scala trait)
  *   Convention: null -> Nullable[A]; no return statements; split packages
  *   Idiom: Fields stored as Nullable; target/listenerActor return Nullable directly
- *   TODO: extends Pool.Poolable → define given Poolable[Event] in companion
+ *   Convention: extends Pool.Poolable — given Poolable[Event] auto-derived via Poolable.fromTrait
  *   Audited: 2026-03-03
  */
 package sge

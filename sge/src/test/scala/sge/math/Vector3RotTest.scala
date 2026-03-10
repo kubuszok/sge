@@ -90,6 +90,26 @@ class Vector3RotTest extends munit.FunSuite {
     assertVecEquals(v, Vector3(0.0f, 0.0f, -1.0f), "90° Y rotation of (1,0,0)")
   }
 
+  test("rotateAroundRad 90° around Z axis") {
+    // Regression: rotateAroundRad was a stub returning this unchanged
+    val v = Vector3(1.0f, 0.0f, 0.0f)
+    v.rotateAroundRad(Vector3.Z, MathUtils.HALF_PI)
+    assertVecEquals(v, Vector3(0.0f, 1.0f, 0.0f), "90° Z rotation of (1,0,0)")
+  }
+
+  test("rotateAroundDeg 90° around Y axis") {
+    val v = Vector3(1.0f, 0.0f, 0.0f)
+    v.rotateAroundDeg(Vector3.Y, 90f)
+    assertVecEquals(v, Vector3(0.0f, 0.0f, -1.0f), "90° Y rotation of (1,0,0)")
+  }
+
+  test("rotateAroundRad 360° returns to original") {
+    val v        = Vector3(3.0f, 4.0f, 5.0f)
+    val original = Vector3(v.x, v.y, v.z)
+    v.rotateAroundRad(Vector3.Z, MathUtils.PI2)
+    assertVecEquals(v, original, "360° rotation should be identity")
+  }
+
   test("rot returns this for chaining") {
     val v      = Vector3(1.0f, 2.0f, 3.0f)
     val m      = new Matrix4()

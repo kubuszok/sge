@@ -87,12 +87,12 @@ class Affine2 {
   def set(matrix: Matrix3): Affine2 = {
     val other = matrix.values
 
-    m00 = other(0) // M00
-    m01 = other(1) // M01
-    m02 = other(2) // M02
-    m10 = other(3) // M10
-    m11 = other(4) // M11
-    m12 = other(5) // M12
+    m00 = other(Matrix3.M00)
+    m01 = other(Matrix3.M01)
+    m02 = other(Matrix3.M02)
+    m10 = other(Matrix3.M10)
+    m11 = other(Matrix3.M11)
+    m12 = other(Matrix3.M12)
     this
   }
 
@@ -108,12 +108,12 @@ class Affine2 {
   def set(matrix: Matrix4): Affine2 = {
     val other = matrix.values
 
-    m00 = other(0) // M00
-    m01 = other(1) // M01
-    m02 = other(3) // M03
-    m10 = other(4) // M10
-    m11 = other(5) // M11
-    m12 = other(7) // M13
+    m00 = other(Matrix4.M00)
+    m01 = other(Matrix4.M01)
+    m02 = other(Matrix4.M03)
+    m10 = other(Matrix4.M10)
+    m11 = other(Matrix4.M11)
+    m12 = other(Matrix4.M13)
     this
   }
 

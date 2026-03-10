@@ -750,6 +750,17 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     if (invalidated) {
       compileShaders(vertexShaderSource, fragmentShaderSource)
       invalidated = false
+      if (compiled) {
+        // Clear stale location caches — the recompiled program has new handles
+        uniforms.clear()
+        uniformTypes.clear()
+        uniformSizes.clear()
+        attributes.clear()
+        attributeTypes.clear()
+        attributeSizes.clear()
+        fetchAttributes()
+        fetchUniforms()
+      }
     }
 
   def invalidate(): Unit = {

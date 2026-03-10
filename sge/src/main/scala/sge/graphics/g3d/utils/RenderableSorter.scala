@@ -17,7 +17,7 @@ package graphics
 package g3d
 package utils
 
-import sge.utils.DynamicArray
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Responsible for sorting [[Renderable]] lists by whatever criteria (material, distance to camera, etc.)
   * @author
@@ -27,9 +27,9 @@ trait RenderableSorter {
 
   /** Sorts the array of [[Renderable]] instances based on some criteria, e.g. material, distance to camera etc.
     * @param camera
-    *   the camera to use for sorting
+    *   the camera to use for sorting, may be empty
     * @param renderables
     *   the array of renderables to be sorted
     */
-  def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit
+  def sort(camera: Nullable[Camera], renderables: DynamicArray[Renderable]): Unit
 }

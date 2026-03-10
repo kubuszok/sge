@@ -511,7 +511,10 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
         throw SgeError.InvalidInput("Error loading font file: " + fontFile, Some(ex))
     } finally
       try reader.close()
-      catch { case _: Exception => }
+      catch {
+        case e: Error     => throw e // Never swallow OOM, SOE, etc.
+        case _: Exception => // Intentionally ignored — matches StreamUtils.closeQuietly behavior
+      }
   }
 
   def setGlyphRegion(glyph: BitmapFont.Glyph, region: TextureRegion): Unit = {

@@ -62,7 +62,7 @@ class BinaryHeap[T <: BinaryHeap.Node](capacity: Int = 16, val isMaxHeap: Boolea
     */
   def contains(node: T, identity: Boolean): Boolean =
     if (identity) {
-      nodes.take(size).exists(_ == node)
+      nodes.take(size).exists(_ eq node)
     } else {
       nodes.take(size).exists(_.equals(node))
     }

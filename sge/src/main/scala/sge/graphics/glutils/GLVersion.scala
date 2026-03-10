@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Type enum moved to companion; pattern match instead of if-else chain; TAG field removed
  *   Idiom: split packages
- *   Issues: logging calls in extractVersion/parseInt commented out instead of using Sge().application.log(); NONE case retains original constructor args instead of empty strings
+ *   Idiom: Gdx.app.log/error -> scribe.info/error; NONE case retains original constructor args instead of empty strings
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -17,6 +17,9 @@ package graphics
 package glutils
 
 import java.util.regex.Pattern
+
+import scribe._
+
 import sge.Application
 
 class GLVersion(
@@ -71,8 +74,7 @@ class GLVersion(
       minorVersion = if (resultSplit.length < 2) 0 else parseInt(resultSplit(1), 0)
       releaseVersion = if (resultSplit.length < 3) 0 else parseInt(resultSplit(2), 0)
     } else {
-      // Note: Using implicit Sge instead of global Gdx will be handled in a separate conversion
-      // Gdx.app.log(TAG, "Invalid version string: " + versionString)
+      scribe.info(s"Invalid version string: $versionString")
       majorVersion = 2
       minorVersion = 0
       releaseVersion = 0
@@ -85,8 +87,7 @@ class GLVersion(
       Integer.parseInt(v)
     catch {
       case _: NumberFormatException =>
-        // Note: Using implicit Sge instead of global Gdx will be handled in a separate conversion
-        // Gdx.app.error("libGDX GL", "Error parsing number: " + v + ", assuming: " + defaultValue)
+        scribe.error(s"Error parsing number: $v, assuming: $defaultValue")
         defaultValue
     }
 

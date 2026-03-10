@@ -165,6 +165,8 @@ final class DynamicArray[A] private (
     } else {
       _items(index) = _items(_size)
     }
+    // Null the vacated last slot to allow GC
+    if (_items.isInstanceOf[Array[AnyRef]]) _items.asInstanceOf[Array[AnyRef]](_size) = null
     value
   }
 
@@ -208,6 +210,9 @@ final class DynamicArray[A] private (
         System.arraycopy(_items, _size - copyCount, _items, start, copyCount)
       }
       _size -= n
+      // Null vacated slots to allow GC
+      if (_items.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(_items.asInstanceOf[Array[AnyRef]], _size, _size + n, null)
     }
   }
 
@@ -248,12 +253,18 @@ final class DynamicArray[A] private (
     if (_size == 0) throw new IndexOutOfBoundsException("Array is empty.")
     modified()
     _size -= 1
-    _items(_size)
+    val value = _items(_size)
+    // Null the vacated slot to allow GC
+    if (_items.isInstanceOf[Array[AnyRef]]) _items.asInstanceOf[Array[AnyRef]](_size) = null
+    value
   }
 
   /** Removes all elements. */
   def clear(): Unit = {
     modified()
+    // Null reference-type array slots to allow GC
+    if (_items.isInstanceOf[Array[AnyRef]])
+      java.util.Arrays.fill(_items.asInstanceOf[Array[AnyRef]], 0, _size, null)
     _size = 0
   }
 
@@ -261,6 +272,9 @@ final class DynamicArray[A] private (
   def truncate(newSize: Int): Unit =
     if (newSize < _size) {
       modified()
+      // Null vacated reference-type slots to allow GC
+      if (_items.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(_items.asInstanceOf[Array[AnyRef]], newSize, _size, null)
       _size = newSize
     }
 

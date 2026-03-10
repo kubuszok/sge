@@ -112,9 +112,9 @@ object MathUtils {
     r = (r - Math.floor(r)).toFloat
     r -= 0.5f
     r *= PI
-    val x2 = radians * radians
+    val x2 = r * r
     val x4 = x2 * x2
-    radians * (0.0010582010582010583f * x4 - 0.1111111111111111f * x2 + 1f) /
+    r * (0.0010582010582010583f * x4 - 0.1111111111111111f * x2 + 1f) /
       (0.015873015873015872f * x4 - 0.4444444444444444f * x2 + 1f)
     // How we calculated those long constants above (from Stack Exchange, by Soonts):
     // return x * ((1.0/945.0) * x4 - (1.0/9.0) * x2 + 1.0) / ((1.0/63.0) * x4 - (4.0/9.0) * x2 + 1.0);

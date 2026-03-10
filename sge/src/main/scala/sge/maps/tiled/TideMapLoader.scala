@@ -256,7 +256,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
           val name         = currentChild.name
           if (name == "TileSheet") {
             currentTileSet = tilesets.getTileSet(currentChild.getAttribute("Ref")).getOrElse(throw new IllegalStateException("missing TileSheet"))
-            firstgid = currentTileSet.properties.getAs[Integer]("firstgid").intValue()
+            firstgid = currentTileSet.properties.getAs[Integer]("firstgid").get.intValue()
           } else if (name == "Null") {
             x += currentChild.getIntAttribute("Count", 0)
           } else if (name == "Static") {
@@ -276,7 +276,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
               val frameName = frame.name
               if (frameName == "TileSheet") {
                 currentTileSet = tilesets.getTileSet(frame.getAttribute("Ref")).getOrElse(throw new IllegalStateException("missing TileSheet"))
-                firstgid = currentTileSet.properties.getAs[Integer]("firstgid").intValue()
+                firstgid = currentTileSet.properties.getAs[Integer]("firstgid").get.intValue()
               } else if (frameName == "Static") {
                 frameTiles.add(
                   currentTileSet.getTile(firstgid + frame.getIntAttribute("Index", 0)).getOrElse(throw new IllegalStateException("missing tile")).asInstanceOf[StaticTiledMapTile]

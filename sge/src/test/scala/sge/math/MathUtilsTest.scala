@@ -109,6 +109,15 @@ class MathUtilsTest extends munit.FunSuite {
     assertEqualsDouble(MathUtils.cosDeg(270f).toDouble, 0.0, 0.1)
   }
 
+  test("tan uses range-reduced value") {
+    // Regression: tan() previously used raw radians instead of range-reduced r in the polynomial
+    assertEqualsDouble(MathUtils.tan(0f).toDouble, 0.0, 0.001)
+    assertEqualsDouble(MathUtils.tan(MathUtils.PI / 4f).toDouble, Math.tan(Math.PI / 4.0), 0.03)
+    assertEqualsDouble(MathUtils.tan(MathUtils.PI).toDouble, 0.0, 0.03)
+    // Large angles should work correctly (range reduction)
+    assertEqualsDouble(MathUtils.tan(MathUtils.PI * 4f + MathUtils.PI / 4f).toDouble, Math.tan(Math.PI / 4.0), 0.03)
+  }
+
   test("tanDeg") {
     assertEqualsDouble(MathUtils.tanDeg(0f).toDouble, 0.0, MathUtils.FLOAT_ROUNDING_ERROR.toDouble)
     assertEqualsDouble(MathUtils.tanDeg(45f).toDouble, Math.tan(Math.toRadians(45.0)), MathUtils.FLOAT_ROUNDING_ERROR.toDouble)

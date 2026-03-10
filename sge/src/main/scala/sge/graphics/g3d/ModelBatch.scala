@@ -195,7 +195,7 @@ class ModelBatch(
     */
   def flush(): Unit = {
     camera.foreach { cam =>
-      sorter.sort(cam, renderables)
+      sorter.sort(Nullable(cam), renderables)
       var currentShader: Nullable[Shader] = Nullable.empty
       var i = 0
       while (i < renderables.size) {

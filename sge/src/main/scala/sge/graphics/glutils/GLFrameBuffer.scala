@@ -332,8 +332,12 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
         disposeColorTexture(texture)
       }
 
+      colorBufferHandles.foreach { handle =>
+        gl.glDeleteRenderbuffer(handle)
+      }
+
       if (hasDepthStencilPackedBuffer) {
-        gl.glDeleteBuffer(depthStencilPackedBufferHandle)
+        gl.glDeleteRenderbuffer(depthStencilPackedBufferHandle)
       } else {
         if (bufferBuilder.hasDepthRenderBuffer) gl.glDeleteRenderbuffer(depthbufferHandle)
         if (bufferBuilder.hasStencilRenderBuffer) gl.glDeleteRenderbuffer(stencilbufferHandle)
@@ -363,6 +367,10 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
 
     textureAttachments.foreach { texture =>
       disposeColorTexture(texture)
+    }
+
+    colorBufferHandles.foreach { handle =>
+      gl.glDeleteRenderbuffer(handle)
     }
 
     gl.glDeleteRenderbuffer(depthStencilPackedBufferHandle)

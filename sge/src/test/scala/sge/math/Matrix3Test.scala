@@ -18,6 +18,15 @@ class Matrix3Test extends munit.FunSuite {
 
   private def identityMatrix(): Matrix3 = new Matrix3().idt()
 
+  test("default constructor is identity") {
+    // Regression: constructor didn't call idt(), gave zero matrix
+    val m = new Matrix3()
+    assertMatrixEquals(m, identityMatrix())
+    assertEqualsFloat(m.values(Matrix3.M00), 1f, epsilon)
+    assertEqualsFloat(m.values(Matrix3.M11), 1f, epsilon)
+    assertEqualsFloat(m.values(Matrix3.M22), 1f, epsilon)
+  }
+
   test("identity determinant is 1") {
     assertEqualsFloat(identityMatrix().det(), 1f, epsilon)
   }

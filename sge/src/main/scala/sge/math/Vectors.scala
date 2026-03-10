@@ -895,10 +895,10 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
   def rotateAroundDeg(axis: Vector3, degrees: Float): this.type =
     rotateAroundRad(axis, degrees * MathUtils.degreesToRadians)
 
-  def rotateAroundRad(axis: Vector3, radians: Float): this.type =
-    // This would need proper quaternion/matrix implementation
-    // Placeholder for now
-    this
+  def rotateAroundRad(axis: Vector3, radians: Float): this.type = {
+    Vector3.tmpMat.setToRotationRad(axis, radians)
+    this.mul(Vector3.tmpMat)
+  }
 
   // Alias methods for compatibility with existing code
   def nor():                                          this.type = normalize()
@@ -977,6 +977,8 @@ object Vector3 {
   val Y:    Vector3 = Vector3(0, 1, 0)
   val Z:    Vector3 = Vector3(0, 0, 1)
   val Zero: Vector3 = Vector3(0, 0, 0)
+
+  private val tmpMat: Matrix4 = Matrix4()
 
   def length(x: Float, y: Float, z: Float): Float = Math.sqrt(x * x + y * y + z * z).toFloat
 

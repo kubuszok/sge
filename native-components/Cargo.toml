@@ -23,7 +23,7 @@ crossbeam = { version = "0.8", optional = true }
 cc = "1"
 
 [features]
-default = []
+default = ["freetype_support", "physics"]
 # JNI bridge for Android (ART doesn't support Panama). Desktop JVM uses Panama FFM via C ABI.
 android = ["jni"]
 # FreeType font rasterization

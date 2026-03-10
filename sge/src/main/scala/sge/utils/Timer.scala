@@ -274,7 +274,13 @@ object Timer {
               val timeMillis = System.nanoTime() / 1000000
               var i          = 0
               while (i < instances.size) {
-                waitMillis = instances(i).update(this, timeMillis, waitMillis)
+                try
+                  waitMillis = instances(i).update(this, timeMillis, waitMillis)
+                catch {
+                  case e:  Error     => throw e // Never swallow OOM, SOE, etc.
+                  case ex: Exception =>
+                    scribe.error(s"Task failed: ${instances(i).getClass.getName}", ex)
+                }
                 i += 1
               }
             }
@@ -296,7 +302,14 @@ object Timer {
         runTasks.addAll(postedTasks)
         postedTasks.clear()
       }
-      runTasks.foreach(_.run())
+      runTasks.foreach { task =>
+        try task.run()
+        catch {
+          case e:  Error     => throw e // Never swallow OOM, SOE, etc.
+          case ex: Exception =>
+            scribe.error(s"Timer task failed: ${task.getClass.getName}", ex)
+        }
+      }
       runTasks.clear()
     }
 

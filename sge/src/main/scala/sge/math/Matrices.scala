@@ -32,6 +32,8 @@ package math
 class Matrix3 {
   val values:      Array[Float] = Array.ofDim(9)
   private val tmp: Array[Float] = Array.ofDim(9)
+  tmp(Matrix3.M22) = 1
+  idt()
 
   /** Sets this matrix to the identity matrix
     * @return
@@ -1046,7 +1048,7 @@ class Matrix4 {
   def mulLeft(matrix: Matrix4): Matrix4 = {
     Matrix4.tmpMat.set(matrix)
     Matrix4.mul(Matrix4.tmpMat.values, values)
-    this
+    set(Matrix4.tmpMat)
   }
 
   /** Transposes the matrix.

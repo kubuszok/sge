@@ -752,15 +752,18 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       batch = count
 
     var vertexIdx   = this.vertexIndex
-    val vertex      = (vertexIdx / VERTEX_SIZE).toShort
+    var vertex      = (vertexIdx / VERTEX_SIZE).toShort
     var triangleIdx = this.triangleIndex
-    for (_ <- triangleIdx until triangleIdx + triangleCount by 6) {
-      triangles(triangleIdx) = vertex
-      triangles(triangleIdx + 1) = (vertex + 1).toShort
-      triangles(triangleIdx + 2) = (vertex + 2).toShort
-      triangles(triangleIdx + 3) = (vertex + 2).toShort
-      triangles(triangleIdx + 4) = (vertex + 3).toShort
-      triangles(triangleIdx + 5) = vertex
+    var ti          = triangleIdx
+    while (ti < triangleIdx + triangleCount) {
+      triangles(ti) = vertex
+      triangles(ti + 1) = (vertex + 1).toShort
+      triangles(ti + 2) = (vertex + 2).toShort
+      triangles(ti + 3) = (vertex + 2).toShort
+      triangles(ti + 4) = (vertex + 3).toShort
+      triangles(ti + 5) = vertex
+      vertex = (vertex + 4).toShort
+      ti += 6
     }
 
     var remainingCount = count

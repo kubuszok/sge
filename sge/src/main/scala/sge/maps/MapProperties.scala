@@ -9,7 +9,7 @@
  * Migration notes:
  *   Renames: ObjectMap -> mutable.HashMap; Object -> Any
  *   Convention: containsKey uses .contains (Scala Map API)
- *   Idiom: get(key) returns null via getOrElse(key, null) -- raw null at Java-interop boundary
+ *   Idiom: get(key) returns Nullable[Any]; getAs[T](key) returns Nullable[T]
  *   Idiom: get(key, defaultValue, clazz) uses Nullable(obj).fold instead of == null check
  *   Idiom: equals uses pattern match instead of instanceof
  *   Idiom: toString uses string interpolation
@@ -40,10 +40,10 @@ class MapProperties {
   /** @param key
     *   property name
     * @return
-    *   the value for that property if it exists, otherwise, null
+    *   the value for that property if it exists, otherwise, Nullable.empty
     */
-  def get(key: String): Any =
-    properties.getOrElse(key, null)
+  def get(key: String): Nullable[Any] =
+    properties.get(key).fold(Nullable.empty[Any])(Nullable(_))
 
   /** Returns the object for the given key, casting it to clazz.
     * @param key
@@ -55,8 +55,8 @@ class MapProperties {
     * @throws ClassCastException
     *   if the object with the given key is not of type clazz
     */
-  def getAs[T](key: String)(using tag: scala.reflect.ClassTag[T]): T =
-    get(key).asInstanceOf[T]
+  def getAs[T](key: String)(using tag: scala.reflect.ClassTag[T]): Nullable[T] =
+    get(key).map(_.asInstanceOf[T])
 
   /** Returns the object for the given key, casting it to T.
     * @param key
@@ -70,7 +70,7 @@ class MapProperties {
     */
   def getAs[T](key: String, defaultValue: T)(using tag: scala.reflect.ClassTag[T]): T = {
     val obj = get(key)
-    Nullable(obj).map(_.asInstanceOf[T]).getOrElse(defaultValue)
+    obj.map(_.asInstanceOf[T]).getOrElse(defaultValue)
   }
 
   /** @param key

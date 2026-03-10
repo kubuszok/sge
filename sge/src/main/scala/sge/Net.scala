@@ -15,6 +15,7 @@
 package sge
 
 import sge.net._
+import sge.utils.Nullable
 import java.io.InputStream
 import java.util.{ List, Map }
 
@@ -168,9 +169,9 @@ object Net {
     /** Returns the {@link HttpStatus} containing the statusCode of the HTTP response. */
     def getStatus(): HttpStatus
 
-    /** Returns the value of the header with the given name as a {@link String} , or null if the header is not set. See {@link HttpResponseHeader} .
+    /** Returns the value of the header with the given name as a {@link String} , or Nullable.empty if the header is not set. See {@link HttpResponseHeader} .
       */
-    def getHeader(name: String): String
+    def getHeader(name: String): Nullable[String]
 
     /** Returns a Map of the headers. The keys are Strings that represent the header name. Each values is a List of Strings that represent the corresponding header values. See
       * {@link HttpResponseHeader} .

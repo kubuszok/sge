@@ -650,7 +650,12 @@ class DefaultShader(
   override def compareTo(other: Shader): Int =
     if (Nullable(other).isEmpty) -1
     else if (other eq this) 0
-    else 0 // FIXME compare shaders on their impact on performance
+    else { // Compare shaders by attribute mask as a proxy for performance impact
+      val otherShader = other.asInstanceOf[DefaultShader]
+      if (attributesMask == otherShader.attributesMask) 0
+      else if (attributesMask < otherShader.attributesMask) -1
+      else 1
+    }
 
   override def equals(obj: Any): Boolean = obj match {
     case ds: DefaultShader => ds eq this

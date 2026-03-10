@@ -422,7 +422,7 @@ class Actor()(using Sge) {
     */
   def isTouchFocusTarget: Boolean =
     stage.exists { s =>
-      s.touchFocuses.exists(_.target eq this)
+      s.touchFocuses.exists(tf => tf.target.isDefined && (tf.target.get eq this))
     }
 
   /** Returns true if this actor is a listener actor for touch focus.
@@ -431,7 +431,7 @@ class Actor()(using Sge) {
     */
   def isTouchFocusListener: Boolean =
     stage.exists { s =>
-      s.touchFocuses.exists(_.listenerActor eq this)
+      s.touchFocuses.exists(tf => tf.listenerActor.isDefined && (tf.listenerActor.get eq this))
     }
 
   /** Returns the X position of the specified {@link Align alignment}. */

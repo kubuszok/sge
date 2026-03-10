@@ -197,8 +197,8 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     if (element.tpe == "tilelayer") {
       val width      = element.width
       val height     = element.height
-      val tileWidth  = map.properties.getAs[Integer]("tilewidth").intValue()
-      val tileHeight = map.properties.getAs[Integer]("tileheight").intValue()
+      val tileWidth  = map.properties.getAs[Integer]("tilewidth").get.intValue()
+      val tileHeight = map.properties.getAs[Integer]("tileheight").get.intValue()
       val layer      = TiledMapTileLayer(width, height, tileWidth, tileHeight)
 
       loadBasicLayerInfo(layer, element)

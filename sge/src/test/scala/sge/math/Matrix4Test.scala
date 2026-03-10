@@ -73,4 +73,27 @@ class Matrix4Test extends munit.FunSuite {
     assertEqualsFloat(pos.y, 20f, epsilon)
     assertEqualsFloat(pos.z, 30f, epsilon)
   }
+
+  test("mulLeft stores result") {
+    // Regression: mulLeft() computed result but never stored it back
+    val a = new Matrix4().idt().setTranslation(1, 2, 3)
+    val b = new Matrix4().idt().setTranslation(10, 20, 30)
+    a.mulLeft(b)
+    val pos = a.getTranslation(new Vector3())
+    assertEqualsFloat(pos.x, 11f, epsilon)
+    assertEqualsFloat(pos.y, 22f, epsilon)
+    assertEqualsFloat(pos.z, 33f, epsilon)
+  }
+
+  test("mulLeft vs mul order") {
+    // A.mulLeft(B) should give B*A (different from A.mul(B) = A*B)
+    val scale = new Matrix4().idt().scale(2f, 2f, 2f)
+    val trans = new Matrix4().idt().setTranslation(5, 0, 0)
+    // scale.mulLeft(trans) = trans * scale: first scale, then translate
+    val result = new Matrix4().set(scale).mulLeft(trans)
+    val v      = new Vector3(1, 0, 0)
+    v.mul(result)
+    // (1,0,0) * scale(2) = (2,0,0), then + translate(5,0,0) = (7,0,0)
+    assertEqualsFloat(v.x, 7f, epsilon)
+  }
 }

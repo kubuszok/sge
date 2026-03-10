@@ -8,14 +8,13 @@
  *
  * Migration notes:
  * - All public methods ported faithfully
- * - Json.Serializable (write/read) on ResourceData, SaveData, AssetData: not implemented
- *   (JSON serialization deferred)
+ * - Json.Serializable replaced by fromJson using kindlings JSON AST
  * - resource field: Nullable[T] instead of T|null
  * - SaveData.resources: Nullable[ResourceData[?]] instead of ResourceData|null
  * - SaveData.loadAsset: returns Nullable[AssetDescriptor[?]] instead of AssetDescriptor|null
  * - SaveData.load[K]: returns Nullable[K] instead of K|null
  * - getSaveData(key): returns Nullable[SaveData] instead of SaveData|null
- * - IntArray → DynamicArray[Int] for SaveData.assets
+ * - IntArray -> DynamicArray[Int] for SaveData.assets
  * - Configurable interface: Java used Configurable<T> generic; Scala uses ResourceData[?]
  */
 
@@ -27,8 +26,10 @@ package particles
 import sge.assets.AssetDescriptor
 import sge.assets.AssetManager
 import sge.utils.DynamicArray
+import sge.utils.Json
 import sge.utils.Nullable
 import sge.utils.ObjectMap
+import sge.utils.SgeError
 
 /** This class handles the assets and configurations required by a given resource when de/serialized. It's handy when a given object or one of its members requires some assets to be loaded to work
   * properly after being deserialized. To save the assets, the object should implement the [[ResourceData.Configurable]] interface and obtain a [[ResourceData.SaveData]] object to store every required
@@ -46,10 +47,10 @@ class ResourceData[T]() {
   /** Unique data, can be used to save/load generic data which is not always loaded back after saving. Must be used to store data which is uniquely addressable by a given string (i.e a system
     * configuration).
     */
-  private val uniqueData: ObjectMap[String, SaveData] = ObjectMap[String, SaveData]()
+  private[particles] val uniqueData: ObjectMap[String, SaveData] = ObjectMap[String, SaveData]()
 
   /** Objects save data, must be loaded in the same saving order */
-  private val data: DynamicArray[SaveData] = DynamicArray[SaveData]()
+  private[particles] val data: DynamicArray[SaveData] = DynamicArray[SaveData]()
 
   /** Shared assets among all the configurable objects */
   var sharedAssets:             DynamicArray[AssetData[?]] = DynamicArray[AssetData[?]]()
@@ -165,4 +166,145 @@ object ResourceData {
     var filename: String,
     var `type`:   Class[T]
   )
+
+  /** Resolves a class name from a particle effect JSON file. Handles both LibGDX (com.badlogic.gdx) and SGE (sge) class names.
+    */
+  private[particles] def resolveClassName(className: String): Class[?] = {
+    val mapped = className match {
+      case "com.badlogic.gdx.graphics.Texture"                          => "sge.graphics.Texture"
+      case "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect"     => "sge.graphics.g3d.particles.ParticleEffect"
+      case "com.badlogic.gdx.graphics.g3d.Model"                        => "sge.graphics.g3d.Model"
+      case "com.badlogic.gdx.graphics.g2d.TextureAtlas"                 => "sge.graphics.g2d.TextureAtlas"
+      case "com.badlogic.gdx.graphics.g3d.particles.ParticleController" => "sge.graphics.g3d.particles.ParticleController"
+      case other                                                        => other
+    }
+    try Class.forName(mapped)
+    catch {
+      case _: ClassNotFoundException =>
+        try Class.forName(className)
+        catch {
+          case _: ClassNotFoundException =>
+            throw SgeError.InvalidInput("Class not found: " + className + " (mapped to: " + mapped + ")")
+        }
+    }
+  }
+
+  /** Parses an AssetData from a JSON AST node. Expected format: { "filename": "...", "type": "fully.qualified.ClassName" }
+    */
+  private[particles] def assetDataFromJson(json: Json): AssetData[?] = json match {
+    case Json.Obj(fields) =>
+      var filename: String = ""
+      var typeName: String = ""
+      fields.fields.foreach { case (k, v) =>
+        k match {
+          case "filename" =>
+            v match {
+              case Json.Str(s) => filename = s
+              case _           => ()
+            }
+          case "type" =>
+            v match {
+              case Json.Str(s) => typeName = s
+              case _           => ()
+            }
+          case _ => ()
+        }
+      }
+      if (filename.isEmpty || typeName.isEmpty)
+        throw SgeError.InvalidInput("AssetData missing filename or type")
+      AssetData(filename, resolveClassName(typeName))
+    case _ => throw SgeError.InvalidInput("Expected JSON object for AssetData")
+  }
+
+  /** Parses a SaveData from a JSON AST node, linking it back to the parent ResourceData. Expected format: { "data": { ... }, "indices": [int, ...] }
+    */
+  private[particles] def saveDataFromJson(json: Json, parent: ResourceData[?]): SaveData = {
+    val saveData = SaveData(parent)
+    json match {
+      case Json.Obj(fields) =>
+        fields.fields.foreach { case (k, v) =>
+          k match {
+            case "data" =>
+              v match {
+                case Json.Obj(dataFields) =>
+                  dataFields.fields.foreach { case (dk, dv) =>
+                    val value: AnyRef = dv match {
+                      case Json.Str(s) => s
+                      case Json.Num(n) =>
+                        // Prefer Long for integer values, Double for fractional
+                        n.toLong
+                          .map(l => java.lang.Long.valueOf(l))
+                          .getOrElse(
+                            n.toDouble.map(d => java.lang.Double.valueOf(d)).getOrElse(n.value.asInstanceOf[AnyRef])
+                          )
+                      case Json.Bool(b) => java.lang.Boolean.valueOf(b)
+                      case other        => other.toString
+                    }
+                    saveData.data.put(dk, value)
+                  }
+                case _ => ()
+              }
+            case "indices" =>
+              v match {
+                case Json.Arr(elems) =>
+                  elems.foreach {
+                    case Json.Num(n) =>
+                      n.toDouble.foreach { d =>
+                        saveData.assets.add(d.toInt)
+                      }
+                    case _ => ()
+                  }
+                case _ => ()
+              }
+            case _ => ()
+          }
+        }
+      case _ => ()
+    }
+    saveData
+  }
+
+  /** Parses a ResourceData from a JSON AST. Populates sharedAssets, data (SaveData list), and uniqueData. The resource field is NOT populated - that must be handled by the caller. Expected format: {
+    * "unique": { ... }, "data": [ ... ], "assets": [ ... ], "resource": { ... } }
+    */
+  private[particles] def fromJson[T](json: Json): ResourceData[T] = {
+    val rd = ResourceData[T]()
+    json match {
+      case Json.Obj(fields) =>
+        // First pass: populate sharedAssets so SaveData indices are valid
+        fields.fields.foreach { case (k, v) =>
+          if (k == "assets") {
+            v match {
+              case Json.Arr(elems) =>
+                for (elem <- elems)
+                  rd.sharedAssets.add(assetDataFromJson(elem))
+              case _ => ()
+            }
+          }
+        }
+        // Second pass: populate data and uniqueData
+        fields.fields.foreach { case (k, v) =>
+          k match {
+            case "data" =>
+              v match {
+                case Json.Arr(elems) =>
+                  for (elem <- elems)
+                    rd.data.add(saveDataFromJson(elem, rd))
+                case _ => ()
+              }
+            case "unique" =>
+              v match {
+                case Json.Obj(uniqueFields) =>
+                  uniqueFields.fields.foreach { case (uk, uv) =>
+                    rd.uniqueData.put(uk, saveDataFromJson(uv, rd))
+                  }
+                case _ => ()
+              }
+            case _ => ()
+          }
+        }
+      case _ => throw SgeError.InvalidInput("Expected JSON object for ResourceData")
+    }
+    rd
+  }
 }

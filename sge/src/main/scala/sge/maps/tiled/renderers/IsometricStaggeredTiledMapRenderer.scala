@@ -124,7 +124,7 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
     } else {
 
       /** Must offset imagelayer x position by half of tileWidth to match position */
-      val tileWidth     = getMap.properties.getAs[Integer]("tilewidth").intValue()
+      val tileWidth     = getMap.properties.getAs[Integer]("tilewidth").get.intValue()
       val halfTileWidth = (tileWidth * 0.5f) * unitScale
 
       val x  = layer.x

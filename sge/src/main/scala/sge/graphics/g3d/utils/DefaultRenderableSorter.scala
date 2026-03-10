@@ -33,8 +33,8 @@ class DefaultRenderableSorter extends RenderableSorter {
 
   private given Ordering[Renderable] = (o1: Renderable, o2: Renderable) => compareRenderables(o1, o2)
 
-  override def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit = {
-    this.camera = Nullable(camera)
+  override def sort(camera: Nullable[Camera], renderables: DynamicArray[Renderable]): Unit = {
+    this.camera = camera
     renderables.sort()
   }
 

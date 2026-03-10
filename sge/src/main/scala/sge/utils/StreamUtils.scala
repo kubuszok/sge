@@ -120,7 +120,10 @@ object StreamUtils {
   def closeQuietly(c: Closeable): Unit =
     Nullable(c).foreach { c =>
       try c.close()
-      catch { case _: Throwable => }
+      catch {
+        case e: Error     => throw e // Never swallow OOM, SOE, etc.
+        case _: Exception => // Intentionally ignored per closeQuietly contract
+      }
     }
 
   /** A ByteArrayOutputStream which avoids copying of the byte array if possible. */

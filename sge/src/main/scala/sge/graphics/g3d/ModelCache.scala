@@ -92,7 +92,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     result.bones = Nullable.empty
     result.environment = Nullable.empty
     result.material = material
-    result.meshPart.mesh = null
+    result.meshPart.mesh = null.asInstanceOf[Mesh] // pool reset: mesh is always set before use in end()
     result.meshPart.offset = 0
     result.meshPart.size = 0
     result.meshPart.primitiveType = primitiveType
@@ -113,7 +113,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     building = false
 
     if (items.isEmpty) break(())
-    sorter.sort(camera.getOrElse(null), items)
+    sorter.sort(camera, items)
 
     val first            = items(0)
     var vertexAttributes = first.meshPart.mesh.getVertexAttributes()
@@ -354,7 +354,7 @@ object ModelCache {
     *   Xoppa
     */
   class Sorter extends RenderableSorter with Ordering[Renderable] {
-    override def sort(camera: Camera, renderables: DynamicArray[Renderable]): Unit =
+    override def sort(camera: Nullable[Camera], renderables: DynamicArray[Renderable]): Unit =
       renderables.sort()(using this)
 
     override def compare(arg0: Renderable, arg1: Renderable): Int = {

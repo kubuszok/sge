@@ -17,7 +17,7 @@
  *   - vertex(float...) -> vertex(Float*) (Scala varargs)
  *   - All deprecated shape methods preserved with @deprecated annotations
  *   - All 70+ method signatures match Java source
- *   - TODO: VertexInfo extends Pool.Poolable → define given Poolable[VertexInfo]
+ *   - Convention: VertexInfo extends Pool.Poolable — given Poolable[VertexInfo] auto-derived via Poolable.fromTrait
  *   - Audit: pass (2026-03-03)
  */
 package sge

@@ -158,7 +158,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
     var lastMaterial: Nullable[DecalMaterial] = Nullable.empty
     var idx = 0
     for (decal <- decals) {
-      if (lastMaterial.isEmpty || !lastMaterial.getOrElse(null).equals(decal.material)) {
+      if (!lastMaterial.exists(_.equals(decal.material))) {
         if (idx > 0) {
           flush(shader, idx)
           idx = 0

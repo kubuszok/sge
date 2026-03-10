@@ -73,12 +73,12 @@ class SgeHttpResponseTest extends FunSuite {
       200,
       Seq(Header("Content-Type", "application/json"))
     )
-    assertEquals(resp.getHeader("Content-Type"), "application/json")
+    assertEquals(resp.getHeader("Content-Type").get, "application/json")
   }
 
-  test("getHeader returns null when absent") {
+  test("getHeader returns empty when absent") {
     val resp = makeResponse(Right(""), 200)
-    assertEquals(resp.getHeader("X-Missing"), null)
+    assert(resp.getHeader("X-Missing").isEmpty)
   }
 
   test("getHeaders groups multiple values for same header") {

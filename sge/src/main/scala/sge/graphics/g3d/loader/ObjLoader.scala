@@ -60,8 +60,9 @@ import sge.utils.{ DynamicArray, Nullable }
   */
 class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
+  @scala.annotation.nowarn("msg=deprecated") // Java interop: ModelLoader base class accepts null resolver
   def this()(using Sge) =
-    this(null)
+    this(Nullable.empty[FileHandleResolver].orNull)
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)
@@ -79,9 +80,9 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
     if (ObjLoader.logWarning) {
       scribe.error("Wavefront (OBJ) is not fully supported, consult the documentation for more information")
     }
-    var line:      String        = null
-    var tokens:    Array[String] = null
-    var firstChar: Char          = '\u0000'
+    var line:      Nullable[String] = Nullable.empty // Java interop: readLine() returns null at EOF
+    var tokens:    Array[String]    = Array.empty[String] // set before use in each iteration
+    var firstChar: Char             = '\u0000'
     val mtl = ObjLoader.MtlLoader()
 
     // Create a "default" Group and set it as the active group, in case
@@ -92,12 +93,12 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
     val reader = new BufferedReader(new InputStreamReader(file.read()), 4096)
     var id     = 0
     try {
-      line = reader.readLine()
-      while (Nullable(line).isDefined) {
-
-        tokens = line.split("\\s+")
+      line = Nullable(reader.readLine())
+      while (line.isDefined) {
+        val currentLine = line.get
+        tokens = currentLine.split("\\s+")
         if (tokens.length < 1) {
-          line = null // break equivalent
+          line = Nullable.empty // break equivalent
         } else {
           if (tokens(0).isEmpty) {
             // continue - skip empty token
@@ -119,7 +120,7 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
                 uvs.add(if (flipV) 1 - java.lang.Float.parseFloat(tokens(2)) else java.lang.Float.parseFloat(tokens(2)))
               }
             } else if (firstChar == 'f') {
-              var parts: Array[String] = null
+              var parts: Array[String] = Array.empty[String]
               val faces = activeGroup.faces
               var i     = 1
               while (i < tokens.length - 2) {
@@ -164,7 +165,7 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
                 activeGroup.materialName = tokens(1).replace('.', '_')
             }
           }
-          if (Nullable(line).isDefined) line = reader.readLine()
+          if (line.isDefined) line = Nullable(reader.readLine())
         }
       }
       reader.close()
@@ -344,8 +345,8 @@ object ObjLoader {
 
     /** loads .mtl file */
     def load(file: FileHandle): Unit = {
-      var line:   String        = null
-      var tokens: Array[String] = null
+      var line:   Nullable[String] = Nullable.empty
+      var tokens: Array[String]    = Array.empty[String]
 
       val currentMaterial = ObjMaterial()
 
@@ -354,12 +355,12 @@ object ObjLoader {
       } else {
         val reader = new BufferedReader(new InputStreamReader(file.read()), 4096)
         try {
-          line = reader.readLine()
-          while (Nullable(line).isDefined) {
+          line = Nullable(reader.readLine())
+          while (line.isDefined) {
+            var currentLine = line.get
+            if (currentLine.nonEmpty && currentLine.charAt(0) == '\t') currentLine = currentLine.substring(1).trim
 
-            if (line.nonEmpty && line.charAt(0) == '\t') line = line.substring(1).trim
-
-            tokens = line.split("\\s+")
+            tokens = currentLine.split("\\s+")
 
             if (tokens(0).isEmpty) {
               // continue - skip empty
@@ -401,7 +402,7 @@ object ObjLoader {
                 currentMaterial.shininessTexFilename = Nullable(file.parent().child(tokens(1)).path())
               }
             }
-            line = reader.readLine()
+            line = Nullable(reader.readLine())
           }
           reader.close()
         } catch {

@@ -18,7 +18,7 @@
  *   - getFirstKeyframeIndexAtTime: uses boundary/break instead of return
  *   - All methods fully ported; logic matches Java source
  *   - Minor: transforms is mutable.Map (not ObjectMap) -- equivalent behavior
- *   - TODO: Transform extends Pool.Poolable → define given Poolable[Transform]
+ *   - Convention: Transform extends Pool.Poolable — given Poolable[Transform] auto-derived via Poolable.fromTrait
  *   - Convention: opaque Seconds for apply(animation, time, weight) time param
  *   - Audit: pass (2026-03-03)
  */

@@ -16,7 +16,7 @@ import java.lang.invoke.MethodHandle
 
 /** JVM implementation of [[PhysicsOps]] using Panama Foreign Function & Memory API.
   *
-  * Downcall handles invoke `sge_phys_*` C functions exported by the Rust `sge_physics` native library.
+  * Downcall handles invoke `sge_phys_*` C functions exported by the Rust `sge_native_ops` native library.
   */
 private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsOps {
   import p.*
@@ -26,7 +26,7 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val libName = System.mapLibraryName("sge_physics")
+    val libName = System.mapLibraryName("sge_native_ops")
     val libPath = System.getProperty("java.library.path", "")
     val paths   = libPath.split(java.io.File.pathSeparator)
     val found   = paths.iterator

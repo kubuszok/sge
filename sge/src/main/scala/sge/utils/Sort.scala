@@ -28,7 +28,7 @@ object Sort {
   private val comparableTimSort = ComparableTimSort()
 
   def sort[T <: Comparable[T]](a: DynamicArray[T]): Unit =
-    comparableTimSort.doSort(a.toArray.asInstanceOf[Array[AnyRef]], 0, a.size)
+    comparableTimSort.doSort(a.items.asInstanceOf[Array[AnyRef]], 0, a.size)
 
   /** The specified objects must implement {@link Comparable}. */
   def sort(a: Array[AnyRef]): Unit =
@@ -38,13 +38,8 @@ object Sort {
   def sort(a: Array[AnyRef], fromIndex: Int, toIndex: Int): Unit =
     comparableTimSort.doSort(a, fromIndex, toIndex)
 
-  def sort[T](a: DynamicArray[T], c: Ordering[T]): Unit = {
-    val array = a.toArray
-    TimSort.sort(array, c)
-    // Copy back to DynamicArray
-    a.clear()
-    a.addAll(array, 0, array.length)
-  }
+  def sort[T](a: DynamicArray[T], c: Ordering[T]): Unit =
+    TimSort.sort(a.items, 0, a.size, c)
 
   def sort[T](a: Array[T], c: Ordering[T]): Unit =
     TimSort.sort(a, c)

@@ -60,10 +60,11 @@ trait Pool[A] {
     * @param size
     *   the number of objects to be added
     */
-  def fill(size: Int): Unit =
+  def fill(size: Int): Unit = {
     for (_ <- 0 until size)
       if (freeObjects.size < max) freeObjects.add(newObject())
-  peak = peak max freeObjects.size
+    peak = peak max freeObjects.size
+  }
 
   /** Called when an object is freed to clear the state of the object for possible later reuse. The default implementation calls {@link Poolable#reset()} if the object is {@link Poolable} .
     */

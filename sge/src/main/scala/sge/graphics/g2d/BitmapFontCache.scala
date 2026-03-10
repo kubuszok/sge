@@ -135,8 +135,9 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   }
 
   def setAlphas(alpha: Float): Unit = {
-    var prev     = 0f
-    val newColor = 0f
+    val alphaBits = (254 * alpha).toInt << 24
+    var prev      = 0f
+    var newColor  = 0f
     for (j <- pageVertices.indices) {
       val vertices = pageVertices(j)
       var i        = 2
@@ -146,9 +147,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
           vertices(i) = newColor
         } else {
           prev = c
-          // val rgba = NumberUtils.floatToIntColor(c)
-          // rgba = (rgba & 0x00FFFFFF) | alphaBits
-          // newColor = NumberUtils.intToFloatColor(rgba)
+          val rgba = NumberUtils.floatToIntColor(c)
+          newColor = NumberUtils.intToFloatColor((rgba & 0x00ffffff) | alphaBits)
           vertices(i) = newColor
         }
         i += 5
@@ -195,11 +195,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       val glyphIndices = pageGlyphIndices(i)
       // Loop through the indices and determine whether the glyph is inside begin/end.
       var j = 0
-      while (j < glyphIndices.size) {
+      while (j < glyphIndices.size && glyphIndices(j) < end) {
         val glyphIndex = glyphIndices(j)
-
-        // Break early if the glyph is out of bounds.
-        if (glyphIndex >= end) scala.util.boundary.break()
 
         // If inside start and end, change its colour.
         if (glyphIndex >= start) { // && glyphIndex < end
@@ -246,11 +243,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       // For each set of glyph indices, determine where to begin within the start/end bounds.
       val glyphIndices = pageGlyphIndices(i)
       var ii           = 0
-      while (ii < glyphIndices.size) {
+      while (ii < glyphIndices.size && glyphIndices(ii) < end) {
         val glyphIndex = glyphIndices(ii)
-
-        // Break early if the glyph is out of bounds.
-        if (glyphIndex >= end) scala.util.boundary.break()
 
         // Determine if this glyph is within bounds. Use the first match of that for the offset.
         if (offset == -1 && glyphIndex >= start) offset = ii
@@ -261,10 +255,10 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
       }
 
       // Page doesn't need to be rendered.
-      if (offset == -1 || count == 0) scala.util.boundary.break()
-
-      // Render the page vertex data with the offset and count.
-      spriteBatch.draw(regions(i).texture, pageVertices(i), offset * 20, count * 20)
+      if (offset != -1 && count != 0) {
+        // Render the page vertex data with the offset and count.
+        spriteBatch.draw(regions(i).texture, pageVertices(i), offset * 20, count * 20)
+      }
     }
   }
 

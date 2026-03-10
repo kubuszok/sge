@@ -7,8 +7,9 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- * - Structure ported; getDependencies and save are stubbed (need JSON serialization)
- * - loadSync ported with Nullable handling for effectData
+ * - getDependencies: parses JSON AST to extract asset dependencies and caches ResourceData
+ * - loadSync: retrieves cached ResourceData, loads resource and batches
+ * - save: serialization blocked (needs full particle system JSON write support)
  * - Constructor requires (using Sge) context parameter
  * - items: DynamicArray[(String, ResourceData)] instead of Array<ObjectMap.Entry>
  * - find() private method omitted (used ClassReflection, not called internally)
@@ -25,12 +26,9 @@ import _root_.sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager 
 import _root_.sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import _root_.sge.files.FileHandle
 import _root_.sge.graphics.g3d.particles.batches.ParticleBatch
-import _root_.sge.utils.DynamicArray
-import _root_.sge.utils.Nullable
+import _root_.sge.utils.{ DynamicArray, Json, Nullable, readJson }
 
-// NOTE: Full implementation requires a JSON serialization bridge (libGDX Json class).
-// getDependencies and save are stubbed until a JSON library is integrated.
-// See also: G3dModelLoader.scala for a similar pattern.
+import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
 
 /** This class can save and load a {@link ParticleEffect}. It should be added as {@link AsynchronousAssetLoader} to the {@link AssetManager} so it will be able to load the effects. It's important to
   * note that the two classes {@link ParticleEffectLoadParameter} and {@link ParticleEffectSaveParameter} should be passed in whenever possible, because when present the batches settings will be
@@ -60,12 +58,34 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
     file:      FileHandle,
     parameter: ParticleEffectLoadParameter
   ): DynamicArray[AssetDescriptor[?]] = {
-    // Blocked: needs Json serialization framework (not yet ported)
-    // Once JSON bridge is available, this should:
-    // 1. Deserialize ResourceData[ParticleEffect] from file
-    // 2. Cache it in items synchronized list
-    // 3. Return asset descriptors for all referenced assets
+    val jsonAst = file.readJson[Json]
+    val data    = ResourceData.fromJson[ParticleEffect](jsonAst)
+    var assets: DynamicArray[ResourceData.AssetData[?]] = DynamicArray[ResourceData.AssetData[?]]()
+    items.synchronized {
+      items.add((fileName, data))
+      assets = data.getAssets()
+    }
+
     val descriptors = DynamicArray[AssetDescriptor[?]]()
+    for (assetData <- assets) {
+      // If the asset doesn't exist try to load it from loading effect directory
+      if (!resolve(assetData.filename).exists()) {
+        assetData.filename = file.parent().child(Sge().files.internal(assetData.filename).name()).path()
+      }
+
+      if (assetData.`type` == classOf[ParticleEffect]) {
+        descriptors.add(
+          AssetDescriptor[ParticleEffect](
+            assetData.filename,
+            classOf[ParticleEffect],
+            Nullable(parameter)
+          )
+        )
+      } else {
+        descriptors.add(new AssetDescriptor(assetData.filename, assetData.`type`))
+      }
+    }
+
     descriptors
   }
 
@@ -103,35 +123,38 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
   ): ParticleEffect = {
     var effectData: Nullable[ResourceData[ParticleEffect]] = Nullable.empty
     items.synchronized {
-      var i = 0
-      while (i < items.size) {
-        val entry = items(i)
-        if (entry._1 == fileName) {
-          effectData = Nullable(entry._2)
-          items.removeIndex(i)
-          i = items.size // break
+      scala.util.boundary {
+        var i = 0
+        while (i < items.size) {
+          val entry = items(i)
+          if (entry._1 == fileName) {
+            effectData = Nullable(entry._2)
+            items.removeIndex(i)
+            scala.util.boundary.break(())
+          }
+          i += 1
         }
-        i += 1
       }
     }
 
-    effectData.fold {
-      throw new RuntimeException("No ResourceData found for " + fileName)
-    } { data =>
-      data.resource.foreach { res =>
-        res.load(manager, data)
-      }
+    val data = effectData.getOrElse(throw new RuntimeException("No ResourceData found for " + fileName))
 
-      Nullable(parameter).foreach { p =>
-        p.batches.foreach { batchList =>
-          for (batch <- batchList)
-            batch.load(manager, data)
-          data.resource.foreach(_.setBatch(batchList))
-        }
-      }
-
-      data.resource.getOrElse(throw new RuntimeException("ResourceData has no resource for " + fileName))
+    data.resource.foreach { res =>
+      res.load(manager, data)
     }
+
+    Nullable(parameter).foreach { p =>
+      p.batches.foreach { batchList =>
+        for (batch <- batchList)
+          batch.load(manager, data)
+      }
+      // setBatch is called with batches (matching Java: effectData.resource.setBatch(parameter.batches))
+      p.batches.foreach { batchList =>
+        data.resource.foreach(_.setBatch(batchList))
+      }
+    }
+
+    data.resource.getOrElse(throw new RuntimeException("ResourceData has no resource for " + fileName))
   }
 }
 

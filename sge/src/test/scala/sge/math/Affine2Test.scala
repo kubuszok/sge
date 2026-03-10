@@ -156,6 +156,31 @@ class Affine2Test extends munit.FunSuite {
     assertAffineEquals(a, b)
   }
 
+  test("set from Matrix3 uses column-major constants") {
+    // Regression: set(Matrix3) used sequential indices instead of M00/M01/M10/M11/M02/M12
+    val m3 = new Matrix3()
+    m3.setToTranslation(5f, 7f) // translation goes in M02=6, M12=7 (column-major)
+    val a = new Affine2()
+    a.set(m3)
+    assertEqualsFloat(a.m00, 1f, epsilon) // identity diagonal
+    assertEqualsFloat(a.m11, 1f, epsilon)
+    assertEqualsFloat(a.m02, 5f, epsilon) // translation x
+    assertEqualsFloat(a.m12, 7f, epsilon) // translation y
+    assertEqualsFloat(a.m01, 0f, epsilon) // off-diagonal
+    assertEqualsFloat(a.m10, 0f, epsilon)
+  }
+
+  test("set from Matrix4 uses column-major constants") {
+    // Regression: set(Matrix4) used sequential indices instead of M00/M01/M03/M10/M11/M13
+    val m4 = new Matrix4().idt().setTranslation(3f, 9f, 0f)
+    val a  = new Affine2()
+    a.set(m4)
+    assertEqualsFloat(a.m00, 1f, epsilon) // identity diagonal
+    assertEqualsFloat(a.m11, 1f, epsilon)
+    assertEqualsFloat(a.m02, 3f, epsilon) // translation x (from M03)
+    assertEqualsFloat(a.m12, 9f, epsilon) // translation y (from M13)
+  }
+
   test("same scaling produces same values") {
     val a = new Affine2()
     a.setToScaling(2f, 3f)

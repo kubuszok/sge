@@ -115,6 +115,9 @@ final class ArrayMap[K, V] private (
       keyArray(index) = keyArray(_size)
       valArray(index) = valArray(_size)
     }
+    // Null the vacated last slot to allow GC
+    if (keyArray.isInstanceOf[Array[AnyRef]]) keyArray.asInstanceOf[Array[AnyRef]](_size) = null
+    if (valArray.isInstanceOf[Array[AnyRef]]) valArray.asInstanceOf[Array[AnyRef]](_size) = null
   }
 
   /** Removes the first key-value pair with the specified value. Returns true if found. */
@@ -166,8 +169,14 @@ final class ArrayMap[K, V] private (
   }
 
   /** Removes all key-value pairs. */
-  def clear(): Unit =
+  def clear(): Unit = {
+    // Null reference-type arrays to allow GC before resetting size
+    if (keyArray.isInstanceOf[Array[AnyRef]])
+      java.util.Arrays.fill(keyArray.asInstanceOf[Array[AnyRef]], 0, _size, null)
+    if (valArray.isInstanceOf[Array[AnyRef]])
+      java.util.Arrays.fill(valArray.asInstanceOf[Array[AnyRef]], 0, _size, null)
     _size = 0
+  }
 
   /** Ensures capacity for at least `additional` more elements beyond current size. */
   def ensureCapacity(additional: Int): Unit = {
@@ -234,7 +243,14 @@ final class ArrayMap[K, V] private (
 
   /** Reduces the size to at most `newSize`, discarding trailing pairs. */
   def truncate(newSize: Int): Unit =
-    if (newSize < _size) _size = newSize
+    if (newSize < _size) {
+      // Null vacated reference-type slots to allow GC
+      if (keyArray.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(keyArray.asInstanceOf[Array[AnyRef]], newSize, _size, null)
+      if (valArray.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(valArray.asInstanceOf[Array[AnyRef]], newSize, _size, null)
+      _size = newSize
+    }
 
   // --- Iteration ---
 

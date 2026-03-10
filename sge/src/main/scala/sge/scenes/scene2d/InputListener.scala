@@ -7,7 +7,7 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: implements -> extends; static tmpCoords -> companion object val
+ *   Renames: implements -> extends; static tmpCoords -> local variable (was companion object val, shared state bug)
  *   Convention: null -> Nullable[A]; no return statements; split packages
  *   Idiom: Java switch -> Scala match; instanceof+cast -> pattern match; stage() null-check -> Nullable.foreach
  *   Audited: 2026-03-03
@@ -43,11 +43,12 @@ class InputListener extends EventListener {
           case InputEvent.Type.keyUp    => keyUp(event, event.keyCode)
           case InputEvent.Type.keyTyped => keyTyped(event, event.character)
           case _                        =>
-            event.listenerActor.foreach(la => event.toCoordinates(la, InputListener.tmpCoords))
+            val coords = Vector2()
+            event.listenerActor.foreach(la => event.toCoordinates(la, coords))
 
             event.eventType match {
               case InputEvent.Type.touchDown =>
-                val handled = touchDown(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.button)
+                val handled = touchDown(event, coords.x, coords.y, event.pointer, event.button)
                 if (handled && event.touchFocus) {
                   event.stage.foreach { stage =>
                     event.listenerActor.foreach { la =>
@@ -59,20 +60,20 @@ class InputListener extends EventListener {
                 }
                 handled
               case InputEvent.Type.touchUp =>
-                touchUp(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.button)
+                touchUp(event, coords.x, coords.y, event.pointer, event.button)
                 true
               case InputEvent.Type.touchDragged =>
-                touchDragged(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer)
+                touchDragged(event, coords.x, coords.y, event.pointer)
                 true
               case InputEvent.Type.mouseMoved =>
-                mouseMoved(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y)
+                mouseMoved(event, coords.x, coords.y)
               case InputEvent.Type.scrolled =>
-                scrolled(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.scrollAmountX, event.scrollAmountY)
+                scrolled(event, coords.x, coords.y, event.scrollAmountX, event.scrollAmountY)
               case InputEvent.Type.enter =>
-                enter(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.relatedActor)
+                enter(event, coords.x, coords.y, event.pointer, event.relatedActor)
                 false
               case InputEvent.Type.exit =>
-                exit(event, InputListener.tmpCoords.x, InputListener.tmpCoords.y, event.pointer, event.relatedActor)
+                exit(event, coords.x, coords.y, event.pointer, event.relatedActor)
                 false
               case _ => false
             }
@@ -139,6 +140,4 @@ class InputListener extends EventListener {
   def keyTyped(event: InputEvent, character: Char): Boolean = false
 }
 
-object InputListener {
-  private val tmpCoords: Vector2 = Vector2()
-}
+object InputListener {}

@@ -265,7 +265,7 @@ class Group()(using Sge) extends Actor() with Cullable {
     if (touchable && this.touchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
     else if (!visible) scala.util.boundary.break(Nullable.empty)
     else {
-      val point = Group.tmp
+      val point = Vector2()
       var i     = children.size - 1
       while (i >= 0) {
         val child = children(i)
@@ -539,6 +539,4 @@ class Group()(using Sge) extends Actor() with Cullable {
   }
 }
 
-object Group {
-  private val tmp: Vector2 = Vector2()
-}
+object Group {}

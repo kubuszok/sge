@@ -93,10 +93,9 @@ class ComparableTimSort {
     mergeForceCollapse()
     if (ComparableTimSort.DEBUG) assert(stackSize == 1)
 
-    this.a = null
+    this.a = Array.empty[AnyRef] // Release reference to sorted array for GC
     val tmp = this.tmp
-    for (i <- 0 until tmpCount)
-      tmp(i) = null
+    java.util.Arrays.fill(tmp, 0, tmpCount, null) // Clear temp storage for GC
   }
 
   private def pushRun(runBase: Int, runLen: Int): Unit = {
@@ -131,7 +130,7 @@ class ComparableTimSort {
     if (ComparableTimSort.DEBUG) assert(i >= 0)
     if (ComparableTimSort.DEBUG) assert(i == stackSize - 2 || i == stackSize - 3)
 
-    val base1 = runBase(i)
+    var base1 = runBase(i)
     var len1  = runLen(i)
     val base2 = runBase(i + 1)
     var len2  = runLen(i + 1)
@@ -149,7 +148,7 @@ class ComparableTimSort {
     // Find where the first element of run2 goes in run1
     val k = ComparableTimSort.gallopRight(a(base2).asInstanceOf[Comparable[AnyRef]], a, base1, len1, 0)
     if (ComparableTimSort.DEBUG) assert(k >= 0)
-    base1 + k
+    base1 += k
     len1 -= k
     if (len1 == 0) break()
 

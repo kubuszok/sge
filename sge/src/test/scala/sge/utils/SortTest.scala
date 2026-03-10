@@ -137,4 +137,12 @@ class SortTest extends munit.FunSuite {
     Sort.sort(emptyArray, Ordering.Int)
     assertEquals(emptyArray.size, 0)
   }
+
+  test("sort DynamicArray Comparable modifies original") {
+    // Regression: sort[Comparable] sorted a copy but never wrote back to the DynamicArray
+    val da = DynamicArray[java.lang.Integer]()
+    Seq(5, 3, 1, 4, 2).map(java.lang.Integer.valueOf).foreach(da.add)
+    Sort.sort(da)
+    assertEquals((0 until da.size).map(i => da(i).intValue()).toSeq, Seq(1, 2, 3, 4, 5))
+  }
 }

@@ -134,24 +134,29 @@ class NinePatch {
   }
 
   private def initializeFromRegion(region: TextureRegion, left: Int, right: Int, top: Int, bottom: Int): Unit = {
+    val sign         = if (region.flipY) -1 else 1
     val middleWidth  = region.regionWidth - left - right
     val middleHeight = region.regionHeight - top - bottom
 
     val patches = Array.fill(9)(Nullable.empty[TextureRegion])
     if (top > 0) {
-      if (left > 0) patches(NinePatch.TOP_LEFT) = Nullable(TextureRegion(region, 0, 0, left, top))
-      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = Nullable(TextureRegion(region, left, 0, middleWidth, top))
-      if (right > 0) patches(NinePatch.TOP_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, 0, right, top))
+      if (left > 0) patches(NinePatch.TOP_LEFT) = Nullable(TextureRegion(region, 0, 0, left, sign * top))
+      if (middleWidth > 0) patches(NinePatch.TOP_CENTER) = Nullable(TextureRegion(region, left, 0, middleWidth, sign * top))
+      if (right > 0) patches(NinePatch.TOP_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, 0, right, sign * top))
     }
     if (middleHeight > 0) {
-      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = Nullable(TextureRegion(region, 0, top, left, middleHeight))
-      if (middleWidth > 0) patches(NinePatch.MIDDLE_CENTER) = Nullable(TextureRegion(region, left, top, middleWidth, middleHeight))
-      if (right > 0) patches(NinePatch.MIDDLE_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, top, right, middleHeight))
+      if (left > 0) patches(NinePatch.MIDDLE_LEFT) = Nullable(TextureRegion(region, 0, sign * top, left, sign * middleHeight))
+      if (middleWidth > 0)
+        patches(NinePatch.MIDDLE_CENTER) = Nullable(TextureRegion(region, left, sign * top, middleWidth, sign * middleHeight))
+      if (right > 0)
+        patches(NinePatch.MIDDLE_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, sign * top, right, sign * middleHeight))
     }
     if (bottom > 0) {
-      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = Nullable(TextureRegion(region, 0, top + middleHeight, left, bottom))
-      if (middleWidth > 0) patches(NinePatch.BOTTOM_CENTER) = Nullable(TextureRegion(region, left, top + middleHeight, middleWidth, bottom))
-      if (right > 0) patches(NinePatch.BOTTOM_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, top + middleHeight, right, bottom))
+      if (left > 0) patches(NinePatch.BOTTOM_LEFT) = Nullable(TextureRegion(region, 0, sign * (top + middleHeight), left, sign * bottom))
+      if (middleWidth > 0)
+        patches(NinePatch.BOTTOM_CENTER) = Nullable(TextureRegion(region, left, sign * (top + middleHeight), middleWidth, sign * bottom))
+      if (right > 0)
+        patches(NinePatch.BOTTOM_RIGHT) = Nullable(TextureRegion(region, left + middleWidth, sign * (top + middleHeight), right, sign * bottom))
     }
 
     // If split only vertical, move splits from right to center.

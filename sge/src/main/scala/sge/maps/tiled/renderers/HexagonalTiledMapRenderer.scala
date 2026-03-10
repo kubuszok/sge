@@ -50,47 +50,53 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
   def this(map: TiledMap, batch:     Batch)(using Sge) = this(map, 1.0f, batch, false)
 
   private def initHex(map: TiledMap): Unit = {
-    Nullable(map.properties.getAs[String]("staggeraxis")).foreach { axis =>
+    map.properties.getAs[String]("staggeraxis").foreach { axis =>
       staggerAxisX = axis == "x"
     }
 
-    Nullable(map.properties.getAs[String]("staggerindex")).foreach { index =>
+    map.properties.getAs[String]("staggerindex").foreach { index =>
       staggerIndexEven = index == "even"
     }
 
     // due to y-axis being different we need to change stagger index in even map height situations as else it would render
     // differently.
-    if (!staggerAxisX && map.properties.getAs[Integer]("height").intValue() % 2 == 0) {
+    if (!staggerAxisX && map.properties.getAs[Integer]("height").get.intValue() % 2 == 0) {
       staggerIndexEven = !staggerIndexEven
     }
 
-    Nullable(map.properties.getAs[Integer]("hexsidelength")).fold {
-      if (staggerAxisX) {
-        Nullable(map.properties.getAs[Integer]("tilewidth")).fold {
-          if (map.layers.size > 0) {
-            val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
-            hexSideLength = 0.5f * tmtl.getTileWidth
-          } else {
-            hexSideLength = 0f
-          }
-        } { tw =>
-          hexSideLength = 0.5f * tw.intValue()
+    map.properties
+      .getAs[Integer]("hexsidelength")
+      .fold {
+        if (staggerAxisX) {
+          map.properties
+            .getAs[Integer]("tilewidth")
+            .fold {
+              if (map.layers.size > 0) {
+                val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
+                hexSideLength = 0.5f * tmtl.getTileWidth
+              } else {
+                hexSideLength = 0f
+              }
+            } { tw =>
+              hexSideLength = 0.5f * tw.intValue()
+            }
+        } else {
+          map.properties
+            .getAs[Integer]("tileheight")
+            .fold {
+              if (map.layers.size > 0) {
+                val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
+                hexSideLength = 0.5f * tmtl.getTileHeight
+              } else {
+                hexSideLength = 0f
+              }
+            } { th =>
+              hexSideLength = 0.5f * th.intValue()
+            }
         }
-      } else {
-        Nullable(map.properties.getAs[Integer]("tileheight")).fold {
-          if (map.layers.size > 0) {
-            val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
-            hexSideLength = 0.5f * tmtl.getTileHeight
-          } else {
-            hexSideLength = 0f
-          }
-        } { th =>
-          hexSideLength = 0.5f * th.intValue()
-        }
+      } { length =>
+        hexSideLength = length.intValue().toFloat
       }
-    } { length =>
-      hexSideLength = length.intValue().toFloat
-    }
   }
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
@@ -222,8 +228,8 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     if (Nullable(region).isEmpty) {
       ()
     } else {
-      val tileHeight     = getMap.properties.getAs[Integer]("tileheight").intValue()
-      val mapHeight      = getMap.properties.getAs[Integer]("height").intValue()
+      val tileHeight     = getMap.properties.getAs[Integer]("tileheight").get.intValue()
+      val mapHeight      = getMap.properties.getAs[Integer]("height").get.intValue()
       val layerHexLength = hexSideLength
       // Map height if it were tiles
       val totalHeightPixels = (mapHeight * tileHeight) * unitScale

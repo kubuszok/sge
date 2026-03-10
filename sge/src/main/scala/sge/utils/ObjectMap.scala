@@ -134,6 +134,9 @@ final class ObjectMap[K, V] private (
         next = (next + 1) & mask
       }
       filled(i) = false
+      // Null the vacated slot to allow GC of the removed key/value references
+      if (keyTable.isInstanceOf[Array[AnyRef]]) keyTable.asInstanceOf[Array[AnyRef]](i) = null
+      if (valueTable.isInstanceOf[Array[AnyRef]]) valueTable.asInstanceOf[Array[AnyRef]](i) = null
       _size -= 1
       Nullable(oldValue)
     }
@@ -186,6 +189,11 @@ final class ObjectMap[K, V] private (
   def clear(): Unit =
     if (_size == 0) ()
     else {
+      // Null reference-type arrays to allow GC before resetting size
+      if (keyTable.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(keyTable.asInstanceOf[Array[AnyRef]], 0, keyTable.length, null)
+      if (valueTable.isInstanceOf[Array[AnyRef]])
+        java.util.Arrays.fill(valueTable.asInstanceOf[Array[AnyRef]], 0, valueTable.length, null)
       _size = 0
       java.util.Arrays.fill(filled, false)
     }

@@ -8,8 +8,8 @@
  *   Renames: InputAdapter -> InputProcessor; dispose() -> close(); SnapshotArray -> DynamicArray
  *   Convention: null -> Nullable; no return (boundary/break); (using Sge) on constructors
  *   Idiom: split packages
- *   Issues: TouchFocus.reset() uses raw null (uninitialized fields, acceptable)
- *   TODO: TouchFocus extends Pool.Poolable → define given Poolable[TouchFocus]
+ *   Issues: TouchFocus fields now Nullable; .get used at access sites where pool guarantees non-null
+ *   Convention: TouchFocus extends Pool.Poolable — given Poolable[TouchFocus] auto-derived via Poolable.fromTrait
  *   Convention: opaque Pixels for screen coordinate params in InputProcessor overrides
  *   Audited: 2026-03-03
  *
@@ -322,9 +322,9 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
       while (i < snapshot.length) {
         val focus = snapshot(i)
         if (focus.pointer == pointer && touchFocuses.contains(focus)) {
-          event.target = Nullable(focus.target)
-          event.listenerActor = Nullable(focus.listenerActor)
-          if (focus.listener.handle(event)) event.handle()
+          event.target = focus.target
+          event.listenerActor = focus.listenerActor
+          if (focus.listener.get.handle(event)) event.handle()
         }
         i += 1
       }
@@ -363,9 +363,9 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
           val idx = touchFocuses.indexOf(focus)
           if (idx >= 0) {
             touchFocuses.removeIndex(idx)
-            event.target = Nullable(focus.target)
-            event.listenerActor = Nullable(focus.listenerActor)
-            if (focus.listener.handle(event)) event.handle()
+            event.target = focus.target
+            event.listenerActor = focus.listenerActor
+            if (focus.listener.get.handle(event)) event.handle()
             pools.free(focus)
           }
         }
@@ -477,9 +477,9 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     */
   def addTouchFocus(listener: EventListener, listenerActor: Actor, target: Actor, pointer: Int, button: Button): Unit = {
     val focus = pools.obtain[Stage.TouchFocus]
-    focus.listenerActor = listenerActor
-    focus.target = target
-    focus.listener = listener
+    focus.listenerActor = Nullable(listenerActor)
+    focus.target = Nullable(target)
+    focus.listener = Nullable(listener)
     focus.pointer = pointer
     focus.button = button
     touchFocuses.add(focus)
@@ -492,7 +492,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     while (i >= 0) {
       val focus = touchFocuses(i)
       if (
-        (focus.listener eq listener) && (focus.listenerActor eq listenerActor) && (focus.target eq target)
+        focus.listener.exists(_ eq listener) && focus.listenerActor.exists(_ eq listenerActor) && focus.target.exists(_ eq target)
         && focus.pointer == pointer && focus.button == button
       ) {
         touchFocuses.removeIndex(i)
@@ -514,7 +514,7 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     var i        = 0
     while (i < snapshot.length) {
       val focus = snapshot(i)
-      if (focus.listenerActor eq listenerActor) {
+      if (focus.listenerActor.exists(_ eq listenerActor)) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
           touchFocuses.removeIndex(idx)
@@ -529,11 +529,11 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
           }
 
           event.foreach { e =>
-            e.target = Nullable(focus.target)
-            e.listenerActor = Nullable(focus.listenerActor)
+            e.target = focus.target
+            e.listenerActor = focus.listenerActor
             e.pointer = focus.pointer
             e.button = focus.button
-            focus.listener.handle(e)
+            focus.listener.get.handle(e)
           }
           // Cannot return TouchFocus to pool, as it may still be in use (eg if cancelTouchFocus is called from touchDragged).
         }
@@ -567,16 +567,16 @@ class Stage(private var viewport: Viewport, val batch: Batch, private val ownsBa
     var i        = 0
     while (i < snapshot.length) {
       val focus       = snapshot(i)
-      val isException = exceptListener.exists(_ eq focus.listener) && exceptActor.exists(_ eq focus.listenerActor)
+      val isException = focus.listener.exists(fl => exceptListener.exists(_ eq fl)) && focus.listenerActor.exists(fla => exceptActor.exists(_ eq fla))
       if (!isException) {
         val idx = touchFocuses.indexOf(focus)
         if (idx >= 0) {
           touchFocuses.removeIndex(idx)
-          event.target = Nullable(focus.target)
-          event.listenerActor = Nullable(focus.listenerActor)
+          event.target = focus.target
+          event.listenerActor = focus.listenerActor
           event.pointer = focus.pointer
           event.button = focus.button
-          focus.listener.handle(event)
+          focus.listener.get.handle(event)
           // Cannot return TouchFocus to pool, as it may still be in use (eg if cancelTouchFocus is called from touchDragged).
         }
       }
@@ -927,16 +927,16 @@ object Stage {
     *   Nathan Sweet
     */
   final class TouchFocus extends Pool.Poolable {
-    var listener:      EventListener = scala.compiletime.uninitialized
-    var listenerActor: Actor         = scala.compiletime.uninitialized
-    var target:        Actor         = scala.compiletime.uninitialized
-    var pointer:       Int           = 0
-    var button:        Button        = Button(0)
+    var listener:      Nullable[EventListener] = Nullable.empty
+    var listenerActor: Nullable[Actor]         = Nullable.empty
+    var target:        Nullable[Actor]         = Nullable.empty
+    var pointer:       Int                     = 0
+    var button:        Button                  = Button(0)
 
     def reset(): Unit = {
-      listenerActor = null
-      listener = null
-      target = null
+      listenerActor = Nullable.empty
+      listener = Nullable.empty
+      target = Nullable.empty
     }
   }
 }

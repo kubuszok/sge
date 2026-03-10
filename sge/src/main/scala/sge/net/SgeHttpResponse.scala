@@ -12,6 +12,7 @@ package sge
 package net
 
 import java.io.{ ByteArrayInputStream, InputStream }
+import sge.utils.Nullable
 import sttp.client4.Response
 
 /** Wraps an sttp [[Response]] to implement [[Net.HttpResponse]].
@@ -34,9 +35,8 @@ final class SgeHttpResponse private[net] (response: Response[Either[String, Stri
 
   override def getStatus(): HttpStatus = HttpStatus(response.code.code)
 
-  @SuppressWarnings(Array("scalafix:DisableSyntax.null"))
-  override def getHeader(name: String): String =
-    response.header(name).getOrElse(null) // Net.HttpResponse contract: null when absent
+  override def getHeader(name: String): Nullable[String] =
+    Nullable.fromOption(response.header(name))
 
   override def getHeaders(): java.util.Map[String, java.util.List[String]] = {
     val result = new java.util.LinkedHashMap[String, java.util.List[String]]()

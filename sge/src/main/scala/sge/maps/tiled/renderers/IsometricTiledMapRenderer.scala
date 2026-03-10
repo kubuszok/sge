@@ -219,8 +219,8 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
         * Map 800px in height, leftmost tile edge starts rendering at 0,400 in tiled To compensate for that we need to subtract half the map's height in pixels then add half of the tile's height in
         * order to position it properly in order to get a 1 to 1 rendering as to where the imagelayer renders in tiled.
         */
-      val tileHeight      = getMap.properties.getAs[Integer]("tileheight").intValue()
-      val mapHeight       = getMap.properties.getAs[Integer]("height").intValue()
+      val tileHeight      = getMap.properties.getAs[Integer]("tileheight").get.intValue()
+      val mapHeight       = getMap.properties.getAs[Integer]("height").get.intValue()
       val mapHeightPixels = (mapHeight * tileHeight) * unitScale
       val halfTileHeight  = (tileHeight * 0.5f) * unitScale
 

@@ -12,7 +12,7 @@
  *   - Array<SpotLight> -> DynamicArray[SpotLight]
  *   - null check in hashCode -> Nullable(light).fold(0)(_.hashCode())
  *   - Java Array(1) initial capacity; Scala DynamicArray() default capacity — minor
- *   - FIXME comparing not implemented (same as Java source)
+ *   - compareTo compares lights.size when types match (Java source left as FIXME stub)
  *   - All constants, factory methods, constructors, and instance methods accounted for
  */
 package sge
@@ -53,7 +53,7 @@ class SpotLightsAttribute(
 
   override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
-    else 0 // FIXME implement comparing
+    else lights.size - that.asInstanceOf[SpotLightsAttribute].lights.size
 }
 
 object SpotLightsAttribute {
