@@ -19,15 +19,14 @@ import _root_.android.content.Context
 import _root_.android.os.Bundle
 import _root_.android.service.wallpaper.WallpaperService
 import _root_.android.util.Log
-import _root_.android.view.{MotionEvent, SurfaceHolder, WindowManager}
+import _root_.android.view.{ MotionEvent, SurfaceHolder, WindowManager }
 
 /** Abstract WallpaperService that manages the lifecycle of wallpaper engines and delegates to [[LiveWallpaperAppCallbacks]].
   *
-  * The inner [[WallpaperEngine]] manages surface creation/destruction and visibility. Multiple engines can exist simultaneously
-  * but share a single SGE application instance. The linked engine is the one currently providing the surface.
+  * The inner [[WallpaperEngine]] manages surface creation/destruction and visibility. Multiple engines can exist simultaneously but share a single SGE application instance. The linked engine is the
+  * one currently providing the surface.
   *
-  * Subclasses must call [[setAppCallbacks]] and [[setTouchHandler]] during initialization (typically in the application
-  * callbacks' surface-created handler).
+  * Subclasses must call [[setAppCallbacks]] and [[setTouchHandler]] during initialization (typically in the application callbacks' surface-created handler).
   */
 abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with LiveWallpaperServiceOps {
 
@@ -61,7 +60,7 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
 
   override def getSurfaceHolder(): AnyRef | Null = sync.synchronized {
     if (linkedEngine == null) null // scalafix:ok
-    else linkedEngine.getSurfaceHolder()
+    else linkedEngine.asInstanceOf[WallpaperService#Engine].getSurfaceHolder()
   }
 
   override def getContext(): AnyRef = this
@@ -69,29 +68,25 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
   override def getWindowManager(): AnyRef =
     getSystemService(Context.WINDOW_SERVICE).asInstanceOf[WindowManager]
 
-  override def setTouchEventsEnabled(enabled: Boolean): Unit = {
-    if (linkedEngine != null) linkedEngine.setTouchEventsEnabled(enabled)
-  }
+  override def setTouchEventsEnabled(enabled: Boolean): Unit =
+    if (linkedEngine != null) linkedEngine.asInstanceOf[WallpaperService#Engine].setTouchEventsEnabled(enabled)
 
-  override def isPreview(): Boolean = {
-    if (linkedEngine != null) linkedEngine.isPreview() else false
-  }
+  override def isPreview(): Boolean =
+    if (linkedEngine != null) linkedEngine.asInstanceOf[WallpaperService#Engine].isPreview() else false
 
   override def getEngineCount(): Int = engines
 
   override def getVisibleEngineCount(): Int = visibleEngines
 
-  override def setAppCallbacks(cbs: LiveWallpaperAppCallbacks): Unit = {
+  override def setAppCallbacks(cbs: LiveWallpaperAppCallbacks): Unit =
     callbacks = cbs
-  }
 
   /** Sets the touch event handler. Called from the sge-side after input is initialized.
     * @param handler
     *   function that takes (view: AnyRef|Null, motionEvent: AnyRef) and forwards to input processing
     */
-  def setTouchHandler(handler: (AnyRef, AnyRef) => Unit): Unit = {
+  def setTouchHandler(handler: (AnyRef, AnyRef) => Unit): Unit =
     touchHandler = handler
-  }
 
   // ── WallpaperService lifecycle ─────────────────────────────────────────
 
@@ -100,7 +95,7 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
     super.onCreate()
   }
 
-  override def onCreateEngine(): WallpaperService.Engine = {
+  override def onCreateEngine(): Engine = {
     Log.i(Tag, "engine created")
     new WallpaperEngine()
   }
@@ -110,7 +105,7 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
     super.onDestroy()
     if (callbacks != null) {
       callbacks.onServiceDestroy()
-      callbacks = scala.compiletime.uninitialized
+      callbacks = null.asInstanceOf[LiveWallpaperAppCallbacks] // scalafix:ok — reset to uninitialized
     }
   }
 
@@ -118,10 +113,10 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
 
   /** Wallpaper engine that bridges Android surface lifecycle to [[LiveWallpaperAppCallbacks]].
     *
-    * Multiple instances may exist simultaneously. The "linked" engine is the one whose surface is currently active. Engine
-    * transitions (e.g. from preview to home screen) are handled by unlinking the old engine and linking the new one.
+    * Multiple instances may exist simultaneously. The "linked" engine is the one whose surface is currently active. Engine transitions (e.g. from preview to home screen) are handled by unlinking the
+    * old engine and linking the new one.
     */
-  class WallpaperEngine extends WallpaperService.Engine {
+  class WallpaperEngine extends Engine {
 
     private var engineIsVisible: Boolean = false
     private var engineFormat:    Int     = 0
@@ -142,16 +137,13 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
     private var xPixelOffset:    Int     = 0
     private var yPixelOffset:    Int     = 0
 
-    override def onCreate(surfaceHolder: SurfaceHolder): Unit = {
-      super.onCreate(surfaceHolder)
-    }
+    override def onCreate(surfaceHolder: SurfaceHolder): Unit = ()
 
     override def onSurfaceCreated(holder: SurfaceHolder): Unit = {
       engines += 1
       sync.synchronized { linkedEngine = this }
 
       Log.i(Tag, "engine surface created")
-      super.onSurfaceCreated(holder)
 
       if (engines == 1) visibleEngines = 0
 
@@ -172,7 +164,6 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
 
     override def onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int): Unit = {
       Log.i(Tag, "engine surface changed")
-      super.onSurfaceChanged(holder, format, width, height)
 
       engineFormat = format
       engineWidth = width
@@ -189,8 +180,7 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
     }
 
     override def onVisibilityChanged(visible: Boolean): Unit = {
-      val reportedVisible = isVisible()
-      super.onVisibilityChanged(visible)
+      val reportedVisible = this.asInstanceOf[WallpaperService#Engine].isVisible()
 
       // Filter fake visibility events from Android WallpaperService
       if (!reportedVisible && visible) return
@@ -198,13 +188,12 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
       notifyVisibilityChanged(visible)
     }
 
-    private def notifyVisibilityChanged(visible: Boolean): Unit = {
+    private def notifyVisibilityChanged(visible: Boolean): Unit =
       if (engineIsVisible != visible) {
         engineIsVisible = visible
         if (engineIsVisible) onResume()
         else onPause()
       }
-    }
 
     private def onResume(): Unit = {
       visibleEngines += 1
@@ -215,8 +204,8 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
           sync.synchronized { linkedEngine = this }
           // Surface transition: the new engine takes over
           if (callbacks != null) {
-            callbacks.onSurfaceDestroyed(getSurfaceHolder(), false)
-            callbacks.onSurfaceCreated(getSurfaceHolder(), false)
+            callbacks.onSurfaceDestroyed(this.asInstanceOf[WallpaperService#Engine].getSurfaceHolder(), false)
+            callbacks.onSurfaceCreated(this.asInstanceOf[WallpaperService#Engine].getSurfaceHolder(), false)
           }
         }
 
@@ -258,9 +247,7 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
       engineWidth = 0
       engineHeight = 0
 
-      if (engines == 0) sync.synchronized { linkedEngine = scala.compiletime.uninitialized }
-
-      super.onSurfaceDestroyed(holder)
+      if (engines == 0) sync.synchronized { linkedEngine = null.asInstanceOf[WallpaperEngine] } // scalafix:ok — reset to uninitialized
     }
 
     override def onCommand(action: String, x: Int, y: Int, z: Int, extras: Bundle, resultRequested: Boolean): Bundle = {
@@ -270,21 +257,19 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
         yIconDrop = y
         notifyIconDropped()
       }
-      super.onCommand(action, x, y, z, extras, resultRequested)
+      null
     }
 
-    private def notifyIconDropped(): Unit = {
+    private def notifyIconDropped(): Unit =
       if (linkedEngine == this && callbacks != null && !iconDropConsumed) {
         iconDropConsumed = true
         callbacks.onIconDropped(xIconDrop, yIconDrop)
       }
-    }
 
-    override def onTouchEvent(event: MotionEvent): Unit = {
+    override def onTouchEvent(event: MotionEvent): Unit =
       if (linkedEngine == this && touchHandler != null) {
         touchHandler(null, event) // scalafix:ok — null view is normal for wallpaper touch
       }
-    }
 
     override def onOffsetsChanged(
       xOffset:      Float,
@@ -303,20 +288,17 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
       this.yPixelOffset = yPixelOffset
 
       notifyOffsetsChanged()
-
-      super.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
     }
 
-    private def notifyOffsetsChanged(): Unit = {
+    private def notifyOffsetsChanged(): Unit =
       if (linkedEngine == this && callbacks != null && !offsetsConsumed) {
         offsetsConsumed = true
         callbacks.onOffsetsChanged(xOffset, yOffset, xOffsetStep, yOffsetStep, xPixelOffset, yPixelOffset)
       }
-    }
 
-    private def notifyPreviewState(): Unit = {
+    private def notifyPreviewState(): Unit =
       if (linkedEngine == this && callbacks != null) {
-        val currentPreviewState = linkedEngine.isPreview()
+        val currentPreviewState = linkedEngine.asInstanceOf[WallpaperService#Engine].isPreview()
         sync.synchronized {
           if (!isPreviewNotified || notifiedPreviewState != currentPreviewState) {
             notifiedPreviewState = currentPreviewState
@@ -325,6 +307,5 @@ abstract class AndroidLiveWallpaperServiceImpl extends WallpaperService with Liv
           }
         }
       }
-    }
   }
 }

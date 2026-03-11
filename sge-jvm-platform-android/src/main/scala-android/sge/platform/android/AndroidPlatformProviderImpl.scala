@@ -8,7 +8,7 @@ package platform
 package android
 
 import _root_.android.app.Activity
-import _root_.android.content.{ActivityNotFoundException, Context, ContextWrapper, Intent}
+import _root_.android.content.{ ActivityNotFoundException, Context, ContextWrapper, Intent }
 import _root_.android.net.Uri
 import _root_.android.os.Handler
 import _root_.android.view.WindowManager
@@ -72,9 +72,9 @@ object AndroidPlatformProviderImpl extends AndroidPlatformProvider {
     AndroidInputMethodImpl(context.asInstanceOf[Context], handler.asInstanceOf[Handler])
 
   override def createGLSurfaceView(
-      context: AnyRef,
-      config: AndroidConfigOps,
-      resolutionStrategy: ResolutionStrategyOps
+    context:            AnyRef,
+    config:             AndroidConfigOps,
+    resolutionStrategy: ResolutionStrategyOps
   ): GLSurfaceViewOps =
     AndroidGLSurfaceViewImpl(context.asInstanceOf[Context], config, resolutionStrategy)
 

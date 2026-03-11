@@ -154,6 +154,7 @@ class DelaunayTriangulator {
 
                 triangles.removeRange(triangleIndex - 2, triangleIndex + 1)
                 complete.removeIndex(completeIndex)
+              case _ => // INCOMPLETE — no action needed
             }
           }
           triangleIndex -= 3

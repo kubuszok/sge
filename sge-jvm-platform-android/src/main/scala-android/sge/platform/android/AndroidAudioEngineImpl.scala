@@ -15,21 +15,15 @@ package android
 
 import _root_.android.app.Activity
 import _root_.android.content.Context
-import _root_.android.media.{AudioAttributes, AudioManager, MediaPlayer, SoundPool}
+import _root_.android.media.{ AudioAttributes, AudioManager, MediaPlayer, SoundPool }
 
 import java.util.concurrent.CopyOnWriteArrayList
 
 class AndroidAudioEngineImpl(context: Context, config: AndroidConfigOps) extends AudioEngineOps {
 
   private val soundPool: SoundPool = {
-    val attrs = new AudioAttributes.Builder()
-      .setUsage(AudioAttributes.USAGE_GAME)
-      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-      .build()
-    new SoundPool.Builder()
-      .setAudioAttributes(attrs)
-      .setMaxStreams(config.maxSimultaneousSounds)
-      .build()
+    val attrs = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build()
+    new SoundPool.Builder().setAudioAttributes(attrs).setMaxStreams(config.maxSimultaneousSounds).build()
   }
 
   private val manager: AudioManager =
@@ -38,7 +32,7 @@ class AndroidAudioEngineImpl(context: Context, config: AndroidConfigOps) extends
   // Set the volume control stream to music for Activity contexts
   context match {
     case activity: Activity => activity.setVolumeControlStream(AudioManager.STREAM_MUSIC)
-    case _                  => ()
+    case _ => ()
   }
 
   private val musics = new CopyOnWriteArrayList[AndroidMusicOpsImpl]()
@@ -50,10 +44,7 @@ class AndroidAudioEngineImpl(context: Context, config: AndroidConfigOps) extends
   private def createMediaPlayer(): MediaPlayer = {
     val mp = new MediaPlayer()
     mp.setAudioAttributes(
-      new AudioAttributes.Builder()
-        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-        .setUsage(AudioAttributes.USAGE_GAME)
-        .build()
+      new AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).setUsage(AudioAttributes.USAGE_GAME).build()
     )
     mp
   }

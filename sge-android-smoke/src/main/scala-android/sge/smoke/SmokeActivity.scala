@@ -14,15 +14,14 @@ package smoke
 
 import _root_.android.app.Activity
 import _root_.android.opengl.GLSurfaceView
-import _root_.android.os.{Bundle, Handler, Looper}
+import _root_.android.os.{ Bundle, Handler, Looper }
 import _root_.android.util.Log
-import javax.microedition.khronos.egl.{EGLConfig => AndroidEGLConfig}
+import javax.microedition.khronos.egl.{ EGLConfig => AndroidEGLConfig }
 import javax.microedition.khronos.opengles.GL10
 
 import sge.platform.android._
 
-/** Smoke test Activity. Creates a full Sge context with all subsystems,
-  * runs SmokeListener's 6 subsystem checks, then exits after 30 frames.
+/** Smoke test Activity. Creates a full Sge context with all subsystems, runs SmokeListener's 6 subsystem checks, then exits after 30 frames.
   */
 class SmokeActivity extends Activity {
 
@@ -40,8 +39,8 @@ class SmokeActivity extends Activity {
       val provider = AndroidPlatformProviderImpl
       val config   = provider.defaultConfig()
       config.useAccelerometer = true
-      config.useGyroscope     = true
-      config.useCompass       = false
+      config.useGyroscope = true
+      config.useCompass = false
       // Audio enabled — subsystem checks verify audio accessibility
 
       listener = new SmokeListener()
@@ -51,58 +50,63 @@ class SmokeActivity extends Activity {
 
       Log.i(TAG, "AndroidApplication created, initializing graphics...")
 
-      val surfaceView = app.initializeGraphicsAndInput(
-        getWindowManager(), new Handler(Looper.getMainLooper())
-      ).asInstanceOf[GLSurfaceView]
+      val surfaceView = app
+        .initializeGraphicsAndInput(
+          getWindowManager(),
+          new Handler(Looper.getMainLooper())
+        )
+        .asInstanceOf[GLSurfaceView]
 
-      surfaceView.setRenderer(new GLSurfaceView.Renderer {
+      surfaceView.setRenderer(
+        new GLSurfaceView.Renderer {
 
-        private var created = false
+          private var created = false
 
-        override def onSurfaceCreated(gl: GL10, eglConfig: AndroidEGLConfig): Unit = {
-          val versionStr  = gl.glGetString(GL10.GL_VERSION)
-          val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
-          val rendererStr = gl.glGetString(GL10.GL_RENDERER)
-          Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
+          override def onSurfaceCreated(gl: GL10, eglConfig: AndroidEGLConfig): Unit = {
+            val versionStr  = gl.glGetString(GL10.GL_VERSION)
+            val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
+            val rendererStr = gl.glGetString(GL10.GL_RENDERER)
+            Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
 
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.setupGL(versionStr, vendorStr, rendererStr)
-          app.initializeSge()
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.setupGL(versionStr, vendorStr, rendererStr)
+            app.initializeSge()
 
-          if (!created) {
-            listener.create()
-            created = true
+            if (!created) {
+              listener.create()
+              created = true
+            }
+            Log.i(TAG, "SGE fully initialized with all subsystems")
           }
-          Log.i(TAG, "SGE fully initialized with all subsystems")
-        }
 
-        override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.width = w
-          graphics.height = h
-          Log.i(TAG, s"Surface changed: ${w}x${h}")
-          listener.resize(Pixels(w), Pixels(h))
-        }
+          override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.width = w
+            graphics.height = h
+            Log.i(TAG, s"Surface changed: ${w}x${h}")
+            listener.resize(Pixels(w), Pixels(h))
+          }
 
-        override def onDrawFrame(gl: GL10): Unit = {
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.updateFrameTiming(false)
-          app.processInputEvents()
-          app.executeRunnables()
+          override def onDrawFrame(gl: GL10): Unit = {
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.updateFrameTiming(false)
+            app.processInputEvents()
+            app.executeRunnables()
 
-          val frame = graphics.getFrameId()
-          if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
+            val frame = graphics.getFrameId()
+            if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
 
-          listener.render()
+            listener.render()
 
-          // Echo the pass/fail marker via Log.i so logcat captures it reliably
-          if (!app.running) {
-            if (listener.allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
-            else Log.i(TAG, "SMOKE_TEST_FAILED")
-            listener.dispose()
+            // Echo the pass/fail marker via Log.i so logcat captures it reliably
+            if (!app.running) {
+              if (listener.allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
+              else Log.i(TAG, "SMOKE_TEST_FAILED")
+              listener.dispose()
+            }
           }
         }
-      })
+      )
 
       setContentView(surfaceView)
       Log.i(TAG, "Content view set, rendering started")

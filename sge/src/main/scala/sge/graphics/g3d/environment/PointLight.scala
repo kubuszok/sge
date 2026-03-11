@@ -17,7 +17,6 @@ package graphics
 package g3d
 package environment
 
-import scala.annotation.targetName
 import scala.language.implicitConversions
 
 import sge.math.Vector3
@@ -74,11 +73,8 @@ class PointLight extends BaseLight[PointLight] {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case other: PointLight => equals(other)
+    case other: PointLight =>
+      (other eq this) || (color.equals(other.color) && position.equals(other.position) && intensity == other.intensity)
     case _ => false
   }
-
-  @targetName("equalsPointLight")
-  def equals(other: Nullable[PointLight]): Boolean =
-    other.exists(o => (o eq this) || (color.equals(o.color) && position.equals(o.position) && intensity == o.intensity))
 }

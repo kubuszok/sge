@@ -17,7 +17,6 @@ package graphics
 package g3d
 package environment
 
-import scala.annotation.targetName
 import scala.language.implicitConversions
 
 import sge.math.Vector3
@@ -64,11 +63,8 @@ class DirectionalLight extends BaseLight[DirectionalLight] {
   }
 
   override def equals(arg0: Any): Boolean = arg0 match {
-    case other: DirectionalLight => equals(other)
+    case other: DirectionalLight =>
+      (other eq this) || (color.equals(other.color) && direction.equals(other.direction))
     case _ => false
   }
-
-  @targetName("equalsDirectionalLight")
-  def equals(other: Nullable[DirectionalLight]): Boolean =
-    other.exists(o => (o eq this) || (color.equals(o.color) && direction.equals(o.direction)))
 }

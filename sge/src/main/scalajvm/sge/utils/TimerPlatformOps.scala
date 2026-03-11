@@ -1,8 +1,7 @@
-// SGE — Desktop + Native timer loop (Gears async)
+// SGE — JVM timer loop (Gears async)
 //
 // Uses Gears structured concurrency for the background timer loop.
 // JVM: virtual threads (JDK 21+)
-// Scala Native: delimited continuations
 
 package sge
 package utils
@@ -11,7 +10,7 @@ import gears.async.*
 import gears.async.default.given
 import scala.concurrent.duration.*
 
-/** Platform-specific timer loop for JVM + Scala Native.
+/** Platform-specific timer loop for JVM.
   *
   * Runs the background loop inside a Gears `Async.blocking` context, using `AsyncOperations.sleep` for non-blocking delays. The loop is launched on `ExecutionContext.global` to avoid blocking the
   * calling thread.

@@ -20,21 +20,20 @@ import _root_.android.view.{ View, WindowManager }
   *   the GL surface view ops (nullable, set after view creation)
   */
 class AndroidLifecycleImpl(
-  private val activity: Activity,
+  private val activity:                 Activity,
   @volatile private var _glSurfaceView: GLSurfaceViewOps | Null = null
 ) extends AndroidLifecycleOps {
 
   private val handler = new Handler(Looper.getMainLooper())
 
-  def setGLSurfaceView(view: GLSurfaceViewOps): Unit = {
+  def setGLSurfaceView(view: GLSurfaceViewOps): Unit =
     _glSurfaceView = view
-  }
 
   override def runOnUiThread(runnable: Runnable): Unit =
     activity.runOnUiThread(runnable)
 
-  override def useImmersiveMode(use: Boolean): Unit = {
-    handler.post(() => {
+  override def useImmersiveMode(use: Boolean): Unit =
+    handler.post { () =>
       val window = activity.getWindow()
       if (window != null) {
         val decorView = window.getDecorView()
@@ -51,8 +50,7 @@ class AndroidLifecycleImpl(
           decorView.setSystemUiVisibility(0)
         }
       }
-    })
-  }
+    }
 
   override def getAndroidVersion(): Int = Build.VERSION.SDK_INT
 
@@ -67,7 +65,7 @@ class AndroidLifecycleImpl(
 
   override def getGLSurfaceView(): AnyRef | Null = {
     val view = _glSurfaceView
-    if (view != null) view.getView() else null
+    if (view != null) view.view else null
   }
 
   override def resumeGLSurfaceView(): Unit = {

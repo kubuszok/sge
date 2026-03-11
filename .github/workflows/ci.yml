@@ -248,8 +248,8 @@ jobs:
       - name: Compile Scala.js demo
         run: sbt 'demoJS/fastLinkJS'
 
-      - name: Run browser integration tests
-        run: sbt 'sge-it-browser/test'
+      - name: Run browser integration tests (bootstrap only)
+        run: sbt 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
 
   # ─── Scala Native compile + test (requires Rust static library) ────
 
@@ -359,3 +359,114 @@ jobs:
           avd-name: sge-test-avd
           emulator-options: -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           script: sbt 'sge-it-android/test'
+
+  # ─── Demo smoke tests (Scala.js demos in headless Chromium) ────────
+  # Builds individual demo JS bundles from the demos/ sub-build and
+  # verifies they start up without errors using Playwright.
+
+  demo-smoke-js:
+    name: Demo JS smoke tests (Playwright)
+    needs: [test-js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Playwright Chromium
+        run: npx playwright@1.49.0 install chromium
+
+      - name: Publish SGE to local Ivy (JVM + JS)
+        run: sbt 'sge/publishLocal' 'sgeJS/publishLocal'
+
+      - name: Build demo JS bundles
+        working-directory: demos
+        run: |
+          sbt 'pongJS/fastLinkJS' \
+              'spaceShooterJS/fastLinkJS' \
+              'curvePlaygroundJS/fastLinkJS' \
+              'viewportGalleryJS/fastLinkJS' \
+              'shaderLabJS/fastLinkJS' \
+              'tileWorldJS/fastLinkJS' \
+              'hexTacticsJS/fastLinkJS' \
+              'viewer3dJS/fastLinkJS' \
+              'particleShowJS/fastLinkJS' \
+              'netChatJS/fastLinkJS'
+
+      - name: Run demo smoke tests
+        run: sbt 'sge-it-browser/testOnly sge.browser.DemoSmokeTest'
+
+  # ─── Demo compile-all gate (all 10 demos × 3 platforms) ────────────
+  # Compiles all demos on JVM, JS, and Native to catch API regressions.
+  # Does not link Native (avoids needing Rust lib + ANGLE).
+
+  demo-compile-all:
+    name: Compile all demos (JVM + JS + Native)
+    needs: [test-js]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: sbt
+
+      - uses: sbt/setup-sbt@v1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Scala Native system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libstdc++-12-dev
+
+      - name: Publish SGE to local Ivy (all platforms)
+        run: sbt 'sge/publishLocal' 'sgeJS/publishLocal' 'sgeNative/publishLocal'
+
+      - name: Compile all demos (JVM)
+        working-directory: demos
+        run: sbt compile
+
+      - name: Compile all demos (JS)
+        working-directory: demos
+        run: |
+          sbt 'sharedJS/compile' \
+              'pongJS/compile' \
+              'spaceShooterJS/compile' \
+              'tileWorldJS/compile' \
+              'hexTacticsJS/compile' \
+              'curvePlaygroundJS/compile' \
+              'shaderLabJS/compile' \
+              'viewer3dJS/compile' \
+              'particleShowJS/compile' \
+              'netChatJS/compile' \
+              'viewportGalleryJS/compile'
+
+      - name: Compile all demos (Native)
+        working-directory: demos
+        run: |
+          sbt 'sharedNative/compile' \
+              'pongNative/compile' \
+              'spaceShooterNative/compile' \
+              'tileWorldNative/compile' \
+              'hexTacticsNative/compile' \
+              'curvePlaygroundNative/compile' \
+              'shaderLabNative/compile' \
+              'viewer3dNative/compile' \
+              'particleShowNative/compile' \
+              'netChatNative/compile' \
+              'viewportGalleryNative/compile'

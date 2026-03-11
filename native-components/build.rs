@@ -30,12 +30,19 @@ fn main() {
     build_glfw_shared(&out_dir, &release_dir, &target_os, &target_env);
     link_system_libs(&target_os);
 
+    // Copy static archives to release dir for Scala Native static linking.
+    // Scala Native @link("sge_audio") needs libsge_audio.a in the link path,
+    // and @link("glfw3") needs libglfw3.a.
+    copy_static_archive(&out_dir, &release_dir, "sge_audio_bridge", "sge_audio");
+    copy_static_archive(&out_dir, &release_dir, "glfw3", "glfw3");
+
     // Audio bridge is loaded separately now — no need to link into libsge_native_ops
     println!("cargo:rerun-if-changed=vendor/sge_audio_bridge.c");
     println!("cargo:rerun-if-changed=vendor/miniaudio/miniaudio.c");
     println!("cargo:rerun-if-changed=vendor/miniaudio/miniaudio.h");
     println!("cargo:rerun-if-changed=vendor/glfw/src");
     println!("cargo:rerun-if-changed=vendor/glfw/include");
+    println!("cargo:rerun-if-changed=vendor/glfw_platform_stubs.c");
 }
 
 /// Compile miniaudio + audio bridge as a static archive, then link it into a
@@ -178,6 +185,13 @@ fn build_glfw_shared(out_dir: &str, release_dir: &str, target_os: &str, target_e
         }
     };
 
+    // Platform stubs for native window handle functions (glfwGetCocoaWindow,
+    // glfwGetX11Window, glfwGetWin32Window). Scala Native requires ALL @extern
+    // symbols to resolve, even if guarded by runtime checks. The stubs use the
+    // same _GLFW_COCOA/_GLFW_X11/_GLFW_WIN32 defines to only provide stubs for
+    // functions that don't exist on the current platform.
+    build.file("vendor/glfw_platform_stubs.c");
+
     build.compile("glfw3");
 
     // Create shared library from the static archive
@@ -226,4 +240,16 @@ fn link_system_libs(target_os: &str) {
     // The C libraries (audio, GLFW) are separate shared libraries and handle
     // their own system library dependencies.
     let _ = target_os;
+}
+
+/// Copy a static archive from the cc::Build output directory to the Cargo
+/// release directory, renaming it so that `-l<to_name>` resolves correctly
+/// for Scala Native static linking.
+fn copy_static_archive(out_dir: &str, release_dir: &str, from_name: &str, to_name: &str) {
+    let src = format!("{}/lib{}.a", out_dir, from_name);
+    let dst = format!("{}/lib{}.a", release_dir, to_name);
+    match std::fs::copy(&src, &dst) {
+        Ok(_) => eprintln!("cargo:warning=Copied static archive: {}", dst),
+        Err(e) => eprintln!("cargo:warning=Failed to copy {} -> {}: {}", src, dst, e),
+    }
 }

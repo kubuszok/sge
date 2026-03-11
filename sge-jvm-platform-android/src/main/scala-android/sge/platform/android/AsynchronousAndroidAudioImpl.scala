@@ -13,13 +13,12 @@ package sge
 package platform
 package android
 
-import _root_.android.os.{Handler, HandlerThread}
+import _root_.android.os.{ Handler, HandlerThread }
 
 /** Asynchronous decorator for [[AudioEngineOps]] that wraps newly created sounds with [[AsynchronousSoundOps]].
   *
-  * A dedicated [[HandlerThread]] is started at construction. All sounds created by `newSoundFromFd` and `newSoundFromPath` are
-  * wrapped so that play/loop/stop operations are posted to the background thread, preventing the main/GL thread from blocking on
-  * SoundPool calls.
+  * A dedicated [[HandlerThread]] is started at construction. All sounds created by `newSoundFromFd` and `newSoundFromPath` are wrapped so that play/loop/stop operations are posted to the background
+  * thread, preventing the main/GL thread from blocking on SoundPool calls.
   *
   * @param delegate
   *   the underlying audio engine to delegate to

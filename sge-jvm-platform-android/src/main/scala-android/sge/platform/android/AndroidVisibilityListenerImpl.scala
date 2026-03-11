@@ -22,18 +22,18 @@ import _root_.android.view.{ View, Window }
 @SuppressWarnings(Array("deprecation"))
 object AndroidVisibilityListenerImpl extends VisibilityListenerOps {
 
-  override def createListener(window: AnyRef, handler: AnyRef, immersiveModeCallback: Runnable): Unit = {
+  override def createListener(window: AnyRef, handler: AnyRef, immersiveModeCallback: Runnable): Unit =
     try {
       val androidWindow  = window.asInstanceOf[Window]
       val androidHandler = handler.asInstanceOf[Handler]
       val rootView       = androidWindow.getDecorView()
-      rootView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener {
-        override def onSystemUiVisibilityChange(visibility: Int): Unit = {
-          androidHandler.post(immersiveModeCallback)
+      rootView.setOnSystemUiVisibilityChangeListener(
+        new View.OnSystemUiVisibilityChangeListener {
+          override def onSystemUiVisibilityChange(visibility: Int): Unit =
+            androidHandler.post(immersiveModeCallback)
         }
-      })
+      )
     } catch {
       case _: Throwable => () // Graceful degradation on older APIs or unsupported environments
     }
-  }
 }

@@ -16,12 +16,12 @@ package android
 
 import _root_.android.content.Context
 import _root_.android.opengl.GLSurfaceView
-import javax.microedition.khronos.egl.{EGL10, EGLConfig, EGLContext, EGLDisplay}
+import javax.microedition.khronos.egl.{ EGL10, EGLConfig, EGLContext, EGLDisplay }
 
 class AndroidGLSurfaceViewImpl(
-    context: Context,
-    config: AndroidConfigOps,
-    resolutionStrategy: ResolutionStrategyOps
+  context:            Context,
+  config:             AndroidConfigOps,
+  resolutionStrategy: ResolutionStrategyOps
 ) extends GLSurfaceViewOps {
 
   private val targetVersion: Int = if (config.useGL30) 3 else 2
@@ -34,33 +34,34 @@ class AndroidGLSurfaceViewImpl(
   }
 
   // Set up EGL context factory
-  surfaceView.setEGLContextFactory(new GLSurfaceView.EGLContextFactory {
-    private val EGL_CONTEXT_CLIENT_VERSION = 0x3098
+  surfaceView.setEGLContextFactory(
+    new GLSurfaceView.EGLContextFactory {
+      private val EGL_CONTEXT_CLIENT_VERSION = 0x3098
 
-    override def createContext(egl: EGL10, display: EGLDisplay, eglConfig: EGLConfig): EGLContext = {
-      var version     = targetVersion
-      var ctx: EGLContext = null
-      var success     = false
+      override def createContext(egl: EGL10, display: EGLDisplay, eglConfig: EGLConfig): EGLContext = {
+        var version = targetVersion
+        var ctx: EGLContext = null
+        var success = false
 
-      while (ctx == null && version >= 2) {
-        val attribs = Array(EGL_CONTEXT_CLIENT_VERSION, version, EGL10.EGL_NONE)
-        ctx = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attribs)
-        success = egl.eglGetError() == EGL10.EGL_SUCCESS
-        if (!success || ctx == null) {
-          ctx = null
-          version -= 1
+        while (ctx == null && version >= 2) {
+          val attribs = Array(EGL_CONTEXT_CLIENT_VERSION, version, EGL10.EGL_NONE)
+          ctx = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attribs)
+          success = egl.eglGetError() == EGL10.EGL_SUCCESS
+          if (!success || ctx == null) {
+            ctx = null
+            version -= 1
+          }
         }
+        if (ctx == null) {
+          throw new RuntimeException("Failed to create EGL context")
+        }
+        ctx
       }
-      if (ctx == null) {
-        throw new RuntimeException("Failed to create EGL context")
-      }
-      ctx
-    }
 
-    override def destroyContext(egl: EGL10, display: EGLDisplay, context: EGLContext): Unit = {
-      egl.eglDestroyContext(display, context)
+      override def destroyContext(egl: EGL10, display: EGLDisplay, context: EGLContext): Unit =
+        egl.eglDestroyContext(display, context)
     }
-  })
+  )
 
   // Set EGL config chooser with MSAA/CSAA support
   surfaceView.setEGLConfigChooser(
@@ -101,11 +102,15 @@ class AndroidGLSurfaceViewImpl(
     egl.eglInitialize(display, version)
 
     val EGL_OPENGL_ES2_BIT = 4
-    val configAttribs = Array(
-      EGL10.EGL_RED_SIZE, 4,
-      EGL10.EGL_GREEN_SIZE, 4,
-      EGL10.EGL_BLUE_SIZE, 4,
-      EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    val configAttribs      = Array(
+      EGL10.EGL_RED_SIZE,
+      4,
+      EGL10.EGL_GREEN_SIZE,
+      4,
+      EGL10.EGL_BLUE_SIZE,
+      4,
+      EGL10.EGL_RENDERABLE_TYPE,
+      EGL_OPENGL_ES2_BIT,
       EGL10.EGL_NONE
     )
 
@@ -119,24 +124,31 @@ class AndroidGLSurfaceViewImpl(
 
 /** EGL config chooser with MSAA/CSAA support.
   *
-  * Migration notes:
-  *   Source:  com.badlogic.gdx.backends.android.surfaceview.GdxEglConfigChooser
-  *   Renames: GdxEglConfigChooser → AndroidEglConfigChooser
+  * Migration notes: Source: com.badlogic.gdx.backends.android.surfaceview.GdxEglConfigChooser Renames: GdxEglConfigChooser → AndroidEglConfigChooser
   */
 private[android] class AndroidEglConfigChooser(
-    r: Int, g: Int, b: Int, a: Int,
-    depth: Int, stencil: Int, numSamples: Int
+  r:          Int,
+  g:          Int,
+  b:          Int,
+  a:          Int,
+  depth:      Int,
+  stencil:    Int,
+  numSamples: Int
 ) extends GLSurfaceView.EGLConfigChooser {
 
-  private val EGL_OPENGL_ES2_BIT       = 4
-  private val EGL_COVERAGE_BUFFERS_NV  = 0x30E0
-  private val EGL_COVERAGE_SAMPLES_NV  = 0x30E1
+  private val EGL_OPENGL_ES2_BIT      = 4
+  private val EGL_COVERAGE_BUFFERS_NV = 0x30e0
+  private val EGL_COVERAGE_SAMPLES_NV = 0x30e1
 
   private val configAttribs = Array(
-    EGL10.EGL_RED_SIZE, 4,
-    EGL10.EGL_GREEN_SIZE, 4,
-    EGL10.EGL_BLUE_SIZE, 4,
-    EGL10.EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    EGL10.EGL_RED_SIZE,
+    4,
+    EGL10.EGL_GREEN_SIZE,
+    4,
+    EGL10.EGL_BLUE_SIZE,
+    4,
+    EGL10.EGL_RENDERABLE_TYPE,
+    EGL_OPENGL_ES2_BIT,
     EGL10.EGL_NONE
   )
 
@@ -154,9 +166,9 @@ private[android] class AndroidEglConfigChooser(
   }
 
   private def selectConfig(egl: EGL10, display: EGLDisplay, configs: Array[EGLConfig]): EGLConfig = {
-    var best: EGLConfig   = null
+    var best:   EGLConfig = null
     var bestAA: EGLConfig = null
-    var safe: EGLConfig   = null
+    var safe:   EGLConfig = null
 
     for (config <- configs) {
       val d = findAttrib(egl, display, config, EGL10.EGL_DEPTH_SIZE, 0)
@@ -179,15 +191,19 @@ private[android] class AndroidEglConfigChooser(
         // MSAA check
         val hasSB = findAttrib(egl, display, config, EGL10.EGL_SAMPLE_BUFFERS, 0)
         val ns    = findAttrib(egl, display, config, EGL10.EGL_SAMPLES, 0)
-        if (bestAA == null && hasSB == 1 && ns >= numSamples &&
-            cr == r && cg == g && cb == b && ca == a) {
+        if (
+          bestAA == null && hasSB == 1 && ns >= numSamples &&
+          cr == r && cg == g && cb == b && ca == a
+        ) {
           bestAA = config
         } else {
           // CSAA (NVidia coverage sampling)
           val hasCB = findAttrib(egl, display, config, EGL_COVERAGE_BUFFERS_NV, 0)
           val cns   = findAttrib(egl, display, config, EGL_COVERAGE_SAMPLES_NV, 0)
-          if (bestAA == null && hasCB == 1 && cns >= numSamples &&
-              cr == r && cg == g && cb == b && ca == a) {
+          if (
+            bestAA == null && hasCB == 1 && cns >= numSamples &&
+            cr == r && cg == g && cb == b && ca == a
+          ) {
             bestAA = config
           }
         }
@@ -198,8 +214,7 @@ private[android] class AndroidEglConfigChooser(
     else safe
   }
 
-  private def findAttrib(egl: EGL10, display: EGLDisplay, config: EGLConfig, attrib: Int, default: Int): Int = {
+  private def findAttrib(egl: EGL10, display: EGLDisplay, config: EGLConfig, attrib: Int, default: Int): Int =
     if (egl.eglGetConfigAttrib(display, config, attrib, value)) value(0)
     else default
-  }
 }

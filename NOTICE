@@ -1,0 +1,51 @@
+SGE - Scala Game Engine
+Copyright 2025-2026 Mateusz Kubuszok
+
+This product is a derivative work of libGDX, which is licensed under the
+Apache License, Version 2.0. The original libGDX source code is available at:
+
+  https://github.com/libgdx/libgdx
+
+libGDX copyright holders (from the libGDX AUTHORS file):
+
+  Mario Zechner <badlogicgames@gmail.com>
+  Nathan Sweet <nathan.sweet@gmail.com>
+
+The full list of libGDX contributors is preserved in the CONTRIBUTORS file
+in this repository.
+
+---
+
+AI-Assisted Development Notice
+
+The Java-to-Scala 3 port was performed primarily using AI code generation
+tools (Anthropic Claude Code). All AI-generated code was reviewed, tested,
+and audited against the original LibGDX sources by the project maintainer.
+Each ported file contains a header comment documenting the original LibGDX
+source file, original authors, migration notes, and audit date.
+
+---
+
+Third-Party Components
+
+The following third-party libraries are bundled or vendored in this project:
+
+  GLFW (https://www.glfw.org/)
+    License: zlib/libpng license
+    Location: native-components/vendor/ (compiled from vendored source)
+
+  miniaudio (https://miniaud.io/)
+    License: MIT OR public domain (Unlicense)
+    Location: native-components/vendor/ (compiled from vendored source)
+
+  stb_image (https://github.com/nothings/stb)
+    License: MIT OR public domain
+    Location: native-components/vendor/ (compiled from vendored source)
+
+The following Rust crates are used as build dependencies (linked, not vendored):
+
+  freetype-rs / freetype-sys: MIT license (optional, sge-freetype feature)
+  rapier2d: Apache-2.0 license (optional, sge-physics feature)
+
+All Scala library dependencies are resolved via Maven/Ivy at build time and
+are not bundled in this repository. See build.sbt for the full dependency list.

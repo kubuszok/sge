@@ -78,12 +78,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} . Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
     this(
       vertices = Mesh.makeVertexBuffer(isStatic, maxVertices, attributes),
       indices = IndexBufferObject(isStatic, maxIndices),
       isVertexArray = false
     )
+  }
 
   /** Creates a new Mesh with the given attributes.
     *
@@ -96,8 +97,9 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using Sge) =
+  def this(isStatic: Boolean, maxVertices: Int, maxIndices: Int)(attributes: VertexAttribute*)(using Sge) = {
     this(isStatic = isStatic, maxVertices = maxVertices, maxIndices = maxIndices, attributes = VertexAttributes(attributes*))
+  }
 
   /** Creates a new Mesh with the given attributes. Adds extra optimizations for dynamic (frequently modified) meshes.
     *
@@ -115,12 +117,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @author
     *   Jaroslaw Wisniewski <j.wisniewski@appsisle.com> *
     */
-  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
+  def this(staticVertices: Boolean, staticIndices: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
     this(
       vertices = Mesh.makeVertexBuffer(staticVertices, maxVertices, attributes),
       indices = IndexBufferObject(staticIndices, maxIndices),
       isVertexArray = false
     )
+  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -135,12 +138,13 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) =
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttributes)(using Sge) = {
     this(
       Mesh.createVertexData(meshType, isStatic, maxVertices, attributes),
       Mesh.createIndexData(meshType, isStatic, maxIndices),
       meshType == Mesh.VertexDataType.VertexArray
     )
+  }
 
   /** Creates a new Mesh with the given attributes. This is an expert method with no error checking. Use at your own risk.
     *
@@ -155,7 +159,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param attributes
     *   the {@link VertexAttribute} s. Each vertex attribute defines one property of a vertex such as position, normal or texture coordinate
     */
-  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using Sge) =
+  def this(meshType: Mesh.VertexDataType, isStatic: Boolean, maxVertices: Int, maxIndices: Int, attributes: VertexAttribute*)(using Sge) = {
     this(
       meshType = meshType,
       isStatic = isStatic,
@@ -163,6 +167,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
       maxIndices = maxIndices,
       attributes = VertexAttributes(attributes*)
     )
+  }
 
   def enableInstancedRendering(isStatic: Boolean, maxInstances: Int, attributes: VertexAttribute*): Mesh = {
     if (!isInstancedFlag) {

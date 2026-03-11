@@ -22,7 +22,7 @@ import scala.scalanative.unsafe.*
 // The C API uses int64_t for handles, which maps to Scala Long (not CLong).
 // CInt is used for non-handle integer parameters.
 
-@link("sge_native_ops")
+@link("sge_audio")
 @extern
 private object AudioOpsC {
 

@@ -227,20 +227,48 @@ object SgeNativeLibs {
     }
   }
 
-  /** Linker flags snippet for use in nativeConfig. */
+  /** Linker flags snippet for use in nativeConfig.
+    *
+    * Passes full paths to static archives for GLFW and audio bridge to avoid
+    * library search order issues with the system linker. The @link annotations
+    * on @extern objects tell Scala Native which libraries to look for, but
+    * Apple's ld64 deduplicates -l flags, which can cause the wrong archive
+    * to be used if a system copy exists.
+    */
   def linkerFlags(libDir: File, libName: String = "sge_native_ops"): Seq[String] = {
     val os = System.getProperty("os.name", "").toLowerCase
     val isWindows = os.contains("win")
     val isMac = os.contains("mac")
     val base = Seq(s"-L${libDir.getAbsolutePath}", s"-l$libName")
-    if (isWindows) base :+ "-lntdll"
+    // Audio bridge (miniaudio) and GLFW static archives — pass full paths
+    // to bypass library search path ordering issues with @link annotations.
+    val audioA = new File(libDir, "libsge_audio.a")
+    val glfwA  = new File(libDir, "libglfw3.a")
+    val nativeLibs =
+      (if (audioA.exists()) Seq(audioA.getAbsolutePath) else Seq("-lsge_audio")) ++
+      (if (glfwA.exists()) Seq(glfwA.getAbsolutePath) else Seq("-lglfw3"))
+    // Rust native-components links against FreeType for font rasterization
+    val nativeDeps = Seq("-lfreetype")
+    if (isWindows) base ++ nativeLibs ++ nativeDeps :+ "-lntdll"
     else if (isMac) {
-      // Homebrew paths for ANGLE (libGLESv2, libEGL), GLFW (libglfw3), etc.
+      // Homebrew paths for ANGLE (libGLESv2, libEGL), FreeType, etc.
       val brewPaths = Seq("/opt/homebrew/lib", "/usr/local/lib")
         .filter(p => new File(p).isDirectory)
         .flatMap(p => Seq("-L", p))
-      base ++ brewPaths
+      // macOS frameworks required by statically-linked GLFW and miniaudio
+      val frameworks = Seq(
+        "-framework", "Cocoa",
+        "-framework", "IOKit",
+        "-framework", "CoreFoundation",
+        "-framework", "CoreVideo",
+        "-framework", "CoreGraphics",
+        "-framework", "CoreAudio",
+        "-framework", "AudioToolbox",
+        "-framework", "QuartzCore",
+        "-lobjc"
+      )
+      base ++ nativeLibs ++ nativeDeps ++ brewPaths ++ frameworks
     }
-    else base
+    else base ++ nativeLibs ++ nativeDeps
   }
 }

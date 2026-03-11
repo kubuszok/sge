@@ -512,7 +512,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
       pname == GL20.GL_DEPTH_CLEAR_VALUE || pname == GL20.GL_LINE_WIDTH || pname == GL20.GL_POLYGON_OFFSET_FACTOR
       || pname == GL20.GL_POLYGON_OFFSET_UNITS || pname == GL20.GL_SAMPLE_COVERAGE_VALUE
     ) {
-      params.put(0, gl.getParameter(pname).asInstanceOf[Double].toFloat)
+      params.put(gl.getParameter(pname).asInstanceOf[Double].toFloat)
       params.flip()
     } else {
       throw utils.SgeError.GraphicsError("glGetFloatv not supported by WebGL backend for this pname")
@@ -521,7 +521,7 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
   override def glGetFramebufferAttachmentParameteriv(target: Int, attachment: Int, pname: Int, params: IntBuffer): Unit =
     pname match {
       case GL20.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE | GL20.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_LEVEL | GL20.GL_FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE =>
-        params.put(0, gl.getFramebufferAttachmentParameter(target, attachment, pname).asInstanceOf[Int])
+        params.put(gl.getFramebufferAttachmentParameter(target, attachment, pname).asInstanceOf[Int])
         params.flip()
       case GL20.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME =>
         val tex = gl.getFramebufferAttachmentParameter(target, attachment, pname)
@@ -554,14 +554,14 @@ class WebGL20(val gl: js.Dynamic) extends GL20 {
       || pname == GL20.GL_STENCIL_PASS_DEPTH_PASS || pname == GL20.GL_STENCIL_REF || pname == GL20.GL_STENCIL_VALUE_MASK
       || pname == GL20.GL_STENCIL_WRITEMASK || pname == GL20.GL_SUBPIXEL_BITS || pname == GL20.GL_UNPACK_ALIGNMENT
     ) {
-      params.put(0, gl.getParameter(pname).asInstanceOf[Int])
+      params.put(gl.getParameter(pname).asInstanceOf[Int])
       params.flip()
     } else if (pname == GL20.GL_VIEWPORT || pname == GL20.GL_SCISSOR_BOX) {
       val array = gl.getParameter(pname).asInstanceOf[Int32Array]
-      params.put(0, array(0))
-      params.put(1, array(1))
-      params.put(2, array(2))
-      params.put(3, array(3))
+      params.put(array(0))
+      params.put(array(1))
+      params.put(array(2))
+      params.put(array(3))
       params.flip()
     } else if (pname == GL20.GL_FRAMEBUFFER_BINDING) {
       val fbo = gl.getParameter(pname)

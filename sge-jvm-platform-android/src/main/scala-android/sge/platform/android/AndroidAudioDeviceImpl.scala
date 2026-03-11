@@ -12,7 +12,7 @@ package sge
 package platform
 package android
 
-import _root_.android.media.{AudioAttributes, AudioFormat, AudioManager, AudioTrack}
+import _root_.android.media.{ AudioAttributes, AudioFormat, AudioManager, AudioTrack }
 
 class AndroidAudioDeviceImpl(samplingRate: Int, val isMono: Boolean) extends AudioDeviceOps {
 
@@ -21,16 +21,9 @@ class AndroidAudioDeviceImpl(samplingRate: Int, val isMono: Boolean) extends Aud
   private val minSize     = AudioTrack.getMinBufferSize(samplingRate, channelMask, encoding)
 
   private val track: AudioTrack = {
-    val attrs = new AudioAttributes.Builder()
-      .setUsage(AudioAttributes.USAGE_GAME)
-      .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-      .build()
-    val fmt = new AudioFormat.Builder()
-      .setSampleRate(samplingRate)
-      .setChannelMask(channelMask)
-      .setEncoding(encoding)
-      .build()
-    val t = new AudioTrack(attrs, fmt, minSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
+    val attrs = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
+    val fmt   = new AudioFormat.Builder().setSampleRate(samplingRate).setChannelMask(channelMask).setEncoding(encoding).build()
+    val t     = new AudioTrack(attrs, fmt, minSize, AudioTrack.MODE_STREAM, AudioManager.AUDIO_SESSION_ID_GENERATE)
     t.play()
     t
   }
@@ -45,8 +38,8 @@ class AndroidAudioDeviceImpl(samplingRate: Int, val isMono: Boolean) extends Aud
 
   override def writeSamples(samples: Array[Float], offset: Int, numSamples: Int): Unit = {
     if (buffer.length < samples.length) buffer = new Array[Short](samples.length)
-    var i = offset
-    var j = 0
+    var i     = offset
+    var j     = 0
     val bound = offset + numSamples
     while (i < bound) {
       var fValue = samples(i)

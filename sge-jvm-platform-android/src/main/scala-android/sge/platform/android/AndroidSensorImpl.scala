@@ -14,12 +14,10 @@ package platform
 package android
 
 import _root_.android.content.Context
-import _root_.android.hardware.{Sensor, SensorEvent, SensorEventListener, SensorManager}
-import _root_.android.view.{Surface, WindowManager}
+import _root_.android.hardware.{ Sensor, SensorEvent, SensorEventListener, SensorManager }
+import _root_.android.view.{ Surface, WindowManager }
 
-class AndroidSensorImpl(context: Context, windowManager: WindowManager)
-    extends SensorOps
-    with SensorEventListener {
+class AndroidSensorImpl(context: Context, windowManager: WindowManager) extends SensorOps with SensorEventListener {
 
   private val sensorManager: SensorManager =
     context.getSystemService(Context.SENSOR_SERVICE).asInstanceOf[SensorManager]
@@ -34,22 +32,22 @@ class AndroidSensorImpl(context: Context, windowManager: WindowManager)
   private var _gyroZ: Float = 0f
 
   private var _azimuth: Float = 0f
-  private var _pitch: Float   = 0f
-  private var _roll: Float    = 0f
+  private var _pitch:   Float = 0f
+  private var _roll:    Float = 0f
 
   private val _rotationMatrix: Array[Float] = new Array[Float](16)
-  private val _orientation: Array[Float]    = new Array[Float](3)
-  private val _magneticField: Array[Float]  = new Array[Float](3)
-  private val _gravity: Array[Float]        = new Array[Float](3)
-  private val _R: Array[Float]              = new Array[Float](9)
-  private val _I: Array[Float]              = new Array[Float](9)
+  private val _orientation:    Array[Float] = new Array[Float](3)
+  private val _magneticField:  Array[Float] = new Array[Float](3)
+  private val _gravity:        Array[Float] = new Array[Float](3)
+  private val _R:              Array[Float] = new Array[Float](9)
+  private val _I:              Array[Float] = new Array[Float](9)
 
-  private var _hasAccel: Boolean    = false
-  private var _hasGyro: Boolean     = false
-  private var _hasCompass: Boolean   = false
-  private var _hasRotation: Boolean  = false
+  private var _hasAccel:    Boolean = false
+  private var _hasGyro:     Boolean = false
+  private var _hasCompass:  Boolean = false
+  private var _hasRotation: Boolean = false
 
-  private var compassRegistered: Boolean      = false
+  private var compassRegistered:       Boolean = false
   private var accelerometerRegistered: Boolean = false
 
   // Detect native orientation
@@ -57,11 +55,15 @@ class AndroidSensorImpl(context: Context, windowManager: WindowManager)
     val rotation = windowManager.getDefaultDisplay.getRotation
     val metrics  = new _root_.android.util.DisplayMetrics()
     windowManager.getDefaultDisplay.getMetrics(metrics)
-    if ((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) &&
-        metrics.widthPixels >= metrics.heightPixels) {
+    if (
+      (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) &&
+      metrics.widthPixels >= metrics.heightPixels
+    ) {
       0 // landscape
-    } else if ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) &&
-               metrics.widthPixels <= metrics.heightPixels) {
+    } else if (
+      (rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) &&
+      metrics.widthPixels <= metrics.heightPixels
+    ) {
       0 // landscape
     } else {
       1 // portrait
@@ -77,15 +79,15 @@ class AndroidSensorImpl(context: Context, windowManager: WindowManager)
   override def gyroscopeZ: Float = _gyroZ
 
   override def azimuth: Float = _azimuth
-  override def pitch: Float   = _pitch
-  override def roll: Float    = _roll
+  override def pitch:   Float = _pitch
+  override def roll:    Float = _roll
 
   override def rotationMatrix: Array[Float] = _rotationMatrix
 
-  override def hasAccelerometer: Boolean  = _hasAccel
-  override def hasGyroscope: Boolean      = _hasGyro
-  override def hasCompass: Boolean         = _hasCompass
-  override def hasRotationVector: Boolean  = _hasRotation
+  override def hasAccelerometer:  Boolean = _hasAccel
+  override def hasGyroscope:      Boolean = _hasGyro
+  override def hasCompass:        Boolean = _hasCompass
+  override def hasRotationVector: Boolean = _hasRotation
 
   override def registerListeners(config: AndroidConfigOps): Unit = {
     if (config.useAccelerometer) {
@@ -134,7 +136,7 @@ class AndroidSensorImpl(context: Context, windowManager: WindowManager)
     compassRegistered = false
   }
 
-  override def onSensorChanged(event: SensorEvent): Unit = {
+  override def onSensorChanged(event: SensorEvent): Unit =
     event.sensor.getType match {
       case Sensor.TYPE_ACCELEROMETER =>
         if (nativeOrientation == 0) {
@@ -171,7 +173,6 @@ class AndroidSensorImpl(context: Context, windowManager: WindowManager)
         SensorManager.getRotationMatrixFromVector(_rotationMatrix, event.values)
       case _ => ()
     }
-  }
 
   override def onAccuracyChanged(sensor: Sensor, accuracy: Int): Unit = ()
 }

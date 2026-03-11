@@ -14,14 +14,14 @@ package platform
 package android
 
 import _root_.android.os.Build
-import _root_.android.view.{PointerIcon, View}
+import _root_.android.view.{ PointerIcon, View }
 
 object AndroidCursorImpl extends CursorOps {
 
-  override def setSystemCursor(view: AnyRef, cursorType: Int): Unit = {
+  override def setSystemCursor(view: AnyRef, cursorType: Int): Unit =
     if (Build.VERSION.SDK_INT >= 24) { // Build.VERSION_CODES.N
       val androidView = view.asInstanceOf[View]
-      val iconType = cursorType match {
+      val iconType    = cursorType match {
         case CursorOps.Arrow            => PointerIcon.TYPE_ARROW
         case CursorOps.Ibeam            => PointerIcon.TYPE_TEXT
         case CursorOps.Crosshair        => PointerIcon.TYPE_CROSSHAIR
@@ -33,9 +33,8 @@ object AndroidCursorImpl extends CursorOps {
         case CursorOps.AllResize        => PointerIcon.TYPE_ALL_SCROLL
         case CursorOps.NotAllowed       => PointerIcon.TYPE_NO_DROP
         case CursorOps.None             => PointerIcon.TYPE_NULL
-        case other => throw new IllegalArgumentException(s"Unknown cursor type: $other")
+        case other                      => throw new IllegalArgumentException(s"Unknown cursor type: $other")
       }
       androidView.setPointerIcon(PointerIcon.getSystemIcon(androidView.getContext, iconType))
     }
-  }
 }

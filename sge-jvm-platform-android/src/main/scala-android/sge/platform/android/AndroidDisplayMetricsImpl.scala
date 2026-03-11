@@ -17,31 +17,31 @@ import _root_.android.content.Context
 import _root_.android.hardware.display.DisplayManager
 import _root_.android.os.Build
 import _root_.android.util.DisplayMetrics
-import _root_.android.view.{Display, WindowManager}
+import _root_.android.view.{ Display, WindowManager }
 
 class AndroidDisplayMetricsImpl(windowManager: WindowManager) extends DisplayMetricsOps {
 
-  private var _ppiX: Float   = 0f
-  private var _ppiY: Float   = 0f
+  private var _ppiX:    Float = 0f
+  private var _ppiY:    Float = 0f
   private var _density: Float = 1f
 
-  private var _safeInsetLeft: Int   = 0
-  private var _safeInsetTop: Int    = 0
-  private var _safeInsetRight: Int  = 0
+  private var _safeInsetLeft:   Int = 0
+  private var _safeInsetTop:    Int = 0
+  private var _safeInsetRight:  Int = 0
   private var _safeInsetBottom: Int = 0
 
   // Initialize from current display
   updateMetrics(windowManager)
 
-  override def ppiX: Float   = _ppiX
-  override def ppiY: Float   = _ppiY
-  override def ppcX: Float   = _ppiX / 2.54f
-  override def ppcY: Float   = _ppiY / 2.54f
+  override def ppiX:    Float = _ppiX
+  override def ppiY:    Float = _ppiY
+  override def ppcX:    Float = _ppiX / 2.54f
+  override def ppcY:    Float = _ppiY / 2.54f
   override def density: Float = _density
 
-  override def safeInsetLeft: Int   = _safeInsetLeft
-  override def safeInsetTop: Int    = _safeInsetTop
-  override def safeInsetRight: Int  = _safeInsetRight
+  override def safeInsetLeft:   Int = _safeInsetLeft
+  override def safeInsetTop:    Int = _safeInsetTop
+  override def safeInsetRight:  Int = _safeInsetRight
   override def safeInsetBottom: Int = _safeInsetBottom
 
   override def updateMetrics(windowManager: AnyRef): Unit = {

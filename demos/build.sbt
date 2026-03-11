@@ -51,6 +51,14 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
       if (hasAndroidSdk)
         Seq((ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android")
       else Seq.empty
+    },
+    // android.jar from parent SDK (demos is a sub-build; root project has android-sdk/)
+    Compile / unmanagedJars ++= {
+      val parentBase = (ThisBuild / baseDirectory).value / ".."
+      AndroidSdk.findSdkRoot(parentBase).toSeq.flatMap { sdkRoot =>
+        val jar = AndroidSdk.androidJar(sdkRoot)
+        if (jar.exists()) Seq(Attributed.blank(jar)) else Seq.empty
+      }
     }
   )
 
@@ -69,7 +77,10 @@ def jsAxis: Seq[Setting[_]] = BrowserReleases.axisSettings
 
 def nativeAxis(dir: String): Seq[Setting[_]] =
   NativeReleases.axisSettings ++ Seq(
-    SgeProject.autoImport.sgeProjectDir := dir
+    SgeProject.autoImport.sgeProjectDir := dir,
+    SgeProject.autoImport.sgeRustLibDir := {
+      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
+    }
   )
 
 // ── Shared demo framework ───────────────────────────────────────────
@@ -102,6 +113,9 @@ val shared = (projectMatrix in file("shared"))
     settings = SgePlugin.jsSettings)
   .nativePlatform(scalaVersions = Seq(sv),
     settings = SgePlugin.nativeSettings(projectDir = "shared") ++ _root_.sge.sbt.SgeNativeLibs.settings ++ Seq(
+      SgeProject.autoImport.sgeRustLibDir := {
+        (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
+      },
       _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
       nativeConfig := {
         val c = nativeConfig.value

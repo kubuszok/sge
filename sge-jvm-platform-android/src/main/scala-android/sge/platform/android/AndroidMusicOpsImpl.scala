@@ -15,15 +15,15 @@ package android
 import _root_.android.media.MediaPlayer
 
 class AndroidMusicOpsImpl(
-    private val onDispose: AndroidMusicOpsImpl => Unit,
-    private val postRunnable: Runnable => Unit,
-    private var player: MediaPlayer | Null
+  private val onDispose:    AndroidMusicOpsImpl => Unit,
+  private val postRunnable: Runnable => Unit,
+  private var player:       MediaPlayer | Null
 ) extends MusicOps
     with MediaPlayer.OnCompletionListener {
 
   private var isPrepared = true
-  var wasPlaying: Boolean = false
-  private var _volume: Float = 1f
+  var wasPlaying:                 Boolean             = false
+  private var _volume:            Float               = 1f
   private var completionCallback: (() => Unit) | Null = null
 
   if (player != null) {
@@ -47,9 +47,9 @@ class AndroidMusicOpsImpl(
   override def pause(): Unit = {
     val p = player
     if (p == null) return
-    try {
+    try
       if (p.isPlaying) p.pause()
-    } catch {
+    catch {
       case _: IllegalStateException => ()
     }
     wasPlaying = false
@@ -147,10 +147,10 @@ class AndroidMusicOpsImpl(
   override def onCompletion(mp: MediaPlayer): Unit = {
     val cb = completionCallback
     if (cb != null) {
-      postRunnable(() => {
+      postRunnable { () =>
         val cb2 = completionCallback
         if (cb2 != null) cb2()
-      })
+      }
     }
   }
 }

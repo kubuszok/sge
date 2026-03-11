@@ -20,7 +20,7 @@ package sge
 import org.scalajs.dom
 import org.scalajs.dom.{ HTMLCanvasElement, document, window }
 import scala.scalajs.js
-import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap }
+import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap, WebGL20 }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
 import sge.utils.Nullable
@@ -230,13 +230,13 @@ class BrowserGraphics(
     Graphics.BufferFormat(8, 8, 8, 0, 16, if (config.stencil) 8 else 0, 0, false)
 
   override def supportsExtension(extension: String): Boolean = {
-    // WebGL extensions must be explicitly enabled via getExtension()
-    val ctx = canvas.getContext("webgl2")
-    if (ctx != null) {
-      ctx.asInstanceOf[js.Dynamic].getExtension(extension) != null
-    } else {
-      val ctx1 = canvas.getContext("webgl")
-      ctx1 != null && ctx1.asInstanceOf[js.Dynamic].getExtension(extension) != null
+    // Use the existing GL context — do NOT create a second context via canvas.getContext()
+    val gl        = _gl20.asInstanceOf[WebGL20].gl
+    val supported = gl.getSupportedExtensions()
+    if (supported == null) false
+    else {
+      val arr = supported.asInstanceOf[js.Array[String]]
+      arr.exists(_ == extension)
     }
   }
 

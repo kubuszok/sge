@@ -12,7 +12,7 @@ package sge
 package platform
 package android
 
-import _root_.android.opengl.GLES30
+import _root_.android.opengl.{ GLES20, GLES30 }
 import java.nio.{ Buffer, FloatBuffer, IntBuffer, LongBuffer }
 
 class AndroidGL30Impl extends AndroidGL20Impl with GL30Ops {
@@ -27,22 +27,21 @@ class AndroidGL30Impl extends AndroidGL20Impl with GL30Ops {
 
   override def glTexImage2D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, border: Int, format: Int, `type`: Int, offset: Int): Unit = {
     if (offset != 0) throw new RuntimeException("non zero offset is not supported")
-    GLES30.glTexImage2D(target, level, internalformat, width, height, border, format, `type`, null)
+    GLES20.glTexImage2D(target, level, internalformat, width, height, border, format, `type`, null)
   }
 
-  override def glTexImage3D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, depth: Int, border: Int, format: Int, `type`: Int, pixels: Buffer): Unit = {
+  override def glTexImage3D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, depth: Int, border: Int, format: Int, `type`: Int, pixels: Buffer): Unit =
     if (pixels == null)
       GLES30.glTexImage3D(target, level, internalformat, width, height, depth, border, format, `type`, 0)
     else
       GLES30.glTexImage3D(target, level, internalformat, width, height, depth, border, format, `type`, pixels)
-  }
 
   override def glTexImage3D(target: Int, level: Int, internalformat: Int, width: Int, height: Int, depth: Int, border: Int, format: Int, `type`: Int, offset: Int): Unit =
     GLES30.glTexImage3D(target, level, internalformat, width, height, depth, border, format, `type`, offset)
 
   override def glTexSubImage2D(target: Int, level: Int, xoffset: Int, yoffset: Int, width: Int, height: Int, format: Int, `type`: Int, offset: Int): Unit = {
     if (offset != 0) throw new RuntimeException("non zero offset is not supported")
-    GLES30.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, `type`, null)
+    GLES20.glTexSubImage2D(target, level, xoffset, yoffset, width, height, format, `type`, null)
   }
 
   override def glTexSubImage3D(target: Int, level: Int, xoffset: Int, yoffset: Int, zoffset: Int, width: Int, height: Int, depth: Int, format: Int, `type`: Int, pixels: Buffer): Unit =

@@ -13,7 +13,7 @@ package sge
 package platform
 package android
 
-import _root_.android.media.{AudioFormat, AudioRecord, MediaRecorder}
+import _root_.android.media.{ AudioFormat, AudioRecord }
 
 class AndroidAudioRecorderImpl(samplingRate: Int, isMono: Boolean) extends AudioRecorderOps {
 
@@ -22,7 +22,7 @@ class AndroidAudioRecorderImpl(samplingRate: Int, isMono: Boolean) extends Audio
 
   @SuppressWarnings(Array("MissingPermission"))
   private val recorder: AudioRecord =
-    new AudioRecord(MediaRecorder.AudioSource.MIC, samplingRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, minBufferSize)
+    new AudioRecord(1, samplingRate, channelConfig, AudioFormat.ENCODING_PCM_16BIT, minBufferSize) // 1 = MediaRecorder.AudioSource.MIC
 
   if (recorder.getState != AudioRecord.STATE_INITIALIZED)
     throw new RuntimeException("Unable to initialize AudioRecorder.\nDo you have the RECORD_AUDIO permission?")
@@ -31,7 +31,7 @@ class AndroidAudioRecorderImpl(samplingRate: Int, isMono: Boolean) extends Audio
 
   override def read(numSamples: Int): Array[Short] = {
     val samples = new Array[Short](numSamples)
-    var read = 0
+    var read    = 0
     while (read != numSamples)
       read += recorder.read(samples, read, numSamples - read)
     samples

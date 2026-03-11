@@ -23,7 +23,7 @@ class AndroidFilesOpsImpl(assets: AssetManager, contextWrapper: ContextWrapper, 
     if (p.endsWith("/")) p else p + "/"
   }
 
-  val externalStoragePath: String | Null = {
+  val externalStoragePath: String | Null =
     if (useExternalFiles) {
       val dir = contextWrapper.getExternalFilesDir(null)
       if (dir != null) {
@@ -31,7 +31,6 @@ class AndroidFilesOpsImpl(assets: AssetManager, contextWrapper: ContextWrapper, 
         if (p.endsWith("/")) p else p + "/"
       } else null
     } else null
-  }
 
   override def openInternal(path: String): java.io.InputStream =
     assets.open(path)
@@ -42,16 +41,15 @@ class AndroidFilesOpsImpl(assets: AssetManager, contextWrapper: ContextWrapper, 
       case names => names
     }
 
-  override def openInternalFd(path: String): (java.io.FileDescriptor, Long, Long) | Null = {
+  override def openInternalFd(path: String): (java.io.FileDescriptor, Long, Long) | Null =
     try {
-      val afd = assets.openFd(path)
+      val afd    = assets.openFd(path)
       val result = (afd.getFileDescriptor, afd.getStartOffset, afd.getDeclaredLength)
       afd.close()
       result
     } catch {
       case _: java.io.IOException => null
     }
-  }
 
   override def internalFileLength(path: String): Long = {
     var fd: _root_.android.content.res.AssetFileDescriptor | Null = null
@@ -60,11 +58,10 @@ class AndroidFilesOpsImpl(assets: AssetManager, contextWrapper: ContextWrapper, 
       fd.nn.getLength
     } catch {
       case _: java.io.IOException => -1L
-    } finally {
+    } finally
       if (fd != null) {
         try fd.nn.close()
         catch { case _: java.io.IOException => () }
       }
-    }
   }
 }

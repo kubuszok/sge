@@ -1,12 +1,14 @@
 # CLAUDE.md
 
-SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
-66 skipped (stdlib replacements), 0 deferred.
+SGE (Scala Game Engine) is a cross-platform Scala 3 port of LibGDX targeting
+JVM, Scala.js (browser), Scala Native, and Android. 539 of 605 core files
+converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
+152 backend files: 124 done, 14 deferred (iOS), 14 skip.
 
 ## Build Rules
 
 - Scala **3.8.2**, compiler flags: `-deprecation -feature -no-indent -rewrite -Werror`
-- **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn` (info-level via `-Wconf:id=E198:info`)
+- **Linter flags**: `-Wimplausible-patterns -Wrecurse-with-default -Wenum-comment-discard -Wunused:imports,privates,locals,patvars,nowarn`
 - **Braces required** (`-no-indent`): `{}` for all `trait`, `class`, `enum`, method defs
 - **Split packages**: `package sge` / `package graphics` / `package g2d` (never flat)
 - **No `return`**: use `scala.util.boundary`/`break`
@@ -17,8 +19,28 @@ SGE is a Scala 3 port of LibGDX. 539 of 605 core files converted, 0 not started,
 - **No Java-style getters/setters**: no-logic `getX()`/`setX(v)` → public `var x`; with-logic → `def x: T` + `def x_=(v: T): Unit`
 - **`(using Sge)` propagation**: pass `Sge` context wherever needed (replaces LibGDX global `Gdx.*`). Add `(using Sge)` to **class constructors** so it's available in all methods. Never leave TODOs for missing Sge. Sge is effectively a per-application singleton passed explicitly instead of via globals.
 - **Fix bugs, don't work around them**: when a test reveals a pre-existing bug in the codebase, fix the bug in the source code — never patch the test to avoid it
+- **All 4 platforms are baseline**: JVM, JS, Native, Android — changes must be non-regressing on all
 - Use `sbt --client` or `just compile` / `just fmt` — never bare `sbt`
 - **sbt hangs on build.sbt errors**: When `build.sbt` has an error, sbt reload becomes unresponsive. Do NOT mistake this for long compilation — **kill the process immediately** to see the error output, then fix `build.sbt` and retry.
+
+## Project Structure
+
+| Directory | Purpose |
+|-----------|---------|
+| `sge/` | Core library (projectMatrix: JVM/JS/Native) |
+| `sge-jvm-platform-{api,jdk,android}/` | JVM platform modules (merged into sge JAR) |
+| `sge-freetype/` | FreeType font extension (JVM/JS/Native) |
+| `sge-physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
+| `sge-tools/` | TexturePacker CLI (JVM-only) |
+| `sge-build/` | sbt plugin (SgePlugin, AndroidBuild, packaging) |
+| `native-components/` | Rust native library (GLFW, miniaudio, FreeType FFI) |
+| `demo/` | Single cross-platform demo (root build) |
+| `demos/` | 10 feature demos (separate sub-build) |
+| `sge-android-smoke/` | Minimal Android smoke-test APK |
+| `sge-it-tests/` | Integration tests (desktop, browser, android, jvm-platform) |
+| `scalafix-rules/` | Custom Scalafix lint rules |
+| `libgdx/` | Local reference source. **Never fetch from GitHub.** |
+| `docs/` | Architecture, conversion guides, audit trail, progress |
 
 ## Bash Restrictions
 
@@ -34,8 +56,15 @@ Key `just` recipes:
 
 | Recipe | Purpose |
 |--------|---------|
-| `just compile` / `just test` | Build and test |
+| `just compile` / `just test` | Build and test (JVM) |
+| `just compile-js` / `just test-js` | Scala.js |
+| `just compile-native` / `just test-native` | Scala Native |
+| `just test-all` | All 3 platforms |
+| `just test-browser` | Playwright browser IT |
+| `just it-all` | All integration tests |
 | `just compile-errors` / `just compile-warnings` | Filtered build output |
+| `just rust-build` | Build Rust native library |
+| `just android-sdk-setup` | Download Android SDK |
 | `just git-status` / `just diff-stat` / `just git-log` | Git read-only |
 | `just stage <files>` / `just commit '<msg>'` | Git staging + commit |
 | `just commit-all '<msg>'` | Stage all + commit |

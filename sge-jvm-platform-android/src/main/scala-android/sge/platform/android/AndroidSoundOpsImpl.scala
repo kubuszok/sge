@@ -12,16 +12,16 @@ package sge
 package platform
 package android
 
-import _root_.android.media.{AudioManager, SoundPool}
+import _root_.android.media.{ AudioManager, SoundPool }
 
 class AndroidSoundOpsImpl(soundPool: SoundPool, manager: AudioManager, soundId: Int) extends SoundOps {
 
   private val MaxStreams = 8
   // Ring buffer of active stream IDs (most recent first)
-  private val streamIds = new Array[Int](MaxStreams)
+  private val streamIds   = new Array[Int](MaxStreams)
   private var streamCount = 0
 
-  private def pushStream(id: Int): Unit = {
+  private def pushStream(id: Int): Unit =
     if (streamCount == MaxStreams) {
       // Shift all elements left, dropping the oldest
       System.arraycopy(streamIds, 0, streamIds, 0, MaxStreams - 1)
@@ -31,7 +31,6 @@ class AndroidSoundOpsImpl(soundPool: SoundPool, manager: AudioManager, soundId: 
       streamIds(streamCount) = id
       streamCount += 1
     }
-  }
 
   private def panToVolumes(pan: Float, volume: Float): (Float, Float) = {
     var left  = volume
@@ -50,7 +49,7 @@ class AndroidSoundOpsImpl(soundPool: SoundPool, manager: AudioManager, soundId: 
 
   override def play(volume: Float, pitch: Float, pan: Float): Long = {
     val (left, right) = panToVolumes(pan, volume)
-    val streamId = soundPool.play(soundId, left, right, 1, 0, pitch)
+    val streamId      = soundPool.play(soundId, left, right, 1, 0, pitch)
     if (streamId == 0) return -1L
     pushStream(streamId)
     streamId.toLong
@@ -65,7 +64,7 @@ class AndroidSoundOpsImpl(soundPool: SoundPool, manager: AudioManager, soundId: 
 
   override def loop(volume: Float, pitch: Float, pan: Float): Long = {
     val (left, right) = panToVolumes(pan, volume)
-    val streamId = soundPool.play(soundId, left, right, 2, -1, pitch)
+    val streamId      = soundPool.play(soundId, left, right, 2, -1, pitch)
     if (streamId == 0) return -1L
     pushStream(streamId)
     streamId.toLong

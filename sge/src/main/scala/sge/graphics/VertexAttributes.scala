@@ -115,7 +115,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   }
 
   override def equals(obj: Any): Boolean =
-    if (this == obj) true
+    if (this eq obj.asInstanceOf[AnyRef]) true
     else
       obj match {
         case other: VertexAttributes =>

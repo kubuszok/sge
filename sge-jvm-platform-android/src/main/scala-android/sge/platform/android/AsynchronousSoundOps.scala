@@ -18,9 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /** Asynchronous decorator for [[SoundOps]] that posts playback operations to a background [[Handler]].
   *
-  * Play/loop calls return a monotonically increasing sound number instead of the real stream ID. The real stream IDs are stored in
-  * a circular buffer so that subsequent stop/pause/resume/set* calls can look up the real ID. Pause/resume (all) and dispose are
-  * called synchronously since they don't block.
+  * Play/loop calls return a monotonically increasing sound number instead of the real stream ID. The real stream IDs are stored in a circular buffer so that subsequent stop/pause/resume/set* calls
+  * can look up the real ID. Pause/resume (all) and dispose are called synchronously since they don't block.
   *
   * @param sound
   *   the underlying sound to delegate to
@@ -30,99 +29,97 @@ import java.util.concurrent.atomic.AtomicInteger
   *   the size of the circular ID buffer (typically max simultaneous streams)
   */
 class AsynchronousSoundOps(
-  private val sound:              SoundOps,
-  private val handler:            Handler,
+  private val sound:               SoundOps,
+  private val handler:             Handler,
   private val soundIdsCountToSave: Int
 ) extends SoundOps {
 
   private val playedSoundsCounter: AtomicInteger = AtomicInteger(0)
   private val soundIds:            Array[Long]   = new Array[Long](soundIdsCountToSave)
 
-  private def saveSoundId(soundNumber: Int, soundId: Long): Unit = {
+  private def saveSoundId(soundNumber: Int, soundId: Long): Unit =
     soundIds(soundNumber % soundIdsCountToSave) = soundId
-  }
 
-  private def getSoundId(soundId: Long): Long = {
+  private def getSoundId(soundId: Long): Long =
     soundIds(soundId.toInt % soundIdsCountToSave)
-  }
 
   override def play(volume: Float): Long = {
     val soundNumber = playedSoundsCounter.getAndIncrement()
-    handler.post(() => {
+    handler.post { () =>
       val realId = sound.play(volume)
       saveSoundId(soundNumber, realId)
-    })
+    }
     soundNumber.toLong
   }
 
   override def play(volume: Float, pitch: Float, pan: Float): Long = {
     val soundNumber = playedSoundsCounter.getAndIncrement()
-    handler.post(() => {
+    handler.post { () =>
       val realId = sound.play(volume, pitch, pan)
       saveSoundId(soundNumber, realId)
-    })
+    }
     soundNumber.toLong
   }
 
   override def loop(volume: Float): Long = {
     val soundNumber = playedSoundsCounter.getAndIncrement()
-    handler.post(() => {
+    handler.post { () =>
       val realId = sound.loop(volume)
       saveSoundId(soundNumber, realId)
-    })
+    }
     soundNumber.toLong
   }
 
   override def loop(volume: Float, pitch: Float, pan: Float): Long = {
     val soundNumber = playedSoundsCounter.getAndIncrement()
-    handler.post(() => {
+    handler.post { () =>
       val realId = sound.loop(volume, pitch, pan)
       saveSoundId(soundNumber, realId)
-    })
+    }
     soundNumber.toLong
   }
 
   override def stop(): Unit = handler.post(() => sound.stop())
 
-  override def stop(streamId: Long): Unit = handler.post(() => {
+  override def stop(streamId: Long): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.stop(realId)
-  })
+  }
 
   // Pause/resume all are called synchronously (don't block)
   override def pause(): Unit = sound.pause()
 
-  override def pause(streamId: Long): Unit = handler.post(() => {
+  override def pause(streamId: Long): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.pause(realId)
-  })
+  }
 
   override def resume(): Unit = sound.resume()
 
-  override def resume(streamId: Long): Unit = handler.post(() => {
+  override def resume(streamId: Long): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.resume(realId)
-  })
+  }
 
-  override def setPitch(streamId: Long, pitch: Float): Unit = handler.post(() => {
+  override def setPitch(streamId: Long, pitch: Float): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.setPitch(realId, pitch)
-  })
+  }
 
-  override def setVolume(streamId: Long, volume: Float): Unit = handler.post(() => {
+  override def setVolume(streamId: Long, volume: Float): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.setVolume(realId, volume)
-  })
+  }
 
-  override def setLooping(streamId: Long, looping: Boolean): Unit = handler.post(() => {
+  override def setLooping(streamId: Long, looping: Boolean): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.setLooping(realId, looping)
-  })
+  }
 
-  override def setPan(streamId: Long, pan: Float, volume: Float): Unit = handler.post(() => {
+  override def setPan(streamId: Long, pan: Float, volume: Float): Unit = handler.post { () =>
     val realId = getSoundId(streamId)
     if (realId != -1L) sound.setPan(realId, pan, volume)
-  })
+  }
 
   override def dispose(): Unit = sound.dispose()
 }

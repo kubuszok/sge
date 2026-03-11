@@ -29,6 +29,10 @@ target/
 ## Rust
 native-components/target/
 
+## Android SDK (downloaded by `just android-sdk-setup`)
+android-sdk/
+demos/android-sdk/
+
 ## OS-Specific:
 .DS_Store
 Thumbs.db

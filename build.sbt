@@ -98,7 +98,6 @@ val sge = (projectMatrix in file("sge"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings() ++ SgeNativeLibs.hostSettings ++ Seq(
-      libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value

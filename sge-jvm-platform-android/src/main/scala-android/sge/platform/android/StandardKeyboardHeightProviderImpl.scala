@@ -17,16 +17,16 @@ package android
 import _root_.android.app.Activity
 import _root_.android.content.Context
 import _root_.android.content.res.Configuration
-import _root_.android.graphics.{Point, Rect}
+import _root_.android.graphics.{ Point, Rect }
 import _root_.android.graphics.drawable.ColorDrawable
-import _root_.android.view.{Gravity, View, ViewGroup, ViewTreeObserver}
+import _root_.android.view.{ Gravity, View, ViewTreeObserver }
 import _root_.android.view.WindowManager.LayoutParams
-import _root_.android.widget.{LinearLayout, PopupWindow}
+import _root_.android.widget.{ LinearLayout, PopupWindow }
 
 /** Keyboard height provider using a [[PopupWindow]] trick.
   *
-  * A zero-width popup is shown at the bottom of the screen. When the soft keyboard opens, the popup's visible display frame
-  * shrinks, and the difference gives the keyboard height. Works on API 21-29 (pre-WindowInsets).
+  * A zero-width popup is shown at the bottom of the screen. When the soft keyboard opens, the popup's visible display frame shrinks, and the difference gives the keyboard height. Works on API 21-29
+  * (pre-WindowInsets).
   *
   * Note: Floating keyboards will always report as "opened" because they reduce the visible frame.
   *
@@ -41,7 +41,7 @@ class StandardKeyboardHeightProviderImpl(activity: Activity) extends PopupWindow
   private val popupView: View = {
     val inflater     = activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE).asInstanceOf[_root_.android.view.LayoutInflater]
     val linearLayout = new LinearLayout(inflater.getContext())
-    val layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT)
+    val layoutParams = new LinearLayout.LayoutParams(_root_.android.view.ViewGroup.LayoutParams.MATCH_PARENT, _root_.android.view.ViewGroup.LayoutParams.MATCH_PARENT)
     linearLayout.setLayoutParams(layoutParams)
     linearLayout
   }
@@ -51,13 +51,14 @@ class StandardKeyboardHeightProviderImpl(activity: Activity) extends PopupWindow
   setSoftInputMode(LayoutParams.SOFT_INPUT_ADJUST_RESIZE | LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
   setInputMethodMode(PopupWindow.INPUT_METHOD_NEEDED)
   setWidth(0)
-  setHeight(ViewGroup.LayoutParams.MATCH_PARENT)
+  setHeight(_root_.android.view.ViewGroup.LayoutParams.MATCH_PARENT)
 
-  popupView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener {
-    override def onGlobalLayout(): Unit = {
-      handleOnGlobalLayout()
-    }
-  })
+  popupView
+    .getViewTreeObserver()
+    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener {
+      override def onGlobalLayout(): Unit =
+        handleOnGlobalLayout()
+    })
 
   override def start(): Unit = {
     val parentView = activity.findViewById[View](_root_.android.R.id.content)
@@ -68,13 +69,12 @@ class StandardKeyboardHeightProviderImpl(activity: Activity) extends PopupWindow
   }
 
   override def close(): Unit = {
-    observer = scala.compiletime.uninitialized
+    observer = null.asInstanceOf[KeyboardHeightObserverOps] // scalafix:ok — reset to uninitialized
     dismiss()
   }
 
-  override def setKeyboardHeightObserver(obs: KeyboardHeightObserverOps): Unit = {
+  override def setKeyboardHeightObserver(obs: KeyboardHeightObserverOps): Unit =
     observer = obs
-  }
 
   override def getKeyboardLandscapeHeight(): Int =
     StandardKeyboardHeightProviderImpl.keyboardLandscapeHeight
@@ -110,11 +110,13 @@ class StandardKeyboardHeightProviderImpl(activity: Activity) extends PopupWindow
         StandardKeyboardHeightProviderImpl.keyboardPortraitHeight == 0)
 
     // Skip duplicate notifications
-    if (isVisible == StandardKeyboardHeightProviderImpl.cachedVisible &&
+    if (
+      isVisible == StandardKeyboardHeightProviderImpl.cachedVisible &&
       keyboardHeight == StandardKeyboardHeightProviderImpl.cachedBottomInset &&
       leftInset == StandardKeyboardHeightProviderImpl.cachedInsetLeft &&
       rightInset == StandardKeyboardHeightProviderImpl.cachedInsetRight &&
-      orientation == StandardKeyboardHeightProviderImpl.cachedOrientation) return
+      orientation == StandardKeyboardHeightProviderImpl.cachedOrientation
+    ) return
 
     StandardKeyboardHeightProviderImpl.cachedVisible = isVisible
     StandardKeyboardHeightProviderImpl.cachedBottomInset = keyboardHeight
@@ -130,11 +132,11 @@ class StandardKeyboardHeightProviderImpl(activity: Activity) extends PopupWindow
 
 object StandardKeyboardHeightProviderImpl {
   // Static cache shared across instances (matches LibGDX behavior)
-  @volatile private var keyboardLandscapeHeight: Int = 0
-  @volatile private var keyboardPortraitHeight:  Int = 0
-  @volatile private var cachedVisible:       Boolean = false
-  @volatile private var cachedInsetLeft:         Int = 0
-  @volatile private var cachedInsetRight:        Int = 0
-  @volatile private var cachedBottomInset:       Int = 0
-  @volatile private var cachedOrientation:       Int = 0
+  @volatile private var keyboardLandscapeHeight: Int     = 0
+  @volatile private var keyboardPortraitHeight:  Int     = 0
+  @volatile private var cachedVisible:           Boolean = false
+  @volatile private var cachedInsetLeft:         Int     = 0
+  @volatile private var cachedInsetRight:        Int     = 0
+  @volatile private var cachedBottomInset:       Int     = 0
+  @volatile private var cachedOrientation:       Int     = 0
 }

@@ -18,7 +18,6 @@ package graphics
 package g3d
 package environment
 
-import scala.annotation.targetName
 import scala.language.implicitConversions
 
 import sge.math.MathUtils
@@ -120,15 +119,10 @@ class SpotLight extends BaseLight[SpotLight] {
   }
 
   override def equals(obj: Any): Boolean = obj match {
-    case other: SpotLight => equals(other)
+    case other: SpotLight =>
+      (other eq this) || (color.equals(other.color) && position.equals(other.position)
+        && direction.equals(other.direction) && MathUtils.isEqual(intensity, other.intensity)
+        && MathUtils.isEqual(cutoffAngle, other.cutoffAngle) && MathUtils.isEqual(exponent, other.exponent))
     case _ => false
   }
-
-  @targetName("equalsSpotLight")
-  def equals(other: Nullable[SpotLight]): Boolean =
-    other.exists(o =>
-      (o eq this) || (color.equals(o.color) && position.equals(o.position)
-        && direction.equals(o.direction) && MathUtils.isEqual(intensity, o.intensity)
-        && MathUtils.isEqual(cutoffAngle, o.cutoffAngle) && MathUtils.isEqual(exponent, o.exponent))
-    )
 }
