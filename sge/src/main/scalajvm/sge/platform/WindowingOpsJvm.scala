@@ -783,26 +783,11 @@ object WindowingOpsJvm {
     *   the library name (e.g. "glfw")
     */
   def apply(libName: String = "glfw"): WindowingOpsJvm = {
-    val found = findLibrary(libName)
+    val found = NativeLibLoader.load(libName)
     // Use System.load to load the library via the system's dynamic linker,
     // which correctly handles macOS framework dependencies (Cocoa, IOKit, etc.)
     System.load(found.toAbsolutePath.toString)
     val lookup = SymbolLookup.loaderLookup()
     new WindowingOpsJvm(lookup)
-  }
-
-  /** Locates a shared library on the java.library.path. */
-  private def findLibrary(libName: String): java.nio.file.Path = {
-    val mappedName = System.mapLibraryName(libName)
-    val libPath    = System.getProperty("java.library.path", "")
-    val paths      = libPath.split(java.io.File.pathSeparator)
-    paths.iterator
-      .map(p => java.nio.file.Path.of(p, mappedName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(
-          s"Cannot find $mappedName in java.library.path: $libPath"
-        )
-      )
   }
 }

@@ -1,5 +1,5 @@
 import _root_.scalafix.sbt.{ BuildInfo => ScalafixBuildInfo }
-import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
+import _root_.sge.sbt.{Platform, SgeNativeLibs, SgePlugin}
 
 // Reload sbt when build files change (avoids stale --client sessions).
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -17,7 +17,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "d3d582311aedca0c6bb8b9e3476e7069fad2bba0-SNAPSHOT"
+  val kindlings = "2e4927d5967ece8ff1843957ff1edb5bd7377fdb-SNAPSHOT"
   val jsoniter  = "2.38.9"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"
@@ -25,7 +25,7 @@ val versions = new {
   val scalajsDom = "2.8.1"
   val gears      = "0.2.0"
 
-  val panamaPort = "v0.1.2"
+  val panamaPort = "v0.1.0"
 
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
@@ -63,7 +63,7 @@ val sge = (projectMatrix in file("sge"))
   .dependsOn(`scalafix-rules` % ScalafixConfig)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings() ++ Seq(
+    settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
       libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
       // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
       // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
@@ -86,6 +86,43 @@ val sge = (projectMatrix in file("sge"))
         val jdkDirs     = (`sge-jvm-platform-jdk` / Compile / products).value
         val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
         (apiDirs ++ jdkDirs ++ androidDirs).flatMap(collectClassFiles)
+      },
+      // Bundle native shared libraries for all platforms into the JAR
+      Compile / packageBin / mappings ++= {
+        val crossDir   = (ThisBuild / baseDirectory).value / "native-components" / "target" / "cross"
+        val releaseDir = (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
+        val sharedLibExts = Set(".so", ".dylib", ".dll")
+        def isSharedLib(name: String) = sharedLibExts.exists(name.endsWith)
+        // Cross-compiled: all 6 platforms from target/cross/<platform>/
+        val crossMappings = Platform.desktop.flatMap { platform =>
+          val dir = crossDir / platform.classifier
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isSharedLib(f.getName))
+            .map(f => f -> s"native/${platform.classifier}/${f.getName}")
+            .toSeq
+          else Seq.empty
+        }
+        // Fallback: host platform only from target/release/ (local dev)
+        val hostMappings =
+          if (crossMappings.nonEmpty) Seq.empty
+          else if (releaseDir.exists()) {
+            val host = Platform.host
+            IO.listFiles(releaseDir).filter(f => f.isFile && isSharedLib(f.getName))
+              .map(f => f -> s"native/${host.classifier}/${f.getName}")
+              .toSeq
+          } else Seq.empty
+        // Android: native libs from target/<rustTarget>/release/
+        val androidMappings = Seq(
+          ("aarch64-linux-android",    "android-aarch64"),
+          ("armv7-linux-androideabi",  "android-armv7"),
+          ("x86_64-linux-android",     "android-x86_64")
+        ).flatMap { case (rustTarget, classifier) =>
+          val dir = (ThisBuild / baseDirectory).value / "native-components" / "target" / rustTarget / "release"
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isSharedLib(f.getName))
+            .map(f => f -> s"native/$classifier/${f.getName}")
+            .toSeq
+          else Seq.empty
+        }
+        crossMappings ++ hostMappings ++ androidMappings
       }
     )
   )
@@ -198,9 +235,9 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android
     // PanamaPort — Panama FFM backport for Android (API 26+).
     // Published as AAR (not JAR), so we resolve via coursier, extract classes.jar, and add as unmanaged.
     Compile / unmanagedJars ++= {
-      val aarUrl  = s"https://repo1.maven.org/maven2/io/github/vova7878/panama/Core/${versions.panamaPort}/Core-${versions.panamaPort}-release.aar"
+      val aarUrl  = s"https://repo1.maven.org/maven2/io/github/vova7878/panama/Core/${versions.panamaPort}/Core-${versions.panamaPort}.aar"
       val cacheDir = streams.value.cacheDirectory / "panama-port"
-      val aarFile  = cacheDir / s"Core-${versions.panamaPort}-release.aar"
+      val aarFile  = cacheDir / s"Core-${versions.panamaPort}.aar"
       val jarFile  = cacheDir / s"Core-${versions.panamaPort}-classes.jar"
       if (!jarFile.exists()) {
         IO.createDirectory(cacheDir)
@@ -488,3 +525,25 @@ lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
     testFrameworks += new TestFramework("munit.Framework")
   )
+
+// Native FFI wiring validation — Scala Native executable that exercises every
+// native C ABI endpoint (sge_native_ops, sge_audio, GLFW, EGL, GLESv2) to verify
+// correct symbol resolution, ABI compatibility, and pointer calculations.
+// Catches runtime SIGSEGVs from wrong parameter types or buffer offset bugs.
+//
+// Run: sbt 'sge-it-native-ffi/run'  or  just it-native-ffi
+lazy val `sge-it-native-ffi` = (project in file("sge-it-tests/native-ffi"))
+  .enablePlugins(ScalaNativePlugin)
+  .disablePlugins(ScalafixPlugin)
+  .dependsOn(sge.native(versions.scala))
+  .settings(
+    scalaVersion := versions.scala,
+    organization := "com.kubuszok",
+    publish / skip := true,
+    nativeConfig := {
+      val c      = nativeConfig.value
+      val libDir = SgeNativeLibs.sgeNativeLibDir.value
+      c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+    }
+  )
+  .settings(SgeNativeLibs.hostSettings *)

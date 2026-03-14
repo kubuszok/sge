@@ -144,6 +144,24 @@ private object GlfwC {
   def glfwGetWin32Window(window: Ptr[Byte]): Ptr[Byte]         = extern
 }
 
+// ─── Objective-C runtime bindings (macOS only) ───────────────────────────────
+// Used to extract CALayer from NSWindow for ANGLE's Metal backend.
+// These symbols are already loaded by GLFW's Cocoa backend.
+
+@link("objc")
+@extern
+private object ObjCRuntime {
+  @name("sel_registerName")
+  def selRegisterName(name: CString): Ptr[Byte] = extern
+
+  // objc_msgSend(receiver, selector, arg) — single declaration covering both 0-arg and 1-arg
+  // Objective-C calls. On arm64, objc_msgSend ignores unused register arguments, so passing
+  // null as the third arg for 0-arg selectors (e.g. [obj contentView]) is ABI-safe.
+  // For [view setWantsLayer:YES], pass the BOOL as a pointer-sized value.
+  @name("objc_msgSend")
+  def msgSend(obj: Ptr[Byte], sel: Ptr[Byte], arg: Ptr[Byte]): Ptr[Byte] = extern
+}
+
 // ─── GLFWvidmode struct layout ─────────────────────────────────────────────
 // struct GLFWvidmode { int width, height, redBits, greenBits, blueBits, refreshRate; }
 // Size = 6 * sizeof(int) = 24 bytes
@@ -198,9 +216,27 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   override def getNativeWindowHandle(windowHandle: Long): Long = {
     val platform = getPlatform()
-    if (platform == WindowingOps.GLFW_PLATFORM_COCOA)
-      longFromPtr(GlfwC.glfwGetCocoaWindow(ptrFromLong(windowHandle)))
-    else if (platform == WindowingOps.GLFW_PLATFORM_X11)
+    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val nsWindow = GlfwC.glfwGetCocoaWindow(ptrFromLong(windowHandle))
+      // ANGLE's Metal backend needs a CALayer, not an NSWindow.
+      // Extract the contentView's layer via Objective-C runtime, matching the JVM implementation.
+      val zone = Zone.open()
+      try {
+        val selContentView = ObjCRuntime.selRegisterName(toCString("contentView")(using zone))
+        val contentView    = ObjCRuntime.msgSend(nsWindow, selContentView, null)
+
+        // Enable layer-backing on the contentView (needed for ANGLE Metal)
+        val selSetWantsLayer = ObjCRuntime.selRegisterName(toCString("setWantsLayer:")(using zone))
+        // YES = 1, encoded as pointer-sized value (ABI-safe on arm64)
+        val yes = fromRawPtr[Byte](Intrinsics.castLongToRawPtr(1L))
+        ObjCRuntime.msgSend(contentView, selSetWantsLayer, yes)
+
+        // Get the CALayer
+        val selLayer = ObjCRuntime.selRegisterName(toCString("layer")(using zone))
+        val layer    = ObjCRuntime.msgSend(contentView, selLayer, null)
+        longFromPtr(layer)
+      } finally zone.close()
+    } else if (platform == WindowingOps.GLFW_PLATFORM_X11)
       GlfwC.glfwGetX11Window(ptrFromLong(windowHandle)).toLong
     else if (platform == WindowingOps.GLFW_PLATFORM_WIN32)
       longFromPtr(GlfwC.glfwGetWin32Window(ptrFromLong(windowHandle)))

@@ -27,9 +27,8 @@ package collision
 class Sphere(centerArg: Vector3, var radius: Float) {
   val center: Vector3 = Vector3(centerArg.x, centerArg.y, centerArg.z)
 
-  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) = {
+  def this(centerX: Float, centerY: Float, centerZ: Float, radius: Float) =
     this(Vector3(centerX, centerY, centerZ), radius)
-  }
 
   /** @param sphere
     *   the other sphere

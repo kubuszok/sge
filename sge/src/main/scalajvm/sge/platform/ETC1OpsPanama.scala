@@ -23,17 +23,7 @@ private[platform] class ETC1OpsPanama(val p: PanamaProvider) extends ETC1Ops {
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val libName = System.mapLibraryName("sge_native_ops")
-    val libPath = System.getProperty("java.library.path", "")
-    val paths   = libPath.split(java.io.File.pathSeparator)
-    val found   = paths.iterator
-      .map(dir => java.nio.file.Path.of(dir, libName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(
-          s"Cannot find $libName in java.library.path: $libPath"
-        )
-      )
+    val found = NativeLibLoader.load("sge_native_ops")
     p.SymbolLookup.libraryLookup(found, p.Arena.global())
   }
 

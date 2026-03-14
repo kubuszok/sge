@@ -252,6 +252,17 @@ fmt:
 # Compile, format, compile again
 compile-fmt: compile fmt compile
 
+# Publish sge to local Maven (~/.ivy2/local) for the demos sub-build.
+# Publishes JVM (with bundled native libs), JS, and Native.
+publish-local:
+    sbt --client 'sge/publishLocal'
+    sbt --client 'sgeJS/publishLocal'
+    sbt --client 'sgeNative/publishLocal'
+
+# Publish only the JVM artifact (fastest — enough for `demos/pong/run`)
+publish-local-jvm:
+    sbt --client 'sge/publishLocal'
+
 # Run JVM tests
 test:
     sbt --client 'sge/test'
@@ -280,7 +291,7 @@ test-android:
 # ── Cross-platform integration tests ────────────────────────────
 
 # Run all integration tests (desktop + browser + android)
-it-all: it-desktop it-browser it-android
+it-all: it-desktop it-browser it-android it-native-ffi
 
 # Quick integration tests (desktop only — no emulator/browser needed)
 it-quick: it-desktop
@@ -292,6 +303,10 @@ it-desktop: rust-build angle-setup
 # Browser integration tests (headless Chromium via Playwright)
 it-browser:
     sbt --client 'demoJS/fastLinkJS' && sbt --client 'sge-it-browser/test'
+
+# Native FFI wiring validation (Scala Native — exercises every native endpoint)
+it-native-ffi: rust-build-static angle-setup
+    sbt --client 'sge-it-native-ffi/run'
 
 # Android integration tests (headless AVD emulator)
 # Prerequisites: just android-sdk-setup && just android-emulator-start
@@ -319,8 +334,26 @@ android-sdk-setup:
         --force
     echo "Android SDK setup complete."
 
-# Start headless Android emulator in background
-android-emulator-start:
+# Install an Android SDK package (e.g. just android-sdk-install "system-images;android-36;google_apis;arm64-v8a")
+android-sdk-install package:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    echo "y" | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "{{package}}"
+
+# Create an Android AVD (e.g. just android-avd-create sge-test-36 "system-images;android-36;google_apis;arm64-v8a")
+android-avd-create name image:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    echo "no" | "$SDK/cmdline-tools/latest/bin/avdmanager" create avd \
+        --name "{{name}}" \
+        --package "{{image}}" \
+        --force
+    echo "AVD {{name}} created."
+
+# Start headless Android emulator in background (default: sge-test-avd)
+android-emulator-start avd="sge-test-avd":
     #!/usr/bin/env bash
     set -euo pipefail
     SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
@@ -330,8 +363,8 @@ android-emulator-start:
         echo "Emulator already running."
         exit 0
     fi
-    echo "Starting headless emulator..."
-    "$SDK/emulator/emulator" -avd sge-test-avd \
+    echo "Starting headless emulator (AVD: {{avd}})..."
+    "$SDK/emulator/emulator" -avd "{{avd}}" \
         -no-window -gpu swiftshader_indirect \
         -no-snapshot -noaudio -no-boot-anim &
     echo "Waiting for device..."
@@ -352,6 +385,113 @@ android-emulator-stop:
 # Build the Android smoke test APK
 android-build-smoke:
     sbt --client 'sge-android-smoke/androidSign'
+
+# Install an APK on the connected Android device/emulator
+android-install apk:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    ADB="$SDK/platform-tools/adb"
+    "$ADB" install -r "{{apk}}"
+
+# Uninstall an Android package
+android-uninstall package:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" uninstall "{{package}}" 2>/dev/null || echo "Package not installed."
+
+# Launch an Android activity (e.g. just android-launch sge.demos.pong/.AndroidMain)
+android-launch activity:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" shell am start -n "{{activity}}"
+
+# Show recent logcat output (default last 200 lines)
+android-logcat lines="200":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" logcat -d -t {{lines}}
+
+# Show logcat filtered for crashes/errors only
+android-logcat-errors:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" logcat -d | grep -E "FATAL|AndroidRuntime|Exception|Error" | grep -v "InputManager\|FileUtils\|TapAndPay\|gclu" || echo "No crashes found."
+
+# Clear logcat buffer
+android-logcat-clear:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" logcat -c
+    echo "Logcat cleared."
+
+# Run an adb shell command (e.g. just adb-shell "settings put global hidden_api_policy 1")
+adb-shell cmd:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" shell {{cmd}}
+
+# Run a raw adb command (e.g. just adb devices)
+adb +args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    "$SDK/platform-tools/adb" {{args}}
+
+# Check if an Android process is running (e.g. just android-pidof sge.demos.pong)
+android-pidof package:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    PID=$("$SDK/platform-tools/adb" shell pidof "{{package}}" 2>/dev/null || true)
+    if [ -n "$PID" ]; then
+        echo "{{package}} is running (PID: $PID)"
+    else
+        echo "{{package}} is NOT running"
+    fi
+
+# Full test cycle: uninstall → install → clear logcat → launch → wait → show errors
+android-test apk activity package:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    ADB="$SDK/platform-tools/adb"
+    echo "=== Uninstalling {{package}} ==="
+    "$ADB" uninstall "{{package}}" 2>/dev/null || true
+    echo "=== Installing {{apk}} ==="
+    "$ADB" install -r "{{apk}}"
+    echo "=== Clearing logcat ==="
+    "$ADB" logcat -c
+    echo "=== Launching {{activity}} ==="
+    "$ADB" shell am start -n "{{activity}}"
+    echo "=== Waiting 5s for startup ==="
+    sleep 5
+    echo "=== Process status ==="
+    PID=$("$ADB" shell pidof "{{package}}" 2>/dev/null || true)
+    if [ -n "$PID" ]; then
+        echo "✓ {{package}} is running (PID: $PID)"
+    else
+        echo "✗ {{package}} crashed!"
+        echo "=== Crash log ==="
+        "$ADB" logcat -d | grep -E "FATAL|AndroidRuntime" -A 30 || true
+    fi
+
+# Shortcut: build + test Pong on Android emulator
+android-test-pong:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    cd demos && sbt --client 'pong/clean; androidPong'
+    cd ..
+    just android-test \
+        demos/pong/target/jvm-3/android/app-debug.apk \
+        sge.demos.pong/.AndroidMain \
+        sge.demos.pong
 
 # Build Rust + run all platform tests (JVM + JS + Native)
 test-all: rust-build test-jvm test-js test-native
@@ -791,8 +931,30 @@ rust-cross target:
     esac
 
 # Build Rust for Android NDK targets (JNI bridge)
+# Uses rustup toolchain (not Homebrew cargo) for cross-compilation targets.
+# Sets CC/CXX/AR for the cc crate to find NDK clang.
 rust-cross-android target:
     #!/usr/bin/env bash
+    set -euo pipefail
+    # Prefer rustup cargo/rustup over Homebrew
+    RUSTUP="${HOME}/.rustup/toolchains/stable-$(rustc -vV 2>/dev/null | sed -n 's/host: //p' || echo aarch64-apple-darwin)/bin"
+    if [ -d "$RUSTUP" ]; then
+        export PATH="$RUSTUP:$PATH"
+    fi
+    ANDROID_NDK="$(pwd)/demos/android-sdk/ndk/27.2.12479018"
+    export ANDROID_NDK_HOME="$ANDROID_NDK"
+    NDK_BIN="$ANDROID_NDK/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+    # Map Rust target triple to NDK clang prefix (API 26 = Android 8.0)
+    case "{{target}}" in
+        aarch64-linux-android)   NDK_PREFIX="aarch64-linux-android26" ;;
+        armv7-linux-androideabi) NDK_PREFIX="armv7a-linux-androideabi26" ;;
+        x86_64-linux-android)   NDK_PREFIX="x86_64-linux-android26" ;;
+        *) echo "Unknown Android target: {{target}}"; exit 1 ;;
+    esac
+    TARGET_UNDER="$(echo "{{target}}" | tr '-' '_')"
+    export "CC_${TARGET_UNDER}=$NDK_BIN/${NDK_PREFIX}-clang"
+    export "CXX_${TARGET_UNDER}=$NDK_BIN/${NDK_PREFIX}-clang++"
+    export "AR_${TARGET_UNDER}=$NDK_BIN/llvm-ar"
     cd native-components
     rustup target add "{{target}}" 2>/dev/null || true
     cargo build --release --target "{{target}}" --features android
@@ -836,12 +998,28 @@ rust-collect:
         esac
         mkdir -p "$out/$plat"
         # Copy whichever library files exist for this target
+        # Rust-built libs: sge_native_ops, sge_audio, glfw
         cp "$dir"/libsge_native_ops.dylib "$out/$plat/" 2>/dev/null || true
         cp "$dir"/libsge_native_ops.so    "$out/$plat/" 2>/dev/null || true
         cp "$dir"/sge_native_ops.dll      "$out/$plat/" 2>/dev/null || true
         cp "$dir"/libsge_native_ops.a     "$out/$plat/" 2>/dev/null || true
         cp "$dir"/sge_native_ops.lib      "$out/$plat/" 2>/dev/null || true
         cp "$dir"/sge_native_ops.dll.lib  "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libsge_audio.dylib      "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libsge_audio.so         "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/sge_audio.dll           "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libsge_audio.a          "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libglfw.dylib           "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libglfw.so              "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/glfw3.dll               "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libglfw3.a              "$out/$plat/" 2>/dev/null || true
+        # ANGLE libs (if present alongside Rust libs)
+        cp "$dir"/libEGL.dylib            "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libEGL.so               "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libEGL.dll              "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libGLESv2.dylib         "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/libGLESv2.so            "$out/$plat/" 2>/dev/null || true
+        cp "$dir"/GLESv2.dll              "$out/$plat/" 2>/dev/null || true
         echo "  $plat: $(ls "$out/$plat/" | tr '\n' ' ')"
     done
     echo ""

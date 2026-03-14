@@ -63,6 +63,15 @@ object AndroidBuild {
       }
     },
 
+    // PanamaPort runtime dependencies — needed for Android's Panama FFM backport.
+    // These are AARs on Maven Central; AndroidDeps downloads, extracts classes.jar,
+    // and adds them to the classpath so d8 includes them in the APK.
+    Compile / unmanagedJars ++= {
+      val cacheDir = streams.value.cacheDirectory / "panama-port-deps"
+      val log      = streams.value.log
+      AndroidDeps.resolvePanamaPort(cacheDir, log).map(Attributed.blank)
+    },
+
     // Fork for JVM tests
     fork := true,
 
@@ -174,8 +183,11 @@ object AndroidBuild {
       val linkExit = SysProcess(linkCmd).!(log)
       if (linkExit != 0) throw new RuntimeException(s"aapt2 link failed with exit code $linkExit")
 
-      addFilesToZip(apkBase, dexDir, Seq("classes.dex"))
+      // Add all DEX files (multi-dex: classes.dex, classes2.dex, classes3.dex, ...)
+      val dexFiles = IO.listFiles(dexDir).filter(_.getName.endsWith(".dex")).map(_.getName).sorted
+      addFilesToZip(apkBase, dexDir, dexFiles)
 
+      // Add native libs from src/main/resources/lib/ (project-local)
       val nativeLibsDir = (Compile / resourceDirectory).value / "lib"
       if (nativeLibsDir.isDirectory) {
         val basePath = nativeLibsDir.toPath
@@ -184,6 +196,14 @@ object AndroidBuild {
           Seq((f, s"lib/$rel"))
         }
         addFilesToZipWithPaths(apkBase, nativeFiles)
+      }
+
+      // Extract native .so files from dependency JARs (e.g. sge JAR bundles native/android-*/*.so)
+      // and add them as lib/<abi>/*.so in the APK for Android's native lib loader.
+      val cp = (Compile / fullClasspath).value.map(_.data)
+      val extractedNativeLibs = extractNativeLibsFromJars(cp, target / "native-libs", log)
+      if (extractedNativeLibs.nonEmpty) {
+        addFilesToZipWithPaths(apkBase, extractedNativeLibs)
       }
 
       val aligned = target / "app-aligned.apk"
@@ -280,11 +300,18 @@ object AndroidBuild {
     val zipIn  = new java.util.zip.ZipFile(apk)
     val zipOut = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(tmpApk))
     try {
-      // Copy existing entries
+      // Copy existing entries (preserving compression method — resources.arsc must stay STORED)
       val entries = zipIn.entries()
       while (entries.hasMoreElements) {
-        val entry = entries.nextElement()
-        zipOut.putNextEntry(new java.util.zip.ZipEntry(entry.getName))
+        val entry    = entries.nextElement()
+        val newEntry = new java.util.zip.ZipEntry(entry.getName)
+        if (entry.getMethod == java.util.zip.ZipEntry.STORED) {
+          newEntry.setMethod(java.util.zip.ZipEntry.STORED)
+          newEntry.setSize(entry.getSize)
+          newEntry.setCompressedSize(entry.getCompressedSize)
+          newEntry.setCrc(entry.getCrc)
+        }
+        zipOut.putNextEntry(newEntry)
         val is = zipIn.getInputStream(entry)
         try is.transferTo(zipOut)
         finally is.close()
@@ -308,6 +335,58 @@ object AndroidBuild {
     IO.move(tmpApk, apk)
   }
 
+  /** Mapping from sge JAR native/ classifiers to APK lib/ ABI directories. */
+  private val nativeClassifierToAbi: Map[String, String] = Map(
+    "android-aarch64" -> "arm64-v8a",
+    "android-armv7"   -> "armeabi-v7a",
+    "android-x86_64"  -> "x86_64"
+  )
+
+  /** Extract native .so files from dependency JARs.
+    *
+    * Scans all JAR files on the classpath for entries matching `native/android-<arch>/<name>.so`,
+    * extracts them to a temp directory, and returns (file, archivePath) pairs for APK inclusion.
+    */
+  private def extractNativeLibsFromJars(
+      cp: Seq[File],
+      extractDir: File,
+      log: sbt.util.Logger
+  ): Seq[(File, String)] = {
+    IO.createDirectory(extractDir)
+    val jars = cp.filter(f => f.isFile && f.getName.endsWith(".jar"))
+    val result = scala.collection.mutable.Buffer[(File, String)]()
+
+    jars.foreach { jar =>
+      val zipIn = new java.util.zip.ZipFile(jar)
+      try {
+        import scala.jdk.CollectionConverters._
+        zipIn.entries().asScala.foreach { entry =>
+          val name = entry.getName
+          // Match native/android-<classifier>/<libname>.so
+          if (name.startsWith("native/android-") && name.endsWith(".so") && !entry.isDirectory) {
+            val parts = name.split('/')
+            if (parts.length == 3) {
+              val classifier = parts(1)
+              val libName    = parts(2)
+              nativeClassifierToAbi.get(classifier).foreach { abi =>
+                val outFile = extractDir / abi / libName
+                IO.createDirectory(outFile.getParentFile)
+                val is = zipIn.getInputStream(entry)
+                try IO.transfer(is, outFile)
+                finally is.close()
+                val archivePath = s"lib/$abi/$libName"
+                result += ((outFile, archivePath))
+                log.info(s"  Extracted native lib: $archivePath")
+              }
+            }
+          }
+        }
+      } finally zipIn.close()
+    }
+
+    result.toSeq
+  }
+
   /** Adds files with custom archive paths to an existing zip/APK. */
   private def addFilesToZipWithPaths(apk: File, files: Seq[(File, String)]): Unit = {
     val tmpApk = new File(apk.getParent, apk.getName + ".tmp")
@@ -316,8 +395,15 @@ object AndroidBuild {
     try {
       val entries = zipIn.entries()
       while (entries.hasMoreElements) {
-        val entry = entries.nextElement()
-        zipOut.putNextEntry(new java.util.zip.ZipEntry(entry.getName))
+        val entry    = entries.nextElement()
+        val newEntry = new java.util.zip.ZipEntry(entry.getName)
+        if (entry.getMethod == java.util.zip.ZipEntry.STORED) {
+          newEntry.setMethod(java.util.zip.ZipEntry.STORED)
+          newEntry.setSize(entry.getSize)
+          newEntry.setCompressedSize(entry.getCompressedSize)
+          newEntry.setCrc(entry.getCrc)
+        }
+        zipOut.putNextEntry(newEntry)
         val is = zipIn.getInputStream(entry)
         try is.transferTo(zipOut)
         finally is.close()

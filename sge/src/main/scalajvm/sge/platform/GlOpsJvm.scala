@@ -281,15 +281,7 @@ object GlOpsJvm {
     *   the EGL library name (e.g. "EGL", "libEGL")
     */
   def apply(libName: String = "EGL"): GlOpsJvm = {
-    val mappedName = System.mapLibraryName(libName)
-    val libPath    = System.getProperty("java.library.path", "")
-    val paths      = libPath.split(java.io.File.pathSeparator)
-    val found      = paths.iterator
-      .map(p => java.nio.file.Path.of(p, mappedName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(s"Cannot find $mappedName in java.library.path: $libPath")
-      )
+    val found  = NativeLibLoader.load(libName)
     val lookup = SymbolLookup.libraryLookup(found, Arena.global())
     new GlOpsJvm(lookup)
   }

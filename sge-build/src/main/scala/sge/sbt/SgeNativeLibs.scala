@@ -206,6 +206,78 @@ object SgeNativeLibs {
       sgeNativeLibDir := (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
     )
 
+  // ── JVM JAR native lib validation ──────────────────────────────────
+
+  val sgeValidateNativeLibs = taskKey[Unit](
+    "Validate native shared libraries are present for JVM JAR packaging"
+  )
+
+  /** Validation settings for the sge JVM axis. Checks that native shared libraries
+    * are present in the `packageBin` mappings before packaging.
+    */
+  lazy val validationSettings: Seq[Setting[_]] = Seq(
+    sgeValidateNativeLibs := {
+      val log         = streams.value.log
+      val jarMappings = (Compile / packageBin / mappings).value
+      val isCI        = sys.env.get("CI").contains("true")
+      val host        = Platform.host
+
+      // Collect which platform/lib combos are present
+      val nativeMappings = jarMappings.collect {
+        case (_, path) if path.startsWith("native/") => path
+      }
+
+      if (nativeMappings.isEmpty) {
+        val msg = "[sge] WARNING: No native shared libraries found in JAR mappings.\n" +
+          "  Run 'just rust-build && just angle-setup' to build native libs for the host platform,\n" +
+          "  or 'just rust-cross-all && just rust-collect' for all platforms."
+        if (isCI) sys.error(msg) else log.warn(msg)
+      } else {
+        // Group by platform
+        val byPlatform = nativeMappings.groupBy { path =>
+          val parts = path.stripPrefix("native/").split('/')
+          if (parts.length >= 2) parts(0) else "unknown"
+        }
+
+        // Check host platform has libs
+        if (!byPlatform.contains(host.classifier)) {
+          sys.error(
+            s"[sge] Native libraries missing for host platform '${host.classifier}'.\n" +
+              s"  Run 'just rust-build && just angle-setup' to build them.\n" +
+              s"  Present platforms: ${byPlatform.keys.mkString(", ")}"
+          )
+        }
+
+        // In CI, all 6 platforms should be present
+        if (isCI) {
+          val missing = Platform.desktop.filterNot(p => byPlatform.contains(p.classifier))
+          if (missing.nonEmpty) {
+            sys.error(
+              s"[sge] CI: Native libraries missing for platforms: ${missing.map(_.classifier).mkString(", ")}\n" +
+                s"  Present platforms: ${byPlatform.keys.mkString(", ")}\n" +
+                "  Run 'just rust-cross-all && just rust-collect && just angle-setup' to build all platforms."
+            )
+          }
+        } else {
+          // Local: warn about missing non-host platforms
+          val missing = Platform.desktop.filterNot(p => byPlatform.contains(p.classifier))
+          if (missing.nonEmpty) {
+            log.warn(
+              s"[sge] Native libraries missing for non-host platforms: ${missing.map(_.classifier).mkString(", ")}. " +
+                "This is OK for local development; CI will require all platforms."
+            )
+          }
+        }
+
+        log.info(s"[sge] Native lib validation passed. Platforms: ${byPlatform.keys.mkString(", ")}")
+        byPlatform.foreach { case (plat, libs) =>
+          log.info(s"[sge]   $plat: ${libs.map(_.split('/').last).mkString(", ")}")
+        }
+      }
+    },
+    Compile / packageBin := ((Compile / packageBin) dependsOn sgeValidateNativeLibs).value
+  )
+
   // ── JAR packaging helpers ─────────────────────────────────────────
 
   /** Create resource mappings for packaging native libraries into a JAR.
@@ -267,7 +339,16 @@ object SgeNativeLibs {
         "-framework", "QuartzCore",
         "-lobjc"
       )
-      base ++ nativeLibs ++ nativeDeps ++ brewPaths ++ frameworks
+      // rpath entries so the binary can find ANGLE dylibs at runtime.
+      // @rpath/libGLESv2.dylib is embedded in the ANGLE install names.
+      // - libDir: for `sbt run` / local dev (ANGLE lives next to Rust libs)
+      // - Homebrew paths: fallback if ANGLE is installed system-wide
+      // - @executable_path: for packaged distributions (libs beside the binary)
+      val rpaths = Seq(
+        "-rpath", libDir.getAbsolutePath,
+        "-rpath", "@executable_path"
+      ) ++ brewPaths.grouped(2).collect { case Seq("-L", p) => Seq("-rpath", p) }.flatten
+      base ++ nativeLibs ++ nativeDeps ++ brewPaths ++ frameworks ++ rpaths
     }
     else base ++ nativeLibs ++ nativeDeps
   }

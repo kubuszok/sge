@@ -155,9 +155,11 @@ object SgePlugin {
     val rustLib = rustLibPath.getOrElse {
       ((ThisBuild / baseDirectory).value / "native-components" / "target" / "release").getAbsolutePath
     }
+    val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
+      Seq("-XstartOnFirstThread") else Seq.empty
     Seq(
       s"-Djava.library.path=$rustLib",
       "--enable-native-access=ALL-UNNAMED"
-    )
+    ) ++ macFlags
   }
 }

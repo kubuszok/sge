@@ -1,0 +1,12 @@
+# Android NDK cross-compilation linkers.
+# NDK location is relative to the project root (demos/android-sdk/).
+# API level 26 = Android 8.0 (minimum for PanamaPort).
+
+[target.aarch64-linux-android]
+linker = "../demos/android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/darwin-x86_64/bin/aarch64-linux-android26-clang"
+
+[target.armv7-linux-androideabi]
+linker = "../demos/android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/darwin-x86_64/bin/armv7a-linux-androideabi26-clang"
+
+[target.x86_64-linux-android]
+linker = "../demos/android-sdk/ndk/27.2.12479018/toolchains/llvm/prebuilt/darwin-x86_64/bin/x86_64-linux-android26-clang"

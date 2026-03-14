@@ -64,11 +64,29 @@ just test-all         # JVM + JS + Native unit tests
 just it-all           # All integration tests (desktop + browser + android)
 ```
 
-### Run a demo (JVM)
+### Run a demo
+
+The `demos/` directory is a separate sbt sub-build that depends on SGE as a
+published library. First build and publish SGE locally, then run any demo:
 
 ```sh
-just demo-jvm         # Launches the built-in demo with GLFW window
+# One-time: build native libraries
+just rust-build       # Rust native-components (GLFW, miniaudio, buffer ops)
+just angle-setup      # ANGLE OpenGL ES libraries (libEGL, libGLESv2)
+
+# Publish SGE to local Ivy/Maven cache
+just publish-local-jvm    # JVM only (fastest — ~30s)
+# or: just publish-local  # All platforms: JVM + JS + Native (~2min)
+
+# Run a demo (from demos/ sub-build)
+cd demos && sbt --client 'pong/run'              # JVM (GLFW window)
+cd demos && sbt --client 'pongNative/run'        # Scala Native
+cd demos && sbt --client 'pongJS/fastLinkJS'     # Scala.js (output in target/)
 ```
+
+Available demos: `pong`, `spaceShooter`, `tileWorld`, `hexTactics`,
+`curvePlayground`, `shaderLab`, `viewer3d`, `particleShow`, `netChat`,
+`viewportGallery`. Append platform suffix (`JS`, `Native`) for non-JVM targets.
 
 ### Build demo APKs (Android)
 

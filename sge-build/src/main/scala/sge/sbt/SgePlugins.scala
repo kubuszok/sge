@@ -111,10 +111,12 @@ object JvmReleases extends AutoPlugin {
         val x86 = "/usr/local/lib"
         s"${java.io.File.pathSeparator}$arm${java.io.File.pathSeparator}$x86"
       } else ""
+      val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
+        Seq("-XstartOnFirstThread") else Seq.empty
       Seq(
         s"-Djava.library.path=$rustLib$brewLib",
         "--enable-native-access=ALL-UNNAMED"
-      )
+      ) ++ macFlags
     },
     Test / fork := true,
     Test / javaOptions ++= (javaOptions).value

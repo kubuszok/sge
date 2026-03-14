@@ -26,7 +26,10 @@ object DesktopApplicationFactory {
     val windowing = sge.platform.WindowingOpsJvm()
     val audioOps  = sge.platform.AudioOpsJvm()
     val glOps     = sge.platform.GlOpsJvm()
-    val glLookup  = loadLibrary("GLESv2")
+    val glLookup  = {
+      val found = sge.platform.NativeLibLoader.load("GLESv2")
+      java.lang.foreign.SymbolLookup.libraryLookup(found, java.lang.foreign.Arena.global())
+    }
     new DesktopApplication(
       listener,
       config,
@@ -36,18 +39,5 @@ object DesktopApplicationFactory {
       () => sge.graphics.AngleGL32(glLookup),
       (rate, mono) => new sge.audio.DesktopAudioRecorder(rate, mono)
     )
-  }
-
-  private def loadLibrary(libName: String): java.lang.foreign.SymbolLookup = {
-    val mappedName = System.mapLibraryName(libName)
-    val libPath    = System.getProperty("java.library.path", "")
-    val paths      = libPath.split(java.io.File.pathSeparator)
-    val found      = paths.iterator
-      .map(p => java.nio.file.Path.of(p, mappedName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(s"Cannot find $mappedName in java.library.path: $libPath")
-      )
-    java.lang.foreign.SymbolLookup.libraryLookup(found, java.lang.foreign.Arena.global())
   }
 }

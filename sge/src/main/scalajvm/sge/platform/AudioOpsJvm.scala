@@ -278,15 +278,7 @@ object AudioOpsJvm {
     *   the library name (e.g. "sge_audio", "sge_native_ops")
     */
   def apply(libName: String = "sge_audio"): AudioOpsJvm = {
-    val mappedName = System.mapLibraryName(libName)
-    val libPath    = System.getProperty("java.library.path", "")
-    val paths      = libPath.split(java.io.File.pathSeparator)
-    val found      = paths.iterator
-      .map(p => java.nio.file.Path.of(p, mappedName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(s"Cannot find $mappedName in java.library.path: $libPath")
-      )
+    val found  = NativeLibLoader.load(libName)
     val lookup = SymbolLookup.libraryLookup(found, Arena.global())
     new AudioOpsJvm(lookup)
   }

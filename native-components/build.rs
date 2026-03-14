@@ -21,20 +21,32 @@ fn main() {
     let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap_or_default();
     let target_env = std::env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default();
 
-    // Determine the final output directory (where libsge_native_ops will be placed)
+    // Determine the final output directory (where libsge_native_ops will be placed).
+    // When cross-compiling with --target, cargo uses target/<triple>/<profile>/.
     let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
     let profile = std::env::var("PROFILE").unwrap(); // "debug" or "release"
-    let release_dir = format!("{}/target/{}", manifest_dir, profile);
+    let target = std::env::var("TARGET").unwrap_or_default();
+    let host = std::env::var("HOST").unwrap_or_default();
+    let release_dir = if target != host && !target.is_empty() {
+        format!("{}/target/{}/{}", manifest_dir, target, profile)
+    } else {
+        format!("{}/target/{}", manifest_dir, profile)
+    };
 
     build_audio_bridge_shared(&out_dir, &release_dir, &target_os);
-    build_glfw_shared(&out_dir, &release_dir, &target_os, &target_env);
+    // GLFW is not needed on Android (uses GLSurfaceView + system EGL)
+    if target_os != "android" {
+        build_glfw_shared(&out_dir, &release_dir, &target_os, &target_env);
+    }
     link_system_libs(&target_os);
 
     // Copy static archives to release dir for Scala Native static linking.
     // Scala Native @link("sge_audio") needs libsge_audio.a in the link path,
     // and @link("glfw3") needs libglfw3.a.
     copy_static_archive(&out_dir, &release_dir, "sge_audio_bridge", "sge_audio");
-    copy_static_archive(&out_dir, &release_dir, "glfw3", "glfw3");
+    if target_os != "android" {
+        copy_static_archive(&out_dir, &release_dir, "glfw3", "glfw3");
+    }
 
     // Audio bridge is loaded separately now — no need to link into libsge_native_ops
     println!("cargo:rerun-if-changed=vendor/sge_audio_bridge.c");
@@ -80,6 +92,18 @@ fn build_audio_bridge_shared(out_dir: &str, release_dir: &str, target_os: &str) 
                 "-Wl,--whole-archive".into(),
                 archive.clone(),
                 "-Wl,--no-whole-archive".into(),
+            ],
+        ),
+        "android" => (
+            "libsge_audio.so",
+            vec![
+                "-shared".into(),
+                "-Wl,--whole-archive".into(),
+                archive.clone(),
+                "-Wl,--no-whole-archive".into(),
+                "-lm".into(),
+                "-llog".into(),
+                "-lOpenSLES".into(),
             ],
         ),
         _ => (
