@@ -38,18 +38,22 @@ static ma_format bit_depth_to_format(int bit_depth) {
     }
 }
 
-/* ─── SgeSound: owns an audio buffer + a "template" sound ──────────────── */
+/* ─── SgeSound: owns decoded PCM data for creating playback instances ──── */
 
 typedef struct {
-    ma_audio_buffer* pBuffer;  /* heap-allocated audio buffer (owns PCM copy) */
-    ma_sound         sound;    /* template sound attached to engine           */
-    ma_engine*       pEngine;  /* back-reference for creating instances       */
+    void*     pPCMData;        /* heap-allocated decoded PCM data             */
+    ma_uint64 frameCount;      /* number of frames in pPCMData                */
+    ma_format format;          /* sample format (e.g. ma_format_s16)          */
+    ma_uint32 channels;        /* number of channels                          */
+    ma_uint32 sampleRate;      /* sample rate in Hz                           */
+    ma_engine* pEngine;        /* back-reference for creating instances       */
 } SgeSound;
 
-/* ─── SgeSoundInstance: a copy of a sound for independent playback ──────── */
+/* ─── SgeSoundInstance: independent playback with its own audio buffer ──── */
 
 typedef struct {
-    ma_sound sound;
+    ma_audio_buffer* pBuffer;  /* per-instance buffer (owns cursor)           */
+    ma_sound         sound;    /* sound node attached to engine endpoint      */
 } SgeSoundInstance;
 
 /* ─── SgeMusic: streaming sound from file ──────────────────────────────── */
@@ -152,35 +156,69 @@ int64_t sge_audio_create_sound(
     memset(sge, 0, sizeof(SgeSound));
     sge->pEngine = pEngine;
 
-    ma_format format = bit_depth_to_format(bit_depth);
-    int bytesPerSample = ma_get_bytes_per_sample(format);
-    int bytesPerFrame = bytesPerSample * channels;
-    ma_uint64 frameCount = (ma_uint64)data_len / (ma_uint64)bytesPerFrame;
+    /* Try to decode as an encoded audio file (WAV, MP3, OGG, FLAC).
+     * If decoding fails, fall back to treating the data as raw PCM
+     * using the caller-provided format parameters. */
+    ma_decoder decoder;
+    ma_decoder_config decoderConfig = ma_decoder_config_init(ma_format_s16, 0, 0);
+    ma_result result = ma_decoder_init_memory(pcm_data, (size_t)data_len, &decoderConfig, &decoder);
 
-    /* Use alloc_and_init so miniaudio copies and owns the PCM data */
-    ma_audio_buffer_config bufConfig = ma_audio_buffer_config_init(
-        format, (ma_uint32)channels, frameCount, pcm_data, NULL
-    );
-    bufConfig.sampleRate = (ma_uint32)sample_rate;
+    ma_format format;
+    ma_uint32 decodedChannels;
+    ma_uint32 decodedSampleRate;
+    void* pDecodedPCM = NULL;
+    ma_uint64 frameCount;
 
-    ma_result result = ma_audio_buffer_alloc_and_init(&bufConfig, &sge->pBuffer);
-    if (result != MA_SUCCESS) {
-        free(sge);
-        return 0;
-    }
+    if (result == MA_SUCCESS) {
+        /* Successfully opened as encoded file — read all decoded frames */
+        format = decoder.outputFormat;
+        decodedChannels = decoder.outputChannels;
+        decodedSampleRate = decoder.outputSampleRate;
 
-    /* Create a template sound from the audio buffer data source */
-    result = ma_sound_init_from_data_source(
-        pEngine,
-        sge->pBuffer,                      /* ma_audio_buffer implements ma_data_source */
-        MA_SOUND_FLAG_NO_DEFAULT_ATTACHMENT, /* don't auto-play */
-        NULL,                               /* no group */
-        &sge->sound
-    );
-    if (result != MA_SUCCESS) {
-        ma_audio_buffer_uninit_and_free(sge->pBuffer);
-        free(sge);
-        return 0;
+        /* Get total frame count for allocation */
+        ma_uint64 totalFrames = 0;
+        ma_decoder_get_length_in_pcm_frames(&decoder, &totalFrames);
+        if (totalFrames == 0) totalFrames = (ma_uint64)data_len; /* estimate fallback */
+
+        size_t bytesPerFrame = ma_get_bytes_per_sample(format) * decodedChannels;
+        pDecodedPCM = malloc((size_t)totalFrames * bytesPerFrame);
+        if (pDecodedPCM == NULL) {
+            ma_decoder_uninit(&decoder);
+            free(sge);
+            return 0;
+        }
+
+        ma_uint64 framesRead = 0;
+        ma_decoder_read_pcm_frames(&decoder, pDecodedPCM, totalFrames, &framesRead);
+        ma_decoder_uninit(&decoder);
+        frameCount = framesRead;
+
+        /* Store decoded PCM data in SgeSound for per-instance buffer creation */
+        sge->pPCMData    = pDecodedPCM; /* ownership transferred to SgeSound */
+        sge->frameCount  = frameCount;
+        sge->format      = format;
+        sge->channels    = decodedChannels;
+        sge->sampleRate  = decodedSampleRate;
+    } else {
+        /* Decoding failed — treat as raw PCM with caller-provided format */
+        format = bit_depth_to_format(bit_depth);
+        int bytesPerSample = ma_get_bytes_per_sample(format);
+        int bytesPerFrameRaw = bytesPerSample * channels;
+        frameCount = (ma_uint64)data_len / (ma_uint64)bytesPerFrameRaw;
+
+        /* Copy raw PCM data so it outlives the caller's buffer */
+        pDecodedPCM = malloc((size_t)data_len);
+        if (pDecodedPCM == NULL) {
+            free(sge);
+            return 0;
+        }
+        memcpy(pDecodedPCM, pcm_data, (size_t)data_len);
+
+        sge->pPCMData    = pDecodedPCM;
+        sge->frameCount  = frameCount;
+        sge->format      = format;
+        sge->channels    = (ma_uint32)channels;
+        sge->sampleRate  = (ma_uint32)sample_rate;
     }
 
     return (int64_t)(uintptr_t)sge;
@@ -189,8 +227,7 @@ int64_t sge_audio_create_sound(
 void sge_audio_dispose_sound(int64_t sound_handle) {
     SgeSound* sge = (SgeSound*)(uintptr_t)sound_handle;
     if (sge == NULL) return;
-    ma_sound_uninit(&sge->sound);
-    ma_audio_buffer_uninit_and_free(sge->pBuffer);
+    free(sge->pPCMData);
     free(sge);
 }
 
@@ -201,14 +238,27 @@ int64_t sge_audio_play_sound(
     SgeSound* sge = (SgeSound*)(uintptr_t)sound_handle;
     if (sge == NULL) return 0;
 
-    /* Create a new instance (copy shares the data source) */
+    /* Each instance gets its own audio buffer + sound node so playback
+       cursors are independent and multiple instances can play concurrently. */
     SgeSoundInstance* inst = (SgeSoundInstance*)malloc(sizeof(SgeSoundInstance));
     if (inst == NULL) return 0;
 
-    ma_result result = ma_sound_init_copy(
-        sge->pEngine, &sge->sound, 0, NULL, &inst->sound
+    ma_audio_buffer_config bufConfig = ma_audio_buffer_config_init(
+        sge->format, sge->channels, sge->frameCount, sge->pPCMData, NULL
+    );
+    bufConfig.sampleRate = sge->sampleRate;
+
+    ma_result result = ma_audio_buffer_alloc_and_init(&bufConfig, &inst->pBuffer);
+    if (result != MA_SUCCESS) {
+        free(inst);
+        return 0;
+    }
+
+    result = ma_sound_init_from_data_source(
+        sge->pEngine, inst->pBuffer, 0, NULL, &inst->sound
     );
     if (result != MA_SUCCESS) {
+        ma_audio_buffer_uninit_and_free(inst->pBuffer);
         free(inst);
         return 0;
     }
@@ -227,6 +277,7 @@ void sge_audio_stop_sound(int64_t instance_id) {
     if (inst == NULL) return;
     ma_sound_stop(&inst->sound);
     ma_sound_uninit(&inst->sound);
+    ma_audio_buffer_uninit_and_free(inst->pBuffer);
     free(inst);
 }
 

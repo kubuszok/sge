@@ -56,8 +56,9 @@ class VertexBufferObjectSubData(
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) =
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
     this(isStatic, numVertices, VertexAttributes(attributes*))
+  }
 
   private def createBufferObject(): Int = {
     val result = Sge().graphics.gl20.glGenBuffer()

@@ -42,64 +42,73 @@ class Texture(glTarget: TextureTarget, glHandle: TextureHandle, data: TextureDat
 
   val textureData: TextureData = data
 
-  def this(internalPath: String)(using Sge) =
+  def this(internalPath: String)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(Sge().files.internal(internalPath), Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle)(using Sge) =
+  def this(file: FileHandle)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
+  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
+  }
 
-  def this(pixmap: Pixmap)(using Sge) =
+  def this(pixmap: Pixmap)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, format, useMipMaps, false)
     )
+  }
 
-  def this(width: Int, height: Int, format: Format)(using Sge) =
+  def this(width: Int, height: Int, format: Format)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
+  }
 
-  def this(data: TextureData)(using Sge) =
+  def this(data: TextureData)(using Sge) = {
     this(TextureTarget.Texture2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
+  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(Sge().application, this)

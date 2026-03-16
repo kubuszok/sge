@@ -68,4 +68,16 @@ extension (fh: sge.files.FileHandle) {
     val bytes = fh.readBytes()
     UBJsonDerivationUtils.readFromBytes[T](bytes)(codec)
   }
+
+  /** Encodes a typed value as UBJSON (Universal Binary JSON) and writes it to this file.
+    *
+    * {{{
+    *   given UBJsonCodec[MyModel] = UBJsonCodec.derive[MyModel]
+    *   fileHandle.writeUBJson(model)
+    * }}}
+    */
+  def writeUBJson[T](value: T)(using codec: UBJsonCodec[T]): Unit = {
+    val bytes = UBJsonDerivationUtils.writeToBytes[T](value)(codec)
+    fh.writeBytes(bytes, false)
+  }
 }

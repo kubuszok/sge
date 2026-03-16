@@ -60,8 +60,9 @@ abstract class RegionInfluencer extends Influencer {
     add(textureRegions*)
   }
 
-  def this(texture: Texture) =
+  def this(texture: Texture) = {
     this(Array(TextureRegion(texture)))
+  }
 
   def this(regionInfluencer: RegionInfluencer) = {
     this()
@@ -211,8 +212,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(TextureRegion(texture))
+    }
 
     override def init(): Unit = {
       val region = regions(0)
@@ -255,8 +257,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(TextureRegion(texture))
+    }
 
     override def activateParticles(startIndex: Int, count: Int): Unit = {
       var i = startIndex * regionChannel.strideSize
@@ -303,8 +306,9 @@ object RegionInfluencer {
       add(textureRegion)
     }
 
-    def this(texture: Texture) =
+    def this(texture: Texture) = {
       this(TextureRegion(texture))
+    }
 
     override def allocateChannels(): Unit = {
       super.allocateChannels()

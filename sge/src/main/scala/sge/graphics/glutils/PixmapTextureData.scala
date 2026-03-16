@@ -24,11 +24,13 @@ import sge.utils.Nullable
 
 class PixmapTextureData private (format: Format, pixmap: Pixmap, val useMipMaps: Boolean, val disposePixmap: Boolean, val isManaged: Boolean) extends TextureData {
 
-  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) =
+  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) = {
     this(format.getOrElse(pixmap.getFormat()), pixmap, useMipMaps, disposePixmap, isManaged)
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) = {
     this(format, pixmap, useMipMaps, disposePixmap, isManaged = false)
+  }
 
   override def consumePixmap(): Pixmap = pixmap
 

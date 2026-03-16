@@ -52,17 +52,24 @@ object BufferUtils {
     * @param offset
     *   the offset in src to start copying from
     */
-  def copy(src: Array[Float], dst: Buffer, numFloats: Int, offset: Int): Unit = {
-    if (dst.isInstanceOf[ByteBuffer])
-      dst.limit(numFloats << 2);
-    else if (dst.isInstanceOf[FloatBuffer]) dst.limit(numFloats);
-
-    // Write floats into the buffer at position 0
-    val bb = asByteBuffer(dst)
-    bb.position(0)
-    bb.asFloatBuffer().put(src, offset, numFloats)
-    dst.position(0);
-  }
+  def copy(src: Array[Float], dst: Buffer, numFloats: Int, offset: Int): Unit =
+    dst match {
+      case fb: FloatBuffer =>
+        fb.limit(numFloats)
+        fb.position(0)
+        fb.put(src, offset, numFloats)
+        fb.position(0)
+      case bb: ByteBuffer =>
+        bb.limit(numFloats << 2)
+        bb.position(0)
+        bb.asFloatBuffer().put(src, offset, numFloats)
+        bb.position(0)
+      case _ =>
+        val bb = asByteBuffer(dst)
+        bb.position(0)
+        bb.asFloatBuffer().put(src, offset, numFloats)
+        dst.position(0)
+    }
 
   /** Copies the contents of src to dst, starting from src[srcOffset], copying numElements elements. The {@link Buffer} instance's {@link Buffer#position()} is used to define the offset into the
     * Buffer itself. The position will stay the same, the limit will be set to position + numElements. <b>The Buffer must be a direct Buffer with native byte order. No error checking is performed</b>.

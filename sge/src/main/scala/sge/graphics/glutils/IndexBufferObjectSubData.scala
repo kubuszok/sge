@@ -59,8 +59,9 @@ class IndexBufferObjectSubData(isStatic: Boolean, maxIndices: Int)(using Sge) ex
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using Sge) =
+  def this(maxIndices: Int)(using Sge) = {
     this(true, maxIndices)
+  }
 
   private def createBufferObject(): Int = {
     val result = Sge().graphics.gl20.glGenBuffer()

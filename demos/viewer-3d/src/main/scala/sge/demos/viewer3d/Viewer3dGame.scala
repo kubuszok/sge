@@ -9,7 +9,7 @@ package viewer3d
 import scala.compiletime.uninitialized
 
 import _root_.sge.{Pixels, Sge}
-import _root_.sge.graphics.{Color, PerspectiveCamera, Pixmap, Texture}
+import _root_.sge.graphics.{Color, EnableCap, PerspectiveCamera, Pixmap, Texture}
 import _root_.sge.graphics.VertexAttributes.Usage
 import _root_.sge.graphics.g2d.TextureRegion
 import _root_.sge.graphics.g3d.{Environment, Material, Model, ModelBatch, ModelInstance}
@@ -161,10 +161,13 @@ object Viewer3dGame extends DemoScene {
     }
     updateCameraPosition()
 
-    // Clear
-    ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f)
+    // Clear color + depth buffers
+    ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f, true)
 
-    // Floor grid (drawn first, in Line mode)
+    val gl = Sge().graphics.gl
+
+    // Floor grid — depth-tested so models properly occlude the lines
+    gl.glEnable(EnableCap.DepthTest)
     shapeRenderer.setProjectionMatrix(camera.combined)
     shapeRenderer.begin(ShapeType.Line)
     shapeRenderer.setColor(0.3f, 0.3f, 0.35f, 1f)
