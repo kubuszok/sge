@@ -12,7 +12,6 @@ import _root_.sge.{Pixels, Sge}
 import _root_.sge.graphics.Color
 import _root_.sge.graphics.glutils.ShapeRenderer
 import _root_.sge.graphics.glutils.ShapeRenderer.ShapeType
-import _root_.sge.math.CumulativeDistribution
 import _root_.sge.math.MathUtils
 import _root_.sge.math.Vector2
 import _root_.sge.math.Vector3
@@ -139,8 +138,40 @@ object HexTacticsGame extends DemoScene {
         val key = c * 100 + r
         val t: Nullable[String] = terrain.get(key)
         val terrainType = t.getOrElse("plains")
-        shapeRenderer.setColor(terrainColor(terrainType))
+        setTerrainColor(terrainType)
         drawHexFilled(center.x, center.y)
+
+        // Terrain markers for visual distinction
+        terrainType match {
+          case "forest" =>
+            // Tree: dark green triangle
+            shapeRenderer.setColor(ForestMarker)
+            shapeRenderer.triangle(
+              center.x, center.y + HexSize * 0.35f,
+              center.x - HexSize * 0.2f, center.y - HexSize * 0.1f,
+              center.x + HexSize * 0.2f, center.y - HexSize * 0.1f
+            )
+          case "mountain" =>
+            // Peak: dark brown triangle with lighter tip
+            shapeRenderer.setColor(MtPeak)
+            shapeRenderer.triangle(
+              center.x, center.y + HexSize * 0.4f,
+              center.x - HexSize * 0.25f, center.y - HexSize * 0.15f,
+              center.x + HexSize * 0.25f, center.y - HexSize * 0.15f
+            )
+            shapeRenderer.setColor(MtTip)
+            shapeRenderer.triangle(
+              center.x, center.y + HexSize * 0.4f,
+              center.x - HexSize * 0.1f, center.y + HexSize * 0.2f,
+              center.x + HexSize * 0.1f, center.y + HexSize * 0.2f
+            )
+          case "water" =>
+            // Wave lines (two small rectangles)
+            shapeRenderer.setColor(WaveCol)
+            shapeRenderer.rectangle(center.x - HexSize * 0.3f, center.y + 2f, HexSize * 0.3f, 2f)
+            shapeRenderer.rectangle(center.x, center.y - 4f, HexSize * 0.3f, 2f)
+          case _ => () // plains: no marker
+        }
 
         // HP bar for unit at this hex
         val uName = findUnitAt(c, r)
@@ -198,7 +229,7 @@ object HexTacticsGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    viewport.update(width, height)
+    viewport.update(width, height, true)
   }
 
   override def dispose()(using Sge): Unit = {
@@ -295,29 +326,39 @@ object HexTacticsGame extends DemoScene {
 
   // --- Terrain and units ---
 
-  private def terrainColor(t: String): Color = t match {
-    case "plains"   => Color(0.5f, 0.8f, 0.3f, 1f)
-    case "forest"   => Color(0.2f, 0.5f, 0.15f, 1f)
-    case "mountain" => Color(0.6f, 0.6f, 0.6f, 1f)
-    case "water"    => Color(0.2f, 0.4f, 0.85f, 1f)
-    case _          => Color(0.5f, 0.8f, 0.3f, 1f)
+  // Pre-allocated terrain colors — must use setColor(Color) overload, not setColor(r,g,b,a)
+  private val PlainsCol   = Color(0.55f, 0.82f, 0.35f, 1f)
+  private val ForestCol   = Color(0.18f, 0.45f, 0.12f, 1f)
+  private val MountainCol = Color(0.55f, 0.50f, 0.45f, 1f)
+  private val WaterCol    = Color(0.15f, 0.35f, 0.80f, 1f)
+  private val ForestMarker   = Color(0.1f, 0.35f, 0.1f, 1f)
+  private val MtPeak         = Color(0.35f, 0.30f, 0.25f, 1f)
+  private val MtTip          = Color(0.75f, 0.70f, 0.65f, 1f)
+  private val WaveCol        = Color(0.4f, 0.6f, 0.95f, 1f)
+
+  private def setTerrainColor(t: String): Unit = t match {
+    case "plains"   => shapeRenderer.setColor(PlainsCol)
+    case "forest"   => shapeRenderer.setColor(ForestCol)
+    case "mountain" => shapeRenderer.setColor(MountainCol)
+    case "water"    => shapeRenderer.setColor(WaterCol)
+    case _          => shapeRenderer.setColor(PlainsCol)
   }
 
   private def generateMap(): Unit = {
     terrain = ArrayMap[Int, String]()
-    val dist = CumulativeDistribution[String]()
-    dist.add("plains", 40f)
-    dist.add("forest", 25f)
-    dist.add("mountain", 15f)
-    dist.add("water", 20f)
-    dist.generate()
 
     var c = 0
     while (c < Cols) {
       var r = 0
       while (r < Rows) {
         val key = c * 100 + r
-        terrain.put(key, dist.value())
+        val roll = MathUtils.random()
+        val t =
+          if (roll < 0.40f) "plains"
+          else if (roll < 0.65f) "forest"
+          else if (roll < 0.80f) "mountain"
+          else "water"
+        terrain.put(key, t)
         r += 1
       }
       c += 1

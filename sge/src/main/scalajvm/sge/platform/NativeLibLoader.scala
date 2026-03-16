@@ -42,16 +42,16 @@ private[sge] object NativeLibLoader {
     tempDir
   }
 
-  /** Whether we're running on Android (ART/Dalvik). */
+  /** Whether we're running on Android (ART/Dalvik).
+    *
+    * We check the VM name rather than `Class.forName("android.os.Build")` because android.jar classes may be on the classpath even on desktop JVM (merged into sge JAR for cross-compilation).
+    */
   private val isAndroid: Boolean = {
-    val vendor   = System.getProperty("java.vm.vendor", "").toLowerCase
-    val jVendor  = System.getProperty("java.vendor", "").toLowerCase
-    val byVendor = vendor.contains("android") || jVendor.contains("android")
-    if (byVendor) true
-    else {
-      try { Class.forName("android.os.Build"); true }
-      catch { case _: ClassNotFoundException => false }
-    }
+    val vmName  = System.getProperty("java.vm.name", "").toLowerCase
+    val vendor  = System.getProperty("java.vm.vendor", "").toLowerCase
+    val jVendor = System.getProperty("java.vendor", "").toLowerCase
+    vmName.contains("dalvik") || vmName.contains("art") ||
+    vendor.contains("android") || jVendor.contains("android")
   }
 
   /** The host platform classifier (e.g. `"macos-aarch64"`, `"linux-x86_64"`, `"android-aarch64"`). */

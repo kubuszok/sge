@@ -149,9 +149,12 @@ class TileWorldGame extends DemoScene {
     // --- Rendering setup ---
     batch = SpriteBatch()
     renderer = OrthogonalTiledMapRenderer(tiledMap, 1f, batch, false)
+    // Viewport shows half the world so the camera can scroll to follow the player
+    val viewW = WorldW * 0.5f
+    val viewH = WorldH * 0.5f
     camera = OrthographicCamera()
-    camera.setToOrtho(false, WorldW, WorldH)
-    viewport = FitViewport(WorldW, WorldH, camera)
+    camera.setToOrtho(false, viewW, viewH)
+    viewport = FitViewport(viewW, viewH, camera)
   }
 
   override def render(dt: Float)(using Sge): Unit = {
@@ -235,7 +238,7 @@ class TileWorldGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    viewport.update(width, height)
+    viewport.update(width, height, true)
   }
 
   override def dispose()(using Sge): Unit = {

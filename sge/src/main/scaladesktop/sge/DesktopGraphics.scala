@@ -93,6 +93,8 @@ class DesktopGraphics private[sge] (
 
   private val onFramebufferResize: (Long, Int, Int) => Unit = { (_, _, _) =>
     updateFramebufferInfo()
+    // Update CALayer contentsScale when moving between displays with different DPI
+    windowing.updateNativeLayerScale(window.getWindowHandle())
     if (window.isListenerInitialized()) {
       window.makeCurrent()
       _gl20.glViewport(Pixels.zero, Pixels.zero, Pixels(_backBufferWidth), Pixels(_backBufferHeight))
@@ -368,9 +370,8 @@ class DesktopGraphics private[sge] (
     true
   }
 
-  @scala.annotation.nowarn("msg=deprecated") // null check — callers may pass null title from Java interop
   override def setTitle(title: String): Unit =
-    windowing.setWindowTitle(window.getWindowHandle(), if (title == null) "" else title)
+    windowing.setWindowTitle(window.getWindowHandle(), if (title == null) "" else title) // null-safe — callers may pass null title
 
   override def setUndecorated(undecorated: Boolean): Unit = {
     window.config.windowDecorated = !undecorated

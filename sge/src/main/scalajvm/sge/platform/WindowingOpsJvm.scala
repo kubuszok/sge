@@ -94,6 +94,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   private lazy val hGetPlatform    = h("glfwGetPlatform", FunctionDescriptor.of(I))
   private lazy val hSetWinIcon     = h("glfwSetWindowIcon", FunctionDescriptor.ofVoid(P, I, P))
 
+  // Cached CALayer address for updating contentsScale on display changes (macOS only)
+  private var cachedLayerAddress: Long = 0L
+
   // Platform-native window handle getters (from glfw3native.h)
   private lazy val hGetCocoaWindow: Option[MethodHandle] = {
     val opt = lib.find("glfwGetCocoaWindow")
@@ -118,6 +121,9 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   // objc_msgSend variant for sending a BOOL (int) argument
   private lazy val hObjcMsgSendBool: MethodHandle =
     linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.ofVoid(P, P, JAVA_INT))
+  // objc_msgSend variant for sending a CGFloat (double on 64-bit) argument — used for setContentsScale:
+  private lazy val hObjcMsgSendDouble: MethodHandle =
+    linker.downcallHandle(objcLookup.find("objc_msgSend").orElseThrow(), FunctionDescriptor.ofVoid(P, P, JAVA_DOUBLE))
   private lazy val hGetX11Window: Option[MethodHandle] = {
     val opt = lib.find("glfwGetX11Window")
     if (opt.isPresent) Some(linker.downcallHandle(opt.get(), FunctionDescriptor.of(JAVA_LONG, P))) else None
@@ -234,7 +240,18 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         // Get the CALayer
         val selLayer = hSelRegisterName.invoke(arena.allocateFrom("layer")).asInstanceOf[MemorySegment]
         val layer    = hObjcMsgSend.invoke(contentView, selLayer).asInstanceOf[MemorySegment]
-        layer.address()
+
+        // Set contentsScale to match the display's backing scale factor (Retina support).
+        // Without this, ANGLE's Metal backend renders at 1x into the CALayer, producing
+        // a tiny canvas in the bottom-left corner on HiDPI displays.
+        val (fbW, _)            = getFramebufferSize(windowHandle)
+        val (winW, _)           = getWindowSize(windowHandle)
+        val scale               = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
+        val selSetContentsScale = hSelRegisterName.invoke(arena.allocateFrom("setContentsScale:")).asInstanceOf[MemorySegment]
+        hObjcMsgSendDouble.invoke(layer, selSetContentsScale, scale)
+
+        cachedLayerAddress = layer.address()
+        cachedLayerAddress
       } finally arena.close()
     } else if (platform == WindowingOps.GLFW_PLATFORM_X11) {
       hGetX11Window
@@ -252,6 +269,18 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
       throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
     }
   }
+
+  override def updateNativeLayerScale(windowHandle: Long): Unit =
+    if (cachedLayerAddress != 0L && getPlatform() == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val (fbW, _)  = getFramebufferSize(windowHandle)
+      val (winW, _) = getWindowSize(windowHandle)
+      val scale     = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
+      val arena     = Arena.ofConfined()
+      try {
+        val sel = hSelRegisterName.invoke(arena.allocateFrom("setContentsScale:")).asInstanceOf[MemorySegment]
+        hObjcMsgSendDouble.invoke(MemorySegment.ofAddress(cachedLayerAddress), sel, scale)
+      } finally arena.close()
+    }
 
   // ─── Window properties ─────────────────────────────────────────────────
 

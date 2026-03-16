@@ -12,6 +12,7 @@ import _root_.sge.{Pixels, Sge}
 import _root_.sge.graphics.Color
 import _root_.sge.graphics.EnableCap
 import _root_.sge.graphics.OrthographicCamera
+import _root_.sge.graphics.glutils.HdpiUtils
 import _root_.sge.graphics.glutils.ShapeRenderer
 import _root_.sge.graphics.glutils.ShapeRenderer.ShapeType
 import _root_.sge.math.MathUtils
@@ -82,12 +83,18 @@ object ViewportGalleryGame extends DemoScene {
       val oy = sh - (row + 1) * cellH
 
       // Scissor to this cell
-      gl.glScissor(Pixels(ox), Pixels(oy), Pixels(cellW), Pixels(cellH))
+      HdpiUtils.glScissor(Pixels(ox), Pixels(oy), Pixels(cellW), Pixels(cellH))
 
-      // Configure and apply the sub-viewport
+      // Configure and apply the sub-viewport.
+      // update() computes viewport bounds relative to (0,0), so we add the cell
+      // offset afterwards and re-apply the GL viewport.
       val vp = viewports(idx)
-      vp.setScreenBounds(Pixels(ox), Pixels(oy), Pixels(cellW), Pixels(cellH))
-      vp.update(Pixels(cellW), Pixels(cellH), true)
+      vp.update(Pixels(cellW), Pixels(cellH), false)
+      vp.screenX = Pixels(vp.screenX.toInt + ox)
+      vp.screenY = Pixels(vp.screenY.toInt + oy)
+      vp.camera.position.set(0f, 0f, 0f)
+      vp.camera.update()
+      HdpiUtils.glViewport(vp.screenX, vp.screenY, vp.screenWidth, vp.screenHeight)
 
       shapeRenderer.setProjectionMatrix(vp.camera.combined)
 

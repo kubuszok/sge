@@ -146,7 +146,14 @@ val curvePlayground  = demo("curve-playground",  "sge-demo-curves",       "curve
 val shaderLab        = demo("shader-lab",        "sge-demo-shaders",      "shaders",      "SGE Shader Lab")(projectMatrix in file("shader-lab"))
 val viewer3d         = demo("viewer-3d",         "sge-demo-viewer3d",     "viewer3d",     "SGE 3D Viewer")(projectMatrix in file("viewer-3d"))
 val particleShow     = demo("particle-show",     "sge-demo-particles",    "particles",    "SGE Particles")(projectMatrix in file("particle-show"))
-val netChat          = demo("net-chat",          "sge-demo-netchat",      "netchat",      "SGE Net Chat")(projectMatrix in file("net-chat"))
+// Net Chat is JVM-only: XmlReader depends on SAX parser (JVM stdlib only)
+val netChat = (projectMatrix in file("net-chat"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
+  .enablePlugins(SgeProject)
+  .settings(name := "sge-demo-netchat", organization := "com.kubuszok", publish / skip := true,
+    SgeProject.autoImport.sgeAppName := "SGE Net Chat")
+  .dependsOn(shared)
+  .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis("net-chat", "netchat"))
 val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
 
 // ── Release aliases ─────────────────────────────────────────────────
@@ -164,14 +171,17 @@ releaseAlias("Curves",       "curvePlayground", "curvePlaygroundJS", "curvePlayg
 releaseAlias("ShaderLab",    "shaderLab",       "shaderLabJS",       "shaderLabNative")
 releaseAlias("Viewer3d",     "viewer3d",        "viewer3dJS",        "viewer3dNative")
 releaseAlias("Particles",    "particleShow",    "particleShowJS",    "particleShowNative")
-releaseAlias("NetChat",      "netChat",         "netChatJS",         "netChatNative")
+// NetChat: JVM-only release (no JS/Native)
+addCommandAlias("releaseNetChat", "netChat/sgePackageAll")
 releaseAlias("Viewports",    "viewportGallery", "viewportGalleryJS", "viewportGalleryNative")
 
 addCommandAlias("releaseAll",
   "releasePong; releaseSpaceShooter; releaseTileWorld; releaseHexTactics; " +
   "releaseCurves; releaseShaderLab; releaseViewer3d; releaseParticles; " +
-  "releaseNetChat; releaseViewports"
+  "releaseViewports; " +
+  "androidAll"
 )
+// releaseNetChat excluded from releaseAll — JVM only, run separately
 
 // ── Android APK aliases ───────────────────────────────────────────────
 // Usage: sbt androidPong        — builds APK for Pong
@@ -195,5 +205,77 @@ androidAlias("Viewports",    "viewportGallery")
 addCommandAlias("androidAll",
   "androidPong; androidSpaceShooter; androidTileWorld; androidHexTactics; " +
   "androidCurves; androidShaderLab; androidViewer3d; androidParticles; " +
-  "androidNetChat; androidViewports"
+  "androidViewports"
 )
+// androidNetChat excluded from androidAll — run separately if needed
+
+// ── Collect all release artifacts into one directory ──────────────
+// Usage: sbt collectReleases   (run after releaseAll)
+// Output: demos/target/releases/
+
+val collectReleases = taskKey[File]("Collect all release artifacts into target/releases/")
+
+collectReleases := {
+  val log = streams.value.log
+  val outDir = baseDirectory.value / "target" / "releases"
+  IO.delete(outDir)
+  IO.createDirectory(outDir)
+
+  val archiveExts = Set(".tar.gz", ".zip")
+  def isArchive(f: File): Boolean =
+    f.isFile && archiveExts.exists(e => f.getName.endsWith(e))
+
+  // Demo project directories (each has target/ with release artifacts)
+  val demoDirs = Seq(
+    "pong", "space-shooter", "tile-world", "hex-tactics",
+    "curve-playground", "shader-lab", "viewer-3d", "particle-show",
+    "net-chat", "viewport-gallery"
+  )
+
+  var count = 0
+  demoDirs.foreach { dir =>
+    val projectTarget = baseDirectory.value / dir / "target"
+    if (projectTarget.exists()) {
+      // JVM dist archives: target/jvm-3/sge-dist/*.tar.gz, *.zip
+      val jvmDist = projectTarget / "jvm-3" / "sge-dist"
+      if (jvmDist.exists()) {
+        IO.listFiles(jvmDist).filter(isArchive).foreach { f =>
+          IO.copyFile(f, outDir / f.getName)
+          count += 1
+        }
+      }
+
+      // Browser package: target/js-3/sge-browser/<AppName>/ (directory, not archive)
+      val jsBrowser = projectTarget / "js-3" / "sge-browser"
+      if (jsBrowser.exists()) {
+        IO.listFiles(jsBrowser).filter(_.isDirectory).foreach { appDir =>
+          val archiveName = s"${appDir.getName}-browser.tar.gz"
+          val archive = outDir / archiveName
+          val cmd = Seq("tar", "czf", archive.getAbsolutePath, "-C", jsBrowser.getAbsolutePath, appDir.getName)
+          val proc = new ProcessBuilder(cmd: _*).redirectErrorStream(true).start()
+          if (proc.waitFor() == 0) { count += 1 }
+          else log.warn(s"[sge] Failed to archive browser package: ${appDir.getName}")
+        }
+      }
+
+      // Native archives: target/native-3/sge-native/*.tar.gz, *.zip
+      val nativeDist = projectTarget / "native-3" / "sge-native"
+      if (nativeDist.exists()) {
+        IO.listFiles(nativeDist).filter(isArchive).foreach { f =>
+          IO.copyFile(f, outDir / f.getName)
+          count += 1
+        }
+      }
+
+      // Android APK: target/jvm-3/android/app-debug.apk → <dir-name>.apk
+      val androidApk = projectTarget / "jvm-3" / "android" / "app-debug.apk"
+      if (androidApk.exists()) {
+        IO.copyFile(androidApk, outDir / s"$dir.apk")
+        count += 1
+      }
+    }
+  }
+
+  log.info(s"[sge] Collected $count artifact(s) into ${outDir.getAbsolutePath}")
+  outDir
+}

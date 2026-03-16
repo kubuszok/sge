@@ -12,8 +12,7 @@ import _root_.sge.{Pixels, Sge}
 import _root_.sge.graphics.Color
 import _root_.sge.graphics.glutils.ShapeRenderer
 import _root_.sge.graphics.glutils.ShapeRenderer.ShapeType
-import _root_.sge.math.Interpolation
-import _root_.sge.math.MathUtils
+import _root_.sge.math.{Interpolation, MathUtils, Vector2}
 import _root_.sge.utils.ScreenUtils
 import _root_.sge.utils.viewport.FitViewport
 import sge.demos.shared.DemoScene
@@ -42,6 +41,7 @@ object PongGame extends DemoScene {
   // State
   private var shapeRenderer: ShapeRenderer = uninitialized
   private var viewport: FitViewport        = uninitialized
+  private val touchWorld = Vector2()
 
   private var leftY  = 0f
   private var rightY = 0f
@@ -61,14 +61,29 @@ object PongGame extends DemoScene {
     rightY = leftY
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Float)(using sge: Sge): Unit = {
+    val input = sge.input
+
     // --- Input: left paddle ---
-    if (Sge().input.isKeyPressed(Input.Keys.W) || Sge().input.isKeyPressed(Input.Keys.UP)) {
+    // Keyboard: W/Up to move up, S/Down to move down
+    if (input.isKeyPressed(Input.Keys.W) || input.isKeyPressed(Input.Keys.UP)) {
       leftY += PaddleSpeed * dt
     }
-    if (Sge().input.isKeyPressed(Input.Keys.S) || Sge().input.isKeyPressed(Input.Keys.DOWN)) {
+    if (input.isKeyPressed(Input.Keys.S) || input.isKeyPressed(Input.Keys.DOWN)) {
       leftY -= PaddleSpeed * dt
     }
+
+    // Touch/mouse: drag anywhere in the left half to control the left paddle
+    if (input.isTouched()) {
+      touchWorld.set(input.getX().toFloat, input.getY().toFloat)
+      viewport.unproject(touchWorld)
+      // Only respond to touches in the left half of the world
+      if (touchWorld.x < W / 2f) {
+        val targetY = touchWorld.y - PaddleH / 2f
+        leftY = MathUtils.lerp(leftY, targetY, 12f * dt)
+      }
+    }
+
     leftY = MathUtils.clamp(leftY, 0f, H - PaddleH)
 
     // --- AI: right paddle tracks ball Y ---
@@ -138,7 +153,7 @@ object PongGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    viewport.update(width, height)
+    viewport.update(width, height, true)
   }
 
   override def dispose()(using Sge): Unit = {

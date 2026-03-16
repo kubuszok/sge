@@ -284,8 +284,8 @@ test-browser:
     sbt --client 'sge-it-browser/test'
 
 # Run Android integration tests (headless AVD emulator via adb)
-# Prerequisites: just android-sdk-setup && just android-emulator-start
-test-android:
+# Auto-starts emulator if not running.
+test-android: android-ensure-emulator
     sbt --client 'sge-it-android/test'
 
 # ── Cross-platform integration tests ────────────────────────────
@@ -309,8 +309,8 @@ it-native-ffi: rust-build-static angle-setup
     sbt --client 'sge-it-native-ffi/run'
 
 # Android integration tests (headless AVD emulator)
-# Prerequisites: just android-sdk-setup && just android-emulator-start
-it-android:
+# Auto-starts emulator if not running.
+it-android: android-ensure-emulator
     sbt --client 'sge-android-smoke/androidSign' && sbt --client 'sge-it-android/test'
 
 # ── Android SDK & emulator setup ─────────────────────────────────
@@ -352,8 +352,9 @@ android-avd-create name image:
         --force
     echo "AVD {{name}} created."
 
-# Start headless Android emulator in background (default: sge-test-avd)
-android-emulator-start avd="sge-test-avd":
+# Start Android emulator in background (default: sge-test-avd)
+# Pass gui=true to show the emulator window (useful for touch testing)
+android-emulator-start avd="sge-test-36" gui="false":
     #!/usr/bin/env bash
     set -euo pipefail
     SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
@@ -363,16 +364,32 @@ android-emulator-start avd="sge-test-avd":
         echo "Emulator already running."
         exit 0
     fi
-    echo "Starting headless emulator (AVD: {{avd}})..."
+    WINDOW_FLAG=""
+    if [[ "{{gui}}" != "true" ]]; then
+        WINDOW_FLAG="-no-window"
+    fi
+    echo "Starting emulator (AVD: {{avd}}, gui: {{gui}})..."
     "$SDK/emulator/emulator" -avd "{{avd}}" \
-        -no-window -gpu swiftshader_indirect \
-        -no-snapshot -noaudio -no-boot-anim &
+        $WINDOW_FLAG -gpu swiftshader_indirect \
+        -no-snapshot -no-boot-anim &
     echo "Waiting for device..."
     "$ADB" wait-for-device
     while [ "$("$ADB" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
         sleep 2
     done
     echo "Emulator booted."
+
+# Ensure an emulator is running, start one if not (used by other recipes)
+android-ensure-emulator gui="false":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-android-sdk}}"
+    ADB="$SDK/platform-tools/adb"
+    if "$ADB" devices 2>/dev/null | grep -q "emulator-"; then
+        echo "Emulator already running."
+    else
+        just android-emulator-start gui="{{gui}}"
+    fi
 
 # Stop the Android emulator
 android-emulator-stop:
@@ -482,16 +499,39 @@ android-test apk activity package:
         "$ADB" logcat -d | grep -E "FATAL|AndroidRuntime" -A 30 || true
     fi
 
-# Shortcut: build + test Pong on Android emulator
-android-test-pong:
+# Build, install, and launch a demo on Android emulator
+# Uses the sbt android* aliases defined in demos/build.sbt.
+# Example: just android-demo pong
+# Example: just android-demo space-shooter gui=true
+android-demo demo gui="false":
     #!/usr/bin/env bash
     set -euo pipefail
-    cd demos && sbt --client 'pong/clean; androidPong'
+    just android-ensure-emulator gui="{{gui}}"
+    # Map demo directory name → sbt alias name, sbt project dir, package name
+    case "{{demo}}" in
+        pong)               SBT="androidPong";         DIR="pong";               PKG="sge.demos.pong" ;;
+        space-shooter)      SBT="androidSpaceShooter";  DIR="space-shooter";       PKG="sge.demos.spaceshooter" ;;
+        tile-world)         SBT="androidTileWorld";     DIR="tile-world";          PKG="sge.demos.tileworld" ;;
+        hex-tactics)        SBT="androidHexTactics";    DIR="hex-tactics";         PKG="sge.demos.hextactics" ;;
+        curve-playground)   SBT="androidCurves";        DIR="curve-playground";    PKG="sge.demos.curves" ;;
+        shader-lab)         SBT="androidShaderLab";     DIR="shader-lab";          PKG="sge.demos.shaders" ;;
+        viewer-3d)          SBT="androidViewer3d";      DIR="viewer-3d";           PKG="sge.demos.viewer3d" ;;
+        particle-show)      SBT="androidParticles";     DIR="particle-show";       PKG="sge.demos.particles" ;;
+        net-chat)           SBT="androidNetChat";       DIR="net-chat";            PKG="sge.demos.netchat" ;;
+        viewport-gallery)   SBT="androidViewports";     DIR="viewport-gallery";    PKG="sge.demos.viewports" ;;
+        *) echo "Unknown demo: {{demo}}. Use: pong, space-shooter, tile-world, hex-tactics, curve-playground, shader-lab, viewer-3d, particle-show, net-chat, viewport-gallery"; exit 1 ;;
+    esac
+    APK="demos/$DIR/target/jvm-3/android/app-debug.apk"
+    ACTIVITY="$PKG/.AndroidMain"
+    echo "=== Building Android APK: $SBT ==="
+    cd demos && sbt --client "$SBT"
     cd ..
-    just android-test \
-        demos/pong/target/jvm-3/android/app-debug.apk \
-        sge.demos.pong/.AndroidMain \
-        sge.demos.pong
+    echo "=== Installing and testing ==="
+    just android-test "$APK" "$ACTIVITY" "$PKG"
+
+# Shortcut: build + test Pong on Android emulator
+android-test-pong gui="false":
+    just android-demo pong gui="{{gui}}"
 
 # Build Rust + run all platform tests (JVM + JS + Native)
 test-all: rust-build test-jvm test-js test-native

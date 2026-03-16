@@ -17,7 +17,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "2e4927d5967ece8ff1843957ff1edb5bd7377fdb-SNAPSHOT"
+  val kindlings = "75179f5c9d1bc99642170d900a27c4e1c8e062f4-SNAPSHOT"
   val jsoniter  = "2.38.9"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"

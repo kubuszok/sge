@@ -134,7 +134,7 @@ object ParticleShowGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    viewport.update(width, height)
+    viewport.update(width, height, true)
   }
 
   override def dispose()(using Sge): Unit = {

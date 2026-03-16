@@ -22,8 +22,8 @@ import sge.demos.shared.DemoScene
 /** Interactive math visualization playground.
   *
   * Left half: draggable Bezier + CatmullRom curves.
-  * Right half: ConvexHull, Delaunay, EarClipping on random points.
-  * Bottom strip: interpolation easing curve gallery.
+  * Right half: draggable ConvexHull, Delaunay, EarClipping geometry points.
+  * Bottom strip: interpolation easing curve gallery with draggable T-value.
   * Also shows a Bresenham2 pixel-perfect diagonal line.
   */
 object CurvePlayground extends DemoScene {
@@ -42,6 +42,12 @@ object CurvePlayground extends DemoScene {
     Vector2(60f, 350f), Vector2(140f, 520f),
     Vector2(260f, 200f), Vector2(360f, 450f)
   )
+
+  // Drag state — unified for curve control points and geo points
+  private val DragNone     = -1
+  private val DragCurve    = 0  // dragging a curve control point
+  private val DragGeo      = 1  // dragging a geometry point
+  private var dragKind: Int     = DragNone
   private var draggingIndex: Int = -1
   private val touchWorld: Vector2 = Vector2(0f, 0f)
 
@@ -50,9 +56,13 @@ object CurvePlayground extends DemoScene {
   private var catmullRom: CatmullRomSpline[Vector2]  = uninitialized
   private val curveOut: Vector2 = Vector2(0f, 0f)
 
-  // Right half: random scattered points for geometry tools
+  // Right half: scattered points for geometry tools (draggable)
   private val NumGeoPoints = 8
   private var geoPoints: Array[Float] = uninitialized
+
+  // Right half offset (geometry area)
+  private val GeoOx = 420f
+  private val GeoOy = 150f
 
   // Geometry tool instances
   private val convexHull: ConvexHull                       = ConvexHull()
@@ -71,6 +81,17 @@ object CurvePlayground extends DemoScene {
     ("exp5", Interpolation.exp5, Color(0.5f, 0.5f, 1f, 1f)),
     ("swing", Interpolation.swing, Color(1f, 0.3f, 0.7f, 1f))
   )
+
+  // Interpolation gallery T-value (draggable)
+  private var interpT: Float = 0.5f
+  private var draggingInterpT: Boolean = false
+
+  // Interpolation gallery layout constants
+  private val InterpGraphW   = 80f
+  private val InterpGraphH   = 60f
+  private val InterpSpacing  = 10f
+  private val InterpStartX   = 15f
+  private val InterpStartY   = 10f
 
   // --- Lifecycle ---
 
@@ -109,37 +130,80 @@ object CurvePlayground extends DemoScene {
       randomizeGeoPoints()
     }
 
-    // Drag control points
     if (input.isTouched()) {
       touchWorld.set(input.getX().toFloat, input.getY().toFloat)
       viewport.unproject(touchWorld)
 
-      if (draggingIndex < 0) {
-        // Find nearest control point within grab radius
-        var bestDist = 30f * 30f
-        var bestIdx  = -1
-        var i = 0
-        while (i < controlPoints.length) {
-          val dx = touchWorld.x - controlPoints(i).x
-          val dy = touchWorld.y - controlPoints(i).y
-          val d2 = dx * dx + dy * dy
-          if (d2 < bestDist) {
-            bestDist = d2
-            bestIdx = i
+      if (dragKind == DragNone && !draggingInterpT) {
+        // Check interpolation gallery T-value scrub first (bottom strip)
+        if (touchWorld.y < InterpStartY + InterpGraphH + 20f) {
+          val totalW = interpCurves.length * (InterpGraphW + InterpSpacing) - InterpSpacing
+          if (touchWorld.x >= InterpStartX && touchWorld.x <= InterpStartX + totalW) {
+            draggingInterpT = true
           }
-          i += 1
         }
-        draggingIndex = bestIdx
+
+        if (!draggingInterpT) {
+          // Try to grab a curve control point (left half)
+          var bestDist = 30f * 30f
+          var bestIdx  = -1
+          var i = 0
+          while (i < controlPoints.length) {
+            val dx = touchWorld.x - controlPoints(i).x
+            val dy = touchWorld.y - controlPoints(i).y
+            val d2 = dx * dx + dy * dy
+            if (d2 < bestDist) {
+              bestDist = d2
+              bestIdx = i
+            }
+            i += 1
+          }
+
+          // Try to grab a geometry point (right half)
+          var bestGeoDist = 30f * 30f
+          var bestGeoIdx  = -1
+          i = 0
+          while (i < geoPoints.length - 1) {
+            val worldX = geoPoints(i) + GeoOx
+            val worldY = geoPoints(i + 1) + GeoOy
+            val dx = touchWorld.x - worldX
+            val dy = touchWorld.y - worldY
+            val d2 = dx * dx + dy * dy
+            if (d2 < bestGeoDist) {
+              bestGeoDist = d2
+              bestGeoIdx = i
+            }
+            i += 2
+          }
+
+          // Pick whichever is closer
+          if (bestIdx >= 0 && (bestGeoIdx < 0 || bestDist <= bestGeoDist)) {
+            dragKind = DragCurve
+            draggingIndex = bestIdx
+          } else if (bestGeoIdx >= 0) {
+            dragKind = DragGeo
+            draggingIndex = bestGeoIdx
+          }
+        }
       }
 
-      if (draggingIndex >= 0) {
+      // Apply dragging
+      if (draggingInterpT) {
+        // Scrub T-value across the gallery
+        val totalW = interpCurves.length * (InterpGraphW + InterpSpacing) - InterpSpacing
+        interpT = MathUtils.clamp((touchWorld.x - InterpStartX) / totalW, 0f, 1f)
+      } else if (dragKind == DragCurve && draggingIndex >= 0) {
         controlPoints(draggingIndex).set(touchWorld.x, touchWorld.y)
-        // Rebuild curves after moving a point
         bezier.set(controlPoints(0), controlPoints(1), controlPoints(2), controlPoints(3))
         catmullRom.set(controlPoints, false)
+      } else if (dragKind == DragGeo && draggingIndex >= 0) {
+        geoPoints(draggingIndex) = touchWorld.x - GeoOx
+        geoPoints(draggingIndex + 1) = touchWorld.y - GeoOy
       }
     } else {
+      dragKind = DragNone
       draggingIndex = -1
+      draggingInterpT = false
     }
   }
 
@@ -198,19 +262,25 @@ object CurvePlayground extends DemoScene {
     }
     shapeRenderer.end()
 
-    // Control points as filled circles
+    // Control points as filled circles (highlight dragged point)
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-    shapeRenderer.setColor(Color.WHITE)
-    controlPoints.foreach { p =>
-      shapeRenderer.circle(p.x, p.y, 6f)
+    i = 0
+    while (i < controlPoints.length) {
+      if (dragKind == DragCurve && draggingIndex == i) {
+        shapeRenderer.setColor(Color.YELLOW)
+        shapeRenderer.circle(controlPoints(i).x, controlPoints(i).y, 8f)
+      } else {
+        shapeRenderer.setColor(Color.WHITE)
+        shapeRenderer.circle(controlPoints(i).x, controlPoints(i).y, 6f)
+      }
+      i += 1
     }
     shapeRenderer.end()
   }
 
   private def drawGeometry()(using Sge): Unit = {
-    // Right half offset
-    val ox = 420f
-    val oy = 150f
+    val ox = GeoOx
+    val oy = GeoOy
 
     // Compute convex hull
     val hullPoly = convexHull.computePolygon(geoPoints, false)
@@ -273,12 +343,17 @@ object CurvePlayground extends DemoScene {
 
     shapeRenderer.end()
 
-    // Draw the geo points as filled white dots
+    // Draw the geo points as filled circles (highlight dragged point)
     shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
-    shapeRenderer.setColor(Color.WHITE)
     i = 0
     while (i < geoPoints.length - 1) {
-      shapeRenderer.circle(geoPoints(i) + ox, geoPoints(i + 1) + oy, 3f)
+      if (dragKind == DragGeo && draggingIndex == i) {
+        shapeRenderer.setColor(Color.YELLOW)
+        shapeRenderer.circle(geoPoints(i) + ox, geoPoints(i + 1) + oy, 5f)
+      } else {
+        shapeRenderer.setColor(Color.WHITE)
+        shapeRenderer.circle(geoPoints(i) + ox, geoPoints(i + 1) + oy, 3f)
+      }
       i += 2
     }
 
@@ -293,11 +368,11 @@ object CurvePlayground extends DemoScene {
   }
 
   private def drawInterpolationGallery()(using Sge): Unit = {
-    val graphW   = 80f
-    val graphH   = 60f
-    val spacing  = 10f
-    val startX   = 15f
-    val startY   = 10f
+    val graphW   = InterpGraphW
+    val graphH   = InterpGraphH
+    val spacing  = InterpSpacing
+    val startX   = InterpStartX
+    val startY   = InterpStartY
     val samples  = 50
 
     interpCurves.indices.foreach { idx =>
@@ -324,14 +399,39 @@ object CurvePlayground extends DemoScene {
         )
         i += 1
       }
+
+      // T-value indicator line (vertical white line at interpT)
+      shapeRenderer.setColor(Color(1f, 1f, 1f, 0.6f))
+      val tx = gx + interpT * graphW
+      shapeRenderer.line(tx, gy, tx, gy + graphH)
+
       shapeRenderer.end()
 
       // Color identifier dot
       shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
       shapeRenderer.setColor(color)
       shapeRenderer.circle(gx + graphW / 2f, gy + graphH + 8f, 3f)
+
+      // T-value sample point (filled dot on the curve at interpT)
+      val tVal = interp.apply(interpT)
+      shapeRenderer.setColor(Color.WHITE)
+      shapeRenderer.circle(gx + interpT * graphW, gy + tVal * graphH, 4f)
+
       shapeRenderer.end()
     }
+
+    // T-value scrub handle at bottom center of gallery
+    val totalW = interpCurves.length * (graphW + spacing) - spacing
+    val handleX = startX + interpT * totalW
+    val handleY = startY - 10f
+    shapeRenderer.begin(ShapeRenderer.ShapeType.Filled)
+    if (draggingInterpT) {
+      shapeRenderer.setColor(Color.YELLOW)
+    } else {
+      shapeRenderer.setColor(Color.WHITE)
+    }
+    shapeRenderer.triangle(handleX - 5f, handleY, handleX + 5f, handleY, handleX, handleY + 7f)
+    shapeRenderer.end()
   }
 
   private def drawBresenhamLine()(using Sge): Unit = {

@@ -13,7 +13,7 @@ package utils
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonValueCodec, readFromStream }
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import hearth.kindlings.ubjsonderivation.{ KindlingsUBJsonValueCodec, UBJsonValueCodec }
+import hearth.kindlings.ubjsonderivation.UBJsonValueCodec
 import hearth.kindlings.ubjsonderivation.internal.runtime.UBJsonDerivationUtils
 
 /** Type alias for jsoniter-scala's codec. Consumers derive codecs with:
@@ -40,7 +40,7 @@ val Json: hearth.kindlings.jsoniterjson.Json.type = hearth.kindlings.jsoniterjso
 type UBJsonCodec[A] = UBJsonValueCodec[A]
 
 /** Factory for deriving UBJSON codecs at compile time. */
-val UBJsonCodec: KindlingsUBJsonValueCodec.type = KindlingsUBJsonValueCodec
+val UBJsonCodec: UBJsonValueCodec.type = UBJsonValueCodec
 
 extension (fh: sge.files.FileHandle) {
 

@@ -63,6 +63,13 @@ private[sge] trait WindowingOps {
     */
   def getNativeWindowHandle(windowHandle: Long): Long
 
+  /** Updates the native rendering surface scale factor to match the current display. On macOS, this sets the CALayer's `contentsScale` so ANGLE renders at the correct resolution on HiDPI/Retina
+    * displays. No-op on other platforms.
+    *
+    * Should be called whenever the framebuffer size changes (e.g. when moving between displays).
+    */
+  def updateNativeLayerScale(windowHandle: Long): Unit = ()
+
   /** Returns true if the window has been requested to close. */
   def windowShouldClose(windowHandle: Long): Boolean
 

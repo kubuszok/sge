@@ -10,10 +10,11 @@ import _root_.android.app.Activity
 import _root_.android.opengl.GLSurfaceView
 import _root_.android.os.{Bundle, Handler, Looper}
 import _root_.android.util.Log
+import _root_.android.view.{MotionEvent, View}
 import javax.microedition.khronos.egl.{EGLConfig => AndroidEGLConfig}
 import javax.microedition.khronos.opengles.GL10
 
-import _root_.sge.{AndroidApplication, Sge}
+import _root_.sge.{AndroidApplication, AndroidInput, Sge}
 import _root_.sge.platform.android._
 
 /** Abstract Activity that bootstraps an [[_root_.sge.AndroidApplication]] for a [[DemoScene]].
@@ -58,6 +59,15 @@ abstract class AndroidLauncherActivity extends Activity {
         getWindowManager(),
         new Handler(Looper.getMainLooper())
       ).asInstanceOf[GLSurfaceView]
+
+      // Wire touch events → AndroidInput
+      glView.setOnTouchListener(new View.OnTouchListener {
+        override def onTouch(v: View, event: MotionEvent): Boolean = {
+          val input = app.getInput().asInstanceOf[AndroidInput]
+          input.onTouchEvent(event)
+          true
+        }
+      })
 
       // Wire the GL renderer bridge
       glView.setRenderer(new GLSurfaceView.Renderer {

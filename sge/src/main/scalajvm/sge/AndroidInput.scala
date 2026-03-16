@@ -374,6 +374,26 @@ class AndroidInput(
     }
   }
 
+  /** Forward a touch event from the Android View to the touch handler.
+    *
+    * The host Activity must call this from its `dispatchTouchEvent` or an `OnTouchListener` wired to the GL surface view.
+    *
+    * @param event
+    *   the Android `MotionEvent` (as `AnyRef`)
+    */
+  def onTouchEvent(event: AnyRef): Unit =
+    touchHandler.onTouch(event, inputState)
+
+  /** Forward a generic motion event (mouse hover/scroll) from the Android View.
+    *
+    * @param event
+    *   the Android `MotionEvent` (as `AnyRef`)
+    * @return
+    *   true if the event was handled
+    */
+  def onGenericMotionEvent(event: AnyRef): Boolean =
+    mouseHandler.onGenericMotion(event, inputState)
+
   /** Register sensor listeners based on configuration. */
   private[sge] def registerSensors(): Unit = sensorOps.registerListeners(config)
 

@@ -160,6 +160,10 @@ private object ObjCRuntime {
   // For [view setWantsLayer:YES], pass the BOOL as a pointer-sized value.
   @name("objc_msgSend")
   def msgSend(obj: Ptr[Byte], sel: Ptr[Byte], arg: Ptr[Byte]): Ptr[Byte] = extern
+
+  // objc_msgSend variant for sending a CGFloat (Double on 64-bit) argument — setContentsScale:
+  @name("objc_msgSend")
+  def msgSendDouble(obj: Ptr[Byte], sel: Ptr[Byte], arg: CDouble): Ptr[Byte] = extern
 }
 
 // ─── GLFWvidmode struct layout ─────────────────────────────────────────────
@@ -177,6 +181,9 @@ private[sge] object WindowingOpsNative extends WindowingOps {
     if (p == null) 0L else Intrinsics.castRawPtrToLong(toRawPtr(p))
 
   private val UTF8 = StandardCharsets.UTF_8
+
+  // Cached CALayer pointer for updating contentsScale on display changes (macOS only)
+  private var cachedLayerPtr: Ptr[Byte] = null
 
   // ─── Initialization ──────────────────────────────────────────────────
 
@@ -234,6 +241,17 @@ private[sge] object WindowingOpsNative extends WindowingOps {
         // Get the CALayer
         val selLayer = ObjCRuntime.selRegisterName(toCString("layer")(using zone))
         val layer    = ObjCRuntime.msgSend(contentView, selLayer, null)
+
+        // Set contentsScale to match the display's backing scale factor (Retina support).
+        // Without this, ANGLE's Metal backend renders at 1x into the CALayer, producing
+        // a tiny canvas in the bottom-left corner on HiDPI displays.
+        val (fbW, _)  = getFramebufferSize(windowHandle)
+        val (winW, _) = getWindowSize(windowHandle)
+        val scale: CDouble = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
+        val selSetContentsScale = ObjCRuntime.selRegisterName(toCString("setContentsScale:")(using zone))
+        ObjCRuntime.msgSendDouble(layer, selSetContentsScale, scale)
+
+        cachedLayerPtr = layer
         longFromPtr(layer)
       } finally zone.close()
     } else if (platform == WindowingOps.GLFW_PLATFORM_X11)
@@ -243,6 +261,18 @@ private[sge] object WindowingOpsNative extends WindowingOps {
     else
       throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
   }
+
+  override def updateNativeLayerScale(windowHandle: Long): Unit =
+    if (cachedLayerPtr != null && getPlatform() == WindowingOps.GLFW_PLATFORM_COCOA) {
+      val (fbW, _)  = getFramebufferSize(windowHandle)
+      val (winW, _) = getWindowSize(windowHandle)
+      val scale: CDouble = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
+      val zone = Zone.open()
+      try {
+        val sel = ObjCRuntime.selRegisterName(toCString("setContentsScale:")(using zone))
+        ObjCRuntime.msgSendDouble(cachedLayerPtr, sel, scale)
+      } finally zone.close()
+    }
 
   // ─── Window properties ──────────────────────────────────────────────
 

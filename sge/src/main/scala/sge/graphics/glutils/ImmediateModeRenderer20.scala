@@ -85,7 +85,7 @@ class ImmediateModeRenderer20(
     val attribs = DynamicArray[VertexAttribute]()
     attribs.add(VertexAttribute(Usage.Position, 3, ShaderProgram.POSITION_ATTRIBUTE))
     if (hasNormals) attribs.add(VertexAttribute(Usage.Normal, 3, ShaderProgram.NORMAL_ATTRIBUTE))
-    if (hasColor) attribs.add(VertexAttribute(Usage.ColorPacked, 4, ShaderProgram.COLOR_ATTRIBUTE))
+    if (hasColor) attribs.add(VertexAttribute.ColorPacked())
     for (i <- 0 until numTexCoords)
       attribs.add(VertexAttribute(Usage.TextureCoordinates, 2, ShaderProgram.TEXCOORD_ATTRIBUTE + i))
     attribs.toArray
