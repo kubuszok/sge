@@ -196,7 +196,7 @@ class AndroidLiveWallpaper(
     }
     executedRunnables.foreach { r =>
       try r.run()
-      catch { case t: Throwable => scribe.error("Exception in runnable", t) }
+      catch { case t: Throwable => utils.Log.error(s"Exception in runnable: ${t.getMessage}", t) }
     }
     executedRunnables.clear()
   }

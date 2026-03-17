@@ -49,6 +49,7 @@ class DesktopWindow private[sge] (
   private var _windowHandle:        Long                            = 0L
   private var _eglContext:          Long                            = 0L
   private var _listenerInitialized: Boolean                         = false
+  private var _sge:                 Sge                             = scala.compiletime.uninitialized
   private var _graphics:            DesktopGraphics                 = scala.compiletime.uninitialized
   private var _input:               DesktopInput                    = scala.compiletime.uninitialized
   private[sge] var windowListener:  Nullable[DesktopWindowListener] = config.windowListener
@@ -82,6 +83,7 @@ class DesktopWindow private[sge] (
 
   private val onFocus: (Long, Boolean) => Unit = { (_, isFocused) =>
     postRunnable { () =>
+      given Sge = _sge
       if (isFocused) {
         if (config.pauseWhenLostFocus) {
           lifecycleListeners.synchronized {
@@ -105,6 +107,7 @@ class DesktopWindow private[sge] (
 
   private val onIconify: (Long, Boolean) => Unit = { (_, isIconified) =>
     postRunnable { () =>
+      given Sge = _sge
       windowListener.foreach(_.iconified(isIconified))
       this.iconified = isIconified
       if (isIconified) {
@@ -166,6 +169,9 @@ class DesktopWindow private[sge] (
   private[sge] def getInput(): DesktopInput = _input
 
   private[sge] def isListenerInitialized(): Boolean = _listenerInitialized
+
+  /** The Sge context for this window. Available after listener initialization. */
+  private[sge] def sgeContext: Sge = _sge
 
   // ─── Runnable queue ─────────────────────────────────────────────────────
 
@@ -335,10 +341,8 @@ class DesktopWindow private[sge] (
 
   private[sge] def initializeListener(sge: Sge): Unit =
     if (!_listenerInitialized) {
-      listener match {
-        case aware: SgeAware => aware.sgeAvailable(sge)
-        case _ => ()
-      }
+      _sge = sge
+      given Sge = sge
       listener.create()
       listener.resize(_graphics.getWidth(), _graphics.getHeight())
       _listenerInitialized = true
@@ -351,6 +355,7 @@ class DesktopWindow private[sge] (
   // ─── Lifecycle ────────────────────────────────────────────────────────
 
   override def close(): Unit = {
+    given Sge = _sge
     listener.pause()
     listener.dispose()
     _graphics.close()

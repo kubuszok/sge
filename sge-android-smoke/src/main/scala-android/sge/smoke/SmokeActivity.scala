@@ -71,11 +71,8 @@ class SmokeActivity extends Activity {
             val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
             graphics.setupGL(versionStr, vendorStr, rendererStr)
             app.initializeSge()
-
-            if (!created) {
-              listener.create()
-              created = true
-            }
+            // Defer listener.create() to onSurfaceChanged so dimensions are available
+            created = false
             Log.i(TAG, "SGE fully initialized with all subsystems")
           }
 
@@ -83,7 +80,12 @@ class SmokeActivity extends Activity {
             val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
             graphics.width = w
             graphics.height = h
+            gl.glViewport(0, 0, w, h)
             Log.i(TAG, s"Surface changed: ${w}x${h}")
+            if (!created) {
+              listener.create()
+              created = true
+            }
             listener.resize(Pixels(w), Pixels(h))
           }
 

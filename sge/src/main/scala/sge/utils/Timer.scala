@@ -278,7 +278,7 @@ object Timer {
             catch {
               case e:  Error     => throw e // Never swallow OOM, SOE, etc.
               case ex: Exception =>
-                scribe.error(s"Task failed: ${instances(i).getClass.getName}", ex)
+                Log.error(s"Task failed: ${instances(i).getClass.getName}", ex)
             }
             i += 1
           }
@@ -298,7 +298,7 @@ object Timer {
         catch {
           case e:  Error     => throw e // Never swallow OOM, SOE, etc.
           case ex: Exception =>
-            scribe.error(s"Timer task failed: ${task.getClass.getName}", ex)
+            Log.error(s"Timer task failed: ${task.getClass.getName}", ex)
         }
       }
       runTasks.clear()

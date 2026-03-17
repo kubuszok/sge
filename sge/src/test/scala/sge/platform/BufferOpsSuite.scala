@@ -8,7 +8,19 @@ package platform
 
 class BufferOpsSuite extends munit.FunSuite {
 
-  val ops: BufferOps = PlatformOps.buffer
+  private val nativeLibAvailable: Boolean =
+    try { PlatformOps.buffer; true }
+    catch { case _: Throwable => false }
+
+  override def munitTestTransforms: List[TestTransform] =
+    super.munitTestTransforms :+ new TestTransform(
+      "requireNativeLib",
+      { test =>
+        test.withBody { () => assume(nativeLibAvailable, "Rust native library not available"); test.body() }
+      }
+    )
+
+  val ops: BufferOps = if (nativeLibAvailable) PlatformOps.buffer else null.asInstanceOf[BufferOps]
 
   private val Eps = 1e-6f
 

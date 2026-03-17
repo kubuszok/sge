@@ -37,18 +37,18 @@ abstract class Game()(using Sge) extends ApplicationListener {
     }
   }
 
-  override def dispose(): Unit =
+  override def dispose()(using Sge): Unit =
     _screen.foreach(_.hide())
 
-  override def pause(): Unit =
+  override def pause()(using Sge): Unit =
     _screen.foreach(_.pause())
 
-  override def resume(): Unit =
+  override def resume()(using Sge): Unit =
     _screen.foreach(_.resume())
 
-  override def render(): Unit =
+  override def render()(using Sge): Unit =
     _screen.foreach(_.render(Sge().graphics.getDeltaTime()))
 
-  override def resize(width: Pixels, height: Pixels): Unit =
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     _screen.foreach(_.resize(width, height))
 }

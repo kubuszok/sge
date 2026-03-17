@@ -186,6 +186,7 @@ class TileWorldGame extends DemoScene {
     var dx    = 0f
     var dy    = 0f
 
+    // Keyboard movement
     if (input.isKeyPressed(Input.Keys.LEFT) || input.isKeyPressed(Input.Keys.A)) {
       dx -= Speed * dt
     }
@@ -197,6 +198,19 @@ class TileWorldGame extends DemoScene {
     }
     if (input.isKeyPressed(Input.Keys.UP) || input.isKeyPressed(Input.Keys.W)) {
       dy += Speed * dt
+    }
+
+    // Touch movement — move toward touch position in world space
+    if (input.isTouched()) {
+      val touchWorldX = input.getX().toFloat / Sge().graphics.getWidth().toFloat * WorldW
+      val touchWorldY = (1f - input.getY().toFloat / Sge().graphics.getHeight().toFloat) * WorldH
+      val diffX = touchWorldX - charX
+      val diffY = touchWorldY - charY
+      val dist = scala.math.sqrt((diffX * diffX + diffY * diffY).toDouble).toFloat
+      if (dist > CharSize * 0.5f) {
+        dx += (diffX / dist) * Speed * dt
+        dy += (diffY / dist) * Speed * dt
+      }
     }
 
     // Try X movement, then Y movement (allows sliding along walls)

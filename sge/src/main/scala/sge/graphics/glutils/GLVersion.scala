@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Type enum moved to companion; pattern match instead of if-else chain; TAG field removed
  *   Idiom: split packages
- *   Idiom: Gdx.app.log -> scribe.info, Gdx.app.error -> scribe.error; NONE case sets vendorString/rendererString to "" as Java does
+ *   Idiom: Gdx.app.log -> Log.info, Gdx.app.error -> Log.error; NONE case sets vendorString/rendererString to "" as Java does
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -17,8 +17,6 @@ package graphics
 package glutils
 
 import java.util.regex.Pattern
-
-import scribe._
 
 import sge.Application
 
@@ -75,7 +73,7 @@ class GLVersion(
       minorVersion = if (resultSplit.length < 2) 0 else parseInt(resultSplit(1), 0)
       releaseVersion = if (resultSplit.length < 3) 0 else parseInt(resultSplit(2), 0)
     } else {
-      scribe.info(s"Invalid version string: $versionString")
+      utils.Log.info(s"Invalid version string: $versionString")
       majorVersion = 2
       minorVersion = 0
       releaseVersion = 0
@@ -88,7 +86,7 @@ class GLVersion(
       Integer.parseInt(v)
     catch {
       case _: NumberFormatException =>
-        scribe.error(s"Error parsing number: $v, assuming: $defaultValue")
+        utils.Log.error(s"Error parsing number: $v, assuming: $defaultValue")
         defaultValue
     }
 

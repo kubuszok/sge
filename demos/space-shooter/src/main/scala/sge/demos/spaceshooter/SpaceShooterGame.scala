@@ -143,18 +143,28 @@ object SpaceShooterGame extends shared.DemoScene {
   private def update(dt: Float)(using Sge): Unit = {
     val input = Sge().input
 
-    // Player movement
+    // Player movement — keyboard
     if (input.isKeyPressed(Input.Keys.LEFT) || input.isKeyPressed(Input.Keys.A)) {
       playerX -= PlayerSpeed * dt
     }
     if (input.isKeyPressed(Input.Keys.RIGHT) || input.isKeyPressed(Input.Keys.D)) {
       playerX += PlayerSpeed * dt
     }
+
+    // Player movement — touch: move toward touch X position + auto-fire
+    if (input.isTouched()) {
+      val touchWorldX = input.getX().toFloat / Sge().graphics.getWidth().toFloat * WorldW
+      val diff = touchWorldX - playerX
+      if (scala.math.abs(diff) > 4f) {
+        playerX += MathUtils.clamp(diff, -PlayerSpeed * dt, PlayerSpeed * dt)
+      }
+    }
+
     playerX = MathUtils.clamp(playerX, PlayerW / 2f, WorldW - PlayerW / 2f)
 
-    // Firing
+    // Firing — keyboard SPACE or while touching
     fireCooldownTimer -= dt
-    if (input.isKeyPressed(Input.Keys.SPACE) && fireCooldownTimer <= 0f) {
+    if ((input.isKeyPressed(Input.Keys.SPACE) || input.isTouched()) && fireCooldownTimer <= 0f) {
       fireCooldownTimer = FireCooldown
       val b = bulletPool.obtain()
       b.x = playerX

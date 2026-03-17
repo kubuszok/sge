@@ -245,8 +245,8 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright@1.49.0 install chromium
 
-      - name: Compile Scala.js demo
-        run: sbt 'demoJS/fastLinkJS'
+      - name: Compile Scala.js regression test
+        run: sbt 'regressionTestJS/fastLinkJS'
 
       - name: Run browser integration tests (bootstrap only)
         run: sbt 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
@@ -401,7 +401,7 @@ jobs:
               'hexTacticsJS/fastLinkJS' \
               'viewer3dJS/fastLinkJS' \
               'particleShowJS/fastLinkJS' \
-              'netChatJS/fastLinkJS'
+              'assetShowcaseJS/fastLinkJS'
 
       - name: Run demo smoke tests
         run: sbt 'sge-it-browser/testOnly sge.browser.DemoSmokeTest'
@@ -453,8 +453,8 @@ jobs:
               'shaderLabJS/compile' \
               'viewer3dJS/compile' \
               'particleShowJS/compile' \
-              'netChatJS/compile' \
-              'viewportGalleryJS/compile'
+              'viewportGalleryJS/compile' \
+              'assetShowcaseJS/compile'
 
       - name: Compile all demos (Native)
         working-directory: demos
@@ -468,5 +468,5 @@ jobs:
               'shaderLabNative/compile' \
               'viewer3dNative/compile' \
               'particleShowNative/compile' \
-              'netChatNative/compile' \
-              'viewportGalleryNative/compile'
+              'viewportGalleryNative/compile' \
+              'assetShowcaseNative/compile'

@@ -79,7 +79,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
     lazy val unlock: js.Function1[dom.Event, Unit] = { (_: dom.Event) =>
       audioContext.resume()
       WebAudioManager.soundUnlocked = true
-      scribe.info("WebAudio: AudioContext unlocked")
+      utils.Log.info("WebAudio: AudioContext unlocked")
       eventNames.foreach(name => document.removeEventListener(name, unlock))
     }
     eventNames.foreach(name => document.addEventListener(name, unlock))
@@ -114,7 +114,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
         sound.setAudioBuffer(decodedBuffer)
       }: js.Function1[js.Dynamic, Unit],
       { () =>
-        scribe.error("WebAudio: decodeAudioData failed for " + fileHandle.path())
+        utils.Log.error("WebAudio: decodeAudioData failed for " + fileHandle.path())
       }: js.Function0[Unit]
     )
 

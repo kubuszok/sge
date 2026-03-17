@@ -18,9 +18,8 @@ import sge.utils.XmlReader
   *
   * Clears the screen to a color, runs subsystem checks on specific frames, and logs structured results. After 30 frames it calls `exit()` so the Activity finishes cleanly.
   */
-class SmokeListener extends ApplicationListener with SgeAware {
+class SmokeListener extends ApplicationListener {
 
-  private var sge:              Sge     = scala.compiletime.uninitialized
   private var ready:            Boolean = false
   private var checksRun:        Boolean = false
   private var postChecksRun:    Boolean = false
@@ -41,26 +40,22 @@ class SmokeListener extends ApplicationListener with SgeAware {
   // Time-based milestones (ms since create)
   private var createTimeMs: Long = 0L
 
-  override def sgeAvailable(sge: Sge): Unit =
-    this.sge = sge
-
-  override def create(): Unit = {
-    scribe.info("SGE SmokeListener.create()")
+  override def create()(using Sge): Unit = {
+    utils.Log.info("SGE SmokeListener.create()")
     createTimeMs = System.currentTimeMillis()
     ready = true
   }
 
-  override def resize(width: Pixels, height: Pixels): Unit = ()
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
 
-  override def render(): Unit = {
+  override def render()(using Sge): Unit = {
     if (!ready) return
-    given Sge = sge
     val gl    = Sge().graphics.getGL20()
     gl.glClearColor(0f, 0.4f, 0f, 1f)
     gl.glClear(graphics.ClearMask.ColorBufferBit)
     val frame   = Sge().graphics.getFrameId()
     val elapsed = System.currentTimeMillis() - createTimeMs
-    if (frame % 30 == 0) scribe.info(s"SGE smoke frame $frame, elapsed ${elapsed}ms")
+    if (frame % 30 == 0) utils.Log.info(s"SGE smoke frame $frame, elapsed ${elapsed}ms")
 
     // Run initial subsystem checks on frame 5 (GL is settled by then)
     if (frame == 5 && !checksRun) {
@@ -76,33 +71,33 @@ class SmokeListener extends ApplicationListener with SgeAware {
 
     // Exit after 10 seconds
     if (elapsed >= 10000) {
-      if (allPassed) scribe.info("SMOKE_TEST_PASSED")
-      else scribe.info("SMOKE_TEST_FAILED")
+      if (allPassed) utils.Log.info("SMOKE_TEST_PASSED")
+      else utils.Log.info("SMOKE_TEST_FAILED")
       Sge().application.exit()
     }
   }
 
-  override def pause(): Unit = {
+  override def pause()(using Sge): Unit = {
     pauseCount += 1
-    scribe.info(s"SGE SmokeListener.pause() count=$pauseCount")
+    utils.Log.info(s"SGE SmokeListener.pause() count=$pauseCount")
   }
 
-  override def resume(): Unit = {
+  override def resume()(using Sge): Unit = {
     resumeCount += 1
-    scribe.info(s"SGE SmokeListener.resume() count=$resumeCount")
+    utils.Log.info(s"SGE SmokeListener.resume() count=$resumeCount")
   }
 
-  override def dispose(): Unit =
-    scribe.info("SGE SmokeListener.dispose()")
+  override def dispose()(using Sge): Unit =
+    utils.Log.info("SGE SmokeListener.dispose()")
 
   // ── Subsystem checks ─────────────────────────────────────────────
 
   private def logCheck(name: String, passed: Boolean, message: String): Unit = {
     val status = if (passed) "PASS" else "FAIL"
     val line   = s"SGE-IT:$name:$status:$message"
-    scribe.info(line)
+    utils.Log.info(line)
     // Also print to stdout — on Android this goes to logcat as "System.out" tag,
-    // ensuring visibility regardless of scribe's backend configuration.
+    // ensuring visibility regardless of the logging backend configuration.
     System.out.println(line)
     if (!passed) allPassed = false
   }
@@ -131,7 +126,7 @@ class SmokeListener extends ApplicationListener with SgeAware {
         new InputProcessor {
           override def touchDown(screenX: Pixels, screenY: Pixels, pointer: Int, button: Input.Button): Boolean = {
             touchReceived = true
-            scribe.info(s"SGE-IT:TOUCH_RECEIVED at ($screenX,$screenY) pointer=$pointer")
+            utils.Log.info(s"SGE-IT:TOUCH_RECEIVED at ($screenX,$screenY) pointer=$pointer")
             true
           }
         }

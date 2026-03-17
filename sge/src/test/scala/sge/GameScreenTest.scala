@@ -28,12 +28,12 @@ class GameScreenTest extends munit.FunSuite {
     def close():  Unit = calls = calls :+ "close"
   }
 
-  private def makeGame(): Game = {
-    given Sge = SgeTestFixture.testSge()
+  private given Sge = SgeTestFixture.testSge()
+
+  private def makeGame(): Game =
     new Game() {
-      override def create(): Unit = ()
+      override def create()(using Sge): Unit = ()
     }
-  }
 
   // ---- getScreen / setScreen ----
 
@@ -43,9 +43,8 @@ class GameScreenTest extends munit.FunSuite {
   }
 
   test("screen returns the screen that was set") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     assert(game.screen.isDefined)
     assertEquals(game.screen.get, s)
@@ -54,17 +53,15 @@ class GameScreenTest extends munit.FunSuite {
   // ---- setScreen lifecycle ----
 
   test("setScreen calls show() on new screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     assert(s.calls.contains("show"))
   }
 
   test("setScreen calls resize() on new screen with current graphics dimensions") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     assert(s.calls.contains("resize"))
     assertEquals(s.lastResizeWidth, Pixels(640))
@@ -72,9 +69,8 @@ class GameScreenTest extends munit.FunSuite {
   }
 
   test("setScreen calls show before resize on new screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     val showIdx   = s.calls.indexOf("show")
     val resizeIdx = s.calls.indexOf("resize")
@@ -82,10 +78,9 @@ class GameScreenTest extends munit.FunSuite {
   }
 
   test("setScreen calls hide() on old screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val old   = new RecordingScreen
-    val next  = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val old  = new RecordingScreen
+    val next = new RecordingScreen
     game.screen = Nullable(old)
     old.calls = Nil // reset
     game.screen = Nullable(next)
@@ -93,8 +88,7 @@ class GameScreenTest extends munit.FunSuite {
   }
 
   test("setScreen calls hide on old screen before show on new screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
+    val game = new Game() { override def create()(using Sge): Unit = () }
     var order: List[String] = Nil
     val trackingOld = new Screen {
       def show():                                Unit = ()
@@ -122,9 +116,8 @@ class GameScreenTest extends munit.FunSuite {
   }
 
   test("setting screen to empty hides old screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.screen = Nullable.empty
@@ -135,9 +128,8 @@ class GameScreenTest extends munit.FunSuite {
   // ---- render delegation ----
 
   test("render delegates to screen.render with delta time") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.render()
@@ -152,9 +144,8 @@ class GameScreenTest extends munit.FunSuite {
   // ---- resize delegation ----
 
   test("resize delegates to screen.resize") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.resize(Pixels(800), Pixels(600))
@@ -171,9 +162,8 @@ class GameScreenTest extends munit.FunSuite {
   // ---- pause delegation ----
 
   test("pause delegates to screen.pause") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.pause()
@@ -188,9 +178,8 @@ class GameScreenTest extends munit.FunSuite {
   // ---- resume delegation ----
 
   test("resume delegates to screen.resume") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.resume()
@@ -205,9 +194,8 @@ class GameScreenTest extends munit.FunSuite {
   // ---- dispose delegation ----
 
   test("dispose calls hide on current screen") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s     = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s    = new RecordingScreen
     game.screen = Nullable(s)
     s.calls = Nil
     game.dispose()
@@ -222,11 +210,10 @@ class GameScreenTest extends munit.FunSuite {
   // ---- multiple screen transitions ----
 
   test("cycling through multiple screens calls correct lifecycle methods") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
-    val s1    = new RecordingScreen
-    val s2    = new RecordingScreen
-    val s3    = new RecordingScreen
+    val game = new Game() { override def create()(using Sge): Unit = () }
+    val s1   = new RecordingScreen
+    val s2   = new RecordingScreen
+    val s3   = new RecordingScreen
 
     game.screen = Nullable(s1)
     assert(s1.calls.contains("show"))
@@ -245,8 +232,7 @@ class GameScreenTest extends munit.FunSuite {
   // ---- ScreenAdapter-style default no-ops ----
 
   test("a minimal Screen implementation with no-op methods does not throw") {
-    given Sge = SgeTestFixture.testSge()
-    val game  = new Game() { override def create(): Unit = () }
+    val game = new Game() { override def create()(using Sge): Unit = () }
 
     /** A screen adapter: all methods are no-ops. */
     val adapter = new Screen {

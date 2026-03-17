@@ -155,7 +155,7 @@ class AndroidApplication(
 
   /** Build and store the [[Sge]] context from initialized subsystems.
     *
-    * Must be called after [[initializeGraphicsAndInput]] so that graphics and input are available. Also notifies `SgeAware` listeners.
+    * Must be called after [[initializeGraphicsAndInput]] so that graphics and input are available.
     *
     * @return
     *   the newly created Sge context
@@ -170,10 +170,6 @@ class AndroidApplication(
       net = _net
     )
     sgeContext = sge
-    listener match {
-      case aware: SgeAware => aware.sgeAvailable(sge)
-      case _ => ()
-    }
     sge
   }
 
@@ -222,7 +218,7 @@ class AndroidApplication(
     }
     executedRunnables.foreach { r =>
       try r.run()
-      catch { case t: Throwable => scribe.error("Exception in runnable", t) }
+      catch { case t: Throwable => utils.Log.error(s"Exception in runnable: ${t.getMessage}", t) }
     }
     executedRunnables.clear()
   }

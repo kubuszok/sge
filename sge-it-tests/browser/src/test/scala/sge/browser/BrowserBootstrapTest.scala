@@ -37,47 +37,51 @@ class BrowserBootstrapTest extends FunSuite {
   /** Locate the fastLinkJS output directory for the demo module. */
   private def findDemoJsDir(): Path = {
     // sbt runs tests from the project root, so user.dir should be the repo root.
-    // The demo fastLinkJS output is at: demo/target/js-3/sge-demo-fastopt/
+    // The demo fastLinkJS output is at: sge-regression-test/target/js-3/sge-regression-test-fastopt/
     val cwd        = Paths.get(System.getProperty("user.dir"))
     val candidates = Seq(
       // From project root (sbt runs from here)
-      cwd.resolve("demo/target/js-3/sge-demo-fastopt"),
+      cwd.resolve("sge-regression-test/target/js-3/sge-regression-test-fastopt"),
       // From sge-it-tests/browser subdir (just in case)
-      cwd.resolve("../../demo/target/js-3/sge-demo-fastopt").normalize
+      cwd.resolve("../../sge-regression-test/target/js-3/sge-regression-test-fastopt").normalize
     )
     candidates.find(p => Files.isDirectory(p) && Files.exists(p.resolve("main.js"))).getOrElse {
       fail(
-        s"Demo JS output not found. Run 'sbt demoJS/fastLinkJS' first.\n" +
+        s"Demo JS output not found. Run 'sbt regressionTestJS/fastLinkJS' first.\n" +
           s"Checked: ${candidates.mkString(", ")}"
       )
     }
   }
 
-  /** Start a simple HTTP server serving files from the given directory. */
-  private def startServer(rootDir: Path): (HttpServer, Int) = {
-    val server = HttpServer.create(new InetSocketAddress(0), 0)
+  /** Start a simple HTTP server serving files from the given directories (first match wins). */
+  private def startServer(rootDir: Path, extraRoots: Path*): (HttpServer, Int) = {
+    val allRoots = rootDir +: extraRoots
+    val server   = HttpServer.create(new InetSocketAddress(0), 0)
     server.createContext(
       "/",
       exchange => {
         val requestPath = exchange.getRequestURI.getPath.stripPrefix("/")
         val filePath    = if (requestPath.isEmpty) "index.html" else requestPath
-        val fullPath    = rootDir.resolve(filePath)
+        val fullPath    = allRoots.map(_.resolve(filePath)).find(p => Files.exists(p) && !Files.isDirectory(p))
 
-        if (Files.exists(fullPath) && !Files.isDirectory(fullPath)) {
-          val bytes       = Files.readAllBytes(fullPath)
-          val contentType =
-            if (filePath.endsWith(".js")) "application/javascript"
-            else if (filePath.endsWith(".html")) "text/html"
-            else "application/octet-stream"
-          exchange.getResponseHeaders.set("Content-Type", contentType)
-          exchange.sendResponseHeaders(200, bytes.length)
-          exchange.getResponseBody.write(bytes)
-          exchange.getResponseBody.close()
-        } else {
-          val msg = s"404 Not Found: $filePath"
-          exchange.sendResponseHeaders(404, msg.length)
-          exchange.getResponseBody.write(msg.getBytes)
-          exchange.getResponseBody.close()
+        fullPath match {
+          case Some(resolved) =>
+            val bytes       = Files.readAllBytes(resolved)
+            val contentType =
+              if (filePath.endsWith(".js")) "application/javascript"
+              else if (filePath.endsWith(".html")) "text/html"
+              else if (filePath.endsWith(".png")) "image/png"
+              else if (filePath.endsWith(".txt")) "text/plain"
+              else "application/octet-stream"
+            exchange.getResponseHeaders.set("Content-Type", contentType)
+            exchange.sendResponseHeaders(200, bytes.length)
+            exchange.getResponseBody.write(bytes)
+            exchange.getResponseBody.close()
+          case None =>
+            val msg = s"404 Not Found: $filePath"
+            exchange.sendResponseHeaders(404, msg.length)
+            exchange.getResponseBody.write(msg.getBytes)
+            exchange.getResponseBody.close()
         }
       }
     )
@@ -105,7 +109,11 @@ class BrowserBootstrapTest extends FunSuite {
   test("demo JS loads in browser without fatal errors") {
     val jsDir = findDemoJsDir()
     createTestHtml(jsDir)
-    val (server, port) = startServer(jsDir)
+    // Also serve from the classes directory so regression test resources
+    // (assets.txt, regression/test-texture.png, etc.) are accessible.
+    val classesDir     = jsDir.getParent.resolve("classes")
+    val (server, port) =
+      if (Files.isDirectory(classesDir)) startServer(jsDir, classesDir) else startServer(jsDir)
 
     try {
       val pw      = Playwright.create()
@@ -116,10 +124,16 @@ class BrowserBootstrapTest extends FunSuite {
       val errors   = mutable.ArrayBuffer.empty[String]
       val warnings = mutable.ArrayBuffer.empty[String]
 
-      // Capture console errors and uncaught exceptions
+      // Capture console errors and uncaught exceptions.
+      // Filter out expected 404s: BrowserApplication fetches assets.txt at startup
+      // and gracefully handles the 404 when no manifest exists — the browser still
+      // logs it as a console.error, but it's not a real failure.
       page.onConsoleMessage(msg =>
-        if (msg.`type`() == "error") errors += s"console.error: ${msg.text()}"
-        else if (msg.`type`() == "warning") warnings += s"console.warn: ${msg.text()}"
+        if (msg.`type`() == "error") {
+          val text = msg.text()
+          if (!text.contains("404") || !text.contains("Failed to load resource"))
+            errors += s"console.error: $text"
+        } else if (msg.`type`() == "warning") warnings += s"console.warn: ${msg.text()}"
       )
       page.onPageError(err => errors += s"page error: $err")
 

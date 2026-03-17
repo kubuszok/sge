@@ -36,9 +36,10 @@ class ShaderLabGame extends DemoScene {
   private var viewport:       ScreenViewport  = uninitialized
   private var profiler:       GLProfiler      = uninitialized
 
-  private var currentEffect: Int     = 0
-  private var time:          Float   = 0f
-  private var tabWasPressed: Boolean = false
+  private var currentEffect:  Int     = 0
+  private var time:           Float   = 0f
+  private var tabWasPressed:  Boolean = false
+  private var touchWasDown:   Boolean = false
 
   private val effectColors = Array(
     Color(0.2f, 0.6f, 1.0f, 1f),
@@ -208,11 +209,20 @@ class ShaderLabGame extends DemoScene {
   }
 
   private def handleInput()(using Sge): Unit = {
-    val tabDown = Sge().input.isKeyPressed(Input.Keys.TAB)
+    val input = Sge().input
+
+    // Tab or touch: cycle shader effect
+    val tabDown = input.isKeyPressed(Input.Keys.TAB)
     if (tabDown && !tabWasPressed) {
       currentEffect = (currentEffect + 1) % NumEffects
     }
     tabWasPressed = tabDown
+
+    val touched = input.isTouched()
+    if (touched && !touchWasDown) {
+      currentEffect = (currentEffect + 1) % NumEffects
+    }
+    touchWasDown = touched
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {

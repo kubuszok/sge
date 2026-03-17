@@ -72,35 +72,63 @@ abstract class AndroidLauncherActivity extends Activity {
       // Wire the GL renderer bridge
       glView.setRenderer(new GLSurfaceView.Renderer {
 
+        private var created = false
+
         override def onSurfaceCreated(gl: GL10, eglConfig: AndroidEGLConfig): Unit = {
-          val versionStr  = gl.glGetString(GL10.GL_VERSION)
-          val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
-          val rendererStr = gl.glGetString(GL10.GL_RENDERER)
-          Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
+          try {
+            val versionStr  = gl.glGetString(GL10.GL_VERSION)
+            val vendorStr   = gl.glGetString(GL10.GL_VENDOR)
+            val rendererStr = gl.glGetString(GL10.GL_RENDERER)
+            Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
 
-          // Initialize SGE graphics GL state
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.setupGL(versionStr, vendorStr, rendererStr)
-
-          // Build Sge context and notify listener
-          app.initializeSge()
-          listener.create()
-          Log.i(TAG, "SGE initialized")
+            // Initialize SGE graphics GL state and Sge context
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.setupGL(versionStr, vendorStr, rendererStr)
+            app.initializeSge()
+            // Defer listener.create() to onSurfaceChanged so dimensions are available
+            created = false
+            Log.i(TAG, "SGE initialized")
+          } catch {
+            case e: Throwable =>
+              Log.e(TAG, "onSurfaceCreated exception", e)
+          }
         }
 
         override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.width = w
-          graphics.height = h
-          listener.resize(_root_.sge.Pixels(w), _root_.sge.Pixels(h))
+          try {
+            Log.i(TAG, s"onSurfaceChanged ${w}x${h}")
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.width = w
+            graphics.height = h
+            gl.glViewport(0, 0, w, h)
+            if (!created) {
+              listener.create()
+              created = true
+            }
+            listener.resize(_root_.sge.Pixels(w), _root_.sge.Pixels(h))
+          } catch {
+            case e: Throwable =>
+              Log.e(TAG, "onSurfaceChanged exception", e)
+          }
         }
 
+        private var frameCount = 0L
+
         override def onDrawFrame(gl: GL10): Unit = {
-          val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-          graphics.updateFrameTiming(false)
-          app.processInputEvents()
-          app.executeRunnables()
-          listener.render()
+          frameCount += 1
+          if (frameCount <= 3 || frameCount % 60 == 0) {
+            Log.i(TAG, s"onDrawFrame #$frameCount")
+          }
+          try {
+            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            graphics.updateFrameTiming(false)
+            app.processInputEvents()
+            app.executeRunnables()
+            listener.render()
+          } catch {
+            case e: Throwable =>
+              Log.e(TAG, "onDrawFrame exception", e)
+          }
         }
       })
 

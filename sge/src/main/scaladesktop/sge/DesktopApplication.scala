@@ -105,7 +105,7 @@ class DesktopApplication(
         _audio = createAudio(_config)
       catch {
         case t: Throwable =>
-          scribe.warn("Couldn't initialize audio, disabling audio", t)
+          utils.Log.warn(s"Couldn't initialize audio, disabling audio: ${t.getMessage}")
           _audio = NoopDesktopAudio()
       }
     } else {
@@ -370,10 +370,13 @@ class DesktopApplication(
           } else {
             windowing.getPrimaryMonitor()
           }
-        val (mx, my)             = windowing.getMonitorPos(monitorHandle)
-        val (mw, mh, _, _, _, _) = windowing.getVideoMode(monitorHandle)
-        val newX                 = mx + (mw - windowWidth) / 2
-        val newY                 = my + (mh - windowHeight) / 2
+        // getPrimaryMonitor() can return 0 (NULL) if no monitors are detected or
+        // GLFW hasn't fully initialized — guard to avoid native assertion crash.
+        val (mx, my)             = if (monitorHandle != 0L) windowing.getMonitorPos(monitorHandle) else (0, 0)
+        val (mw, mh, _, _, _, _) =
+          if (monitorHandle != 0L) windowing.getVideoMode(monitorHandle) else (windowWidth, windowHeight, 0, 0, 0, 0)
+        val newX = mx + (mw - windowWidth) / 2
+        val newY = my + (mh - windowHeight) / 2
         windowing.setWindowPos(windowHandle, newX, newY)
       } else {
         windowing.setWindowPos(windowHandle, config.windowX, config.windowY)

@@ -61,8 +61,9 @@ import sge.utils.{ DynamicArray, Nullable }
 class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
   @scala.annotation.nowarn("msg=deprecated") // Java interop: ModelLoader base class accepts null resolver
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(Nullable.empty[FileHandleResolver].orNull)
+  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)
@@ -78,7 +79,7 @@ class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[Obj
 
   protected def loadModelData(file: FileHandle, flipV: Boolean): Nullable[ModelData] = boundary {
     if (ObjLoader.logWarning) {
-      scribe.error("Wavefront (OBJ) is not fully supported, consult the documentation for more information")
+      sge.utils.Log.error("Wavefront (OBJ) is not fully supported, consult the documentation for more information")
     }
     var line:      Nullable[String] = Nullable.empty // Java interop: readLine() returns null at EOF
     var tokens:    Array[String]    = Array.empty[String] // set before use in each iteration

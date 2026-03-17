@@ -8,7 +8,19 @@ package platform
 
 class ETC1OpsSuite extends munit.FunSuite {
 
-  val ops: ETC1Ops = PlatformOps.etc1
+  private val nativeLibAvailable: Boolean =
+    try { PlatformOps.etc1; true }
+    catch { case _: Throwable => false }
+
+  override def munitTestTransforms: List[TestTransform] =
+    super.munitTestTransforms :+ new TestTransform(
+      "requireNativeLib",
+      { test =>
+        test.withBody { () => assume(nativeLibAvailable, "Rust native library not available"); test.body() }
+      }
+    )
+
+  val ops: ETC1Ops = if (nativeLibAvailable) PlatformOps.etc1 else null.asInstanceOf[ETC1Ops]
 
   // ─── Compressed data size ──────────────────────────────────────────────
 

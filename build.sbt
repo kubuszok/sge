@@ -148,19 +148,42 @@ val sge = (projectMatrix in file("sge"))
     )
   )
 
-val demo = (projectMatrix in file("demo"))
+val regressionTest = (projectMatrix in file("sge-regression-test"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
   .settings(
-    name := "sge-demo",
+    name := "sge-regression-test",
     organization := "com.kubuszok",
-    publish / skip := true
+    publish / skip := true,
+    // Generate minimal test assets at compile time (PNG + text) so we can
+    // exercise the full AssetManager → FileHandle → Texture pipeline.
+    Compile / resourceGenerators += Def.task {
+      val dir = (Compile / resourceManaged).value / "regression"
+      IO.createDirectory(dir)
+      // Generate a 4×4 red PNG via ImageIO (guaranteed valid across all platforms)
+      val pngFile = dir / "test-texture.png"
+      if (!pngFile.exists()) {
+        val img = new java.awt.image.BufferedImage(4, 4, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        val g   = img.createGraphics()
+        g.setColor(java.awt.Color.RED)
+        g.fillRect(0, 0, 4, 4)
+        g.dispose()
+        javax.imageio.ImageIO.write(img, "PNG", pngFile)
+      }
+      // Simple text file for FileHandle read test
+      val txtFile = dir / "test-data.txt"
+      IO.write(txtFile, "SGE_REGRESSION_TEST_DATA")
+      // Asset manifest for browser preloading (BrowserAssetLoader reads assets.txt)
+      val manifestFile = (Compile / resourceManaged).value / "assets.txt"
+      IO.write(manifestFile, "regression/test-texture.png\nregression/test-data.txt\n")
+      Seq(pngFile, txtFile, manifestFile)
+    }.taskValue
   )
   .dependsOn(sge)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "demo")
+    settings = SgePlugin.jvmSettings(projectDir = "sge-regression-test")
   )
   .jsPlatform(
     scalaVersions = Seq(versions.scala),
@@ -170,7 +193,7 @@ val demo = (projectMatrix in file("demo"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "demo") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-regression-test") ++ SgeNativeLibs.hostSettings ++ Seq(
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value

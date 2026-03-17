@@ -96,6 +96,7 @@ class DesktopGraphics private[sge] (
     // Update CALayer contentsScale when moving between displays with different DPI
     windowing.updateNativeLayerScale(window.getWindowHandle())
     if (window.isListenerInitialized()) {
+      given Sge = window.sgeContext
       window.makeCurrent()
       _gl20.glViewport(Pixels.zero, Pixels.zero, Pixels(_backBufferWidth), Pixels(_backBufferHeight))
       window.listener.resize(getWidth(), getHeight())

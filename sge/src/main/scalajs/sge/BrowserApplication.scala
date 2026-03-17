@@ -179,13 +179,12 @@ class BrowserApplication(
     val loadingDiv = document.getElementById("loading")
     if (loadingDiv != null) loadingDiv.parentNode.removeChild(loadingDiv)
 
-    // Notify the listener
-    listener match {
-      case aware: SgeAware => aware.sgeAvailable(_sge)
-      case _ => ()
+    // Initialize the listener
+    {
+      given Sge = _sge
+      listener.create()
+      listener.resize(_graphics.getWidth(), _graphics.getHeight())
     }
-    listener.create()
-    listener.resize(_graphics.getWidth(), _graphics.getHeight())
 
     // Set up visibility change listener
     addVisibilityChangeListener()
@@ -296,7 +295,7 @@ class BrowserApplication(
       mainLoop()
     catch {
       case t: Throwable =>
-        scribe.error(s"BrowserApplication exception: ${t.getMessage}", t)
+        utils.Log.error(s"BrowserApplication exception: ${t.getMessage}", t)
         throw t
     }
     window.requestAnimationFrame(mainLoopCallback)
@@ -306,6 +305,7 @@ class BrowserApplication(
     window.requestAnimationFrame(mainLoopCallback)
 
   private def mainLoop(): Unit = {
+    given Sge = _sge
     _graphics.update()
 
     // Check for resize
@@ -341,6 +341,7 @@ class BrowserApplication(
     document.addEventListener("visibilitychange", (_: dom.Event) => onVisibilityChange())
 
   private def onVisibilityChange(): Unit = {
+    given Sge  = _sge
     val hidden = document.asInstanceOf[js.Dynamic].hidden.asInstanceOf[Boolean]
     if (hidden) {
       lifecycleListeners.foreach(_.pause())

@@ -362,7 +362,7 @@ class Scene2DTest extends munit.FunSuite {
     val screen2 = new TestScreen { override val id = "2" }
 
     val game = new Game() {
-      def create(): Unit = {}
+      def create()(using Sge): Unit = {}
     }
 
     game.screen = Nullable(screen1)
@@ -388,7 +388,7 @@ class Scene2DTest extends munit.FunSuite {
     }
 
     val game = new Game() {
-      def create(): Unit = {}
+      def create()(using Sge): Unit = {}
     }
 
     game.screen = Nullable(screen)
@@ -416,7 +416,7 @@ class Scene2DTest extends munit.FunSuite {
     }
 
     val game = new Game() {
-      def create(): Unit = {}
+      def create()(using Sge): Unit = {}
     }
     game.screen = Nullable(screen)
     hidden = false

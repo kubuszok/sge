@@ -45,14 +45,15 @@ class AssetLoadingTask(
 
   @volatile var cancel: Boolean = false
 
-  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) =
+  def this(manager: AssetManager, assetDesc: AssetDescriptor[?], loader: AssetLoader[?, ?], threadPool: ExecutionContext) = {
     this(
       manager,
       assetDesc,
       loader,
       threadPool,
-      if (scribe.includes(scribe.Level.Debug)) TimeUtils.nanoTime() else sge.utils.Nanos.zero
+      if (utils.Log.isDebugEnabled) TimeUtils.nanoTime() else utils.Nanos.zero
     )
+  }
 
   /** Loads parts of the asset asynchronously if the loader is an AsynchronousAssetLoader. */
   def apply(): Unit = boundary {

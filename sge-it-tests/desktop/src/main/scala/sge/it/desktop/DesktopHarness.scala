@@ -5,7 +5,7 @@
 
 package sge.it.desktop
 
-import sge.{ ApplicationListener, Pixels, Sge, SgeAware }
+import sge.{ ApplicationListener, Pixels, Sge }
 import sge.it.desktop.checks._
 
 import java.io.{ File, PrintWriter }
@@ -16,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
   * @param resultsFile
   *   path where JSON results will be written after all checks complete
   */
-class DesktopHarness(resultsFile: File) extends ApplicationListener with SgeAware {
+class DesktopHarness(resultsFile: File) extends ApplicationListener {
 
   private var sge:     Sge                      = scala.compiletime.uninitialized
   private var ready:   Boolean                  = false
@@ -48,17 +48,15 @@ class DesktopHarness(resultsFile: File) extends ApplicationListener with SgeAwar
     (40, () => { given Sge = sge; FullscreenCheck.run() })
   )
 
-  override def sgeAvailable(sge: Sge): Unit =
-    this.sge = sge
-
-  override def create(): Unit = {
+  override def create()(using Sge): Unit = {
+    this.sge = Sge()
     scribe.info("SGE DesktopHarness.create()")
     ready = true
   }
 
-  override def resize(width: Pixels, height: Pixels): Unit = ()
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
 
-  override def render(): Unit = {
+  override def render()(using Sge): Unit = {
     if (!ready) return
     frame += 1
 
@@ -79,11 +77,11 @@ class DesktopHarness(resultsFile: File) extends ApplicationListener with SgeAwar
     }
   }
 
-  override def pause(): Unit = ()
+  override def pause()(using Sge): Unit = ()
 
-  override def resume(): Unit = ()
+  override def resume()(using Sge): Unit = ()
 
-  override def dispose(): Unit =
+  override def dispose()(using Sge): Unit =
     scribe.info("SGE DesktopHarness.dispose()")
 
   private def writeResults(): Unit = {

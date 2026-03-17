@@ -57,7 +57,7 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
     Sge().input.setInputProcessor(this)
   } catch {
     case _: Exception =>
-      scribe.info("couldn't connect to " + ip + ":" + port)
+      utils.Log.info("couldn't connect to " + ip + ":" + port)
   }
 
   def sendUpdate(): Unit = scala.util.boundary {

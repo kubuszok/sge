@@ -13,10 +13,14 @@ package sge
 package platform
 
 private[sge] object PlatformOps {
-  private val panama: PanamaProvider = Panama.provider
+  // Panama provider and its dependents are lazy — loading the Rust native
+  // library (via Panama FFM) should only fail when actually needed, not when
+  // PlatformOps is first referenced (e.g. for concurrency or gdx2d).
+  private lazy val panama: PanamaProvider = Panama.provider
 
-  val etc1:        ETC1Ops        = new ETC1OpsPanama(panama)
-  val buffer:      BufferOps      = new BufferOpsPanama(panama)
+  lazy val etc1:   ETC1Ops   = new ETC1OpsPanama(panama)
+  lazy val buffer: BufferOps = new BufferOpsPanama(panama)
+
   val gdx2d:       Gdx2dOps       = Gdx2dOpsJvm
   val concurrency: ConcurrencyOps = ConcurrencyOpsDesktop
 

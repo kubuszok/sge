@@ -6,40 +6,25 @@ package sge
 package demos
 package shared
 
-import _root_.sge.{ApplicationListener, Pixels, Sge, SgeAware}
+import _root_.sge.{ApplicationListener, Pixels, Sge}
 
 /** Wraps a [[DemoScene]] as an [[_root_.sge.ApplicationListener]] for platform launchers.
-  *
-  * Implements [[_root_.sge.SgeAware]] to capture the `Sge` context before `create()` is called.
   */
-class SingleSceneApp(scene: DemoScene) extends ApplicationListener with SgeAware {
+class SingleSceneApp(scene: DemoScene) extends ApplicationListener {
 
-  private var _sge: Sge = scala.compiletime.uninitialized
-
-  override def sgeAvailable(sge: Sge): Unit =
-    this._sge = sge
-
-  override def create(): Unit = {
-    given Sge = _sge
+  override def create()(using Sge): Unit =
     scene.init()
-  }
 
-  override def resize(width: Pixels, height: Pixels): Unit = {
-    given Sge = _sge
+  override def resize(width: Pixels, height: Pixels)(using Sge): Unit =
     scene.resize(width, height)
-  }
 
-  override def render(): Unit = {
-    given Sge = _sge
-    scene.render(_sge.graphics.getDeltaTime())
-  }
+  override def render()(using Sge): Unit =
+    scene.render(Sge().graphics.getDeltaTime())
 
-  override def pause(): Unit = ()
+  override def pause()(using Sge): Unit = ()
 
-  override def resume(): Unit = ()
+  override def resume()(using Sge): Unit = ()
 
-  override def dispose(): Unit = {
-    given Sge = _sge
+  override def dispose()(using Sge): Unit =
     scene.dispose()
-  }
 }

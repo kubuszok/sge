@@ -141,7 +141,7 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
 
         val display = hGetPlatformDisplay.invoke(EGL_PLATFORM_ANGLE_ANGLE, ptr(EGL_DEFAULT_DISPLAY), platformAttribs).asInstanceOf[MemorySegment]
         if (display == MemorySegment.NULL || display.address() == EGL_NO_DISPLAY) {
-          scribe.error(s"eglGetPlatformDisplay failed: error=0x${eglError()}")
+          utils.Log.error(s"eglGetPlatformDisplay failed: error=0x${eglError()}")
           break(0L)
         }
         cachedDisplay = display
@@ -151,10 +151,10 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         val minorSeg   = arena.allocate(I)
         val initResult = hInitialize.invoke(display, majorSeg, minorSeg).asInstanceOf[Int]
         if (initResult == 0) {
-          scribe.error(s"eglInitialize failed: error=0x${eglError()}")
+          utils.Log.error(s"eglInitialize failed: error=0x${eglError()}")
           break(0L)
         }
-        scribe.info(s"EGL initialized: ${majorSeg.get(I, 0)}.${minorSeg.get(I, 0)}")
+        utils.Log.info(s"EGL initialized: ${majorSeg.get(I, 0)}.${minorSeg.get(I, 0)}")
 
         // Choose config — build attribute list dynamically to avoid uninitialized slots
         val attribs = Array(
@@ -183,7 +183,7 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         val numConfigs   = arena.allocate(I)
         val chooseResult = hChooseConfig.invoke(display, attribList, configSeg, 1, numConfigs).asInstanceOf[Int]
         if (chooseResult == 0 || numConfigs.get(I, 0) == 0) {
-          scribe.error(s"eglChooseConfig failed: result=$chooseResult, numConfigs=${numConfigs.get(I, 0)}, error=0x${eglError()}")
+          utils.Log.error(s"eglChooseConfig failed: result=$chooseResult, numConfigs=${numConfigs.get(I, 0)}, error=0x${eglError()}")
           break(0L)
         }
         val config = configSeg.get(P, 0)
@@ -198,7 +198,7 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
 
         val context = hCreateCtx.invoke(display, config, ptr(EGL_NO_CONTEXT), ctxAttribs).asInstanceOf[MemorySegment]
         if (context == MemorySegment.NULL || context.address() == EGL_NO_CONTEXT) {
-          scribe.error(s"eglCreateContext failed: error=0x${eglError()}")
+          utils.Log.error(s"eglCreateContext failed: error=0x${eglError()}")
           break(0L)
         }
 
@@ -207,7 +207,7 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         surfAttribs.setAtIndex(I, 0, EGL_NONE)
         val surface = hCreateSurface.invoke(display, config, ptr(windowHandle), surfAttribs).asInstanceOf[MemorySegment]
         if (surface == MemorySegment.NULL || surface.address() == EGL_NO_SURFACE) {
-          scribe.error(s"eglCreateWindowSurface failed: error=0x${eglError()}")
+          utils.Log.error(s"eglCreateWindowSurface failed: error=0x${eglError()}")
           hDestroyCtx.invoke(display, context)
           break(0L)
         }
@@ -215,7 +215,7 @@ class GlOpsJvm(eglLib: SymbolLookup) extends GlOps {
         // Make current
         val mcResult = hMakeCurrent.invoke(display, surface, surface, context).asInstanceOf[Int]
         if (mcResult == 0) {
-          scribe.error(s"eglMakeCurrent failed: error=0x${eglError()}")
+          utils.Log.error(s"eglMakeCurrent failed: error=0x${eglError()}")
         }
 
         // Store state in a long-lived struct

@@ -200,7 +200,7 @@ class DemoSmokeTest extends FunSuite {
     smokeTestDemo("particle-show", "sge-demo-particles")
   }
 
-  test("NetChat demo runs without errors and renders frames") {
-    smokeTestDemo("net-chat", "sge-demo-netchat")
+  test("AssetShowcase demo runs without errors and renders frames") {
+    smokeTestDemo("asset-showcase", "sge-demo-assets")
   }
 }

@@ -52,12 +52,12 @@ class DesktopNet(app: Application) extends sge.Net {
         new ProcessBuilder("xdg-open", uri).start()
         true
       } else {
-        scribe.error("Opening URIs on this environment is not supported. Ignoring.")
+        utils.Log.error("Opening URIs on this environment is not supported. Ignoring.")
         false
       }
     catch {
       case t: Throwable =>
-        scribe.error("Failed to open URI.", t)
+        utils.Log.error(s"Failed to open URI: ${t.getMessage}")
         false
     }
   }

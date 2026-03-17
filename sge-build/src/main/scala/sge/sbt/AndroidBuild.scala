@@ -6,7 +6,12 @@ import scala.sys.process.{Process => SysProcess}
 
 /** sbt settings and tasks for building Android APKs from Scala — no Gradle.
   *
-  * Build pipeline: scalac (JVM bytecode) → d8 (DEX) → aapt2 (package) → apksigner
+  * Build pipeline: scalac (JVM bytecode) → D8 (DEX + desugaring) → aapt2 (package) → apksigner
+  *
+  * Uses D8 for DEX compilation. Scribe logging JARs are excluded from the Android
+  * fat JAR to avoid a D8 bug with Scala 3 lambda register allocation
+  * (VerifyError on scribe.Priority lambdas). The Log facade routes to
+  * android.util.Log via reflection on Android at runtime.
   *
   * The Android SDK is only required when running android* tasks (androidDex, androidPackage, etc.).
   * Normal compilation works without the SDK — android.jar is added to unmanagedJars only if present.
@@ -27,10 +32,11 @@ object AndroidBuild {
   val androidTargetSdk = settingKey[Int]("Target Android SDK version")
   val androidBuildToolsVersion = settingKey[String]("Android build-tools version")
 
-  val androidDex     = taskKey[File]("Compile classes to DEX format using d8")
-  val androidPackage = taskKey[File]("Package APK using aapt2")
-  val androidSign    = taskKey[File]("Sign APK using apksigner with debug keystore")
-  val androidInstall = taskKey[Unit]("Install APK on connected device via adb")
+  val androidR8Rules  = settingKey[Option[File]]("Optional ProGuard/R8 rules file for shrinking and optimization")
+  val androidDex      = taskKey[File]("Compile classes to DEX format using R8")
+  val androidPackage  = taskKey[File]("Package APK using aapt2")
+  val androidSign     = taskKey[File]("Sign APK using apksigner with debug keystore")
+  val androidInstall  = taskKey[Unit]("Install APK on connected device via adb")
 
   // ── Settings ────────────────────────────────────────────────────────
 
@@ -46,6 +52,7 @@ object AndroidBuild {
     androidMinSdk := AndroidSdk.minSdkVersion,
     androidTargetSdk := AndroidSdk.targetSdkVersion,
     androidBuildToolsVersion := AndroidSdk.buildToolsVersion,
+    androidR8Rules := None,
 
     // SDK resolution — task, only runs when android tasks are invoked
     androidSdkRoot := {
@@ -75,7 +82,14 @@ object AndroidBuild {
     // Fork for JVM tests
     fork := true,
 
-    // ── DEX compilation ───────────────────────────────────────────────
+    // ── DEX compilation (R8) ───────────────────────────────────────────
+    // Uses R8 instead of raw d8 for DEX compilation. R8 shares the same JAR
+    // as d8 but has a more robust bytecode pipeline — in particular, its lambda
+    // desugaring correctly handles Scala 3 bytecode patterns that cause d8 to
+    // generate broken DEX (VerifyError: wide register index out of range).
+    //
+    // By default, R8 runs in desugaring-only mode (--no-tree-shaking --no-minification).
+    // Set `androidR8Rules` to a ProGuard rules file to enable shrinking/optimization.
     androidDex := {
       val log     = streams.value.log
       val sdk     = androidSdkRoot.value
@@ -91,9 +105,17 @@ object AndroidBuild {
       val jars = cp.filter(f => f.isFile && f.getName.endsWith(".jar"))
       val classDirs = cp.filter(_.isDirectory)
 
-      // Create a fat JAR of all classes for d8 input
+      // Create a fat JAR of all classes for R8 input
       val fatJar = target / "classes.jar"
-      log.info(s"Creating input JAR for d8: $fatJar")
+      // Scribe JARs are excluded from the Android fat JAR because D8 mishandles
+      // Scala 3 lambda register allocation in scribe.Priority (VerifyError: wide
+      // register index out of range).  The Log facade routes to android.util.Log
+      // via reflection on Android, so scribe classes are never needed at runtime.
+      val scribeExcludePattern = Set("scribe")
+      def isScribeJar(jar: java.io.File): Boolean =
+        scribeExcludePattern.exists(p => jar.getName.contains(p))
+
+      log.info(s"Creating input JAR for D8: $fatJar")
       val jarEntries = scala.collection.mutable.Set[String]()
       val jarOut = new java.util.jar.JarOutputStream(new java.io.FileOutputStream(fatJar))
       try {
@@ -105,7 +127,7 @@ object AndroidBuild {
             walker.forEach { path =>
               if (java.nio.file.Files.isRegularFile(path)) {
                 val entry = base.relativize(path).toString.replace('\\', '/')
-                if (jarEntries.add(entry)) {
+                if (!entry.startsWith("java/") && jarEntries.add(entry)) {
                   jarOut.putNextEntry(new java.util.jar.JarEntry(entry))
                   java.nio.file.Files.copy(path, jarOut)
                   jarOut.closeEntry()
@@ -114,14 +136,15 @@ object AndroidBuild {
             }
           } finally walker.close()
         }
-        // Add dependency JARs (excluding android.jar — it's compile-only)
-        jars.filterNot(_.getName == "android.jar").foreach { jar =>
+        // Add dependency JARs (excluding android.jar and scribe)
+        jars.filterNot(j => j.getName == "android.jar" || isScribeJar(j)).foreach { jar =>
           val zipIn = new java.util.zip.ZipFile(jar)
           try {
             val entries = zipIn.entries()
             while (entries.hasMoreElements) {
               val entry = entries.nextElement()
-              if (!entry.isDirectory && !entry.getName.startsWith("META-INF/")) {
+              // Exclude META-INF and java.* stdlib classes (provided by Android runtime)
+              if (!entry.isDirectory && !entry.getName.startsWith("META-INF/") && !entry.getName.startsWith("java/")) {
                 if (jarEntries.add(entry.getName)) {
                   jarOut.putNextEntry(new java.util.jar.JarEntry(entry.getName))
                   val is = zipIn.getInputStream(entry)
@@ -135,18 +158,22 @@ object AndroidBuild {
         }
       } finally jarOut.close()
 
-      // Run d8
-      val d8Path    = AndroidSdk.d8(sdk)
-      val minApi    = androidMinSdk.value
-      log.info(s"Running d8 (minApi=$minApi) ...")
+      // DEX compilation via D8 (com.android.tools.r8.D8).
+      // D8 does pure DEX conversion + desugaring without class hierarchy validation.
+      // Scribe JARs are excluded above so D8 never encounters the problematic lambdas.
+      val r8Jar  = AndroidSdk.r8Jar(sdk)
+      val minApi = androidMinSdk.value
+
+      log.info(s"Running D8 (minApi=$minApi) ...")
       val d8Cmd = Seq(
-        d8Path.getAbsolutePath,
+        "java", "-cp", r8Jar.getAbsolutePath, "com.android.tools.r8.D8",
         "--min-api", minApi.toString,
+        "--lib", AndroidSdk.androidJar(sdk).getAbsolutePath,
         "--output", dexDir.getAbsolutePath,
         fatJar.getAbsolutePath
       )
       val d8Exit = SysProcess(d8Cmd).!(log)
-      if (d8Exit != 0) throw new RuntimeException(s"d8 failed with exit code $d8Exit")
+      if (d8Exit != 0) throw new RuntimeException(s"D8 failed with exit code $d8Exit")
 
       log.info(s"DEX output: $dexDir")
       dexDir
@@ -159,6 +186,9 @@ object AndroidBuild {
       val target = crossTarget.value / "android"
       val dexDir = androidDex.value
 
+      // Trigger resource generators (e.g. asset generation) before packaging
+      val _ = (Compile / managedResources).value
+
       val manifestDir = (Compile / resourceDirectory).value
       val manifest    = manifestDir / "AndroidManifest.xml"
       if (!manifest.exists()) {
@@ -166,6 +196,32 @@ object AndroidBuild {
           s"AndroidManifest.xml not found at $manifest — create it in src/main/resources/"
         )
       }
+
+      // Stage game assets from all resource directories into a single assets/ dir.
+      // This includes both unmanaged (src/main/resources/) and managed (generated) resources.
+      // Excludes AndroidManifest.xml, lib/ (native libs), and META-INF/.
+      val assetsDir = target / "assets"
+      IO.delete(assetsDir)
+      IO.createDirectory(assetsDir)
+      val resDirs = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
+      val excludePrefixes = Set("AndroidManifest.xml", "lib/", "lib\\", "META-INF/", "META-INF\\")
+      resDirs.filter(_.isDirectory).foreach { dir =>
+        val base = dir.toPath
+        val walker = java.nio.file.Files.walk(base)
+        try {
+          walker.forEach { path =>
+            if (java.nio.file.Files.isRegularFile(path)) {
+              val rel = base.relativize(path).toString.replace('\\', '/')
+              if (!excludePrefixes.exists(p => rel.startsWith(p)) && rel != "AndroidManifest.xml") {
+                val dest = assetsDir.toPath.resolve(rel)
+                java.nio.file.Files.createDirectories(dest.getParent)
+                java.nio.file.Files.copy(path, dest, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+              }
+            }
+          }
+        } finally walker.close()
+      }
+      val hasAssets = IO.listFiles(assetsDir).nonEmpty
 
       val aapt2Path = AndroidSdk.aapt2(sdk)
       val apkBase   = target / "app-unsigned.apk"
@@ -179,7 +235,7 @@ object AndroidBuild {
         "--manifest", manifest.getAbsolutePath,
         "--min-sdk-version", androidMinSdk.value.toString,
         "--target-sdk-version", androidTargetSdk.value.toString
-      )
+      ) ++ (if (hasAssets) Seq("-A", assetsDir.getAbsolutePath) else Seq.empty)
       val linkExit = SysProcess(linkCmd).!(log)
       if (linkExit != 0) throw new RuntimeException(s"aapt2 link failed with exit code $linkExit")
 

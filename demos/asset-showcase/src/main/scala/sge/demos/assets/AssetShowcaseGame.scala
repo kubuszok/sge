@@ -76,6 +76,7 @@ object AssetShowcaseGame extends DemoScene {
   private var musicPlaying: Boolean = false
   private var spaceWasDown: Boolean = false
   private var enterWasDown: Boolean = false
+  private var touchWasDown: Boolean = false
 
   // ── Asset paths ────────────────────────────────────────────────────
   private val CheckerboardPath = "textures/checkerboard.png"
@@ -117,13 +118,16 @@ object AssetShowcaseGame extends DemoScene {
   }
 
   override def render(dt: Float)(using Sge): Unit = {
-    ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
+    // Guard: on Android, render() can be called before init() completes
+    if (assetManager == null) { ScreenUtils.clear(0f, 0f, 0f, 1f, true); () } else {
+      ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
 
-    if (phase == PhaseLoading) {
-      renderLoading(dt)
-    } else {
-      handleInput(dt)
-      renderShowcase(dt)
+      if (phase == PhaseLoading) {
+        renderLoading(dt)
+      } else {
+        handleInput(dt)
+        renderShowcase(dt)
+      }
     }
   }
 
@@ -190,14 +194,41 @@ object AssetShowcaseGame extends DemoScene {
   private def handleInput(dt: Float)(using Sge): Unit = {
     val input = Sge().input
 
-    // Tab cycles sections
+    // Tab or touch cycles sections
     val tabDown = input.isKeyPressed(Input.Keys.TAB)
     if (tabDown && !tabWasDown) {
       currentSection = (currentSection + 1) % SectionCount
     }
     tabWasDown = tabDown
 
-    // Audio controls
+    // Touch: tap to interact
+    val touched = input.isTouched()
+    if (touched && !touchWasDown) {
+      if (currentSection == SectionAudio) {
+        // Audio section: left half = play/pause, right half = click sound
+        val touchX = input.getX().toFloat
+        val screenW = Sge().graphics.getWidth().toFloat
+        if (touchX < screenW * 0.5f) {
+          // Toggle play/pause
+          if (musicPlaying) {
+            toneSound.stop(toneSoundId)
+            musicPlaying = false
+          } else {
+            toneSoundId = toneSound.loop(Volume.unsafeMake(musicVolume))
+            musicPlaying = true
+          }
+        } else {
+          // Play click sound
+          clickSound.play(Volume.unsafeMake(0.8f))
+        }
+      } else {
+        // Other sections: cycle to next
+        currentSection = (currentSection + 1) % SectionCount
+      }
+    }
+    touchWasDown = touched
+
+    // Audio keyboard controls
     if (currentSection == SectionAudio) {
       if (input.isKeyPressed(Input.Keys.UP)) {
         musicVolume = scala.math.min(musicVolume + 0.5f * dt, 1f)

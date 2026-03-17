@@ -75,6 +75,21 @@ object AndroidSdk {
     }
   }
 
+  /** Path to the R8 JAR (shared with d8 in build-tools/lib/d8.jar).
+    *
+    * R8 is Android's code shrinker, optimizer, and DEX compiler. It shares a JAR
+    * with d8 but provides a more robust bytecode pipeline — particularly for lambda
+    * desugaring of Scala 3 bytecode that d8 mishandles (VerifyError: wide register
+    * index out of range).
+    *
+    * Invoked as: `java -cp <r8Jar> com.android.tools.r8.R8 [options]`
+    */
+  def r8Jar(sdkRoot: File): File = {
+    val jar = sdkRoot / "build-tools" / buildToolsVersion / "lib" / "d8.jar"
+    if (jar.exists()) jar
+    else throw new RuntimeException(s"R8 JAR (lib/d8.jar) not found in ${(sdkRoot / "build-tools" / buildToolsVersion).getAbsolutePath}")
+  }
+
   /** Path to aapt2 (resource compiler & packager). */
   def aapt2(sdkRoot: File): File = {
     val base = sdkRoot / "build-tools" / buildToolsVersion

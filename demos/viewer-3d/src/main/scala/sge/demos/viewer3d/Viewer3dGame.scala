@@ -63,6 +63,11 @@ object Viewer3dGame extends DemoScene {
   private var autoRotate: Boolean = true
   private var tabWasDown: Boolean = false
 
+  // Touch drag state
+  private var lastTouchX: Float   = 0f
+  private var lastTouchY: Float   = 0f
+  private var wasTouched: Boolean = false
+
   private val Attrs: Long = Usage.Position | Usage.Normal
 
   override def init()(using Sge): Unit = {
@@ -143,7 +148,7 @@ object Viewer3dGame extends DemoScene {
     }
     tabWasDown = tabDown
 
-    // Camera orbit controls
+    // Camera orbit controls — keyboard
     if (autoRotate) {
       azimuth += 20f * dt
     }
@@ -159,6 +164,24 @@ object Viewer3dGame extends DemoScene {
     if (input.isKeyPressed(Input.Keys.DOWN)) {
       elevation = scala.math.max(elevation - 40f * dt, 5f)
     }
+
+    // Camera orbit controls — touch drag
+    val touched = input.isTouched()
+    if (touched) {
+      val tx = input.getX().toFloat
+      val ty = input.getY().toFloat
+      if (wasTouched) {
+        val dx = tx - lastTouchX
+        val dy = ty - lastTouchY
+        azimuth += dx * 0.3f
+        elevation = MathUtils.clamp(elevation - dy * 0.3f, 5f, 85f)
+        autoRotate = false
+      }
+      lastTouchX = tx
+      lastTouchY = ty
+    }
+    wasTouched = touched
+
     updateCameraPosition()
 
     // Clear color + depth buffers

@@ -23,8 +23,12 @@ import hearth.kindlings.ubjsonderivation.internal.runtime.UBJsonDerivationUtils
   */
 type JsonCodec[A] = JsonValueCodec[A]
 
-/** Factory for deriving codecs at compile time. Delegates to jsoniter-scala's [[JsonCodecMaker]]. */
-val JsonCodec: JsonCodecMaker.type = JsonCodecMaker
+/** Factory for deriving codecs at compile time. Delegates to jsoniter-scala's [[JsonCodecMaker]].
+  *
+  * Uses `inline def` so that (1) codecs are derived at compile time via macro expansion, and (2) the Scala.js linker doesn't trace into the `Provided`-scoped `jsoniter-scala-macros` module at link
+  * time (which would fail with "Cannot access module for non-module JsonCodecMaker$").
+  */
+inline def JsonCodec: JsonCodecMaker.type = JsonCodecMaker
 
 /** Re-export of kindlings' JSON AST type for polymorphic JSON fields. */
 type Json = hearth.kindlings.jsoniterjson.Json

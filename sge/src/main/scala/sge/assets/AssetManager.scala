@@ -68,7 +68,12 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private var toLoad:    Int                            = 0
   private var peakTasks: Int                            = 0
 
-  private val log: scribe.Logger = scribe.Logger("AssetManager")
+  private object log {
+    inline def info(msg:  => String):               Unit = utils.Log.info(msg)
+    inline def debug(msg: => String):               Unit = utils.Log.debug(msg)
+    inline def error(msg: => String):               Unit = utils.Log.error(msg)
+    inline def error(msg: => String, t: Throwable): Unit = utils.Log.error(msg, t)
+  }
 
   if (defaultLoaders) {
     setLoader[sge.graphics.g2d.BitmapFont](BitmapFontLoader(resolver))

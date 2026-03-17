@@ -519,7 +519,8 @@ android-demo demo gui="false":
         particle-show)      SBT="androidParticles";     DIR="particle-show";       PKG="sge.demos.particles" ;;
         net-chat)           SBT="androidNetChat";       DIR="net-chat";            PKG="sge.demos.netchat" ;;
         viewport-gallery)   SBT="androidViewports";     DIR="viewport-gallery";    PKG="sge.demos.viewports" ;;
-        *) echo "Unknown demo: {{demo}}. Use: pong, space-shooter, tile-world, hex-tactics, curve-playground, shader-lab, viewer-3d, particle-show, net-chat, viewport-gallery"; exit 1 ;;
+        asset-showcase)     SBT="androidAssets";        DIR="asset-showcase";      PKG="sge.demos.assets" ;;
+        *) echo "Unknown demo: {{demo}}. Use: pong, space-shooter, tile-world, hex-tactics, curve-playground, shader-lab, viewer-3d, particle-show, net-chat, viewport-gallery, asset-showcase"; exit 1 ;;
     esac
     APK="demos/$DIR/target/jvm-3/android/app-debug.apk"
     ACTIVITY="$PKG/.AndroidMain"
@@ -565,31 +566,105 @@ kill-sbt:
     rm -f /Users/dev/.sbt/1.0/server/bd760fdeec54161195a7/sock 2>/dev/null
     echo "Done. sbt processes cleaned up."
 
-# ── Demo ─────────────────────────────────────────────────────────
+# ── Regression Test ──────────────────────────────────────────────
 
-# Compile the demo module (JVM)
-demo-compile:
-    sbt --client 'demo/compile'
+# Compile the regression test (JVM)
+regression-compile:
+    sbt --client 'regressionTest/compile'
 
-# Compile the demo module (JS)
-demo-compile-js:
-    sbt --client 'demoJS/compile'
+# Compile the regression test (JS)
+regression-compile-js:
+    sbt --client 'regressionTestJS/compile'
 
-# Compile the demo module (Native)
-demo-compile-native:
-    sbt --client 'demoNative/compile'
+# Compile the regression test (Native)
+regression-compile-native:
+    sbt --client 'regressionTestNative/compile'
 
-# Run the demo application (JVM — requires GLFW + ANGLE + miniaudio)
-demo-jvm:
-    sbt --client 'demo/run'
+# Run regression test on JVM (real GL context via GLFW + ANGLE + miniaudio)
+# Checks output for SMOKE_TEST_PASSED marker.
+regression-test: rust-build angle-setup
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Regression test: JVM ==="
+    output=$(sbt --client 'regressionTest/run' 2>&1) || { echo "$output"; exit 1; }
+    echo "$output"
+    if echo "$output" | grep -q "SMOKE_TEST_PASSED"; then
+        echo "=== JVM regression test PASSED ==="
+    else
+        echo "=== JVM regression test FAILED ==="
+        exit 1
+    fi
 
-# Link the demo application (JS — produces .js bundle)
-demo-link-js:
-    sbt --client 'demoJS/fastLinkJS'
+# Run regression test on JS (headless Chromium via Playwright)
+# Compiles JS bundle, then runs BrowserBootstrapTest.
+regression-test-js:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Regression test: JS (browser) ==="
+    sbt --client 'regressionTestJS/fastLinkJS'
+    sbt --client 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
+    echo "=== JS regression test PASSED ==="
 
-# Run the demo application (Native — requires static Rust lib + GLFW + ANGLE + miniaudio)
-demo-native: rust-build-static
-    sbt --client 'demoNative/run'
+# Run regression test on Native (real GL context, static-linked Rust lib)
+# Checks output for SMOKE_TEST_PASSED marker.
+regression-test-native: rust-build-static angle-setup
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Regression test: Native ==="
+    output=$(sbt --client 'regressionTestNative/run' 2>&1) || { echo "$output"; exit 1; }
+    echo "$output"
+    if echo "$output" | grep -q "SMOKE_TEST_PASSED"; then
+        echo "=== Native regression test PASSED ==="
+    else
+        echo "=== Native regression test FAILED ==="
+        exit 1
+    fi
+
+# Run regression test on Android (emulator — auto-starts if not running)
+# Builds smoke APK, ensures emulator is booted, runs Android IT suite.
+regression-test-android: android-ensure-emulator
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Regression test: Android ==="
+    sbt --client 'sge-android-smoke/androidSign'
+    sbt --client 'sge-it-android/test'
+    echo "=== Android regression test PASSED ==="
+
+# Run regression tests on all 4 platforms (JVM, JS, Native, Android)
+regression-test-all: regression-test regression-test-js regression-test-native regression-test-android
+
+# ── Verification Gate ────────────────────────────────────────────
+# The master verification command. Every major task must pass this
+# before being declared done. Runs:
+#   1. Unit tests on all 3 platforms (JVM, JS, Native)
+#   2. Regression tests on all 4 platforms (JVM, JS, Native, Android)
+
+# Run all unit tests (JVM + JS + Native)
+unit-test-all: test-jvm test-js test-native
+
+# Full verification gate: unit tests + regression tests on all platforms.
+# Order: JVM+JS unit tests → JVM+JS regression → Native (static lib) → Android
+verify:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "=== Phase 1: Unit tests (JVM + JS) ==="
+    just test-jvm
+    just test-js
+    echo ""
+    echo "=== Phase 2: Regression tests (JVM + JS) ==="
+    just regression-test
+    just regression-test-js
+    echo ""
+    echo "=== Phase 3: Unit tests + regression (Native — static lib) ==="
+    just test-native
+    just regression-test-native
+    echo ""
+    echo "=== Phase 4: Regression test (Android — emulator) ==="
+    just regression-test-android
+    echo ""
+    echo "============================================"
+    echo "  VERIFICATION PASSED — all platforms green"
+    echo "============================================"
 
 # ── Git — read-only ──────────────────────────────────────────────
 
