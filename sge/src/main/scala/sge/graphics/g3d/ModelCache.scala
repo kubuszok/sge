@@ -59,9 +59,8 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   /** Create a ModelCache using the default {@link Sorter} and the {@link SimpleMeshPool} implementation. This might not be the most optimal implementation for you use-case, but should be good to
     * start with.
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(ModelCache.Sorter(), ModelCache.SimpleMeshPool())
-  }
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
     * cache and prepare it for creating a new cache. The cache is not valid until the call to {@link #end()} is made. Use one of the add methods (e.g. {@link #add(Renderable)} or

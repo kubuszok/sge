@@ -27,6 +27,9 @@ val versions = new {
 
   val panamaPort = "v0.1.0"
 
+  val scalaJavaTime    = "2.6.0"
+  val scalaJavaLocales = "1.5.4"
+
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
 }
@@ -55,6 +58,8 @@ val sge = (projectMatrix in file("sge"))
       "com.softwaremill.sttp.client4" %%% "core" % versions.sttp,
       "org.scala-lang.modules" %%% "scala-xml" % versions.xml,
       "com.outr" %%% "scribe" % versions.scribe,
+      "io.github.cquiroz" %%% "scala-java-time" % versions.scalaJavaTime,
+      "io.github.cquiroz" %%% "scala-java-locales" % versions.scalaJavaLocales,
       "org.scalameta" %%% "munit" % versions.munit % Test,
       "org.scalameta" %%% "munit-scalacheck" % versions.munitScalacheck % Test
     ),

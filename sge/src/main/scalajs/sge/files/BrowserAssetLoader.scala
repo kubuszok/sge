@@ -15,10 +15,12 @@ package sge
 package files
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ Future, Promise }
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
 import scala.scalajs.js.typedarray.Int8Array
 import org.scalajs.dom
+import org.scalajs.dom.{ Blob, HTMLCanvasElement, HTMLImageElement, URL }
 
 /** Browser asset loader that fetches assets via the fetch API and caches them in-memory.
   *
@@ -69,7 +71,7 @@ class BrowserAssetLoader(val baseUrl: String) {
             val future = entry.assetType match {
               case AssetType.Text      => loadText(entry.path)
               case AssetType.Binary    => loadBinary(entry.path)
-              case AssetType.Image     => loadBinary(entry.path) // images stored as binary
+              case AssetType.Image     => loadImage(entry.path)
               case AssetType.Audio     => loadBinary(entry.path) // audio stored as binary
               case AssetType.Directory =>
                 directorySet.add(entry.path)
@@ -185,6 +187,82 @@ class BrowserAssetLoader(val baseUrl: String) {
         }
         binaryCache(fixSlashes(path)) = bytes
       }
+
+  /** Load an image asset: fetch as binary, then decode via Canvas 2D to extract RGBA pixels. Both raw bytes (for readBytes) and decoded pixels (for Gdx2dOps) are cached.
+    */
+  private def loadImage(path: String): Future[Unit] =
+    dom
+      .fetch(assetUrl(path))
+      .toFuture
+      .flatMap { response =>
+        if (!response.ok)
+          throw utils.SgeError.FileReadError(null, s"Failed to fetch image asset: $path (${response.status})")
+        response.arrayBuffer().toFuture
+      }
+      .flatMap { arrayBuf =>
+        // Store raw bytes in binary cache (for readBytes() compatibility)
+        val int8  = new Int8Array(arrayBuf)
+        val bytes = new Array[Byte](int8.length)
+        var i     = 0
+        while (i < bytes.length) {
+          bytes(i) = int8(i)
+          i += 1
+        }
+        binaryCache(fixSlashes(path)) = bytes
+
+        // Decode image via HTMLImageElement + Canvas 2D
+        val blobOpts = js.Dynamic.literal("type" -> mimeForPath(path))
+        val blob     = new Blob(js.Array(arrayBuf), blobOpts.asInstanceOf[dom.BlobPropertyBag])
+        val objUrl   = URL.createObjectURL(blob)
+        val img      = dom.document.createElement("img").asInstanceOf[HTMLImageElement]
+        val promise  = Promise[Unit]()
+
+        img.onload = { (_: dom.Event) =>
+          try {
+            val w      = img.naturalWidth
+            val h      = img.naturalHeight
+            val canvas = dom.document.createElement("canvas").asInstanceOf[HTMLCanvasElement]
+            canvas.width = w
+            canvas.height = h
+            val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
+            ctx.drawImage(img, 0, 0)
+            val imageData = ctx.getImageData(0, 0, w, h)
+            val rgbaData  = imageData.data // Uint8ClampedArray — RGBA
+            val rgba      = new Array[Byte](rgbaData.length)
+            var j         = 0
+            while (j < rgba.length) {
+              rgba(j) = rgbaData(j).toByte
+              j += 1
+            }
+            sge.platform.Gdx2dOpsJs.cacheDecodedImage(bytes, w, h, rgba)
+            URL.revokeObjectURL(objUrl)
+            promise.success(())
+          } catch {
+            case ex: Throwable =>
+              URL.revokeObjectURL(objUrl)
+              promise.failure(ex)
+          }
+        }
+
+        val dynImg = img.asInstanceOf[js.Dynamic]
+        dynImg.onerror = { (_: dom.Event) =>
+          URL.revokeObjectURL(objUrl)
+          promise.failure(new java.io.IOException(s"Failed to decode image: $path"))
+        }: js.Function1[dom.Event, Unit]
+
+        dynImg.src = objUrl
+        promise.future
+      }
+
+  private def mimeForPath(path: String): String = {
+    val lower = path.toLowerCase
+    if (lower.endsWith(".png")) "image/png"
+    else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) "image/jpeg"
+    else if (lower.endsWith(".gif")) "image/gif"
+    else if (lower.endsWith(".bmp")) "image/bmp"
+    else if (lower.endsWith(".webp")) "image/webp"
+    else "application/octet-stream"
+  }
 
   private def fixSlashes(path: String): String =
     path.replace('\\', '/')

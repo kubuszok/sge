@@ -275,10 +275,14 @@ object I18NBundle {
       locales.add(locale)
     }
     if (!country.isEmpty()) {
-      locales.add(if (locales.isEmpty()) locale else Locale.of(language, country))
+      @scala.annotation.nowarn("msg=deprecated") // Locale constructor needed for scala-java-locales compatibility (Locale.of is JDK 19+)
+      val lc = new Locale(language, country)
+      locales.add(if (locales.isEmpty()) locale else lc)
     }
     if (!language.isEmpty()) {
-      locales.add(if (locales.isEmpty()) locale else Locale.of(language))
+      @scala.annotation.nowarn("msg=deprecated") // Locale constructor needed for scala-java-locales compatibility (Locale.of is JDK 19+)
+      val ll = new Locale(language)
+      locales.add(if (locales.isEmpty()) locale else ll)
     }
     locales.add(Locale.ROOT)
     locales

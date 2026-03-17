@@ -20,7 +20,6 @@ package audio
 
 import org.scalajs.dom
 import org.scalajs.dom.document
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.scalajs.js
 
 /** Central manager for Web Audio API sound and music creation.
@@ -94,49 +93,58 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
 
   /** Create a new [[WebAudioSound]] from a file handle.
     *
-    * The sound data is fetched asynchronously and decoded via `decodeAudioData`.
+    * The sound data is read from the preloaded cache (via BrowserFileHandle) and decoded via `decodeAudioData`.
     */
   def createSound(fileHandle: files.FileHandle): Sound = {
     val sound = WebAudioSound(audioContext, globalVolumeNode, audioControlGraphPool)
 
-    // Fetch the audio data and decode it
-    val url = fileHandle match {
-      case bfh: files.BrowserFileHandle => bfh.parent().toString + "/" + bfh.name()
-      case _ => fileHandle.path()
+    // Read audio bytes from the preloaded cache and decode
+    val bytes = fileHandle.readBytes()
+    val int8  = new js.typedarray.Int8Array(bytes.length)
+    var i     = 0
+    while (i < bytes.length) {
+      int8(i) = bytes(i)
+      i += 1
     }
+    val arrayBuf = int8.buffer
 
-    dom
-      .fetch(url)
-      .toFuture
-      .flatMap { response =>
-        response.arrayBuffer().toFuture
-      }
-      .foreach { arrayBuf =>
-        audioContext.decodeAudioData(
-          arrayBuf.asInstanceOf[js.Any],
-          { (decodedBuffer: js.Dynamic) =>
-            sound.setAudioBuffer(decodedBuffer)
-          }: js.Function1[js.Dynamic, Unit],
-          { () =>
-            scribe.error("WebAudio: decodeAudioData failed")
-          }: js.Function0[Unit]
-        )
-      }
+    audioContext.decodeAudioData(
+      arrayBuf.asInstanceOf[js.Any],
+      { (decodedBuffer: js.Dynamic) =>
+        sound.setAudioBuffer(decodedBuffer)
+      }: js.Function1[js.Dynamic, Unit],
+      { () =>
+        scribe.error("WebAudio: decodeAudioData failed for " + fileHandle.path())
+      }: js.Function0[Unit]
+    )
 
     sound
   }
 
   /** Create a new [[WebAudioMusic]] from a file handle. */
   def createMusic(fileHandle: files.FileHandle): Music = {
-    val url = fileHandle match {
-      case bfh: files.BrowserFileHandle => bfh.parent().toString + "/" + bfh.name()
-      case _ => fileHandle.path()
+    // For music, create a Blob URL from cached bytes — streaming via <audio> element
+    val bytes = fileHandle.readBytes()
+    val int8  = new js.typedarray.Int8Array(bytes.length)
+    var i     = 0
+    while (i < bytes.length) {
+      int8(i) = bytes(i)
+      i += 1
     }
-
+    val blob         = new dom.Blob(js.Array(int8.buffer), js.Dynamic.literal("type" -> mimeForAudio(fileHandle.path())).asInstanceOf[dom.BlobPropertyBag])
+    val blobUrl      = dom.URL.createObjectURL(blob)
     val audioElement = document.createElement("audio").asInstanceOf[dom.HTMLAudioElement]
-    audioElement.src = url
+    audioElement.src = blobUrl
 
     WebAudioMusic(audioContext, audioElement, audioControlGraphPool)
+  }
+
+  private def mimeForAudio(path: String): String = {
+    val lower = path.toLowerCase
+    if (lower.endsWith(".ogg")) "audio/ogg"
+    else if (lower.endsWith(".mp3")) "audio/mpeg"
+    else if (lower.endsWith(".wav")) "audio/wav"
+    else "audio/mpeg"
   }
 
   /** Set the global volume for all sounds and music. */

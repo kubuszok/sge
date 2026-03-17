@@ -147,6 +147,38 @@ class BrowserApplication(
     lastWidth = _graphics.getWidth()
     lastHeight = _graphics.getHeight()
 
+    // Preload assets from manifest if enabled, then start the game.
+    // If assets.txt is not found (404), start without preloading.
+    if (config.preloadAssets) {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      val callback = new BrowserAssetLoader.PreloadCallback {
+        def update(loaded: Int, total: Int, lastAssetSize: Long): Unit = {
+          val loadingDiv = document.getElementById("loading")
+          if (loadingDiv != null) {
+            loadingDiv.textContent = s"Loading assets\u2026 $loaded / $total"
+          }
+        }
+        def error(path: String, cause: Throwable): Unit =
+          dom.console.warn(s"[sge] Failed to preload: $path \u2014 ${cause.getMessage}")
+        def finished(): Unit = ()
+      }
+      assetLoader
+        .preload("assets.txt", callback)
+        .toFuture
+        .recover { case _: Throwable =>
+          dom.console.info("[sge] No assets.txt manifest found; starting without preload")
+        }
+        .foreach(_ => startGameLoop())
+    } else {
+      startGameLoop()
+    }
+  }
+
+  private def startGameLoop(): Unit = {
+    // Remove the loading overlay now that the game is ready
+    val loadingDiv = document.getElementById("loading")
+    if (loadingDiv != null) loadingDiv.parentNode.removeChild(loadingDiv)
+
     // Notify the listener
     listener match {
       case aware: SgeAware => aware.sgeAvailable(_sge)

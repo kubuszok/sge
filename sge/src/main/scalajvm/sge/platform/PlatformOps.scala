@@ -15,9 +15,10 @@ package platform
 private[sge] object PlatformOps {
   private val panama: PanamaProvider = Panama.provider
 
-  val etc1:   ETC1Ops   = new ETC1OpsPanama(panama)
-  val buffer: BufferOps = new BufferOpsPanama(panama)
-  val gdx2d:  Gdx2dOps  = Gdx2dOpsJvm
+  val etc1:        ETC1Ops        = new ETC1OpsPanama(panama)
+  val buffer:      BufferOps      = new BufferOpsPanama(panama)
+  val gdx2d:       Gdx2dOps       = Gdx2dOpsJvm
+  val concurrency: ConcurrencyOps = ConcurrencyOpsDesktop
 
   // Desktop backend FFI — set by the DesktopApplication during initialization.
   // Null until a desktop backend is running (headless mode doesn't need them).

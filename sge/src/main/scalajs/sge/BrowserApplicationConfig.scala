@@ -93,6 +93,10 @@ class BrowserApplicationConfig(
   /** If true, audio backend will not be used. */
   var disableAudio: Boolean = false
 
+  /** If true, preload all assets listed in assets.txt before starting the game loop. The manifest is fetched from `<baseUrl>/assets.txt`.
+    */
+  var preloadAssets: Boolean = true
+
   /** Returns true if this is a fixed-size application (both width and height are non-zero). */
   def isFixedSizeApplication: Boolean = width != 0 && height != 0
 }

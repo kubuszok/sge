@@ -724,8 +724,9 @@ object SgePackaging {
 
   // ── Browser (Scala.js) packaging ───────────────────────────────────
 
-  val sgePackageBrowser = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
-  val sgeBrowserTitle   = settingKey[String]("HTML page title for the browser package")
+  val sgePackageBrowser        = taskKey[File]("Package Scala.js output as a browser-ready directory with HTML")
+  val sgeBrowserTitle          = settingKey[String]("HTML page title for the browser package")
+  val sgeGenerateAssetManifest = taskKey[File]("Generate assets.txt manifest from project resources")
 
   /** The fullLinkJS output directory must be provided by the caller, since
     * sbt-scalajs types are not on this plugin's classpath. Wire it in build.sbt:
@@ -735,12 +736,75 @@ object SgePackaging {
     */
   val sgeJsOutputDir = taskKey[File]("Directory containing fullLinkJS output (main.js)")
 
+  private val generateAssetManifestTask: Def.Initialize[Task[File]] = Def.task {
+    // Trigger resource generators first so generated files (e.g. test textures, audio) are present
+    val _          = (Compile / managedResources).value
+    val log        = streams.value.log
+    val resDirs    = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
+    val outFile    = (Compile / resourceManaged).value / "assets.txt"
+
+    val entries = scala.collection.mutable.ArrayBuffer[String]()
+    val dirs    = scala.collection.mutable.Set[String]()
+
+    resDirs.filter(_.exists()).foreach { base =>
+      val baseDir = base.toPath
+      (base ** "*").get.foreach { f =>
+        if (f.isFile && f.getName != "AndroidManifest.xml" && f.getName != "assets.txt") {
+          val rel  = baseDir.relativize(f.toPath).toString.replace('\\', '/')
+          val size = f.length()
+          val ext  = f.getName.toLowerCase match {
+            case n if n.endsWith(".png") || n.endsWith(".jpg") || n.endsWith(".jpeg") ||
+              n.endsWith(".gif") || n.endsWith(".bmp") || n.endsWith(".webp") => "i"
+            case n if n.endsWith(".wav") || n.endsWith(".ogg") || n.endsWith(".mp3") => "a"
+            case n if n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".atlas") ||
+              n.endsWith(".fnt") || n.endsWith(".txt") || n.endsWith(".xml") ||
+              n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag") ||
+              n.endsWith(".tmj") || n.endsWith(".tsj") || n.endsWith(".skin") => "t"
+            case _ => "b" // binary fallback (g3db, etc.)
+          }
+          val mime = mimeType(f.getName)
+          entries += s"$ext:$rel:$size:$mime"
+
+          // Track parent directories
+          var parent = rel
+          while (parent.contains("/")) {
+            parent = parent.substring(0, parent.lastIndexOf('/'))
+            if (dirs.add(parent)) entries += s"d:$parent:0:"
+          }
+        }
+      }
+    }
+
+    IO.write(outFile, entries.sorted.mkString("\n"))
+    log.info(s"[sge] Asset manifest: ${entries.size} entries -> ${outFile.getAbsolutePath}")
+    outFile
+  }
+
+  private def mimeType(name: String): String = {
+    val n = name.toLowerCase
+    if (n.endsWith(".png")) "image/png"
+    else if (n.endsWith(".jpg") || n.endsWith(".jpeg")) "image/jpeg"
+    else if (n.endsWith(".gif")) "image/gif"
+    else if (n.endsWith(".bmp")) "image/bmp"
+    else if (n.endsWith(".webp")) "image/webp"
+    else if (n.endsWith(".wav")) "audio/wav"
+    else if (n.endsWith(".ogg")) "audio/ogg"
+    else if (n.endsWith(".mp3")) "audio/mpeg"
+    else if (n.endsWith(".json") || n.endsWith(".g3dj") || n.endsWith(".tmj") || n.endsWith(".tsj")) "application/json"
+    else if (n.endsWith(".xml")) "application/xml"
+    else if (n.endsWith(".txt") || n.endsWith(".atlas") || n.endsWith(".fnt") || n.endsWith(".skin")) "text/plain"
+    else if (n.endsWith(".glsl") || n.endsWith(".vert") || n.endsWith(".frag")) "text/plain"
+    else "application/octet-stream"
+  }
+
   private val packageBrowserTask: Def.Initialize[Task[File]] = Def.task {
-    val log     = streams.value.log
-    val appName = sgeAppName.value
-    val title   = sgeBrowserTitle.value
-    val jsDir   = sgeJsOutputDir.value
-    val outDir  = target.value / "sge-browser" / appName
+    val log      = streams.value.log
+    val appName  = sgeAppName.value
+    val title    = sgeBrowserTitle.value
+    val jsDir    = sgeJsOutputDir.value
+    val outDir   = target.value / "sge-browser" / appName
+    val resDirs  = (Compile / unmanagedResourceDirectories).value ++ (Compile / managedResourceDirectories).value
+    val manifest = sgeGenerateAssetManifest.value
 
     IO.delete(outDir)
     IO.createDirectory(outDir)
@@ -749,6 +813,24 @@ object SgePackaging {
     IO.listFiles(jsDir).foreach { f =>
       IO.copyFile(f, outDir / f.getName)
     }
+
+    // Copy resources into assets/ subdirectory
+    val assetsDir = outDir / "assets"
+    IO.createDirectory(assetsDir)
+    resDirs.filter(_.exists()).foreach { base =>
+      val baseDir = base.toPath
+      (base ** "*").get.foreach { f =>
+        if (f.isFile) {
+          val rel       = baseDir.relativize(f.toPath).toString.replace('\\', '/')
+          val targetFile = assetsDir / rel
+          IO.createDirectory(targetFile.getParentFile)
+          IO.copyFile(f, targetFile)
+        }
+      }
+    }
+
+    // Copy manifest into assets/
+    IO.copyFile(manifest, assetsDir / "assets.txt")
 
     // Generate index.html
     val html = generateHtml(title, appName)
@@ -788,8 +870,9 @@ object SgePackaging {
     * Requires the caller to wire `sgeJsOutputDir` to `fullLinkJS / scalaJSLinkerOutputDirectory`.
     */
   lazy val browserSettings: Seq[Setting[_]] = Seq(
-    sgeBrowserTitle    := sgeAppName.value,
-    sgePackageBrowser  := packageBrowserTask.value
+    sgeBrowserTitle          := sgeAppName.value,
+    sgeGenerateAssetManifest := generateAssetManifestTask.value,
+    sgePackageBrowser        := packageBrowserTask.value
   )
 
   // ── Scala Native packaging ─────────────────────────────────────────

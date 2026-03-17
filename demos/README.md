@@ -1,9 +1,9 @@
 # SGE Demos
 
-Ten feature demos for the SGE (Scala Game Engine), each exercising different
-engine subsystems. Nine demos run on all three platforms (JVM, Scala.js, Scala
+Eleven feature demos for the SGE (Scala Game Engine), each exercising different
+engine subsystems. Ten demos run on all three platforms (JVM, Scala.js, Scala
 Native); Net Chat is JVM-only (XmlReader depends on a SAX parser only available
-on JVM). No asset files — everything is procedurally generated.
+on JVM).
 
 ## Running
 
@@ -44,6 +44,7 @@ native binaries, and APKs) from each demo's `target/` into a single
 | **Particle Show** | Manual particle system with 3 emitter modes (explosion, fountain, rain), gravity, fade-out, particle count bar | **Yes** — 1/2/3 keys switch modes; click/touch spawns burst at cursor | `DynamicArray`, `Pool` + `Poolable`, `SpriteBatch`, `Pixmap`, `Texture`, `ShapeRenderer` (HUD bar), `FitViewport` |
 | **Hex Tactics** | Hex grid tactics mini-game: 4 terrain types (plains, forest, mountain, water), 2 teams (red/blue) with 2 units each, turn-based movement | **Yes** — click to select unit, click adjacent passable hex to move; Tab advances turn; R regenerates map | `ArrayMap`, `OrderedMap`, `ObjectMap`, `ShapeRenderer` (hex rendering via triangles), `FitViewport`, `Vector2`/`Vector3`, hex coordinate math |
 | **Net Chat** | Network/serialization utilities showcase: XML parsing, TextFormatter, TimeUtils, Clipboard — visualized as 4 animated info cards. **JVM only** (XmlReader depends on SAX parser) | **Yes** — Tab cycles XML samples, R re-parses, C copies to clipboard, V checks clipboard | `XmlReader`, `TextFormatter`, `TimeUtils` (millis, nanos), `Clipboard`, `ShapeRenderer`, `ScreenViewport` |
+| **Asset Showcase** | Asset loading demo: 2D textures, 3D models (.g3dj JSON + .g3db UBJSON), and audio (Sound) loaded via AssetManager with progress bar. Three tabbed sections | **Yes** — Tab cycles sections (Textures/3D/Audio); Audio: Space=play/pause, Up/Down=volume, Enter=click SFX | `AssetManager`, `TextureLoader`, `G3dModelLoader`, `G3dBinaryModelLoader`, `SoundLoader`, `SpriteBatch`, `ModelBatch`, `PerspectiveCamera`, `Environment`, `DirectionalLight`, `ShapeRenderer`, stencil test |
 
 ## Architecture
 
@@ -52,6 +53,8 @@ wrapper that bridges `DemoScene` lifecycle to SGE's `ApplicationListener`.
 Platform launchers (JVM main, JS entry, Native main) instantiate
 `SingleSceneApp(MyDemoGame)`.
 
-No demos use asset files — all textures, tile maps, models, and sprites are
-built procedurally from `Pixmap`, `ModelBuilder`, or `ShapeRenderer` at
-runtime.
+Most demos are procedurally generated from `Pixmap`, `ModelBuilder`, or
+`ShapeRenderer`. The Asset Showcase demo uses real asset files (PNG textures,
+.g3dj/.g3db models, WAV audio) generated at compile time via sbt
+`resourceGenerators`. It includes a `G3djToG3dbConverter` utility for producing
+.g3db (UBJSON binary) model files from .g3dj (JSON) sources.

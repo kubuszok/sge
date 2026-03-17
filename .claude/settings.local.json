@@ -1,41 +1,5 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(just:*)",
-      "Bash(just *)",
-      "Bash(git:*)",
-      "Bash(sbt --client:*)",
-      "WebFetch",
-      "WebSearch",
-      "Bash(pkill:*)",
-      "Bash(sbt:*)",
-      "Bash(npx:*)",
-      "Bash(cargo:*)",
-      "Bash(nm:*)",
-      "Bash(otool:*)"
-    ],
-    "deny": [
-      "Bash(rg:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(ls:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(sort:*)",
-      "Bash(wc:*)",
-      "Bash(awk:*)",
-      "Bash(sed:*)",
-      "Bash(perl:*)",
-      "Bash(python:*)",
-      "Bash(echo:*)",
-      "Bash(chmod:*)",
-      "Bash(xargs:*)",
-      "Bash(gh:*)",
-      "Bash(for:*)",
-      "Bash(while:*)"
-    ],
-    "alwaysAsk": [
-      "Edit(Justfile)"
-    ]
+    "allow": ["Bash(pkill:*)", "Bash(sbt:*)", "Bash(nm:*)", "Bash(otool:*)"]
   }
 }

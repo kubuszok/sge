@@ -59,13 +59,8 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private val loaders:   ObjectMap[Class[?], ObjectMap[String, AssetLoader[?, ?]]] = ObjectMap()
   private val loadQueue: DynamicArray[AssetDescriptor[?]]                          = DynamicArray()
 
-  private val executorService: java.util.concurrent.ExecutorService =
-    java.util.concurrent.Executors.newSingleThreadExecutor { (r: Runnable) =>
-      val t = new Thread(r, "AssetManager")
-      t.setDaemon(true)
-      t
-    }
-  private val executor: ExecutionContext = ExecutionContext.fromExecutorService(executorService)
+  private val concurrency: sge.platform.ConcurrencyOps = sge.platform.PlatformOps.concurrency
+  private val executor:    ExecutionContext            = concurrency.executor
 
   private val tasks:     DynamicArray[AssetLoadingTask] = DynamicArray()
   private var listener:  Nullable[AssetErrorListener]   = Nullable.empty
@@ -441,7 +436,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     while (true) {
       val done = update()
       if (done || TimeUtils.millis() > endTime) boundary.break(done)
-      Thread.`yield`()
+      concurrency.yieldThread()
     }
     true // unreachable, satisfies compiler
   }
@@ -456,7 +451,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   def finishLoading(): Unit = {
     log.debug("Waiting for loading to complete...")
     while (!update())
-      Thread.`yield`()
+      concurrency.yieldThread()
     log.debug("Loading complete.")
   }
 
@@ -485,7 +480,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
             )
           }
         }
-        Thread.`yield`()
+        concurrency.yieldThread()
       }
       throw SgeError.InvalidInput("unreachable") // satisfies compiler
     }
@@ -746,7 +741,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   override def close(): Unit = {
     log.debug("Disposing.")
     clear()
-    executorService.shutdown()
+    concurrency.shutdown()
   }
 
   /** Clears and disposes all assets and the preloading queue. */

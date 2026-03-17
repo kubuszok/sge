@@ -93,7 +93,10 @@ val shared = (projectMatrix in file("shared"))
     organization   := "com.kubuszok",
     publish / skip := true,
     libraryDependencies ++= Seq(
-      "com.kubuszok" %%% "sge" % sgeVersion
+      "com.kubuszok" %%% "sge" % sgeVersion,
+      // jsoniter-scala-macros is "provided" in sge but referenced at runtime
+      // by JsonCodecs.scala (val JsonCodec = JsonCodecMaker) — needed for g3dj loading
+      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.38.9"
     )
   )
   .jvmPlatform(scalaVersions = Seq(sv),
@@ -155,6 +158,149 @@ val netChat = (projectMatrix in file("net-chat"))
   .dependsOn(shared)
   .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis("net-chat", "netchat"))
 val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
+// Asset Showcase: uses real asset files (textures, models, audio) loaded via AssetManager.
+// Resource generators create procedural PNG textures and WAV audio at compile time.
+val assetGeneratorSettings: Seq[Setting[_]] = Seq(
+  Compile / resourceGenerators += Def.task {
+    val outDir = (Compile / resourceManaged).value
+    val texDir = outDir / "textures"
+    val audioDir = outDir / "audio"
+    IO.createDirectories(Seq(texDir, audioDir))
+    val files = new scala.collection.mutable.ArrayBuffer[File]()
+
+    // ── Checkerboard PNG texture (64x64, 8x8 grid) ──────────────────
+    val texFile = texDir / "checkerboard.png"
+    if (!texFile.exists()) {
+      val size = 64
+      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+      val cellSize = size / 8
+      var y = 0
+      while (y < size) {
+        var x = 0
+        while (x < size) {
+          val light = ((x / cellSize) + (y / cellSize)) % 2 == 0
+          img.setRGB(x, y, if (light) 0xFF4488CC else 0xFF224466)
+          x += 1
+        }
+        y += 1
+      }
+      javax.imageio.ImageIO.write(img, "png", texFile)
+    }
+    files += texFile
+
+    // ── Gradient PNG texture (64x64, vertical blue-to-cyan) ──────────
+    val gradFile = texDir / "gradient.png"
+    if (!gradFile.exists()) {
+      val size = 64
+      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
+      var y = 0
+      while (y < size) {
+        val t = y.toFloat / (size - 1).toFloat
+        val r = (0.1f + 0.2f * t)
+        val g = (0.3f + 0.4f * t)
+        val b = (0.6f + 0.3f * t)
+        val rgb = 0xFF000000 | ((r * 255).toInt << 16) | ((g * 255).toInt << 8) | (b * 255).toInt
+        var x = 0
+        while (x < size) {
+          img.setRGB(x, y, rgb)
+          x += 1
+        }
+        y += 1
+      }
+      javax.imageio.ImageIO.write(img, "png", gradFile)
+    }
+    files += gradFile
+
+    // ── WAV audio: 440Hz sine tone, 1 second, 16-bit mono 22050Hz ───
+    val wavFile = audioDir / "tone.wav"
+    if (!wavFile.exists()) {
+      val sampleRate = 22050
+      val numSamples = sampleRate // 1 second
+      val bitsPerSample = 16
+      val numChannels = 1
+      val byteRate = sampleRate * numChannels * bitsPerSample / 8
+      val blockAlign = numChannels * bitsPerSample / 8
+      val dataSize = numSamples * blockAlign
+      val buf = java.nio.ByteBuffer.allocate(44 + dataSize)
+      buf.order(java.nio.ByteOrder.LITTLE_ENDIAN)
+      // RIFF header
+      buf.put("RIFF".getBytes("US-ASCII"))
+      buf.putInt(36 + dataSize) // chunk size
+      buf.put("WAVE".getBytes("US-ASCII"))
+      // fmt sub-chunk
+      buf.put("fmt ".getBytes("US-ASCII"))
+      buf.putInt(16)            // sub-chunk size
+      buf.putShort(1.toShort)   // PCM
+      buf.putShort(numChannels.toShort)
+      buf.putInt(sampleRate)
+      buf.putInt(byteRate)
+      buf.putShort(blockAlign.toShort)
+      buf.putShort(bitsPerSample.toShort)
+      // data sub-chunk
+      buf.put("data".getBytes("US-ASCII"))
+      buf.putInt(dataSize)
+      var i = 0
+      while (i < numSamples) {
+        // 440Hz sine with fade-out envelope
+        val t = i.toFloat / sampleRate.toFloat
+        val envelope = 1.0f - t // linear fade from 1.0 to 0.0
+        val sample = (math.sin(2.0 * math.Pi * 440.0 * t) * 0.7 * envelope * 32767.0).toInt
+        buf.putShort(sample.toShort)
+        i += 1
+      }
+      IO.write(wavFile, buf.array())
+    }
+    files += wavFile
+
+    // ── Short click sound: 880Hz, 0.1s, 16-bit mono 22050Hz ─────────
+    val clickFile = audioDir / "click.wav"
+    if (!clickFile.exists()) {
+      val sampleRate = 22050
+      val numSamples = sampleRate / 10 // 0.1 second
+      val dataSize = numSamples * 2
+      val buf = java.nio.ByteBuffer.allocate(44 + dataSize)
+      buf.order(java.nio.ByteOrder.LITTLE_ENDIAN)
+      buf.put("RIFF".getBytes("US-ASCII"))
+      buf.putInt(36 + dataSize)
+      buf.put("WAVE".getBytes("US-ASCII"))
+      buf.put("fmt ".getBytes("US-ASCII"))
+      buf.putInt(16)
+      buf.putShort(1.toShort)
+      buf.putShort(1.toShort) // mono
+      buf.putInt(sampleRate)
+      buf.putInt(sampleRate * 2)
+      buf.putShort(2.toShort)
+      buf.putShort(16.toShort)
+      buf.put("data".getBytes("US-ASCII"))
+      buf.putInt(dataSize)
+      var i = 0
+      while (i < numSamples) {
+        val t = i.toFloat / sampleRate.toFloat
+        val envelope = 1.0f - (t * 10.0f) // fast fade
+        val sample = (math.sin(2.0 * math.Pi * 880.0 * t) * 0.5 * envelope * 32767.0).toInt
+        buf.putShort(math.max(-32768, math.min(32767, sample)).toShort)
+        i += 1
+      }
+      IO.write(clickFile, buf.array())
+    }
+    files += clickFile
+
+    files.toSeq
+  }
+)
+
+val assetShowcase = (projectMatrix in file("asset-showcase"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
+  .enablePlugins(SgeProject)
+  .settings(
+    name := "sge-demo-assets", organization := "com.kubuszok", publish / skip := true,
+    SgeProject.autoImport.sgeAppName := "SGE Asset Showcase"
+  )
+  .settings(assetGeneratorSettings)
+  .dependsOn(shared)
+  .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis("asset-showcase", "assets"))
+  .jsPlatform(scalaVersions = Seq(sv), settings = jsAxis)
+  .nativePlatform(scalaVersions = Seq(sv), settings = nativeAxis("asset-showcase"))
 
 // ── Release aliases ─────────────────────────────────────────────────
 // Usage: sbt releasePong    — builds JVM (all 6 platforms) + Browser + Native
@@ -174,11 +320,12 @@ releaseAlias("Particles",    "particleShow",    "particleShowJS",    "particleSh
 // NetChat: JVM-only release (no JS/Native)
 addCommandAlias("releaseNetChat", "netChat/sgePackageAll")
 releaseAlias("Viewports",    "viewportGallery", "viewportGalleryJS", "viewportGalleryNative")
+releaseAlias("Assets",       "assetShowcase",   "assetShowcaseJS",   "assetShowcaseNative")
 
 addCommandAlias("releaseAll",
   "releasePong; releaseSpaceShooter; releaseTileWorld; releaseHexTactics; " +
   "releaseCurves; releaseShaderLab; releaseViewer3d; releaseParticles; " +
-  "releaseViewports; " +
+  "releaseViewports; releaseAssets; " +
   "androidAll"
 )
 // releaseNetChat excluded from releaseAll — JVM only, run separately
@@ -201,11 +348,12 @@ androidAlias("Viewer3d",     "viewer3d")
 androidAlias("Particles",    "particleShow")
 androidAlias("NetChat",      "netChat")
 androidAlias("Viewports",    "viewportGallery")
+androidAlias("Assets",       "assetShowcase")
 
 addCommandAlias("androidAll",
   "androidPong; androidSpaceShooter; androidTileWorld; androidHexTactics; " +
   "androidCurves; androidShaderLab; androidViewer3d; androidParticles; " +
-  "androidViewports"
+  "androidViewports; androidAssets"
 )
 // androidNetChat excluded from androidAll — run separately if needed
 
@@ -229,7 +377,7 @@ collectReleases := {
   val demoDirs = Seq(
     "pong", "space-shooter", "tile-world", "hex-tactics",
     "curve-playground", "shader-lab", "viewer-3d", "particle-show",
-    "net-chat", "viewport-gallery"
+    "net-chat", "viewport-gallery", "asset-showcase"
   )
 
   var count = 0

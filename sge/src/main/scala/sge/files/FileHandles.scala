@@ -492,9 +492,18 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     fileType match {
       case FileType.Internal =>
         if (getFile().exists()) true
-        else Nullable(classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/'))).isDefined
+        else {
+          // Use getResourceAsStream instead of getResource to avoid java.net.URL (not available on Scala Native)
+          val stream = classOf[FileHandle].getResourceAsStream("/" + file.getPath().replace('\\', '/'))
+          val found  = stream != null // scalastyle:ignore null
+          if (found) stream.close()
+          found
+        }
       case FileType.Classpath =>
-        Nullable(classOf[FileHandle].getResource("/" + file.getPath().replace('\\', '/'))).isDefined
+        val stream = classOf[FileHandle].getResourceAsStream("/" + file.getPath().replace('\\', '/'))
+        val found  = stream != null // scalastyle:ignore null
+        if (found) stream.close()
+        found
       case _ =>
         getFile().exists()
     }

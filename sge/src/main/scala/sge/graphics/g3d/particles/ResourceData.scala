@@ -233,25 +233,24 @@ object ResourceData {
 
   /** Resolves a class name from a particle effect JSON file. Handles both LibGDX (com.badlogic.gdx) and SGE (sge) class names.
     */
-  private[particles] def resolveClassName(className: String): Class[?] = {
-    val mapped = className match {
-      case "com.badlogic.gdx.graphics.Texture"                          => "sge.graphics.Texture"
-      case "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect"     => "sge.graphics.g3d.particles.ParticleEffect"
-      case "com.badlogic.gdx.graphics.g3d.Model"                        => "sge.graphics.g3d.Model"
-      case "com.badlogic.gdx.graphics.g2d.TextureAtlas"                 => "sge.graphics.g2d.TextureAtlas"
-      case "com.badlogic.gdx.graphics.g3d.particles.ParticleController" => "sge.graphics.g3d.particles.ParticleController"
-      case other                                                        => other
-    }
-    try Class.forName(mapped)
-    catch {
-      case _: ClassNotFoundException =>
-        try Class.forName(className)
-        catch {
-          case _: ClassNotFoundException =>
-            throw SgeError.InvalidInput("Class not found: " + className + " (mapped to: " + mapped + ")")
-        }
-    }
-  }
+  /** Known class name mappings for particle effect resource types. Uses a hardcoded map instead of Class.forName for Scala.js/Native compatibility.
+    */
+  private val classNameMap: Map[String, Class[?]] = Map(
+    "sge.graphics.Texture" -> classOf[sge.graphics.Texture],
+    "sge.graphics.g3d.particles.ParticleEffect" -> classOf[sge.graphics.g3d.particles.ParticleEffect],
+    "sge.graphics.g3d.Model" -> classOf[sge.graphics.g3d.Model],
+    "sge.graphics.g2d.TextureAtlas" -> classOf[sge.graphics.g2d.TextureAtlas],
+    "sge.graphics.g3d.particles.ParticleController" -> classOf[sge.graphics.g3d.particles.ParticleController],
+    // LibGDX legacy names
+    "com.badlogic.gdx.graphics.Texture" -> classOf[sge.graphics.Texture],
+    "com.badlogic.gdx.graphics.g3d.particles.ParticleEffect" -> classOf[sge.graphics.g3d.particles.ParticleEffect],
+    "com.badlogic.gdx.graphics.g3d.Model" -> classOf[sge.graphics.g3d.Model],
+    "com.badlogic.gdx.graphics.g2d.TextureAtlas" -> classOf[sge.graphics.g2d.TextureAtlas],
+    "com.badlogic.gdx.graphics.g3d.particles.ParticleController" -> classOf[sge.graphics.g3d.particles.ParticleController]
+  )
+
+  private[particles] def resolveClassName(className: String): Class[?] =
+    classNameMap.getOrElse(className, throw SgeError.InvalidInput("Unknown particle resource class: " + className))
 
   /** Parses an AssetData from a JSON AST node. Expected format: { "filename": "...", "type": "fully.qualified.ClassName" }
     */
