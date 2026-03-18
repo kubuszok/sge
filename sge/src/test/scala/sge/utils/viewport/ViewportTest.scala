@@ -18,7 +18,7 @@ class ViewportTest extends munit.FunSuite {
 
   private def makeContext(w: Int, h: Int): Sge = {
     val graphics = new NoopGraphics(w, h) {
-      override def getGL20(): GL20 = NoopGL20
+      override def gl20: GL20 = NoopGL20
     }
     SgeTestFixture.testSge(graphics = graphics)
   }
@@ -85,8 +85,8 @@ class ViewportTest extends munit.FunSuite {
     given Sge = makeContext(800, 600)
     val vp    = StretchViewport(100f, 100f)
     vp.update(Pixels(800), Pixels(600))
-    assertEquals(vp.getLeftGutterWidth().toInt, 0)
-    assertEquals(vp.getBottomGutterHeight().toInt, 0)
+    assertEquals(vp.leftGutterWidth.toInt, 0)
+    assertEquals(vp.bottomGutterHeight.toInt, 0)
   }
 
   // ---- FitViewport ----
@@ -113,7 +113,7 @@ class ViewportTest extends munit.FunSuite {
     val vp    = FitViewport(100f, 100f)
     vp.update(Pixels(800), Pixels(600))
     // Viewport is 600x600 centered: left gutter = (800-600)/2 = 100
-    assertEquals(vp.getLeftGutterWidth().toInt, 100)
+    assertEquals(vp.leftGutterWidth.toInt, 100)
     assertEquals(vp.screenX.toInt, 100)
   }
 
@@ -125,7 +125,7 @@ class ViewportTest extends munit.FunSuite {
     assertEquals(vp.screenWidth.toInt, 600)
     assertEquals(vp.screenHeight.toInt, 600)
     // Top/bottom gutters: (800-600)/2 = 100
-    assertEquals(vp.getBottomGutterHeight().toInt, 100)
+    assertEquals(vp.bottomGutterHeight.toInt, 100)
   }
 
   // ---- FillViewport ----
@@ -211,8 +211,8 @@ class ViewportTest extends munit.FunSuite {
     given Sge = makeContext(800, 600)
     val vp    = ScalingViewport(Scaling.none, 100f, 100f)
     vp.update(Pixels(800), Pixels(600))
-    assertEquals(vp.getLeftGutterWidth().toInt, 350)
-    assertEquals(vp.getBottomGutterHeight().toInt, 250)
+    assertEquals(vp.leftGutterWidth.toInt, 350)
+    assertEquals(vp.bottomGutterHeight.toInt, 250)
   }
 
   // ---- Viewport camera interaction ----

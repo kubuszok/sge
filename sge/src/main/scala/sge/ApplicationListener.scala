@@ -24,7 +24,7 @@ package sge
 trait ApplicationListener {
 
   /** Called when the {@link Application} is first created. */
-  def create()(using Sge): Unit
+  def create(): Unit
 
   /** Called when the {@link Application} is resized. This can happen at any point during a non-paused state but will never happen before a call to {@link #create()} .
     *
@@ -33,18 +33,18 @@ trait ApplicationListener {
     * @param height
     *   the new height in pixels
     */
-  def resize(width: Pixels, height: Pixels)(using Sge): Unit
+  def resize(width: Pixels, height: Pixels): Unit
 
   /** Called when the {@link Application} should render itself. */
-  def render()(using Sge): Unit
+  def render(): Unit
 
   /** Called when the {@link Application} is paused, usually when it's not active or visible on-screen. An Application is also paused before it is destroyed.
     */
-  def pause()(using Sge): Unit
+  def pause(): Unit
 
   /** Called when the {@link Application} is resumed from a paused state, usually when it regains focus. */
-  def resume()(using Sge): Unit
+  def resume(): Unit
 
   /** Called when the {@link Application} is destroyed. Preceded by a call to {@link #pause()}. */
-  def dispose()(using Sge): Unit
+  def dispose(): Unit
 }

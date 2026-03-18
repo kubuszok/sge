@@ -7,10 +7,10 @@
 package sge
 package regression
 
-import sge.graphics.{PerspectiveCamera, VertexAttributes}
-import sge.graphics.g3d.{Material, Model, ModelBatch, ModelInstance}
+import sge.graphics.{ PerspectiveCamera, VertexAttributes }
+import sge.graphics.g3d.{ Material, Model, ModelBatch, ModelInstance }
 import sge.graphics.g3d.utils.ModelBuilder
-import sge.utils.{Nullable, ScreenUtils}
+import sge.utils.{ Nullable, ScreenUtils }
 
 /** Creates a procedural box via ModelBuilder, renders with ModelBatch, and checks for GL errors. */
 object Model3DScene extends RegressionScene {
@@ -24,10 +24,10 @@ object Model3DScene extends RegressionScene {
   private var ok:       Boolean           = false
   private var rendered: Boolean           = false
 
-  override def init()(using Sge): Unit = {
+  override def init()(using Sge): Unit =
     try {
-      val w = Sge().graphics.getWidth().toFloat
-      val h = Sge().graphics.getHeight().toFloat
+      val w = Sge().graphics.width.toFloat
+      val h = Sge().graphics.height.toFloat
       camera = PerspectiveCamera(67f, w, h)
       camera.near = 0.1f
       camera.far = 100f
@@ -39,7 +39,10 @@ object Model3DScene extends RegressionScene {
 
       val builder = new ModelBuilder()
       model = builder.createBox(
-        1f, 1f, 1f, Material(),
+        1f,
+        1f,
+        1f,
+        Material(),
         (VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal).toLong
       )
       instance = ModelInstance(model)
@@ -50,26 +53,25 @@ object Model3DScene extends RegressionScene {
       case e: Exception =>
         SmokeResult.logCheck("MODEL3D_SETUP", false, s"Exception: ${e.getMessage}")
     }
-  }
 
   override def render(elapsed: Float)(using Sge): Unit = {
     ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f, true)
     if (!ok) return
 
-    batch.begin(camera)
-    batch.render(instance)
-    batch.end()
+    batch.rendering(camera) {
+      batch.render(instance)
+    }
 
     // Check GL error only on first render
     if (!rendered) {
       rendered = true
-      val err = Sge().graphics.getGL20().glGetError()
+      val err = Sge().graphics.gl20.glGetError()
       SmokeResult.logCheck("MODEL3D_RENDER", err == 0, if (err == 0) "no GL error" else s"0x${err.toHexString}")
     }
   }
 
   override def dispose()(using Sge): Unit = {
-    if (batch != null) batch.close()   // scalafix:ok
-    if (model != null) model.close()   // scalafix:ok
+    if (batch != null) batch.close() // scalafix:ok
+    if (model != null) model.close() // scalafix:ok
   }
 }

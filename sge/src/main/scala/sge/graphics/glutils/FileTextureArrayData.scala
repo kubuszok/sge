@@ -27,12 +27,12 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
   private var textureDatas:  Array[TextureData] = scala.compiletime.uninitialized
   private var prepared:      Boolean            = false
   private val formatVar:     Pixmap.Format      = format
-  private var depth:         Int                = files.length
+  private var _depth:        Int                = files.length
   private val useMipMapsVar: Boolean            = useMipMaps
 
   // Constructor body (equivalent to the Java FileHandle[] constructor)
   locally {
-    this.depth = files.length
+    this._depth = files.length
     textureDatas = Array.ofDim[TextureData](files.length)
     for (i <- files.indices)
       textureDatas(i) = TextureData.Factory.loadFromFile(files(i), Nullable(format), useMipMaps)
@@ -41,11 +41,11 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
   /** Secondary constructor accepting pre-built TextureData array (matches Java's {@code (Format, Boolean, TextureData[])} constructor) */
   def this(format: Pixmap.Format, useMipMaps: Boolean, textureDatas: Array[TextureData])(using Sge) = {
     this(format, useMipMaps)
-    this.depth = textureDatas.length
+    this._depth = textureDatas.length
     this.textureDatas = textureDatas
   }
 
-  override def isPrepared(): Boolean = prepared
+  override def isPrepared: Boolean = prepared
 
   override def prepare(): Unit = {
     var width  = -1
@@ -53,9 +53,9 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
     for (data <- textureDatas) {
       if (!data.isPrepared) data.prepare()
       if (width == -1) {
-        width = data.getWidth
-        height = data.getHeight
-      } else if (width != data.getWidth || height != data.getHeight) {
+        width = data.width
+        height = data.height
+      } else if (width != data.width || height != data.height) {
         throw SgeError.GraphicsError("Error whilst preparing TextureArray: TextureArray Textures must have equal dimensions.")
       }
     }
@@ -65,17 +65,17 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
   override def consumeTextureArrayData(): Unit = {
     var containsCustomData = false
     for (i <- textureDatas.indices)
-      if (textureDatas(i).getType() == TextureData.TextureDataType.Custom) {
+      if (textureDatas(i).dataType == TextureData.TextureDataType.Custom) {
         textureDatas(i).consumeCustomData(TextureTarget.Texture2DArray)
         containsCustomData = true
       } else {
         val texData       = textureDatas(i)
         var pixmap        = texData.consumePixmap()
         var disposePixmap = texData.disposePixmap
-        if (texData.getFormat != pixmap.getFormat()) {
-          val temp = Pixmap(pixmap.getWidth().toInt, pixmap.getHeight().toInt, texData.getFormat)
+        if (texData.getFormat != pixmap.format) {
+          val temp = Pixmap(pixmap.width.toInt, pixmap.height.toInt, texData.getFormat)
           temp.setBlending(Pixmap.Blending.None)
-          temp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.getWidth(), pixmap.getHeight())
+          temp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.width, pixmap.height)
           if (texData.disposePixmap) {
             pixmap.close()
           }
@@ -90,12 +90,12 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
           0,
           0,
           i,
-          pixmap.getWidth().toInt,
-          pixmap.getHeight().toInt,
+          pixmap.width.toInt,
+          pixmap.height.toInt,
           1,
-          PixelFormat(pixmap.getGLInternalFormat()),
-          DataType(pixmap.getGLType()),
-          pixmap.getPixels()
+          PixelFormat(pixmap.gLInternalFormat),
+          DataType(pixmap.glType),
+          pixmap.pixels
         )
         if (disposePixmap) pixmap.close()
       }
@@ -104,17 +104,17 @@ class FileTextureArrayData(format: Pixmap.Format, useMipMaps: Boolean, files: Fi
     }
   }
 
-  override def getWidth(): Int = textureDatas(0).getWidth
+  override def width: Int = textureDatas(0).width
 
-  override def getHeight(): Int = textureDatas(0).getHeight
+  override def height: Int = textureDatas(0).height
 
-  override def getDepth(): Int = depth
+  override def depth: Int = _depth
 
-  override def getInternalFormat(): Int = Pixmap.Format.toGlFormat(formatVar)
+  override def internalFormat: Int = Pixmap.Format.toGlFormat(formatVar)
 
-  override def getGLType(): Int = Pixmap.Format.toGlType(formatVar)
+  override def glType: Int = Pixmap.Format.toGlType(formatVar)
 
-  override def isManaged(): Boolean = scala.util.boundary {
+  override def isManaged: Boolean = scala.util.boundary {
     for (data <- textureDatas)
       if (!data.isManaged) {
         scala.util.boundary.break(false)

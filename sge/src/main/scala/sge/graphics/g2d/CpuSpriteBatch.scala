@@ -44,12 +44,14 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
   private var haveIdentityRealMatrix: Boolean = true
 
   /** Constructs a new CpuSpriteBatch with a size of 1000 and the default shader. */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, Nullable.empty)
+  }
 
   /** Constructs a CpuSpriteBatch with the default shader. */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, Nullable.empty)
+  }
 
   /** <p> Flushes the batch and realigns the real matrix on the GPU. Subsequent draws won't need adjustment and will be slightly faster as long as the transform matrix is not
     * {@link #setTransformMatrix(Matrix4) changed} . </p> <p> Note: The real transform matrix <em>must</em> be invertible. If a singular matrix is detected, GdxRuntimeException will be thrown. </p>
@@ -183,7 +185,7 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     if (!adjustNeeded) {
       super.draw(texture, x, y);
     } else {
-      drawAdjusted(texture, x, y, 0, 0, texture.getWidth.toFloat, texture.getHeight.toFloat, 1, 1, 0, 0, 1, 1, 0, false, false);
+      drawAdjusted(texture, x, y, 0, 0, texture.width.toFloat, texture.height.toFloat, 1, 1, 0, 0, 1, 1, 0, false, false);
     }
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float): Unit =
@@ -277,8 +279,8 @@ class CpuSpriteBatch(size: Int, defaultShader: Nullable[ShaderProgram] = Nullabl
     flipX:     Boolean,
     flipY:     Boolean
   ): Unit = {
-    val invTexWidth  = 1.0f / texture.getWidth.toFloat
-    val invTexHeight = 1.0f / texture.getHeight.toFloat
+    val invTexWidth  = 1.0f / texture.width.toFloat
+    val invTexHeight = 1.0f / texture.height.toFloat
 
     val u  = srcX * invTexWidth;
     val v  = (srcY + srcHeight) * invTexHeight;
@@ -655,15 +657,15 @@ object CpuSpriteBatch {
     if (a == b) true
     else {
       // matrices are assumed to be 2D transformations
-      val aValues = a.getValues();
-      val bValues = b.getValues();
+      val aValues = a.values;
+      val bValues = b.values;
       (aValues(Matrix4.M00) == bValues(Matrix4.M00) && aValues(Matrix4.M10) == bValues(Matrix4.M10)
       && aValues(Matrix4.M01) == bValues(Matrix4.M01) && aValues(Matrix4.M11) == bValues(Matrix4.M11)
       && aValues(Matrix4.M03) == bValues(Matrix4.M03) && aValues(Matrix4.M13) == bValues(Matrix4.M13))
     }
 
   private def checkEqual(matrix: Matrix4, affine: Affine2): Boolean = {
-    val values = matrix.getValues();
+    val values = matrix.values;
 
     // matrix is assumed to be 2D transformation
     (values(Matrix4.M00) == affine.m00 && values(Matrix4.M10) == affine.m10 && values(Matrix4.M01) == affine.m01
@@ -671,7 +673,7 @@ object CpuSpriteBatch {
   }
 
   private def checkIdt(matrix: Matrix4): Boolean = {
-    val values = matrix.getValues();
+    val values = matrix.values;
 
     // matrix is assumed to be 2D transformation
     (values(Matrix4.M00) == 1 && values(Matrix4.M10) == 0 && values(Matrix4.M01) == 0 && values(Matrix4.M11) == 1

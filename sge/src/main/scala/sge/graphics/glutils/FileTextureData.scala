@@ -30,17 +30,17 @@ class FileTextureData(
   val useMipMapsParam: Boolean = false
 ) extends TextureData {
 
-  private var width:           Int              = 0
-  private var height:          Int              = 0
+  private var _width:          Int              = 0
+  private var _height:         Int              = 0
   private var format:          Nullable[Format] = formatArg
   private var pixmap:          Nullable[Pixmap] = preloadedPixmap
   private var isPreparedState: Boolean          = false
 
   // Initialize from constructor parameters
   pixmap.foreach { p =>
-    width = p.getWidth().toInt
-    height = p.getHeight().toInt
-    if (format.isEmpty) this.format = Nullable(p.getFormat())
+    _width = p.width.toInt
+    _height = p.height.toInt
+    if (format.isEmpty) this.format = Nullable(p.format)
   }
 
   override def isPrepared: Boolean = isPreparedState
@@ -48,15 +48,15 @@ class FileTextureData(
   override def prepare(): Unit = {
     if (isPreparedState) throw SgeError.InvalidInput("Already prepared")
     if (pixmap.isEmpty) {
-      if (file.extension().equals("cim"))
+      if (file.extension.equals("cim"))
         pixmap = Nullable(PixmapIO.readCIM(file))
       else
         pixmap = Nullable(Pixmap(file))
     }
     pixmap.foreach { p =>
-      width = p.getWidth().toInt
-      height = p.getHeight().toInt
-      if (format.isEmpty) format = Nullable(p.getFormat())
+      _width = p.width.toInt
+      _height = p.height.toInt
+      if (format.isEmpty) format = Nullable(p.format)
     }
     isPreparedState = true
   }
@@ -71,9 +71,9 @@ class FileTextureData(
 
   override def disposePixmap: Boolean = true
 
-  override def getWidth: Int = width
+  override def width: Int = _width
 
-  override def getHeight: Int = height
+  override def height: Int = _height
 
   override def getFormat: Format = format.getOrElse(Format.RGBA8888)
 
@@ -81,9 +81,9 @@ class FileTextureData(
 
   override def isManaged: Boolean = true
 
-  def getFileHandle(): FileHandle = file
+  def fileHandle: FileHandle = file
 
-  override def getType(): TextureData.TextureDataType = TextureData.TextureDataType.Pixmap
+  override def dataType: TextureData.TextureDataType = TextureData.TextureDataType.Pixmap
 
   override def consumeCustomData(target: TextureTarget): Unit =
     throw SgeError.InvalidInput("This TextureData implementation does not upload data itself")

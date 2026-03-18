@@ -435,7 +435,7 @@ object EllipseShapeBuilder {
     } else if (innerWidth == width && innerHeight == height) {
       builder.ensureVertices(divisions + 1)
       builder.ensureIndices(divisions + 1)
-      if (builder.getPrimitiveType() != PrimitiveMode.Lines) throw SgeError.InvalidInput("Incorrect primitive type : expect GL_LINES because innerWidth == width && innerHeight == height")
+      if (builder.primitiveType != PrimitiveMode.Lines) throw SgeError.InvalidInput("Incorrect primitive type : expect GL_LINES because innerWidth == width && innerHeight == height")
     } else {
       builder.ensureVertices((divisions + 1) * 2)
       builder.ensureRectangleIndices(divisions + 1)

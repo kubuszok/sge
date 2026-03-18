@@ -38,9 +38,9 @@ trait ImmediateModeRenderer {
 
   def end(): Unit
 
-  def getNumVertices(): Int
+  def numVertices: Int
 
-  def getMaxVertices(): Int
+  def maxVertices: Int
 
   def dispose(): Unit
 }

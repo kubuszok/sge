@@ -17,7 +17,6 @@ object DesktopHarnessMain {
     }
 
     val resultsFile = new File(args(0))
-    val harness     = new DesktopHarness(resultsFile)
     val config      = new sge.DesktopApplicationConfig()
     config.title = "SGE Desktop IT"
     config.windowWidth = 100
@@ -26,7 +25,7 @@ object DesktopHarnessMain {
     config.vSyncEnabled = false
 
     try
-      sge.DesktopApplicationFactory(harness, config)
+      sge.DesktopApplicationFactory(new DesktopHarness(resultsFile), config)
     catch {
       case e: UnsatisfiedLinkError =>
         System.err.println(s"Native library not found: ${e.getMessage}")

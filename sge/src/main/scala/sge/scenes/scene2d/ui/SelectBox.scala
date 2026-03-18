@@ -34,15 +34,15 @@ import sge.utils.{ Align, DynamicArray, MkArray, Nullable, Seconds }
   * @author
   *   Nathan Sweet
   */
-class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget with Disableable with Styleable[SelectBox.SelectBoxStyle] {
+class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Widget with Disableable with Styleable[SelectBox.SelectBoxStyle] {
 
   import SelectBox._
 
   private var _style:        SelectBoxStyle         = scala.compiletime.uninitialized
   val items:                 DynamicArray[T]        = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
   var scrollPane:            SelectBoxScrollPane[T] = scala.compiletime.uninitialized
-  private var prefWidth:     Float                  = 0f
-  private var prefHeight:    Float                  = 0f
+  private var _prefWidth:    Float                  = 0f
+  private var _prefHeight:   Float                  = 0f
   private var clickListener: ClickListener          = scala.compiletime.uninitialized
   var disabled:              Boolean                = false
   private var alignment:     Align                  = Align.left
@@ -58,8 +58,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   def this(skin: Skin)(using Sge) = this(skin.get[SelectBox.SelectBoxStyle])
   def this(skin: Skin, styleName: String)(using Sge) = this(skin.get[SelectBox.SelectBoxStyle](styleName))
 
-  setStyle(style)
-  setSize(getPrefWidth, getPrefHeight)
+  setStyle(initialStyle)
+  setSize(prefWidth, prefHeight)
 
   selection.setActor(Nullable(this))
   selection.required = true
@@ -93,7 +93,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     scrollPane.maxListCount = maxListCount
 
   /** @return Max number of items to display when the box is opened, or <= 0 to display them all. */
-  def getMaxListCount: Int =
+  def maxListCount: Int =
     scrollPane.maxListCount
 
   override protected[scene2d] def setStage(stage: Nullable[Stage]): Unit = {
@@ -113,11 +113,11 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
   /** Returns the select box's style. Modifying the returned style may not have an effect until {@link #setStyle(SelectBoxStyle)} is called.
     */
-  override def getStyle: SelectBoxStyle = _style
+  override def style: SelectBoxStyle = _style
 
   /** Set the backing Array that makes up the choices available in the SelectBox */
   def setItems(newItems: T*): Unit = {
-    val oldPrefWidth = getPrefWidth
+    val oldPrefWidth = prefWidth
 
     items.clear()
     items.addAll(newItems)
@@ -125,12 +125,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     scrollPane.list.setItems(items)
 
     invalidate()
-    if (oldPrefWidth != getPrefWidth) invalidateHierarchy()
+    if (oldPrefWidth != prefWidth) invalidateHierarchy()
   }
 
   /** Sets the items visible in the select box. */
   def setItems(newItems: DynamicArray[T]): Unit = {
-    val oldPrefWidth = getPrefWidth
+    val oldPrefWidth = prefWidth
 
     if (newItems ne items) {
       items.clear()
@@ -140,7 +140,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     scrollPane.list.setItems(items)
 
     invalidate()
-    if (oldPrefWidth != getPrefWidth) invalidateHierarchy()
+    if (oldPrefWidth != prefWidth) invalidateHierarchy()
   }
 
   def clearItems(): Unit =
@@ -152,28 +152,27 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
       invalidateHierarchy()
     }
 
-  /** Returns the internal items array. If modified, {@link #setItems(DynamicArray)} must be called to reflect the changes. */
-  def getItems: DynamicArray[T] = items
+  // getItems removed — items is a public val
 
   override def layout(): Unit = {
     val bg   = _style.background
     val font = _style.font
 
     bg.fold {
-      prefHeight = font.capHeight - font.descent * 2
+      _prefHeight = font.capHeight - font.descent * 2
     } { background =>
-      prefHeight = Math.max(background.topHeight + background.bottomHeight + font.capHeight - font.descent * 2, background.minHeight)
+      _prefHeight = Math.max(background.topHeight + background.bottomHeight + font.capHeight - font.descent * 2, background.minHeight)
     }
 
-    val layoutPool  = Actor.POOLS.getPool[GlyphLayout]
+    val layoutPool  = Actor.POOLS.pool[GlyphLayout]
     val glyphLayout = layoutPool.obtain()
     if (selectedPrefWidth) {
-      prefWidth = 0
-      bg.foreach { background => prefWidth = background.leftWidth + background.rightWidth }
-      val selected = getSelected
-      selected.foreach { sel =>
+      _prefWidth = 0
+      bg.foreach { background => _prefWidth = background.leftWidth + background.rightWidth }
+      val sel0 = selected
+      sel0.foreach { sel =>
         glyphLayout.setText(font, itemToString(sel))
-        prefWidth += glyphLayout.width
+        _prefWidth += glyphLayout.width
       }
     } else {
       var maxItemWidth = 0f
@@ -184,9 +183,9 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
         i += 1
       }
 
-      prefWidth = maxItemWidth
+      _prefWidth = maxItemWidth
       bg.foreach { background =>
-        prefWidth = Math.max(prefWidth + background.leftWidth + background.rightWidth, background.minWidth)
+        _prefWidth = Math.max(_prefWidth + background.leftWidth + background.rightWidth, background.minWidth)
       }
 
       val listStyle   = _style.listStyle
@@ -201,20 +200,20 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
           _style.scrollStyle.vScrollKnob.map(_.minWidth).getOrElse(0f)
         )
       }
-      prefWidth = Math.max(prefWidth, scrollWidth)
+      _prefWidth = Math.max(_prefWidth, scrollWidth)
     }
     layoutPool.free(glyphLayout)
   }
 
   /** Returns appropriate background drawable from the style based on the current select box state. */
-  protected def getBackgroundDrawable(): Nullable[Drawable] =
+  protected def backgroundDrawable: Nullable[Drawable] =
     if (isDisabled && _style.backgroundDisabled.isDefined) _style.backgroundDisabled
     else if (scrollPane.hasParent && _style.backgroundOpen.isDefined) _style.backgroundOpen
     else if (isOver && _style.backgroundOver.isDefined) _style.backgroundOver
     else _style.background
 
   /** Returns the appropriate label font color from the style based on the current button state. */
-  protected def getFontColor(): Color =
+  protected def fontColor: Color =
     if (isDisabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.getOrElse(_style.fontColor)
     else if (_style.overFontColor.isDefined && (isOver || scrollPane.hasParent)) _style.overFontColor.getOrElse(_style.fontColor)
     else _style.fontColor
@@ -222,8 +221,8 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
 
-    val background = getBackgroundDrawable()
-    val fontColor  = getFontColor()
+    val background = backgroundDrawable
+    val fc         = this.fontColor
     val font       = _style.font
 
     val c  = this.color
@@ -245,7 +244,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
         bx += bg.leftWidth
         by += (bh / 2 + bg.bottomHeight + font.data.capHeight / 2).toInt.toFloat
       }
-      font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha)
+      font.setColor(fc.r, fc.g, fc.b, fc.a * parentAlpha)
       drawItem(batch, font, sel, bx, by, bw)
     }
   }
@@ -266,10 +265,10 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     * @return
     *   a Selection object containing the selected elements
     */
-  def getSelection: ArraySelection[T] = selection
+  // getSelection removed — selection is a public val
 
-  /** Returns the first selected item, or null. For multiple selections use {@link SelectBox#getSelection()}. */
-  def getSelected: Nullable[T] = selection.first
+  /** Returns the first selected item, or null. For multiple selections use {@link SelectBox#selection}. */
+  def selected: Nullable[T] = selection.first
 
   /** Sets the selection to only the passed item, if it is a possible choice, else selects the first item. */
   def setSelected(item: Nullable[T]): Unit =
@@ -283,9 +282,9 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     }
 
   /** @return The index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1. */
-  def getSelectedIndex: Int = {
-    val selected = selection.items
-    if (selected.isEmpty) -1 else items.indexOf(selected.head)
+  def selectedIndex: Int = {
+    val sel = selection.items
+    if (sel.isEmpty) -1 else items.indexOf(sel.head)
   }
 
   /** Sets the selection to only the selected index. */
@@ -296,12 +295,12 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
   def setSelectedPrefWidth(selectedPrefWidth: Boolean): Unit =
     this.selectedPrefWidth = selectedPrefWidth
 
-  def getSelectedPrefWidth: Boolean = selectedPrefWidth
+  // getSelectedPrefWidth removed — selectedPrefWidth is a public var
 
   /** Returns the pref width of the select box if the widest item was selected, for use when {@link #setSelectedPrefWidth(boolean)} is true.
     */
-  def getMaxSelectedPrefWidth: Float = {
-    val layoutPool  = Actor.POOLS.getPool[GlyphLayout]
+  def maxSelectedPrefWidth: Float = {
+    val layoutPool  = Actor.POOLS.pool[GlyphLayout]
     val glyphLayout = layoutPool.obtain()
     var width       = 0f
     var i           = 0
@@ -324,14 +323,14 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
 
   def isDisabled: Boolean = disabled
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     validate()
-    prefWidth
+    _prefWidth
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     validate()
-    prefHeight
+    _prefHeight
   }
 
   protected def itemToString(item: T): String = item.toString
@@ -352,7 +351,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     scrollPane.hide()
 
   /** Returns the list shown when the select box is open. */
-  def getList: SgeList[T] = scrollPane.list
+  def list: SgeList[T] = scrollPane.list
 
   /** Disables scrolling of the list shown when the select box is open. */
   def setScrollingDisabled(y: Boolean): Unit = {
@@ -360,8 +359,7 @@ class SelectBox[T](style: SelectBox.SelectBoxStyle)(using Sge) extends Widget wi
     invalidateHierarchy()
   }
 
-  /** Returns the scroll pane containing the list that is shown when the select box is open. */
-  def getScrollPane: SelectBoxScrollPane[T] = scrollPane
+  // getScrollPane removed — scrollPane is a public var
 
   def isOver: Boolean = clickListener.over
 
@@ -405,7 +403,7 @@ object SelectBox {
     list.addListener(
       new ClickListener() {
         override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
-          val selected = list.getSelected
+          val selected = list.selected
           // Force clicking the already selected item to trigger a change event.
           if (selected.isDefined) selectBox.selection.items.clear()
           selected.foreach(sel => selectBox.selection.choose(sel))
@@ -425,7 +423,7 @@ object SelectBox {
       new InputListener() {
         override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit =
           if (toActor.forall(a => !scrollPaneSelf.isAscendantOf(a))) {
-            val selected = selectBox.getSelected
+            val selected = selectBox.selected
             selected.foreach(sel => list.selection.set(sel))
           }
       }
@@ -436,7 +434,7 @@ object SelectBox {
         val target = event.target
         if (target.exists(scrollPaneSelf.isAscendantOf)) ()
         else {
-          selectBox.getSelected.foreach(sel => list.selection.set(sel))
+          selectBox.selected.foreach(sel => list.selection.set(sel))
           hide()
         }
         false
@@ -445,7 +443,7 @@ object SelectBox {
       override def keyDown(event: InputEvent, keycode: Key): Boolean =
         keycode match {
           case Input.Keys.NUMPAD_ENTER | Input.Keys.ENTER =>
-            list.getSelected.foreach(sel => selectBox.selection.choose(sel))
+            list.selected.foreach(sel => selectBox.selection.choose(sel))
             // Fall thru.
             hide()
             event.stop()
@@ -472,20 +470,20 @@ object SelectBox {
       else {
         stage.addActor(this)
         stage.addCaptureListener(hideListener)
-        stage.addListener(list.getKeyListener)
+        stage.addListener(list.keyListener)
 
         selectBox.localToStageCoordinates(stagePosition.set(0, 0))
 
         // Show the list above or below the select box, limited to a number of items and the available height in the stage.
-        val itemHeight           = list.getItemHeight
+        val itemHeight           = list.itemHeight
         var height               = itemHeight * (if (maxListCount <= 0) selectBox.items.size else Math.min(maxListCount, selectBox.items.size))
-        val scrollPaneBackground = getStyle.background
+        val scrollPaneBackground = style.background
         scrollPaneBackground.foreach(bg => height += bg.topHeight + bg.bottomHeight)
-        val listBackground = list.getStyle.background
+        val listBackground = list.style.background
         listBackground.foreach(bg => height += bg.topHeight + bg.bottomHeight)
 
         val heightBelow = stagePosition.y
-        val heightAbove = stage.getHeight - heightBelow - selectBox.height
+        val heightAbove = stage.height - heightBelow - selectBox.height
         var below       = true
         if (height > heightBelow) {
           if (heightAbove > heightBelow) {
@@ -503,28 +501,28 @@ object SelectBox {
 
         setHeight(height)
         validate()
-        val width = Math.max(getPrefWidth, selectBox.width)
+        val width = Math.max(prefWidth, selectBox.width)
         setWidth(width)
 
         var x = stagePosition.x
-        if (x + width > stage.getWidth) {
+        if (x + width > stage.width) {
           x -= this.width - selectBox.width - 1
           if (x < 0) x = 0
         }
         setX(x)
 
         validate()
-        scrollTo(0, list.height - selectBox.getSelectedIndex * itemHeight - itemHeight / 2, 0, 0, centerHorizontal = true, centerVertical = true)
+        scrollTo(0, list.height - selectBox.selectedIndex * itemHeight - itemHeight / 2, 0, 0, centerHorizontal = true, centerVertical = true)
         updateVisualScroll()
 
         previousScrollFocus = Nullable.empty
-        val actor = stage.getScrollFocus
+        val actor = stage.scrollFocus
         actor.foreach { a =>
           if (!a.isDescendantOf(this)) previousScrollFocus = Nullable(a)
         }
         stage.setScrollFocus(Nullable(this))
 
-        selectBox.getSelected.foreach(sel => list.selection.set(sel))
+        selectBox.selected.foreach(sel => list.selection.set(sel))
         list.touchable = Touchable.enabled
         clearActions()
         selectBox.onShow(this, below)
@@ -537,11 +535,11 @@ object SelectBox {
 
         this.stage.foreach { s =>
           s.removeCaptureListener(hideListener)
-          s.removeListener(list.getKeyListener)
+          s.removeListener(list.keyListener)
           previousScrollFocus.foreach { psf =>
             if (psf.stage.isEmpty) previousScrollFocus = Nullable.empty
           }
-          val actor = s.getScrollFocus
+          val actor = s.scrollFocus
           if (actor.isEmpty || actor.exists(a => isAscendantOf(a))) {
             s.setScrollFocus(previousScrollFocus)
           }
@@ -565,14 +563,13 @@ object SelectBox {
     override protected[scene2d] def setStage(stage: Nullable[Stage]): Unit = {
       this.stage.foreach { os =>
         os.removeCaptureListener(hideListener)
-        os.removeListener(list.getKeyListener)
+        os.removeListener(list.keyListener)
       }
       super.setStage(stage)
     }
 
-    def getList: SgeList[T] = list
-
-    def getSelectBox: SelectBox[T] = selectBox
+    // getList removed — list is a public val
+    // getSelectBox removed — selectBox is a public val
   }
 
   /** The style for a select box, see {@link SelectBox}.

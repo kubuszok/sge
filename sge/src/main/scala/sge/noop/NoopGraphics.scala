@@ -5,12 +5,12 @@
  *   Source: backends/gdx-backend-headless/.../mock/graphics/MockGraphics.java
  *   Renames: MockGraphics -> NoopGraphics
  *   Convention: extends Graphics directly (Java extends AbstractGraphics); configurable width/height (Java returns 0);
- *     non-null monitor/displayMode stubs (Java returns null); getGL20 throws (Java returns null);
- *     getGL30/31/32 return Nullable.empty (Java returns null); getGLVersion returns new Object (Java has GLVersion);
- *     getPpi/Ppc return 96-based values (Java returns 0); getBufferFormat returns real instance (Java returns null);
- *     setContinuousRendering/isContinuousRendering track state (Java ignores); incrementFrameId() merged into updateTime();
+ *     non-null monitor/displayMode stubs (Java returns null); gl20 throws (Java returns null);
+ *     gl30/31/32 return Nullable.empty (Java returns null); glVersion returns new Object (Java has GLVersion);
+ *     getPpi/Ppc return 96-based values (Java returns 0); bufferFormat returns real instance (Java returns null);
+ *     setContinuousRendering/continuousRendering track state (Java ignores); incrementFrameId() merged into updateTime();
  *     getTargetRenderInterval/targetRenderInterval omitted (backend-specific)
- *   Idiom: Nullable (getGL30/31/32, newCursor), split packages
+ *   Idiom: Nullable (gl30/31/32, newCursor), split packages
  *   Audited: 2026-03-04
  */
 package sge
@@ -56,78 +56,78 @@ class NoopGraphics(
 
   // ---- GL availability ----
 
-  override def isGL30Available(): Boolean = false
+  override def gl30Available: Boolean = false
 
-  override def isGL31Available(): Boolean = false
+  override def gl31Available: Boolean = false
 
-  override def isGL32Available(): Boolean = false
+  override def gl32Available: Boolean = false
 
-  override def getGL20(): GL20 =
+  override def gl20: GL20 =
     throw new UnsupportedOperationException("NoopGraphics has no GL context")
 
-  override def getGL30(): Nullable[GL30] = Nullable.empty
+  override def gl30: Nullable[GL30] = Nullable.empty
 
-  override def getGL31(): Nullable[GL31] = Nullable.empty
+  override def gl31: Nullable[GL31] = Nullable.empty
 
-  override def getGL32(): Nullable[GL32] = Nullable.empty
+  override def gl32: Nullable[GL32] = Nullable.empty
 
-  override def setGL20(gl20: GL20): Unit = {}
+  override def gl20_=(value: GL20): Unit = {}
 
-  override def setGL30(gl30: GL30): Unit = {}
+  override def gl30_=(value: GL30): Unit = {}
 
-  override def setGL31(gl31: GL31): Unit = {}
+  override def gl31_=(value: GL31): Unit = {}
 
-  override def setGL32(gl32: GL32): Unit = {}
+  override def gl32_=(value: GL32): Unit = {}
 
   // ---- dimensions ----
 
-  override def getWidth(): Pixels = Pixels(noopWidth)
+  override def width: Pixels = Pixels(noopWidth)
 
-  override def getHeight(): Pixels = Pixels(noopHeight)
+  override def height: Pixels = Pixels(noopHeight)
 
-  override def getBackBufferWidth(): Pixels = Pixels(noopWidth)
+  override def backBufferWidth: Pixels = Pixels(noopWidth)
 
-  override def getBackBufferHeight(): Pixels = Pixels(noopHeight)
+  override def backBufferHeight: Pixels = Pixels(noopHeight)
 
-  override def getBackBufferScale(): Float = 1.0f
+  override def backBufferScale: Float = 1.0f
 
-  override def getSafeInsetLeft(): Pixels = Pixels.zero
+  override def safeInsetLeft: Pixels = Pixels.zero
 
-  override def getSafeInsetTop(): Pixels = Pixels.zero
+  override def safeInsetTop: Pixels = Pixels.zero
 
-  override def getSafeInsetBottom(): Pixels = Pixels.zero
+  override def safeInsetBottom: Pixels = Pixels.zero
 
-  override def getSafeInsetRight(): Pixels = Pixels.zero
+  override def safeInsetRight: Pixels = Pixels.zero
 
   // ---- timing ----
 
-  override def getFrameId(): Long = _frameId
+  override def frameId: Long = _frameId
 
-  override def getDeltaTime(): Float = _deltaTime
+  override def deltaTime: Float = _deltaTime
 
-  @deprecated("use getDeltaTime() instead", "1.0")
-  override def getRawDeltaTime(): Float = _deltaTime
+  @deprecated("use deltaTime instead", "1.0")
+  override def rawDeltaTime: Float = _deltaTime
 
-  override def getFramesPerSecond(): Int = _fps
+  override def framesPerSecond: Int = _fps
 
   // ---- type and version ----
 
-  override def getType(): Graphics.GraphicsType = Graphics.GraphicsType.Mock
+  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.Mock
 
-  override def getGLVersion(): Graphics.GLVersion =
+  override def glVersion: Graphics.GLVersion =
     GLVersion(Application.ApplicationType.HeadlessDesktop, "0.0.0", "Noop", "Noop")
 
   // ---- density / PPI ----
 
-  override def getPpiX(): Float = 96.0f
+  override def ppiX: Float = 96.0f
 
-  override def getPpiY(): Float = 96.0f
+  override def ppiY: Float = 96.0f
 
-  override def getPpcX(): Float = 96.0f / 2.54f
+  override def ppcX: Float = 96.0f / 2.54f
 
-  override def getPpcY(): Float = 96.0f / 2.54f
+  override def ppcY: Float = 96.0f / 2.54f
 
-  override def getDensity(): Float = 1.0f
+  override def density: Float = 1.0f
 
   // ---- display modes / monitors ----
 
@@ -137,17 +137,17 @@ class NoopGraphics(
 
   private val noopDisplayMode: Graphics.DisplayMode = Graphics.DisplayMode(noopWidth, noopHeight, 60, 32)
 
-  override def getPrimaryMonitor(): Graphics.Monitor = noopMonitor
+  override def primaryMonitor: Graphics.Monitor = noopMonitor
 
-  override def getMonitor(): Graphics.Monitor = noopMonitor
+  override def monitor: Graphics.Monitor = noopMonitor
 
-  override def getMonitors(): Array[Graphics.Monitor] = Array(noopMonitor)
+  override def monitors: Array[Graphics.Monitor] = Array(noopMonitor)
 
-  override def getDisplayModes(): Array[Graphics.DisplayMode] = Array(noopDisplayMode)
+  override def displayModes: Array[Graphics.DisplayMode] = Array(noopDisplayMode)
 
   override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = Array(noopDisplayMode)
 
-  override def getDisplayMode(): Graphics.DisplayMode = noopDisplayMode
+  override def displayMode: Graphics.DisplayMode = noopDisplayMode
 
   override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = noopDisplayMode
 
@@ -169,7 +169,7 @@ class NoopGraphics(
 
   // ---- buffer format ----
 
-  override def getBufferFormat(): Graphics.BufferFormat =
+  override def bufferFormat: Graphics.BufferFormat =
     Graphics.BufferFormat(r = 8, g = 8, b = 8, a = 8, depth = 24, stencil = 8, samples = 0, coverageSampling = false)
 
   override def supportsExtension(extension: String): Boolean = false
@@ -179,11 +179,11 @@ class NoopGraphics(
   override def setContinuousRendering(isContinuous: Boolean): Unit =
     _continuous = isContinuous
 
-  override def isContinuousRendering(): Boolean = _continuous
+  override def continuousRendering: Boolean = _continuous
 
   override def requestRendering(): Unit = {}
 
-  override def isFullscreen(): Boolean = false
+  override def fullscreen: Boolean = false
 
   // ---- cursor (no-ops) ----
 

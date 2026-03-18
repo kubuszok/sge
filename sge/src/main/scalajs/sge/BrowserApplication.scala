@@ -28,7 +28,7 @@ import sge.files.{ BrowserAssetLoader, BrowserFiles }
 import sge.graphics.{ GL20, GL30, WebGL20, WebGL30 }
 import sge.graphics.glutils.GLVersion
 import sge.input.DefaultBrowserInput
-import _root_.sge.noop.NoopAudio
+import sge.noop.NoopAudio
 import sge.utils.{ Clipboard, Nullable }
 
 /** Browser (Scala.js) application entry point. Creates an HTML canvas, obtains a WebGL context, sets up all subsystems (graphics, audio, input, files, net), and runs a `requestAnimationFrame`-based
@@ -36,31 +36,21 @@ import sge.utils.{ Clipboard, Nullable }
   *
   * Usage:
   * {{{
-  *   val app = BrowserApplication(new MyListener, new BrowserApplicationConfig(800, 600))
-  *   app.start()
+  *   val app = BrowserApplication(MyListener(), new BrowserApplicationConfig(800, 600))
   * }}}
   *
-  * @param listener
-  *   the application listener providing game logic callbacks
+  * @param listenerFactory
+  *   a context function that creates the application listener when given an [[Sge]] context
   * @param config
   *   the browser application configuration
+  * @param baseUrl
+  *   base URL for asset loading (default: "assets/")
   */
 class BrowserApplication(
-  private val listener: ApplicationListener,
-  private val config:   BrowserApplicationConfig
+  listenerFactory: Sge ?=> ApplicationListener,
+  config:          BrowserApplicationConfig,
+  baseUrl:         String = "assets/"
 ) extends Application {
-
-  // --- Subsystems (initialized in start()) ---
-
-  private var _graphics:  BrowserGraphics = scala.compiletime.uninitialized
-  private var _audio:     Audio           = scala.compiletime.uninitialized
-  private var _input:     Input           = scala.compiletime.uninitialized
-  private var _files:     Files           = scala.compiletime.uninitialized
-  private var _net:       Net             = scala.compiletime.uninitialized
-  private var _clipboard: Clipboard       = scala.compiletime.uninitialized
-
-  private var lastWidth:  Pixels = Pixels.zero
-  private var lastHeight: Pixels = Pixels.zero
 
   // --- Runnables ---
 
@@ -76,102 +66,66 @@ class BrowserApplication(
   private val prefsCache: scala.collection.mutable.Map[String, Preferences] =
     scala.collection.mutable.Map.empty
 
-  // --- Sge context ---
+  // --- Subsystems ---
 
-  private var _sge: Sge = scala.compiletime.uninitialized
+  private val canvas                     = createCanvas()
+  private val (gl20, gl30Opt, glVersion) = createGLContext(canvas)
 
-  /** The [[Sge]] context for this application. Available after [[start]] has been called. */
-  def sgeContext: Sge = _sge
+  private val _graphics = new BrowserGraphics(canvas, config, gl20, gl30Opt, glVersion)
+  private val _audio: Audio = if (!config.disableAudio) new DefaultBrowserAudio(this) else new NoopAudio
+  private val assetLoader = new BrowserAssetLoader(baseUrl)
+  private val _files      = new BrowserFiles(assetLoader)
+  private val _net        = new BrowserNet(config)
+  private val _clipboard  = new BrowserClipboard
+  private val _input: Input = new DefaultBrowserInput(canvas, config)(using sgeContext)
 
-  /** Start the application. Creates the canvas, WebGL context, subsystems, and begins the main loop.
-    *
-    * @param baseUrl
-    *   base URL for asset loading (default: "assets/")
-    */
-  def start(baseUrl: String = "assets/"): Unit = {
-    val canvas                     = createCanvas()
-    val (gl20, gl30Opt, glVersion) = createGLContext(canvas)
+  // Sge context — lazy so that DefaultBrowserInput (by-name Sge) can be constructed
+  // before sgeContext is evaluated. All subsystem vals above are initialized first.
+  lazy val sgeContext: Sge = Sge(
+    application = this,
+    graphics = _graphics,
+    audio = _audio,
+    files = _files,
+    input = _input,
+    net = _net
+  )
 
-    _graphics = new BrowserGraphics(canvas, config, gl20, gl30Opt, glVersion)
-    _audio = new NoopAudio // placeholder until Sge context is ready
-    val assetLoader = new BrowserAssetLoader(baseUrl)
-    _files = new BrowserFiles(assetLoader)
-    _net = new BrowserNet(config)
-    _clipboard = new BrowserClipboard
+  // Set initial viewport
+  gl20.glViewport(Pixels.zero, Pixels.zero, _graphics.width, _graphics.height)
 
-    // Construct initial Sge context (audio may be noop placeholder)
-    @scala.annotation.nowarn("msg=deprecated") // orNull — temporary placeholder before real Input is created below
-    val placeholderInput: Input = Nullable.empty[Input].orNull
-    _sge = Sge(
-      application = this,
-      graphics = _graphics,
-      audio = _audio,
-      files = _files,
-      input = placeholderInput,
-      net = _net
-    )
+  private var lastWidth:  Pixels = _graphics.width
+  private var lastHeight: Pixels = _graphics.height
 
-    // Create input (needs Sge context)
-    {
-      given Sge = _sge
-      _input = new DefaultBrowserInput(canvas, config)
-    }
+  // Materialize listener from factory now that the Sge context is ready
+  private val listener: ApplicationListener = {
+    given Sge = sgeContext
+    listenerFactory
+  }
 
-    // Rebuild Sge with real input
-    _sge = Sge(
-      application = this,
-      graphics = _graphics,
-      audio = _audio,
-      files = _files,
-      input = _input,
-      net = _net
-    )
-
-    // Now create real audio if enabled (needs Sge)
-    if (!config.disableAudio) {
-      given Sge = _sge
-      _audio = new DefaultBrowserAudio()
-      _sge = Sge(
-        application = this,
-        graphics = _graphics,
-        audio = _audio,
-        files = _files,
-        input = _input,
-        net = _net
-      )
-    }
-
-    // Set initial viewport
-    gl20.glViewport(Pixels.zero, Pixels.zero, _graphics.getWidth(), _graphics.getHeight())
-
-    lastWidth = _graphics.getWidth()
-    lastHeight = _graphics.getHeight()
-
-    // Preload assets from manifest if enabled, then start the game.
-    // If assets.txt is not found (404), start without preloading.
-    if (config.preloadAssets) {
-      import scala.concurrent.ExecutionContext.Implicits.global
-      val callback = new BrowserAssetLoader.PreloadCallback {
-        def update(loaded: Int, total: Int, lastAssetSize: Long): Unit = {
-          val loadingDiv = document.getElementById("loading")
-          if (loadingDiv != null) {
-            loadingDiv.textContent = s"Loading assets\u2026 $loaded / $total"
-          }
+  // Preload assets from manifest if enabled, then start the game.
+  // If assets.txt is not found (404), start without preloading.
+  if (config.preloadAssets) {
+    import scala.concurrent.ExecutionContext.Implicits.global
+    val callback = new BrowserAssetLoader.PreloadCallback {
+      def update(loaded: Int, total: Int, lastAssetSize: Long): Unit = {
+        val loadingDiv = document.getElementById("loading")
+        if (loadingDiv != null) {
+          loadingDiv.textContent = s"Loading assets\u2026 $loaded / $total"
         }
-        def error(path: String, cause: Throwable): Unit =
-          dom.console.warn(s"[sge] Failed to preload: $path \u2014 ${cause.getMessage}")
-        def finished(): Unit = ()
       }
-      assetLoader
-        .preload("assets.txt", callback)
-        .toFuture
-        .recover { case _: Throwable =>
-          dom.console.info("[sge] No assets.txt manifest found; starting without preload")
-        }
-        .foreach(_ => startGameLoop())
-    } else {
-      startGameLoop()
+      def error(path: String, cause: Throwable): Unit =
+        dom.console.warn(s"[sge] Failed to preload: $path \u2014 ${cause.getMessage}")
+      def finished(): Unit = ()
     }
+    assetLoader
+      .preload("assets.txt", callback)
+      .toFuture
+      .recover { case _: Throwable =>
+        dom.console.info("[sge] No assets.txt manifest found; starting without preload")
+      }
+      .foreach(_ => startGameLoop())
+  } else {
+    startGameLoop()
   }
 
   private def startGameLoop(): Unit = {
@@ -180,11 +134,8 @@ class BrowserApplication(
     if (loadingDiv != null) loadingDiv.parentNode.removeChild(loadingDiv)
 
     // Initialize the listener
-    {
-      given Sge = _sge
-      listener.create()
-      listener.resize(_graphics.getWidth(), _graphics.getHeight())
-    }
+    listener.create()
+    listener.resize(_graphics.width, _graphics.height)
 
     // Set up visibility change listener
     addVisibilityChangeListener()
@@ -305,14 +256,13 @@ class BrowserApplication(
     window.requestAnimationFrame(mainLoopCallback)
 
   private def mainLoop(): Unit = {
-    given Sge = _sge
     _graphics.update()
 
     // Check for resize
-    if (_graphics.getWidth() != lastWidth || _graphics.getHeight() != lastHeight) {
-      lastWidth = _graphics.getWidth()
-      lastHeight = _graphics.getHeight()
-      _graphics.getGL20().glViewport(Pixels.zero, Pixels.zero, lastWidth, lastHeight)
+    if (_graphics.width != lastWidth || _graphics.height != lastHeight) {
+      lastWidth = _graphics.width
+      lastHeight = _graphics.height
+      _graphics.gl20.glViewport(Pixels.zero, Pixels.zero, lastWidth, lastHeight)
       listener.resize(lastWidth, lastHeight)
     }
 
@@ -326,7 +276,7 @@ class BrowserApplication(
     }
     runnablesHelper.clear()
 
-    _graphics.frameId += 1
+    _graphics._frameId += 1
     listener.render()
 
     _input match {
@@ -341,7 +291,6 @@ class BrowserApplication(
     document.addEventListener("visibilitychange", (_: dom.Event) => onVisibilityChange())
 
   private def onVisibilityChange(): Unit = {
-    given Sge  = _sge
     val hidden = document.asInstanceOf[js.Dynamic].hidden.asInstanceOf[Boolean]
     if (hidden) {
       lifecycleListeners.foreach(_.pause())
@@ -375,31 +324,31 @@ class BrowserApplication(
 
   // --- Application trait implementation ---
 
-  override def getApplicationListener(): ApplicationListener = listener
+  override def applicationListener: ApplicationListener = listener
 
-  override def getGraphics(): Graphics = _graphics
-  override def getAudio():    Audio    = _audio
-  override def getInput():    Input    = _input
-  override def getFiles():    Files    = _files
-  override def getNet():      Net      = _net
+  override def graphics: Graphics = _graphics
+  override def audio:    Audio    = _audio
+  override def input:    Input    = _input
+  override def files:    Files    = _files
+  override def net:      Net      = _net
 
-  override def getType(): Application.ApplicationType = Application.ApplicationType.WebGL
+  override def applicationType: Application.ApplicationType = Application.ApplicationType.WebGL
 
-  override def getVersion(): Int = 0
+  override def version: Int = 0
 
-  override def getJavaHeap(): Long = {
+  override def javaHeap: Long = {
     val perf = window.asInstanceOf[js.Dynamic].performance
     if (!js.isUndefined(perf) && !js.isUndefined(perf.memory)) {
       perf.memory.usedJSHeapSize.asInstanceOf[Double].toLong
     } else 0L
   }
 
-  override def getNativeHeap(): Long = getJavaHeap()
+  override def nativeHeap: Long = javaHeap
 
   override def getPreferences(name: String): Preferences =
     prefsCache.getOrElseUpdate(name, new BrowserPreferences(name))
 
-  override def getClipboard(): Clipboard = _clipboard
+  override def clipboard: Clipboard = _clipboard
 
   override def postRunnable(runnable: Runnable): Unit = runnables += runnable
 
@@ -411,7 +360,6 @@ class BrowserApplication(
   override def removeLifecycleListener(listener: LifecycleListener): Unit =
     lifecycleListeners -= listener
 
-  /** Returns the Sge context for this application. Can be used to provide `given Sge` in user code.
-    */
-  def sge: Sge = _sge
+  /** Returns the Sge context for this application. Can be used to provide `given Sge` in user code. */
+  def sge: Sge = sgeContext
 }

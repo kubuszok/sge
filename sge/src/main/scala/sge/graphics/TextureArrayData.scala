@@ -30,7 +30,7 @@ import sge.graphics.glutils.FileTextureArrayData
 trait TextureArrayData {
 
   /** @return whether the TextureArrayData is prepared or not. */
-  def isPrepared(): Boolean
+  def isPrepared: Boolean
 
   /** Prepares the TextureArrayData for a call to {@link #consumeTextureArrayData()} . This method can be called from a non OpenGL thread and should thus not interact with OpenGL.
     */
@@ -42,22 +42,22 @@ trait TextureArrayData {
   def consumeTextureArrayData(): Unit
 
   /** @return the width of this TextureArray */
-  def getWidth(): Int
+  def width: Int
 
   /** @return the height of this TextureArray */
-  def getHeight(): Int
+  def height: Int
 
   /** @return the layer count of this TextureArray */
-  def getDepth(): Int
+  def depth: Int
 
   /** @return whether this implementation can cope with a EGL context loss. */
-  def isManaged(): Boolean
+  def isManaged: Boolean
 
   /** @return the internal format of this TextureArray */
-  def getInternalFormat(): Int
+  def internalFormat: Int
 
   /** @return the GL type of this TextureArray */
-  def getGLType(): Int
+  def glType: Int
 }
 
 object TextureArrayData {

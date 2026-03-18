@@ -109,7 +109,7 @@ trait Pool[A] {
   }
 
   /** The number of objects available to be obtained. */
-  def getFree: Int =
+  def free: Int =
     freeObjects.size
 
 }
@@ -122,7 +122,7 @@ object Pool {
     def reset(): Unit
   }
 
-  class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue)(using poolable: _root_.sge.utils.Poolable[A]) extends Pool[A] {
+  class Default[A](createNewObject: () => A, protected val initialCapacity: Int = 16, protected val max: Int = Int.MaxValue)(using poolable: sge.utils.Poolable[A]) extends Pool[A] {
     override def newObject():             A    = createNewObject()
     override protected def reset(obj: A): Unit = poolable.reset(obj)
   }

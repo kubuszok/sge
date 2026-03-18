@@ -47,9 +47,9 @@ final class WeightMeshSpawnShapeValue extends MeshSpawnShapeValue {
   def calculateWeights(): Unit = {
     distribution.clear()
     val m              = mesh.getOrElse(throw SgeError.InvalidInput("mesh is null"))
-    val attributes     = m.getVertexAttributes()
-    val indicesCount   = m.getNumIndices()
-    val vertexCount    = m.getNumVertices()
+    val attributes     = m.vertexAttributes
+    val indicesCount   = m.numIndices
+    val vertexCount    = m.numVertices
     val vertexSize     = attributes.vertexSize / 4
     val positionOffset =
       attributes.findByUsage(VertexAttributes.Usage.Position).fold(throw SgeError.InvalidInput("Mesh must have Usage.Position"))(_.offset / 4)

@@ -38,7 +38,7 @@ class Group()(using Sge) extends Actor() with Cullable {
   private val computedTransform: Matrix4             = Matrix4()
   private val oldTransform:      Matrix4             = Matrix4()
   var transform:                 Boolean             = true
-  private var cullingArea:       Nullable[Rectangle] = Nullable.empty
+  private var _cullingArea:      Nullable[Rectangle] = Nullable.empty
 
   override def act(delta: Float): Unit = {
     super.act(delta)
@@ -67,7 +67,7 @@ class Group()(using Sge) extends Actor() with Cullable {
     val alpha    = parentAlpha * this.color.a
     val snapshot = children.toArray
     val n        = snapshot.length
-    cullingArea.fold {
+    _cullingArea.fold {
       // No culling, draw all children.
       if (transform) {
         var i = 0
@@ -166,7 +166,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       var i = 0
       while (i < n) {
         val child = snapshot(i)
-        if (child.visible && (child.getDebug || child.isInstanceOf[Group]))
+        if (child.visible && (child.isDebug || child.isInstanceOf[Group]))
           child.drawDebug(shapes)
         i += 1
       }
@@ -180,7 +180,7 @@ class Group()(using Sge) extends Actor() with Cullable {
       var i = 0
       while (i < n) {
         val child = snapshot(i)
-        if (child.visible && (child.getDebug || child.isInstanceOf[Group])) {
+        if (child.visible && (child.isDebug || child.isInstanceOf[Group])) {
           val cx = child.x
           val cy = child.y
           child.x = cx + offsetX
@@ -237,7 +237,7 @@ class Group()(using Sge) extends Actor() with Cullable {
     * restore the transform to what it was before this call.
     */
   protected def applyTransform(shapes: ShapeRenderer, transform: Matrix4): Unit = {
-    oldTransform.set(shapes.getTransformMatrix())
+    oldTransform.set(shapes.transformMatrix)
     shapes.setTransformMatrix(transform)
     shapes.flush()
   }
@@ -252,14 +252,14 @@ class Group()(using Sge) extends Actor() with Cullable {
     *   May be null.
     */
   def setCullingArea(cullingArea: Nullable[Rectangle]): Unit =
-    this.cullingArea = cullingArea
+    this._cullingArea = cullingArea
 
   /** @return
     *   May be null.
     * @see
     *   #setCullingArea(Rectangle)
     */
-  def getCullingArea: Nullable[Rectangle] = cullingArea
+  def cullingArea: Nullable[Rectangle] = _cullingArea
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (touchable && this.touchable == Touchable.disabled) scala.util.boundary.break(Nullable.empty)
@@ -460,9 +460,6 @@ class Group()(using Sge) extends Actor() with Cullable {
   /** Returns the child at the specified index. */
   def getChild(index: Int): Actor = children(index)
 
-  /** Returns an ordered list of child actors in this group. */
-  def getChildren: DynamicArray[Actor] = children
-
   def hasChildren: Boolean = children.nonEmpty
 
   /** When true (the default), the Batch is transformed so children are drawn in their parent's coordinate system. This has a performance impact because {@link Batch#flush()} must be done before and
@@ -472,7 +469,7 @@ class Group()(using Sge) extends Actor() with Cullable {
   def setTransform(transform: Boolean): Unit =
     this.transform = transform
 
-  def isTransform: Boolean = transform
+  // transform is a public var — no separate getter needed
 
   /** Converts coordinates for this group to those of a descendant actor. The descendant does not need to be an immediate child.
     * @throws IllegalArgumentException

@@ -21,7 +21,7 @@ object ShaderScene extends RegressionScene {
   private var shader: ShaderProgram = scala.compiletime.uninitialized
   private var ok:     Boolean       = false
 
-  override def init()(using Sge): Unit = {
+  override def init()(using Sge): Unit =
     try {
       val vs =
         """#version 100
@@ -34,7 +34,7 @@ object ShaderScene extends RegressionScene {
           |void main() { gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); }""".stripMargin
 
       shader = new ShaderProgram(vs, fs)
-      SmokeResult.logCheck("SHADER_COMPILE", shader.compiled, if (shader.compiled) "OK" else shader.getLog())
+      SmokeResult.logCheck("SHADER_COMPILE", shader.compiled, if (shader.compiled) "OK" else shader.log)
 
       if (shader.compiled) {
         shader.bind()
@@ -43,7 +43,7 @@ object ShaderScene extends RegressionScene {
 
         if (loc >= 0) {
           shader.setUniformMatrix("u_projTrans", new math.Matrix4())
-          val err = Sge().graphics.getGL20().glGetError()
+          val err = Sge().graphics.gl20.glGetError()
           SmokeResult.logCheck("SHADER_GLERROR", err == 0, if (err == 0) "no error" else s"0x${err.toHexString}")
         }
       }
@@ -52,7 +52,6 @@ object ShaderScene extends RegressionScene {
       case e: Exception =>
         SmokeResult.logCheck("SHADER", false, s"Exception: ${e.getMessage}")
     }
-  }
 
   override def render(elapsed: Float)(using Sge): Unit =
     if (ok) ScreenUtils.clear(0f, 0.4f, 0.2f, 1f)

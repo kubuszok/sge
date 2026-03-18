@@ -29,7 +29,7 @@ class AddAction extends Action {
     target.foreach { t =>
       actionToAdd.foreach { a =>
         a.setActor(Nullable(t))
-        t.getActions += a
+        t.actions += a
       }
     }
     true

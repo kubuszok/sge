@@ -97,5 +97,5 @@ trait Audio {
     * @return
     *   A array of available output devices
     */
-  def getAvailableOutputDevices: Array[String]
+  def availableOutputDevices: Array[String]
 }

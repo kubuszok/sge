@@ -155,10 +155,10 @@ object ETC1 {
     *   the {@link ETC1Data}
     */
   def encodeImage(pixmap: Pixmap): ETC1Data = {
-    val pixelSize      = getPixelSize(pixmap.getFormat())
-    val compressedData = encodeImage(pixmap.getPixels(), 0, pixmap.getWidth().toInt, pixmap.getHeight().toInt, pixelSize)
+    val pixelSize      = getPixelSize(pixmap.format)
+    val compressedData = encodeImage(pixmap.pixels, 0, pixmap.width.toInt, pixmap.height.toInt, pixelSize)
     BufferUtils.newUnsafeByteBuffer(compressedData)
-    new ETC1Data(pixmap.getWidth().toInt, pixmap.getHeight().toInt, compressedData, 0)
+    new ETC1Data(pixmap.width.toInt, pixmap.height.toInt, compressedData, 0)
   }
 
   /** Encodes the image via the ETC1 compression scheme. Only {@link Format#RGB565} and {@link Format#RGB888} are supported. Adds a PKM header in front of the compressed image data.
@@ -168,10 +168,10 @@ object ETC1 {
     *   the {@link ETC1Data}
     */
   def encodeImagePKM(pixmap: Pixmap): ETC1Data = {
-    val pixelSize      = getPixelSize(pixmap.getFormat())
-    val compressedData = encodeImagePKM(pixmap.getPixels(), 0, pixmap.getWidth().toInt, pixmap.getHeight().toInt, pixelSize)
+    val pixelSize      = getPixelSize(pixmap.format)
+    val compressedData = encodeImagePKM(pixmap.pixels, 0, pixmap.width.toInt, pixmap.height.toInt, pixelSize)
     BufferUtils.newUnsafeByteBuffer(compressedData)
-    new ETC1Data(pixmap.getWidth().toInt, pixmap.getHeight().toInt, compressedData, 16)
+    new ETC1Data(pixmap.width.toInt, pixmap.height.toInt, compressedData, 16)
   }
 
   /** Takes ETC1 compressed image data and converts it to a {@link Format#RGB565} or {@link Format#RGB888} {@link Pixmap} . Does not modify the ByteBuffer's position or limit.
@@ -189,7 +189,7 @@ object ETC1 {
 
     val pixelSize = getPixelSize(format)
     val pixmap    = Pixmap(width, height, format)
-    decodeImage(etc1Data.compressedData, dataOffset, pixmap.getPixels(), 0, width, height, pixelSize)
+    decodeImage(etc1Data.compressedData, dataOffset, pixmap.pixels, 0, width, height, pixelSize)
     pixmap
   }
 

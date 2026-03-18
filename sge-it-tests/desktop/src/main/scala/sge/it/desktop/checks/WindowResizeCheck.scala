@@ -13,14 +13,14 @@ object WindowResizeCheck {
   def run()(using Sge): CheckResult =
     try {
       val gfx = Sge().graphics
-      val w0  = gfx.getWidth()
-      val h0  = gfx.getHeight()
+      val w0  = gfx.width
+      val h0  = gfx.height
 
       val ok = gfx.setWindowedMode(Pixels(200), Pixels(150))
       Thread.sleep(100) // let GLFW process the resize
 
-      val w1 = gfx.getWidth()
-      val h1 = gfx.getHeight()
+      val w1 = gfx.width
+      val h1 = gfx.height
 
       // Restore original size
       gfx.setWindowedMode(w0, h0)

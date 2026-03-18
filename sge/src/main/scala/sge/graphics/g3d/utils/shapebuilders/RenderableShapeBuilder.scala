@@ -126,13 +126,13 @@ object RenderableShapeBuilder {
     if (biNorAttr.isDefined)
       binormalOffset = biNorAttr.getOrElse(throw new RuntimeException).offset / FLOAT_BYTES
 
-    val attributesSize   = mesh.getVertexSize() / FLOAT_BYTES
+    val attributesSize   = mesh.vertexSize / FLOAT_BYTES
     var verticesOffset   = 0
     var verticesQuantity = 0
 
-    if (mesh.getNumIndices() > 0) {
+    if (mesh.numIndices > 0) {
       // Get min vertice to max vertice in indices array
-      ensureIndicesCapacity(mesh.getNumIndices())
+      ensureIndicesCapacity(mesh.numIndices)
       mesh.getIndices(renderable.meshPart.offset, renderable.meshPart.size, indices, 0)
 
       val minVertice = minVerticeInIndices()

@@ -27,6 +27,8 @@ import sge.graphics.VertexAttributes.Usage
 import sge.math.Matrix4
 import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
+import scala.annotation.publicInBinary
+
 /** A relatively lightweight class which can be used to render basic shapes which don't need a node structure and alike. Can be used for batching both static and dynamic shapes which share the same
   * {@link Material} and transformation {@link Matrix4} within the world. Use {@link ModelBatch} to render the `ShapeCache`. Must be disposed when no longer needed to release native resources. <p> How
   * to use it : </p>
@@ -55,7 +57,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
   renderable.material = Nullable(Material())
 
   /** Create a ShapeCache with default values */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(
       5000,
       5000,
@@ -65,30 +67,38 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
       ),
       PrimitiveMode.Lines
     )
+  }
 
   /** Initialize ShapeCache for mesh generation with GL_LINES primitive type */
-  def begin(): MeshPartBuilder =
+  @publicInBinary private[sge] def begin(): MeshPartBuilder =
     begin(PrimitiveMode.Lines)
 
   /** Initialize ShapeCache for mesh generation
     * @param primitiveType
     *   OpenGL primitive type
     */
-  def begin(primitiveType: PrimitiveMode): MeshPartBuilder = {
+  @publicInBinary private[sge] def begin(primitiveType: PrimitiveMode): MeshPartBuilder = {
     if (building) throw SgeError.InvalidInput("Call end() after calling begin()")
     building = true
 
-    builder.begin(mesh.getVertexAttributes())
+    builder.begin(mesh.vertexAttributes)
     builder.part(id, primitiveType, renderable.meshPart)
     builder
   }
 
   /** Generate mesh and renderable */
-  def end(): Unit = {
+  @publicInBinary private[sge] def end(): Unit = {
     if (!building) throw SgeError.InvalidInput("Call begin() prior to calling end()")
     building = false
 
     builder.end(mesh)
+  }
+
+  /** Executes `body` with the [[MeshPartBuilder]] from [[begin]], ensuring [[end]] is called even if `body` throws. */
+  inline def build[A](inline body: MeshPartBuilder => A): A = {
+    val b = begin()
+    try body(b)
+    finally end()
   }
 
   override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
@@ -98,13 +108,13 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
     * @return
     *   material
     */
-  def getMaterial(): Material = renderable.material.getOrElse(throw SgeError.InvalidInput("No material"))
+  def material: Material = renderable.material.getOrElse(throw SgeError.InvalidInput("No material"))
 
   /** Allows to customize the world transform matrix.
     * @return
     *   world transform
     */
-  def getWorldTransform(): Matrix4 = renderable.worldTransform
+  def worldTransform: Matrix4 = renderable.worldTransform
 
   override def close(): Unit =
     mesh.close()

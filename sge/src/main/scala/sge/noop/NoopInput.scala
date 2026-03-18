@@ -4,8 +4,8 @@
  * Migration notes:
  *   Source: backends/gdx-backend-headless/.../mock/input/MockInput.java
  *   Renames: MockInput -> NoopInput
- *   Convention: setInputProcessor stores value (Java ignores); getInputProcessor initializes eagerly (Java lazy null check);
- *     setCursorCatched/isCursorCatched track state (Java ignores); getMaxPointers returns 1 (Java returns 0)
+ *   Convention: setInputProcessor stores value (Java ignores); inputProcessor initializes eagerly (Java lazy null check);
+ *     setCursorCatched/cursorCatched track state (Java ignores); maxPointers returns 1 (Java returns 0)
  *   Idiom: split packages
  *   Audited: 2026-03-03
  */
@@ -23,49 +23,49 @@ final class NoopInput extends Input {
 
   // ---- accelerometer / gyroscope ----
 
-  override def getAccelerometerX(): Float = 0.0f
+  override def accelerometerX: Float = 0.0f
 
-  override def getAccelerometerY(): Float = 0.0f
+  override def accelerometerY: Float = 0.0f
 
-  override def getAccelerometerZ(): Float = 0.0f
+  override def accelerometerZ: Float = 0.0f
 
-  override def getGyroscopeX(): Float = 0.0f
+  override def gyroscopeX: Float = 0.0f
 
-  override def getGyroscopeY(): Float = 0.0f
+  override def gyroscopeY: Float = 0.0f
 
-  override def getGyroscopeZ(): Float = 0.0f
+  override def gyroscopeZ: Float = 0.0f
 
-  override def getMaxPointers(): Int = 1
+  override def maxPointers: Int = 1
 
   // ---- pointer position ----
 
-  override def getX(): Pixels = Pixels.zero
+  override def x: Pixels = Pixels.zero
 
-  override def getX(pointer: Int): Pixels = Pixels.zero
+  override def x(pointer: Int): Pixels = Pixels.zero
 
-  override def getDeltaX(): Pixels = Pixels.zero
+  override def deltaX: Pixels = Pixels.zero
 
-  override def getDeltaX(pointer: Int): Pixels = Pixels.zero
+  override def deltaX(pointer: Int): Pixels = Pixels.zero
 
-  override def getY(): Pixels = Pixels.zero
+  override def y: Pixels = Pixels.zero
 
-  override def getY(pointer: Int): Pixels = Pixels.zero
+  override def y(pointer: Int): Pixels = Pixels.zero
 
-  override def getDeltaY(): Pixels = Pixels.zero
+  override def deltaY: Pixels = Pixels.zero
 
-  override def getDeltaY(pointer: Int): Pixels = Pixels.zero
+  override def deltaY(pointer: Int): Pixels = Pixels.zero
 
   // ---- touch / button / key ----
 
-  override def isTouched(): Boolean = false
+  override def touched: Boolean = false
 
   override def justTouched(): Boolean = false
 
   override def isTouched(pointer: Int): Boolean = false
 
-  override def getPressure(): Float = 0.0f
+  override def pressure: Float = 0.0f
 
-  override def getPressure(pointer: Int): Float = 0.0f
+  override def pressure(pointer: Int): Float = 0.0f
 
   override def isButtonPressed(button: Button): Boolean = false
 
@@ -109,11 +109,11 @@ final class NoopInput extends Input {
 
   // ---- orientation / rotation ----
 
-  override def getAzimuth(): Float = 0.0f
+  override def azimuth: Float = 0.0f
 
-  override def getPitch(): Float = 0.0f
+  override def pitch: Float = 0.0f
 
-  override def getRoll(): Float = 0.0f
+  override def roll: Float = 0.0f
 
   override def getRotationMatrix(matrix: Array[Float]): Unit = {}
 
@@ -130,22 +130,22 @@ final class NoopInput extends Input {
   override def setInputProcessor(processor: InputProcessor): Unit =
     _inputProcessor = processor
 
-  override def getInputProcessor(): InputProcessor = _inputProcessor
+  override def inputProcessor: InputProcessor = _inputProcessor
 
   // ---- peripherals ----
 
   override def isPeripheralAvailable(peripheral: Peripheral): Boolean = false
 
-  override def getRotation(): Int = 0
+  override def rotation: Int = 0
 
-  override def getNativeOrientation(): Orientation = Orientation.Landscape
+  override def nativeOrientation: Orientation = Orientation.Landscape
 
   // ---- cursor ----
 
   override def setCursorCatched(catched: Boolean): Unit =
     _cursorCatched = catched
 
-  override def isCursorCatched(): Boolean = _cursorCatched
+  override def cursorCatched: Boolean = _cursorCatched
 
   override def setCursorPosition(x: Pixels, y: Pixels): Unit = {}
 }

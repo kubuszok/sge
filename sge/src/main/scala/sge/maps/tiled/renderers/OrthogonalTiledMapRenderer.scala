@@ -32,15 +32,15 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
     val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
-    val layerWidth  = layer.getWidth
-    val layerHeight = layer.getHeight
+    val layerWidth  = layer.width
+    val layerHeight = layer.height
 
-    val layerTileWidth  = layer.getTileWidth * unitScale
-    val layerTileHeight = layer.getTileHeight * unitScale
+    val layerTileWidth  = layer.tileWidth * unitScale
+    val layerTileHeight = layer.tileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
+    val layerOffsetX = layer.renderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
+    val layerOffsetY = -layer.renderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val col1 = Math.max(0, ((viewBounds.x - layerOffsetX) / layerTileWidth).toInt)
     val col2 = Math.min(layerWidth, ((viewBounds.x + viewBounds.width + layerTileWidth - layerOffsetX) / layerTileWidth).toInt)
@@ -68,10 +68,10 @@ class OrthogonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, 
               val flipY     = c.flipVertically
               val rotations = c.rotation
 
-              val region = t.getTextureRegion
+              val region = t.textureRegion
 
-              val x1 = x + t.getOffsetX * unitScale
-              val y1 = y + t.getOffsetY * unitScale
+              val x1 = x + t.offsetX * unitScale
+              val y1 = y + t.offsetY * unitScale
               val x2 = x1 + region.regionWidth * unitScale
               val y2 = y1 + region.regionHeight * unitScale
 

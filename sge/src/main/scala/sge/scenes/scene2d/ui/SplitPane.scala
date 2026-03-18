@@ -38,7 +38,7 @@ class SplitPane(
   firstWidget:  Nullable[Actor],
   secondWidget: Nullable[Actor],
   var vertical: Boolean,
-  style:        SplitPane.SplitPaneStyle
+  initialStyle: SplitPane.SplitPaneStyle
 )(using Sge)
     extends WidgetGroup
     with Styleable[SplitPane.SplitPaneStyle] {
@@ -60,19 +60,20 @@ class SplitPane(
   var lastPoint:      Vector2 = Vector2()
   var handlePosition: Vector2 = Vector2()
 
-  setStyle(style)
+  setStyle(initialStyle)
   setFirstWidget(firstWidget)
   setSecondWidget(secondWidget)
-  setSize(getPrefWidth, getPrefHeight)
+  setSize(prefWidth, prefHeight)
   initialize()
 
-  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) =
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) = {
     this(
       firstWidget,
       secondWidget,
       vertical,
       skin.get[SplitPane.SplitPaneStyle]("default-" + (if (vertical) "vertical" else "horizontal"))
     )
+  }
 
   private def initialize(): Unit = {
     val self = this
@@ -137,7 +138,7 @@ class SplitPane(
 
   /** Returns the split pane's style. Modifying the returned style may not have an effect until {@link #setStyle(SplitPaneStyle)} is called.
     */
-  override def getStyle: SplitPaneStyle = _style
+  override def style: SplitPaneStyle = _style
 
   override def layout(): Unit = {
     clampSplitAmount()
@@ -165,47 +166,47 @@ class SplitPane(
   }
 
   private def widgetPrefWidth(w: Nullable[Actor]): Float = w.fold(0f) {
-    case l: Layout => l.getPrefWidth
+    case l: Layout => l.prefWidth
     case a => a.width
   }
 
   private def widgetPrefHeight(w: Nullable[Actor]): Float = w.fold(0f) {
-    case l: Layout => l.getPrefHeight
+    case l: Layout => l.prefHeight
     case a => a.height
   }
 
   private def widgetMinWidth(w: Nullable[Actor]): Float = w.fold(0f) {
-    case l: Layout => l.getMinWidth
+    case l: Layout => l.minWidth
     case _ => 0f
   }
 
   private def widgetMinHeight(w: Nullable[Actor]): Float = w.fold(0f) {
-    case l: Layout => l.getMinHeight
+    case l: Layout => l.minHeight
     case _ => 0f
   }
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     val first  = widgetPrefWidth(_firstWidget)
     val second = widgetPrefWidth(_secondWidget)
     if (vertical) Math.max(first, second)
     else first + _style.handle.minWidth + second
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     val first  = widgetPrefHeight(_firstWidget)
     val second = widgetPrefHeight(_secondWidget)
     if (!vertical) Math.max(first, second)
     else first + _style.handle.minHeight + second
   }
 
-  override def getMinWidth: Float = {
+  override def minWidth: Float = {
     val first  = widgetMinWidth(_firstWidget)
     val second = widgetMinWidth(_secondWidget)
     if (vertical) Math.max(first, second)
     else first + _style.handle.minWidth + second
   }
 
-  override def getMinHeight: Float = {
+  override def minHeight: Float = {
     val first  = widgetMinHeight(_firstWidget)
     val second = widgetMinHeight(_secondWidget)
     if (!vertical) Math.max(first, second)
@@ -302,21 +303,21 @@ class SplitPane(
     if (vertical) {
       val availableHeight = height - _style.handle.minHeight
       _firstWidget.foreach {
-        case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinHeight / availableHeight, 1))
+        case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.minHeight / availableHeight, 1))
         case _ =>
       }
       _secondWidget.foreach {
-        case l: Layout => effectiveMaxAmount = Math.min(effectiveMaxAmount, 1 - Math.min(l.getMinHeight / availableHeight, 1))
+        case l: Layout => effectiveMaxAmount = Math.min(effectiveMaxAmount, 1 - Math.min(l.minHeight / availableHeight, 1))
         case _ =>
       }
     } else {
       val availableWidth = width - _style.handle.minWidth
       _firstWidget.foreach {
-        case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.getMinWidth / availableWidth, 1))
+        case l: Layout => effectiveMinAmount = Math.max(effectiveMinAmount, Math.min(l.minWidth / availableWidth, 1))
         case _ =>
       }
       _secondWidget.foreach {
-        case l: Layout => effectiveMaxAmount = Math.min(effectiveMaxAmount, 1 - Math.min(l.getMinWidth / availableWidth, 1))
+        case l: Layout => effectiveMaxAmount = Math.min(effectiveMaxAmount, 1 - Math.min(l.minWidth / availableWidth, 1))
         case _ =>
       }
     }

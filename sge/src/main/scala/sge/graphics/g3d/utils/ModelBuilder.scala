@@ -24,9 +24,10 @@ package graphics
 package g3d
 package utils
 
-import scala.annotation.nowarn
+import scala.annotation.{ nowarn, publicInBinary }
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.util.control.NonFatal
 
 import sge.graphics.{ Color, Mesh, PrimitiveMode, VertexAttributes }
 import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
@@ -55,7 +56,7 @@ class ModelBuilder()(using Sge) {
 
   private def getBuilder(attributes: VertexAttributes): MeshBuilder = boundary {
     for (mb <- builders)
-      if (mb.getAttributes().equals(attributes) && mb.lastIndex() < MeshBuilder.MAX_VERTICES / 2) break(mb)
+      if (mb.attributes.equals(attributes) && mb.lastIndex() < MeshBuilder.MAX_VERTICES / 2) break(mb)
     val result = MeshBuilder()
     result.begin(attributes)
     builders.add(result)
@@ -63,7 +64,7 @@ class ModelBuilder()(using Sge) {
   }
 
   /** Begin building a new model */
-  def begin(): Unit = {
+  @publicInBinary private[sge] def begin(): Unit = {
     if (model.isDefined) throw SgeError.InvalidInput("Call end() first")
     currentNode = Nullable.empty
     model = Nullable(Model())
@@ -74,7 +75,7 @@ class ModelBuilder()(using Sge) {
     * @return
     *   The newly created model. Call the {@link Model#close()} method when no longer used.
     */
-  def end(): Model = {
+  @publicInBinary private[sge] def end(): Model = {
     if (model.isEmpty) throw SgeError.InvalidInput("Call begin() first")
     val result = model.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
     endnode()
@@ -86,6 +87,20 @@ class ModelBuilder()(using Sge) {
 
     ModelBuilder.rebuildReferences(result)
     result
+  }
+
+  /** Executes `body` between [[begin]] and [[end]], returning the built [[Model]]. [[end]] is called even if `body` throws. */
+  inline def build(inline body: => Unit): Model = {
+    begin()
+    try {
+      body
+      end()
+    } catch {
+      case NonFatal(e) =>
+        try end()
+        catch { case NonFatal(_) => () }
+        throw e
+    }
   }
 
   private def endnode(): Unit =
@@ -125,7 +140,7 @@ class ModelBuilder()(using Sge) {
     n.id = id
     n.addChildren(model.nodes)
     node(n)
-    for (disposable <- model.getManagedDisposables)
+    for (disposable <- model.managedDisposables)
       manage(disposable)
     n
   }
@@ -166,7 +181,7 @@ class ModelBuilder()(using Sge) {
     *   The added MeshPart.
     */
   def part(id: String, mesh: Mesh, primitiveType: PrimitiveMode, material: Material): MeshPart =
-    part(id, mesh, primitiveType, 0, mesh.getNumIndices(), material)
+    part(id, mesh, primitiveType, 0, mesh.numIndices, material)
 
   /** Creates a new MeshPart within the current Node and returns a {@link MeshPartBuilder} which can be used to build the shape of the part. If possible a previously used {@link MeshPartBuilder} will
     * be reused, to reduce the number of mesh binds. Therefore you can only build one part at a time. The resources the Material might contain are not managed, use {@link #manage(AutoCloseable)} to

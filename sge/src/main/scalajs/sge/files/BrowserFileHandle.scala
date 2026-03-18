@@ -39,43 +39,43 @@ class BrowserFileHandle(
 
   // ─── Path/name methods (override to avoid touching null file field) ──
 
-  override def path(): String =
+  override def path: String =
     filePath.replace('\\', '/')
 
-  override def name(): String = {
-    val p   = path()
+  override def name: String = {
+    val p   = path
     val idx = p.lastIndexOf('/')
     if (idx < 0) p else p.substring(idx + 1)
   }
 
-  override def extension(): String = {
-    val n        = name()
+  override def extension: String = {
+    val n        = name
     val dotIndex = n.lastIndexOf('.')
     if (dotIndex == -1) ""
     else n.substring(dotIndex + 1)
   }
 
-  override def nameWithoutExtension(): String = {
-    val n        = name()
+  override def nameWithoutExtension: String = {
+    val n        = name
     val dotIndex = n.lastIndexOf('.')
     if (dotIndex == -1) n
     else n.substring(0, dotIndex)
   }
 
-  override def pathWithoutExtension(): String = {
-    val p        = path()
+  override def pathWithoutExtension: String = {
+    val p        = path
     val dotIndex = p.lastIndexOf('.')
     if (dotIndex == -1) p
     else p.substring(0, dotIndex)
   }
 
-  override def getFile(): File =
+  override def file: File =
     throw new UnsupportedOperationException("BrowserFileHandle does not support java.io.File")
 
   // ─── Read methods ─────────────────────────────────────────────────────
 
   override def read(): InputStream = {
-    val p = path()
+    val p = path
     if (assetLoader.isText(p)) {
       new ByteArrayInputStream(assetLoader.readText(p).getBytes("UTF-8"))
     } else if (assetLoader.isBinary(p)) {
@@ -95,7 +95,7 @@ class BrowserFileHandle(
     new InputStreamReader(read(), charset)
 
   override def readString(charset: Nullable[String] = Nullable.empty): String = {
-    val p = path()
+    val p = path
     if (assetLoader.isText(p)) {
       assetLoader.readText(p)
     } else if (assetLoader.isBinary(p)) {
@@ -106,7 +106,7 @@ class BrowserFileHandle(
   }
 
   override def readBytes(): Array[Byte] = {
-    val p = path()
+    val p = path
     if (assetLoader.isBinary(p)) {
       assetLoader.readBytes(p)
     } else if (assetLoader.isText(p)) {
@@ -119,30 +119,30 @@ class BrowserFileHandle(
   // ─── Directory/listing ────────────────────────────────────────────────
 
   override def exists(): Boolean =
-    assetLoader.contains(path())
+    assetLoader.contains(path)
 
   override def isDirectory(): Boolean =
-    assetLoader.isDirectory(path())
+    assetLoader.isDirectory(path)
 
   override def length(): Long =
-    assetLoader.length(path())
+    assetLoader.length(path)
 
   override def list(): Array[FileHandle] =
-    assetLoader.list(path()).map(p => BrowserFileHandle(assetLoader, p, fileType))
+    assetLoader.list(path).map(p => BrowserFileHandle(assetLoader, p, fileType))
 
   override def list(suffix: String): Array[FileHandle] =
-    assetLoader.list(path()).filter(_.endsWith(suffix)).map(p => BrowserFileHandle(assetLoader, p, fileType))
+    assetLoader.list(path).filter(_.endsWith(suffix)).map(p => BrowserFileHandle(assetLoader, p, fileType))
 
   // ─── Navigation ───────────────────────────────────────────────────────
 
   override def child(name: String): FileHandle = {
-    val p         = path()
+    val p         = path
     val childPath = if (p.isEmpty) name else if (p.endsWith("/")) p + name else p + "/" + name
     BrowserFileHandle(assetLoader, childPath, fileType)
   }
 
   override def sibling(name: String): FileHandle = {
-    val p = path()
+    val p = path
     if (p.isEmpty) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root")
     val parentPath = {
       val idx = p.lastIndexOf('/')
@@ -153,13 +153,13 @@ class BrowserFileHandle(
   }
 
   override def parent(): FileHandle = {
-    val p          = path()
+    val p          = path
     val idx        = p.lastIndexOf('/')
     val parentPath = if (idx < 0) "" else p.substring(0, idx)
     BrowserFileHandle(assetLoader, parentPath, fileType)
   }
 
-  override def toString: String = path()
+  override def toString: String = path
 }
 
 private object BrowserFileHandle {

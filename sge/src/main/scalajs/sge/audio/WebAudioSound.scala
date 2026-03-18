@@ -62,8 +62,8 @@ class WebAudioSound(
       val graph  = audioGraphPool.obtain()
       val source = createBufferSourceNode(loop, pitch)
       graph.setSource(source)
-      graph.setPan(pan)
-      graph.setVolume(volume)
+      graph.pan = pan
+      graph.volume_=(volume)
 
       val myKey = nextKey
       nextKey += 1
@@ -204,14 +204,14 @@ class WebAudioSound(
 
   override def setVolume(soundId: SoundId, volume: Volume): Unit = {
     val key = soundId.toLong.toInt
-    activeGraphs.get(key).foreach(_.setVolume(volume.toFloat))
+    activeGraphs.get(key).foreach(_.volume_=(volume.toFloat))
   }
 
   override def setPan(soundId: SoundId, pan: Pan, volume: Volume): Unit = {
     val key = soundId.toLong.toInt
     activeGraphs.get(key).foreach { graph =>
-      graph.setPan(pan.toFloat)
-      graph.setVolume(volume.toFloat)
+      graph.pan = pan.toFloat
+      graph.volume_=(volume.toFloat)
     }
   }
 }

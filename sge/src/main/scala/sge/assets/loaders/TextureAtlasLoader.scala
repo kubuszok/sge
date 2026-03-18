@@ -34,7 +34,7 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends Synchr
     data.foreach { d =>
       for (page <- d.pages)
         page.textureFile.foreach { tf =>
-          val texture = assetManager[Texture](tf.path().replaceAll("\\\\", "/"))
+          val texture = assetManager[Texture](tf.path.replaceAll("\\\\", "/"))
           page.texture = Nullable(texture)
         }
     }
@@ -59,7 +59,7 @@ class TextureAtlasLoader(resolver: FileHandleResolver)(using Sge) extends Synchr
         params.minFilter = page.minFilter
         params.magFilter = page.magFilter
         page.textureFile.foreach { tf =>
-          dependencies.add(AssetDescriptor[Texture](tf.path(), params))
+          dependencies.add(AssetDescriptor[Texture](tf.path, params))
         }
       }
     }

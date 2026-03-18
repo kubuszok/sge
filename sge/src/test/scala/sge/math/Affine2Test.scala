@@ -41,7 +41,7 @@ class Affine2Test extends munit.FunSuite {
     val a = new Affine2()
     a.setToTranslation(3f, 7f)
     assert(a.isTranslation())
-    val pos = a.getTranslation(Vector2())
+    val pos = a.translation(Vector2())
     assertEqualsFloat(pos.x, 3f, epsilon)
     assertEqualsFloat(pos.y, 7f, epsilon)
   }
@@ -83,7 +83,7 @@ class Affine2Test extends munit.FunSuite {
   test("translate") {
     val a = new Affine2()
     a.translate(3f, 4f)
-    val pos = a.getTranslation(Vector2())
+    val pos = a.translation(Vector2())
     assertEqualsFloat(pos.x, 3f, epsilon)
     assertEqualsFloat(pos.y, 4f, epsilon)
   }

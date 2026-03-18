@@ -71,7 +71,7 @@ class SpawnInfluencer extends Influencer {
     i = startIndex * rotationChannel.strideSize
     val c2 = i + count * rotationChannel.strideSize
     while (i < c2) {
-      controller.transform.getRotation(TMP_Q, true)
+      controller.transform.rotation(TMP_Q, true)
       rotationChannel.floatData(i + ParticleChannels.XOffset) = TMP_Q.x
       rotationChannel.floatData(i + ParticleChannels.YOffset) = TMP_Q.y
       rotationChannel.floatData(i + ParticleChannels.ZOffset) = TMP_Q.z

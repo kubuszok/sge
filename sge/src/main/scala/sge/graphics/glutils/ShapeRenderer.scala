@@ -20,6 +20,7 @@ import sge.graphics.{ Color, PrimitiveMode }
 import sge.math.{ MathUtils, Matrix4, Vector2, Vector3 }
 import sge.utils.Nullable
 import sge.Sge
+import scala.annotation.publicInBinary
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -53,39 +54,40 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
 
   import ShapeRenderer.ShapeType
 
-  private val renderer: ImmediateModeRenderer = defaultShader.fold {
+  private val _renderer: ImmediateModeRenderer = defaultShader.fold {
     ImmediateModeRenderer20(maxVertices, false, true, 0)
   } { shader =>
     ImmediateModeRenderer20(maxVertices, false, true, 0, shader)
   }
 
   private var matrixDirty:          Boolean             = false
-  private val projectionMatrix:     Matrix4             = Matrix4()
-  private val transformMatrix:      Matrix4             = Matrix4()
+  private val _projectionMatrix:    Matrix4             = Matrix4()
+  private val _transformMatrix:     Matrix4             = Matrix4()
   private val combinedMatrix:       Matrix4             = Matrix4()
   private val tmp:                  Vector2             = Vector2()
-  private val color:                Color               = Color(1, 1, 1, 1)
+  private val _color:               Color               = Color(1, 1, 1, 1)
   private var shapeType:            Nullable[ShapeType] = Nullable.empty
   private var autoShapeType:        Boolean             = false
   private val defaultRectLineWidth: Float               = 0.75f
 
   // Constructor body
-  projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
   matrixDirty = true
 
   /** Create a new ShapeRenderer with default maxVertices of 5000 */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(5000)
+  }
 
   /** Sets the color to be used by the next shapes drawn. */
   def setColor(color: Color): Unit =
-    this.color.set(color)
+    this._color.set(color)
 
   /** Sets the color to be used by the next shapes drawn. */
   def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    this.color.set(r, g, b, a)
+    this._color.set(r, g, b, a)
 
-  def getColor(): Color = color
+  def color: Color = _color
 
   def updateMatrices(): Unit =
     matrixDirty = true
@@ -95,18 +97,18 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     *   the matrix
     */
   def setProjectionMatrix(matrix: Matrix4): Unit = {
-    projectionMatrix.set(matrix)
+    _projectionMatrix.set(matrix)
     matrixDirty = true
   }
 
-  def getProjectionMatrix(): Matrix4 = projectionMatrix
+  def projectionMatrix: Matrix4 = _projectionMatrix
 
   def setTransformMatrix(matrix: Matrix4): Unit = {
-    transformMatrix.set(matrix)
+    _transformMatrix.set(matrix)
     matrixDirty = true
   }
 
-  def getTransformMatrix(): Matrix4 = transformMatrix
+  def transformMatrix: Matrix4 = _transformMatrix
 
   /** Sets the transformation matrix to identity. */
   def identity(): Unit = {
@@ -165,7 +167,7 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     * @throws IllegalStateException
     *   if autoShapeType is false.
     */
-  def begin(): Unit = {
+  @publicInBinary private[sge] def begin(): Unit = {
     if (!autoShapeType) throw new IllegalStateException("autoShapeType must be true to use this method.")
     begin(ShapeType.Line)
   }
@@ -174,7 +176,7 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     * @param shapeType
     *   the renderType.
     */
-  def begin(shapeType: ShapeType): Unit = {
+  @publicInBinary private[sge] def begin(shapeType: ShapeType): Unit = {
     if (this.shapeType.isDefined) throw new IllegalStateException("Call end() before beginning a new shape batch.")
     this.shapeType = Nullable(shapeType)
     if (matrixDirty) {
@@ -182,7 +184,7 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
       combinedMatrix.mul(transformMatrix)
       matrixDirty = false
     }
-    renderer.begin(combinedMatrix, shapeType.getGlType())
+    _renderer.begin(combinedMatrix, shapeType.glType)
   }
 
   def set(shapeType: ShapeType): Unit =
@@ -206,8 +208,8 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
         break(())
       }
       check(ShapeType.Point, Nullable.empty, 1)
-      renderer.color(color)
-      renderer.vertex(x, y, z)
+      _renderer.color(color)
+      _renderer.vertex(x, y, z)
     }
 
   /** Draws a line using ShapeType.Line or ShapeType.Filled. */
@@ -236,10 +238,10 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
       rectLine(x, y, x2, y2, defaultRectLineWidth, c1, c2)
     } else {
       check(ShapeType.Line, Nullable.empty, 2)
-      renderer.color(c1.r, c1.g, c1.b, c1.a)
-      renderer.vertex(x, y, z)
-      renderer.color(c2.r, c2.g, c2.b, c2.a)
-      renderer.vertex(x2, y2, z2)
+      _renderer.color(c1.r, c1.g, c1.b, c1.a)
+      _renderer.vertex(x, y, z)
+      _renderer.color(c2.r, c2.g, c2.b, c2.a)
+      _renderer.vertex(x2, y2, z2)
     }
 
   /** Draws a curve using ShapeType.Line. */
@@ -277,22 +279,22 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
 
     var i = segments
     while (i > 0) {
-      renderer.color(colorBits)
-      renderer.vertex(fx, fy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(fx, fy, 0)
       fx += dfx
       fy += dfy
       dfx += ddfx
       dfy += ddfy
       ddfx += dddfx
       ddfy += dddfy
-      renderer.color(colorBits)
-      renderer.vertex(fx, fy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(fx, fy, 0)
       i -= 1
     }
-    renderer.color(colorBits)
-    renderer.vertex(fx, fy, 0)
-    renderer.color(colorBits)
-    renderer.vertex(x2, y2, 0)
+    _renderer.color(colorBits)
+    _renderer.vertex(fx, fy, 0)
+    _renderer.color(colorBits)
+    _renderer.vertex(x2, y2, 0)
   }
 
   /** Draws a triangle in x/y plane using ShapeType.Line or ShapeType.Filled. */
@@ -300,27 +302,27 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     check(ShapeType.Line, Nullable(ShapeType.Filled), 6)
     val colorBits = color.toFloatBits()
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(colorBits)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2, y2, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2, y2, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x3, y3, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x3, y3, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1, y1, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x3, y3, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1, y1, 0)
     } else {
-      renderer.color(colorBits)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x3, y3, 0)
     }
   }
 
@@ -328,27 +330,27 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
   def triangle(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float, col1: Color, col2: Color, col3: Color): Unit = {
     check(ShapeType.Line, Nullable(ShapeType.Filled), 6)
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
 
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
 
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
     } else {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
     }
   }
 
@@ -357,39 +359,39 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     check(ShapeType.Line, Nullable(ShapeType.Filled), 8)
     val colorBits = color.toFloatBits()
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
     } else {
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
     }
   }
 
@@ -407,39 +409,39 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     check(ShapeType.Line, Nullable(ShapeType.Filled), 8)
 
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x, y, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x + width, y, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x + width, y, 0)
 
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x + width, y, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x + width, y + height, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x + width, y, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x + width, y + height, 0)
 
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x + width, y + height, 0)
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x, y + height, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x + width, y + height, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x, y + height, 0)
 
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x, y + height, 0)
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x, y, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x, y + height, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x, y, 0)
     } else {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x, y, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x + width, y, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x + width, y + height, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x + width, y, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x + width, y + height, 0)
 
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x + width, y + height, 0)
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x, y + height, 0)
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x, y, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x + width, y + height, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x, y + height, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x, y, 0)
     }
   }
 
@@ -517,39 +519,39 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     val y4 = y3 - (y2 - y1)
 
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
 
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
 
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x4, y4, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x4, y4, 0)
 
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x4, y4, 0)
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x4, y4, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
     } else {
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(col2.r, col2.g, col2.b, col2.a)
-      renderer.vertex(x2, y2, 0)
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(col2.r, col2.g, col2.b, col2.a)
+      _renderer.vertex(x2, y2, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
 
-      renderer.color(col3.r, col3.g, col3.b, col3.a)
-      renderer.vertex(x3, y3, 0)
-      renderer.color(col4.r, col4.g, col4.b, col4.a)
-      renderer.vertex(x4, y4, 0)
-      renderer.color(col1.r, col1.g, col1.b, col1.a)
-      renderer.vertex(x1, y1, 0)
+      _renderer.color(col3.r, col3.g, col3.b, col3.a)
+      _renderer.vertex(x3, y3, 0)
+      _renderer.color(col4.r, col4.g, col4.b, col4.a)
+      _renderer.vertex(x4, y4, 0)
+      _renderer.color(col1.r, col1.g, col1.b, col1.a)
+      _renderer.vertex(x1, y1, 0)
     }
   }
 
@@ -562,39 +564,39 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     val tx        = t.x * w
     val ty        = t.y * w
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(colorBits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
     } else {
-      renderer.color(colorBits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
 
-      renderer.color(colorBits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
     }
   }
 
@@ -608,39 +610,39 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     val tx       = t.x * w
     val ty       = t.y * w
     if (shapeType.contains(ShapeType.Line)) {
-      renderer.color(col1Bits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
-      renderer.color(col1Bits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
 
-      renderer.color(col2Bits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(col2Bits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
 
-      renderer.color(col2Bits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(col1Bits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
 
-      renderer.color(col2Bits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
-      renderer.color(col1Bits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
     } else {
-      renderer.color(col1Bits)
-      renderer.vertex(x1 + tx, y1 + ty, 0)
-      renderer.color(col1Bits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
-      renderer.color(col2Bits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 + tx, y1 + ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
 
-      renderer.color(col2Bits)
-      renderer.vertex(x2 - tx, y2 - ty, 0)
-      renderer.color(col2Bits)
-      renderer.vertex(x2 + tx, y2 + ty, 0)
-      renderer.color(col1Bits)
-      renderer.vertex(x1 - tx, y1 - ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 - tx, y2 - ty, 0)
+      _renderer.color(col2Bits)
+      _renderer.vertex(x2 + tx, y2 + ty, 0)
+      _renderer.color(col1Bits)
+      _renderer.vertex(x1 - tx, y1 - ty, 0)
     }
   }
 
@@ -655,157 +657,157 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     if (shapeType.contains(ShapeType.Line)) {
       check(ShapeType.Line, Nullable(ShapeType.Filled), 24)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
     } else {
       check(ShapeType.Line, Nullable(ShapeType.Filled), 36)
 
       // Front
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
 
       // Back
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
 
       // Left
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
 
       // Right
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
 
       // Top
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y + height, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y + height, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y + height, z + d)
 
       // Bottom
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + d)
-      renderer.color(colorBits)
-      renderer.vertex(x + width, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + d)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + width, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
     }
   }
 
@@ -836,49 +838,49 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     if (shapeType.contains(ShapeType.Line)) {
       check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 2 + 2)
 
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, 0)
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         val temp = cx
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         i += 1
       }
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, 0)
     } else {
       check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 3 + 3)
 
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(x, y, 0)
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x, y, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         val temp = cx
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         i += 1
       }
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, 0)
     }
 
     cx = 0
     cy = 0
-    renderer.color(colorBits)
-    renderer.vertex(x + cx, y + cy, 0)
+    _renderer.color(colorBits)
+    _renderer.vertex(x + cx, y + cy, 0)
   }
 
   /** Calls circle(float, float, float, int) by estimating the number of segments needed for a smooth circle. */
@@ -898,45 +900,45 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
       check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 2 + 2)
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         val temp = cx
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         i += 1
       }
       // Ensure the last segment is identical to the first.
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, 0)
     } else {
       check(ShapeType.Line, Nullable(ShapeType.Filled), segments * 3 + 3)
       val segs = segments - 1
       var i    = 0
       while (i < segs) {
-        renderer.color(colorBits)
-        renderer.vertex(x, y, 0)
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x, y, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         val temp = cx
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, 0)
         i += 1
       }
       // Ensure the last segment is identical to the first.
-      renderer.color(colorBits)
-      renderer.vertex(x, y, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, 0)
     }
 
     cx = radius
     cy = 0
-    renderer.color(colorBits)
-    renderer.vertex(x + cx, y + cy, 0)
+    _renderer.color(colorBits)
+    _renderer.vertex(x + cx, y + cy, 0)
   }
 
   /** Calls ellipse(float, float, float, float, int) by estimating the number of segments needed for a smooth ellipse. */
@@ -955,11 +957,11 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     if (shapeType.contains(ShapeType.Line)) {
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(cx + (width * 0.5f * MathUtils.cos(i * angle)), cy + (height * 0.5f * MathUtils.sin(i * angle)), 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + (width * 0.5f * MathUtils.cos(i * angle)), cy + (height * 0.5f * MathUtils.sin(i * angle)), 0)
 
-        renderer.color(colorBits)
-        renderer.vertex(
+        _renderer.color(colorBits)
+        _renderer.vertex(
           cx + (width * 0.5f * MathUtils.cos((i + 1) * angle)),
           cy + (height * 0.5f * MathUtils.sin((i + 1) * angle)),
           0
@@ -969,14 +971,14 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     } else {
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(cx + (width * 0.5f * MathUtils.cos(i * angle)), cy + (height * 0.5f * MathUtils.sin(i * angle)), 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + (width * 0.5f * MathUtils.cos(i * angle)), cy + (height * 0.5f * MathUtils.sin(i * angle)), 0)
 
-        renderer.color(colorBits)
-        renderer.vertex(cx, cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx, cy, 0)
 
-        renderer.color(colorBits)
-        renderer.vertex(
+        _renderer.color(colorBits)
+        _renderer.vertex(
           cx + (width * 0.5f * MathUtils.cos((i + 1) * angle)),
           cy + (height * 0.5f * MathUtils.sin((i + 1) * angle)),
           0
@@ -1015,30 +1017,30 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     if (shapeType.contains(ShapeType.Line)) {
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
 
         x1 = width * 0.5f * MathUtils.cos((i + 1) * angle)
         y1 = height * 0.5f * MathUtils.sin((i + 1) * angle)
 
-        renderer.color(colorBits)
-        renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
         i += 1
       }
     } else {
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
 
-        renderer.color(colorBits)
-        renderer.vertex(cx, cy, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx, cy, 0)
 
         x1 = width * 0.5f * MathUtils.cos((i + 1) * angle)
         y1 = height * 0.5f * MathUtils.sin((i + 1) * angle)
 
-        renderer.color(colorBits)
-        renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
+        _renderer.color(colorBits)
+        _renderer.vertex(cx + cos * x1 - sin * y1, cy + sin * x1 + cos * y1, 0)
         i += 1
       }
     }
@@ -1061,64 +1063,64 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     if (shapeType.contains(ShapeType.Line)) {
       var i = 0
       while (i < segments) {
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
-        renderer.color(colorBits)
-        renderer.vertex(x, y, z + height)
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x, y, z + height)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
         val temp = cx
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
         i += 1
       }
       // Ensure the last segment is identical to the first.
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, z)
     } else {
       val segs = segments - 1
       var i    = 0
       while (i < segs) {
-        renderer.color(colorBits)
-        renderer.vertex(x, y, z)
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x, y, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
         val temp  = cx
         val temp2 = cy
         cx = cos * cx - sin * cy
         cy = sin * temp + cos * cy
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
 
-        renderer.color(colorBits)
-        renderer.vertex(x + temp, y + temp2, z)
-        renderer.color(colorBits)
-        renderer.vertex(x + cx, y + cy, z)
-        renderer.color(colorBits)
-        renderer.vertex(x, y, z + height)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + temp, y + temp2, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x + cx, y + cy, z)
+        _renderer.color(colorBits)
+        _renderer.vertex(x, y, z + height)
         i += 1
       }
       // Ensure the last segment is identical to the first.
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, z)
     }
     val temp  = cx
     val temp2 = cy
     cx = radius
     cy = 0
-    renderer.color(colorBits)
-    renderer.vertex(x + cx, y + cy, z)
+    _renderer.color(colorBits)
+    _renderer.vertex(x + cx, y + cy, z)
     if (!shapeType.contains(ShapeType.Line)) {
-      renderer.color(colorBits)
-      renderer.vertex(x + temp, y + temp2, z)
-      renderer.color(colorBits)
-      renderer.vertex(x + cx, y + cy, z)
-      renderer.color(colorBits)
-      renderer.vertex(x, y, z + height)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + temp, y + temp2, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x + cx, y + cy, z)
+      _renderer.color(colorBits)
+      _renderer.vertex(x, y, z + height)
     }
   }
 
@@ -1145,10 +1147,10 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
         if (i + 2 >= count) firstY
         else vertices(i + 3)
 
-      renderer.color(colorBits)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2, y2, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2, y2, 0)
       i += 2
     }
   }
@@ -1173,10 +1175,10 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
       val x2 = vertices(i + 2)
       val y2 = vertices(i + 3)
 
-      renderer.color(colorBits)
-      renderer.vertex(x1, y1, 0)
-      renderer.color(colorBits)
-      renderer.vertex(x2, y2, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x1, y1, 0)
+      _renderer.color(colorBits)
+      _renderer.vertex(x2, y2, 0)
       i += 2
     }
   }
@@ -1214,7 +1216,7 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
       val st = shapeType
       end()
       st.foreach(begin)
-    } else if (renderer.getMaxVertices() - renderer.getNumVertices() < newVertices) {
+    } else if (_renderer.maxVertices - _renderer.numVertices < newVertices) {
       // Not enough space.
       val st = shapeType
       end()
@@ -1223,9 +1225,23 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
   }
 
   /** Finishes the batch of shapes and ensures they get rendered. */
-  def end(): Unit = {
-    renderer.end()
+  @publicInBinary private[sge] def end(): Unit = {
+    _renderer.end()
     shapeType = Nullable.empty
+  }
+
+  /** Executes `body` between [[begin]](`shapeType`) and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def drawing[A](shapeType: ShapeType)(inline body: => A): A = {
+    begin(shapeType)
+    try body
+    finally end()
+  }
+
+  /** Executes `body` between [[begin]]() and [[end]] (requires autoShapeType), ensuring [[end]] is called even if `body` throws. */
+  inline def drawing[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
   }
 
   def flush(): Unit =
@@ -1235,15 +1251,15 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     }
 
   /** Returns the current shape type. */
-  def getCurrentType(): Nullable[ShapeType] = shapeType
+  def currentType: Nullable[ShapeType] = shapeType
 
-  def getRenderer(): ImmediateModeRenderer = renderer
+  def renderer: ImmediateModeRenderer = _renderer
 
   /** @return true if currently between begin and end. */
   def isDrawing: Boolean = shapeType.isDefined
 
   override def close(): Unit =
-    renderer.dispose()
+    _renderer.dispose()
 }
 
 object ShapeRenderer {
@@ -1256,7 +1272,5 @@ object ShapeRenderer {
     case Point extends ShapeType(PrimitiveMode.Points)
     case Line extends ShapeType(PrimitiveMode.Lines)
     case Filled extends ShapeType(PrimitiveMode.Triangles)
-
-    def getGlType(): PrimitiveMode = glType
   }
 }

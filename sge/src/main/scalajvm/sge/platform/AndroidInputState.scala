@@ -36,7 +36,7 @@ trait AndroidInputState {
   // ── Pointer ID mapping ────────────────────────────────────────────────
 
   /** Find a free pointer index. Returns an index >= 0, possibly growing internal arrays. */
-  def getFreePointerIndex(): Int
+  def freePointerIndex: Int
 
   /** Look up the internal pointer index for the given Android pointer ID.
     * @return

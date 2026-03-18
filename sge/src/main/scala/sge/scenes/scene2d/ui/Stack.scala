@@ -50,7 +50,7 @@ class Stack()(using Sge) extends WidgetGroup() {
     _minHeight = 0
     _maxWidth = 0
     _maxHeight = 0
-    val children = getChildren
+    val children = this.children
     var i        = 0
     val n        = children.size
     while (i < n) {
@@ -59,12 +59,12 @@ class Stack()(using Sge) extends WidgetGroup() {
       var childMaxHeight: Float = 0
       child match {
         case layout: Layout =>
-          _prefWidth = Math.max(_prefWidth, layout.getPrefWidth)
-          _prefHeight = Math.max(_prefHeight, layout.getPrefHeight)
-          _minWidth = Math.max(_minWidth, layout.getMinWidth)
-          _minHeight = Math.max(_minHeight, layout.getMinHeight)
-          childMaxWidth = layout.getMaxWidth
-          childMaxHeight = layout.getMaxHeight
+          _prefWidth = Math.max(_prefWidth, layout.prefWidth)
+          _prefHeight = Math.max(_prefHeight, layout.prefHeight)
+          _minWidth = Math.max(_minWidth, layout.minWidth)
+          _minHeight = Math.max(_minHeight, layout.minHeight)
+          childMaxWidth = layout.maxWidth
+          childMaxHeight = layout.maxHeight
         case _ =>
           _prefWidth = Math.max(_prefWidth, child.width)
           _prefHeight = Math.max(_prefHeight, child.height)
@@ -86,7 +86,7 @@ class Stack()(using Sge) extends WidgetGroup() {
     if (sizeInvalid) computeSize()
     val width    = this.width
     val height   = this.height
-    val children = getChildren
+    val children = this.children
     var i        = 0
     val n        = children.size
     while (i < n) {
@@ -100,32 +100,32 @@ class Stack()(using Sge) extends WidgetGroup() {
     }
   }
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     if (sizeInvalid) computeSize()
     _prefWidth
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     if (sizeInvalid) computeSize()
     _prefHeight
   }
 
-  override def getMinWidth: Float = {
+  override def minWidth: Float = {
     if (sizeInvalid) computeSize()
     _minWidth
   }
 
-  override def getMinHeight: Float = {
+  override def minHeight: Float = {
     if (sizeInvalid) computeSize()
     _minHeight
   }
 
-  override def getMaxWidth: Float = {
+  override def maxWidth: Float = {
     if (sizeInvalid) computeSize()
     _maxWidth
   }
 
-  override def getMaxHeight: Float = {
+  override def maxHeight: Float = {
     if (sizeInvalid) computeSize()
     _maxHeight
   }

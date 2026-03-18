@@ -26,6 +26,8 @@ import sge.graphics.g3d.particles.batches.ParticleBatch
 import sge.utils.DynamicArray
 import sge.utils.Pool
 
+import scala.annotation.publicInBinary
+
 /** Singleton class which manages the particle effects. It's a utility class to ease particle batches management and particle effects update.
   * @author
   *   inferno
@@ -70,7 +72,7 @@ final class ParticleSystem()(using Sge) extends RenderableProvider {
     }
 
   /** Must be called one time per frame before any particle effect drawing operation will occur. */
-  def begin(): Unit =
+  @publicInBinary private[sge] def begin(): Unit =
     for (batch <- batches)
       batch.begin()
 
@@ -80,9 +82,16 @@ final class ParticleSystem()(using Sge) extends RenderableProvider {
       effect.draw()
 
   /** Must be called one time per frame at the end of all drawing operations. */
-  def end(): Unit =
+  @publicInBinary private[sge] def end(): Unit =
     for (batch <- batches)
       batch.end()
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
+  }
 
   override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     for (batch <- batches)

@@ -294,10 +294,10 @@ class Model()(using Sge) extends AutoCloseable {
         )
 
         val descriptor = TextureDescriptor[Texture](texture)
-        descriptor.minFilter = Nullable(texture.getMinFilter())
-        descriptor.magFilter = Nullable(texture.getMagFilter())
-        descriptor.uWrap = Nullable(texture.getUWrap())
-        descriptor.vWrap = Nullable(texture.getVWrap())
+        descriptor.minFilter = Nullable(texture.minFilter)
+        descriptor.magFilter = Nullable(texture.magFilter)
+        descriptor.uWrap = Nullable(texture.uWrap)
+        descriptor.vWrap = Nullable(texture.vWrap)
 
         val offsetU = Nullable(tex.uvTranslation).map(_.x).getOrElse(0f)
         val offsetV = Nullable(tex.uvTranslation).map(_.y).getOrElse(0f)
@@ -335,7 +335,7 @@ class Model()(using Sge) extends AutoCloseable {
     if (!disposables.containsByRef(disposable)) disposables.add(disposable)
 
   /** @return the {@link AutoCloseable} objects that will be disposed when the {@link #close()} method is called. */
-  def getManagedDisposables: DynamicArray[AutoCloseable] = disposables
+  def managedDisposables: DynamicArray[AutoCloseable] = disposables
 
   override def close(): Unit =
     for (disposable <- disposables)

@@ -12,7 +12,7 @@ package regression
 
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
-import sge.graphics.{Pixmap, Texture}
+import sge.graphics.{ Pixmap, Texture, TextureHandle }
 import sge.utils.ScreenUtils
 import sge.Application
 
@@ -23,8 +23,7 @@ import sge.Application
   *   - Pixmap creation + Texture upload (procedural, no file)
   *   - AssetManager load/update/retrieve cycle (PNG texture from resources)
   *
-  * These are the exact code paths that caused the asset-showcase failure:
-  * compilation + unit tests passed, but runtime file resolution was broken.
+  * These are the exact code paths that caused the asset-showcase failure: compilation + unit tests passed, but runtime file resolution was broken.
   */
 object AssetLoadingScene extends RegressionScene {
 
@@ -58,7 +57,7 @@ object AssetLoadingScene extends RegressionScene {
       pixmap.setColor(1f, 0f, 0f, 1f)
       pixmap.fill()
       pixmapTex = new Texture(pixmap)
-      val handle = pixmapTex.getTextureObjectHandle()
+      val handle = pixmapTex.textureObjectHandle
       val ok     = handle.toInt > 0
       SmokeResult.logCheck("PIXMAP_TEXTURE", ok, s"GL handle=$handle")
       pixmap.close()
@@ -71,7 +70,7 @@ object AssetLoadingScene extends RegressionScene {
     // On browser (WebGL), assets must be pre-fetched via the manifest system before
     // BrowserFileHandle can serve them synchronously. The AssetManager load test only
     // works on JVM and Native where internal FileHandle reads from the classpath/resources.
-    val isBrowser = Sge().application.getType() == Application.ApplicationType.WebGL
+    val isBrowser = Sge().application.applicationType == Application.ApplicationType.WebGL
     if (isBrowser) {
       SmokeResult.logCheck("ASSET_LOAD", true, "skipped on browser (requires manifest preload)")
     } else {
@@ -94,8 +93,8 @@ object AssetLoadingScene extends RegressionScene {
         if (done) {
           loadFinished = true
           texture = assetManager[Texture]("regression/test-texture.png")
-          val w  = texture.getWidth.toInt
-          val h  = texture.getHeight.toInt
+          val w  = texture.width.toInt
+          val h  = texture.height.toInt
           val ok = w > 0 && h > 0
           SmokeResult.logCheck("ASSET_LOAD", ok, s"Texture loaded: ${w}x${h}")
         }
@@ -108,7 +107,7 @@ object AssetLoadingScene extends RegressionScene {
 
     // Visual feedback
     if (loadFinished) ScreenUtils.clear(0f, 0.5f, 0f, 1f) // green = done
-    else ScreenUtils.clear(0.2f, 0.2f, 0.5f, 1f)          // blue = loading
+    else ScreenUtils.clear(0.2f, 0.2f, 0.5f, 1f) // blue = loading
   }
 
   override def dispose()(using Sge): Unit = {

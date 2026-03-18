@@ -29,38 +29,41 @@ import sge.math.{ Matrix4, Rectangle }
 import sge.utils.Nullable
 
 abstract class BatchTiledMapRenderer(
-  protected var map:       TiledMap,
-  protected var unitScale: Float,
-  protected var batch:     Batch,
-  protected var ownsBatch: Boolean
+  protected var _map:       TiledMap,
+  protected var _unitScale: Float,
+  protected var _batch:     Batch,
+  protected var ownsBatch:  Boolean
 )(using Sge)
     extends TiledMapRenderer
     with AutoCloseable {
 
-  protected val viewBounds:          Rectangle    = Rectangle()
+  protected val _viewBounds:         Rectangle    = Rectangle()
   protected val imageBounds:         Rectangle    = Rectangle()
   protected val repeatedImageBounds: Rectangle    = Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using Sge) =
+  def this(map: TiledMap)(using Sge) = {
     this(map, 1.0f, SpriteBatch(), true)
+  }
 
-  def this(map: TiledMap, unitScale: Float)(using Sge) =
+  def this(map: TiledMap, unitScale: Float)(using Sge) = {
     this(map, unitScale, SpriteBatch(), true)
+  }
 
-  def this(map: TiledMap, batch: Batch)(using Sge) =
+  def this(map: TiledMap, batch: Batch)(using Sge) = {
     this(map, 1.0f, batch, false)
+  }
 
-  def getMap: TiledMap = map
+  def map: TiledMap = _map
 
-  def setMap(map: TiledMap): Unit =
-    this.map = map
+  def map_=(map: TiledMap): Unit =
+    this._map = map
 
-  def getUnitScale: Float = unitScale
+  def unitScale: Float = _unitScale
 
-  def getBatch: Batch = batch
+  def batch: Batch = _batch
 
-  def getViewBounds: Rectangle = viewBounds
+  def viewBounds: Rectangle = _viewBounds
 
   override def setView(camera: OrthographicCamera): Unit = {
     batch.projectionMatrix = camera.combined
@@ -98,7 +101,7 @@ abstract class BatchTiledMapRenderer(
     else
       layer match {
         case groupLayer: MapGroupLayer =>
-          val childLayers = groupLayer.getLayers
+          val childLayers = groupLayer.layers
           var i           = 0
           while (i < childLayers.size) {
             val childLayer = childLayers.get(i)
@@ -262,7 +265,7 @@ abstract class BatchTiledMapRenderer(
     *   The float color value to use for rendering.
     */
   protected def getImageLayerColor(layer: TiledMapImageLayer, batchColor: Color): Float = {
-    val combinedTint = layer.getCombinedTintColor
+    val combinedTint = layer.combinedTintColor
 
     // Check if layer supports transparency
     val supportsTransparency = layer.supportsTransparency
@@ -279,7 +282,7 @@ abstract class BatchTiledMapRenderer(
       batchColor.r * (combinedTint.r * alphaMultiplier),
       batchColor.g * (combinedTint.g * alphaMultiplier),
       batchColor.b * (combinedTint.b * alphaMultiplier),
-      batchColor.a * (layer.getOpacity * opacityMultiplier)
+      batchColor.a * (layer.opacity * opacityMultiplier)
     )
   }
 
@@ -290,10 +293,10 @@ abstract class BatchTiledMapRenderer(
     */
   protected def getTileLayerColor(layer: TiledMapTileLayer, batchColor: Color): Float =
     Color.toFloatBits(
-      batchColor.r * layer.getCombinedTintColor.r,
-      batchColor.g * layer.getCombinedTintColor.g,
-      batchColor.b * layer.getCombinedTintColor.b,
-      batchColor.a * layer.getCombinedTintColor.a * layer.getOpacity
+      batchColor.r * layer.combinedTintColor.r,
+      batchColor.g * layer.combinedTintColor.g,
+      batchColor.b * layer.combinedTintColor.b,
+      batchColor.a * layer.combinedTintColor.a * layer.opacity
     )
 
   /** Called before the rendering of all layers starts. */

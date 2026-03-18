@@ -30,7 +30,7 @@ import sge.utils.{ Clipboard, Nullable }
   *   mzechner (original implementation)
   */
 class DesktopClipboard(
-  getClipboardString: () => Nullable[String],
+  clipboardString:    () => Nullable[String],
   setClipboardString: String => Unit
 ) extends Clipboard {
 
@@ -38,7 +38,7 @@ class DesktopClipboard(
     contents.exists(_.nonEmpty)
 
   override def contents: Nullable[String] =
-    getClipboardString()
+    clipboardString()
 
   override def contents_=(content: Nullable[String]): Unit =
     content.foreach(setClipboardString)

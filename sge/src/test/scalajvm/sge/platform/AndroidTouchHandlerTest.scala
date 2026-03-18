@@ -74,7 +74,7 @@ class AndroidTouchHandlerTest extends munit.FunSuite {
     override def setPressure(pointer: Int, value:     Float):   Unit = pressure(pointer) = value
     override def setRealId(pointer:   Int, pointerId: Int):     Unit = realId(pointer) = pointerId
 
-    override def getFreePointerIndex(): Int = {
+    override def freePointerIndex: Int = {
       var i = 0
       while (i < realId.length) {
         if (realId(i) == -1) return i

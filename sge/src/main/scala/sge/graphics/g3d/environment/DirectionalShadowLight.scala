@@ -33,6 +33,8 @@ import sge.math.Matrix4
 import sge.math.Vector3
 import sge.utils.Nullable
 
+import scala.annotation.publicInBinary
+
 /** @author Xoppa */
 class DirectionalShadowLight(
   shadowMapWidth:       Int,
@@ -76,17 +78,17 @@ class DirectionalShadowLight(
     cam.update()
   }
 
-  def begin(camera: Camera): Unit = {
+  @publicInBinary private[sge] def begin(camera: Camera): Unit = {
     update(camera)
     begin()
   }
 
-  def begin(center: Vector3, forward: Vector3): Unit = {
+  @publicInBinary private[sge] def begin(center: Vector3, forward: Vector3): Unit = {
     update(center, forward)
     begin()
   }
 
-  def begin(): Unit =
+  @publicInBinary private[sge] def begin(): Unit =
     fbo.foreach { fb =>
       val w = fb.getWidth()
       val h = fb.getHeight()
@@ -98,9 +100,16 @@ class DirectionalShadowLight(
       Sge().graphics.gl.glScissor(Pixels(1), Pixels(1), w - Pixels(2), h - Pixels(2))
     }
 
-  def end(): Unit = {
+  @publicInBinary private[sge] def end(): Unit = {
     Sge().graphics.gl.glDisable(EnableCap.ScissorTest)
     fbo.foreach(_.end())
+  }
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
   }
 
   def frameBuffer: Nullable[FrameBuffer] = fbo
@@ -112,7 +121,7 @@ class DirectionalShadowLight(
 
   override def depthMap: TextureDescriptor[Texture] = {
     fbo.foreach { fb =>
-      textureDesc.texture = Nullable(fb.getColorBufferTexture())
+      textureDesc.texture = Nullable(fb.colorBufferTexture)
     }
     textureDesc
   }

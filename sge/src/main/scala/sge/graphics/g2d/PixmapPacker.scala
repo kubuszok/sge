@@ -181,8 +181,8 @@ class PixmapPacker(using Sge) extends AutoCloseable {
 
     var pixmapToDispose: Nullable[Pixmap] = Nullable.empty
     val rect = if (workingName.exists(_.endsWith(".9"))) {
-      val r = PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth().toInt - 2, workingImage.getHeight().toInt - 2)
-      val p = Pixmap(workingImage.getWidth().toInt - 2, workingImage.getHeight().toInt - 2, workingImage.getFormat())
+      val r = PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.width.toInt - 2, workingImage.height.toInt - 2)
+      val p = Pixmap(workingImage.width.toInt - 2, workingImage.height.toInt - 2, workingImage.format)
       p.setBlending(Blending.None)
       r.splits = getSplits(workingImage)
       r.pads = getPads(workingImage, r.splits)
@@ -192,25 +192,25 @@ class PixmapPacker(using Sge) extends AutoCloseable {
         Pixels(0),
         Pixels(1),
         Pixels(1),
-        workingImage.getWidth() - Pixels(1),
-        workingImage.getHeight() - Pixels(1)
+        workingImage.width - Pixels(1),
+        workingImage.height - Pixels(1)
       )
       workingImage = p
       pixmapToDispose = p
       workingName = workingName.map(_.split("\\.").head)
       r
     } else if (stripWhitespaceX || stripWhitespaceY) {
-      val originalWidth:  Int = workingImage.getWidth().toInt
-      val originalHeight: Int = workingImage.getHeight().toInt
+      val originalWidth:  Int = workingImage.width.toInt
+      val originalHeight: Int = workingImage.height.toInt
       // Strip whitespace, manipulate the pixmap and return corrected Rect
       var top:    Int = 0
-      var bottom: Int = workingImage.getHeight().toInt
+      var bottom: Int = workingImage.height.toInt
       if (stripWhitespaceY) {
         var outerBreak = false
         var y          = 0
-        while (y < workingImage.getHeight().toInt && !outerBreak) {
+        while (y < workingImage.height.toInt && !outerBreak) {
           var x = 0
-          while (x < workingImage.getWidth().toInt && !outerBreak) {
+          while (x < workingImage.width.toInt && !outerBreak) {
             val pixel: Int = workingImage.getPixel(Pixels(x), Pixels(y))
             val alpha: Int = pixel & 0x000000ff
             if (alpha > alphaThreshold) outerBreak = true
@@ -220,10 +220,10 @@ class PixmapPacker(using Sge) extends AutoCloseable {
           y += 1
         }
         outerBreak = false
-        y = workingImage.getHeight().toInt - 1
+        y = workingImage.height.toInt - 1
         while (y >= top && !outerBreak) {
           var x = 0
-          while (x < workingImage.getWidth().toInt && !outerBreak) {
+          while (x < workingImage.width.toInt && !outerBreak) {
             val pixel: Int = workingImage.getPixel(Pixels(x), Pixels(y))
             val alpha: Int = pixel & 0x000000ff
             if (alpha > alphaThreshold) outerBreak = true
@@ -234,11 +234,11 @@ class PixmapPacker(using Sge) extends AutoCloseable {
         }
       }
       var left:  Int = 0
-      var right: Int = workingImage.getWidth().toInt
+      var right: Int = workingImage.width.toInt
       if (stripWhitespaceX) {
         var outerBreak = false
         var x          = 0
-        while (x < workingImage.getWidth().toInt && !outerBreak) {
+        while (x < workingImage.width.toInt && !outerBreak) {
           var y = top
           while (y < bottom && !outerBreak) {
             val pixel: Int = workingImage.getPixel(Pixels(x), Pixels(y))
@@ -250,7 +250,7 @@ class PixmapPacker(using Sge) extends AutoCloseable {
           x += 1
         }
         outerBreak = false
-        x = workingImage.getWidth().toInt - 1
+        x = workingImage.width.toInt - 1
         while (x >= left && !outerBreak) {
           var y = top
           while (y < bottom && !outerBreak) {
@@ -267,7 +267,7 @@ class PixmapPacker(using Sge) extends AutoCloseable {
       val newWidth:  Int = right - left
       val newHeight: Int = bottom - top
 
-      val p = Pixmap(newWidth, newHeight, workingImage.getFormat())
+      val p = Pixmap(newWidth, newHeight, workingImage.format)
       p.setBlending(Blending.None)
       p.drawPixmap(workingImage, Pixels(0), Pixels(0), Pixels(left), Pixels(top), Pixels(newWidth), Pixels(newHeight))
       workingImage = p
@@ -275,7 +275,7 @@ class PixmapPacker(using Sge) extends AutoCloseable {
 
       PixmapPacker.PixmapPackerRectangle(0, 0, newWidth, newHeight, left, top, originalWidth, originalHeight)
     } else {
-      PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.getWidth().toInt, workingImage.getHeight().toInt)
+      PixmapPacker.PixmapPackerRectangle(0, 0, workingImage.width.toInt, workingImage.height.toInt)
     }
 
     if (rect.width > pageWidth || rect.height > pageHeight) {
@@ -303,9 +303,9 @@ class PixmapPacker(using Sge) extends AutoCloseable {
           Pixels(rectY),
           Pixels(rectWidth),
           Pixels(rectHeight),
-          PixelFormat(workingImage.getGLFormat()),
-          DataType(workingImage.getGLType()),
-          workingImage.getPixels()
+          PixelFormat(workingImage.gLFormat),
+          DataType(workingImage.glType),
+          workingImage.pixels
         )
       }
     } else {
@@ -315,8 +315,8 @@ class PixmapPacker(using Sge) extends AutoCloseable {
     page.image.drawPixmap(workingImage, Pixels(rectX), Pixels(rectY))
 
     if (duplicateBorder) {
-      val imageWidth  = workingImage.getWidth()
-      val imageHeight = workingImage.getHeight()
+      val imageWidth  = workingImage.width
+      val imageHeight = workingImage.height
       // Copy corner pixels to fill corners of the padding.
       page.image.drawPixmap(workingImage, Pixels(0), Pixels(0), Pixels(1), Pixels(1), Pixels(rectX - 1), Pixels(rectY - 1), Pixels(1), Pixels(1))
       page.image.drawPixmap(
@@ -529,17 +529,17 @@ class PixmapPacker(using Sge) extends AutoCloseable {
       // Subtraction here is because the coordinates were computed before the 1px border was stripped.
       if (startX != 0) {
         startX -= 1
-        endX = raster.getWidth().toInt - 2 - (endX - 1)
+        endX = raster.width.toInt - 2 - (endX - 1)
       } else {
         // If no start point was ever found, we assume full stretch.
-        endX = raster.getWidth().toInt - 2
+        endX = raster.width.toInt - 2
       }
       if (startY != 0) {
         startY -= 1
-        endY = raster.getHeight().toInt - 2 - (endY - 1)
+        endY = raster.height.toInt - 2 - (endY - 1)
       } else {
         // If no start point was ever found, we assume full stretch.
-        endY = raster.getHeight().toInt - 2
+        endY = raster.height.toInt - 2
       }
 
       Array(startX, endX, startY, endY)
@@ -547,8 +547,8 @@ class PixmapPacker(using Sge) extends AutoCloseable {
   }
 
   private def getPads(raster: Pixmap, splits: Nullable[Array[Int]]): Nullable[Array[Int]] = {
-    val bottom = raster.getHeight().toInt - 1
-    val right  = raster.getWidth().toInt - 1
+    val bottom = raster.height.toInt - 1
+    val right  = raster.width.toInt - 1
 
     var startX = getSplitPoint(raster, 1, bottom, true, true)
     var startY = getSplitPoint(raster, right, 1, true, false)
@@ -574,10 +574,10 @@ class PixmapPacker(using Sge) extends AutoCloseable {
       } else {
         if (startX > 0) {
           startX -= 1
-          endX = raster.getWidth().toInt - 2 - (endX - 1)
+          endX = raster.width.toInt - 2 - (endX - 1)
         } else {
           // If no start point was ever found, we assume full stretch.
-          endX = raster.getWidth().toInt - 2
+          endX = raster.width.toInt - 2
         }
       }
       if (startY == 0 && endY == 0) {
@@ -586,10 +586,10 @@ class PixmapPacker(using Sge) extends AutoCloseable {
       } else {
         if (startY > 0) {
           startY -= 1
-          endY = raster.getHeight().toInt - 2 - (endY - 1)
+          endY = raster.height.toInt - 2 - (endY - 1)
         } else {
           // If no start point was ever found, we assume full stretch.
-          endY = raster.getHeight().toInt - 2
+          endY = raster.height.toInt - 2
         }
       }
 
@@ -609,7 +609,7 @@ class PixmapPacker(using Sge) extends AutoCloseable {
     val rgba = Array.ofDim[Int](4)
 
     var next   = if (xAxis) startX else startY
-    val end    = if (xAxis) raster.getWidth().toInt else raster.getHeight().toInt
+    val end    = if (xAxis) raster.width.toInt else raster.height.toInt
     val breakA = if (startPoint) 255 else 0
 
     var x = startX
@@ -678,7 +678,7 @@ object PixmapPacker {
       */
     def updateTexture(minFilter: TextureFilter, magFilter: TextureFilter, useMipMaps: Boolean): Boolean = scala.util.boundary {
       if (texture.isEmpty) {
-        val tex = new Texture(PixmapTextureData(image, image.getFormat(), useMipMaps, false, true)) {
+        val tex = new Texture(PixmapTextureData(image, image.format, useMipMaps, false, true)) {
           override def close(): Unit = {
             super.close()
             image.close()
@@ -750,7 +750,7 @@ object PixmapPacker {
       if (comparator.isEmpty) {
         comparator = Nullable(
           Ordering.fromLessThan[Pixmap] { (o1, o2) =>
-            Math.max(o1.getWidth().toInt, o1.getHeight().toInt) < Math.max(o2.getWidth().toInt, o2.getHeight().toInt)
+            Math.max(o1.width.toInt, o1.height.toInt) < Math.max(o2.width.toInt, o2.height.toInt)
           }
         )
       }
@@ -839,7 +839,7 @@ object PixmapPacker {
       if (comparator.isEmpty) {
         comparator = Nullable(
           Ordering.fromLessThan[Pixmap] { (o1, o2) =>
-            o1.getHeight().toInt < o2.getHeight().toInt
+            o1.height.toInt < o2.height.toInt
           }
         )
       }

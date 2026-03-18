@@ -75,7 +75,7 @@ class DefaultAndroidInputState extends AndroidInputState {
 
   // ── Pointer ID mapping ──────────────────────────────────────────────
 
-  override def getFreePointerIndex(): Int = {
+  override def freePointerIndex: Int = {
     var i = 0
     while (i < NUM_TOUCHES) {
       if (realId(i) == -1) return i

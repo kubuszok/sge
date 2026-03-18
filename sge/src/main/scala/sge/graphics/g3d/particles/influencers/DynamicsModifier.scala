@@ -400,7 +400,7 @@ object DynamicsModifier {
         TMP_V3.set(cosTheta * sinPhi, cosPhi, sinTheta * sinPhi).nor().scl(strength)
 
         if (!isGlobal) {
-          controller.transform.getRotation(TMP_Q, true)
+          controller.transform.rotation(TMP_Q, true)
           TMP_Q.transform(TMP_V3)
         }
 
@@ -467,9 +467,9 @@ object DynamicsModifier {
           positionChannel.floatData(positionOffset + ParticleChannels.ZOffset)
         )
         if (!isGlobal) {
-          controller.transform.getTranslation(TMP_V2)
+          controller.transform.translation(TMP_V2)
           TMP_V1.sub(TMP_V2)
-          controller.transform.getRotation(TMP_Q, true)
+          controller.transform.rotation(TMP_Q, true)
           TMP_Q.transform(TMP_V3)
         }
         TMP_V3.crs(TMP_V1).nor().scl(strength)

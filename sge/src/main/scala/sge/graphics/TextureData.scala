@@ -23,9 +23,9 @@ import sge.graphics.Pixmap.Format
 import sge.graphics.glutils.{ ETC1TextureData, FileTextureData, KTXTextureData }
 import sge.files.FileHandle
 
-/** Used by a {@link Texture} to load the pixel data. A TextureData can either return a {@link Pixmap} or upload the pixel data itself. It signals it's type via {@link #getType()} to the Texture
-  * that's using it. The Texture will then either invoke {@link #consumePixmap()} or {@link #consumeCustomData(int)} . These are the first methods to be called by Texture. After that the Texture will
-  * invoke the other methods to find out about the size of the image data, the format, whether mipmaps should be generated and whether the TextureData is able to manage the pixel data if the OpenGL ES
+/** Used by a {@link Texture} to load the pixel data. A TextureData can either return a {@link Pixmap} or upload the pixel data itself. It signals it's type via {@link #dataType} to the Texture that's
+  * using it. The Texture will then either invoke {@link #consumePixmap()} or {@link #consumeCustomData(int)} . These are the first methods to be called by Texture. After that the Texture will invoke
+  * the other methods to find out about the size of the image data, the format, whether mipmaps should be generated and whether the TextureData is able to manage the pixel data if the OpenGL ES
   * context is lost. </p>
   *
   * In case the TextureData implementation has the type {@link TextureDataType#Custom} , the implementation has to generate the mipmaps itself if necessary. See {@link MipMapGenerator} . </p>
@@ -40,7 +40,7 @@ trait TextureData {
   import TextureData.TextureDataType
 
   /** @return the {@link TextureDataType} */
-  def getType(): TextureDataType
+  def dataType: TextureDataType
 
   /** @return whether the TextureData is prepared or not. */
   def isPrepared: Boolean
@@ -66,10 +66,10 @@ trait TextureData {
   def consumeCustomData(target: TextureTarget): Unit
 
   /** @return the width of the pixel data */
-  def getWidth: Int
+  def width: Int
 
   /** @return the height of the pixel data */
-  def getHeight: Int
+  def height: Int
 
   /** @return the {@link Format} of the pixel data */
   def getFormat: Format
@@ -101,9 +101,9 @@ object TextureData {
       loadFromFile(file, Nullable.empty, useMipMaps)
 
     def loadFromFile(file: FileHandle, format: Nullable[Format], useMipMaps: Boolean)(using Sge): TextureData =
-      if (file.name().endsWith(".cim")) FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
-      else if (file.name().endsWith(".etc1")) ETC1TextureData(file, useMipMaps)
-      else if (file.name().endsWith(".ktx") || file.name().endsWith(".zktx")) KTXTextureData(file, useMipMaps)
+      if (file.name.endsWith(".cim")) FileTextureData(file, PixmapIO.readCIM(file), format, useMipMaps)
+      else if (file.name.endsWith(".etc1")) ETC1TextureData(file, useMipMaps)
+      else if (file.name.endsWith(".ktx") || file.name.endsWith(".zktx")) KTXTextureData(file, useMipMaps)
       else FileTextureData(file, Pixmap(file), format, useMipMaps)
   }
 }

@@ -18,6 +18,8 @@ package graphics
 package g3d
 package utils
 
+import scala.annotation.publicInBinary
+
 /** Manages OpenGL state and tries to reduce state changes. Uses a [[TextureBinder]] to reduce texture binds as well. Call [[begin]] to setup the context, call [[end]] to undo all state changes. Use
   * the setters to change state, use [[textureBinder]] to bind textures.
   * @author
@@ -40,7 +42,7 @@ class RenderContext(
   private var cullFace:               Int     = 0
 
   /** Sets up the render context, must be matched with a call to [[end]]. */
-  def begin(): Unit = {
+  @publicInBinary private[sge] def begin(): Unit = {
     val gl = Sge().graphics.gl
     gl.glDisable(EnableCap.DepthTest)
     depthFunc = 0
@@ -58,13 +60,20 @@ class RenderContext(
   }
 
   /** Resets all changed OpenGL states to their defaults. */
-  def end(): Unit = {
+  @publicInBinary private[sge] def end(): Unit = {
     val gl = Sge().graphics.gl
     if (depthFunc != 0) gl.glDisable(EnableCap.DepthTest)
     if (!depthMask) gl.glDepthMask(true)
     if (blending) gl.glDisable(EnableCap.Blend)
     if (cullFace > 0) gl.glDisable(EnableCap.CullFace)
     textureBinder.end()
+  }
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
   }
 
   def setDepthMask(depthMask: Boolean): Unit =

@@ -42,7 +42,7 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
   var ownsTexture: Boolean                     = false
 
   // Secondary constructors that call the primary constructor
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion])(using Sge) = {
     this(
       BitmapFontData(fontFile, false),
       region.map { r =>
@@ -50,8 +50,9 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
+  }
 
-  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) =
+  def this(fontFile: FileHandle, region: Nullable[TextureRegion], flip: Boolean)(using Sge) = {
     this(
       BitmapFontData(fontFile, flip),
       region.map { r =>
@@ -59,12 +60,15 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
       },
       true
     )
+  }
 
-  def this(fontFile: FileHandle)(using Sge) =
+  def this(fontFile: FileHandle)(using Sge) = {
     this(fontFile, Nullable.empty[TextureRegion])
+  }
 
-  def this(fontFile: FileHandle, flip: Boolean)(using Sge) =
+  def this(fontFile: FileHandle, flip: Boolean)(using Sge) = {
     this(BitmapFontData(fontFile, flip), Nullable.empty, true)
+  }
 
   def this(fontFile: FileHandle, imageFile: FileHandle, flip: Boolean)(using Sge) = {
     this(
@@ -275,7 +279,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
   def load(fontFile: FileHandle, flip: Boolean): Unit = {
     if (imagePaths.isDefined) throw new IllegalStateException("Already loaded.")
 
-    name = Nullable(fontFile.nameWithoutExtension())
+    name = Nullable(fontFile.nameWithoutExtension)
 
     val reader = new BufferedReader(new InputStreamReader(fontFile.read()), 512)
     try {
@@ -338,7 +342,7 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
         if (!matcher.find()) throw SgeError.InvalidInput("Missing: file")
         val fileName = matcher.group(1)
 
-        imagePaths.foreach(_(p) = fontFile.parent().child(fileName).path().replaceAll("\\\\", "/"))
+        imagePaths.foreach(_(p) = fontFile.parent().child(fileName).path.replaceAll("\\\\", "/"))
       }
       descent = 0
 
@@ -519,8 +523,8 @@ class BitmapFontData(val fontFile: Nullable[FileHandle] = Nullable.empty, val fl
 
   def setGlyphRegion(glyph: BitmapFont.Glyph, region: TextureRegion): Unit = {
     val texture      = region.texture
-    val invTexWidth  = 1.0f / texture.getWidth.toFloat
-    val invTexHeight = 1.0f / texture.getHeight.toFloat
+    val invTexWidth  = 1.0f / texture.width.toFloat
+    val invTexHeight = 1.0f / texture.height.toFloat
 
     var offsetX      = 0f
     var offsetY      = 0f

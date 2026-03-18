@@ -352,14 +352,14 @@ class NinePatch {
     var v  = region.v
     var u2 = region.u2
     var v2 = region.v2
-    if (_texture.getMagFilter() == TextureFilter.Linear || _texture.getMinFilter() == TextureFilter.Linear) {
+    if (_texture.magFilter == TextureFilter.Linear || _texture.minFilter == TextureFilter.Linear) {
       if (isStretchW) {
-        val halfTexelWidth = 0.5f * 1f / _texture.getWidth.toFloat
+        val halfTexelWidth = 0.5f * 1f / _texture.width.toFloat
         u += halfTexelWidth
         u2 -= halfTexelWidth
       }
       if (isStretchH) {
-        val halfTexelHeight = 0.5f * 1f / _texture.getHeight.toFloat
+        val halfTexelHeight = 0.5f * 1f / _texture.height.toFloat
         v -= halfTexelHeight
         v2 += halfTexelHeight
       }

@@ -60,7 +60,7 @@ class MapLayers extends Iterable[MapLayer] {
     layers.indexOf(layer)
 
   /** @return number of layers in the collection */
-  def getCount: Int = layers.size
+  def count: Int = layers.size
 
   /** @param layer layer to be added to the set */
   def add(layer: MapLayer): Unit =
@@ -81,7 +81,7 @@ class MapLayers extends Iterable[MapLayer] {
     * @return
     *   array with all the layers matching type
     */
-  def getByType[T <: MapLayer](using tag: ClassTag[T]): DynamicArray[T] =
+  def byType[T <: MapLayer](using tag: ClassTag[T]): DynamicArray[T] =
     getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
 
   /** @param fill

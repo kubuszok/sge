@@ -76,7 +76,7 @@ class RepeatablePolygonSprite {
 
     var idx: Int = 0
 
-    val boundRect = polygon.getBoundingRectangle
+    val boundRect = polygon.boundingRectangle
 
     val finalDensity = if (density == -1) boundRect.width / region.regionWidth else density
 
@@ -108,7 +108,7 @@ class RepeatablePolygonSprite {
         tmpPoly.setVertices(verts)
 
         Intersector.intersectPolygons(polygon, tmpPoly, Nullable(intersectionPoly))
-        verts = intersectionPoly.getVertices
+        verts = intersectionPoly.vertices
         if (verts.length > 0) {
           parts.add(Nullable(snapToGrid(verts)))
           val triangleIndices = triangulator.computeTriangles(verts)

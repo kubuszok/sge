@@ -32,24 +32,25 @@ import scala.util.boundary.break
   */
 abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHandle: TextureHandle)(using Sge) extends AutoCloseable {
 
-  protected var minFilter:              TextureFilter = TextureFilter.Nearest
-  protected var magFilter:              TextureFilter = TextureFilter.Nearest
-  protected var uWrap:                  TextureWrap   = TextureWrap.ClampToEdge
-  protected var vWrap:                  TextureWrap   = TextureWrap.ClampToEdge
+  protected var _minFilter:             TextureFilter = TextureFilter.Nearest
+  protected var _magFilter:             TextureFilter = TextureFilter.Nearest
+  protected var _uWrap:                 TextureWrap   = TextureWrap.ClampToEdge
+  protected var _vWrap:                 TextureWrap   = TextureWrap.ClampToEdge
   protected var anisotropicFilterLevel: Float         = 1.0f
 
   /** @return the width of the texture in pixels */
-  def getWidth: Pixels
+  def width: Pixels
 
   /** @return the height of the texture in pixels */
-  def getHeight: Pixels
+  def height: Pixels
 
   /** @return the depth of the texture in pixels */
-  def getDepth: Int
+  def depth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: TextureTarget)(using Sge) =
+  def this(glTarget: TextureTarget)(using Sge) = {
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
+  }
 
   /** @return whether this texture is managed or not. */
   def managed: Boolean
@@ -71,19 +72,19 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
   }
 
   /** @return The {@link TextureFilter} used for minification. */
-  def getMinFilter(): TextureFilter = minFilter
+  def minFilter: TextureFilter = _minFilter
 
   /** @return The {@link TextureFilter} used for magnification. */
-  def getMagFilter(): TextureFilter = magFilter
+  def magFilter: TextureFilter = _magFilter
 
   /** @return The {@link TextureWrap} used for horizontal (U) texture coordinates. */
-  def getUWrap(): TextureWrap = uWrap
+  def uWrap: TextureWrap = _uWrap
 
   /** @return The {@link TextureWrap} used for vertical (V) texture coordinates. */
-  def getVWrap(): TextureWrap = vWrap
+  def vWrap: TextureWrap = _vWrap
 
   /** @return The OpenGL handle for this texture. */
-  def getTextureObjectHandle(): TextureHandle = glHandle
+  def textureObjectHandle: TextureHandle = glHandle
 
   /** Sets the {@link TextureWrap} for this texture on the u and v axis. Assumes the texture is bound and active!
     * @param u
@@ -103,13 +104,13 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   True to always set the values, even if they are the same as the current values.
     */
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, force: Boolean): Unit = {
-    if (force || uWrap != u) {
-      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
-      uWrap = u
+    if (force || _uWrap != u) {
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.glEnum)
+      _uWrap = u
     }
-    if (force || vWrap != v) {
-      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
-      vWrap = v
+    if (force || _vWrap != v) {
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.glEnum)
+      _vWrap = v
     }
   }
 
@@ -120,11 +121,11 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   the v wrap
     */
   def setWrap(u: TextureWrap, v: TextureWrap): Unit = {
-    this.uWrap = u
-    this.vWrap = v
+    this._uWrap = u
+    this._vWrap = v
     bind()
-    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.getGLEnum())
-    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_S, u.glEnum)
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_WRAP_T, v.glEnum)
   }
 
   /** Sets the {@link TextureFilter} for this texture for minification and magnification. Assumes the texture is bound and active!
@@ -145,13 +146,13 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   True to always set the values, even if they are the same as the current values.
     */
   def unsafeSetFilter(minFilter: TextureFilter, magFilter: TextureFilter, force: Boolean): Unit = {
-    if (force || this.minFilter != minFilter) {
-      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
-      this.minFilter = minFilter
+    if (force || this._minFilter != minFilter) {
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.glEnum)
+      this._minFilter = minFilter
     }
-    if (force || this.magFilter != magFilter) {
-      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
-      this.magFilter = magFilter
+    if (force || this._magFilter != magFilter) {
+      Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.glEnum)
+      this._magFilter = magFilter
     }
   }
 
@@ -162,11 +163,11 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   the magnification filter
     */
   def setFilter(minFilter: TextureFilter, magFilter: TextureFilter): Unit = {
-    this.minFilter = minFilter
-    this.magFilter = magFilter
+    this._minFilter = minFilter
+    this._magFilter = magFilter
     bind()
-    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.getGLEnum())
-    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MIN_FILTER, minFilter.glEnum)
+    Sge().graphics.gl.glTexParameteri(glTarget, GL20.GL_TEXTURE_MAG_FILTER, magFilter.glEnum)
   }
 
   /** Sets the anisotropic filter level for the texture. Assumes the texture is bound and active!
@@ -179,7 +180,7 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   The actual level set, which may be lower than the provided value due to device limitations.
     */
   def unsafeSetAnisotropicFilter(level: Float, force: Boolean): Float = boundary {
-    val max = GLTexture.getMaxAnisotropicFilterLevel()
+    val max = GLTexture.maxAnisotropicFilterLevel
     if (max == 1f) break(1f)
     val adjustedLevel = Math.min(level, max)
     if (!force && MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
@@ -196,7 +197,7 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
     *   The actual level set, which may be lower than the provided value due to device limitations.
     */
   def setAnisotropicFilter(level: Float): Float = boundary {
-    val max = GLTexture.getMaxAnisotropicFilterLevel()
+    val max = GLTexture.maxAnisotropicFilterLevel
     if (max == 1f) break(1f)
     val adjustedLevel = Math.min(level, max)
     if (MathUtils.isEqual(adjustedLevel, anisotropicFilterLevel, 0.1f)) break(adjustedLevel)
@@ -207,7 +208,7 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
   }
 
   /** @return The currently set anisotropic filtering level for the texture, or 1.0f if none has been set. */
-  def getAnisotropicFilter(): Float = anisotropicFilterLevel
+  def anisotropicFilter: Float = anisotropicFilterLevel
 
   /** Destroys the OpenGL Texture as specified by the glHandle. */
   protected def delete(): Unit =
@@ -227,7 +228,7 @@ object GLTexture {
   private var maxAnisotropicFilterLevel = 0f
 
   /** @return The maximum supported anisotropic filtering level supported by the device. */
-  def getMaxAnisotropicFilterLevel()(using Sge): Float = boundary {
+  def maxAnisotropicFilterLevel(using Sge): Float = boundary {
     if (maxAnisotropicFilterLevel > 0) break(maxAnisotropicFilterLevel)
     if (Sge().graphics.supportsExtension("GL_EXT_texture_filter_anisotropic")) {
       val buffer = BufferUtils.newFloatBuffer(16)
@@ -245,7 +246,7 @@ object GLTexture {
   def uploadImageData(target: TextureTarget, data: TextureData, miplevel: Int)(using Sge): Unit = boundary {
     if (!data.isPrepared) data.prepare()
 
-    val dataType = data.getType()
+    val dataType = data.dataType
     if (dataType == TextureData.TextureDataType.Custom) {
       data.consumeCustomData(target)
       break()
@@ -253,10 +254,10 @@ object GLTexture {
 
     var pixmap        = data.consumePixmap()
     var disposePixmap = data.disposePixmap
-    if (data.getFormat != pixmap.getFormat()) {
-      val tmp = Pixmap(pixmap.getWidth().toInt, pixmap.getHeight().toInt, data.getFormat)
+    if (data.getFormat != pixmap.format) {
+      val tmp = Pixmap(pixmap.width.toInt, pixmap.height.toInt, data.getFormat)
       tmp.setBlending(Blending.None)
-      tmp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.getWidth(), pixmap.getHeight())
+      tmp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.width, pixmap.height)
       if (data.disposePixmap) {
         pixmap.close()
       }
@@ -266,18 +267,18 @@ object GLTexture {
 
     Sge().graphics.gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
     if (data.useMipMaps) {
-      MipMapGenerator.generateMipMap(target, pixmap, pixmap.getWidth().toInt, pixmap.getHeight().toInt)
+      MipMapGenerator.generateMipMap(target, pixmap, pixmap.width.toInt, pixmap.height.toInt)
     } else {
       Sge().graphics.gl.glTexImage2D(
         target,
         miplevel,
-        pixmap.getGLInternalFormat(),
-        pixmap.getWidth(),
-        pixmap.getHeight(),
+        pixmap.gLInternalFormat,
+        pixmap.width,
+        pixmap.height,
         0,
-        PixelFormat(pixmap.getGLFormat()),
-        DataType(pixmap.getGLType()),
-        pixmap.getPixels()
+        PixelFormat(pixmap.gLFormat),
+        DataType(pixmap.glType),
+        pixmap.pixels
       )
     }
     if (disposePixmap) pixmap.close()

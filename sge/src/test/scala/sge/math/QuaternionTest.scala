@@ -95,19 +95,19 @@ class QuaternionTest extends munit.ScalaCheckSuite {
   test("setEulerAngles yaw 90") {
     val q = Quaternion()
     q.setEulerAngles(90, 0, 0)
-    assertEqualsFloat(q.getYaw(), 90f, 1f)
+    assertEqualsFloat(q.yaw, 90f, 1f)
   }
 
   test("setEulerAngles pitch 45") {
     val q = Quaternion()
     q.setEulerAngles(0, 45, 0)
-    assertEqualsFloat(q.getPitch(), 45f, 1f)
+    assertEqualsFloat(q.pitch, 45f, 1f)
   }
 
   test("setEulerAngles roll 30") {
     val q = Quaternion()
     q.setEulerAngles(0, 0, 30)
-    assertEqualsFloat(q.getRoll(), 30f, 1f)
+    assertEqualsFloat(q.roll, 30f, 1f)
   }
 
   test("euler angle roundtrip (no gimbal lock)") {
@@ -115,27 +115,27 @@ class QuaternionTest extends munit.ScalaCheckSuite {
     val pitch = 20f
     val roll  = 10f
     val q     = Quaternion().setEulerAngles(yaw, pitch, roll)
-    assertEqualsFloat(q.getYaw(), yaw, 1f)
-    assertEqualsFloat(q.getPitch(), pitch, 1f)
-    assertEqualsFloat(q.getRoll(), roll, 1f)
+    assertEqualsFloat(q.yaw, yaw, 1f)
+    assertEqualsFloat(q.pitch, pitch, 1f)
+    assertEqualsFloat(q.roll, roll, 1f)
   }
 
   test("gimbal lock at north pole") {
     // getGimbalPole checks y*x + z*w > 0.499
     // Construct quaternion where y*x + z*w = 0.5 exactly
     val q = Quaternion(0.5f, 0.5f, 0.5f, 0.5f) // y*x=0.25, z*w=0.25, sum=0.5
-    assertEquals(q.getGimbalPole(), 1)
+    assertEquals(q.gimbalPole, 1)
   }
 
   test("gimbal lock at south pole") {
     // y*x + z*w = -0.5
     val q = Quaternion(-0.5f, 0.5f, -0.5f, 0.5f) // y*x=-0.25, z*w=-0.25, sum=-0.5
-    assertEquals(q.getGimbalPole(), -1)
+    assertEquals(q.gimbalPole, -1)
   }
 
   test("no gimbal lock for normal rotation") {
     val q = Quaternion().setEulerAngles(30, 20, 10)
-    assertEquals(q.getGimbalPole(), 0)
+    assertEquals(q.gimbalPole, 0)
   }
 
   // ---- Axis-angle ----
@@ -242,20 +242,20 @@ class QuaternionTest extends munit.ScalaCheckSuite {
 
   test("getAngle for 90 degree rotation") {
     val q = Quaternion().setFromAxis(0, 0, 1, 90)
-    assertEqualsFloat(q.getAngle(), 90f, 1f)
+    assertEqualsFloat(q.angle, 90f, 1f)
   }
 
   test("getAngle for identity is 0") {
-    assertEqualsFloat(Quaternion().getAngle(), 0f, 1f)
+    assertEqualsFloat(Quaternion().angle, 0f, 1f)
   }
 
-  // ---- getSwingTwist ----
+  // ---- swingTwist ----
 
-  test("getSwingTwist decomposes rotation") {
+  test("swingTwist decomposes rotation") {
     val q     = Quaternion().setFromAxis(0, 1, 0, 90)
     val swing = Quaternion()
     val twist = Quaternion()
-    q.getSwingTwist(0f, 1f, 0f, swing, twist)
+    q.swingTwist(0f, 1f, 0f, swing, twist)
     // twist should contain the Y-axis rotation; swing should be identity-ish
     val recomposed = swing.cpy().mul(twist)
     assertQuatEquals(q, recomposed, 0.05f)

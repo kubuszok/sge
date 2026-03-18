@@ -18,7 +18,7 @@ import sge.utils.XmlReader
   *
   * Clears the screen to a color, runs subsystem checks on specific frames, and logs structured results. After 30 frames it calls `exit()` so the Activity finishes cleanly.
   */
-class SmokeListener extends ApplicationListener {
+class SmokeListener()(using sge: Sge) extends ApplicationListener {
 
   private var ready:            Boolean = false
   private var checksRun:        Boolean = false
@@ -40,20 +40,20 @@ class SmokeListener extends ApplicationListener {
   // Time-based milestones (ms since create)
   private var createTimeMs: Long = 0L
 
-  override def create()(using Sge): Unit = {
+  override def create(): Unit = {
     utils.Log.info("SGE SmokeListener.create()")
     createTimeMs = System.currentTimeMillis()
     ready = true
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
+  override def resize(width: Pixels, height: Pixels): Unit = ()
 
-  override def render()(using Sge): Unit = {
+  override def render(): Unit = {
     if (!ready) return
-    val gl    = Sge().graphics.getGL20()
+    val gl = sge.graphics.gl20
     gl.glClearColor(0f, 0.4f, 0f, 1f)
     gl.glClear(graphics.ClearMask.ColorBufferBit)
-    val frame   = Sge().graphics.getFrameId()
+    val frame   = sge.graphics.frameId
     val elapsed = System.currentTimeMillis() - createTimeMs
     if (frame % 30 == 0) utils.Log.info(s"SGE smoke frame $frame, elapsed ${elapsed}ms")
 
@@ -73,21 +73,21 @@ class SmokeListener extends ApplicationListener {
     if (elapsed >= 10000) {
       if (allPassed) utils.Log.info("SMOKE_TEST_PASSED")
       else utils.Log.info("SMOKE_TEST_FAILED")
-      Sge().application.exit()
+      sge.application.exit()
     }
   }
 
-  override def pause()(using Sge): Unit = {
+  override def pause(): Unit = {
     pauseCount += 1
     utils.Log.info(s"SGE SmokeListener.pause() count=$pauseCount")
   }
 
-  override def resume()(using Sge): Unit = {
+  override def resume(): Unit = {
     resumeCount += 1
     utils.Log.info(s"SGE SmokeListener.resume() count=$resumeCount")
   }
 
-  override def dispose()(using Sge): Unit =
+  override def dispose(): Unit =
     utils.Log.info("SGE SmokeListener.dispose()")
 
   // ── Subsystem checks ─────────────────────────────────────────────
@@ -102,7 +102,7 @@ class SmokeListener extends ApplicationListener {
     if (!passed) allPassed = false
   }
 
-  private def runSubsystemChecks()(using Sge): Unit = {
+  private def runSubsystemChecks(): Unit = {
     checkBootstrap()
     checkGL2D()
     checkGL3D()
@@ -119,9 +119,9 @@ class SmokeListener extends ApplicationListener {
   }
 
   /** Set up InputProcessor to track touch events from adb. */
-  private def setupTouchTracking()(using Sge): Unit =
+  private def setupTouchTracking(): Unit =
     try {
-      val input = Sge().input
+      val input = sge.input
       input.setInputProcessor(
         new InputProcessor {
           override def touchDown(screenX: Pixels, screenY: Pixels, pointer: Int, button: Input.Button): Boolean = {
@@ -138,7 +138,7 @@ class SmokeListener extends ApplicationListener {
     }
 
   /** Checks run after adb events should have been injected (touch tap, lifecycle, sensor). */
-  private def runPostAdbChecks()(using Sge): Unit = {
+  private def runPostAdbChecks(): Unit = {
     // Check if adb touch tap was received
     if (touchReceived) {
       logCheck("TOUCH_DISPATCH", passed = true, "Touch event received from adb input tap")
@@ -157,9 +157,9 @@ class SmokeListener extends ApplicationListener {
     checkSensorInjection()
   }
 
-  private def checkBootstrap()(using Sge): Unit =
+  private def checkBootstrap(): Unit =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = sge.graphics.gl20
       if (gl == null) logCheck("BOOTSTRAP", passed = false, "GL20 is null")
       else logCheck("BOOTSTRAP", passed = true, "Sge context created, GL20 available")
     } catch {
@@ -167,9 +167,9 @@ class SmokeListener extends ApplicationListener {
         logCheck("BOOTSTRAP", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkGL2D()(using Sge): Unit =
+  private def checkGL2D(): Unit =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = sge.graphics.gl20
       // Simple GL call verification — draw and read back would require FBO which
       // may not be available on all Android SwiftShader configs. Just verify GL
       // calls don't crash.
@@ -184,9 +184,9 @@ class SmokeListener extends ApplicationListener {
         logCheck("GL2D", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkGL3D()(using Sge): Unit =
+  private def checkGL3D(): Unit =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = sge.graphics.gl20
       // Compile a shader with a uniform matrix — exercises the 3D pipeline
       val vs =
         """#version 100
@@ -199,7 +199,7 @@ class SmokeListener extends ApplicationListener {
           |void main() { gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); }""".stripMargin
       val shader = new graphics.glutils.ShaderProgram(vs, fs)
       if (!shader.compiled) {
-        logCheck("GL3D", passed = false, s"Shader failed: ${shader.getLog()}")
+        logCheck("GL3D", passed = false, s"Shader failed: ${shader.log}")
         shader.close()
         return
       }
@@ -220,11 +220,11 @@ class SmokeListener extends ApplicationListener {
         logCheck("GL3D", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkFileIO()(using Sge): Unit =
+  private def checkFileIO(): Unit =
     try {
       // Write to a temp file and read back
       val tmpDir  = System.getProperty("java.io.tmpdir", "/data/local/tmp")
-      val files   = Sge().files
+      val files   = sge.files
       val tmpFile = files.absolute(s"$tmpDir/sge-it-test-${System.nanoTime()}.txt")
       val testStr = "SGE integration test"
       tmpFile.writeString(testStr, false)
@@ -257,11 +257,11 @@ class SmokeListener extends ApplicationListener {
         logCheck("JSON_XML", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkAudio()(using Sge): Unit =
+  private def checkAudio(): Unit =
     try {
       // Just verify the audio subsystem is accessible without crashing.
       // On Android emulator with -noaudio, the audio backend is typically noop.
-      val audioType = Sge().audio.getClass.getSimpleName
+      val audioType = sge.audio.getClass.getSimpleName
       logCheck("AUDIO", passed = true, s"Audio subsystem accessible ($audioType)")
     } catch {
       case e: UnsatisfiedLinkError =>
@@ -270,13 +270,13 @@ class SmokeListener extends ApplicationListener {
         logCheck("AUDIO", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkInput()(using Sge): Unit =
+  private def checkInput(): Unit =
     try {
-      val input = Sge().input
+      val input = sge.input
       // Basic state queries should not throw
-      val x    = input.getX()
-      val y    = input.getY()
-      val maxP = input.getMaxPointers()
+      val x    = input.x
+      val y    = input.y
+      val maxP = input.maxPointers
       input.isKeyPressed(Input.Keys.A)
       if (maxP <= 0) {
         logCheck("INPUT", passed = false, s"maxPointers=$maxP, expected > 0")
@@ -288,9 +288,9 @@ class SmokeListener extends ApplicationListener {
         logCheck("INPUT", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkPreferences()(using Sge): Unit =
+  private def checkPreferences(): Unit =
     try {
-      val prefs   = Sge().application.getPreferences("sge-it-test")
+      val prefs   = sge.application.getPreferences("sge-it-test")
       val testKey = s"test-${System.nanoTime()}"
       prefs.putString(testKey, "hello-sge").flush()
       val readBack = prefs.getString(testKey)
@@ -306,9 +306,9 @@ class SmokeListener extends ApplicationListener {
         logCheck("PREFERENCES", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkClipboard()(using Sge): Unit =
+  private def checkClipboard(): Unit =
     try {
-      val clipboard = Sge().application.getClipboard()
+      val clipboard = sge.application.clipboard
       val testText  = s"sge-it-${System.nanoTime()}"
       clipboard.contents = utils.Nullable(testText)
       val readBack = clipboard.contents
@@ -322,13 +322,13 @@ class SmokeListener extends ApplicationListener {
         logCheck("CLIPBOARD", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkDisplayMetrics()(using Sge): Unit =
+  private def checkDisplayMetrics(): Unit =
     try {
-      val graphics = Sge().graphics
-      val w        = graphics.getWidth()
-      val h        = graphics.getHeight()
-      val ppiX     = graphics.getPpiX()
-      val density  = graphics.getDensity()
+      val graphics = sge.graphics
+      val w        = graphics.width
+      val h        = graphics.height
+      val ppiX     = graphics.ppiX
+      val density  = graphics.density
       if (w.toInt < 1 || h.toInt < 1) {
         logCheck("DISPLAY", passed = false, s"Invalid dimensions: ${w.toInt}x${h.toInt}")
       } else if (ppiX <= 0 || density <= 0) {
@@ -341,16 +341,16 @@ class SmokeListener extends ApplicationListener {
         logCheck("DISPLAY", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkSensors()(using Sge): Unit =
+  private def checkSensors(): Unit =
     try {
-      val input  = Sge().input
+      val input  = sge.input
       val hasAcc = input.isPeripheralAvailable(Input.Peripheral.Accelerometer)
       val hasGyr = input.isPeripheralAvailable(Input.Peripheral.Gyroscope)
 
       // Read accelerometer — emulator simulates gravity (typically ~9.8 on one axis)
-      val ax = input.getAccelerometerX()
-      val ay = input.getAccelerometerY()
-      val az = input.getAccelerometerZ()
+      val ax = input.accelerometerX
+      val ay = input.accelerometerY
+      val az = input.accelerometerZ
 
       // Save initial reading for later injection comparison
       initialAccelX = ax
@@ -358,9 +358,9 @@ class SmokeListener extends ApplicationListener {
       initialAccelZ = az
 
       // Read gyroscope — emulator at rest should report near-zero
-      val gx = input.getGyroscopeX()
-      val gy = input.getGyroscopeY()
-      val gz = input.getGyroscopeZ()
+      val gx = input.gyroscopeX
+      val gy = input.gyroscopeY
+      val gz = input.gyroscopeZ
 
       if (!hasAcc) {
         logCheck("SENSORS", passed = false, "Accelerometer not available")
@@ -383,12 +383,12 @@ class SmokeListener extends ApplicationListener {
     }
 
   /** Verify accelerometer values changed after emulator console injection. */
-  private def checkSensorInjection()(using Sge): Unit =
+  private def checkSensorInjection(): Unit =
     try {
-      val input = Sge().input
-      val ax    = input.getAccelerometerX()
-      val ay    = input.getAccelerometerY()
-      val az    = input.getAccelerometerZ()
+      val input = sge.input
+      val ax    = input.accelerometerX
+      val ay    = input.accelerometerY
+      val az    = input.accelerometerZ
 
       // The test runner injects acceleration 5.0:3.0:8.0 via emulator console.
       // Check if values are close to the injected ones (tolerance for float precision).
@@ -417,9 +417,9 @@ class SmokeListener extends ApplicationListener {
         logCheck("SENSOR_INJECT", passed = false, s"Exception: ${e.getMessage}")
     }
 
-  private def checkFileHandleTypes()(using Sge): Unit =
+  private def checkFileHandleTypes(): Unit =
     try {
-      val files = Sge().files
+      val files = sge.files
 
       // External storage write/read roundtrip
       val extFile = files.external(s"sge-it-test-${System.nanoTime()}.txt")

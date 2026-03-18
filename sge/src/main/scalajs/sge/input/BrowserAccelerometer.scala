@@ -51,6 +51,6 @@ object BrowserAccelerometer {
   def isSupported: Boolean =
     js.typeOf(js.Dynamic.global.Accelerometer) != "undefined"
 
-  def getInstance(): BrowserAccelerometer =
+  lazy val instance: BrowserAccelerometer =
     new BrowserAccelerometer(js.Dynamic.newInstance(js.Dynamic.global.Accelerometer)())
 }

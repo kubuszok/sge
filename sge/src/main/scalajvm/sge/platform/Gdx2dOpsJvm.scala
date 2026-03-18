@@ -51,7 +51,7 @@ private[platform] object Gdx2dOpsJvm extends Gdx2dOps {
     val h = img.getHeight
 
     // Detect format from image type
-    val hasAlpha = img.getColorModel.hasAlpha
+    val hasAlpha = img.getColorModel().hasAlpha
     val format   = if (hasAlpha) 4 else 3 // RGBA8888 or RGB888
     val bpp      = if (hasAlpha) 4 else 3
     val buf      = ByteBuffer.allocateDirect(w * h * bpp)

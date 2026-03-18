@@ -80,8 +80,8 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
         override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
           if (values.contains(actor)) {
             var current = actor
-            while (current.getParent.exists(_ ne buttonTable))
-              current.getParent.foreach { p => current = p }
+            while (current.parent.exists(_ ne buttonTable))
+              current.parent.foreach { p => current = p }
             result(values.getOrElse(current, Nullable.empty))
             if (!cancelHide) hide()
             cancelHide = false
@@ -99,8 +99,8 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
       private def focusChanged(event: FocusListener.FocusEvent): Unit =
         stage.foreach { stage =>
           if (
-            isModal && stage.getRoot.getChildren.nonEmpty
-            && (stage.getRoot.getChildren.last eq Dialog.this)
+            isModal && stage.root.children.nonEmpty
+            && (stage.root.children.last eq Dialog.this)
           ) { // Dialog is top most actor.
             val newFocusedActor = event.relatedActor
             newFocusedActor.foreach { nfa =>
@@ -123,10 +123,6 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
       removeListener(focusListener)
     super.setStage(stage)
   }
-
-  def getContentTable: Table = contentTable
-
-  def getButtonTable: Table = buttonTable
 
   /** Adds a label to the content table. The dialog must have been constructed with a skin to use this method. */
   def text(text: Nullable[String]): Dialog = {
@@ -191,13 +187,13 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     removeCaptureListener(ignoreTouchDown)
 
     previousKeyboardFocus = Nullable.empty
-    val kbActor = stage.getKeyboardFocus
+    val kbActor = stage.keyboardFocus
     kbActor.foreach { a =>
       if (!a.isDescendantOf(this)) previousKeyboardFocus = Nullable(a)
     }
 
     previousScrollFocus = Nullable.empty
-    val scrollActor = stage.getScrollFocus
+    val scrollActor = stage.scrollFocus
     scrollActor.foreach { a =>
       if (!a.isDescendantOf(this)) previousScrollFocus = Nullable(a)
     }
@@ -216,7 +212,7 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
     */
   def show(stage: Stage): Dialog = {
     show(stage, Nullable(Actions.sequence(Actions.alpha(0), Actions.fadeIn(Seconds(0.4f), Nullable(Interpolation.fade)))))
-    setPosition(Math.round((stage.getWidth - width) / 2).toFloat, Math.round((stage.getHeight - height) / 2).toFloat)
+    setPosition(Math.round((stage.width - width) / 2).toFloat, Math.round((stage.height - height) / 2).toFloat)
     this
   }
 
@@ -230,13 +226,13 @@ class Dialog(title: String, windowStyle: WindowStyle)(using Sge) extends Window(
       previousKeyboardFocus.foreach { pkf =>
         if (pkf.stage.isEmpty) previousKeyboardFocus = Nullable.empty
       }
-      val kbActor = stage.getKeyboardFocus
+      val kbActor = stage.keyboardFocus
       if (kbActor.isEmpty || kbActor.exists(_.isDescendantOf(this))) stage.setKeyboardFocus(previousKeyboardFocus)
 
       previousScrollFocus.foreach { psf =>
         if (psf.stage.isEmpty) previousScrollFocus = Nullable.empty
       }
-      val scrollActor = stage.getScrollFocus
+      val scrollActor = stage.scrollFocus
       if (scrollActor.isEmpty || scrollActor.exists(_.isDescendantOf(this))) stage.setScrollFocus(previousScrollFocus)
     }
     action.fold {

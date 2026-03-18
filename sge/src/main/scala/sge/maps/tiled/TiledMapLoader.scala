@@ -65,7 +65,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
     var param = parameter
     if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
     val file      = resolve(fileName)
-    val extension = file.extension().toLowerCase
+    val extension = file.extension.toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
         atlasTmxMapLoader.load(fileName, param)
@@ -88,7 +88,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   ): DynamicArray[AssetDescriptor[?]] = {
     var param = parameter
     if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
-    val extension = file.extension().toLowerCase
+    val extension = file.extension.toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
         atlasTmxMapLoader.getDependencies(fileName, file, param)
@@ -112,7 +112,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   ): Unit = {
     var param = parameter
     if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
-    val extension = file.extension().toLowerCase
+    val extension = file.extension.toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
         atlasTmxMapLoader.loadAsync(manager, fileName, file, param)
@@ -136,7 +136,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   ): TiledMap = {
     var param = parameter
     if (Nullable(param).isEmpty) param = BaseTiledMapLoader.Parameters()
-    val extension = file.extension().toLowerCase
+    val extension = file.extension.toLowerCase
     if (extension == "tmx") {
       if (usesAtlas(file))
         atlasTmxMapLoader.loadSync(manager, fileName, file, param)
@@ -153,7 +153,7 @@ class TiledMapLoader(resolver: FileHandleResolver)(using Sge) extends Asynchrono
   }
 
   private def usesAtlas(file: FileHandle): Boolean = boundary {
-    val extension = file.extension().toLowerCase
+    val extension = file.extension.toLowerCase
     if (extension == "tmx") {
       val root       = xmlReader.parse(file)
       val properties = root.getChildByName("properties")

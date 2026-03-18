@@ -39,67 +39,67 @@ import sge.utils.Nullable
   *   the detected GL version
   */
 class BrowserGraphics(
-  val canvas:        HTMLCanvasElement,
-  config:            BrowserApplicationConfig,
-  private var _gl20: GL20,
-  private var _gl30: Nullable[GL30],
-  val glVersion:     GLVersion
+  val canvas:             HTMLCanvasElement,
+  config:                 BrowserApplicationConfig,
+  private var _gl20:      GL20,
+  private var _gl30:      Nullable[GL30],
+  private val _glVersion: GLVersion
 ) extends Graphics {
 
   private var fps:           Float = 0f
   private var lastTimeStamp: Long  = System.currentTimeMillis()
-  var frameId:               Long  = -1L
-  private var deltaTime:     Float = 0f
+  var _frameId:              Long  = -1L
+  private var _deltaTime:    Float = 0f
   private var time:          Float = 0f
   private var frames:        Int   = 0
 
   // --- GL accessors ---
 
-  override def isGL30Available(): Boolean = _gl30.isDefined
-  override def isGL31Available(): Boolean = false
-  override def isGL32Available(): Boolean = false
+  override def gl30Available: Boolean = _gl30.isDefined
+  override def gl31Available: Boolean = false
+  override def gl32Available: Boolean = false
 
-  override def getGL20(): GL20           = _gl20
-  override def getGL30(): Nullable[GL30] = _gl30
-  override def getGL31(): Nullable[GL31] = Nullable.empty
-  override def getGL32(): Nullable[GL32] = Nullable.empty
+  override def gl20: GL20           = _gl20
+  override def gl30: Nullable[GL30] = _gl30
+  override def gl31: Nullable[GL31] = Nullable.empty
+  override def gl32: Nullable[GL32] = Nullable.empty
 
-  override def setGL20(gl20: GL20): Unit = _gl20 = gl20
+  override def gl20_=(value: GL20): Unit = _gl20 = value
 
-  override def setGL30(gl30: GL30): Unit = {
-    _gl30 = Nullable(gl30)
-    _gl20 = gl30.asInstanceOf[GL20]
+  override def gl30_=(value: GL30): Unit = {
+    _gl30 = Nullable(value)
+    _gl20 = value.asInstanceOf[GL20]
   }
 
-  override def setGL31(gl31: GL31): Unit = ()
-  override def setGL32(gl32: GL32): Unit = ()
+  override def gl31_=(value: GL31): Unit = ()
+  override def gl32_=(value: GL32): Unit = ()
 
   // --- Dimensions ---
 
-  override def getWidth():            Pixels = Pixels(canvas.width)
-  override def getHeight():           Pixels = Pixels(canvas.height)
-  override def getBackBufferWidth():  Pixels = Pixels(canvas.width)
-  override def getBackBufferHeight(): Pixels = Pixels(canvas.height)
-  override def getBackBufferScale():  Float  = 1f
+  override def width:            Pixels = Pixels(canvas.width)
+  override def height:           Pixels = Pixels(canvas.height)
+  override def backBufferWidth:  Pixels = Pixels(canvas.width)
+  override def backBufferHeight: Pixels = Pixels(canvas.height)
+  override def backBufferScale:  Float  = 1f
 
-  override def getSafeInsetLeft():   Pixels = Pixels.zero
-  override def getSafeInsetTop():    Pixels = Pixels.zero
-  override def getSafeInsetBottom(): Pixels = Pixels.zero
-  override def getSafeInsetRight():  Pixels = Pixels.zero
+  override def safeInsetLeft:   Pixels = Pixels.zero
+  override def safeInsetTop:    Pixels = Pixels.zero
+  override def safeInsetBottom: Pixels = Pixels.zero
+  override def safeInsetRight:  Pixels = Pixels.zero
 
   // --- Frame timing ---
 
-  override def getFrameId():         Long  = frameId
-  override def getDeltaTime():       Float = deltaTime
-  override def getRawDeltaTime():    Float = deltaTime
-  override def getFramesPerSecond(): Int   = fps.toInt
+  override def frameId:         Long  = _frameId
+  override def deltaTime:       Float = _deltaTime
+  override def rawDeltaTime:    Float = _deltaTime
+  override def framesPerSecond: Int   = fps.toInt
 
   /** Update frame timing. Called once per frame by BrowserApplication. */
   def update(): Unit = {
     val currTimeStamp = System.currentTimeMillis()
-    deltaTime = (currTimeStamp - lastTimeStamp) / 1000.0f
+    _deltaTime = (currTimeStamp - lastTimeStamp) / 1000.0f
     lastTimeStamp = currTimeStamp
-    time += deltaTime
+    time += _deltaTime
     frames += 1
     if (time > 1) {
       fps = frames.toFloat
@@ -110,50 +110,50 @@ class BrowserGraphics(
 
   // --- Display info ---
 
-  override def getType():      Graphics.GraphicsType = Graphics.GraphicsType.WebGL
-  override def getGLVersion(): GLVersion             = glVersion
+  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.WebGL
+  override def glVersion:    GLVersion             = _glVersion
 
-  override def getPpiX():    Float = 96f * getNativeScreenDensity().toFloat
-  override def getPpiY():    Float = 96f * getNativeScreenDensity().toFloat
-  override def getPpcX():    Float = getPpiX() / 2.54f
-  override def getPpcY():    Float = getPpiY() / 2.54f
-  override def getDensity(): Float = getNativeScreenDensity().toFloat / 160f
+  override def ppiX:    Float = 96f * getNativeScreenDensity().toFloat
+  override def ppiY:    Float = 96f * getNativeScreenDensity().toFloat
+  override def ppcX:    Float = ppiX / 2.54f
+  override def ppcY:    Float = ppiY / 2.54f
+  override def density: Float = getNativeScreenDensity().toFloat / 160f
 
   // --- Display modes ---
 
   override def supportsDisplayModeChange(): Boolean =
     BrowserFeaturePolicy.allowsFeature("fullscreen") && supportsFullscreen
 
-  override def getDisplayModes(): Array[Graphics.DisplayMode] =
-    Array(getDisplayMode())
+  override def displayModes: Array[Graphics.DisplayMode] =
+    Array(displayMode)
 
-  override def getDisplayMode(): Graphics.DisplayMode = {
-    val density = if (config.usePhysicalPixels) getNativeScreenDensity() else 1.0
-    val sw      = (window.screen.width * density).toInt
-    val sh      = (window.screen.height * density).toInt
-    val cd      = window.screen.asInstanceOf[js.Dynamic].colorDepth.asInstanceOf[Int]
+  override def displayMode: Graphics.DisplayMode = {
+    val d  = if (config.usePhysicalPixels) getNativeScreenDensity() else 1.0
+    val sw = (window.screen.width * d).toInt
+    val sh = (window.screen.height * d).toInt
+    val cd = window.screen.asInstanceOf[js.Dynamic].colorDepth.asInstanceOf[Int]
     Graphics.DisplayMode(sw, sh, 60, cd)
   }
 
   override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] =
-    getDisplayModes()
+    displayModes
 
   override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode =
-    getDisplayMode()
+    displayMode
 
-  private val primaryMonitor: Graphics.Monitor = Graphics.Monitor(0, 0, "Primary Monitor")
+  private val _primaryMonitor: Graphics.Monitor = Graphics.Monitor(0, 0, "Primary Monitor")
 
-  override def getPrimaryMonitor(): Graphics.Monitor = primaryMonitor
+  override def primaryMonitor: Graphics.Monitor = _primaryMonitor
 
-  override def getMonitor(): Graphics.Monitor = primaryMonitor
+  override def monitor: Graphics.Monitor = _primaryMonitor
 
-  override def getMonitors(): Array[Graphics.Monitor] =
-    Array(primaryMonitor)
+  override def monitors: Array[Graphics.Monitor] =
+    Array(_primaryMonitor)
 
   // --- Fullscreen ---
 
   override def setFullscreenMode(displayMode: Graphics.DisplayMode): Boolean = {
-    val supported = getDisplayMode()
+    val supported = this.displayMode
     if (displayMode.width != supported.width && displayMode.height != supported.height) false
     else {
       canvas.width = displayMode.width
@@ -172,12 +172,12 @@ class BrowserGraphics(
   }
 
   override def setWindowedMode(width: Pixels, height: Pixels): Boolean = {
-    if (isFullscreen()) exitFullscreen()
+    if (fullscreen) exitFullscreen()
     if (config.isFixedSizeApplication) setCanvasSize(width.toInt, height.toInt)
     true
   }
 
-  override def isFullscreen(): Boolean = {
+  override def fullscreen: Boolean = {
     val doc = document.asInstanceOf[js.Dynamic]
     if (!js.isUndefined(doc.fullscreenElement)) doc.fullscreenElement != null
     else if (!js.isUndefined(doc.webkitFullscreenElement)) doc.webkitFullscreenElement != null
@@ -198,7 +198,7 @@ class BrowserGraphics(
   }
 
   private def fullscreenChanged(): Unit =
-    if (!isFullscreen()) {
+    if (!fullscreen) {
       if (config.isFixedSizeApplication) setCanvasSize(config.width, config.height)
     }
 
@@ -221,12 +221,12 @@ class BrowserGraphics(
   override def setVSync(vsync:                      Boolean): Unit    = ()
   override def setForegroundFPS(fps:                Int):     Unit    = ()
   override def setContinuousRendering(isContinuous: Boolean): Unit    = ()
-  override def isContinuousRendering():                       Boolean = true
+  override def continuousRendering:                           Boolean = true
   override def requestRendering():                            Unit    = ()
 
   // --- Buffer format ---
 
-  override def getBufferFormat(): Graphics.BufferFormat =
+  override def bufferFormat: Graphics.BufferFormat =
     Graphics.BufferFormat(8, 8, 8, 0, 16, if (config.stencil) 8 else 0, 0, false)
 
   override def supportsExtension(extension: String): Boolean = {

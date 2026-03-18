@@ -17,14 +17,14 @@ class DesktopFileHandleTest extends munit.FunSuite {
   test("child appends to path") {
     val fh    = DesktopFileHandle("dir", FileType.Internal, extPath)
     val child = fh.child("sub")
-    assertEquals(child.name(), "sub")
-    assert(child.path().contains("dir"))
+    assertEquals(child.name, "sub")
+    assert(child.path.contains("dir"))
   }
 
   test("child of empty path uses name directly") {
     val fh    = DesktopFileHandle("", FileType.Internal, extPath)
     val child = fh.child("file.txt")
-    assertEquals(child.name(), "file.txt")
+    assertEquals(child.name, "file.txt")
   }
 
   // ---- sibling ----
@@ -32,8 +32,8 @@ class DesktopFileHandleTest extends munit.FunSuite {
   test("sibling replaces file name") {
     val fh      = DesktopFileHandle("dir/a.txt", FileType.Internal, extPath)
     val sibling = fh.sibling("b.txt")
-    assertEquals(sibling.name(), "b.txt")
-    assert(sibling.path().contains("dir"))
+    assertEquals(sibling.name, "b.txt")
+    assert(sibling.path.contains("dir"))
   }
 
   test("sibling of root path throws") {
@@ -48,42 +48,42 @@ class DesktopFileHandleTest extends munit.FunSuite {
   test("parent of nested path") {
     val fh     = DesktopFileHandle("dir/sub/file.txt", FileType.Internal, extPath)
     val parent = fh.parent()
-    assertEquals(parent.name(), "sub")
+    assertEquals(parent.name, "sub")
   }
 
   test("parent of root Absolute returns /") {
     val fh     = DesktopFileHandle("file.txt", FileType.Absolute, extPath)
     val parent = fh.parent()
     // On root-less path, parent should be empty string for non-Absolute
-    assert(parent.path().nonEmpty || parent.file.getPath().nonEmpty)
+    assert(parent.path.nonEmpty || parent.internalFile.getPath().nonEmpty)
   }
 
   test("parent of root non-Absolute returns empty") {
     val fh     = DesktopFileHandle("file.txt", FileType.Internal, extPath)
     val parent = fh.parent()
-    assertEquals(parent.file.getPath(), "")
+    assertEquals(parent.internalFile.getPath(), "")
   }
 
   // ---- getFile resolves external/local paths ----
 
   test("getFile for External prepends external storage path") {
     val fh = DesktopFileHandle("test.txt", FileType.External, extPath)
-    assertEquals(fh.getFile().getPath(), new File(extPath, "test.txt").getPath())
+    assertEquals(fh.file.getPath(), new File(extPath, "test.txt").getPath())
   }
 
   test("getFile for Local prepends local storage path") {
     val fh = DesktopFileHandle("test.txt", FileType.Local, extPath)
-    assertEquals(fh.getFile().getPath(), new File(DesktopFileHandle.localPath, "test.txt").getPath())
+    assertEquals(fh.file.getPath(), new File(DesktopFileHandle.localPath, "test.txt").getPath())
   }
 
   test("getFile for Internal returns raw file") {
     val fh = DesktopFileHandle("test.txt", FileType.Internal, extPath)
-    assertEquals(fh.getFile().getPath(), "test.txt")
+    assertEquals(fh.file.getPath(), "test.txt")
   }
 
   test("getFile for Absolute returns raw file") {
     val fh = DesktopFileHandle("/tmp/test.txt", FileType.Absolute, extPath)
-    assertEquals(fh.getFile().getPath(), "/tmp/test.txt")
+    assertEquals(fh.file.getPath(), "/tmp/test.txt")
   }
 
   // ---- write/read round-trip ----

@@ -25,6 +25,7 @@ import sge.files.FileHandle
 import sge.utils.DynamicArray
 import scala.collection.mutable.Map as MutableMap
 import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer }
+import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 
 /** <p> A shader program encapsulates a vertex and fragment shader pair linked to form a shader program. </p>
@@ -54,7 +55,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     else fragmentShader
 
   /** the log * */
-  private var log = ""
+  private var _shaderLog = ""
 
   /** whether this program compiled successfully * */
   private var compiledSuccessfully: Boolean = uninitialized
@@ -117,8 +118,9 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     ShaderProgram.addManagedShader(Sge().application, this)
   }
 
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) = {
     this(vertexShader.readString(), fragmentShader.readString())
+  }
 
   /** Loads and compiles the shaders, creates a new program and links the shaders.
     *
@@ -155,8 +157,8 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     val compiled = intbuf.get(0)
     if (compiled == 0) {
       val infoLog = gl.glGetShaderInfoLog(shader)
-      log += (if (shaderType.toInt == GL20.GL_VERTEX_SHADER) "Vertex shader\n" else "Fragment shader:\n")
-      log += infoLog
+      _shaderLog += (if (shaderType.toInt == GL20.GL_VERTEX_SHADER) "Vertex shader\n" else "Fragment shader:\n")
+      _shaderLog += infoLog
       scala.util.boundary.break(-1)
     }
 
@@ -184,7 +186,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     gl.glGetProgramiv(program, GL20.GL_LINK_STATUS, intbuf)
     val linked = intbuf.get(0)
     if (linked == 0) {
-      log = Sge().graphics.gl20.glGetProgramInfoLog(program)
+      _shaderLog = Sge().graphics.gl20.glGetProgramInfoLog(program)
       scala.util.boundary.break(-1)
     }
 
@@ -194,12 +196,12 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
   /** @return
     *   the log info for the shader compilation and program linking stage. The shader needs to be bound for this method to have an effect.
     */
-  def getLog(): String =
+  def log: String =
     if (compiled) {
-      log = Sge().graphics.gl20.glGetProgramInfoLog(program)
-      log
+      _shaderLog = Sge().graphics.gl20.glGetProgramInfoLog(program)
+      _shaderLog
     } else {
-      log
+      _shaderLog
     }
 
   /** @return whether this ShaderProgram compiled successfully. */
@@ -230,7 +232,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
         val location = Sge().graphics.gl20.glGetUniformLocation(program, name)
         if (location == -1 && pedantic) {
           if (compiled) throw new IllegalArgumentException(s"No uniform with name '$name' in shader")
-          throw new IllegalStateException(s"An attempted fetch uniform from uncompiled shader \n${getLog()}")
+          throw new IllegalStateException(s"An attempted fetch uniform from uncompiled shader \n${log}")
         }
         uniforms.put(name, location)
         location
@@ -749,11 +751,18 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
 
   /** @deprecated use {@link #bind()} instead */
   @deprecated("use bind() instead", since = "0.1")
-  def begin(): Unit = bind()
+  @publicInBinary private[sge] def begin(): Unit = bind()
 
   /** @deprecated no longer necessary */
   @deprecated("no longer necessary", since = "0.1")
-  def end(): Unit = {}
+  @publicInBinary private[sge] def end(): Unit = {}
+
+  /** Executes `body` with this shader bound, calling [[bind]] before and unbinding (glUseProgram(0)) after. */
+  inline def using[A](inline body: => A): A = {
+    bind()
+    try body
+    finally Sge().graphics.gl20.glUseProgram(0)
+  }
 
   /** Disposes all resources associated with this shader. Must be called when the shader is no longer used. */
   def close(): Unit = {
@@ -967,7 +976,7 @@ class ShaderProgram(vertexShader: String, fragmentShader: String)(using Sge) ext
     fragmentShaderSource
 
   /** @return the handle of the shader program */
-  def getHandle(): Int =
+  def handle: Int =
     program
 }
 
@@ -1031,7 +1040,7 @@ object ShaderProgram {
   def clearAllShaderPrograms(app: Application): Unit =
     shaders.remove(app)
 
-  def getManagedStatus(): String = {
+  def managedStatus: String = {
     val builder = new StringBuilder()
     builder.append("Managed shaders/app: { ")
     for (app <- shaders.keys) {
@@ -1043,6 +1052,6 @@ object ShaderProgram {
   }
 
   /** @return the number of managed shader programs currently loaded */
-  def getNumManagedShaderPrograms()(using Sge): Int =
+  def numManagedShaderPrograms(using Sge): Int =
     shaders.get(Sge().application).map(_.size).getOrElse(0)
 }

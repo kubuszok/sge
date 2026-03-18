@@ -66,42 +66,42 @@ object Value {
   /** Value that is the minWidth of the actor in the cell. */
   val minWidth: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getMinWidth
+      case l: Layout => l.minWidth
       case a => a.width
     }
 
   /** Value that is the minHeight of the actor in the cell. */
   val minHeight: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getMinHeight
+      case l: Layout => l.minHeight
       case a => a.height
     }
 
   /** Value that is the prefWidth of the actor in the cell. */
   val prefWidth: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getPrefWidth
+      case l: Layout => l.prefWidth
       case a => a.width
     }
 
   /** Value that is the prefHeight of the actor in the cell. */
   val prefHeight: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getPrefHeight
+      case l: Layout => l.prefHeight
       case a => a.height
     }
 
   /** Value that is the maxWidth of the actor in the cell. */
   val maxWidth: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getMaxWidth
+      case l: Layout => l.maxWidth
       case a => a.width
     }
 
   /** Value that is the maxHeight of the actor in the cell. */
   val maxHeight: Value = context =>
     context.fold(0f) {
-      case l: Layout => l.getMaxHeight
+      case l: Layout => l.maxHeight
       case a => a.height
     }
 

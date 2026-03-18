@@ -95,12 +95,13 @@ class CameraInputController protected (
   private val tmpV1:  Vector3 = Vector3()
   private val tmpV2:  Vector3 = Vector3()
 
-  def this(camera: Camera)(using Sge) =
+  def this(camera: Camera)(using Sge) = {
     this(CameraInputController.CameraGestureListener(), camera)
+  }
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {
-      val delta = Sge().graphics.getDeltaTime()
+      val delta = Sge().graphics.deltaTime
       if (rotateRightPressed) camera.rotate(camera.up, -delta * rotateAngle)
       if (rotateLeftPressed) camera.rotate(camera.up, delta * rotateAngle)
       if (forwardPressed) {
@@ -170,8 +171,8 @@ class CameraInputController protected (
     val result = super.touchDragged(screenX, screenY, pointer)
     if (result || this.button.toInt < 0) result
     else {
-      val deltaX = (screenX.toFloat - startX) / Sge().graphics.getWidth().toFloat
-      val deltaY = (startY - screenY.toFloat) / Sge().graphics.getHeight().toFloat
+      val deltaX = (screenX.toFloat - startX) / Sge().graphics.width.toFloat
+      val deltaY = (startY - screenY.toFloat) / Sge().graphics.height.toFloat
       startX = screenX.toFloat
       startY = screenY.toFloat
       process(deltaX, deltaY, button)
@@ -244,8 +245,8 @@ object CameraInputController {
       val newZoom = distance - initialDistance
       val amount  = newZoom - previousZoom
       previousZoom = newZoom
-      val w = Sge().graphics.getWidth().toFloat
-      val h = Sge().graphics.getHeight().toFloat
+      val w = Sge().graphics.width.toFloat
+      val h = Sge().graphics.height.toFloat
       controller.pinchZoom(amount / (if (w > h) h else w))
     }
 

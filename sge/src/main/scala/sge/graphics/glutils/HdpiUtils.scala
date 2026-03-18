@@ -45,8 +45,8 @@ object HdpiUtils {
     */
   def glScissor(x: Pixels, y: Pixels, width: Pixels, height: Pixels)(using Sge): Unit =
     if (
-      mode == HdpiMode.Logical && (Sge().graphics.getWidth() != Sge().graphics.getBackBufferWidth()
-        || Sge().graphics.getHeight() != Sge().graphics.getBackBufferHeight())
+      mode == HdpiMode.Logical && (Sge().graphics.width != Sge().graphics.backBufferWidth
+        || Sge().graphics.height != Sge().graphics.backBufferHeight)
     ) {
       Sge().graphics.gl.glScissor(toBackBufferX(x), toBackBufferY(y), toBackBufferX(width), toBackBufferY(height))
     } else {
@@ -58,8 +58,8 @@ object HdpiUtils {
     */
   def glViewport(x: Pixels, y: Pixels, width: Pixels, height: Pixels)(using Sge): Unit =
     if (
-      mode == HdpiMode.Logical && (Sge().graphics.getWidth() != Sge().graphics.getBackBufferWidth()
-        || Sge().graphics.getHeight() != Sge().graphics.getBackBufferHeight())
+      mode == HdpiMode.Logical && (Sge().graphics.width != Sge().graphics.backBufferWidth
+        || Sge().graphics.height != Sge().graphics.backBufferHeight)
     ) {
       Sge().graphics.gl.glViewport(toBackBufferX(x), toBackBufferY(y), toBackBufferX(width), toBackBufferY(height))
     } else {
@@ -68,17 +68,17 @@ object HdpiUtils {
 
   /** Converts an x-coordinate given in backbuffer coordinates to logical screen coordinates. */
   def toLogicalX(backBufferX: Pixels)(using Sge): Pixels =
-    Pixels((backBufferX.toInt * Sge().graphics.getWidth().toInt / Sge().graphics.getBackBufferWidth().toFloat).toInt)
+    Pixels((backBufferX.toInt * Sge().graphics.width.toInt / Sge().graphics.backBufferWidth.toFloat).toInt)
 
   /** Converts an y-coordinate given in backbuffer coordinates to logical screen coordinates. */
   def toLogicalY(backBufferY: Pixels)(using Sge): Pixels =
-    Pixels((backBufferY.toInt * Sge().graphics.getHeight().toInt / Sge().graphics.getBackBufferHeight().toFloat).toInt)
+    Pixels((backBufferY.toInt * Sge().graphics.height.toInt / Sge().graphics.backBufferHeight.toFloat).toInt)
 
   /** Converts an x-coordinate given in logical screen coordinates to backbuffer coordinates. */
   def toBackBufferX(logicalX: Pixels)(using Sge): Pixels =
-    Pixels((logicalX.toInt * Sge().graphics.getBackBufferWidth().toInt / Sge().graphics.getWidth().toFloat).toInt)
+    Pixels((logicalX.toInt * Sge().graphics.backBufferWidth.toInt / Sge().graphics.width.toFloat).toInt)
 
   /** Converts an y-coordinate given in logical screen coordinates to backbuffer coordinates. */
   def toBackBufferY(logicalY: Pixels)(using Sge): Pixels =
-    Pixels((logicalY.toInt * Sge().graphics.getBackBufferHeight().toInt / Sge().graphics.getHeight().toFloat).toInt)
+    Pixels((logicalY.toInt * Sge().graphics.backBufferHeight.toInt / Sge().graphics.height.toFloat).toInt)
 }

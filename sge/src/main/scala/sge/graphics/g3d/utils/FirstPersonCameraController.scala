@@ -72,8 +72,8 @@ class FirstPersonCameraController(
     this.degreesPerPixel = degreesPerPixel
 
   override def touchDragged(screenX: Pixels, screenY: Pixels, pointer: Int): Boolean = {
-    val deltaX = -Sge().input.getDeltaX().toFloat * degreesPerPixel
-    val deltaY = -Sge().input.getDeltaY().toFloat * degreesPerPixel
+    val deltaX = -Sge().input.deltaX.toFloat * degreesPerPixel
+    val deltaY = -Sge().input.deltaY.toFloat * degreesPerPixel
     camera.direction.rotateAroundDeg(camera.up, deltaX)
     tmp.set(camera.direction).crs(camera.up).nor()
     camera.direction.rotateAroundDeg(tmp, deltaY)
@@ -81,7 +81,7 @@ class FirstPersonCameraController(
   }
 
   def update(): Unit =
-    update(Sge().graphics.getDeltaTime())
+    update(Sge().graphics.deltaTime)
 
   def update(deltaTime: Float): Unit = {
     if (keys.contains(forwardKey)) {

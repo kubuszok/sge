@@ -16,7 +16,7 @@ object InputDispatchCheck {
       val input = Sge().input
 
       // Save the original processor (may be null/empty)
-      val original = input.getInputProcessor()
+      val original = input.inputProcessor
 
       // Set a custom InputProcessor that tracks calls
       var touchDownCalled = false
@@ -28,7 +28,7 @@ object InputDispatchCheck {
       }
 
       input.setInputProcessor(testProcessor)
-      val retrieved = input.getInputProcessor()
+      val retrieved = input.inputProcessor
 
       // Verify the processor was registered
       val registered = retrieved eq testProcessor

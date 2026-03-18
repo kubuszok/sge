@@ -14,9 +14,7 @@ import org.scalajs.dom
 object BrowserMain {
 
   def main(args: Array[String]): Unit = {
-    val app    = BrowserLauncher.createApp()
     val config = BrowserLauncher.createConfig()
-    val brApp  = new BrowserApplication(app, config)
-    brApp.start()
+    val brApp  = new BrowserApplication(BrowserLauncher.createApp(), config)
   }
 }

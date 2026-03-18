@@ -7,8 +7,8 @@ class PolygonTest extends munit.FunSuite {
     val vertices = Array(0f, 0f, 3f, 0f, 3f, 4f)
     val polygon  = new Polygon(vertices)
     polygon.rotate(0)
-    val transformed = polygon.getTransformedVertices
-    val original    = polygon.getVertices
+    val transformed = polygon.transformedVertices
+    val original    = polygon.vertices
     for (i <- transformed.indices)
       assertEqualsDouble(transformed(i).toDouble, original(i).toDouble, 1.0)
   }
@@ -17,8 +17,8 @@ class PolygonTest extends munit.FunSuite {
     val vertices = Array(0f, 0f, 3f, 0f, 3f, 4f)
     val polygon  = new Polygon(vertices)
     polygon.rotate(360)
-    val transformed = polygon.getTransformedVertices
-    val original    = polygon.getVertices
+    val transformed = polygon.transformedVertices
+    val original    = polygon.vertices
     for (i <- transformed.indices)
       assertEqualsDouble(transformed(i).toDouble, original(i).toDouble, 1.0)
   }

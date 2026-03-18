@@ -32,7 +32,7 @@ import sge.utils.{ Align, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(Nullable.empty) with Styleable[Window.WindowStyle] {
+class Window(title: String, initialStyle: Window.WindowStyle)(using Sge) extends Table(Nullable.empty) with Styleable[Window.WindowStyle] {
   import Window._
 
   private var _style:  WindowStyle = scala.compiletime.uninitialized
@@ -51,7 +51,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
   touchable = Touchable.enabled
   setClip(true)
 
-  titleLabel = newLabel(title, LabelStyle(style.titleFont, style.titleFontColor))
+  titleLabel = newLabel(title, LabelStyle(initialStyle.titleFont, initialStyle.titleFontColor))
   titleLabel.setEllipsis(true)
 
   val self = this
@@ -62,7 +62,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
   titleTable.add(Nullable[Actor](titleLabel)).growX().minWidth(0)
   addActor(titleTable)
 
-  setStyle(style)
+  setStyle(initialStyle)
   setWidth(150)
   setHeight(150)
 
@@ -130,9 +130,9 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           var windowX = self.x
           var windowY = self.y
 
-          val minWidth      = getMinWidth
-          val minHeight     = getMinHeight
-          val clampPosition = self.keepWithinStage && self.stage.exists(s => self.getParent.exists(_ eq s.getRoot))
+          val minWidth      = self.minWidth
+          val minHeight     = self.minHeight
+          val clampPosition = self.keepWithinStage && self.stage.exists(s => self.parent.exists(_ eq s.root))
 
           if ((self.edge & MOVE) != 0) {
             val amountX = x - startX
@@ -158,7 +158,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
             var amountX = x - lastX - width
             if (width + amountX < minWidth) amountX = minWidth - width
             if (clampPosition) self.stage.foreach { s =>
-              if (windowX + width + amountX > s.getWidth) amountX = s.getWidth - windowX - width
+              if (windowX + width + amountX > s.width) amountX = s.width - windowX - width
             }
             width += amountX
           }
@@ -166,7 +166,7 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
             var amountY = y - lastY - height
             if (height + amountY < minHeight) amountY = minHeight - height
             if (clampPosition) self.stage.foreach { s =>
-              if (windowY + height + amountY > s.getHeight) amountY = s.getHeight - windowY - height
+              if (windowY + height + amountY > s.height) amountY = s.height - windowY - height
             }
             height += amountY
           }
@@ -192,11 +192,13 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
     }
   )
 
-  def this(title: String, skin: Skin)(using Sge) =
+  def this(title: String, skin: Skin)(using Sge) = {
     this(title, skin.get[Window.WindowStyle])
+  }
 
-  def this(title: String, skin: Skin, styleName: String)(using Sge) =
+  def this(title: String, skin: Skin, styleName: String)(using Sge) = {
     this(title, skin.get[Window.WindowStyle](styleName))
+  }
 
   protected def newLabel(text: String, style: LabelStyle): Label =
     Label(Nullable(text), style)
@@ -211,15 +213,15 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
 
   /** Returns the window's style. Modifying the returned style may not have an effect until {@link #setStyle(WindowStyle)} is called.
     */
-  override def getStyle: WindowStyle = _style
+  override def style: WindowStyle = _style
 
   def keepWithinStageMethod(): Unit =
     if (keepWithinStage) stage.foreach { stage =>
-      val camera = stage.getCamera
+      val camera = stage.camera
       camera match {
         case orthographicCamera: OrthographicCamera =>
-          val parentWidth  = stage.getWidth
-          val parentHeight = stage.getHeight
+          val parentWidth  = stage.width
+          val parentHeight = stage.height
           if (getX(Align.right) - camera.position.x > parentWidth / 2 / orthographicCamera.zoom)
             setPosition(camera.position.x + parentWidth / 2 / orthographicCamera.zoom, getY(Align.right), Align.right)
           if (getX(Align.left) - camera.position.x < -parentWidth / 2 / orthographicCamera.zoom)
@@ -229,9 +231,9 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
           if (getY(Align.bottom) - camera.position.y < -parentHeight / 2 / orthographicCamera.zoom)
             setPosition(getX(Align.bottom), camera.position.y - parentHeight / 2 / orthographicCamera.zoom, Align.bottom)
         case _ =>
-          if (getParent.exists(_ eq stage.getRoot)) {
-            val parentWidth  = stage.getWidth
-            val parentHeight = stage.getHeight
+          if (parent.exists(_ eq stage.root)) {
+            val parentWidth  = stage.width
+            val parentHeight = stage.height
             if (x < 0) setX(0)
             if (x + width > parentWidth) setX(parentWidth - width)
             if (y < 0) setY(0)
@@ -242,13 +244,13 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     stage.foreach { stage =>
-      if (stage.getKeyboardFocus.isEmpty) stage.setKeyboardFocus(Nullable(this))
+      if (stage.keyboardFocus.isEmpty) stage.setKeyboardFocus(Nullable(this))
 
       keepWithinStageMethod()
 
       _style.stageBackground.foreach { stageBackground =>
         stageToLocalCoordinates(tmpPosition.set(0, 0))
-        stageToLocalCoordinates(tmpSize.set(stage.getWidth, stage.getHeight))
+        stageToLocalCoordinates(tmpSize.set(stage.width, stage.height))
         drawStageBackground(batch, parentAlpha, x + tmpPosition.x, y + tmpPosition.y, x + tmpSize.x, y + tmpSize.y)
       }
     }
@@ -285,8 +287,8 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
       // Hit the title bar, don't use the hit child if it is in the Window's table.
       hitResult.foreach { hr =>
         var current: Actor = hr
-        while (!current.getParent.exists(_ eq this))
-          current.getParent.foreach { p => current = p }
+        while (!current.parent.exists(_ eq this))
+          current.parent.foreach { p => current = p }
         if (getCell(current).isDefined) scala.util.boundary.break(Nullable(this: Actor))
       }
     }
@@ -295,8 +297,8 @@ class Window(title: String, style: Window.WindowStyle)(using Sge) extends Table(
 
   def isDragging: Boolean = dragging
 
-  override def getPrefWidth: Float =
-    Math.max(super.getPrefWidth, titleTable.getPrefWidth + getPadLeft + getPadRight)
+  override def prefWidth: Float =
+    Math.max(super.prefWidth, titleTable.prefWidth + getPadLeft + getPadRight)
 }
 
 object Window {

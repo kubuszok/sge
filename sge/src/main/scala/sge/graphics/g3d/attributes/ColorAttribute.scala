@@ -40,8 +40,9 @@ class ColorAttribute(
     this.color.set(r, g, b, a)
   }
 
-  def this(copyFrom: ColorAttribute) =
+  def this(copyFrom: ColorAttribute) = {
     this(copyFrom.`type`, copyFrom.color)
+  }
 
   override def copy(): Attribute =
     ColorAttribute(this)

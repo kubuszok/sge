@@ -34,13 +34,13 @@ import sge.utils.{ Nullable, Pool }
 trait MeshPartBuilder {
 
   /** @return The {@link MeshPart} currently building. */
-  def getMeshPart(): MeshPart
+  def meshPart: MeshPart
 
   /** @return The primitive type used for building, e.g. {@link GL20#GL_TRIANGLES} or {@link GL20#GL_LINES}. */
-  def getPrimitiveType(): PrimitiveMode
+  def primitiveType: PrimitiveMode
 
   /** @return The {@link VertexAttributes} available for building. */
-  def getAttributes(): VertexAttributes
+  def attributes: VertexAttributes
 
   /** Set the color used to tint the vertex color, defaults to white. Only applicable for {@link Usage#ColorPacked} or {@link Usage#ColorUnpacked}.
     */
@@ -63,7 +63,7 @@ trait MeshPartBuilder {
   def setVertexTransform(transform: Nullable[Matrix4]): Unit
 
   /** Indicates whether vertex transformation is enabled. */
-  def isVertexTransformationEnabled(): Boolean
+  def isVertexTransformationEnabled: Boolean
 
   /** Sets whether vertex transformation is enabled. */
   def setVertexTransformationEnabled(enabled: Boolean): Unit
@@ -90,7 +90,7 @@ trait MeshPartBuilder {
   def ensureCapacity(numVertices: Int, numIndices: Int): Unit
 
   /** Increases the size of the backing indices array to accommodate the specified number of additional triangles. Useful before adding many triangles using {@link #triangle(short, short, short)} to
-    * avoid multiple backing array resizes. The actual number of indices accounted for depends on the primitive type (see {@link #getPrimitiveType()}).
+    * avoid multiple backing array resizes. The actual number of indices accounted for depends on the primitive type (see {@link #primitiveType}).
     * @param numTriangles
     *   The number of triangles you are about to add
     */

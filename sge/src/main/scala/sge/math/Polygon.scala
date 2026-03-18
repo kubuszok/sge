@@ -6,14 +6,18 @@
  *
  * Migration notes:
  *   Idiom: split packages
+ *   Renames: getVertices -> vertices, getTransformedVertices -> transformedVertices,
+ *     getVertexCount -> vertexCount, getVertex -> vertex, getCentroid -> centroid,
+ *     getBoundingRectangle -> boundingRectangle, getX/Y -> x/y, getOriginX/Y -> originX/Y,
+ *     getRotation -> rotation, getScaleX/Y -> scaleX/Y (all via _ backing fields)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * AUDIT: PASS — All methods ported: getVertices, getTransformedVertices, setOrigin,
+ * AUDIT: PASS — All methods ported: vertices, transformedVertices, setOrigin,
  * setPosition, setVertices, setVertex, translate, setRotation, rotate, setScale, scale,
- * dirty, area, getVertexCount, getVertex, getCentroid, getBoundingRectangle, contains(2),
- * getX/Y, getOriginX/Y, getRotation, getScaleX/Y, resetTransformations.
+ * dirty, area, vertexCount, vertex, centroid, boundingRectangle, contains(2),
+ * x/y, originX/Y, rotation, scaleX/Y, resetTransformations.
  */
 package sge
 package math
@@ -24,15 +28,15 @@ import sge.utils.Nullable
 class Polygon() extends Shape2D {
   private var localVertices: Array[Float] = Array.empty[Float]
   private var worldVertices: Array[Float] = scala.compiletime.uninitialized
-  private var x:             Float        = 0f
-  private var y:             Float        = 0f
-  private var originX:       Float        = 0f
-  private var originY:       Float        = 0f
-  private var rotation:      Float        = 0f
-  private var scaleX:        Float        = 1f
-  private var scaleY:        Float        = 1f
+  private var _x:            Float        = 0f
+  private var _y:            Float        = 0f
+  private var _originX:      Float        = 0f
+  private var _originY:      Float        = 0f
+  private var _rotation:     Float        = 0f
+  private var _scaleX:       Float        = 1f
+  private var _scaleY:       Float        = 1f
   private var isDirty:       Boolean      = true
-  private var bounds:        Rectangle    = scala.compiletime.uninitialized
+  private var _bounds:       Rectangle    = scala.compiletime.uninitialized
 
   /** Constructs a new polygon from a float array of parts of vertex points.
     *
@@ -49,14 +53,14 @@ class Polygon() extends Shape2D {
   }
 
   /** Returns the polygon's local vertices without scaling or rotation and without being offset by the polygon position. */
-  def getVertices: Array[Float] = localVertices
+  def vertices: Array[Float] = localVertices
 
   /** Calculates and returns the vertices of the polygon after scaling, rotation, and positional translations have been applied, as they are position within the world.
     *
     * @return
     *   vertices scaled, rotated, and offset by the polygon position.
     */
-  def getTransformedVertices: Array[Float] =
+  def transformedVertices: Array[Float] =
     if (!isDirty) worldVertices
     else {
       isDirty = false
@@ -64,14 +68,14 @@ class Polygon() extends Shape2D {
       val localVertices = this.localVertices
       if (Nullable(worldVertices).forall(_.length != localVertices.length))
         worldVertices = Array.ofDim[Float](localVertices.length)
-      val positionX = x
-      val positionY = y
-      val originX   = this.originX
-      val originY   = this.originY
-      val scaleX    = this.scaleX
-      val scaleY    = this.scaleY
+      val positionX = _x
+      val positionY = _y
+      val originX   = this._originX
+      val originY   = this._originY
+      val scaleX    = this._scaleX
+      val scaleY    = this._scaleY
       val scale     = scaleX != 1 || scaleY != 1
-      val rotation  = this.rotation
+      val rotation  = this._rotation
       val cos       = MathUtils.cosDeg(rotation)
       val sin       = MathUtils.sinDeg(rotation)
 
@@ -103,15 +107,15 @@ class Polygon() extends Shape2D {
 
   /** Sets the origin point to which all of the polygon's local vertices are relative to. */
   def setOrigin(originX: Float, originY: Float): Unit = {
-    this.originX = originX
-    this.originY = originY
+    this._originX = originX
+    this._originY = originY
     isDirty = true
   }
 
   /** Sets the polygon's position within the world. */
   def setPosition(x: Float, y: Float): Unit = {
-    this.x = x
-    this.y = y
+    this._x = x
+    this._y = y
     isDirty = true
   }
 
@@ -144,62 +148,62 @@ class Polygon() extends Shape2D {
 
   /** Translates the polygon's position by the specified horizontal and vertical amounts. */
   def translate(x: Float, y: Float): Unit = {
-    this.x += x
-    this.y += y
+    this._x += x
+    this._y += y
     isDirty = true
   }
 
   /** Sets the polygon to be rotated by the supplied degrees. */
   def setRotation(degrees: Float): Unit = {
-    this.rotation = degrees
+    this._rotation = degrees
     isDirty = true
   }
 
   /** Applies additional rotation to the polygon by the supplied degrees. */
   def rotate(degrees: Float): Unit = {
-    rotation += degrees
+    _rotation += degrees
     isDirty = true
   }
 
   /** Sets the amount of scaling to be applied to the polygon. */
   def setScale(scaleX: Float, scaleY: Float): Unit = {
-    this.scaleX = scaleX
-    this.scaleY = scaleY
+    this._scaleX = scaleX
+    this._scaleY = scaleY
     isDirty = true
   }
 
   /** Applies additional scaling to the polygon by the supplied amount. */
   def scale(amount: Float): Unit = {
-    this.scaleX += amount
-    this.scaleY += amount
+    this._scaleX += amount
+    this._scaleY += amount
     isDirty = true
   }
 
-  /** Sets the polygon's world vertices to be recalculated when calling {@link #getTransformedVertices() getTransformedVertices} .
+  /** Sets the polygon's world vertices to be recalculated when calling {@link #transformedVertices transformedVertices} .
     */
   def dirty(): Unit =
     isDirty = true
 
   /** Returns the area contained within the polygon. */
   def area(): Float = {
-    val vertices = getTransformedVertices
-    GeometryUtils.polygonArea(vertices, 0, vertices.length)
+    val verts = transformedVertices
+    GeometryUtils.polygonArea(verts, 0, verts.length)
   }
 
-  def getVertexCount: Int =
+  def vertexCount: Int =
     this.localVertices.length / 2
 
   /** @return Position(transformed) of vertex */
-  def getVertex(vertexNum: Int, pos: Vector2): Vector2 = {
-    if (vertexNum < 0 || vertexNum > getVertexCount)
+  def vertex(vertexNum: Int, pos: Vector2): Vector2 = {
+    if (vertexNum < 0 || vertexNum > vertexCount)
       throw new IllegalArgumentException("the vertex " + vertexNum + " doesn't exist")
-    val vertices = this.getTransformedVertices
-    pos.set(vertices(2 * vertexNum), vertices(2 * vertexNum + 1))
+    val verts = this.transformedVertices
+    pos.set(verts(2 * vertexNum), verts(2 * vertexNum + 1))
   }
 
-  def getCentroid(centroid: Vector2): Vector2 = {
-    val vertices = getTransformedVertices
-    GeometryUtils.polygonCentroid(vertices, 0, vertices.length, centroid)
+  def centroid(centroid: Vector2): Vector2 = {
+    val verts = transformedVertices
+    GeometryUtils.polygonCentroid(verts, 0, verts.length, centroid)
   }
 
   /** Returns an axis-aligned bounding box of this polygon.
@@ -209,45 +213,45 @@ class Polygon() extends Shape2D {
     * @return
     *   this polygon's bounding box {@link Rectangle}
     */
-  def getBoundingRectangle: Rectangle = {
-    val vertices = getTransformedVertices
+  def boundingRectangle: Rectangle = {
+    val verts = transformedVertices
 
-    var minX = vertices(0)
-    var minY = vertices(1)
-    var maxX = vertices(0)
-    var maxY = vertices(1)
+    var minX = verts(0)
+    var minY = verts(1)
+    var maxX = verts(0)
+    var maxY = verts(1)
 
-    val numFloats = vertices.length
+    val numFloats = verts.length
     var i         = 2
     while (i < numFloats) {
-      minX = if (minX > vertices(i)) vertices(i) else minX
-      minY = if (minY > vertices(i + 1)) vertices(i + 1) else minY
-      maxX = if (maxX < vertices(i)) vertices(i) else maxX
-      maxY = if (maxY < vertices(i + 1)) vertices(i + 1) else maxY
+      minX = if (minX > verts(i)) verts(i) else minX
+      minY = if (minY > verts(i + 1)) verts(i + 1) else minY
+      maxX = if (maxX < verts(i)) verts(i) else maxX
+      maxY = if (maxY < verts(i + 1)) verts(i + 1) else maxY
       i += 2
     }
 
-    if (Nullable(bounds).isEmpty) bounds = Rectangle()
-    bounds.x = minX
-    bounds.y = minY
-    bounds.width = maxX - minX
-    bounds.height = maxY - minY
+    if (Nullable(_bounds).isEmpty) _bounds = Rectangle()
+    _bounds.x = minX
+    _bounds.y = minY
+    _bounds.width = maxX - minX
+    _bounds.height = maxY - minY
 
-    bounds
+    _bounds
   }
 
   /** Returns whether an x, y pair is contained within the polygon. */
   override def contains(x: Float, y: Float): Boolean = {
-    val vertices   = getTransformedVertices
-    val numFloats  = vertices.length
+    val verts      = transformedVertices
+    val numFloats  = verts.length
     var intersects = 0
 
     var i = 0
     while (i < numFloats) {
-      val x1 = vertices(i)
-      val y1 = vertices(i + 1)
-      val x2 = vertices((i + 2) % numFloats)
-      val y2 = vertices((i + 3) % numFloats)
+      val x1 = verts(i)
+      val y1 = verts(i + 1)
+      val x2 = verts((i + 2) % numFloats)
+      val y2 = verts((i + 3) % numFloats)
       if (((y1 <= y && y < y2) || (y2 <= y && y < y1)) && x < ((x2 - x1) / (y2 - y1) * (y - y1) + x1))
         intersects += 1
       i += 2
@@ -259,34 +263,34 @@ class Polygon() extends Shape2D {
     contains(point.x, point.y)
 
   /** Returns the x-coordinate of the polygon's position within the world. */
-  def getX: Float = x
+  def x: Float = _x
 
   /** Returns the y-coordinate of the polygon's position within the world. */
-  def getY: Float = y
+  def y: Float = _y
 
   /** Returns the x-coordinate of the polygon's origin point. */
-  def getOriginX: Float = originX
+  def originX: Float = _originX
 
   /** Returns the y-coordinate of the polygon's origin point. */
-  def getOriginY: Float = originY
+  def originY: Float = _originY
 
   /** Returns the total rotation applied to the polygon. */
-  def getRotation: Float = rotation
+  def rotation: Float = _rotation
 
   /** Returns the total horizontal scaling applied to the polygon. */
-  def getScaleX: Float = scaleX
+  def scaleX: Float = _scaleX
 
   /** Returns the total vertical scaling applied to the polygon. */
-  def getScaleY: Float = scaleY
+  def scaleY: Float = _scaleY
 
   def resetTransformations(): Unit = {
-    scaleX = 1
-    scaleY = 1
-    originX = 0
-    originY = 0
-    x = 0
-    y = 0
-    rotation = 0
+    _scaleX = 1
+    _scaleY = 1
+    _originX = 0
+    _originY = 0
+    _x = 0
+    _y = 0
+    _rotation = 0
     isDirty = true
   }
 }

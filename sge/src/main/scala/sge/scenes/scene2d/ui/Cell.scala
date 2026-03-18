@@ -53,7 +53,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
   var actorWidth:  Float           = 0f
   var actorHeight: Float           = 0f
 
-  private var table:     Nullable[Table] = Nullable.empty
+  private var _table:    Nullable[Table] = Nullable.empty
   var endRow:            Boolean         = false
   var column:            Int             = 0
   var _row:              Int             = 0
@@ -69,14 +69,14 @@ class Cell[T <: Actor] extends Pool.Poolable {
   }
 
   def setTable(table: Table): Unit =
-    this.table = Nullable(table)
+    this._table = Nullable(table)
 
   /** Sets the actor in this cell and adds the actor to the cell's table. If null, removes any current actor. */
   def setActor[A <: Actor](newActor: Nullable[A]): Cell[A] = {
     if (actor != newActor) {
       actor.foreach { a =>
         table.foreach { t =>
-          if (a.getParent.exists(_ eq t)) a.remove()
+          if (a.parent.exists(_ eq t)) a.remove()
         }
       }
       actor = newActor.asInstanceOf[Nullable[Actor]]
@@ -655,97 +655,43 @@ class Cell[T <: Actor] extends Pool.Poolable {
     actorHeight = height
   }
 
-  def getActorX: Float = actorX
-
   def setActorX(actorX: Float): Unit =
     this.actorX = actorX
-
-  def getActorY: Float = actorY
 
   def setActorY(actorY: Float): Unit =
     this.actorY = actorY
 
-  def getActorWidth: Float = actorWidth
-
   def setActorWidth(actorWidth: Float): Unit =
     this.actorWidth = actorWidth
-
-  def getActorHeight: Float = actorHeight
 
   def setActorHeight(actorHeight: Float): Unit =
     this.actorHeight = actorHeight
 
-  def getColumn: Int = column
-
-  def getRow: Int = _row
-
-  /** @return May be null if this cell is row defaults. */
-  def getMinWidthValue: Nullable[Value] = minWidth
-
   def getMinWidth: Float = minWidth.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this cell is row defaults. */
-  def getMinHeightValue: Nullable[Value] = minHeight
 
   def getMinHeight: Float = minHeight.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this cell is row defaults. */
-  def getPrefWidthValue: Nullable[Value] = prefWidth
-
   def getPrefWidth: Float = prefWidth.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this cell is row defaults. */
-  def getPrefHeightValue: Nullable[Value] = prefHeight
 
   def getPrefHeight: Float = prefHeight.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this cell is row defaults. */
-  def getMaxWidthValue: Nullable[Value] = maxWidth
-
   def getMaxWidth: Float = maxWidth.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this cell is row defaults. */
-  def getMaxHeightValue: Nullable[Value] = maxHeight
 
   def getMaxHeight: Float = maxHeight.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this value is not set. */
-  def getSpaceTopValue: Nullable[Value] = spaceTop
-
   def getSpaceTop: Float = spaceTop.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this value is not set. */
-  def getSpaceLeftValue: Nullable[Value] = spaceLeft
 
   def getSpaceLeft: Float = spaceLeft.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this value is not set. */
-  def getSpaceBottomValue: Nullable[Value] = spaceBottom
-
   def getSpaceBottom: Float = spaceBottom.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this value is not set. */
-  def getSpaceRightValue: Nullable[Value] = spaceRight
 
   def getSpaceRight: Float = spaceRight.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this value is not set. */
-  def getPadTopValue: Nullable[Value] = padTop
-
   def getPadTop: Float = padTop.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this value is not set. */
-  def getPadLeftValue: Nullable[Value] = padLeft
 
   def getPadLeft: Float = padLeft.map(_.get(actor)).getOrElse(0f)
 
-  /** @return May be null if this value is not set. */
-  def getPadBottomValue: Nullable[Value] = padBottom
-
   def getPadBottom: Float = padBottom.map(_.get(actor)).getOrElse(0f)
-
-  /** @return May be null if this value is not set. */
-  def getPadRightValue: Nullable[Value] = padRight
 
   def getPadRight: Float = padRight.map(_.get(actor)).getOrElse(0f)
 
@@ -755,41 +701,10 @@ class Cell[T <: Actor] extends Pool.Poolable {
   /** Returns {@link #getPadTop()} plus {@link #getPadBottom()}. */
   def getPadY: Float = padTop.map(_.get(actor)).getOrElse(0f) + padBottom.map(_.get(actor)).getOrElse(0f)
 
-  def getFillX: Nullable[Float] = _fillX
-
-  def getFillY: Nullable[Float] = _fillY
-
-  def getAlign: Nullable[Align] = align
-
-  def getExpandX: Nullable[Int] = _expandX
-
-  def getExpandY: Nullable[Int] = _expandY
-
-  def getColspan: Nullable[Int] = colspan
-
-  def getUniformX: Nullable[Boolean] = _uniformX
-
-  def getUniformY: Nullable[Boolean] = _uniformY
-
-  /** Returns true if this cell is the last cell in the row. */
-  def isEndRow: Boolean = endRow
-
-  /** The actual amount of combined padding and spacing from the last layout. */
-  def getComputedPadTop: Float = computedPadTop
-
-  /** The actual amount of combined padding and spacing from the last layout. */
-  def getComputedPadLeft: Float = computedPadLeft
-
-  /** The actual amount of combined padding and spacing from the last layout. */
-  def getComputedPadBottom: Float = computedPadBottom
-
-  /** The actual amount of combined padding and spacing from the last layout. */
-  def getComputedPadRight: Float = computedPadRight
-
   def row(): Unit =
-    table.foreach(_.row())
+    _table.foreach(_.row())
 
-  def getTable: Nullable[Table] = table
+  def table: Nullable[Table] = _table
 
   /** Sets all constraint fields to null. */
   private[ui] def clear(): Unit = {
@@ -820,7 +735,7 @@ class Cell[T <: Actor] extends Pool.Poolable {
   /** Reset state so the cell can be reused, setting all constraints to their {@link #defaults() default} values. */
   def reset(): Unit = {
     actor = Nullable.empty
-    table = Nullable.empty
+    _table = Nullable.empty
     endRow = false
     cellAboveIndex = -1
     Cell.defaults().foreach(set)

@@ -48,14 +48,14 @@ trait Files {
 
   /** Returns the external storage path directory. This is the app external storage on Android and the home directory of the current user on the desktop.
     */
-  def getExternalStoragePath: String
+  def externalStoragePath: String
 
   /** Returns true if the external storage is ready for file IO. */
   def isExternalStorageAvailable: Boolean
 
   /** Returns the local storage path directory. This is the private files directory on Android and the directory of the jar on the desktop.
     */
-  def getLocalStoragePath: String
+  def localStoragePath: String
 
   /** Returns true if the local storage is ready for file IO. */
   def isLocalStorageAvailable: Boolean

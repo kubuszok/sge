@@ -134,12 +134,12 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     // update hierarchical parallax scrolling factors
     // in Tiled the final parallax scrolling factor of a layer is the multiplication of its factor with all its parents
     // 1) get top level groups
-    val groups = map.layers.getByType[MapGroupLayer]
+    val groups = map.layers.byType[MapGroupLayer]
     while (groups.nonEmpty) {
       val group = groups.first
       groups.removeIndex(0)
 
-      for (child <- group.getLayers) {
+      for (child <- group.layers) {
         child.parallaxX = child.parallaxX * group.parallaxX
         child.parallaxY = child.parallaxY * group.parallaxY
         child match {
@@ -185,10 +185,10 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       loadProperties(groupLayer.properties, element.properties)
 
       for (child <- element.layers)
-        loadLayer(map, groupLayer.getLayers, child, tmjFile, imageResolver)
+        loadLayer(map, groupLayer.layers, child, tmjFile, imageResolver)
 
-      for (layer <- groupLayer.getLayers)
-        layer.setParent(Nullable(groupLayer))
+      for (layer <- groupLayer.layers)
+        layer.parent = Nullable(groupLayer)
 
       parentLayers.add(groupLayer)
     }
@@ -204,7 +204,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       loadBasicLayerInfo(layer, element)
 
       val ids      = BaseTmjMapLoader.getTileIds(element)
-      val tileSets = map.getTileSets
+      val tileSets = map.tileSets
       var y        = 0
       while (y < height) {
         var x = 0
@@ -270,7 +270,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
 
       if (imageSrc.nonEmpty) {
         val handle = BaseTiledMapLoader.getRelativeFileHandle(tmjFile, imageSrc)
-        texture = imageResolver.getImage(handle.path())
+        texture = imageResolver.getImage(handle.path)
         texture.foreach(t => y -= t.regionHeight)
       }
 
@@ -296,22 +296,22 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
     val parallaxY = element.parallaxy
 
     layer.name = name
-    layer.setOpacity(opacity)
+    layer.opacity = opacity
     layer.visible = visible
-    layer.setOffsetX(offsetX)
-    layer.setOffsetY(offsetY)
+    layer.offsetX = offsetX
+    layer.offsetY = offsetY
     layer.parallaxX = parallaxX
     layer.parallaxY = parallaxY
 
     // set layer tint color after converting from #AARRGGBB to #RRGGBBAA
-    layer.setTintColor(Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(tintColor)))
+    layer.tintColor = Color.valueOf(BaseTiledMapLoader.tiledColorToLibGDXColor(tintColor))
   }
 
   protected def loadObject(map: TiledMap, layer: MapLayer, element: TmjObjectJson): Unit =
     loadObject(map, layer.objects, element, mapHeightInPixels.toFloat)
 
   protected def loadObject(map: TiledMap, tile: TiledMapTile, element: TmjObjectJson): Unit =
-    loadObject(map, tile.getObjects, element, tile.getTextureRegion.regionHeight.toFloat)
+    loadObject(map, tile.objects, element, tile.textureRegion.regionHeight.toFloat)
 
   protected def loadObject(map: TiledMap, objects: MapObjects, element: TmjObjectJson, heightInPixels: Float): Unit = {
 
@@ -388,7 +388,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
         val flipHorizontally = (id & BaseTiledMapLoader.FLAG_FLIP_HORIZONTALLY) != 0
         val flipVertically   = (id & BaseTiledMapLoader.FLAG_FLIP_VERTICALLY) != 0
 
-        val tile = map.getTileSets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
+        val tile = map.tileSets.getTile(id & ~BaseTiledMapLoader.MASK_CLEAR)
         tile.foreach { t =>
           val tiledMapTileMapObject = TiledMapTileMapObject(t, flipHorizontally, flipVertically)
           val texRegion             = tiledMapTileMapObject.textureRegion.getOrElse(throw new IllegalStateException("tile missing texture region"))
@@ -655,9 +655,9 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       }
       // replace original static tiles by animated tiles
       for (animatedTile <- animatedTiles)
-        tileSet.putTile(animatedTile.getId, animatedTile)
+        tileSet.putTile(animatedTile.id, animatedTile)
 
-      map.getTileSets.addTileSet(tileSet)
+      map.tileSets.addTileSet(tileSet)
     }
   }
 
@@ -682,7 +682,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
   ): Unit
 
   private def addTileProperties(tile: TiledMapTile, tileElement: TmjTileJson): Unit = {
-    val tileProperties = tile.getProperties
+    val tileProperties = tile.properties
     tileElement.terrain.foreach(t => tileProperties.put("terrain", t))
     tileElement.probability.foreach(p => tileProperties.put("probability", p))
     tileElement.tpe.foreach(t => tileProperties.put("type", t))
@@ -720,7 +720,7 @@ abstract class BaseTmjMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: Fi
       }
 
       val animatedTile = AnimatedTiledMapTile(intervals.toArray, staticTiles)
-      animatedTile.setId(tile.getId)
+      animatedTile.id = tile.id
       Nullable(animatedTile)
     } else Nullable.empty
 }
@@ -757,7 +757,7 @@ object BaseTmjMapLoader {
           case Some(Json.Str(s)) => s
           case _                 => throw new IllegalStateException("missing tile data")
         }
-        val bytes = java.util.Base64.getDecoder.decode(dataStr)
+        val bytes = java.util.Base64.getDecoder().decode(dataStr)
         if (comp.isEmpty)
           is = new ByteArrayInputStream(bytes)
         else if (comp == "gzip")

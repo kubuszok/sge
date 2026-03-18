@@ -24,21 +24,23 @@ import sge.utils.Nullable
 
 class PixmapTextureData private (format: Format, pixmap: Pixmap, val useMipMaps: Boolean, val disposePixmap: Boolean, val isManaged: Boolean) extends TextureData {
 
-  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) =
-    this(format.getOrElse(pixmap.getFormat()), pixmap, useMipMaps, disposePixmap, isManaged)
+  def this(pixmap: Pixmap, format: Nullable[Format], useMipMaps: Boolean, disposePixmap: Boolean, isManaged: Boolean) = {
+    this(format.getOrElse(pixmap.format), pixmap, useMipMaps, disposePixmap, isManaged)
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean, disposePixmap: Boolean) = {
     this(format, pixmap, useMipMaps, disposePixmap, isManaged = false)
+  }
 
   override def consumePixmap(): Pixmap = pixmap
 
-  override def getWidth: Int = pixmap.getWidth().toInt
+  override def width: Int = pixmap.width.toInt
 
-  override def getHeight: Int = pixmap.getHeight().toInt
+  override def height: Int = pixmap.height.toInt
 
   override def getFormat: Format = format
 
-  override def getType(): TextureDataType = TextureDataType.Pixmap
+  override def dataType: TextureDataType = TextureDataType.Pixmap
 
   override def consumeCustomData(target: TextureTarget): Unit =
     throw SgeError.GraphicsError("This TextureData implementation does not upload data itself")

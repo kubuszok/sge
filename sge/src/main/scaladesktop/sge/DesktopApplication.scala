@@ -31,8 +31,8 @@ import scala.collection.mutable.ArrayBuffer
   *
   * The constructor blocks until the application exits. All windowing calls go through [[WindowingOps]], which is implemented via Panama (JVM) or @extern (Native).
   *
-  * @param listener
-  *   the application logic callbacks
+  * @param listenerFactory
+  *   a context function that creates the application listener when given an [[Sge]] context
   * @param config
   *   the application configuration (copied internally)
   * @param windowing
@@ -47,7 +47,7 @@ import scala.collection.mutable.ArrayBuffer
   *   See AUTHORS file (original implementation)
   */
 class DesktopApplication(
-  listener:                    ApplicationListener,
+  listenerFactory:             Sge ?=> ApplicationListener,
   config:                      DesktopApplicationConfig,
   private val windowing:       WindowingOps,
   private val audioOps:        sge.platform.AudioOps,
@@ -97,8 +97,6 @@ class DesktopApplication(
       throw SgeError.GraphicsError("Unable to initialize windowing system")
     }
 
-    if (_config.title.isEmpty) _config.title = listener.getClass.getSimpleName
-
     // Audio
     if (!_config.disableAudio) {
       try
@@ -112,17 +110,17 @@ class DesktopApplication(
       _audio = NoopDesktopAudio()
     }
 
-    // Create main window
-    val mainWindow = createWindowInternal(_config, listener, 0L)
+    // Create main window (listener is materialized later in initializeListener when Sge is ready)
+    val mainWindow = createWindowInternal(_config, listenerFactory, 0L)
     windows += mainWindow
 
     // Build Sge context
     _sge = Sge(
       application = this,
-      graphics = mainWindow.getGraphics(),
+      graphics = mainWindow.graphics,
       audio = _audio,
       files = _files,
-      input = mainWindow.getInput(),
+      input = mainWindow.input,
       net = _net
     )
 
@@ -189,7 +187,7 @@ class DesktopApplication(
         // in the following render.
         i = 0
         while (i < windows.size) {
-          if (!windows(i).getGraphics().isContinuousRendering()) {
+          if (!windows(i).graphics.continuousRendering) {
             windows(i).requestRendering()
           }
           i += 1
@@ -248,19 +246,18 @@ class DesktopApplication(
 
   /** Creates a new window with a separate listener. The actual window creation is deferred to after the current frame.
     */
-  def newWindow(listener: ApplicationListener, windowConfig: DesktopWindowConfig): DesktopWindow = {
+  def newWindow(listenerFactory: Sge ?=> ApplicationListener, windowConfig: DesktopWindowConfig): DesktopWindow = {
     val appConfig = DesktopApplicationConfig.copy(_config)
     appConfig.setWindowConfiguration(windowConfig)
-    if (appConfig.title.isEmpty) appConfig.title = listener.getClass.getSimpleName
-    createWindowInternal(appConfig, listener, windows.head.getWindowHandle())
+    createWindowInternal(appConfig, listenerFactory, windows.head.windowHandle)
   }
 
   private def createWindowInternal(
-    config:        DesktopApplicationConfig,
-    listener:      ApplicationListener,
-    sharedContext: Long
+    config:          DesktopApplicationConfig,
+    listenerFactory: Sge ?=> ApplicationListener,
+    sharedContext:   Long
   ): DesktopWindow = {
-    val win = DesktopWindow(listener, _lifecycleListeners, config, this, windowing, glOps)
+    val win = DesktopWindow(listenerFactory, _lifecycleListeners, config, this, windowing, glOps)
     if (sharedContext == 0L) {
       // the main window is created immediately
       setupWindow(win, config, sharedContext)
@@ -296,7 +293,7 @@ class DesktopApplication(
 
     // Initialize GL bindings (ANGLE on JVM, @extern on Native)
     val gl32 = glFactory()
-    window.getGraphics().initGL(gl32, Nullable(gl32), Nullable(gl32), Nullable(gl32))
+    window.graphics.initGL(gl32, Nullable(gl32), Nullable(gl32), Nullable(gl32))
 
     // Apply window icon from config if set
     config.windowIconPaths.foreach { paths =>
@@ -315,8 +312,8 @@ class DesktopApplication(
     var i = 0
     while (i < 2) {
       val c = config.initialBackgroundColor
-      window.getGraphics().getGL20().glClearColor(c.r, c.g, c.b, c.a)
-      window.getGraphics().getGL20().glClear(ClearMask.ColorBufferBit)
+      window.graphics.gl20.glClearColor(c.r, c.g, c.b, c.a)
+      window.graphics.gl20.glClear(ClearMask.ColorBufferBit)
       glOps.swapEglBuffers(eglCtx)
       i += 1
     }
@@ -366,9 +363,9 @@ class DesktopApplication(
         }
         val monitorHandle =
           if (config.windowMaximized) {
-            config.maximizedMonitor.fold(windowing.getPrimaryMonitor())(_.monitorHandle)
+            config.maximizedMonitor.fold(windowing.primaryMonitor)(_.monitorHandle)
           } else {
-            windowing.getPrimaryMonitor()
+            windowing.primaryMonitor
           }
         // getPrimaryMonitor() can return 0 (NULL) if no monitors are detected or
         // GLFW hasn't fully initialized — guard to avoid native assertion crash.
@@ -395,31 +392,31 @@ class DesktopApplication(
 
   // ─── Application trait ──────────────────────────────────────────────
 
-  override def getApplicationListener(): ApplicationListener =
-    _currentWindow.fold(listener)(_.listener)
+  override def applicationListener: ApplicationListener =
+    _currentWindow.fold(windows.head.listener)(_.listener)
 
   @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
-  override def getGraphics(): Graphics =
-    _currentWindow.map(_.getGraphics()).orNull
+  override def graphics: Graphics =
+    _currentWindow.map(_.graphics).orNull
 
-  override def getAudio(): Audio = _audio
+  override def audio: Audio = _audio
 
   @scala.annotation.nowarn("msg=deprecated") // orNull — returns null when no window is current (Application trait requires non-Nullable return)
-  override def getInput(): Input =
-    _currentWindow.map(_.getInput()).orNull
+  override def input: Input =
+    _currentWindow.map(_.input).orNull
 
-  override def getFiles(): Files = _files
+  override def files: Files = _files
 
-  override def getNet(): Net = _net
+  override def net: Net = _net
 
-  override def getType(): Application.ApplicationType = Application.ApplicationType.Desktop
+  override def applicationType: Application.ApplicationType = Application.ApplicationType.Desktop
 
-  override def getVersion(): Int = 0
+  override def version: Int = 0
 
-  override def getJavaHeap(): Long =
-    Runtime.getRuntime.totalMemory() - Runtime.getRuntime.freeMemory()
+  override def javaHeap: Long =
+    Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 
-  override def getNativeHeap(): Long = getJavaHeap()
+  override def nativeHeap: Long = javaHeap
 
   override def getPreferences(name: String): Preferences =
     _preferences.getOrElseUpdate(
@@ -431,7 +428,7 @@ class DesktopApplication(
       }
     )
 
-  override def getClipboard(): Clipboard = _clipboard
+  override def clipboard: Clipboard = _clipboard
 
   override def postRunnable(runnable: Runnable): Unit = _runnables.synchronized {
     _runnables += runnable

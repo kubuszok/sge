@@ -67,9 +67,8 @@ class TexturePacker(rootDir: File, val settings: TexturePacker.Settings) {
     setRootDir(rootDir)
   }
 
-  def this(settings: TexturePacker.Settings) = {
+  def this(settings: TexturePacker.Settings) =
     this(null, settings) // @nowarn("msg=deprecated") null at Java boundary for optional rootDir
-  }
 
   protected def newImageProcessor(settings: Settings): ImageProcessor =
     ImageProcessor(settings)

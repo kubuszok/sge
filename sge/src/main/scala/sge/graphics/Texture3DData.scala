@@ -25,29 +25,29 @@ package graphics
 trait Texture3DData {
 
   /** @return whether the TextureData is prepared or not. */
-  def isPrepared(): Boolean
+  def isPrepared: Boolean
 
   /** Prepares the TextureData for a call to {@link #consume3DData()} . This method can be called from a non OpenGL thread and should thus not interact with OpenGL.
     */
   def prepare(): Unit
 
   /** @return the width of this Texture3D */
-  def getWidth(): Int
+  def width: Int
 
   /** @return the height of this Texture3D */
-  def getHeight(): Int
+  def height: Int
 
   /** @return the depth of this Texture3D */
-  def getDepth(): Int
+  def depth: Int
 
   /** @return the internal format of this Texture3D */
-  def getInternalFormat(): Int
+  def internalFormat: Int
 
   /** @return the GL type of this Texture3D */
-  def getGLType(): Int
+  def glType: Int
 
   /** @return whether to generate mipmaps or not. */
-  def useMipMaps(): Boolean
+  def useMipMaps: Boolean
 
   /** Uploads the pixel data to the OpenGL ES texture. The caller must bind an OpenGL ES texture. A call to {@link #prepare()} must preceed a call to this method. Any internal data structures created
     * in {@link #prepare()} should be disposed of here.
@@ -55,5 +55,5 @@ trait Texture3DData {
   def consume3DData(): Unit
 
   /** @return whether this implementation can cope with a EGL context loss. */
-  def isManaged(): Boolean
+  def isManaged: Boolean
 }

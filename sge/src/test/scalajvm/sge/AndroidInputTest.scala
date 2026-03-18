@@ -143,30 +143,30 @@ class AndroidInputTest extends FunSuite {
 
   test("accelerometer values delegate to SensorOps") {
     val (input, sensors, _, _) = createInput()
-    assertEqualsFloat(input.getAccelerometerX(), 1.5f, 0.001f)
-    assertEqualsFloat(input.getAccelerometerY(), 2.5f, 0.001f)
-    assertEqualsFloat(input.getAccelerometerZ(), 9.8f, 0.001f)
+    assertEqualsFloat(input.accelerometerX, 1.5f, 0.001f)
+    assertEqualsFloat(input.accelerometerY, 2.5f, 0.001f)
+    assertEqualsFloat(input.accelerometerZ, 9.8f, 0.001f)
     sensors.accX = 3.0f
-    assertEqualsFloat(input.getAccelerometerX(), 3.0f, 0.001f)
+    assertEqualsFloat(input.accelerometerX, 3.0f, 0.001f)
   }
 
   test("gyroscope values delegate to SensorOps") {
     val (input, _, _, _) = createInput()
-    assertEqualsFloat(input.getGyroscopeX(), 0.1f, 0.001f)
-    assertEqualsFloat(input.getGyroscopeY(), 0.2f, 0.001f)
-    assertEqualsFloat(input.getGyroscopeZ(), 0.3f, 0.001f)
+    assertEqualsFloat(input.gyroscopeX, 0.1f, 0.001f)
+    assertEqualsFloat(input.gyroscopeY, 0.2f, 0.001f)
+    assertEqualsFloat(input.gyroscopeZ, 0.3f, 0.001f)
   }
 
   test("compass values delegate to SensorOps") {
     val (input, _, _, _) = createInput()
-    assertEqualsFloat(input.getAzimuth(), 45f, 0.001f)
-    assertEqualsFloat(input.getPitch(), 10f, 0.001f)
-    assertEqualsFloat(input.getRoll(), 5f, 0.001f)
+    assertEqualsFloat(input.azimuth, 45f, 0.001f)
+    assertEqualsFloat(input.pitch, 10f, 0.001f)
+    assertEqualsFloat(input.roll, 5f, 0.001f)
   }
 
   test("native orientation returns portrait when SensorOps says 1") {
     val (input, _, _, _) = createInput()
-    assertEquals(input.getNativeOrientation(), Orientation.Portrait)
+    assertEquals(input.nativeOrientation, Orientation.Portrait)
   }
 
   // ── Key state ──────────────────────────────────────────────────────
@@ -250,9 +250,9 @@ class AndroidInputTest extends FunSuite {
   test("openTextInputField delegates to InputMethodOps") {
     val (input, _, inputMethod, _) = createInput()
     val wrapper                    = new sge.input.TextInputWrapper {
-      override def getText():                                                          String = "hello"
-      override def getSelectionStart():                                                Int    = 0
-      override def getSelectionEnd():                                                  Int    = 5
+      override def text:                                                               String = "hello"
+      override def selectionStart:                                                     Int    = 0
+      override def selectionEnd:                                                       Int    = 5
       override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit   = ()
     }
     val config = sge.input.NativeInputConfiguration().setTextInputWrapper(wrapper).setPlaceholder("Type here").setMaxLength(Some(100))
@@ -260,24 +260,24 @@ class AndroidInputTest extends FunSuite {
     input.openTextInputField(config)
     assert(inputMethod.nativeFieldOpen)
     assertEquals(inputMethod.lastNativeText, "hello")
-    assert(input.isTextInputFieldOpened())
+    assert(input.textInputFieldOpened)
   }
 
   test("closeTextInputField delegates to InputMethodOps") {
     val (input, _, _, _) = createInput()
     val wrapper          = new sge.input.TextInputWrapper {
-      override def getText():                                                          String = "test"
-      override def getSelectionStart():                                                Int    = 0
-      override def getSelectionEnd():                                                  Int    = 4
+      override def text:                                                               String = "test"
+      override def selectionStart:                                                     Int    = 0
+      override def selectionEnd:                                                       Int    = 4
       override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit   = ()
     }
     val config = sge.input.NativeInputConfiguration().setTextInputWrapper(wrapper)
 
     input.openTextInputField(config)
-    assert(input.isTextInputFieldOpened())
+    assert(input.textInputFieldOpened)
 
     input.closeTextInputField(true)
-    assert(!input.isTextInputFieldOpened())
+    assert(!input.textInputFieldOpened)
   }
 
   // ── Haptics ────────────────────────────────────────────────────────
@@ -407,7 +407,7 @@ class AndroidInputTest extends FunSuite {
   test("cursor methods are no-ops") {
     val (input, _, _, _) = createInput()
     input.setCursorCatched(true)
-    assert(!input.isCursorCatched())
+    assert(!input.cursorCatched)
     input.setCursorPosition(Pixels(0), Pixels(0))
     // no crash = pass
   }

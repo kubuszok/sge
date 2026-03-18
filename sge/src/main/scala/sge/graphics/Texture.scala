@@ -42,64 +42,73 @@ class Texture(glTarget: TextureTarget, glHandle: TextureHandle, data: TextureDat
 
   val textureData: TextureData = data
 
-  def this(internalPath: String)(using Sge) =
+  def this(internalPath: String)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(Sge().files.internal(internalPath), Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle)(using Sge) =
+  def this(file: FileHandle)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, false)
     )
+  }
 
-  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable.empty, useMipMaps)
     )
+  }
 
-  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(file: FileHandle, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       TextureData.Factory.loadFromFile(file, Nullable(format), useMipMaps)
     )
+  }
 
-  def this(pixmap: Pixmap)(using Sge) =
+  def this(pixmap: Pixmap)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, Nullable.empty, false, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, Nullable.empty, useMipMaps, false, false)
     )
+  }
 
-  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) =
+  def this(pixmap: Pixmap, format: Format, useMipMaps: Boolean)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(pixmap, format, useMipMaps, false)
     )
+  }
 
-  def this(width: Int, height: Int, format: Format)(using Sge) =
+  def this(width: Int, height: Int, format: Format)(using Sge) = {
     this(
       TextureTarget.Texture2D,
       TextureHandle(Sge().graphics.gl.glGenTexture()),
       PixmapTextureData(Pixmap(width, height, format), Nullable.empty, false, true, false)
     )
+  }
 
-  def this(data: TextureData)(using Sge) =
+  def this(data: TextureData)(using Sge) = {
     this(TextureTarget.Texture2D, TextureHandle(Sge().graphics.gl.glGenTexture()), data)
+  }
 
   load(data)
   if (data.isManaged) Texture.addManagedTexture(Sge().application, this)
@@ -148,19 +157,19 @@ class Texture(glTarget: TextureTarget, glHandle: TextureHandle, data: TextureDat
       0,
       x,
       y,
-      pixmap.getWidth(),
-      pixmap.getHeight(),
-      PixelFormat(pixmap.getGLFormat()),
-      DataType(pixmap.getGLType()),
-      pixmap.getPixels()
+      pixmap.width,
+      pixmap.height,
+      PixelFormat(pixmap.gLFormat),
+      DataType(pixmap.glType),
+      pixmap.pixels
     )
   }
 
-  override def getWidth: Pixels = Pixels(textureData.getWidth)
+  override def width: Pixels = Pixels(textureData.width)
 
-  override def getHeight: Pixels = Pixels(textureData.getHeight)
+  override def height: Pixels = Pixels(textureData.height)
 
-  override def getDepth: Int = 0
+  override def depth: Int = 0
 
   /** @return whether this texture is managed or not. */
   override def managed: Boolean = textureData.isManaged
@@ -232,10 +241,10 @@ object Texture {
                   // well as a callback that sets the ref count.
                   val params = TextureParameter()
                   params.textureData = Nullable(texture.textureData)
-                  params.minFilter = texture.getMinFilter()
-                  params.magFilter = texture.getMagFilter()
-                  params.wrapU = texture.getUWrap()
-                  params.wrapV = texture.getVWrap()
+                  params.minFilter = texture.minFilter
+                  params.magFilter = texture.magFilter
+                  params.wrapU = texture.uWrap
+                  params.wrapV = texture.vWrap
                   params.genMipMaps = texture.textureData.useMipMaps
                   params.texture = Nullable(texture) // special parameter which will ensure that the references stay the same.
                   params.loadedCallback = Nullable(
@@ -264,7 +273,7 @@ object Texture {
   def assetManager_=(manager: AssetManager): Unit =
     Texture.assetManager = Nullable(manager)
 
-  def getManagedStatus(): String = {
+  def managedStatus: String = {
     val builder = new StringBuilder()
     builder.append("Managed textures/app: { ")
     for ((_, textures) <- managedTextures) {
@@ -276,7 +285,7 @@ object Texture {
   }
 
   /** @return the number of managed textures currently loaded */
-  def getNumManagedTextures()(using Sge): Int =
+  def numManagedTextures(using Sge): Int =
     managedTextures.get(Sge().application).map(_.size).getOrElse(0)
 
   /** Defines the filtering mode for textures. */
@@ -309,8 +318,6 @@ object Texture {
 
     def isMipMap(): Boolean =
       glEnum != GL20.GL_NEAREST && glEnum != GL20.GL_LINEAR
-
-    def getGLEnum(): Int = glEnum
   }
 
   /** Defines the wrapping mode for textures. */
@@ -318,7 +325,5 @@ object Texture {
     case MirroredRepeat extends TextureWrap(GL20.GL_MIRRORED_REPEAT)
     case ClampToEdge extends TextureWrap(GL20.GL_CLAMP_TO_EDGE)
     case Repeat extends TextureWrap(GL20.GL_REPEAT)
-
-    def getGLEnum(): Int = glEnum
   }
 }

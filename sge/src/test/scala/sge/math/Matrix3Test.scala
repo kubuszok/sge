@@ -112,7 +112,7 @@ class Matrix3Test extends munit.FunSuite {
 
   test("getTranslation") {
     val m   = new Matrix3().setToTranslation(10f, 20f)
-    val pos = m.getTranslation(Vector2())
+    val pos = m.translation(Vector2())
     assertEqualsFloat(pos.x, 10f, epsilon)
     assertEqualsFloat(pos.y, 20f, epsilon)
   }
@@ -161,13 +161,13 @@ class Matrix3Test extends munit.FunSuite {
 
   test("getRotation from rotation matrix") {
     val m   = new Matrix3().setToRotation(45f)
-    val deg = m.getRotation
+    val deg = m.rotation
     assertEqualsFloat(deg, 45f, 0.1f)
   }
 
   test("getRotationRad from rotation matrix") {
     val m   = new Matrix3().setToRotationRad(MathUtils.HALF_PI)
-    val rad = m.getRotationRad
+    val rad = m.rotationRad
     assertEqualsFloat(rad, MathUtils.HALF_PI, 0.01f)
   }
 }

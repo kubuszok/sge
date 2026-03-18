@@ -64,7 +64,7 @@ class Ray() {
     * @return
     *   The out param
     */
-  def getEndPoint(out: Vector3, distance: Float): Vector3 =
+  def endPoint(out: Vector3, distance: Float): Vector3 =
     out.set(direction).scl(distance).add(origin)
 
   /** Multiplies the ray by the given matrix. Use this to transform a ray into another coordinate system.

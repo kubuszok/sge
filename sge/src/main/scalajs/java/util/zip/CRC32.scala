@@ -7,7 +7,7 @@ class CRC32 extends Checksum {
     throw new UnsupportedOperationException("CRC32 is not supported on Scala.js")
   def update(b: Array[Byte], off: Int, len: Int): Unit =
     throw new UnsupportedOperationException("CRC32 is not supported on Scala.js")
-  def update(b: Array[Byte]): Unit = update(b, 0, b.length)
-  def getValue():             Long = 0L
-  def reset():                Unit = ()
+  override def update(b: Array[Byte]): Unit = update(b, 0, b.length)
+  def getValue():                      Long = 0L
+  def reset():                         Unit = ()
 }

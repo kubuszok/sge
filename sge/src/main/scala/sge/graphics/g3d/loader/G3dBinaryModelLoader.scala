@@ -38,7 +38,7 @@ class G3dBinaryModelLoader(resolver: FileHandleResolver)(using Sge) extends G3dM
 
     model.id = json.id
     parseMeshes(model, json.meshes)
-    parseMaterials(model, json.materials, handle.parent().path())
+    parseMaterials(model, json.materials, handle.parent().path)
     parseNodes(model, json.nodes)
     parseAnimations(model, json.animations)
     model

@@ -35,7 +35,7 @@ class FPSLogger(bound: Int = Int.MaxValue)(using Sge) {
   def log(): Unit = {
     val nanoTime = TimeUtils.nanoTime()
     if (nanoTime - startTime > Nanos(1000000000L)) { /* 1,000,000,000ns == one second */
-      val fps = Sge().graphics.getFramesPerSecond()
+      val fps = Sge().graphics.framesPerSecond
       if (fps < _bound) {
         utils.Log.info(s"fps: $fps")
         startTime = nanoTime

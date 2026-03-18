@@ -32,6 +32,8 @@ import sge.graphics.g3d.utils.RenderableSorter
 import sge.graphics.g3d.utils.ShaderProvider
 import sge.utils.{ DynamicArray, Nullable, Pool, SgeError }
 
+import scala.annotation.publicInBinary
+
 /** Batches [[Renderable]] instances, fetches [[Shader]]s for them, sorts them and then renders them. Fetching the shaders is done using a [[ShaderProvider]], which defaults to
   * [[DefaultShaderProvider]]. Sorting the renderables is done using a [[RenderableSorter]], which default to [[DefaultRenderableSorter]].
   *
@@ -70,13 +72,14 @@ class ModelBatch(
     context:        Nullable[RenderContext],
     shaderProvider: Nullable[ShaderProvider],
     sorter:         Nullable[RenderableSorter]
-  )(using Sge) =
+  )(using Sge) = {
     this(
       context.getOrElse(RenderContext(DefaultTextureBinder(DefaultTextureBinder.LRU, 1))),
       context.isEmpty,
       shaderProvider.getOrElse(DefaultShaderProvider()),
       sorter.getOrElse(DefaultRenderableSorter())
     )
+  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
@@ -84,8 +87,9 @@ class ModelBatch(
     * @param shaderProvider
     *   The [[ShaderProvider]] to use, will be disposed when this ModelBatch is disposed.
     */
-  def this(context: RenderContext, shaderProvider: ShaderProvider)(using Sge) =
+  def this(context: RenderContext, shaderProvider: ShaderProvider)(using Sge) = {
     this(Nullable(context), Nullable(shaderProvider), Nullable.empty)
+  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
@@ -93,15 +97,17 @@ class ModelBatch(
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(context: RenderContext, sorter: RenderableSorter)(using Sge) =
+  def this(context: RenderContext, sorter: RenderableSorter)(using Sge) = {
     this(Nullable(context), Nullable.empty, Nullable(sorter))
+  }
 
   /** Construct a ModelBatch, using this constructor makes you responsible for calling context.begin() and context.end() yourself.
     * @param context
     *   The [[RenderContext]] to use.
     */
-  def this(context: RenderContext)(using Sge) =
+  def this(context: RenderContext)(using Sge) = {
     this(Nullable(context), Nullable.empty, Nullable.empty)
+  }
 
   /** Construct a ModelBatch
     * @param shaderProvider
@@ -109,22 +115,25 @@ class ModelBatch(
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(shaderProvider: ShaderProvider, sorter: RenderableSorter)(using Sge) =
+  def this(shaderProvider: ShaderProvider, sorter: RenderableSorter)(using Sge) = {
     this(Nullable.empty, Nullable(shaderProvider), Nullable(sorter))
+  }
 
   /** Construct a ModelBatch
     * @param sorter
     *   The [[RenderableSorter]] to use.
     */
-  def this(sorter: RenderableSorter)(using Sge) =
+  def this(sorter: RenderableSorter)(using Sge) = {
     this(Nullable.empty, Nullable.empty, Nullable(sorter))
+  }
 
   /** Construct a ModelBatch
     * @param shaderProvider
     *   The [[ShaderProvider]] to use, will be disposed when this ModelBatch is disposed.
     */
-  def this(shaderProvider: ShaderProvider)(using Sge) =
+  def this(shaderProvider: ShaderProvider)(using Sge) = {
     this(Nullable.empty, Nullable(shaderProvider), Nullable.empty)
+  }
 
   /** Construct a ModelBatch with the default implementation and the specified ubershader. See [[DefaultShader]] for more information about using a custom ubershader. Requires OpenGL ES 2.0.
     * @param vertexShader
@@ -132,8 +141,9 @@ class ModelBatch(
     * @param fragmentShader
     *   The [[FileHandle]] of the fragment shader to use.
     */
-  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) =
+  def this(vertexShader: FileHandle, fragmentShader: FileHandle)(using Sge) = {
     this(Nullable.empty, Nullable(DefaultShaderProvider(vertexShader, fragmentShader)), Nullable.empty)
+  }
 
   /** Construct a ModelBatch with the default implementation and the specified ubershader. See [[DefaultShader]] for more information about using a custom ubershader. Requires OpenGL ES 2.0.
     * @param vertexShader
@@ -141,19 +151,21 @@ class ModelBatch(
     * @param fragmentShader
     *   The fragment shader to use.
     */
-  def this(vertexShader: String, fragmentShader: String)(using Sge) =
+  def this(vertexShader: String, fragmentShader: String)(using Sge) = {
     this(Nullable.empty, Nullable(DefaultShaderProvider(vertexShader, fragmentShader)), Nullable.empty)
+  }
 
   /** Construct a ModelBatch with the default implementation */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(Nullable.empty, Nullable.empty, Nullable.empty)
+  }
 
   /** Start rendering one or more [[Renderable]]s. Use one of the render() methods to provide the renderables. Must be followed by a call to [[end]]. The OpenGL context must not be altered between
     * [[begin]] and [[end]].
     * @param cam
     *   The [[Camera]] to be used when rendering and sorting.
     */
-  def begin(cam: Camera): Unit = {
+  @publicInBinary private[sge] def begin(cam: Camera): Unit = {
     if (camera.isDefined) throw SgeError.InvalidInput("Call end() first.")
     camera = Nullable(cam)
     if (ownContext) context.begin()
@@ -183,13 +195,13 @@ class ModelBatch(
   def ownsRenderContext: Boolean = ownContext
 
   /** @return the [[RenderContext]] used by this ModelBatch. */
-  def getRenderContext: RenderContext = context
+  def renderContext: RenderContext = context
 
   /** @return the [[ShaderProvider]] used by this ModelBatch. */
   def getShaderProvider: ShaderProvider = shaderProvider
 
   /** @return the [[RenderableSorter]] used by this ModelBatch. */
-  def getRenderableSorter: RenderableSorter = sorter
+  def renderableSorter: RenderableSorter = sorter
 
   /** Flushes the batch, causing all [[Renderable]]s in the batch to be rendered. Can only be called after the call to [[begin]] and before the call to [[end]].
     */
@@ -217,10 +229,17 @@ class ModelBatch(
   /** End rendering one or more [[Renderable]]s. Must be called after a call to [[begin]]. This will flush the batch, causing any renderables provided using one of the render() methods to be rendered.
     * After a call to this method the OpenGL context can be altered again.
     */
-  def end(): Unit = {
+  @publicInBinary private[sge] def end(): Unit = {
     flush()
     if (ownContext) context.end()
     camera = Nullable.empty
+  }
+
+  /** Executes `body` between [[begin]](`cam`) and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](cam: Camera)(inline body: => A): A = {
+    begin(cam)
+    try body
+    finally end()
   }
 
   /** Add a single [[Renderable]] to the batch. The [[ShaderProvider]] will be used to fetch a suitable [[Shader]]. Can only be called after a call to [[begin]] and before a call to [[end]].

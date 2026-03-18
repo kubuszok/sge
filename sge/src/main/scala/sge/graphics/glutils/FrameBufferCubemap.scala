@@ -26,7 +26,7 @@ import sge.utils.{ Nullable, SgeError }
 import sge.Sge
 
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a cubemap for the color attachment and a
-  * renderbuffer for the depth buffer. You can get a hold of the cubemap by FrameBufferCubemap.getColorBufferTexture(). This class will only work with OpenGL ES 2.0. </p>
+  * renderbuffer for the depth buffer. You can get a hold of the cubemap by FrameBufferCubemap.colorBufferTexture. This class will only work with OpenGL ES 2.0. </p>
   *
   * <p> FrameBuffers are managed. In case of an OpenGL context loss, which only happens on Android when a user switches to another application or receives an incoming call, the framebuffer will be
   * automatically recreated. </p>
@@ -91,8 +91,9 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
     * @param height
     * @param hasDepth
     */
-  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) =
+  def this(format: Pixmap.Format, width: Int, height: Int, hasDepth: Boolean)(using Sge) = {
     this(format, width, height, hasDepth, false)
+  }
 
   override protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): Cubemap = {
     val data = GLOnlyTextureData(
@@ -114,7 +115,7 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
 
   override protected def attachFrameBufferColorTexture(texture: Cubemap): Unit = {
     val gl       = Sge().graphics.gl20
-    val glHandle = texture.getTextureObjectHandle()
+    val glHandle = texture.textureObjectHandle
     val sides    = Cubemap.CubemapSide.values
     for (side <- sides)
       gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_COLOR_ATTACHMENT0, side.glEnum, glHandle.toInt, 0)
@@ -136,7 +137,7 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
       false
     } else {
       currentSide += 1
-      getSide().foreach(bindSide)
+      side.foreach(bindSide)
       true
     }
 
@@ -149,12 +150,12 @@ class FrameBufferCubemap()(using Sge) extends GLFrameBuffer[Cubemap] {
       GL20.GL_FRAMEBUFFER,
       GL20.GL_COLOR_ATTACHMENT0,
       side.glEnum,
-      getColorBufferTexture().getTextureObjectHandle().toInt,
+      colorBufferTexture.textureObjectHandle.toInt,
       0
     )
 
   /** Get the currently bound side. */
-  def getSide(): Nullable[Cubemap.CubemapSide] =
+  def side: Nullable[Cubemap.CubemapSide] =
     if (currentSide < 0) Nullable.empty else Nullable(FrameBufferCubemap.cubemapSides(currentSide))
 }
 

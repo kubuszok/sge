@@ -16,7 +16,8 @@ package regression
   * @param sceneDuration
   *   how long each scene runs (seconds) before auto-advancing
   */
-class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f) extends ApplicationListener {
+class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f)(using sge: Sge)
+    extends ApplicationListener {
 
   private var initialized: Boolean = false
 
@@ -26,17 +27,17 @@ class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f) e
 
   // --- ApplicationListener ---
 
-  override def create()(using Sge): Unit = {
+  override def create(): Unit = {
     initCurrentScene()
     initialized = true
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
+  override def resize(width: Pixels, height: Pixels): Unit = ()
 
-  override def render()(using Sge): Unit = {
+  override def render(): Unit = {
     if (!initialized) return
 
-    val dt = Sge().graphics.getDeltaTime()
+    val dt = sge.graphics.deltaTime
     sceneElapsed += dt
 
     // Auto-advance after duration
@@ -48,37 +49,37 @@ class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f) e
     }
   }
 
-  override def pause()(using Sge): Unit = ()
+  override def pause(): Unit = ()
 
-  override def resume()(using Sge): Unit = ()
+  override def resume(): Unit = ()
 
-  override def dispose()(using Sge): Unit = {
+  override def dispose(): Unit = {
     if (!initialized) return
     disposeCurrentScene()
   }
 
   // --- Scene management ---
 
-  private def advanceScene()(using Sge): Unit = {
+  private def advanceScene(): Unit = {
     disposeCurrentScene()
     currentIndex += 1
     sceneElapsed = 0f
     if (currentIndex >= scenes.length) {
       // All scenes complete — print summary and exit
       SmokeResult.summary()
-      Sge().application.exit()
+      sge.application.exit()
     } else {
       initCurrentScene()
     }
   }
 
-  private def initCurrentScene()(using Sge): Unit =
+  private def initCurrentScene(): Unit =
     if (currentIndex < scenes.length) {
       scenes(currentIndex).init()
       sceneInited = true
     }
 
-  private def disposeCurrentScene()(using Sge): Unit =
+  private def disposeCurrentScene(): Unit =
     if (sceneInited && currentIndex < scenes.length) {
       scenes(currentIndex).dispose()
       sceneInited = false

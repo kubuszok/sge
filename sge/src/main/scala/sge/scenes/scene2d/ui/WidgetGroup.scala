@@ -37,17 +37,17 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
     actors.foreach(addActor)
   }
 
-  def getMinWidth: Float = getPrefWidth
+  def minWidth: Float = prefWidth
 
-  def getMinHeight: Float = getPrefHeight
+  def minHeight: Float = prefHeight
 
-  def getPrefWidth: Float = 0
+  def prefWidth: Float = 0
 
-  def getPrefHeight: Float = 0
+  def prefHeight: Float = 0
 
-  def getMaxWidth: Float = 0
+  def maxWidth: Float = 0
 
-  def getMaxHeight: Float = 0
+  def maxHeight: Float = 0
 
   def setLayoutEnabled(enabled: Boolean): Unit = {
     layoutEnabled = enabled
@@ -55,7 +55,7 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
   }
 
   private def setLayoutEnabled(parent: Group, enabled: Boolean): Unit = {
-    val children = parent.getChildren
+    val children = parent.children
     var i        = 0
     while (i < children.size) {
       children(i) match {
@@ -69,10 +69,10 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
 
   def validate(): Unit =
     if (layoutEnabled) {
-      getParent.foreach { parent =>
+      this.parent.foreach { parent =>
         if (fillParent) {
           stage.fold(setSize(parent.width, parent.height)) { stage =>
-            if (parent eq stage.getRoot) setSize(stage.getWidth, stage.getHeight)
+            if (parent eq stage.root) setSize(stage.width, stage.height)
             else setSize(parent.width, parent.height)
           }
         }
@@ -85,7 +85,7 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
         // Widgets may call invalidateHierarchy during layout (eg, a wrapped label). The root-most widget group retries layout a
         // reasonable number of times.
         if (_needsLayout) {
-          if (!getParent.exists(_.isInstanceOf[WidgetGroup])) { // The parent widget will layout again.
+          if (!this.parent.exists(_.isInstanceOf[WidgetGroup])) { // The parent widget will layout again.
             var i = 0
             scala.util.boundary {
               while (i < 5) {
@@ -108,7 +108,7 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
 
   def invalidateHierarchy(): Unit = {
     invalidate()
-    getParent.foreach {
+    this.parent.foreach {
       case l: Layout => l.invalidateHierarchy()
       case _ =>
     }
@@ -121,11 +121,11 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
     invalidate()
 
   def pack(): Unit = {
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
     validate()
     // Validating the layout may change the pref size. Eg, a wrapped label doesn't know its pref height until it knows its
     // width, so it calls invalidateHierarchy() in layout() if its pref height has changed.
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
     validate()
   }
 

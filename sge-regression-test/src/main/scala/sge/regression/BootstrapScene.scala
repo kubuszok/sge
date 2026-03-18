@@ -19,13 +19,13 @@ object BootstrapScene extends RegressionScene {
 
   private var ok: Boolean = false
 
-  override def init()(using Sge): Unit = {
+  override def init()(using Sge): Unit =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = Sge().graphics.gl20
       SmokeResult.logCheck("GL20", gl != null, if (gl != null) "GL20 available" else "GL20 is null") // scalafix:ok
 
-      val w = Sge().graphics.getWidth().toInt
-      val h = Sge().graphics.getHeight().toInt
+      val w = Sge().graphics.width.toInt
+      val h = Sge().graphics.height.toInt
       SmokeResult.logCheck("VIEWPORT", w > 0 && h > 0, s"${w}x${h}")
 
       val audio = Sge().audio
@@ -34,7 +34,7 @@ object BootstrapScene extends RegressionScene {
       val files = Sge().files
       SmokeResult.logCheck("FILES_ACCESS", files != null, files.getClass.getSimpleName) // scalafix:ok
 
-      val maxP = Sge().input.getMaxPointers()
+      val maxP = Sge().input.maxPointers
       SmokeResult.logCheck("INPUT_ACCESS", maxP > 0, s"maxPointers=$maxP")
 
       ok = true
@@ -42,7 +42,6 @@ object BootstrapScene extends RegressionScene {
       case e: Exception =>
         SmokeResult.logCheck("BOOTSTRAP", false, s"Exception: ${e.getMessage}")
     }
-  }
 
   override def render(elapsed: Float)(using Sge): Unit =
     if (ok) ScreenUtils.clear(0f, 0.5f, 0f, 1f)

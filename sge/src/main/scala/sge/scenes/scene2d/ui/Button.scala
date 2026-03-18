@@ -44,28 +44,28 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   def this(style: Button.ButtonStyle)(using Sge) = {
     this()
     setStyle(style)
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
   }
 
   def this(skin: Skin)(using Sge) = {
     this()
     setSkin(Nullable(skin))
     setStyle(skin.get[Button.ButtonStyle])
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
   }
 
   def this(skin: Skin, styleName: String)(using Sge) = {
     this()
     setSkin(Nullable(skin))
     setStyle(skin.get[Button.ButtonStyle](styleName))
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
   }
 
   def this(child: Actor, style: Button.ButtonStyle)(using Sge) = {
     this()
     add(Nullable[Actor](child))
     setStyle(style)
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
   }
 
   def this(child: Actor, skin: Skin)(using Sge) = {
@@ -87,14 +87,17 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     addListener(clickListener)
   }
 
-  def this(up: Nullable[Drawable])(using Sge) =
+  def this(up: Nullable[Drawable])(using Sge) = {
     this(new Button.ButtonStyle(up, Nullable.empty, Nullable.empty))
+  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) =
+  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) = {
     this(new Button.ButtonStyle(up, down, Nullable.empty))
+  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) =
+  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) = {
     this(new Button.ButtonStyle(up, down, checked))
+  }
 
   def setChecked(isChecked: Boolean): Unit =
     setChecked(isChecked, programmaticChangeEvents)
@@ -115,7 +118,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   def toggle(): Unit =
     setChecked(!isChecked)
 
-  def getIsChecked: Boolean = isChecked
+  def checked: Boolean = isChecked
 
   def isPressed: Boolean = clickListener.isVisualPressed
 
@@ -130,15 +133,15 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   override def setStyle(style: ButtonStyle): Unit = {
     this._style = style
 
-    setBackground(getBackgroundDrawable)
+    setBackground(backgroundDrawable)
   }
 
   /** Returns the button's style. Modifying the returned style may not have an effect until {@link #setStyle(ButtonStyle)} is called.
     */
-  override def getStyle: ButtonStyle = _style
+  override def style: ButtonStyle = _style
 
   /** Returns appropriate background drawable from the style based on the current button state. */
-  protected def getBackgroundDrawable: Nullable[Drawable] =
+  protected def backgroundDrawable: Nullable[Drawable] =
     if (isDisabled && _style.disabled.isDefined) _style.disabled
     else if (isPressed) {
       if (isChecked && _style.checkedDown.isDefined) _style.checkedDown
@@ -187,7 +190,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
 
-    setBackground(getBackgroundDrawable)
+    setBackground(backgroundDrawable)
 
     var offsetX = 0f
     var offsetY = 0f
@@ -203,7 +206,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     }
     val offset = offsetX != 0 || offsetY != 0
 
-    val children = getChildren
+    val children = this.children
     if (offset) {
       var i = 0
       while (i < children.size) {
@@ -221,30 +224,30 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     }
 
     stage.foreach { stage =>
-      if (stage.getActionsRequestRendering && isPressed != clickListener.pressed)
+      if (stage.actionsRequestRendering && isPressed != clickListener.pressed)
         Sge().graphics.requestRendering()
     }
   }
 
-  override def getPrefWidth: Float = {
-    var width = super.getPrefWidth
+  override def prefWidth: Float = {
+    var width = super.prefWidth
     _style.up.foreach(d => width = Math.max(width, d.minWidth))
     _style.down.foreach(d => width = Math.max(width, d.minWidth))
     _style.checked.foreach(d => width = Math.max(width, d.minWidth))
     width
   }
 
-  override def getPrefHeight: Float = {
-    var height = super.getPrefHeight
+  override def prefHeight: Float = {
+    var height = super.prefHeight
     _style.up.foreach(d => height = Math.max(height, d.minHeight))
     _style.down.foreach(d => height = Math.max(height, d.minHeight))
     _style.checked.foreach(d => height = Math.max(height, d.minHeight))
     height
   }
 
-  override def getMinWidth: Float = getPrefWidth
+  override def minWidth: Float = prefWidth
 
-  override def getMinHeight: Float = getPrefHeight
+  override def minHeight: Float = prefHeight
 }
 
 object Button {

@@ -30,13 +30,13 @@ import sge.utils.{ BufferUtils, Nullable, SgeError };
   *   mzechner
   */
 class VertexBufferObjectSubData(
-  val isStatic:   Boolean,
-  numVertices:    Int,
-  val attributes: VertexAttributes
+  val isStatic:       Boolean,
+  initialNumVertices: Int,
+  val attributes:     VertexAttributes
 )(using Sge)
     extends VertexData {
 
-  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(attributes.vertexSize * numVertices)
+  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(attributes.vertexSize * initialNumVertices)
   val isDirect:     Boolean     = true
   val usage:        BufferUsage = if (isStatic) BufferUsage.StaticDraw else BufferUsage.DynamicDraw
   val buffer:       FloatBuffer = byteBuffer.asFloatBuffer()
@@ -56,8 +56,9 @@ class VertexBufferObjectSubData(
     * @param attributes
     *   the {@link VertexAttributes} .
     */
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) =
-    this(isStatic, numVertices, VertexAttributes(attributes*))
+  def this(isStatic: Boolean, initialNumVertices: Int, attributes: VertexAttribute*)(using Sge) = {
+    this(isStatic, initialNumVertices, VertexAttributes(attributes*))
+  }
 
   private def createBufferObject(): Int = {
     val result = Sge().graphics.gl20.glGenBuffer()
@@ -67,11 +68,9 @@ class VertexBufferObjectSubData(
     result
   }
 
-  override def getAttributes(): VertexAttributes = attributes
+  override def numVertices: Int = buffer.limit() * 4 / attributes.vertexSize
 
-  override def getNumVertices(): Int = buffer.limit() * 4 / attributes.vertexSize
-
-  override def getNumMaxVertices(): Int = byteBuffer.capacity() / attributes.vertexSize
+  override def numMaxVertices: Int = byteBuffer.capacity() / attributes.vertexSize
 
   /** @deprecated use {@link #getBuffer(boolean)} instead */
   @deprecated("use getBuffer(boolean) instead", "")

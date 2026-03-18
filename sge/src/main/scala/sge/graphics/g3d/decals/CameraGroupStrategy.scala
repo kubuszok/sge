@@ -60,7 +60,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
 
   createDefaultShader()
 
-  def this(camera: Camera)(using Sge) =
+  def this(camera: Camera)(using Sge) = {
     this(
       camera,
       Ordering.fromLessThan[Decal] { (o1, o2) =>
@@ -69,6 +69,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
         Math.signum(dist2 - dist1).toInt > 0
       }
     )
+  }
 
   def setCamera(camera: Camera): Unit =
     this.camera = camera
@@ -152,7 +153,7 @@ class CameraGroupStrategy(var camera: Camera, cameraSorter: Ordering[Decal])(usi
       + "}"
 
     shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.compiled) throw SgeError.GraphicsError("couldn't compile shader: " + shader.getLog())
+    if (!shader.compiled) throw SgeError.GraphicsError("couldn't compile shader: " + shader.log)
   }
 
   override def getGroupShader(group: Int): Nullable[ShaderProgram] = Nullable(shader)

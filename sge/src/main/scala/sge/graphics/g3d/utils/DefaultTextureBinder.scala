@@ -44,7 +44,7 @@ final class DefaultTextureBinder(
     extends TextureBinder {
 
   private val _count: Int = {
-    val max = Math.min(DefaultTextureBinder.getMaxTextureUnits(), DefaultTextureBinder.MAX_GLES_UNITS)
+    val max = Math.min(DefaultTextureBinder.maxTextureUnits, DefaultTextureBinder.MAX_GLES_UNITS)
     val c   = if (count < 0) max - offset else count
     if (offset < 0 || c < 0 || (offset + c) > max) throw SgeError.InvalidInput("Illegal arguments")
     c
@@ -63,12 +63,14 @@ final class DefaultTextureBinder(
   private var bindCount:  Int = 0 // Profiling stats -- used by getBindCount/getReuseCount
 
   /** Uses all available texture units and reuse weight of 3 */
-  def this(method: Int)(using Sge) =
+  def this(method: Int)(using Sge) = {
     this(method, 0, -1)
+  }
 
   /** Uses all remaining texture units and reuse weight of 3 */
-  def this(method: Int, offset: Int)(using Sge) =
+  def this(method: Int, offset: Int)(using Sge) = {
     this(method, offset, -1)
+  }
 
   override def begin(): Unit =
     for (i <- 0 until _count) {
@@ -213,7 +215,7 @@ object DefaultTextureBinder {
   /** GLES only supports up to 32 textures */
   val MAX_GLES_UNITS: Int = 32
 
-  private def getMaxTextureUnits()(using Sge): Int = {
+  private def maxTextureUnits(using Sge): Int = {
     val buffer = BufferUtils.newIntBuffer(16)
     Sge().graphics.gl.glGetIntegerv(GL20.GL_MAX_TEXTURE_IMAGE_UNITS, buffer)
     buffer.get(0)

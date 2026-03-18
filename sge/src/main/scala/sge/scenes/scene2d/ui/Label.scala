@@ -6,7 +6,7 @@
  *
  * Migration notes:
  *   TODO: direct Color.a mutation — update when Color becomes immutable
- *   Fixes: Removed redundant Java-style getters/setters (getGlyphLayout removed — field accessible, getWrap→wrap property, getLabelAlign/getLineAlign→labelAlign/lineAlign properties, getFontScaleX/Y→fontScaleX/Y properties, getBitmapFontCache→bitmapFontCache; style via Styleable; getText retained — constructor param name conflict)
+ *   Fixes: Removed redundant Java-style getters/setters (getGlyphLayout removed — field accessible, getWrap→wrap property, getLabelAlign/getLineAlign→labelAlign/lineAlign properties, getFontScaleX/Y→fontScaleX/Y properties, getBitmapFontCache→bitmapFontCache; style via Styleable; getText→text (returns _text backing field))
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -25,13 +25,13 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) extends Widget with Styleable[Label.LabelStyle] {
+class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)(using Sge) extends Widget with Styleable[Label.LabelStyle] {
   import Label._
 
   private var _style:           Label.LabelStyle   = scala.compiletime.uninitialized
   val glyphLayout:              GlyphLayout        = GlyphLayout()
-  private var prefWidth:        Float              = 0
-  private var prefHeight:       Float              = 0
+  private var _prefWidth:       Float              = 0
+  private var _prefHeight:      Float              = 0
   private val _text:            DynamicArray[Char] = DynamicArray[Char]()
   private var intValue:         Int                = Int.MinValue
   private var _cache:           BitmapFontCache    = scala.compiletime.uninitialized
@@ -45,15 +45,15 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
   private var fontScaleChanged: Boolean            = false
   private var ellipsis:         Nullable[String]   = Nullable.empty
 
-  text.foreach { t =>
+  initialText.foreach { t =>
     var i = 0
     while (i < t.length()) {
       _text.add(t.charAt(i))
       i += 1
     }
   }
-  setStyle(style)
-  if (text.isDefined && _text.nonEmpty) setSize(getPrefWidth, getPrefHeight)
+  setStyle(initialStyle)
+  if (initialText.isDefined && _text.nonEmpty) setSize(prefWidth, prefHeight)
 
   /** Creates a label, using a {@link LabelStyle} that has a BitmapFont with the specified name from the skin and the specified color.
     */
@@ -61,11 +61,13 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
 
   def this(text: Nullable[CharSequence], skin: Skin, styleName: String)(using Sge) = this(text, skin.get[Label.LabelStyle](styleName))
 
-  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color)(using Sge) =
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color)(using Sge) = {
     this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(color)))
+  }
 
-  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String)(using Sge) =
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String)(using Sge) = {
     this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(skin.getColor(colorName))))
+  }
 
   override def setStyle(style: Label.LabelStyle): Unit = {
     this._style = style
@@ -76,7 +78,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
 
   /** Returns the label's style. Modifying the returned style may not have an effect until {@link #setStyle(LabelStyle)} is called.
     */
-  override def getStyle: Label.LabelStyle = _style
+  override def style: Label.LabelStyle = _style
 
   /** Sets the text to the specified integer value. If the text is already equivalent to the specified value, a string is not allocated.
     * @return
@@ -130,7 +132,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     }
   }
 
-  def getText: DynamicArray[Char] = _text
+  def text: DynamicArray[Char] = _text
 
   override def invalidate(): Unit = {
     super.invalidate()
@@ -166,8 +168,8 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     } else {
       layout.setText(_cache.font, textStr)
     }
-    prefWidth = layout.width
-    prefHeight = layout.height
+    _prefWidth = layout.width
+    _prefHeight = layout.height
   }
 
   override def layout(): Unit = {
@@ -181,7 +183,7 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
 
     val doWrap = this._wrap && ellipsis.isEmpty
     if (doWrap) {
-      val ph = getPrefHeight
+      val ph = prefHeight
       if (ph != lastPrefHeight) {
         lastPrefHeight = ph
         invalidateHierarchy()
@@ -257,22 +259,22 @@ class Label(text: Nullable[CharSequence], style: Label.LabelStyle)(using Sge) ex
     _cache.draw(batch)
   }
 
-  override def getPrefWidth: Float =
+  override def prefWidth: Float =
     if (wrap) 0
     else {
       if (prefSizeInvalid) scaleAndComputePrefSize()
-      var width = prefWidth
+      var width = _prefWidth
       _style.background.foreach { bg =>
         width = Math.max(width + bg.leftWidth + bg.rightWidth, bg.minWidth)
       }
       width
     }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     if (prefSizeInvalid) scaleAndComputePrefSize()
     var descentScaleCorrection = 1f
     if (fontScaleChanged) descentScaleCorrection = _fontScaleY / _style.font.scaleY
-    var height = prefHeight - _style.font.descent * descentScaleCorrection * 2
+    var height = _prefHeight - _style.font.descent * descentScaleCorrection * 2
     _style.background.foreach { bg =>
       height = Math.max(height + bg.topHeight + bg.bottomHeight, bg.minHeight)
     }

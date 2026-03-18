@@ -142,43 +142,43 @@ class FacedCubemapData(using Sge) extends CubemapData {
   def getTextureData(side: CubemapSide): Nullable[TextureData] =
     data(side.index)
 
-  override def getWidth: Int = {
+  override def width: Int = {
     var width = 0
     data(CubemapSide.PositiveZ.index).foreach { d =>
-      val tmp = d.getWidth
+      val tmp = d.width
       if (tmp > width) width = tmp
     }
     data(CubemapSide.NegativeZ.index).foreach { d =>
-      val tmp = d.getWidth
+      val tmp = d.width
       if (tmp > width) width = tmp
     }
     data(CubemapSide.PositiveY.index).foreach { d =>
-      val tmp = d.getWidth
+      val tmp = d.width
       if (tmp > width) width = tmp
     }
     data(CubemapSide.NegativeY.index).foreach { d =>
-      val tmp = d.getWidth
+      val tmp = d.width
       if (tmp > width) width = tmp
     }
     width
   }
 
-  override def getHeight: Int = {
+  override def height: Int = {
     var height = 0
     data(CubemapSide.PositiveZ.index).foreach { d =>
-      val tmp = d.getHeight
+      val tmp = d.height
       if (tmp > height) height = tmp
     }
     data(CubemapSide.NegativeZ.index).foreach { d =>
-      val tmp = d.getHeight
+      val tmp = d.height
       if (tmp > height) height = tmp
     }
     data(CubemapSide.PositiveX.index).foreach { d =>
-      val tmp = d.getHeight
+      val tmp = d.height
       if (tmp > height) height = tmp
     }
     data(CubemapSide.NegativeX.index).foreach { d =>
-      val tmp = d.getHeight
+      val tmp = d.height
       if (tmp > height) height = tmp
     }
     height
@@ -195,15 +195,15 @@ class FacedCubemapData(using Sge) extends CubemapData {
   override def consumeCubemapData(): Unit =
     for (i <- data.indices)
       data(i).foreach { di =>
-        if (di.getType() == TextureDataType.Custom) {
+        if (di.dataType == TextureDataType.Custom) {
           di.consumeCustomData(CubemapSide.values(i).glEnum)
         } else {
           var pixmap        = di.consumePixmap()
           var disposePixmap = di.disposePixmap
-          if (di.getFormat != pixmap.getFormat()) {
-            val tmp = Pixmap(pixmap.getWidth().toInt, pixmap.getHeight().toInt, di.getFormat)
+          if (di.getFormat != pixmap.format) {
+            val tmp = Pixmap(pixmap.width.toInt, pixmap.height.toInt, di.getFormat)
             tmp.setBlending(Blending.None)
-            tmp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.getWidth(), pixmap.getHeight())
+            tmp.drawPixmap(pixmap, Pixels.zero, Pixels.zero, Pixels.zero, Pixels.zero, pixmap.width, pixmap.height)
             if (di.disposePixmap) pixmap.close()
             pixmap = tmp
             disposePixmap = true
@@ -212,13 +212,13 @@ class FacedCubemapData(using Sge) extends CubemapData {
           Sge().graphics.gl.glTexImage2D(
             CubemapSide.values(i).glEnum,
             0,
-            pixmap.getGLInternalFormat(),
-            pixmap.getWidth(),
-            pixmap.getHeight(),
+            pixmap.gLInternalFormat,
+            pixmap.width,
+            pixmap.height,
             0,
-            PixelFormat(pixmap.getGLFormat()),
-            DataType(pixmap.getGLType()),
-            pixmap.getPixels()
+            PixelFormat(pixmap.gLFormat),
+            DataType(pixmap.glType),
+            pixmap.pixels
           )
           if (disposePixmap) pixmap.close()
         }

@@ -73,7 +73,7 @@ class TransformTest extends munit.FunSuite {
     // a.mulLeft(b) computes b * a, stores into a
     a.mulLeft(b)
 
-    val pos = a.getTranslation(new Vector3())
+    val pos = a.translation(new Vector3())
     // translations add: (1+10, 2+20, 3+30) = (11, 22, 33)
     assertEqualsFloat(pos.x, 11f, epsilon)
     assertEqualsFloat(pos.y, 22f, epsilon)

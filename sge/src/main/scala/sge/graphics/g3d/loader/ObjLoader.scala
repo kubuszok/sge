@@ -392,15 +392,15 @@ object ObjLoader {
               } else if (key.equals("ns")) {
                 currentMaterial.shininess = java.lang.Float.parseFloat(tokens(1))
               } else if (key.equals("map_d")) {
-                currentMaterial.alphaTexFilename = Nullable(file.parent().child(tokens(1)).path())
+                currentMaterial.alphaTexFilename = Nullable(file.parent().child(tokens(1)).path)
               } else if (key.equals("map_ka")) {
-                currentMaterial.ambientTexFilename = Nullable(file.parent().child(tokens(1)).path())
+                currentMaterial.ambientTexFilename = Nullable(file.parent().child(tokens(1)).path)
               } else if (key.equals("map_kd")) {
-                currentMaterial.diffuseTexFilename = Nullable(file.parent().child(tokens(1)).path())
+                currentMaterial.diffuseTexFilename = Nullable(file.parent().child(tokens(1)).path)
               } else if (key.equals("map_ks")) {
-                currentMaterial.specularTexFilename = Nullable(file.parent().child(tokens(1)).path())
+                currentMaterial.specularTexFilename = Nullable(file.parent().child(tokens(1)).path)
               } else if (key.equals("map_ns")) {
-                currentMaterial.shininessTexFilename = Nullable(file.parent().child(tokens(1)).path())
+                currentMaterial.shininessTexFilename = Nullable(file.parent().child(tokens(1)).path)
               }
             }
             line = Nullable(reader.readLine())

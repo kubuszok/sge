@@ -15,27 +15,23 @@ object FBOCheck {
 
   def run()(using Sge): CheckResult =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = Sge().graphics.gl20
 
       // Create a small FBO
       val fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(4), Pixels(4), false)
 
-      fbo.begin()
-      // Clear to red
-      gl.glClearColor(1f, 0f, 0f, 1f)
-      gl.glClear(ClearMask.ColorBufferBit)
+      val (r, g, b, a) = fbo.use {
+        // Clear to red
+        gl.glClearColor(1f, 0f, 0f, 1f)
+        gl.glClear(ClearMask.ColorBufferBit)
 
-      // Read back a pixel
-      val buf = java.nio.ByteBuffer.allocateDirect(4)
-      buf.order(java.nio.ByteOrder.nativeOrder())
-      gl.glReadPixels(Pixels(0), Pixels(0), Pixels(1), Pixels(1), PixelFormat.RGBA, DataType.UnsignedByte, buf)
+        // Read back a pixel
+        val buf = java.nio.ByteBuffer.allocateDirect(4)
+        buf.order(java.nio.ByteOrder.nativeOrder())
+        gl.glReadPixels(Pixels(0), Pixels(0), Pixels(1), Pixels(1), PixelFormat.RGBA, DataType.UnsignedByte, buf)
 
-      val r = buf.get(0) & 0xff
-      val g = buf.get(1) & 0xff
-      val b = buf.get(2) & 0xff
-      val a = buf.get(3) & 0xff
-
-      fbo.end()
+        (buf.get(0) & 0xff, buf.get(1) & 0xff, buf.get(2) & 0xff, buf.get(3) & 0xff)
+      }
       fbo.close()
 
       val err = gl.glGetError()

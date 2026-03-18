@@ -26,26 +26,26 @@ import sge.utils.{ Align, DynamicArray, Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextButtonStyle)(using Sge) extends Button() {
+class ImageTextButton(initialText: Nullable[String], initialStyle: ImageTextButton.ImageTextButtonStyle)(using Sge) extends Button() {
   import ImageTextButton._
 
   private var _style: ImageTextButtonStyle = scala.compiletime.uninitialized
-  private val image:  Image                = newImage()
-  private var label:  Label                = scala.compiletime.uninitialized
+  private val _image: Image                = newImage()
+  private var _label: Label                = scala.compiletime.uninitialized
 
-  this._style = style
+  this._style = initialStyle
 
   defaults().space(3)
 
-  label = newLabel(text, new Label.LabelStyle(style.font, style.fontColor))
-  label.setAlignment(Align.center)
+  _label = newLabel(initialText, new Label.LabelStyle(initialStyle.font, initialStyle.fontColor))
+  _label.setAlignment(Align.center)
 
-  add(Nullable(image))
-  add(Nullable[Actor](label))
+  add(Nullable(_image))
+  add(Nullable[Actor](_label))
 
-  setStyle(style)
+  setStyle(initialStyle)
 
-  setSize(getPrefWidth, getPrefHeight)
+  setSize(prefWidth, prefHeight)
 
   def this(text: Nullable[String], skin: Skin)(using Sge) = {
     this(text, skin.get[ImageTextButton.ImageTextButtonStyle])
@@ -69,21 +69,21 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
     this._style = style.asInstanceOf[ImageTextButtonStyle]
     super.setStyle(style)
 
-    Nullable(image).foreach(_ => updateImage())
+    Nullable(_image).foreach(_ => updateImage())
 
-    Nullable(label).foreach { l =>
+    Nullable(_label).foreach { l =>
       val textButtonStyle = style.asInstanceOf[ImageTextButtonStyle]
-      val labelStyle      = l.getStyle
+      val labelStyle      = l.style
       labelStyle.font = textButtonStyle.font
-      labelStyle.fontColor = getFontColor
+      labelStyle.fontColor = fontColor
       l.setStyle(labelStyle)
     }
   }
 
-  override def getStyle: ImageTextButtonStyle = _style
+  override def style: ImageTextButtonStyle = _style
 
   /** Returns the appropriate image drawable from the style based on the current button state. */
-  protected def getImageDrawable: Nullable[Drawable] = scala.util.boundary {
+  protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
     if (isDisabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
     if (isPressed) {
       if (isChecked && _style.imageCheckedDown.isDefined) scala.util.boundary.break(_style.imageCheckedDown)
@@ -106,10 +106,10 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
   /** Sets the image drawable based on the current button state. The default implementation sets the image drawable using {@link #getImageDrawable()}.
     */
   protected def updateImage(): Unit =
-    image.drawable = getImageDrawable
+    _image.drawable = imageDrawable
 
   /** Returns the appropriate label font color from the style based on the current button state. */
-  protected def getFontColor: Nullable[Color] = scala.util.boundary {
+  protected def fontColor: Nullable[Color] = scala.util.boundary {
     if (isDisabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
     if (isPressed) {
       if (isChecked && _style.checkedDownFontColor.isDefined) scala.util.boundary.break(_style.checkedDownFontColor)
@@ -134,35 +134,35 @@ class ImageTextButton(text: Nullable[String], style: ImageTextButton.ImageTextBu
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     updateImage()
-    label.getStyle.fontColor = getFontColor
+    _label.style.fontColor = fontColor
     super.draw(batch, parentAlpha)
   }
 
-  def getImage: Image = image
+  def image: Image = _image
 
-  def getImageCell: Nullable[Cell[Image]] = getCell(image)
+  def imageCell: Nullable[Cell[Image]] = getCell(_image)
 
   def setLabel(label: Label): Unit = {
-    getLabelCell.foreach(_.setActor(Nullable(label)))
-    this.label = label
+    labelCell.foreach(_.setActor(Nullable(label)))
+    this._label = label
   }
 
-  def getLabel: Label = label
+  def label: Label = _label
 
-  def getLabelCell: Nullable[Cell[Label]] = getCell(label)
+  def labelCell: Nullable[Cell[Label]] = getCell(_label)
 
   def setText(text: Nullable[CharSequence]): Unit =
-    label.setText(text)
+    _label.setText(text)
 
-  def getText: DynamicArray[Char] = label.getText
+  def text: DynamicArray[Char] = _label.text
 
   override def toString: String =
     name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)
-      (if (className.indexOf('$') != -1) "ImageTextButton " else "") + className + ": " + image.drawable + " " + new String(
-        label.getText.toArray
+      (if (className.indexOf('$') != -1) "ImageTextButton " else "") + className + ": " + _image.drawable + " " + new String(
+        _label.text.toArray
       )
     }
 }

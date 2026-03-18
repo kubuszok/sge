@@ -52,7 +52,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
 
     model.id = json.id
     parseMeshes(model, json.meshes)
-    parseMaterials(model, json.materials, handle.parent().path())
+    parseMaterials(model, json.materials, handle.parent().path)
     parseNodes(model, json.nodes)
     parseAnimations(model, json.animations)
     model

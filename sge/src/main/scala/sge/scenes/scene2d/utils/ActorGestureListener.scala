@@ -183,9 +183,9 @@ class ActorGestureListener(halfTapSquareSize: Float, tapCountInterval: Float, lo
 
   def pinch(event: InputEvent, initialPointer1: Vector2, initialPointer2: Vector2, pointer1: Vector2, pointer2: Vector2): Unit = {}
 
-  def getGestureDetector: GestureDetector = detector
+  def gestureDetector: GestureDetector = detector
 
-  def getTouchDownTarget: Nullable[Actor] = _touchDownTarget
+  def touchDownTarget: Nullable[Actor] = _touchDownTarget
 }
 
 object ActorGestureListener {

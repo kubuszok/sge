@@ -50,11 +50,11 @@ class BrowserFiles(val assetLoader: BrowserAssetLoader) extends sge.Files {
   override def local(path: String): FileHandle =
     throw utils.SgeError.InvalidInput("Local files are not supported in browser")
 
-  override def getExternalStoragePath: String = ""
+  override def externalStoragePath: String = ""
 
   override def isExternalStorageAvailable: Boolean = false
 
-  override def getLocalStoragePath: String = ""
+  override def localStoragePath: String = ""
 
   override def isLocalStorageAvailable: Boolean = false
 }

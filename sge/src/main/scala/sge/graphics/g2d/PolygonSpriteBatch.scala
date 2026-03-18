@@ -27,6 +27,7 @@ import sge.math.Matrix4
 import sge.graphics.{ Color, GL20, Mesh, Texture, VertexAttribute }
 import sge.utils.Nullable
 
+import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
 
@@ -108,15 +109,16 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
       )
     )
 
-    _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
   }
 
   /** Constructs a PolygonSpriteBatch with the default shader, 2000 vertices, and 4000 triangles.
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(2000, 4000, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
     * @param size
@@ -124,8 +126,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, size * 2, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
     * @param size
@@ -133,10 +136,11 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int, defaultShader: ShaderProgram)(using Sge) =
+  def this(size: Int, defaultShader: ShaderProgram)(using Sge) = {
     this(size, size * 2, defaultShader)
+  }
 
-  override def begin(): Unit = {
+  @publicInBinary override private[sge] def begin(): Unit = {
     if (_drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")
     renderCalls = 0
 
@@ -147,7 +151,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     _drawing = true
   }
 
-  override def end(): Unit = {
+  @publicInBinary override private[sge] def end(): Unit = {
     if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before end.")
     if (vertexIndex > 0) flush()
     lastTexture = Nullable.empty
@@ -674,7 +678,7 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   }
 
   override def draw(texture: Texture, x: Float, y: Float): Unit =
-    draw(texture, x, y, texture.getWidth.toFloat, texture.getHeight.toFloat)
+    draw(texture, x, y, texture.width.toFloat, texture.height.toFloat)
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float): Unit = {
     if (!_drawing) throw new IllegalStateException("PolygonSpriteBatch.begin must be called before draw.")
@@ -1282,8 +1286,8 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
   protected def switchTexture(texture: Texture): Unit = {
     flush()
     lastTexture = texture
-    invTexWidth = 1.0f / texture.getWidth.toFloat
-    invTexHeight = 1.0f / texture.getHeight.toFloat
+    invTexWidth = 1.0f / texture.width.toFloat
+    invTexHeight = 1.0f / texture.height.toFloat
   }
 
   override def shader_=(shader: Nullable[ShaderProgram]): Unit = {

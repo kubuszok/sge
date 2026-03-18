@@ -11,7 +11,7 @@ object ClipboardCheck {
 
   def run()(using Sge): CheckResult =
     try {
-      val clipboard = Sge().application.getClipboard()
+      val clipboard = Sge().application.clipboard
       val testText  = s"sge-it-${System.nanoTime()}"
 
       // Write to clipboard

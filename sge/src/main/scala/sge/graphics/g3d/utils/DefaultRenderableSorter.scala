@@ -40,9 +40,9 @@ class DefaultRenderableSorter extends RenderableSorter {
 
   private def getTranslation(worldTransform: Matrix4, center: Vector3, output: Vector3): Vector3 = {
     if (center.isZero)
-      worldTransform.getTranslation(output)
+      worldTransform.translation(output)
     else if (!worldTransform.hasRotationOrScaling())
-      worldTransform.getTranslation(output).add(center)
+      worldTransform.translation(output).add(center)
     else
       output.set(center).mul(worldTransform)
     output

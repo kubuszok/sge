@@ -41,7 +41,7 @@ class PoolManager {
   }
 
   /** Returns the pool registered for the class. Will throw an exception, if no pool for this class is registered */
-  def getPool[T: ClassTag]: Pool[T] = {
+  def pool[T: ClassTag]: Pool[T] = {
     val clazz = summon[ClassTag[T]].runtimeClass
     typePools.get(clazz) match {
       case Some(pool) => pool.asInstanceOf[Pool[T]]
@@ -53,7 +53,7 @@ class PoolManager {
   }
 
   /** Returns the pool registered for the class. Will return Nullable.empty, if no pool for this class is registered */
-  def getPoolOrNull[T: ClassTag]: Nullable[Pool[T]] =
+  def poolOrNull[T: ClassTag]: Nullable[Pool[T]] =
     Nullable.fromOption(typePools.get(summon[ClassTag[T]].runtimeClass).map(_.asInstanceOf[Pool[T]]))
 
   /** Whether a pool for this class is already registered */

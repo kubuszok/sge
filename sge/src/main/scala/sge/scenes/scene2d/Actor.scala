@@ -41,17 +41,17 @@ import sge.scenes.scene2d.utils.ScissorStack
   */
 class Actor()(using Sge) {
 
-  private[scene2d] var _stage:  Nullable[Stage]             = Nullable.empty
-  private[scene2d] var parent:  Nullable[Group]             = Nullable.empty
-  private val listeners:        DynamicArray[EventListener] = DynamicArray[EventListener]()
-  private val captureListeners: DynamicArray[EventListener] = DynamicArray[EventListener]()
-  private val actions:          DynamicArray[Action]        = DynamicArray[Action]()
+  private[scene2d] var _stage:   Nullable[Stage]             = Nullable.empty
+  private[scene2d] var _parent:  Nullable[Group]             = Nullable.empty
+  private val _listeners:        DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val _captureListeners: DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val _actions:          DynamicArray[Action]        = DynamicArray[Action]()
 
   // Deferred removal support for listeners
-  private var iteratingListeners:             Int                         = 0
-  private var iteratingCaptureListeners:      Int                         = 0
-  private val pendingListenerRemovals:        DynamicArray[EventListener] = DynamicArray[EventListener]()
-  private val pendingCaptureListenerRemovals: DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private var _iteratingListeners:             Int                         = 0
+  private var _iteratingCaptureListeners:      Int                         = 0
+  private val _pendingListenerRemovals:        DynamicArray[EventListener] = DynamicArray[EventListener]()
+  private val _pendingCaptureListenerRemovals: DynamicArray[EventListener] = DynamicArray[EventListener]()
 
   /** Set the actor's name, which is used for identification convenience and by {@link #toString()}.
     * @see
@@ -93,19 +93,19 @@ class Actor()(using Sge) {
     *   Time in seconds since the last frame.
     */
   def act(delta: Float): Unit =
-    if (actions.nonEmpty) {
+    if (_actions.nonEmpty) {
       _stage.foreach { s =>
-        if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
+        if (s.actionsRequestRendering) Sge().graphics.requestRendering()
       }
       try {
         var i = 0
-        while (i < actions.size) {
-          val action = actions(i)
-          if (action.act(Seconds(delta)) && i < actions.size) {
-            val current     = actions(i)
-            val actionIndex = if (current eq action) i else actions.indexOf(action)
+        while (i < _actions.size) {
+          val action = _actions(i)
+          if (action.act(Seconds(delta)) && i < _actions.size) {
+            val current     = _actions(i)
+            val actionIndex = if (current eq action) i else _actions.indexOf(action)
             if (actionIndex != -1) {
-              actions.removeIndex(actionIndex)
+              _actions.removeIndex(actionIndex)
               action.setActor(Nullable.empty)
               i -= 1
             }
@@ -132,15 +132,15 @@ class Actor()(using Sge) {
 
     // Collect ascendants so event propagation is unaffected by hierarchy changes.
     val ascendants = Actor.POOLS.obtain[DynamicArray[?]].asInstanceOf[DynamicArray[Group]]
-    var p          = this.parent
+    var p          = this._parent
     p.foreach { pp =>
       ascendants.add(pp)
-      p = pp.parent
+      p = pp._parent
     }
     while (p.isDefined)
       p.foreach { pp =>
         ascendants.add(pp)
-        p = pp.parent
+        p = pp._parent
       }
 
     try {
@@ -188,7 +188,7 @@ class Actor()(using Sge) {
   def notify(event: Event, capture: Boolean): Boolean = scala.util.boundary {
     if (event.target.isEmpty) throw new IllegalArgumentException("The event target cannot be null.")
 
-    val listenersToNotify = if (capture) captureListeners else listeners
+    val listenersToNotify = if (capture) _captureListeners else _listeners
     if (listenersToNotify.isEmpty) scala.util.boundary.break(event.isCancelled)
 
     event.listenerActor = Nullable(this)
@@ -196,7 +196,7 @@ class Actor()(using Sge) {
     if (event.stage.isEmpty) _stage.foreach(s => event.stage = Nullable(s))
 
     try {
-      if (capture) iteratingCaptureListeners += 1 else iteratingListeners += 1
+      if (capture) _iteratingCaptureListeners += 1 else _iteratingListeners += 1
       val snapshot = listenersToNotify.toArray
       var i        = 0
       while (i < snapshot.length) {
@@ -204,16 +204,16 @@ class Actor()(using Sge) {
         i += 1
       }
       if (capture) {
-        iteratingCaptureListeners -= 1
-        if (iteratingCaptureListeners == 0) {
-          pendingCaptureListenerRemovals.foreach(l => captureListeners.removeValue(l))
-          pendingCaptureListenerRemovals.clear()
+        _iteratingCaptureListeners -= 1
+        if (_iteratingCaptureListeners == 0) {
+          _pendingCaptureListenerRemovals.foreach(l => _captureListeners.removeValue(l))
+          _pendingCaptureListenerRemovals.clear()
         }
       } else {
-        iteratingListeners -= 1
-        if (iteratingListeners == 0) {
-          pendingListenerRemovals.foreach(l => listeners.removeValue(l))
-          pendingListenerRemovals.clear()
+        _iteratingListeners -= 1
+        if (_iteratingListeners == 0) {
+          _pendingListenerRemovals.foreach(l => _listeners.removeValue(l))
+          _pendingListenerRemovals.clear()
         }
       }
     } catch {
@@ -244,7 +244,7 @@ class Actor()(using Sge) {
     *   Group#removeActor(Actor)
     */
   def remove(): Boolean =
-    parent.exists(_.removeActor(this, unfocus = true))
+    _parent.exists(_.removeActor(this, unfocus = true))
 
   /** Add a listener to receive events that {@link #hit(float, float, boolean) hit} this actor. See {@link #fire(Event)}.
     * @see
@@ -253,84 +253,84 @@ class Actor()(using Sge) {
     *   ClickListener
     */
   def addListener(listener: EventListener): Boolean =
-    if (!listeners.contains(listener)) {
-      listeners.add(listener)
+    if (!_listeners.contains(listener)) {
+      _listeners.add(listener)
       true
     } else false
 
   def removeListener(listener: EventListener): Boolean =
-    if (iteratingListeners > 0) {
-      val removed = listeners.contains(listener)
-      if (removed) pendingListenerRemovals.add(listener)
+    if (_iteratingListeners > 0) {
+      val removed = _listeners.contains(listener)
+      if (removed) _pendingListenerRemovals.add(listener)
       removed
     } else {
-      val idx = listeners.indexOf(listener)
-      if (idx >= 0) { listeners.removeIndex(idx); true }
+      val idx = _listeners.indexOf(listener)
+      if (idx >= 0) { _listeners.removeIndex(idx); true }
       else false
     }
 
-  def getListeners: DynamicArray[EventListener] = listeners
+  def listeners: DynamicArray[EventListener] = _listeners
 
   /** Adds a listener that is only notified during the capture phase.
     * @see
     *   #fire(Event)
     */
   def addCaptureListener(listener: EventListener): Boolean = {
-    if (!captureListeners.contains(listener)) captureListeners.add(listener)
+    if (!_captureListeners.contains(listener)) _captureListeners.add(listener)
     true
   }
 
   def removeCaptureListener(listener: EventListener): Boolean =
-    if (iteratingCaptureListeners > 0) {
-      val removed = captureListeners.contains(listener)
-      if (removed) pendingCaptureListenerRemovals.add(listener)
+    if (_iteratingCaptureListeners > 0) {
+      val removed = _captureListeners.contains(listener)
+      if (removed) _pendingCaptureListenerRemovals.add(listener)
       removed
     } else {
-      val idx = captureListeners.indexOf(listener)
-      if (idx >= 0) { captureListeners.removeIndex(idx); true }
+      val idx = _captureListeners.indexOf(listener)
+      if (idx >= 0) { _captureListeners.removeIndex(idx); true }
       else false
     }
 
-  def getCaptureListeners: DynamicArray[EventListener] = captureListeners
+  def captureListeners: DynamicArray[EventListener] = _captureListeners
 
   def addAction(action: Action): Unit = {
     action.setActor(Nullable(this))
-    actions.add(action)
+    _actions.add(action)
 
     _stage.foreach { s =>
-      if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
+      if (s.actionsRequestRendering) Sge().graphics.requestRendering()
     }
   }
 
   /** @param action May be null, in which case nothing is done. */
   def removeAction(action: Nullable[Action]): Unit =
     action.foreach { a =>
-      val idx = actions.indexOf(a)
+      val idx = _actions.indexOf(a)
       if (idx >= 0) {
-        actions.removeIndex(idx)
+        _actions.removeIndex(idx)
         a.setActor(Nullable.empty)
       }
     }
 
-  def getActions: DynamicArray[Action] = actions
+  def actions: DynamicArray[Action] = _actions
 
   /** Returns true if the actor has one or more actions. */
-  def hasActions: Boolean = actions.nonEmpty
+  def hasActions: Boolean = _actions.nonEmpty
 
   /** Removes all actions on this actor. */
   def clearActions(): Unit = {
-    var i = actions.size - 1
+    var i = _actions.size - 1
     while (i >= 0) {
-      actions(i).setActor(Nullable.empty)
+      _actions(i).setActor(Nullable.empty)
       i -= 1
     }
-    actions.clear()
+    _actions.clear()
   }
 
   /** Removes all listeners on this actor. */
   def clearListeners(): Unit = {
-    listeners.clear()
-    captureListeners.clear()
+    _listeners.clear()
+    _captureListeners.clear()
   }
 
   /** Removes all actions and listeners on this actor. */
@@ -384,17 +384,17 @@ class Actor()(using Sge) {
   }
 
   /** Returns true if the actor's parent is not null. */
-  def hasParent: Boolean = parent.isDefined
+  def hasParent: Boolean = _parent.isDefined
 
   /** Returns the parent actor, or null if not in a group. */
-  def getParent: Nullable[Group] = parent
+  def parent: Nullable[Group] = _parent
 
   /** Called by the framework when an actor is added to or removed from a group.
     * @param parent
     *   May be null if the actor has been removed from the parent.
     */
   protected[scene2d] def setParent(parent: Nullable[Group]): Unit =
-    this.parent = parent
+    this._parent = parent
 
   /** Returns true if input events are processed by this actor. */
   def isTouchable: Boolean = touchable == Touchable.enabled
@@ -412,11 +412,11 @@ class Actor()(using Sge) {
 
   /** Returns true if this actor is the {@link Stage#getKeyboardFocus() keyboard focus} actor. */
   def hasKeyboardFocus: Boolean =
-    stage.exists(_.getKeyboardFocus.exists(_ eq this))
+    stage.exists(_.keyboardFocus.exists(_ eq this))
 
-  /** Returns true if this actor is the {@link Stage#getScrollFocus() scroll focus} actor. */
+  /** Returns true if this actor is the {@link Stage#scrollFocus scroll focus} actor. */
   def hasScrollFocus: Boolean =
-    stage.exists(_.getScrollFocus.exists(_ eq this))
+    stage.exists(_.scrollFocus.exists(_ eq this))
 
   /** Returns true if this actor is a target actor for touch focus.
     * @see
@@ -549,10 +549,10 @@ class Actor()(using Sge) {
     }
 
   /** Returns y plus height. */
-  def getTop: Float = y + height
+  def top: Float = y + height
 
   /** Returns x plus width. */
-  def getRight: Float = x + width
+  def right: Float = x + width
 
   /** Called when the actor's position has been changed. */
   protected def positionChanged(): Unit = {}
@@ -728,7 +728,7 @@ class Actor()(using Sge) {
     * @see
     *   #setZIndex(int)
     */
-  def getZIndex: Int =
+  def zIndex: Int =
     parent.map(_.children.indexOf(this)).getOrElse(-1)
 
   /** Calls {@link #clipBegin(float, float, float, float)} to clip this actor's bounds. */
@@ -886,7 +886,7 @@ class Actor()(using Sge) {
   protected def drawDebugBounds(shapes: ShapeRenderer): Unit =
     if (_debug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      stage.foreach(s => shapes.setColor(s.getDebugColor))
+      stage.foreach(s => shapes.setColor(s.debugColor))
       shapes.rectangle(x, y, originX, originY, width, height, scaleX, scaleY, rotation)
     }
 
@@ -896,7 +896,7 @@ class Actor()(using Sge) {
     if (enabled) Stage.debug = true
   }
 
-  def getDebug: Boolean = _debug
+  def isDebug: Boolean = _debug
 
   /** Calls {@link #setDebug(boolean)} with {@code true}. */
   def debug(): Actor = {

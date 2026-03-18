@@ -67,20 +67,20 @@ class RemoteSender(ip: String, port: Int)(using Sge) extends InputProcessor {
     try
       out.foreach { o =>
         o.writeInt(RemoteSender.ACCEL)
-        o.writeFloat(Sge().input.getAccelerometerX())
-        o.writeFloat(Sge().input.getAccelerometerY())
-        o.writeFloat(Sge().input.getAccelerometerZ())
+        o.writeFloat(Sge().input.accelerometerX)
+        o.writeFloat(Sge().input.accelerometerY)
+        o.writeFloat(Sge().input.accelerometerZ)
         o.writeInt(RemoteSender.COMPASS)
-        o.writeFloat(Sge().input.getAzimuth())
-        o.writeFloat(Sge().input.getPitch())
-        o.writeFloat(Sge().input.getRoll())
+        o.writeFloat(Sge().input.azimuth)
+        o.writeFloat(Sge().input.pitch)
+        o.writeFloat(Sge().input.roll)
         o.writeInt(RemoteSender.SIZE)
-        o.writeFloat(Sge().graphics.getWidth().toFloat)
-        o.writeFloat(Sge().graphics.getHeight().toFloat)
+        o.writeFloat(Sge().graphics.width.toFloat)
+        o.writeFloat(Sge().graphics.height.toFloat)
         o.writeInt(RemoteSender.GYRO)
-        o.writeFloat(Sge().input.getGyroscopeX())
-        o.writeFloat(Sge().input.getGyroscopeY())
-        o.writeFloat(Sge().input.getGyroscopeZ())
+        o.writeFloat(Sge().input.gyroscopeX)
+        o.writeFloat(Sge().input.gyroscopeY)
+        o.writeFloat(Sge().input.gyroscopeZ)
       }
     catch {
       case scala.util.control.NonFatal(_) =>

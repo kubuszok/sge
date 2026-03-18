@@ -9,7 +9,7 @@ package regression
 object BrowserLauncher {
 
   /** Creates the regression test application with all check scenes. */
-  def createApp(): RegressionApp = {
+  def createApp(): Sge ?=> RegressionApp = {
     val scenes: Array[RegressionScene] = Array(
       BootstrapScene,
       AssetLoadingScene,

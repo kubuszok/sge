@@ -90,17 +90,17 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
         touchEvent.foreach { te =>
           te.`type` match {
             case TouchEvent.TOUCH_DOWN =>
-              deltaX(te.pointer) = 0
-              deltaY(te.pointer) = 0
+              deltaXArr(te.pointer) = 0
+              deltaYArr(te.pointer) = 0
               touchedPointers(te.pointer) = true
               justTouchedFlag = true
             case TouchEvent.TOUCH_UP =>
-              deltaX(te.pointer) = 0
-              deltaY(te.pointer) = 0
+              deltaXArr(te.pointer) = 0
+              deltaYArr(te.pointer) = 0
               touchedPointers(te.pointer) = false
             case TouchEvent.TOUCH_DRAGGED =>
-              deltaX(te.pointer) = te.x - touchX(te.pointer)
-              deltaY(te.pointer) = te.y - touchY(te.pointer)
+              deltaXArr(te.pointer) = te.x - touchX(te.pointer)
+              deltaYArr(te.pointer) = te.y - touchY(te.pointer)
           }
           touchX(te.pointer) = te.x
           touchY(te.pointer) = te.y
@@ -125,19 +125,19 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
         touchEvent.foreach { te =>
           te.`type` match {
             case TouchEvent.TOUCH_DOWN =>
-              deltaX(te.pointer) = 0
-              deltaY(te.pointer) = 0
+              deltaXArr(te.pointer) = 0
+              deltaYArr(te.pointer) = 0
               p.touchDown(Pixels(te.x), Pixels(te.y), te.pointer, Input.Buttons.LEFT)
               touchedPointers(te.pointer) = true
               justTouchedFlag = true
             case TouchEvent.TOUCH_UP =>
-              deltaX(te.pointer) = 0
-              deltaY(te.pointer) = 0
+              deltaXArr(te.pointer) = 0
+              deltaYArr(te.pointer) = 0
               p.touchUp(Pixels(te.x), Pixels(te.y), te.pointer, Input.Buttons.LEFT)
               touchedPointers(te.pointer) = false
             case TouchEvent.TOUCH_DRAGGED =>
-              deltaX(te.pointer) = te.x - touchX(te.pointer)
-              deltaY(te.pointer) = te.y - touchY(te.pointer)
+              deltaXArr(te.pointer) = te.x - touchX(te.pointer)
+              deltaYArr(te.pointer) = te.y - touchY(te.pointer)
               p.touchDragged(Pixels(te.x), Pixels(te.y), te.pointer)
           }
           touchX(te.pointer) = te.x
@@ -180,8 +180,8 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   val keys:            Array[Boolean]           = Array.ofDim[Boolean](256)
   var keyJustPressed:  Boolean                  = false
   val justPressedKeys: Array[Boolean]           = Array.ofDim[Boolean](256)
-  val deltaX:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
-  val deltaY:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val deltaXArr:       Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
+  val deltaYArr:       Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
   val touchX:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
   val touchY:          Array[Int]               = Array.ofDim[Int](RemoteInput.MAX_TOUCHES)
   val touchedPointers: Array[Boolean]           = Array.ofDim[Boolean](RemoteInput.MAX_TOUCHES)
@@ -255,22 +255,22 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
               keyEvent = Nullable(ke)
             case RemoteSender.TOUCH_DOWN =>
               val te = TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth().toFloat).toInt
-              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight().toFloat).toInt
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.width.toFloat).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.height.toFloat).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_DOWN
               touchEvent = Nullable(te)
             case RemoteSender.TOUCH_UP =>
               val te = TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth().toFloat).toInt
-              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight().toFloat).toInt
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.width.toFloat).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.height.toFloat).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_UP
               touchEvent = Nullable(te)
             case RemoteSender.TOUCH_DRAGGED =>
               val te = TouchEvent()
-              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.getWidth().toFloat).toInt
-              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.getHeight().toFloat).toInt
+              te.x = ((in.readInt() / remoteWidth) * Sge().graphics.width.toFloat).toInt
+              te.y = ((in.readInt() / remoteHeight) * Sge().graphics.height.toFloat).toInt
               te.pointer = in.readInt()
               te.`type` = TouchEvent.TOUCH_DRAGGED
               touchEvent = Nullable(te)
@@ -285,22 +285,22 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
 
   def isConnected(): Boolean = connected
 
-  override def getAccelerometerX():        Float   = accel(0)
-  override def getAccelerometerY():        Float   = accel(1)
-  override def getAccelerometerZ():        Float   = accel(2)
-  override def getGyroscopeX():            Float   = gyrate(0)
-  override def getGyroscopeY():            Float   = gyrate(1)
-  override def getGyroscopeZ():            Float   = gyrate(2)
-  override def getMaxPointers():           Int     = RemoteInput.MAX_TOUCHES
-  override def getX():                     Pixels  = Pixels(touchX(0))
-  override def getX(pointer:        Int):  Pixels  = Pixels(touchX(pointer))
-  override def getY():                     Pixels  = Pixels(touchY(0))
-  override def getY(pointer:        Int):  Pixels  = Pixels(touchY(pointer))
-  override def isTouched():                Boolean = touchedPointers(0)
-  override def justTouched():              Boolean = justTouchedFlag
-  override def isTouched(pointer:   Int):  Boolean = touchedPointers(pointer)
-  override def getPressure():              Float   = getPressure(0)
-  override def getPressure(pointer: Int):  Float   = if (touchedPointers(pointer)) 1f else 0f
+  override def accelerometerX:          Float   = accel(0)
+  override def accelerometerY:          Float   = accel(1)
+  override def accelerometerZ:          Float   = accel(2)
+  override def gyroscopeX:              Float   = gyrate(0)
+  override def gyroscopeY:              Float   = gyrate(1)
+  override def gyroscopeZ:              Float   = gyrate(2)
+  override def maxPointers:             Int     = RemoteInput.MAX_TOUCHES
+  override def x:                       Pixels  = Pixels(touchX(0))
+  override def x(pointer:         Int): Pixels  = Pixels(touchX(pointer))
+  override def y:                       Pixels  = Pixels(touchY(0))
+  override def y(pointer:         Int): Pixels  = Pixels(touchY(pointer))
+  override def touched:                 Boolean = touchedPointers(0)
+  override def justTouched():           Boolean = justTouchedFlag
+  override def isTouched(pointer: Int): Boolean = touchedPointers(pointer)
+  override def pressure:                Float   = pressure(0)
+  override def pressure(pointer:  Int): Float   = if (touchedPointers(pointer)) 1f else 0f
 
   override def isButtonPressed(button: Button): Boolean = scala.util.boundary {
     if (button != Input.Buttons.LEFT) scala.util.boundary.break(false)
@@ -339,19 +339,19 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
   override def vibrate(milliseconds:               Int, fallback:   Boolean):                Unit    = {}
   override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean): Unit    = {}
   override def vibrate(vibrationType:              VibrationType):                           Unit    = {}
-  override def getAzimuth():                                                                 Float   = compass(0)
-  override def getPitch():                                                                   Float   = compass(1)
-  override def getRoll():                                                                    Float   = compass(2)
+  override def azimuth:                                                                      Float   = compass(0)
+  override def pitch:                                                                        Float   = compass(1)
+  override def roll:                                                                         Float   = compass(2)
   override def setCatchKey(keycode:                Key, catchKey:   Boolean):                Unit    = {}
   override def isCatchKey(keycode:                 Key):                                     Boolean = false
   override def setInputProcessor(processor:        InputProcessor):                          Unit    = this.processor = Nullable(processor)
   // Input trait returns InputProcessor (not Nullable) — orNull needed at API boundary
-  @nowarn("msg=deprecated") override def getInputProcessor(): InputProcessor = this.processor.orNull
+  @nowarn("msg=deprecated") override def inputProcessor: InputProcessor = this.processor.orNull
 
   /** @return
     *   the IP addresses {@link RemoteSender} or gdx-remote should connect to. Most likely the LAN addresses if behind a NAT.
     */
-  def getIPs(): Array[String] = ips
+  def iPs: Array[String] = ips
 
   override def isPeripheralAvailable(peripheral: Peripheral): Boolean =
     peripheral match {
@@ -361,14 +361,14 @@ class RemoteInput(port: Int = RemoteInput.DEFAULT_PORT, listener: Option[RemoteI
       case _                           => false
     }
 
-  override def getRotation():                                Int             = 0
-  override def getNativeOrientation():                       Orientation     = Orientation.Landscape
+  override def rotation:                                     Int             = 0
+  override def nativeOrientation:                            Orientation     = Orientation.Landscape
   override def setCursorCatched(catched: Boolean):           Unit            = {}
-  override def isCursorCatched():                            Boolean         = false
-  override def getDeltaX():                                  Pixels          = Pixels(deltaX(0))
-  override def getDeltaX(pointer:        Int):               Pixels          = Pixels(deltaX(pointer))
-  override def getDeltaY():                                  Pixels          = Pixels(deltaY(0))
-  override def getDeltaY(pointer:        Int):               Pixels          = Pixels(deltaY(pointer))
+  override def cursorCatched:                                Boolean         = false
+  override def deltaX:                                       Pixels          = Pixels(deltaXArr(0))
+  override def deltaX(pointer:           Int):               Pixels          = Pixels(deltaXArr(pointer))
+  override def deltaY:                                       Pixels          = Pixels(deltaYArr(0))
+  override def deltaY(pointer:           Int):               Pixels          = Pixels(deltaYArr(pointer))
   override def setCursorPosition(x:      Pixels, y: Pixels): Unit            = {}
   override def currentEventTime:                             sge.utils.Nanos = sge.utils.Nanos.zero
   override def getRotationMatrix(matrix: Array[Float]):      Unit            = {}

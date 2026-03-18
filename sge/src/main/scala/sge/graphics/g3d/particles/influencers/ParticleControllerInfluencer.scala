@@ -118,7 +118,7 @@ abstract class ParticleControllerInfluencer extends Influencer {
   }
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {
-    val data = resources.getSaveData()
+    val data = resources.saveData
     val effectsIndices: Nullable[DynamicArray[DynamicArray[Int]]] = data.load("indices")
     effectsIndices.foreach { indices =>
       val indicesIter = indices.iterator
@@ -211,7 +211,7 @@ object ParticleControllerInfluencer {
         override def clear(): Unit = {
           // Dispose every allocated instance because the templates may be changed
           var i    = 0
-          val free = getFree
+          val free = this.free
           while (i < free) {
             obtain().dispose()
             i += 1

@@ -52,7 +52,7 @@ class AssetLoaderSmokeTest extends FunSuite {
   test("FileHandleResolver.Prefix instantiates and delegates") {
     val prefix = FileHandleResolver.Prefix(stubResolver, "assets/")
     val handle = prefix.resolve("test.png")
-    assertEquals(handle.path(), "assets/test.png")
+    assertEquals(handle.path, "assets/test.png")
   }
 
   test("FileHandleResolver.Resolution case class instantiates") {
@@ -241,7 +241,7 @@ class AssetLoaderSmokeTest extends FunSuite {
     )
     for (loader <- loaders) {
       val handle = loader.resolve("test.bin")
-      assertEquals(handle.path(), "test.bin")
+      assertEquals(handle.path, "test.bin")
     }
   }
 }

@@ -3,7 +3,11 @@ import sbt.internal.ProjectMatrix
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-val sgeVersion = "0.1.0-SNAPSHOT"
+// Derive sge version from git — must match root build's sbt-git output.
+val sgeVersion: String = {
+  val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
+  s"$sha-SNAPSHOT"
+}
 val sv         = SgePlugin.scalaVersion
 
 // All modules need the snapshot resolver for transitive kindlings dependency.
@@ -65,7 +69,7 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
 def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
   JvmReleases.axisSettings ++ androidJvmSettings(dir) ++ Seq(
     SgeProject.autoImport.sgeProjectDir := dir,
-    Compile / mainClass := Some(s"sge.demos.$pkg.DesktopMain"),
+    Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
     SgePackaging.sgeTargets := adoptiumJdkUrls,
     SgePackaging.sgeJlinkModules := Seq(
       "java.base", "java.desktop", "java.logging", "java.management",

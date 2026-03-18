@@ -39,7 +39,7 @@ object MipMapGenerator {
     if (!useHWMipMap) {
       generateMipMapCPU(target, pixmap, textureWidth, textureHeight)
     } else {
-      val appType = Sge().application.getType()
+      val appType = Sge().application.applicationType
       if (
         appType == Application.ApplicationType.Android || appType == Application.ApplicationType.WebGL
         || appType == Application.ApplicationType.iOS
@@ -54,13 +54,13 @@ object MipMapGenerator {
     Sge().graphics.gl.glTexImage2D(
       target,
       0,
-      pixmap.getGLInternalFormat(),
-      pixmap.getWidth(),
-      pixmap.getHeight(),
+      pixmap.gLInternalFormat,
+      pixmap.width,
+      pixmap.height,
       0,
-      PixelFormat(pixmap.getGLFormat()),
-      DataType(pixmap.getGLType()),
-      pixmap.getPixels()
+      PixelFormat(pixmap.gLFormat),
+      DataType(pixmap.glType),
+      pixmap.pixels
     )
     Sge().graphics.gl20.glGenerateMipmap(target)
   }
@@ -74,13 +74,13 @@ object MipMapGenerator {
       Sge().graphics.gl.glTexImage2D(
         target,
         0,
-        pixmap.getGLInternalFormat(),
-        pixmap.getWidth(),
-        pixmap.getHeight(),
+        pixmap.gLInternalFormat,
+        pixmap.width,
+        pixmap.height,
         0,
-        PixelFormat(pixmap.getGLFormat()),
-        DataType(pixmap.getGLType()),
-        pixmap.getPixels()
+        PixelFormat(pixmap.gLFormat),
+        DataType(pixmap.glType),
+        pixmap.pixels
       )
       Sge().graphics.gl20.glGenerateMipmap(target)
     } else {
@@ -91,32 +91,32 @@ object MipMapGenerator {
     Sge().graphics.gl.glTexImage2D(
       target,
       0,
-      pixmap.getGLInternalFormat(),
-      pixmap.getWidth(),
-      pixmap.getHeight(),
+      pixmap.gLInternalFormat,
+      pixmap.width,
+      pixmap.height,
       0,
-      PixelFormat(pixmap.getGLFormat()),
-      DataType(pixmap.getGLType()),
-      pixmap.getPixels()
+      PixelFormat(pixmap.gLFormat),
+      DataType(pixmap.glType),
+      pixmap.pixels
     )
     if (textureWidth != textureHeight)
       throw SgeError.GraphicsError("texture width and height must be square when using mipmapping.")
 
     var currentPixmap = pixmap
-    var width         = pixmap.getWidth() / 2
-    var height        = pixmap.getHeight() / 2
+    var width         = pixmap.width / 2
+    var height        = pixmap.height / 2
     var level         = 1
 
     scala.util.boundary {
       while (true) {
-        val tmp = Pixmap(width.toInt, height.toInt, pixmap.getFormat())
+        val tmp = Pixmap(width.toInt, height.toInt, pixmap.format)
         tmp.setBlending(Blending.None)
         tmp.drawPixmap(
           currentPixmap,
           Pixels.zero,
           Pixels.zero,
-          currentPixmap.getWidth(),
-          currentPixmap.getHeight(),
+          currentPixmap.width,
+          currentPixmap.height,
           Pixels.zero,
           Pixels.zero,
           width,
@@ -128,17 +128,17 @@ object MipMapGenerator {
         Sge().graphics.gl.glTexImage2D(
           target,
           level,
-          currentPixmap.getGLInternalFormat(),
-          currentPixmap.getWidth(),
-          currentPixmap.getHeight(),
+          currentPixmap.gLInternalFormat,
+          currentPixmap.width,
+          currentPixmap.height,
           0,
-          PixelFormat(currentPixmap.getGLFormat()),
-          DataType(currentPixmap.getGLType()),
-          currentPixmap.getPixels()
+          PixelFormat(currentPixmap.gLFormat),
+          DataType(currentPixmap.glType),
+          currentPixmap.pixels
         )
 
-        width = currentPixmap.getWidth() / 2
-        height = currentPixmap.getHeight() / 2
+        width = currentPixmap.width / 2
+        height = currentPixmap.height / 2
 
         // Break when we have exhausted all levels
         if (width == Pixels.zero && height == Pixels.zero) scala.util.boundary.break(())

@@ -31,19 +31,23 @@ final case class AssetDescriptor[T](
   var file: Nullable[FileHandle] = Nullable.empty
 ) {
 
-  def this(fileName: String, assetType: Class[T]) =
+  def this(fileName: String, assetType: Class[T]) = {
     this(fileName, assetType, Nullable.empty, Nullable.empty)
+  }
 
   /** Creates an AssetDescriptor with an already resolved name. */
-  def this(file: FileHandle, assetType: Class[T]) =
-    this(file.path(), assetType, Nullable.empty, Nullable(file))
+  def this(file: FileHandle, assetType: Class[T]) = {
+    this(file.path, assetType, Nullable.empty, Nullable(file))
+  }
 
-  def this(fileName: String, assetType: Class[T], params: AssetLoaderParameters[T]) =
+  def this(fileName: String, assetType: Class[T], params: AssetLoaderParameters[T]) = {
     this(fileName, assetType, Nullable(params), Nullable.empty)
+  }
 
   /** Creates an AssetDescriptor with an already resolved name. */
-  def this(file: FileHandle, assetType: Class[T], params: AssetLoaderParameters[T]) =
-    this(file.path(), assetType, Nullable(params), Nullable(file))
+  def this(file: FileHandle, assetType: Class[T], params: AssetLoaderParameters[T]) = {
+    this(file.path, assetType, Nullable(params), Nullable(file))
+  }
 
   override def toString: String =
     s"$fileName, ${`type`.getName}"
@@ -58,5 +62,5 @@ object AssetDescriptor {
     AssetDescriptor(fileName, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable(params))
 
   def apply[T: ClassTag](file: FileHandle): AssetDescriptor[T] =
-    AssetDescriptor(file.path(), summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty, Nullable(file))
+    AssetDescriptor(file.path, summon[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]], Nullable.empty, Nullable(file))
 }

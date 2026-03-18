@@ -9,13 +9,20 @@
  * Migration notes:
  * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructors match 1:1
  * - GdxRuntimeException replaced with SgeError.GraphicsError
- * - Java return-in-loop (getCurrentFrameIndex) replaced with boundary/break
+ * - Java return-in-loop (currentFrameIndex) replaced with boundary/break
  * - Java Array<StaticTiledMapTile> replaced with DynamicArray[StaticTiledMapTile]
  * - Java IntArray replaced with Array[Int]
  * - Java null-initialized properties/objects replaced with Nullable.empty
  * - Private primary constructor + 2 public auxiliary constructors (matching Java's 2 public ctors)
  * - Companion object holds lastTiledMapRenderTime, initialTimeOffset, updateAnimationBaseTime (match Java static)
  * - Convention: opaque Millis for lastTiledMapRenderTime, initialTimeOffset
+ *   Renames: getId/setId → var id, getBlendMode/setBlendMode → var blendMode,
+ *     getTextureRegion/setTextureRegion → var textureRegion (throws),
+ *     getOffsetX/setOffsetX → var offsetX/offsetY (throws),
+ *     getProperties → def properties, getObjects → def objects,
+ *     getCurrentFrameIndex → currentFrameIndex, getCurrentFrame → currentFrame,
+ *     getAnimationIntervals/setAnimationIntervals → var animationIntervals,
+ *     getFrameTiles → def frameTiles
  */
 package sge
 package maps
@@ -30,14 +37,14 @@ import sge.utils.{ DynamicArray, Millis, Nullable, SgeError, TimeUtils }
 
 /** @brief Represents a changing {@link TiledMapTile}. */
 class AnimatedTiledMapTile private (
-  private val frameTiles:         Array[StaticTiledMapTile],
-  private var animationIntervals: Array[Int],
-  private var loopDuration:       Int
+  private val _frameTiles:         Array[StaticTiledMapTile],
+  private var _animationIntervals: Array[Int],
+  private var loopDuration:        Int
 ) extends TiledMapTile {
 
-  private var id: Int = 0
+  private var _id: Int = 0
 
-  private var blendMode: TiledMapTile.BlendMode = TiledMapTile.BlendMode.ALPHA
+  private var _blendMode: TiledMapTile.BlendMode = TiledMapTile.BlendMode.ALPHA
 
   private var _properties: Nullable[MapProperties] = Nullable.empty
 
@@ -50,12 +57,13 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) =
+  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) = {
     this(
       frameTiles.toArray,
       Array.fill(frameTiles.size)((interval * 1000f).toInt),
       frameTiles.size * (interval * 1000f).toInt
     )
+  }
 
   /** Creates an animated tile with the given animation intervals and frame tiles.
     *
@@ -64,29 +72,30 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) =
+  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) = {
     this(
       frameTiles.toArray,
       intervals.clone(),
       intervals.sum
     )
+  }
 
-  override def getId: Int = id
+  override def id: Int = _id
 
-  override def setId(id: Int): Unit =
-    this.id = id
+  override def id_=(id: Int): Unit =
+    this._id = id
 
-  override def getBlendMode: TiledMapTile.BlendMode = blendMode
+  override def blendMode: TiledMapTile.BlendMode = _blendMode
 
-  override def setBlendMode(blendMode: TiledMapTile.BlendMode): Unit =
-    this.blendMode = blendMode
+  override def blendMode_=(blendMode: TiledMapTile.BlendMode): Unit =
+    this._blendMode = blendMode
 
-  def getCurrentFrameIndex: Int = boundary {
+  def currentFrameIndex: Int = boundary {
     var currentTime = (AnimatedTiledMapTile.lastTiledMapRenderTime % Millis(loopDuration.toLong)).toInt
 
     var i = 0
-    while (i < animationIntervals.length) {
-      val animationInterval = animationIntervals(i)
+    while (i < _animationIntervals.length) {
+      val animationInterval = _animationIntervals(i)
       if (currentTime <= animationInterval) break(i)
       currentTime -= animationInterval
       i += 1
@@ -95,32 +104,32 @@ class AnimatedTiledMapTile private (
     throw SgeError.GraphicsError("Could not determine current animation frame in AnimatedTiledMapTile.  This should never happen.")
   }
 
-  def getCurrentFrame: TiledMapTile =
-    frameTiles(getCurrentFrameIndex)
+  def currentFrame: TiledMapTile =
+    _frameTiles(currentFrameIndex)
 
-  override def getTextureRegion: TextureRegion =
-    getCurrentFrame.getTextureRegion
+  override def textureRegion: TextureRegion =
+    currentFrame.textureRegion
 
-  override def setTextureRegion(textureRegion: TextureRegion): Unit =
+  override def textureRegion_=(textureRegion: TextureRegion): Unit =
     throw SgeError.GraphicsError("Cannot set the texture region of AnimatedTiledMapTile.")
 
-  override def getOffsetX: Float =
-    getCurrentFrame.getOffsetX
+  override def offsetX: Float =
+    currentFrame.offsetX
 
-  override def setOffsetX(offsetX: Float): Unit =
+  override def offsetX_=(offsetX: Float): Unit =
     throw SgeError.GraphicsError("Cannot set offset of AnimatedTiledMapTile.")
 
-  override def getOffsetY: Float =
-    getCurrentFrame.getOffsetY
+  override def offsetY: Float =
+    currentFrame.offsetY
 
-  override def setOffsetY(offsetY: Float): Unit =
+  override def offsetY_=(offsetY: Float): Unit =
     throw SgeError.GraphicsError("Cannot set offset of AnimatedTiledMapTile.")
 
-  def getAnimationIntervals: Array[Int] = animationIntervals
+  def animationIntervals: Array[Int] = _animationIntervals
 
-  def setAnimationIntervals(intervals: Array[Int]): Unit =
-    if (intervals.length == animationIntervals.length) {
-      this.animationIntervals = intervals
+  def animationIntervals_=(intervals: Array[Int]): Unit =
+    if (intervals.length == _animationIntervals.length) {
+      this._animationIntervals = intervals
 
       loopDuration = 0
       var i = 0
@@ -131,25 +140,25 @@ class AnimatedTiledMapTile private (
     } else {
       throw SgeError.GraphicsError(
         "Cannot set " + intervals.length + " frame intervals. The given int[] must have a size of "
-          + animationIntervals.length + "."
+          + _animationIntervals.length + "."
       )
     }
 
-  override def getProperties: MapProperties = {
+  override def properties: MapProperties = {
     if (_properties.isEmpty) {
       _properties = Nullable(MapProperties())
     }
     _properties.getOrElse(MapProperties())
   }
 
-  override def getObjects: MapObjects = {
+  override def objects: MapObjects = {
     if (_objects.isEmpty) {
       _objects = Nullable(MapObjects())
     }
     _objects.getOrElse(MapObjects())
   }
 
-  def getFrameTiles: Array[StaticTiledMapTile] = frameTiles
+  def frameTiles: Array[StaticTiledMapTile] = _frameTiles
 }
 
 object AnimatedTiledMapTile {

@@ -133,7 +133,7 @@ class OrthoCachedTiledMapRenderer(
     spriteCache.begin()
     val mapLayers = map.layers
     var i         = 0
-    val j         = mapLayers.getCount
+    val j         = mapLayers.count
     while (i < j) {
       val layer = mapLayers.get(i)
       if (layer.visible) {
@@ -198,21 +198,21 @@ class OrthoCachedTiledMapRenderer(
 
   override def renderTileLayer(layer: TiledMapTileLayer): Unit = {
     val color = Color.toFloatBits(
-      layer.getCombinedTintColor.r,
-      layer.getCombinedTintColor.g,
-      layer.getCombinedTintColor.b,
-      layer.getOpacity * layer.getCombinedTintColor.a
+      layer.combinedTintColor.r,
+      layer.combinedTintColor.g,
+      layer.combinedTintColor.b,
+      layer.opacity * layer.combinedTintColor.a
     )
 
-    val layerWidth  = layer.getWidth
-    val layerHeight = layer.getHeight
+    val layerWidth  = layer.width
+    val layerHeight = layer.height
 
-    val layerTileWidth  = layer.getTileWidth * unitScale
-    val layerTileHeight = layer.getTileHeight * unitScale
+    val layerTileWidth  = layer.tileWidth * unitScale
+    val layerTileHeight = layer.tileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
+    val layerOffsetX = layer.renderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
+    val layerOffsetY = -layer.renderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val col1 = Math.max(0, ((cacheBounds.x - layerOffsetX) / layerTileWidth).toInt)
     val col2 = Math.min(layerWidth, ((cacheBounds.x + cacheBounds.width + layerTileWidth - layerOffsetX) / layerTileWidth).toInt)
@@ -239,16 +239,16 @@ class OrthoCachedTiledMapRenderer(
             val flipY     = c.flipVertically
             val rotations = c.rotation
 
-            val region  = t.getTextureRegion
+            val region  = t.textureRegion
             val texture = region.texture
 
-            val x1 = col * layerTileWidth + t.getOffsetX * unitScale + layerOffsetX
-            val y1 = row * layerTileHeight + t.getOffsetY * unitScale + layerOffsetY
+            val x1 = col * layerTileWidth + t.offsetX * unitScale + layerOffsetX
+            val y1 = row * layerTileHeight + t.offsetY * unitScale + layerOffsetY
             val x2 = x1 + region.regionWidth * unitScale
             val y2 = y1 + region.regionHeight * unitScale
 
-            val adjustX = 0.5f / texture.getWidth.toFloat
-            val adjustY = 0.5f / texture.getHeight.toFloat
+            val adjustX = 0.5f / texture.width.toFloat
+            val adjustY = 0.5f / texture.height.toFloat
             val u1      = region.u + adjustX
             val v1      = region.v2 - adjustY
             val u2      = region.u2 - adjustX
@@ -297,7 +297,7 @@ class OrthoCachedTiledMapRenderer(
   }
 
   override def renderImageLayer(layer: TiledMapImageLayer): Unit = {
-    val combinedTint = layer.getCombinedTintColor
+    val combinedTint = layer.combinedTintColor
     // Check if layer supports transparency
     val supportsTransparency = layer.supportsTransparency
 
@@ -313,7 +313,7 @@ class OrthoCachedTiledMapRenderer(
       combinedTint.r * alphaMultiplier,
       combinedTint.g * alphaMultiplier,
       combinedTint.b * alphaMultiplier,
-      layer.getOpacity * opacityMultiplier
+      layer.opacity * opacityMultiplier
     )
 
     val vertices = this.vertices
@@ -399,7 +399,7 @@ class OrthoCachedTiledMapRenderer(
   def setBlending(blending: Boolean): Unit =
     this.blending = blending
 
-  def getSpriteCache: SpriteCache = spriteCache
+  def cache: SpriteCache = spriteCache
 
   override def close(): Unit =
     spriteCache.close()

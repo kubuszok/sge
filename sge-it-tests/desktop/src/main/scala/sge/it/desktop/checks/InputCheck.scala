@@ -12,14 +12,14 @@ object InputCheck {
     try {
       val input = Sge().input
       // Basic state queries should not throw
-      val x     = input.getX()
-      val y     = input.getY()
-      val dx    = input.getDeltaX()
-      val dy    = input.getDeltaY()
-      val touch = input.isTouched()
+      val x     = input.x
+      val y     = input.y
+      val dx    = input.deltaX
+      val dy    = input.deltaY
+      val touch = input.touched
       val jt    = input.justTouched()
       val kp    = input.isKeyPressed(sge.Input.Keys.A)
-      val maxP  = input.getMaxPointers()
+      val maxP  = input.maxPointers
 
       if (maxP <= 0) {
         CheckResult("input", passed = false, s"maxPointers=$maxP, expected > 0")

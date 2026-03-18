@@ -55,7 +55,7 @@ class GLOnlyTextureData(using Sge) extends TextureData {
     this.`type` = `type`
   }
 
-  override def getType(): TextureData.TextureDataType = TextureData.TextureDataType.Custom
+  override def dataType: TextureData.TextureDataType = TextureData.TextureDataType.Custom
 
   override def isPrepared: Boolean = preparedState
 
@@ -72,10 +72,6 @@ class GLOnlyTextureData(using Sge) extends TextureData {
 
   override def disposePixmap: Boolean =
     throw SgeError.GraphicsError("This TextureData implementation does not return a Pixmap")
-
-  override def getWidth: Int = width
-
-  override def getHeight: Int = height
 
   override def getFormat: Format = Format.RGBA8888
 

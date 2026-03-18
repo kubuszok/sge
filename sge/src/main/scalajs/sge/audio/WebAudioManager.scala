@@ -27,7 +27,7 @@ import scala.scalajs.js
   * Creates an `AudioContext`, a global volume `GainNode`, and manages the audio unlock flow required by browser autoplay policies. Also implements [[LifecycleListener]] to mute/unmute on application
   * pause/resume.
   */
-class WebAudioManager()(using Sge) extends LifecycleListener {
+class WebAudioManager(application: Application) extends LifecycleListener {
 
   private val audioContext: js.Dynamic = {
     val hasStandard = js.typeOf(js.Dynamic.global.AudioContext) != "undefined"
@@ -53,7 +53,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
     else null
 
   // Register as lifecycle listener for mute on pause
-  Sge().application.addLifecycleListener(this)
+  application.addLifecycleListener(this)
 
   // Unlock audio context on first user interaction
   if (audioContext != null && isAudioContextLocked) hookUpSoundUnlockers()
@@ -114,7 +114,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
         sound.setAudioBuffer(decodedBuffer)
       }: js.Function1[js.Dynamic, Unit],
       { () =>
-        utils.Log.error("WebAudio: decodeAudioData failed for " + fileHandle.path())
+        utils.Log.error("WebAudio: decodeAudioData failed for " + fileHandle.path)
       }: js.Function0[Unit]
     )
 
@@ -131,7 +131,7 @@ class WebAudioManager()(using Sge) extends LifecycleListener {
       int8(i) = bytes(i)
       i += 1
     }
-    val blob         = new dom.Blob(js.Array(int8.buffer), js.Dynamic.literal("type" -> mimeForAudio(fileHandle.path())).asInstanceOf[dom.BlobPropertyBag])
+    val blob         = new dom.Blob(js.Array(int8.buffer), js.Dynamic.literal("type" -> mimeForAudio(fileHandle.path)).asInstanceOf[dom.BlobPropertyBag])
     val blobUrl      = dom.URL.createObjectURL(blob)
     val audioElement = document.createElement("audio").asInstanceOf[dom.HTMLAudioElement]
     audioElement.src = blobUrl

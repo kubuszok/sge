@@ -57,34 +57,34 @@ import sge.utils.Clipboard
 trait Application {
 
   /** @return the {@link ApplicationListener} instance */
-  def getApplicationListener(): ApplicationListener
+  def applicationListener: ApplicationListener
 
   /** @return the {@link Graphics} instance */
-  def getGraphics(): Graphics
+  def graphics: Graphics
 
   /** @return the {@link Audio} instance */
-  def getAudio(): Audio
+  def audio: Audio
 
   /** @return the {@link Input} instance */
-  def getInput(): Input
+  def input: Input
 
   /** @return the {@link Files} instance */
-  def getFiles(): Files
+  def files: Files
 
   /** @return the {@link Net} instance */
-  def getNet(): Net
+  def net: Net
 
   /** @return what {@link ApplicationType} this application has, e.g. Android or Desktop */
-  def getType(): Application.ApplicationType
+  def applicationType: Application.ApplicationType
 
   /** @return the Android API level on Android, the major OS version on iOS (5, 6, 7, ..), or 0 on the desktop. */
-  def getVersion(): Int
+  def version: Int
 
   /** @return the Java heap memory use in bytes */
-  def getJavaHeap(): Long
+  def javaHeap: Long
 
   /** @return the Native heap memory use in bytes */
-  def getNativeHeap(): Long
+  def nativeHeap: Long
 
   /** Returns the {@link Preferences} instance of this Application. It can be used to store application settings across runs.
     * @param name
@@ -94,7 +94,7 @@ trait Application {
     */
   def getPreferences(name: String): Preferences
 
-  def getClipboard(): Clipboard
+  def clipboard: Clipboard
 
   /** Posts a {@link Runnable} on the main loop thread.
     *

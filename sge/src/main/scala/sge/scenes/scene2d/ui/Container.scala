@@ -62,7 +62,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
-    if (isTransform) {
+    if (transform) {
       applyTransform(batch, computeTransform())
       drawBackground(batch, parentAlpha, 0, 0)
       if (_clip) {
@@ -124,7 +124,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getBackground: Nullable[Drawable] = _background
+  def background: Nullable[Drawable] = _background
 
   override def layout(): Unit =
     actor.foreach { a =>
@@ -473,7 +473,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def center(): Container[T] = { _align = Align.center; this }
 
   /** Sets {@link Align#top} and clears {@link Align#bottom} for the alignment of the actor within the container. */
-  def top(): Container[T] = { _align = (_align | Align.top) & ~Align.bottom; this }
+  def alignTop(): Container[T] = { _align = (_align | Align.top) & ~Align.bottom; this }
 
   /** Sets {@link Align#left} and clears {@link Align#right} for the alignment of the actor within the container. */
   def left(): Container[T] = { _align = (_align | Align.left) & ~Align.right; this }
@@ -482,59 +482,59 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def bottom(): Container[T] = { _align = (_align | Align.bottom) & ~Align.top; this }
 
   /** Sets {@link Align#right} and clears {@link Align#left} for the alignment of the actor within the container. */
-  def right(): Container[T] = { _align = (_align | Align.right) & ~Align.left; this }
+  def alignRight(): Container[T] = { _align = (_align | Align.right) & ~Align.left; this }
 
-  override def getMinWidth: Float =
+  override def minWidth: Float =
     actor.map(a => _minWidth.get(a)).getOrElse(0f) + _padLeft.get(this) + _padRight.get(this)
 
-  def getMinHeightValue: Value = _minHeight
+  def minHeightValue: Value = _minHeight
 
-  override def getMinHeight: Float =
+  override def minHeight: Float =
     actor.map(a => _minHeight.get(a)).getOrElse(0f) + _padTop.get(this) + _padBottom.get(this)
 
-  def getPrefWidthValue: Value = _prefWidth
+  def prefWidthValue: Value = _prefWidth
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     var v = actor.map(a => _prefWidth.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.minWidth) }
-    Math.max(getMinWidth, v + _padLeft.get(this) + _padRight.get(this))
+    Math.max(minWidth, v + _padLeft.get(this) + _padRight.get(this))
   }
 
-  def getPrefHeightValue: Value = _prefHeight
+  def prefHeightValue: Value = _prefHeight
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     var v = actor.map(a => _prefHeight.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.minHeight) }
-    Math.max(getMinHeight, v + _padTop.get(this) + _padBottom.get(this))
+    Math.max(minHeight, v + _padTop.get(this) + _padBottom.get(this))
   }
 
-  def getMaxWidthValue: Value = _maxWidth
+  def maxWidthValue: Value = _maxWidth
 
-  override def getMaxWidth: Float = {
+  override def maxWidth: Float = {
     var v = actor.map(a => _maxWidth.get(a)).getOrElse(0f)
     if (v > 0) v += _padLeft.get(this) + _padRight.get(this)
     v
   }
 
-  def getMaxHeightValue: Value = _maxHeight
+  def maxHeightValue: Value = _maxHeight
 
-  override def getMaxHeight: Float = {
+  override def maxHeight: Float = {
     var v = actor.map(a => _maxHeight.get(a)).getOrElse(0f)
     if (v > 0) v += _padTop.get(this) + _padBottom.get(this)
     v
   }
 
-  def getPadTopValue: Value = _padTop
-  def getPadTop:      Float = _padTop.get(this)
+  def padTopValue: Value = _padTop
+  def getPadTop:   Float = _padTop.get(this)
 
-  def getPadLeftValue: Value = _padLeft
-  def getPadLeft:      Float = _padLeft.get(this)
+  def padLeftValue: Value = _padLeft
+  def getPadLeft:   Float = _padLeft.get(this)
 
-  def getPadBottomValue: Value = _padBottom
-  def getPadBottom:      Float = _padBottom.get(this)
+  def padBottomValue: Value = _padBottom
+  def getPadBottom:   Float = _padBottom.get(this)
 
-  def getPadRightValue: Value = _padRight
-  def getPadRight:      Float = _padRight.get(this)
+  def padRightValue: Value = _padRight
+  def getPadRight:   Float = _padRight.get(this)
 
   /** Returns {@link #getPadLeft()} plus {@link #getPadRight()}. */
   def getPadX: Float = _padLeft.get(this) + _padRight.get(this)
@@ -544,7 +544,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   def getFillX: Float = _fillX
   def getFillY: Float = _fillY
-  def getAlign: Align = _align
+  def align:    Align = _align
 
   /** If true (the default), positions and sizes are rounded to integers. */
   def setRound(round: Boolean): Unit =
@@ -563,7 +563,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     invalidate()
   }
 
-  def getClip: Boolean = _clip
+  def isClip: Boolean = _clip
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (_clip) {
@@ -575,7 +575,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def drawDebug(shapes: ShapeRenderer): Unit = {
     validate()
-    if (isTransform) {
+    if (transform) {
       applyTransform(shapes, computeTransform())
       if (_clip) {
         shapes.flush()

@@ -6,7 +6,9 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   Convention: replaced getX/Y, getOriginX/Y, getRotation, getScaleX/Y with public read accessors over private _x/_y fields
+ *   Convention: replaced getX/Y, getOriginX/Y, getRotation, getScaleX/Y with public read accessors over private _x/_y fields;
+ *     getVertices -> vertices, getTransformedVertices -> transformedVertices,
+ *     getLength -> length, getScaledLength -> scaledLength, getBoundingRectangle -> boundingRectangle
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -31,8 +33,8 @@ class Polyline() extends Shape2D {
   private var _rotation:                   Float        = 0f
   private var _scaleX:                     Float        = 1f
   private var _scaleY:                     Float        = 1f
-  private var length:                      Float        = 0f
-  private var scaledLength:                Float        = 0f
+  private var _length:                     Float        = 0f
+  private var _scaledLength:               Float        = 0f
   private var shouldCalculateScaledLength: Boolean      = true
   private var shouldCalculateLength:       Boolean      = true
   private var isDirty:                     Boolean      = true
@@ -45,11 +47,11 @@ class Polyline() extends Shape2D {
   }
 
   /** Returns vertices without scaling or rotation and without being offset by the polyline position. */
-  def getVertices(): Array[Float] =
+  def vertices: Array[Float] =
     localVertices
 
   /** Returns vertices scaled, rotated, and offset by the polygon position. */
-  def getTransformedVertices(): Array[Float] =
+  def transformedVertices: Array[Float] =
     if (!isDirty) this.worldVertices
     else {
       isDirty = false
@@ -97,41 +99,41 @@ class Polyline() extends Shape2D {
     }
 
   /** Returns the euclidean length of the polyline without scaling */
-  def getLength(): Float =
-    if (!shouldCalculateLength) length
+  def length: Float =
+    if (!shouldCalculateLength) _length
     else {
       shouldCalculateLength = false
 
-      length = 0
+      _length = 0
       var i = 0
       val n = localVertices.length - 2
       while (i < n) {
         val x = localVertices(i + 2) - localVertices(i)
         val y = localVertices(i + 1) - localVertices(i + 3)
-        length += Math.sqrt(x * x + y * y).toFloat
+        _length += Math.sqrt(x * x + y * y).toFloat
         i += 2
       }
 
-      length
+      _length
     }
 
   /** Returns the euclidean length of the polyline */
-  def getScaledLength(): Float =
-    if (!shouldCalculateScaledLength) scaledLength
+  def scaledLength: Float =
+    if (!shouldCalculateScaledLength) _scaledLength
     else {
       shouldCalculateScaledLength = false
 
-      scaledLength = 0
+      _scaledLength = 0
       var i = 0
       val n = localVertices.length - 2
       while (i < n) {
         val x = localVertices(i + 2) * _scaleX - localVertices(i) * _scaleX
         val y = localVertices(i + 1) * _scaleY - localVertices(i + 3) * _scaleY
-        scaledLength += Math.sqrt(x * x + y * y).toFloat
+        _scaledLength += Math.sqrt(x * x + y * y).toFloat
         i += 2
       }
 
-      scaledLength
+      _scaledLength
     }
 
   def x: Float = _x
@@ -212,8 +214,8 @@ class Polyline() extends Shape2D {
     * @return
     *   this polyline's bounding box {@link Rectangle}
     */
-  def getBoundingRectangle(): Rectangle = {
-    val vertices = getTransformedVertices()
+  def boundingRectangle: Rectangle = {
+    val vertices = transformedVertices
 
     var minX = vertices(0)
     var minY = vertices(1)

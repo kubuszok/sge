@@ -129,11 +129,11 @@ object StreamUtils {
   /** A ByteArrayOutputStream which avoids copying of the byte array if possible. */
   final class OptimizedByteArrayOutputStream(initialSize: Int) extends ByteArrayOutputStream(initialSize) {
 
-    override def toByteArray(): Array[Byte] =
+    override def toByteArray: Array[Byte] =
       if (count == buf.length) buf
-      else super.toByteArray()
+      else super.toByteArray
 
-    def getBuffer(): Array[Byte] =
+    def buffer: Array[Byte] =
       buf
   }
 }

@@ -69,7 +69,7 @@ object ScreenUtils {
     Sge().graphics.gl.glClearColor(r, g, b, a)
     var mask: ClearMask = ClearMask.ColorBufferBit
     if (clearDepth) mask = mask | ClearMask.DepthBufferBit
-    if (applyAntialiasing && Sge().graphics.getBufferFormat().coverageSampling) mask = mask | ClearMask(GL20.GL_COVERAGE_BUFFER_BIT_NV)
+    if (applyAntialiasing && Sge().graphics.bufferFormat.coverageSampling) mask = mask | ClearMask(GL20.GL_COVERAGE_BUFFER_BIT_NV)
     Sge().graphics.gl.glClear(mask)
   }
 
@@ -77,9 +77,9 @@ object ScreenUtils {
     * dimensions and RGBA8888 {@link Format}. It can be accessed via {@link TextureRegion#getTexture}. The texture is not managed and has to be reloaded manually on a context loss. The returned
     * TextureRegion is flipped along the Y axis by default.
     */
-  def getFrameBufferTexture()(using Sge): TextureRegion = {
-    val w = Sge().graphics.getBackBufferWidth()
-    val h = Sge().graphics.getBackBufferHeight()
+  def frameBufferTexture(using Sge): TextureRegion = {
+    val w = Sge().graphics.backBufferWidth
+    val h = Sge().graphics.backBufferHeight
     getFrameBufferTexture(Pixels.zero, Pixels.zero, w, h)
   }
 
@@ -125,8 +125,8 @@ object ScreenUtils {
     *   whether to flip pixels along Y axis
     */
   def getFrameBufferPixels(flipY: Boolean)(using Sge): Array[Byte] = {
-    val w = Sge().graphics.getBackBufferWidth()
-    val h = Sge().graphics.getBackBufferHeight()
+    val w = Sge().graphics.backBufferWidth
+    val h = Sge().graphics.backBufferHeight
     getFrameBufferPixels(Pixels.zero, Pixels.zero, w, h, flipY)
   }
 

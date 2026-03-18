@@ -20,6 +20,7 @@ import java.io.{ InputStream, InputStreamReader, Reader }
 
 import scala.util.boundary
 import scala.util.boundary.break
+import scala.util.control.NonFatal
 
 /** Lightweight XML parser.
   *
@@ -43,7 +44,7 @@ class XmlReader {
       }
     } finally
       try reader.close()
-      catch { case _: Exception => () }
+      catch { case NonFatal(_) => () }
     parse(sb.toString)
   }
 

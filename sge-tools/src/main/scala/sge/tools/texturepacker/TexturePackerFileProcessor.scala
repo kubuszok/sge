@@ -57,9 +57,8 @@ class TexturePackerFileProcessor(
     setComparator(Ordering.by[File, String](_.getName()))
   }
 
-  def this() = {
+  def this() =
     this(Settings(), "pack.atlas", Nullable.empty)
-  }
 
   override def process(inputFile: File, outputRoot: File): ArrayBuffer[FileProcessor.Entry] = {
     root = Nullable(inputFile)

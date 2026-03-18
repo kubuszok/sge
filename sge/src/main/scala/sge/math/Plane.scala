@@ -154,12 +154,6 @@ class Plane {
     dot <= 0
   }
 
-  /** @return The normal */
-  def getNormal: Vector3 = normal
-
-  /** @return The distance to the origin */
-  def getD: Float = d
-
   /** Sets the plane to the given point and normal.
     *
     * @param point

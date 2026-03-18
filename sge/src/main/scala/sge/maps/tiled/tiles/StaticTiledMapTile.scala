@@ -9,8 +9,12 @@
  * Migration notes:
  * - Audited 2026-03-03 against libGDX source: all methods, fields, and constructors match 1:1
  * - Java null-initialized properties/objects replaced with Nullable.empty
- * - getProperties/getObjects use Nullable lazy-init pattern (matches Java null-check-then-create)
+ * - properties/objects use Nullable lazy-init pattern (matches Java null-check-then-create)
  * - 2 constructors: primary (TextureRegion) + copy constructor (StaticTiledMapTile)
+ *   Renames: getId/setId → var id, getBlendMode/setBlendMode → var blendMode,
+ *     getTextureRegion/setTextureRegion → var textureRegion,
+ *     getOffsetX/setOffsetX → var offsetX, getOffsetY/setOffsetY → var offsetY,
+ *     getProperties → def properties, getObjects → def objects
  */
 package sge
 package maps
@@ -22,19 +26,19 @@ import sge.maps.{ MapObjects, MapProperties }
 import sge.utils.Nullable
 
 /** @brief Represents a non changing {@link TiledMapTile} (can be cached) */
-class StaticTiledMapTile(private var textureRegion: TextureRegion) extends TiledMapTile {
+class StaticTiledMapTile(private var _textureRegion: TextureRegion) extends TiledMapTile {
 
-  private var id: Int = 0
+  private var _id: Int = 0
 
-  private var blendMode: TiledMapTile.BlendMode = TiledMapTile.BlendMode.ALPHA
+  private var _blendMode: TiledMapTile.BlendMode = TiledMapTile.BlendMode.ALPHA
 
   private var _properties: Nullable[MapProperties] = Nullable.empty
 
   private var _objects: Nullable[MapObjects] = Nullable.empty
 
-  private var offsetX: Float = 0f
+  private var _offsetX: Float = 0f
 
-  private var offsetY: Float = 0f
+  private var _offsetY: Float = 0f
 
   /** Copy constructor
     *
@@ -42,50 +46,50 @@ class StaticTiledMapTile(private var textureRegion: TextureRegion) extends Tiled
     *   the StaticTiledMapTile to copy.
     */
   def this(copy: StaticTiledMapTile) = {
-    this(copy.textureRegion)
+    this(copy._textureRegion)
     copy._properties.foreach { props =>
-      getProperties.putAll(props)
+      properties.putAll(props)
     }
     this._objects = copy._objects
-    this.id = copy.id
+    this._id = copy._id
   }
 
-  override def getId: Int = id
+  override def id: Int = _id
 
-  override def setId(id: Int): Unit =
-    this.id = id
+  override def id_=(id: Int): Unit =
+    this._id = id
 
-  override def getBlendMode: TiledMapTile.BlendMode = blendMode
+  override def blendMode: TiledMapTile.BlendMode = _blendMode
 
-  override def setBlendMode(blendMode: TiledMapTile.BlendMode): Unit =
-    this.blendMode = blendMode
+  override def blendMode_=(blendMode: TiledMapTile.BlendMode): Unit =
+    this._blendMode = blendMode
 
-  override def getProperties: MapProperties = {
+  override def properties: MapProperties = {
     if (_properties.isEmpty) {
       _properties = Nullable(MapProperties())
     }
     _properties.getOrElse(MapProperties())
   }
 
-  override def getObjects: MapObjects = {
+  override def objects: MapObjects = {
     if (_objects.isEmpty) {
       _objects = Nullable(MapObjects())
     }
     _objects.getOrElse(MapObjects())
   }
 
-  override def getTextureRegion: TextureRegion = textureRegion
+  override def textureRegion: TextureRegion = _textureRegion
 
-  override def setTextureRegion(textureRegion: TextureRegion): Unit =
-    this.textureRegion = textureRegion
+  override def textureRegion_=(textureRegion: TextureRegion): Unit =
+    this._textureRegion = textureRegion
 
-  override def getOffsetX: Float = offsetX
+  override def offsetX: Float = _offsetX
 
-  override def setOffsetX(offsetX: Float): Unit =
-    this.offsetX = offsetX
+  override def offsetX_=(offsetX: Float): Unit =
+    this._offsetX = offsetX
 
-  override def getOffsetY: Float = offsetY
+  override def offsetY: Float = _offsetY
 
-  override def setOffsetY(offsetY: Float): Unit =
-    this.offsetY = offsetY
+  override def offsetY_=(offsetY: Float): Unit =
+    this._offsetY = offsetY
 }

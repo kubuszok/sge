@@ -66,7 +66,7 @@ class FloatCounter(windowSize: Int) extends Poolable {
     mean match {
       case Some(m) =>
         m.addValue(value)
-        this.value = m.getMean()
+        this.value = m.mean
       case None =>
         this.value = latest
     }

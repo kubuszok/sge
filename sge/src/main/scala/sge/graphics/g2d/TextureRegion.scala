@@ -43,7 +43,7 @@ class TextureRegion() {
   def this(texture: Texture) = {
     this()
     this.texture = texture
-    setRegion(0, 0, texture.getWidth.toInt, texture.getHeight.toInt)
+    setRegion(0, 0, texture.width.toInt, texture.height.toInt)
   }
 
   /** @param width
@@ -94,7 +94,7 @@ class TextureRegion() {
   /** Sets the texture and sets the coordinates to the size of the specified texture. */
   def setRegion(texture: Texture): Unit = {
     this.texture = texture
-    setRegion(0, 0, texture.getWidth.toInt, texture.getHeight.toInt)
+    setRegion(0, 0, texture.width.toInt, texture.height.toInt)
   }
 
   /** @param width
@@ -103,16 +103,16 @@ class TextureRegion() {
     *   The height of the texture region. May be negative to flip the sprite when drawn.
     */
   def setRegion(x: Int, y: Int, width: Int, height: Int): Unit = {
-    val invTexWidth  = 1f / texture.getWidth.toFloat
-    val invTexHeight = 1f / texture.getHeight.toFloat
+    val invTexWidth  = 1f / texture.width.toFloat
+    val invTexHeight = 1f / texture.height.toFloat
     setRegion(x * invTexWidth, y * invTexHeight, (x + width) * invTexWidth, (y + height) * invTexHeight)
     _regionWidth = abs(width)
     _regionHeight = abs(height)
   }
 
   def setRegion(u: Float, v: Float, u2: Float, v2: Float): Unit = {
-    val texWidth  = texture.getWidth.toFloat
-    val texHeight = texture.getHeight.toFloat
+    val texWidth  = texture.width.toFloat
+    val texHeight = texture.height.toFloat
     _regionWidth = round(abs(u2 - u) * texWidth)
     _regionHeight = round(abs(v2 - v) * texHeight)
 
@@ -148,48 +148,48 @@ class TextureRegion() {
 
   def u_=(u: Float): Unit = {
     _u = u
-    _regionWidth = round(abs(_u2 - _u) * texture.getWidth.toFloat)
+    _regionWidth = round(abs(_u2 - _u) * texture.width.toFloat)
   }
 
   def v: Float = _v
 
   def v_=(v: Float): Unit = {
     _v = v
-    _regionHeight = round(abs(_v2 - _v) * texture.getHeight.toFloat)
+    _regionHeight = round(abs(_v2 - _v) * texture.height.toFloat)
   }
 
   def u2: Float = _u2
 
   def u2_=(u2: Float): Unit = {
     _u2 = u2
-    _regionWidth = round(abs(_u2 - _u) * texture.getWidth.toFloat)
+    _regionWidth = round(abs(_u2 - _u) * texture.width.toFloat)
   }
 
   def v2: Float = _v2
 
   def v2_=(v2: Float): Unit = {
     _v2 = v2
-    _regionHeight = round(abs(_v2 - _v) * texture.getHeight.toFloat)
+    _regionHeight = round(abs(_v2 - _v) * texture.height.toFloat)
   }
 
-  def regionX: Int = round(_u * texture.getWidth.toFloat)
+  def regionX: Int = round(_u * texture.width.toFloat)
 
   def regionX_=(x: Int): Unit =
-    u = x / texture.getWidth.toFloat
+    u = x / texture.width.toFloat
 
-  def regionY: Int = round(_v * texture.getHeight.toFloat)
+  def regionY: Int = round(_v * texture.height.toFloat)
 
   def regionY_=(y: Int): Unit =
-    v = y / texture.getHeight.toFloat
+    v = y / texture.height.toFloat
 
   /** Returns the region's width. */
   def regionWidth: Int = _regionWidth
 
   def regionWidth_=(width: Int): Unit =
     if (flipX) {
-      u = _u2 + width / texture.getWidth.toFloat
+      u = _u2 + width / texture.width.toFloat
     } else {
-      u2 = _u + width / texture.getWidth.toFloat
+      u2 = _u + width / texture.width.toFloat
     }
 
   /** Returns the region's height. */
@@ -197,9 +197,9 @@ class TextureRegion() {
 
   def regionHeight_=(height: Int): Unit =
     if (flipY) {
-      v = _v2 + height / texture.getHeight.toFloat
+      v = _v2 + height / texture.height.toFloat
     } else {
-      v2 = _v + height / texture.getHeight.toFloat
+      v2 = _v + height / texture.height.toFloat
     }
 
   def flip(x: Boolean, y: Boolean): Unit = {
@@ -227,14 +227,14 @@ class TextureRegion() {
     */
   def scroll(xAmount: Float, yAmount: Float): Unit = {
     if (xAmount != 0) {
-      val width = (_u2 - _u) * texture.getWidth.toFloat
+      val width = (_u2 - _u) * texture.width.toFloat
       _u = (_u + xAmount) % 1
-      _u2 = _u + width / texture.getWidth.toFloat
+      _u2 = _u + width / texture.width.toFloat
     }
     if (yAmount != 0) {
-      val height = (_v2 - _v) * texture.getHeight.toFloat
+      val height = (_v2 - _v) * texture.height.toFloat
       _v = (_v + yAmount) % 1
-      _v2 = _v + height / texture.getHeight.toFloat
+      _v2 = _v + height / texture.height.toFloat
     }
   }
 

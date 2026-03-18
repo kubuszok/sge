@@ -29,6 +29,8 @@ import sge.graphics.Pixmap
 import sge.Sge
 import sge.utils.{ BufferUtils, DynamicArray, MkArray, Nullable }
 
+import scala.annotation.publicInBinary
+
 /** <p> Encapsulates OpenGL ES 2.0 frame buffer objects. This is a simple helper class which should cover most FBO uses. It will automatically create a gltexture for the color attachment and a
   * renderbuffer for the depth buffer. You can get a hold of the gltexture by GLFrameBuffer.getColorBufferTexture(). This class will only work with OpenGL ES 2.0. </p>
   *
@@ -43,7 +45,7 @@ import sge.utils.{ BufferUtils, DynamicArray, MkArray, Nullable }
 abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
 
   /** the color buffer texture * */
-  protected val textureAttachments: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  protected val _textureAttachments: DynamicArray[T] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
 
   /** the framebuffer handle * */
   protected var framebufferHandle: Int = scala.compiletime.uninitialized
@@ -80,12 +82,12 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   }
 
   /** Convenience method to return the first Texture attachment present in the fbo * */
-  def getColorBufferTexture(): T =
-    textureAttachments.first
+  def colorBufferTexture: T =
+    _textureAttachments.first
 
   /** Return the Texture attachments attached to the fbo * */
-  def getTextureAttachments(): DynamicArray[T] =
-    textureAttachments
+  def textureAttachments: DynamicArray[T] =
+    _textureAttachments
 
   /** Override this method in a derived class to set up the backing texture as you like. */
   protected def createTexture(attachmentSpec: GLFrameBuffer.FrameBufferTextureAttachmentSpec): T
@@ -97,14 +99,14 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   protected def attachFrameBufferColorTexture(texture: T): Unit
 
   private def checkValidBuilder(): Unit = {
-    if (bufferBuilder.samples > 0 && !Sge().graphics.isGL30Available()) {
+    if (bufferBuilder.samples > 0 && !Sge().graphics.gl30Available) {
       throw SgeError.GraphicsError("Framebuffer multisample requires GLES 3.0+")
     }
     if (bufferBuilder.samples > 0 && bufferBuilder.textureAttachmentSpecs.size > 0) {
       throw SgeError.GraphicsError("Framebuffer multisample with texture attachments not yet supported")
     }
 
-    val runningGL30 = Sge().graphics.isGL30Available()
+    val runningGL30 = Sge().graphics.gl30Available
 
     if (!runningGL30) {
       val supportsPackedDepthStencil = Sge().graphics.supportsExtension("GL_OES_packed_depth_stencil") ||
@@ -143,7 +145,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     // iOS uses a different framebuffer handle! (not necessarily 0)
     if (!GLFrameBuffer.defaultFramebufferHandleInitialized) {
       GLFrameBuffer.defaultFramebufferHandleInitialized = true
-      if (Sge().application.getType() == Application.ApplicationType.iOS) {
+      if (Sge().application.applicationType == Application.ApplicationType.iOS) {
         val intbuf = ByteBuffer.allocateDirect(16 * Integer.SIZE / 8).order(ByteOrder.nativeOrder()).asIntBuffer()
         gl.glGetIntegerv(GL20.GL_FRAMEBUFFER_BINDING, intbuf)
         GLFrameBuffer.defaultFramebufferHandle = intbuf.get(0)
@@ -218,26 +220,26 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     if (isMRT) {
       bufferBuilder.textureAttachmentSpecs.foreach { attachmentSpec =>
         val texture = createTexture(attachmentSpec)
-        textureAttachments.add(texture)
+        _textureAttachments.add(texture)
         if (attachmentSpec.isColorTexture()) {
           gl.glFramebufferTexture2D(
             GL20.GL_FRAMEBUFFER,
             GL20.GL_COLOR_ATTACHMENT0 + colorAttachmentCounter,
             TextureTarget.Texture2D,
-            texture.getTextureObjectHandle().toInt,
+            texture.textureObjectHandle.toInt,
             0
           )
           colorAttachmentCounter += 1
         } else if (attachmentSpec.isDepth) {
-          gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT, TextureTarget.Texture2D, texture.getTextureObjectHandle().toInt, 0)
+          gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_DEPTH_ATTACHMENT, TextureTarget.Texture2D, texture.textureObjectHandle.toInt, 0)
         } else if (attachmentSpec.isStencil) {
-          gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_STENCIL_ATTACHMENT, TextureTarget.Texture2D, texture.getTextureObjectHandle().toInt, 0)
+          gl.glFramebufferTexture2D(GL20.GL_FRAMEBUFFER, GL20.GL_STENCIL_ATTACHMENT, TextureTarget.Texture2D, texture.textureObjectHandle.toInt, 0)
         }
       }
     } else if (bufferBuilder.textureAttachmentSpecs.size > 0) {
       val texture = createTexture(bufferBuilder.textureAttachmentSpecs.first)
-      textureAttachments.add(texture)
-      gl.glBindTexture(texture.glTarget, texture.getTextureObjectHandle().toInt)
+      _textureAttachments.add(texture)
+      gl.glBindTexture(texture.glTarget, texture.textureObjectHandle.toInt)
     }
 
     bufferBuilder.colorRenderBufferSpecs.foreach { colorBufferSpec =>
@@ -268,7 +270,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
       val gl30 = Sge().graphics.gl30.orNull // Nullable -> GL30 at Java interop boundary
       gl30.glDrawBuffers(colorAttachmentCounter, drawBuffers)
     } else if (bufferBuilder.textureAttachmentSpecs.size > 0) {
-      attachFrameBufferColorTexture(textureAttachments.first)
+      attachFrameBufferColorTexture(_textureAttachments.first)
     }
 
     if (bufferBuilder.hasDepthRenderBuffer) {
@@ -388,7 +390,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     Sge().graphics.gl20.glBindFramebuffer(GL20.GL_FRAMEBUFFER, framebufferHandle)
 
   /** Binds the frame buffer and sets the viewport accordingly, so everything gets drawn to it. */
-  def begin(): Unit = {
+  @publicInBinary private[sge] def begin(): Unit = {
     bind()
     setFrameBufferViewport()
   }
@@ -398,8 +400,8 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     Sge().graphics.gl20.glViewport(Pixels.zero, Pixels.zero, bufferBuilder.width, bufferBuilder.height)
 
   /** Unbinds the framebuffer, all drawing will be performed to the normal framebuffer from here on. */
-  def end(): Unit =
-    end(Pixels.zero, Pixels.zero, Sge().graphics.getBackBufferWidth(), Sge().graphics.getBackBufferHeight())
+  @publicInBinary private[sge] def end(): Unit =
+    end(Pixels.zero, Pixels.zero, Sge().graphics.backBufferWidth, Sge().graphics.backBufferHeight)
 
   /** Unbinds the framebuffer and sets viewport sizes, all drawing will be performed to the normal framebuffer from here on.
     *
@@ -412,9 +414,16 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
     * @param height
     *   the height of the viewport in pixels
     */
-  def end(x: Pixels, y: Pixels, width: Pixels, height: Pixels): Unit = {
+  @publicInBinary private[sge] def end(x: Pixels, y: Pixels, width: Pixels, height: Pixels): Unit = {
     GLFrameBuffer.unbind()
     Sge().graphics.gl20.glViewport(x, y, width, height)
+  }
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def use[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
   }
 
   /** Transfer pixels from this frame buffer to the destination frame buffer. Usually used when using multisample, it resolves samples from this multisample FBO to a non-multisample as destination in
@@ -554,7 +563,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   /** @return
     *   The OpenGL handle of the (optional) depth buffer (see GL20.glGenRenderbuffer()). May return 0 even if depth buffer enabled
     */
-  def getDepthBufferHandle(): Int = depthbufferHandle
+  def depthBufferHandle: Int = depthbufferHandle
 
   /** @param n
     *   index of the color buffer as added to the frame buffer builder.
@@ -566,10 +575,10 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   /** @return
     *   The OpenGL handle of the (optional) stencil buffer (see GL20.glGenRenderbuffer()). May return 0 even if stencil buffer enabled
     */
-  def getStencilBufferHandle(): Int = stencilbufferHandle
+  def stencilBufferHandle: Int = stencilbufferHandle
 
   /** @return The OpenGL handle of the packed depth & stencil buffer (GL_DEPTH24_STENCIL8_OES) or 0 if not used. * */
-  protected def getDepthStencilPackedBuffer(): Int = depthStencilPackedBufferHandle
+  protected def depthStencilPackedBuffer: Int = depthStencilPackedBufferHandle
 
   /** @return the height of the framebuffer in pixels */
   def getHeight(): Pixels = bufferBuilder.height
@@ -623,7 +632,7 @@ object GLFrameBuffer {
     builder
   }
 
-  def getManagedStatus(): String =
+  def managedStatus: String =
     getManagedStatus(new StringBuilder()).toString()
 
   class FrameBufferTextureAttachmentSpec(val internalFormat: Int, val format: PixelFormat, val `type`: DataType) {

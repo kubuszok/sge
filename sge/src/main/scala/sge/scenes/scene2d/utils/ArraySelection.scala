@@ -27,8 +27,8 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   *   Nathan Sweet
   */
 class ArraySelection[T](private val array: DynamicArray[T])(using Sge) extends Selection[T]() {
-  private var rangeSelect: Boolean     = true
-  private var rangeStart:  Nullable[T] = Nullable.empty
+  private var _rangeSelect: Boolean     = true
+  private var rangeStart:   Nullable[T] = Nullable.empty
 
   override def choose(item: T): Unit =
     if (_isDisabled) ()
@@ -72,9 +72,9 @@ class ArraySelection[T](private val array: DynamicArray[T])(using Sge) extends S
   override protected def changed(): Unit =
     rangeStart = Nullable.empty
 
-  def getRangeSelect: Boolean = rangeSelect
+  def rangeSelect: Boolean = _rangeSelect
 
-  def setRangeSelect(rangeSelect: Boolean): Unit = this.rangeSelect = rangeSelect
+  def setRangeSelect(rangeSelect: Boolean): Unit = this._rangeSelect = rangeSelect
 
   /** Removes objects from the selection that are no longer in the items array. If {@link #getRequired()} is true and there is no selected item, the first item is selected.
     */

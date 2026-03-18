@@ -24,11 +24,13 @@ import sge.utils.SgeError
 
 class AmbientCubemap private[environment] (val data: Array[Float]) {
 
-  def this() =
+  def this() = {
     this(new Array[Float](AmbientCubemap.NUM_VALUES))
+  }
 
-  def this(copyFrom: AmbientCubemap) =
+  def this(copyFrom: AmbientCubemap) = {
     this(AmbientCubemap.copyArray(copyFrom.data))
+  }
 
   def set(values: Array[Float]): AmbientCubemap = {
     var i = 0

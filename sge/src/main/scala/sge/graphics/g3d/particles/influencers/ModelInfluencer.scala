@@ -57,7 +57,7 @@ abstract class ModelInfluencer extends Influencer {
   }
 
   override def load(manager: AssetManager, resources: ResourceData[?]): Unit = {
-    val data       = resources.getSaveData()
+    val data       = resources.saveData
     var descriptor = data.loadAsset()
     while (descriptor.isDefined) {
       descriptor.foreach { desc =>

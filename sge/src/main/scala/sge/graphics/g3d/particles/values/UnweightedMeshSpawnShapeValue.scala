@@ -46,9 +46,9 @@ final class UnweightedMeshSpawnShapeValue extends MeshSpawnShapeValue {
 
   override def setMesh(mesh: Mesh, model: Nullable[Model]): Unit = {
     super.setMesh(mesh, model)
-    vertexSize = mesh.getVertexSize() / 4
+    vertexSize = mesh.vertexSize / 4
     positionOffset = mesh.getVertexAttribute(VertexAttributes.Usage.Position).fold(throw SgeError.InvalidInput("Mesh must have Usage.Position"))(_.offset / 4)
-    val indicesCount = mesh.getNumIndices()
+    val indicesCount = mesh.numIndices
     if (indicesCount > 0) {
       val idx = new Array[Short](indicesCount)
       mesh.getIndices(idx)
@@ -57,7 +57,7 @@ final class UnweightedMeshSpawnShapeValue extends MeshSpawnShapeValue {
     } else {
       indices = Nullable.empty
     }
-    vertexCount = mesh.getNumVertices()
+    vertexCount = mesh.numVertices
     vertices = new Array[Float](vertexCount * vertexSize)
     mesh.getVertices(vertices)
   }

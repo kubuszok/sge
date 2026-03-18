@@ -33,14 +33,15 @@ import java.nio.FloatBuffer
   * @author
   *   mrdlink
   */
-class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
+class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numInstances: Int, instanceAttributes: VertexAttribute*)(using Sge) =
-    this(isStatic, numInstances, VertexAttributes(instanceAttributes*))
+  def this(isStatic: Boolean, initialNumInstances: Int, instanceAttributes: VertexAttribute*)(using Sge) = {
+    this(isStatic, initialNumInstances, VertexAttributes(instanceAttributes*))
+  }
 
   val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else VertexAttributes()
 
-  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(this.attributes.vertexSize * numInstances)
+  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(this.attributes.vertexSize * initialNumInstances)
   val buffer:       FloatBuffer = byteBuffer.asFloatBuffer()
   var bufferHandle: Int         = 0
   val isDirect:     Boolean     = true
@@ -62,21 +63,19 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, numInstances: Int, inst
     result
   }
 
-  override def getAttributes(): VertexAttributes = attributes
-
-  /** Effectively returns getNumInstances().
+  /** Effectively returns numInstances.
     *
     * @return
     *   number of instances in this buffer
     */
-  override def getNumInstances(): Int = buffer.limit() * 4 / attributes.vertexSize
+  override def numInstances: Int = buffer.limit() * 4 / attributes.vertexSize
 
-  /** Effectively returns getNumMaxInstances().
+  /** Effectively returns numMaxInstances.
     *
     * @return
     *   maximum number of instances in this buffer
     */
-  override def getNumMaxInstances(): Int = byteBuffer.capacity() / attributes.vertexSize
+  override def numMaxInstances: Int = byteBuffer.capacity() / attributes.vertexSize
 
   /** @deprecated use getBuffer(Boolean) instead */
   @deprecated("use getBuffer(Boolean) instead", "1.0")

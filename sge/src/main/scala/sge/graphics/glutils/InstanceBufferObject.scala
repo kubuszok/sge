@@ -32,10 +32,11 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) =
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
     this(isStatic, numVertices, VertexAttributes(attributes*))
+  }
 
-  private var attributes:   VertexAttributes = scala.compiletime.uninitialized
+  private var _attributes:  VertexAttributes = scala.compiletime.uninitialized
   private var buffer:       FloatBuffer      = scala.compiletime.uninitialized
   private var byteBuffer:   ByteBuffer       = scala.compiletime.uninitialized
   private var ownsBuffer:   Boolean          = false
@@ -54,11 +55,11 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
   setBuffer(data, true, instanceAttributes)
   setUsage(if (isStatic) BufferUsage.StaticDraw else BufferUsage.DynamicDraw)
 
-  override def getAttributes(): VertexAttributes = attributes
+  override def attributes: VertexAttributes = _attributes
 
-  override def getNumInstances(): Int = buffer.limit() * 4 / attributes.vertexSize
+  override def numInstances: Int = buffer.limit() * 4 / _attributes.vertexSize
 
-  override def getNumMaxInstances(): Int = byteBuffer.capacity() / attributes.vertexSize
+  override def numMaxInstances: Int = byteBuffer.capacity() / _attributes.vertexSize
 
   /** @deprecated use getBuffer(Boolean) instead */
   @deprecated("use getBuffer(Boolean) instead", "1.0")
@@ -81,7 +82,7 @@ class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttribut
   protected def setBuffer(data: Buffer, ownsBuffer: Boolean, value: VertexAttributes): Unit = {
     if (isBound) throw SgeError.GraphicsError("Cannot change attributes while VBO is bound")
     if (this.ownsBuffer && Nullable(byteBuffer).isDefined) BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
-    attributes = value
+    _attributes = value
     data match {
       case bb: ByteBuffer => byteBuffer = bb
       case _ => throw SgeError.GraphicsError("Only ByteBuffer is currently supported")

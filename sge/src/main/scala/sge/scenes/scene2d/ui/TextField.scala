@@ -40,32 +40,32 @@ import sge.utils.{ Align, Clipboard, DynamicArray, Nullable, Seconds, Timer }
   * @author
   *   Nathan Sweet
   */
-class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using Sge) extends Widget with Disableable with Styleable[TextField.TextFieldStyle] {
+class TextField(initialText: Nullable[String], initialStyle: TextField.TextFieldStyle)(using Sge) extends Widget with Disableable with Styleable[TextField.TextFieldStyle] {
 
   import TextField._
 
-  protected var _text:          String              = ""
-  protected var cursor:         Int                 = 0
-  protected var selectionStart: Int                 = 0
-  protected var hasSelection:   Boolean             = false
-  protected var writeEnters:    Boolean             = false
-  protected val glyphLayout:    GlyphLayout         = GlyphLayout()
-  protected val glyphPositions: DynamicArray[Float] = DynamicArray[Float]()
+  protected var _text:             String              = ""
+  protected var cursor:            Int                 = 0
+  private[ui] var _selectionStart: Int                 = 0
+  protected var hasSelection:      Boolean             = false
+  protected var writeEnters:       Boolean             = false
+  protected val glyphLayout:       GlyphLayout         = GlyphLayout()
+  protected val glyphPositions:    DynamicArray[Float] = DynamicArray[Float]()
 
-  protected var _style:       TextField.TextFieldStyle    = scala.compiletime.uninitialized
-  private var messageText:    Nullable[String]            = Nullable.empty
-  protected var displayText:  CharSequence                = ""
-  var clipboard:              Clipboard                   = Sge().application.getClipboard()
-  var inputListener:          InputListener               = scala.compiletime.uninitialized
-  var listener:               Nullable[TextFieldListener] = Nullable.empty
-  var filter:                 Nullable[TextFieldFilter]   = Nullable.empty
-  var keyboard:               OnscreenKeyboard            = DEFAULT_ONSCREEN_KEYBOARD
-  var focusTraversal:         Boolean                     = true
-  var onlyFontChars:          Boolean                     = true
-  var disabled:               Boolean                     = false
-  private var textHAlign:     Align                       = Align.left
-  private var selectionX:     Float                       = 0
-  private var selectionWidth: Float                       = 0
+  protected var _style:            TextField.TextFieldStyle    = scala.compiletime.uninitialized
+  private var _messageText:        Nullable[String]            = Nullable.empty
+  protected var displayText:       CharSequence                = ""
+  var clipboard:                   Clipboard                   = Sge().application.clipboard
+  var inputListener:               InputListener               = scala.compiletime.uninitialized
+  var listener:                    Nullable[TextFieldListener] = Nullable.empty
+  var filter:                      Nullable[TextFieldFilter]   = Nullable.empty
+  var keyboard:                    OnscreenKeyboard            = DEFAULT_ONSCREEN_KEYBOARD
+  private[ui] var _focusTraversal: Boolean                     = true
+  var onlyFontChars:               Boolean                     = true
+  var disabled:                    Boolean                     = false
+  private var textHAlign:          Align                       = Align.left
+  private var selectionX:          Float                       = 0
+  private var selectionWidth:      Float                       = 0
 
   var undoText:       String = ""
   var lastChangeTime: Long   = 0
@@ -98,13 +98,13 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       }
   }
 
-  val keyRepeatTask:            KeyRepeatTask = KeyRepeatTask()
-  var programmaticChangeEvents: Boolean       = false
+  val keyRepeatTask:                         KeyRepeatTask = KeyRepeatTask()
+  private[ui] var _programmaticChangeEvents: Boolean       = false
 
-  setStyle(style)
+  setStyle(initialStyle)
   initialize()
-  setText(text.getOrElse(""))
-  setSize(getPrefWidth, getPrefHeight)
+  setText(initialText.getOrElse(""))
+  setSize(prefWidth, prefHeight)
 
   /** Creates a new TextField. */
   def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get[TextField.TextFieldStyle])
@@ -122,7 +122,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   protected def letterUnderCursor(x: Float): Int = boundary {
     var adjustedX  = x - textOffset - fontOffset + _style.font.data.cursorX + glyphPositions(visibleTextStart)
-    val background = getBackgroundDrawable()
+    val background = backgroundDrawable
     background.foreach { bg =>
       adjustedX -= bg.leftWidth
     }
@@ -210,11 +210,11 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
   /** Returns the text field's style. Modifying the returned style may not have an effect until {@link #setStyle(TextFieldStyle)} is called.
     */
-  def getStyle: TextField.TextFieldStyle = _style
+  def style: TextField.TextFieldStyle = _style
 
   protected def calculateOffsets(): Unit = {
     var visibleWidth = this.width
-    val background   = getBackgroundDrawable()
+    val background   = backgroundDrawable
     background.foreach { bg =>
       visibleWidth -= bg.leftWidth + bg.rightWidth
     }
@@ -282,8 +282,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
 
     // calculate selection x position and width
     if (hasSelection) {
-      val minIndex = Math.min(cursor, selectionStart)
-      val maxIndex = Math.max(cursor, selectionStart)
+      val minIndex = Math.min(cursor, _selectionStart)
+      val maxIndex = Math.max(cursor, _selectionStart)
       val minX     = Math.max(glyphPositions(minIndex) - glyphPositions(visibleTextStart), -textOffset)
       val maxX     = Math.min(glyphPositions(maxIndex) - glyphPositions(visibleTextStart), visibleWidth - textOffset)
       selectionX = minX
@@ -291,7 +291,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     }
   }
 
-  protected def getBackgroundDrawable(): Nullable[Drawable] =
+  protected def backgroundDrawable: Nullable[Drawable] =
     if (disabled && _style.disabledBackground.isDefined) _style.disabledBackground
     else if (_style.focusedBackground.isDefined && hasKeyboardFocus) _style.focusedBackground
     else _style.background
@@ -317,7 +317,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       else _style.fontColor
     val selection   = _style.selection
     val cursorPatch = _style.cursor
-    val background  = getBackgroundDrawable()
+    val background  = backgroundDrawable
 
     val color = this.color
     val tx    = this.x
@@ -466,19 +466,19 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     visibleTextStart = Math.min(visibleTextStart, glyphPositions.size - 1)
     visibleTextEnd = MathUtils.clamp(visibleTextEnd, visibleTextStart, glyphPositions.size - 1)
 
-    if (selectionStart > newDisplayText.length()) selectionStart = textLength
+    if (_selectionStart > newDisplayText.length()) _selectionStart = textLength
   }
 
   /** Copies the contents of this TextField to the {@link Clipboard} implementation set on this TextField. */
   def copy(): Unit =
     if (hasSelection && !passwordMode) {
-      clipboard.contents = Nullable(_text.substring(Math.min(cursor, selectionStart), Math.max(cursor, selectionStart)))
+      clipboard.contents = Nullable(_text.substring(Math.min(cursor, _selectionStart), Math.max(cursor, _selectionStart)))
     }
 
   /** Copies the selected contents of this TextField to the {@link Clipboard} implementation set on this TextField, then removes it.
     */
   def cut(): Unit =
-    cut(programmaticChangeEvents)
+    cut(_programmaticChangeEvents)
 
   private[ui] def cut(fireChangeEvent: Boolean): Unit =
     if (hasSelection && !passwordMode) {
@@ -491,7 +491,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     content.foreach { rawContent =>
       val buffer     = new java.lang.StringBuilder()
       var textLength = _text.length()
-      if (hasSelection) textLength -= Math.abs(cursor - selectionStart)
+      if (hasSelection) textLength -= Math.abs(cursor - _selectionStart)
       val data = _style.font.data
       var i    = 0
       val n    = rawContent.length()
@@ -534,7 +534,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     else to.substring(0, position) + text + to.substring(position, to.length())
 
   private[ui] def delete(fireChangeEvent: Boolean): Int = {
-    val from     = selectionStart
+    val from     = _selectionStart
     val to       = cursor
     val minIndex = Math.min(from, to)
     val maxIndex = Math.max(from, to)
@@ -559,17 +559,17 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     if (this.stage.isEmpty) boundary.break(Nullable.empty)
     val stg = this.stage.getOrElse(throw new IllegalStateException("TextField must be on a stage"))
     var current: TextField = this
-    val currentCoords = current.getParent.getOrElse(throw new IllegalStateException("TextField must have a parent")).localToStageCoordinates(tmp2.set(current.x, current.y))
+    val currentCoords = current.parent.getOrElse(throw new IllegalStateException("TextField must have a parent")).localToStageCoordinates(tmp2.set(current.x, current.y))
     val bestCoords    = tmp1
     val continue      = true
     while (continue) {
-      var textField = current.findNextTextField(stg.getActors, Nullable.empty, bestCoords, currentCoords, up)
+      var textField = current.findNextTextField(stg.actors, Nullable.empty, bestCoords, currentCoords, up)
       if (textField.isEmpty) { // Try to wrap around.
         if (up)
           currentCoords.set(-Float.MaxValue, -Float.MaxValue)
         else
           currentCoords.set(Float.MaxValue, Float.MaxValue)
-        textField = current.findNextTextField(stg.getActors, Nullable.empty, bestCoords, currentCoords, up)
+        textField = current.findNextTextField(stg.actors, Nullable.empty, bestCoords, currentCoords, up)
       }
       if (textField.isEmpty) {
         boundary.break(Nullable.empty)
@@ -594,8 +594,8 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       val actor = actors(i)
       actor match {
         case textField: TextField if !(textField eq this) =>
-          if (!(textField.isDisabled || !textField.focusTraversal || !textField.ascendantsVisible())) {
-            val actorCoords = actor.getParent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.x, actor.y))
+          if (!(textField.isDisabled || !textField._focusTraversal || !textField.ascendantsVisible())) {
+            val actorCoords = actor.parent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.x, actor.y))
             val below       = actorCoords.y != currentCoords.y && (actorCoords.y < currentCoords.y ^ up)
             val right       = actorCoords.y == currentCoords.y && (actorCoords.x > currentCoords.x ^ up)
             if (below || right) {
@@ -608,7 +608,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
             }
           }
         case group: Group =>
-          currentBest = findNextTextField(group.getChildren, currentBest, bestCoords, currentCoords, up)
+          currentBest = findNextTextField(group.children, currentBest, bestCoords, currentCoords, up)
         case _ =>
       }
       i += 1
@@ -616,7 +616,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     currentBest
   }
 
-  def getDefaultInputListener: InputListener = inputListener
+  def defaultInputListener: InputListener = inputListener
 
   /** @param listener May be null. */
   def setTextFieldListener(listener: Nullable[TextFieldListener]): Unit =
@@ -626,30 +626,30 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   def setTextFieldFilter(filter: Nullable[TextFieldFilter]): Unit =
     this.filter = filter
 
-  def getTextFieldFilter: Nullable[TextFieldFilter] = filter
+  def textFieldFilter: Nullable[TextFieldFilter] = filter
 
   /** If true (the default), tab/shift+tab will move to the next text field. */
   def setFocusTraversal(focusTraversal: Boolean): Unit =
-    this.focusTraversal = focusTraversal
+    this._focusTraversal = focusTraversal
 
-  def getFocusTraversal: Boolean = focusTraversal
+  def getFocusTraversal: Boolean = _focusTraversal
 
   /** @return May be null. */
-  def getMessageText: Nullable[String] = messageText
+  def messageText: Nullable[String] = _messageText
 
   /** Sets the text that will be drawn in the text field if no text has been entered.
     * @param messageText
     *   may be null.
     */
   def setMessageText(messageText: Nullable[String]): Unit =
-    this.messageText = messageText
+    this._messageText = messageText
 
   /** @param str If null, "" is used. */
   def appendText(str: Nullable[String]): Unit = {
     val s = str.getOrElse("")
     clearSelection()
     cursor = _text.length()
-    paste(Nullable(s), programmaticChangeEvents)
+    paste(Nullable(s), _programmaticChangeEvents)
   }
 
   /** @param str If null, "" is used. */
@@ -661,13 +661,13 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       val oldText = _text
       _text = ""
       paste(Nullable(s), false)
-      if (programmaticChangeEvents) changeText(oldText, _text)
+      if (_programmaticChangeEvents) changeText(oldText, _text)
       cursor = 0
     }
   }
 
   /** @return Never null, might be an empty string. */
-  def getText: String = _text
+  def text: String = _text
 
   /** @return True if the text was changed. */
   private[ui] def changeText(oldText: String, newText: String): Boolean =
@@ -684,14 +684,14 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   /** If false, methods that change the text will not fire {@link ChangeEvent}, the event will be fired only when the user changes the text.
     */
   def setProgrammaticChangeEvents(programmaticChangeEvents: Boolean): Unit =
-    this.programmaticChangeEvents = programmaticChangeEvents
+    this._programmaticChangeEvents = programmaticChangeEvents
 
-  def getProgrammaticChangeEvents: Boolean = programmaticChangeEvents
+  def getProgrammaticChangeEvents: Boolean = _programmaticChangeEvents
 
-  def getSelectionStart: Int = selectionStart
+  def getSelectionStart: Int = _selectionStart
 
-  def getSelection: String =
-    if (hasSelection) _text.substring(Math.min(selectionStart, cursor), Math.max(selectionStart, cursor))
+  def selection: String =
+    if (hasSelection) _text.substring(Math.min(_selectionStart, cursor), Math.max(_selectionStart, cursor))
     else ""
 
   /** Sets the selected text. */
@@ -709,7 +709,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
         ss = temp
       }
       hasSelection = true
-      this.selectionStart = ss
+      this._selectionStart = ss
       cursor = se
     }
   }
@@ -727,10 +727,10 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     cursor = Math.min(cursorPosition, _text.length())
   }
 
-  def getCursorPosition: Int = cursor
+  def cursorPosition: Int = cursor
 
   /** Default is an instance of {@link DefaultOnscreenKeyboard}. */
-  def getOnscreenKeyboard: OnscreenKeyboard = keyboard
+  def onscreenKeyboard: OnscreenKeyboard = keyboard
 
   def setOnscreenKeyboard(keyboard: OnscreenKeyboard): Unit =
     this.keyboard = keyboard
@@ -738,9 +738,9 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   def setClipboard(clipboard: Clipboard): Unit =
     this.clipboard = clipboard
 
-  override def getPrefWidth: Float = 150
+  override def prefWidth: Float = 150
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     var topAndBottom = 0f
     var minHeight    = 0f
     _style.background.foreach { bg =>
@@ -765,7 +765,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
   def setAlignment(alignment: Align): Unit =
     this.textHAlign = alignment
 
-  def getAlignment: Align = textHAlign
+  def alignment: Align = textHAlign
 
   /** If true, the text in this text field will be shown as bullet characters.
     * @see
@@ -842,7 +842,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       else if (disabled) true
       else {
         setCursorPosition(x, y)
-        selectionStart = cursor
+        _selectionStart = cursor
         stage.foreach { stage =>
           stage.setKeyboardFocus(Nullable(TextField.this))
         }
@@ -857,7 +857,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
     }
 
     override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Unit = {
-      if (selectionStart == cursor) hasSelection = false
+      if (_selectionStart == cursor) hasSelection = false
       super.touchUp(event, x, y, pointer, button)
     }
 
@@ -949,7 +949,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
         }
         if (selectionHandled) {
           if (!hasSelection) {
-            selectionStart = temp
+            _selectionStart = temp
             hasSelection = true
           }
         }
@@ -1005,7 +1005,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
       *   true if the focus should change to the {@link TextField#next(boolean) next} input field.
       */
     protected def checkFocusTraversal(character: Char): Boolean =
-      focusTraversal && (character == TAB ||
+      _focusTraversal && (character == TAB ||
         ((character == CARRIAGE_RETURN || character == NEWLINE) && (UIUtils.isAndroid || UIUtils.isIos)))
 
     override def keyTyped(event: InputEvent, character: Char): Boolean = boundary {
@@ -1058,7 +1058,7 @@ class TextField(text: Nullable[String], style: TextField.TextFieldStyle)(using S
               }
               if (filterReject) boundary.break(true)
             }
-            if (!withinMaxLength(_text.length() - (if (hasSelection) Math.abs(cursor - selectionStart) else 0)))
+            if (!withinMaxLength(_text.length() - (if (hasSelection) Math.abs(cursor - _selectionStart) else 0)))
               boundary.break(true)
             if (hasSelection) cursor = TextField.this.delete(false)
             val insertion = if (enter) "\n" else String.valueOf(character)
@@ -1155,7 +1155,7 @@ object TextField {
       Sge().input.closeTextInputField(false)
 
     def show(textField: TextField)(using Sge): Unit =
-      if (Sge().input.isTextInputFieldOpened()) {
+      if (Sge().input.textInputFieldOpened) {
         Sge().input.closeTextInputField(
           false,
           Nullable(
@@ -1206,7 +1206,7 @@ object TextField {
         if (confirmativeAction) {
           val focused = textField.next(false)
           focused.fold(false) { f =>
-            f.getOnscreenKeyboard.show(f)
+            f.onscreenKeyboard.show(f)
             true
           }
         } else false
@@ -1214,11 +1214,11 @@ object TextField {
 
       configuration.setTextInputWrapper(
         new input.TextInputWrapper {
-          override def getText(): String = textField.getText
+          override def text: String = textField.text
 
-          override def getSelectionStart(): Int = textField.getSelectionStart
+          override def selectionStart: Int = textField._selectionStart
 
-          override def getSelectionEnd(): Int = textField.getCursorPosition
+          override def selectionEnd: Int = textField.cursorPosition
 
           override def writeResults(text: String, selectionStart: Int, selectionEnd: Int): Unit = {
             var t  = text

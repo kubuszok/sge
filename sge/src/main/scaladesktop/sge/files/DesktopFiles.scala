@@ -44,11 +44,11 @@ final class DesktopFiles extends sge.Files {
   override def local(path: String): FileHandle =
     DesktopFileHandle(path, FileType.Local, DesktopFiles.externalPath)
 
-  override def getExternalStoragePath: String = DesktopFiles.externalPath
+  override def externalStoragePath: String = DesktopFiles.externalPath
 
   override def isExternalStorageAvailable: Boolean = true
 
-  override def getLocalStoragePath: String = DesktopFileHandle.localPath
+  override def localStoragePath: String = DesktopFileHandle.localPath
 
   override def isLocalStorageAvailable: Boolean = true
 }

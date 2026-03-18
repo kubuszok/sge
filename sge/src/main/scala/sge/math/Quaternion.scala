@@ -39,8 +39,9 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) =
+  def this(quaternion: Quaternion) = {
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *
@@ -155,7 +156,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   positive (+1) for north pole, negative (-1) for south pole, zero (0) when no gimbal lock
     */
-  def getGimbalPole(): Int = {
+  def gimbalPole: Int = {
     val t = y * x + z * w
     if (t > 0.499f) 1 else if (t < -0.499f) -1 else 0
   }
@@ -164,8 +165,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the rotation around the z axis in radians (between -PI and +PI)
     */
-  def getRollRad(): Float = {
-    val pole = getGimbalPole()
+  def rollRad: Float = {
+    val pole = gimbalPole
     if (pole == 0) MathUtils.atan2(2f * (w * z + y * x), 1f - 2f * (x * x + z * z))
     else pole.toFloat * 2f * MathUtils.atan2(y, w)
   }
@@ -174,15 +175,15 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the rotation around the z axis in degrees (between -180 and +180)
     */
-  def getRoll(): Float =
-    getRollRad() * MathUtils.radiansToDegrees
+  def roll: Float =
+    rollRad * MathUtils.radiansToDegrees
 
   /** Get the pitch euler angle in radians, which is the rotation around the x axis. Requires that this quaternion is normalized.
     * @return
     *   the rotation around the x axis in radians (between -(PI/2) and +(PI/2))
     */
-  def getPitchRad(): Float = {
-    val pole = getGimbalPole()
+  def pitchRad: Float = {
+    val pole = gimbalPole
     if (pole == 0) scala.math.asin(MathUtils.clamp(2f * (w * x - z * y), -1f, 1f)).toFloat
     else pole.toFloat * MathUtils.PI * 0.5f
   }
@@ -191,22 +192,22 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the rotation around the x axis in degrees (between -90 and +90)
     */
-  def getPitch(): Float =
-    getPitchRad() * MathUtils.radiansToDegrees
+  def pitch: Float =
+    pitchRad * MathUtils.radiansToDegrees
 
   /** Get the yaw euler angle in radians, which is the rotation around the y axis. Requires that this quaternion is normalized.
     * @return
     *   the rotation around the y axis in radians (between -PI and +PI)
     */
-  def getYawRad(): Float =
-    if (getGimbalPole() == 0) MathUtils.atan2(2f * (y * w + x * z), 1f - 2f * (y * y + x * x)) else 0f
+  def yawRad: Float =
+    if (gimbalPole == 0) MathUtils.atan2(2f * (y * w + x * z), 1f - 2f * (y * y + x * x)) else 0f
 
   /** Get the yaw euler angle in degrees, which is the rotation around the y axis. Requires that this quaternion is normalized.
     * @return
     *   the rotation around the y axis in degrees (between -180 and +180)
     */
-  def getYaw(): Float =
-    getYawRad() * MathUtils.radiansToDegrees
+  def yaw: Float =
+    yawRad * MathUtils.radiansToDegrees
 
   /** @return the length of this quaternion without square root */
   def len2(): Float =
@@ -825,8 +826,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @see
     *   <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle">calculation</a>
     */
-  def getAxisAngle(axis: Vector3): Float =
-    getAxisAngleRad(axis) * MathUtils.radiansToDegrees
+  def axisAngle(axis: Vector3): Float =
+    axisAngleRad(axis) * MathUtils.radiansToDegrees
 
   /** Get the axis-angle representation of the rotation in radians. The supplied vector will receive the axis (x, y and z values) of the rotation and the value returned is the angle in radians around
     * that axis. Note that this method will alter the supplied vector, the existing value of the vector is ignored. </p> This will normalize this quaternion if needed. The received axis is a unit
@@ -841,7 +842,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @see
     *   <a href="http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle">calculation</a>
     */
-  def getAxisAngleRad(axis: Vector3): Float = {
+  def axisAngleRad(axis: Vector3): Float = {
     if (this.w > 1) this.nor() // if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
     val angle = (2.0 * scala.math.acos(this.w)).toFloat
     val s     = scala.math.sqrt(1 - this.w * this.w).toDouble // assuming quaternion normalised then w is less than 1, so term always positive.
@@ -859,21 +860,21 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     angle
   }
 
-  /** Get the angle in radians of the rotation this quaternion represents. Does not normalize the quaternion. Use {@link #getAxisAngleRad(Vector3)} to get both the axis and the angle of this rotation.
-    * Use {@link #getAngleAroundRad(Vector3)} to get the angle around a specific axis.
+  /** Get the angle in radians of the rotation this quaternion represents. Does not normalize the quaternion. Use {@link #axisAngleRad(Vector3)} to get both the axis and the angle of this rotation.
+    * Use {@link #angleAroundRad(Vector3)} to get the angle around a specific axis.
     * @return
     *   the angle in radians of the rotation
     */
-  def getAngleRad(): Float =
+  def angleRad: Float =
     (2.0 * scala.math.acos(if (this.w > 1) this.w / len() else this.w)).toFloat
 
-  /** Get the angle in degrees of the rotation this quaternion represents. Use {@link #getAxisAngle(Vector3)} to get both the axis and the angle of this rotation. Use {@link #getAngleAround(Vector3)}
-    * to get the angle around a specific axis.
+  /** Get the angle in degrees of the rotation this quaternion represents. Use {@link #getAxisAngle(Vector3)} to get both the axis and the angle of this rotation. Use {@link #angleAround(Vector3)} to
+    * get the angle around a specific axis.
     * @return
     *   the angle in degrees of the rotation
     */
-  def getAngle(): Float =
-    getAngleRad() * MathUtils.radiansToDegrees
+  def angle: Float =
+    angleRad * MathUtils.radiansToDegrees
 
   /** Get the swing rotation and twist rotation for the specified axis. The twist rotation represents the rotation around the specified axis. The swing rotation represents the rotation of the
     * specified axis itself, which is the rotation around an axis perpendicular to the specified axis. </p> The swing and twist rotation can be used to reconstruct the original quaternion: this =
@@ -892,7 +893,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @see
     *   <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
     */
-  def getSwingTwist(axisX: Float, axisY: Float, axisZ: Float, swing: Quaternion, twist: Quaternion): Unit = {
+  def swingTwist(axisX: Float, axisY: Float, axisZ: Float, swing: Quaternion, twist: Quaternion): Unit = {
     val d = Vector3.dot(this.x, this.y, this.z, axisX, axisY, axisZ)
     twist.set(axisX * d, axisY * d, axisZ * d, this.w).nor()
     if (d < 0) twist.mul(-1f)
@@ -912,8 +913,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @see
     *   <a href="http://www.euclideanspace.com/maths/geometry/rotations/for/decomposition">calculation</a>
     */
-  def getSwingTwist(axis: Vector3, swing: Quaternion, twist: Quaternion): Unit =
-    getSwingTwist(axis.x, axis.y, axis.z, swing, twist)
+  def swingTwist(axis: Vector3, swing: Quaternion, twist: Quaternion): Unit =
+    swingTwist(axis.x, axis.y, axis.z, swing, twist)
 
   /** Get the angle in radians of the rotation around the specified axis. The axis must be normalized.
     * @param axisX
@@ -925,7 +926,7 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the angle in radians of the rotation around the specified axis
     */
-  def getAngleAroundRad(axisX: Float, axisY: Float, axisZ: Float): Float = {
+  def angleAroundRad(axisX: Float, axisY: Float, axisZ: Float): Float = {
     val d  = Vector3.dot(this.x, this.y, this.z, axisX, axisY, axisZ)
     val l2 = Quaternion.len2(axisX * d, axisY * d, axisZ * d, this.w)
     if (MathUtils.isZero(l2)) 0f
@@ -940,8 +941,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the angle in radians of the rotation around the specified axis
     */
-  def getAngleAroundRad(axis: Vector3): Float =
-    getAngleAroundRad(axis.x, axis.y, axis.z)
+  def angleAroundRad(axis: Vector3): Float =
+    angleAroundRad(axis.x, axis.y, axis.z)
 
   /** Get the angle in degrees of the rotation around the specified axis. The axis must be normalized.
     * @param axisX
@@ -953,8 +954,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the angle in degrees of the rotation around the specified axis
     */
-  def getAngleAround(axisX: Float, axisY: Float, axisZ: Float): Float =
-    getAngleAroundRad(axisX, axisY, axisZ) * MathUtils.radiansToDegrees
+  def angleAround(axisX: Float, axisY: Float, axisZ: Float): Float =
+    angleAroundRad(axisX, axisY, axisZ) * MathUtils.radiansToDegrees
 
   /** Get the angle in degrees of the rotation around the specified axis. The axis must be normalized.
     * @param axis
@@ -962,8 +963,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @return
     *   the angle in degrees of the rotation around the specified axis
     */
-  def getAngleAround(axis: Vector3): Float =
-    getAngleAround(axis.x, axis.y, axis.z)
+  def angleAround(axis: Vector3): Float =
+    angleAround(axis.x, axis.y, axis.z)
 
   /** Sets the quaternion components from the given axis and angle around that axis.
     *

@@ -23,8 +23,8 @@ import sge.utils.{ Align, DynamicArray, Nullable }
 /** A group that lays out its children side by side horizontally, with optional wrapping. This can be easier than using {@link Table} when actors need to be inserted into or removed from the middle of
   * the group. {@link #getChildren()} can be sorted to change the order of the actors (eg {@link Actor#setZIndex(int)}). {@link #invalidate()} must be called after changing the children order. <p> The
   * preferred width is the sum of the children's preferred widths plus spacing. The preferred height is the largest preferred height of any child. The preferred size is slightly different when
-  * {@link #wrap() wrap} is enabled. The min size is the preferred size and the max size is 0. <p> Widgets are sized using their {@link Layout#getPrefWidth() preferred width}, so widgets which return
-  * 0 as their preferred width will be given a width of 0 (eg, a label with {@link Label#setWrap(boolean) word wrap} enabled).
+  * {@link #wrap() wrap} is enabled. The min size is the preferred size and the max size is 0. <p> Widgets are sized using their {@link Layout#prefWidth preferred width}, so widgets which return 0 as
+  * their preferred width will be given a width of 0 (eg, a label with {@link Label#setWrap(boolean) word wrap} enabled).
   * @author
   *   Nathan Sweet
   */
@@ -60,7 +60,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
 
   private def computeSize(): Unit = {
     sizeInvalid = false
-    val children = getChildren
+    val children = this.children
     val n        = children.size
     _prefHeight = 0
     if (_wrap) {
@@ -83,9 +83,9 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
         var height = 0f
         child match {
           case layout: Layout =>
-            width = layout.getPrefWidth
-            if (width > groupWidth) width = Math.max(groupWidth, layout.getMinWidth)
-            height = layout.getPrefHeight
+            width = layout.prefWidth
+            if (width > groupWidth) width = Math.max(groupWidth, layout.minWidth)
+            height = layout.prefHeight
           case _ =>
             width = child.width
             height = child.height
@@ -118,8 +118,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
         val child = children(i)
         child match {
           case layout: Layout =>
-            _prefWidth += layout.getPrefWidth
-            _prefHeight = Math.max(_prefHeight, layout.getPrefHeight)
+            _prefWidth += layout.prefWidth
+            _prefHeight = Math.max(_prefHeight, layout.prefHeight)
           case _ =>
             _prefWidth += child.width
             _prefHeight = Math.max(_prefHeight, child.height)
@@ -162,7 +162,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
 
       val align = _rowAlign
 
-      val children = getChildren
+      val children = this.children
       var i        = if (_reverse) children.size - 1 else 0
       val n        = if (_reverse) -1 else children.size
       val incr     = if (_reverse) -1 else 1
@@ -175,8 +175,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
         child match {
           case l: Layout =>
             layout = Nullable(l)
-            width = l.getPrefWidth
-            height = l.getPrefHeight
+            width = l.prefWidth
+            height = l.prefHeight
           case _ =>
             width = child.width
             height = child.height
@@ -185,8 +185,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
         if (fill > 0) height = rowHeight * fill
 
         layout.foreach { l =>
-          height = Math.max(height, l.getMinHeight)
-          val maxHeight = l.getMaxHeight
+          height = Math.max(height, l.minHeight)
+          val maxHeight = l.maxHeight
           if (maxHeight > 0 && height > maxHeight) height = maxHeight
         }
 
@@ -214,7 +214,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   }
 
   private def layoutWrapped(): Unit = {
-    val prefHeight = getPrefHeight
+    val prefHeight = this.prefHeight
     if (prefHeight != lastPrefHeight) {
       lastPrefHeight = prefHeight
       invalidateHierarchy()
@@ -250,7 +250,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     groupWidth -= _padRight
     val align = this._rowAlign
 
-    val children = getChildren
+    val children = this.children
     var i        = if (_reverse) children.size - 1 else 0
     val n        = if (_reverse) -1 else children.size
     val incr     = if (_reverse) -1 else 1
@@ -264,9 +264,9 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
       child match {
         case l: Layout =>
           layout = Nullable(l)
-          width = l.getPrefWidth
-          if (width > groupWidth) width = Math.max(groupWidth, l.getMinWidth)
-          height = l.getPrefHeight
+          width = l.prefWidth
+          if (width > groupWidth) width = Math.max(groupWidth, l.minWidth)
+          height = l.prefHeight
         case _ =>
           width = child.width
           height = child.height
@@ -288,8 +288,8 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
       if (fill > 0) height = rowHeight * fill
 
       layout.foreach { l =>
-        height = Math.max(height, l.getMinHeight)
-        val maxHeight = l.getMaxHeight
+        height = Math.max(height, l.minHeight)
+        val maxHeight = l.maxHeight
         if (maxHeight > 0 && height > maxHeight) height = maxHeight
       }
 
@@ -315,14 +315,14 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     }
   }
 
-  override def getPrefWidth: Float =
+  override def prefWidth: Float =
     if (_wrap) 0
     else {
       if (sizeInvalid) computeSize()
       _prefWidth
     }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     if (sizeInvalid) computeSize()
     _prefHeight
   }
@@ -347,7 +347,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getReverse: Boolean = _reverse
+  def isReverse: Boolean = _reverse
 
   /** Rows will wrap above the previous rows. */
   def wrapReverse(): HorizontalGroup = {
@@ -361,7 +361,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getWrapReverse: Boolean = _wrapReverse
+  def isWrapReverse: Boolean = _wrapReverse
 
   /** Sets the horizontal space between children. */
   def space(space: Float): HorizontalGroup = {
@@ -369,7 +369,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getSpace: Float = _space
+  def space: Float = _space
 
   /** Sets the vertical space between rows when wrap is enabled. */
   def wrapSpace(wrapSpace: Float): HorizontalGroup = {
@@ -377,7 +377,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getWrapSpace: Float = _wrapSpace
+  def wrapSpace: Float = _wrapSpace
 
   /** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
   def pad(pad: Float): HorizontalGroup = {
@@ -439,7 +439,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   }
 
   /** Sets {@link Align#top} and clears {@link Align#bottom} for the alignment of all widgets within the horizontal group. */
-  def top(): HorizontalGroup = {
+  def alignTop(): HorizontalGroup = {
     _align = (_align | Align.top) & (~Align.bottom)
     this
   }
@@ -457,12 +457,12 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   }
 
   /** Adds {@link Align#right} and clears {@link Align#left} for the alignment of all widgets within the horizontal group. */
-  def right(): HorizontalGroup = {
+  def alignRight(): HorizontalGroup = {
     _align = (_align | Align.right) & (~Align.left)
     this
   }
 
-  def getAlign: Align = _align
+  def align: Align = _align
 
   def fill(): HorizontalGroup = {
     _fill = 1f
@@ -488,7 +488,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getExpand: Boolean = _expand
+  def isExpand: Boolean = _expand
 
   /** Sets fill to 1 and expand to true. */
   def grow(): HorizontalGroup = {
@@ -512,7 +512,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getWrap: Boolean = _wrap
+  def isWrap: Boolean = _wrap
 
   /** Sets the horizontal alignment of each row of widgets when {@link #wrap() wrapping} is enabled and sets the vertical alignment of widgets within each row. Set to {@link Align#center},
     * {@link Align#top}, {@link Align#bottom}, {@link Align#left}, {@link Align#right}, or any combination of those.
@@ -556,9 +556,9 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
 
   override protected def drawDebugBounds(shapes: ShapeRenderer): Unit = {
     super.drawDebugBounds(shapes)
-    if (getDebug) {
+    if (isDebug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      stage.foreach(s => shapes.setColor(s.getDebugColor))
+      stage.foreach(s => shapes.setColor(s.debugColor))
       shapes.rectangle(
         x + _padLeft,
         y + _padBottom,

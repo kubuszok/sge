@@ -25,25 +25,26 @@ import sge.graphics.glutils.ETC1.ETC1Data
 import sge.utils.{ Nullable, SgeError }
 
 class ETC1TextureData(
-  val file:            Nullable[FileHandle],
-  var useMipMapsValue: Boolean
+  val file:                    Nullable[FileHandle],
+  private var useMipMapsValue: Boolean
 )(using Sge)
     extends TextureData {
 
   private var data:         Nullable[ETC1Data] = Nullable.empty
-  private var width:        Int                = 0
-  private var height:       Int                = 0
+  private var _width:       Int                = 0
+  private var _height:      Int                = 0
   private var preparedFlag: Boolean            = false
 
-  def this(file: FileHandle)(using Sge) =
+  def this(file: FileHandle)(using Sge) = {
     this(Nullable(file), false)
+  }
 
   def this(encodedImage: ETC1Data, useMipMaps: Boolean)(using Sge) = {
     this(file = Nullable.empty, useMipMapsValue = useMipMaps)
     this.data = Nullable(encodedImage)
   }
 
-  override def getType(): TextureData.TextureDataType =
+  override def dataType: TextureData.TextureDataType =
     TextureData.TextureDataType.Custom
 
   override def isPrepared: Boolean =
@@ -56,8 +57,8 @@ class ETC1TextureData(
       data = Nullable(ETC1Data(f))
     }
     data.foreach { d =>
-      width = d.width
-      height = d.height
+      _width = d.width
+      _height = d.height
     }
     preparedFlag = true
   }
@@ -72,19 +73,28 @@ class ETC1TextureData(
         gl.gl.glTexImage2D(
           target,
           0,
-          pixmap.getGLInternalFormat(),
-          pixmap.getWidth(),
-          pixmap.getHeight(),
+          pixmap.gLInternalFormat,
+          pixmap.width,
+          pixmap.height,
           0,
-          PixelFormat(pixmap.getGLFormat()),
-          DataType(pixmap.getGLType()),
-          pixmap.getPixels()
+          PixelFormat(pixmap.gLFormat),
+          DataType(pixmap.glType),
+          pixmap.pixels
         )
-        if (useMipMapsValue) MipMapGenerator.generateMipMap(target, pixmap, pixmap.getWidth().toInt, pixmap.getHeight().toInt)
+        if (useMipMapsValue) MipMapGenerator.generateMipMap(target, pixmap, pixmap.width.toInt, pixmap.height.toInt)
         pixmap.close()
         useMipMapsValue = false
       } else {
-        gl.gl.glCompressedTexImage2D(target, 0, ETC1.ETC1_RGB8_OES, Pixels(width), Pixels(height), 0, d.compressedData.capacity() - d.dataOffset, d.compressedData)
+        gl.gl.glCompressedTexImage2D(
+          target,
+          0,
+          ETC1.ETC1_RGB8_OES,
+          Pixels(_width),
+          Pixels(_height),
+          0,
+          d.compressedData.capacity() - d.dataOffset,
+          d.compressedData
+        )
         if (useMipMapsValue) gl.gl20.glGenerateMipmap(TextureTarget.Texture2D)
       }
     }
@@ -99,11 +109,11 @@ class ETC1TextureData(
   override def disposePixmap: Boolean =
     throw SgeError.GraphicsError("This TextureData implementation does not return a Pixmap")
 
-  override def getWidth: Int =
-    width
+  override def width: Int =
+    _width
 
-  override def getHeight: Int =
-    height
+  override def height: Int =
+    _height
 
   override def getFormat: Format =
     Format.RGB565

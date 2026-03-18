@@ -28,30 +28,31 @@ import sge.utils.Nullable
   * @param filesOps
   *   the Android files operations (AssetManager + storage paths)
   */
-class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: FilesOps)
+class AndroidFileHandle(internalFile: File, fileType: FileType, private val filesOps: FilesOps)
     extends FileHandle(
-      file,
+      internalFile,
       fileType,
       Nullable(filesOps.externalStoragePath)
     ) {
 
-  def this(fileName: String, fileType: FileType, filesOps: FilesOps) =
+  def this(fileName: String, fileType: FileType, filesOps: FilesOps) = {
     this(new File(fileName.replace('\\', '/')), fileType, filesOps)
+  }
 
   override def child(name: String): FileHandle = {
     val n = name.replace('\\', '/')
-    if (file.getPath().length() == 0) AndroidFileHandle(new File(n), fileType, filesOps)
-    else AndroidFileHandle(new File(file, n), fileType, filesOps)
+    if (internalFile.getPath().length() == 0) AndroidFileHandle(new File(n), fileType, filesOps)
+    else AndroidFileHandle(new File(internalFile, n), fileType, filesOps)
   }
 
   override def sibling(name: String): FileHandle = {
     val n = name.replace('\\', '/')
-    if (file.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root.")
-    AndroidFileHandle(new File(file.getParent(), n), fileType, filesOps)
+    if (internalFile.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root.")
+    AndroidFileHandle(new File(internalFile.getParent(), n), fileType, filesOps)
   }
 
   override def parent(): FileHandle =
-    Nullable(file.getParentFile()).fold {
+    Nullable(internalFile.getParentFile()).fold {
       if (fileType == FileType.Absolute) AndroidFileHandle(new File("/"), fileType, filesOps)
       else AndroidFileHandle(new File(""), fileType, filesOps)
     } { parent =>
@@ -61,10 +62,10 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
   override def read(): InputStream =
     if (fileType == FileType.Internal) {
       try
-        filesOps.openInternal(file.getPath())
+        filesOps.openInternal(internalFile.getPath())
       catch {
         case ex: IOException =>
-          throw utils.SgeError.FileReadError(this, s"Error reading file: $file ($fileType)", Some(ex))
+          throw utils.SgeError.FileReadError(this, s"Error reading file: $internalFile ($fileType)", Some(ex))
       }
     } else {
       super.read()
@@ -72,7 +73,7 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
 
   override def map(mode: FileChannel.MapMode): ByteBuffer =
     if (fileType == FileType.Internal) {
-      val fdResult = filesOps.openInternalFd(file.getPath())
+      val fdResult = filesOps.openInternalFd(internalFile.getPath())
       if (fdResult == null) {
         throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)")
       }
@@ -95,11 +96,11 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
   override def list(): Array[FileHandle] =
     if (fileType == FileType.Internal) {
       try {
-        val relativePaths = filesOps.listInternal(file.getPath())
-        relativePaths.map(name => AndroidFileHandle(new File(file, name), fileType, filesOps): FileHandle)
+        val relativePaths = filesOps.listInternal(internalFile.getPath())
+        relativePaths.map(name => AndroidFileHandle(new File(internalFile, name), fileType, filesOps): FileHandle)
       } catch {
         case ex: Exception =>
-          throw utils.SgeError.FileReadError(this, s"Error listing children: $file ($fileType)", Some(ex))
+          throw utils.SgeError.FileReadError(this, s"Error listing children: $internalFile ($fileType)", Some(ex))
       }
     } else {
       super.list()
@@ -108,11 +109,11 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
   override def list(suffix: String): Array[FileHandle] =
     if (fileType == FileType.Internal) {
       try {
-        val relativePaths = filesOps.listInternal(file.getPath())
-        relativePaths.filter(_.endsWith(suffix)).map(name => AndroidFileHandle(new File(file, name), fileType, filesOps): FileHandle)
+        val relativePaths = filesOps.listInternal(internalFile.getPath())
+        relativePaths.filter(_.endsWith(suffix)).map(name => AndroidFileHandle(new File(internalFile, name), fileType, filesOps): FileHandle)
       } catch {
         case ex: Exception =>
-          throw utils.SgeError.FileReadError(this, s"Error listing children: $file ($fileType)", Some(ex))
+          throw utils.SgeError.FileReadError(this, s"Error listing children: $internalFile ($fileType)", Some(ex))
       }
     } else {
       super.list(suffix)
@@ -121,7 +122,7 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
   override def isDirectory(): Boolean =
     if (fileType == FileType.Internal) {
       try
-        filesOps.listInternal(file.getPath()).length > 0
+        filesOps.listInternal(internalFile.getPath()).length > 0
       catch {
         case _: IOException => false
       }
@@ -132,13 +133,13 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
   override def exists(): Boolean =
     if (fileType == FileType.Internal) {
       try {
-        filesOps.openInternal(file.getPath()).close()
+        filesOps.openInternal(internalFile.getPath()).close()
         true
       } catch {
         case _: Exception =>
           // Slow fallback for directories
           try
-            filesOps.listInternal(file.getPath()).length > 0
+            filesOps.listInternal(internalFile.getPath()).length > 0
           catch {
             case _: Exception => false
           }
@@ -149,20 +150,20 @@ class AndroidFileHandle(file: File, fileType: FileType, private val filesOps: Fi
 
   override def length(): Long =
     if (fileType == FileType.Internal) {
-      val len = filesOps.internalFileLength(file.getPath())
+      val len = filesOps.internalFileLength(internalFile.getPath())
       if (len >= 0) len else 0L
     } else {
       super.length()
     }
 
-  override def getFile(): File =
+  override def file: File =
     if (fileType == FileType.External) {
       val ext = filesOps.externalStoragePath
-      if (ext != null) new File(ext, file.getPath())
-      else file
+      if (ext != null) new File(ext, internalFile.getPath())
+      else internalFile
     } else if (fileType == FileType.Local) {
-      new File(filesOps.localStoragePath, file.getPath())
+      new File(filesOps.localStoragePath, internalFile.getPath())
     } else {
-      file
+      internalFile
     }
 }

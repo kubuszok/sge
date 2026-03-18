@@ -36,30 +36,30 @@ trait Input {
   import Input.*
 
   /** @return The acceleration force in m/s^2 applied to the device in the X axis, including the force of gravity */
-  def getAccelerometerX(): Float
+  def accelerometerX: Float
 
   /** @return The acceleration force in m/s^2 applied to the device in the Y axis, including the force of gravity */
-  def getAccelerometerY(): Float
+  def accelerometerY: Float
 
   /** @return The acceleration force in m/s^2 applied to the device in the Z axis, including the force of gravity */
-  def getAccelerometerZ(): Float
+  def accelerometerZ: Float
 
   /** @return The rate of rotation in rad/s around the X axis */
-  def getGyroscopeX(): Float
+  def gyroscopeX: Float
 
   /** @return The rate of rotation in rad/s around the Y axis */
-  def getGyroscopeY(): Float
+  def gyroscopeY: Float
 
   /** @return The rate of rotation in rad/s around the Z axis */
-  def getGyroscopeZ(): Float
+  def gyroscopeZ: Float
 
   /** @return The maximum number of pointers supported */
-  def getMaxPointers(): Int
+  def maxPointers: Int
 
   /** @return
     *   The x coordinate of the last touch on touch screen devices and the current mouse position on desktop for the first pointer in screen coordinates. The screen origin is the top left corner.
     */
-  def getX(): Pixels
+  def x: Pixels
 
   /** Returns the x coordinate in screen coordinates of the given pointer. Pointers are indexed from 0 to n. The pointer id identifies the order in which the fingers went down on the screen, e.g. 0 is
     * the first finger, 1 is the second and so on. When two fingers are touched down and the first one is lifted the second one keeps its index. If another finger is placed on the touch screen the
@@ -70,18 +70,18 @@ trait Input {
     * @return
     *   the x coordinate
     */
-  def getX(pointer: Int): Pixels
+  def x(pointer: Int): Pixels
 
   /** @return the different between the current pointer location and the last pointer location on the x-axis. */
-  def getDeltaX(): Pixels
+  def deltaX: Pixels
 
   /** @return the different between the current pointer location and the last pointer location on the x-axis. */
-  def getDeltaX(pointer: Int): Pixels
+  def deltaX(pointer: Int): Pixels
 
   /** @return
     *   The y coordinate of the last touch on touch screen devices and the current mouse position on desktop for the first pointer in screen coordinates. The screen origin is the top left corner.
     */
-  def getY(): Pixels
+  def y: Pixels
 
   /** Returns the y coordinate in screen coordinates of the given pointer. Pointers are indexed from 0 to n. The pointer id identifies the order in which the fingers went down on the screen, e.g. 0 is
     * the first finger, 1 is the second and so on. When two fingers are touched down and the first one is lifted the second one keeps its index. If another finger is placed on the touch screen the
@@ -92,16 +92,16 @@ trait Input {
     * @return
     *   the y coordinate
     */
-  def getY(pointer: Int): Pixels
+  def y(pointer: Int): Pixels
 
   /** @return the different between the current pointer location and the last pointer location on the y-axis. */
-  def getDeltaY(): Pixels
+  def deltaY: Pixels
 
   /** @return the different between the current pointer location and the last pointer location on the y-axis. */
-  def getDeltaY(pointer: Int): Pixels
+  def deltaY(pointer: Int): Pixels
 
   /** @return whether the screen is currently touched. */
-  def isTouched(): Boolean
+  def touched: Boolean
 
   /** @return whether a new touch down event just occurred. */
   def justTouched(): Boolean
@@ -118,7 +118,7 @@ trait Input {
   def isTouched(pointer: Int): Boolean
 
   /** @return the pressure of the first pointer */
-  def getPressure(): Float
+  def pressure: Float
 
   /** Returns the pressure of the given pointer, where 0 is untouched. On Android it should be up to 1.0, but it can go above that slightly and its not consistent between devices. On iOS 1.0 is the
     * normal touch and significantly more of hard touch. Check relevant manufacturer documentation for details. Check availability with {@link Input#isPeripheralAvailable(Peripheral)} . If not
@@ -129,7 +129,7 @@ trait Input {
     * @return
     *   the pressure
     */
-  def getPressure(pointer: Int): Float
+  def pressure(pointer: Int): Float
 
   /** Whether a given button is pressed or not. Button constants can be found in {@link Buttons} . On Android only the Buttons#LEFT constant is meaningful before version 4.0.
     * @param button
@@ -232,7 +232,7 @@ trait Input {
   def closeTextInputField(isConfirmative: Boolean, callback: Nullable[input.NativeInputConfiguration.NativeInputCloseCallback]): Unit = {}
 
   /** Returns if a native input field is currently open */
-  def isTextInputFieldOpened(): Boolean = false
+  def textInputFieldOpened: Boolean = false
 
   /** This will set a keyboard height callback. This will get called, whenever the keyboard height changes. Note: When using openTextInputField, it will report the height of the native input field
     * too.
@@ -288,7 +288,7 @@ trait Input {
     * @return
     *   the azimuth in degrees
     */
-  def getAzimuth(): Float
+  def azimuth: Float
 
   /** The pitch is the angle of the device's orientation around the x-axis. The positive x-axis roughly points to the west and is orthogonal to the z- and y-axis.
     * @see
@@ -297,7 +297,7 @@ trait Input {
     * @return
     *   the pitch in degrees
     */
-  def getPitch(): Float
+  def pitch: Float
 
   /** The roll is the angle of the device's orientation around the y-axis. The positive y-axis points to the magnetic north pole of the earth.
     * @see
@@ -306,7 +306,7 @@ trait Input {
     * @return
     *   the roll in degrees
     */
-  def getRoll(): Float
+  def roll: Float
 
   /** Returns the rotation matrix describing the devices rotation as per <a href= "http://developer.android.com/reference/android/hardware/SensorManager.html#getRotationMatrix(float[], float[],
     * float[], float[])" >SensorManager#getRotationMatrix(float[], float[], float[], float[])</a>. Does not manipulate the matrix if the platform does not have an accelerometer.
@@ -343,7 +343,7 @@ trait Input {
   def setInputProcessor(processor: InputProcessor): Unit
 
   /** @return the currently set {@link InputProcessor} or null. */
-  def getInputProcessor(): InputProcessor
+  def inputProcessor: InputProcessor
 
   /** Queries whether a {@link Peripheral} is currently available. In case of Android and the {@link Peripheral#HardwareKeyboard} this returns the whether the keyboard is currently slid out or not.
     *
@@ -355,10 +355,10 @@ trait Input {
   def isPeripheralAvailable(peripheral: Peripheral): Boolean
 
   /** @return the rotation of the device with respect to its native orientation. */
-  def getRotation(): Int
+  def rotation: Int
 
   /** @return the native orientation of the device. */
-  def getNativeOrientation(): Orientation
+  def nativeOrientation: Orientation
 
   /** Only viable on the desktop. Will confine the mouse cursor location to the window and hide the mouse cursor. X and y coordinates are still reported as if the mouse was not catched.
     * @param catched
@@ -367,7 +367,7 @@ trait Input {
   def setCursorCatched(catched: Boolean): Unit
 
   /** @return whether the mouse cursor is catched. */
-  def isCursorCatched(): Boolean
+  def cursorCatched: Boolean
 
   /** Only viable on the desktop. Will set the mouse cursor location to the given window coordinates (origin top-left corner).
     * @param x

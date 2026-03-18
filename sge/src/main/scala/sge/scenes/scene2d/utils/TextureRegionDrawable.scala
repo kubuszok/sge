@@ -27,7 +27,7 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
-  private var region: TextureRegion = scala.compiletime.uninitialized
+  private var _region: TextureRegion = scala.compiletime.uninitialized
 
   def this(texture: Texture) = {
     this()
@@ -62,14 +62,14 @@ class TextureRegionDrawable() extends BaseDrawable with TransformDrawable {
     batch.draw(region, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
 
   def setRegion(region: TextureRegion): Unit = {
-    this.region = region
+    this._region = region
     Nullable(region).foreach { r =>
       minWidth = r.regionWidth.toFloat
       minHeight = r.regionHeight.toFloat
     }
   }
 
-  def getRegion: TextureRegion = region
+  def region: TextureRegion = _region
 
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): Drawable = {

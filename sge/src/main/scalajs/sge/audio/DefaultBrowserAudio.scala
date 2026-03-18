@@ -22,9 +22,9 @@ import sge.utils.Nullable
   *
   * Sound effects use `decodeAudioData` + `AudioBufferSourceNode`, music uses `HTMLAudioElement` routed through `createMediaElementSource`.
   */
-class DefaultBrowserAudio()(using Sge) extends BrowserAudio {
+class DefaultBrowserAudio(application: Application) extends BrowserAudio {
 
-  private val webAudioManager: WebAudioManager = WebAudioManager()
+  private val webAudioManager: WebAudioManager = WebAudioManager(application)
 
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): AudioDevice =
     throw utils.SgeError.InvalidInput("AudioDevice not supported by browser backend", None)
@@ -40,7 +40,7 @@ class DefaultBrowserAudio()(using Sge) extends BrowserAudio {
 
   override def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean = false
 
-  override def getAvailableOutputDevices: Array[String] = Array.empty
+  override def availableOutputDevices: Array[String] = Array.empty
 
   override def close(): Unit = ()
 }

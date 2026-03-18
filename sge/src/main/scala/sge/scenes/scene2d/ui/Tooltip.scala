@@ -45,8 +45,9 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   var targetActor:      Nullable[Actor] = Nullable.empty
 
   /** @param contents May be null. */
-  def this(contents: Nullable[T])(using Sge) =
-    this(contents, TooltipManager.getInstance())
+  def this(contents: Nullable[T])(using Sge) = {
+    this(contents, TooltipManager.instance)
+  }
 
   override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean =
     if (instant) {
@@ -81,8 +82,8 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
       var point   = actor.localToStageCoordinates(tmp.set(x + offsetX, y - offsetY - container.height))
       if (point.y < dist) point = actor.localToStageCoordinates(tmp.set(x + offsetX, y + offsetY))
       if (point.x < dist) point.x = dist
-      if (point.x + container.width > stg.getWidth - dist) point.x = stg.getWidth - dist - container.width
-      if (point.y + container.height > stg.getHeight - dist) point.y = stg.getHeight - dist - container.height
+      if (point.x + container.width > stg.width - dist) point.x = stg.width - dist - container.width
+      if (point.y + container.height > stg.height - dist) point.y = stg.height - dist - container.height
       container.setPosition(point.x, point.y)
 
       point = actor.localToStageCoordinates(tmp.set(actor.width / 2, actor.height / 2))
@@ -93,7 +94,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
 
   override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit =
     if (pointer != -1) ()
-    else if (touchIndependent && Sge().input.isTouched()) ()
+    else if (touchIndependent && Sge().input.touched) ()
     else {
       event.listenerActor.foreach { actor =>
         val descendant = fromActor.exists(fa => fa.isDescendantOf(actor))

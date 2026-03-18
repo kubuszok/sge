@@ -6,9 +6,62 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // Format on compile during local development, skip on CI.
 lazy val isCI = sys.env.get("CI").contains("true")
+ThisBuild / packageDoc / publishArtifact := isCI
 ThisBuild / scalafmtOnCompile := !isCI
 ThisBuild / semanticdbEnabled := true
-ThisBuild / version           := "0.1.0-SNAPSHOT"
+
+// Version from git tags: tagged commits get clean versions (e.g. "0.1.0"),
+// untagged commits get SNAPSHOT versions (e.g. "0.1.0-SNAPSHOT").
+// When a vX.Y.Z tag exists, git describe produces that version directly.
+git.useGitDescribe       := true
+git.uncommittedSignifier := Some("SNAPSHOT")
+// Sonatype ignores isSnapshot setting and only looks at -SNAPSHOT suffix in version:
+//   https://central.sonatype.org/publish/publish-maven/#performing-a-snapshot-deployment
+// meanwhile sbt-git used to set up SNAPSHOT if there were uncommitted changes:
+//   https://github.com/sbt/sbt-git/issues/164
+// (now this suffix is empty by default) so we need to fix it manually.
+git.gitUncommittedChanges := git.gitCurrentTags.value.isEmpty
+// I don't want any 0.1.0 crap, every commit that is not tag, gets last-tag-SHA-SNAPSHOT version like god intended.
+//git.formattedShaVersion  := git.gitHeadCommit.value.map(_ => s"${git.baseVersion.value}-SNAPSHOT")
+
+// Used to publish snapshots to Maven Central.
+val mavenCentralSnapshots = "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
+
+val publishSettings = Seq(
+  organization := "com.kubuszok",
+  homepage := Some(url("https://github.com/MateuszKubuszok/sge")),
+  organizationHomepage := Some(url("https://kubuszok.com")),
+  licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
+  scmInfo := Some(
+    ScmInfo(
+      url("https://github.com/MateuszKubuszok/sge/"),
+      "scm:git:git@github.com:MateuszKubuszok/sge.git"
+    )
+  ),
+  startYear := Some(2026),
+  developers := List(
+    Developer("MateuszKubuszok", "Mateusz Kubuszok", "", url("https://github.com/MateuszKubuszok"))
+  ),
+  pomExtra := (
+    <issueManagement>
+      <system>GitHub issues</system>
+      <url>https://github.com/MateuszKubuszok/sge/issues</url>
+    </issueManagement>
+  ),
+  publishTo := {
+    if (isSnapshot.value) Some(mavenCentralSnapshots)
+    else localStaging.value
+  },
+  publishMavenStyle := true,
+  Test / publishArtifact := false,
+  pomIncludeRepository := { _ =>
+    false
+  },
+  versionScheme := Some("early-semver")
+)
+
+val noPublishSettings =
+  Seq(publish / skip := true, publishArtifact := false)
 
 /** Collect all files from a class directory as (File, relative-path) pairs for JAR mappings. */
 def collectClassFiles(classDir: File): Seq[(File, String)] =
@@ -47,10 +100,10 @@ lazy val `scalafix-rules` = (project in file("scalafix-rules"))
 val sge = (projectMatrix in file("sge"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
   .settings(
     name := "sge",
-    organization := "com.kubuszok",
-    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    resolvers += mavenCentralSnapshots,
     libraryDependencies ++= Seq(
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-ubjson-derivation" % versions.kindlings,
@@ -152,10 +205,10 @@ val regressionTest = (projectMatrix in file("sge-regression-test"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     name := "sge-regression-test",
-    organization := "com.kubuszok",
-    publish / skip := true,
     // Generate minimal test assets at compile time (PNG + text) so we can
     // exercise the full AssetManager → FileHandle → Texture pipeline.
     Compile / resourceGenerators += Def.task {
@@ -215,23 +268,23 @@ val regressionTest = (projectMatrix in file("sge-regression-test"))
 
 lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform-api"))
   .disablePlugins(ScalafixPlugin)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     // Target JDK 17 bytecode — no java.lang.foreign or android.* references
     scalacOptions ++= Seq("-release", "17")
   )
 
 lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform-jdk"))
   .disablePlugins(ScalafixPlugin)
-  .dependsOn(`sge-jvm-platform-api`)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true
     // No -release flag — needs java.lang.foreign (JDK 22+)
   )
+  .dependsOn(`sge-jvm-platform-api`)
 
 lazy val hasAndroidSdk: Boolean = _root_.sge.sbt.AndroidSdk
   .findSdkRoot(new File("."))
@@ -239,10 +292,10 @@ lazy val hasAndroidSdk: Boolean = _root_.sge.sbt.AndroidSdk
 
 lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android"))
   .disablePlugins(ScalafixPlugin)
-  .dependsOn(`sge-jvm-platform-api`)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
     publish / skip := true,
     // Target JDK 17 bytecode (Android ART)
     scalacOptions ++= Seq("-release", "17"),
@@ -289,6 +342,7 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android
       Seq(Attributed.blank(jarFile))
     }
   )
+  .dependsOn(`sge-jvm-platform-api`)
 
 // ── Extension modules ─────────────────────────────────────────────────
 //
@@ -302,11 +356,11 @@ lazy val `sge-tools` = (project in file("sge-tools"))
   .disablePlugins(ScalafixPlugin)
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
+  .settings(publishSettings *)
   .settings(
     name := "sge-tools",
-    organization := "com.kubuszok",
     scalaVersion := versions.scala,
-    resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
+    resolvers += mavenCentralSnapshots,
     Compile / mainClass := Some("sge.tools.texturepacker.TexturePacker"),
     libraryDependencies ++= Seq(
       "com.kubuszok" %% "kindlings-jsoniter-json" % versions.kindlings,
@@ -328,15 +382,14 @@ lazy val `sge-tools` = (project in file("sge-tools"))
 val `sge-freetype` = (projectMatrix in file("sge-freetype"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
   .settings(
     name := "sge-freetype",
-    organization := "com.kubuszok",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % versions.munit % Test
     ),
     testFrameworks += new TestFramework("munit.Framework")
   )
-  .dependsOn(sge)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-freetype") ++ Seq(
@@ -361,10 +414,12 @@ val `sge-freetype` = (projectMatrix in file("sge-freetype"))
       }
     )
   )
+  .dependsOn(sge)
 
 val `sge-physics` = (projectMatrix in file("sge-physics"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
   .settings(
     name := "sge-physics",
     organization := "com.kubuszok",
@@ -411,10 +466,10 @@ val `sge-physics` = (projectMatrix in file("sge-physics"))
 lazy val `sge-android-smoke` = (project in file("sge-android-smoke"))
   .disablePlugins(ScalafixPlugin)
   .settings(_root_.sge.sbt.AndroidBuild.settings *)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     name := "sge-android-smoke",
-    organization := "com.kubuszok",
-    publish / skip := true,
     // Conditional android sources
     Compile / unmanagedSourceDirectories ++= {
       if (hasAndroidSdk)
@@ -452,11 +507,10 @@ lazy val `sge-android-smoke` = (project in file("sge-android-smoke"))
 // Run: sbt 'sge-it-desktop/test'  or  just it-desktop
 lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
   .disablePlugins(ScalafixPlugin)
-  .dependsOn(sge.jvm(versions.scala))
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit"  % versions.munit % Test,
@@ -491,17 +545,18 @@ lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
       )
     }
   )
+  .dependsOn(sge.jvm(versions.scala))
 
 lazy val `sge-it-jvm-platform` = (project in file("sge-it-tests/jvm-platform"))
   .disablePlugins(ScalafixPlugin)
-  .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-jdk`, `sge-jvm-platform-android`)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
     testFrameworks += new TestFramework("munit.Framework")
   )
+  .dependsOn(`sge-jvm-platform-api`, `sge-jvm-platform-jdk`, `sge-jvm-platform-android`)
 
 // Browser integration tests — JVM-based Playwright tests that exercise compiled
 // Scala.js output in a real headless Chromium browser. Catches runtime JS errors
@@ -514,10 +569,10 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-it-tests/jvm-platform"))
 // Run: sbt 'sge-it-browser/test'  or  just test-browser
 lazy val `sge-it-browser` = (project in file("sge-it-tests/browser"))
   .disablePlugins(ScalafixPlugin)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     // Playwright builds its own JS test harness and loads it in a real browser.
     libraryDependencies ++= Seq(
       "org.scalameta"           %% "munit"      % versions.munit % Test,
@@ -546,10 +601,10 @@ lazy val `sge-it-browser` = (project in file("sge-it-tests/browser"))
 // Run: sbt 'sge-it-android/test'  or  just test-android
 lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
   .disablePlugins(ScalafixPlugin)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     libraryDependencies += "org.scalameta" %% "munit" % versions.munit % Test,
     testFrameworks += new TestFramework("munit.Framework")
   )
@@ -563,11 +618,11 @@ lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
 lazy val `sge-it-native-ffi` = (project in file("sge-it-tests/native-ffi"))
   .enablePlugins(ScalaNativePlugin)
   .disablePlugins(ScalafixPlugin)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)
   .dependsOn(sge.native(versions.scala))
   .settings(
     scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    publish / skip := true,
     nativeConfig := {
       val c      = nativeConfig.value
       val libDir = SgeNativeLibs.sgeNativeLibDir.value
@@ -575,3 +630,9 @@ lazy val `sge-it-native-ffi` = (project in file("sge-it-tests/native-ffi"))
     }
   )
   .settings(SgeNativeLibs.hostSettings *)
+
+// ── Root project — git-based versioning ──────────────────────────────
+lazy val root = (project in file("."))
+  .enablePlugins(GitVersioning)
+  .settings(publishSettings *)
+  .settings(noPublishSettings *)

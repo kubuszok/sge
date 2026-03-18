@@ -47,10 +47,10 @@ class NetJavaSocketImpl private (private var socket: JSocket) extends Socket {
     NetJavaSocketImpl.applyHints(socket, hints)
   }
 
-  override def isConnected(): Boolean =
+  override def isConnected: Boolean =
     Nullable(socket).exists(_.isConnected())
 
-  override def getInputStream(): InputStream =
+  override def inputStream: InputStream =
     try
       socket.getInputStream()
     catch {
@@ -58,7 +58,7 @@ class NetJavaSocketImpl private (private var socket: JSocket) extends Socket {
         throw new RuntimeException("Error getting input stream from socket.", e)
     }
 
-  override def getOutputStream(): OutputStream =
+  override def outputStream: OutputStream =
     try
       socket.getOutputStream()
     catch {
@@ -66,7 +66,7 @@ class NetJavaSocketImpl private (private var socket: JSocket) extends Socket {
         throw new RuntimeException("Error getting output stream from socket.", e)
     }
 
-  override def getRemoteAddress(): String =
+  override def remoteAddress: String =
     socket.getRemoteSocketAddress().toString()
 
   override def close(): Unit =

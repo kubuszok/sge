@@ -36,7 +36,7 @@ object GL3DCheck {
 
   def run()(using Sge): CheckResult =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = Sge().graphics.gl20
 
       // Enable depth testing for 3D verification
       gl.glEnable(sge.graphics.EnableCap.DepthTest)
@@ -46,7 +46,7 @@ object GL3DCheck {
       // Compile shader with uniform
       val shader = new ShaderProgram(vertexShader, fragmentShader)
       if (!shader.compiled) {
-        val log = shader.getLog()
+        val log = shader.log
         shader.close()
         return CheckResult("gl3d", passed = false, s"Shader compilation failed: $log")
       }

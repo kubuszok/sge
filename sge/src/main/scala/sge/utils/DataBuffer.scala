@@ -21,23 +21,23 @@ import java.io.{ DataOutput, OutputStream }
 // Abstract class since it has unimplemented Java interface methods
 abstract class DataBuffer extends OutputStream with DataOutput {
 
-  private val buffer = new OptimizedByteArrayOutputStream(256)
+  private val _buffer = new OptimizedByteArrayOutputStream(256)
 
   /** Returns the backing array, which has 0 to [[size]] items. */
-  def getBuffer(): Array[Byte] = buffer.getBuffer()
+  def buffer: Array[Byte] = _buffer.buffer
 
   /** Returns the number of bytes written to this buffer. */
-  def size(): Int = buffer.size()
+  def size: Int = buffer.size
 
-  def getBytes: Array[Byte] = buffer.toByteArray()
+  def bytes: Array[Byte] = _buffer.toByteArray()
 
-  def clear(): Unit = buffer.reset()
+  def clear(): Unit = _buffer.reset()
 
   private class OptimizedByteArrayOutputStream(initialSize: Int) extends java.io.ByteArrayOutputStream(initialSize) {
     override def toByteArray(): Array[Byte] =
       if (count == buf.length) buf
-      else super.toByteArray()
+      else super.toByteArray
 
-    def getBuffer(): Array[Byte] = buf
+    def buffer: Array[Byte] = buf
   }
 }

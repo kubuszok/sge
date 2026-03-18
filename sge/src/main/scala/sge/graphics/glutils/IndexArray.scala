@@ -37,11 +37,11 @@ class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
   byteBuffer.asInstanceOf[Buffer].flip()
 
   /** @return the number of indices currently stored in this buffer */
-  def getNumIndices(): Int =
+  def numIndices: Int =
     if empty then 0 else buffer.limit()
 
   /** @return the maximum number of indices this IndexArray can store. */
-  def getNumMaxIndices(): Int =
+  def numMaxIndices: Int =
     if empty then 0 else buffer.capacity()
 
   /** <p> Sets the indices of this IndexArray, discarding the old indices. The count must equal the number of indices to be copied to this IndexArray. </p>

@@ -168,7 +168,7 @@ object TooltipManager {
   private var instance: Nullable[TooltipManager] = Nullable.empty
   private var files:    Nullable[sge.Files]      = Nullable.empty
 
-  def getInstance()(using Sge): TooltipManager = {
+  def instance(using Sge): TooltipManager = {
     if (files.isEmpty || files.forall(_ ne Sge().files)) {
       files = Nullable(Sge().files)
       instance = Nullable(TooltipManager())

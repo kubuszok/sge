@@ -28,13 +28,13 @@ import sge.utils.Nullable
 trait VertexData extends AutoCloseable {
 
   /** @return the number of vertices this VertexData stores */
-  def getNumVertices(): Int
+  def numVertices: Int
 
   /** @return the number of vertices this VertedData can store */
-  def getNumMaxVertices(): Int
+  def numMaxVertices: Int
 
   /** @return the {@link VertexAttributes} as specified during construction. */
-  def getAttributes(): VertexAttributes
+  def attributes: VertexAttributes
 
   /** Sets the vertices of this VertexData, discarding the old vertex data. The count must equal the number of floats per vertex times the number of vertices to be copied to this VertexData. The order
     * of the vertex attributes must be the same as specified at construction time via {@link VertexAttributes} . <p> This can be called in between calls to bind and unbind. The vertex data will be

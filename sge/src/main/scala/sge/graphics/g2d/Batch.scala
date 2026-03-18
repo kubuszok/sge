@@ -23,6 +23,8 @@ import sge.graphics.Color
 import sge.graphics.glutils.ShaderProgram
 import sge.utils.Nullable
 
+import scala.annotation.publicInBinary
+
 /** A Batch is used to draw 2D rectangles that reference a texture (region). The class will batch the drawing commands and optimize them for processing by the GPU. <p> To draw something with a Batch
   * one has to first call the {@link Batch#begin()} method which will setup appropriate render states. When you are done with drawing you have to call the {@link Batch#end()} which will actually draw
   * the things you specified. <p> All drawing commands of the Batch operate in screen coordinates. The screen coordinate system has an x-axis pointing to the right, an y-axis pointing upwards and the
@@ -41,11 +43,18 @@ trait Batch extends AutoCloseable {
     * before calling this. Uses a screen coordinate system by default where everything is given in pixels. You can specify your own projection and modelview matrices via
     * {@link #setProjectionMatrix(Matrix4)} and {@link #setTransformMatrix(Matrix4)} .
     */
-  def begin(): Unit
+  @publicInBinary private[sge] def begin(): Unit
 
   /** Finishes off rendering. Enables depth writes, disables blending and texturing. Must always be called after a call to {@link #begin()}
     */
-  def end(): Unit
+  @publicInBinary private[sge] def end(): Unit
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
+  }
 
   /** Sets the color used to tint images when they are added to the Batch. Default is {@link Color#WHITE}. */
   def color_=(tint: Color): Unit

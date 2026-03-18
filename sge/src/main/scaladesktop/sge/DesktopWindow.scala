@@ -24,8 +24,8 @@ import scala.collection.mutable.ArrayBuffer
   *
   * Manages a native window handle, GLFW callbacks (focus, iconify, maximize, close, drop, refresh), the associated graphics and input subsystems, and a per-window runnable queue.
   *
-  * @param listener
-  *   the application listener providing game logic callbacks
+  * @param listenerFactory
+  *   a context function that creates the application listener when given an [[Sge]] context
   * @param lifecycleListeners
   *   shared lifecycle listeners from the application
   * @param config
@@ -38,7 +38,7 @@ import scala.collection.mutable.ArrayBuffer
   *   badlogic (original implementation)
   */
 class DesktopWindow private[sge] (
-  val listener:                   ApplicationListener,
+  private val listenerFactory:    Sge ?=> ApplicationListener,
   private val lifecycleListeners: ArrayBuffer[LifecycleListener],
   private[sge] val config:        DesktopApplicationConfig,
   val application:                DesktopApplicationBase,
@@ -46,6 +46,7 @@ class DesktopWindow private[sge] (
   private val glOps:              GlOps
 ) extends AutoCloseable {
 
+  private var _listener:            ApplicationListener             = scala.compiletime.uninitialized
   private var _windowHandle:        Long                            = 0L
   private var _eglContext:          Long                            = 0L
   private var _listenerInitialized: Boolean                         = false
@@ -53,6 +54,9 @@ class DesktopWindow private[sge] (
   private var _graphics:            DesktopGraphics                 = scala.compiletime.uninitialized
   private var _input:               DesktopInput                    = scala.compiletime.uninitialized
   private[sge] var windowListener:  Nullable[DesktopWindowListener] = config.windowListener
+
+  /** The application listener for this window. Available after listener initialization. */
+  def listener: ApplicationListener = _listener
 
   var iconified:                 Boolean = false
   var focused:                   Boolean = false
@@ -83,13 +87,12 @@ class DesktopWindow private[sge] (
 
   private val onFocus: (Long, Boolean) => Unit = { (_, isFocused) =>
     postRunnable { () =>
-      given Sge = _sge
       if (isFocused) {
         if (config.pauseWhenLostFocus) {
           lifecycleListeners.synchronized {
             lifecycleListeners.foreach(_.resume())
           }
-          listener.resume()
+          _listener.resume()
         }
         windowListener.foreach(_.focusGained())
       } else {
@@ -98,7 +101,7 @@ class DesktopWindow private[sge] (
           lifecycleListeners.synchronized {
             lifecycleListeners.foreach(_.pause())
           }
-          listener.pause()
+          _listener.pause()
         }
       }
       this.focused = isFocused
@@ -107,7 +110,6 @@ class DesktopWindow private[sge] (
 
   private val onIconify: (Long, Boolean) => Unit = { (_, isIconified) =>
     postRunnable { () =>
-      given Sge = _sge
       windowListener.foreach(_.iconified(isIconified))
       this.iconified = isIconified
       if (isIconified) {
@@ -115,14 +117,14 @@ class DesktopWindow private[sge] (
           lifecycleListeners.synchronized {
             lifecycleListeners.foreach(_.pause())
           }
-          listener.pause()
+          _listener.pause()
         }
       } else {
         if (config.pauseWhenMinimized) {
           lifecycleListeners.synchronized {
             lifecycleListeners.foreach(_.resume())
           }
-          listener.resume()
+          _listener.resume()
         }
       }
     }
@@ -158,15 +160,15 @@ class DesktopWindow private[sge] (
 
   // ─── Accessors ──────────────────────────────────────────────────────────
 
-  def getWindowHandle(): Long = _windowHandle
+  def windowHandle: Long = _windowHandle
 
-  private[sge] def getEglContext(): Long = _eglContext
+  private[sge] def eglContext: Long = _eglContext
 
   private[sge] def setEglContext(ctx: Long): Unit = _eglContext = ctx
 
-  private[sge] def getGraphics(): DesktopGraphics = _graphics
+  private[sge] def graphics: DesktopGraphics = _graphics
 
-  private[sge] def getInput(): DesktopInput = _input
+  private[sge] def input: DesktopInput = _input
 
   private[sge] def isListenerInitialized(): Boolean = _listenerInitialized
 
@@ -187,10 +189,10 @@ class DesktopWindow private[sge] (
     windowing.setWindowPos(_windowHandle, x, y)
 
   /** @return the window x position in logical coordinates. */
-  def getPositionX(): Int = windowing.getWindowPos(_windowHandle)._1
+  def positionX: Int = windowing.getWindowPos(_windowHandle)._1
 
   /** @return the window y position in logical coordinates. */
-  def getPositionY(): Int = windowing.getWindowPos(_windowHandle)._2
+  def positionY: Int = windowing.getWindowPos(_windowHandle)._2
 
   /** Sets the visibility of the window. */
   def setVisible(visible: Boolean): Unit =
@@ -237,7 +239,7 @@ class DesktopWindow private[sge] (
     *   one or more Pixmaps at different sizes (e.g. 16x16, 32x32, 48x48). Pass no arguments to reset to default.
     */
   def setIcon(images: sge.graphics.Pixmap*): Unit = {
-    val platform = windowing.getPlatform()
+    val platform = windowing.platform
     if (platform != WindowingOps.GLFW_PLATFORM_COCOA && platform != WindowingOps.GLFW_PLATFORM_WAYLAND) {
       if (images.isEmpty) {
         windowing.setWindowIcon(_windowHandle, Array.empty)
@@ -248,8 +250,8 @@ class DesktopWindow private[sge] (
         var i          = 0
         while (i < images.length) {
           val pixmap = images(i)
-          if (pixmap.getFormat() != sge.graphics.Pixmap.Format.RGBA8888) {
-            val rgba = new sge.graphics.Pixmap(pixmap.getWidth().toInt, pixmap.getHeight().toInt, sge.graphics.Pixmap.Format.RGBA8888)
+          if (pixmap.format != sge.graphics.Pixmap.Format.RGBA8888) {
+            val rgba = new sge.graphics.Pixmap(pixmap.width.toInt, pixmap.height.toInt, sge.graphics.Pixmap.Format.RGBA8888)
             rgba.setBlending(sge.graphics.Pixmap.Blending.None)
             rgba.drawPixmap(pixmap, Pixels.zero, Pixels.zero)
             tmpPixmaps(i) = rgba
@@ -307,7 +309,7 @@ class DesktopWindow private[sge] (
       executedRunnables(i).run()
       i += 1
     }
-    var shouldRender = executedRunnables.nonEmpty || _graphics.isContinuousRendering()
+    var shouldRender = executedRunnables.nonEmpty || _graphics.continuousRendering
     executedRunnables.clear()
 
     if (!iconified) _input.update()
@@ -321,15 +323,15 @@ class DesktopWindow private[sge] (
     if (asyncResized) {
       asyncResized = false
       _graphics.updateFramebufferInfo()
-      _graphics.getGL20().glViewport(Pixels.zero, Pixels.zero, _graphics.getBackBufferWidth(), _graphics.getBackBufferHeight())
-      listener.resize(_graphics.getWidth(), _graphics.getHeight())
+      _graphics.gl20.glViewport(Pixels.zero, Pixels.zero, _graphics.backBufferWidth, _graphics.backBufferHeight)
+      _listener.resize(_graphics.width, _graphics.height)
       _graphics.update()
-      listener.render()
+      _listener.render()
       glOps.swapEglBuffers(_eglContext)
       true
     } else if (shouldRender) {
       _graphics.update()
-      listener.render()
+      _listener.render()
       glOps.swapEglBuffers(_eglContext)
       if (!iconified) _input.prepareNext()
       true
@@ -343,8 +345,9 @@ class DesktopWindow private[sge] (
     if (!_listenerInitialized) {
       _sge = sge
       given Sge = sge
-      listener.create()
-      listener.resize(_graphics.getWidth(), _graphics.getHeight())
+      _listener = listenerFactory
+      _listener.create()
+      _listener.resize(_graphics.width, _graphics.height)
       _listenerInitialized = true
     }
 
@@ -355,9 +358,8 @@ class DesktopWindow private[sge] (
   // ─── Lifecycle ────────────────────────────────────────────────────────
 
   override def close(): Unit = {
-    given Sge = _sge
-    listener.pause()
-    listener.dispose()
+    _listener.pause()
+    _listener.dispose()
     _graphics.close()
     _input.close()
     windowing.setWindowFocusCallback(_windowHandle, null)

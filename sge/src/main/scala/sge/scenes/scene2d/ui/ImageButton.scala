@@ -25,15 +25,15 @@ import sge.utils.{ Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button() {
+class ImageButton(initialStyle: ImageButton.ImageButtonStyle)(using Sge) extends Button() {
   import ImageButton._
 
   private var _style: ImageButtonStyle = scala.compiletime.uninitialized
-  private val image:  Image            = newImage()
+  private val _image: Image            = newImage()
 
-  add(Nullable(image))
-  setStyle(style)
-  setSize(getPrefWidth, getPrefHeight)
+  add(Nullable(_image))
+  setStyle(initialStyle)
+  setSize(prefWidth, prefHeight)
 
   def this(skin: Skin)(using Sge) = {
     this(skin.get[ImageButton.ImageButtonStyle])
@@ -45,14 +45,17 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
     setSkin(Nullable(skin))
   }
 
-  def this(imageUp: Nullable[Drawable])(using Sge) =
+  def this(imageUp: Nullable[Drawable])(using Sge) = {
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, Nullable.empty, Nullable.empty))
+  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) =
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable])(using Sge) = {
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, Nullable.empty))
+  }
 
-  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) =
+  def this(imageUp: Nullable[Drawable], imageDown: Nullable[Drawable], imageChecked: Nullable[Drawable])(using Sge) = {
     this(ImageButton.ImageButtonStyle(Nullable.empty, Nullable.empty, Nullable.empty, imageUp, imageDown, imageChecked))
+  }
 
   protected def newImage(): Image =
     Image(Nullable.empty, Scaling.fit)
@@ -62,13 +65,13 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
     this._style = style.asInstanceOf[ImageButtonStyle]
     super.setStyle(style)
 
-    Nullable(image).foreach(_ => updateImage())
+    Nullable(_image).foreach(_ => updateImage())
   }
 
-  override def getStyle: ImageButtonStyle = _style
+  override def style: ImageButtonStyle = _style
 
   /** Returns the appropriate image drawable from the style based on the current button state. */
-  protected def getImageDrawable: Nullable[Drawable] = scala.util.boundary {
+  protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
     if (isDisabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
     if (isPressed) {
       if (isChecked && _style.imageCheckedDown.isDefined) scala.util.boundary.break(_style.imageCheckedDown)
@@ -91,23 +94,23 @@ class ImageButton(style: ImageButton.ImageButtonStyle)(using Sge) extends Button
   /** Sets the image drawable based on the current button state. The default implementation sets the image drawable using {@link #getImageDrawable()}.
     */
   protected def updateImage(): Unit =
-    image.drawable = getImageDrawable
+    _image.drawable = imageDrawable
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     updateImage()
     super.draw(batch, parentAlpha)
   }
 
-  def getImage: Image = image
+  def image: Image = _image
 
-  def getImageCell: Nullable[Cell[Image]] = getCell(image)
+  def imageCell: Nullable[Cell[Image]] = getCell(_image)
 
   override def toString: String =
     name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)
-      (if (className.indexOf('$') != -1) "ImageButton " else "") + className + ": " + image.drawable
+      (if (className.indexOf('$') != -1) "ImageButton " else "") + className + ": " + _image.drawable
     }
 }
 

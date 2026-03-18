@@ -38,14 +38,14 @@ object BoxShapeBuilder {
     */
   def build(builder: MeshPartBuilder, box: BoundingBox): Unit = {
     builder.box(
-      box.getCorner000(obtainV3()),
-      box.getCorner010(obtainV3()),
-      box.getCorner100(obtainV3()),
-      box.getCorner110(obtainV3()),
-      box.getCorner001(obtainV3()),
-      box.getCorner011(obtainV3()),
-      box.getCorner101(obtainV3()),
-      box.getCorner111(obtainV3())
+      box.corner000(obtainV3()),
+      box.corner010(obtainV3()),
+      box.corner100(obtainV3()),
+      box.corner110(obtainV3()),
+      box.corner001(obtainV3()),
+      box.corner011(obtainV3()),
+      box.corner101(obtainV3()),
+      box.corner111(obtainV3())
     )
     freeAll()
   }
@@ -72,7 +72,7 @@ object BoxShapeBuilder {
     val i111 = builder.vertex(corner111)
     val i011 = builder.vertex(corner011)
 
-    val primitiveType = builder.getPrimitiveType()
+    val primitiveType = builder.primitiveType
     if (primitiveType == PrimitiveMode.Lines) {
       builder.ensureIndices(24)
       builder.rect(i000, i100, i110, i010)
@@ -105,7 +105,7 @@ object BoxShapeBuilder {
     corner101: Vector3,
     corner111: Vector3
   ): Unit =
-    if ((builder.getAttributes().mask & (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) == 0) {
+    if ((builder.attributes.mask & (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) == 0) {
       build(
         builder,
         vertTmp1.set(Nullable(corner000), Nullable.empty, Nullable.empty, Nullable.empty),

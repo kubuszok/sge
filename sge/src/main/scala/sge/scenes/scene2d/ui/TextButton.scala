@@ -20,17 +20,17 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle)(using Sge) extends Button() {
+class TextButton(initialText: Nullable[String], initialStyle: TextButton.TextButtonStyle)(using Sge) extends Button() {
   import TextButton._
 
   private var _style: TextButtonStyle = scala.compiletime.uninitialized
-  private var label:  Label           = scala.compiletime.uninitialized
+  private var _label: Label           = scala.compiletime.uninitialized
 
-  setStyle(style)
-  label = newLabel(text, new Label.LabelStyle(style.font, style.fontColor))
-  label.setAlignment(Align.center)
-  add(Nullable[Actor](label)).grow()
-  setSize(getPrefWidth, getPrefHeight)
+  setStyle(initialStyle)
+  _label = newLabel(initialText, new Label.LabelStyle(initialStyle.font, initialStyle.fontColor))
+  _label.setAlignment(Align.center)
+  add(Nullable[Actor](_label)).grow()
+  setSize(prefWidth, prefHeight)
 
   def this(text: Nullable[String], skin: Skin)(using Sge) = {
     this(text, skin.get[TextButton.TextButtonStyle])
@@ -50,19 +50,19 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle)(usin
     this._style = style.asInstanceOf[TextButtonStyle]
     super.setStyle(style)
 
-    Nullable(label).foreach { l =>
+    Nullable(_label).foreach { l =>
       val textButtonStyle = style.asInstanceOf[TextButtonStyle]
-      val labelStyle      = l.getStyle
+      val labelStyle      = l.style
       labelStyle.font = textButtonStyle.font
       labelStyle.fontColor = textButtonStyle.fontColor
       l.setStyle(labelStyle)
     }
   }
 
-  override def getStyle: TextButtonStyle = _style
+  override def style: TextButtonStyle = _style
 
   /** Returns the appropriate label font color from the style based on the current button state. */
-  protected def getFontColor: Nullable[Color] = scala.util.boundary {
+  protected def fontColor: Nullable[Color] = scala.util.boundary {
     if (isDisabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
     if (isPressed) {
       if (isChecked && _style.checkedDownFontColor.isDefined) scala.util.boundary.break(_style.checkedDownFontColor)
@@ -86,30 +86,30 @@ class TextButton(text: Nullable[String], style: TextButton.TextButtonStyle)(usin
   }
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    label.getStyle.fontColor = getFontColor
+    _label.style.fontColor = fontColor
     super.draw(batch, parentAlpha)
   }
 
   def setLabel(label: Label): Unit = {
-    getLabelCell.foreach(_.setActor(Nullable(label)))
-    this.label = label
+    labelCell.foreach(_.setActor(Nullable(label)))
+    this._label = label
   }
 
-  def getLabel: Label = label
+  def label: Label = _label
 
-  def getLabelCell: Nullable[Cell[Label]] = getCell(label)
+  def labelCell: Nullable[Cell[Label]] = getCell(_label)
 
   def setText(text: Nullable[String]): Unit =
-    label.setText(text.map(s => s: CharSequence))
+    _label.setText(text.map(s => s: CharSequence))
 
-  def getText: DynamicArray[Char] = label.getText
+  def text: DynamicArray[Char] = _label.text
 
   override def toString: String =
     name.getOrElse {
       var className = getClass.getName
       val dotIndex  = className.lastIndexOf('.')
       if (dotIndex != -1) className = className.substring(dotIndex + 1)
-      (if (className.indexOf('$') != -1) "TextButton " else "") + className + ": " + new String(label.getText.toArray)
+      (if (className.indexOf('$') != -1) "TextButton " else "") + className + ": " + new String(_label.text.toArray)
     }
 }
 

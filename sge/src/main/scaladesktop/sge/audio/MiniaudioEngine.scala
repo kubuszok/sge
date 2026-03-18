@@ -77,7 +77,7 @@ class MiniaudioEngine private[sge] (
       // In practice, createSound receives raw file bytes and the native side determines format.
       val soundHandle = audioOps.createSound(engineHandle, pcmData, 2, 16, 44100)
       if (soundHandle == 0L) {
-        throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name()}")
+        throw sge.utils.SgeError.AudioError(s"Could not load sound: ${fileHandle.name}")
       }
       val sound = MiniaudioSound(this, soundHandle, audioOps)
       soundInstances += sound
@@ -87,9 +87,9 @@ class MiniaudioEngine private[sge] (
   override def newMusic(file: files.FileHandle): Music =
     if (noDevice) sge.noop.NoopMusic()
     else {
-      val musicHandle = audioOps.createMusic(engineHandle, file.path())
+      val musicHandle = audioOps.createMusic(engineHandle, file.path)
       if (musicHandle == 0L) {
-        throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name()}")
+        throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name}")
       }
       val music = MiniaudioMusic(this, musicHandle, audioOps)
       musicInstances += music
@@ -104,7 +104,7 @@ class MiniaudioEngine private[sge] (
       audioOps.switchOutputDevice(engineHandle, name)
     }
 
-  override def getAvailableOutputDevices: Array[String] =
+  override def availableOutputDevices: Array[String] =
     if (noDevice) Array.empty[String]
     else audioOps.getAvailableOutputDevices(engineHandle)
 

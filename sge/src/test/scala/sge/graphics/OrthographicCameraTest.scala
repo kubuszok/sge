@@ -17,7 +17,7 @@ class OrthographicCameraTest extends munit.FunSuite {
 
   private def makeContext(w: Int, h: Int): Sge = {
     val graphics = new NoopGraphics(w, h) {
-      override def getGL20(): GL20 = NoopGL20
+      override def gl20: GL20 = NoopGL20
     }
     SgeTestFixture.testSge(graphics = graphics)
   }

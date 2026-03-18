@@ -29,11 +29,11 @@ import scala.compiletime.uninitialized
   *   mzechner
   */
 class ImmediateModeRenderer20(
-  maxVertices:  Int,
+  _maxVertices: Int,
   hasNormals:   Boolean,
   hasColors:    Boolean,
   numTexCoords: Int,
-  shader:       ShaderProgram
+  _shader:      ShaderProgram
 )(using Sge)
     extends ImmediateModeRenderer
     with AutoCloseable {
@@ -41,19 +41,19 @@ class ImmediateModeRenderer20(
   private var primitiveType:   PrimitiveMode = PrimitiveMode(0)
   private var vertexIdx:       Int           = uninitialized
   private var numSetTexCoords: Int           = uninitialized
-  private var numVertices:     Int           = uninitialized
+  private var _numVertices:    Int           = uninitialized
 
-  private var shaderVar:     ShaderProgram = shader
+  private var shaderVar:     ShaderProgram = _shader
   private var ownsShader:    Boolean       = false
   private val projModelView: Matrix4       = Matrix4()
 
   // Constructor body
   private val attribs = buildVertexAttributes(hasNormals, hasColors, numTexCoords)
-  private val mesh: Mesh = Mesh(false, maxVertices, 0, VertexAttributes(attribs*))
+  private val mesh: Mesh = Mesh(false, _maxVertices, 0, VertexAttributes(attribs*))
 
-  private val vertexSize: Int = mesh.getVertexAttributes().vertexSize / 4
+  private val vertexSize: Int = mesh.vertexAttributes.vertexSize / 4
 
-  private val vertices: Array[Float] = Array.ofDim[Float](maxVertices * vertexSize)
+  private val vertices: Array[Float] = Array.ofDim[Float](_maxVertices * vertexSize)
 
   private val normalOffset: Int = mesh.getVertexAttribute(Usage.Normal).map(_.offset / 4).getOrElse(0)
 
@@ -70,9 +70,9 @@ class ImmediateModeRenderer20(
     ownsShader = true
   }
 
-  def this(maxVertices: Int, hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge) = {
+  def this(_maxVertices: Int, hasNormals: Boolean, hasColors: Boolean, numTexCoords: Int)(using Sge) = {
     this(
-      maxVertices,
+      _maxVertices,
       hasNormals,
       hasColors,
       numTexCoords,
@@ -91,13 +91,13 @@ class ImmediateModeRenderer20(
     attribs.toArray
   }
 
-  def setShader(shader: ShaderProgram): Unit = {
+  def shader_=(shader: ShaderProgram): Unit = {
     if (ownsShader) this.shaderVar.close()
     this.shaderVar = shader
     ownsShader = false
   }
 
-  def getShader(): ShaderProgram = shaderVar
+  def shader: ShaderProgram = shaderVar
 
   def begin(projModelView: Matrix4, primitiveType: PrimitiveMode): Unit = {
     this.projModelView.set(projModelView)
@@ -135,11 +135,11 @@ class ImmediateModeRenderer20(
 
     numSetTexCoords = 0
     vertexIdx += vertexSize
-    numVertices += 1
+    _numVertices += 1
   }
 
   def flush(): Unit =
-    if (numVertices != 0) {
+    if (_numVertices != 0) {
       shaderVar.bind()
       shaderVar.setUniformMatrix("u_projModelView", projModelView)
       for (i <- 0 until numTexCoords)
@@ -149,15 +149,15 @@ class ImmediateModeRenderer20(
 
       numSetTexCoords = 0
       vertexIdx = 0
-      numVertices = 0
+      _numVertices = 0
     }
 
   def end(): Unit =
     flush()
 
-  def getNumVertices(): Int = numVertices
+  def numVertices: Int = _numVertices
 
-  override def getMaxVertices(): Int = maxVertices
+  override def maxVertices: Int = _maxVertices
 
   def dispose(): Unit = {
     if (ownsShader) shaderVar.close()
@@ -225,7 +225,7 @@ object ImmediateModeRenderer20 {
     val vertexShader   = createVertexShader(hasNormals, hasColors, numTexCoords)
     val fragmentShader = createFragmentShader(hasNormals, hasColors, numTexCoords)
     val program        = ShaderProgram(vertexShader, fragmentShader)
-    if (!program.compiled) throw SgeError.GraphicsError("Error compiling shader: " + program.getLog())
+    if (!program.compiled) throw SgeError.GraphicsError("Error compiling shader: " + program.log)
     program
   }
 }

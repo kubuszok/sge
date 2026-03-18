@@ -15,7 +15,7 @@ import sge.utils.Nullable
 
 /** A no-op [[sge.Audio]] implementation for headless/testing use. Returns noop instances for all audio resource factory methods.
   */
-final class NoopAudio extends Audio {
+class NoopAudio extends Audio {
 
   override def newAudioDevice(samplingRate: Int, isMono: Boolean): audio.AudioDevice =
     NoopAudioDevice(isMono)
@@ -31,5 +31,5 @@ final class NoopAudio extends Audio {
 
   override def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean = true
 
-  override def getAvailableOutputDevices: Array[String] = Array.empty[String]
+  override def availableOutputDevices: Array[String] = Array.empty[String]
 }

@@ -27,7 +27,7 @@ import sge.utils.{ Align, DynamicArray, Nullable }
   * The preferred width is the largest preferred width of any child. The preferred height is the sum of the children's preferred heights plus spacing. The preferred size is slightly different when
   * {@link #wrap() wrap} is enabled. The min size is the preferred size and the max size is 0.
   *
-  * Widgets are sized using their {@link Layout#getPrefWidth() preferred height}, so widgets which return 0 as their preferred height will be given a height of 0.
+  * Widgets are sized using their {@link Layout#prefWidth preferred height}, so widgets which return 0 as their preferred height will be given a height of 0.
   * @author
   *   Nathan Sweet
   */
@@ -63,7 +63,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
 
   private def computeSize(): Unit = {
     sizeInvalid = false
-    val children = getChildren
+    val children = this.children
     val n        = children.size
     _prefWidth = 0
     if (_wrap) {
@@ -91,9 +91,9 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
         var height: Float = 0
         child match {
           case layout: Layout =>
-            width = layout.getPrefWidth
-            height = layout.getPrefHeight
-            if (height > groupHeight) height = Math.max(groupHeight, layout.getMinHeight)
+            width = layout.prefWidth
+            height = layout.prefHeight
+            if (height > groupHeight) height = Math.max(groupHeight, layout.minHeight)
           case _ =>
             width = child.width
             height = child.height
@@ -127,8 +127,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
         val child = children(i)
         child match {
           case layout: Layout =>
-            _prefWidth = Math.max(_prefWidth, layout.getPrefWidth)
-            _prefHeight += layout.getPrefHeight
+            _prefWidth = Math.max(_prefWidth, layout.prefWidth)
+            _prefHeight += layout.prefHeight
           case _ =>
             _prefWidth = Math.max(_prefWidth, child.width)
             _prefHeight += child.height
@@ -172,7 +172,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
 
       align = _columnAlign
 
-      val children = getChildren
+      val children = this.children
       val n        = children.size
       var i        = if (_reverse) n - 1 else 0
       val end      = if (_reverse) -1 else n
@@ -186,8 +186,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
         child match {
           case l: Layout =>
             layout = Nullable(l)
-            width = l.getPrefWidth
-            height = l.getPrefHeight
+            width = l.prefWidth
+            height = l.prefHeight
           case _ =>
             width = child.width
             height = child.height
@@ -196,8 +196,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
         if (fill > 0) width = columnWidth * fill
 
         layout.foreach { l =>
-          width = Math.max(width, l.getMinWidth)
-          val maxWidth = l.getMaxWidth
+          width = Math.max(width, l.minWidth)
+          val maxWidth = l.maxWidth
           if (maxWidth > 0 && width > maxWidth) width = maxWidth
         }
 
@@ -220,7 +220,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
   }
 
   private def layoutWrapped(): Unit = {
-    val prefWidth = getPrefWidth
+    val prefWidth = this.prefWidth
     if (prefWidth != lastPrefWidth) {
       lastPrefWidth = prefWidth
       invalidateHierarchy()
@@ -253,7 +253,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     align = _columnAlign
 
     val colSizes = columnSizes.getOrElse(DynamicArray[Float]())
-    val children = getChildren
+    val children = this.children
     val n        = children.size
     var i        = if (_reverse) n - 1 else 0
     val end      = if (_reverse) -1 else n
@@ -268,9 +268,9 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
       child match {
         case l: Layout =>
           layout = Nullable(l)
-          width = l.getPrefWidth
-          height = l.getPrefHeight
-          if (height > groupHeight) height = Math.max(groupHeight, l.getMinHeight)
+          width = l.prefWidth
+          height = l.prefHeight
+          if (height > groupHeight) height = Math.max(groupHeight, l.minHeight)
         case _ =>
           width = child.width
           height = child.height
@@ -294,8 +294,8 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
       if (fill > 0) width = columnWidth * fill
 
       layout.foreach { l =>
-        width = Math.max(width, l.getMinWidth)
-        val maxWidth = l.getMaxWidth
+        width = Math.max(width, l.minWidth)
+        val maxWidth = l.maxWidth
         if (maxWidth > 0 && width > maxWidth) width = maxWidth
       }
 
@@ -316,12 +316,12 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     }
   }
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     if (sizeInvalid) computeSize()
     _prefWidth
   }
 
-  override def getPrefHeight: Float =
+  override def prefHeight: Float =
     if (_wrap) 0
     else {
       if (sizeInvalid) computeSize()
@@ -329,7 +329,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     }
 
   /** When wrapping is enabled, the number of columns may be > 1. */
-  def getColumns: Int =
+  def columns: Int =
     if (_wrap) columnSizes.map(_.size >> 1).getOrElse(0) else 1
 
   /** If true (the default), positions and sizes are rounded to integers. */
@@ -348,7 +348,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getReverse: Boolean = _reverse
+  def isReverse: Boolean = _reverse
 
   /** Sets the vertical space between children. */
   def space(space: Float): VerticalGroup = {
@@ -356,7 +356,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getSpace: Float = _space
+  def space: Float = _space
 
   /** Sets the horizontal space between columns when wrap is enabled. */
   def wrapSpace(wrapSpace: Float): VerticalGroup = {
@@ -364,7 +364,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getWrapSpace: Float = _wrapSpace
+  def wrapSpace: Float = _wrapSpace
 
   /** Sets the padTop, padLeft, padBottom, and padRight to the specified value. */
   def pad(pad: Float): VerticalGroup = {
@@ -426,7 +426,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
   }
 
   /** Sets {@link Align#top} and clears {@link Align#bottom} for the alignment of all widgets within the vertical group. */
-  def top(): VerticalGroup = {
+  def alignTop(): VerticalGroup = {
     _align = _align | Align.top
     _align = _align & ~Align.bottom
     this
@@ -447,13 +447,13 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
   }
 
   /** Adds {@link Align#right} and clears {@link Align#left} for the alignment of all widgets within the vertical group. */
-  def right(): VerticalGroup = {
+  def alignRight(): VerticalGroup = {
     _align = _align | Align.right
     _align = _align & ~Align.left
     this
   }
 
-  def getAlign: Align = _align
+  def align: Align = _align
 
   def fill(): VerticalGroup = {
     _fill = 1f
@@ -479,7 +479,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getExpand: Boolean = _expand
+  def isExpand: Boolean = _expand
 
   /** Sets fill to 1 and expand to true. */
   def grow(): VerticalGroup = {
@@ -507,7 +507,7 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
     this
   }
 
-  def getWrap: Boolean = _wrap
+  def isWrap: Boolean = _wrap
 
   /** Sets the vertical alignment of each column of widgets when {@link #wrap() wrapping} is enabled and sets the horizontal alignment of widgets within each column. Set to {@link Align#center},
     * {@link Align#top}, {@link Align#bottom}, {@link Align#left}, {@link Align#right}, or any combination of those.
@@ -555,9 +555,9 @@ class VerticalGroup()(using Sge) extends WidgetGroup() {
 
   override protected def drawDebugBounds(shapes: ShapeRenderer): Unit = {
     super.drawDebugBounds(shapes)
-    if (getDebug) {
+    if (isDebug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      stage.foreach(s => shapes.setColor(s.getDebugColor))
+      stage.foreach(s => shapes.setColor(s.debugColor))
       shapes.rectangle(
         x + _padLeft,
         y + _padBottom,

@@ -28,7 +28,7 @@ class DesktopInterfacesTest extends munit.FunSuite {
       override def newSound(fileHandle:                 files.FileHandle):       _root_.sge.audio.Sound         = ???
       override def newMusic(file:                       files.FileHandle):       _root_.sge.audio.Music         = ???
       override def switchOutputDevice(deviceIdentifier: utils.Nullable[String]): Boolean                        = false
-      override def getAvailableOutputDevices:                                    Array[String]                  = Array.empty
+      override def availableOutputDevices:                                       Array[String]                  = Array.empty
     }
 
     desktopAudio.update()

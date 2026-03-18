@@ -31,13 +31,13 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class Slider(
-  min:      Float,
-  max:      Float,
-  stepSize: Float,
-  vertical: Boolean,
-  style:    Slider.SliderStyle
+  min:          Float,
+  max:          Float,
+  stepSize:     Float,
+  vertical:     Boolean,
+  initialStyle: Slider.SliderStyle
 )(using Sge)
-    extends ProgressBar(min, max, stepSize, vertical, style) {
+    extends ProgressBar(min, max, stepSize, vertical, initialStyle) {
   import Slider._
 
   var button:                             Button                 = Button(-1)
@@ -47,11 +47,13 @@ class Slider(
   private var snapValues:                 Nullable[Array[Float]] = Nullable.empty
   private var threshold:                  Float                  = 0
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get[Slider.SliderStyle]("default-" + (if (vertical) "vertical" else "horizontal")))
+  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get[Slider.SliderStyle](styleName))
+  }
 
   addListener(
     new InputListener() {
@@ -90,36 +92,36 @@ class Slider(
 
   /** Returns the slider's style. Modifying the returned style may not have an effect until {@link #setStyle(ProgressBarStyle)} is called.
     */
-  def sliderStyle: SliderStyle = super.getStyle.asInstanceOf[SliderStyle]
+  def sliderStyle: SliderStyle = super.style.asInstanceOf[SliderStyle]
 
   def over: Boolean = mouseOver
 
-  override protected def getBackgroundDrawable(): Nullable[Drawable] = {
-    val style = super.getStyle.asInstanceOf[SliderStyle]
+  override protected def backgroundDrawable: Nullable[Drawable] = {
+    val style = super.style.asInstanceOf[SliderStyle]
     if (disabled && style.disabledBackground.isDefined) style.disabledBackground
     else if (isDragging && style.backgroundDown.isDefined) style.backgroundDown
     else if (over && style.backgroundOver.isDefined) style.backgroundOver
     else style.background
   }
 
-  override protected def getKnobDrawable(): Nullable[Drawable] = {
-    val style = super.getStyle.asInstanceOf[SliderStyle]
+  override protected def knobDrawable: Nullable[Drawable] = {
+    val style = super.style.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnob.isDefined) style.disabledKnob
     else if (isDragging && style.knobDown.isDefined) style.knobDown
     else if (over && style.knobOver.isDefined) style.knobOver
     else Nullable(style.knob)
   }
 
-  override protected def getKnobBeforeDrawable(): Nullable[Drawable] = {
-    val style = super.getStyle.asInstanceOf[SliderStyle]
+  override protected def knobBeforeDrawable: Nullable[Drawable] = {
+    val style = super.style.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnobBefore.isDefined) style.disabledKnobBefore
     else if (isDragging && style.knobBeforeDown.isDefined) style.knobBeforeDown
     else if (over && style.knobBeforeOver.isDefined) style.knobBeforeOver
     else style.knobBefore
   }
 
-  override protected def getKnobAfterDrawable(): Nullable[Drawable] = {
-    val style = super.getStyle.asInstanceOf[SliderStyle]
+  override protected def knobAfterDrawable: Nullable[Drawable] = {
+    val style = super.style.asInstanceOf[SliderStyle]
     if (disabled && style.disabledKnobAfter.isDefined) style.disabledKnobAfter
     else if (isDragging && style.knobAfterDown.isDefined) style.knobAfterDown
     else if (over && style.knobAfterOver.isDefined) style.knobAfterOver
@@ -129,7 +131,7 @@ class Slider(
   private[ui] def calculatePositionAndValue(x: Float, y: Float): Boolean = {
     val style = sliderStyle
     val knob  = Nullable(style.knob)
-    val bg    = getBackgroundDrawable()
+    val bg    = backgroundDrawable
 
     val oldPosition = position
 

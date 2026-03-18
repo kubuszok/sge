@@ -27,7 +27,7 @@ import sge.math.collision.BoundingBox
 import sge.utils.Nullable
 
 /** A MeshPart is composed of a subset of vertices of a {@link Mesh}, along with the primitive type. The vertices subset is described by an offset and size. When the mesh is indexed (which is when
-  * {@link Mesh#getNumIndices()} > 0), then the {@link #offset} represents the offset in the indices array and {@link #size} represents the number of indices. When the mesh isn't indexed, then the
+  * {@link Mesh#numIndices} > 0), then the {@link #offset} represents the offset in the indices array and {@link #size} represents the number of indices. When the mesh isn't indexed, then the
   * {@link #offset} member represents the offset in the vertices array and the {@link #size} member represents the number of vertices. </p>
   *
   * In other words: Regardless whether the mesh is indexed or not, when {@link #primitiveType} is not a strip, then {@link #size} equals the number of primitives multiplied by the number of vertices
@@ -49,13 +49,12 @@ class MeshPart {
     */
   var primitiveType: PrimitiveMode = PrimitiveMode(0)
 
-  /** The offset in the {@link #mesh} to this part. If the mesh is indexed ({@link Mesh#getNumIndices()} > 0), this is the offset in the indices array, otherwise it is the offset in the vertices
-    * array. *
+  /** The offset in the {@link #mesh} to this part. If the mesh is indexed ({@link Mesh#numIndices} > 0), this is the offset in the indices array, otherwise it is the offset in the vertices array. *
     */
   var offset: Int = 0
 
-  /** The size (in total number of vertices) of this part in the {@link #mesh}. When the mesh is indexed ( {@link Mesh#getNumIndices()} > 0), this is the number of indices, otherwise it is the number
-    * of vertices. *
+  /** The size (in total number of vertices) of this part in the {@link #mesh}. When the mesh is indexed ( {@link Mesh#numIndices} > 0), this is the number of indices, otherwise it is the number of
+    * vertices. *
     */
   var size: Int = 0
 
@@ -130,8 +129,8 @@ class MeshPart {
     */
   def update(): Unit = {
     mesh.calculateBoundingBox(MeshPart.bounds, offset, size)
-    MeshPart.bounds.getCenter(center)
-    MeshPart.bounds.getDimensions(halfExtents).scl(0.5f)
+    MeshPart.bounds.center(center)
+    MeshPart.bounds.dimensions(halfExtents).scl(0.5f)
     radius = halfExtents.length
   }
 

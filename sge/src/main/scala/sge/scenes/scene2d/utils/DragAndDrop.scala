@@ -175,8 +175,8 @@ class DragAndDrop {
                 if (keepWithinStage) {
                   if (actorX < 0) actorX = 0
                   if (actorY < 0) actorY = 0
-                  if (actorX + a.width > stage.getWidth) actorX = stage.getWidth - a.width
-                  if (actorY + a.height > stage.getHeight) actorY = stage.getHeight - a.height
+                  if (actorX + a.width > stage.width) actorX = stage.width - a.width
+                  if (actorY + a.height > stage.height) actorY = stage.height - a.height
                 }
                 a.setPosition(actorX, actorY)
               }
@@ -325,7 +325,7 @@ object DragAndDrop {
     */
   abstract class Target(val actor: Actor) {
     actor.stage.foreach { stage =>
-      if (actor == stage.getRoot)
+      if (actor == stage.root)
         throw new IllegalArgumentException("The stage root cannot be a drag and drop target.")
     }
 

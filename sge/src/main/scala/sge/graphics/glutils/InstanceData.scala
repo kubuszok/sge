@@ -29,13 +29,13 @@ import java.nio.FloatBuffer
 trait InstanceData extends AutoCloseable {
 
   /** @return the number of vertices this InstanceData stores */
-  def getNumInstances(): Int
+  def numInstances: Int
 
   /** @return the number of vertices this InstanceData can store */
-  def getNumMaxInstances(): Int
+  def numMaxInstances: Int
 
   /** @return the VertexAttributes as specified during construction. */
-  def getAttributes(): VertexAttributes
+  def attributes: VertexAttributes
 
   /** Sets the vertices of this InstanceData, discarding the old vertex data. The count must equal the number of floats per vertex times the number of vertices to be copied to this VertexData. The
     * order of the vertex attributes must be the same as specified at construction time via VertexAttributes. <p> This can be called in between calls to bind and unbind. The vertex data will be

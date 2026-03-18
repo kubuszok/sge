@@ -115,8 +115,9 @@ object FileHandleResolver {
       * @param descriptors
       *   A list of {@link Resolution} s. At least one has to be supplied.
       */
-    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) =
+    def this(baseResolver: FileHandleResolver, descriptors: Resolution*)(using Sge) = {
       this(baseResolver, descriptors.toArray)
+    }
 
     override def resolve(fileName: String): FileHandle = {
       val bestResolution = ForResolution.choose(descriptors*)
@@ -128,17 +129,17 @@ object FileHandleResolver {
     protected def resolve(originalHandle: FileHandle, suffix: String): String = {
       val parentString = Nullable(originalHandle.parent())
         .map { parent =>
-          if (parent.name().equals("")) "" else parent.path() + "/"
+          if (parent.name.equals("")) "" else parent.path + "/"
         }
         .getOrElse("")
-      parentString + suffix + "/" + originalHandle.name()
+      parentString + suffix + "/" + originalHandle.name
     }
   }
 
   object ForResolution {
     def choose(descriptors: Resolution*)(using Sge): Resolution = {
-      val w = Sge().graphics.getBackBufferWidth()
-      val h = Sge().graphics.getBackBufferHeight()
+      val w = Sge().graphics.backBufferWidth
+      val h = Sge().graphics.backBufferHeight
 
       // Prefer the shortest side.
       var best = descriptors(0)

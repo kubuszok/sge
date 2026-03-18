@@ -189,7 +189,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
   override def terminate(): Unit =
     hTerminate.invoke()
 
-  override def getPlatform(): Int =
+  override def platform: Int =
     hGetPlatform.invoke().asInstanceOf[Int]
 
   // ─── Window lifecycle ──────────────────────────────────────────────────
@@ -220,8 +220,8 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
     hPollEvents.invoke()
 
   override def getNativeWindowHandle(windowHandle: Long): Long = {
-    val platform = getPlatform()
-    if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
+    val currentPlatform = this.platform
+    if (currentPlatform == WindowingOps.GLFW_PLATFORM_COCOA) {
       val nsWindow = hGetCocoaWindow
         .map { mh =>
           mh.invoke(ptr(windowHandle)).asInstanceOf[MemorySegment]
@@ -253,25 +253,25 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         cachedLayerAddress = layer.address()
         cachedLayerAddress
       } finally arena.close()
-    } else if (platform == WindowingOps.GLFW_PLATFORM_X11) {
+    } else if (currentPlatform == WindowingOps.GLFW_PLATFORM_X11) {
       hGetX11Window
         .map { mh =>
           mh.invoke(ptr(windowHandle)).asInstanceOf[Long]
         }
         .getOrElse(throw new UnsupportedOperationException("glfwGetX11Window not available"))
-    } else if (platform == WindowingOps.GLFW_PLATFORM_WIN32) {
+    } else if (currentPlatform == WindowingOps.GLFW_PLATFORM_WIN32) {
       hGetWin32Window
         .map { mh =>
           ptrVal(mh.invoke(ptr(windowHandle)).asInstanceOf[MemorySegment])
         }
         .getOrElse(throw new UnsupportedOperationException("glfwGetWin32Window not available"))
     } else {
-      throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $platform")
+      throw new UnsupportedOperationException(s"getNativeWindowHandle not supported on platform $currentPlatform")
     }
   }
 
   override def updateNativeLayerScale(windowHandle: Long): Unit =
-    if (cachedLayerAddress != 0L && getPlatform() == WindowingOps.GLFW_PLATFORM_COCOA) {
+    if (cachedLayerAddress != 0L && platform == WindowingOps.GLFW_PLATFORM_COCOA) {
       val (fbW, _)  = getFramebufferSize(windowHandle)
       val (winW, _) = getWindowSize(windowHandle)
       val scale     = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
@@ -379,10 +379,10 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   // ─── Monitor ───────────────────────────────────────────────────────────
 
-  override def getPrimaryMonitor(): Long =
+  override def primaryMonitor: Long =
     ptrVal(hGetPrimMon.invoke().asInstanceOf[MemorySegment])
 
-  override def getMonitors(): Array[Long] = {
+  override def monitors: Array[Long] = {
     val arena = Arena.ofConfined()
     try {
       val countSeg = arena.allocate(I)
@@ -501,7 +501,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
 
   // ─── Time ──────────────────────────────────────────────────────────────
 
-  override def getTime(): Double =
+  override def time: Double =
     hGetTime.invoke().asInstanceOf[Double]
 
   // ─── Callbacks (upcall stubs) ──────────────────────────────────────────
@@ -782,7 +782,7 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
         var i   = 0
         while (i < images.length) {
           val pixmap = images(i)
-          val pixels = pixmap.getPixels()
+          val pixels = pixmap.pixels
           pixels.position(0)
           val numBytes  = pixels.remaining()
           val nativeBuf = arena.allocate(numBytes.toLong)
@@ -791,8 +791,8 @@ class WindowingOpsJvm(lib: SymbolLookup) extends WindowingOps {
           nativeBuf.copyFrom(slice)
           // Write GLFWimage fields
           val base = buf.asSlice(GlfwImageSize * i.toLong, GlfwImageSize)
-          base.set(I, 0L, pixmap.getWidth().toInt)
-          base.set(I, 4L, pixmap.getHeight().toInt)
+          base.set(I, 0L, pixmap.width.toInt)
+          base.set(I, 4L, pixmap.height.toInt)
           base.set(P, 8L, nativeBuf)
           i += 1
         }

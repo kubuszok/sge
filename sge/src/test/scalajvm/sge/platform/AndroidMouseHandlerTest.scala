@@ -68,7 +68,7 @@ class AndroidMouseHandlerTest extends munit.FunSuite {
     override def setButton(pointer:            Int, value:     Int):     Unit = button(pointer) = value
     override def setPressure(pointer:          Int, value:     Float):   Unit = pressure(pointer) = value
     override def setRealId(pointer:            Int, pointerId: Int):     Unit = realId(pointer) = pointerId
-    override def getFreePointerIndex():                                  Int  = realId.indexOf(-1)
+    override def freePointerIndex:                                       Int  = realId.indexOf(-1)
     override def lookUpPointerIndex(pointerId: Int):                     Int  = realId.indexOf(pointerId)
     override def cancelAllPointers():                                    Unit = {
       java.util.Arrays.fill(realId, -1)

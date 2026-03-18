@@ -77,7 +77,7 @@ class DefaultDesktopInput private[sge] (
         keyJustPressed = true
         pressedKeys(gdxKey.toInt) = true
         justPressedKeys(gdxKey.toInt) = true
-        window.getGraphics().requestRendering()
+        window.graphics.requestRendering()
         _lastCharacter = 0
         val character = characterForKeyCode(gdxKey)
         if (character != 0) onChar(0L, character.toInt)
@@ -85,11 +85,11 @@ class DefaultDesktopInput private[sge] (
         val gdxKey = getGdxKeyCode(key)
         pressedKeyCount -= 1
         pressedKeys(gdxKey.toInt) = false
-        window.getGraphics().requestRendering()
+        window.graphics.requestRendering()
         eventQueue.keyUp(gdxKey, Nanos(System.nanoTime()))
       case GLFW_REPEAT =>
         if (_lastCharacter != 0) {
-          window.getGraphics().requestRendering()
+          window.graphics.requestRendering()
           eventQueue.keyTyped(_lastCharacter, Nanos(System.nanoTime()))
         }
       case _ => ()
@@ -99,13 +99,13 @@ class DefaultDesktopInput private[sge] (
   private val onChar: (Long, Int) => Unit = { (_, codepoint) =>
     if ((codepoint & 0xff00) != 0xf700) {
       _lastCharacter = codepoint.toChar
-      window.getGraphics().requestRendering()
+      window.graphics.requestRendering()
       eventQueue.keyTyped(codepoint.toChar, Nanos(System.nanoTime()))
     }
   }
 
   private val onScroll: (Long, Double, Double) => Unit = { (_, scrollX, scrollY) =>
-    window.getGraphics().requestRendering()
+    window.graphics.requestRendering()
     eventQueue.scrolled(-scrollX.toFloat, -scrollY.toFloat, Nanos(System.nanoTime()))
   }
 
@@ -118,16 +118,16 @@ class DefaultDesktopInput private[sge] (
     _logicalMouseY = y.toInt
 
     if (window.config.hdpiMode == HdpiMode.Pixels) {
-      val graphics = window.getGraphics()
-      val xScale   = graphics.getBackBufferWidth().toFloat / graphics.getLogicalWidth().toFloat
-      val yScale   = graphics.getBackBufferHeight().toFloat / graphics.getLogicalHeight().toFloat
+      val graphics = window.graphics
+      val xScale   = graphics.backBufferWidth.toFloat / graphics.logicalWidth.toFloat
+      val yScale   = graphics.backBufferHeight.toFloat / graphics.logicalHeight.toFloat
       _deltaX = (_deltaX * xScale).toInt
       _deltaY = (_deltaY * yScale).toInt
       _mouseX = (_mouseX * xScale).toInt
       _mouseY = (_mouseY * yScale).toInt
     }
 
-    window.getGraphics().requestRendering()
+    window.graphics.requestRendering()
     val time = Nanos(System.nanoTime())
     if (_mousePressed > 0) {
       eventQueue.touchDragged(Pixels(_mouseX), Pixels(_mouseY), 0, time)
@@ -144,11 +144,11 @@ class DefaultDesktopInput private[sge] (
         _mousePressed += 1
         _justTouched = true
         _justPressedButtons(gdxButton.toInt) = true
-        window.getGraphics().requestRendering()
+        window.graphics.requestRendering()
         eventQueue.touchDown(Pixels(_mouseX), Pixels(_mouseY), 0, gdxButton, time)
       } else {
         _mousePressed = scala.math.max(0, _mousePressed - 1)
-        window.getGraphics().requestRendering()
+        window.graphics.requestRendering()
         eventQueue.touchUp(Pixels(_mouseX), Pixels(_mouseY), 0, gdxButton, time)
       }
     }
@@ -164,17 +164,17 @@ class DefaultDesktopInput private[sge] (
   }
 
   // ─── Construction ───────────────────────────────────────────────────
-  windowHandleChanged(window.getWindowHandle())
+  windowHandleChanged(window.windowHandle)
 
   // ─── DesktopInput lifecycle ─────────────────────────────────────────
 
   override def windowHandleChanged(windowHandle: Long): Unit = {
     resetPollingStates()
-    windowing.setKeyCallback(window.getWindowHandle(), onKey)
-    windowing.setCharCallback(window.getWindowHandle(), onChar)
-    windowing.setScrollCallback(window.getWindowHandle(), onScroll)
-    windowing.setCursorPosCallback(window.getWindowHandle(), onCursorPos)
-    windowing.setMouseButtonCallback(window.getWindowHandle(), onMouseButton)
+    windowing.setKeyCallback(window.windowHandle, onKey)
+    windowing.setCharCallback(window.windowHandle, onChar)
+    windowing.setScrollCallback(window.windowHandle, onScroll)
+    windowing.setCursorPosCallback(window.windowHandle, onCursorPos)
+    windowing.setMouseButtonCallback(window.windowHandle, onMouseButton)
   }
 
   override def update(): Unit =
@@ -218,37 +218,37 @@ class DefaultDesktopInput private[sge] (
     eventQueue.drain(Nullable.empty)
   }
 
-  @scala.annotation.nowarn("msg=deprecated") // null — GLFW FFI interop: passing null unregisters the callback
-  override def close(): Unit = {
-    windowing.setKeyCallback(window.getWindowHandle(), null)
-    windowing.setCharCallback(window.getWindowHandle(), null)
-    windowing.setScrollCallback(window.getWindowHandle(), null)
-    windowing.setCursorPosCallback(window.getWindowHandle(), null)
-    windowing.setMouseButtonCallback(window.getWindowHandle(), null)
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  override def close(): Unit = { // null — GLFW FFI interop: passing null unregisters the callback
+    windowing.setKeyCallback(window.windowHandle, null)
+    windowing.setCharCallback(window.windowHandle, null)
+    windowing.setScrollCallback(window.windowHandle, null)
+    windowing.setCursorPosCallback(window.windowHandle, null)
+    windowing.setMouseButtonCallback(window.windowHandle, null)
   }
 
   // ─── Input: pointer/touch ───────────────────────────────────────────
 
-  override def getMaxPointers(): Int = 1
+  override def maxPointers: Int = 1
 
-  override def getX(): Pixels = Pixels(_mouseX)
+  override def x: Pixels = Pixels(_mouseX)
 
-  override def getX(pointer: Int): Pixels = if (pointer == 0) Pixels(_mouseX) else Pixels.zero
+  override def x(pointer: Int): Pixels = if (pointer == 0) Pixels(_mouseX) else Pixels.zero
 
-  override def getDeltaX(): Pixels = Pixels(_deltaX)
+  override def deltaX: Pixels = Pixels(_deltaX)
 
-  override def getDeltaX(pointer: Int): Pixels = if (pointer == 0) Pixels(_deltaX) else Pixels.zero
+  override def deltaX(pointer: Int): Pixels = if (pointer == 0) Pixels(_deltaX) else Pixels.zero
 
-  override def getY(): Pixels = Pixels(_mouseY)
+  override def y: Pixels = Pixels(_mouseY)
 
-  override def getY(pointer: Int): Pixels = if (pointer == 0) Pixels(_mouseY) else Pixels.zero
+  override def y(pointer: Int): Pixels = if (pointer == 0) Pixels(_mouseY) else Pixels.zero
 
-  override def getDeltaY(): Pixels = Pixels(_deltaY)
+  override def deltaY: Pixels = Pixels(_deltaY)
 
-  override def getDeltaY(pointer: Int): Pixels = if (pointer == 0) Pixels(_deltaY) else Pixels.zero
+  override def deltaY(pointer: Int): Pixels = if (pointer == 0) Pixels(_deltaY) else Pixels.zero
 
-  override def isTouched(): Boolean = {
-    val handle = window.getWindowHandle()
+  override def touched: Boolean = {
+    val handle = window.windowHandle
     windowing.getMouseButton(handle, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS ||
     windowing.getMouseButton(handle, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS ||
     windowing.getMouseButton(handle, GLFW_MOUSE_BUTTON_3) == GLFW_PRESS ||
@@ -258,14 +258,14 @@ class DefaultDesktopInput private[sge] (
 
   override def justTouched(): Boolean = _justTouched
 
-  override def isTouched(pointer: Int): Boolean = if (pointer == 0) isTouched() else false
+  override def isTouched(pointer: Int): Boolean = if (pointer == 0) touched else false
 
-  override def getPressure(): Float = getPressure(0)
+  override def pressure: Float = pressure(0)
 
-  override def getPressure(pointer: Int): Float = if (isTouched(pointer)) 1f else 0f
+  override def pressure(pointer: Int): Float = if (isTouched(pointer)) 1f else 0f
 
   override def isButtonPressed(button: Button): Boolean =
-    windowing.getMouseButton(window.getWindowHandle(), button.toInt) == GLFW_PRESS
+    windowing.getMouseButton(window.windowHandle, button.toInt) == GLFW_PRESS
 
   override def isButtonJustPressed(button: Button): Boolean =
     if (button.toInt < 0 || button.toInt >= _justPressedButtons.length) false
@@ -340,33 +340,33 @@ class DefaultDesktopInput private[sge] (
   override def setInputProcessor(processor: InputProcessor): Unit =
     _inputProcessor = Nullable(processor)
 
-  @scala.annotation.nowarn("msg=deprecated") // orNull at trait boundary — Input.getInputProcessor returns InputProcessor
-  override def getInputProcessor(): InputProcessor = _inputProcessor.orNull
+  @scala.annotation.nowarn("msg=deprecated") // orNull at trait boundary — Input.inputProcessor returns InputProcessor
+  override def inputProcessor: InputProcessor = _inputProcessor.orNull
 
   // ─── Input: cursor ──────────────────────────────────────────────────
 
   override def setCursorCatched(catched: Boolean): Unit =
     windowing.setInputMode(
-      window.getWindowHandle(),
+      window.windowHandle,
       GLFW_CURSOR,
       if (catched) GLFW_CURSOR_DISABLED else GLFW_CURSOR_NORMAL
     )
 
-  override def isCursorCatched(): Boolean =
-    windowing.getInputMode(window.getWindowHandle(), GLFW_CURSOR) == GLFW_CURSOR_DISABLED
+  override def cursorCatched: Boolean =
+    windowing.getInputMode(window.windowHandle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED
 
   override def setCursorPosition(x: Pixels, y: Pixels): Unit = {
     var cx = x.toInt
     var cy = y.toInt
     if (window.config.hdpiMode == HdpiMode.Pixels) {
-      val graphics = window.getGraphics()
-      val xScale   = graphics.getLogicalWidth().toFloat / graphics.getBackBufferWidth().toFloat
-      val yScale   = graphics.getLogicalHeight().toFloat / graphics.getBackBufferHeight().toFloat
+      val graphics = window.graphics
+      val xScale   = graphics.logicalWidth.toFloat / graphics.backBufferWidth.toFloat
+      val yScale   = graphics.logicalHeight.toFloat / graphics.backBufferHeight.toFloat
       cx = (cx * xScale).toInt
       cy = (cy * yScale).toInt
     }
-    windowing.setCursorPos(window.getWindowHandle(), cx.toDouble, cy.toDouble)
-    onCursorPos(window.getWindowHandle(), cx.toDouble, cy.toDouble)
+    windowing.setCursorPos(window.windowHandle, cx.toDouble, cy.toDouble)
+    onCursorPos(window.windowHandle, cx.toDouble, cy.toDouble)
   }
 
   // ─── Input: key code mapping ────────────────────────────────────────
@@ -506,20 +506,20 @@ class DefaultDesktopInput private[sge] (
 
   // ─── Input: stubs (desktop has no sensors/vibration/on-screen keyboard) ─
 
-  override def getAccelerometerX(): Float = 0f
-  override def getAccelerometerY(): Float = 0f
-  override def getAccelerometerZ(): Float = 0f
+  override def accelerometerX: Float = 0f
+  override def accelerometerY: Float = 0f
+  override def accelerometerZ: Float = 0f
 
-  override def getGyroscopeX(): Float = 0f
-  override def getGyroscopeY(): Float = 0f
-  override def getGyroscopeZ(): Float = 0f
+  override def gyroscopeX: Float = 0f
+  override def gyroscopeY: Float = 0f
+  override def gyroscopeZ: Float = 0f
 
   override def isPeripheralAvailable(peripheral: Peripheral): Boolean =
     peripheral == Peripheral.HardwareKeyboard
 
-  override def getRotation(): Int = 0
+  override def rotation: Int = 0
 
-  override def getNativeOrientation(): Orientation = Orientation.Landscape
+  override def nativeOrientation: Orientation = Orientation.Landscape
 
   override def setOnscreenKeyboardVisible(visible: Boolean):                               Unit = ()
   override def setOnscreenKeyboardVisible(visible: Boolean, `type`: OnscreenKeyboardType): Unit = ()
@@ -533,8 +533,8 @@ class DefaultDesktopInput private[sge] (
   override def vibrate(milliseconds:  Int, amplitude: Int, fallback: Boolean): Unit = ()
   override def vibrate(vibrationType: VibrationType):                          Unit = ()
 
-  override def getAzimuth():                            Float = 0f
-  override def getPitch():                              Float = 0f
-  override def getRoll():                               Float = 0f
+  override def azimuth:                                 Float = 0f
+  override def pitch:                                   Float = 0f
+  override def roll:                                    Float = 0f
   override def getRotationMatrix(matrix: Array[Float]): Unit  = ()
 }

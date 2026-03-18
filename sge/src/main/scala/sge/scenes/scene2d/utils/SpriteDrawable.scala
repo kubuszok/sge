@@ -24,7 +24,7 @@ import sge.graphics.g2d.{ Batch, Sprite, TextureAtlas }
   *   Nathan Sweet
   */
 class SpriteDrawable() extends BaseDrawable with TransformDrawable {
-  private var sprite: Sprite = scala.compiletime.uninitialized
+  private var _sprite: Sprite = scala.compiletime.uninitialized
 
   def this(sprite: Sprite) = {
     this()
@@ -76,12 +76,12 @@ class SpriteDrawable() extends BaseDrawable with TransformDrawable {
   }
 
   def setSprite(sprite: Sprite): Unit = {
-    this.sprite = sprite
+    this._sprite = sprite
     minWidth = sprite.width
     minHeight = sprite.height
   }
 
-  def getSprite: Sprite = sprite
+  def sprite: Sprite = _sprite
 
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): SpriteDrawable = {

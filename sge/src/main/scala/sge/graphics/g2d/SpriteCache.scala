@@ -31,6 +31,7 @@ import sge.graphics.g2d.{ Sprite, TextureRegion }
 import sge.utils.DynamicArray
 import sge.utils.Nullable
 
+import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
 
@@ -114,11 +115,12 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
     mesh.setIndices(indices)
   }
 
-  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
 
   /** Creates a cache that uses indexed geometry and can contain up to 1000 images. */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, SpriteCache.createDefaultShader(), false)
+  }
 
   /** Creates a cache with the specified size, using a default shader if OpenGL ES 2.0 is being used.
     * @param size
@@ -126,8 +128,9 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
     * @param useIndices
     *   If true, indexed geometry will be used.
     */
-  def this(size: Int, useIndices: Boolean)(using Sge) =
+  def this(size: Int, useIndices: Boolean)(using Sge) = {
     this(size, SpriteCache.createDefaultShader(), useIndices)
+  }
 
   /** Sets the color used to tint images when they are added to the SpriteCache. Default is {@link Color#WHITE}. */
   def color_=(tint: Color): Unit = {
@@ -266,8 +269,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
 
   /** Adds the specified texture to the cache. */
   def add(texture: Texture, x: Float, y: Float): Unit = {
-    val fx2 = x + texture.getWidth.toFloat
-    val fy2 = y + texture.getHeight.toFloat
+    val fx2 = x + texture.width.toFloat
+    val fy2 = y + texture.height.toFloat
 
     tempVertices(0) = x
     tempVertices(1) = y
@@ -370,8 +373,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
 
   /** Adds the specified texture to the cache. */
   def add(texture: Texture, x: Float, y: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int): Unit = {
-    val invTexWidth  = 1.0f / texture.getWidth.toFloat
-    val invTexHeight = 1.0f / texture.getHeight.toFloat
+    val invTexWidth  = 1.0f / texture.width.toFloat
+    val invTexHeight = 1.0f / texture.height.toFloat
     val u            = srcX * invTexWidth;
     val v            = (srcY + srcHeight) * invTexHeight;
     val u2           = (srcX + srcWidth) * invTexWidth;
@@ -429,8 +432,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
   /** Adds the specified texture to the cache. */
   def add(texture: Texture, x: Float, y: Float, width: Float, height: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int, flipX: Boolean, flipY: Boolean): Unit = {
 
-    val invTexWidth  = 1.0f / texture.getWidth.toFloat
-    val invTexHeight = 1.0f / texture.getHeight.toFloat
+    val invTexWidth  = 1.0f / texture.width.toFloat
+    val invTexHeight = 1.0f / texture.height.toFloat
     var u            = srcX * invTexWidth
     var v            = (srcY + srcHeight) * invTexHeight
     var u2           = (srcX + srcWidth) * invTexWidth
@@ -590,8 +593,8 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
     x4 += worldOriginX;
     y4 += worldOriginY;
 
-    val invTexWidth  = 1.0f / texture.getWidth.toFloat
-    val invTexHeight = 1.0f / texture.getHeight.toFloat
+    val invTexWidth  = 1.0f / texture.width.toFloat
+    val invTexHeight = 1.0f / texture.height.toFloat
     var u            = srcX * invTexWidth
     var v            = (srcY + srcHeight) * invTexHeight
     var u2           = (srcX + srcWidth) * invTexWidth
@@ -859,7 +862,7 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
     }
 
   /** Prepares the OpenGL state for SpriteCache rendering. */
-  def begin(): Unit = {
+  @publicInBinary private[sge] def begin(): Unit = {
     if (_drawing) throw new IllegalStateException("end must be called before begin.");
     if (currentCache.isEmpty) throw new IllegalStateException("endCache must be called before begin");
     renderCalls = 0;
@@ -882,11 +885,18 @@ class SpriteCache(size: Int, shader: ShaderProgram, useIndices: Boolean)(using S
   }
 
   /** Completes rendering for this SpriteCache. */
-  def end(): Unit = {
+  @publicInBinary private[sge] def end(): Unit = {
     if (!_drawing) throw new IllegalStateException("begin must be called before end.");
     _drawing = false;
 
     Sge().graphics.gl.glDepthMask(true);
+  }
+
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def rendering[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
   }
 
   /** Draws all the images defined for the specified cache ID. */
@@ -1022,7 +1032,7 @@ object SpriteCache {
       "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords);\n" +
       "}"
     val shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
+    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.log)
     shader
   }
 }

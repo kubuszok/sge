@@ -70,10 +70,10 @@ private[sge] class FrameSync {
 
       try {
         // sleep until the average sleep time is greater than the time remaining till nextFrame
-        var t0 = getTime()
+        var t0 = time
         while ((nextFrame - t0) > sleepDurations.avg()) {
           Thread.sleep(1)
-          val t1 = getTime()
+          val t1 = time
           sleepDurations.add(t1 - t0) // update average sleep time
           t0 = t1
         }
@@ -82,10 +82,10 @@ private[sge] class FrameSync {
         sleepDurations.dampenForLowResTicker()
 
         // yield until the average yield time is greater than the time remaining till nextFrame
-        t0 = getTime()
+        t0 = time
         while ((nextFrame - t0) > yieldDurations.avg()) {
           Thread.`yield`()
-          val t1 = getTime()
+          val t1 = time
           yieldDurations.add(t1 - t0) // update average yield time
           t0 = t1
         }
@@ -94,7 +94,7 @@ private[sge] class FrameSync {
       }
 
       // schedule next frame, drop frame(s) if already too late for next frame
-      nextFrame = Math.max(nextFrame + NanosInSecond / fps, getTime())
+      nextFrame = Math.max(nextFrame + NanosInSecond / fps, time)
     }
 
   /** This method will initialise the sync method by setting initial values for sleepDurations/yieldDurations and nextFrame.
@@ -105,9 +105,9 @@ private[sge] class FrameSync {
     initialised = true
 
     sleepDurations.init(1000 * 1000)
-    yieldDurations.init((-(getTime() - getTime()) * 1.333).toInt)
+    yieldDurations.init((-(time - time) * 1.333).toInt)
 
-    nextFrame = getTime()
+    nextFrame = time
 
     val osName = System.getProperty("os.name")
 
@@ -135,7 +135,7 @@ private[sge] class FrameSync {
     * @return
     *   will return the current time in nanos
     */
-  private def getTime(): Long = System.nanoTime()
+  private def time: Long = System.nanoTime()
 }
 
 private[sge] object FrameSync {

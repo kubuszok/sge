@@ -24,11 +24,11 @@ package math
   * @author
   *   badlogicgames@gmail.com (original implementation)
   */
-class WindowedMean(windowSize: Int) {
+class WindowedMean(val windowSize: Int) {
   private val values      = new Array[Float](windowSize)
   private var addedValues = 0
   private var lastValue   = 0
-  private var mean        = 0f
+  private var _mean       = 0f
   private var dirty       = true
 
   /** @return whether the value returned will be meaningful */
@@ -61,26 +61,26 @@ class WindowedMean(windowSize: Int) {
     * @return
     *   the mean
     */
-  def getMean(): Float =
+  def mean: Float =
     if (hasEnoughData()) {
       if (dirty) {
         var meanSum = 0f
         for (i <- values.indices)
           meanSum += values(i)
 
-        this.mean = meanSum / values.length
+        this._mean = meanSum / values.length
         dirty = false
       }
-      this.mean
+      this._mean
     } else
       0f
 
   /** @return the oldest value in the window */
-  def getOldest(): Float =
+  def oldest: Float =
     if (addedValues < values.length) values(0) else values(lastValue)
 
   /** @return the value last added */
-  def getLatest(): Float = {
+  def latest: Float = {
     val index = if (lastValue - 1 == -1) values.length - 1 else lastValue - 1
     values(index)
   }
@@ -89,7 +89,7 @@ class WindowedMean(windowSize: Int) {
   def standardDeviation(): Float =
     if (!hasEnoughData()) 0f
     else {
-      val meanValue = getMean()
+      val meanValue = mean
       var sum       = 0f
       for (i <- values.indices)
         sum += (values(i) - meanValue) * (values(i) - meanValue)
@@ -97,31 +97,28 @@ class WindowedMean(windowSize: Int) {
       scala.math.sqrt(sum / values.length).toFloat
     }
 
-  def getLowest(): Float = {
+  def lowest: Float = {
     var lowest = Float.MaxValue
     for (i <- values.indices)
       lowest = scala.math.min(lowest, values(i))
     lowest
   }
 
-  def getHighest(): Float = {
+  def highest: Float = {
     var highest = Float.MinValue
     for (i <- values.indices)
       highest = scala.math.max(highest, values(i))
     highest
   }
 
-  def getValueCount(): Int =
+  def valueCount: Int =
     addedValues
-
-  def getWindowSize(): Int =
-    values.length
 
   /** @return
     *   A new Array[Float] containing all values currently in the window of the stream, in order from oldest to latest. The length of the array is smaller than the window size if not enough data has
     *   been added.
     */
-  def getWindowValues(): Array[Float] = {
+  def windowValues: Array[Float] = {
     val windowValues = new Array[Float](addedValues)
     if (hasEnoughData()) {
       for (i <- windowValues.indices)

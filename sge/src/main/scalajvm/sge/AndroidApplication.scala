@@ -25,8 +25,8 @@ import sge.utils.{ DynamicArray, Nullable, ObjectMap }
   * Unlike LibGDX's AndroidApplication (which extends Activity), this is a plain class that delegates all Android-specific operations to ops interfaces from `sge.platform.android`. The user's Activity
   * creates this instance and forwards lifecycle callbacks to it.
   *
-  * @param listener
-  *   the application listener to drive
+  * @param listenerFactory
+  *   a context function that creates the application listener when given an [[Sge]] context
   * @param config
   *   the Android application configuration
   * @param provider
@@ -39,7 +39,7 @@ import sge.utils.{ DynamicArray, Nullable, ObjectMap }
   *   whether to enable external storage access
   */
 class AndroidApplication(
-  private val listener:         ApplicationListener,
+  private val listenerFactory:  Sge ?=> ApplicationListener,
   private val config:           AndroidConfigOps,
   private val provider:         AndroidPlatformProvider,
   private val lifecycle:        AndroidLifecycleOps,
@@ -65,6 +65,12 @@ class AndroidApplication(
   /** The [[Sge]] context for this application. Set after all subsystems are initialized. */
   @volatile var sgeContext: Sge = null.asInstanceOf[Sge] // scalafix:ok
 
+  /** The materialized application listener. Available after [[initializeSge]]. */
+  private var _listener: ApplicationListener = scala.compiletime.uninitialized
+
+  /** The application listener for this application. Available after [[initializeSge]]. */
+  def listener: ApplicationListener = _listener
+
   // ── State ─────────────────────────────────────────────────────────────
 
   private val runnables:          DynamicArray[Runnable]          = DynamicArray[Runnable](4)
@@ -76,25 +82,25 @@ class AndroidApplication(
 
   // ── Application trait ─────────────────────────────────────────────────
 
-  override def getApplicationListener(): ApplicationListener = listener
+  override def applicationListener: ApplicationListener = _listener
 
-  override def getGraphics(): Graphics = _graphics
+  override def graphics: Graphics = _graphics
 
-  override def getAudio(): Audio = _audio
+  override def audio: Audio = _audio
 
-  override def getInput(): Input = _input
+  override def input: Input = _input
 
-  override def getFiles(): Files = _files
+  override def files: Files = _files
 
-  override def getNet(): Net = _net
+  override def net: Net = _net
 
-  override def getType(): Application.ApplicationType = Application.ApplicationType.Android
+  override def applicationType: Application.ApplicationType = Application.ApplicationType.Android
 
-  override def getVersion(): Int = lifecycle.getAndroidVersion()
+  override def version: Int = lifecycle.getAndroidVersion()
 
-  override def getJavaHeap(): Long = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+  override def javaHeap: Long = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 
-  override def getNativeHeap(): Long = lifecycle.getNativeHeapAllocatedSize()
+  override def nativeHeap: Long = lifecycle.getNativeHeapAllocatedSize()
 
   override def getPreferences(name: String): Preferences =
     preferences
@@ -105,7 +111,7 @@ class AndroidApplication(
         prefs
       }(identity)
 
-  override def getClipboard(): utils.Clipboard = AndroidClipboardAdapter(_clipboard)
+  override def clipboard: utils.Clipboard = AndroidClipboardAdapter(_clipboard)
 
   override def postRunnable(runnable: Runnable): Unit = runnables.synchronized {
     runnables += runnable
@@ -170,6 +176,8 @@ class AndroidApplication(
       net = _net
     )
     sgeContext = sge
+    given Sge = sge
+    _listener = listenerFactory
     sge
   }
 
@@ -239,14 +247,14 @@ private[sge] class AndroidFiles(ops: FilesOps) extends Files {
   override def absolute(path:  String): FileHandle = getFileHandle(path, FileType.Absolute)
   override def local(path:     String): FileHandle = getFileHandle(path, FileType.Local)
 
-  override def getExternalStoragePath: String = {
+  override def externalStoragePath: String = {
     val ext = ops.externalStoragePath
     if (ext != null) ext else ""
   }
 
   override def isExternalStorageAvailable: Boolean = ops.externalStoragePath != null
 
-  override def getLocalStoragePath: String = ops.localStoragePath
+  override def localStoragePath: String = ops.localStoragePath
 
   override def isLocalStorageAvailable: Boolean = true
 }
@@ -265,11 +273,11 @@ private[sge] class AndroidAudio(ops: AudioEngineOps) extends Audio {
     fh.fileType match {
       case files.FileType.Internal =>
         // Internal files need file descriptor access (Android assets)
-        val file = fh.file
+        val file = fh.internalFile
         // For non-asset files, use path-based loading
         AndroidSoundAdapter(ops.newSoundFromPath(file.getPath()))
       case _ =>
-        AndroidSoundAdapter(ops.newSoundFromPath(fh.file.getAbsolutePath()))
+        AndroidSoundAdapter(ops.newSoundFromPath(fh.internalFile.getAbsolutePath()))
     }
   }
 
@@ -277,16 +285,16 @@ private[sge] class AndroidAudio(ops: AudioEngineOps) extends Audio {
     val fh = file
     fh.fileType match {
       case files.FileType.Internal =>
-        AndroidMusicAdapter(ops.newMusicFromPath(fh.file.getPath()))
+        AndroidMusicAdapter(ops.newMusicFromPath(fh.internalFile.getPath()))
       case _ =>
-        AndroidMusicAdapter(ops.newMusicFromPath(fh.file.getAbsolutePath()))
+        AndroidMusicAdapter(ops.newMusicFromPath(fh.internalFile.getAbsolutePath()))
     }
   }
 
   override def switchOutputDevice(deviceIdentifier: Nullable[String]): Boolean =
     deviceIdentifier.fold(false)(ops.switchOutputDevice)
 
-  override def getAvailableOutputDevices: Array[String] = ops.availableOutputDevices
+  override def availableOutputDevices: Array[String] = ops.availableOutputDevices
 }
 
 /** Adapts [[PreferencesOps]] to [[Preferences]] trait. */

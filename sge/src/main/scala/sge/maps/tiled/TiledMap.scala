@@ -26,11 +26,10 @@ import sge.utils.{ DynamicArray, Nullable }
   *   Map
   */
 class TiledMap extends maps.Map {
-  private val tilesets:       TiledMapTileSets                      = TiledMapTileSets()
   private var ownedResources: Nullable[DynamicArray[AutoCloseable]] = Nullable.empty
 
   /** @return collection of tilesets for this map. */
-  def getTileSets: TiledMapTileSets = tilesets
+  val tileSets: TiledMapTileSets = TiledMapTileSets()
 
   /** Used by loaders to set resources when loading the map directly, without {@link AssetManager}. To be disposed in {@link #close()}.
     * @param resources

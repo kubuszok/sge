@@ -11,7 +11,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("hasContents returns false when clipboard is empty") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable.empty,
+      clipboardString = () => Nullable.empty,
       setClipboardString = _ => ()
     )
     assert(!clipboard.hasContents)
@@ -19,7 +19,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("hasContents returns false when clipboard has empty string") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable(""),
+      clipboardString = () => Nullable(""),
       setClipboardString = _ => ()
     )
     assert(!clipboard.hasContents)
@@ -27,7 +27,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("hasContents returns true when clipboard has text") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable("hello"),
+      clipboardString = () => Nullable("hello"),
       setClipboardString = _ => ()
     )
     assert(clipboard.hasContents)
@@ -35,7 +35,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("contents returns clipboard text") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable("test data"),
+      clipboardString = () => Nullable("test data"),
       setClipboardString = _ => ()
     )
     assertEquals(clipboard.contents.getOrElse(""), "test data")
@@ -43,7 +43,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("contents returns empty when nothing on clipboard") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable.empty,
+      clipboardString = () => Nullable.empty,
       setClipboardString = _ => ()
     )
     assert(clipboard.contents.isEmpty)
@@ -52,7 +52,7 @@ class DesktopClipboardTest extends munit.FunSuite {
   test("contents_= calls the set function") {
     var captured: String = ""
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable.empty,
+      clipboardString = () => Nullable.empty,
       setClipboardString = s => captured = s
     )
     clipboard.contents = Nullable("new text")
@@ -62,7 +62,7 @@ class DesktopClipboardTest extends munit.FunSuite {
   test("contents_= does nothing when given empty Nullable") {
     var called    = false
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable.empty,
+      clipboardString = () => Nullable.empty,
       setClipboardString = _ => called = true
     )
     clipboard.contents = Nullable.empty
@@ -71,7 +71,7 @@ class DesktopClipboardTest extends munit.FunSuite {
 
   test("implements Clipboard trait") {
     val clipboard = DesktopClipboard(
-      getClipboardString = () => Nullable.empty,
+      clipboardString = () => Nullable.empty,
       setClipboardString = _ => ()
     )
     assert(clipboard.isInstanceOf[utils.Clipboard])
@@ -80,7 +80,7 @@ class DesktopClipboardTest extends munit.FunSuite {
   test("round-trip: set then get") {
     var stored: Nullable[String] = Nullable.empty
     val clipboard = DesktopClipboard(
-      getClipboardString = () => stored,
+      clipboardString = () => stored,
       setClipboardString = s => stored = Nullable(s)
     )
     clipboard.contents = Nullable("round trip")

@@ -35,12 +35,10 @@
  *   getBlendingAttribute → blendingAttribute; renamed backing field texture → _texture
  * - Audit: pass (2026-03-03)
  */
-package sge
-package graphics
-package g3d
-package particles
-package batches
+package sge.graphics.g3d.particles.batches
 
+import sge.Sge
+import sge.graphics.GL20
 import sge.graphics.PrimitiveMode
 import sge.graphics.Mesh
 import sge.graphics.Texture
@@ -113,14 +111,17 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) =
+  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) = {
     this(mode, initialUseGPU, capacity, Nullable.empty, Nullable.empty)
+  }
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
+  }
 
-  def this(capacity: Int)(using Sge) =
+  def this(capacity: Int)(using Sge) = {
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
+  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)
@@ -158,7 +159,7 @@ class BillboardParticleBatch(
   private def allocRenderables(capacity: Int): Unit = {
     // Free old meshes
     val meshCount = MathUtils.ceil(capacity.toFloat / MAX_PARTICLES_PER_MESH)
-    val free      = renderablePool.getFree
+    val free      = renderablePool.free
     if (free < meshCount) {
       var i    = 0
       val left = meshCount - free
@@ -194,7 +195,7 @@ class BillboardParticleBatch(
   private def clearRenderablesPool(): Unit = {
     renderables.foreach(renderablePool.free)
     var i    = 0
-    val free = renderablePool.getFree
+    val free = renderablePool.free
     while (i < free) {
       val renderable = renderablePool.obtain()
       renderable.meshPart.mesh.close()
@@ -254,7 +255,7 @@ class BillboardParticleBatch(
     renderables.foreach(renderablePool.free)
     renderables.clear()
     var i    = 0
-    val free = renderablePool.getFree
+    val free = renderablePool.free
     while (i < free) {
       val renderable = renderablePool.obtain()
       renderable.material.foreach { mat =>
@@ -709,13 +710,13 @@ class BillboardParticleBatch(
     for (renderable <- this.renderables)
       renderables.add(pool.obtain().set(renderable))
 
-  override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
+  override def save(manager: sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("billboardBatch")
     data.save("cfg", BillboardParticleBatch.Config(_useGPU, _mode))
     data.saveAsset[Texture](manager.assetFileName(_texture).getOrElse(""))
   }
 
-  override def load(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
+  override def load(manager: sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.getSaveData("billboardBatch")
     data.foreach { d =>
       d.loadAsset().foreach { asset =>

@@ -45,15 +45,15 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("child appends to path") {
     val fh    = AndroidFileHandle(new File("dir"), FileType.Internal, ops)
     val child = fh.child("sub")
-    assertEquals(child.name(), "sub")
-    assert(child.path().contains("dir"))
+    assertEquals(child.name, "sub")
+    assert(child.path.contains("dir"))
     assert(child.isInstanceOf[AndroidFileHandle])
   }
 
   test("child of empty path uses name directly") {
     val fh    = AndroidFileHandle(new File(""), FileType.Internal, ops)
     val child = fh.child("file.txt")
-    assertEquals(child.name(), "file.txt")
+    assertEquals(child.name, "file.txt")
   }
 
   // ── sibling ───────────────────────────────────────────────────────────
@@ -61,8 +61,8 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("sibling replaces file name") {
     val fh  = AndroidFileHandle(new File("dir/a.txt"), FileType.Internal, ops)
     val sib = fh.sibling("b.txt")
-    assertEquals(sib.name(), "b.txt")
-    assert(sib.path().contains("dir"))
+    assertEquals(sib.name, "b.txt")
+    assert(sib.path.contains("dir"))
     assert(sib.isInstanceOf[AndroidFileHandle])
   }
 
@@ -78,26 +78,26 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("parent of nested path") {
     val fh = AndroidFileHandle(new File("dir/sub/file.txt"), FileType.Internal, ops)
     val p  = fh.parent()
-    assertEquals(p.name(), "sub")
+    assertEquals(p.name, "sub")
     assert(p.isInstanceOf[AndroidFileHandle])
   }
 
   test("parent of root Absolute path returns /") {
     val fh = AndroidFileHandle(new File(""), FileType.Absolute, ops)
     val p  = fh.parent()
-    assertEquals(p.getFile().getPath(), "/")
+    assertEquals(p.file.getPath(), "/")
   }
 
   test("parent of root Internal path returns empty") {
     val fh = AndroidFileHandle(new File(""), FileType.Internal, ops)
     val p  = fh.parent()
-    assertEquals(p.getFile().getPath(), "")
+    assertEquals(p.file.getPath(), "")
   }
 
   // ── read ──────────────────────────────────────────────────────────────
 
   test("read delegates to FilesOps for Internal files") {
-    val data    = "hello".getBytes
+    val data    = "hello".getBytes()
     val stubOps = new StubFilesOps(internalFiles = Map("test.txt" -> data))
     val fh      = AndroidFileHandle(new File("test.txt"), FileType.Internal, stubOps)
     val result  = fh.read().readAllBytes()
@@ -118,7 +118,7 @@ class AndroidFileHandleTest extends munit.FunSuite {
     val fh      = AndroidFileHandle(new File("assets"), FileType.Internal, stubOps)
     val result  = fh.list()
     assertEquals(result.length, 2)
-    assertEquals(result.map(_.name()).toSet, Set("a.txt", "b.png"))
+    assertEquals(result.map(_.name).toSet, Set("a.txt", "b.png"))
   }
 
   test("list with suffix filters Internal files") {
@@ -126,7 +126,7 @@ class AndroidFileHandleTest extends munit.FunSuite {
     val fh      = AndroidFileHandle(new File("assets"), FileType.Internal, stubOps)
     val result  = fh.list(".txt")
     assertEquals(result.length, 2)
-    assertEquals(result.map(_.name()).toSet, Set("a.txt", "c.txt"))
+    assertEquals(result.map(_.name).toSet, Set("a.txt", "c.txt"))
   }
 
   // ── isDirectory ───────────────────────────────────────────────────────
@@ -180,24 +180,24 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("getFile prepends external storage path for External files") {
     val stubOps = new StubFilesOps(extStorage = "/sdcard/")
     val fh      = AndroidFileHandle(new File("save.dat"), FileType.External, stubOps)
-    assertEquals(fh.getFile().getPath(), "/sdcard/save.dat")
+    assertEquals(fh.file.getPath(), "/sdcard/save.dat")
   }
 
   test("getFile prepends local storage path for Local files") {
     val fh = AndroidFileHandle(new File("local.dat"), FileType.Local, ops)
-    assertEquals(fh.getFile().getPath(), "/data/data/com.test/files/local.dat")
+    assertEquals(fh.file.getPath(), "/data/data/com.test/files/local.dat")
   }
 
   test("getFile returns file as-is for Internal files") {
     val fh = AndroidFileHandle(new File("internal.txt"), FileType.Internal, ops)
-    assertEquals(fh.getFile().getPath(), "internal.txt")
+    assertEquals(fh.file.getPath(), "internal.txt")
   }
 
   // ── String constructor ────────────────────────────────────────────────
 
   test("String constructor normalizes backslashes") {
     val fh = new AndroidFileHandle("assets\\sub\\file.txt", FileType.Internal, ops)
-    assertEquals(fh.name(), "file.txt")
-    assert(fh.path().contains("assets/sub"))
+    assertEquals(fh.name, "file.txt")
+    assert(fh.path.contains("assets/sub"))
   }
 }

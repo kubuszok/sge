@@ -25,6 +25,7 @@ import sge.graphics.g2d.Gdx2DPixmap
 import sge.utils.{ BufferUtils, SgeError }
 import java.io.IOException
 import java.nio.ByteBuffer
+import scala.util.control.NonFatal
 
 import Pixmap.*
 
@@ -67,11 +68,12 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param len
     *   the length
     */
-  def this(encodedData: Array[Byte], offset: Int, len: Int) =
+  def this(encodedData: Array[Byte], offset: Int, len: Int) = {
     this(
       try Gdx2DPixmap(encodedData, offset, len, 0)
       catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
     )
+  }
 
   /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
     *
@@ -82,7 +84,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param len
     *   the length
     */
-  def this(encodedData: ByteBuffer, offset: Int, len: Int) =
+  def this(encodedData: ByteBuffer, offset: Int, len: Int) = {
     this(
       {
         if (!encodedData.isDirect()) throw SgeError.GraphicsError("Couldn't load pixmap from non-direct ByteBuffer")
@@ -90,6 +92,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
         catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
       }
     )
+  }
 
   /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
     *
@@ -98,21 +101,23 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param encodedData
     *   the encoded image data
     */
-  def this(encodedData: ByteBuffer) =
+  def this(encodedData: ByteBuffer) = {
     this(encodedData, encodedData.position(), encodedData.remaining())
+  }
 
   /** Creates a new Pixmap instance from the given file. The file must be a Png, Jpeg or Bitmap. Paletted formats are not supported.
     *
     * @param file
     *   the {@link FileHandle}
     */
-  def this(file: FileHandle) =
+  def this(file: FileHandle) = {
     this(
       try {
         val bytes = file.readBytes()
         Gdx2DPixmap(bytes, 0, bytes.length, 0)
-      } catch { case e: Exception => throw SgeError.GraphicsError("Couldn't load file: " + file, Some(e)) }
+      } catch { case NonFatal(e) => throw SgeError.GraphicsError("Couldn't load file: " + file, Some(e)) }
     )
+  }
 
   /** Sets the type of {@link Blending} to be used for all operations. Default is {@link Blending#SourceOver} .
     * @param blending
@@ -124,7 +129,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
   }
 
   /** @return the currently set {@link Blending} */
-  def getBlending(): Blending = _blending
+  def blending: Blending = _blending
 
   /** Sets the type of interpolation {@link Filter} to be used in conjunction with {@link Pixmap#drawPixmap(Pixmap, int, int, int, int, int, int, int, int)} .
     * @param filter
@@ -136,7 +141,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
   }
 
   /** @return the currently set {@link Filter} */
-  def getFilter(): Filter = _filter
+  def filter: Filter = _filter
 
   /** Sets the color for the following drawing operations
     * @param color
@@ -207,7 +212,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     *   The target y-coordinate (top left corner)
     */
   def drawPixmap(pixmap: Pixmap, x: Pixels, y: Pixels): Unit =
-    drawPixmap(pixmap, x, y, Pixels.zero, Pixels.zero, pixmap.getWidth(), pixmap.getHeight())
+    drawPixmap(pixmap, x, y, Pixels.zero, Pixels.zero, pixmap.width, pixmap.height)
 
   /** Draws an area form another Pixmap to this Pixmap.
     * @param pixmap
@@ -331,31 +336,31 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     gdx2dPixmap.getPixel(x.toInt, y.toInt)
 
   /** @return The width of the Pixmap in pixels. */
-  def getWidth(): Pixels = Pixels(gdx2dPixmap.width)
+  def width: Pixels = Pixels(gdx2dPixmap.width)
 
   /** @return The height of the Pixmap in pixels. */
-  def getHeight(): Pixels = Pixels(gdx2dPixmap.height)
+  def height: Pixels = Pixels(gdx2dPixmap.height)
 
   /** @return the {@link Format} of this Pixmap. */
-  def getFormat(): Format = Format.fromGdx2DPixmapFormat(gdx2dPixmap.format)
+  def format: Format = Format.fromGdx2DPixmapFormat(gdx2dPixmap.format)
 
   /** Returns the OpenGL ES format of this Pixmap. Used as the seventh parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   one of GL_ALPHA, GL_RGB, GL_RGBA, GL_LUMINANCE, or GL_LUMINANCE_ALPHA.
     */
-  def getGLFormat(): Int = gdx2dPixmap.glFormat
+  def gLFormat: Int = gdx2dPixmap.glFormat
 
   /** Returns the OpenGL ES type of this Pixmap. Used as the eighth parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   one of GL_UNSIGNED_BYTE, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_4_4_4_4
     */
-  def getGLType(): Int = gdx2dPixmap.glType
+  def glType: Int = gdx2dPixmap.glType
 
   /** Returns the OpenGL ES internal format of this Pixmap. Used as the third parameter to {@link GL20#glTexImage2D(int, int, int, int, int, int, int, java.nio.Buffer)} .
     * @return
     *   the internal format for OpenGL texture creation.
     */
-  def getGLInternalFormat(): Int = gdx2dPixmap.glInternalFormat
+  def gLInternalFormat: Int = gdx2dPixmap.glInternalFormat
 
   /** Returns direct ByteBuffer holding the pixel data. For the format Alpha each value is encoded as a byte. For the format LuminanceAlpha the luminance is the first byte and the alpha is the second
     * byte of the pixel. For the formats RGB888 and RGBA8888 the color components are stored in a single byte each in the order red, green, blue (alpha). For the formats RGB565 and RGBA4444 the pixel
@@ -363,7 +368,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @return
     *   the direct {@link ByteBuffer} holding the pixel data.
     */
-  def getPixels(): ByteBuffer = {
+  def pixels: ByteBuffer = {
     if (disposed) throw SgeError.GraphicsError("Pixmap already disposed")
     gdx2dPixmap.pixels
   }
@@ -372,7 +377,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param pixels
     *   Pixels to copy from, should be a direct ByteBuffer and match Pixmap data size (see {@link #getPixels()} ).
     */
-  def setPixels(pixels: ByteBuffer): Unit = {
+  def pixels_=(pixels: ByteBuffer): Unit = {
     if (!pixels.isDirect()) throw SgeError.GraphicsError("Couldn't setPixels from non-direct ByteBuffer")
     val dst = gdx2dPixmap.pixels
     BufferUtils.copy(pixels, dst, dst.limit())
@@ -426,7 +431,7 @@ object Pixmap {
   def createFromFrameBuffer(x: Pixels, y: Pixels, w: Pixels, h: Pixels)(using Sge): Pixmap = {
     Sge().graphics.gl.glPixelStorei(GL20.GL_PACK_ALIGNMENT, 1)
     val pixmap = Pixmap(w.toInt, h.toInt, Format.RGBA8888)
-    val pixels = pixmap.getPixels()
+    val pixels = pixmap.pixels
     Sge().graphics.gl.glReadPixels(x, y, w, h, PixelFormat.RGBA, DataType.UnsignedByte, pixels)
     pixmap
   }

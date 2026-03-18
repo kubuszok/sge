@@ -760,7 +760,7 @@ class Affine2 {
     * @return
     *   Filled position.
     */
-  def getTranslation(position: Vector2): Vector2 = {
+  def translation(position: Vector2): Vector2 = {
     position.x = m02
     position.y = m12
     position

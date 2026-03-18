@@ -74,7 +74,7 @@ class ButtonGroup[T <: Button]() {
       while (i < n) {
         val button = buttons(i)
         button match {
-          case tb: TextButton if text == new String(tb.getText.toArray) =>
+          case tb: TextButton if text == new String(tb.text.toArray) =>
             button.setChecked(true)
             scala.util.boundary.break()
           case _ =>

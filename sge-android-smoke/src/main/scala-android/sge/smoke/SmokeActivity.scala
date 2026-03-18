@@ -27,8 +27,7 @@ class SmokeActivity extends Activity {
 
   private val TAG = "SGE-SMOKE"
 
-  private var app:      AndroidApplication = scala.compiletime.uninitialized
-  private var listener: SmokeListener      = scala.compiletime.uninitialized
+  private var app: AndroidApplication = scala.compiletime.uninitialized
 
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
@@ -43,10 +42,8 @@ class SmokeActivity extends Activity {
       config.useCompass = false
       // Audio enabled — subsystem checks verify audio accessibility
 
-      listener = new SmokeListener()
-
       val lifecycle = provider.createLifecycle(this).asInstanceOf[AndroidLifecycleImpl]
-      app = new AndroidApplication(listener, config, provider, lifecycle, this)
+      app = new AndroidApplication(new SmokeListener(), config, provider, lifecycle, this)
 
       Log.i(TAG, "AndroidApplication created, initializing graphics...")
 
@@ -68,7 +65,7 @@ class SmokeActivity extends Activity {
             val rendererStr = gl.glGetString(GL10.GL_RENDERER)
             Log.i(TAG, s"GL surface created: $versionStr / $vendorStr / $rendererStr")
 
-            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
             graphics.setupGL(versionStr, vendorStr, rendererStr)
             app.initializeSge()
             // Defer listener.create() to onSurfaceChanged so dimensions are available
@@ -77,34 +74,34 @@ class SmokeActivity extends Activity {
           }
 
           override def onSurfaceChanged(gl: GL10, w: Int, h: Int): Unit = {
-            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
-            graphics.width = w
-            graphics.height = h
+            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
+            graphics._width = w
+            graphics._height = h
             gl.glViewport(0, 0, w, h)
             Log.i(TAG, s"Surface changed: ${w}x${h}")
             if (!created) {
-              listener.create()
+              app.listener.create()
               created = true
             }
-            listener.resize(Pixels(w), Pixels(h))
+            app.listener.resize(Pixels(w), Pixels(h))
           }
 
           override def onDrawFrame(gl: GL10): Unit = {
-            val graphics = app.getGraphics().asInstanceOf[AndroidGraphics]
+            val graphics = app.graphics.asInstanceOf[AndroidGraphics]
             graphics.updateFrameTiming(false)
             app.processInputEvents()
             app.executeRunnables()
 
-            val frame = graphics.getFrameId()
+            val frame = graphics.frameId
             if (frame % 10 == 0) Log.i(TAG, s"Frame $frame")
 
-            listener.render()
+            app.listener.render()
 
             // Echo the pass/fail marker via Log.i so logcat captures it reliably
             if (!app.running) {
-              if (listener.allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
+              if (app.listener.asInstanceOf[SmokeListener].allPassed) Log.i(TAG, "SMOKE_TEST_PASSED")
               else Log.i(TAG, "SMOKE_TEST_FAILED")
-              listener.dispose()
+              app.listener.dispose()
             }
           }
         }
@@ -124,13 +121,13 @@ class SmokeActivity extends Activity {
     super.onResume()
     if (app != null) { // scalafix:ok
       app.onResume()
-      listener.resume()
+      app.listener.resume()
     }
   }
 
   override def onPause(): Unit = {
     if (app != null) { // scalafix:ok
-      listener.pause()
+      app.listener.pause()
       app.onPause()
     }
     super.onPause()

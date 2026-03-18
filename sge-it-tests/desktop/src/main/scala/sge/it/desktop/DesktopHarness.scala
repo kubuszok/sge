@@ -16,9 +16,8 @@ import scala.collection.mutable.ArrayBuffer
   * @param resultsFile
   *   path where JSON results will be written after all checks complete
   */
-class DesktopHarness(resultsFile: File) extends ApplicationListener {
+class DesktopHarness(resultsFile: File)(using sge: Sge) extends ApplicationListener {
 
-  private var sge:     Sge                      = scala.compiletime.uninitialized
   private var ready:   Boolean                  = false
   private var frame:   Int                      = 0
   private val results: ArrayBuffer[CheckResult] = ArrayBuffer.empty
@@ -26,37 +25,36 @@ class DesktopHarness(resultsFile: File) extends ApplicationListener {
   // Check schedule: (frameToRun, checkName, checkFn)
   // We spread checks across frames to let GL state settle between them.
   private val schedule: Array[(Int, () => CheckResult)] = Array(
-    (2, () => { given Sge = sge; BootstrapCheck.run() }),
-    (4, () => { given Sge = sge; FileIOCheck.run() }),
-    (6, () => { given Sge = sge; JsonXmlCheck.run() }),
-    (8, () => { given Sge = sge; GL2DCheck.run() }),
-    (10, () => { given Sge = sge; GL3DCheck.run() }),
-    (12, () => { given Sge = sge; AudioCheck.run() }),
-    (14, () => { given Sge = sge; InputCheck.run() }),
-    (16, () => { given Sge = sge; PixmapCheck.run() }),
-    (18, () => { given Sge = sge; TextureCheck.run() }),
-    (20, () => { given Sge = sge; SpriteBatchCheck.run() }),
-    (22, () => { given Sge = sge; FBOCheck.run() }),
-    (24, () => { given Sge = sge; ClipboardCheck.run() }),
-    (26, () => { given Sge = sge; WindowCheck.run() }),
-    (28, () => { given Sge = sge; MusicCheck.run() }),
-    (30, () => { given Sge = sge; MultiSoundCheck.run() }),
-    (32, () => { given Sge = sge; TextureAtlasCheck.run() }),
-    (34, () => { given Sge = sge; WindowResizeCheck.run() }),
-    (36, () => { given Sge = sge; CursorCheck.run() }),
-    (38, () => { given Sge = sge; InputDispatchCheck.run() }),
-    (40, () => { given Sge = sge; FullscreenCheck.run() })
+    (2, () => {BootstrapCheck.run() }),
+    (4, () => {FileIOCheck.run() }),
+    (6, () => {JsonXmlCheck.run() }),
+    (8, () => {GL2DCheck.run() }),
+    (10, () => {GL3DCheck.run() }),
+    (12, () => {AudioCheck.run() }),
+    (14, () => {InputCheck.run() }),
+    (16, () => {PixmapCheck.run() }),
+    (18, () => {TextureCheck.run() }),
+    (20, () => {SpriteBatchCheck.run() }),
+    (22, () => {FBOCheck.run() }),
+    (24, () => {ClipboardCheck.run() }),
+    (26, () => {WindowCheck.run() }),
+    (28, () => {MusicCheck.run() }),
+    (30, () => {MultiSoundCheck.run() }),
+    (32, () => {TextureAtlasCheck.run() }),
+    (34, () => {WindowResizeCheck.run() }),
+    (36, () => {CursorCheck.run() }),
+    (38, () => {InputDispatchCheck.run() }),
+    (40, () => {FullscreenCheck.run() })
   )
 
-  override def create()(using Sge): Unit = {
-    this.sge = Sge()
+  override def create(): Unit = {
     scribe.info("SGE DesktopHarness.create()")
     ready = true
   }
 
-  override def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
+  override def resize(width: Pixels, height: Pixels): Unit = ()
 
-  override def render()(using Sge): Unit = {
+  override def render(): Unit = {
     if (!ready) return
     frame += 1
 
@@ -77,11 +75,11 @@ class DesktopHarness(resultsFile: File) extends ApplicationListener {
     }
   }
 
-  override def pause()(using Sge): Unit = ()
+  override def pause(): Unit = ()
 
-  override def resume()(using Sge): Unit = ()
+  override def resume(): Unit = ()
 
-  override def dispose()(using Sge): Unit =
+  override def dispose(): Unit =
     scribe.info("SGE DesktopHarness.dispose()")
 
   private def writeResults(): Unit = {

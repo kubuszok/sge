@@ -21,19 +21,19 @@ import java.util.regex.Pattern
 import sge.Application
 
 class GLVersion(
-  appType:        Application.ApplicationType,
-  versionString:  String,
-  vendorString:   String,
-  rendererString: String
+  appType:         Application.ApplicationType,
+  initialVersion:  String,
+  initialVendor:   String,
+  initialRenderer: String
 ) {
 
-  private var majorVersion:   Int = scala.compiletime.uninitialized
-  private var minorVersion:   Int = scala.compiletime.uninitialized
-  private var releaseVersion: Int = scala.compiletime.uninitialized
+  private var _majorVersion:   Int = scala.compiletime.uninitialized
+  private var _minorVersion:   Int = scala.compiletime.uninitialized
+  private var _releaseVersion: Int = scala.compiletime.uninitialized
 
-  private val versionStringVal: String = versionString
+  private val _versionString: String = initialVersion
 
-  private val `type`: GLVersion.Type = appType match {
+  private val _type: GLVersion.Type = appType match {
     case Application.ApplicationType.Android => GLVersion.Type.GLES
     case Application.ApplicationType.iOS     => GLVersion.Type.GLES
     case Application.ApplicationType.Desktop => GLVersion.Type.OpenGL
@@ -43,23 +43,23 @@ class GLVersion(
   }
 
   // Initialize version numbers based on type; NONE case overrides vendor/renderer to "" as Java does
-  private val vendorStringVal:   String = if (`type` == GLVersion.Type.NONE) "" else vendorString
-  private val rendererStringVal: String = if (`type` == GLVersion.Type.NONE) "" else rendererString
+  private val _vendorString:   String = if (_type == GLVersion.Type.NONE) "" else initialVendor
+  private val _rendererString: String = if (_type == GLVersion.Type.NONE) "" else initialRenderer
 
-  `type` match {
+  _type match {
     case GLVersion.Type.GLES =>
       // OpenGL<space>ES<space><version number><space><vendor-specific information>.
-      extractVersion("OpenGL ES (\\d(\\.\\d){0,2})", versionString)
+      extractVersion("OpenGL ES (\\d(\\.\\d){0,2})", initialVersion)
     case GLVersion.Type.WebGL =>
       // WebGL<space><version number><space><vendor-specific information>
-      extractVersion("WebGL (\\d(\\.\\d){0,2})", versionString)
+      extractVersion("WebGL (\\d(\\.\\d){0,2})", initialVersion)
     case GLVersion.Type.OpenGL =>
       // <version number><space><vendor-specific information>
-      extractVersion("(\\d(\\.\\d){0,2})", versionString)
+      extractVersion("(\\d(\\.\\d){0,2})", initialVersion)
     case _ =>
-      majorVersion = -1
-      minorVersion = -1
-      releaseVersion = -1
+      _majorVersion = -1
+      _minorVersion = -1
+      _releaseVersion = -1
   }
 
   private def extractVersion(patternString: String, versionString: String): Unit = {
@@ -69,14 +69,14 @@ class GLVersion(
     if (found) {
       val result      = matcher.group(1)
       val resultSplit = result.split("\\.")
-      majorVersion = parseInt(resultSplit(0), 2)
-      minorVersion = if (resultSplit.length < 2) 0 else parseInt(resultSplit(1), 0)
-      releaseVersion = if (resultSplit.length < 3) 0 else parseInt(resultSplit(2), 0)
+      _majorVersion = parseInt(resultSplit(0), 2)
+      _minorVersion = if (resultSplit.length < 2) 0 else parseInt(resultSplit(1), 0)
+      _releaseVersion = if (resultSplit.length < 3) 0 else parseInt(resultSplit(2), 0)
     } else {
       utils.Log.info(s"Invalid version string: $versionString")
-      majorVersion = 2
-      minorVersion = 0
-      releaseVersion = 0
+      _majorVersion = 2
+      _minorVersion = 0
+      _releaseVersion = 0
     }
   }
 
@@ -90,30 +90,26 @@ class GLVersion(
         defaultValue
     }
 
-  /** @return
-    *   what {@link Type} of GL implementation this application has access to, e.g. {@link Type#OpenGL} or {@link Type#GLES}
-    */
-  def getType(): GLVersion.Type = `type`
+  /** What {@link Type} of GL implementation this application has access to, e.g. {@link Type#OpenGL} or {@link Type#GLES} */
+  def glType: GLVersion.Type = _type
 
-  /** @return the major version of current GL connection. -1 if running headless */
-  def getMajorVersion(): Int = majorVersion
+  /** The major version of current GL connection. -1 if running headless */
+  def majorVersion: Int = _majorVersion
 
-  /** @return the minor version of the current GL connection. -1 if running headless */
-  def getMinorVersion(): Int = minorVersion
+  /** The minor version of the current GL connection. -1 if running headless */
+  def minorVersion: Int = _minorVersion
 
-  /** @return the release version of the current GL connection. -1 if running headless */
-  def getReleaseVersion(): Int = releaseVersion
+  /** The release version of the current GL connection. -1 if running headless */
+  def releaseVersion: Int = _releaseVersion
 
-  /** @return The version string as reported by `glGetString(GL_VERSION)` */
-  def getVersionString(): String = versionStringVal
+  /** The version string as reported by `glGetString(GL_VERSION)` */
+  def versionString: String = _versionString
 
-  /** @return the vendor string associated with the current GL connection */
-  def getVendorString(): String = vendorStringVal
+  /** The vendor string associated with the current GL connection */
+  def vendorString: String = _vendorString
 
-  /** @return
-    *   the name of the renderer associated with the current GL connection. This name is typically specific to a particular configuration of a hardware platform.
-    */
-  def getRendererString(): String = rendererStringVal
+  /** The name of the renderer associated with the current GL connection. This name is typically specific to a particular configuration of a hardware platform. */
+  def rendererString: String = _rendererString
 
   /** Checks to see if the current GL connection version is higher, or equal to the provided test versions.
     *
@@ -125,11 +121,11 @@ class GLVersion(
     *   true if the current version is higher or equal to the test version
     */
   def isVersionEqualToOrHigher(testMajorVersion: Int, testMinorVersion: Int): Boolean =
-    majorVersion > testMajorVersion || (majorVersion == testMajorVersion && minorVersion >= testMinorVersion)
+    _majorVersion > testMajorVersion || (_majorVersion == testMajorVersion && _minorVersion >= testMinorVersion)
 
-  /** @return a string with the current GL connection data */
-  def getDebugVersionString(): String =
-    s"Type: ${`type`}\nVersion: $majorVersion:$minorVersion:$releaseVersion\nVendor: $vendorStringVal\nRenderer: $rendererStringVal"
+  /** A string with the current GL connection data */
+  def debugVersionString: String =
+    s"Type: ${_type}\nVersion: ${_majorVersion}:${_minorVersion}:${_releaseVersion}\nVendor: $_vendorString\nRenderer: $_rendererString"
 }
 
 object GLVersion {

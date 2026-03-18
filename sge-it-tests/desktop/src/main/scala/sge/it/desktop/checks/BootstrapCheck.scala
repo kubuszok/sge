@@ -11,7 +11,7 @@ object BootstrapCheck {
   def run()(using Sge): CheckResult =
     try {
       val sge = Sge()
-      val gl  = sge.graphics.getGL20()
+      val gl  = sge.graphics.gl20
       if (gl == null) {
         CheckResult("bootstrap", passed = false, "GL20 is null")
       } else {

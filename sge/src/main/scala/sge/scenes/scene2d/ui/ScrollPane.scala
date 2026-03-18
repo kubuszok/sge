@@ -34,7 +34,7 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(using Sge) extends WidgetGroup with Styleable[ScrollPane.ScrollPaneStyle] {
+class ScrollPane(actor: Nullable[Actor], initialStyle: ScrollPane.ScrollPaneStyle)(using Sge) extends WidgetGroup with Styleable[ScrollPane.ScrollPaneStyle] {
   import ScrollPane._
 
   private var _style: ScrollPaneStyle = scala.compiletime.uninitialized
@@ -89,26 +89,29 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   private var variableSizeKnobs:  Boolean = true
   var draggingPointer:            Int     = -1
 
-  _style = style
+  _style = initialStyle
   setActor(actor)
   setSize(150, 150)
 
   addCaptureListener()
-  flickScrollListener = getFlickScrollListener()
+  flickScrollListener = createFlickScrollListener()
   addListener(flickScrollListener)
   addScrollListener()
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor])(using Sge) =
+  def this(actor: Nullable[Actor])(using Sge) = {
     this(actor, ScrollPane.ScrollPaneStyle())
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin)(using Sge) =
+  def this(actor: Nullable[Actor], skin: Skin)(using Sge) = {
     this(actor, skin.get[ScrollPane.ScrollPaneStyle])
+  }
 
   /** @param actor May be null. */
-  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) =
+  def this(actor: Nullable[Actor], skin: Skin, styleName: String)(using Sge) = {
     this(actor, skin.get[ScrollPane.ScrollPaneStyle](styleName))
+  }
 
   protected def addCaptureListener(): Unit = {
     val self = this
@@ -190,7 +193,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
   }
 
   /** Called by constructor. */
-  protected def getFlickScrollListener(): ActorGestureListener = {
+  protected def createFlickScrollListener(): ActorGestureListener = {
     val self = this
     new ActorGestureListener() {
       override def pan(event: InputEvent, x: Float, y: Float, deltaX: Float, deltaY: Float): Unit = {
@@ -246,8 +249,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
             } else {
               if (self.scrollX && amtX == 0) amtX = amtY
             }
-            self.setScrollY(self.amountY + self.getMouseWheelY() * amtY)
-            self.setScrollX(self.amountX + self.getMouseWheelX() * amtX)
+            self.setScrollY(self.amountY + self.mouseWheelY * amtY)
+            self.setScrollX(self.amountX + self.mouseWheelX * amtX)
           } else {
             scala.util.boundary.break(false)
           }
@@ -281,17 +284,17 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     draggingPointer = -1
     touchScrollH = false
     touchScrollV = false
-    flickScrollListener.getGestureDetector.cancel()
+    flickScrollListener.gestureDetector.cancel()
   }
 
   def clamp(): Unit =
     if (!_clamp) {}
     else {
-      scrollX(
+      scrollAmountX(
         if (overscrollX) MathUtils.clamp(amountX, -overscrollDistance, maxX + overscrollDistance)
         else MathUtils.clamp(amountX, 0, maxX)
       )
-      scrollY(
+      scrollAmountY(
         if (overscrollY) MathUtils.clamp(amountY, -overscrollDistance, maxY + overscrollDistance)
         else MathUtils.clamp(amountY, 0, maxY)
       )
@@ -304,12 +307,12 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
   /** Returns the scroll pane's style. Modifying the returned style may not have an effect until {@link #setStyle(ScrollPaneStyle)} is called.
     */
-  override def getStyle: ScrollPaneStyle = _style
+  override def style: ScrollPaneStyle = _style
 
   override def act(delta: Float): Unit = {
     super.act(delta)
 
-    val panning   = flickScrollListener.getGestureDetector.isPanning()
+    val panning   = flickScrollListener.gestureDetector.isPanning()
     var animating = false
 
     if (fadeAlpha > 0 && fadeScrollBars && !panning && !touchScrollH && !touchScrollV) {
@@ -349,21 +352,21 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     ) {
       if (visualAmountX != amountX) {
         if (visualAmountX < amountX)
-          visualScrollX(Math.min(amountX, visualAmountX + Math.max(200 * delta, (amountX - visualAmountX) * 7 * delta)))
+          visualScrollAmountX(Math.min(amountX, visualAmountX + Math.max(200 * delta, (amountX - visualAmountX) * 7 * delta)))
         else
-          visualScrollX(Math.max(amountX, visualAmountX - Math.max(200 * delta, (visualAmountX - amountX) * 7 * delta)))
+          visualScrollAmountX(Math.max(amountX, visualAmountX - Math.max(200 * delta, (visualAmountX - amountX) * 7 * delta)))
         animating = true
       }
       if (visualAmountY != amountY) {
         if (visualAmountY < amountY)
-          visualScrollY(Math.min(amountY, visualAmountY + Math.max(200 * delta, (amountY - visualAmountY) * 7 * delta)))
+          visualScrollAmountY(Math.min(amountY, visualAmountY + Math.max(200 * delta, (amountY - visualAmountY) * 7 * delta)))
         else
-          visualScrollY(Math.max(amountY, visualAmountY - Math.max(200 * delta, (visualAmountY - amountY) * 7 * delta)))
+          visualScrollAmountY(Math.max(amountY, visualAmountY - Math.max(200 * delta, (visualAmountY - amountY) * 7 * delta)))
         animating = true
       }
     } else {
-      if (visualAmountX != amountX) visualScrollX(amountX)
-      if (visualAmountY != amountY) visualScrollY(amountY)
+      if (visualAmountX != amountX) visualScrollAmountX(amountX)
+      if (visualAmountY != amountY) visualScrollAmountY(amountY)
     }
 
     if (!panning) {
@@ -371,13 +374,13 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
         if (amountX < 0) {
           setScrollbarsVisible(true)
           amountX += (overscrollSpeedMin + (overscrollSpeedMax - overscrollSpeedMin) * -amountX / overscrollDistance) * delta
-          if (amountX > 0) scrollX(0)
+          if (amountX > 0) scrollAmountX(0)
           animating = true
         } else if (amountX > maxX) {
           setScrollbarsVisible(true)
           amountX -= (overscrollSpeedMin +
             (overscrollSpeedMax - overscrollSpeedMin) * -(maxX - amountX) / overscrollDistance) * delta
-          if (amountX < maxX) scrollX(maxX)
+          if (amountX < maxX) scrollAmountX(maxX)
           animating = true
         }
       }
@@ -385,13 +388,13 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
         if (amountY < 0) {
           setScrollbarsVisible(true)
           amountY += (overscrollSpeedMin + (overscrollSpeedMax - overscrollSpeedMin) * -amountY / overscrollDistance) * delta
-          if (amountY > 0) scrollY(0)
+          if (amountY > 0) scrollAmountY(0)
           animating = true
         } else if (amountY > maxY) {
           setScrollbarsVisible(true)
           amountY -= (overscrollSpeedMin +
             (overscrollSpeedMax - overscrollSpeedMin) * -(maxY - amountY) / overscrollDistance) * delta
-          if (amountY < maxY) scrollY(maxY)
+          if (amountY < maxY) scrollAmountY(maxY)
           animating = true
         }
       }
@@ -399,7 +402,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
     if (animating) {
       stage.foreach { stage =>
-        if (stage.getActionsRequestRendering) Sge().graphics.requestRendering()
+        if (stage.actionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
   }
@@ -436,8 +439,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       var actorHeight: Float = 0f
       _actor.foreach {
         case layout: Layout =>
-          actorWidth = layout.getPrefWidth
-          actorHeight = layout.getPrefHeight
+          actorWidth = layout.prefWidth
+          actorHeight = layout.prefHeight
         case a =>
           actorWidth = a.width
           actorHeight = a.height
@@ -473,8 +476,8 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
       maxX = actorWidth - actorArea.width
       maxY = actorHeight - actorArea.height
-      scrollX(MathUtils.clamp(amountX, 0, maxX))
-      scrollY(MathUtils.clamp(amountY, 0, maxY))
+      scrollAmountX(MathUtils.clamp(amountX, 0, maxX))
+      scrollAmountY(MathUtils.clamp(amountY, 0, maxY))
 
       // Set the scrollbar and knob bounds.
       if (scrollX) {
@@ -496,7 +499,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
             hKnobBounds.width = hsk.minWidth
           if (hKnobBounds.width > actorWidth) hKnobBounds.width = 0
           hKnobBounds.height = hsk.minHeight
-          hKnobBounds.x = hScrollBounds.x + ((hScrollBounds.width - hKnobBounds.width) * getScrollPercentX).toInt.toFloat
+          hKnobBounds.x = hScrollBounds.x + ((hScrollBounds.width - hKnobBounds.width) * scrollPercentX).toInt.toFloat
           hKnobBounds.y = hScrollBounds.y
         }
       }
@@ -520,7 +523,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
             vKnobBounds.height = vsk.minHeight
           if (vKnobBounds.height > actorHeight) vKnobBounds.height = 0
           vKnobBounds.x = if (vScrollOnRight) width - bgRightWidth - vsk.minWidth else bgLeftWidth
-          vKnobBounds.y = vScrollBounds.y + ((vScrollBounds.height - vKnobBounds.height) * (1 - getScrollPercentY)).toInt.toFloat
+          vKnobBounds.y = vScrollBounds.y + ((vScrollBounds.height - vKnobBounds.height) * (1 - scrollPercentY)).toInt.toFloat
         }
       }
 
@@ -562,9 +565,9 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       // Setup transform for this group.
       applyTransform(batch, computeTransform())
 
-      if (scrollX) hKnobBounds.x = hScrollBounds.x + ((hScrollBounds.width - hKnobBounds.width) * getVisualScrollPercentX).toInt.toFloat
+      if (scrollX) hKnobBounds.x = hScrollBounds.x + ((hScrollBounds.width - hKnobBounds.width) * visualScrollPercentX).toInt.toFloat
       if (scrollY)
-        vKnobBounds.y = vScrollBounds.y + ((vScrollBounds.height - vKnobBounds.height) * (1 - getVisualScrollPercentY)).toInt.toFloat
+        vKnobBounds.y = vScrollBounds.y + ((vScrollBounds.height - vKnobBounds.height) * (1 - visualScrollPercentY)).toInt.toFloat
 
       updateActorPosition()
 
@@ -636,10 +639,10 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     this.velocityY = velocityY
   }
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     var width = 0f
     _actor.foreach {
-      case layout: Layout => width = layout.getPrefWidth
+      case layout: Layout => width = layout.prefWidth
       case a => width = a.width
     }
 
@@ -656,10 +659,10 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     width
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     var height = 0f
     _actor.foreach {
-      case layout: Layout => height = layout.getPrefHeight
+      case layout: Layout => height = layout.prefHeight
       case a => height = a.height
     }
 
@@ -676,9 +679,9 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     height
   }
 
-  override def getMinWidth: Float = 0
+  override def minWidth: Float = 0
 
-  override def getMinHeight: Float = 0
+  override def minHeight: Float = 0
 
   /** Sets the {@link Actor} embedded in this scroll pane.
     * @param actor
@@ -702,7 +705,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
   /** @deprecated Use {@link #getActor()}. */
   @deprecated("Use getActor", "")
-  def getWidget: Nullable[Actor] = _actor
+  def widget: Nullable[Actor] = _actor
 
   /** @deprecated
     *   ScrollPane may have only a single child.
@@ -773,37 +776,37 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
   /** Called whenever the x scroll amount is changed. */
-  protected def scrollX(pixelsX: Float): Unit =
+  protected def scrollAmountX(pixelsX: Float): Unit =
     this.amountX = pixelsX
 
   /** Called whenever the y scroll amount is changed. */
-  protected def scrollY(pixelsY: Float): Unit =
+  protected def scrollAmountY(pixelsY: Float): Unit =
     this.amountY = pixelsY
 
   /** Called whenever the visual x scroll amount is changed. */
-  protected def visualScrollX(pixelsX: Float): Unit =
+  protected def visualScrollAmountX(pixelsX: Float): Unit =
     this.visualAmountX = pixelsX
 
   /** Called whenever the visual y scroll amount is changed. */
-  protected def visualScrollY(pixelsY: Float): Unit =
+  protected def visualScrollAmountY(pixelsY: Float): Unit =
     this.visualAmountY = pixelsY
 
   /** Returns the amount to scroll horizontally when the mouse wheel is scrolled. */
-  protected def getMouseWheelX(): Float =
+  protected def mouseWheelX: Float =
     Math.min(actorArea.width, Math.max(actorArea.width * 0.9f, maxX * 0.1f) / 4)
 
   /** Returns the amount to scroll vertically when the mouse wheel is scrolled. */
-  protected def getMouseWheelY(): Float =
+  protected def mouseWheelY: Float =
     Math.min(actorArea.height, Math.max(actorArea.height * 0.9f, maxY * 0.1f) / 4)
 
   def setScrollX(pixels: Float): Unit =
-    scrollX(MathUtils.clamp(pixels, 0, maxX))
+    scrollAmountX(MathUtils.clamp(pixels, 0, maxX))
 
   /** Returns the x scroll position in pixels, where 0 is the left of the scroll pane. */
   def getScrollX: Float = amountX
 
   def setScrollY(pixels: Float): Unit =
-    scrollY(MathUtils.clamp(pixels, 0, maxY))
+    scrollAmountY(MathUtils.clamp(pixels, 0, maxY))
 
   /** Returns the y scroll position in pixels, where 0 is the top of the scroll pane. */
   def getScrollY: Float = amountY
@@ -815,31 +818,31 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     visualAmountY = amountY
   }
 
-  def getVisualScrollX: Float = if (!scrollX) 0 else visualAmountX
+  def visualScrollX: Float = if (!scrollX) 0 else visualAmountX
 
-  def getVisualScrollY: Float = if (!scrollY) 0 else visualAmountY
+  def visualScrollY: Float = if (!scrollY) 0 else visualAmountY
 
-  def getVisualScrollPercentX: Float =
+  def visualScrollPercentX: Float =
     if (maxX == 0) 0
     else MathUtils.clamp(visualAmountX / maxX, 0, 1)
 
-  def getVisualScrollPercentY: Float =
+  def visualScrollPercentY: Float =
     if (maxY == 0) 0
     else MathUtils.clamp(visualAmountY / maxY, 0, 1)
 
-  def getScrollPercentX: Float =
+  def scrollPercentX: Float =
     if (maxX == 0) 0
     else MathUtils.clamp(amountX / maxX, 0, 1)
 
   def setScrollPercentX(percentX: Float): Unit =
-    scrollX(maxX * MathUtils.clamp(percentX, 0, 1))
+    scrollAmountX(maxX * MathUtils.clamp(percentX, 0, 1))
 
-  def getScrollPercentY: Float =
+  def scrollPercentY: Float =
     if (maxY == 0) 0
     else MathUtils.clamp(amountY / maxY, 0, 1)
 
   def setScrollPercentY(percentY: Float): Unit =
-    scrollY(maxY * MathUtils.clamp(percentY, 0, 1))
+    scrollAmountY(maxY * MathUtils.clamp(percentY, 0, 1))
 
   def setFlickScroll(flickScroll: Boolean): Unit =
     if (this.flickScroll == flickScroll) {}
@@ -853,7 +856,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
   def setFlickScrollTapSquareSize(halfTapSquareSize: Float): Unit =
-    flickScrollListener.getGestureDetector.setTapSquareSize(halfTapSquareSize)
+    flickScrollListener.gestureDetector.setTapSquareSize(halfTapSquareSize)
 
   /** Sets the scroll offset so the specified rectangle is fully in view, if possible. Coordinates are in the scroll pane actor's coordinate system.
     */
@@ -871,7 +874,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       amtX = x + (width - actorArea.width) / 2
     else
       amtX = MathUtils.clamp(amtX, x, x + width - actorArea.width)
-    scrollX(MathUtils.clamp(amtX, 0, maxX))
+    scrollAmountX(MathUtils.clamp(amtX, 0, maxX))
 
     var amtY = this.amountY
     val ny   = maxY - y
@@ -879,16 +882,14 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       amtY = ny + (actorArea.height + height) / 2
     else
       amtY = MathUtils.clamp(amtY, ny + height, ny + actorArea.height)
-    scrollY(MathUtils.clamp(amtY, 0, maxY))
+    scrollAmountY(MathUtils.clamp(amtY, 0, maxY))
   }
 
-  /** Returns the maximum scroll value in the x direction. */
-  def getMaxX: Float = maxX
+  // maxX is a public var (declared above)
 
-  /** Returns the maximum scroll value in the y direction. */
-  def getMaxY: Float = maxY
+  // maxY is a public var (declared above)
 
-  def getScrollBarHeight: Float =
+  def scrollBarHeight: Float =
     if (!scrollX) 0
     else {
       var height = 0f
@@ -897,7 +898,7 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
       height
     }
 
-  def getScrollBarWidth: Float =
+  def scrollBarWidth: Float =
     if (!scrollY) 0
     else {
       var width = 0f
@@ -907,10 +908,10 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
     }
 
   /** Returns the width of the scrolled viewport. */
-  def getScrollWidth: Float = actorArea.width
+  def scrollWidth: Float = actorArea.width
 
   /** Returns the height of the scrolled viewport. */
-  def getScrollHeight: Float = actorArea.height
+  def scrollHeight: Float = actorArea.height
 
   /** Returns true if the actor is larger than the scroll pane horizontally. */
   def isScrollX: Boolean = scrollX
@@ -941,21 +942,12 @@ class ScrollPane(actor: Nullable[Actor], style: ScrollPane.ScrollPaneStyle)(usin
 
   def isDragging: Boolean = draggingPointer != -1
 
-  def isPanning: Boolean = flickScrollListener.getGestureDetector.isPanning()
+  def isPanning: Boolean = flickScrollListener.gestureDetector.isPanning()
 
   def isFlinging: Boolean = flingTimer > 0
 
-  def setVelocityX(velocityX: Float): Unit =
-    this.velocityX = velocityX
-
-  /** Gets the flick scroll x velocity. */
-  def getVelocityX: Float = velocityX
-
-  def setVelocityY(velocityY: Float): Unit =
-    this.velocityY = velocityY
-
-  /** Gets the flick scroll y velocity. */
-  def getVelocityY: Float = velocityY
+  // velocityX is a public var (declared above)
+  // velocityY is a public var (declared above)
 
   /** For flick scroll, if true the actor can be scrolled slightly past its bounds and will animate back to its bounds when scrolling is stopped. Default is true.
     */

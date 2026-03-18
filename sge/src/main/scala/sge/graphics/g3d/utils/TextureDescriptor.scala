@@ -70,11 +70,11 @@ class TextureDescriptor[T <: GLTexture]() extends Ordered[TextureDescriptor[T]] 
 
   override def hashCode(): Int = {
     var result: Long = texture.map(_.glTarget.toInt.toLong).getOrElse(0L)
-    result = 811 * result + texture.map(_.getTextureObjectHandle().toInt.toLong).getOrElse(0L)
-    result = 811 * result + minFilter.map(_.getGLEnum().toLong).getOrElse(0L)
-    result = 811 * result + magFilter.map(_.getGLEnum().toLong).getOrElse(0L)
-    result = 811 * result + uWrap.map(_.getGLEnum().toLong).getOrElse(0L)
-    result = 811 * result + vWrap.map(_.getGLEnum().toLong).getOrElse(0L)
+    result = 811 * result + texture.map(_.textureObjectHandle.toInt.toLong).getOrElse(0L)
+    result = 811 * result + minFilter.map(_.glEnum.toLong).getOrElse(0L)
+    result = 811 * result + magFilter.map(_.glEnum.toLong).getOrElse(0L)
+    result = 811 * result + uWrap.map(_.glEnum.toLong).getOrElse(0L)
+    result = 811 * result + vWrap.map(_.glEnum.toLong).getOrElse(0L)
     (result ^ (result >> 32)).toInt
   }
 
@@ -83,17 +83,17 @@ class TextureDescriptor[T <: GLTexture]() extends Ordered[TextureDescriptor[T]] 
     val t1 = texture.map(_.glTarget.toInt).getOrElse(0)
     val t2 = that.texture.map(_.glTarget.toInt).getOrElse(0)
     if (t1 != t2) break(t1 - t2)
-    val h1 = texture.map(_.getTextureObjectHandle().toInt).getOrElse(0)
-    val h2 = that.texture.map(_.getTextureObjectHandle().toInt).getOrElse(0)
+    val h1 = texture.map(_.textureObjectHandle.toInt).getOrElse(0)
+    val h2 = that.texture.map(_.textureObjectHandle.toInt).getOrElse(0)
     if (h1 != h2) break(h1 - h2)
     if (minFilter != that.minFilter)
-      break(minFilter.map(_.getGLEnum()).getOrElse(0) - that.minFilter.map(_.getGLEnum()).getOrElse(0))
+      break(minFilter.map(_.glEnum).getOrElse(0) - that.minFilter.map(_.glEnum).getOrElse(0))
     if (magFilter != that.magFilter)
-      break(magFilter.map(_.getGLEnum()).getOrElse(0) - that.magFilter.map(_.getGLEnum()).getOrElse(0))
+      break(magFilter.map(_.glEnum).getOrElse(0) - that.magFilter.map(_.glEnum).getOrElse(0))
     if (uWrap != that.uWrap)
-      break(uWrap.map(_.getGLEnum()).getOrElse(0) - that.uWrap.map(_.getGLEnum()).getOrElse(0))
+      break(uWrap.map(_.glEnum).getOrElse(0) - that.uWrap.map(_.glEnum).getOrElse(0))
     if (vWrap != that.vWrap)
-      break(vWrap.map(_.getGLEnum()).getOrElse(0) - that.vWrap.map(_.getGLEnum()).getOrElse(0))
+      break(vWrap.map(_.glEnum).getOrElse(0) - that.vWrap.map(_.glEnum).getOrElse(0))
     0
   }
 }

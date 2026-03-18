@@ -45,7 +45,7 @@ class AndroidTouchHandler(ops: TouchInputOps) {
     state.synchronized {
       action match {
         case ACTION_DOWN | ACTION_POINTER_DOWN =>
-          realPointerIndex = state.getFreePointerIndex()
+          realPointerIndex = state.freePointerIndex
           if (realPointerIndex < AndroidInputState.NUM_TOUCHES) {
             state.setRealId(realPointerIndex, pointerId)
             x = ops.getX(event, pointerIndex)

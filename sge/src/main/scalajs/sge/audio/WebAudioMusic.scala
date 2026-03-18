@@ -68,13 +68,13 @@ class WebAudioMusic(
 
   override def looping_=(isLooping: Boolean): Unit = audioElement.loop = isLooping
 
-  override def volume: Volume = Volume.unsafeMake(audioControlGraph.getVolume())
+  override def volume: Volume = Volume.unsafeMake(audioControlGraph.volume)
 
-  override def volume_=(v: Volume): Unit = audioControlGraph.setVolume(v.toFloat)
+  override def volume_=(v: Volume): Unit = audioControlGraph.volume_=(v.toFloat)
 
   override def setPan(pan: Pan, vol: Volume): Unit = {
-    audioControlGraph.setPan(pan.toFloat)
-    audioControlGraph.setVolume(vol.toFloat)
+    audioControlGraph.pan = pan.toFloat
+    audioControlGraph.volume_=(vol.toFloat)
   }
 
   override def position: Position = Position.unsafeMake(audioElement.currentTime.toFloat)

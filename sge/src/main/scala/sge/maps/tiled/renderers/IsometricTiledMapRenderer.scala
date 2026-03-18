@@ -67,12 +67,12 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
-    val tileWidth  = layer.getTileWidth * unitScale
-    val tileHeight = layer.getTileHeight * unitScale
+    val tileWidth  = layer.tileWidth * unitScale
+    val tileHeight = layer.tileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
+    val layerOffsetX = layer.renderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
+    val layerOffsetY = -layer.renderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val halfTileWidth  = tileWidth * 0.5f
     val halfTileHeight = tileHeight * 0.5f
@@ -109,10 +109,10 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
             val flipY     = c.flipVertically
             val rotations = c.rotation
 
-            val region = t.getTextureRegion
+            val region = t.textureRegion
 
-            val x1 = x + t.getOffsetX * unitScale + layerOffsetX
-            val y1 = y + t.getOffsetY * unitScale + layerOffsetY
+            val x1 = x + t.offsetX * unitScale + layerOffsetX
+            val y1 = y + t.offsetY * unitScale + layerOffsetY
             val x2 = x1 + region.regionWidth * unitScale
             val y2 = y1 + region.regionHeight * unitScale
 
@@ -219,8 +219,8 @@ class IsometricTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
         * Map 800px in height, leftmost tile edge starts rendering at 0,400 in tiled To compensate for that we need to subtract half the map's height in pixels then add half of the tile's height in
         * order to position it properly in order to get a 1 to 1 rendering as to where the imagelayer renders in tiled.
         */
-      val tileHeight      = getMap.properties.getAs[Integer]("tileheight").get.intValue()
-      val mapHeight       = getMap.properties.getAs[Integer]("height").get.intValue()
+      val tileHeight      = map.properties.getAs[Integer]("tileheight").get.intValue()
+      val mapHeight       = map.properties.getAs[Integer]("height").get.intValue()
       val mapHeightPixels = (mapHeight * tileHeight) * unitScale
       val halfTileHeight  = (tileHeight * 0.5f) * unitScale
 

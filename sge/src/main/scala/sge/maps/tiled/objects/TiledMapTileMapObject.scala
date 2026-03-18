@@ -35,7 +35,7 @@ class TiledMapTileMapObject(
 ) extends TextureMapObject() {
 
   locally {
-    val region = TextureRegion(tile.getTextureRegion)
+    val region = TextureRegion(tile.textureRegion)
     region.flip(flipHorizontally, flipVertically)
     this.textureRegion = Nullable(region)
   }

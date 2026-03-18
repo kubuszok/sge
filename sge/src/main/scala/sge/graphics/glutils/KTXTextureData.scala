@@ -67,14 +67,14 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
   // KTX image data (only available after preparing and before consuming)
   private var compressedData: Nullable[ByteBuffer] = Nullable.empty
 
-  override def getType(): TextureDataType = TextureDataType.Custom
+  override def dataType: TextureDataType = TextureDataType.Custom
 
   override def isPrepared: Boolean = compressedData.isDefined
 
   override def prepare(): Unit = {
     if (compressedData.isDefined) throw SgeError.GraphicsError("Already prepared")
     // We support normal ktx files as well as 'zktx' which are gzip ktx file with an int length at the beginning (like ETC1).
-    if (file.name().endsWith(".zktx")) {
+    if (file.name.endsWith(".zktx")) {
       val buffer = new Array[Byte](1024 * 10)
       val in     = new DataInputStream(new BufferedInputStream(new GZIPInputStream(file.read())))
       try {
@@ -252,13 +252,13 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
                   Sge().graphics.gl.glTexImage2D(
                     TextureTarget(actualTarget + face),
                     level,
-                    pixmap.getGLInternalFormat(),
-                    pixmap.getWidth(),
-                    pixmap.getHeight(),
+                    pixmap.gLInternalFormat,
+                    pixmap.width,
+                    pixmap.height,
                     0,
-                    PixelFormat(pixmap.getGLFormat()),
-                    DataType(pixmap.getGLType()),
-                    pixmap.getPixels()
+                    PixelFormat(pixmap.gLFormat),
+                    DataType(pixmap.glType),
+                    pixmap.pixels
                   )
                   pixmap.close()
                 } else {
@@ -326,11 +326,11 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
   override def disposePixmap: Boolean =
     throw SgeError.GraphicsError("This TextureData implementation does not return a Pixmap")
 
-  override def getWidth: Int = pixelWidth
+  override def width: Int = pixelWidth
 
-  override def getHeight: Int = pixelHeight
+  override def height: Int = pixelHeight
 
-  def getNumberOfMipMapLevels(): Int = numberOfMipmapLevels
+  def numberOfMipMapLevels: Int = numberOfMipmapLevels
 
   def getNumberOfFaces(): Int = numberOfFaces
 

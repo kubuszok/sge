@@ -71,56 +71,56 @@ class BoundingBox() {
     * @return
     *   The vector specified with the out argument.
     */
-  def getCenter(out: Vector3): Vector3 = out.set(cnt)
+  def center(out: Vector3): Vector3 = out.set(cnt)
 
-  def getCenterX(): Float = cnt.x
+  def centerX: Float = cnt.x
 
-  def getCenterY(): Float = cnt.y
+  def centerY: Float = cnt.y
 
-  def getCenterZ(): Float = cnt.z
+  def centerZ: Float = cnt.z
 
-  def getCorner000(out: Vector3): Vector3 = out.set(min.x, min.y, min.z)
+  def corner000(out: Vector3): Vector3 = out.set(min.x, min.y, min.z)
 
-  def getCorner001(out: Vector3): Vector3 = out.set(min.x, min.y, max.z)
+  def corner001(out: Vector3): Vector3 = out.set(min.x, min.y, max.z)
 
-  def getCorner010(out: Vector3): Vector3 = out.set(min.x, max.y, min.z)
+  def corner010(out: Vector3): Vector3 = out.set(min.x, max.y, min.z)
 
-  def getCorner011(out: Vector3): Vector3 = out.set(min.x, max.y, max.z)
+  def corner011(out: Vector3): Vector3 = out.set(min.x, max.y, max.z)
 
-  def getCorner100(out: Vector3): Vector3 = out.set(max.x, min.y, min.z)
+  def corner100(out: Vector3): Vector3 = out.set(max.x, min.y, min.z)
 
-  def getCorner101(out: Vector3): Vector3 = out.set(max.x, min.y, max.z)
+  def corner101(out: Vector3): Vector3 = out.set(max.x, min.y, max.z)
 
-  def getCorner110(out: Vector3): Vector3 = out.set(max.x, max.y, min.z)
+  def corner110(out: Vector3): Vector3 = out.set(max.x, max.y, min.z)
 
-  def getCorner111(out: Vector3): Vector3 = out.set(max.x, max.y, max.z)
+  def corner111(out: Vector3): Vector3 = out.set(max.x, max.y, max.z)
 
   /** @param out
     *   The {@link Vector3} to receive the dimensions of this bounding box on all three axis.
     * @return
     *   The vector specified with the out argument
     */
-  def getDimensions(out: Vector3): Vector3 = out.set(dim)
+  def dimensions(out: Vector3): Vector3 = out.set(dim)
 
-  def getWidth(): Float = dim.x
+  def width: Float = dim.x
 
-  def getHeight(): Float = dim.y
+  def height: Float = dim.y
 
-  def getDepth(): Float = dim.z
+  def depth: Float = dim.z
 
   /** @param out
     *   The {@link Vector3} to receive the minimum values.
     * @return
     *   The vector specified with the out argument
     */
-  def getMin(out: Vector3): Vector3 = out.set(min)
+  def minimum(out: Vector3): Vector3 = out.set(min)
 
   /** @param out
     *   The {@link Vector3} to receive the maximum values.
     * @return
     *   The vector specified with the out argument
     */
-  def getMax(out: Vector3): Vector3 = out.set(max)
+  def maximum(out: Vector3): Vector3 = out.set(max)
 
   /** Sets the given bounding box.
     *
@@ -317,10 +317,10 @@ class BoundingBox() {
     *   Whether the given oriented bounding box is contained
     */
   def contains(obb: OrientedBoundingBox): Boolean =
-    contains(obb.getCorner000(BoundingBox.tmpVector)) && contains(obb.getCorner001(BoundingBox.tmpVector)) &&
-      contains(obb.getCorner010(BoundingBox.tmpVector)) && contains(obb.getCorner011(BoundingBox.tmpVector)) &&
-      contains(obb.getCorner100(BoundingBox.tmpVector)) && contains(obb.getCorner101(BoundingBox.tmpVector)) &&
-      contains(obb.getCorner110(BoundingBox.tmpVector)) && contains(obb.getCorner111(BoundingBox.tmpVector))
+    contains(obb.corner000(BoundingBox.tmpVector)) && contains(obb.corner001(BoundingBox.tmpVector)) &&
+      contains(obb.corner010(BoundingBox.tmpVector)) && contains(obb.corner011(BoundingBox.tmpVector)) &&
+      contains(obb.corner100(BoundingBox.tmpVector)) && contains(obb.corner101(BoundingBox.tmpVector)) &&
+      contains(obb.corner110(BoundingBox.tmpVector)) && contains(obb.corner111(BoundingBox.tmpVector))
 
   /** Returns whether the given vector is contained in this bounding box.
     * @param v

@@ -26,7 +26,7 @@ import sge.utils.Nullable
   * It defines what (the shape), how (the material) and where (the transform) should be rendered by which shader.
   *
   * The shape is defined using the mesh, meshPartOffset, meshPartSize and primitiveType members. This matches the members of the [[MeshPart]] class. The meshPartOffset is used to specify the offset
-  * within the mesh and the meshPartSize is used to specify the part (in total number of vertices) to render. If the mesh is indexed (which is when [[Mesh.getNumIndices]] > 0) then both values are in
+  * within the mesh and the meshPartSize is used to specify the part (in total number of vertices) to render. If the mesh is indexed (which is when [[Mesh.numIndices]] > 0) then both values are in
   * number of indices within the indices array of the mesh, otherwise they are in number of vertices within the vertices array of the mesh. Note that some classes might require the mesh to be indexed.
   *
   * The [[material]] and (optional) [[environment]] values are combined to specify how the shape should look like. Typically these are used to specify uniform values or other OpenGL state changes.

@@ -111,8 +111,6 @@ class ParallelAction extends Action {
     super.setActor(actor)
   }
 
-  def getActions: DynamicArray[Action] = actions
-
   override def toString: String = {
     val buffer = new StringBuilder(64)
     buffer.append(super.toString)

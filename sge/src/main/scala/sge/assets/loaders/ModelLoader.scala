@@ -98,7 +98,7 @@ abstract class ModelLoader[P <: ModelLoader.ModelParameters](resolver: FileHandl
       val result = Model(d, TextureProvider.AssetTextureProvider(manager))
       // need to remove the textures from the managed disposables, or else ref counting
       // doesn't work!
-      val filtered = result.getManagedDisposables
+      val filtered = result.managedDisposables
       var idx      = 0
       while (idx < filtered.size)
         filtered(idx) match {

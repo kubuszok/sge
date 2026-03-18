@@ -23,7 +23,7 @@ class ActionTest extends munit.FunSuite {
     val action = Actions.moveBy(10f, 0f, Seconds(1f))
     actor.addAction(action)
     assert(actor.hasActions)
-    assertEquals(actor.getActions.size, 1)
+    assertEquals(actor.actions.size, 1)
   }
 
   test("act removes completed actions") {
@@ -41,10 +41,10 @@ class ActionTest extends munit.FunSuite {
     val actor = Actor()
     actor.addAction(Actions.moveBy(10f, 0f, Seconds(1f)))
     actor.addAction(Actions.moveBy(0f, 10f, Seconds(1f)))
-    assertEquals(actor.getActions.size, 2)
+    assertEquals(actor.actions.size, 2)
 
     actor.clearActions()
-    assertEquals(actor.getActions.size, 0)
+    assertEquals(actor.actions.size, 0)
   }
 
   // ---------------------------------------------------------------------------
@@ -249,7 +249,7 @@ class ActionTest extends munit.FunSuite {
 
     actor.addAction(Actions.removeActor())
     actor.act(0f)
-    assert(actor.getParent.isEmpty)
+    assert(actor.parent.isEmpty)
     assertEquals(group.children.size, 0)
   }
 

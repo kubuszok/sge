@@ -73,7 +73,7 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
             .fold {
               if (map.layers.size > 0) {
                 val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
-                hexSideLength = 0.5f * tmtl.getTileWidth
+                hexSideLength = 0.5f * tmtl.tileWidth
               } else {
                 hexSideLength = 0f
               }
@@ -86,7 +86,7 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
             .fold {
               if (map.layers.size > 0) {
                 val tmtl = map.layers.get(0).asInstanceOf[TiledMapTileLayer]
-                hexSideLength = 0.5f * tmtl.getTileHeight
+                hexSideLength = 0.5f * tmtl.tileHeight
               } else {
                 hexSideLength = 0f
               }
@@ -103,15 +103,15 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
-    val layerWidth  = layer.getWidth
-    val layerHeight = layer.getHeight
+    val layerWidth  = layer.width
+    val layerHeight = layer.height
 
-    val layerTileWidth  = layer.getTileWidth * unitScale
-    val layerTileHeight = layer.getTileHeight * unitScale
+    val layerTileWidth  = layer.tileWidth * unitScale
+    val layerTileHeight = layer.tileHeight * unitScale
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
+    val layerOffsetX = layer.renderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
+    val layerOffsetY = -layer.renderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
     val layerHexLength = hexSideLength * unitScale
 
@@ -184,10 +184,10 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
           val flipY     = c.flipVertically
           val rotations = c.rotation
 
-          val region = t.getTextureRegion
+          val region = t.textureRegion
 
-          val x1 = x + t.getOffsetX * unitScale
-          val y1 = y + t.getOffsetY * unitScale
+          val x1 = x + t.offsetX * unitScale
+          val y1 = y + t.offsetY * unitScale
           val x2 = x1 + region.regionWidth * unitScale
           val y2 = y1 + region.regionHeight * unitScale
 
@@ -228,8 +228,8 @@ class HexagonalTiledMapRenderer(map: TiledMap, unitScale: Float, batch: Batch, o
     if (Nullable(region).isEmpty) {
       ()
     } else {
-      val tileHeight     = getMap.properties.getAs[Integer]("tileheight").get.intValue()
-      val mapHeight      = getMap.properties.getAs[Integer]("height").get.intValue()
+      val tileHeight     = map.properties.getAs[Integer]("tileheight").get.intValue()
+      val mapHeight      = map.properties.getAs[Integer]("height").get.intValue()
       val layerHexLength = hexSideLength
       // Map height if it were tiles
       val totalHeightPixels = (mapHeight * tileHeight) * unitScale

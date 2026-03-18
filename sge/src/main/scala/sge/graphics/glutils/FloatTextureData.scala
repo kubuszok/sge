@@ -45,7 +45,7 @@ class FloatTextureData(
   private var isPreparedState: Boolean               = false
   private var buffer:          Nullable[FloatBuffer] = Nullable.empty
 
-  override def getType(): TextureData.TextureDataType = TextureData.TextureDataType.Custom
+  override def dataType: TextureData.TextureDataType = TextureData.TextureDataType.Custom
 
   override def isPrepared: Boolean = isPreparedState
 
@@ -54,7 +54,7 @@ class FloatTextureData(
     if (!isGpuOnly) {
       var amountOfFloats = 4
       // Determine amount of floats based on internal format — only applicable on desktop OpenGL
-      if (Sge().graphics.getGLVersion().getType() == GLVersion.Type.OpenGL) {
+      if (Sge().graphics.glVersion.glType == GLVersion.Type.OpenGL) {
         if (internalFormat == GL30.GL_RGBA16F || internalFormat == GL30.GL_RGBA32F) amountOfFloats = 4
         if (internalFormat == GL30.GL_RGB16F || internalFormat == GL30.GL_RGB32F) amountOfFloats = 3
         if (internalFormat == GL30.GL_RG16F || internalFormat == GL30.GL_RG32F) amountOfFloats = 2
@@ -67,8 +67,8 @@ class FloatTextureData(
 
   override def consumeCustomData(target: TextureTarget): Unit =
     if (
-      Sge().application.getType() == ApplicationType.Android || Sge().application.getType() == ApplicationType.iOS
-      || (Sge().application.getType() == ApplicationType.WebGL && !Sge().graphics.isGL30Available())
+      Sge().application.applicationType == ApplicationType.Android || Sge().application.applicationType == ApplicationType.iOS
+      || (Sge().application.applicationType == ApplicationType.WebGL && !Sge().graphics.gl30Available)
     ) {
 
       if (!Sge().graphics.supportsExtension("OES_texture_float"))
@@ -81,7 +81,7 @@ class FloatTextureData(
       Sge().graphics.gl.glTexImage2D(target, 0, GL20.GL_RGBA, Pixels(width), Pixels(height), 0, PixelFormat.RGBA, DataType.Float, buf1)
 
     } else {
-      if (!Sge().graphics.isGL30Available()) {
+      if (!Sge().graphics.gl30Available) {
         if (!Sge().graphics.supportsExtension("GL_ARB_texture_float"))
           throw SgeError.GraphicsError("Extension GL_ARB_texture_float not supported!")
       }
@@ -98,11 +98,7 @@ class FloatTextureData(
   override def disposePixmap: Boolean =
     throw SgeError.InvalidInput("This TextureData implementation does not return a Pixmap")
 
-  override def getWidth: Int = width
-
-  override def getHeight: Int = height
-
-  override def getFormat: Format = Format.RGBA8888 // it's not true, but FloatTextureData.getFormat() isn't used anywhere
+  override def getFormat: Format = Format.RGBA8888
 
   override def useMipMaps: Boolean = false
 

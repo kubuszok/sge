@@ -82,7 +82,7 @@ class TextureUnpacker {
     while (pageIter.hasNext) {
       val page = pageIter.next()
       // load the image file belonging to this page as a Buffered Image
-      val file = page.textureFile.get.file
+      val file = page.textureFile.get.internalFile
       if (!file.exists()) throw new RuntimeException("Unable to find atlas image: " + file.getAbsolutePath())
       var img: Nullable[BufferedImage] = Nullable.empty
       try

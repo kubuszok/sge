@@ -27,7 +27,7 @@ import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, DynamicArray, Nullable }
 
 /** A text input field with multiple lines. */
-class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sge) extends TextField(text, style) {
+class TextArea(initialText: Nullable[String], initialStyle: TextField.TextFieldStyle)(using Sge) extends TextField(initialText, initialStyle) {
 
   import TextField._
 
@@ -103,14 +103,14 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   def setPrefRows(prefRows: Float): Unit =
     this.prefRows = prefRows
 
-  override def getPrefHeight: Float =
+  override def prefHeight: Float =
     if (prefRows <= 0) {
-      super.getPrefHeight
+      super.prefHeight
     } else {
       // without ceil we might end up with one less row then expected
       // due to how linesShowing is calculated in #sizeChanged and #getHeight() returning rounded value
-      var prefHeight = Math.ceil(getStyle.font.lineHeight * prefRows).toFloat
-      getStyle.background.foreach { bg =>
+      var prefHeight = Math.ceil(style.font.lineHeight * prefRows).toFloat
+      style.background.foreach { bg =>
         prefHeight = Math.max(prefHeight + bg.bottomHeight + bg.topHeight, bg.minHeight)
       }
       prefHeight
@@ -201,8 +201,8 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     lastText = Nullable.empty // Cause calculateOffsets to recalculate the line breaks.
 
     // The number of lines showed must be updated whenever the height is updated
-    val font            = getStyle.font
-    val background      = getStyle.background
+    val font            = style.font
+    val background      = style.background
     val availableHeight = height - background.map(bg => bg.bottomHeight + bg.topHeight).getOrElse(0f)
     linesShowing = Math.floor(availableHeight / font.lineHeight).toInt
   }
@@ -219,10 +219,10 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   override protected def drawSelection(selection: Drawable, batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
     var i          = firstLineShowing * 2
     var offsetY    = 0f
-    val minIndex   = Math.min(cursor, selectionStart)
-    val maxIndex   = Math.max(cursor, selectionStart)
+    val minIndex   = Math.min(cursor, _selectionStart)
+    val maxIndex   = Math.max(cursor, _selectionStart)
     val fontData   = font.data
-    val lineHeight = getStyle.font.lineHeight
+    val lineHeight = style.font.lineHeight
     while (i + 1 < linesBreak.size && i < (firstLineShowing + linesShowing) * 2) {
 
       val lineStart = linesBreak(i)
@@ -261,7 +261,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   }
 
   override protected def drawText(batch: Batch, font: BitmapFont, x: Float, y: Float): Unit = {
-    var offsetY = -(getStyle.font.lineHeight - textHeight) / 2
+    var offsetY = -(style.font.lineHeight - textHeight) / 2
     var i       = firstLineShowing * 2
     while (i < (firstLineShowing + linesShowing) * 2 && i < linesBreak.size) {
       font.draw(batch, displayText, x, y + offsetY, linesBreak.items(i), linesBreak.items(i + 1), 0, Align.left.toInt, false)
@@ -277,9 +277,9 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     super.calculateOffsets()
     if (lastText.forall(_ != this._text)) {
       this.lastText = Nullable(_text)
-      val font         = getStyle.font
+      val font         = style.font
       val maxWidthLine = this.width -
-        getStyle.background.map(bg => bg.leftWidth + bg.rightWidth).getOrElse(0f)
+        style.background.map(bg => bg.leftWidth + bg.rightWidth).getOrElse(0f)
       linesBreak.clear()
       var lineStart = 0
       var lastSpace = 0
@@ -351,7 +351,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
 
   def cursorX: Float = {
     var textOffset = 0f
-    val fontData   = getStyle.font.data
+    val fontData   = style.font.data
     if (!(cursor >= glyphPositions.size || cursorLine * 2 >= linesBreak.size)) {
       val lineStart   = linesBreak.items(cursorLine * 2)
       var glyphOffset = 0f
@@ -366,7 +366,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
   }
 
   def cursorY: Float = {
-    val font = getStyle.font
+    val font = style.font
     -(cursorLine - firstLineShowing + 1) * font.lineHeight
   }
 
@@ -376,8 +376,8 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     override protected def setCursorPosition(x: Float, y: Float): Unit = {
       moveOffset = -1
 
-      val background = getStyle.background
-      val font       = getStyle.font
+      val background = style.background
+      val font       = style.font
 
       val height = TextArea.this.height
 
@@ -409,7 +409,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
         if (keycode == Input.Keys.DOWN) {
           if (shift) {
             if (!hasSelection) {
-              selectionStart = cursor
+              _selectionStart = cursor
               hasSelection = true
             }
           } else {
@@ -421,7 +421,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
         } else if (keycode == Input.Keys.UP) {
           if (shift) {
             if (!hasSelection) {
-              selectionStart = cursor
+              _selectionStart = cursor
               hasSelection = true
             }
           } else {
@@ -444,7 +444,7 @@ class TextArea(text: Nullable[String], style: TextField.TextFieldStyle)(using Sg
     }
 
     override protected def checkFocusTraversal(character: Char): Boolean =
-      focusTraversal && character == TAB
+      _focusTraversal && character == TAB
 
     override def keyTyped(event: InputEvent, character: Char): Boolean = {
       val result = super.keyTyped(event, character)

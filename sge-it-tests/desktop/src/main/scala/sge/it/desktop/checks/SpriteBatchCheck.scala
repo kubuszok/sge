@@ -13,8 +13,7 @@ object SpriteBatchCheck {
     try {
       val batch = SpriteBatch()
       try {
-        batch.begin()
-        batch.end()
+        batch.rendering(())
         CheckResult("spritebatch", passed = true, "SpriteBatch begin/end cycle OK")
       } finally
         batch.close()

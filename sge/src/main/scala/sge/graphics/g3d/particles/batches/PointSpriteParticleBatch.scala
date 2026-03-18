@@ -26,12 +26,10 @@
  * - Audit: pass (2026-03-03)
  * Convention: typed GL enums (EnableCap)
  */
-package sge
-package graphics
-package g3d
-package particles
-package batches
+package sge.graphics.g3d.particles.batches
 
+import sge.Application
+import sge.Sge
 import sge.graphics.EnableCap
 import sge.graphics.GL20
 import sge.graphics.Mesh
@@ -87,11 +85,13 @@ class PointSpriteParticleBatch(
     renderable.shader = Nullable(shader)
   }
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
+  }
 
-  def this(capacity: Int)(using Sge) =
+  def this(capacity: Int)(using Sge) = {
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
+  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)
@@ -170,14 +170,14 @@ class PointSpriteParticleBatch(
   override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     if (bufferedParticlesCount > 0) renderables.add(pool.obtain().set(renderable))
 
-  override def save(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
+  override def save(manager: sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.createSaveData("pointSpriteBatch")
     texture.foreach { tex =>
       data.saveAsset[Texture](manager.assetFileName(tex).getOrElse(""))
     }
   }
 
-  override def load(manager: _root_.sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
+  override def load(manager: sge.assets.AssetManager, resources: ResourceData[?]): Unit = {
     val data = resources.getSaveData("pointSpriteBatch")
     data.foreach { d =>
       d.loadAsset().foreach { asset =>
@@ -205,7 +205,7 @@ object PointSpriteParticleBatch {
 
   private def enablePointSprites()(using Sge): Unit = {
     Sge().graphics.gl.glEnable(EnableCap.VertexProgramPointSize)
-    if (Sge().application.getType() == Application.ApplicationType.Desktop) {
+    if (Sge().application.applicationType == Application.ApplicationType.Desktop) {
       Sge().graphics.gl.glEnable(EnableCap(0x8861)) // GL_POINT_OES
     }
     pointSpritesEnabled = true

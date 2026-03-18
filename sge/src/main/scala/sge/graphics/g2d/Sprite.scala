@@ -61,9 +61,9 @@ class Sprite() extends TextureRegion {
   def this(texture: Texture) = {
     this()
     this.texture = texture
-    super.setRegion(0, 0, texture.getWidth.toInt, texture.getHeight.toInt)
+    super.setRegion(0, 0, texture.width.toInt, texture.height.toInt)
     setColor(1, 1, 1, 1)
-    setSize(texture.getWidth.toFloat, texture.getHeight.toFloat)
+    setSize(texture.width.toFloat, texture.height.toFloat)
     setOrigin(_width / 2, _height / 2)
   }
 
@@ -748,7 +748,7 @@ class Sprite() extends TextureRegion {
     val vertices = this._vertices
     if (xAmount != 0) {
       val newU  = (vertices(U1) + xAmount) % 1
-      val newU2 = newU + _width / texture.getWidth.toFloat
+      val newU2 = newU + _width / texture.width.toFloat
       this.u = newU
       this.u2 = newU2
       vertices(U1) = newU
@@ -758,7 +758,7 @@ class Sprite() extends TextureRegion {
     }
     if (yAmount != 0) {
       val newV  = (vertices(V2) + yAmount) % 1
-      val newV2 = newV + _height / texture.getHeight.toFloat
+      val newV2 = newV + _height / texture.height.toFloat
       this.v = newV
       this.v2 = newV2
       vertices(V1) = newV2
@@ -769,13 +769,13 @@ class Sprite() extends TextureRegion {
   }
 
   def setU(u: Float, width: Float): Unit = {
-    val newU2 = u + width / texture.getWidth.toFloat
+    val newU2 = u + width / texture.width.toFloat
     this.u = u
     this.u2 = newU2
   }
 
   def setV(v: Float, height: Float): Unit = {
-    val newV2 = v + height / texture.getHeight.toFloat
+    val newV2 = v + height / texture.height.toFloat
     this.v = v
     this.v2 = newV2
   }

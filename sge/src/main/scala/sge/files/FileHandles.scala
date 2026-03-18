@@ -7,14 +7,14 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: GdxRuntimeException -> SgeError.FileReadError/FileWriteError, type() -> fileType (val), file() -> file (val) + getFile()
+ *   Renames: GdxRuntimeException -> SgeError.FileReadError/FileWriteError, type() -> fileType (val), file() -> file (val) + file
  *   Merged with: FileHandleStream.java (abstract class appended to this file)
  *   Convention: static utility methods (tempFile, tempDirectory) omitted; static private helpers converted to private instance methods;
  *     convenience constructors FileHandle(String), FileHandle(File), no-arg FileHandle() omitted — primary constructor is (File, FileType)
  *   Idiom: Nullable (null -> Nullable for charset params, Java null returns), split packages (sge / files)
- *   Convention: getFile() External path resolution via externalStoragePath constructor param
+ *   Convention: file External path resolution via externalStoragePath constructor param
  *     (replaces Java's Gdx.files.getExternalStoragePath() global static)
- *   Fixes: read() uses getFile() for resolved path; toString() uses raw file (matching Java);
+ *   Fixes: read() uses file for resolved path; toString() uses raw file (matching Java);
  *     RuntimeException → SgeError.FileReadError in list()/sibling(); trailing semicolons removed
  *   Audited: 2026-03-04
  */
@@ -54,29 +54,29 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet (original implementation)
   */
-class FileHandle(val file: File, val fileType: FileType, private val externalStoragePath: Nullable[String] = Nullable.empty) {
+class FileHandle(val internalFile: File, val fileType: FileType, private val externalStoragePath: Nullable[String] = Nullable.empty) {
 
   /** @return
     *   the path of the file as specified on construction, e.g. Gdx.files.internal("dir/file.png") -> dir/file.png. backward slashes will be replaced by forward slashes.
     */
-  def path(): String =
-    file.getPath().replace('\\', '/')
+  def path: String =
+    internalFile.getPath().replace('\\', '/')
 
   /** @return the name of the file, without any parent paths. */
-  def name(): String =
-    file.getName()
+  def name: String =
+    internalFile.getName()
 
   /** Returns the file extension (without the dot) or an empty string if the file name doesn't contain a dot. */
-  def extension(): String = {
-    val name     = file.getName()
+  def extension: String = {
+    val name     = internalFile.getName()
     val dotIndex = name.lastIndexOf('.')
     if (dotIndex == -1) ""
     else name.substring(dotIndex + 1)
   }
 
   /** @return the name of the file, without parent paths or the extension. */
-  def nameWithoutExtension(): String = {
-    val name     = file.getName()
+  def nameWithoutExtension: String = {
+    val name     = internalFile.getName()
     val dotIndex = name.lastIndexOf('.')
     if (dotIndex == -1) name
     else name.substring(0, dotIndex)
@@ -85,8 +85,8 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   /** @return
     *   the path and filename without the extension, e.g. dir/dir2/file.png -> dir/dir2/file. backward slashes will be returned as forward slashes.
     */
-  def pathWithoutExtension(): String = {
-    val path     = file.getPath().replace('\\', '/')
+  def pathWithoutExtension: String = {
+    val path     = internalFile.getPath().replace('\\', '/')
     val dotIndex = path.lastIndexOf('.')
     if (dotIndex == -1) path
     else path.substring(0, dotIndex)
@@ -94,9 +94,9 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
 
   /** Returns a java.io.File that represents this file handle. Note the returned file will only be usable for {@link FileType#Absolute} and {@link FileType#External} file handles.
     */
-  def getFile(): File =
-    if (fileType == FileType.External) externalStoragePath.fold(file)(path => new File(path, file.getPath()))
-    else file
+  def file: File =
+    if (fileType == FileType.External) externalStoragePath.fold(internalFile)(path => new File(path, internalFile.getPath()))
+    else internalFile
 
   /** Returns a stream for reading this file as bytes.
     * @throws [[sge.utils.SgeError]]
@@ -106,19 +106,19 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     if (
       fileType match {
         case FileType.Classpath                 => true
-        case FileType.Internal | FileType.Local => !file.exists()
+        case FileType.Internal | FileType.Local => !internalFile.exists()
         case _                                  => false
       }
     ) {
-      utils.Nullable(getClass.getResourceAsStream("/" + file.getPath().replace('\\', '/'))).getOrElse {
+      utils.Nullable(getClass.getResourceAsStream("/" + internalFile.getPath().replace('\\', '/'))).getOrElse {
         throw utils.SgeError.FileReadError(this, "File not found")
       }
     } else {
       try
-        new FileInputStream(getFile())
+        new FileInputStream(file)
       catch {
         case ex: Exception =>
-          if (getFile().isDirectory())
+          if (file.isDirectory())
             throw utils.SgeError.FileReadError(this, "Cannot open a stream to a directory", Some(ex))
           throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
       }
@@ -182,7 +182,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     *   if the file handle represents a directory, doesn't exist, or could not be read.
     */
   def readString(charset: Nullable[String] = Nullable.empty): String = {
-    val output = new StringBuilder(estimateLength())
+    val output = new StringBuilder(estimateLength)
     val reader = charset.fold(new InputStreamReader(read()))(cs => new InputStreamReader(read(), cs))
     try {
       val buffer = new Array[Char](256)
@@ -206,7 +206,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def readBytes(): Array[Byte] = {
     val input = read()
     try
-      utils.StreamUtils.copyStreamToByteArray(input, estimateLength())
+      utils.StreamUtils.copyStreamToByteArray(input, estimateLength)
     catch {
       case ex: IOException =>
         throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
@@ -214,7 +214,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       utils.StreamUtils.closeQuietly(input)
   }
 
-  private def estimateLength(): Int = {
+  private def estimateLength: Int = {
     val length = this.length().toInt
     if (length != 0) length else 512
   }
@@ -252,7 +252,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def map(mode: FileChannel.MapMode = MapMode.READ_ONLY): ByteBuffer = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot map a classpath file")
-    val f   = getFile()
+    val f   = file
     val raf = new RandomAccessFile(f, if (mode == MapMode.READ_ONLY) "r" else "rw")
     try {
       val fileChannel  = raf.getChannel()
@@ -277,12 +277,12 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
     try
-      new FileOutputStream(getFile(), append)
+      new FileOutputStream(file, append)
     catch {
       case ex: Exception =>
-        if (getFile().isDirectory())
-          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
-        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        if (file.isDirectory())
+          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $internalFile ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $internalFile ($fileType)", Some(ex))
     }
   }
 
@@ -309,7 +309,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       utils.StreamUtils.copyStream(input, output)
     catch {
       case ex: Exception =>
-        throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $internalFile ($fileType)", Some(ex))
     } finally {
       utils.StreamUtils.closeQuietly(input)
       utils.StreamUtils.closeQuietly(output)
@@ -329,13 +329,13 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     if (fileType == FileType.Internal) throw utils.SgeError.FileReadError(this, "Cannot write to an internal file")
     parent().mkdirs()
     try {
-      val output = new FileOutputStream(getFile(), append)
+      val output = new FileOutputStream(file, append)
       charset.fold(new OutputStreamWriter(output): Writer)(cs => new OutputStreamWriter(output, cs))
     } catch {
       case ex: IOException =>
-        if (getFile().isDirectory())
-          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $file ($fileType)", Some(ex))
-        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        if (file.isDirectory())
+          throw utils.SgeError.FileReadError(this, s"Cannot open a stream to a directory: $internalFile ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $internalFile ($fileType)", Some(ex))
     }
   }
 
@@ -353,7 +353,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       writer.write(string)
     catch {
       case ex: Exception =>
-        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $internalFile ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(writer)
   }
@@ -370,7 +370,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       output.write(bytes)
     catch {
       case ex: IOException =>
-        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $internalFile ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(output)
   }
@@ -387,7 +387,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       output.write(bytes, offset, length)
     catch {
       case ex: IOException =>
-        throw utils.SgeError.FileReadError(this, s"Error writing file: $file ($fileType)", Some(ex))
+        throw utils.SgeError.FileReadError(this, s"Error writing file: $internalFile ($fileType)", Some(ex))
     } finally
       utils.StreamUtils.closeQuietly(output)
   }
@@ -399,7 +399,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def list(): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
-    Nullable(getFile().list()).map(_.map(child)).getOrElse(Array.empty[FileHandle])
+    Nullable(file.list()).map(_.map(child)).getOrElse(Array.empty[FileHandle])
   }
 
   /** Returns the paths to the children of this directory that satisfy the specified filter. Returns an empty list if this file handle represents a file and not a directory. On the desktop, an
@@ -411,9 +411,9 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def list(filter: FileFilter): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
-    Nullable(getFile().list())
+    Nullable(file.list())
       .map { relativePaths =>
-        relativePaths.map(path => child(path)).filter(childHandle => filter.accept(childHandle.getFile()))
+        relativePaths.map(path => child(path)).filter(childHandle => filter.accept(childHandle.file))
       }
       .getOrElse(Array.empty[FileHandle])
   }
@@ -427,7 +427,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def list(filter: FilenameFilter): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
-    val fileObj = getFile()
+    val fileObj = file
     Nullable(fileObj.list())
       .map { relativePaths =>
         relativePaths.filter(path => filter.accept(fileObj, path)).map(path => child(path))
@@ -442,7 +442,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def list(suffix: String): Array[FileHandle] = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileReadError(this, "Cannot list a classpath directory")
-    Nullable(getFile().list())
+    Nullable(file.list())
       .map { relativePaths =>
         relativePaths.filter(_.endsWith(suffix)).map(child)
       }
@@ -454,24 +454,24 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def isDirectory(): Boolean =
     if (fileType == FileType.Classpath) false
-    else getFile().isDirectory()
+    else file.isDirectory()
 
   /** Returns a handle to the child with the specified name. */
   def child(name: String): FileHandle =
-    if (file.getPath().length() == 0) FileHandle(new File(name), fileType, externalStoragePath)
-    else FileHandle(new File(file, name), fileType, externalStoragePath)
+    if (internalFile.getPath().length() == 0) FileHandle(new File(name), fileType, externalStoragePath)
+    else FileHandle(new File(internalFile, name), fileType, externalStoragePath)
 
   /** Returns a handle to the sibling with the specified name.
     * @throws [[sge.utils.SgeError]]
     *   if this file is the root.
     */
   def sibling(name: String): FileHandle = {
-    if (file.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root")
-    FileHandle(new File(file.getParent(), name), fileType, externalStoragePath)
+    if (internalFile.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root")
+    FileHandle(new File(internalFile.getParent(), name), fileType, externalStoragePath)
   }
 
   def parent(): FileHandle =
-    Nullable(file.getParentFile()).fold {
+    Nullable(internalFile.getParentFile()).fold {
       if (fileType == FileType.Absolute) FileHandle(new File("/"), fileType, externalStoragePath)
       else FileHandle(new File(""), fileType, externalStoragePath)
     } { parent =>
@@ -482,7 +482,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def mkdirs(): Unit = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot mkdirs with a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot mkdirs with an internal file")
-    getFile().mkdirs()
+    file.mkdirs()
   }
 
   /** Returns true if the file exists. On Android, a {@link FileType#Classpath} or {@link FileType#Internal} handle to a directory will always return false. Note that this can be very slow for
@@ -491,21 +491,21 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def exists(): Boolean =
     fileType match {
       case FileType.Internal =>
-        if (getFile().exists()) true
+        if (file.exists()) true
         else {
           // Use getResourceAsStream instead of getResource to avoid java.net.URL (not available on Scala Native)
-          val stream = classOf[FileHandle].getResourceAsStream("/" + file.getPath().replace('\\', '/'))
+          val stream = classOf[FileHandle].getResourceAsStream("/" + internalFile.getPath().replace('\\', '/'))
           val found  = stream != null // scalastyle:ignore null
           if (found) stream.close()
           found
         }
       case FileType.Classpath =>
-        val stream = classOf[FileHandle].getResourceAsStream("/" + file.getPath().replace('\\', '/'))
+        val stream = classOf[FileHandle].getResourceAsStream("/" + internalFile.getPath().replace('\\', '/'))
         val found  = stream != null // scalastyle:ignore null
         if (found) stream.close()
         found
       case _ =>
-        getFile().exists()
+        file.exists()
     }
 
   /** Deletes this file or empty directory and returns success. Will not delete a directory that has children.
@@ -515,7 +515,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def delete(): Boolean = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
-    getFile().delete()
+    file.delete()
   }
 
   /** Deletes this file or directory and all children, recursively.
@@ -525,7 +525,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def deleteDirectory(): Boolean = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
-    deleteDirectory(getFile())
+    deleteDirectory(file)
   }
 
   /** Deletes all children of this directory, recursively. Optionally preserving the folder structure.
@@ -535,7 +535,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   def emptyDirectory(preserveTree: Boolean = false): Unit = {
     if (fileType == FileType.Classpath) throw utils.SgeError.FileWriteError(this, "Cannot delete a classpath file")
     if (fileType == FileType.Internal) throw utils.SgeError.FileWriteError(this, "Cannot delete an internal file")
-    emptyDirectory(getFile(), preserveTree)
+    emptyDirectory(file, preserveTree)
   }
 
   /** Copies this file or directory to the specified file or directory. If this handle is a file, then 1) if the destination is a file, it is overwritten, or 2) if the destination is a directory, this
@@ -547,7 +547,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     */
   def copyTo(dest: FileHandle): Unit =
     if (!isDirectory()) {
-      val actualDest = if (dest.isDirectory()) dest.child(name()) else dest
+      val actualDest = if (dest.isDirectory()) dest.child(name) else dest
       copyFile(this, actualDest)
     } else {
       if (dest.exists()) {
@@ -556,7 +556,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
         dest.mkdirs()
         if (!dest.isDirectory()) throw utils.SgeError.FileWriteError(dest, "Destination directory cannot be created")
       }
-      copyDirectory(this, dest.child(name()))
+      copyDirectory(this, dest.child(name))
     }
 
   /** Moves this file to the specified file, overwriting the file if it already exists.
@@ -569,7 +569,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
         throw utils.SgeError.FileWriteError(this, "Cannot move a classpath file")
       case FileType.Internal =>
         throw utils.SgeError.FileWriteError(this, "Cannot move an internal file")
-      case FileType.Absolute | FileType.External if getFile().renameTo(dest.getFile()) =>
+      case FileType.Absolute | FileType.External if file.renameTo(dest.file) =>
       // Try rename for efficiency and to change case on case-insensitive file systems.
       case _ =>
         copyTo(dest)
@@ -580,7 +580,7 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
   /** Returns the length in bytes of this file, or 0 if this file is a directory, does not exist, or the size cannot otherwise be determined.
     */
   def length(): Long =
-    if (fileType == FileType.Classpath || (fileType == FileType.Internal && !getFile().exists())) {
+    if (fileType == FileType.Classpath || (fileType == FileType.Internal && !file.exists())) {
       val input = read()
       try
         input.available()
@@ -589,31 +589,31 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
       } finally
         utils.StreamUtils.closeQuietly(input)
     } else {
-      getFile().length()
+      file.length()
     }
 
   /** Returns the last modified time in milliseconds for this file. Zero is returned if the file doesn't exist. Zero is returned for {@link FileType#Classpath} files. On Android, zero is returned for
     * {@link FileType#Internal} files. On the desktop, zero is returned for {@link FileType#Internal} files on the classpath.
     */
   def lastModified(): Long =
-    getFile().lastModified()
+    file.lastModified()
 
   override def equals(obj: Any): Boolean =
     if (!obj.isInstanceOf[FileHandle]) false
     else {
       val other = obj.asInstanceOf[FileHandle]
-      fileType == other.fileType && path() == other.path()
+      fileType == other.fileType && path == other.path
     }
 
   override def hashCode(): Int = {
     var hash = 1
     hash = hash * 37 + fileType.hashCode()
-    hash = hash * 67 + path().hashCode()
+    hash = hash * 67 + path.hashCode()
     hash
   }
 
   override def toString(): String =
-    file.getPath().replace('\\', '/')
+    internalFile.getPath().replace('\\', '/')
 
   // Utility methods for file operations
   private def copyFile(source: FileHandle, dest: FileHandle): Unit = {
@@ -628,9 +628,9 @@ class FileHandle(val file: File, val fileType: FileType, private val externalSto
     dest.mkdirs()
     for (child <- source.list())
       if (child.isDirectory()) {
-        copyDirectory(child, dest.child(child.name()))
+        copyDirectory(child, dest.child(child.name))
       } else {
-        copyFile(child, dest.child(child.name()))
+        copyFile(child, dest.child(child.name))
       }
   }
 

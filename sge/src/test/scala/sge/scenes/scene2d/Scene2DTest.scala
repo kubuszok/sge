@@ -24,7 +24,7 @@ class Scene2DTest extends munit.FunSuite {
     assert(actor.visible)
     assertEquals(actor.touchable, Touchable.enabled)
     assert(actor.name.isEmpty)
-    assert(actor.getParent.isEmpty)
+    assert(actor.parent.isEmpty)
     assert(actor.stage.isEmpty)
   }
 
@@ -47,8 +47,8 @@ class Scene2DTest extends munit.FunSuite {
     val actor = Actor()
     actor.setPosition(10f, 20f)
     actor.setSize(30f, 40f)
-    assertEquals(actor.getRight, 40f)
-    assertEquals(actor.getTop, 60f)
+    assertEquals(actor.right, 40f)
+    assertEquals(actor.top, 60f)
   }
 
   test("Actor visibility and touchability") {
@@ -103,8 +103,8 @@ class Scene2DTest extends munit.FunSuite {
     val actor = Actor()
     group.addActor(actor)
 
-    assert(actor.getParent.isDefined)
-    assert(actor.getParent.exists(_ eq group))
+    assert(actor.parent.isDefined)
+    assert(actor.parent.exists(_ eq group))
     assertEquals(group.children.size, 1)
   }
 
@@ -120,7 +120,7 @@ class Scene2DTest extends munit.FunSuite {
     group2.addActor(actor)
     assertEquals(group1.children.size, 0)
     assertEquals(group2.children.size, 1)
-    assert(actor.getParent.exists(_ eq group2))
+    assert(actor.parent.exists(_ eq group2))
   }
 
   test("Group removeActor clears parent") {
@@ -131,7 +131,7 @@ class Scene2DTest extends munit.FunSuite {
 
     val removed = group.removeActor(actor)
     assert(removed)
-    assert(actor.getParent.isEmpty)
+    assert(actor.parent.isEmpty)
     assertEquals(group.children.size, 0)
   }
 
@@ -142,7 +142,7 @@ class Scene2DTest extends munit.FunSuite {
     group.addActor(actor)
 
     assert(actor.remove())
-    assert(actor.getParent.isEmpty)
+    assert(actor.parent.isEmpty)
     assertEquals(group.children.size, 0)
   }
 
@@ -243,9 +243,9 @@ class Scene2DTest extends munit.FunSuite {
 
     group.clear()
     assertEquals(group.children.size, 0)
-    assert(a1.getParent.isEmpty)
-    assert(a2.getParent.isEmpty)
-    assertEquals(group.getListeners.size, 0)
+    assert(a1.parent.isEmpty)
+    assert(a2.parent.isEmpty)
+    assertEquals(group.listeners.size, 0)
   }
 
   test("Group clearChildren removes children but keeps listeners") {
@@ -260,15 +260,15 @@ class Scene2DTest extends munit.FunSuite {
 
     group.clearChildren()
     assertEquals(group.children.size, 0)
-    assertEquals(group.getListeners.size, 1)
+    assertEquals(group.listeners.size, 1)
   }
 
   test("Group transform property") {
     given Sge = makeContext()
     val group = Group()
-    assert(group.isTransform)
+    assert(group.transform)
     group.setTransform(false)
-    assert(!group.isTransform)
+    assert(!group.transform)
   }
 
   test("Group swapActor by index") {
@@ -315,7 +315,7 @@ class Scene2DTest extends munit.FunSuite {
     }
     assert(actor.addListener(listener))
     assert(!actor.addListener(listener))
-    assertEquals(actor.getListeners.size, 1)
+    assertEquals(actor.listeners.size, 1)
   }
 
   test("removeListener removes the listener") {
@@ -326,7 +326,7 @@ class Scene2DTest extends munit.FunSuite {
     }
     actor.addListener(listener)
     assert(actor.removeListener(listener))
-    assertEquals(actor.getListeners.size, 0)
+    assertEquals(actor.listeners.size, 0)
   }
 
   test("clearListeners removes all listeners") {
@@ -335,8 +335,8 @@ class Scene2DTest extends munit.FunSuite {
     actor.addListener(new EventListener { def handle(event: Event): Boolean = false })
     actor.addCaptureListener(new EventListener { def handle(event: Event): Boolean = false })
     actor.clearListeners()
-    assertEquals(actor.getListeners.size, 0)
-    assertEquals(actor.getCaptureListeners.size, 0)
+    assertEquals(actor.listeners.size, 0)
+    assertEquals(actor.captureListeners.size, 0)
   }
 
   // ---------------------------------------------------------------------------
@@ -362,7 +362,7 @@ class Scene2DTest extends munit.FunSuite {
     val screen2 = new TestScreen { override val id = "2" }
 
     val game = new Game() {
-      def create()(using Sge): Unit = {}
+      def create(): Unit = {}
     }
 
     game.screen = Nullable(screen1)
@@ -388,7 +388,7 @@ class Scene2DTest extends munit.FunSuite {
     }
 
     val game = new Game() {
-      def create()(using Sge): Unit = {}
+      def create(): Unit = {}
     }
 
     game.screen = Nullable(screen)
@@ -416,7 +416,7 @@ class Scene2DTest extends munit.FunSuite {
     }
 
     val game = new Game() {
-      def create()(using Sge): Unit = {}
+      def create(): Unit = {}
     }
     game.screen = Nullable(screen)
     hidden = false

@@ -33,62 +33,48 @@ import sge.utils.{ BufferUtils, Nullable, SgeError }
   *   mgsx
   */
 class CustomTexture3DData(
-  private val width:            Int,
-  private val height:           Int,
-  private val depth:            Int,
-  private val mipMapLevel:      Int,
-  private val glFormat:         Int,
-  private val glInternalFormat: Int,
-  private val glType:           Int
+  val width:            Int,
+  val height:           Int,
+  val depth:            Int,
+  val mipMapLevel:      Int,
+  val glFormat:         Int,
+  val glInternalFormat: Int,
+  val glType:           Int
 )(using Sge)
     extends Texture3DData {
 
-  private var pixels: ByteBuffer = scala.compiletime.uninitialized
+  private var managed = false
 
-  override def isPrepared(): Boolean = true
+  lazy val pixels: ByteBuffer = {
+    val numChannels = glFormat match {
+      case GL30.GL_RED | GL30.GL_RED_INTEGER | GL20.GL_LUMINANCE | GL20.GL_ALPHA => 1
+      case GL30.GL_RG | GL30.GL_RG_INTEGER | GL20.GL_LUMINANCE_ALPHA             => 2
+      case GL20.GL_RGB | GL30.GL_RGB_INTEGER                                     => 3
+      case GL20.GL_RGBA | GL30.GL_RGBA_INTEGER                                   => 4
+      case _                                                                     => throw SgeError.InvalidInput(s"unsupported glFormat: $glFormat")
+    }
+
+    val bytesPerChannel = glType match {
+      case GL20.GL_UNSIGNED_BYTE | GL20.GL_BYTE                        => 1
+      case GL20.GL_UNSIGNED_SHORT | GL20.GL_SHORT | GL30.GL_HALF_FLOAT => 2
+      case GL20.GL_UNSIGNED_INT | GL20.GL_INT | GL20.GL_FLOAT          => 4
+      case _                                                           => throw SgeError.InvalidInput(s"unsupported glType: $glType")
+    }
+
+    val bytesPerPixel = numChannels * bytesPerChannel
+    managed = true
+    BufferUtils.newByteBuffer(width * height * depth * bytesPerPixel)
+  }
+
+  override def internalFormat: Int = glInternalFormat
+
+  override def isPrepared: Boolean = true
 
   override def prepare(): Unit = {}
 
-  override def getWidth(): Int = width
+  override def useMipMaps: Boolean = false
 
-  override def getHeight(): Int = height
-
-  def getDepth(): Int = depth
-
-  override def useMipMaps(): Boolean = false
-
-  override def isManaged(): Boolean = Nullable(pixels).isDefined
-
-  def getInternalFormat(): Int = glInternalFormat
-
-  def getGLType(): Int = glType
-
-  def getGLFormat(): Int = glFormat
-
-  def getMipMapLevel(): Int = mipMapLevel
-
-  def getPixels(): ByteBuffer = {
-    if (Nullable(pixels).isEmpty) {
-      val numChannels = glFormat match {
-        case GL30.GL_RED | GL30.GL_RED_INTEGER | GL20.GL_LUMINANCE | GL20.GL_ALPHA => 1
-        case GL30.GL_RG | GL30.GL_RG_INTEGER | GL20.GL_LUMINANCE_ALPHA             => 2
-        case GL20.GL_RGB | GL30.GL_RGB_INTEGER                                     => 3
-        case GL20.GL_RGBA | GL30.GL_RGBA_INTEGER                                   => 4
-        case _                                                                     => throw SgeError.InvalidInput(s"unsupported glFormat: $glFormat")
-      }
-
-      val bytesPerChannel = glType match {
-        case GL20.GL_UNSIGNED_BYTE | GL20.GL_BYTE                        => 1
-        case GL20.GL_UNSIGNED_SHORT | GL20.GL_SHORT | GL30.GL_HALF_FLOAT => 2
-        case GL20.GL_UNSIGNED_INT | GL20.GL_INT | GL20.GL_FLOAT          => 4
-        case _                                                           => throw SgeError.InvalidInput(s"unsupported glType: $glType")
-      }
-
-      val bytesPerPixel = numChannels * bytesPerChannel
-      pixels = BufferUtils.newByteBuffer(width * height * depth * bytesPerPixel)
-    }
-    pixels
-  }
+  override def isManaged: Boolean = managed
 
   override def consume3DData(): Unit = {
     val gl30 = Sge().graphics.gl30

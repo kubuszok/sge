@@ -21,22 +21,10 @@ import sge.maps.MapLayer
 import sge.utils.Nullable
 
 /** @brief Layer for a TiledMap */
-class TiledMapTileLayer(width: Int, height: Int, tileWidth: Int, tileHeight: Int) extends MapLayer {
+class TiledMapTileLayer(val width: Int, val height: Int, val tileWidth: Int, val tileHeight: Int) extends MapLayer {
 
   private val cells: Array[Array[Nullable[TiledMapTileLayer.Cell]]] =
     Array.fill(width)(Array.fill(height)(Nullable.empty))
-
-  /** @return layer's width in tiles */
-  def getWidth: Int = width
-
-  /** @return layer's height in tiles */
-  def getHeight: Int = height
-
-  /** @return tiles' width in pixels */
-  def getTileWidth: Int = tileWidth
-
-  /** @return tiles' height in pixels */
-  def getTileHeight: Int = tileHeight
 
   /** @param x
     *   X coordinate

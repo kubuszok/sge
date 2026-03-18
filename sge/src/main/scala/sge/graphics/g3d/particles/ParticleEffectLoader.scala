@@ -17,16 +17,14 @@
  * - ParticleEffectLoadParameter.batches: Nullable[DynamicArray] instead of Array|null
  * - ParticleEffectSaveParameter.batches: Nullable[DynamicArray] instead of Array|null
  */
-package sge
-package graphics
-package g3d
-package particles
+package sge.graphics.g3d.particles
 
-import _root_.sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
-import _root_.sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
-import _root_.sge.files.FileHandle
-import _root_.sge.graphics.g3d.particles.batches.ParticleBatch
-import _root_.sge.utils.{ DynamicArray, Json, Nullable, readJson }
+import sge.Sge
+import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
+import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
+import sge.files.FileHandle
+import sge.graphics.g3d.particles.batches.ParticleBatch
+import sge.utils.{ DynamicArray, Json, Nullable, readJson }
 import com.github.plokhotnyuk.jsoniter_scala.core.{ WriterConfig, writeToString }
 
 import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
@@ -64,14 +62,14 @@ class ParticleEffectLoader(resolver: FileHandleResolver)(using Sge) extends Asyn
     var assets: DynamicArray[ResourceData.AssetData[?]] = DynamicArray[ResourceData.AssetData[?]]()
     items.synchronized {
       items.add((fileName, data))
-      assets = data.getAssets()
+      assets = data.assets
     }
 
     val descriptors = DynamicArray[AssetDescriptor[?]]()
     for (assetData <- assets) {
       // If the asset doesn't exist try to load it from loading effect directory
       if (!resolve(assetData.filename).exists()) {
-        assetData.filename = file.parent().child(Sge().files.internal(assetData.filename).name()).path()
+        assetData.filename = file.parent().child(Sge().files.internal(assetData.filename).name).path
       }
 
       if (assetData.`type` == classOf[ParticleEffect]) {

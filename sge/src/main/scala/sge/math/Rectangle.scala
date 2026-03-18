@@ -83,7 +83,7 @@ class Rectangle() extends Shape2D {
     * @param position
     *   The Vector2
     */
-  def getPosition(position: Vector2): Vector2 =
+  def position(position: Vector2): Vector2 =
     position.set(x, y)
 
   /** Sets the x and y-coordinates of the bottom left corner from vector
@@ -143,7 +143,7 @@ class Rectangle() extends Shape2D {
     * @param size
     *   The Vector2
     */
-  def getSize(size: Vector2): Vector2 =
+  def size(size: Vector2): Vector2 =
     size.set(width, height)
 
   /** @param x
@@ -290,7 +290,7 @@ class Rectangle() extends Shape2D {
     * @return
     *   the aspect ratio of this rectangle. Returns Float.NaN if height is 0 to avoid ArithmeticException
     */
-  def getAspectRatio(): Float =
+  def aspectRatio: Float =
     if (height == 0) Float.NaN else width / height
 
   /** Calculates the center of the rectangle. Results are located in the given Vector2
@@ -299,7 +299,7 @@ class Rectangle() extends Shape2D {
     * @return
     *   the given vector with results stored inside
     */
-  def getCenter(vector: Vector2): Vector2 = {
+  def center(vector: Vector2): Vector2 = {
     vector.x = x + width / 2
     vector.y = y + height / 2
     vector
@@ -339,9 +339,9 @@ class Rectangle() extends Shape2D {
     *   Scaling
     */
   def fitOutside(rect: Rectangle): Rectangle = {
-    val ratio = getAspectRatio()
+    val ratio = aspectRatio
 
-    if (ratio > rect.getAspectRatio()) {
+    if (ratio > rect.aspectRatio) {
       // Wider than tall
       setSize(rect.height * ratio, rect.height)
     } else {
@@ -363,9 +363,9 @@ class Rectangle() extends Shape2D {
     *   Scaling
     */
   def fitInside(rect: Rectangle): Rectangle = {
-    val ratio = getAspectRatio()
+    val ratio = aspectRatio
 
-    if (ratio < rect.getAspectRatio()) {
+    if (ratio < rect.aspectRatio) {
       // Taller than wide
       setSize(rect.height * ratio, rect.height)
     } else {

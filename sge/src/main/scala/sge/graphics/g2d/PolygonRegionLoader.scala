@@ -42,8 +42,9 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
   private val triangulator = EarClippingTriangulator()
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(FileHandleResolver.Internal())
+  }
 
   override def load(manager: AssetManager, fileName: String, file: FileHandle, parameter: PolygonRegionLoader.PolygonRegionParameters): PolygonRegion = {
     val texture: Texture = manager[Texture](
@@ -76,9 +77,9 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
 
     if (image.isEmpty) {
       for (extension <- actualParams.textureExtensions) {
-        val sibling = file.sibling(file.nameWithoutExtension().concat("." + extension))
+        val sibling = file.sibling(file.nameWithoutExtension.concat("." + extension))
         if (sibling.exists() && image.isEmpty) {
-          image = Nullable(sibling.name())
+          image = Nullable(sibling.name)
         }
       }
     }

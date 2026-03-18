@@ -87,7 +87,7 @@ class PoolManagerTest extends munit.FunSuite {
 
   test("getPoolOrNull returns empty for unregistered type") {
     val pm = PoolManager()
-    assert(pm.getPoolOrNull[Tracker].isEmpty)
+    assert(pm.poolOrNull[Tracker].isEmpty)
   }
 
   test("hasPool checks registration") {

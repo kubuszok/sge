@@ -28,7 +28,7 @@ import sge.utils.Nullable
   * @author
   *   Josh Street
   */
-class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)(using Sge) extends Widget() with Styleable[Touchpad.TouchpadStyle] {
+class Touchpad(private var deadzoneRadius: Float, initialStyle: Touchpad.TouchpadStyle)(using Sge) extends Widget() with Styleable[Touchpad.TouchpadStyle] {
   import Touchpad._
 
   private var _style:         TouchpadStyle = scala.compiletime.uninitialized
@@ -44,8 +44,8 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
 
   knobPosition.set(width / 2f, height / 2f)
 
-  setStyle(style)
-  setSize(getPrefWidth, getPrefHeight)
+  setStyle(initialStyle)
+  setSize(prefWidth, prefHeight)
 
   addListener(
     new InputListener() {
@@ -68,12 +68,14 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
   )
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin)(using Sge) =
+  def this(deadzoneRadius: Float, skin: Skin)(using Sge) = {
     this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle])
+  }
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) =
+  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) = {
     this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle](styleName))
+  }
 
   private[ui] def calculatePositionAndValue(x: Float, y: Float, isTouchUp: Boolean): Unit = {
     val oldPositionX = knobPosition.x
@@ -113,7 +115,7 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
 
   /** Returns the touchpad's style. Modifying the returned style may not have an effect until {@link #setStyle(TouchpadStyle)} is called.
     */
-  override def getStyle: TouchpadStyle = _style
+  override def style: TouchpadStyle = _style
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (touchable && this.touchable != Touchable.enabled) scala.util.boundary.break(Nullable.empty)
@@ -159,9 +161,9 @@ class Touchpad(private var deadzoneRadius: Float, style: Touchpad.TouchpadStyle)
     }
   }
 
-  override def getPrefWidth: Float = _style.background.map(_.minWidth).getOrElse(0f)
+  override def prefWidth: Float = _style.background.map(_.minWidth).getOrElse(0f)
 
-  override def getPrefHeight: Float = _style.background.map(_.minHeight).getOrElse(0f)
+  override def prefHeight: Float = _style.background.map(_.minHeight).getOrElse(0f)
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
   def setDeadzone(deadzoneRadius: Float): Unit = {

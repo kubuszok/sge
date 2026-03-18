@@ -85,7 +85,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     validate()
-    if (isTransform) {
+    if (transform) {
       applyTransform(batch, computeTransform())
       drawBackground(batch, parentAlpha, 0, 0)
       if (_clip) {
@@ -156,7 +156,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     this
   }
 
-  def getBackground: Nullable[Drawable] = background
+  // background is a public var (declared above)
 
   override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = scala.util.boundary {
     if (_clip) {
@@ -185,7 +185,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     invalidate()
   }
 
-  def getClip: Boolean = _clip
+  def isClip: Boolean = _clip
 
   override def invalidate(): Unit = {
     sizeInvalid = true
@@ -422,27 +422,27 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
       Nullable.empty
     }
 
-  /** Returns the cells for this table. */
+  // cells is a private val — expose via getCells
   def getCells: DynamicArray[Cell[?]] = cells
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     if (sizeInvalid) computeSize()
     val width = tablePrefWidth
     background.fold(width)(bg => Math.max(width, bg.minWidth))
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     if (sizeInvalid) computeSize()
     val height = tablePrefHeight
     background.fold(height)(bg => Math.max(height, bg.minHeight))
   }
 
-  override def getMinWidth: Float = {
+  override def minWidth: Float = {
     if (sizeInvalid) computeSize()
     tableMinWidth
   }
 
-  override def getMinHeight: Float = {
+  override def minHeight: Float = {
     if (sizeInvalid) computeSize()
     tableMinHeight
   }
@@ -555,7 +555,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   }
 
   /** Adds {@link Align#top} and clears {@link Align#bottom} for the alignment of the logical table within the table actor. */
-  def top(): Table = {
+  def alignTop(): Table = {
     tableAlign = (tableAlign | Align.top) & ~Align.bottom
     this
   }
@@ -573,7 +573,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   }
 
   /** Adds {@link Align#right} and clears {@link Align#left} for the alignment of the logical table within the table actor. */
-  def right(): Table = {
+  def alignRight(): Table = {
     tableAlign = (tableAlign | Align.right) & ~Align.left
     this
   }
@@ -634,21 +634,21 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     this
   }
 
-  def getTableDebug: Table.Debug = tableDebug
+  // tableDebug is a public var (declared above)
 
-  def getPadTopValue: Value = padTop
+  def padTopValue: Value = padTop
 
   def getPadTop: Float = padTop.get(Nullable(this))
 
-  def getPadLeftValue: Value = padLeft
+  def padLeftValue: Value = padLeft
 
   def getPadLeft: Float = padLeft.get(Nullable(this))
 
-  def getPadBottomValue: Value = padBottom
+  def padBottomValue: Value = padBottom
 
   def getPadBottom: Float = padBottom.get(Nullable(this))
 
-  def getPadRightValue: Value = padRight
+  def padRightValue: Value = padRight
 
   def getPadRight: Float = padRight.get(Nullable(this))
 
@@ -658,7 +658,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   /** Returns {@link #getPadTop()} plus {@link #getPadBottom()}. */
   def getPadY: Float = padTop.get(Nullable(this)) + padBottom.get(Nullable(this))
 
-  def getAlign: Align = tableAlign
+  def align: Align = tableAlign
 
   /** Returns the row index for the y coordinate, or -1 if not over a row.
     * @param y
@@ -1220,7 +1220,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     }
 
     // Validate all children (some may not be in cells).
-    val childrenArray = getChildren
+    val childrenArray = children
     i = 0
     while (i < childrenArray.size) {
       childrenArray(i) match {
@@ -1295,7 +1295,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   }
 
   override def drawDebug(shapes: ShapeRenderer): Unit =
-    if (isTransform) {
+    if (transform) {
       applyTransform(shapes, computeTransform())
       drawDebugRects(shapes)
       if (_clip) {
@@ -1327,12 +1327,12 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
 
   private def drawDebugRects(shapes: ShapeRenderer): Unit =
     debugRects.foreach { rects =>
-      if (getDebug) {
+      if (isDebug) {
         shapes.set(ShapeRenderer.ShapeType.Line)
-        stage.foreach(s => shapes.setColor(s.getDebugColor))
+        stage.foreach(s => shapes.setColor(s.debugColor))
         var x = 0f
         var y = 0f
-        if (!isTransform) {
+        if (!transform) {
           x = this.x
           y = this.y
         }

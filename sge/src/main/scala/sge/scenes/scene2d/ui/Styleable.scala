@@ -18,7 +18,7 @@ package ui
 trait Styleable[T] {
 
   /** Get the current style of the actor */
-  def getStyle: T
+  def style: T
 
   /** Set the current style of the actor */
   def setStyle(style: T): Unit

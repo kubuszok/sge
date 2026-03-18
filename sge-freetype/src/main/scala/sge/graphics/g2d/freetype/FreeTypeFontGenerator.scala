@@ -443,13 +443,13 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
           }
 
           if (parameter.shadowOffsetX != 0 || parameter.shadowOffsetY != 0) {
-            val mainW        = mainPixmap.getWidth().toInt
-            val mainH        = mainPixmap.getHeight().toInt
+            val mainW        = mainPixmap.width().toInt
+            val mainH        = mainPixmap.height().toInt
             val shadowOffX   = Math.max(parameter.shadowOffsetX, 0)
             val shadowOffY   = Math.max(parameter.shadowOffsetY, 0)
             val shadowW      = mainW + Math.abs(parameter.shadowOffsetX)
             val shadowH      = mainH + Math.abs(parameter.shadowOffsetY)
-            val shadowPixmap = Pixmap(shadowW, shadowH, mainPixmap.getFormat())
+            val shadowPixmap = Pixmap(shadowW, shadowH, mainPixmap.format())
             shadowPixmap.setColor(packer.transparentColor)
             shadowPixmap.fill()
 
@@ -459,7 +459,7 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
               val r            = (shadowColor.r * 255).toByte
               val g            = (shadowColor.g * 255).toByte
               val b            = (shadowColor.b * 255).toByte
-              val mainPixels   = mainPixmap.getPixels()
+              val mainPixels   = mainPixmap.pixels()
               val shadowPixels = shadowPixmap.getPixels()
               var y            = 0
               while (y < mainH) {
@@ -500,9 +500,9 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
 
           if (parameter.padTop > 0 || parameter.padLeft > 0 || parameter.padBottom > 0 || parameter.padRight > 0) {
             val padPixmap = Pixmap(
-              mainPixmap.getWidth().toInt + parameter.padLeft + parameter.padRight,
-              mainPixmap.getHeight().toInt + parameter.padTop + parameter.padBottom,
-              mainPixmap.getFormat()
+              mainPixmap.width().toInt + parameter.padLeft + parameter.padRight,
+              mainPixmap.height().toInt + parameter.padTop + parameter.padBottom,
+              mainPixmap.format()
             )
             padPixmap.setBlending(Blending.None)
             padPixmap.drawPixmap(mainPixmap, Pixels(parameter.padLeft), Pixels(parameter.padTop))
@@ -514,8 +514,8 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
         val metrics = slot.getMetrics
         val glyph   = BitmapFont.Glyph()
         glyph.id = c.toInt
-        glyph.width = mainPixmap.getWidth().toInt
-        glyph.height = mainPixmap.getHeight().toInt
+        glyph.width = mainPixmap.width().toInt
+        glyph.height = mainPixmap.height().toInt
         glyph.xoffset = mainGlyph.getLeft
         if (parameter.flip)
           glyph.yoffset = -mainGlyph.getTop + baseLine.toInt

@@ -54,8 +54,8 @@ class AndroidGraphics(
 
   // ─── Frame state ──────────────────────────────────────────────────────
 
-  @volatile private[sge] var width:  Int = 0
-  @volatile private[sge] var height: Int = 0
+  @volatile var _width:  Int = 0
+  @volatile var _height: Int = 0
 
   private var _bufferFormat:  Graphics.BufferFormat = Graphics.BufferFormat(config.r, config.g, config.b, config.a, config.depth, config.stencil, config.numSamples, false)
   private var _lastFrameTime: Long                  = System.nanoTime()
@@ -68,10 +68,10 @@ class AndroidGraphics(
 
   // ─── Safe insets ──────────────────────────────────────────────────────
 
-  @volatile private[sge] var safeInsetLeft:   Int = 0
-  @volatile private[sge] var safeInsetTop:    Int = 0
-  @volatile private[sge] var safeInsetRight:  Int = 0
-  @volatile private[sge] var safeInsetBottom: Int = 0
+  @volatile private[sge] var _safeInsetLeft:   Int = 0
+  @volatile private[sge] var _safeInsetTop:    Int = 0
+  @volatile private[sge] var _safeInsetRight:  Int = 0
+  @volatile private[sge] var _safeInsetBottom: Int = 0
 
   // ─── GL setup (called from renderer's onSurfaceCreated) ───────────────
 
@@ -86,9 +86,9 @@ class AndroidGraphics(
     * @param rendererString
     *   the GL_RENDERER string
     */
-  private[sge] def setupGL(versionString: String, vendorString: String, rendererString: String): Unit = {
+  def setupGL(versionString: String, vendorString: String, rendererString: String): Unit = {
     _glVersion = new GLVersion(Application.ApplicationType.Android, versionString, vendorString, rendererString)
-    if (config.useGL30 && _glVersion.getMajorVersion() > 2) {
+    if (config.useGL30 && _glVersion.majorVersion > 2) {
       if (_gl30.isEmpty) {
         val gl30Ops = provider.createGL30()
         val gl30    = AndroidGL30Adapter(gl30Ops)
@@ -111,14 +111,14 @@ class AndroidGraphics(
   /** Updates safe area insets from display cutouts. */
   private[sge] def updateSafeInsets(window: AnyRef): Unit = {
     displayMetrics.updateSafeInsets(window)
-    safeInsetLeft = displayMetrics.safeInsetLeft
-    safeInsetTop = displayMetrics.safeInsetTop
-    safeInsetRight = displayMetrics.safeInsetRight
-    safeInsetBottom = displayMetrics.safeInsetBottom
+    _safeInsetLeft = displayMetrics.safeInsetLeft
+    _safeInsetTop = displayMetrics.safeInsetTop
+    _safeInsetRight = displayMetrics.safeInsetRight
+    _safeInsetBottom = displayMetrics.safeInsetBottom
   }
 
   /** Updates frame timing. Called from the render loop (onDrawFrame equivalent). */
-  private[sge] def updateFrameTiming(isResuming: Boolean): Unit = {
+  def updateFrameTiming(isResuming: Boolean): Unit = {
     val time = System.nanoTime()
     // After pause, deltaTime can be huge — cut it off on resume
     if (!isResuming) {
@@ -143,83 +143,83 @@ class AndroidGraphics(
 
   // ─── GL availability ──────────────────────────────────────────────────
 
-  override def isGL30Available(): Boolean = _gl30.isDefined
-  override def isGL31Available(): Boolean = false
-  override def isGL32Available(): Boolean = false
+  override def gl30Available: Boolean = _gl30.isDefined
+  override def gl31Available: Boolean = false
+  override def gl32Available: Boolean = false
 
-  override def getGL20(): GL20           = _gl20
-  override def getGL30(): Nullable[GL30] = _gl30
-  override def getGL31(): Nullable[GL31] = Nullable.empty
-  override def getGL32(): Nullable[GL32] = Nullable.empty
+  override def gl20: GL20           = _gl20
+  override def gl30: Nullable[GL30] = _gl30
+  override def gl31: Nullable[GL31] = Nullable.empty
+  override def gl32: Nullable[GL32] = Nullable.empty
 
-  override def setGL20(gl20: GL20): Unit =
-    _gl20 = gl20
+  override def gl20_=(value: GL20): Unit =
+    _gl20 = value
 
-  override def setGL30(gl30: GL30): Unit = {
-    _gl30 = Nullable(gl30)
-    _gl20 = gl30
+  override def gl30_=(value: GL30): Unit = {
+    _gl30 = Nullable(value)
+    _gl20 = value
   }
 
-  override def setGL31(gl31: GL31): Unit = () // Not supported on Android in SGE
-  override def setGL32(gl32: GL32): Unit = () // Not supported on Android in SGE
+  override def gl31_=(value: GL31): Unit = () // Not supported on Android in SGE
+  override def gl32_=(value: GL32): Unit = () // Not supported on Android in SGE
 
   // ─── Dimensions ───────────────────────────────────────────────────────
 
-  override def getWidth():  Pixels = Pixels(width)
-  override def getHeight(): Pixels = Pixels(height)
+  override def width:  Pixels = Pixels(_width)
+  override def height: Pixels = Pixels(_height)
 
   // On Android, back buffer size equals logical size
-  override def getBackBufferWidth():  Pixels = Pixels(width)
-  override def getBackBufferHeight(): Pixels = Pixels(height)
+  override def backBufferWidth:  Pixels = Pixels(_width)
+  override def backBufferHeight: Pixels = Pixels(_height)
 
-  override def getBackBufferScale(): Float = 1f
+  override def backBufferScale: Float = 1f
 
   // ─── Safe insets ──────────────────────────────────────────────────────
 
-  override def getSafeInsetLeft():   Pixels = Pixels(safeInsetLeft)
-  override def getSafeInsetTop():    Pixels = Pixels(safeInsetTop)
-  override def getSafeInsetBottom(): Pixels = Pixels(safeInsetBottom)
-  override def getSafeInsetRight():  Pixels = Pixels(safeInsetRight)
+  override def safeInsetLeft:   Pixels = Pixels(_safeInsetLeft)
+  override def safeInsetTop:    Pixels = Pixels(_safeInsetTop)
+  override def safeInsetBottom: Pixels = Pixels(_safeInsetBottom)
+  override def safeInsetRight:  Pixels = Pixels(_safeInsetRight)
 
   // ─── Frame timing ────────────────────────────────────────────────────
 
-  override def getFrameId():         Long  = _frameId
-  override def getDeltaTime():       Float = _deltaTime
-  override def getRawDeltaTime():    Float = _deltaTime
-  override def getFramesPerSecond(): Int   = _fps
+  override def frameId:         Long  = _frameId
+  override def deltaTime:       Float = _deltaTime
+  override def rawDeltaTime:    Float = _deltaTime
+  override def framesPerSecond: Int   = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 
-  override def getType():      Graphics.GraphicsType = Graphics.GraphicsType.AndroidGL
-  override def getGLVersion(): Graphics.GLVersion    = _glVersion
+  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.AndroidGL
+  override def glVersion:    Graphics.GLVersion    = _glVersion
 
   // ─── DPI / density ───────────────────────────────────────────────────
 
-  override def getPpiX():    Float = displayMetrics.ppiX
-  override def getPpiY():    Float = displayMetrics.ppiY
-  override def getPpcX():    Float = displayMetrics.ppcX
-  override def getPpcY():    Float = displayMetrics.ppcY
-  override def getDensity(): Float = displayMetrics.density
+  override def ppiX:    Float = displayMetrics.ppiX
+  override def ppiY:    Float = displayMetrics.ppiY
+  override def ppcX:    Float = displayMetrics.ppcX
+  override def ppcY:    Float = displayMetrics.ppcY
+  override def density: Float = displayMetrics.density
 
   // ─── Display modes / monitors ─────────────────────────────────────────
 
   override def supportsDisplayModeChange(): Boolean = false
 
-  override def getPrimaryMonitor(): Graphics.Monitor        = Graphics.Monitor(0, 0, "Primary Monitor")
-  override def getMonitor():        Graphics.Monitor        = getPrimaryMonitor()
-  override def getMonitors():       Array[Graphics.Monitor] = Array(getPrimaryMonitor())
+  override def primaryMonitor: Graphics.Monitor        = Graphics.Monitor(0, 0, "Primary Monitor")
+  override def monitor:        Graphics.Monitor        = primaryMonitor
+  override def monitors:       Array[Graphics.Monitor] = Array(primaryMonitor)
 
-  override def getDisplayModes(): Array[Graphics.DisplayMode] = Array(getDisplayMode())
+  override def displayModes: Array[Graphics.DisplayMode] = Array(displayMode)
 
-  override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = getDisplayModes()
+  override def getDisplayModes(mon: Graphics.Monitor): Array[Graphics.DisplayMode] = displayModes
 
-  override def getDisplayMode(): Graphics.DisplayMode = {
+  override def displayMode: Graphics.DisplayMode = {
     val bpp                 = config.r + config.g + config.b + config.a
     val (w, h, refresh, bp) = displayMetrics.displayMode(glSurfaceView.view, bpp)
     Graphics.DisplayMode(w, h, refresh, bp)
   }
 
-  override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = getDisplayMode()
+  override def getDisplayMode(mon: Graphics.Monitor): Graphics.DisplayMode = displayMode
 
   override def setFullscreenMode(displayMode: Graphics.DisplayMode): Boolean = false
 
@@ -237,7 +237,7 @@ class AndroidGraphics(
 
   // ─── Buffer format / extensions ──────────────────────────────────────
 
-  override def getBufferFormat(): Graphics.BufferFormat = _bufferFormat
+  override def bufferFormat: Graphics.BufferFormat = _bufferFormat
 
   override def supportsExtension(extension: String): Boolean = {
     val ext = _extensions.fold {
@@ -255,11 +255,11 @@ class AndroidGraphics(
     glSurfaceView.setContinuousRendering(isContinuous)
   }
 
-  override def isContinuousRendering(): Boolean = _isContinuous
+  override def continuousRendering: Boolean = _isContinuous
 
   override def requestRendering(): Unit = glSurfaceView.requestRender()
 
-  override def isFullscreen(): Boolean = true
+  override def fullscreen: Boolean = true
 
   // ─── Cursor ───────────────────────────────────────────────────────────
 

@@ -27,6 +27,7 @@ import sge.math.Matrix4
 import sge.graphics.{ Color, GL20, VertexAttribute }
 import sge.utils.Nullable
 
+import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
 
@@ -108,7 +109,7 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
     )
   )
 
-  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+  _projectionMatrix.setToOrtho2D(0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
 
   val len     = size * 6
   val indices = Array.ofDim[Short](len)
@@ -126,11 +127,11 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
 
   // Pre bind the mesh to force the upload of indices data.
   if (currentDataType != VertexDataType.VertexArray) {
-    mesh.getIndexData().bind()
-    mesh.getIndexData().unbind()
+    mesh.indexData.bind()
+    mesh.indexData.unbind()
   }
 
-  override def begin(): Unit = {
+  @publicInBinary override private[sge] def begin(): Unit = {
     if (drawing) throw new IllegalStateException("SpriteBatch.end must be called before begin.")
     renderCalls = 0
 
@@ -141,7 +142,7 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
     drawing = true
   }
 
-  override def end(): Unit = {
+  @publicInBinary override private[sge] def end(): Unit = {
     if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before end.")
     if (idx > 0) flush()
     lastTexture = Nullable.empty
@@ -463,7 +464,7 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
   }
 
   override def draw(texture: Texture, x: Float, y: Float): Unit =
-    draw(texture, x, y, texture.getWidth.toFloat, texture.getHeight.toFloat)
+    draw(texture, x, y, texture.width.toFloat, texture.height.toFloat)
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float): Unit = {
     if (!drawing) throw new IllegalStateException("SpriteBatch.begin must be called before draw.")
@@ -960,8 +961,8 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
   protected def switchTexture(texture: Texture): Unit = {
     flush()
     lastTexture = texture
-    invTexWidth = 1.0f / texture.getWidth.toFloat
-    invTexHeight = 1.0f / texture.getHeight.toFloat
+    invTexWidth = 1.0f / texture.width.toFloat
+    invTexHeight = 1.0f / texture.height.toFloat
   }
 
   override def shader_=(shader: Nullable[ShaderProgram]): Unit =
@@ -1049,7 +1050,7 @@ object SpriteBatch {
       "}"
 
     val shader = ShaderProgram(vertexShader, fragmentShader)
-    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.getLog())
+    if (!shader.compiled) throw new IllegalArgumentException("Error compiling shader: " + shader.log)
     shader
   }
 }

@@ -60,7 +60,7 @@ class MapObjects extends Iterable[MapObject] {
     objects.indexOf(obj)
 
   /** @return number of objects in the collection */
-  def getCount: Int = objects.size
+  def count: Int = objects.size
 
   /** @param object instance to be added to the collection */
   def add(obj: MapObject): Unit =
@@ -79,7 +79,7 @@ class MapObjects extends Iterable[MapObject] {
     * @return
     *   array filled with all the objects in the collection matching type
     */
-  def getByType[T <: MapObject](using tag: ClassTag[T]): DynamicArray[T] =
+  def byType[T <: MapObject](using tag: ClassTag[T]): DynamicArray[T] =
     getByType(DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true))
 
   /** @param fill

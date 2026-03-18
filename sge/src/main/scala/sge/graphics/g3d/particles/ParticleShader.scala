@@ -14,7 +14,7 @@
  * - Java enums → Scala 3 enums (ParticleType, AlignMode)
  * - Config: null strings → Nullable[String]
  * - Gdx.graphics.getWidth() in screenWidth setter → camera.viewportWidth (approximation)
- * - Gdx.app.getType() → Sge().application.getType() via (using Sge) context parameter
+ * - Gdx.app.getType() → Sge().application.applicationType via (using Sge) context parameter
  * - Gdx.files.classpath → Sge().files.classpath for default shader loading
  * - Setters use GlobalSetter/LocalSetter abstract classes instead of anonymous Setter
  * - compareTo: Java returns -1 for null other; Scala omits null check
@@ -57,7 +57,7 @@ class ParticleShader private (
   /** The renderable used to create this shader, invalid after the call to init */
   private var renderable:   Nullable[Renderable] = Nullable(initRenderable)
   private val materialMask: Long                 = initRenderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes
-  private val vertexMask:   Long                 = initRenderable.meshPart.mesh.getVertexAttributes().mask
+  private val vertexMask:   Long                 = initRenderable.meshPart.mesh.vertexAttributes.mask
 
   if (!config.ignoreUnimplemented && (implementedFlags & materialMask) != materialMask)
     throw SgeError.GraphicsError("Some attributes not implemented yet (" + materialMask + ")")
@@ -75,10 +75,11 @@ class ParticleShader private (
   // Object uniforms
   register(DefaultShader.Inputs.diffuseTexture, Nullable(DefaultShader.Setters.diffuseTexture))
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String, vertexShader: String, fragmentShader: String)(using Sge) = {
     this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config,
@@ -86,12 +87,15 @@ class ParticleShader private (
       config.vertexShader.getOrElse(ParticleShader.defaultVertexShader),
       config.fragmentShader.getOrElse(ParticleShader.defaultFragmentShader)
     )
+  }
 
-  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: ParticleShader.Config)(using Sge) = {
     this(renderable, config, ParticleShader.createPrefix(renderable, config))
+  }
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(renderable, ParticleShader.Config())
+  }
 
   override def init(): Unit = {
     val prog = this.program
@@ -106,7 +110,7 @@ class ParticleShader private (
 
   override def canRender(renderable: Renderable): Boolean =
     (materialMask == (renderable.material.map(_.getMask).getOrElse(0L) | optionalAttributes)) &&
-      (vertexMask == renderable.meshPart.mesh.getVertexAttributes().mask)
+      (vertexMask == renderable.meshPart.mesh.vertexAttributes.mask)
 
   override def compareTo(other: Shader): Int =
     if (other eq this) 0
@@ -461,7 +465,7 @@ object ParticleShader {
 
   def createPrefix(renderable: Renderable, config: Config)(using Sge): String = {
     var prefix = ""
-    if (Sge().application.getType() == Application.ApplicationType.Desktop)
+    if (Sge().application.applicationType == Application.ApplicationType.Desktop)
       prefix += "#version 120\n"
     else
       prefix += "#version 100\n"

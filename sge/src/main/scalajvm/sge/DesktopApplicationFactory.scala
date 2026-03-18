@@ -14,14 +14,14 @@ object DesktopApplicationFactory {
     *
     * Loads GLFW, ANGLE, and miniaudio shared libraries from `java.library.path`, initializes the windowing/audio/GL subsystems, and blocks until the application exits.
     *
-    * @param listener
-    *   the application logic callbacks
+    * @param listenerFactory
+    *   a context function that creates the application listener when given an [[Sge]] context
     * @param config
     *   the application configuration (defaults to standard settings)
     */
   def apply(
-    listener: ApplicationListener,
-    config:   DesktopApplicationConfig = DesktopApplicationConfig()
+    listenerFactory: Sge ?=> ApplicationListener,
+    config:          DesktopApplicationConfig = DesktopApplicationConfig()
   ): DesktopApplication = {
     val windowing = sge.platform.WindowingOpsJvm()
     val audioOps  = sge.platform.AudioOpsJvm()
@@ -31,7 +31,7 @@ object DesktopApplicationFactory {
       java.lang.foreign.SymbolLookup.libraryLookup(found, java.lang.foreign.Arena.global())
     }
     new DesktopApplication(
-      listener,
+      listenerFactory,
       config,
       windowing,
       audioOps,

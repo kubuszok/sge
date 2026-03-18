@@ -65,7 +65,7 @@ object PixmapIO {
     */
   def writePNG(file: FileHandle, pixmap: Pixmap, compression: Int, flipY: Boolean): Unit =
     try {
-      val writer = PNG((pixmap.getWidth().toInt * pixmap.getHeight().toInt * 1.5f).toInt); // Guess at deflated size.
+      val writer = PNG((pixmap.width.toInt * pixmap.height.toInt * 1.5f).toInt); // Guess at deflated size.
       try {
         writer.setFlipY(flipY);
         writer.setCompression(compression);
@@ -92,11 +92,11 @@ object PixmapIO {
       val deflaterOutputStream = new DeflaterOutputStream(file.write(false));
       val out                  = new DataOutputStream(deflaterOutputStream);
       try {
-        out.writeInt(pixmap.getWidth().toInt);
-        out.writeInt(pixmap.getHeight().toInt);
-        out.writeInt(toGdx2DPixmapFormat(pixmap.getFormat()));
+        out.writeInt(pixmap.width.toInt);
+        out.writeInt(pixmap.height.toInt);
+        out.writeInt(toGdx2DPixmapFormat(pixmap.format));
 
-        val pixelBuf = pixmap.getPixels();
+        val pixelBuf = pixmap.pixels;
         pixelBuf.asInstanceOf[Buffer].position(0);
         pixelBuf.asInstanceOf[Buffer].limit(pixelBuf.capacity());
 
@@ -129,7 +129,7 @@ object PixmapIO {
         val format = Format.fromGdx2DPixmapFormat(in.readInt());
         val pixmap = Pixmap(width, height, format);
 
-        val pixelBuf = pixmap.getPixels();
+        val pixelBuf = pixmap.pixels;
         pixelBuf.asInstanceOf[Buffer].position(0);
         pixelBuf.asInstanceOf[Buffer].limit(pixelBuf.capacity());
 
@@ -190,7 +190,7 @@ object PixmapIO {
     private val PAETH:               Byte = 4
 
     private val buffer:        ChunkBuffer = ChunkBuffer(initialBufferSize)
-    private val deflater:      Deflater    = new Deflater()
+    private var deflater:      Deflater    = new Deflater()
     private var lineOutBytes:  Array[Byte] = scala.compiletime.uninitialized
     private var curLineBytes:  Array[Byte] = scala.compiletime.uninitialized
     private var prevLineBytes: Array[Byte] = scala.compiletime.uninitialized
@@ -202,8 +202,10 @@ object PixmapIO {
       this.flipY = flipY
 
     /** Sets the deflate compression level. Default is {@link Deflater#DEFAULT_COMPRESSION}. */
-    def setCompression(level: Int): Unit =
-      deflater.setLevel(level)
+    def setCompression(level: Int): Unit = {
+      deflater.end()
+      deflater = new Deflater(level)
+    }
 
     def write(file: FileHandle, pixmap: Pixmap): Unit = {
       val output = file.write(false)
@@ -221,8 +223,8 @@ object PixmapIO {
       dataOutput.write(SIGNATURE);
 
       buffer.writeInt(IHDR);
-      buffer.writeInt(pixmap.getWidth().toInt);
-      buffer.writeInt(pixmap.getHeight().toInt);
+      buffer.writeInt(pixmap.width.toInt);
+      buffer.writeInt(pixmap.height.toInt);
       buffer.writeByte(8); // 8 bits per component.
       buffer.writeByte(COLOR_ARGB);
       buffer.writeByte(COMPRESSION_DEFLATE);
@@ -233,7 +235,7 @@ object PixmapIO {
       buffer.writeInt(IDAT);
       deflater.reset();
 
-      val lineLen = pixmap.getWidth().toInt * 4;
+      val lineLen = pixmap.width.toInt * 4;
 
       if (Nullable(lineOutBytes).forall(_.length < lineLen)) {
         lineOutBytes = new Array[Byte](lineLen);
@@ -252,17 +254,17 @@ object PixmapIO {
 
       lastLineLen = lineLen;
 
-      val pixels      = pixmap.getPixels();
+      val pixels      = pixmap.pixels;
       val oldPosition = pixels.position();
-      val rgba8888    = pixmap.getFormat() == Format.RGBA8888;
-      for (y <- 0 until pixmap.getHeight().toInt) {
-        val py = if (flipY) pixmap.getHeight().toInt - y - 1 else y;
+      val rgba8888    = pixmap.format == Format.RGBA8888;
+      for (y <- 0 until pixmap.height.toInt) {
+        val py = if (flipY) pixmap.height.toInt - y - 1 else y;
         if (rgba8888) {
           pixels.asInstanceOf[Buffer].position(py * lineLen);
           pixels.get(curLineBytes, 0, lineLen);
         } else {
           var x = 0;
-          for (px <- 0 until pixmap.getWidth().toInt) {
+          for (px <- 0 until pixmap.width.toInt) {
             val pixel = pixmap.getPixel(Pixels(px), Pixels(py));
             curLineBytes(x) = ((pixel >> 24) & 0xff).toByte;
             x += 1;

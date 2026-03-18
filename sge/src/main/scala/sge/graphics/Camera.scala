@@ -226,7 +226,7 @@ abstract class Camera(using Sge) {
     */
   def unproject(touchCoords: Vector3, viewportX: Float, viewportY: Float, viewportWidth: Float, viewportHeight: Float): Vector3 = {
     val x = touchCoords.x - viewportX
-    val y = Sge().graphics.getHeight().toFloat - touchCoords.y - viewportY
+    val y = Sge().graphics.height.toFloat - touchCoords.y - viewportY
     touchCoords.x = (2 * x) / viewportWidth - 1
     touchCoords.y = (2 * y) / viewportHeight - 1
     touchCoords.z = 2 * touchCoords.z - 1
@@ -243,7 +243,7 @@ abstract class Camera(using Sge) {
     *   the mutated and unprojected touchCoords Vector3
     */
   def unproject(touchCoords: Vector3): Vector3 = {
-    unproject(touchCoords, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    unproject(touchCoords, 0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
     touchCoords
   }
 
@@ -253,7 +253,7 @@ abstract class Camera(using Sge) {
     *   the mutated and projected worldCoords Vector3
     */
   def project(worldCoords: Vector3): Vector3 = {
-    project(worldCoords, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    project(worldCoords, 0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
     worldCoords
   }
 
@@ -306,5 +306,5 @@ abstract class Camera(using Sge) {
     *   the picking Ray.
     */
   def getPickRay(touchX: Float, touchY: Float): Ray =
-    getPickRay(touchX, touchY, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    getPickRay(touchX, touchY, 0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
 }

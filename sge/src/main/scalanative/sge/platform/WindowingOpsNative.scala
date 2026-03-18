@@ -196,7 +196,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   override def terminate(): Unit =
     GlfwC.glfwTerminate()
 
-  override def getPlatform(): Int =
+  override def platform: Int =
     GlfwC.glfwGetPlatform()
 
   // ─── Window lifecycle ────────────────────────────────────────────────
@@ -222,7 +222,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
     GlfwC.glfwPollEvents()
 
   override def getNativeWindowHandle(windowHandle: Long): Long = {
-    val platform = getPlatform()
+    val platform = this.platform
     if (platform == WindowingOps.GLFW_PLATFORM_COCOA) {
       val nsWindow = GlfwC.glfwGetCocoaWindow(ptrFromLong(windowHandle))
       // ANGLE's Metal backend needs a CALayer, not an NSWindow.
@@ -263,7 +263,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
   }
 
   override def updateNativeLayerScale(windowHandle: Long): Unit =
-    if (cachedLayerPtr != null && getPlatform() == WindowingOps.GLFW_PLATFORM_COCOA) {
+    if (cachedLayerPtr != null && this.platform == WindowingOps.GLFW_PLATFORM_COCOA) {
       val (fbW, _)  = getFramebufferSize(windowHandle)
       val (winW, _) = getWindowSize(windowHandle)
       val scale: CDouble = if (winW > 0) fbW.toDouble / winW.toDouble else 1.0
@@ -361,10 +361,10 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   // ─── Monitor ────────────────────────────────────────────────────────
 
-  override def getPrimaryMonitor(): Long =
+  override def primaryMonitor: Long =
     longFromPtr(GlfwC.glfwGetPrimaryMonitor())
 
-  override def getMonitors(): Array[Long] = {
+  override def monitors: Array[Long] = {
     val count = stackalloc[CInt]()
     val ptrs  = GlfwC.glfwGetMonitors(count)
     if (ptrs == null || !count <= 0) Array.empty
@@ -427,7 +427,7 @@ private[sge] object WindowingOpsNative extends WindowingOps {
         while (i < images.length) {
           val base   = buf + (i.toLong * structSize.toLong)
           val pixmap = images(i)
-          val pixels = pixmap.getPixels()
+          val pixels = pixmap.pixels
           pixels.position(0)
           val numBytes  = pixels.remaining()
           val nativeBuf = zone.alloc(numBytes)
@@ -438,8 +438,8 @@ private[sge] object WindowingOpsNative extends WindowingOps {
           }
           // Write GLFWimage fields: width (int), height (int), pixels (ptr)
           val intPtr = base.asInstanceOf[Ptr[CInt]]
-          !intPtr = pixmap.getWidth().toInt
-          !(intPtr + 1) = pixmap.getHeight().toInt
+          !intPtr = pixmap.width.toInt
+          !(intPtr + 1) = pixmap.height.toInt
           val ptrField = (base + 8L).asInstanceOf[Ptr[Ptr[Byte]]]
           !ptrField = nativeBuf
           i += 1
@@ -656,6 +656,6 @@ private[sge] object WindowingOpsNative extends WindowingOps {
 
   // ─── Time ───────────────────────────────────────────────────────────
 
-  override def getTime(): Double =
+  override def time: Double =
     GlfwC.glfwGetTime()
 }

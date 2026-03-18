@@ -566,19 +566,17 @@ class Matrix3 {
     this
   }
 
-  /** Get the values in this matrix.
-    * @return
-    *   The float values that make up this matrix in column-major order.
-    */
-  def getValues: Array[Float] =
-    values
-
-  def getTranslation(position: Vector2): Vector2 = {
+  def translation(position: Vector2): Vector2 = {
     position.x = values(Matrix3.M02)
     position.y = values(Matrix3.M12)
     position
   }
 
+  /** @param scale
+    *   The vector which will receive the (non-negative) scale components on each axis.
+    * @return
+    *   The provided vector for chaining.
+    */
   /** @param scale
     *   The vector which will receive the (non-negative) scale components on each axis.
     * @return
@@ -591,10 +589,10 @@ class Matrix3 {
     scale
   }
 
-  def getRotation: Float =
+  def rotation: Float =
     MathUtils.radiansToDegrees * Math.atan2(values(Matrix3.M10), values(Matrix3.M00)).toFloat
 
-  def getRotationRad: Float =
+  def rotationRad: Float =
     Math.atan2(values(Matrix3.M10), values(Matrix3.M00)).toFloat
 
   /** Scale the matrix in the both the x and y components by the scalar value.
@@ -1018,9 +1016,7 @@ class Matrix4 {
     this
   }
 
-  /** @return the backing float array */
-  def getValues(): Array[Float] =
-    values
+  // values is already a public val
 
   /** Postmultiplies this matrix with the given matrix, storing the result in this matrix. For example:
     *
@@ -1683,11 +1679,11 @@ class Matrix4 {
     getScale(Matrix4.tmpVec)
     other.getScale(Matrix4.tmpForward)
 
-    getRotation(Matrix4.quat)
-    other.getRotation(Matrix4.quat2)
+    rotation(Matrix4.quat)
+    other.rotation(Matrix4.quat2)
 
-    getTranslation(Matrix4.tmpUp)
-    other.getTranslation(Matrix4.right)
+    translation(Matrix4.tmpUp)
+    other.translation(Matrix4.right)
 
     setToScaling(Matrix4.tmpVec.scl(w).add(Matrix4.tmpForward.scl(1 - w)))
     rotate(Matrix4.quat.slerp(Matrix4.quat2, 1 - w))
@@ -1705,13 +1701,13 @@ class Matrix4 {
     val w = 1.0f / t.length
 
     Matrix4.tmpVec.set(t(0).getScale(Matrix4.tmpUp).scl(w))
-    Matrix4.quat.set(t(0).getRotation(Matrix4.quat2).exp(w))
-    Matrix4.tmpForward.set(t(0).getTranslation(Matrix4.tmpUp).scl(w))
+    Matrix4.quat.set(t(0).rotation(Matrix4.quat2).exp(w))
+    Matrix4.tmpForward.set(t(0).translation(Matrix4.tmpUp).scl(w))
 
     for (i <- 1 until t.length) {
       Matrix4.tmpVec.add(t(i).getScale(Matrix4.tmpUp).scl(w))
-      Matrix4.quat.mul(t(i).getRotation(Matrix4.quat2).exp(w))
-      Matrix4.tmpForward.add(t(i).getTranslation(Matrix4.tmpUp).scl(w))
+      Matrix4.quat.mul(t(i).rotation(Matrix4.quat2).exp(w))
+      Matrix4.tmpForward.add(t(i).translation(Matrix4.tmpUp).scl(w))
     }
     Matrix4.quat.nor()
 
@@ -1732,13 +1728,13 @@ class Matrix4 {
     */
   def avg(t: Array[Matrix4], w: Array[Float]): Matrix4 = {
     Matrix4.tmpVec.set(t(0).getScale(Matrix4.tmpUp).scl(w(0)))
-    Matrix4.quat.set(t(0).getRotation(Matrix4.quat2).exp(w(0)))
-    Matrix4.tmpForward.set(t(0).getTranslation(Matrix4.tmpUp).scl(w(0)))
+    Matrix4.quat.set(t(0).rotation(Matrix4.quat2).exp(w(0)))
+    Matrix4.tmpForward.set(t(0).translation(Matrix4.tmpUp).scl(w(0)))
 
     for (i <- 1 until t.length) {
       Matrix4.tmpVec.add(t(i).getScale(Matrix4.tmpUp).scl(w(i)))
-      Matrix4.quat.mul(t(i).getRotation(Matrix4.quat2).exp(w(i)))
-      Matrix4.tmpForward.add(t(i).getTranslation(Matrix4.tmpUp).scl(w(i)))
+      Matrix4.quat.mul(t(i).rotation(Matrix4.quat2).exp(w(i)))
+      Matrix4.tmpForward.add(t(i).translation(Matrix4.tmpUp).scl(w(i)))
     }
     Matrix4.quat.nor()
 
@@ -1884,7 +1880,7 @@ class Matrix4 {
     this
   }
 
-  def getTranslation(position: Vector3): Vector3 = {
+  def translation(position: Vector3): Vector3 = {
     position.x = values(Matrix4.M03)
     position.y = values(Matrix4.M13)
     position.z = values(Matrix4.M23)
@@ -1899,7 +1895,7 @@ class Matrix4 {
     * @return
     *   The provided {@link Quaternion} for chaining.
     */
-  def getRotation(rotation: Quaternion, normalizeAxes: Boolean): Quaternion =
+  def rotation(rotation: Quaternion, normalizeAxes: Boolean): Quaternion =
     rotation.setFromMatrix(normalizeAxes, this)
 
   /** Gets the rotation of this matrix.
@@ -1908,35 +1904,35 @@ class Matrix4 {
     * @return
     *   The provided {@link Quaternion} for chaining.
     */
-  def getRotation(rotation: Quaternion): Quaternion =
+  def rotation(rotation: Quaternion): Quaternion =
     rotation.setFromMatrix(this)
 
   /** @return the squared scale factor on the X axis */
-  def getScaleXSquared(): Float =
+  def scaleXSquared: Float =
     values(Matrix4.M00) * values(Matrix4.M00) + values(Matrix4.M01) * values(Matrix4.M01) + values(Matrix4.M02) * values(Matrix4.M02)
 
   /** @return the squared scale factor on the Y axis */
-  def getScaleYSquared(): Float =
+  def scaleYSquared: Float =
     values(Matrix4.M10) * values(Matrix4.M10) + values(Matrix4.M11) * values(Matrix4.M11) + values(Matrix4.M12) * values(Matrix4.M12)
 
   /** @return the squared scale factor on the Z axis */
-  def getScaleZSquared(): Float =
+  def scaleZSquared: Float =
     values(Matrix4.M20) * values(Matrix4.M20) + values(Matrix4.M21) * values(Matrix4.M21) + values(Matrix4.M22) * values(Matrix4.M22)
 
   /** @return the scale factor on the X axis (non-negative) */
-  def getScaleX(): Float =
+  def scaleX: Float =
     if (MathUtils.isZero(values(Matrix4.M01)) && MathUtils.isZero(values(Matrix4.M02))) Math.abs(values(Matrix4.M00))
-    else Math.sqrt(getScaleXSquared()).toFloat
+    else Math.sqrt(scaleXSquared).toFloat
 
   /** @return the scale factor on the Y axis (non-negative) */
-  def getScaleY(): Float =
+  def scaleY: Float =
     if (MathUtils.isZero(values(Matrix4.M10)) && MathUtils.isZero(values(Matrix4.M12))) Math.abs(values(Matrix4.M11))
-    else Math.sqrt(getScaleYSquared()).toFloat
+    else Math.sqrt(scaleYSquared).toFloat
 
-  /** @return the scale factor on the X axis (non-negative) */
-  def getScaleZ(): Float =
+  /** @return the scale factor on the Z axis (non-negative) */
+  def scaleZ: Float =
     if (MathUtils.isZero(values(Matrix4.M20)) && MathUtils.isZero(values(Matrix4.M21))) Math.abs(values(Matrix4.M22))
-    else Math.sqrt(getScaleZSquared()).toFloat
+    else Math.sqrt(scaleZSquared).toFloat
 
   /** @param scale
     *   The vector which will receive the (non-negative) scale components on each axis.
@@ -1944,7 +1940,7 @@ class Matrix4 {
     *   The provided vector for chaining.
     */
   def getScale(scale: Vector3): Vector3 =
-    scale.set(getScaleX(), getScaleY(), getScaleZ())
+    scale.set(scaleX, scaleY, scaleZ)
 
   /** removes the translational part and transposes the matrix. */
   def toNormalMatrix(): Matrix4 = {

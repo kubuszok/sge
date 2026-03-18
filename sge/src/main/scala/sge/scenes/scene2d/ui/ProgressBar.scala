@@ -37,7 +37,7 @@ class ProgressBar(
   var max:      Float,
   var stepSize: Float,
   val vertical: Boolean,
-  style:        ProgressBar.ProgressBarStyle
+  initialStyle: ProgressBar.ProgressBarStyle
 )(using Sge)
     extends Widget
     with Disableable
@@ -58,11 +58,11 @@ class ProgressBar(
 
   if (min > max) throw new IllegalArgumentException("max must be > min. min,max: " + min + ", " + max)
   if (stepSize <= 0) throw new IllegalArgumentException("stepSize must be > 0: " + stepSize)
-  setStyle(style)
+  setStyle(initialStyle)
   this._value = min
-  setSize(getPrefWidth, getPrefHeight)
+  setSize(prefWidth, prefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
     this(
       min,
       max,
@@ -70,9 +70,11 @@ class ProgressBar(
       vertical,
       skin.get[ProgressBar.ProgressBarStyle]("default-" + (if (vertical) "vertical" else "horizontal"))
     )
+  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get[ProgressBar.ProgressBarStyle](styleName))
+  }
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style
@@ -81,14 +83,14 @@ class ProgressBar(
 
   /** Returns the progress bar's style. Modifying the returned style may not have an effect until {@link #setStyle(ProgressBarStyle)} is called.
     */
-  override def getStyle: ProgressBarStyle = _style
+  override def style: ProgressBarStyle = _style
 
   override def act(delta: Float): Unit = {
     super.act(delta)
     if (animateTime > sge.utils.Seconds.zero) {
       animateTime = animateTime - sge.utils.Seconds(delta)
       this.stage.foreach { s =>
-        if (s.getActionsRequestRendering) Sge().graphics.requestRendering()
+        if (s.actionsRequestRendering) Sge().graphics.requestRendering()
       }
     }
   }
@@ -96,10 +98,10 @@ class ProgressBar(
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     val style       = this._style
     val knob        = Nullable(style.knob)
-    val currentKnob = getKnobDrawable()
-    val bg          = getBackgroundDrawable()
-    val knobBefore  = getKnobBeforeDrawable()
-    val knobAfter   = getKnobAfterDrawable()
+    val currentKnob = knobDrawable
+    val bg          = backgroundDrawable
+    val knobBefore  = knobBeforeDrawable
+    val knobAfter   = knobAfterDrawable
 
     val c          = this.color
     val bx         = this.x
@@ -221,19 +223,19 @@ class ProgressBar(
     if (min == max) 0
     else visualInterpolation.apply((visualValue - min) / (max - min))
 
-  protected def getBackgroundDrawable(): Nullable[Drawable] =
+  protected def backgroundDrawable: Nullable[Drawable] =
     if (disabled && _style.disabledBackground.isDefined) _style.disabledBackground
     else _style.background
 
-  protected def getKnobDrawable(): Nullable[Drawable] =
+  protected def knobDrawable: Nullable[Drawable] =
     if (disabled && _style.disabledKnob.isDefined) _style.disabledKnob
     else Nullable(_style.knob)
 
-  protected def getKnobBeforeDrawable(): Nullable[Drawable] =
+  protected def knobBeforeDrawable: Nullable[Drawable] =
     if (disabled && _style.disabledKnobBefore.isDefined) _style.disabledKnobBefore
     else _style.knobBefore
 
-  protected def getKnobAfterDrawable(): Nullable[Drawable] =
+  protected def knobAfterDrawable: Nullable[Drawable] =
     if (disabled && _style.disabledKnobAfter.isDefined) _style.disabledKnobAfter
     else _style.knobAfter
 
@@ -291,18 +293,18 @@ class ProgressBar(
     this.stepSize = stepSize
   }
 
-  override def getPrefWidth: Float =
+  override def prefWidth: Float =
     if (vertical) {
       val knob = Nullable(_style.knob)
-      val bg   = getBackgroundDrawable()
+      val bg   = backgroundDrawable
       Math.max(knob.map(_.minWidth).getOrElse(0f), bg.map(_.minWidth).getOrElse(0f))
     } else 140
 
-  override def getPrefHeight: Float =
+  override def prefHeight: Float =
     if (vertical) 140
     else {
       val knob = Nullable(_style.knob)
-      val bg   = getBackgroundDrawable()
+      val bg   = backgroundDrawable
       Math.max(knob.map(_.minHeight).getOrElse(0f), bg.map(_.minHeight).getOrElse(0f))
     }
 

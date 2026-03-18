@@ -73,7 +73,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
     parameter: BaseTiledMapLoader.Parameters
   ): Unit = {
     val atlasHandle = getAtlasFileHandle(tmxFile)
-    this.atlasResolver = AtlasTmxMapLoader.AssetManagerAtlasResolver(manager, atlasHandle.path())
+    this.atlasResolver = AtlasTmxMapLoader.AssetManagerAtlasResolver(manager, atlasHandle.path)
 
     this.map = loadTiledMap(tmxFile, parameter, atlasResolver)
   }
@@ -128,7 +128,7 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
     image:         FileHandle
   ): Unit = {
 
-    val atlas = atlasResolver.getAtlas()
+    val atlas = atlasResolver.atlas
 
     for (texture <- atlas.textures)
       trackedTextures.add(texture)
@@ -209,11 +209,10 @@ class AtlasTmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmx
 object AtlasTmxMapLoader {
 
   trait AtlasResolver extends ImageResolver {
-    def getAtlas(): TextureAtlas
+    def atlas: TextureAtlas
   }
 
-  class DirectAtlasResolver(atlas: TextureAtlas) extends AtlasResolver {
-    override def getAtlas(): TextureAtlas = atlas
+  class DirectAtlasResolver(val atlas: TextureAtlas) extends AtlasResolver {
 
     override def getImage(name: String): Nullable[TextureRegion] = {
       // check for imagelayer and strip if needed
@@ -223,13 +222,13 @@ object AtlasTmxMapLoader {
   }
 
   class AssetManagerAtlasResolver(assetManager: AssetManager, atlasName: String) extends AtlasResolver {
-    override def getAtlas(): TextureAtlas =
+    override def atlas: TextureAtlas =
       assetManager[TextureAtlas](atlasName)
 
     override def getImage(name: String): Nullable[TextureRegion] = {
       // check for imagelayer and strip if needed
       val regionName = AtlasTmjMapLoader.parseRegionName(name)
-      getAtlas().findRegion(regionName).map(r => r: TextureRegion)
+      atlas.findRegion(regionName).map(r => r: TextureRegion)
     }
   }
 }

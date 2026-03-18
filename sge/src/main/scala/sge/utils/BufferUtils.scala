@@ -754,6 +754,6 @@ object BufferUtils {
   }
 
   /** @return the number of bytes allocated with {@link #newUnsafeByteBuffer(int)} */
-  def getAllocatedBytesUnsafe(): Int =
+  def allocatedBytesUnsafe: Int =
     allocatedUnsafe
 }

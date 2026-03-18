@@ -31,9 +31,9 @@ import sge.utils.Align
   *   Thomas Creutzenberg
   */
 class TiledDrawable() extends TextureRegionDrawable {
-  private val color: Color = Color(1, 1, 1, 1)
-  var scale:         Float = 1
-  var align:         Align = Align.bottomLeft
+  private val _color: Color = Color(1, 1, 1, 1)
+  var scale:          Float = 1
+  var align:          Align = Align.bottomLeft
 
   def this(region: TextureRegion) = {
     this()
@@ -53,14 +53,14 @@ class TiledDrawable() extends TextureRegionDrawable {
         minHeight = bd.minHeight
         name = bd.name
     }
-    setRegion(drawable.getRegion)
+    setRegion(drawable.region)
   }
 
   override def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit = {
     val oldColor = batch.packedColor
-    batch.color = batch.color.mul(color)
+    batch.color = batch.color.mul(_color)
 
-    TiledDrawable.draw(batch, getRegion, x, y, width, height, scale, align)
+    TiledDrawable.draw(batch, region, x, y, width, height, scale, align)
 
     batch.packedColor = oldColor
   }
@@ -68,7 +68,7 @@ class TiledDrawable() extends TextureRegionDrawable {
   override def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit =
     throw new UnsupportedOperationException()
 
-  def getColor: Color = color
+  def color: Color = _color
 
   override def tint(tint: Color): TiledDrawable = {
     val drawable = TiledDrawable(this)
@@ -87,8 +87,8 @@ object TiledDrawable {
     val regionHeight = textureRegion.regionHeight * scale
 
     val texture       = textureRegion.texture
-    val textureWidth  = texture.getWidth.toFloat * scale
-    val textureHeight = texture.getHeight.toFloat * scale
+    val textureWidth  = texture.width.toFloat * scale
+    val textureHeight = texture.height.toFloat * scale
     val u             = textureRegion.u
     val v             = textureRegion.v
     val u2            = textureRegion.u2

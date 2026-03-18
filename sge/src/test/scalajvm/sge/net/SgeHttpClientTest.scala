@@ -73,8 +73,8 @@ class SgeHttpClientTest extends FunSuite {
 
     assert(!client.isPending(req), "request should not be pending after completion")
     assertNotEquals(receivedResponse, null)
-    assertEquals(receivedResponse.getResultAsString(), "response body")
-    assertEquals(receivedResponse.getStatus().getStatusCode(), 200)
+    assertEquals(receivedResponse.resultAsString, "response body")
+    assertEquals(receivedResponse.status.statusCode, 200)
 
     client.close()
   }

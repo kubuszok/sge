@@ -51,20 +51,20 @@ class AudioControlGraph(audioContext: js.Dynamic, destinationNode: js.Dynamic) {
     if (!js.isUndefined(panNode)) sourceNode.connect(panNode)
     else sourceNode.connect(gainNode)
 
-  /** Set the volume (gain). */
-  def setVolume(volume: Float): Unit =
-    gainNode.gain.value = volume.toDouble
-
   /** Get the current volume. */
-  def getVolume(): Float =
+  def volume: Float =
     gainNode.gain.value.asInstanceOf[Double].toFloat
 
-  /** Set the stereo pan (-1 to 1). */
-  def setPan(pan: Float): Unit =
-    if (!js.isUndefined(panNode)) panNode.pan.value = pan.toDouble
+  /** Set the volume (gain). */
+  def volume_=(volume: Float): Unit =
+    gainNode.gain.value = volume.toDouble
 
   /** Get the current pan value. */
-  def getPan(): Float =
+  def pan: Float =
     if (!js.isUndefined(panNode)) panNode.pan.value.asInstanceOf[Double].toFloat
     else 0f
+
+  /** Set the stereo pan (-1 to 1). */
+  def pan_=(pan: Float): Unit =
+    if (!js.isUndefined(panNode)) panNode.pan.value = pan.toDouble
 }

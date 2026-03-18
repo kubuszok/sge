@@ -22,18 +22,18 @@ object SgeTestFixture {
   ): Sge = Sge(application, graphics, audio, files, input, net)
 
   private object NoopApplication extends Application {
-    def getApplicationListener():                             ApplicationListener         = throw new UnsupportedOperationException
-    def getGraphics():                                        Graphics                    = throw new UnsupportedOperationException
-    def getAudio():                                           Audio                       = throw new UnsupportedOperationException
-    def getInput():                                           Input                       = throw new UnsupportedOperationException
-    def getFiles():                                           Files                       = throw new UnsupportedOperationException
-    def getNet():                                             Net                         = throw new UnsupportedOperationException
-    def getType():                                            Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
-    def getVersion():                                         Int                         = 0
-    def getJavaHeap():                                        Long                        = 0L
-    def getNativeHeap():                                      Long                        = 0L
+    def applicationListener:                                  ApplicationListener         = throw new UnsupportedOperationException
+    def graphics:                                             Graphics                    = throw new UnsupportedOperationException
+    def audio:                                                Audio                       = throw new UnsupportedOperationException
+    def input:                                                Input                       = throw new UnsupportedOperationException
+    def files:                                                Files                       = throw new UnsupportedOperationException
+    def net:                                                  Net                         = throw new UnsupportedOperationException
+    def applicationType:                                      Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+    def version:                                              Int                         = 0
+    def javaHeap:                                             Long                        = 0L
+    def nativeHeap:                                           Long                        = 0L
     def getPreferences(name:              String):            Preferences                 = throw new UnsupportedOperationException
-    def getClipboard():                                       sge.utils.Clipboard         = throw new UnsupportedOperationException
+    def clipboard:                                            sge.utils.Clipboard         = throw new UnsupportedOperationException
     def postRunnable(runnable:            Runnable):          Unit                        = ()
     def exit():                                               Unit                        = ()
     def addLifecycleListener(listener:    LifecycleListener): Unit                        = ()
@@ -47,9 +47,9 @@ object SgeTestFixture {
     def external(path:      String):                           files.FileHandle = throw new UnsupportedOperationException
     def absolute(path:      String):                           files.FileHandle = throw new UnsupportedOperationException
     def local(path:         String):                           files.FileHandle = throw new UnsupportedOperationException
-    def getExternalStoragePath:                                String           = ""
+    def externalStoragePath:                                   String           = ""
     def isExternalStorageAvailable:                            Boolean          = false
-    def getLocalStoragePath:                                   String           = ""
+    def localStoragePath:                                      String           = ""
     def isLocalStorageAvailable:                               Boolean          = false
   }
 

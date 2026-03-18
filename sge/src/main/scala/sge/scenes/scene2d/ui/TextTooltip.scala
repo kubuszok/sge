@@ -24,28 +24,33 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet
   */
-class TextTooltip(text: Nullable[String], manager: TooltipManager, style: TextTooltip.TextTooltipStyle)(using Sge)
+class TextTooltip(text: Nullable[String], manager: TooltipManager, initialStyle: TextTooltip.TextTooltipStyle)(using Sge)
     extends Tooltip[Label](Nullable.empty, manager)
     with Styleable[TextTooltip.TextTooltipStyle] {
 
-  container.setActor(Nullable(newLabel(text, style.label)))
+  container.setActor(Nullable(newLabel(text, initialStyle.label)))
 
-  setStyle(style)
+  setStyle(initialStyle)
 
-  def this(text: Nullable[String], skin: Skin)(using Sge) =
-    this(text, TooltipManager.getInstance(), skin.get[TextTooltip.TextTooltipStyle])
+  def this(text: Nullable[String], skin: Skin)(using Sge) = {
+    this(text, TooltipManager.instance, skin.get[TextTooltip.TextTooltipStyle])
+  }
 
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) =
-    this(text, TooltipManager.getInstance(), skin.get[TextTooltip.TextTooltipStyle](styleName))
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
+    this(text, TooltipManager.instance, skin.get[TextTooltip.TextTooltipStyle](styleName))
+  }
 
-  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) =
-    this(text, TooltipManager.getInstance(), style)
+  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) = {
+    this(text, TooltipManager.instance, style)
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) = {
     this(text, manager, skin.get[TextTooltip.TextTooltipStyle])
+  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) =
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) = {
     this(text, manager, skin.get[TextTooltip.TextTooltipStyle](styleName))
+  }
 
   protected def newLabel(text: Nullable[String], style: LabelStyle): Label =
     Label(text.map(t => t: CharSequence), style)
@@ -67,7 +72,7 @@ class TextTooltip(text: Nullable[String], manager: TooltipManager, style: TextTo
     }
   }
 
-  def getStyle: TextTooltip.TextTooltipStyle = _style
+  def style: TextTooltip.TextTooltipStyle = _style
 }
 
 object TextTooltip {

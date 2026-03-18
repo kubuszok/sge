@@ -49,7 +49,7 @@ class DepthShader(
       )
     }
 
-    val boneWeights = renderable.meshPart.mesh.getVertexAttributes().getBoneWeights()
+    val boneWeights = renderable.meshPart.mesh.vertexAttributes.boneWeights
     if (boneWeights > config.numBoneWeights) {
       throw SgeError.GraphicsError(
         "too many bone weights: " + boneWeights + ", max configured: " + config.numBoneWeights
@@ -64,7 +64,7 @@ class DepthShader(
   private val alphaTestAttribute: FloatAttribute =
     FloatAttribute(FloatAttribute.AlphaTest, config.defaultAlphaTest)
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(
       renderable,
       DepthShader.Config(), {
@@ -75,8 +75,9 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config)(using Sge) = {
     this(
       renderable,
       config, {
@@ -86,8 +87,9 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: DepthShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config, {
@@ -96,6 +98,7 @@ class DepthShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -103,8 +106,9 @@ class DepthShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) =
+  )(using Sge) = {
     this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def begin(camera: Camera, context: RenderContext): Unit = {
     super.begin(camera, context)
@@ -120,7 +124,7 @@ class DepthShader(
   override def canRender(renderable: Renderable): Boolean = boundary {
     if (renderable.bones.isDefined) {
       if (renderable.bones.map(_.length).getOrElse(0) > config.numBones) break(false)
-      if (renderable.meshPart.mesh.getVertexAttributes().getBoneWeights() > config.numBoneWeights) break(false)
+      if (renderable.meshPart.mesh.vertexAttributes.boneWeights > config.numBoneWeights) break(false)
     }
     val attributes = DepthShader.combineAttributes(renderable)
 

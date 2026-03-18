@@ -25,16 +25,16 @@ import scala.util.boundary.break
 
 /** A headless [[Application]] primarily intended for servers and testing. No graphics context is created — all rendering-related calls go through [[NoopGraphics]].
   *
-  * @param listener
-  *   the application listener to drive
+  * @param listenerFactory
+  *   a context function that creates the application listener when given an [[Sge]] context
   * @param config
   *   optional configuration (defaults to 60 updates/second)
   * @author
   *   Jon Renner (original implementation)
   */
 class HeadlessApplication(
-  private val listener: ApplicationListener,
-  config:               HeadlessApplicationConfig = HeadlessApplicationConfig()
+  listenerFactory: Sge ?=> ApplicationListener,
+  config:          HeadlessApplicationConfig = HeadlessApplicationConfig()
 ) extends Application {
 
   private val _files:    DesktopFiles = DesktopFiles()
@@ -45,6 +45,8 @@ class HeadlessApplication(
 
   /** The [[Sge]] context for this application. Pass as `given` to code that needs it. */
   val sgeContext: Sge = Sge(this, _graphics, _audio, _files, _input, _net)
+
+  private val listener: ApplicationListener = { given Sge = sgeContext; listenerFactory }
 
   private val runnables:          DynamicArray[Runnable]          = DynamicArray[Runnable](4)
   private val executedRunnables:  DynamicArray[Runnable]          = DynamicArray[Runnable](4)
@@ -69,7 +71,6 @@ class HeadlessApplication(
   // ---- main loop ----
 
   private def mainLoop(): Unit = {
-    given Sge = sgeContext
     listener.create()
 
     val targetInterval = Nanos(targetRenderInterval())
@@ -153,37 +154,37 @@ class HeadlessApplication(
 
   // ---- Application trait ----
 
-  override def getApplicationListener(): ApplicationListener = listener
+  override def applicationListener: ApplicationListener = listener
 
-  override def getGraphics(): Graphics = _graphics
+  override def graphics: Graphics = _graphics
 
-  override def getAudio(): Audio = _audio
+  override def audio: Audio = _audio
 
-  override def getInput(): Input = _input
+  override def input: Input = _input
 
-  override def getFiles(): Files = _files
+  override def files: Files = _files
 
-  override def getNet(): Net = _net
+  override def net: Net = _net
 
-  override def getType(): Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
+  override def applicationType: Application.ApplicationType = Application.ApplicationType.HeadlessDesktop
 
-  override def getVersion(): Int = 0
+  override def version: Int = 0
 
-  override def getJavaHeap(): Long =
+  override def javaHeap: Long =
     Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 
-  override def getNativeHeap(): Long = getJavaHeap()
+  override def nativeHeap: Long = javaHeap
 
   override def getPreferences(name: String): Preferences =
     preferences
       .get(name)
       .fold {
-        val prefs = DesktopPreferences(name, preferencesDir, files.DesktopFiles.externalPath)
+        val prefs = DesktopPreferences(name, preferencesDir, DesktopFiles.externalPath)
         preferences.put(name, prefs)
         prefs
       }(identity)
 
-  override def getClipboard(): utils.Clipboard =
+  override def clipboard: utils.Clipboard =
     HeadlessApplication.NoopClipboard
 
   override def postRunnable(runnable: Runnable): Unit =

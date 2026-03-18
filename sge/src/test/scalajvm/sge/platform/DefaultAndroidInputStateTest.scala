@@ -63,13 +63,13 @@ class DefaultAndroidInputStateTest extends FunSuite {
 
   test("getFreePointerIndex returns first free slot") {
     val state = DefaultAndroidInputState()
-    assertEquals(state.getFreePointerIndex(), 0)
+    assertEquals(state.freePointerIndex, 0)
 
     state.setRealId(0, 100)
-    assertEquals(state.getFreePointerIndex(), 1)
+    assertEquals(state.freePointerIndex, 1)
 
     state.setRealId(1, 101)
-    assertEquals(state.getFreePointerIndex(), 2)
+    assertEquals(state.freePointerIndex, 2)
   }
 
   test("lookUpPointerIndex finds mapped pointer") {
@@ -106,7 +106,7 @@ class DefaultAndroidInputStateTest extends FunSuite {
       state.setRealId(i, i + 1000)
       i += 1
     }
-    assertEquals(state.getFreePointerIndex(), AndroidInputState.NUM_TOUCHES)
+    assertEquals(state.freePointerIndex, AndroidInputState.NUM_TOUCHES)
   }
 
   // ── Event queuing ──────────────────────────────────────────────────
@@ -183,6 +183,6 @@ class DefaultAndroidInputStateTest extends FunSuite {
     state.setTouched(0, false)
     assert(!state.isTouched(0))
     assert(state.isTouched(1))
-    assertEquals(state.getFreePointerIndex(), 0) // slot 0 is now free
+    assertEquals(state.freePointerIndex, 0) // slot 0 is now free
   }
 }

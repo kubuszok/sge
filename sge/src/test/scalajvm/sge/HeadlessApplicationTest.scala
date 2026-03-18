@@ -19,12 +19,12 @@ class HeadlessApplicationTest extends FunSuite {
     val latch       = CountDownLatch(3) // wait for at least 3 render calls
 
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = createCount.incrementAndGet()
-      def render()(using Sge):                              Unit = { renderCount.incrementAndGet(); latch.countDown() }
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = ()
+      def create():                              Unit = createCount.incrementAndGet()
+      def render():                              Unit = { renderCount.incrementAndGet(); latch.countDown() }
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = ()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 1000))
@@ -44,12 +44,12 @@ class HeadlessApplicationTest extends FunSuite {
     val disposeLatch = CountDownLatch(1)
 
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = disposeLatch.countDown()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = disposeLatch.countDown()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 1000))
@@ -65,12 +65,12 @@ class HeadlessApplicationTest extends FunSuite {
     val runnableThread = new Array[Thread](1)
 
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = ()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = ()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 1000))
@@ -91,20 +91,20 @@ class HeadlessApplicationTest extends FunSuite {
 
   test("getType returns HeadlessDesktop") {
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = ()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = ()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 0))
     try {
-      assertEquals(app.getType(), Application.ApplicationType.HeadlessDesktop)
-      assertEquals(app.getVersion(), 0)
-      assert(app.getJavaHeap() > 0)
-      assert(app.getNativeHeap() > 0)
+      assertEquals(app.applicationType, Application.ApplicationType.HeadlessDesktop)
+      assertEquals(app.version, 0)
+      assert(app.javaHeap > 0)
+      assert(app.nativeHeap > 0)
     } finally {
       app.exit()
       Thread.sleep(200)
@@ -115,12 +115,12 @@ class HeadlessApplicationTest extends FunSuite {
 
   test("sgeContext provides valid Sge") {
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = ()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = ()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 0))
@@ -146,12 +146,12 @@ class HeadlessApplicationTest extends FunSuite {
     val latch        = CountDownLatch(1)
 
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = latch.countDown()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = latch.countDown()
     }
 
     val lifecycleListener = new LifecycleListener {
@@ -174,12 +174,12 @@ class HeadlessApplicationTest extends FunSuite {
 
   test("getPreferences returns same instance for same name") {
     val listener = new ApplicationListener {
-      def create()(using Sge):                              Unit = ()
-      def render()(using Sge):                              Unit = ()
-      def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()
-      def pause()(using Sge):                               Unit = ()
-      def resume()(using Sge):                              Unit = ()
-      def dispose()(using Sge):                             Unit = ()
+      def create():                              Unit = ()
+      def render():                              Unit = ()
+      def resize(width: Pixels, height: Pixels): Unit = ()
+      def pause():                               Unit = ()
+      def resume():                              Unit = ()
+      def dispose():                             Unit = ()
     }
 
     val app = HeadlessApplication(listener, HeadlessApplicationConfig(updatesPerSecond = 0))

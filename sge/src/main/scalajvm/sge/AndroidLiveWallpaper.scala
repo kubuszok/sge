@@ -67,28 +67,28 @@ class AndroidLiveWallpaper(
 
   // ── Application trait ─────────────────────────────────────────────────
 
-  override def getApplicationListener(): ApplicationListener =
+  override def applicationListener: ApplicationListener =
     throw utils.SgeError.InvalidInput("Live wallpaper has no single ApplicationListener — use wallpaper callbacks")
 
-  override def getGraphics(): Graphics =
-    throw utils.SgeError.InvalidInput("AndroidLiveWallpaper.getGraphics() not yet wired — use Sge context")
+  override def graphics: Graphics =
+    throw utils.SgeError.InvalidInput("AndroidLiveWallpaper.graphics not yet wired — use Sge context")
 
-  override def getAudio(): Audio = _audio
+  override def audio: Audio = _audio
 
-  override def getInput(): Input =
-    throw utils.SgeError.InvalidInput("AndroidLiveWallpaper.getInput() not yet wired — use Sge context")
+  override def input: Input =
+    throw utils.SgeError.InvalidInput("AndroidLiveWallpaper.input not yet wired — use Sge context")
 
-  override def getFiles(): Files = _files
+  override def files: Files = _files
 
-  override def getNet(): Net = _net
+  override def net: Net = _net
 
-  override def getType(): Application.ApplicationType = Application.ApplicationType.Android
+  override def applicationType: Application.ApplicationType = Application.ApplicationType.Android
 
-  override def getVersion(): Int = 0 // overridden by lifecycle when available
+  override def version: Int = 0 // overridden by lifecycle when available
 
-  override def getJavaHeap(): Long = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+  override def javaHeap: Long = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
 
-  override def getNativeHeap(): Long = 0L // android.os.Debug not accessible without lifecycle ops
+  override def nativeHeap: Long = 0L // android.os.Debug not accessible without lifecycle ops
 
   override def getPreferences(name: String): Preferences =
     preferences
@@ -99,7 +99,7 @@ class AndroidLiveWallpaper(
         prefs
       }(identity)
 
-  override def getClipboard(): utils.Clipboard = AndroidClipboardAdapter(_clipboard)
+  override def clipboard: utils.Clipboard = AndroidClipboardAdapter(_clipboard)
 
   override def postRunnable(runnable: Runnable): Unit = runnables.synchronized {
     runnables += runnable

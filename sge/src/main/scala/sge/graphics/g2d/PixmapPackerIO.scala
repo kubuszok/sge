@@ -62,7 +62,7 @@ class PixmapPackerIO {
       for (page <- packer.pages)
         if (page.rects.size > 0) {
           index += 1
-          val pageFile = file.sibling(file.nameWithoutExtension() + "_" + index + parameters.format.extension)
+          val pageFile = file.sibling(file.nameWithoutExtension + "_" + index + parameters.format.extension)
 
           parameters.format match {
             case PixmapPackerIO.ImageFormat.CIM =>
@@ -72,8 +72,8 @@ class PixmapPackerIO {
           }
 
           writer.write("\n")
-          writer.write(pageFile.name() + "\n")
-          writer.write("size: " + page.image.getWidth().toInt + "," + page.image.getHeight().toInt + "\n")
+          writer.write(pageFile.name + "\n")
+          writer.write("size: " + page.image.width.toInt + "," + page.image.height.toInt + "\n")
           writer.write("format: " + packer.pageFormat.toString + "\n")
           writer.write("filter: " + parameters.minFilter.toString + "," + parameters.magFilter.toString + "\n")
           writer.write("repeat: none" + "\n")

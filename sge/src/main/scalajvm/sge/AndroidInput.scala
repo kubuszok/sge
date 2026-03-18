@@ -74,17 +74,17 @@ class AndroidInput(
 
   // ── Sensor queries ─────────────────────────────────────────────────
 
-  override def getAccelerometerX(): Float = sensorOps.accelerometerX
-  override def getAccelerometerY(): Float = sensorOps.accelerometerY
-  override def getAccelerometerZ(): Float = sensorOps.accelerometerZ
+  override def accelerometerX: Float = sensorOps.accelerometerX
+  override def accelerometerY: Float = sensorOps.accelerometerY
+  override def accelerometerZ: Float = sensorOps.accelerometerZ
 
-  override def getGyroscopeX(): Float = sensorOps.gyroscopeX
-  override def getGyroscopeY(): Float = sensorOps.gyroscopeY
-  override def getGyroscopeZ(): Float = sensorOps.gyroscopeZ
+  override def gyroscopeX: Float = sensorOps.gyroscopeX
+  override def gyroscopeY: Float = sensorOps.gyroscopeY
+  override def gyroscopeZ: Float = sensorOps.gyroscopeZ
 
-  override def getAzimuth(): Float = sensorOps.azimuth
-  override def getPitch():   Float = sensorOps.pitch
-  override def getRoll():    Float = sensorOps.roll
+  override def azimuth: Float = sensorOps.azimuth
+  override def pitch:   Float = sensorOps.pitch
+  override def roll:    Float = sensorOps.roll
 
   override def getRotationMatrix(matrix: Array[Float]): Unit = {
     val rm = sensorOps.rotationMatrix
@@ -93,21 +93,21 @@ class AndroidInput(
 
   // ── Pointer / touch queries ────────────────────────────────────────
 
-  override def getMaxPointers(): Int = AndroidInputState.NUM_TOUCHES
+  override def maxPointers: Int = AndroidInputState.NUM_TOUCHES
 
-  override def getX():             Pixels = Pixels(inputState.getTouchX(0))
-  override def getX(pointer: Int): Pixels = Pixels(inputState.getTouchX(pointer))
+  override def x:               Pixels = Pixels(inputState.getTouchX(0))
+  override def x(pointer: Int): Pixels = Pixels(inputState.getTouchX(pointer))
 
-  override def getDeltaX():             Pixels = Pixels(inputState.getDeltaX(0))
-  override def getDeltaX(pointer: Int): Pixels = Pixels(inputState.getDeltaX(pointer))
+  override def deltaX:               Pixels = Pixels(inputState.getDeltaX(0))
+  override def deltaX(pointer: Int): Pixels = Pixels(inputState.getDeltaX(pointer))
 
-  override def getY():             Pixels = Pixels(inputState.getTouchY(0))
-  override def getY(pointer: Int): Pixels = Pixels(inputState.getTouchY(pointer))
+  override def y:               Pixels = Pixels(inputState.getTouchY(0))
+  override def y(pointer: Int): Pixels = Pixels(inputState.getTouchY(pointer))
 
-  override def getDeltaY():             Pixels = Pixels(inputState.getDeltaY(0))
-  override def getDeltaY(pointer: Int): Pixels = Pixels(inputState.getDeltaY(pointer))
+  override def deltaY:               Pixels = Pixels(inputState.getDeltaY(0))
+  override def deltaY(pointer: Int): Pixels = Pixels(inputState.getDeltaY(pointer))
 
-  override def isTouched(): Boolean = inputState.synchronized {
+  override def touched: Boolean = inputState.synchronized {
     var i = 0
     while (i < AndroidInputState.NUM_TOUCHES) {
       if (inputState.isTouched(i)) return true
@@ -120,8 +120,8 @@ class AndroidInput(
 
   override def justTouched(): Boolean = _justTouched
 
-  override def getPressure():             Float = inputState.getPressure(0)
-  override def getPressure(pointer: Int): Float = inputState.getPressure(pointer)
+  override def pressure:               Float = inputState.getPressure(0)
+  override def pressure(pointer: Int): Float = inputState.getPressure(pointer)
 
   override def isButtonPressed(button: Button): Boolean = inputState.synchronized {
     val b = button.toInt
@@ -214,19 +214,19 @@ class AndroidInput(
 
   override def openTextInputField(configuration: input.NativeInputConfiguration): Unit = {
     configuration.validate()
-    val wrapper   = configuration.getTextInputWrapper()
-    val text      = wrapper.getText()
-    val selStart  = wrapper.getSelectionStart()
-    val selEnd    = wrapper.getSelectionEnd()
-    val inputType = onscreenKeyboardTypeToAndroidInputType(configuration.getType())
-    val maxLen    = configuration.getMaxLength().getOrElse(0)
-    val hint      = configuration.getPlaceholder()
-    val mask      = configuration.isMaskInput()
-    val multi     = configuration.isMultiLine()
-    val noCorrect = configuration.isPreventCorrection()
-    val autoComp  = configuration.getAutoComplete()
-    val validator = configuration.getValidator()
-    val closeCb   = configuration.getCloseCallback()
+    val wrapper   = configuration.textInputWrapper
+    val text      = wrapper.text
+    val selStart  = wrapper.selectionStart
+    val selEnd    = wrapper.selectionEnd
+    val inputType = onscreenKeyboardTypeToAndroidInputType(configuration.inputType)
+    val maxLen    = configuration.maxLength.getOrElse(0)
+    val hint      = configuration.placeholder
+    val mask      = configuration.maskInput
+    val multi     = configuration.multiLine
+    val noCorrect = configuration.preventCorrection
+    val autoComp  = configuration.autoComplete
+    val validator = configuration.validator
+    val closeCb   = configuration.closeCallback
 
     inputMethodOps.openNativeTextField(
       text,
@@ -252,7 +252,7 @@ class AndroidInput(
     callback.foreach(cb => cb.onClose(isConfirmative))
   }
 
-  override def isTextInputFieldOpened(): Boolean =
+  override def textInputFieldOpened: Boolean =
     inputMethodOps.isNativeTextFieldOpen
 
   override def setKeyboardHeightObserver(observer: KeyboardHeightObserver): Unit =
@@ -299,7 +299,7 @@ class AndroidInput(
   override def setInputProcessor(processor: InputProcessor): Unit =
     _inputProcessor = processor
 
-  override def getInputProcessor(): InputProcessor = _inputProcessor
+  override def inputProcessor: InputProcessor = _inputProcessor
 
   // ── Peripherals ────────────────────────────────────────────────────
 
@@ -318,16 +318,16 @@ class AndroidInput(
 
   // ── Rotation / orientation ─────────────────────────────────────────
 
-  override def getRotation(): Int = 0 // requires WindowManager — needs wiring later
+  override def rotation: Int = 0 // requires WindowManager — needs wiring later
 
-  override def getNativeOrientation(): Orientation =
+  override def nativeOrientation: Orientation =
     if (sensorOps.nativeOrientation == 0) Orientation.Landscape
     else Orientation.Portrait
 
   // ── Cursor (no-op on Android) ──────────────────────────────────────
 
   override def setCursorCatched(catched: Boolean):           Unit    = ()
-  override def isCursorCatched():                            Boolean = false
+  override def cursorCatched:                                Boolean = false
   override def setCursorPosition(x:      Pixels, y: Pixels): Unit    = ()
 
   // ── Per-frame processing ───────────────────────────────────────────

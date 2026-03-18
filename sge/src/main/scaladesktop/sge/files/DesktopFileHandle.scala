@@ -25,32 +25,32 @@ import sge.utils.Nullable
   * @author
   *   Nathan Sweet (original implementation)
   */
-class DesktopFileHandle(file: File, fileType: FileType, externalStoragePath: String) extends FileHandle(file, fileType, Nullable(externalStoragePath)) {
+class DesktopFileHandle(internalFile: File, fileType: FileType, externalStoragePath: String) extends FileHandle(internalFile, fileType, Nullable(externalStoragePath)) {
 
   def this(fileName: String, fileType: FileType, externalStoragePath: String) =
     this(new File(fileName), fileType, externalStoragePath)
 
   override def child(name: String): FileHandle =
-    if (file.getPath().length() == 0) DesktopFileHandle(new File(name), fileType, externalStoragePath)
-    else DesktopFileHandle(new File(file, name), fileType, externalStoragePath)
+    if (internalFile.getPath().length() == 0) DesktopFileHandle(new File(name), fileType, externalStoragePath)
+    else DesktopFileHandle(new File(internalFile, name), fileType, externalStoragePath)
 
   override def sibling(name: String): FileHandle = {
-    if (file.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root.")
-    DesktopFileHandle(new File(file.getParent(), name), fileType, externalStoragePath)
+    if (internalFile.getPath().length() == 0) throw utils.SgeError.FileReadError(this, "Cannot get the sibling of the root.")
+    DesktopFileHandle(new File(internalFile.getParent(), name), fileType, externalStoragePath)
   }
 
   override def parent(): FileHandle =
-    Nullable(file.getParentFile()).fold {
+    Nullable(internalFile.getParentFile()).fold {
       if (fileType == FileType.Absolute) DesktopFileHandle(new File("/"), fileType, externalStoragePath)
       else DesktopFileHandle(new File(""), fileType, externalStoragePath)
     } { parent =>
       DesktopFileHandle(parent, fileType, externalStoragePath)
     }
 
-  override def getFile(): File =
-    if (fileType == FileType.External) new File(externalStoragePath, file.getPath())
-    else if (fileType == FileType.Local) new File(DesktopFileHandle.localPath, file.getPath())
-    else file
+  override def file: File =
+    if (fileType == FileType.External) new File(externalStoragePath, internalFile.getPath())
+    else if (fileType == FileType.Local) new File(DesktopFileHandle.localPath, internalFile.getPath())
+    else internalFile
 }
 
 object DesktopFileHandle {

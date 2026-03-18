@@ -61,7 +61,7 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using Sge) extends Asynchro
               textureParams.magFilter = p.magFilter
             }
 
-            deps.add(AssetDescriptor[Texture](resolved.path(), textureParams))
+            deps.add(AssetDescriptor[Texture](resolved.path, textureParams))
           }
         }
       }
@@ -79,7 +79,7 @@ class BitmapFontLoader(resolver: FileHandleResolver)(using Sge) extends Asynchro
       val atlasName = param.getOrElse(throw SgeError.GraphicsError("parameter required")).atlasName.getOrElse(throw SgeError.GraphicsError("atlasName required"))
       val atlas     = manager[TextureAtlas](atlasName)
       val paths     = d.imagePaths.getOrElse(throw SgeError.GraphicsError("BitmapFontData has no image paths"))
-      val name      = file.sibling(paths(0)).nameWithoutExtension()
+      val name      = file.sibling(paths(0)).nameWithoutExtension
       val region    = atlas.findRegion(name)
 
       region.fold {

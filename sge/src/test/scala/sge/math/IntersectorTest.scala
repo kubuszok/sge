@@ -223,7 +223,7 @@ class IntersectorTest extends munit.FunSuite {
         Nullable(intersectionPolygon)
       )
     )
-    assertEquals(intersectionPolygon.getVertexCount, 0)
+    assertEquals(intersectionPolygon.vertexCount, 0)
   }
 
   test("intersectPolygonsWithVertexLyingOnEdge") {
@@ -234,11 +234,11 @@ class IntersectorTest extends munit.FunSuite {
     val checkResult         = Intersector.intersectPolygons(p1, p2, Nullable(intersectionPolygon))
 
     assert(checkResult)
-    assertEquals(intersectionPolygon.getVertexCount, 4)
-    assertEquals(intersectionPolygon.getVertex(0, new Vector2()), new Vector2(1.0f, -2.0f))
-    assertEquals(intersectionPolygon.getVertex(1, new Vector2()), new Vector2(1.0f, -1.5f))
-    assertEquals(intersectionPolygon.getVertex(2, new Vector2()), new Vector2(1.5f, -1.5f))
-    assertEquals(intersectionPolygon.getVertex(3, new Vector2()), new Vector2(1.5f, -2.0f))
+    assertEquals(intersectionPolygon.vertexCount, 4)
+    assertEquals(intersectionPolygon.vertex(0, new Vector2()), new Vector2(1.0f, -2.0f))
+    assertEquals(intersectionPolygon.vertex(1, new Vector2()), new Vector2(1.0f, -1.5f))
+    assertEquals(intersectionPolygon.vertex(2, new Vector2()), new Vector2(1.5f, -1.5f))
+    assertEquals(intersectionPolygon.vertex(3, new Vector2()), new Vector2(1.5f, -2.0f))
   }
 
   test("intersectPolygonsWithTransformationsOnProvidedResultPolygon") {
@@ -254,16 +254,16 @@ class IntersectorTest extends munit.FunSuite {
 
     assert(checkResult)
     val expectedVertices = Array(1f, -2f, 1f, -1.5f, 1.5f, -1.5f, 1.5f, -2f)
-    val vertices         = intersectionPolygon.getVertices
+    val vertices         = intersectionPolygon.vertices
     for (i <- expectedVertices.indices)
       assertEqualsDouble(vertices(i).toDouble, expectedVertices(i).toDouble, 0.0)
-    val transformedVertices = intersectionPolygon.getTransformedVertices
+    val transformedVertices = intersectionPolygon.transformedVertices
     for (i <- expectedVertices.indices)
       assertEqualsDouble(transformedVertices(i).toDouble, expectedVertices(i).toDouble, 0.0)
     // verify that the origin has also been reset
     intersectionPolygon.setScale(2, 2)
     val scaledExpected    = Array(2 * 1f, 2 * -2f, 2 * 1f, 2 * -1.5f, 2 * 1.5f, 2 * -1.5f, 2 * 1.5f, 2 * -2f)
-    val scaledTransformed = intersectionPolygon.getTransformedVertices
+    val scaledTransformed = intersectionPolygon.transformedVertices
     for (i <- scaledExpected.indices)
       assertEqualsDouble(scaledTransformed(i).toDouble, scaledExpected(i).toDouble, 0.0)
   }

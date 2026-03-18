@@ -31,17 +31,17 @@ class Widget()(using Sge) extends Actor() with Layout {
   private var fillParent:    Boolean = false
   private var layoutEnabled: Boolean = true
 
-  def getMinWidth: Float = getPrefWidth
+  def minWidth: Float = prefWidth
 
-  def getMinHeight: Float = getPrefHeight
+  def minHeight: Float = prefHeight
 
-  def getPrefWidth: Float = 0
+  def prefWidth: Float = 0
 
-  def getPrefHeight: Float = 0
+  def prefHeight: Float = 0
 
-  def getMaxWidth: Float = 0
+  def maxWidth: Float = 0
 
-  def getMaxHeight: Float = 0
+  def maxHeight: Float = 0
 
   def setLayoutEnabled(enabled: Boolean): Unit = {
     layoutEnabled = enabled
@@ -50,10 +50,10 @@ class Widget()(using Sge) extends Actor() with Layout {
 
   def validate(): Unit =
     if (layoutEnabled) {
-      getParent.foreach { parent =>
+      this.parent.foreach { parent =>
         if (fillParent) {
           val (parentWidth, parentHeight) = stage.fold((parent.width, parent.height)) { stage =>
-            if (parent eq stage.getRoot) (stage.getWidth, stage.getHeight)
+            if (parent eq stage.root) (stage.width, stage.height)
             else (parent.width, parent.height)
           }
           setSize(parentWidth, parentHeight)
@@ -75,7 +75,7 @@ class Widget()(using Sge) extends Actor() with Layout {
   def invalidateHierarchy(): Unit =
     if (layoutEnabled) {
       invalidate()
-      getParent.foreach {
+      this.parent.foreach {
         case l: Layout => l.invalidateHierarchy()
         case _ =>
       }
@@ -85,7 +85,7 @@ class Widget()(using Sge) extends Actor() with Layout {
     invalidate()
 
   def pack(): Unit = {
-    setSize(getPrefWidth, getPrefHeight)
+    setSize(prefWidth, prefHeight)
     validate()
   }
 

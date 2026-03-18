@@ -41,7 +41,7 @@ private[sge] trait WindowingOps {
   def terminate(): Unit
 
   /** Returns the platform that was selected during initialization (e.g. GLFW_PLATFORM_COCOA, GLFW_PLATFORM_WAYLAND). */
-  def getPlatform(): Int
+  def platform: Int
 
   // ─── Window lifecycle ──────────────────────────────────────────────────
 
@@ -164,10 +164,10 @@ private[sge] trait WindowingOps {
   // ─── Monitor ───────────────────────────────────────────────────────────
 
   /** Returns the primary monitor handle. */
-  def getPrimaryMonitor(): Long
+  def primaryMonitor: Long
 
   /** Returns handles of all currently connected monitors. */
-  def getMonitors(): Array[Long]
+  def monitors: Array[Long]
 
   /** Gets the human-readable name of a monitor. */
   def getMonitorName(monitorHandle: Long): String
@@ -332,7 +332,7 @@ private[sge] trait WindowingOps {
   // ─── Time ──────────────────────────────────────────────────────────────
 
   /** Returns the GLFW/SDL time in seconds since initialization. */
-  def getTime(): Double
+  def time: Double
 }
 
 object WindowingOps {

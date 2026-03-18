@@ -29,14 +29,14 @@ import java.io.{ InputStream, OutputStream }
 trait Socket extends AutoCloseable {
 
   /** @return whether the socket is connected */
-  def isConnected(): Boolean
+  def isConnected: Boolean
 
   /** @return the {@link InputStream} used to read data from the other end of the connection. */
-  def getInputStream(): InputStream
+  def inputStream: InputStream
 
   /** @return the {@link OutputStream} used to write data to the other end of the connection. */
-  def getOutputStream(): OutputStream
+  def outputStream: OutputStream
 
   /** @return the RemoteAddress of the Socket as String */
-  def getRemoteAddress(): String
+  def remoteAddress: String
 }

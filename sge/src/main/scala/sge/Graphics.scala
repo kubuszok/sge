@@ -40,130 +40,116 @@ trait Graphics {
     * @return
     *   whether OpenGL ES 3.0 is available
     */
-  def isGL30Available(): Boolean
+  def gl30Available: Boolean
 
-  /** Returns whether OpenGL ES 3.1 is available. If it is you can get an instance of {@link GL31} via {@link #getGL31()} to access OpenGL ES 3.1 functionality. Note that this functionality will only
-    * be available if you instructed the {@link Application} instance to use OpenGL ES 3.1!
+  /** Returns whether OpenGL ES 3.1 is available. If it is you can get an instance of {@link GL31} via {@link #gl31} to access OpenGL ES 3.1 functionality. Note that this functionality will only be
+    * available if you instructed the {@link Application} instance to use OpenGL ES 3.1!
     *
     * @return
     *   whether OpenGL ES 3.1 is available
     */
-  def isGL31Available(): Boolean
+  def gl31Available: Boolean
 
-  /** Returns whether OpenGL ES 3.2 is available. If it is you can get an instance of {@link GL32} via {@link #getGL32()} to access OpenGL ES 3.2 functionality. Note that this functionality will only
-    * be available if you instructed the {@link Application} instance to use OpenGL ES 3.2!
+  /** Returns whether OpenGL ES 3.2 is available. If it is you can get an instance of {@link GL32} via {@link #gl32} to access OpenGL ES 3.2 functionality. Note that this functionality will only be
+    * available if you instructed the {@link Application} instance to use OpenGL ES 3.2!
     *
     * @return
     *   whether OpenGL ES 3.2 is available
     */
-  def isGL32Available(): Boolean
+  def gl32Available: Boolean
 
   /** @return the {@link GL20} instance */
-  def getGL20(): GL20
+  def gl20: GL20
 
   /** @return the {@link GL30} instance or null if not supported */
-  def getGL30(): Nullable[GL30]
+  def gl30: Nullable[GL30]
 
   /** @return the {@link GL31} instance or null if not supported */
-  def getGL31(): Nullable[GL31]
+  def gl31: Nullable[GL31]
 
   /** @return the {@link GL32} instance or null if not supported */
-  def getGL32(): Nullable[GL32]
+  def gl32: Nullable[GL32]
 
-  // TODO: Make the convention uniform across the codebase
-  // Convenience properties for easier access
-  /** Convenience property for GL20 access */
-  def gl: GL20 = getGL20()
-
-  /** Convenience property for GL20 access */
-  def gl20: GL20 = getGL20()
-
-  /** Convenience property for GL30 access */
-  def gl30: Nullable[GL30] = getGL30()
-
-  /** Convenience property for GL31 access */
-  def gl31: Nullable[GL31] = getGL31()
-
-  /** Convenience property for GL32 access */
-  def gl32: Nullable[GL32] = getGL32()
+  /** Convenience alias for gl20 */
+  def gl: GL20 = gl20
 
   /** Set the GL20 instance * */
-  def setGL20(gl20: GL20): Unit
+  def gl20_=(value: GL20): Unit
 
   /** Set the GL30 instance * */
-  def setGL30(gl30: GL30): Unit
+  def gl30_=(value: GL30): Unit
 
   /** Set the GL31 instance * */
-  def setGL31(gl31: GL31): Unit
+  def gl31_=(value: GL31): Unit
 
   /** Set the GL32 instance * */
-  def setGL32(gl32: GL32): Unit
+  def gl32_=(value: GL32): Unit
 
   /** @return the width of the client area in logical pixels. */
-  def getWidth(): Pixels
+  def width: Pixels
 
   /** @return the height of the client area in logical pixels */
-  def getHeight(): Pixels
+  def height: Pixels
 
   /** @return the width of the framebuffer in physical pixels */
-  def getBackBufferWidth(): Pixels
+  def backBufferWidth: Pixels
 
   /** @return the height of the framebuffer in physical pixels */
-  def getBackBufferHeight(): Pixels
+  def backBufferHeight: Pixels
 
   /** @return amount of pixels per logical pixel (point) */
-  def getBackBufferScale(): Float
+  def backBufferScale: Float
 
   /** @return the inset from the left which avoids display cutouts in logical pixels */
-  def getSafeInsetLeft(): Pixels
+  def safeInsetLeft: Pixels
 
   /** @return the inset from the top which avoids display cutouts in logical pixels */
-  def getSafeInsetTop(): Pixels
+  def safeInsetTop: Pixels
 
   /** @return the inset from the bottom which avoids display cutouts or floating gesture bars, in logical pixels */
-  def getSafeInsetBottom(): Pixels
+  def safeInsetBottom: Pixels
 
   /** @return the inset from the right which avoids display cutouts in logical pixels */
-  def getSafeInsetRight(): Pixels
+  def safeInsetRight: Pixels
 
   /** Returns the id of the current frame. The general contract of this method is that the id is incremented only when the application is in the running state right before calling the
     * {@link ApplicationListener#render()} method. Also, the id of the first frame is 0; the id of subsequent frames is guaranteed to take increasing values for 2<sup>63</sup>-1 rendering cycles.
     * @return
     *   the id of the current frame
     */
-  def getFrameId(): Long
+  def frameId: Long
 
   /** @return the time span between the current frame and the last frame in seconds. */
-  def getDeltaTime(): Float
+  def deltaTime: Float
 
   /** @return
     *   the time span between the current frame and the last frame in seconds, without smoothing
     * @deprecated
-    *   use {@link #getDeltaTime()} instead.
+    *   use {@link #deltaTime} instead.
     */
-  @deprecated("use getDeltaTime() instead", "1.0")
-  def getRawDeltaTime(): Float
+  @deprecated("use deltaTime instead", "1.0")
+  def rawDeltaTime: Float
 
   /** @return the average number of frames per second */
-  def getFramesPerSecond(): Int
+  def framesPerSecond: Int
 
   /** @return the {@link GraphicsType} of this Graphics instance */
-  def getType(): Graphics.GraphicsType
+  def graphicsType: Graphics.GraphicsType
 
   /** @return the {@link GLVersion} of this Graphics instance */
-  def getGLVersion(): Graphics.GLVersion
+  def glVersion: Graphics.GLVersion
 
   /** @return the pixels per inch on the x-axis */
-  def getPpiX(): Float
+  def ppiX: Float
 
   /** @return the pixels per inch on the y-axis */
-  def getPpiY(): Float
+  def ppiY: Float
 
   /** @return the pixels per centimeter on the x-axis */
-  def getPpcX(): Float
+  def ppcX: Float
 
   /** @return the pixels per centimeter on the y-axis. */
-  def getPpcY(): Float
+  def ppcY: Float
 
   /** This is a scaling factor for the Density Independent Pixel unit, following the same conventions as android.util.DisplayMetrics#density, where one DIP is one pixel on an approximately 160 dpi
     * screen. Thus on a 160dpi screen this density value will be 1; on a 120 dpi screen it would be .75; etc.
@@ -175,7 +161,7 @@ trait Graphics {
     * @return
     *   the Density Independent Pixel factor of the display.
     */
-  def getDensity(): Float
+  def density: Float
 
   /** Whether the given backend supports a display mode change via calling {@link Graphics#setFullscreenMode(DisplayMode)}
     *
@@ -185,22 +171,22 @@ trait Graphics {
   def supportsDisplayModeChange(): Boolean
 
   /** @return the primary monitor * */
-  def getPrimaryMonitor(): Graphics.Monitor
+  def primaryMonitor: Graphics.Monitor
 
   /** @return the monitor the application's window is located on */
-  def getMonitor(): Graphics.Monitor
+  def monitor: Graphics.Monitor
 
   /** @return the currently connected {@link Monitor}s */
-  def getMonitors(): Array[Graphics.Monitor]
+  def monitors: Array[Graphics.Monitor]
 
   /** @return the supported fullscreen {@link DisplayMode}(s) of the monitor the window is on */
-  def getDisplayModes(): Array[Graphics.DisplayMode]
+  def displayModes: Array[Graphics.DisplayMode]
 
   /** @return the supported fullscreen {@link DisplayMode}s of the given {@link Monitor} */
   def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode]
 
   /** @return the current {@link DisplayMode} of the monitor the window is on. */
-  def getDisplayMode(): Graphics.DisplayMode
+  def displayMode: Graphics.DisplayMode
 
   /** @return the current {@link DisplayMode} of the given {@link Monitor} */
   def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode
@@ -270,7 +256,7 @@ trait Graphics {
   def setForegroundFPS(fps: Int): Unit
 
   /** @return the format of the color, depth and stencil buffer in a {@link BufferFormat} instance */
-  def getBufferFormat(): Graphics.BufferFormat
+  def bufferFormat: Graphics.BufferFormat
 
   /** @param extension
     *   the extension name
@@ -293,13 +279,13 @@ trait Graphics {
   def setContinuousRendering(isContinuous: Boolean): Unit
 
   /** @return whether rendering is continuous. */
-  def isContinuousRendering(): Boolean
+  def continuousRendering: Boolean
 
   /** Requests a new frame to be rendered if the rendering mode is non-continuous. This method can be called from any thread. */
   def requestRendering(): Unit
 
   /** Whether the app is fullscreen or not */
-  def isFullscreen(): Boolean
+  def fullscreen: Boolean
 
   /** Create a new cursor represented by the {@link com.badlogic.gdx.graphics.Pixmap} . The Pixmap must be in RGBA8888 format, width & height must be powers-of-two greater than zero (not necessarily
     * equal) and of a certain minimum size (32x32 is a safe bet), and alpha transparency must be single-bit (i.e., 0x00 or 0xFF only). This function returns a Cursor object that can be set as the

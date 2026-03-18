@@ -16,15 +16,15 @@ object FullscreenCheck {
     try {
       val gfx = Sge().graphics
 
-      val wasFullscreen = gfx.isFullscreen()
-      val displayMode   = gfx.getDisplayMode()
-      val monitors      = gfx.getMonitors()
+      val wasFullscreen = gfx.fullscreen
+      val displayMode   = gfx.displayMode
+      val monitors      = gfx.monitors
 
       // Attempt fullscreen toggle — may be no-op on headless but should not throw
       val setResult = gfx.setFullscreenMode(displayMode)
 
       // Restore windowed mode regardless of setResult
-      gfx.setWindowedMode(gfx.getWidth(), gfx.getHeight())
+      gfx.setWindowedMode(gfx.width, gfx.height)
 
       CheckResult(
         "fullscreen",

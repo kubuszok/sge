@@ -40,11 +40,13 @@ class GestureDetector(
 )(using Sge)
     extends InputProcessor {
 
-  def this(listener: GestureDetector.GestureListener)(using Sge) =
+  def this(listener: GestureDetector.GestureListener)(using Sge) = {
     this(20f, 20f, Seconds(0.4f), Seconds(1.1f), Seconds(Integer.MAX_VALUE), listener)
+  }
 
-  def this(halfTapSquareSize: Float, tapCountInterval: Seconds, longPressDuration: Seconds, maxFlingDelay: Seconds, listener: GestureDetector.GestureListener)(using Sge) =
+  def this(halfTapSquareSize: Float, tapCountInterval: Seconds, longPressDuration: Seconds, maxFlingDelay: Seconds, listener: GestureDetector.GestureListener)(using Sge) = {
     this(halfTapSquareSize, halfTapSquareSize, tapCountInterval, longPressDuration, maxFlingDelay, listener)
+  }
 
   private var tapRectangleWidth:     Float   = halfTapRectangleWidth
   private var tapRectangleHeight:    Float   = halfTapRectangleHeight
@@ -210,7 +212,7 @@ class GestureDetector(
     val time = Sge().input.currentEventTime
     if (time - touchDownTime <= maxFlingDelayNanos) {
       tracker.update(x, y, time)
-      handled = listener.fling(tracker.getVelocityX(), tracker.getVelocityY(), button) || handled
+      handled = listener.fling(tracker.velocityX, tracker.velocityY, button) || handled
     }
     touchDownTime = Nanos.zero
     handled
@@ -399,14 +401,14 @@ object GestureDetector {
       numSamples += 1
     }
 
-    def getVelocityX(): Float = {
+    def velocityX: Float = {
       val meanX    = getAverage(this.meanX, numSamples)
       val meanTime = getAverage(this.meanTime, numSamples) / 1000000000.0f
       if (meanTime == 0) 0
       else meanX / meanTime
     }
 
-    def getVelocityY(): Float = {
+    def velocityY: Float = {
       val meanY    = getAverage(this.meanY, numSamples)
       val meanTime = getAverage(this.meanTime, numSamples) / 1000000000.0f
       if (meanTime == 0) 0

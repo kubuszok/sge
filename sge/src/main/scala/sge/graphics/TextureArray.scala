@@ -33,20 +33,24 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(TextureT
   private var textureData: TextureArrayData = scala.compiletime.uninitialized
 
   // Constructor that takes internal paths as strings
-  def this(internalPaths: Array[String])(using Sge) =
+  def this(internalPaths: Array[String])(using Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(Format.RGBA8888, false, TextureArray.getInternalHandles(internalPaths*)*))
+  }
 
   // Constructor with useMipMaps, format, and FileHandles - calls primary constructor
-  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) =
+  def this(useMipMaps: Boolean, format: Format, files: Array[FileHandle])(using Sge) = {
     this(TextureArrayData.Factory.loadFromFiles(format, useMipMaps, files*))
+  }
 
   // Constructor with useMipMaps flag and FileHandles - calls the one above
-  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) =
+  def this(useMipMaps: Boolean, files: Array[FileHandle])(using Sge) = {
     this(useMipMaps, Format.RGBA8888, files)
+  }
 
   // Constructor that takes FileHandles - calls the one above
-  def this(files: Array[FileHandle])(using Sge) =
+  def this(files: Array[FileHandle])(using Sge) = {
     this(false, files)
+  }
 
   if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("TextureArray requires a device running with GLES 3.0 compatibility")
@@ -54,11 +58,11 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(TextureT
 
   load(data)
 
-  if (data.isManaged()) TextureArray.addManagedTexture(Sge().application, this)
+  if (data.isManaged) TextureArray.addManagedTexture(Sge().application, this)
 
   private def load(data: TextureArrayData): Unit = {
     Nullable(this.textureData).foreach { existing =>
-      if (data.isManaged() != existing.isManaged())
+      if (data.isManaged != existing.isManaged)
         throw SgeError.GraphicsError("New data must have the same managed status as the old data")
     }
     this.textureData = data
@@ -69,17 +73,17 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(TextureT
     gl30.glTexImage3D(
       TextureTarget.Texture2DArray,
       0,
-      data.getInternalFormat(),
-      data.getWidth(),
-      data.getHeight(),
-      data.getDepth(),
+      data.internalFormat,
+      data.width,
+      data.height,
+      data.depth,
       0,
-      PixelFormat(data.getInternalFormat()),
-      DataType(data.getGLType()),
+      PixelFormat(data.internalFormat),
+      DataType(data.glType),
       null
     )
 
-    if (!data.isPrepared()) data.prepare()
+    if (!data.isPrepared) data.prepare()
 
     data.consumeTextureArrayData()
 
@@ -88,13 +92,13 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(TextureT
     Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
-  override def getWidth: Pixels = Pixels(textureData.getWidth())
+  override def width: Pixels = Pixels(textureData.width)
 
-  override def getHeight: Pixels = Pixels(textureData.getHeight())
+  override def height: Pixels = Pixels(textureData.height)
 
-  override def getDepth: Int = textureData.getDepth()
+  override def depth: Int = textureData.depth
 
-  override def managed: Boolean = textureData.isManaged()
+  override def managed: Boolean = textureData.isManaged
 
   override protected def reload(): Unit = {
     if (!managed) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
@@ -137,7 +141,7 @@ object TextureArray {
     }
   }
 
-  def getManagedStatus(): String = {
+  def managedStatus: String = {
     val builder = new StringBuilder()
     builder.append("Managed TextureArrays/app: { ")
     for (app <- managedTextureArrays.keys) {
@@ -149,6 +153,6 @@ object TextureArray {
   }
 
   /** @return the number of managed TextureArrays currently loaded */
-  def getNumManagedTextureArrays()(using Sge): Int =
+  def numManagedTextureArrays(using Sge): Int =
     managedTextureArrays.get(Sge().application).map(_.size).getOrElse(0)
 }

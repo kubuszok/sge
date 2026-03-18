@@ -28,7 +28,7 @@ import sge.utils.Nullable
   *   Nathan Sweet
   */
 class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
-  private var patch: NinePatch = scala.compiletime.uninitialized
+  private var _patch: NinePatch = scala.compiletime.uninitialized
 
   def this(patch: NinePatch) = {
     this()
@@ -48,19 +48,19 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
         minHeight = bd.minHeight
         name = bd.name
     }
-    this.patch = drawable.patch
+    this._patch = drawable.patch
   }
 
   override def draw(batch: Batch, x: Float, y: Float, width: Float, height: Float): Unit =
-    patch.draw(batch, x, y, width, height)
+    _patch.draw(batch, x, y, width, height)
 
   override def draw(batch: Batch, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit =
-    patch.draw(batch, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
+    _patch.draw(batch, x, y, originX, originY, width, height, scaleX, scaleY, rotation)
 
   /** Sets this drawable's ninepatch and set the min width, min height, top height, right width, bottom height, and left width to the patch's padding.
     */
   def setPatch(patch: NinePatch): Unit = {
-    this.patch = patch
+    this._patch = patch
     Nullable(patch).foreach { p =>
       minWidth = p.totalWidth
       minHeight = p.totalHeight
@@ -71,12 +71,12 @@ class NinePatchDrawable() extends BaseDrawable with TransformDrawable {
     }
   }
 
-  def getPatch: NinePatch = patch
+  def patch: NinePatch = _patch
 
   /** Creates a new drawable that renders the same as this drawable tinted the specified color. */
   def tint(tint: Color): NinePatchDrawable = {
     val drawable = NinePatchDrawable(this)
-    drawable.patch = NinePatch(drawable.getPatch, tint)
+    drawable.setPatch(NinePatch(drawable.patch, tint))
     drawable
   }
 }

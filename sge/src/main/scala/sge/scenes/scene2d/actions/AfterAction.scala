@@ -30,7 +30,7 @@ class AfterAction extends DelegateAction {
 
   override def setTarget(newTarget: Nullable[Actor]): Unit = {
     newTarget.foreach { t =>
-      waitForActions.addAll(t.getActions)
+      waitForActions.addAll(t.actions)
     }
     super.setTarget(newTarget)
   }
@@ -42,7 +42,7 @@ class AfterAction extends DelegateAction {
 
   override protected def delegate(delta: Seconds): Boolean =
     target.forall { t =>
-      val currentActions = t.getActions
+      val currentActions = t.actions
       if (currentActions.size == 1) waitForActions.clear()
       var i = waitForActions.size - 1
       while (i >= 0) {

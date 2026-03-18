@@ -130,9 +130,9 @@ abstract class BaseTiledMapLoader[P <: BaseTiledMapLoader.Parameters](resolver: 
     offsetY:       Float
   ): Unit = {
     val tile: TiledMapTile = StaticTiledMapTile(textureRegion)
-    tile.setId(tileId)
-    tile.setOffsetX(offsetX)
-    tile.setOffsetY(if (flipY) -offsetY else offsetY)
+    tile.id = tileId
+    tile.offsetX = offsetX
+    tile.offsetY = if (flipY) -offsetY else offsetY
     tileSet.putTile(tileId, tile)
   }
 

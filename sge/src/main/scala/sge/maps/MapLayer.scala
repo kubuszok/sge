@@ -9,10 +9,17 @@
  * Migration notes:
  *   Renames: GdxRuntimeException -> SgeError.InvalidInput; getName/setName → var name,
  *     isVisible/setVisible → var visible, getObjects → val objects, getProperties → val properties,
- *     getParallaxX/setParallaxX → var parallaxX, getParallaxY/setParallaxY → var parallaxY
+ *     getParallaxX/setParallaxX → var parallaxX, getParallaxY/setParallaxY → var parallaxY,
+ *     getOpacity/setOpacity → def opacity/opacity_=,
+ *     getCombinedTintColor → def combinedTintColor,
+ *     getTintColor/setTintColor → def tintColor/tintColor_=,
+ *     getOffsetX/setOffsetX → def offsetX/offsetX_=,
+ *     getOffsetY/setOffsetY → def offsetY/offsetY_=,
+ *     getRenderOffsetX → def renderOffsetX, getRenderOffsetY → def renderOffsetY,
+ *     getParent/setParent → def parent/parent_=
  *   Convention: null parent field -> Nullable[MapLayer]; null checks -> .fold/.foreach
- *   Idiom: getOpacity/getCombinedTintColor use Nullable.fold instead of null-check branches
- *   Idiom: setParent validates via Nullable.foreach instead of == null check
+ *   Idiom: opacity/combinedTintColor use Nullable.fold instead of null-check branches
+ *   Idiom: parent_= validates via Nullable.foreach instead of == null check
  *   Audited: 2026-03-03
  */
 package sge
@@ -25,72 +32,72 @@ import sge.utils.{ Nullable, SgeError }
 class MapLayer {
   var name:                      String             = ""
   private var _opacity:          Float              = 1.0f
-  private val tintColor:         Color              = Color(Color.WHITE)
+  private val _tintColor:        Color              = Color(Color.WHITE)
   private val tempColor:         Color              = Color(Color.WHITE)
   var visible:                   Boolean            = true
-  private var offsetX:           Float              = 0f
-  private var offsetY:           Float              = 0f
-  private var renderOffsetX:     Float              = 0f
-  private var renderOffsetY:     Float              = 0f
+  private var _offsetX:          Float              = 0f
+  private var _offsetY:          Float              = 0f
+  private var _renderOffsetX:    Float              = 0f
+  private var _renderOffsetY:    Float              = 0f
   var parallaxX:                 Float              = 1f
   var parallaxY:                 Float              = 1f
   private var renderOffsetDirty: Boolean            = true
-  private var parent:            Nullable[MapLayer] = Nullable.empty
+  private var _parent:           Nullable[MapLayer] = Nullable.empty
   val objects:                   MapObjects         = MapObjects()
   val properties:                MapProperties      = MapProperties()
 
   /** @return layer's opacity (combined with parent opacity) */
-  def getOpacity: Float =
-    parent.fold(_opacity)(p => _opacity * p.getOpacity)
+  def opacity: Float =
+    _parent.fold(_opacity)(p => _opacity * p.opacity)
 
   /** @param opacity new opacity for the layer */
-  def setOpacity(opacity: Float): Unit =
+  def opacity_=(opacity: Float): Unit =
     this._opacity = opacity
 
   /** Returns a temporary color that is the combination of this layer's tint color and its parent's tint color. The returned color is reused internally, so it should not be held onto or modified.
     * @return
     *   layer's tint color combined with the parent's tint color
     */
-  def getCombinedTintColor: Color =
-    parent.fold(tempColor.set(tintColor))(p => tempColor.set(tintColor).mul(p.getCombinedTintColor))
+  def combinedTintColor: Color =
+    _parent.fold(tempColor.set(_tintColor))(p => tempColor.set(_tintColor).mul(p.combinedTintColor))
 
   /** @return layer's tint color */
-  def getTintColor: Color = tintColor
+  def tintColor: Color = _tintColor
 
   /** @param tintColor new tint color for the layer */
-  def setTintColor(tintColor: Color): Unit =
-    this.tintColor.set(tintColor)
+  def tintColor_=(tintColor: Color): Unit =
+    this._tintColor.set(tintColor)
 
   /** @return layer's x offset */
-  def getOffsetX: Float = offsetX
+  def offsetX: Float = _offsetX
 
   /** @param offsetX new x offset for the layer */
-  def setOffsetX(offsetX: Float): Unit = {
-    this.offsetX = offsetX
+  def offsetX_=(offsetX: Float): Unit = {
+    this._offsetX = offsetX
     invalidateRenderOffset()
   }
 
   /** @return layer's y offset */
-  def getOffsetY: Float = offsetY
+  def offsetY: Float = _offsetY
 
   /** @param offsetY new y offset for the layer */
-  def setOffsetY(offsetY: Float): Unit = {
-    this.offsetY = offsetY
+  def offsetY_=(offsetY: Float): Unit = {
+    this._offsetY = offsetY
     invalidateRenderOffset()
   }
 
   // parallaxX and parallaxY are public vars
 
   /** @return the layer's x render offset, this takes into consideration all parent layers' offsets */
-  def getRenderOffsetX: Float = {
+  def renderOffsetX: Float = {
     if (renderOffsetDirty) calculateRenderOffsets()
-    renderOffsetX
+    _renderOffsetX
   }
 
   /** @return the layer's y render offset, this takes into consideration all parent layers' offsets */
-  def getRenderOffsetY: Float = {
+  def renderOffsetY: Float = {
     if (renderOffsetDirty) calculateRenderOffsets()
-    renderOffsetY
+    _renderOffsetY
   }
 
   /** set the renderOffsetDirty state to true, when this layer or any parents' offset has changed * */
@@ -98,26 +105,26 @@ class MapLayer {
     renderOffsetDirty = true
 
   /** @return the layer's parent {@link MapLayer}, or null if the layer does not have a parent * */
-  def getParent: Nullable[MapLayer] = parent
+  def parent: Nullable[MapLayer] = _parent
 
   /** @param parent the layer's new parent {@MapLayer}, internal use only * */
-  def setParent(parent: Nullable[MapLayer]): Unit = {
+  def parent_=(parent: Nullable[MapLayer]): Unit = {
     parent.foreach { p =>
       if (p eq this) throw SgeError.InvalidInput("Can't set self as the parent")
     }
-    this.parent = parent
+    this._parent = parent
   }
 
   // objects, visible, and properties are public vars/vals
 
   protected def calculateRenderOffsets(): Unit = {
-    parent.fold {
-      renderOffsetX = offsetX
-      renderOffsetY = offsetY
+    _parent.fold {
+      _renderOffsetX = _offsetX
+      _renderOffsetY = _offsetY
     } { p =>
       p.calculateRenderOffsets()
-      renderOffsetX = p.getRenderOffsetX + offsetX
-      renderOffsetY = p.getRenderOffsetY + offsetY
+      _renderOffsetX = p.renderOffsetX + _offsetX
+      _renderOffsetY = p.renderOffsetY + _offsetY
     }
     renderOffsetDirty = false
   }

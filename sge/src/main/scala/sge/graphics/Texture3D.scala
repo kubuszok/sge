@@ -28,34 +28,35 @@ import sge.utils.SgeError
   * @author
   *   mgsx
   */
-class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(TextureTarget.Texture3D, TextureHandle(Sge().graphics.gl.glGenTexture())) {
+class Texture3D(initialData: Texture3DData)(using Sge) extends GLTexture(TextureTarget.Texture3D, TextureHandle(Sge().graphics.gl.glGenTexture())) {
 
   private var textureData: Texture3DData = scala.compiletime.uninitialized
   protected var rWrap:     TextureWrap   = TextureWrap.ClampToEdge
 
-  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using Sge) =
+  def this(width: Int, height: Int, depth: Int, glFormat: Int, glInternalFormat: Int, glType: Int)(using Sge) = {
     this(CustomTexture3DData(width, height, depth, 0, glFormat, glInternalFormat, glType))
+  }
 
   if (Sge().graphics.gl30.isEmpty) {
     throw SgeError.GraphicsError("Texture3D requires a device running with GLES 3.0 compatibility")
   }
 
-  load(data)
+  load(initialData)
 
-  if (data.isManaged()) {
+  if (initialData.isManaged) {
     Texture3D.addManagedTexture(Sge().application, this)
   }
 
   private def load(data: Texture3DData): Unit = {
     Nullable(this.textureData).foreach { existing =>
-      if (data.isManaged() != existing.isManaged())
+      if (data.isManaged != existing.isManaged)
         throw SgeError.GraphicsError("New data must have the same managed status as the old data")
     }
     this.textureData = data
 
     bind()
 
-    if (!data.isPrepared()) data.prepare()
+    if (!data.isPrepared) data.prepare()
 
     data.consume3DData()
 
@@ -65,20 +66,20 @@ class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(TextureTarget.
     Sge().graphics.gl.glBindTexture(glTarget, 0)
   }
 
-  def getData(): Texture3DData = textureData
+  def data: Texture3DData = textureData
 
   def upload(): Unit = {
     bind()
     textureData.consume3DData()
   }
 
-  override def getWidth: Pixels = Pixels(textureData.getWidth())
+  override def width: Pixels = Pixels(textureData.width)
 
-  override def getHeight: Pixels = Pixels(textureData.getHeight())
+  override def height: Pixels = Pixels(textureData.height)
 
-  override def getDepth: Int = textureData.getDepth()
+  override def depth: Int = textureData.depth
 
-  override def managed: Boolean = textureData.isManaged()
+  override def managed: Boolean = textureData.isManaged
 
   override protected def reload(): Unit = {
     if (!managed) throw SgeError.GraphicsError("Tried to reload an unmanaged TextureArray")
@@ -89,13 +90,13 @@ class Texture3D(data: Texture3DData)(using Sge) extends GLTexture(TextureTarget.
   def setWrap(u: TextureWrap, v: TextureWrap, r: TextureWrap): Unit = {
     this.rWrap = r
     super.setWrap(u, v)
-    Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
+    Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.glEnum)
   }
 
   def unsafeSetWrap(u: TextureWrap, v: TextureWrap, r: TextureWrap, force: Boolean): Unit = {
     unsafeSetWrap(u, v, force)
     if (force || rWrap != r) {
-      Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.getGLEnum())
+      Sge().graphics.gl.glTexParameteri(glTarget, GL30.GL_TEXTURE_WRAP_R, r.glEnum)
       rWrap = r
     }
   }
@@ -122,7 +123,7 @@ object Texture3D {
       managedTextureArray.foreach(_.reload())
     }
 
-  def getManagedStatus(): String = {
+  def managedStatus: String = {
     val builder = StringBuilder()
     builder.append("Managed TextureArrays/app: { ")
     for ((_, textures) <- managedTexture3Ds) {
@@ -134,6 +135,6 @@ object Texture3D {
   }
 
   /** @return the number of managed Texture3D currently loaded */
-  def getNumManagedTextures3D()(using Sge): Int =
+  def numManagedTextures3D(using Sge): Int =
     managedTexture3Ds.get(Sge().application).map(_.size).getOrElse(0)
 }

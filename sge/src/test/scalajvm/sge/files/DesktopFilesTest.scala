@@ -15,15 +15,15 @@ class DesktopFilesTest extends munit.FunSuite {
   // ---- storage paths ----
 
   test("externalStoragePath ends with separator") {
-    assert(files.getExternalStoragePath.endsWith(File.separator))
+    assert(files.externalStoragePath.endsWith(File.separator))
   }
 
   test("externalStoragePath points to user home") {
-    assertEquals(files.getExternalStoragePath, System.getProperty("user.home") + File.separator)
+    assertEquals(files.externalStoragePath, System.getProperty("user.home") + File.separator)
   }
 
   test("localStoragePath ends with separator") {
-    assert(files.getLocalStoragePath.endsWith(File.separator))
+    assert(files.localStoragePath.endsWith(File.separator))
   }
 
   test("isExternalStorageAvailable is true") {
@@ -39,7 +39,7 @@ class DesktopFilesTest extends munit.FunSuite {
   test("classpath returns Classpath type") {
     val fh = files.classpath("some/resource.txt")
     assertEquals(fh.fileType, FileType.Classpath)
-    assertEquals(fh.path(), "some/resource.txt")
+    assertEquals(fh.path, "some/resource.txt")
   }
 
   test("internal returns Internal type") {
@@ -65,6 +65,6 @@ class DesktopFilesTest extends munit.FunSuite {
   test("getFileHandle with explicit type") {
     val fh = files.getFileHandle("path", FileType.External)
     assertEquals(fh.fileType, FileType.External)
-    assertEquals(fh.path(), "path")
+    assertEquals(fh.path, "path")
   }
 }

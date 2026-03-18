@@ -14,18 +14,18 @@ object DesktopApplicationFactory {
     *
     * The shared libraries (GLFW, ANGLE, miniaudio) must be available on the system library path. Initializes the windowing/audio/GL subsystems and blocks until the application exits.
     *
-    * @param listener
-    *   the application logic callbacks
+    * @param listenerFactory
+    *   a context function that creates the application listener when given an [[Sge]] context
     * @param config
     *   the application configuration (defaults to standard settings)
     */
   def apply(
-    listener: ApplicationListener,
-    config:   DesktopApplicationConfig = DesktopApplicationConfig()
+    listenerFactory: Sge ?=> ApplicationListener,
+    config:          DesktopApplicationConfig = DesktopApplicationConfig()
   ): DesktopApplication = {
     val windowing = sge.platform.WindowingOpsNative
     val audioOps  = sge.platform.AudioOpsNative
     val glOps     = sge.platform.GlOpsNative
-    new DesktopApplication(listener, config, windowing, audioOps, glOps, () => new sge.graphics.AngleGL32Native())
+    new DesktopApplication(listenerFactory, config, windowing, audioOps, glOps, () => new sge.graphics.AngleGL32Native())
   }
 }

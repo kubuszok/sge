@@ -78,7 +78,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     for (i <- attributesArray.indices) {
       val attribute = attributesArray(i)
       attribute.offset = count
-      count += attribute.getSizeInBytes()
+      count += attribute.sizeInBytes
     }
     count
   }
@@ -158,7 +158,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
     mask | (attributesArray.length.toLong << 32)
 
   /** @return Number of bone weights based on {@link VertexAttribute#unit} */
-  def getBoneWeights(): Int = {
+  def boneWeights: Int = {
     if (boneWeightUnits < 0) {
       boneWeightUnits = 0
       for (i <- attributesArray.indices) {

@@ -38,13 +38,13 @@ import sge.utils.Nullable
   */
 class VertexBufferObjectWithVAO(using Sge) extends VertexData {
 
-  var attributes:   VertexAttributes = scala.compiletime.uninitialized
-  var buffer:       FloatBuffer      = scala.compiletime.uninitialized
-  var byteBuffer:   ByteBuffer       = scala.compiletime.uninitialized
-  var ownsBuffer:   Boolean          = scala.compiletime.uninitialized
-  var bufferHandle: Int              = scala.compiletime.uninitialized
-  var isStatic:     Boolean          = scala.compiletime.uninitialized
-  var usage:        BufferUsage      = scala.compiletime.uninitialized
+  private var _attributes: VertexAttributes = scala.compiletime.uninitialized
+  var buffer:              FloatBuffer      = scala.compiletime.uninitialized
+  var byteBuffer:          ByteBuffer       = scala.compiletime.uninitialized
+  var ownsBuffer:          Boolean          = scala.compiletime.uninitialized
+  var bufferHandle:        Int              = scala.compiletime.uninitialized
+  var isStatic:            Boolean          = scala.compiletime.uninitialized
+  var usage:               BufferUsage      = scala.compiletime.uninitialized
   var isDirty         = false
   var isBound         = false
   var vaoHandle       = -1
@@ -85,7 +85,7 @@ class VertexBufferObjectWithVAO(using Sge) extends VertexData {
   def this(isStatic: Boolean, unmanagedBuffer: ByteBuffer, attributes: VertexAttributes)(using Sge) = {
     this()
     this.isStatic = isStatic
-    this.attributes = attributes
+    this._attributes = attributes
 
     byteBuffer = unmanagedBuffer
     ownsBuffer = false
@@ -99,7 +99,7 @@ class VertexBufferObjectWithVAO(using Sge) extends VertexData {
 
   private def init(isStatic: Boolean, numVertices: Int, attributes: VertexAttributes): Unit = {
     this.isStatic = isStatic
-    this.attributes = attributes
+    this._attributes = attributes
 
     byteBuffer = BufferUtils.newUnsafeByteBuffer(attributes.vertexSize * numVertices)
     buffer = byteBuffer.asFloatBuffer()
@@ -111,11 +111,11 @@ class VertexBufferObjectWithVAO(using Sge) extends VertexData {
     createVAO()
   }
 
-  override def getAttributes(): VertexAttributes = attributes
+  override def attributes: VertexAttributes = _attributes
 
-  override def getNumVertices(): Int = buffer.limit() * 4 / attributes.vertexSize
+  override def numVertices: Int = buffer.limit() * 4 / _attributes.vertexSize
 
-  override def getNumMaxVertices(): Int = byteBuffer.capacity() / attributes.vertexSize
+  override def numMaxVertices: Int = byteBuffer.capacity() / _attributes.vertexSize
 
   /** @deprecated use {@link #getBuffer(boolean)} instead */
   @deprecated("use getBuffer(boolean) instead", "")

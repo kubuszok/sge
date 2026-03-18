@@ -36,7 +36,7 @@ class Image(initialDrawable: Nullable[Drawable] = Nullable.empty, private var _s
   private var _drawable: Nullable[Drawable] = Nullable.empty
 
   this.drawable = initialDrawable
-  setSize(getPrefWidth, getPrefHeight)
+  setSize(prefWidth, prefHeight)
 
   /** Creates an image stretched, and aligned center.
     * @param patch
@@ -120,7 +120,7 @@ class Image(initialDrawable: Nullable[Drawable] = Nullable.empty, private var _s
       drawable.fold {
         invalidateHierarchy()
       } { d =>
-        if (getPrefWidth != d.minWidth || getPrefHeight != d.minHeight) invalidateHierarchy()
+        if (prefWidth != d.minWidth || prefHeight != d.minHeight) invalidateHierarchy()
       }
       this._drawable = drawable
     }
@@ -142,13 +142,13 @@ class Image(initialDrawable: Nullable[Drawable] = Nullable.empty, private var _s
     invalidate()
   }
 
-  override def getMinWidth: Float = 0
+  override def minWidth: Float = 0
 
-  override def getMinHeight: Float = 0
+  override def minHeight: Float = 0
 
-  override def getPrefWidth: Float = _drawable.map(_.minWidth).getOrElse(0f)
+  override def prefWidth: Float = _drawable.map(_.minWidth).getOrElse(0f)
 
-  override def getPrefHeight: Float = _drawable.map(_.minHeight).getOrElse(0f)
+  override def prefHeight: Float = _drawable.map(_.minHeight).getOrElse(0f)
 
   override def toString: String =
     name.getOrElse {

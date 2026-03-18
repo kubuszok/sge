@@ -51,6 +51,6 @@ object BrowserGyroscope {
   def isSupported: Boolean =
     js.typeOf(js.Dynamic.global.Gyroscope) != "undefined"
 
-  def getInstance(): BrowserGyroscope =
+  lazy val instance: BrowserGyroscope =
     new BrowserGyroscope(js.Dynamic.newInstance(js.Dynamic.global.Gyroscope)())
 }

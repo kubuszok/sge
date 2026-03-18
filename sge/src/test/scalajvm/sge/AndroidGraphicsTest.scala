@@ -89,12 +89,12 @@ class AndroidGraphicsTest extends FunSuite {
 
   test("graphics type is AndroidGL") {
     val (g, _, _, _) = mkGraphics()
-    assertEquals(g.getType(), Graphics.GraphicsType.AndroidGL)
+    assertEquals(g.graphicsType, Graphics.GraphicsType.AndroidGL)
   }
 
   test("isFullscreen always returns true") {
     val (g, _, _, _) = mkGraphics()
-    assert(g.isFullscreen())
+    assert(g.fullscreen)
   }
 
   test("supportsDisplayModeChange returns false") {
@@ -104,42 +104,42 @@ class AndroidGraphicsTest extends FunSuite {
 
   test("dimensions reflect width/height vars") {
     val (g, _, _, _) = mkGraphics()
-    g.width = 1080
-    g.height = 1920
-    assertEquals(g.getWidth(), Pixels(1080))
-    assertEquals(g.getHeight(), Pixels(1920))
-    assertEquals(g.getBackBufferWidth(), Pixels(1080))
-    assertEquals(g.getBackBufferHeight(), Pixels(1920))
-    assertEquals(g.getBackBufferScale(), 1f)
+    g._width = 1080
+    g._height = 1920
+    assertEquals(g.width, Pixels(1080))
+    assertEquals(g.height, Pixels(1920))
+    assertEquals(g.backBufferWidth, Pixels(1080))
+    assertEquals(g.backBufferHeight, Pixels(1920))
+    assertEquals(g.backBufferScale, 1f)
   }
 
   test("DPI/density delegates to display metrics ops") {
     val (g, dm, _, _) = mkGraphics()
     dm.ppiX = 320f
     dm.density = 2.0f
-    assertEquals(g.getPpiX(), 320f)
-    assertEquals(g.getDensity(), 2.0f)
+    assertEquals(g.ppiX, 320f)
+    assertEquals(g.density, 2.0f)
   }
 
   test("safe insets update from display metrics ops") {
     val (g, _, _, _) = mkGraphics()
     g.updateSafeInsets("window")
-    assertEquals(g.getSafeInsetLeft(), Pixels(10))
-    assertEquals(g.getSafeInsetTop(), Pixels(20))
-    assertEquals(g.getSafeInsetRight(), Pixels(10))
-    assertEquals(g.getSafeInsetBottom(), Pixels(30))
+    assertEquals(g.safeInsetLeft, Pixels(10))
+    assertEquals(g.safeInsetTop, Pixels(20))
+    assertEquals(g.safeInsetRight, Pixels(10))
+    assertEquals(g.safeInsetBottom, Pixels(30))
   }
 
   test("frame timing updates correctly") {
     val (g, _, _, _) = mkGraphics()
     // First frame
     g.updateFrameTiming(false)
-    assert(g.getFrameId() == 0L)
-    assert(g.getDeltaTime() >= 0f)
+    assert(g.frameId == 0L)
+    assert(g.deltaTime >= 0f)
 
     // Second frame
     g.updateFrameTiming(false)
-    assert(g.getFrameId() == 1L)
+    assert(g.frameId == 1L)
   }
 
   test("frame timing resets delta on resume") {
@@ -147,18 +147,18 @@ class AndroidGraphicsTest extends FunSuite {
     g.updateFrameTiming(false)
     Thread.sleep(10)
     g.updateFrameTiming(true)
-    assertEquals(g.getDeltaTime(), 0f)
+    assertEquals(g.deltaTime, 0f)
   }
 
   test("continuous rendering delegates to GL surface view") {
     val (g, _, glv, _) = mkGraphics()
     g.setContinuousRendering(false)
     assert(!glv.continuousRendering)
-    assert(!g.isContinuousRendering())
+    assert(!g.continuousRendering)
 
     g.setContinuousRendering(true)
     assert(glv.continuousRendering)
-    assert(g.isContinuousRendering())
+    assert(g.continuousRendering)
   }
 
   test("requestRendering delegates to GL surface view") {
@@ -169,7 +169,7 @@ class AndroidGraphicsTest extends FunSuite {
 
   test("display mode returns metrics from ops") {
     val (g, _, _, _) = mkGraphics()
-    val dm           = g.getDisplayMode()
+    val dm           = g.displayMode
     assertEquals(dm.width, 1080)
     assertEquals(dm.height, 1920)
     assertEquals(dm.refreshRate, 60)
@@ -178,15 +178,15 @@ class AndroidGraphicsTest extends FunSuite {
 
   test("monitor stubs return primary monitor") {
     val (g, _, _, _) = mkGraphics()
-    val primary      = g.getPrimaryMonitor()
+    val primary      = g.primaryMonitor
     assertEquals(primary.name, "Primary Monitor")
-    assertEquals(g.getMonitor(), primary)
-    assertEquals(g.getMonitors().length, 1)
+    assertEquals(g.monitor, primary)
+    assertEquals(g.monitors.length, 1)
   }
 
   test("buffer format reflects config") {
     val (g, _, _, _) = mkGraphics()
-    val bf           = g.getBufferFormat()
+    val bf           = g.bufferFormat
     assertEquals(bf.r, 8)
     assertEquals(bf.g, 8)
     assertEquals(bf.b, 8)
@@ -199,7 +199,7 @@ class AndroidGraphicsTest extends FunSuite {
   test("updateBufferFormat changes buffer format") {
     val (g, _, _, _) = mkGraphics()
     g.updateBufferFormat(5, 6, 5, 0, 24, 8, 4, true)
-    val bf = g.getBufferFormat()
+    val bf = g.bufferFormat
     assertEquals(bf.r, 5)
     assertEquals(bf.g, 6)
     assertEquals(bf.b, 5)
@@ -212,12 +212,12 @@ class AndroidGraphicsTest extends FunSuite {
 
   test("GL30 not available by default") {
     val (g, _, _, _) = mkGraphics()
-    assert(!g.isGL30Available())
-    assert(!g.isGL31Available())
-    assert(!g.isGL32Available())
-    assert(g.getGL30().isEmpty)
-    assert(g.getGL31().isEmpty)
-    assert(g.getGL32().isEmpty)
+    assert(!g.gl30Available)
+    assert(!g.gl31Available)
+    assert(!g.gl32Available)
+    assert(g.gl30.isEmpty)
+    assert(g.gl31.isEmpty)
+    assert(g.gl32.isEmpty)
   }
 
   test("setFullscreenMode and setWindowedMode return false") {

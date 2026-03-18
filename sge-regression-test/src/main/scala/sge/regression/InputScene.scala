@@ -21,10 +21,10 @@ object InputScene extends RegressionScene {
     try {
       val input = Sge().input
       // All of these should work without throwing
-      val x    = input.getX()
-      val y    = input.getY()
-      val maxP = input.getMaxPointers()
-      input.isTouched()
+      val x    = input.x
+      val y    = input.y
+      val maxP = input.maxPointers
+      input.isTouched(0)
       input.isKeyPressed(Input.Keys.A)
 
       SmokeResult.logCheck("INPUT_POLL", maxP > 0, s"pos=($x,$y), maxPointers=$maxP")

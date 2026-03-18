@@ -33,15 +33,15 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
     val batchColor = batch.color
     val color      = getTileLayerColor(layer, batchColor)
 
-    val layerWidth  = layer.getWidth
-    val layerHeight = layer.getHeight
+    val layerWidth  = layer.width
+    val layerHeight = layer.height
 
-    val layerOffsetX = layer.getRenderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
+    val layerOffsetX = layer.renderOffsetX * unitScale - viewBounds.x * (layer.parallaxX - 1)
     // offset in tiled is y down, so we flip it
-    val layerOffsetY = -layer.getRenderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
+    val layerOffsetY = -layer.renderOffsetY * unitScale - viewBounds.y * (layer.parallaxY - 1)
 
-    val layerTileWidth  = layer.getTileWidth * unitScale
-    val layerTileHeight = layer.getTileHeight * unitScale
+    val layerTileWidth  = layer.tileWidth * unitScale
+    val layerTileHeight = layer.tileHeight * unitScale
 
     val layerTileWidth50  = layerTileWidth * 0.50f
     val layerTileHeight50 = layerTileHeight * 0.50f
@@ -64,10 +64,10 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
             val flipX     = c.flipHorizontally
             val flipY     = c.flipVertically
             val rotations = c.rotation
-            val region    = t.getTextureRegion
+            val region    = t.textureRegion
 
-            val x1 = x * layerTileWidth - offsetX + t.getOffsetX * unitScale + layerOffsetX
-            val y1 = y * layerTileHeight50 + t.getOffsetY * unitScale + layerOffsetY
+            val x1 = x * layerTileWidth - offsetX + t.offsetX * unitScale + layerOffsetX
+            val y1 = y * layerTileHeight50 + t.offsetY * unitScale + layerOffsetY
             val x2 = x1 + region.regionWidth * unitScale
             val y2 = y1 + region.regionHeight * unitScale
 
@@ -124,7 +124,7 @@ class IsometricStaggeredTiledMapRenderer(map: TiledMap, unitScale: Float, batch:
     } else {
 
       /** Must offset imagelayer x position by half of tileWidth to match position */
-      val tileWidth     = getMap.properties.getAs[Integer]("tilewidth").get.intValue()
+      val tileWidth     = map.properties.getAs[Integer]("tilewidth").get.intValue()
       val halfTileWidth = (tileWidth * 0.5f) * unitScale
 
       val x  = layer.x

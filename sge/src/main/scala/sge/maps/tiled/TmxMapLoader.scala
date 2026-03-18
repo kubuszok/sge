@@ -64,7 +64,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLo
     for (textureFile <- textureFiles) {
       val texture = Texture(textureFile, parameter.generateMipMaps)
       texture.setFilter(parameter.textureMinFilter, parameter.textureMagFilter)
-      textures.put(textureFile.path(), texture)
+      textures.put(textureFile.path, texture)
     }
 
     val map            = loadTiledMap(tmxFile, parameter, ImageResolver.DirectImageResolver(textures))
@@ -97,7 +97,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLo
 
     val fileHandles = getDependencyFileHandles(tmxFile)
     for (handle <- fileHandles)
-      descriptors.add(AssetDescriptor[Texture](handle.path(), textureParameter))
+      descriptors.add(AssetDescriptor[Texture](handle.path, textureParameter))
 
     descriptors
   }
@@ -197,7 +197,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLo
     val props = tileSet.properties
     if (Nullable(image).isDefined) {
       // One image for the whole tileSet
-      val texture = imageResolver.getImage(image.path())
+      val texture = imageResolver.getImage(image.path)
 
       props.put("imagesource", imageSource)
       props.put("imagewidth", imageWidth:   java.lang.Integer)
@@ -243,7 +243,7 @@ class TmxMapLoader(resolver: FileHandleResolver)(using Sge) extends BaseTmxMapLo
             currentImage = BaseTiledMapLoader.getRelativeFileHandle(tmxFile, imgSource)
           }
         }
-        val texture = imageResolver.getImage(currentImage.path())
+        val texture = imageResolver.getImage(currentImage.path)
         val tileId  = firstgid + tileElement.getIntAttribute("id", 0)
         texture.foreach(t => addStaticTiledMapTile(tileSet, t, tileId, offsetX.toFloat, offsetY.toFloat))
       }

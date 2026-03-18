@@ -28,8 +28,8 @@ import sge.utils.{ BufferUtils, Nullable }
   * @author
   *   mzechner, Dave Clayton <contact@redskyforge.com>
   */
-class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends VertexData {
-  val byteBuffer: ByteBuffer  = BufferUtils.newUnsafeByteBuffer(this.attributes.vertexSize * numVertices)
+class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) extends VertexData {
+  val byteBuffer: ByteBuffer  = BufferUtils.newUnsafeByteBuffer(this.attributes.vertexSize * initialNumVertices)
   val buffer:     FloatBuffer = byteBuffer.asFloatBuffer()
   var isBound = false
 
@@ -44,8 +44,9 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     * @param attributes
     *   the {@link VertexAttribute} s
     */
-  def this(numVertices: Int, attributes: VertexAttribute*) =
-    this(numVertices, VertexAttributes(attributes*))
+  def this(initialNumVertices: Int, attributes: VertexAttribute*) = {
+    this(initialNumVertices, VertexAttributes(attributes*))
+  }
 
   override def close(): Unit =
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
@@ -57,10 +58,10 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
   override def getBuffer(forWriting: Boolean): FloatBuffer =
     buffer
 
-  override def getNumVertices(): Int =
+  override def numVertices: Int =
     buffer.limit() * 4 / attributes.vertexSize
 
-  def getNumMaxVertices(): Int =
+  def numMaxVertices: Int =
     byteBuffer.capacity() / attributes.vertexSize
 
   override def setVertices(vertices: Array[Float], offset: Int, count: Int): Unit = {
@@ -123,9 +124,6 @@ class VertexArray(numVertices: Int, val attributes: VertexAttributes) extends Ve
     }
     isBound = false
   }
-
-  override def getAttributes(): VertexAttributes =
-    attributes
 
   override def invalidate(): Unit = {}
 }

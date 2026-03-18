@@ -25,7 +25,7 @@ package net
 trait ServerSocket extends AutoCloseable {
 
   /** @return the Protocol used by this socket */
-  def getProtocol(): Net.Protocol
+  def protocol: Net.Protocol
 
   /** Accepts a new incoming connection from a client {@link Socket} . The given hints will be applied to the accepted socket. Blocking, call on a separate thread.
     *

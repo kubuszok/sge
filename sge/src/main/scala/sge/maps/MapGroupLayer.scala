@@ -18,10 +18,8 @@ package maps
 /** Map layer containing a set of MapLayers, objects and properties */
 class MapGroupLayer extends MapLayer {
 
-  private val layers: MapLayers = MapLayers()
-
   /** @return the {@link MapLayers} owned by this group */
-  def getLayers: MapLayers = layers
+  val layers: MapLayers = MapLayers()
 
   override def invalidateRenderOffset(): Unit = {
     super.invalidateRenderOffset()

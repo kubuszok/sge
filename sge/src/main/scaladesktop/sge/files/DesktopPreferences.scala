@@ -107,7 +107,7 @@ class DesktopPreferences(fileHandle: FileHandle) extends sge.Preferences {
     val entries = properties.entrySet().iterator()
     while (entries.hasNext) {
       val entry = entries.next()
-      map.put(entry.getKey.asInstanceOf[String], entry.getValue.asInstanceOf[String])
+      map.put(entry.getKey().asInstanceOf[String], entry.getValue.asInstanceOf[String])
     }
     map
   }

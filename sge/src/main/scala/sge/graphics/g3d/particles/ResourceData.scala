@@ -105,14 +105,14 @@ class ResourceData[T]() {
       -1
     }
 
-  def getAssetDescriptors(): DynamicArray[AssetDescriptor[?]] = {
+  def assetDescriptors: DynamicArray[AssetDescriptor[?]] = {
     val descriptors = DynamicArray[AssetDescriptor[?]]()
     for (assetData <- sharedAssets)
       descriptors.add(new AssetDescriptor(assetData.filename, assetData.`type`))
     descriptors
   }
 
-  def getAssets(): DynamicArray[AssetData[?]] =
+  def assets: DynamicArray[AssetData[?]] =
     sharedAssets
 
   /** Creates and adds a new SaveData object to the save data list */
@@ -131,7 +131,7 @@ class ResourceData[T]() {
   }
 
   /** @return the next save data in the list */
-  def getSaveData(): SaveData = {
+  def saveData: SaveData = {
     val result = data(currentLoadIndex)
     currentLoadIndex += 1
     result
@@ -162,8 +162,9 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) =
+    def this(resources: ResourceData[?]) = {
       this(Nullable(resources))
+    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>

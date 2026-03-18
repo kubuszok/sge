@@ -42,8 +42,8 @@ trait Layout {
   def validate(): Unit
 
   /** Sizes this actor to its preferred width and height, then calls {@link #validate()}. <p> Generally this method should not be called in an actor's constructor because it calls {@link #layout()},
-    * which means a subclass would have layout() called before the subclass' constructor. Instead, in constructors simply set the actor's size to {@link #getPrefWidth()} and {@link #getPrefHeight()}.
-    * This allows the actor to have a size at construction time for more convenient use with groups that do not layout their children.
+    * which means a subclass would have layout() called before the subclass' constructor. Instead, in constructors simply set the actor's size to {@link #prefWidth} and {@link #prefHeight}. This
+    * allows the actor to have a size at construction time for more convenient use with groups that do not layout their children.
     */
   def pack(): Unit
 
@@ -57,17 +57,17 @@ trait Layout {
     */
   def setLayoutEnabled(enabled: Boolean): Unit
 
-  def getMinWidth: Float
+  def minWidth: Float
 
-  def getMinHeight: Float
+  def minHeight: Float
 
-  def getPrefWidth: Float
+  def prefWidth: Float
 
-  def getPrefHeight: Float
+  def prefHeight: Float
 
   /** Zero indicates no max width. */
-  def getMaxWidth: Float
+  def maxWidth: Float
 
   /** Zero indicates no max height. */
-  def getMaxHeight: Float
+  def maxHeight: Float
 }

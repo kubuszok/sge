@@ -81,7 +81,7 @@ class DesktopGraphics private[sge] (
     _gl32 = gl32
     updateFramebufferInfo()
     initiateGL()
-    windowing.setFramebufferSizeCallback(window.getWindowHandle(), onFramebufferResize)
+    windowing.setFramebufferSizeCallback(window.windowHandle, onFramebufferResize)
   }
 
   private def initiateGL(): Unit = {
@@ -94,25 +94,24 @@ class DesktopGraphics private[sge] (
   private val onFramebufferResize: (Long, Int, Int) => Unit = { (_, _, _) =>
     updateFramebufferInfo()
     // Update CALayer contentsScale when moving between displays with different DPI
-    windowing.updateNativeLayerScale(window.getWindowHandle())
+    windowing.updateNativeLayerScale(window.windowHandle)
     if (window.isListenerInitialized()) {
-      given Sge = window.sgeContext
       window.makeCurrent()
       _gl20.glViewport(Pixels.zero, Pixels.zero, Pixels(_backBufferWidth), Pixels(_backBufferHeight))
-      window.listener.resize(getWidth(), getHeight())
+      window.listener.resize(width, height)
       update()
       window.listener.render()
-      sge.platform.PlatformOps.gl.swapEglBuffers(window.getEglContext())
+      sge.platform.PlatformOps.gl.swapEglBuffers(window.eglContext)
     }
   }
 
   // ─── Frame info ───────────────────────────────────────────────────────
 
   private[sge] def updateFramebufferInfo(): Unit = {
-    val (fbW, fbH) = windowing.getFramebufferSize(window.getWindowHandle())
+    val (fbW, fbH) = windowing.getFramebufferSize(window.windowHandle)
     _backBufferWidth = fbW
     _backBufferHeight = fbH
-    val (winW, winH) = windowing.getWindowSize(window.getWindowHandle())
+    val (winW, winH) = windowing.getWindowSize(window.windowHandle)
     _logicalWidth = winW
     _logicalHeight = winH
     val c = window.config
@@ -143,56 +142,56 @@ class DesktopGraphics private[sge] (
 
   // ─── GL availability ──────────────────────────────────────────────────
 
-  override def isGL30Available(): Boolean = _gl30.isDefined
-  override def isGL31Available(): Boolean = _gl31.isDefined
-  override def isGL32Available(): Boolean = _gl32.isDefined
+  override def gl30Available: Boolean = _gl30.isDefined
+  override def gl31Available: Boolean = _gl31.isDefined
+  override def gl32Available: Boolean = _gl32.isDefined
 
-  override def getGL20(): GL20           = _gl20
-  override def getGL30(): Nullable[GL30] = _gl30
-  override def getGL31(): Nullable[GL31] = _gl31
-  override def getGL32(): Nullable[GL32] = _gl32
+  override def gl20: GL20           = _gl20
+  override def gl30: Nullable[GL30] = _gl30
+  override def gl31: Nullable[GL31] = _gl31
+  override def gl32: Nullable[GL32] = _gl32
 
-  override def setGL20(gl20: GL20): Unit = _gl20 = gl20
-  override def setGL30(gl30: GL30): Unit = _gl30 = Nullable(gl30)
-  override def setGL31(gl31: GL31): Unit = _gl31 = Nullable(gl31)
-  override def setGL32(gl32: GL32): Unit = _gl32 = Nullable(gl32)
+  override def gl20_=(value: GL20): Unit = _gl20 = value
+  override def gl30_=(value: GL30): Unit = _gl30 = Nullable(value)
+  override def gl31_=(value: GL31): Unit = _gl31 = Nullable(value)
+  override def gl32_=(value: GL32): Unit = _gl32 = Nullable(value)
 
   // ─── Dimensions ───────────────────────────────────────────────────────
 
-  override def getWidth(): Pixels =
+  override def width: Pixels =
     Pixels(if (window.config.hdpiMode == HdpiMode.Pixels) _backBufferWidth else _logicalWidth)
 
-  override def getHeight(): Pixels =
+  override def height: Pixels =
     Pixels(if (window.config.hdpiMode == HdpiMode.Pixels) _backBufferHeight else _logicalHeight)
 
-  override def getBackBufferWidth():  Pixels = Pixels(_backBufferWidth)
-  override def getBackBufferHeight(): Pixels = Pixels(_backBufferHeight)
+  override def backBufferWidth:  Pixels = Pixels(_backBufferWidth)
+  override def backBufferHeight: Pixels = Pixels(_backBufferHeight)
 
-  def getLogicalWidth():  Int = _logicalWidth
-  def getLogicalHeight(): Int = _logicalHeight
+  def logicalWidth:  Int = _logicalWidth
+  def logicalHeight: Int = _logicalHeight
 
-  override def getBackBufferScale(): Float =
+  override def backBufferScale: Float =
     if (_logicalWidth != 0) _backBufferWidth.toFloat / _logicalWidth.toFloat else 1f
 
   // ─── Frame timing ────────────────────────────────────────────────────
 
-  override def getFrameId():         Long  = _frameId
-  override def getDeltaTime():       Float = _deltaTime
-  override def getRawDeltaTime():    Float = _deltaTime
-  override def getFramesPerSecond(): Int   = _fps
+  override def frameId:         Long  = _frameId
+  override def deltaTime:       Float = _deltaTime
+  override def rawDeltaTime:    Float = _deltaTime
+  override def framesPerSecond: Int   = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 
-  override def getType():      Graphics.GraphicsType = Graphics.GraphicsType.LWJGL3
-  override def getGLVersion(): Graphics.GLVersion    = _glVersion
+  override def graphicsType: Graphics.GraphicsType = Graphics.GraphicsType.LWJGL3
+  override def glVersion:    Graphics.GLVersion    = _glVersion
 
   // ─── DPI / density ───────────────────────────────────────────────────
 
-  override def getPpiX(): Float = getPpcX() * 2.54f
-  override def getPpiY(): Float = getPpcY() * 2.54f
+  override def ppiX: Float = ppcX * 2.54f
+  override def ppiY: Float = ppcY * 2.54f
 
-  override def getPpcX(): Float = {
-    val mon          = getCurrentDesktopMonitor()
+  override def ppcX: Float = {
+    val mon          = currentDesktopMonitor
     val (sizeXmm, _) = windowing.getMonitorPhysicalSize(mon.monitorHandle)
     if (sizeXmm == 0) 1f
     else {
@@ -201,8 +200,8 @@ class DesktopGraphics private[sge] (
     }
   }
 
-  override def getPpcY(): Float = {
-    val mon          = getCurrentDesktopMonitor()
+  override def ppcY: Float = {
+    val mon          = currentDesktopMonitor
     val (_, sizeYmm) = windowing.getMonitorPhysicalSize(mon.monitorHandle)
     if (sizeYmm == 0) 1f
     else {
@@ -211,31 +210,31 @@ class DesktopGraphics private[sge] (
     }
   }
 
-  override def getDensity(): Float = getPpiX() / 160f
+  override def density: Float = ppiX / 160f
 
   // ─── Safe insets (none on desktop) ────────────────────────────────────
 
-  override def getSafeInsetLeft():   Pixels = Pixels.zero
-  override def getSafeInsetTop():    Pixels = Pixels.zero
-  override def getSafeInsetBottom(): Pixels = Pixels.zero
-  override def getSafeInsetRight():  Pixels = Pixels.zero
+  override def safeInsetLeft:   Pixels = Pixels.zero
+  override def safeInsetTop:    Pixels = Pixels.zero
+  override def safeInsetBottom: Pixels = Pixels.zero
+  override def safeInsetRight:  Pixels = Pixels.zero
 
   // ─── Display modes / monitors ─────────────────────────────────────────
 
   override def supportsDisplayModeChange(): Boolean = true
 
-  override def getPrimaryMonitor(): Graphics.Monitor = {
-    val handle = windowing.getPrimaryMonitor()
+  override def primaryMonitor: Graphics.Monitor = {
+    val handle = windowing.primaryMonitor
     toDesktopMonitor(handle).toMonitor
   }
 
-  override def getMonitor(): Graphics.Monitor = getCurrentDesktopMonitor().toMonitor
+  override def monitor: Graphics.Monitor = currentDesktopMonitor.toMonitor
 
-  override def getMonitors(): Array[Graphics.Monitor] =
-    windowing.getMonitors().map(h => toDesktopMonitor(h).toMonitor)
+  override def monitors: Array[Graphics.Monitor] =
+    windowing.monitors.map(h => toDesktopMonitor(h).toMonitor)
 
-  override def getDisplayModes(): Array[Graphics.DisplayMode] =
-    getDesktopDisplayModes(getCurrentDesktopMonitor()).map(_.toDisplayMode)
+  override def displayModes: Array[Graphics.DisplayMode] =
+    getDesktopDisplayModes(currentDesktopMonitor).map(_.toDisplayMode)
 
   override def getDisplayModes(monitor: Graphics.Monitor): Array[Graphics.DisplayMode] = {
     // Find the desktop monitor matching by name and position
@@ -243,8 +242,8 @@ class DesktopGraphics private[sge] (
     getDesktopDisplayModes(desktopMon).map(_.toDisplayMode)
   }
 
-  override def getDisplayMode(): Graphics.DisplayMode =
-    getDesktopDisplayMode(getCurrentDesktopMonitor()).toDisplayMode
+  override def displayMode: Graphics.DisplayMode =
+    getDesktopDisplayMode(currentDesktopMonitor).toDisplayMode
 
   override def getDisplayMode(monitor: Graphics.Monitor): Graphics.DisplayMode = {
     val desktopMon = findDesktopMonitor(monitor)
@@ -259,12 +258,12 @@ class DesktopGraphics private[sge] (
     DesktopMonitor(handle, x, y, name)
   }
 
-  private[sge] def getCurrentDesktopMonitor(): DesktopMonitor = {
-    val monitors = windowing.getMonitors().map(toDesktopMonitor)
-    if (monitors.isEmpty) toDesktopMonitor(windowing.getPrimaryMonitor())
+  private[sge] def currentDesktopMonitor: DesktopMonitor = {
+    val monitors = windowing.monitors.map(toDesktopMonitor)
+    if (monitors.isEmpty) toDesktopMonitor(windowing.primaryMonitor)
     else {
-      val (windowX, windowY)          = windowing.getWindowPos(window.getWindowHandle())
-      val (windowWidth, windowHeight) = windowing.getWindowSize(window.getWindowHandle())
+      val (windowX, windowY)          = windowing.getWindowPos(window.windowHandle)
+      val (windowWidth, windowHeight) = windowing.getWindowSize(window.windowHandle)
       var bestOverlap                 = 0
       var result                      = monitors(0)
       var i                           = 0
@@ -285,8 +284,8 @@ class DesktopGraphics private[sge] (
   }
 
   private def findDesktopMonitor(monitor: Graphics.Monitor): DesktopMonitor = {
-    val monitors = windowing.getMonitors().map(toDesktopMonitor)
-    monitors.find(m => m.name == monitor.name && m.virtualX == monitor.virtualX && m.virtualY == monitor.virtualY).getOrElse(toDesktopMonitor(windowing.getPrimaryMonitor()))
+    val monitors = windowing.monitors.map(toDesktopMonitor)
+    monitors.find(m => m.name == monitor.name && m.virtualX == monitor.virtualX && m.virtualY == monitor.virtualY).getOrElse(toDesktopMonitor(windowing.primaryMonitor))
   }
 
   private def getDesktopDisplayModes(monitor: DesktopMonitor): Array[DesktopDisplayMode] =
@@ -302,9 +301,9 @@ class DesktopGraphics private[sge] (
   // ─── Fullscreen / windowed ────────────────────────────────────────────
 
   override def setFullscreenMode(displayMode: Graphics.DisplayMode): Boolean = {
-    window.getInput().resetPollingStates()
+    window.input.resetPollingStates()
     // Find the desktop display mode matching the requested one
-    val mon         = getCurrentDesktopMonitor()
+    val mon         = currentDesktopMonitor
     val desktopMode = getDesktopDisplayModes(mon)
       .find { dm =>
         dm.width == displayMode.width && dm.height == displayMode.height && dm.refreshRate == displayMode.refreshRate
@@ -313,11 +312,11 @@ class DesktopGraphics private[sge] (
         DesktopDisplayMode(mon.monitorHandle, displayMode.width, displayMode.height, displayMode.refreshRate, displayMode.bitsPerPixel)
       )
 
-    if (isFullscreen()) {
-      windowing.setWindowMonitor(window.getWindowHandle(), desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
+    if (fullscreen) {
+      windowing.setWindowMonitor(window.windowHandle, desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
     } else {
       storeCurrentWindowPositionAndDisplayMode()
-      windowing.setWindowMonitor(window.getWindowHandle(), desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
+      windowing.setWindowMonitor(window.windowHandle, desktopMode.monitorHandle, 0, 0, desktopMode.width, desktopMode.height, desktopMode.refreshRate)
     }
     updateFramebufferInfo()
     setVSync(window.config.vSyncEnabled)
@@ -325,20 +324,20 @@ class DesktopGraphics private[sge] (
   }
 
   private def storeCurrentWindowPositionAndDisplayMode(): Unit = {
-    windowPosXBeforeFullscreen = window.getPositionX()
-    windowPosYBeforeFullscreen = window.getPositionY()
+    windowPosXBeforeFullscreen = window.positionX
+    windowPosYBeforeFullscreen = window.positionY
     windowWidthBeforeFullscreen = _logicalWidth
     windowHeightBeforeFullscreen = _logicalHeight
-    displayModeBeforeFullscreen = Nullable(getDesktopDisplayMode(getCurrentDesktopMonitor()))
+    displayModeBeforeFullscreen = Nullable(getDesktopDisplayMode(currentDesktopMonitor))
   }
 
   override def setWindowedMode(width: Pixels, height: Pixels): Boolean = {
-    window.getInput().resetPollingStates()
-    if (!isFullscreen()) {
+    window.input.resetPollingStates()
+    if (!fullscreen) {
       if (width.toInt != _logicalWidth || height.toInt != _logicalHeight) {
-        windowing.setWindowSize(window.getWindowHandle(), width.toInt, height.toInt)
+        windowing.setWindowSize(window.windowHandle, width.toInt, height.toInt)
         // Center the window on current monitor
-        val mon  = getCurrentDesktopMonitor()
+        val mon  = currentDesktopMonitor
         val mode = getDesktopDisplayMode(mon)
         val newX = mon.virtualX + (mode.width - width.toInt) / 2
         val newY = mon.virtualY + (mode.height - height.toInt) / 2
@@ -350,14 +349,14 @@ class DesktopGraphics private[sge] (
       }
       val refreshRate = displayModeBeforeFullscreen.fold(0)(_.refreshRate)
       if (width.toInt != windowWidthBeforeFullscreen || height.toInt != windowHeightBeforeFullscreen) {
-        val mon  = getCurrentDesktopMonitor()
+        val mon  = currentDesktopMonitor
         val mode = getDesktopDisplayMode(mon)
         val newX = mon.virtualX + (mode.width - width.toInt) / 2
         val newY = mon.virtualY + (mode.height - height.toInt) / 2
-        windowing.setWindowMonitor(window.getWindowHandle(), 0L, newX, newY, width.toInt, height.toInt, refreshRate)
+        windowing.setWindowMonitor(window.windowHandle, 0L, newX, newY, width.toInt, height.toInt, refreshRate)
       } else {
         windowing.setWindowMonitor(
-          window.getWindowHandle(),
+          window.windowHandle,
           0L,
           windowPosXBeforeFullscreen,
           windowPosYBeforeFullscreen,
@@ -372,16 +371,16 @@ class DesktopGraphics private[sge] (
   }
 
   override def setTitle(title: String): Unit =
-    windowing.setWindowTitle(window.getWindowHandle(), if (title == null) "" else title) // null-safe — callers may pass null title
+    windowing.setWindowTitle(window.windowHandle, if (title == null) "" else title) // null-safe — callers may pass null title
 
   override def setUndecorated(undecorated: Boolean): Unit = {
     window.config.windowDecorated = !undecorated
-    windowing.setWindowAttrib(window.getWindowHandle(), WindowingOps.GLFW_DECORATED, if (undecorated) 0 else 1)
+    windowing.setWindowAttrib(window.windowHandle, WindowingOps.GLFW_DECORATED, if (undecorated) 0 else 1)
   }
 
   override def setResizable(resizable: Boolean): Unit = {
     window.config.windowResizable = resizable
-    windowing.setWindowAttrib(window.getWindowHandle(), WindowingOps.GLFW_RESIZABLE, if (resizable) 1 else 0)
+    windowing.setWindowAttrib(window.windowHandle, WindowingOps.GLFW_RESIZABLE, if (resizable) 1 else 0)
   }
 
   override def setVSync(vsync: Boolean): Unit = {
@@ -394,7 +393,7 @@ class DesktopGraphics private[sge] (
 
   // ─── Buffer format / extensions ──────────────────────────────────────
 
-  override def getBufferFormat(): Graphics.BufferFormat = _bufferFormat
+  override def bufferFormat: Graphics.BufferFormat = _bufferFormat
 
   override def supportsExtension(extension: String): Boolean =
     windowing.extensionSupported(extension)
@@ -404,13 +403,13 @@ class DesktopGraphics private[sge] (
   override def setContinuousRendering(isContinuous: Boolean): Unit =
     _isContinuous = isContinuous
 
-  override def isContinuousRendering(): Boolean = _isContinuous
+  override def continuousRendering: Boolean = _isContinuous
 
   override def requestRendering(): Unit =
     window.requestRendering()
 
-  override def isFullscreen(): Boolean =
-    windowing.getWindowMonitor(window.getWindowHandle()) != 0L
+  override def fullscreen: Boolean =
+    windowing.getWindowMonitor(window.windowHandle) != 0L
 
   // ─── Cursor ───────────────────────────────────────────────────────────
 
@@ -420,12 +419,12 @@ class DesktopGraphics private[sge] (
 
   override def setCursor(cursor: Cursor): Unit = cursor match {
     case dc: DesktopCursor =>
-      windowing.setCursor(window.getWindowHandle(), dc.glfwCursor)
+      windowing.setCursor(window.windowHandle, dc.glfwCursor)
     case _ => ()
   }
 
   override def setSystemCursor(systemCursor: SystemCursor): Unit =
-    DesktopCursor.setSystemCursor(window.getWindowHandle(), systemCursor)
+    DesktopCursor.setSystemCursor(window.windowHandle, systemCursor)
 
   // ─── Lifecycle ────────────────────────────────────────────────────────
 

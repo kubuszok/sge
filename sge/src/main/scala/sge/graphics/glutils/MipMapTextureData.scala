@@ -28,7 +28,7 @@ import sge.utils.SgeError
 class MipMapTextureData(mipMapData: TextureData*)(using Sge) extends TextureData {
   val mips: Array[TextureData] = mipMapData.toArray
 
-  override def getType(): TextureDataType = TextureDataType.Custom
+  override def dataType: TextureDataType = TextureDataType.Custom
 
   override def isPrepared: Boolean = true
 
@@ -43,9 +43,9 @@ class MipMapTextureData(mipMapData: TextureData*)(using Sge) extends TextureData
     for (i <- mips.indices)
       GLTexture.uploadImageData(target, mips(i), i)
 
-  override def getWidth: Int = mips(0).getWidth
+  override def width: Int = mips(0).width
 
-  override def getHeight: Int = mips(0).getHeight
+  override def height: Int = mips(0).height
 
   override def getFormat: Format = mips(0).getFormat
 

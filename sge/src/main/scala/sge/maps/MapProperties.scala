@@ -94,11 +94,11 @@ class MapProperties {
     properties.clear()
 
   /** @return iterator for the property names */
-  def getKeys: Iterator[String] =
+  def keys: Iterator[String] =
     properties.keysIterator
 
   /** @return iterator to properties' values */
-  def getValues: Iterator[Any] =
+  def values: Iterator[Any] =
     properties.valuesIterator
 
   override def toString: String =

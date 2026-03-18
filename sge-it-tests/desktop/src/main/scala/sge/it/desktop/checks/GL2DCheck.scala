@@ -35,7 +35,7 @@ object GL2DCheck {
 
   def run()(using Sge): CheckResult =
     try {
-      val gl = Sge().graphics.getGL20()
+      val gl = Sge().graphics.gl20
 
       // Clear screen to verify basic GL calls work
       gl.glClearColor(0.1f, 0.2f, 0.3f, 1f)
@@ -44,7 +44,7 @@ object GL2DCheck {
       // Compile shader
       val shader = new ShaderProgram(vertexShader, fragmentShader)
       if (!shader.compiled) {
-        val log = shader.getLog()
+        val log = shader.log
         shader.close()
         return CheckResult("gl2d", passed = false, s"Shader compilation failed: $log")
       }

@@ -65,7 +65,7 @@ class Skin()(using Sge) extends AutoCloseable {
     */
   def this(skinFile: FileHandle)(using Sge) = {
     this()
-    val atlasFile = skinFile.sibling(skinFile.nameWithoutExtension() + ".atlas")
+    val atlasFile = skinFile.sibling(skinFile.nameWithoutExtension + ".atlas")
     if (atlasFile.exists()) {
       _atlas = Nullable(TextureAtlas(atlasFile))
       _atlas.foreach(addRegions)
@@ -173,7 +173,7 @@ class Skin()(using Sge) extends AutoCloseable {
     if (!fontFile.exists()) throw SgeError.InvalidInput("Font file not found: " + fontFile)
 
     // Use a region with the same name as the font, else use a PNG file in the same directory as the FNT file.
-    val regionName = fontFile.nameWithoutExtension()
+    val regionName = fontFile.nameWithoutExtension
     try {
       val font: BitmapFont = {
         val regions = getRegions(regionName)
@@ -603,7 +603,7 @@ class Skin()(using Sge) extends AutoCloseable {
     * true. If the style was not found in the skin, an exception is thrown.
     */
   def setEnabled[V](styleable: Styleable[V], enabled: Boolean): Unit = {
-    val style = styleable.getStyle
+    val style = styleable.style
     val name  = find(style)
     name.foreach { n =>
       val newName  = n.replace("-disabled", "") + (if (enabled) "" else "-disabled")
@@ -613,7 +613,7 @@ class Skin()(using Sge) extends AutoCloseable {
   }
 
   /** Returns the {@link TextureAtlas} passed to this skin constructor, or Nullable.empty. */
-  def getAtlas: Nullable[TextureAtlas] = _atlas
+  def atlas: Nullable[TextureAtlas] = _atlas
 
   /** Disposes the {@link TextureAtlas} and all {@link AutoCloseable} resources in the skin. */
   override def close(): Unit = {

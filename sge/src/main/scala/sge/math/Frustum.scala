@@ -174,14 +174,14 @@ class Frustum {
     */
   def boundsInFrustum(bounds: BoundingBox): Boolean = scala.util.boundary {
     for (i <- planes.indices)
-      if (planes(i).testPoint(bounds.getCorner000(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner001(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner010(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner011(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner100(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner101(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner110(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(bounds.getCorner111(tmpV)) != PlaneSide.Back) {}
+      if (planes(i).testPoint(bounds.corner000(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner001(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner010(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner011(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner100(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner101(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner110(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(bounds.corner111(tmpV)) != PlaneSide.Back) {}
       else
         scala.util.boundary.break(false)
     true
@@ -221,14 +221,14 @@ class Frustum {
     */
   def boundsInFrustum(obb: OrientedBoundingBox): Boolean = scala.util.boundary {
     for (i <- planes.indices)
-      if (planes(i).testPoint(obb.getCorner000(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner001(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner010(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner011(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner100(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner101(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner110(tmpV)) != PlaneSide.Back) {}
-      else if (planes(i).testPoint(obb.getCorner111(tmpV)) != PlaneSide.Back) {}
+      if (planes(i).testPoint(obb.corner000(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner001(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner010(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner011(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner100(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner101(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner110(tmpV)) != PlaneSide.Back) {}
+      else if (planes(i).testPoint(obb.corner111(tmpV)) != PlaneSide.Back) {}
       else scala.util.boundary.break(false)
     true
   }

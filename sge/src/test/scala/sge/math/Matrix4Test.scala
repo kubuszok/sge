@@ -68,7 +68,7 @@ class Matrix4Test extends munit.FunSuite {
 
   test("setTranslation and getTranslation roundtrip") {
     val m   = new Matrix4().idt().setTranslation(10, 20, 30)
-    val pos = m.getTranslation(new Vector3())
+    val pos = m.translation(new Vector3())
     assertEqualsFloat(pos.x, 10f, epsilon)
     assertEqualsFloat(pos.y, 20f, epsilon)
     assertEqualsFloat(pos.z, 30f, epsilon)
@@ -79,7 +79,7 @@ class Matrix4Test extends munit.FunSuite {
     val a = new Matrix4().idt().setTranslation(1, 2, 3)
     val b = new Matrix4().idt().setTranslation(10, 20, 30)
     a.mulLeft(b)
-    val pos = a.getTranslation(new Vector3())
+    val pos = a.translation(new Vector3())
     assertEqualsFloat(pos.x, 11f, epsilon)
     assertEqualsFloat(pos.y, 22f, epsilon)
     assertEqualsFloat(pos.z, 33f, epsilon)
@@ -123,7 +123,7 @@ class Matrix4Test extends munit.FunSuite {
     val q  = new Quaternion().setEulerAngles(45f, 30f, 0f)
     val m  = new Matrix4().idt().set(q)
     val q2 = new Quaternion()
-    m.getRotation(q2)
+    m.rotation(q2)
     // Quaternion may be negated (represents same rotation)
     val dot = q.x * q2.x + q.y * q2.y + q.z * q2.z + q.w * q2.w
     assert(Math.abs(Math.abs(dot) - 1f) < 1e-3f, s"Quaternion dot product: $dot")
@@ -163,10 +163,10 @@ class Matrix4Test extends munit.FunSuite {
     val m = new Matrix4().set(pos, rot, scale)
 
     // Extract back
-    val ePos   = m.getTranslation(new Vector3())
+    val ePos   = m.translation(new Vector3())
     val eScale = m.getScale(new Vector3())
     val eRot   = new Quaternion()
-    m.getRotation(eRot)
+    m.rotation(eRot)
 
     assertEqualsFloat(ePos.x, 10f, 1e-3f)
     assertEqualsFloat(ePos.y, 20f, 1e-3f)

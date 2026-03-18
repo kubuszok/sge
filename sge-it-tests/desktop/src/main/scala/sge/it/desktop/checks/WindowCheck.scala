@@ -12,23 +12,23 @@ object WindowCheck {
   def run()(using Sge): CheckResult =
     try {
       val graphics = Sge().graphics
-      val w        = graphics.getWidth()
-      val h        = graphics.getHeight()
+      val w        = graphics.width
+      val h        = graphics.height
 
       // The harness creates a 100x100 window
       if (w.toInt < 1 || h.toInt < 1) {
         return CheckResult("window", passed = false, s"Invalid dimensions: ${w.toInt}x${h.toInt}")
       }
 
-      val gfxType    = graphics.getType()
-      val glVersion  = graphics.getGLVersion()
-      val bufFmt     = graphics.getBufferFormat()
-      val fps        = graphics.getFramesPerSecond()
-      val dm         = graphics.getDisplayMode()
-      val monitor    = graphics.getMonitor()
-      val fullscreen = graphics.isFullscreen()
+      val gfxType    = graphics.graphicsType
+      val glVersion  = graphics.glVersion
+      val bufFmt     = graphics.bufferFormat
+      val fps        = graphics.framesPerSecond
+      val dm         = graphics.displayMode
+      val monitor    = graphics.monitor
+      val fullscreen = graphics.fullscreen
 
-      val info = s"${w.toInt}x${h.toInt}, type=$gfxType, GL=${glVersion.getMajorVersion()}.${glVersion.getMinorVersion()}, " +
+      val info = s"${w.toInt}x${h.toInt}, type=$gfxType, GL=${glVersion.majorVersion}.${glVersion.minorVersion}, " +
         s"buf=r${bufFmt.r}g${bufFmt.g}b${bufFmt.b}a${bufFmt.a}d${bufFmt.depth}, monitor=${monitor.name}"
 
       CheckResult("window", passed = true, info)

@@ -104,7 +104,7 @@ abstract class BaseShader extends Shader {
   /** Initialize this shader, causing all registered uniforms/attributes to be fetched. */
   def init(program: ShaderProgram, renderable: Renderable): Unit = {
     if (locations.isDefined) throw SgeError.GraphicsError("Already initialized")
-    if (!program.compiled) throw SgeError.GraphicsError(program.getLog())
+    if (!program.compiled) throw SgeError.GraphicsError(program.log)
     this.program = Nullable(program)
 
     val n    = uniforms.size
@@ -135,7 +135,7 @@ abstract class BaseShader extends Shader {
     }
     locations = Nullable(locs)
     Nullable(renderable).foreach { r =>
-      val attrs = r.meshPart.mesh.getVertexAttributes()
+      val attrs = r.meshPart.mesh.vertexAttributes
       val c     = attrs.size
       var j     = 0
       while (j < c) {
@@ -144,7 +144,7 @@ abstract class BaseShader extends Shader {
         if (location >= 0) _attributes.put(attr.key, location)
         j += 1
       }
-      val iattrs = r.meshPart.mesh.getInstancedAttributes()
+      val iattrs = r.meshPart.mesh.instancedAttributes
       iattrs.foreach { ia =>
         val ic = ia.size
         var k  = 0
@@ -224,8 +224,8 @@ abstract class BaseShader extends Shader {
         currentMesh = Nullable(renderable.meshPart.mesh)
         renderable.meshPart.mesh.bind(
           prog,
-          getAttributeLocations(renderable.meshPart.mesh.getVertexAttributes()),
-          getInstancedAttributeLocations(renderable.meshPart.mesh.getInstancedAttributes())
+          getAttributeLocations(renderable.meshPart.mesh.vertexAttributes),
+          getInstancedAttributeLocations(renderable.meshPart.mesh.instancedAttributes)
         )
       }
     }
@@ -394,14 +394,17 @@ object BaseShader {
     val overallMask:     Long = 0L
   ) extends Validator {
 
-    def this(alias: String, materialMask: Long, environmentMask: Long) =
+    def this(alias: String, materialMask: Long, environmentMask: Long) = {
       this(alias, materialMask, environmentMask, 0L)
+    }
 
-    def this(alias: String, overallMask: Long) =
+    def this(alias: String, overallMask: Long) = {
       this(alias, 0L, 0L, overallMask)
+    }
 
-    def this(alias: String) =
+    def this(alias: String) = {
       this(alias, 0L, 0L, 0L)
+    }
 
     override def validate(shader: BaseShader, inputID: Int, renderable: Renderable): Boolean = {
       val r        = Nullable(renderable)

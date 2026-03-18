@@ -109,9 +109,9 @@ object Intersector {
 
   def intersectSegmentPlane(start: Vector3, end: Vector3, plane: Plane, intersection: Vector3): Boolean = boundary {
     val dir   = v0.set(end).sub(start)
-    val denom = dir.dot(plane.getNormal)
+    val denom = dir.dot(plane.normal)
     if (denom == 0f) break(false)
-    val t = -(start.dot(plane.getNormal) + plane.getD) / denom
+    val t = -(start.dot(plane.normal) + plane.d) / denom
     if (t < 0 || t > 1) break(false)
 
     intersection.set(start).add(dir.scl(t))
@@ -187,15 +187,15 @@ object Intersector {
     *   Whether the two polygons intersect.
     */
   def intersectPolygons(p1: Polygon, p2: Polygon, overlap: Nullable[Polygon]): Boolean = boundary {
-    if (p1.getVertices.length == 0 || p2.getVertices.length == 0) {
+    if (p1.vertices.length == 0 || p2.vertices.length == 0) {
       break(false)
     }
     val ip         = Intersector.ip; val ep1                 = Intersector.ep1; val ep2 = Intersector.ep2; val s = Intersector.s; val e = Intersector.e
     val floatArray = Intersector.floatArray; val floatArray2 = Intersector.floatArray2
     floatArray.clear()
     floatArray2.clear()
-    floatArray2.addAll(p1.getTransformedVertices, 0, p1.getTransformedVertices.length)
-    val vertices2 = p2.getTransformedVertices
+    floatArray2.addAll(p1.transformedVertices, 0, p1.transformedVertices.length)
+    val vertices2 = p2.transformedVertices
     var i         = 0
     val last      = vertices2.length - 2
     while (i <= last) {
@@ -245,8 +245,8 @@ object Intersector {
     if (floatArray2.size >= 6) {
       overlap.foreach { ovl =>
         ovl.resetTransformations()
-        if (ovl.getVertices.length == floatArray2.size)
-          System.arraycopy(floatArray2.items, 0, ovl.getVertices, 0, floatArray2.size)
+        if (ovl.vertices.length == floatArray2.size)
+          System.arraycopy(floatArray2.items, 0, ovl.vertices, 0, floatArray2.size)
         else
           ovl.setVertices(floatArray2.toArray)
       }
@@ -406,11 +406,11 @@ object Intersector {
     *   Whether the frustum intersects the bounding box
     */
   def intersectFrustumBounds(frustum: Frustum, bounds: BoundingBox): Boolean = boundary {
-    val boundsIntersectsFrustum = frustum.pointInFrustum(bounds.getCorner000(tmp)) ||
-      frustum.pointInFrustum(bounds.getCorner001(tmp)) || frustum.pointInFrustum(bounds.getCorner010(tmp)) ||
-      frustum.pointInFrustum(bounds.getCorner011(tmp)) || frustum.pointInFrustum(bounds.getCorner100(tmp)) ||
-      frustum.pointInFrustum(bounds.getCorner101(tmp)) || frustum.pointInFrustum(bounds.getCorner110(tmp)) ||
-      frustum.pointInFrustum(bounds.getCorner111(tmp))
+    val boundsIntersectsFrustum = frustum.pointInFrustum(bounds.corner000(tmp)) ||
+      frustum.pointInFrustum(bounds.corner001(tmp)) || frustum.pointInFrustum(bounds.corner010(tmp)) ||
+      frustum.pointInFrustum(bounds.corner011(tmp)) || frustum.pointInFrustum(bounds.corner100(tmp)) ||
+      frustum.pointInFrustum(bounds.corner101(tmp)) || frustum.pointInFrustum(bounds.corner110(tmp)) ||
+      frustum.pointInFrustum(bounds.corner111(tmp))
 
     if (boundsIntersectsFrustum) {
       break(true)
@@ -433,7 +433,7 @@ object Intersector {
   def intersectFrustumBounds(frustum: Frustum, obb: OrientedBoundingBox): Boolean = boundary {
     var boundsIntersectsFrustum = false
 
-    for (v <- obb.getVertices())
+    for (v <- obb.vertices)
       boundsIntersectsFrustum |= frustum.pointInFrustum(v)
 
     if (boundsIntersectsFrustum) {
@@ -479,9 +479,9 @@ object Intersector {
     *   Whether an intersection is present.
     */
   def intersectRayPlane(ray: Ray, plane: Plane, intersection: Nullable[Vector3]): Boolean = boundary {
-    val denom = ray.direction.dot(plane.getNormal)
+    val denom = ray.direction.dot(plane.normal)
     if (denom != 0) {
-      val t = -(ray.origin.dot(plane.getNormal) + plane.getD) / denom
+      val t = -(ray.origin.dot(plane.normal) + plane.d) / denom
       if (t < 0) break(false)
 
       intersection.foreach(_.set(ray.origin).add(v0.set(ray.direction).scl(t)))
@@ -500,9 +500,9 @@ object Intersector {
   def intersectLinePlane(x: Float, y: Float, z: Float, x2: Float, y2: Float, z2: Float, plane: Plane, intersection: Nullable[Vector3]): Float = {
     val direction = tmp.set(x2, y2, z2).sub(x, y, z)
     val origin    = tmp2.set(x, y, z)
-    val denom     = direction.dot(plane.getNormal)
+    val denom     = direction.dot(plane.normal)
     if (denom != 0) {
-      val t = -(origin.dot(plane.getNormal) + plane.getD) / denom
+      val t = -(origin.dot(plane.normal) + plane.d) / denom
       intersection.foreach(_.set(origin).add(direction.scl(t)))
       t
     } else if (plane.testPoint(origin) == PlaneSide.OnPlane) {
@@ -580,7 +580,7 @@ object Intersector {
       if (t <= MathUtils.FLOAT_ROUNDING_ERROR) {
         isect.set(ray.origin)
       } else {
-        ray.getEndPoint(isect, t)
+        ray.endPoint(isect, t)
       }
     }
 
@@ -715,7 +715,7 @@ object Intersector {
     *   Whether the ray and the bounding box intersect.
     */
   def intersectRayBoundsFast(ray: Ray, box: BoundingBox): Boolean =
-    intersectRayBoundsFast(ray, box.getCenter(tmp1), box.getDimensions(tmp2))
+    intersectRayBoundsFast(ray, box.center(tmp1), box.dimensions(tmp2))
 
   /** Quick check whether the given {@link Ray} and {@link BoundingBox} intersect.
     * @param center
@@ -774,8 +774,8 @@ object Intersector {
     *   Whether an intersection is present.
     */
   def intersectRayOrientedBounds(ray: Ray, obb: OrientedBoundingBox, intersection: Nullable[Vector3]): Boolean = {
-    val bounds    = obb.getBounds()
-    val transform = obb.getTransform()
+    val bounds    = obb.bounds
+    val transform = obb.transform
     intersectRayOrientedBounds(ray, bounds, transform, intersection)
   }
 
@@ -793,7 +793,7 @@ object Intersector {
     var t1   = 0f
     var t2   = 0f
 
-    val oBBposition = transform.getTranslation(tmp)
+    val oBBposition = transform.translation(tmp)
     val delta       = oBBposition.sub(ray.origin)
 
     // Test intersection with the 2 planes perpendicular to the OBB's X axis
@@ -850,7 +850,7 @@ object Intersector {
     }
 
     intersection.foreach { isect =>
-      ray.getEndPoint(isect, tMin)
+      ray.endPoint(isect, tMin)
     }
 
     true
@@ -987,7 +987,7 @@ object Intersector {
     *   Whether the bounding box and the plane intersect.
     */
   def intersectBoundsPlaneFast(box: BoundingBox, plane: Plane): Boolean =
-    intersectBoundsPlaneFast(box.getCenter(tmp1), box.getDimensions(tmp2).scl(0.5f), plane.normal, plane.d)
+    intersectBoundsPlaneFast(box.center(tmp1), box.dimensions(tmp2).scl(0.5f), plane.normal, plane.d)
 
   /** Quick check whether the given bounding box and a plane intersect. Code adapted from Christer Ericson's Real Time Collision
     * @param center
@@ -1056,7 +1056,7 @@ object Intersector {
     *   Whether polygon and line intersects
     */
   def intersectLinePolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = boundary {
-    val vertices = polygon.getTransformedVertices
+    val vertices = polygon.transformedVertices
     val x1       = p1.x; val y1            = p1.y; val x2 = p2.x; val y2 = p2.y
     val n        = vertices.length
     var x3       = vertices(n - 2); var y3 = vertices(n - 1)
@@ -1133,7 +1133,7 @@ object Intersector {
     *   Whether polygon and segment intersect
     */
   def intersectSegmentPolygon(p1: Vector2, p2: Vector2, polygon: Polygon): Boolean = boundary {
-    val vertices = polygon.getTransformedVertices
+    val vertices = polygon.transformedVertices
     val x1       = p1.x; val y1            = p1.y; val x2 = p2.x; val y2 = p2.y
     val n        = vertices.length
     var x3       = vertices(n - 2); var y3 = vertices(n - 1)
@@ -1248,7 +1248,7 @@ object Intersector {
     *   Whether polygons overlap.
     */
   def overlapConvexPolygons(p1: Polygon, p2: Polygon, mtv: Nullable[MinimumTranslationVector]): Boolean =
-    overlapConvexPolygons(p1.getTransformedVertices, p2.getTransformedVertices, mtv)
+    overlapConvexPolygons(p1.transformedVertices, p2.transformedVertices, mtv)
 
   /** @see #overlapConvexPolygons(Array[Float], Int, Int, Array[Float], Int, Int, Nullable[MinimumTranslationVector]) */
   def overlapConvexPolygons(verts1: Array[Float], verts2: Array[Float], mtv: Nullable[MinimumTranslationVector]): Boolean =
@@ -1445,7 +1445,7 @@ object Intersector {
     // hard case, split the three edges on the plane
     // determine which array to fill first, front or back, flip if we
     // cross the plane
-    split.setSide(!r1)
+    split.side = !r1
 
     // split first edge
     var first  = 0
@@ -1459,7 +1459,7 @@ object Intersector {
       split.add(split.edgeSplit, 0, stride)
 
       // flip side and add new vertex and second edge vertex to current side
-      split.setSide(!split.getSide)
+      split.side = !split.side
       split.add(split.edgeSplit, 0, stride)
     } else {
       // add both vertices
@@ -1478,7 +1478,7 @@ object Intersector {
       split.add(split.edgeSplit, 0, stride)
 
       // flip side and add new vertex and second edge vertex to current side
-      split.setSide(!split.getSide)
+      split.side = !split.side
       split.add(split.edgeSplit, 0, stride)
     } else {
       // add both vertices
@@ -1497,7 +1497,7 @@ object Intersector {
       split.add(split.edgeSplit, 0, stride)
 
       // flip side and add new vertex and second edge vertex to current side
-      split.setSide(!split.getSide)
+      split.side = !split.side
       split.add(split.edgeSplit, 0, stride)
     } else {
       // add both vertices
@@ -1565,10 +1565,10 @@ object Intersector {
     override def toString: String =
       s"SplitTriangle [front=${java.util.Arrays.toString(front)}, back=${java.util.Arrays.toString(back)}, numFront=$numFront, numBack=$numBack, total=$total]"
 
-    def setSide(front: Boolean): Unit =
+    def side_=(front: Boolean): Unit =
       frontCurrent = front
 
-    def getSide: Boolean = frontCurrent
+    def side: Boolean = frontCurrent
 
     def add(vertex: Array[Float], offset: Int, stride: Int): Unit =
       if (frontCurrent) {

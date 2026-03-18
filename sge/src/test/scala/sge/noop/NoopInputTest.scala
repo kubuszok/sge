@@ -12,47 +12,47 @@ class NoopInputTest extends munit.FunSuite {
 
   test("all position getters return 0") {
     val input = NoopInput()
-    assertEquals(input.getX(), Pixels.zero)
-    assertEquals(input.getX(0), Pixels.zero)
-    assertEquals(input.getY(), Pixels.zero)
-    assertEquals(input.getY(0), Pixels.zero)
-    assertEquals(input.getDeltaX(), Pixels.zero)
-    assertEquals(input.getDeltaX(0), Pixels.zero)
-    assertEquals(input.getDeltaY(), Pixels.zero)
-    assertEquals(input.getDeltaY(0), Pixels.zero)
+    assertEquals(input.x, Pixels.zero)
+    assertEquals(input.x(0), Pixels.zero)
+    assertEquals(input.y, Pixels.zero)
+    assertEquals(input.y(0), Pixels.zero)
+    assertEquals(input.deltaX, Pixels.zero)
+    assertEquals(input.deltaX(0), Pixels.zero)
+    assertEquals(input.deltaY, Pixels.zero)
+    assertEquals(input.deltaY(0), Pixels.zero)
   }
 
   test("accelerometer and gyroscope return 0") {
     val input = NoopInput()
-    assertEquals(input.getAccelerometerX(), 0.0f)
-    assertEquals(input.getAccelerometerY(), 0.0f)
-    assertEquals(input.getAccelerometerZ(), 0.0f)
-    assertEquals(input.getGyroscopeX(), 0.0f)
-    assertEquals(input.getGyroscopeY(), 0.0f)
-    assertEquals(input.getGyroscopeZ(), 0.0f)
+    assertEquals(input.accelerometerX, 0.0f)
+    assertEquals(input.accelerometerY, 0.0f)
+    assertEquals(input.accelerometerZ, 0.0f)
+    assertEquals(input.gyroscopeX, 0.0f)
+    assertEquals(input.gyroscopeY, 0.0f)
+    assertEquals(input.gyroscopeZ, 0.0f)
   }
 
   test("touch and button queries return false") {
     val input = NoopInput()
-    assertEquals(input.isTouched(), false)
+    assertEquals(input.touched, false)
     assertEquals(input.justTouched(), false)
     assertEquals(input.isTouched(0), false)
     assertEquals(input.isButtonPressed(Button(0)), false)
     assertEquals(input.isButtonJustPressed(Button(0)), false)
     assertEquals(input.isKeyPressed(Key(0)), false)
     assertEquals(input.isKeyJustPressed(Key(0)), false)
-    assertEquals(input.getPressure(), 0.0f)
-    assertEquals(input.getPressure(0), 0.0f)
+    assertEquals(input.pressure, 0.0f)
+    assertEquals(input.pressure(0), 0.0f)
   }
 
   test("orientation returns defaults") {
     val input = NoopInput()
-    assertEquals(input.getRotation(), 0)
-    assertEquals(input.getAzimuth(), 0.0f)
-    assertEquals(input.getPitch(), 0.0f)
-    assertEquals(input.getRoll(), 0.0f)
-    assertEquals(input.getNativeOrientation(), Input.Orientation.Landscape)
-    assertEquals(input.getMaxPointers(), 1)
+    assertEquals(input.rotation, 0)
+    assertEquals(input.azimuth, 0.0f)
+    assertEquals(input.pitch, 0.0f)
+    assertEquals(input.roll, 0.0f)
+    assertEquals(input.nativeOrientation, Input.Orientation.Landscape)
+    assertEquals(input.maxPointers, 1)
     assertEquals(input.currentEventTime, sge.utils.Nanos.zero)
   }
 
@@ -64,16 +64,16 @@ class NoopInputTest extends munit.FunSuite {
       override def keyDown(keycode: Key): Boolean = true
     }
     input.setInputProcessor(processor)
-    assert(input.getInputProcessor() eq processor)
+    assert(input.inputProcessor eq processor)
   }
 
   // ---- cursor catched round-trip ----
 
   test("setCursorCatched/isCursorCatched round-trip") {
     val input = NoopInput()
-    assertEquals(input.isCursorCatched(), false)
+    assertEquals(input.cursorCatched, false)
     input.setCursorCatched(true)
-    assertEquals(input.isCursorCatched(), true)
+    assertEquals(input.cursorCatched, true)
   }
 
   // ---- no-op methods don't throw ----

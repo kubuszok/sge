@@ -99,7 +99,7 @@ class DesktopFfiIntegrationTest extends FunSuite {
 
   test("GLFW time returns non-negative value") {
     requireGlfw()
-    val t = windowing.getTime()
+    val t = windowing.time
     assert(t >= 0.0, s"glfwGetTime should be non-negative, got $t")
   }
 

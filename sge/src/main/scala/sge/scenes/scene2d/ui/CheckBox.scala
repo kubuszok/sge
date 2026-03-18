@@ -20,23 +20,23 @@ import sge.utils.{ Align, Nullable, Scaling }
   * @author
   *   Nathan Sweet
   */
-class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge) extends TextButton(text, style) {
+class CheckBox(text: Nullable[String], initialStyle: CheckBox.CheckBoxStyle)(using Sge) extends TextButton(text, initialStyle) {
   import CheckBox._
 
-  private var _style:    CheckBoxStyle = scala.compiletime.uninitialized
-  private val image:     Image         = newImage()
-  private var imageCell: Cell[Image]   = scala.compiletime.uninitialized
+  private var _style:     CheckBoxStyle = scala.compiletime.uninitialized
+  private val _image:     Image         = newImage()
+  private var _imageCell: Cell[Image]   = scala.compiletime.uninitialized
 
   {
-    val label = getLabel
-    label.setAlignment(Align.left)
+    val lbl = label
+    lbl.setAlignment(Align.left)
 
-    image.drawable = style.checkboxOff
+    _image.drawable = initialStyle.checkboxOff
 
     clearChildren()
-    imageCell = add(Nullable(image))
-    add(Nullable[Actor](label))
-    setSize(getPrefWidth, getPrefHeight)
+    _imageCell = add(Nullable(_image))
+    add(Nullable[Actor](lbl))
+    setSize(prefWidth, prefHeight)
   }
 
   def this(text: Nullable[String], skin: Skin)(using Sge) = this(text, skin.get[CheckBox.CheckBoxStyle])
@@ -54,14 +54,14 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge)
 
   /** Returns the checkbox's style. Modifying the returned style may not have an effect until {@link #setStyle(ButtonStyle)} is called.
     */
-  override def getStyle: CheckBoxStyle = _style
+  override def style: CheckBoxStyle = _style
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
-    image.drawable = getImageDrawable
+    _image.drawable = imageDrawable
     super.draw(batch, parentAlpha)
   }
 
-  protected def getImageDrawable: Nullable[Drawable] = scala.util.boundary {
+  protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
     if (isDisabled) {
       if (isChecked && _style.checkboxOnDisabled.isDefined) scala.util.boundary.break(_style.checkboxOnDisabled)
       scala.util.boundary.break(_style.checkboxOffDisabled)
@@ -77,9 +77,9 @@ class CheckBox(text: Nullable[String], style: CheckBox.CheckBoxStyle)(using Sge)
     _style.checkboxOff
   }
 
-  def getImage: Image = image
+  def image: Image = _image
 
-  def getImageCell: Cell[Image] = imageCell
+  def imageCell: Cell[Image] = _imageCell
 }
 
 object CheckBox {

@@ -33,7 +33,7 @@ object Colors {
   reset()
 
   /** Returns the color map. */
-  def getColors: MutableMap[String, Color] = map
+  def colors: MutableMap[String, Color] = map
 
   /** Convenience method to lookup a color by {@code name} . The invocation of this method is equivalent to the expression {@code Colors.getColors().get(name)}
     *

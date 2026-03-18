@@ -86,10 +86,10 @@ class GeometryTest extends munit.FunSuite {
 
   // --- Ray ---
 
-  test("Ray: getEndPoint at distance") {
+  test("Ray: endPoint at distance") {
     val r   = Ray(Vector3(1f, 2f, 3f), Vector3(1f, 0f, 0f))
     val out = Vector3()
-    r.getEndPoint(out, 5f)
+    r.endPoint(out, 5f)
     assertEqualsDouble(out.x.toDouble, 6.0, Delta)
     assertEqualsDouble(out.y.toDouble, 2.0, Delta)
     assertEqualsDouble(out.z.toDouble, 3.0, Delta)
@@ -156,10 +156,10 @@ class GeometryTest extends munit.FunSuite {
     assertEqualsDouble(r.perimeter().toDouble, 14.0, Delta)
   }
 
-  test("Rectangle: getCenter") {
+  test("Rectangle: center") {
     val r = Rectangle(2f, 4f, 10f, 6f)
     val c = Vector2()
-    r.getCenter(c)
+    r.center(c)
     assertEqualsDouble(c.x.toDouble, 7.0, Delta)
     assertEqualsDouble(c.y.toDouble, 7.0, Delta)
   }

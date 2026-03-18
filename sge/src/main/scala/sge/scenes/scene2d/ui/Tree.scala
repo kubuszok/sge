@@ -32,7 +32,7 @@ import sge.utils.{ DynamicArray, MkArray, Nullable }
   * @author
   *   Nathan Sweet
   */
-class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
+class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(using Sge) extends WidgetGroup with Styleable[Tree.TreeStyle] {
 
   private var _style: Tree.TreeStyle  = scala.compiletime.uninitialized
   val rootNodes:      DynamicArray[N] = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[N]], 16, true)
@@ -52,8 +52,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   var paddingLeft:            Float         = 0
   var paddingRight:           Float         = 0
   var indentSpacing:          Float         = 0
-  private var prefWidth:      Float         = 0
-  private var prefHeight:     Float         = 0
+  private var _prefWidth:     Float         = 0
+  private var _prefHeight:    Float         = 0
   private var sizeInvalid:    Boolean       = true
   private var foundNode:      Nullable[N]   = Nullable.empty
   private var _overNode:      Nullable[N]   = Nullable.empty
@@ -62,7 +62,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
   selection.setActor(Nullable(this))
   selection.multiple = true
-  setStyle(style)
+  setStyle(initialStyle)
   initialize()
 
   def this(skin: Skin)(using Sge) = this(skin.get[Tree.TreeStyle])
@@ -142,7 +142,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     if (indentSpacing == 0) indentSpacing = plusMinusWidth()
   }
 
-  def getStyle: Tree.TreeStyle = _style
+  def style: Tree.TreeStyle = _style
 
   def add(node: N): Unit =
     insert(rootNodes.size, node)
@@ -155,7 +155,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
         if (existingIndex == idx) scala.util.boundary.break(())
         if (existingIndex < idx) idx -= 1
         rootNodes.removeIndex(existingIndex)
-        val actorIndex = node.actor.getZIndex
+        val actorIndex = node.actor.zIndex
         if (actorIndex != -1) node.removeFromTree(this, actorIndex)
       }
     } { p =>
@@ -169,10 +169,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       if (idx == 0)
         0
       else if (idx < rootNodes.size - 1)
-        rootNodes(idx + 1).actor.getZIndex
+        rootNodes(idx + 1).actor.zIndex
       else {
         val before = rootNodes(idx - 1)
-        before.actor.getZIndex + before.countActors()
+        before.actor.zIndex + before.countActors()
       }
     node.addToTree(this, actorIndex)
   }
@@ -186,7 +186,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       val idx = rootNodes.indexOf(node)
       if (idx == -1) scala.util.boundary.break(())
       rootNodes.removeIndex(idx)
-      val actorIndex = node.actor.getZIndex
+      val actorIndex = node.actor.zIndex
       if (actorIndex != -1) node.removeFromTree(this, actorIndex)
     }
 
@@ -216,10 +216,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
 
   private def computeSize(): Unit = {
     sizeInvalid = false
-    prefWidth = plusMinusWidth()
-    prefHeight = 0
-    computeSize(rootNodes, 0, prefWidth)
-    prefWidth += paddingLeft + paddingRight
+    _prefWidth = plusMinusWidth()
+    _prefHeight = 0
+    computeSize(rootNodes, 0, _prefWidth)
+    _prefWidth += paddingLeft + paddingRight
   }
 
   private def computeSize(nodes: DynamicArray[N], indent: Float, plusMinusWidth: Float): Unit = {
@@ -233,8 +233,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       val actor    = node.actor
       actor match {
         case layout: Layout =>
-          rowWidth += layout.getPrefWidth
-          node.height = layout.getPrefHeight
+          rowWidth += layout.prefWidth
+          node.height = layout.prefHeight
         case _ =>
           rowWidth += actor.width
           node.height = actor.height
@@ -243,8 +243,8 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
         rowWidth += spacing + icon.minWidth
         node.height = Math.max(node.height, icon.minHeight)
       }
-      prefWidth = Math.max(prefWidth, rowWidth)
-      prefHeight += node.height + ySpacing
+      _prefWidth = Math.max(_prefWidth, rowWidth)
+      _prefHeight += node.height + ySpacing
       if (node.expanded) computeSize(node.children, indent + indentSpacing, plusMinusWidth)
       i += 1
     }
@@ -318,7 +318,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     plusMinusWidth: Float
   ): Float = {
 
-    val cullingArea = getCullingArea
+    val cullingArea = this.cullingArea
     var cullBottom  = 0f
     var cullTop     = 0f
     cullingArea.foreach { ca =>
@@ -393,10 +393,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   protected def getExpandIcon(node: N, iconX: Float): Drawable =
     if (
       _overNode.exists(_ eq node) //
-      && Sge().application.getType() == Application.ApplicationType.Desktop //
+      && Sge().application.applicationType == Application.ApplicationType.Desktop //
       && (!selection.multiple || (!UIUtils.ctrl() && !UIUtils.shift())) //
     ) {
-      val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.getX().toFloat, 0)).x + this.x
+      val mouseX = screenToLocalCoordinates(Tree.tmp.set(Sge().input.x.toFloat, 0)).x + this.x
       if (mouseX >= 0 && mouseX < iconX) {
         val icon: Nullable[Drawable] = if (node.expanded) _style.minusOver else _style.plusOver
         val defaultIcon = if (node.expanded) _style.minus else _style.plus
@@ -455,24 +455,24 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
       }
     }
 
-  def getSelection: Selection[N] = selection
+  // selection is a public val (declared above)
 
   /** Returns the first selected node, or null. */
-  def getSelectedNode: Nullable[N] = selection.first
+  def selectedNode: Nullable[N] = selection.first
 
   /** Returns the first selected value, or null. */
-  def getSelectedValue: Nullable[V] = {
+  def selectedValue: Nullable[V] = {
     val node = selection.first
     node.flatMap(n => n.getValue)
   }
 
   /** If the order of the root nodes is changed, {@link #updateRootNodes()} must be called to ensure the nodes' actors are in the correct order.
     */
-  def getRootNodes: DynamicArray[N] = rootNodes
+  // rootNodes is a public val (declared above)
 
   /** @deprecated Use {@link #getRootNodes()}. */
   @deprecated("Use getRootNodes()", "")
-  def getNodes: DynamicArray[N] = rootNodes
+  def nodes: DynamicArray[N] = rootNodes
 
   /** Updates the order of the actors in the tree for all root nodes and all child nodes. This is useful after changing the order of {@link #getRootNodes()}.
     * @see
@@ -483,7 +483,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     var n = rootNodes.size
     while (i < n) {
       val node       = rootNodes(i)
-      val actorIndex = node.actor.getZIndex
+      val actorIndex = node.actor.zIndex
       if (actorIndex != -1) node.removeFromTree(this, actorIndex)
       i += 1
     }
@@ -497,10 +497,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   }
 
   /** @return May be null. */
-  def getOverNode: Nullable[N] = _overNode
+  def overNode: Nullable[N] = _overNode
 
   /** @return May be null. */
-  def getOverValue: Nullable[V] =
+  def overValue: Nullable[V] =
     _overNode.flatMap(n => n.getValue)
 
   /** @param overNode May be null. */
@@ -522,14 +522,13 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
   def setIndentSpacing(indentSpacing: Float): Unit =
     this.indentSpacing = indentSpacing
 
-  /** Returns the amount of horizontal space for indentation level. */
-  def getIndentSpacing: Float = indentSpacing
+  // indentSpacing is a public var (declared above)
 
   /** Sets the amount of vertical space between nodes. */
   def setYSpacing(ySpacing: Float): Unit =
     this.ySpacing = ySpacing
 
-  def getYSpacing: Float = ySpacing
+  // ySpacing is a public var (declared above)
 
   /** Sets the amount of horizontal space left and right of the node's icon. If a node has no icon, the left spacing is used between the plus/minus drawable and the node's actor.
     */
@@ -538,14 +537,14 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](style: Tree.TreeStyle)(using Sge
     this.iconSpacingRight = right
   }
 
-  override def getPrefWidth: Float = {
+  override def prefWidth: Float = {
     if (sizeInvalid) computeSize()
-    prefWidth
+    _prefWidth
   }
 
-  override def getPrefHeight: Float = {
+  override def prefHeight: Float = {
     if (sizeInvalid) computeSize()
-    prefHeight
+    _prefHeight
   }
 
   def findExpandedValues(values: DynamicArray[V]): Unit =
@@ -589,7 +588,7 @@ object Tree {
       if (idx != -1) {
         p.children.removeIndex(idx)
         if (p.expanded) {
-          node.removeFromTree(tree, node.actor.getZIndex)
+          node.removeFromTree(tree, node.actor.zIndex)
         }
         node.parent = Nullable.empty
       }
@@ -599,7 +598,7 @@ object Tree {
     val idx       = rootNodes.indexOf(node)
     if (idx != -1) {
       rootNodes.removeIndex(idx)
-      val actorIndex = node.actor.getZIndex
+      val actorIndex = node.actor.zIndex
       if (actorIndex != -1) node.removeFromTree(tree, actorIndex)
     }
   }
@@ -690,9 +689,9 @@ object Tree {
         if (children.size == 0) {
           // nothing to do
         } else {
-          val tree = getTree()
-          tree.foreach { t =>
-            var actorIndex = actor.getZIndex + 1
+          val treeRef = this.tree
+          treeRef.foreach { t =>
+            var actorIndex = actor.zIndex + 1
             if (expanded) {
               var i = 0
               val n = children.size
@@ -763,16 +762,16 @@ object Tree {
       node.parent = Nullable(this.asInstanceOf[N])
       children.insert(childIndex, node)
       if (expanded) {
-        val tree = getTree()
-        tree.foreach { t =>
+        val treeRef = this.tree
+        treeRef.foreach { t =>
           val actorIndex: Int =
             if (childIndex == 0)
-              actor.getZIndex + 1
+              actor.zIndex + 1
             else if (childIndex < children.size - 1)
-              children(childIndex + 1).actor.getZIndex
+              children(childIndex + 1).actor.zIndex
             else {
               val before = children(childIndex - 1)
-              before.actor.getZIndex + before.countActors()
+              before.actor.zIndex + before.countActors()
             }
           node.addToTree(t, actorIndex)
         }
@@ -794,8 +793,8 @@ object Tree {
 
     /** Remove this node from its parent. */
     def remove(): Unit = {
-      val tree = getTree()
-      tree.fold {
+      val treeRef = this.tree
+      treeRef.fold {
         parent.foreach(_.remove(this.asInstanceOf[N]))
       } { t =>
         Tree.removeNodeFromTree(t, this)
@@ -808,9 +807,9 @@ object Tree {
       if (idx != -1) {
         children.removeIndex(idx)
         if (expanded) {
-          val tree = getTree()
-          tree.foreach { t =>
-            node.removeFromTree(t, node.actor.getZIndex)
+          val treeRef = this.tree
+          treeRef.foreach { t =>
+            node.removeFromTree(t, node.actor.zIndex)
           }
         }
       }
@@ -819,9 +818,9 @@ object Tree {
     /** Removes all children from this node. */
     def clearChildren(): Unit = {
       if (expanded) {
-        val tree = getTree()
-        tree.foreach { t =>
-          val actorIndex = actor.getZIndex + 1
+        val treeRef = this.tree
+        treeRef.foreach { t =>
+          val actorIndex = actor.zIndex + 1
           var i          = 0
           val n          = children.size
           while (i < n) {
@@ -835,8 +834,8 @@ object Tree {
 
     /** Returns the tree this node's actor is currently in, or null. The actor is only in the tree when all of its parent nodes are expanded.
       */
-    def getTree(): Nullable[Tree[? <: Node[?, ?, ?], ?]] = {
-      val parent = actor.getParent
+    def tree: Nullable[Tree[? <: Node[?, ?, ?], ?]] = {
+      val parent = actor.parent
       parent.fold(Nullable.empty[Tree[? <: Node[?, ?, ?], ?]]) {
         case tree: Tree[?, ?] => Nullable(tree.asInstanceOf[Tree[? <: Node[?, ?, ?], ?]])
         case _ => Nullable.empty
@@ -845,8 +844,8 @@ object Tree {
 
     def setActor(newActor: A): Unit = {
       Nullable(actor).foreach { currentActor =>
-        getTree().foreach { t =>
-          val index = currentActor.getZIndex
+        tree.foreach { t =>
+          val index = currentActor.zIndex
           t.removeActorAt(index, true)
           t.addActorAt(index, newActor)
         }
@@ -861,7 +860,7 @@ object Tree {
     /** If the children order is changed, {@link #updateChildren()} must be called to ensure the node's actors are in the correct order. That is not necessary if this node is not in the tree or is not
       * expanded, because then the child node's actors are not in the tree.
       */
-    def getChildren: DynamicArray[N] = children
+    // children is a public val (declared above)
 
     def hasChildren: Boolean = children.size > 0
 
@@ -871,10 +870,10 @@ object Tree {
       */
     def updateChildren(): Unit =
       if (expanded) {
-        val tree = getTree()
-        tree.foreach { t =>
+        val treeRef = this.tree
+        treeRef.foreach { t =>
           val n          = children.size
-          var actorIndex = actor.getZIndex + 1
+          var actorIndex = actor.zIndex + 1
           var i          = 0
           while (i < n) {
             children(i).removeFromTree(t, actorIndex)
@@ -901,9 +900,9 @@ object Tree {
     def setValue(value: Nullable[V]): Unit =
       this.value = value
 
-    def getIcon: Nullable[Drawable] = icon
+    // icon is a public var (declared above)
 
-    def getLevel: Int = {
+    def level: Int = {
       var level = 0
       var current: Nullable[Node[?, ?, ?]] = Nullable(this)
       while (current.isDefined) {

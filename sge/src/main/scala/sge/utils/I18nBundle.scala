@@ -385,7 +385,7 @@ object I18NBundle {
     *   NullPointerException if <code>baseFileHandle</code> or <code>locale</code> is <code>null</code>
     */
   private def toFileHandle(baseFileHandle: FileHandle, locale: Locale): FileHandle = {
-    val sb = new StringBuilder(baseFileHandle.name())
+    val sb = new StringBuilder(baseFileHandle.name)
     if (!locale.equals(Locale.ROOT)) {
       val language = locale.getLanguage()
       val country  = locale.getCountry()

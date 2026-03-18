@@ -75,9 +75,9 @@ class DefaultShader(
   /** The attributes that this shader supports */
   val attributesMask:     Long = _combinedAttributes.getMask | DefaultShader.optionalAttributes
   private val vertexMask: Long =
-    renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked
+    renderable.meshPart.mesh.vertexAttributes.maskWithSizePacked
   private val textureCoordinates: Int =
-    renderable.meshPart.mesh.getVertexAttributes().getTextureCoordinates()
+    renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates()
   private var boneWeightsLocations: Nullable[Array[Int]] = Nullable.empty
 
   protected val directionalLights: Array[DirectionalLight] = {
@@ -128,7 +128,7 @@ class DefaultShader(
   }
 
   locally {
-    val boneWeights = renderable.meshPart.mesh.getVertexAttributes().getBoneWeights()
+    val boneWeights = renderable.meshPart.mesh.vertexAttributes.boneWeights
     if (boneWeights > config.numBoneWeights) {
       throw SgeError.GraphicsError(
         "too many bone weights: " + boneWeights + ", max configured: " + config.numBoneWeights
@@ -260,7 +260,7 @@ class DefaultShader(
   protected var spotLightsExponentOffset:    Int = 0
   protected var spotLightsSize:              Int = 0
 
-  def this(renderable: Renderable)(using Sge) =
+  def this(renderable: Renderable)(using Sge) = {
     this(
       renderable,
       DefaultShader.Config(), {
@@ -271,8 +271,9 @@ class DefaultShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config)(using Sge) = {
     this(
       renderable,
       config, {
@@ -282,8 +283,9 @@ class DefaultShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
-  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) =
+  def this(renderable: Renderable, config: DefaultShader.Config, prefix: String)(using Sge) = {
     this(
       renderable,
       config, {
@@ -292,6 +294,7 @@ class DefaultShader(
         ShaderProgram(prefix + vs, prefix + fs)
       }
     )
+  }
 
   def this(
     renderable:     Renderable,
@@ -299,8 +302,9 @@ class DefaultShader(
     prefix:         String,
     vertexShader:   String,
     fragmentShader: String
-  )(using Sge) =
+  )(using Sge) = {
     this(renderable, config, ShaderProgram(prefix + vertexShader, prefix + fragmentShader))
+  }
 
   override def init(): Unit = {
     val prog = this.program.getOrElse(throw SgeError.GraphicsError("No shader program"))
@@ -358,7 +362,7 @@ class DefaultShader(
     lightsSet = false
 
     if (has(u_time)) {
-      time += Sge().graphics.getDeltaTime()
+      time += Sge().graphics.deltaTime
       setFloat(u_time, time)
     }
 
@@ -614,7 +618,7 @@ class DefaultShader(
         set(u_shadowMapProjViewTrans, sm.projViewTrans)
         set(u_shadowTexture, sm.depthMap)
         val depthMap = sm.depthMap.asInstanceOf[TextureDescriptor[GLTexture]]
-        setFloat(u_shadowPCFOffset, 1.0f / (2f * depthMap.texture.map(_.getWidth.toFloat).getOrElse(1f)))
+        setFloat(u_shadowPCFOffset, 1.0f / (2f * depthMap.texture.map(_.width.toFloat).getOrElse(1f)))
       }
     }
 
@@ -624,25 +628,25 @@ class DefaultShader(
   override def canRender(renderable: Renderable): Boolean =
     if (renderable.bones.isDefined) {
       if (renderable.bones.map(_.length).getOrElse(0) > config.numBones) false
-      else if (renderable.meshPart.mesh.getVertexAttributes().getBoneWeights() > config.numBoneWeights)
+      else if (renderable.meshPart.mesh.vertexAttributes.boneWeights > config.numBoneWeights)
         false
       else {
-        if (renderable.meshPart.mesh.getVertexAttributes().getTextureCoordinates() != textureCoordinates)
+        if (renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates() != textureCoordinates)
           false
         else {
           val renderableMask = DefaultShader.combineAttributeMasks(renderable)
           (attributesMask == (renderableMask | DefaultShader.optionalAttributes)) &&
-          (vertexMask == renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked) &&
+          (vertexMask == renderable.meshPart.mesh.vertexAttributes.maskWithSizePacked) &&
           renderable.environment.isDefined == lighting
         }
       }
     } else {
-      if (renderable.meshPart.mesh.getVertexAttributes().getTextureCoordinates() != textureCoordinates)
+      if (renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates() != textureCoordinates)
         false
       else {
         val renderableMask = DefaultShader.combineAttributeMasks(renderable)
         (attributesMask == (renderableMask | DefaultShader.optionalAttributes)) &&
-        (vertexMask == renderable.meshPart.mesh.getVertexAttributes().maskWithSizePacked) &&
+        (vertexMask == renderable.meshPart.mesh.vertexAttributes.maskWithSizePacked) &&
         renderable.environment.isDefined == lighting
       }
     }
@@ -1145,7 +1149,7 @@ object DefaultShader {
             _.setUniform3fv(shader.loc(inputID), ACubemap.ones, 0, ACubemap.ones.length)
           )
         else {
-          renderable.worldTransform.getTranslation(ACubemap.tmpV1)
+          renderable.worldTransform.translation(ACubemap.tmpV1)
           if (combinedAttributes.has(ColorAttribute.AmbientLight))
             combinedAttributes.get(ColorAttribute.AmbientLight).foreach { attr =>
               cacheAmbientCubemap.set(attr.asInstanceOf[ColorAttribute].color)
@@ -1822,7 +1826,7 @@ object DefaultShader {
     val attributes     = combineAttributes(renderable)
     val sb             = new StringBuilder
     val attributesMask = attributes.getMask
-    val vertexMask     = renderable.meshPart.mesh.getVertexAttributes().mask
+    val vertexMask     = renderable.meshPart.mesh.vertexAttributes.mask
     if (and(vertexMask, VertexAttributes.Usage.Position)) sb.append("#define positionFlag\n")
     if (or(vertexMask, VertexAttributes.Usage.ColorUnpacked | VertexAttributes.Usage.ColorPacked))
       sb.append("#define colorFlag\n")
@@ -1850,10 +1854,10 @@ object DefaultShader {
           sb.append("#define environmentCubemapFlag\n")
       }
     }
-    val n = renderable.meshPart.mesh.getVertexAttributes().size
+    val n = renderable.meshPart.mesh.vertexAttributes.size
     var i = 0
     while (i < n) {
-      val attr = renderable.meshPart.mesh.getVertexAttributes().get(i)
+      val attr = renderable.meshPart.mesh.vertexAttributes.get(i)
       if (attr.usage == VertexAttributes.Usage.TextureCoordinates)
         sb.append("#define texCoord").append(attr.unit).append("Flag\n")
       i += 1

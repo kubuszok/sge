@@ -33,17 +33,17 @@ class FlushablePoolTest extends munit.FunSuite {
 
   test("initialize flushable pool default") {
     val flushablePool = TestPool()
-    assertEquals(flushablePool.getFree, 0)
+    assertEquals(flushablePool.free, 0)
   }
 
   test("initialize flushable pool with initial capacity") {
     val flushablePool = TestPool(10)
-    assertEquals(flushablePool.getFree, 0)
+    assertEquals(flushablePool.free, 0)
   }
 
   test("initialize flushable pool with initial capacity and max") {
     val flushablePool = TestPool(10, 10)
-    assertEquals(flushablePool.getFree, 0)
+    assertEquals(flushablePool.free, 0)
   }
 
   test("obtain") {

@@ -144,7 +144,7 @@ abstract class Viewport(using Sge) {
     tmp.set(worldCoords.x, worldCoords.y, 0)
     tmp.mul(transformMatrix)
     camera.project(tmp, screenX.toFloat, screenY.toFloat, screenWidth.toFloat, screenHeight.toFloat)
-    tmp.y = Sge().graphics.getHeight().toFloat - tmp.y
+    tmp.y = Sge().graphics.height.toFloat - tmp.y
     worldCoords.set(tmp.x, tmp.y)
     worldCoords
   }
@@ -175,26 +175,26 @@ abstract class Viewport(using Sge) {
   }
 
   /** Returns the left gutter (black bar) width in screen coordinates. */
-  def getLeftGutterWidth(): Pixels =
+  def leftGutterWidth: Pixels =
     screenX
 
   /** Returns the right gutter (black bar) x in screen coordinates. */
-  def getRightGutterX(): Pixels =
+  def rightGutterX: Pixels =
     screenX + screenWidth
 
   /** Returns the right gutter (black bar) width in screen coordinates. */
-  def getRightGutterWidth(): Pixels =
-    Sge().graphics.getWidth() - (screenX + screenWidth)
+  def rightGutterWidth: Pixels =
+    Sge().graphics.width - (screenX + screenWidth)
 
   /** Returns the bottom gutter (black bar) height in screen coordinates. */
-  def getBottomGutterHeight(): Pixels =
+  def bottomGutterHeight: Pixels =
     screenY
 
   /** Returns the top gutter (black bar) y in screen coordinates. */
-  def getTopGutterY(): Pixels =
+  def topGutterY: Pixels =
     screenY + screenHeight
 
   /** Returns the top gutter (black bar) height in screen coordinates. */
-  def getTopGutterHeight(): Pixels =
-    Sge().graphics.getHeight() - (screenY + screenHeight)
+  def topGutterHeight: Pixels =
+    Sge().graphics.height - (screenY + screenHeight)
 }

@@ -68,8 +68,9 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using Sge) =
+  def this(maxIndices: Int)(using Sge) = {
     this(true, maxIndices)
+  }
 
   def this(isStatic: Boolean, data: ByteBuffer)(using Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size
@@ -85,11 +86,11 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
   }
 
   /** @return the number of indices currently stored in this buffer */
-  def getNumIndices(): Int =
+  def numIndices: Int =
     if empty then 0 else buffer.limit()
 
   /** @return the maximum number of indices this IndexBufferObject can store. */
-  def getNumMaxIndices(): Int =
+  def numMaxIndices: Int =
     if empty then 0 else buffer.capacity()
 
   /** <p> Sets the indices of this IndexBufferObject, discarding the old indices. The count must equal the number of indices to be copied to this IndexBufferObject. </p>

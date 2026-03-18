@@ -75,7 +75,7 @@ class FloatFrameBuffer()(using Sge) extends FrameBuffer {
       attachmentSpec.isGpuOnly
     )
     val result = Texture(data)
-    if (Sge().application.getType() == ApplicationType.Desktop || Sge().application.getType() == ApplicationType.Applet)
+    if (Sge().application.applicationType == ApplicationType.Desktop || Sge().application.applicationType == ApplicationType.Applet)
       result.setFilter(TextureFilter.Linear, TextureFilter.Linear)
     else
       // no filtering for float textures in OpenGL ES
@@ -86,7 +86,7 @@ class FloatFrameBuffer()(using Sge) extends FrameBuffer {
 
   /** Check for support for any required extensions on the current platform. */
   private def checkExtensions(): Unit =
-    if (Sge().graphics.isGL30Available() && Sge().application.getType() == ApplicationType.WebGL) {
+    if (Sge().graphics.gl30Available && Sge().application.applicationType == ApplicationType.WebGL) {
       // For WebGL2, Rendering to a Floating Point Texture requires this extension
       if (!Sge().graphics.supportsExtension("EXT_color_buffer_float"))
         throw SgeError.GraphicsError("Extension EXT_color_buffer_float not supported!")

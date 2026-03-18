@@ -21,6 +21,7 @@ package sge
 package graphics
 package g3d
 
+import scala.annotation.publicInBinary
 import scala.util.boundary
 import scala.util.boundary.break
 
@@ -59,14 +60,15 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
   /** Create a ModelCache using the default {@link Sorter} and the {@link SimpleMeshPool} implementation. This might not be the most optimal implementation for you use-case, but should be good to
     * start with.
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(ModelCache.Sorter(), ModelCache.SimpleMeshPool())
+  }
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
     * cache and prepare it for creating a new cache. The cache is not valid until the call to {@link #end()} is made. Use one of the add methods (e.g. {@link #add(Renderable)} or
     * {@link #add(RenderableProvider)}) to add renderables to the cache.
     */
-  def begin(): Unit =
+  @publicInBinary private[sge] def begin(): Unit =
     begin(Nullable.empty)
 
   /** Begin creating the cache, must be followed by a call to {@link #end()}, in between these calls one or more calls to one of the add(...) methods can be made. Calling this method will clear the
@@ -75,7 +77,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     * @param camera
     *   The {@link Camera} that will passed to the {@link RenderableSorter}
     */
-  def begin(camera: Nullable[Camera]): Unit = {
+  @publicInBinary private[sge] def begin(camera: Nullable[Camera]): Unit = {
     if (building) throw SgeError.InvalidInput("Call end() after calling begin()")
     building = true
 
@@ -105,10 +107,17 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     result
   }
 
+  /** Executes `body` between [[begin]] and [[end]], ensuring [[end]] is called even if `body` throws. */
+  inline def caching[A](inline body: => A): A = {
+    begin()
+    try body
+    finally end()
+  }
+
   /** Finishes creating the cache, must be called after a call to {@link #begin()}, only after this call the cache will be valid (until the next call to {@link #begin()}). Calling this method will
     * process all renderables added using one of the add(...) methods and will combine them if possible.
     */
-  def end(): Unit = boundary {
+  @publicInBinary private[sge] def end(): Unit = boundary {
     if (!building) throw SgeError.InvalidInput("Call begin() prior to calling end()")
     building = false
 
@@ -116,7 +125,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     sorter.sort(camera, items)
 
     val first            = items(0)
-    var vertexAttributes = first.meshPart.mesh.getVertexAttributes()
+    var vertexAttributes = first.meshPart.mesh.vertexAttributes
     var material         = first.material
     var primitiveType    = first.meshPart.primitiveType
     var offset           = renderables.size
@@ -129,24 +138,24 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     val n = items.size
     while (i < n) {
       val renderable = items(i)
-      val va         = renderable.meshPart.mesh.getVertexAttributes()
+      val va         = renderable.meshPart.mesh.vertexAttributes
       val mat        = renderable.material
       val pt         = renderable.meshPart.primitiveType
 
       val sameAttributes = va.equals(vertexAttributes)
       val indexedMesh    =
-        renderable.meshPart.mesh.getNumIndices() > 0
+        renderable.meshPart.mesh.numIndices > 0
       val verticesToAdd =
         if (indexedMesh)
-          renderable.meshPart.mesh.getNumVertices()
+          renderable.meshPart.mesh.numVertices
         else renderable.meshPart.size
-      val canHoldVertices = meshBuilder.getNumVertices() + verticesToAdd <= MeshBuilder.MAX_VERTICES
+      val canHoldVertices = meshBuilder.numVertices + verticesToAdd <= MeshBuilder.MAX_VERTICES
       val sameMesh        = sameAttributes && canHoldVertices
       val samePart = sameMesh && pt == primitiveType && mat.getOrElse(throw SgeError.InvalidInput("Material is null")).same(material.getOrElse(throw SgeError.InvalidInput("Material is null")), true)
 
       if (!samePart) {
         if (!sameMesh) {
-          val mesh = meshBuilder.end(meshPool.obtain(vertexAttributes, meshBuilder.getNumVertices(), meshBuilder.getNumIndices()))
+          val mesh = meshBuilder.end(meshPool.obtain(vertexAttributes, meshBuilder.numVertices, meshBuilder.numIndices))
           while (offset < renderables.size) {
             renderables(offset).meshPart.mesh = mesh
             offset += 1
@@ -175,7 +184,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
       i += 1
     }
 
-    val mesh = meshBuilder.end(meshPool.obtain(vertexAttributes, meshBuilder.getNumVertices(), meshBuilder.getNumIndices()))
+    val mesh = meshBuilder.end(meshPool.obtain(vertexAttributes, meshBuilder.numVertices, meshBuilder.numIndices))
     while (offset < renderables.size) {
       renderables(offset).meshPart.mesh = mesh
       offset += 1
@@ -279,8 +288,8 @@ object ModelCache {
         while (i < n) {
           val mesh = freeMeshes(i)
           if (
-            mesh.getVertexAttributes().equals(vertexAttributes) && mesh.getMaxVertices() >= vertexCount
-            && mesh.getMaxIndices() >= indexCount
+            mesh.vertexAttributes.equals(vertexAttributes) && mesh.maxVertices >= vertexCount
+            && mesh.maxIndices >= indexCount
           ) {
             freeMeshes.removeIndex(i)
             usedMeshes.add(mesh)
@@ -325,8 +334,8 @@ object ModelCache {
         while (i < n) {
           val mesh = freeMeshes(i)
           if (
-            mesh.getVertexAttributes().equals(vertexAttributes) && mesh.getMaxVertices() == vertexCount
-            && mesh.getMaxIndices() == indexCount
+            mesh.vertexAttributes.equals(vertexAttributes) && mesh.maxVertices == vertexCount
+            && mesh.maxIndices == indexCount
           ) {
             freeMeshes.removeIndex(i)
             usedMeshes.add(mesh)
@@ -358,8 +367,8 @@ object ModelCache {
       renderables.sort()(using this)
 
     override def compare(arg0: Renderable, arg1: Renderable): Int = {
-      val va0 = arg0.meshPart.mesh.getVertexAttributes()
-      val va1 = arg1.meshPart.mesh.getVertexAttributes()
+      val va0 = arg0.meshPart.mesh.vertexAttributes
+      val va1 = arg1.meshPart.mesh.vertexAttributes
       val vc  = va0.compareTo(va1)
       if (vc == 0) {
         val mc = arg0.material.getOrElse(throw SgeError.InvalidInput("Material is null")).compareTo(arg1.material.getOrElse(throw SgeError.InvalidInput("Material is null")))

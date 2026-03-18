@@ -53,7 +53,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
   protected val tempC1: Color = Color()
 
   /** The vertex attributes of the resulting mesh */
-  protected var attributes: Nullable[VertexAttributes] = Nullable.empty
+  protected var _attributes: Nullable[VertexAttributes] = Nullable.empty
 
   /** The vertices to construct, no size checking is done */
   protected var vertices: DynamicArray[Float] = DynamicArray[Float]()
@@ -108,7 +108,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
   protected var hasColor: Boolean = false
 
   /** The current primitiveType */
-  protected var primitiveType: PrimitiveMode = PrimitiveMode(0)
+  protected var _primitiveType: PrimitiveMode = PrimitiveMode(0)
 
   /** The UV range used when building */
   protected var uOffset:        Float        = 0f
@@ -145,8 +145,8 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
 
   /** Begin building a mesh */
   def begin(attributes: VertexAttributes, primitiveType: PrimitiveMode): Unit = {
-    if (this.attributes.isDefined) throw new RuntimeException("Call end() first")
-    this.attributes = Nullable(attributes)
+    if (this._attributes.isDefined) throw new RuntimeException("Call end() first")
+    this._attributes = Nullable(attributes)
     this.vertices.clear()
     this.indices.clear()
     this.parts.clear()
@@ -178,14 +178,14 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
     setColor(Nullable.empty)
     setVertexTransform(Nullable.empty)
     setUVRange(Nullable.empty[TextureRegion])
-    this.primitiveType = primitiveType
+    this._primitiveType = primitiveType
     bounds.inf()
   }
 
   private def endpart(): Unit = {
     part.foreach { p =>
-      bounds.getCenter(p.center)
-      bounds.getDimensions(p.halfExtents).scl(0.5f)
+      bounds.center(p.center)
+      bounds.dimensions(p.halfExtents).scl(0.5f)
       p.radius = p.halfExtents.length
       bounds.inf()
       p.offset = istart
@@ -211,12 +211,12 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
     *   The part to receive the result
     */
   def part(id: String, primitiveType: PrimitiveMode, meshPart: MeshPart): MeshPart = {
-    if (this.attributes.isEmpty) throw new RuntimeException("Call begin() first")
+    if (this._attributes.isEmpty) throw new RuntimeException("Call begin() first")
     endpart()
 
     part = Nullable(meshPart)
     meshPart.id = Nullable(id)
-    this.primitiveType = primitiveType
+    this._primitiveType = primitiveType
     meshPart.primitiveType = primitiveType
     parts.add(meshPart)
 
@@ -234,15 +234,15 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
   def end(mesh: Mesh): Mesh = {
     endpart()
 
-    if (attributes.isEmpty) throw SgeError.InvalidInput("Call begin() first")
-    attributes.foreach { attrs =>
-      if (!attrs.equals(mesh.getVertexAttributes())) throw SgeError.InvalidInput("Mesh attributes don't match")
-      if ((mesh.getMaxVertices() * stride) < vertices.size)
+    if (_attributes.isEmpty) throw SgeError.InvalidInput("Call begin() first")
+    _attributes.foreach { attrs =>
+      if (!attrs.equals(mesh.vertexAttributes)) throw SgeError.InvalidInput("Mesh attributes don't match")
+      if ((mesh.maxVertices * stride) < vertices.size)
         throw SgeError.InvalidInput(
-          "Mesh can't hold enough vertices: " + mesh.getMaxVertices() + " * " + stride + " < " + vertices.size
+          "Mesh can't hold enough vertices: " + mesh.maxVertices + " * " + stride + " < " + vertices.size
         )
-      if (mesh.getMaxIndices() < indices.size)
-        throw SgeError.InvalidInput("Mesh can't hold enough indices: " + mesh.getMaxIndices() + " < " + indices.size)
+      if (mesh.maxIndices < indices.size)
+        throw SgeError.InvalidInput("Mesh can't hold enough indices: " + mesh.maxIndices + " < " + indices.size)
     }
 
     mesh.setVertices(vertices.items, 0, vertices.size)
@@ -252,7 +252,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
       p.mesh = mesh
     parts.clear()
 
-    attributes = Nullable.empty
+    _attributes = Nullable.empty
     vertices.clear()
     indices.clear()
 
@@ -266,7 +266,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
         true,
         Math.min(vertices.size / stride, MeshBuilder.MAX_VERTICES),
         indices.size,
-        attributes.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
+        _attributes.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
       )
     )
 
@@ -284,57 +284,57 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
   }
 
   /** @return the size in number of floats of one vertex, multiply by four to get the size in bytes. */
-  def getFloatsPerVertex(): Int = stride
+  def floatsPerVertex: Int = stride
 
   /** @return The number of vertices built up until now, only valid in between the call to begin() and end(). */
-  def getNumVertices(): Int = vertices.size / stride
+  def numVertices: Int = vertices.size / stride
 
   /** Get a copy of the vertices built so far.
     * @param out
-    *   The float array to receive the copy of the vertices, must be at least `destOffset` + {@link #getNumVertices()} * {@link #getFloatsPerVertex()} in size.
+    *   The float array to receive the copy of the vertices, must be at least `destOffset` + {@link #numVertices} * {@link #getFloatsPerVertex()} in size.
     * @param destOffset
     *   The offset (number of floats) in the out array where to start copying
     */
   def getVertices(out: Array[Float], destOffset: Int): Unit = {
-    if (attributes.isEmpty) throw SgeError.InvalidInput("Must be called in between #begin and #end")
+    if (_attributes.isEmpty) throw SgeError.InvalidInput("Must be called in between #begin and #end")
     if ((destOffset < 0) || (destOffset > out.length - vertices.size))
       throw SgeError.InvalidInput("Array too small or offset out of range")
     System.arraycopy(vertices.items, 0, out, destOffset, vertices.size)
   }
 
   /** Provides direct access to the vertices array being built, use with care. The size of the array might be bigger, do not rely on the length of the array. Instead use {@link #getFloatsPerVertex()}
-    * * {@link #getNumVertices()} to calculate the usable size of the array. Must be called in between the call to #begin and #end.
+    * * {@link #numVertices} to calculate the usable size of the array. Must be called in between the call to #begin and #end.
     */
-  protected def getVertices(): Array[Float] = vertices.items
+  protected def getVerticesArray: Array[Float] = vertices.items
 
   /** @return The number of indices built up until now, only valid in between the call to begin() and end(). */
-  def getNumIndices(): Int = indices.size
+  def numIndices: Int = indices.size
 
   /** Get a copy of the indices built so far.
     * @param out
-    *   The short array to receive the copy of the indices, must be at least `destOffset` + {@link #getNumIndices()} in size.
+    *   The short array to receive the copy of the indices, must be at least `destOffset` + {@link #numIndices} in size.
     * @param destOffset
     *   The offset (number of shorts) in the out array where to start copying
     */
   def getIndices(out: Array[Short], destOffset: Int): Unit = {
-    if (attributes.isEmpty) throw SgeError.InvalidInput("Must be called in between #begin and #end")
+    if (_attributes.isEmpty) throw SgeError.InvalidInput("Must be called in between #begin and #end")
     if ((destOffset < 0) || (destOffset > out.length - indices.size))
       throw SgeError.InvalidInput("Array too small or offset out of range")
     System.arraycopy(indices.items, 0, out, destOffset, indices.size)
   }
 
-  /** Provides direct access to the indices array being built, use with care. The size of the array might be bigger, do not rely on the length of the array. Instead use {@link #getNumIndices()} to
+  /** Provides direct access to the indices array being built, use with care. The size of the array might be bigger, do not rely on the length of the array. Instead use {@link #numIndices} to
     * calculate the usable size of the array. Must be called in between the call to #begin and #end.
     */
-  protected def getIndices(): Array[Short] = indices.items
+  protected def getIndicesArray: Array[Short] = indices.items
 
-  override def getAttributes(): VertexAttributes =
-    attributes.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
+  override def attributes: VertexAttributes =
+    _attributes.getOrElse(throw SgeError.InvalidInput("Call begin() first"))
 
-  override def getMeshPart(): MeshPart =
+  override def meshPart: MeshPart =
     part.getOrElse(throw SgeError.InvalidInput("No active mesh part"))
 
-  override def getPrimitiveType(): PrimitiveMode = primitiveType
+  override def primitiveType: PrimitiveMode = _primitiveType
 
   override def setColor(r: Float, g: Float, b: Float, a: Float): Unit = {
     color.set(r, g, b, a)
@@ -380,7 +380,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
     }
   }
 
-  override def isVertexTransformationEnabled(): Boolean = vertexTransformationEnabled
+  override def isVertexTransformationEnabled: Boolean = vertexTransformationEnabled
 
   override def setVertexTransformationEnabled(enabled: Boolean): Unit =
     vertexTransformationEnabled = enabled
@@ -694,7 +694,7 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
     )
 
   override def addMesh(mesh: Mesh): Unit =
-    addMesh(mesh, 0, mesh.getNumIndices())
+    addMesh(mesh, 0, mesh.numIndices)
 
   override def addMesh(meshpart: MeshPart): Unit = {
     if (meshpart.primitiveType != primitiveType) throw SgeError.InvalidInput("Primitive type doesn't match")
@@ -702,13 +702,13 @@ class MeshBuilder()(using Sge) extends MeshPartBuilder {
   }
 
   override def addMesh(mesh: Mesh, indexOffset: Int, numIndices: Int): Unit = {
-    attributes.foreach { attrs =>
-      if (!attrs.equals(mesh.getVertexAttributes())) throw SgeError.InvalidInput("Vertex attributes do not match")
+    _attributes.foreach { attrs =>
+      if (!attrs.equals(mesh.vertexAttributes)) throw SgeError.InvalidInput("Vertex attributes do not match")
     }
     if (numIndices <= 0) {} // silently ignore an empty mesh part
     else {
       // FIXME don't triple copy, instead move the copy to jni
-      val numFloats = mesh.getNumVertices() * stride
+      val numFloats = mesh.numVertices * stride
       MeshBuilder.tmpVertices.clear()
       MeshBuilder.tmpVertices.ensureCapacity(numFloats)
       MeshBuilder.tmpVertices.setSize(numFloats)

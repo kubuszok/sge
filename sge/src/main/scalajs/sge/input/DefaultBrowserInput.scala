@@ -34,7 +34,7 @@ import scala.scalajs.js
   * @param config
   *   the browser application configuration
   */
-class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationConfig)(using Sge) extends BrowserInput {
+class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationConfig)(using deferredSge: => Sge) extends BrowserInput {
 
   import DefaultBrowserInput.*
 
@@ -47,7 +47,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
 
   // --- Touch/mouse state ---
   private val touchMap:              scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.HashMap()
-  private val touched:               Array[Boolean]                         = new Array[Boolean](MaxTouches)
+  private val touchedArr:            Array[Boolean]                         = new Array[Boolean](MaxTouches)
   private val touchXArr:             Array[Int]                             = new Array[Int](MaxTouches)
   private val touchYArr:             Array[Int]                             = new Array[Int](MaxTouches)
   private val deltaXArr:             Array[Int]                             = new Array[Int](MaxTouches)
@@ -70,30 +70,30 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
 
   // --- Input trait implementation ---
 
-  override def getAccelerometerX(): Float = if (accelerometer != null) accelerometer.x.toFloat else 0f
-  override def getAccelerometerY(): Float = if (accelerometer != null) accelerometer.y.toFloat else 0f
-  override def getAccelerometerZ(): Float = if (accelerometer != null) accelerometer.z.toFloat else 0f
-  override def getGyroscopeX():     Float = if (gyroscope != null) gyroscope.x.toFloat else 0f
-  override def getGyroscopeY():     Float = if (gyroscope != null) gyroscope.y.toFloat else 0f
-  override def getGyroscopeZ():     Float = if (gyroscope != null) gyroscope.z.toFloat else 0f
+  override def accelerometerX: Float = if (accelerometer != null) accelerometer.x.toFloat else 0f
+  override def accelerometerY: Float = if (accelerometer != null) accelerometer.y.toFloat else 0f
+  override def accelerometerZ: Float = if (accelerometer != null) accelerometer.z.toFloat else 0f
+  override def gyroscopeX:     Float = if (gyroscope != null) gyroscope.x.toFloat else 0f
+  override def gyroscopeY:     Float = if (gyroscope != null) gyroscope.y.toFloat else 0f
+  override def gyroscopeZ:     Float = if (gyroscope != null) gyroscope.z.toFloat else 0f
 
-  override def getMaxPointers(): Int = MaxTouches
+  override def maxPointers: Int = MaxTouches
 
-  override def getX():                  Pixels = Pixels(touchXArr(0))
-  override def getX(pointer:      Int): Pixels = Pixels(touchXArr(pointer))
-  override def getDeltaX():             Pixels = Pixels(deltaXArr(0))
-  override def getDeltaX(pointer: Int): Pixels = Pixels(deltaXArr(pointer))
-  override def getY():                  Pixels = Pixels(touchYArr(0))
-  override def getY(pointer:      Int): Pixels = Pixels(touchYArr(pointer))
-  override def getDeltaY():             Pixels = Pixels(deltaYArr(0))
-  override def getDeltaY(pointer: Int): Pixels = Pixels(deltaYArr(pointer))
+  override def x:                    Pixels = Pixels(touchXArr(0))
+  override def x(pointer:      Int): Pixels = Pixels(touchXArr(pointer))
+  override def deltaX:               Pixels = Pixels(deltaXArr(0))
+  override def deltaX(pointer: Int): Pixels = Pixels(deltaXArr(pointer))
+  override def y:                    Pixels = Pixels(touchYArr(0))
+  override def y(pointer:      Int): Pixels = Pixels(touchYArr(pointer))
+  override def deltaY:               Pixels = Pixels(deltaYArr(0))
+  override def deltaY(pointer: Int): Pixels = Pixels(deltaYArr(pointer))
 
-  override def isTouched(): Boolean = {
+  override def touched: Boolean = {
     import scala.util.boundary, boundary.break
     boundary {
       var i = 0
       while (i < MaxTouches) {
-        if (touched(i)) break(true)
+        if (touchedArr(i)) break(true)
         i += 1
       }
       false
@@ -102,17 +102,17 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
 
   override def justTouched(): Boolean = _justTouched
 
-  override def isTouched(pointer: Int): Boolean = touched(pointer)
+  override def isTouched(pointer: Int): Boolean = touchedArr(pointer)
 
   override def isButtonPressed(button: Button): Boolean =
-    pressedButtons.contains(button) && touched(0)
+    pressedButtons.contains(button) && touchedArr(0)
 
   override def isButtonJustPressed(button: Button): Boolean =
     if (button.toInt < 0 || button.toInt >= justPressedButtonsArr.length) false
     else justPressedButtonsArr(button.toInt)
 
-  override def getPressure():             Float = getPressure(0)
-  override def getPressure(pointer: Int): Float = if (isTouched(pointer)) 1f else 0f
+  override def pressure:               Float = pressure(0)
+  override def pressure(pointer: Int): Float = if (isTouched(pointer)) 1f else 0f
 
   override def isKeyPressed(key: Key): Boolean =
     if (key == Keys.ANY_KEY) pressedKeyCount > 0
@@ -149,9 +149,9 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
   override def vibrate(milliseconds:               Int, fallback:   Boolean):                Unit            = ()
   override def vibrate(milliseconds:               Int, amplitude:  Int, fallback: Boolean): Unit            = ()
   override def vibrate(vibrationType:              VibrationType):                           Unit            = ()
-  override def getAzimuth():                                                                 Float           = 0f
-  override def getPitch():                                                                   Float           = 0f
-  override def getRoll():                                                                    Float           = 0f
+  override def azimuth:                                                                      Float           = 0f
+  override def pitch:                                                                        Float           = 0f
+  override def roll:                                                                         Float           = 0f
   override def getRotationMatrix(matrix:           Array[Float]):                            Unit            = ()
   override def currentEventTime:                                                             sge.utils.Nanos = currentEventTimeStamp
 
@@ -161,7 +161,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
   override def isCatchKey(keycode: Key): Boolean = keysToCatch.contains(keycode)
 
   override def setInputProcessor(proc: InputProcessor): Unit           = processor = proc
-  override def getInputProcessor():                     InputProcessor = processor
+  override def inputProcessor:                          InputProcessor = processor
 
   override def isPeripheralAvailable(peripheral: Peripheral): Boolean =
     peripheral match {
@@ -179,7 +179,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       case _ => false
     }
 
-  override def getRotation(): Int = {
+  override def rotation: Int = {
     val screen      = window.screen
     val orientation = screen.asInstanceOf[js.Dynamic].orientation
     if (js.isUndefined(orientation)) 0
@@ -190,13 +190,13 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     }
   }
 
-  override def getNativeOrientation(): Orientation = Orientation.Landscape
+  override def nativeOrientation: Orientation = Orientation.Landscape
 
   override def setCursorCatched(catched: Boolean): Unit =
     if (catched) canvas.asInstanceOf[js.Dynamic].requestPointerLock()
     else document.asInstanceOf[js.Dynamic].exitPointerLock()
 
-  override def isCursorCatched(): Boolean =
+  override def cursorCatched: Boolean =
     document.asInstanceOf[js.Dynamic].pointerLockElement.asInstanceOf[Any] == canvas
 
   override def setCursorPosition(x: Pixels, y: Pixels): Unit = () // not possible in browser
@@ -257,21 +257,21 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
 
   private def setupAccelerometer(): Unit =
     if (BrowserAccelerometer.isSupported && BrowserFeaturePolicy.allowsFeature(BrowserAccelerometer.Permission)) {
-      if (accelerometer == null) accelerometer = BrowserAccelerometer.getInstance()
+      if (accelerometer == null) accelerometer = BrowserAccelerometer.instance
       if (!accelerometer.activated) accelerometer.start()
     }
 
   private def setupGyroscope(): Unit =
     if (BrowserGyroscope.isSupported && BrowserFeaturePolicy.allowsFeature(BrowserGyroscope.Permission)) {
-      if (gyroscope == null) gyroscope = BrowserGyroscope.getInstance()
+      if (gyroscope == null) gyroscope = BrowserGyroscope.instance
       if (!gyroscope.activated) gyroscope.start()
     }
 
   private def isAccelerometerPresent: Boolean =
-    getAccelerometerX() != 0f || getAccelerometerY() != 0f || getAccelerometerZ() != 0f
+    accelerometerX != 0f || accelerometerY != 0f || accelerometerZ != 0f
 
   private def isGyroscopePresent: Boolean =
-    getGyroscopeX() != 0f || getGyroscopeY() != 0f || getGyroscopeZ() != 0f
+    gyroscopeX != 0f || gyroscopeY != 0f || gyroscopeZ != 0f
 
   // --- Event hooking ---
 
@@ -299,12 +299,12 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     if (!pressedButtons.contains(button)) {
       hasFocus = true
       _justTouched = true
-      touched(0) = true
+      touchedArr(0) = true
       pressedButtons.add(button)
       if (button.toInt < justPressedButtonsArr.length) justPressedButtonsArr(button.toInt) = true
       deltaXArr(0) = 0
       deltaYArr(0) = 0
-      if (isCursorCatched()) {
+      if (cursorCatched) {
         touchXArr(0) += movementX(e)
         touchYArr(0) += movementY(e)
       } else {
@@ -321,13 +321,13 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     if (e.target != canvas) {
       val mx = getRelativeX(e)
       val my = getRelativeY(e)
-      if (mx < 0 || mx > Sge().graphics.getWidth().toInt || my < 0 || my > Sge().graphics.getHeight().toInt) {
+      if (mx < 0 || mx > Sge().graphics.width.toInt || my < 0 || my > Sge().graphics.height.toInt) {
         hasFocus = false
       }
     }
 
   private def handleMouseMove(e: MouseEvent): Unit = {
-    if (isCursorCatched()) {
+    if (cursorCatched) {
       deltaXArr(0) = movementX(e)
       deltaYArr(0) = movementY(e)
       touchXArr(0) += movementX(e)
@@ -340,7 +340,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     }
     currentEventTimeStamp = utils.TimeUtils.nanoTime()
     if (processor != null) {
-      if (touched(0)) processor.touchDragged(Pixels(touchXArr(0)), Pixels(touchYArr(0)), 0)
+      if (touchedArr(0)) processor.touchDragged(Pixels(touchXArr(0)), Pixels(touchYArr(0)), 0)
       else processor.mouseMoved(Pixels(touchXArr(0)), Pixels(touchYArr(0)))
     }
   }
@@ -349,8 +349,8 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
     val button = getButton(e.button.toInt)
     if (pressedButtons.contains(button)) {
       pressedButtons.remove(button)
-      touched(0) = pressedButtons.nonEmpty
-      if (isCursorCatched()) {
+      touchedArr(0) = pressedButtons.nonEmpty
+      if (cursorCatched) {
         deltaXArr(0) = movementX(e)
         deltaYArr(0) = movementY(e)
         touchXArr(0) += movementX(e)
@@ -362,7 +362,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
         touchYArr(0) = getRelativeY(e)
       }
       currentEventTimeStamp = utils.TimeUtils.nanoTime()
-      touched(0) = false
+      touchedArr(0) = false
       if (processor != null) processor.touchUp(Pixels(touchXArr(0)), Pixels(touchYArr(0)), 0, button)
     }
   }
@@ -446,7 +446,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       val touchId = getAvailablePointer()
       if (touchId >= 0) {
         touchMap.put(real, touchId)
-        touched(touchId) = true
+        touchedArr(touchId) = true
         touchXArr(touchId) = getRelativeTouchX(touch)
         touchYArr(touchId) = getRelativeTouchY(touch)
         deltaXArr(touchId) = 0
@@ -486,7 +486,7 @@ class DefaultBrowserInput(canvas: HTMLCanvasElement, config: BrowserApplicationC
       val real  = touch.identifier.toInt
       touchMap.get(real).foreach { touchId =>
         touchMap.remove(real)
-        touched(touchId) = false
+        touchedArr(touchId) = false
         deltaXArr(touchId) = getRelativeTouchX(touch) - touchXArr(touchId)
         deltaYArr(touchId) = getRelativeTouchY(touch) - touchYArr(touchId)
         touchXArr(touchId) = getRelativeTouchX(touch)

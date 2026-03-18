@@ -436,7 +436,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     * complete. This may block for more time if the portion of a single task that happens in the GL thread takes a long time. On WebGL, updates for a single task instead (see update()).
     */
   def update(millis: Int): Boolean = boundary {
-    if (Sge().application.getType() == Application.ApplicationType.WebGL) boundary.break(update())
+    if (Sge().application.applicationType == Application.ApplicationType.WebGL) boundary.break(update())
     val endTime = TimeUtils.millis() + sge.utils.Millis(millis.toLong)
     while (true) {
       val done = update()

@@ -66,7 +66,7 @@ class OrthographicCamera(using Sge) extends Camera {
     *   whether y should be pointing down
     */
   def setToOrtho(yDown: Boolean): Unit =
-    setToOrtho(yDown, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+    setToOrtho(yDown, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
 
   /** Sets this camera to an orthographic projection, centered at (viewportWidth/2, viewportHeight/2), with the y-axis pointing up or down.
     * @param yDown

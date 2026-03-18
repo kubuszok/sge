@@ -68,7 +68,7 @@ object Actions {
 
   /** Returns a new or pooled action of the specified type. */
   def action[T <: Action: ClassTag]: T = {
-    val pool = ACTION_POOLS.getPoolOrNull[T]
+    val pool = ACTION_POOLS.poolOrNull[T]
     pool.fold(
       throw SgeError.InvalidInput(
         s"No action pool registered for type ${summon[ClassTag[T]].runtimeClass}. Register it with Actions.registerAction."

@@ -45,7 +45,7 @@ object ScissorStack {
     if (scissors.isEmpty) {
       if (scissor.width < 1 || scissor.height < 1) false
       else {
-        Sge().graphics.getGL20().glEnable(EnableCap.ScissorTest)
+        Sge().graphics.gl20.glEnable(EnableCap.ScissorTest)
         scissors.add(scissor)
         HdpiUtils.glScissor(Pixels(scissor.x.toInt), Pixels(scissor.y.toInt), Pixels(scissor.width.toInt), Pixels(scissor.height.toInt))
         true
@@ -79,7 +79,7 @@ object ScissorStack {
   def popScissors()(using Sge): Rectangle = {
     val old = scissors.removeIndex(scissors.size - 1)
     if (scissors.isEmpty)
-      Sge().graphics.getGL20().glDisable(EnableCap.ScissorTest)
+      Sge().graphics.gl20.glDisable(EnableCap.ScissorTest)
     else {
       val scissor = scissors(scissors.size - 1)
       HdpiUtils.glScissor(Pixels(scissor.x.toInt), Pixels(scissor.y.toInt), Pixels(scissor.width.toInt), Pixels(scissor.height.toInt))
@@ -112,7 +112,7 @@ object ScissorStack {
     *   #calculateScissors(Camera, float, float, float, float, Matrix4, Rectangle, Rectangle)
     */
   def calculateScissors(camera: Camera, batchTransform: Matrix4, area: Rectangle, scissor: Rectangle)(using Sge): Unit =
-    calculateScissors(camera, 0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat, batchTransform, area, scissor)
+    calculateScissors(camera, 0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat, batchTransform, area, scissor)
 
   /** Calculates a scissor rectangle in OpenGL ES window coordinates from a {@link Camera}, a transformation {@link Matrix4} and an axis aligned {@link Rectangle}. The rectangle will get transformed
     * by the camera and transform matrices and is then projected to screen coordinates. Note that only axis aligned rectangles will work with this method. If either the Camera or the Matrix4 have
@@ -141,9 +141,9 @@ object ScissorStack {
   }
 
   /** @return the current viewport in OpenGL ES window coordinates based on the currently applied scissor */
-  def getViewport(using Sge): Rectangle =
+  def viewport(using Sge): Rectangle =
     if (scissors.isEmpty) {
-      viewport.set(0, 0, Sge().graphics.getWidth().toFloat, Sge().graphics.getHeight().toFloat)
+      viewport.set(0, 0, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
       viewport
     } else {
       val scissor = scissors(scissors.size - 1)

@@ -33,8 +33,9 @@ class DirectionalLightsAttribute(
   val lights: DynamicArray[DirectionalLight]
 ) extends Attribute(DirectionalLightsAttribute.Type) {
 
-  def this() =
+  def this() = {
     this(DynamicArray[DirectionalLight]())
+  }
 
   def this(copyFrom: DirectionalLightsAttribute) = {
     this()

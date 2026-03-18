@@ -38,10 +38,10 @@ trait CubemapData {
   def consumeCubemapData(): Unit
 
   /** @return the width of the pixel data */
-  def getWidth: Int
+  def width: Int
 
   /** @return the height of the pixel data */
-  def getHeight: Int
+  def height: Int
 
   /** @return whether this implementation can cope with a EGL context loss. */
   def isManaged: Boolean

@@ -37,7 +37,7 @@ class NoopAudioTest extends munit.FunSuite {
 
   test("getAvailableOutputDevices returns empty array") {
     val audio = NoopAudio()
-    assertEquals(audio.getAvailableOutputDevices.length, 0)
+    assertEquals(audio.availableOutputDevices.length, 0)
   }
 
   // ---- NoopSound ----

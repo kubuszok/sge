@@ -48,7 +48,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
       root = xml.parse(tideFile)
       val textures = mutable.HashMap.empty[String, Texture]
       for (textureFile <- loadTileSheets(root, tideFile))
-        textures.put(textureFile.path(), Texture(textureFile))
+        textures.put(textureFile.path, Texture(textureFile))
       val imageResolver  = new ImageResolver.DirectImageResolver(textures)
       val map            = loadMap(root, tideFile, imageResolver)
       val ownedResources = DynamicArray[AutoCloseable]()
@@ -82,7 +82,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
     try {
       root = xml.parse(tmxFile)
       for (image <- loadTileSheets(root, tmxFile))
-        dependencies.add(AssetDescriptor[Texture](image.path()))
+        dependencies.add(AssetDescriptor[Texture](image.path))
       dependencies
     } catch {
       case e: IOException =>
@@ -179,9 +179,9 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
       val spacingY     = Integer.parseInt(spacingParts(1))
 
       val image   = getRelativeFileHandle(tideFile, imageSource)
-      val texture = imageResolver.getImage(image.path())
+      val texture = imageResolver.getImage(image.path)
 
-      val tilesets = map.getTileSets
+      val tilesets = map.tileSets
       var firstgid = 1
       for (tileset <- tilesets)
         firstgid += tileset.size
@@ -201,7 +201,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
           while (x <= stopWidth) {
             val tile: TiledMapTile =
               StaticTiledMapTile(TextureRegion(tex, x, y, tileSizeX, tileSizeY))
-            tile.setId(gid)
+            tile.id = gid
             tileset.putTile(gid, tile)
             gid += 1
             x += tileSizeX + spacingX
@@ -240,7 +240,7 @@ class TideMapLoader(resolver: FileHandleResolver)(using Sge) extends Synchronous
       layer.visible = visible.equalsIgnoreCase("True")
       val tileArray = element.getChildByName("TileArray").getOrElse(throw new IllegalStateException("missing TileArray"))
       val rows      = tileArray.getChildrenByName("Row")
-      val tilesets  = map.getTileSets
+      val tilesets  = map.tileSets
       var currentTileSet: TiledMapTileSet = null // scalastyle:ignore
       var firstgid = 0
       var row      = 0
