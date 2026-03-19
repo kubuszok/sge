@@ -15,6 +15,7 @@ package sge
 package graphics
 
 import sge.math.Vector2
+import sge.WorldUnits
 
 /** A camera with orthographic projection.
   *
@@ -35,7 +36,7 @@ class OrthographicCamera(using Sge) extends Camera {
     * @param viewportHeight
     *   the viewport height
     */
-  def this(viewportWidth: Float, viewportHeight: Float)(using Sge) = {
+  def this(viewportWidth: WorldUnits, viewportHeight: WorldUnits)(using Sge) = {
     this()
     this.viewportWidth = viewportWidth
     this.viewportHeight = viewportHeight
@@ -47,7 +48,9 @@ class OrthographicCamera(using Sge) extends Camera {
     update(true)
 
   override def update(updateFrustum: Boolean): Unit = {
-    projection.setToOrtho(zoom * -viewportWidth / 2, zoom * (viewportWidth / 2), zoom * -(viewportHeight / 2), zoom * viewportHeight / 2, near, far)
+    val vw = viewportWidth.toFloat
+    val vh = viewportHeight.toFloat
+    projection.setToOrtho(zoom * -vw / 2, zoom * (vw / 2), zoom * -(vh / 2), zoom * vh / 2, near, far)
     view.setToLookAt(direction, up)
     view.translate(-position.x, -position.y, -position.z)
     combined.set(projection)
@@ -66,7 +69,7 @@ class OrthographicCamera(using Sge) extends Camera {
     *   whether y should be pointing down
     */
   def setToOrtho(yDown: Boolean): Unit =
-    setToOrtho(yDown, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
+    setToOrtho(yDown, WorldUnits(Sge().graphics.width.toFloat), WorldUnits(Sge().graphics.height.toFloat))
 
   /** Sets this camera to an orthographic projection, centered at (viewportWidth/2, viewportHeight/2), with the y-axis pointing up or down.
     * @param yDown
@@ -74,7 +77,7 @@ class OrthographicCamera(using Sge) extends Camera {
     * @param viewportWidth
     * @param viewportHeight
     */
-  def setToOrtho(yDown: Boolean, viewportWidth: Float, viewportHeight: Float): Unit = {
+  def setToOrtho(yDown: Boolean, viewportWidth: WorldUnits, viewportHeight: WorldUnits): Unit = {
     if (yDown) {
       up.set(0, -1, 0)
       direction.set(0, 0, 1)
@@ -82,7 +85,7 @@ class OrthographicCamera(using Sge) extends Camera {
       up.set(0, 1, 0)
       direction.set(0, 0, -1)
     }
-    position.set(zoom * viewportWidth / 2.0f, zoom * viewportHeight / 2.0f, 0)
+    position.set(zoom * viewportWidth.toFloat / 2.0f, zoom * viewportHeight.toFloat / 2.0f, 0)
     this.viewportWidth = viewportWidth
     this.viewportHeight = viewportHeight
     update()

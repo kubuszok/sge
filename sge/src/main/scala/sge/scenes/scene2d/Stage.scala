@@ -20,7 +20,7 @@ package scenes
 package scene2d
 
 import sge.Input.{ Button, Key }
-import sge.utils.{ DynamicArray, Nullable, Pool, PoolManager, Scaling }
+import sge.utils.{ DynamicArray, Nullable, Pool, PoolManager, Scaling, Seconds }
 import scala.annotation.nowarn
 
 import sge.graphics.{ Camera, Color, EnableCap, OrthographicCamera }
@@ -77,25 +77,27 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using Sge) = {
+  def this(viewport: Viewport)(using Sge) =
     this(viewport, SpriteBatch()(using Sge()), true)
-  }
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(
-      ScalingViewport(Scaling.stretch, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat, OrthographicCamera())
+      ScalingViewport(
+        Scaling.stretch,
+        WorldUnits(Sge().graphics.width.toFloat),
+        WorldUnits(Sge().graphics.height.toFloat),
+        OrthographicCamera()
+      )
     )
-  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using Sge) = {
+  def this(viewport: Viewport, batch: Batch)(using Sge) =
     this(viewport, batch, false)
-  }
 
   def draw(): Unit = {
     val camera = _viewport.camera
@@ -191,13 +193,13 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
 
   /** Calls {@link #act(float)} with {@link Graphics#getDeltaTime()}, limited to a minimum of 30fps. */
   def act(): Unit =
-    act(Math.min(Sge().graphics.deltaTime, 1 / 30f))
+    act(Seconds(Math.min(Sge().graphics.deltaTime.toFloat, 1 / 30f)))
 
   /** Calls the {@link Actor#act(float)} method on each actor in the stage. Typically called each frame. This method also fires enter and exit events.
     * @param delta
     *   Time in seconds since the last frame.
     */
-  def act(delta: Float): Unit = {
+  def act(delta: Seconds): Unit = {
     // Update over actors. Done in act() because actors may change position, which can fire enter/exit without an input event.
     var pointer = 0
     while (pointer < pointerOverActors.length) {
@@ -757,14 +759,14 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
 
   def viewport: Viewport = _viewport
 
-  def setViewport(viewport: Viewport): Unit =
+  def viewport_=(viewport: Viewport): Unit =
     this._viewport = viewport
 
   /** The viewport's world width. */
-  def width: Float = _viewport.worldWidth
+  def width: Float = _viewport.worldWidth.toFloat
 
   /** The viewport's world height. */
-  def height: Float = _viewport.worldHeight
+  def height: Float = _viewport.worldHeight.toFloat
 
   /** The viewport's camera. */
   def camera: Camera = _viewport.camera
@@ -836,7 +838,7 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
   /** If true, any actions executed during a call to {@link #act()}) will result in a call to {@link Graphics#requestRendering()}. Widgets that animate or otherwise require additional rendering may
     * check this setting before calling {@link Graphics#requestRendering()}. Default is true.
     */
-  def setActionsRequestRendering(actionsRequestRendering: Boolean): Unit =
+  def actionsRequestRendering_=(actionsRequestRendering: Boolean): Unit =
     this._actionsRequestRendering = actionsRequestRendering
 
   def actionsRequestRendering: Boolean = _actionsRequestRendering

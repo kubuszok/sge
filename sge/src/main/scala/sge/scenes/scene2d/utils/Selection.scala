@@ -262,9 +262,9 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
   }
 
   /** If true, prevents {@link #choose(Object)} from changing the selection. Default is false. */
-  def setDisabled(isDisabled: Boolean): Unit = this._isDisabled = isDisabled
+  def disabled_=(value: Boolean): Unit = this._isDisabled = value
 
-  def isDisabled: Boolean = _isDisabled
+  def disabled: Boolean = _isDisabled
 
   override def toString: String = selected.toString
 }

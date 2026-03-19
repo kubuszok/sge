@@ -42,10 +42,10 @@ class BillboardRenderer
   override def allocateChannels(): Unit =
     renderData.foreach { rd =>
       rd.positionChannel = controller.particles.addChannel(ParticleChannels.Position)
-      rd.regionChannel = controller.particles.addChannel(ParticleChannels.TextureRegion, TextureRegionInitializer.get())
-      rd.colorChannel = controller.particles.addChannel(ParticleChannels.Color, ColorInitializer.get())
-      rd.scaleChannel = controller.particles.addChannel(ParticleChannels.Scale, ScaleInitializer.get())
-      rd.rotationChannel = controller.particles.addChannel(ParticleChannels.Rotation2D, Rotation2dInitializer.get())
+      rd.regionChannel = controller.particles.addChannel(ParticleChannels.TextureRegion, TextureRegionInitializer)
+      rd.colorChannel = controller.particles.addChannel(ParticleChannels.Color, ColorInitializer)
+      rd.scaleChannel = controller.particles.addChannel(ParticleChannels.Scale, ScaleInitializer)
+      rd.rotationChannel = controller.particles.addChannel(ParticleChannels.Rotation2D, Rotation2dInitializer)
     }
 
   override def copy(): ParticleControllerComponent =

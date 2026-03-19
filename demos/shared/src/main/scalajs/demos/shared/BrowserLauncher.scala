@@ -4,7 +4,7 @@
  */
 package demos.shared
 
-import sge.{BrowserApplication, BrowserApplicationConfig}
+import sge.{ApplicationListener, BrowserApplication, BrowserApplicationConfig, Sge}
 
 /** Creates a WebGL canvas and runs a [[DemoScene]] via requestAnimationFrame.
   *
@@ -23,6 +23,7 @@ object BrowserLauncher {
     */
   def launch(scene: DemoScene, width: Int = 800, height: Int = 600): Unit = {
     val config = new BrowserApplicationConfig(width, height)
-    val app    = new BrowserApplication(new SingleSceneApp(scene), config)
+    val app: Sge ?=> ApplicationListener = new SingleSceneApp(scene)
+    new BrowserApplication(app, config)
   }
 }

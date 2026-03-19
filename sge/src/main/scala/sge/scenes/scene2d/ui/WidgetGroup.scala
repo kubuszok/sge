@@ -27,9 +27,9 @@ import sge.utils.Nullable
   */
 class WidgetGroup()(using Sge) extends Group() with Layout {
 
-  private var _needsLayout:  Boolean = true
-  private var fillParent:    Boolean = false
-  private var layoutEnabled: Boolean = true
+  private var _needsLayout:   Boolean = true
+  private var _fillParent:    Boolean = false
+  private var _layoutEnabled: Boolean = true
 
   /** Creates a new widget group containing the specified actors. */
   def this(actors: Actor*)(using Sge) = {
@@ -49,18 +49,25 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
 
   def maxHeight: Float = 0
 
-  def setLayoutEnabled(enabled: Boolean): Unit = {
-    layoutEnabled = enabled
-    setLayoutEnabled(this, enabled)
+  def fillParent: Boolean = _fillParent
+
+  def fillParent_=(value: Boolean): Unit =
+    _fillParent = value
+
+  def layoutEnabled: Boolean = _layoutEnabled
+
+  def layoutEnabled_=(value: Boolean): Unit = {
+    _layoutEnabled = value
+    propagateLayoutEnabled(this, value)
   }
 
-  private def setLayoutEnabled(parent: Group, enabled: Boolean): Unit = {
+  private def propagateLayoutEnabled(parent: Group, enabled: Boolean): Unit = {
     val children = parent.children
     var i        = 0
     while (i < children.size) {
       children(i) match {
-        case l: Layout => l.setLayoutEnabled(enabled)
-        case g: Group  => setLayoutEnabled(g, enabled) //
+        case l: Layout => l.layoutEnabled = enabled
+        case g: Group  => propagateLayoutEnabled(g, enabled) //
         case _ =>
       }
       i += 1
@@ -68,9 +75,9 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
   }
 
   def validate(): Unit =
-    if (layoutEnabled) {
+    if (_layoutEnabled) {
       this.parent.foreach { parent =>
-        if (fillParent) {
+        if (_fillParent) {
           stage.fold(setSize(parent.width, parent.height)) { stage =>
             if (parent eq stage.root) setSize(stage.width, stage.height)
             else setSize(parent.width, parent.height)
@@ -128,9 +135,6 @@ class WidgetGroup()(using Sge) extends Group() with Layout {
     setSize(prefWidth, prefHeight)
     validate()
   }
-
-  def setFillParent(fillParent: Boolean): Unit =
-    this.fillParent = fillParent
 
   def layout(): Unit = {}
 

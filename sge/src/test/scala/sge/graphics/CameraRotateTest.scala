@@ -15,7 +15,7 @@ class CameraRotateTest extends munit.FunSuite {
 
   private def makeCamera(): OrthographicCamera = {
     given Sge = SgeTestFixture.testSge()
-    new OrthographicCamera(100f, 100f)
+    new OrthographicCamera(WorldUnits(100f), WorldUnits(100f))
   }
 
   // ---- rotate(Matrix4) uses rot, not mul ----

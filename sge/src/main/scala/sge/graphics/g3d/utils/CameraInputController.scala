@@ -95,13 +95,12 @@ class CameraInputController protected (
   private val tmpV1:  Vector3 = Vector3()
   private val tmpV2:  Vector3 = Vector3()
 
-  def this(camera: Camera)(using Sge) = {
+  def this(camera: Camera)(using Sge) =
     this(CameraInputController.CameraGestureListener(), camera)
-  }
 
   def update(): Unit =
     if (rotateRightPressed || rotateLeftPressed || forwardPressed || backwardPressed) {
-      val delta = Sge().graphics.deltaTime
+      val delta = Sge().graphics.deltaTime.toFloat
       if (rotateRightPressed) camera.rotate(camera.up, -delta * rotateAngle)
       if (rotateLeftPressed) camera.rotate(camera.up, delta * rotateAngle)
       if (forwardPressed) {

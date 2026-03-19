@@ -38,9 +38,9 @@ class OrthographicCameraTest extends munit.FunSuite {
 
   test("secondary constructor sets viewportWidth/Height and calls update") {
     given Sge = makeContext(800, 600)
-    val cam   = OrthographicCamera(800f, 600f)
-    assertEqualsFloat(cam.viewportWidth, 800f, epsilon)
-    assertEqualsFloat(cam.viewportHeight, 600f, epsilon)
+    val cam   = OrthographicCamera(WorldUnits(800f), WorldUnits(600f))
+    assertEqualsFloat(cam.viewportWidth.toFloat, 800f, epsilon)
+    assertEqualsFloat(cam.viewportHeight.toFloat, 600f, epsilon)
     // combined should not be identity after update
     val identity = Matrix4()
     val differs  = (0 until 16).exists(i => Math.abs(cam.combined.values(i) - identity.values(i)) > epsilon)
@@ -50,8 +50,8 @@ class OrthographicCameraTest extends munit.FunSuite {
   test("update produces valid combined matrix (not identity)") {
     given Sge = makeContext(800, 600)
     val cam   = OrthographicCamera()
-    cam.viewportWidth = 800
-    cam.viewportHeight = 600
+    cam.viewportWidth = WorldUnits(800f)
+    cam.viewportHeight = WorldUnits(600f)
     cam.update()
     val identity = Matrix4()
     // At least one element should differ from identity
@@ -64,7 +64,7 @@ class OrthographicCameraTest extends munit.FunSuite {
   test("setToOrtho yDown=false centers camera and sets up=(0,1,0)") {
     given Sge = makeContext(800, 600)
     val cam   = OrthographicCamera()
-    cam.setToOrtho(false, 800f, 600f)
+    cam.setToOrtho(false, WorldUnits(800f), WorldUnits(600f))
     assertEqualsFloat(cam.position.x, 400f, epsilon)
     assertEqualsFloat(cam.position.y, 300f, epsilon)
     assertEqualsFloat(cam.up.x, 0f, epsilon)
@@ -76,7 +76,7 @@ class OrthographicCameraTest extends munit.FunSuite {
   test("setToOrtho yDown=true sets up=(0,-1,0) and direction=(0,0,1)") {
     given Sge = makeContext(800, 600)
     val cam   = OrthographicCamera()
-    cam.setToOrtho(true, 800f, 600f)
+    cam.setToOrtho(true, WorldUnits(800f), WorldUnits(600f))
     assertEqualsFloat(cam.up.x, 0f, epsilon)
     assertEqualsFloat(cam.up.y, -1f, epsilon)
     assertEqualsFloat(cam.up.z, 0f, epsilon)
@@ -87,12 +87,12 @@ class OrthographicCameraTest extends munit.FunSuite {
 
   test("zoom affects projection matrix") {
     given Sge = makeContext(800, 600)
-    val cam1  = OrthographicCamera(800f, 600f)
+    val cam1  = OrthographicCamera(WorldUnits(800f), WorldUnits(600f))
     val proj1 = cam1.projection.values.clone()
 
     val cam2 = OrthographicCamera()
-    cam2.viewportWidth = 800
-    cam2.viewportHeight = 600
+    cam2.viewportWidth = WorldUnits(800f)
+    cam2.viewportHeight = WorldUnits(600f)
     cam2.zoom = 2f
     cam2.update()
     val proj2 = cam2.projection.values
@@ -136,8 +136,8 @@ class OrthographicCameraTest extends munit.FunSuite {
 
   test("project/unproject roundtrip recovers original point") {
     given Sge = makeContext(800, 600)
-    val cam   = OrthographicCamera(800f, 600f)
-    cam.setToOrtho(false, 800f, 600f)
+    val cam   = OrthographicCamera(WorldUnits(800f), WorldUnits(600f))
+    cam.setToOrtho(false, WorldUnits(800f), WorldUnits(600f))
 
     val original  = Vector3(200f, 150f, 0f)
     val projected = cam.project(Vector3(200f, 150f, 0f))
@@ -163,7 +163,7 @@ class OrthographicCameraTest extends munit.FunSuite {
 
   test("frustum is updated after update") {
     given Sge = makeContext(800, 600)
-    val cam   = OrthographicCamera(800f, 600f)
+    val cam   = OrthographicCamera(WorldUnits(800f), WorldUnits(600f))
     // At least one frustum plane should have a non-zero normal or d
     val hasNonZero = cam.frustum.planes.exists { p =>
       Math.abs(p.normal.x) > epsilon || Math.abs(p.normal.y) > epsilon ||
@@ -175,7 +175,7 @@ class OrthographicCameraTest extends munit.FunSuite {
   test("viewportWidth and viewportHeight default to 0") {
     given Sge = makeContext(640, 480)
     val cam   = OrthographicCamera()
-    assertEqualsFloat(cam.viewportWidth, 0f, epsilon)
-    assertEqualsFloat(cam.viewportHeight, 0f, epsilon)
+    assertEqualsFloat(cam.viewportWidth.toFloat, 0f, epsilon)
+    assertEqualsFloat(cam.viewportHeight.toFloat, 0f, epsilon)
   }
 }

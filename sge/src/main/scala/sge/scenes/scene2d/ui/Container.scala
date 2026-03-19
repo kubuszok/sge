@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; Align opaque type
  *   Idiom: split packages
- *   Note: Java-style getters/setters retained — fluent builder pattern (returns Container[T] for chaining) conflicts with Scala property naming
+ *   Note: Fluent builder setters retained (return Container[T] for chaining); getActor→actor, getPadX/Y→padX/Y renamed to Scala properties; getFillX/Y retained (conflicts with fillX()/fillY() builder methods)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -33,7 +33,7 @@ import scala.language.implicitConversions
   */
 class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
-  private var actor:        Nullable[T]         = Nullable.empty
+  private var _actor:       Nullable[T]         = Nullable.empty
   private var _minWidth:    Value               = Value.minWidth
   private var _minHeight:   Value               = Value.minHeight
   private var _prefWidth:   Value               = Value.prefWidth
@@ -53,7 +53,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   private var actorCulling: Nullable[Rectangle] = Nullable.empty
 
   touchable = Touchable.childrenOnly
-  setTransform(false)
+  transform = false
 
   def this(actor: Nullable[T])(using Sge) = {
     this()
@@ -127,7 +127,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def background: Nullable[Drawable] = _background
 
   override def layout(): Unit =
-    actor.foreach { a =>
+    _actor.foreach { a =>
       val padLeft         = this._padLeft.get(this)
       val padBottom       = this._padBottom.get(this)
       val containerWidth  = this.width - padLeft - _padRight.get(this)
@@ -179,7 +179,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   override def setCullingArea(cullingArea: Nullable[Rectangle]): Unit = {
     super.setCullingArea(cullingArea)
-    actor.foreach { a =>
+    _actor.foreach { a =>
       a match {
         case cullable: Cullable =>
           cullingArea.fold {
@@ -206,17 +206,17 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     actor.foreach { a =>
       if (a.asInstanceOf[Actor] eq this) throw new IllegalArgumentException("actor cannot be the Container.")
     }
-    this.actor.foreach { a =>
+    this._actor.foreach { a =>
       super.removeActor(a)
     }
-    this.actor = actor
+    this._actor = actor
     actor.foreach { a =>
       super.addActor(a)
     }
   }
 
   /** @return May be null. */
-  def getActor: Nullable[T] = actor
+  def actor: Nullable[T] = _actor
 
   /** @deprecated
     *   Container may have only a single child.
@@ -255,22 +255,22 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
     throw new UnsupportedOperationException("Use Container#setActor.")
 
   override def removeActor(actor: Actor): Boolean =
-    if (!this.actor.exists(_ eq actor)) false
+    if (!this._actor.exists(_ eq actor)) false
     else {
       setActor(Nullable.empty)
       true
     }
 
   override def removeActor(actor: Actor, unfocus: Boolean): Boolean =
-    if (!this.actor.exists(_ eq actor)) false
+    if (!this._actor.exists(_ eq actor)) false
     else {
-      this.actor = Nullable.empty
+      this._actor = Nullable.empty
       super.removeActor(actor, unfocus)
     }
 
   override def removeActorAt(index: Int, unfocus: Boolean): Actor = {
     val removed = super.removeActorAt(index, unfocus)
-    if (this.actor.exists(_ eq removed)) this.actor = Nullable.empty
+    if (this._actor.exists(_ eq removed)) this._actor = Nullable.empty
     removed
   }
 
@@ -485,17 +485,17 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def alignRight(): Container[T] = { _align = (_align | Align.right) & ~Align.left; this }
 
   override def minWidth: Float =
-    actor.map(a => _minWidth.get(a)).getOrElse(0f) + _padLeft.get(this) + _padRight.get(this)
+    _actor.map(a => _minWidth.get(a)).getOrElse(0f) + _padLeft.get(this) + _padRight.get(this)
 
   def minHeightValue: Value = _minHeight
 
   override def minHeight: Float =
-    actor.map(a => _minHeight.get(a)).getOrElse(0f) + _padTop.get(this) + _padBottom.get(this)
+    _actor.map(a => _minHeight.get(a)).getOrElse(0f) + _padTop.get(this) + _padBottom.get(this)
 
   def prefWidthValue: Value = _prefWidth
 
   override def prefWidth: Float = {
-    var v = actor.map(a => _prefWidth.get(a)).getOrElse(0f)
+    var v = _actor.map(a => _prefWidth.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.minWidth) }
     Math.max(minWidth, v + _padLeft.get(this) + _padRight.get(this))
   }
@@ -503,7 +503,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def prefHeightValue: Value = _prefHeight
 
   override def prefHeight: Float = {
-    var v = actor.map(a => _prefHeight.get(a)).getOrElse(0f)
+    var v = _actor.map(a => _prefHeight.get(a)).getOrElse(0f)
     _background.foreach { bg => v = Math.max(v, bg.minHeight) }
     Math.max(minHeight, v + _padTop.get(this) + _padBottom.get(this))
   }
@@ -511,7 +511,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def maxWidthValue: Value = _maxWidth
 
   override def maxWidth: Float = {
-    var v = actor.map(a => _maxWidth.get(a)).getOrElse(0f)
+    var v = _actor.map(a => _maxWidth.get(a)).getOrElse(0f)
     if (v > 0) v += _padLeft.get(this) + _padRight.get(this)
     v
   }
@@ -519,7 +519,7 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def maxHeightValue: Value = _maxHeight
 
   override def maxHeight: Float = {
-    var v = actor.map(a => _maxHeight.get(a)).getOrElse(0f)
+    var v = _actor.map(a => _maxHeight.get(a)).getOrElse(0f)
     if (v > 0) v += _padTop.get(this) + _padBottom.get(this)
     v
   }
@@ -537,10 +537,10 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
   def getPadRight:   Float = _padRight.get(this)
 
   /** Returns {@link #getPadLeft()} plus {@link #getPadRight()}. */
-  def getPadX: Float = _padLeft.get(this) + _padRight.get(this)
+  def padX: Float = _padLeft.get(this) + _padRight.get(this)
 
   /** Returns {@link #getPadTop()} plus {@link #getPadBottom()}. */
-  def getPadY: Float = _padTop.get(this) + _padBottom.get(this)
+  def padY: Float = _padTop.get(this) + _padBottom.get(this)
 
   def getFillX: Float = _fillX
   def getFillY: Float = _fillY
@@ -555,11 +555,10 @@ class Container[T <: Actor]()(using Sge) extends WidgetGroup() {
 
   def clip(enabled: Boolean): Container[T] = { setClip(enabled); this }
 
-  /** Causes the contents to be clipped if they exceed the container bounds. Enabling clipping will set {@link #setTransform(boolean)} to true.
-    */
+  /** Causes the contents to be clipped if they exceed the container bounds. Enabling clipping will set transform to true. */
   def setClip(enabled: Boolean): Unit = {
     _clip = enabled
-    setTransform(enabled)
+    transform = enabled
     invalidate()
   }
 

@@ -21,6 +21,7 @@ import sge.math.Quaternion
 import sge.math.Vector3
 import sge.math.collision.Ray
 import sge.Sge
+import sge.WorldUnits
 
 /** Base class for OrthographicCamera and PerspectiveCamera.
   * @author
@@ -56,10 +57,10 @@ abstract class Camera(using Sge) {
   var far: Float = 100
 
   /** the viewport width * */
-  var viewportWidth: Float = 0
+  var viewportWidth: WorldUnits = WorldUnits.zero
 
   /** the viewport height * */
-  var viewportHeight: Float = 0
+  var viewportHeight: WorldUnits = WorldUnits.zero
 
   /** the frustum * */
   val frustum: Frustum = Frustum()

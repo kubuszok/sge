@@ -38,7 +38,7 @@ import scala.compiletime.uninitialized
   *   mzechner, Thorsten Schleinzer
   */
 class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends IndexData with AutoCloseable {
-  private var buffer:       ShortBuffer = uninitialized
+  private var _buffer:      ShortBuffer = uninitialized
   private var byteBuffer:   ByteBuffer  = uninitialized
   private var ownsBuffer:   Boolean     = uninitialized
   private var bufferHandle: Int         = uninitialized
@@ -56,9 +56,9 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
   byteBuffer = BufferUtils.newUnsafeByteBuffer(actualMaxIndices * 2)
   isDirect = true
 
-  buffer = byteBuffer.asShortBuffer()
+  _buffer = byteBuffer.asShortBuffer()
   ownsBuffer = true
-  buffer.asInstanceOf[Buffer].flip()
+  _buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
   bufferHandle = Sge().graphics.gl20.glGenBuffer()
   usage = if isStatic then BufferUsage.StaticDraw else BufferUsage.DynamicDraw
@@ -68,9 +68,8 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
     * @param maxIndices
     *   the maximum number of indices this buffer can hold
     */
-  def this(maxIndices: Int)(using Sge) = {
+  def this(maxIndices: Int)(using Sge) =
     this(true, maxIndices)
-  }
 
   def this(isStatic: Boolean, data: ByteBuffer)(using Sge) = {
     this(isStatic, if data.limit() == 0 then 0 else 1) // Initialize with a dummy size
@@ -79,7 +78,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
     byteBuffer = data
     isDirect = true
 
-    buffer = byteBuffer.asShortBuffer()
+    _buffer = byteBuffer.asShortBuffer()
     ownsBuffer = false
     bufferHandle = Sge().graphics.gl20.glGenBuffer()
     usage = if isStatic then BufferUsage.StaticDraw else BufferUsage.DynamicDraw
@@ -87,11 +86,11 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
 
   /** @return the number of indices currently stored in this buffer */
   def numIndices: Int =
-    if empty then 0 else buffer.limit()
+    if empty then 0 else _buffer.limit()
 
   /** @return the maximum number of indices this IndexBufferObject can store. */
   def numMaxIndices: Int =
-    if empty then 0 else buffer.capacity()
+    if empty then 0 else _buffer.capacity()
 
   /** <p> Sets the indices of this IndexBufferObject, discarding the old indices. The count must equal the number of indices to be copied to this IndexBufferObject. </p>
     *
@@ -106,9 +105,9 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
     */
   def setIndices(indices: Array[Short], offset: Int, count: Int): Unit = {
     isDirty = true
-    buffer.asInstanceOf[Buffer].clear()
-    buffer.put(indices, offset, count)
-    buffer.asInstanceOf[Buffer].flip()
+    _buffer.asInstanceOf[Buffer].clear()
+    _buffer.put(indices, offset, count)
+    _buffer.asInstanceOf[Buffer].flip()
     byteBuffer.asInstanceOf[Buffer].position(0)
     byteBuffer.asInstanceOf[Buffer].limit(count << 1)
 
@@ -121,12 +120,12 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
   def setIndices(indices: ShortBuffer): Unit = {
     isDirty = true
     val pos = indices.position()
-    buffer.asInstanceOf[Buffer].clear()
-    buffer.put(indices)
-    buffer.asInstanceOf[Buffer].flip()
+    _buffer.asInstanceOf[Buffer].clear()
+    _buffer.put(indices)
+    _buffer.asInstanceOf[Buffer].flip()
     indices.asInstanceOf[Buffer].position(pos)
     byteBuffer.asInstanceOf[Buffer].position(0)
-    byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() << 1)
+    byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() << 1)
 
     if isBound then {
       Sge().graphics.gl20.glBufferData(BufferTarget.ElementArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
@@ -140,7 +139,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
     byteBuffer.asInstanceOf[Buffer].position(targetOffset * 2)
     BufferUtils.copy(indices, offset, byteBuffer, count)
     byteBuffer.asInstanceOf[Buffer].position(pos)
-    buffer.asInstanceOf[Buffer].position(0)
+    _buffer.asInstanceOf[Buffer].position(0)
 
     if isBound then {
       Sge().graphics.gl20.glBufferData(BufferTarget.ElementArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
@@ -150,14 +149,14 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
 
   /** @deprecated use {@link #getBuffer(boolean)} instead */
   @deprecated("use getBuffer(boolean) instead")
-  override def getBuffer(): ShortBuffer = {
+  override def buffer: ShortBuffer = {
     isDirty = true
-    buffer
+    _buffer
   }
 
   override def getBuffer(forWriting: Boolean): ShortBuffer = {
     isDirty |= forWriting
-    buffer
+    _buffer
   }
 
   /** Binds this IndexBufferObject for rendering with glDrawElements. */
@@ -166,7 +165,7 @@ class IndexBufferObject(isStatic: Boolean, maxIndices: Int)(using Sge) extends I
 
     Sge().graphics.gl20.glBindBuffer(BufferTarget.ElementArrayBuffer, bufferHandle)
     if isDirty then {
-      byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 2)
+      byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() * 2)
       Sge().graphics.gl20.glBufferData(BufferTarget.ElementArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }

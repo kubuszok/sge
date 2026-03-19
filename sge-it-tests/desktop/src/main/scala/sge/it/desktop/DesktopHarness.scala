@@ -25,26 +25,26 @@ class DesktopHarness(resultsFile: File)(using sge: Sge) extends ApplicationListe
   // Check schedule: (frameToRun, checkName, checkFn)
   // We spread checks across frames to let GL state settle between them.
   private val schedule: Array[(Int, () => CheckResult)] = Array(
-    (2, () => {BootstrapCheck.run() }),
-    (4, () => {FileIOCheck.run() }),
-    (6, () => {JsonXmlCheck.run() }),
-    (8, () => {GL2DCheck.run() }),
-    (10, () => {GL3DCheck.run() }),
-    (12, () => {AudioCheck.run() }),
-    (14, () => {InputCheck.run() }),
-    (16, () => {PixmapCheck.run() }),
-    (18, () => {TextureCheck.run() }),
-    (20, () => {SpriteBatchCheck.run() }),
-    (22, () => {FBOCheck.run() }),
-    (24, () => {ClipboardCheck.run() }),
-    (26, () => {WindowCheck.run() }),
-    (28, () => {MusicCheck.run() }),
-    (30, () => {MultiSoundCheck.run() }),
-    (32, () => {TextureAtlasCheck.run() }),
-    (34, () => {WindowResizeCheck.run() }),
-    (36, () => {CursorCheck.run() }),
-    (38, () => {InputDispatchCheck.run() }),
-    (40, () => {FullscreenCheck.run() })
+    (2, () => BootstrapCheck.run()),
+    (4, () => FileIOCheck.run()),
+    (6, () => JsonXmlCheck.run()),
+    (8, () => GL2DCheck.run()),
+    (10, () => GL3DCheck.run()),
+    (12, () => AudioCheck.run()),
+    (14, () => InputCheck.run()),
+    (16, () => PixmapCheck.run()),
+    (18, () => TextureCheck.run()),
+    (20, () => SpriteBatchCheck.run()),
+    (22, () => FBOCheck.run()),
+    (24, () => ClipboardCheck.run()),
+    (26, () => WindowCheck.run()),
+    (28, () => MusicCheck.run()),
+    (30, () => MultiSoundCheck.run()),
+    (32, () => TextureAtlasCheck.run()),
+    (34, () => WindowResizeCheck.run()),
+    (36, () => CursorCheck.run()),
+    (38, () => InputDispatchCheck.run()),
+    (40, () => FullscreenCheck.run())
   )
 
   override def create(): Unit = {

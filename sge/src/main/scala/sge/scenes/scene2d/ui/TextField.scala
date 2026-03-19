@@ -62,7 +62,7 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
   var keyboard:                    OnscreenKeyboard            = DEFAULT_ONSCREEN_KEYBOARD
   private[ui] var _focusTraversal: Boolean                     = true
   var onlyFontChars:               Boolean                     = true
-  var disabled:                    Boolean                     = false
+  private var _disabled:           Boolean                     = false
   private var textHAlign:          Align                       = Align.left
   private var selectionX:          Float                       = 0
   private var selectionWidth:      Float                       = 0
@@ -348,9 +348,9 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
       if ((!focused || disabled) && messageText.isDefined) {
         val messageFont = _style.messageFont.getOrElse(font)
         _style.messageFontColor.fold {
-          messageFont.setColor(0.7f, 0.7f, 0.7f, color.a * parentAlpha)
+          messageFont.color.set(0.7f, 0.7f, 0.7f, color.a * parentAlpha)
         } { mfc =>
-          messageFont.setColor(mfc.r, mfc.g, mfc.b, mfc.a * color.a * parentAlpha)
+          messageFont.color.set(mfc.r, mfc.g, mfc.b, mfc.a * color.a * parentAlpha)
         }
         drawMessageText(batch, messageFont, tx + bgLeftWidth, ty + textY + yOffset, tw - bgLeftWidth - bgRightWidth)
       }
@@ -358,7 +358,7 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
       val data          = font.data
       val markupEnabled = data.markupEnabled
       data.markupEnabled = false
-      font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * color.a * parentAlpha)
+      font.color.set(fontColor.r, fontColor.g, fontColor.b, fontColor.a * color.a * parentAlpha)
       drawText(batch, font, tx + bgLeftWidth, ty + textY + yOffset)
       data.markupEnabled = markupEnabled
     }
@@ -594,7 +594,7 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
       val actor = actors(i)
       actor match {
         case textField: TextField if !(textField eq this) =>
-          if (!(textField.isDisabled || !textField._focusTraversal || !textField.ascendantsVisible())) {
+          if (!(textField.disabled || !textField._focusTraversal || !textField.ascendantsVisible())) {
             val actorCoords = actor.parent.getOrElse(throw new IllegalStateException("Actor must have a parent")).localToStageCoordinates(tmp3.set(actor.x, actor.y))
             val below       = actorCoords.y != currentCoords.y && (actorCoords.y < currentCoords.y ^ up)
             val right       = actorCoords.y == currentCoords.y && (actorCoords.x > currentCoords.x ^ up)
@@ -788,10 +788,10 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
   def setBlinkTime(blinkTime: Float): Unit =
     this.blinkTime = Seconds(blinkTime)
 
-  def setDisabled(isDisabled: Boolean): Unit =
-    this.disabled = isDisabled
+  def disabled_=(value: Boolean): Unit =
+    this._disabled = value
 
-  def isDisabled: Boolean = disabled
+  def disabled: Boolean = _disabled
 
   protected def moveCursor(forward: Boolean, jump: Boolean): Unit = {
     val limit      = if (forward) _text.length() else 0

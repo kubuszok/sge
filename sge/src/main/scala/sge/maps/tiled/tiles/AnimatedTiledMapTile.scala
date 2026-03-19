@@ -57,13 +57,12 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) = {
+  def this(interval: Float, frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       Array.fill(frameTiles.size)((interval * 1000f).toInt),
       frameTiles.size * (interval * 1000f).toInt
     )
-  }
 
   /** Creates an animated tile with the given animation intervals and frame tiles.
     *
@@ -72,13 +71,12 @@ class AnimatedTiledMapTile private (
     * @param frameTiles
     *   An array of {@link StaticTiledMapTile}s that make up the animation.
     */
-  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) = {
+  def this(intervals: Array[Int], frameTiles: DynamicArray[StaticTiledMapTile]) =
     this(
       frameTiles.toArray,
       intervals.clone(),
       intervals.sum
     )
-  }
 
   override def id: Int = _id
 

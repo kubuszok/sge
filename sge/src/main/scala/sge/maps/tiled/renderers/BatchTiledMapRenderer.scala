@@ -42,17 +42,14 @@ abstract class BatchTiledMapRenderer(
   protected val repeatedImageBounds: Rectangle    = Rectangle()
   protected val vertices:            Array[Float] = new Array[Float](BatchTiledMapRenderer.NUM_VERTICES)
 
-  def this(map: TiledMap)(using Sge) = {
+  def this(map: TiledMap)(using Sge) =
     this(map, 1.0f, SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, unitScale: Float)(using Sge) = {
+  def this(map: TiledMap, unitScale: Float)(using Sge) =
     this(map, unitScale, SpriteBatch(), true)
-  }
 
-  def this(map: TiledMap, batch: Batch)(using Sge) = {
+  def this(map: TiledMap, batch: Batch)(using Sge) =
     this(map, 1.0f, batch, false)
-  }
 
   def map: TiledMap = _map
 
@@ -67,8 +64,8 @@ abstract class BatchTiledMapRenderer(
 
   override def setView(camera: OrthographicCamera): Unit = {
     batch.projectionMatrix = camera.combined
-    val width  = camera.viewportWidth * camera.zoom
-    val height = camera.viewportHeight * camera.zoom
+    val width  = camera.viewportWidth.toFloat * camera.zoom
+    val height = camera.viewportHeight.toFloat * camera.zoom
     val w      = width * Math.abs(camera.up.y) + height * Math.abs(camera.up.x)
     val h      = height * Math.abs(camera.up.y) + width * Math.abs(camera.up.x)
     viewBounds.set(camera.position.x - w / 2, camera.position.y - h / 2, w, h)

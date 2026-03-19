@@ -8,7 +8,8 @@ package demos.tileworld
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.{Color, OrthographicCamera, Pixmap, Texture}
 import sge.graphics.g2d.{SpriteBatch, TextureRegion}
 import sge.maps.tiled.{TiledMap, TiledMapTileLayer, TiledMapTileSet}
@@ -151,13 +152,14 @@ class TileWorldGame extends DemoScene {
     val viewW = WorldW * 0.5f
     val viewH = WorldH * 0.5f
     camera = OrthographicCamera()
-    camera.setToOrtho(false, viewW, viewH)
-    viewport = FitViewport(viewW, viewH, camera)
+    camera.setToOrtho(false, WorldUnits(viewW), WorldUnits(viewH))
+    viewport = FitViewport(WorldUnits(viewW), WorldUnits(viewH), camera)
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
-    handleInput(dt)
-    updateCamera(dt)
+  override def render(dt: Seconds)(using Sge): Unit = {
+    val delta = dt.toFloat
+    handleInput(delta)
+    updateCamera(delta)
 
     ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f)
 
@@ -243,8 +245,8 @@ class TileWorldGame extends DemoScene {
     camera.position.y = MathUtils.lerp(camera.position.y, charY, t)
 
     // Clamp camera so it doesn't show beyond map edges
-    val halfW = camera.viewportWidth / 2f
-    val halfH = camera.viewportHeight / 2f
+    val halfW = camera.viewportWidth.toFloat / 2f
+    val halfH = camera.viewportHeight.toFloat / 2f
     camera.position.x = MathUtils.clamp(camera.position.x, halfW, WorldW - halfW)
     camera.position.y = MathUtils.clamp(camera.position.y, halfH, WorldH - halfH)
   }

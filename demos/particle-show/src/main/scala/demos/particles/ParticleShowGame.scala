@@ -6,7 +6,8 @@ package demos.particles
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.{Color, Pixmap, Texture}
 import sge.graphics.g2d.SpriteBatch
 import sge.graphics.glutils.ShapeRenderer
@@ -70,7 +71,7 @@ object ParticleShowGame extends DemoScene {
   override def init()(using Sge): Unit = {
     batch = SpriteBatch()
     shapeRenderer = ShapeRenderer()
-    viewport = FitViewport(W, H)
+    viewport = FitViewport(WorldUnits(W), WorldUnits(H))
 
     val pm = Pixmap(2, 2, Pixmap.Format.RGBA8888)
     pm.setColor(Color.WHITE)
@@ -79,7 +80,8 @@ object ParticleShowGame extends DemoScene {
     pm.close()
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit = {
+    val delta = dt.toFloat
     val input = Sge().input
 
     // Mode selection
@@ -95,14 +97,14 @@ object ParticleShowGame extends DemoScene {
     }
 
     // Auto-spawn
-    spawnTimer += dt
+    spawnTimer += delta
     while (spawnTimer >= SpawnInterval) {
       spawnTimer -= SpawnInterval
       autoSpawn()
     }
 
     // Update particles
-    updateParticles(dt)
+    updateParticles(delta)
 
     // Draw
     ScreenUtils.clear(0.05f, 0.05f, 0.08f, 1f)

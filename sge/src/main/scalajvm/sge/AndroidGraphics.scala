@@ -19,7 +19,7 @@ import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
 import sge.graphics.{ AndroidGL20Adapter, AndroidGL30Adapter }
 import sge.platform.android._
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** An implementation of [[Graphics]] for Android.
   *
@@ -59,7 +59,7 @@ class AndroidGraphics(
 
   private var _bufferFormat:  Graphics.BufferFormat = Graphics.BufferFormat(config.r, config.g, config.b, config.a, config.depth, config.stencil, config.numSamples, false)
   private var _lastFrameTime: Long                  = System.nanoTime()
-  private var _deltaTime:     Float                 = 0f
+  private var _deltaTime:     Seconds               = Seconds.zero
   private var _frameId:       Long                  = -1L
   private var _frameStart:    Long                  = System.nanoTime()
   private var _frames:        Int                   = 0
@@ -122,9 +122,9 @@ class AndroidGraphics(
     val time = System.nanoTime()
     // After pause, deltaTime can be huge — cut it off on resume
     if (!isResuming) {
-      _deltaTime = (time - _lastFrameTime) / 1000000000.0f
+      _deltaTime = Seconds((time - _lastFrameTime) / 1000000000.0f)
     } else {
-      _deltaTime = 0f
+      _deltaTime = Seconds.zero
     }
     _lastFrameTime = time
 
@@ -183,10 +183,10 @@ class AndroidGraphics(
 
   // ─── Frame timing ────────────────────────────────────────────────────
 
-  override def frameId:         Long  = _frameId
-  override def deltaTime:       Float = _deltaTime
-  override def rawDeltaTime:    Float = _deltaTime
-  override def framesPerSecond: Int   = _fps
+  override def frameId:         Long    = _frameId
+  override def deltaTime:       Seconds = _deltaTime
+  override def rawDeltaTime:    Seconds = _deltaTime
+  override def framesPerSecond: Int     = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 

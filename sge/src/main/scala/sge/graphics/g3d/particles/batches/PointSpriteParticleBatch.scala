@@ -85,13 +85,11 @@ class PointSpriteParticleBatch(
     renderable.shader = Nullable(shader)
   }
 
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(1000, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
-  def this(capacity: Int)(using Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(capacity, Nullable.empty, Nullable.empty, Nullable.empty)
-  }
 
   override protected def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](capacity * CPU_VERTEX_SIZE)

@@ -34,7 +34,7 @@ class LayoutAction extends Action {
 
   def act(delta: Seconds): Boolean = {
     target.foreach { t =>
-      t.asInstanceOf[Layout].setLayoutEnabled(enabled)
+      t.asInstanceOf[Layout].layoutEnabled = enabled
     }
     true
   }

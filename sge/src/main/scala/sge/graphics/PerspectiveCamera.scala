@@ -15,6 +15,7 @@ package sge
 package graphics
 
 import sge.math.Vector3
+import sge.WorldUnits
 
 /** A Camera with perspective projection.
   *
@@ -35,7 +36,7 @@ class PerspectiveCamera(using Sge) extends Camera {
     * @param viewportHeight
     *   the viewport height
     */
-  def this(fieldOfViewY: Float, viewportWidth: Float, viewportHeight: Float)(using Sge) = {
+  def this(fieldOfViewY: Float, viewportWidth: WorldUnits, viewportHeight: WorldUnits)(using Sge) = {
     this()
     this.fieldOfView = fieldOfViewY
     this.viewportWidth = viewportWidth

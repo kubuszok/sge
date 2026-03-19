@@ -8,7 +8,7 @@
  *
  * Migration notes (audit 2026-03-03):
  * - Java interfaces Validator/Setter -> Scala traits (correct)
- * - Java IntIntMap -> ObjectMap[Int, Int] (functional equivalent)
+ * - Java IntIntMap -> ObjectMap[Int, AttributeLocation] / Array[UniformLocation] (typed handles)
  * - Java IntArray -> DynamicArray[Int] (functional equivalent)
  * - Java Array<String> -> DynamicArray[String] (functional equivalent)
  * - Java dispose() -> Scala close() (AutoCloseable convention)
@@ -41,11 +41,11 @@ abstract class BaseShader extends Shader {
   private val validators: DynamicArray[Nullable[BaseShader.Validator]] =
     DynamicArray[Nullable[BaseShader.Validator]]()
   private val setters:             DynamicArray[Nullable[BaseShader.Setter]] = DynamicArray[Nullable[BaseShader.Setter]]()
-  private var locations:           Nullable[Array[Int]]                      = Nullable.empty
+  private var locations:           Nullable[Array[UniformLocation]]          = Nullable.empty
   private val globalUniforms:      DynamicArray[Int]                         = DynamicArray[Int]()
   private val localUniforms:       DynamicArray[Int]                         = DynamicArray[Int]()
-  private val _attributes:         ObjectMap[Int, Int]                       = ObjectMap[Int, Int]()
-  private val instancedAttributes: ObjectMap[Int, Int]                       = ObjectMap[Int, Int]()
+  private val _attributes:         ObjectMap[Int, AttributeLocation]         = ObjectMap[Int, AttributeLocation]()
+  private val instancedAttributes: ObjectMap[Int, AttributeLocation]         = ObjectMap[Int, AttributeLocation]()
 
   var program:             Nullable[ShaderProgram] = Nullable.empty
   var context:             Nullable[RenderContext] = Nullable.empty
@@ -108,17 +108,17 @@ abstract class BaseShader extends Shader {
     this.program = Nullable(program)
 
     val n    = uniforms.size
-    val locs = new Array[Int](n)
+    val locs = new Array[UniformLocation](n)
     var i    = 0
     while (i < n) {
       val input     = uniforms(i)
       val validator = validators(i)
       val setter    = setters(i)
       if (validator.isDefined && !validator.exists(_.validate(this, i, renderable))) {
-        locs(i) = -1
+        locs(i) = UniformLocation.notFound
       } else {
         locs(i) = program.fetchUniformLocation(input, false)
-        if (locs(i) >= 0) {
+        if (locs(i) != UniformLocation.notFound) {
           setter.foreach { s =>
             if (s.isGlobal(this, i))
               globalUniforms.add(i)
@@ -127,7 +127,7 @@ abstract class BaseShader extends Shader {
           }
         }
       }
-      if (locs(i) < 0) {
+      if (locs(i) == UniformLocation.notFound) {
         validators(i) = Nullable.empty
         setters(i) = Nullable.empty
       }
@@ -141,7 +141,7 @@ abstract class BaseShader extends Shader {
       while (j < c) {
         val attr     = attrs.get(j)
         val location = program.getAttributeLocation(attr.alias)
-        if (location >= 0) _attributes.put(attr.key, location)
+        if (location != AttributeLocation.notFound) _attributes.put(attr.key, location)
         j += 1
       }
       val iattrs = r.meshPart.mesh.instancedAttributes
@@ -151,7 +151,7 @@ abstract class BaseShader extends Shader {
         while (k < ic) {
           val attr     = ia.get(k)
           val location = program.getAttributeLocation(attr.alias)
-          if (location >= 0) instancedAttributes.put(attr.key, location)
+          if (location != AttributeLocation.notFound) instancedAttributes.put(attr.key, location)
           k += 1
         }
       }
@@ -171,29 +171,29 @@ abstract class BaseShader extends Shader {
     }
   }
 
-  private val tempArray:  DynamicArray[Int] = DynamicArray[Int]()
-  private val tempArray2: DynamicArray[Int] = DynamicArray[Int]()
+  private val tempArray:  DynamicArray[AttributeLocation] = DynamicArray[AttributeLocation]()
+  private val tempArray2: DynamicArray[AttributeLocation] = DynamicArray[AttributeLocation]()
 
-  private def getAttributeLocations(attrs: VertexAttributes): Array[Int] = {
+  private def getAttributeLocations(attrs: VertexAttributes): Array[AttributeLocation] = {
     tempArray.clear()
     val n = attrs.size
     var i = 0
     while (i < n) {
-      tempArray.add(_attributes.get(attrs.get(i).key, -1))
+      tempArray.add(_attributes.get(attrs.get(i).key, AttributeLocation.notFound))
       i += 1
     }
     tempArray.shrink()
     tempArray.items
   }
 
-  private def getInstancedAttributeLocations(attrs: Nullable[VertexAttributes]): Nullable[Array[Int]] =
+  private def getInstancedAttributeLocations(attrs: Nullable[VertexAttributes]): Nullable[Array[AttributeLocation]] =
     // Instanced attributes may be null
-    attrs.fold(Nullable.empty[Array[Int]]) { a =>
+    attrs.fold(Nullable.empty[Array[AttributeLocation]]) { a =>
       tempArray2.clear()
       val n = a.size
       var i = 0
       while (i < n) {
-        tempArray2.add(instancedAttributes.get(a.get(i).key, -1))
+        tempArray2.add(instancedAttributes.get(a.get(i).key, AttributeLocation.notFound))
         i += 1
       }
       tempArray2.shrink()
@@ -252,95 +252,95 @@ abstract class BaseShader extends Shader {
   /** Whether this Shader instance implements the specified uniform, only valid after a call to init(). */
   final def has(inputID: Int): Boolean =
     locations.exists { locs =>
-      inputID >= 0 && inputID < locs.length && locs(inputID) >= 0
+      inputID >= 0 && inputID < locs.length && locs(inputID) != UniformLocation.notFound
     }
 
-  final def loc(inputID: Int): Int =
-    locations.fold(-1) { locs =>
-      if (inputID >= 0 && inputID < locs.length) locs(inputID) else -1
+  final def loc(inputID: Int): UniformLocation =
+    locations.fold(UniformLocation.notFound) { locs =>
+      if (inputID >= 0 && inputID < locs.length) locs(inputID) else UniformLocation.notFound
     }
 
   final def set(uniform: Int, value: Matrix4): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
     }
 
   final def set(uniform: Int, value: Matrix3): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformMatrix(locs(uniform), value)); true }
     }
 
   final def set(uniform: Int, value: Vector3): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), value)); true }
     }
 
   final def set(uniform: Int, value: Vector2): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), value)); true }
     }
 
   final def set(uniform: Int, value: Color): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), value)); true }
     }
 
   final def setFloat(uniform: Int, value: Float): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), value)); true }
     }
 
   final def setFloat(uniform: Int, v1: Float, v2: Float): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), v1, v2)); true }
     }
 
   final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3)); true }
     }
 
   final def setFloat(uniform: Int, v1: Float, v2: Float, v3: Float, v4: Float): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformf(locs(uniform), v1, v2, v3, v4)); true }
     }
 
   final def setInt(uniform: Int, value: Int): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformi(locs(uniform), value)); true }
     }
 
   final def setInt(uniform: Int, v1: Int, v2: Int): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformi(locs(uniform), v1, v2)); true }
     }
 
   final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3)); true }
     }
 
   final def setInt(uniform: Int, v1: Int, v2: Int, v3: Int, v4: Int): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else { program.foreach(_.setUniformi(locs(uniform), v1, v2, v3, v4)); true }
     }
 
   final def set(uniform: Int, textureDesc: TextureDescriptor[?]): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else {
         context.foreach { ctx =>
           program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(textureDesc)))
@@ -351,7 +351,7 @@ abstract class BaseShader extends Shader {
 
   final def set(uniform: Int, texture: GLTexture): Boolean =
     locations.fold(false) { locs =>
-      if (locs(uniform) < 0) false
+      if (locs(uniform) == UniformLocation.notFound) false
       else {
         context.foreach { ctx =>
           program.foreach(_.setUniformi(locs(uniform), ctx.textureBinder.bind(texture)))

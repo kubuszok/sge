@@ -55,7 +55,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     */
   def this(width: Int, height: Int, format: Format) = {
     this(Gdx2DPixmap(width, height, Format.toGdx2DPixmapFormat(format)))
-    setColor(0, 0, 0, 0)
+    color = 0
     fill()
   }
 
@@ -68,12 +68,11 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param len
     *   the length
     */
-  def this(encodedData: Array[Byte], offset: Int, len: Int) = {
+  def this(encodedData: Array[Byte], offset: Int, len: Int) =
     this(
       try Gdx2DPixmap(encodedData, offset, len, 0)
       catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
     )
-  }
 
   /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
     *
@@ -84,7 +83,7 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param len
     *   the length
     */
-  def this(encodedData: ByteBuffer, offset: Int, len: Int) = {
+  def this(encodedData: ByteBuffer, offset: Int, len: Int) =
     this(
       {
         if (!encodedData.isDirect()) throw SgeError.GraphicsError("Couldn't load pixmap from non-direct ByteBuffer")
@@ -92,7 +91,6 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
         catch { case e: IOException => throw SgeError.GraphicsError("Couldn't load pixmap from image data", Some(e)) }
       }
     )
-  }
 
   /** Creates a new Pixmap instance from the given encoded image data. The image can be encoded as JPEG, PNG or BMP.
     *
@@ -101,23 +99,21 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     * @param encodedData
     *   the encoded image data
     */
-  def this(encodedData: ByteBuffer) = {
+  def this(encodedData: ByteBuffer) =
     this(encodedData, encodedData.position(), encodedData.remaining())
-  }
 
   /** Creates a new Pixmap instance from the given file. The file must be a Png, Jpeg or Bitmap. Paletted formats are not supported.
     *
     * @param file
     *   the {@link FileHandle}
     */
-  def this(file: FileHandle) = {
+  def this(file: FileHandle) =
     this(
       try {
         val bytes = file.readBytes()
         Gdx2DPixmap(bytes, 0, bytes.length, 0)
       } catch { case NonFatal(e) => throw SgeError.GraphicsError("Couldn't load file: " + file, Some(e)) }
     )
-  }
 
   /** Sets the type of {@link Blending} to be used for all operations. Default is {@link Blending#SourceOver} .
     * @param blending
@@ -149,20 +145,6 @@ class Pixmap private (private val gdx2dPixmap: Gdx2DPixmap) extends AutoCloseabl
     */
   def setColor(color: Int): Unit =
     this.color = color
-
-  /** Sets the color for the following drawing operations.
-    *
-    * @param r
-    *   The red component.
-    * @param g
-    *   The green component.
-    * @param b
-    *   The blue component.
-    * @param a
-    *   The alpha component.
-    */
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    color = Color.rgba8888(r, g, b, a)
 
   /** Sets the color for the following drawing operations.
     * @param color

@@ -32,7 +32,7 @@ class ActionTest extends munit.FunSuite {
     actor.addAction(Actions.moveBy(10f, 0f, Seconds(0.5f)))
 
     // Advance past duration
-    actor.act(1f)
+    actor.act(Seconds(1f))
     assert(!actor.hasActions)
   }
 
@@ -65,7 +65,7 @@ class ActionTest extends munit.FunSuite {
     assert(actor.hasActions, "action should be added")
     assert(action.target.isDefined, "target should be set after addAction")
 
-    actor.act(1f) // Advance full duration
+    actor.act(Seconds(1f)) // Advance full duration
 
     assertEqualsFloat(actor.x, 150f, 0.01f)
     assertEqualsFloat(actor.y, 170f, 0.01f)
@@ -77,7 +77,7 @@ class ActionTest extends munit.FunSuite {
     actor.setPosition(0f, 0f)
 
     actor.addAction(Actions.moveBy(100f, 0f, Seconds(1f)))
-    actor.act(0.5f) // Half duration
+    actor.act(Seconds(0.5f)) // Half duration
 
     assertEqualsFloat(actor.x, 50f, 1f) // Linear interpolation by default
   }
@@ -88,7 +88,7 @@ class ActionTest extends munit.FunSuite {
     actor.setPosition(0f, 0f)
 
     actor.addAction(Actions.moveTo(200f, 300f, Seconds(1f)))
-    actor.act(1f)
+    actor.act(Seconds(1f))
 
     assertEqualsFloat(actor.x, 200f, 0.01f)
     assertEqualsFloat(actor.y, 300f, 0.01f)
@@ -104,7 +104,7 @@ class ActionTest extends munit.FunSuite {
     assert(actor.visible)
 
     actor.addAction(Actions.hide())
-    actor.act(0f)
+    actor.act(Seconds.zero)
     assert(!actor.visible)
   }
 
@@ -114,7 +114,7 @@ class ActionTest extends munit.FunSuite {
     actor.visible = false
 
     actor.addAction(Actions.show())
-    actor.act(0f)
+    actor.act(Seconds.zero)
     assert(actor.visible)
   }
 
@@ -127,7 +127,7 @@ class ActionTest extends munit.FunSuite {
     val actor = Actor()
 
     actor.addAction(Actions.scaleTo(2f, 3f, Seconds(1f)))
-    actor.act(1f)
+    actor.act(Seconds(1f))
 
     assertEqualsFloat(actor.scaleX, 2f, 0.01f)
     assertEqualsFloat(actor.scaleY, 3f, 0.01f)
@@ -142,7 +142,7 @@ class ActionTest extends munit.FunSuite {
     val actor = Actor()
 
     actor.addAction(Actions.rotateTo(90f, Seconds(1f)))
-    actor.act(1f)
+    actor.act(Seconds(1f))
 
     assertEqualsFloat(actor.rotation, 90f, 0.01f)
   }
@@ -153,7 +153,7 @@ class ActionTest extends munit.FunSuite {
     actor.rotation = 45f
 
     actor.addAction(Actions.rotateBy(90f, Seconds(1f)))
-    actor.act(1f)
+    actor.act(Seconds(1f))
 
     assertEqualsFloat(actor.rotation, 135f, 0.01f)
   }
@@ -174,12 +174,12 @@ class ActionTest extends munit.FunSuite {
     actor.addAction(action)
 
     // First action only
-    actor.act(1f)
+    actor.act(Seconds(1f))
     assertEqualsFloat(actor.x, 100f, 0.5f)
     assertEqualsFloat(actor.y, 0f, 0.5f)
 
     // Second action
-    actor.act(1f)
+    actor.act(Seconds(1f))
     assertEqualsFloat(actor.x, 100f, 0.5f)
     assertEqualsFloat(actor.y, 100f, 0.5f)
   }
@@ -198,7 +198,7 @@ class ActionTest extends munit.FunSuite {
       Actions.moveBy(0f, 100f, Seconds(1f))
     )
     actor.addAction(action)
-    actor.act(1f)
+    actor.act(Seconds(1f))
 
     assertEqualsFloat(actor.x, 100f, 0.5f)
     assertEqualsFloat(actor.y, 100f, 0.5f)
@@ -216,10 +216,10 @@ class ActionTest extends munit.FunSuite {
     val action = Actions.delay(Seconds(1f), Actions.moveBy(100f, 0f, Seconds(0f)))
     actor.addAction(action)
 
-    actor.act(0.5f)
+    actor.act(Seconds(0.5f))
     assertEqualsFloat(actor.x, 0f, 0.01f) // Not yet
 
-    actor.act(0.6f)
+    actor.act(Seconds(0.6f))
     assertEqualsFloat(actor.x, 100f, 0.5f) // Now moved
   }
 
@@ -233,7 +233,7 @@ class ActionTest extends munit.FunSuite {
     var called = false
 
     actor.addAction(Actions.run(() => called = true))
-    actor.act(0f)
+    actor.act(Seconds.zero)
     assert(called)
   }
 
@@ -248,7 +248,7 @@ class ActionTest extends munit.FunSuite {
     group.addActor(actor)
 
     actor.addAction(Actions.removeActor())
-    actor.act(0f)
+    actor.act(Seconds.zero)
     assert(actor.parent.isEmpty)
     assertEquals(group.children.size, 0)
   }

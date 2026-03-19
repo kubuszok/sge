@@ -26,8 +26,8 @@ object Model3DScene extends RegressionScene {
 
   override def init()(using Sge): Unit =
     try {
-      val w = Sge().graphics.width.toFloat
-      val h = Sge().graphics.height.toFloat
+      val w = WorldUnits(Sge().graphics.width.toFloat)
+      val h = WorldUnits(Sge().graphics.height.toFloat)
       camera = PerspectiveCamera(67f, w, h)
       camera.near = 0.1f
       camera.far = 100f

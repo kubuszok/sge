@@ -66,7 +66,7 @@ trait VertexData extends AutoCloseable {
     *   use {@link #getBuffer(boolean)} instead.
     */
   @deprecated("use getBuffer(boolean) instead", "")
-  def getBuffer(): FloatBuffer
+  def buffer: FloatBuffer
 
   /** Returns the underlying FloatBuffer for reading or writing.
     * @param forWriting
@@ -83,7 +83,7 @@ trait VertexData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
+  def bind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit
 
   /** Unbinds this VertexData. */
   def unbind(shader: ShaderProgram): Unit
@@ -92,7 +92,7 @@ trait VertexData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit
 
   /** Invalidates the VertexData if applicable. Use this in case of a context loss. */
   def invalidate(): Unit

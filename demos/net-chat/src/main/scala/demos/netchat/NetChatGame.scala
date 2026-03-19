@@ -12,6 +12,7 @@ import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
 import sge.math.MathUtils
 import sge.utils.Millis
+import sge.utils.Seconds
 import sge.utils.Nanos
 import sge.utils.Nullable
 import sge.utils.ScreenUtils
@@ -62,7 +63,7 @@ object NetChatGame extends DemoScene {
     parseCurrentXml()
   }
 
-  override def render(dt: Float)(using sge.Sge): Unit = {
+  override def render(dt: Seconds)(using sge.Sge): Unit = {
     // Input: TAB to cycle XML samples
     if (sge.Sge().input.isKeyJustPressed(Input.Keys.TAB)) {
       xmlIndex = (xmlIndex + 1) % XmlSamples.length

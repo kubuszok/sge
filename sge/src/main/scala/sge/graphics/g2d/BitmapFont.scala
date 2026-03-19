@@ -143,19 +143,18 @@ class BitmapFont(val data: BitmapFontData, regionsParam: Nullable[DynamicArray[T
     cache.draw(batch)
   }
 
-  def color:                                               Color         = cache.color
-  def color_=(color: Color):                               Unit          = cache.color.set(color)
-  def setColor(r:    Float, g: Float, b: Float, a: Float): Unit          = cache.color.set(r, g, b, a)
-  def scaleX:                                              Float         = data.scaleX
-  def scaleY:                                              Float         = data.scaleY
-  def region:                                              TextureRegion = regions.first
-  def region(index:  Int):                                 TextureRegion = regions(index)
-  def lineHeight:                                          Float         = data.lineHeight
-  def spaceXadvance:                                       Float         = data.spaceXadvance
-  def xHeight:                                             Float         = data.xHeight
-  def capHeight:                                           Float         = data.capHeight
-  def ascent:                                              Float         = data.ascent
-  def descent:                                             Float         = data.descent
+  def color:                 Color         = cache.color
+  def color_=(color: Color): Unit          = cache.color.set(color)
+  def scaleX:                Float         = data.scaleX
+  def scaleY:                Float         = data.scaleY
+  def region:                TextureRegion = regions.first
+  def region(index:  Int):   TextureRegion = regions(index)
+  def lineHeight:            Float         = data.lineHeight
+  def spaceXadvance:         Float         = data.spaceXadvance
+  def xHeight:               Float         = data.xHeight
+  def capHeight:             Float         = data.capHeight
+  def ascent:                Float         = data.ascent
+  def descent:               Float         = data.descent
 
   def close(): Unit =
     if (ownsTexture) {

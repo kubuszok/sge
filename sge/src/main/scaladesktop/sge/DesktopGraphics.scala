@@ -20,7 +20,7 @@ import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.{ GLVersion, HdpiMode }
 import sge.platform.WindowingOps
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Desktop implementation of [[Graphics]]. Manages the GL context, frame timing, display mode queries, and cursor.
   *
@@ -57,7 +57,7 @@ class DesktopGraphics private[sge] (
 
   private var _bufferFormat:      Graphics.BufferFormat = scala.compiletime.uninitialized
   private var _lastFrameTime:     Long                  = -1L
-  private var _deltaTime:         Float                 = 0f
+  private var _deltaTime:         Seconds               = Seconds.zero
   private var _resetDeltaTime:    Boolean               = false
   private var _frameId:           Long                  = 0L
   private var _frameCounterStart: Long                  = 0L
@@ -123,9 +123,9 @@ class DesktopGraphics private[sge] (
     if (_lastFrameTime == -1L) _lastFrameTime = time
     if (_resetDeltaTime) {
       _resetDeltaTime = false
-      _deltaTime = 0f
+      _deltaTime = Seconds.zero
     } else {
-      _deltaTime = (time - _lastFrameTime) / 1000000000.0f
+      _deltaTime = Seconds((time - _lastFrameTime) / 1000000000.0f)
     }
     _lastFrameTime = time
 
@@ -175,10 +175,10 @@ class DesktopGraphics private[sge] (
 
   // ─── Frame timing ────────────────────────────────────────────────────
 
-  override def frameId:         Long  = _frameId
-  override def deltaTime:       Float = _deltaTime
-  override def rawDeltaTime:    Float = _deltaTime
-  override def framesPerSecond: Int   = _fps
+  override def frameId:         Long    = _frameId
+  override def deltaTime:       Seconds = _deltaTime
+  override def rawDeltaTime:    Seconds = _deltaTime
+  override def framesPerSecond: Int     = _fps
 
   // ─── Type / version ──────────────────────────────────────────────────
 

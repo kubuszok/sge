@@ -547,7 +547,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param instanceLocations
     *   array containing the instance attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]], instanceLocations: Nullable[Array[Int]]): Unit = {
+  def bind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]], instanceLocations: Nullable[Array[AttributeLocation]]): Unit = {
     vertices.bind(shader, locations)
     instances.foreach { inst =>
       if (inst.numInstances > 0) inst.bind(shader, instanceLocations)
@@ -572,7 +572,7 @@ class Mesh protected (val vertices: VertexData, val indices: IndexData, val isVe
     * @param instanceLocations
     *   array containing the instance attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]], instanceLocations: Nullable[Array[Int]]): Unit = {
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]], instanceLocations: Nullable[Array[AttributeLocation]]): Unit = {
     vertices.unbind(shader, locations)
     instances.foreach { inst =>
       if (inst.numInstances > 0) inst.unbind(shader, instanceLocations)

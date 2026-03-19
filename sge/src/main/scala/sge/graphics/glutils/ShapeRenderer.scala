@@ -79,14 +79,6 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
     this(5000)
   }
 
-  /** Sets the color to be used by the next shapes drawn. */
-  def setColor(color: Color): Unit =
-    this._color.set(color)
-
-  /** Sets the color to be used by the next shapes drawn. */
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    this._color.set(r, g, b, a)
-
   def color: Color = _color
 
   def updateMatrices(): Unit =

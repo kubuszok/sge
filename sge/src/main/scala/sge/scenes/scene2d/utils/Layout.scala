@@ -50,12 +50,18 @@ trait Layout {
   /** If true, this actor will be sized to the parent in {@link #validate()}. If the parent is the stage, the actor will be sized to the stage. This method is for convenience only when the widget's
     * parent does not set the size of its children (such as the stage).
     */
-  def setFillParent(fillParent: Boolean): Unit
+  def fillParent_=(value: Boolean): Unit
+
+  /** If true, this actor will be sized to the parent in {@link #validate()}. */
+  def fillParent: Boolean
 
   /** Enables or disables the layout for this actor and all child actors, recursively. When false, {@link #validate()} will not cause a layout to occur. This can be useful when an actor will be
     * manipulated externally, such as with actions. Default is true.
     */
-  def setLayoutEnabled(enabled: Boolean): Unit
+  def layoutEnabled_=(value: Boolean): Unit
+
+  /** Whether layout is enabled for this actor. Default is true. */
+  def layoutEnabled: Boolean
 
   def minWidth: Float
 

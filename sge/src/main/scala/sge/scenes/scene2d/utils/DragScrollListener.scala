@@ -43,12 +43,12 @@ class DragScrollListener(scroll: ScrollPane)(using Sge) extends DragListener {
 
   private val scrollUp: Timer.Task = new Timer.Task {
     override def run(): Unit =
-      scroll(scroll.getScrollY - scrollPixels)
+      scroll(scroll.scrollY - scrollPixels)
   }
 
   private val scrollDown: Timer.Task = new Timer.Task {
     override def run(): Unit =
-      scroll(scroll.getScrollY + scrollPixels)
+      scroll(scroll.scrollY + scrollPixels)
   }
 
   def setup(minSpeedPixels: Float, maxSpeedPixels: Float, tickSecs: Float, rampSecs: Float): Unit = {

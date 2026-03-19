@@ -72,7 +72,7 @@ class ImageButton(initialStyle: ImageButton.ImageButtonStyle)(using Sge) extends
 
   /** Returns the appropriate image drawable from the style based on the current button state. */
   protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
-    if (isDisabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
+    if (disabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
     if (isPressed) {
       if (isChecked && _style.imageCheckedDown.isDefined) scala.util.boundary.break(_style.imageCheckedDown)
       if (_style.imageDown.isDefined) scala.util.boundary.break(_style.imageDown)

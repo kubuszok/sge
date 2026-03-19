@@ -16,6 +16,7 @@ import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.OrthographicCamera
 import sge.utils.viewport.ScreenViewport
 import sge.Input
+import sge.utils.Seconds
 import demos.shared.DemoScene
 
 class ShaderLabGame extends DemoScene {
@@ -151,8 +152,8 @@ class ShaderLabGame extends DemoScene {
     profiler.enable()
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
-    time += dt
+  override def render(dt: Seconds)(using Sge): Unit = {
+    time += dt.toFloat
     profiler.reset()
 
     handleInput()

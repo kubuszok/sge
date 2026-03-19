@@ -5,7 +5,8 @@
 package demos.assets
 
 import scala.compiletime.uninitialized
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
 import sge.audio.{Sound, SoundId, Volume}
@@ -89,7 +90,7 @@ object AssetShowcaseGame extends DemoScene {
     spriteBatch = SpriteBatch()
 
     // 3D setup
-    camera3d = PerspectiveCamera(67f, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
+    camera3d = PerspectiveCamera(67f, WorldUnits(Sge().graphics.width.toFloat), WorldUnits(Sge().graphics.height.toFloat))
     camera3d.near = 1f
     camera3d.far = 100f
     camera3d.position.set(5f, 3f, 5f)
@@ -115,16 +116,17 @@ object AssetShowcaseGame extends DemoScene {
     phase = PhaseLoading
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit = {
     // Guard: on Android, render() can be called before init() completes
     if (assetManager == null) { ScreenUtils.clear(0f, 0f, 0f, 1f, true); () } else {
+      val delta = dt.toFloat
       ScreenUtils.clear(0.12f, 0.12f, 0.18f, 1f, true)
 
       if (phase == PhaseLoading) {
-        renderLoading(dt)
+        renderLoading(delta)
       } else {
-        handleInput(dt)
-        renderShowcase(dt)
+        handleInput(delta)
+        renderShowcase(delta)
       }
     }
   }
@@ -327,8 +329,8 @@ object AssetShowcaseGame extends DemoScene {
     octahedronInstance.transform.setTranslation(2f, 0.5f, 0f)
 
     // Update camera aspect ratio
-    camera3d.viewportWidth = w
-    camera3d.viewportHeight = h
+    camera3d.viewportWidth = WorldUnits(w)
+    camera3d.viewportHeight = WorldUnits(h)
     camera3d.update()
 
     // --- Convex volume stencil test ---
@@ -488,8 +490,8 @@ object AssetShowcaseGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    camera3d.viewportWidth = width.toFloat
-    camera3d.viewportHeight = height.toFloat
+    camera3d.viewportWidth = WorldUnits(width.toFloat)
+    camera3d.viewportHeight = WorldUnits(height.toFloat)
     camera3d.update()
   }
 

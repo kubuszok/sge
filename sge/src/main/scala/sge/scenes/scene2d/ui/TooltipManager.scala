@@ -121,7 +121,7 @@ class TooltipManager()(using Sge) {
   /** Called when tooltip is shown. Default implementation sets actions to animate showing. */
   protected def showAction(tooltip: Tooltip[?]): Unit = {
     val actionTime = Seconds(if (animations) if (time > Seconds.zero) 0.5f else 0.15f else 0.1f)
-    tooltip.container.setTransform(true)
+    tooltip.container.transform = true
     tooltip.container.color.a = 0.2f
     tooltip.container.setScale(0.05f)
     tooltip.container.addAction(

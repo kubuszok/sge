@@ -23,7 +23,7 @@ import scala.scalajs.js
 import sge.graphics.{ Cursor, GL20, GL30, GL31, GL32, Pixmap, WebGL20 }
 import sge.graphics.Cursor.SystemCursor
 import sge.graphics.glutils.GLVersion
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** Browser Graphics implementation using an HTML Canvas and WebGL.
   *
@@ -46,12 +46,12 @@ class BrowserGraphics(
   private val _glVersion: GLVersion
 ) extends Graphics {
 
-  private var fps:           Float = 0f
-  private var lastTimeStamp: Long  = System.currentTimeMillis()
-  var _frameId:              Long  = -1L
-  private var _deltaTime:    Float = 0f
-  private var time:          Float = 0f
-  private var frames:        Int   = 0
+  private var fps:           Float   = 0f
+  private var lastTimeStamp: Long    = System.currentTimeMillis()
+  var _frameId:              Long    = -1L
+  private var _deltaTime:    Seconds = Seconds.zero
+  private var time:          Float   = 0f
+  private var frames:        Int     = 0
 
   // --- GL accessors ---
 
@@ -89,17 +89,17 @@ class BrowserGraphics(
 
   // --- Frame timing ---
 
-  override def frameId:         Long  = _frameId
-  override def deltaTime:       Float = _deltaTime
-  override def rawDeltaTime:    Float = _deltaTime
-  override def framesPerSecond: Int   = fps.toInt
+  override def frameId:         Long    = _frameId
+  override def deltaTime:       Seconds = _deltaTime
+  override def rawDeltaTime:    Seconds = _deltaTime
+  override def framesPerSecond: Int     = fps.toInt
 
   /** Update frame timing. Called once per frame by BrowserApplication. */
   def update(): Unit = {
     val currTimeStamp = System.currentTimeMillis()
-    _deltaTime = (currTimeStamp - lastTimeStamp) / 1000.0f
+    _deltaTime = Seconds((currTimeStamp - lastTimeStamp) / 1000.0f)
     lastTimeStamp = currTimeStamp
-    time += _deltaTime
+    time += _deltaTime.toFloat
     frames += 1
     if (time > 1) {
       fps = frames.toFloat

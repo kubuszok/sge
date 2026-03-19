@@ -26,6 +26,7 @@ import scala.collection.mutable
 import sge.Input.Key
 import sge.graphics.Camera
 import sge.math.Vector3
+import sge.utils.Seconds
 
 /** Takes a {@link Camera} instance and controls it via w,a,s,d and mouse panning.
   * @author
@@ -83,29 +84,30 @@ class FirstPersonCameraController(
   def update(): Unit =
     update(Sge().graphics.deltaTime)
 
-  def update(deltaTime: Float): Unit = {
+  def update(deltaTime: Seconds): Unit = {
+    val dt = deltaTime.toFloat
     if (keys.contains(forwardKey)) {
-      tmp.set(camera.direction).nor().scl(deltaTime * velocity)
+      tmp.set(camera.direction).nor().scl(dt * velocity)
       camera.position.add(tmp)
     }
     if (keys.contains(backwardKey)) {
-      tmp.set(camera.direction).nor().scl(-deltaTime * velocity)
+      tmp.set(camera.direction).nor().scl(-dt * velocity)
       camera.position.add(tmp)
     }
     if (keys.contains(strafeLeftKey)) {
-      tmp.set(camera.direction).crs(camera.up).nor().scl(-deltaTime * velocity)
+      tmp.set(camera.direction).crs(camera.up).nor().scl(-dt * velocity)
       camera.position.add(tmp)
     }
     if (keys.contains(strafeRightKey)) {
-      tmp.set(camera.direction).crs(camera.up).nor().scl(deltaTime * velocity)
+      tmp.set(camera.direction).crs(camera.up).nor().scl(dt * velocity)
       camera.position.add(tmp)
     }
     if (keys.contains(upKey)) {
-      tmp.set(camera.up).nor().scl(deltaTime * velocity)
+      tmp.set(camera.up).nor().scl(dt * velocity)
       camera.position.add(tmp)
     }
     if (keys.contains(downKey)) {
-      tmp.set(camera.up).nor().scl(-deltaTime * velocity)
+      tmp.set(camera.up).nor().scl(-dt * velocity)
       camera.position.add(tmp)
     }
     if (autoUpdate) camera.update(true)

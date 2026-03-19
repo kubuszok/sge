@@ -42,7 +42,7 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   private var boneWeightUnits: Int = -1
 
   /** cache for texture coordinate units. */
-  private var textureCoordinates: Int = -1
+  private var _textureCoordinates: Int = -1
 
   private var iterable: ReadonlyIterable[VertexAttribute] = scala.compiletime.uninitialized
 
@@ -172,17 +172,17 @@ final class VertexAttributes(attributes: VertexAttribute*) extends Iterable[Vert
   }
 
   /** @return Number of texture coordinates based on {@link VertexAttribute#unit} */
-  def getTextureCoordinates(): Int = {
-    if (textureCoordinates < 0) {
-      textureCoordinates = 0
+  def textureCoordinates: Int = {
+    if (_textureCoordinates < 0) {
+      _textureCoordinates = 0
       for (i <- attributesArray.indices) {
         val a = attributesArray(i)
         if (a.usage == VertexAttributes.Usage.TextureCoordinates) {
-          textureCoordinates = Math.max(textureCoordinates, a.unit + 1)
+          _textureCoordinates = Math.max(_textureCoordinates, a.unit + 1)
         }
       }
     }
-    textureCoordinates
+    _textureCoordinates
   }
 
   override def compareTo(o: VertexAttributes): Int =

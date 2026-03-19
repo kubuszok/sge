@@ -43,10 +43,10 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("secondary constructor sets fov, viewport, and calls update") {
     given Sge = makeContext(800, 600)
-    val cam   = PerspectiveCamera(90f, 800f, 600f)
+    val cam   = PerspectiveCamera(90f, WorldUnits(800f), WorldUnits(600f))
     assertEqualsFloat(cam.fieldOfView, 90f, epsilon)
-    assertEqualsFloat(cam.viewportWidth, 800f, epsilon)
-    assertEqualsFloat(cam.viewportHeight, 600f, epsilon)
+    assertEqualsFloat(cam.viewportWidth.toFloat, 800f, epsilon)
+    assertEqualsFloat(cam.viewportHeight.toFloat, 600f, epsilon)
     // combined matrix should not be identity
     val identity     = Matrix4()
     val combinedVals = cam.combined.values
@@ -58,8 +58,8 @@ class PerspectiveCameraTest extends munit.FunSuite {
   test("update produces valid combined matrix") {
     given Sge = makeContext(800, 600)
     val cam   = PerspectiveCamera()
-    cam.viewportWidth = 800
-    cam.viewportHeight = 600
+    cam.viewportWidth = WorldUnits(800f)
+    cam.viewportHeight = WorldUnits(600f)
     cam.update()
     val identity     = Matrix4()
     val combinedVals = cam.combined.values
@@ -70,7 +70,7 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("position changes affect view matrix") {
     given Sge      = makeContext(800, 600)
-    val cam        = PerspectiveCamera(67f, 800f, 600f)
+    val cam        = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     val viewBefore = cam.view.values.clone()
 
     cam.translate(5f, 10f, 3f)
@@ -83,7 +83,7 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("lookAt changes direction") {
     given Sge = makeContext(800, 600)
-    val cam   = PerspectiveCamera(67f, 800f, 600f)
+    val cam   = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     cam.position.set(0, 0, 0)
     cam.lookAt(1f, 0f, 0f)
     assertEqualsFloat(cam.direction.x, 1f, epsilon)
@@ -93,7 +93,7 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("project/unproject roundtrip approximately recovers original") {
     given Sge = makeContext(800, 600)
-    val cam   = PerspectiveCamera(67f, 800f, 600f)
+    val cam   = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     cam.position.set(0, 0, 5)
     cam.lookAt(0f, 0f, 0f)
     cam.update()
@@ -112,7 +112,7 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("frustum planes are set after update") {
     given Sge      = makeContext(800, 600)
-    val cam        = PerspectiveCamera(67f, 800f, 600f)
+    val cam        = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     val hasNonZero = cam.frustum.planes.exists { p =>
       Math.abs(p.normal.x) > epsilon || Math.abs(p.normal.y) > epsilon ||
       Math.abs(p.normal.z) > epsilon || Math.abs(p.d) > epsilon
@@ -122,10 +122,10 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("fieldOfView affects projection matrix") {
     given Sge = makeContext(800, 600)
-    val cam1  = PerspectiveCamera(60f, 800f, 600f)
+    val cam1  = PerspectiveCamera(60f, WorldUnits(800f), WorldUnits(600f))
     val proj1 = cam1.projection.values.clone()
 
-    val cam2  = PerspectiveCamera(90f, 800f, 600f)
+    val cam2  = PerspectiveCamera(90f, WorldUnits(800f), WorldUnits(600f))
     val proj2 = cam2.projection.values
 
     val differs = (0 until 16).exists(i => Math.abs(proj1(i) - proj2(i)) > epsilon)
@@ -134,10 +134,10 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("near/far affect projection matrix") {
     given Sge = makeContext(800, 600)
-    val cam1  = PerspectiveCamera(67f, 800f, 600f)
+    val cam1  = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     val proj1 = cam1.projection.values.clone()
 
-    val cam2 = PerspectiveCamera(67f, 800f, 600f)
+    val cam2 = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     cam2.near = 0.5f
     cam2.far = 500f
     cam2.update()
@@ -149,7 +149,7 @@ class PerspectiveCameraTest extends munit.FunSuite {
 
   test("rotate changes direction and up") {
     given Sge     = makeContext(800, 600)
-    val cam       = PerspectiveCamera(67f, 800f, 600f)
+    val cam       = PerspectiveCamera(67f, WorldUnits(800f), WorldUnits(600f))
     val dirBefore = Vector3().set(cam.direction)
     cam.rotate(cam.up, 90f)
     // direction should change

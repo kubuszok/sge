@@ -29,10 +29,9 @@ import sge.graphics.OrthographicCamera
   * @author
   *   Nathan Sweet
   */
-class FitViewport(worldWidth: Float, worldHeight: Float, camera: Camera)(using Sge) extends ScalingViewport(Scaling.fit, worldWidth, worldHeight, camera) {
+class FitViewport(worldWidth: WorldUnits, worldHeight: WorldUnits, camera: Camera)(using Sge) extends ScalingViewport(Scaling.fit, worldWidth, worldHeight, camera) {
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(worldWidth: Float, worldHeight: Float)(using Sge) = {
+  def this(worldWidth: WorldUnits, worldHeight: WorldUnits)(using Sge) =
     this(worldWidth, worldHeight, OrthographicCamera())
-  }
 }

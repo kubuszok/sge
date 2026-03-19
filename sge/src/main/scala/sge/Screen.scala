@@ -13,6 +13,8 @@
  */
 package sge
 
+import sge.utils.Seconds
+
 /** <p> Represents one of many application screens, such as a main menu, a settings menu, the game screen and so on. </p> <p> Note that {@link #close()} is not called automatically. </p>
   * @see
   *   Game
@@ -26,7 +28,7 @@ trait Screen extends AutoCloseable {
     * @param delta
     *   The time in seconds since the last render.
     */
-  def render(delta: Float): Unit
+  def render(delta: Seconds): Unit
 
   /** @see ApplicationListener#resize(int, int) */
   def resize(width: Pixels, height: Pixels): Unit

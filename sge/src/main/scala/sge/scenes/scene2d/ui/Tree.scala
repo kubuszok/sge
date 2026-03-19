@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: null -> Nullable; (using Sge) context; DynamicArray with MkArray.anyRef cast; boundary/break; Skin constructors present
  *   Idiom: split packages
- *   Note: Java-style getters/setters retained — setOverNode/setExpanded/setValue have side effects; Node inner class has many interdependent setters; style via Styleable
+ *   Note: Java-style getters/setters retained — setExpanded has side effects; Node inner class has many interdependent setters; style via Styleable
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -116,19 +116,19 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
         }
 
       override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
-        self.setOverNode(self.getNodeAt(y))
+        self.overNode = self.getNodeAt(y)
         false
       }
 
       override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit = {
         super.enter(event, x, y, pointer, fromActor)
-        self.setOverNode(self.getNodeAt(y))
+        self.overNode = self.getNodeAt(y)
       }
 
       override def exit(event: InputEvent, x: Float, y: Float, pointer: Int, toActor: Nullable[Actor]): Unit = {
         super.exit(event, x, y, pointer, toActor)
-        toActor.fold(self.setOverNode(Nullable.empty)) { ta =>
-          if (!ta.isDescendantOf(self)) self.setOverNode(Nullable.empty)
+        toActor.fold(self.overNode = Nullable.empty) { ta =>
+          if (!ta.isDescendantOf(self)) self.overNode = Nullable.empty
         }
       }
     }
@@ -193,7 +193,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
   /** Removes all tree nodes. */
   override def clearChildren(unfocus: Boolean): Unit = {
     super.clearChildren(unfocus)
-    setOverNode(Nullable.empty)
+    overNode = Nullable.empty
     rootNodes.clear()
     selection.clear()
   }
@@ -274,7 +274,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
         case layout: Layout => layout.pack()
         case _ =>
       }
-      yy -= node.getHeight()
+      yy -= node.getHeight
       node.actor.setPosition(x, yy)
       yy -= ySpacing
       if (node.expanded) yy = layout(node.children, indent + indentSpacing, yy, plusMinusWidth)
@@ -424,7 +424,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
     while (i < n) {
       val node   = nodes(i)
       val height = node.height
-      rY -= node.getHeight() - height // Node subclass may increase getHeight.
+      rY -= node.getHeight - height // Node subclass may increase getHeight.
       if (y >= rY - height - ySpacing && y < rY) {
         foundNode = Nullable(node)
         scala.util.boundary.break(-1f)
@@ -463,16 +463,12 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
   /** Returns the first selected value, or null. */
   def selectedValue: Nullable[V] = {
     val node = selection.first
-    node.flatMap(n => n.getValue)
+    node.flatMap(n => n.value)
   }
 
   /** If the order of the root nodes is changed, {@link #updateRootNodes()} must be called to ensure the nodes' actors are in the correct order.
     */
   // rootNodes is a public val (declared above)
-
-  /** @deprecated Use {@link #getRootNodes()}. */
-  @deprecated("Use getRootNodes()", "")
-  def nodes: DynamicArray[N] = rootNodes
 
   /** Updates the order of the actors in the tree for all root nodes and all child nodes. This is useful after changing the order of {@link #getRootNodes()}.
     * @see
@@ -501,10 +497,10 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
 
   /** @return May be null. */
   def overValue: Nullable[V] =
-    _overNode.flatMap(n => n.getValue)
+    _overNode.flatMap(n => n.value)
 
   /** @param overNode May be null. */
-  def setOverNode(overNode: Nullable[N]): Unit =
+  def overNode_=(overNode: Nullable[N]): Unit =
     this._overNode = overNode
 
   /** Sets the amount of horizontal space between the nodes and the left/right edges of the tree. */
@@ -574,7 +570,7 @@ class Tree[N <: Tree.Node[N, V, ? <: Actor], V](initialStyle: Tree.TreeStyle)(us
     Tree.expandAll(rootNodes)
 
   /** Returns the click listener the tree uses for clicking on nodes and the over node. */
-  def getClickListener: ClickListener = _clickListener
+  def clickListener: ClickListener = _clickListener
 }
 
 object Tree {
@@ -853,10 +849,6 @@ object Tree {
       actor = newActor
     }
 
-    def getActor: A = actor
-
-    def isExpanded: Boolean = expanded
-
     /** If the children order is changed, {@link #updateChildren()} must be called to ensure the node's actors are in the correct order. That is not necessary if this node is not in the tree or is not
       * expanded, because then the child node's actors are not in the tree.
       */
@@ -887,27 +879,15 @@ object Tree {
         }
       }
 
-    /** @return May be null. */
-    def getParent: Nullable[N] = parent
-
-    /** Sets an icon that will be drawn to the left of the actor. */
-    def setIcon(icon: Nullable[Drawable]): Unit =
-      this.icon = icon
-
-    def getValue: Nullable[V] = value
-
-    /** Sets an application specific value for this node. */
-    def setValue(value: Nullable[V]): Unit =
-      this.value = value
-
-    // icon is a public var (declared above)
+    // setIcon removed — icon is a public var
+    // setValue removed — value is a public var
 
     def level: Int = {
       var level = 0
       var current: Nullable[Node[?, ?, ?]] = Nullable(this)
       while (current.isDefined) {
         level += 1
-        current = current.flatMap(_.getParent.asInstanceOf[Nullable[Node[?, ?, ?]]])
+        current = current.flatMap(_.parent.asInstanceOf[Nullable[Node[?, ?, ?]]])
       }
       level
     }
@@ -941,8 +921,7 @@ object Tree {
 
     def isSelectable: Boolean = selectable
 
-    def setSelectable(selectable: Boolean): Unit =
-      this.selectable = selectable
+    // setSelectable removed — selectable is a public var
 
     def findExpandedValues(values: DynamicArray[V]): Unit =
       if (expanded && !Tree.findExpandedValues(children, values.asInstanceOf[DynamicArray[Any]])) {
@@ -964,7 +943,7 @@ object Tree {
 
     /** Returns the height of the node as calculated for layout. A subclass may override and increase the returned height to create a blank space in the tree above the node, eg for a separator.
       */
-    def getHeight(): Float = height
+    def getHeight: Float = height
 
     /** Returns true if the specified node is this node or an ascendant of this node. */
     def isAscendantOf(node: N): Boolean = scala.util.boundary {

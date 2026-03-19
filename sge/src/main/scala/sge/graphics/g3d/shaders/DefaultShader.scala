@@ -12,7 +12,7 @@
  * - Java Gdx.files/Gdx.graphics/Gdx.gl -> Sge().files/Sge().graphics/Sge().graphics.gl
  * - (using Sge) context parameter added to constructor and related methods
  * - Java dispose() -> Scala close() (AutoCloseable convention)
- * - defaultCullFace/defaultDepthFunc are @deprecated vars in companion (matching Java @Deprecated)
+ * - defaultCullFace/defaultDepthFunc deprecated companion vars removed; Config fields used directly (GL_BACK/GL_LEQUAL defaults)
  * - createPrefix uses StringBuilder (matches Java string concatenation semantics)
  * - Setters access camera/context/program via Nullable.foreach (safe null handling)
  * - Bones.idtMatrix moved to Bones companion object (static-like field)
@@ -77,7 +77,7 @@ class DefaultShader(
   private val vertexMask: Long =
     renderable.meshPart.mesh.vertexAttributes.maskWithSizePacked
   private val textureCoordinates: Int =
-    renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates()
+    renderable.meshPart.mesh.vertexAttributes.textureCoordinates
   private var boneWeightsLocations: Nullable[Array[Int]] = Nullable.empty
 
   protected val directionalLights: Array[DirectionalLight] = {
@@ -312,35 +312,35 @@ class DefaultShader(
     init(prog, _renderable.getOrElse(throw SgeError.GraphicsError("No renderable for init")))
     _renderable = Nullable.empty
 
-    dirLightsLoc = loc(u_dirLights0color)
-    dirLightsColorOffset = loc(u_dirLights0color) - dirLightsLoc
-    dirLightsDirectionOffset = loc(u_dirLights0direction) - dirLightsLoc
-    dirLightsSize = loc(u_dirLights1color) - dirLightsLoc
+    dirLightsLoc = loc(u_dirLights0color).toInt
+    dirLightsColorOffset = loc(u_dirLights0color).toInt - dirLightsLoc
+    dirLightsDirectionOffset = loc(u_dirLights0direction).toInt - dirLightsLoc
+    dirLightsSize = loc(u_dirLights1color).toInt - dirLightsLoc
     if (dirLightsSize < 0) dirLightsSize = 0
 
-    pointLightsLoc = loc(u_pointLights0color)
-    pointLightsColorOffset = loc(u_pointLights0color) - pointLightsLoc
-    pointLightsPositionOffset = loc(u_pointLights0position) - pointLightsLoc
+    pointLightsLoc = loc(u_pointLights0color).toInt
+    pointLightsColorOffset = loc(u_pointLights0color).toInt - pointLightsLoc
+    pointLightsPositionOffset = loc(u_pointLights0position).toInt - pointLightsLoc
     pointLightsIntensityOffset =
-      if (has(u_pointLights0intensity)) loc(u_pointLights0intensity) - pointLightsLoc else -1
-    pointLightsSize = loc(u_pointLights1color) - pointLightsLoc
+      if (has(u_pointLights0intensity)) loc(u_pointLights0intensity).toInt - pointLightsLoc else -1
+    pointLightsSize = loc(u_pointLights1color).toInt - pointLightsLoc
     if (pointLightsSize < 0) pointLightsSize = 0
 
-    spotLightsLoc = loc(u_spotLights0color)
-    spotLightsColorOffset = loc(u_spotLights0color) - spotLightsLoc
-    spotLightsPositionOffset = loc(u_spotLights0position) - spotLightsLoc
-    spotLightsDirectionOffset = loc(u_spotLights0direction) - spotLightsLoc
+    spotLightsLoc = loc(u_spotLights0color).toInt
+    spotLightsColorOffset = loc(u_spotLights0color).toInt - spotLightsLoc
+    spotLightsPositionOffset = loc(u_spotLights0position).toInt - spotLightsLoc
+    spotLightsDirectionOffset = loc(u_spotLights0direction).toInt - spotLightsLoc
     spotLightsIntensityOffset =
-      if (has(u_spotLights0intensity)) loc(u_spotLights0intensity) - spotLightsLoc else -1
-    spotLightsCutoffAngleOffset = loc(u_spotLights0cutoffAngle) - spotLightsLoc
-    spotLightsExponentOffset = loc(u_spotLights0exponent) - spotLightsLoc
-    spotLightsSize = loc(u_spotLights1color) - spotLightsLoc
+      if (has(u_spotLights0intensity)) loc(u_spotLights0intensity).toInt - spotLightsLoc else -1
+    spotLightsCutoffAngleOffset = loc(u_spotLights0cutoffAngle).toInt - spotLightsLoc
+    spotLightsExponentOffset = loc(u_spotLights0exponent).toInt - spotLightsLoc
+    spotLightsSize = loc(u_spotLights1color).toInt - spotLightsLoc
     if (spotLightsSize < 0) spotLightsSize = 0
 
     boneWeightsLocations.foreach { locs =>
       var i = 0
       while (i < locs.length) {
-        locs(i) = prog.getAttributeLocation(ShaderProgram.BONEWEIGHT_ATTRIBUTE + i)
+        locs(i) = prog.getAttributeLocation(ShaderProgram.BONEWEIGHT_ATTRIBUTE + i).toInt
         i += 1
       }
     }
@@ -362,7 +362,7 @@ class DefaultShader(
     lightsSet = false
 
     if (has(u_time)) {
-      time += Sge().graphics.deltaTime
+      time += Sge().graphics.deltaTime.toFloat
       setFloat(u_time, time)
     }
 
@@ -388,10 +388,10 @@ class DefaultShader(
 
   protected def bindMaterial(attributes: Attributes): Unit = {
     var cullFace =
-      if (config.defaultCullFace == -1) DefaultShader.defaultCullFace: @scala.annotation.nowarn("msg=deprecated")
+      if (config.defaultCullFace == -1) GL20.GL_BACK
       else config.defaultCullFace
     var depthFunc =
-      if (config.defaultDepthFunc == -1) DefaultShader.defaultDepthFunc: @scala.annotation.nowarn("msg=deprecated")
+      if (config.defaultDepthFunc == -1) GL20.GL_LEQUAL
       else config.defaultDepthFunc
     var depthRangeNear = 0f
     var depthRangeFar  = 1f
@@ -449,7 +449,7 @@ class DefaultShader(
             // continue - skip this iteration
           } else {
             directionalLights(i).color.set(0, 0, 0, 1)
-            val idx = dirLightsLoc + i * dirLightsSize
+            val idx = UniformLocation(dirLightsLoc + i * dirLightsSize)
             program.foreach { prog =>
               prog.setUniformf(
                 idx + dirLightsColorOffset,
@@ -472,7 +472,7 @@ class DefaultShader(
           // continue - skip this iteration
         } else {
           dirs.foreach(d => directionalLights(i).set(d(i)))
-          val idx = dirLightsLoc + i * dirLightsSize
+          val idx = UniformLocation(dirLightsLoc + i * dirLightsSize)
           program.foreach { prog =>
             prog.setUniformf(
               idx + dirLightsColorOffset,
@@ -503,7 +503,7 @@ class DefaultShader(
             // continue
           } else {
             pointLights(i).intensity = 0f
-            val idx = pointLightsLoc + i * pointLightsSize
+            val idx = UniformLocation(pointLightsLoc + i * pointLightsSize)
             program.foreach { prog =>
               prog.setUniformf(
                 idx + pointLightsColorOffset,
@@ -528,7 +528,7 @@ class DefaultShader(
           // continue
         } else {
           points.foreach(p => pointLights(i).set(p(i)))
-          val idx = pointLightsLoc + i * pointLightsSize
+          val idx = UniformLocation(pointLightsLoc + i * pointLightsSize)
           program.foreach { prog =>
             prog.setUniformf(
               idx + pointLightsColorOffset,
@@ -561,7 +561,7 @@ class DefaultShader(
             // continue
           } else {
             spotLights(i).intensity = 0f
-            val idx = spotLightsLoc + i * spotLightsSize
+            val idx = UniformLocation(spotLightsLoc + i * spotLightsSize)
             program.foreach { prog =>
               prog.setUniformf(
                 idx + spotLightsColorOffset,
@@ -584,7 +584,7 @@ class DefaultShader(
           // continue
         } else {
           spots.foreach(s => spotLights(i).set(s(i)))
-          val idx = spotLightsLoc + i * spotLightsSize
+          val idx = UniformLocation(spotLightsLoc + i * spotLightsSize)
           program.foreach { prog =>
             prog.setUniformf(
               idx + spotLightsColorOffset,
@@ -631,7 +631,7 @@ class DefaultShader(
       else if (renderable.meshPart.mesh.vertexAttributes.boneWeights > config.numBoneWeights)
         false
       else {
-        if (renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates() != textureCoordinates)
+        if (renderable.meshPart.mesh.vertexAttributes.textureCoordinates != textureCoordinates)
           false
         else {
           val renderableMask = DefaultShader.combineAttributeMasks(renderable)
@@ -641,7 +641,7 @@ class DefaultShader(
         }
       }
     } else {
-      if (renderable.meshPart.mesh.vertexAttributes.getTextureCoordinates() != textureCoordinates)
+      if (renderable.meshPart.mesh.vertexAttributes.textureCoordinates != textureCoordinates)
         false
       else {
         val renderableMask = DefaultShader.combineAttributeMasks(renderable)
@@ -672,14 +672,14 @@ class DefaultShader(
   }
 
   def defaultCullFace: Int =
-    if (config.defaultCullFace == -1) DefaultShader.defaultCullFace: @scala.annotation.nowarn("msg=deprecated")
+    if (config.defaultCullFace == -1) GL20.GL_BACK
     else config.defaultCullFace
 
   def defaultCullFace_=(cullFace: Int): Unit =
     config.defaultCullFace = cullFace
 
   def defaultDepthFunc: Int =
-    if (config.defaultDepthFunc == -1) DefaultShader.defaultDepthFunc: @scala.annotation.nowarn("msg=deprecated")
+    if (config.defaultDepthFunc == -1) GL20.GL_LEQUAL
     else config.defaultDepthFunc
 
   def defaultDepthFunc_=(depthFunc: Int): Unit =
@@ -714,10 +714,10 @@ object DefaultShader {
     /** */
     var ignoreUnimplemented: Boolean = true
 
-    /** Set to 0 to disable culling, -1 to inherit from [[DefaultShader.defaultCullFace]] */
+    /** Set to 0 to disable culling, -1 to use GL_BACK */
     var defaultCullFace: Int = -1
 
-    /** Set to 0 to disable depth test, -1 to inherit from [[DefaultShader.defaultDepthFunc]] */
+    /** Set to 0 to disable depth test, -1 to use GL_LEQUAL */
     var defaultDepthFunc: Int = -1
 
     def this(vertexShader: String, fragmentShader: String) = {
@@ -1787,14 +1787,6 @@ object DefaultShader {
 
   protected var implementedFlags: Long = BlendingAttribute.Type | TextureAttribute.Diffuse |
     ColorAttribute.Diffuse | ColorAttribute.Specular | FloatAttribute.Shininess
-
-  /** @deprecated Replaced by [[Config.defaultCullFace]] Set to 0 to disable culling */
-  @deprecated("Replaced by Config.defaultCullFace", "")
-  var defaultCullFace: Int = GL20.GL_BACK
-
-  /** @deprecated Replaced by [[Config.defaultDepthFunc]] Set to 0 to disable depth test */
-  @deprecated("Replaced by Config.defaultDepthFunc", "")
-  var defaultDepthFunc: Int = GL20.GL_LEQUAL
 
   /** Attributes which are not required but always supported. */
   private val optionalAttributes: Long = IntAttribute.CullFace | DepthTestAttribute.Type

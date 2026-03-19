@@ -27,7 +27,7 @@ class Stack()(using Sge) extends WidgetGroup() {
   private var _maxHeight:  Float   = 0
   private var sizeInvalid: Boolean = true
 
-  setTransform(false)
+  transform = false
   setWidth(150)
   setHeight(150)
   touchable = Touchable.childrenOnly

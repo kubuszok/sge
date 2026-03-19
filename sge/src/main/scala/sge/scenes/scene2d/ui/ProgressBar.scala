@@ -21,7 +21,7 @@ package ui
 import sge.graphics.g2d.Batch
 import sge.math.{ Interpolation, MathUtils }
 import sge.scenes.scene2d.utils.{ ChangeListener, Disableable, Drawable }
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** A progress bar is a widget that visually displays the progress of some activity or a value within given range. The progress bar has a range (min, max) and a stepping between each value it
   * represents. The percentage of completeness typically starts out as an empty progress bar and gradually becomes filled in as the task or variable value progresses. <p> {@link ChangeEvent} is fired
@@ -52,7 +52,7 @@ class ProgressBar(
   private var animateTime:          sge.utils.Seconds = sge.utils.Seconds.zero
   private var animateInterpolation: Interpolation     = Interpolation.linear
   private var visualInterpolation:  Interpolation     = Interpolation.linear
-  var disabled:                     Boolean           = false
+  private var _disabled:            Boolean           = false
   private var round:                Boolean           = true
   var programmaticChangeEvents:     Boolean           = true
 
@@ -85,10 +85,10 @@ class ProgressBar(
     */
   override def style: ProgressBarStyle = _style
 
-  override def act(delta: Float): Unit = {
+  override def act(delta: Seconds): Unit = {
     super.act(delta)
     if (animateTime > sge.utils.Seconds.zero) {
-      animateTime = animateTime - sge.utils.Seconds(delta)
+      animateTime = animateTime - delta
       this.stage.foreach { s =>
         if (s.actionsRequestRendering) Sge().graphics.requestRendering()
       }
@@ -324,12 +324,12 @@ class ProgressBar(
   def setRound(round: Boolean): Unit =
     this.round = round
 
-  override def setDisabled(isDisabled: Boolean): Unit =
-    this.disabled = isDisabled
+  override def disabled_=(value: Boolean): Unit =
+    this._disabled = value
 
   def animating: Boolean = animateTime > sge.utils.Seconds.zero
 
-  override def isDisabled: Boolean = disabled
+  override def disabled: Boolean = _disabled
 }
 
 object ProgressBar {

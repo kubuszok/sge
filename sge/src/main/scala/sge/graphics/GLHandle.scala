@@ -85,6 +85,36 @@ object RenderbufferHandle {
   }
 }
 
+/** Opaque type for GL uniform locations, preventing accidental mixing with attribute locations or raw indices. */
+opaque type UniformLocation = Int
+object UniformLocation {
+  def apply(raw: Int): UniformLocation = raw
+  val notFound:        UniformLocation = -1
+
+  given MkArray[UniformLocation] = utils.MkArray.mkInt.asInstanceOf[MkArray[UniformLocation]]
+
+  extension (l: UniformLocation) {
+    inline def toInt:                      Int             = l
+    inline def +(offset: Int):             UniformLocation = l + offset
+    inline def -(other:  UniformLocation): Int             = l - other
+    inline def >=(rhs:   Int):             Boolean         = l >= rhs
+    inline def <(rhs:    Int):             Boolean         = l < rhs
+  }
+}
+
+/** Opaque type for GL attribute locations, preventing accidental mixing with uniform locations or raw indices. */
+opaque type AttributeLocation = Int
+object AttributeLocation {
+  def apply(raw: Int): AttributeLocation = raw
+  val notFound:        AttributeLocation = -1
+
+  given MkArray[AttributeLocation] = utils.MkArray.mkInt.asInstanceOf[MkArray[AttributeLocation]]
+
+  extension (l: AttributeLocation) {
+    inline def toInt: Int = l
+  }
+}
+
 /** Typed extension methods on GL20 for working with handle opaque types. */
 object GLHandleOps {
   extension (gl: GL20) {

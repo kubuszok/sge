@@ -6,7 +6,8 @@ package demos.viewer3d
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.{Color, EnableCap, PerspectiveCamera, Pixmap, Texture}
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g2d.TextureRegion
@@ -70,7 +71,7 @@ object Viewer3dGame extends DemoScene {
 
   override def init()(using Sge): Unit = {
     // Camera
-    camera = PerspectiveCamera(67f, Sge().graphics.width.toFloat, Sge().graphics.height.toFloat)
+    camera = PerspectiveCamera(67f, WorldUnits(Sge().graphics.width.toFloat), WorldUnits(Sge().graphics.height.toFloat))
     camera.near = 1f
     camera.far = 100f
     updateCameraPosition()
@@ -136,7 +137,8 @@ object Viewer3dGame extends DemoScene {
     )
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit = {
+    val delta = dt.toFloat
     val input = Sge().input
 
     // TAB toggles auto-rotate
@@ -148,19 +150,19 @@ object Viewer3dGame extends DemoScene {
 
     // Camera orbit controls — keyboard
     if (autoRotate) {
-      azimuth += 20f * dt
+      azimuth += 20f * delta
     }
     if (input.isKeyPressed(Input.Keys.LEFT)) {
-      azimuth -= 60f * dt
+      azimuth -= 60f * delta
     }
     if (input.isKeyPressed(Input.Keys.RIGHT)) {
-      azimuth += 60f * dt
+      azimuth += 60f * delta
     }
     if (input.isKeyPressed(Input.Keys.UP)) {
-      elevation = scala.math.min(elevation + 40f * dt, 85f)
+      elevation = scala.math.min(elevation + 40f * delta, 85f)
     }
     if (input.isKeyPressed(Input.Keys.DOWN)) {
-      elevation = scala.math.max(elevation - 40f * dt, 5f)
+      elevation = scala.math.max(elevation - 40f * delta, 5f)
     }
 
     // Camera orbit controls — touch drag
@@ -223,8 +225,8 @@ object Viewer3dGame extends DemoScene {
   }
 
   override def resize(width: Pixels, height: Pixels)(using Sge): Unit = {
-    camera.viewportWidth = width.toFloat
-    camera.viewportHeight = height.toFloat
+    camera.viewportWidth = WorldUnits(width.toFloat)
+    camera.viewportHeight = WorldUnits(height.toFloat)
     camera.update()
   }
 

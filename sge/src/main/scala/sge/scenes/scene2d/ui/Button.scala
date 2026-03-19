@@ -8,7 +8,8 @@
  *   Renames: isChecked() getter -> getIsChecked (avoids collision with isChecked field)
  *   Convention: null -> Nullable
  *   Idiom: split packages
- *   Fixes: Removed redundant Java-style getters/setters (programmaticChangeEvents is public var; clickListener/buttonGroup accessed directly; isPressed/isOver/isDisabled/setDisabled/setChecked retained — have logic or implement trait)
+ *   Fixes: Removed redundant Java-style getters/setters (programmaticChangeEvents is public var; clickListener/buttonGroup accessed directly; isPressed/isOver/setChecked retained — have logic or implement trait)
+ *   Convention: isDisabled/setDisabled -> disabled property (Disableable trait)
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -82,7 +83,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     touchable = Touchable.enabled
     clickListener = new ClickListener() {
       override def clicked(event: InputEvent, x: Float, y: Float): Unit =
-        if (!isDisabled) setChecked(!isChecked, true)
+        if (!disabled) setChecked(!isChecked, true)
     }
     addListener(clickListener)
   }
@@ -124,11 +125,11 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
 
   def isOver: Boolean = clickListener.over
 
-  override def isDisabled: Boolean = _isDisabled
+  override def disabled: Boolean = _isDisabled
 
   /** When true, the button will not toggle {@link #isChecked()} when clicked and will not fire a {@link ChangeEvent}. */
-  override def setDisabled(isDisabled: Boolean): Unit =
-    this._isDisabled = isDisabled
+  override def disabled_=(value: Boolean): Unit =
+    this._isDisabled = value
 
   override def setStyle(style: ButtonStyle): Unit = {
     this._style = style
@@ -142,7 +143,7 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
 
   /** Returns appropriate background drawable from the style based on the current button state. */
   protected def backgroundDrawable: Nullable[Drawable] =
-    if (isDisabled && _style.disabled.isDefined) _style.disabled
+    if (disabled && _style.disabled.isDefined) _style.disabled
     else if (isPressed) {
       if (isChecked && _style.checkedDown.isDefined) _style.checkedDown
       else if (_style.down.isDefined) _style.down
@@ -194,10 +195,10 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
 
     var offsetX = 0f
     var offsetY = 0f
-    if (isPressed && !isDisabled) {
+    if (isPressed && !disabled) {
       offsetX = _style.pressedOffsetX
       offsetY = _style.pressedOffsetY
-    } else if (isChecked && !isDisabled) {
+    } else if (isChecked && !disabled) {
       offsetX = _style.checkedOffsetX
       offsetY = _style.checkedOffsetY
     } else {

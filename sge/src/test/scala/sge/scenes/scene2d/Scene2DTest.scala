@@ -4,6 +4,7 @@ package scenes
 package scene2d
 
 import sge.utils.Nullable
+import sge.utils.Seconds
 
 class Scene2DTest extends munit.FunSuite {
 
@@ -267,7 +268,7 @@ class Scene2DTest extends munit.FunSuite {
     given Sge = makeContext()
     val group = Group()
     assert(group.transform)
-    group.setTransform(false)
+    group.transform = false
     assert(!group.transform)
   }
 
@@ -351,7 +352,7 @@ class Scene2DTest extends munit.FunSuite {
       val id:                                    String = ""
       def show():                                Unit   = events += s"show-$id"
       def hide():                                Unit   = events += s"hide-$id"
-      def render(delta: Float):                  Unit   = {}
+      def render(delta: Seconds):                Unit   = {}
       def resize(width: Pixels, height: Pixels): Unit   = events += s"resize-$id"
       def pause():                               Unit   = events += s"pause-$id"
       def resume():                              Unit   = events += s"resume-$id"
@@ -380,7 +381,7 @@ class Scene2DTest extends munit.FunSuite {
     val screen = new Screen {
       def show():                                Unit = {}
       def hide():                                Unit = {}
-      def render(delta: Float):                  Unit = events += "render"
+      def render(delta: Seconds):                Unit = events += "render"
       def resize(width: Pixels, height: Pixels): Unit = events += "resize"
       def pause():                               Unit = events += "pause"
       def resume():                              Unit = events += "resume"
@@ -408,7 +409,7 @@ class Scene2DTest extends munit.FunSuite {
     val screen = new Screen {
       def show():                                Unit = {}
       def hide():                                Unit = hidden = true
-      def render(delta: Float):                  Unit = {}
+      def render(delta: Seconds):                Unit = {}
       def resize(width: Pixels, height: Pixels): Unit = {}
       def pause():                               Unit = {}
       def resume():                              Unit = {}

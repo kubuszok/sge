@@ -56,19 +56,19 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
   }
 
   /** @return whether particles are spawned on the primitive's edge rather than its interior */
-  def isEdges(): Boolean = edges
+  def isEdges: Boolean = edges
 
   /** Sets whether particles are spawned on the primitive's edge rather than its interior. */
   def setEdges(e: Boolean): Unit = edges = e
 
   /** @return the width value used for spawn size calculations */
-  def getSpawnWidth(): ScaledNumericValue = spawnWidthValue
+  def getSpawnWidth: ScaledNumericValue = spawnWidthValue
 
   /** @return the height value used for spawn size calculations */
-  def getSpawnHeight(): ScaledNumericValue = spawnHeightValue
+  def getSpawnHeight: ScaledNumericValue = spawnHeightValue
 
   /** @return the depth value used for spawn size calculations */
-  def getSpawnDepth(): ScaledNumericValue = spawnDepthValue
+  def getSpawnDepth: ScaledNumericValue = spawnDepthValue
 
   def setDimensions(width: Float, height: Float, depth: Float): Unit = {
     spawnWidthValue.setHigh(width)

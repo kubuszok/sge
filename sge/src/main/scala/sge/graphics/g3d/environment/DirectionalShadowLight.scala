@@ -21,6 +21,7 @@ package graphics
 package g3d
 package environment
 
+import sge.WorldUnits
 import sge.graphics.Camera
 import sge.graphics.ClearMask
 import sge.graphics.EnableCap
@@ -51,7 +52,7 @@ class DirectionalShadowLight(
   protected var fbo: Nullable[FrameBuffer] =
     Nullable(FrameBuffer(Pixmap.Format.RGBA8888, Pixels(shadowMapWidth), Pixels(shadowMapHeight), true))
   protected val cam: Camera = {
-    val c = OrthographicCamera(shadowViewportWidth, shadowViewportHeight)
+    val c = OrthographicCamera(WorldUnits(shadowViewportWidth), WorldUnits(shadowViewportHeight))
     c.near = shadowNear
     c.far = shadowFar
     c
@@ -90,8 +91,8 @@ class DirectionalShadowLight(
 
   @publicInBinary private[sge] def begin(): Unit =
     fbo.foreach { fb =>
-      val w = fb.getWidth()
-      val h = fb.getHeight()
+      val w = fb.width
+      val h = fb.height
       fb.begin()
       Sge().graphics.gl.glViewport(Pixels.zero, Pixels.zero, w, h)
       Sge().graphics.gl.glClearColor(1, 1, 1, 1)

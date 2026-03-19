@@ -39,9 +39,8 @@ class Quaternion(var x: Float = 0f, var y: Float = 0f, var z: Float = 0f, var w:
     * @param quaternion
     *   The quaternion to copy.
     */
-  def this(quaternion: Quaternion) = {
+  def this(quaternion: Quaternion) =
     this(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
-  }
 
   /** Constructor, sets the quaternion from the given axis vector and the angle around that axis in degrees.
     *

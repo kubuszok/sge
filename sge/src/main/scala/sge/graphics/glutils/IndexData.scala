@@ -70,7 +70,7 @@ trait IndexData extends AutoCloseable {
     *   use {@link #getBuffer(boolean)} instead
     */
   @deprecated("use getBuffer(boolean) instead", "")
-  def getBuffer(): ShortBuffer
+  def buffer: ShortBuffer
 
   /** Returns the underlying ShortBuffer for reading or writing.
     * @param forWriting

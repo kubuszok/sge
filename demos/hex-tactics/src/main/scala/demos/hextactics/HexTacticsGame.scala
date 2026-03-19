@@ -6,7 +6,8 @@ package demos.hextactics
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
@@ -55,7 +56,7 @@ object HexTacticsGame extends DemoScene {
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
-    viewport = FitViewport(W, H)
+    viewport = FitViewport(WorldUnits(W), WorldUnits(H))
     terrain = ArrayMap[Int, String]()
     units = OrderedMap[String, HexUnit]()
     hexCenters = ObjectMap[Int, Vector2]()
@@ -65,7 +66,7 @@ object HexTacticsGame extends DemoScene {
     currentTurn = 0
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit = {
     // Input: R to regenerate
     if (Sge().input.isKeyJustPressed(Input.Keys.R)) {
       generateMap()

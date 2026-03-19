@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: uses DynamicArray for managed buffer tracking; unbind() moved to companion; builder uses Scala 3 type parameters
  *   Idiom: split packages
- *   Idiom: opaque Pixels for getWidth/Height, builder width/height
+ *   Idiom: opaque Pixels for width/height properties, builder width/height
  *   Convention: typed GL enums — TextureTarget, PixelFormat, DataType, ClearMask for GL method params
  *   Audited: 2026-03-03
  *
@@ -467,7 +467,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
       drawBuffersForTransfer = Nullable(BufferUtils.newIntBuffer(tempBuf.get(0)))
     }
 
-    if (destination.getWidth() != getWidth() || destination.getHeight() != getHeight()) {
+    if (destination.width != width || destination.height != height) {
       throw new IllegalArgumentException("source and destination frame buffers must have same size.")
     }
 
@@ -516,12 +516,12 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
           gl30.glBlitFramebuffer(
             0,
             0,
-            getWidth().toInt,
-            getHeight().toInt,
+            width.toInt,
+            height.toInt,
             0,
             0,
-            destination.getWidth().toInt,
-            destination.getHeight().toInt,
+            destination.width.toInt,
+            destination.height.toInt,
             bits,
             GL20.GL_NEAREST
           )
@@ -537,12 +537,12 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
       gl30.glBlitFramebuffer(
         0,
         0,
-        getWidth().toInt,
-        getHeight().toInt,
+        width.toInt,
+        height.toInt,
         0,
         0,
-        destination.getWidth().toInt,
-        destination.getHeight().toInt,
+        destination.width.toInt,
+        destination.height.toInt,
         bits,
         GL20.GL_NEAREST
       )
@@ -558,7 +558,7 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   }
 
   /** @return The OpenGL handle of the framebuffer (see GL20.glGenFramebuffer()) */
-  def getFramebufferHandle(): Int = framebufferHandle
+  def getFramebufferHandle: Int = framebufferHandle
 
   /** @return
     *   The OpenGL handle of the (optional) depth buffer (see GL20.glGenRenderbuffer()). May return 0 even if depth buffer enabled
@@ -581,10 +581,10 @@ abstract class GLFrameBuffer[T <: GLTexture](using Sge) extends AutoCloseable {
   protected def depthStencilPackedBuffer: Int = depthStencilPackedBufferHandle
 
   /** @return the height of the framebuffer in pixels */
-  def getHeight(): Pixels = bufferBuilder.height
+  def height: Pixels = bufferBuilder.height
 
   /** @return the width of the framebuffer in pixels */
-  def getWidth(): Pixels = bufferBuilder.width
+  def width: Pixels = bufferBuilder.width
 }
 
 object GLFrameBuffer {

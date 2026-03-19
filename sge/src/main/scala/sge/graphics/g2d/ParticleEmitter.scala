@@ -25,7 +25,7 @@ import sge.graphics.GL20
 import sge.math.MathUtils
 import sge.math.collision.BoundingBox
 
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Seconds }
 
 import scala.language.implicitConversions
 
@@ -208,8 +208,8 @@ class ParticleEmitter {
     this._activeCount += actualCount
   }
 
-  def update(delta: Float): Unit = {
-    accumulator += delta * 1000
+  def update(delta: Seconds): Unit = {
+    accumulator += delta.toFloat * 1000
     if (accumulator >= 1) {
       val deltaMillis = accumulator.toInt
       accumulator -= deltaMillis
@@ -281,8 +281,8 @@ class ParticleEmitter {
 
   /** Updates and draws the particles. This is slightly more efficient than calling {@link #update(float)} and {@link #draw(Batch)} separately.
     */
-  def draw(batch: Batch, delta: Float): Unit = scala.util.boundary {
-    accumulator += delta * 1000
+  def draw(batch: Batch, delta: Seconds): Unit = scala.util.boundary {
+    accumulator += delta.toFloat * 1000
     if (accumulator < 1) {
       draw(batch)
       scala.util.boundary.break(())
@@ -573,11 +573,11 @@ class ParticleEmitter {
     val offsetTime = (lifeOffset + lifeOffsetDiff * lifeOffsetValue.getScale(percent)).toInt
     if (offsetTime > 0) {
       val adjustedOffsetTime = if (offsetTime >= particle.currentLife) particle.currentLife - 1 else offsetTime
-      updateParticle(particle, adjustedOffsetTime / 1000f, adjustedOffsetTime)
+      updateParticle(particle, Seconds(adjustedOffsetTime / 1000f), adjustedOffsetTime)
     }
   }
 
-  private def updateParticle(particle: Particle, delta: Float, deltaMillis: Int): Boolean = {
+  private def updateParticle(particle: Particle, delta: Seconds, deltaMillis: Int): Boolean = {
     val life = particle.currentLife - deltaMillis
     if (life <= 0) false
     else {
@@ -598,7 +598,7 @@ class ParticleEmitter {
       }
 
       if ((updateFlags & UPDATE_VELOCITY) != 0) {
-        val velocity = (particle.velocity + particle.velocityDiff * velocityValue.getScale(percent)) * delta
+        val velocity = (particle.velocity + particle.velocityDiff * velocityValue.getScale(percent)) * delta.toFloat
 
         val (velocityX, velocityY) = if ((updateFlags & UPDATE_ANGLE) != 0) {
           val angle = particle.angle + particle.angleDiff * angleValue.getScale(percent)
@@ -623,12 +623,12 @@ class ParticleEmitter {
 
         val finalVelocityX =
           if ((updateFlags & UPDATE_WIND) != 0)
-            velocityX + (particle.wind + particle.windDiff * windValue.getScale(percent)) * delta
+            velocityX + (particle.wind + particle.windDiff * windValue.getScale(percent)) * delta.toFloat
           else velocityX
 
         val finalVelocityY =
           if ((updateFlags & UPDATE_GRAVITY) != 0)
-            velocityY + (particle.gravity + particle.gravityDiff * gravityValue.getScale(percent)) * delta
+            velocityY + (particle.gravity + particle.gravityDiff * gravityValue.getScale(percent)) * delta.toFloat
           else velocityY
 
         particle.translate(finalVelocityX, finalVelocityY)

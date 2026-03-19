@@ -43,7 +43,7 @@ class FloatTextureData(
     extends TextureData {
 
   private var isPreparedState: Boolean               = false
-  private var buffer:          Nullable[FloatBuffer] = Nullable.empty
+  private var _buffer:         Nullable[FloatBuffer] = Nullable.empty
 
   override def dataType: TextureData.TextureDataType = TextureData.TextureDataType.Custom
 
@@ -60,7 +60,7 @@ class FloatTextureData(
         if (internalFormat == GL30.GL_RG16F || internalFormat == GL30.GL_RG32F) amountOfFloats = 2
         if (internalFormat == GL30.GL_R16F || internalFormat == GL30.GL_R32F) amountOfFloats = 1
       }
-      this.buffer = Nullable(BufferUtils.newFloatBuffer(width * height * amountOfFloats))
+      this._buffer = Nullable(BufferUtils.newFloatBuffer(width * height * amountOfFloats))
     }
     isPreparedState = true
   }
@@ -77,7 +77,7 @@ class FloatTextureData(
       // GLES and WebGL defines texture format by 3rd and 8th argument,
       // so to get a float texture one needs to supply GL_RGBA and GL_FLOAT there.
       // orNull required: GL20.glTexImage2D Java API accepts null buffer for GPU-only allocation
-      @nowarn("msg=deprecated") val buf1 = buffer.orNull
+      @nowarn("msg=deprecated") val buf1 = _buffer.orNull
       Sge().graphics.gl.glTexImage2D(target, 0, GL20.GL_RGBA, Pixels(width), Pixels(height), 0, PixelFormat.RGBA, DataType.Float, buf1)
 
     } else {
@@ -88,7 +88,7 @@ class FloatTextureData(
       // in desktop OpenGL the texture format is defined only by the third argument,
       // hence we need to use GL_RGBA32F there (this constant is unavailable in GLES/WebGL)
       // orNull required: GL20.glTexImage2D Java API accepts null buffer for GPU-only allocation
-      @nowarn("msg=deprecated") val buf2 = buffer.orNull
+      @nowarn("msg=deprecated") val buf2 = _buffer.orNull
       Sge().graphics.gl.glTexImage2D(target, 0, internalFormat, Pixels(width), Pixels(height), 0, format, DataType.Float, buf2)
     }
 
@@ -104,5 +104,5 @@ class FloatTextureData(
 
   override def isManaged: Boolean = true
 
-  def getBuffer(): Nullable[FloatBuffer] = buffer
+  def buffer: Nullable[FloatBuffer] = _buffer
 }

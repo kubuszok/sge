@@ -28,7 +28,7 @@ import sge.graphics.Texture
 import sge.math.collision.BoundingBox
 import sge.graphics.g2d.Sprite
 import sge.graphics.g2d.Batch
-import sge.utils.{ DynamicArray, Nullable, SgeError, StreamUtils }
+import sge.utils.{ DynamicArray, Nullable, Seconds, SgeError, StreamUtils }
 
 import scala.language.implicitConversions
 
@@ -90,7 +90,7 @@ class ParticleEffect()(using Sge) extends AutoCloseable {
     }
   }
 
-  def update(delta: Float): Unit =
+  def update(delta: Seconds): Unit =
     for (i <- 0 until _emitters.size)
       _emitters(i).update(delta)
 
@@ -98,7 +98,7 @@ class ParticleEffect()(using Sge) extends AutoCloseable {
     for (i <- 0 until _emitters.size)
       _emitters(i).draw(spriteBatch)
 
-  def draw(spriteBatch: Batch, delta: Float): Unit =
+  def draw(spriteBatch: Batch, delta: Seconds): Unit =
     for (i <- 0 until _emitters.size)
       _emitters(i).draw(spriteBatch, delta)
 

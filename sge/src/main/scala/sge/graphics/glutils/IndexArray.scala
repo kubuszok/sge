@@ -23,7 +23,7 @@ import sge.utils.BufferUtils
 import scala.compiletime.uninitialized
 
 class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
-  private var buffer:     ShortBuffer = uninitialized
+  private var _buffer:    ShortBuffer = uninitialized
   private var byteBuffer: ByteBuffer  = uninitialized
 
   // used to work around bug: https://android-review.googlesource.com/#/c/73175/
@@ -32,17 +32,17 @@ class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
   private val actualMaxIndices = if maxIndices == 0 then 1 else maxIndices // avoid allocating a zero-sized buffer because of bug in Android's ART < Android 5.0
 
   byteBuffer = BufferUtils.newUnsafeByteBuffer(actualMaxIndices * 2)
-  buffer = byteBuffer.asShortBuffer()
-  buffer.asInstanceOf[Buffer].flip()
+  _buffer = byteBuffer.asShortBuffer()
+  _buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
 
   /** @return the number of indices currently stored in this buffer */
   def numIndices: Int =
-    if empty then 0 else buffer.limit()
+    if empty then 0 else _buffer.limit()
 
   /** @return the maximum number of indices this IndexArray can store. */
   def numMaxIndices: Int =
-    if empty then 0 else buffer.capacity()
+    if empty then 0 else _buffer.capacity()
 
   /** <p> Sets the indices of this IndexArray, discarding the old indices. The count must equal the number of indices to be copied to this IndexArray. </p>
     *
@@ -56,22 +56,22 @@ class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
     *   the number of shorts to copy
     */
   def setIndices(indices: Array[Short], offset: Int, count: Int): Unit = {
-    buffer.asInstanceOf[Buffer].clear()
-    buffer.put(indices, offset, count)
-    buffer.asInstanceOf[Buffer].flip()
+    _buffer.asInstanceOf[Buffer].clear()
+    _buffer.put(indices, offset, count)
+    _buffer.asInstanceOf[Buffer].flip()
     byteBuffer.asInstanceOf[Buffer].position(0)
     byteBuffer.asInstanceOf[Buffer].limit(count << 1)
   }
 
   def setIndices(indices: ShortBuffer): Unit = {
     val pos = indices.position()
-    buffer.asInstanceOf[Buffer].clear()
-    buffer.asInstanceOf[Buffer].limit(indices.remaining())
-    buffer.put(indices)
-    buffer.asInstanceOf[Buffer].flip()
+    _buffer.asInstanceOf[Buffer].clear()
+    _buffer.asInstanceOf[Buffer].limit(indices.remaining())
+    _buffer.put(indices)
+    _buffer.asInstanceOf[Buffer].flip()
     indices.asInstanceOf[Buffer].position(pos)
     byteBuffer.asInstanceOf[Buffer].position(0)
-    byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() << 1)
+    byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() << 1)
   }
 
   override def updateIndices(targetOffset: Int, indices: Array[Short], offset: Int, count: Int): Unit = {
@@ -83,11 +83,11 @@ class IndexArray(maxIndices: Int) extends IndexData with AutoCloseable {
 
   /** @deprecated use {@link #getBuffer(boolean)} instead */
   @deprecated("use getBuffer(boolean) instead")
-  override def getBuffer(): ShortBuffer =
-    buffer
+  override def buffer: ShortBuffer =
+    _buffer
 
   override def getBuffer(forWriting: Boolean): ShortBuffer =
-    buffer
+    _buffer
 
   /** Binds this IndexArray for rendering with glDrawElements. */
   def bind(): Unit = ()

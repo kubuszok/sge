@@ -84,7 +84,7 @@ class ImageTextButton(initialText: Nullable[String], initialStyle: ImageTextButt
 
   /** Returns the appropriate image drawable from the style based on the current button state. */
   protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
-    if (isDisabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
+    if (disabled && _style.imageDisabled.isDefined) scala.util.boundary.break(_style.imageDisabled)
     if (isPressed) {
       if (isChecked && _style.imageCheckedDown.isDefined) scala.util.boundary.break(_style.imageCheckedDown)
       if (_style.imageDown.isDefined) scala.util.boundary.break(_style.imageDown)
@@ -110,7 +110,7 @@ class ImageTextButton(initialText: Nullable[String], initialStyle: ImageTextButt
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def fontColor: Nullable[Color] = scala.util.boundary {
-    if (isDisabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
+    if (disabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
     if (isPressed) {
       if (isChecked && _style.checkedDownFontColor.isDefined) scala.util.boundary.break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) scala.util.boundary.break(_style.downFontColor)

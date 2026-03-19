@@ -5,9 +5,10 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
+ *   Renames: getClickListener -> clickListener (Scala property)
  *   Convention: null -> Nullable; (using Sge) context; Java List<T> -> SgeList[T]; DynamicArray with MkArray.anyRef cast; boundary/break
  *   Idiom: split packages
- *   Note: Java-style getters/setters retained — setItems/setSelected/setSelectedIndex have validation/events logic; isDisabled/setDisabled from Disableable trait; style via Styleable
+ *   Note: Java-style getters/setters retained — setItems/setSelected/setSelectedIndex have validation/events logic; disabled/setDisabled from Disableable trait; style via Styleable
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
@@ -38,15 +39,15 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   import SelectBox._
 
-  private var _style:        SelectBoxStyle         = scala.compiletime.uninitialized
-  val items:                 DynamicArray[T]        = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
-  var scrollPane:            SelectBoxScrollPane[T] = scala.compiletime.uninitialized
-  private var _prefWidth:    Float                  = 0f
-  private var _prefHeight:   Float                  = 0f
-  private var clickListener: ClickListener          = scala.compiletime.uninitialized
-  var disabled:              Boolean                = false
-  private var alignment:     Align                  = Align.left
-  var selectedPrefWidth:     Boolean                = false
+  private var _style:         SelectBoxStyle         = scala.compiletime.uninitialized
+  val items:                  DynamicArray[T]        = DynamicArray.createWithMk(MkArray.anyRef.asInstanceOf[MkArray[T]], 16, true)
+  var scrollPane:             SelectBoxScrollPane[T] = scala.compiletime.uninitialized
+  private var _prefWidth:     Float                  = 0f
+  private var _prefHeight:    Float                  = 0f
+  private var _clickListener: ClickListener          = scala.compiletime.uninitialized
+  private var _disabled:      Boolean                = false
+  private var _alignment:     Align                  = Align.left
+  var selectedPrefWidth:      Boolean                = false
 
   val selection: ArraySelection[T] = new ArraySelection(items) {
     override def fireChangeEvent(): Boolean = {
@@ -68,10 +69,10 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   private val self = this
   addListener {
-    clickListener = new ClickListener() {
+    _clickListener = new ClickListener() {
       override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean =
         if (pointer == 0 && button != Button(0)) false
-        else if (self.isDisabled) false
+        else if (self.disabled) false
         else {
           if (self.scrollPane.hasParent)
             self.hideScrollPane()
@@ -80,7 +81,7 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
           true
         }
     }
-    clickListener
+    _clickListener
   }
 
   /** Allows a subclass to customize the scroll pane shown when the select box is open. */
@@ -207,14 +208,14 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   /** Returns appropriate background drawable from the style based on the current select box state. */
   protected def backgroundDrawable: Nullable[Drawable] =
-    if (isDisabled && _style.backgroundDisabled.isDefined) _style.backgroundDisabled
+    if (disabled && _style.backgroundDisabled.isDefined) _style.backgroundDisabled
     else if (scrollPane.hasParent && _style.backgroundOpen.isDefined) _style.backgroundOpen
     else if (isOver && _style.backgroundOver.isDefined) _style.backgroundOver
     else _style.background
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def fontColor: Color =
-    if (isDisabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.getOrElse(_style.fontColor)
+    if (disabled && _style.disabledFontColor.isDefined) _style.disabledFontColor.getOrElse(_style.fontColor)
     else if (_style.overFontColor.isDefined && (isOver || scrollPane.hasParent)) _style.overFontColor.getOrElse(_style.fontColor)
     else _style.fontColor
 
@@ -244,7 +245,7 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
         bx += bg.leftWidth
         by += (bh / 2 + bg.bottomHeight + font.data.capHeight / 2).toInt.toFloat
       }
-      font.setColor(fc.r, fc.g, fc.b, fc.a * parentAlpha)
+      font.color.set(fc.r, fc.g, fc.b, fc.a * parentAlpha)
       drawItem(batch, font, sel, bx, by, bw)
     }
   }
@@ -258,8 +259,10 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
     * @param alignment
     *   See {@link Align}.
     */
-  def setAlignment(alignment: Align): Unit =
-    this.alignment = alignment
+  def alignment_=(value: Align): Unit =
+    this._alignment = value
+
+  def alignment: Align = _alignment
 
   /** Get the set of selected items, useful when multiple items are selected
     * @return
@@ -316,12 +319,12 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
     width
   }
 
-  def setDisabled(disabled: Boolean): Unit = {
-    if (disabled && !this.disabled) hideScrollPane()
-    this.disabled = disabled
+  def disabled_=(value: Boolean): Unit = {
+    if (value && !this._disabled) hideScrollPane()
+    this._disabled = value
   }
 
-  def isDisabled: Boolean = disabled
+  def disabled: Boolean = _disabled
 
   override def prefWidth: Float = {
     validate()
@@ -335,17 +338,9 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   protected def itemToString(item: T): String = item.toString
 
-  /** @deprecated Use {@link #showScrollPane()}. */
-  @deprecated("Use showScrollPane", "")
-  def showList(): Unit = showScrollPane()
-
   def showScrollPane(): Unit =
     if (items.isEmpty) ()
     else stage.foreach(stage => scrollPane.show(stage))
-
-  /** @deprecated Use {@link #hideScrollPane()}. */
-  @deprecated("Use hideScrollPane", "")
-  def hideList(): Unit = hideScrollPane()
 
   def hideScrollPane(): Unit =
     scrollPane.hide()
@@ -363,7 +358,8 @@ class SelectBox[T](initialStyle: SelectBox.SelectBoxStyle)(using Sge) extends Wi
 
   def isOver: Boolean = clickListener.over
 
-  def getClickListener: ClickListener = clickListener
+  /** Returns the click listener used to detect clicks on the select box. */
+  def clickListener: ClickListener = _clickListener
 
   protected def onShow(scrollPane: Actor, below: Boolean): Unit = {
     scrollPane.color.a = 0
@@ -555,7 +551,7 @@ object SelectBox {
       super.draw(batch, parentAlpha)
     }
 
-    override def act(delta: Float): Unit = {
+    override def act(delta: Seconds): Unit = {
       super.act(delta)
       toFront()
     }

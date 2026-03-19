@@ -203,16 +203,6 @@ class Slider(
     this.threshold = threshold
   }
 
-  /** Makes this progress bar snap to the specified values, if the knob is within the threshold.
-    * @param values
-    *   May be null to disable snapping.
-    * @deprecated
-    *   Use {@link #setSnapToValues(float, float...)}.
-    */
-  @deprecated("Use setSnapToValues(threshold, values)", "")
-  def setSnapToValues(values: Nullable[Array[Float]], threshold: Float): Unit =
-    setSnapToValues(threshold, values)
-
   def snapToValues: Nullable[Array[Float]] = snapValues
 
   def snapToValuesThreshold: Float = threshold

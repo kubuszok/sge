@@ -22,7 +22,7 @@ package utils
   * @author
   *   Jon Renner (original implementation)
   */
-final class Select {
+object Select {
   private var quickSelect: Nullable[QuickSelect[AnyRef]] = Nullable.empty
 
   def select[T](items: Array[T], comp: Ordering[T], kthLowest: Int, size: Int): T = {
@@ -75,15 +75,4 @@ final class Select {
     }
     highestIdx
   }
-}
-
-object Select {
-
-  /** Provided for convenience */
-  def instance(): Select = {
-    if (_instance.isEmpty) _instance = Nullable(Select())
-    _instance.getOrElse(throw new AssertionError("unreachable"))
-  }
-
-  private var _instance: Nullable[Select] = Nullable.empty
 }

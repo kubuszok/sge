@@ -68,8 +68,8 @@ class OrthoCachedTiledMapRenderer(
 
   override def setView(camera: OrthographicCamera): Unit = {
     spriteCache.projectionMatrix = camera.combined
-    val width  = camera.viewportWidth * camera.zoom + maxTileWidth * 2 * unitScale
-    val height = camera.viewportHeight * camera.zoom + maxTileHeight * 2 * unitScale
+    val width  = camera.viewportWidth.toFloat * camera.zoom + maxTileWidth * 2 * unitScale
+    val height = camera.viewportHeight.toFloat * camera.zoom + maxTileHeight * 2 * unitScale
     viewBounds.set(camera.position.x - width / 2, camera.position.y - height / 2, width, height)
 
     if (

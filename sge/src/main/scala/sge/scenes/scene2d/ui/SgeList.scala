@@ -5,7 +5,8 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Renames: class List<T> -> SgeList[T] (avoids clash with scala.List); toString(T) -> itemToString(T)
+ *   Renames: class List<T> -> SgeList[T] (avoids clash with scala.List); toString(T) -> itemToString(T);
+ *     getCullingArea -> cullingArea (Scala property)
  *   Convention: null -> Nullable; (using Sge) context; DynamicArray with MkArray.anyRef cast
  *   Idiom: split packages
  *   Note: Java-style getters/setters retained — setItems/setSelected/setSelectedIndex have validation/events logic; style via Styleable
@@ -116,7 +117,7 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
     new InputListener() {
       override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = scala.util.boundary {
         if (pointer != 0 || button != Button(0)) scala.util.boundary.break(true)
-        if (self.selection.isDisabled) scala.util.boundary.break(true)
+        if (self.selection.disabled) scala.util.boundary.break(true)
         self.stage.foreach(_.setKeyboardFocus(Nullable(self)))
         if (self.items.isEmpty) scala.util.boundary.break(true)
         val index = self.getItemIndexAt(y)
@@ -214,7 +215,7 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
     val textWidth   = lw - textOffsetX - selectedDrawable.rightWidth
     val textOffsetY = selectedDrawable.topHeight - font.descent
 
-    font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
+    font.color.set(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
     var i = 0
     while (i < items.size) {
       val canDraw = _cullingArea.forall { ca =>
@@ -228,13 +229,13 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
           drawable = _style.down
         else if (selected) {
           drawable = Nullable(selectedDrawable)
-          font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
+          font.color.set(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha)
         } else if (overIndex == i && _style.over.isDefined)
           drawable = _style.over
         drawSelection(batch, drawable, lx, ly + itemY - itemHeight, lw, itemHeight)
         drawItem(batch, font, i, item, lx + textOffsetX, ly + itemY - textOffsetY, textWidth)
         if (selected) {
-          font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
+          font.color.set(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a * parentAlpha)
         }
       } else if (_cullingArea.exists(ca => itemY < ca.y)) {
         scala.util.boundary.break()
@@ -374,7 +375,7 @@ class SgeList[T](initialStyle: SgeList.ListStyle)(using Sge) extends Widget with
     * @see
     *   #setCullingArea(Rectangle)
     */
-  def getCullingArea: Nullable[Rectangle] = _cullingArea
+  def cullingArea: Nullable[Rectangle] = _cullingArea
 
   /** Sets the horizontal alignment of the list items.
     * @param alignment

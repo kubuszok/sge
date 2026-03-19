@@ -63,7 +63,7 @@ class TextButton(initialText: Nullable[String], initialStyle: TextButton.TextBut
 
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def fontColor: Nullable[Color] = scala.util.boundary {
-    if (isDisabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
+    if (disabled && _style.disabledFontColor.isDefined) scala.util.boundary.break(_style.disabledFontColor)
     if (isPressed) {
       if (isChecked && _style.checkedDownFontColor.isDefined) scala.util.boundary.break(_style.checkedDownFontColor)
       if (_style.downFontColor.isDefined) scala.util.boundary.break(_style.downFontColor)

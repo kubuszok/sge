@@ -41,18 +41,18 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
 
   val attributes: VertexAttributes = if (instanceAttributes.nonEmpty) instanceAttributes else VertexAttributes()
 
-  val byteBuffer:   ByteBuffer  = BufferUtils.newByteBuffer(this.attributes.vertexSize * initialNumInstances)
-  val buffer:       FloatBuffer = byteBuffer.asFloatBuffer()
-  var bufferHandle: Int         = 0
-  val isDirect:     Boolean     = true
-  val usage:        BufferUsage = if (isStatic) BufferUsage.StaticDraw else BufferUsage.DynamicDraw
-  var isDirty:      Boolean     = false
-  var isBound:      Boolean     = false
+  val byteBuffer:      ByteBuffer  = BufferUtils.newByteBuffer(this.attributes.vertexSize * initialNumInstances)
+  private val _buffer: FloatBuffer = byteBuffer.asFloatBuffer()
+  var bufferHandle:    Int         = 0
+  val isDirect:        Boolean     = true
+  val usage:           BufferUsage = if (isStatic) BufferUsage.StaticDraw else BufferUsage.DynamicDraw
+  var isDirty:         Boolean     = false
+  var isBound:         Boolean     = false
 
   // Initialize
 
   bufferHandle = createBufferObject()
-  buffer.asInstanceOf[Buffer].flip()
+  _buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
 
   private def createBufferObject()(using Sge): Int = {
@@ -68,7 +68,7 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
     * @return
     *   number of instances in this buffer
     */
-  override def numInstances: Int = buffer.limit() * 4 / attributes.vertexSize
+  override def numInstances: Int = _buffer.limit() * 4 / attributes.vertexSize
 
   /** Effectively returns numMaxInstances.
     *
@@ -79,14 +79,14 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
 
   /** @deprecated use getBuffer(Boolean) instead */
   @deprecated("use getBuffer(Boolean) instead", "1.0")
-  override def getBuffer(): FloatBuffer = {
+  override def buffer: FloatBuffer = {
     isDirty = true
-    buffer
+    _buffer
   }
 
   override def getBuffer(forWriting: Boolean): FloatBuffer = {
     isDirty |= forWriting
-    buffer
+    _buffer
   }
 
   private def bufferChanged()(using Sge): Unit =
@@ -100,14 +100,14 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
     isDirty = true
     if (isDirect) {
       BufferUtils.copy(data, byteBuffer, count, offset)
-      buffer.asInstanceOf[Buffer].position(0)
-      buffer.asInstanceOf[Buffer].limit(count)
+      _buffer.asInstanceOf[Buffer].position(0)
+      _buffer.asInstanceOf[Buffer].limit(count)
     } else {
-      buffer.asInstanceOf[Buffer].clear()
-      buffer.put(data, offset, count)
-      buffer.asInstanceOf[Buffer].flip()
+      _buffer.asInstanceOf[Buffer].clear()
+      _buffer.put(data, offset, count)
+      _buffer.asInstanceOf[Buffer].flip()
       byteBuffer.asInstanceOf[Buffer].position(0)
-      byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() << 2)
+      byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() << 2)
     }
 
     bufferChanged()
@@ -117,14 +117,14 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
     isDirty = true
     if (isDirect) {
       BufferUtils.copy(data, byteBuffer, count)
-      buffer.asInstanceOf[Buffer].position(0)
-      buffer.asInstanceOf[Buffer].limit(count)
+      _buffer.asInstanceOf[Buffer].position(0)
+      _buffer.asInstanceOf[Buffer].limit(count)
     } else {
-      buffer.asInstanceOf[Buffer].clear()
-      buffer.put(data)
-      buffer.asInstanceOf[Buffer].flip()
+      _buffer.asInstanceOf[Buffer].clear()
+      _buffer.put(data)
+      _buffer.asInstanceOf[Buffer].flip()
       byteBuffer.asInstanceOf[Buffer].position(0)
-      byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() << 2)
+      byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() << 2)
     }
 
     bufferChanged()
@@ -165,12 +165,12 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
   override def bind(shader: ShaderProgram): Unit =
     bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit = {
     val gl = Sge().graphics.gl20
 
     gl.glBindBuffer(BufferTarget.ArrayBuffer, bufferHandle)
     if (isDirty) {
-      byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
+      byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() * 4)
       gl.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.limit(), byteBuffer, usage)
       isDirty = false
     }
@@ -179,19 +179,20 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
       val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
-      if (location >= 0) {
+      if (location != AttributeLocation.notFound) {
         val unitOffset = attribute.unit
-        shader.enableVertexAttribute(location + unitOffset)
+        val loc        = AttributeLocation(location.toInt + unitOffset)
+        shader.enableVertexAttribute(loc)
 
         shader.setVertexAttribute(
-          location + unitOffset,
+          loc,
           attribute.numComponents,
           attribute.`type`,
           attribute.normalized,
           attributes.vertexSize,
           attribute.offset
         )
-        Sge().graphics.gl30.foreach(_.glVertexAttribDivisor(location + unitOffset, 1))
+        Sge().graphics.gl30.foreach(_.glVertexAttribDivisor(loc.toInt, 1))
       }
     }
     isBound = true
@@ -205,25 +206,25 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
   override def unbind(shader: ShaderProgram): Unit =
     unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit = {
     val gl            = Sge().graphics.gl20
     val numAttributes = attributes.size
     locations.fold {
       for (i <- 0 until numAttributes) {
         val attribute = attributes.get(i)
         val location  = shader.getAttributeLocation(attribute.alias)
-        if (location >= 0) {
+        if (location != AttributeLocation.notFound) {
           val unitOffset = attribute.unit
-          shader.disableVertexAttribute(location + unitOffset)
+          shader.disableVertexAttribute(AttributeLocation(location.toInt + unitOffset))
         }
       }
     } { locs =>
       for (i <- 0 until numAttributes) {
         val attribute = attributes.get(i)
         val location  = locs(i)
-        if (location >= 0) {
+        if (location != AttributeLocation.notFound) {
           val unitOffset = attribute.unit
-          shader.enableVertexAttribute(location + unitOffset)
+          shader.enableVertexAttribute(AttributeLocation(location.toInt + unitOffset))
         }
       }
     }
@@ -245,10 +246,5 @@ class InstanceBufferObjectSubData(val isStatic: Boolean, initialNumInstances: In
     bufferHandle = 0
   }
 
-  /** Returns the InstanceBufferObject handle
-    *
-    * @return
-    *   the InstanceBufferObject handle
-    */
-  def getBufferHandle(): Int = bufferHandle
+  /** Returns the InstanceBufferObject handle — use `bufferHandle` field directly */
 }

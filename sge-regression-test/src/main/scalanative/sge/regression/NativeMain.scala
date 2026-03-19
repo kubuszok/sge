@@ -12,7 +12,7 @@ package regression
 object NativeMain {
 
   def main(args: Array[String]): Unit = {
-    val app    = DesktopLauncher.createApp()
+    val app: Sge ?=> ApplicationListener = DesktopLauncher.createApp()
     val config = DesktopLauncher.createConfig()
     DesktopApplicationFactory(app, config)
   }

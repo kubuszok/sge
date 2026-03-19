@@ -4,7 +4,8 @@
  */
 package demos.spaceshooter
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.{FloatCounter, MathUtils, WindowedMean}
@@ -102,7 +103,7 @@ object SpaceShooterGame extends demos.shared.DemoScene {
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
-    viewport = FitViewport(WorldW, WorldH)
+    viewport = FitViewport(WorldUnits(WorldW), WorldUnits(WorldH))
     bulletPool = Pool.Default[Bullet](() => Bullet(), 64)
     enemyPool = Pool.Default[Enemy](() => Enemy(), 32)
 
@@ -124,8 +125,8 @@ object SpaceShooterGame extends demos.shared.DemoScene {
     }
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
-    update(dt)
+  override def render(dt: Seconds)(using Sge): Unit = {
+    update(dt.toFloat)
     draw()
   }
 

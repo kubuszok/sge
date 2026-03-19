@@ -18,14 +18,4 @@ package environment
 
 abstract class BaseLight[T <: BaseLight[T]] {
   val color: Color = Color(0, 0, 0, 1)
-
-  def setColor(r: Float, g: Float, b: Float, a: Float): T = {
-    this.color.set(r, g, b, a)
-    this.asInstanceOf[T]
-  }
-
-  def setColor(color: Color): T = {
-    this.color.set(color)
-    this.asInstanceOf[T]
-  }
 }

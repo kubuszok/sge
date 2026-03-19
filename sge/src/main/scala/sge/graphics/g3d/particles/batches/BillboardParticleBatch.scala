@@ -111,17 +111,14 @@ class BillboardParticleBatch(
     * @param depthTestAttribute
     *   DepthTest attribute used by the batch
     */
-  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) = {
+  def this(mode: BillboardParticleBatch.AlignMode, initialUseGPU: Boolean, capacity: Int)(using Sge) =
     this(mode, initialUseGPU, capacity, Nullable.empty, Nullable.empty)
-  }
 
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, 100)
-  }
 
-  def this(capacity: Int)(using Sge) = {
+  def this(capacity: Int)(using Sge) =
     this(BillboardParticleBatch.AlignMode.Screen, false, capacity)
-  }
 
   override def allocParticlesData(capacity: Int): Unit = {
     vertices = new Array[Float](currentVertexSize * 4 * capacity)

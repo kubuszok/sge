@@ -62,11 +62,11 @@ class CheckBox(text: Nullable[String], initialStyle: CheckBox.CheckBoxStyle)(usi
   }
 
   protected def imageDrawable: Nullable[Drawable] = scala.util.boundary {
-    if (isDisabled) {
+    if (disabled) {
       if (isChecked && _style.checkboxOnDisabled.isDefined) scala.util.boundary.break(_style.checkboxOnDisabled)
       scala.util.boundary.break(_style.checkboxOffDisabled)
     }
-    val over = isOver && !isDisabled
+    val over = isOver && !disabled
     if (isChecked && _style.checkboxOn.isDefined) {
       scala.util.boundary.break(
         if (over && _style.checkboxOnOver.isDefined) _style.checkboxOnOver

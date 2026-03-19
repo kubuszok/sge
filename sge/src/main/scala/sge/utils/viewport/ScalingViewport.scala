@@ -36,21 +36,20 @@ import sge.utils.Scaling
   * @author
   *   Nathan Sweet
   */
-class ScalingViewport(scaling: Scaling, initialWorldWidth: Float, initialWorldHeight: Float, camera: Camera)(using Sge) extends Viewport {
+class ScalingViewport(scaling: Scaling, initialWorldWidth: WorldUnits, initialWorldHeight: WorldUnits, camera: Camera)(using Sge) extends Viewport {
   var currentScaling: Scaling = scaling
 
   setWorldSize(initialWorldWidth, initialWorldHeight)
   this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this(scaling: Scaling, worldWidth: Float, worldHeight: Float)(using Sge) = {
+  def this(scaling: Scaling, worldWidth: WorldUnits, worldHeight: WorldUnits)(using Sge) =
     this(scaling, worldWidth, worldHeight, OrthographicCamera())
-  }
 
   override def update(screenWidth: Pixels, screenHeight: Pixels, centerCamera: Boolean): Unit = {
     val sw             = screenWidth.toInt
     val sh             = screenHeight.toInt
-    val scaled         = currentScaling.apply(worldWidth, worldHeight, sw.toFloat, sh.toFloat)
+    val scaled         = currentScaling.apply(worldWidth.toFloat, worldHeight.toFloat, sw.toFloat, sh.toFloat)
     val viewportWidth  = Math.round(scaled.x)
     val viewportHeight = Math.round(scaled.y)
 

@@ -19,13 +19,14 @@ package ui
 
 import sge.files.FileHandle
 import sge.graphics.g2d.{ Batch, ParticleEffect, TextureAtlas }
+import sge.utils.Seconds
 
 /** ParticleEffectActor holds an {@link ParticleEffect} to use in Scene2d applications. The particle effect is positioned at 0, 0 in the ParticleEffectActor. Its bounding box is not limited to the
   * size of this actor.
   */
 class ParticleEffectActor(val particleEffect: ParticleEffect, var resetOnStart: Boolean)(using Sge) extends Actor() with AutoCloseable {
 
-  protected var lastDelta:  Float   = 0
+  protected var lastDelta:  Seconds = Seconds.zero
   var running:              Boolean = false
   protected var ownsEffect: Boolean = false
   var autoRemove:           Boolean = false
@@ -46,9 +47,9 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, var resetOnStart: 
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     particleEffect.setPosition(x, y)
-    if (lastDelta > 0) {
+    if (lastDelta > Seconds.zero) {
       particleEffect.update(lastDelta)
-      lastDelta = 0
+      lastDelta = Seconds.zero
     }
     if (running) {
       particleEffect.draw(batch)
@@ -56,11 +57,11 @@ class ParticleEffectActor(val particleEffect: ParticleEffect, var resetOnStart: 
     }
   }
 
-  override def act(delta: Float): Unit = {
+  override def act(delta: Seconds): Unit = {
     super.act(delta)
     // don't do particleEffect.update() here - the correct position is set just while we
     // are in draw() method. We save the delta here to update in draw()
-    lastDelta += delta
+    lastDelta = lastDelta + delta
 
     if (autoRemove && particleEffect.isComplete()) {
       remove()

@@ -43,7 +43,8 @@ class SmokeActivity extends Activity {
       // Audio enabled — subsystem checks verify audio accessibility
 
       val lifecycle = provider.createLifecycle(this).asInstanceOf[AndroidLifecycleImpl]
-      app = new AndroidApplication(new SmokeListener(), config, provider, lifecycle, this)
+      val listener: Sge ?=> ApplicationListener = new SmokeListener()
+      app = new AndroidApplication(listener, config, provider, lifecycle, this)
 
       Log.i(TAG, "AndroidApplication created, initializing graphics...")
 

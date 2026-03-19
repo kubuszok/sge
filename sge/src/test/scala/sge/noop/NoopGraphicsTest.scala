@@ -4,6 +4,8 @@
 package sge
 package noop
 
+import sge.utils.Seconds
+
 class NoopGraphicsTest extends munit.FunSuite {
 
   // ---- default dimensions ----
@@ -53,7 +55,7 @@ class NoopGraphicsTest extends munit.FunSuite {
   test("initial frameId is 0 and deltaTime is 0") {
     val g = NoopGraphics()
     assertEquals(g.frameId, 0L)
-    assertEquals(g.deltaTime, 0.0f)
+    assertEquals(g.deltaTime, Seconds.zero)
   }
 
   test("updateTime increments frameId") {
@@ -67,7 +69,7 @@ class NoopGraphicsTest extends munit.FunSuite {
   test("updateTime produces non-negative deltaTime") {
     val g = NoopGraphics()
     g.updateTime()
-    assert(g.deltaTime >= 0.0f, s"deltaTime should be >= 0, was ${g.deltaTime}")
+    assert(g.deltaTime >= Seconds.zero, s"deltaTime should be >= 0, was ${g.deltaTime}")
   }
 
   // ---- density / PPI ----

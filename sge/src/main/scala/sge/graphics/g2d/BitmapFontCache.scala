@@ -42,9 +42,8 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
   // Used internally to ensure a correct capacity for multi-page font vertex data
   private var tempGlyphCount: Array[Int] = Array.empty
 
-  def this(font: BitmapFont) = {
+  def this(font: BitmapFont) =
     this(font, font.integer)
-  }
 
   // Initialize fields in the primary constructor
   private val _pageCount = font.regions.size
@@ -216,9 +215,6 @@ class BitmapFontCache(val font: BitmapFont, private var integer: Boolean) {
 
   def color_=(color: Color): Unit =
     this._color.set(color)
-
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    _color.set(r, g, b, a)
 
   def draw(spriteBatch: Batch): Unit = {
     val regions = font.regions

@@ -5,7 +5,7 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Migration notes:
- *   Convention: Nullable[Array[Int]] for optional locations parameter
+ *   Convention: Nullable[Array[AttributeLocation]] for optional locations parameter
  *   Idiom: split packages
  *   Audited: 2026-03-03
  *
@@ -29,12 +29,12 @@ import sge.utils.{ BufferUtils, Nullable }
   *   mzechner, Dave Clayton <contact@redskyforge.com>
   */
 class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) extends VertexData {
-  val byteBuffer: ByteBuffer  = BufferUtils.newUnsafeByteBuffer(this.attributes.vertexSize * initialNumVertices)
-  val buffer:     FloatBuffer = byteBuffer.asFloatBuffer()
+  val byteBuffer:      ByteBuffer  = BufferUtils.newUnsafeByteBuffer(this.attributes.vertexSize * initialNumVertices)
+  private val _buffer: FloatBuffer = byteBuffer.asFloatBuffer()
   var isBound = false
 
   // Initialize buffers
-  buffer.asInstanceOf[Buffer].flip()
+  _buffer.asInstanceOf[Buffer].flip()
   byteBuffer.asInstanceOf[Buffer].flip()
 
   /** Constructs a new interleaved VertexArray
@@ -52,22 +52,22 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)
 
   /** @deprecated use {@link #getBuffer(boolean)} instead */
-  override def getBuffer(): FloatBuffer =
-    buffer
+  override def buffer: FloatBuffer =
+    _buffer
 
   override def getBuffer(forWriting: Boolean): FloatBuffer =
-    buffer
+    _buffer
 
   override def numVertices: Int =
-    buffer.limit() * 4 / attributes.vertexSize
+    _buffer.limit() * 4 / attributes.vertexSize
 
   def numMaxVertices: Int =
     byteBuffer.capacity() / attributes.vertexSize
 
   override def setVertices(vertices: Array[Float], offset: Int, count: Int): Unit = {
     BufferUtils.copy(vertices, byteBuffer, count, offset)
-    buffer.asInstanceOf[Buffer].position(0)
-    buffer.asInstanceOf[Buffer].limit(count)
+    _buffer.asInstanceOf[Buffer].position(0)
+    _buffer.asInstanceOf[Buffer].limit(count)
   }
 
   override def updateVertices(targetOffset: Int, vertices: Array[Float], sourceOffset: Int, count: Int): Unit = {
@@ -80,20 +80,20 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
   override def bind(shader: ShaderProgram): Unit =
     bind(shader, Nullable.empty)
 
-  override def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+  override def bind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit = {
     val numAttributes = attributes.size
-    byteBuffer.asInstanceOf[Buffer].limit(buffer.limit() * 4)
+    byteBuffer.asInstanceOf[Buffer].limit(_buffer.limit() * 4)
     for (i <- 0 until numAttributes) {
       val attribute = attributes.get(i)
       val location  = locations.map(_(i)).getOrElse(shader.getAttributeLocation(attribute.alias))
-      if (location < 0) {
+      if (location == AttributeLocation.notFound) {
         // continue to next iteration
       } else {
         shader.enableVertexAttribute(location)
 
         if (attribute.`type` == DataType.Float) {
-          buffer.asInstanceOf[Buffer].position(attribute.offset / 4)
-          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, buffer)
+          _buffer.asInstanceOf[Buffer].position(attribute.offset / 4)
+          shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, _buffer)
         } else {
           byteBuffer.asInstanceOf[Buffer].position(attribute.offset)
           shader.setVertexAttribute(location, attribute.numComponents, attribute.`type`, attribute.normalized, attributes.vertexSize, byteBuffer)
@@ -111,7 +111,7 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
   override def unbind(shader: ShaderProgram): Unit =
     unbind(shader, Nullable.empty)
 
-  override def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit = {
+  override def unbind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit = {
     val numAttributes = attributes.size
     locations.fold {
       for (i <- 0 until numAttributes)
@@ -119,7 +119,7 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
     } { locs =>
       for (i <- 0 until numAttributes) {
         val location = locs(i)
-        if (location >= 0) shader.disableVertexAttribute(location)
+        if (location != AttributeLocation.notFound) shader.disableVertexAttribute(location)
       }
     }
     isBound = false

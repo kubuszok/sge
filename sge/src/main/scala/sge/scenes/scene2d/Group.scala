@@ -17,7 +17,7 @@ package sge
 package scenes
 package scene2d
 
-import sge.utils.{ DynamicArray, Nullable }
+import sge.utils.{ DynamicArray, Nullable, Seconds }
 
 import sge.graphics.g2d.Batch
 import sge.graphics.glutils.ShapeRenderer
@@ -40,7 +40,7 @@ class Group()(using Sge) extends Actor() with Cullable {
   var transform:                 Boolean             = true
   private var _cullingArea:      Nullable[Rectangle] = Nullable.empty
 
-  override def act(delta: Float): Unit = {
+  override def act(delta: Seconds): Unit = {
     super.act(delta)
     val snapshot = children.toArray
     var i        = 0
@@ -462,14 +462,7 @@ class Group()(using Sge) extends Actor() with Cullable {
 
   def hasChildren: Boolean = children.nonEmpty
 
-  /** When true (the default), the Batch is transformed so children are drawn in their parent's coordinate system. This has a performance impact because {@link Batch#flush()} must be done before and
-    * after the transform. If the actors in a group are not rotated or scaled, then the transform for the group can be set to false. In this case, each child's position will be offset by the group's
-    * position for drawing, causing the children to appear in the correct location even though the Batch has not been transformed.
-    */
-  def setTransform(transform: Boolean): Unit =
-    this.transform = transform
-
-  // transform is a public var — no separate getter needed
+  // transform is a public var (declared above)
 
   /** Converts coordinates for this group to those of a descendant actor. The descendant does not need to be an immediate child.
     * @throws IllegalArgumentException

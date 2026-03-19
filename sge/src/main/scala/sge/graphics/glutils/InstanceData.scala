@@ -92,7 +92,7 @@ trait InstanceData extends AutoCloseable {
     *   use getBuffer(Boolean) instead
     */
   @deprecated("use getBuffer(Boolean) instead", "1.0")
-  def getBuffer(): FloatBuffer
+  def buffer: FloatBuffer
 
   /** Returns the underlying FloatBuffer for reading or writing.
     * @param forWriting
@@ -110,7 +110,7 @@ trait InstanceData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def bind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
+  def bind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit
 
   /** Unbinds this InstanceData. */
   def unbind(shader: ShaderProgram): Unit
@@ -120,7 +120,7 @@ trait InstanceData extends AutoCloseable {
     * @param locations
     *   array containing the attribute locations.
     */
-  def unbind(shader: ShaderProgram, locations: Nullable[Array[Int]]): Unit
+  def unbind(shader: ShaderProgram, locations: Nullable[Array[AttributeLocation]]): Unit
 
   /** Invalidates the InstanceData if applicable. Use this in case of a context loss. */
   def invalidate(): Unit

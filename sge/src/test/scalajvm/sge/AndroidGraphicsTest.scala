@@ -7,6 +7,7 @@ package sge
 
 import munit.FunSuite
 import sge.platform.android._
+import sge.utils.Seconds
 
 class AndroidGraphicsTest extends FunSuite {
 
@@ -135,7 +136,7 @@ class AndroidGraphicsTest extends FunSuite {
     // First frame
     g.updateFrameTiming(false)
     assert(g.frameId == 0L)
-    assert(g.deltaTime >= 0f)
+    assert(g.deltaTime >= Seconds.zero)
 
     // Second frame
     g.updateFrameTiming(false)
@@ -147,7 +148,7 @@ class AndroidGraphicsTest extends FunSuite {
     g.updateFrameTiming(false)
     Thread.sleep(10)
     g.updateFrameTiming(true)
-    assertEquals(g.deltaTime, 0f)
+    assertEquals(g.deltaTime, Seconds.zero)
   }
 
   test("continuous rendering delegates to GL surface view") {

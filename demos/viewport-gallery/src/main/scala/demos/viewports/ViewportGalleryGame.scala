@@ -6,7 +6,8 @@ package demos.viewports
 
 import scala.compiletime.uninitialized
 
-import sge.{Pixels, Sge}
+import sge.{Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.EnableCap
 import sge.graphics.OrthographicCamera
@@ -47,17 +48,17 @@ object ViewportGalleryGame extends DemoScene {
     shapeRenderer = ShapeRenderer()
     viewports = Array(
       ScreenViewport(),
-      FitViewport(WorldW, WorldH),
-      FillViewport(WorldW, WorldH),
-      StretchViewport(WorldW, WorldH),
-      ExtendViewport(WorldW, WorldH),
-      ScalingViewport(Scaling.fill, WorldW, WorldH, OrthographicCamera())
+      FitViewport(WorldUnits(WorldW), WorldUnits(WorldH)),
+      FillViewport(WorldUnits(WorldW), WorldUnits(WorldH)),
+      StretchViewport(WorldUnits(WorldW), WorldUnits(WorldH)),
+      ExtendViewport(WorldUnits(WorldW), WorldUnits(WorldH)),
+      ScalingViewport(Scaling.fill, WorldUnits(WorldW), WorldUnits(WorldH), OrthographicCamera())
     )
     elapsed = 0f
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
-    elapsed += dt
+  override def render(dt: Seconds)(using Sge): Unit = {
+    elapsed += dt.toFloat
 
     val gl  = Sge().graphics.gl
     val sw  = Sge().graphics.width.toInt
@@ -97,14 +98,16 @@ object ViewportGalleryGame extends DemoScene {
       shapeRenderer.setProjectionMatrix(vp.camera.combined)
 
       // --- Draw test scene ---
-      drawTestScene(vp.worldWidth, vp.worldHeight)
+      val ww = vp.worldWidth.toFloat
+      val wh = vp.worldHeight.toFloat
+      drawTestScene(ww, wh)
 
       // --- Label indicator: small colored rectangle in top-left corner ---
       shapeRenderer.drawing(ShapeType.Filled) {
         shapeRenderer.setColor(labelColor(idx))
-        val lw = vp.worldWidth * 0.35f
+        val lw = ww * 0.35f
         val lh = 8f
-        shapeRenderer.rectangle(-vp.worldWidth / 2f + 4f, vp.worldHeight / 2f - lh - 4f, lw, lh)
+        shapeRenderer.rectangle(-ww / 2f + 4f, wh / 2f - lh - 4f, lw, lh)
       }
 
       idx += 1

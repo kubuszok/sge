@@ -6,7 +6,8 @@ package demos.pong
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.graphics.glutils.ShapeRenderer.ShapeType
@@ -53,22 +54,23 @@ object PongGame extends DemoScene {
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
-    viewport = FitViewport(W, H)
+    viewport = FitViewport(WorldUnits(W), WorldUnits(H))
     resetBall()
     leftY = H / 2f - PaddleH / 2f
     rightY = leftY
   }
 
-  override def render(dt: Float)(using sge: Sge): Unit = {
+  override def render(dt: Seconds)(using sge: Sge): Unit = {
+    val delta = dt.toFloat
     val input = sge.input
 
     // --- Input: left paddle ---
     // Keyboard: W/Up to move up, S/Down to move down
     if (input.isKeyPressed(Input.Keys.W) || input.isKeyPressed(Input.Keys.UP)) {
-      leftY += PaddleSpeed * dt
+      leftY += PaddleSpeed * delta
     }
     if (input.isKeyPressed(Input.Keys.S) || input.isKeyPressed(Input.Keys.DOWN)) {
-      leftY -= PaddleSpeed * dt
+      leftY -= PaddleSpeed * delta
     }
 
     // Touch/mouse: drag anywhere in the left half to control the left paddle
@@ -78,7 +80,7 @@ object PongGame extends DemoScene {
       // Only respond to touches in the left half of the world
       if (touchWorld.x < W / 2f) {
         val targetY = touchWorld.y - PaddleH / 2f
-        leftY = MathUtils.lerp(leftY, targetY, 12f * dt)
+        leftY = MathUtils.lerp(leftY, targetY, 12f * delta)
       }
     }
 
@@ -86,12 +88,12 @@ object PongGame extends DemoScene {
 
     // --- AI: right paddle tracks ball Y ---
     val targetY = ballY - PaddleH / 2f
-    rightY = MathUtils.lerp(rightY, targetY, 4f * dt)
+    rightY = MathUtils.lerp(rightY, targetY, 4f * delta)
     rightY = MathUtils.clamp(rightY, 0f, H - PaddleH)
 
     // --- Ball movement ---
-    ballX += ballDx * ballSpd * dt
-    ballY += ballDy * ballSpd * dt
+    ballX += ballDx * ballSpd * delta
+    ballY += ballDy * ballSpd * delta
 
     // Top/bottom bounce
     if (ballY <= 0f) { ballY = 0f; ballDy = scala.math.abs(ballDy) }

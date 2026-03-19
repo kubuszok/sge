@@ -447,7 +447,7 @@ object ParticleShader {
       override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit =
         // Use camera viewport width as approximation for screen width
         shader.camera.foreach { cam =>
-          shader.setFloat(inputID, cam.viewportWidth)
+          shader.setFloat(inputID, cam.viewportWidth.toFloat)
         }
     }
 

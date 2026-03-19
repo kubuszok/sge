@@ -74,7 +74,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
   private var _clip: Boolean            = false
   var round:         Boolean            = true
 
-  setTransform(false)
+  transform = false
   touchable = Touchable.childrenOnly
 
   private def obtainCell(): Cell[?] = {
@@ -177,11 +177,10 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     this
   }
 
-  /** Causes the contents to be clipped if they exceed the table's bounds. Enabling clipping sets {@link #setTransform(boolean)} to true.
-    */
+  /** Causes the contents to be clipped if they exceed the table's bounds. Enabling clipping sets transform to true. */
   def setClip(enabled: Boolean): Unit = {
     _clip = enabled
-    setTransform(enabled)
+    transform = enabled
     invalidate()
   }
 
@@ -1329,7 +1328,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
     debugRects.foreach { rects =>
       if (isDebug) {
         shapes.set(ShapeRenderer.ShapeType.Line)
-        stage.foreach(s => shapes.setColor(s.debugColor))
+        stage.foreach(s => shapes.color.set(s.debugColor))
         var x = 0f
         var y = 0f
         if (!transform) {
@@ -1339,7 +1338,7 @@ class Table(private var skin: Nullable[Skin] = Nullable.empty)(using Sge) extend
         var i = 0
         while (i < rects.size) {
           val debugRect = rects(i)
-          shapes.setColor(debugRect.color)
+          shapes.color.set(debugRect.color)
           shapes.rectangle(x + debugRect.x, y + debugRect.y, debugRect.width, debugRect.height)
           i += 1
         }

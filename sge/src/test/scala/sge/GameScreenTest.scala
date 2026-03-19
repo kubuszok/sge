@@ -2,19 +2,20 @@
 package sge
 
 import sge.utils.Nullable
+import sge.utils.Seconds
 
 class GameScreenTest extends munit.FunSuite {
 
   /** A Screen that records which lifecycle methods were called and in what order. */
   private class RecordingScreen extends Screen {
     var calls:            List[String] = Nil
-    var lastRenderDelta:  Float        = -1f
+    var lastRenderDelta:  Seconds      = Seconds(-1f)
     var lastResizeWidth:  Pixels       = Pixels(0)
     var lastResizeHeight: Pixels       = Pixels(0)
 
-    def show():               Unit = calls = calls :+ "show"
-    def hide():               Unit = calls = calls :+ "hide"
-    def render(delta: Float): Unit = {
+    def show():                 Unit = calls = calls :+ "show"
+    def hide():                 Unit = calls = calls :+ "hide"
+    def render(delta: Seconds): Unit = {
       calls = calls :+ "render"
       lastRenderDelta = delta
     }
@@ -93,7 +94,7 @@ class GameScreenTest extends munit.FunSuite {
     val trackingOld = new Screen {
       def show():                                Unit = ()
       def hide():                                Unit = order = order :+ "old-hide"
-      def render(delta: Float):                  Unit = ()
+      def render(delta: Seconds):                Unit = ()
       def resize(width: Pixels, height: Pixels): Unit = ()
       def pause():                               Unit = ()
       def resume():                              Unit = ()
@@ -102,7 +103,7 @@ class GameScreenTest extends munit.FunSuite {
     val trackingNew = new Screen {
       def show():                                Unit = order = order :+ "new-show"
       def hide():                                Unit = ()
-      def render(delta: Float):                  Unit = ()
+      def render(delta: Seconds):                Unit = ()
       def resize(width: Pixels, height: Pixels): Unit = ()
       def pause():                               Unit = ()
       def resume():                              Unit = ()
@@ -238,7 +239,7 @@ class GameScreenTest extends munit.FunSuite {
     val adapter = new Screen {
       def show():                                Unit = ()
       def hide():                                Unit = ()
-      def render(delta: Float):                  Unit = ()
+      def render(delta: Seconds):                Unit = ()
       def resize(width: Pixels, height: Pixels): Unit = ()
       def pause():                               Unit = ()
       def resume():                              Unit = ()

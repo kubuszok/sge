@@ -45,13 +45,13 @@ import sge.Sge
   *   Nathan Sweet
   */
 abstract class Viewport(using Sge) {
-  var camera:       Camera = scala.compiletime.uninitialized
-  var worldWidth:   Float  = scala.compiletime.uninitialized
-  var worldHeight:  Float  = scala.compiletime.uninitialized
-  var screenX:      Pixels = Pixels.zero
-  var screenY:      Pixels = Pixels.zero
-  var screenWidth:  Pixels = Pixels.zero
-  var screenHeight: Pixels = Pixels.zero
+  var camera:       Camera     = scala.compiletime.uninitialized
+  var worldWidth:   WorldUnits = scala.compiletime.uninitialized
+  var worldHeight:  WorldUnits = scala.compiletime.uninitialized
+  var screenX:      Pixels     = Pixels.zero
+  var screenY:      Pixels     = Pixels.zero
+  var screenWidth:  Pixels     = Pixels.zero
+  var screenHeight: Pixels     = Pixels.zero
 
   private val tmp = Vector3()
 
@@ -67,7 +67,7 @@ abstract class Viewport(using Sge) {
     HdpiUtils.glViewport(screenX, screenY, screenWidth, screenHeight)
     camera.viewportWidth = worldWidth
     camera.viewportHeight = worldHeight
-    if (centerCamera) camera.position.set(worldWidth / 2, worldHeight / 2, 0)
+    if (centerCamera) camera.position.set((worldWidth / 2f).toFloat, (worldHeight / 2f).toFloat, 0)
     camera.update()
   }
 
@@ -149,7 +149,7 @@ abstract class Viewport(using Sge) {
     worldCoords
   }
 
-  def setWorldSize(worldWidth: Float, worldHeight: Float): Unit = {
+  def setWorldSize(worldWidth: WorldUnits, worldHeight: WorldUnits): Unit = {
     this.worldWidth = worldWidth
     this.worldHeight = worldHeight
   }

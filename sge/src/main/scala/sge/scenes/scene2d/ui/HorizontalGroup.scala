@@ -50,7 +50,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
   private var _padBottom:   Float   = 0
   private var _padRight:    Float   = 0
 
-  setTransform(false)
+  transform = false
   touchable = Touchable.childrenOnly
 
   override def invalidate(): Unit = {
@@ -558,7 +558,7 @@ class HorizontalGroup()(using Sge) extends WidgetGroup() {
     super.drawDebugBounds(shapes)
     if (isDebug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      stage.foreach(s => shapes.setColor(s.debugColor))
+      stage.foreach(s => shapes.color.set(s.debugColor))
       shapes.rectangle(
         x + _padLeft,
         y + _padBottom,

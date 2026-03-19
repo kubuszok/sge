@@ -6,7 +6,8 @@ package demos.curves
 
 import scala.compiletime.uninitialized
 
-import sge.{Input, Pixels, Sge}
+import sge.{Input, Pixels, Sge, WorldUnits}
+import sge.utils.Seconds
 import sge.graphics.Color
 import sge.graphics.glutils.ShapeRenderer
 import sge.math.{
@@ -95,7 +96,7 @@ object CurvePlayground extends DemoScene {
 
   override def init()(using Sge): Unit = {
     shapeRenderer = ShapeRenderer()
-    viewport = FitViewport(WorldW, WorldH)
+    viewport = FitViewport(WorldUnits(WorldW), WorldUnits(WorldH))
 
     bezier = Bezier[Vector2](controlPoints(0), controlPoints(1), controlPoints(2), controlPoints(3))
     catmullRom = CatmullRomSpline[Vector2]()
@@ -105,7 +106,7 @@ object CurvePlayground extends DemoScene {
     randomizeGeoPoints()
   }
 
-  override def render(dt: Float)(using Sge): Unit = {
+  override def render(dt: Seconds)(using Sge): Unit = {
     handleInput()
     draw()
   }

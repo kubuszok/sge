@@ -32,25 +32,20 @@ class TextTooltip(text: Nullable[String], manager: TooltipManager, initialStyle:
 
   setStyle(initialStyle)
 
-  def this(text: Nullable[String], skin: Skin)(using Sge) = {
+  def this(text: Nullable[String], skin: Skin)(using Sge) =
     this(text, TooltipManager.instance, skin.get[TextTooltip.TextTooltipStyle])
-  }
 
-  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) = {
+  def this(text: Nullable[String], skin: Skin, styleName: String)(using Sge) =
     this(text, TooltipManager.instance, skin.get[TextTooltip.TextTooltipStyle](styleName))
-  }
 
-  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) = {
+  def this(text: Nullable[String], style: TextTooltip.TextTooltipStyle)(using Sge) =
     this(text, TooltipManager.instance, style)
-  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) = {
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin)(using Sge) =
     this(text, manager, skin.get[TextTooltip.TextTooltipStyle])
-  }
 
-  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) = {
+  def this(text: Nullable[String], manager: TooltipManager, skin: Skin, styleName: String)(using Sge) =
     this(text, manager, skin.get[TextTooltip.TextTooltipStyle](styleName))
-  }
 
   protected def newLabel(text: Nullable[String], style: LabelStyle): Label =
     Label(text.map(t => t: CharSequence), style)
@@ -65,10 +60,10 @@ class TextTooltip(text: Nullable[String], manager: TooltipManager, initialStyle:
     val wrap = style.wrapWidth != 0
     container.fill(wrap)
 
-    val label = container.getActor
+    val label = container.actor
     label.foreach { l =>
       l.setStyle(style.label)
-      l.setWrap(wrap)
+      l.wrap = wrap
     }
   }
 

@@ -36,13 +36,12 @@ class ScreenViewport(camera: Camera)(using Sge) extends Viewport {
   this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera}. */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(OrthographicCamera())
-  }
 
   override def update(screenWidth: Pixels, screenHeight: Pixels, centerCamera: Boolean): Unit = {
     setScreenBounds(Pixels.zero, Pixels.zero, screenWidth, screenHeight)
-    setWorldSize(screenWidth.toInt * unitsPerPixel, screenHeight.toInt * unitsPerPixel)
+    setWorldSize(WorldUnits(screenWidth.toInt * unitsPerPixel), WorldUnits(screenHeight.toInt * unitsPerPixel))
     apply(centerCamera)
   }
 

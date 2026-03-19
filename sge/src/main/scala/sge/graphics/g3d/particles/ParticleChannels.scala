@@ -54,7 +54,7 @@ object ParticleChannels {
   }
 
   // Initializers
-  class TextureRegionInitializer extends ChannelInitializer[FloatChannel] {
+  object TextureRegionInitializer extends ChannelInitializer[FloatChannel] {
 
     override def init(channel: FloatChannel): Unit = {
       var i = 0
@@ -71,37 +71,19 @@ object ParticleChannels {
     }
   }
 
-  object TextureRegionInitializer {
-    private lazy val instance: TextureRegionInitializer = TextureRegionInitializer()
-
-    def get(): TextureRegionInitializer = instance
-  }
-
-  class ColorInitializer extends ChannelInitializer[FloatChannel] {
+  object ColorInitializer extends ChannelInitializer[FloatChannel] {
 
     override def init(channel: FloatChannel): Unit =
       Arrays.fill(channel.floatData, 0, channel.floatData.length, 1f)
   }
 
-  object ColorInitializer {
-    private lazy val instance: ColorInitializer = ColorInitializer()
-
-    def get(): ColorInitializer = instance
-  }
-
-  class ScaleInitializer extends ChannelInitializer[FloatChannel] {
+  object ScaleInitializer extends ChannelInitializer[FloatChannel] {
 
     override def init(channel: FloatChannel): Unit =
       Arrays.fill(channel.floatData, 0, channel.floatData.length, 1f)
   }
 
-  object ScaleInitializer {
-    private lazy val instance: ScaleInitializer = ScaleInitializer()
-
-    def get(): ScaleInitializer = instance
-  }
-
-  class Rotation2dInitializer extends ChannelInitializer[FloatChannel] {
+  object Rotation2dInitializer extends ChannelInitializer[FloatChannel] {
 
     override def init(channel: FloatChannel): Unit = {
       var i = 0
@@ -114,13 +96,7 @@ object ParticleChannels {
     }
   }
 
-  object Rotation2dInitializer {
-    private lazy val instance: Rotation2dInitializer = Rotation2dInitializer()
-
-    def get(): Rotation2dInitializer = instance
-  }
-
-  class Rotation3dInitializer extends ChannelInitializer[FloatChannel] {
+  object Rotation3dInitializer extends ChannelInitializer[FloatChannel] {
 
     override def init(channel: FloatChannel): Unit = {
       var i = 0
@@ -133,12 +109,6 @@ object ParticleChannels {
         i += channel.strideSize
       }
     }
-  }
-
-  object Rotation3dInitializer {
-    private lazy val instance: Rotation3dInitializer = Rotation3dInitializer()
-
-    def get(): Rotation3dInitializer = instance
   }
 
   // Channels

@@ -5,6 +5,7 @@
 package demos.shared
 
 import sge.{Pixels, Sge}
+import sge.utils.Seconds
 
 /** A single demo scene that exercises specific SGE features.
   *
@@ -25,7 +26,7 @@ trait DemoScene {
     * @param dt
     *   seconds since the last frame (delta time)
     */
-  def render(dt: Float)(using Sge): Unit
+  def render(dt: Seconds)(using Sge): Unit
 
   /** Called when the window is resized. Update viewports here. */
   def resize(width: Pixels, height: Pixels)(using Sge): Unit = ()

@@ -20,7 +20,7 @@ package ui
 import sge.math.Vector2
 import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Touchable }
 import sge.Input.Button
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** A listener that shows a tooltip actor when the mouse is over another actor.
   * @author
@@ -30,7 +30,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
   import Tooltip._
 
   val container: Container[T] = new Container[T](contents) {
-    override def act(delta: Float): Unit = {
+    override def act(delta: Seconds): Unit = {
       super.act(delta)
       targetActor.foreach { ta =>
         if (ta.stage.isEmpty) remove()
@@ -71,7 +71,7 @@ class Tooltip[T <: Actor](contents: Nullable[T], val manager: TooltipManager)(us
     stage.foreach { stg =>
       container.setSize(manager.maxWidth, Int.MaxValue.toFloat)
       container.validate()
-      container.getActor.foreach { a =>
+      container.actor.foreach { a =>
         container.width(a.width)
       }
       container.pack()

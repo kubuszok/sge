@@ -12,7 +12,7 @@ import android.view.{MotionEvent, View}
 import javax.microedition.khronos.egl.{EGLConfig => AndroidEGLConfig}
 import javax.microedition.khronos.opengles.GL10
 
-import sge.{AndroidApplication, AndroidGraphics, AndroidInput, Sge}
+import sge.{AndroidApplication, AndroidGraphics, AndroidInput, ApplicationListener, Sge}
 import sge.platform.android._
 
 /** Abstract Activity that bootstraps an [[sge.AndroidApplication]] for a [[DemoScene]].
@@ -43,8 +43,9 @@ abstract class AndroidLauncherActivity extends Activity {
 
       val lifecycle = provider.createLifecycle(this).asInstanceOf[AndroidLifecycleImpl]
 
+      val listener: Sge ?=> ApplicationListener = new SingleSceneApp(scene)
       app = new AndroidApplication(
-        new SingleSceneApp(scene),
+        listener,
         config,
         provider,
         lifecycle,

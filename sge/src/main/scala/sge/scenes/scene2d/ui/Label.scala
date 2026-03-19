@@ -21,7 +21,7 @@ import sge.graphics.g2d.{ Batch, BitmapFont, BitmapFontCache, GlyphLayout }
 import sge.scenes.scene2d.utils.Drawable
 import sge.utils.{ Align, DynamicArray, Nullable }
 
-/** A text label, with optional word wrapping. <p> The preferred size of the label is determined by the actual text bounds, unless {@link #setWrap(boolean) word wrap} is enabled.
+/** A text label, with optional word wrapping. <p> The preferred size of the label is determined by the actual text bounds, unless word wrap is enabled.
   * @author
   *   Nathan Sweet
   */
@@ -292,9 +292,6 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
     this._wrap = wrap
     invalidateHierarchy()
   }
-
-  /** @deprecated Use `wrap = value` instead */
-  def setWrap(wrap: Boolean): Unit = this.wrap_=(wrap)
 
   def labelAlign: Align = _labelAlign
 

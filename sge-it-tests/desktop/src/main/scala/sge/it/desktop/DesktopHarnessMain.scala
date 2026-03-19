@@ -24,9 +24,10 @@ object DesktopHarnessMain {
     config.disableAudio = false
     config.vSyncEnabled = false
 
-    try
-      sge.DesktopApplicationFactory(new DesktopHarness(resultsFile), config)
-    catch {
+    try {
+      val app: sge.Sge ?=> sge.ApplicationListener = new DesktopHarness(resultsFile)
+      sge.DesktopApplicationFactory(app, config)
+    } catch {
       case e: UnsatisfiedLinkError =>
         System.err.println(s"Native library not found: ${e.getMessage}")
         System.err.println(s"java.library.path: ${System.getProperty("java.library.path", "(not set)")}")

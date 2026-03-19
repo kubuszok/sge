@@ -27,9 +27,9 @@ import sge.scenes.scene2d.utils.Layout
   */
 class Widget()(using Sge) extends Actor() with Layout {
 
-  private var _needsLayout:  Boolean = true
-  private var fillParent:    Boolean = false
-  private var layoutEnabled: Boolean = true
+  private var _needsLayout:   Boolean = true
+  private var _fillParent:    Boolean = false
+  private var _layoutEnabled: Boolean = true
 
   def minWidth: Float = prefWidth
 
@@ -43,15 +43,17 @@ class Widget()(using Sge) extends Actor() with Layout {
 
   def maxHeight: Float = 0
 
-  def setLayoutEnabled(enabled: Boolean): Unit = {
-    layoutEnabled = enabled
-    if (enabled) invalidateHierarchy()
+  def layoutEnabled_=(value: Boolean): Unit = {
+    _layoutEnabled = value
+    if (value) invalidateHierarchy()
   }
 
+  def layoutEnabled: Boolean = _layoutEnabled
+
   def validate(): Unit =
-    if (layoutEnabled) {
+    if (_layoutEnabled) {
       this.parent.foreach { parent =>
-        if (fillParent) {
+        if (_fillParent) {
           val (parentWidth, parentHeight) = stage.fold((parent.width, parent.height)) { stage =>
             if (parent eq stage.root) (stage.width, stage.height)
             else (parent.width, parent.height)
@@ -73,7 +75,7 @@ class Widget()(using Sge) extends Actor() with Layout {
     _needsLayout = true
 
   def invalidateHierarchy(): Unit =
-    if (layoutEnabled) {
+    if (_layoutEnabled) {
       invalidate()
       this.parent.foreach {
         case l: Layout => l.invalidateHierarchy()
@@ -89,8 +91,10 @@ class Widget()(using Sge) extends Actor() with Layout {
     validate()
   }
 
-  def setFillParent(fillParent: Boolean): Unit =
-    this.fillParent = fillParent
+  def fillParent_=(value: Boolean): Unit =
+    this._fillParent = value
+
+  def fillParent: Boolean = _fillParent
 
   /** If this method is overridden, the super method or {@link #validate()} should be called to ensure the widget is laid out. */
   override def draw(batch: Batch, parentAlpha: Float): Unit =

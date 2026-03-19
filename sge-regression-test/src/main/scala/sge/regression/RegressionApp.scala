@@ -16,8 +16,7 @@ package regression
   * @param sceneDuration
   *   how long each scene runs (seconds) before auto-advancing
   */
-class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f)(using sge: Sge)
-    extends ApplicationListener {
+class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f)(using sge: Sge) extends ApplicationListener {
 
   private var initialized: Boolean = false
 
@@ -37,8 +36,7 @@ class RegressionApp(scenes: Array[RegressionScene], sceneDuration: Float = 3f)(u
   override def render(): Unit = {
     if (!initialized) return
 
-    val dt = sge.graphics.deltaTime
-    sceneElapsed += dt
+    sceneElapsed += sge.graphics.deltaTime.toFloat
 
     // Auto-advance after duration
     if (sceneElapsed >= sceneDuration) advanceScene()

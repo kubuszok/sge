@@ -51,16 +51,16 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
   // KTX header (only available after preparing)
   private var glType: Int = scala.compiletime.uninitialized
   @nowarn("msg=not read") // set in parsing, will be read when KTX texture consumption is implemented
-  private var glTypeSize:       Int = scala.compiletime.uninitialized
-  private var glFormat:         Int = scala.compiletime.uninitialized
-  private var glInternalFormat: Int = scala.compiletime.uninitialized
+  private var glTypeSize:        Int = scala.compiletime.uninitialized
+  private var glFormat:          Int = scala.compiletime.uninitialized
+  private var _glInternalFormat: Int = scala.compiletime.uninitialized
   @nowarn("msg=not read") // set in parsing, will be read when KTX texture consumption is implemented
   private var glBaseInternalFormat: Int = scala.compiletime.uninitialized
   private var pixelWidth  = -1
   private var pixelHeight = -1
   private var pixelDepth  = -1
   private var numberOfArrayElements: Int = scala.compiletime.uninitialized
-  private var numberOfFaces:         Int = scala.compiletime.uninitialized
+  private var _numberOfFaces:        Int = scala.compiletime.uninitialized
   private var numberOfMipmapLevels:  Int = scala.compiletime.uninitialized
   private var imagePos:              Int = scala.compiletime.uninitialized
 
@@ -115,13 +115,13 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
     glType = cd.getInt()
     glTypeSize = cd.getInt()
     glFormat = cd.getInt()
-    glInternalFormat = cd.getInt()
+    _glInternalFormat = cd.getInt()
     glBaseInternalFormat = cd.getInt()
     pixelWidth = cd.getInt()
     pixelHeight = cd.getInt()
     pixelDepth = cd.getInt()
     numberOfArrayElements = cd.getInt()
-    numberOfFaces = cd.getInt()
+    _numberOfFaces = cd.getInt()
     numberOfMipmapLevels = cd.getInt()
     if (numberOfMipmapLevels == 0) {
       numberOfMipmapLevels = 1
@@ -332,9 +332,9 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
 
   def numberOfMipMapLevels: Int = numberOfMipmapLevels
 
-  def getNumberOfFaces(): Int = numberOfFaces
+  def numberOfFaces: Int = _numberOfFaces
 
-  def getGlInternalFormat(): Int = glInternalFormat
+  def glInternalFormat: Int = _glInternalFormat
 
   def getData(requestedLevel: Int, requestedFace: Int): Nullable[ByteBuffer] = {
     val cd  = compressedData.getOrElse(throw SgeError.GraphicsError("No data available — call prepare() first"))

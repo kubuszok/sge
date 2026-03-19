@@ -25,10 +25,10 @@ import sge.graphics.OrthographicCamera
   *   Nathan Sweet
   */
 class ExtendViewport(
-  var minWorldWidth:  Float,
-  var minWorldHeight: Float,
-  var maxWorldWidth:  Float,
-  var maxWorldHeight: Float,
+  var minWorldWidth:  WorldUnits,
+  var minWorldHeight: WorldUnits,
+  var maxWorldWidth:  WorldUnits,
+  var maxWorldHeight: WorldUnits,
   camera:             Camera
 )(using Sge)
     extends Viewport {
@@ -38,27 +38,24 @@ class ExtendViewport(
   this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera} with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float)(using Sge) = {
-    this(minWorldWidth, minWorldHeight, 0, 0, OrthographicCamera())
-  }
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits)(using Sge) =
+    this(minWorldWidth, minWorldHeight, WorldUnits.zero, WorldUnits.zero, OrthographicCamera())
 
   /** Creates a new viewport with no maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float, camera: Camera)(using Sge) = {
-    this(minWorldWidth, minWorldHeight, 0, 0, camera)
-  }
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, camera: Camera)(using Sge) =
+    this(minWorldWidth, minWorldHeight, WorldUnits.zero, WorldUnits.zero, camera)
 
   /** Creates a new viewport using a new {@link OrthographicCamera} and a maximum world size. */
-  def this(minWorldWidth: Float, minWorldHeight: Float, maxWorldWidth: Float, maxWorldHeight: Float)(using Sge) = {
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, maxWorldWidth: WorldUnits, maxWorldHeight: WorldUnits)(using Sge) =
     this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, OrthographicCamera())
-  }
 
   override def update(screenWidth: Pixels, screenHeight: Pixels, centerCamera: Boolean): Unit = {
     val sw = screenWidth.toInt
     val sh = screenHeight.toInt
 
     // Fit min size to the screen.
-    var ww     = minWorldWidth
-    var wh     = minWorldHeight
+    var ww     = minWorldWidth.toFloat
+    var wh     = minWorldHeight.toFloat
     val scaled = currentScaling.apply(ww, wh, sw.toFloat, sh.toFloat)
 
     // Extend, possibly in both directions depending on the scaling.
@@ -68,7 +65,7 @@ class ExtendViewport(
       val toViewportSpace = viewportHeight.toFloat / wh
       val toWorldSpace    = wh / viewportHeight.toFloat
       var lengthen        = (sw - viewportWidth) * toWorldSpace
-      if (maxWorldWidth > 0) lengthen = Math.min(lengthen, maxWorldWidth - minWorldWidth)
+      if (maxWorldWidth > WorldUnits.zero) lengthen = Math.min(lengthen, maxWorldWidth.toFloat - minWorldWidth.toFloat)
       ww += lengthen
       viewportWidth += Math.round(lengthen * toViewportSpace)
     }
@@ -76,12 +73,12 @@ class ExtendViewport(
       val toViewportSpace = viewportWidth.toFloat / ww
       val toWorldSpace    = ww / viewportWidth.toFloat
       var lengthen        = (sh - viewportHeight) * toWorldSpace
-      if (maxWorldHeight > 0) lengthen = Math.min(lengthen, maxWorldHeight - minWorldHeight)
+      if (maxWorldHeight > WorldUnits.zero) lengthen = Math.min(lengthen, maxWorldHeight.toFloat - minWorldHeight.toFloat)
       wh += lengthen
       viewportHeight += Math.round(lengthen * toViewportSpace)
     }
 
-    setWorldSize(ww, wh)
+    setWorldSize(WorldUnits(ww), WorldUnits(wh))
 
     // Center.
     setScreenBounds(Pixels((sw - viewportWidth) / 2), Pixels((sh - viewportHeight) / 2), Pixels(viewportWidth), Pixels(viewportHeight))

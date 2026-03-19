@@ -21,7 +21,7 @@ import sge.graphics.GL30
 import sge.graphics.GL31
 import sge.graphics.GL32
 import sge.graphics.Pixmap
-import sge.utils.Nullable
+import sge.utils.{ Nullable, Seconds }
 
 /** This interface encapsulates communication with the graphics processor. Depending on the available hardware and the current {@link Application} configuration, access to {@link GL20} and
   * {@link GL30} are provided here. <p> If supported by the backend, this interface lets you query the available display modes (graphics resolution and color depth) and change it. <p> This interface
@@ -120,7 +120,7 @@ trait Graphics {
   def frameId: Long
 
   /** @return the time span between the current frame and the last frame in seconds. */
-  def deltaTime: Float
+  def deltaTime: Seconds
 
   /** @return
     *   the time span between the current frame and the last frame in seconds, without smoothing
@@ -128,7 +128,7 @@ trait Graphics {
     *   use {@link #deltaTime} instead.
     */
   @deprecated("use deltaTime instead", "1.0")
-  def rawDeltaTime: Float
+  def rawDeltaTime: Seconds
 
   /** @return the average number of frames per second */
   def framesPerSecond: Int

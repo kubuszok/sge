@@ -16,7 +16,7 @@ package scene2d
 package utils
 
 trait Disableable {
-  def setDisabled(isDisabled: Boolean): Unit
+  def disabled_=(value: Boolean): Unit
 
-  def isDisabled: Boolean
+  def disabled: Boolean
 }

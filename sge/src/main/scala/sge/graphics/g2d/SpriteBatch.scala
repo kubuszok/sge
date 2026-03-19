@@ -85,17 +85,10 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
   // 32767 is max vertex index, so 32767 / 4 vertices per sprite = 8191 sprites max.
   if (size > 8191) throw new IllegalArgumentException("Can't have more than 8191 sprites per batch: " + size)
 
-  val vertexDataType = {
-    @scala.annotation.nowarn // suppress deprecation warning
-    inline def thunk = if (Sge().graphics.gl30.isDefined) VertexDataType.VertexBufferObjectWithVAO else SpriteBatch.defaultVertexDataType
-    thunk
-  }
+  val vertexDataType =
+    if (Sge().graphics.gl30.isDefined) VertexDataType.VertexBufferObjectWithVAO else VertexDataType.VertexBufferObject
 
-  currentDataType = {
-    @scala.annotation.nowarn // suppress deprecation warning
-    inline def thunk = SpriteBatch.overrideVertexType.getOrElse(vertexDataType)
-    thunk
-  }
+  currentDataType = vertexDataType
 
   mesh = Mesh(
     currentDataType,
@@ -1007,17 +1000,6 @@ class SpriteBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nul
 }
 
 object SpriteBatch {
-
-  /** @deprecated
-    *   Do not use, this field is for testing only and is likely to be removed. Sets the {@link VertexDataType} to be used when gles 3 is not available, defaults to {@link VertexDataType#VertexArray}
-    *   .
-    */
-  @deprecated var defaultVertexDataType: VertexDataType = VertexDataType.VertexBufferObject
-
-  /** Used to completely override the vertex type used by SpriteBatch. This is useful for picking a specific vertex data type on construction of the sprite batch. Recommended to reset this back to
-    * defaultVertexDataType Once the batch has been created with this flag
-    */
-  @deprecated var overrideVertexType: Nullable[VertexDataType] = Nullable.empty
 
   /** Returns a new instance of the default shader used by SpriteBatch for GL2 when no shader is specified. */
   def createDefaultShader()(using Sge): ShaderProgram = {

@@ -92,7 +92,7 @@ class Actor()(using Sge) {
     * @param delta
     *   Time in seconds since the last frame.
     */
-  def act(delta: Float): Unit =
+  def act(delta: Seconds): Unit =
     if (_actions.nonEmpty) {
       _stage.foreach { s =>
         if (s.actionsRequestRendering) Sge().graphics.requestRendering()
@@ -101,7 +101,7 @@ class Actor()(using Sge) {
         var i = 0
         while (i < _actions.size) {
           val action = _actions(i)
-          if (action.act(Seconds(delta)) && i < _actions.size) {
+          if (action.act(delta) && i < _actions.size) {
             val current     = _actions(i)
             val actionIndex = if (current eq action) i else _actions.indexOf(action)
             if (actionIndex != -1) {
@@ -684,12 +684,6 @@ class Actor()(using Sge) {
       rotationChanged()
     }
 
-  def setColor(color: Color): Unit =
-    this.color.set(color)
-
-  def setColor(r: Float, g: Float, b: Float, a: Float): Unit =
-    color.set(r, g, b, a)
-
   /** Changes the z-order for this actor so it is in front of all siblings. */
   def toFront(): Unit =
     setZIndex(Int.MaxValue)
@@ -886,7 +880,7 @@ class Actor()(using Sge) {
   protected def drawDebugBounds(shapes: ShapeRenderer): Unit =
     if (_debug) {
       shapes.set(ShapeRenderer.ShapeType.Line)
-      stage.foreach(s => shapes.setColor(s.debugColor))
+      stage.foreach(s => shapes.color.set(s.debugColor))
       shapes.rectangle(x, y, originX, originY, width, height, scaleX, scaleY, rotation)
     }
 

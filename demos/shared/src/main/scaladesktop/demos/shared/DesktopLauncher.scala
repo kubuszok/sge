@@ -4,7 +4,7 @@
  */
 package demos.shared
 
-import sge.{DesktopApplicationConfig, DesktopApplicationFactory}
+import sge.{ApplicationListener, DesktopApplicationConfig, DesktopApplicationFactory, Sge}
 
 /** Creates a desktop window and runs a [[DemoScene]] until the user closes it.
   *
@@ -31,6 +31,7 @@ object DesktopLauncher {
     config.title        = title
     config.windowWidth  = width
     config.windowHeight = height
-    DesktopApplicationFactory(new SingleSceneApp(scene), config)
+    val app: Sge ?=> ApplicationListener = new SingleSceneApp(scene)
+    DesktopApplicationFactory(app, config)
   }
 }
