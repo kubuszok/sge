@@ -100,5 +100,5 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
 ## Important
 
 **Do NOT use shell commands directly.** Use the Read tool for file reading,
-Grep/Glob tools for code search, and `just compile` only if you need to verify
+Grep/Glob tools for code search, and `sge-dev build compile` only if you need to verify
 a header edit compiles.

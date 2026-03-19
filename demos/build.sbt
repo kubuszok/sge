@@ -71,6 +71,9 @@ def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
     SgeProject.autoImport.sgeProjectDir := dir,
     Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
     SgePackaging.sgeTargets := adoptiumJdkUrls,
+    SgePackaging.sgeCrossNativeLibDir := Some(
+      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "cross"
+    ),
     SgePackaging.sgeJlinkModules := Seq(
       "java.base", "java.desktop", "java.logging", "java.management",
       "jdk.unsupported", "jdk.zipfs", "java.net.http"

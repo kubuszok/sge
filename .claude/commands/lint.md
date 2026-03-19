@@ -43,7 +43,7 @@ Display this table:
 Run unused symbol analysis.
 
 ```
-just compile-warnings
+sge-dev build compile --warnings
 ```
 
 Then use the Grep tool to search the output for `[E198]` patterns.
@@ -53,7 +53,7 @@ Count and categorize: unused imports, unused privates, unused locals, unused pat
 Run null check analysis using the NullToNullable Scalafix rule.
 
 ```
-just scalafix NullToNullable
+sge-dev quality scalafix NullToNullable
 ```
 
 Report violations by file.
@@ -62,7 +62,7 @@ Report violations by file.
 Run DisableSyntax checks for banned patterns.
 
 ```
-just lint-syntax
+sge-dev quality scalafix DisableSyntax
 ```
 
 Requires `.scalafix.conf` to have DisableSyntax configuration. If not configured,
@@ -82,4 +82,4 @@ those warnings back to errors. This prevents regressions.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `just` recipes or `sbt --client` only.
+**Do NOT use shell commands directly.** Use `sge-dev` commands or `sbt --client` only.

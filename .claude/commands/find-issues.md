@@ -4,15 +4,15 @@ Argument: `$ARGUMENTS` — one of: `return`, `null`, `null_cast`, `java_syntax`,
 
 ## Procedure
 
-1. Run the appropriate `just` recipe:
+1. Run the appropriate `sge-dev` command:
 
    ```
-   just sge-quality $ARGUMENTS
+   sge-dev quality scan --$ARGUMENTS
    ```
 
    For summary counts only (no line-by-line output):
    ```
-   just sge-quality $ARGUMENTS summary
+   sge-dev quality scan --$ARGUMENTS --summary
    ```
 
    Categories:
@@ -23,15 +23,15 @@ Argument: `$ARGUMENTS` — one of: `return`, `null`, `null_cast`, `java_syntax`,
    - **`todo`**: `TODO`, `FIXME`, `HACK`, `XXX` markers
    - **`all`**: All categories except `java_syntax`
 
-2. For each category, the recipe reports:
+2. For each category, the scan reports:
    - Number of affected files
    - Total occurrences
    - Top 10 files by occurrence count (in full mode)
 
-3. Cross-reference against `docs/progress/quality-issues.md` (read with the Read tool)
+3. Cross-reference against the issues database using `sge-dev db issues list --category <cat>`
    and note any changes since last documented counts.
 
 ## Important
 
 **Do NOT use `rg`, `grep`, or any shell commands directly.** All searches must go
-through `just sge-quality` or the dedicated Grep/Glob tools.
+through `sge-dev quality` or the dedicated Grep/Glob tools.

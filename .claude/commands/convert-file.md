@@ -22,13 +22,13 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
    - Use `boundary`/`break` patterns from `docs/contributing/control-flow-guide.md`
 
 5. **Execute the conversion**:
-   - Use `just compile` to compile and check errors/warnings
+   - Use `sge-dev build compile` to compile and check errors/warnings
    - If intermediate steps need compilation, comment out code rather than removing it
 
-6. **Verify compilation**: Use `just compile` to confirm zero errors and zero warnings.
+6. **Verify compilation**: Use `sge-dev build compile` to confirm zero errors and zero warnings.
 
-7. **Update tracking**: Update the file's row in `docs/progress/migration-status.tsv`
-   to reflect the new status.
+7. **Update tracking**: Run `sge-dev db migration set <libgdx_path> --status ai_converted`
+   to update the file's status.
 
 8. **Write initial audit entry**: Add a `Migration notes:` block to the file's header
    comment documenting renames, convention changes, and idiom compliance. Follow the
@@ -36,5 +36,5 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `just compile` for compilation,
+**Do NOT use shell commands directly.** Use `sge-dev build compile` for compilation,
 the Read tool for file reading, and the Grep/Glob tools for code search.

@@ -34,6 +34,11 @@ native-components/target/
 android-sdk/
 demos/android-sdk/
 
+## sge-dev CLI
+scripts/bin/
+scripts/.metals-pid
+.scala-build/
+
 ## OS-Specific:
 .DS_Store
 Thumbs.db

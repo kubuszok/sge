@@ -1,36 +1,35 @@
 {
   "permissions": {
     "allow": [
-      "Bash(just:*)",
-      "Bash(just *)",
-      "Bash(git:*)",
-      "Bash(sbt --client:*)",
-      "Bash(npx:*)",
-      "Bash(cargo:*)",
+      "Bash(scala-cli:*)",
+      "Bash(sge-dev:*)",
+      "Bash(scripts/bin/sge-dev:*)",
       "WebFetch",
       "WebSearch"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/setup-path.sh" }
+        ]
+      }
     ],
-    "deny": [
-      "Bash(adb:*)",
-      "Bash(rg:*)",
-      "Bash(grep:*)",
-      "Bash(find:*)",
-      "Bash(ls:*)",
-      "Bash(head:*)",
-      "Bash(tail:*)",
-      "Bash(sort:*)",
-      "Bash(wc:*)",
-      "Bash(awk:*)",
-      "Bash(sed:*)",
-      "Bash(perl:*)",
-      "Bash(python:*)",
-      "Bash(echo:*)",
-      "Bash(chmod:*)",
-      "Bash(xargs:*)",
-      "Bash(gh:*)",
-      "Bash(for:*)",
-      "Bash(while:*)"
-    ],
-    "alwaysAsk": ["Edit(Justfile)"]
-  }
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-tool-use.sh",
+            "timeout": 15000
+          }
+        ]
+      }
+    ]
+  },
+  "enabledMcpjsonServers": ["metals"],
+  "enableAllProjectMcpServers": true
 }

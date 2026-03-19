@@ -57,14 +57,14 @@ docs and commit progress so work isn't lost if the session is interrupted.
    - `minor`/`major`: Description of each issue
    ```
 
-5. **Compile-verify**: Run `just compile` to ensure header edits didn't break anything.
+5. **Compile-verify**: Run `sge-dev build compile` to ensure header edits didn't break anything.
 
-6. **Commit**: Run `just commit-all 'Audit sge.<pkg>: N files (P pass, M minor, J major)'`
+6. **Commit**: Run `sge-dev git commit-all 'Audit sge.<pkg>: N files (P pass, M minor, J major)'`
 
 7. **Update progress**: Update `memory/audit-progress.md` with the completed package.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `just compile` for compilation,
-`just commit-all` for committing, the Read tool for file reading, and
+**Do NOT use shell commands directly.** Use `sge-dev build compile` for compilation,
+`sge-dev git commit-all` for committing, the Read tool for file reading, and
 Grep/Glob tools for code search.

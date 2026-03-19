@@ -55,6 +55,9 @@ object SgePackaging {
   val sgeMacOsIcon        = settingKey[Option[File]]("Path to .icns file for macOS app bundle")
   val sgeCacheDir         = settingKey[File]("Download cache directory for JDKs and Roast binaries")
   val sgeRunOnFirstThread = settingKey[Boolean]("Run JVM on first thread (required for macOS graphics)")
+  val sgeCrossNativeLibDir = settingKey[Option[File]](
+    "Cross-compilation output root. When set, dist packaging uses <dir>/<platform-classifier>/ per platform."
+  )
   val sgePackagePlatform  = inputKey[File]("Package for a single target platform")
   val sgePackageAll       = taskKey[Seq[File]]("Package for all configured target platforms")
 
@@ -493,6 +496,7 @@ object SgePackaging {
       appJar: File,
       deps: Seq[File],
       nativeLibDirs: Seq[File],
+      crossNativeLibDir: Option[File],
       jlinkedRuntime: File,
       roastBinary: File,
       vmArgs: Seq[String],
@@ -535,7 +539,21 @@ object SgePackaging {
     val allJars = appJar +: deps
     allJars.foreach(jar => IO.copyFile(jar, appDir / jar.getName))
 
-    val hasNativeLibs = nativeLibDirs.exists { dir =>
+    // Resolve per-platform native lib directories: prefer cross/<classifier>/ when available
+    val effectiveNativeLibDirs: Seq[File] = crossNativeLibDir match {
+      case Some(crossDir) =>
+        val platDir = crossDir / platform.classifier
+        if (platDir.exists() && IO.listFiles(platDir).exists(f => NativeLibExts.exists(f.getName.endsWith))) {
+          log.info(s"[sge] Using cross-compiled native libs from ${platDir.getAbsolutePath}")
+          Seq(platDir)
+        } else {
+          log.warn(s"[sge] Cross native lib dir not found for ${platform.classifier}, falling back to default nativeLibDirs")
+          nativeLibDirs
+        }
+      case None => nativeLibDirs
+    }
+
+    val hasNativeLibs = effectiveNativeLibDirs.exists { dir =>
       dir.exists() && IO.listFiles(dir).exists(f => NativeLibExts.exists(f.getName.endsWith))
     }
     writeRoastConfig(
@@ -553,7 +571,7 @@ object SgePackaging {
       val nativeDir = root / "native"
       IO.createDirectory(nativeDir)
       for {
-        dir  <- nativeLibDirs if dir.exists()
+        dir  <- effectiveNativeLibDirs if dir.exists()
         file <- IO.listFiles(dir) if NativeLibExts.exists(file.getName.endsWith)
       } IO.copyFile(file, nativeDir / file.getName)
     }
@@ -565,6 +583,31 @@ object SgePackaging {
         val resourcesDir = root / "Resources"
         IO.createDirectory(resourcesDir)
         IO.copyFile(icon, resourcesDir / s"$appName.icns")
+      }
+    }
+
+    // ── Ad-hoc code signing (macOS host only) ──
+    // Sign dylibs, Roast launcher, and .app bundle so Gatekeeper doesn't block them.
+    if (hostIsMac && (isMac || !isWindows)) {
+      // Sign all native dylibs
+      val nativeDir = root / "native"
+      if (nativeDir.exists()) {
+        IO.listFiles(nativeDir)
+          .filter(f => f.getName.endsWith(".dylib"))
+          .foreach(f => codesignAdHoc(f, log))
+      }
+      // Sign the Roast launcher binary
+      codesignAdHoc(launcher, log)
+      // Sign the .app bundle (deep sign covers all nested code)
+      if (isMac) {
+        val appBundle = workDir / s"$appName.app"
+        val deepSign = new ProcessBuilder(
+          "codesign", "--force", "--deep", "--sign", "-", appBundle.getAbsolutePath
+        ).redirectErrorStream(true).start()
+        val deepOut = new String(deepSign.getInputStream.readAllBytes())
+        val deepExit = deepSign.waitFor()
+        if (deepExit != 0) log.warn(s"[sge] Deep signing failed for $appName.app: $deepOut")
+        else log.info(s"[sge] Ad-hoc signed: $appName.app (deep)")
       }
     }
 
@@ -652,7 +695,7 @@ object SgePackaging {
     // Step 5: Assemble and archive
     assemblePlatform(
       platform, appName, mainCls, appJar, deps,
-      sgeNativeLibDirs.value, jlinked, roast,
+      sgeNativeLibDirs.value, sgeCrossNativeLibDir.value, jlinked, roast,
       sgeVmArgs.value, sgeUseZgc.value, sgeRunOnFirstThread.value,
       sgeMacOsBundleId.value, sgeMacOsIcon.value,
       distDir, log
@@ -678,6 +721,7 @@ object SgePackaging {
     val bundleId = sgeMacOsBundleId.value
     val icon     = sgeMacOsIcon.value
     val nativeDirs = sgeNativeLibDirs.value
+    val crossDir = sgeCrossNativeLibDir.value
 
     if (targets.isEmpty) {
       log.warn("[sge] sgeTargets is empty — no platforms to package.")
@@ -695,7 +739,7 @@ object SgePackaging {
 
         assemblePlatform(
           platform, appName, mainCls, appJar, deps,
-          nativeDirs, jlinked, roast,
+          nativeDirs, crossDir, jlinked, roast,
           vmArgs, useZgc, rft, bundleId, icon,
           distDir, log
         )
@@ -718,6 +762,7 @@ object SgePackaging {
     sgeMacOsIcon        := None,
     sgeCacheDir         := Path.userHome / ".cache" / "sge",
     sgeRunOnFirstThread := true,
+    sgeCrossNativeLibDir := None,
     sgePackagePlatform  := packagePlatformTask.evaluated,
     sgePackageAll       := packageAllTask.value
   )
@@ -903,6 +948,9 @@ object SgePackaging {
     IO.copyFile(binary, dest)
     dest.setExecutable(true)
 
+    // Ad-hoc sign the native binary on macOS so Gatekeeper doesn't block it
+    if (hostIsMac) codesignAdHoc(dest, log)
+
     // Copy native shared libraries (if any)
     val nativeDir = outDir / "lib"
     var hasNativeLibs = false
@@ -932,6 +980,24 @@ object SgePackaging {
   lazy val nativeSettings: Seq[Setting[_]] = Seq(
     sgePackageNative := packageNativeTask.value
   )
+
+  // ── macOS ad-hoc code signing ──────────────────────────────────────
+
+  /** Ad-hoc sign a file with `codesign --force --sign -`.  Only meaningful on macOS.
+    * Non-fatal: logs a warning on failure instead of throwing.
+    */
+  private def codesignAdHoc(file: File, log: sbt.util.Logger): Unit = {
+    val proc = new ProcessBuilder("codesign", "--force", "--sign", "-", file.getAbsolutePath)
+      .redirectErrorStream(true).start()
+    val output = new String(proc.getInputStream.readAllBytes())
+    val exit = proc.waitFor()
+    if (exit != 0) log.warn(s"[sge] Ad-hoc signing failed for ${file.getName}: $output")
+    else log.info(s"[sge] Ad-hoc signed: ${file.getName}")
+  }
+
+  /** Returns true when the build is running on macOS. */
+  private def hostIsMac: Boolean =
+    sys.props("os.name").toLowerCase.contains("mac")
 
   // ── Unified release ────────────────────────────────────────────────
 

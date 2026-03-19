@@ -32,10 +32,10 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
      - If no test exists anywhere: create a basic test covering the public API.
    - **Copyright header**: Fix `Copyright` → `copyright`, `2024` → `2025`.
 
-4. **Compile after each batch of fixes**: Run `just compile-errors` to catch regressions.
+4. **Compile after each batch of fixes**: Run `sge-dev build compile --errors-only` to catch regressions.
    If errors appear, fix them before proceeding.
 
-5. **Run tests**: If tests were added or modified, run `just test` to verify they pass.
+5. **Run tests**: If tests were added or modified, run `sge-dev test unit` to verify they pass.
 
 ### Phase 3: Re-audit
 
@@ -46,15 +46,15 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
 
 ### Phase 4: Commit
 
-8. **Compile-verify**: `just compile-errors` and `just compile-warnings`.
+8. **Compile-verify**: `sge-dev build compile --errors-only` and `sge-dev build compile --warnings`.
 
-9. **Commit**: `just commit-all 'Correct sge.<pkg>: fix N issues (M major, m minor)'`
+9. **Commit**: `sge-dev git commit-all 'Correct sge.<pkg>: fix N issues (M major, m minor)'`
 
 10. **Update progress**: Update `memory/audit-progress.md` if statuses changed.
 
 ## Important
 
-- **Do NOT use shell commands directly.** Use `just` recipes and dedicated tools only.
+- **Do NOT use shell commands directly.** Use `sge-dev` commands and dedicated tools only.
 - **Do NOT remove comments** from the original source — only add/update migration notes.
 - Follow all conversion rules in `docs/contributing/conversion-rules.md`.
 - When porting tests, use munit (`extends munit.FunSuite`).

@@ -10,7 +10,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    Open the source from `./libgdx/gdx/src/` with the Read tool.
 
 3. **Run the verification checklist** from `docs/contributing/verification-checklist.md`:
-   - Compilation: compile via `just compile`, check for errors and warnings
+   - Compilation: compile via `sge-dev build compile`, check for errors and warnings
    - Completeness: compare all public methods, constants, enums against LibGDX source
    - Scala idioms: check for `return`, `null`, Java syntax, etc.
    - Type mappings: verify collections, exceptions, Gdx references are converted
@@ -20,8 +20,8 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    - For failures, show the specific line numbers and what needs to change
    - Estimate effort to fix remaining issues
 
-5. **Update tracking**: If all items pass, update `docs/progress/migration-status.tsv`
-   to `verified`. If issues found, add notes.
+5. **Update tracking**: If all items pass, run `sge-dev db migration set <libgdx_path> --status verified`.
+   If issues found, add notes with `--notes`.
 
 6. **Update audit entry**: Add or update the `Migration notes:` block in the file's
    header comment following the format from `/audit-file`. If a per-package audit doc
@@ -29,5 +29,5 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `just compile` for compilation,
+**Do NOT use shell commands directly.** Use `sge-dev build compile` for compilation,
 the Read tool for file reading, and the Grep/Glob tools for code search.

@@ -2,21 +2,21 @@ Show migration progress for the SGE project, optionally filtered by package.
 
 ## Procedure
 
-1. Run the status recipe:
+1. Run the status command:
 
    Overall summary:
    ```
-   just sge-status
+   sge-dev db migration stats
    ```
 
    Filtered by package (e.g., `graphics/g2d`):
    ```
-   just sge-status <package>
+   sge-dev db migration list --package <package>
    ```
 
 2. If `$ARGUMENTS` is provided, use it as the package filter:
    ```
-   just sge-status $ARGUMENTS
+   sge-dev db migration list --package $ARGUMENTS
    ```
 
 3. Summarize:
@@ -28,5 +28,5 @@ Show migration progress for the SGE project, optionally filtered by package.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `just sge-status` or Read the TSV file
+**Do NOT use shell commands directly.** Use `sge-dev db migration` commands or Read the TSV file
 with the Read tool.

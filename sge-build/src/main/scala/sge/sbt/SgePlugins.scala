@@ -81,12 +81,13 @@ object JvmReleases extends AutoPlugin {
   override def requires = SgeProject
 
   object autoImport {
-    val sgeTargets      = SgePackaging.sgeTargets
-    val sgeJlinkModules = SgePackaging.sgeJlinkModules
-    val sgeRoastVersion = SgePackaging.sgeRoastVersion
-    val sgeVmArgs       = SgePackaging.sgeVmArgs
-    val sgeUseZgc       = SgePackaging.sgeUseZgc
-    val sgeCacheDir     = SgePackaging.sgeCacheDir
+    val sgeTargets          = SgePackaging.sgeTargets
+    val sgeJlinkModules     = SgePackaging.sgeJlinkModules
+    val sgeRoastVersion     = SgePackaging.sgeRoastVersion
+    val sgeVmArgs           = SgePackaging.sgeVmArgs
+    val sgeUseZgc           = SgePackaging.sgeUseZgc
+    val sgeCacheDir         = SgePackaging.sgeCacheDir
+    val sgeCrossNativeLibDir = SgePackaging.sgeCrossNativeLibDir
   }
 
   /** Settings for projectMatrix JVM axis.  Includes JVM runtime config, scaladesktop

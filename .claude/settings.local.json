@@ -1,5 +1,0 @@
-{
-  "permissions": {
-    "allow": ["Bash(pkill:*)", "Bash(sbt:*)", "Bash(nm:*)", "Bash(otool:*)"]
-  }
-}

@@ -25,16 +25,16 @@ Argument: `$ARGUMENTS` — a rule name, optionally followed by a file path or gl
    - If a single word: treat as rule name, run on all files.
    - If two words: first is rule name, second is file path/glob.
 
-2. Run the rule using `just` recipes:
+2. Run the rule:
 
    All files:
    ```
-   just scalafix <RuleName>
+   sge-dev quality scalafix <RuleName>
    ```
 
    Specific file:
    ```
-   just scalafix-file <RuleName> <path>
+   sge-dev quality scalafix <RuleName> --file <path>
    ```
 
 3. Report results:
@@ -52,4 +52,4 @@ Argument: `$ARGUMENTS` — a rule name, optionally followed by a file path or gl
 - Use `fold`, `foreach`, `getOrElse`, `map`, `isDefined`, or `isEmpty` instead.
 - The NullToNullable rule is diagnostic-only — it cannot auto-fix because the correct
   replacement depends on context. Each null check must be manually reviewed.
-- **Do NOT use shell commands directly.** Use `just` recipes or `sbt --client` only.
+- **Do NOT use shell commands directly.** Use `sge-dev` commands or `sbt --client` only.
