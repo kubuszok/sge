@@ -525,6 +525,9 @@ object SgePackaging {
     }
 
     // ── Roast launcher binary
+    // Roast resolves app/<config>.json relative to its own directory, so on
+    // macOS we place app/, runtime/, native/ inside MacOS/ alongside the
+    // launcher binary (not directly under Contents/).
     val launcherDir = if (isMac) root / "MacOS" else root
     IO.createDirectory(launcherDir)
     val launcherName = if (isWindows) s"$appName.exe" else appName
@@ -532,12 +535,34 @@ object SgePackaging {
     IO.copyFile(roastBinary, launcher)
     launcher.setExecutable(true)
 
-    // ── app/ — JARs + Roast config
-    val appDir = root / "app"
+    // ── app/ — JARs + Roast config (sibling of launcher for Roast path resolution)
+    val appDir = launcherDir / "app"
     IO.createDirectory(appDir)
 
-    val allJars = appJar +: deps
-    allJars.foreach(jar => IO.copyFile(jar, appDir / jar.getName))
+    // Filter out Android-only JARs that contain stub implementations
+    // (android.jar throws RuntimeException("Stub!") on all methods).
+    // PanamaPort JARs (Core, Unsafe, VarHandles, etc.) are Android-only too.
+    val androidJarNames = Set("android.jar")
+    val androidJarPrefixes = Seq(
+      "Core-v", "Unsafe-v", "VarHandles-v", "LLVM-v",
+      "SunCleanerStub-v", "R8Annotations-v", "SunUnsafeWrapper-v",
+      "DexFile-v", "AndroidMisc-v"
+    )
+    def isAndroidOnlyJar(f: File): Boolean = {
+      val name = f.getName
+      androidJarNames.contains(name) ||
+        androidJarPrefixes.exists(p => name.startsWith(p))
+    }
+    val filteredDeps = deps.filterNot(isAndroidOnlyJar)
+    val allJars = appJar +: filteredDeps
+    // Deduplicate JARs by name (dependency resolution can produce duplicates)
+    val seenNames = scala.collection.mutable.Set.empty[String]
+    val uniqueJars = allJars.filter { jar =>
+      val name = jar.getName
+      if (seenNames.contains(name)) false
+      else { seenNames += name; true }
+    }
+    uniqueJars.foreach(jar => IO.copyFile(jar, appDir / jar.getName))
 
     // Resolve per-platform native lib directories: prefer cross/<classifier>/ when available
     val effectiveNativeLibDirs: Seq[File] = crossNativeLibDir match {
@@ -558,17 +583,17 @@ object SgePackaging {
     }
     writeRoastConfig(
       appDir / s"$appName.json",
-      appName, allJars.map(_.getName), mainClass,
+      appName, uniqueJars.map(_.getName), mainClass,
       vmArgs, useZgc, runOnFirstThread, platform, hasNativeLibs
     )
 
-    // ── runtime/ — jlinked JRE
-    val runtimeDir = root / "runtime"
+    // ── runtime/ — jlinked JRE (sibling of launcher for Roast path resolution)
+    val runtimeDir = launcherDir / "runtime"
     IO.copyDirectory(jlinkedRuntime, runtimeDir)
 
-    // ── native/ — platform shared libraries
+    // ── native/ — platform shared libraries (sibling of launcher)
     if (hasNativeLibs) {
-      val nativeDir = root / "native"
+      val nativeDir = launcherDir / "native"
       IO.createDirectory(nativeDir)
       for {
         dir  <- effectiveNativeLibDirs if dir.exists()
@@ -590,7 +615,7 @@ object SgePackaging {
     // Sign dylibs, Roast launcher, and .app bundle so Gatekeeper doesn't block them.
     if (hostIsMac && (isMac || !isWindows)) {
       // Sign all native dylibs
-      val nativeDir = root / "native"
+      val nativeDir = launcherDir / "native"
       if (nativeDir.exists()) {
         IO.listFiles(nativeDir)
           .filter(f => f.getName.endsWith(".dylib"))

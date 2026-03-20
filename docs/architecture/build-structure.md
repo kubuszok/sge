@@ -1,12 +1,6 @@
 # Build Structure
 
-Target SBT multi-project layout using `sbt-projectmatrix` for cross-platform compilation.
-
-**Status (2026-03-01):** This build structure has been validated in practice with the
-`hello-world/` prototype. All three platform backends (JVM, Scala.js, Scala Native)
-compile and run correctly. See [platform-validation.md](platform-validation.md)
-for results and [cross-platform-settings.md](cross-platform-settings.md) for the
-complete settings reference.
+SGE's SBT multi-project layout using `sbt-projectmatrix` for cross-platform compilation.
 
 ## Why sbt-projectmatrix (not sbt-crossproject)
 
@@ -16,149 +10,77 @@ complete settings reference.
 | Extensibility | Platform axis only (JVM/JS/Native) | Arbitrary axes via `VirtualAxis` |
 | sbt 2.0 status | Not in-sourced | **Built-in** (in-sourced into sbt 2.x) |
 | sbt 1.x support | Yes | Yes (plugin v0.11.0) |
-| Maintenance | Deprecated — repo says "use sbt-projectmatrix" | Active; archived as standalone once in-sourced |
+| Maintenance | Deprecated | Active |
 
-The `sbt-projectmatrix` plugin was in-sourced into sbt 2.x, meaning `projectMatrix` becomes
-a built-in feature when sbt 2.0 reaches stable release. Using it now on sbt 1.x (via the
-plugin) provides a smooth upgrade path.
-
-## sbt 2.0 Migration Status (as of 2026-02)
-
-sbt 2.0 is at **RC9** (Feb 16, 2026). Not yet stable. Key considerations:
-
-| Aspect | Status | Blocker? |
-|--------|--------|----------|
-| sbt 2.0 stable release | RC9, not final | Wait for 2.0.0 |
-| sbt-scalafmt | v2.5.6 compatible with sbt 2.x | No |
-| Metals BSP support | PR in development | Possible IDE issues |
-| Scala.js sbt plugin | PR pending for sbt 2.x | Yes, for JS target |
-| Scala Native sbt plugin | PR pending for sbt 2.x | Yes, for Native target |
-| JDK requirement | sbt 2.x requires JDK 17+ | Check CI/dev environments |
-| Build DSL | Scala 3 syntax required | Migration effort |
-
-**Recommendation**: Stay on sbt 1.x with `sbt-projectmatrix` plugin (0.11.0) for now.
-Migrate to sbt 2.0 after stable release and Scala.js/Native plugin readiness.
-
-**Validated toolchain** (2026-03-01): sbt 1.10.7 + sbt-projectmatrix 0.11.0 +
-sbt-scalajs 1.20.2 + sbt-scala-native 0.5.10 + Scala 3.8.2. All three platforms
-compile and run. See [cross-platform-settings.md](cross-platform-settings.md)
-for version constraints and known compatibility issues.
-
-## Current Structure
+## Actual Structure
 
 ```
-build.sbt
-core/
-  src/main/scala/sge/      # All code lives here currently
+sge/                              # Core library (projectMatrix: JVM/JS/Native)
+  src/main/scala/sge/            #   Shared source (~503 files)
+  src/main/scalajvm/sge/         #   JVM-specific (Panama FFM, Java stdlib)
+  src/main/scalajs/sge/          #   JS-specific (scalajs-dom facades)
+  src/main/scalanative/sge/      #   Native-specific (@extern, C ABI)
+  src/main/scaladesktop/sge/     #   Desktop-shared (JVM + Native, not JS)
+  src/test/scala/sge/            #   Cross-platform tests
+  src/test/scalajvm/sge/         #   JVM-only tests
+sge-jvm-platform-api/             # JVM platform interfaces (JDK 17)
+sge-jvm-platform-jdk/             # JDK 22+ Panama FFM implementation
+sge-jvm-platform-android/         # Android PanamaPort + ops implementations
+sge-freetype/                     # FreeType font extension (projectMatrix)
+sge-physics/                      # 2D physics via Rapier2D (projectMatrix)
+sge-tools/                        # TexturePacker CLI (JVM-only)
+sge-build/                        # sbt plugin (SgePlugin, packaging, Android)
+native-components/                # Rust native library (GLFW, miniaudio, FFI)
+demo/                             # Single cross-platform demo (root build)
+demos/                            # 10 feature demos (separate sub-build)
+sge-android-smoke/                # Minimal Android smoke-test APK
+sge-it-tests/                     # Integration tests (desktop, browser, android)
+scalafix-rules/                   # Custom Scalafix lint rules
 ```
 
-## Target Structure
+## sbt Project IDs
 
-```
-build.sbt
-project/
-  plugins.sbt               # sbt-projectmatrix (sbt 1.x), sbt-scalajs, sbt-scala-native
-core/                        # Platform-agnostic code (projectMatrix)
-  src/main/scala/sge/              # Shared source
-  src/main/scala-jvm/sge/          # JVM-specific core extensions
-  src/main/scala-js/sge/           # JS-specific core extensions
-  src/main/scala-native/sge/       # Native-specific core extensions
-backend-lwjgl3/             # JVM desktop backend
-  src/main/scala/sge/backend/lwjgl3/
-backend-webgl/              # Scala.js browser backend
-  src/main/scala/sge/backend/webgl/
-backend-native/             # Scala Native backend
-  src/main/scala/sge/backend/native/
-backend-headless/           # Headless backend (testing)
-  src/main/scala/sge/backend/headless/
-```
+The `sge` projectMatrix generates these subprojects:
 
-## SBT Configuration Sketch (sbt 1.x + sbt-projectmatrix plugin)
+| Command | Platform |
+|---------|----------|
+| `sge/compile` | JVM |
+| `sgeJS/compile` | Scala.js |
+| `sgeNative/compile` | Scala Native |
 
-```scala
-// project/plugins.sbt
-addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.11.0")
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.2")
-addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.10")
-```
-
-```scala
-// build.sbt
-lazy val core = projectMatrix
-  .in(file("core"))
-  .settings(
-    name := "sge",
-    scalaVersion := "3.8.2"
-  )
-  .jvmPlatform(scalaVersions = Seq("3.8.2"))
-  .jsPlatform(scalaVersions = Seq("3.8.2"))
-  .nativePlatform(scalaVersions = Seq("3.8.2"))
-
-lazy val backendLwjgl3 = project
-  .in(file("backend-lwjgl3"))
-  .dependsOn(core.jvm("3.8.2"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.lwjgl" % "lwjgl" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-glfw" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-opengl" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-openal" % lwjglVersion,
-      "org.lwjgl" % "lwjgl-stb" % lwjglVersion
-    )
-  )
-
-lazy val backendWebgl = project
-  .in(file("backend-webgl"))
-  .enablePlugins(ScalaJSPlugin)
-  .dependsOn(core.js("3.8.2"))
-  .settings(
-    libraryDependencies += "org.scala-js" %%% "scalajs-dom" % scalajsDomVersion
-  )
-
-lazy val backendNative = project
-  .in(file("backend-native"))
-  .enablePlugins(ScalaNativePlugin)
-  .dependsOn(core.native("3.8.2"))
-
-lazy val backendHeadless = project
-  .in(file("backend-headless"))
-  .dependsOn(core.jvm("3.8.2"))
-```
-
-## SBT 2.0 Equivalent (future, once stable)
-
-In sbt 2.x, `projectMatrix` is built-in — no plugin needed:
-
-```scala
-// build.sbt (sbt 2.x syntax)
-lazy val core = projectMatrix
-  .in(file("core"))
-  .settings(
-    name := "sge"
-  )
-  .jvmPlatform(scalaVersions = Seq("3.8.2"))
-  .jsPlatform(scalaVersions = Seq("3.8.2"))
-  .nativePlatform(scalaVersions = Seq("3.8.2"))
-```
-
-## Migration Path
-
-The transition from single-project to cross-project should happen after the core port
-is substantially complete:
-
-1. Add `sbt-projectmatrix` plugin (0.11.0) to `project/plugins.sbt`
-2. Convert `core` from `project` to `projectMatrix` with `.jvmPlatform()` only (initially)
-3. Identify platform-specific code (JNI calls, `java.nio`, threading)
-4. Create platform-specific source directories for those files
-5. Add backend projects one at a time (headless first for testing)
-6. Add `.jsPlatform()` and `.nativePlatform()` when those backends are ready
-7. When sbt 2.0 is stable: remove plugin, update `build.sbt` syntax, bump sbt version
+JVM platform modules are merged into the sge JVM JAR via `packageBin/mappings`
+(no `dependsOn` — avoids circular dependencies).
 
 ## Key Dependencies by Platform
 
-| Platform | Graphics | Audio | Windowing | Image Loading |
-|----------|----------|-------|-----------|---------------|
-| JVM | LWJGL3/OpenGL | LWJGL3/OpenAL | LWJGL3/GLFW | stb_image via LWJGL |
-| Scala.js | WebGL | Web Audio API | DOM/Canvas | HTMLImageElement |
-| Scala Native | OpenGL (C) | OpenAL (C) | GLFW (C) | stb_image (C) |
-| Headless | No-op stubs | No-op stubs | No-op stubs | No-op stubs |
+| Platform | Graphics | Audio | Windowing | FFI |
+|----------|----------|-------|-----------|-----|
+| JVM | ANGLE (libEGL, libGLESv2) | miniaudio (Rust) | GLFW (Rust) | Panama FFM |
+| Scala.js | WebGL/WebGL2 | Web Audio API | DOM/Canvas | N/A |
+| Scala Native | ANGLE | miniaudio (Rust) | GLFW (Rust) | C ABI (@extern) |
+| Android | System GL ES | miniaudio (Rust) | GLSurfaceView | JNI |
+
+## Demos Sub-Build
+
+The `demos/` directory is a **separate sbt build** that depends on published SGE:
+
+```sh
+sge-dev build publish-local --all   # Publish SGE to local Maven
+cd demos && sbt --client compile    # Compile all 10 demos
+```
+
+Each demo uses `projectMatrix` with JVM, JS, and Native axes, plus cross-native
+axes for building Scala Native binaries targeting non-host platforms (via zig).
+
+## Validated Toolchain
+
+| Tool | Version |
+|------|---------|
+| Scala | 3.8.2 |
+| sbt | 1.12+ |
+| sbt-projectmatrix | 0.11.0 |
+| sbt-scalajs | 1.20.2 |
+| sbt-scala-native | 0.5.10 |
+| JDK | 23+ (distribution), 21+ (CI) |
+
+See [cross-platform-settings.md](cross-platform-settings.md) for the full settings reference.

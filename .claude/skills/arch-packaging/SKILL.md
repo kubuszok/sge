@@ -20,21 +20,33 @@ Distribution packaging architecture for SGE games.
 - `sgeCrossNativeLibDir` setting: points to `native-components/target/cross/`
 - Per-platform native libs from `cross/<classifier>/` (e.g. `cross/macos-aarch64/`)
 - ANGLE libs (libEGL, libGLESv2) bundled alongside Rust libs
+- Static curl libs (from stunnel/static-curl) for self-contained Scala Native releases
 - macOS .app bundles with ad-hoc codesigning
 
 ## Release Workflow
 ```
-just release-prep                    # Cross-compile Rust + download ANGLE
-cd demos && sbt --client releaseAll  # Build all demos (JVM/JS/Native/Android)
-sbt --client collectReleases         # Collect into demos/target/releases/
+sge-dev native release-prep                      # Cross-compile Rust + download ANGLE + curl
+sge-dev build release --publish-first             # Publish SGE locally + build all releases
+sge-dev build collect                             # Collect into demos/target/releases/
 ```
 
-## Verification Recipes
+Or step by step:
 ```
-just package-verify-native pong      # Test native archive launches
-just package-verify-jvm pong         # Test JVM archive launches
-just package-verify-jvm-intel pong   # Test x86_64 under Rosetta
-just android-test-collected pong     # Test collected APK on emulator
+sge-dev build publish-local --all                 # Publish SGE to local Maven
+sge-dev build release                             # Build all demo releases (JVM/JS/Native/Android)
+sge-dev build release --demo pong                 # Build a single demo release
+sge-dev build collect                             # Collect releases
+```
+
+## Verification Commands
+```
+sge-dev build verify-native pong                  # Test native archive launches
+sge-dev build verify-jvm pong                     # Test JVM archive launches
+sge-dev build verify-jvm-intel pong               # Test x86_64 under Rosetta
+sge-dev build verify-browser pong                 # Check browser archive structure
+sge-dev build verify-releases --demo pong         # Run all verify-* for a demo
+sge-dev build verify-releases                     # Verify all demos
+sge-dev test android test pong                    # Test collected APK on emulator
 ```
 
 Load the SgePackaging source for implementation details:

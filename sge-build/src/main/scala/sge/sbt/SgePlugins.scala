@@ -107,15 +107,10 @@ object JvmReleases extends AutoPlugin {
     fork := true,
     javaOptions ++= {
       val rustLib = SgeProject.autoImport.sgeRustLibDir.value.getAbsolutePath
-      val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
-        val arm = "/opt/homebrew/lib"
-        val x86 = "/usr/local/lib"
-        s"${java.io.File.pathSeparator}$arm${java.io.File.pathSeparator}$x86"
-      } else ""
-      val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
+      val macFlags = if (Platform.host.isMac)
         Seq("-XstartOnFirstThread") else Seq.empty
       Seq(
-        s"-Djava.library.path=$rustLib$brewLib",
+        s"-Djava.library.path=$rustLib",
         "--enable-native-access=ALL-UNNAMED"
       ) ++ macFlags
     },

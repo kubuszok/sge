@@ -14,6 +14,54 @@ object NativeCmd {
     "x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc"
   )
 
+  // ANGLE pre-built binaries from sge-angle-natives GitHub Releases
+  private val AngleVersion = "chromium-7151"
+  private val AngleRepo = "MateuszKubuszok/sge-angle-natives"
+  private val AngleBaseUrl = s"https://github.com/$AngleRepo/releases/download/$AngleVersion"
+
+  private val anglePlatforms = List(
+    "macos-aarch64", "macos-x86_64",
+    "linux-x86_64", "linux-aarch64",
+    "windows-x86_64", "windows-aarch64"
+  )
+
+  // Static curl pre-built libraries from stunnel/static-curl GitHub Releases.
+  // Provides libcurl.a + all transitive deps (OpenSSL, nghttp2, zstd, brotli,
+  // libidn2, etc.) for self-contained Scala Native releases — no system
+  // libcurl or libidn2 needed.
+  private val CurlVersion = "8.19.0"
+  private val CurlBaseUrl = s"https://github.com/stunnel/static-curl/releases/download/$CurlVersion"
+
+  // stunnel/static-curl uses "arm64" for macOS, "aarch64" for Linux/Windows
+  private def curlAssetPlatform(platform: String): String = platform match {
+    case "macos-aarch64" => "macos-arm64"
+    case other => other
+  }
+
+  private def curlArchiveName(platform: String): String =
+    s"curl-${curlAssetPlatform(platform)}-dev-$CurlVersion.tar.xz"
+
+  private def hostAnglePlatform: String = {
+    val os = System.getProperty("os.name", "").toLowerCase
+    val arch = System.getProperty("os.arch", "")
+    val osName = if (os.contains("mac")) "macos"
+      else if (os.contains("linux")) "linux"
+      else if (os.contains("win")) "windows"
+      else { Term.err(s"Unsupported OS: $os"); sys.exit(1); "" }
+    val archName = arch match {
+      case "amd64" | "x86_64" => "x86_64"
+      case "aarch64" | "arm64" => "aarch64"
+      case _ => Term.err(s"Unsupported arch: $arch"); sys.exit(1); ""
+    }
+    s"$osName-$archName"
+  }
+
+  private def angleLibExt(platform: String): String = {
+    if (platform.startsWith("macos")) "dylib"
+    else if (platform.startsWith("windows")) "dll"
+    else "so"
+  }
+
   def run(args: List[String]): Unit = {
     args match {
       case Nil | "--help" :: _ =>
@@ -27,7 +75,8 @@ object NativeCmd {
                   |  collect                   Collect cross-compiled artifacts
                   |  test                      Run Rust unit tests
                   |  setup-toolchain           Install cross-compilation toolchains
-                  |  angle {setup,download,cross-collect}
+                  |  angle {setup,download,cross-collect,check}
+                  |  curl  {setup,download,cross-collect,check}
                   |  release-prep              Full release preparation""".stripMargin)
       case "build" :: rest => build(Cli.parse(rest))
       case "cross" :: rest => cross(rest)
@@ -37,6 +86,7 @@ object NativeCmd {
       case "test" :: _ => cargoExec(List("test"))
       case "setup-toolchain" :: _ => setupToolchain()
       case "angle" :: rest => angle(rest)
+      case "curl" :: rest => curl(rest)
       case "release-prep" :: _ => releasePrepare()
       case other :: _ =>
         Term.err(s"Unknown native command: $other")
@@ -181,7 +231,12 @@ object NativeCmd {
         "libsge_audio.dylib", "libsge_audio.so", "sge_audio.dll", "libsge_audio.a",
         "libglfw.dylib", "libglfw.so", "glfw3.dll", "libglfw3.a",
         "libEGL.dylib", "libEGL.so", "libEGL.dll",
-        "libGLESv2.dylib", "libGLESv2.so", "GLESv2.dll"
+        "libGLESv2.dylib", "libGLESv2.so", "GLESv2.dll",
+        // Static curl + transitive deps (from sge-dev native curl cross-collect)
+        "libcurl.a", "libssl.a", "libcrypto.a", "libnghttp2.a", "libnghttp3.a",
+        "libngtcp2.a", "libngtcp2_crypto_ossl.a", "libz.a", "libbrotlidec.a",
+        "libbrotlicommon.a", "libidn2.a", "libunistring.a", "libcares.a",
+        "libssh2.a", "libzstd.a", "libpsl.a"
       )
       val files = scala.collection.mutable.ListBuffer.empty[String]
       for (lib <- libPatterns) {
@@ -227,10 +282,11 @@ object NativeCmd {
 
   private def angle(args: List[String]): Unit = {
     args match {
-      case Nil => println("Usage: sge-dev native angle {setup,download,cross-collect}")
+      case Nil => println("Usage: sge-dev native angle {setup,download,cross-collect,check}")
       case "setup" :: _ => angleSetup()
       case "download" :: _ => angleDownload()
       case "cross-collect" :: _ => angleCrossCollect()
+      case "check" :: _ => angleCheck()
       case other :: _ =>
         Term.err(s"Unknown angle command: $other")
         sys.exit(1)
@@ -240,105 +296,88 @@ object NativeCmd {
   private def angleSetup(): Unit = {
     val dest = s"$nativeDir/target/release"
     new File(dest).mkdirs()
+    val platform = hostAnglePlatform
+    val ext = angleLibExt(platform)
 
     // Check if already present
-    if (new File(s"$dest/libEGL.dylib").exists() && new File(s"$dest/libGLESv2.dylib").exists()) {
+    val eglFile = new File(s"$dest/libEGL.$ext")
+    val glesFile = new File(s"$dest/libGLESv2.$ext")
+    if (eglFile.exists() && glesFile.exists()) {
       println(s"ANGLE libraries already present in $dest")
     } else {
-      val os = System.getProperty("os.name")
-      if (os.contains("Mac")) {
-        // macOS: copy from Homebrew
-        val cellarDirs = List("/opt/homebrew/Cellar/angle", "/usr/local/Cellar/angle")
-        val angleLib = cellarDirs.flatMap { cellar =>
-          val dir = new File(cellar)
-          if (dir.exists()) {
-            dir.listFiles().filter(_.isDirectory).sortBy(_.getName).lastOption
-              .map(v => s"${v.getAbsolutePath}/lib")
-          } else { None }
-        }.headOption
+      // Download from sge-angle-natives releases
+      val cacheDir = s"$nativeDir/target/angle-cache"
+      new File(cacheDir).mkdirs()
+      val archive = s"angle-$platform.tar.gz"
+      val archivePath = s"$cacheDir/$archive"
 
-        angleLib match {
-          case Some(lib) =>
-            Term.info(s"Copying ANGLE from $lib to $dest")
-            java.nio.file.Files.copy(
-              new File(s"$lib/libEGL.dylib").toPath,
-              new File(s"$dest/libEGL.dylib").toPath,
-              java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            java.nio.file.Files.copy(
-              new File(s"$lib/libGLESv2.dylib").toPath,
-              new File(s"$dest/libGLESv2.dylib").toPath,
-              java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-            // Fix install names
-            Proc.exec("install_name_tool", List("-id", "@rpath/libEGL.dylib", s"$dest/libEGL.dylib"))
-            Proc.exec("install_name_tool", List("-id", "@rpath/libGLESv2.dylib", s"$dest/libGLESv2.dylib"))
-            Proc.run("install_name_tool", List("-change",
-              "/opt/homebrew/opt/angle/lib/libEGL.dylib", "@rpath/libEGL.dylib",
-              s"$dest/libGLESv2.dylib"))
-            Proc.run("install_name_tool", List("-change",
-              "/usr/local/opt/angle/lib/libEGL.dylib", "@rpath/libEGL.dylib",
-              s"$dest/libGLESv2.dylib"))
-            // Re-sign
-            Proc.exec("codesign", List("--force", "--sign", "-", s"$dest/libEGL.dylib"))
-            Proc.exec("codesign", List("--force", "--sign", "-", s"$dest/libGLESv2.dylib"))
-            Term.ok(s"ANGLE libraries installed to $dest")
-          case None =>
-            Term.err("ANGLE not found in Homebrew. Install with: brew install startergo/angle/angle")
-            sys.exit(1)
+      if (!new File(archivePath).exists()) {
+        val url = s"$AngleBaseUrl/$archive"
+        Term.info(s"Downloading ANGLE for $platform...")
+        val result = Proc.run("curl", List("-fSL", "-o", archivePath, url))
+        if (!result.ok) {
+          Term.err(s"Download failed. URL: $url")
+          Term.err("Fallback: install ANGLE via Homebrew (brew install startergo/angle/angle)")
+          sys.exit(1)
         }
-      } else {
-        Term.err(s"Automatic ANGLE setup not yet implemented for $os. Place libEGL and libGLESv2 in $dest manually.")
-        sys.exit(1)
       }
+
+      // Extract to temp dir then copy libs
+      val tmp = s"$cacheDir/extract-$platform"
+      deleteDir(new File(tmp))
+      new File(tmp).mkdirs()
+      Proc.exec("tar", List("xzf", archivePath, "-C", tmp))
+
+      // Copy ANGLE libs to release dir
+      copyAngleLib(tmp, dest, s"libEGL.$ext")
+      copyAngleLib(tmp, dest, s"libGLESv2.$ext")
+
+      // macOS: fix install names and re-sign
+      if (platform.startsWith("macos")) {
+        Proc.exec("install_name_tool", List("-id", "@rpath/libEGL.dylib", s"$dest/libEGL.dylib"))
+        Proc.exec("install_name_tool", List("-id", "@rpath/libGLESv2.dylib", s"$dest/libGLESv2.dylib"))
+        Proc.run("install_name_tool", List("-change",
+          "/opt/homebrew/opt/angle/lib/libEGL.dylib", "@rpath/libEGL.dylib",
+          s"$dest/libGLESv2.dylib"))
+        Proc.exec("codesign", List("--force", "--sign", "-", s"$dest/libEGL.dylib"))
+        Proc.exec("codesign", List("--force", "--sign", "-", s"$dest/libGLESv2.dylib"))
+      }
+
+      Term.ok(s"ANGLE $AngleVersion installed to $dest")
     }
   }
 
   private def angleDownload(): Unit = {
     val cache = s"$nativeDir/target/angle-cache"
-    val out = crossOutDir
     new File(cache).mkdirs()
 
-    // macOS universal
-    val macUrl = "https://github.com/nicedoc/angle-builder/releases/latest/download/angle-macos-universal.zip"
-    downloadAndExtractAngle(cache, out, macUrl, "angle-macos-universal.zip",
-      List("macos-aarch64", "macos-x86_64"), "dylib")
+    for (platform <- anglePlatforms) {
+      val archive = s"angle-$platform.tar.gz"
+      val archivePath = s"$cache/$archive"
 
-    // Windows x86_64
-    val winUrl = "https://github.com/nicedoc/angle-builder/releases/latest/download/angle-windows-x86_64.zip"
-    downloadAndExtractAngle(cache, out, winUrl, "angle-windows-x86_64.zip",
-      List("windows-x86_64"), "dll")
-
-    // Linux x86_64
-    val linuxUrl = "https://github.com/nicedoc/angle-builder/releases/latest/download/angle-linux-x86_64.zip"
-    downloadAndExtractAngle(cache, out, linuxUrl, "angle-linux-x86_64.zip",
-      List("linux-x86_64"), "so")
-
-    println()
-    println("NOTE: Linux aarch64 and Windows aarch64 ANGLE not yet available.")
-    println("      These platforms will use system GL if present.")
-  }
-
-  private def downloadAndExtractAngle(cache: String, out: String, url: String,
-                                       zipName: String, platforms: List[String], ext: String): Unit = {
-    val zipPath = s"$cache/$zipName"
-    if (!new File(zipPath).exists()) {
-      Term.info(s"Downloading $zipName...")
-      val result = Proc.run("curl", List("-fSL", "-o", zipPath, url))
-      if (!result.ok) {
-        Term.warn(s"Download failed: $zipName")
+      if (!new File(archivePath).exists()) {
+        val url = s"$AngleBaseUrl/$archive"
+        Term.info(s"Downloading $archive...")
+        val result = Proc.run("curl", List("-fSL", "-o", archivePath, url))
+        if (!result.ok) {
+          Term.warn(s"Download failed: $archive (may not be available yet)")
+        }
       }
-    }
-    if (new File(zipPath).exists()) {
-      val tmp = s"$cache/extract-${zipName.replace(".zip", "")}"
-      deleteDir(new File(tmp))
-      new File(tmp).mkdirs()
-      Proc.exec("unzip", List("-qo", zipPath, "-d", tmp))
-      for (plat <- platforms) {
-        val platDir = new File(s"$out/$plat")
+
+      if (new File(archivePath).exists()) {
+        val tmp = s"$cache/extract-$platform"
+        deleteDir(new File(tmp))
+        new File(tmp).mkdirs()
+        Proc.exec("tar", List("xzf", archivePath, "-C", tmp))
+
+        val out = crossOutDir
+        val platDir = new File(s"$out/$platform")
         platDir.mkdirs()
-        copyAngleLib(tmp, s"$out/$plat", s"libEGL.$ext")
-        copyAngleLib(tmp, s"$out/$plat", s"libGLESv2.$ext")
+        val ext = angleLibExt(platform)
+        copyAngleLib(tmp, s"$out/$platform", s"libEGL.$ext")
+        copyAngleLib(tmp, s"$out/$platform", s"libGLESv2.$ext")
+        println(s"  $archive -> $platform")
       }
-      println(s"  $zipName -> ${platforms.mkString(", ")}")
     }
   }
 
@@ -350,31 +389,150 @@ object NativeCmd {
   }
 
   private def angleCrossCollect(): Unit = {
-    val src = s"$nativeDir/target/release"
-    val out = crossOutDir
-    if (!new File(s"$src/libEGL.dylib").exists() || !new File(s"$src/libGLESv2.dylib").exists()) {
-      Term.err(s"ANGLE libs not found in $src. Run 'sge-dev native angle setup' first.")
+    Term.info("Downloading ANGLE for all desktop platforms...")
+    angleDownload()
+    Term.ok("ANGLE cross-collect complete")
+  }
+
+  private def angleCheck(): Unit = {
+    val dest = s"$nativeDir/target/release"
+    val platform = hostAnglePlatform
+    val ext = angleLibExt(platform)
+    val egl = new File(s"$dest/libEGL.$ext")
+    val gles = new File(s"$dest/libGLESv2.$ext")
+    if (egl.exists() && gles.exists()) {
+      Term.ok(s"ANGLE present for $platform in $dest")
+    } else {
+      Term.err(s"ANGLE NOT found for $platform in $dest")
+      Term.err("Run: sge-dev native angle setup")
       sys.exit(1)
     }
-    for (plat <- List("macos-aarch64", "macos-x86_64")) {
-      val platDir = new File(s"$out/$plat")
-      platDir.mkdirs()
-      java.nio.file.Files.copy(new File(s"$src/libEGL.dylib").toPath,
-        new File(platDir, "libEGL.dylib").toPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-      java.nio.file.Files.copy(new File(s"$src/libGLESv2.dylib").toPath,
-        new File(platDir, "libGLESv2.dylib").toPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING)
-      println(s"  ANGLE -> $out/$plat/")
+  }
+
+  // ── Curl static library management ────────────────────────────────
+
+  private def curl(args: List[String]): Unit = {
+    args match {
+      case Nil => println("Usage: sge-dev native curl {setup,download,cross-collect,check}")
+      case "setup" :: _ => curlSetup()
+      case "download" :: _ => curlDownload()
+      case "cross-collect" :: _ => curlCrossCollect()
+      case "check" :: _ => curlCheck()
+      case other :: _ =>
+        Term.err(s"Unknown curl command: $other")
+        sys.exit(1)
+    }
+  }
+
+  /** Download static curl for the host platform into target/release/. */
+  private def curlSetup(): Unit = {
+    val dest = s"$nativeDir/target/release"
+    new File(dest).mkdirs()
+    val platform = hostAnglePlatform // same host detection
+
+    // Check if already present (libcurl.a > 1MB indicates full static archive)
+    val curlA = new File(s"$dest/libcurl.a")
+    if (curlA.exists() && curlA.length() > 1000000) {
+      println(s"Static curl already present in $dest")
+      return
+    }
+
+    curlDownloadPlatform(platform, dest)
+    Term.ok(s"Static curl $CurlVersion installed to $dest")
+  }
+
+  /** Download static curl for all 6 desktop platforms into target/cross/. */
+  private def curlDownload(): Unit = {
+    for (platform <- anglePlatforms) { // same 6 platforms as ANGLE
+      val out = s"$crossOutDir/$platform"
+      new File(out).mkdirs()
+      curlDownloadPlatform(platform, out)
+      println(s"  $platform: curl $CurlVersion")
+    }
+  }
+
+  /** Download and extract curl static libs for a single platform. */
+  private def curlDownloadPlatform(platform: String, destDir: String): Unit = {
+    val cacheDir = s"$nativeDir/target/curl-cache"
+    new File(cacheDir).mkdirs()
+    val archive = curlArchiveName(platform)
+    val archivePath = s"$cacheDir/$archive"
+
+    if (!new File(archivePath).exists()) {
+      val url = s"$CurlBaseUrl/$archive"
+      Term.info(s"Downloading static curl for $platform...")
+      val result = Proc.run("curl", List("-fSL", "-o", archivePath, url))
+      if (!result.ok) {
+        Term.err(s"Download failed. URL: $url")
+        sys.exit(1)
+      }
+    }
+
+    // Extract to temp dir
+    val tmp = s"$cacheDir/extract-$platform"
+    deleteDir(new File(tmp))
+    new File(tmp).mkdirs()
+    Proc.exec("tar", List("xf", archivePath, "-C", tmp))
+
+    // Find the lib/ directory inside the extracted archive (e.g. curl-arm64/lib/)
+    findDirRecursive(new File(tmp), "lib") match {
+      case Some(libDir) =>
+        // Copy all .a files to destination
+        val aFiles = libDir.listFiles().filter(f => f.isFile && f.getName.endsWith(".a"))
+        for (f <- aFiles) {
+          java.nio.file.Files.copy(f.toPath, new File(s"$destDir/${f.getName}").toPath,
+            java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+      case None =>
+        Term.err(s"No lib/ directory found in curl archive for $platform")
+    }
+  }
+
+  private def curlCrossCollect(): Unit = {
+    Term.info("Downloading static curl for all desktop platforms...")
+    curlDownload()
+    Term.ok("Curl cross-collect complete")
+  }
+
+  private def curlCheck(): Unit = {
+    val dest = s"$nativeDir/target/release"
+    val curlA = new File(s"$dest/libcurl.a")
+    val idn2A = new File(s"$dest/libidn2.a")
+    if (curlA.exists() && idn2A.exists()) {
+      Term.ok(s"Static curl present in $dest")
+    } else {
+      Term.err(s"Static curl NOT found in $dest")
+      Term.err("Run: sge-dev native curl setup")
+      sys.exit(1)
     }
   }
 
   private def releasePrepare(): Unit = {
+    Term.info("=== Phase 1: Cross-compile Rust native libraries ===")
     crossAll()
+    Term.info("=== Phase 2: Download ANGLE for all platforms ===")
     angleDownload()
+    Term.info("=== Phase 3: Download static curl for all platforms ===")
+    curlDownload()
+    Term.ok("Release preparation complete")
   }
 
   private def cargoExec(args: List[String]): Unit = {
     val code = Proc.exec("cargo", args, cwd = Some(nativeDir))
     if (code != 0) sys.exit(code)
+  }
+
+  private def findDirRecursive(dir: File, name: String): Option[File] = {
+    if (!dir.exists()) { None }
+    else {
+      val files = dir.listFiles()
+      if (files == null) { None }
+      else {
+        files.find(f => f.isDirectory && f.getName == name).orElse(
+          files.filter(_.isDirectory).flatMap(d => findDirRecursive(d, name)).headOption
+        )
+      }
+    }
   }
 
   private def findFileRecursive(dir: File, name: String): Option[File] = {

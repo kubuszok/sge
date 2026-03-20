@@ -14,6 +14,14 @@ found during the porting process.
 
 ---
 
-*No entries yet. Add entries here as bugs are discovered during verification.*
+Bugs discovered during porting are tracked in the issues database:
 
-*When adding an entry, use the next BA-nnn ID in sequence.*
+```bash
+sge-dev db issues list              # List all open issues
+sge-dev db issues add <desc>        # Add a new issue
+sge-dev db issues resolve <id>      # Mark an issue as resolved
+sge-dev db issues stats             # Summary statistics
+```
+
+The template above (BA-nnn) can be used for documenting particularly notable bugs
+that warrant detailed write-ups beyond what fits in the issues db.

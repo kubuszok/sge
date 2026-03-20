@@ -1,4 +1,11 @@
-# Platform Validation
+# Platform Validation (Historical)
+
+> **Note (2026-03-20):** This document records the initial architecture validation
+> from 2026-03-01. The `hello-world/` prototype has been archived — the architecture
+> is now fully implemented in the main `sge/` module with all backends complete and
+> 3,642 tests passing across JVM (1450), JS (1096), and Native (1096). The patterns
+> validated here (context parameters, NativeOps trait, projectMatrix) are all in
+> production use.
 
 Practical validation that SGE's cross-platform architecture works end-to-end.
 Conducted 2026-03-01 using the `hello-world/` prototype on the `platform-validation`

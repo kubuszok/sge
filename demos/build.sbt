@@ -1,5 +1,7 @@
-import _root_.sge.sbt.{AndroidBuild, AndroidSdk, JvmReleases, BrowserReleases, NativeReleases, Platform, SgePackaging, SgePlugin, SgeProject}
+import _root_.sge.sbt.{AndroidBuild, AndroidSdk, JvmReleases, BrowserReleases, NativeReleases, Platform, SgePackaging, SgePlugin, SgeProject, ZigCross}
 import sbt.internal.ProjectMatrix
+import scala.scalanative.sbtplugin.ScalaNativePlugin
+import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -27,17 +29,19 @@ ThisBuild / SgeProject.autoImport.sgeRustLibDir := {
   (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
 }
 
-// ── Adoptium JDK 22 URLs for distribution packaging ──────────────
+// ── Temurin JDK 23 URLs for distribution packaging ───────────────
+// JDK 23 supports all 6 desktop platforms including Windows ARM64.
+// Panama FFM (java.lang.foreign) is stable since JDK 22.
 
-val adoptiumBase = "https://github.com/adoptium/temurin22-binaries/releases/download/jdk-22.0.2%2B9"
+val temurinBase = "https://github.com/adoptium/temurin23-binaries/releases/download/jdk-23.0.2%2B7"
 
-val adoptiumJdkUrls: Map[Platform, String] = Map(
-  Platform.LinuxX86_64    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_linux_hotspot_22.0.2_9.tar.gz",
-  Platform.LinuxAarch64   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_linux_hotspot_22.0.2_9.tar.gz",
-  Platform.MacosX86_64    -> s"$adoptiumBase/OpenJDK22U-jdk_x64_mac_hotspot_22.0.2_9.tar.gz",
-  Platform.MacosAarch64   -> s"$adoptiumBase/OpenJDK22U-jdk_aarch64_mac_hotspot_22.0.2_9.tar.gz",
-  Platform.WindowsX86_64  -> s"$adoptiumBase/OpenJDK22U-jdk_x64_windows_hotspot_22.0.2_9.zip"
-  // WindowsAarch64 omitted: Adoptium JDK 22 has no Windows ARM64 build
+val jdkUrls: Map[Platform, String] = Map(
+  Platform.LinuxX86_64    -> s"$temurinBase/OpenJDK23U-jdk_x64_linux_hotspot_23.0.2_7.tar.gz",
+  Platform.LinuxAarch64   -> s"$temurinBase/OpenJDK23U-jdk_aarch64_linux_hotspot_23.0.2_7.tar.gz",
+  Platform.MacosX86_64    -> s"$temurinBase/OpenJDK23U-jdk_x64_mac_hotspot_23.0.2_7.tar.gz",
+  Platform.MacosAarch64   -> s"$temurinBase/OpenJDK23U-jdk_aarch64_mac_hotspot_23.0.2_7.tar.gz",
+  Platform.WindowsX86_64  -> s"$temurinBase/OpenJDK23U-jdk_x64_windows_hotspot_23.0.2_7.zip",
+  Platform.WindowsAarch64 -> s"$temurinBase/OpenJDK23U-jdk_aarch64_windows_hotspot_23.0.2_7.zip"
 )
 
 // ── Android SDK detection ────────────────────────────────────────────
@@ -70,7 +74,7 @@ def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
   JvmReleases.axisSettings ++ androidJvmSettings(dir) ++ Seq(
     SgeProject.autoImport.sgeProjectDir := dir,
     Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
-    SgePackaging.sgeTargets := adoptiumJdkUrls,
+    SgePackaging.sgeTargets := jdkUrls,
     SgePackaging.sgeCrossNativeLibDir := Some(
       (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "cross"
     ),
@@ -89,6 +93,47 @@ def nativeAxis(dir: String): Seq[Setting[_]] =
       (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
     }
   )
+
+// ── Cross-compilation native axes ──────────────────────────────────
+// Enables building Scala Native binaries for non-host platforms using zig.
+// Each target gets a separate sbt subproject (e.g. pongNativeLinuxX64).
+
+val crossNativeTargets: Seq[Platform] = {
+  val crossDir = new File(System.getProperty("user.dir")).getParentFile / "native-components" / "target" / "cross"
+  if (ZigCross.isAvailable && crossDir.exists())
+    Platform.desktop.filterNot(_ == Platform.host)
+  else Seq.empty
+}
+
+def crossNativeAxis(dir: String, platform: Platform): Seq[Setting[_]] =
+  SgePlugin.nativeSettings(projectDir = dir) ++ _root_.sge.sbt.SgeNativeLibs.settings ++ SgePackaging.nativeSettings ++ Seq(
+    SgeProject.autoImport.sgeProjectDir := dir,
+    SgeProject.autoImport.sgeRustLibDir := {
+      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "cross" / platform.classifier
+    },
+    _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
+    SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
+    nativeConfig := {
+      val c = nativeConfig.value
+      val crossLibDir = SgeProject.autoImport.sgeRustLibDir.value
+      val wrapperDir = target.value / "zig-wrappers"
+      c.withClang(ZigCross.clangWrapper(platform, wrapperDir))
+        .withClangPP(ZigCross.clangPPWrapper(platform, wrapperDir))
+        .withTargetTriple(Some(platform.scalaNativeTarget))
+        .withLinkingOptions(c.linkingOptions ++ _root_.sge.sbt.SgeNativeLibs.linkerFlags(crossLibDir, platform))
+    }
+  )
+
+/** Add cross-native axes to a demo project. */
+def withCrossNative(dir: String)(matrix: ProjectMatrix): ProjectMatrix =
+  crossNativeTargets.foldLeft(matrix) { (m, platform) =>
+    m.customRow(
+      autoScalaLibrary = true,
+      scalaVersions = Seq(sv),
+      axisValues = Seq(NativeCrossAxis(platform), VirtualAxis.native, VirtualAxis.scalaABIVersion(sv)),
+      process = _.enablePlugins(ScalaNativePlugin).settings(crossNativeAxis(dir, platform) *)
+    )
+  }
 
 // ── Shared demo framework ───────────────────────────────────────────
 
@@ -111,10 +156,8 @@ val shared = (projectMatrix in file("shared"))
       fork := true,
       javaOptions ++= {
         val rustLib = SgeProject.autoImport.sgeRustLibDir.value.getAbsolutePath
-        val brewLib = if (sys.props("os.name").toLowerCase.contains("mac")) {
-          s"${java.io.File.pathSeparator}/opt/homebrew/lib${java.io.File.pathSeparator}/usr/local/lib"
-        } else ""
-        Seq(s"-Djava.library.path=$rustLib$brewLib", "--enable-native-access=ALL-UNNAMED")
+        val macFlags = if (Platform.host.isMac) Seq("-XstartOnFirstThread") else Seq.empty
+        Seq(s"-Djava.library.path=$rustLib", "--enable-native-access=ALL-UNNAMED") ++ macFlags
       },
       Test / fork := true,
       Test / javaOptions ++= (javaOptions).value
@@ -137,8 +180,8 @@ val shared = (projectMatrix in file("shared"))
 // ── Demo projects ───────────────────────────────────────────────────
 // projectMatrix must be assigned directly to a val (sbt macro constraint).
 
-def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix =
-  matrix
+def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix = {
+  val base = matrix
     .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
     .enablePlugins(SgeProject)
     .settings(name := sbtName, organization := "com.kubuszok", publish / skip := true,
@@ -147,6 +190,8 @@ def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: Proje
     .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis(dir, pkg))
     .jsPlatform(scalaVersions = Seq(sv), settings = jsAxis)
     .nativePlatform(scalaVersions = Seq(sv), settings = nativeAxis(dir))
+  withCrossNative(dir)(base)
+}
 
 val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
 val spaceShooter     = demo("space-shooter",     "sge-demo-spaceshooter", "spaceshooter", "SGE Space Shooter")(projectMatrix in file("space-shooter"))
@@ -340,7 +385,7 @@ addCommandAlias("releaseAll",
 // ── Android APK aliases ───────────────────────────────────────────────
 // Usage: sbt androidPong        — builds APK for Pong
 //        sbt androidAll         — builds APKs for all demos
-// Requires Android SDK: just android-sdk-setup
+// Requires Android SDK: sge-dev test android setup
 
 def androidAlias(name: String, jvm: String): Seq[Setting[_]] =
   addCommandAlias(s"android${name}", s"$jvm/androidSign")

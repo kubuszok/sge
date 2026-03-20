@@ -1,6 +1,7 @@
-# iOS Backend Feasibility Research
+# iOS Backend Feasibility
 
-Date: 2026-03-13
+Date: 2026-03-13 (consolidated from ios-strategy.md + backend-ios-analysis.md)
+Status: Deferred (blocked on Scala Native iOS support)
 
 ## 1. Scala Native iOS Support Status
 
@@ -166,7 +167,33 @@ to multiple targets. Adding iOS targets should be straightforward:
 - miniaudio supports iOS natively
 - Buffer ops are pure C/Rust — platform-independent
 
-## 9. Deferred iOS Files (14 total, from migration-status.tsv)
+## 9. MetalANGLE is Dead — Use Mainline ANGLE
+
+MetalANGLE's author (kakashidinho) joined Google and merged all Metal backend
+improvements into mainline ANGLE as of June 2021. Mainline ANGLE now has
+complete ES 3.1 on Metal, surpassing MetalANGLE's ~90% ES 3.0 coverage.
+iOS is explicitly supported (iOS 12+, Metal backend only).
+
+## 10. Objective-C Interop — Bypassed by SDL3
+
+The biggest apparent blocker (no ObjC interop in Scala Native) is completely
+sidestepped by SDL3 for game engines: SDL3 handles all UIKit setup internally,
+manages app lifecycle, provides touch input/accelerometer/haptics, and exposes
+a 100% pure C API — perfect for Scala Native `@extern`. For general iOS apps,
+ObjC interop would require years of work; for games using SDL3, zero ObjC is needed.
+
+## 11. LibGDX iOS Backend Reference
+
+The LibGDX iOS backend (`gdx-backend-robovm/`) contains 38 files (~3,950 LOC):
+21 root (IOSApplication, IOSGraphics, IOSInput, IOSGLES20/30, IOSHaptics, etc.),
+13 ObjectAL audio bindings, 4 deprecated UIKit custom bindings. Uses RoboVM/MobiVM
+to compile JVM bytecode to native ARM. Key dependencies: GLKit (deprecated by Apple),
+EAGLContext for GL ES, ObjectAL for audio, UIKit for lifecycle/input.
+
+SGE's approach shares ANGLE + miniaudio with desktop Native, requiring only ~8
+iOS-specific files (windowing via SDL3 instead of GLFW, touch input, file paths).
+
+## 12. Deferred iOS Files (14 total, from migration-status.tsv)
 
 | File | Notes |
 |------|-------|

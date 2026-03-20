@@ -6,7 +6,7 @@ and implementation priority.
 
 See also: [type-safety.md](type-safety.md) for already-implemented type safety improvements.
 
-## Already Implemented (18 types)
+## Already Implemented (32 types)
 
 | Opaque Type | Underlying | Package | Notes |
 |-------------|-----------|---------|-------|
@@ -135,12 +135,12 @@ ScreenX/ScreenY/PixelWidth — too granular, same underlying unit.
 
 ---
 
-## Proposed: Time Types
+## Proposed: Time Types (not yet implemented — tracked in issues db)
 
 **Existing:** `opaque type Seconds = Float` in `sge.utils`
 **New:** `opaque type Millis = Long`, `opaque type Nanos = Long`
 **Package:** `sge.utils`
-**Priority:** High — prevents unit confusion (seconds vs millis vs nanos)
+**Priority:** Medium — prevents unit confusion (seconds vs millis vs nanos)
 
 ### Affected Files — Seconds (15)
 
@@ -265,12 +265,10 @@ VertexData
 
 ---
 
-## Proposed: Already Tracked Elsewhere
+## Proposed: Key, Button, Color Components (not yet implemented — tracked in issues db)
 
-These opaque types are tracked in `memory/audit-progress.md` under Planned Improvements:
-
-| Opaque Type | Tracking |
-|-------------|---------|
-| `Key` (Input.Keys) | audit-progress.md — 11 files |
-| `Button` (Input.Buttons) | audit-progress.md — 11 files |
-| `Red`/`Green`/`Blue`/`Alpha` (Color) | audit-progress.md — 8 files |
+| Opaque Type | Affected Files | Priority |
+|-------------|---------------|----------|
+| `Key` (Input.Keys) | ~11 files | Medium |
+| `Button` (Input.Buttons) | ~11 files | Medium |
+| `Red`/`Green`/`Blue`/`Alpha` (Color) | ~8 files | Low |

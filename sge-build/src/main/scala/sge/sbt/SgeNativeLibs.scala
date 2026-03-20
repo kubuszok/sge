@@ -154,7 +154,7 @@ object SgeNativeLibs {
           if (!platDir.exists()) {
             sys.error(
               s"[sge] Native lib directory not found: ${platDir.getAbsolutePath}\n" +
-                s"Run 'just rust-cross $platform && just rust-collect' to build it."
+                s"Run 'sge-dev native cross $platform && sge-dev native collect' to build it."
             )
           }
           log.info(s"[sge] Using local native libs: ${platDir.getAbsolutePath}")
@@ -229,8 +229,8 @@ object SgeNativeLibs {
 
       if (nativeMappings.isEmpty) {
         val msg = "[sge] WARNING: No native shared libraries found in JAR mappings.\n" +
-          "  Run 'just rust-build && just angle-setup' to build native libs for the host platform,\n" +
-          "  or 'just rust-cross-all && just rust-collect' for all platforms."
+          "  Run 'sge-dev native build && sge-dev native angle setup' to build native libs for the host platform,\n" +
+          "  or 'sge-dev native release-prep' for all platforms."
         if (isCI) sys.error(msg) else log.warn(msg)
       } else {
         // Group by platform
@@ -243,7 +243,7 @@ object SgeNativeLibs {
         if (!byPlatform.contains(host.classifier)) {
           sys.error(
             s"[sge] Native libraries missing for host platform '${host.classifier}'.\n" +
-              s"  Run 'just rust-build && just angle-setup' to build them.\n" +
+              s"  Run 'sge-dev native build && sge-dev native angle setup' to build them.\n" +
               s"  Present platforms: ${byPlatform.keys.mkString(", ")}"
           )
         }
@@ -255,7 +255,7 @@ object SgeNativeLibs {
             sys.error(
               s"[sge] CI: Native libraries missing for platforms: ${missing.map(_.classifier).mkString(", ")}\n" +
                 s"  Present platforms: ${byPlatform.keys.mkString(", ")}\n" +
-                "  Run 'just rust-cross-all && just rust-collect && just angle-setup' to build all platforms."
+                "  Run 'sge-dev native release-prep' to build all platforms."
             )
           }
         } else {
@@ -306,11 +306,16 @@ object SgeNativeLibs {
     * on @extern objects tell Scala Native which libraries to look for, but
     * Apple's ld64 deduplicates -l flags, which can cause the wrong archive
     * to be used if a system copy exists.
+    *
+    * When static curl libraries are present (from `sge-dev native curl setup`),
+    * their transitive dependencies are also added so that sttp's
+    * `@link("curl")` and `@link("idn2")` resolve without system packages.
     */
-  def linkerFlags(libDir: File, libName: String = "sge_native_ops"): Seq[String] = {
-    val os = System.getProperty("os.name", "").toLowerCase
-    val isWindows = os.contains("win")
-    val isMac = os.contains("mac")
+  def linkerFlags(
+      libDir: File,
+      platform: Platform = Platform.host,
+      libName: String = "sge_native_ops"
+  ): Seq[String] = {
     val base = Seq(s"-L${libDir.getAbsolutePath}", s"-l$libName")
     // Audio bridge (miniaudio) and GLFW static archives — pass full paths
     // to bypass library search path ordering issues with @link annotations.
@@ -321,12 +326,28 @@ object SgeNativeLibs {
       (if (glfwA.exists()) Seq(glfwA.getAbsolutePath) else Seq("-lglfw3"))
     // Rust native-components links against FreeType for font rasterization
     val nativeDeps = Seq("-lfreetype")
-    if (isWindows) base ++ nativeLibs ++ nativeDeps :+ "-lntdll"
-    else if (isMac) {
-      // Homebrew paths for ANGLE (libGLESv2, libEGL), FreeType, etc.
-      val brewPaths = Seq("/opt/homebrew/lib", "/usr/local/lib")
-        .filter(p => new File(p).isDirectory)
-        .flatMap(p => Seq("-L", p))
+
+    // Static curl transitive dependencies. When libcurl.a is present (from
+    // stunnel/static-curl), sttp's @link("curl") and @link("idn2") emit
+    // -lcurl and -lidn2 which resolve from the static archives. We add the
+    // transitive deps that those archives reference. Full paths are used to
+    // avoid search order issues.
+    val curlA = new File(libDir, "libcurl.a")
+    val curlDeps = if (curlA.exists()) {
+      val depNames = Seq(
+        "libssl.a", "libcrypto.a", "libnghttp2.a", "libnghttp3.a",
+        "libngtcp2.a", "libngtcp2_crypto_ossl.a", "libz.a",
+        "libbrotlidec.a", "libbrotlicommon.a", "libunistring.a",
+        "libcares.a", "libssh2.a", "libzstd.a", "libpsl.a"
+      )
+      depNames.flatMap { name =>
+        val f = new File(libDir, name)
+        if (f.exists()) Seq(f.getAbsolutePath) else Seq.empty
+      }
+    } else Seq.empty
+
+    if (platform.isWindows) base ++ nativeLibs ++ nativeDeps ++ curlDeps :+ "-lntdll"
+    else if (platform.isMac) {
       // macOS frameworks required by statically-linked GLFW and miniaudio
       val frameworks = Seq(
         "-framework", "Cocoa",
@@ -339,17 +360,26 @@ object SgeNativeLibs {
         "-framework", "QuartzCore",
         "-lobjc"
       )
+      // Additional frameworks for static curl with OpenSSL
+      val curlFrameworks = if (curlA.exists()) Seq(
+        "-framework", "Security",
+        "-framework", "SystemConfiguration"
+      ) else Seq.empty
       // rpath entries so the binary can find ANGLE dylibs at runtime.
       // @rpath/libGLESv2.dylib is embedded in the ANGLE install names.
       // - libDir: for `sbt run` / local dev (ANGLE lives next to Rust libs)
-      // - Homebrew paths: fallback if ANGLE is installed system-wide
       // - @executable_path: for packaged distributions (libs beside the binary)
       val rpaths = Seq(
         "-rpath", libDir.getAbsolutePath,
         "-rpath", "@executable_path"
-      ) ++ brewPaths.grouped(2).collect { case Seq("-L", p) => Seq("-rpath", p) }.flatten
-      base ++ nativeLibs ++ nativeDeps ++ brewPaths ++ frameworks ++ rpaths
+      )
+      base ++ nativeLibs ++ nativeDeps ++ curlDeps ++ frameworks ++ curlFrameworks ++ rpaths
     }
-    else base ++ nativeLibs ++ nativeDeps
+    else {
+      // Linux: use --start-group/--end-group to handle circular deps between
+      // static curl archives. Also add -lpthread and -ldl for OpenSSL.
+      val curlSystemLibs = if (curlA.exists()) Seq("-lpthread", "-ldl") else Seq.empty
+      base ++ nativeLibs ++ nativeDeps ++ curlDeps ++ curlSystemLibs
+    }
   }
 }

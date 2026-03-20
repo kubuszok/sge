@@ -4,6 +4,35 @@ package build
 /** Build commands — self-contained, no Justfile dependency. */
 object BuildCmd {
 
+  /** Demo name → sbt release alias suffix (matches demos/build.sbt releaseAlias calls). */
+  private val releaseNames: Map[String, String] = Map(
+    "pong" -> "Pong",
+    "space-shooter" -> "SpaceShooter",
+    "tile-world" -> "TileWorld",
+    "hex-tactics" -> "HexTactics",
+    "curves" -> "Curves",
+    "shader-lab" -> "ShaderLab",
+    "viewer3d" -> "Viewer3d",
+    "particles" -> "Particles",
+    "net-chat" -> "NetChat",
+    "viewports" -> "Viewports",
+    "assets" -> "Assets"
+  )
+
+  /** Demo CLI name → additional archive name patterns (for findArchive matching).
+    * Archives use different names depending on type:
+    *   - Browser/Native: display name ("SGE Space Shooter-browser.tar.gz")
+    *   - JVM: sbt project name ("sge-demo-spaceshooter-macos-aarch64.tar.gz") */
+  private val archiveAliases: Map[String, List[String]] = Map(
+    "space-shooter" -> List("spaceshooter"),
+    "tile-world" -> List("tileworld"),
+    "hex-tactics" -> List("hextactics"),
+    "shader-lab" -> List("shaders", "shader lab"),
+    "viewer3d" -> List("3d viewer"),
+    "assets" -> List("asset showcase", "assets"),
+    "net-chat" -> List("netchat")
+  )
+
   def run(args: List[String]): Unit = {
     args match {
       case Nil | "--help" :: _ =>
@@ -17,9 +46,13 @@ object BuildCmd {
                   |  extensions [--tools] [--freetype] [--physics] [--all]
                   |  texture-pack [args]   Run TexturePacker CLI
                   |  kill-sbt              Kill running sbt server
+                  |  release [--demo <name>] [--publish-first]  Build release archives
+                  |  collect               Collect releases into demos/target/releases/
                   |  verify-native <demo>  Verify native release archive launches
                   |  verify-jvm <demo>     Verify JVM release archive launches
-                  |  verify-jvm-intel <demo>  Verify x86_64 JVM under Rosetta""".stripMargin)
+                  |  verify-jvm-intel <demo>  Verify x86_64 JVM under Rosetta
+                  |  verify-browser <demo> Verify browser release archive structure
+                  |  verify-releases [--demo <name>]  Run all verify-* for a demo""".stripMargin)
       case "compile" :: rest => compile(Cli.parse(rest))
       case "compile-fmt" :: _ => compileFmt()
       case "fmt" :: _ => sbt("scalafmtAll")
@@ -27,6 +60,8 @@ object BuildCmd {
       case "extensions" :: rest => extensions(Cli.parse(rest))
       case "texture-pack" :: rest => sbt(s"sge-tools/run ${rest.mkString(" ")}")
       case "kill-sbt" :: _ => proc.ProcCmd.run(List("kill-sbt"))
+      case "release" :: rest => release(Cli.parse(rest))
+      case "collect" :: _ => collect()
       case "verify-native" :: rest =>
         val demo = rest.headOption.getOrElse { Term.err("Demo name required"); sys.exit(1); "" }
         verifyNative(demo)
@@ -36,6 +71,10 @@ object BuildCmd {
       case "verify-jvm-intel" :: rest =>
         val demo = rest.headOption.getOrElse { Term.err("Demo name required"); sys.exit(1); "" }
         verifyJvmIntel(demo)
+      case "verify-browser" :: rest =>
+        val demo = rest.headOption.getOrElse { Term.err("Demo name required"); sys.exit(1); "" }
+        verifyBrowser(demo)
+      case "verify-releases" :: rest => verifyReleases(Cli.parse(rest))
       case other :: _ =>
         Term.err(s"Unknown build command: $other")
         sys.exit(1)
@@ -104,6 +143,31 @@ object BuildCmd {
     }
   }
 
+  private def release(args: Cli.Args): Unit = {
+    if (args.hasFlag("publish-first")) {
+      Term.info("Publishing SGE locally (all platforms)...")
+      publishLocal(Cli.parse(List("--all")))
+    }
+    val demoName = args.flag("demo")
+    if (demoName.isDefined) {
+      val name = demoName.get
+      val alias = releaseNames.getOrElse(name, {
+        Term.err(s"Unknown demo: $name. Available: ${releaseNames.keys.toList.sorted.mkString(", ")}")
+        sys.exit(1); ""
+      })
+      Term.info(s"Building release for $name...")
+      demosSbt(s"release$alias")
+    } else {
+      Term.info("Building all demo releases...")
+      demosSbt("releaseAll")
+    }
+  }
+
+  private def collect(): Unit = {
+    Term.info("Collecting releases...")
+    demosSbt("collectReleases")
+  }
+
   private def verifyNative(demo: String): Unit = {
     val (plat, _) = hostPlatform()
     val releasesDir = s"${Paths.projectRoot}/demos/target/releases"
@@ -119,7 +183,7 @@ object BuildCmd {
       val bin = findExecutable(tmpDir)
       if (bin.isEmpty) { Term.err("No executable found in archive"); sys.exit(1) }
       println(s"  Binary: ${bin.get}")
-      val result = Proc.run("timeout", List("5", bin.get.getAbsolutePath))
+      val result = Proc.runWithTimeout(bin.get.getAbsolutePath, timeoutSec = 5)
       val output = result.stdout + result.stderr
       if (output.toLowerCase.contains("library not found") ||
           output.contains("UnsatisfiedLinkError") ||
@@ -153,7 +217,7 @@ object BuildCmd {
       }
       if (launcher.isEmpty) { Term.err("No launcher found in archive"); sys.exit(1) }
       println(s"  Launcher: ${launcher.get}")
-      val result = Proc.run("timeout", List("10", launcher.get.getAbsolutePath))
+      val result = Proc.runWithTimeout(launcher.get.getAbsolutePath, timeoutSec = 10)
       val output = result.stdout + result.stderr
       if (output.contains("UnsatisfiedLinkError") || output.toLowerCase.contains("library not found") ||
           output.contains("cannot open shared object") || output.contains("no suitable image found")) {
@@ -167,10 +231,49 @@ object BuildCmd {
     }
   }
 
+  private def verifyBrowser(demo: String): Unit = {
+    val releasesDir = s"${Paths.projectRoot}/demos/target/releases"
+    val archive = findArchive(releasesDir, demo, "browser")
+    if (archive.isEmpty) {
+      Term.err(s"No browser archive found for $demo")
+      sys.exit(1)
+    }
+    Term.info(s"Verifying browser package: ${archive.get}")
+    val tmpDir = java.nio.file.Files.createTempDirectory("sge-verify").toFile
+    try {
+      extractArchive(archive.get, tmpDir.getAbsolutePath)
+      val indexHtml = findFileRecursive(tmpDir, f => f.getName == "index.html")
+      if (indexHtml.isEmpty) { Term.err("FAIL: No index.html found"); sys.exit(1) }
+      val jsBundle = findFileRecursive(tmpDir, f => f.getName.endsWith(".js") && f.length() > 1000)
+      if (jsBundle.isEmpty) { Term.err("FAIL: No JS bundle found"); sys.exit(1) }
+      println(s"  index.html: ${indexHtml.get}")
+      println(s"  JS bundle:  ${jsBundle.get} (${jsBundle.get.length() / 1024} KB)")
+      Term.ok("PASS: Browser archive has index.html + JS bundle")
+    } finally {
+      deleteDir(tmpDir)
+    }
+  }
+
+  private def verifyReleases(args: Cli.Args): Unit = {
+    val demoName = args.flag("demo")
+    val demos = if (demoName.isDefined) {
+      List(demoName.get)
+    } else {
+      releaseNames.keys.toList.sorted
+    }
+    for (demo <- demos) {
+      println(s"\n=== Verifying $demo ===")
+      verifyNative(demo)
+      verifyJvm(demo)
+      verifyBrowser(demo)
+    }
+    Term.ok("All verifications passed")
+  }
+
   private def verifyJvmIntel(demo: String): Unit = {
     val os = System.getProperty("os.name")
     val arch = System.getProperty("os.arch")
-    if (!os.contains("Mac") || arch != "aarch64") {
+    if (!os.contains("Mac") || (arch != "aarch64" && arch != "arm64")) {
       println("SKIP: This command is for macOS ARM only (Rosetta verification)")
     } else {
       val releasesDir = s"${Paths.projectRoot}/demos/target/releases"
@@ -221,11 +324,17 @@ object BuildCmd {
     if (code != 0) sys.exit(code)
   }
 
+  private def demosSbt(cmd: String): Unit = {
+    val code = Proc.exec("sbt", List("--client", cmd),
+      cwd = Some(s"${Paths.projectRoot}/demos"))
+    if (code != 0) sys.exit(code)
+  }
+
   private def hostPlatform(): (String, String) = {
     val os = System.getProperty("os.name")
     val arch = System.getProperty("os.arch")
     val plat = (os, arch) match {
-      case (o, "aarch64") if o.contains("Mac") => "macos-aarch64"
+      case (o, "aarch64" | "arm64") if o.contains("Mac") => "macos-aarch64"
       case (o, _) if o.contains("Mac") => "macos-x86_64"
       case (o, "amd64") if o.contains("Linux") => "linux-x86_64"
       case (o, "aarch64") if o.contains("Linux") => "linux-aarch64"
@@ -239,9 +348,15 @@ object BuildCmd {
     val dirFile = new java.io.File(dir)
     if (!dirFile.exists()) { None }
     else {
+      // Normalize: match "space-shooter", "space shooter", "spaceshooter" etc.
+      val demoLower = demo.toLowerCase
+      val demoSpaced = demoLower.replace("-", " ")
+      val aliases = archiveAliases.getOrElse(demoLower, Nil)
+      val allPatterns = (demoLower :: demoSpaced :: aliases).distinct
       val files = dirFile.listFiles().filter { f =>
         val name = f.getName.toLowerCase
-        name.contains(demo.toLowerCase) && name.contains(platSuffix.toLowerCase) &&
+        allPatterns.exists(p => name.contains(p)) &&
+        name.contains(platSuffix.toLowerCase) &&
         (name.endsWith(".tar.gz") || name.endsWith(".zip")) &&
         excludePattern.forall(p => !name.matches(s".*($p).*"))
       }

@@ -88,17 +88,14 @@ class Button()(using Sge) extends Table() with Disableable with Styleable[Button
     addListener(clickListener)
   }
 
-  def this(up: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, Nullable.empty, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, Nullable.empty))
-  }
 
-  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) = {
+  def this(up: Nullable[Drawable], down: Nullable[Drawable], checked: Nullable[Drawable])(using Sge) =
     this(new Button.ButtonStyle(up, down, checked))
-  }
 
   def setChecked(isChecked: Boolean): Unit =
     setChecked(isChecked, programmaticChangeEvents)

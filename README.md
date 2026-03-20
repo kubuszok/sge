@@ -22,7 +22,7 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 
 ## Prerequisites
 
-- **JDK 22+** (GraalVM CE recommended)
+- **JDK 23+** (GraalVM CE recommended)
 - **sbt 1.12+**
 - **Rust toolchain** (for native-components)
 - **Node.js 18+** (for Scala.js linking)
@@ -38,13 +38,16 @@ Optional (for specific workflows):
 
 | Package | Needed for |
 |---------|-----------|
-| `chromedriver` | Playwright browser integration tests |
-| `angle-grpc` / ANGLE libs | Native desktop rendering (JVM uses bundled ANGLE) |
+| `zig` | Cross-platform Scala Native releases |
+| Playwright | Browser integration tests (`npx playwright install chromium`) |
+
+See [docs/contributing/setup.md](docs/contributing/setup.md) for the full
+dependency list, CI setup, and what can be removed.
 
 ### Android (optional)
 
 ```sh
-just android-sdk-setup    # Downloads SDK, build-tools, system image, emulator
+sge-dev test android setup    # Downloads SDK, build-tools, system image, emulator
 ```
 
 ## Quick Start
@@ -52,16 +55,16 @@ just android-sdk-setup    # Downloads SDK, build-tools, system image, emulator
 ### Build and test (JVM)
 
 ```sh
-just rust-build       # Build Rust native library (first time only)
-just compile          # Compile SGE core (JVM)
-just test             # Run 1450 JVM unit tests
+sge-dev native build          # Build Rust native library (first time only)
+sge-dev build compile         # Compile SGE core (JVM)
+sge-dev test unit             # Run 1450 JVM unit tests
 ```
 
 ### All platforms
 
 ```sh
-just test-all         # JVM + JS + Native unit tests
-just it-all           # All integration tests (desktop + browser + android)
+sge-dev test unit --all               # JVM + JS + Native unit tests
+sge-dev test integration --all        # All integration tests (desktop + browser + android)
 ```
 
 ### Run a demo
@@ -71,12 +74,12 @@ published library. First build and publish SGE locally, then run any demo:
 
 ```sh
 # One-time: build native libraries
-just rust-build       # Rust native-components (GLFW, miniaudio, buffer ops)
-just angle-setup      # ANGLE OpenGL ES libraries (libEGL, libGLESv2)
+sge-dev native build              # Rust native-components (GLFW, miniaudio, buffer ops)
+sge-dev native angle setup        # ANGLE OpenGL ES libraries (libEGL, libGLESv2)
 
 # Publish SGE to local Ivy/Maven cache
-just publish-local-jvm    # JVM only (fastest — ~30s)
-# or: just publish-local  # All platforms: JVM + JS + Native (~2min)
+sge-dev build publish-local       # JVM only (fastest — ~30s)
+# or: sge-dev build publish-local --all  # All platforms: JVM + JS + Native (~2min)
 
 # Run a demo (from demos/ sub-build)
 cd demos && sbt --client 'pong/run'              # JVM (GLFW window)
@@ -91,8 +94,8 @@ Available demos: `pong`, `spaceShooter`, `tileWorld`, `hexTactics`,
 ### Build demo APKs (Android)
 
 ```sh
-just android-sdk-setup              # One-time setup
-cd demos && sbt --client 'androidAll'   # Build all 10 demo APKs
+sge-dev test android setup                       # One-time setup
+cd demos && sbt --client 'androidAll'             # Build all 10 demo APKs
 ```
 
 ### Build demos for browser
@@ -172,12 +175,12 @@ JVM, JS, Native, and Android targets.
 ## Testing
 
 ```sh
-just test              # JVM unit tests (1450)
-just test-js           # Scala.js unit tests (1096)
-just test-native       # Scala Native unit tests (1096)
-just test-browser      # Playwright browser integration tests
-just it-desktop        # Desktop end-to-end (GLFW + ANGLE + audio)
-just test-android      # Android emulator smoke test
+sge-dev test unit                     # JVM unit tests (1450)
+sge-dev test unit --js                # Scala.js unit tests (1096)
+sge-dev test unit --native            # Scala Native unit tests (1096)
+sge-dev test browser                  # Playwright browser integration tests
+sge-dev test integration --desktop    # Desktop end-to-end (GLFW + ANGLE + audio)
+sge-dev test android test             # Android emulator smoke test
 ```
 
 ## CI

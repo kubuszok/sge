@@ -58,7 +58,6 @@ object RuleEngine {
     program match {
       // Category 1: Trusted programs
       case "sge-dev" => Decision.Allow
-      case "just" => Decision.Allow
       case "cargo" => Decision.Allow
       case "scala-cli" => Decision.Allow
       case "cs" | "coursier" => Decision.Allow
@@ -126,7 +125,13 @@ object RuleEngine {
         Decision.Allow
       case "env" | "printenv" =>
         Decision.Allow
-      case "date" | "uname" | "arch" | "hostname" =>
+      case "date" | "uname" | "arch" | "hostname" | "file" | "otool" | "ldd" | "dumpbin" =>
+        Decision.Allow
+      case "tar" | "unzip" | "gzip" | "gunzip" =>
+        Decision.Allow
+      case "mv" | "cp" | "ln" | "touch" | "chmod" =>
+        Decision.Allow
+      case "codesign" | "install_name_tool" =>
         Decision.Allow
       case "sleep" =>
         Decision.Allow
@@ -157,7 +162,7 @@ object RuleEngine {
       case Some("status") | Some("diff") | Some("log") | Some("show") |
            Some("blame") | Some("ls-files") | Some("ls-tree") | Some("cat-file") |
            Some("rev-parse") | Some("describe") | Some("shortlog") | Some("reflog") |
-           Some("name-rev") | Some("merge-base") =>
+           Some("name-rev") | Some("merge-base") | Some("grep") =>
         Decision.Allow
 
       // Read-only when querying, destructive when writing
@@ -352,34 +357,34 @@ object RuleEngine {
         name match {
           case "head" | "tail" =>
             if (hasPagination) {
-              Some(Decision.Pass(
+              Some(Decision.Deny(
                 s"Use --limit and --offset flags instead of piping to $name. " +
                 "Example: sge-dev db issues list --status open --limit 20 --offset 0"
               ))
             } else {
-              Some(Decision.Pass(
+              Some(Decision.Deny(
                 s"Don't pipe sge-dev output to $name — the output is already concise. " +
                 "Read it directly."
               ))
             }
           case "grep" =>
             if (hasPagination) {
-              Some(Decision.Pass(
+              Some(Decision.Deny(
                 "Use sge-dev's built-in filters instead of piping to grep. " +
                 "Example: sge-dev db issues list --status open --severity critical --file <pattern>"
               ))
             } else {
-              Some(Decision.Pass(
+              Some(Decision.Deny(
                 "Don't pipe sge-dev output to grep — the output is already concise. " +
                 "Read it directly or use dedicated tools for further searching."
               ))
             }
           case "wc" =>
-            Some(Decision.Pass(
+            Some(Decision.Deny(
               "Use 'sge-dev db <table> stats' for counts instead of piping to wc."
             ))
           case "sort" | "uniq" | "cut" | "tr" | "awk" | "sed" =>
-            Some(Decision.Pass(
+            Some(Decision.Deny(
               s"Don't pipe sge-dev output to $name — the output is already structured. " +
               "Use sge-dev's built-in flags for filtering and pagination."
             ))

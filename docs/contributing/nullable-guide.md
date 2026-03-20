@@ -3,10 +3,6 @@
 SGE uses `sge.utils.Nullable[A]` as an opaque type to replace Java's nullable references.
 This provides type-safe null handling without the overhead of `Option` boxing.
 
-> **Known issue**: `isDefined` and `isEmpty` are referenced below but may not yet be
-> implemented in `Nullable.scala`. If missing, add them before using, or use the
-> `fold`/`foreach` patterns instead.
-
 ## Initialization
 
 ```scala

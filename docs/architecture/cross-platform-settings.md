@@ -1,8 +1,8 @@
 # Cross-Platform Settings Reference
 
 Complete reference for configuring SGE's multi-platform sbt build. All settings
-documented here have been **validated in practice** via the `hello-world/`
-prototype (2026-03-01) and the `research/` prototype (2026-02-28).
+documented here have been **validated in practice** via prototypes (2026-03-01) and the production `sge/`
+module.
 
 ## Validated Toolchain Versions
 
@@ -13,7 +13,7 @@ prototype (2026-03-01) and the `research/` prototype (2026-02-28).
 | **sbt-projectmatrix** | 0.11.0 | Cross-platform project definition; will be built-in with sbt 2.0 |
 | **sbt-scalajs** | 1.20.2 | Scala.js compiler + linker; must match Scala version expectations |
 | **sbt-scala-native** | 0.5.10 | Scala Native compiler + linker; Zone API uses context functions |
-| **JDK** | 21.0.6 | Tested; any JDK 17+ should work |
+| **JDK** | 23+ | Required for Panama FFM; 21+ works for CI compilation |
 | **Node.js** | 22+ | Required for `sbt browser/run`; 23+ for WASM flags |
 
 ### Version Compatibility Constraints
@@ -571,15 +571,16 @@ JavaScript's `Number` type does not distinguish integer and float
 representations. `70.0f.toString` produces `"70"` in Scala.js vs `"70.0"` on
 JVM and Native. This is cosmetic — the values are identical.
 
-## Migration Path from Current Single-Project Build
+## JVM Platform Modules
 
-See [build-structure.md](build-structure.md) for the detailed migration plan.
-Summary:
+SGE isolates JDK-version and Android-specific code into three companion modules:
 
-1. Add sbt-projectmatrix, sbt-scalajs, sbt-scala-native to `project/plugins.sbt`
-2. Convert `core` from `project` to `projectMatrix` with `.jvmPlatform()` only
-3. Identify platform-specific code (JNI calls, `java.nio`, threading)
-4. Create `src/main/scala-jvm/` for JVM-specific code
-5. Add `.jsPlatform()` and `.nativePlatform()` with platform-specific source dirs
-6. Create backend projects: `backend-lwjgl3/`, `backend-webgl/`, `backend-native/`
-7. Verify: `sbt ';core3/compile;coreJS3/compile;coreNative3/compile'`
+| Module | JDK | Purpose |
+|--------|-----|---------|
+| `sge-jvm-platform-api` | 17 | `PanamaProvider` trait + Android ops interfaces |
+| `sge-jvm-platform-jdk` | 22+ | `JdkPanama` — `java.lang.foreign` implementation |
+| `sge-jvm-platform-android` | 17 | `PanamaPortProvider` + Android ops (conditional on android.jar) |
+
+All three are **merged into the sge JVM JAR** via `packageBin/mappings` (not `dependsOn`).
+Runtime detection in `Panama.scala` uses `Class.forName` + reflection to select the
+appropriate provider.

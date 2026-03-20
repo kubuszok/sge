@@ -4,7 +4,7 @@ When asked to convert a file from Java to Scala, **start by planning before exec
 
 ## Planning Rules
 
-1. Use `just compile` to compile and get errors/warnings.
+1. Use `sge-dev build compile` to compile and get errors/warnings.
 2. Use `context7` MCP to look up library documentation.
 3. If you need to make code compilable as an intermediate step, **comment out** problematic code
    instead of removing it. Leave a note for yourself.
@@ -64,7 +64,7 @@ Rewrite method implementations from Java to Scala, applying these adjustments:
 | j | `math.methodName` | Check if it should be `Math.methodName` (java.lang.Math) |
 | k | `return` keyword | `scala.util.boundary`/`break` — see [control-flow-guide.md](control-flow-guide.md) |
 | l | `java.util.Comparator` | `given Ordering` |
-| m | `SnapshotArray` | `ArrayBuffer` — modifications between `begin()`/`end()` on a copy, replace after `end()` |
+| m | `SnapshotArray` | `DynamicArray` — modifications between `begin()`/`end()` on a copy, replace after `end()` |
 | n | `Disposable` / `dispose()` | `AutoCloseable` / `close()` |
 | o | Assignment to `Collections.allocateIterators` | Remove the statement |
 | p | `matrix.val` | `matrix.values` |
@@ -94,8 +94,15 @@ Key patterns:
 
 ### Step 6: Verify compilation
 
-Use `just compile` to ensure the conversion compiles successfully.
+Use `sge-dev build compile --all` to ensure the conversion compiles on all platforms
+(JVM, JS, Native). All 4 platforms are baseline — changes must be non-regressing.
 
 ### Step 7: Fix issues
 
 Fix **both** errors and warnings.
+
+### Step 8: Run tests
+
+Run `sge-dev test unit --all` to verify the conversion doesn't break existing tests
+on any platform. If a test reveals a pre-existing bug, fix the bug in the source
+code — never patch the test to avoid it.

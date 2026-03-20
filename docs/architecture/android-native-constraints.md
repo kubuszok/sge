@@ -47,7 +47,7 @@ DEXing these dependencies into the APK.
 
 ### Build Pipeline
 
-1. **Rust cross-compilation** (`just rust-cross-android-all`): builds `libsge_native_ops.so`
+1. **Rust cross-compilation** (`sge-dev native cross-android`): builds `libsge_native_ops.so`
    for 3 Android architectures using NDK 27 clang as the linker
 2. **C audio bridge** (`build.rs`): builds `libsge_audio.so` from vendored miniaudio,
    linked against `-llog -lOpenSLES -lm` (Android audio APIs)
@@ -84,14 +84,14 @@ FFM symbol resolution.
 
 ### Prerequisites
 
-- Android NDK 27.2 (installed via `just android-sdk-setup`)
+- Android NDK 27.2 (installed via `sge-dev test android setup`)
 - Rust targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `x86_64-linux-android`
 - Installed via `rustup target add` (requires rustup, not Homebrew cargo)
 
 ### Configuration
 
 `native-components/.cargo/config.toml` specifies NDK clang as the linker for each target.
-The `Justfile` recipe `rust-cross-android` sets `CC_<target>`, `CXX_<target>`, and
+The `sge-dev native cross-android` command sets `CC_<target>`, `CXX_<target>`, and
 `AR_<target>` environment variables for the `cc` crate used by `build.rs`.
 
 ### Android-Specific Build Differences

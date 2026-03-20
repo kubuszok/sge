@@ -51,7 +51,9 @@ complete ES 3.1 on Metal, surpassing MetalANGLE's ~90% ES 3.0 coverage.
 ### Why Panama (replacing JNI)
 
 Project Panama's Foreign Function & Memory API (java.lang.foreign) provides
-zero-boilerplate native function calls from the JVM. Finalized in JDK 22.
+zero-boilerplate native function calls from the JVM. Finalized in JDK 22;
+SGE targets JDK 23+ for distribution (all 6 desktop platforms including
+Windows ARM64).
 
 Benefits over JNI:
 - No Java native method declarations needed

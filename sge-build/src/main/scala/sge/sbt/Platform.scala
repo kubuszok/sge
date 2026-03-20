@@ -32,6 +32,22 @@ sealed abstract class Platform(
   /** Scala Native target triple (identical to [[rustTarget]]). */
   def scalaNativeTarget: String = rustTarget
 
+  /** Zig cross-compilation target triple (e.g. `"aarch64-macos"` or `"x86_64-linux-gnu"`).
+    * Used as the `-target` argument for `zig cc` / `zig c++`.
+    */
+  def zigTarget: String = {
+    val zigArch = arch match {
+      case "x86_64"  => "x86_64"
+      case "aarch64" => "aarch64"
+    }
+    val zigOs = os match {
+      case "linux"   => "linux-gnu"
+      case "macos"   => "macos"
+      case "windows" => "windows-gnu"
+    }
+    s"$zigArch-$zigOs"
+  }
+
   override def toString: String = classifier
 }
 

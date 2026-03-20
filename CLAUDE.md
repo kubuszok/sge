@@ -48,6 +48,8 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 **Use `sge-dev` commands for all development tasks.** The PreToolUse hook validates
 all Bash commands — if denied, use the suggested alternative.
 
+**It's not `./sge-dev`, your hooks add it to `$PATH`, and it's defined in `scripts/bin/sge-dev`.**
+
 | Command | Purpose |
 |---------|---------|
 | `sge-dev build compile [--jvm/--js/--native/--all]` | Compile |
@@ -59,8 +61,12 @@ all Bash commands — if denied, use the suggested alternative.
 | `sge-dev build extensions [--tools/--freetype/--physics/--all]` | Compile extensions |
 | `sge-dev build texture-pack [args]` | Run TexturePacker CLI |
 | `sge-dev build kill-sbt` | Kill sbt server gracefully |
+| `sge-dev build release [--demo <name>] [--publish-first]` | Build demo release archives |
+| `sge-dev build collect` | Collect releases into demos/target/releases/ |
 | `sge-dev build verify-native <demo>` | Verify native release archive |
 | `sge-dev build verify-jvm <demo>` | Verify JVM release archive |
+| `sge-dev build verify-browser <demo>` | Verify browser release archive |
+| `sge-dev build verify-releases [--demo <name>]` | Run all verify-* for a demo |
 | `sge-dev test unit [--jvm/--js/--native/--all] [--only SUITE]` | Unit tests |
 | `sge-dev test integration [--desktop/--browser/--native-ffi/--android/--all]` | Integration tests |
 | `sge-dev test regression [--jvm/--js/--native/--android/--all]` | Regression tests |
@@ -86,7 +92,8 @@ all Bash commands — if denied, use the suggested alternative.
 | `sge-dev native cross-android [target]` | Build for Android NDK |
 | `sge-dev native collect` | Collect cross-compiled artifacts |
 | `sge-dev native test` | Run Rust tests |
-| `sge-dev native angle {setup,download,cross-collect}` | ANGLE library management |
+| `sge-dev native angle {setup,download,cross-collect,check}` | ANGLE library management |
+| `sge-dev native curl {setup,download,cross-collect,check}` | Static curl library management |
 | `sge-dev native release-prep` | Full release preparation |
 | `sge-dev native setup-toolchain` | Install cross-compilation tools |
 | `sge-dev compare file/package/find/status/next-batch` | LibGDX/SGE comparison |

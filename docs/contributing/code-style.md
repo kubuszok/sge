@@ -97,11 +97,18 @@ and `sge.graphics.g2d`), removing the need for explicit imports.
 
 ## Scalafmt
 
-The project uses scalafmt for formatting. Run `sbt scalafmt` after changes.
+The project uses scalafmt for formatting. Run `sge-dev build fmt` after changes.
 Configuration is in `.scalafmt.conf`.
 
 ## Compiler Flags
 
-Active flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
+Core flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
 
-All warnings are fatal — treat them as errors.
+Linter flags (all enabled):
+- `-Wimplausible-patterns` — warn on pattern matches that can never match
+- `-Wrecurse-with-default` — warn on recursive calls with default arguments
+- `-Wenum-comment-discard` — warn when comments between enum cases are discarded
+- `-Wunused:imports,privates,locals,patvars,nowarn` — warn on unused symbols
+
+All warnings are fatal (`-Werror`) — treat them as errors. Use `@nowarn("id=E198")`
+to suppress specific warnings where justified.

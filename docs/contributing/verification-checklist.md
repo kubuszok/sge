@@ -1,7 +1,7 @@
 # Verification Checklist
 
-Use this checklist when verifying an AI-converted file. A file can be marked as `verified` in
-`docs/progress/migration-status.tsv` once all items pass.
+Use this checklist when verifying an AI-converted file. Track status via
+`sge-dev db migration` and `sge-dev db audit`.
 
 ## License Header
 
@@ -12,7 +12,7 @@ Use this checklist when verifying an AI-converted file. A file can be marked as 
 
 ## Compilation
 
-- [ ] File compiles without errors via `just compile`
+- [ ] File compiles without errors via `sge-dev build compile`
 - [ ] File compiles without warnings (warnings are fatal)
 
 ## Completeness
@@ -42,13 +42,11 @@ Use this checklist when verifying an AI-converted file. A file can be marked as 
 
 ## Testing
 
+- [ ] Compiles on all platforms: `sge-dev build compile --all`
+- [ ] Tests pass on all platforms: `sge-dev test unit --all`
 - [ ] If a test reveals a pre-existing bug in the codebase, fix the bug — never patch the test to work around it
 
 ## Status Progression
 
-After verification, update `docs/progress/migration-status.tsv`:
-- Change status from `ai_converted` to `verified`
-- Add notes about any remaining concerns
-
-A file can later be promoted to `idiomatized` after further Scala-native improvements
-(opaque types, inline defs, etc).
+After verification, update status via `sge-dev db audit set <file> pass`.
+See `/audit-file` and `/audit-package` skills for the full audit workflow.

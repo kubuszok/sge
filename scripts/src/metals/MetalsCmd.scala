@@ -35,22 +35,50 @@ object MetalsCmd {
 
   private def start(args: Cli.Args): Unit = {
     val port = args.flagOrDefault("port", "7845")
-    Term.info(s"Starting metals on port $port...")
-    val code = Proc.exec("metals-mcp",
+    val logFile = s"${Paths.scriptsDir}/.metals.log"
+
+    // Check if already running
+    val pf = new File(pidFile)
+    if (pf.exists()) {
+      val existingPid = scala.io.Source.fromFile(pf).mkString.trim.toLongOption
+      if (existingPid.isDefined && Proc.isAlive(existingPid.get)) {
+        Term.warn(s"Metals is already running (pid ${existingPid.get})")
+        return
+      }
+      pf.delete() // stale PID file
+    }
+
+    Term.info(s"Starting metals on port $port (background)...")
+    val pid = Proc.spawn("metals-mcp",
       List("--workspace", Paths.projectRoot, "--port", port, "--client", "claude",
            "--default-bsp-to-build-tool"),
-      cwd = Some(Paths.projectRoot))
-    if (code != 0) sys.exit(code)
+      cwd = Some(Paths.projectRoot),
+      logFile = logFile)
+    pid match {
+      case Some(p) =>
+        val writer = new java.io.PrintWriter(pidFile)
+        writer.print(p)
+        writer.close()
+        Term.ok(s"Metals started (pid $p, log: $logFile)")
+      case None =>
+        Term.err("Failed to start metals")
+        sys.exit(1)
+    }
   }
 
   private def stop(): Unit = {
     val pf = new File(pidFile)
     if (pf.exists()) {
-      val pid = scala.io.Source.fromFile(pf).mkString.trim
-      Term.info(s"Stopping metals (pid $pid)...")
-      Proc.exec("kill", List(pid))
-      pf.delete()
-      Term.ok("Metals stopped")
+      val pid = scala.io.Source.fromFile(pf).mkString.trim.toLongOption
+      if (pid.isDefined) {
+        Term.info(s"Stopping metals (pid ${pid.get})...")
+        Proc.signalProcess(pid.get)
+        pf.delete()
+        Term.ok("Metals stopped")
+      } else {
+        Term.err("Invalid PID file")
+        pf.delete()
+      }
     } else {
       Term.warn("No metals PID file found")
     }
@@ -59,10 +87,9 @@ object MetalsCmd {
   private def status(): Unit = {
     val pf = new File(pidFile)
     if (pf.exists()) {
-      val pid = scala.io.Source.fromFile(pf).mkString.trim
-      val result = Proc.run("kill", List("-0", pid))
-      if (result.ok) {
-        println(s"Metals is running (pid $pid)")
+      val pid = scala.io.Source.fromFile(pf).mkString.trim.toLongOption
+      if (pid.isDefined && Proc.isAlive(pid.get)) {
+        println(s"Metals is running (pid ${pid.get})")
       } else {
         println("Metals PID file exists but process is not running")
         pf.delete()

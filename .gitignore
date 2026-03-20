@@ -30,13 +30,14 @@ target/
 ## Rust
 native-components/target/
 
-## Android SDK (downloaded by `just android-sdk-setup`)
+## Android SDK (downloaded by `sge-dev test android setup`)
 android-sdk/
 demos/android-sdk/
 
 ## sge-dev CLI
 scripts/bin/
 scripts/.metals-pid
+scripts/.metals.log
 .scala-build/
 
 ## OS-Specific:

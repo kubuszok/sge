@@ -1,30 +1,43 @@
 # Native Operations (sge.platform)
 
 SGE uses cross-platform native operations for performance-critical work
-(buffer copies, vertex transforms, ETC1 texture codec). The module compiles for
-three platforms using `sbt-projectmatrix`:
+(buffer copies, vertex transforms, ETC1 texture codec, audio, windowing).
+All native ops are in `sge.platform` with `private[sge]` visibility.
 
 | Platform | Backend | Implementation |
 |----------|---------|---------------|
-| **JVM** | Rust via Panama FFM | `BufferOpsJvm.scala` / `ETC1OpsJvm.scala` → `sge_native_ops` library |
+| **JVM** | Rust via Panama FFM | `BufferOpsPanama.scala` / `ETC1OpsPanama.scala` → `sge_native_ops` library |
 | **Scala.js** | Pure Scala | `BufferOpsJs.scala` / `ETC1OpsJs.scala` |
 | **Scala Native** | Rust via C ABI | `@link("sge_native_ops") @extern` bindings |
-| **Android** (future) | Rust via JNI | `jni_bridge.rs` behind `android` feature flag |
+| **Android** | Rust via JNI | `jni_bridge.rs` behind `android` feature flag |
 
 ## Package Structure
 
-All native-ops code lives in `sge.platform` with `private[sge]` visibility,
-so it is accessible from `core` but hidden from end users.
+```
+sge/
+  src/main/scala/sge/platform/           ← Shared traits (all platforms)
+    BufferOps.scala                          private[sge] trait
+    ETC1Ops.scala                            private[sge] trait
+    PlatformOps.scala                        platform service aggregator
+  src/main/scalajvm/sge/platform/        ← JVM (Panama FFM downcall handles)
+  src/main/scalajs/sge/platform/         ← JS (pure Scala fallbacks)
+  src/main/scalanative/sge/platform/     ← Native (@extern C ABI)
+  src/main/scaladesktop/sge/platform/    ← Desktop-shared (JVM + Native, not JS)
+```
 
-```
-core/
-  src/main/scala/sge/platform/        ← Shared traits (all platforms)
-    BufferOps.scala                       private[sge] trait
-    ETC1Ops.scala                         private[sge] trait
-  src/main/scalajvm/sge/platform/     ← JVM implementations (Panama FFM)
-  src/main/scalajs/sge/platform/      ← JS implementations (pure Scala)
-  src/main/scalanative/sge/platform/  ← Native bindings (@extern C ABI)
-```
+## JVM Platform Modules
+
+JDK-version and Android-specific code is isolated into three companion modules:
+
+| Module | JDK | Purpose |
+|--------|-----|---------|
+| `sge-jvm-platform-api` | 17 | `PanamaProvider` trait + Android ops interfaces |
+| `sge-jvm-platform-jdk` | 22+ | `JdkPanama` — `java.lang.foreign` implementation |
+| `sge-jvm-platform-android` | 17 | `PanamaPortProvider` + Android ops (conditional on android.jar) |
+
+All three are merged into the sge JVM JAR via `packageBin/mappings` (not `dependsOn`
+— avoids circular dependency). Runtime detection in `Panama.scala` uses
+`Class.forName` + reflection to select the provider.
 
 ## Rust Library (native-components)
 
@@ -36,9 +49,9 @@ The Rust library (`native-components/`) provides the compute implementations:
 
 Build and test:
 ```bash
-just rust-build          # cargo build --release (C ABI for Panama + Scala Native)
-just rust-build-android  # cargo build --release --features android (adds JNI bridge)
-just rust-test           # cargo test
+sge-dev native build              # cargo build --release (C ABI for Panama + Scala Native)
+sge-dev native build --android    # cargo build --release --features android (adds JNI bridge)
+sge-dev native test               # cargo test
 ```
 
 ### C ABI Naming Convention
@@ -65,7 +78,7 @@ private val hTransformV4M4: MethodHandle = linker.downcallHandle(
 ```
 
 This eliminates JNI, the `jni` Rust crate, and Java `native` method declarations
-for desktop JVM. Requires JDK 22+ (Panama FFM finalized).
+for desktop JVM. Requires JDK 23+ (Panama FFM finalized in JDK 22).
 
 ### JNI Bridge (Android only)
 
@@ -120,7 +133,7 @@ Encode operations return malloc-backed direct ByteBuffers via
 6. Implement pure Scala fallback (`BufferOpsJs.scala` / `ETC1OpsJs.scala`)
 7. Implement Scala Native binding (`BufferOpsNative.scala` / `ETC1OpsNative.scala`)
 8. Add tests
-9. Run `just test` to verify JVM, `just test-js` for JS, `just test-native` for Native
+9. Run `sge-dev test unit` to verify JVM, `sge-dev test unit --js` for JS, `sge-dev test unit --native` for Native
 
 ## Dependencies
 

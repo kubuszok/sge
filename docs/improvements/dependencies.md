@@ -38,7 +38,7 @@ No API change for consumers — just type safety + proper time library underneat
 
 **Assessment:** Recommended. Low risk, high value, well-maintained library.
 
-**Status:** TODO — annotated in TimeUtils.scala
+**Status:** TODO — dependency added to build.sbt, not yet integrated. Tracked in issues db.
 
 ---
 
@@ -68,7 +68,7 @@ This is both a benefit (logging works before Application init) and a cost
 **Assessment:** Evaluate — the user should decide if decoupling logging from
 Application is wanted. If yes, scribe is the best cross-platform option.
 
-**Status:** TODO — annotated in Logger.scala for evaluation
+**Status:** TODO — dependency added to build.sbt, evaluation pending. Tracked in issues db.
 
 ---
 
@@ -76,7 +76,7 @@ Application is wanted. If yes, scribe is the best cross-platform option.
 
 **Current:** `sge.utils.Timer` (341 LOC) uses raw Java `Thread` + `synchronized`.
 
-**Library:** `ch.epfl.lamp %%% "gears" % "0.2.0-RC3"`
+**Library:** `ch.epfl.lamp %% "gears" % "0.2.0"` (JVM only)
 
 **Platform Support:**
 - JVM: virtual threads (JDK 21+ required)
@@ -108,7 +108,10 @@ from threads to async.
 **Assessment:** Necessary for JS/Native targets. Gears is the only cross-platform
 structured concurrency library for Scala 3. Accept RC status risk.
 
-**Status:** TODO — annotated in Timer.scala
+**Status:** Done — Timer redesigned with `TimerPlatformOps` abstraction:
+- JVM: Gears `Async.blocking` + `AsyncOperations.sleep`
+- Native: plain `Thread.sleep` (daemon thread)
+- JS: `setTimeout` callbacks
 
 ---
 
@@ -205,7 +208,8 @@ JSON format.
 **Assessment:** Strongly recommended. High value (eliminates ~1400 LOC, removes
 reflection dependency, enables JS/Native for Skin), low risk (library already in use).
 
-**Status:** TODO — annotated in all 6 consumer files
+**Status:** TODO — infrastructure ready (JsonCodecs.scala), 6 consumer files not yet
+migrated to direct codec decoding. Tracked in issues db.
 
 ---
 

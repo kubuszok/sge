@@ -1,9 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(scala-cli:*)",
-      "Bash(sge-dev:*)",
-      "Bash(scripts/bin/sge-dev:*)",
+      "Bash",
       "WebFetch",
       "WebSearch"
     ]

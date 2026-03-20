@@ -288,7 +288,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libstdc++-12-dev libidn2-dev libcurl4-openssl-dev
+          sudo apt-get install -y clang libstdc++-12-dev
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
@@ -304,16 +304,31 @@ jobs:
         shell: bash
         run: rm -f native-components/target/release/libsge_native_ops.{dylib,so} native-components/target/release/sge_native_ops.dll
 
-      # sttp's curl backend declares @link("idn2") in its Scala Native IR, but
-      # Windows curl uses WinAPI for IDN — libidn2 is never actually called.
-      # Create an empty stub so the MSVC linker is satisfied.
-      - name: Create empty idn2 stub library (Windows)
-        if: runner.os == 'Windows'
+      # Download pre-built static curl + all transitive deps (OpenSSL, nghttp2,
+      # libidn2, etc.) from stunnel/static-curl. Eliminates system libcurl/libidn2.
+      - name: Download static curl libraries
         shell: bash
         run: |
-          echo "void __idn2_stub(void) {}" > native-components/target/release/idn2_stub.c
-          clang -c native-components/target/release/idn2_stub.c -o native-components/target/release/idn2_stub.obj
-          llvm-lib /OUT:native-components/target/release/idn2.lib native-components/target/release/idn2_stub.obj
+          PLATFORM="${{ matrix.label }}"
+          # stunnel/static-curl uses "arm64" for macOS, "aarch64" for Linux/Windows
+          CURL_PLATFORM="${PLATFORM/macos-aarch64/macos-arm64}"
+          CURL_VERSION="8.19.0"
+          CURL_URL="https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
+          DEST="native-components/target/release"
+          CACHE_DIR="native-components/target/curl-cache"
+          mkdir -p "$CACHE_DIR" "$DEST"
+          ARCHIVE="$CACHE_DIR/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
+          if [ ! -f "$ARCHIVE" ]; then
+            echo "Downloading static curl for $CURL_PLATFORM..."
+            curl -fSL -o "$ARCHIVE" "$CURL_URL"
+          fi
+          TMP_DIR="$CACHE_DIR/extract-$$"
+          mkdir -p "$TMP_DIR"
+          tar xf "$ARCHIVE" -C "$TMP_DIR"
+          # Copy all .a files from the lib/ directory
+          find "$TMP_DIR" -path '*/lib/*.a' -exec cp {} "$DEST/" \;
+          rm -rf "$TMP_DIR"
+          echo "Static curl $CURL_VERSION installed to $DEST"
 
       - name: Run Scala Native tests
         run: sbt 'sgeNative/test'
