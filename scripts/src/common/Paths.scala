@@ -24,7 +24,7 @@ object Paths {
   }
 
   def sgeSrc: String = s"$projectRoot/sge/src/main/scala/sge"
-  def gdxSrc: String = s"$projectRoot/libgdx/gdx/src/com/badlogic/gdx"
+  def gdxSrc: String = s"$projectRoot/original-src/libgdx/gdx/src/com/badlogic/gdx"
   def dataDir: String = s"$projectRoot/scripts/data"
   def migrationTsv: String = s"$dataDir/migration.tsv"
   def issuesTsv: String = s"$dataDir/issues.tsv"

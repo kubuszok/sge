@@ -7,7 +7,7 @@ import java.time.LocalDate
 /** Audit results database operations. */
 object AuditDb {
 
-  private val headers = List("file_path", "package", "status", "tested", "last_audited", "notes")
+  private val headers = List("file_path", "package", "status", "tested", "last_audited", "notes", "source")
 
   def run(args: List[String]): Unit = {
     args match {

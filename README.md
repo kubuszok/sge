@@ -109,20 +109,20 @@ cd demos && sbt --client 'pongJS/fastLinkJS'   # Single demo
 
 ```
 sge/                          Core library (JVM / JS / Native)
-sge-jvm-platform-api/         Platform abstraction interfaces (JDK 17)
-sge-jvm-platform-jdk/         JDK 22+ Panama FFM implementation
-sge-jvm-platform-android/     Android backend (PanamaPort + Android APIs)
-sge-freetype/                 FreeType font extension (JVM / JS / Native)
-sge-physics/                  2D physics via Rapier2D (JVM / JS / Native)
-sge-tools/                    TexturePacker CLI (JVM-only)
+sge-jvm-platform/api/         Platform abstraction interfaces (JDK 17)
+sge-jvm-platform/jdk/         JDK 22+ Panama FFM implementation
+sge-jvm-platform/android/     Android backend (PanamaPort + Android APIs)
+sge-extension/freetype/       FreeType font extension (JVM / JS / Native)
+sge-extension/physics/        2D physics via Rapier2D (JVM / JS / Native)
+sge-extension/tools/          TexturePacker CLI (JVM-only)
 sge-build/                    sbt plugin (SgePlugin, AndroidBuild, packaging)
-native-components/            Rust: GLFW, miniaudio, FreeType, buffer ops
-demo/                         Single cross-platform demo (root build)
+sge-deps/native-components/   Rust: GLFW, miniaudio, FreeType, buffer ops
+sge-test/regression/          Single cross-platform demo (root build)
 demos/                        10 feature demos (separate sbt sub-build)
-sge-android-smoke/            Minimal Android smoke-test APK
-sge-it-tests/                 Integration tests (desktop, browser, android)
+sge-test/android-smoke/       Minimal Android smoke-test APK
+sge-test/                     Integration tests (desktop, browser, android)
 scalafix-rules/               Custom Scalafix lint rules
-libgdx/                       Original LibGDX Java source (reference only)
+original-src/libgdx/          Original LibGDX Java source (reference only)
 docs/                         Architecture, guides, audit trail, progress
 ```
 
@@ -136,7 +136,7 @@ Desktop-shared code (JVM + Native, not JS) is in `sge/src/main/scaladesktop/`.
 
 ### Native components
 
-The Rust library in `native-components/` provides:
+The Rust library in `sge-deps/native-components/` provides:
 
 - **Buffer operations** (memcpy, direct allocation) via `libsge_native_ops`
 - **Audio engine** (miniaudio wrapper) via `libsge_audio`

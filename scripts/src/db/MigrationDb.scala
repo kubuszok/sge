@@ -7,7 +7,7 @@ import java.time.LocalDate
 /** Migration status database operations. */
 object MigrationDb {
 
-  private val headers = List("libgdx_path", "sge_path", "status", "category", "last_updated", "notes")
+  private val headers = List("source_path", "sge_path", "status", "category", "last_updated", "notes", "source", "source_sync_commit", "last_sync_date")
 
   def run(args: List[String]): Unit = {
     args match {
@@ -16,8 +16,8 @@ object MigrationDb {
                   |
                   |Commands:
                   |  list [--status S] [--category C] [--package P] [--limit N] [--offset N]
-                  |  get <libgdx_path>
-                  |  set <libgdx_path> --status S [--notes TEXT]
+                  |  get <source_path>
+                  |  set <source_path> --status S [--notes TEXT]
                   |  sync       Import from all progress tracking files
                   |  stats      Summary counts""".stripMargin)
       case "list" :: rest => list(Cli.parse(rest))
@@ -40,7 +40,7 @@ object MigrationDb {
       table = table.filter(_.getOrElse("category", "").contains(c))
     }
     args.flag("package").foreach { p =>
-      table = table.filter(_.getOrElse("libgdx_path", "").contains(s"/$p/"))
+      table = table.filter(_.getOrElse("source_path", "").contains(s"/$p/"))
     }
     table = table.paginate(
       args.flag("limit").map(_.toInt),
@@ -50,9 +50,9 @@ object MigrationDb {
   }
 
   def get(args: Cli.Args): Unit = {
-    val path = args.requirePositional(0, "libgdx_path")
+    val path = args.requirePositional(0, "source_path")
     val table = load()
-    table.find(r => r.getOrElse("libgdx_path", "").contains(path)) match {
+    table.find(r => r.getOrElse("source_path", "").contains(path)) match {
       case Some(row) =>
         headers.foreach { h =>
           println(s"  $h: ${row.getOrElse(h, "")}")
@@ -64,20 +64,20 @@ object MigrationDb {
   }
 
   def set(args: Cli.Args): Unit = {
-    val path = args.requirePositional(0, "libgdx_path")
+    val path = args.requirePositional(0, "source_path")
     val updates = scala.collection.mutable.Map.empty[String, String]
     args.flag("status").foreach(s => updates("status") = s)
     args.flag("notes").foreach(n => updates("notes") = n)
     updates("last_updated") = LocalDate.now().toString
 
     var table = load()
-    val found = table.rows.exists(_.getOrElse("libgdx_path", "") == path)
+    val found = table.rows.exists(_.getOrElse("source_path", "") == path)
     if (!found) {
       Term.err(s"Not found: $path")
       sys.exit(1)
     }
     table = table.updateRow(
-      _.getOrElse("libgdx_path", "") == path,
+      _.getOrElse("source_path", "") == path,
       updates.toMap
     )
     save(table)
@@ -93,18 +93,21 @@ object MigrationDb {
     if (new File(srcPath).exists()) {
       val srcTable = Tsv.read(srcPath)
       val rows = srcTable.rows.map { row =>
-        val libgdxPath = row.getOrElse("libgdx_path", row.values.headOption.getOrElse(""))
+        val libgdxPath = row.getOrElse("source_path", row.values.headOption.getOrElse(""))
         val sgePath = row.getOrElse("sge_path", "")
         val status = row.getOrElse("status", "")
         val notes = row.getOrElse("notes", "")
         val category = inferCategory(libgdxPath, sgePath)
         Map(
-          "libgdx_path" -> libgdxPath,
+          "source_path" -> libgdxPath,
           "sge_path" -> sgePath,
           "status" -> status,
           "category" -> category,
           "last_updated" -> today,
-          "notes" -> notes
+          "notes" -> notes,
+          "source" -> "libgdx",
+          "source_sync_commit" -> "",
+          "last_sync_date" -> ""
         )
       }
       allRows ++= rows
@@ -127,12 +130,15 @@ object MigrationDb {
         val notes = row.getOrElse("notes", "")
         val category = "test"
         Map(
-          "libgdx_path" -> libgdxTest,
+          "source_path" -> libgdxTest,
           "sge_path" -> sgeTest,
           "status" -> status,
           "category" -> category,
           "last_updated" -> today,
-          "notes" -> notes
+          "notes" -> notes,
+          "source" -> "libgdx",
+          "source_sync_commit" -> "",
+          "last_sync_date" -> ""
         )
       }
       allRows ++= testRows
@@ -197,7 +203,7 @@ object MigrationDb {
       println("(no results)")
       return
     }
-    val display = List("libgdx_path", "status", "category", "notes")
+    val display = List("source_path", "status", "category", "notes")
     val headerRow = display
     val dataRows = table.rows.map(row => display.map(h => row.getOrElse(h, "")))
     println(Term.table(headerRow, dataRows))

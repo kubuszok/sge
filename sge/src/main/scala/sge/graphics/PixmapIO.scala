@@ -70,8 +70,7 @@ object PixmapIO {
         writer.setFlipY(flipY);
         writer.setCompression(compression);
         writer.write(file, pixmap);
-      } finally
-        writer.close();
+      } finally writer.close();
     } catch {
       case ex: IOException => throw SgeError.GraphicsError("Error writing PNG: " + file, Some(ex));
     }
@@ -117,8 +116,7 @@ object PixmapIO {
         pixelBuf.asInstanceOf[Buffer].limit(pixelBuf.capacity());
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't write Pixmap to file '" + file + "'", Some(e));
-      } finally
-        StreamUtils.closeQuietly(out)
+      } finally StreamUtils.closeQuietly(out)
     }
 
     def read(file: FileHandle): Pixmap = {
@@ -144,8 +142,7 @@ object PixmapIO {
         pixmap;
       } catch {
         case e: Exception => throw SgeError.GraphicsError("Couldn't read Pixmap from file '" + file + "'", Some(e));
-      } finally
-        StreamUtils.closeQuietly(in)
+      } finally StreamUtils.closeQuietly(in)
     }
 
     private def toGdx2DPixmapFormat(format: Format): Int = format match {

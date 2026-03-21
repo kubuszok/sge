@@ -23,18 +23,18 @@ sge/                              # Core library (projectMatrix: JVM/JS/Native)
   src/main/scaladesktop/sge/     #   Desktop-shared (JVM + Native, not JS)
   src/test/scala/sge/            #   Cross-platform tests
   src/test/scalajvm/sge/         #   JVM-only tests
-sge-jvm-platform-api/             # JVM platform interfaces (JDK 17)
-sge-jvm-platform-jdk/             # JDK 22+ Panama FFM implementation
-sge-jvm-platform-android/         # Android PanamaPort + ops implementations
-sge-freetype/                     # FreeType font extension (projectMatrix)
-sge-physics/                      # 2D physics via Rapier2D (projectMatrix)
-sge-tools/                        # TexturePacker CLI (JVM-only)
+sge-jvm-platform/api/              # JVM platform interfaces (JDK 17)
+sge-jvm-platform/jdk/              # JDK 22+ Panama FFM implementation
+sge-jvm-platform/android/          # Android PanamaPort + ops implementations
+sge-extension/freetype/            # FreeType font extension (projectMatrix)
+sge-extension/physics/             # 2D physics via Rapier2D (projectMatrix)
+sge-extension/tools/               # TexturePacker CLI (JVM-only)
 sge-build/                        # sbt plugin (SgePlugin, packaging, Android)
-native-components/                # Rust native library (GLFW, miniaudio, FFI)
+sge-deps/native-components/       # Rust native library (GLFW, miniaudio, FFI)
 demo/                             # Single cross-platform demo (root build)
 demos/                            # 10 feature demos (separate sub-build)
-sge-android-smoke/                # Minimal Android smoke-test APK
-sge-it-tests/                     # Integration tests (desktop, browser, android)
+sge-test/android-smoke/           # Minimal Android smoke-test APK
+sge-test/                         # Integration tests (desktop, browser, android)
 scalafix-rules/                   # Custom Scalafix lint rules
 ```
 

@@ -6,15 +6,15 @@
 package sge
 package utils
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{ readFromString, writeToString }
-import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
+import sge.utils.{ readFromString, writeToString }
+import sge.utils.given
 
 class JsonTest extends munit.FunSuite {
 
   // ---- Typed codec (JsonReader equivalent) ----
 
   final private case class SimpleModel(name: String, version: Int, active: Boolean)
-  private given JsonCodec[SimpleModel] = JsonCodec.make
+  private given JsonCodec[SimpleModel] = JsonCodec.derive
 
   test("parse simple object via typed codec") {
     val json = """{"name":"sge","version":2,"active":true}"""
@@ -32,7 +32,7 @@ class JsonTest extends munit.FunSuite {
   }
 
   final private case class Nested(label: String, child: SimpleModel)
-  private given JsonCodec[Nested] = JsonCodec.make
+  private given JsonCodec[Nested] = JsonCodec.derive
 
   test("parse nested objects via typed codec") {
     val json = """{"label":"outer","child":{"name":"inner","version":1,"active":false}}"""
@@ -44,7 +44,7 @@ class JsonTest extends munit.FunSuite {
   }
 
   final private case class WithList(items: List[Int])
-  private given JsonCodec[WithList] = JsonCodec.make
+  private given JsonCodec[WithList] = JsonCodec.derive
 
   test("parse array via typed codec") {
     val json = """{"items":[10,20,30]}"""

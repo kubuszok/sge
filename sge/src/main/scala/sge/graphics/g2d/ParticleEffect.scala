@@ -188,8 +188,7 @@ class ParticleEffect()(using Sge) extends AutoCloseable {
     } catch {
       case ex: IOException =>
         throw SgeError.GraphicsError("Error loading effect: " + effectFile, Some(ex))
-    } finally
-      StreamUtils.closeQuietly(reader)
+    } finally StreamUtils.closeQuietly(reader)
   }
 
   def loadEmitterImages(atlas: TextureAtlas): Unit =

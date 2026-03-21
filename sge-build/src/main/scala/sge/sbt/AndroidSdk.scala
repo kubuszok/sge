@@ -12,7 +12,7 @@ import java.nio.file.{Files, Path}
   * Resolution order for SDK location:
   *   1. `ANDROID_HOME` environment variable
   *   2. `ANDROID_SDK_ROOT` environment variable (deprecated but still common)
-  *   3. Local `android-sdk/` directory in the project root (auto-downloaded)
+  *   3. Local `sge-deps/android-sdk/` directory in the project root (auto-downloaded)
   *
   * When no SDK is found, `ensureSdk()` downloads Android command-line tools
   * and installs the minimum platform + build-tools needed for compilation.
@@ -41,7 +41,7 @@ object AndroidSdk {
       .orElse(sys.env.get("ANDROID_SDK_ROOT").map(new File(_)).filter(_.isDirectory))
       // 3. Local android-sdk/ in project
       .orElse {
-        val local = new File(projectBase, "android-sdk")
+        val local = new File(projectBase, "sge-deps/android-sdk")
         if (local.isDirectory) Some(local) else None
       }
   }
@@ -49,7 +49,7 @@ object AndroidSdk {
   /** Resolves the SDK root, downloading if necessary. */
   def ensureSdk(projectBase: File, log: sbt.util.Logger): File = {
     findSdkRoot(projectBase).getOrElse {
-      val localSdk = new File(projectBase, "android-sdk")
+      val localSdk = new File(projectBase, "sge-deps/android-sdk")
       log.info(s"No Android SDK found. Downloading to $localSdk ...")
       downloadSdk(localSdk, log)
       localSdk

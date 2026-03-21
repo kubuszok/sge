@@ -17,7 +17,7 @@ package scenes
 package scene2d
 package ui
 
-import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
+import sge.utils.given
 
 import sge.files.FileHandle
 import sge.graphics.Color

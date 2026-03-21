@@ -86,8 +86,7 @@ class AndroidFileHandle(internalFile: File, fileType: FileType, private val file
       } catch {
         case ex: Exception =>
           throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
-      } finally
-        utils.StreamUtils.closeQuietly(input)
+      } finally utils.StreamUtils.closeQuietly(input)
     } else {
       super.map(mode)
     }

@@ -2,7 +2,7 @@ package sge
 package maps
 package tiled
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{ readFromString, writeToString }
+import sge.utils.{ readFromString, writeToString }
 
 class TiledProjectJsonTest extends munit.FunSuite {
 

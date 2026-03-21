@@ -104,7 +104,7 @@ class G3dModelLoaderTest extends munit.FunSuite {
   }
 
   test("codec round-trip: G3dModelJson serializes and deserializes") {
-    import com.github.plokhotnyuk.jsoniter_scala.core.{ readFromString, writeToString }
+    import sge.utils.{ readFromString, writeToString }
 
     val original = G3dModelJson(
       version = List[Short](0, 1),

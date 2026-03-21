@@ -6,22 +6,21 @@
 package sge.it.desktop.checks
 
 import sge.Sge
-import sge.utils.XmlReader
-import com.github.plokhotnyuk.jsoniter_scala.core.JsonValueCodec
-import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
+import sge.utils.{ JsonCodec, XmlReader }
+import sge.utils.given
 import sge.it.desktop.CheckResult
 
 /** Verifies JSON and XML parsing. */
 object JsonXmlCheck {
 
   final private case class TestModel(name: String, version: Int, features: List[String])
-  private given JsonValueCodec[TestModel] = JsonCodecMaker.make
+  private given JsonCodec[TestModel] = JsonCodec.derive
 
   def run()(using Sge): CheckResult =
     try {
       // JSON parsing via jsoniter-scala
       val jsonStr = """{"name":"sge","version":1,"features":["gl","audio","files"]}"""
-      import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
+      import sge.utils.readFromString
       val model = readFromString[TestModel](jsonStr)
 
       if (model.name != "sge" || model.version != 1 || model.features.size != 3) {

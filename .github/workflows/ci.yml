@@ -34,20 +34,20 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            native-components/target
-          key: rust-macos-cross-${{ hashFiles('native-components/Cargo.lock') }}
+            sge-deps/native-components/target
+          key: rust-macos-cross-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
           restore-keys: rust-macos-cross-
 
       - name: Run Rust tests (host)
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo test
 
       - name: Build macos-aarch64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo build --release --target aarch64-apple-darwin
 
       - name: Build macos-x86_64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo build --release --target x86_64-apple-darwin
 
       - name: Upload macos-aarch64
@@ -56,8 +56,8 @@ jobs:
           name: rust-lib-macos-aarch64
           retention-days: 1
           path: |
-            native-components/target/aarch64-apple-darwin/release/libsge_native_ops.dylib
-            native-components/target/aarch64-apple-darwin/release/libsge_native_ops.a
+            sge-deps/native-components/target/aarch64-apple-darwin/release/libsge_native_ops.dylib
+            sge-deps/native-components/target/aarch64-apple-darwin/release/libsge_native_ops.a
 
       - name: Upload macos-x86_64
         uses: actions/upload-artifact@v4
@@ -65,8 +65,8 @@ jobs:
           name: rust-lib-macos-x86_64
           retention-days: 1
           path: |
-            native-components/target/x86_64-apple-darwin/release/libsge_native_ops.dylib
-            native-components/target/x86_64-apple-darwin/release/libsge_native_ops.a
+            sge-deps/native-components/target/x86_64-apple-darwin/release/libsge_native_ops.dylib
+            sge-deps/native-components/target/x86_64-apple-darwin/release/libsge_native_ops.a
 
   build-native-linux-windows:
     name: Native Components (Linux + Windows, x86_64 + aarch64)
@@ -86,8 +86,8 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
-            native-components/target
-          key: rust-linux-cross-${{ hashFiles('native-components/Cargo.lock') }}
+            sge-deps/native-components/target
+          key: rust-linux-cross-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
           restore-keys: rust-linux-cross-
 
       - name: Install cross-compilation tools
@@ -96,23 +96,23 @@ jobs:
           cargo install cargo-xwin --locked 2>/dev/null || true
 
       - name: Run Rust tests (host)
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo test
 
       - name: Build linux-x86_64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo zigbuild --release --target x86_64-unknown-linux-gnu
 
       - name: Build linux-aarch64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo zigbuild --release --target aarch64-unknown-linux-gnu
 
       - name: Build windows-x86_64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo xwin build --release --target x86_64-pc-windows-msvc
 
       - name: Build windows-aarch64
-        working-directory: native-components
+        working-directory: sge-deps/native-components
         run: cargo xwin build --release --target aarch64-pc-windows-msvc
 
       - name: Upload linux-x86_64
@@ -121,8 +121,8 @@ jobs:
           name: rust-lib-linux-x86_64
           retention-days: 1
           path: |
-            native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.so
-            native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.a
+            sge-deps/native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.so
+            sge-deps/native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.a
 
       - name: Upload linux-aarch64
         uses: actions/upload-artifact@v4
@@ -130,8 +130,8 @@ jobs:
           name: rust-lib-linux-aarch64
           retention-days: 1
           path: |
-            native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
-            native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
+            sge-deps/native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
+            sge-deps/native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
 
       - name: Upload windows-x86_64
         uses: actions/upload-artifact@v4
@@ -139,9 +139,9 @@ jobs:
           name: rust-lib-windows-x86_64
           retention-days: 1
           path: |
-            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll
-            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll.lib
-            native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.lib
+            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll
+            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll.lib
+            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.lib
 
       - name: Upload windows-aarch64
         uses: actions/upload-artifact@v4
@@ -149,9 +149,9 @@ jobs:
           name: rust-lib-windows-aarch64
           retention-days: 1
           path: |
-            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
-            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
-            native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
+            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
+            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
+            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
 
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
@@ -213,7 +213,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: native-components/target/release
+          path: sge-deps/native-components/target/release
 
       - name: Run JVM tests
         run: sbt 'sge/test'
@@ -298,11 +298,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: native-components/target/release
+          path: sge-deps/native-components/target/release
 
       - name: Remove dynamic libraries (force static linking)
         shell: bash
-        run: rm -f native-components/target/release/libsge_native_ops.{dylib,so} native-components/target/release/sge_native_ops.dll
+        run: rm -f sge-deps/native-components/target/release/libsge_native_ops.{dylib,so} sge-deps/native-components/target/release/sge_native_ops.dll
 
       # Download pre-built static curl + all transitive deps (OpenSSL, nghttp2,
       # libidn2, etc.) from stunnel/static-curl. Eliminates system libcurl/libidn2.
@@ -314,8 +314,8 @@ jobs:
           CURL_PLATFORM="${PLATFORM/macos-aarch64/macos-arm64}"
           CURL_VERSION="8.19.0"
           CURL_URL="https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
-          DEST="native-components/target/release"
-          CACHE_DIR="native-components/target/curl-cache"
+          DEST="sge-deps/native-components/target/release"
+          CACHE_DIR="sge-deps/native-components/target/curl-cache"
           mkdir -p "$CACHE_DIR" "$DEST"
           ARCHIVE="$CACHE_DIR/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
           if [ ! -f "$ARCHIVE" ]; then

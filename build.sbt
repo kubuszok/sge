@@ -29,13 +29,13 @@ val mavenCentralSnapshots = "Maven Central Snapshots" at "https://central.sonaty
 
 val publishSettings = Seq(
   organization := "com.kubuszok",
-  homepage := Some(url("https://github.com/MateuszKubuszok/sge")),
+  homepage := Some(url("https://github.com/kubuszok/sge")),
   organizationHomepage := Some(url("https://kubuszok.com")),
   licenses := Seq("Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0")),
   scmInfo := Some(
     ScmInfo(
-      url("https://github.com/MateuszKubuszok/sge/"),
-      "scm:git:git@github.com:MateuszKubuszok/sge.git"
+      url("https://github.com/kubuszok/sge/"),
+      "scm:git:git@github.com:kubuszok/sge.git"
     )
   ),
   startYear := Some(2026),
@@ -45,7 +45,7 @@ val publishSettings = Seq(
   pomExtra := (
     <issueManagement>
       <system>GitHub issues</system>
-      <url>https://github.com/MateuszKubuszok/sge/issues</url>
+      <url>https://github.com/kubuszok/sge/issues</url>
     </issueManagement>
   ),
   publishTo := {
@@ -70,8 +70,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "75179f5c9d1bc99642170d900a27c4e1c8e062f4-SNAPSHOT"
-  val jsoniter  = "2.38.9"
+  val kindlings = "eef8db257f703b807ace7eae1cc37f17d5ed0c48-SNAPSHOT"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"
   val scribe    = "3.17.0"
@@ -80,6 +79,7 @@ val versions = new {
 
   val panamaPort = "v0.1.0"
 
+  val scalaSaxParser   = "0.1.0"
   val scalaJavaTime    = "2.6.0"
   val scalaJavaLocales = "1.5.4"
 
@@ -105,11 +105,12 @@ val sge = (projectMatrix in file("sge"))
     name := "sge",
     resolvers += mavenCentralSnapshots,
     libraryDependencies ++= Seq(
+      "com.kubuszok" %%% "kindlings-jsoniter-derivation" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-jsoniter-json" % versions.kindlings,
       "com.kubuszok" %%% "kindlings-ubjson-derivation" % versions.kindlings,
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % versions.jsoniter % "provided",
       "com.softwaremill.sttp.client4" %%% "core" % versions.sttp,
       "org.scala-lang.modules" %%% "scala-xml" % versions.xml,
+      "com.kubuszok" %%% "scala-sax-parser" % versions.scalaSaxParser,
       "com.outr" %%% "scribe" % versions.scribe,
       "io.github.cquiroz" %%% "scala-java-time" % versions.scalaJavaTime,
       "io.github.cquiroz" %%% "scala-java-locales" % versions.scalaJavaLocales,
@@ -147,8 +148,8 @@ val sge = (projectMatrix in file("sge"))
       },
       // Bundle native shared libraries for all platforms into the JAR
       Compile / packageBin / mappings ++= {
-        val crossDir   = (ThisBuild / baseDirectory).value / "native-components" / "target" / "cross"
-        val releaseDir = (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
+        val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
+        val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
         val sharedLibExts = Set(".so", ".dylib", ".dll")
         def isSharedLib(name: String) = sharedLibExts.exists(name.endsWith)
         // Cross-compiled: all 6 platforms from target/cross/<platform>/
@@ -174,7 +175,7 @@ val sge = (projectMatrix in file("sge"))
           ("armv7-linux-androideabi",  "android-armv7"),
           ("x86_64-linux-android",     "android-x86_64")
         ).flatMap { case (rustTarget, classifier) =>
-          val dir = (ThisBuild / baseDirectory).value / "native-components" / "target" / rustTarget / "release"
+          val dir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / rustTarget / "release"
           if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isSharedLib(f.getName))
             .map(f => f -> s"native/$classifier/${f.getName}")
             .toSeq
@@ -201,14 +202,14 @@ val sge = (projectMatrix in file("sge"))
     )
   )
 
-val regressionTest = (projectMatrix in file("sge-regression-test"))
+val regressionTest = (projectMatrix in file("sge-test/regression"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
-    name := "sge-regression-test",
+    name := "sge-test-regression",
     // Generate minimal test assets at compile time (PNG + text) so we can
     // exercise the full AssetManager → FileHandle → Texture pipeline.
     Compile / resourceGenerators += Def.task {
@@ -236,7 +237,7 @@ val regressionTest = (projectMatrix in file("sge-regression-test"))
   .dependsOn(sge)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-regression-test")
+    settings = SgePlugin.jvmSettings(projectDir = "sge-test/regression")
   )
   .jsPlatform(
     scalaVersions = Seq(versions.scala),
@@ -246,7 +247,7 @@ val regressionTest = (projectMatrix in file("sge-regression-test"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-regression-test") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-test/regression") ++ SgeNativeLibs.hostSettings ++ Seq(
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value
@@ -266,7 +267,7 @@ val regressionTest = (projectMatrix in file("sge-regression-test"))
 // at package time (see sge jvmPlatform settings). Runtime feature
 // detection in sge picks the right provider/implementation.
 
-lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform-api"))
+lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -276,7 +277,7 @@ lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform-api"))
     scalacOptions ++= Seq("-release", "17")
   )
 
-lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform-jdk"))
+lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform/jdk"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -290,7 +291,7 @@ lazy val hasAndroidSdk: Boolean = _root_.sge.sbt.AndroidSdk
   .findSdkRoot(new File("."))
   .exists(r => _root_.sge.sbt.AndroidSdk.androidJar(r).exists())
 
-lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android"))
+lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -352,20 +353,17 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform-android
 //
 // These are published separately from sge-core. They depend on sge.
 
-lazy val `sge-tools` = (project in file("sge-tools"))
+lazy val `sge-tools` = (project in file("sge-extension/tools"))
   .disablePlugins(ScalafixPlugin)
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
   .settings(publishSettings *)
   .settings(
-    name := "sge-tools",
+    name := "sge-extension-tools",
     scalaVersion := versions.scala,
     resolvers += mavenCentralSnapshots,
     Compile / mainClass := Some("sge.tools.texturepacker.TexturePacker"),
     libraryDependencies ++= Seq(
-      "com.kubuszok" %% "kindlings-jsoniter-json" % versions.kindlings,
-      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % versions.jsoniter,
-      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter % "provided",
       "org.scalameta" %% "munit" % versions.munit % Test
     ),
     testFrameworks += new TestFramework("munit.Framework"),
@@ -379,12 +377,12 @@ lazy val `sge-tools` = (project in file("sge-tools"))
   )
   .dependsOn(sge.jvm(versions.scala))
 
-val `sge-freetype` = (projectMatrix in file("sge-freetype"))
+val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(publishSettings *)
   .settings(
-    name := "sge-freetype",
+    name := "sge-extension-freetype",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % versions.munit % Test
     ),
@@ -392,7 +390,7 @@ val `sge-freetype` = (projectMatrix in file("sge-freetype"))
   )
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-freetype") ++ Seq(
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/freetype") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
@@ -406,7 +404,7 @@ val `sge-freetype` = (projectMatrix in file("sge-freetype"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-freetype") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++ SgeNativeLibs.hostSettings ++ Seq(
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value
@@ -416,12 +414,12 @@ val `sge-freetype` = (projectMatrix in file("sge-freetype"))
   )
   .dependsOn(sge)
 
-val `sge-physics` = (projectMatrix in file("sge-physics"))
+val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
   .settings(publishSettings *)
   .settings(
-    name := "sge-physics",
+    name := "sge-extension-physics",
     organization := "com.kubuszok",
     libraryDependencies ++= Seq(
       "org.scalameta" %%% "munit" % versions.munit % Test
@@ -431,7 +429,7 @@ val `sge-physics` = (projectMatrix in file("sge-physics"))
   .dependsOn(sge)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jvmSettings(projectDir = "sge-physics") ++ Seq(
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
@@ -445,7 +443,7 @@ val `sge-physics` = (projectMatrix in file("sge-physics"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-physics") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++ SgeNativeLibs.hostSettings ++ Seq(
       nativeConfig := {
         val c      = nativeConfig.value
         val libDir = SgeNativeLibs.sgeNativeLibDir.value
@@ -463,13 +461,13 @@ val `sge-physics` = (projectMatrix in file("sge-physics"))
 // Build: sbt 'sge-android-smoke/androidSign'
 // Prerequisites: Android SDK (run 'sge-dev test android setup')
 
-lazy val `sge-android-smoke` = (project in file("sge-android-smoke"))
+lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
   .disablePlugins(ScalafixPlugin)
   .settings(_root_.sge.sbt.AndroidBuild.settings *)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
-    name := "sge-android-smoke",
+    name := "sge-test-android-smoke",
     // Conditional android sources
     Compile / unmanagedSourceDirectories ++= {
       if (hasAndroidSdk)
@@ -504,8 +502,8 @@ lazy val `sge-android-smoke` = (project in file("sge-android-smoke"))
 //
 // Prerequisites: Rust native lib built (sge-dev native build)
 //
-// Run: sbt 'sge-it-desktop/test'  or  sge-dev test integration --desktop
-lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
+// Run: sbt 'sge-test-it-desktop/test'  or  sge-dev test integration --desktop
+lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -514,8 +512,7 @@ lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
     resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots",
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit"  % versions.munit % Test,
-      "com.outr"      %% "scribe" % versions.scribe,
-      "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % versions.jsoniter % "provided"
+      "com.outr"      %% "scribe" % versions.scribe
     ),
     testFrameworks += new TestFramework("munit.Framework"),
     // Need JVM platform modules on classpath
@@ -534,9 +531,9 @@ lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
     Test / fork := true,
     Test / javaOptions ++= {
       // All native libs (sge_native_ops, sge_audio, glfw) are built from vendored source
-      // and placed in native-components/target/release/. ANGLE (EGL, GLESv2) needs to be
+      // and placed in sge-deps/native-components/target/release/. ANGLE (EGL, GLESv2) needs to be
       // bundled there as well (see sge-dev native angle setup).
-      val rustLib = ((ThisBuild / baseDirectory).value / "native-components" / "target" / "release").getAbsolutePath
+      val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
       // Note: -XstartOnFirstThread is NOT passed here — the munit test launches
       // the harness as a subprocess with that flag so GLFW runs on thread 0.
       Seq(
@@ -547,7 +544,7 @@ lazy val `sge-it-desktop` = (project in file("sge-it-tests/desktop"))
   )
   .dependsOn(sge.jvm(versions.scala))
 
-lazy val `sge-it-jvm-platform` = (project in file("sge-it-tests/jvm-platform"))
+lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -566,8 +563,8 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-it-tests/jvm-platform"))
 // Prerequisites: run `npx playwright@1.49.0 install chromium` once to install
 // the browser binary. Playwright Java auto-manages the driver.
 //
-// Run: sbt 'sge-it-browser/test'  or  sge-dev test browser
-lazy val `sge-it-browser` = (project in file("sge-it-tests/browser"))
+// Run: sbt 'sge-test-it-browser/test'  or  sge-dev test browser
+lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -595,11 +592,11 @@ lazy val `sge-it-browser` = (project in file("sge-it-tests/browser"))
 //
 // Prerequisites:
 //   1. Android SDK + emulator + system image: sge-dev test android setup
-//   2. Build smoke APK: sbt 'sge-android-smoke/androidSign'
+//   2. Build smoke APK: sbt 'sge-test-android-smoke/androidSign'
 //   3. Create + start AVD: sge-dev test android start
 //
-// Run: sbt 'sge-it-android/test'  or  sge-dev test android test
-lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
+// Run: sbt 'sge-test-it-android/test'  or  sge-dev test android test
+lazy val `sge-it-android` = (project in file("sge-test/it-android"))
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -614,8 +611,8 @@ lazy val `sge-it-android` = (project in file("sge-it-tests/android"))
 // correct symbol resolution, ABI compatibility, and pointer calculations.
 // Catches runtime SIGSEGVs from wrong parameter types or buffer offset bugs.
 //
-// Run: sbt 'sge-it-native-ffi/run'  or  sge-dev test integration --native-ffi
-lazy val `sge-it-native-ffi` = (project in file("sge-it-tests/native-ffi"))
+// Run: sbt 'sge-test-it-native-ffi/run'  or  sge-dev test integration --native-ffi
+lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   .enablePlugins(ScalaNativePlugin)
   .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)

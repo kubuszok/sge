@@ -26,7 +26,7 @@ Global / excludeLintKeys += SgeProject.autoImport.sgeRustLibDir
 // ── Rust library lives in the main repo (one level up) ──────────────
 
 ThisBuild / SgeProject.autoImport.sgeRustLibDir := {
-  (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
+  (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
 }
 
 // ── Temurin JDK 23 URLs for distribution packaging ───────────────
@@ -60,7 +60,7 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
         Seq((ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android")
       else Seq.empty
     },
-    // android.jar from parent SDK (demos is a sub-build; root project has android-sdk/)
+    // android.jar from parent SDK (demos is a sub-build; root project has sge-deps/android-sdk/)
     Compile / unmanagedJars ++= {
       val parentBase = (ThisBuild / baseDirectory).value / ".."
       AndroidSdk.findSdkRoot(parentBase).toSeq.flatMap { sdkRoot =>
@@ -76,7 +76,7 @@ def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
     Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
     SgePackaging.sgeTargets := jdkUrls,
     SgePackaging.sgeCrossNativeLibDir := Some(
-      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "cross"
+      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross"
     ),
     SgePackaging.sgeJlinkModules := Seq(
       "java.base", "java.desktop", "java.logging", "java.management",
@@ -90,7 +90,7 @@ def nativeAxis(dir: String): Seq[Setting[_]] =
   NativeReleases.axisSettings ++ Seq(
     SgeProject.autoImport.sgeProjectDir := dir,
     SgeProject.autoImport.sgeRustLibDir := {
-      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
+      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
     }
   )
 
@@ -99,7 +99,7 @@ def nativeAxis(dir: String): Seq[Setting[_]] =
 // Each target gets a separate sbt subproject (e.g. pongNativeLinuxX64).
 
 val crossNativeTargets: Seq[Platform] = {
-  val crossDir = new File(System.getProperty("user.dir")).getParentFile / "native-components" / "target" / "cross"
+  val crossDir = new File(System.getProperty("user.dir")).getParentFile / "sge-deps" / "native-components" / "target" / "cross"
   if (ZigCross.isAvailable && crossDir.exists())
     Platform.desktop.filterNot(_ == Platform.host)
   else Seq.empty
@@ -109,7 +109,7 @@ def crossNativeAxis(dir: String, platform: Platform): Seq[Setting[_]] =
   SgePlugin.nativeSettings(projectDir = dir) ++ _root_.sge.sbt.SgeNativeLibs.settings ++ SgePackaging.nativeSettings ++ Seq(
     SgeProject.autoImport.sgeProjectDir := dir,
     SgeProject.autoImport.sgeRustLibDir := {
-      (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "cross" / platform.classifier
+      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross" / platform.classifier
     },
     _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
     SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
@@ -167,7 +167,7 @@ val shared = (projectMatrix in file("shared"))
   .nativePlatform(scalaVersions = Seq(sv),
     settings = SgePlugin.nativeSettings(projectDir = "shared") ++ _root_.sge.sbt.SgeNativeLibs.settings ++ Seq(
       SgeProject.autoImport.sgeRustLibDir := {
-        (ThisBuild / baseDirectory).value / ".." / "native-components" / "target" / "release"
+        (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
       },
       _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
       nativeConfig := {
@@ -201,14 +201,8 @@ val curvePlayground  = demo("curve-playground",  "sge-demo-curves",       "curve
 val shaderLab        = demo("shader-lab",        "sge-demo-shaders",      "shaders",      "SGE Shader Lab")(projectMatrix in file("shader-lab"))
 val viewer3d         = demo("viewer-3d",         "sge-demo-viewer3d",     "viewer3d",     "SGE 3D Viewer")(projectMatrix in file("viewer-3d"))
 val particleShow     = demo("particle-show",     "sge-demo-particles",    "particles",    "SGE Particles")(projectMatrix in file("particle-show"))
-// Net Chat is JVM-only: XmlReader depends on SAX parser (JVM stdlib only)
-val netChat = (projectMatrix in file("net-chat"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .enablePlugins(SgeProject)
-  .settings(name := "sge-demo-netchat", organization := "com.kubuszok", publish / skip := true,
-    SgeProject.autoImport.sgeAppName := "SGE Net Chat")
-  .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis("net-chat", "netchat"))
+// Net Chat — now cross-platform thanks to scala-sax-parser providing SAX APIs on JS/Native.
+val netChat = demo("net-chat", "sge-demo-netchat", "netchat", "SGE Net Chat")(projectMatrix in file("net-chat"))
 val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
 // Asset Showcase: uses real asset files (textures, models, audio) loaded via AssetManager.
 // Resource generators create procedural PNG textures and WAV audio at compile time.
@@ -369,18 +363,16 @@ releaseAlias("Curves",       "curvePlayground", "curvePlaygroundJS", "curvePlayg
 releaseAlias("ShaderLab",    "shaderLab",       "shaderLabJS",       "shaderLabNative")
 releaseAlias("Viewer3d",     "viewer3d",        "viewer3dJS",        "viewer3dNative")
 releaseAlias("Particles",    "particleShow",    "particleShowJS",    "particleShowNative")
-// NetChat: JVM-only release (no JS/Native)
-addCommandAlias("releaseNetChat", "netChat/sgePackageAll")
+releaseAlias("NetChat",      "netChat",         "netChatJS",         "netChatNative")
 releaseAlias("Viewports",    "viewportGallery", "viewportGalleryJS", "viewportGalleryNative")
 releaseAlias("Assets",       "assetShowcase",   "assetShowcaseJS",   "assetShowcaseNative")
 
 addCommandAlias("releaseAll",
   "releasePong; releaseSpaceShooter; releaseTileWorld; releaseHexTactics; " +
   "releaseCurves; releaseShaderLab; releaseViewer3d; releaseParticles; " +
-  "releaseViewports; releaseAssets; " +
+  "releaseNetChat; releaseViewports; releaseAssets; " +
   "androidAll"
 )
-// releaseNetChat excluded from releaseAll — JVM only, run separately
 
 // ── Android APK aliases ───────────────────────────────────────────────
 // Usage: sbt androidPong        — builds APK for Pong
@@ -405,9 +397,8 @@ androidAlias("Assets",       "assetShowcase")
 addCommandAlias("androidAll",
   "androidPong; androidSpaceShooter; androidTileWorld; androidHexTactics; " +
   "androidCurves; androidShaderLab; androidViewer3d; androidParticles; " +
-  "androidViewports; androidAssets"
+  "androidNetChat; androidViewports; androidAssets"
 )
-// androidNetChat excluded from androidAll — run separately if needed
 
 // ── Collect all release artifacts into one directory ──────────────
 // Usage: sbt collectReleases   (run after releaseAll)

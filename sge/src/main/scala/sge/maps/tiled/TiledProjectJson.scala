@@ -12,9 +12,8 @@ package sge
 package maps
 package tiled
 
-import com.github.plokhotnyuk.jsoniter_scala.macros.named
-import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
-import sge.utils.Json
+import sge.utils.{ Json, fieldName }
+import sge.utils.given
 
 /** JSON DTO case classes for Tiled project files (.tiled-project).
   *
@@ -25,19 +24,19 @@ final case class TiledProjectJson(
 )
 
 final case class TiledProjectPropertyTypeJson(
-  name:               String = "",
-  @named("type") tpe: String = "",
-  members:            List[TiledProjectMemberJson] = Nil
+  name:                   String = "",
+  @fieldName("type") tpe: String = "",
+  members:                List[TiledProjectMemberJson] = Nil
 )
 
 /** A member of a Tiled project class definition. The `value` field is polymorphic (string, number, boolean, or object). */
 final case class TiledProjectMemberJson(
-  name:               String = "",
-  @named("type") tpe: String = "",
-  propertyType:       Option[String] = None,
-  value:              Option[Json] = None
+  name:                   String = "",
+  @fieldName("type") tpe: String = "",
+  propertyType:           Option[String] = None,
+  value:                  Option[Json] = None
 )
 
 object TiledProjectJson {
-  given codec: sge.utils.JsonCodec[TiledProjectJson] = sge.utils.JsonCodec.make
+  given codec: sge.utils.JsonCodec[TiledProjectJson] = sge.utils.JsonCodec.derive[TiledProjectJson]
 }

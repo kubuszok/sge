@@ -28,11 +28,10 @@ target/
 .mcp.json
 
 ## Rust
-native-components/target/
+sge-deps/native-components/target/
 
 ## Android SDK (downloaded by `sge-dev test android setup`)
 android-sdk/
-demos/android-sdk/
 
 ## sge-dev CLI
 scripts/bin/

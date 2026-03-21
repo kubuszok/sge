@@ -9,7 +9,7 @@ package scenes
 package scene2d
 package ui
 
-import com.github.plokhotnyuk.jsoniter_scala.core.readFromString
+import sge.utils.readFromString
 
 import sge.Sge
 import sge.SgeTestFixture
@@ -24,7 +24,7 @@ class SkinStyleReaderTest extends munit.FunSuite {
   private given Sge = SgeTestFixture.testSge()
 
   private given codec: sge.utils.JsonCodec[Json] = {
-    import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
+    import sge.utils.given
     summon[sge.utils.JsonCodec[Json]]
   }
 

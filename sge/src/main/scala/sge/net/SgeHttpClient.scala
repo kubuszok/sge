@@ -15,8 +15,6 @@ import scala.collection.mutable
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.{ Failure, Success }
 import sge.utils.{ Nullable, Pool }
-import sttp.client4.basicRequest
-import sttp.model.{ Method, Uri }
 
 /** HTTP client that manages a pool of reusable [[SgeHttpRequest]] objects and dispatches them via an sttp backend. Requests are obtained from the pool, configured, sent, and automatically returned to
   * the pool upon completion or cancellation.
@@ -119,11 +117,11 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     requestPool.free(request)
   }
 
-  private def buildSttpRequest(req: SgeHttpRequest): sttp.client4.Request[Either[String, String]] = {
-    val uri    = Uri.unsafeParse(req.url)
+  private def buildSttpRequest(req: SgeHttpRequest): SttpRequest[Either[String, String]] = {
+    val uri    = SttpUri.unsafeParse(req.url)
     val method = toSttpMethod(req.method)
 
-    var r = basicRequest.method(method, uri).followRedirects(req.followRedirects)
+    var r = sttpBasicRequest.method(method, uri).followRedirects(req.followRedirects)
 
     // Set timeout
     if (req.timeoutMs > 0) {
@@ -147,13 +145,13 @@ final class SgeHttpClient private[sge] (backend: HttpBackendFactory, poolCapacit
     r
   }
 
-  private def toSttpMethod(m: Net.HttpMethod): Method = m match {
-    case Net.HttpMethod.GET    => Method.GET
-    case Net.HttpMethod.POST   => Method.POST
-    case Net.HttpMethod.PUT    => Method.PUT
-    case Net.HttpMethod.DELETE => Method.DELETE
-    case Net.HttpMethod.HEAD   => Method.HEAD
-    case Net.HttpMethod.PATCH  => Method.PATCH
+  private def toSttpMethod(m: Net.HttpMethod): SttpMethod = m match {
+    case Net.HttpMethod.GET    => SttpMethod.GET
+    case Net.HttpMethod.POST   => SttpMethod.POST
+    case Net.HttpMethod.PUT    => SttpMethod.PUT
+    case Net.HttpMethod.DELETE => SttpMethod.DELETE
+    case Net.HttpMethod.HEAD   => SttpMethod.HEAD
+    case Net.HttpMethod.PATCH  => SttpMethod.PATCH
   }
 }
 
@@ -168,7 +166,7 @@ object SgeHttpClient {
     new SgeHttpClient(NoopBackendFactory, 4, 16)
 
   private object NoopBackendFactory extends HttpBackendFactory {
-    override def send(request: sttp.client4.Request[Either[String, String]]): Future[sttp.client4.Response[Either[String, String]]] =
+    override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
       Future.failed(new UnsupportedOperationException("noop HTTP backend"))
     override def close(): Unit = ()
   }

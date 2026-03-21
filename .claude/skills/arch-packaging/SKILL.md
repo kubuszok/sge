@@ -17,7 +17,7 @@ Distribution packaging architecture for SGE games.
 5. **Android** (`androidSign`): APK via D8 + aapt2 + apksigner
 
 ## Cross-Platform JVM Distribution
-- `sgeCrossNativeLibDir` setting: points to `native-components/target/cross/`
+- `sgeCrossNativeLibDir` setting: points to `sge-deps/native-components/target/cross/`
 - Per-platform native libs from `cross/<classifier>/` (e.g. `cross/macos-aarch64/`)
 - ANGLE libs (libEGL, libGLESv2) bundled alongside Rust libs
 - Static curl libs (from stunnel/static-curl) for self-contained Scala Native releases

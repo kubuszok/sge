@@ -13,9 +13,8 @@ package graphics
 package g3d
 package loader
 
-import com.github.plokhotnyuk.jsoniter_scala.macros.{ CodecMakerConfig, named }
-import hearth.kindlings.ubjsonderivation.annotations.fieldName
-import sge.utils.{ JsonCodec, UBJsonCodec }
+import sge.utils.{ JsonCodec, UBJsonCodec, fieldName }
+import sge.utils.given
 
 /** JSON DTO case classes for the .g3dj 3D model format (LibGDX G3D).
   *
@@ -38,9 +37,9 @@ final case class G3dMeshJson(
 )
 
 final case class G3dMeshPartJson(
-  id:                                    String,
-  @named("type") @fieldName("type") tpe: String,
-  indices:                               List[Short]
+  id:                     String,
+  @fieldName("type") tpe: String,
+  indices:                List[Short]
 )
 
 final case class G3dMaterialJson(
@@ -56,11 +55,11 @@ final case class G3dMaterialJson(
 )
 
 final case class G3dTextureJson(
-  id:                                    String,
-  filename:                              String,
-  uvTranslation:                         Option[List[Float]] = None,
-  uvScaling:                             Option[List[Float]] = None,
-  @named("type") @fieldName("type") tpe: String
+  id:                     String,
+  filename:               String,
+  uvTranslation:          Option[List[Float]] = None,
+  uvScaling:              Option[List[Float]] = None,
+  @fieldName("type") tpe: String
 )
 
 final case class G3dNodeJson(
@@ -111,13 +110,11 @@ final case class G3dKeyframeV1Json(
 /** v0.2 keyframe: single value at a given time (used for split channels). */
 final case class G3dKeyframeV2Json(
   keytime: Float = 0f,
-  value:   List[Float]
+  value:   List[Float] = Nil
 )
 
 object G3dModelJson {
-  given codec: sge.utils.JsonCodec[G3dModelJson] = JsonCodec.make(
-    CodecMakerConfig.withAllowRecursiveTypes(true)
-  )
+  given codec: sge.utils.JsonCodec[G3dModelJson] = JsonCodec.derive[G3dModelJson]
 
   given ubJsonCodec: sge.utils.UBJsonCodec[G3dModelJson] = UBJsonCodec.derive[G3dModelJson]
 }

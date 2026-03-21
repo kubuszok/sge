@@ -131,8 +131,7 @@ class DesktopApplication(
     } catch {
       case e: RuntimeException => throw e
       case t: Throwable        => throw SgeError.GraphicsError("Application error", Some(t))
-    } finally
-      cleanup()
+    } finally cleanup()
   }
 
   // ─── Main loop ──────────────────────────────────────────────────────

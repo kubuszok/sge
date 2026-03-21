@@ -449,8 +449,7 @@ object TextureAtlas {
       } catch {
         case ex: Exception =>
           throw SgeError.FileReadError(packFile, "Error reading texture atlas file: " + packFile + line.map(l => "\nLine: " + l).getOrElse(""), Some(ex))
-      } finally
-        StreamUtils.closeQuietly(reader)
+      } finally StreamUtils.closeQuietly(reader)
 
       if (hasIndexes) {
         regions.sort(

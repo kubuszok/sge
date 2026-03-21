@@ -32,10 +32,9 @@ class CumulativeDistributionTest extends munit.ScalaCheckSuite {
     cd.add(2, 0.3f)
     cd.add(3, 0.5f)
     cd.generate()
-    for (i <- 0 until cd.size()) {
+    for (i <- 0 until cd.size())
       cd.getInterval(i) // interval is unchanged; frequency is cumulative
-      // can't read frequency directly, but value() binary search relies on it
-    }
+    // can't read frequency directly, but value() binary search relies on it
     // verify value() works for exact boundaries
     assertEquals(cd.size(), 3)
   }

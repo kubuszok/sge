@@ -6,7 +6,7 @@ import java.io.File
 /** Rust native library operations — self-contained, no Justfile dependency. */
 object NativeCmd {
 
-  private def nativeDir: String = s"${Paths.projectRoot}/native-components"
+  private def nativeDir: String = s"${Paths.projectRoot}/sge-deps/native-components"
   private def crossOutDir: String = s"$nativeDir/target/cross"
   private val rustTargets = List(
     "x86_64-apple-darwin", "aarch64-apple-darwin",
@@ -16,7 +16,7 @@ object NativeCmd {
 
   // ANGLE pre-built binaries from sge-angle-natives GitHub Releases
   private val AngleVersion = "chromium-7151"
-  private val AngleRepo = "MateuszKubuszok/sge-angle-natives"
+  private val AngleRepo = "kubuszok/sge-angle-natives"
   private val AngleBaseUrl = s"https://github.com/$AngleRepo/releases/download/$AngleVersion"
 
   private val anglePlatforms = List(
@@ -179,7 +179,7 @@ object NativeCmd {
     }
     val rustupBin = s"${System.getProperty("user.home")}/.rustup/toolchains/stable-$hostTriple/bin"
 
-    val androidNdk = s"${Paths.projectRoot}/demos/android-sdk/ndk/27.2.12479018"
+    val androidNdk = s"${Paths.projectRoot}/sge-deps/android-sdk/ndk/27.2.12479018"
     val ndkBin = s"$androidNdk/toolchains/llvm/prebuilt/darwin-x86_64/bin"
 
     val ndkPrefix = target match {

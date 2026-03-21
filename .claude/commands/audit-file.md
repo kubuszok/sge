@@ -8,7 +8,7 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
 2. **Find the LibGDX source**: Determine the original Java file path. The mapping is:
    `sge/<path>.scala` → `com/badlogic/gdx/<path>.java`.
    Check `docs/contributing/type-mappings.md` for renamed/merged files.
-   Open the source from `./libgdx/gdx/src/` with the Read tool.
+   Open the source from `./original-src/libgdx/gdx/src/` with the Read tool.
 
 3. **Compare public API**:
    - List all public methods, constants, enums, and inner types in the Java source
@@ -49,8 +49,8 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
 7. **Check for tests**:
    - Check if a test exists in SGE: look under `sge/src/test/scala/sge/` and
      `sge/src/test/scalajvm/sge/` for a matching `*Test.scala` or `*Suite.scala`
-   - Check if a test exists in LibGDX: look under `libgdx/gdx/tests/` and
-     `libgdx/tests/gdx-tests/src/` for a matching test
+   - Check if a test exists in LibGDX: look under `original-src/libgdx/gdx/tests/` and
+     `original-src/libgdx/tests/gdx-tests/src/` for a matching test
    - **If LibGDX has a test and SGE does not**: **major issue** — the test must be ported
    - **If LibGDX has a test and SGE has one but it's incomplete**: **major issue** —
      all test cases should be covered

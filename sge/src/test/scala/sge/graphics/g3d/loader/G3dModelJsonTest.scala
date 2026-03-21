@@ -3,7 +3,7 @@ package graphics
 package g3d
 package loader
 
-import com.github.plokhotnyuk.jsoniter_scala.core.{ readFromString, writeToString }
+import sge.utils.{ readFromString, writeToString }
 
 class G3dModelJsonTest extends munit.FunSuite {
 

@@ -90,8 +90,7 @@ class KTXTextureData(file: FileHandle, useMipMapsParam: Boolean)(using Sge) exte
         cd.asInstanceOf[Buffer].limit(cd.capacity())
       } catch {
         case e: Exception => throw SgeError.GraphicsError(s"Couldn't load zktx file '$file'", Some(e))
-      } finally
-        StreamUtils.closeQuietly(in)
+      } finally StreamUtils.closeQuietly(in)
     } else {
       compressedData = Nullable(ByteBuffer.wrap(file.readBytes()))
     }

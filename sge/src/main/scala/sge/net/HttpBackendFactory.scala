@@ -12,7 +12,6 @@ package sge
 package net
 
 import scala.concurrent.Future
-import sttp.client4.Response
 
 /** Platform abstraction for HTTP backends. Each platform (JVM, JS, Native) provides an `HttpBackendFactoryImpl` object that creates the appropriate sttp backend and exposes a uniform `Future`-based
   * send method.
@@ -21,7 +20,7 @@ private[net] trait HttpBackendFactory {
 
   /** Sends an sttp request and returns a Future of the response. The body is decoded as a String on both success and error paths.
     */
-  def send(request: sttp.client4.Request[Either[String, String]]): Future[Response[Either[String, String]]]
+  def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]]
 
   /** Closes the underlying sttp backend and releases resources. */
   def close(): Unit

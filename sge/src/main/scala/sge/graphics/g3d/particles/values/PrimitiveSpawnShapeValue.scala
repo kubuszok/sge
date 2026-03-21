@@ -45,8 +45,8 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
 
   def this(value: PrimitiveSpawnShapeValue) = {
     this()
-    // Note: super(value) is called implicitly via this() then load pattern
   }
+  // Note: super(value) is called implicitly via this() then load pattern
 
   override def active_=(value: Boolean): Unit = {
     super.active_=(value)

@@ -16,9 +16,8 @@ package sge
 package tools
 package texturepacker
 
-import com.github.plokhotnyuk.jsoniter_scala.core.readFromStream
-import _root_.hearth.kindlings.jsoniterjson.Json
-import _root_.hearth.kindlings.jsoniterjson.codec.JsonCodec.given
+import sge.utils.{ Json, readFromStream }
+import sge.utils.given
 import sge.graphics.Pixmap.Format
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.tools.texturepacker.TexturePacker.{ ProgressListener, Resampling, Settings }

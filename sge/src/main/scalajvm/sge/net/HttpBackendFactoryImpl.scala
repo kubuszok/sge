@@ -13,7 +13,7 @@ package sge
 package net
 
 import scala.concurrent.Future
-import sttp.client4.{ DefaultFutureBackend, Response }
+import sttp.client4.DefaultFutureBackend
 
 /** JVM implementation: uses sttp's `DefaultFutureBackend` which delegates to Java's built-in `java.net.http.HttpClient` with `Future`-based async dispatch.
   */
@@ -21,7 +21,7 @@ private[net] object HttpBackendFactoryImpl extends HttpBackendFactory {
 
   private val backend = DefaultFutureBackend()
 
-  override def send(request: sttp.client4.Request[Either[String, String]]): Future[Response[Either[String, String]]] =
+  override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
     backend.send(request)
 
   override def close(): Unit =

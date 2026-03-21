@@ -55,8 +55,7 @@ abstract class TemporalAction(var duration: Seconds = Seconds.zero, var interpol
         update(if (reverse) 1 - percent else percent)
         if (complete) end()
         complete
-      } finally
-        pool = savedPool
+      } finally pool = savedPool
     }
 
   /** Called the first time {@link #act(float)} is called. This is a good place to query the {@link #actor actor's} starting state.

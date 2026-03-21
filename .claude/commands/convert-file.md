@@ -2,7 +2,7 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
 
 ## Procedure
 
-1. **Read the source**: Open `./libgdx/gdx/src/$ARGUMENTS` with the Read tool to
+1. **Read the source**: Open `./original-src/libgdx/gdx/src/$ARGUMENTS` with the Read tool to
    understand the original Java code.
    **NEVER fetch from GitHub** — always use the local submodule.
    Extract `@author` tags from the Javadoc for the license header.
@@ -27,7 +27,7 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
 
 6. **Verify compilation**: Use `sge-dev build compile` to confirm zero errors and zero warnings.
 
-7. **Update tracking**: Run `sge-dev db migration set <libgdx_path> --status ai_converted`
+7. **Update tracking**: Run `sge-dev db migration set <source_path> --status ai_converted`
    to update the file's status.
 
 8. **Write initial audit entry**: Add a `Migration notes:` block to the file's header

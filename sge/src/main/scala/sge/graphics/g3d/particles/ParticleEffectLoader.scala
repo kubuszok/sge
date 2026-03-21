@@ -24,10 +24,8 @@ import sge.assets.{ AssetDescriptor, AssetLoaderParameters, AssetManager }
 import sge.assets.loaders.{ AsynchronousAssetLoader, FileHandleResolver }
 import sge.files.FileHandle
 import sge.graphics.g3d.particles.batches.ParticleBatch
-import sge.utils.{ DynamicArray, Json, Nullable, readJson }
-import com.github.plokhotnyuk.jsoniter_scala.core.{ WriterConfig, writeToString }
-
-import hearth.kindlings.jsoniterjson.codec.JsonCodec.given
+import sge.utils.{ DynamicArray, Json, Nullable, WriterConfig, readJson, writeToString }
+import sge.utils.given
 
 /** This class can save and load a {@link ParticleEffect}. It should be added as {@link AsynchronousAssetLoader} to the {@link AssetManager} so it will be able to load the effects. It's important to
   * note that the two classes {@link ParticleEffectLoadParameter} and {@link ParticleEffectSaveParameter} should be passed in whenever possible, because when present the batches settings will be
@@ -159,8 +157,9 @@ object ParticleEffectLoader {
     val batches: Nullable[DynamicArray[ParticleBatch[?]]]
   ) extends AssetLoaderParameters[ParticleEffect] {
 
-    def this(batches: DynamicArray[ParticleBatch[?]]) =
+    def this(batches: DynamicArray[ParticleBatch[?]]) = {
       this(Nullable(batches))
+    }
   }
 
   class ParticleEffectSaveParameter(

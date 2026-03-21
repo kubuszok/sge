@@ -77,8 +77,7 @@ class Selection[T]()(using Sge) extends Disableable with Iterable[T] {
           revert()
         else
           changed()
-      } finally
-        cleanup()
+      } finally cleanup()
     }
 
   def notEmpty: Boolean = selected.nonEmpty

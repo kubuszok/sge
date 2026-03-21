@@ -7,7 +7,7 @@ import java.time.LocalDate
 /** Quality issues database operations. */
 object IssuesDb {
 
-  private val headers = List("id", "file_path", "category", "status", "severity", "description", "last_updated")
+  private val headers = List("id", "file_path", "category", "status", "severity", "description", "last_updated", "source")
 
   def run(args: List[String]): Unit = {
     args match {

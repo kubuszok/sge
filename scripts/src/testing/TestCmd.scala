@@ -262,7 +262,7 @@ object TestCmd {
 
   private def sdkRoot(): String = {
     sys.env.getOrElse("ANDROID_HOME",
-      sys.env.getOrElse("ANDROID_SDK_ROOT", s"${Paths.projectRoot}/android-sdk"))
+      sys.env.getOrElse("ANDROID_SDK_ROOT", s"${Paths.projectRoot}/sge-deps/android-sdk"))
   }
 
   private def adbPath(): String = s"${sdkRoot()}/platform-tools/adb"

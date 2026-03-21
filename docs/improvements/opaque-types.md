@@ -43,6 +43,8 @@ See also: [type-safety.md](type-safety.md) for already-implemented type safety i
 | `ClearMask` | `Int` | `sge.graphics` | GL clear buffer bitfield |
 | `CullFace` | `Int` | `sge.graphics` | GL cull face enum |
 | `EnableCap` | `Int` | `sge.graphics` | GL capability enable/disable enum |
+| `Key` | `Int` | `sge.Input` | Keyboard key code |
+| `Button` | `Int` | `sge.Input` | Mouse/touch button code |
 
 ## Implemented: Pixel Dimensions (2026-03-07)
 
@@ -265,10 +267,32 @@ VertexData
 
 ---
 
-## Proposed: Key, Button, Color Components (not yet implemented — tracked in issues db)
+## Implemented: Key and Button (Input opaque types)
+
+**Types:** `opaque type Key = Int`, `opaque type Button = Int`
+**Package:** `sge.Input`
+**Status:** Complete — defined in `Input.scala`, used across all input-facing APIs.
+
+`Key` wraps keyboard key codes; `Button` wraps mouse/touch button codes. Both include
+`MkArray` givens for array storage and `.toInt` extension for raw access.
+
+### Consumer files (~20+)
+
+`InputProcessor`, `InputMultiplexer`, `InputEventQueue`, `InputEvent`, `InputListener`,
+`Stage`, `CameraInputController`, `FirstPersonCameraController`, `GestureDetector`,
+`RemoteSender`, `RemoteInput`, `TextField`, `TextArea`, `Dialog`, `SgeList`, `SelectBox`,
+`Window`, `ScrollPane`, `DefaultDesktopInput`.
+
+### FFI boundary note
+
+`WindowingOps` callbacks use raw `Int` for GLFW/SDL3 key and button codes (different
+numbering from SGE). Conversion happens in `DefaultDesktopInput` via `getGdxKeyCode()`
+(GLFW key → `Key`) and `toGdxButton()` (GLFW button → `Button`).
+
+---
+
+## Proposed: Color Components (not yet implemented — tracked in issues db)
 
 | Opaque Type | Affected Files | Priority |
 |-------------|---------------|----------|
-| `Key` (Input.Keys) | ~11 files | Medium |
-| `Button` (Input.Buttons) | ~11 files | Medium |
 | `Red`/`Green`/`Blue`/`Alpha` (Color) | ~8 files | Low |

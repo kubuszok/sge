@@ -142,8 +142,7 @@ class DesktopPreferencesTest extends FunSuite {
       assertEquals(prefs2.getLong("long"), Long.MaxValue)
       assertEquals(prefs2.getFloat("float"), 1.2345f)
       assertEquals(prefs2.getString("string"), "test!")
-    } finally
-      fh.delete()
+    } finally fh.delete()
   }
 
   // ---- fluent API ----

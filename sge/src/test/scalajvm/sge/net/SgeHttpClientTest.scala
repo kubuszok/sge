@@ -9,26 +9,24 @@ package net
 import munit.FunSuite
 import scala.concurrent.{ Future, Promise }
 import sge.utils.Nullable
-import sttp.client4.Response
-import sttp.model.{ Header, Method, RequestMetadata, StatusCode, Uri }
 
 class SgeHttpClientTest extends FunSuite {
 
-  private val dummyRequestMetadata: RequestMetadata = new RequestMetadata {
-    val method:  Method      = Method.GET
-    val uri:     Uri         = Uri.unsafeParse("https://test.invalid")
-    val headers: Seq[Header] = Seq.empty
+  private val dummyRequestMetadata: SttpRequestMetadata = new SttpRequestMetadata {
+    val method:  SttpMethod      = SttpMethod.GET
+    val uri:     SttpUri         = SttpUri.unsafeParse("https://test.invalid")
+    val headers: Seq[SttpHeader] = Seq.empty
   }
 
   /** A mock backend that captures sent requests and allows completing them manually. */
   private class MockBackendFactory extends HttpBackendFactory {
-    @volatile var lastRequest: sttp.client4.Request[Either[String, String]] = scala.compiletime.uninitialized
-    @volatile var lastPromise: Promise[Response[Either[String, String]]]    = scala.compiletime.uninitialized
-    @volatile var closed:      Boolean                                      = false
+    @volatile var lastRequest: SttpRequest[Either[String, String]]           = scala.compiletime.uninitialized
+    @volatile var lastPromise: Promise[SttpResponse[Either[String, String]]] = scala.compiletime.uninitialized
+    @volatile var closed:      Boolean                                       = false
 
-    override def send(request: sttp.client4.Request[Either[String, String]]): Future[Response[Either[String, String]]] = {
+    override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] = {
       lastRequest = request
-      val p = Promise[Response[Either[String, String]]]()
+      val p = Promise[SttpResponse[Either[String, String]]]()
       lastPromise = p
       p.future
     }
@@ -37,7 +35,7 @@ class SgeHttpClientTest extends FunSuite {
       closed = true
 
     def completeWith(body: String, code: Int): Unit =
-      lastPromise.success(Response(Right(body), StatusCode(code), "", Nil, Nil, dummyRequestMetadata))
+      lastPromise.success(SttpResponse(Right(body), SttpStatusCode(code), "", Nil, Nil, dummyRequestMetadata))
   }
 
   test("obtainRequest returns fresh request with defaults") {

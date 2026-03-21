@@ -13,7 +13,7 @@ package sge
 package net
 
 import scala.concurrent.{ ExecutionContext, Future }
-import sttp.client4.{ DefaultSyncBackend, Response }
+import sttp.client4.DefaultSyncBackend
 
 /** Native implementation: uses sttp's `DefaultSyncBackend` (curl) wrapped in a `Future` for API uniformity with JVM/JS backends.
   */
@@ -22,7 +22,7 @@ private[net] object HttpBackendFactoryImpl extends HttpBackendFactory {
   private val backend            = DefaultSyncBackend()
   private given ExecutionContext = ExecutionContext.global
 
-  override def send(request: sttp.client4.Request[Either[String, String]]): Future[Response[Either[String, String]]] =
+  override def send(request: SttpRequest[Either[String, String]]): Future[SttpResponse[Either[String, String]]] =
     Future {
       backend.send(request)
     }

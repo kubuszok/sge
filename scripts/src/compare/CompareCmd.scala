@@ -84,7 +84,7 @@ object CompareCmd {
     if (batch.isEmpty) {
       println("No unconverted files remaining!")
     } else {
-      batch.foreach(r => println(s"  ${r.getOrElse("libgdx_path", "")}"))
+      batch.foreach(r => println(s"  ${r.getOrElse("source_path", "")}"))
     }
   }
 }

@@ -195,8 +195,7 @@ class FileHandle(val internalFile: File, val fileType: FileType, private val ext
     } catch {
       case ex: IOException =>
         throw utils.SgeError.FileReadError(this, "Error reading layout file", Some(ex))
-    } finally
-      utils.StreamUtils.closeQuietly(reader)
+    } finally utils.StreamUtils.closeQuietly(reader)
   }
 
   /** Reads the entire file into a byte array.
@@ -242,8 +241,7 @@ class FileHandle(val internalFile: File, val fileType: FileType, private val ext
     } catch {
       case ex: IOException =>
         throw utils.SgeError.FileReadError(this, "Error reading file", Some(ex))
-    } finally
-      utils.StreamUtils.closeQuietly(input)
+    } finally utils.StreamUtils.closeQuietly(input)
   }
 
   /** Attempts to memory map this file. Android files must not be compressed.
@@ -262,8 +260,7 @@ class FileHandle(val internalFile: File, val fileType: FileType, private val ext
     } catch {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error memory mapping file: $this ($fileType)", Some(ex))
-    } finally
-      utils.StreamUtils.closeQuietly(raf)
+    } finally utils.StreamUtils.closeQuietly(raf)
   }
 
   /** Returns a stream for writing to this file. Parent directories will be created if necessary.
@@ -305,8 +302,7 @@ class FileHandle(val internalFile: File, val fileType: FileType, private val ext
     */
   def write(input: InputStream, append: Boolean): Unit = {
     val output = write(append)
-    try
-      utils.StreamUtils.copyStream(input, output)
+    try utils.StreamUtils.copyStream(input, output)
     catch {
       case ex: Exception =>
         throw utils.SgeError.FileReadError(this, s"Error stream writing to file: $internalFile ($fileType)", Some(ex))

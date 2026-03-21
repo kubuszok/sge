@@ -79,8 +79,7 @@ class ParallelAction extends Action {
         i += 1
       }
       complete
-    } finally
-      pool = savedPool
+    } finally pool = savedPool
   }
 
   override def restart(): Unit = {

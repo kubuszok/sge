@@ -71,7 +71,7 @@ These were previously required but have been replaced:
 
 | Package | Was used for | Replaced by |
 |---------|-------------|-------------|
-| `angle` (Homebrew tap `startergo/angle/angle`) | ANGLE libraries for desktop OpenGL ES | `sge-dev native angle setup` (downloads from [sge-angle-natives](https://github.com/MateuszKubuszok/sge-angle-natives) GitHub Releases) |
+| `angle` (Homebrew tap `startergo/angle/angle`) | ANGLE libraries for desktop OpenGL ES | `sge-dev native angle setup` (downloads from [sge-angle-natives](https://github.com/kubuszok/sge-angle-natives) GitHub Releases) |
 | `libcurl4-openssl-dev` (apt) | Scala Native sttp curl backend | `sge-dev native curl setup` (downloads from [stunnel/static-curl](https://github.com/stunnel/static-curl) GitHub Releases) |
 | `libidn2-dev` (apt) | Scala Native sttp IDN support | Bundled in static curl package (libidn2.a included) |
 
@@ -136,7 +136,7 @@ npx playwright@1.49.0 install chromium
 SGE uses [ANGLE](https://chromium.googlesource.com/angle/angle) to provide
 OpenGL ES on desktop platforms (JVM and Scala Native). ANGLE binaries are
 built from source via CI in the
-[sge-angle-natives](https://github.com/MateuszKubuszok/sge-angle-natives)
+[sge-angle-natives](https://github.com/kubuszok/sge-angle-natives)
 repository and downloaded automatically.
 
 ```sh

@@ -793,8 +793,7 @@ object BaseTmjMapLoader {
       } catch {
         case e: IOException =>
           throw new IllegalArgumentException("Error Reading TMJ Layer Data - IOException: " + e.getMessage)
-      } finally
-        StreamUtils.closeQuietly(is)
+      } finally StreamUtils.closeQuietly(is)
     } else {
       // any other value of 'encoding' is one we're not aware of, probably a feature of a future version of Tiled
       // or another editor

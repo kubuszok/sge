@@ -83,8 +83,7 @@ class WavInputStreamTest extends munit.FunSuite {
       assertEquals(wis.bitDepth, 16)
       assertEquals(wis.dataRemaining, 100)
       assertEquals(wis.codecType, 1) // PCM
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   test("parses stereo 16-bit WAV header") {
@@ -99,8 +98,7 @@ class WavInputStreamTest extends munit.FunSuite {
       assertEquals(wis.sampleRate, 48000)
       assertEquals(wis.bitDepth, 16)
       assertEquals(wis.dataRemaining, 200)
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   test("parses mono 8-bit WAV header") {
@@ -115,8 +113,7 @@ class WavInputStreamTest extends munit.FunSuite {
       assertEquals(wis.sampleRate, 22050)
       assertEquals(wis.bitDepth, 8)
       assertEquals(wis.dataRemaining, 50)
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   // ---- reading data ----
@@ -133,8 +130,7 @@ class WavInputStreamTest extends munit.FunSuite {
       val read   = wis.read(buffer)
       assertEquals(read, 8)
       assertEquals(buffer.toSeq, pcm.toSeq)
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   test("read returns -1 when no data remaining") {
@@ -149,8 +145,7 @@ class WavInputStreamTest extends munit.FunSuite {
       wis.read(buffer) // read all data
       val read = wis.read(buffer) // should return -1
       assertEquals(read, -1)
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   test("read fills partial buffer") {
@@ -167,8 +162,7 @@ class WavInputStreamTest extends munit.FunSuite {
       assertEquals(buffer(0), 10.toByte)
       assertEquals(buffer(1), 20.toByte)
       assertEquals(buffer(2), 30.toByte)
-    } finally
-      wis.close()
+    } finally wis.close()
   }
 
   // ---- error handling ----

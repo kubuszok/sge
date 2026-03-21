@@ -45,15 +45,15 @@ class AndroidSmokeTest extends FunSuite {
 
   // ── ADB helpers ─────────────────────────────────────────────────────
 
-  /** Finds the adb binary from ANDROID_HOME or local android-sdk/. */
+  /** Finds the adb binary from ANDROID_HOME or local sge-deps/android-sdk/. */
   private def findAdb(): String = {
     val sdkRoot = sys.env.getOrElse(
       "ANDROID_HOME",
       sys.env.getOrElse(
         "ANDROID_SDK_ROOT", {
-          val local = Paths.get(System.getProperty("user.dir"), "android-sdk")
+          val local = Paths.get(System.getProperty("user.dir"), "sge-deps", "android-sdk")
           if (Files.isDirectory(local)) local.toString
-          else fail("Android SDK not found. Set ANDROID_HOME or run 'just android-sdk-setup'.")
+          else fail("Android SDK not found. Set ANDROID_HOME or run 'sge-dev test android setup'.")
         }
       )
     )
@@ -64,7 +64,7 @@ class AndroidSmokeTest extends FunSuite {
 
   /** Finds the emulator binary. */
   private def findEmulator(): String = {
-    val sdkRoot  = sys.env.getOrElse("ANDROID_HOME", sys.env.getOrElse("ANDROID_SDK_ROOT", Paths.get(System.getProperty("user.dir"), "android-sdk").toString))
+    val sdkRoot  = sys.env.getOrElse("ANDROID_HOME", sys.env.getOrElse("ANDROID_SDK_ROOT", Paths.get(System.getProperty("user.dir"), "sge-deps", "android-sdk").toString))
     val emulator = Paths.get(sdkRoot, "emulator", "emulator")
     if (Files.exists(emulator)) emulator.toString
     else fail(s"emulator not found at $emulator. Install emulator package.")

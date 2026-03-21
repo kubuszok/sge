@@ -93,8 +93,7 @@ object ETC1 {
         }
       } catch {
         case e: Exception => throw SgeError.FileWriteError(file, "Couldn't write PKM file", Some(e))
-      } finally
-        StreamUtils.closeQuietly(write)
+      } finally StreamUtils.closeQuietly(write)
       compressedData.position(dataOffset)
       compressedData.limit(compressedData.capacity())
     }
@@ -139,8 +138,7 @@ object ETC1 {
       compressedData
     } catch {
       case e: Exception => throw SgeError.FileReadError(pkmFile, "Couldn't load pkm file", Some(e))
-    } finally
-      StreamUtils.closeQuietly(in)
+    } finally StreamUtils.closeQuietly(in)
   }
 
   private def getPixelSize(format: Format): Int =

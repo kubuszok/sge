@@ -88,7 +88,7 @@ class ResourceData[T]() {
     uniqueData.foreachEntry { (k, v) =>
       uniqueFields += k -> ResourceData.saveDataToJson(v)
     }
-    fields += "unique" -> Json.fromJsonObject(hearth.kindlings.jsoniterjson.JsonObject(uniqueFields.result()))
+    fields += "unique" -> Json.fromJsonObject(sge.utils.JsonObject(uniqueFields.result()))
 
     Json.obj(fields.result()*)
   }
@@ -162,8 +162,9 @@ object ResourceData {
     val assets:            DynamicArray[Int]         = DynamicArray[Int]()
     private var loadIndex: Int                       = 0
 
-    def this(resources: ResourceData[?]) =
+    def this(resources: ResourceData[?]) = {
       this(Nullable(resources))
+    }
 
     def saveAsset[K](filename: String, `type`: Class[K]): Unit =
       resources.foreach { res =>
@@ -219,7 +220,7 @@ object ResourceData {
       }
       dataFields += k -> jsonVal
     }
-    fields += "data" -> Json.fromJsonObject(hearth.kindlings.jsoniterjson.JsonObject(dataFields.result()))
+    fields += "data" -> Json.fromJsonObject(sge.utils.JsonObject(dataFields.result()))
 
     // indices
     val indices = Vector.newBuilder[Json]

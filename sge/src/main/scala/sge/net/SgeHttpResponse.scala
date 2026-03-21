@@ -13,13 +13,12 @@ package net
 
 import java.io.{ ByteArrayInputStream, InputStream }
 import sge.utils.Nullable
-import sttp.client4.Response
 
 /** Wraps an sttp [[Response]] to implement [[Net.HttpResponse]].
   *
   * Not pooled — each response is created once, handed to the listener, and discarded. Body bytes and string are lazily computed from the sttp response body.
   */
-final class SgeHttpResponse private[net] (response: Response[Either[String, String]]) extends Net.HttpResponse {
+final class SgeHttpResponse private[net] (response: SttpResponse[Either[String, String]]) extends Net.HttpResponse {
 
   /** The response body as a string, regardless of success/error status. */
   private lazy val bodyString: String = response.body.merge

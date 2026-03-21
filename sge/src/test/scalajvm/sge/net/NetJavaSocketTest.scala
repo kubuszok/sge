@@ -31,10 +31,8 @@ class NetJavaSocketTest extends munit.FunSuite {
           assert(accepted.isConnected, "accepted socket should be connected")
         finally
           accepted.close()
-      } finally
-        client.close()
-    } finally
-      server.close()
+      } finally client.close()
+    } finally server.close()
   }
 
   test("server socket with hostname binds successfully") {
@@ -72,12 +70,9 @@ class NetJavaSocketTest extends munit.FunSuite {
             read += n
           }
           assertEquals(new String(buf, "UTF-8"), message)
-        } finally
-          accepted.close()
-      } finally
-        client.close()
-    } finally
-      server.close()
+        } finally accepted.close()
+      } finally client.close()
+    } finally server.close()
   }
 
   test("wrapping an existing socket applies hints") {
@@ -97,10 +92,8 @@ class NetJavaSocketTest extends munit.FunSuite {
           assert(wrapped.isConnected, "wrapped socket should be connected")
         finally
           wrapped.close()
-      } finally
-        if (!rawSocket.isClosed) rawSocket.close()
-    } finally
-      server.close()
+      } finally if (!rawSocket.isClosed) rawSocket.close()
+    } finally server.close()
   }
 
   test("server close makes socket unusable") {

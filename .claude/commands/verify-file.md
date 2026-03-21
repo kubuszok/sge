@@ -7,7 +7,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
 2. **Find the LibGDX source**: Determine the original Java file path. The mapping is:
    `sge/<path>.scala` → `com/badlogic/gdx/<path>.java`.
    Check `docs/contributing/type-mappings.md` for renamed/merged files.
-   Open the source from `./libgdx/gdx/src/` with the Read tool.
+   Open the source from `./original-src/libgdx/gdx/src/` with the Read tool.
 
 3. **Run the verification checklist** from `docs/contributing/verification-checklist.md`:
    - Compilation: compile via `sge-dev build compile`, check for errors and warnings
@@ -20,7 +20,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    - For failures, show the specific line numbers and what needs to change
    - Estimate effort to fix remaining issues
 
-5. **Update tracking**: If all items pass, run `sge-dev db migration set <libgdx_path> --status verified`.
+5. **Update tracking**: If all items pass, run `sge-dev db migration set <source_path> --status verified`.
    If issues found, add notes with `--notes`.
 
 6. **Update audit entry**: Add or update the `Migration notes:` block in the file's

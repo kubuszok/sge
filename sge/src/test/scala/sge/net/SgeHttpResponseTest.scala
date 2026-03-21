@@ -7,25 +7,23 @@ package sge
 package net
 
 import munit.FunSuite
-import sttp.client4.Response
-import sttp.model.{ Header, Method, RequestMetadata, StatusCode, Uri }
 
 class SgeHttpResponseTest extends FunSuite {
 
-  private val dummyRequestMetadata: RequestMetadata = new RequestMetadata {
-    val method:  Method      = Method.GET
-    val uri:     Uri         = Uri.unsafeParse("https://test.invalid")
-    val headers: Seq[Header] = Seq.empty
+  private val dummyRequestMetadata: SttpRequestMetadata = new SttpRequestMetadata {
+    val method:  SttpMethod      = SttpMethod.GET
+    val uri:     SttpUri         = SttpUri.unsafeParse("https://test.invalid")
+    val headers: Seq[SttpHeader] = Seq.empty
   }
 
   private def makeResponse(
     body:    Either[String, String],
     code:    Int,
-    headers: Seq[Header] = Seq.empty
+    headers: Seq[SttpHeader] = Seq.empty
   ): SgeHttpResponse = {
-    val sttpResponse = Response(
+    val sttpResponse = SttpResponse(
       body = body,
-      code = StatusCode(code),
+      code = SttpStatusCode(code),
       statusText = "",
       headers = headers,
       history = Nil,
@@ -71,7 +69,7 @@ class SgeHttpResponseTest extends FunSuite {
     val resp = makeResponse(
       Right(""),
       200,
-      Seq(Header("Content-Type", "application/json"))
+      Seq(SttpHeader("Content-Type", "application/json"))
     )
     assertEquals(resp.getHeader("Content-Type").get, "application/json")
   }
@@ -86,9 +84,9 @@ class SgeHttpResponseTest extends FunSuite {
       Right(""),
       200,
       Seq(
-        Header("Set-Cookie", "a=1"),
-        Header("Set-Cookie", "b=2"),
-        Header("Content-Type", "text/html")
+        SttpHeader("Set-Cookie", "a=1"),
+        SttpHeader("Set-Cookie", "b=2"),
+        SttpHeader("Content-Type", "text/html")
       )
     )
     val headers = resp.headers

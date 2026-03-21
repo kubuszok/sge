@@ -101,8 +101,7 @@ class DesktopFileHandleTest extends munit.FunSuite {
       assert(fh.exists())
       assertEquals(fh.length(), 5L)
       assertEquals(fh.readString(), "hello")
-    } finally
-      fh.delete()
+    } finally fh.delete()
   }
 
   test("child returns DesktopFileHandle instance") {

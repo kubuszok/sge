@@ -28,18 +28,17 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 | Directory | Purpose |
 |-----------|---------|
 | `sge/` | Core library (projectMatrix: JVM/JS/Native) |
-| `sge-jvm-platform-{api,jdk,android}/` | JVM platform modules (merged into sge JAR) |
-| `sge-freetype/` | FreeType font extension (JVM/JS/Native) |
-| `sge-physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
-| `sge-tools/` | TexturePacker CLI (JVM-only) |
+| `sge-jvm-platform/` | JVM platform modules: `api/`, `jdk/`, `android/` (merged into sge JAR) |
+| `sge-extension/freetype/` | FreeType font extension (JVM/JS/Native) |
+| `sge-extension/physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
+| `sge-extension/tools/` | TexturePacker CLI (JVM-only) |
 | `sge-build/` | sbt plugin (SgePlugin, AndroidBuild, packaging) |
-| `native-components/` | Rust native library (GLFW, miniaudio, FreeType FFI) |
-| `demo/` | Single cross-platform demo (root build) |
+| `sge-deps/native-components/` | Rust native library (GLFW, miniaudio, FreeType FFI) |
+| `sge-test/` | Tests: integration, regression, android-smoke, browser |
 | `demos/` | 10 feature demos (separate sub-build) |
-| `sge-android-smoke/` | Minimal Android smoke-test APK |
-| `sge-it-tests/` | Integration tests (desktop, browser, android, jvm-platform) |
 | `scalafix-rules/` | Custom Scalafix lint rules |
-| `libgdx/` | Local reference source. **Never fetch from GitHub.** |
+| `original-src/` | Reference sources (not compiled). **Never fetch from GitHub.** |
+| `original-src/libgdx/` | Local LibGDX reference source |
 | `scripts/` | `sge-dev` CLI toolkit (Scala CLI, no sbt) |
 | `docs/` | Architecture, conversion guides |
 
@@ -126,7 +125,7 @@ are denied or redirected to dedicated tools:
 | `sge-dev` | CLI toolkit — builds, tests, git, quality, databases, process management |
 | `metals-mcp` | Compile, search, inspect, format (snapshot — see `sge-dev metals install`) |
 | `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
-| `./libgdx/` | Local reference source. **Never fetch from GitHub.** |
+| `./original-src/libgdx/` | Local reference source. **Never fetch from GitHub.** |
 | `scalafix-rules/` | Custom Scalafix lint rules. Run: `sge-dev quality scalafix <Rule>` |
 
 ## Skill Dispatch Rules

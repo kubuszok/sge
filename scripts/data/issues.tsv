@@ -1,408 +1,408 @@
 # SGE Quality Issues Database
-# id	file_path	category	status	severity	description	last_updated
-ISS-001	(multiple)	other	resolved	info	Missing license header — 0 files	2026-03-19
-ISS-002	(multiple)	other	resolved	info	return keyword usage — 0 files	2026-03-19
-ISS-003	(multiple)	other	resolved	minor	Direct null checks — 2 files	2026-03-19
-ISS-004	(multiple)	other	open	minor	null.asInstanceOf — 4 files	2026-03-19
-ISS-005	(multiple)	other	resolved	minor	Remaining Java syntax — 2 files	2026-03-19
-ISS-006	(multiple)	other	resolved	minor	TODO/FIXME markers — 65 files	2026-03-19
-ISS-007	(multiple)	other	resolved	info	ArrayBuffer→DynamicArray — 0 files	2026-03-19
-ISS-008	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-009	(multiple)	todo	resolved	info	Typed GL enums — 0 files	2026-03-19
-ISS-010	(multiple)	todo	resolved	info	Opaque Pixels — 0 files	2026-03-19
-ISS-011	(multiple)	todo	resolved	info	Input.Keys/Buttons opaque type — 0 files	2026-03-19
-ISS-012	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-013	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-014	(multiple)	todo	open	minor	Color immutability — ~4 files	2026-03-19
-ISS-015	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-016	(multiple)	todo	open	minor	Other (ComparableTimSort, Show, JsonReader) — ~5 files	2026-03-19
-ISS-017	(multiple)	todo	resolved	info	Java-style getters/setters — 0 files	2026-03-19
-ISS-018	(multiple)	todo	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-019	1	bug	resolved	major	`math.collision.OrientedBoundingBox.update()` — Resolution: axes via `mul(transform)` includes translation	2026-03-19
-ISS-020	2	bug	resolved	major	`graphics.Camera.rotate(Matrix4)` — Resolution: uses `mul()` instead of `rot()`	2026-03-19
-ISS-021	3	bug	resolved	major	`math.CumulativeDistribution.ensureCapacity()` — Resolution: values assignment commented out	2026-03-19
-ISS-022	4	bug	resolved	major	`utils.compression.lzma.Encoder.getSubCoder` — Resolution: operator precedence differs from Java	2026-03-19
-ISS-023	5	bug	resolved	major	`utils.compression.lz.BinTree.normalizeLinks` — Resolution: compares against constant 0	2026-03-19
-ISS-024	6	bug	resolved	major	`graphics.g2d.DistanceFieldFont` — Resolution: vertex shader missing v_texCoords	2026-03-19
-ISS-025	7	bug	resolved	major	`maps.tiled.BaseTiledMapLoader.loadProjectFile` — Resolution: never calls projectClassMembers.add()	2026-03-19
-ISS-026	8	bug	resolved	major	`graphics.g3d.loader.G3dModelLoader.parseMeshes` — Resolution: reads mesh ID instead of meshPart ID	2026-03-19
-ISS-027	9	bug	resolved	major	`graphics.Pixmap` — Resolution: drawing methods are stubs	2026-03-19
-ISS-028	10	bug	resolved	major	`graphics.Mesh` — Resolution: missing calculateRadius, scale, transform	2026-03-19
-ISS-029	11	bug	resolved	major	`graphics.glutils.ShapeRenderer` — Resolution: ~25+ method overloads missing	2026-03-19
-ISS-030	12	bug	resolved	major	`graphics.glutils.MipMapGenerator` — Resolution: public methods are stubs	2026-03-19
-ISS-031	13	bug	resolved	major	`graphics.glutils.ETC1TextureData` — Resolution: consumeCustomData commented out	2026-03-19
-ISS-032	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Pixel buffer allocation (`Gdx2dDraw.newPixelBuffer`)	2026-03-19
-ISS-033	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Clear, setPixel, getPixel	2026-03-19
-ISS-034	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: drawLine, drawRect, drawCircle, fillRect, fillCircle, fillTriangle	2026-03-19
-ISS-035	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: drawPixmap (blit with optional scaling — nearest/bilinear)	2026-03-19
-ISS-036	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Blend mode (SRC_OVER alpha blending)	2026-03-19
-ISS-037	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Scale mode (nearest/bilinear)	2026-03-19
-ISS-038	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Image decode on JVM (`Gdx2dOpsJvm` via ImageIO)	2026-03-19
-ISS-039	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Image decode on Native (`Gdx2dOpsNative` via Rust `image` crate C ABI)	2026-03-19
-ISS-040	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: 20 unit tests passing (Gdx2DPixmapTest)	2026-03-19
-ISS-041	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Bootstrap: Sge context + GL20 available	2026-03-19
-ISS-042	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: FileIO: write/read temp file roundtrip	2026-03-19
-ISS-043	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: JSON/XML: jsoniter-scala + scala-xml parsing	2026-03-19
-ISS-044	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: GL2D: shader compile + mesh draw	2026-03-19
-ISS-045	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: GL3D: shader with uniform matrix + depth	2026-03-19
-ISS-046	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Audio: miniaudio engine + sound load/play	2026-03-19
-ISS-047	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Input: state queries (position, pointers, key press)	2026-03-19
-ISS-048	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Pixmap: create, set pixel, read back color	2026-03-19
-ISS-049	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Texture: upload Pixmap to GL texture, verify handle	2026-03-19
-ISS-050	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: SpriteBatch: begin/end cycle	2026-03-19
-ISS-051	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: FBO: FrameBuffer render red + glReadPixels readback	2026-03-19
-ISS-052	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Clipboard: write/read roundtrip	2026-03-19
-ISS-053	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Window: dimensions, GL version, buffer format, monitor	2026-03-19
-ISS-054	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Music: streaming load, play, position query, stop	2026-03-19
-ISS-055	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: MultiSound: 3 concurrent sound instances with different pan/pitch	2026-03-19
-ISS-056	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: TextureAtlas: load .atlas fixture, findRegion by name	2026-03-19
-ISS-057	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: WindowResize: setWindowedMode + dimension readback	2026-03-19
-ISS-058	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Cursor: system cursor switching + custom cursor from Pixmap	2026-03-19
-ISS-059	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: InputDispatch: InputProcessor set/get roundtrip	2026-03-19
-ISS-060	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Fullscreen: fullscreen API exercise (isFullscreen, displayMode, monitors, toggle)	2026-03-19
-ISS-061	(integration-test)	test_gap	open	minor	Remaining gaps: Window iconify/restore callbacks	2026-03-19
-ISS-062	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Demo JS loads without fatal errors	2026-03-19
-ISS-063	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: WebGL context available (WebGL2/WebGL1)	2026-03-19
-ISS-064	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: WebGL shader compilation (vertex + fragment + link)	2026-03-19
-ISS-065	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: JSON and XML parsing in JS runtime	2026-03-19
-ISS-066	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: FileIO: fetch bundled text asset from server	2026-03-19
-ISS-067	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Canvas has non-zero pixels after rendering	2026-03-19
-ISS-068	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Web Audio API context available	2026-03-19
-ISS-069	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: localStorage read/write/remove roundtrip	2026-03-19
-ISS-070	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Mouse click event dispatch to canvas	2026-03-19
-ISS-071	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: BrowserPreferences: localStorage protocol roundtrip (typed keys)	2026-03-19
-ISS-072	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Keyboard input event dispatch to canvas	2026-03-19
-ISS-073	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Touch event: synthetic TouchEvent dispatch to canvas	2026-03-19
-ISS-074	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: HTTP fetch: roundtrip via embedded server (api-test.json)	2026-03-19
-ISS-075	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Bootstrap: Sge context + GL20	2026-03-19
-ISS-076	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: GL2D: clear calls	2026-03-19
-ISS-077	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: GL3D: shader + uniform matrix	2026-03-19
-ISS-078	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: FileIO: write/read temp file	2026-03-19
-ISS-079	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: JSON/XML: class loading + XML parse	2026-03-19
-ISS-080	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Audio: subsystem accessible	2026-03-19
-ISS-081	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Input: state queries (position, pointers, key press)	2026-03-19
-ISS-082	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Preferences: SharedPreferences write/read/remove	2026-03-19
-ISS-083	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Clipboard: set/get contents	2026-03-19
-ISS-084	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Display: dimensions, PPI, density	2026-03-19
-ISS-085	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: FileHandle: external storage write/read roundtrip	2026-03-19
-ISS-086	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Touch setup: InputProcessor installed for tracking	2026-03-19
-ISS-087	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Touch dispatch: adb input tap → InputProcessor.touchDown received	2026-03-19
-ISS-088	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Lifecycle: pause/resume via HOME key + re-launch	2026-03-19
-ISS-089	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Sensors: accelerometer availability + gravity reading	2026-03-19
-ISS-090	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Sensor injection: emulator console telnet → accelerometer value change	2026-03-19
-ISS-091	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: API shape tests (31 tests across 7 suites)	2026-03-19
-ISS-092	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: Panama FFM symbol availability	2026-03-19
-ISS-093	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: `sge_copy_bytes` data correctness	2026-03-19
-ISS-094	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: `sge_transform_v4m4` with identity and translation matrices	2026-03-19
-ISS-095	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: ETC1 encode/decode block roundtrip	2026-03-19
-ISS-096	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `sgeJS/compile` — Scala.js compilation	2026-03-19
-ISS-097	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `sgeNative/compile` — Scala Native compilation	2026-03-19
-ISS-098	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `just test` — JVM unit tests (1450 pass)	2026-03-19
-ISS-099	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-100	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-101	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-102	scenes/scene2d/Stage.scala	review-claude	open	minor	`scenes/scene2d/Stage.scala` — TouchFocus	2026-03-19
-ISS-103	scenes/scene2d/Event.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-104	scenes/scene2d/Action.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-105	scenes/scene2d/ui/Cell.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-106	graphics/g3d/utils/BaseAnimationController.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-107	graphics/g3d/utils/MeshPartBuilder.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-108	math/FloatCounter.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-109	CheckBox.scala	review-claude	open	info	`CheckBox.scala:51` — `style.asInstanceOf[CheckBoxStyle]`	2026-03-19
-ISS-110	Slider.scala	review-claude	open	info	`Slider.scala:93-122` — 5 `super.getStyle.asInstanceOf[SliderStyle]`	2026-03-19
-ISS-111	Container.scala	review-claude	open	info	`Container.scala:207` — `a.asInstanceOf[Actor]`	2026-03-19
-ISS-112	sge/src/main/scala/sge/math/Quaternion.scala	review-claude	open	critical	`sge/src/main/scala/sge/math/Quaternion.scala:994-995` — `tmp1`, `tmp2`	2026-03-19
-ISS-113	sge/src/main/scala/sge/math/Intersector.scala	review-claude	open	critical	`sge/src/main/scala/sge/math/Intersector.scala:42-68` — `v0`, `v1`, `v2`, `tmp`, `ip`, `ep1`, etc.	2026-03-19
-ISS-114	BufferUtils.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-115	GLFrameBuffer.scala	review-claude	open	minor	`GLFrameBuffer.scala` — `ByteBuffer.allocateDirect(16 * Integer.SIZE / 8)`	2026-03-19
-ISS-116	ShaderProgram.scala	review-claude	open	minor	`ShaderProgram.scala` — `ByteBuffer` with `nativeOrder()`	2026-03-19
-ISS-117	FileHandles.scala	review-claude	open	minor	`FileHandles.scala` — `RandomAccessFile` + `FileChannel.map()` → memory-mapped I/O	2026-03-19
-ISS-118	FileHandles.scala	review-claude	open	minor	**Scala.js**: `java.io.File` is **not available**. `FileHandles.scala` cannot compile on	2026-03-19
-ISS-119	GLVersion.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-120	AssetLoadingTask.scala	review-claude	open	minor	`AssetLoadingTask.scala` — 7 volatile fields for async state	2026-03-19
-ISS-121	Timer.scala	review-claude	open	minor	`Timer.scala` — `timer: Option[Timer]` volatile field	2026-03-19
-ISS-122	SgeHttpClient.scala	review-claude	open	minor	`SgeHttpClient.scala` — `cancelled: Boolean` volatile field	2026-03-19
-ISS-123	Cell.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-124	Timer.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19
-ISS-125	DesktopApplicationBase.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-126	DesktopApplicationConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-127	DesktopWindowConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-128	DesktopWindowListener.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-129	DesktopFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-130	MiniaudioEngine.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-131	DesktopSound.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-132	DesktopPreferences.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-133	DesktopNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-134	DesktopClipboard.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-135	DesktopCursor.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-136	FrameSync.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-137	DesktopAudioDevice.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-138	WavDecoder.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-139	BrowserApplicationConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-140	BrowserGraphics.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-141	WebGL20.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-142	BrowserInput.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-143	BrowserAudio.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-144	BrowserFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-145	BrowserLogger.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-146	BrowserNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-147	BrowserPreferences.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-148	BrowserClipboard.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-149	BrowserCursor.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-150	BrowserSensors.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-151	HeadlessApplication.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-152	DesktopFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-153	DesktopNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-154	SpriteBatch.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-155	SpriteCache.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-156	DefaultShader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-157	ShapeRenderer.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-158	GLFrameBuffer.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-159	MeshBuilder.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-160	GlyphLayout.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-161	BitmapFont.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-162	TextField.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-163	Table.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-164	Stage.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-165	ScrollPane.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-166	Tree.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-167	SelectBox.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-168	AssetManager.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-169	Model.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-170	G3dModelLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-171	Skin.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-172	Intersector.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-173	EarClippingTriangulator.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-174	ParticleEmitter.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-175	BaseTmxMapLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-176	TmxMapLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-177	ModelLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-178	BaseShader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-179	TimSort.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-180	Nullable.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-181	(review)	review-codex	open	info	[RR-001] #### RR-001. `Gdx2DPixmap` is still stub-only, so Pixmap-backed rendering remains blocked	2026-03-19
-ISS-182	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-183	sge/src/main/scala/sge/graphics/Pixmap.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-184	(review)	review-codex	open	info	[RR-002] #### RR-002. Physics extension links against the wrong native library name	2026-03-19
-ISS-185	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-186	physics/src/main/scalanative/sge/platform/PhysicsOpsNative.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-187	build/src/main/scala/sge/sbt/SgeNativeLibs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-188	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-189	freetype/src/main/scalajvm/sge/platform/FreetypeOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-190	(review)	review-codex	open	info	[RR-004] #### RR-004. Physics ray-cast result encoding is incorrect and loses handle information	2026-03-19
-ISS-191	physics/src/main/scala/sge/physics/PhysicsWorld.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-192	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-193	physics/src/main/scalanative/sge/platform/PhysicsOpsNative.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-194	(review)	review-codex	open	info	[RR-005] #### RR-005. Android Panama provider is a compile-time stub, so JVM-side FFI helpers are not Android-ready	2026-03-19
-ISS-195	android/src/main/scala/sge/platform/PanamaPortProvider.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-196	sge/src/main/scalajvm/sge/platform/Panama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-197	sge/src/main/scalajvm/sge/platform/PlatformOps.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-198	sge/src/main/scala/sge/utils/BufferUtils.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-199	sge/src/main/scala/sge/graphics/glutils/ETC1.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-200	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-201	sge/src/main/scaladesktop/sge/DefaultDesktopInput.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-202	sge/src/main/scalajvm/sge/AndroidInput.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-203	(review)	review-codex	open	info	[RR-007] #### RR-007. Extension modules have effectively no direct test suite	2026-03-19
-ISS-204	(review)	review-codex	open	info	[RR-008] #### RR-008. CI validates only the core `sge` test task and misses extension-module regressions	2026-03-19
-ISS-205	(review)	review-codex	open	info	[RR-009] #### RR-009. `sge-freetype` and `sge-physics` are cross-built for Scala.js even though their JS implementations are runtime stubs	2026-03-19
-ISS-206	freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-207	freetype/src/main/scalajs/sge/platform/FreetypePlatform.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-208	physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-209	physics/src/main/scalajs/sge/platform/PhysicsPlatform.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-210	(review)	review-codex	open	info	[RR-010] #### RR-010. The default 3D particle-effect loader is still structurally stubbed and appears unusable	2026-03-19
-ISS-211	sge/src/main/scala/sge/assets/AssetManager.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-212	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-213	sge/src/main/scala/sge/graphics/g3d/particles/ResourceData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-214	sge/src/main/scala/sge/graphics/g3d/particles/batches/ModelInstanceParticleBatch.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-215	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-216	sge/src/main/scala/sge/graphics/TextureData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-217	sge/src/main/scala/sge/graphics/Texture.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-218	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-219	sge/src/main/scala/sge/graphics/glutils/FacedCubemapData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-220	sge/src/main/scala/sge/graphics/glutils/FileTextureArrayData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-221	(review)	review-codex	open	info	[RR-012] #### RR-012. `TextFormatter` is still a simplified placeholder, so `I18NBundle.format` semantics diverge from LibGDX	2026-03-19
-ISS-222	sge/src/main/scala/sge/utils/TextFormatter.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-223	sge/src/main/scala/sge/utils/I18nBundle.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-224	(review)	review-codex	open	info	[RR-013] #### RR-013. `SgeNativesLoader.load()` is a compatibility shell that marks natives as loaded without actually loading anything	2026-03-19
-ISS-225	sge/src/main/scala/sge/utils/SgeNativesLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-226	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-227	sge/src/main/scala/sge/utils/TimSort.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-228	sge/src/main/scala/sge/utils/Sort.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-229	sge/src/test/scala/sge/utils/SortTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-230	(review)	review-codex	open	info	[RR-015] #### RR-015. Binary `.g3db` model loading is missing because `UBJsonReader` has not been ported	2026-03-19
-ISS-231	sge/src/main/scala/sge/assets/AssetManager.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-232	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-233	(review)	review-codex	open	info	[RR-016] #### RR-016. Multiple important end-to-end loader flows are still explicitly untested	2026-03-19
-ISS-234	sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-235	sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-236	sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-237	sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-238	sge/src/main/scala/sge/assets/loaders/ModelLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-239	sge/src/main/scala/sge/assets/loaders/MusicLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-240	sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-241	sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-242	sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-243	sge/src/main/scala/sge/assets/loaders/SkinLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-244	sge/src/main/scala/sge/assets/loaders/SoundLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-245	sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-246	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-247	(review)	review-codex	open	info	[RR-017] #### RR-017. Several canonical real-asset decoding flows are still missing end-to-end tests	2026-03-19
-ISS-248	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-249	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-250	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-251	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-252	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19
-ISS-253	(review)	review-cursor	open	major	[CR-001] #### CR-001. No tests for Game or Screen flow	2026-03-19
-ISS-254	sge/src/main/scala/sge/Game.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/Game.scala`, `sge/src/main/scala/sge/Screen.scala`; test search shows no `Game`/`Screen`/`setScreen`/`screen_=` in tests.	2026-03-19
-ISS-255	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-256	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-257	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-258	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-259	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-260	sge/src/main/scala/sge/graphics/g2d/GlyphLayout.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-261	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-262	sge/src/main/scala/sge/net/SgeHttpResponse.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-263	(review)	review-cursor	open	major	[CR-006] #### CR-006. BitmapFontCache.setColors / draw(Batch, start, end) — break() exits whole method	2026-03-19
-ISS-264	sge/src/main/scala/sge/graphics/g2d/BitmapFontCache.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g2d/BitmapFontCache.scala` (lines 202, 253, 264).	2026-03-19
-ISS-265	(review)	review-cursor	open	major	[CR-007] #### CR-007. ComparableTimSort and ObjLoader use raw null	2026-03-19
-ISS-266	sge/src/main/scala/sge/utils/ComparableTimSort.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/utils/ComparableTimSort.scala` (96, 99); `sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala` (82–83, 100, 122, 347–348).	2026-03-19
-ISS-267	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-268	sge/src/main/scala/sge/utils/SgeError.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-269	(review)	review-cursor	open	major	[CR-009] #### CR-009. No flow test for AssetManager → Loader → resource	2026-03-19
-ISS-270	sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala	review-cursor	open	major	**Files:** `sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala`; all loaders under `sge/src/main/scala/sge/assets/loaders/`.	2026-03-19
-ISS-271	(review)	review-cursor	open	major	[CR-010] #### CR-010. All concrete asset loaders documented as untested	2026-03-19
-ISS-272	(review)	review-cursor	open	major	[CR-011] #### CR-011. RefCountedContainer uses var obj: Any = null	2026-03-19
-ISS-273	sge/src/main/scala/sge/assets/AssetManager.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/assets/AssetManager.scala` (lines 853–854).	2026-03-19
-ISS-274	(review)	review-cursor	open	major	[CR-012] #### CR-012. compareTo / compare stubs in light attributes and DefaultShader	2026-03-19
-ISS-275	sge/src/main/scala/sge/graphics/g3d/attributes/SpotLightsAttribute.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/attributes/SpotLightsAttribute.scala` (56), `PointLightsAttribute.scala`, `DirectionalLightsAttribute.scala`; `sge/src/main/scala/sge/graphics/g3d/shade	2026-03-19
-ISS-276	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-277	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-278	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-279	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-280	(review)	review-cursor	open	major	[CR-015] #### CR-015. DecalBatch.close() sets vertices = null	2026-03-19
-ISS-281	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala` (line 206).	2026-03-19
-ISS-282	(review)	review-cursor	open	major	[CR-016] #### CR-016. DefaultRenderableSorter has incomplete sorting (FIXME)	2026-03-19
-ISS-283	sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala` (61–64).	2026-03-19
-ISS-284	(review)	review-cursor	open	major	[CR-017] #### CR-017. Pool.Poolable TODOs for Scene2D and g3d types	2026-03-19
-ISS-285	sge/src/main/scala/sge/scenes/scene2d/Action.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/scenes/scene2d/Action.scala`, `Event.scala`, `scenes/scene2d/ui/Cell.scala`; `sge/src/main/scala/sge/graphics/g3d/utils/BaseAnimationController.scala` (Transform); `	2026-03-19
-ISS-286	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-287	sge/src/main/scala/sge/utils/StreamUtils.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-288	(review)	review-cursor	open	major	[CR-019] #### CR-019. SpriteCache tempVertices — possible shared mutable state	2026-03-19
-ISS-289	sge/src/main/scala/sge/graphics/g2d/SpriteCache.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g2d/SpriteCache.scala` (uses of `tempVertices` 272+).	2026-03-19
-ISS-290	(review)	review-cursor	open	major	[CR-020] #### CR-020. Scene2D has almost no tests	2026-03-19
-ISS-291	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-cursor	open	major	**Files:** `sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala`; all of `sge/src/main/scala/sge/scenes/scene2d/`.	2026-03-19
-ISS-292	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-293	sge/src/main/scala/sge/maps/MapProperties.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-294	(review)	review-cursor	open	major	[CR-022] #### CR-022. Tiled map loaders use null / orNull	2026-03-19
-ISS-295	sge/src/main/scala/sge/maps/tiled/BaseTmjMapLoader.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/maps/tiled/BaseTmjMapLoader.scala` (154, 278, 637, 753); `BaseTmxMapLoader.scala` (316 and similar).	2026-03-19
-ISS-296	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-297	sge/src/main/scala/sge/utils/Timer.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-298	(review)	review-cursor	open	major	[CR-024] #### CR-024. RemoteInput has unwired postRunnable and stub behavior	2026-03-19
-ISS-299	sge/src/main/scala/sge/input/RemoteInput.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/input/RemoteInput.scala` (migration notes and method bodies).	2026-03-19
-ISS-300	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-301	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-302	(review)	review-cursor	open	critical	[CR-026] #### CR-026. No integration tests for rendering, input, or asset flows	2026-03-19
-ISS-303	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-304	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-305	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-306	sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala:9] Missing test for TextureAtlasLoader getDependencies resolves page textures; load assembles atlas (requires GL context)	2026-03-19
-ISS-307	sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala:9] Missing test for ParticleEffectLoader load with atlas file, images directory, and default parameters	2026-03-19
-ISS-308	sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala:10] Missing test for ShaderProgramLoader file suffix resolution (.vert/.frag) and code prepend logic	2026-03-19
-ISS-309	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/TextureLoader.scala:9] Missing test for TextureLoader loadAsync/loadSync with parameter-supplied and file-loaded data (requires GL context)	2026-03-19
-ISS-310	sge/src/main/scala/sge/assets/loaders/SkinLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/SkinLoader.scala:9] Missing test for SkinLoader getDependencies resolves atlas; loadSync applies resources (requires GL context)	2026-03-19
-ISS-311	sge/src/main/scala/sge/assets/loaders/SoundLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/SoundLoader.scala:10] Missing test for SoundLoader loadAsync/loadSync (requires audio backend)	2026-03-19
-ISS-312	sge/src/main/scala/sge/assets/loaders/MusicLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/MusicLoader.scala:10] Missing test for MusicLoader loadAsync/loadSync (requires audio backend)	2026-03-19
-ISS-313	sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala:10] Missing test for PixmapLoader loadAsync/loadSync (requires GL context)	2026-03-19
-ISS-314	sge/src/main/scala/sge/assets/loaders/ModelLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ModelLoader.scala:10] Missing test for ModelLoader getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)	2026-03-19
-ISS-315	sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala:9] Missing test for I18NBundleLoader loadAsync/loadSync with locale and encoding parameters	2026-03-19
-ISS-316	sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala:9] Missing test for BitmapFontLoader getDependencies resolves font textures; loadSync assembles BitmapFont (requires GL context)	2026-03-19
-ISS-317	sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala:9] Missing test for CubemapLoader loadAsync/loadSync with KTX and parameter-supplied data (requires GL context)	2026-03-19
-ISS-318	sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala:12] Missing test for ForResolution.choose() picks best resolution for screen size; Prefix.resolve prepends prefix	2026-03-19
-ISS-319	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala:21] Missing test for decode a real .obj/.mtl file (Wavefront) end-to-end through ObjLoader	2026-03-19
-ISS-320	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:20] Missing test for decode a real .tide file end-to-end through TideMapLoader	2026-03-19
-ISS-321	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala:6] Missing test for decode a real .skin file (e.g. libgdx/tests/ uiskin.json) end-to-end through Skin.load	2026-03-19
-ISS-322	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:8] Missing test for decode a real .tmx file from libgdx/tests/ end-to-end through BaseTmxMapLoader	2026-03-19
-ISS-323	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:9] Missing test for decode a real .tmj file from libgdx/tests/ end-to-end through BaseTmjMapLoader	2026-03-19
-ISS-324	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:10] Missing test for decode a real .tiled-project file end-to-end through BaseTiledMapLoader.loadProjectFile	2026-03-19
-ISS-325	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala:8] Missing test for decode a real .g3dj file from libgdx/tests/ (e.g. cube.g3dj) end-to-end through G3dModelLoader	2026-03-19
-ISS-326	sge/src/main/scala/sge/assets/AssetManager.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/AssetManager.scala:338] Missing integration test for end-to-end asset loading flow: Load real asset types (e.g., Texture, BitmapFont) through AssetManager with act	2026-03-19
-ISS-327	sge/src/main/scala/sge/graphics/g2d/SpriteBatch.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g2d/SpriteBatch.scala:1] Missing integration test for SpriteBatch rendering pipeline: Load texture via AssetManager, set up SpriteBatch, render sprites to screen	2026-03-19
-ISS-328	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/scenes/scene2d/Stage.scala:1] Missing integration test for Scene2D event handling and layout flow: Create Stage with Actors, simulate input events, verify event propagati	2026-03-19
-ISS-329	sge/src/main/scala/sge/input/InputMultiplexer.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/input/InputMultiplexer.scala:1] Missing integration test for input processing flow: Set up InputMultiplexer with processors, simulate input events, verify correct process	2026-03-19
-ISS-330	sge/src/main/scala/sge/audio/Sound.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/audio/Sound.scala:1] Missing integration test for audio playback flow: Load sound asset, play it, control volume/pitch, verify playback behavior.	2026-03-19
-ISS-331	sge/src/main/scala/sge/ApplicationListener.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/ApplicationListener.scala:1] Missing integration test for game loop flow: Implement ApplicationListener integrating graphics, input, and audio subsystems in a frame loop,	2026-03-19
-ISS-332	sge/src/main/scala/sge/net/Net.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/net/Net.scala:1] Missing integration test for networking flow: Set up HttpClient, perform requests, verify responses and error handling.	2026-03-19
-ISS-333	sge/src/main/scala/sge/maps/tiled/TiledMapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/maps/tiled/TiledMapLoader.scala:52] Missing integration test for TiledMap loading and rendering flow: Load TiledMap from file, render layers, verify visual output.	2026-03-19
-ISS-334	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala:49] Missing integration test for particle effects flow: Load ParticleEffect, simulate over time, verify rendering and be	2026-03-19
-ISS-335	sge/src/main/scala/sge/scenes/scene2d/ui/Button.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/scenes/scene2d/ui/Button.scala:1] Missing integration test for UI widget interactions: Create UI widgets (Button, TextField), simulate user interactions, verify event han	2026-03-19
-ISS-336	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-337	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-338	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-339	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-340	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-341	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-342	porting/sge/src/main/scala/sge/graphics/TextureArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/src/main/scala/sge/graphics/TextureArray.scala:79] Passing null to Java interop method glTexImage3D without @nowarn annotation, assuming null is acc	2026-03-19
-ISS-343	porting/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-344	porting/sge/graphics/g3d/ModelCache.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-345	porting/sge/graphics/g3d/ModelCache.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/graphics/g3d/ModelCache.scala:95] Setting mesh field to null, assuming null is acceptable for mutable fields in Scala like in Java, violating the no	2026-03-19
-ISS-346	porting/sge/utils/DynamicArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/utils/DynamicArray.scala:57] Private field initialized to null, assuming null is acceptable for internal mutable state in Scala.	2026-03-19
-ISS-347	porting/sge/utils/DynamicArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/utils/DynamicArray.scala:58] Private field initialized to null, assuming null is acceptable for internal mutable state in Scala.	2026-03-19
-ISS-348	porting/sge/assets/AssetManager.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/assets/AssetManager.scala:854] Field defaulted to null, assuming null is acceptable for uninitialized mutable containers in Scala.	2026-03-19
-ISS-349	porting/sge/graphics/g2d/GlyphLayout.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-350	porting/sge/graphics/g2d/GlyphLayout.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-351	porting/sge/maps/tiled/BaseTmxMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmxMapLoader.scala:520] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19
-ISS-352	porting/sge/maps/tiled/BaseTmxMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmxMapLoader.scala:777] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19
-ISS-353	porting/sge/maps/tiled/TideMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/TideMapLoader.scala:244] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19
-ISS-354	porting/sge/maps/tiled/BaseTmjMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmjMapLoader.scala:753] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19
-ISS-355	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-356	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-357	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-358	sge/src/main/scala/sge/graphics/glutils/KTXTextureData.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-359	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-360	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:174] loadTileSheet skips reading the Description child element that Java reads; harmless but omits data	2026-03-19
-ISS-361	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:175] loadTileSheet wraps tile creation in texture.foreach for null safety, changing behavior: Scala skips tile creation if imageResolver re	2026-03-19
-ISS-362	sge/src/main/scala/sge/graphics/glutils/VertexBufferObjectSubData.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/glutils/VertexBufferObjectSubData.scala:65] Passing null to Java GL API glBufferData without @nowarn comment, violating no-null rule.	2026-03-19
-ISS-363	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-364	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-365	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-366	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-367	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-368	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-369	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-370	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-371	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-372	sge/src/main/scala/sge/graphics/g3d/utils/DefaultTextureBinder.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/utils/DefaultTextureBinder.scala:75] Setting array element 'textures(i)' to null instead of Nullable.empty, violating no-null rule.	2026-03-19
-ISS-373	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/ModelCache.scala:95] Setting field 'mesh' to null instead of Nullable.empty, violating no-null rule.	2026-03-19
-ISS-374	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-375	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19
-ISS-376	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala:207] Setting field 'vertices' to null instead of Nullable.empty, violating no-null rule.	2026-03-19
-ISS-377	sge/src/main/scala/sge/graphics/TextureArray.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/TextureArray.scala:79] Passing null to Java GL API glTexImage3D without @nowarn comment, violating no-null rule.	2026-03-19
-ISS-378	sge/src/main/scalajvm/sge/net/NetJavaServerSocketImpl.scala	review-grok	open	critical	[File: sge/src/main/scalajvm/sge/net/NetJavaServerSocketImpl.scala:76] Setting field 'server' to null at interop boundary without @nowarn, but comment indicates raw null is acceptable for uninitialize	2026-03-19
-ISS-379	android/src/main/scala/sge/platform/PanamaPortProvider.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-380	physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	review-grok	open	major	[File: sge-physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala] Entire object is a stub implementation where all methods throw UnsupportedOperationException, as physics is not available on Scala.	2026-03-19
-ISS-381	freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	review-grok	open	major	[File: sge-freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala] Entire object is a stub implementation where all methods throw UnsupportedOperationException, as FreeType is not available on Sca	2026-03-19
-ISS-382	sge/src/main/scalajvm/sge/AndroidInput.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-383	sge/src/main/scalajvm/sge/graphics/AngleGL30.scala	review-grok	open	major	[File: sge/src/main/scalajvm/sge/graphics/AngleGL30.scala:167] glGetBufferPointerv method throws UnsupportedOperationException as it is not implemented.	2026-03-19
-ISS-384	sge/src/main/scalanative/sge/graphics/AngleGL30Native.scala	review-grok	open	major	[File: sge/src/main/scalanative/sge/graphics/AngleGL30Native.scala:234] glGetBufferPointerv method throws UnsupportedOperationException as it is not implemented.	2026-03-19
-ISS-385	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:496] glGetAttachedShaders method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-386	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:505] glGetBufferParameteriv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-387	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:589] glGetRenderbufferParameteriv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-388	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:617] glGetUniformfv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-389	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:620] glGetUniformiv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-390	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:638] glGetVertexAttribfv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-391	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:641] glGetVertexAttribiv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-392	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:705] glReleaseShaderCompiler method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19
-ISS-393	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:450] glGetVertexAttribIiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19
-ISS-394	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:453] glGetVertexAttribIuiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19
-ISS-395	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:464] glGetUniformuiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19
-ISS-396	sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala	review-grok	open	major	[File: sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala:122] Throws SgeError.GraphicsError for some attributes not implemented yet.	2026-03-19
-ISS-397	sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala	review-grok	open	major	[File: sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala:63] Throws SgeError.GraphicsError for some attributes not implemented yet.	2026-03-19
-ISS-398	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19
-ISS-399	sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala	review-grok	open	major	[File: sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala:64-79] StubProvider methods (createLifecycle to createGL30) use ??? as placeholders for test doubles.	2026-03-19
-ISS-400	sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala	review-grok	open	major	[File: sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala:26-29] Audio interface methods (newAudioDevice, newAudioRecorder, newSound, newMusic) use ??? as placeholders for test doubles.	2026-03-19
-ISS-401	sge/src/main/scala/sge/utils/TimeUtils.scala	todo	open	minor	Add opaque types Millis(Long) and Nanos(Long) to sge.utils — prevents unit confusion in TimeUtils, Timer, GestureDetector, InputEventQueue. See docs/improvements/opaque-types.md	2026-03-20
-ISS-402	sge/src/main/scala/sge/Input.scala	todo	open	minor	Add opaque types Key(Int) and Button(Int) for Input.Keys/Input.Buttons — type-safe key/button constants across ~11 files. See docs/improvements/opaque-types.md	2026-03-20
-ISS-403	sge/src/main/scala/sge/graphics/Color.scala	todo	open	info	Add opaque types Red/Green/Blue/Alpha(Float) for Color components — type-safe color across ~8 files. See docs/improvements/opaque-types.md	2026-03-20
-ISS-404	sge/src/main/scala/sge/utils/TimeUtils.scala	todo	open	minor	Integrate scala-java-time into TimeUtils — dependency added but not yet wired. TimeUtils still wraps System.nanoTime/currentTimeMillis directly. See docs/improvements/dependencies.md B1	2026-03-20
-ISS-405	sge/src/main/scala/sge/utils/Logger.scala	todo	open	info	Evaluate scribe logger integration — dependency added but not wired. Decide whether to decouple logging from Application lifecycle. See docs/improvements/dependencies.md B2	2026-03-20
-ISS-406	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelLoader.scala	todo	open	major	Migrate JsonValue tree walking to jsoniter-scala codec derivation — 6 consumer files (G3dModelLoader, BaseTmjMapLoader, BaseTiledMapLoader, TmjMapLoader, AtlasTmjMapLoader, Skin). Infrastructure ready (JsonCodecs.scala). Eliminates ~1400 LOC + reflection. See docs/improvements/dependencies.md B5	2026-03-20
+# id	file_path	category	status	severity	description	last_updated	source
+ISS-001	(multiple)	other	resolved	info	Missing license header — 0 files	2026-03-19	libgdx
+ISS-002	(multiple)	other	resolved	info	return keyword usage — 0 files	2026-03-19	libgdx
+ISS-003	(multiple)	other	resolved	minor	Direct null checks — 2 files	2026-03-19	libgdx
+ISS-004	(multiple)	other	open	minor	null.asInstanceOf — 4 files	2026-03-19	libgdx
+ISS-005	(multiple)	other	resolved	minor	Remaining Java syntax — 2 files	2026-03-19	libgdx
+ISS-006	(multiple)	other	resolved	minor	TODO/FIXME markers — 65 files	2026-03-19	libgdx
+ISS-007	(multiple)	other	resolved	info	ArrayBuffer→DynamicArray — 0 files	2026-03-19	libgdx
+ISS-008	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-009	(multiple)	todo	resolved	info	Typed GL enums — 0 files	2026-03-19	libgdx
+ISS-010	(multiple)	todo	resolved	info	Opaque Pixels — 0 files	2026-03-19	libgdx
+ISS-011	(multiple)	todo	resolved	info	Input.Keys/Buttons opaque type — 0 files	2026-03-19	libgdx
+ISS-012	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-013	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-014	(multiple)	todo	open	minor	Color immutability — ~4 files	2026-03-19	libgdx
+ISS-015	(multiple)	todo	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-016	(multiple)	todo	open	minor	Other (ComparableTimSort, Show, JsonReader) — ~5 files	2026-03-19	libgdx
+ISS-017	(multiple)	todo	resolved	info	Java-style getters/setters — 0 files	2026-03-19	libgdx
+ISS-018	(multiple)	todo	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-019	1	bug	resolved	major	`math.collision.OrientedBoundingBox.update()` — Resolution: axes via `mul(transform)` includes translation	2026-03-19	libgdx
+ISS-020	2	bug	resolved	major	`graphics.Camera.rotate(Matrix4)` — Resolution: uses `mul()` instead of `rot()`	2026-03-19	libgdx
+ISS-021	3	bug	resolved	major	`math.CumulativeDistribution.ensureCapacity()` — Resolution: values assignment commented out	2026-03-19	libgdx
+ISS-022	4	bug	resolved	major	`utils.compression.lzma.Encoder.getSubCoder` — Resolution: operator precedence differs from Java	2026-03-19	libgdx
+ISS-023	5	bug	resolved	major	`utils.compression.lz.BinTree.normalizeLinks` — Resolution: compares against constant 0	2026-03-19	libgdx
+ISS-024	6	bug	resolved	major	`graphics.g2d.DistanceFieldFont` — Resolution: vertex shader missing v_texCoords	2026-03-19	libgdx
+ISS-025	7	bug	resolved	major	`maps.tiled.BaseTiledMapLoader.loadProjectFile` — Resolution: never calls projectClassMembers.add()	2026-03-19	libgdx
+ISS-026	8	bug	resolved	major	`graphics.g3d.loader.G3dModelLoader.parseMeshes` — Resolution: reads mesh ID instead of meshPart ID	2026-03-19	libgdx
+ISS-027	9	bug	resolved	major	`graphics.Pixmap` — Resolution: drawing methods are stubs	2026-03-19	libgdx
+ISS-028	10	bug	resolved	major	`graphics.Mesh` — Resolution: missing calculateRadius, scale, transform	2026-03-19	libgdx
+ISS-029	11	bug	resolved	major	`graphics.glutils.ShapeRenderer` — Resolution: ~25+ method overloads missing	2026-03-19	libgdx
+ISS-030	12	bug	resolved	major	`graphics.glutils.MipMapGenerator` — Resolution: public methods are stubs	2026-03-19	libgdx
+ISS-031	13	bug	resolved	major	`graphics.glutils.ETC1TextureData` — Resolution: consumeCustomData commented out	2026-03-19	libgdx
+ISS-032	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Pixel buffer allocation (`Gdx2dDraw.newPixelBuffer`)	2026-03-19	libgdx
+ISS-033	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Clear, setPixel, getPixel	2026-03-19	libgdx
+ISS-034	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: drawLine, drawRect, drawCircle, fillRect, fillCircle, fillTriangle	2026-03-19	libgdx
+ISS-035	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: drawPixmap (blit with optional scaling — nearest/bilinear)	2026-03-19	libgdx
+ISS-036	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Blend mode (SRC_OVER alpha blending)	2026-03-19	libgdx
+ISS-037	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Scale mode (nearest/bilinear)	2026-03-19	libgdx
+ISS-038	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Image decode on JVM (`Gdx2dOpsJvm` via ImageIO)	2026-03-19	libgdx
+ISS-039	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: Image decode on Native (`Gdx2dOpsNative` via Rust `image` crate C ABI)	2026-03-19	libgdx
+ISS-040	(integration-test)	test_gap	resolved	minor	1. Gdx2DPixmap — RESOLVED: 20 unit tests passing (Gdx2DPixmapTest)	2026-03-19	libgdx
+ISS-041	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Bootstrap: Sge context + GL20 available	2026-03-19	libgdx
+ISS-042	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: FileIO: write/read temp file roundtrip	2026-03-19	libgdx
+ISS-043	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: JSON/XML: jsoniter-scala + scala-xml parsing	2026-03-19	libgdx
+ISS-044	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: GL2D: shader compile + mesh draw	2026-03-19	libgdx
+ISS-045	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: GL3D: shader with uniform matrix + depth	2026-03-19	libgdx
+ISS-046	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Audio: miniaudio engine + sound load/play	2026-03-19	libgdx
+ISS-047	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Input: state queries (position, pointers, key press)	2026-03-19	libgdx
+ISS-048	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Pixmap: create, set pixel, read back color	2026-03-19	libgdx
+ISS-049	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Texture: upload Pixmap to GL texture, verify handle	2026-03-19	libgdx
+ISS-050	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: SpriteBatch: begin/end cycle	2026-03-19	libgdx
+ISS-051	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: FBO: FrameBuffer render red + glReadPixels readback	2026-03-19	libgdx
+ISS-052	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Clipboard: write/read roundtrip	2026-03-19	libgdx
+ISS-053	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Window: dimensions, GL version, buffer format, monitor	2026-03-19	libgdx
+ISS-054	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Music: streaming load, play, position query, stop	2026-03-19	libgdx
+ISS-055	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: MultiSound: 3 concurrent sound instances with different pan/pitch	2026-03-19	libgdx
+ISS-056	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: TextureAtlas: load .atlas fixture, findRegion by name	2026-03-19	libgdx
+ISS-057	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: WindowResize: setWindowedMode + dimension readback	2026-03-19	libgdx
+ISS-058	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Cursor: system cursor switching + custom cursor from Pixmap	2026-03-19	libgdx
+ISS-059	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: InputDispatch: InputProcessor set/get roundtrip	2026-03-19	libgdx
+ISS-060	(integration-test)	test_gap	resolved	minor	2. Desktop IT — 20 checks: Fullscreen: fullscreen API exercise (isFullscreen, displayMode, monitors, toggle)	2026-03-19	libgdx
+ISS-061	(integration-test)	test_gap	open	minor	Remaining gaps: Window iconify/restore callbacks	2026-03-19	libgdx
+ISS-062	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Demo JS loads without fatal errors	2026-03-19	libgdx
+ISS-063	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: WebGL context available (WebGL2/WebGL1)	2026-03-19	libgdx
+ISS-064	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: WebGL shader compilation (vertex + fragment + link)	2026-03-19	libgdx
+ISS-065	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: JSON and XML parsing in JS runtime	2026-03-19	libgdx
+ISS-066	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: FileIO: fetch bundled text asset from server	2026-03-19	libgdx
+ISS-067	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Canvas has non-zero pixels after rendering	2026-03-19	libgdx
+ISS-068	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Web Audio API context available	2026-03-19	libgdx
+ISS-069	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: localStorage read/write/remove roundtrip	2026-03-19	libgdx
+ISS-070	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Mouse click event dispatch to canvas	2026-03-19	libgdx
+ISS-071	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: BrowserPreferences: localStorage protocol roundtrip (typed keys)	2026-03-19	libgdx
+ISS-072	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Keyboard input event dispatch to canvas	2026-03-19	libgdx
+ISS-073	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: Touch event: synthetic TouchEvent dispatch to canvas	2026-03-19	libgdx
+ISS-074	(integration-test)	test_gap	resolved	minor	3. Browser IT — 13 tests: HTTP fetch: roundtrip via embedded server (api-test.json)	2026-03-19	libgdx
+ISS-075	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Bootstrap: Sge context + GL20	2026-03-19	libgdx
+ISS-076	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: GL2D: clear calls	2026-03-19	libgdx
+ISS-077	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: GL3D: shader + uniform matrix	2026-03-19	libgdx
+ISS-078	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: FileIO: write/read temp file	2026-03-19	libgdx
+ISS-079	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: JSON/XML: class loading + XML parse	2026-03-19	libgdx
+ISS-080	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Audio: subsystem accessible	2026-03-19	libgdx
+ISS-081	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Input: state queries (position, pointers, key press)	2026-03-19	libgdx
+ISS-082	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Preferences: SharedPreferences write/read/remove	2026-03-19	libgdx
+ISS-083	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Clipboard: set/get contents	2026-03-19	libgdx
+ISS-084	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Display: dimensions, PPI, density	2026-03-19	libgdx
+ISS-085	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: FileHandle: external storage write/read roundtrip	2026-03-19	libgdx
+ISS-086	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Touch setup: InputProcessor installed for tracking	2026-03-19	libgdx
+ISS-087	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Touch dispatch: adb input tap → InputProcessor.touchDown received	2026-03-19	libgdx
+ISS-088	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Lifecycle: pause/resume via HOME key + re-launch	2026-03-19	libgdx
+ISS-089	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Sensors: accelerometer availability + gravity reading	2026-03-19	libgdx
+ISS-090	(integration-test)	test_gap	resolved	minor	4. Android IT — 16 checks: Sensor injection: emulator console telnet → accelerometer value change	2026-03-19	libgdx
+ISS-091	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: API shape tests (31 tests across 7 suites)	2026-03-19	libgdx
+ISS-092	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: Panama FFM symbol availability	2026-03-19	libgdx
+ISS-093	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: `sge_copy_bytes` data correctness	2026-03-19	libgdx
+ISS-094	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: `sge_transform_v4m4` with identity and translation matrices	2026-03-19	libgdx
+ISS-095	(integration-test)	test_gap	resolved	minor	5. JVM Platform IT Gaps — RESOLVED: ETC1 encode/decode block roundtrip	2026-03-19	libgdx
+ISS-096	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `sgeJS/compile` — Scala.js compilation	2026-03-19	libgdx
+ISS-097	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `sgeNative/compile` — Scala Native compilation	2026-03-19	libgdx
+ISS-098	(integration-test)	test_gap	resolved	minor	6. Cross-Platform Compilation: `just test` — JVM unit tests (1450 pass)	2026-03-19	libgdx
+ISS-099	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-100	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-101	(integration-test)	test_gap	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-102	scenes/scene2d/Stage.scala	review-claude	open	minor	`scenes/scene2d/Stage.scala` — TouchFocus	2026-03-19	libgdx
+ISS-103	scenes/scene2d/Event.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-104	scenes/scene2d/Action.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-105	scenes/scene2d/ui/Cell.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-106	graphics/g3d/utils/BaseAnimationController.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-107	graphics/g3d/utils/MeshPartBuilder.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-108	math/FloatCounter.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-109	CheckBox.scala	review-claude	open	info	`CheckBox.scala:51` — `style.asInstanceOf[CheckBoxStyle]`	2026-03-19	libgdx
+ISS-110	Slider.scala	review-claude	open	info	`Slider.scala:93-122` — 5 `super.getStyle.asInstanceOf[SliderStyle]`	2026-03-19	libgdx
+ISS-111	Container.scala	review-claude	open	info	`Container.scala:207` — `a.asInstanceOf[Actor]`	2026-03-19	libgdx
+ISS-112	sge/src/main/scala/sge/math/Quaternion.scala	review-claude	open	critical	`sge/src/main/scala/sge/math/Quaternion.scala:994-995` — `tmp1`, `tmp2`	2026-03-19	libgdx
+ISS-113	sge/src/main/scala/sge/math/Intersector.scala	review-claude	open	critical	`sge/src/main/scala/sge/math/Intersector.scala:42-68` — `v0`, `v1`, `v2`, `tmp`, `ip`, `ep1`, etc.	2026-03-19	libgdx
+ISS-114	BufferUtils.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-115	GLFrameBuffer.scala	review-claude	open	minor	`GLFrameBuffer.scala` — `ByteBuffer.allocateDirect(16 * Integer.SIZE / 8)`	2026-03-19	libgdx
+ISS-116	ShaderProgram.scala	review-claude	open	minor	`ShaderProgram.scala` — `ByteBuffer` with `nativeOrder()`	2026-03-19	libgdx
+ISS-117	FileHandles.scala	review-claude	open	minor	`FileHandles.scala` — `RandomAccessFile` + `FileChannel.map()` → memory-mapped I/O	2026-03-19	libgdx
+ISS-118	FileHandles.scala	review-claude	open	minor	**Scala.js**: `java.io.File` is **not available**. `FileHandles.scala` cannot compile on	2026-03-19	libgdx
+ISS-119	GLVersion.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-120	AssetLoadingTask.scala	review-claude	open	minor	`AssetLoadingTask.scala` — 7 volatile fields for async state	2026-03-19	libgdx
+ISS-121	Timer.scala	review-claude	open	minor	`Timer.scala` — `timer: Option[Timer]` volatile field	2026-03-19	libgdx
+ISS-122	SgeHttpClient.scala	review-claude	open	minor	`SgeHttpClient.scala` — `cancelled: Boolean` volatile field	2026-03-19	libgdx
+ISS-123	Cell.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-124	Timer.scala	review-claude	resolved	minor	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-125	DesktopApplicationBase.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-126	DesktopApplicationConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-127	DesktopWindowConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-128	DesktopWindowListener.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-129	DesktopFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-130	MiniaudioEngine.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-131	DesktopSound.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-132	DesktopPreferences.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-133	DesktopNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-134	DesktopClipboard.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-135	DesktopCursor.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-136	FrameSync.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-137	DesktopAudioDevice.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-138	WavDecoder.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-139	BrowserApplicationConfig.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-140	BrowserGraphics.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-141	WebGL20.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-142	BrowserInput.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-143	BrowserAudio.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-144	BrowserFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-145	BrowserLogger.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-146	BrowserNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-147	BrowserPreferences.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-148	BrowserClipboard.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-149	BrowserCursor.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-150	BrowserSensors.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-151	HeadlessApplication.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-152	DesktopFiles.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-153	DesktopNet.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-154	SpriteBatch.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-155	SpriteCache.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-156	DefaultShader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-157	ShapeRenderer.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-158	GLFrameBuffer.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-159	MeshBuilder.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-160	GlyphLayout.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-161	BitmapFont.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-162	TextField.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-163	Table.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-164	Stage.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-165	ScrollPane.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-166	Tree.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-167	SelectBox.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-168	AssetManager.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-169	Model.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-170	G3dModelLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-171	Skin.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-172	Intersector.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-173	EarClippingTriangulator.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-174	ParticleEmitter.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-175	BaseTmxMapLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-176	TmxMapLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-177	ModelLoader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-178	BaseShader.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-179	TimSort.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-180	Nullable.scala	review-claude	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-181	(review)	review-codex	open	info	[RR-001] #### RR-001. `Gdx2DPixmap` is still stub-only, so Pixmap-backed rendering remains blocked	2026-03-19	libgdx
+ISS-182	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-183	sge/src/main/scala/sge/graphics/Pixmap.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-184	(review)	review-codex	open	info	[RR-002] #### RR-002. Physics extension links against the wrong native library name	2026-03-19	libgdx
+ISS-185	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-186	physics/src/main/scalanative/sge/platform/PhysicsOpsNative.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-187	build/src/main/scala/sge/sbt/SgeNativeLibs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-188	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-189	freetype/src/main/scalajvm/sge/platform/FreetypeOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-190	(review)	review-codex	open	info	[RR-004] #### RR-004. Physics ray-cast result encoding is incorrect and loses handle information	2026-03-19	libgdx
+ISS-191	physics/src/main/scala/sge/physics/PhysicsWorld.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-192	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-193	physics/src/main/scalanative/sge/platform/PhysicsOpsNative.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-194	(review)	review-codex	open	info	[RR-005] #### RR-005. Android Panama provider is a compile-time stub, so JVM-side FFI helpers are not Android-ready	2026-03-19	libgdx
+ISS-195	android/src/main/scala/sge/platform/PanamaPortProvider.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-196	sge/src/main/scalajvm/sge/platform/Panama.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-197	sge/src/main/scalajvm/sge/platform/PlatformOps.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-198	sge/src/main/scala/sge/utils/BufferUtils.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-199	sge/src/main/scala/sge/graphics/glutils/ETC1.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-200	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-201	sge/src/main/scaladesktop/sge/DefaultDesktopInput.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-202	sge/src/main/scalajvm/sge/AndroidInput.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-203	(review)	review-codex	open	info	[RR-007] #### RR-007. Extension modules have effectively no direct test suite	2026-03-19	libgdx
+ISS-204	(review)	review-codex	open	info	[RR-008] #### RR-008. CI validates only the core `sge` test task and misses extension-module regressions	2026-03-19	libgdx
+ISS-205	(review)	review-codex	open	info	[RR-009] #### RR-009. `sge-freetype` and `sge-physics` are cross-built for Scala.js even though their JS implementations are runtime stubs	2026-03-19	libgdx
+ISS-206	freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-207	freetype/src/main/scalajs/sge/platform/FreetypePlatform.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-208	physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-209	physics/src/main/scalajs/sge/platform/PhysicsPlatform.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-210	(review)	review-codex	open	info	[RR-010] #### RR-010. The default 3D particle-effect loader is still structurally stubbed and appears unusable	2026-03-19	libgdx
+ISS-211	sge/src/main/scala/sge/assets/AssetManager.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-212	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-213	sge/src/main/scala/sge/graphics/g3d/particles/ResourceData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-214	sge/src/main/scala/sge/graphics/g3d/particles/batches/ModelInstanceParticleBatch.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-215	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-216	sge/src/main/scala/sge/graphics/TextureData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-217	sge/src/main/scala/sge/graphics/Texture.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-218	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-219	sge/src/main/scala/sge/graphics/glutils/FacedCubemapData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-220	sge/src/main/scala/sge/graphics/glutils/FileTextureArrayData.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-221	(review)	review-codex	open	info	[RR-012] #### RR-012. `TextFormatter` is still a simplified placeholder, so `I18NBundle.format` semantics diverge from LibGDX	2026-03-19	libgdx
+ISS-222	sge/src/main/scala/sge/utils/TextFormatter.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-223	sge/src/main/scala/sge/utils/I18nBundle.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-224	(review)	review-codex	open	info	[RR-013] #### RR-013. `SgeNativesLoader.load()` is a compatibility shell that marks natives as loaded without actually loading anything	2026-03-19	libgdx
+ISS-225	sge/src/main/scala/sge/utils/SgeNativesLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-226	(review)	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-227	sge/src/main/scala/sge/utils/TimSort.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-228	sge/src/main/scala/sge/utils/Sort.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-229	sge/src/test/scala/sge/utils/SortTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-230	(review)	review-codex	open	info	[RR-015] #### RR-015. Binary `.g3db` model loading is missing because `UBJsonReader` has not been ported	2026-03-19	libgdx
+ISS-231	sge/src/main/scala/sge/assets/AssetManager.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-232	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-233	(review)	review-codex	open	info	[RR-016] #### RR-016. Multiple important end-to-end loader flows are still explicitly untested	2026-03-19	libgdx
+ISS-234	sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-235	sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-236	sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-237	sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-238	sge/src/main/scala/sge/assets/loaders/ModelLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-239	sge/src/main/scala/sge/assets/loaders/MusicLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-240	sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-241	sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-242	sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-243	sge/src/main/scala/sge/assets/loaders/SkinLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-244	sge/src/main/scala/sge/assets/loaders/SoundLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-245	sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-246	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-247	(review)	review-codex	open	info	[RR-017] #### RR-017. Several canonical real-asset decoding flows are still missing end-to-end tests	2026-03-19	libgdx
+ISS-248	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-249	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-250	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-251	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-252	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-codex	resolved	info	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-253	(review)	review-cursor	open	major	[CR-001] #### CR-001. No tests for Game or Screen flow	2026-03-19	libgdx
+ISS-254	sge/src/main/scala/sge/Game.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/Game.scala`, `sge/src/main/scala/sge/Screen.scala`; test search shows no `Game`/`Screen`/`setScreen`/`screen_=` in tests.	2026-03-19	libgdx
+ISS-255	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-256	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-257	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-258	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-259	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-260	sge/src/main/scala/sge/graphics/g2d/GlyphLayout.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-261	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-262	sge/src/main/scala/sge/net/SgeHttpResponse.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-263	(review)	review-cursor	open	major	[CR-006] #### CR-006. BitmapFontCache.setColors / draw(Batch, start, end) — break() exits whole method	2026-03-19	libgdx
+ISS-264	sge/src/main/scala/sge/graphics/g2d/BitmapFontCache.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g2d/BitmapFontCache.scala` (lines 202, 253, 264).	2026-03-19	libgdx
+ISS-265	(review)	review-cursor	open	major	[CR-007] #### CR-007. ComparableTimSort and ObjLoader use raw null	2026-03-19	libgdx
+ISS-266	sge/src/main/scala/sge/utils/ComparableTimSort.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/utils/ComparableTimSort.scala` (96, 99); `sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala` (82–83, 100, 122, 347–348).	2026-03-19	libgdx
+ISS-267	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-268	sge/src/main/scala/sge/utils/SgeError.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-269	(review)	review-cursor	open	major	[CR-009] #### CR-009. No flow test for AssetManager → Loader → resource	2026-03-19	libgdx
+ISS-270	sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala	review-cursor	open	major	**Files:** `sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala`; all loaders under `sge/src/main/scala/sge/assets/loaders/`.	2026-03-19	libgdx
+ISS-271	(review)	review-cursor	open	major	[CR-010] #### CR-010. All concrete asset loaders documented as untested	2026-03-19	libgdx
+ISS-272	(review)	review-cursor	open	major	[CR-011] #### CR-011. RefCountedContainer uses var obj: Any = null	2026-03-19	libgdx
+ISS-273	sge/src/main/scala/sge/assets/AssetManager.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/assets/AssetManager.scala` (lines 853–854).	2026-03-19	libgdx
+ISS-274	(review)	review-cursor	open	major	[CR-012] #### CR-012. compareTo / compare stubs in light attributes and DefaultShader	2026-03-19	libgdx
+ISS-275	sge/src/main/scala/sge/graphics/g3d/attributes/SpotLightsAttribute.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/attributes/SpotLightsAttribute.scala` (56), `PointLightsAttribute.scala`, `DirectionalLightsAttribute.scala`; `sge/src/main/scala/sge/graphics/g3d/shade	2026-03-19	libgdx
+ISS-276	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-277	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-278	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-279	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-280	(review)	review-cursor	open	major	[CR-015] #### CR-015. DecalBatch.close() sets vertices = null	2026-03-19	libgdx
+ISS-281	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala` (line 206).	2026-03-19	libgdx
+ISS-282	(review)	review-cursor	open	major	[CR-016] #### CR-016. DefaultRenderableSorter has incomplete sorting (FIXME)	2026-03-19	libgdx
+ISS-283	sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g3d/utils/DefaultRenderableSorter.scala` (61–64).	2026-03-19	libgdx
+ISS-284	(review)	review-cursor	open	major	[CR-017] #### CR-017. Pool.Poolable TODOs for Scene2D and g3d types	2026-03-19	libgdx
+ISS-285	sge/src/main/scala/sge/scenes/scene2d/Action.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/scenes/scene2d/Action.scala`, `Event.scala`, `scenes/scene2d/ui/Cell.scala`; `sge/src/main/scala/sge/graphics/g3d/utils/BaseAnimationController.scala` (Transform); `	2026-03-19	libgdx
+ISS-286	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-287	sge/src/main/scala/sge/utils/StreamUtils.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-288	(review)	review-cursor	open	major	[CR-019] #### CR-019. SpriteCache tempVertices — possible shared mutable state	2026-03-19	libgdx
+ISS-289	sge/src/main/scala/sge/graphics/g2d/SpriteCache.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/graphics/g2d/SpriteCache.scala` (uses of `tempVertices` 272+).	2026-03-19	libgdx
+ISS-290	(review)	review-cursor	open	major	[CR-020] #### CR-020. Scene2D has almost no tests	2026-03-19	libgdx
+ISS-291	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-cursor	open	major	**Files:** `sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala`; all of `sge/src/main/scala/sge/scenes/scene2d/`.	2026-03-19	libgdx
+ISS-292	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-293	sge/src/main/scala/sge/maps/MapProperties.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-294	(review)	review-cursor	open	major	[CR-022] #### CR-022. Tiled map loaders use null / orNull	2026-03-19	libgdx
+ISS-295	sge/src/main/scala/sge/maps/tiled/BaseTmjMapLoader.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/maps/tiled/BaseTmjMapLoader.scala` (154, 278, 637, 753); `BaseTmxMapLoader.scala` (316 and similar).	2026-03-19	libgdx
+ISS-296	(review)	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-297	sge/src/main/scala/sge/utils/Timer.scala	review-cursor	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-298	(review)	review-cursor	open	major	[CR-024] #### CR-024. RemoteInput has unwired postRunnable and stub behavior	2026-03-19	libgdx
+ISS-299	sge/src/main/scala/sge/input/RemoteInput.scala	review-cursor	open	major	**Files:** `sge/src/main/scala/sge/input/RemoteInput.scala` (migration notes and method bodies).	2026-03-19	libgdx
+ISS-300	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-301	physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-302	(review)	review-cursor	open	critical	[CR-026] #### CR-026. No integration tests for rendering, input, or asset flows	2026-03-19	libgdx
+ISS-303	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-304	(review)	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-305	sge/src/main/scala/sge/graphics/g2d/Gdx2DPixmap.scala	review-cursor	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-306	sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/TextureAtlasLoader.scala:9] Missing test for TextureAtlasLoader getDependencies resolves page textures; load assembles atlas (requires GL context)	2026-03-19	libgdx
+ISS-307	sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ParticleEffectLoader.scala:9] Missing test for ParticleEffectLoader load with atlas file, images directory, and default parameters	2026-03-19	libgdx
+ISS-308	sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ShaderProgramLoader.scala:10] Missing test for ShaderProgramLoader file suffix resolution (.vert/.frag) and code prepend logic	2026-03-19	libgdx
+ISS-309	sge/src/main/scala/sge/assets/loaders/TextureLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/TextureLoader.scala:9] Missing test for TextureLoader loadAsync/loadSync with parameter-supplied and file-loaded data (requires GL context)	2026-03-19	libgdx
+ISS-310	sge/src/main/scala/sge/assets/loaders/SkinLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/SkinLoader.scala:9] Missing test for SkinLoader getDependencies resolves atlas; loadSync applies resources (requires GL context)	2026-03-19	libgdx
+ISS-311	sge/src/main/scala/sge/assets/loaders/SoundLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/SoundLoader.scala:10] Missing test for SoundLoader loadAsync/loadSync (requires audio backend)	2026-03-19	libgdx
+ISS-312	sge/src/main/scala/sge/assets/loaders/MusicLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/MusicLoader.scala:10] Missing test for MusicLoader loadAsync/loadSync (requires audio backend)	2026-03-19	libgdx
+ISS-313	sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/PixmapLoader.scala:10] Missing test for PixmapLoader loadAsync/loadSync (requires GL context)	2026-03-19	libgdx
+ISS-314	sge/src/main/scala/sge/assets/loaders/ModelLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/ModelLoader.scala:10] Missing test for ModelLoader getDependencies collects texture dependencies; loadSync assembles Model (requires GL context)	2026-03-19	libgdx
+ISS-315	sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/I18NBundleLoader.scala:9] Missing test for I18NBundleLoader loadAsync/loadSync with locale and encoding parameters	2026-03-19	libgdx
+ISS-316	sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/BitmapFontLoader.scala:9] Missing test for BitmapFontLoader getDependencies resolves font textures; loadSync assembles BitmapFont (requires GL context)	2026-03-19	libgdx
+ISS-317	sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/CubemapLoader.scala:9] Missing test for CubemapLoader loadAsync/loadSync with KTX and parameter-supplied data (requires GL context)	2026-03-19	libgdx
+ISS-318	sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/loaders/FileHandleResolver.scala:12] Missing test for ForResolution.choose() picks best resolution for screen size; Prefix.resolve prepends prefix	2026-03-19	libgdx
+ISS-319	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala:21] Missing test for decode a real .obj/.mtl file (Wavefront) end-to-end through ObjLoader	2026-03-19	libgdx
+ISS-320	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:20] Missing test for decode a real .tide file end-to-end through TideMapLoader	2026-03-19	libgdx
+ISS-321	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala:6] Missing test for decode a real .skin file (e.g. libgdx/tests/ uiskin.json) end-to-end through Skin.load	2026-03-19	libgdx
+ISS-322	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:8] Missing test for decode a real .tmx file from libgdx/tests/ end-to-end through BaseTmxMapLoader	2026-03-19	libgdx
+ISS-323	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:9] Missing test for decode a real .tmj file from libgdx/tests/ end-to-end through BaseTmjMapLoader	2026-03-19	libgdx
+ISS-324	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala:10] Missing test for decode a real .tiled-project file end-to-end through BaseTiledMapLoader.loadProjectFile	2026-03-19	libgdx
+ISS-325	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	review-grok	open	minor	[File: sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala:8] Missing test for decode a real .g3dj file from libgdx/tests/ (e.g. cube.g3dj) end-to-end through G3dModelLoader	2026-03-19	libgdx
+ISS-326	sge/src/main/scala/sge/assets/AssetManager.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/assets/AssetManager.scala:338] Missing integration test for end-to-end asset loading flow: Load real asset types (e.g., Texture, BitmapFont) through AssetManager with act	2026-03-19	libgdx
+ISS-327	sge/src/main/scala/sge/graphics/g2d/SpriteBatch.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g2d/SpriteBatch.scala:1] Missing integration test for SpriteBatch rendering pipeline: Load texture via AssetManager, set up SpriteBatch, render sprites to screen	2026-03-19	libgdx
+ISS-328	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/scenes/scene2d/Stage.scala:1] Missing integration test for Scene2D event handling and layout flow: Create Stage with Actors, simulate input events, verify event propagati	2026-03-19	libgdx
+ISS-329	sge/src/main/scala/sge/input/InputMultiplexer.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/input/InputMultiplexer.scala:1] Missing integration test for input processing flow: Set up InputMultiplexer with processors, simulate input events, verify correct process	2026-03-19	libgdx
+ISS-330	sge/src/main/scala/sge/audio/Sound.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/audio/Sound.scala:1] Missing integration test for audio playback flow: Load sound asset, play it, control volume/pitch, verify playback behavior.	2026-03-19	libgdx
+ISS-331	sge/src/main/scala/sge/ApplicationListener.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/ApplicationListener.scala:1] Missing integration test for game loop flow: Implement ApplicationListener integrating graphics, input, and audio subsystems in a frame loop,	2026-03-19	libgdx
+ISS-332	sge/src/main/scala/sge/net/Net.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/net/Net.scala:1] Missing integration test for networking flow: Set up HttpClient, perform requests, verify responses and error handling.	2026-03-19	libgdx
+ISS-333	sge/src/main/scala/sge/maps/tiled/TiledMapLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/maps/tiled/TiledMapLoader.scala:52] Missing integration test for TiledMap loading and rendering flow: Load TiledMap from file, render layers, verify visual output.	2026-03-19	libgdx
+ISS-334	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala:49] Missing integration test for particle effects flow: Load ParticleEffect, simulate over time, verify rendering and be	2026-03-19	libgdx
+ISS-335	sge/src/main/scala/sge/scenes/scene2d/ui/Button.scala	review-grok	open	minor	[File: sge/src/main/scala/sge/scenes/scene2d/ui/Button.scala:1] Missing integration test for UI widget interactions: Create UI widgets (Button, TextField), simulate user interactions, verify event han	2026-03-19	libgdx
+ISS-336	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-337	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-338	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-339	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-340	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-341	porting/sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-342	porting/sge/src/main/scala/sge/graphics/TextureArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/src/main/scala/sge/graphics/TextureArray.scala:79] Passing null to Java interop method glTexImage3D without @nowarn annotation, assuming null is acc	2026-03-19	libgdx
+ISS-343	porting/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-344	porting/sge/graphics/g3d/ModelCache.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-345	porting/sge/graphics/g3d/ModelCache.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/graphics/g3d/ModelCache.scala:95] Setting mesh field to null, assuming null is acceptable for mutable fields in Scala like in Java, violating the no	2026-03-19	libgdx
+ISS-346	porting/sge/utils/DynamicArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/utils/DynamicArray.scala:57] Private field initialized to null, assuming null is acceptable for internal mutable state in Scala.	2026-03-19	libgdx
+ISS-347	porting/sge/utils/DynamicArray.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/utils/DynamicArray.scala:58] Private field initialized to null, assuming null is acceptable for internal mutable state in Scala.	2026-03-19	libgdx
+ISS-348	porting/sge/assets/AssetManager.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/assets/AssetManager.scala:854] Field defaulted to null, assuming null is acceptable for uninitialized mutable containers in Scala.	2026-03-19	libgdx
+ISS-349	porting/sge/graphics/g2d/GlyphLayout.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-350	porting/sge/graphics/g2d/GlyphLayout.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-351	porting/sge/maps/tiled/BaseTmxMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmxMapLoader.scala:520] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19	libgdx
+ISS-352	porting/sge/maps/tiled/BaseTmxMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmxMapLoader.scala:777] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19	libgdx
+ISS-353	porting/sge/maps/tiled/TideMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/TideMapLoader.scala:244] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19	libgdx
+ISS-354	porting/sge/maps/tiled/BaseTmjMapLoader.scala	review-grok	open	major	[File: /Users/dev/Workspaces/GitHub/sge-porting/sge/maps/tiled/BaseTmjMapLoader.scala:753] Local var initialized to null, assuming null is acceptable for temporary variables in Scala like in Java.	2026-03-19	libgdx
+ISS-355	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-356	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-357	sge/src/main/scala/sge/graphics/glutils/GLVersion.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-358	sge/src/main/scala/sge/graphics/glutils/KTXTextureData.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-359	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-360	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:174] loadTileSheet skips reading the Description child element that Java reads; harmless but omits data	2026-03-19	libgdx
+ISS-361	sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/maps/tiled/TideMapLoader.scala:175] loadTileSheet wraps tile creation in texture.foreach for null safety, changing behavior: Scala skips tile creation if imageResolver re	2026-03-19	libgdx
+ISS-362	sge/src/main/scala/sge/graphics/glutils/VertexBufferObjectSubData.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/glutils/VertexBufferObjectSubData.scala:65] Passing null to Java GL API glBufferData without @nowarn comment, violating no-null rule.	2026-03-19	libgdx
+ISS-363	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-364	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-365	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-366	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-367	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-368	sge/src/main/scala/sge/graphics/g3d/loader/ObjLoader.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-369	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-370	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-371	sge/src/main/scala/sge/scenes/scene2d/Stage.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-372	sge/src/main/scala/sge/graphics/g3d/utils/DefaultTextureBinder.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/utils/DefaultTextureBinder.scala:75] Setting array element 'textures(i)' to null instead of Nullable.empty, violating no-null rule.	2026-03-19	libgdx
+ISS-373	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/ModelCache.scala:95] Setting field 'mesh' to null instead of Nullable.empty, violating no-null rule.	2026-03-19	libgdx
+ISS-374	sge/src/main/scala/sge/graphics/g3d/ModelCache.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-375	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	resolved	critical	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-376	sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/g3d/decals/DecalBatch.scala:207] Setting field 'vertices' to null instead of Nullable.empty, violating no-null rule.	2026-03-19	libgdx
+ISS-377	sge/src/main/scala/sge/graphics/TextureArray.scala	review-grok	open	critical	[File: sge/src/main/scala/sge/graphics/TextureArray.scala:79] Passing null to Java GL API glTexImage3D without @nowarn comment, violating no-null rule.	2026-03-19	libgdx
+ISS-378	sge/src/main/scalajvm/sge/net/NetJavaServerSocketImpl.scala	review-grok	open	critical	[File: sge/src/main/scalajvm/sge/net/NetJavaServerSocketImpl.scala:76] Setting field 'server' to null at interop boundary without @nowarn, but comment indicates raw null is acceptable for uninitialize	2026-03-19	libgdx
+ISS-379	android/src/main/scala/sge/platform/PanamaPortProvider.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-380	physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	review-grok	open	major	[File: sge-physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala] Entire object is a stub implementation where all methods throw UnsupportedOperationException, as physics is not available on Scala.	2026-03-19	libgdx
+ISS-381	freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala	review-grok	open	major	[File: sge-freetype/src/main/scalajs/sge/platform/FreetypeOpsJs.scala] Entire object is a stub implementation where all methods throw UnsupportedOperationException, as FreeType is not available on Sca	2026-03-19	libgdx
+ISS-382	sge/src/main/scalajvm/sge/AndroidInput.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-383	sge/src/main/scalajvm/sge/graphics/AngleGL30.scala	review-grok	open	major	[File: sge/src/main/scalajvm/sge/graphics/AngleGL30.scala:167] glGetBufferPointerv method throws UnsupportedOperationException as it is not implemented.	2026-03-19	libgdx
+ISS-384	sge/src/main/scalanative/sge/graphics/AngleGL30Native.scala	review-grok	open	major	[File: sge/src/main/scalanative/sge/graphics/AngleGL30Native.scala:234] glGetBufferPointerv method throws UnsupportedOperationException as it is not implemented.	2026-03-19	libgdx
+ISS-385	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:496] glGetAttachedShaders method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-386	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:505] glGetBufferParameteriv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-387	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:589] glGetRenderbufferParameteriv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-388	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:617] glGetUniformfv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-389	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:620] glGetUniformiv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-390	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:638] glGetVertexAttribfv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-391	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:641] glGetVertexAttribiv method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-392	sge/src/main/scalajs/sge/graphics/WebGL20.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL20.scala:705] glReleaseShaderCompiler method throws SgeError.GraphicsError as it is not implemented on WebGL.	2026-03-19	libgdx
+ISS-393	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:450] glGetVertexAttribIiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19	libgdx
+ISS-394	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:453] glGetVertexAttribIuiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19	libgdx
+ISS-395	sge/src/main/scalajs/sge/graphics/WebGL30.scala	review-grok	open	major	[File: sge/src/main/scalajs/sge/graphics/WebGL30.scala:464] glGetUniformuiv method throws SgeError.GraphicsError as it is not implemented on WebGL2.	2026-03-19	libgdx
+ISS-396	sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala	review-grok	open	major	[File: sge/src/main/scala/sge/graphics/g3d/shaders/DefaultShader.scala:122] Throws SgeError.GraphicsError for some attributes not implemented yet.	2026-03-19	libgdx
+ISS-397	sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala	review-grok	open	major	[File: sge/src/main/scala/sge/graphics/g3d/particles/ParticleShader.scala:63] Throws SgeError.GraphicsError for some attributes not implemented yet.	2026-03-19	libgdx
+ISS-398	sge/src/main/scala/sge/graphics/g3d/particles/ParticleEffectLoader.scala	review-grok	resolved	major	Verified resolved 2026-03-19	2026-03-19	libgdx
+ISS-399	sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala	review-grok	open	major	[File: sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala:64-79] StubProvider methods (createLifecycle to createGL30) use ??? as placeholders for test doubles.	2026-03-19	libgdx
+ISS-400	sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala	review-grok	open	major	[File: sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala:26-29] Audio interface methods (newAudioDevice, newAudioRecorder, newSound, newMusic) use ??? as placeholders for test doubles.	2026-03-19	libgdx
+ISS-401	sge/src/main/scala/sge/utils/TimeUtils.scala	todo	open	minor	Add opaque types Millis(Long) and Nanos(Long) to sge.utils — prevents unit confusion in TimeUtils, Timer, GestureDetector, InputEventQueue. See docs/improvements/opaque-types.md	2026-03-20	libgdx
+ISS-402	sge/src/main/scala/sge/Input.scala	todo	open	minor	Add opaque types Key(Int) and Button(Int) for Input.Keys/Input.Buttons — type-safe key/button constants across ~11 files. See docs/improvements/opaque-types.md	2026-03-20	libgdx
+ISS-403	sge/src/main/scala/sge/graphics/Color.scala	todo	open	info	Add opaque types Red/Green/Blue/Alpha(Float) for Color components — type-safe color across ~8 files. See docs/improvements/opaque-types.md	2026-03-20	libgdx
+ISS-404	sge/src/main/scala/sge/utils/TimeUtils.scala	todo	open	minor	Integrate scala-java-time into TimeUtils — dependency added but not yet wired. TimeUtils still wraps System.nanoTime/currentTimeMillis directly. See docs/improvements/dependencies.md B1	2026-03-20	libgdx
+ISS-405	sge/src/main/scala/sge/utils/Logger.scala	todo	open	info	Evaluate scribe logger integration — dependency added but not wired. Decide whether to decouple logging from Application lifecycle. See docs/improvements/dependencies.md B2	2026-03-20	libgdx
+ISS-406	sge/src/main/scala/sge/graphics/g3d/loader/G3dModelLoader.scala	todo	open	major	Migrate JsonValue tree walking to jsoniter-scala codec derivation — 6 consumer files (G3dModelLoader, BaseTmjMapLoader, BaseTiledMapLoader, TmjMapLoader, AtlasTmjMapLoader, Skin). Infrastructure ready (JsonCodecs.scala). Eliminates ~1400 LOC + reflection. See docs/improvements/dependencies.md B5	2026-03-20	libgdx

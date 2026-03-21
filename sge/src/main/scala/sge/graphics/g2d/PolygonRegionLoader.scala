@@ -115,8 +115,7 @@ class PolygonRegionLoader(resolver: FileHandleResolver) extends SynchronousAsset
       }
     } catch {
       case ex: IOException => throw SgeError.FileReadError(file, s"Error reading polygon shape file: $file", Some(ex))
-    } finally
-      StreamUtils.closeQuietly(reader)
+    } finally StreamUtils.closeQuietly(reader)
     throw SgeError.FileReadError(file, s"Polygon shape not found: $file")
   }
 }
