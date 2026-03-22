@@ -61,8 +61,9 @@ import sge.utils.{ DynamicArray, Nullable }
 class ObjLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoader[ObjLoader.ObjLoaderParameters](resolver) {
 
   @scala.annotation.nowarn("msg=deprecated") // Java interop: ModelLoader base class accepts null resolver
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(Nullable.empty[FileHandleResolver].orNull)
+  }
 
   private val verts:  DynamicArray[Float]           = DynamicArray[Float](300)
   private val norms:  DynamicArray[Float]           = DynamicArray[Float](300)

@@ -394,7 +394,8 @@ object TextureAtlas {
               p.textureFile = Nullable(imagesDir.child(line.getOrElse("")))
               boundary {
                 while (true) {
-                  if (readEntry(entry, line = reader.readLine()) == 0) boundary.break()
+                  line = Nullable(reader.readLine())
+                  if (readEntry(entry, line.getOrElse("")) == 0) boundary.break()
                   val field = pageFields.get(entry(0))
                   if (field.isDefined) field.get.parse(p) // Silently ignore unknown page fields.
                 }
@@ -408,7 +409,8 @@ object TextureAtlas {
               if (flip) region.flip = true
               boundary {
                 while (true) {
-                  val count = readEntry(entry, line = reader.readLine())
+                  line = Nullable(reader.readLine())
+                  val count = readEntry(entry, line.getOrElse(""))
                   if (count == 0) boundary.break()
                   val field = regionFields.get(entry(0))
                   if (field.isDefined)

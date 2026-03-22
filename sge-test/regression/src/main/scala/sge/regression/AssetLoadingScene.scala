@@ -12,7 +12,7 @@ package regression
 
 import sge.assets.AssetManager
 import sge.assets.loaders.FileHandleResolver
-import sge.graphics.{ Pixmap, Texture, TextureHandle }
+import sge.graphics.{ Color, Pixmap, Texture, TextureHandle }
 import sge.utils.ScreenUtils
 import sge.Application
 
@@ -54,7 +54,7 @@ object AssetLoadingScene extends RegressionScene {
     // --- Check 2: Create Pixmap + Texture (procedural, no file) ---
     try {
       val pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888)
-      pixmap.setColor(1f, 0f, 0f, 1f)
+      pixmap.setColor(Color(1f, 0f, 0f, 1f))
       pixmap.fill()
       pixmapTex = new Texture(pixmap)
       val handle = pixmapTex.textureObjectHandle

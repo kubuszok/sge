@@ -61,11 +61,13 @@ class Label(initialText: Nullable[CharSequence], initialStyle: Label.LabelStyle)
 
   def this(text: Nullable[CharSequence], skin: Skin, styleName: String)(using Sge) = this(text, skin.get[Label.LabelStyle](styleName))
 
-  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color)(using Sge) =
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, color: Color)(using Sge) = {
     this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(color)))
+  }
 
-  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String)(using Sge) =
+  def this(text: Nullable[CharSequence], skin: Skin, fontName: String, colorName: String)(using Sge) = {
     this(text, new Label.LabelStyle(skin.getFont(fontName), Nullable(skin.getColor(colorName))))
+  }
 
   override def setStyle(style: Label.LabelStyle): Unit = {
     this._style = style

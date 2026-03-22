@@ -57,7 +57,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
   renderable.material = Nullable(Material())
 
   /** Create a ShapeCache with default values */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(
       5000,
       5000,
@@ -67,6 +67,7 @@ class ShapeCache(maxVertices: Int, maxIndices: Int, attributes: VertexAttributes
       ),
       PrimitiveMode.Lines
     )
+  }
 
   /** Initialize ShapeCache for mesh generation with GL_LINES primitive type */
   @publicInBinary private[sge] def begin(): MeshPartBuilder =

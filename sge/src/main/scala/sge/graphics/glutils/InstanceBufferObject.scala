@@ -32,8 +32,9 @@ import java.nio.FloatBuffer
   */
 class InstanceBufferObject(isStatic: Boolean, numVertices: Int, instanceAttributes: VertexAttributes)(using Sge) extends InstanceData {
 
-  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) =
+  def this(isStatic: Boolean, numVertices: Int, attributes: VertexAttribute*)(using Sge) = {
     this(isStatic, numVertices, VertexAttributes(attributes*))
+  }
 
   private var _attributes:  VertexAttributes = scala.compiletime.uninitialized
   private var _buffer:      FloatBuffer      = scala.compiletime.uninitialized

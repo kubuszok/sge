@@ -42,6 +42,8 @@ object ShaderScene extends RegressionScene {
         SmokeResult.logCheck("SHADER_UNIFORM", loc >= 0, s"location=$loc")
 
         if (loc >= 0) {
+          // Drain any accumulated GL errors from prior operations
+          while (Sge().graphics.gl20.glGetError() != 0) {}
           shader.setUniformMatrix("u_projTrans", new math.Matrix4())
           val err = Sge().graphics.gl20.glGetError()
           SmokeResult.logCheck("SHADER_GLERROR", err == 0, if (err == 0) "no error" else s"0x${err.toHexString}")

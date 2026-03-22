@@ -75,8 +75,9 @@ class ShapeRenderer(maxVertices: Int, defaultShader: Nullable[ShaderProgram] = N
   matrixDirty = true
 
   /** Create a new ShapeRenderer with default maxVertices of 5000 */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(5000)
+  }
 
   def color: Color = _color
 

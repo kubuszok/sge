@@ -64,7 +64,10 @@ class AndroidSmokeTest extends FunSuite {
 
   /** Finds the emulator binary. */
   private def findEmulator(): String = {
-    val sdkRoot  = sys.env.getOrElse("ANDROID_HOME", sys.env.getOrElse("ANDROID_SDK_ROOT", Paths.get(System.getProperty("user.dir"), "sge-deps", "android-sdk").toString))
+    val sdkRoot = sys.env.getOrElse(
+      "ANDROID_HOME",
+      sys.env.getOrElse("ANDROID_SDK_ROOT", Paths.get(System.getProperty("user.dir"), "sge-deps", "android-sdk").toString)
+    )
     val emulator = Paths.get(sdkRoot, "emulator", "emulator")
     if (Files.exists(emulator)) emulator.toString
     else fail(s"emulator not found at $emulator. Install emulator package.")

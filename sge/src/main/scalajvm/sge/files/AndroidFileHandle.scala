@@ -35,8 +35,9 @@ class AndroidFileHandle(internalFile: File, fileType: FileType, private val file
       Nullable(filesOps.externalStoragePath)
     ) {
 
-  def this(fileName: String, fileType: FileType, filesOps: FilesOps) =
+  def this(fileName: String, fileType: FileType, filesOps: FilesOps) = {
     this(new File(fileName.replace('\\', '/')), fileType, filesOps)
+  }
 
   override def child(name: String): FileHandle = {
     val n = name.replace('\\', '/')

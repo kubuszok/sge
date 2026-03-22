@@ -62,8 +62,9 @@ class Decal(var material: DecalMaterial) {
   /** Set a multipurpose value which can be queried and used for things like group identification. */
   var value: Int = 0
 
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(DecalMaterial())
+  }
 
   /** Sets the color of all four vertices to the specified color
     *

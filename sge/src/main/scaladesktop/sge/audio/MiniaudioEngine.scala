@@ -87,7 +87,26 @@ class MiniaudioEngine private[sge] (
   override def newMusic(file: files.FileHandle): Music =
     if (noDevice) sge.noop.NoopMusic()
     else {
-      val musicHandle = audioOps.createMusic(engineHandle, file.path)
+      // Miniaudio needs a real filesystem path. For Internal/Classpath files that
+      // may be inside a JAR, resolve via file() first; if that doesn't exist on
+      // disk, extract from the classpath to a temporary file.
+      val resolvedPath = {
+        val f = file.file
+        if (f.exists()) f.getAbsolutePath
+        else {
+          val tmp = java.io.File.createTempFile("sge-music-", "-" + file.name)
+          tmp.deleteOnExit()
+          val in  = file.read()
+          val out = new java.io.FileOutputStream(tmp)
+          try {
+            val buf = new Array[Byte](8192)
+            var n   = in.read(buf)
+            while (n >= 0) { out.write(buf, 0, n); n = in.read(buf) }
+          } finally { in.close(); out.close() }
+          tmp.getAbsolutePath
+        }
+      }
+      val musicHandle = audioOps.createMusic(engineHandle, resolvedPath)
       if (musicHandle == 0L) {
         throw sge.utils.SgeError.AudioError(s"Could not load music: ${file.name}")
       }

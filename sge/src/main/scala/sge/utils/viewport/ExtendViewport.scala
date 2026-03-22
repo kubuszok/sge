@@ -38,16 +38,19 @@ class ExtendViewport(
   this.camera = camera
 
   /** Creates a new viewport using a new {@link OrthographicCamera} with no maximum world size. */
-  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits)(using Sge) =
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits)(using Sge) = {
     this(minWorldWidth, minWorldHeight, WorldUnits.zero, WorldUnits.zero, OrthographicCamera())
+  }
 
   /** Creates a new viewport with no maximum world size. */
-  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, camera: Camera)(using Sge) =
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, camera: Camera)(using Sge) = {
     this(minWorldWidth, minWorldHeight, WorldUnits.zero, WorldUnits.zero, camera)
+  }
 
   /** Creates a new viewport using a new {@link OrthographicCamera} and a maximum world size. */
-  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, maxWorldWidth: WorldUnits, maxWorldHeight: WorldUnits)(using Sge) =
+  def this(minWorldWidth: WorldUnits, minWorldHeight: WorldUnits, maxWorldWidth: WorldUnits, maxWorldHeight: WorldUnits)(using Sge) = {
     this(minWorldWidth, minWorldHeight, maxWorldWidth, maxWorldHeight, OrthographicCamera())
+  }
 
   override def update(screenWidth: Pixels, screenHeight: Pixels, centerCamera: Boolean): Unit = {
     val sw = screenWidth.toInt

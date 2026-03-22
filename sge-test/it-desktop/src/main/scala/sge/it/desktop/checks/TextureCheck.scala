@@ -3,7 +3,7 @@
 package sge.it.desktop.checks
 
 import sge.Sge
-import sge.graphics.{ Pixmap, Texture, TextureHandle }
+import sge.graphics.{ Color, Pixmap, Texture, TextureHandle }
 import sge.it.desktop.CheckResult
 
 /** Uploads a Pixmap to a Texture and verifies the GL handle is valid. */
@@ -13,7 +13,7 @@ object TextureCheck {
     try {
       val pixmap = Pixmap(4, 4, Pixmap.Format.RGBA8888)
       try {
-        pixmap.setColor(0.5f, 0.5f, 0.5f, 1f)
+        pixmap.setColor(Color(0.5f, 0.5f, 0.5f, 1f))
         pixmap.fill()
 
         val texture = Texture(pixmap)

@@ -44,8 +44,9 @@ class VertexArray(initialNumVertices: Int, val attributes: VertexAttributes) ext
     * @param attributes
     *   the {@link VertexAttribute} s
     */
-  def this(initialNumVertices: Int, attributes: VertexAttribute*) =
+  def this(initialNumVertices: Int, attributes: VertexAttribute*) = {
     this(initialNumVertices, VertexAttributes(attributes*))
+  }
 
   override def close(): Unit =
     BufferUtils.disposeUnsafeByteBuffer(byteBuffer)

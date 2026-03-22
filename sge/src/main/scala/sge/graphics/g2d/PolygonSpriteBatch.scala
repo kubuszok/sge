@@ -116,8 +116,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this()(using Sge) =
+  def this()(using Sge) = {
     this(2000, 4000, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the default shader, size vertices, and size * 2 triangles.
     * @param size
@@ -125,8 +126,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int)(using Sge) =
+  def this(size: Int)(using Sge) = {
     this(size, size * 2, Nullable.empty)
+  }
 
   /** Constructs a PolygonSpriteBatch with the specified shader, size vertices and size * 2 triangles.
     * @param size
@@ -134,8 +136,9 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
     * @see
     *   #PolygonSpriteBatch(int, int, ShaderProgram)
     */
-  def this(size: Int, defaultShader: ShaderProgram)(using Sge) =
+  def this(size: Int, defaultShader: ShaderProgram)(using Sge) = {
     this(size, size * 2, defaultShader)
+  }
 
   @publicInBinary override private[sge] def begin(): Unit = {
     if (_drawing) throw new IllegalStateException("PolygonSpriteBatch.end must be called before begin.")

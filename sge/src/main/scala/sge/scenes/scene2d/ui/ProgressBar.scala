@@ -62,7 +62,7 @@ class ProgressBar(
   this._value = min
   setSize(prefWidth, prefHeight)
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin)(using Sge) = {
     this(
       min,
       max,
@@ -70,9 +70,11 @@ class ProgressBar(
       vertical,
       skin.get[ProgressBar.ProgressBarStyle]("default-" + (if (vertical) "vertical" else "horizontal"))
     )
+  }
 
-  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) =
+  def this(min: Float, max: Float, stepSize: Float, vertical: Boolean, skin: Skin, styleName: String)(using Sge) = {
     this(min, max, stepSize, vertical, skin.get[ProgressBar.ProgressBarStyle](styleName))
+  }
 
   override def setStyle(style: ProgressBarStyle): Unit = {
     this._style = style

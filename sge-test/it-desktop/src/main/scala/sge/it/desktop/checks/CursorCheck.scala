@@ -7,7 +7,7 @@ package sge.it.desktop.checks
 
 import sge.{ Pixels, Sge }
 import sge.graphics.Cursor.SystemCursor
-import sge.graphics.Pixmap
+import sge.graphics.{ Color, Pixmap }
 import sge.it.desktop.CheckResult
 
 /** Verifies system cursor switching and custom cursor creation from Pixmap. */
@@ -24,7 +24,7 @@ object CursorCheck {
 
       // Create a custom cursor from a small pixmap
       val pm = new Pixmap(16, 16, Pixmap.Format.RGBA8888)
-      pm.setColor(1f, 1f, 1f, 1f)
+      pm.setColor(Color(1f, 1f, 1f, 1f))
       pm.fill()
       val cursor = gfx.newCursor(pm, Pixels(0), Pixels(0))
       pm.close()

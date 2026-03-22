@@ -21,6 +21,8 @@ object FBOCheck {
       val fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Pixels(4), Pixels(4), false)
 
       val (r, g, b, a) = fbo.use {
+        // Drain any accumulated GL errors from prior operations
+        while (gl.glGetError() != 0) {}
         // Clear to red
         gl.glClearColor(1f, 0f, 0f, 1f)
         gl.glClear(ClearMask.ColorBufferBit)

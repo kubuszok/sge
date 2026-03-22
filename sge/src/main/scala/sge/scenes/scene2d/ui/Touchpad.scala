@@ -68,12 +68,14 @@ class Touchpad(private var deadzoneRadius: Float, initialStyle: Touchpad.Touchpa
   )
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin)(using Sge) =
+  def this(deadzoneRadius: Float, skin: Skin)(using Sge) = {
     this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle])
+  }
 
   /** @param deadzoneRadius The distance in pixels from the center of the touchpad required for the knob to be moved. */
-  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) =
+  def this(deadzoneRadius: Float, skin: Skin, styleName: String)(using Sge) = {
     this(deadzoneRadius, skin.get[Touchpad.TouchpadStyle](styleName))
+  }
 
   private[ui] def calculatePositionAndValue(x: Float, y: Float, isTouchUp: Boolean): Unit = {
     val oldPositionX = knobPosition.x

@@ -1,10 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash",
-      "WebFetch",
-      "WebSearch"
-    ]
+    "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
   "hooks": {
     "SessionStart": [
