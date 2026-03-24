@@ -25,5 +25,9 @@
     ]
   },
   "enabledMcpjsonServers": ["metals"],
-  "enableAllProjectMcpServers": true
+  "enableAllProjectMcpServers": true,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }

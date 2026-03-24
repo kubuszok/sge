@@ -41,9 +41,9 @@ class BrowserBootstrapTest extends FunSuite {
     val cwd        = Paths.get(System.getProperty("user.dir"))
     val candidates = Seq(
       // From project root (sbt runs from here)
-      cwd.resolve("sge-regression-test/target/js-3/sge-regression-test-fastopt"),
+      cwd.resolve("sge-test/regression/target/js-3/sge-test-regression-fastopt"),
       // From sge-it-tests/browser subdir (just in case)
-      cwd.resolve("../../sge-regression-test/target/js-3/sge-regression-test-fastopt").normalize
+      cwd.resolve("../../sge-test/regression/target/js-3/sge-test-regression-fastopt").normalize
     )
     candidates.find(p => Files.isDirectory(p) && Files.exists(p.resolve("main.js"))).getOrElse {
       fail(

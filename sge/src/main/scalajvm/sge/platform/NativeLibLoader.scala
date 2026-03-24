@@ -95,7 +95,11 @@ private[sge] object NativeLibLoader {
     if (cached != null) return cached
 
     val mapped = mappedFileName(libName)
-    val result = findOnLibraryPath(mapped).orElse(loadViaSystemOnAndroid(libName, mapped)).orElse(extractFromClasspath(libName, mapped)).getOrElse {
+    val result = findOnLibraryPath(mapped).orElse(loadViaSystemOnAndroid(libName, mapped)).orElse(extractFromClasspath(libName, mapped))
+      // On Windows, companion libs (sge_audio, glfw) may be merged into sge_native_ops.dll
+      // for cross-compilation simplicity. Fall back to looking for that.
+      .orElse(if (libName != "sge_native_ops") findMergedLib(libName) else None)
+      .getOrElse {
       val libPath = System.getProperty("java.library.path", "")
       throw new UnsatisfiedLinkError(
         s"Cannot find native library '$mapped' (logical name: '$libName').\n" +
@@ -139,6 +143,14 @@ private[sge] object NativeLibLoader {
     } catch {
       case _: UnsatisfiedLinkError => None
     }
+  }
+
+  /** When a companion library (sge_audio, glfw) is not found as a separate file,
+    * check if its symbols are available in sge_native_ops (merged build, e.g. Windows cross-compilation).
+    */
+  private def findMergedLib(libName: String): Option[Path] = {
+    val mainMapped = mappedFileName("sge_native_ops")
+    findOnLibraryPath(mainMapped).orElse(extractFromClasspath("sge_native_ops", mainMapped))
   }
 
   /** Extract the library from a classpath resource (`native/<platform>/<name>`). */

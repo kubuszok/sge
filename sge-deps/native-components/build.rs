@@ -33,19 +33,40 @@ fn main() {
         format!("{}/target/{}", manifest_dir, profile)
     };
 
-    build_audio_bridge_shared(&out_dir, &release_dir, &target_os);
-    // GLFW is not needed on Android (uses GLSurfaceView + system EGL)
-    if target_os != "android" {
-        build_glfw_shared(&out_dir, &release_dir, &target_os, &target_env);
+    let skip_c_libs = std::env::var("SGE_SKIP_C_LIBS").unwrap_or_default() == "1";
+    let is_android = target_os == "android";
+    let is_windows = target_os == "windows";
+    let is_cross = target != host && !target.is_empty();
+
+    // On Windows cross-compilation, merge C libs into sge_native_ops.dll instead of
+    // creating separate DLLs. This avoids complex lld-link invocations with Windows SDK
+    // import libs. The JVM NativeLibLoader falls back to sge_native_ops when companion
+    // libs aren't found as separate files.
+    let merge_into_cdylib = is_windows && is_cross;
+
+    if !skip_c_libs && !is_android {
+        if merge_into_cdylib {
+            // Compile C code and let cargo link it into sge_native_ops.dll.
+            // cargo_metadata(true) = default, tells cargo to link this archive.
+            build_audio_bridge_merged(&target_os);
+            build_glfw_merged(&target_os, &target_env);
+        } else {
+            // Create separate shared libraries (macOS, Linux, native Windows builds)
+            build_audio_bridge_shared(&out_dir, &release_dir, &target_os);
+            build_glfw_shared(&out_dir, &release_dir, &target_os, &target_env);
+        }
+    } else if !skip_c_libs && is_android {
+        // Android only needs audio bridge (no GLFW)
+        build_audio_bridge_shared(&out_dir, &release_dir, &target_os);
     }
     link_system_libs(&target_os);
 
     // Copy static archives to release dir for Scala Native static linking.
-    // Scala Native @link("sge_audio") needs libsge_audio.a in the link path,
-    // and @link("glfw3") needs libglfw3.a.
-    copy_static_archive(&out_dir, &release_dir, "sge_audio_bridge", "sge_audio");
-    if target_os != "android" {
-        copy_static_archive(&out_dir, &release_dir, "glfw3", "glfw3");
+    if !skip_c_libs && !merge_into_cdylib {
+        copy_static_archive(&out_dir, &release_dir, "sge_audio_bridge", "sge_audio");
+        if !is_android {
+            copy_static_archive(&out_dir, &release_dir, "glfw3", "glfw3");
+        }
     }
 
     // Audio bridge is loaded separately now — no need to link into libsge_native_ops
@@ -55,6 +76,74 @@ fn main() {
     println!("cargo:rerun-if-changed=vendor/glfw/src");
     println!("cargo:rerun-if-changed=vendor/glfw/include");
     println!("cargo:rerun-if-changed=vendor/glfw_platform_stubs.c");
+}
+
+/// Compile audio bridge and link it into the main sge_native_ops cdylib (Windows cross-compilation).
+/// Uses cargo_metadata(true) so cargo links the C archive into the Rust cdylib.
+fn build_audio_bridge_merged(target_os: &str) {
+    let mut build = cc::Build::new();
+    build
+        .file("vendor/sge_audio_bridge.c")
+        .include("vendor/miniaudio")
+        .include("vendor")
+        .define("MA_NO_GENERATION", None)
+        .warnings(false)
+        .pic(true);
+    build.compile("sge_audio_bridge");
+    // cargo_metadata is true by default — cargo will link the archive into sge_native_ops
+    // Link Windows audio system libraries
+    if target_os == "windows" {
+        println!("cargo:rustc-link-lib=ole32");
+        println!("cargo:rustc-link-lib=user32");
+        println!("cargo:rustc-link-lib=advapi32");
+    }
+}
+
+/// Compile GLFW and link it into the main sge_native_ops cdylib (Windows cross-compilation).
+fn build_glfw_merged(target_os: &str, target_env: &str) {
+    let glfw_src = "vendor/glfw/src";
+    let glfw_include = "vendor/glfw/include";
+    let mut build = cc::Build::new();
+    build
+        .include(glfw_include)
+        .include(glfw_src)
+        .warnings(false)
+        .pic(true);
+
+    // Common sources
+    for f in &[
+        "context.c", "init.c", "input.c", "monitor.c", "platform.c",
+        "vulkan.c", "window.c", "egl_context.c", "osmesa_context.c",
+        "null_init.c", "null_monitor.c", "null_window.c", "null_joystick.c",
+    ] {
+        build.file(format!("{}/{}", glfw_src, f));
+    }
+
+    if target_os == "windows" {
+        build.define("_GLFW_WIN32", None);
+        build.define("UNICODE", None);
+        build.define("_UNICODE", None);
+        if target_env == "gnu" {
+            build.define("WINVER", Some("0x0501"));
+        }
+        for f in &[
+            "win32_init.c", "win32_joystick.c", "win32_monitor.c",
+            "win32_window.c", "wgl_context.c",
+            "win32_module.c", "win32_time.c", "win32_thread.c",
+        ] {
+            build.file(format!("{}/{}", glfw_src, f));
+        }
+    }
+
+    build.file("vendor/glfw_platform_stubs.c");
+    build.compile("glfw3");
+
+    // Link Windows system libraries
+    if target_os == "windows" {
+        println!("cargo:rustc-link-lib=gdi32");
+        println!("cargo:rustc-link-lib=user32");
+        println!("cargo:rustc-link-lib=shell32");
+    }
 }
 
 /// Compile miniaudio + audio bridge as a static archive, then link it into a
@@ -85,15 +174,54 @@ fn build_audio_bridge_shared(out_dir: &str, release_dir: &str, target_os: &str) 
                 "-install_name".into(), "@rpath/libsge_audio.dylib".into(),
             ],
         ),
-        "windows" => (
-            "sge_audio.dll",
-            vec![
-                "-shared".into(),
-                "-Wl,--whole-archive".into(),
-                archive.clone(),
-                "-Wl,--no-whole-archive".into(),
-            ],
-        ),
+        "windows" => {
+            // When cross-compiling with cargo-xwin, cc returns clang-cl which uses
+            // MSVC-style flags. Use lld-link directly to create the DLL, passing
+            // the Windows SDK/CRT lib paths from cargo-xwin's cache.
+            let target = std::env::var("TARGET").unwrap_or_default();
+            let host = std::env::var("HOST").unwrap_or_default();
+            let is_cross = target != host && !target.is_empty();
+            if is_cross {
+                let dll_output = format!("{}/sge_audio.dll", release_dir);
+                let arch = if target.contains("aarch64") { "arm64" } else { "x86_64" };
+                // Find xwin cache dir (cargo-xwin downloads Windows SDK here)
+                let home = std::env::var("HOME").unwrap_or_default();
+                let xwin_cache = format!("{}/.cache/cargo-xwin/xwin", home);
+                // Fallback to Library/Caches on macOS
+                let xwin_dir = if std::path::Path::new(&xwin_cache).exists() {
+                    xwin_cache
+                } else {
+                    format!("{}/Library/Caches/cargo-xwin/xwin", home)
+                };
+                let machine = if target.contains("aarch64") { "/machine:arm64x" } else { "/machine:x64" };
+                let status = lld_link_command()
+                    .arg("/dll")
+                    .arg("/force:multiple")
+                    .arg(machine)
+                    .arg(&format!("/out:{}", dll_output))
+                    .arg("/wholearchive")
+                    .arg(&archive)
+                    .arg(&format!("/libpath:{}/crt/lib/{}", xwin_dir, arch))
+                    .arg(&format!("/libpath:{}/sdk/lib/um/{}", xwin_dir, arch))
+                    .arg(&format!("/libpath:{}/sdk/lib/ucrt/{}", xwin_dir, arch))
+                    .args(&["kernel32.lib", "ucrt.lib", "vcruntime.lib", "ole32.lib",
+                            "user32.lib", "advapi32.lib"])
+                    .status()
+                    .unwrap_or_else(|e| panic!("Failed to link sge_audio.dll: {}", e));
+                assert!(status.success(), "Failed to link sge_audio.dll");
+                eprintln!("cargo:warning=Built {}", dll_output);
+                return;
+            }
+            (
+                "sge_audio.dll",
+                vec![
+                    "-shared".into(),
+                    "-Wl,--whole-archive".into(),
+                    archive.clone(),
+                    "-Wl,--no-whole-archive".into(),
+                ],
+            )
+        },
         "android" => (
             "libsge_audio.so",
             vec![
@@ -193,6 +321,13 @@ fn build_glfw_shared(out_dir: &str, release_dir: &str, target_os: &str, target_e
         "linux" | "freebsd" | "dragonfly" | "netbsd" | "openbsd" => {
             build.define("_GLFW_X11", None);
             build.define("_DEFAULT_SOURCE", None);
+            // When cross-compiling for Linux (e.g. from macOS via zigbuild), X11
+            // headers aren't in the default sysroot. Use vendored headers if available.
+            let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+            let x11_include = format!("{}/vendor/x11-include", manifest_dir);
+            if std::path::Path::new(&x11_include).join("X11/Xlib.h").exists() {
+                build.include(&x11_include);
+            }
             for f in &[
                 "x11_init.c", "x11_monitor.c", "x11_window.c",
                 "xkb_unicode.c", "glx_context.c",
@@ -201,7 +336,17 @@ fn build_glfw_shared(out_dir: &str, release_dir: &str, target_os: &str, target_e
             ] {
                 build.file(format!("{}/{}", glfw_src, f));
             }
-            vec!["-lX11".into(), "-lpthread".into(), "-lm".into(), "-ldl".into()]
+            // When cross-compiling, system libs (-lX11 etc.) aren't available.
+            // GLFW dlopen's X11 at runtime, so we can skip them and allow
+            // undefined symbols in the shared library.
+            let target = std::env::var("TARGET").unwrap_or_default();
+            let host = std::env::var("HOST").unwrap_or_default();
+            let is_cross = target != host && !target.is_empty();
+            if is_cross {
+                vec!["-Wl,--allow-shlib-undefined".into(), "-lpthread".into(), "-lm".into(), "-ldl".into()]
+            } else {
+                vec!["-lX11".into(), "-lpthread".into(), "-lm".into(), "-ldl".into()]
+            }
         }
         _ => {
             eprintln!("cargo:warning=GLFW: unsupported target OS '{}', using null backend only", target_os);
@@ -237,6 +382,46 @@ fn build_glfw_shared(out_dir: &str, release_dir: &str, target_os: &str, target_e
     };
 
     let output = format!("{}/{}", release_dir, dylib_name);
+
+    // When cross-compiling for Windows, use lld-link directly (cc returns clang-cl
+    // which uses MSVC-style flags incompatible with our Unix-style link commands).
+    let target = std::env::var("TARGET").unwrap_or_default();
+    let host = std::env::var("HOST").unwrap_or_default();
+    let is_cross = target != host && !target.is_empty();
+    if target_os == "windows" && is_cross {
+        let arch = if target.contains("aarch64") { "arm64" } else { "x86_64" };
+        let home = std::env::var("HOME").unwrap_or_default();
+        let xwin_cache = format!("{}/.cache/cargo-xwin/xwin", home);
+        let xwin_dir = if std::path::Path::new(&xwin_cache).exists() {
+            xwin_cache
+        } else {
+            format!("{}/Library/Caches/cargo-xwin/xwin", home)
+        };
+        // Convert -lfoo flags to foo.lib
+        let link_libs: Vec<String> = framework_args.iter()
+            .filter(|a| a.starts_with("-l"))
+            .map(|a| format!("{}.lib", &a[2..]))
+            .collect();
+        let machine = if target.contains("aarch64") { "/machine:arm64x" } else { "/machine:x64" };
+        let status = lld_link_command()
+            .arg("/dll")
+            .arg("/force:multiple")
+            .arg(machine)
+            .arg(&format!("/out:{}", output))
+            .arg("/wholearchive")
+            .arg(&archive)
+            .arg(&format!("/libpath:{}/crt/lib/{}", xwin_dir, arch))
+            .arg(&format!("/libpath:{}/sdk/lib/um/{}", xwin_dir, arch))
+            .arg(&format!("/libpath:{}/sdk/lib/ucrt/{}", xwin_dir, arch))
+            .args(&["kernel32.lib", "ucrt.lib", "vcruntime.lib"])
+            .args(&link_libs)
+            .status()
+            .unwrap_or_else(|e| panic!("Failed to link {}: {}", dylib_name, e));
+        assert!(status.success(), "Failed to link {}", dylib_name);
+        eprintln!("cargo:warning=Built {}", output);
+        return;
+    }
+
     let cc_tool = cc::Build::new().get_compiler();
     let mut cmd = std::process::Command::new(cc_tool.path());
     cmd.arg(shared_flag)
@@ -264,6 +449,20 @@ fn link_system_libs(target_os: &str) {
     // The C libraries (audio, GLFW) are separate shared libraries and handle
     // their own system library dependencies.
     let _ = target_os;
+}
+
+/// Create an lld-link Command for Windows DLL cross-linking.
+/// Prefers Homebrew's lld (newer, supports arm64 import libs) over rustup's rust-lld.
+fn lld_link_command() -> std::process::Command {
+    // Homebrew lld (brew install lld)
+    let brew_lld = "/opt/homebrew/opt/lld/bin/lld";
+    if std::path::Path::new(brew_lld).exists() {
+        let mut cmd = std::process::Command::new(brew_lld);
+        cmd.arg("-flavor").arg("link");
+        return cmd;
+    }
+    // Try lld-link on PATH
+    std::process::Command::new("lld-link")
 }
 
 /// Copy a static archive from the cc::Build output directory to the Cargo

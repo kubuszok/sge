@@ -23,23 +23,24 @@ import _root_.android.text.method.PasswordTransformationMethod
 import _root_.android.view.{ KeyEvent, View }
 import _root_.android.view.inputmethod.{ EditorInfo, InputMethodManager }
 import _root_.android.widget.{ ArrayAdapter, AutoCompleteTextView, EditText, RelativeLayout, TextView }
+import scala.compiletime.uninitialized
 
 class AndroidInputMethodImpl(context: Context, handler: Handler) extends InputMethodOps {
 
   private val imm: InputMethodManager =
     context.getSystemService(Context.INPUT_METHOD_SERVICE).asInstanceOf[InputMethodManager]
 
-  private var _view: View = _
+  private var _view: View = uninitialized
   private var _keyboardShown  = false
   private var _keyboardHeight = 0
 
   // ── Native text field state ──────────────────────────────────────────
 
   private var _nativeFieldOpen = false
-  private var _nativeLayout:   RelativeLayout             = _
-  private var _nativeEditText: AutoCompleteTextView       = _
-  private var _onTextChanged:  (String, Int, Int) => Unit = _
-  private var _onClose:        Boolean => Boolean         = _
+  private var _nativeLayout:   RelativeLayout             = uninitialized
+  private var _nativeEditText: AutoCompleteTextView       = uninitialized
+  private var _onTextChanged:  (String, Int, Int) => Unit = uninitialized
+  private var _onClose:        Boolean => Boolean         = uninitialized
 
   override def showKeyboard(inputType: Int): Unit =
     if (_view != null) {
@@ -279,9 +280,7 @@ class AndroidInputMethodImpl(context: Context, handler: Handler) extends InputMe
   override def closeNativeTextField(confirmative: Boolean): Unit =
     handler.post(
       new Runnable {
-        override def run(): Unit = {
-          if (!_nativeFieldOpen) return
-
+        override def run(): Unit = if (_nativeFieldOpen) {
           val editText = _nativeEditText
           val text     = editText.getText.toString
           val ss       = editText.getSelectionStart
@@ -311,9 +310,7 @@ class AndroidInputMethodImpl(context: Context, handler: Handler) extends InputMe
   override def isNativeTextFieldOpen: Boolean = _nativeFieldOpen
 
   /** Creates the native RelativeLayout + AutoCompleteTextView on first use. */
-  private def ensureNativeFieldCreated(): Unit = {
-    if (_nativeLayout != null) return
-
+  private def ensureNativeFieldCreated(): Unit = if (_nativeLayout == null) {
     val layout = new RelativeLayout(context)
     layout.setBackgroundColor(Color.TRANSPARENT)
     layout.setVisibility(View.GONE)

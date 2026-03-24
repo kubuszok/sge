@@ -287,12 +287,12 @@ object TestCmd {
     val sdkmanager = s"$sdk/cmdline-tools/latest/bin/sdkmanager"
     Term.info("Installing emulator + system image...")
     Proc.exec(sdkmanager, List("--sdk_root=" + sdk, "emulator", "platform-tools",
-      "system-images;android-35;google_apis;arm64-v8a"), cwd = Some(Paths.projectRoot),
+      "system-images;android-36;google_apis;arm64-v8a"), cwd = Some(Paths.projectRoot),
       env = Map("JAVA_HOME" -> sys.env.getOrElse("JAVA_HOME", "")))
     val avdmanager = s"$sdk/cmdline-tools/latest/bin/avdmanager"
     Term.info("Creating AVD sge-test-avd...")
     Proc.exec(avdmanager, List("create", "avd", "--name", "sge-test-avd",
-      "--package", "system-images;android-35;google_apis;arm64-v8a", "--force"),
+      "--package", "system-images;android-36;google_apis;arm64-v8a", "--force"),
       cwd = Some(Paths.projectRoot))
     Term.ok("Android SDK setup complete.")
   }

@@ -195,7 +195,7 @@ object SgeNativeLibs {
   def localSettings(crossDir: Option[File] = None): Seq[Setting[_]] =
     settings ++ Seq(
       sgeNativeLibSourceDir := Some(crossDir.getOrElse {
-        (ThisBuild / baseDirectory).value / "native-components" / "target" / "cross"
+        (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
       })
     )
 
@@ -203,7 +203,7 @@ object SgeNativeLibs {
   lazy val hostSettings: Seq[Setting[_]] =
     settings ++ Seq(
       sgeNativeLibSourceDir := None,
-      sgeNativeLibDir := (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
+      sgeNativeLibDir := (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
     )
 
   // ── JVM JAR native lib validation ──────────────────────────────────
@@ -231,7 +231,8 @@ object SgeNativeLibs {
         val msg = "[sge] WARNING: No native shared libraries found in JAR mappings.\n" +
           "  Run 'sge-dev native build && sge-dev native angle setup' to build native libs for the host platform,\n" +
           "  or 'sge-dev native release-prep' for all platforms."
-        if (isCI) sys.error(msg) else log.warn(msg)
+        val skipValidation = sys.env.get("SGE_SKIP_NATIVE_VALIDATION").contains("true")
+        if (isCI && !skipValidation) sys.error(msg) else log.warn(msg)
       } else {
         // Group by platform
         val byPlatform = nativeMappings.groupBy { path =>

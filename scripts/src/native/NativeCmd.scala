@@ -131,17 +131,44 @@ object NativeCmd {
     // Add rustup target
     Proc.run("rustup", List("target", "add", target))
 
-    if (target.contains("-apple-darwin")) {
-      cargoExec(List("build", "--release", "--target", target))
+    val hostOs = System.getProperty("os.name").toLowerCase
+    val code = if (target.contains("-apple-darwin")) {
+      if (hostOs.contains("mac")) {
+        // Native cross-arch compilation on macOS
+        cargoExec(List("build", "--release", "--target", target))
+        0 // cargoExec calls sys.exit on failure
+      } else {
+        // Cross-compile to macOS from Linux using zig (bundles macOS SDK)
+        Proc.exec("cargo", List("zigbuild", "--release", "--target", target), cwd = Some(nativeDir))
+      }
     } else if (target.contains("-linux-gnu")) {
-      // Use cargo-zigbuild for Linux targets
-      Proc.exec("cargo", List("zigbuild", "--release", "--target", target), cwd = Some(nativeDir))
+      val hostArch = System.getProperty("os.arch")
+      val isHostTarget = (target.contains("x86_64") && hostArch == "amd64") ||
+                         (target.contains("aarch64") && (hostArch == "aarch64" || hostArch == "arm64"))
+      if (hostOs.contains("linux") && isHostTarget) {
+        // Native build on host — uses system headers (X11, etc.)
+        Proc.exec("cargo", List("build", "--release", "--target", target), cwd = Some(nativeDir))
+      } else {
+        // Cross-arch via zigbuild (zig provides its own sysroot)
+        Proc.exec("cargo", List("zigbuild", "--release", "--target", target), cwd = Some(nativeDir))
+      }
     } else if (target.contains("-windows-msvc")) {
-      // Use cargo-xwin for Windows targets
-      Proc.exec("cargo", List("xwin", "build", "--release", "--target", target), cwd = Some(nativeDir))
+      // Use cargo-xwin for Windows targets. Needs llvm-lib on PATH
+      // (from Homebrew LLVM, or system LLVM on CI).
+      val llvmPath = if (new java.io.File("/opt/homebrew/opt/llvm/bin/llvm-lib").exists())
+        s"/opt/homebrew/opt/llvm/bin:${sys.env.getOrElse("PATH", "")}"
+      else
+        sys.env.getOrElse("PATH", "")
+      Proc.exec("cargo", List("xwin", "build", "--release", "--target", target),
+        cwd = Some(nativeDir), env = Map("PATH" -> llvmPath))
     } else {
       Term.err(s"Unknown target: $target")
       sys.exit(1)
+      1
+    }
+    if (code != 0) {
+      Term.err(s"Failed to build for $target (exit code $code)")
+      sys.exit(code)
     }
   }
 
@@ -179,8 +206,20 @@ object NativeCmd {
     }
     val rustupBin = s"${System.getProperty("user.home")}/.rustup/toolchains/stable-$hostTriple/bin"
 
-    val androidNdk = s"${Paths.projectRoot}/sge-deps/android-sdk/ndk/27.2.12479018"
-    val ndkBin = s"$androidNdk/toolchains/llvm/prebuilt/darwin-x86_64/bin"
+    // Find Android NDK: check env vars first (CI), then local SDK dir
+    val androidNdk = sys.env.getOrElse("ANDROID_NDK_HOME",
+      sys.env.get("ANDROID_HOME").map(_ + "/ndk").flatMap { ndkParent =>
+        val dir = new java.io.File(ndkParent)
+        if (dir.exists()) dir.listFiles().filter(_.isDirectory).map(_.getAbsolutePath).sorted.lastOption
+        else None
+      }.getOrElse(s"${Paths.projectRoot}/sge-deps/android-sdk/ndk/27.2.12479018")
+    )
+    // Detect host OS for NDK prebuilt toolchain path
+    val hostOs = System.getProperty("os.name").toLowerCase
+    val ndkHostTag = if (hostOs.contains("mac")) "darwin-x86_64"
+                     else if (hostOs.contains("linux")) "linux-x86_64"
+                     else "windows-x86_64"
+    val ndkBin = s"$androidNdk/toolchains/llvm/prebuilt/$ndkHostTag/bin"
 
     val ndkPrefix = target match {
       case "aarch64-linux-android" => "aarch64-linux-android26"
@@ -190,10 +229,14 @@ object NativeCmd {
     }
 
     val targetUnder = target.replace('-', '_')
+    val targetUpper = targetUnder.toUpperCase
+    val linker = s"$ndkBin/$ndkPrefix-clang"
     val env = Map(
-      s"CC_$targetUnder" -> s"$ndkBin/$ndkPrefix-clang",
+      s"CC_$targetUnder" -> linker,
       s"CXX_$targetUnder" -> s"$ndkBin/$ndkPrefix-clang++",
       s"AR_$targetUnder" -> s"$ndkBin/llvm-ar",
+      // Override .cargo/config.toml linker (which hardcodes local macOS paths)
+      s"CARGO_TARGET_${targetUpper}_LINKER" -> linker,
       "ANDROID_NDK_HOME" -> androidNdk,
       "PATH" -> s"$rustupBin:${sys.env.getOrElse("PATH", "")}"
     )

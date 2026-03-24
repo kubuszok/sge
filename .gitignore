@@ -30,6 +30,9 @@ target/
 ## Rust
 sge-deps/native-components/target/
 
+## X11 headers (downloaded by vendor/fetch-x11-headers.sh for Linux cross-compilation)
+sge-deps/native-components/vendor/x11-include/
+
 ## Android SDK (downloaded by `sge-dev test android setup`)
 android-sdk/
 
