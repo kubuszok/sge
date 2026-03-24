@@ -29,19 +29,20 @@ ThisBuild / SgeProject.autoImport.sgeRustLibDir := {
   (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
 }
 
-// ── Temurin JDK 23 URLs for distribution packaging ───────────────
-// JDK 23 supports all 6 desktop platforms including Windows ARM64.
+// ── Azul Zulu JDK 25 URLs for distribution packaging ─────────────
+// JDK 25 (LTS) with all 6 desktop platforms including Windows ARM64.
+// Zulu chosen over Temurin because Temurin 25 lacks Windows aarch64.
 // Panama FFM (java.lang.foreign) is stable since JDK 22.
 
-val temurinBase = "https://github.com/adoptium/temurin23-binaries/releases/download/jdk-23.0.2%2B7"
+val zuluBase = "https://cdn.azul.com/zulu/bin"
 
 val jdkUrls: Map[Platform, String] = Map(
-  Platform.LinuxX86_64    -> s"$temurinBase/OpenJDK23U-jdk_x64_linux_hotspot_23.0.2_7.tar.gz",
-  Platform.LinuxAarch64   -> s"$temurinBase/OpenJDK23U-jdk_aarch64_linux_hotspot_23.0.2_7.tar.gz",
-  Platform.MacosX86_64    -> s"$temurinBase/OpenJDK23U-jdk_x64_mac_hotspot_23.0.2_7.tar.gz",
-  Platform.MacosAarch64   -> s"$temurinBase/OpenJDK23U-jdk_aarch64_mac_hotspot_23.0.2_7.tar.gz",
-  Platform.WindowsX86_64  -> s"$temurinBase/OpenJDK23U-jdk_x64_windows_hotspot_23.0.2_7.zip",
-  Platform.WindowsAarch64 -> s"$temurinBase/OpenJDK23U-jdk_aarch64_windows_hotspot_23.0.2_7.zip"
+  Platform.LinuxX86_64    -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-linux_x64.tar.gz",
+  Platform.LinuxAarch64   -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-linux_aarch64.tar.gz",
+  Platform.MacosX86_64    -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-macosx_x64.tar.gz",
+  Platform.MacosAarch64   -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-macosx_aarch64.tar.gz",
+  Platform.WindowsX86_64  -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-win_x64.zip",
+  Platform.WindowsAarch64 -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-win_aarch64.zip"
 )
 
 // ── Android SDK detection ────────────────────────────────────────────

@@ -1,5 +1,5 @@
 # JDK 25 for Project Panama (Foreign Function & Memory API, finalized in JDK 22).
 # Panama replaces JNI for calling native libraries from JVM — see docs/architecture/backend-graphics-strategy.md.
-# Install with: sdk install java 25.0.1-graalce
-# Or via coursier: cs java --jvm graalvm-community:25.0.1 -- -version
-java=25.0.1-graalce
+# Install with: sdk install java 25.0.2-zulu
+# Or via coursier: cs java --jvm zulu:25.0.2 -- -version
+java=25.0.2-zulu

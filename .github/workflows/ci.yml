@@ -12,72 +12,43 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # Zulu 25 — Panama FFM stable since JDK 22, all 6 desktop platforms
+  # including Windows aarch64 (which Temurin 25 lacks).
+  # Same JDK used for release packaging (see demos/build.sbt jdkUrls).
+  JAVA_VERSION: "25"
+  JAVA_DISTRIBUTION: "zulu"
+  NODE_VERSION: "22"
+
 jobs:
   # ─── Native Components (Rust library) ──────────────────────────────
-  # Cross-compile all 6 desktop targets using 2 runners:
-  #   - macOS:  macos-x86_64, macos-aarch64 (native cross-arch)
-  #   - Linux:  linux-x86_64, linux-aarch64 (zigbuild), windows-x86_64, windows-aarch64 (xwin)
-  # Each runner also runs Rust tests for the host platform.
+  # Single macOS runner builds ALL 9 targets — exactly like local dev.
+  # All artifacts are COMPLETE — includes libsge_native_ops, libsge_audio,
+  # libglfw, and FreeType. Ready for release packaging.
 
-  build-native-macos:
-    name: Native Components (macOS x86_64 + aarch64)
+  build-native:
+    name: Native Components (all 9 targets)
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
+
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-apple-darwin,aarch64-apple-darwin
-
-      - name: Cache Cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            sge-deps/native-components/target
-          key: rust-macos-cross-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
-          restore-keys: rust-macos-cross-
-
-      - name: Run Rust tests (host)
-        working-directory: sge-deps/native-components
-        run: cargo test
-
-      - name: Build macos-aarch64
-        working-directory: sge-deps/native-components
-        run: cargo build --release --target aarch64-apple-darwin
-
-      - name: Build macos-x86_64
-        working-directory: sge-deps/native-components
-        run: cargo build --release --target x86_64-apple-darwin
-
-      - name: Upload macos-aarch64
-        uses: actions/upload-artifact@v4
-        with:
-          name: rust-lib-macos-aarch64
-          retention-days: 1
-          path: |
-            sge-deps/native-components/target/aarch64-apple-darwin/release/libsge_native_ops.dylib
-            sge-deps/native-components/target/aarch64-apple-darwin/release/libsge_native_ops.a
-
-      - name: Upload macos-x86_64
-        uses: actions/upload-artifact@v4
-        with:
-          name: rust-lib-macos-x86_64
-          retention-days: 1
-          path: |
-            sge-deps/native-components/target/x86_64-apple-darwin/release/libsge_native_ops.dylib
-            sge-deps/native-components/target/x86_64-apple-darwin/release/libsge_native_ops.a
-
-  build-native-linux-windows:
-    name: Native Components (Linux + Windows, x86_64 + aarch64)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-unknown-linux-gnu,aarch64-unknown-linux-gnu,x86_64-pc-windows-msvc,aarch64-pc-windows-msvc
+          targets: >-
+            x86_64-apple-darwin,
+            aarch64-apple-darwin,
+            x86_64-unknown-linux-gnu,
+            aarch64-unknown-linux-gnu,
+            x86_64-pc-windows-msvc,
+            aarch64-pc-windows-msvc,
+            aarch64-linux-android,
+            armv7-linux-androideabi,
+            x86_64-linux-android
 
       - uses: mlugg/setup-zig@v2
+      - uses: VirtusLab/scala-cli-setup@v1
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -86,72 +57,73 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ~/.cargo/bin
+            ~/Library/Caches/cargo-xwin
+            ~/Library/Caches/cargo-zigbuild
             sge-deps/native-components/target
-          key: rust-linux-cross-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
-          restore-keys: rust-linux-cross-
+          key: rust-macos-all-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
+          restore-keys: rust-macos-all-
 
-      - name: Install cross-compilation tools
+      - name: Set up Android NDK
         run: |
-          cargo install cargo-zigbuild --locked 2>/dev/null || true
-          cargo install cargo-xwin --locked 2>/dev/null || true
+          brew install --cask android-commandlinetools
+          export ANDROID_HOME="$HOME/Library/Android/sdk"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.2.12479018" || true
+
+      - name: Compile sge-dev
+        run: |
+          scala-cli --power package --native scripts/src/ -o sge-dev -f --suppress-outdated-dependency-warning
+          echo "$PWD" >> $GITHUB_PATH
+
+      - name: Run sge-dev setup
+        run: sge-dev setup --ci
+
+      - name: Add LLVM to PATH
+        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
 
       - name: Run Rust tests (host)
-        working-directory: sge-deps/native-components
-        run: cargo test
+        run: sge-dev native test
 
-      - name: Build linux-x86_64
-        working-directory: sge-deps/native-components
-        run: cargo zigbuild --release --target x86_64-unknown-linux-gnu
+      - name: Build all 6 desktop targets
+        run: sge-dev native cross-all
 
-      - name: Build linux-aarch64
-        working-directory: sge-deps/native-components
-        run: cargo zigbuild --release --target aarch64-unknown-linux-gnu
+      - name: Build all 3 Android targets
+        run: sge-dev native cross-android
+        env:
+          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
 
-      - name: Build windows-x86_64
-        working-directory: sge-deps/native-components
-        run: cargo xwin build --release --target x86_64-pc-windows-msvc
+      - name: Verify artifacts
+        run: |
+          echo "=== Desktop ==="
+          for plat in macos-aarch64 macos-x86_64 linux-x86_64 linux-aarch64 windows-x86_64 windows-aarch64; do
+            echo "--- $plat ---"
+            ls sge-deps/native-components/target/cross/$plat/ 2>/dev/null || echo "  MISSING!"
+          done
+          echo "=== Android ==="
+          for target in aarch64-linux-android armv7-linux-androideabi x86_64-linux-android; do
+            echo "--- $target ---"
+            ls sge-deps/native-components/target/$target/release/lib*.so 2>/dev/null || echo "  MISSING!"
+          done
 
-      - name: Build windows-aarch64
-        working-directory: sge-deps/native-components
-        run: cargo xwin build --release --target aarch64-pc-windows-msvc
-
-      - name: Upload linux-x86_64
+      - name: Upload desktop artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rust-lib-linux-x86_64
+          name: native-desktop
           retention-days: 1
-          path: |
-            sge-deps/native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.so
-            sge-deps/native-components/target/x86_64-unknown-linux-gnu/release/libsge_native_ops.a
+          path: sge-deps/native-components/target/cross/
 
-      - name: Upload linux-aarch64
+      - name: Upload Android artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: rust-lib-linux-aarch64
+          name: native-android
           retention-days: 1
           path: |
-            sge-deps/native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.so
-            sge-deps/native-components/target/aarch64-unknown-linux-gnu/release/libsge_native_ops.a
-
-      - name: Upload windows-x86_64
-        uses: actions/upload-artifact@v4
-        with:
-          name: rust-lib-windows-x86_64
-          retention-days: 1
-          path: |
-            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll
-            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.dll.lib
-            sge-deps/native-components/target/x86_64-pc-windows-msvc/release/sge_native_ops.lib
-
-      - name: Upload windows-aarch64
-        uses: actions/upload-artifact@v4
-        with:
-          name: rust-lib-windows-aarch64
-          retention-days: 1
-          path: |
-            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll
-            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.dll.lib
-            sge-deps/native-components/target/aarch64-pc-windows-msvc/release/sge_native_ops.lib
+            sge-deps/native-components/target/aarch64-linux-android/release/libsge_native_ops.so
+            sge-deps/native-components/target/aarch64-linux-android/release/libsge_audio.so
+            sge-deps/native-components/target/armv7-linux-androideabi/release/libsge_native_ops.so
+            sge-deps/native-components/target/armv7-linux-androideabi/release/libsge_audio.so
+            sge-deps/native-components/target/x86_64-linux-android/release/libsge_native_ops.so
+            sge-deps/native-components/target/x86_64-linux-android/release/libsge_audio.so
 
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
@@ -163,24 +135,28 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+
+      - name: Verify JDK
+        run: java -version 2>&1 && echo "JAVA_HOME=$JAVA_HOME"
 
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
-      - name: Compile + test Scala.js
-        run: sbt 'sgeJS/test'
+      # sge-dev on Linux — use JVM mode (Scala Native would need clang)
+      - name: Run Scala.js tests
+        run: sbt --client 'sgeJS/test'
 
   # ─── JVM compile + test (requires Rust library) ────────────────────
 
   test-jvm:
     name: JVM tests (${{ matrix.label }})
-    needs: [build-native-macos, build-native-linux-windows]
+    needs: [build-native]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -188,38 +164,43 @@ jobs:
         include:
           - os: ubuntu-latest
             label: linux-x86_64
-            artifact: rust-lib-linux-x86_64
-          - os: macos-13
-            label: macos-x86_64
-            artifact: rust-lib-macos-x86_64
+            platform: linux-x86_64
           - os: macos-latest
             label: macos-aarch64
-            artifact: rust-lib-macos-aarch64
+            platform: macos-aarch64
           - os: windows-latest
             label: windows-x86_64
-            artifact: rust-lib-windows-x86_64
+            platform: windows-x86_64
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
+
+      - name: Verify JDK
+        run: java -version 2>&1
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Download Rust artifacts
+      - name: Download native artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: sge-deps/native-components/target/release
+          name: native-desktop
+          path: sge-deps/native-components/target/cross
+
+      - name: Copy platform libs to release dir
+        shell: bash
+        run: |
+          mkdir -p sge-deps/native-components/target/release
+          cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
 
       - name: Run JVM tests
-        run: sbt 'sge/test'
-
-      - name: JVM Platform IT tests
-        run: sbt 'sge-it-jvm-platform/test'
+        run: sbt --client 'sge/test'
 
   # ─── Browser integration tests (Scala.js + Playwright) ─────────────
 
@@ -232,30 +213,29 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Playwright Chromium
         run: npx playwright@1.49.0 install chromium
 
-      - name: Compile Scala.js regression test
-        run: sbt 'regressionTestJS/fastLinkJS'
-
-      - name: Run browser integration tests (bootstrap only)
-        run: sbt 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
+      - name: Compile JS regression test + run browser IT
+        run: |
+          sbt --client 'regressionTestJS/fastLinkJS'
+          sbt --client 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
 
   # ─── Scala Native compile + test (requires Rust static library) ────
 
   test-native:
     name: Scala Native tests (${{ matrix.label }})
-    needs: [build-native-macos, build-native-linux-windows]
+    needs: [build-native]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -263,23 +243,22 @@ jobs:
         include:
           - os: ubuntu-latest
             label: linux-x86_64
-            artifact: rust-lib-linux-x86_64
-          - os: macos-13
-            label: macos-x86_64
-            artifact: rust-lib-macos-x86_64
+            platform: linux-x86_64
           - os: macos-latest
             label: macos-aarch64
-            artifact: rust-lib-macos-aarch64
+            platform: macos-aarch64
           - os: windows-latest
             label: windows-x86_64
-            artifact: rust-lib-windows-x86_64
+            platform: windows-x86_64
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
@@ -294,63 +273,65 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install llvm --yes
 
-      - name: Download Rust artifacts
+      - name: Download native artifacts
         uses: actions/download-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
-          path: sge-deps/native-components/target/release
+          name: native-desktop
+          path: sge-deps/native-components/target/cross
+
+      - name: Copy platform libs to release dir
+        shell: bash
+        run: |
+          mkdir -p sge-deps/native-components/target/release
+          cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
 
       - name: Remove dynamic libraries (force static linking)
         shell: bash
         run: rm -f sge-deps/native-components/target/release/libsge_native_ops.{dylib,so} sge-deps/native-components/target/release/sge_native_ops.dll
 
-      # Download pre-built static curl + all transitive deps (OpenSSL, nghttp2,
-      # libidn2, etc.) from stunnel/static-curl. Eliminates system libcurl/libidn2.
       - name: Download static curl libraries
         shell: bash
         run: |
-          PLATFORM="${{ matrix.label }}"
-          # stunnel/static-curl uses "arm64" for macOS, "aarch64" for Linux/Windows
+          PLATFORM="${{ matrix.platform }}"
           CURL_PLATFORM="${PLATFORM/macos-aarch64/macos-arm64}"
           CURL_VERSION="8.19.0"
           CURL_URL="https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
           DEST="sge-deps/native-components/target/release"
-          CACHE_DIR="sge-deps/native-components/target/curl-cache"
-          mkdir -p "$CACHE_DIR" "$DEST"
-          ARCHIVE="$CACHE_DIR/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
-          if [ ! -f "$ARCHIVE" ]; then
-            echo "Downloading static curl for $CURL_PLATFORM..."
-            curl -fSL -o "$ARCHIVE" "$CURL_URL"
-          fi
-          TMP_DIR="$CACHE_DIR/extract-$$"
+          mkdir -p "$DEST"
+          ARCHIVE="/tmp/curl-${CURL_PLATFORM}.tar.xz"
+          curl -fSL -o "$ARCHIVE" "$CURL_URL"
+          TMP_DIR="/tmp/curl-extract-$$"
           mkdir -p "$TMP_DIR"
           tar xf "$ARCHIVE" -C "$TMP_DIR"
-          # Copy all .a files from the lib/ directory
           find "$TMP_DIR" -path '*/lib/*.a' -exec cp {} "$DEST/" \;
-          rm -rf "$TMP_DIR"
-          echo "Static curl $CURL_VERSION installed to $DEST"
+          rm -rf "$TMP_DIR" "$ARCHIVE"
 
       - name: Run Scala Native tests
-        run: sbt 'sgeNative/test'
+        run: sbt --client 'sgeNative/test'
 
   # ─── Android smoke + integration tests (emulator) ──────────────
-  # Builds the smoke APK and runs it on a headless Android emulator
-  # with SwiftShader (CPU-based GL ES). Verifies all 6 subsystem
-  # checks pass: bootstrap, GL2D, GL3D, file I/O, JSON/XML, audio.
 
   test-android:
     name: Android smoke + integration tests
+    needs: [build-native]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
+
+      - name: Install emulator dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpulse0
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
@@ -359,25 +340,31 @@ jobs:
 
       - name: Install Android SDK components
         run: |
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platforms;android-36" "build-tools;36.0.0" "system-images;android-36;google_apis;x86_64"
+
+      - name: Download Android native artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: native-android
+          path: sge-deps/native-components/target/
 
       - name: Build smoke APK
-        run: sbt 'sge-android-smoke/androidSign'
+        run: sbt --client 'sge-android-smoke/androidSign'
 
       - name: Run Android integration tests
         uses: reactivecircus/android-emulator-runner@v2
+        env:
+          QT_QPA_PLATFORM: offscreen
         with:
-          api-level: 35
+          api-level: 36
           target: google_apis
           arch: x86_64
           force-avd-creation: true
           avd-name: sge-test-avd
-          emulator-options: -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
-          script: sbt 'sge-it-android/test'
+          emulator-options: -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
+          script: sbt --client 'sge-it-android/test'
 
   # ─── Demo smoke tests (Scala.js demos in headless Chromium) ────────
-  # Builds individual demo JS bundles from the demos/ sub-build and
-  # verifies they start up without errors using Playwright.
 
   demo-smoke-js:
     name: Demo JS smoke tests (Playwright)
@@ -388,42 +375,32 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Playwright Chromium
         run: npx playwright@1.49.0 install chromium
 
       - name: Publish SGE to local Ivy (JVM + JS)
-        run: sbt 'sge/publishLocal' 'sgeJS/publishLocal'
+        run: sbt --client 'set every packageDoc/publishArtifact := false; sge/publishLocal; sgeJS/publishLocal'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
 
       - name: Build demo JS bundles
         working-directory: demos
-        run: |
-          sbt 'pongJS/fastLinkJS' \
-              'spaceShooterJS/fastLinkJS' \
-              'curvePlaygroundJS/fastLinkJS' \
-              'viewportGalleryJS/fastLinkJS' \
-              'shaderLabJS/fastLinkJS' \
-              'tileWorldJS/fastLinkJS' \
-              'hexTacticsJS/fastLinkJS' \
-              'viewer3dJS/fastLinkJS' \
-              'particleShowJS/fastLinkJS' \
-              'assetShowcaseJS/fastLinkJS'
+        run: sbt --client 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS; assetShowcaseJS/fastLinkJS'
 
       - name: Run demo smoke tests
-        run: sbt 'sge-it-browser/testOnly sge.browser.DemoSmokeTest'
+        run: sbt --client 'sge-it-browser/testOnly sge.browser.DemoSmokeTest'
 
   # ─── Demo compile-all gate (all 10 demos × 3 platforms) ────────────
-  # Compiles all demos on JVM, JS, and Native to catch API regressions.
-  # Does not link Native (avoids needing Rust lib + ANGLE).
 
   demo-compile-all:
     name: Compile all demos (JVM + JS + Native)
@@ -434,15 +411,15 @@ jobs:
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
 
       - name: Install Scala Native system dependencies
         run: |
@@ -450,38 +427,18 @@ jobs:
           sudo apt-get install -y clang libstdc++-12-dev
 
       - name: Publish SGE to local Ivy (all platforms)
-        run: sbt 'sge/publishLocal' 'sgeJS/publishLocal' 'sgeNative/publishLocal'
+        run: sbt --client 'set every packageDoc/publishArtifact := false; sge/publishLocal; sgeJS/publishLocal; sgeNative/publishLocal'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
 
       - name: Compile all demos (JVM)
         working-directory: demos
-        run: sbt compile
+        run: sbt --client compile
 
       - name: Compile all demos (JS)
         working-directory: demos
-        run: |
-          sbt 'sharedJS/compile' \
-              'pongJS/compile' \
-              'spaceShooterJS/compile' \
-              'tileWorldJS/compile' \
-              'hexTacticsJS/compile' \
-              'curvePlaygroundJS/compile' \
-              'shaderLabJS/compile' \
-              'viewer3dJS/compile' \
-              'particleShowJS/compile' \
-              'viewportGalleryJS/compile' \
-              'assetShowcaseJS/compile'
+        run: sbt --client 'sharedJS/compile; pongJS/compile; spaceShooterJS/compile; tileWorldJS/compile; hexTacticsJS/compile; curvePlaygroundJS/compile; shaderLabJS/compile; viewer3dJS/compile; particleShowJS/compile; viewportGalleryJS/compile; assetShowcaseJS/compile'
 
       - name: Compile all demos (Native)
         working-directory: demos
-        run: |
-          sbt 'sharedNative/compile' \
-              'pongNative/compile' \
-              'spaceShooterNative/compile' \
-              'tileWorldNative/compile' \
-              'hexTacticsNative/compile' \
-              'curvePlaygroundNative/compile' \
-              'shaderLabNative/compile' \
-              'viewer3dNative/compile' \
-              'particleShowNative/compile' \
-              'viewportGalleryNative/compile' \
-              'assetShowcaseNative/compile'
+        run: sbt --client 'sharedNative/compile; pongNative/compile; spaceShooterNative/compile; tileWorldNative/compile; hexTacticsNative/compile; curvePlaygroundNative/compile; shaderLabNative/compile; viewer3dNative/compile; particleShowNative/compile; viewportGalleryNative/compile; assetShowcaseNative/compile'

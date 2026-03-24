@@ -51,6 +51,7 @@ all Bash commands — if denied, use the suggested alternative.
 
 | Command | Purpose |
 |---------|---------|
+| `sge-dev setup [--ci]` | Idempotent dev environment setup (all tools + targets) |
 | `sge-dev build compile [--jvm/--js/--native/--all]` | Compile |
 | `sge-dev build compile --errors-only` | Compile showing only errors |
 | `sge-dev build compile --warnings` | Compile showing warnings + errors |

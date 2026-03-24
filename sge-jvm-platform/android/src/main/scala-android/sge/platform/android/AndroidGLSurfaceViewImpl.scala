@@ -17,6 +17,8 @@ package android
 import _root_.android.content.Context
 import _root_.android.opengl.GLSurfaceView
 import javax.microedition.khronos.egl.{ EGL10, EGLConfig, EGLContext, EGLDisplay }
+import scala.util.boundary
+import scala.util.boundary.break
 
 class AndroidGLSurfaceViewImpl(
   context:            Context,
@@ -165,7 +167,7 @@ private[android] class AndroidEglConfigChooser(
     selectConfig(egl, display, configs)
   }
 
-  private def selectConfig(egl: EGL10, display: EGLDisplay, configs: Array[EGLConfig]): EGLConfig = {
+  private def selectConfig(egl: EGL10, display: EGLDisplay, configs: Array[EGLConfig]): EGLConfig = boundary {
     var best:   EGLConfig = null
     var bestAA: EGLConfig = null
     var safe:   EGLConfig = null
@@ -186,7 +188,7 @@ private[android] class AndroidEglConfigChooser(
         // Exact match
         if (best == null && cr == r && cg == g && cb == b && ca == a) {
           best = config
-          if (numSamples == 0) return best
+          if (numSamples == 0) break(best)
         }
         // MSAA check
         val hasSB = findAttrib(egl, display, config, EGL10.EGL_SAMPLE_BUFFERS, 0)

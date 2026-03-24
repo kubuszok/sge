@@ -107,7 +107,7 @@ object SgePlugin {
       |  val c         = nativeConfig.value
       |  val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
       |  val rustLibOpts = Seq(
-      |    s"-L$base/native-components/target/release",
+      |    s"-L$base/sge-deps/native-components/target/release",
       |    "-lsge_native_ops"
       |  )
       |  val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
@@ -153,7 +153,7 @@ object SgePlugin {
     */
   private def jvmRuntimeOpts(rustLibPath: Option[String]): Def.Initialize[Seq[String]] = Def.setting {
     val rustLib = rustLibPath.getOrElse {
-      ((ThisBuild / baseDirectory).value / "native-components" / "target" / "release").getAbsolutePath
+      ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
     }
     val macFlags = if (sys.props("os.name").toLowerCase.contains("mac"))
       Seq("-XstartOnFirstThread") else Seq.empty

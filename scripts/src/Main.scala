@@ -27,6 +27,8 @@ object Main {
         quality.QualityCmd.run(rest)
       case "test" :: rest =>
         testing.TestCmd.run(rest)
+      case "setup" :: rest =>
+        setup.SetupCmd.run(rest)
       case "native" :: rest =>
         native.NativeCmd.run(rest)
       case "compare" :: rest =>
@@ -54,6 +56,7 @@ object Main {
                |  build      Build commands (compile, fmt, publish-local)
                |  quality    Quality scans (grep, count, scalafix)
                |  test       Test orchestration (unit, integration, regression)
+               |  setup      Idempotent dev environment setup (all tools + targets)
                |  native     Rust native library operations
                |  compare    LibGDX/SGE file comparison
                |  metals     Metals LSP server management
