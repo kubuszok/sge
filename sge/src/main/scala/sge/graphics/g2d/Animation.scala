@@ -63,9 +63,8 @@ class Animation[T: ClassTag](initialFrameDuration: Float, initialKeyFrames: Dyna
     * @param keyFrames
     *   the objects representing the frames.
     */
-  def this(initialFrameDuration: Float, keyFrames: T*) = {
+  def this(initialFrameDuration: Float, keyFrames: T*) =
     this(initialFrameDuration, DynamicArray.wrapRefUnchecked(keyFrames.toArray))
-  }
 
   /** Returns a frame based on the so called state time. This is the amount of seconds an object has spent in the state this Animation instance represents, e.g. running, jumping and so on. The mode
     * specifies whether the animation is looping or not.

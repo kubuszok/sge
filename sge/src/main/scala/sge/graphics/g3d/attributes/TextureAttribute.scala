@@ -40,9 +40,8 @@ class TextureAttribute(
 
   if (!TextureAttribute.is(`type`)) throw SgeError.InvalidInput("Invalid type specified")
 
-  def this(`type`: Long) = {
+  def this(`type`: Long) =
     this(`type`, TextureDescriptor[Texture](), 0f, 0f, 1f, 1f, 0)
-  }
 
   def this(`type`: Long, textureDescription: TextureDescriptor[? <: Texture]) = {
     this(`type`)
@@ -67,7 +66,7 @@ class TextureAttribute(
     set(region)
   }
 
-  def this(copyFrom: TextureAttribute) = {
+  def this(copyFrom: TextureAttribute) =
     this(
       copyFrom.`type`,
       copyFrom.textureDescription,
@@ -77,7 +76,6 @@ class TextureAttribute(
       copyFrom.scaleV,
       copyFrom.uvIndex
     )
-  }
 
   def set(region: TextureRegion): Unit = {
     textureDescription.texture = Nullable(region.texture)

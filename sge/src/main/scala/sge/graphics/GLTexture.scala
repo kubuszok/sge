@@ -48,9 +48,8 @@ abstract class GLTexture(val glTarget: TextureTarget, private[graphics] var glHa
   def depth: Int
 
   /** Generates a new OpenGL texture with the specified target. */
-  def this(glTarget: TextureTarget)(using Sge) = {
+  def this(glTarget: TextureTarget)(using Sge) =
     this(glTarget, TextureHandle(Sge().graphics.gl.glGenTexture()))
-  }
 
   /** @return whether this texture is managed or not. */
   def managed: Boolean

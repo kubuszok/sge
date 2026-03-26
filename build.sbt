@@ -6,7 +6,7 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 
 // Format on compile during local development, skip on CI.
 lazy val isCI = sys.env.get("CI").contains("true")
-ThisBuild / packageDoc / publishArtifact := isCI
+ThisBuild / packageDoc / publishArtifact := false
 ThisBuild / scalafmtOnCompile := !isCI
 ThisBuild / semanticdbEnabled := true
 
@@ -70,7 +70,7 @@ def collectClassFiles(classDir: File): Seq[(File, String)] =
 val versions = new {
   val scala = SgePlugin.scalaVersion
 
-  val kindlings = "eef8db257f703b807ace7eae1cc37f17d5ed0c48-SNAPSHOT"
+  val kindlings = "ff47bc548aae0b3c078591bd66777172375812b3-SNAPSHOT"
   val sttp      = "4.0.19"
   val xml       = "2.3.0"
   val scribe    = "3.17.0"
@@ -321,16 +321,17 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
       val cacheDir = streams.value.cacheDirectory / "panama-port"
       val aarFile  = cacheDir / s"Core-${versions.panamaPort}.aar"
       val jarFile  = cacheDir / s"Core-${versions.panamaPort}-classes.jar"
+      val log = streams.value.log
       if (!jarFile.exists()) {
         IO.createDirectory(cacheDir)
         if (!aarFile.exists()) {
-          streams.value.log.info(s"Downloading PanamaPort AAR from $aarUrl")
+          log.info(s"Downloading PanamaPort AAR from $aarUrl")
           val in = new java.net.URL(aarUrl).openStream()
           try { IO.transfer(in, aarFile) }
           finally { in.close() }
         }
         // AAR is a ZIP; extract classes.jar from it
-        streams.value.log.info(s"Extracting classes.jar from PanamaPort AAR")
+        log.info(s"Extracting classes.jar from PanamaPort AAR")
         val zip = new java.util.zip.ZipFile(aarFile)
         try {
           val entry = zip.getEntry("classes.jar")
@@ -628,8 +629,31 @@ lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   )
   .settings(SgeNativeLibs.hostSettings *)
 
+// Write published version to demos/.sge-version so the demos sub-build
+// resolves the same version without depending on sbt-git or env vars.
+val writeDemoVersion = taskKey[Unit]("Write SGE version to demos/.sge-version")
+ThisBuild / writeDemoVersion := {
+  val v = version.value
+  val f = baseDirectory.value / "demos" / ".sge-version"
+  IO.write(f, v)
+  streams.value.log.info(s"[sge] Wrote demos/.sge-version: $v")
+}
+
 // ── Root project — git-based versioning ──────────────────────────────
 lazy val root = (project in file("."))
   .enablePlugins(GitVersioning)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
+  // Core library
+  .aggregate(sge.projectRefs *)
+  .aggregate(regressionTest.projectRefs *)
+  // Extensions
+  .aggregate(`sge-tools`)
+  .aggregate(`sge-freetype`.projectRefs *)
+  .aggregate(`sge-physics`.projectRefs *)
+  // Integration tests
+  .aggregate(`sge-it-desktop`)
+  .aggregate(`sge-it-jvm-platform`)
+  .aggregate(`sge-it-browser`)
+  .aggregate(`sge-it-android`)
+  .aggregate(`sge-it-native-ffi`)

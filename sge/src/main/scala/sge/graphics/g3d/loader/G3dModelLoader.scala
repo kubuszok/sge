@@ -87,7 +87,7 @@ class G3dModelLoader(resolver: FileHandleResolver)(using Sge) extends ModelLoade
   }
 
   protected def parseType(tpe: String): PrimitiveMode =
-    if (tpe.equals("TRIANGLES")) PrimitiveMode.Triangles
+    if (tpe == null || tpe.equals("TRIANGLES")) PrimitiveMode.Triangles
     else if (tpe.equals("LINES")) PrimitiveMode.Lines
     else if (tpe.equals("POINTS")) PrimitiveMode.Points
     else if (tpe.equals("TRIANGLE_STRIP")) PrimitiveMode.TriangleStrip

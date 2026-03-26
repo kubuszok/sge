@@ -43,9 +43,8 @@ abstract class PrimitiveSpawnShapeValue extends SpawnShapeValue {
   protected var spawnDepthDiff:  Float              = 0f
   private[particles] var edges:  Boolean            = false
 
-  def this(value: PrimitiveSpawnShapeValue) = {
+  def this(value: PrimitiveSpawnShapeValue) =
     this()
-  }
   // Note: super(value) is called implicitly via this() then load pattern
 
   override def active_=(value: Boolean): Unit = {

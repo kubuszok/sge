@@ -36,6 +36,9 @@ sge-deps/native-components/vendor/x11-include/
 ## Android SDK (downloaded by `sge-dev test android setup`)
 android-sdk/
 
+## Generated version file for demos sub-build
+.sge-version
+
 ## sge-dev CLI
 scripts/bin/
 scripts/.metals-pid

@@ -66,14 +66,13 @@ class SplitPane(
   setSize(prefWidth, prefHeight)
   initialize()
 
-  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) = {
+  def this(firstWidget: Nullable[Actor], secondWidget: Nullable[Actor], vertical: Boolean, skin: Skin)(using Sge) =
     this(
       firstWidget,
       secondWidget,
       vertical,
       skin.get[SplitPane.SplitPaneStyle]("default-" + (if (vertical) "vertical" else "horizontal"))
     )
-  }
 
   private def initialize(): Unit = {
     val self = this

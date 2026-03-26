@@ -83,7 +83,7 @@ class DesktopFileHandleTest extends munit.FunSuite {
 
   test("getFile for Absolute returns raw file") {
     val fh = DesktopFileHandle("/tmp/test.txt", FileType.Absolute, extPath)
-    assertEquals(fh.file.getPath(), "/tmp/test.txt")
+    assertEquals(fh.file.getPath(), new File("/tmp/test.txt").getPath())
   }
 
   // ---- write/read round-trip ----

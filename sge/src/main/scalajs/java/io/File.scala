@@ -6,13 +6,11 @@ package java.io
 
 class File(pathname: String) {
 
-  def this(parent: String, child: String) = {
+  def this(parent: String, child: String) =
     this(if (parent == null) child else parent + "/" + child) // scalastyle:ignore null
-  }
 
-  def this(parent: File, child: String) = {
+  def this(parent: File, child: String) =
     this(if (parent == null) child else parent.getPath() + "/" + child) // scalastyle:ignore null
-  }
 
   def getPath(): String = pathname
 

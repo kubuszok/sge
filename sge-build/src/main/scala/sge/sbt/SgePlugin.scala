@@ -43,7 +43,6 @@ object SgePlugin {
       "-deprecation",
       "-feature",
       "-no-indent",
-      "-rewrite",
       "-Werror",
       "-Wimplausible-patterns",
       "-Wrecurse-with-default",

@@ -94,6 +94,13 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     setLoader[sge.graphics.Cubemap](CubemapLoader(resolver))
   }
 
+  /** Lookup by explicit class — avoids wrapping Class in Nullable (Scala Native compatibility). */
+  private def lookupByClass[T](fileName: String, tpe: Class[?]): Nullable[T] =
+    for {
+      byType <- assets.get(tpe)
+      container <- byType.get(fileName)
+    } yield container.obj.asInstanceOf[T]
+
   /** Single code path for all asset lookups. Callers acquire locks at the public method level. */
   private def lookup[T](fileName: String, tpe: Nullable[Class[?]]): Nullable[T] = {
     val resolvedType = if (tpe.isDefined) tpe else assetTypes.get(fileName)
@@ -110,7 +117,8 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     *   if the asset is not loaded
     */
   def apply[T: ClassTag](fileName: String): T = synchronized {
-    lookup[T](fileName, Nullable(summon[ClassTag[T]].runtimeClass)).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
+    val clazz: Class[?] = summon[ClassTag[T]].runtimeClass
+    get[T](fileName, clazz.asInstanceOf[Class[T]]).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
   }
 
   def apply[T](fileName: String, tpe: Class[T]): T = synchronized {
@@ -123,22 +131,32 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     *   if the asset is not loaded
     */
   def apply[T](assetDescriptor: AssetDescriptor[T]): T = synchronized {
-    lookup[T](assetDescriptor.fileName, Nullable(assetDescriptor.`type`)).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + assetDescriptor.fileName))
+    val result =
+      if (assetDescriptor.`type` != null) lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`)
+      else lookup[T](assetDescriptor.fileName, Nullable.empty)
+    result.getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + assetDescriptor.fileName))
   }
 
   /** @return the asset or empty Nullable if not loaded */
   def get[T: ClassTag](fileName: String): Nullable[T] = synchronized {
-    lookup[T](fileName, Nullable(summon[ClassTag[T]].runtimeClass))
+    // Use the Class[T] overload directly to avoid Nullable wrapping of Class
+    // (Scala Native's union type erasure casts Class to Serializable which fails)
+    val clazz: Class[?] = summon[ClassTag[T]].runtimeClass
+    get[T](fileName, clazz.asInstanceOf[Class[T]])
   }
 
   /** @return the asset or empty Nullable if not loaded */
   def get[T](fileName: String, tpe: Class[T]): Nullable[T] = synchronized {
-    lookup[T](fileName, Nullable(tpe))
+    // Avoid Nullable(tpe) — on Scala Native, wrapping Class in Nullable's union type
+    // causes ClassCastException (Class is not Serializable, but NestedNone pattern match
+    // checks Product with Serializable first).
+    lookupByClass[T](fileName, tpe)
   }
 
   /** @return the asset or empty Nullable if not loaded */
   def get[T](assetDescriptor: AssetDescriptor[T]): Nullable[T] = synchronized {
-    lookup[T](assetDescriptor.fileName, Nullable(assetDescriptor.`type`))
+    if (assetDescriptor.`type` != null) lookupByClass[T](assetDescriptor.fileName, assetDescriptor.`type`)
+    else lookup[T](assetDescriptor.fileName, Nullable.empty)
   }
 
   /** @return all the assets matching the specified type */

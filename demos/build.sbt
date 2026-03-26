@@ -5,10 +5,18 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-// Derive sge version from git — must match root build's sbt-git output.
+// SGE version: read from .sge-version written by root build's publishLocal,
+// fall back to SGE_VERSION env var (CI), then to git rev-parse HEAD.
 val sgeVersion: String = {
-  val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
-  s"$sha-SNAPSHOT"
+  val versionFile = new File(".sge-version")
+  if (versionFile.exists()) {
+    scala.io.Source.fromFile(versionFile).mkString.trim
+  } else {
+    sys.env.getOrElse("SGE_VERSION", {
+      val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
+      s"$sha-SNAPSHOT"
+    })
+  }
 }
 val sv         = SgePlugin.scalaVersion
 

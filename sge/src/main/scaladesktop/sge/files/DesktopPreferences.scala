@@ -23,9 +23,8 @@ import sge.utils.StreamUtils
   */
 class DesktopPreferences(fileHandle: FileHandle) extends sge.Preferences {
 
-  def this(name: String, directory: String, externalStoragePath: String) = {
+  def this(name: String, directory: String, externalStoragePath: String) =
     this(DesktopFileHandle(new File(directory, name), FileType.External, externalStoragePath))
-  }
 
   private val properties: Properties = new Properties()
 

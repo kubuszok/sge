@@ -322,11 +322,16 @@ object SgeNativeLibs {
     // to bypass library search path ordering issues with @link annotations.
     val audioA = new File(libDir, "libsge_audio.a")
     val glfwA  = new File(libDir, "libglfw3.a")
+    // On Windows cross-compilation, audio + GLFW symbols are merged into sge_native_ops.dll
+    // by build.rs (merge_into_cdylib), so no separate libraries to link.
     val nativeLibs =
-      (if (audioA.exists()) Seq(audioA.getAbsolutePath) else Seq("-lsge_audio")) ++
-      (if (glfwA.exists()) Seq(glfwA.getAbsolutePath) else Seq("-lglfw3"))
-    // Rust native-components links against FreeType for font rasterization
-    val nativeDeps = Seq("-lfreetype")
+      if (platform.isWindows) Seq.empty
+      else
+        (if (audioA.exists()) Seq(audioA.getAbsolutePath) else Seq("-lsge_audio")) ++
+        (if (glfwA.exists()) Seq(glfwA.getAbsolutePath) else Seq("-lglfw3"))
+    // Rust native-components links against FreeType for font rasterization.
+    // On Windows, FreeType is merged into sge_native_ops.dll by build.rs.
+    val nativeDeps = if (platform.isWindows) Seq.empty else Seq("-lfreetype")
 
     // Static curl transitive dependencies. When libcurl.a is present (from
     // stunnel/static-curl), sttp's @link("curl") and @link("idn2") emit
@@ -338,7 +343,7 @@ object SgeNativeLibs {
       val depNames = Seq(
         "libssl.a", "libcrypto.a", "libnghttp2.a", "libnghttp3.a",
         "libngtcp2.a", "libngtcp2_crypto_ossl.a", "libz.a",
-        "libbrotlidec.a", "libbrotlicommon.a", "libunistring.a",
+        "libbrotlidec.a", "libbrotlicommon.a", "libidn2.a", "libunistring.a",
         "libcares.a", "libssh2.a", "libzstd.a", "libpsl.a"
       )
       depNames.flatMap { name =>
@@ -347,7 +352,7 @@ object SgeNativeLibs {
       }
     } else Seq.empty
 
-    if (platform.isWindows) base ++ nativeLibs ++ nativeDeps ++ curlDeps :+ "-lntdll"
+    if (platform.isWindows) base ++ nativeLibs ++ nativeDeps :+ "-lntdll" :+ "-lmsvcrt"
     else if (platform.isMac) {
       // macOS frameworks required by statically-linked GLFW and miniaudio
       val frameworks = Seq(
@@ -377,10 +382,13 @@ object SgeNativeLibs {
       base ++ nativeLibs ++ nativeDeps ++ curlDeps ++ frameworks ++ curlFrameworks ++ rpaths
     }
     else {
-      // Linux: use --start-group/--end-group to handle circular deps between
-      // static curl archives. Also add -lpthread and -ldl for OpenSSL.
-      val curlSystemLibs = if (curlA.exists()) Seq("-lpthread", "-ldl") else Seq.empty
-      base ++ nativeLibs ++ nativeDeps ++ curlDeps ++ curlSystemLibs
+      // Linux: wrap static curl archives in --start-group/--end-group to handle
+      // circular dependencies (e.g. libidn2 → libunistring → libidn2).
+      // Also add -lpthread and -ldl for OpenSSL.
+      val curlGroup = if (curlA.exists()) {
+        Seq("-Wl,--start-group") ++ curlDeps ++ Seq("-Wl,--end-group", "-lpthread", "-ldl")
+      } else Seq.empty
+      base ++ nativeLibs ++ nativeDeps ++ curlGroup
     }
   }
 }
