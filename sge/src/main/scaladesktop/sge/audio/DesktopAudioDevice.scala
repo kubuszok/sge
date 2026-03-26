@@ -38,13 +38,12 @@ class DesktopAudioDevice private[sge] (
   private val audioOps:     AudioOps
 ) extends AudioDevice {
 
-  private var bytes: Array[Byte] = scala.compiletime.uninitialized
+  private var bytes: Array[Byte] = Array.emptyByteArray
 
   override def isMono: Boolean = _isMono
 
-  @scala.annotation.nowarn("msg=deprecated") // null check — bytes is uninitialized (null) until first write
   override def writeSamples(samples: Array[Short], offset: Int, numSamples: Int): Unit = {
-    if (bytes == null || bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
+    if (bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
     val end = scala.math.min(offset + numSamples, samples.length)
     var i   = offset
     var ii  = 0
@@ -59,9 +58,8 @@ class DesktopAudioDevice private[sge] (
     audioOps.writeAudioDevice(deviceHandle, bytes, 0, numSamples * 2)
   }
 
-  @scala.annotation.nowarn("msg=deprecated") // null check — bytes is uninitialized (null) until first write
   override def writeSamples(samples: Array[Float], offset: Int, numSamples: Int): Unit = {
-    if (bytes == null || bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
+    if (bytes.length < numSamples * 2) bytes = new Array[Byte](numSamples * 2)
     val end = scala.math.min(offset + numSamples, samples.length)
     var i   = offset
     var ii  = 0

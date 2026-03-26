@@ -85,7 +85,7 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("parent of root Absolute path returns /") {
     val fh = AndroidFileHandle(new File(""), FileType.Absolute, ops)
     val p  = fh.parent()
-    assertEquals(p.file.getPath(), "/")
+    assertEquals(p.file.getPath(), new File("/").getPath())
   }
 
   test("parent of root Internal path returns empty") {
@@ -180,12 +180,12 @@ class AndroidFileHandleTest extends munit.FunSuite {
   test("getFile prepends external storage path for External files") {
     val stubOps = new StubFilesOps(extStorage = "/sdcard/")
     val fh      = AndroidFileHandle(new File("save.dat"), FileType.External, stubOps)
-    assertEquals(fh.file.getPath(), "/sdcard/save.dat")
+    assertEquals(fh.file.getPath(), new File("/sdcard/save.dat").getPath())
   }
 
   test("getFile prepends local storage path for Local files") {
     val fh = AndroidFileHandle(new File("local.dat"), FileType.Local, ops)
-    assertEquals(fh.file.getPath(), "/data/data/com.test/files/local.dat")
+    assertEquals(fh.file.getPath(), new File("/data/data/com.test/files/local.dat").getPath())
   }
 
   test("getFile returns file as-is for Internal files") {

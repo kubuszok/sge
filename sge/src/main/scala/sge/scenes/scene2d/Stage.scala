@@ -77,13 +77,12 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
 
   /** Creates a stage with the specified viewport. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this(viewport: Viewport)(using Sge) = {
+  def this(viewport: Viewport)(using Sge) =
     this(viewport, SpriteBatch()(using Sge()), true)
-  }
 
   /** Creates a stage with a {@link ScalingViewport} set to {@link Scaling#stretch}. The stage will use its own {@link Batch} which will be disposed when the stage is disposed.
     */
-  def this()(using Sge) = {
+  def this()(using Sge) =
     this(
       ScalingViewport(
         Scaling.stretch,
@@ -92,15 +91,13 @@ class Stage(private var _viewport: Viewport, val batch: Batch, private val ownsB
         OrthographicCamera()
       )
     )
-  }
 
   /** Creates a stage with the specified viewport and batch. This can be used to specify an existing batch or to customize which batch implementation is used.
     * @param batch
     *   Will not be disposed if {@link #close()} is called, handle disposal yourself.
     */
-  def this(viewport: Viewport, batch: Batch)(using Sge) = {
+  def this(viewport: Viewport, batch: Batch)(using Sge) =
     this(viewport, batch, false)
-  }
 
   def draw(): Unit = {
     val camera = _viewport.camera

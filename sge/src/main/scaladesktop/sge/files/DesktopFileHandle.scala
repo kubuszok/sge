@@ -27,9 +27,8 @@ import sge.utils.Nullable
   */
 class DesktopFileHandle(internalFile: File, fileType: FileType, externalStoragePath: String) extends FileHandle(internalFile, fileType, Nullable(externalStoragePath)) {
 
-  def this(fileName: String, fileType: FileType, externalStoragePath: String) = {
+  def this(fileName: String, fileType: FileType, externalStoragePath: String) =
     this(new File(fileName), fileType, externalStoragePath)
-  }
 
   override def child(name: String): FileHandle =
     if (internalFile.getPath().length() == 0) DesktopFileHandle(new File(name), fileType, externalStoragePath)

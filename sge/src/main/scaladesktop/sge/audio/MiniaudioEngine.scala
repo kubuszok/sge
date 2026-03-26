@@ -134,11 +134,13 @@ class MiniaudioEngine private[sge] (
 
   override def close(): Unit =
     if (!noDevice) {
-      // Dispose all tracked music and sounds
-      musicInstances.foreach(_.close())
+      // Snapshot before iterating — close() calls forgetMusic/forgetSound which mutates the buffer
+      val music  = musicInstances.toList
+      val sounds = soundInstances.toList
       musicInstances.clear()
-      soundInstances.foreach(_.close())
       soundInstances.clear()
+      music.foreach(_.close())
+      sounds.foreach(_.close())
       audioOps.shutdownEngine(engineHandle)
     }
 

@@ -22,15 +22,18 @@ fn main() {
     let target_env = std::env::var("CARGO_CFG_TARGET_ENV").unwrap_or_default();
 
     // Determine the final output directory (where libsge_native_ops will be placed).
-    // When cross-compiling with --target, cargo uses target/<triple>/<profile>/.
-    let manifest_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-    let profile = std::env::var("PROFILE").unwrap(); // "debug" or "release"
+    // Derive from OUT_DIR to handle both `cargo build` and `cargo build --target <triple>`
+    // correctly. When --target is explicit (even if it matches host), cargo uses
+    // target/<triple>/<profile>/, but TARGET == HOST so we can't distinguish by comparing them.
+    // OUT_DIR is always correct: .../target[/<triple>]/<profile>/build/<pkg>/out
     let target = std::env::var("TARGET").unwrap_or_default();
     let host = std::env::var("HOST").unwrap_or_default();
-    let release_dir = if target != host && !target.is_empty() {
-        format!("{}/target/{}/{}", manifest_dir, target, profile)
-    } else {
-        format!("{}/target/{}", manifest_dir, profile)
+    let release_dir = {
+        let out = std::path::Path::new(&out_dir);
+        // OUT_DIR = .../target[/<triple>]/<profile>/build/<pkg>/out
+        // Go up 3 levels: out -> <pkg> -> build -> <profile>
+        out.parent().unwrap().parent().unwrap().parent().unwrap()
+            .to_str().unwrap().to_string()
     };
 
     let skip_c_libs = std::env::var("SGE_SKIP_C_LIBS").unwrap_or_default() == "1";

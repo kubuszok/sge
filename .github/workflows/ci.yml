@@ -19,6 +19,7 @@ env:
   JAVA_VERSION: "25"
   JAVA_DISTRIBUTION: "zulu"
   NODE_VERSION: "22"
+  # Demos read .sge-version file written by publishLocal + writeDemoVersion.
 
 jobs:
   # ─── Native Components (Rust library) ──────────────────────────────
@@ -49,6 +50,16 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
       - uses: VirtusLab/scala-cli-setup@v1
+
+      - name: Cache scala-cli
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/ScalaCli
+            ~/.cache/scala-cli
+            ~/.cache/scalafmt
+          key: scala-cli-native-${{ hashFiles('scripts/src/Main.scala') }}
+          restore-keys: scala-cli-native-
 
       - name: Cache Cargo
         uses: actions/cache@v4
@@ -95,15 +106,29 @@ jobs:
       - name: Verify artifacts
         run: |
           echo "=== Desktop ==="
+          MISSING=0
           for plat in macos-aarch64 macos-x86_64 linux-x86_64 linux-aarch64 windows-x86_64 windows-aarch64; do
             echo "--- $plat ---"
             ls sge-deps/native-components/target/cross/$plat/ 2>/dev/null || echo "  MISSING!"
+            # Verify critical static archives exist for Scala Native platforms
+            if [[ "$plat" != windows-* ]]; then
+              for lib in libsge_native_ops.a libsge_audio.a libglfw3.a; do
+                if [ ! -f "sge-deps/native-components/target/cross/$plat/$lib" ]; then
+                  echo "  MISSING: $lib"
+                  MISSING=1
+                fi
+              done
+            fi
           done
           echo "=== Android ==="
           for target in aarch64-linux-android armv7-linux-androideabi x86_64-linux-android; do
             echo "--- $target ---"
             ls sge-deps/native-components/target/$target/release/lib*.so 2>/dev/null || echo "  MISSING!"
           done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "::error::Critical native artifacts are missing!"
+            exit 1
+          fi
 
       - name: Upload desktop artifacts
         uses: actions/upload-artifact@v4
@@ -139,18 +164,14 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
-      - name: Verify JDK
-        run: java -version 2>&1 && echo "JAVA_HOME=$JAVA_HOME"
-
       - uses: sbt/setup-sbt@v1
 
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      # sge-dev on Linux — use JVM mode (Scala Native would need clang)
       - name: Run Scala.js tests
-        run: sbt --client 'sgeJS/test'
+        run: sbt 'sgeJS/test'
 
   # ─── JVM compile + test (requires Rust library) ────────────────────
 
@@ -158,6 +179,7 @@ jobs:
     name: JVM tests (${{ matrix.label }})
     needs: [build-native]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -182,9 +204,6 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           cache: sbt
 
-      - name: Verify JDK
-        run: java -version 2>&1
-
       - uses: sbt/setup-sbt@v1
 
       - name: Download native artifacts
@@ -200,7 +219,7 @@ jobs:
           cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
 
       - name: Run JVM tests
-        run: sbt --client 'sge/test'
+        run: sbt 'sge/test'
 
   # ─── Browser integration tests (Scala.js + Playwright) ─────────────
 
@@ -237,6 +256,7 @@ jobs:
     name: Scala Native tests (${{ matrix.label }})
     needs: [build-native]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -267,7 +287,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libstdc++-12-dev
+          sudo apt-get install -y clang libstdc++-12-dev libfreetype-dev libunistring-dev
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
@@ -287,9 +307,45 @@ jobs:
 
       - name: Remove dynamic libraries (force static linking)
         shell: bash
-        run: rm -f sge-deps/native-components/target/release/libsge_native_ops.{dylib,so} sge-deps/native-components/target/release/sge_native_ops.dll
+        run: |
+          rm -f sge-deps/native-components/target/release/libsge_native_ops.{dylib,so}
+          rm -f sge-deps/native-components/target/release/libsge_audio.{dylib,so}
+          rm -f sge-deps/native-components/target/release/libglfw.{dylib,so}
+          rm -f sge-deps/native-components/target/release/sge_native_ops.dll
+          rm -f sge-deps/native-components/target/release/sge_audio.dll
+          rm -f sge-deps/native-components/target/release/glfw3.dll
+
+      - name: Create Windows stub libraries
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          DEST="sge-deps/native-components/target/release"
+          SRC="$DEST/sge_native_ops.dll.lib"
+          if [ -f "$SRC" ]; then
+            # Stub .lib for libs merged into sge_native_ops.dll
+            for lib in sge_audio freetype glfw glfw3 EGL GLESv2; do
+              cp "$SRC" "$DEST/${lib}.lib"
+            done
+            # For idn2/curl: create a C stub with no-op implementations,
+            # compile to .lib so @link annotations resolve without MinGW deps.
+            printf '#include <stdlib.h>\n#include <string.h>\nint idn2_to_ascii_8z(const char *i, char **o, int f) { if(o) *o=_strdup(i?i:""); return 0; }\nconst char *idn2_strerror(int r) { return "stub"; }\nvoid idn2_free(void *p) { free(p); }\nint idn2_lookup_u8(const void *s, void *d, int f) { return 0; }\n' > /tmp/idn2_stub.c
+            clang -c /tmp/idn2_stub.c -o /tmp/idn2_stub.obj
+            llvm-lib /tmp/idn2_stub.obj /out:"$DEST/idn2.lib"
+            cp "$DEST/idn2.lib" "$DEST/curl.lib"
+            echo "Created stub .lib files"
+          else
+            echo "WARNING: sge_native_ops.dll.lib not found!"
+          fi
+
+      - name: Verify static libraries
+        shell: bash
+        run: |
+          echo "=== Static libraries in release dir ==="
+          ls -la sge-deps/native-components/target/release/*.a 2>/dev/null || echo "No .a files found!"
+          ls -la sge-deps/native-components/target/release/*.lib 2>/dev/null || true
 
       - name: Download static curl libraries
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           PLATFORM="${{ matrix.platform }}"
@@ -307,7 +363,7 @@ jobs:
           rm -rf "$TMP_DIR" "$ARCHIVE"
 
       - name: Run Scala Native tests
-        run: sbt --client 'sgeNative/test'
+        run: sbt 'sgeNative/test'
 
   # ─── Android smoke + integration tests (emulator) ──────────────
 
@@ -327,6 +383,15 @@ jobs:
           cache: sbt
 
       - uses: sbt/setup-sbt@v1
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          echo "=== KVM status ==="
+          ls -la /dev/kvm 2>/dev/null && echo "KVM: available" || echo "KVM: NOT available"
+          egrep -c '(vmx|svm)' /proc/cpuinfo && echo "CPU virtualization: supported" || echo "CPU virtualization: NOT supported"
 
       - name: Install emulator dependencies
         run: |
@@ -349,7 +414,7 @@ jobs:
           path: sge-deps/native-components/target/
 
       - name: Build smoke APK
-        run: sbt --client 'sge-android-smoke/androidSign'
+        run: sbt 'sge-android-smoke/androidSign'
 
       - name: Run Android integration tests
         uses: reactivecircus/android-emulator-runner@v2
@@ -361,8 +426,16 @@ jobs:
           arch: x86_64
           force-avd-creation: true
           avd-name: sge-test-avd
-          emulator-options: -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect -no-metrics
-          script: sbt --client 'sge-it-android/test'
+          emulator-boot-timeout: 300
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
+          pre-emulator-launch-script: |
+            echo "=== Pre-launch diagnostics ==="
+            echo "KVM:" && ls -la /dev/kvm
+            echo "Emulator version:" && $ANDROID_HOME/emulator/emulator -version
+          script: |
+            echo "=== Emulator booted ==="
+            adb devices -l
+            sbt 'sge-it-android/test'
 
   # ─── Demo smoke tests (Scala.js demos in headless Chromium) ────────
 
@@ -388,10 +461,20 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright@1.49.0 install chromium
 
-      - name: Publish SGE to local Ivy (JVM + JS)
-        run: sbt --client 'set every packageDoc/publishArtifact := false; sge/publishLocal; sgeJS/publishLocal'
+      - name: Publish SGE to local Maven (JVM + JS)
+        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion'
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
+
+      - name: Verify .sge-version
+        run: |
+          echo "=== .sge-version ==="
+          cat demos/.sge-version
+          echo ""
+          echo "=== Published to M2 ==="
+          VERSION=$(cat demos/.sge-version)
+          ls ~/.m2/repository/com/kubuszok/sge_3/$VERSION/ 2>/dev/null || echo "JVM: NOT FOUND"
+          ls ~/.m2/repository/com/kubuszok/sge_sjs1_3/$VERSION/ 2>/dev/null || echo "JS: NOT FOUND"
 
       - name: Build demo JS bundles
         working-directory: demos
@@ -426,10 +509,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang libstdc++-12-dev
 
-      - name: Publish SGE to local Ivy (all platforms)
-        run: sbt --client 'set every packageDoc/publishArtifact := false; sge/publishLocal; sgeJS/publishLocal; sgeNative/publishLocal'
+      - name: Publish SGE to local Maven (all platforms)
+        run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
+
+      - name: Verify .sge-version
+        run: |
+          echo "=== .sge-version ==="
+          cat demos/.sge-version
+          echo ""
+          echo "=== Published to M2 ==="
+          VERSION=$(cat demos/.sge-version)
+          ls ~/.m2/repository/com/kubuszok/sge_3/$VERSION/ 2>/dev/null || echo "JVM: NOT FOUND"
+          ls ~/.m2/repository/com/kubuszok/sge_sjs1_3/$VERSION/ 2>/dev/null || echo "JS: NOT FOUND"
+          ls ~/.m2/repository/com/kubuszok/sge_native0.5_3/$VERSION/ 2>/dev/null || echo "Native: NOT FOUND"
 
       - name: Compile all demos (JVM)
         working-directory: demos

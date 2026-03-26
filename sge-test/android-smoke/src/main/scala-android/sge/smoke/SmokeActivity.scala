@@ -122,13 +122,13 @@ class SmokeActivity extends Activity {
     super.onResume()
     if (app != null) { // scalafix:ok
       app.onResume()
-      app.listener.resume()
+      if (app.sgeContext != null) app.listener.resume() // scalafix:ok
     }
   }
 
   override def onPause(): Unit = {
     if (app != null) { // scalafix:ok
-      app.listener.pause()
+      if (app.sgeContext != null) app.listener.pause() // scalafix:ok
       app.onPause()
     }
     super.onPause()
