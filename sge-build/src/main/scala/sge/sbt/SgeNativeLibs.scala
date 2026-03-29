@@ -240,8 +240,10 @@ object SgeNativeLibs {
           if (parts.length >= 2) parts(0) else "unknown"
         }
 
-        // Check host platform has libs
-        if (!byPlatform.contains(host.classifier)) {
+        // Check host platform has libs (skip when SGE_SKIP_NATIVE_VALIDATION is set,
+        // e.g. Android CI job that only has Android native libs, not desktop).
+        val skipValidation = sys.env.get("SGE_SKIP_NATIVE_VALIDATION").contains("true")
+        if (!skipValidation && !byPlatform.contains(host.classifier)) {
           sys.error(
             s"[sge] Native libraries missing for host platform '${host.classifier}'.\n" +
               s"  Run 'sge-dev native build && sge-dev native angle setup' to build them.\n" +
@@ -249,8 +251,8 @@ object SgeNativeLibs {
           )
         }
 
-        // In CI, all 6 platforms should be present
-        if (isCI) {
+        // In CI, all 6 platforms should be present (unless validation skipped)
+        if (isCI && !skipValidation) {
           val missing = Platform.desktop.filterNot(p => byPlatform.contains(p.classifier))
           if (missing.nonEmpty) {
             sys.error(

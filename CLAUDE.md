@@ -177,6 +177,33 @@ Each audited file gets a `Migration notes:` block in its header comment.
 - **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date
 - **Progress tracking**: `memory/audit-progress.md`
 
+## CI Pipeline
+
+~20 jobs in `.github/workflows/ci.yml`. Key patterns:
+
+| Job group | Platforms |
+|-----------|-----------|
+| JVM tests | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64, windows-aarch64 |
+| Scala Native tests | linux-x86_64, linux-aarch64, macos-aarch64, windows-x86_64 |
+| Release verification | above + macos-x86_64 (Rosetta, JVM only) |
+| Android tests | ubuntu-latest (x86_64 emulator) — smoke + Pong demo APK |
+| Browser/JS | ubuntu-latest — Scala.js tests, Playwright smoke, browser packaging |
+| Demo compilation | ubuntu-latest — all 10 demos × JVM + JS + Native |
+
+**CI-specific mechanisms:**
+- `SGE_USE_PLUGIN=true` — demos consume published sge-build plugin instead of source inclusion
+- `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
+- `matrix.native` flag — controls which verify-release steps run per platform (native link, libobjc stub, static curl)
+- ANGLE shared libs downloaded in `build-native` via `sge-dev native angle cross-collect`
+- libobjc stub on Linux — no-op `objc_msgSend`/`sel_registerName` for macOS-only `@link("objc")`
+- Windows Native uses compiled C stub `.lib` files for idn2/curl (no real HTTP)
+
+**Known CI limitations (excluded from pass/fail):**
+- Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE, CLIPBOARD
+- macOS x86_64: no runner (macos-13 retired); release verified via Rosetta
+- Windows aarch64: Scala Native unsupported (generates x64 code); JVM tests pass
+- Scaladoc: disabled (`packageDoc/publishArtifact := false`); non-blocking probe monitors upstream fix
+
 ## Documentation
 
 | Path | Content |
