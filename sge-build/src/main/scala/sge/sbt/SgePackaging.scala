@@ -149,11 +149,13 @@ object SgePackaging {
 
   // ── Simple mode settings ──────────────────────────────────────────
 
-  /** JVM packaging settings (simple mode).  Apply with `.settings(SgePackaging.jvmSettings *)`. */
+  /** JVM packaging settings (simple mode).  Apply with `.settings(SgePackaging.jvmSettings *)`.
+    * Note: `sgeNativeLibDirs` is wired to `sgeRustLibDir` by SgeProject's defaults.
+    * This only sets `sgeAppName` and the `sgePackage` task — the native lib dir is inherited.
+    */
   lazy val jvmSettings: Seq[Setting[_]] = Seq(
-    sgeAppName       := name.value,
-    sgeNativeLibDirs := Seq.empty,
-    sgePackage       := packageJvm.value
+    sgeAppName := name.value,
+    sgePackage := packageJvm.value
   )
 
   // ── Distribution mode implementation ──────────────────────────────

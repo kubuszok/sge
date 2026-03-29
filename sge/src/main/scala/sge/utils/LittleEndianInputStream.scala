@@ -92,7 +92,7 @@ final class LittleEndianInputStream(in: InputStream) extends FilterInputStream(i
   def readDouble(): Double =
     java.lang.Double.longBitsToDouble(readLong())
 
-  @scala.annotation.nowarn
+  @scala.annotation.nowarn("msg=deprecated")
   @throws[IOException]
   def readLine(): String =
     din.readLine()

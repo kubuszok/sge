@@ -82,6 +82,9 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
 def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
   JvmReleases.axisSettings ++ androidJvmSettings(dir) ++ Seq(
     SgeProject.autoImport.sgeProjectDir := dir,
+    SgeProject.autoImport.sgeRustLibDir := {
+      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
+    },
     Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
     SgePackaging.sgeTargets := jdkUrls,
     SgePackaging.sgeCrossNativeLibDir := Some(
