@@ -31,6 +31,27 @@ import sbt.Keys._
   */
 object SgePlugin {
 
+  /** SGE version this plugin was built with. Use for library dependencies:
+    * {{{ libraryDependencies += "com.kubuszok" %%% "sge" % SgePlugin.sgeVersion }}}
+    *
+    * Resolved at load time from the plugin JAR's properties, or from the
+    * `.sge-version` file when running from source inclusion.
+    */
+  val sgeVersion: String = {
+    // Try plugin JAR manifest first (set by sbt-buildinfo / source generator)
+    val fromProps = Option(getClass.getResourceAsStream("/sge-build.properties")).map { is =>
+      val p = new java.util.Properties()
+      try p.load(is) finally is.close()
+      p.getProperty("sge.version", "")
+    }.filter(_.nonEmpty)
+    // Fall back to .sge-version file (source-inclusion mode)
+    fromProps.getOrElse {
+      val f = new java.io.File(".sge-version")
+      if (f.exists()) scala.io.Source.fromFile(f).mkString.trim
+      else "0.0.0-SNAPSHOT"
+    }
+  }
+
   /** Scala version used by SGE. All modules must use this exact version. */
   val scalaVersion = "3.8.2"
 

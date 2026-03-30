@@ -191,7 +191,7 @@ Each audited file gets a `Migration notes:` block in its header comment.
 | Demo compilation | ubuntu-latest — all 10 demos × JVM + JS + Native |
 
 **CI-specific mechanisms:**
-- `SGE_USE_PLUGIN=true` — demos consume published sge-build plugin instead of source inclusion
+- Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
 - `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
 - `matrix.native` flag — controls which verify-release steps run per platform (native link, libobjc stub, static curl)
 - ANGLE shared libs downloaded in `build-native` via `sge-dev native angle cross-collect`
