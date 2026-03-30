@@ -1,0 +1,33 @@
+/*
+ * Ported from libGDX gdx-ai - https://github.com/libgdx/gdx-ai
+ * Original source: com/badlogic/gdx/ai/fma/FormationMember.java
+ * Original authors: davebaol
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Renames: `com.badlogic.gdx.ai.fma` -> `sge.ai.fma`
+ *   Convention: split packages
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ */
+package sge
+package ai
+package fma
+
+import sge.ai.utils.Location
+import sge.math.Vector
+
+/** Game characters coordinated by a [[Formation]] must implement this trait. Any `FormationMember` has a target location which is the place where it should be in order to stay in formation. This
+  * target location is calculated by the formation itself.
+  *
+  * @tparam T
+  *   Type of vector, either 2D or 3D, implementing the [[Vector]] trait
+  *
+  * @author
+  *   davebaol (original implementation)
+  */
+trait FormationMember[T <: Vector[T]] {
+
+  /** Returns the target location of this formation member. */
+  def targetLocation: Location[T]
+}

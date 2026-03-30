@@ -246,7 +246,7 @@ object BinaryHeap {
     * @param value
     *   The initial value for the node. To change the value, use BinaryHeap#add(Node, float) if the node is not in the heap, or BinaryHeap#setValue(Node, float) if the node is in the heap.
     */
-  final class Node(var value: Float) {
+  class Node(var value: Float) {
     var index: Int = scala.compiletime.uninitialized
 
     override def toString: String = value.toString

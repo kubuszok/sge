@@ -17,7 +17,7 @@ object MigrationDb {
                   |Commands:
                   |  list [--status S] [--category C] [--package P] [--limit N] [--offset N]
                   |  get <source_path>
-                  |  set <source_path> --status S [--notes TEXT]
+                  |  set <source_path> --status S [--notes TEXT] [--source S] [--category C] [--sge-path P]
                   |  sync       Import from all progress tracking files
                   |  stats      Summary counts""".stripMargin)
       case "list" :: rest => list(Cli.parse(rest))
@@ -68,18 +68,33 @@ object MigrationDb {
     val updates = scala.collection.mutable.Map.empty[String, String]
     args.flag("status").foreach(s => updates("status") = s)
     args.flag("notes").foreach(n => updates("notes") = n)
+    args.flag("source").foreach(s => updates("source") = s)
+    args.flag("category").foreach(c => updates("category") = c)
+    args.flag("sge-path").foreach(p => updates("sge_path") = p)
     updates("last_updated") = LocalDate.now().toString
 
     var table = load()
     val found = table.rows.exists(_.getOrElse("source_path", "") == path)
-    if (!found) {
-      Term.err(s"Not found: $path")
-      sys.exit(1)
+    if (found) {
+      table = table.updateRow(
+        _.getOrElse("source_path", "") == path,
+        updates.toMap
+      )
+    } else {
+      // Upsert: create new entry
+      val row = Map(
+        "source_path" -> path,
+        "sge_path" -> updates.getOrElse("sge_path", ""),
+        "status" -> updates.getOrElse("status", "ai_converted"),
+        "category" -> updates.getOrElse("category", "extension"),
+        "last_updated" -> updates.getOrElse("last_updated", LocalDate.now().toString),
+        "notes" -> updates.getOrElse("notes", ""),
+        "source" -> updates.getOrElse("source", ""),
+        "source_sync_commit" -> "",
+        "last_sync_date" -> ""
+      )
+      table = table.addRow(row)
     }
-    table = table.updateRow(
-      _.getOrElse("source_path", "") == path,
-      updates.toMap
-    )
     save(table)
     Term.ok(s"Updated: $path")
   }

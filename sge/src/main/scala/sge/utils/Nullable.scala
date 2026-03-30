@@ -11,7 +11,7 @@ package utils
 
 /** `Option` alternative for LibGDX that does not allocate memory for `Some` case.
   *
-  * Insipred by Kyo's allocation-free `Option` type.
+  * Inspired by Kyo's allocation-free `Option` type.
   */
 type Nullable[A] = Nullable.Impl[A]
 

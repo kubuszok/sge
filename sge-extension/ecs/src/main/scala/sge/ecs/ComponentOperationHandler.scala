@@ -1,0 +1,66 @@
+/*
+ * Ported from Ashley ECS - https://github.com/libgdx/ashley
+ * Original source: com/badlogic/ashley/core/ComponentOperationHandler.java
+ * Original authors: See AUTHORS file
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Migration notes:
+ *   Renames: `com.badlogic.ashley.core` -> `sge.ecs`
+ *   Convention: split packages
+ *   Idiom: enum instead of inner enum class
+ *   Idiom: ArrayBuffer instead of Array + Pool for operations
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ */
+package sge
+package ecs
+
+import scala.collection.mutable.ArrayBuffer
+
+/** Handles deferred component add/remove operations during engine update processing.
+  *
+  * When the engine is updating systems, component operations are deferred and batched to avoid concurrent modification.
+  */
+private[ecs] class ComponentOperationHandler(delayed: () => Boolean) {
+
+  private val operations: ArrayBuffer[ComponentOperation] = ArrayBuffer.empty
+
+  def add(entity: Entity): Unit = {
+    if (delayed()) {
+      operations += ComponentOperation(ComponentOperation.Type.Add, entity)
+    } else {
+      entity.notifyComponentAdded()
+    }
+  }
+
+  def remove(entity: Entity): Unit = {
+    if (delayed()) {
+      operations += ComponentOperation(ComponentOperation.Type.Remove, entity)
+    } else {
+      entity.notifyComponentRemoved()
+    }
+  }
+
+  def hasOperationsToProcess: Boolean = operations.nonEmpty
+
+  def processOperations(): Unit = {
+    var i = 0
+    while (i < operations.size) {
+      val operation = operations(i)
+      operation.opType match {
+        case ComponentOperation.Type.Add    => operation.entity.notifyComponentAdded()
+        case ComponentOperation.Type.Remove => operation.entity.notifyComponentRemoved()
+      }
+      i += 1
+    }
+    operations.clear()
+  }
+}
+
+private[ecs] object ComponentOperation {
+  enum Type {
+    case Add, Remove
+  }
+}
+
+private[ecs] final class ComponentOperation(val opType: ComponentOperation.Type, val entity: Entity)

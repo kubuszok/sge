@@ -17,7 +17,7 @@ object AuditDb {
                   |Commands:
                   |  list [--status S] [--package P] [--tested T] [--limit N] [--offset N]
                   |  get <file_path>
-                  |  set <file_path> --status S [--tested T] [--notes TEXT]
+                  |  set <file_path> --status S [--tested T] [--notes TEXT] [--source S] [--package P]
                   |  import     Parse all docs/audit/*.md
                   |  stats      Summary counts""".stripMargin)
       case "list" :: rest => list(Cli.parse(rest))
@@ -61,6 +61,8 @@ object AuditDb {
     args.flag("status").foreach(s => updates("status") = s)
     args.flag("tested").foreach(t => updates("tested") = t)
     args.flag("notes").foreach(n => updates("notes") = n)
+    args.flag("source").foreach(s => updates("source") = s)
+    args.flag("package").foreach(p => updates("package") = p)
     updates("last_audited") = LocalDate.now().toString
 
     var table = load()
@@ -68,14 +70,15 @@ object AuditDb {
     if (found) {
       table = table.updateRow(_.getOrElse("file_path", "") == path, updates.toMap)
     } else {
-      val pkg = path.split("/").dropRight(1).lastOption.getOrElse("")
+      val pkg = updates.getOrElse("package", path.split("/").dropRight(1).lastOption.getOrElse(""))
       val row = Map(
         "file_path" -> path,
         "package" -> pkg,
         "status" -> updates.getOrElse("status", "pass"),
         "tested" -> updates.getOrElse("tested", "no"),
         "last_audited" -> updates.getOrElse("last_audited", LocalDate.now().toString),
-        "notes" -> updates.getOrElse("notes", "")
+        "notes" -> updates.getOrElse("notes", ""),
+        "source" -> updates.getOrElse("source", "")
       )
       table = table.addRow(row)
     }

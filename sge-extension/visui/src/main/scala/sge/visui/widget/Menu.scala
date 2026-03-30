@@ -1,0 +1,66 @@
+/*
+ * Ported from VisUI - https://github.com/kotcrab/vis-ui
+ * Original authors: Kotcrab
+ * Licensed under the Apache License, Version 2.0
+ *
+ * Scala port copyright 2025-2026 Mateusz Kubuszok
+ */
+package sge
+package visui
+package widget
+
+import sge.scenes.scene2d.ui.TextButton
+import sge.scenes.scene2d.utils.Drawable
+import sge.utils.Nullable
+import sge.visui.VisUI
+
+/** Menu used in MenuBar, it is a standard [[PopupMenu]] with title displayed in MenuBar.
+  * @author
+  *   Kotcrab
+  */
+class Menu(val title: String, menuStyle: Menu.MenuStyle)(using Sge) extends PopupMenu(menuStyle) {
+
+  private var _menuBar: Nullable[MenuBar] = Nullable.empty
+
+  val openButton:    VisTextButton      = new VisTextButton(title, new VisTextButton.VisTextButtonStyle(menuStyle.openButtonStyle))
+  val buttonDefault: Nullable[Drawable] = openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].up
+
+  def this(title: String)(using Sge) = this(title, VisUI.getSkin.get[Menu.MenuStyle])
+
+  def this(title: String, styleName: String)(using Sge) = this(title, VisUI.getSkin.get[Menu.MenuStyle](styleName))
+
+  def selectButton(): Unit =
+    openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].up = openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].over
+
+  def deselectButton(): Unit =
+    openButton.style.asInstanceOf[VisTextButton.VisTextButtonStyle].up = buttonDefault
+
+  /** Called by MenuBar when this menu is added to it */
+  private[widget] def setMenuBar(menuBar: Nullable[MenuBar]): Unit = {
+    if (_menuBar.isDefined && menuBar.isDefined) throw new IllegalStateException("Menu was already added to MenuBar")
+    _menuBar = menuBar
+  }
+
+  def getOpenButton: TextButton = openButton
+}
+
+object Menu {
+
+  class MenuStyle extends PopupMenu.PopupMenuStyle {
+    var openButtonStyle: VisTextButton.VisTextButtonStyle = scala.compiletime.uninitialized
+
+    def this(style: MenuStyle) = {
+      this()
+      this.background = style.background
+      this.border = style.border
+      this.openButtonStyle = style.openButtonStyle
+    }
+
+    def this(background: Drawable, border: Nullable[Drawable], openButtonStyle: VisTextButton.VisTextButtonStyle) = {
+      this()
+      this.background = background
+      this.border = border
+      this.openButtonStyle = openButtonStyle
+    }
+  }
+}
