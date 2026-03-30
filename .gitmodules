@@ -8,3 +8,36 @@
 [submodule "original-src/libgdx"]
 	path = original-src/libgdx
 	url = https://github.com/libgdx/libgdx
+[submodule "original-src/gdx-ai"]
+	path = original-src/gdx-ai
+	url = https://github.com/libgdx/gdx-ai.git
+[submodule "original-src/ashley"]
+	path = original-src/ashley
+	url = https://github.com/libgdx/ashley.git
+[submodule "original-src/noise4j"]
+	path = original-src/noise4j
+	url = https://github.com/czyzby/noise4j.git
+[submodule "original-src/simple-graphs"]
+	path = original-src/simple-graphs
+	url = https://github.com/earlygrey/simple-graphs.git
+[submodule "original-src/jbump"]
+	path = original-src/jbump
+	url = https://github.com/tommyettinger/jbump.git
+[submodule "original-src/anim8-gdx"]
+	path = original-src/anim8-gdx
+	url = https://github.com/tommyettinger/anim8-gdx.git
+[submodule "original-src/libgdx-screenmanager"]
+	path = original-src/libgdx-screenmanager
+	url = https://github.com/crykn/libgdx-screenmanager.git
+[submodule "original-src/gdx-vfx"]
+	path = original-src/gdx-vfx
+	url = https://github.com/crashinvaders/gdx-vfx.git
+[submodule "original-src/textratypist"]
+	path = original-src/textratypist
+	url = https://github.com/tommyettinger/textratypist.git
+[submodule "original-src/colorful-gdx"]
+	path = original-src/colorful-gdx
+	url = https://github.com/tommyettinger/colorful-gdx.git
+[submodule "original-src/vis-ui"]
+	path = original-src/vis-ui
+	url = https://github.com/kotcrab/vis-ui.git

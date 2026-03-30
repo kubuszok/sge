@@ -1,836 +1,384 @@
 # SGE Migration Database
 # source_path	sge_path	status	category	last_updated	notes	source	source_sync_commit	last_sync_date
-com/badlogic/gdx/AbstractGraphics.java	sge/Graphics.scala	ai_converted	core	2026-03-19	merged into Graphics	libgdx		
-com/badlogic/gdx/AbstractInput.java	sge/Input.scala	ai_converted	core	2026-03-19	merged into Input	libgdx		
-com/badlogic/gdx/Application.java	sge/Application.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/ApplicationAdapter.java	sge/Application.scala	ai_converted	core	2026-03-19	merged into Application trait	libgdx		
-com/badlogic/gdx/ApplicationListener.java	sge/ApplicationListener.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/ApplicationLogger.java	sge/ApplicationLogger.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Audio.java	sge/Audio.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Files.java	sge/Files.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Game.java	sge/Game.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Gdx.java	sge/Sge.scala	ai_converted	core	2026-03-19	renamed Gdx->Sge	libgdx		
-com/badlogic/gdx/Graphics.java	sge/Graphics.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Input.java	sge/Input.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/InputAdapter.java	sge/Input.scala	ai_converted	core	2026-03-19	merged into Input trait	libgdx		
-com/badlogic/gdx/InputEventQueue.java	sge/InputEventQueue.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/InputMultiplexer.java	sge/InputMultiplexer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/InputProcessor.java	sge/InputProcessor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/LifecycleListener.java	sge/LifecycleListener.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Net.java	sge/Net.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Preferences.java	sge/Preferences.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/Screen.java	sge/Screen.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/ScreenAdapter.java	sge/Screen.scala	ai_converted	core	2026-03-19	merged into Screen trait	libgdx		
-com/badlogic/gdx/Version.java	sge/Version.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/AssetDescriptor.java	sge/assets/AssetDescriptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/AssetErrorListener.java	sge/assets/AssetErrorListener.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/AssetLoaderParameters.java	sge/assets/AssetLoaderParameters.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/AssetLoadingTask.java	sge/assets/AssetLoadingTask.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/AssetManager.java	sge/assets/AssetManager.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/AssetLoader.java	sge/assets/loaders/AssetLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/AsynchronousAssetLoader.java	sge/assets/loaders/AsynchronousAssetLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/BitmapFontLoader.java	sge/assets/loaders/BitmapFontLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/CubemapLoader.java	sge/assets/loaders/CubemapLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/FileHandleResolver.java	sge/assets/loaders/FileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/I18NBundleLoader.java	sge/assets/loaders/I18NBundleLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/ModelLoader.java	sge/assets/loaders/ModelLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/MusicLoader.java	sge/assets/loaders/MusicLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/ParticleEffectLoader.java	sge/assets/loaders/ParticleEffectLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/PixmapLoader.java	sge/assets/loaders/PixmapLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/ShaderProgramLoader.java	sge/assets/loaders/ShaderProgramLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/SkinLoader.java	sge/assets/loaders/SkinLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/SoundLoader.java	sge/assets/loaders/SoundLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/SynchronousAssetLoader.java	sge/assets/loaders/SynchronousAssetLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/TextureAtlasLoader.java	sge/assets/loaders/TextureAtlasLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/TextureLoader.java	sge/assets/loaders/TextureLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/AbsoluteFileHandleResolver.java	sge/assets/loaders/resolvers/AbsoluteFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/ClasspathFileHandleResolver.java	sge/assets/loaders/resolvers/ClasspathFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/ExternalFileHandleResolver.java	sge/assets/loaders/resolvers/ExternalFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/InternalFileHandleResolver.java	sge/assets/loaders/resolvers/InternalFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/LocalFileHandleResolver.java	sge/assets/loaders/resolvers/LocalFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/PrefixFileHandleResolver.java	sge/assets/loaders/resolvers/PrefixFileHandleResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/assets/loaders/resolvers/ResolutionFileResolver.java	sge/assets/loaders/resolvers/ResolutionFileResolver.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/audio/AudioDevice.java	sge/audio/AudioDevice.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/audio/AudioRecorder.java	sge/audio/AudioRecorder.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/audio/Music.java	sge/audio/Music.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/audio/Sound.java	sge/audio/Sound.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/files/FileHandle.java	sge/files/FileHandles.scala	ai_converted	core	2026-03-19	renamed	libgdx		
-com/badlogic/gdx/files/FileHandleStream.java	sge/files/FileHandles.scala	ai_converted	core	2026-03-19	merged into FileHandles	libgdx		
-com/badlogic/gdx/files/package-info.java		skipped	core	2026-03-19	package-info not needed in Scala	libgdx		
-com/badlogic/gdx/graphics/Camera.java	sge/graphics/Camera.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Color.java	sge/graphics/Color.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Colors.java	sge/graphics/Colors.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Cubemap.java	sge/graphics/Cubemap.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/CubemapData.java	sge/graphics/CubemapData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Cursor.java	sge/graphics/Cursor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/FPSLogger.java	sge/graphics/FPSLogger.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/GL20.java	sge/graphics/GL20.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/GL30.java	sge/graphics/GL30.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/GL31.java	sge/graphics/GL31.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/GL32.java	sge/graphics/GL32.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/GLTexture.java	sge/graphics/GLTexture.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Mesh.java	sge/graphics/Mesh.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/OrthographicCamera.java	sge/graphics/OrthographicCamera.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/PerspectiveCamera.java	sge/graphics/PerspectiveCamera.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Pixmap.java	sge/graphics/Pixmap.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/PixmapIO.java	sge/graphics/PixmapIO.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Texture.java	sge/graphics/Texture.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Texture3D.java	sge/graphics/Texture3D.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/Texture3DData.java	sge/graphics/Texture3DData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/TextureArray.java	sge/graphics/TextureArray.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/TextureArrayData.java	sge/graphics/TextureArrayData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/TextureData.java	sge/graphics/TextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/VertexAttribute.java	sge/graphics/VertexAttribute.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/VertexAttributes.java	sge/graphics/VertexAttributes.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/Animation.java	sge/graphics/g2d/Animation.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/Batch.java	sge/graphics/g2d/Batch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/BitmapFont.java	sge/graphics/g2d/BitmapFont.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/BitmapFontCache.java	sge/graphics/g2d/BitmapFontCache.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/CpuSpriteBatch.java	sge/graphics/g2d/CpuSpriteBatch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/DistanceFieldFont.java	sge/graphics/g2d/DistanceFieldFont.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/Gdx2DPixmap.java	sge/graphics/g2d/Gdx2DPixmap.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/GlyphLayout.java	sge/graphics/g2d/GlyphLayout.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/NinePatch.java	sge/graphics/g2d/NinePatch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/ParticleEffect.java	sge/graphics/g2d/ParticleEffect.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/ParticleEffectPool.java	sge/graphics/g2d/ParticleEffectPool.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/ParticleEmitter.java	sge/graphics/g2d/ParticleEmitter.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PixmapPacker.java	sge/graphics/g2d/PixmapPacker.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PixmapPackerIO.java	sge/graphics/g2d/PixmapPackerIO.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PolygonBatch.java	sge/graphics/g2d/PolygonBatch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PolygonRegion.java	sge/graphics/g2d/PolygonRegion.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PolygonRegionLoader.java	sge/graphics/g2d/PolygonRegionLoader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PolygonSprite.java	sge/graphics/g2d/PolygonSprite.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/PolygonSpriteBatch.java	sge/graphics/g2d/PolygonSpriteBatch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/RepeatablePolygonSprite.java	sge/graphics/g2d/RepeatablePolygonSprite.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/Sprite.java	sge/graphics/g2d/Sprite.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/SpriteBatch.java	sge/graphics/g2d/SpriteBatch.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/SpriteCache.java	sge/graphics/g2d/SpriteCache.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/TextureAtlas.java	sge/graphics/g2d/TextureAtlas.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g2d/TextureRegion.java	sge/graphics/g2d/TextureRegion.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/g3d/Attribute.java	sge/graphics/g3d/Attribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/Attributes.java	sge/graphics/g3d/Attributes.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/Environment.java	sge/graphics/g3d/Environment.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/Material.java	sge/graphics/g3d/Material.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/Model.java	sge/graphics/g3d/Model.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/ModelBatch.java	sge/graphics/g3d/ModelBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/ModelCache.java	sge/graphics/g3d/ModelCache.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/ModelInstance.java	sge/graphics/g3d/ModelInstance.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/Renderable.java	sge/graphics/g3d/Renderable.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/RenderableProvider.java	sge/graphics/g3d/RenderableProvider.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/Shader.java	sge/graphics/g3d/Shader.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/BlendingAttribute.java	sge/graphics/g3d/attributes/BlendingAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/ColorAttribute.java	sge/graphics/g3d/attributes/ColorAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/CubemapAttribute.java	sge/graphics/g3d/attributes/CubemapAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/DepthTestAttribute.java	sge/graphics/g3d/attributes/DepthTestAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/DirectionalLightsAttribute.java	sge/graphics/g3d/attributes/DirectionalLightsAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/FloatAttribute.java	sge/graphics/g3d/attributes/FloatAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/IntAttribute.java	sge/graphics/g3d/attributes/IntAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/PointLightsAttribute.java	sge/graphics/g3d/attributes/PointLightsAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/SpotLightsAttribute.java	sge/graphics/g3d/attributes/SpotLightsAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/attributes/TextureAttribute.java	sge/graphics/g3d/attributes/TextureAttribute.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/CameraGroupStrategy.java	sge/graphics/g3d/decals/CameraGroupStrategy.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/Decal.java	sge/graphics/g3d/decals/Decal.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/DecalBatch.java	sge/graphics/g3d/decals/DecalBatch.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/DecalMaterial.java	sge/graphics/g3d/decals/DecalMaterial.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/GroupPlug.java	sge/graphics/g3d/decals/GroupPlug.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/GroupStrategy.java	sge/graphics/g3d/decals/GroupStrategy.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/PluggableGroupStrategy.java	sge/graphics/g3d/decals/PluggableGroupStrategy.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/decals/SimpleOrthoGroupStrategy.java	sge/graphics/g3d/decals/SimpleOrthoGroupStrategy.scala	ai_converted	core	2026-03-19	g3d decals batch	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/AmbientCubemap.java	sge/graphics/g3d/environment/AmbientCubemap.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/BaseLight.java	sge/graphics/g3d/environment/BaseLight.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/DirectionalLight.java	sge/graphics/g3d/environment/DirectionalLight.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/DirectionalShadowLight.java	sge/graphics/g3d/environment/DirectionalShadowLight.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/PointLight.java	sge/graphics/g3d/environment/PointLight.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/ShadowMap.java	sge/graphics/g3d/environment/ShadowMap.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/SphericalHarmonics.java	sge/graphics/g3d/environment/SphericalHarmonics.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/environment/SpotLight.java	sge/graphics/g3d/environment/SpotLight.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/loader/G3dModelLoader.java	sge/graphics/g3d/loader/G3dModelLoader.scala	ai_converted	core	2026-03-19	g3d module; .g3dj text JSON support (UBJson deferred)	libgdx		
-com/badlogic/gdx/graphics/g3d/loader/ObjLoader.java	sge/graphics/g3d/loader/ObjLoader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/model/Animation.java	sge/graphics/g3d/model/Animation.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/MeshPart.java	sge/graphics/g3d/model/MeshPart.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/Node.java	sge/graphics/g3d/model/Node.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/model/NodeAnimation.java	sge/graphics/g3d/model/NodeAnimation.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/NodeKeyframe.java	sge/graphics/g3d/model/NodeKeyframe.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/NodePart.java	sge/graphics/g3d/model/NodePart.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelAnimation.java	sge/graphics/g3d/model/data/ModelAnimation.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelData.java	sge/graphics/g3d/model/data/ModelData.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelMaterial.java	sge/graphics/g3d/model/data/ModelMaterial.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelMesh.java	sge/graphics/g3d/model/data/ModelMesh.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelMeshPart.java	sge/graphics/g3d/model/data/ModelMeshPart.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelNode.java	sge/graphics/g3d/model/data/ModelNode.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodeAnimation.java	sge/graphics/g3d/model/data/ModelNodeAnimation.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodeKeyframe.java	sge/graphics/g3d/model/data/ModelNodeKeyframe.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelNodePart.java	sge/graphics/g3d/model/data/ModelNodePart.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/model/data/ModelTexture.java	sge/graphics/g3d/model/data/ModelTexture.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParallelArray.java	sge/graphics/g3d/particles/ParallelArray.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleChannels.java	sge/graphics/g3d/particles/ParticleChannels.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleController.java	sge/graphics/g3d/particles/ParticleController.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleControllerComponent.java	sge/graphics/g3d/particles/ParticleControllerComponent.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffect.java	sge/graphics/g3d/particles/ParticleEffect.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleEffectLoader.java	sge/graphics/g3d/particles/ParticleEffectLoader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleShader.java	sge/graphics/g3d/particles/ParticleShader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleSorter.java	sge/graphics/g3d/particles/ParticleSorter.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ParticleSystem.java	sge/graphics/g3d/particles/ParticleSystem.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/ResourceData.java	sge/graphics/g3d/particles/ResourceData.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/batches/BillboardParticleBatch.java	sge/graphics/g3d/particles/batches/BillboardParticleBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/batches/BufferedParticleBatch.java	sge/graphics/g3d/particles/batches/BufferedParticleBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/batches/ModelInstanceParticleBatch.java	sge/graphics/g3d/particles/batches/ModelInstanceParticleBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/batches/ParticleBatch.java	sge/graphics/g3d/particles/batches/ParticleBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/batches/PointSpriteParticleBatch.java	sge/graphics/g3d/particles/batches/PointSpriteParticleBatch.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/emitters/Emitter.java	sge/graphics/g3d/particles/emitters/Emitter.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/emitters/RegularEmitter.java	sge/graphics/g3d/particles/emitters/RegularEmitter.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/ColorInfluencer.java	sge/graphics/g3d/particles/influencers/ColorInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsInfluencer.java	sge/graphics/g3d/particles/influencers/DynamicsInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/DynamicsModifier.java	sge/graphics/g3d/particles/influencers/DynamicsModifier.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/Influencer.java	sge/graphics/g3d/particles/influencers/Influencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/ModelInfluencer.java	sge/graphics/g3d/particles/influencers/ModelInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.java	sge/graphics/g3d/particles/influencers/ParticleControllerFinalizerInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/ParticleControllerInfluencer.java	sge/graphics/g3d/particles/influencers/ParticleControllerInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/RegionInfluencer.java	sge/graphics/g3d/particles/influencers/RegionInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/ScaleInfluencer.java	sge/graphics/g3d/particles/influencers/ScaleInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/SimpleInfluencer.java	sge/graphics/g3d/particles/influencers/SimpleInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/influencers/SpawnInfluencer.java	sge/graphics/g3d/particles/influencers/SpawnInfluencer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardControllerRenderData.java	sge/graphics/g3d/particles/renderers/BillboardControllerRenderData.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/BillboardRenderer.java	sge/graphics/g3d/particles/renderers/BillboardRenderer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.java	sge/graphics/g3d/particles/renderers/ModelInstanceControllerRenderData.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/ModelInstanceRenderer.java	sge/graphics/g3d/particles/renderers/ModelInstanceRenderer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.java	sge/graphics/g3d/particles/renderers/ParticleControllerControllerRenderer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderData.java	sge/graphics/g3d/particles/renderers/ParticleControllerRenderData.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/ParticleControllerRenderer.java	sge/graphics/g3d/particles/renderers/ParticleControllerRenderer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.java	sge/graphics/g3d/particles/renderers/PointSpriteControllerRenderData.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/renderers/PointSpriteRenderer.java	sge/graphics/g3d/particles/renderers/PointSpriteRenderer.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/CylinderSpawnShapeValue.java	sge/graphics/g3d/particles/values/CylinderSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/EllipseSpawnShapeValue.java	sge/graphics/g3d/particles/values/EllipseSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/GradientColorValue.java	sge/graphics/g3d/particles/values/GradientColorValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/LineSpawnShapeValue.java	sge/graphics/g3d/particles/values/LineSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/MeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/MeshSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/NumericValue.java	sge/graphics/g3d/particles/values/NumericValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/ParticleValue.java	sge/graphics/g3d/particles/values/ParticleValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/PointSpawnShapeValue.java	sge/graphics/g3d/particles/values/PointSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.java	sge/graphics/g3d/particles/values/PrimitiveSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/RangedNumericValue.java	sge/graphics/g3d/particles/values/RangedNumericValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/RectangleSpawnShapeValue.java	sge/graphics/g3d/particles/values/RectangleSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/ScaledNumericValue.java	sge/graphics/g3d/particles/values/ScaledNumericValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/SpawnShapeValue.java	sge/graphics/g3d/particles/values/SpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/UnweightedMeshSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.java	sge/graphics/g3d/particles/values/WeightMeshSpawnShapeValue.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/shaders/BaseShader.java	sge/graphics/g3d/shaders/BaseShader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/shaders/DefaultShader.java	sge/graphics/g3d/shaders/DefaultShader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/shaders/DepthShader.java	sge/graphics/g3d/shaders/DepthShader.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/AnimationController.java	sge/graphics/g3d/utils/AnimationController.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/BaseAnimationController.java	sge/graphics/g3d/utils/BaseAnimationController.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/BaseShaderProvider.java	sge/graphics/g3d/utils/BaseShaderProvider.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/CameraInputController.java	sge/graphics/g3d/utils/CameraInputController.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/DefaultRenderableSorter.java	sge/graphics/g3d/utils/DefaultRenderableSorter.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/DefaultShaderProvider.java	sge/graphics/g3d/utils/DefaultShaderProvider.scala	ai_converted	core	2026-03-19	g3d batch A	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/DefaultTextureBinder.java	sge/graphics/g3d/utils/DefaultTextureBinder.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/DepthShaderProvider.java	sge/graphics/g3d/utils/DepthShaderProvider.scala	ai_converted	core	2026-03-19	g3d batch A	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/FirstPersonCameraController.java	sge/graphics/g3d/utils/FirstPersonCameraController.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/MeshBuilder.java	sge/graphics/g3d/utils/MeshBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/MeshPartBuilder.java	sge/graphics/g3d/utils/MeshPartBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/ModelBuilder.java	sge/graphics/g3d/utils/ModelBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/RenderContext.java	sge/graphics/g3d/utils/RenderContext.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/RenderableSorter.java	sge/graphics/g3d/utils/RenderableSorter.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/ShaderProvider.java	sge/graphics/g3d/utils/ShaderProvider.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/ShapeCache.java	sge/graphics/g3d/utils/ShapeCache.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/TextureBinder.java	sge/graphics/g3d/utils/TextureBinder.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/TextureDescriptor.java	sge/graphics/g3d/utils/TextureDescriptor.scala	ai_converted	core	2026-03-19	g3d phase 1	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/TextureProvider.java	sge/graphics/g3d/utils/TextureProvider.scala	ai_converted	core	2026-03-19	g3d phase 2	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/ArrowShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/BaseShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/BoxShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/CapsuleShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/ConeShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/CylinderShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/EllipseShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/FrustumShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/PatchShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/RenderableShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.java	sge/graphics/g3d/utils/shapebuilders/SphereShapeBuilder.scala	ai_converted	core	2026-03-19	g3d module	libgdx		
-com/badlogic/gdx/graphics/glutils/CustomTexture3DData.java	sge/graphics/glutils/CustomTexture3DData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ETC1.java	sge/graphics/glutils/ETC1.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ETC1TextureData.java	sge/graphics/glutils/ETC1TextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FacedCubemapData.java	sge/graphics/glutils/FacedCubemapData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FileTextureArrayData.java	sge/graphics/glutils/FileTextureArrayData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FileTextureData.java	sge/graphics/glutils/FileTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FloatFrameBuffer.java	sge/graphics/glutils/FloatFrameBuffer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FloatTextureData.java	sge/graphics/glutils/FloatTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FrameBuffer.java	sge/graphics/glutils/FrameBuffer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/FrameBufferCubemap.java	sge/graphics/glutils/FrameBufferCubemap.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/GLFrameBuffer.java	sge/graphics/glutils/GLFrameBuffer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/GLOnlyTextureData.java	sge/graphics/glutils/GLOnlyTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/GLVersion.java	sge/graphics/glutils/GLVersion.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/HdpiMode.java	sge/graphics/glutils/HdpiMode.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/HdpiUtils.java	sge/graphics/glutils/HdpiUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ImmediateModeRenderer.java	sge/graphics/glutils/ImmediateModeRenderer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ImmediateModeRenderer20.java	sge/graphics/glutils/ImmediateModeRenderer20.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/IndexArray.java	sge/graphics/glutils/IndexArray.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/IndexBufferObject.java	sge/graphics/glutils/IndexBufferObject.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/IndexBufferObjectSubData.java	sge/graphics/glutils/IndexBufferObjectSubData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/IndexData.java	sge/graphics/glutils/IndexData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/InstanceBufferObject.java	sge/graphics/glutils/InstanceBufferObject.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/InstanceBufferObjectSubData.java	sge/graphics/glutils/InstanceBufferObjectSubData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/InstanceData.java	sge/graphics/glutils/InstanceData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/KTXTextureData.java	sge/graphics/glutils/KTXTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/MipMapGenerator.java	sge/graphics/glutils/MipMapGenerator.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/MipMapTextureData.java	sge/graphics/glutils/MipMapTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/PixmapTextureData.java	sge/graphics/glutils/PixmapTextureData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ShaderProgram.java	sge/graphics/glutils/ShaderProgram.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/ShapeRenderer.java	sge/graphics/glutils/ShapeRenderer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/VertexArray.java	sge/graphics/glutils/VertexArray.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/VertexBufferObject.java	sge/graphics/glutils/VertexBufferObject.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/VertexBufferObjectSubData.java	sge/graphics/glutils/VertexBufferObjectSubData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/VertexBufferObjectWithVAO.java	sge/graphics/glutils/VertexBufferObjectWithVAO.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/glutils/VertexData.java	sge/graphics/glutils/VertexData.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GL20Interceptor.java	sge/graphics/profiling/GL20Interceptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GL30Interceptor.java	sge/graphics/profiling/GL30Interceptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GL31Interceptor.java	sge/graphics/profiling/GL31Interceptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GL32Interceptor.java	sge/graphics/profiling/GL32Interceptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GLErrorListener.java	sge/graphics/profiling/GLErrorListener.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GLInterceptor.java	sge/graphics/profiling/GLInterceptor.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/graphics/profiling/GLProfiler.java	sge/graphics/profiling/GLProfiler.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/input/GestureDetector.java	sge/input/GestureDetector.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/input/NativeInputConfiguration.java	sge/input/NativeImputConfiguration.scala	ai_converted	core	2026-03-19	typo in SGE name: Imput	libgdx		
-com/badlogic/gdx/input/RemoteInput.java	sge/input/RemoteInput.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/input/RemoteSender.java	sge/input/RemoteSender.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/input/TextInputWrapper.java	sge/input/TextinputWrapper.scala	ai_converted	core	2026-03-19	case change in name	libgdx		
-com/badlogic/gdx/maps/ImageResolver.java	sge/maps/ImageResolver.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/Map.java	sge/maps/Map.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapGroupLayer.java	sge/maps/MapGroupLayer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapLayer.java	sge/maps/MapLayer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapLayers.java	sge/maps/MapLayers.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapObject.java	sge/maps/MapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapObjects.java	sge/maps/MapObjects.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapProperties.java	sge/maps/MapProperties.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/MapRenderer.java	sge/maps/MapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/CircleMapObject.java	sge/maps/objects/CircleMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/EllipseMapObject.java	sge/maps/objects/EllipseMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/PointMapObject.java	sge/maps/objects/PointMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/PolygonMapObject.java	sge/maps/objects/PolygonMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/PolylineMapObject.java	sge/maps/objects/PolylineMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/RectangleMapObject.java	sge/maps/objects/RectangleMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/TextMapObject.java	sge/maps/objects/TextMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/objects/TextureMapObject.java	sge/maps/objects/TextureMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/AtlasTmjMapLoader.java	sge/maps/tiled/AtlasTmjMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/AtlasTmxMapLoader.java	sge/maps/tiled/AtlasTmxMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/BaseTiledMapLoader.java	sge/maps/tiled/BaseTiledMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/BaseTmjMapLoader.java	sge/maps/tiled/BaseTmjMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/BaseTmxMapLoader.java	sge/maps/tiled/BaseTmxMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TideMapLoader.java	sge/maps/tiled/TideMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMap.java	sge/maps/tiled/TiledMap.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapImageLayer.java	sge/maps/tiled/TiledMapImageLayer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapLoader.java	sge/maps/tiled/TiledMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapRenderer.java	sge/maps/tiled/TiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapTile.java	sge/maps/tiled/TiledMapTile.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapTileLayer.java	sge/maps/tiled/TiledMapTileLayer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapTileSet.java	sge/maps/tiled/TiledMapTileSet.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TiledMapTileSets.java	sge/maps/tiled/TiledMapTileSets.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TmjMapLoader.java	sge/maps/tiled/TmjMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/TmxMapLoader.java	sge/maps/tiled/TmxMapLoader.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/objects/TiledMapTileMapObject.java	sge/maps/tiled/objects/TiledMapTileMapObject.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/BatchTiledMapRenderer.java	sge/maps/tiled/renderers/BatchTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/HexagonalTiledMapRenderer.java	sge/maps/tiled/renderers/HexagonalTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.java	sge/maps/tiled/renderers/IsometricStaggeredTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/IsometricTiledMapRenderer.java	sge/maps/tiled/renderers/IsometricTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/OrthoCachedTiledMapRenderer.java	sge/maps/tiled/renderers/OrthoCachedTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/renderers/OrthogonalTiledMapRenderer.java	sge/maps/tiled/renderers/OrthogonalTiledMapRenderer.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/tiles/AnimatedTiledMapTile.java	sge/maps/tiled/tiles/AnimatedTiledMapTile.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/maps/tiled/tiles/StaticTiledMapTile.java	sge/maps/tiled/tiles/StaticTiledMapTile.scala	ai_converted	core	2026-03-19	maps module	libgdx		
-com/badlogic/gdx/math/Affine2.java	sge/math/Affine2.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/BSpline.java	sge/math/BSpline.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Bezier.java	sge/math/Bezier.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Bresenham2.java	sge/math/Bresenham2.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/CatmullRomSpline.java	sge/math/CatmullRomSpline.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Circle.java	sge/math/Circle.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/ConvexHull.java	sge/math/ConvexHull.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/CumulativeDistribution.java	sge/math/CumulativeDistribution.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/DelaunayTriangulator.java	sge/math/DelaunayTriangulator.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/EarClippingTriangulator.java	sge/math/EarClippingTriangulator.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Ellipse.java	sge/math/Ellipse.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/FloatCounter.java	sge/math/FloatCounter.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Frustum.java	sge/math/Frustum.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/GeometryUtils.java	sge/math/GeometryUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/GridPoint2.java	sge/math/GridPoints.scala	ai_converted	core	2026-03-19	merged into GridPoints	libgdx		
-com/badlogic/gdx/math/GridPoint3.java	sge/math/GridPoints.scala	ai_converted	core	2026-03-19	merged into GridPoints	libgdx		
-com/badlogic/gdx/math/Interpolation.java	sge/math/Interpolation.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Intersector.java	sge/math/Intersector.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/MathUtils.java	sge/math/MathUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Matrix3.java	sge/math/Matrices.scala	ai_converted	core	2026-03-19	merged into Matrices	libgdx		
-com/badlogic/gdx/math/Matrix4.java	sge/math/Matrices.scala	ai_converted	core	2026-03-19	merged into Matrices	libgdx		
-com/badlogic/gdx/math/Octree.java	sge/math/Octree.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Path.java	sge/math/Path.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Plane.java	sge/math/Plane.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Polygon.java	sge/math/Polygon.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Polyline.java	sge/math/Polyline.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Quaternion.java	sge/math/Quaternion.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/RandomXS128.java	sge/math/RandomXS128.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Rectangle.java	sge/math/Rectangle.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Shape2D.java	sge/math/Shape2D.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/Vector.java	sge/math/Vectors.scala	ai_converted	core	2026-03-19	merged into Vectors	libgdx		
-com/badlogic/gdx/math/Vector2.java	sge/math/Vectors.scala	ai_converted	core	2026-03-19	merged into Vectors	libgdx		
-com/badlogic/gdx/math/Vector3.java	sge/math/Vectors.scala	ai_converted	core	2026-03-19	merged into Vectors	libgdx		
-com/badlogic/gdx/math/Vector4.java	sge/math/Vectors.scala	ai_converted	core	2026-03-19	merged into Vectors	libgdx		
-com/badlogic/gdx/math/WindowedMean.java	sge/math/WindowedMean.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/collision/BoundingBox.java	sge/math/collision/BoundingBox.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/collision/OrientedBoundingBox.java	sge/math/collision/OrientedBoundingBox.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/collision/Ray.java	sge/math/collision/Ray.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/collision/Segment.java	sge/math/collision/Segment.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/math/collision/Sphere.java	sge/math/collision/Sphere.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/HttpParametersUtils.java	sge/net/HttpParametersUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/HttpRequestBuilder.java	sge/net/HttpRequestBuilder.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/HttpRequestHeader.java	sge/net/HttpRequestHeader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/HttpResponseHeader.java	sge/net/HttpResponseHeader.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/HttpStatus.java	sge/net/HttpStatus.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/NetJavaImpl.java	sge/net/NetJavaImpl.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/NetJavaServerSocketImpl.java	sge/net/NetJavaServerSocketImpl.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/NetJavaSocketImpl.java	sge/net/NetJavaSocketImpl.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/ServerSocket.java	sge/net/ServerSocket.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/ServerSocketHints.java	sge/net/ServerSocketHints.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/Socket.java	sge/net/Socket.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/net/SocketHints.java	sge/net/SocketHints.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/scenes/scene2d/Action.java	sge/scenes/scene2d/Action.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/Actor.java	sge/scenes/scene2d/Actor.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/Event.java	sge/scenes/scene2d/Event.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/EventListener.java	sge/scenes/scene2d/EventListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/Group.java	sge/scenes/scene2d/Group.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/InputEvent.java	sge/scenes/scene2d/InputEvent.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/InputListener.java	sge/scenes/scene2d/InputListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/Stage.java	sge/scenes/scene2d/Stage.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/Touchable.java	sge/scenes/scene2d/Touchable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/Actions.java	sge/scenes/scene2d/actions/Actions.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/AddAction.java	sge/scenes/scene2d/actions/AddAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/AddListenerAction.java	sge/scenes/scene2d/actions/AddListenerAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/AfterAction.java	sge/scenes/scene2d/actions/AfterAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/AlphaAction.java	sge/scenes/scene2d/actions/AlphaAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/ColorAction.java	sge/scenes/scene2d/actions/ColorAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/CountdownEventAction.java	sge/scenes/scene2d/actions/CountdownEventAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/DelayAction.java	sge/scenes/scene2d/actions/DelayAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/DelegateAction.java	sge/scenes/scene2d/actions/DelegateAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/EventAction.java	sge/scenes/scene2d/actions/EventAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/FinishableAction.java	sge/scenes/scene2d/actions/FinishableAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/FloatAction.java	sge/scenes/scene2d/actions/FloatAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/IntAction.java	sge/scenes/scene2d/actions/IntAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/LayoutAction.java	sge/scenes/scene2d/actions/LayoutAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/MoveByAction.java	sge/scenes/scene2d/actions/MoveByAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/MoveToAction.java	sge/scenes/scene2d/actions/MoveToAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/ParallelAction.java	sge/scenes/scene2d/actions/ParallelAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RelativeTemporalAction.java	sge/scenes/scene2d/actions/RelativeTemporalAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RemoveAction.java	sge/scenes/scene2d/actions/RemoveAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RemoveActorAction.java	sge/scenes/scene2d/actions/RemoveActorAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RemoveListenerAction.java	sge/scenes/scene2d/actions/RemoveListenerAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RepeatAction.java	sge/scenes/scene2d/actions/RepeatAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RotateByAction.java	sge/scenes/scene2d/actions/RotateByAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RotateToAction.java	sge/scenes/scene2d/actions/RotateToAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/RunnableAction.java	sge/scenes/scene2d/actions/RunnableAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/ScaleByAction.java	sge/scenes/scene2d/actions/ScaleByAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/ScaleToAction.java	sge/scenes/scene2d/actions/ScaleToAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/SequenceAction.java	sge/scenes/scene2d/actions/SequenceAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/SizeByAction.java	sge/scenes/scene2d/actions/SizeByAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/SizeToAction.java	sge/scenes/scene2d/actions/SizeToAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/TemporalAction.java	sge/scenes/scene2d/actions/TemporalAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/TimeScaleAction.java	sge/scenes/scene2d/actions/TimeScaleAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/TouchableAction.java	sge/scenes/scene2d/actions/TouchableAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/actions/VisibleAction.java	sge/scenes/scene2d/actions/VisibleAction.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Button.java	sge/scenes/scene2d/ui/Button.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ButtonGroup.java	sge/scenes/scene2d/ui/ButtonGroup.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Cell.java	sge/scenes/scene2d/ui/Cell.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/CheckBox.java	sge/scenes/scene2d/ui/CheckBox.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Container.java	sge/scenes/scene2d/ui/Container.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Dialog.java	sge/scenes/scene2d/ui/Dialog.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/HorizontalGroup.java	sge/scenes/scene2d/ui/HorizontalGroup.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Image.java	sge/scenes/scene2d/ui/Image.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ImageButton.java	sge/scenes/scene2d/ui/ImageButton.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ImageTextButton.java	sge/scenes/scene2d/ui/ImageTextButton.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Label.java	sge/scenes/scene2d/ui/Label.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/List.java	sge/scenes/scene2d/ui/SgeList.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ParticleEffectActor.java	sge/scenes/scene2d/ui/ParticleEffectActor.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ProgressBar.java	sge/scenes/scene2d/ui/ProgressBar.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/ScrollPane.java	sge/scenes/scene2d/ui/ScrollPane.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/SelectBox.java	sge/scenes/scene2d/ui/SelectBox.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Skin.java	sge/scenes/scene2d/ui/Skin.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Slider.java	sge/scenes/scene2d/ui/Slider.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/SplitPane.java	sge/scenes/scene2d/ui/SplitPane.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Stack.java	sge/scenes/scene2d/ui/Stack.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Styleable.java	sge/scenes/scene2d/ui/Styleable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Table.java	sge/scenes/scene2d/ui/Table.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/TextArea.java	sge/scenes/scene2d/ui/TextArea.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/TextButton.java	sge/scenes/scene2d/ui/TextButton.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/TextField.java	sge/scenes/scene2d/ui/TextField.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/TextTooltip.java	sge/scenes/scene2d/ui/TextTooltip.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Tooltip.java	sge/scenes/scene2d/ui/Tooltip.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/TooltipManager.java	sge/scenes/scene2d/ui/TooltipManager.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Touchpad.java	sge/scenes/scene2d/ui/Touchpad.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Tree.java	sge/scenes/scene2d/ui/Tree.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Value.java	sge/scenes/scene2d/ui/Value.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/VerticalGroup.java	sge/scenes/scene2d/ui/VerticalGroup.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Widget.java	sge/scenes/scene2d/ui/Widget.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/WidgetGroup.java	sge/scenes/scene2d/ui/WidgetGroup.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/ui/Window.java	sge/scenes/scene2d/ui/Window.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/ActorGestureListener.java	sge/scenes/scene2d/utils/ActorGestureListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/ArraySelection.java	sge/scenes/scene2d/utils/ArraySelection.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/BaseDrawable.java	sge/scenes/scene2d/utils/BaseDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/ChangeListener.java	sge/scenes/scene2d/utils/ChangeListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/ClickListener.java	sge/scenes/scene2d/utils/ClickListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/Cullable.java	sge/scenes/scene2d/utils/Cullable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/Disableable.java	sge/scenes/scene2d/utils/Disableable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/DragAndDrop.java	sge/scenes/scene2d/utils/DragAndDrop.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/DragListener.java	sge/scenes/scene2d/utils/DragListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/DragScrollListener.java	sge/scenes/scene2d/utils/DragScrollListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/Drawable.java	sge/scenes/scene2d/utils/Drawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/FocusListener.java	sge/scenes/scene2d/utils/FocusListener.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/Layout.java	sge/scenes/scene2d/utils/Layout.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/NinePatchDrawable.java	sge/scenes/scene2d/utils/NinePatchDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/ScissorStack.java	sge/scenes/scene2d/utils/ScissorStack.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/Selection.java	sge/scenes/scene2d/utils/Selection.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/SpriteDrawable.java	sge/scenes/scene2d/utils/SpriteDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/TextureRegionDrawable.java	sge/scenes/scene2d/utils/TextureRegionDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/TiledDrawable.java	sge/scenes/scene2d/utils/TiledDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/TransformDrawable.java	sge/scenes/scene2d/utils/TransformDrawable.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/scenes/scene2d/utils/UIUtils.java	sge/scenes/scene2d/utils/UIUtils.scala	ai_converted	core	2026-03-19	scene2d module	libgdx		
-com/badlogic/gdx/utils/Align.java	sge/utils/Align.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Array.java		skipped	core	2026-03-19	use ArrayBuffer	libgdx		
-com/badlogic/gdx/utils/ArrayMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/ArraySupplier.java		skipped	core	2026-03-19	use plain functions	libgdx		
-com/badlogic/gdx/utils/AtomicQueue.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/Base64Coder.java		skipped	core	2026-03-19	use java.util.Base64	libgdx		
-com/badlogic/gdx/utils/BaseJsonReader.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/BinaryHeap.java	sge/utils/BinaryHeap.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Bits.java		skipped	core	2026-03-19	use BitSet	libgdx		
-com/badlogic/gdx/utils/BooleanArray.java		skipped	core	2026-03-19	use BitSet	libgdx		
-com/badlogic/gdx/utils/BufferUtils.java	sge/utils/BufferUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/ByteArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/CharArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/Clipboard.java	sge/utils/Clipboard.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Collections.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/ComparableTimSort.java	sge/utils/ComparableTimSort.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/DataBuffer.java	sge/utils/DataBuffer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/DataInput.java	sge/utils/DataInput.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/DataOutput.java	sge/utils/DataOutput.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/DefaultPool.java	sge/utils/Pool.scala	ai_converted	core	2026-03-19	merged into Pool	libgdx		
-com/badlogic/gdx/utils/DelayedRemovalArray.java		skipped	core	2026-03-19	use .view	libgdx		
-com/badlogic/gdx/utils/Disposable.java		skipped	core	2026-03-19	use AutoCloseable	libgdx		
-com/badlogic/gdx/utils/FloatArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/FlushablePool.java	sge/utils/Pool.scala	ai_converted	core	2026-03-19	merged into Pool	libgdx		
-com/badlogic/gdx/utils/GdxNativesLoader.java	sge/utils/SdeNativesLoader.scala	ai_converted	core	2026-03-19	renamed; file still uses old Sde prefix	libgdx		
-com/badlogic/gdx/utils/GdxRuntimeException.java	sge/utils/SdeError.scala	ai_converted	core	2026-03-19	renamed; file still uses old Sde prefix	libgdx		
-com/badlogic/gdx/utils/I18NBundle.java	sge/utils/I18nBundle.scala	ai_converted	core	2026-03-19	case change in name	libgdx		
-com/badlogic/gdx/utils/IdentityMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/IntArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/IntFloatMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/IntIntMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/IntMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/IntSet.java		skipped	core	2026-03-19	use BitSet	libgdx		
-com/badlogic/gdx/utils/Json.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonMatcher.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonReader.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonSkimmer.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonString.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonValue.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/JsonWriter.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/LittleEndianInputStream.java	sge/utils/LittleEndianInputStream.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Logger.java	sge/utils/Logger.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/LongArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/LongMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/LongQueue.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/NonNull.java		skipped	core	2026-03-19	use Nullable opaque type	libgdx		
-com/badlogic/gdx/utils/NonNullByDefault.java		skipped	core	2026-03-19	use Nullable opaque type	libgdx		
-com/badlogic/gdx/utils/Null.java		skipped	core	2026-03-19	use Nullable opaque type	libgdx		
-com/badlogic/gdx/utils/NumberUtils.java	sge/utils/NumberUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/ObjectFloatMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/ObjectIntMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/ObjectLongMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/ObjectMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/ObjectSet.java		skipped	core	2026-03-19	use Set	libgdx		
-com/badlogic/gdx/utils/OrderedMap.java		skipped	core	2026-03-19	use mutable.Map	libgdx		
-com/badlogic/gdx/utils/OrderedSet.java		skipped	core	2026-03-19	use SortedSet	libgdx		
-com/badlogic/gdx/utils/PatternParser.java		skipped	core	2026-03-19	depends on JsonMatcher (skipped)	libgdx		
-com/badlogic/gdx/utils/PauseableThread.java		skipped	core	2026-03-19	use Future	libgdx		
-com/badlogic/gdx/utils/PerformanceCounter.java	sge/utils/PerformanceCounter.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/PerformanceCounters.java	sge/utils/PerformanceCounters.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Pool.java	sge/utils/Pool.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/PoolManager.java	sge/utils/PoolManager.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/PooledLinkedList.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/Pools.java		skipped	core	2026-03-19	deprecated; uses ReflectionPool (reflection skipped)	libgdx		
-com/badlogic/gdx/utils/Predicate.java		skipped	core	2026-03-19	use plain functions	libgdx		
-com/badlogic/gdx/utils/PropertiesUtils.java	sge/utils/PropertiesUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/QuadTreeFloat.java	sge/utils/Pool.scala	ai_converted	core	2026-03-19	nested in Pool companion object	libgdx		
-com/badlogic/gdx/utils/Queue.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/QuickSelect.java	sge/utils/QuickSelect.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/ReflectionPool.java		skipped	core	2026-03-19	uses reflection	libgdx		
-com/badlogic/gdx/utils/Scaling.java	sge/utils/Scaling.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/ScreenUtils.java	sge/utils/ScreenUtils.scala	ai_converted	core	2026-03-19	some methods commented pending Pixmap.createFromFrameBuffer	libgdx		
-com/badlogic/gdx/utils/Select.java	sge/utils/Select.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/SerializationException.java	sge/utils/SdeError.scala	ai_converted	core	2026-03-19	merged into SdeError	libgdx		
-com/badlogic/gdx/utils/ShortArray.java		skipped	core	2026-03-19	use DynamicArray	libgdx		
-com/badlogic/gdx/utils/SnapshotArray.java		skipped	core	2026-03-19	use ArrayBuffer with copy-on-modify	libgdx		
-com/badlogic/gdx/utils/Sort.java	sge/utils/Sort.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/SortedIntList.java		skipped	core	2026-03-19	use stdlib	libgdx		
-com/badlogic/gdx/utils/StreamUtils.java	sge/utils/StreamUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/TextFormatter.java	sge/utils/TextFormatter.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/TimSort.java	sge/utils/TimSort.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/TimeUtils.java	sge/utils/TimeUtils.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/Timer.java	sge/utils/Timer.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/UBJsonReader.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/UBJsonWriter.java		skipped	core	2026-03-19	use Scala JSON library	libgdx		
-com/badlogic/gdx/utils/XmlReader.java		skipped	core	2026-03-19	use Scala XML library	libgdx		
-com/badlogic/gdx/utils/XmlWriter.java		skipped	core	2026-03-19	use Scala XML library	libgdx		
-com/badlogic/gdx/utils/async/AsyncExecutor.java		skipped	core	2026-03-19	use scala.concurrent.Future	libgdx		
-com/badlogic/gdx/utils/async/AsyncResult.java		skipped	core	2026-03-19	use scala.concurrent.Future	libgdx		
-com/badlogic/gdx/utils/async/AsyncTask.java		skipped	core	2026-03-19	use scala.concurrent.Future	libgdx		
-com/badlogic/gdx/utils/async/ThreadUtils.java		skipped	core	2026-03-19	use scala.concurrent.Future	libgdx		
-com/badlogic/gdx/utils/compression/CRC.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/ICodeProgress.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/Lzma.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lz/BinTree.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lz/InWindow.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lz/OutWindow.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lzma/Base.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lzma/Decoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/lzma/Encoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/rangecoder/BitTreeDecoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/rangecoder/BitTreeEncoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/rangecoder/Decoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/compression/rangecoder/Encoder.java		skipped	core	2026-03-19	dead code: unused LZMA SDK (no consumers in LibGDX or SGE)	libgdx		
-com/badlogic/gdx/utils/reflect/Annotation.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/ArrayReflection.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/ClassReflection.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/Constructor.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/Field.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/Method.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/reflect/ReflectionException.java		skipped	core	2026-03-19	avoid runtime reflection	libgdx		
-com/badlogic/gdx/utils/viewport/ExtendViewport.java	sge/utils/viewport/ExtendViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/FillViewport.java	sge/utils/viewport/FillViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/FitViewport.java	sge/utils/viewport/FitViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/ScalingViewport.java	sge/utils/viewport/ScalingViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/ScreenViewport.java	sge/utils/viewport/ScreenViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/StretchViewport.java	sge/utils/viewport/StretchViewport.scala	ai_converted	core	2026-03-19		libgdx		
-com/badlogic/gdx/utils/viewport/Viewport.java	sge/utils/viewport/Viewport.scala	ai_converted	core	2026-03-19		libgdx		
-backends/lwjgl3/Lwjgl3Application.java	sge/backend/desktop/DesktopApplication.scala	done	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3ApplicationBase.java	sge/backend/desktop/DesktopApplicationBase.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3ApplicationConfiguration.java	sge/backend/desktop/DesktopApplicationConfig.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3ApplicationLogger.java		skipped	core	2026-03-19	target:skip println logger in noop	libgdx		
-backends/lwjgl3/Lwjgl3NativesLoader.java		skipped	core	2026-03-19	target:skip Panama loads libs directly	libgdx		
-backends/lwjgl3/Lwjgl3Graphics.java	sge/backend/desktop/DesktopGraphics.scala	done	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3GL20.java	sge/backend/desktop/AngleGL20.scala	done	core	2026-03-19	target:desktop-jvm P0; Native @extern TODO	libgdx		
-backends/lwjgl3/Lwjgl3GL30.java	sge/backend/desktop/AngleGL30.scala	done	core	2026-03-19	target:desktop-jvm P0 Panama downcall; Native @extern TODO	libgdx		
-backends/lwjgl3/Lwjgl3GL31.java	sge/backend/desktop/AngleGL31.scala	done	core	2026-03-19	target:desktop-jvm P1 Panama downcall; Native @extern TODO	libgdx		
-backends/lwjgl3/Lwjgl3GL32.java	sge/backend/desktop/AngleGL32.scala	done	core	2026-03-19	target:desktop-jvm P1 Panama downcall+upcall; Native @extern TODO	libgdx		
-backends/lwjgl3/Lwjgl3Window.java	sge/backend/desktop/DesktopWindow.scala	done	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3WindowConfiguration.java	sge/backend/desktop/DesktopWindowConfig.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3WindowListener.java	sge/backend/desktop/DesktopWindowListener.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/DefaultLwjgl3Input.java	sge/backend/desktop/DefaultDesktopInput.scala	done	core	2026-03-19	target:desktop-shared P0; merged AbstractInput	libgdx		
-backends/lwjgl3/Lwjgl3Files.java	sge/backend/desktop/DesktopFiles.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3FileHandle.java	sge/backend/desktop/DesktopFileHandle.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/Lwjgl3Preferences.java	sge/backend/desktop/DesktopPreferences.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/Lwjgl3Net.java	sge/backend/desktop/DesktopNet.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/Lwjgl3Clipboard.java	sge/backend/desktop/DesktopClipboard.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/Lwjgl3Cursor.java	sge/backend/desktop/DesktopCursor.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/Sync.java	sge/backend/desktop/FrameSync.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/audio/OpenALLwjgl3Audio.java	sge/backend/desktop/MiniaudioEngine.scala	not_started	core	2026-03-19	target:desktop-shared P0 rewrite:miniaudio	libgdx		
-backends/lwjgl3/audio/OpenALSound.java	sge/backend/desktop/DesktopSound.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/audio/OpenALMusic.java	sge/backend/desktop/DesktopMusic.scala	not_started	core	2026-03-19	target:desktop-shared P0	libgdx		
-backends/lwjgl3/audio/OpenALAudioDevice.java	sge/backend/desktop/DesktopAudioDevice.scala	not_started	core	2026-03-19	target:desktop-shared P1	libgdx		
-backends/lwjgl3/audio/OpenALUtils.java		skipped	core	2026-03-19	target:skip OpenAL-specific	libgdx		
-backends/lwjgl3/audio/JavaSoundAudioRecorder.java	sge/backend/desktop/DesktopAudioRecorder.scala	not_started	core	2026-03-19	target:desktop-jvm P2	libgdx		
-backends/lwjgl3/audio/Wav.java	sge/audio/decoders/WavDecoder.scala	not_started	core	2026-03-19	target:core-shared P1	libgdx		
-backends/lwjgl3/audio/Ogg.java	sge/audio/decoders/OggDecoder.scala	not_started	core	2026-03-19	target:core-shared P1	libgdx		
-backends/lwjgl3/audio/OggInputStream.java	sge/audio/decoders/OggDecoder.scala	not_started	core	2026-03-19	target:core-shared P1 merge	libgdx		
-backends/lwjgl3/audio/Mp3.java	sge/audio/decoders/Mp3Decoder.scala	not_started	core	2026-03-19	target:core-shared P1	libgdx		
-backends/lwjgl3/audio/mock/MockAudio.java	sge/noop/NoopAudio.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/lwjgl3/audio/mock/MockAudioDevice.java	sge/noop/NoopAudioDevice.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/lwjgl3/audio/mock/MockMusic.java	sge/noop/NoopMusic.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/lwjgl3/audio/mock/MockSound.java	sge/noop/NoopSound.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/lwjgl3/audio/mock/MockAudioRecorder.java	sge/noop/NoopAudioRecorder.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/gwt/GwtApplication.java	sge/backend/browser/BrowserApplication.scala	done	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtApplicationConfiguration.java	sge/backend/browser/BrowserApplicationConfig.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtApplicationLogger.java	sge/backend/browser/BrowserLogger.scala	not_started	core	2026-03-19	target:browser P1	libgdx		
-backends/gwt/GwtGraphics.java	sge/backend/browser/BrowserGraphics.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtGL20.java	sge/backend/browser/WebGL20.scala	not_started	core	2026-03-19	target:browser P0 handle-mapping	libgdx		
-backends/gwt/GwtGL30.java	sge/backend/browser/WebGL30.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtGL20Debug.java		skipped	core	2026-03-19	target:skip debug wrapper	libgdx		
-backends/gwt/GwtGL30Debug.java		skipped	core	2026-03-19	target:skip debug wrapper	libgdx		
-backends/gwt/DefaultGwtInput.java	sge/backend/browser/BrowserInput.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/DefaultGwtAudio.java	sge/backend/browser/BrowserAudio.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtFiles.java	sge/backend/browser/BrowserFiles.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtFileHandle.java	sge/backend/browser/BrowserFileHandle.scala	not_started	core	2026-03-19	target:browser P0	libgdx		
-backends/gwt/GwtNet.java	sge/backend/browser/BrowserNet.scala	not_started	core	2026-03-19	target:browser P1	libgdx		
-backends/gwt/GwtPreferences.java	sge/backend/browser/BrowserPreferences.scala	not_started	core	2026-03-19	target:browser P1	libgdx		
-backends/gwt/GwtClipboard.java	sge/backend/browser/BrowserClipboard.scala	not_started	core	2026-03-19	target:browser P1	libgdx		
-backends/gwt/GwtCursor.java	sge/backend/browser/BrowserCursor.scala	not_started	core	2026-03-19	target:browser P1	libgdx		
-backends/gwt/GwtAccelerometer.java	sge/backend/browser/BrowserSensors.scala	not_started	core	2026-03-19	target:browser P2	libgdx		
-backends/gwt/GwtGyroscope.java	sge/backend/browser/BrowserSensors.scala	not_started	core	2026-03-19	target:browser P2 merge	libgdx		
-backends/gwt/GwtSensor.java	sge/backend/browser/BrowserSensors.scala	not_started	core	2026-03-19	target:browser P2 merge	libgdx		
-backends/gwt/GwtPermissions.java		skipped	core	2026-03-19	target:skip GWT-specific	libgdx		
-backends/gwt/GwtFeaturePolicy.java		skipped	core	2026-03-19	target:skip GWT-specific	libgdx		
-backends/gwt/GwtUtils.java		skipped	core	2026-03-19	target:skip GWT-specific	libgdx		
-backends/android/AndroidApplication.java	scalajvm/sge/AndroidApplication.scala + api/AndroidLifecycleOps.scala + android/AndroidLifecycleImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidApplicationBase.java	scalajvm/sge/AndroidApplication.scala	ai_converted	core	2026-03-19	target:android P2 done (merged)	libgdx		
-backends/android/AndroidApplicationConfiguration.java	api/AndroidConfigOps.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidApplicationLogger.java	api/LoggerOps.scala	ai_converted	core	2026-03-19	target:android P2 done (merged into provider)	libgdx		
-backends/android/AndroidFragmentApplication.java	scalajvm/sge/AndroidApplication.scala	ai_converted	core	2026-03-19	target:android P2 done (merged)	libgdx		
-backends/android/AndroidGraphics.java	scalajvm/sge/AndroidGraphics.scala + api/GLSurfaceViewOps.scala + api/DisplayMetricsOps.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidGL20.java	api/GL20Ops.scala + android/AndroidGL20Impl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidGL30.java	api/GL30Ops.scala + android/AndroidGL30Impl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/DefaultAndroidInput.java	scalajvm/sge/AndroidInput.scala + api/InputMethodOps.scala + api/SensorOps.scala + android/AndroidInputMethodImpl.scala + android/AndroidSensorImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidTouchHandler.java	scalajvm/sge/platform/AndroidTouchHandler.scala + api/TouchInputOps.scala + android/AndroidTouchInputImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidMouseHandler.java	scalajvm/sge/platform/AndroidMouseHandler.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidHaptics.java	api/HapticsOps.scala + android/AndroidHapticsImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/DefaultAndroidAudio.java	api/AudioEngineOps.scala + android/AndroidAudioEngineImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidAudioDevice.java	api/AudioDeviceOps.scala + android/AndroidAudioDeviceImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidAudioRecorder.java	api/AudioRecorderOps.scala + android/AndroidAudioRecorderImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidSound.java	api/SoundOps.scala + android/AndroidSoundOpsImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidMusic.java	api/MusicOps.scala + android/AndroidMusicOpsImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/DefaultAndroidFiles.java	api/FilesOps.scala + android/AndroidFilesOpsImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidFileHandle.java	scalajvm/sge/files/AndroidFileHandle.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidNet.java	scalajvm/sge/net/AndroidNet.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidPreferences.java	api/PreferencesOps.scala + android/AndroidPreferencesImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidClipboard.java	api/ClipboardOps.scala + android/AndroidClipboardImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidCursor.java	api/CursorOps.scala + android/AndroidCursorImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/surfaceview/GLSurfaceView20.java	api/GLSurfaceViewOps.scala + android/AndroidGLSurfaceViewImpl.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/surfaceview/GdxEglConfigChooser.java	android/AndroidGLSurfaceViewImpl.scala	ai_converted	core	2026-03-19	target:android P2 done (merged)	libgdx		
-backends/android/surfaceview/ResolutionStrategy.java	api/ResolutionStrategyOps.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/surfaceview/FillResolutionStrategy.java	api/FillResolutionStrategy.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/surfaceview/FixedResolutionStrategy.java	api/FixedResolutionStrategy.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/surfaceview/RatioResolutionStrategy.java	api/RatioResolutionStrategy.scala	ai_converted	core	2026-03-19	target:android P2 done	libgdx		
-backends/android/AndroidDaydream.java		skipped	core	2026-03-19	target:skip niche (deprecated API)	libgdx		
-backends/android/AndroidLiveWallpaperService.java	api/LiveWallpaperServiceOps.scala + android/AndroidLiveWallpaperServiceImpl.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/AndroidLiveWallpaper.java	scalajvm/sge/AndroidLiveWallpaper.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/AndroidGraphicsLiveWallpaper.java	scalajvm/sge/AndroidGraphics.scala	ai_converted	core	2026-03-19	target:android P3 done (merged)	libgdx		
-backends/android/AndroidWallpaperListener.java	api/AndroidWallpaperListenerOps.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/AndroidZipFileHandle.java		skipped	core	2026-03-19	target:skip OBB niche	libgdx		
-backends/android/ZipResourceFile.java		skipped	core	2026-03-19	target:skip OBB niche	libgdx		
-backends/android/APKExpansionSupport.java		skipped	core	2026-03-19	target:skip OBB niche	libgdx		
-backends/android/DisabledAndroidAudio.java	sge/noop/NoopAudio.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/android/AsynchronousAndroidAudio.java	android/AsynchronousAndroidAudioImpl.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/AsynchronousSound.java	android/AsynchronousSoundOps.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/InputProcessorLW.java	api/LiveWallpaperAppCallbacks.scala	ai_converted	core	2026-03-19	target:android P3 done (merged)	libgdx		
-backends/android/AndroidVisibilityListener.java	api/VisibilityListenerOps.scala + android/AndroidVisibilityListenerImpl.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/AndroidEventListener.java	api/AndroidEventListenerOps.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/GdxNativeLoader.java		skipped	core	2026-03-19	target:skip JNI loader (not needed)	libgdx		
-backends/android/keyboardheight/KeyboardHeightProvider.java	api/KeyboardHeightProviderOps.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/keyboardheight/KeyboardHeightObserver.java	api/KeyboardHeightObserverOps.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/keyboardheight/StandardKeyboardHeightProvider.java	android/StandardKeyboardHeightProviderImpl.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/android/keyboardheight/AndroidXKeyboardHeightProvider.java	android/AndroidXKeyboardHeightProviderImpl.scala	ai_converted	core	2026-03-19	target:android P3 done	libgdx		
-backends/iosrobovm/IOSApplication.java	sge/backend/ios/IOSApplication.scala	deferred	core	2026-03-19	target:ios P3 blocked:scala-native-ios	libgdx		
-backends/iosrobovm/IOSApplicationConfiguration.java	sge/backend/ios/IOSApplicationConfig.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSApplicationLogger.java	sge/backend/ios/IOSLogger.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSGraphics.java	sge/backend/ios/IOSGraphics.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSGLES20.java	sge/backend/desktop/AngleGL20.scala	deferred	core	2026-03-19	target:ios P3 share-with-desktop	libgdx		
-backends/iosrobovm/IOSGLES30.java	sge/backend/desktop/AngleGL30.scala	deferred	core	2026-03-19	target:ios P3 share-with-desktop	libgdx		
-backends/iosrobovm/DefaultIOSInput.java	sge/backend/ios/IOSInput.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSAudio.java	sge/backend/ios/IOSAudio.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSMusic.java	sge/backend/desktop/DesktopMusic.scala	deferred	core	2026-03-19	target:ios P3 share-miniaudio	libgdx		
-backends/iosrobovm/IOSSound.java	sge/backend/desktop/DesktopSound.scala	deferred	core	2026-03-19	target:ios P3 share-miniaudio	libgdx		
-backends/iosrobovm/IOSFiles.java	sge/backend/ios/IOSFiles.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSFileHandle.java	sge/backend/ios/IOSFileHandle.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSNet.java	sge/backend/ios/IOSNet.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSPreferences.java	sge/backend/ios/IOSPreferences.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSHaptics.java	sge/backend/ios/IOSHaptics.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/DisabledIOSAudio.java	sge/noop/NoopAudio.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/iosrobovm/IOSDevice.java	sge/backend/ios/IOSDevice.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/IOSScreenBounds.java	sge/backend/ios/IOSScreenBounds.scala	deferred	core	2026-03-19	target:ios P3	libgdx		
-backends/iosrobovm/objectal/*		skipped	core	2026-03-19	target:skip replaced by miniaudio (13 files)	libgdx		
-backends/headless/HeadlessApplication.java	sge/HeadlessApplication.scala	not_started	core	2026-03-19	target:core-shared P1	libgdx		
-backends/headless/HeadlessApplicationConfiguration.java	sge/HeadlessApplication.scala	not_started	core	2026-03-19	target:core-shared P1 merge	libgdx		
-backends/headless/mock/graphics/MockGraphics.java	sge/noop/NoopGraphics.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/input/MockInput.java	sge/noop/NoopInput.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/audio/MockAudio.java	sge/noop/NoopAudio.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/audio/MockAudioDevice.java	sge/noop/NoopAudioDevice.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/audio/MockAudioRecorder.java	sge/noop/NoopAudioRecorder.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/audio/MockMusic.java	sge/noop/NoopMusic.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/mock/audio/MockSound.java	sge/noop/NoopSound.scala	ai_converted	core	2026-03-19	target:core-shared done	libgdx		
-backends/headless/HeadlessFiles.java	sge/backend/desktop/DesktopFiles.scala	not_started	core	2026-03-19	target:desktop-shared P0 reuse	libgdx		
-backends/headless/HeadlessFileHandle.java	sge/backend/desktop/DesktopFileHandle.scala	not_started	core	2026-03-19	target:desktop-shared P0 reuse	libgdx		
-backends/headless/HeadlessNet.java	sge/backend/desktop/DesktopNet.scala	not_started	core	2026-03-19	target:desktop-shared P1 reuse	libgdx		
-backends/headless/HeadlessPreferences.java	sge/backend/desktop/DesktopPreferences.scala	not_started	core	2026-03-19	target:desktop-shared P1 reuse	libgdx		
-backends/headless/HeadlessApplicationLogger.java		skipped	core	2026-03-19	target:skip println in noop	libgdx		
-backends/headless/HeadlessNativesLoader.java		skipped	core	2026-03-19	target:skip not needed	libgdx		
-math/Vector2Test	sge/src/test/scala/sge/math/Vector2Test.scala	ai_converted	test	2026-03-19	toString, fromString, angle/angleRad (instance + static)	libgdx		
-math/Vector3Test	sge/src/test/scala/sge/math/Vector3Test.scala	ai_converted	test	2026-03-19	toString, fromString	libgdx		
-math/Vector4Test	sge/src/test/scala/sge/math/Vector4Test.scala	ai_converted	test	2026-03-19	toString, fromString	libgdx		
-math/RectangleTest	sge/src/test/scala/sge/math/RectangleTest.scala	ai_converted	test	2026-03-19	toString, fromString	libgdx		
-math/Shape2DTest	sge/src/test/scala/sge/math/Shape2DTest.scala	ai_converted	test	2026-03-19	Circle and Rectangle overlap/contains tests	libgdx		
-math/MathUtilsTest	sge/src/test/scala/sge/math/MathUtilsTest.scala	ai_converted	test	2026-03-19	lerpAngle, norm, map, trig, atan2 tests	libgdx		
-math/PolygonTest	sge/src/test/scala/sge/math/PolygonTest.scala	ai_converted	test	2026-03-19	Rotation and area tests	libgdx		
-math/ConvexHullTest	sge/src/test/scala/sge/math/ConvexHullTest.scala	ai_converted	test	2026-03-19	computePolygon with cyclic equality	libgdx		
-math/OctreeTest	sge/src/test/scala/sge/math/OctreeTest.scala	ai_converted	test	2026-03-19	Insert, remove, getAll tests	libgdx		
-math/IntersectorTest	sge/src/test/scala/sge/math/IntersectorTest.scala	ai_converted	test	2026-03-19	42 tests: triangles, planes, polygons, rays, segments, rectangles	libgdx		
-math/BSplineTest	sge/src/test/scala/sge/math/BSplineTest.scala	ai_converted	test	2026-03-19	Cubic spline, derivative, approximation tests	libgdx		
-math/BezierTest	sge/src/test/scala/sge/math/BezierTest.scala	ai_converted	test	2026-03-19	Parameterized over ImportType x useSetter	libgdx		
-math/collision/CollisionTest	sge/src/test/scala/sge/math/collision/CollisionTest.scala	ai_converted	test	2026-03-19	BoundingBox + OBB contains/intersects	libgdx		
--	sge/src/test/scala/sge/math/Matrix4Test.scala	ai_converted	test	2026-03-19	det, inv (identity, translation, rotation, arbitrary, singular), setTranslation	libgdx		
--	sge/src/test/scala/sge/math/CumulativeDistributionTest.scala	ai_converted	test	2026-03-19	ensureCapacity bug fix verification	libgdx		
--	sge/src/test/scala/sge/math/Vector3RotTest.scala	ai_converted	test	2026-03-19	Vector3 rotation edge cases	libgdx		
--	sge/src/test/scala/sge/math/VectorArithmeticTest.scala	ai_converted	test	2026-03-19	Cross-vector arithmetic ops	libgdx		
--	sge/src/test/scala/sge/math/QuaternionTest.scala	ai_converted	test	2026-03-19	Quaternion construction, multiplication, slerp	libgdx		
--	sge/src/test/scala/sge/math/Matrix3Test.scala	ai_converted	test	2026-03-19	Matrix3 operations	libgdx		
--	sge/src/test/scala/sge/math/InterpolationTest.scala	ai_converted	test	2026-03-19	Interpolation function correctness	libgdx		
--	sge/src/test/scala/sge/math/Affine2Test.scala	ai_converted	test	2026-03-19	Affine2 transform operations	libgdx		
-utils/SortTest	sge/src/test/scala/sge/utils/SortTest.scala	ai_converted	test	2026-03-19	Array and DynamicArray sorting, edge cases	libgdx		
-utils/FlushablePoolTest	sge/src/test/scala/sge/utils/FlushablePoolTest.scala	ai_converted	test	2026-03-19	Pool.Flushable obtain/flush/free lifecycle	libgdx		
-utils/MixedPutRemoveTest	sge/src/test/scala/sge/utils/ObjectMapTest.scala	ai_converted	test	2026-03-19	Stress tests merged into ObjectMapTest	libgdx		
--	sge/src/test/scala/sge/utils/DynamicArrayTest.scala	ai_converted	test	2026-03-19	55 tests: construction, add/remove, iteration, snapshot, sort	libgdx		
--	sge/src/test/scala/sge/utils/ObjectMapTest.scala	ai_converted	test	2026-03-19	41 tests: put/get/remove, iteration, equals, stress	libgdx		
--	sge/src/test/scala/sge/utils/JsonValueTest.scala	ai_converted	test	2026-03-19	72 tests: construction, navigation, type accessors, mutation, serialization	libgdx		
--	sge/src/test/scala/sge/utils/ObjectSetTest.scala	ai_converted	test	2026-03-19	ObjectSet operations	libgdx		
--	sge/src/test/scala/sge/utils/ArrayMapTest.scala	ai_converted	test	2026-03-19	ArrayMap put/get/remove/iteration	libgdx		
--	sge/src/test/scala/sge/utils/OrderedSetTest.scala	ai_converted	test	2026-03-19	OrderedSet insertion-order iteration	libgdx		
--	sge/src/test/scala/sge/utils/OrderedMapTest.scala	ai_converted	test	2026-03-19	OrderedMap insertion-order iteration	libgdx		
--	sge/src/test/scala/sge/audio/AudioUtilsTest.scala	ai_converted	test	2026-03-19	Audio utility functions	libgdx		
--	sge/src/test/scala/sge/audio/WavInputStreamTest.scala	ai_converted	test	2026-03-19	WAV RIFF parser tests	libgdx		
--	sge/src/test/scala/sge/graphics/CameraRotateTest.scala	ai_converted	test	2026-03-19	Camera.rotate(Matrix4) bug fix verification	libgdx		
--	sge/src/test/scala/sge/graphics/ColorTest.scala	ai_converted	test	2026-03-19	Color construction, conversion, packing	libgdx		
--	sge/src/test/scala/sge/graphics/OrthographicCameraTest.scala	ai_converted	test	2026-03-19	OrthographicCamera projection tests	libgdx		
--	sge/src/test/scala/sge/graphics/PerspectiveCameraTest.scala	ai_converted	test	2026-03-19	PerspectiveCamera projection tests	libgdx		
--	sge/src/test/scala/sge/graphics/CameraViewportPipelineTest.scala	ai_converted	test	2026-03-19	Camera+Viewport integration pipeline	libgdx		
-g3d/utils/AnimationControllerTest	sge/src/test/scala/sge/graphics/g3d/utils/AnimationControllerTest.scala	ai_converted	test	2026-03-19	Keyframe index + end-up action tests	libgdx		
-g3d/utils/AnimationDescTest	sge/src/test/scala/sge/graphics/g3d/utils/AnimationDescTest.scala	ai_converted	test	2026-03-19	Update forward/reverse with various deltas	libgdx		
--	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelJsonTest.scala	ai_converted	test	2026-03-19	G3D JSON model parsing	libgdx		
--	sge/src/test/scala/sge/graphics/g3d/loader/G3dModelLoaderTest.scala	ai_converted	test	2026-03-19	G3D model loader integration	libgdx		
--	sge/src/test/scala/sge/maps/tiled/BaseTiledMapLoaderTest.scala	ai_converted	test	2026-03-19	BaseTiledMapLoader bug fix verification	libgdx		
--	sge/src/test/scala/sge/maps/tiled/TiledProjectJsonTest.scala	ai_converted	test	2026-03-19	Tiled project JSON parsing	libgdx		
--	sge/src/test/scala/sge/maps/tiled/TmjJsonTest.scala	ai_converted	test	2026-03-19	TMJ format JSON parsing	libgdx		
--	sge/src/test/scala/sge/net/SgeHttpRequestTest.scala	ai_converted	test	2026-03-19	HTTP request builder	libgdx		
--	sge/src/test/scala/sge/net/SgeHttpResponseTest.scala	ai_converted	test	2026-03-19	HTTP response parsing	libgdx		
--	sge/src/test/scala/sge/noop/NoopAudioTest.scala	ai_converted	test	2026-03-19	Noop audio impl validation	libgdx		
--	sge/src/test/scala/sge/noop/NoopGraphicsTest.scala	ai_converted	test	2026-03-19	Noop graphics impl validation	libgdx		
--	sge/src/test/scala/sge/noop/NoopInputTest.scala	ai_converted	test	2026-03-19	Noop input impl validation	libgdx		
--	sge/src/test/scala/sge/noop/PrintApplicationLoggerTest.scala	ai_converted	test	2026-03-19	PrintApplicationLogger output	libgdx		
--	sge/src/test/scala/sge/platform/BufferOpsSuite.scala	ai_converted	test	2026-03-19	BufferOps cross-platform contract	libgdx		
--	sge/src/test/scala/sge/platform/ETC1OpsSuite.scala	ai_converted	test	2026-03-19	ETC1Ops cross-platform contract	libgdx		
--	sge/src/test/scala/sge/scenes/scene2d/ui/SkinStyleReaderTest.scala	ai_converted	test	2026-03-19	Skin style reader JSON parsing	libgdx		
--	sge/src/test/scala/sge/utils/viewport/ViewportTest.scala	ai_converted	test	2026-03-19	Viewport apply/update calculations	libgdx		
--	sge/src/test/scala/sge/input/GestureDetectorTest.scala	ai_converted	test	2026-03-19	GestureDetector event handling	libgdx		
--	sge/src/test/scala/sge/assets/AssetManagerUnitTest.scala	ai_converted	test	2026-03-19	AssetManager unit-level tests	libgdx		
--	sge/src/test/scalajvm/sge/net/NetJavaSocketTest.scala	ai_converted	test	2026-03-19	JVM NetJava socket impl	libgdx		
--	sge/src/test/scalajvm/sge/net/SgeHttpClientTest.scala	ai_converted	test	2026-03-19	JVM HTTP client integration	libgdx		
--	sge/src/test/scalajvm/sge/DesktopApplicationConfigTest.scala	ai_converted	test	2026-03-19	Desktop application config defaults + validation	libgdx		
--	sge/src/test/scalajvm/sge/DesktopClipboardTest.scala	ai_converted	test	2026-03-19	Desktop clipboard read/write	libgdx		
--	sge/src/test/scalajvm/sge/DesktopInterfacesTest.scala	ai_converted	test	2026-03-19	Desktop interface trait contracts	libgdx		
--	sge/src/test/scalajvm/sge/DesktopWindowListenerTest.scala	ai_converted	test	2026-03-19	Desktop window listener callbacks	libgdx		
--	sge/src/test/scalajvm/sge/FrameSyncTest.scala	ai_converted	test	2026-03-19	Frame sync timing (desktop-level)	libgdx		
--	sge/src/test/scalajvm/sge/HeadlessApplicationTest.scala	ai_converted	test	2026-03-19	HeadlessApplication lifecycle	libgdx		
--	sge/src/test/scalajvm/sge/files/DesktopFileHandleTest.scala	ai_converted	test	2026-03-19	Desktop file handle read/write/list	libgdx		
--	sge/src/test/scalajvm/sge/files/DesktopFilesTest.scala	ai_converted	test	2026-03-19	Desktop files path resolution	libgdx		
--	sge/src/test/scalajvm/sge/files/DesktopPreferencesTest.scala	ai_converted	test	2026-03-19	Desktop preferences XML storage	libgdx		
--	sge/src/test/scalajvm/sge/platform/DesktopFfiIntegrationTest.scala	ai_converted	test	2026-03-19	Desktop FFI Panama integration	libgdx		
--	sge/src/test/scalajvm/sge/utils/FrameSyncTest.scala	ai_converted	test	2026-03-19	FrameSync utility timing tests	libgdx		
--	sge/src/test/scalajvm/sge/graphics/AndroidGL20AdapterTest.scala	ai_converted	test	2026-03-19	AndroidGL20Adapter opaque type bridging	libgdx		
--	sge/src/test/scalajvm/sge/platform/AndroidTouchHandlerTest.scala	ai_converted	test	2026-03-19	Android touch handler event processing	libgdx		
--	sge/src/test/scalajvm/sge/platform/AndroidMouseHandlerTest.scala	ai_converted	test	2026-03-19	Android mouse handler event processing	libgdx		
--	sge/src/test/scalajvm/sge/AndroidGraphicsTest.scala	ai_converted	test	2026-03-19	Android graphics adapter + display metrics	libgdx		
--	sge/src/test/scalajvm/sge/files/AndroidFileHandleTest.scala	ai_converted	test	2026-03-19	Android file handle via FilesOps	libgdx		
--	sge/src/test/scalajvm/sge/AndroidAudioAdapterTest.scala	ai_converted	test	2026-03-19	Android audio adapter wiring	libgdx		
--	sge/src/test/scalajvm/sge/platform/DefaultAndroidInputStateTest.scala	ai_converted	test	2026-03-19	Default Android input state management	libgdx		
--	sge/src/test/scalajvm/sge/AndroidInputTest.scala	ai_converted	test	2026-03-19	Android input adapter integration	libgdx		
--	sge/src/test/scalajvm/sge/graphics/GL20OpaqueTypeCoverageTest.scala	ai_converted	test	2026-03-19	GL20 opaque type coverage verification	libgdx		
-utils/BitsTest	-	skipped	test	2026-03-19	Bits replaced by scala.collection.mutable.BitSet	libgdx		
-utils/AtomicQueueTest	-	skipped	test	2026-03-19	AtomicQueue not ported (use java.util.concurrent)	libgdx		
-utils/JsonTest	-	skipped	test	2026-03-19	LibGDX JsonReader replaced by jsoniter bridge	libgdx		
-utils/JsonValueTest (libgdx)	-	skipped	test	2026-03-19	LibGDX JsonValue tests; SGE has its own	libgdx		
-utils/CharArrayTest	-	skipped	test	2026-03-19	CharArray replaced by DynamicArray[Char]	libgdx		
-utils/LongArrayTest	-	skipped	test	2026-03-19	LongArray replaced by DynamicArray[Long]	libgdx		
-utils/LongQueueTest	-	skipped	test	2026-03-19	LongQueue not ported (use standard Queue)	libgdx		
-utils/QueueTest	-	skipped	test	2026-03-19	Queue replaced by scala.collection.mutable.Queue	libgdx		
-utils/PooledLinkedListTest	-	skipped	test	2026-03-19	PooledLinkedList not ported	libgdx		
-utils/SortedIntListTest	-	skipped	test	2026-03-19	SortedIntList not ported	libgdx		
+com/badlogic/gdx/ai/Timepiece.java	sge-extension/ai/Timepiece.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/Collision.java	sge-extension/ai/src/main/scala/sge/ai/utils/Collision.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/Ray.java	sge-extension/ai/src/main/scala/sge/ai/utils/Ray.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/NonBlockingSemaphore.java	sge-extension/ai/src/main/scala/sge/ai/utils/NonBlockingSemaphore.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/random/TriangularDoubleDistribution.java	sge-extension/ai/src/main/scala/sge/ai/utils/random/Distribution.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/Location.java	sge-extension/ai/src/main/scala/sge/ai/utils/Location.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/RaycastCollisionDetector.java	sge-extension/ai/src/main/scala/sge/ai/utils/RaycastCollisionDetector.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/CircularBuffer.java	sge-extension/ai/src/main/scala/sge/ai/utils/CircularBuffer.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/utils/ArithmeticUtils.java	sge-extension/ai/src/main/scala/sge/ai/utils/ArithmeticUtils.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/Telegraph.java	sge-extension/ai/src/main/scala/sge/ai/msg/Telegraph.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/Telegram.java	sge-extension/ai/src/main/scala/sge/ai/msg/Telegram.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/MessageDispatcher.java	sge-extension/ai/src/main/scala/sge/ai/msg/MessageDispatcher.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/PriorityQueue.java	sge-extension/ai/src/main/scala/sge/ai/msg/PriorityQueue.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/TelegramProvider.java	sge-extension/ai/src/main/scala/sge/ai/msg/TelegramProvider.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/msg/MessageManager.java	sge-extension/ai/src/main/scala/sge/ai/msg/MessageManager.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fsm/State.java	sge-extension/ai/src/main/scala/sge/ai/fsm/State.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fsm/StackStateMachine.java	sge-extension/ai/src/main/scala/sge/ai/fsm/StackStateMachine.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fsm/StateMachine.java	sge-extension/ai/src/main/scala/sge/ai/fsm/StateMachine.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fsm/DefaultStateMachine.java	sge-extension/ai/src/main/scala/sge/ai/fsm/DefaultStateMachine.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/Graph.java	sge-extension/ai/src/main/scala/sge/ai/pfa/Graph.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/indexed/IndexedGraph.java	sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedGraph.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathFinderQueue.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinderQueue.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/DefaultGraphPath.java	sge-extension/ai/src/main/scala/sge/ai/pfa/DefaultGraphPath.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/Connection.java	sge-extension/ai/src/main/scala/sge/ai/pfa/Connection.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/indexed/IndexedAStarPathFinder.java	sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedAStarPathFinder.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathSmoother.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathSmoother.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/indexed/IndexedHierarchicalGraph.java	sge-extension/ai/src/main/scala/sge/ai/pfa/indexed/IndexedHierarchicalGraph.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathFinderRequestControl.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinderRequestControl.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/HierarchicalGraph.java	sge-extension/ai/src/main/scala/sge/ai/pfa/HierarchicalGraph.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/DefaultConnection.java	sge-extension/ai/src/main/scala/sge/ai/pfa/DefaultConnection.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/HierarchicalPathFinder.java	sge-extension/ai/src/main/scala/sge/ai/pfa/HierarchicalPathFinder.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathFinder.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinder.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/SmoothableGraphPath.java	sge-extension/ai/src/main/scala/sge/ai/pfa/SmoothableGraphPath.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/GraphPath.java	sge-extension/ai/src/main/scala/sge/ai/pfa/GraphPath.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/Heuristic.java	sge-extension/ai/src/main/scala/sge/ai/pfa/Heuristic.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathSmootherRequest.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathSmootherRequest.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/pfa/PathFinderRequest.java	sge-extension/ai/src/main/scala/sge/ai/pfa/PathFinderRequest.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/sched/Schedulable.java	sge-extension/ai/src/main/scala/sge/ai/sched/Schedulable.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/sched/PriorityScheduler.java	sge-extension/ai/src/main/scala/sge/ai/sched/PriorityScheduler.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/sched/LoadBalancingScheduler.java	sge-extension/ai/src/main/scala/sge/ai/sched/LoadBalancingScheduler.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/sched/SchedulerBase.java	sge-extension/ai/src/main/scala/sge/ai/sched/SchedulerBase.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/sched/Scheduler.java	sge-extension/ai/src/main/scala/sge/ai/sched/Scheduler.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/SlotAssignment.java	sge-extension/ai/src/main/scala/sge/ai/fma/SlotAssignment.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/SlotAssignmentStrategy.java	sge-extension/ai/src/main/scala/sge/ai/fma/SlotAssignmentStrategy.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/Formation.java	sge-extension/ai/src/main/scala/sge/ai/fma/Formation.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/FormationMotionModerator.java	sge-extension/ai/src/main/scala/sge/ai/fma/FormationMotionModerator.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/BoundedSlotAssignmentStrategy.java	sge-extension/ai/src/main/scala/sge/ai/fma/BoundedSlotAssignmentStrategy.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/SoftRoleSlotAssignmentStrategy.java	sge-extension/ai/src/main/scala/sge/ai/fma/SoftRoleSlotAssignmentStrategy.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/FreeSlotAssignmentStrategy.java	sge-extension/ai/src/main/scala/sge/ai/fma/FreeSlotAssignmentStrategy.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/FormationPattern.java	sge-extension/ai/src/main/scala/sge/ai/fma/FormationPattern.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/fma/FormationMember.java	sge-extension/ai/src/main/scala/sge/ai/fma/FormationMember.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/TaskCloneException.java	sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloneException.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/TaskCloner.java	sge-extension/ai/src/main/scala/sge/ai/btree/TaskCloner.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/LoopDecorator.java	sge-extension/ai/src/main/scala/sge/ai/btree/LoopDecorator.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/RandomSelector.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/RandomSelector.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/RandomSequence.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/RandomSequence.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/leaf/Success.java	sge-extension/ai/src/main/scala/sge/ai/btree/leaf/Success.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/leaf/Failure.java	sge-extension/ai/src/main/scala/sge/ai/btree/leaf/Failure.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/AlwaysSucceed.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/AlwaysSucceed.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/leaf/Wait.java	sge-extension/ai/src/main/scala/sge/ai/btree/leaf/Wait.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/Sequence.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/Sequence.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/UntilSuccess.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/UntilSuccess.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/SingleRunningChildBranch.java	sge-extension/ai/src/main/scala/sge/ai/btree/SingleRunningChildBranch.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/AlwaysFail.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/AlwaysFail.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/Task.java	sge-extension/ai/src/main/scala/sge/ai/btree/Task.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/Invert.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Invert.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/SemaphoreGuard.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/SemaphoreGuard.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/BranchTask.java	sge-extension/ai/src/main/scala/sge/ai/btree/BranchTask.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/Parallel.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/Parallel.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/PooledBehaviorTreeLibrary.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/PooledBehaviorTreeLibrary.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/DynamicGuardSelector.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/DynamicGuardSelector.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/Repeat.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Repeat.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/BehaviorTreeLibraryManager.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeLibraryManager.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/BehaviorTree.java	sge-extension/ai/src/main/scala/sge/ai/btree/BehaviorTree.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/branch/Selector.java	sge-extension/ai/src/main/scala/sge/ai/btree/branch/Selector.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/Include.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Include.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/Random.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/Random.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/BehaviorTreeLibrary.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeLibrary.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/decorator/UntilFail.java	sge-extension/ai/src/main/scala/sge/ai/btree/decorator/UntilFail.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/DistributionAdapters.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/DistributionAdapters.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/Decorator.java	sge-extension/ai/src/main/scala/sge/ai/btree/Decorator.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/LeafTask.java	sge-extension/ai/src/main/scala/sge/ai/btree/LeafTask.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/BehaviorTreeParser.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeParser.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/btree/utils/BehaviorTreeReader.java	sge-extension/ai/src/main/scala/sge/ai/btree/utils/BehaviorTreeReader.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/Limiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/Limiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/Proximity.java	sge-extension/ai/src/main/scala/sge/ai/steer/Proximity.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/SteeringAcceleration.java	sge-extension/ai/src/main/scala/sge/ai/steer/SteeringAcceleration.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/GroupBehavior.java	sge-extension/ai/src/main/scala/sge/ai/steer/GroupBehavior.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/SteeringBehavior.java	sge-extension/ai/src/main/scala/sge/ai/steer/SteeringBehavior.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/Steerable.java	sge-extension/ai/src/main/scala/sge/ai/steer/Steerable.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/SteerableAdapter.java	sge-extension/ai/src/main/scala/sge/ai/steer/SteerableAdapter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Seek.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Seek.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Arrive.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Arrive.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Jump.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Jump.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/FollowPath.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/FollowPath.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Flee.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Flee.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Interpose.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Interpose.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Pursue.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Pursue.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Evade.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Evade.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Face.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Face.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Cohesion.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Cohesion.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/RaycastObstacleAvoidance.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/RaycastObstacleAvoidance.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/LookWhereYouAreGoing.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/LookWhereYouAreGoing.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/CollisionAvoidance.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/CollisionAvoidance.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/MatchVelocity.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/MatchVelocity.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/PrioritySteering.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/PrioritySteering.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Separation.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Separation.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Alignment.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Alignment.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Hide.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Hide.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/Wander.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/Wander.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/ReachOrientation.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/ReachOrientation.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/FollowFlowField.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/FollowFlowField.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/behaviors/BlendedSteering.java	sge-extension/ai/src/main/scala/sge/ai/steer/behaviors/BlendedSteering.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/RayConfiguration.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/RayConfiguration.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/rays/CentralRayWithWhiskersConfiguration.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/rays/CentralRayWithWhiskersConfiguration.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/paths/LinePath.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/paths/LinePath.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/Path.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/Path.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/rays/ParallelSideRayConfiguration.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/rays/ParallelSideRayConfiguration.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/rays/RayConfigurationBase.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/rays/RayConfigurationBase.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/utils/rays/SingleRayConfiguration.java	sge-extension/ai/src/main/scala/sge/ai/steer/utils/rays/SingleRayConfiguration.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/LinearSpeedLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearSpeedLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/AngularAccelerationLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularAccelerationLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/FullLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/FullLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/LinearLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/NullLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/NullLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/AngularSpeedLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularSpeedLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/AngularLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/AngularLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/limiters/LinearAccelerationLimiter.java	sge-extension/ai/src/main/scala/sge/ai/steer/limiters/LinearAccelerationLimiter.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/proximities/RadiusProximity.java	sge-extension/ai/src/main/scala/sge/ai/steer/proximities/RadiusProximity.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/proximities/ProximityBase.java	sge-extension/ai/src/main/scala/sge/ai/steer/proximities/ProximityBase.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/proximities/FieldOfViewProximity.java	sge-extension/ai/src/main/scala/sge/ai/steer/proximities/FieldOfViewProximity.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/gdx/ai/steer/proximities/InfiniteProximity.java	sge-extension/ai/src/main/scala/sge/ai/steer/proximities/InfiniteProximity.scala	ai_converted	extension	2026-03-30		gdx-ai		
+com/badlogic/ashley/core/Component.java	sge-extension/ecs/src/main/scala/sge/ecs/Component.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/signals/Listener.java	sge-extension/ecs/src/main/scala/sge/ecs/signals/Listener.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/signals/Signal.java	sge-extension/ecs/src/main/scala/sge/ecs/signals/Signal.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/EntityListener.java	sge-extension/ecs/src/main/scala/sge/ecs/EntityListener.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/ComponentType.java	sge-extension/ecs/src/main/scala/sge/ecs/ComponentType.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/ComponentMapper.java	sge-extension/ecs/src/main/scala/sge/ecs/ComponentMapper.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/Family.java	sge-extension/ecs/src/main/scala/sge/ecs/Family.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/ComponentOperationHandler.java	sge-extension/ecs/src/main/scala/sge/ecs/ComponentOperationHandler.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/EntityManager.java	sge-extension/ecs/src/main/scala/sge/ecs/EntityManager.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/FamilyManager.java	sge-extension/ecs/src/main/scala/sge/ecs/FamilyManager.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/systems/IntervalSystem.java	sge-extension/ecs/src/main/scala/sge/ecs/systems/IntervalSystem.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/SystemManager.java	sge-extension/ecs/src/main/scala/sge/ecs/SystemManager.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/systems/IteratingSystem.java	sge-extension/ecs/src/main/scala/sge/ecs/systems/IteratingSystem.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/systems/IntervalIteratingSystem.java	sge-extension/ecs/src/main/scala/sge/ecs/systems/IntervalIteratingSystem.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/systems/SortedIteratingSystem.java	sge-extension/ecs/src/main/scala/sge/ecs/systems/SortedIteratingSystem.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/EntitySystem.java	sge-extension/ecs/src/main/scala/sge/ecs/EntitySystem.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/utils/ImmutableArray.java	sge-extension/ecs/src/main/scala/sge/ecs/utils/ImmutableArray.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/utils/Bag.java	sge-extension/ecs/src/main/scala/sge/ecs/utils/Bag.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/Entity.java	sge-extension/ecs/src/main/scala/sge/ecs/Entity.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/Engine.java	sge-extension/ecs/src/main/scala/sge/ecs/Engine.scala	ai_converted	extension	2026-03-30		ashley		
+com/badlogic/ashley/core/PooledEngine.java	sge-extension/ecs/src/main/scala/sge/ecs/PooledEngine.scala	ai_converted	extension	2026-03-30		ashley		
+com/github/czyzby/noise4j/Grid.java	sge-extension/noise/src/main/scala/sge/noise/Grid.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/Int2dArray.java	sge-extension/noise/src/main/scala/sge/noise/Int2dArray.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/Generator.java	sge-extension/noise/src/main/scala/sge/noise/generator/Generator.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/AbstractGenerator.java	sge-extension/noise/src/main/scala/sge/noise/generator/AbstractGenerator.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/noise/NoiseGenerator.java	sge-extension/noise/src/main/scala/sge/noise/generator/noise/NoiseGenerator.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/room/RoomType.java	sge-extension/noise/src/main/scala/sge/noise/generator/room/RoomType.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/room/dungeon/DungeonGenerator.java	sge-extension/noise/src/main/scala/sge/noise/generator/room/dungeon/DungeonGenerator.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/util/Generators.java	sge-extension/noise/src/main/scala/sge/noise/generator/util/Generators.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/cellular/CellularAutomataGenerator.java	sge-extension/noise/src/main/scala/sge/noise/generator/cellular/CellularAutomataGenerator.scala	ai_converted	extension	2026-03-30		noise4j		
+com/github/czyzby/noise4j/generator/room/AbstractRoomGenerator.java	sge-extension/noise/src/main/scala/sge/noise/generator/room/AbstractRoomGenerator.scala	ai_converted	extension	2026-03-30		noise4j		
+space/earlygrey/simplegraphs/internal/BinaryHeap.java	sge-extension/graphs/src/main/scala/sge/graphs/internal/BinaryHeap.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/utils/WeightFunction.java	sge-extension/graphs/src/main/scala/sge/graphs/utils/WeightFunction.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/utils/Heuristic.java	sge-extension/graphs/src/main/scala/sge/graphs/utils/Heuristic.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/utils/SearchProcessor.java	sge-extension/graphs/src/main/scala/sge/graphs/utils/SearchProcessor.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/Edge.java	sge-extension/graphs/src/main/scala/sge/graphs/Edge.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/Connection.java	sge-extension/graphs/src/main/scala/sge/graphs/Connection.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/DirectedGraph.java	sge-extension/graphs/src/main/scala/sge/graphs/DirectedGraph.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/GraphBuilder.java	sge-extension/graphs/src/main/scala/sge/graphs/GraphBuilder.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/Algorithm.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/Algorithm.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/SearchStep.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/SearchStep.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/AlgorithmPath.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/AlgorithmPath.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/AStarSearch.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/AStarSearch.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/BreadthFirstSearch.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/BreadthFirstSearch.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/DepthFirstSearch.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/DepthFirstSearch.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/CycleDetector.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/CycleDetector.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/MinimumWeightSpanningTree.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/MinimumWeightSpanningTree.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/Algorithms.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/Algorithms.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/DirectedGraphAlgorithms.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/DirectedGraphAlgorithms.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/algorithms/UndirectedGraphAlgorithms.java	sge-extension/graphs/src/main/scala/sge/graphs/algorithms/UndirectedGraphAlgorithms.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/internal/InternalArray.java	sge-extension/graphs/src/main/scala/sge/graphs/internal/InternalArray.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/Path.java	sge-extension/graphs/src/main/scala/sge/graphs/Path.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/Graph.java	sge-extension/graphs/src/main/scala/sge/graphs/Graph.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/Node.java	sge-extension/graphs/src/main/scala/sge/graphs/Node.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/UndirectedGraph.java	sge-extension/graphs/src/main/scala/sge/graphs/UndirectedGraph.scala	ai_converted	extension	2026-03-30		simple-graphs		
+space/earlygrey/simplegraphs/internal/NodeMap.java	sge-extension/graphs/src/main/scala/sge/graphs/internal/NodeMap.scala	ai_converted	extension	2026-03-30		simple-graphs		
+com/dongbat/jbump/util/MathUtils.java	sge-extension/jbump/src/main/scala/sge/jbump/util/MathUtils.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Point.java	sge-extension/jbump/src/main/scala/sge/jbump/Point.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/IntPoint.java	sge-extension/jbump/src/main/scala/sge/jbump/IntPoint.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Item.java	sge-extension/jbump/src/main/scala/sge/jbump/Item.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Rect.java	sge-extension/jbump/src/main/scala/sge/jbump/Rect.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Cell.java	sge-extension/jbump/src/main/scala/sge/jbump/Cell.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Collision.java	sge-extension/jbump/src/main/scala/sge/jbump/Collision.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/ItemInfo.java	sge-extension/jbump/src/main/scala/sge/jbump/ItemInfo.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/util/Nullable.java	sge-extension/jbump/src/main/scala/sge/jbump/util/Nullable.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Grid.java	sge-extension/jbump/src/main/scala/sge/jbump/Grid.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Response.java	sge-extension/jbump/src/main/scala/sge/jbump/Response.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/RectHelper.java	sge-extension/jbump/src/main/scala/sge/jbump/RectHelper.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/CollisionFilter.java	sge-extension/jbump/src/main/scala/sge/jbump/CollisionFilter.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/Collisions.java	sge-extension/jbump/src/main/scala/sge/jbump/Collisions.scala	ai_converted	extension	2026-03-30		jbump		
+com/dongbat/jbump/World.java	sge-extension/jbump/src/main/scala/sge/jbump/World.scala	ai_converted	extension	2026-03-30		jbump		
+com/github/tommyettinger/anim8/AnimationWriter.java	sge-extension/anim8/src/main/scala/sge/anim8/AnimationWriter.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/Dithered.java	sge-extension/anim8/src/main/scala/sge/anim8/Dithered.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/DitherAlgorithm.java	sge-extension/anim8/src/main/scala/sge/anim8/DitherAlgorithm.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/OtherMath.java	sge-extension/anim8/src/main/scala/sge/anim8/OtherMath.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/ChunkBuffer.java	sge-extension/anim8/src/main/scala/sge/anim8/ChunkBuffer.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/AnimatedPNG.java	sge-extension/anim8/src/main/scala/sge/anim8/AnimatedPNG.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/ConstantData.java	sge-extension/anim8/src/main/scala/sge/anim8/ConstantData.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/PaletteReducer.java	sge-extension/anim8/src/main/scala/sge/anim8/PaletteReducer.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/LZWEncoder.java	sge-extension/anim8/src/main/scala/sge/anim8/LZWEncoder.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/PNG8.java	sge-extension/anim8/src/main/scala/sge/anim8/PNG8.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+com/github/tommyettinger/anim8/AnimatedGif.java	sge-extension/anim8/src/main/scala/sge/anim8/AnimatedGif.scala	ai_converted	extension	2026-03-30		anim8-gdx		
+de/eskalon/commons/screen/ManagedScreen.java	sge-extension/screens/ManagedScreen.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/BlankScreen.java	sge-extension/screens/BlankScreen.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/ScreenManager.java	sge-extension/screens/ScreenManager.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/ManagedGame.java	sge-extension/screens/ManagedGame.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/ScreenTransition.java	sge-extension/screens/transition/ScreenTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/TimedTransition.java	sge-extension/screens/transition/TimedTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/BatchTransition.java	sge-extension/screens/transition/BatchTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/SlidingTransition.java	sge-extension/screens/transition/SlidingTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/BlankTimedTransition.java	sge-extension/screens/transition/impl/BlankTimedTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/BlendingTransition.java	sge-extension/screens/transition/impl/BlendingTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/SlidingDirection.java	sge-extension/screens/transition/impl/SlidingDirection.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/SlidingInTransition.java	sge-extension/screens/transition/impl/SlidingInTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/SlidingOutTransition.java	sge-extension/screens/transition/impl/SlidingOutTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/PushTransition.java	sge-extension/screens/transition/impl/PushTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/HorizontalSlicingTransition.java	sge-extension/screens/transition/impl/HorizontalSlicingTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/screen/transition/impl/VerticalSlicingTransition.java	sge-extension/screens/transition/impl/VerticalSlicingTransition.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/utils/ScreenFboUtils.java	sge-extension/screens/utils/ScreenFboUtils.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+de/eskalon/commons/utils/QuadMeshGenerator.java	sge-extension/screens/utils/QuadMeshGenerator.scala	ai_converted	extension	2026-03-30		libgdx-screenmanager		
+com/crashinvaders/vfx/effects/VfxEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/ChainVfxEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/AbstractVfxEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/CompositeVfxEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/MultipassEffectWrapper.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/gl/VfxGlViewport.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/gl/VfxGlExtension.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/gl/DefaultVfxGlExtension.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/framebuffer/VfxFrameBufferQueue.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/utils/ViewportQuadMesh.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/framebuffer/VfxFrameBufferRenderer.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/utils/UniformBatcher.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/util/CopyEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/util/CombineEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/util/GammaThresholdEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/util/MixEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/ChromaticAberrationEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/CrtEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/FilmGrainEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/FisheyeEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/FxaaEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/LensFlareEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/LevelsEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/MotionBlurEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/NfaaEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/OldTvEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/RadialDistortionEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/VignettingEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/WaterDistortionEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/RadialBlurEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/ZoomEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/framebuffer/VfxFrameBufferPool.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/gl/VfxGLUtils.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/utils/PrioritizedArray.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/VfxRenderContext.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/VfxManager.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/BloomEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/ShaderVfxEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/framebuffer/VfxFrameBuffer.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/framebuffer/VfxPingPongWrapper.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/crashinvaders/vfx/effects/GaussianBlurEffect.java		ai_converted	extension	2026-03-31		gdx-vfx		
+com/github/tommyettinger/colorful/oklab/Gamut.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/GradientTools.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/Shaders.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/ColorfulSprite.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/rgb/ColorfulSprite.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/rgb/GradientTools.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/Palette.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/rgb/Palette.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/ColorTools.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/SimplePalette.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/rgb/ColorfulBatch.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/FloatColors.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/TrigTools.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/oklab/ColorfulBatch.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/rgb/ColorTools.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/colorful/ColorfulBatch.java		ai_converted	extension	2026-03-31		colorful-gdx		
+com/github/tommyettinger/textra/TokenCategory.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/InternalToken.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Justify.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/ColorLookup.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/TypingListener.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/TypingAdapter.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/TokenEntry.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Line.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Effect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/BlockUtils.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/CaseInsensitiveIntMap.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/Palette.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/LZBDecompression.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Layout.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/TypingConfig.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/WaveEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ShakeEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/RainbowEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/EaseEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/HangEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/JumpEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SickEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SlideEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/WindEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/GradientEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/BlinkEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/AttentionEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/CannonEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/CarouselEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/CrowdEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ShrinkEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/EmergeEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/HeartbeatEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/HighlightEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/InstantEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SpiralEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SpinEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SquashEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ScaleEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/RotateEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/TriggerEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/OceanEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SputterEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SlamEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ZipperEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/SlipEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ShootEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/StylistEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/PinchEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/MeetEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ThinkingEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/JoltEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/LZBCompression.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Font.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/Parser.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/TypingLabel.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/LinkEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/NoiseUtils.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/ColorUtils.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/utils/StringUtils.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/ThrobEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/github/tommyettinger/textra/effects/FadeEffect.java		ai_converted	extension	2026-03-31		textratypist		
+com/kotcrab/vis/ui/Focusable.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/FocusManager.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/Sizes.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/i18n/BundleText.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/util/BorderOwner.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/util/TableUtils.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/util/InputValidator.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/util/Validators.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisTable.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisRadioButton.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisProgressBar.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisSlider.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisScrollPane.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/VisUI.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/util/ActorUtils.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisImage.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisCheckBox.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisImageButton.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisImageTextButton.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisLabel.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisValidatableTextField.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/Separator.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisList.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisSelectBox.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisTextArea.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisTextButton.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisTextField.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisTree.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisWindow.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/widget/VisDialog.java		ai_converted	extension	2026-03-31		vis-ui		
+com/kotcrab/vis/ui/Locales.java		ai_converted	extension	2026-03-31		vis-ui		

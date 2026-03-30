@@ -453,6 +453,292 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     )
   )
 
+val `sge-ai` = (projectMatrix in file("sge-extension/ai"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-ai",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/ai")
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/ai")
+  )
+
+val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-ecs",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/ecs")
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/ecs")
+  )
+
+val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-vfx",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/vfx") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/vfx")
+  )
+
+val `sge-textra` = (projectMatrix in file("sge-extension/textra"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-textra",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/textra") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/textra")
+  )
+
+val `sge-colorful` = (projectMatrix in file("sge-extension/colorful"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-colorful",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/colorful") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/colorful")
+  )
+
+val `sge-visui` = (projectMatrix in file("sge-extension/visui"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-visui",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/visui") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/visui")
+  )
+
+val `sge-screens` = (projectMatrix in file("sge-extension/screens"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-screens",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/screens") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/screens")
+  )
+
+val `sge-anim8` = (projectMatrix in file("sge-extension/anim8"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-anim8",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/anim8")
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/anim8")
+  )
+
+val `sge-noise` = (projectMatrix in file("sge-extension/noise"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-noise",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/noise"))
+  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
+  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/noise"))
+
+val `sge-graphs` = (projectMatrix in file("sge-extension/graphs"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-graphs",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/graphs"))
+  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
+  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/graphs"))
+
+val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-jbump",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .jvmPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jvmSettings(projectDir = "sge-extension/jbump"))
+  .jsPlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.jsSettings)
+  .nativePlatform(scalaVersions = Seq(versions.scala), settings = SgePlugin.nativeSettings(projectDir = "sge-extension/jbump"))
+
 // ── Android smoke test APK ────────────────────────────────────────────
 //
 // Minimal Android app that bootstraps SGE, renders 30 frames, and
@@ -653,6 +939,17 @@ lazy val root = (project in file("."))
   .aggregate(`sge-tools`)
   .aggregate(`sge-freetype`.projectRefs *)
   .aggregate(`sge-physics`.projectRefs *)
+  .aggregate(`sge-ai`.projectRefs *)
+  .aggregate(`sge-ecs`.projectRefs *)
+  .aggregate(`sge-vfx`.projectRefs *)
+  .aggregate(`sge-textra`.projectRefs *)
+  .aggregate(`sge-colorful`.projectRefs *)
+  .aggregate(`sge-visui`.projectRefs *)
+  .aggregate(`sge-screens`.projectRefs *)
+  .aggregate(`sge-anim8`.projectRefs *)
+  .aggregate(`sge-noise`.projectRefs *)
+  .aggregate(`sge-graphs`.projectRefs *)
+  .aggregate(`sge-jbump`.projectRefs *)
   // Integration tests
   .aggregate(`sge-it-desktop`)
   .aggregate(`sge-it-jvm-platform`)

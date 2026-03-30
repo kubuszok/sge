@@ -96,7 +96,7 @@ ModelNodePart.scala	graphics.g3d.model.data	pass	no	2026-03-19	All Java public f
 ModelTexture.scala	graphics.g3d.model.data	pass	no	2026-03-19	All Java public fields and constants present (id, fileName, uvTranslation, uvScaling, usage, USAGE_UNKNOWN through USAGE_REFLECTION).	libgdx
 Animation.scala	graphics.g3d.model	pass	no	2026-03-19	All Java public fields present (id, duration, nodeAnimations).	libgdx
 MeshPart.scala	graphics.g3d.model	pass	no	2026-03-19	All Java public methods and fields present. Constructors (no-arg, 5-arg, copy) all present. `set(MeshPart)`, `set(5-arg)`, `update()`, `equals(MeshPart)`, `equals(Any)`, `render(ShaderProgram, Boolean)`, `render(ShaderProgram)` all present.; None — non-standard `hashCode()` override removed; `equals`/`hashCode` contract now consistent with Java source.	libgdx
-Node.scala	graphics.g3d.model	pass	no	2026-03-19	All Java public methods and fields present. Static `getNode` correctly in companion object.; FIXME comment preserved from Java (id uniqueness question)	libgdx
+Node.scala	graphs	pass	yes	2026-03-30	All Java public methods and fields present. Static `getNode` correctly in companion object.; FIXME comment preserved from Java (id uniqueness question)	simple-graphs
 NodeAnimation.scala	graphics.g3d.model	pass	no	2026-03-19	All Java public fields present (node, translation, rotation, scaling).	libgdx
 NodeKeyframe.scala	graphics.g3d.model	pass	no	2026-03-19	All Java public fields present (keytime, value). Constructor matches Java.	libgdx
 NodePart.scala	graphics.g3d.model	pass	no	2026-03-19	"All Java public methods and fields present (meshPart, material, invBoneBindTransforms, bones, enabled, constructors, setRenderable, copy, set).; FIXME from Java preserved (""add copy constructor and override #equals"")"	libgdx
@@ -313,7 +313,7 @@ MapProperties.scala	maps	pass	no	2026-03-19	11 methods + equals/hashCode/toStrin
 MapRenderer.scala	maps	pass	no	2026-03-19	4 abstract methods (setView x2, render x2) -- 1:1 match.	libgdx
 BoundingBox.scala	math.collision	pass	yes	2026-03-19	All Java public methods present including `contains(OrientedBoundingBox)`.	libgdx
 OrientedBoundingBox.scala	math.collision	pass	yes	2026-03-19	All Java public methods present (getVertices, getBounds, setBounds, getTransform, setTransform, set, getCorner000-111, contains x3, intersects x2, mul).; None — axes bug fixed (now extracts matrix columns like Java); order of operations matches Java	libgdx
-Ray.scala	math.collision	pass	yes	2026-03-19	All Java public methods present (cpy, getEndPoint, mul, set x3, toString, equals, hashCode).; None — constructor copy semantics fixed; 3-arg secondary constructor (with normalize flag) is an intentional SGE addition	libgdx
+Ray.scala	ai.utils	pass	yes	2026-03-30	All Java public methods present (cpy, getEndPoint, mul, set x3, toString, equals, hashCode).; None — constructor copy semantics fixed; 3-arg secondary constructor (with normalize flag) is an intentional SGE addition	gdx-ai
 Segment.scala	math.collision	pass	no	2026-03-19	All Java public methods present (len, len2, equals, hashCode).; None — constructor stores refs (acceptable for simple value holder)	libgdx
 Sphere.scala	math.collision	pass	no	2026-03-19	All Java public methods present (overlaps, hashCode, equals, volume, surfaceArea).; None — constructor copy semantics fixed; secondary constructor `(centerX, centerY, centerZ, radius)` is an intentional SGE addition	libgdx
 Affine2.scala	math	pass	no	2026-03-19		libgdx
@@ -333,10 +333,10 @@ GeometryUtils.scala	math	pass	no	2026-03-19		libgdx
 GridPoints.scala	math	pass	no	2026-03-19		libgdx
 Interpolation.scala	math	pass	no	2026-03-19		libgdx
 Intersector.scala	math	pass	no	2026-03-19		libgdx
-MathUtils.scala	math	pass	no	2026-03-19		libgdx
+MathUtils.scala	jbump.util	pass	yes	2026-03-30		jbump
 Matrices.scala	math	pass	no	2026-03-19		libgdx
 Octree.scala	math	pass	no	2026-03-19		libgdx
-Path.scala	math	pass	no	2026-03-19		libgdx
+Path.scala	graphs	pass	yes	2026-03-30		simple-graphs
 Plane.scala	math	pass	no	2026-03-19		libgdx
 Polygon.scala	math	pass	no	2026-03-19		libgdx
 Polyline.scala	math	pass	no	2026-03-19		libgdx
@@ -414,7 +414,7 @@ TouchableAction.scala	scenes.scene2d.actions	pass	no	2026-03-19	All 3 methods: `
 VisibleAction.scala	scenes.scene2d.actions	pass	no	2026-03-19	All 3 methods: `act`, `isVisible`, `setVisible`.	libgdx
 Button.scala	scenes.scene2d.ui	minor_issues	no	2026-03-19	All public methods present including `setChecked`, `toggle`, `isPressed`, `isOver`, `getClickListener`, `isDisabled`, `setDisabled`, `setProgrammaticChangeEvents`, `getProgrammaticChangeEvents`, `setStyle`, `getStyle`, `getButtonGroup`, `draw`, `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`.; `// TODO: requestRendering - draw doesn't have 'using Sge' context`; `requestRendering` TODO in `draw()` method. Minor — needs architectural change to add `using Sge` to draw.	libgdx
 ButtonGroup.scala	scenes.scene2d.ui	pass	no	2026-03-19	All public methods present: `add`, `remove`, `clear`, `setMinCheckCount`, `setMaxCheckCount`, `setUncheckLast`, `canCheck`, `getChecked`, `getCheckedIndex`, `getAllChecked`, `getButtons`, `setButtons`.	libgdx
-Cell.scala	scenes.scene2d.ui	pass	no	2026-03-19	All public methods present. Full builder API: `size`, `width`, `height`, `minSize`, `minWidth`, `minHeight`, `prefSize`, `prefWidth`, `prefHeight`, `maxSize`, `maxWidth`, `maxHeight`, `space`, `spaceTop/Left/Bottom/Right`, `pad`, `padTop/Left/Bottom/Right`, `fill`, `fillX`, `fillY`, `align`, `center`, `top`, `left`, `bottom`, `right`, `grow`, `growX`, `growY`, `expand`, `expandX`, `expandY`, `colspan`, `uniform`, `uniformX`, `uniformY`, `setActorBounds`, getters/setters for bounds, `getColumn`, `getRow`, value getters, `clear`, `reset`, `set`, `merge`, `toString`, `defaults`.; None. The `defaults()` singleton pattern uses `_creatingDefaults` guard instead of `Gdx.files` check.	libgdx
+Cell.scala	jbump	pass	yes	2026-03-30	All public methods present. Full builder API: `size`, `width`, `height`, `minSize`, `minWidth`, `minHeight`, `prefSize`, `prefWidth`, `prefHeight`, `maxSize`, `maxWidth`, `maxHeight`, `space`, `spaceTop/Left/Bottom/Right`, `pad`, `padTop/Left/Bottom/Right`, `fill`, `fillX`, `fillY`, `align`, `center`, `top`, `left`, `bottom`, `right`, `grow`, `growX`, `growY`, `expand`, `expandX`, `expandY`, `colspan`, `uniform`, `uniformX`, `uniformY`, `setActorBounds`, getters/setters for bounds, `getColumn`, `getRow`, value getters, `clear`, `reset`, `set`, `merge`, `toString`, `defaults`.; None. The `defaults()` singleton pattern uses `_creatingDefaults` guard instead of `Gdx.files` check.	jbump
 CheckBox.scala	scenes.scene2d.ui	pass	no	2026-03-19	All public methods present: constructors (including Skin), `getStyle`, `draw`, `getImage`, `getImageCell`, `getLabel`, `getLabelCell`, `getImageDrawable`.	libgdx
 Container.scala	scenes.scene2d.ui	pass	no	2026-03-19	All public methods present. Large builder API with `size`, `width`, `height`, `minSize`, `minWidth`, `minHeight`, `prefSize`, `prefWidth`, `prefHeight`, `maxSize`, `maxWidth`, `maxHeight`, `pad`, `padTop/Left/Bottom/Right`, `fill`, `fillX`, `fillY`, `align`, `center`, `top`, `left`, `bottom`, `right`, `background`, `clip`, `setActor`, `getActor`, `removeActor`, `layout`, `draw`, `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`, `getMaxWidth`, `getMaxHeight`.	libgdx
 Dialog.scala	scenes.scene2d.ui	pass	no	2026-03-19	All public methods present: constructors (including Skin), `key`, `button` (multiple overloads), `show`, `hide`, `setObject`, `result`, `cancel`, `getContentTable`, `getButtonTable`, `getTitleLabel`, `getTitleTable`.	libgdx
@@ -459,7 +459,7 @@ DragListener.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 20 public methods
 DragScrollListener.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 8 public methods: constructor, `setup`, `getScrollPixels`, `drag`, `dragStop`, `isAbove`, `isBelow`, `scroll`, `setPadding`. Private `scrollUp`/`scrollDown` Timer.Task fields present.	libgdx
 Drawable.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 15 methods accounted for: `draw`, 4 getter/setter pairs for leftWidth/rightWidth/topHeight/bottomHeight, 3 `setPadding` overloads, `getMinWidth`, `setMinWidth`, `getMinHeight`, `setMinHeight`, `setMinSize`.	libgdx
 FocusListener.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 3 public methods: `handle`, `keyboardFocusChanged`, `scrollFocusChanged`. Inner `FocusEvent` class with all 7 methods (`reset`, `isFocused`, `setFocused`, `getType`, `setType`, `getRelatedActor`, `setRelatedActor`) and `Type` enum faithfully ported.	libgdx
-Layout.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 12 abstract methods accounted for: `layout`, `invalidate`, `invalidateHierarchy`, `validate`, `pack`, `setFillParent`, `setLayoutEnabled`, `getMinWidth`, `getMinHeight`, `getPrefWidth`, `getPrefHeight`, `getMaxWidth`, `getMaxHeight`.	libgdx
+Layout.scala	textra	pass	no	2026-03-31	All 12 abstract methods accounted for: `layout`, `invalidate`, `invalidateHierarchy`, `validate`, `pack`, `setFillParent`, `setLayoutEnabled`, `getMinWidth`, `getMinHeight`, `getPrefWidth`, `getPrefHeight`, `getMaxWidth`, `getMaxHeight`.	textratypist
 NinePatchDrawable.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 6 public methods: `draw` (2 overloads), `setPatch`, `getPatch`, `tint`. All 3 constructors present.	libgdx
 ScissorStack.scala	scenes.scene2d.utils	pass	no	2026-03-19	All 6 public methods: `pushScissors`, `popScissors`, `peekScissors`, `calculateScissors` (2 overloads), `getViewport`. Private `fix` method present.	libgdx
 Selection.scala	scenes.scene2d.utils	pass	no	2026-03-19	All public methods accounted for: `setActor`, `choose`, `notEmpty`, `isEmpty`, `size`, `items`, `first`, `set`, `setAll`, `add`, `addAll`, `remove`, `removeAll`, `clear`, `changed`, `fireChangeEvent`, `contains`, `getLastSelected`, `iterator`, `toArray` (2 overloads), `setDisabled`, `isDisabled`, `getToggle`, `setToggle`, `getMultiple`, `setMultiple`, `getRequired`, `setRequired`, `setProgrammaticChangeEvents`, `getProgrammaticChangeEvents`, `toString`.	libgdx
@@ -517,7 +517,7 @@ Viewport.scala	utils.viewport	pass	no	2026-03-19	All 26 methods + 7 fields porte
 Align.scala	utils	pass	no	2026-03-19	All 9 constants and 6 static methods accounted for. `toString` -> `Show[Align].show` extension.	libgdx
 ArrayMap.scala	utils	pass	no	2026-03-19	All major methods present: `put`, `get`, `removeKey`, `removeIndex`, `removeValue`, `indexOfKey`, `indexOfValue`, `containsKey`, `containsValue`, `putAll`, `clear`, `ensureCapacity`, `shrink`, `peekKey`, `peekValue`, `reverse`, `shuffle`, `truncate`, `foreachEntry`, `foreachKey`, `foreachValue`, `hashCode`, `equals`, `toString`.	libgdx
 BaseJsonReader.scala	utils	pass	no	2026-03-19	Both interface methods (`parse(InputStream)`, `parse(FileHandle)`) present.	libgdx
-BinaryHeap.scala	utils	pass	no	2026-03-19	All methods present: `add`, `add(value)`, `contains`, `peek`, `pop`, `remove`, `notEmpty`, `isEmpty`, `clear`, `setValue`, `equals`, `hashCode`, `toString`. Inner `Node` class present.	libgdx
+BinaryHeap.scala	graphs.internal	pass	yes	2026-03-30	All methods present: `add`, `add(value)`, `contains`, `peek`, `pop`, `remove`, `notEmpty`, `isEmpty`, `clear`, `setValue`, `equals`, `hashCode`, `toString`. Inner `Node` class present.	simple-graphs
 BufferOps.scala	utils	na	no	2026-03-19		libgdx
 BufferUtils.scala	utils	pass	no	2026-03-19	All major methods present: 12 `copy` overloads, 8 `transform` overloads, 8 `findFloats` overloads, 7 `new*Buffer` factory methods, `newUnsafeByteBuffer`, `disposeUnsafeByteBuffer`, `isUnsafeByteBuffer`, `getUnsafeBufferAddress`, `getAllocatedBytesUnsafe`.	libgdx
 Clipboard.scala	utils	pass	no	2026-03-19	All 3 interface methods accounted for.	libgdx
@@ -534,7 +534,7 @@ JsonValue.scala	utils	pass	yes	2026-03-19	Comprehensive port. All constructors, 
 LittleEndianInputStream.scala	utils	pass	no	2026-03-19	All 13 DataInput interface methods present.	libgdx
 Logger.scala	utils	pass	no	2026-03-19	All 6 logging methods (`debug`, `info`, `error` x2 each) plus `setLevel`/`getLevel` and 4 level constants (`NONE`, `ERROR`, `INFO`, `DEBUG`).	libgdx
 MkArray.scala	utils	na	yes	2026-03-19		libgdx
-Nullable.scala	utils	na	yes	2026-03-19		libgdx
+Nullable.scala	jbump.util	pass	yes	2026-03-30		jbump
 NumberUtils.scala	utils	pass	no	2026-03-19	All 7 methods present: `floatToIntBits`, `floatToRawIntBits`, `floatToIntColor`, `intToFloatColor`, `intBitsToFloat`, `doubleToLongBits`, `longBitsToDouble`.	libgdx
 ObjectMap.scala	utils	pass	yes	2026-03-19	All major methods present: `size`, `isEmpty`, `nonEmpty`, `put`, `get` (2 overloads), `remove`, `containsKey`, `containsValue`, `findKey`, `putAll`, `clear` (2 overloads), `ensureCapacity`, `shrink`, `resize`, `foreachEntry`, `foreachKey`, `foreachValue`, `hashCode`, `equals`, `toString`. Factory methods in companion.	libgdx
 ObjectSet.scala	utils	pass	yes	2026-03-19	All major methods present: `size`, `isEmpty`, `nonEmpty`, `add`, `addAll` (2 overloads), `remove`, `contains`, `get`, `first`, `clear` (2 overloads), `ensureCapacity`, `shrink`, `resize`, `foreach`, `toArray`, `hashCode`, `equals`, `toString`. Factory methods in companion.	libgdx
@@ -562,3 +562,364 @@ TimSort.scala	utils	pass	no	2026-03-19	Faithful port of the TimSort algorithm. A
 TimeUtils.scala	utils	pass	no	2026-03-19	All 6 methods present: `nanoTime`, `millis`, `nanosToMillis`, `millisToNanos`, `timeSinceNanos`, `timeSinceMillis`. `nanosPerMilli` constant present.	libgdx
 Timer.scala	utils	minor_issues	no	2026-03-19	"All public methods present: `postTask`, `scheduleTask` (4 overloads), `stop`, `start`, `clear`, `isEmpty`, `delay`. Static methods: `instance`, `post`, `schedule` (3 overloads). Inner `Task` abstract class with `run`, `cancel`, `isScheduled`, `getExecuteTimeMillis`. Inner `TimerThread` with `run`, `addPostedTask`, `removePostedTask`, `resume`, `pause`, `dispose`.; `app.addLifecycleListener(this)` / `app.removeLifecycleListener(this)` commented out; `app.postRunnable(runPostedTasks)` commented out; `runPostedTasks` not yet connected; Uses `implicit` keyword instead of `using` (older convention). `LifecycleListener` integration and `postRunnable` are TODOs -- posted tasks will not actually execute on the main thread until these are implemented. The `runTasks` field is annotated `@nowarn(""msg=unused"")`."	libgdx
 XmlReader.scala	utils	pass	yes	2026-03-19	All parse methods present: `parse(String)`, `parse(Reader)`, `parse(InputStream)`, `parse(FileHandle)`. Inner `Element` class with all accessors. Implementation uses scala-xml library.	libgdx
+Collision.scala	jbump	pass	yes	2026-03-30		jbump
+NonBlockingSemaphore.scala	ai.utils	pass	yes	2026-03-30		gdx-ai
+Distribution.scala	ai.utils.random	pass	yes	2026-03-30		gdx-ai
+Location.scala	ai.utils	pass	yes	2026-03-30		gdx-ai
+RaycastCollisionDetector.scala	ai.utils	pass	yes	2026-03-30		gdx-ai
+CircularBuffer.scala	ai.utils	pass	yes	2026-03-30		gdx-ai
+ArithmeticUtils.scala	ai.utils	pass	yes	2026-03-30		gdx-ai
+Telegraph.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+Telegram.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+MessageDispatcher.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+PriorityQueue.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+TelegramProvider.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+MessageManager.scala	ai.msg	pass	yes	2026-03-30		gdx-ai
+State.scala	ai.fsm	pass	yes	2026-03-30		gdx-ai
+StackStateMachine.scala	ai.fsm	pass	yes	2026-03-30		gdx-ai
+StateMachine.scala	ai.fsm	pass	yes	2026-03-30		gdx-ai
+DefaultStateMachine.scala	ai.fsm	pass	yes	2026-03-30		gdx-ai
+Graph.scala	graphs	pass	yes	2026-03-30		simple-graphs
+IndexedGraph.scala	ai.pfa.indexed	pass	yes	2026-03-30		gdx-ai
+PathFinderQueue.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+DefaultGraphPath.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+Connection.scala	graphs	pass	yes	2026-03-30		simple-graphs
+IndexedAStarPathFinder.scala	ai.pfa.indexed	pass	yes	2026-03-30		gdx-ai
+PathSmoother.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+IndexedHierarchicalGraph.scala	ai.pfa.indexed	pass	yes	2026-03-30		gdx-ai
+PathFinderRequestControl.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+HierarchicalGraph.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+DefaultConnection.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+HierarchicalPathFinder.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+PathFinder.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+SmoothableGraphPath.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+GraphPath.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+Heuristic.scala	graphs.utils	pass	yes	2026-03-30		simple-graphs
+PathSmootherRequest.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+PathFinderRequest.scala	ai.pfa	pass	yes	2026-03-30		gdx-ai
+TaskCloneException.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+TaskCloner.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+LoopDecorator.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+RandomSelector.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+RandomSequence.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+Success.scala	ai.btree.leaf	pass	yes	2026-03-30		gdx-ai
+Failure.scala	ai.btree.leaf	pass	yes	2026-03-30		gdx-ai
+AlwaysSucceed.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+Wait.scala	ai.btree.leaf	pass	yes	2026-03-30		gdx-ai
+Sequence.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+UntilSuccess.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+SingleRunningChildBranch.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+AlwaysFail.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+Task.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+Invert.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+SemaphoreGuard.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+BranchTask.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+Parallel.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+PooledBehaviorTreeLibrary.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+DynamicGuardSelector.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+Repeat.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+BehaviorTreeLibraryManager.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+BehaviorTree.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+Selector.scala	ai.btree.branch	pass	yes	2026-03-30		gdx-ai
+Include.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+Random.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+BehaviorTreeLibrary.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+UntilFail.scala	ai.btree.decorator	pass	yes	2026-03-30		gdx-ai
+DistributionAdapters.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+Decorator.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+LeafTask.scala	ai.btree	pass	yes	2026-03-30		gdx-ai
+BehaviorTreeParser.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+BehaviorTreeReader.scala	ai.btree.utils	pass	yes	2026-03-30		gdx-ai
+Timepiece.scala	ai	pass	yes	2026-03-30		gdx-ai
+Limiter.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+Proximity.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+SteeringAcceleration.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+GroupBehavior.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+SteeringBehavior.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+Steerable.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+SteerableAdapter.scala	ai.steer	pass	yes	2026-03-30		gdx-ai
+Seek.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Arrive.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Jump.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+FollowPath.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Flee.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Interpose.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Pursue.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Evade.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Face.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Cohesion.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+RaycastObstacleAvoidance.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+LookWhereYouAreGoing.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+CollisionAvoidance.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+MatchVelocity.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+PrioritySteering.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Separation.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Alignment.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Hide.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+Wander.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+ReachOrientation.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+FollowFlowField.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+BlendedSteering.scala	ai.steer.behaviors	pass	yes	2026-03-30		gdx-ai
+RayConfiguration.scala	ai.steer.utils	pass	yes	2026-03-30		gdx-ai
+CentralRayWithWhiskersConfiguration.scala	ai.steer.utils.rays	pass	yes	2026-03-30		gdx-ai
+LinePath.scala	ai.steer.utils.paths	pass	yes	2026-03-30		gdx-ai
+ParallelSideRayConfiguration.scala	ai.steer.utils.rays	pass	yes	2026-03-30		gdx-ai
+RayConfigurationBase.scala	ai.steer.utils.rays	pass	yes	2026-03-30		gdx-ai
+SingleRayConfiguration.scala	ai.steer.utils.rays	pass	yes	2026-03-30		gdx-ai
+LinearSpeedLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+AngularAccelerationLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+FullLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+LinearLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+NullLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+AngularSpeedLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+AngularLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+LinearAccelerationLimiter.scala	ai.steer.limiters	pass	yes	2026-03-30		gdx-ai
+RadiusProximity.scala	ai.steer.proximities	pass	yes	2026-03-30		gdx-ai
+ProximityBase.scala	ai.steer.proximities	pass	yes	2026-03-30		gdx-ai
+FieldOfViewProximity.scala	ai.steer.proximities	pass	yes	2026-03-30		gdx-ai
+InfiniteProximity.scala	ai.steer.proximities	pass	yes	2026-03-30		gdx-ai
+Schedulable.scala	ai.sched	pass	yes	2026-03-30		gdx-ai
+PriorityScheduler.scala	ai.sched	pass	yes	2026-03-30		gdx-ai
+LoadBalancingScheduler.scala	ai.sched	pass	yes	2026-03-30		gdx-ai
+SchedulerBase.scala	ai.sched	pass	yes	2026-03-30		gdx-ai
+Scheduler.scala	ai.sched	pass	yes	2026-03-30		gdx-ai
+SlotAssignment.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+SlotAssignmentStrategy.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+Formation.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+FormationMotionModerator.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+BoundedSlotAssignmentStrategy.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+SoftRoleSlotAssignmentStrategy.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+FreeSlotAssignmentStrategy.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+FormationPattern.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+FormationMember.scala	ai.fma	pass	no	2026-03-30		gdx-ai
+Component.scala	ecs	pass	yes	2026-03-30		ashley
+Listener.scala	ecs.signals	pass	yes	2026-03-30		ashley
+Signal.scala	ecs.signals	pass	yes	2026-03-30		ashley
+EntityListener.scala	ecs	pass	yes	2026-03-30		ashley
+ComponentType.scala	ecs	pass	yes	2026-03-30		ashley
+ComponentMapper.scala	ecs	pass	yes	2026-03-30		ashley
+Family.scala	ecs	pass	yes	2026-03-30		ashley
+ComponentOperationHandler.scala	ecs	pass	yes	2026-03-30		ashley
+EntityManager.scala	ecs	pass	yes	2026-03-30		ashley
+FamilyManager.scala	ecs	pass	yes	2026-03-30		ashley
+IntervalSystem.scala	ecs.systems	pass	yes	2026-03-30		ashley
+SystemManager.scala	ecs	pass	yes	2026-03-30		ashley
+IteratingSystem.scala	ecs.systems	pass	yes	2026-03-30		ashley
+IntervalIteratingSystem.scala	ecs.systems	pass	yes	2026-03-30		ashley
+SortedIteratingSystem.scala	ecs.systems	pass	yes	2026-03-30		ashley
+EntitySystem.scala	ecs	pass	yes	2026-03-30		ashley
+ImmutableArray.scala	ecs.utils	pass	yes	2026-03-30		ashley
+Bag.scala	ecs.utils	pass	yes	2026-03-30		ashley
+Entity.scala	ecs	pass	yes	2026-03-30		ashley
+Engine.scala	ecs	pass	yes	2026-03-30		ashley
+PooledEngine.scala	ecs	pass	yes	2026-03-30		ashley
+Grid.scala	jbump	pass	yes	2026-03-30		jbump
+Int2dArray.scala	noise	pass	yes	2026-03-30		noise4j
+Generator.scala	noise.generator	pass	yes	2026-03-30		noise4j
+AbstractGenerator.scala	noise.generator	pass	yes	2026-03-30		noise4j
+NoiseGenerator.scala	noise.generator.noise	pass	yes	2026-03-30		noise4j
+RoomType.scala	noise.generator.room	pass	yes	2026-03-30		noise4j
+DungeonGenerator.scala	noise.generator.room.dungeon	pass	yes	2026-03-30		noise4j
+Generators.scala	noise.generator.util	pass	yes	2026-03-30		noise4j
+CellularAutomataGenerator.scala	noise.generator.cellular	pass	yes	2026-03-30		noise4j
+AbstractRoomGenerator.scala	noise.generator.room	pass	yes	2026-03-30		noise4j
+WeightFunction.scala	graphs.utils	pass	yes	2026-03-30		simple-graphs
+SearchProcessor.scala	graphs.utils	pass	yes	2026-03-30		simple-graphs
+Edge.scala	graphs	pass	yes	2026-03-30		simple-graphs
+DirectedGraph.scala	graphs	pass	yes	2026-03-30		simple-graphs
+GraphBuilder.scala	graphs	pass	yes	2026-03-30		simple-graphs
+Algorithm.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+SearchStep.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+AlgorithmPath.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+AStarSearch.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+BreadthFirstSearch.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+DepthFirstSearch.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+CycleDetector.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+MinimumWeightSpanningTree.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+Algorithms.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+DirectedGraphAlgorithms.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+UndirectedGraphAlgorithms.scala	graphs.algorithms	pass	yes	2026-03-30		simple-graphs
+InternalArray.scala	graphs.internal	pass	yes	2026-03-30		simple-graphs
+UndirectedGraph.scala	graphs	pass	yes	2026-03-30		simple-graphs
+NodeMap.scala	graphs.internal	pass	yes	2026-03-30		simple-graphs
+Point.scala	jbump	pass	yes	2026-03-30		jbump
+IntPoint.scala	jbump	pass	yes	2026-03-30		jbump
+Item.scala	jbump	pass	yes	2026-03-30		jbump
+Rect.scala	jbump	pass	yes	2026-03-30		jbump
+ItemInfo.scala	jbump	pass	yes	2026-03-30		jbump
+Response.scala	jbump	pass	yes	2026-03-30		jbump
+RectHelper.scala	jbump	pass	yes	2026-03-30		jbump
+CollisionFilter.scala	jbump	pass	yes	2026-03-30		jbump
+Collisions.scala	jbump	pass	yes	2026-03-30		jbump
+World.scala	jbump	pass	yes	2026-03-30		jbump
+AnimationWriter.scala	anim8	pass	no	2026-03-30		anim8-gdx
+Dithered.scala	anim8	pass	no	2026-03-30		anim8-gdx
+DitherAlgorithm.scala	anim8	pass	no	2026-03-30		anim8-gdx
+OtherMath.scala	anim8	pass	no	2026-03-30		anim8-gdx
+ChunkBuffer.scala	anim8	pass	no	2026-03-30		anim8-gdx
+AnimatedPNG.scala	anim8	pass	no	2026-03-30		anim8-gdx
+ConstantData.scala	anim8	pass	no	2026-03-30		anim8-gdx
+PaletteReducer.scala	anim8	pass	no	2026-03-30		anim8-gdx
+LZWEncoder.scala	anim8	pass	no	2026-03-30		anim8-gdx
+PNG8.scala	anim8	pass	no	2026-03-30		anim8-gdx
+AnimatedGif.scala	anim8	pass	no	2026-03-30		anim8-gdx
+ManagedScreen.scala	screen	pass	yes	2026-03-30		libgdx-screenmanager
+BlankScreen.scala	screen	pass	yes	2026-03-30		libgdx-screenmanager
+ScreenManager.scala	screen	pass	yes	2026-03-30		libgdx-screenmanager
+ManagedGame.scala	screen	pass	yes	2026-03-30		libgdx-screenmanager
+ScreenTransition.scala	screen.transition	pass	yes	2026-03-30		libgdx-screenmanager
+TimedTransition.scala	screen.transition	pass	yes	2026-03-30		libgdx-screenmanager
+BatchTransition.scala	screen.transition	pass	yes	2026-03-30		libgdx-screenmanager
+SlidingTransition.scala	screen.transition	pass	yes	2026-03-30		libgdx-screenmanager
+BlankTimedTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+BlendingTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+SlidingDirection.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+SlidingInTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+SlidingOutTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+PushTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+HorizontalSlicingTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+VerticalSlicingTransition.scala	screen.transition.impl	pass	no	2026-03-30		libgdx-screenmanager
+ScreenFboUtils.scala	screen.utils	pass	no	2026-03-30		libgdx-screenmanager
+QuadMeshGenerator.scala	screen.utils	pass	no	2026-03-30		libgdx-screenmanager
+VfxEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+ChainVfxEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+AbstractVfxEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+CompositeVfxEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+MultipassEffectWrapper.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+VfxGlViewport.scala	vfx.gl	pass	no	2026-03-31		gdx-vfx
+VfxGlExtension.scala	vfx.gl	pass	no	2026-03-31		gdx-vfx
+DefaultVfxGlExtension.scala	vfx.gl	pass	no	2026-03-31		gdx-vfx
+VfxFrameBufferQueue.scala	vfx.framebuffer	pass	no	2026-03-31		gdx-vfx
+ViewportQuadMesh.scala	vfx.utils	pass	no	2026-03-31		gdx-vfx
+VfxFrameBufferRenderer.scala	vfx.framebuffer	pass	no	2026-03-31		gdx-vfx
+UniformBatcher.scala	vfx.utils	pass	no	2026-03-31		gdx-vfx
+CopyEffect.scala	vfx.effects.util	pass	no	2026-03-31		gdx-vfx
+CombineEffect.scala	vfx.effects.util	pass	no	2026-03-31		gdx-vfx
+GammaThresholdEffect.scala	vfx.effects.util	pass	no	2026-03-31		gdx-vfx
+MixEffect.scala	vfx.effects.util	pass	no	2026-03-31		gdx-vfx
+ChromaticAberrationEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+CrtEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+FilmGrainEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+FisheyeEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+FxaaEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+LensFlareEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+LevelsEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+MotionBlurEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+NfaaEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+OldTvEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+RadialDistortionEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+VignettingEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+WaterDistortionEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+RadialBlurEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+ZoomEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+VfxFrameBufferPool.scala	vfx.framebuffer	pass	no	2026-03-31		gdx-vfx
+VfxGLUtils.scala	vfx.gl	pass	no	2026-03-31		gdx-vfx
+PrioritizedArray.scala	vfx.utils	pass	no	2026-03-31		gdx-vfx
+VfxRenderContext.scala	vfx	pass	no	2026-03-31		gdx-vfx
+VfxManager.scala	vfx	pass	no	2026-03-31		gdx-vfx
+BloomEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+ShaderVfxEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+VfxFrameBuffer.scala	vfx.framebuffer	pass	no	2026-03-31		gdx-vfx
+VfxPingPongWrapper.scala	vfx.framebuffer	pass	no	2026-03-31		gdx-vfx
+GaussianBlurEffect.scala	vfx.effects	pass	no	2026-03-31		gdx-vfx
+Gamut.scala	colorful.oklab	pass	no	2026-03-31		colorful-gdx
+GradientTools.scala	colorful.rgb	pass	no	2026-03-31		colorful-gdx
+Shaders.scala	colorful	pass	no	2026-03-31		colorful-gdx
+ColorfulSprite.scala	colorful.rgb	pass	no	2026-03-31		colorful-gdx
+Palette.scala	textra.utils	pass	no	2026-03-31		textratypist
+ColorTools.scala	colorful.rgb	pass	no	2026-03-31		colorful-gdx
+SimplePalette.scala	colorful.oklab	pass	no	2026-03-31		colorful-gdx
+ColorfulBatch.scala	colorful	pass	no	2026-03-31		colorful-gdx
+FloatColors.scala	colorful	pass	no	2026-03-31		colorful-gdx
+TrigTools.scala	colorful	pass	no	2026-03-31		colorful-gdx
+TokenCategory.scala	textra	pass	no	2026-03-31		textratypist
+InternalToken.scala	textra	pass	no	2026-03-31		textratypist
+Justify.scala	textra	pass	no	2026-03-31		textratypist
+ColorLookup.scala	textra	pass	no	2026-03-31		textratypist
+TypingListener.scala	textra	pass	no	2026-03-31		textratypist
+TypingAdapter.scala	textra	pass	no	2026-03-31		textratypist
+TokenEntry.scala	textra	pass	no	2026-03-31		textratypist
+Line.scala	textra	pass	no	2026-03-31		textratypist
+Effect.scala	textra	pass	no	2026-03-31		textratypist
+BlockUtils.scala	textra.utils	pass	no	2026-03-31		textratypist
+CaseInsensitiveIntMap.scala	textra.utils	pass	no	2026-03-31		textratypist
+LZBDecompression.scala	textra.utils	pass	no	2026-03-31		textratypist
+TypingConfig.scala	textra	pass	no	2026-03-31		textratypist
+WaveEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ShakeEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+RainbowEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+EaseEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+HangEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+JumpEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SickEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SlideEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+WindEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+GradientEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+BlinkEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+AttentionEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+CannonEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+CarouselEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+CrowdEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ShrinkEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+EmergeEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+HeartbeatEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+HighlightEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+InstantEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SpiralEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SpinEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SquashEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ScaleEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+RotateEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+TriggerEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+OceanEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SputterEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SlamEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ZipperEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+SlipEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ShootEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+StylistEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+PinchEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+MeetEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+ThinkingEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+JoltEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+LZBCompression.scala	textra.utils	pass	no	2026-03-31		textratypist
+Font.scala	textra	pass	no	2026-03-31		textratypist
+Parser.scala	textra	pass	no	2026-03-31		textratypist
+TypingLabel.scala	textra	pass	no	2026-03-31		textratypist
+LinkEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+NoiseUtils.scala	textra.utils	pass	no	2026-03-31		textratypist
+ColorUtils.scala	textra.utils	pass	no	2026-03-31		textratypist
+StringUtils.scala	textra.utils	pass	no	2026-03-31		textratypist
+ThrobEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+FadeEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
+Focusable.scala	visui	pass	no	2026-03-31		vis-ui
+FocusManager.scala	visui	pass	no	2026-03-31		vis-ui
+Sizes.scala	visui	pass	no	2026-03-31		vis-ui
+BundleText.scala	visui.i18n	pass	no	2026-03-31		vis-ui
+BorderOwner.scala	visui.util	pass	no	2026-03-31		vis-ui
+TableUtils.scala	visui.util	pass	no	2026-03-31		vis-ui
+InputValidator.scala	visui.util	pass	no	2026-03-31		vis-ui
+Validators.scala	visui.util	pass	no	2026-03-31		vis-ui
+VisTable.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisRadioButton.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisProgressBar.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisSlider.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisScrollPane.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisUI.scala	visui	pass	no	2026-03-31		vis-ui
+ActorUtils.scala	visui.util	pass	no	2026-03-31		vis-ui
+VisImage.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisCheckBox.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisImageButton.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisImageTextButton.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisLabel.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisValidatableTextField.scala	visui.widget	pass	no	2026-03-31		vis-ui
+Separator.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisList.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisSelectBox.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisTextArea.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisTextButton.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisTextField.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisTree.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisWindow.scala	visui.widget	pass	no	2026-03-31		vis-ui
+VisDialog.scala	visui.widget	pass	no	2026-03-31		vis-ui
+Locales.scala	visui	pass	no	2026-03-31		vis-ui
