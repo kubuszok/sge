@@ -452,8 +452,6 @@ jobs:
 
       - name: Build Pong demo APK
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: sbt 'pong/androidSign'
 
       - name: Run Android integration tests + verify demo APK
@@ -529,8 +527,6 @@ jobs:
 
       - name: Build demo JS bundles
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: sbt --client 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS; assetShowcaseJS/fastLinkJS'
 
       - name: Run demo smoke tests
@@ -587,20 +583,14 @@ jobs:
 
       - name: Compile all demos (JVM)
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: sbt --client compile
 
       - name: Compile all demos (JS)
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: sbt --client 'sharedJS/compile; pongJS/compile; spaceShooterJS/compile; tileWorldJS/compile; hexTacticsJS/compile; curvePlaygroundJS/compile; shaderLabJS/compile; viewer3dJS/compile; particleShowJS/compile; viewportGalleryJS/compile; assetShowcaseJS/compile'
 
       - name: Compile all demos (Native)
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: sbt --client 'sharedNative/compile; pongNative/compile; spaceShooterNative/compile; tileWorldNative/compile; hexTacticsNative/compile; curvePlaygroundNative/compile; shaderLabNative/compile; viewer3dNative/compile; particleShowNative/compile; viewportGalleryNative/compile; assetShowcaseNative/compile'
 
   # ─── Release verification (link + package all demos per platform) ───
@@ -750,8 +740,6 @@ jobs:
       # Uses bare sbt (not --client) to avoid Windows hang.
       - name: Package all demos (JVM)
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: |
           sbt 'pong/sgePackage; spaceShooter/sgePackage; curvePlayground/sgePackage; viewportGallery/sgePackage; shaderLab/sgePackage; tileWorld/sgePackage; hexTactics/sgePackage; viewer3d/sgePackage; particleShow/sgePackage; assetShowcase/sgePackage'
 
@@ -759,8 +747,6 @@ jobs:
       - name: Link all demos (Native)
         if: matrix.native == true
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: |
           sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; assetShowcaseNative/nativeLink'
 
@@ -768,8 +754,6 @@ jobs:
       - name: Package all demos (Browser)
         if: matrix.platform == 'linux-x86_64'
         working-directory: demos
-        env:
-          SGE_USE_PLUGIN: "true"
         run: |
           sbt 'pongJS/sgePackageBrowser; spaceShooterJS/sgePackageBrowser; curvePlaygroundJS/sgePackageBrowser; viewportGalleryJS/sgePackageBrowser; shaderLabJS/sgePackageBrowser; tileWorldJS/sgePackageBrowser; hexTacticsJS/sgePackageBrowser; viewer3dJS/sgePackageBrowser; particleShowJS/sgePackageBrowser; assetShowcaseJS/sgePackageBrowser'
 

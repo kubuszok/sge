@@ -1,24 +1,15 @@
-import _root_.sge.sbt.{AndroidBuild, AndroidSdk, JvmReleases, BrowserReleases, NativeReleases, Platform, SgePackaging, SgePlugin, SgeProject, ZigCross}
+import _root_.sge.sbt.{AndroidBuild, AndroidSdk, SgeDesktopJvmPlatform, SgeBrowserPlatform, SgeDesktopNativePlatform, Platform, SgePackaging, SgePlugin, SgeProject, ZigCross}
 import sbt.internal.ProjectMatrix
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / excludeLintKeys += SgeProject.autoImport.sgeNativeLibLocalDir
 
-// SGE version: read from .sge-version written by root build's publishLocal,
-// fall back to SGE_VERSION env var (CI), then to git rev-parse HEAD.
-val sgeVersion: String = {
-  val versionFile = new File(".sge-version")
-  if (versionFile.exists()) {
-    scala.io.Source.fromFile(versionFile).mkString.trim
-  } else {
-    sys.env.getOrElse("SGE_VERSION", {
-      val sha = scala.sys.process.Process(Seq("git", "rev-parse", "HEAD"), new File("..")).!!.trim
-      s"$sha-SNAPSHOT"
-    })
-  }
-}
-val sv         = SgePlugin.scalaVersion
+// SGE library version: derived from the sge-build plugin version.
+// The plugin bakes its version into SgePlugin.sgeVersion at build time.
+val sgeVersion: String = SgePlugin.sgeVersion
+val sv: String         = SgePlugin.scalaVersion
 
 // All modules need the snapshot resolver for transitive kindlings dependency.
 ThisBuild / resolvers ++= Seq(
@@ -29,13 +20,11 @@ ThisBuild / resolvers ++= Seq(
 // Disable cached resolution — stale Coursier cache misses local SNAPSHOT JARs.
 ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
 
-Global / excludeLintKeys += SgeProject.autoImport.sgeRustLibDir
+// ── Native library directory (local dev mode — bypasses JAR extraction) ──
 
-// ── Rust library lives in the main repo (one level up) ──────────────
-
-ThisBuild / SgeProject.autoImport.sgeRustLibDir := {
+ThisBuild / SgeProject.autoImport.sgeNativeLibLocalDir := Some(
   (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
-}
+)
 
 // ── Azul Zulu JDK 25 URLs for distribution packaging ─────────────
 // JDK 25 (LTS) with all 6 desktop platforms including Windows ARM64.
@@ -79,32 +68,26 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
     }
   )
 
+// Shared distribution packaging settings for all demos
+val demoDistSettings: Seq[Setting[_]] = Seq(
+  SgePackaging.sgeTargets := jdkUrls,
+  SgePackaging.sgeCrossNativeLibDir := Some(
+    (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross"
+  ),
+  SgePackaging.sgeJlinkModules := Seq(
+    "java.base", "java.desktop", "java.logging", "java.management",
+    "jdk.unsupported", "jdk.zipfs", "java.net.http"
+  )
+)
+
 def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
-  JvmReleases.axisSettings ++ androidJvmSettings(dir) ++ Seq(
-    SgeProject.autoImport.sgeProjectDir := dir,
-    SgeProject.autoImport.sgeRustLibDir := {
-      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
-    },
-    Compile / mainClass := Some(s"demos.$pkg.DesktopMain"),
-    SgePackaging.sgeTargets := jdkUrls,
-    SgePackaging.sgeCrossNativeLibDir := Some(
-      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross"
-    ),
-    SgePackaging.sgeJlinkModules := Seq(
-      "java.base", "java.desktop", "java.logging", "java.management",
-      "jdk.unsupported", "jdk.zipfs", "java.net.http"
-    )
+  SgeProject.jvmAxis ++ androidJvmSettings(dir) ++ demoDistSettings ++ Seq(
+    Compile / mainClass := Some(s"demos.$pkg.DesktopMain")
   )
 
-def jsAxis: Seq[Setting[_]] = BrowserReleases.axisSettings
+def jsAxis: Seq[Setting[_]] = SgeProject.jsAxis
 
-def nativeAxis(dir: String): Seq[Setting[_]] =
-  NativeReleases.axisSettings ++ Seq(
-    SgeProject.autoImport.sgeProjectDir := dir,
-    SgeProject.autoImport.sgeRustLibDir := {
-      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
-    }
-  )
+def nativeAxis(dir: String): Seq[Setting[_]] = SgeProject.nativeAxis
 
 // ── Cross-compilation native axes ──────────────────────────────────
 // Enables building Scala Native binaries for non-host platforms using zig.
@@ -119,15 +102,14 @@ val crossNativeTargets: Seq[Platform] = {
 
 def crossNativeAxis(dir: String, platform: Platform): Seq[Setting[_]] =
   SgePlugin.nativeSettings(projectDir = dir) ++ _root_.sge.sbt.SgeNativeLibs.settings ++ SgePackaging.nativeSettings ++ Seq(
-    SgeProject.autoImport.sgeProjectDir := dir,
-    SgeProject.autoImport.sgeRustLibDir := {
+    SgeProject.autoImport.sgeNativeLibLocalDir := Some(
       (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross" / platform.classifier
-    },
-    _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
+    ),
+    _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeNativeLibDir.value,
     SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
     nativeConfig := {
       val c = nativeConfig.value
-      val crossLibDir = SgeProject.autoImport.sgeRustLibDir.value
+      val crossLibDir = SgeProject.autoImport.sgeNativeLibDir.value
       val wrapperDir = target.value / "zig-wrappers"
       c.withClang(ZigCross.clangWrapper(platform, wrapperDir))
         .withClangPP(ZigCross.clangPPWrapper(platform, wrapperDir))
@@ -156,38 +138,17 @@ val shared = (projectMatrix in file("shared"))
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
     publish / skip := true,
-    libraryDependencies ++= Seq(
-      "com.kubuszok" %%% "sge" % sgeVersion,
-      // jsoniter-scala-macros is "provided" in sge but referenced at runtime
-      // by JsonCodecs.scala (val JsonCodec = JsonCodecMaker) — needed for g3dj loading
-      "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.38.9"
-    )
+    // SGE library dependency is auto-added by SgeProject plugin.
+    // jsoniter-scala-macros is "provided" in sge but referenced at runtime
+    // by JsonCodecs.scala (val JsonCodec = JsonCodecMaker) — needed for g3dj loading.
+    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.38.9"
   )
   .jvmPlatform(scalaVersions = Seq(sv),
-    settings = SgePlugin.jvmSettings(projectDir = "shared") ++ androidJvmSettings("shared") ++ Seq(
-      fork := true,
-      javaOptions ++= {
-        val rustLib = SgeProject.autoImport.sgeRustLibDir.value.getAbsolutePath
-        val macFlags = if (Platform.host.isMac) Seq("-XstartOnFirstThread") else Seq.empty
-        Seq(s"-Djava.library.path=$rustLib", "--enable-native-access=ALL-UNNAMED") ++ macFlags
-      },
-      Test / fork := true,
-      Test / javaOptions ++= (javaOptions).value
-    ))
+    settings = SgeProject.jvmAxis ++ androidJvmSettings("shared"))
   .jsPlatform(scalaVersions = Seq(sv),
-    settings = SgePlugin.jsSettings)
+    settings = SgeProject.jsAxis)
   .nativePlatform(scalaVersions = Seq(sv),
-    settings = SgePlugin.nativeSettings(projectDir = "shared") ++ _root_.sge.sbt.SgeNativeLibs.settings ++ Seq(
-      SgeProject.autoImport.sgeRustLibDir := {
-        (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
-      },
-      _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeRustLibDir.value,
-      nativeConfig := {
-        val c = nativeConfig.value
-        val libDir = _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir.value
-        c.withLinkingOptions(c.linkingOptions ++ _root_.sge.sbt.SgeNativeLibs.linkerFlags(libDir))
-      }
-    ))
+    settings = SgeProject.nativeAxis)
 
 // ── Demo projects ───────────────────────────────────────────────────
 // projectMatrix must be assigned directly to a val (sbt macro constraint).

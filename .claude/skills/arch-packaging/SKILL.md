@@ -6,7 +6,7 @@ Distribution packaging architecture for SGE games.
 
 ## Key Files
 - `sge-build/src/main/scala/sge/sbt/SgePackaging.scala` — Core packaging logic
-- `sge-build/src/main/scala/sge/sbt/SgePlugins.scala` — JvmReleases, BrowserReleases, NativeReleases, AndroidReleases
+- `sge-build/src/main/scala/sge/sbt/SgePlugins.scala` — SgeDesktopJvmPlatform, SgeBrowserPlatform, SgeDesktopNativePlatform, SgeAndroidPlatform
 - `demos/build.sbt` — Demo packaging configuration
 
 ## Packaging Modes

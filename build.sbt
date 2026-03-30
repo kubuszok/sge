@@ -631,12 +631,14 @@ lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
 
 // Write published version to demos/.sge-version so the demos sub-build
 // resolves the same version without depending on sbt-git or env vars.
-val writeDemoVersion = taskKey[Unit]("Write SGE version to demos/.sge-version")
+val writeDemoVersion = taskKey[Unit]("Write SGE version to .sge-version")
 ThisBuild / writeDemoVersion := {
   val v = version.value
-  val f = baseDirectory.value / "demos" / ".sge-version"
-  IO.write(f, v)
-  streams.value.log.info(s"[sge] Wrote demos/.sge-version: $v")
+  val base = baseDirectory.value
+  // Write to both root (for sge-build plugin version) and demos/ (for demo dependency resolution)
+  IO.write(base / ".sge-version", v)
+  IO.write(base / "demos" / ".sge-version", v)
+  streams.value.log.info(s"[sge] Wrote .sge-version: $v")
 }
 
 // ── Root project — git-based versioning ──────────────────────────────
