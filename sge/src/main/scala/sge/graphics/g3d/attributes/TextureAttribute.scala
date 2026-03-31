@@ -131,7 +131,7 @@ object TextureAttribute {
   val ReflectionAlias: String = "reflectionTexture"
   val Reflection:      Long   = Attribute.register(ReflectionAlias)
 
-  protected var Mask: Long = Diffuse | Specular | Bump | Normal | Ambient | Emissive | Reflection
+  private[sge] var Mask: Long = Diffuse | Specular | Bump | Normal | Ambient | Emissive | Reflection
 
   def is(mask: Long): Boolean =
     (mask & Mask) != 0

@@ -26,8 +26,7 @@ class RegexHighlightRule(color: Color, regex: String) extends HighlightRule {
 
   override def process(textArea: HighlightTextArea, highlights: DynamicArray[Highlight]): Unit = {
     val matcher = pattern.matcher(textArea.text)
-    while (matcher.find()) {
+    while (matcher.find())
       highlights.add(Highlight(color, matcher.start(), matcher.end()))
-    }
   }
 }

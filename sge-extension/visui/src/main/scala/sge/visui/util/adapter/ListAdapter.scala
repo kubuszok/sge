@@ -15,7 +15,8 @@ import sge.visui.widget.ListView
 import sge.visui.widget.VisTable
 
 /** Adapter used to display items list in [[ListView]]. Classes implementing this interface should store array and provide delegates to methods that change array state, such as add/remove etc. Those
-  * delegates should call [[ListView.ListAdapterListener#invalidateDataSet]]. Single instance of ListAdapter can only be used for one ListView. Implementations must support setting item click listener.
+  * delegates should call [[ListView.ListAdapterListener#invalidateDataSet]]. Single instance of ListAdapter can only be used for one ListView. Implementations must support setting item click
+  * listener.
   * @author
   *   Kotcrab
   * @see

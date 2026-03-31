@@ -26,9 +26,9 @@ import sge.visui.util.adapter.ListAdapter
   */
 class ListView[ItemT](adapter: ListAdapter[ItemT], listViewStyle: ListViewStyle)(using Sge) {
 
-  private var _clickListener: Nullable[ListView.ItemClickListener[ItemT]] = Nullable.empty
-  private var _updatePolicy:  ListView.UpdatePolicy                       = ListView.UpdatePolicy.IMMEDIATELY
-  private var dataInvalidated: Boolean                                    = false
+  private var _clickListener:  Nullable[ListView.ItemClickListener[ItemT]] = Nullable.empty
+  private var _updatePolicy:   ListView.UpdatePolicy                       = ListView.UpdatePolicy.IMMEDIATELY
+  private var dataInvalidated: Boolean                                     = false
 
   private val _mainTable:  ListView.ListViewTable[ItemT] = new ListView.ListViewTable[ItemT](this)
   private val scrollTable: VisTable                      = new VisTable()
@@ -90,23 +90,22 @@ class ListView[ItemT](adapter: ListAdapter[ItemT], listViewStyle: ListViewStyle)
 
   def getClickListener: Nullable[ListView.ItemClickListener[ItemT]] = _clickListener
 
-  def header: Nullable[Actor] = _header
-  def header_=(h: Actor): Unit = { _header = Nullable(h); rebuildView(full = false) }
+  def header:             Nullable[Actor] = _header
+  def header_=(h: Actor): Unit            = { _header = Nullable(h); rebuildView(full = false) }
 
-  def footer: Nullable[Actor] = _footer
-  def footer_=(f: Actor): Unit = { _footer = Nullable(f); rebuildView(full = false) }
+  def footer:             Nullable[Actor] = _footer
+  def footer_=(f: Actor): Unit            = { _footer = Nullable(f); rebuildView(full = false) }
 
-  def updatePolicy: ListView.UpdatePolicy = _updatePolicy
-  def updatePolicy_=(policy: ListView.UpdatePolicy): Unit = _updatePolicy = policy
+  def updatePolicy:                                  ListView.UpdatePolicy = _updatePolicy
+  def updatePolicy_=(policy: ListView.UpdatePolicy): Unit                  = _updatePolicy = policy
 
   private[widget] def invalidateDataFromAdapter(): Unit = {
     if (_updatePolicy == ListView.UpdatePolicy.IMMEDIATELY) rebuildView(full = true)
     if (_updatePolicy == ListView.UpdatePolicy.ON_DRAW) dataInvalidated = true
   }
 
-  private[widget] def checkDrawInvalidation(): Unit = {
+  private[widget] def checkDrawInvalidation(): Unit =
     if (_updatePolicy == ListView.UpdatePolicy.ON_DRAW && dataInvalidated) rebuildView(full = true)
-  }
 }
 
 object ListView {
@@ -121,10 +120,13 @@ object ListView {
 
   /** Controls when list view's views are updated after underlying data was invalidated. */
   enum UpdatePolicy extends java.lang.Enum[UpdatePolicy] {
+
     /** If list data was was invalidated then views are updated before drawing list. */
     case ON_DRAW
+
     /** If list data was was invalidated then views are updated immediately after data invalidation. */
     case IMMEDIATELY
+
     /** In manual mode ListView must be rebuild manually by calling rebuildView(). */
     case MANUAL
   }

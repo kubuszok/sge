@@ -15,6 +15,6 @@ package adapter
   *   Kotcrab
   */
 class ListSelectionAdapter[ItemT, ViewT] extends AbstractListAdapter.ListSelectionListener[ItemT, ViewT] {
-  override def selected(item: ItemT, view: ViewT): Unit = ()
+  override def selected(item:   ItemT, view: ViewT): Unit = ()
   override def deselected(item: ItemT, view: ViewT): Unit = ()
 }

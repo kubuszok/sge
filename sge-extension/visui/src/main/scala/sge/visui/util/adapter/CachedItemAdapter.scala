@@ -14,7 +14,6 @@ import scala.collection.mutable
 
 import sge.scenes.scene2d.Actor
 
-
 /** Implementation of [[ItemAdapter]] that caches created views. Provides two methods that are called when new view should be created and when old view should be updated (see [[createView]] and
   * [[updateView]]). Internal cache is not cleared automatically and obsolete entries must be removed manually.
   * @author
@@ -24,7 +23,7 @@ import sge.scenes.scene2d.Actor
 abstract class CachedItemAdapter[ItemT, ViewT <: Actor] extends ItemAdapter[ItemT] {
   private val views: mutable.HashMap[ItemT, ViewT] = mutable.HashMap[ItemT, ViewT]()
 
-  override final def getView(item: ItemT): ViewT = {
+  final override def getView(item: ItemT): ViewT =
     views.get(item) match {
       case Some(existing) =>
         updateView(existing, item)
@@ -34,7 +33,6 @@ abstract class CachedItemAdapter[ItemT, ViewT <: Actor] extends ItemAdapter[Item
         views.put(item, created)
         created
     }
-  }
 
   /** @return internal views cache map */
   protected def getViews: mutable.HashMap[ItemT, ViewT] = views

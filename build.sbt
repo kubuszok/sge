@@ -505,6 +505,84 @@ val `sge-ecs` = (projectMatrix in file("sge-extension/ecs"))
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/ecs")
   )
 
+val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-controllers",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/controllers") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/controllers")
+  )
+
+val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(SgePlugin.relaxedSettings *)
+  .settings(publishSettings *)
+  .settings(
+    // Relax warnings for in-progress gltf port:
+    //   - implicit conversions (Nullable A→Nullable[A] auto-wrapping)
+    //   - implicit parameters clause style (Ordering.comparatorToOrdering)
+    //   - non-local returns (TODO: convert to boundary/break)
+    //   - unreachable case patterns (null handling)
+    scalacOptions ++= Seq(
+      "-language:implicitConversions",
+      "-Wconf:msg=Implicit parameters should be provided:s",
+      "-Wconf:msg=Non local returns:s",
+      "-Wconf:msg=Unreachable case:s"
+    )
+  )
+  .settings(
+    name := "sge-extension-gltf",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/gltf") ++ Seq(
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/gltf")
+  )
+
 val `sge-vfx` = (projectMatrix in file("sge-extension/vfx"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
@@ -941,6 +1019,8 @@ lazy val root = (project in file("."))
   .aggregate(`sge-physics`.projectRefs *)
   .aggregate(`sge-ai`.projectRefs *)
   .aggregate(`sge-ecs`.projectRefs *)
+  .aggregate(`sge-controllers`.projectRefs *)
+  .aggregate(`sge-gltf`.projectRefs *)
   .aggregate(`sge-vfx`.projectRefs *)
   .aggregate(`sge-textra`.projectRefs *)
   .aggregate(`sge-colorful`.projectRefs *)

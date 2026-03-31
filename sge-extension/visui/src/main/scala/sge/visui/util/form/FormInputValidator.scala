@@ -26,7 +26,7 @@ abstract class FormInputValidator(private var _errorMsg: String) extends InputVa
   private var _result:                Boolean = false
   private var _hideErrorOnEmptyInput: Boolean = false
 
-  override final def validateInput(input: String): Boolean = {
+  final override def validateInput(input: String): Boolean = {
     _result = validate(input)
     _result
   }
@@ -48,15 +48,15 @@ abstract class FormInputValidator(private var _errorMsg: String) extends InputVa
     this
   }
 
-  def setHideErrorOnEmptyInput(value: Boolean): Unit = _hideErrorOnEmptyInput = value
-  def isHideErrorOnEmptyInput: Boolean = _hideErrorOnEmptyInput
+  def setHideErrorOnEmptyInput(value: Boolean): Unit    = _hideErrorOnEmptyInput = value
+  def isHideErrorOnEmptyInput:                  Boolean = _hideErrorOnEmptyInput
 
-  def errorMsg: String = _errorMsg
-  def errorMsg_=(msg: String): Unit = _errorMsg = msg
+  def errorMsg:                String = _errorMsg
+  def errorMsg_=(msg: String): Unit   = _errorMsg = msg
 
   // Alias to match Java getter pattern used by SimpleFormValidator
-  def getErrorMsg: String = _errorMsg
-  def setErrorMsg(msg: String): Unit = _errorMsg = msg
+  def getErrorMsg:              String = _errorMsg
+  def setErrorMsg(msg: String): Unit   = _errorMsg = msg
 
   private[form] def getLastResult: Boolean = _result
 }

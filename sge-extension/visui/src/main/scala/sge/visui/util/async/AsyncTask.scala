@@ -28,7 +28,7 @@ import sge.utils.DynamicArray
 abstract class AsyncTask(val threadName: String)(using Sge) {
   import AsyncTask._
 
-  private var _status: Status = Status.PENDING
+  private var _status:   Status                          = Status.PENDING
   private val listeners: DynamicArray[AsyncTaskListener] = DynamicArray[AsyncTaskListener]()
 
   def execute(): Unit = {
@@ -40,20 +40,20 @@ abstract class AsyncTask(val threadName: String)(using Sge) {
   }
 
   private def executeInBackground(): Unit = {
-    try {
+    try
       doInBackground()
-    } catch {
+    catch {
       case e: Exception => failed(e)
     }
 
-    Sge().application.postRunnable(() => {
+    Sge().application.postRunnable { () =>
       var i = 0
       while (i < listeners.size) {
         listeners(i).finished()
         i += 1
       }
       _status = Status.FINISHED
-    })
+    }
   }
 
   /** Called when this task should execute some action in background. This is always called from non-main thread. From this method only [[setProgressPercent]], [[setMessage]], [[failed]] should be
@@ -68,47 +68,46 @@ abstract class AsyncTask(val threadName: String)(using Sge) {
     failed(exception.getMessage, exception)
 
   protected def failed(message: String, exception: Exception): Unit =
-    Sge().application.postRunnable(() => {
+    Sge().application.postRunnable { () =>
       var i = 0
       while (i < listeners.size) {
         listeners(i).failed(message, exception)
         i += 1
       }
-    })
+    }
 
   protected def setProgressPercent(progressPercent: Int): Unit =
-    Sge().application.postRunnable(() => {
+    Sge().application.postRunnable { () =>
       var i = 0
       while (i < listeners.size) {
         listeners(i).progressChanged(progressPercent)
         i += 1
       }
-    })
+    }
 
   protected def setMessage(message: String): Unit =
-    Sge().application.postRunnable(() => {
+    Sge().application.postRunnable { () =>
       var i = 0
       while (i < listeners.size) {
         listeners(i).messageChanged(message)
         i += 1
       }
-    })
+    }
 
   /** Executes runnable on main GDX thread. This methods blocks until runnable has finished executing. Note that this runnable will also block main render thread.
     */
   protected def executeOnGdx(runnable: Runnable): Unit = {
-    val latch = new CountDownLatch(1)
+    val latch       = new CountDownLatch(1)
     val exceptionAt = new AtomicReference[Exception]()
 
-    Sge().application.postRunnable(() => {
-      try {
+    Sge().application.postRunnable(() =>
+      try
         runnable.run()
-      } catch {
+      catch {
         case e: Exception => exceptionAt.set(e)
-      } finally {
+      } finally
         latch.countDown()
-      }
-    })
+    )
 
     try {
       latch.await()

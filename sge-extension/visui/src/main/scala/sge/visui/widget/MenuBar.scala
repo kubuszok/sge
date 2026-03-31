@@ -28,8 +28,8 @@ class MenuBar(style: MenuBar.MenuBarStyle)(using Sge) {
   }
   private val menuItems: VisTable = new VisTable()
 
-  private var currentMenu: Nullable[Menu]                   = Nullable.empty
-  private val menus:       DynamicArray[Menu]                = DynamicArray[Menu]()
+  private var currentMenu:  Nullable[Menu]                    = Nullable.empty
+  private val menus:        DynamicArray[Menu]                = DynamicArray[Menu]()
   private var menuListener: Nullable[MenuBar.MenuBarListener] = Nullable.empty
 
   mainTable.left()
@@ -81,7 +81,7 @@ class MenuBar(style: MenuBar.MenuBarStyle)(using Sge) {
 
   private[widget] def getCurrentMenu: Nullable[Menu] = currentMenu
 
-  private[widget] def setCurrentMenu(newMenu: Nullable[Menu]): Unit = {
+  private[widget] def setCurrentMenu(newMenu: Nullable[Menu]): Unit =
     if (currentMenu == newMenu) ()
     else {
       currentMenu.foreach { cm =>
@@ -94,7 +94,6 @@ class MenuBar(style: MenuBar.MenuBarStyle)(using Sge) {
       }
       currentMenu = newMenu
     }
-  }
 
   def setMenuListener(listener: MenuBar.MenuBarListener): Unit =
     this.menuListener = Nullable(listener)

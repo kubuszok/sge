@@ -32,13 +32,13 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
   private val widgetBounds:  DynamicArray[Rectangle] = DynamicArray[Rectangle]()
   private val scissors:      DynamicArray[Rectangle] = DynamicArray[Rectangle]()
   private val _handleBounds: DynamicArray[Rectangle] = DynamicArray[Rectangle]()
-  private val splits:        DynamicArray[Float]              = DynamicArray[Float]()
+  private val splits:        DynamicArray[Float]     = DynamicArray[Float]()
 
   private val handlePosition: Vector2 = new Vector2()
   private val lastPoint:      Vector2 = new Vector2()
 
   private var handleOver:      Nullable[Rectangle] = Nullable.empty
-  private var handleOverIndex: Int                  = 0
+  private var handleOverIndex: Int                 = 0
 
   setSize(prefWidth, prefHeight)
   initialize()
@@ -50,77 +50,79 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     this(vertical, "default-" + (if (vertical) "vertical" else "horizontal"))
 
   private def initialize(): Unit = {
-    addListener(new SplitPaneCursorManager(this, vertical) {
-      override protected def handleBoundsContains(x: Float, y: Float): Boolean =
-        getHandleContaining(x, y).isDefined
+    addListener(
+      new SplitPaneCursorManager(this, vertical) {
+        override protected def handleBoundsContains(x: Float, y: Float): Boolean =
+          getHandleContaining(x, y).isDefined
 
-      override protected def contains(x: Float, y: Float): Boolean = {
-        var i = 0
-        while (i < widgetBounds.size) {
-          if (widgetBounds(i).contains(x, y)) return true // @nowarn -- simple search
-          i += 1
-        }
-        getHandleContaining(x, y).isDefined
-      }
-    })
-
-    addListener(new InputListener() {
-      private var draggingPointer: Int = -1
-
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
-        if (!isTouchable) false
-        else if (draggingPointer != -1) false
-        else if (pointer == 0 && button != sge.Input.Buttons.LEFT) false
-        else {
-          val containingHandle = getHandleContaining(x, y)
-          if (containingHandle.isDefined) {
-            handleOverIndex = _handleBounds.indexOf(containingHandle.get)
-            FocusManager.resetFocus(stage)
-            draggingPointer = pointer
-            lastPoint.set(x, y)
-            handlePosition.set(containingHandle.get.x, containingHandle.get.y)
-            true
-          } else {
-            false
+        override protected def contains(x: Float, y: Float): Boolean = {
+          var i = 0
+          while (i < widgetBounds.size) {
+            if (widgetBounds(i).contains(x, y)) return true // @nowarn -- simple search
+            i += 1
           }
+          getHandleContaining(x, y).isDefined
         }
       }
+    )
 
-      override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
-        if (pointer == draggingPointer) draggingPointer = -1
-        handleOver = getHandleContaining(x, y)
-      }
+    addListener(
+      new InputListener() {
+        private var draggingPointer: Int = -1
 
-      override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
-        handleOver = getHandleContaining(x, y)
-        false
-      }
-
-      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-        if (pointer != draggingPointer) ()
-        else {
-          val handle = style.handle
-          if (!vertical) {
-            val delta      = x - lastPoint.x
-            val availWidth = width - handle.minWidth
-            val dragX      = Math.max(0, Math.min(availWidth, handlePosition.x + delta))
-            handlePosition.x = handlePosition.x + delta
-            val targetSplit = dragX / availWidth
-            setSplit(handleOverIndex, targetSplit)
-            lastPoint.set(x, y)
-          } else {
-            val delta       = y - lastPoint.y
-            val availHeight = height - handle.minHeight
-            val dragY       = Math.max(0, Math.min(availHeight, handlePosition.y + delta))
-            handlePosition.y = handlePosition.y + delta
-            val targetSplit = 1 - (dragY / availHeight)
-            setSplit(handleOverIndex, targetSplit)
-            lastPoint.set(x, y)
+        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean =
+          if (!isTouchable) false
+          else if (draggingPointer != -1) false
+          else if (pointer == 0 && button != sge.Input.Buttons.LEFT) false
+          else {
+            val containingHandle = getHandleContaining(x, y)
+            if (containingHandle.isDefined) {
+              handleOverIndex = _handleBounds.indexOf(containingHandle.get)
+              FocusManager.resetFocus(stage)
+              draggingPointer = pointer
+              lastPoint.set(x, y)
+              handlePosition.set(containingHandle.get.x, containingHandle.get.y)
+              true
+            } else {
+              false
+            }
           }
-          invalidate()
+
+        override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
+          if (pointer == draggingPointer) draggingPointer = -1
+          handleOver = getHandleContaining(x, y)
         }
+
+        override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = {
+          handleOver = getHandleContaining(x, y)
+          false
+        }
+
+        override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+          if (pointer != draggingPointer) ()
+          else {
+            val handle = style.handle
+            if (!vertical) {
+              val delta      = x - lastPoint.x
+              val availWidth = width - handle.minWidth
+              val dragX      = Math.max(0, Math.min(availWidth, handlePosition.x + delta))
+              handlePosition.x = handlePosition.x + delta
+              val targetSplit = dragX / availWidth
+              setSplit(handleOverIndex, targetSplit)
+              lastPoint.set(x, y)
+            } else {
+              val delta       = y - lastPoint.y
+              val availHeight = height - handle.minHeight
+              val dragY       = Math.max(0, Math.min(availHeight, handlePosition.y + delta))
+              handlePosition.y = handlePosition.y + delta
+              val targetSplit = 1 - (dragY / availHeight)
+              setSplit(handleOverIndex, targetSplit)
+              lastPoint.set(x, y)
+            }
+            invalidate()
+          }
       }
-    })
+    )
   }
 
   private def getHandleContaining(x: Float, y: Float): Nullable[Rectangle] = {
@@ -145,27 +147,27 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     else calculateVertBoundsAndPositions()
 
     val actors = children
-    var i = 0
+    var i      = 0
     while (i < actors.size) {
       val actor  = actors(i)
       val bounds = widgetBounds(i)
       actor.setBounds(bounds.x, bounds.y, bounds.width, bounds.height)
       actor match {
         case l: Layout => l.validate()
-        case _         => ()
+        case _ => ()
       }
       i += 1
     }
   }
 
   override def prefWidth: Float = {
-    var w = 0f
+    var w      = 0f
     val actors = children
-    var i = 0
+    var i      = 0
     while (i < actors.size) {
       w = actors(i) match {
         case l: Layout => l.prefWidth
-        case a         => a.width
+        case a => a.width
       }
       i += 1
     }
@@ -174,13 +176,13 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
   }
 
   override def prefHeight: Float = {
-    var h = 0f
+    var h      = 0f
     val actors = children
-    var i = 0
+    var i      = 0
     while (i < actors.size) {
       h = actors(i) match {
         case l: Layout => l.prefHeight
-        case a         => a.height
+        case a => a.height
       }
       i += 1
     }
@@ -188,7 +190,7 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     h
   }
 
-  override def minWidth: Float = 0
+  override def minWidth:  Float = 0
   override def minHeight: Float = 0
 
   private def calculateHorizBoundsAndPositions(): Unit = {
@@ -241,10 +243,10 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     applyTransform(batch, computeTransform())
 
     val actors = children
-    var i = 0
+    var i      = 0
     while (i < actors.size) {
-      val actor  = actors(i)
-      val bounds = widgetBounds(i)
+      val actor   = actors(i)
+      val bounds  = widgetBounds(i)
       val scissor = scissors(i)
       stage.foreach { stg =>
         stg.calculateScissors(bounds, scissor)
@@ -258,7 +260,7 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     }
 
     batch.setColor(clr.r, clr.g, clr.b, parentAlpha * clr.a)
-    val handle     = style.handle
+    val handle      = style.handle
     val handleOverD = if (isTouchable && style.handleOver.isDefined) style.handleOver.get else style.handle
     i = 0
     while (i < _handleBounds.size) {
@@ -273,11 +275,10 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     resetTransform(batch)
   }
 
-  override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] = {
+  override def hit(x: Float, y: Float, touchable: Boolean): Nullable[Actor] =
     if (touchable && this.touchable == Touchable.disabled) Nullable.empty
     else if (getHandleContaining(x, y).isDefined) Nullable(this)
     else super.hit(x, y, touchable)
-  }
 
   /** Changes widgets of this split pane. You can pass any number of actors even 1 or 0. */
   def setWidgets(actors: Actor*): Unit = setWidgets(actors)
@@ -297,7 +298,7 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
     }
     var currentSplit = 0f
     val splitAdvance = 1f / children.size
-    var i = 0
+    var i            = 0
     while (i < children.size - 1) {
       _handleBounds.add(new Rectangle())
       currentSplit += splitAdvance

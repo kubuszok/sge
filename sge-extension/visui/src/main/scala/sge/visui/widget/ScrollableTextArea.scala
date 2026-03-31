@@ -46,11 +46,11 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
     super.setParent(parent)
     parent.foreach {
       case _: ScrollPane => calculateOffsets()
-      case _             => ()
+      case _ => ()
     }
   }
 
-  private def updateScrollPosition(): Unit = {
+  private def updateScrollPosition(): Unit =
     if (cullingArea.isEmpty) ()
     else {
       parent.foreach {
@@ -64,7 +64,6 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
         case _ => ()
       }
     }
-  }
 
   override def setCullingArea(cullingArea: Nullable[Rectangle]): Unit =
     this.cullingArea = cullingArea
@@ -103,7 +102,7 @@ class ScrollableTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)
     layout()
     parent.foreach {
       case scrollPane: ScrollPane => scrollPane.layout()
-      case _                      => ()
+      case _ => ()
     }
     updateScrollPosition()
   }

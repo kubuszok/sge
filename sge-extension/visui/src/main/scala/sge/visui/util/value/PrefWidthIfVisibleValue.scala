@@ -21,11 +21,13 @@ import sge.utils.Nullable
   * @since 1.0.0
   */
 class PrefWidthIfVisibleValue extends SceneValue {
-  override def get(context: Nullable[Actor]): Float = context.map {
-    case widget: Widget => if (widget.visible) widget.prefWidth else 0f
-    case table: Table   => if (table.visible) table.prefWidth else 0f
-    case actor          => throw new IllegalStateException("Unsupported actor type for PrefWidthIfVisibleValue: " + actor.getClass)
-  }.getOrElse(0f)
+  override def get(context: Nullable[Actor]): Float = context
+    .map {
+      case widget: Widget => if (widget.visible) widget.prefWidth else 0f
+      case table:  Table  => if (table.visible) table.prefWidth else 0f
+      case actor => throw new IllegalStateException("Unsupported actor type for PrefWidthIfVisibleValue: " + actor.getClass)
+    }
+    .getOrElse(0f)
 }
 
 object PrefWidthIfVisibleValue {

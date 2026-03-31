@@ -16,8 +16,7 @@ import sge.scenes.scene2d.utils.ClickListener
 import sge.utils.Nullable
 import sge.visui.util.CursorManager
 
-/** Manages setting custom cursor for split panes.
-  * This is VisUI internal class
+/** Manages setting custom cursor for split panes. This is VisUI internal class
   * @author
   *   Kotcrab
   * @since 1.4.0
@@ -66,12 +65,11 @@ abstract class SplitPaneCursorManager(owner: Actor, vertical: Boolean)(using Sge
     }
   }
 
-  private def clearCustomCursor(): Unit = {
+  private def clearCustomCursor(): Unit =
     if (currentCursor.isDefined) {
       CursorManager.restoreDefaultCursor()
       currentCursor = Nullable.empty
     }
-  }
 
   protected def handleBoundsContains(x: Float, y: Float): Boolean
 

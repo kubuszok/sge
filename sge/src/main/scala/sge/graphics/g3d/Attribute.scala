@@ -93,7 +93,7 @@ object Attribute {
     * @throws SgeError.InvalidInput
     *   if maximum attribute count reached
     */
-  private[g3d] def register(alias: String): Long = {
+  private[sge] def register(alias: String): Long = {
     val result = getAttributeType(alias)
     if (result > 0) result
     else {

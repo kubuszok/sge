@@ -29,7 +29,7 @@ abstract class AbstractListAdapter[ItemT, ViewT <: Actor](using Sge) extends Cac
 
   private var clickListener: Nullable[ListView.ItemClickListener[ItemT]] = Nullable.empty
 
-  private var _selectionMode: AbstractListAdapter.SelectionMode                  = AbstractListAdapter.SelectionMode.DISABLED
+  private var _selectionMode: AbstractListAdapter.SelectionMode               = AbstractListAdapter.SelectionMode.DISABLED
   private val selection:      AbstractListAdapter.ListSelection[ItemT, ViewT] = new AbstractListAdapter.ListSelection[ItemT, ViewT](this)
 
   private var _itemsComparator: Nullable[Comparator[ItemT]] = Nullable.empty
@@ -46,8 +46,8 @@ abstract class AbstractListAdapter[ItemT, ViewT <: Actor](using Sge) extends Cac
 
   protected def prepareViewBeforeAddingToTable(item: ItemT, view: ViewT): Unit = {
     var listenerMissing = true
-    val ls = view.listeners
-    var i  = 0
+    val ls              = view.listeners
+    var i               = 0
     while (i < ls.size) {
       ls(i) match {
         case _: AbstractListAdapter.ListClickListener[?, ?] => listenerMissing = false
@@ -138,20 +138,19 @@ object AbstractListAdapter {
   }
 
   class ListSelection[ItemT, ViewT <: Actor](adapter: AbstractListAdapter[ItemT, ViewT])(using Sge) {
-    val DEFAULT_KEY: Int = -1
+    val DEFAULT_KEY:                 Int = -1
     private var groupMultiSelectKey: Int = DEFAULT_KEY
     private var multiSelectKey:      Int = DEFAULT_KEY
 
     private val _selection: scala.collection.mutable.ArrayBuffer[ItemT] = scala.collection.mutable.ArrayBuffer[ItemT]()
 
-    private var _programmaticChangeEvents: Boolean                           = true
+    private var _programmaticChangeEvents: Boolean                             = true
     private var _listener:                 ListSelectionListener[ItemT, ViewT] = new ListSelectionAdapter[ItemT, ViewT]()
 
-    def select(item: ItemT): Unit = {
+    def select(item: ItemT): Unit =
       adapter.viewsCache.get(item).foreach(v => select(item, v, programmaticChange = true))
-    }
 
-    private[adapter] def select(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit = {
+    private[adapter] def select(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit =
       if (adapter.getSelectionMode == SelectionMode.DISABLED) ()
       else {
         if (adapter.getSelectionMode == SelectionMode.SINGLE) deselectAll(programmaticChange)
@@ -160,19 +159,16 @@ object AbstractListAdapter {
         }
         doSelect(item, view, programmaticChange)
       }
-    }
 
-    private def doSelect(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit = {
+    private def doSelect(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit =
       if (!_selection.contains(item)) {
         adapter.selectView(view)
         _selection += item
         if (!programmaticChange || _programmaticChangeEvents) _listener.selected(item, view)
       }
-    }
 
-    def deselect(item: ItemT): Unit = {
+    def deselect(item: ItemT): Unit =
       adapter.viewsCache.get(item).foreach(v => deselect(item, v, programmaticChange = true))
-    }
 
     def deselectAll(): Unit = deselectAll(programmaticChange = true)
 
@@ -192,14 +188,13 @@ object AbstractListAdapter {
       }
     }
 
-    private[adapter] def deselect(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit = {
+    private[adapter] def deselect(item: ItemT, view: ViewT, programmaticChange: Boolean): Unit =
       if (!_selection.contains(item)) ()
       else {
         adapter.deselectView(view)
         _selection -= item
         if (!programmaticChange || _programmaticChangeEvents) _listener.deselected(item, view)
       }
-    }
 
     private[adapter] def deselectAll(programmaticChange: Boolean): Unit = {
       val items = scala.collection.mutable.ArrayBuffer.from(_selection)
@@ -208,11 +203,10 @@ object AbstractListAdapter {
       }
     }
 
-    def getSelection: scala.collection.mutable.ArrayBuffer[ItemT] = {
+    def getSelection: scala.collection.mutable.ArrayBuffer[ItemT] =
       scala.collection.mutable.ArrayBuffer.from(_selection)
-    }
 
-    private[adapter] def touchDown(view: ViewT, item: ItemT): Unit = {
+    private[adapter] def touchDown(view: ViewT, item: ItemT): Unit =
       if (adapter.getSelectionMode == SelectionMode.DISABLED) ()
       else {
         if (!isMultiSelectKeyPressed && !isGroupMultiSelectKeyPressed) {
@@ -224,12 +218,11 @@ object AbstractListAdapter {
           deselect(item, view, programmaticChange = false)
         }
       }
-    }
 
-    def getMultiSelectKey: Int = multiSelectKey
+    def getMultiSelectKey:           Int  = multiSelectKey
     def setMultiSelectKey(key: Int): Unit = multiSelectKey = key
 
-    def getGroupMultiSelectKey: Int = groupMultiSelectKey
+    def getGroupMultiSelectKey:           Int  = groupMultiSelectKey
     def setGroupMultiSelectKey(key: Int): Unit = groupMultiSelectKey = key
 
     def setListener(listener: ListSelectionListener[ItemT, ViewT]): Unit =
@@ -237,8 +230,8 @@ object AbstractListAdapter {
 
     def getListener: ListSelectionListener[ItemT, ViewT] = _listener
 
-    def isProgrammaticChangeEvents: Boolean = _programmaticChangeEvents
-    def setProgrammaticChangeEvents(value: Boolean): Unit = _programmaticChangeEvents = value
+    def isProgrammaticChangeEvents:                  Boolean = _programmaticChangeEvents
+    def setProgrammaticChangeEvents(value: Boolean): Unit    = _programmaticChangeEvents = value
 
     private def isMultiSelectKeyPressed: Boolean =
       if (multiSelectKey == DEFAULT_KEY) UIUtils.ctrl()
@@ -250,7 +243,7 @@ object AbstractListAdapter {
   }
 
   trait ListSelectionListener[ItemT, ViewT] {
-    def selected(item: ItemT, view: ViewT): Unit
+    def selected(item:   ItemT, view: ViewT): Unit
     def deselected(item: ItemT, view: ViewT): Unit
   }
 }

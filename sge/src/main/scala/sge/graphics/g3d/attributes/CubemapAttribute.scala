@@ -63,7 +63,7 @@ object CubemapAttribute {
   val EnvironmentMapAlias: String = "environmentCubemap"
   val EnvironmentMap:      Long   = Attribute.register(EnvironmentMapAlias)
 
-  protected var Mask: Long = EnvironmentMap
+  private[sge] var Mask: Long = EnvironmentMap
 
   def is(mask: Long): Boolean =
     (mask & Mask) != 0

@@ -28,29 +28,31 @@ class AsyncTaskProgressDialog(title: String, val task: AsyncTask)(using Sge) ext
   isModal = true
   TableUtils.setSpacingDefaults(this)
 
-  private val statusLabel:  VisLabel       = new VisLabel(CommonText.PleaseWait.get)
-  private val progressBar:  VisProgressBar = new VisProgressBar(0, 100, 1, false)
+  private val statusLabel: VisLabel       = new VisLabel(CommonText.PleaseWait.get)
+  private val progressBar: VisProgressBar = new VisProgressBar(0, 100, 1, false)
 
   defaults().padLeft(6).padRight(6)
 
   add(Nullable[Actor](statusLabel)).padTop(6).left().row()
   add(Nullable[Actor](progressBar)).width(300).padTop(6).padBottom(6)
 
-  task.addListener(new AsyncTaskListener {
-    override def progressChanged(newProgressPercent: Int): Unit =
-      progressBar.setValue(newProgressPercent.toFloat)
+  task.addListener(
+    new AsyncTaskListener {
+      override def progressChanged(newProgressPercent: Int): Unit =
+        progressBar.setValue(newProgressPercent.toFloat)
 
-    override def messageChanged(message: String): Unit =
-      statusLabel.setText(message)
+      override def messageChanged(message: String): Unit =
+        statusLabel.setText(message)
 
-    override def finished(): Unit =
-      fadeOut()
+      override def finished(): Unit =
+        fadeOut()
 
-    override def failed(message: String, exception: Exception): Unit = {
-      val msg = if (exception.getMessage == null) CommonText.UnknownErrorOccured.get else exception.getMessage // @nowarn -- Java interop
-      Dialogs.showErrorDialog(stage.get, msg, exception)
+      override def failed(message: String, exception: Exception): Unit = {
+        val msg = if (exception.getMessage == null) CommonText.UnknownErrorOccured.get else exception.getMessage // @nowarn -- Java interop
+        Dialogs.showErrorDialog(stage.get, msg, exception)
+      }
     }
-  })
+  )
 
   pack()
   centerWindow()
