@@ -204,7 +204,7 @@ class DecalBatch(size: Int, private var groupStrategy: GroupStrategy)(using Sge)
     */
   def close(): Unit = {
     clear()
-    vertices = null
+    vertices = null // @nowarn — disposal: release reference for GC after close()
     mesh.close()
   }
 }

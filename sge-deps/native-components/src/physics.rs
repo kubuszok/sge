@@ -573,8 +573,9 @@ pub unsafe extern "C" fn sge_phys_destroy_joint(world: *mut c_void, joint: u64) 
 // Queries
 // ---------------------------------------------------------------------------
 
-/// Ray cast. Fills `out` with [hitX, hitY, normalX, normalY, toi, bodyHandleLo, bodyHandleHi] (7 floats).
-/// The body handle is split across two f32 slots: low 32 bits in `out[5]`, high 32 bits in `out[6]`.
+/// Ray cast. Fills `out` with:
+///   [hitX, hitY, normalX, normalY, toi, bodyHandleLo, bodyHandleHi, colliderHandleLo, colliderHandleHi]
+/// (9 floats). Handles are split across two f32 slots each (low 32 bits, high 32 bits).
 /// Returns 1 if hit, 0 otherwise.
 #[no_mangle]
 pub unsafe extern "C" fn sge_phys_ray_cast(
@@ -589,7 +590,7 @@ pub unsafe extern "C" fn sge_phys_ray_cast(
     let w = &*(world as *mut PhysicsWorld);
     let ray = Ray::new(point![origin_x, origin_y], vector![dir_x, dir_y]);
 
-    if let Some((handle, toi)) = w.query_pipeline.cast_ray(
+    if let Some((handle, intersection)) = w.query_pipeline.cast_ray_and_get_normal(
         &w.rigid_body_set,
         &w.collider_set,
         &ray,
@@ -597,24 +598,27 @@ pub unsafe extern "C" fn sge_phys_ray_cast(
         true,
         QueryFilter::default(),
     ) {
-        let hit_point = ray.point_at(toi);
-        // Get normal by doing a full intersection
-        let arr = slice::from_raw_parts_mut(out, 7);
+        let hit_point = ray.point_at(intersection.time_of_impact);
+        let arr = slice::from_raw_parts_mut(out, 9);
         arr[0] = hit_point.x;
         arr[1] = hit_point.y;
-        arr[2] = 0.0; // normal x (simplified — full intersection needed for normals)
-        arr[3] = 0.0; // normal y
-        arr[4] = toi;
-        // Encode collider handle as body handle via parent body (full 64-bit, split across 2 floats)
+        arr[2] = intersection.normal.x;
+        arr[3] = intersection.normal.y;
+        arr[4] = intersection.time_of_impact;
+        // Encode body handle (via collider's parent)
         arr[5] = 0.0;
         arr[6] = 0.0;
         if let Some(collider) = w.collider_set.get(handle) {
             if let Some(parent) = collider.parent() {
                 let h = body_handle_to_u64(parent);
-                arr[5] = f32::from_bits(h as u32);         // low 32 bits
-                arr[6] = f32::from_bits((h >> 32) as u32); // high 32 bits (generation)
+                arr[5] = f32::from_bits(h as u32);
+                arr[6] = f32::from_bits((h >> 32) as u32);
             }
         }
+        // Encode collider handle directly
+        let ch = collider_handle_to_u64(handle);
+        arr[7] = f32::from_bits(ch as u32);
+        arr[8] = f32::from_bits((ch >> 32) as u32);
         1
     } else {
         0

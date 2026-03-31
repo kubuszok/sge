@@ -62,7 +62,7 @@ class VertexBufferObjectSubData(
   private def createBufferObject(): Int = {
     val result = Sge().graphics.gl20.glGenBuffer()
     Sge().graphics.gl20.glBindBuffer(BufferTarget.ArrayBuffer, result)
-    Sge().graphics.gl20.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.capacity(), null, usage)
+    Sge().graphics.gl20.glBufferData(BufferTarget.ArrayBuffer, byteBuffer.capacity(), null, usage) // @nowarn — GL API: null allocates buffer without initializing data
     Sge().graphics.gl20.glBindBuffer(BufferTarget.ArrayBuffer, 0)
     result
   }

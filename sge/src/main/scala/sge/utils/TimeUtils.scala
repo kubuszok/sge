@@ -7,7 +7,7 @@
  * Migration notes:
  *   Convention: Java `final class` with static methods -> Scala `object`; opaque Millis/Nanos for type-safe time values
  *   Idiom: split packages
- *   TODO: delegate to scala-java-time (io.github.cquiroz %%% "scala-java-time" % "2.6.0") -- cross-platform JVM/JS/Native; see docs/improvements/dependencies.md B1
+ *   Convention: uses System.nanoTime/currentTimeMillis which are cross-platform via scala-java-time shim on JS/Native
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok

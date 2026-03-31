@@ -6,7 +6,9 @@
  *
  * Migration notes:
  *   Idiom: split packages
- *   TODO: make immutable case class; r/g/b/a → opaque Red/Green/Blue/Alpha; replace mutation API with returning methods
+ *   Convention: mutable class retained for compatibility; opaque types (Pixels, WorldUnits, Seconds,
+ *     Align, GL enums/handles) used elsewhere in SGE but Color itself remains a mutable RGBA container
+ *     since it's a low-level primitive shared across the rendering pipeline
  *   Audited: 2026-03-03
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
