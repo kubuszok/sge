@@ -10,50 +10,50 @@ package loaders
 package shared
 package animation
 
-import scala.collection.mutable.{ArrayBuffer, HashMap}
-import sge.graphics.g3d.model.{Animation, Node, NodeAnimation, NodeKeyframe}
+import scala.collection.mutable.{ ArrayBuffer, HashMap }
+import sge.graphics.g3d.model.{ Animation, Node, NodeAnimation, NodeKeyframe }
 import sge.gltf.data.animation.GLTFAnimation
 import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.loaders.shared.data.DataResolver
 import sge.gltf.loaders.shared.scene.NodeResolver
-import sge.math.{Quaternion, Vector3}
-import sge.utils.{DynamicArray, Nullable}
+import sge.math.{ Quaternion, Vector3 }
+import sge.utils.{ DynamicArray, Nullable }
 
 class AnimationLoader {
 
   val animations: DynamicArray[Animation] = DynamicArray[Animation]()
 
-  def load(glAnimations: Nullable[ArrayBuffer[GLTFAnimation]], nodeResolver: NodeResolver, dataResolver: DataResolver): Unit = {
+  def load(glAnimations: Nullable[ArrayBuffer[GLTFAnimation]], nodeResolver: NodeResolver, dataResolver: DataResolver): Unit =
     glAnimations.foreach { anims =>
       var i = 0
       while (i < anims.size) {
         val glAnimation = anims(i)
-        val animation = load(glAnimation, nodeResolver, dataResolver)
+        val animation   = load(glAnimation, nodeResolver, dataResolver)
         animation.id = glAnimation.name.getOrElse("animation" + i)
         animations.add(animation)
         i += 1
       }
     }
-  }
 
   private def load(glAnimation: GLTFAnimation, nodeResolver: NodeResolver, dataResolver: DataResolver): Animation = {
-    val animMap = HashMap[Node, NodeAnimation]()
+    val animMap   = HashMap[Node, NodeAnimation]()
     val animation = new Animation()
 
     glAnimation.channels.foreach { channels =>
       for (glChannel <- channels) {
         val glSampler = glAnimation.samplers.get(glChannel.sampler.get)
-        val node = nodeResolver.get(glChannel.target.get.node.get).get
+        val node      = nodeResolver.get(glChannel.target.get.node.get).get
 
         val nodeAnimation = animMap.getOrElseUpdate(node, {
-          val na = new NodeAnimation()
-          na.node = node
-          animation.nodeAnimations.add(na)
-          na
-        })
+                                                      val na = new NodeAnimation()
+                                                      na.node = node
+                                                      animation.nodeAnimations.add(na)
+                                                      na
+                                                    }
+        )
 
-        val inputData = dataResolver.readBufferFloat(glSampler.input.get)
+        val inputData  = dataResolver.readBufferFloat(glSampler.input.get)
         val outputData = dataResolver.readBufferFloat(glSampler.output.get)
 
         val interpolation = GLTFTypes.mapInterpolation(glSampler.interpolation)

@@ -33,9 +33,9 @@ class FloatColorsSuite extends munit.FunSuite {
 
   test("hsl2rgb produces red at hue=0, full saturation, mid lightness") {
     val packed = FloatColors.hsl2rgb(0f, 1f, 0.5f, 1f)
-    val r = redChannel(packed)
-    val g = greenChannel(packed)
-    val b = blueChannel(packed)
+    val r      = redChannel(packed)
+    val g      = greenChannel(packed)
+    val b      = blueChannel(packed)
     assert(r > 0.9f, s"red should be high, got $r")
     assert(g < 0.1f, s"green should be low, got $g")
     assert(b < 0.1f, s"blue should be low, got $b")
@@ -43,9 +43,9 @@ class FloatColorsSuite extends munit.FunSuite {
 
   test("hsl2rgb produces white at lightness=1") {
     val packed = FloatColors.hsl2rgb(0f, 0f, 1f, 1f)
-    val r = redChannel(packed)
-    val g = greenChannel(packed)
-    val b = blueChannel(packed)
+    val r      = redChannel(packed)
+    val g      = greenChannel(packed)
+    val b      = blueChannel(packed)
     assertApprox(r, 1f, tolerance = 0.05f, clue = "white R")
     assertApprox(g, 1f, tolerance = 0.05f, clue = "white G")
     assertApprox(b, 1f, tolerance = 0.05f, clue = "white B")
@@ -53,17 +53,17 @@ class FloatColorsSuite extends munit.FunSuite {
 
   test("hsl2rgb produces black at lightness=0") {
     val packed = FloatColors.hsl2rgb(0f, 0f, 0f, 1f)
-    val r = redChannel(packed)
-    val g = greenChannel(packed)
-    val b = blueChannel(packed)
+    val r      = redChannel(packed)
+    val g      = greenChannel(packed)
+    val b      = blueChannel(packed)
     assertApprox(r, 0f, tolerance = 0.01f, clue = "black R")
     assertApprox(g, 0f, tolerance = 0.01f, clue = "black G")
     assertApprox(b, 0f, tolerance = 0.01f, clue = "black B")
   }
 
   test("lerpFloatColors at 0 returns start") {
-    val start = FloatColors.hsl2rgb(0f, 1f, 0.5f, 1f)
-    val end = FloatColors.hsl2rgb(0.33f, 1f, 0.5f, 1f)
+    val start  = FloatColors.hsl2rgb(0f, 1f, 0.5f, 1f)
+    val end    = FloatColors.hsl2rgb(0.33f, 1f, 0.5f, 1f)
     val result = FloatColors.lerpFloatColors(start, end, 0f)
     assertEquals(
       java.lang.Float.floatToRawIntBits(result),
@@ -72,11 +72,11 @@ class FloatColorsSuite extends munit.FunSuite {
   }
 
   test("lerpFloatColors at 1 returns end") {
-    val start = FloatColors.hsl2rgb(0f, 1f, 0.5f, 1f)
-    val end = FloatColors.hsl2rgb(0.33f, 1f, 0.5f, 1f)
+    val start  = FloatColors.hsl2rgb(0f, 1f, 0.5f, 1f)
+    val end    = FloatColors.hsl2rgb(0.33f, 1f, 0.5f, 1f)
     val result = FloatColors.lerpFloatColors(start, end, 1f)
-    val rBits = java.lang.Float.floatToRawIntBits(result)
-    val eBits = java.lang.Float.floatToRawIntBits(end)
+    val rBits  = java.lang.Float.floatToRawIntBits(result)
+    val eBits  = java.lang.Float.floatToRawIntBits(end)
     // Check channels individually to allow for minor rounding
     assert(Math.abs((rBits & 0xff) - (eBits & 0xff)) <= 1, "R channel")
     assert(Math.abs((rBits >>> 8 & 0xff) - (eBits >>> 8 & 0xff)) <= 1, "G channel")
@@ -86,8 +86,8 @@ class FloatColorsSuite extends munit.FunSuite {
   test("setAlpha changes alpha without affecting color channels") {
     val original = FloatColors.hsl2rgb(0.5f, 1f, 0.5f, 1f)
     val modified = FloatColors.setAlpha(original, 0.5f)
-    val oBits = java.lang.Float.floatToRawIntBits(original)
-    val mBits = java.lang.Float.floatToRawIntBits(modified)
+    val oBits    = java.lang.Float.floatToRawIntBits(original)
+    val mBits    = java.lang.Float.floatToRawIntBits(modified)
     // Color channels should be identical
     assertEquals(oBits & 0xffffff, mBits & 0xffffff)
     // Alpha should be different
@@ -95,10 +95,10 @@ class FloatColorsSuite extends munit.FunSuite {
   }
 
   test("multiplyAlpha scales alpha") {
-    val original = FloatColors.hsl2rgb(0f, 0f, 0.5f, 1f)
-    val halved = FloatColors.multiplyAlpha(original, 0.5f)
-    val oBits = java.lang.Float.floatToRawIntBits(original)
-    val hBits = java.lang.Float.floatToRawIntBits(halved)
+    val original  = FloatColors.hsl2rgb(0f, 0f, 0.5f, 1f)
+    val halved    = FloatColors.multiplyAlpha(original, 0.5f)
+    val oBits     = java.lang.Float.floatToRawIntBits(original)
+    val hBits     = java.lang.Float.floatToRawIntBits(halved)
     val origAlpha = oBits >>> 24
     val halfAlpha = hBits >>> 24
     assert(halfAlpha < origAlpha, s"halved alpha $halfAlpha should be less than original $origAlpha")

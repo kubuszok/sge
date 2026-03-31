@@ -195,17 +195,18 @@ object TrigTools {
 
   /** The atan2Turns() function takes y first, then x, and returns the angle in turns from the origin to the given point. Returns a float from 0.0 to 1.0, counterclockwise when y points up.
     */
-  def atan2Turns(y: Float, x: Float): Float = {
-    if (y == 0f && x >= 0f) { return 0f } // scalastyle:ignore return
-    val ay     = Math.abs(y)
-    val ax     = Math.abs(x)
-    val invert = ay > ax
-    var z      = if (invert) ax / ay else ay / ax
-    val s      = z * z
-    z *= (((((((-6.452233507864792e-4f * s + 0.003479322672037479f) * s - 0.008898334876790684f) * s + 0.015345726331929417f) * s - 0.022136118977856264f) *
-      s + 0.03174589869088148f) * s - 0.05304611397922089f) * s + 0.15915483874178302f)
-    if (invert) z = 0.25f - z
-    if (x < 0f) z = 0.5f - z
-    if (y < 0f) 1f - z else z
-  }
+  def atan2Turns(y: Float, x: Float): Float =
+    if (y == 0f && x >= 0f) 0f
+    else {
+      val ay     = Math.abs(y)
+      val ax     = Math.abs(x)
+      val invert = ay > ax
+      var z      = if (invert) ax / ay else ay / ax
+      val s      = z * z
+      z *= (((((((-6.452233507864792e-4f * s + 0.003479322672037479f) * s - 0.008898334876790684f) * s + 0.015345726331929417f) * s - 0.022136118977856264f) *
+        s + 0.03174589869088148f) * s - 0.05304611397922089f) * s + 0.15915483874178302f)
+      if (invert) z = 0.25f - z
+      if (x < 0f) z = 0.5f - z
+      if (y < 0f) 1f - z else z
+    }
 }

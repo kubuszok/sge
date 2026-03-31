@@ -11,7 +11,7 @@ class ComponentMapperSuite extends munit.FunSuite {
   test("get returns component when present") {
     val mapper = ComponentMapper.getFor(classOf[ComponentA])
     val entity = new Entity
-    val comp = new ComponentA
+    val comp   = new ComponentA
     entity.add(comp)
 
     val result = mapper.get(entity)

@@ -24,11 +24,10 @@ import sge.visui.util.ColorUtils
 import sge.visui.widget.{ VisLabel, VisTable, VisValidatableTextField }
 import sge.visui.widget.color.internal.{ AlphaImage, ColorPickerText, Palette, PickerCommons, VerticalChannelBar }
 
-/** Color Picker widget, allows user to select color. ColorPicker is relatively heavy widget and should be reused if possible. Unlike other widgets, this one must be disposed when no longer
-  * needed!
+/** Color Picker widget, allows user to select color. ColorPicker is relatively heavy widget and should be reused if possible. Unlike other widgets, this one must be disposed when no longer needed!
   *
-  * Displays color pallet along with hue spectrum bar. Palette show all possible combination of saturation and value (SV components of HSV color system) for given hue, spectrum bar shows all
-  * possible values of hue (H component). Displays preview of current and new color and hex field that can be disabled. See [[ExtendedColorPicker]] if you need more features.
+  * Displays color pallet along with hue spectrum bar. Palette show all possible combination of saturation and value (SV components of HSV color system) for given hue, spectrum bar shows all possible
+  * values of hue (H component). Displays preview of current and new color and hex field that can be disabled. See [[ExtendedColorPicker]] if you need more features.
   *
   * Alpha channel can be only set from hex field and it disabled by default, use [[allowAlphaEdit_=]] to enable.
   * @author
@@ -39,14 +38,12 @@ import sge.visui.widget.color.internal.{ AlphaImage, ColorPickerText, Palette, P
   *   [[BasicColorPicker]]
   * @see
   *   [[ExtendedColorPicker]]
-  * @since
-  *   0.9.3
+  * @since 0.9.3
   */
-class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListener: Nullable[ColorPickerListener], loadExtendedShaders: Boolean)(using Sge)
-    extends VisTable() with AutoCloseable {
+class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListener: Nullable[ColorPickerListener], loadExtendedShaders: Boolean)(using Sge) extends VisTable() with AutoCloseable {
 
-  protected var style:    ColorPickerWidgetStyle      = initStyle
-  protected var sizes:    Sizes                       = VisUI.getSizes
+  protected var style:    ColorPickerWidgetStyle        = initStyle
+  protected var sizes:    Sizes                         = VisUI.getSizes
   protected var listener: Nullable[ColorPickerListener] = initListener
 
   var oldColor:    Color = new Color(Color.BLACK)
@@ -124,9 +121,8 @@ class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListene
     newColorImg.color.set(pickerColor)
 
     currentColorImg.addListener(new ClickListener() {
-      override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
+      override def clicked(event: InputEvent, x: Float, y: Float): Unit =
         restoreLastColor()
-      }
     })
 
     table
@@ -141,29 +137,34 @@ class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListene
 
     hexField.setMaxLength(BasicColorPicker.HEX_COLOR_LENGTH)
     hexField.setProgrammaticChangeEvents(false)
-    hexField.setTextFieldFilter(Nullable(new TextField.TextFieldFilter() {
-      override def acceptChar(textField: TextField, c: Char): Boolean = {
-        Character.isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
-      }
-    }))
+    hexField.setTextFieldFilter(
+      Nullable(
+        new TextField.TextFieldFilter() {
+          override def acceptChar(textField: TextField, c: Char): Boolean =
+            Character.isDigit(c) || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')
+        }
+      )
+    )
 
-    hexField.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        val expectedLen = if (_allowAlphaEdit) BasicColorPicker.HEX_COLOR_LENGTH_WITH_ALPHA else BasicColorPicker.HEX_COLOR_LENGTH
-        if (hexField.text.length == expectedLen) {
-          setPickerColor(Color.valueOf(hexField.text), updateCurrentColor = false)
+    hexField.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          val expectedLen = if (_allowAlphaEdit) BasicColorPicker.HEX_COLOR_LENGTH_WITH_ALPHA else BasicColorPicker.HEX_COLOR_LENGTH
+          if (hexField.text.length == expectedLen) {
+            setPickerColor(Color.valueOf(hexField.text), updateCurrentColor = false)
+          }
         }
       }
-    })
+    )
 
     table
   }
 
-  def focusHexField(): Unit = {
-    if (!showHexFields) return // @nowarn -- early return for guard
-    FocusManager.switchFocus(stage, hexField)
-    stage.foreach(_.setKeyboardFocus(Nullable(hexField)))
-  }
+  def focusHexField(): Unit =
+    if (showHexFields) {
+      FocusManager.switchFocus(stage, hexField)
+      stage.foreach(_.setKeyboardFocus(Nullable(hexField)))
+    }
 
   protected def createColorWidgets(): Unit = {
     val pickerListener = new PickerChangeListener()
@@ -190,9 +191,8 @@ class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListene
     palette.setValue(cs, cv)
   }
 
-  protected def updateValuesFromHSVFields(): Unit = {
+  protected def updateValuesFromHSVFields(): Unit =
     pickerColor = ColorUtils.HSVtoRGB(verticalBar.getValue, palette.getS, palette.getV, pickerColor.a)
-  }
 
   def restoreLastColor(): Unit = {
     val colorBeforeReset = new Color(pickerColor)
@@ -219,13 +219,12 @@ class BasicColorPicker protected (initStyle: ColorPickerWidgetStyle, initListene
 
   def getListener: Nullable[ColorPickerListener] = listener
 
-  def setListener(listener: Nullable[ColorPickerListener]): Unit = {
+  def setListener(listener: Nullable[ColorPickerListener]): Unit =
     this.listener = listener
-  }
 
   /** @param allowAlphaEdit
-    *   if false this picker will have disabled editing color alpha channel. If current picker color has alpha it will be reset to 1. If true alpha editing will be re-enabled. For better UX
-    *   this should not be called while ColorPicker is visible.
+    *   if false this picker will have disabled editing color alpha channel. If current picker color has alpha it will be reset to 1. If true alpha editing will be re-enabled. For better UX this
+    *   should not be called while ColorPicker is visible.
     */
   def allowAlphaEdit_=(allowAlphaEdit: Boolean): Unit = {
     _allowAlphaEdit = allowAlphaEdit

@@ -18,7 +18,7 @@ class EngineSuite extends munit.FunSuite {
   private class ComponentC extends Component
 
   private class EntityListenerMock extends EntityListener {
-    var addedCount: Int = 0
+    var addedCount:   Int = 0
     var removedCount: Int = 0
 
     override def entityAdded(entity: Entity): Unit = {
@@ -40,8 +40,8 @@ class EngineSuite extends munit.FunSuite {
   }
 
   private class EntitySystemMock(val updates: ArrayBuffer[Int] = null, p: Int = 0) extends EntitySystem(p) {
-    var updateCalls: Int = 0
-    var addedCalls: Int = 0
+    var updateCalls:  Int = 0
+    var addedCalls:   Int = 0
     var removedCalls: Int = 0
 
     override def update(deltaTime: Float): Unit = {
@@ -72,9 +72,8 @@ class EngineSuite extends munit.FunSuite {
   private class CounterSystem extends EntitySystem() {
     private var entities: ImmutableArray[Entity] = scala.compiletime.uninitialized
 
-    override def addedToEngine(engine: Engine): Unit = {
+    override def addedToEngine(engine: Engine): Unit =
       entities = engine.getEntitiesFor(Family.all(classOf[CounterComponent]).get())
-    }
 
     override def update(deltaTime: Float): Unit = {
       var i = 0
@@ -90,7 +89,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("addEntity and removeEntity") {
-    val engine = new Engine
+    val engine    = new Engine
     val listenerA = new EntityListenerMock
     val listenerB = new EntityListenerMock
 
@@ -120,7 +119,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("addSystem and removeSystem") {
-    val engine = new Engine
+    val engine  = new Engine
     val systemA = new EntitySystemMockA
     val systemB = new EntitySystemMockB
 
@@ -154,7 +153,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("getSystems") {
-    val engine = new Engine
+    val engine  = new Engine
     val systemA = new EntitySystemMockA
     val systemB = new EntitySystemMockB
 
@@ -167,7 +166,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("add two systems of same class replaces first") {
-    val engine = new Engine
+    val engine  = new Engine
     val system1 = new EntitySystemMockA
     val system2 = new EntitySystemMockA
 
@@ -183,7 +182,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("update calls systems") {
-    val engine = new Engine
+    val engine  = new Engine
     val systemA = new EntitySystemMockA
     val systemB = new EntitySystemMockB
 
@@ -212,7 +211,7 @@ class EngineSuite extends munit.FunSuite {
 
   test("update calls systems in priority order") {
     val updates = ArrayBuffer[Int]()
-    val engine = new Engine
+    val engine  = new Engine
     val system1 = new EntitySystemMockA(updates, 2)
     val system2 = new EntitySystemMockB(updates, 1)
 
@@ -248,15 +247,15 @@ class EngineSuite extends munit.FunSuite {
 
     val numUpdates = 10
     for (i <- 0 until numUpdates) {
-      system.processing = (i % 2 == 0)
+      system.processing = i % 2 == 0
       engine.update(deltaTime)
       assertEquals(system.updateCalls, i / 2 + 1)
     }
   }
 
   test("getEntitiesFor family") {
-    val engine = new Engine
-    val family = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
+    val engine         = new Engine
+    val family         = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
     val familyEntities = engine.getEntitiesFor(family)
 
     assertEquals(familyEntities.size, 0)
@@ -299,8 +298,8 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("entities for family after adding components post-addEntity") {
-    val engine = new Engine
-    val family = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
+    val engine         = new Engine
+    val family         = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
     val familyEntities = engine.getEntitiesFor(family)
 
     val entity1 = new Entity
@@ -318,8 +317,8 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("entity component change updates family membership") {
-    val engine = new Engine
-    val family = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
+    val engine         = new Engine
+    val family         = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
     val familyEntities = engine.getEntitiesFor(family)
 
     val entity1 = new Entity
@@ -342,7 +341,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("family filtering with removal and exclusion") {
-    val engine = new Engine
+    val engine            = new Engine
     val entitiesWithAOnly = engine.getEntitiesFor(
       Family.all(classOf[ComponentA]).exclude(classOf[ComponentB]).get()
     )
@@ -378,15 +377,13 @@ class EngineSuite extends munit.FunSuite {
 
     val entities = engine.getEntitiesFor(Family.all(classOf[CounterComponent]).get())
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(entities(i).getComponent(classOf[CounterComponent]).get.counter, 0)
-    }
 
     engine.update(deltaTime)
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(entities(i).getComponent(classOf[CounterComponent]).get.counter, 1)
-    }
   }
 
   test("family listener") {
@@ -427,7 +424,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("addEntityListener receives add/remove events") {
-    val engine = new Engine
+    val engine   = new Engine
     val listener = new EntityListenerMock
 
     engine.addEntityListener(listener)
@@ -449,9 +446,8 @@ class EngineSuite extends munit.FunSuite {
   test("removeAllEntities clears everything") {
     val engine = new Engine
 
-    for (_ <- 0 until 10) {
+    for (_ <- 0 until 10)
       engine.addEntity(new Entity)
-    }
 
     assertEquals(engine.getEntities.size, 10)
 
@@ -461,8 +457,8 @@ class EngineSuite extends munit.FunSuite {
 
   test("getEntities returns live list") {
     val numEntities = 10
-    val engine = new Engine
-    val added = ArrayBuffer[Entity]()
+    val engine      = new Engine
+    val added       = ArrayBuffer[Entity]()
 
     for (_ <- 0 until numEntities) {
       val entity = new Entity
@@ -473,9 +469,8 @@ class EngineSuite extends munit.FunSuite {
     val engineEntities = engine.getEntities
     assertEquals(engineEntities.size, added.size)
 
-    for (i <- 0 until numEntities) {
+    for (i <- 0 until numEntities)
       assert(engineEntities(i) eq added(i))
-    }
 
     engine.removeAllEntities()
     assertEquals(engineEntities.size, 0)
@@ -494,17 +489,18 @@ class EngineSuite extends munit.FunSuite {
     val engine = new Engine
 
     val outerEngine = engine
-    outerEngine.addSystem(new EntitySystem() {
-      private var duringCallback = false
+    outerEngine.addSystem(
+      new EntitySystem() {
+        private var duringCallback = false
 
-      override def update(deltaTime: Float): Unit = {
-        if (!duringCallback) {
-          duringCallback = true
-          outerEngine.update(deltaTime)
-          duringCallback = false
-        }
+        override def update(deltaTime: Float): Unit =
+          if (!duringCallback) {
+            duringCallback = true
+            outerEngine.update(deltaTime)
+            duringCallback = false
+          }
       }
-    })
+    )
 
     intercept[IllegalStateException] {
       engine.update(deltaTime)
@@ -515,9 +511,8 @@ class EngineSuite extends munit.FunSuite {
     val engine = new Engine
 
     val system = new EntitySystem() {
-      override def update(deltaTime: Float): Unit = {
+      override def update(deltaTime: Float): Unit =
         throw new RuntimeException("throwing")
-      }
     }
 
     engine.addSystem(system)
@@ -601,7 +596,7 @@ class EngineSuite extends munit.FunSuite {
   }
 
   test("removeAllEntities for specific family") {
-    val engine = new Engine
+    val engine  = new Engine
     val familyA = Family.all(classOf[ComponentA]).get()
 
     val entity1 = new Entity

@@ -63,15 +63,16 @@ object CaseInsensitiveIntMap {
 
   def hashCodeIgnoreCase(data: CharSequence): Int = hashCodeIgnoreCase(data, 908697017)
 
-  def hashCodeIgnoreCase(data: CharSequence, seedIn: Int): Int = {
-    if (data == null) return 0
-    val len  = data.length()
-    var seed = seedIn ^ len
-    var p    = 0
-    while (p < len) {
-      seed = -594347645 * (seed + Character.toUpperCase(data.charAt(p)))
-      p += 1
+  def hashCodeIgnoreCase(data: CharSequence, seedIn: Int): Int =
+    if (data == null) 0
+    else {
+      val len  = data.length()
+      var seed = seedIn ^ len
+      var p    = 0
+      while (p < len) {
+        seed = -594347645 * (seed + Character.toUpperCase(data.charAt(p)))
+        p += 1
+      }
+      seed ^ (seed << 27 | seed >>> 5) ^ (seed << 9 | seed >>> 23)
     }
-    seed ^ (seed << 27 | seed >>> 5) ^ (seed << 9 | seed >>> 23)
-  }
 }

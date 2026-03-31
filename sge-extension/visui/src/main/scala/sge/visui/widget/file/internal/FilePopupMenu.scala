@@ -48,15 +48,16 @@ class FilePopupMenu(chooser: FileChooser, callback: FilePopupMenu.FilePopupMenuC
       override def clicked(event: InputEvent, x: Float, y: Float): Unit = callback.showNewDirDialog()
     })
 
-    showInExplorer.addListener(new ClickListener() {
-      override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
-        try {
-          FileUtils.showDirInExplorer(file.get)
-        } catch {
-          case e: java.io.IOException => e.printStackTrace()
-        }
+    showInExplorer.addListener(
+      new ClickListener() {
+        override def clicked(event: InputEvent, x: Float, y: Float): Unit =
+          try
+            FileUtils.showDirInExplorer(file.get)
+          catch {
+            case e: java.io.IOException => e.printStackTrace()
+          }
       }
-    })
+    )
 
     refresh.addListener(new ChangeListener() {
       override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.refresh()
@@ -112,14 +113,13 @@ class FilePopupMenu(chooser: FileChooser, callback: FilePopupMenu.FilePopupMenuC
 
   def isAddedToStage: Boolean = stage.isDefined
 
-  def fileDeleterChanged(trashAvailable: Boolean): Unit = {
+  def fileDeleterChanged(trashAvailable: Boolean): Unit =
     delete.setText(if (trashAvailable) FileChooserText.CONTEXT_MENU_MOVE_TO_TRASH.get else FileChooserText.CONTEXT_MENU_DELETE.get)
-  }
 }
 
 object FilePopupMenu {
   trait FilePopupMenuCallback {
-    def showNewDirDialog(): Unit
+    def showNewDirDialog():                  Unit
     def showFileDelDialog(file: FileHandle): Unit
   }
 }

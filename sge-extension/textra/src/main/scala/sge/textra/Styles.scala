@@ -17,16 +17,16 @@ package textra
 import sge.graphics.Color
 import sge.utils.Nullable
 
-/** An outer object that holds all styles for TextraTypist widgets. These are each named to match a scene2d.ui style. These styles
-  * are typically loaded from a skin JSON file using FWSkin, but can also be created on their own.
+/** An outer object that holds all styles for TextraTypist widgets. These are each named to match a scene2d.ui style. These styles are typically loaded from a skin JSON file using FWSkin, but can also
+  * be created on their own.
   */
 object Styles {
 
   /** The style for a TextraLabel or TypingLabel. */
   class LabelStyle {
-    var font:       Nullable[Font]     = Nullable.empty
-    var fontColor:  Nullable[Color]    = Nullable.empty
-    var background: Nullable[AnyRef]   = Nullable.empty // Drawable in scene2d; AnyRef for cross-platform
+    var font:       Nullable[Font]   = Nullable.empty
+    var fontColor:  Nullable[Color]  = Nullable.empty
+    var background: Nullable[AnyRef] = Nullable.empty // Drawable in scene2d; AnyRef for cross-platform
 
     def this(font: Font, fontColor: Nullable[Color]) = {
       this()
@@ -51,32 +51,32 @@ object Styles {
 
   /** The style for a text button, see TextraButton. */
   class TextButtonStyle {
-    var font:                    Nullable[Font]   = Nullable.empty
-    var fontColor:               Nullable[Color]  = Nullable.empty
-    var downFontColor:           Nullable[Color]  = Nullable.empty
-    var overFontColor:           Nullable[Color]  = Nullable.empty
-    var focusedFontColor:        Nullable[Color]  = Nullable.empty
-    var disabledFontColor:       Nullable[Color]  = Nullable.empty
-    var checkedFontColor:        Nullable[Color]  = Nullable.empty
-    var checkedDownFontColor:    Nullable[Color]  = Nullable.empty
-    var checkedOverFontColor:    Nullable[Color]  = Nullable.empty
-    var checkedFocusedFontColor: Nullable[Color]  = Nullable.empty
+    var font:                    Nullable[Font]  = Nullable.empty
+    var fontColor:               Nullable[Color] = Nullable.empty
+    var downFontColor:           Nullable[Color] = Nullable.empty
+    var overFontColor:           Nullable[Color] = Nullable.empty
+    var focusedFontColor:        Nullable[Color] = Nullable.empty
+    var disabledFontColor:       Nullable[Color] = Nullable.empty
+    var checkedFontColor:        Nullable[Color] = Nullable.empty
+    var checkedDownFontColor:    Nullable[Color] = Nullable.empty
+    var checkedOverFontColor:    Nullable[Color] = Nullable.empty
+    var checkedFocusedFontColor: Nullable[Color] = Nullable.empty
     // ButtonStyle fields (flattened from scene2d.ui hierarchy)
-    var up:                      Nullable[AnyRef] = Nullable.empty
-    var down:                    Nullable[AnyRef] = Nullable.empty
-    var checked:                 Nullable[AnyRef] = Nullable.empty
-    var checkedDown:             Nullable[AnyRef] = Nullable.empty
-    var checkedOver:             Nullable[AnyRef] = Nullable.empty
-    var checkedFocused:          Nullable[AnyRef] = Nullable.empty
-    var over:                    Nullable[AnyRef] = Nullable.empty
-    var focused:                 Nullable[AnyRef] = Nullable.empty
-    var disabled:                Nullable[AnyRef] = Nullable.empty
-    var pressedOffsetX:          Float             = 0f
-    var pressedOffsetY:          Float             = 0f
-    var unpressedOffsetX:        Float             = 0f
-    var unpressedOffsetY:        Float             = 0f
-    var checkedOffsetX:          Float             = 0f
-    var checkedOffsetY:          Float             = 0f
+    var up:               Nullable[AnyRef] = Nullable.empty
+    var down:             Nullable[AnyRef] = Nullable.empty
+    var checked:          Nullable[AnyRef] = Nullable.empty
+    var checkedDown:      Nullable[AnyRef] = Nullable.empty
+    var checkedOver:      Nullable[AnyRef] = Nullable.empty
+    var checkedFocused:   Nullable[AnyRef] = Nullable.empty
+    var over:             Nullable[AnyRef] = Nullable.empty
+    var focused:          Nullable[AnyRef] = Nullable.empty
+    var disabled:         Nullable[AnyRef] = Nullable.empty
+    var pressedOffsetX:   Float            = 0f
+    var pressedOffsetY:   Float            = 0f
+    var unpressedOffsetX: Float            = 0f
+    var unpressedOffsetY: Float            = 0f
+    var checkedOffsetX:   Float            = 0f
+    var checkedOffsetY:   Float            = 0f
 
     def this(up: Nullable[AnyRef], down: Nullable[AnyRef], checked: Nullable[AnyRef], font: Nullable[Font]) = {
       this()
@@ -127,10 +127,10 @@ object Styles {
     var imageCheckedOver: Nullable[AnyRef] = Nullable.empty
 
     def this(
-        up: Nullable[AnyRef],
-        down: Nullable[AnyRef],
-        checked: Nullable[AnyRef],
-        font: Nullable[Font]
+      up:      Nullable[AnyRef],
+      down:    Nullable[AnyRef],
+      checked: Nullable[AnyRef],
+      font:    Nullable[Font]
     ) = {
       this()
       this.up = up
@@ -172,10 +172,10 @@ object Styles {
     var checkboxOffDisabled: Nullable[AnyRef] = Nullable.empty
 
     def this(
-        checkboxOff: Nullable[AnyRef],
-        checkboxOn: Nullable[AnyRef],
-        font: Nullable[Font],
-        fontColor: Nullable[Color]
+      checkboxOff: Nullable[AnyRef],
+      checkboxOn:  Nullable[AnyRef],
+      font:        Nullable[Font],
+      fontColor:   Nullable[Color]
     ) = {
       this()
       this.checkboxOff = checkboxOff
@@ -220,10 +220,10 @@ object Styles {
     }
 
     def this(
-        titleFont: Font,
-        titleFontColor: Color,
-        background: Nullable[AnyRef],
-        stageBackground: Nullable[AnyRef]
+      titleFont:       Font,
+      titleFontColor:  Color,
+      background:      Nullable[AnyRef],
+      stageBackground: Nullable[AnyRef]
     ) = {
       this()
       this.titleFont = Nullable(titleFont)
@@ -243,13 +243,13 @@ object Styles {
 
   /** The style for a ListBox, see TextraListBox. */
   class ListStyle {
-    var font:                 Nullable[Font]   = Nullable.empty
-    var fontColorSelected:    Color             = new Color(1f, 1f, 1f, 1f)
-    var fontColorUnselected:  Color             = new Color(1f, 1f, 1f, 1f)
-    var selection:            Nullable[AnyRef]  = Nullable.empty
-    var down:                 Nullable[AnyRef]  = Nullable.empty
-    var over:                 Nullable[AnyRef]  = Nullable.empty
-    var background:           Nullable[AnyRef]  = Nullable.empty
+    var font:                Nullable[Font]   = Nullable.empty
+    var fontColorSelected:   Color            = new Color(1f, 1f, 1f, 1f)
+    var fontColorUnselected: Color            = new Color(1f, 1f, 1f, 1f)
+    var selection:           Nullable[AnyRef] = Nullable.empty
+    var down:                Nullable[AnyRef] = Nullable.empty
+    var over:                Nullable[AnyRef] = Nullable.empty
+    var background:          Nullable[AnyRef] = Nullable.empty
 
     def this(font: Font, fontColorSelected: Color, fontColorUnselected: Color, selection: Nullable[AnyRef]) = {
       this()
@@ -260,13 +260,13 @@ object Styles {
     }
 
     def this(
-        font: Font,
-        fontColorSelected: Color,
-        fontColorUnselected: Color,
-        selection: Nullable[AnyRef],
-        down: Nullable[AnyRef],
-        over: Nullable[AnyRef],
-        background: Nullable[AnyRef]
+      font:                Font,
+      fontColorSelected:   Color,
+      fontColorUnselected: Color,
+      selection:           Nullable[AnyRef],
+      down:                Nullable[AnyRef],
+      over:                Nullable[AnyRef],
+      background:          Nullable[AnyRef]
     ) = {
       this()
       this.font = Nullable(font)
@@ -292,23 +292,23 @@ object Styles {
 
   /** The style for a select box, see TextraSelectBox. */
   class SelectBoxStyle {
-    var font:                Nullable[Font]   = Nullable.empty
-    var fontColor:           Color             = new Color(1f, 1f, 1f, 1f)
-    var overFontColor:       Nullable[Color]  = Nullable.empty
-    var disabledFontColor:   Nullable[Color]  = Nullable.empty
-    var background:          Nullable[AnyRef] = Nullable.empty
-    var scrollStyle:         Nullable[AnyRef] = Nullable.empty // ScrollPane.ScrollPaneStyle
-    var listStyle:           Nullable[ListStyle] = Nullable.empty
-    var backgroundOver:      Nullable[AnyRef] = Nullable.empty
-    var backgroundOpen:      Nullable[AnyRef] = Nullable.empty
-    var backgroundDisabled:  Nullable[AnyRef] = Nullable.empty
+    var font:               Nullable[Font]      = Nullable.empty
+    var fontColor:          Color               = new Color(1f, 1f, 1f, 1f)
+    var overFontColor:      Nullable[Color]     = Nullable.empty
+    var disabledFontColor:  Nullable[Color]     = Nullable.empty
+    var background:         Nullable[AnyRef]    = Nullable.empty
+    var scrollStyle:        Nullable[AnyRef]    = Nullable.empty // ScrollPane.ScrollPaneStyle
+    var listStyle:          Nullable[ListStyle] = Nullable.empty
+    var backgroundOver:     Nullable[AnyRef]    = Nullable.empty
+    var backgroundOpen:     Nullable[AnyRef]    = Nullable.empty
+    var backgroundDisabled: Nullable[AnyRef]    = Nullable.empty
 
     def this(
-        font: Font,
-        fontColor: Color,
-        background: Nullable[AnyRef],
-        scrollStyle: Nullable[AnyRef],
-        listStyle: ListStyle
+      font:        Font,
+      fontColor:   Color,
+      background:  Nullable[AnyRef],
+      scrollStyle: Nullable[AnyRef],
+      listStyle:   ListStyle
     ) = {
       this()
       this.font = Nullable(font)
@@ -337,8 +337,9 @@ object Styles {
   class TextTooltipStyle {
     var label:      Nullable[LabelStyle] = Nullable.empty
     var background: Nullable[AnyRef]     = Nullable.empty
+
     /** 0 means don't wrap. */
-    var wrapWidth:  Float                = 0f
+    var wrapWidth: Float = 0f
 
     def this(style: LabelStyle, background: Nullable[AnyRef]) = {
       this()
@@ -390,8 +391,7 @@ object Styles {
       Nullable.foreach(style.messageFontColor)(c => messageFontColor = Nullable(new Color(c)))
     }
 
-    def close(): Unit = {
+    def close(): Unit =
       Nullable.foreach(font)(_.close())
-    }
   }
 }

@@ -9,6 +9,9 @@ package sge
 package textra
 package utils
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 object StringUtils {
 
   def join(delimiter: CharSequence, items: CharSequence*): String =
@@ -81,11 +84,11 @@ object StringUtils {
     new String(chars)
   }
 
-  def longFromDec(cs: CharSequence, start: Int, endIn: Int): Long = {
+  def longFromDec(cs: CharSequence, start: Int, endIn: Int): Long = boundary {
     var end = endIn
-    if (cs == null || start < 0 || end <= 0) return 0L
+    if (cs == null || start < 0 || end <= 0) break(0L)
     end = Math.min(end, cs.length())
-    if (end - start <= 0) return 0L
+    if (end - start <= 0) break(0L)
     var c    = cs.charAt(start)
     var sign = 1
     var h    = 0
@@ -95,7 +98,7 @@ object StringUtils {
     } else if (c == '+') {
       sign = 1; h = 0; lim = 21
     } else if (c < '0' || c > '9') {
-      return 0L
+      break(0L)
     } else {
       lim = 20; h = c - '0'
     }
@@ -103,18 +106,18 @@ object StringUtils {
     var i    = start + 1
     while (i < end && i < start + lim) {
       c = cs.charAt(i)
-      if (c < '0' || c > '9') return data * sign
+      if (c < '0' || c > '9') break(data * sign)
       data = data * 10 + (c - '0')
       i += 1
     }
     data * sign
   }
 
-  def intFromDec(cs: CharSequence, start: Int, endIn: Int): Int = {
+  def intFromDec(cs: CharSequence, start: Int, endIn: Int): Int = boundary {
     var end = endIn
-    if (cs == null || start < 0 || end <= 0) return 0
+    if (cs == null || start < 0 || end <= 0) break(0)
     end = Math.min(end, cs.length())
-    if (end - start <= 0) return 0
+    if (end - start <= 0) break(0)
     var c    = cs.charAt(start)
     var sign = 1
     var h    = 0
@@ -124,7 +127,7 @@ object StringUtils {
     } else if (c == '+') {
       sign = 1; h = 0; lim = 11
     } else if (c < '0' || c > '9') {
-      return 0
+      break(0)
     } else {
       lim = 10; h = c - '0'
     }
@@ -132,18 +135,18 @@ object StringUtils {
     var i    = start + 1
     while (i < end && i < start + lim) {
       c = cs.charAt(i)
-      if (c < '0' || c > '9') return data * sign
+      if (c < '0' || c > '9') break(data * sign)
       data = data * 10 + (c - '0')
       i += 1
     }
     data * sign
   }
 
-  def intFromHex(cs: CharSequence, start: Int, endIn: Int): Int = {
+  def intFromHex(cs: CharSequence, start: Int, endIn: Int): Int = boundary {
     var end = endIn
-    if (cs == null || start < 0 || end <= 0) return 0
+    if (cs == null || start < 0 || end <= 0) break(0)
     end = Math.min(end, cs.length())
-    if (end - start <= 0) return 0
+    if (end - start <= 0) break(0)
     var c    = cs.charAt(start)
     var sign = 1
     var h    = 0
@@ -153,7 +156,7 @@ object StringUtils {
     } else if (c == '+') {
       sign = 1; h = 0; lim = 9
     } else if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
-      return 0
+      break(0)
     } else {
       lim = 8; h = hexCode(c)
     }
@@ -162,7 +165,7 @@ object StringUtils {
     while (i < end && i < start + lim) {
       c = cs.charAt(i)
       if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
-        return data * sign
+        break(data * sign)
       }
       data = (data << 4) | hexCode(c)
       i += 1
@@ -170,11 +173,11 @@ object StringUtils {
     data * sign
   }
 
-  def longFromHex(cs: CharSequence, start: Int, endIn: Int): Long = {
+  def longFromHex(cs: CharSequence, start: Int, endIn: Int): Long = boundary {
     var end = endIn
-    if (cs == null || start < 0 || end <= 0) return 0L
+    if (cs == null || start < 0 || end <= 0) break(0L)
     end = Math.min(end, cs.length())
-    if (end - start <= 0) return 0L
+    if (end - start <= 0) break(0L)
     var c    = cs.charAt(start)
     var sign = 1
     var h    = 0
@@ -184,7 +187,7 @@ object StringUtils {
     } else if (c == '+') {
       sign = 1; h = 0; lim = 17
     } else if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
-      return 0L
+      break(0L)
     } else {
       lim = 16; h = hexCode(c)
     }
@@ -193,7 +196,7 @@ object StringUtils {
     while (i < end && i < start + lim) {
       c = cs.charAt(i)
       if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) {
-        return data * sign
+        break(data * sign)
       }
       data = (data << 4) | hexCode(c)
       i += 1
@@ -201,10 +204,10 @@ object StringUtils {
     data * sign
   }
 
-  def floatFromDec(cs: CharSequence, start: Int, endIn: Int): Float = {
-    if (cs == null || start < 0 || endIn <= 0 || endIn - start <= 0) return 0f
+  def floatFromDec(cs: CharSequence, start: Int, endIn: Int): Float = boundary {
+    if (cs == null || start < 0 || endIn <= 0 || endIn - start <= 0) break(0f)
     val len = cs.length()
-    if (len - start <= 0 || endIn > len) return 0f
+    if (len - start <= 0 || endIn > len) break(0f)
     val end        = endIn
     var decimal    = 1f
     var foundPoint = false
@@ -216,7 +219,7 @@ object StringUtils {
     } else if (c == '+') {
       sign = 1; h = 0
     } else if (c < '0' || c > '9') {
-      return 0f
+      break(0f)
     } else {
       h = hexCode(c)
     }
@@ -226,7 +229,7 @@ object StringUtils {
       c = cs.charAt(i)
       if (c == '.') { foundPoint = true; i += 1 }
       else {
-        if (c < '0' || c > '9') return data * sign / decimal
+        if (c < '0' || c > '9') break(data * sign / decimal)
         h = hexCode(c)
         if (foundPoint) decimal *= 10f
         data = data * 10 + h

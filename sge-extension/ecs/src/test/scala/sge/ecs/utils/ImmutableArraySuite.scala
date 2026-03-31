@@ -7,33 +7,30 @@ import scala.collection.mutable.ArrayBuffer
 class ImmutableArraySuite extends munit.FunSuite {
 
   test("size reflects backing array") {
-    val backing = ArrayBuffer[Int]()
+    val backing   = ArrayBuffer[Int]()
     val immutable = new ImmutableArray[Int](backing)
 
     assertEquals(immutable.size, 0)
 
-    for (i <- 0 until 10) {
+    for (i <- 0 until 10)
       backing += i
-    }
 
     assertEquals(immutable.size, 10)
   }
 
   test("get by index matches backing") {
-    val backing = ArrayBuffer[Int]()
+    val backing   = ArrayBuffer[Int]()
     val immutable = new ImmutableArray[Int](backing)
 
-    for (i <- 0 until 10) {
+    for (i <- 0 until 10)
       backing += i
-    }
 
-    for (i <- 0 until 10) {
+    for (i <- 0 until 10)
       assertEquals(immutable(i), backing(i))
-    }
   }
 
   test("contains") {
-    val backing = ArrayBuffer("a", "b", "c")
+    val backing   = ArrayBuffer("a", "b", "c")
     val immutable = new ImmutableArray[String](backing)
 
     assert(immutable.contains("a"))
@@ -42,12 +39,11 @@ class ImmutableArraySuite extends munit.FunSuite {
   }
 
   test("iterator matches backing order") {
-    val backing = ArrayBuffer[Int]()
+    val backing   = ArrayBuffer[Int]()
     val immutable = new ImmutableArray[Int](backing)
 
-    for (i <- 0 until 10) {
+    for (i <- 0 until 10)
       backing += i
-    }
 
     var expected = 0
     for (value <- immutable) {
@@ -58,7 +54,7 @@ class ImmutableArraySuite extends munit.FunSuite {
   }
 
   test("live view reflects changes to backing") {
-    val backing = ArrayBuffer[Int]()
+    val backing   = ArrayBuffer[Int]()
     val immutable = new ImmutableArray[Int](backing)
 
     backing += 1
@@ -75,7 +71,7 @@ class ImmutableArraySuite extends munit.FunSuite {
   }
 
   test("indexOf and lastIndexOf") {
-    val backing = ArrayBuffer("a", "b", "a", "c")
+    val backing   = ArrayBuffer("a", "b", "a", "c")
     val immutable = new ImmutableArray[String](backing)
 
     assertEquals(immutable.indexOf("a"), 0)
@@ -85,7 +81,7 @@ class ImmutableArraySuite extends munit.FunSuite {
   }
 
   test("first and peek") {
-    val backing = ArrayBuffer("x", "y", "z")
+    val backing   = ArrayBuffer("x", "y", "z")
     val immutable = new ImmutableArray[String](backing)
 
     assertEquals(immutable.first, "x")

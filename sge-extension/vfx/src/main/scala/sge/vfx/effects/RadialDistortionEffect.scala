@@ -23,7 +23,7 @@ class RadialDistortionEffect(using Sge)
 
   import ShaderVfxEffect.*
 
-  private var _zoom: Float = 1f
+  private var _zoom:       Float = 1f
   private var _distortion: Float = 0.3f
 
   rebind()
@@ -45,14 +45,14 @@ class RadialDistortionEffect(using Sge)
     renderShader(context, dst)
   }
 
-  def zoom: Float = _zoom
-  def zoom_=(value: Float): Unit = {
+  def zoom:                 Float = _zoom
+  def zoom_=(value: Float): Unit  = {
     _zoom = value
     setUniform("zoom", value)
   }
 
-  def distortion: Float = _distortion
-  def distortion_=(value: Float): Unit = {
+  def distortion:                 Float = _distortion
+  def distortion_=(value: Float): Unit  = {
     _distortion = value
     setUniform("distortion", value)
   }

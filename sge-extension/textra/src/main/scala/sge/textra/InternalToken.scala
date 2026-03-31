@@ -38,17 +38,19 @@ enum InternalToken(val tokenName: String, val category: TokenCategory) extends j
 }
 
 object InternalToken {
-  def fromName(name: String): Nullable[InternalToken] = {
+  def fromName(name: String): Nullable[InternalToken] =
     if (name != null) {
       val vals = values
       var i    = 0
-      while (i < vals.length) {
+      var found: Nullable[InternalToken] = Nullable.empty
+      while (i < vals.length && found.isEmpty) {
         if (name.equalsIgnoreCase(vals(i).tokenName)) {
-          return Nullable(vals(i))
+          found = Nullable(vals(i))
         }
         i += 1
       }
+      found
+    } else {
+      Nullable.empty
     }
-    Nullable.empty
-  }
 }

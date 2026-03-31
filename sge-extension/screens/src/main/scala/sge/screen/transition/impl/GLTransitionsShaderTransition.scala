@@ -13,8 +13,8 @@ package impl
 import sge.math.Interpolation
 import sge.utils.Nullable
 
-/** A transition that is using shader code conforming to the ''GL Transition Specification v1''. This allows using the shaders provided at
-  * [[https://gl-transitions.com/gallery gl-transitions.com]] without having to adapt their code.
+/** A transition that is using shader code conforming to the ''GL Transition Specification v1''. This allows using the shaders provided at [[https://gl-transitions.com/gallery gl-transitions.com]]
+  * without having to adapt their code.
   *
   * What is a GL Transition? It is a GLSL code that implements a `transition` function which takes a `vec2 uv` pixel position and returns a `vec4 color`. This color represents the mix of the `from` to
   * the `to` textures based on the variation of a contextual progress value from `0.0` to `1.0`.

@@ -16,14 +16,13 @@ import sge.graphs.utils.WeightFunction
 /** Abstract graph with node/edge management. Subclassed by DirectedGraph and UndirectedGraph. */
 abstract class Graph[V] {
 
-  //================================================================================
+  // ================================================================================
   // Members
-  //================================================================================
+  // ================================================================================
 
   private[graphs] val nodeMap: NodeMap[V] = NodeMap[V](this)
 
-  /** This is a map so that for undirected graphs, a consistent edge instance can be obtained from
-    * either (u, v) or (v, u)
+  /** This is a map so that for undirected graphs, a consistent edge instance can be obtained from either (u, v) or (v, u)
     */
   private[graphs] val edgeMap: LinkedHashMap[Connection[V], Connection[V]] = LinkedHashMap.empty
 
@@ -31,22 +30,21 @@ abstract class Graph[V] {
     def getWeight(a: V, b: V): Float = 1f
   }
 
-  //================================================================================
+  // ================================================================================
   // Constructors (secondary)
-  //================================================================================
+  // ================================================================================
 
-  private[graphs] def initVertices(vertices: Iterable[V]): Unit = {
+  private[graphs] def initVertices(vertices: Iterable[V]): Unit =
     vertices.foreach(addVertex)
-  }
 
   private[graphs] def initFromGraph(graph: Graph[V]): Unit = {
     initVertices(graph.vertices)
     graph.edges.foreach(e => addEdge(e))
   }
 
-  //================================================================================
+  // ================================================================================
   // Abstract Methods
-  //================================================================================
+  // ================================================================================
 
   private[graphs] def obtainEdge(): Connection[V]
 
@@ -54,12 +52,13 @@ abstract class Graph[V] {
 
   def algorithms: Algorithms[V]
 
-  //================================================================================
+  // ================================================================================
   // Public Methods
-  //================================================================================
+  // ================================================================================
 
   /** Adds a vertex to the graph.
-    * @return true if the vertex was not already in the graph, false otherwise
+    * @return
+    *   true if the vertex was not already in the graph, false otherwise
     */
   def addVertex(v: V): Boolean = nodeMap.put(v) != null
 
@@ -69,15 +68,17 @@ abstract class Graph[V] {
   def addVertices(vertices: V*): Unit = vertices.foreach(addVertex)
 
   /** Removes a vertex from the graph, and any adjacent edges.
-    * @return true if the vertex was in the graph, false otherwise
+    * @return
+    *   true if the vertex was in the graph, false otherwise
     */
   def removeVertex(v: V): Boolean = {
     val existing = nodeMap.remove(v)
     if (existing == null) {
-      return false
+      false
+    } else {
+      disconnectNode(existing)
+      true
     }
-    disconnectNode(existing)
-    true
   }
 
   def disconnect(v: V): Unit = {
@@ -105,17 +106,15 @@ abstract class Graph[V] {
   /** Removes all the vertices in the collection from the graph, and any adjacent edges. */
   def removeVertices(vertices: Iterable[V]): Unit = vertices.foreach(removeVertex)
 
-  def removeVertexIf(predicate: V => Boolean): Unit = {
+  def removeVertexIf(predicate: V => Boolean): Unit =
     removeVertices(vertices.filter(predicate).toList)
-  }
 
-  /** Add an edge to the graph, from v to w. The edge will have a default weight of 1.
-    * If there is already an edge between v and w, its weight will be set to 1.
+  /** Add an edge to the graph, from v to w. The edge will have a default weight of 1. If there is already an edge between v and w, its weight will be set to 1.
     */
   def addEdge(v: V, w: V): Connection[V] = addEdge(v, w, defaultEdgeWeightFunction)
 
-  /** Add an edge to the graph, with the same endpoints as the given edge. If the endpoints are not in the graph they
-    * will be added. If there is already an edge between v and w, its weight will be set to the weight of given edge.
+  /** Add an edge to the graph, with the same endpoints as the given edge. If the endpoints are not in the graph they will be added. If there is already an edge between v and w, its weight will be set
+    * to the weight of given edge.
     */
   def addEdge(edge: Edge[V]): Connection[V] = {
     addVertex(edge.a)
@@ -149,20 +148,17 @@ abstract class Graph[V] {
 
   def removeEdge(edge: Edge[V]): Boolean = removeConnection(edge.internalNodeA, edge.internalNodeB)
 
-  def removeEdges(edges: Iterable[Edge[V]]): Unit = {
+  def removeEdges(edges: Iterable[Edge[V]]): Unit =
     edges.foreach(e => removeConnection(e.internalNodeA, e.internalNodeB))
-  }
 
-  def removeEdgeIf(predicate: Edge[V] => Boolean): Unit = {
+  def removeEdgeIf(predicate: Edge[V] => Boolean): Unit =
     removeEdges(edges.filter(predicate).toList)
-  }
 
   /** Removes all edges from the graph. */
   def removeAllEdges(): Unit = {
     val iter = nodeMap.nodeIterator
-    while (iter.hasNext) {
+    while (iter.hasNext)
       iter.next().disconnect()
-    }
     edgeMap.clear()
   }
 
@@ -173,9 +169,8 @@ abstract class Graph[V] {
   }
 
   /** Sort the vertices using the provided comparator. */
-  def sortVertices(comparator: Ordering[V]): Unit = {
+  def sortVertices(comparator: Ordering[V]): Unit =
     nodeMap.sort(comparator)
-  }
 
   /** Sort the edges using the provided comparator. */
   def sortEdges(comparator: Ordering[Connection[V]]): Unit = {
@@ -184,9 +179,9 @@ abstract class Graph[V] {
     entryList.foreach { case (k, v) => edgeMap.put(k, v) }
   }
 
-  //================================================================================
+  // ================================================================================
   // Internal Methods
-  //================================================================================
+  // ================================================================================
 
   private[graphs] def addConnection(a: Node[V], b: Node[V]): Connection[V] = {
     val e = a.getEdge(b)
@@ -206,22 +201,22 @@ abstract class Graph[V] {
     e
   }
 
-  private[graphs] def removeConnection(a: Node[V], b: Node[V]): Boolean = {
+  private[graphs] def removeConnection(a: Node[V], b: Node[V]): Boolean =
     removeConnection(a, b, removeFromMap = true)
-  }
 
   private[graphs] def removeConnection(a: Node[V], b: Node[V], removeFromMap: Boolean): Boolean = {
     val e = a.removeEdge(b)
     if (e == null) {
-      return false
+      false
+    } else {
+      if (removeFromMap) edgeMap.remove(e)
+      true
     }
-    if (removeFromMap) edgeMap.remove(e)
-    true
   }
 
-  //================================================================================
+  // ================================================================================
   // Getters
-  //================================================================================
+  // ================================================================================
 
   /** Check if the graph contains a vertex. */
   def contains(v: V): Boolean = nodeMap.contains(v)
@@ -245,10 +240,8 @@ abstract class Graph[V] {
   /** Get all the edges which have v as a tail. */
   def getEdges(v: V): Iterable[Edge[V]] = {
     val node = getNode(v)
-    if (node == null) {
-      return null.asInstanceOf[Iterable[Edge[V]]] // @nowarn — null return matches original API
-    }
-    node.outEdges.asInstanceOf[Iterable[Edge[V]]]
+    if (node == null) null.asInstanceOf[Iterable[Edge[V]]] // @nowarn — null return matches original API
+    else node.outEdges.asInstanceOf[Iterable[Edge[V]]]
   }
 
   /** Get all edges in the graph. */
@@ -256,8 +249,8 @@ abstract class Graph[V] {
 
   /** Get all vertices in the graph. */
   def vertices: Iterable[V] = new Iterable[V] {
-    def iterator: Iterator[V] = nodeMap.vertexIterator
-    override def knownSize: Int = nodeMap.size
+    def iterator:           Iterator[V] = nodeMap.vertexIterator
+    override def knownSize: Int         = nodeMap.size
   }
 
   /** Check if the graph is directed. */
@@ -273,9 +266,8 @@ abstract class Graph[V] {
   def defaultEdgeWeightFunction: WeightFunction[V] = _defaultEdgeWeight
 
   /** Set the default edge weight function. */
-  def defaultEdgeWeightFunction_=(f: WeightFunction[V]): Unit = {
+  def defaultEdgeWeightFunction_=(f: WeightFunction[V]): Unit =
     _defaultEdgeWeight = f
-  }
 
   /** Set a constant default edge weight. */
   def setDefaultEdgeWeight(weight: Float): Unit = {
@@ -287,32 +279,31 @@ abstract class Graph[V] {
   def isConnected: Boolean = numberOfComponents() == 1
 
   def numberOfComponents(): Int = {
-    var visited = 1
+    var visited    = 1
     var components = 0
     while (visited < size) {
       components += 1
-      algorithms.depthFirstSearch(vertices.iterator.next(), step => { visited += 1 })
+      algorithms.depthFirstSearch(vertices.iterator.next(), step => visited += 1)
     }
     components
   }
 
-  //================================================================================
+  // ================================================================================
   // Internal Getters
-  //================================================================================
+  // ================================================================================
 
   private[graphs] def getNode(v: V): Node[V] = nodeMap.get(v)
 
   private[graphs] def getNodes: Iterable[Node[V]] = new Iterable[Node[V]] {
-    def iterator: Iterator[Node[V]] = nodeMap.nodeIterator
-    override def knownSize: Int = nodeMap.size
+    def iterator:           Iterator[Node[V]] = nodeMap.nodeIterator
+    override def knownSize: Int               = nodeMap.size
   }
 
   private[graphs] def connectionExists(u: Node[V], v: Node[V]): Boolean = u.getEdge(v) != null
 
   private[graphs] def getConnection(a: Node[V], b: Node[V]): Connection[V] = a.getEdge(b)
 
-  override def toString: String = {
+  override def toString: String =
     (if (isDirected) "Directed" else "Undirected") + " graph with " +
       size + " vertices and " + edgeCount + " edges"
-  }
 }

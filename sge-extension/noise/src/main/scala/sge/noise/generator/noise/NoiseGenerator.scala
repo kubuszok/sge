@@ -12,11 +12,9 @@ package noise
 
 import sge.noise.generator.util.Generators
 
-/** Divides grid into equal regions. Assigns semi-random value to each region using a noise function. Interpolates the
-  * value according to neighbor regions' values. Unless regions are too small, this usually results in a smooth map with
-  * logical region transitions. During map generation, you usually trigger the [[radius]] and [[modifier]], invoking
-  * generation multiple times - each time with lower modifier. This allows to generate a map with logical transitions,
-  * while keeping the map interesting thanks to further iterations with lower radius.
+/** Divides grid into equal regions. Assigns semi-random value to each region using a noise function. Interpolates the value according to neighbor regions' values. Unless regions are too small, this
+  * usually results in a smooth map with logical region transitions. During map generation, you usually trigger the [[radius]] and [[modifier]], invoking generation multiple times - each time with
+  * lower modifier. This allows to generate a map with logical transitions, while keeping the map interesting thanks to further iterations with lower radius.
   *
   * @author
   *   MJ
@@ -25,13 +23,11 @@ class NoiseGenerator extends AbstractGenerator with Grid.CellConsumer {
 
   private var _algorithmProvider: NoiseGenerator.NoiseAlgorithmProvider = new NoiseGenerator.DefaultNoiseAlgorithmProvider
 
-  /** Size of a single generation region. The bigger, the more smooth the map seems. Setting it to one effectively turns
-    * the map into semi-random noise with no smoothing whatsoever.
+  /** Size of a single generation region. The bigger, the more smooth the map seems. Setting it to one effectively turns the map into semi-random noise with no smoothing whatsoever.
     */
   var radius: Int = 0
 
-  /** Relevance of the generation stage. Each grid cell will be increased with a semi-random value on scale from 0 to
-    * this modifier.
+  /** Relevance of the generation stage. Each grid cell will be increased with a semi-random value on scale from 0 to this modifier.
     */
   var modifier: Float = 0f
 
@@ -43,9 +39,8 @@ class NoiseGenerator extends AbstractGenerator with Grid.CellConsumer {
     * @see
     *   [[NoiseGenerator.DefaultNoiseAlgorithmProvider]]
     */
-  def algorithmProvider_=(algorithmProvider: NoiseGenerator.NoiseAlgorithmProvider): Unit = {
+  def algorithmProvider_=(algorithmProvider: NoiseGenerator.NoiseAlgorithmProvider): Unit =
     _algorithmProvider = algorithmProvider
-  }
 
   def algorithmProvider: NoiseGenerator.NoiseAlgorithmProvider = _algorithmProvider
 
@@ -64,14 +59,14 @@ class NoiseGenerator extends AbstractGenerator with Grid.CellConsumer {
     val factorialX = x / radius.toFloat - regionX
     val factorialY = y / radius.toFloat - regionY
     // Generated noises. Top and left noises are handled (already interpolated) by the other neighbors.
-    val noiseCenter = _algorithmProvider.smoothNoise(this, regionX, regionY)
-    val noiseRight = _algorithmProvider.smoothNoise(this, regionX + 1, regionY)
-    val noiseBottom = _algorithmProvider.smoothNoise(this, regionX, regionY + 1)
+    val noiseCenter      = _algorithmProvider.smoothNoise(this, regionX, regionY)
+    val noiseRight       = _algorithmProvider.smoothNoise(this, regionX + 1, regionY)
+    val noiseBottom      = _algorithmProvider.smoothNoise(this, regionX, regionY + 1)
     val noiseBottomRight = _algorithmProvider.smoothNoise(this, regionX + 1, regionY + 1)
     // Noise interpolations:
-    val topInterpolation = _algorithmProvider.interpolate(noiseCenter, noiseRight, factorialX)
+    val topInterpolation    = _algorithmProvider.interpolate(noiseCenter, noiseRight, factorialX)
     val bottomInterpolation = _algorithmProvider.interpolate(noiseBottom, noiseBottomRight, factorialX)
-    val finalInterpolation = _algorithmProvider.interpolate(topInterpolation, bottomInterpolation, factorialY)
+    val finalInterpolation  = _algorithmProvider.interpolate(topInterpolation, bottomInterpolation, factorialY)
     // Modifying current cell value according to the generation mode:
     modifyCell(grid, x, y, (finalInterpolation + 1f) / 2f * modifier)
     Grid.CellConsumer.Continue
@@ -82,8 +77,7 @@ object NoiseGenerator {
 
   private var instance: NoiseGenerator = scala.compiletime.uninitialized
 
-  /** Not thread-safe. Uses static generator instance. Since this method provides only basic settings, creating or
-    * obtaining an instance of the generator is generally preferred.
+  /** Not thread-safe. Uses static generator instance. Since this method provides only basic settings, creating or obtaining an instance of the generator is generally preferred.
     *
     * @param grid
     *   will contain generated values.
@@ -92,9 +86,8 @@ object NoiseGenerator {
     * @param modifier
     *   see [[NoiseGenerator.modifier]]
     */
-  def generate(grid: Grid, radius: Int, modifier: Float): Unit = {
+  def generate(grid: Grid, radius: Int, modifier: Float): Unit =
     generate(grid, radius, modifier, Generators.rollSeed())
-  }
 
   /** Not thread-safe. Uses static generator instance.
     *
@@ -145,8 +138,7 @@ object NoiseGenerator {
       */
     def noise(generator: NoiseGenerator, x: Int, y: Int): Float
 
-    /** Semi-random function. Consumes two parameters, always returning the same result for the same set of numbers.
-      * Noise is dependent on the neighbors, ensuring that drastic changes are rather rare.
+    /** Semi-random function. Consumes two parameters, always returning the same result for the same set of numbers. Noise is dependent on the neighbors, ensuring that drastic changes are rather rare.
       *
       * @param generator
       *   its settings should be honored. Random seed is usually used for the noise calculation.
@@ -185,7 +177,7 @@ object NoiseGenerator {
       1.0f - (n * (n * n * 15731 + 789221) + 1376312589 & 0x7fffffff) / 1073741824.0f
     }
 
-    override def smoothNoise(generator: NoiseGenerator, x: Int, y: Int): Float = {
+    override def smoothNoise(generator: NoiseGenerator, x: Int, y: Int): Float =
       // Corners:
       (noise(generator, x - 1, y - 1) + noise(generator, x + 1, y - 1) +
         noise(generator, x - 1, y + 1) + noise(generator, x + 1, y + 1)) / 16f +
@@ -194,7 +186,6 @@ object NoiseGenerator {
           noise(generator, x, y - 1) + noise(generator, x, y + 1)) / 8f +
         // Center:
         noise(generator, x, y) / 4f
-    }
 
     override def interpolate(start: Float, end: Float, factorial: Float): Float = {
       val modificator = (1f - Generators.getCalculator.cos(factorial * PI)) * 0.5f

@@ -22,7 +22,8 @@ class PBRDepthShader(
   renderable: Renderable,
   config:     DepthShader.Config,
   prefix:     String
-)(using Sge) extends DepthShader(renderable, config, prefix) {
+)(using Sge)
+    extends DepthShader(renderable, config, prefix) {
 
   val morphTargetsMask: Long = computeMorphTargetsMask(renderable)
 
@@ -43,10 +44,9 @@ class PBRDepthShader(
     morphTargetsFlag.toLong
   }
 
-  override def canRender(renderable: Renderable): Boolean = {
-    if (this.morphTargetsMask != computeMorphTargetsMask(renderable)) return false // @nowarn
-    super.canRender(renderable)
-  }
+  override def canRender(renderable: Renderable): Boolean =
+    if (this.morphTargetsMask != computeMorphTargetsMask(renderable)) false
+    else super.canRender(renderable)
 
   override def init(): Unit = {
     super.init()
@@ -60,7 +60,7 @@ class PBRDepthShader(
   override protected def bindMaterial(attributes: Attributes): Unit = {
     super.bindMaterial(attributes)
     if (u_texCoordTransform != UniformLocation.notFound) {
-      val attr = attributes.getAs[PBRTextureAttribute](PBRTextureAttribute.BaseColorTexture)
+      val attr             = attributes.getAs[PBRTextureAttribute](PBRTextureAttribute.BaseColorTexture)
       val textureTransform = Matrix3()
       PBRCommon.setTextureTransform(textureTransform, attr)
       program.foreach(_.setUniformMatrix(u_texCoordTransform, textureTransform))

@@ -15,16 +15,16 @@ import sge.graphics.g3d.Attribute
 import sge.math.MathUtils
 
 class PBRVolumeAttribute(
-  var thicknessFactor:    Float,
+  var thicknessFactor: Float,
   /** a value of zero means positive infinity (no attenuation) */
   var attenuationDistance: Float,
-  val attenuationColor:   Color
+  val attenuationColor:    Color
 ) extends Attribute(PBRVolumeAttribute.Type) {
 
   def this() =
     this(0f, 0f, Color(Color.WHITE))
 
-  override def compare(that: Attribute): Int = {
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other = that.asInstanceOf[PBRVolumeAttribute]
@@ -36,7 +36,6 @@ class PBRVolumeAttribute(
         attenuationColor.toIntBits() - other.attenuationColor.toIntBits()
       }
     }
-  }
 
   override def copy(): Attribute =
     PBRVolumeAttribute(thicknessFactor, attenuationDistance, attenuationColor)

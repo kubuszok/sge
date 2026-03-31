@@ -8,14 +8,13 @@ package sge
 package gltf
 package data
 
-import sge.utils.{Json, Nullable}
+import sge.utils.{ Json, Nullable }
 
-/**
- * Holds extra properties from a GLTF JSON element.
- * In the original Java, this implements Json.Serializable; in SGE we store the
- * raw JSON AST instead since SGE uses jsoniter-scala, not LibGDX reflection-based Json.
- */
+/** Holds extra properties from a GLTF JSON element. In the original Java, this implements Json.Serializable; in SGE we store the raw JSON AST instead since SGE uses jsoniter-scala, not LibGDX
+  * reflection-based Json.
+  */
 class GLTFExtras {
+
   /** The raw JSON value of the "extras" field. */
   var value: Nullable[Json] = Nullable.empty
 }

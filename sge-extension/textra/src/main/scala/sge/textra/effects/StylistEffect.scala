@@ -36,8 +36,10 @@ class StylistEffect(label: TypingLabel, params: Array[String]) extends Effect(la
   if (params.length > 5) all = paramAsBoolean(params(5))
 
   override protected def onApply(glyph: Long, localIndex: Int, globalIndex: Int, delta: Float): Unit = {
-    if (all) { if (label.overIndex < indexStart || label.overIndex > indexEnd) { label.setInWorkingLayout(globalIndex, glyph & ~effects); return } }
-    else { if (label.overIndex != globalIndex) { label.setInWorkingLayout(globalIndex, glyph & ~effects); return } }
-    label.setInWorkingLayout(globalIndex, (glyph & ~effects) | effects)
+    val shouldApply =
+      if (all) label.overIndex >= indexStart && label.overIndex <= indexEnd
+      else label.overIndex == globalIndex
+    if (shouldApply) label.setInWorkingLayout(globalIndex, (glyph & ~effects) | effects)
+    else label.setInWorkingLayout(globalIndex, glyph & ~effects)
   }
 }

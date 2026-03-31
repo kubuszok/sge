@@ -23,12 +23,13 @@ import sge.Sge
 import sge.utils.{ DynamicArray, Nullable, ObjectMap, Pool, SgeError }
 
 class Scene(
-  var modelInstance:      ModelInstance,
+  var modelInstance:       ModelInstance,
   var animationController: AnimationController,
-  val lights:             ObjectMap[Node, BaseLight[?]],
-  val cameras:            ObjectMap[Node, Camera],
-  val animations:         AnimationsPlayer
-) extends RenderableProvider with Updatable {
+  val lights:              ObjectMap[Node, BaseLight[?]],
+  val cameras:             ObjectMap[Node, Camera],
+  val animations:          AnimationsPlayer
+) extends RenderableProvider
+    with Updatable {
 
   def this(modelInstance: ModelInstance, animated: Boolean) = {
     this(
@@ -41,17 +42,14 @@ class Scene(
     // Re-assign animations (can't reference `this` in super constructor)
   }
 
-  def this(modelInstance: ModelInstance) = {
+  def this(modelInstance: ModelInstance) =
     this(modelInstance, modelInstance.animations.size > 0)
-  }
 
-  def this(model: Model) = {
+  def this(model: Model) =
     this(ModelInstanceHack(model))
-  }
 
-  def this(model: Model, animated: Boolean) = {
+  def this(model: Model, animated: Boolean) =
     this(ModelInstanceHack(model), animated)
-  }
 
   def this(sceneModel: SceneModel)(using Sge) = {
     this(ModelInstanceHack(sceneModel.model))
@@ -101,14 +99,13 @@ class Scene(
     copy
   }
 
-  protected def createLight(from: BaseLight[?]): BaseLight[?] = {
+  protected def createLight(from: BaseLight[?]): BaseLight[?] =
     from match {
       case dl: DirectionalLight => DirectionalLightEx().set(dl)
       case pl: PointLight       => PointLightEx().set(pl)
       case sl: SpotLight        => SpotLightEx().set(sl)
-      case _                    => throw SgeError.InvalidInput("unknown light type " + from.getClass.getName)
+      case _ => throw SgeError.InvalidInput("unknown light type " + from.getClass.getName)
     }
-  }
 
   override def update(camera: Camera, delta: Float): Unit = {
     _animations.update(delta)
@@ -118,7 +115,7 @@ class Scene(
 
   private val transform: Matrix4 = Matrix4()
 
-  private def syncCameras(): Unit = {
+  private def syncCameras(): Unit =
     cameras.foreachEntry { (node, camera) =>
       transform.set(modelInstance.transform).mul(node.globalTransform)
       camera.position.setZero().mul(transform)
@@ -126,21 +123,19 @@ class Scene(
       camera.up.set(Vector3.Y).rot(transform)
       camera.update()
     }
-  }
 
-  private def syncLights(): Unit = {
+  private def syncLights(): Unit =
     lights.foreachEntry { (node, light) =>
       transform.set(modelInstance.transform).mul(node.globalTransform)
       light match {
         case dl: DirectionalLight => dl.direction.set(0f, 0f, -1f).rot(transform)
         case pl: PointLight       => pl.position.setZero().mul(transform)
-        case sl: SpotLight =>
+        case sl: SpotLight        =>
           sl.position.setZero().mul(transform)
           sl.direction.set(0f, 0f, -1f).rot(transform)
         case _ => ()
       }
     }
-  }
 
   def getCamera(name: String): Nullable[Camera] = {
     var result: Nullable[Camera] = Nullable.empty
@@ -166,7 +161,6 @@ class Scene(
     count
   }
 
-  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit = {
+  override def getRenderables(renderables: DynamicArray[Renderable], pool: Pool[Renderable]): Unit =
     modelInstance.getRenderables(renderables, pool)
-  }
 }

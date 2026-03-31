@@ -18,12 +18,11 @@ import sge.utils.{ Nullable, ObjectMap }
 
 class SceneModel extends AutoCloseable {
 
-  var name:    Nullable[String]           = Nullable.empty
-  var model:   Model                      = scala.compiletime.uninitialized
-  val cameras: ObjectMap[Node, Camera]    = ObjectMap[Node, Camera]()
+  var name:    Nullable[String]              = Nullable.empty
+  var model:   Model                         = scala.compiletime.uninitialized
+  val cameras: ObjectMap[Node, Camera]       = ObjectMap[Node, Camera]()
   val lights:  ObjectMap[Node, BaseLight[?]] = ObjectMap[Node, BaseLight[?]]()
 
-  override def close(): Unit = {
+  override def close(): Unit =
     model.close()
-  }
 }

@@ -62,45 +62,39 @@ class ArraySpinnerModel[T] extends AbstractSpinnerModel(false) {
     if (item.isEmpty) "" else item.get.toString
 
   private def getItemIndexForText(text: String): Int = {
-    var i = 0
-    while (i < items.size) {
+    var i     = 0
+    var found = -1
+    while (i < items.size && found == -1) {
       val item = items(i)
-      if (itemToString(Nullable(item)) == text) return i
+      if (itemToString(Nullable(item)) == text) found = i
       i += 1
     }
-    -1
+    found
   }
 
   override def textChanged(): Unit = {
     val text  = spinner.get.textField.text
     val index = getItemIndexForText(text)
-    if (index == -1) return
-    updateCurrentItem(index)
+    if (index != -1) updateCurrentItem(index)
   }
 
-  override protected def incrementModel(): Boolean = {
+  override protected def incrementModel(): Boolean =
     if (currentIndex + 1 >= items.size) {
-      if (wrap) {
-        updateCurrentItem(0)
-        return true
-      }
-      return false
+      if (wrap) { updateCurrentItem(0); true }
+      else false
+    } else {
+      updateCurrentItem(currentIndex + 1)
+      true
     }
-    updateCurrentItem(currentIndex + 1)
-    true
-  }
 
-  override protected def decrementModel(): Boolean = {
+  override protected def decrementModel(): Boolean =
     if (currentIndex - 1 < 0) {
-      if (wrap) {
-        updateCurrentItem(items.size - 1)
-        return true
-      }
-      return false
+      if (wrap) { updateCurrentItem(items.size - 1); true }
+      else false
+    } else {
+      updateCurrentItem(currentIndex - 1)
+      true
     }
-    updateCurrentItem(currentIndex - 1)
-    true
-  }
 
   override def text: String = itemToString(current)
 

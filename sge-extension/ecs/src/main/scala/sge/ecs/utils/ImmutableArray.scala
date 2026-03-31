@@ -17,8 +17,7 @@ package utils
 
 import scala.collection.mutable.ArrayBuffer
 
-/** Read-only wrapper around a mutable [[ArrayBuffer]]. This is a live view -- changes to the backing buffer are visible
-  * through this wrapper.
+/** Read-only wrapper around a mutable [[ArrayBuffer]]. This is a live view -- changes to the backing buffer are visible through this wrapper.
   *
   * @author
   *   David Saltares (original implementation)

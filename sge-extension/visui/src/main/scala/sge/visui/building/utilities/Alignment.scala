@@ -18,14 +18,14 @@ import sge.utils.Align
   *   MJ
   */
 enum Alignment(val alignment: Align) {
-  case CENTER       extends Alignment(Align.center)
-  case TOP          extends Alignment(Align.top)
-  case BOTTOM       extends Alignment(Align.bottom)
-  case LEFT         extends Alignment(Align.left)
-  case RIGHT        extends Alignment(Align.right)
-  case TOP_LEFT     extends Alignment(Align.topLeft)
-  case TOP_RIGHT    extends Alignment(Align.topRight)
-  case BOTTOM_LEFT  extends Alignment(Align.bottomLeft)
+  case CENTER extends Alignment(Align.center)
+  case TOP extends Alignment(Align.top)
+  case BOTTOM extends Alignment(Align.bottom)
+  case LEFT extends Alignment(Align.left)
+  case RIGHT extends Alignment(Align.right)
+  case TOP_LEFT extends Alignment(Align.topLeft)
+  case TOP_RIGHT extends Alignment(Align.topRight)
+  case BOTTOM_LEFT extends Alignment(Align.bottomLeft)
   case BOTTOM_RIGHT extends Alignment(Align.bottomRight)
 
   def apply(cell: Cell[?]): Unit = cell.align(alignment)
@@ -56,5 +56,5 @@ object Alignment {
   def getByValidIndex(index: Int): Alignment = Alignment.values(index)
 
   def isIndexValid(index: Int): Boolean = index >= 0 && index < Alignment.values.length
-  def isIndexLast(index: Int): Boolean  = index == Alignment.values.length - 1
+  def isIndexLast(index:  Int): Boolean = index == Alignment.values.length - 1
 }

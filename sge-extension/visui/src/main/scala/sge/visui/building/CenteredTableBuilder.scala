@@ -21,7 +21,7 @@ class CenteredTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int
     extends TableBuilder(estimatedWidgetsAmount, estimatedRowsAmount, defaultWidgetPadding) {
 
   def this() = this(10, 3, Padding.PAD_0)
-  def this(defaultWidgetPadding: Padding) = this(10, 3, defaultWidgetPadding)
+  def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
   override protected def fillTable(table: Table): Unit = {
@@ -46,6 +46,6 @@ class CenteredTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int
     }
   }
 
-  private def shouldExpand(rowSize: Int): Boolean = rowSize != 1
-  private def isLast(widgetIndex: Int, rowSize: Int, totalWidgetsInRow: Int): Boolean = shouldExpand(rowSize) && widgetIndex == totalWidgetsInRow - 1
+  private def shouldExpand(rowSize: Int):                                       Boolean = rowSize != 1
+  private def isLast(widgetIndex:   Int, rowSize: Int, totalWidgetsInRow: Int): Boolean = shouldExpand(rowSize) && widgetIndex == totalWidgetsInRow - 1
 }

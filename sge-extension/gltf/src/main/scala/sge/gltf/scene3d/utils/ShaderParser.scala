@@ -28,7 +28,7 @@ object ShaderParser {
     val sb      = new StringBuilder
     var i       = 0
     while (i < lines.length) {
-      val line     = lines(i)
+      val line      = lines(i)
       val cleanLine = line.trim
       if (cleanLine.startsWith(includeBefore)) {
         val end = cleanLine.indexOf(includeAfter, includeBefore.length)

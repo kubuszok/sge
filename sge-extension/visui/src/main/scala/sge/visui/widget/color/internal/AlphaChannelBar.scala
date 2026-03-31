@@ -18,8 +18,7 @@ import sge.scenes.scene2d.utils.ChangeListener
   * @author
   *   Kotcrab
   */
-class AlphaChannelBar(commons: PickerCommons, mode: Int, maxValue: Int, changeListener: ChangeListener)(using Sge)
-    extends ChannelBar(commons, mode, maxValue, changeListener) {
+class AlphaChannelBar(commons: PickerCommons, mode: Int, maxValue: Int, changeListener: ChangeListener)(using Sge) extends ChannelBar(commons, mode, maxValue, changeListener) {
 
   private val gridImage: GridSubImage = new GridSubImage(commons.gridShader, commons.whiteTexture, 6 * commons.sizes.scaleFactor)
 

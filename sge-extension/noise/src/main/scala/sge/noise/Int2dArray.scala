@@ -29,9 +29,8 @@ class Int2dArray(val width: Int, val height: Int) {
     * @return
     *   true if the coordinates are valid.
     */
-  def isIndexValid(x: Int, y: Int): Boolean = {
+  def isIndexValid(x: Int, y: Int): Boolean =
     x >= 0 && x < width && y >= 0 && y < height
-  }
 
   /** @param x
     *   column index.
@@ -58,9 +57,8 @@ class Int2dArray(val width: Int, val height: Int) {
     * @param value
     *   will become the value stored in the selected cell.
     */
-  def set(x: Int, y: Int, value: Int): Unit = {
+  def set(x: Int, y: Int, value: Int): Unit =
     array(toIndex(x, y)) = value
-  }
 
   /** @param value
     *   will replace all cells' values.
@@ -68,7 +66,7 @@ class Int2dArray(val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def set(value: Int): Int2dArray = {
-    var index = 0
+    var index  = 0
     val length = array.length
     while (index < length) {
       array(index) = value

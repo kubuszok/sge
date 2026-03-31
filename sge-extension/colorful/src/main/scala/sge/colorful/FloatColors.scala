@@ -115,65 +115,69 @@ object FloatColors {
     lerpFloatColors(lerpFloatColors(lerpFloatColors(color0, color1, 0.5f), color2, 0.33333f), color3, 0.25f)
 
   /** Given several colors, gets an even mix of all colors in equal measure. */
-  def mix(colors: Float*): Float = {
-    if (colors.isEmpty) { return 0f } // scalastyle:ignore return
-    var result = colors(0)
-    var i      = 1
-    while (i < colors.length) {
-      result = lerpFloatColors(result, colors(i), 1f / (i + 1f))
-      i += 1
+  def mix(colors: Float*): Float =
+    if (colors.isEmpty) 0f
+    else {
+      var result = colors(0)
+      var i      = 1
+      while (i < colors.length) {
+        result = lerpFloatColors(result, colors(i), 1f / (i + 1f))
+        i += 1
+      }
+      result
     }
-    result
-  }
 
   /** Given several colors in an array, gets an even mix of all colors from offset to offset+size. */
   def mix(colors: Array[Float], offset: Int, size: Int): Float = {
     val end = offset + size
-    if (colors == null || colors.length < end || offset < 0 || size <= 0) { return 0f } // scalastyle:ignore return
-    var result = colors(offset)
-    var i      = offset + 1
-    var denom  = 2
-    while (i < end) {
-      result = lerpFloatColors(result, colors(i), 1f / denom)
-      i += 1
-      denom += 1
+    if (colors == null || colors.length < end || offset < 0 || size <= 0) 0f
+    else {
+      var result = colors(offset)
+      var i      = offset + 1
+      var denom  = 2
+      while (i < end) {
+        result = lerpFloatColors(result, colors(i), 1f / denom)
+        i += 1
+        denom += 1
+      }
+      result
     }
-    result
   }
 
   /** Mixes any number of colors with arbitrary weights per-color. Takes an array of alternating floats representing colors and weights, as with `color, weight, color, weight...`.
     */
-  def unevenMix(colors: Float*): Float = {
-    if (colors.isEmpty) { return 0f } // scalastyle:ignore return
-    if (colors.length <= 2) { return colors(0) } // scalastyle:ignore return
-    unevenMix(colors.toArray, 0, colors.length)
-  }
+  def unevenMix(colors: Float*): Float =
+    if (colors.isEmpty) 0f
+    else if (colors.length <= 2) colors(0)
+    else unevenMix(colors.toArray, 0, colors.length)
 
   /** Mixes any number of colors with arbitrary weights per-color from an array.
     */
   def unevenMix(colors: Array[Float], offset: Int, size: Int): Float = {
     val sz  = size & -2
     val end = offset + sz
-    if (colors == null || colors.length < end || offset < 0 || sz <= 0) { return 0f } // scalastyle:ignore return
-    var result  = colors(offset)
-    var current = colors(offset + 1)
-    var total   = current
-    var i       = offset + 3
-    while (i < end) {
-      total += colors(i)
-      i += 2
+    if (colors == null || colors.length < end || offset < 0 || sz <= 0) 0f
+    else {
+      var result  = colors(offset)
+      var current = colors(offset + 1)
+      var total   = current
+      var i       = offset + 3
+      while (i < end) {
+        total += colors(i)
+        i += 2
+      }
+      val invTotal = 1f / total
+      current *= invTotal
+      i = offset + 3
+      while (i < end) {
+        val mixColor = colors(i - 1)
+        val weight   = colors(i) * invTotal
+        current += weight
+        result = lerpFloatColors(result, mixColor, weight / current)
+        i += 2
+      }
+      result
     }
-    val invTotal = 1f / total
-    current *= invTotal
-    i = offset + 3
-    while (i < end) {
-      val mixColor = colors(i - 1)
-      val weight   = colors(i) * invTotal
-      current += weight
-      result = lerpFloatColors(result, mixColor, weight / current)
-      i += 2
-    }
-    result
   }
 
   /** Converts the four RGBA components to a packed float in "HSLA format" (hue, saturation, lightness, alpha).

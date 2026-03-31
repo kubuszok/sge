@@ -63,7 +63,7 @@ enum GenerationMode {
     * @param value
     *   will modify current cell value.
     */
-  def modify(grid: Grid, x: Int, y: Int, value: Float): Unit = {
+  def modify(grid: Grid, x: Int, y: Int, value: Float): Unit =
     this match {
       case ADD      => grid.add(x, y, value)
       case SUBTRACT => grid.subtract(x, y, value)
@@ -71,5 +71,4 @@ enum GenerationMode {
       case DIVIDE   => grid.divide(x, y, value)
       case REPLACE  => grid.set(x, y, value)
     }
-  }
 }

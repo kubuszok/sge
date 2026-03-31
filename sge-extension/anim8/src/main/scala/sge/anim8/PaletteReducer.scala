@@ -176,11 +176,38 @@ class PaletteReducer {
   def analyzeHueWise(pixmap: Pixmap, threshold: Double, limit: Int): Unit =
     analyze(pixmap, threshold, limit)
 
-  /** Writes preload data for this palette reducer to a file. STUB: not yet implemented. */
-  def writePreloadFile(file: FileHandle): Unit = ()
+  /** Writes preload data for this palette reducer to a file. The preload file stores the paletteMapping array (0x8000 bytes) for fast re-loading.
+    */
+  def writePreloadFile(file: FileHandle): Unit = {
+    val out = file.write(false)
+    try
+      out.write(paletteMapping, 0, 0x8000)
+    finally
+      out.close()
+  }
 
-  /** Loads preload data from a file. STUB: returns empty array. */
-  def loadPreloadFile(file: FileHandle): Array[Byte] = new Array[Byte](0)
+  /** Loads preload data from a file, returning the paletteMapping byte array. Returns an array of 0x8000 bytes read from the file.
+    */
+  def loadPreloadFile(file: FileHandle): Array[Byte] = {
+    val data = new Array[Byte](0x8000)
+    val in   = file.read()
+    try {
+      var offset    = 0
+      var remaining = 0x8000
+      while (remaining > 0) {
+        val read = in.read(data, offset, remaining)
+        if (read <= 0) {
+          // short read — fill rest with zeros (already zeroed)
+          remaining = 0
+        } else {
+          offset += read
+          remaining -= read
+        }
+      }
+    } finally
+      in.close()
+    data
+  }
 
   /** Ensures error arrays have capacity for at least `size` elements. */
   def ensureErrorCapacity(size: Int): Unit =

@@ -27,7 +27,7 @@ class ZoomEffect(using Sge)
 
   private var _originX: Float = 0.5f
   private var _originY: Float = 0.5f
-  private var _zoom: Float = 1f
+  private var _zoom:    Float = 1f
 
   rebind()
 
@@ -60,8 +60,10 @@ class ZoomEffect(using Sge)
   }
 
   /** Specify the zoom origin in normalized screen coordinates.
-    * @param ox horizontal origin [0..1].
-    * @param oy vertical origin [0..1].
+    * @param ox
+    *   horizontal origin [0..1].
+    * @param oy
+    *   vertical origin [0..1].
     */
   def setOrigin(ox: Float, oy: Float): Unit = {
     _originX = ox
@@ -72,8 +74,8 @@ class ZoomEffect(using Sge)
     Sge().graphics.gl20.glUseProgram(0)
   }
 
-  def zoom: Float = _zoom
-  def zoom_=(value: Float): Unit = {
+  def zoom:                 Float = _zoom
+  def zoom_=(value: Float): Unit  = {
     _zoom = value
     setUniform("u_zoom", value)
   }

@@ -13,7 +13,7 @@ import scala.collection.mutable.ArrayBuffer
 import sge.utils.Nullable
 
 class GLTFSkin extends GLTFEntity {
-  var inverseBindMatrices: Nullable[Int] = Nullable.empty
-  var joints: Nullable[ArrayBuffer[Int]] = Nullable.empty
-  var skeleton: Nullable[Int] = Nullable.empty
+  var inverseBindMatrices: Nullable[Int]              = Nullable.empty
+  var joints:              Nullable[ArrayBuffer[Int]] = Nullable.empty
+  var skeleton:            Nullable[Int]              = Nullable.empty
 }

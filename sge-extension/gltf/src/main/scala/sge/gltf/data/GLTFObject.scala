@@ -12,5 +12,5 @@ import sge.utils.Nullable
 
 abstract class GLTFObject {
   var extensions: Nullable[GLTFExtensions] = Nullable.empty
-  var extras: Nullable[GLTFExtras] = Nullable.empty
+  var extras:     Nullable[GLTFExtras]     = Nullable.empty
 }

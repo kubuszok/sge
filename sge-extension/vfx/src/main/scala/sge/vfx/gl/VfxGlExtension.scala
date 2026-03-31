@@ -8,8 +8,7 @@ package sge
 package vfx
 package gl
 
-/** Extra [platform specific] OpenGL functionality required for the library. (methods not yet implemented/supported by the official
-  * LibGDX backends).
+/** Extra [platform specific] OpenGL functionality required for the library. (methods not yet implemented/supported by the official LibGDX backends).
   */
 trait VfxGlExtension {
   def boundFboHandle: Int

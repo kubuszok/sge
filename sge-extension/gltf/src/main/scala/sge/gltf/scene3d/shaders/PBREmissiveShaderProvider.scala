@@ -21,7 +21,7 @@ class PBREmissiveShaderProvider(config: PBRShaderConfig)(using Sge) extends PBRS
   override protected def createShader(renderable: Renderable): Shader = {
     val cfg = this.config.asInstanceOf[PBRShaderConfig]
 
-    val mat = renderable.material.get
+    val mat      = renderable.material.get
     val hasAlpha = mat.has(BlendingAttribute.Type) || mat.has(FloatAttribute.AlphaTest)
 
     val sb = new StringBuilder(createPrefixBase(renderable, cfg))

@@ -13,23 +13,23 @@ package scene
 import java.nio.FloatBuffer
 import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
-import sge.graphics.g3d.model.{Node, NodePart}
-import sge.gltf.data.scene.{GLTFNode, GLTFSkin}
+import sge.graphics.g3d.model.{ Node, NodePart }
+import sge.gltf.data.scene.{ GLTFNode, GLTFSkin }
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.data.DataResolver
 import sge.math.Matrix4
-import sge.utils.{ArrayMap, DynamicArray, Nullable}
+import sge.utils.{ ArrayMap, DynamicArray, Nullable }
 
 class SkinLoader {
 
   private var maxBones: Int = 0
 
   def load(
-      glSkins: Nullable[ArrayBuffer[GLTFSkin]],
-      glNodes: Nullable[ArrayBuffer[GLTFNode]],
-      nodeResolver: NodeResolver,
-      dataResolver: DataResolver
-  ): Unit = {
+    glSkins:      Nullable[ArrayBuffer[GLTFSkin]],
+    glNodes:      Nullable[ArrayBuffer[GLTFNode]],
+    nodeResolver: NodeResolver,
+    dataResolver: DataResolver
+  ): Unit =
     glNodes.foreach { nodes =>
       var i = 0
       while (i < nodes.size) {
@@ -45,16 +45,15 @@ class SkinLoader {
         i += 1
       }
     }
-  }
 
   private def load(
-      glSkin: GLTFSkin,
-      glNode: GLTFNode,
-      node: Node,
-      nodeResolver: NodeResolver,
-      dataResolver: DataResolver
+    glSkin:       GLTFSkin,
+    glNode:       GLTFNode,
+    node:         Node,
+    nodeResolver: NodeResolver,
+    dataResolver: DataResolver
   ): Unit = {
-    val ibms = ArrayBuffer[Matrix4]()
+    val ibms   = ArrayBuffer[Matrix4]()
     val joints = ArrayBuffer[Int]()
 
     val bonesCount = glSkin.joints.get.size
@@ -84,13 +83,13 @@ class SkinLoader {
           node.parts(i) = newNodePart
           nodePart = newNodePart
         }
-        val bonesArray = new Array[Matrix4](ibms.size)
+        val bonesArray   = new Array[Matrix4](ibms.size)
         val invBoneBinds = ArrayMap[Node, Matrix4]()
-        var n = 0
+        var n            = 0
         while (n < joints.size) {
           bonesArray(n) = new Matrix4().idt()
           val nodeIndex = joints(n)
-          val key = nodeResolver.get(nodeIndex)
+          val key       = nodeResolver.get(nodeIndex)
           if (key.isEmpty) throw new GLTFIllegalException("node not found for bone: " + nodeIndex)
           invBoneBinds.put(key.get, ibms(n))
           n += 1

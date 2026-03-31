@@ -31,7 +31,7 @@ class ComponentTypeSuite extends munit.FunSuite {
   }
 
   test("getBitsFor sets correct bits") {
-    val bits = ComponentType.getBitsFor(classOf[ComponentA], classOf[ComponentB])
+    val bits   = ComponentType.getBitsFor(classOf[ComponentA], classOf[ComponentB])
     val indexA = ComponentType.getIndexFor(classOf[ComponentA])
     val indexB = ComponentType.getIndexFor(classOf[ComponentB])
 

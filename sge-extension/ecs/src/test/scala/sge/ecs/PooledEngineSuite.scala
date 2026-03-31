@@ -3,9 +3,9 @@ package ecs
 
 import scala.collection.mutable.ArrayBuffer
 
-import sge.ecs.signals.{Listener, Signal}
+import sge.ecs.signals.{ Listener, Signal }
 import sge.ecs.utils.ImmutableArray
-import sge.utils.{Nullable, Pool}
+import sge.utils.{ Nullable, Pool }
 
 // Top-level classes with public no-arg constructors for reflection-based createComponent
 class PooledPositionComponent extends Component {
@@ -16,17 +16,15 @@ class PooledPositionComponent extends Component {
 class PooledComponentA extends Component
 
 class PoolableComponent extends Component with Pool.Poolable {
-  var wasReset: Boolean = true
-  override def reset(): Unit = {
+  var wasReset:         Boolean = true
+  override def reset(): Unit    =
     wasReset = true
-  }
 }
 
 class PooledComponentSpy extends Component with Pool.Poolable {
-  var recycled: Boolean = false
-  override def reset(): Unit = {
+  var recycled:         Boolean = false
+  override def reset(): Unit    =
     recycled = true
-  }
 }
 
 class PooledEngineSuite extends munit.FunSuite {
@@ -35,10 +33,10 @@ class PooledEngineSuite extends munit.FunSuite {
 
   /** Creates a PooledEngine with all test component factories pre-registered. */
   private def newPooledEngine(
-      entityPoolInitialSize: Int = 10,
-      entityPoolMaxSize: Int = 100,
-      componentPoolInitialSize: Int = 10,
-      componentPoolMaxSize: Int = 100
+    entityPoolInitialSize:    Int = 10,
+    entityPoolMaxSize:        Int = 100,
+    componentPoolInitialSize: Int = 10,
+    componentPoolMaxSize:     Int = 100
   ): PooledEngine = {
     val e = new PooledEngine(entityPoolInitialSize, entityPoolMaxSize, componentPoolInitialSize, componentPoolMaxSize)
     e.registerComponentFactory(classOf[PooledPositionComponent], () => new PooledPositionComponent)
@@ -50,7 +48,7 @@ class PooledEngineSuite extends munit.FunSuite {
 
   private class MyPositionListener extends EntityListener {
     val positionMapper: ComponentMapper[PooledPositionComponent] = ComponentMapper.getFor(classOf[PooledPositionComponent])
-    var counter: Int = 0
+    var counter:        Int                                      = 0
 
     override def entityAdded(entity: Entity): Unit = {}
 
@@ -61,12 +59,11 @@ class PooledEngineSuite extends munit.FunSuite {
   }
 
   private class CombinedSystem extends EntitySystem() {
-    var allEntities: ImmutableArray[Entity] = scala.compiletime.uninitialized
-    private var counter: Int = 0
+    var allEntities:     ImmutableArray[Entity] = scala.compiletime.uninitialized
+    private var counter: Int                    = 0
 
-    override def addedToEngine(engine: Engine): Unit = {
+    override def addedToEngine(engine: Engine): Unit =
       allEntities = engine.getEntitiesFor(Family.all(classOf[PooledPositionComponent]).get())
-    }
 
     override def update(deltaTime: Float): Unit = {
       if (counter >= 6 && counter <= 8) {
@@ -77,10 +74,9 @@ class PooledEngineSuite extends munit.FunSuite {
   }
 
   private class ComponentCounterListener extends Listener[Entity] {
-    var totalCalls: Int = 0
-    override def receive(signal: Signal[Entity], obj: Entity): Unit = {
+    var totalCalls:                                            Int  = 0
+    override def receive(signal: Signal[Entity], obj: Entity): Unit =
       totalCalls += 1
-    }
   }
 
   test("createEntity returns pooled entity") {
@@ -91,12 +87,12 @@ class PooledEngineSuite extends munit.FunSuite {
 
   test("createComponent creates component via factory") {
     val engine = newPooledEngine()
-    val comp = engine.createComponent(classOf[PooledComponentA])
+    val comp   = engine.createComponent(classOf[PooledComponentA])
     assert(comp.isDefined)
   }
 
   test("entity removal listener order") {
-    val engine = newPooledEngine()
+    val engine         = newPooledEngine()
     val combinedSystem = new CombinedSystem
 
     engine.addSystem(combinedSystem)
@@ -110,17 +106,16 @@ class PooledEngineSuite extends munit.FunSuite {
 
     assertEquals(combinedSystem.allEntities.size, 10)
 
-    for (_ <- 0 until 10) {
+    for (_ <- 0 until 10)
       engine.update(deltaTime)
-    }
 
     engine.removeAllEntities()
   }
 
   test("recycleEntity: removed entities are reused") {
     val numEntities = 5
-    val engine = newPooledEngine(entityPoolInitialSize = numEntities, entityPoolMaxSize = 100, componentPoolInitialSize = 0, componentPoolMaxSize = 100)
-    val entities = ArrayBuffer[Entity]()
+    val engine      = newPooledEngine(entityPoolInitialSize = numEntities, entityPoolMaxSize = 100, componentPoolInitialSize = 0, componentPoolMaxSize = 100)
+    val entities    = ArrayBuffer[Entity]()
 
     for (_ <- 0 until numEntities) {
       val entity = engine.createEntity()
@@ -167,9 +162,14 @@ class PooledEngineSuite extends munit.FunSuite {
   }
 
   test("recycleComponent: components are pooled and reset") {
-    val maxEntities = 10
+    val maxEntities   = 10
     val maxComponents = 10
-    val engine = newPooledEngine(entityPoolInitialSize = maxEntities, entityPoolMaxSize = maxEntities, componentPoolInitialSize = maxComponents, componentPoolMaxSize = maxComponents)
+    val engine        = newPooledEngine(
+      entityPoolInitialSize = maxEntities,
+      entityPoolMaxSize = maxEntities,
+      componentPoolInitialSize = maxComponents,
+      componentPoolMaxSize = maxComponents
+    )
 
     for (_ <- 0 until maxComponents) {
       val e = engine.createEntity()
@@ -209,14 +209,14 @@ class PooledEngineSuite extends munit.FunSuite {
   }
 
   test("resetEntity correctly: flags, components, familyBits cleared") {
-    val engine = newPooledEngine()
-    val addedListener = new ComponentCounterListener
+    val engine          = newPooledEngine()
+    val addedListener   = new ComponentCounterListener
     val removedListener = new ComponentCounterListener
 
     val familyEntities = engine.getEntitiesFor(Family.all(classOf[PooledPositionComponent]).get())
 
     val totalEntities = 10
-    val entities = new Array[Entity](totalEntities)
+    val entities      = new Array[Entity](totalEntities)
 
     for (i <- 0 until totalEntities) {
       entities(i) = engine.createEntity()
@@ -255,7 +255,7 @@ class PooledEngineSuite extends munit.FunSuite {
   }
 
   test("addSameComponent should reset and return old component to pool") {
-    val engine = newPooledEngine()
+    val engine         = newPooledEngine()
     val poolableMapper = ComponentMapper.getFor(classOf[PoolableComponent])
 
     val component1 = engine.createComponent(classOf[PoolableComponent]).get

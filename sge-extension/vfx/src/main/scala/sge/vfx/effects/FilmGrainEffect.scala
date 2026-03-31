@@ -23,7 +23,7 @@ class FilmGrainEffect(using Sge)
 
   import ShaderVfxEffect.*
 
-  private var _seed: Float = 0f
+  private var _seed:        Float = 0f
   private var _noiseAmount: Float = 0.18f
 
   rebind()
@@ -50,14 +50,14 @@ class FilmGrainEffect(using Sge)
     renderShader(context, dst)
   }
 
-  def seed: Float = _seed
-  def seed_=(value: Float): Unit = {
+  def seed:                 Float = _seed
+  def seed_=(value: Float): Unit  = {
     _seed = value
     setUniform("u_seed", value)
   }
 
-  def noiseAmount: Float = _noiseAmount
-  def noiseAmount_=(value: Float): Unit = {
+  def noiseAmount:                 Float = _noiseAmount
+  def noiseAmount_=(value: Float): Unit  = {
     _noiseAmount = value
     setUniform("u_noiseAmount", value)
   }

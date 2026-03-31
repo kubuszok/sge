@@ -25,21 +25,19 @@ private[ecs] class ComponentOperationHandler(delayed: () => Boolean) {
 
   private val operations: ArrayBuffer[ComponentOperation] = ArrayBuffer.empty
 
-  def add(entity: Entity): Unit = {
+  def add(entity: Entity): Unit =
     if (delayed()) {
       operations += ComponentOperation(ComponentOperation.Type.Add, entity)
     } else {
       entity.notifyComponentAdded()
     }
-  }
 
-  def remove(entity: Entity): Unit = {
+  def remove(entity: Entity): Unit =
     if (delayed()) {
       operations += ComponentOperation(ComponentOperation.Type.Remove, entity)
     } else {
       entity.notifyComponentRemoved()
     }
-  }
 
   def hasOperationsToProcess: Boolean = operations.nonEmpty
 
@@ -63,4 +61,4 @@ private[ecs] object ComponentOperation {
   }
 }
 
-private[ecs] final class ComponentOperation(val opType: ComponentOperation.Type, val entity: Entity)
+final private[ecs] class ComponentOperation(val opType: ComponentOperation.Type, val entity: Entity)

@@ -9,14 +9,15 @@ package graphs
 package internal
 
 import scala.annotation.nowarn
+import scala.util.boundary
+import scala.util.boundary.break
 
-/** A hash structure with objects of type V as keys and Node[V] objects as values.
-  * Keys assigned to the same bucket are chained in a singly linked list.
-  * All the Node[V] objects additionally form a separate doubly linked list to allow a consistent iteration order.
+/** A hash structure with objects of type V as keys and Node[V] objects as values. Keys assigned to the same bucket are chained in a singly linked list. All the Node[V] objects additionally form a
+  * separate doubly linked list to allow a consistent iteration order.
   */
 private[graphs] class NodeMap[V](val graph: Graph[V]) {
 
-  private val MinTableLength = 32
+  private val MinTableLength  = 32
   private val ResizeThreshold = 0.7f
 
   // array of "buckets"
@@ -29,19 +30,19 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   var size: Int = 0
   @nowarn("msg=private variable was mutated but not read") // tracked for potential diagnostics, matching original design
   private var occupiedBuckets: Int = 0
-  private var threshold: Int = (ResizeThreshold * MinTableLength).toInt
+  private var threshold:       Int = (ResizeThreshold * MinTableLength).toInt
 
   /** Return the Node[V] to which the vertex v is mapped, or null if not in the map. */
-  def get(v: Any): Node[V] = {
-    val hash = NodeMap.hash(v)
-    val i = getIndex(hash)
+  def get(v: Any): Node[V] = boundary {
+    val hash        = NodeMap.hash(v)
+    val i           = getIndex(hash)
     var currentNode = table(i)
     if (currentNode == null) {
-      return null.asInstanceOf[Node[V]] // @nowarn — null return matches original API
+      break(null.asInstanceOf[Node[V]]) // @nowarn — null return matches original API
     }
     while (currentNode != null) {
       if (v.equals(currentNode.obj)) {
-        return currentNode
+        break(currentNode)
       }
       currentNode = currentNode.nextInBucket
     }
@@ -51,15 +52,16 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   def contains(v: Any): Boolean = get(v) != null
 
   /** Create a Node[V] and associate the vertex v with it.
-    * @return the Node[V] if v is not in the map, or null if it already is.
+    * @return
+    *   the Node[V] if v is not in the map, or null if it already is.
     */
-  def put(v: V): Node[V] = {
+  def put(v: V): Node[V] = boundary {
     // checking the size before adding might resize even if v is already in the map,
     // but it will only be off by one
     checkLength(1)
 
-    val hash = NodeMap.hash(v)
-    val i = getIndex(hash)
+    val hash       = NodeMap.hash(v)
+    val i          = getIndex(hash)
     var bucketHead = table(i)
     if (bucketHead == null) {
       // first in bucket
@@ -69,7 +71,7 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
       size += 1
       occupiedBuckets += 1
       addToList(bucketHead)
-      return bucketHead
+      break(bucketHead)
     }
 
     // find last in bucket
@@ -77,7 +79,7 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
     var previousNode: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — traversal pointer
     while (currentNode != null) {
       if (v.equals(currentNode.obj)) {
-        return null.asInstanceOf[Node[V]] // @nowarn — already present
+        break(null.asInstanceOf[Node[V]]) // @nowarn — already present
       }
       previousNode = currentNode
       currentNode = currentNode.nextInBucket
@@ -92,19 +94,18 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   }
 
   /** Add the node to the tail of the linked list. */
-  private def addToList(node: Node[V]): Unit = {
+  private def addToList(node: Node[V]): Unit =
     if (head == null) {
       head = node
       tail = node
-      return
+    } else {
+      node.prevInOrder = tail
+      tail.nextInOrder = node
+      tail = node
     }
-    node.prevInOrder = tail
-    tail.nextInOrder = node
-    tail = node
-  }
 
   /** Insert the node at a specific point in the linked list. */
-  private def insertIntoList(v: Node[V], at: Node[V], before: Boolean): Unit = {
+  private def insertIntoList(v: Node[V], at: Node[V], before: Boolean): Unit =
     if (before) {
       v.nextInOrder = at
       v.prevInOrder = at.prevInOrder
@@ -118,17 +119,17 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
       if (v.nextInOrder != null) v.nextInOrder.prevInOrder = v
       else tail = v
     }
-  }
 
-  def insertIntoListAfter(v: Node[V], at: Node[V]): Unit = insertIntoList(v, at, false)
+  def insertIntoListAfter(v:  Node[V], at: Node[V]): Unit = insertIntoList(v, at, false)
   def insertIntoListBefore(v: Node[V], at: Node[V]): Unit = insertIntoList(v, at, true)
 
   /** Remove the vertex V from the map.
-    * @return the Node[V] that v was associated with, or null if v is not in the map.
+    * @return
+    *   the Node[V] that v was associated with, or null if v is not in the map.
     */
-  def remove(v: V): Node[V] = {
-    val hash = NodeMap.hash(v)
-    val i = getIndex(hash)
+  def remove(v: V): Node[V] = boundary {
+    val hash        = NodeMap.hash(v)
+    val i           = getIndex(hash)
     var currentNode = table(i)
 
     // node is first in bucket
@@ -136,7 +137,7 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
       table(i) = currentNode.nextInBucket
       size -= 1
       removeFromList(currentNode)
-      return currentNode
+      break(currentNode)
     }
 
     // find node
@@ -146,7 +147,7 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
         if (previousNode != null) previousNode.nextInBucket = currentNode.nextInBucket
         size -= 1
         removeFromList(currentNode)
-        return currentNode
+        break(currentNode)
       }
       previousNode = currentNode
       currentNode = currentNode.nextInBucket
@@ -156,28 +157,25 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   }
 
   /** Remove the node from the linked list. */
-  def removeFromList(node: Node[V]): Unit = {
+  def removeFromList(node: Node[V]): Unit =
     if (head eq node) {
       head = node.nextInOrder
       if (head != null) head.prevInOrder = null.asInstanceOf[Node[V]] // @nowarn — list head has no prev
-      return
-    }
-    if (tail eq node) {
+    } else if (tail eq node) {
       tail = node.prevInOrder
       if (tail != null) tail.nextInOrder = null.asInstanceOf[Node[V]] // @nowarn — list tail has no next
-      return
+    } else {
+      node.prevInOrder.nextInOrder = node.nextInOrder
+      node.nextInOrder.prevInOrder = node.prevInOrder
     }
-    node.prevInOrder.nextInOrder = node.nextInOrder
-    node.nextInOrder.prevInOrder = node.prevInOrder
-  }
 
   /** Increase the length of the table if the size exceeds the capacity. */
-  private def checkLength(sizeChange: Int): Boolean = {
+  private def checkLength(sizeChange: Int): Boolean =
     if (size + sizeChange > threshold) {
       occupiedBuckets = 0
       val newLength = 2 * table.length
-      val oldTable = table
-      val newTable = new Array[Node[V]](newLength)
+      val oldTable  = table
+      val newTable  = new Array[Node[V]](newLength)
 
       var i = 0
       while (i < oldTable.length) {
@@ -217,7 +215,6 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
     } else {
       false
     }
-  }
 
   def clear(): Unit = {
     table = new Array[Node[V]](table.length)
@@ -232,8 +229,8 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   /** Iterate nodes in linked-list order. */
   def nodeIterator: Iterator[Node[V]] = new Iterator[Node[V]] {
     private var current: Node[V] = head
-    def hasNext: Boolean = current != null
-    def next(): Node[V] = {
+    def hasNext:         Boolean = current != null
+    def next():          Node[V] = {
       val n = current
       current = current.nextInOrder
       n
@@ -243,110 +240,104 @@ private[graphs] class NodeMap[V](val graph: Graph[V]) {
   /** Iterate vertex objects in linked-list order. */
   def vertexIterator: Iterator[V] = nodeIterator.map(_.obj)
 
-  //================================================================================
+  // ================================================================================
   // Sorting (merge sort on linked list)
-  //================================================================================
+  // ================================================================================
 
-  def sort(comparator: Ordering[V]): Unit = {
-    if (size < 2) return
+  def sort(comparator: Ordering[V]): Unit =
+    if (size >= 2) {
+      head = mergeSort(head, comparator)
 
-    head = mergeSort(head, comparator)
-
-    // the sort only sets references to the next in list for each element,
-    // need to iterate through and set references to previous
-    var node: Node[V] = head
-    var prev: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — sort rebuild
-    while (node != null) {
-      node.prevInOrder = prev
-      prev = node
-      node = node.nextInOrder
+      // the sort only sets references to the next in list for each element,
+      // need to iterate through and set references to previous
+      var node: Node[V] = head
+      var prev: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — sort rebuild
+      while (node != null) {
+        node.prevInOrder = prev
+        prev = node
+        node = node.nextInOrder
+      }
+      tail = prev
     }
-    tail = prev
-  }
 
-  private def mergeSort(h: Node[V], comparator: Ordering[V]): Node[V] = {
+  private def mergeSort(h: Node[V], comparator: Ordering[V]): Node[V] =
     if (h == null || h.nextInOrder == null) {
-      return h
+      h
+    } else {
+      val middle     = getMiddle(h)
+      val middleNext = middle.nextInOrder
+      middle.nextInOrder = null.asInstanceOf[Node[V]] // @nowarn — split list
+
+      val left  = mergeSort(h, comparator)
+      val right = mergeSort(middleNext, comparator)
+      sortedMerge(left, right, comparator)
     }
-    val middle = getMiddle(h)
-    val middleNext = middle.nextInOrder
-    middle.nextInOrder = null.asInstanceOf[Node[V]] // @nowarn — split list
 
-    val left = mergeSort(h, comparator)
-    val right = mergeSort(middleNext, comparator)
-    sortedMerge(left, right, comparator)
-  }
-
-  private def sortedMerge(aNode: Node[V], bNode: Node[V], comparator: Ordering[V]): Node[V] = {
+  private def sortedMerge(aNode: Node[V], bNode: Node[V], comparator: Ordering[V]): Node[V] =
     if (aNode == null) {
-      return bNode
-    }
-    if (bNode == null) {
-      return aNode
-    }
-    if (comparator.compare(aNode.obj, bNode.obj) < 0) {
+      bNode
+    } else if (bNode == null) {
+      aNode
+    } else if (comparator.compare(aNode.obj, bNode.obj) < 0) {
       aNode.nextInOrder = sortedMerge(aNode.nextInOrder, bNode, comparator)
       aNode
     } else {
       bNode.nextInOrder = sortedMerge(aNode, bNode.nextInOrder, comparator)
       bNode
     }
-  }
 
-  private def getMiddle(h: Node[V]): Node[V] = {
+  private def getMiddle(h: Node[V]): Node[V] =
     if (h == null) {
-      return null.asInstanceOf[Node[V]] // @nowarn — null for empty
+      null.asInstanceOf[Node[V]] // @nowarn — null for empty
+    } else {
+      var slow = h
+      var fast = h
+      while (fast.nextInOrder != null && fast.nextInOrder.nextInOrder != null) {
+        slow = slow.nextInOrder
+        fast = fast.nextInOrder.nextInOrder
+      }
+      slow
     }
-    var slow = h
-    var fast = h
-    while (fast.nextInOrder != null && fast.nextInOrder.nextInOrder != null) {
-      slow = slow.nextInOrder
-      fast = fast.nextInOrder.nextInOrder
-    }
-    slow
-  }
 
-  //================================================================================
+  // ================================================================================
   // Topological sorting
-  //================================================================================
+  // ================================================================================
 
   private var cursor: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — temp state for topo sort
 
-  def topologicalSort(): Boolean = {
+  def topologicalSort(): Boolean =
     if (size < 2 || graph.edgeCount < 1) {
-      return true
+      true
+    } else {
+      // start the cursor at the tail and work towards the head
+      cursor = tail
+
+      var success = true
+      while (success && cursor != null)
+        success = recursiveTopologicalSort(cursor, graph.algorithms.requestRunID())
+
+      cursor = null.asInstanceOf[Node[V]] // @nowarn — cleanup
+      success
     }
 
-    // start the cursor at the tail and work towards the head
-    cursor = tail
-
-    var success = true
-    while (success && cursor != null) {
-      success = recursiveTopologicalSort(cursor, graph.algorithms.requestRunID())
-    }
-
-    cursor = null.asInstanceOf[Node[V]] // @nowarn — cleanup
-    success
-  }
-
-  private def recursiveTopologicalSort(v: Node[V], runID: Int): Boolean = {
+  private def recursiveTopologicalSort(v: Node[V], runID: Int): Boolean = boundary {
     v.resetAlgorithmAttribs(runID)
 
     if (v.processed) {
-      return true
+      break(true)
     }
     if (v.seen) {
-      return false // not a DAG
+      break(false) // not a DAG
     }
 
     v.seen = true
 
-    val edges = v.outEdges
+    val edges    = v.outEdges
     val edgeIter = edges.iterator
     while (edgeIter.hasNext) {
       val e = edgeIter.next()
       if (!recursiveTopologicalSort(e.nodeB, runID)) {
-        return false
+        break(false)
       }
     }
 

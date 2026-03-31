@@ -14,10 +14,10 @@ import scala.collection.mutable.ArrayBuffer
 
 //TODO Add scaladoc.
 class VfxFrameBufferPool(
-  var pixelFormat: Pixmap.Format,
-  private var _width: Int,
+  var pixelFormat:     Pixmap.Format,
+  private var _width:  Int,
   private var _height: Int,
-  initialCapacity: Int
+  initialCapacity:     Int
 )(using Sge)
     extends AutoCloseable {
 
@@ -26,11 +26,12 @@ class VfxFrameBufferPool(
 
   /** A collection of all the buffers created and managed by the pool. */
   protected val managedBuffers: ArrayBuffer[VfxFrameBuffer] = ArrayBuffer.empty
+
   /** A pool of spare buffers that are ready to be obtained. */
   protected val freeBuffers: ArrayBuffer[VfxFrameBuffer] = ArrayBuffer.empty
 
-  private var textureWrapU: Texture.TextureWrap = Texture.TextureWrap.ClampToEdge
-  private var textureWrapV: Texture.TextureWrap = Texture.TextureWrap.ClampToEdge
+  private var textureWrapU:     Texture.TextureWrap   = Texture.TextureWrap.ClampToEdge
+  private var textureWrapV:     Texture.TextureWrap   = Texture.TextureWrap.ClampToEdge
   private var textureFilterMin: Texture.TextureFilter = Texture.TextureFilter.Nearest
   private var textureFilterMag: Texture.TextureFilter = Texture.TextureFilter.Nearest
 
@@ -71,8 +72,7 @@ class VfxFrameBufferPool(
 
   /** Returns the buffer in the free pool, making it eligible for [[obtain]].
     *
-    * For performance sake, the pool does not check if the buffer is already freed, so the same buffer must not be freed multiple
-    * times.
+    * For performance sake, the pool does not check if the buffer is already freed, so the same buffer must not be freed multiple times.
     */
   def free(buffer: VfxFrameBuffer): Unit = {
     if (disposed) throw IllegalStateException("Instance is already disposed")
@@ -155,8 +155,8 @@ class VfxFrameBufferPool(
   }
 
   def setTextureParams(
-    wrapU: Texture.TextureWrap,
-    wrapV: Texture.TextureWrap,
+    wrapU:     Texture.TextureWrap,
+    wrapV:     Texture.TextureWrap,
     filterMin: Texture.TextureFilter,
     filterMag: Texture.TextureFilter
   ): Unit = {

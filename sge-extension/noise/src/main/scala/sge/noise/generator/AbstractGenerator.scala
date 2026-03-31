@@ -36,7 +36,6 @@ abstract class AbstractGenerator extends Generator {
     * @param value
     *   will modify current cell value.
     */
-  protected def modifyCell(grid: Grid, x: Int, y: Int, value: Float): Unit = {
+  protected def modifyCell(grid: Grid, x: Int, y: Int, value: Float): Unit =
     _mode.modify(grid, x, y, value)
-  }
 }

@@ -24,27 +24,22 @@ class PreferencesIO(prefsName: String)(using Sge) {
 
   def this()(using Sge) = this(PreferencesIO.defaultPrefsName)
 
-  {
-    checkIfUsingDefaultName()
-  }
+  checkIfUsingDefaultName()
 
-  def checkIfUsingDefaultName(): Unit = {
+  def checkIfUsingDefaultName(): Unit =
     if (PreferencesIO.defaultPrefsName == PreferencesIO.VIS_DEFAULT_PREFS_NAME) {
       System.err.println("VisUI: Warning, using default preferences file name for file chooser! (see FileChooser.setDefaultPrefsName(String))") // @nowarn -- simple logging fallback
     }
-  }
 
   def loadFavorites(): DynamicArray[FileHandle] = loadFileArray(favoritesKeyName)
 
-  def saveFavorites(favorites: DynamicArray[FileHandle]): Unit = {
+  def saveFavorites(favorites: DynamicArray[FileHandle]): Unit =
     saveFileArray(favoritesKeyName, favorites)
-  }
 
   def loadRecentDirectories(): DynamicArray[FileHandle] = loadFileArray(recentDirKeyName)
 
-  def saveRecentDirectories(recentDirs: DynamicArray[FileHandle]): Unit = {
+  def saveRecentDirectories(recentDirs: DynamicArray[FileHandle]): Unit =
     saveFileArray(recentDirKeyName, recentDirs)
-  }
 
   def loadLastDirectory(): Nullable[FileHandle] = {
     val data = prefs.getString(lastDirKeyName, "") // @nowarn -- empty string as default
@@ -65,7 +60,7 @@ class PreferencesIO(prefsName: String)(using Sge) {
     val data = prefs.getString(key, "") // @nowarn -- empty string as default
     if (data.isEmpty) DynamicArray[FileHandle]()
     else {
-      val result = DynamicArray[FileHandle]()
+      val result  = DynamicArray[FileHandle]()
       val entries = data.split(";;")
       for (entry <- entries) {
         val parts = entry.split("\\|", 2)
@@ -92,7 +87,7 @@ class PreferencesIO(prefsName: String)(using Sge) {
     prefs.flush()
   }
 
-  private def toFileHandle(typeName: String, path: String): FileHandle = {
+  private def toFileHandle(typeName: String, path: String): FileHandle =
     typeName match {
       case "Absolute"  => Sge().files.absolute(path)
       case "Classpath" => Sge().files.classpath(path)
@@ -101,12 +96,11 @@ class PreferencesIO(prefsName: String)(using Sge) {
       case "Local"     => Sge().files.local(path)
       case _           => Sge().files.absolute(path) // fallback
     }
-  }
 }
 
 object PreferencesIO {
   private val VIS_DEFAULT_PREFS_NAME: String = "com.kotcrab.vis.ui.widget.file.filechooser_favorites"
-  var defaultPrefsName: String = VIS_DEFAULT_PREFS_NAME
+  var defaultPrefsName:               String = VIS_DEFAULT_PREFS_NAME
 
   def setDefaultPrefsName(prefsName: String): Unit = {
     require(prefsName != null, "prefsName can't be null") // @nowarn -- Java interop boundary

@@ -9,9 +9,9 @@ package vfx
 package gl
 
 class VfxGlViewport {
-  var x: Int = 0
-  var y: Int = 0
-  var width: Int = 0
+  var x:      Int = 0
+  var y:      Int = 0
+  var width:  Int = 0
   var height: Int = 0
 
   def set(x: Int, y: Int, width: Int, height: Int): VfxGlViewport = {

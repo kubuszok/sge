@@ -15,8 +15,7 @@ package model
 
 import sge.math.Quaternion
 
-/** Wrapper holding cubic spline tangent data alongside a Quaternion value.
-  * Used as keyframe values in animations with CUBICSPLINE interpolation.
+/** Wrapper holding cubic spline tangent data alongside a Quaternion value. Used as keyframe values in animations with CUBICSPLINE interpolation.
   */
 final case class CubicQuaternion(
   value:      Quaternion = Quaternion(),

@@ -164,15 +164,16 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
   }
 
   private def selectFirstEnabledTab(): Boolean = {
-    val iter = tabsButtonMap.entrySet().iterator()
-    while (iter.hasNext) {
+    val iter  = tabsButtonMap.entrySet().iterator()
+    var found = false
+    while (iter.hasNext && !found) {
       val entry = iter.next()
       if (!entry.getValue.button.disabled) {
         switchTab(entry.getKey)
-        return true
+        found = true
       }
     }
-    false
+    found
   }
 
   private def checkIfTabsBelongsToThisPane(tab: Tab): Unit =

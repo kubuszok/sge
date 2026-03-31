@@ -19,7 +19,7 @@ class VfxFrameBufferQueue(pixelFormat: Pixmap.Format, fboAmount: Int)(using Sge)
 
   private val buffers: ArrayBuffer[VfxFrameBuffer] = {
     val buf = ArrayBuffer.empty[VfxFrameBuffer]
-    var i = 0
+    var i   = 0
     while (i < fboAmount) {
       buf += VfxFrameBuffer(pixelFormat)
       i += 1
@@ -29,8 +29,8 @@ class VfxFrameBufferQueue(pixelFormat: Pixmap.Format, fboAmount: Int)(using Sge)
 
   private var currentIdx: Int = 0
 
-  private var wrapU: Texture.TextureWrap = Texture.TextureWrap.ClampToEdge
-  private var wrapV: Texture.TextureWrap = Texture.TextureWrap.ClampToEdge
+  private var wrapU:     Texture.TextureWrap   = Texture.TextureWrap.ClampToEdge
+  private var wrapV:     Texture.TextureWrap   = Texture.TextureWrap.ClampToEdge
   private var filterMin: Texture.TextureFilter = Texture.TextureFilter.Nearest
   private var filterMag: Texture.TextureFilter = Texture.TextureFilter.Nearest
 

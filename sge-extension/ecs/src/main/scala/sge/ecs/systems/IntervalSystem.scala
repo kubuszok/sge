@@ -14,8 +14,7 @@ package sge
 package ecs
 package systems
 
-/** A simple [[EntitySystem]] that does not run its update logic every call to [[update]], but after a
-  * given interval. The actual logic should be placed in [[updateInterval]].
+/** A simple [[EntitySystem]] that does not run its update logic every call to [[update]], but after a given interval. The actual logic should be placed in [[updateInterval]].
   *
   * @author
   *   David Saltares (original implementation)

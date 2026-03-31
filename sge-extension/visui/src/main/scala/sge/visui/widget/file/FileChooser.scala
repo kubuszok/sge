@@ -37,38 +37,37 @@ import sge.visui.widget.*
 import sge.visui.widget.file.internal.*
 import sge.visui.widget.file.internal.FileChooserText.*
 
-/** Widget allowing user to choose files. FileChooser is heavy widget and should be reused whenever possible, typically one instance is enough for application. Chooser is platform dependent
-  * and can be only used on desktop.
+/** Widget allowing user to choose files. FileChooser is heavy widget and should be reused whenever possible, typically one instance is enough for application. Chooser is platform dependent and can be
+  * only used on desktop.
   *
   * FileChooser will be centered on screen after adding to Stage use [[setCenterOnAdd]] to change this.
   * @author
   *   Kotcrab
-  * @since
-  *   0.1.0
+  * @since 0.1.0
   */
 class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWindow("") with FileHistoryManager.FileHistoryCallback {
 
   import FileChooser.*
 
-  private val _sorting:              AtomicReference[FileSorting] = new AtomicReference[FileSorting](FileSorting.NAME)
-  private val _sortingOrderAscending: AtomicBoolean               = new AtomicBoolean(true)
+  private val _sorting:               AtomicReference[FileSorting] = new AtomicReference[FileSorting](FileSorting.NAME)
+  private val _sortingOrderAscending: AtomicBoolean                = new AtomicBoolean(true)
 
-  private var _viewMode:      ViewMode      = ViewMode.DETAILS
-  private var _selectionMode: SelectionMode = SelectionMode.FILES
-  private var _listener:      FileChooserListener  = new FileChooserAdapter()
-  private var _fileFilter:    FileFilter           = new DefaultFileFilter(this)
-  private var _fileDeleter:   FileDeleter          = new DefaultFileDeleter()
-  private var _fileTypeFilter: Nullable[FileTypeFilter] = Nullable.empty
+  private var _viewMode:           ViewMode                      = ViewMode.DETAILS
+  private var _selectionMode:      SelectionMode                 = SelectionMode.FILES
+  private var _listener:           FileChooserListener           = new FileChooserAdapter()
+  private var _fileFilter:         FileFilter                    = new DefaultFileFilter(this)
+  private var _fileDeleter:        FileDeleter                   = new DefaultFileDeleter()
+  private var _fileTypeFilter:     Nullable[FileTypeFilter]      = Nullable.empty
   private var _activeFileTypeRule: Nullable[FileTypeFilter.Rule] = Nullable.empty
-  private var _iconProvider:  FileIconProvider     = scala.compiletime.uninitialized
+  private var _iconProvider:       FileIconProvider              = scala.compiletime.uninitialized
 
-  private val driveCheckerService:     DriveCheckerService                           = DriveCheckerService.getInstance
-  private val driveCheckerListeners:   DynamicArray[DriveCheckerService.DriveCheckerListener] = DynamicArray()
-  private val chooserWinService:       Nullable[FileChooserWinService]               = FileChooserWinService.getInstance
+  private val driveCheckerService:   DriveCheckerService                                    = DriveCheckerService.getInstance
+  private val driveCheckerListeners: DynamicArray[DriveCheckerService.DriveCheckerListener] = DynamicArray()
+  private val chooserWinService:     Nullable[FileChooserWinService]                        = FileChooserWinService.getInstance
 
-  private val listDirExecutor: ExecutorService = Executors.newSingleThreadExecutor(new ServiceThreadFactory("FileChooserListDirThread"))
+  private val listDirExecutor: ExecutorService     = Executors.newSingleThreadExecutor(new ServiceThreadFactory("FileChooserListDirThread"))
   private var listDirFuture:   Nullable[Future[?]] = Nullable.empty
-  private val showBusyBarTask: ShowBusyBarTask = new ShowBusyBarTask()
+  private val showBusyBarTask: ShowBusyBarTask     = new ShowBusyBarTask()
 
   private val dateFormat: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm")
 
@@ -77,54 +76,54 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   @scala.annotation.nowarn("msg=unset private variable")
   private var _groupMultiSelectKey: Int = DEFAULT_KEY
   @scala.annotation.nowarn("msg=unset private variable")
-  private var _multiSelectKey:      Int = DEFAULT_KEY
+  private var _multiSelectKey: Int = DEFAULT_KEY
 
-  private var preferencesIO:    PreferencesIO            = scala.compiletime.uninitialized
-  private var favorites:        DynamicArray[FileHandle]  = scala.compiletime.uninitialized
+  private var preferencesIO:     PreferencesIO            = scala.compiletime.uninitialized
+  private var favorites:         DynamicArray[FileHandle] = scala.compiletime.uninitialized
   private var recentDirectories: DynamicArray[FileHandle] = scala.compiletime.uninitialized
 
-  private var currentDirectory:      FileHandle                                = scala.compiletime.uninitialized
-  private val currentFiles:          DynamicArray[FileHandle]                   = DynamicArray[FileHandle]()
-  private var currentFilesMetadata:  java.util.IdentityHashMap[FileHandle, FileHandleMetadata] = new java.util.IdentityHashMap[FileHandle, FileHandleMetadata]()
-  private var fileListAdapter:       FileListAdapter                            = scala.compiletime.uninitialized
-  private val selectedItems:         DynamicArray[FileItem]                      = DynamicArray[FileItem]()
-  private var selectedShortcut:      Nullable[ShortcutItem]                      = Nullable.empty
-  private var _defaultFileName:      Nullable[String]                            = Nullable.empty
+  private var currentDirectory:     FileHandle                                                = scala.compiletime.uninitialized
+  private val currentFiles:         DynamicArray[FileHandle]                                  = DynamicArray[FileHandle]()
+  private var currentFilesMetadata: java.util.IdentityHashMap[FileHandle, FileHandleMetadata] = new java.util.IdentityHashMap[FileHandle, FileHandleMetadata]()
+  private var fileListAdapter:      FileListAdapter                                           = scala.compiletime.uninitialized
+  private val selectedItems:        DynamicArray[FileItem]                                    = DynamicArray[FileItem]()
+  private var selectedShortcut:     Nullable[ShortcutItem]                                    = Nullable.empty
+  private var _defaultFileName:     Nullable[String]                                          = Nullable.empty
 
   @scala.annotation.nowarn("msg=unset private variable")
-  private var _watchingFilesEnabled: Boolean               = true
-  private var fileWatcherThread:     Nullable[Thread]       = Nullable.empty
-  private var shortcutsListRebuildScheduled: Boolean       = false
-  private var filesListRebuildScheduled:     Boolean       = false
+  private var _watchingFilesEnabled:         Boolean          = true
+  private var fileWatcherThread:             Nullable[Thread] = Nullable.empty
+  private var shortcutsListRebuildScheduled: Boolean          = false
+  private var filesListRebuildScheduled:     Boolean          = false
 
   private var historyManager: FileHistoryManager = scala.compiletime.uninitialized
 
   // UI
   private var _chooserStyle: FileChooserStyle = scala.compiletime.uninitialized
-  private var sizes: Sizes            = scala.compiletime.uninitialized
+  private var sizes:         Sizes            = scala.compiletime.uninitialized
 
-  private var mainSplitPane:         VisSplitPane          = scala.compiletime.uninitialized
-  private var shortcutsTable:        VisTable              = scala.compiletime.uninitialized
-  private var shortcutsMainPanel:    VerticalGroup         = scala.compiletime.uninitialized
-  private var shortcutsRootsPanel:   VerticalGroup         = scala.compiletime.uninitialized
-  private var shortcutsFavoritesPanel: VerticalGroup       = scala.compiletime.uninitialized
-  private var fileListView:          ListView[FileHandle]   = scala.compiletime.uninitialized
-  private var maxDateLabelWidth:     Float                  = 0f
-  private var fileListBusyBar:       BusyBar               = scala.compiletime.uninitialized
+  private var mainSplitPane:           VisSplitPane         = scala.compiletime.uninitialized
+  private var shortcutsTable:          VisTable             = scala.compiletime.uninitialized
+  private var shortcutsMainPanel:      VerticalGroup        = scala.compiletime.uninitialized
+  private var shortcutsRootsPanel:     VerticalGroup        = scala.compiletime.uninitialized
+  private var shortcutsFavoritesPanel: VerticalGroup        = scala.compiletime.uninitialized
+  private var fileListView:            ListView[FileHandle] = scala.compiletime.uninitialized
+  private var maxDateLabelWidth:       Float                = 0f
+  private var fileListBusyBar:         BusyBar              = scala.compiletime.uninitialized
 
-  private var favoriteFolderButton:        VisImageButton = scala.compiletime.uninitialized
-  private var viewModeButton:              VisImageButton = scala.compiletime.uninitialized
-  private var favoriteFolderButtonTooltip: sge.visui.widget.Tooltip        = scala.compiletime.uninitialized
-  private var currentPath:                 VisTextField   = scala.compiletime.uninitialized
-  private var selectedFileTextField:       VisTextField   = scala.compiletime.uninitialized
+  private var favoriteFolderButton:        VisImageButton                    = scala.compiletime.uninitialized
+  private var viewModeButton:              VisImageButton                    = scala.compiletime.uninitialized
+  private var favoriteFolderButtonTooltip: sge.visui.widget.Tooltip          = scala.compiletime.uninitialized
+  private var currentPath:                 VisTextField                      = scala.compiletime.uninitialized
+  private var selectedFileTextField:       VisTextField                      = scala.compiletime.uninitialized
   private var fileTypeSelectBox:           VisSelectBox[FileTypeFilter.Rule] = scala.compiletime.uninitialized
 
-  private var confirmButton:          VisTextButton       = scala.compiletime.uninitialized
-  private var fileMenu:               FilePopupMenu       = scala.compiletime.uninitialized
+  private var confirmButton:           VisTextButton       = scala.compiletime.uninitialized
+  private var fileMenu:                FilePopupMenu       = scala.compiletime.uninitialized
   private var fileNameSuggestionPopup: FileSuggestionPopup = scala.compiletime.uninitialized
-  private var dirsSuggestionPopup:    DirsSuggestionPopup  = scala.compiletime.uninitialized
-  private var fileTypeLabel:          VisLabel             = scala.compiletime.uninitialized
-  private var viewModePopupMenu:      PopupMenu           = scala.compiletime.uninitialized
+  private var dirsSuggestionPopup:     DirsSuggestionPopup = scala.compiletime.uninitialized
+  private var fileTypeLabel:           VisLabel            = scala.compiletime.uninitialized
+  private var viewModePopupMenu:       PopupMenu           = scala.compiletime.uninitialized
 
   {
     titleLabel.setText(TITLE_CHOOSE_FILES.get)
@@ -175,10 +174,13 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     shortcutsFavoritesPanel = new VerticalGroup()
     rebuildShortcutsFavoritesPanel()
 
-    fileMenu = new FilePopupMenu(this, new FilePopupMenu.FilePopupMenuCallback {
-      override def showNewDirDialog(): Unit  = showNewDirectoryDialog()
-      override def showFileDelDialog(file: FileHandle): Unit = showFileDeleteDialog(file)
-    })
+    fileMenu = new FilePopupMenu(
+      this,
+      new FilePopupMenu.FilePopupMenuCallback {
+        override def showNewDirDialog():                  Unit = showNewDirectoryDialog()
+        override def showFileDelDialog(file: FileHandle): Unit = showFileDeleteDialog(file)
+      }
+    )
 
     fileNameSuggestionPopup = new FileSuggestionPopup(this)
     dirsSuggestionPopup = new DirsSuggestionPopup(this, currentPath)
@@ -198,7 +200,7 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     centerWindow()
     createListeners()
     setFileTypeFilter(Nullable.empty)
-    favoriteFolderButton.visible = (false)
+    favoriteFolderButton.visible = false
   }
 
   private def createToolbar(): Unit = {
@@ -213,47 +215,51 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
     dirsSuggestionPopup = new DirsSuggestionPopup(this, currentPath)
 
-    currentPath.addListener(new InputListener() {
-      override def keyTyped(event: InputEvent, character: Char): Boolean = {
-        if (event.keyCode == Keys.ENTER) {
-          dirsSuggestionPopup.remove()
-          false
-        } else {
-          val targetWidth = currentPath.width + showRecentDirButton.width
-          dirsSuggestionPopup.pathFieldKeyTyped(getChooserStage, targetWidth)
-          false
-        }
-      }
-
-      override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
-        if (keycode == Keys.ENTER) {
-          val file = Sge().files.absolute(currentPath.text)
-          if (file.exists()) {
-            val dir = if (!file.isDirectory()) file.parent() else file
-            setDirectory(dir, HistoryPolicy.ADD)
-            addRecentDirectory(dir)
+    currentPath.addListener(
+      new InputListener() {
+        override def keyTyped(event: InputEvent, character: Char): Boolean =
+          if (event.keyCode == Keys.ENTER) {
+            dirsSuggestionPopup.remove()
+            false
           } else {
-            showDialog(POPUP_DIRECTORY_DOES_NOT_EXIST.get)
-            setCurrentPathFieldText(currentDirectory.path)
+            val targetWidth = currentPath.width + showRecentDirButton.width
+            dirsSuggestionPopup.pathFieldKeyTyped(getChooserStage, targetWidth)
+            false
           }
-          event.stop()
+
+        override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
+          if (keycode == Keys.ENTER) {
+            val file = Sge().files.absolute(currentPath.text)
+            if (file.exists()) {
+              val dir = if (!file.isDirectory()) file.parent() else file
+              setDirectory(dir, HistoryPolicy.ADD)
+              addRecentDirectory(dir)
+            } else {
+              showDialog(POPUP_DIRECTORY_DOES_NOT_EXIST.get)
+              setCurrentPathFieldText(currentDirectory.path)
+            }
+            event.stop()
+          }
+          false
         }
-        false
       }
-    })
+    )
 
-    currentPath.addListener(new FocusListener() {
-      override def keyboardFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit = {
-        if (!focused) setCurrentPathFieldText(currentDirectory.path)
+    currentPath.addListener(
+      new FocusListener() {
+        override def keyboardFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit =
+          if (!focused) setCurrentPathFieldText(currentDirectory.path)
       }
-    })
+    )
 
-    showRecentDirButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        val targetWidth = currentPath.width + showRecentDirButton.width
-        dirsSuggestionPopup.showRecentDirectories(getChooserStage, recentDirectories, targetWidth)
+    showRecentDirButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          val targetWidth = currentPath.width + showRecentDirButton.width
+          dirsSuggestionPopup.showRecentDirectories(getChooserStage, recentDirectories, targetWidth)
+        }
       }
-    })
+    )
 
     val folderParentButton = new VisImageButton(_chooserStyle.iconFolderParent.get)
     new sge.visui.widget.Tooltip.Builder(PARENT_DIRECTORY.get).target(folderParentButton).build()
@@ -272,20 +278,23 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     toolbarTable.add(Nullable[Actor](viewModeButton)).width(PrefWidthIfVisibleValue.INSTANCE).spaceRight(new ConstantIfVisibleValue(sizes.spacingRight))
     toolbarTable.add(Nullable[Actor](folderNewButton))
 
-    folderParentButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        val parent = currentDirectory.parent()
-        if (OsUtils.isWindows && currentDirectory.path.endsWith(":/")) { return; } // @nowarn -- Java interop for early return
-        setDirectory(parent, HistoryPolicy.ADD)
+    folderParentButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          val parent = currentDirectory.parent()
+          if (OsUtils.isWindows && currentDirectory.path.endsWith(":/")) { return; } // @nowarn -- Java interop for early return
+          setDirectory(parent, HistoryPolicy.ADD)
+        }
       }
-    })
+    )
 
-    favoriteFolderButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        if (favorites.contains(currentDirectory)) removeFavorite(currentDirectory)
-        else addFavorite(currentDirectory)
+    favoriteFolderButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+          if (favorites.contains(currentDirectory)) removeFavorite(currentDirectory)
+          else addFavorite(currentDirectory)
       }
-    })
+    )
 
     folderNewButton.addListener(new ChangeListener() {
       override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = showNewDirectoryDialog()
@@ -300,13 +309,13 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
     val fileScrollPaneTable = new VisTable()
     fileListBusyBar = new BusyBar()
-    fileListBusyBar.visible = (false)
+    fileListBusyBar.visible = false
     fileScrollPaneTable.add(Nullable[Actor](fileListBusyBar)).space(0).height(PrefHeightIfVisibleValue.INSTANCE).growX().row()
     fileScrollPaneTable.add(Nullable[Actor](fileListView.getMainTable)).pad(2).top().expand().fillX()
-    fileScrollPaneTable.touchable = (Touchable.enabled)
+    fileScrollPaneTable.touchable = Touchable.enabled
 
     shortcutsTable = new VisTable()
-    val shortcutsScrollPane = setupDefaultScrollPane(new VisScrollPane(shortcutsTable))
+    val shortcutsScrollPane      = setupDefaultScrollPane(new VisScrollPane(shortcutsTable))
     val shortcutsScrollPaneTable = new VisTable()
     shortcutsScrollPaneTable.add(Nullable[Actor](shortcutsScrollPane)).pad(2).top().expand().fillX()
 
@@ -319,16 +328,17 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     add(Nullable[Actor](mainSplitPane)).expand().fill()
     row()
 
-    fileScrollPaneTable.addListener(new InputListener() {
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = true
+    fileScrollPaneTable.addListener(
+      new InputListener() {
+        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = true
 
-      override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
-        if (button == Buttons.RIGHT && !fileMenu.isAddedToStage) {
-          fileMenu.build()
-          fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
-        }
+        override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit =
+          if (button == Buttons.RIGHT && !fileMenu.isAddedToStage) {
+            fileMenu.build()
+            fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
+          }
       }
-    })
+    )
   }
 
   private def setCurrentPathFieldText(text: String): Unit = {
@@ -337,7 +347,7 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   }
 
   private def createFileTextBox(): Unit = {
-    val table    = new VisTable(true)
+    val table     = new VisTable(true)
     val nameLabel = new VisLabel(FILE_NAME.get)
     selectedFileTextField = new VisTextField()
     selectedFileTextField.setProgrammaticChangeEvents(false)
@@ -346,12 +356,14 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     fileTypeSelectBox = new VisSelectBox[FileTypeFilter.Rule]()
     fileTypeSelectBox.selection.programmaticChangeEvents = false
 
-    fileTypeSelectBox.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        _activeFileTypeRule = fileTypeSelectBox.selected
-        rebuildFileList()
+    fileTypeSelectBox.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          _activeFileTypeRule = fileTypeSelectBox.selected
+          rebuildFileList()
+        }
       }
-    })
+    )
 
     table.defaults().left()
     table.add(Nullable[Actor](nameLabel))
@@ -359,21 +371,24 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     table.add(Nullable[Actor](fileTypeLabel)).height(PrefHeightIfVisibleValue.INSTANCE)
     table.add(Nullable[Actor](fileTypeSelectBox)).height(PrefHeightIfVisibleValue.INSTANCE).expand().fill()
 
-    selectedFileTextField.addListener(new InputListener() {
-      override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
-        if (keycode == Keys.ENTER) { selectionFinished(); true }
-        else false
+    selectedFileTextField.addListener(
+      new InputListener() {
+        override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean =
+          if (keycode == Keys.ENTER) { selectionFinished(); true }
+          else false
       }
-    })
+    )
 
-    selectedFileTextField.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        deselectAll(updateTextField = false)
-        fileNameSuggestionPopup.pathFieldKeyTyped(getChooserStage, currentFiles, selectedFileTextField)
-        val enteredFile = currentDirectory.child(selectedFileTextField.text)
-        if (currentFiles.contains(enteredFile)) highlightFiles(enteredFile)
+    selectedFileTextField.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          deselectAll(updateTextField = false)
+          fileNameSuggestionPopup.pathFieldKeyTyped(getChooserStage, currentFiles, selectedFileTextField)
+          val enteredFile = currentDirectory.child(selectedFileTextField.text)
+          if (currentFiles.contains(enteredFile)) highlightFiles(enteredFile)
+        }
       }
-    })
+    )
 
     add(Nullable[Actor](table)).expandX().fillX().pad(3f).padRight(2f).padBottom(2f)
     row()
@@ -393,12 +408,14 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     buttonBar.setButton(ButtonBar.ButtonType.OK, confirmButton)
     buttonTable.add(Nullable[Actor](buttonBar.createTable())).expand().right()
 
-    cancelButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        fadeOut()
-        _listener.canceled()
+    cancelButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          fadeOut()
+          _listener.canceled()
+        }
       }
-    })
+    )
 
     confirmButton.addListener(new ChangeListener() {
       override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = selectionFinished()
@@ -414,33 +431,33 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     shortcutsMainPanel.addActor(new ShortcutItem(new File(userHome), userName, _chooserStyle.iconFolder.get))
   }
 
-  private def createListeners(): Unit = {
-    addListener(new InputListener() {
-      override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
-        if (keycode == Keys.A && UIUtils.ctrl() && !getChooserStage.keyboardFocus.isInstanceOf[VisTextField]) {
-          selectAll(); true
-        } else false
-      }
+  private def createListeners(): Unit =
+    addListener(
+      new InputListener() {
+        override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean =
+          if (keycode == Keys.A && UIUtils.ctrl() && !getChooserStage.keyboardFocus.isInstanceOf[VisTextField]) {
+            selectAll(); true
+          } else false
 
-      override def keyTyped(event: InputEvent, character: Char): Boolean = {
-        if (getChooserStage.keyboardFocus.isInstanceOf[VisTextField]) false
-        else if (!Character.isLetterOrDigit(character)) false
-        else {
-          val name = String.valueOf(character)
-          val iter = currentFiles.iterator
-          while (iter.hasNext) {
-            val file = iter.next()
-            if (file.name.toLowerCase.startsWith(name)) {
-              deselectAll()
-              highlightFiles(file)
-              return true // @nowarn -- early return
+        override def keyTyped(event: InputEvent, character: Char): Boolean =
+          if (getChooserStage.keyboardFocus.isInstanceOf[VisTextField]) false
+          else if (!Character.isLetterOrDigit(character)) false
+          else {
+            val name  = String.valueOf(character)
+            val iter  = currentFiles.iterator
+            var found = false
+            while (iter.hasNext && !found) {
+              val file = iter.next()
+              if (file.name.toLowerCase.startsWith(name)) {
+                deselectAll()
+                highlightFiles(file)
+                found = true
+              }
             }
+            found
           }
-          false
-        }
       }
-    })
-  }
+    )
 
   private def selectionFinished(): Unit = {
     if (selectedItems.size == 1) {
@@ -480,9 +497,8 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
     if (_mode == Mode.OPEN) {
       val iter = f.iterator
-      while (iter.hasNext) {
+      while (iter.hasNext)
         if (!iter.next().exists()) { showDialog(POPUP_SELECTED_FILE_DOES_NOT_EXIST.get); return; } // @nowarn -- early return
-      }
     }
 
     if (f.size != 0) {
@@ -542,9 +558,15 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
   private def showOverwriteQuestion(filesList: DynamicArray[FileHandle]): Unit = {
     val text = if (filesList.size == 1) POPUP_FILE_EXIST_OVERWRITE.get else POPUP_MULTIPLE_FILE_EXIST_OVERWRITE.get
-    Dialogs.showOptionDialog(getChooserStage, POPUP_TITLE.get, text, OptionDialogType.YES_NO, new Dialogs.OptionDialogAdapter() {
-      override def yes(): Unit = notifyListenerAndCloseDialog(Nullable(filesList))
-    })
+    Dialogs.showOptionDialog(
+      getChooserStage,
+      POPUP_TITLE.get,
+      text,
+      OptionDialogType.YES_NO,
+      new Dialogs.OptionDialogAdapter() {
+        override def yes(): Unit = notifyListenerAndCloseDialog(Nullable(filesList))
+      }
+    )
   }
 
   private def rebuildShortcutsList(rebuildRootCache: Boolean): Unit = {
@@ -598,35 +620,44 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   private def rebuildFileList(stageChanged: Boolean): Unit = {
     filesListRebuildScheduled = false
     val selectedFiles = new scala.Array[FileHandle](selectedItems.size)
-    var i = 0; while (i < selectedFiles.length) { selectedFiles(i) = selectedItems(i).getFile; i += 1 }
+    var i             = 0; while (i < selectedFiles.length) { selectedFiles(i) = selectedItems(i).getFile; i += 1 }
     deselectAll()
     setCurrentPathFieldText(currentDirectory.path)
 
     if (!showBusyBarTask.isScheduled) Timer.schedule(showBusyBarTask, Seconds(0.2f))
 
     if (listDirFuture.isDefined) listDirFuture.get.cancel(true)
-    listDirFuture = Nullable(listDirExecutor.submit(new Runnable {
-      override def run(): Unit = {
-        if (!currentDirectory.exists() || !currentDirectory.isDirectory()) {
-          Sge().application.postRunnable(new Runnable { override def run(): Unit = setDirectory(getDefaultStartingDirectory, HistoryPolicy.ADD) })
-          return; // @nowarn -- early return
+    listDirFuture = Nullable(
+      listDirExecutor.submit(
+        new Runnable {
+          override def run(): Unit = {
+            if (!currentDirectory.exists() || !currentDirectory.isDirectory()) {
+              Sge().application.postRunnable(new Runnable { override def run(): Unit = setDirectory(getDefaultStartingDirectory, HistoryPolicy.ADD) })
+              return; // @nowarn -- early return
+            }
+            val files = FileUtils.sortFiles(listFilteredCurrentDirectory(), _sorting.get().comparator, !_sortingOrderAscending.get())
+            if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
+            val metadata = new java.util.IdentityHashMap[FileHandle, FileHandleMetadata](files.size)
+            val iter     = files.iterator
+            while (iter.hasNext) { val file = iter.next(); metadata.put(file, FileHandleMetadata.of(file)) }
+            if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
+            Sge().application.postRunnable(new Runnable { override def run(): Unit = buildFileList(files, metadata, selectedFiles, stageChanged) })
+          }
         }
-        val files    = FileUtils.sortFiles(listFilteredCurrentDirectory(), _sorting.get().comparator, !_sortingOrderAscending.get())
-        if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
-        val metadata = new java.util.IdentityHashMap[FileHandle, FileHandleMetadata](files.size)
-        val iter     = files.iterator
-        while (iter.hasNext) { val file = iter.next(); metadata.put(file, FileHandleMetadata.of(file)) }
-        if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- early return
-        Sge().application.postRunnable(new Runnable { override def run(): Unit = buildFileList(files, metadata, selectedFiles, stageChanged) })
-      }
-    }))
+      )
+    )
   }
 
-  private def buildFileList(files: DynamicArray[FileHandle], metadata: java.util.IdentityHashMap[FileHandle, FileHandleMetadata], selectedFiles: scala.Array[FileHandle], stageChanged: Boolean): Unit = {
+  private def buildFileList(
+    files:         DynamicArray[FileHandle],
+    metadata:      java.util.IdentityHashMap[FileHandle, FileHandleMetadata],
+    selectedFiles: scala.Array[FileHandle],
+    stageChanged:  Boolean
+  ): Unit = {
     currentFiles.clear()
     currentFilesMetadata.clear()
     showBusyBarTask.cancel()
-    fileListBusyBar.visible = (false)
+    fileListBusyBar.visible = false
     if (files.size == 0) { fileListAdapter.itemsChanged(); return; } // @nowarn -- early return
     maxDateLabelWidth = 0
     currentFiles.addAll(files)
@@ -645,9 +676,8 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   /** Sets chooser selected files. */
   def setSelectedFiles(files: FileHandle*): Unit = {
     deselectAll(updateTextField = false)
-    for (file <- files) {
+    for (file <- files)
       fileListAdapter.getViews.get(file).foreach(_.select(deselectIfAlreadySelected = false))
-    }
     removeInvalidSelections()
     updateSelectedFileFieldText()
   }
@@ -708,14 +738,13 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   }
 
   def highlightFiles(files: FileHandle*): Unit = {
-    for (file <- files) {
+    for (file <- files)
       fileListAdapter.getViews.get(file).foreach(_.select(deselectIfAlreadySelected = false))
-    }
     if (files.nonEmpty) {
       fileListAdapter.getViews.get(files.head).foreach { item =>
         item.parent.foreach {
           case t: Table => t.layout()
-          case _        => ()
+          case _ => ()
         }
         val tmpVector = new Vector2()
         item.localToParentCoordinates(tmpVector.setZero())
@@ -775,14 +804,14 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     favoriteFolderButtonTooltip.pack()
   }
 
-  private def updateFileTypeSelectBox(): Unit = {
+  private def updateFileTypeSelectBox(): Unit =
     if (_fileTypeFilter.isEmpty || _selectionMode == SelectionMode.DIRECTORIES) {
-      fileTypeLabel.visible = (false)
-      fileTypeSelectBox.visible = (false)
+      fileTypeLabel.visible = false
+      fileTypeSelectBox.visible = false
       fileTypeSelectBox.invalidateHierarchy()
     } else {
-      fileTypeLabel.visible = (true)
-      fileTypeSelectBox.visible = (true)
+      fileTypeLabel.visible = true
+      fileTypeSelectBox.visible = true
       fileTypeSelectBox.invalidateHierarchy()
       val rules = DynamicArray[FileTypeFilter.Rule]()
       rules.addAll(_fileTypeFilter.get.getRules)
@@ -790,7 +819,6 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
       fileTypeSelectBox.setItems(rules)
       if (_activeFileTypeRule.isDefined) fileTypeSelectBox.setSelected(_activeFileTypeRule.get)
     }
-  }
 
   def getMode: Mode = _mode
 
@@ -809,8 +837,8 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     rebuildFileList()
   }
 
-  def setDirectory(directory: String): Unit = setDirectory(Sge().files.absolute(directory), HistoryPolicy.CLEAR)
-  def setDirectory(directory: File): Unit   = setDirectory(Sge().files.absolute(directory.getAbsolutePath), HistoryPolicy.CLEAR)
+  def setDirectory(directory: String):     Unit = setDirectory(Sge().files.absolute(directory), HistoryPolicy.CLEAR)
+  def setDirectory(directory: File):       Unit = setDirectory(Sge().files.absolute(directory.getAbsolutePath), HistoryPolicy.CLEAR)
   def setDirectory(directory: FileHandle): Unit = setDirectory(directory, HistoryPolicy.CLEAR)
 
   override def setDirectory(directory: FileHandle, historyPolicy: HistoryPolicy): Unit = {
@@ -836,16 +864,15 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
       val rule     = _activeFileTypeRule.get
       val filtered = new scala.Array[FileHandle](files.length)
       var count    = 0
-      for (file <- files) {
+      for (file <- files)
         if (file.isDirectory() || rule.accept(file)) { filtered(count) = file; count += 1 }
-      }
       if (count == 0) new scala.Array[FileHandle](0)
       else { val r = new scala.Array[FileHandle](count); System.arraycopy(filtered, 0, r, 0, count); r }
     }
   }
 
-  def getFileFilter: FileFilter     = _fileFilter
-  def fileFilter_=(ff: FileFilter): Unit = { _fileFilter = ff; rebuildFileList() }
+  def getFileFilter:                FileFilter = _fileFilter
+  def fileFilter_=(ff: FileFilter): Unit       = { _fileFilter = ff; rebuildFileList() }
 
   def setFileTypeFilter(ftf: Nullable[FileTypeFilter]): Unit = {
     if (ftf.isEmpty) { _fileTypeFilter = Nullable.empty; _activeFileTypeRule = Nullable.empty }
@@ -860,20 +887,20 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
   def getActiveFileTypeFilterRule: FileTypeFilter.Rule = if (_activeFileTypeRule.isDefined) _activeFileTypeRule.get else null // @nowarn -- Java interop boundary
 
-  def selectionMode: SelectionMode = _selectionMode
-  def selectionMode_=(sm: SelectionMode): Unit = {
+  def selectionMode:                      SelectionMode = _selectionMode
+  def selectionMode_=(sm: SelectionMode): Unit          = {
     _selectionMode = if (sm == null) SelectionMode.FILES else sm // @nowarn -- Java interop boundary
     _selectionMode match {
-      case SelectionMode.FILES                => titleLabel.setText(TITLE_CHOOSE_FILES.get)
-      case SelectionMode.DIRECTORIES          => titleLabel.setText(TITLE_CHOOSE_DIRECTORIES.get)
+      case SelectionMode.FILES                 => titleLabel.setText(TITLE_CHOOSE_FILES.get)
+      case SelectionMode.DIRECTORIES           => titleLabel.setText(TITLE_CHOOSE_DIRECTORIES.get)
       case SelectionMode.FILES_AND_DIRECTORIES => titleLabel.setText(TITLE_CHOOSE_FILES_AND_DIRECTORIES.get)
     }
     updateFileTypeSelectBox()
     rebuildFileList()
   }
 
-  def getSorting: FileSorting       = _sorting.get()
-  def isSortingOrderAscending: Boolean = _sortingOrderAscending.get()
+  def getSorting:              FileSorting = _sorting.get()
+  def isSortingOrderAscending: Boolean     = _sortingOrderAscending.get()
 
   def setSorting(sorting: FileSorting, sortingOrderAscending: Boolean): Unit = {
     _sorting.set(sorting); _sortingOrderAscending.set(sortingOrderAscending); rebuildFileList()
@@ -881,18 +908,17 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
   def sortingOrderAscending_=(asc: Boolean): Unit = { _sortingOrderAscending.set(asc); rebuildFileList() }
 
-  def setListener(newListener: FileChooserListener): Unit = {
+  def setListener(newListener: FileChooserListener): Unit =
     _listener = if (newListener == null) new FileChooserAdapter() else newListener // @nowarn -- Java interop boundary
-  }
 
-  def showSelectionCheckboxes: Boolean = _showSelectionCheckboxes
-  def showSelectionCheckboxes_=(v: Boolean): Unit = { _showSelectionCheckboxes = v; rebuildFileList() }
+  def showSelectionCheckboxes:               Boolean = _showSelectionCheckboxes
+  def showSelectionCheckboxes_=(v: Boolean): Unit    = { _showSelectionCheckboxes = v; rebuildFileList() }
 
-  def multiSelectionEnabled: Boolean = _multiSelectionEnabled
-  def multiSelectionEnabled_=(v: Boolean): Unit = _multiSelectionEnabled = v
+  def multiSelectionEnabled:               Boolean = _multiSelectionEnabled
+  def multiSelectionEnabled_=(v: Boolean): Unit    = _multiSelectionEnabled = v
 
   def getChooserStyle: FileChooserStyle = _chooserStyle
-  def getSizes: Sizes                   = sizes
+  def getSizes:        Sizes            = sizes
 
   private def getChooserStage: Stage = stage.getOrElse(throw new IllegalStateException("FileChooser must be added to a Stage"))
 
@@ -928,27 +954,31 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
   private def startFileWatcher(): Unit = {
     if (fileWatcherThread.isDefined) { return; } // @nowarn -- early return
-    val thread = new Thread(new Runnable {
-      override def run(): Unit = {
-        var lastRoots            = File.listRoots()
-        var lastCurrentDirectory = currentDirectory
-        var lastCurrentFiles     = currentDirectory.list()
-        while (fileWatcherThread.isDefined) {
-          val roots = File.listRoots()
-          if (roots.length != lastRoots.length || !java.util.Arrays.equals(lastRoots.asInstanceOf[scala.Array[AnyRef]], roots.asInstanceOf[scala.Array[AnyRef]]))
-            shortcutsListRebuildScheduled = true
-          lastRoots = roots
-          if (lastCurrentDirectory.equals(currentDirectory)) {
-            val cf = currentDirectory.list()
-            if (lastCurrentFiles.length != cf.length || !java.util.Arrays.equals(lastCurrentFiles.asInstanceOf[scala.Array[AnyRef]], cf.asInstanceOf[scala.Array[AnyRef]]))
-              filesListRebuildScheduled = true
-            lastCurrentFiles = cf
-          } else lastCurrentFiles = currentDirectory.list()
-          lastCurrentDirectory = currentDirectory
-          try { Thread.sleep(2000) } catch { case _: InterruptedException => () }
+    val thread = new Thread(
+      new Runnable {
+        override def run(): Unit = {
+          var lastRoots            = File.listRoots()
+          var lastCurrentDirectory = currentDirectory
+          var lastCurrentFiles     = currentDirectory.list()
+          while (fileWatcherThread.isDefined) {
+            val roots = File.listRoots()
+            if (roots.length != lastRoots.length || !java.util.Arrays.equals(lastRoots.asInstanceOf[scala.Array[AnyRef]], roots.asInstanceOf[scala.Array[AnyRef]]))
+              shortcutsListRebuildScheduled = true
+            lastRoots = roots
+            if (lastCurrentDirectory.equals(currentDirectory)) {
+              val cf = currentDirectory.list()
+              if (lastCurrentFiles.length != cf.length || !java.util.Arrays.equals(lastCurrentFiles.asInstanceOf[scala.Array[AnyRef]], cf.asInstanceOf[scala.Array[AnyRef]]))
+                filesListRebuildScheduled = true
+              lastCurrentFiles = cf
+            } else lastCurrentFiles = currentDirectory.list()
+            lastCurrentDirectory = currentDirectory
+            try Thread.sleep(2000)
+            catch { case _: InterruptedException => () }
+          }
         }
-      }
-    }, "FileWatcherThread")
+      },
+      "FileWatcherThread"
+    )
     thread.setDaemon(true)
     thread.start()
     fileWatcherThread = Nullable(thread)
@@ -960,34 +990,41 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     fileWatcherThread = Nullable.empty
   }
 
-  private def showNewDirectoryDialog(): Unit = {
-    Dialogs.showInputDialog(getChooserStage, NEW_DIRECTORY_DIALOG_TITLE.get, NEW_DIRECTORY_DIALOG_TEXT.get, true, new Dialogs.InputDialogAdapter() {
-      override def finished(input: String): Unit = scala.util.boundary {
-        if (!FileUtils.isValidFileName(input)) { Dialogs.showErrorDialog(getChooserStage, NEW_DIRECTORY_DIALOG_ILLEGAL_CHARACTERS.get); scala.util.boundary.break(()) }
-        val listing = currentDirectory.list()
-        for (file <- listing) {
-          if (file.name.equals(input)) { Dialogs.showErrorDialog(getChooserStage, NEW_DIRECTORY_DIALOG_ALREADY_EXISTS.get); scala.util.boundary.break(()) }
+  private def showNewDirectoryDialog(): Unit =
+    Dialogs.showInputDialog(
+      getChooserStage,
+      NEW_DIRECTORY_DIALOG_TITLE.get,
+      NEW_DIRECTORY_DIALOG_TEXT.get,
+      true,
+      new Dialogs.InputDialogAdapter() {
+        override def finished(input: String): Unit = scala.util.boundary {
+          if (!FileUtils.isValidFileName(input)) { Dialogs.showErrorDialog(getChooserStage, NEW_DIRECTORY_DIALOG_ILLEGAL_CHARACTERS.get); scala.util.boundary.break(()) }
+          val listing = currentDirectory.list()
+          for (file <- listing)
+            if (file.name.equals(input)) { Dialogs.showErrorDialog(getChooserStage, NEW_DIRECTORY_DIALOG_ALREADY_EXISTS.get); scala.util.boundary.break(()) }
+          val newDir = currentDirectory.child(input)
+          newDir.mkdirs()
+          refresh()
+          highlightFiles(newDir)
         }
-        val newDir = currentDirectory.child(input)
-        newDir.mkdirs()
-        refresh()
-        highlightFiles(newDir)
       }
-    })
-  }
+    )
 
-  private def showFileDeleteDialog(fileToDelete: FileHandle): Unit = {
-    Dialogs.showOptionDialog(getChooserStage, POPUP_TITLE.get,
+  private def showFileDeleteDialog(fileToDelete: FileHandle): Unit =
+    Dialogs.showOptionDialog(
+      getChooserStage,
+      POPUP_TITLE.get,
       if (_fileDeleter.hasTrash) CONTEXT_MENU_MOVE_TO_TRASH_WARNING.get else CONTEXT_MENU_DELETE_WARNING.get,
-      OptionDialogType.YES_NO, new Dialogs.OptionDialogAdapter() {
+      OptionDialogType.YES_NO,
+      new Dialogs.OptionDialogAdapter() {
         override def yes(): Unit = {
-          try {
+          try
             if (!_fileDeleter.delete(fileToDelete)) Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get)
-          } catch { case e: IOException => Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get, e) }
+          catch { case e: IOException => Dialogs.showErrorDialog(getChooserStage, POPUP_DELETE_FILE_FAILED.get, e) }
           refresh()
         }
-      })
-  }
+      }
+    )
 
   def setFileDeleter(fileDeleter: FileDeleter): Unit = {
     require(fileDeleter != null, "fileDeleter can't be null") // @nowarn -- Java interop boundary
@@ -995,8 +1032,8 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     fileMenu.fileDeleterChanged(fileDeleter.hasTrash)
   }
 
-  def setIconProvider(iconProvider: FileIconProvider): Unit = { _iconProvider = iconProvider }
-  def getIconProvider: FileIconProvider                     = _iconProvider
+  def setIconProvider(iconProvider: FileIconProvider): Unit             = _iconProvider = iconProvider
+  def getIconProvider:                                 FileIconProvider = _iconProvider
 
   /** Internal factory method for creating FileItem instances. */
   private[file] def createFileItem(file: FileHandle, viewMode: ViewMode): FileItem = new FileItem(file, viewMode)
@@ -1006,7 +1043,7 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
   private class ShowBusyBarTask extends Timer.Task {
     override def run(): Unit = {
       fileListBusyBar.resetSegment()
-      fileListBusyBar.visible = (true)
+      fileListBusyBar.visible = true
       currentFiles.clear()
       currentFilesMetadata.clear()
       fileListAdapter.itemsChanged()
@@ -1014,21 +1051,21 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
 
     override def cancel(): Unit = { // Note: using direct override since synchronized not needed in single-threaded scene2d
       super.cancel()
-      fileListBusyBar.visible = (false)
+      fileListBusyBar.visible = false
     }
   }
 
   /** Internal FileChooser API. */
   class FileItem(val file: FileHandle, viewMode: ViewMode) extends Table with Focusable {
-    private val metadata:       FileHandleMetadata = {
+    private val metadata: FileHandleMetadata = {
       val m = currentFilesMetadata.get(file)
       if (m == null) FileHandleMetadata.of(file) else m // @nowarn -- Java interop boundary
     }
-    private val selectCheckBox: VisCheckBox        = new VisCheckBox("")
-    private var iconImage:      VisImage           = scala.compiletime.uninitialized
+    private val selectCheckBox: VisCheckBox = new VisCheckBox("")
+    private var iconImage:      VisImage    = scala.compiletime.uninitialized
 
     {
-      touchable = (Touchable.enabled)
+      touchable = Touchable.enabled
       val name = new VisLabel(metadata.name, if (viewMode == ViewMode.SMALL_ICONS) "small" else "default")
       name.setEllipsis(true)
       val icon = _iconProvider.provideIcon(this)
@@ -1059,16 +1096,18 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
         add(Nullable[Actor](iconImage)).padTop(3).minWidth(22 * sizes.scaleFactor)
         add(Nullable[Actor](name)).minWidth(1).growX().padRight(10)
 
-        val sizeLabel  = new VisLabel(if (isDirectory) "" else metadata.readableFileSize, "small")
+        val sizeLabel = new VisLabel(if (isDirectory) "" else metadata.readableFileSize, "small")
         val dateLabel = new VisLabel(dateFormat.format(metadata.lastModified), "small")
         sizeLabel.setAlignment(Align.right)
 
         if (viewMode == ViewMode.DETAILS) {
           maxDateLabelWidth = Math.max(dateLabel.width, maxDateLabelWidth)
           add(Nullable[Actor](sizeLabel)).right().padRight(if (isDirectory) 0 else 10)
-          add(Nullable[Actor](dateLabel)).padRight(6).width(new Value() {
-            override def get(context: Nullable[Actor]): Float = maxDateLabelWidth
-          })
+          add(Nullable[Actor](dateLabel))
+            .padRight(6)
+            .width(new Value() {
+              override def get(context: Nullable[Actor]): Float = maxDateLabelWidth
+            })
         }
       }
       addListeners()
@@ -1081,43 +1120,49 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     }
 
     private def addListeners(): Unit = {
-      addListener(new InputListener() {
-        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
-          FocusManager.switchFocus(getChooserStage, FileItem.this)
-          getChooserStage.setKeyboardFocus(FileItem.this)
-          true
+      addListener(
+        new InputListener() {
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
+            FocusManager.switchFocus(getChooserStage, FileItem.this)
+            getChooserStage.setKeyboardFocus(FileItem.this)
+            true
+          }
+          override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit =
+            if (event.button == Buttons.RIGHT) {
+              fileMenu.build(favorites, file)
+              fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
+            }
+          override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean =
+            if (keycode == Keys.FORWARD_DEL) { showFileDeleteDialog(file); true }
+            else false
         }
-        override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
-          if (event.button == Buttons.RIGHT) {
-            fileMenu.build(favorites, file)
-            fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
+      )
+
+      addListener(
+        new ClickListener() {
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean =
+            if (!handleSelectClick(checkboxClicked = false)) false
+            else super.touchDown(event, x, y, pointer, button)
+          override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
+            super.clicked(event, x, y)
+            if (tapCount == 2 && selectedItems.contains(FileItem.this)) {
+              if (file.isDirectory()) setDirectory(file, HistoryPolicy.ADD)
+              else selectionFinished()
+            }
           }
         }
-        override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
-          if (keycode == Keys.FORWARD_DEL) { showFileDeleteDialog(file); true } else false
-        }
-      })
+      )
 
-      addListener(new ClickListener() {
-        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
-          if (!handleSelectClick(checkboxClicked = false)) false
-          else super.touchDown(event, x, y, pointer, button)
+      selectCheckBox.addListener(
+        new InputListener() {
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = { event.stop(); true }
         }
-        override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
-          super.clicked(event, x, y)
-          if (tapCount == 2 && selectedItems.contains(FileItem.this)) {
-            if (file.isDirectory()) setDirectory(file, HistoryPolicy.ADD)
-            else selectionFinished()
-          }
+      )
+      selectCheckBox.addListener(
+        new ChangeListener() {
+          override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = { event.stop(); handleSelectClick(checkboxClicked = true) }
         }
-      })
-
-      selectCheckBox.addListener(new InputListener() {
-        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = { event.stop(); true }
-      })
-      selectCheckBox.addListener(new ChangeListener() {
-        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = { event.stop(); handleSelectClick(checkboxClicked = true) }
-      })
+      )
     }
 
     private def handleSelectClick(checkboxClicked: Boolean): Boolean = {
@@ -1135,24 +1180,26 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     }
 
     private def selectGroup(): Unit = {
-      val actors            = fileListAdapter.getOrderedViews.asInstanceOf[DynamicArray[FileItem]]
+      val actors             = fileListAdapter.getOrderedViews.asInstanceOf[DynamicArray[FileItem]]
       val thisSelectionIndex = getItemId(actors, FileItem.this)
       val lastSelectionIndex = getItemId(actors, selectedItems(selectedItems.size - 2))
-      val start = Math.min(thisSelectionIndex, lastSelectionIndex)
-      val end   = Math.max(thisSelectionIndex, lastSelectionIndex)
-      var i     = start
+      val start              = Math.min(thisSelectionIndex, lastSelectionIndex)
+      val end                = Math.max(thisSelectionIndex, lastSelectionIndex)
+      var i                  = start
       while (i < end) { actors(i).select(deselectIfAlreadySelected = false); i += 1 }
     }
 
     private def getItemId(actors: DynamicArray[FileItem], item: FileItem): Int = {
-      var i = 0
-      while (i < actors.size) { if (actors(i).eq(item)) return i; i += 1 } // @nowarn -- early return
-      throw new IllegalStateException("Item not found in cells")
+      var i     = 0
+      var found = -1
+      while (i < actors.size && found == -1) { if (actors(i).eq(item)) found = i; i += 1 }
+      if (found == -1) throw new IllegalStateException("Item not found in cells")
+      found
     }
 
     private def select(): Boolean = select(deselectIfAlreadySelected = true)
 
-    private[file] def select(deselectIfAlreadySelected: Boolean): Boolean = {
+    private[file] def select(deselectIfAlreadySelected: Boolean): Boolean =
       if (deselectIfAlreadySelected && selectedItems.containsByRef(this)) { deselect(); false }
       else {
         setBackground(_chooserStyle.highlight.get)
@@ -1160,7 +1207,6 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
         if (!selectedItems.containsByRef(this)) selectedItems.add(this)
         true
       }
-    }
 
     private def deselect(): Unit = deselect(removeFromList = true)
 
@@ -1170,10 +1216,10 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
       if (removeFromList) selectedItems.removeValue(this)
     }
 
-    override def focusLost(): Unit  = ()
-    override def focusGained(): Unit = ()
-    def getFile: FileHandle          = file
-    def isDirectory: Boolean         = metadata.isDirectory
+    override def focusLost():   Unit       = ()
+    override def focusGained(): Unit       = ()
+    def getFile:                FileHandle = file
+    def isDirectory:            Boolean    = metadata.isDirectory
   }
 
   private class ShortcutItem(val file: File, customName: String, icon: Drawable) extends Table with FileChooserWinService.RootNameListener with Focusable {
@@ -1187,49 +1233,51 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
         override def get(context: Nullable[Actor]): Float = mainSplitPane.getFirstWidgetBounds.width - 30
       })
 
-      addListener(new InputListener() {
-        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
-          FocusManager.switchFocus(getChooserStage, ShortcutItem.this)
-          getChooserStage.setKeyboardFocus(ShortcutItem.this)
-          true
-        }
-        override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
-          if (event.button == Buttons.RIGHT) {
-            fileMenu.buildForFavorite(favorites, file)
-            fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
-          }
-        }
-        override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean = {
-          if (keycode == Keys.FORWARD_DEL) {
-            val gdxFile = Sge().files.absolute(file.getAbsolutePath)
-            if (favorites.contains(gdxFile)) removeFavorite(gdxFile)
+      addListener(
+        new InputListener() {
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
+            FocusManager.switchFocus(getChooserStage, ShortcutItem.this)
+            getChooserStage.setKeyboardFocus(ShortcutItem.this)
             true
-          } else false
+          }
+          override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit =
+            if (event.button == Buttons.RIGHT) {
+              fileMenu.buildForFavorite(favorites, file)
+              fileMenu.showMenu(getChooserStage, event.stageX, event.stageY)
+            }
+          override def keyDown(event: InputEvent, keycode: sge.Input.Key): Boolean =
+            if (keycode == Keys.FORWARD_DEL) {
+              val gdxFile = Sge().files.absolute(file.getAbsolutePath)
+              if (favorites.contains(gdxFile)) removeFavorite(gdxFile)
+              true
+            } else false
         }
-      })
+      )
 
-      addListener(new ClickListener() {
-        override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
-          deselectAll()
-          updateSelectedFileFieldText()
-          selectShortcut()
-          super.touchDown(event, x, y, pointer, button)
-        }
-        override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
-          super.clicked(event, x, y)
-          if (tapCount == 1) {
-            if (!file.exists()) { showDialog(POPUP_DIRECTORY_DOES_NOT_EXIST.get); refresh() }
-            else if (file.isDirectory()) {
-              setDirectory(Sge().files.absolute(file.getAbsolutePath), HistoryPolicy.ADD)
-              getChooserStage.setScrollFocus(fileListView.getScrollPane)
+      addListener(
+        new ClickListener() {
+          override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
+            deselectAll()
+            updateSelectedFileFieldText()
+            selectShortcut()
+            super.touchDown(event, x, y, pointer, button)
+          }
+          override def clicked(event: InputEvent, x: Float, y: Float): Unit = {
+            super.clicked(event, x, y)
+            if (tapCount == 1) {
+              if (!file.exists()) { showDialog(POPUP_DIRECTORY_DOES_NOT_EXIST.get); refresh() }
+              else if (file.isDirectory()) {
+                setDirectory(Sge().files.absolute(file.getAbsolutePath), HistoryPolicy.ADD)
+                getChooserStage.setScrollFocus(fileListView.getScrollPane)
+              }
             }
           }
         }
-      })
+      )
     }
 
-    def setLabelText(text: String): Unit = _nameLabel.setText(text)
-    def getLabelText: String             = _nameLabel.text.toString
+    def setLabelText(text: String): Unit   = _nameLabel.setText(text)
+    def getLabelText:               String = _nameLabel.text.toString
 
     private def selectShortcut(): Unit = {
       if (selectedShortcut.isDefined) selectedShortcut.get.deselect()
@@ -1240,27 +1288,25 @@ class FileChooser(private var _mode: FileChooser.Mode)(using Sge) extends VisWin
     def deselect(): Unit = setBackground(Nullable.empty[Drawable])
 
     override def setRootName(newName: String): Unit = setLabelText(newName)
-    override def focusGained(): Unit                = ()
-    override def focusLost(): Unit                  = ()
+    override def focusGained():                Unit = ()
+    override def focusLost():                  Unit = ()
   }
 
-  private def isMultiSelectKeyPressed: Boolean = {
+  private def isMultiSelectKeyPressed: Boolean =
     if (_multiSelectKey == DEFAULT_KEY) UIUtils.ctrl()
     else Sge().input.isKeyPressed(Input.Key(_multiSelectKey))
-  }
 
-  private def isGroupMultiSelectKeyPressed: Boolean = {
+  private def isGroupMultiSelectKeyPressed: Boolean =
     if (_groupMultiSelectKey == DEFAULT_KEY) UIUtils.shift()
     else Sge().input.isKeyPressed(Input.Key(_groupMultiSelectKey))
-  }
 }
 
 object FileChooser {
   val DEFAULT_KEY: Int = -1
 
-  var saveLastDirectory:                     Boolean = false
-  var focusFileScrollPaneOnShow:             Boolean = true
-  var focusSelectedFileTextFieldOnShow:      Boolean = true
+  var saveLastDirectory:                Boolean = false
+  var focusFileScrollPaneOnShow:        Boolean = true
+  var focusSelectedFileTextFieldOnShow: Boolean = true
 
   def setDefaultPrefsName(prefsName: String): Unit = PreferencesIO.setDefaultPrefsName(prefsName)
 
@@ -1268,19 +1314,19 @@ object FileChooser {
   enum SelectionMode { case FILES, DIRECTORIES, FILES_AND_DIRECTORIES }
 
   enum FileSorting(val comparator: Comparator[FileHandle]) {
-    case NAME          extends FileSorting(FileUtils.FILE_NAME_COMPARATOR)
+    case NAME extends FileSorting(FileUtils.FILE_NAME_COMPARATOR)
     case MODIFIED_DATE extends FileSorting(FileUtils.FILE_MODIFIED_DATE_COMPARATOR)
-    case SIZE          extends FileSorting(FileUtils.FILE_SIZE_COMPARATOR)
+    case SIZE extends FileSorting(FileUtils.FILE_SIZE_COMPARATOR)
   }
 
   enum HistoryPolicy { case ADD, CLEAR, IGNORE }
 
   enum ViewMode(val thumbnailMode: Boolean, val bundleText: FileChooserText) {
-    case DETAILS      extends ViewMode(false, VIEW_MODE_DETAILS)
-    case BIG_ICONS    extends ViewMode(true, VIEW_MODE_BIG_ICONS)
+    case DETAILS extends ViewMode(false, VIEW_MODE_DETAILS)
+    case BIG_ICONS extends ViewMode(true, VIEW_MODE_BIG_ICONS)
     case MEDIUM_ICONS extends ViewMode(true, VIEW_MODE_MEDIUM_ICONS)
-    case SMALL_ICONS  extends ViewMode(true, VIEW_MODE_SMALL_ICONS)
-    case LIST         extends ViewMode(false, VIEW_MODE_LIST)
+    case SMALL_ICONS extends ViewMode(true, VIEW_MODE_SMALL_ICONS)
+    case LIST extends ViewMode(false, VIEW_MODE_LIST)
 
     def getBundleText: String = bundleText.get
 
@@ -1292,7 +1338,7 @@ object FileChooser {
       group.setItemSize(gridSize)
     }
 
-    def isGridMode: Boolean     = isThumbnailMode || this == LIST
+    def isGridMode:      Boolean = isThumbnailMode || this == LIST
     def isThumbnailMode: Boolean = thumbnailMode
 
     def getGridSize(sizes: Sizes): Float = this match {
@@ -1305,16 +1351,16 @@ object FileChooser {
   }
 
   trait FileIconProvider {
-    def provideIcon(item: FileChooser#FileItem): Nullable[Drawable]
-    def isThumbnailModesSupported: Boolean
-    def directoryChanged(newDirectory: FileHandle): Unit
-    def viewModeChanged(newViewMode: ViewMode): Unit
+    def provideIcon(item:              FileChooser#FileItem): Nullable[Drawable]
+    def isThumbnailModesSupported:                            Boolean
+    def directoryChanged(newDirectory: FileHandle):           Unit
+    def viewModeChanged(newViewMode:   ViewMode):             Unit
   }
 
   class DefaultFileIconProvider(protected val chooser: FileChooser) extends FileIconProvider {
     protected val style: FileChooserStyle = chooser.getChooserStyle
 
-    override def provideIcon(item: FileChooser#FileItem): Nullable[Drawable] = {
+    override def provideIcon(item: FileChooser#FileItem): Nullable[Drawable] =
       if (item.isDirectory) getDirIcon(item)
       else {
         val ext = item.getFile.extension.toLowerCase
@@ -1324,41 +1370,39 @@ object FileChooser {
         else if (ext == "txt") getTextIcon(item)
         else getDefaultIcon(item)
       }
-    }
 
-    protected def getDirIcon(item: FileChooser#FileItem): Nullable[Drawable]     = style.iconFolder
-    protected def getImageIcon(item: FileChooser#FileItem): Nullable[Drawable]   = style.iconFileImage
-    protected def getAudioIcon(item: FileChooser#FileItem): Nullable[Drawable]   = style.iconFileAudio
-    protected def getPdfIcon(item: FileChooser#FileItem): Nullable[Drawable]     = style.iconFilePdf
-    protected def getTextIcon(item: FileChooser#FileItem): Nullable[Drawable]    = style.iconFileText
+    protected def getDirIcon(item:     FileChooser#FileItem): Nullable[Drawable] = style.iconFolder
+    protected def getImageIcon(item:   FileChooser#FileItem): Nullable[Drawable] = style.iconFileImage
+    protected def getAudioIcon(item:   FileChooser#FileItem): Nullable[Drawable] = style.iconFileAudio
+    protected def getPdfIcon(item:     FileChooser#FileItem): Nullable[Drawable] = style.iconFilePdf
+    protected def getTextIcon(item:    FileChooser#FileItem): Nullable[Drawable] = style.iconFileText
     protected def getDefaultIcon(item: FileChooser#FileItem): Nullable[Drawable] = Nullable.empty
 
-    override def isThumbnailModesSupported: Boolean            = false
-    override def directoryChanged(newDirectory: FileHandle): Unit = ()
-    override def viewModeChanged(newViewMode: ViewMode): Unit    = ()
+    override def isThumbnailModesSupported:                  Boolean = false
+    override def directoryChanged(newDirectory: FileHandle): Unit    = ()
+    override def viewModeChanged(newViewMode:   ViewMode):   Unit    = ()
   }
 
   class DefaultFileFilter(chooser: FileChooser) extends FileFilter {
     private var _ignoreChooserSelectionMode: Boolean = false
 
-    override def accept(f: File): Boolean = {
+    override def accept(f: File): Boolean =
       if (f.isHidden) false
       else if (if (chooser.getMode == Mode.OPEN) !f.canRead else !f.canWrite) false
       else if (!_ignoreChooserSelectionMode && !f.isDirectory && chooser.selectionMode == SelectionMode.DIRECTORIES) false
       else true
-    }
 
-    def ignoreChooserSelectionMode: Boolean               = _ignoreChooserSelectionMode
-    def ignoreChooserSelectionMode_=(v: Boolean): Unit = _ignoreChooserSelectionMode = v
+    def ignoreChooserSelectionMode:               Boolean = _ignoreChooserSelectionMode
+    def ignoreChooserSelectionMode_=(v: Boolean): Unit    = _ignoreChooserSelectionMode = v
   }
 
   trait FileDeleter {
-    def hasTrash: Boolean
+    def hasTrash:                 Boolean
     def delete(file: FileHandle): Boolean
   }
 
   class DefaultFileDeleter extends FileDeleter {
-    override def hasTrash: Boolean             = false
+    override def hasTrash:                 Boolean = false
     override def delete(file: FileHandle): Boolean = file.deleteDirectory()
   }
 }

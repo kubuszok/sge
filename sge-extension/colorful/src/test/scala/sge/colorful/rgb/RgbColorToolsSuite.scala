@@ -50,7 +50,7 @@ class RgbColorToolsSuite extends munit.FunSuite {
   }
 
   test("lighten moves color towards white") {
-    val red = ColorTools.rgb(1f, 0f, 0f, 1f)
+    val red     = ColorTools.rgb(1f, 0f, 0f, 1f)
     val lighter = ColorTools.lighten(red, 0.5f)
     assert(ColorTools.green(lighter) > 0f, s"green should increase: ${ColorTools.green(lighter)}")
     assert(ColorTools.blue(lighter) > 0f, s"blue should increase: ${ColorTools.blue(lighter)}")
@@ -58,7 +58,7 @@ class RgbColorToolsSuite extends munit.FunSuite {
   }
 
   test("darken moves color towards black") {
-    val white = ColorTools.rgb(1f, 1f, 1f, 1f)
+    val white  = ColorTools.rgb(1f, 1f, 1f, 1f)
     val darker = ColorTools.darken(white, 0.5f)
     assert(ColorTools.red(darker) < 1f, s"red should decrease: ${ColorTools.red(darker)}")
     assert(ColorTools.green(darker) < 1f, s"green should decrease: ${ColorTools.green(darker)}")
@@ -66,16 +66,16 @@ class RgbColorToolsSuite extends munit.FunSuite {
   }
 
   test("lighten and darken preserve alpha") {
-    val color = ColorTools.rgb(0.5f, 0.5f, 0.5f, 0.6f)
+    val color   = ColorTools.rgb(0.5f, 0.5f, 0.5f, 0.6f)
     val lighter = ColorTools.lighten(color, 0.3f)
-    val darker = ColorTools.darken(color, 0.3f)
+    val darker  = ColorTools.darken(color, 0.3f)
     assertApprox(ColorTools.alpha(lighter), ColorTools.alpha(color), clue = "lighten alpha")
     assertApprox(ColorTools.alpha(darker), ColorTools.alpha(color), clue = "darken alpha")
   }
 
   test("hue of pure red is approximately 0") {
     val red = ColorTools.rgb(1f, 0f, 0f, 1f)
-    val h = ColorTools.hue(red)
+    val h   = ColorTools.hue(red)
     assert(h < 0.05f || h > 0.95f, s"red hue should be ~0 or ~1, got $h")
   }
 
@@ -91,8 +91,8 @@ class RgbColorToolsSuite extends munit.FunSuite {
 
   test("toRGBA8888 and fromRGBA8888 roundtrip") {
     val packed = ColorTools.rgb(0.6f, 0.3f, 0.9f, 1f)
-    val rgba = ColorTools.toRGBA8888(packed)
-    val back = ColorTools.fromRGBA8888(rgba)
+    val rgba   = ColorTools.toRGBA8888(packed)
+    val back   = ColorTools.fromRGBA8888(rgba)
     assertApprox(ColorTools.red(back), ColorTools.red(packed), tolerance = 0.01f, clue = "red roundtrip")
     assertApprox(ColorTools.green(back), ColorTools.green(packed), tolerance = 0.01f, clue = "green roundtrip")
     assertApprox(ColorTools.blue(back), ColorTools.blue(packed), tolerance = 0.01f, clue = "blue roundtrip")

@@ -18,15 +18,14 @@ import sge.visui.i18n.BundleText
 /** Contains texts for chooser access via I18NBundle.
   * @author
   *   Kotcrab
-  * @since
-  *   0.7.0
+  * @since 0.7.0
   */
 enum ColorPickerText(val entryName: String) extends BundleText {
-  case TITLE   extends ColorPickerText("title")
+  case TITLE extends ColorPickerText("title")
   case RESTORE extends ColorPickerText("restore")
-  case CANCEL  extends ColorPickerText("cancel")
-  case OK      extends ColorPickerText("ok")
-  case HEX     extends ColorPickerText("hex")
+  case CANCEL extends ColorPickerText("cancel")
+  case OK extends ColorPickerText("ok")
+  case HEX extends ColorPickerText("hex")
 
   override def name:                       String = entryName
   override def get:                        String = ColorPickerText.getBundle.get(entryName)

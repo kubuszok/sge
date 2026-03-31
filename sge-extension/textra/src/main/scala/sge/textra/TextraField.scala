@@ -29,33 +29,33 @@ class TextraField {
   protected val NEWLINE:         Char = '\n'
   protected val TAB:             Char = '\t'
   protected val DELETE:          Char = 127.toChar
-  val BULLET: Char = 8226.toChar // u2022, or bullet
+  val BULLET:                    Char = 8226.toChar // u2022, or bullet
 
-  protected var text:    String  = ""
-  protected var cursor:  Int     = 0
-  protected var writeEnters: Boolean = false
-  protected var label: TypingLabel = new TypingLabel()
+  protected var text:        String      = ""
+  protected var cursor:      Int         = 0
+  protected var writeEnters: Boolean     = false
+  protected var label:       TypingLabel = new TypingLabel()
 
-  protected var style: Nullable[Styles.TextFieldStyle] = Nullable.empty
-  protected var messageText: Nullable[String] = Nullable.empty
-  protected var showingMessage: Boolean = false
-  protected var focusTraversal: Boolean = true
-  protected var onlyFontChars:  Boolean = true
-  protected var disabled:       Boolean = false
-  protected var textHAlign:     Int     = 8 // Align.left
+  protected var style:          Nullable[Styles.TextFieldStyle] = Nullable.empty
+  protected var messageText:    Nullable[String]                = Nullable.empty
+  protected var showingMessage: Boolean                         = false
+  protected var focusTraversal: Boolean                         = true
+  protected var onlyFontChars:  Boolean                         = true
+  protected var disabled:       Boolean                         = false
+  protected var textHAlign:     Int                             = 8 // Align.left
 
-  protected var undoText:       String  = ""
-  protected var lastChangeTime: Long    = 0
+  protected var undoText:       String = ""
+  protected var lastChangeTime: Long   = 0
 
   protected var passwordMode:      Boolean = false
-  protected var passwordCharacter:  Char    = BULLET
+  protected var passwordCharacter: Char    = BULLET
 
-  protected var fontOffset:      Float = 0f
-  protected var textOffset:      Float = 0f
-  protected var renderOffset:    Float = 0f
-  protected var visibleTextStart: Int  = 0
-  protected var visibleTextEnd:   Int  = 0
-  protected var maxLength:       Int   = 0
+  protected var fontOffset:       Float = 0f
+  protected var textOffset:       Float = 0f
+  protected var renderOffset:     Float = 0f
+  protected var visibleTextStart: Int   = 0
+  protected var visibleTextEnd:   Int   = 0
+  protected var maxLength:        Int   = 0
 
   protected var focused:      Boolean = false
   protected var cursorOn:     Boolean = false
@@ -88,63 +88,52 @@ class TextraField {
     setText(text)
   }
 
-  def setStyle(style: Styles.TextFieldStyle): Unit = {
+  def setStyle(style: Styles.TextFieldStyle): Unit =
     this.style = Nullable(style)
-  }
 
   def getStyle: Nullable[Styles.TextFieldStyle] = style
 
-  def setText(text: Nullable[String]): Unit = {
+  def setText(text: Nullable[String]): Unit =
     this.text = Nullable.fold(text)("")(identity)
-  }
 
   def getText: String = text
 
-  def setMaxLength(maxLength: Int): Unit = {
+  def setMaxLength(maxLength: Int): Unit =
     this.maxLength = maxLength
-  }
 
   def getMaxLength: Int = maxLength
 
-  def setOnlyFontChars(onlyFontChars: Boolean): Unit = {
+  def setOnlyFontChars(onlyFontChars: Boolean): Unit =
     this.onlyFontChars = onlyFontChars
-  }
 
   def getCursor: Int = cursor
 
-  def setCursor(cursor: Int): Unit = {
+  def setCursor(cursor: Int): Unit =
     this.cursor = cursor
-  }
 
   def isPasswordMode: Boolean = passwordMode
 
-  def setPasswordMode(passwordMode: Boolean): Unit = {
+  def setPasswordMode(passwordMode: Boolean): Unit =
     this.passwordMode = passwordMode
-  }
 
-  def setPasswordCharacter(passwordCharacter: Char): Unit = {
+  def setPasswordCharacter(passwordCharacter: Char): Unit =
     this.passwordCharacter = passwordCharacter
-  }
 
   def isDisabled: Boolean = disabled
 
-  def setDisabled(disabled: Boolean): Unit = {
+  def setDisabled(disabled: Boolean): Unit =
     this.disabled = disabled
-  }
 
-  def setFocusTraversal(focusTraversal: Boolean): Unit = {
+  def setFocusTraversal(focusTraversal: Boolean): Unit =
     this.focusTraversal = focusTraversal
-  }
 
-  def setMessageText(messageText: Nullable[String]): Unit = {
+  def setMessageText(messageText: Nullable[String]): Unit =
     this.messageText = messageText
-  }
 
   def getMessageText: Nullable[String] = messageText
 
-  def setAlignment(alignment: Int): Unit = {
+  def setAlignment(alignment: Int): Unit =
     this.textHAlign = alignment
-  }
 
   protected def updateDisplayText(): Unit = {
     // In full implementation, updates the label with current text

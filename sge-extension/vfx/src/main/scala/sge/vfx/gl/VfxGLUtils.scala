@@ -22,24 +22,21 @@ object VfxGLUtils {
 
   private val tmpViewport: VfxGlViewport = VfxGlViewport()
 
-  /** The code that is always added to the vertex shader code. Note that this is added as-is, you should include a newline (`\n`) if
-    * needed.
+  /** The code that is always added to the vertex shader code. Note that this is added as-is, you should include a newline (`\n`) if needed.
     */
   var prependVertexCode: String = ""
 
-  /** The code that is always added to every fragment shader code. Note that this is added as-is, you should include a newline (`\n`)
-    * if needed.
+  /** The code that is always added to every fragment shader code. Note that this is added as-is, you should include a newline (`\n`) if needed.
     */
   var prependFragmentCode: String = ""
 
   /** This field is used to provide custom GL calls implementation. */
   var glExtension: VfxGlExtension = uninitialized
 
-  def initExtension()(using Sge): Unit = {
+  def initExtension()(using Sge): Unit =
     if (glExtension == null) { // @nowarn — Java interop init guard
       glExtension = DefaultVfxGlExtension()
     }
-  }
 
   def getBoundFboHandle()(using Sge): Int = {
     initExtension()
@@ -61,8 +58,8 @@ object VfxGLUtils {
 
     val prependVert = prependVertexCode + defines
     val prependFrag = prependFragmentCode + defines
-    val srcVert = vertexFile.readString()
-    val srcFrag = fragmentFile.readString()
+    val srcVert     = vertexFile.readString()
+    val srcFrag     = fragmentFile.readString()
 
     val shader = ShaderProgram(prependVert + "\n" + srcVert, prependFrag + "\n" + srcFrag)
 
@@ -75,12 +72,11 @@ object VfxGLUtils {
   /** Enable pipeline state queries: beware the pipeline can stall! */
   var enableGLQueryStates: Boolean = false
 
-  /** Provides a simple mechanism to query OpenGL pipeline states. Note: state queries are costly and stall the pipeline, especially
-    * on mobile devices!
+  /** Provides a simple mechanism to query OpenGL pipeline states. Note: state queries are costly and stall the pipeline, especially on mobile devices!
     *
     * Queries switched off by default. Update [[enableGLQueryStates]] flag to enable them.
     */
-  def isGLEnabled(pName: Int)(using Sge): Boolean = {
+  def isGLEnabled(pName: Int)(using Sge): Boolean =
     if (!enableGLQueryStates) false
     else {
       pName match {
@@ -93,5 +89,4 @@ object VfxGLUtils {
         case _ => false
       }
     }
-  }
 }

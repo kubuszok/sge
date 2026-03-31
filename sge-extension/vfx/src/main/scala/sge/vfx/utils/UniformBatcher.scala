@@ -14,8 +14,8 @@ import sge.utils.Nullable
 
 class UniformBatcher(using Sge) {
 
-  private var program: Nullable[ShaderProgram] = Nullable.empty
-  private var activateShader: Boolean = false
+  private var program:        Nullable[ShaderProgram] = Nullable.empty
+  private var activateShader: Boolean                 = false
 
   def begin(prog: ShaderProgram, activate: Boolean): UniformBatcher = {
     this.program = Nullable(prog)
@@ -29,11 +29,10 @@ class UniformBatcher(using Sge) {
   }
 
   /** Should be called after set* method calls. */
-  def end(): Unit = {
+  def end(): Unit =
     if (activateShader) {
       Sge().graphics.gl20.glUseProgram(0)
     }
-  }
 
   /** Updates shader's uniform of float type. */
   def set(uniformName: String, value: Float): UniformBatcher = {

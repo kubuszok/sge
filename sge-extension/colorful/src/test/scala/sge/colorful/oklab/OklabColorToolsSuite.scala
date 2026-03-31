@@ -50,13 +50,13 @@ class OklabColorToolsSuite extends munit.FunSuite {
     // Test with a known mid-range color: pure red
     val redRGBA8888 = 0xff0000ff // R=255, G=0, B=0, A=255
     val oklabPacked = ColorTools.fromRGBA8888(redRGBA8888)
-    val backRGBA = ColorTools.toRGBA8888(oklabPacked)
-    val rOrig = (redRGBA8888 >>> 24) & 0xff
-    val gOrig = (redRGBA8888 >>> 16) & 0xff
-    val bOrig = (redRGBA8888 >>> 8) & 0xff
-    val rBack = (backRGBA >>> 24) & 0xff
-    val gBack = (backRGBA >>> 16) & 0xff
-    val bBack = (backRGBA >>> 8) & 0xff
+    val backRGBA    = ColorTools.toRGBA8888(oklabPacked)
+    val rOrig       = (redRGBA8888 >>> 24) & 0xff
+    val gOrig       = (redRGBA8888 >>> 16) & 0xff
+    val bOrig       = (redRGBA8888 >>> 8) & 0xff
+    val rBack       = (backRGBA >>> 24) & 0xff
+    val gBack       = (backRGBA >>> 16) & 0xff
+    val bBack       = (backRGBA >>> 8) & 0xff
     assert(Math.abs(rOrig - rBack) <= 3, s"red channel: orig=$rOrig, back=$rBack")
     assert(Math.abs(gOrig - gBack) <= 3, s"green channel: orig=$gOrig, back=$gBack")
     assert(Math.abs(bOrig - bBack) <= 3, s"blue channel: orig=$bOrig, back=$bBack")
@@ -64,11 +64,11 @@ class OklabColorToolsSuite extends munit.FunSuite {
 
   test("toRGBA8888 and fromRGBA8888 roundtrip for gray") {
     val grayRGBA = 0x808080ff
-    val oklab = ColorTools.fromRGBA8888(grayRGBA)
-    val back = ColorTools.toRGBA8888(oklab)
-    val rBack = (back >>> 24) & 0xff
-    val gBack = (back >>> 16) & 0xff
-    val bBack = (back >>> 8) & 0xff
+    val oklab    = ColorTools.fromRGBA8888(grayRGBA)
+    val back     = ColorTools.toRGBA8888(oklab)
+    val rBack    = (back >>> 24) & 0xff
+    val gBack    = (back >>> 16) & 0xff
+    val bBack    = (back >>> 8) & 0xff
     assert(Math.abs(0x80 - rBack) <= 3, s"gray R: expected ~128, got $rBack")
     assert(Math.abs(0x80 - gBack) <= 3, s"gray G: expected ~128, got $gBack")
     assert(Math.abs(0x80 - bBack) <= 3, s"gray B: expected ~128, got $bBack")
@@ -85,7 +85,7 @@ class OklabColorToolsSuite extends munit.FunSuite {
 
   test("darken decreases L channel") {
     val midGray = ColorTools.oklab(0.5f, 0.5f, 0.5f, 1f)
-    val darker = ColorTools.darken(midGray, 0.3f)
+    val darker  = ColorTools.darken(midGray, 0.3f)
     assert(
       ColorTools.channelL(darker) < ColorTools.channelL(midGray),
       s"darken should decrease L: original=${ColorTools.channelL(midGray)}, darker=${ColorTools.channelL(darker)}"
@@ -93,23 +93,23 @@ class OklabColorToolsSuite extends munit.FunSuite {
   }
 
   test("lighten preserves A and B channels") {
-    val color = ColorTools.oklab(0.5f, 0.3f, 0.7f, 0.8f)
+    val color   = ColorTools.oklab(0.5f, 0.3f, 0.7f, 0.8f)
     val lighter = ColorTools.lighten(color, 0.2f)
     assertApprox(ColorTools.channelA(lighter), ColorTools.channelA(color), clue = "A preserved")
     assertApprox(ColorTools.channelB(lighter), ColorTools.channelB(color), clue = "B preserved")
   }
 
   test("darken preserves A and B channels") {
-    val color = ColorTools.oklab(0.5f, 0.3f, 0.7f, 0.8f)
+    val color  = ColorTools.oklab(0.5f, 0.3f, 0.7f, 0.8f)
     val darker = ColorTools.darken(color, 0.2f)
     assertApprox(ColorTools.channelA(darker), ColorTools.channelA(color), clue = "A preserved")
     assertApprox(ColorTools.channelB(darker), ColorTools.channelB(color), clue = "B preserved")
   }
 
   test("alpha is preserved through lighten/darken") {
-    val color = ColorTools.oklab(0.5f, 0.5f, 0.5f, 0.6f)
+    val color   = ColorTools.oklab(0.5f, 0.5f, 0.5f, 0.6f)
     val lighter = ColorTools.lighten(color, 0.3f)
-    val darker = ColorTools.darken(color, 0.3f)
+    val darker  = ColorTools.darken(color, 0.3f)
     assertApprox(ColorTools.alpha(lighter), ColorTools.alpha(color), clue = "lighten alpha")
     assertApprox(ColorTools.alpha(darker), ColorTools.alpha(color), clue = "darken alpha")
   }

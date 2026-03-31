@@ -12,15 +12,13 @@ package extensions
 import sge.gltf.data.texture.GLTFTextureInfo
 import sge.utils.Nullable
 
-/**
- * [[sge.gltf.data.material.GLTFMaterial]] extension.
- * See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_transmission/README.md
- */
+/** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_transmission/README.md
+  */
 object KHRMaterialsTransmission {
   val EXT: String = "KHR_materials_transmission"
 }
 
 class KHRMaterialsTransmission {
-  var transmissionFactor: Float = 0f
+  var transmissionFactor:  Float                     = 0f
   var transmissionTexture: Nullable[GLTFTextureInfo] = Nullable.empty
 }

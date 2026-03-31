@@ -139,32 +139,32 @@ object ColorUtils {
 
     val delta = max - min
 
-    if (max != 0) {
-      s = delta / max
-    } else {
+    if (max == 0) {
       s = 0
       h = 0
-      return Array(MathUtils.round(h), MathUtils.round(s), MathUtils.round(v))
-    }
-
-    if (delta == 0) {
-      h = 0
+      Array(MathUtils.round(h), MathUtils.round(s), MathUtils.round(v))
     } else {
-      if (r == max) {
-        h = (g - b) / delta
-      } else if (g == max) {
-        h = 2 + (b - r) / delta
+      s = delta / max
+
+      if (delta == 0) {
+        h = 0
       } else {
-        h = 4 + (r - g) / delta
+        if (r == max) {
+          h = (g - b) / delta
+        } else if (g == max) {
+          h = 2 + (b - r) / delta
+        } else {
+          h = 4 + (r - g) / delta
+        }
       }
+
+      h *= 60
+      if (h < 0) h += 360
+
+      s *= 100
+      val vScaled = v * 100
+
+      Array(MathUtils.round(h), MathUtils.round(s), MathUtils.round(vScaled))
     }
-
-    h *= 60
-    if (h < 0) h += 360
-
-    s *= 100
-    val vScaled = v * 100
-
-    Array(MathUtils.round(h), MathUtils.round(s), MathUtils.round(vScaled))
   }
 }

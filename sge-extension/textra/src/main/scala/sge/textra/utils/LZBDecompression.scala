@@ -21,9 +21,9 @@ object LZBDecompression {
     decompressFromBytes(compressedBytes, 0, compressedBytes.length)
 
   /** Decompresses a byte array compressed with LZB. */
-  def decompressFromBytes(compressedBytes: Array[Byte], offset: Int, length: Int): String = {
-    if (compressedBytes == null) return null // @nowarn — Java interop boundary
-    if (length <= 0) return ""
+  def decompressFromBytes(compressedBytes: Array[Byte], offset: Int, length: Int): String = boundary {
+    if (compressedBytes == null) break(null) // @nowarn — Java interop boundary
+    if (length <= 0) break("")
     val resetValue = 128
     val dictionary = new ArrayBuffer[String](256)
     var enlargeIn  = 4; var dictSize       = 4; var numBits = 3

@@ -32,20 +32,20 @@ class WaterDistortionEffect(private var _amount: Float, private var _speed: Floa
     time = _time + delta
   }
 
-  def time: Float = _time
-  def time_=(value: Float): Unit = {
+  def time:                 Float = _time
+  def time_=(value: Float): Unit  = {
     _time = value
     setUniform("u_time", value)
   }
 
-  def amount: Float = _amount
-  def amount_=(value: Float): Unit = {
+  def amount:                 Float = _amount
+  def amount_=(value: Float): Unit  = {
     _amount = value
     setUniform("u_amount", value)
   }
 
-  def speed: Float = _speed
-  def speed_=(value: Float): Unit = {
+  def speed:                 Float = _speed
+  def speed_=(value: Float): Unit  = {
     _speed = value
     setUniform("u_speed", value)
   }

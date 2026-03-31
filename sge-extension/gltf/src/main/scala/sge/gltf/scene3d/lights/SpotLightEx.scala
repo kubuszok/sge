@@ -24,14 +24,21 @@ class SpotLightEx extends SpotLight {
   /** Optional range in meters. */
   var range: Nullable[Float] = Nullable.empty
 
-  override def set(copyFrom: SpotLight): SpotLight = {
+  override def set(copyFrom: SpotLight): SpotLight =
     copyFrom match {
       case ex: SpotLightEx =>
-        set(copyFrom.color, copyFrom.position, copyFrom.direction, copyFrom.intensity, copyFrom.cutoffAngle, copyFrom.exponent, ex.range)
+        set(
+          copyFrom.color,
+          copyFrom.position,
+          copyFrom.direction,
+          copyFrom.intensity,
+          copyFrom.cutoffAngle,
+          copyFrom.exponent,
+          ex.range
+        )
       case _ =>
         set(copyFrom.color, copyFrom.position, copyFrom.direction, copyFrom.intensity, copyFrom.cutoffAngle, copyFrom.exponent)
     }
-  }
 
   @deprecated("use setRad or setDeg instead", "gdx-gltf")
   def set(color: Color, position: Vector3, direction: Vector3, intensity: Float, cutoffAngle: Float, exponent: Float, range: Nullable[Float]): SpotLightEx = {
@@ -50,15 +57,22 @@ class SpotLightEx extends SpotLight {
     this
   }
 
-  def setDeg(color: Color, position: Vector3, direction: Vector3, intensity: Float, outerConeAngleDeg: Float, innerConeAngleDeg: Float, range: Nullable[Float]): SpotLightEx = {
-    setRad(color, position, direction, intensity, outerConeAngleDeg * MathUtils.degreesToRadians, innerConeAngleDeg * MathUtils.degreesToRadians, range)
-  }
+  def setDeg(color: Color, position: Vector3, direction: Vector3, intensity: Float, outerConeAngleDeg: Float, innerConeAngleDeg: Float, range: Nullable[Float]): SpotLightEx =
+    setRad(
+      color,
+      position,
+      direction,
+      intensity,
+      outerConeAngleDeg * MathUtils.degreesToRadians,
+      innerConeAngleDeg * MathUtils.degreesToRadians,
+      range
+    )
 
   def setConeRad(outerConeAngleRad: Float, innerConeAngleRad: Float): SpotLightEx = {
     // from https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_lights_punctual/README.md
-    val cosOuterAngle   = Math.cos(outerConeAngleRad).toFloat
-    val cosInnerAngle   = Math.cos(innerConeAngleRad).toFloat
-    val lightAngleScale = 1.0f / Math.max(0.001f, cosInnerAngle - cosOuterAngle)
+    val cosOuterAngle    = Math.cos(outerConeAngleRad).toFloat
+    val cosInnerAngle    = Math.cos(innerConeAngleRad).toFloat
+    val lightAngleScale  = 1.0f / Math.max(0.001f, cosInnerAngle - cosOuterAngle)
     val lightAngleOffset = -cosOuterAngle * lightAngleScale
 
     // We hack libgdx cutoffAngle and exponent variables to store cached scale/offset values.
@@ -68,7 +82,6 @@ class SpotLightEx extends SpotLight {
     this
   }
 
-  def setConeDeg(outerConeAngleDeg: Float, innerConeAngleDeg: Float): SpotLightEx = {
+  def setConeDeg(outerConeAngleDeg: Float, innerConeAngleDeg: Float): SpotLightEx =
     setConeRad(outerConeAngleDeg * MathUtils.degreesToRadians, innerConeAngleDeg * MathUtils.degreesToRadians)
-  }
 }

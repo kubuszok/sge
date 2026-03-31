@@ -12,7 +12,7 @@ package camera
 import sge.utils.Nullable
 
 class GLTFCamera extends GLTFEntity {
-  var `type`: Nullable[String] = Nullable.empty
-  var perspective: Nullable[GLTFPerspective] = Nullable.empty
+  var `type`:       Nullable[String]           = Nullable.empty
+  var perspective:  Nullable[GLTFPerspective]  = Nullable.empty
   var orthographic: Nullable[GLTFOrthographic] = Nullable.empty
 }

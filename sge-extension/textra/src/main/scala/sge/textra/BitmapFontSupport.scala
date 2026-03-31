@@ -18,6 +18,8 @@ package sge
 package textra
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** A utility class for loading BitmapFont instances from Structured JSON files (which use .json, .dat, .ubj, .json.lzma, or .ubj.lzma as their file extension). Font instances can already be loaded
   * using some of the constructors on Font.
@@ -27,10 +29,10 @@ import scala.collection.mutable.ArrayBuffer
 object BitmapFontSupport {
 
   /** Decompresses a byte array compressed with LZB, getting the original String back that was given to a compression method. */
-  def decompressFromBytes(compressedBytes: Array[Byte]): String = {
-    if (compressedBytes == null) return null
+  def decompressFromBytes(compressedBytes: Array[Byte]): String = boundary {
+    if (compressedBytes == null) break(null) // @nowarn — Java interop boundary
     val length = compressedBytes.length
-    if (length == 0) return ""
+    if (length == 0) break("")
     val resetValue = 128
     val dictionary = ArrayBuffer[String]()
     var enlargeIn  = 4
@@ -42,12 +44,12 @@ object BitmapFontSupport {
     var power      = 0
     val res        = new StringBuilder(length)
     var bits: Char = 0
-    var resb       = 0
-    var w          = ""
-    var c          = ""
-    var entry      = ""
-    var cc         = 0
-    var value      = compressedBytes(0)
+    var resb  = 0
+    var w     = ""
+    var c     = ""
+    var entry = ""
+    var cc    = 0
+    var value = compressedBytes(0)
 
     var i = 0.toChar
     while (i < 3) {
@@ -104,7 +106,7 @@ object BitmapFontSupport {
         }
         c = String.valueOf(bits)
       case _ =>
-        return ""
+        break("")
     }
     dictionary += c
     w = c
@@ -183,7 +185,7 @@ object BitmapFontSupport {
           if (cc == dictSize) {
             entry = w + w.charAt(0)
           } else {
-            return ""
+            break("")
           }
         }
         res.append(entry)

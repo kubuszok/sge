@@ -26,11 +26,11 @@ class CascadeShadowMap(protected val cascadeCount: Int)(using Sge) extends AutoC
   val attribute: CascadeShadowMapAttribute            = CascadeShadowMapAttribute(this)
 
   protected val splitRates: DynamicArray[Float] = DynamicArray[Float](cascadeCount + 2)
-  private val splitPoints: Array[Vector3] = Array.fill(8)(Vector3())
-  private val lightMatrix: Matrix4        = Matrix4()
-  private val box:         BoundingBox    = BoundingBox()
-  private val center:      Vector3        = Vector3()
-  private val offset:      Vector3        = Vector3()
+  private val splitPoints:  Array[Vector3]      = Array.fill(8)(Vector3())
+  private val lightMatrix:  Matrix4             = Matrix4()
+  private val box:          BoundingBox         = BoundingBox()
+  private val center:       Vector3             = Vector3()
+  private val offset:       Vector3             = Vector3()
 
   override def close(): Unit = {
     var i = 0
@@ -91,8 +91,7 @@ class CascadeShadowMap(protected val cascadeCount: Int)(using Sge) extends AutoC
     centerLight(shadowLight, center, box.width, box.height, -halfFrustumDepth - minLightDepth, halfFrustumDepth)
   }
 
-  private def setCascadeBounds(shadowLight: DirectionalShadowLight, base: DirectionalShadowLight, cam: Camera,
-    splitNear: Float, splitFar: Float, minLightDepth: Float): Unit = {
+  private def setCascadeBounds(shadowLight: DirectionalShadowLight, base: DirectionalShadowLight, cam: Camera, splitNear: Float, splitFar: Float, minLightDepth: Float): Unit = {
 
     var i = 0
     while (i < 4) {

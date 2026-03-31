@@ -12,8 +12,8 @@ package camera
 import sge.utils.Nullable
 
 class GLTFPerspective extends GLTFObject {
-  var yfov: Float = 0f
-  var znear: Float = 0f
+  var yfov:        Float           = 0f
+  var znear:       Float           = 0f
   var aspectRatio: Nullable[Float] = Nullable.empty
-  var zfar: Nullable[Float] = Nullable.empty
+  var zfar:        Nullable[Float] = Nullable.empty
 }

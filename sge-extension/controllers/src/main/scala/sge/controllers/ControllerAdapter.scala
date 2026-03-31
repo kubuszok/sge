@@ -9,7 +9,8 @@ package controllers
 
 /** A base implementation for [[ControllerListener]]. Subclass this if you are only interested in a few specific events.
   *
-  * @author mzechner
+  * @author
+  *   mzechner
   */
 class ControllerAdapter extends ControllerListener {
 
@@ -17,15 +18,12 @@ class ControllerAdapter extends ControllerListener {
 
   override def disconnected(controller: Controller): Unit = {}
 
-  override def buttonDown(controller: Controller, buttonCode: Int): Boolean = {
+  override def buttonDown(controller: Controller, buttonCode: Int): Boolean =
     false
-  }
 
-  override def buttonUp(controller: Controller, buttonCode: Int): Boolean = {
+  override def buttonUp(controller: Controller, buttonCode: Int): Boolean =
     false
-  }
 
-  override def axisMoved(controller: Controller, axisCode: Int, value: Float): Boolean = {
+  override def axisMoved(controller: Controller, axisCode: Int, value: Float): Boolean =
     false
-  }
 }

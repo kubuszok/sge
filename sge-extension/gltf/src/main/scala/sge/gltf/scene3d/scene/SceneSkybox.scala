@@ -31,13 +31,13 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
   /** Environment used by skybox. */
   val environment: Environment = Environment()
 
-  private val directionInverse:    Matrix4 = Matrix4()
-  private val envRotationInverse:  Matrix4 = Matrix4()
-  private var lodEnabled:          Boolean = false
-  private var quadModel:           G3dModel = scala.compiletime.uninitialized
-  private var quad:                Renderable = scala.compiletime.uninitialized
-  private var shaderProvider:      ShaderProvider = scala.compiletime.uninitialized
-  private var ownShaderProvider:   Boolean = false
+  private val directionInverse:   Matrix4        = Matrix4()
+  private val envRotationInverse: Matrix4        = Matrix4()
+  private var lodEnabled:         Boolean        = false
+  private var quadModel:          G3dModel       = scala.compiletime.uninitialized
+  private var quad:               Renderable     = scala.compiletime.uninitialized
+  private var shaderProvider:     ShaderProvider = scala.compiletime.uninitialized
+  private var ownShaderProvider:  Boolean        = false
 
   def this(cubemap: Cubemap)(using Sge) = {
     this()
@@ -91,7 +91,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
     }
     if (lodEnabled) sb.append("#define ENV_LOD\n")
 
-    val shaderConfig   = DefaultShader.Config()
+    val shaderConfig = DefaultShader.Config()
     val basePathName = "net/mgsx/gltf/shaders/skybox"
     shaderConfig.vertexShader = Nullable(Sge().files.classpath(basePathName + ".vs.glsl").readString())
     shaderConfig.fragmentShader = Nullable(Sge().files.classpath(basePathName + ".fs.glsl").readString())
@@ -100,14 +100,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
   }
 
   private def createQuad(cubemap: Cubemap): Unit = {
-    quadModel = ModelBuilder().createRect(
-      -1f, -1f, 0f,
-      1f, -1f, 0f,
-      1f, 1f, 0f,
-      -1f, 1f, 0f,
-      0f, 0f, -1f,
-      Material(),
-      VertexAttributes.Usage.Position.toLong)
+    quadModel = ModelBuilder().createRect(-1f, -1f, 0f, 1f, -1f, 0f, 1f, 1f, 0f, -1f, 1f, 0f, 0f, 0f, -1f, Material(), VertexAttributes.Usage.Position.toLong)
 
     quad = quadModel.nodes(0).parts(0).setRenderable(Renderable())
     environment.set(CubemapAttribute(CubemapAttribute.EnvironmentMap, cubemap))
@@ -147,7 +140,7 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
     quadModel.close()
   }
 
-  def setRotation(azymuthAngleDegree: Float): Unit = {
+  def setRotation(azymuthAngleDegree: Float): Unit =
     quad.environment.foreach { env =>
       val rotOpt = env.getAs[PBRMatrixAttribute](PBRMatrixAttribute.EnvRotation)
       if (rotOpt.isDefined) {
@@ -156,9 +149,8 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
         env.set(PBRMatrixAttribute.createEnvRotation(azymuthAngleDegree))
       }
     }
-  }
 
-  def setRotation(envRotation: Matrix4): Unit = {
+  def setRotation(envRotation: Matrix4): Unit =
     quad.environment.foreach { env =>
       if (envRotation != null) { // @nowarn
         val attrOpt = env.getAs[PBRMatrixAttribute](PBRMatrixAttribute.EnvRotation)
@@ -171,7 +163,6 @@ class SceneSkybox(using sge: Sge) extends RenderableProvider with Updatable with
         env.remove(PBRMatrixAttribute.EnvRotation)
       }
     }
-  }
 }
 
 object SceneSkybox {

@@ -21,13 +21,11 @@ import sge.visui.building.GridTableBuilder
   */
 class GridTableLayout(rowSize: Int) extends ActorLayout {
 
-  override def convertToActor(widgets: Actor*)(using Sge): Actor = {
+  override def convertToActor(widgets: Actor*)(using Sge): Actor =
     convertToActorFromCells(CellWidget.wrap(widgets*)*)
-  }
 
-  override def convertToActorFromCells(widgets: CellWidget[?]*)(using Sge): Actor = {
+  override def convertToActorFromCells(widgets: CellWidget[?]*)(using Sge): Actor =
     TableLayout.convertToTable(new GridTableBuilder(rowSize), widgets*)
-  }
 }
 
 object GridTableLayout {

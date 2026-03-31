@@ -11,8 +11,8 @@ import scala.collection.mutable
 
 /** Grid cell storing items. */
 class Cell {
-  var itemCount: Int = 0
-  var x: Float = 0f
-  var y: Float = 0f
-  val items: mutable.LinkedHashSet[Item[?]] = mutable.LinkedHashSet.empty
+  var itemCount: Int                            = 0
+  var x:         Float                          = 0f
+  var y:         Float                          = 0f
+  val items:     mutable.LinkedHashSet[Item[?]] = mutable.LinkedHashSet.empty
 }

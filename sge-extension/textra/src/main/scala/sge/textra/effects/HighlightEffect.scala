@@ -19,11 +19,16 @@ class HighlightEffect(label: TypingLabel, params: Array[String]) extends Effect(
   if (params.length > 5) all = paramAsBoolean(params(5))
 
   override protected def onApply(glyph: Long, localIndex: Int, globalIndex: Int, delta: Float): Unit = {
-    if (all) { if (label.overIndex < indexStart || label.overIndex > indexEnd) { label.setInWorkingLayout(globalIndex, (glyph & 0xffffffffL) | (baseColor.toLong << 32)); return } }
-    else { if (label.overIndex != globalIndex) { label.setInWorkingLayout(globalIndex, (glyph & 0xffffffffL) | (baseColor.toLong << 32)); return } }
-    val distanceMod  = (1f / distance) * (1f - DEFAULT_DISTANCE)
-    val frequencyMod = (1f / frequency) * DEFAULT_FREQUENCY
-    val progress     = calculateProgress(frequencyMod, distanceMod * localIndex, pingpong = false)
-    label.setInWorkingLayout(globalIndex, (glyph & 0xffffffffL) | (ColorUtils.hsl2rgb(progress, saturation, lightness, 1f).toLong << 32))
+    val shouldApply =
+      if (all) label.overIndex >= indexStart && label.overIndex <= indexEnd
+      else label.overIndex == globalIndex
+    if (!shouldApply) {
+      label.setInWorkingLayout(globalIndex, (glyph & 0xffffffffL) | (baseColor.toLong << 32))
+    } else {
+      val distanceMod  = (1f / distance) * (1f - DEFAULT_DISTANCE)
+      val frequencyMod = (1f / frequency) * DEFAULT_FREQUENCY
+      val progress     = calculateProgress(frequencyMod, distanceMod * localIndex, pingpong = false)
+      label.setInWorkingLayout(globalIndex, (glyph & 0xffffffffL) | (ColorUtils.hsl2rgb(progress, saturation, lightness, 1f).toLong << 32))
+    }
   }
 }

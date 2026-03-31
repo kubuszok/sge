@@ -54,38 +54,38 @@ object ArithmeticUtils {
     * @return
     *   the greatest common divisor.
     */
-  def gcdPositive(a: Int, b: Int): Int = {
-    if (a == 0) return b
-    if (b == 0) return a
+  def gcdPositive(a: Int, b: Int): Int =
+    if (a == 0) b
+    else if (b == 0) a
+    else {
+      var va = a
+      var vb = b
 
-    var va = a
-    var vb = b
+      // Make "a" and "b" odd, keeping track of common power of 2.
+      val aTwos = Integer.numberOfTrailingZeros(va)
+      va >>= aTwos
+      val bTwos = Integer.numberOfTrailingZeros(vb)
+      vb >>= bTwos
+      val shift = if (aTwos <= bTwos) aTwos else bTwos // min(aTwos, bTwos)
 
-    // Make "a" and "b" odd, keeping track of common power of 2.
-    val aTwos = Integer.numberOfTrailingZeros(va)
-    va >>= aTwos
-    val bTwos = Integer.numberOfTrailingZeros(vb)
-    vb >>= bTwos
-    val shift = if (aTwos <= bTwos) aTwos else bTwos // min(aTwos, bTwos)
+      // "a" and "b" are positive.
+      // If a > b then "gcd(a, b)" is equal to "gcd(a - b, b)".
+      // If a < b then "gcd(a, b)" is equal to "gcd(b - a, a)".
+      // Hence, in the successive iterations:
+      // "a" becomes the absolute difference of the current values,
+      // "b" becomes the minimum of the current values.
+      while (va != vb) {
+        val delta = va - vb
+        vb = if (va <= vb) va else vb // min(a, b)
+        va = if (delta < 0) -delta else delta // abs(delta)
 
-    // "a" and "b" are positive.
-    // If a > b then "gcd(a, b)" is equal to "gcd(a - b, b)".
-    // If a < b then "gcd(a, b)" is equal to "gcd(b - a, a)".
-    // Hence, in the successive iterations:
-    // "a" becomes the absolute difference of the current values,
-    // "b" becomes the minimum of the current values.
-    while (va != vb) {
-      val delta = va - vb
-      vb = if (va <= vb) va else vb // min(a, b)
-      va = if (delta < 0) -delta else delta // abs(delta)
+        // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
+        va >>= Integer.numberOfTrailingZeros(va)
+      }
 
-      // Remove any power of 2 in "a" ("b" is guaranteed to be odd).
-      va >>= Integer.numberOfTrailingZeros(va)
+      // Recover the common power of 2.
+      va << shift
     }
-
-    // Recover the common power of 2.
-    va << shift
-  }
 
   /** Returns the greatest common divisor of the given absolute values. This implementation uses [[gcdPositive(Int,Int)]] and has the same special cases.
     *
@@ -119,14 +119,15 @@ object ArithmeticUtils {
     * @throws ArithmeticException
     *   if the result cannot be represented as a non-negative `int` value.
     */
-  def lcmPositive(a: Int, b: Int): Int = {
-    if (a == 0 || b == 0) return 0
-    val lcm = Math.abs(mulAndCheck(a / gcdPositive(a, b), b))
-    if (lcm == Int.MinValue) {
-      throw new ArithmeticException("overflow: lcm(" + a + ", " + b + ") > 2^31")
+  def lcmPositive(a: Int, b: Int): Int =
+    if (a == 0 || b == 0) 0
+    else {
+      val lcm = Math.abs(mulAndCheck(a / gcdPositive(a, b), b))
+      if (lcm == Int.MinValue) {
+        throw new ArithmeticException("overflow: lcm(" + a + ", " + b + ") > 2^31")
+      }
+      lcm
     }
-    lcm
-  }
 
   /** Returns the least common multiple of the given absolute values. This implementation uses [[lcmPositive(Int,Int)]] and has the same special cases.
     *

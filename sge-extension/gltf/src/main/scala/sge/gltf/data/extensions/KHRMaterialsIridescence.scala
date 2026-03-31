@@ -12,19 +12,17 @@ package extensions
 import sge.gltf.data.texture.GLTFTextureInfo
 import sge.utils.Nullable
 
-/**
- * [[sge.gltf.data.material.GLTFMaterial]] extension.
- * See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_iridescence/README.md
- */
+/** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_iridescence/README.md
+  */
 object KHRMaterialsIridescence {
   val EXT: String = "KHR_materials_iridescence"
 }
 
 class KHRMaterialsIridescence {
-  var iridescenceFactor: Float = 0f
-  var iridescenceTexture: Nullable[GLTFTextureInfo] = Nullable.empty
-  var iridescenceIor: Float = 1.3f
-  var iridescenceThicknessMinimum: Float = 100f
-  var iridescenceThicknessMaximum: Float = 400f
+  var iridescenceFactor:           Float                     = 0f
+  var iridescenceTexture:          Nullable[GLTFTextureInfo] = Nullable.empty
+  var iridescenceIor:              Float                     = 1.3f
+  var iridescenceThicknessMinimum: Float                     = 100f
+  var iridescenceThicknessMaximum: Float                     = 400f
   var iridescenceThicknessTexture: Nullable[GLTFTextureInfo] = Nullable.empty
 }

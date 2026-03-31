@@ -17,6 +17,9 @@ package sge
 package textra
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphics.Color
 import sge.utils.Nullable
 
@@ -204,14 +207,14 @@ class TypingLabel extends TextraLabel {
     }
   }
 
-  def getInLayout(layout: Layout, globalIndex: Int): Long = {
+  def getInLayout(layout: Layout, globalIndex: Int): Long = boundary {
     var idx   = globalIndex
     val lines = layout.lines
     var i     = 0
     while (i < lines.size) {
       val line = lines(i)
       if (idx < line.glyphs.size) {
-        return line.glyphs(idx)
+        break(line.glyphs(idx))
       }
       idx -= line.glyphs.size
       i += 1
@@ -288,12 +291,13 @@ class TypingLabel extends TextraLabel {
   override def setAlignment(alignment: Int): Unit =
     align = alignment
 
-  def getSelectedText(): Nullable[String] = {
-    if (selectionStart < 0 || selectionEnd < 0 || selectionEnd < selectionStart) return Nullable.empty
-    val s = Math.min(selectionStart, selectionEnd)
-    val e = Math.max(selectionStart, selectionEnd)
-    Nullable(substring(s, e + 1))
-  }
+  def getSelectedText(): Nullable[String] =
+    if (selectionStart < 0 || selectionEnd < 0 || selectionEnd < selectionStart) Nullable.empty
+    else {
+      val s = Math.min(selectionStart, selectionEnd)
+      val e = Math.max(selectionStart, selectionEnd)
+      Nullable(substring(s, e + 1))
+    }
 
   def copySelectedText(): Unit = {
     // Deferred: requires Clipboard integration

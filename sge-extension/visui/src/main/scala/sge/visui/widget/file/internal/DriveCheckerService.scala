@@ -36,38 +36,42 @@ class DriveCheckerService(using Sge) {
     for (root <- roots) processRoot(root)
   }
 
-  private def processRoot(root: File): Unit = {
+  private def processRoot(root: File): Unit =
     pool.execute(new Runnable {
       override def run(): Unit = processResults(root, root.canRead, root.canWrite)
     })
-  }
 
-  private def processResults(root: File, readable: Boolean, writable: Boolean): Unit = {
-    Sge().application.postRunnable(new Runnable {
-      override def run(): Unit = {
-        if (readable) {
-          readableRoots.add(root)
-          readableListeners.get(root).foreach(_.notifyListeners(root, DriveCheckerService.RootMode.READABLE))
-        }
-        if (writable) {
-          writableRoots.add(root)
-          writableListeners.get(root).foreach(_.notifyListeners(root, DriveCheckerService.RootMode.WRITABLE))
+  private def processResults(root: File, readable: Boolean, writable: Boolean): Unit =
+    Sge().application.postRunnable(
+      new Runnable {
+        override def run(): Unit = {
+          if (readable) {
+            readableRoots.add(root)
+            readableListeners.get(root).foreach(_.notifyListeners(root, DriveCheckerService.RootMode.READABLE))
+          }
+          if (writable) {
+            writableRoots.add(root)
+            writableListeners.get(root).foreach(_.notifyListeners(root, DriveCheckerService.RootMode.WRITABLE))
+          }
         }
       }
-    })
-  }
+    )
 
-  def addListener(root: File, mode: DriveCheckerService.RootMode, listener: DriveCheckerService.DriveCheckerListener): Unit = {
+  def addListener(root: File, mode: DriveCheckerService.RootMode, listener: DriveCheckerService.DriveCheckerListener): Unit =
     mode match {
       case DriveCheckerService.RootMode.READABLE =>
         addListenerInternal(root, mode, listener, readableRoots, readableListeners)
       case DriveCheckerService.RootMode.WRITABLE =>
         addListenerInternal(root, mode, listener, writableRoots, writableListeners)
     }
-  }
 
-  private def addListenerInternal(root: File, mode: DriveCheckerService.RootMode, listener: DriveCheckerService.DriveCheckerListener,
-      cachedRoots: DynamicArray[File], listeners: mutable.HashMap[File, DriveCheckerService.ListenerSet]): Unit = {
+  private def addListenerInternal(
+    root:        File,
+    mode:        DriveCheckerService.RootMode,
+    listener:    DriveCheckerService.DriveCheckerListener,
+    cachedRoots: DynamicArray[File],
+    listeners:   mutable.HashMap[File, DriveCheckerService.ListenerSet]
+  ): Unit =
     if (cachedRoots.contains(root)) {
       listener.rootMode(root, mode)
     } else {
@@ -75,7 +79,6 @@ class DriveCheckerService(using Sge) {
       set.add(listener)
       processRoot(root)
     }
-  }
 }
 
 object DriveCheckerService {

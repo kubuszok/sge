@@ -24,12 +24,12 @@ class VignettingEffect(val saturationControlEnabled: Boolean)(using Sge)
 
   import ShaderVfxEffect.*
 
-  private var _vignetteX: Float = 0.8f
-  private var _vignetteY: Float = 0.25f
-  private var _centerX: Float = 0.5f
-  private var _centerY: Float = 0.5f
-  private var _intensity: Float = 1f
-  private var _saturation: Float = 0f
+  private var _vignetteX:     Float = 0.8f
+  private var _vignetteY:     Float = 0.25f
+  private var _centerX:       Float = 0.5f
+  private var _centerY:       Float = 0.5f
+  private var _intensity:     Float = 1f
+  private var _saturation:    Float = 0f
   private var _saturationMul: Float = 0f
 
   rebind()
@@ -57,20 +57,20 @@ class VignettingEffect(val saturationControlEnabled: Boolean)(using Sge)
     renderShader(context, dst)
   }
 
-  def intensity: Float = _intensity
-  def intensity_=(value: Float): Unit = {
+  def intensity:                 Float = _intensity
+  def intensity_=(value: Float): Unit  = {
     _intensity = value
     setUniform("u_vignetteIntensity", value)
   }
 
-  def saturation: Float = _saturation
-  def saturation_=(value: Float): Unit = {
+  def saturation:                 Float = _saturation
+  def saturation_=(value: Float): Unit  = {
     _saturation = value
     if (saturationControlEnabled) { setUniform("u_saturation", value) }
   }
 
-  def saturationMul: Float = _saturationMul
-  def saturationMul_=(value: Float): Unit = {
+  def saturationMul:                 Float = _saturationMul
+  def saturationMul_=(value: Float): Unit  = {
     _saturationMul = value
     if (saturationControlEnabled) { setUniform("u_saturationMul", value) }
   }
@@ -84,11 +84,11 @@ class VignettingEffect(val saturationControlEnabled: Boolean)(using Sge)
     Sge().graphics.gl20.glUseProgram(0)
   }
 
-  def vignetteX: Float = _vignetteX
-  def vignetteX_=(x: Float): Unit = { _vignetteX = x; setUniform("u_vignetteX", x) }
+  def vignetteX:             Float = _vignetteX
+  def vignetteX_=(x: Float): Unit  = { _vignetteX = x; setUniform("u_vignetteX", x) }
 
-  def vignetteY: Float = _vignetteY
-  def vignetteY_=(y: Float): Unit = { _vignetteY = y; setUniform("u_vignetteY", y) }
+  def vignetteY:             Float = _vignetteY
+  def vignetteY_=(y: Float): Unit  = { _vignetteY = y; setUniform("u_vignetteY", y) }
 
   /** Specify the center, in normalized screen coordinates. */
   def setCenter(x: Float, y: Float): Unit = {

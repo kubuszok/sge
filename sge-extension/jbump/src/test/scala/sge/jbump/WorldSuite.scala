@@ -17,7 +17,7 @@ class WorldSuite extends munit.FunSuite {
 
   test("add and hasItem") {
     val world = World[String]()
-    val item = Item[String]("block")
+    val item  = Item[String]("block")
     world.add(item, 0, 0, 32, 32)
     assert(world.hasItem(item))
     assertEquals(world.countItems, 1)
@@ -25,7 +25,7 @@ class WorldSuite extends munit.FunSuite {
 
   test("remove item") {
     val world = World[String]()
-    val item = Item[String]("block")
+    val item  = Item[String]("block")
     world.add(item, 0, 0, 32, 32)
     world.remove(item)
     assert(!world.hasItem(item))
@@ -34,7 +34,7 @@ class WorldSuite extends munit.FunSuite {
 
   test("getRect returns correct rect") {
     val world = World[String]()
-    val item = Item[String]("block")
+    val item  = Item[String]("block")
     world.add(item, 10, 20, 30, 40)
     val rect = world.getRect(item)
     assertEqualsFloat(rect.x, 10f, 0.001f)
@@ -62,7 +62,7 @@ class WorldSuite extends munit.FunSuite {
   }
 
   test("move with slide response allows sliding") {
-    val world = World[String](1f)
+    val world  = World[String](1f)
     val player = Item[String]("player")
     world.add(player, 0, 0, 1, 1)
     val wall = Item[String]("wall")
@@ -77,7 +77,7 @@ class WorldSuite extends munit.FunSuite {
   }
 
   test("move with cross response passes through") {
-    val world = World[String](1f)
+    val world  = World[String](1f)
     val player = Item[String]("player")
     world.add(player, 0, 0, 1, 1)
     val trigger = Item[String]("trigger")
@@ -96,7 +96,7 @@ class WorldSuite extends munit.FunSuite {
   }
 
   test("move with touch response stops at first contact") {
-    val world = World[String](1f)
+    val world  = World[String](1f)
     val player = Item[String]("player")
     world.add(player, 0, 0, 1, 1)
     val wall = Item[String]("wall")
@@ -145,7 +145,7 @@ class WorldSuite extends munit.FunSuite {
 
   test("update changes item position") {
     val world = World[String]()
-    val item = Item[String]("block")
+    val item  = Item[String]("block")
     world.add(item, 0, 0, 32, 32)
     world.update(item, 100, 100)
     val rect = world.getRect(item)
@@ -155,7 +155,7 @@ class WorldSuite extends munit.FunSuite {
 
   test("reset clears the world") {
     val world = World[String]()
-    val item = Item[String]("block")
+    val item  = Item[String]("block")
     world.add(item, 0, 0, 32, 32)
     world.reset()
     assertEquals(world.countItems, 0)
@@ -182,7 +182,7 @@ class WorldSuite extends munit.FunSuite {
   }
 
   test("bounce response reflects movement") {
-    val world = World[String](1f)
+    val world  = World[String](1f)
     val player = Item[String]("player")
     world.add(player, 0, 0, 1, 1)
     val wall = Item[String]("wall")
@@ -200,8 +200,8 @@ class WorldSuite extends munit.FunSuite {
   }
 
   test("add returns same item if already present") {
-    val world = World[String]()
-    val item = Item[String]("block")
+    val world     = World[String]()
+    val item      = Item[String]("block")
     val returned1 = world.add(item, 0, 0, 32, 32)
     val returned2 = world.add(item, 100, 100, 32, 32)
     assert(returned1 eq returned2)

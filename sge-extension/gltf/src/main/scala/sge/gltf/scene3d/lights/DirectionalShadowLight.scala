@@ -22,22 +22,25 @@ import sge.math.collision.BoundingBox
 import sge.utils.Nullable
 
 class DirectionalShadowLight(
-  shadowMapWidth: Int,
-  shadowMapHeight: Int,
-  shadowViewportWidth: Float,
+  shadowMapWidth:       Int,
+  shadowMapHeight:      Int,
+  shadowViewportWidth:  Float,
   shadowViewportHeight: Float,
-  shadowNear: Float,
-  shadowFar: Float
-)(using Sge) extends DirectionalLightEx with ShadowMap with AutoCloseable {
+  shadowNear:           Float,
+  shadowFar:            Float
+)(using Sge)
+    extends DirectionalLightEx
+    with ShadowMap
+    with AutoCloseable {
 
   protected var fbo: FrameBuffer = createFrameBuffer(shadowMapWidth, shadowMapHeight)
-  protected var cam: Camera = {
+  protected var cam: Camera      = {
     val c = OrthographicCamera(WorldUnits(shadowViewportWidth), WorldUnits(shadowViewportHeight))
     c.near = shadowNear
     c.far = shadowFar
     c
   }
-  protected val tmpV: Vector3 = Vector3()
+  protected val tmpV:        Vector3                    = Vector3()
   protected val textureDesc: TextureDescriptor[Texture] = {
     val td = TextureDescriptor[Texture]()
     td.minFilter = Texture.TextureFilter.Nearest
@@ -87,10 +90,10 @@ class DirectionalShadowLight(
   }
 
   def setBounds(box: BoundingBox): DirectionalShadowLight = {
-    val w = box.width
-    val h = box.height
-    val d = box.depth
-    val s = Math.max(Math.max(w, h), d)
+    val w  = box.width
+    val h  = box.height
+    val d  = box.depth
+    val s  = Math.max(Math.max(w, h), d)
     val wd = s * DirectionalShadowLight.SQRT2
     box.center(center)
     setViewport(wd, wd, 0f, wd)
@@ -138,8 +141,8 @@ class DirectionalShadowLight(
   }
 
   override def equals(other: Any): Boolean = other match {
-    case dsl: DirectionalShadowLight => (dsl eq this)
-    case _                           => false
+    case dsl: DirectionalShadowLight => dsl eq this
+    case _ => false
   }
 }
 

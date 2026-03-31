@@ -9,17 +9,14 @@ package jbump
 
 import sge.jbump.util.Nullable
 
-/**
- * Item wrapper with identity-based hashing.
- *
- * The `userData` field is not ever read by JBump, so this can be anything user code needs it to be.
- * It is not considered by `equals` or `hashCode`.
- */
+/** Item wrapper with identity-based hashing.
+  *
+  * The `userData` field is not ever read by JBump, so this can be anything user code needs it to be. It is not considered by `equals` or `hashCode`.
+  */
 class Item[E](var userData: Nullable[E]) {
 
-  /**
-   * Constructs an Item with no userData.
-   */
+  /** Constructs an Item with no userData.
+    */
   def this() = this(Nullable.Null)
 
   protected val identityHash: Int = System.identityHashCode(this)

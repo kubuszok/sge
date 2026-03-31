@@ -12,6 +12,6 @@ package texture
 import sge.utils.Nullable
 
 class GLTFTextureInfo extends GLTFObject {
-  var index: Nullable[Int] = Nullable.empty
-  var texCoord: Int = 0
+  var index:    Nullable[Int] = Nullable.empty
+  var texCoord: Int           = 0
 }

@@ -13,7 +13,7 @@ import sge.utils.Nullable
 
 class GLTFOrthographic extends GLTFObject {
   var znear: Nullable[Float] = Nullable.empty
-  var zfar: Nullable[Float] = Nullable.empty
-  var xmag: Nullable[Float] = Nullable.empty
-  var ymag: Nullable[Float] = Nullable.empty
+  var zfar:  Nullable[Float] = Nullable.empty
+  var xmag:  Nullable[Float] = Nullable.empty
+  var ymag:  Nullable[Float] = Nullable.empty
 }

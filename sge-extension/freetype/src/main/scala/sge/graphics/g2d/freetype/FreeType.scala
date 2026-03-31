@@ -382,7 +382,7 @@ object FreeType {
       val pixmap: Pixmap =
         if (color == Color.WHITE && pMode == FT_PIXEL_MODE_GRAY && rowBytes == w && gamma == 1) {
           val pm     = Pixmap(w, r, Format.Alpha)
-          val pixels = pm.pixels()
+          val pixels = pm.pixels
           pixels.put(src, 0, Math.min(src.length, pixels.capacity()))
           pixels.rewind()
           pm
@@ -391,7 +391,7 @@ object FreeType {
           val rgba   = Color.rgba8888(color)
           val srcRow = new Array[Byte](rowBytes)
           val dstRow = new Array[Int](w)
-          val dst    = pm.pixels().asIntBuffer()
+          val dst    = pm.pixels.asIntBuffer()
           if (pMode == FT_PIXEL_MODE_MONO) {
             // Use the specified color for each set bit.
             var y = 0
@@ -441,8 +441,8 @@ object FreeType {
           pm
         }
 
-      if (format != pixmap.format()) {
-        val converted = Pixmap(pixmap.width().toInt, pixmap.height().toInt, format)
+      if (format != pixmap.format) {
+        val converted = Pixmap(pixmap.width.toInt, pixmap.height.toInt, format)
         converted.setBlending(Blending.None)
         converted.drawPixmap(pixmap, Pixels(0), Pixels(0))
         converted.setBlending(Blending.SourceOver)

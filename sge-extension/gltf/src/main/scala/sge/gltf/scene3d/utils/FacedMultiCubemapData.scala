@@ -17,9 +17,10 @@ import sge.graphics.glutils.PixmapTextureData
 import sge.utils.SgeError
 
 class FacedMultiCubemapData(
-  protected val data:   Array[TextureData],
-  private val levels:   Int
-)(using Sge) extends CubemapData {
+  protected val data: Array[TextureData],
+  private val levels: Int
+)(using Sge)
+    extends CubemapData {
 
   def this(files: Array[FileHandle], levels: Int)(using Sge) = {
     this(new Array[TextureData](6 * levels), levels)
@@ -50,21 +51,23 @@ class FacedMultiCubemapData(
   }
 
   override def isManaged: Boolean = {
-    var i = 0
-    while (i < data.length) {
-      if (!data(i).isManaged) return false // @nowarn — simple early return
+    var i      = 0
+    var result = true
+    while (i < data.length && result) {
+      if (!data(i).isManaged) result = false
       i += 1
     }
-    true
+    result
   }
 
   def isComplete: Boolean = {
-    var i = 0
-    while (i < data.length) {
-      if (data(i) == null) return false // @nowarn — checking array elements
+    var i      = 0
+    var result = true
+    while (i < data.length && result) {
+      if (data(i) == null) result = false
       i += 1
     }
-    true
+    result
   }
 
   def getTextureData(side: Cubemap.CubemapSide): TextureData =
@@ -108,7 +111,7 @@ class FacedMultiCubemapData(
   }
 
   override def consumeCubemapData(): Unit = {
-    val gl = Sge().graphics.gl
+    val gl    = Sge().graphics.gl
     var level = 0
     while (level < levels) {
       var i = 0
@@ -117,8 +120,8 @@ class FacedMultiCubemapData(
         if (data(index).dataType == TextureData.TextureDataType.Custom) {
           data(index).consumeCustomData(TextureTarget(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i))
         } else {
-          var pixmap           = data(index).consumePixmap()
-          var shouldDispose    = data(index).disposePixmap
+          var pixmap        = data(index).consumePixmap()
+          var shouldDispose = data(index).disposePixmap
           if (data(index).getFormat != pixmap.format) {
             val tmp = Pixmap(pixmap.width.toInt, pixmap.height.toInt, data(index).getFormat)
             tmp.setBlending(Pixmap.Blending.None)
@@ -128,8 +131,17 @@ class FacedMultiCubemapData(
             shouldDispose = true
           }
           gl.glPixelStorei(GL20.GL_UNPACK_ALIGNMENT, 1)
-          gl.glTexImage2D(TextureTarget(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i), level, pixmap.gLInternalFormat,
-            pixmap.width, pixmap.height, 0, PixelFormat(pixmap.gLFormat), DataType(pixmap.glType), pixmap.pixels)
+          gl.glTexImage2D(
+            TextureTarget(GL20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i),
+            level,
+            pixmap.gLInternalFormat,
+            pixmap.width,
+            pixmap.height,
+            0,
+            PixelFormat(pixmap.gLFormat),
+            DataType(pixmap.glType),
+            pixmap.pixels
+          )
           if (shouldDispose) pixmap.close()
         }
         i += 1

@@ -15,11 +15,10 @@ import scala.collection.mutable.{ ArrayBuffer, HashMap, HashSet }
 object LZBCompression {
 
   /** Compresses a String using LZB compression and returns it as a byte array. */
-  def compressToBytes(uncompressedStr: String): Array[Byte] = {
-    if (uncompressedStr == null) return null // @nowarn — Java interop boundary
-    if (uncompressedStr.isEmpty) return Array.emptyByteArray
-    compressToByteArray(uncompressedStr)
-  }
+  def compressToBytes(uncompressedStr: String): Array[Byte] =
+    if (uncompressedStr == null) null // @nowarn — Java interop boundary
+    else if (uncompressedStr.isEmpty) Array.emptyByteArray
+    else compressToByteArray(uncompressedStr)
 
   private def compressToByteArray(uncompressedStr: String): Array[Byte] = {
     val bitsPerChar               = 8

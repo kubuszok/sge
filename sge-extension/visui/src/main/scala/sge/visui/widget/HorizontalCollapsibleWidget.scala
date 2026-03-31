@@ -105,15 +105,14 @@ class HorizontalCollapsibleWidget(using Sge) extends WidgetGroup {
 
   override def prefHeight: Float = if (_table.isEmpty) 0 else _table.get.prefHeight
 
-  override def prefWidth: Float = {
-    if (_table.isEmpty) return 0
-    if (!actionRunning) {
+  override def prefWidth: Float =
+    if (_table.isEmpty) 0
+    else if (!actionRunning) {
       if (_collapsed) 0
       else _table.get.prefWidth
     } else {
       currentWidth
     }
-  }
 
   def setTable(table: Table): Unit = {
     _table = Nullable(table)

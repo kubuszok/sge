@@ -10,25 +10,23 @@ package loaders
 package shared
 package material
 
-import sge.graphics.{Color, Texture}
+import sge.graphics.{ Color, Texture }
 import sge.graphics.g3d.Material
-import sge.graphics.g3d.attributes.{BlendingAttribute, ColorAttribute, FloatAttribute, IntAttribute}
+import sge.graphics.g3d.attributes.{ BlendingAttribute, ColorAttribute, FloatAttribute, IntAttribute }
 import sge.graphics.g3d.utils.TextureDescriptor
 import sge.gltf.data.extensions.*
-import sge.gltf.data.material.{GLTFMaterial, GLTFpbrMetallicRoughness}
+import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
 import sge.gltf.data.texture.GLTFTextureInfo
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.loaders.shared.texture.TextureResolver
 import sge.utils.Nullable
 
-/**
- * PBR Material loader. Creates materials with basic color/texture attributes.
- *
- * TODO: Full PBR attribute support requires PBRTextureAttribute, PBRFloatAttribute,
- * PBRColorAttribute etc. from the scene3d subsystem (not yet ported).
- * Currently creates simplified materials with standard g3d attributes.
- */
+/** PBR Material loader. Creates materials with basic color/texture attributes.
+  *
+  * TODO: Full PBR attribute support requires PBRTextureAttribute, PBRFloatAttribute, PBRColorAttribute etc. from the scene3d subsystem (not yet ported). Currently creates simplified materials with
+  * standard g3d attributes.
+  */
 class PBRMaterialLoader(textureResolver: TextureResolver)
     extends MaterialLoaderBase(
       textureResolver,
@@ -52,7 +50,7 @@ class PBRMaterialLoader(textureResolver: TextureResolver)
     var alphaBlend = false
     glMaterial.alphaMode.foreach {
       case "OPAQUE" => // nothing to do
-      case "MASK" =>
+      case "MASK"   =>
         val value = glMaterial.alphaCutoff.getOrElse(0.5f)
         material.set(FloatAttribute.createAlphaTest(value))
         material.set(new BlendingAttribute()) // necessary

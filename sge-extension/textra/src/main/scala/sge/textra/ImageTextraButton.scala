@@ -19,21 +19,20 @@ import sge.utils.Nullable
 
 /** A button with a child Image and TextraLabel. */
 class ImageTextraButton(
-    text: Nullable[String],
-    style: Styles.ImageTextButtonStyle,
-    replacementFont: Font
+  text:            Nullable[String],
+  style:           Styles.ImageTextButtonStyle,
+  replacementFont: Font
 ) {
 
   private var _style: Styles.ImageTextButtonStyle = style
-  private var label: TextraLabel = newLabel(
+  private var label:  TextraLabel                 = newLabel(
     Nullable.fold(text)("")(identity),
     replacementFont,
     Nullable.fold(style.fontColor)(Color.WHITE)(identity)
   )
 
-  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) = {
+  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
-  }
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -63,22 +62,19 @@ class ImageTextraButton(
   /** Returns the appropriate label font color from the style based on the current button state. */
   protected def getFontColor: Nullable[Color] = _style.fontColor
 
-  def setLabel(label: TextraLabel): Unit = {
+  def setLabel(label: TextraLabel): Unit =
     this.label = label
-  }
 
   def getLabel: TextraLabel = label
 
-  def setText(text: CharSequence): Unit = {
+  def setText(text: CharSequence): Unit =
     label.setText(text.toString)
-  }
 
   def getText: String = label.toString
 
   /** Does nothing unless the label used here is a TypingLabel; then, this will skip text progression ahead. */
-  def skipToTheEnd(): Unit = {
+  def skipToTheEnd(): Unit =
     label.skipToTheEnd()
-  }
 
   override def toString: String = {
     val name      = getClass.getName

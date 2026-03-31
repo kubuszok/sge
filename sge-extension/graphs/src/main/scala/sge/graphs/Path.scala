@@ -12,23 +12,20 @@ import sge.graphs.internal.InternalArray
 /** A path in the graph: an ordered sequence of vertices with a total length (sum of edge weights). */
 class Path[V](initialSize: Int, resize: Boolean = false) extends InternalArray[V](initialSize, resize) {
 
-  private var _length: Float = 0f
-  private var _fixed: Boolean = false
+  private var _length: Float   = 0f
+  private var _fixed:  Boolean = false
 
   /** @return the length of this path, that is, the sum of the edge weights of all edges contained in the path. */
   def length: Float = _length
 
-  protected[graphs] def length_=(len: Float): Unit = {
+  protected[graphs] def length_=(len: Float): Unit =
     _length = len
-  }
 
-  protected[graphs] def setFixed(fixed: Boolean): Unit = {
+  protected[graphs] def setFixed(fixed: Boolean): Unit =
     _fixed = fixed
-  }
 
-  private def checkFixed(): Unit = {
+  private def checkFixed(): Unit =
     if (_fixed) throw UnsupportedOperationException("You cannot modify this path.")
-  }
 
   override def add(item: V): Boolean = {
     checkFixed()

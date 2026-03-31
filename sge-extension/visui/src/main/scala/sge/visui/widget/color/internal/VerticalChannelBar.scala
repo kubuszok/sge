@@ -22,8 +22,7 @@ import sge.visui.Sizes
   * @author
   *   Kotcrab
   */
-class VerticalChannelBar(commons: PickerCommons, private val maxValue: Int, listener: ChangeListener)(using Sge)
-    extends ShaderImage(commons.verticalChannelShader, commons.whiteTexture) {
+class VerticalChannelBar(commons: PickerCommons, private val maxValue: Int, listener: ChangeListener)(using Sge) extends ShaderImage(commons.verticalChannelShader, commons.whiteTexture) {
 
   private val style: ColorPickerWidgetStyle = commons.style
   private val sizes: Sizes                  = commons.sizes
@@ -35,21 +34,21 @@ class VerticalChannelBar(commons: PickerCommons, private val maxValue: Int, list
   setValue(0)
   addListener(listener)
 
-  addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
-      updateValueFromTouch(y)
-      true
-    }
+  addListener(
+    new InputListener() {
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
+        updateValueFromTouch(y)
+        true
+      }
 
-    override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-      updateValueFromTouch(y)
+      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+        updateValueFromTouch(y)
     }
-  })
+  )
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     super.draw(batch, parentAlpha)
-    style.verticalSelector.get.draw(batch, x, y + imageY + selectorY - 2.5f,
-      imageWidth, style.verticalSelector.get.minHeight)
+    style.verticalSelector.get.draw(batch, x, y + imageY + selectorY - 2.5f, imageWidth, style.verticalSelector.get.minHeight)
   }
 
   def setValue(newValue: Int): Unit = {

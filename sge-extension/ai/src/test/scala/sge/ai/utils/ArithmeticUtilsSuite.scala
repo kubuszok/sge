@@ -23,14 +23,14 @@ class ArithmeticUtilsSuite extends munit.FunSuite {
   }
 
   test("wrapAngleAroundZero: angle > PI wraps negative") {
-    val angle = MathUtils.PI + 0.5f
+    val angle   = MathUtils.PI + 0.5f
     val wrapped = ArithmeticUtils.wrapAngleAroundZero(angle)
     assert(wrapped >= -MathUtils.PI && wrapped <= MathUtils.PI, s"wrapped=$wrapped not in [-PI, PI]")
     assertEqualsFloat(wrapped, -MathUtils.PI + 0.5f, Eps)
   }
 
   test("wrapAngleAroundZero: angle < -PI wraps positive") {
-    val angle = -MathUtils.PI - 0.5f
+    val angle   = -MathUtils.PI - 0.5f
     val wrapped = ArithmeticUtils.wrapAngleAroundZero(angle)
     assert(wrapped >= -MathUtils.PI && wrapped <= MathUtils.PI, s"wrapped=$wrapped not in [-PI, PI]")
     assertEqualsFloat(wrapped, MathUtils.PI - 0.5f, Eps)

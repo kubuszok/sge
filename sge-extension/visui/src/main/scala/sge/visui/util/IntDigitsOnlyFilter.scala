@@ -17,15 +17,14 @@ import sge.scenes.scene2d.ui.TextField
   */
 class IntDigitsOnlyFilter(acceptNegativeValues: Boolean) extends NumberDigitsTextFieldFilter(acceptNegativeValues) {
 
-  override def acceptChar(field: TextField, c: Char): Boolean = {
-    if (this.acceptNegativeValues) {
+  override def acceptChar(field: TextField, c: Char): Boolean =
+    if (this.acceptNegativeValues && c == '-') {
       if (useFieldCursorPosition) {
-        if (c == '-' && (field.cursorPosition > 0 || field.text.startsWith("-"))) return false
+        !(field.cursorPosition > 0 || field.text.startsWith("-"))
       } else {
-        if (c == '-' && field.text.startsWith("-")) return false
+        !field.text.startsWith("-")
       }
-      if (c == '-') return true
+    } else {
+      Character.isDigit(c)
     }
-    Character.isDigit(c)
-  }
 }

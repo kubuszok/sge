@@ -18,11 +18,10 @@ import sge.visui.util.ColorUtils
 import sge.visui.widget.VisTable
 import sge.visui.widget.color.internal.{ ChannelBar, ColorChannelWidget, Palette, VerticalChannelBar }
 
-/** Color Picker widget, allows user to select color. ColorPicker is relatively heavy widget and should be reused if possible. Unlike other widgets, this one must be disposed when no longer
-  * needed!
+/** Color Picker widget, allows user to select color. ColorPicker is relatively heavy widget and should be reused if possible. Unlike other widgets, this one must be disposed when no longer needed!
   *
-  * Extends [[BasicColorPicker]] functionality and additionally provides separate bars for H, S, V color components. Additional 3 bars (R, G, B) for selecting colors using RGB systems and
-  * dedicated bar to alpha channel. Alpha edition is enabled by default.
+  * Extends [[BasicColorPicker]] functionality and additionally provides separate bars for H, S, V color components. Additional 3 bars (R, G, B) for selecting colors using RGB systems and dedicated
+  * bar to alpha channel. Alpha edition is enabled by default.
   *
   * Used directly by [[ColorPicker]] dialog.
   * @author
@@ -31,11 +30,9 @@ import sge.visui.widget.color.internal.{ ChannelBar, ColorChannelWidget, Palette
   *   [[BasicColorPicker]]
   * @see
   *   [[ColorPicker]]
-  * @since
-  *   0.9.3
+  * @since 0.9.3
   */
-class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nullable[ColorPickerListener])(using Sge)
-    extends BasicColorPicker(initStyle, initListener, true) {
+class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nullable[ColorPickerListener])(using Sge) extends BasicColorPicker(initStyle, initListener, true) {
 
   private var hBar: ColorChannelWidget = scala.compiletime.uninitialized
   private var sBar: ColorChannelWidget = scala.compiletime.uninitialized
@@ -81,30 +78,41 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
   }
 
   override protected def createColorWidgets(): Unit = {
-    palette = new Palette(commons, 100, new PickerChangeListener() {
-      override protected def updateLinkedWidget(): Unit = {
-        sBar.setValue(palette.getS)
-        vBar.setValue(palette.getV)
+    palette = new Palette(
+      commons,
+      100,
+      new PickerChangeListener() {
+        override protected def updateLinkedWidget(): Unit = {
+          sBar.setValue(palette.getS)
+          vBar.setValue(palette.getV)
+        }
       }
-    })
+    )
 
-    verticalBar = new VerticalChannelBar(commons, 360, new PickerChangeListener() {
-      override protected def updateLinkedWidget(): Unit = {
-        hBar.setValue(verticalBar.getValue)
+    verticalBar = new VerticalChannelBar(
+      commons,
+      360,
+      new PickerChangeListener() {
+        override protected def updateLinkedWidget(): Unit =
+          hBar.setValue(verticalBar.getValue)
       }
-    })
+    )
 
     val svListener = new HsvChannelBarListener() {
-      override protected def updateLinkedWidget(): Unit = {
+      override protected def updateLinkedWidget(): Unit =
         palette.setValue(sBar.getValue, vBar.getValue)
-      }
     }
 
-    hBar = new ColorChannelWidget(commons, "H", ChannelBar.MODE_H, 360, new HsvChannelBarListener() {
-      override protected def updateLinkedWidget(): Unit = {
-        verticalBar.setValue(hBar.getValue)
+    hBar = new ColorChannelWidget(
+      commons,
+      "H",
+      ChannelBar.MODE_H,
+      360,
+      new HsvChannelBarListener() {
+        override protected def updateLinkedWidget(): Unit =
+          verticalBar.setValue(hBar.getValue)
       }
-    })
+    )
 
     sBar = new ColorChannelWidget(commons, "S", ChannelBar.MODE_S, 100, svListener)
     vBar = new ColorChannelWidget(commons, "V", ChannelBar.MODE_V, 100, svListener)
@@ -214,7 +222,7 @@ class ExtendedColorPicker(initStyle: ColorPickerWidgetStyle, initListener: Nulla
     }
   }
 
-  private abstract class HsvChannelBarListener extends ChannelBar.ChannelBarListener {
+  abstract private class HsvChannelBarListener extends ChannelBar.ChannelBarListener {
     override def updateFields(): Unit = {
       updateLinkedWidget()
       updateValuesFromHSVFields()

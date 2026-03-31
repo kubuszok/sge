@@ -14,8 +14,8 @@ package internal
 import sge.graphics.g2d.Batch
 import sge.visui.widget.VisImage
 
-/** Image that displays checkerboard as background, used by ColorPicker to display selected colors with alphas. Note that for perfect grid this image should have size which is multiplication
-  * of gridSize. Eg. if gridSize is equal to 5, this image can have size 65x100. (because both 65 and 100 are divisible by 5)
+/** Image that displays checkerboard as background, used by ColorPicker to display selected colors with alphas. Note that for perfect grid this image should have size which is multiplication of
+  * gridSize. Eg. if gridSize is equal to 5, this image can have size 65x100. (because both 65 and 100 are divisible by 5)
   * @author
   *   Kotcrab
   */

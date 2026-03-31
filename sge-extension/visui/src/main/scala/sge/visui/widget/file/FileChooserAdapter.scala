@@ -18,6 +18,6 @@ import sge.utils.DynamicArray
   *   Kotcrab
   */
 class FileChooserAdapter extends FileChooserListener {
-  override def canceled(): Unit                        = ()
+  override def canceled():                                Unit = ()
   override def selected(files: DynamicArray[FileHandle]): Unit = ()
 }

@@ -10,7 +10,7 @@ package data
 package data
 
 class GLTFAccessorSparseIndices extends GLTFObject {
-  var bufferView: Int = 0
-  var byteOffset: Int = 0
+  var bufferView:    Int = 0
+  var byteOffset:    Int = 0
   var componentType: Int = 0
 }

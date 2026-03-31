@@ -19,22 +19,19 @@ import scala.collection.mutable.HashMap
 import sge.graphics.Color
 import sge.utils.Nullable
 
-/** Displays a dialog, which is a window with a title, a content table, and a button table. Methods are provided to add a label to the content table and buttons to the button table, but any widgets can
-  * be added. When a button is clicked, result(Object) is called and the dialog is removed from the stage.
+/** Displays a dialog, which is a window with a title, a content table, and a button table. Methods are provided to add a label to the content table and buttons to the button table, but any widgets
+  * can be added. When a button is clicked, result(Object) is called and the dialog is removed from the stage.
   */
-class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Font)
-    extends TextraWindow(title, style, replacementFont) {
+class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Font) extends TextraWindow(title, style, replacementFont) {
 
-  val values: HashMap[AnyRef, AnyRef] = HashMap.empty
-  var cancelHide: Boolean = false
+  val values:     HashMap[AnyRef, AnyRef] = HashMap.empty
+  var cancelHide: Boolean                 = false
 
-  def this(title: String, style: Styles.WindowStyle) = {
+  def this(title: String, style: Styles.WindowStyle) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity))
-  }
 
-  private def initialize(): Unit = {
+  private def initialize(): Unit =
     setModal(true)
-  }
   initialize()
 
   protected def newTypingLabel(text: String, style: Styles.LabelStyle): TypingLabel =
@@ -58,10 +55,9 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
   }
 
   /** Adds a TextraLabel to the content table. */
-  def text(label: TextraLabel): TextraDialog = {
+  def text(label: TextraLabel): TextraDialog =
     // In full implementation, contentTable.add(label)
     this
-  }
 
   /** Adds a TypingLabel to the content table. */
   def typing(text: Nullable[String], font: Font): TextraDialog = {
@@ -78,10 +74,9 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
   }
 
   /** Adds the given TypingLabel to the content table. */
-  def typing(label: TypingLabel): TextraDialog = {
+  def typing(label: TypingLabel): TextraDialog =
     // In full implementation, contentTable.add(label)
     this
-  }
 
   /** Adds a text button to the button table. */
   def button(text: Nullable[String], obj: Nullable[AnyRef], buttonStyle: Styles.TextButtonStyle): TextraDialog = {
@@ -94,16 +89,14 @@ class TextraDialog(title: String, style: Styles.WindowStyle, replacementFont: Fo
     this
   }
 
-  def setObject(actor: AnyRef, obj: Nullable[AnyRef]): Unit = {
+  def setObject(actor: AnyRef, obj: Nullable[AnyRef]): Unit =
     Nullable.foreach(obj)(o => values.put(actor, o))
-  }
 
   /** Called when a button is clicked. The dialog will be hidden after this method returns unless cancel() is called. */
   protected def result(obj: Nullable[AnyRef]): Unit = {}
 
-  def cancel(): Unit = {
+  def cancel(): Unit =
     cancelHide = true
-  }
 
   /** Hides the dialog. */
   def hide(): Unit = {

@@ -12,6 +12,6 @@ package animation
 import sge.utils.Nullable
 
 class GLTFAnimationTarget extends GLTFObject {
-  var node: Nullable[Int] = Nullable.empty
+  var node: Nullable[Int]    = Nullable.empty
   var path: Nullable[String] = Nullable.empty
 }

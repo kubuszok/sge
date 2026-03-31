@@ -7,12 +7,9 @@
 package sge
 package jbump
 
-/**
- * grid_traverse* methods are based on "A Fast Voxel Traversal Algorithm for Ray Tracing",
- * by John Amanides and Andrew Woo - http://www.cse.yorku.ca/~amana/research/grid.pdf
- * It has been modified to include both cells when the ray "touches a grid corner",
- * and with a different exit condition
- */
+/** grid_traverse* methods are based on "A Fast Voxel Traversal Algorithm for Ray Tracing", by John Amanides and Andrew Woo - http://www.cse.yorku.ca/~amana/research/grid.pdf It has been modified to
+  * include both cells when the ray "touches a grid corner", and with a different exit condition
+  */
 class Grid {
 
   /** Callback interface for grid traversal. */
@@ -20,8 +17,8 @@ class Grid {
     def onTraverse(cx: Float, cy: Float, stepX: Int, stepY: Int): Boolean
   }
 
-  private val grid_traverse_c1 = Point()
-  private val grid_traverse_c2 = Point()
+  private val grid_traverse_c1        = Point()
+  private val grid_traverse_c2        = Point()
   private val grid_traverse_initStepX = Point()
   private val grid_traverse_initStepY = Point()
 
@@ -30,16 +27,16 @@ class Grid {
     val cx1 = grid_traverse_c1.x
     val cy1 = grid_traverse_c1.y
     Grid.grid_toCell(cellSize, x2, y2, grid_traverse_c2)
-    val cx2 = grid_traverse_c2.x
-    val cy2 = grid_traverse_c2.y
+    val cx2   = grid_traverse_c2.x
+    val cy2   = grid_traverse_c2.y
     val stepX = Grid.grid_traverse_initStep(cellSize, cx1, x1, x2, grid_traverse_initStepX)
     val stepY = Grid.grid_traverse_initStep(cellSize, cy1, y1, y2, grid_traverse_initStepY)
-    val dx = grid_traverse_initStepX.x
-    var tx = grid_traverse_initStepX.y
-    val dy = grid_traverse_initStepY.x
-    var ty = grid_traverse_initStepY.y
-    var cx = cx1
-    var cy = cy1
+    val dx    = grid_traverse_initStepX.x
+    var tx    = grid_traverse_initStepX.y
+    val dy    = grid_traverse_initStepY.x
+    var ty    = grid_traverse_initStepY.y
+    var cx    = cx1
+    var cy    = cy1
 
     f.onTraverse(cx, cy, stepX, stepY)
 
@@ -47,7 +44,7 @@ class Grid {
     approaching the last cell in some occasions. We finish iterating
     when we are *next* to the last cell */
     var cont = true // stop iterating if TraverseCallback reports that cell coordinates are outside of the world.
-    while (Math.abs(cx - cx2) + Math.abs(cy - cy2) > 1 && cont) {
+    while (Math.abs(cx - cx2) + Math.abs(cy - cy2) > 1 && cont)
       if (tx < ty) {
         tx = tx + dx
         cx = cx + stepX
@@ -61,7 +58,6 @@ class Grid {
         cy = cy + stepY
         cont = f.onTraverse(cx, cy, stepX, stepY)
       }
-    }
 
     // If we have not arrived to the last cell, use it
     if (cx != cx2 || cy != cy2) {
@@ -71,21 +67,21 @@ class Grid {
 
   def grid_traverseRay(cellSize: Float, x1: Float, y1: Float, dirX: Float, dirY: Float, f: TraverseCallback): Unit = {
     Grid.grid_toCell(cellSize, x1, y1, grid_traverse_c1)
-    val cx1 = grid_traverse_c1.x
-    val cy1 = grid_traverse_c1.y
+    val cx1   = grid_traverse_c1.x
+    val cy1   = grid_traverse_c1.y
     val stepX = Grid.grid_traverse_initStep(cellSize, cx1, x1, x1 + dirX, grid_traverse_initStepX)
     val stepY = Grid.grid_traverse_initStep(cellSize, cy1, y1, y1 + dirY, grid_traverse_initStepY)
-    val dx = grid_traverse_initStepX.x
-    var tx = grid_traverse_initStepX.y
-    val dy = grid_traverse_initStepY.x
-    var ty = grid_traverse_initStepY.y
-    var cx = cx1
-    var cy = cy1
+    val dx    = grid_traverse_initStepX.x
+    var tx    = grid_traverse_initStepX.y
+    val dy    = grid_traverse_initStepY.x
+    var ty    = grid_traverse_initStepY.y
+    var cx    = cx1
+    var cy    = cy1
 
     f.onTraverse(cx, cy, stepX, stepY)
 
     var cont = true // stop iterating if TraverseCallback reports that cell coordinates are outside of the world.
-    while (cont) {
+    while (cont)
       if (tx < ty) {
         cx = cx + stepX
         cont = f.onTraverse(cx, cy, stepX, stepY)
@@ -99,7 +95,6 @@ class Grid {
         cont = f.onTraverse(cx, cy, stepX, stepY)
         ty = ty + dy
       }
-    }
   }
 
   private val grid_toCellRect_cxy = Point()
@@ -119,13 +114,11 @@ class Grid {
 
 object Grid {
 
-  def grid_toWorld(cellSize: Float, cx: Float, cy: Float, point: Point): Unit = {
+  def grid_toWorld(cellSize: Float, cx: Float, cy: Float, point: Point): Unit =
     point.set((cx - 1) * cellSize, (cy - 1) * cellSize)
-  }
 
-  def grid_toCell(cellSize: Float, x: Float, y: Float, point: Point): Unit = {
+  def grid_toCell(cellSize: Float, x: Float, y: Float, point: Point): Unit =
     point.set(Math.floor(x / cellSize).toFloat + 1, Math.floor(y / cellSize).toFloat + 1)
-  }
 
   def grid_traverse_initStep(cellSize: Float, ct: Float, t1: Float, t2: Float, point: Point): Int = {
     val v = t2 - t1

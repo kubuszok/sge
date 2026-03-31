@@ -13,9 +13,9 @@ import sge.gltf.data.texture.GLTFTextureInfo
 import sge.utils.Nullable
 
 class GLTFpbrMetallicRoughness extends GLTFObject {
-  var baseColorFactor: Nullable[Array[Float]] = Nullable.empty
-  var metallicFactor: Float = 1f
-  var roughnessFactor: Float = 1f
-  var baseColorTexture: Nullable[GLTFTextureInfo] = Nullable.empty
+  var baseColorFactor:          Nullable[Array[Float]]    = Nullable.empty
+  var metallicFactor:           Float                     = 1f
+  var roughnessFactor:          Float                     = 1f
+  var baseColorTexture:         Nullable[GLTFTextureInfo] = Nullable.empty
   var metallicRoughnessTexture: Nullable[GLTFTextureInfo] = Nullable.empty
 }

@@ -17,26 +17,28 @@ import scala.collection.mutable.ArrayBuffer
 /** Main API. AABB collision world. Generic over item type E. */
 class World[E](val cellSize: Float = 64f) {
 
-  private val cellMap = mutable.HashMap.empty[Point, Cell]
+  private val cellMap       = mutable.HashMap.empty[Point, Cell]
   private val nonEmptyCells = mutable.HashSet.empty[Cell]
-  private var cellMinX = 0f
-  private var cellMinY = 0f
-  private var cellMaxX = 0f
-  private var cellMaxY = 0f
-  private val grid = Grid()
-  private val rectHelper = RectHelper()
+  private var cellMinX      = 0f
+  private var cellMinY      = 0f
+  private var cellMaxX      = 0f
+  private var cellMaxY      = 0f
+  private val grid          = Grid()
+  private val rectHelper    = RectHelper()
   var tileMode: Boolean = true
 
   private def addItemToCell(item: Item[E], cx: Float, cy: Float): Unit = {
-    val pt = Point(cx, cy)
-    val cell = cellMap.getOrElseUpdate(pt, {
-      val c = Cell()
-      if (cx < cellMinX) cellMinX = cx
-      if (cy < cellMinY) cellMinY = cy
-      if (cx > cellMaxX) cellMaxX = cx
-      if (cy > cellMaxY) cellMaxY = cy
-      c
-    })
+    val pt   = Point(cx, cy)
+    val cell = cellMap.getOrElseUpdate(
+      pt, {
+        val c = Cell()
+        if (cx < cellMinX) cellMinX = cx
+        if (cy < cellMinY) cellMinY = cy
+        if (cx > cellMaxX) cellMaxX = cx
+        if (cy > cellMaxY) cellMaxY = cy
+        c
+      }
+    )
     nonEmptyCells.add(cell)
     if (!cell.items.contains(item)) {
       cell.items.add(item)
@@ -47,7 +49,7 @@ class World[E](val cellSize: Float = 64f) {
   private def removeItemFromCell(item: Item[?], cx: Float, cy: Float): Boolean = {
     val pt = Point(cx, cy)
     cellMap.get(pt) match {
-      case None => false
+      case None       => false
       case Some(cell) =>
         if (!cell.items.contains(item)) {
           false
@@ -63,11 +65,11 @@ class World[E](val cellSize: Float = 64f) {
   }
 
   private def getDictItemsInCellRect(
-      cl: Float,
-      ct: Float,
-      cw: Float,
-      ch: Float,
-      result: mutable.LinkedHashSet[Item[?]]
+    cl:     Float,
+    ct:     Float,
+    cw:     Float,
+    ch:     Float,
+    result: mutable.LinkedHashSet[Item[?]]
   ): mutable.LinkedHashSet[Item[?]] = {
     result.clear()
     val pt = Point(cl, ct)
@@ -96,107 +98,133 @@ class World[E](val cellSize: Float = 64f) {
     result.clear()
     getCellsTouchedBySegment_visited.clear()
     val visited = getCellsTouchedBySegment_visited
-    val pt = Point(x1, y1)
-    grid.grid_traverse(cellSize, x1, y1, x2, y2, new grid.TraverseCallback {
-      override def onTraverse(cx: Float, cy: Float, stepX: Int, stepY: Int): Boolean = {
-        // stop if cell coordinates are outside of the world.
-        if ((stepX == -1 && cx < cellMinX) || (stepX == 1 && cx > cellMaxX)
-          || (stepY == -1 && cy < cellMinY) || (stepY == 1 && cy > cellMaxY)) {
-          false
-        } else {
-          pt.x = cx
-          pt.y = cy
-          cellMap.get(pt) match {
-            case None => true
-            case Some(cell) =>
-              if (visited.contains(cell)) {
-                true
-              } else {
-                visited += cell
-                result += cell
-                true
-              }
+    val pt      = Point(x1, y1)
+    grid.grid_traverse(
+      cellSize,
+      x1,
+      y1,
+      x2,
+      y2,
+      new grid.TraverseCallback {
+        override def onTraverse(cx: Float, cy: Float, stepX: Int, stepY: Int): Boolean =
+          // stop if cell coordinates are outside of the world.
+          if (
+            (stepX == -1 && cx < cellMinX) || (stepX == 1 && cx > cellMaxX)
+            || (stepY == -1 && cy < cellMinY) || (stepY == 1 && cy > cellMaxY)
+          ) {
+            false
+          } else {
+            pt.x = cx
+            pt.y = cy
+            cellMap.get(pt) match {
+              case None       => true
+              case Some(cell) =>
+                if (visited.contains(cell)) {
+                  true
+                } else {
+                  visited += cell
+                  result += cell
+                  true
+                }
+            }
           }
-        }
       }
-    })
+    )
     result
   }
 
   def getCellsTouchedByRay(
-      originX: Float,
-      originY: Float,
-      dirX: Float,
-      dirY: Float,
-      result: ArrayBuffer[Cell]
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    result:  ArrayBuffer[Cell]
   ): ArrayBuffer[Cell] = {
     result.clear()
     getCellsTouchedBySegment_visited.clear()
     val visited = getCellsTouchedBySegment_visited
-    val pt = Point(originX, originY)
-    grid.grid_traverseRay(cellSize, originX, originY, dirX, dirY, new grid.TraverseCallback {
-      override def onTraverse(cx: Float, cy: Float, stepX: Int, stepY: Int): Boolean = {
-        // stop if cell coordinates are outside of the world.
-        if ((stepX == -1 && cx < cellMinX) || (stepX == 1 && cx > cellMaxX)
-          || (stepY == -1 && cy < cellMinY) || (stepY == 1 && cy > cellMaxY)) {
-          false
-        } else {
-          pt.x = cx
-          pt.y = cy
-          cellMap.get(pt) match {
-            case None => true
-            case Some(cell) =>
-              if (visited.contains(cell)) {
-                true
-              } else {
-                visited += cell
-                result += cell
-                true
-              }
+    val pt      = Point(originX, originY)
+    grid.grid_traverseRay(
+      cellSize,
+      originX,
+      originY,
+      dirX,
+      dirY,
+      new grid.TraverseCallback {
+        override def onTraverse(cx: Float, cy: Float, stepX: Int, stepY: Int): Boolean =
+          // stop if cell coordinates are outside of the world.
+          if (
+            (stepX == -1 && cx < cellMinX) || (stepX == 1 && cx > cellMaxX)
+            || (stepY == -1 && cy < cellMinY) || (stepY == 1 && cy > cellMaxY)
+          ) {
+            false
+          } else {
+            pt.x = cx
+            pt.y = cy
+            cellMap.get(pt) match {
+              case None       => true
+              case Some(cell) =>
+                if (visited.contains(cell)) {
+                  true
+                } else {
+                  visited += cell
+                  result += cell
+                  true
+                }
+            }
           }
-        }
       }
-    })
+    )
     result
   }
 
-  private val info_cells = ArrayBuffer.empty[Cell]
-  private val info_ti = Point()
+  private val info_cells   = ArrayBuffer.empty[Cell]
+  private val info_ti      = Point()
   private val info_normalX = IntPoint()
   private val info_normalY = IntPoint()
   private val info_visited = ArrayBuffer.empty[Item[?]]
 
   private def getInfoAboutItemsTouchedBySegment(
-      x1: Float,
-      y1: Float,
-      x2: Float,
-      y2: Float,
-      filter: Nullable[CollisionFilter],
-      infos: ArrayBuffer[ItemInfo]
+    x1:     Float,
+    y1:     Float,
+    x2:     Float,
+    y2:     Float,
+    filter: Nullable[CollisionFilter],
+    infos:  ArrayBuffer[ItemInfo]
   ): ArrayBuffer[ItemInfo] = {
     info_visited.clear()
     infos.clear()
     getCellsTouchedBySegment(x1, y1, x2, y2, info_cells)
 
-    for (cell <- info_cells) {
-      for (item <- cell.items) {
+    for (cell <- info_cells)
+      for (item <- cell.items)
         if (!info_visited.contains(item)) {
           info_visited += item
           if (filter.isEmpty || filter.get.filter(item, Nullable.Null).isDefined) {
             val rect = rects(item)
-            val l = rect.x
-            val t = rect.y
-            val w = rect.w
-            val h = rect.h
+            val l    = rect.x
+            val t    = rect.y
+            val w    = rect.w
+            val h    = rect.h
 
             if (Rect.rect_getSegmentIntersectionIndices(l, t, w, h, x1, y1, x2, y2, 0, 1, info_ti, info_normalX, info_normalY)) {
               val ti1 = info_ti.x
               val ti2 = info_ti.y
               if ((0 < ti1 && ti1 < 1) || (0 < ti2 && ti2 < 1)) {
                 Rect.rect_getSegmentIntersectionIndices(
-                  l, t, w, h, x1, y1, x2, y2,
-                  -Float.MaxValue, Float.MaxValue,
-                  info_ti, info_normalX, info_normalY
+                  l,
+                  t,
+                  w,
+                  h,
+                  x1,
+                  y1,
+                  x2,
+                  y2,
+                  -Float.MaxValue,
+                  Float.MaxValue,
+                  info_ti,
+                  info_normalX,
+                  info_normalY
                 )
                 val tii0 = info_ti.x
                 val tii1 = info_ti.y
@@ -205,79 +233,86 @@ class World[E](val cellSize: Float = 64f) {
             }
           }
         }
-      }
-    }
     infos.sortInPlace()(using ItemInfo.weightComparator)
     infos
   }
 
   private def getInfoAboutItemsTouchedByRay(
-      originX: Float,
-      originY: Float,
-      dirX: Float,
-      dirY: Float,
-      filter: Nullable[CollisionFilter],
-      infos: ArrayBuffer[ItemInfo]
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    filter:  Nullable[CollisionFilter],
+    infos:   ArrayBuffer[ItemInfo]
   ): ArrayBuffer[ItemInfo] = {
     info_visited.clear()
     infos.clear()
     getCellsTouchedByRay(originX, originY, dirX, dirY, info_cells)
 
-    for (cell <- info_cells) {
-      for (item <- cell.items) {
+    for (cell <- info_cells)
+      for (item <- cell.items)
         if (!info_visited.contains(item)) {
           info_visited += item
           if (filter.isEmpty || filter.get.filter(item, Nullable.Null).isDefined) {
             val rect = rects(item)
-            val l = rect.x
-            val t = rect.y
-            val w = rect.w
-            val h = rect.h
+            val l    = rect.x
+            val t    = rect.y
+            val w    = rect.w
+            val h    = rect.h
 
-            if (Rect.rect_getSegmentIntersectionIndices(
-                  l, t, w, h, originX, originY, originX + dirX, originY + dirY,
-                  0, Float.MaxValue,
-                  info_ti, info_normalX, info_normalY
-                )) {
+            if (
+              Rect.rect_getSegmentIntersectionIndices(
+                l,
+                t,
+                w,
+                h,
+                originX,
+                originY,
+                originX + dirX,
+                originY + dirY,
+                0,
+                Float.MaxValue,
+                info_ti,
+                info_normalX,
+                info_normalY
+              )
+            ) {
               val ti1 = info_ti.x
               val ti2 = info_ti.y
               infos += ItemInfo(item, ti1, ti2, Math.min(ti1, ti2))
             }
           }
         }
-      }
-    }
     infos.sortInPlace()(using ItemInfo.weightComparator)
     infos
   }
 
   def project(
-      item: Nullable[Item[?]],
-      x: Float,
-      y: Float,
-      w: Float,
-      h: Float,
-      goalX: Float,
-      goalY: Float,
-      collisions: Collisions
-  ): Collisions = {
+    item:       Nullable[Item[?]],
+    x:          Float,
+    y:          Float,
+    w:          Float,
+    h:          Float,
+    goalX:      Float,
+    goalY:      Float,
+    collisions: Collisions
+  ): Collisions =
     project(item, x, y, w, h, goalX, goalY, CollisionFilter.defaultFilter, collisions)
-  }
 
-  private val project_visited = ArrayBuffer.empty[Item[?]]
-  private val project_c = Rect()
+  private val project_visited             = ArrayBuffer.empty[Item[?]]
+  private val project_c                   = Rect()
   private val project_dictItemsInCellRect = mutable.LinkedHashSet.empty[Item[?]]
 
   def project(
-      item: Nullable[Item[?]],
-      x: Float,
-      y: Float,
-      w: Float,
-      h: Float,
-      goalX: Float,
-      goalY: Float,
-      filter: CollisionFilter,
-      collisions: Collisions
+    item:       Nullable[Item[?]],
+    x:          Float,
+    y:          Float,
+    w:          Float,
+    h:          Float,
+    goalX:      Float,
+    goalY:      Float,
+    filter:     CollisionFilter,
+    collisions: Collisions
   ): Collisions = {
     collisions.clear()
     val visited = project_visited
@@ -297,35 +332,49 @@ class World[E](val cellSize: Float = 64f) {
     val th = tb - tt
 
     grid.grid_toCellRect(cellSize, tl, tt, tw, th, project_c)
-    val cl = project_c.x
-    val ct = project_c.y
-    val cw = project_c.w
-    val ch = project_c.h
+    val cl                  = project_c.x
+    val ct                  = project_c.y
+    val cw                  = project_c.w
+    val ch                  = project_c.h
     val dictItemsInCellRect = getDictItemsInCellRect(cl, ct, cw, ch, project_dictItemsInCellRect)
-    for (other <- dictItemsInCellRect) {
+    for (other <- dictItemsInCellRect)
       if (!visited.contains(other)) {
         visited += other
         val response = filter.filter(item.getOrElse(null.asInstanceOf[Item[?]]), other)
         if (response.isDefined) {
-          val o = getRect(other)
-          val ox = o.x
-          val oy = o.y
-          val ow = o.w
-          val oh = o.h
+          val o   = getRect(other)
+          val ox  = o.x
+          val oy  = o.y
+          val ow  = o.w
+          val oh  = o.h
           val col = rectHelper.rect_detectCollision(x, y, w, h, ox, oy, ow, oh, goalX, goalY)
 
           if (col.isDefined) {
             val c = col.get
             collisions.add(
-              c.overlaps, c.ti, c.move.x, c.move.y, c.normal.x, c.normal.y,
-              c.touch.x, c.touch.y, c.itemRect.x, c.itemRect.y, c.itemRect.w, c.itemRect.h,
-              c.otherRect.x, c.otherRect.y, c.otherRect.w, c.otherRect.h,
-              item, other, response
+              c.overlaps,
+              c.ti,
+              c.move.x,
+              c.move.y,
+              c.normal.x,
+              c.normal.y,
+              c.touch.x,
+              c.touch.y,
+              c.itemRect.x,
+              c.itemRect.y,
+              c.itemRect.w,
+              c.itemRect.h,
+              c.otherRect.x,
+              c.otherRect.y,
+              c.otherRect.w,
+              c.otherRect.h,
+              item,
+              other,
+              response
             )
           }
         }
       }
-    }
     if (tileMode) {
       collisions.sort()
     }
@@ -360,7 +409,7 @@ class World[E](val cellSize: Float = 64f) {
 
   private val add_c = Rect()
 
-  def add(item: Item[E], x: Float, y: Float, w: Float, h: Float): Item[E] = {
+  def add(item: Item[E], x: Float, y: Float, w: Float, h: Float): Item[E] =
     if (rects.contains(item)) {
       item
     } else {
@@ -381,16 +430,15 @@ class World[E](val cellSize: Float = 64f) {
       }
       item
     }
-  }
 
   private val remove_c = Rect()
 
   def remove(item: Item[?]): Unit = {
     val rect = getRect(item)
-    val x = rect.x
-    val y = rect.y
-    val w = rect.w
-    val h = rect.h
+    val x    = rect.x
+    val y    = rect.y
+    val w    = rect.w
+    val h    = rect.h
 
     rects.remove(item)
     grid.grid_toCellRect(cellSize, x, y, w, h, remove_c)
@@ -426,10 +474,10 @@ class World[E](val cellSize: Float = 64f) {
 
   def update(item: Item[?], x2: Float, y2: Float, w2: Float, h2: Float): Unit = {
     val rect = getRect(item)
-    val x1 = rect.x
-    val y1 = rect.y
-    val w1 = rect.w
-    val h1 = rect.h
+    val x1   = rect.x
+    val y1   = rect.y
+    val w1   = rect.w
+    val h1   = rect.h
     if (x1 != x2 || y1 != y2 || w1 != w2 || h1 != h2) {
 
       val c1 = grid.grid_toCellRect(cellSize, x1, y1, w1, h1, update_c1)
@@ -447,7 +495,7 @@ class World[E](val cellSize: Float = 64f) {
         var cy = ct1
         while (cy <= cb1) {
           val cyOut = cy < ct2 || cy > cb2
-          var cx = cl1
+          var cx    = cl1
           while (cx <= cr1) {
             if (cyOut || cx < cl2 || cx > cr2) {
               removeItemFromCell(item, cx, cy)
@@ -460,7 +508,7 @@ class World[E](val cellSize: Float = 64f) {
         cy = ct2
         while (cy <= cb2) {
           val cyOut = cy < ct1 || cy > cb1
-          var cx = cl2
+          var cx    = cl2
           while (cx <= cr2) {
             if (cyOut || cx < cl1 || cx > cr1) {
               addItemToCell(item.asInstanceOf[Item[E]], cx, cy)
@@ -474,10 +522,10 @@ class World[E](val cellSize: Float = 64f) {
     }
   }
 
-  private val check_visited = ArrayBuffer.empty[Item[?]]
-  private val check_cols = Collisions()
+  private val check_visited       = ArrayBuffer.empty[Item[?]]
+  private val check_cols          = Collisions()
   private val check_projectedCols = Collisions()
-  private val check_result = Response.Result()
+  private val check_result        = Response.Result()
 
   def check(item: Item[E], goalX: Float, goalY: Float, filter: CollisionFilter): Response.Result = {
     val visited = check_visited
@@ -486,33 +534,47 @@ class World[E](val cellSize: Float = 64f) {
 
     val outerFilter = filter
     val visitedFilter: CollisionFilter = new CollisionFilter {
-      override def filter(filterItem: Item[?], other: Nullable[Item[?]]): Nullable[Response] = {
+      override def filter(filterItem: Item[?], other: Nullable[Item[?]]): Nullable[Response] =
         if (other.isDefined && visited.contains(other.get)) {
           Nullable.Null
         } else {
           outerFilter.filter(filterItem, other)
         }
-      }
     }
 
     val rect = getRect(item)
-    val x = rect.x
-    val y = rect.y
-    val w = rect.w
-    val h = rect.h
+    val x    = rect.x
+    val y    = rect.y
+    val w    = rect.w
+    val h    = rect.h
     val cols = check_cols
     cols.clear()
-    var currentGoalX = goalX
-    var currentGoalY = goalY
+    var currentGoalX  = goalX
+    var currentGoalY  = goalY
     var projectedCols = project(item, x, y, w, h, currentGoalX, currentGoalY, filter, check_projectedCols)
-    val result = check_result
+    val result        = check_result
     while (projectedCols != null && !projectedCols.isEmpty) {
       val col = projectedCols.get(0).get
       cols.add(
-        col.overlaps, col.ti, col.move.x, col.move.y, col.normal.x, col.normal.y,
-        col.touch.x, col.touch.y, col.itemRect.x, col.itemRect.y, col.itemRect.w, col.itemRect.h,
-        col.otherRect.x, col.otherRect.y, col.otherRect.w, col.otherRect.h,
-        col.item, col.other, col.`type`
+        col.overlaps,
+        col.ti,
+        col.move.x,
+        col.move.y,
+        col.normal.x,
+        col.normal.y,
+        col.touch.x,
+        col.touch.y,
+        col.itemRect.x,
+        col.itemRect.y,
+        col.itemRect.w,
+        col.itemRect.h,
+        col.otherRect.x,
+        col.otherRect.y,
+        col.otherRect.w,
+        col.otherRect.h,
+        col.item,
+        col.other,
+        col.`type`
       )
 
       visited += col.other.get
@@ -540,28 +602,29 @@ class World[E](val cellSize: Float = 64f) {
     result
   }
 
-  private val query_c = Rect()
+  private val query_c                   = Rect()
   private val query_dictItemsInCellRect = mutable.LinkedHashSet.empty[Item[?]]
 
-  /**
-   * A collision check of items that intersect the given rectangle.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
-   * @param items An empty list that will be filled with the Item instances that collide with the rectangle.
-   */
+  /** A collision check of items that intersect the given rectangle.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
+    * @param items
+    *   An empty list that will be filled with the Item instances that collide with the rectangle.
+    */
   def queryRect(
-      x: Float,
-      y: Float,
-      w: Float,
-      h: Float,
-      filter: CollisionFilter,
-      items: ArrayBuffer[Item[?]]
+    x:      Float,
+    y:      Float,
+    w:      Float,
+    h:      Float,
+    filter: CollisionFilter,
+    items:  ArrayBuffer[Item[?]]
   ): ArrayBuffer[Item[?]] = {
     items.clear()
     grid.grid_toCellRect(cellSize, x, y, w, h, query_c)
-    val cl = query_c.x
-    val ct = query_c.y
-    val cw = query_c.w
-    val ch = query_c.h
+    val cl                  = query_c.x
+    val ct                  = query_c.y
+    val cw                  = query_c.w
+    val ch                  = query_c.h
     val dictItemsInCellRect = getDictItemsInCellRect(cl, ct, cw, ch, query_dictItemsInCellRect)
 
     for (item <- dictItemsInCellRect) {
@@ -575,16 +638,17 @@ class World[E](val cellSize: Float = 64f) {
 
   private val query_point = Point()
 
-  /**
-   * A collision check of items that intersect the given point.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
-   * @param items An empty list that will be filled with the Item instances that collide with the point.
-   */
+  /** A collision check of items that intersect the given point.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
+    * @param items
+    *   An empty list that will be filled with the Item instances that collide with the point.
+    */
   def queryPoint(x: Float, y: Float, filter: CollisionFilter, items: ArrayBuffer[Item[?]]): ArrayBuffer[Item[?]] = {
     items.clear()
     toCell(x, y, query_point)
-    val cx = query_point.x
-    val cy = query_point.y
+    val cx                  = query_point.x
+    val cy                  = query_point.y
     val dictItemsInCellRect = getDictItemsInCellRect(cx, cy, 1, 1, query_dictItemsInCellRect)
 
     for (item <- dictItemsInCellRect) {
@@ -596,47 +660,47 @@ class World[E](val cellSize: Float = 64f) {
     items
   }
 
-  /**
-   * A collision check of items that intersect the given line segment.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
-   * @param items An empty list that will be filled with the Item instances that intersect the segment.
-   */
+  /** A collision check of items that intersect the given line segment.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
+    * @param items
+    *   An empty list that will be filled with the Item instances that intersect the segment.
+    */
   private val query_infos = ArrayBuffer.empty[ItemInfo]
 
   def querySegment(
-      x1: Float,
-      y1: Float,
-      x2: Float,
-      y2: Float,
-      filter: CollisionFilter,
-      items: ArrayBuffer[Item[?]]
+    x1:     Float,
+    y1:     Float,
+    x2:     Float,
+    y2:     Float,
+    filter: CollisionFilter,
+    items:  ArrayBuffer[Item[?]]
   ): ArrayBuffer[Item[?]] = {
     items.clear()
     val infos = getInfoAboutItemsTouchedBySegment(x1, y1, x2, y2, filter, query_infos)
-    for (info <- infos) {
+    for (info <- infos)
       items += info.item
-    }
     items
   }
 
-  /**
-   * A collision check of items that intersect the given line segment. Returns more details about where the collision
-   * occurs compared to querySegment.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null
-   * @param infos An empty list that will be filled with the collision information.
-   */
+  /** A collision check of items that intersect the given line segment. Returns more details about where the collision occurs compared to querySegment.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null
+    * @param infos
+    *   An empty list that will be filled with the collision information.
+    */
   def querySegmentWithCoords(
-      x1: Float,
-      y1: Float,
-      x2: Float,
-      y2: Float,
-      filter: CollisionFilter,
-      infos: ArrayBuffer[ItemInfo]
+    x1:     Float,
+    y1:     Float,
+    x2:     Float,
+    y2:     Float,
+    filter: CollisionFilter,
+    infos:  ArrayBuffer[ItemInfo]
   ): ArrayBuffer[ItemInfo] = {
     infos.clear()
     val result = getInfoAboutItemsTouchedBySegment(x1, y1, x2, y2, filter, infos)
-    val dx = x2 - x1
-    val dy = y2 - y1
+    val dx     = x2 - x1
+    val dy     = y2 - y1
 
     for (info <- result) {
       val ti1 = info.ti1
@@ -651,48 +715,56 @@ class World[E](val cellSize: Float = 64f) {
     result
   }
 
-  /**
-   * A collision check of items that intersect the given ray.
-   * @param originX The x-origin of the ray.
-   * @param originY The y-origin of the ray.
-   * @param dirX The x component of the vector that defines the angle of the ray.
-   * @param dirY The y component of the vector that defines the angle of the ray.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
-   * @param items An empty list that will be filled with the Item instances that intersect the ray.
-   */
+  /** A collision check of items that intersect the given ray.
+    * @param originX
+    *   The x-origin of the ray.
+    * @param originY
+    *   The y-origin of the ray.
+    * @param dirX
+    *   The x component of the vector that defines the angle of the ray.
+    * @param dirY
+    *   The y component of the vector that defines the angle of the ray.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null.
+    * @param items
+    *   An empty list that will be filled with the Item instances that intersect the ray.
+    */
   def queryRay(
-      originX: Float,
-      originY: Float,
-      dirX: Float,
-      dirY: Float,
-      filter: CollisionFilter,
-      items: ArrayBuffer[Item[?]]
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    filter:  CollisionFilter,
+    items:   ArrayBuffer[Item[?]]
   ): ArrayBuffer[Item[?]] = {
     items.clear()
     val infos = getInfoAboutItemsTouchedByRay(originX, originY, dirX, dirY, filter, query_infos)
-    for (info <- infos) {
+    for (info <- infos)
       items += info.item
-    }
     items
   }
 
-  /**
-   * A collision check of items that intersect the given ray. Returns more details about where the collision
-   * occurs compared to queryRay.
-   * @param originX The x-origin of the ray.
-   * @param originY The y-origin of the ray.
-   * @param dirX The x component of the vector that defines the angle of the ray.
-   * @param dirY The y component of the vector that defines the angle of the ray.
-   * @param filter Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null
-   * @param infos An empty list that will be filled with the collision information.
-   */
+  /** A collision check of items that intersect the given ray. Returns more details about where the collision occurs compared to queryRay.
+    * @param originX
+    *   The x-origin of the ray.
+    * @param originY
+    *   The y-origin of the ray.
+    * @param dirX
+    *   The x component of the vector that defines the angle of the ray.
+    * @param dirY
+    *   The y component of the vector that defines the angle of the ray.
+    * @param filter
+    *   Defines what items will be checked for collision. "item" is the Item checked for collision. "other" is null
+    * @param infos
+    *   An empty list that will be filled with the collision information.
+    */
   def queryRayWithCoords(
-      originX: Float,
-      originY: Float,
-      dirX: Float,
-      dirY: Float,
-      filter: CollisionFilter,
-      infos: ArrayBuffer[ItemInfo]
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    filter:  CollisionFilter,
+    infos:   ArrayBuffer[ItemInfo]
   ): ArrayBuffer[ItemInfo] = {
     infos.clear()
     val result = getInfoAboutItemsTouchedByRay(originX, originY, dirX, dirY, filter, infos)

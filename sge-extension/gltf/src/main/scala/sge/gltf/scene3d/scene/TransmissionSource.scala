@@ -26,21 +26,21 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
   def this(shaderProvider: ShaderProvider)(using Sge) =
     this(shaderProvider, SceneRenderableSorter())
 
-  private val batch: ModelBatch = ModelBatch(shaderProvider, sorter)
-  private var fbo:   FrameBuffer = scala.compiletime.uninitialized
-  private var width:  Int     = 0
-  private var height: Int     = 0
-  private var hasTransmission: Boolean = false
-  private var camera: Camera  = scala.compiletime.uninitialized
+  private val batch:           ModelBatch  = ModelBatch(shaderProvider, sorter)
+  private var fbo:             FrameBuffer = scala.compiletime.uninitialized
+  private var width:           Int         = 0
+  private var height:          Int         = 0
+  private var hasTransmission: Boolean     = false
+  private var camera:          Camera      = scala.compiletime.uninitialized
 
   val attribute: PBRTextureAttribute = PBRTextureAttribute(PBRTextureAttribute.TransmissionSourceTexture)
 
   private val allRenderables:      DynamicArray[Renderable] = DynamicArray[Renderable]()
   private val selectedRenderables: DynamicArray[Renderable] = DynamicArray[Renderable]()
-  private val renderablePool: Pool[Renderable] = new Pool[Renderable] {
-    override protected val initialCapacity: Int = 16
-    override protected val max: Int = Int.MaxValue
-    override protected def newObject(): Renderable = Renderable()
+  private val renderablePool:      Pool[Renderable]         = new Pool[Renderable] {
+    override protected val initialCapacity: Int        = 16
+    override protected val max:             Int        = Int.MaxValue
+    override protected def newObject():     Renderable = Renderable()
   }
 
   attribute.textureDescription.minFilter = Texture.TextureFilter.MipMap
@@ -60,9 +60,8 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
     this.hasTransmission = false
   }
 
-  def render(providers: Iterable[RenderableProvider], environment: Environment): Unit = {
+  def render(providers: Iterable[RenderableProvider], environment: Environment): Unit =
     providers.foreach(render(_, environment))
-  }
 
   def render(provider: RenderableProvider, environment: Environment): Unit = {
     val start = allRenderables.size
@@ -116,7 +115,7 @@ class TransmissionSource(shaderProvider: ShaderProvider, sorter: RenderableSorte
   }
 
   private def shouldBeRendered(renderable: Renderable): Boolean = {
-    val mat = renderable.material
+    val mat             = renderable.material
     val hasTransmission = mat.exists(_.has(PBRTextureAttribute.TransmissionTexture)) ||
       (mat.exists(_.has(PBRFloatAttribute.TransmissionFactor)) &&
         mat.flatMap(_.getAs[PBRFloatAttribute](PBRFloatAttribute.TransmissionFactor)).exists(_.value > 0f))

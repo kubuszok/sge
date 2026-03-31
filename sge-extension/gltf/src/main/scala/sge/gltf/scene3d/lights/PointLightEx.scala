@@ -20,14 +20,13 @@ class PointLightEx extends PointLight {
   /** Optional range in meters. */
   var range: Nullable[Float] = Nullable.empty
 
-  override def set(copyFrom: PointLight): PointLight = {
+  override def set(copyFrom: PointLight): PointLight =
     copyFrom match {
       case ex: PointLightEx =>
         set(copyFrom.color, copyFrom.position, copyFrom.intensity, ex.range)
       case _ =>
         set(copyFrom.color, copyFrom.position, copyFrom.intensity)
     }
-  }
 
   def set(color: Color, position: Vector3, intensity: Float, range: Nullable[Float]): PointLightEx = {
     super.set(color, position, intensity)

@@ -65,9 +65,8 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     * @return
     *   true if the coordinates are valid and can be safely used with getter methods.
     */
-  def isIndexValid(x: Int, y: Int): Boolean = {
+  def isIndexValid(x: Int, y: Int): Boolean =
     x >= 0 && x < width && y >= 0 && y < height
-  }
 
   /** @param x
     *   column index.
@@ -196,9 +195,8 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     * @param cellConsumer
     *   will consume each cell. If returns true, further iteration will be cancelled.
     */
-  def forEach(cellConsumer: Grid.CellConsumer): Unit = {
+  def forEach(cellConsumer: Grid.CellConsumer): Unit =
     iterate(cellConsumer, 0, grid.length)
-  }
 
   /** Iterates over the grid from a starting point.
     *
@@ -209,9 +207,8 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     * @param fromY
     *   first cell row index. Min is 0.
     */
-  def forEach(cellConsumer: Grid.CellConsumer, fromX: Int, fromY: Int): Unit = {
+  def forEach(cellConsumer: Grid.CellConsumer, fromX: Int, fromY: Int): Unit =
     iterate(cellConsumer, toIndex(fromX, fromY), grid.length)
-  }
 
   /** Iterates over chosen cells range in the grid.
     *
@@ -226,9 +223,8 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     * @param toY
     *   last cell row index (excluded). Max is [[height]].
     */
-  def forEach(cellConsumer: Grid.CellConsumer, fromX: Int, fromY: Int, toX: Int, toY: Int): Unit = {
+  def forEach(cellConsumer: Grid.CellConsumer, fromX: Int, fromY: Int, toX: Int, toY: Int): Unit =
     iterate(cellConsumer, toIndex(fromX, fromY), toIndex(toX, toY))
-  }
 
   /** @param cellConsumer
     *   will consume each cell. If returns true, further iteration will be cancelled.
@@ -238,10 +234,11 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   actual array index (excluded); iteration ends with this value -1. Max is length of array.
     */
   protected def iterate(cellConsumer: Grid.CellConsumer, fromIndex: Int, toIndex: Int): Unit = {
-    var index = fromIndex
-    while (index < toIndex) {
+    var index    = fromIndex
+    var consumed = false
+    while (index < toIndex && !consumed) {
       if (cellConsumer.consume(this, this.toX(index), this.toY(index), grid(index))) {
-        return // scalastyle:ignore -- boundary/break not needed for simple early exit in private method
+        consumed = true
       }
       index += 1
     }
@@ -260,7 +257,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     */
   def add(other: Grid): Unit = {
     validateGrid(other)
-    var index = 0
+    var index  = 0
     val length = this.grid.length
     while (index < length) {
       this.grid(index) += other.grid(index)
@@ -273,7 +270,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     */
   def subtract(other: Grid): Unit = {
     validateGrid(other)
-    var index = 0
+    var index  = 0
     val length = this.grid.length
     while (index < length) {
       this.grid(index) -= other.grid(index)
@@ -286,7 +283,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     */
   def multiply(other: Grid): Unit = {
     validateGrid(other)
-    var index = 0
+    var index  = 0
     val length = this.grid.length
     while (index < length) {
       this.grid(index) *= other.grid(index)
@@ -299,7 +296,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     */
   def divide(other: Grid): Unit = {
     validateGrid(other)
-    var index = 0
+    var index  = 0
     val length = this.grid.length
     while (index < length) {
       this.grid(index) /= other.grid(index)
@@ -312,11 +309,10 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     * @throws IllegalStateException
     *   if sizes do not match.
     */
-  protected def validateGrid(other: Grid): Unit = {
+  protected def validateGrid(other: Grid): Unit =
     if (other.width != width || other.height != height) {
       throw new IllegalStateException("Grid's sizes do not match. Unable to perform operation.")
     }
-  }
 
   /** Sets all values in the map.
     *
@@ -326,7 +322,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def set(value: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) = value
@@ -390,7 +386,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def add(value: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) += value
@@ -407,7 +403,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def subtract(value: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) -= value
@@ -424,7 +420,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def multiply(value: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) *= value
@@ -441,7 +437,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def divide(value: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) /= value
@@ -458,7 +454,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def modulo(modulo: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) %= modulo
@@ -473,7 +469,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def negate(): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) = -grid(index)
@@ -490,7 +486,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def clamp(min: Float, max: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       val value = grid(index)
@@ -508,7 +504,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def replace(value: Float, withValue: Float): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       if (java.lang.Float.compare(grid(index), value) == 0) {
@@ -525,7 +521,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def increment(): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) += 1f
@@ -540,7 +536,7 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     *   this, for chaining.
     */
   def decrement(): Grid = {
-    var index = 0
+    var index  = 0
     val length = grid.length
     while (index < length) {
       grid(index) -= 1f
@@ -549,12 +545,11 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
     this
   }
 
-  override def equals(obj: Any): Boolean = {
+  override def equals(obj: Any): Boolean =
     obj match {
       case that: Grid => (this eq that) || (that.width == width && Arrays.equals(that.grid, grid))
-      case _          => false
+      case _ => false
     }
-  }
 
   override def hashCode(): Int = Arrays.hashCode(grid)
 
@@ -571,17 +566,19 @@ class Grid(private val grid: Array[Float], val width: Int, val height: Int) {
 
   override def toString: String = {
     val logger = new StringBuilder
-    forEach(new Grid.CellConsumer {
-      override def consume(grid: Grid, x: Int, y: Int, value: Float): Boolean = {
-        logger.append('[').append(x).append(',').append(y).append('|').append(value).append(']')
-        if (x == grid.width - 1) {
-          logger.append('\n')
-        } else {
-          logger.append(' ')
+    forEach(
+      new Grid.CellConsumer {
+        override def consume(grid: Grid, x: Int, y: Int, value: Float): Boolean = {
+          logger.append('[').append(x).append(',').append(y).append('|').append(value).append(']')
+          if (x == grid.width - 1) {
+            logger.append('\n')
+          } else {
+            logger.append(' ')
+          }
+          Grid.CellConsumer.Continue
         }
-        Grid.CellConsumer.Continue
       }
-    })
+    )
     logger.toString
   }
 }

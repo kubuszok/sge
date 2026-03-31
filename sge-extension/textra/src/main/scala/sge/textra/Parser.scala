@@ -15,6 +15,8 @@ package sge
 package textra
 
 import scala.compiletime.uninitialized
+import scala.util.boundary
+import scala.util.boundary.break
 import java.util.regex.{ Matcher, Pattern }
 import sge.textra.utils.{ CaseInsensitiveIntMap, Palette, StringUtils }
 import scala.language.implicitConversions
@@ -177,11 +179,11 @@ object Parser {
     label.setIntermediateText(text, false, false)
   }
 
-  private def processIfToken(label: TypingLabel, paramsString: String): String = {
+  private def processIfToken(label: TypingLabel, paramsString: String): String = boundary {
     val params   = if (paramsString == null) Array.empty[String] else paramsString.split(";")
     val variable = if (params.length > 0) params(0) else null
 
-    if (params.length <= 1 || variable == null) return null
+    if (params.length <= 1 || variable == null) break(null) // @nowarn — matches original API
 
     var variableValue: String = null
     Nullable.foreach(label.getTypingListener) { l =>
@@ -206,13 +208,13 @@ object Parser {
         defaultValue = value
         found = true
       } else if (variableValue.equalsIgnoreCase(key)) {
-        return value
+        break(value)
       }
       i += 1
     }
 
-    if (defaultValue != null) return defaultValue
-    variable
+    if (defaultValue != null) defaultValue
+    else variable
   }
 
   /** Parses regular tokens that don't need replacement and register their indexes in the TypingLabel. */
@@ -334,30 +336,34 @@ object Parser {
     if (str != null) BOOLEAN_TRUE.containsKey(str) else false
 
   /** Parses a color from the given string. Returns 256 if the color couldn't be parsed. */
-  def stringToColor(label: TypingLabel, str: String): Int = {
+  def stringToColor(label: TypingLabel, str: String): Int = boundary {
     if (str != null) {
       val lookup = label.getFont.colorLookup
       if (lookup != null) {
         val namedColor = lookup.getRgba(str)
-        if (namedColor != 256) return namedColor
+        if (namedColor != 256) break(namedColor)
       }
       if (str.length >= 3) {
         if (str.startsWith("#")) {
-          if (str.length >= 9) return StringUtils.intFromHex(str, 1, 9)
-          if (str.length >= 7) return StringUtils.intFromHex(str, 1, 7) << 8 | 0xff
+          if (str.length >= 9) break(StringUtils.intFromHex(str, 1, 9))
+          if (str.length >= 7) break(StringUtils.intFromHex(str, 1, 7) << 8 | 0xff)
           if (str.length >= 4) {
             val rgb = StringUtils.intFromHex(str, 1, 4)
-            return (rgb << 20 & 0xf0000000) | (rgb << 16 & 0x0f000000) |
-              (rgb << 16 & 0x00f00000) | (rgb << 12 & 0x000f0000) |
-              (rgb << 12 & 0x0000f000) | (rgb << 8 & 0x00000f00) | 0xff
+            break(
+              (rgb << 20 & 0xf0000000) | (rgb << 16 & 0x0f000000) |
+                (rgb << 16 & 0x00f00000) | (rgb << 12 & 0x000f0000) |
+                (rgb << 12 & 0x0000f000) | (rgb << 8 & 0x00000f00) | 0xff
+            )
           }
         } else {
-          if (str.length >= 8) return StringUtils.intFromHex(str, 0, 8)
-          if (str.length >= 6) return StringUtils.intFromHex(str, 0, 6) << 8 | 0xff
+          if (str.length >= 8) break(StringUtils.intFromHex(str, 0, 8))
+          if (str.length >= 6) break(StringUtils.intFromHex(str, 0, 6) << 8 | 0xff)
           val rgb = StringUtils.intFromHex(str, 0, 3)
-          return (rgb << 20 & 0xf0000000) | (rgb << 16 & 0x0f000000) |
-            (rgb << 16 & 0x00f00000) | (rgb << 12 & 0x000f0000) |
-            (rgb << 12 & 0x0000f000) | (rgb << 8 & 0x00000f00) | 0xff
+          break(
+            (rgb << 20 & 0xf0000000) | (rgb << 16 & 0x0f000000) |
+              (rgb << 16 & 0x00f00000) | (rgb << 12 & 0x000f0000) |
+              (rgb << 12 & 0x0000f000) | (rgb << 8 & 0x00000f00) | 0xff
+          )
         }
       }
     }

@@ -16,23 +16,22 @@ import sge.noise.generator.util.Generators
 
 class DungeonSuite extends munit.FunSuite {
 
-  override def beforeEach(context: BeforeEach): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     Generators.setRandom(new Random(42L))
-  }
 
   test("DungeonGenerator produces rooms and corridors") {
     val grid = new Grid(31, 31)
-    val gen = new DungeonGenerator
+    val gen  = new DungeonGenerator
     gen.roomGenerationAttempts = 30
     gen.minRoomSize = 3
     gen.maxRoomSize = 7
     gen.generate(grid)
 
-    val arr = grid.getArray
-    var wallCount = 0
-    var floorCount = 0
+    val arr           = grid.getArray
+    var wallCount     = 0
+    var floorCount    = 0
     var corridorCount = 0
-    var i = 0
+    var i             = 0
     while (i < arr.length) {
       if (arr(i) >= 1f) wallCount += 1
       else if (arr(i) == 0.5f) floorCount += 1
@@ -49,9 +48,9 @@ class DungeonSuite extends munit.FunSuite {
     val grid = new Grid(31, 31)
     DungeonGenerator.generate(grid, 30)
 
-    val arr = grid.getArray
+    val arr      = grid.getArray
     var hasFloor = false
-    var i = 0
+    var i        = 0
     while (i < arr.length) {
       if (arr(i) == 0.5f) hasFloor = true
       i += 1
@@ -61,7 +60,7 @@ class DungeonSuite extends munit.FunSuite {
 
   test("DungeonGenerator with room types produces valid rooms") {
     val grid = new Grid(31, 31)
-    val gen = new DungeonGenerator
+    val gen  = new DungeonGenerator
     gen.roomGenerationAttempts = 50
     gen.minRoomSize = 5
     gen.maxRoomSize = 9
@@ -72,9 +71,9 @@ class DungeonSuite extends munit.FunSuite {
     )
     gen.generate(grid)
 
-    val arr = grid.getArray
+    val arr        = grid.getArray
     var floorCount = 0
-    var i = 0
+    var i          = 0
     while (i < arr.length) {
       if (arr(i) == 0.5f) floorCount += 1
       i += 1
@@ -110,9 +109,9 @@ class DungeonSuite extends munit.FunSuite {
     // Grid with dead end removal should have fewer corridor tiles
     var corridors1 = 0
     var corridors2 = 0
-    val arr1 = grid1.getArray
-    val arr2 = grid2.getArray
-    var i = 0
+    val arr1       = grid1.getArray
+    val arr2       = grid2.getArray
+    var i          = 0
     while (i < arr1.length) {
       if (arr1(i) == 0f) corridors1 += 1
       if (arr2(i) == 0f) corridors2 += 1

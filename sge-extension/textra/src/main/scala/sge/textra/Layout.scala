@@ -9,6 +9,9 @@ package sge
 package textra
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphics.Color
 import sge.utils.Nullable
 
@@ -78,12 +81,12 @@ class Layout() {
   /** Adds a long glyph as processed by Font to store color and style info with the char. */
   def add(glyph: Long): Layout = add(glyph, 1f, 1f, 0f, 0f, 0f)
 
-  def add(glyph: Long, scale: Float, advance: Float, offsetX: Float, offsetY: Float, rotation: Float): Layout = {
+  def add(glyph: Long, scale: Float, advance: Float, offsetX: Float, offsetY: Float, rotation: Float): Layout = boundary {
     if (!atLimit) {
       if ((glyph & 0xffffL) == 10L) {
         if (lines.size >= maxLines) {
           atLimit = true
-          return this
+          break(this)
         }
         val line = new Line()
         val prev = lines.last
@@ -112,13 +115,14 @@ class Layout() {
     this
   }
 
-  def getWidth: Float = {
-    if (justification != Justify.NONE && (lines.size > 1 && !justification.ignoreLastLine)) return targetWidth
-    var w = 0f
-    var i = 0
-    while (i < lines.size) { w = Math.max(w, lines(i).width); i += 1 }
-    w
-  }
+  def getWidth: Float =
+    if (justification != Justify.NONE && (lines.size > 1 && !justification.ignoreLastLine)) targetWidth
+    else {
+      var w = 0f
+      var i = 0
+      while (i < lines.size) { w = Math.max(w, lines(i).width); i += 1 }
+      w
+    }
 
   def getHeight: Float = {
     var h = 0f
@@ -134,23 +138,25 @@ class Layout() {
 
   def peekLine: Line = lines.last
 
-  def pushLine(): Nullable[Line] = {
-    if (lines.size >= maxLines) { atLimit = true; return Nullable.empty }
-    val line = new Line()
-    if (advances.isEmpty) add('\n'.toLong)
-    else add('\n'.toLong, sizing.last, advances.last, offsets(offsets.size - 2), offsets.last, rotations.last)
-    line.height = 0
-    lines += line
-    Nullable(line)
-  }
+  def pushLine(): Nullable[Line] =
+    if (lines.size >= maxLines) { atLimit = true; Nullable.empty }
+    else {
+      val line = new Line()
+      if (advances.isEmpty) add('\n'.toLong)
+      else add('\n'.toLong, sizing.last, advances.last, offsets(offsets.size - 2), offsets.last, rotations.last)
+      line.height = 0
+      lines += line
+      Nullable(line)
+    }
 
-  def pushLineBare(): Nullable[Line] = {
-    if (lines.size >= maxLines) { atLimit = true; return Nullable.empty }
-    val line = new Line()
-    line.height = 0
-    lines += line
-    Nullable(line)
-  }
+  def pushLineBare(): Nullable[Line] =
+    if (lines.size >= maxLines) { atLimit = true; Nullable.empty }
+    else {
+      val line = new Line()
+      line.height = 0
+      lines += line
+      Nullable(line)
+    }
 
   def getTargetWidth:            Float  = targetWidth
   def setTargetWidth(tw: Float): Layout = { targetWidth = tw; this }
@@ -213,7 +219,7 @@ class Layout() {
   def appendInto(sb: StringBuilder): StringBuilder =
     appendSubstringInto(sb, 0, Int.MaxValue)
 
-  def appendSubstringInto(sb: StringBuilder, start: Int, end: Int): StringBuilder = {
+  def appendSubstringInto(sb: StringBuilder, start: Int, end: Int): StringBuilder = boundary {
     val s          = Math.max(0, start)
     val e          = Math.min(Math.max(countGlyphs, s), end)
     var index      = s
@@ -229,7 +235,7 @@ class Layout() {
           glyphCount += 1
           index += 1
         }
-        if (glyphCount == e - s) return sb
+        if (glyphCount == e - s) break(sb)
         index = 0
       } else {
         index -= glyphs.size

@@ -49,8 +49,8 @@ abstract class ShaderVfxEffect(protected val program: ShaderProgram)(using Sge) 
 
   /** Updates shader's uniform of float type.
     *
-    * <b>NOTE:</b> This is a utility method that will bind/unbind the shader program internally on every call. If you need to update
-    * multiple uniforms, please consider calling methods directly from [[ShaderProgram]].
+    * <b>NOTE:</b> This is a utility method that will bind/unbind the shader program internally on every call. If you need to update multiple uniforms, please consider calling methods directly from
+    * [[ShaderProgram]].
     */
   protected def setUniform(uniformName: String, value: Float): Unit = {
     program.bind()
@@ -102,8 +102,7 @@ abstract class ShaderVfxEffect(protected val program: ShaderProgram)(using Sge) 
 
   /** Updates shader's uniform array.
     * @param elementSize
-    *   Defines the type of the uniform array: float[], vec2[], vec3[] or vec4[]. Expected value is within the range of [1..4]
-    *   (inclusively).
+    *   Defines the type of the uniform array: float[], vec2[], vec3[] or vec4[]. Expected value is within the range of [1..4] (inclusively).
     */
   protected def setUniform(uniformName: String, elementSize: Int, values: Array[Float], offset: Int, length: Int): Unit = {
     program.bind()

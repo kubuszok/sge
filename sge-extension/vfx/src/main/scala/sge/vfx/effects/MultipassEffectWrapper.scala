@@ -27,13 +27,13 @@ class MultipassEffectWrapper(private val effect: ChainVfxEffect) extends Abstrac
   override def close(): Unit =
     effect.close()
 
-  override def render(context: VfxRenderContext, buffers: VfxPingPongWrapper): Unit = {
+  override def render(context: VfxRenderContext, buffers: VfxPingPongWrapper): Unit =
     // Simply swap buffers to simulate render skip.
     if (passes == 0) {
       buffers.swap()
     } else {
       val finalPasses = this.passes
-      var i = 0
+      var i           = 0
       while (i < finalPasses) {
         effect.render(context, buffers)
         if (i < finalPasses - 1) {
@@ -42,5 +42,4 @@ class MultipassEffectWrapper(private val effect: ChainVfxEffect) extends Abstrac
         i += 1
       }
     }
-  }
 }

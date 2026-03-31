@@ -2,40 +2,40 @@ package sge
 package ai
 package btree
 
-import sge.ai.btree.branch.{Selector, Sequence}
+import sge.ai.btree.branch.{ Selector, Sequence }
 import sge.ai.btree.branch.Parallel
-import sge.ai.btree.decorator.{Invert, Repeat}
+import sge.ai.btree.decorator.{ Invert, Repeat }
 import sge.ai.utils.random.ConstantIntegerDistribution
 import sge.utils.Nullable
 
 // ── Test leaf tasks ──────────────────────────────────────────────────────
 
 class SuccessTask[E] extends LeafTask[E] {
-  override def execute(): Task.Status = Task.Status.SUCCEEDED
-  override def newInstance(): Task[E] = new SuccessTask[E]()
-  override protected def copyTo(task: Task[E]): Task[E] = task
+  override def execute():                       Task.Status = Task.Status.SUCCEEDED
+  override def newInstance():                   Task[E]     = new SuccessTask[E]()
+  override protected def copyTo(task: Task[E]): Task[E]     = task
 }
 
 class FailTask[E] extends LeafTask[E] {
-  override def execute(): Task.Status = Task.Status.FAILED
-  override def newInstance(): Task[E] = new FailTask[E]()
-  override protected def copyTo(task: Task[E]): Task[E] = task
+  override def execute():                       Task.Status = Task.Status.FAILED
+  override def newInstance():                   Task[E]     = new FailTask[E]()
+  override protected def copyTo(task: Task[E]): Task[E]     = task
 }
 
 class RunningTask[E] extends LeafTask[E] {
-  override def execute(): Task.Status = Task.Status.RUNNING
-  override def newInstance(): Task[E] = new RunningTask[E]()
-  override protected def copyTo(task: Task[E]): Task[E] = task
+  override def execute():                       Task.Status = Task.Status.RUNNING
+  override def newInstance():                   Task[E]     = new RunningTask[E]()
+  override protected def copyTo(task: Task[E]): Task[E]     = task
 }
 
 /** A leaf task that succeeds on the Nth call, fails on all others. */
 class CountingTask[E](var succeedOn: Int) extends LeafTask[E] {
-  private var callCount: Int = 0
+  private var callCount:  Int         = 0
   override def execute(): Task.Status = {
     callCount += 1
     if (callCount == succeedOn) Task.Status.SUCCEEDED else Task.Status.FAILED
   }
-  override def newInstance(): Task[E] = new CountingTask[E](succeedOn)
+  override def newInstance():                   Task[E] = new CountingTask[E](succeedOn)
   override protected def copyTo(task: Task[E]): Task[E] = {
     task.asInstanceOf[CountingTask[E]].succeedOn = succeedOn
     task
@@ -188,7 +188,7 @@ class BehaviorTreeSuite extends munit.FunSuite {
   // ── Decorator: Repeat ──────────────────────────────────────────────────
 
   test("Repeat: runs child N times then succeeds") {
-    val child = new SuccessTask[String]()
+    val child  = new SuccessTask[String]()
     val repeat = new Repeat[String](
       times = new ConstantIntegerDistribution(3),
       child = Nullable(child)

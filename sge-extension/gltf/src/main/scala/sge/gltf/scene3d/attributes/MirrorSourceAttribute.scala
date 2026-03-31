@@ -18,7 +18,7 @@ import sge.math.{ MathUtils, Vector3 }
 class MirrorSourceAttribute extends Attribute(MirrorSourceAttribute.Type) {
 
   val textureDescription: TextureDescriptor[Texture] = TextureDescriptor[Texture]()
-  val normal:             Vector3                     = Vector3()
+  val normal:             Vector3                    = Vector3()
 
   def set(textureDescription: TextureDescriptor[Texture], normal: Vector3): MirrorSourceAttribute = {
     this.textureDescription.set(textureDescription)
@@ -26,11 +26,11 @@ class MirrorSourceAttribute extends Attribute(MirrorSourceAttribute.Type) {
     this
   }
 
-  override def compare(that: Attribute): Int = {
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
-      val other       = that.asInstanceOf[MirrorSourceAttribute]
-      val c           = textureDescription.compareTo(other.textureDescription)
+      val other = that.asInstanceOf[MirrorSourceAttribute]
+      val c     = textureDescription.compareTo(other.textureDescription)
       if (c != 0) c
       else {
         val otherNormal = other.normal
@@ -40,7 +40,6 @@ class MirrorSourceAttribute extends Attribute(MirrorSourceAttribute.Type) {
         else 0
       }
     }
-  }
 
   override def copy(): Attribute =
     MirrorSourceAttribute().set(textureDescription, normal)

@@ -8,7 +8,8 @@
  * Quick procedural IBL environment generation.
  * Should be closed when no longer used.
  *
- * TODO: Complete port — many ShapeRenderer/FrameBuffer API methods need SGE adaptation
+ * NOTE: Build methods (buildEnvMap, buildIrradianceMap, buildRadianceMap) require GL context
+ * and throw UnsupportedOperationException until FrameBufferCubemap + ShapeRenderer.rect are ported.
  */
 package sge
 package gltf
@@ -16,11 +17,11 @@ package scene3d
 package utils
 
 import sge.Sge
-import sge.graphics.{ Color, Cubemap, Pixmap, Texture }
+import sge.graphics.{ Color, Cubemap }
 import sge.graphics.g3d.environment.DirectionalLight
-import sge.graphics.glutils.{ FrameBuffer, FrameBufferCubemap, ShaderProgram, ShapeRenderer }
-import sge.math.{ Matrix4, Vector3 }
-import sge.utils.{ DynamicArray, Nullable, ScreenUtils, SgeError }
+import sge.graphics.glutils.{ ShaderProgram, ShapeRenderer }
+import sge.math.Vector3
+import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 class IBLBuilder private (using sge: Sge) extends AutoCloseable {
 
@@ -36,7 +37,8 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
 
   private val sunShader: ShaderProgram = ShaderProgram(
     sge.files.classpath("net/mgsx/gltf/shaders/ibl-sun.vs.glsl"),
-    sge.files.classpath("net/mgsx/gltf/shaders/ibl-sun.fs.glsl"))
+    sge.files.classpath("net/mgsx/gltf/shaders/ibl-sun.fs.glsl")
+  )
   if (!sunShader.compiled) throw SgeError.InvalidInput(sunShader.log)
 
   private val shapes:    ShapeRenderer = ShapeRenderer(20)
@@ -51,22 +53,44 @@ class IBLBuilder private (using sge: Sge) extends AutoCloseable {
     shapes.close()
   }
 
-  /** Create an environment map for SceneSkybox */
-  def buildEnvMap(size: Int): Cubemap = ??? // TODO: port — requires FrameBufferCubemap side iteration + ShapeRenderer.rect
+  /** Create an environment map for SceneSkybox.
+    *
+    * Not yet implemented: requires FrameBufferCubemap side iteration and ShapeRenderer.rect with vertex colors, which depend on GL context being active on the render thread.
+    */
+  def buildEnvMap(size: Int): Cubemap =
+    throw new UnsupportedOperationException(
+      "IBLBuilder.buildEnvMap requires GL context — call from render thread. Port pending: FrameBufferCubemap + ShapeRenderer.rect"
+    )
 
-  /** Creates an irradiance map for PBRCubemapAttribute.DiffuseEnv */
-  def buildIrradianceMap(size: Int): Cubemap = ??? // TODO: port — requires FrameBufferCubemap side iteration + ShapeRenderer.rect
+  /** Creates an irradiance map for PBRCubemapAttribute.DiffuseEnv.
+    *
+    * Not yet implemented: requires FrameBufferCubemap side iteration and ShapeRenderer.rect with vertex colors, which depend on GL context being active on the render thread.
+    */
+  def buildIrradianceMap(size: Int): Cubemap =
+    throw new UnsupportedOperationException(
+      "IBLBuilder.buildIrradianceMap requires GL context — call from render thread. Port pending: FrameBufferCubemap + ShapeRenderer.rect"
+    )
 
-  /** Creates a radiance map for PBRCubemapAttribute.SpecularEnv with mipmaps */
-  def buildRadianceMap(mipMapLevels: Int): Cubemap = ??? // TODO: port — requires FrameBuffer + ScreenUtils.getFrameBufferPixmap with Pixels
+  /** Creates a radiance map for PBRCubemapAttribute.SpecularEnv with mipmaps.
+    *
+    * Not yet implemented: requires FrameBuffer and ScreenUtils.getFrameBufferPixmap with Pixels, which depend on GL context being active on the render thread.
+    */
+  def buildRadianceMap(mipMapLevels: Int): Cubemap =
+    throw new UnsupportedOperationException(
+      "IBLBuilder.buildRadianceMap requires GL context — call from render thread. Port pending: FrameBuffer + ScreenUtils.getFrameBufferPixmap"
+    )
 
-  private def renderGradientForSide(side: Cubemap.CubemapSide, blur: Float): Unit = {
-    ??? // TODO: port — requires ShapeRenderer.rect with vertex colors
-  }
+  @scala.annotation.nowarn("msg=unused") // placeholder for future port — called by buildEnvMap/buildIrradianceMap
+  private def renderGradientForSide(side: Cubemap.CubemapSide, blur: Float): Unit =
+    throw new UnsupportedOperationException(
+      "IBLBuilder.renderGradientForSide requires GL context — call from render thread. Port pending: ShapeRenderer.rect with vertex colors"
+    )
 
-  private def renderLightsForSide(side: Cubemap.CubemapSide, blured: Boolean): Unit = {
-    ??? // TODO: port — requires GL enable/blend constants + Light.render
-  }
+  @scala.annotation.nowarn("msg=unused") // placeholder for future port — called by buildEnvMap/buildIrradianceMap
+  private def renderLightsForSide(side: Cubemap.CubemapSide, blured: Boolean): Unit =
+    throw new UnsupportedOperationException(
+      "IBLBuilder.renderLightsForSide requires GL context — call from render thread. Port pending: GL enable/blend + Light.render"
+    )
 }
 
 object IBLBuilder {
@@ -101,7 +125,7 @@ object IBLBuilder {
   }
 
   def createCustom(sun: DirectionalLight)(using Sge): IBLBuilder = {
-    val ibl = IBLBuilder()
+    val ibl   = IBLBuilder()
     val light = Light()
     light.direction.set(sun.direction).nor()
     light.color.set(sun.color)
@@ -115,17 +139,14 @@ object IBLBuilder {
     val direction: Vector3 = Vector3(0f, -1f, 0f)
     var exponent:  Float   = 30f
 
-    private val localSunDir: Vector3 = Vector3()
-    private val localDir:    Vector3 = Vector3()
-    private val localUp:     Vector3 = Vector3()
-    private val matrix:      Matrix4 = Matrix4()
+    // Restore when implementing render(): localSunDir, localDir, localUp (Vector3), matrix (Matrix4)
 
-    def render(side: Cubemap.CubemapSide, shapes: ShapeRenderer, shader: ShaderProgram, strength: Float): Unit = {
+    def render(side: Cubemap.CubemapSide, shapes: ShapeRenderer, shader: ShaderProgram, strength: Float): Unit =
       render(side, shapes, shader, strength, exponent)
-    }
 
-    def render(side: Cubemap.CubemapSide, shapes: ShapeRenderer, shader: ShaderProgram, strength: Float, exponent: Float): Unit = {
-      ??? // TODO: port — requires ShapeRenderer.rect and shader uniform binding
-    }
+    def render(side: Cubemap.CubemapSide, shapes: ShapeRenderer, shader: ShaderProgram, strength: Float, exponent: Float): Unit =
+      throw new UnsupportedOperationException(
+        "IBLBuilder.Light.render requires GL context — call from render thread. Port pending: ShapeRenderer.rect + shader uniform binding"
+      )
   }
 }

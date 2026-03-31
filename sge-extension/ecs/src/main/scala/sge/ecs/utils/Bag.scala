@@ -18,18 +18,18 @@ package utils
 import scala.util.boundary
 import scala.util.boundary.break
 
-/** Fast sparse collection similar to Array that grows on demand as elements are accessed. It does not preserve order of elements.
-  * Inspired by Artemis Bag.
+/** Fast sparse collection similar to Array that grows on demand as elements are accessed. It does not preserve order of elements. Inspired by Artemis Bag.
   *
   * This is an internal type not exposed in public API. Raw null is used intentionally for sparse storage gaps.
   */
-private[ecs] final class Bag[E >: Null <: AnyRef](initialCapacity: Int = 64) {
+final private[ecs] class Bag[E >: Null <: AnyRef](initialCapacity: Int = 64) {
 
-  private var data: Array[AnyRef] = new Array[AnyRef](initialCapacity)
-  private var _size: Int = 0
+  private var data:  Array[AnyRef] = new Array[AnyRef](initialCapacity)
+  private var _size: Int           = 0
 
   /** Removes the element at the specified position. Order of elements is not preserved.
-    * @return element that was removed from the Bag.
+    * @return
+    *   element that was removed from the Bag.
     */
   def remove(index: Int): E = {
     val e = data(index).asInstanceOf[E]
@@ -40,7 +40,7 @@ private[ecs] final class Bag[E >: Null <: AnyRef](initialCapacity: Int = 64) {
   }
 
   /** Removes and returns the last object in the bag, or null if empty. */
-  def removeLast(): E = {
+  def removeLast(): E =
     if (_size > 0) {
       _size -= 1
       val e = data(_size).asInstanceOf[E]
@@ -49,10 +49,10 @@ private[ecs] final class Bag[E >: Null <: AnyRef](initialCapacity: Int = 64) {
     } else {
       null
     }
-  }
 
   /** Removes the first occurrence of the specified element. Does not preserve order.
-    * @return true if the element was removed.
+    * @return
+    *   true if the element was removed.
     */
   def remove(e: E): Boolean = boundary {
     var i = 0
@@ -81,10 +81,9 @@ private[ecs] final class Bag[E >: Null <: AnyRef](initialCapacity: Int = 64) {
   }
 
   /** @return the element at the specified position in Bag, or null if index is beyond capacity. */
-  def get(index: Int): E = {
+  def get(index: Int): E =
     if (index >= data.length) null
     else data(index).asInstanceOf[E]
-  }
 
   /** @return the number of elements in this bag. */
   def size: Int = _size

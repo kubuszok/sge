@@ -7,16 +7,14 @@
 package sge
 package controllers
 
-/** Platform operations trait for controller polling. Platform backends implement this to provide raw controller state from the
-  * underlying system (GLFW, Web Gamepad API, Android, etc.).
+/** Platform operations trait for controller polling. Platform backends implement this to provide raw controller state from the underlying system (GLFW, Web Gamepad API, Android, etc.).
   *
-  * This follows the SGE pattern used by other extensions (AudioOps, WindowingOps, etc.) where a trait defines the FFI contract and
-  * platform-specific implementations provide the actual hardware access.
+  * This follows the SGE pattern used by other extensions (AudioOps, WindowingOps, etc.) where a trait defines the FFI contract and platform-specific implementations provide the actual hardware
+  * access.
   */
 trait ControllerOps {
 
-  /** Returns the number of controller slots supported by the platform. For GLFW this is typically 16 (GLFW_JOYSTICK_1 through
-    * GLFW_JOYSTICK_LAST). For Web Gamepad API this varies by browser.
+  /** Returns the number of controller slots supported by the platform. For GLFW this is typically 16 (GLFW_JOYSTICK_1 through GLFW_JOYSTICK_LAST). For Web Gamepad API this varies by browser.
     */
   def maxControllers: Int
 
@@ -39,11 +37,11 @@ trait ControllerOps {
 
 /** Snapshot of a controller's state at a point in time. Returned by [[ControllerOps.pollController]]. */
 final case class ControllerState(
-  name: String,
-  uniqueId: String,
-  connected: Boolean,
-  buttons: Array[Boolean],
-  axes: Array[Float],
+  name:       String,
+  uniqueId:   String,
+  connected:  Boolean,
+  buttons:    Array[Boolean],
+  axes:       Array[Float],
   powerLevel: ControllerPowerLevel
 )
 

@@ -21,12 +21,14 @@ package ecs
 trait EntityListener {
 
   /** Called whenever an [[Entity]] is added to the engine or matches a specific [[Family]].
-    * @param entity the entity that was added
+    * @param entity
+    *   the entity that was added
     */
   def entityAdded(entity: Entity): Unit
 
   /** Called whenever an [[Entity]] is removed from the engine or no longer matches a specific [[Family]].
-    * @param entity the entity that was removed
+    * @param entity
+    *   the entity that was removed
     */
   def entityRemoved(entity: Entity): Unit
 }

@@ -12,9 +12,9 @@ package data
 import sge.utils.Nullable
 
 class GLTFBufferView extends GLTFEntity {
-  var byteOffset: Int = 0
-  var byteLength: Int = 0
-  var buffer: Nullable[Int] = Nullable.empty
+  var byteOffset: Int           = 0
+  var byteLength: Int           = 0
+  var buffer:     Nullable[Int] = Nullable.empty
   var byteStride: Nullable[Int] = Nullable.empty
-  var target: Nullable[Int] = Nullable.empty
+  var target:     Nullable[Int] = Nullable.empty
 }

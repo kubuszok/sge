@@ -30,17 +30,20 @@ abstract class EntitySystem(val priority: Int = 0) {
   private var _engine: Nullable[Engine] = Nullable.empty
 
   /** Called when this EntitySystem is added to an [[Engine]].
-    * @param engine The [[Engine]] this system was added to.
+    * @param engine
+    *   The [[Engine]] this system was added to.
     */
   def addedToEngine(engine: Engine): Unit = {}
 
   /** Called when this EntitySystem is removed from an [[Engine]].
-    * @param engine The [[Engine]] the system was removed from.
+    * @param engine
+    *   The [[Engine]] the system was removed from.
     */
   def removedFromEngine(engine: Engine): Unit = {}
 
   /** The update method called every tick.
-    * @param deltaTime The time passed since last frame in seconds.
+    * @param deltaTime
+    *   The time passed since last frame in seconds.
     */
   def update(deltaTime: Float): Unit = {}
 
@@ -50,12 +53,12 @@ abstract class EntitySystem(val priority: Int = 0) {
   /** @return engine instance the system is registered to, or Nullable.empty if not associated. */
   def engine: Nullable[Engine] = _engine
 
-  private[ecs] final def addedToEngineInternal(engine: Engine): Unit = {
+  final private[ecs] def addedToEngineInternal(engine: Engine): Unit = {
     _engine = Nullable(engine)
     addedToEngine(engine)
   }
 
-  private[ecs] final def removedFromEngineInternal(engine: Engine): Unit = {
+  final private[ecs] def removedFromEngineInternal(engine: Engine): Unit = {
     _engine = Nullable.empty
     removedFromEngine(engine)
   }

@@ -12,7 +12,7 @@ package texture
 import sge.utils.Nullable
 
 class GLTFImage extends GLTFEntity {
-  var uri: Nullable[String] = Nullable.empty
-  var mimeType: Nullable[String] = Nullable.empty
-  var bufferView: Nullable[Int] = Nullable.empty
+  var uri:        Nullable[String] = Nullable.empty
+  var mimeType:   Nullable[String] = Nullable.empty
+  var bufferView: Nullable[Int]    = Nullable.empty
 }

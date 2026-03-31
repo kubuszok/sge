@@ -11,9 +11,7 @@ package geometry
 
 import scala.collection.mutable.HashMap
 
-/**
- * A morph target is a map of attribute names to accessor indices.
- * In the original Java, this extends ObjectMap and implements Json.Serializable;
- * in SGE we use a simple HashMap since SGE uses jsoniter-scala, not LibGDX Json.
- */
+/** A morph target is a map of attribute names to accessor indices. In the original Java, this extends ObjectMap and implements Json.Serializable; in SGE we use a simple HashMap since SGE uses
+  * jsoniter-scala, not LibGDX Json.
+  */
 class GLTFMorphTarget extends HashMap[String, Int]

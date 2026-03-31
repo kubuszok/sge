@@ -12,17 +12,15 @@ package extensions
 import sge.gltf.data.texture.GLTFTextureInfo
 import sge.utils.Nullable
 
-/**
- * [[sge.gltf.data.material.GLTFMaterial]] extension.
- * See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_specular/README.md
- */
+/** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_specular/README.md
+  */
 object KHRMaterialsSpecular {
   val EXT: String = "KHR_materials_specular"
 }
 
 class KHRMaterialsSpecular {
-  var specularFactor: Float = 1f
-  var specularTexture: Nullable[GLTFTextureInfo] = Nullable.empty
-  var specularColorFactor: Array[Float] = Array(1f, 1f, 1f)
+  var specularFactor:       Float                     = 1f
+  var specularTexture:      Nullable[GLTFTextureInfo] = Nullable.empty
+  var specularColorFactor:  Array[Float]              = Array(1f, 1f, 1f)
   var specularColorTexture: Nullable[GLTFTextureInfo] = Nullable.empty
 }

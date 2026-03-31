@@ -28,15 +28,13 @@ object Nullable {
       self.asInstanceOf[A]
     }
 
-    def getOrElse(default: => A): A = {
+    def getOrElse(default: => A): A =
       if (self == null) default
       else self.asInstanceOf[A]
-    }
 
-    def fold[B](onEmpty: => B)(onSome: A => B): B = {
+    def fold[B](onEmpty: => B)(onSome: A => B): B =
       if (self == null) onEmpty
       else onSome(self.asInstanceOf[A])
-    }
   }
 
   given [A]: Conversion[A, Nullable[A]] = (a: A) => a

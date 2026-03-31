@@ -19,17 +19,16 @@ class ControllersSuite extends munit.FunSuite {
 
     override def getConnectedControllers(): Array[ControllerState] = states
 
-    override def pollController(index: Int): ControllerState = {
+    override def pollController(index: Int): ControllerState =
       if (index >= 0 && index < states.length) states(index) else ControllerState.Disconnected
-    }
   }
 
   private def makeState(
-    name: String = "TestPad",
-    uniqueId: String = "test-001",
+    name:       String = "TestPad",
+    uniqueId:   String = "test-001",
     numButtons: Int = 15,
-    numAxes: Int = 6
-  ): ControllerState = {
+    numAxes:    Int = 6
+  ): ControllerState =
     ControllerState(
       name = name,
       uniqueId = uniqueId,
@@ -38,7 +37,6 @@ class ControllersSuite extends munit.FunSuite {
       axes = Array.fill(numAxes)(0f),
       powerLevel = ControllerPowerLevel.Unknown
     )
-  }
 
   test("Controllers throws when not initialized") {
     Controllers.dispose() // Ensure clean state
@@ -48,7 +46,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("Controllers.initialize and dispose lifecycle") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
     Controllers.initialize(manager)
     assertEquals(Controllers.getControllers.size, 0)
@@ -59,14 +57,13 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager detects new controller connection") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
-    val events = ArrayBuffer.empty[String]
+    val events  = ArrayBuffer.empty[String]
 
     manager.addListener(new ControllerAdapter {
-      override def connected(controller: Controller): Unit = {
+      override def connected(controller: Controller): Unit =
         events += s"connected:${controller.name}"
-      }
     })
 
     // First poll: no controllers
@@ -81,18 +78,18 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager detects controller disconnection") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
-    val events = ArrayBuffer.empty[String]
+    val events  = ArrayBuffer.empty[String]
 
-    manager.addListener(new ControllerAdapter {
-      override def connected(controller: Controller): Unit = {
-        events += s"connected:${controller.name}"
+    manager.addListener(
+      new ControllerAdapter {
+        override def connected(controller: Controller): Unit =
+          events += s"connected:${controller.name}"
+        override def disconnected(controller: Controller): Unit =
+          events += s"disconnected:${controller.name}"
       }
-      override def disconnected(controller: Controller): Unit = {
-        events += s"disconnected:${controller.name}"
-      }
-    })
+    )
 
     // Connect
     ops.states = Array(makeState())
@@ -107,20 +104,22 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager fires button events") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
-    val events = ArrayBuffer.empty[String]
+    val events  = ArrayBuffer.empty[String]
 
-    manager.addListener(new ControllerAdapter {
-      override def buttonDown(controller: Controller, buttonCode: Int): Boolean = {
-        events += s"buttonDown:$buttonCode"
-        false
+    manager.addListener(
+      new ControllerAdapter {
+        override def buttonDown(controller: Controller, buttonCode: Int): Boolean = {
+          events += s"buttonDown:$buttonCode"
+          false
+        }
+        override def buttonUp(controller: Controller, buttonCode: Int): Boolean = {
+          events += s"buttonUp:$buttonCode"
+          false
+        }
       }
-      override def buttonUp(controller: Controller, buttonCode: Int): Boolean = {
-        events += s"buttonUp:$buttonCode"
-        false
-      }
-    })
+    )
 
     // Connect controller
     ops.states = Array(makeState())
@@ -141,16 +140,18 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager fires axis events") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
-    val events = ArrayBuffer.empty[String]
+    val events  = ArrayBuffer.empty[String]
 
-    manager.addListener(new ControllerAdapter {
-      override def axisMoved(controller: Controller, axisCode: Int, value: Float): Boolean = {
-        events += s"axisMoved:$axisCode:$value"
-        false
+    manager.addListener(
+      new ControllerAdapter {
+        override def axisMoved(controller: Controller, axisCode: Int, value: Float): Boolean = {
+          events += s"axisMoved:$axisCode:$value"
+          false
+        }
       }
-    })
+    )
 
     // Connect controller
     ops.states = Array(makeState())
@@ -165,7 +166,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager tracks current controller") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
     Controllers.initialize(manager)
 
@@ -186,7 +187,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("DefaultControllerManager handles multiple controllers") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
 
     ops.states = Array(
@@ -205,7 +206,7 @@ class ControllersSuite extends munit.FunSuite {
 
   test("ControllerAdapter methods return false by default") {
     val adapter = ControllerAdapter()
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
     ops.states = Array(makeState())
     manager.poll()
@@ -227,7 +228,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("PolledController reports correct state") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
 
     val state = makeState(numButtons = 4, numAxes = 2)
@@ -249,7 +250,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("PolledController.getButton returns false for out-of-range index") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
     ops.states = Array(makeState(numButtons = 2))
     manager.poll()
@@ -260,7 +261,7 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("PolledController.getAxis returns 0 for out-of-range index") {
-    val ops = TestControllerOps()
+    val ops     = TestControllerOps()
     val manager = DefaultControllerManager(ops)
     ops.states = Array(makeState(numAxes = 2))
     manager.poll()
@@ -275,8 +276,8 @@ class ControllersSuite extends munit.FunSuite {
   }
 
   test("remove and clear listeners") {
-    val ops = TestControllerOps()
-    val manager = DefaultControllerManager(ops)
+    val ops      = TestControllerOps()
+    val manager  = DefaultControllerManager(ops)
     val listener = ControllerAdapter()
     manager.addListener(listener)
     assertEquals(manager.getListeners.size, 1)

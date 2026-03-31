@@ -21,11 +21,11 @@ import sge.visui.Sizes
 /** @author Kotcrab */
 class PickerCommons(val style: ColorPickerWidgetStyle, val sizes: Sizes, loadExtendedShaders: Boolean)(using Sge) extends AutoCloseable {
 
-  var paletteShader:         ShaderProgram     = scala.compiletime.uninitialized
-  var verticalChannelShader: ShaderProgram     = scala.compiletime.uninitialized
+  var paletteShader:         ShaderProgram           = scala.compiletime.uninitialized
+  var verticalChannelShader: ShaderProgram           = scala.compiletime.uninitialized
   var hsvShader:             Nullable[ShaderProgram] = Nullable.empty
   var rgbShader:             Nullable[ShaderProgram] = Nullable.empty
-  var gridShader:            ShaderProgram     = scala.compiletime.uninitialized
+  var gridShader:            ShaderProgram           = scala.compiletime.uninitialized
 
   var whiteTexture: Texture = scala.compiletime.uninitialized
 
@@ -57,7 +57,8 @@ class PickerCommons(val style: ColorPickerWidgetStyle, val sizes: Sizes, loadExt
   private def loadShader(vertFile: String, fragFile: String): ShaderProgram = {
     val program = new ShaderProgram(
       Sge().files.classpath("com/kotcrab/vis/ui/widget/color/internal/" + vertFile),
-      Sge().files.classpath("com/kotcrab/vis/ui/widget/color/internal/" + fragFile))
+      Sge().files.classpath("com/kotcrab/vis/ui/widget/color/internal/" + fragFile)
+    )
 
     if (!program.compiled) {
       throw new IllegalStateException("ColorPicker shader compilation failed. Shader: " + vertFile + ", " + fragFile + ": " + program.log)
@@ -66,7 +67,7 @@ class PickerCommons(val style: ColorPickerWidgetStyle, val sizes: Sizes, loadExt
     program
   }
 
-  def getBarShader(mode: Int): ShaderProgram = {
+  def getBarShader(mode: Int): ShaderProgram =
     mode match {
       case ChannelBar.MODE_ALPHA | ChannelBar.MODE_R | ChannelBar.MODE_G | ChannelBar.MODE_B =>
         rgbShader.get
@@ -75,7 +76,6 @@ class PickerCommons(val style: ColorPickerWidgetStyle, val sizes: Sizes, loadExt
       case _ =>
         throw new IllegalStateException("Unsupported mode: " + mode)
     }
-  }
 
   override def close(): Unit = {
     whiteTexture.close()

@@ -18,7 +18,7 @@ class EnvironmentCache extends Environment {
   def setCache(env: Environment): Unit = {
     this.mask = env.getMask
     this.attributes.clear()
-    env.foreach { a => this.attributes.add(a) }
+    env.foreach(a => this.attributes.add(a))
     this.shadowMap = env.shadowMap
     this.sorted = true
   }

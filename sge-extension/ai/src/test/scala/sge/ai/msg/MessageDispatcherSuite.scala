@@ -5,8 +5,8 @@ package msg
 import sge.utils.Nullable
 
 class TestTelegraph extends Telegraph {
-  var received: List[Int] = List.empty
-  override def handleMessage(msg: Telegram): Boolean = {
+  var received:                              List[Int] = List.empty
+  override def handleMessage(msg: Telegram): Boolean   = {
     received = received :+ msg.message
     true
   }
@@ -23,7 +23,7 @@ class MessageDispatcherSuite extends munit.FunSuite {
   test("immediate dispatch to registered listener") {
     given tp: Timepiece = makeTimepiece()
     val dispatcher = new MessageDispatcher()
-    val listener = new TestTelegraph()
+    val listener   = new TestTelegraph()
     dispatcher.addListener(listener, 1)
     dispatcher.dispatchMessage(msg = 1)
     assertEquals(listener.received, List(1))
@@ -32,8 +32,8 @@ class MessageDispatcherSuite extends munit.FunSuite {
   test("broadcast to multiple listeners") {
     given tp: Timepiece = makeTimepiece()
     val dispatcher = new MessageDispatcher()
-    val l1 = new TestTelegraph()
-    val l2 = new TestTelegraph()
+    val l1         = new TestTelegraph()
+    val l2         = new TestTelegraph()
     dispatcher.addListener(l1, 42)
     dispatcher.addListener(l2, 42)
     dispatcher.dispatchMessage(msg = 42)
@@ -42,10 +42,10 @@ class MessageDispatcherSuite extends munit.FunSuite {
   }
 
   test("delayed dispatch with timepiece update") {
-    val tp = makeTimepiece()
+    val tp          = makeTimepiece()
     given Timepiece = tp
-    val dispatcher = new MessageDispatcher()
-    val listener = new TestTelegraph()
+    val dispatcher  = new MessageDispatcher()
+    val listener    = new TestTelegraph()
     dispatcher.addListener(listener, 1)
 
     // Dispatch with 1 second delay
@@ -67,8 +67,8 @@ class MessageDispatcherSuite extends munit.FunSuite {
   test("return receipt") {
     given tp: Timepiece = makeTimepiece()
     val dispatcher = new MessageDispatcher()
-    val sender = new TestTelegraph()
-    val receiver = new TestTelegraph()
+    val sender     = new TestTelegraph()
+    val receiver   = new TestTelegraph()
     dispatcher.addListener(receiver, 10)
 
     dispatcher.dispatchMessage(
@@ -87,7 +87,7 @@ class MessageDispatcherSuite extends munit.FunSuite {
   test("unregister listener stops receiving") {
     given tp: Timepiece = makeTimepiece()
     val dispatcher = new MessageDispatcher()
-    val listener = new TestTelegraph()
+    val listener   = new TestTelegraph()
     dispatcher.addListener(listener, 1)
     dispatcher.dispatchMessage(msg = 1)
     assertEquals(listener.received, List(1))
@@ -99,10 +99,10 @@ class MessageDispatcherSuite extends munit.FunSuite {
   }
 
   test("clear removes all listeners and queue") {
-    val tp = makeTimepiece()
+    val tp          = makeTimepiece()
     given Timepiece = tp
-    val dispatcher = new MessageDispatcher()
-    val listener = new TestTelegraph()
+    val dispatcher  = new MessageDispatcher()
+    val listener    = new TestTelegraph()
     dispatcher.addListener(listener, 1)
     dispatcher.dispatchMessage(msg = 1, delay = 5.0f)
     dispatcher.clear()

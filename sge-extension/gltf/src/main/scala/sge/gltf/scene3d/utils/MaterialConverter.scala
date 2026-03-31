@@ -23,16 +23,15 @@ object MaterialConverter {
 
   def makeCompatible(scene: Scene): Unit = {
     val mats = scene.modelInstance.materials
-    var i = 0
+    var i    = 0
     while (i < mats.size) {
       makeCompatible(mats(i))
       i += 1
     }
   }
 
-  def makeCompatible(materials: Iterable[Material]): Unit = {
+  def makeCompatible(materials: Iterable[Material]): Unit =
     materials.foreach(makeCompatible)
-  }
 
   def makeCompatible(material: Material): Unit = {
     val baseColorAttribute = material.getAs[PBRColorAttribute](PBRColorAttribute.BaseColorFactor)

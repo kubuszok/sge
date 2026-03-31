@@ -24,9 +24,8 @@ class PrioritizedArray[T] extends Iterable[T] {
     sortItems()
   }
 
-  def remove(index: Int): Unit = {
+  def remove(index: Int): Unit =
     items.remove(index)
-  }
 
   def remove(item: T): Unit = {
     val idx = items.indexWhere(_.item.asInstanceOf[AnyRef] eq item.asInstanceOf[AnyRef])

@@ -9,26 +9,28 @@ package graphs
 package algorithms
 
 import scala.collection.mutable.ArrayDeque
+import scala.util.boundary
+import scala.util.boundary.break
 
 import sge.graphs.utils.SearchProcessor
 
 /** Breadth-first search algorithm. */
 class BreadthFirstSearch[V] private[algorithms] (
-    id: Int,
-    start: Node[V],
-    processor: SearchProcessor[V]
+  id:        Int,
+  start:     Node[V],
+  processor: SearchProcessor[V]
 ) extends Algorithm[V](id) {
 
-  private val step: SearchStep[V] = SearchStep[V]()
+  private val step:  SearchStep[V]       = SearchStep[V]()
   private val queue: ArrayDeque[Node[V]] = ArrayDeque[Node[V]]()
 
   start.resetAlgorithmAttribs(id)
   queue.append(start)
   start.seen = true
 
-  override def update(): Boolean = {
+  override def update(): Boolean = boundary {
     if (isFinished) {
-      return true
+      break(true)
     }
 
     val v = queue.removeHead()
@@ -37,10 +39,10 @@ class BreadthFirstSearch[V] private[algorithms] (
       processor.accept(step)
       if (step.terminateFlag) {
         queue.clear()
-        return true
+        break(true)
       }
       if (step.ignoreFlag) {
-        return isFinished
+        break(isFinished)
       }
     }
     val outEdges = v.outEdges

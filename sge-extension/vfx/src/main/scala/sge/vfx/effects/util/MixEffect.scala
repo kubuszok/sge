@@ -16,8 +16,7 @@ import sge.vfx.gl.VfxGLUtils
 
 /** Simply mixes two frames with a factor of [[mixFactor]].
   *
-  * Depends on [[MixEffect.Method]] the result will be combined with either: `max(src0, src1 * mixFactor)` or `mix(src0, src1,
-  * mixFactor)`
+  * Depends on [[MixEffect.Method]] the result will be combined with either: `max(src0, src1 * mixFactor)` or `mix(src0, src1, mixFactor)`
   */
 class MixEffect(method: MixEffect.Method)(using Sge)
     extends ShaderVfxEffect(
@@ -49,14 +48,15 @@ class MixEffect(method: MixEffect.Method)(using Sge)
     renderShader(context, dst)
   }
 
-  def mixFactor: Float = _mixFactor
-  def mixFactor_=(value: Float): Unit = {
+  def mixFactor:                 Float = _mixFactor
+  def mixFactor_=(value: Float): Unit  = {
     _mixFactor = MathUtils.clamp(value, 0f, 1f)
     setUniform("u_mix", _mixFactor)
   }
 }
 
 object MixEffect {
+
   /** Defines which function will be used to combine mix the two frames. */
   enum Method extends java.lang.Enum[Method] {
     case MAX, MIX

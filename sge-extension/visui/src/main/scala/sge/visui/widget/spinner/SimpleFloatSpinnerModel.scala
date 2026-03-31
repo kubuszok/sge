@@ -61,37 +61,33 @@ class SimpleFloatSpinnerModel(
     }
   }
 
-  override protected def incrementModel(): Boolean = {
+  override protected def incrementModel(): Boolean =
     if (current + _step > _max) {
       if (current == _max) {
-        if (wrap) {
-          current = _min
-          return true
-        }
-        return false
+        if (wrap) { current = _min; true }
+        else false
+      } else {
+        current = _max
+        true
       }
-      current = _max
     } else {
       current += _step
+      true
     }
-    true
-  }
 
-  override protected def decrementModel(): Boolean = {
+  override protected def decrementModel(): Boolean =
     if (current - _step < _min) {
       if (current == _min) {
-        if (wrap) {
-          current = _max
-          return true
-        }
-        return false
+        if (wrap) { current = _max; true }
+        else false
+      } else {
+        current = _min
+        true
       }
-      current = _min
     } else {
       current -= _step
+      true
     }
-    true
-  }
 
   override def text: String =
     if (_precision >= 1) {

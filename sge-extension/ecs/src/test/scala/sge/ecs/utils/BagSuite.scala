@@ -50,8 +50,8 @@ class BagSuite extends munit.FunSuite {
   }
 
   test("remove by reference") {
-    val s1 = new String("hello")
-    val s2 = new String("world")
+    val s1  = new String("hello")
+    val s2  = new String("world")
     val bag = new Bag[String]()
     bag.add(s1)
     bag.add(s2)
@@ -75,8 +75,8 @@ class BagSuite extends munit.FunSuite {
 
   test("contains uses reference equality") {
     class Obj(val name: String)
-    val s1 = new Obj("hello")
-    val s2 = new Obj("hello") // same content, different reference
+    val s1  = new Obj("hello")
+    val s2  = new Obj("hello") // same content, different reference
     val bag = new Bag[Obj]()
     bag.add(s1)
 

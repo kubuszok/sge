@@ -8,12 +8,14 @@ package sge
 package graphs
 package internal
 
-/** A binary heap that stores Nodes sorted lowest-first by heapValue.
-  * Ported from simple-graphs BinaryHeap.java (which was adapted from libGDX BinaryHeap).
+import scala.util.boundary
+import scala.util.boundary.break
+
+/** A binary heap that stores Nodes sorted lowest-first by heapValue. Ported from simple-graphs BinaryHeap.java (which was adapted from libGDX BinaryHeap).
   */
 class BinaryHeap[V](initialCapacity: Int = 16) {
 
-  var size: Int = 0
+  var size:          Int            = 0
   private var nodes: Array[Node[V]] = new Array[Node[V]](initialCapacity)
 
   /** Adds the node to the heap using its current heapValue. */
@@ -52,7 +54,7 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
   }
 
   def notEmpty: Boolean = size > 0
-  def isEmpty: Boolean = size == 0
+  def isEmpty:  Boolean = size == 0
 
   def clear(): Unit = {
     var i = 0
@@ -71,13 +73,13 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
     else down(node.heapIndex)
   }
 
-  private def up(idx: Int): Unit = {
+  private def up(idx: Int): Unit = boundary {
     var index = idx
-    val node = nodes(index)
+    val node  = nodes(index)
     val value = node.heapValue
     while (index > 0) {
       val parentIndex = (index - 1) >> 1
-      val parent = nodes(parentIndex)
+      val parent      = nodes(parentIndex)
       if (value < parent.heapValue) {
         nodes(index) = parent
         parent.heapIndex = index
@@ -86,7 +88,7 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
         // break
         nodes(index) = node
         node.heapIndex = index
-        return // performance-critical inner loop; using return for clarity
+        break(())
       }
     }
     nodes(index) = node
@@ -95,7 +97,7 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
 
   private def down(idx: Int): Unit = {
     var index = idx
-    val node = nodes(index)
+    val node  = nodes(index)
     val value = node.heapValue
 
     var continue = true
@@ -107,7 +109,7 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
         val rightIndex = leftIndex + 1
 
         // Always has a left child.
-        val leftNode = nodes(leftIndex)
+        val leftNode  = nodes(leftIndex)
         val leftValue = leftNode.heapValue
 
         // May have a right child.

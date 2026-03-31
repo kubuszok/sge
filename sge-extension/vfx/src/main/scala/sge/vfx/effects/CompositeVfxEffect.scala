@@ -10,9 +10,8 @@ package effects
 
 import scala.collection.mutable.ArrayBuffer
 
-/** Base class for an effect that is a composition of some other [[VfxEffect]]s. The class manages contained effects and delegates
-  * the lifecycle methods to the instances (e.g. [[VfxEffect.resize]], [[VfxEffect.rebind]], [[VfxEffect.update]],
-  * [[VfxEffect.close]]).
+/** Base class for an effect that is a composition of some other [[VfxEffect]]s. The class manages contained effects and delegates the lifecycle methods to the instances (e.g. [[VfxEffect.resize]],
+  * [[VfxEffect.rebind]], [[VfxEffect.update]], [[VfxEffect.close]]).
   *
   * To register an internal effect, call [[register]].
   */

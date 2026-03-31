@@ -17,14 +17,13 @@ import sge.utils.Nullable
 
 /** A button with a child Image and TypingLabel. */
 class ImageTypingButton(
-    text: Nullable[String],
-    style: Styles.ImageTextButtonStyle,
-    replacementFont: Font
+  text:            Nullable[String],
+  style:           Styles.ImageTextButtonStyle,
+  replacementFont: Font
 ) extends ImageTextraButton(text, style, replacementFont) {
 
-  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) = {
+  def this(text: Nullable[String], style: Styles.ImageTextButtonStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
-  }
 
   override protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TypingLabel(text, style)

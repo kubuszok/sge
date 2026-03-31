@@ -22,14 +22,14 @@ import sge.utils.Nullable
 
 class MirrorSource(using Sge) extends AutoCloseable {
 
-  protected var fbo: FrameBuffer = scala.compiletime.uninitialized
-  private var width:  Int = 0
-  private var height: Int = 0
-  private val originalCameraPosition:  Vector3 = Vector3()
-  private val originalCameraDirection: Vector3 = Vector3()
-  private val originalCameraUp:        Vector3 = Vector3()
-  private val planeOrigin:  Vector3 = Vector3()
-  private val planeToCamera: Vector3 = Vector3()
+  protected var fbo:                   FrameBuffer = scala.compiletime.uninitialized
+  private var width:                   Int         = 0
+  private var height:                  Int         = 0
+  private val originalCameraPosition:  Vector3     = Vector3()
+  private val originalCameraDirection: Vector3     = Vector3()
+  private val originalCameraUp:        Vector3     = Vector3()
+  private val planeOrigin:             Vector3     = Vector3()
+  private val planeToCamera:           Vector3     = Vector3()
 
   /** enable/disable scene clipping. When enabled, objects behind mirror are not rendered. */
   var clipScene: Boolean = true
@@ -37,9 +37,9 @@ class MirrorSource(using Sge) extends AutoCloseable {
   protected val mirrorAttribute: MirrorSourceAttribute = MirrorSourceAttribute()
 
   private val clippingPlane: ClippingPlaneAttribute = ClippingPlaneAttribute(Vector3.Y, 0f)
-  private var camera:      Camera      = scala.compiletime.uninitialized
-  private var environment: Environment = scala.compiletime.uninitialized
-  private var skyBox:      SceneSkybox = scala.compiletime.uninitialized
+  private var camera:        Camera                 = scala.compiletime.uninitialized
+  private var environment:   Environment            = scala.compiletime.uninitialized
+  private var skyBox:        SceneSkybox            = scala.compiletime.uninitialized
 
   mirrorAttribute.textureDescription.minFilter = Texture.TextureFilter.MipMap
   mirrorAttribute.textureDescription.magFilter = Texture.TextureFilter.Linear
@@ -107,9 +107,8 @@ class MirrorSource(using Sge) extends AutoCloseable {
     camera.update()
   }
 
-  private def reflect(vector: Vector3, normal: Vector3): Unit = {
+  private def reflect(vector: Vector3, normal: Vector3): Unit =
     vector.mulAdd(normal, -2f * vector.dot(normal))
-  }
 
   private def restoreCamera(camera: Camera): Unit = {
     camera.position.set(originalCameraPosition)
@@ -127,7 +126,6 @@ class MirrorSource(using Sge) extends AutoCloseable {
     }
   }
 
-  override def close(): Unit = {
+  override def close(): Unit =
     if (fbo != null) fbo.close() // @nowarn
-  }
 }

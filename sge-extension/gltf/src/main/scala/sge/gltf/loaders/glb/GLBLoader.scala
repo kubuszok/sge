@@ -16,9 +16,8 @@ import sge.gltf.loaders.shared.GLTFLoaderBase
 
 class GLBLoader extends GLTFLoaderBase() {
 
-  def load(file: FileHandle)(using Sge): Model = {
+  def load(file: FileHandle)(using Sge): Model =
     load(file, false)
-  }
 
   def load(file: FileHandle, withData: Boolean)(using Sge): Model = {
     val dataFileResolver = new BinaryDataFileResolver()
@@ -26,9 +25,8 @@ class GLBLoader extends GLTFLoaderBase() {
     load(dataFileResolver, withData)
   }
 
-  def load(bytes: Array[Byte])(using Sge): Model = {
+  def load(bytes: Array[Byte])(using Sge): Model =
     load(bytes, false)
-  }
 
   def load(bytes: Array[Byte], withData: Boolean)(using Sge): Model = {
     val dataFileResolver = new BinaryDataFileResolver()

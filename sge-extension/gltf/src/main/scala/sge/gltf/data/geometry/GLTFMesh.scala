@@ -14,5 +14,5 @@ import sge.utils.Nullable
 
 class GLTFMesh extends GLTFEntity {
   var primitives: Nullable[ArrayBuffer[GLTFPrimitive]] = Nullable.empty
-  var weights: Nullable[Array[Float]] = Nullable.empty
+  var weights:    Nullable[Array[Float]]               = Nullable.empty
 }

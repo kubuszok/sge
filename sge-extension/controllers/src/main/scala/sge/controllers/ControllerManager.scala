@@ -10,27 +10,25 @@ package controllers
 import scala.collection.mutable.ArrayBuffer
 import sge.utils.Nullable
 
-/** Abstract base for platform-specific controller manager implementations. Tracks connected controllers and the most recently used
-  * controller.
+/** Abstract base for platform-specific controller manager implementations. Tracks connected controllers and the most recently used controller.
   *
-  * @author Nathan Sweet
+  * @author
+  *   Nathan Sweet
   */
 abstract class ControllerManager {
 
-  protected val controllers: ArrayBuffer[Controller] = ArrayBuffer.empty
-  private var _currentController: Nullable[Controller] = Nullable.empty
+  protected val controllers:      ArrayBuffer[Controller] = ArrayBuffer.empty
+  private var _currentController: Nullable[Controller]    = Nullable.empty
 
   /** @return all currently connected controllers. */
   def getControllers: Seq[Controller] = controllers.toSeq
 
   /** @return
-    *   the controller the player used most recently. This might return [[Nullable.empty]] if there is no controller connected or
-    *   the last used controller disconnected.
+    *   the controller the player used most recently. This might return [[Nullable.empty]] if there is no controller connected or the last used controller disconnected.
     */
   def currentController: Nullable[Controller] = _currentController
 
-  /** Add a global [[ControllerListener]] that can react to events from all [[Controller]] instances. The listener will be invoked
-    * on the rendering thread.
+  /** Add a global [[ControllerListener]] that can react to events from all [[Controller]] instances. The listener will be invoked on the rendering thread.
     */
   def addListener(listener: ControllerListener): Unit
 
@@ -46,19 +44,17 @@ abstract class ControllerManager {
   /** Manages the currentController field. Must be added to controller listeners as the first listener. */
   protected class ManageCurrentControllerListener extends ControllerAdapter {
 
-    override def connected(controller: Controller): Unit = {
+    override def connected(controller: Controller): Unit =
       _currentController.fold {
         _currentController = Nullable(controller)
-      } { _ => () }
-    }
+      }(_ => ())
 
-    override def disconnected(controller: Controller): Unit = {
+    override def disconnected(controller: Controller): Unit =
       _currentController.foreach { current =>
         if (current eq controller) {
           _currentController = Nullable.empty
         }
       }
-    }
 
     override def buttonDown(controller: Controller, buttonIndex: Int): Boolean = {
       _currentController = Nullable(controller)

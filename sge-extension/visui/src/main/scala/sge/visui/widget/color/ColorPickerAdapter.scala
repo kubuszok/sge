@@ -17,8 +17,8 @@ import sge.graphics.Color
   *   Kotcrab
   */
 class ColorPickerAdapter extends ColorPickerListener {
-  override def canceled(oldColor: Color): Unit                    = ()
-  override def changed(newColor: Color): Unit                     = ()
+  override def canceled(oldColor:   Color):                  Unit = ()
+  override def changed(newColor:    Color):                  Unit = ()
   override def reset(previousColor: Color, newColor: Color): Unit = ()
-  override def finished(newColor: Color): Unit                    = ()
+  override def finished(newColor:   Color):                  Unit = ()
 }

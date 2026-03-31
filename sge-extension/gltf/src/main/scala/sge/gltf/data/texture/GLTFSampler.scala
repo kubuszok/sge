@@ -14,6 +14,6 @@ import sge.utils.Nullable
 class GLTFSampler extends GLTFEntity {
   var minFilter: Nullable[Int] = Nullable.empty
   var magFilter: Nullable[Int] = Nullable.empty
-  var wrapS: Nullable[Int] = Nullable.empty
-  var wrapT: Nullable[Int] = Nullable.empty
+  var wrapS:     Nullable[Int] = Nullable.empty
+  var wrapT:     Nullable[Int] = Nullable.empty
 }

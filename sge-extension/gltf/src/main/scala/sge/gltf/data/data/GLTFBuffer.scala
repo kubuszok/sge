@@ -13,6 +13,6 @@ import sge.utils.Nullable
 
 class GLTFBuffer extends GLTFEntity {
   // "uri": "data:application/octet-stream;base64,uoV6P5Ff/z2imSc+KG
-  var uri: Nullable[String] = Nullable.empty
-  var byteLength: Int = 0
+  var uri:        Nullable[String] = Nullable.empty
+  var byteLength: Int              = 0
 }

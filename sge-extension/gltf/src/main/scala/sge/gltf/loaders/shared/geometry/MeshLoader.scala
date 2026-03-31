@@ -10,27 +10,27 @@ package loaders
 package shared
 package geometry
 
-import java.nio.{ByteBuffer, FloatBuffer, ShortBuffer}
-import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
+import java.nio.{ ByteBuffer, FloatBuffer, ShortBuffer }
+import scala.collection.mutable.{ ArrayBuffer, HashMap, HashSet }
 import sge.Sge
 import sge.utils.Log
-import sge.graphics.{DataType, GL20, Mesh, PrimitiveMode, VertexAttribute, VertexAttributes}
+import sge.graphics.{ DataType, GL20, Mesh, PrimitiveMode, VertexAttribute, VertexAttributes }
 import sge.graphics.VertexAttributes.Usage
 import sge.graphics.g3d.Material
-import sge.graphics.g3d.model.{MeshPart, Node, NodePart}
+import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
 import sge.graphics.glutils.ShaderProgram
 import sge.gltf.data.data.GLTFAccessor
-import sge.gltf.data.geometry.{GLTFMesh, GLTFPrimitive}
-import sge.gltf.loaders.exceptions.{GLTFIllegalException, GLTFUnsupportedException}
+import sge.gltf.data.geometry.{ GLTFMesh, GLTFPrimitive }
+import sge.gltf.loaders.exceptions.{ GLTFIllegalException, GLTFUnsupportedException }
 import sge.gltf.loaders.shared.GLTFTypes
-import sge.gltf.loaders.shared.data.{AccessorBuffer, DataResolver}
+import sge.gltf.loaders.shared.data.{ AccessorBuffer, DataResolver }
 import sge.gltf.loaders.shared.material.MaterialLoader
 import sge.utils.Nullable
 
 class MeshLoader {
 
   private val meshMap: HashMap[GLTFMesh, ArrayBuffer[NodePart]] = HashMap.empty
-  private val meshes: ArrayBuffer[Mesh] = ArrayBuffer.empty
+  private val meshes:  ArrayBuffer[Mesh]                        = ArrayBuffer.empty
 
   def load(node: Node, glMesh: GLTFMesh, dataResolver: DataResolver, materialLoader: MaterialLoader)(using sge: Sge): Unit = {
     var parts = meshMap.getOrElse(glMesh, null) // @nowarn — checking for presence
@@ -48,7 +48,7 @@ class MeshLoader {
 
           // vertices
           val vertexAttributes = ArrayBuffer[VertexAttribute]()
-          val glAccessors = ArrayBuffer[GLTFAccessor]()
+          val glAccessors      = ArrayBuffer[GLTFAccessor]()
           val rgbOddAttributes = HashSet[VertexAttribute]()
 
           val bonesIndices = ArrayBuffer[Array[Int]]()
@@ -59,7 +59,7 @@ class MeshLoader {
 
           primitive.attributes.foreach { attributes =>
             for ((attributeName, accessorId) <- attributes) {
-              val accessor = dataResolver.getAccessor(accessorId)
+              val accessor     = dataResolver.getAccessor(accessorId)
               var rawAttribute = true
 
               if (attributeName == "POSITION") {
@@ -84,7 +84,7 @@ class MeshLoader {
                 val unit = parseAttributeUnit(attributeName)
                 vertexAttributes += VertexAttribute.TexCoords(unit)
               } else if (attributeName.startsWith("COLOR_")) {
-                val unit = parseAttributeUnit(attributeName)
+                val unit  = parseAttributeUnit(attributeName)
                 val alias = if (unit > 0) ShaderProgram.COLOR_ATTRIBUTE + unit else ShaderProgram.COLOR_ATTRIBUTE
                 if (GLTFTypes.TYPE_VEC4 == accessor.`type`.get) {
                   if (GLTFTypes.C_FLOAT == accessor.componentType) {
@@ -148,9 +148,9 @@ class MeshLoader {
             }
           }
 
-          val bSize = bonesIndices.size * 4
+          val bSize           = bonesIndices.size * 4
           val bonesAttributes = ArrayBuffer[VertexAttribute]()
-          var b = 0
+          var b               = 0
           while (b < bSize) {
             val boneAttribute = VertexAttribute.BoneWeight(b)
             vertexAttributes += boneAttribute
@@ -159,7 +159,7 @@ class MeshLoader {
           }
 
           // add missing normals
-          var computeNormals = false
+          var computeNormals  = false
           var computeTangents = false
           var normalMapUVs: VertexAttribute = null // @nowarn — may remain null if tangent not needed
           if (glPrimitiveType == GL20.GL_TRIANGLES) {
@@ -177,14 +177,14 @@ class MeshLoader {
           val attributesGroup = new VertexAttributes(vertexAttributes.toArray*)
 
           val vertexFloats = attributesGroup.vertexSize / 4
-          val maxVertices = if (glAccessors.nonEmpty && glAccessors.head != null) glAccessors.head.count else 0
+          val maxVertices  = if (glAccessors.nonEmpty && glAccessors.head != null) glAccessors.head.count else 0
 
           val vertices = new Array[Float](maxVertices * vertexFloats)
 
           b = 0
           while (b < bSize) {
             val boneAttribute = bonesAttributes(b)
-            var i = 0
+            var i             = 0
             while (i < maxVertices) {
               vertices(i * vertexFloats + boneAttribute.offset / 4) = bonesIndices(b / 4)(i * 4 + b % 4).toFloat
               vertices(i * vertexFloats + boneAttribute.offset / 4 + 1) = bonesWeights(b / 4)(i * 4 + b % 4)
@@ -196,13 +196,13 @@ class MeshLoader {
           var ai = 0
           while (ai < glAccessors.size) {
             val glAccessor = glAccessors(ai)
-            val attribute = vertexAttributes(ai)
+            val attribute  = vertexAttributes(ai)
 
             if (glAccessor != null) { // @nowarn — null used as placeholder
-              val buffer = dataResolver.getAccessorBuffer(glAccessor)
-              val data = buffer.prepareForReading()
-              val byteStride = buffer.getByteStride
-              val floatStride = byteStride / 4
+              val buffer          = dataResolver.getAccessorBuffer(glAccessor)
+              val data            = buffer.prepareForReading()
+              val byteStride      = buffer.getByteStride
+              val floatStride     = byteStride / 4
               val attributeFloats = attribute.sizeInBytes / 4
 
               if (byteStride % 4 != 0) {
@@ -210,7 +210,7 @@ class MeshLoader {
                 while (j < glAccessor.count) {
                   val vIndex = j * vertexFloats + attribute.offset / 4
                   val dIndex = j * byteStride
-                  var k = 0
+                  var k      = 0
                   while (k < attributeFloats) {
                     vertices(vIndex + k) = data.getFloat(dIndex + k * 4)
                     k += 1
@@ -219,7 +219,7 @@ class MeshLoader {
                 }
               } else {
                 val floatBuffer = data.asFloatBuffer()
-                var j = 0
+                var j           = 0
                 while (j < glAccessor.count) {
                   floatBuffer.position(j * floatStride)
                   val vIndex = j * vertexFloats + attribute.offset / 4
@@ -234,7 +234,20 @@ class MeshLoader {
           // indices
           primitive.indices.fold {
             // non indexed mesh
-            generateParts(node, parts, material, glMesh.name, vertices, maxVertices, null, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs) // @nowarn — null indices for non-indexed
+            generateParts(
+              node,
+              parts,
+              material,
+              glMesh.name,
+              vertices,
+              maxVertices,
+              null,
+              attributesGroup,
+              glPrimitiveType,
+              computeNormals,
+              computeTangents,
+              normalMapUVs
+            ) // @nowarn — null indices for non-indexed
           } { indicesIdx =>
             val indicesAccessor = dataResolver.getAccessor(indicesIdx)
 
@@ -256,34 +269,73 @@ class MeshLoader {
                 dataResolver.getBufferInt(indicesAccessor).get(intIndices)
 
                 val splitVerts = ArrayBuffer[Array[Float]]()
-                val splitInds = ArrayBuffer[Array[Short]]()
+                val splitInds  = ArrayBuffer[Array[Short]]()
 
                 MeshSpliter.split(splitVerts, splitInds, vertices, attributesGroup, intIndices, verticesPerPrimitive)
 
                 val stride = attributesGroup.vertexSize / 4
-                var gi = 0
+                var gi     = 0
                 while (gi < splitInds.size) {
-                  val groupVertices = splitVerts(gi)
-                  val groupIndices = splitInds(gi)
+                  val groupVertices    = splitVerts(gi)
+                  val groupIndices     = splitInds(gi)
                   val groupVertexCount = groupVertices.length / stride
-                  generateParts(node, parts, material, glMesh.name, groupVertices, groupVertexCount, groupIndices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs)
+                  generateParts(
+                    node,
+                    parts,
+                    material,
+                    glMesh.name,
+                    groupVertices,
+                    groupVertexCount,
+                    groupIndices,
+                    attributesGroup,
+                    glPrimitiveType,
+                    computeNormals,
+                    computeTangents,
+                    normalMapUVs
+                  )
                   gi += 1
                 }
 
               case GLTFTypes.C_USHORT | GLTFTypes.C_SHORT =>
                 val indices = new Array[Short](maxIndices)
                 dataResolver.getBufferShort(indicesAccessor).get(indices)
-                generateParts(node, parts, material, glMesh.name, vertices, maxVertices, indices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs)
+                generateParts(
+                  node,
+                  parts,
+                  material,
+                  glMesh.name,
+                  vertices,
+                  maxVertices,
+                  indices,
+                  attributesGroup,
+                  glPrimitiveType,
+                  computeNormals,
+                  computeTangents,
+                  normalMapUVs
+                )
 
               case GLTFTypes.C_UBYTE =>
-                val indices = new Array[Short](maxIndices)
+                val indices    = new Array[Short](maxIndices)
                 val byteBuffer = dataResolver.getBufferByte(indicesAccessor)
-                var idx = 0
+                var idx        = 0
                 while (idx < maxIndices) {
-                  indices(idx) = (byteBuffer.get() & 0xFF).toShort
+                  indices(idx) = (byteBuffer.get() & 0xff).toShort
                   idx += 1
                 }
-                generateParts(node, parts, material, glMesh.name, vertices, maxVertices, indices, attributesGroup, glPrimitiveType, computeNormals, computeTangents, normalMapUVs)
+                generateParts(
+                  node,
+                  parts,
+                  material,
+                  glMesh.name,
+                  vertices,
+                  maxVertices,
+                  indices,
+                  attributesGroup,
+                  glPrimitiveType,
+                  computeNormals,
+                  computeTangents,
+                  normalMapUVs
+                )
 
               case _ =>
                 throw new GLTFIllegalException("illegal componentType " + indicesAccessor.componentType)
@@ -297,54 +349,54 @@ class MeshLoader {
   }
 
   private def generateParts(
-      node: Node,
-      parts: ArrayBuffer[NodePart],
-      material: Material,
-      id: Nullable[String],
-      vertices: Array[Float],
-      vertexCount: Int,
-      indices: Array[Short],
-      attributesGroup: VertexAttributes,
-      glPrimitiveType: Int,
-      computeNormals: Boolean,
-      computeTangents: Boolean,
-      normalMapUVs: VertexAttribute
-  )(using sge: Sge): Unit = {
+    node:            Node,
+    parts:           ArrayBuffer[NodePart],
+    material:        Material,
+    id:              Nullable[String],
+    vertices:        Array[Float],
+    vertexCount:     Int,
+    indices:         Array[Short],
+    attributesGroup: VertexAttributes,
+    glPrimitiveType: Int,
+    computeNormals:  Boolean,
+    computeTangents: Boolean,
+    normalMapUVs:    VertexAttribute
+  )(using sge: Sge): Unit =
     // skip empty meshes
     if (vertices.isEmpty || (indices != null && indices.isEmpty)) { // @nowarn — indices can be null
-      return // handled by caller
-    }
+      // handled by caller — nothing to do
+    } else {
 
-    if (computeNormals || computeTangents) {
-      if (indices != null) { // @nowarn — indices can be null for non-indexed meshes
-        MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs)
+      if (computeNormals || computeTangents) {
+        if (indices != null) { // @nowarn — indices can be null for non-indexed meshes
+          MeshTangentSpaceGenerator.computeTangentSpace(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs)
+        }
       }
+
+      val mesh = new Mesh(true, vertexCount, if (indices == null) 0 else indices.length, attributesGroup) // @nowarn — indices can be null
+      meshes += mesh
+      mesh.setVertices(vertices)
+
+      if (indices != null) { // @nowarn — indices can be null
+        mesh.setIndices(indices)
+      }
+
+      val len = if (indices == null) vertexCount else indices.length // @nowarn — indices can be null
+
+      val idStr    = id.getOrElse("mesh")
+      val meshPart = new MeshPart(idStr, mesh, 0, len, PrimitiveMode(glPrimitiveType))
+
+      val nodePart = new NodePart()
+      nodePart.meshPart = meshPart
+      nodePart.material = material
+      parts += nodePart
     }
-
-    val mesh = new Mesh(true, vertexCount, if (indices == null) 0 else indices.length, attributesGroup) // @nowarn — indices can be null
-    meshes += mesh
-    mesh.setVertices(vertices)
-
-    if (indices != null) { // @nowarn — indices can be null
-      mesh.setIndices(indices)
-    }
-
-    val len = if (indices == null) vertexCount else indices.length // @nowarn — indices can be null
-
-    val idStr = id.getOrElse("mesh")
-    val meshPart = new MeshPart(idStr, mesh, 0, len, PrimitiveMode(glPrimitiveType))
-
-    val nodePart = new NodePart()
-    nodePart.meshPart = meshPart
-    nodePart.material = material
-    parts += nodePart
-  }
 
   private def parseAttributeUnit(attributeName: String): Int = {
     val lastUnderscoreIndex = attributeName.lastIndexOf('_')
-    try {
+    try
       Integer.parseInt(attributeName.substring(lastUnderscoreIndex + 1))
-    } catch {
+    catch {
       case _: NumberFormatException =>
         throw new GLTFIllegalException("illegal attribute name " + attributeName)
     }

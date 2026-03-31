@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicLong
 
 /** @author Kotcrab */
 class ServiceThreadFactory(threadPrefix: String) extends ThreadFactory {
-  private val count:         AtomicLong = new AtomicLong(0)
-  private val prefixWithDash: String    = threadPrefix + "-"
+  private val count:          AtomicLong = new AtomicLong(0)
+  private val prefixWithDash: String     = threadPrefix + "-"
 
   override def newThread(runnable: Runnable): Thread = {
     val thread = Executors.defaultThreadFactory().newThread(runnable)

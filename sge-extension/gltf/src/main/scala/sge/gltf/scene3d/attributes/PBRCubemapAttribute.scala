@@ -22,10 +22,11 @@ class PBRCubemapAttribute(
 
   def this(`type`: Long, cubemap: Cubemap) =
     this(`type`, {
-      val td = TextureDescriptor[Cubemap]()
-      td.texture = sge.utils.Nullable(cubemap)
-      td
-    })
+           val td = TextureDescriptor[Cubemap]()
+           td.texture = sge.utils.Nullable(cubemap)
+           td
+         }
+    )
 
   override def copy(): Attribute =
     PBRCubemapAttribute(`type`, textureDescription)

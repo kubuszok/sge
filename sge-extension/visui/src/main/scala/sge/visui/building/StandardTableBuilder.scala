@@ -21,14 +21,14 @@ class StandardTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int
     extends TableBuilder(estimatedWidgetsAmount, estimatedRowsAmount, defaultWidgetPadding) {
 
   def this() = this(10, 3, Padding.PAD_0)
-  def this(defaultWidgetPadding: Padding) = this(10, 3, defaultWidgetPadding)
+  def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
   override protected def fillTable(table: Table): Unit = {
-    val rowSizes       = getRowSizes
-    val widgetsInRow   = TableBuilder.getLowestCommonMultiple(rowSizes)
-    var rowIndex       = 0
-    var widgetIndex    = 0
+    val rowSizes     = getRowSizes
+    val widgetsInRow = TableBuilder.getLowestCommonMultiple(rowSizes)
+    var rowIndex     = 0
+    var widgetIndex  = 0
     while (rowIndex < rowSizes.size) {
       val rowSize              = rowSizes(rowIndex)
       val currentWidgetColspan = widgetsInRow / rowSize

@@ -18,11 +18,9 @@ class NodeResolver {
 
   private val nodeMap: HashMap[Int, Node] = HashMap.empty
 
-  def get(index: Int): Nullable[Node] = {
+  def get(index: Int): Nullable[Node] =
     Nullable.fromOption(nodeMap.get(index))
-  }
 
-  def put(index: Int, node: Node): Unit = {
+  def put(index: Int, node: Node): Unit =
     nodeMap.put(index, node)
-  }
 }
