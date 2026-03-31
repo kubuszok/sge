@@ -15,11 +15,12 @@
  *   Convention: getX()/setX() → public var where no logic; (using Sge) deferred
  *     because this extension may operate headlessly (markup-only, no rendering).
  *   Idiom: boundary/break for early returns; Nullable[A] for nullable fields.
- *   TODOs: drawGlyph/drawGlyphs/drawBlocks/drawBlockSequence/drawFancyLine/
- *     enableShader/loadFNT/loadJSON/loadSad — rendering methods require Batch/Texture/
- *     ShaderProgram which are not available in a cross-platform extension module.
- *     These are left as stubs that throw UnsupportedOperationException until the
- *     rendering layer is wired up.
+ *   Implemented: drawGlyph (core + bold + oblique + super/subscript), drawGlyphs,
+ *     drawBlocks, drawBlockSequence, drawFancyLine, enableShader, loadFNT, loadJSON,
+ *     loadSad. GlyphRegion extends TextureRegion for rendering support.
+ *   Remaining TODOs: drawGlyph advanced effects (drop shadow, outlines, HALO, NEON,
+ *     SHINY), underline/strikethrough decorations, box-drawing character rendering
+ *     (require ColorUtils.multiplyAlpha/lerpColorsMultiplyAlpha and BlockUtils.BOX_DRAWING).
  */
 package sge
 package textra
@@ -1184,57 +1185,56 @@ class Font {
     */
   def drawBlocks(batch: sge.graphics.g2d.Batch, blockChar: Char, colors: Array[Array[Int]], x: Float, y: Float): Unit = {
     val block = mapping.getOrElse(blockChar.toInt, null)
-    if (block == null || block.texture == null) {
-      return // @nowarn — early return, guarding null texture
-    }
-    val parent = block.texture
-    val ipw    = 1.0f / parent.width.toFloat
-    val iph    = 1.0f / parent.height.toFloat
-    val bu     = block.u
-    val bv     = block.v
-    val bu2    = bu + ipw
-    val bv2    = bv + iph
+    if (block != null && block.texture != null) {
+      val parent = block.texture
+      val ipw    = 1.0f / parent.width.toFloat
+      val iph    = 1.0f / parent.height.toFloat
+      val bu     = block.u
+      val bv     = block.v
+      val bu2    = bu + ipw
+      val bv2    = bv + iph
 
-    val xStart = x + 3.90625e-3f // small offset to avoid line artifacts
-    val yStart = y + 3.90625e-3f
-    vertices(0) = xStart
-    vertices(1) = yStart
-    vertices(3) = bu
-    vertices(4) = bv
-    vertices(5) = xStart
-    vertices(6) = yStart + cellHeight
-    vertices(8) = bu
-    vertices(9) = bv2
-    vertices(10) = xStart + cellWidth
-    vertices(11) = yStart + cellHeight
-    vertices(13) = bu2
-    vertices(14) = bv2
-    vertices(15) = xStart + cellWidth
-    vertices(16) = yStart
-    vertices(18) = bu2
-    vertices(19) = bv
+      val xStart = x + 3.90625e-3f // small offset to avoid line artifacts
+      val yStart = y + 3.90625e-3f
+      vertices(0) = xStart
+      vertices(1) = yStart
+      vertices(3) = bu
+      vertices(4) = bv
+      vertices(5) = xStart
+      vertices(6) = yStart + cellHeight
+      vertices(8) = bu
+      vertices(9) = bv2
+      vertices(10) = xStart + cellWidth
+      vertices(11) = yStart + cellHeight
+      vertices(13) = bu2
+      vertices(14) = bv2
+      vertices(15) = xStart + cellWidth
+      vertices(16) = yStart
+      vertices(18) = bu2
+      vertices(19) = bv
 
-    val xn = colors.length
-    val yn = colors(0).length
-    var xi = 0
-    while (xi < xn) {
-      var yi = 0
-      while (yi < yn) {
-        if ((colors(xi)(yi) & 254) != 0) {
-          val c = java.lang.Float.intBitsToFloat(Integer.reverseBytes(colors(xi)(yi) & -2))
-          vertices(2) = c; vertices(7) = c; vertices(12) = c; vertices(17) = c
-          drawVertices(batch, parent, vertices)
+      val xn = colors.length
+      val yn = colors(0).length
+      var xi = 0
+      while (xi < xn) {
+        var yi = 0
+        while (yi < yn) {
+          if ((colors(xi)(yi) & 254) != 0) {
+            val c = java.lang.Float.intBitsToFloat(Integer.reverseBytes(colors(xi)(yi) & -2))
+            vertices(2) = c; vertices(7) = c; vertices(12) = c; vertices(17) = c
+            drawVertices(batch, parent, vertices)
+          }
+          vertices(1) += cellHeight; vertices(16) += cellHeight
+          vertices(6) += cellHeight; vertices(11) += cellHeight
+          yi += 1
         }
-        vertices(1) += cellHeight; vertices(16) += cellHeight
-        vertices(6) += cellHeight; vertices(11) += cellHeight
-        yi += 1
+        vertices(0) += cellWidth; vertices(5) += cellWidth
+        vertices(10) += cellWidth; vertices(15) += cellWidth
+        vertices(1) = yStart; vertices(16) = yStart
+        vertices(6) = yStart + cellHeight; vertices(11) = yStart + cellHeight
+        xi += 1
       }
-      vertices(0) += cellWidth; vertices(5) += cellWidth
-      vertices(10) += cellWidth; vertices(15) += cellWidth
-      vertices(1) = yStart; vertices(16) = yStart
-      vertices(6) = yStart + cellHeight; vertices(11) = yStart + cellHeight
-      xi += 1
-    }
+    } // end if (block != null)
   }
 
   /** Draws blocks in a sequence specified by a float array, with groups of 4: startX, startY, sizeX, sizeY. Used to render box-drawing and block-element characters from a solid block region.
@@ -1263,10 +1263,7 @@ class Font {
     height:   Float,
     rotation: Float,
     breadth:  Float
-  ): Unit = {
-    if (block.texture == null) {
-      return // @nowarn — early return, guarding null texture
-    }
+  ): Unit = if (block.texture != null) {
     val parent     = block.texture
     val ipw        = 1f / parent.width.toFloat
     val iph        = 1f / parent.height.toFloat
@@ -1360,72 +1357,71 @@ class Font {
     rotation: Float
   ): Unit = {
     val block = mapping.getOrElse(solidBlock.toInt, null)
-    if (block == null || block.texture == null) {
-      return // @nowarn — early return, guarding null texture
-    }
-    val parent = block.texture
-    val ipw    = 1f / parent.width.toFloat
-    val iph    = 1f / parent.height.toFloat
-    val bu     = block.u
-    val bv     = block.v
-    val bu2    = bu + ipw
-    val bv2    = bv + iph
-    val sn     = sge.math.MathUtils.sinDeg(rotation)
-    val cs     = sge.math.MathUtils.cosDeg(rotation)
+    if (block != null && block.texture != null) {
+      val parent = block.texture
+      val ipw    = 1f / parent.width.toFloat
+      val iph    = 1f / parent.height.toFloat
+      val bu     = block.u
+      val bv     = block.v
+      val bu2    = bu + ipw
+      val bv2    = bv + iph
+      val sn     = sge.math.MathUtils.sinDeg(rotation)
+      val cs     = sge.math.MathUtils.cosDeg(rotation)
 
-    val color =
-      if (mode == Font.ERROR) PACKED_ERROR_COLOR
-      else if (mode == Font.CONTEXT) PACKED_CONTEXT_COLOR
-      else if (mode == Font.WARN) PACKED_WARN_COLOR
-      else if (mode == Font.SUGGEST) PACKED_SUGGEST_COLOR
-      else PACKED_NOTE_COLOR
-    // TODO: multiplyAlpha with batch color alpha when ColorUtils is available
-    // val adjustedColor = ColorUtils.multiplyAlpha(color, batch.color.a)
+      val color =
+        if (mode == Font.ERROR) PACKED_ERROR_COLOR
+        else if (mode == Font.CONTEXT) PACKED_CONTEXT_COLOR
+        else if (mode == Font.WARN) PACKED_WARN_COLOR
+        else if (mode == Font.SUGGEST) PACKED_SUGGEST_COLOR
+        else PACKED_NOTE_COLOR
+      // TODO: multiplyAlpha with batch color alpha when ColorUtils is available
+      // val adjustedColor = ColorUtils.multiplyAlpha(color, batch.color.a)
 
-    var index  = 0
-    var startX = 0f
-    while (startX <= width) {
-      var shiftX = startX
-      var shiftY = 0f
-      if (mode == Font.ERROR) {
-        shiftY = (index & 1) * yPx
-      } else if (mode == Font.CONTEXT) {
-        shiftX -= (index & 2) * xPx
-        shiftY = -(index & 1) * yPx
-      } else if (mode == Font.WARN) {
-        shiftX += (~index & 1) * xPx
-        shiftY = (~index & 1) * yPx
-      } else if (mode == Font.SUGGEST) {
-        shiftX -= (index & (index >>> 1) & 1) * xPx
-        shiftY = -(index & (index >>> 1) & 1) * yPx
-      } else {
-        shiftY = (index >>> 1 & 1) * yPx
+      var index  = 0
+      var startX = 0f
+      while (startX <= width) {
+        var shiftX = startX
+        var shiftY = 0f
+        if (mode == Font.ERROR) {
+          shiftY = (index & 1) * yPx
+        } else if (mode == Font.CONTEXT) {
+          shiftX -= (index & 2) * xPx
+          shiftY = -(index & 1) * yPx
+        } else if (mode == Font.WARN) {
+          shiftX += (~index & 1) * xPx
+          shiftY = (~index & 1) * yPx
+        } else if (mode == Font.SUGGEST) {
+          shiftX -= (index & (index >>> 1) & 1) * xPx
+          shiftY = -(index & (index >>> 1) & 1) * yPx
+        } else {
+          shiftY = (index >>> 1 & 1) * yPx
+        }
+        val p0x = shiftX
+        val p0y = shiftY + yPx
+        val p1x = shiftX
+        val p1y = shiftY
+        val p2x = shiftX + xPx
+        val p2y = shiftY
+
+        vertices(0) = x + cs * p0x - sn * p0y
+        vertices(1) = y + sn * p0x + cs * p0y
+        vertices(5) = x + cs * p1x - sn * p1y
+        vertices(6) = y + sn * p1x + cs * p1y
+        vertices(10) = x + cs * p2x - sn * p2y
+        vertices(11) = y + sn * p2x + cs * p2y
+        vertices(15) = vertices(0) - vertices(5) + vertices(10)
+        vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+        vertices(2) = color; vertices(3) = bu; vertices(4) = bv
+        vertices(7) = color; vertices(8) = bu; vertices(9) = bv2
+        vertices(12) = color; vertices(13) = bu2; vertices(14) = bv2
+        vertices(17) = color; vertices(18) = bu2; vertices(19) = bv
+
+        drawVertices(batch, parent, vertices)
+        startX += xPx
+        index += 1
       }
-      val p0x = shiftX
-      val p0y = shiftY + yPx
-      val p1x = shiftX
-      val p1y = shiftY
-      val p2x = shiftX + xPx
-      val p2y = shiftY
-
-      vertices(0) = x + cs * p0x - sn * p0y
-      vertices(1) = y + sn * p0x + cs * p0y
-      vertices(5) = x + cs * p1x - sn * p1y
-      vertices(6) = y + sn * p1x + cs * p1y
-      vertices(10) = x + cs * p2x - sn * p2y
-      vertices(11) = y + sn * p2x + cs * p2y
-      vertices(15) = vertices(0) - vertices(5) + vertices(10)
-      vertices(16) = vertices(1) - vertices(6) + vertices(11)
-
-      vertices(2) = color; vertices(3) = bu; vertices(4) = bv
-      vertices(7) = color; vertices(8) = bu; vertices(9) = bv2
-      vertices(12) = color; vertices(13) = bu2; vertices(14) = bv2
-      vertices(17) = color; vertices(18) = bu2; vertices(19) = bv
-
-      drawVertices(batch, parent, vertices)
-      startX += xPx
-      index += 1
-    }
+    } // end if (block != null)
   }
 
   /** Returns x rounded to integer position if [[integerPosition]] is true, otherwise returns x unchanged. */
@@ -1493,7 +1489,7 @@ class Font {
     sizingYIn:         Float,
     backgroundColor:   Int,
     advanceMultiplier: Float
-  ): Float = {
+  ): Float = scala.util.boundary {
     var glyph   = glyphIn
     val sizingX = sizingXIn
     var sizingY = sizingYIn
@@ -1514,7 +1510,7 @@ class Font {
     }
 
     val tr = font.mapping.getOrElse(c.toInt, null)
-    if (tr == null) return 0f
+    if (tr == null) scala.util.boundary.break(0f)
 
     if (squashed) sizingY *= 0.75f
 
@@ -1547,10 +1543,8 @@ class Font {
       scaleXLocal = fsx * scale
       scaleYLocal = fsy * scale
     }
-    // osx/osy used by underline/strikethrough (TODO section)
     @scala.annotation.unused
-    val osx = fsx * (scale + 1f) * 0.5f
-    @scala.annotation.unused
+    val osx             = fsx * (scale + 1f) * 0.5f // used by glyph-based underline fallback (not yet ported)
     val osy             = fsy * (scale + 1f) * 0.5f
     var centerX         = tr.xAdvance * scaleXLocal * advanceMultiplier * 0.5f
     var centerY         = font.originalCellHeight * scaleYLocal * 0.5f
@@ -1558,10 +1552,9 @@ class Font {
     var x               = xIn
     var y               = yIn + scaleCorrection * scale
 
+    val ox = x
     @scala.annotation.unused
-    val ox = x // used by underline/strikethrough (TODO section)
-    @scala.annotation.unused
-    val oy = y
+    val oy = y // used by glyph-based underline fallback (not yet ported)
 
     val ix     = handleIntegerPosition(x + centerX)
     val iy     = handleIntegerPosition(y + centerY)
@@ -1572,14 +1565,72 @@ class Font {
     centerX -= xShift * 0.5f
     centerY -= yShift * 0.5f
 
+    // Alternate mode and secondary color (needed by both box-drawing and glyph effects)
+    val altMode = glyph & Font.ALTERNATE_MODES_MASK
+
     // Box-drawing characters (offsetX is NaN)
     if (java.lang.Float.isNaN(tr.offsetX)) {
-      // TODO: implement box-drawing character rendering via drawBlockSequence
-      return font.cellWidth
+      val ci              = c.toInt - 0x2500
+      val solidBlockGlyph = font.mapping.getOrElse(font.solidBlock.toInt, tr)
+      if (ci >= 0 && ci < utils.BlockUtils.BOX_DRAWING.length) {
+        // Background fill
+        if (backgroundColor != 0) {
+          drawBlockSequence(
+            batch,
+            utils.BlockUtils.BOX_DRAWING(0x88),
+            solidBlockGlyph,
+            java.lang.Float.intBitsToFloat(Integer.reverseBytes(backgroundColor & -2)),
+            x,
+            y,
+            font.cellWidth * sizingX,
+            font.cellHeight * scale * sizingY,
+            rotation
+          )
+        }
+        val boxes   = utils.BlockUtils.BOX_DRAWING(ci)
+        val dashed  = c <= 0x250b || (c >= 0x254c && c <= 0x254f)
+        val breadth = if (c < 0x2580) boxDrawingBreadth else 1f
+
+        // Glow/outline effects for box-drawing
+        if (altMode == Font.HALO || altMode == Font.NEON) {
+          var xi = 3
+          while (xi >= 1) {
+            drawBlockSequence(
+              batch,
+              if (dashed) utils.BlockUtils.BOX_DRAWING(ci & 3) else boxes,
+              solidBlockGlyph,
+              utils.ColorUtils.lerpColorsMultiplyAlpha(color, color, Math.min(font.glowStrength * 0.6f / (xi * xi), 1f), batchAlpha1_5),
+              x,
+              y,
+              font.cellWidth * sizingX,
+              font.cellHeight * scale * sizingY,
+              rotation,
+              breadth + xi
+            )
+            xi -= 1
+          }
+        } else if ((glyph & Font.BLACK_OUTLINE) == Font.BLACK_OUTLINE) {
+          drawBlockSequence(
+            batch,
+            if (dashed) utils.BlockUtils.BOX_DRAWING(ci & 3) else boxes,
+            solidBlockGlyph,
+            utils.ColorUtils.multiplyAlpha(PACKED_BLACK, batchAlpha1_5),
+            x,
+            y,
+            font.cellWidth * sizingX,
+            font.cellHeight * scale * sizingY,
+            rotation,
+            breadth + 1f
+          )
+        }
+
+        drawBlockSequence(batch, boxes, solidBlockGlyph, color, x, y, font.cellWidth * sizingX, font.cellHeight * scale * sizingY, rotation, breadth)
+      }
+      scala.util.boundary.break(font.cellWidth)
     }
 
     val tex = tr.texture
-    if (tex == null) return 0f
+    if (tex == null) scala.util.boundary.break(0f)
 
     val scaledHeight = font.cellHeight * scale * sizingY
     var x0           = 0f; var x1 = 0f; var x2 = 0f
@@ -1641,16 +1692,97 @@ class Font {
     var p2x = xc + x2 + w
     val p2y = yt + y2
 
+    // Outline strength for effects
+    val xOutline = outlineStrength * cellHeight / 32f
+    val yOutline = outlineStrength * cellHeight / 32f
+
     vertices(3) = u; vertices(4) = v
     vertices(8) = u; vertices(9) = v2
     vertices(13) = u2; vertices(14) = v2
     vertices(18) = u2; vertices(19) = v
 
-    // TODO: Drop shadow, outlines (BLACK_OUTLINE), HALO, NEON, SHINY modes
-    // These require ColorUtils.multiplyAlpha/lerpColorsMultiplyAlpha which are not yet ported
+    // Secondary color for outlines and effects
+    var drawColor = color
+    val secondaryColor: Float =
+      if (altMode == Font.HALO) { drawColor = PACKED_HALO_COLOR; color }
+      else if (altMode == Font.NEON) { drawColor = PACKED_WHITE; color }
+      else if (altMode == Font.BLUE_OUTLINE) PACKED_BLUE
+      else if (altMode == Font.RED_OUTLINE) PACKED_RED
+      else if (altMode == Font.YELLOW_OUTLINE) PACKED_YELLOW
+      else if (altMode == Font.WHITE_OUTLINE) PACKED_WHITE
+      else PACKED_BLACK
+
+    // Drop shadow effect
+    if (altMode == Font.DROP_SHADOW) {
+      val shadow = utils.ColorUtils.multiplyAlpha(PACKED_SHADOW_COLOR, batchAlpha1_5)
+      vertices(2) = shadow; vertices(7) = shadow; vertices(12) = shadow; vertices(17) = shadow
+      vertices(0) = x + cos * p0x - sin * p0y + dropShadowOffsetX
+      vertices(1) = y + sin * p0x + cos * p0y + dropShadowOffsetY
+      vertices(5) = x + cos * p1x - sin * p1y + dropShadowOffsetX
+      vertices(6) = y + sin * p1x + cos * p1y + dropShadowOffsetY
+      vertices(10) = x + cos * p2x - sin * p2y + dropShadowOffsetX
+      vertices(11) = y + sin * p2x + cos * p2y + dropShadowOffsetY
+      vertices(15) = vertices(0) - vertices(5) + vertices(10)
+      vertices(16) = vertices(1) - vertices(6) + vertices(11)
+      drawVertices(batch, tex, vertices)
+    } else if ((glyph & Font.BLACK_OUTLINE) == Font.BLACK_OUTLINE && altMode != Font.HALO && altMode != Font.NEON) {
+      // Outline effect (BLACK_OUTLINE or colored outline)
+      val widthAdj = if ((glyph & Font.BOLD) != 0L) 2 else 1
+      val outline  = utils.ColorUtils.multiplyAlpha(secondaryColor, if (widthAdj == 1) batchAlpha1_5 else batchAlpha2)
+      vertices(2) = outline; vertices(7) = outline; vertices(12) = outline; vertices(17) = outline
+      var xi = -widthAdj
+      while (xi <= widthAdj) {
+        var xa = xi * xOutline
+        if (widthAdj == 2 && (xi > 0 || boldStrength > 1f)) xa *= boldStrength
+        var yi = -1
+        while (yi <= 1) {
+          if (xi != 0 || yi != 0) {
+            val ya = yi * yOutline
+            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+            drawVertices(batch, tex, vertices)
+          }
+          yi += 1
+        }
+        xi += 1
+      }
+    } else if (altMode == Font.HALO || altMode == Font.NEON) {
+      // Glow effect (HALO/NEON)
+      val widthAdj = if ((glyph & Font.BOLD) != 0L) 5 else 3
+      val outline  = utils.ColorUtils.multiplyAlpha(secondaryColor, (if (widthAdj == 3) batchAlpha * 0.2f else batchAlpha * 0.1f) * glowStrength)
+      vertices(2) = outline; vertices(7) = outline; vertices(12) = outline; vertices(17) = outline
+      var xi = -widthAdj
+      while (xi <= widthAdj) {
+        var xa = xi * xOutline
+        if (widthAdj == 5 && (xi > 0 || boldStrength > 1f)) xa *= boldStrength
+        var yi = -3
+        while (yi <= 3) {
+          if ((xi != 0 || yi != 0) && (Math.abs(yi) + Math.abs(xi) <= widthAdj + 1)) {
+            val ya = yi * yOutline
+            setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+            drawVertices(batch, tex, vertices)
+          }
+          yi += 1
+        }
+        xi += 1
+      }
+    } else if (altMode == Font.SHINY) {
+      // Shiny effect (bright highlight above)
+      val widthAdj = if ((glyph & Font.BOLD) != 0L) 1 else 0
+      val shine    = utils.ColorUtils.multiplyAlpha(PACKED_WHITE, if (widthAdj == 0) batchAlpha1_5 else batchAlpha2)
+      vertices(2) = shine; vertices(7) = shine; vertices(12) = shine; vertices(17) = shine
+      var xi = -widthAdj
+      while (xi <= widthAdj) {
+        var xa = xi * xOutline
+        if (widthAdj == 1 && (xi > 0 || boldStrength >= 1f)) xa *= boldStrength
+        val ya = 1.5f * yOutline
+        setQuadVertices(vertices, x + xa, y + ya, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        drawVertices(batch, tex, vertices)
+        xi += 1
+      }
+    }
 
     // Draw the main glyph
-    vertices(2) = color; vertices(7) = color; vertices(12) = color; vertices(17) = color
+    vertices(2) = drawColor; vertices(7) = drawColor; vertices(12) = drawColor; vertices(17) = drawColor
     vertices(0) = handleIntegerPosition(x + cos * p0x - sin * p0y)
     vertices(1) = handleIntegerPosition(y + sin * p0x + cos * p0y)
     vertices(5) = handleIntegerPosition(x + cos * p1x - sin * p1y)
@@ -1685,8 +1817,149 @@ class Font {
       }
     }
 
-    // TODO: Underline, strikethrough, fancy line effects (ERROR/WARN/NOTE/CONTEXT/SUGGEST)
-    // These are substantial (~200 lines) and depend on BlockUtils.BOX_DRAWING data and ColorUtils
+    // Underline, strikethrough, and fancy line effects
+    val oCenterX     = tr.xAdvance * scaleXLocal * advanceMultiplier * 0.5f
+    val oCenterY     = font.originalCellHeight * osy * 0.5f
+    val oyAdj        = y + (scaleCorrection * sizingY + scaledHeight) * -0.5f + centerY * 0.25f + scaleCorrection
+    val solidBlockGR = font.mapping.getOrElse(font.solidBlock.toInt, tr)
+
+    if ((glyph & Font.UNDERLINE) != 0L && (c < 0xe000 || c >= 0xf800)) {
+      val uix = handleIntegerPosition(ox + oCenterX)
+      val uiy = handleIntegerPosition(oyAdj + oCenterY)
+      val uxs = (ox + oCenterX) - uix
+      val uys = (oyAdj + oCenterY) - uiy
+      val ux  = handleIntegerPosition(uix + uxs) + font.cellWidth * 0.5f
+      val uy  = handleIntegerPosition(uiy + uys)
+      val ucx = oCenterX + uxs * 0.5f
+      val ucy = oCenterY + uys * 0.5f
+
+      val under = font.mapping.getOrElse(0x2500, null)
+      if (under != null && java.lang.Float.isNaN(under.offsetX)) {
+        val up0x = (changedW * (font.underX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * ucx
+        val up0y = -ucy - ((font.underY * font.cellHeight + font.descent * scaleYLocal) * sizingY) + sin * ucx
+
+        if (altMode == Font.HALO || altMode == Font.NEON) {
+          var uxi = 3
+          while (uxi >= 1) {
+            drawBlockSequence(
+              batch,
+              utils.BlockUtils.BOX_DRAWING(0),
+              solidBlockGR,
+              utils.ColorUtils.lerpColorsMultiplyAlpha(secondaryColor, drawColor, Math.min(font.glowStrength * 0.4f / (uxi * uxi), 1f), batchAlpha1_5),
+              ux + (cos * up0x - sin * up0y),
+              uy + (sin * up0x + cos * up0y),
+              changedW * (font.underLength + 1.1f),
+              font.cellHeight * sizingY * (1f + font.underBreadth + uxi * 0.5f),
+              rotation
+            )
+            uxi -= 1
+          }
+        } else if ((glyph & Font.BLACK_OUTLINE) == Font.BLACK_OUTLINE) {
+          drawBlockSequence(
+            batch,
+            utils.BlockUtils.BOX_DRAWING(0),
+            solidBlockGR,
+            utils.ColorUtils.multiplyAlpha(secondaryColor, batchAlpha1_5),
+            ux + (cos * up0x - sin * up0y),
+            uy + (sin * up0x + cos * up0y),
+            changedW * (font.underLength + 1.1f),
+            font.cellHeight * sizingY * (1.75f + font.underBreadth),
+            rotation
+          )
+        }
+
+        drawBlockSequence(
+          batch,
+          utils.BlockUtils.BOX_DRAWING(0),
+          solidBlockGR,
+          drawColor,
+          ux + (cos * up0x - sin * up0y),
+          uy + (sin * up0x + cos * up0y),
+          changedW * (font.underLength + 1.1f),
+          font.cellHeight * sizingY * (1f + font.underBreadth),
+          rotation
+        )
+      }
+    }
+
+    if ((glyph & Font.STRIKETHROUGH) != 0L && (c < 0xe000 || c >= 0xf800)) {
+      val six = handleIntegerPosition(ox + oCenterX)
+      val siy = handleIntegerPosition(oyAdj + oCenterY)
+      val sxs = (ox + oCenterX) - six
+      val sys = (oyAdj + oCenterY) - siy
+      val sx  = handleIntegerPosition(six + sxs) + font.cellWidth * 0.5f
+      val sy  = handleIntegerPosition(siy + sys)
+      val scx = oCenterX + sxs * 0.5f
+      val scy = oCenterY + sys * 0.5f
+
+      val dash = font.mapping.getOrElse(0x2500, null)
+      if (dash != null && java.lang.Float.isNaN(dash.offsetX)) {
+        val sp0x = (changedW * (font.strikeX + 1f)) - font.cellWidth * 0.5f - changedW * 0.1f - cos * scx
+        val sp0y = sin * scx - scy - ((font.strikeY - 0.5f) * font.cellHeight + font.descent * scaleYLocal) * sizingY
+
+        if (altMode == Font.HALO || altMode == Font.NEON) {
+          var sxi = 3
+          while (sxi >= 1) {
+            drawBlockSequence(
+              batch,
+              utils.BlockUtils.BOX_DRAWING(0),
+              solidBlockGR,
+              utils.ColorUtils.lerpColorsMultiplyAlpha(secondaryColor, drawColor, Math.min(font.glowStrength * 0.4f / (sxi * sxi), 1f), batchAlpha1_5),
+              sx + (cos * sp0x - sin * sp0y),
+              sy + (sin * sp0x + cos * sp0y),
+              changedW * (font.strikeLength + 1.1f),
+              font.cellHeight * sizingY * (1f + font.strikeBreadth + sxi * 0.5f),
+              rotation
+            )
+            sxi -= 1
+          }
+        } else if ((glyph & Font.BLACK_OUTLINE) == Font.BLACK_OUTLINE) {
+          drawBlockSequence(
+            batch,
+            utils.BlockUtils.BOX_DRAWING(0),
+            solidBlockGR,
+            utils.ColorUtils.multiplyAlpha(secondaryColor, batchAlpha1_5),
+            sx + (cos * sp0x - sin * sp0y),
+            sy + (sin * sp0x + cos * sp0y),
+            changedW * (font.strikeLength + 1.1f),
+            font.cellHeight * sizingY * (1.75f + font.strikeBreadth),
+            rotation
+          )
+        }
+
+        drawBlockSequence(
+          batch,
+          utils.BlockUtils.BOX_DRAWING(0),
+          solidBlockGR,
+          drawColor,
+          sx + (cos * sp0x - sin * sp0y),
+          sy + (sin * sp0x + cos * sp0y),
+          changedW * (font.strikeLength + 1.1f),
+          font.cellHeight * sizingY * (1f + font.strikeBreadth),
+          rotation
+        )
+      }
+    }
+
+    // Fancy line modes (ERROR, WARN, NOTE, CONTEXT, SUGGEST)
+    if (altMode >= Font.ERROR && altMode <= Font.NOTE && (c < 0xe000 || c >= 0xf800)) {
+      val fix = handleIntegerPosition(ox + oCenterX)
+      val fiy = handleIntegerPosition(oyAdj + oCenterY)
+      val fxs = (ox + oCenterX) - fix
+      val fys = (oyAdj + oCenterY) - fiy
+      val fx  = handleIntegerPosition(fix + fxs)
+      val fy  = handleIntegerPosition(fiy + fys)
+      val fcx = oCenterX + fxs * 0.5f
+      val fcy = oCenterY + fys * 0.5f
+      // Approximate pixel sizes from projection matrix (simplified: assume 1px = 1 world unit fallback)
+      val xPx = 2f / Math.max(1f, batch.projectionMatrix.values(0) * 960f)
+      val yPx = 2f / Math.max(1f, batch.projectionMatrix.values(5) * 540f)
+
+      val fp0x = -cos * fcx + changedW * font.fancyX
+      val fp0y = (font.descent * font.scaleY * 0.5f) * (scale * sizingY - font.fancyY) - fcy + sin * fcx
+
+      drawFancyLine(batch, altMode, fx + (cos * fp0x - sin * fp0y), fy + (sin * fp0x + cos * fp0y), changedW * (1f + underLength), xPx, yPx, rotation)
+    }
 
     changedW
   }

@@ -84,6 +84,26 @@ object ColorUtils {
   def multiplyAlpha(color: Int, alphaMultiplier: Float): Int =
     (color & 0xffffff00) | (((color & 0xff) * alphaMultiplier).toInt & 0xfe)
 
+  /** Multiplies just the alpha channel of an ABGR packed float color by multiplier. */
+  def multiplyAlpha(color: Float, multiplier: Float): Float = {
+    val bits = NumberUtils.floatToIntBits(color)
+    NumberUtils.intBitsToFloat((bits & 0x00ffffff) | Math.min(Math.max(((bits >>> 25) * multiplier).toInt, 0), 127) << 25)
+  }
+
+  /** Interpolates from start towards end by change, then multiplies the alpha of the START color by alphaMultiplier. Uses packed ABGR float format.
+    */
+  def lerpColorsMultiplyAlpha(start: Float, end: Float, change: Float, alphaMultiplier: Float): Float = {
+    val s  = NumberUtils.floatToIntBits(start); val e = NumberUtils.floatToIntBits(end)
+    val sA = s >>> 25; val sB                         = (s >>> 16) & 0xff; val sG = (s >>> 8) & 0xff; val sR = s & 0xff
+    val eB = (e >>> 16) & 0xff; val eG                = (e >>> 8) & 0xff; val eR  = e & 0xff
+    NumberUtils.intBitsToFloat(
+      ((sR + change * (eR - sR)).toInt & 0xff) |
+        (((sG + change * (eG - sG)).toInt & 0xff) << 8) |
+        (((sB + change * (eB - sB)).toInt & 0xff) << 16) |
+        (((sA * alphaMultiplier).toInt & 0x7f) << 25)
+    )
+  }
+
   def lighten(start: Int, change: Float): Int = {
     val r = start >>> 24; val g = start >>> 16 & 0xff; val b = start >>> 8 & 0xff
     val a = start & 0x000000fe
