@@ -20,22 +20,22 @@ class FileHandleResolverTest extends munit.FunSuite {
   }
 
   test("Prefix resolver prepends prefix to filename") {
-    val base = new StubResolver()
+    val base     = new StubResolver()
     val prefixed = new FileHandleResolver.Prefix(base, "assets/")
-    val result = prefixed.resolve("textures/wall.png")
+    val result   = prefixed.resolve("textures/wall.png")
     assert(result.path.contains("assets/textures/wall.png"))
   }
 
   test("Prefix resolver with empty prefix passes through") {
-    val base = new StubResolver()
+    val base     = new StubResolver()
     val prefixed = new FileHandleResolver.Prefix(base, "")
-    val result = prefixed.resolve("textures/wall.png")
+    val result   = prefixed.resolve("textures/wall.png")
     assert(result.path.contains("textures/wall.png"))
   }
 
   test("Prefix resolver baseResolver and prefix are mutable") {
-    val base1 = new StubResolver()
-    val base2 = new StubResolver()
+    val base1    = new StubResolver()
+    val base2    = new StubResolver()
     val prefixed = new FileHandleResolver.Prefix(base1, "v1/")
     assert(prefixed.resolve("f.txt").path.contains("v1/f.txt"))
 
@@ -56,7 +56,7 @@ class FileHandleResolverTest extends munit.FunSuite {
   test("ForResolution.choose returns best match for screen size") {
     // NoopGraphics defaults: backBufferWidth=0, backBufferHeight=0
     // With 0x0, the first descriptor should be chosen
-    val low = FileHandleResolver.Resolution(480, 320, "low")
+    val low  = FileHandleResolver.Resolution(480, 320, "low")
     val high = FileHandleResolver.Resolution(1920, 1080, "high")
     val best = FileHandleResolver.ForResolution.choose(low, high)
     assertEquals(best.folder, "low")
