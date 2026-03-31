@@ -24,13 +24,16 @@ package physics
   * @param timeOfImpact
   *   the parametric distance along the ray (0 = origin, 1 = origin + dir * maxDist)
   * @param bodyHandle
-  *   the native handle of the body that was hit
+  *   the native handle of the rigid body that was hit (via collider's parent)
+  * @param colliderHandle
+  *   the native handle of the specific collider shape that was hit
   */
 final case class RayCastHit(
-  hitX:         Float,
-  hitY:         Float,
-  normalX:      Float,
-  normalY:      Float,
-  timeOfImpact: Float,
-  bodyHandle:   Long
+  hitX:           Float,
+  hitY:           Float,
+  normalX:        Float,
+  normalY:        Float,
+  timeOfImpact:   Float,
+  bodyHandle:     Long,
+  colliderHandle: Long
 )

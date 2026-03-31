@@ -93,7 +93,7 @@ class ModelCache(sorter: RenderableSorter, meshPool: ModelCache.MeshPool)(using 
     result.bones = Nullable.empty
     result.environment = Nullable.empty
     result.material = material
-    result.meshPart.mesh = null.asInstanceOf[Mesh] // pool reset: mesh is always set before use in end()
+    result.meshPart.mesh = null.asInstanceOf[Mesh] // @nowarn — pool reset: mesh is always set before use in end()
     result.meshPart.offset = 0
     result.meshPart.size = 0
     result.meshPart.primitiveType = primitiveType

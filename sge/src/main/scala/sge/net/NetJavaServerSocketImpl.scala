@@ -71,7 +71,7 @@ class NetJavaServerSocketImpl(val protocol: Net.Protocol, hostname: Nullable[Str
     Nullable(server).foreach { s =>
       try {
         s.close()
-        server = null // @nowarn would be needed if orNull was used; raw null at Java interop boundary
+        server = null // @nowarn — Java interop: ServerSocket set to null after close() for GC
       } catch {
         case e: Exception =>
           throw new RuntimeException("Error closing server.", e)

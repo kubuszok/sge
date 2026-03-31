@@ -76,7 +76,7 @@ class TextureArray(data: TextureArrayData)(using Sge) extends GLTexture(TextureT
       0,
       PixelFormat(data.internalFormat),
       DataType(data.glType),
-      null
+      null // @nowarn — GL API: null allocates texture storage without initializing data
     )
 
     if (!data.isPrepared) data.prepare()

@@ -72,7 +72,7 @@ final class DefaultTextureBinder(
 
   override def begin(): Unit =
     for (i <- 0 until _count) {
-      textures(i) = null
+      textures(i) = null // @nowarn — GL texture binding: null = no texture bound to this unit
       if (unitsLRU.nonEmpty) unitsLRU(i) = i
     }
 
