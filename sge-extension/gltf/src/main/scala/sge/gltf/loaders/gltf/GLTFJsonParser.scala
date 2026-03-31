@@ -10,17 +10,21 @@ package loaders
 package gltf
 
 import sge.gltf.data.GLTF
+import sge.gltf.data.GLTFCodecs.given
 import sge.gltf.loaders.exceptions.GLTFRuntimeException
+import sge.utils.readFromString
 
 /** Parses GLTF JSON text into the GLTF data model.
   *
-  * TODO: Implement full JSON-to-GLTF deserialization. The LibGDX version used reflection-based `Json.fromJson(GLTF.class, json)`. SGE uses jsoniter-scala which requires compile-time codec derivation.
-  * Since the GLTF data model uses mutable `var` fields and `Nullable`, a custom codec or manual parser is needed. This is a placeholder that will be completed when the full scene3d subsystem is
-  * ported.
+  * Uses jsoniter-scala with Kindlings-derived codecs (defined in [[sge.gltf.data.GLTFCodecs]]) for compile-time codec derivation. The original LibGDX version used reflection-based
+  * `Json.fromJson(GLTF.class, json)`.
   */
 object GLTFJsonParser {
 
   def parse(jsonString: String): GLTF =
-    // TODO: implement JSON parsing for GLTF data model
-    throw new GLTFRuntimeException("GLTF JSON parsing not yet implemented — requires custom jsoniter-scala codecs for the mutable GLTF data model")
+    try readFromString[GLTF](jsonString)
+    catch {
+      case e: Exception =>
+        throw new GLTFRuntimeException("Failed to parse GLTF JSON: " + e.getMessage, e)
+    }
 }

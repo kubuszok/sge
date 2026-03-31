@@ -1,0 +1,49 @@
+{
+  "name": "sge-core",
+  "libraries": [
+    {
+      "name": "sge_native_ops",
+      "platforms": {
+        "linux-x86_64":    { "flags": ["-lpthread", "-ldl"] },
+        "linux-aarch64":   { "flags": ["-lpthread", "-ldl"] },
+        "macos-x86_64":    { "flags": [] },
+        "macos-aarch64":   { "flags": [] },
+        "windows-x86_64":  { "flags": ["-lntdll", "-lmsvcrt"] },
+        "windows-aarch64": { "flags": ["-lntdll", "-lmsvcrt"] }
+      }
+    },
+    {
+      "name": "sge_audio",
+      "platforms": {
+        "linux-x86_64":    { "flags": [] },
+        "linux-aarch64":   { "flags": [] },
+        "macos-x86_64":    { "flags": ["-framework", "CoreAudio", "-framework", "AudioToolbox"] },
+        "macos-aarch64":   { "flags": ["-framework", "CoreAudio", "-framework", "AudioToolbox"] },
+        "windows-x86_64":  { "flags": [] },
+        "windows-aarch64": { "flags": [] }
+      }
+    },
+    {
+      "name": "glfw3",
+      "platforms": {
+        "linux-x86_64":    { "flags": [] },
+        "linux-aarch64":   { "flags": [] },
+        "macos-x86_64":    { "flags": ["-framework", "Cocoa", "-framework", "IOKit", "-framework", "CoreFoundation", "-framework", "CoreVideo", "-framework", "CoreGraphics", "-framework", "QuartzCore", "-lobjc"] },
+        "macos-aarch64":   { "flags": ["-framework", "Cocoa", "-framework", "IOKit", "-framework", "CoreFoundation", "-framework", "CoreVideo", "-framework", "CoreGraphics", "-framework", "QuartzCore", "-lobjc"] },
+        "windows-x86_64":  { "flags": [] },
+        "windows-aarch64": { "flags": [] }
+      }
+    },
+    {
+      "name": "freetype",
+      "platforms": {
+        "linux-x86_64":    { "flags": [] },
+        "linux-aarch64":   { "flags": [] },
+        "macos-x86_64":    { "flags": [] },
+        "macos-aarch64":   { "flags": [] },
+        "windows-x86_64":  { "flags": [] },
+        "windows-aarch64": { "flags": [] }
+      }
+    }
+  ]
+}

@@ -30,3 +30,7 @@ pub mod physics;
 
 #[cfg(feature = "image_decode")]
 pub mod gdx2d;
+
+// Note: Controller/joystick FFI is handled directly by the sge-controllers
+// extension via GLFW calls (Scala Native @link("glfw3") / JVM Panama).
+// No Rust wrapper needed since GLFW is already linked by sge-core.
