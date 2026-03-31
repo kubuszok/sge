@@ -10,7 +10,7 @@ package algorithms
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import sge.graphs.utils.{Heuristic, SearchProcessor}
+import sge.graphs.utils.{ Heuristic, SearchProcessor }
 
 /** Factory/coordinator for graph algorithms. */
 abstract class Algorithms[V](protected val graph: Graph[V]) {
@@ -19,24 +19,21 @@ abstract class Algorithms[V](protected val graph: Graph[V]) {
 
   def requestRunID(): Int = runID.getAndIncrement()
 
-  //--------------------
+  // --------------------
   //  Shortest Path
-  //--------------------
+  // --------------------
 
   /** Find a shortest path from the start vertex to the target vertex, using Dijkstra's algorithm. */
-  def findShortestPath(start: V, target: V): Path[V] = {
+  def findShortestPath(start: V, target: V): Path[V] =
     findShortestPath(start, target, null.asInstanceOf[Heuristic[V]], null.asInstanceOf[SearchProcessor[V]]) // @nowarn — null means no heuristic/processor
-  }
 
   /** Find a shortest path with a search processor callback. */
-  def findShortestPath(start: V, target: V, processor: SearchProcessor[V]): Path[V] = {
+  def findShortestPath(start: V, target: V, processor: SearchProcessor[V]): Path[V] =
     findShortestPath(start, target, null.asInstanceOf[Heuristic[V]], processor) // @nowarn — null means no heuristic
-  }
 
   /** Find a shortest path using A* search with the provided heuristic. */
-  def findShortestPath(start: V, target: V, heuristic: Heuristic[V]): Path[V] = {
+  def findShortestPath(start: V, target: V, heuristic: Heuristic[V]): Path[V] =
     findShortestPath(start, target, heuristic, null.asInstanceOf[SearchProcessor[V]]) // @nowarn — null means no processor
-  }
 
   /** Find a shortest path using A* search with heuristic and processor. */
   def findShortestPath(start: V, target: V, heuristic: Heuristic[V], processor: SearchProcessor[V]): Path[V] = {
@@ -47,16 +44,15 @@ abstract class Algorithms[V](protected val graph: Graph[V]) {
 
   /** Create a new A* search that can be stepped. */
   def newAStarSearch(start: V, target: V, heuristic: Heuristic[V], processor: SearchProcessor[V]): AStarSearch[V] = {
-    val startNode = graph.getNode(start)
+    val startNode  = graph.getNode(start)
     val targetNode = graph.getNode(target)
     if (startNode == null || targetNode == null) throw IllegalArgumentException("At least one vertex is not in the graph")
     AStarSearch[V](requestRunID(), startNode, targetNode, heuristic, processor)
   }
 
   /** Find the length of a shortest path from the start vertex to the target vertex. */
-  def findMinimumDistance(start: V, target: V): Float = {
+  def findMinimumDistance(start: V, target: V): Float =
     findMinimumDistance(start, target, null.asInstanceOf[Heuristic[V]]) // @nowarn — null means no heuristic
-  }
 
   /** Find the length of a shortest path using A* with the provided heuristic. */
   def findMinimumDistance(start: V, target: V, heuristic: Heuristic[V]): Float = {
@@ -67,13 +63,12 @@ abstract class Algorithms[V](protected val graph: Graph[V]) {
   }
 
   /** Checks whether there exists a path from the start vertex to target vertex. */
-  def isConnected(start: V, target: V): Boolean = {
+  def isConnected(start: V, target: V): Boolean =
     findMinimumDistance(start, target) < Float.MaxValue
-  }
 
-  //--------------------
+  // --------------------
   // Graph Searching
-  //--------------------
+  // --------------------
 
   /** Perform a breadth first search starting from the specified vertex. */
   def breadthFirstSearch(v: V, processor: SearchProcessor[V]): Unit = {
@@ -96,12 +91,11 @@ abstract class Algorithms[V](protected val graph: Graph[V]) {
     AStarSearch[V](requestRunID(), node, null.asInstanceOf[Node[V]], null.asInstanceOf[Heuristic[V]], processor).finish() // @nowarn — null target/heuristic for open-ended search
   }
 
-  //--------------------
+  // --------------------
   //  Structures
-  //--------------------
+  // --------------------
 
   /** Checks whether there are any cycles in the graph using depth first searches. */
-  def containsCycle(): Boolean = {
+  def containsCycle(): Boolean =
     CycleDetector[V](requestRunID(), graph).containsCycle
-  }
 }

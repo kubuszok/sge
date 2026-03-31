@@ -18,25 +18,23 @@ package systems
 import sge.ecs.utils.ImmutableArray
 import sge.utils.Nullable
 
-/** A simple [[EntitySystem]] that processes a [[Family]] of entities not once per frame, but after a
-  * given interval. Entity processing logic should be placed in [[processEntity]].
+/** A simple [[EntitySystem]] that processes a [[Family]] of entities not once per frame, but after a given interval. Entity processing logic should be placed in [[processEntity]].
   *
   * @author
   *   David Saltares (original implementation)
   */
 abstract class IntervalIteratingSystem(
-    val family: Family,
-    interval: Float,
-    priority: Int = 0
+  val family: Family,
+  interval:   Float,
+  priority:   Int = 0
 ) extends IntervalSystem(interval, priority) {
 
   private var entities: Nullable[ImmutableArray[Entity]] = Nullable.empty
 
-  override def addedToEngine(engine: Engine): Unit = {
+  override def addedToEngine(engine: Engine): Unit =
     entities = Nullable(engine.getEntitiesFor(family))
-  }
 
-  override protected def updateInterval(): Unit = {
+  override protected def updateInterval(): Unit =
     entities.foreach { ents =>
       startProcessing()
       var i = 0
@@ -46,23 +44,21 @@ abstract class IntervalIteratingSystem(
       }
       endProcessing()
     }
-  }
 
   /** @return set of entities processed by the system */
   def getEntities: Nullable[ImmutableArray[Entity]] = entities
 
   /** The user should place the entity processing logic here.
-    * @param entity The current entity being processed
+    * @param entity
+    *   The current entity being processed
     */
   protected def processEntity(entity: Entity): Unit
 
-  /** This method is called once on every update call of the EntitySystem, before entity processing begins.
-    * Override this method to implement your specific startup conditions.
+  /** This method is called once on every update call of the EntitySystem, before entity processing begins. Override this method to implement your specific startup conditions.
     */
   def startProcessing(): Unit = {}
 
-  /** This method is called once on every update call of the EntitySystem after entity processing is complete.
-    * Override this method to implement your specific end conditions.
+  /** This method is called once on every update call of the EntitySystem after entity processing is complete. Override this method to implement your specific end conditions.
     */
   def endProcessing(): Unit = {}
 }

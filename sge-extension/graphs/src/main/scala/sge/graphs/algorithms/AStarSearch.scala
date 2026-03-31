@@ -8,32 +8,35 @@ package sge
 package graphs
 package algorithms
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphs.internal.BinaryHeap
-import sge.graphs.utils.{Heuristic, SearchProcessor}
+import sge.graphs.utils.{ Heuristic, SearchProcessor }
 
 /** A* search / Dijkstra's algorithm for shortest path finding. */
 class AStarSearch[V] private[algorithms] (
-    id: Int,
-    start: Node[V],
-    target: Node[V],
-    heuristic: Heuristic[V],
-    processor: SearchProcessor[V]
+  id:        Int,
+  start:     Node[V],
+  target:    Node[V],
+  heuristic: Heuristic[V],
+  processor: SearchProcessor[V]
 ) extends Algorithm[V](id) {
 
   private val step: SearchStep[V] = SearchStep[V]()
   private val heap: BinaryHeap[V] = BinaryHeap[V]()
-  private var u: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — current node during search
-  private var end: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — result node
-  private var path: Path[V] = null.asInstanceOf[Path[V]] // @nowarn — lazily constructed
+  private var u:    Node[V]       = null.asInstanceOf[Node[V]] // @nowarn — current node during search
+  private var end:  Node[V]       = null.asInstanceOf[Node[V]] // @nowarn — result node
+  private var path: Path[V]       = null.asInstanceOf[Path[V]] // @nowarn — lazily constructed
 
   // Initialize
   start.resetAlgorithmAttribs(id)
   start.distance = 0f
   heap.add(start)
 
-  override def update(): Boolean = {
+  override def update(): Boolean = boundary {
     if (isFinished) {
-      return true
+      break(true)
     }
 
     u = heap.pop()
@@ -44,10 +47,10 @@ class AStarSearch[V] private[algorithms] (
         processor.accept(step)
         if (step.terminateFlag) {
           heap.clear()
-          return true
+          break(true)
         }
         if (step.ignoreFlag) {
-          return isFinished
+          break(isFinished)
         }
       }
       u.processed = true
@@ -55,7 +58,7 @@ class AStarSearch[V] private[algorithms] (
       if (u eq target) {
         heap.clear()
         end = u
-        return true
+        break(true)
       }
 
       val outEdges = u.outEdges
@@ -89,15 +92,14 @@ class AStarSearch[V] private[algorithms] (
 
   override def isFinished: Boolean = heap.size == 0
 
-  def getPath: Path[V] = {
-    if (!isFinished) {
-      return null.asInstanceOf[Path[V]] // @nowarn — not finished yet
+  def getPath: Path[V] =
+    if (!isFinished) null.asInstanceOf[Path[V]] // @nowarn — not finished yet
+    else {
+      if (path == null) {
+        path = if (end != null) AlgorithmPath[V](end) else Path.emptyPath[V]
+      }
+      path
     }
-    if (path == null) {
-      path = if (end != null) AlgorithmPath[V](end) else Path.emptyPath[V]
-    }
-    path
-  }
 
   private[algorithms] def getEnd: Node[V] = end
 }

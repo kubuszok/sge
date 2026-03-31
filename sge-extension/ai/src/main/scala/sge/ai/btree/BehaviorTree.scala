@@ -33,8 +33,7 @@ class BehaviorTree[E](
   this.tree = Nullable(this)
   private[btree] val guardEvaluator: GuardEvaluator[E] = new GuardEvaluator[E](this)
 
-  // @nowarn — null used for lazy init; checked before use in notification methods
-  var listeners: DynamicArray[BehaviorTree.Listener[E]] = null
+  private var _listeners: Nullable[DynamicArray[BehaviorTree.Listener[E]]] = Nullable.empty
 
   /** Returns the blackboard object of this behavior tree. */
   override def getObject: E =
@@ -110,37 +109,43 @@ class BehaviorTree[E](
   override def newInstance(): Task[E] = new BehaviorTree[E](Nullable.empty[Task[E]], Nullable.empty[E])
 
   def addListener(listener: BehaviorTree.Listener[E]): Unit = {
-    if (listeners == null) listeners = DynamicArray[BehaviorTree.Listener[E]]() // @nowarn — null checked for lazy init
-    listeners.add(listener)
+    val ls = _listeners.getOrElse {
+      val arr = DynamicArray[BehaviorTree.Listener[E]]()
+      _listeners = Nullable(arr)
+      arr
+    }
+    ls.add(listener)
   }
 
   def removeListener(listener: BehaviorTree.Listener[E]): Unit =
-    if (listeners != null) listeners.removeValue(listener) // @nowarn — null check
+    Nullable.foreach(_listeners)(_.removeValue(listener))
 
   def removeListeners(): Unit =
-    if (listeners != null) listeners.clear() // @nowarn — null check
+    Nullable.foreach(_listeners)(_.clear())
 
-  def notifyStatusUpdated(task: Task[E], previousStatus: Task.Status): Unit = {
-    var i = 0
-    while (i < listeners.size) {
-      listeners(i).statusUpdated(task, previousStatus)
-      i += 1
+  def notifyStatusUpdated(task: Task[E], previousStatus: Task.Status): Unit =
+    Nullable.foreach(_listeners) { ls =>
+      var i = 0
+      while (i < ls.size) {
+        ls(i).statusUpdated(task, previousStatus)
+        i += 1
+      }
     }
-  }
 
-  def notifyChildAdded(task: Task[E], index: Int): Unit = {
-    var i = 0
-    while (i < listeners.size) {
-      listeners(i).childAdded(task, index)
-      i += 1
+  def notifyChildAdded(task: Task[E], index: Int): Unit =
+    Nullable.foreach(_listeners) { ls =>
+      var i = 0
+      while (i < ls.size) {
+        ls(i).childAdded(task, index)
+        i += 1
+      }
     }
-  }
 
   override def reset(): Unit = {
     removeListeners()
     this.rootTask = Nullable.empty
     this.obj = Nullable.empty
-    this.listeners = null // @nowarn — reset to null for lazy init pattern
+    this._listeners = Nullable.empty
     super.reset()
   }
 }

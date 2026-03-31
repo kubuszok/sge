@@ -18,24 +18,24 @@ import scala.collection.mutable.ArrayBuffer
 
 /** Wraps [[FrameBuffer]] and manages currently bound OpenGL FBO.
   *
-  * This implementation supports nested frame buffer drawing approach. You can use multiple instances of this class to draw into one
-  * frame buffer while you drawing into another one, the OpenGL state will be managed properly.
+  * This implementation supports nested frame buffer drawing approach. You can use multiple instances of this class to draw into one frame buffer while you drawing into another one, the OpenGL state
+  * will be managed properly.
   *
   * <b>NOTE:</b> Depth and stencil buffers are not supported.
   */
 class VfxFrameBuffer(val pixelFormat: Pixmap.Format)(using Sge) extends AutoCloseable {
 
   private val localProjection: Matrix4 = Matrix4()
-  private val localTransform: Matrix4 = Matrix4()
+  private val localTransform:  Matrix4 = Matrix4()
 
   private val renderers: VfxFrameBuffer.RendererManager = VfxFrameBuffer.RendererManager()
 
   private val preservedViewport: VfxGlViewport = VfxGlViewport()
-  private var previousFboHandle: Int = 0
+  private var previousFboHandle: Int           = 0
 
-  private var fbo: Nullable[FrameBuffer] = Nullable.empty
-  private var _initialized: Boolean = false
-  private var _drawing: Boolean = false
+  private var fbo:          Nullable[FrameBuffer] = Nullable.empty
+  private var _initialized: Boolean               = false
+  private var _drawing:     Boolean               = false
 
   override def close(): Unit =
     reset()
@@ -56,7 +56,7 @@ class VfxFrameBuffer(val pixelFormat: Pixmap.Format)(using Sge) extends AutoClos
     localTransform.idt()
   }
 
-  def reset(): Unit = {
+  def reset(): Unit =
     if (!_initialized) {
       // do nothing
     } else {
@@ -64,7 +64,6 @@ class VfxFrameBuffer(val pixelFormat: Pixmap.Format)(using Sge) extends AutoClos
       fbo.get.close()
       fbo = Nullable.empty
     }
-  }
 
   def getFbo: Nullable[FrameBuffer] = fbo
 
@@ -146,18 +145,19 @@ class VfxFrameBuffer(val pixelFormat: Pixmap.Format)(using Sge) extends AutoClos
 }
 
 object VfxFrameBuffer {
+
   /** Current depth of buffer nesting rendering (keeps track of how many buffers are currently activated). */
   var bufferNesting: Int = 0
 
   trait Renderer {
-    def flush(): Unit
+    def flush():                                                      Unit
     def assignLocalMatrices(projection: Matrix4, transform: Matrix4): Unit
-    def restoreOwnMatrices(): Unit
+    def restoreOwnMatrices():                                         Unit
   }
 
   abstract class RendererAdapter extends Renderer {
     private val preservedProjection: Matrix4 = Matrix4()
-    private val preservedTransform: Matrix4 = Matrix4()
+    private val preservedTransform:  Matrix4 = Matrix4()
 
     override def assignLocalMatrices(projection: Matrix4, transform: Matrix4): Unit = {
       preservedProjection.set(getProjection)
@@ -168,10 +168,10 @@ object VfxFrameBuffer {
     override def restoreOwnMatrices(): Unit =
       setProjection(preservedProjection)
 
-    protected def getProjection: Matrix4
-    protected def getTransform: Matrix4
+    protected def getProjection:                      Matrix4
+    protected def getTransform:                       Matrix4
     protected def setProjection(projection: Matrix4): Unit
-    protected def setTransform(transform: Matrix4): Unit
+    protected def setTransform(transform:   Matrix4): Unit
   }
 
   private class RendererManager extends Renderer {

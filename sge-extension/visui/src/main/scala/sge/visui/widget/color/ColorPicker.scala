@@ -20,8 +20,8 @@ import sge.visui.VisUI
 import sge.visui.widget.{ ButtonBar, VisTable, VisTextButton, VisWindow }
 import sge.visui.widget.color.internal.ColorPickerText.*
 
-/** Color Picker dialog, allows user to select color. ColorPicker is relatively heavy dialog and should be reused whenever possible. This dialog must be disposed when no longer needed!
-  * ColorPicker will be centered on screen after adding to Stage use [[setCenterOnAdd]] to change this.
+/** Color Picker dialog, allows user to select color. ColorPicker is relatively heavy dialog and should be reused whenever possible. This dialog must be disposed when no longer needed! ColorPicker
+  * will be centered on screen after adding to Stage use [[setCenterOnAdd]] to change this.
   * @author
   *   Kotcrab
   * @see
@@ -30,8 +30,7 @@ import sge.visui.widget.color.internal.ColorPickerText.*
   *   [[BasicColorPicker]]
   * @see
   *   [[ExtendedColorPicker]]
-  * @since
-  *   0.6.0
+  * @since 0.6.0
   */
 class ColorPicker(styleName: String, title: Nullable[String], initListener: Nullable[ColorPickerListener])(using Sge)
     extends VisWindow(if (title.isDefined) title.get else "", VisUI.getSkin.get(styleName, classOf[ColorPickerStyle])) {
@@ -92,25 +91,28 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
 
   private def createListeners(): Unit = {
     restoreButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
         picker.restoreLastColor()
-      }
     })
 
-    okButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        if (_listener.isDefined) _listener.get.finished(new Color(picker.pickerColor))
-        setPickerColor(picker.pickerColor)
-        if (_closeAfterPickingFinished) fadeOut()
+    okButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          if (_listener.isDefined) _listener.get.finished(new Color(picker.pickerColor))
+          setPickerColor(picker.pickerColor)
+          if (_closeAfterPickingFinished) fadeOut()
+        }
       }
-    })
+    )
 
-    cancelButton.addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        fadeOutDueToCanceled = true
-        close()
+    cancelButton.addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+          fadeOutDueToCanceled = true
+          close()
+        }
       }
-    })
+    )
   }
 
   override protected[sge] def setStage(stage: Nullable[Stage]): Unit = {
@@ -121,12 +123,11 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
     }
   }
 
-  /** Controls whether to fade out color picker after users finished color picking and has pressed OK button. If this is set to false picker won't close after pressing OK button. Default is
-    * true. Note that by default picker is a modal window so might also want to call `colorPicker.setModal(false)` to disable it.
+  /** Controls whether to fade out color picker after users finished color picking and has pressed OK button. If this is set to false picker won't close after pressing OK button. Default is true. Note
+    * that by default picker is a modal window so might also want to call `colorPicker.setModal(false)` to disable it.
     */
-  def closeAfterPickingFinished_=(closeAfterPickingFinished: Boolean): Unit = {
+  def closeAfterPickingFinished_=(closeAfterPickingFinished: Boolean): Unit =
     _closeAfterPickingFinished = closeAfterPickingFinished
-  }
 
   def closeAfterPickingFinished: Boolean = _closeAfterPickingFinished
 
@@ -136,9 +137,8 @@ class ColorPicker(styleName: String, title: Nullable[String], initListener: Null
   }
 
   /** Disposes the picker resources. */
-  def dispose(): Unit = {
+  def dispose(): Unit =
     picker.close()
-  }
 
   /** @return internal dialog color picker */
   def getPicker: ExtendedColorPicker = picker

@@ -9,7 +9,8 @@ package controllers
 
 /** Registered with [[Controllers]] or a specific [[Controller]] instance to receive events.
   *
-  * @author Nathan Sweet
+  * @author
+  *   Nathan Sweet
   */
 trait ControllerListener {
 

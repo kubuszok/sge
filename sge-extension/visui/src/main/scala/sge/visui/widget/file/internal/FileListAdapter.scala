@@ -26,9 +26,8 @@ class FileListAdapter(val chooser: FileChooser, files: DynamicArray[FileHandle])
   private val orderedViews: DynamicArray[FileChooser#FileItem] = DynamicArray[FileChooser#FileItem]()
   private val gridGroup:    GridGroup                          = new GridGroup(128f, 2f)
 
-  override protected def createView(item: FileHandle): FileChooser#FileItem = {
+  override protected def createView(item: FileHandle): FileChooser#FileItem =
     chooser.createFileItem(item, chooser.getViewMode)
-  }
 
   override def fillTable(itemsTable: VisTable): Unit = {
     getViews.clear() // clear cache

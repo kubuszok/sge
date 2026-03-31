@@ -12,8 +12,8 @@ import sge.graphics.{ Color, Pixmap }
 
 import ConstantData.ENCODED_SNUGGLY
 
-/** This is just like [[PaletteReducer]], except that it uses a higher-quality, slower color difference calculation when creating a palette. This calculates the difference between colors using Euclidean
-  * distance in RGB color space, rather than what PaletteReducer uses, which is Euclidean distance in Oklab.
+/** This is just like [[PaletteReducer]], except that it uses a higher-quality, slower color difference calculation when creating a palette. This calculates the difference between colors using
+  * Euclidean distance in RGB color space, rather than what PaletteReducer uses, which is Euclidean distance in Oklab.
   */
 class FastPalette extends PaletteReducer {
 

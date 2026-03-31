@@ -12,8 +12,8 @@ package algorithms
 class UndirectedGraphAlgorithms[V](graph: UndirectedGraph[V]) extends Algorithms[V](graph) {
 
   /** Find a minimum weight spanning tree using Kruskal's algorithm.
-    * @return a Graph object containing a minimum weight spanning tree (if this graph is connected,
-    * in general a minimum weight spanning forest)
+    * @return
+    *   a Graph object containing a minimum weight spanning tree (if this graph is connected, in general a minimum weight spanning forest)
     */
   def findMinimumWeightSpanningTree(): UndirectedGraph[V] = {
     val algorithm = MinimumWeightSpanningTree[V](requestRunID(), graph, true)

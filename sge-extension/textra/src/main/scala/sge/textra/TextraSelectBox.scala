@@ -26,23 +26,21 @@ import sge.utils.Nullable
   */
 class TextraSelectBox(style: Styles.SelectBoxStyle) {
 
-  private var _style: Styles.SelectBoxStyle = style
-  val items: ArrayBuffer[TextraLabel] = ArrayBuffer.empty
-  private var _selectedIndex: Int = -1
-  var disabled: Boolean = false
-  private var _alignment: Int = 8 // Align.left
-  var selectedPrefWidth: Boolean = false
-  var maxListCount: Int = 0
+  private var _style:         Styles.SelectBoxStyle    = style
+  val items:                  ArrayBuffer[TextraLabel] = ArrayBuffer.empty
+  private var _selectedIndex: Int                      = -1
+  var disabled:               Boolean                  = false
+  private var _alignment:     Int                      = 8 // Align.left
+  var selectedPrefWidth:      Boolean                  = false
+  var maxListCount:           Int                      = 0
 
-  def setStyle(style: Styles.SelectBoxStyle): Unit = {
+  def setStyle(style: Styles.SelectBoxStyle): Unit =
     this._style = style
-  }
 
   def getStyle: Styles.SelectBoxStyle = _style
 
-  def setMaxListCount(maxListCount: Int): Unit = {
+  def setMaxListCount(maxListCount: Int): Unit =
     this.maxListCount = maxListCount
-  }
 
   def getMaxListCount: Int = maxListCount
 
@@ -57,33 +55,29 @@ class TextraSelectBox(style: Styles.SelectBoxStyle) {
 
   def getSelectedIndex: Int = _selectedIndex
 
-  def setSelectedIndex(index: Int): Unit = {
+  def setSelectedIndex(index: Int): Unit =
     if (index >= -1 && index < items.size) {
       _selectedIndex = index
     }
-  }
 
-  def getSelected: Nullable[TextraLabel] = {
+  def getSelected: Nullable[TextraLabel] =
     if (_selectedIndex >= 0 && _selectedIndex < items.size) Nullable(items(_selectedIndex))
     else Nullable.empty
-  }
 
   def clearItems(): Unit = {
     items.clear()
     _selectedIndex = -1
   }
 
-  def setAlignment(alignment: Int): Unit = {
+  def setAlignment(alignment: Int): Unit =
     this._alignment = alignment
-  }
 
   def getAlignment: Int = _alignment
 
   def isDisabled: Boolean = disabled
 
-  def setDisabled(disabled: Boolean): Unit = {
+  def setDisabled(disabled: Boolean): Unit =
     this.disabled = disabled
-  }
 
   def showScrollPane(): Unit = {
     // Deferred: requires scene2d Stage integration

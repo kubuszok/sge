@@ -21,8 +21,10 @@ package signals
   */
 trait Listener[A] {
 
-  /** @param signal The Signal that triggered event
-    * @param obj The object passed on dispatch
+  /** @param signal
+    *   The Signal that triggered event
+    * @param obj
+    *   The object passed on dispatch
     */
   def receive(signal: Signal[A], obj: A): Unit
 }

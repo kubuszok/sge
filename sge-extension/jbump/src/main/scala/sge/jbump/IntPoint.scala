@@ -17,18 +17,16 @@ class IntPoint(var x: Int, var y: Int) {
     this.y = y
   }
 
-  override def equals(o: Any): Boolean = {
+  override def equals(o: Any): Boolean =
     o match {
       case that: IntPoint =>
         (this eq that) || (x == that.x && y == that.y)
       case _ => false
     }
-  }
 
-  override def hashCode(): Int = {
+  override def hashCode(): Int =
     // Rosenberg-Strong pairing function, only works for non-negative coordinates
     if (x >= y) x * (x + 2) - y else y * y + x
-  }
 
   override def toString: String = s"($x, $y)"
 }

@@ -18,8 +18,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.boundary
 import scala.util.boundary.break
 
-/** Provides a way to capture the rendered scene to an off-screen buffer and to apply a chain of effects on it before rendering to
-  * screen.
+/** Provides a way to capture the rendered scene to an off-screen buffer and to apply a chain of effects on it before rendering to screen.
   *
   * Effects can be added or removed via [[addEffect]] and [[removeEffect]].
   *
@@ -31,20 +30,20 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
   def this(fboFormat: Pixmap.Format)(using Sge) =
     this(fboFormat, Sge().graphics.backBufferWidth.toInt, Sge().graphics.backBufferHeight.toInt)
 
-  private val effects: PrioritizedArray[ChainVfxEffect] = PrioritizedArray()
-  private val tmpEffectArray: ArrayBuffer[ChainVfxEffect] = ArrayBuffer.empty
+  private val effects:        PrioritizedArray[ChainVfxEffect] = PrioritizedArray()
+  private val tmpEffectArray: ArrayBuffer[ChainVfxEffect]      = ArrayBuffer.empty
 
   private val context: VfxRenderContext = VfxRenderContext(fboFormat, bufferWidth, bufferHeight)
 
   // VfxFrameBufferPool will manage both ping-pong VfxFrameBuffer instances for us.
   private val pingPongWrapper: VfxPingPongWrapper = VfxPingPongWrapper(context.bufferPool)
 
-  private var _capturing: Boolean = false
-  private var _disabled: Boolean = false
+  private var _capturing:       Boolean = false
+  private var _disabled:        Boolean = false
   private var _applyingEffects: Boolean = false
   private var _blendingEnabled: Boolean = false
 
-  private var _width: Int = bufferWidth
+  private var _width:  Int = bufferWidth
   private var _height: Int = bufferHeight
 
   override def close(): Unit = {
@@ -52,25 +51,24 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
     context.close()
   }
 
-  def width: Int = _width
+  def width:  Int = _width
   def height: Int = _height
 
   def capturing: Boolean = _capturing
 
-  def disabled: Boolean = _disabled
-  def disabled_=(value: Boolean): Unit = _disabled = value
+  def disabled:                   Boolean = _disabled
+  def disabled_=(value: Boolean): Unit    = _disabled = value
 
-  def blendingEnabled: Boolean = _blendingEnabled
-  def blendingEnabled_=(value: Boolean): Unit = _blendingEnabled = value
+  def blendingEnabled:                   Boolean = _blendingEnabled
+  def blendingEnabled_=(value: Boolean): Unit    = _blendingEnabled = value
 
-  /** Returns the internal framebuffers' pixel format, computed from the parameters specified during construction. NOTE: the returned
-    * Format will be valid after construction and NOT early!
+  /** Returns the internal framebuffers' pixel format, computed from the parameters specified during construction. NOTE: the returned Format will be valid after construction and NOT early!
     */
   def pixelFormat: Pixmap.Format = context.pixelFormat
 
   def setEffectTextureParams(
-    textureWrapU: Texture.TextureWrap,
-    textureWrapV: Texture.TextureWrap,
+    textureWrapU:     Texture.TextureWrap,
+    textureWrapV:     Texture.TextureWrap,
     textureFilterMin: Texture.TextureFilter,
     textureFilterMag: Texture.TextureFilter
   ): Unit =
@@ -86,8 +84,8 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
 
   def renderContext: VfxRenderContext = context
 
-  /** Adds an effect to the effect chain and transfers ownership to the VfxManager. The order of the inserted effects IS important,
-    * since effects will be applied in a FIFO fashion, the first added is the first being applied.
+  /** Adds an effect to the effect chain and transfers ownership to the VfxManager. The order of the inserted effects IS important, since effects will be applied in a FIFO fashion, the first added is
+    * the first being applied.
     *
     * For more control over the order supply the effect with a priority - [[addEffect(effect:sge\.vfx\.effects\.ChainVfxEffect,priority:Int)*]].
     */
@@ -175,14 +173,12 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
     pingPongWrapper.end()
   }
 
-  /** Sets up a (captured?) source scene that will be used later as an input for effect processing. Updates the effect chain src
-    * buffer with the data provided.
+  /** Sets up a (captured?) source scene that will be used later as an input for effect processing. Updates the effect chain src buffer with the data provided.
     */
   def useAsInput(frameBuffer: VfxFrameBuffer): Unit =
     useAsInput(frameBuffer.texture.get)
 
-  /** Sets up a (captured?) source scene that will be used later as an input for effect processing. Updates the effect chain src
-    * buffer with the data provided.
+  /** Sets up a (captured?) source scene that will be used later as an input for effect processing. Updates the effect chain src buffer with the data provided.
     */
   def useAsInput(texture: Texture): Unit = {
     if (_capturing) {
@@ -284,7 +280,7 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
     if (_blendingEnabled) { gl.glDisable(EnableCap.Blend) }
   }
 
-  def anyEnabledEffects: Boolean = {
+  def anyEnabledEffects: Boolean =
     boundary {
       var i = 0
       while (i < effects.size) {
@@ -295,7 +291,6 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
       }
       false
     }
-  }
 
   private def filterEnabledEffects(out: ArrayBuffer[ChainVfxEffect]): ArrayBuffer[ChainVfxEffect] = {
     var i = 0
@@ -312,9 +307,8 @@ final class VfxManager(fboFormat: Pixmap.Format, bufferWidth: Int, bufferHeight:
 
 object VfxManager {
 
-  /** The maximum side size of a frame buffer managed by any VfxManager instance. This value constrains the internal size of a
-    * VfxManager and in case width or height is greater than this value the result size values will be fitted within
-    * MAX_FRAME_BUFFER_SIDE by MAX_FRAME_BUFFER_SIDE square keeping the aspect ratio.
+  /** The maximum side size of a frame buffer managed by any VfxManager instance. This value constrains the internal size of a VfxManager and in case width or height is greater than this value the
+    * result size values will be fitted within MAX_FRAME_BUFFER_SIDE by MAX_FRAME_BUFFER_SIDE square keeping the aspect ratio.
     */
   val MAX_FRAME_BUFFER_SIDE: Int = 8192
 

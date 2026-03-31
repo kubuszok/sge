@@ -41,12 +41,11 @@ abstract class AbstractRoomGenerator extends AbstractGenerator {
   def getRoomTypes: ArrayList[RoomType] = roomTypes
 
   /** @param roomType
-    *   determines how the room is carved. Room type is chosen at random during room generating. Note that you can add a
-    *   single room type multiple times to make it more likely for the type to be chosen.
+    *   determines how the room is carved. Room type is chosen at random during room generating. Note that you can add a single room type multiple times to make it more likely for the type to be
+    *   chosen.
     */
-  def addRoomType(roomType: RoomType): Unit = {
+  def addRoomType(roomType: RoomType): Unit =
     roomTypes.add(roomType)
-  }
 
   /** @param roomType
     *   determines how the room is carved.
@@ -64,9 +63,8 @@ abstract class AbstractRoomGenerator extends AbstractGenerator {
   /** @param types
     *   determine how the rooms are carved. Room type is chosen at random during room generating.
     */
-  def addRoomTypes(types: RoomType*): Unit = {
+  def addRoomTypes(types: RoomType*): Unit =
     types.foreach(addRoomType)
-  }
 
   /** @param grid
     *   contains the room.
@@ -75,24 +73,25 @@ abstract class AbstractRoomGenerator extends AbstractGenerator {
     * @param value
     *   value used to fill the room.
     */
-  protected def carveRoom(grid: Grid, room: AbstractRoomGenerator.Room, value: Float): Unit = {
+  protected def carveRoom(grid: Grid, room: AbstractRoomGenerator.Room, value: Float): Unit =
     if (roomTypes.isEmpty) { // No types specified: carving whole room:
       room.fill(grid, value)
     } else {
-      var index = Generators.randomIndex(roomTypes)
+      var index         = Generators.randomIndex(roomTypes)
       val originalIndex = index
-      var roomType = roomTypes.get(index)
-      while (!roomType.isValid(room)) {
+      var roomType      = roomTypes.get(index)
+      var noValidType   = false
+      while (!roomType.isValid(room) && !noValidType) {
         index = (index + 1) % roomTypes.size()
         if (index == originalIndex) { // No valid types found for the room:
           room.fill(grid, value)
-          return // scalastyle:ignore -- early exit for performance
+          noValidType = true
+        } else {
+          roomType = roomTypes.get(index)
         }
-        roomType = roomTypes.get(index)
       }
-      roomType.carve(room, grid, value)
+      if (!noValidType) roomType.carve(room, grid, value)
     }
-  }
 
   /** @param grid
     *   will be used to generate bounds of the room.
@@ -108,8 +107,8 @@ abstract class AbstractRoomGenerator extends AbstractGenerator {
       )
     }
     val random = Generators.getRandom
-    val x = normalizePosition(random.nextInt(grid.width - w))
-    val y = normalizePosition(random.nextInt(grid.height - h))
+    val x      = normalizePosition(random.nextInt(grid.width - w))
+    val y      = normalizePosition(random.nextInt(grid.height - h))
     new AbstractRoomGenerator.Room(x, y, w, h)
   }
 
@@ -130,12 +129,11 @@ abstract class AbstractRoomGenerator extends AbstractGenerator {
   /** @return
     *   random room size within [[minRoomSize]] and [[maxRoomSize]] range.
     */
-  protected def randomSize(): Int = {
+  protected def randomSize(): Int =
     normalizeSize(
       if (_minRoomSize == _maxRoomSize) _minRoomSize
       else Generators.randomInt(_minRoomSize, _maxRoomSize)
     )
-  }
 
   /** @param bound
     *   second size variable.
@@ -189,9 +187,8 @@ object AbstractRoomGenerator {
       * @return
       *   true if the two rooms overlap with each other.
       */
-    def overlaps(room: Room): Boolean = {
+    def overlaps(room: Room): Boolean =
       x < room.x + room.width && x + width > room.x && y < room.y + room.height && y + height > room.y
-    }
 
     /** @param grid
       *   its cells will be modified.
@@ -199,10 +196,10 @@ object AbstractRoomGenerator {
       *   will be used to fill all cells contained by the room.
       */
     def fill(grid: Grid, value: Float): Unit = {
-      var cx = this.x
+      var cx    = this.x
       val sizeX = this.x + width
       while (cx < sizeX) {
-        var cy = this.y
+        var cy    = this.y
         val sizeY = this.y + height
         while (cy < sizeY) {
           grid.set(cx, cy, value)
@@ -218,10 +215,10 @@ object AbstractRoomGenerator {
       *   will be used to fill all cells contained by the room.
       */
     def fill(grid: Int2dArray, value: Int): Unit = {
-      var cx = this.x
+      var cx    = this.x
       val sizeX = this.x + width
       while (cx < sizeX) {
-        var cy = this.y
+        var cy    = this.y
         val sizeY = this.y + height
         while (cy < sizeY) {
           grid.set(cx, cy, value)
@@ -238,12 +235,10 @@ object AbstractRoomGenerator {
       * @return
       *   true if the passed position is on the bounds of the room.
       */
-    def isBorder(x: Int, y: Int): Boolean = {
+    def isBorder(x: Int, y: Int): Boolean =
       this.x == x || this.y == y || this.x + width - 1 == x || this.y + height - 1 == y
-    }
 
-    override def toString: String = {
+    override def toString: String =
       s"Room [x=$x, y=$y, width=$width, height=$height]"
-    }
   }
 }

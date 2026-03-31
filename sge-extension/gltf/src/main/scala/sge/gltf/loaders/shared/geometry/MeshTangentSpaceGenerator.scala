@@ -16,21 +16,21 @@ import sge.math.Vector3
 object MeshTangentSpaceGenerator {
 
   def computeTangentSpace(
-      vertices: Array[Float],
-      indices: Array[Short],
-      attributesGroup: VertexAttributes,
-      computeNormals: Boolean,
-      computeTangents: Boolean,
-      normalMapUVs: sge.graphics.VertexAttribute
+    vertices:        Array[Float],
+    indices:         Array[Short],
+    attributesGroup: VertexAttributes,
+    computeNormals:  Boolean,
+    computeTangents: Boolean,
+    normalMapUVs:    sge.graphics.VertexAttribute
   ): Unit = {
     if (computeNormals) computeNormalsImpl(vertices, indices, attributesGroup)
     if (computeTangents) computeTangentsImpl(vertices, indices, attributesGroup, normalMapUVs)
   }
 
   private def computeNormalsImpl(vertices: Array[Float], indices: Array[Short], attributesGroup: VertexAttributes): Unit = {
-    val posOffset = attributesGroup.offset(VertexAttributes.Usage.Position)
+    val posOffset    = attributesGroup.offset(VertexAttributes.Usage.Position)
     val normalOffset = attributesGroup.offset(VertexAttributes.Usage.Normal)
-    val stride = attributesGroup.vertexSize / 4
+    val stride       = attributesGroup.vertexSize / 4
 
     val vab = new Vector3()
     val vac = new Vector3()
@@ -38,20 +38,20 @@ object MeshTangentSpaceGenerator {
       var index = 0
       val count = indices.length
       while (index < count) {
-        val vIndexA = indices(index) & 0xFFFF; index += 1
-        val ax = vertices(vIndexA * stride + posOffset)
-        val ay = vertices(vIndexA * stride + posOffset + 1)
-        val az = vertices(vIndexA * stride + posOffset + 2)
+        val vIndexA = indices(index) & 0xffff; index += 1
+        val ax      = vertices(vIndexA * stride + posOffset)
+        val ay      = vertices(vIndexA * stride + posOffset + 1)
+        val az      = vertices(vIndexA * stride + posOffset + 2)
 
-        val vIndexB = indices(index) & 0xFFFF; index += 1
-        val bx = vertices(vIndexB * stride + posOffset)
-        val by = vertices(vIndexB * stride + posOffset + 1)
-        val bz = vertices(vIndexB * stride + posOffset + 2)
+        val vIndexB = indices(index) & 0xffff; index += 1
+        val bx      = vertices(vIndexB * stride + posOffset)
+        val by      = vertices(vIndexB * stride + posOffset + 1)
+        val bz      = vertices(vIndexB * stride + posOffset + 2)
 
-        val vIndexC = indices(index) & 0xFFFF; index += 1
-        val cx = vertices(vIndexC * stride + posOffset)
-        val cy = vertices(vIndexC * stride + posOffset + 1)
-        val cz = vertices(vIndexC * stride + posOffset + 2)
+        val vIndexC = indices(index) & 0xffff; index += 1
+        val cx      = vertices(vIndexC * stride + posOffset)
+        val cy      = vertices(vIndexC * stride + posOffset + 1)
+        val cz      = vertices(vIndexC * stride + posOffset + 2)
 
         vab.set(bx, by, bz).sub(ax, ay, az)
         vac.set(cx, cy, cz).sub(ax, ay, az)
@@ -74,19 +74,19 @@ object MeshTangentSpaceGenerator {
       val count = vertices.length / stride
       while (index < count) {
         val vIndexA = index; index += 1
-        val ax = vertices(vIndexA * stride + posOffset)
-        val ay = vertices(vIndexA * stride + posOffset + 1)
-        val az = vertices(vIndexA * stride + posOffset + 2)
+        val ax      = vertices(vIndexA * stride + posOffset)
+        val ay      = vertices(vIndexA * stride + posOffset + 1)
+        val az      = vertices(vIndexA * stride + posOffset + 2)
 
         val vIndexB = index; index += 1
-        val bx = vertices(vIndexB * stride + posOffset)
-        val by = vertices(vIndexB * stride + posOffset + 1)
-        val bz = vertices(vIndexB * stride + posOffset + 2)
+        val bx      = vertices(vIndexB * stride + posOffset)
+        val by      = vertices(vIndexB * stride + posOffset + 1)
+        val bz      = vertices(vIndexB * stride + posOffset + 2)
 
         val vIndexC = index; index += 1
-        val cx = vertices(vIndexC * stride + posOffset)
-        val cy = vertices(vIndexC * stride + posOffset + 1)
-        val cz = vertices(vIndexC * stride + posOffset + 2)
+        val cx      = vertices(vIndexC * stride + posOffset)
+        val cy      = vertices(vIndexC * stride + posOffset + 1)
+        val cz      = vertices(vIndexC * stride + posOffset + 2)
 
         vab.set(bx, by, bz).sub(ax, ay, az)
         vac.set(cx, cy, cz).sub(ax, ay, az)
@@ -109,40 +109,40 @@ object MeshTangentSpaceGenerator {
 
   // inspired by: https://gamedev.stackexchange.com/questions/68612/how-to-compute-tangent-and-bitangent-vectors
   private def computeTangentsImpl(
-      vertices: Array[Float],
-      indices: Array[Short],
-      attributesGroup: VertexAttributes,
-      normalMapUVs: sge.graphics.VertexAttribute
+    vertices:        Array[Float],
+    indices:         Array[Short],
+    attributesGroup: VertexAttributes,
+    normalMapUVs:    sge.graphics.VertexAttribute
   ): Unit = {
-    val posOffset = attributesGroup.offset(VertexAttributes.Usage.Position)
-    val normalOffset = attributesGroup.offset(VertexAttributes.Usage.Normal)
-    val tangentOffset = attributesGroup.offset(VertexAttributes.Usage.Tangent)
+    val posOffset      = attributesGroup.offset(VertexAttributes.Usage.Position)
+    val normalOffset   = attributesGroup.offset(VertexAttributes.Usage.Normal)
+    val tangentOffset  = attributesGroup.offset(VertexAttributes.Usage.Tangent)
     val texCoordOffset = normalMapUVs.offset / 4
-    val stride = attributesGroup.vertexSize / 4
-    val vertexCount = vertices.length / stride
+    val stride         = attributesGroup.vertexSize / 4
+    val vertexCount    = vertices.length / stride
 
-    val vu = new Vector3()
-    val vv = new Vector3()
+    val vu   = new Vector3()
+    val vv   = new Vector3()
     val tan1 = Array.fill(vertexCount)(new Vector3())
     val tan2 = Array.fill(vertexCount)(new Vector3())
 
     var index = 0
     val count = indices.length
     while (index < count) {
-      val vIndexA = indices(index) & 0xFFFF; index += 1
-      val ax = vertices(vIndexA * stride + posOffset)
-      val ay = vertices(vIndexA * stride + posOffset + 1)
-      val az = vertices(vIndexA * stride + posOffset + 2)
+      val vIndexA = indices(index) & 0xffff; index += 1
+      val ax      = vertices(vIndexA * stride + posOffset)
+      val ay      = vertices(vIndexA * stride + posOffset + 1)
+      val az      = vertices(vIndexA * stride + posOffset + 2)
 
-      val vIndexB = indices(index) & 0xFFFF; index += 1
-      val bx = vertices(vIndexB * stride + posOffset)
-      val by = vertices(vIndexB * stride + posOffset + 1)
-      val bz = vertices(vIndexB * stride + posOffset + 2)
+      val vIndexB = indices(index) & 0xffff; index += 1
+      val bx      = vertices(vIndexB * stride + posOffset)
+      val by      = vertices(vIndexB * stride + posOffset + 1)
+      val bz      = vertices(vIndexB * stride + posOffset + 2)
 
-      val vIndexC = indices(index) & 0xFFFF; index += 1
-      val cx = vertices(vIndexC * stride + posOffset)
-      val cy = vertices(vIndexC * stride + posOffset + 1)
-      val cz = vertices(vIndexC * stride + posOffset + 2)
+      val vIndexC = indices(index) & 0xffff; index += 1
+      val cx      = vertices(vIndexC * stride + posOffset)
+      val cy      = vertices(vIndexC * stride + posOffset + 1)
+      val cz      = vertices(vIndexC * stride + posOffset + 2)
 
       val au = vertices(vIndexA * stride + texCoordOffset)
       val av = 1 - vertices(vIndexA * stride + texCoordOffset + 1)
@@ -169,10 +169,10 @@ object MeshTangentSpaceGenerator {
       tan1(vIndexC).add(vu); tan2(vIndexC).add(vv)
     }
 
-    val tangent = new Vector3()
-    val normal = new Vector3()
+    val tangent  = new Vector3()
+    val normal   = new Vector3()
     val biNormal = new Vector3()
-    var i = 0
+    var i        = 0
     while (i < vertexCount) {
       val nx = vertices(i * stride + normalOffset)
       val ny = vertices(i * stride + normalOffset + 1)

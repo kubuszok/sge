@@ -17,23 +17,26 @@
 package sge
 package textra
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphics.Color
 import sge.utils.Nullable
 
-/** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support the
-  * curly-brace token markup that its subclass TypingLabel does, nor does this handle input in the way TypingLabel can.
+/** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support
+  * the curly-brace token markup that its subclass TypingLabel does, nor does this handle input in the way TypingLabel can.
   */
 class TextraLabel {
 
-  var layout: Layout = new Layout()
-  protected var font: Font = new Font()
-  var align: Int = 8 // Align.left
+  var layout:         Layout = new Layout()
+  protected var font: Font   = new Font()
+  var align:          Int    = 8 // Align.left
   /** If true, allows text to wrap when it would go past the layout's targetWidth. */
-  var wrap: Boolean = false
-  var storedText: String = ""
-  var style: Nullable[Styles.LabelStyle] = Nullable.empty
-  protected var prefSizeInvalid: Boolean = true
-  protected var defaultToken: String = ""
+  var wrap:                      Boolean                     = false
+  var storedText:                String                      = ""
+  var style:                     Nullable[Styles.LabelStyle] = Nullable.empty
+  protected var prefSizeInvalid: Boolean                     = true
+  protected var defaultToken:    String                      = ""
 
   // Widget-like fields (normally inherited from scene2d)
   private var _width:    Float = 0f
@@ -47,20 +50,20 @@ class TextraLabel {
   private val _originY:  Float = 0f
   private val _color:    Color = new Color(Color.WHITE)
 
-  def getX: Float = _x
-  def getY: Float = _y
-  def setX(x: Float): Unit = _x = x
-  def setY(y: Float): Unit = _y = y
-  def getScaleX: Float = _scaleX
-  def getScaleY: Float = _scaleY
-  def setScaleX(sx: Float): Unit = _scaleX = sx
-  def setScaleY(sy: Float): Unit = _scaleY = sy
-  def getRotation: Float = _rotation
-  def setRotation(rot: Float): Unit = _rotation = rot
-  def getOriginX: Float = _originX
-  def getOriginY: Float = _originY
-  def getColor: Color = _color
-  def setColor(c: Color): Unit = if (c != null) _color.set(c)
+  def getX:                    Float = _x
+  def getY:                    Float = _y
+  def setX(x:          Float): Unit  = _x = x
+  def setY(y:          Float): Unit  = _y = y
+  def getScaleX:               Float = _scaleX
+  def getScaleY:               Float = _scaleY
+  def setScaleX(sx:    Float): Unit  = _scaleX = sx
+  def setScaleY(sy:    Float): Unit  = _scaleY = sy
+  def getRotation:             Float = _rotation
+  def setRotation(rot: Float): Unit  = _rotation = rot
+  def getOriginX:              Float = _originX
+  def getOriginY:              Float = _originY
+  def getColor:                Color = _color
+  def setColor(c:      Color): Unit  = if (c != null) _color.set(c)
 
   /** Creates a TextraLabel that uses the default font with white color. */
   def this(dummy: Unit) = {
@@ -132,7 +135,7 @@ class TextraLabel {
     layout.setJustification(justify)
   }
 
-  def getWidth: Float = _width
+  def getWidth:  Float = _width
   def getHeight: Float = _height
 
   def setWidth(width: Float): Unit = {
@@ -153,14 +156,12 @@ class TextraLabel {
     font.calculateSize(layout)
   }
 
-  def getPrefWidth: Float = {
-    if (wrap) return 0f
-    layout.getWidth
-  }
+  def getPrefWidth: Float =
+    if (wrap) 0f
+    else layout.getWidth
 
-  def getPrefHeight: Float = {
+  def getPrefHeight: Float =
     layout.getHeight
-  }
 
   /** A no-op unless font is a subclass that overrides Font.handleIntegerPosition(float). */
   def useIntegerPositions(integer: Boolean): TextraLabel = {
@@ -179,27 +180,24 @@ class TextraLabel {
 
   def getAlignment: Int = align
 
-  def setAlignment(alignment: Int): Unit = {
+  def setAlignment(alignment: Int): Unit =
     align = alignment
-  }
 
   def getFont: Font = font
 
   /** Sets the font and regenerates the layout. */
-  def setFont(font: Font): Unit = {
+  def setFont(font: Font): Unit =
     if (!this.font.eq(font)) {
       this.font = font
       regenerateLayout()
     }
-  }
 
   /** Sets the font; only regenerates the layout if regenerate is true. */
-  def setFont(font: Font, regenerate: Boolean): Unit = {
+  def setFont(font: Font, regenerate: Boolean): Unit =
     if (!this.font.eq(font)) {
       this.font = font
       if (regenerate) regenerateLayout()
     }
-  }
 
   /** Re-calculates line breaks when wrapping is enabled, and always re-calculates the size. */
   def regenerateLayout(): Unit = {
@@ -217,22 +215,20 @@ class TextraLabel {
   /** By default, does nothing; this is overridden in TypingLabel to skip its text progression ahead. */
   def skipToTheEnd(): TextraLabel = this
 
-  def invalidate(): Unit = {
+  def invalidate(): Unit =
     prefSizeInvalid = true
-  }
 
-  def validate(): Unit = {
+  def validate(): Unit =
     prefSizeInvalid = false
-  }
 
   /** Gets a glyph from this label's layout. */
-  def getGlyph(index: Int): Long = {
+  def getGlyph(index: Int): Long = boundary {
     var idx = index
     var i   = 0
     val n   = layout.lineCount
     while (i < n && idx >= 0) {
       val glyphs = layout.lines(i).glyphs
-      if (idx < glyphs.size) return glyphs(idx)
+      if (idx < glyphs.size) break(glyphs(idx))
       else idx -= glyphs.size
       i += 1
     }
@@ -243,22 +239,20 @@ class TextraLabel {
   def getMaxLines: Int = layout.maxLines
 
   /** Sets the maximum number of Lines this Layout can display; this is always at least 1. */
-  def setMaxLines(maxLines: Int): Unit = {
+  def setMaxLines(maxLines: Int): Unit =
     layout.setMaxLines(maxLines)
-  }
 
   /** Gets the ellipsis, which may be null, or may be a String placed at the end of text if its max lines are exceeded. */
   def getEllipsis: Nullable[String] = layout.ellipsis
 
   /** Sets the ellipsis text. */
-  def setEllipsis(ellipsis: Nullable[String]): Unit = {
+  def setEllipsis(ellipsis: Nullable[String]): Unit =
     layout.setEllipsis(ellipsis)
-  }
 
   /** Gets a String from the layout, made of only the char portions of the glyphs from start (inclusive) to end (exclusive). */
-  def substring(start: Int, end: Int): String = {
-    val s = Math.max(0, start)
-    val e = Math.min(layout.countGlyphs, end)
+  def substring(start: Int, end: Int): String = boundary {
+    val s          = Math.max(0, start)
+    val e          = Math.min(layout.countGlyphs, end)
     var index      = s
     val sb         = new StringBuilder(e - s)
     var glyphCount = 0
@@ -286,7 +280,7 @@ class TextraLabel {
           glyphCount += 1
           index += 1
         }
-        if (glyphCount == e - s) return sb.toString
+        if (glyphCount == e - s) break(sb.toString)
         index = 0
       } else {
         index -= glyphs.size
@@ -297,13 +291,13 @@ class TextraLabel {
   }
 
   /** Gets the height of the Line containing the glyph at the given index. */
-  def getLineHeight(index: Int): Float = {
+  def getLineHeight(index: Int): Float = boundary {
     var idx = index
     var i   = 0
     val n   = layout.lineCount
     while (i < n && idx >= 0) {
       val glyphs = layout.lines(i).glyphs
-      if (idx < glyphs.size) return layout.lines(i).height
+      if (idx < glyphs.size) break(layout.lines(i).height)
       else idx -= glyphs.size
       i += 1
     }
@@ -326,9 +320,8 @@ class TextraLabel {
   def getDefaultToken: String = defaultToken
 
   /** Sets the default token being used in this label. */
-  def setDefaultToken(defaultToken: String): Unit = {
+  def setDefaultToken(defaultToken: String): Unit =
     this.defaultToken = if (defaultToken == null) "" else defaultToken
-  }
 
   override def toString: String = substring(0, Int.MaxValue)
 }

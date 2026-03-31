@@ -22,7 +22,7 @@ import sge.visui.widget.VisTextField
 /** @author Kotcrab */
 class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSuggestionPopup(chooser) {
 
-  def pathFieldKeyTyped(stage: Stage, files: DynamicArray[FileHandle], pathField: VisTextField): Unit = {
+  def pathFieldKeyTyped(stage: Stage, files: DynamicArray[FileHandle], pathField: VisTextField): Unit =
     if (pathField.text.length == 0) {
       remove()
     } else {
@@ -33,33 +33,31 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
         showMenu(stage, pathField)
       }
     }
-  }
 
   private def createSuggestions(files: DynamicArray[FileHandle], fileNameField: VisTextField): Int = {
     clearChildren()
     var suggestions = 0
     val iter        = files.iterator
-    while (iter.hasNext) {
+    while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.name.startsWith(fileNameField.text) && !file.name.equals(fileNameField.text)) {
         val item = createMenuItem(getTrimmedName(file.name))
-        item.addListener(new ChangeListener() {
-          override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-            chooser.highlightFiles(file)
+        item.addListener(
+          new ChangeListener() {
+            override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+              chooser.highlightFiles(file)
           }
-        })
+        )
         addItem(item)
         suggestions += 1
       }
-
-      if (suggestions == AbstractSuggestionPopup.MAX_SUGGESTIONS) {
-        return suggestions // @nowarn -- early return
-      }
     }
 
-    if (chooser.getMode == FileChooser.Mode.SAVE && suggestions == 0
+    if (
+      chooser.getMode == FileChooser.Mode.SAVE && suggestions == 0
       && chooser.getActiveFileTypeFilterRule != null // @nowarn -- Java interop boundary
-      && fileNameField.text.matches(".*\\.")) {
+      && fileNameField.text.matches(".*\\.")
+    ) {
       val rule = chooser.getActiveFileTypeFilterRule
 
       val extIter = rule.getExtensions.iterator
@@ -67,12 +65,14 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
         val extension     = extIter.next()
         val arbitraryPath = fileNameField.text + extension
         val item          = createMenuItem(arbitraryPath)
-        item.addListener(new ChangeListener() {
-          override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-            fileNameField.setText(arbitraryPath)
-            fileNameField.setCursorPosition(fileNameField.text.length)
+        item.addListener(
+          new ChangeListener() {
+            override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
+              fileNameField.setText(arbitraryPath)
+              fileNameField.setCursorPosition(fileNameField.text.length)
+            }
           }
-        })
+        )
         addItem(item)
         suggestions += 1
       }
@@ -81,8 +81,7 @@ class FileSuggestionPopup(chooser: FileChooser)(using Sge) extends AbstractSugge
     suggestions
   }
 
-  private def getTrimmedName(name: String): String = {
+  private def getTrimmedName(name: String): String =
     if (name.length > 40) name.substring(0, 40) + "..."
     else name
-  }
 }

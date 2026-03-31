@@ -19,26 +19,24 @@ class IteratingSystemSuite extends munit.FunSuite {
   }
 
   private class IteratingSystemMock(family: Family) extends IteratingSystem(family) {
-    var numUpdates: Int = 0
+    var numUpdates:         Int = 0
     var numStartProcessing: Int = 0
-    var numEndProcessing: Int = 0
+    var numEndProcessing:   Int = 0
 
-    override def startProcessing(): Unit = {
+    override def startProcessing(): Unit =
       numStartProcessing += 1
-    }
 
-    override protected def processEntity(entity: Entity, deltaTime: Float): Unit = {
+    override protected def processEntity(entity: Entity, deltaTime: Float): Unit =
       numUpdates += 1
-    }
 
-    override def endProcessing(): Unit = {
+    override def endProcessing(): Unit =
       numEndProcessing += 1
-    }
   }
 
-  private class IteratingRemovalSystem extends IteratingSystem(
-    Family.all(classOf[SpyComponent], classOf[IndexComponent]).get()
-  ) {
+  private class IteratingRemovalSystem
+      extends IteratingSystem(
+        Family.all(classOf[SpyComponent], classOf[IndexComponent]).get()
+      ) {
     private val sm = ComponentMapper.getFor(classOf[SpyComponent])
     private val im = ComponentMapper.getFor(classOf[IndexComponent])
 
@@ -52,9 +50,10 @@ class IteratingSystemSuite extends munit.FunSuite {
     }
   }
 
-  private class IteratingComponentRemovalSystem extends IteratingSystem(
-    Family.all(classOf[SpyComponent], classOf[IndexComponent]).get()
-  ) {
+  private class IteratingComponentRemovalSystem
+      extends IteratingSystem(
+        Family.all(classOf[SpyComponent], classOf[IndexComponent]).get()
+      ) {
     private val sm = ComponentMapper.getFor(classOf[SpyComponent])
     private val im = ComponentMapper.getFor(classOf[IndexComponent])
 
@@ -73,7 +72,7 @@ class IteratingSystemSuite extends munit.FunSuite {
     val engine = new Engine
     val family = Family.all(classOf[ComponentA], classOf[ComponentB]).get()
     val system = new IteratingSystemMock(family)
-    val e = new Entity
+    val e      = new Entity
 
     engine.addSystem(system)
     engine.addEntity(e)
@@ -103,9 +102,9 @@ class IteratingSystemSuite extends munit.FunSuite {
   }
 
   test("entity removal while iterating") {
-    val engine = new Engine
+    val engine   = new Engine
     val entities = engine.getEntitiesFor(Family.all(classOf[SpyComponent], classOf[IndexComponent]).get())
-    val sm = ComponentMapper.getFor(classOf[SpyComponent])
+    val sm       = ComponentMapper.getFor(classOf[SpyComponent])
 
     engine.addSystem(new IteratingRemovalSystem)
 
@@ -123,15 +122,14 @@ class IteratingSystemSuite extends munit.FunSuite {
 
     assertEquals(entities.size, numEntities / 2)
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(sm.get(entities(i)).get.updates, 1)
-    }
   }
 
   test("component removal while iterating") {
-    val engine = new Engine
+    val engine   = new Engine
     val entities = engine.getEntitiesFor(Family.all(classOf[SpyComponent], classOf[IndexComponent]).get())
-    val sm = ComponentMapper.getFor(classOf[SpyComponent])
+    val sm       = ComponentMapper.getFor(classOf[SpyComponent])
 
     engine.addSystem(new IteratingComponentRemovalSystem)
 
@@ -149,9 +147,8 @@ class IteratingSystemSuite extends munit.FunSuite {
 
     assertEquals(entities.size, numEntities / 2)
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(sm.get(entities(i)).get.updates, 1)
-    }
   }
 
   test("startProcessing and endProcessing called") {

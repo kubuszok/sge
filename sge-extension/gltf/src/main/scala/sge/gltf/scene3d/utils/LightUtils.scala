@@ -50,7 +50,7 @@ object LightUtils {
       case _: DirectionalLight => info.dirLights += 1
       case _: PointLight       => info.pointLights += 1
       case _: SpotLight        => info.spotLights += 1
-      case _                   => info.miscLights += 1
+      case _ => info.miscLights += 1
     }
     info
   }

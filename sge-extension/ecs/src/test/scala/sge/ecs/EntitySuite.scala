@@ -1,7 +1,7 @@
 package sge
 package ecs
 
-import sge.ecs.signals.{Listener, Signal}
+import sge.ecs.signals.{ Listener, Signal }
 import sge.utils.Nullable
 
 class EntitySuite extends munit.FunSuite {
@@ -24,8 +24,8 @@ class EntitySuite extends munit.FunSuite {
 
   test("addAndReturn returns the component") {
     val entity = new Entity
-    val compA = new ComponentA
-    val compB = new ComponentB
+    val compA  = new ComponentA
+    val compB  = new ComponentB
 
     assert(entity.addAndReturn(compA) eq compA)
     assert(entity.addAndReturn(compB) eq compB)
@@ -49,7 +49,7 @@ class EntitySuite extends munit.FunSuite {
     assertEquals(entity.getComponents.size, 1)
 
     val componentBits = entity.getComponentBits
-    val indexA = ComponentType.getIndexFor(classOf[ComponentA])
+    val indexA        = ComponentType.getIndexFor(classOf[ComponentA])
 
     assert(componentBits.contains(indexA))
     assert(am.get(entity).isDefined)
@@ -67,8 +67,8 @@ class EntitySuite extends munit.FunSuite {
 
   test("add replaces existing same-type component") {
     val entity = new Entity
-    val a1 = new ComponentA
-    val a2 = new ComponentA
+    val a1     = new ComponentA
+    val a2     = new ComponentA
 
     entity.add(a1)
     entity.add(a2)
@@ -92,7 +92,7 @@ class EntitySuite extends munit.FunSuite {
   }
 
   test("componentAdded signal fires") {
-    val addedListener = new EntityListenerMock
+    val addedListener   = new EntityListenerMock
     val removedListener = new EntityListenerMock
 
     val entity = new Entity
@@ -141,7 +141,7 @@ class EntitySuite extends munit.FunSuite {
 
   test("hasComponent via ComponentType") {
     val entity = new Entity
-    val ct = ComponentType.getFor(classOf[ComponentA])
+    val ct     = ComponentType.getFor(classOf[ComponentA])
 
     assert(!entity.hasComponent(ct))
     entity.add(new ComponentA)

@@ -36,8 +36,8 @@ class ChromaticAberrationEffect(passes: Int)(using Sge)
     Sge().graphics.gl20.glUseProgram(0)
   }
 
-  def maxDistortion: Float = _maxDistortion
-  def maxDistortion_=(value: Float): Unit = {
+  def maxDistortion:                 Float = _maxDistortion
+  def maxDistortion_=(value: Float): Unit  = {
     _maxDistortion = value
     setUniform("u_maxDistortion", value)
   }

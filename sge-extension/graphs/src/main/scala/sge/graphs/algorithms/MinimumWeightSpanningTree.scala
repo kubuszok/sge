@@ -12,9 +12,9 @@ import scala.collection.mutable.ArrayDeque
 
 /** Minimum (or maximum) weight spanning tree using Kruskal's algorithm. */
 class MinimumWeightSpanningTree[V] private[algorithms] (
-    id: Int,
-    graph: UndirectedGraph[V],
-    minSpanningTree: Boolean
+  id:              Int,
+  graph:           UndirectedGraph[V],
+  minSpanningTree: Boolean
 ) extends Algorithm[V](id) {
 
   private val spanningTree: UndirectedGraph[V] = graph.createNew()
@@ -32,36 +32,33 @@ class MinimumWeightSpanningTree[V] private[algorithms] (
 
   private val finishAt: Int = if (graph.isConnected) graph.size - 1 else -1
 
-  override def update(): Boolean = {
+  override def update(): Boolean =
     if (isFinished) {
-      return true
+      true
+    } else {
+      val edge = edgeQueue.removeHead()
+
+      if (doesEdgeCreateCycle(edge.nodeA, edge.nodeB, id)) {
+        false
+      } else {
+        spanningTree.addEdge(edge.a, edge.b, edge.weightFunction)
+        isFinished
+      }
     }
 
-    val edge = edgeQueue.removeHead()
-
-    if (doesEdgeCreateCycle(edge.nodeA, edge.nodeB, id)) {
-      return false
-    }
-    spanningTree.addEdge(edge.a, edge.b, edge.weightFunction)
-
-    isFinished
-  }
-
-  private def unionByRank(rootU: Node[V], rootV: Node[V]): Unit = {
+  private def unionByRank(rootU: Node[V], rootV: Node[V]): Unit =
     if (rootU.index < rootV.index) {
       rootU.prev = rootV
     } else {
       rootV.prev = rootU
       if (rootU.index == rootV.index) rootU.index = rootU.index + 1
     }
-  }
 
-  private def find(node: Node[V]): Node[V] = {
+  private def find(node: Node[V]): Node[V] =
     if (node eq node.prev) node
     else find(node.prev)
-  }
 
-  private def pathCompressionFind(node: Node[V]): Node[V] = {
+  private def pathCompressionFind(node: Node[V]): Node[V] =
     if (node eq node.prev) {
       node
     } else {
@@ -69,7 +66,6 @@ class MinimumWeightSpanningTree[V] private[algorithms] (
       node.prev = parentNode
       parentNode
     }
-  }
 
   private def doesEdgeCreateCycle(u: Node[V], v: Node[V], runID: Int): Boolean = {
     if (u.resetAlgorithmAttribs(runID)) u.prev = u
@@ -77,16 +73,16 @@ class MinimumWeightSpanningTree[V] private[algorithms] (
     val rootU = pathCompressionFind(u)
     val rootV = pathCompressionFind(v)
     if (rootU eq rootV) {
-      return true
+      true
+    } else {
+      unionByRank(rootU, rootV)
+      false
     }
-    unionByRank(rootU, rootV)
-    false
   }
 
-  override def isFinished: Boolean = {
+  override def isFinished: Boolean =
     if (finishAt < 0) edgeQueue.isEmpty
     else spanningTree.edgeCount == finishAt
-  }
 
   def getSpanningTree: UndirectedGraph[V] = spanningTree
 }

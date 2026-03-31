@@ -15,7 +15,6 @@ abstract class Algorithm[V](protected val id: Int) {
 
   def isFinished: Boolean
 
-  def finish(): Unit = {
+  def finish(): Unit =
     while (!update()) {}
-  }
 }

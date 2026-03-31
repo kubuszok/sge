@@ -50,12 +50,11 @@ class FastPNG8(initialBufferSize: Int) extends PNG8(initialBufferSize) {
 
   setCompression(2)
 
-  def this() = {
+  def this() =
     this(128 * 128)
-  }
 
-  /** Writes the pixmap to the stream without closing the stream, optionally computing an 8-bit palette from the given Pixmap. If [[palette]] is null (the default), this will compute a palette from the
-    * given Pixmap regardless of computePalette.
+  /** Writes the pixmap to the stream without closing the stream, optionally computing an 8-bit palette from the given Pixmap. If [[palette]] is null (the default), this will compute a palette from
+    * the given Pixmap regardless of computePalette.
     *
     * @param output
     *   an OutputStream that will not be closed

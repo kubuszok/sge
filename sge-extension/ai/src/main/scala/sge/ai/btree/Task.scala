@@ -55,7 +55,7 @@ abstract class Task[E] extends Pool.Poolable {
   final def addChild(child: Task[E]): Int = {
     val index = addChildToTask(child)
     tree.foreach { t =>
-      if (t.listeners != null) t.notifyChildAdded(this, index) // @nowarn — null check for listeners DynamicArray
+      t.notifyChildAdded(this, index)
     }
     index
   }
@@ -155,7 +155,7 @@ abstract class Task[E] extends Pool.Poolable {
     val previousStatus = status
     status = Task.Status.RUNNING
     tree.foreach { t =>
-      if (t.listeners != null && t.listeners.size > 0) t.notifyStatusUpdated(this, previousStatus) // @nowarn — null check for listeners DynamicArray
+      t.notifyStatusUpdated(this, previousStatus)
     }
     control.foreach(_.childRunning(this, this))
   }
@@ -165,7 +165,7 @@ abstract class Task[E] extends Pool.Poolable {
     val previousStatus = status
     status = Task.Status.SUCCEEDED
     tree.foreach { t =>
-      if (t.listeners != null && t.listeners.size > 0) t.notifyStatusUpdated(this, previousStatus) // @nowarn — null check for listeners DynamicArray
+      t.notifyStatusUpdated(this, previousStatus)
     }
     end()
     control.foreach(_.childSuccess(this))
@@ -176,7 +176,7 @@ abstract class Task[E] extends Pool.Poolable {
     val previousStatus = status
     status = Task.Status.FAILED
     tree.foreach { t =>
-      if (t.listeners != null && t.listeners.size > 0) t.notifyStatusUpdated(this, previousStatus) // @nowarn — null check for listeners DynamicArray
+      t.notifyStatusUpdated(this, previousStatus)
     }
     end()
     control.foreach(_.childFail(this))
@@ -215,7 +215,7 @@ abstract class Task[E] extends Pool.Poolable {
     val previousStatus = status
     status = Task.Status.CANCELLED
     tree.foreach { t =>
-      if (t.listeners != null && t.listeners.size > 0) t.notifyStatusUpdated(this, previousStatus) // @nowarn — null check for listeners DynamicArray
+      t.notifyStatusUpdated(this, previousStatus)
     }
     end()
   }

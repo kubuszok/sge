@@ -9,8 +9,8 @@ package controllers
 
 import scala.collection.mutable.ArrayBuffer
 
-/** Polling-based controller manager implementation that works on all platforms. Periodically polls [[ControllerOps]] to detect
-  * connect/disconnect events and state changes, then fires [[ControllerListener]] callbacks.
+/** Polling-based controller manager implementation that works on all platforms. Periodically polls [[ControllerOps]] to detect connect/disconnect events and state changes, then fires
+  * [[ControllerListener]] callbacks.
   *
   * Call [[poll]] once per frame (e.g. from the render loop) to update controller state and dispatch events.
   *
@@ -23,9 +23,8 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
   private val manageCurrentListener = ManageCurrentControllerListener()
   private val polledControllers: ArrayBuffer[PolledController] = ArrayBuffer.empty
 
-  override def addListener(listener: ControllerListener): Unit = {
+  override def addListener(listener: ControllerListener): Unit =
     listeners += listener
-  }
 
   override def removeListener(listener: ControllerListener): Unit = {
     val _ = listeners -= listener
@@ -33,9 +32,8 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
 
   override def getListeners: Seq[ControllerListener] = listeners.toSeq
 
-  override def clearListeners(): Unit = {
+  override def clearListeners(): Unit =
     listeners.clear()
-  }
 
   /** Polls all controller slots and dispatches connect/disconnect/button/axis events. Call this once per frame. */
   def poll(): Unit = {
@@ -51,7 +49,9 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
         fireDisconnected(pc)
       }
     }
-    toRemove.foreach { pc => val _ = polledControllers -= pc }
+    toRemove.foreach { pc =>
+      val _ = polledControllers -= pc
+    }
     // Also remove from the base class controllers list
     controllers.filterInPlace { c =>
       !toRemove.exists(_.asInstanceOf[AnyRef] eq c.asInstanceOf[AnyRef])
@@ -97,29 +97,26 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
   }
 }
 
-/** A [[Controller]] implementation backed by polling. Each frame, [[DefaultControllerManager]] updates the state from
-  * [[ControllerState]] snapshots and fires events for changes.
+/** A [[Controller]] implementation backed by polling. Each frame, [[DefaultControllerManager]] updates the state from [[ControllerState]] snapshots and fires events for changes.
   */
 private[controllers] class PolledController(initialState: ControllerState) extends Controller {
 
-  private var _name: String = initialState.name
-  private val _uniqueId: String = initialState.uniqueId
-  private var _connected: Boolean = initialState.connected
-  private var _buttons: Array[Boolean] = initialState.buttons.clone()
-  private var _axes: Array[Float] = initialState.axes.clone()
-  private var _powerLevel: ControllerPowerLevel = initialState.powerLevel
-  private var _playerIndex: Int = Controller.PlayerIdxUnset
+  private var _name:                  String                          = initialState.name
+  private val _uniqueId:              String                          = initialState.uniqueId
+  private var _connected:             Boolean                         = initialState.connected
+  private var _buttons:               Array[Boolean]                  = initialState.buttons.clone()
+  private var _axes:                  Array[Float]                    = initialState.axes.clone()
+  private var _powerLevel:            ControllerPowerLevel            = initialState.powerLevel
+  private var _playerIndex:           Int                             = Controller.PlayerIdxUnset
   private val perControllerListeners: ArrayBuffer[ControllerListener] = ArrayBuffer.empty
 
   def uniqueId: String = _uniqueId
 
-  override def getButton(buttonCode: Int): Boolean = {
+  override def getButton(buttonCode: Int): Boolean =
     if (buttonCode >= 0 && buttonCode < _buttons.length) _buttons(buttonCode) else false
-  }
 
-  override def getAxis(axisCode: Int): Float = {
+  override def getAxis(axisCode: Int): Float =
     if (axisCode >= 0 && axisCode < _axes.length) _axes(axisCode) else 0f
-  }
 
   override def name: String = _name
 
@@ -147,17 +144,15 @@ private[controllers] class PolledController(initialState: ControllerState) exten
 
   override def playerIndex: Int = _playerIndex
 
-  override def playerIndex_=(index: Int): Unit = {
+  override def playerIndex_=(index: Int): Unit =
     _playerIndex = index
-  }
 
   override def mapping: ControllerMapping = ControllerMapping.StandardMapping
 
   override def powerLevel: ControllerPowerLevel = _powerLevel
 
-  override def addListener(listener: ControllerListener): Unit = {
+  override def addListener(listener: ControllerListener): Unit =
     perControllerListeners += listener
-  }
 
   override def removeListener(listener: ControllerListener): Unit = {
     val _ = perControllerListeners -= listener
@@ -170,7 +165,7 @@ private[controllers] class PolledController(initialState: ControllerState) exten
 
     // Detect button changes
     val maxButtons = scala.math.min(_buttons.length, state.buttons.length)
-    var i = 0
+    var i          = 0
     while (i < maxButtons) {
       if (_buttons(i) != state.buttons(i)) {
         _buttons(i) = state.buttons(i)
@@ -191,7 +186,7 @@ private[controllers] class PolledController(initialState: ControllerState) exten
 
     // Detect axis changes
     val maxAxes = scala.math.min(_axes.length, state.axes.length)
-    var j = 0
+    var j       = 0
     while (j < maxAxes) {
       if (_axes(j) != state.axes(j)) {
         _axes(j) = state.axes(j)
@@ -207,7 +202,6 @@ private[controllers] class PolledController(initialState: ControllerState) exten
   }
 
   /** Marks this controller as disconnected. */
-  private[controllers] def markDisconnected(): Unit = {
+  private[controllers] def markDisconnected(): Unit =
     _connected = false
-  }
 }

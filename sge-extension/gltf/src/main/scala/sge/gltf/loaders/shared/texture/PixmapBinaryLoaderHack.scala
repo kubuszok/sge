@@ -12,14 +12,10 @@ package texture
 
 import sge.graphics.Pixmap
 
-/**
- * Load a [[Pixmap]] from binary image data (PNG/JPEG bytes).
- * In LibGDX this used reflection to work around GWT; in SGE we can call the constructor directly
- * on JVM/Native and throw on JS.
- */
+/** Load a [[Pixmap]] from binary image data (PNG/JPEG bytes). In LibGDX this used reflection to work around GWT; in SGE we can call the constructor directly on JVM/Native and throw on JS.
+  */
 object PixmapBinaryLoaderHack {
 
-  def load(encodedData: Array[Byte], offset: Int, len: Int): Pixmap = {
+  def load(encodedData: Array[Byte], offset: Int, len: Int): Pixmap =
     new Pixmap(encodedData, offset, len)
-  }
 }

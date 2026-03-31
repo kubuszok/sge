@@ -23,14 +23,13 @@ class DirectionalLightEx extends DirectionalLight {
   /** light intensity in lux (lm/m2) */
   var intensity: Float = 1f
 
-  override def set(copyFrom: DirectionalLight): DirectionalLight = {
+  override def set(copyFrom: DirectionalLight): DirectionalLight =
     copyFrom match {
       case ex: DirectionalLightEx =>
         set(ex.baseColor, copyFrom.direction, ex.intensity)
       case _ =>
         set(copyFrom.color, copyFrom.direction, 1f)
     }
-  }
 
   def set(baseColor: Color, direction: Vector3, intensity: Float): DirectionalLightEx = {
     this.intensity = intensity

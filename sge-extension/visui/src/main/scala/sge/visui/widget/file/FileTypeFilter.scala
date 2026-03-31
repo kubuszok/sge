@@ -13,18 +13,16 @@ package file
 import sge.files.FileHandle
 import sge.utils.DynamicArray
 
-/** FileTypeFilter is used to limit [[FileChooser]] selection only to specified set of extensions. User can use file chooser's select box to select that extension or all types (if it is
-  * allowed).
+/** FileTypeFilter is used to limit [[FileChooser]] selection only to specified set of extensions. User can use file chooser's select box to select that extension or all types (if it is allowed).
   *
-  * This class is not replacement for [[FileChooser.fileFilter_=]]. While the main file chooser filter does general filtering (such as removing hidden or inaccessible files), FileTypeFilter is
-  * used to limit extensions of files than user can select.
+  * This class is not replacement for [[FileChooser.fileFilter_=]]. While the main file chooser filter does general filtering (such as removing hidden or inaccessible files), FileTypeFilter is used to
+  * limit extensions of files than user can select.
   *
-  * This filter works by adding rules. Each rule has a description (showed in file chooser's filter select box) and a list of extensions that it accepts. During selection user can switch active
-  * rule via select box. Additionally each FileTypeFilter can support 'all types allowed' where all files are accepted regardless of their extension.
+  * This filter works by adding rules. Each rule has a description (showed in file chooser's filter select box) and a list of extensions that it accepts. During selection user can switch active rule
+  * via select box. Additionally each FileTypeFilter can support 'all types allowed' where all files are accepted regardless of their extension.
   * @author
   *   Kotcrab
-  * @since
-  *   1.1.0
+  * @since 1.1.0
   */
 class FileTypeFilter(private var _allTypesAllowed: Boolean) {
   private val _rules: DynamicArray[FileTypeFilter.Rule] = DynamicArray[FileTypeFilter.Rule]()
@@ -40,9 +38,8 @@ class FileTypeFilter(private var _allTypesAllowed: Boolean) {
     * @param extensions
     *   list of extensions without leading dot, eg. 'jpg', 'png' etc.
     */
-  def addRule(description: String, extensions: String*): Unit = {
+  def addRule(description: String, extensions: String*): Unit =
     _rules.add(new FileTypeFilter.Rule(description, extensions*))
-  }
 
   def getRules: DynamicArray[FileTypeFilter.Rule] = _rules
 
@@ -69,7 +66,7 @@ object FileTypeFilter {
     /** Creates a rule with the given description and extension list. */
     def this(description: String, extensionList: String*) = {
       this(description, DynamicArray[String](), false)
-      require(description != null, "description can't be null")             // @nowarn -- Java interop boundary
+      require(description != null, "description can't be null") // @nowarn -- Java interop boundary
       require(extensionList != null && extensionList.nonEmpty, "extensionList can't be null nor empty") // @nowarn -- Java interop boundary
       extensionList.foreach { ext =>
         val cleaned = if (ext.startsWith(".")) ext.substring(1) else ext
@@ -77,13 +74,12 @@ object FileTypeFilter {
       }
     }
 
-    def accept(file: FileHandle): Boolean = {
+    def accept(file: FileHandle): Boolean =
       if (allowAll) true
       else {
         val ext = file.extension.toLowerCase
         extensions.contains(ext)
       }
-    }
 
     def getDescription: String = description
 

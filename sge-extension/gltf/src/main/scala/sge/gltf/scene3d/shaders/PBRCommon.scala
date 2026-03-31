@@ -63,13 +63,13 @@ object PBRCommon {
     }
     seamlessCubemapsShouldBeEnabled.foreach { enabled =>
       if (enabled) {
-        val GL_TEXTURE_CUBE_MAP_SEAMLESS = 0x884F // from GL32
+        val GL_TEXTURE_CUBE_MAP_SEAMLESS = 0x884f // from GL32
         sge.graphics.gl.glEnable(EnableCap(GL_TEXTURE_CUBE_MAP_SEAMLESS))
       }
     }
   }
 
-  def setTextureTransform(transform: Matrix3, attribute: Nullable[PBRTextureAttribute]): Unit = {
+  def setTextureTransform(transform: Matrix3, attribute: Nullable[PBRTextureAttribute]): Unit =
     attribute.fold {
       transform.idt()
     } { attr =>
@@ -78,5 +78,4 @@ object PBRCommon {
       transform.rotateRad(-attr.rotationUV)
       transform.scale(attr.scaleU, attr.scaleV)
     }
-  }
 }

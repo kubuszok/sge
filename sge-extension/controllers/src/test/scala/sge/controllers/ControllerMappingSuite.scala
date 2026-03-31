@@ -63,13 +63,13 @@ class ControllerMappingSuite extends munit.FunSuite {
   }
 
   test("StandardMapping all face buttons have distinct indices") {
-    val m = ControllerMapping.StandardMapping
+    val m           = ControllerMapping.StandardMapping
     val faceButtons = Set(m.buttonA, m.buttonB, m.buttonX, m.buttonY)
     assertEquals(faceButtons.size, 4, "All face buttons must have distinct indices")
   }
 
   test("StandardMapping all axes have distinct indices") {
-    val m = ControllerMapping.StandardMapping
+    val m    = ControllerMapping.StandardMapping
     val axes = Set(m.axisLeftX, m.axisLeftY, m.axisRightX, m.axisRightY)
     assertEquals(axes.size, 4, "All axes must have distinct indices")
   }

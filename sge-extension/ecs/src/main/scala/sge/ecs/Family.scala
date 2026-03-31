@@ -17,22 +17,21 @@ package ecs
 
 import scala.collection.mutable
 
-/** Represents a group of [[Component]]s. It is used to describe what [[Entity]] objects an [[EntitySystem]] should
-  * process.
+/** Represents a group of [[Component]]s. It is used to describe what [[Entity]] objects an [[EntitySystem]] should process.
   *
   * Example: `Family.all(classOf[PositionComponent], classOf[VelocityComponent]).get()`
   *
-  * Families cannot be instantiated directly but must be accessed via a builder (start with [[Family.all]],
-  * [[Family.one]] or [[Family.exclude]]). This avoids duplicate families that describe the same components.
+  * Families cannot be instantiated directly but must be accessed via a builder (start with [[Family.all]], [[Family.one]] or [[Family.exclude]]). This avoids duplicate families that describe the same
+  * components.
   *
   * @author
   *   Stefan Bachmann (original implementation)
   */
 class Family private (
-    private val all: mutable.BitSet,
-    private val one: mutable.BitSet,
-    private val exclude: mutable.BitSet,
-    val index: Int
+  private val all:     mutable.BitSet,
+  private val one:     mutable.BitSet,
+  private val exclude: mutable.BitSet,
+  val index:           Int
 ) {
 
   /** @return Whether the entity matches the family requirements or not */
@@ -57,55 +56,64 @@ class Family private (
 
 object Family {
 
-  private val families: mutable.HashMap[String, Family] = mutable.HashMap.empty
-  private var familyIndex: Int = 0
-  private val zeroBits: mutable.BitSet = mutable.BitSet()
+  private val families:    mutable.HashMap[String, Family] = mutable.HashMap.empty
+  private var familyIndex: Int                             = 0
+  private val zeroBits:    mutable.BitSet                  = mutable.BitSet()
 
-  /** @param componentTypes entities will have to contain all of the specified components.
-    * @return A Builder instance to get a family
+  /** @param componentTypes
+    *   entities will have to contain all of the specified components.
+    * @return
+    *   A Builder instance to get a family
     */
-  def all(componentTypes: Class[? <: Component]*): Builder = {
+  def all(componentTypes: Class[? <: Component]*): Builder =
     new Builder().all(componentTypes*)
-  }
 
-  /** @param componentTypes entities will have to contain at least one of the specified components.
-    * @return A Builder instance to get a family
+  /** @param componentTypes
+    *   entities will have to contain at least one of the specified components.
+    * @return
+    *   A Builder instance to get a family
     */
-  def one(componentTypes: Class[? <: Component]*): Builder = {
+  def one(componentTypes: Class[? <: Component]*): Builder =
     new Builder().one(componentTypes*)
-  }
 
-  /** @param componentTypes entities cannot contain any of the specified components.
-    * @return A Builder instance to get a family
+  /** @param componentTypes
+    *   entities cannot contain any of the specified components.
+    * @return
+    *   A Builder instance to get a family
     */
-  def exclude(componentTypes: Class[? <: Component]*): Builder = {
+  def exclude(componentTypes: Class[? <: Component]*): Builder =
     new Builder().exclude(componentTypes*)
-  }
 
   class Builder {
 
-    private var _all: mutable.BitSet = zeroBits
-    private var _one: mutable.BitSet = zeroBits
+    private var _all:     mutable.BitSet = zeroBits
+    private var _one:     mutable.BitSet = zeroBits
     private var _exclude: mutable.BitSet = zeroBits
 
-    /** @param componentTypes entities will have to contain all of the specified components.
-      * @return This Builder instance for chaining
+    /** @param componentTypes
+      *   entities will have to contain all of the specified components.
+      * @return
+      *   This Builder instance for chaining
       */
     def all(componentTypes: Class[? <: Component]*): Builder = {
       _all = ComponentType.getBitsFor(componentTypes*)
       this
     }
 
-    /** @param componentTypes entities will have to contain at least one of the specified components.
-      * @return This Builder instance for chaining
+    /** @param componentTypes
+      *   entities will have to contain at least one of the specified components.
+      * @return
+      *   This Builder instance for chaining
       */
     def one(componentTypes: Class[? <: Component]*): Builder = {
       _one = ComponentType.getBitsFor(componentTypes*)
       this
     }
 
-    /** @param componentTypes entities cannot contain any of the specified components.
-      * @return This Builder instance for chaining
+    /** @param componentTypes
+      *   entities cannot contain any of the specified components.
+      * @return
+      *   This Builder instance for chaining
       */
     def exclude(componentTypes: Class[? <: Component]*): Builder = {
       _exclude = ComponentType.getBitsFor(componentTypes*)
@@ -116,10 +124,11 @@ object Family {
     def get(): Family = {
       val hash = getFamilyHash(_all, _one, _exclude)
       families.getOrElseUpdate(hash, {
-        val f = new Family(_all, _one, _exclude, familyIndex)
-        familyIndex += 1
-        f
-      })
+                                 val f = new Family(_all, _one, _exclude, familyIndex)
+                                 familyIndex += 1
+                                 f
+                               }
+      )
     }
   }
 
@@ -139,8 +148,8 @@ object Family {
 
   private def getBitsString(bits: mutable.BitSet): String = {
     val numBits = if (bits.isEmpty) 0 else bits.last + 1
-    val sb = new StringBuilder
-    var i = 0
+    val sb      = new StringBuilder
+    var i       = 0
     while (i < numBits) {
       sb.append(if (bits.contains(i)) "1" else "0")
       i += 1

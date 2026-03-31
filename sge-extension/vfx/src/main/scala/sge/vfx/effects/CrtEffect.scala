@@ -27,8 +27,8 @@ class CrtEffect(lineStyle: CrtEffect.LineStyle, brightnessMin: Float, brightness
 
   import ShaderVfxEffect.*
 
-  private val viewportSize: Vector2 = Vector2()
-  private var _sizeSource: CrtEffect.SizeSource = CrtEffect.SizeSource.VIEWPORT
+  private val viewportSize: Vector2              = Vector2()
+  private var _sizeSource:  CrtEffect.SizeSource = CrtEffect.SizeSource.VIEWPORT
 
   def this()(using Sge) = this(CrtEffect.LineStyle.HORIZONTAL_HARD, 1.3f, 0.5f)
 
@@ -67,15 +67,15 @@ class CrtEffect(lineStyle: CrtEffect.LineStyle, brightnessMin: Float, brightness
     * @see
     *   CrtEffect.SizeSource
     */
-  def sizeSource_=(value: CrtEffect.SizeSource): Unit = {
+  def sizeSource_=(value: CrtEffect.SizeSource): Unit =
     if (this._sizeSource != value) {
       _sizeSource = value
       rebind()
     }
-  }
 }
 
 object CrtEffect {
+
   /** Constant name/ordinal values match the respected #define constants from crt.frag */
   enum LineStyle extends java.lang.Enum[LineStyle] {
     case CROSSLINE_HARD, VERTICAL_HARD, HORIZONTAL_HARD, VERTICAL_SMOOTH, HORIZONTAL_SMOOTH
@@ -83,8 +83,10 @@ object CrtEffect {
 
   /** Shader resolution parameter source. */
   enum SizeSource extends java.lang.Enum[SizeSource] {
+
     /** Resolution will be resolved from the application internal viewport. */
     case VIEWPORT
+
     /** Resolution will be resolved from the application window size. */
     case SCREEN
   }

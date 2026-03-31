@@ -17,16 +17,15 @@ import sge.utils.Nullable
 
 /** A checkbox is a button that contains an image indicating the checked or unchecked state and a TextraLabel. */
 class TextraCheckBox(
-    text: Nullable[String],
-    style: Styles.CheckBoxStyle,
-    replacementFont: Font
+  text:            Nullable[String],
+  style:           Styles.CheckBoxStyle,
+  replacementFont: Font
 ) extends TextraButton(text, style, replacementFont) {
 
   private var _checkStyle: Styles.CheckBoxStyle = style
 
-  def this(text: Nullable[String], style: Styles.CheckBoxStyle) = {
+  def this(text: Nullable[String], style: Styles.CheckBoxStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
-  }
 
   def setCheckStyle(style: Styles.CheckBoxStyle): Unit = {
     this._checkStyle = style

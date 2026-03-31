@@ -16,13 +16,13 @@ class GaussianBlurEffect(using Sge) extends AbstractVfxEffect with ChainVfxEffec
 
   import GaussianBlurEffect.*
 
-  private var _type: BlurType = BlurType.Gaussian5x5
-  private var _amount: Float = 1f
-  private var _passes: Int = 1
+  private var _type:   BlurType = BlurType.Gaussian5x5
+  private var _amount: Float    = 1f
+  private var _passes: Int      = 1
 
-  private var invWidth: Float = 0f
-  private var invHeight: Float = 0f
-  private var convolve: Convolve2DEffect = Convolve2DEffect(_type.tap.radius)
+  private var invWidth:  Float            = 0f
+  private var invHeight: Float            = 0f
+  private var convolve:  Convolve2DEffect = Convolve2DEffect(_type.tap.radius)
 
   def this(blurType: GaussianBlurEffect.BlurType)(using Sge) = {
     this()
@@ -74,25 +74,25 @@ class GaussianBlurEffect(using Sge) extends AbstractVfxEffect with ChainVfxEffec
   }
 
   /** Warning: Not all blur types support custom amounts at this time */
-  def amount: Float = _amount
-  def amount_=(value: Float): Unit = {
+  def amount:                 Float = _amount
+  def amount_=(value: Float): Unit  = {
     _amount = value
     computeBlurWeightings()
   }
 
-  def passes: Int = _passes
+  def passes:               Int  = _passes
   def passes_=(value: Int): Unit = {
     require(value >= 1, "Passes should be greater than 0.")
     _passes = value
   }
 
-  private def computeBlurWeightings(): Unit = {
+  private def computeBlurWeightings(): Unit =
     if (convolve == null) { // @nowarn — init guard
       // do nothing
     } else {
       var hasData = true
 
-      val outWeights = convolve.weights
+      val outWeights  = convolve.weights
       val outOffsetsH = convolve.offsetsHor
       val outOffsetsV = convolve.offsetsVert
 
@@ -150,18 +150,17 @@ class GaussianBlurEffect(using Sge) extends AbstractVfxEffect with ChainVfxEffec
         convolve.rebind()
       }
     }
-  }
 
   private def computeKernel(blurRadius: Int, blurAmount: Float, outKernel: Array[Float]): Unit = {
-    val sigma = blurAmount
+    val sigma          = blurAmount
     val twoSigmaSquare = 2.0f * sigma * sigma
-    val sigmaRoot = Math.sqrt(twoSigmaSquare * Math.PI).toFloat
-    var total = 0.0f
+    val sigmaRoot      = Math.sqrt(twoSigmaSquare * Math.PI).toFloat
+    var total          = 0.0f
 
     var i = -blurRadius
     while (i <= blurRadius) {
       val distance = (i * i).toFloat
-      val index = i + blurRadius
+      val index    = i + blurRadius
       outKernel(index) = (Math.exp(-distance / twoSigmaSquare) / sigmaRoot).toFloat
       total += outKernel(index)
       i += 1
@@ -249,11 +248,11 @@ object GaussianBlurEffect {
 
     val length: Int = (radius * 2) + 1
 
-    private val hor: Convolve1DEffect = register(Convolve1DEffect(length))
+    private val hor:  Convolve1DEffect = register(Convolve1DEffect(length))
     private val vert: Convolve1DEffect = register(Convolve1DEffect(length, hor.weights))
 
-    val weights: Array[Float] = hor.weights
-    val offsetsHor: Array[Float] = hor.offsets
+    val weights:     Array[Float] = hor.weights
+    val offsetsHor:  Array[Float] = hor.offsets
     val offsetsVert: Array[Float] = vert.offsets
 
     override def render(context: VfxRenderContext, buffers: VfxPingPongWrapper): Unit = {

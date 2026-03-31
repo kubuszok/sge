@@ -12,7 +12,7 @@ package data
 import sge.utils.Nullable
 
 class GLTFAccessorSparse extends GLTFObject {
-  var count: Int = 0
+  var count:   Int                                 = 0
   var indices: Nullable[GLTFAccessorSparseIndices] = Nullable.empty
-  var values: Nullable[GLTFAccessorSparseValues] = Nullable.empty
+  var values:  Nullable[GLTFAccessorSparseValues]  = Nullable.empty
 }

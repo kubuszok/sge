@@ -21,7 +21,7 @@ class OneColumnTableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: In
     extends TableBuilder(estimatedWidgetsAmount, estimatedRowsAmount, defaultWidgetPadding) {
 
   def this() = this(10, 3, Padding.PAD_0)
-  def this(defaultWidgetPadding: Padding) = this(10, 3, defaultWidgetPadding)
+  def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
   override protected def fillTable(table: Table): Unit = {

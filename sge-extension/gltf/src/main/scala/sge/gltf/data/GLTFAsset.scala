@@ -11,8 +11,8 @@ package data
 import sge.utils.Nullable
 
 class GLTFAsset extends GLTFObject {
-  var generator: Nullable[String] = Nullable.empty
-  var version: Nullable[String] = Nullable.empty
-  var copyright: Nullable[String] = Nullable.empty
+  var generator:  Nullable[String] = Nullable.empty
+  var version:    Nullable[String] = Nullable.empty
+  var copyright:  Nullable[String] = Nullable.empty
   var minVersion: Nullable[String] = Nullable.empty
 }

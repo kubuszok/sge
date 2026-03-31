@@ -779,7 +779,7 @@ object TexturePacker {
 
   object Rect {
     def getAtlasName(name: String, flattenPaths: Boolean): String =
-      if (flattenPaths) FileHandle(new File(name), FileType.Absolute).name() else name
+      if (flattenPaths) FileHandle(new File(name), FileType.Absolute).name else name
   }
 
   enum Resampling(val value: AnyRef) {

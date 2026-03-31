@@ -32,16 +32,16 @@ import sge.utils.viewport.{ ScreenViewport, Viewport }
   *   [[GLTransitionsShaderTransition]]
   */
 class ShaderTransition(
-  vert:           String,
-  frag:           String,
-  ignorePrepend:  Boolean,
-  duration:       Float,
-  interpolation:  Nullable[Interpolation] = Nullable.empty
+  vert:          String,
+  frag:          String,
+  ignorePrepend: Boolean,
+  duration:      Float,
+  interpolation: Nullable[Interpolation] = Nullable.empty
 )(using Sge)
     extends TimedTransition(duration, interpolation) {
 
-  protected val program: ShaderProgram = new ShaderProgram(vert, frag)
-  protected var viewport: Viewport = new ScreenViewport() // Renders the transition over the whole screen
+  protected val program:  ShaderProgram = new ShaderProgram(vert, frag)
+  protected var viewport: Viewport      = new ScreenViewport() // Renders the transition over the whole screen
 
   private val renderContext: RenderContext = new RenderContext(
     new DefaultTextureBinder(DefaultTextureBinder.ROUNDROBIN)

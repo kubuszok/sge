@@ -10,32 +10,30 @@ class IntervalIteratingSystemSuite extends munit.FunSuite {
     var numUpdates: Int = 0
   }
 
-  private class IntervalIteratingSystemSpy extends IntervalIteratingSystem(
-    Family.all(classOf[IntervalComponentSpy]).get(),
-    deltaTime * 2.0f
-  ) {
+  private class IntervalIteratingSystemSpy
+      extends IntervalIteratingSystem(
+        Family.all(classOf[IntervalComponentSpy]).get(),
+        deltaTime * 2.0f
+      ) {
     private val im = ComponentMapper.getFor(classOf[IntervalComponentSpy])
     var numStartProcessing: Int = 0
-    var numEndProcessing: Int = 0
+    var numEndProcessing:   Int = 0
 
-    override def startProcessing(): Unit = {
+    override def startProcessing(): Unit =
       numStartProcessing += 1
-    }
 
-    override protected def processEntity(entity: Entity): Unit = {
+    override protected def processEntity(entity: Entity): Unit =
       im.get(entity).get.numUpdates += 1
-    }
 
-    override def endProcessing(): Unit = {
+    override def endProcessing(): Unit =
       numEndProcessing += 1
-    }
   }
 
   test("processes entities at interval") {
-    val engine = new Engine
-    val spy = new IntervalIteratingSystemSpy
+    val engine   = new Engine
+    val spy      = new IntervalIteratingSystemSpy
     val entities = engine.getEntitiesFor(Family.all(classOf[IntervalComponentSpy]).get())
-    val im = ComponentMapper.getFor(classOf[IntervalComponentSpy])
+    val im       = ComponentMapper.getFor(classOf[IntervalComponentSpy])
 
     engine.addSystem(spy)
 
@@ -48,9 +46,8 @@ class IntervalIteratingSystemSuite extends munit.FunSuite {
     for (i <- 1 to 10) {
       engine.update(deltaTime)
 
-      for (j <- 0 until entities.size) {
+      for (j <- 0 until entities.size)
         assertEquals(im.get(entities(j)).get.numUpdates, i / 2)
-      }
     }
   }
 

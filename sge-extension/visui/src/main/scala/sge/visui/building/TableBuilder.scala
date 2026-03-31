@@ -30,7 +30,7 @@ abstract class TableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: In
   private var tablePadding:   Padding                              = scala.compiletime.uninitialized
 
   def this() = this(10, 3, Padding.PAD_0)
-  def this(defaultWidgetPadding: Padding) = this(10, 3, defaultWidgetPadding)
+  def this(defaultWidgetPadding:   Padding) = this(10, 3, defaultWidgetPadding)
   def this(estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
   def setTablePadding(tablePadding: Padding): TableBuilder = { this.tablePadding = tablePadding; this }
@@ -81,13 +81,11 @@ abstract class TableBuilder(estimatedWidgetsAmount: Int, estimatedRowsAmount: In
 }
 
 object TableBuilder {
-  def getGreatestCommonDenominator(valueA: Int, valueB: Int): Int = {
+  def getGreatestCommonDenominator(valueA: Int, valueB: Int): Int =
     if (valueB == 0) valueA else getGreatestCommonDenominator(valueB, valueA % valueB)
-  }
 
-  def getLowestCommonMultiple(valueA: Int, valueB: Int): Int = {
+  def getLowestCommonMultiple(valueA: Int, valueB: Int): Int =
     valueA * (valueB / getGreatestCommonDenominator(valueA, valueB))
-  }
 
   def getLowestCommonMultiple(values: DynamicArray[Int]): Int = {
     var lcm = values.first

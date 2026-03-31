@@ -17,19 +17,17 @@ class Point(var x: Float, var y: Float) {
     this.y = y
   }
 
-  override def equals(o: Any): Boolean = {
+  override def equals(o: Any): Boolean =
     o match {
       case that: Point =>
         (this eq that) ||
         (java.lang.Float.compare(that.x, x) == 0 && java.lang.Float.compare(that.y, y) == 0)
       case _ => false
     }
-  }
 
-  override def hashCode(): Int = {
+  override def hashCode(): Int =
     (java.lang.Float.floatToIntBits(x) * 0xc13fa9a902a6328fL +
       java.lang.Float.floatToIntBits(y) * 0x91e10da5c79e7b1dL >>> 32).toInt
-  }
 
   override def toString: String = s"($x, $y)"
 }

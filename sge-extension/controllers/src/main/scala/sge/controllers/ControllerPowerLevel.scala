@@ -9,7 +9,8 @@ package controllers
 
 /** Power level of a connected controller, indicating battery state.
   *
-  * @author Benjamin Schulte
+  * @author
+  *   Benjamin Schulte
   */
 enum ControllerPowerLevel extends java.lang.Enum[ControllerPowerLevel] {
 

@@ -25,6 +25,5 @@ class ItemInfo(val item: Item[?], var ti1: Float, var ti2: Float, var weight: Fl
 
 object ItemInfo {
 
-  val weightComparator: Ordering[ItemInfo] = (o1: ItemInfo, o2: ItemInfo) =>
-    java.lang.Float.compare(o1.weight, o2.weight)
+  val weightComparator: Ordering[ItemInfo] = (o1: ItemInfo, o2: ItemInfo) => java.lang.Float.compare(o1.weight, o2.weight)
 }

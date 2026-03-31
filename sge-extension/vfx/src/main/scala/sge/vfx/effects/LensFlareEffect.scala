@@ -30,9 +30,9 @@ class LensFlareEffect(using Sge)
   import ShaderVfxEffect.*
 
   private val _lightPosition: Vector2 = Vector2(0.5f, 0.5f)
-  private val _viewport: Vector2 = Vector2()
-  private val _color: Vector3 = Vector3(1f, 0.8f, 0.2f)
-  private var _intensity: Float = 5.0f
+  private val _viewport:      Vector2 = Vector2()
+  private val _color:         Vector3 = Vector3(1f, 0.8f, 0.2f)
+  private var _intensity:     Float   = 5.0f
 
   rebind()
 
@@ -69,8 +69,8 @@ class LensFlareEffect(using Sge)
     setUniform("u_lightPosition", _lightPosition)
   }
 
-  def intensity: Float = _intensity
-  def intensity_=(value: Float): Unit = {
+  def intensity:                 Float = _intensity
+  def intensity_=(value: Float): Unit  = {
     _intensity = value
     setUniform("u_intensity", value)
   }

@@ -10,17 +10,15 @@ package effects
 
 /** Base trait for all visual effects.
   *
-  * Whether or not this effect is disabled and shouldn't be processed can be controlled via [[disabled]]. The method [[resize]] will
-  * be called on every application resize as usual. Also it will be called once the filter has been added to
-  * [[sge.vfx.VfxManager]].
+  * Whether or not this effect is disabled and shouldn't be processed can be controlled via [[disabled]]. The method [[resize]] will be called on every application resize as usual. Also it will be
+  * called once the filter has been added to [[sge.vfx.VfxManager]].
   */
 trait VfxEffect extends AutoCloseable {
 
   /** Whether or not this effect is disabled and shouldn't be processed */
   var disabled: Boolean
 
-  /** The method will be called on every application resize as usual. Also it will be called once the filter has been added to
-    * [[sge.vfx.VfxManager]].
+  /** The method will be called on every application resize as usual. Also it will be called once the filter has been added to [[sge.vfx.VfxManager]].
     */
   def resize(width: Int, height: Int): Unit
 
@@ -30,8 +28,8 @@ trait VfxEffect extends AutoCloseable {
     */
   def update(delta: Float): Unit
 
-  /** Concrete objects shall be responsible to recreate or rebind its own resources whenever its needed, usually when the OpenGL
-    * context is lost (e.g. framebuffer textures should be updated and shader parameters should be reuploaded/rebound.
+  /** Concrete objects shall be responsible to recreate or rebind its own resources whenever its needed, usually when the OpenGL context is lost (e.g. framebuffer textures should be updated and shader
+    * parameters should be reuploaded/rebound.
     */
   def rebind(): Unit
 }

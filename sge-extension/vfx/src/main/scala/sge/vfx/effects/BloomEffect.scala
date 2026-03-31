@@ -19,14 +19,14 @@ class BloomEffect(settings: BloomEffect.Settings)(using Sge) extends CompositeVf
 
   def this()(using Sge) = this(BloomEffect.Settings(10, 0.85f, 1f, .85f, 1.1f, .85f))
 
-  private val copy: CopyEffect = register(CopyEffect())
-  private val blur: GaussianBlurEffect = register(GaussianBlurEffect())
+  private val copy:      CopyEffect           = register(CopyEffect())
+  private val blur:      GaussianBlurEffect   = register(GaussianBlurEffect())
   private val threshold: GammaThresholdEffect = register(GammaThresholdEffect(GammaThresholdEffect.Type.RGBA))
-  private val combine: CombineEffect = register(CombineEffect())
+  private val combine:   CombineEffect        = register(CombineEffect())
 
-  private var _blending: Boolean = false
-  private var sfactor: BlendFactor = BlendFactor(0)
-  private var dfactor: BlendFactor = BlendFactor(0)
+  private var _blending: Boolean     = false
+  private var sfactor:   BlendFactor = BlendFactor(0)
+  private var dfactor:   BlendFactor = BlendFactor(0)
 
   applySettings(settings)
 
@@ -61,31 +61,31 @@ class BloomEffect(settings: BloomEffect.Settings)(using Sge) extends CompositeVf
     context.bufferPool.free(origSrc)
   }
 
-  def baseIntensity: Float = combine.source1Intensity
-  def baseIntensity_=(intensity: Float): Unit = { combine.source1Intensity = intensity }
+  def baseIntensity:                     Float = combine.source1Intensity
+  def baseIntensity_=(intensity: Float): Unit  = combine.source1Intensity = intensity
 
-  def baseSaturation: Float = combine.source1Saturation
-  def baseSaturation_=(saturation: Float): Unit = { combine.source1Saturation = saturation }
+  def baseSaturation:                      Float = combine.source1Saturation
+  def baseSaturation_=(saturation: Float): Unit  = combine.source1Saturation = saturation
 
-  def bloomIntensity: Float = combine.source2Intensity
-  def bloomIntensity_=(intensity: Float): Unit = { combine.source2Intensity = intensity }
+  def bloomIntensity:                     Float = combine.source2Intensity
+  def bloomIntensity_=(intensity: Float): Unit  = combine.source2Intensity = intensity
 
-  def bloomSaturation: Float = combine.source2Saturation
-  def bloomSaturation_=(saturation: Float): Unit = { combine.source2Saturation = saturation }
+  def bloomSaturation:                      Float = combine.source2Saturation
+  def bloomSaturation_=(saturation: Float): Unit  = combine.source2Saturation = saturation
 
-  def blurPasses: Int = blur.passes
-  def blurPasses_=(passes: Int): Unit = { blur.passes = passes }
+  def blurPasses:                Int  = blur.passes
+  def blurPasses_=(passes: Int): Unit = blur.passes = passes
 
-  def blurAmount: Float = blur.amount
-  def blurAmount_=(amount: Float): Unit = { blur.amount = amount }
+  def blurAmount:                  Float = blur.amount
+  def blurAmount_=(amount: Float): Unit  = blur.amount = amount
 
   def blendingEnabled: Boolean = _blending
 
-  def bloomThreshold: Float = threshold.gamma
-  def bloomThreshold_=(gamma: Float): Unit = { threshold.gamma = gamma }
+  def bloomThreshold:                 Float = threshold.gamma
+  def bloomThreshold_=(gamma: Float): Unit  = threshold.gamma = gamma
 
   def blendingSourceFactor: BlendFactor = sfactor
-  def blendingDestFactor: BlendFactor = dfactor
+  def blendingDestFactor:   BlendFactor = dfactor
 
   def enableBlending(srcFactor: BlendFactor, dstFactor: BlendFactor): Unit = {
     _blending = true
@@ -96,8 +96,8 @@ class BloomEffect(settings: BloomEffect.Settings)(using Sge) extends CompositeVf
   def disableBlending(): Unit =
     _blending = false
 
-  def blurType: BlurType = blur.blurType
-  def blurType_=(blurType: BlurType): Unit = blur.setType(blurType)
+  def blurType:                       BlurType = blur.blurType
+  def blurType_=(blurType: BlurType): Unit     = blur.setType(blurType)
 
   def applySettings(s: BloomEffect.Settings): Unit = {
     bloomThreshold = s.bloomThreshold
@@ -113,13 +113,13 @@ class BloomEffect(settings: BloomEffect.Settings)(using Sge) extends CompositeVf
 
 object BloomEffect {
   final case class Settings(
-    blurType: BlurType = BlurType.Gaussian5x5b,
-    blurPasses: Int = 10,
-    blurAmount: Float = 0f,
-    bloomThreshold: Float = 0.85f,
-    baseIntensity: Float = 1f,
-    baseSaturation: Float = 0.85f,
-    bloomIntensity: Float = 1.1f,
+    blurType:        BlurType = BlurType.Gaussian5x5b,
+    blurPasses:      Int = 10,
+    blurAmount:      Float = 0f,
+    bloomThreshold:  Float = 0.85f,
+    baseIntensity:   Float = 1f,
+    baseSaturation:  Float = 0.85f,
+    bloomIntensity:  Float = 1.1f,
     bloomSaturation: Float = 0.85f
   )
 

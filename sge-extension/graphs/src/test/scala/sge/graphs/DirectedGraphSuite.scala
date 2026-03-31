@@ -70,11 +70,12 @@ class DirectedGraphSuite extends FunSuite {
     graph.addEdge(2, 4)
 
     var visited = List.empty[Int]
-    graph.algorithms.breadthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit = {
-        visited = visited :+ step.vertex
-      }
-    })
+    graph.algorithms.breadthFirstSearch(1,
+                                        new SearchProcessor[Int] {
+                                          def accept(step: SearchStep[Int]): Unit =
+                                            visited = visited :+ step.vertex
+                                        }
+    )
     // BFS should visit 1 first (depth 0), then 2 and 3 (depth 1), then 4 (depth 2)
     assertEquals(visited.size, 4)
     assertEquals(visited.head, 1)
@@ -89,11 +90,12 @@ class DirectedGraphSuite extends FunSuite {
     graph.addEdge(2, 4)
 
     var visited = List.empty[Int]
-    graph.algorithms.depthFirstSearch(1, new SearchProcessor[Int] {
-      def accept(step: SearchStep[Int]): Unit = {
-        visited = visited :+ step.vertex
-      }
-    })
+    graph.algorithms.depthFirstSearch(1,
+                                      new SearchProcessor[Int] {
+                                        def accept(step: SearchStep[Int]): Unit =
+                                          visited = visited :+ step.vertex
+                                      }
+    )
     assertEquals(visited.size, 4)
     assertEquals(visited.head, 1)
   }

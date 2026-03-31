@@ -18,11 +18,11 @@ import sge.utils.Nullable
   *   Kotcrab
   */
 class ColorPickerWidgetStyle() {
-  var barSelector:       Nullable[Drawable] = Nullable.empty
-  var cross:             Nullable[Drawable] = Nullable.empty
-  var verticalSelector:  Nullable[Drawable] = Nullable.empty
+  var barSelector:        Nullable[Drawable] = Nullable.empty
+  var cross:              Nullable[Drawable] = Nullable.empty
+  var verticalSelector:   Nullable[Drawable] = Nullable.empty
   var horizontalSelector: Nullable[Drawable] = Nullable.empty
-  var iconArrowRight:    Nullable[Drawable] = Nullable.empty
+  var iconArrowRight:     Nullable[Drawable] = Nullable.empty
 
   def this(other: ColorPickerWidgetStyle) = {
     this()

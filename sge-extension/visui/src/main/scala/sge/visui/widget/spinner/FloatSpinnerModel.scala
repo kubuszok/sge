@@ -66,37 +66,33 @@ class FloatSpinnerModel(
     }
   }
 
-  override protected def incrementModel(): Boolean = {
+  override protected def incrementModel(): Boolean =
     if (current.add(_step).compareTo(_max) > 0) {
       if (current.compareTo(_max) == 0) {
-        if (wrap) {
-          current = _min.setScale(_scale, RoundingMode.HALF_UP)
-          return true
-        }
-        return false
+        if (wrap) { current = _min.setScale(_scale, RoundingMode.HALF_UP); true }
+        else false
+      } else {
+        current = _max.setScale(_scale, RoundingMode.HALF_UP)
+        true
       }
-      current = _max.setScale(_scale, RoundingMode.HALF_UP)
     } else {
       current = current.add(_step)
+      true
     }
-    true
-  }
 
-  override protected def decrementModel(): Boolean = {
+  override protected def decrementModel(): Boolean =
     if (current.subtract(_step).compareTo(_min) < 0) {
       if (current.compareTo(_min) == 0) {
-        if (wrap) {
-          current = _max.setScale(_scale, RoundingMode.HALF_UP)
-          return true
-        }
-        return false
+        if (wrap) { current = _max.setScale(_scale, RoundingMode.HALF_UP); true }
+        else false
+      } else {
+        current = _min.setScale(_scale, RoundingMode.HALF_UP)
+        true
       }
-      current = _min.setScale(_scale, RoundingMode.HALF_UP)
     } else {
       current = current.subtract(_step)
+      true
     }
-    true
-  }
 
   override def text: String = current.toPlainString
 

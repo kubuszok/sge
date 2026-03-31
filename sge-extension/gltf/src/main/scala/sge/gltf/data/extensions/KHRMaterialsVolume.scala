@@ -12,17 +12,15 @@ package extensions
 import sge.gltf.data.texture.GLTFTextureInfo
 import sge.utils.Nullable
 
-/**
- * [[sge.gltf.data.material.GLTFMaterial]] extension.
- * See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md
- */
+/** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Khronos/KHR_materials_volume/README.md
+  */
 object KHRMaterialsVolume {
   val EXT: String = "KHR_materials_volume"
 }
 
 class KHRMaterialsVolume {
-  var thicknessFactor: Float = 0f
-  var thicknessTexture: Nullable[GLTFTextureInfo] = Nullable.empty
-  var attenuationDistance: Nullable[Float] = Nullable.empty // default +inf.
-  var attenuationColor: Array[Float] = Array(1f, 1f, 1f)
+  var thicknessFactor:     Float                     = 0f
+  var thicknessTexture:    Nullable[GLTFTextureInfo] = Nullable.empty
+  var attenuationDistance: Nullable[Float]           = Nullable.empty // default +inf.
+  var attenuationColor:    Array[Float]              = Array(1f, 1f, 1f)
 }

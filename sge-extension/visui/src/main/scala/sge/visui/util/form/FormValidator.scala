@@ -178,19 +178,20 @@ object FormValidator {
       this.relativeToFile = relativeToFile
     }
 
-    override protected def validate(input: String): Boolean = {
-      val file: File =
-        if (relativeTo.isDefined) {
-          if (relativeTo.get.text.isEmpty && !errorIfRelativeEmpty) return true // @nowarn -- early return
-          new File(relativeTo.get.text, input)
-        } else if (relativeToFile.isDefined) {
-          new File(relativeToFile.get, input)
-        } else {
-          new File(input)
-        }
+    override protected def validate(input: String): Boolean =
+      if (relativeTo.isDefined && relativeTo.get.text.isEmpty && !errorIfRelativeEmpty) true
+      else {
+        val file: File =
+          if (relativeTo.isDefined) {
+            new File(relativeTo.get.text, input)
+          } else if (relativeToFile.isDefined) {
+            new File(relativeToFile.get, input)
+          } else {
+            new File(input)
+          }
 
-      if (mustNotExist) !file.exists()
-      else file.exists()
-    }
+        if (mustNotExist) !file.exists()
+        else file.exists()
+      }
   }
 }

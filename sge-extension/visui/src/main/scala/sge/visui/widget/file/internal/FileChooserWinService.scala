@@ -26,12 +26,12 @@ import sge.visui.util.OsUtils
   *   Kotcrab
   */
 class FileChooserWinService(using Sge) {
-  private val nameCache: ObjectMap[File, String] = ObjectMap[File, String]()
+  private val nameCache: ObjectMap[File, String]                                  = ObjectMap[File, String]()
   private val listeners: mutable.HashMap[File, FileChooserWinService.ListenerSet] = mutable.HashMap.empty
-  private val pool:      ExecutorService = Executors.newFixedThreadPool(3, new ServiceThreadFactory("SystemDisplayNameGetter"))
+  private val pool:      ExecutorService                                          = Executors.newFixedThreadPool(3, new ServiceThreadFactory("SystemDisplayNameGetter"))
 
-  private var shellFolderSupported:          Boolean                = false
-  private var getShellFolderMethod:          Nullable[Method] = Nullable.empty
+  private var shellFolderSupported:            Boolean          = false
+  private var getShellFolderMethod:            Nullable[Method] = Nullable.empty
   private var getShellFolderDisplayNameMethod: Nullable[Method] = Nullable.empty
 
   {
@@ -49,22 +49,22 @@ class FileChooserWinService(using Sge) {
     for (root <- roots) processRoot(root)
   }
 
-  private def processRoot(root: File): Unit = {
+  private def processRoot(root: File): Unit =
     pool.execute(new Runnable {
       override def run(): Unit = processResult(root, getSystemDisplayName(root))
     })
-  }
 
-  private def processResult(root: File, name: Nullable[String]): Unit = {
-    Sge().application.postRunnable(new Runnable {
-      override def run(): Unit = {
-        if (name.isDefined) nameCache.put(root, name.get)
-        else nameCache.put(root, root.toString)
+  private def processResult(root: File, name: Nullable[String]): Unit =
+    Sge().application.postRunnable(
+      new Runnable {
+        override def run(): Unit = {
+          if (name.isDefined) nameCache.put(root, name.get)
+          else nameCache.put(root, root.toString)
 
-        listeners.get(root).foreach(_.notifyListeners(name))
+          listeners.get(root).foreach(_.notifyListeners(name))
+        }
       }
-    })
-  }
+    )
 
   def addListener(root: File, listener: FileChooserWinService.RootNameListener): Unit = {
     val cachedName = nameCache.get(root)
@@ -77,7 +77,7 @@ class FileChooserWinService(using Sge) {
     }
   }
 
-  private def getSystemDisplayName(f: File): Nullable[String] = {
+  private def getSystemDisplayName(f: File): Nullable[String] =
     if (!shellFolderSupported) Nullable.empty
     else {
       try {
@@ -90,7 +90,6 @@ class FileChooserWinService(using Sge) {
         case _: IllegalAccessException    => Nullable.empty
       }
     }
-  }
 }
 
 object FileChooserWinService {

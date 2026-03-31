@@ -9,14 +9,13 @@ class IntervalSystemSuite extends munit.FunSuite {
   private class IntervalSystemSpy extends IntervalSystem(deltaTime * 2.0f) {
     var numUpdates: Int = 0
 
-    override protected def updateInterval(): Unit = {
+    override protected def updateInterval(): Unit =
       numUpdates += 1
-    }
   }
 
   test("calls updateInterval at correct intervals") {
     val engine = new Engine
-    val spy = new IntervalSystemSpy
+    val spy    = new IntervalSystemSpy
 
     engine.addSystem(spy)
 
@@ -33,7 +32,7 @@ class IntervalSystemSuite extends munit.FunSuite {
 
   test("does not call updateInterval before interval elapsed") {
     val engine = new Engine
-    val spy = new IntervalSystemSpy
+    val spy    = new IntervalSystemSpy
 
     engine.addSystem(spy)
 
@@ -49,7 +48,7 @@ class IntervalSystemSuite extends munit.FunSuite {
 
   test("multiple intervals fire when enough time accumulated") {
     val engine = new Engine
-    val spy = new IntervalSystemSpy
+    val spy    = new IntervalSystemSpy
 
     engine.addSystem(spy)
 

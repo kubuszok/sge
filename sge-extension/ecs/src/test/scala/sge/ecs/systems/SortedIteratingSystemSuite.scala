@@ -30,18 +30,17 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
   }
 
   private class SortedIteratingSystemMock(family: Family) extends SortedIteratingSystem(family, comparator) {
-    val expectedNames: mutable.Queue[String] = mutable.Queue.empty
-    var numStartProcessing: Int = 0
-    var numEndProcessing: Int = 0
+    val expectedNames:      mutable.Queue[String] = mutable.Queue.empty
+    var numStartProcessing: Int                   = 0
+    var numEndProcessing:   Int                   = 0
 
     override def update(deltaTime: Float): Unit = {
       super.update(deltaTime)
       assert(expectedNames.isEmpty, s"Not all expected names were consumed: $expectedNames")
     }
 
-    override def startProcessing(): Unit = {
+    override def startProcessing(): Unit =
       numStartProcessing += 1
-    }
 
     override protected def processEntity(entity: Entity, deltaTime: Float): Unit = {
       val component = orderMapper.get(entity)
@@ -50,15 +49,15 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
       assertEquals(expectedNames.dequeue(), component.get.name)
     }
 
-    override def endProcessing(): Unit = {
+    override def endProcessing(): Unit =
       numEndProcessing += 1
-    }
   }
 
-  private class IteratingRemovalSystem extends SortedIteratingSystem(
-    Family.all(classOf[SpyComponent], classOf[IndexComponent]).get(),
-    comparator
-  ) {
+  private class IteratingRemovalSystem
+      extends SortedIteratingSystem(
+        Family.all(classOf[SpyComponent], classOf[IndexComponent]).get(),
+        comparator
+      ) {
     private val sm = ComponentMapper.getFor(classOf[SpyComponent])
     private val im = ComponentMapper.getFor(classOf[IndexComponent])
     private var localEngine: Engine = scala.compiletime.uninitialized
@@ -78,10 +77,11 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
     }
   }
 
-  private class IteratingComponentRemovalSystem extends SortedIteratingSystem(
-    Family.all(classOf[SpyComponent], classOf[IndexComponent]).get(),
-    comparator
-  ) {
+  private class IteratingComponentRemovalSystem
+      extends SortedIteratingSystem(
+        Family.all(classOf[SpyComponent], classOf[IndexComponent]).get(),
+        comparator
+      ) {
     private val sm = ComponentMapper.getFor(classOf[SpyComponent])
     private val im = ComponentMapper.getFor(classOf[IndexComponent])
 
@@ -106,7 +106,7 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
     val engine = new Engine
     val family = Family.all(classOf[OrderComponent], classOf[ComponentB]).get()
     val system = new SortedIteratingSystemMock(family)
-    val e = new Entity
+    val e      = new Entity
 
     engine.addSystem(system)
     engine.addEntity(e)
@@ -195,9 +195,9 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
   }
 
   test("entity removal while iterating") {
-    val engine = new Engine
+    val engine   = new Engine
     val entities = engine.getEntitiesFor(Family.all(classOf[SpyComponent], classOf[IndexComponent]).get())
-    val sm = ComponentMapper.getFor(classOf[SpyComponent])
+    val sm       = ComponentMapper.getFor(classOf[SpyComponent])
 
     engine.addSystem(new IteratingRemovalSystem)
 
@@ -215,15 +215,14 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
     engine.update(deltaTime)
     assertEquals(entities.size, numEntities / 2)
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(sm.get(entities(i)).get.updates, 1)
-    }
   }
 
   test("component removal while iterating") {
-    val engine = new Engine
+    val engine   = new Engine
     val entities = engine.getEntitiesFor(Family.all(classOf[SpyComponent], classOf[IndexComponent]).get())
-    val sm = ComponentMapper.getFor(classOf[SpyComponent])
+    val sm       = ComponentMapper.getFor(classOf[SpyComponent])
 
     engine.addSystem(new IteratingComponentRemovalSystem)
 
@@ -241,9 +240,8 @@ class SortedIteratingSystemSuite extends munit.FunSuite {
     engine.update(deltaTime)
     assertEquals(entities.size, numEntities / 2)
 
-    for (i <- 0 until entities.size) {
+    for (i <- 0 until entities.size)
       assertEquals(sm.get(entities(i)).get.updates, 1)
-    }
   }
 
   test("startProcessing and endProcessing called") {

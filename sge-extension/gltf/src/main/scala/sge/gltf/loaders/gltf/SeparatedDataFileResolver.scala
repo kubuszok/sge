@@ -9,7 +9,7 @@ package gltf
 package loaders
 package gltf
 
-import java.nio.{ByteBuffer, ByteOrder}
+import java.nio.{ ByteBuffer, ByteOrder }
 import scala.collection.mutable.HashMap
 import sge.files.FileHandle
 import sge.graphics.Pixmap
@@ -24,8 +24,8 @@ import sge.utils.Nullable
 class SeparatedDataFileResolver extends DataFileResolver {
 
   private val bufferMap: HashMap[Int, ByteBuffer] = HashMap.empty
-  private var glModel: Nullable[GLTF] = Nullable.empty
-  private var path: Nullable[FileHandle] = Nullable.empty
+  private var glModel:   Nullable[GLTF]           = Nullable.empty
+  private var path:      Nullable[FileHandle]     = Nullable.empty
 
   override def load(file: FileHandle): Unit = {
     glModel = Nullable(GLTFJsonParser.parse(file.readString()))
@@ -35,20 +35,20 @@ class SeparatedDataFileResolver extends DataFileResolver {
 
   override def getRoot: GLTF = glModel.get
 
-  private def loadBuffers(path: FileHandle): Unit = {
+  private def loadBuffers(path: FileHandle): Unit =
     glModel.foreach { model =>
       model.buffers.foreach { buffers =>
         var i = 0
         while (i < buffers.size) {
           val glBuffer = buffers(i)
-          val buffer = ByteBuffer.allocate(glBuffer.byteLength)
+          val buffer   = ByteBuffer.allocate(glBuffer.byteLength)
           buffer.order(ByteOrder.LITTLE_ENDIAN)
           glBuffer.uri.foreach { uri =>
             if (uri.startsWith("data:")) {
               // data:application/octet-stream;base64,
               val parts = uri.split(",", 2)
-              val body = parts(1)
-              val data = java.util.Base64.getDecoder.decode(body)
+              val body  = parts(1)
+              val data  = java.util.Base64.getDecoder.decode(body)
               buffer.put(data)
             } else {
               val file = path.child(SeparatedDataFileResolver.decodePath(uri))
@@ -60,11 +60,10 @@ class SeparatedDataFileResolver extends DataFileResolver {
         }
       }
     }
-  }
 
   override def getBuffer(buffer: Int): ByteBuffer = bufferMap(buffer)
 
-  override def load(glImage: GLTFImage): Pixmap = {
+  override def load(glImage: GLTFImage): Pixmap =
     if (glImage.uri.isEmpty) {
       // load from buffer view
       if (glImage.mimeType.isEmpty) {
@@ -73,8 +72,8 @@ class SeparatedDataFileResolver extends DataFileResolver {
       val mimeType = glImage.mimeType.get
       if (mimeType == "image/png" || mimeType == "image/jpeg") {
         val bufferView = glModel.get.bufferViews.get(glImage.bufferView.get)
-        val data = bufferMap(bufferView.buffer.get)
-        val bytes = new Array[Byte](bufferView.byteLength)
+        val data       = bufferMap(bufferView.buffer.get)
+        val bytes      = new Array[Byte](bufferView.byteLength)
         data.position(bufferView.byteOffset)
         data.get(bytes, 0, bufferView.byteLength)
         data.rewind()
@@ -87,16 +86,15 @@ class SeparatedDataFileResolver extends DataFileResolver {
       if (uri.startsWith("data:")) {
         // data:application/octet-stream;base64,
         val parts = uri.split(",", 2)
-        val body = parts(1)
-        val data = java.util.Base64.getDecoder.decode(body)
+        val body  = parts(1)
+        val data  = java.util.Base64.getDecoder.decode(body)
         PixmapBinaryLoaderHack.load(data, 0, data.length)
       } else {
         new Pixmap(path.get.child(SeparatedDataFileResolver.decodePath(uri)))
       }
     }
-  }
 
-  def getImageFile(glImage: GLTFImage): Nullable[FileHandle] = {
+  def getImageFile(glImage: GLTFImage): Nullable[FileHandle] =
     glImage.uri.fold(Nullable.empty[FileHandle]) { uri =>
       if (!uri.startsWith("data:")) {
         Nullable(path.get.child(SeparatedDataFileResolver.decodePath(uri)))
@@ -104,16 +102,15 @@ class SeparatedDataFileResolver extends DataFileResolver {
         Nullable.empty[FileHandle]
       }
     }
-  }
 }
 
 object SeparatedDataFileResolver {
 
   def decodePath(uri: String): String = {
-    val src = uri.getBytes()
+    val src   = uri.getBytes()
     val bytes = new Array[Byte](src.length)
-    var pos = 0
-    var i = 0
+    var pos   = 0
+    var i     = 0
     while (i < src.length) {
       val c = src(i)
       if (c == '%') {

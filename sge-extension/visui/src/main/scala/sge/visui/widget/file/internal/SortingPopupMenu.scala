@@ -21,22 +21,42 @@ import sge.visui.widget.{ MenuItem, PopupMenu }
 class SortingPopupMenu(chooser: FileChooser)(using Sge) extends PopupMenu(chooser.getChooserStyle.popupMenuStyle.get) {
   private val selectedMenuItem: Drawable = chooser.getChooserStyle.contextMenuSelectedItem.get
 
-  private val sortByName: MenuItem = new MenuItem(FileChooserText.SORT_BY_NAME.get, selectedMenuItem, new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.NAME, sortingOrderAscending = true)
-  })
-  private val sortByDate: MenuItem = new MenuItem(FileChooserText.SORT_BY_DATE.get, selectedMenuItem, new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.MODIFIED_DATE, sortingOrderAscending = false)
-  })
-  private val sortBySize: MenuItem = new MenuItem(FileChooserText.SORT_BY_SIZE.get, selectedMenuItem, new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.SIZE, sortingOrderAscending = true)
-  })
+  private val sortByName: MenuItem = new MenuItem(
+    FileChooserText.SORT_BY_NAME.get,
+    selectedMenuItem,
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.NAME, sortingOrderAscending = true)
+    }
+  )
+  private val sortByDate: MenuItem = new MenuItem(
+    FileChooserText.SORT_BY_DATE.get,
+    selectedMenuItem,
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.MODIFIED_DATE, sortingOrderAscending = false)
+    }
+  )
+  private val sortBySize: MenuItem = new MenuItem(
+    FileChooserText.SORT_BY_SIZE.get,
+    selectedMenuItem,
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.setSorting(FileChooser.FileSorting.SIZE, sortingOrderAscending = true)
+    }
+  )
 
-  private val sortByAscending: MenuItem = new MenuItem(FileChooserText.SORT_BY_ASCENDING.get, selectedMenuItem, new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.sortingOrderAscending_=(true)
-  })
-  private val sortByDescending: MenuItem = new MenuItem(FileChooserText.SORT_BY_DESCENDING.get, selectedMenuItem, new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.sortingOrderAscending_=(false)
-  })
+  private val sortByAscending: MenuItem = new MenuItem(
+    FileChooserText.SORT_BY_ASCENDING.get,
+    selectedMenuItem,
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.sortingOrderAscending_=(true)
+    }
+  )
+  private val sortByDescending: MenuItem = new MenuItem(
+    FileChooserText.SORT_BY_DESCENDING.get,
+    selectedMenuItem,
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = chooser.sortingOrderAscending_=(false)
+    }
+  )
 
   private val sortByNameImage:       Image = sortByName.getImage.get
   private val sortByDateImage:       Image = sortByDate.getImage.get

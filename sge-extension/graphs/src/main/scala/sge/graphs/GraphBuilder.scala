@@ -14,7 +14,7 @@ object GraphBuilder {
   def buildCompleteGraph[V](graph: Graph[V]): Unit = {
     val nodesA = graph.nodeMap.nodeIterator
     while (nodesA.hasNext) {
-      val a = nodesA.next()
+      val a      = nodesA.next()
       val nodesB = graph.nodeMap.nodeIterator
       while (nodesB.hasNext) {
         val b = nodesB.next()

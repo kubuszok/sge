@@ -25,13 +25,13 @@ class PBRDepthShaderProvider(config: DepthShader.Config)(using Sge) extends Dept
   if (config.fragmentShader.isEmpty) config.fragmentShader = Nullable(PBRDepthShaderProvider.getDefaultFragmentShader())
 
   protected def morphTargetsPrefix(renderable: Renderable): String = {
-    val sb = new StringBuilder
+    val sb               = new StringBuilder
     val vertexAttributes = renderable.meshPart.mesh.vertexAttributes
-    val n = vertexAttributes.size
-    var j = 0
+    val n                = vertexAttributes.size
+    var j                = 0
     while (j < n) {
       val att = vertexAttributes.get(j)
-      var i = 0
+      var i   = 0
       while (i < PBRCommon.MAX_MORPH_TARGETS) {
         if (att.usage == PBRVertexAttributes.Usage.PositionTarget && att.unit == i) {
           sb.append("#define position").append(i).append("Flag\n")

@@ -23,48 +23,42 @@ import scala.collection.mutable.HashMap
 import sge.utils.Nullable
 import sge.utils.Pool
 
-/** Supports [[Entity]] and [[Component]] pooling. This improves performance in environments where
-  * creating/deleting entities is frequent as it greatly reduces memory allocation.
+/** Supports [[Entity]] and [[Component]] pooling. This improves performance in environments where creating/deleting entities is frequent as it greatly reduces memory allocation.
   *
-  *  - Create entities using [[createEntity]]
-  *  - Create components using [[createComponent]]
-  *  - Components should implement [[Pool.Poolable]] when in need to reset their state upon removal
+  *   - Create entities using [[createEntity]]
+  *   - Create components using [[createComponent]]
+  *   - Components should implement [[Pool.Poolable]] when in need to reset their state upon removal
   *
   * @author
   *   David Saltares (original implementation)
   */
 class PooledEngine(
-    entityPoolInitialSize: Int = 10,
-    entityPoolMaxSize: Int = 100,
-    componentPoolInitialSize: Int = 10,
-    componentPoolMaxSize: Int = 100
+  entityPoolInitialSize:    Int = 10,
+  entityPoolMaxSize:        Int = 100,
+  componentPoolInitialSize: Int = 10,
+  componentPoolMaxSize:     Int = 100
 ) extends Engine {
 
-  private val entityPool: EntityPool = new EntityPool(entityPoolInitialSize, entityPoolMaxSize)
-  private val componentPools: ComponentPools = new ComponentPools(componentPoolInitialSize, componentPoolMaxSize)
+  private val entityPool:         EntityPool                 = new EntityPool(entityPoolInitialSize, entityPoolMaxSize)
+  private val componentPools:     ComponentPools             = new ComponentPools(componentPoolInitialSize, componentPoolMaxSize)
   private val componentFactories: HashMap[Class[?], () => ?] = HashMap.empty
 
-  /** Registers a factory function for creating components of the given type.
-    * This is the cross-platform way to use [[createComponent]] — required on Scala.js and Scala Native
-    * where reflection-based instantiation is not available.
+  /** Registers a factory function for creating components of the given type. This is the cross-platform way to use [[createComponent]] — required on Scala.js and Scala Native where reflection-based
+    * instantiation is not available.
     */
-  def registerComponentFactory[T <: Component](componentClass: Class[T], factory: () => T): Unit = {
+  def registerComponentFactory[T <: Component](componentClass: Class[T], factory: () => T): Unit =
     componentFactories.put(componentClass, factory)
-  }
 
   /** @return Clean [[Entity]] from the Engine pool. In order to add it to the [[Engine]], use [[addEntity]]. */
   override def createEntity(): Entity = entityPool.obtain()
 
-  /** Retrieves a new [[Component]] from the [[Engine]] pool. It will be placed back in the pool whenever it's removed
-    * from an [[Entity]] or the [[Entity]] itself is removed.
-    * Overrides the default implementation of Engine (creating a new Object).
+  /** Retrieves a new [[Component]] from the [[Engine]] pool. It will be placed back in the pool whenever it's removed from an [[Entity]] or the [[Entity]] itself is removed. Overrides the default
+    * implementation of Engine (creating a new Object).
     */
-  override def createComponent[T <: Component](componentType: Class[T]): Nullable[T] = {
+  override def createComponent[T <: Component](componentType: Class[T]): Nullable[T] =
     Nullable(componentPools.obtain(componentType))
-  }
 
-  /** Removes all free entities and components from their pools. Although this will likely result in garbage collection,
-    * it will free up memory.
+  /** Removes all free entities and components from their pools. Although this will likely result in garbage collection, it will free up memory.
     */
   def clearPools(): Unit = {
     entityPool.clear()
@@ -102,16 +96,14 @@ class PooledEngine(
 
   private class EntityPool(poolInitialSize: Int, poolMaxSize: Int) extends Pool[PooledEntity] {
     override protected val initialCapacity: Int = poolInitialSize
-    override protected val max: Int = poolMaxSize
+    override protected val max:             Int = poolMaxSize
 
     override protected def newObject(): PooledEntity = new PooledEntity()
 
-    /** Forwarding this call ensures [[Pool.Poolable]] [[Component]] instances are returned to their respective
-      * [[ComponentPools]] even if the [[EntityPool]] is full.
+    /** Forwarding this call ensures [[Pool.Poolable]] [[Component]] instances are returned to their respective [[ComponentPools]] even if the [[EntityPool]] is full.
       */
-    override protected def discard(pooledEntity: PooledEntity): Unit = {
+    override protected def discard(pooledEntity: PooledEntity): Unit =
       pooledEntity.reset()
-    }
   }
 
   private class ComponentPools(poolInitialSize: Int, poolMaxSize: Int) {
@@ -129,14 +121,13 @@ class PooledEngine(
       }
     }
 
-    def clear(): Unit = {
+    def clear(): Unit =
       pools.valuesIterator.foreach(_.clear())
-    }
 
     private def createPool[T](componentType: Class[T]): Pool[T] = {
       val factory = componentFactories.get(componentType) match {
         case Some(f) => f.asInstanceOf[() => T]
-        case None =>
+        case None    =>
           // Fallback: try to use the factory or throw a clear error
           () =>
             throw new IllegalArgumentException(
@@ -147,8 +138,8 @@ class PooledEngine(
       }
       new Pool[T] {
         override protected val initialCapacity: Int = poolInitialSize
-        override protected val max: Int = poolMaxSize
-        override protected def newObject(): T = factory()
+        override protected val max:             Int = poolMaxSize
+        override protected def newObject():     T   = factory()
       }
     }
   }

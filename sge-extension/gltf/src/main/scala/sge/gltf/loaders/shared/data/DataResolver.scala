@@ -10,26 +10,25 @@ package loaders
 package shared
 package data
 
-import java.nio.{ByteBuffer, ByteOrder, FloatBuffer, IntBuffer, ShortBuffer}
+import java.nio.{ ByteBuffer, ByteOrder, FloatBuffer, IntBuffer, ShortBuffer }
 import sge.gltf.data.GLTF
-import sge.gltf.data.data.{GLTFAccessor, GLTFBufferView}
+import sge.gltf.data.data.{ GLTFAccessor, GLTFBufferView }
 import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import sge.gltf.loaders.shared.GLTFTypes
 
 class DataResolver(private val glModel: GLTF, private val dataFileResolver: DataFileResolver) {
 
-  def getAccessor(accessorID: Int): GLTFAccessor = {
+  def getAccessor(accessorID: Int): GLTFAccessor =
     glModel.accessors.get(accessorID)
-  }
 
   def readBufferFloat(accessorID: Int): Array[Float] = {
-    val accessor = glModel.accessors.get(accessorID)
+    val accessor       = glModel.accessors.get(accessorID)
     val accessorBuffer = getAccessorBuffer(accessor)
-    val bytes = accessorBuffer.prepareForReading()
-    val data = new Array[Float](GLTFTypes.accessorSize(accessor) / 4)
+    val bytes          = accessorBuffer.prepareForReading()
+    val data           = new Array[Float](GLTFTypes.accessorSize(accessor) / 4)
 
     val nbFloatsPerVertex = GLTFTypes.accessorTypeSize(accessor)
-    val nbBytesToSkip = accessorBuffer.getByteStride - nbFloatsPerVertex * 4
+    val nbBytesToSkip     = accessorBuffer.getByteStride - nbFloatsPerVertex * 4
     if (nbBytesToSkip == 0) {
       bytes.asFloatBuffer().get(data)
     } else {
@@ -49,17 +48,17 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
   }
 
   def readBufferUByte(accessorID: Int): Array[Int] = {
-    val accessor = glModel.accessors.get(accessorID)
+    val accessor       = glModel.accessors.get(accessorID)
     val accessorBuffer = getAccessorBuffer(accessor)
-    val bytes = accessorBuffer.prepareForReading()
-    val data = new Array[Int](GLTFTypes.accessorSize(accessor))
+    val bytes          = accessorBuffer.prepareForReading()
+    val data           = new Array[Int](GLTFTypes.accessorSize(accessor))
 
     val nbBytesPerVertex = GLTFTypes.accessorTypeSize(accessor)
-    val nbBytesToSkip = accessorBuffer.getByteStride - nbBytesPerVertex
+    val nbBytesToSkip    = accessorBuffer.getByteStride - nbBytesPerVertex
     if (nbBytesToSkip == 0) {
       var i = 0
       while (i < data.length) {
-        data(i) = bytes.get() & 0xFF
+        data(i) = bytes.get() & 0xff
         i += 1
       }
     } else {
@@ -67,7 +66,7 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
       while (i < accessor.count) {
         var j = 0
         while (j < nbBytesPerVertex) {
-          data(i * nbBytesPerVertex + j) = bytes.get() & 0xFF
+          data(i * nbBytesPerVertex + j) = bytes.get() & 0xff
           j += 1
         }
         bytes.position(bytes.position() + nbBytesToSkip)
@@ -78,18 +77,18 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
   }
 
   def readBufferUShort(accessorID: Int): Array[Int] = {
-    val accessor = glModel.accessors.get(accessorID)
+    val accessor       = glModel.accessors.get(accessorID)
     val accessorBuffer = getAccessorBuffer(accessor)
-    val bytes = accessorBuffer.prepareForReading()
-    val data = new Array[Int](GLTFTypes.accessorSize(accessor) / 2)
+    val bytes          = accessorBuffer.prepareForReading()
+    val data           = new Array[Int](GLTFTypes.accessorSize(accessor) / 2)
 
     val nbShortsPerVertex = GLTFTypes.accessorTypeSize(accessor)
-    val nbBytesToSkip = accessorBuffer.getByteStride - nbShortsPerVertex * 2
+    val nbBytesToSkip     = accessorBuffer.getByteStride - nbShortsPerVertex * 2
     if (nbBytesToSkip == 0) {
       val shorts = bytes.asShortBuffer()
-      var i = 0
+      var i      = 0
       while (i < data.length) {
-        data(i) = shorts.get() & 0xFFFF
+        data(i) = shorts.get() & 0xffff
         i += 1
       }
     } else {
@@ -97,7 +96,7 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
       while (i < accessor.count) {
         var j = 0
         while (j < nbShortsPerVertex) {
-          data(i * nbShortsPerVertex + j) = bytes.getShort() & 0xFFFF
+          data(i * nbShortsPerVertex + j) = bytes.getShort() & 0xffff
           j += 1
         }
         bytes.position(bytes.position() + nbBytesToSkip)
@@ -108,9 +107,9 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
   }
 
   def readBufferUShortAsFloat(accessorID: Int): Array[Float] = {
-    val intBuffer = readBufferUShort(accessorID)
+    val intBuffer   = readBufferUShort(accessorID)
     val floatBuffer = new Array[Float](intBuffer.length)
-    var i = 0
+    var i           = 0
     while (i < intBuffer.length) {
       floatBuffer(i) = intBuffer(i) / 65535f
       i += 1
@@ -119,9 +118,9 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
   }
 
   def readBufferUByteAsFloat(accessorID: Int): Array[Float] = {
-    val intBuffer = readBufferUByte(accessorID)
+    val intBuffer   = readBufferUByte(accessorID)
     val floatBuffer = new Array[Float](intBuffer.length)
-    var i = 0
+    var i           = 0
     while (i < intBuffer.length) {
       floatBuffer(i) = intBuffer(i) / 255f
       i += 1
@@ -129,25 +128,20 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
     floatBuffer
   }
 
-  def getBufferFloat(accessorID: Int): FloatBuffer = {
+  def getBufferFloat(accessorID: Int): FloatBuffer =
     getBufferFloat(glModel.accessors.get(accessorID))
-  }
 
-  def getBufferView(bufferViewID: Int): GLTFBufferView = {
+  def getBufferView(bufferViewID: Int): GLTFBufferView =
     glModel.bufferViews.get(bufferViewID)
-  }
 
-  def getBufferFloat(glAccessor: GLTFAccessor): FloatBuffer = {
+  def getBufferFloat(glAccessor: GLTFAccessor): FloatBuffer =
     getBufferByte(glAccessor).asFloatBuffer()
-  }
 
-  def getBufferInt(glAccessor: GLTFAccessor): IntBuffer = {
+  def getBufferInt(glAccessor: GLTFAccessor): IntBuffer =
     getBufferByte(glAccessor).asIntBuffer()
-  }
 
-  def getBufferShort(glAccessor: GLTFAccessor): ShortBuffer = {
+  def getBufferShort(glAccessor: GLTFAccessor): ShortBuffer =
     getBufferByte(glAccessor).asShortBuffer()
-  }
 
   def getBufferByte(glAccessor: GLTFAccessor): ByteBuffer = {
     val buffer = getAccessorBuffer(glAccessor)
@@ -171,16 +165,16 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
   }
 
   private def patchSparseValues(glAccessor: GLTFAccessor, outputBuffer: AccessorBuffer): Unit = {
-    val sparse = glAccessor.sparse.get
+    val sparse            = glAccessor.sparse.get
     val indicesBufferView = getBufferView(sparse.indices.get.bufferView)
-    val indicesBuffer = dataFileResolver.getBuffer(indicesBufferView.buffer.get).asReadOnlyBuffer().order(ByteOrder.LITTLE_ENDIAN)
+    val indicesBuffer     = dataFileResolver.getBuffer(indicesBufferView.buffer.get).asReadOnlyBuffer().order(ByteOrder.LITTLE_ENDIAN)
     indicesBuffer.position(sparse.indices.get.byteOffset + indicesBufferView.byteOffset)
     val replacementValueBufferView = getBufferView(sparse.values.get.bufferView)
-    val replacementValuesBuffer = dataFileResolver.getBuffer(replacementValueBufferView.buffer.get).asReadOnlyBuffer().order(ByteOrder.LITTLE_ENDIAN)
+    val replacementValuesBuffer    = dataFileResolver.getBuffer(replacementValueBufferView.buffer.get).asReadOnlyBuffer().order(ByteOrder.LITTLE_ENDIAN)
     replacementValuesBuffer.position(sparse.values.get.byteOffset + replacementValueBufferView.byteOffset)
-    val bytesPerValue = GLTFTypes.accessorStrideSize(glAccessor)
+    val bytesPerValue         = GLTFTypes.accessorStrideSize(glAccessor)
     val replacementValueBytes = new Array[Byte](bytesPerValue)
-    var i = 0
+    var i                     = 0
     while (i < sparse.count) {
       val indexToReplace: Int = sparse.indices.get.componentType match {
         case GLTFTypes.C_UBYTE =>
@@ -198,7 +192,7 @@ class DataResolver(private val glModel: GLTF, private val dataFileResolver: Data
           throw new GLTFUnsupportedException("unsupported indices type")
       }
       replacementValuesBuffer.get(replacementValueBytes)
-      val data = outputBuffer.getData
+      val data          = outputBuffer.getData
       val elementOffset = indexToReplace * outputBuffer.getByteStride
       data.position(outputBuffer.getByteOffset + elementOffset)
       data.put(replacementValueBytes)

@@ -28,9 +28,8 @@ object FileUtils {
 
   /** Sorts file by names ignoring upper case */
   val FILE_NAME_COMPARATOR: Comparator[FileHandle] = new Comparator[FileHandle] {
-    override def compare(f1: FileHandle, f2: FileHandle): Int = {
+    override def compare(f1: FileHandle, f2: FileHandle): Int =
       f1.name.toLowerCase.compareTo(f2.name.toLowerCase)
-    }
   }
 
   /** Sorts file by modified date then by name. */
@@ -57,33 +56,29 @@ object FileUtils {
     * @return
     *   human readable file size.
     */
-  def readableFileSize(size: Long): String = {
+  def readableFileSize(size: Long): String =
     if (size <= 0) "0 B"
     else {
       val digitGroups = (Math.log10(size.toDouble) / Math.log10(1024)).toInt
       new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)).replace(",", ".") + " " + UNITS(digitGroups)
     }
-  }
 
   /** Sorts file list, using this rules: directories first, sorted by names ignoring uppercase, then files sorted by names ignoring uppercase. */
-  def sortFiles(files: scala.Array[FileHandle]): DynamicArray[FileHandle] = {
+  def sortFiles(files: scala.Array[FileHandle]): DynamicArray[FileHandle] =
     sortFiles(files, FILE_NAME_COMPARATOR)
-  }
 
   /** Sorts file list, using this rules: directories first, sorted using provided comparator, then files sorted using provided comparator. */
-  def sortFiles(files: scala.Array[FileHandle], comparator: Comparator[FileHandle]): DynamicArray[FileHandle] = {
+  def sortFiles(files: scala.Array[FileHandle], comparator: Comparator[FileHandle]): DynamicArray[FileHandle] =
     sortFiles(files, comparator, descending = false)
-  }
 
   /** Sorts file list, using this rules: directories first, sorted using provided comparator, then files sorted using provided comparator. */
   def sortFiles(files: scala.Array[FileHandle], comparator: Comparator[FileHandle], descending: Boolean): DynamicArray[FileHandle] = {
     val directoriesList = DynamicArray[FileHandle]()
     val filesList       = DynamicArray[FileHandle]()
 
-    for (f <- files) {
+    for (f <- files)
       if (f.isDirectory()) directoriesList.add(f)
       else filesList.add(f)
-    }
 
     val ordering = Ordering.comparatorToOrdering(using comparator)
     directoriesList.sort(ordering)
@@ -99,7 +94,7 @@ object FileUtils {
   }
 
   /** Checks whether given name is valid for current user OS. */
-  def isValidFileName(name: String): Boolean = {
+  def isValidFileName(name: String): Boolean =
     try {
       var n = name
       if (OsUtils.isWindows) {
@@ -114,12 +109,10 @@ object FileUtils {
     } catch {
       case _: Exception => false
     }
-  }
 
   /** Converts [[File]] to absolute [[FileHandle]]. */
-  def toFileHandle(file: File)(using Sge): FileHandle = {
+  def toFileHandle(file: File)(using Sge): FileHandle =
     Sge().files.absolute(file.getAbsolutePath)
-  }
 
   /** Shows given directory in system explorer window. */
   def showDirInExplorer(dir: FileHandle): Unit = {
@@ -130,10 +123,10 @@ object FileUtils {
       // This is desktop only, rarely called, performance drop is negligible
       val desktopClass = Class.forName("java.awt.Desktop")
       val desktop      = desktopClass.getMethod("getDesktop").invoke(null) // @nowarn -- Java interop boundary
-      try {
+      try
         // browseFileDirectory was introduced in JDK 9
         desktopClass.getMethod("browseFileDirectory", classOf[File]).invoke(desktop, dirToShow)
-      } catch {
+      catch {
         case e: (NoSuchMethodException | java.lang.reflect.InvocationTargetException) =>
           // browseFileDirectory throws UnsupportedOperationException on some platforms
           e match {

@@ -275,17 +275,19 @@ object SimplePalette {
       }
     }
 
-    if (mixing.size < 2) { return 0f } // scalastyle:ignore return
+    if (mixing.size < 2) 0f
+    else {
+      var result = FloatColors.unevenMix(mixing.toArray, 0, mixing.size)
+      if (result == 0f) result
+      else {
+        if (lightness > 0) result = FloatColors.lerpFloatColorsBlended(result, WHITE, lightness)
+        else if (lightness < 0) result = FloatColors.lerpFloatColorsBlended(result, BLACK, -lightness)
 
-    var result = FloatColors.unevenMix(mixing.toArray, 0, mixing.size)
-    if (result == 0f) { return result } // scalastyle:ignore return
+        if (saturation > 0) result = ColorTools.enrich(result, saturation)
+        else if (saturation < 0) result = ColorTools.dullen(result, -saturation)
 
-    if (lightness > 0) result = FloatColors.lerpFloatColorsBlended(result, WHITE, lightness)
-    else if (lightness < 0) result = FloatColors.lerpFloatColorsBlended(result, BLACK, -lightness)
-
-    if (saturation > 0) result = ColorTools.enrich(result, saturation)
-    else if (saturation < 0) result = ColorTools.dullen(result, -saturation)
-
-    result
+        result
+      }
+    }
   }
 }

@@ -27,9 +27,8 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   )
   private var _style: Styles.TextButtonStyle = style
 
-  def this(text: Nullable[String], style: Styles.TextButtonStyle) = {
+  def this(text: Nullable[String], style: Styles.TextButtonStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
-  }
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -66,16 +65,14 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
     this
   }
 
-  def setText(text: Nullable[String]): Unit = {
+  def setText(text: Nullable[String]): Unit =
     label.setText(Nullable.fold(text)("")(identity))
-  }
 
   def getText: String = label.toString
 
   /** Does nothing unless the label used here is a TypingLabel; then, this will skip text progression ahead. */
-  def skipToTheEnd(): Unit = {
+  def skipToTheEnd(): Unit =
     label.skipToTheEnd()
-  }
 
   override def toString: String = {
     val className = getClass.getName

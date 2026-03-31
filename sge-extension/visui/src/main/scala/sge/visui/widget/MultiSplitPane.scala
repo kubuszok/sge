@@ -56,12 +56,13 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
           getHandleContaining(x, y).isDefined
 
         override protected def contains(x: Float, y: Float): Boolean = {
-          var i = 0
-          while (i < widgetBounds.size) {
-            if (widgetBounds(i).contains(x, y)) return true // @nowarn -- simple search
+          var i     = 0
+          var found = false
+          while (i < widgetBounds.size && !found) {
+            if (widgetBounds(i).contains(x, y)) found = true
             i += 1
           }
-          getHandleContaining(x, y).isDefined
+          found || getHandleContaining(x, y).isDefined
         }
       }
     )
@@ -127,12 +128,13 @@ class MultiSplitPane(private val vertical: Boolean, initStyle: MultiSplitPane.Mu
 
   private def getHandleContaining(x: Float, y: Float): Nullable[Rectangle] = {
     var i = 0
-    while (i < _handleBounds.size) {
+    var result: Nullable[Rectangle] = Nullable.empty
+    while (i < _handleBounds.size && result.isEmpty) {
       val rect = _handleBounds(i)
-      if (rect.contains(x, y)) return Nullable(rect) // @nowarn -- simple search
+      if (rect.contains(x, y)) result = Nullable(rect)
       i += 1
     }
-    Nullable.empty
+    result
   }
 
   def getStyle: MultiSplitPane.MultiSplitPaneStyle = style

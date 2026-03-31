@@ -22,8 +22,8 @@ import sge.vfx.gl.VfxGLUtils
 class FxaaEffect(
   private var fxaaReduceMin: Float,
   private var fxaaReduceMul: Float,
-  private var fxaaSpanMax: Float,
-  supportAlpha: Boolean
+  private var fxaaSpanMax:   Float,
+  supportAlpha:              Boolean
 )(using Sge)
     extends ShaderVfxEffect(
       VfxGLUtils.compileShader(

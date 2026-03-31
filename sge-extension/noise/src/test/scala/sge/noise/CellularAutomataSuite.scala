@@ -15,20 +15,19 @@ import sge.noise.generator.util.Generators
 
 class CellularAutomataSuite extends munit.FunSuite {
 
-  override def beforeEach(context: BeforeEach): Unit = {
+  override def beforeEach(context: BeforeEach): Unit =
     Generators.setRandom(new Random(42L))
-  }
 
   test("CellularAutomataGenerator produces non-uniform grid") {
     val grid = new Grid(32, 32)
-    val gen = new CellularAutomataGenerator
+    val gen  = new CellularAutomataGenerator
     gen.iterationsAmount = 4
     gen.generate(grid)
 
-    val arr = grid.getArray
+    val arr        = grid.getArray
     var aliveCount = 0
-    var deadCount = 0
-    var i = 0
+    var deadCount  = 0
+    var i          = 0
     while (i < arr.length) {
       if (arr(i) >= 1f) aliveCount += 1
       else deadCount += 1
@@ -59,9 +58,9 @@ class CellularAutomataSuite extends munit.FunSuite {
   test("static generate convenience method works") {
     val grid = new Grid(32, 32)
     CellularAutomataGenerator.generate(grid, 3)
-    val arr = grid.getArray
+    val arr      = grid.getArray
     var hasAlive = false
-    var i = 0
+    var i        = 0
     while (i < arr.length) {
       if (arr(i) >= 1f) hasAlive = true
       i += 1
@@ -71,15 +70,15 @@ class CellularAutomataSuite extends munit.FunSuite {
 
   test("CellularAutomataGenerator without initiation preserves existing values") {
     val grid = new Grid(1f, 32, 32)
-    val gen = new CellularAutomataGenerator
+    val gen  = new CellularAutomataGenerator
     gen.initiate = false
     gen.iterationsAmount = 1
     gen.generate(grid)
 
     // All cells started alive, so the result should still have alive cells
-    val arr = grid.getArray
+    val arr        = grid.getArray
     var aliveCount = 0
-    var i = 0
+    var i          = 0
     while (i < arr.length) {
       if (arr(i) >= 1f) aliveCount += 1
       i += 1

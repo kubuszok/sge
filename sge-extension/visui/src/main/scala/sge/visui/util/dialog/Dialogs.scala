@@ -34,13 +34,13 @@ object Dialogs {
     dialog.centerWindow()
     dialog.addListener(
       new InputListener() {
-        override def keyDown(event: InputEvent, keycode: Key): Boolean = {
+        override def keyDown(event: InputEvent, keycode: Key): Boolean =
           if (keycode == Keys.ENTER) {
             dialog.fadeOut()
-            return true
+            true
+          } else {
+            false
           }
-          false
-        }
       }
     )
     stage.addActor(dialog.fadeIn())

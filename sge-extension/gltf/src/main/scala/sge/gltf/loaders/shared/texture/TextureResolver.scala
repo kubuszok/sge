@@ -10,28 +10,28 @@ package loaders
 package shared
 package texture
 
-import scala.collection.mutable.{ArrayBuffer, HashMap}
+import scala.collection.mutable.{ ArrayBuffer, HashMap }
 import scala.language.implicitConversions
 import sge.Sge
-import sge.graphics.{Pixmap, Texture}
-import sge.graphics.Texture.{TextureFilter, TextureWrap}
+import sge.graphics.{ Pixmap, Texture }
+import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.utils.TextureDescriptor
-import sge.gltf.data.texture.{GLTFSampler, GLTFTexture, GLTFTextureInfo}
+import sge.gltf.data.texture.{ GLTFSampler, GLTFTexture, GLTFTextureInfo }
 import sge.gltf.loaders.exceptions.GLTFRuntimeException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.utils.Nullable
 
 class TextureResolver extends AutoCloseable {
 
-  protected val texturesSimple: HashMap[Int, Texture] = HashMap.empty
-  protected val texturesMipmap: HashMap[Int, Texture] = HashMap.empty
-  protected var glTextures: Nullable[ArrayBuffer[GLTFTexture]] = Nullable.empty
-  protected var glSamplers: Nullable[ArrayBuffer[GLTFSampler]] = Nullable.empty
+  protected val texturesSimple: HashMap[Int, Texture]              = HashMap.empty
+  protected val texturesMipmap: HashMap[Int, Texture]              = HashMap.empty
+  protected var glTextures:     Nullable[ArrayBuffer[GLTFTexture]] = Nullable.empty
+  protected var glSamplers:     Nullable[ArrayBuffer[GLTFSampler]] = Nullable.empty
 
   def loadTextures(
-      glTextures: Nullable[ArrayBuffer[GLTFTexture]],
-      glSamplers: Nullable[ArrayBuffer[GLTFSampler]],
-      imageResolver: ImageResolver
+    glTextures:    Nullable[ArrayBuffer[GLTFTexture]],
+    glSamplers:    Nullable[ArrayBuffer[GLTFSampler]],
+    imageResolver: ImageResolver
   )(using Sge): Unit = {
     this.glTextures = glTextures
     this.glSamplers = glSamplers
@@ -53,7 +53,7 @@ class TextureResolver extends AutoCloseable {
 
         glTexture.source.foreach { sourceIdx =>
           if (!textureMap.contains(sourceIdx)) {
-            val pixmap = imageResolver.get(sourceIdx)
+            val pixmap  = imageResolver.get(sourceIdx)
             val texture = new Texture(pixmap, useMipMaps)
             textureMap.put(sourceIdx, texture)
           }
@@ -85,7 +85,7 @@ class TextureResolver extends AutoCloseable {
     val textureMap = if (useMipMaps) texturesMipmap else texturesSimple
 
     val texture = textureMap.get(glTexture.source.get) match {
-      case Some(t) => t
+      case Some(t)    => t
       case scala.None => throw new GLTFRuntimeException("texture not loaded")
     }
     textureDescriptor.texture = texture
@@ -93,23 +93,19 @@ class TextureResolver extends AutoCloseable {
   }
 
   override def close(): Unit = {
-    for ((_, texture) <- texturesSimple) {
+    for ((_, texture) <- texturesSimple)
       texture.close()
-    }
     texturesSimple.clear()
-    for ((_, texture) <- texturesMipmap) {
+    for ((_, texture) <- texturesMipmap)
       texture.close()
-    }
     texturesMipmap.clear()
   }
 
   def getTextures(textures: ArrayBuffer[Texture]): ArrayBuffer[Texture] = {
-    for ((_, texture) <- texturesSimple) {
+    for ((_, texture) <- texturesSimple)
       textures += texture
-    }
-    for ((_, texture) <- texturesMipmap) {
+    for ((_, texture) <- texturesMipmap)
       textures += texture
-    }
     textures
   }
 }

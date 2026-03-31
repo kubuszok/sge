@@ -11,6 +11,9 @@
 package sge
 package anim8
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.files.FileHandle
 import sge.graphics.Pixmap
 import sge.utils.StreamUtils
@@ -153,7 +156,7 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
   def writePrecisely(output: OutputStream, pixmap: Pixmap, ditherFallback: Boolean, threshold: Int): Unit =
     writePrecisely(output, pixmap, null, ditherFallback, threshold)
 
-  def writePrecisely(output: OutputStream, pixmap: Pixmap, exactPalette: Array[Int] | Null, ditherFallback: Boolean, threshold: Int): Unit = {
+  def writePrecisely(output: OutputStream, pixmap: Pixmap, exactPalette: Array[Int] | Null, ditherFallback: Boolean, threshold: Int): Unit = boundary {
     val colorToIndex = new mutable.HashMap[Int, Int]()
     colorToIndex.put(0, 0)
     var hasTransparent = 0
@@ -190,7 +193,7 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
         y0 += 1
       }
       if (tooManyColors) {
-        return // early exit already handled @nowarn
+        break(())
       }
       paletteArray = new Array[Int](colorToIndex.size)
       for ((k, v) <- colorToIndex)

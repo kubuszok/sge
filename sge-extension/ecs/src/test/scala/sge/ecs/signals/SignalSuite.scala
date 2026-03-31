@@ -26,8 +26,8 @@ class SignalSuite extends munit.FunSuite {
   }
 
   test("add listener and dispatch") {
-    val dummy = new Dummy
-    val signal = new Signal[Dummy]
+    val dummy    = new Dummy
+    val signal   = new Signal[Dummy]
     val listener = new ListenerMock
 
     signal.add(listener)
@@ -40,8 +40,8 @@ class SignalSuite extends munit.FunSuite {
   }
 
   test("multiple listeners all receive") {
-    val dummy = new Dummy
-    val signal = new Signal[Dummy]
+    val dummy     = new Dummy
+    val signal    = new Signal[Dummy]
     val listeners = (0 until 10).map(_ => new ListenerMock).toArray
 
     listeners.foreach(signal.add)
@@ -55,8 +55,8 @@ class SignalSuite extends munit.FunSuite {
   }
 
   test("add, dispatch, and remove listener") {
-    val dummy = new Dummy
-    val signal = new Signal[Dummy]
+    val dummy     = new Dummy
+    val signal    = new Signal[Dummy]
     val listenerA = new ListenerMock
     val listenerB = new ListenerMock
 
@@ -84,8 +84,8 @@ class SignalSuite extends munit.FunSuite {
   }
 
   test("remove during dispatch (snapshot safety)") {
-    val dummy = new Dummy
-    val signal = new Signal[Dummy]
+    val dummy     = new Dummy
+    val signal    = new Signal[Dummy]
     val listenerA = new RemoveWhileDispatchListener
     val listenerB = new ListenerMock
 
@@ -99,8 +99,8 @@ class SignalSuite extends munit.FunSuite {
   }
 
   test("removeAllListeners") {
-    val dummy = new Dummy
-    val signal = new Signal[Dummy]
+    val dummy     = new Dummy
+    val signal    = new Signal[Dummy]
     val listenerA = new ListenerMock
     val listenerB = new ListenerMock
 

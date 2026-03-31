@@ -15,9 +15,9 @@ class UndirectedGraph[V] extends Graph[V] {
 
   private val _algorithms: UndirectedGraphAlgorithms[V] = UndirectedGraphAlgorithms[V](this)
 
-  //================================================================================
+  // ================================================================================
   // Graph building
-  //================================================================================
+  // ================================================================================
 
   override private[graphs] def obtainEdge(): Connection[V] = UndirectedConnection[V]()
 
@@ -48,11 +48,12 @@ class UndirectedGraph[V] extends Graph[V] {
   override private[graphs] def removeConnection(a: Node[V], b: Node[V]): Boolean = {
     val e = a.removeEdge(b)
     if (e == null) {
-      return false
+      false
+    } else {
+      b.removeEdge(a)
+      edgeMap.remove(e)
+      true
     }
-    b.removeEdge(a)
-    edgeMap.remove(e)
-    true
   }
 
   override private[graphs] def getConnection(a: Node[V], b: Node[V]): Connection[V] = {
@@ -61,9 +62,9 @@ class UndirectedGraph[V] extends Graph[V] {
     else edgeMap.getOrElse(edge, edge) // get from map to ensure consistent instance is returned
   }
 
-  //================================================================================
+  // ================================================================================
   // Superclass implementations
-  //================================================================================
+  // ================================================================================
 
   override def isDirected: Boolean = false
 

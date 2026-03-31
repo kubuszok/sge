@@ -9,6 +9,8 @@ package graphs
 package algorithms
 
 import scala.collection.mutable
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** Detects cycles in a graph using depth-first search. */
 class CycleDetector[V] private[algorithms] (id: Int, graph: Graph[V]) extends Algorithm[V](id) {
@@ -19,29 +21,29 @@ class CycleDetector[V] private[algorithms] (id: Int, graph: Graph[V]) extends Al
 
   override def isFinished: Boolean = true
 
-  private def findCycle(graph: Graph[V]): Boolean = {
+  private def findCycle(graph: Graph[V]): Boolean = boundary {
     if (graph.size < 3 || graph.edgeCount < 3) {
-      return false
+      break(false)
     }
-    val runID = graph.algorithms.requestRunID()
+    val runID    = graph.algorithms.requestRunID()
     val nodeIter = graph.getNodes.iterator
     while (nodeIter.hasNext) {
       val v = nodeIter.next()
       v.resetAlgorithmAttribs(runID)
       if (detectCycleDFS(v, null.asInstanceOf[Node[V]], mutable.HashSet[Node[V]](), runID, graph)) { // @nowarn — null parent for root
-        return true
+        break(true)
       }
     }
     false
   }
 
   private def detectCycleDFS(
-      v: Node[V],
-      parent: Node[V],
-      recursiveStack: mutable.HashSet[Node[V]],
-      runID: Int,
-      graph: Graph[V]
-  ): Boolean = {
+    v:              Node[V],
+    parent:         Node[V],
+    recursiveStack: mutable.HashSet[Node[V]],
+    runID:          Int,
+    graph:          Graph[V]
+  ): Boolean = boundary {
     v.processed = true
     recursiveStack.add(v)
     val outEdges = v.outEdges
@@ -54,11 +56,11 @@ class CycleDetector[V] private[algorithms] (id: Int, graph: Graph[V]) extends Al
       } else {
         u.resetAlgorithmAttribs(runID)
         if (recursiveStack.contains(u)) {
-          return true
+          break(true)
         }
         if (!u.processed) {
           if (detectCycleDFS(u, v, recursiveStack, runID, graph)) {
-            return true
+            break(true)
           }
         }
       }

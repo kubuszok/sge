@@ -17,8 +17,7 @@ package signals
 
 import scala.collection.mutable.ArrayBuffer
 
-/** A Signal is a basic event class that can dispatch an event to multiple listeners. It uses generics to allow any type
-  * of object to be passed around on dispatch.
+/** A Signal is a basic event class that can dispatch an event to multiple listeners. It uses generics to allow any type of object to be passed around on dispatch.
   *
   * @author
   *   Stefan Bachmann (original implementation)
@@ -28,35 +27,34 @@ class Signal[A] {
   private val listeners: ArrayBuffer[Listener[A]] = ArrayBuffer.empty
 
   /** Add a Listener to this Signal.
-    * @param listener The Listener to be added
+    * @param listener
+    *   The Listener to be added
     */
-  def add(listener: Listener[A]): Unit = {
+  def add(listener: Listener[A]): Unit =
     listeners += listener
-  }
 
   /** Remove a listener from this Signal.
-    * @param listener The Listener to remove
+    * @param listener
+    *   The Listener to remove
     */
-  def remove(listener: Listener[A]): Unit = {
+  def remove(listener: Listener[A]): Unit =
     listeners -= listener
-  }
 
   /** Removes all listeners attached to this [[Signal]]. */
-  def removeAllListeners(): Unit = {
+  def removeAllListeners(): Unit =
     listeners.clear()
-  }
 
   /** Dispatches an event to all Listeners registered to this Signal.
     *
-    * Takes a snapshot (copy) of the listener list before iterating, so that listeners can safely add/remove
-    * themselves during dispatch.
+    * Takes a snapshot (copy) of the listener list before iterating, so that listeners can safely add/remove themselves during dispatch.
     *
-    * @param obj The object to send off
+    * @param obj
+    *   The object to send off
     */
   def dispatch(obj: A): Unit = {
     // Snapshot: copy the current listener list to allow safe modification during dispatch
     val snapshot = listeners.toArray
-    var i = 0
+    var i        = 0
     while (i < snapshot.length) {
       snapshot(i).receive(this, obj)
       i += 1

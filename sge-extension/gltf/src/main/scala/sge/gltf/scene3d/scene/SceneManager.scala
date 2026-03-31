@@ -30,22 +30,22 @@ class SceneManager(using sge: Sge) {
 
   private val renderableProviders: DynamicArray[RenderableProvider] = DynamicArray[RenderableProvider]()
 
-  private var batch:             ModelBatch        = scala.compiletime.uninitialized
-  private var depthBatch:        ModelBatch        = scala.compiletime.uninitialized
-  private var skyBox:            SceneSkybox       = scala.compiletime.uninitialized
+  private var batch:              ModelBatch         = scala.compiletime.uninitialized
+  private var depthBatch:         ModelBatch         = scala.compiletime.uninitialized
+  private var skyBox:             SceneSkybox        = scala.compiletime.uninitialized
   private var transmissionSource: TransmissionSource = scala.compiletime.uninitialized
-  private var mirrorSource:      MirrorSource       = scala.compiletime.uninitialized
-  private var cascadeShadowMap:  CascadeShadowMap   = scala.compiletime.uninitialized
+  private var mirrorSource:       MirrorSource       = scala.compiletime.uninitialized
+  private var cascadeShadowMap:   CascadeShadowMap   = scala.compiletime.uninitialized
 
   /** Shouldn't be null. */
-  var environment: Environment = Environment()
+  var environment:                    Environment      = Environment()
   protected val computedEnvironement: EnvironmentCache = EnvironmentCache()
 
   var camera: Camera = scala.compiletime.uninitialized
 
-  private var renderableSorter: RenderableSorter = scala.compiletime.uninitialized
-  private val pointLights: PointLightsAttribute  = PointLightsAttribute()
-  private val spotLights:  SpotLightsAttribute   = SpotLightsAttribute()
+  private var renderableSorter: RenderableSorter     = scala.compiletime.uninitialized
+  private val pointLights:      PointLightsAttribute = PointLightsAttribute()
+  private val spotLights:       SpotLightsAttribute  = SpotLightsAttribute()
 
   def this(maxBones: Int)(using Sge) = {
     this()
@@ -80,10 +80,10 @@ class SceneManager(using sge: Sge) {
 
   def removeEnvironmentRotation(): Unit = environment.remove(PBRMatrixAttribute.EnvRotation)
 
-  def getBatch: ModelBatch = batch
-  def setBatch(batch: ModelBatch): Unit = this.batch = batch
-  def setDepthBatch(depthBatch: ModelBatch): Unit = this.depthBatch = depthBatch
-  def getDepthBatch: ModelBatch = depthBatch
+  def getBatch:                              ModelBatch = batch
+  def setBatch(batch:           ModelBatch): Unit       = this.batch = batch
+  def setDepthBatch(depthBatch: ModelBatch): Unit       = this.depthBatch = depthBatch
+  def getDepthBatch:                         ModelBatch = depthBatch
 
   def setShaderProvider(shaderProvider: ShaderProvider): Unit = {
     batch.close()
@@ -95,26 +95,23 @@ class SceneManager(using sge: Sge) {
     depthBatch = ModelBatch(depthShaderProvider)
   }
 
-  def setTransmissionSource(transmissionSource: TransmissionSource): Unit = {
+  def setTransmissionSource(transmissionSource: TransmissionSource): Unit =
     if (this.transmissionSource ne transmissionSource) {
       if (this.transmissionSource != null) this.transmissionSource.close() // @nowarn
       this.transmissionSource = transmissionSource
     }
-  }
 
-  def setMirrorSource(mirrorSource: MirrorSource): Unit = {
+  def setMirrorSource(mirrorSource: MirrorSource): Unit =
     if (this.mirrorSource ne mirrorSource) {
       if (this.mirrorSource != null) this.mirrorSource.close() // @nowarn
       this.mirrorSource = mirrorSource
     }
-  }
 
-  def setCascadeShadowMap(cascadeShadowMap: CascadeShadowMap): Unit = {
+  def setCascadeShadowMap(cascadeShadowMap: CascadeShadowMap): Unit =
     if (this.cascadeShadowMap ne cascadeShadowMap) {
       if (this.cascadeShadowMap != null) this.cascadeShadowMap.close() // @nowarn
       this.cascadeShadowMap = cascadeShadowMap
     }
-  }
 
   def addScene(scene: Scene): Unit = addScene(scene, appendLights = true)
 
@@ -128,28 +125,26 @@ class SceneManager(using sge: Sge) {
   }
 
   /** Should be called in order to perform light culling, skybox update and animations. */
-  def update(delta: Float): Unit = {
+  def update(delta: Float): Unit =
     if (camera != null) { // @nowarn
       updateEnvironment()
       var i = 0
       while (i < renderableProviders.size) {
         renderableProviders(i) match {
           case u: Updatable => u.update(camera, delta)
-          case _            => ()
+          case _ => ()
         }
         i += 1
       }
       if (skyBox != null) skyBox.update(camera, delta) // @nowarn
     }
-  }
 
-  protected def updateSkyboxRotation(): Unit = {
+  protected def updateSkyboxRotation(): Unit =
     if (skyBox != null) { // @nowarn
       environment.getAs[PBRMatrixAttribute](PBRMatrixAttribute.EnvRotation).foreach { rotationAttribute =>
         skyBox.setRotation(rotationAttribute.matrix)
       }
     }
-  }
 
   protected def updateEnvironment(): Unit = {
     updateSkyboxRotation()
@@ -207,24 +202,23 @@ class SceneManager(using sge: Sge) {
   }
 
   /** Render all scenes. */
-  def render(): Unit = {
-    if (camera == null) return // @nowarn
-    PBRCommon.enableSeamlessCubemaps()
-    renderShadows()
-    renderMirror()
-    renderTransmission()
-    renderColors()
-  }
+  def render(): Unit =
+    if (camera != null) {
+      PBRCommon.enableSeamlessCubemaps()
+      renderShadows()
+      renderMirror()
+      renderTransmission()
+      renderColors()
+    }
 
-  def renderMirror(): Unit = {
+  def renderMirror(): Unit =
     if (mirrorSource != null) { // @nowarn
       mirrorSource.begin(camera, computedEnvironement, skyBox)
       renderColors()
       mirrorSource.end()
     }
-  }
 
-  def renderTransmission(): Unit = {
+  def renderTransmission(): Unit =
     if (transmissionSource != null) { // @nowarn
       transmissionSource.begin(camera)
       var i = 0
@@ -236,7 +230,6 @@ class SceneManager(using sge: Sge) {
       transmissionSource.end()
       computedEnvironement.set(transmissionSource.attribute)
     }
-  }
 
   @SuppressWarnings(Array("deprecation"))
   def renderShadows(): Unit = {
@@ -279,40 +272,45 @@ class SceneManager(using sge: Sge) {
     batch.end()
   }
 
-  def getFirstDirectionalLight: DirectionalLight = {
-    environment.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type).map { dla =>
-      var i = 0
-      while (i < dla.lights.size) {
-        val dl = dla.lights(i)
-        if (dl.isInstanceOf[DirectionalLight]) return dl // @nowarn
-        i += 1
-      }
-      null.asInstanceOf[DirectionalLight] // @nowarn
-    }.getOrElse(null.asInstanceOf[DirectionalLight]) // @nowarn
-  }
-
-  def getFirstDirectionalShadowLight: DirectionalShadowLight = {
-    environment.getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type).map { dla =>
-      var i = 0
-      while (i < dla.lights.size) {
-        dla.lights(i) match {
-          case dsl: DirectionalShadowLight => return dsl // @nowarn
-          case _                           => ()
+  def getFirstDirectionalLight: DirectionalLight =
+    environment
+      .getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type)
+      .map { dla =>
+        var i = 0
+        var result: DirectionalLight = null.asInstanceOf[DirectionalLight] // @nowarn
+        while (i < dla.lights.size && result == null) {
+          val dl = dla.lights(i)
+          if (dl.isInstanceOf[DirectionalLight]) result = dl
+          i += 1
         }
-        i += 1
+        result
       }
-      null.asInstanceOf[DirectionalShadowLight] // @nowarn
-    }.getOrElse(null.asInstanceOf[DirectionalShadowLight]) // @nowarn
-  }
+      .getOrElse(null.asInstanceOf[DirectionalLight]) // @nowarn
 
-  def setSkyBox(skyBox: SceneSkybox): Unit = this.skyBox = skyBox
-  def getSkyBox: SceneSkybox = skyBox
+  def getFirstDirectionalShadowLight: DirectionalShadowLight =
+    environment
+      .getAs[DirectionalLightsAttribute](DirectionalLightsAttribute.Type)
+      .map { dla =>
+        var i = 0
+        var result: DirectionalShadowLight = null.asInstanceOf[DirectionalShadowLight] // @nowarn
+        while (i < dla.lights.size && result == null) {
+          dla.lights(i) match {
+            case dsl: DirectionalShadowLight => result = dsl
+            case _ => ()
+          }
+          i += 1
+        }
+        result
+      }
+      .getOrElse(null.asInstanceOf[DirectionalShadowLight]) // @nowarn
 
-  def setAmbientLight(lum: Float): Unit = {
+  def setSkyBox(skyBox: SceneSkybox): Unit        = this.skyBox = skyBox
+  def getSkyBox:                      SceneSkybox = skyBox
+
+  def setAmbientLight(lum: Float): Unit =
     environment.getAs[ColorAttribute](ColorAttribute.AmbientLight).foreach { attr =>
       attr.color.set(lum, lum, lum, 1f)
     }
-  }
 
   def setCamera(camera: Camera): Unit = this.camera = camera
 
@@ -326,13 +324,12 @@ class SceneManager(using sge: Sge) {
 
   def getRenderableProviders: DynamicArray[RenderableProvider] = renderableProviders
 
-  def updateViewport(width: Float, height: Float): Unit = {
+  def updateViewport(width: Float, height: Float): Unit =
     if (camera != null) { // @nowarn
       camera.viewportWidth = WorldUnits(width)
       camera.viewportHeight = WorldUnits(height)
       camera.update(true)
     }
-  }
 
   def getActiveLightsCount: Int = EnvironmentUtil.getLightCount(computedEnvironement)
   def getTotalLightsCount:  Int = EnvironmentUtil.getLightCount(environment)

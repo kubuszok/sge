@@ -12,9 +12,9 @@ package algorithms
 class SearchStep[V] {
 
   private[algorithms] var terminateFlag: Boolean = false
-  private[algorithms] var ignoreFlag: Boolean = false
-  private var node: Node[V] = null.asInstanceOf[Node[V]] // @nowarn — set via prepare() before use
-  private var _count: Int = -1
+  private[algorithms] var ignoreFlag:    Boolean = false
+  private var node:                      Node[V] = null.asInstanceOf[Node[V]] // @nowarn — set via prepare() before use
+  private var _count:                    Int     = -1
 
   private[algorithms] def prepare(node: Node[V]): Unit = {
     this.node = node
@@ -24,14 +24,12 @@ class SearchStep[V] {
   }
 
   /** Immediately terminate the search. */
-  def terminate(): Unit = {
+  def terminate(): Unit =
     terminateFlag = true
-  }
 
   /** Ignore the current vertex, and do not check its neighbours in this step. */
-  def ignore(): Unit = {
+  def ignore(): Unit =
     ignoreFlag = true
-  }
 
   /** @return the vertex being currently processed. */
   def vertex: V = node.obj

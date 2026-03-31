@@ -23,16 +23,15 @@ import sge.visui.widget.VisTextField
 /** @author Kotcrab */
 class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using sge: Sge) extends AbstractSuggestionPopup(chooser) {
 
-  private val listDirExecutor: ExecutorService    = Executors.newSingleThreadExecutor(new ServiceThreadFactory("FileChooserListDirThread"))
-  private var listDirFuture:   Future[?] = scala.compiletime.uninitialized
+  private val listDirExecutor: ExecutorService = Executors.newSingleThreadExecutor(new ServiceThreadFactory("FileChooserListDirThread"))
+  private var listDirFuture:   Future[?]       = scala.compiletime.uninitialized
 
-  def pathFieldKeyTyped(stage: Stage, width: Float): Unit = {
+  def pathFieldKeyTyped(stage: Stage, width: Float): Unit =
     if (pathField.text.length == 0) {
       remove()
     } else {
       createDirSuggestions(stage, width)
     }
-  }
 
   private def createDirSuggestions(stage: Stage, width: Float): Unit = {
     val pathFieldText = pathField.text
@@ -40,53 +39,59 @@ class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using s
     addAction(Actions.sequence(Actions.delay(Seconds(0.2f), Actions.removeActor())))
 
     if (listDirFuture != null) listDirFuture.cancel(true) // @nowarn -- Java interop boundary
-    listDirFuture = listDirExecutor.submit(new Runnable {
-      override def run(): Unit = {
-        val enteredDir = Sge().files.absolute(pathFieldText)
-        val (listDir, partialPath) =
-          if (enteredDir.exists()) (enteredDir, "")
-          else (enteredDir.parent(), enteredDir.name)
+    listDirFuture = listDirExecutor.submit(
+      new Runnable {
+        override def run(): Unit = {
+          val enteredDir             = Sge().files.absolute(pathFieldText)
+          val (listDir, partialPath) =
+            if (enteredDir.exists()) (enteredDir, "")
+            else (enteredDir.parent(), enteredDir.name)
 
-        val files = listDir.list(chooser.getFileFilter)
-        if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- Java interop boundary for early return
-        Sge().application.postRunnable(new Runnable {
-          override def run(): Unit = scala.util.boundary {
-            clearChildren()
-            clearActions()
-            var suggestions = 0
+          val files = listDir.list(chooser.getFileFilter)
+          if (Thread.currentThread().isInterrupted) { return; } // @nowarn -- Java interop boundary for early return
+          Sge().application.postRunnable(
+            new Runnable {
+              override def run(): Unit = scala.util.boundary {
+                clearChildren()
+                clearActions()
+                var suggestions = 0
 
-            for (file <- files) {
-              if (file.exists() && file.isDirectory() &&
-                file.name.startsWith(partialPath) && !file.name.equals(partialPath)) {
-                val item = createMenuItem(file.path)
-                item.getLabel.setEllipsis(true)
-                item.getLabelCell.foreach(_.width(width - 20))
-                addItem(item)
+                for (file <- files)
+                  if (
+                    file.exists() && file.isDirectory() &&
+                    file.name.startsWith(partialPath) && !file.name.equals(partialPath)
+                  ) {
+                    val item = createMenuItem(file.path)
+                    item.getLabel.setEllipsis(true)
+                    item.getLabelCell.foreach(_.width(width - 20))
+                    addItem(item)
 
-                item.addListener(new ChangeListener() {
-                  override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-                    chooser.setDirectory(file, FileChooser.HistoryPolicy.ADD)
+                    item.addListener(
+                      new ChangeListener() {
+                        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+                          chooser.setDirectory(file, FileChooser.HistoryPolicy.ADD)
+                      }
+                    )
+
+                    suggestions += 1
+                    if (suggestions == AbstractSuggestionPopup.MAX_SUGGESTIONS) {
+                      scala.util.boundary.break(())
+                    }
                   }
-                })
 
-                suggestions += 1
-                if (suggestions == AbstractSuggestionPopup.MAX_SUGGESTIONS) {
-                  scala.util.boundary.break(())
+                if (suggestions == 0) {
+                  remove()
+                } else {
+                  showMenu(stage, pathField)
+                  setWidth(width)
+                  layout()
                 }
               }
             }
-
-            if (suggestions == 0) {
-              remove()
-            } else {
-              showMenu(stage, pathField)
-              setWidth(width)
-              layout()
-            }
-          }
-        })
+          )
+        }
       }
-    })
+    )
   }
 
   def showRecentDirectories(stage: Stage, recentDirectories: DynamicArray[FileHandle], width: Float): Unit = {
@@ -104,7 +109,7 @@ class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using s
     clearChildren()
     var suggestions = 0
     val iter        = files.iterator
-    while (iter.hasNext) {
+    while (iter.hasNext && suggestions < AbstractSuggestionPopup.MAX_SUGGESTIONS) {
       val file = iter.next()
       if (file.exists()) {
         val item = createMenuItem(file.path)
@@ -112,16 +117,14 @@ class DirsSuggestionPopup(chooser: FileChooser, pathField: VisTextField)(using s
         item.getLabelCell.foreach(_.width(width - 20))
         addItem(item)
 
-        item.addListener(new ChangeListener() {
-          override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-            chooser.setDirectory(file, FileChooser.HistoryPolicy.ADD)
+        item.addListener(
+          new ChangeListener() {
+            override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+              chooser.setDirectory(file, FileChooser.HistoryPolicy.ADD)
           }
-        })
+        )
 
         suggestions += 1
-        if (suggestions == AbstractSuggestionPopup.MAX_SUGGESTIONS) {
-          return suggestions // @nowarn -- early return via boundary not used here for simplicity
-        }
       }
     }
     suggestions

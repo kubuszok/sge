@@ -11,24 +11,24 @@ package jbump
 trait Response {
 
   def response(
-      world: World[?],
-      collision: Collision,
-      x: Float,
-      y: Float,
-      w: Float,
-      h: Float,
-      goalX: Float,
-      goalY: Float,
-      filter: CollisionFilter,
-      result: Response.Result
+    world:     World[?],
+    collision: Collision,
+    x:         Float,
+    y:         Float,
+    w:         Float,
+    h:         Float,
+    goalX:     Float,
+    goalY:     Float,
+    filter:    CollisionFilter,
+    result:    Response.Result
   ): Response.Result
 }
 
 object Response {
 
   class Result {
-    var goalX: Float = 0f
-    var goalY: Float = 0f
+    var goalX:               Float      = 0f
+    var goalY:               Float      = 0f
     val projectedCollisions: Collisions = Collisions()
 
     def set(goalX: Float, goalY: Float): Unit = {
@@ -39,21 +39,21 @@ object Response {
 
   val slide: Response = new Response {
     override def response(
-        world: World[?],
-        collision: Collision,
-        x: Float,
-        y: Float,
-        w: Float,
-        h: Float,
-        goalX: Float,
-        goalY: Float,
-        filter: CollisionFilter,
-        result: Response.Result
+      world:     World[?],
+      collision: Collision,
+      x:         Float,
+      y:         Float,
+      w:         Float,
+      h:         Float,
+      goalX:     Float,
+      goalY:     Float,
+      filter:    CollisionFilter,
+      result:    Response.Result
     ): Response.Result = {
-      val tch = collision.touch
+      val tch  = collision.touch
       val move = collision.move
-      var sx = tch.x
-      var sy = tch.y
+      var sx   = tch.x
+      var sy   = tch.y
       if (move.x != 0 || move.y != 0) {
         if (collision.normal.x == 0) {
           sx = goalX
@@ -62,8 +62,8 @@ object Response {
         }
       }
 
-      val newX = tch.x
-      val newY = tch.y
+      val newX     = tch.x
+      val newY     = tch.y
       val newGoalX = sx
       val newGoalY = sy
       result.projectedCollisions.clear()
@@ -75,16 +75,16 @@ object Response {
 
   val touch: Response = new Response {
     override def response(
-        world: World[?],
-        collision: Collision,
-        x: Float,
-        y: Float,
-        w: Float,
-        h: Float,
-        goalX: Float,
-        goalY: Float,
-        filter: CollisionFilter,
-        result: Response.Result
+      world:     World[?],
+      collision: Collision,
+      x:         Float,
+      y:         Float,
+      w:         Float,
+      h:         Float,
+      goalX:     Float,
+      goalY:     Float,
+      filter:    CollisionFilter,
+      result:    Response.Result
     ): Response.Result = {
       result.projectedCollisions.clear()
       result.set(collision.touch.x, collision.touch.y)
@@ -94,16 +94,16 @@ object Response {
 
   val cross: Response = new Response {
     override def response(
-        world: World[?],
-        collision: Collision,
-        x: Float,
-        y: Float,
-        w: Float,
-        h: Float,
-        goalX: Float,
-        goalY: Float,
-        filter: CollisionFilter,
-        result: Response.Result
+      world:     World[?],
+      collision: Collision,
+      x:         Float,
+      y:         Float,
+      w:         Float,
+      h:         Float,
+      goalX:     Float,
+      goalY:     Float,
+      filter:    CollisionFilter,
+      result:    Response.Result
     ): Response.Result = {
       result.projectedCollisions.clear()
       world.project(collision.item, x, y, w, h, goalX, goalY, filter, result.projectedCollisions)
@@ -114,21 +114,21 @@ object Response {
 
   val bounce: Response = new Response {
     override def response(
-        world: World[?],
-        collision: Collision,
-        x: Float,
-        y: Float,
-        w: Float,
-        h: Float,
-        goalX: Float,
-        goalY: Float,
-        filter: CollisionFilter,
-        result: Response.Result
+      world:     World[?],
+      collision: Collision,
+      x:         Float,
+      y:         Float,
+      w:         Float,
+      h:         Float,
+      goalX:     Float,
+      goalY:     Float,
+      filter:    CollisionFilter,
+      result:    Response.Result
     ): Response.Result = {
-      val tch = collision.touch
+      val tch  = collision.touch
       val move = collision.move
-      var bx = tch.x
-      var by = tch.y
+      var bx   = tch.x
+      var by   = tch.y
       if (move.x != 0 || move.y != 0) {
         var bnx = goalX - tch.x
         var bny = goalY - tch.y
@@ -141,8 +141,8 @@ object Response {
         by = tch.y + bny
       }
 
-      val newX = tch.x
-      val newY = tch.y
+      val newX     = tch.x
+      val newY     = tch.y
       val newGoalX = bx
       val newGoalY = by
       result.projectedCollisions.clear()

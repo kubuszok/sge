@@ -29,12 +29,12 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
   import AnimationControllerHack.*
 
   private val transformPool: Pool[Transform] = new Pool[Transform] {
-    override protected val initialCapacity: Int = 16
-    override protected val max: Int = Int.MaxValue
-    override protected def newObject(): Transform = Transform()
+    override protected val initialCapacity: Int       = 16
+    override protected val max:             Int       = Int.MaxValue
+    override protected def newObject():     Transform = Transform()
   }
 
-  private var applying: Boolean = false
+  private var applying:    Boolean = false
   var calculateTransforms: Boolean = true
 
   override protected def begin(): Unit = {
@@ -64,7 +64,7 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
     if (calculateTransforms) target.calculateTransforms()
   }
 
-  override protected def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit = {
+  override protected def applyAnimations(anim1: Nullable[Animation], time1: Seconds, anim2: Nullable[Animation], time2: Seconds, weight: Float): Unit =
     if (anim2.isEmpty || weight == 0f) {
       anim1.foreach(a => applyAnimation(a, time1))
     } else if (anim1.isEmpty || weight == 1f) {
@@ -77,32 +77,30 @@ class AnimationControllerHack(target: ModelInstance) extends AnimationController
       anim2.foreach(a => apply(a, time2, weight))
       end()
     }
-  }
 
-  def setAnimationDesc(anim: AnimationController.AnimationDesc): Unit = {
+  def setAnimationDesc(anim: AnimationController.AnimationDesc): Unit =
     anim.animation.foreach { a =>
       setAnimation(a, anim.offset, anim.duration, anim.loopCount, anim.speed, anim.listener)
     }
-  }
 
-  def setAnimation(animation: Animation): Unit = {
+  def setAnimation(animation: Animation): Unit =
     setAnimation(animation, 1)
-  }
 
-  /** @param animation animation to play
-    * @param loopCount loop count : 0 paused, -1 infinite, n for n loops
+  /** @param animation
+    *   animation to play
+    * @param loopCount
+    *   loop count : 0 paused, -1 infinite, n for n loops
     */
-  def setAnimation(animation: Animation, loopCount: Int): Unit = {
+  def setAnimation(animation: Animation, loopCount: Int): Unit =
     setAnimation(animation, Seconds.zero, Seconds(animation.duration), loopCount, 1f, sge.utils.Nullable.empty) // duration is raw Float in Animation
-  }
 }
 
 object AnimationControllerHack {
 
   class Transform extends Pool.Poolable {
-    val translation: Vector3    = Vector3()
-    val rotation:    Quaternion = Quaternion()
-    val scale:       Vector3    = Vector3(1f, 1f, 1f)
+    val translation: Vector3      = Vector3()
+    val rotation:    Quaternion   = Quaternion()
+    val scale:       Vector3      = Vector3(1f, 1f, 1f)
     val weights:     WeightVector = WeightVector()
 
     def idt(): Transform = {
@@ -145,30 +143,30 @@ object AnimationControllerHack {
   }
 
   private val transforms: ObjectMap[Node, Transform] = ObjectMap[Node, Transform]()
-  private val tmpT: Transform = Transform()
+  private val tmpT:       Transform                  = Transform()
 
-  private def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = {
+  private def getFirstKeyframeIndexAtTime[T](arr: DynamicArray[NodeKeyframe[T]], time: Float): Int = boundary {
     val n = arr.size - 1
     var i = 0
     while (i < n) {
       if (time >= arr(i).keytime && time <= arr(i + 1).keytime) {
-        return i // @nowarn — simple loop return
+        break(i)
       }
       i += 1
     }
     n
   }
 
-  private def getTranslationAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 = {
-    if (nodeAnim.translation.isEmpty) return out.set(nodeAnim.node.translation) // @nowarn — nullable field
+  private def getTranslationAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 = boundary {
+    if (nodeAnim.translation.isEmpty) break(out.set(nodeAnim.node.translation))
     val trans = nodeAnim.translation.get
-    if (trans.size == 1) return out.set(trans(0).value) // @nowarn — simple early return
+    if (trans.size == 1) break(out.set(trans(0).value))
 
     val index = getFirstKeyframeIndexAtTime(trans, time)
 
     val interpolation: Interpolation = nodeAnim match {
       case nah: NodeAnimationHack => nah.translationMode.getOrElse(null).asInstanceOf[Interpolation] // @nowarn
-      case _                      => null.asInstanceOf[Interpolation] // @nowarn
+      case _ => null.asInstanceOf[Interpolation] // @nowarn
     }
 
     if (interpolation == Interpolation.STEP) {
@@ -187,12 +185,12 @@ object AnimationControllerHack {
       }
     } else if (interpolation == Interpolation.CUBICSPLINE) {
       val firstKeyframe = trans(index)
-      val nextIndex = index + 1
+      val nextIndex     = index + 1
       if (nextIndex < trans.size) {
         val secondKeyframe = trans(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV  = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
-        val secondCV = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
         cubicV3(out, t, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
@@ -215,7 +213,7 @@ object AnimationControllerHack {
   private val q4: Quaternion = Quaternion()
 
   private def cubicQ(out: Quaternion, t: Float, delta: Float, p0: Quaternion, m0: Quaternion, p1: Quaternion, m1: Quaternion): Unit = {
-    val d = -delta
+    val d  = -delta
     val t2 = t * t
     val t3 = t2 * t
     q1.set(p0).mul(2 * t3 - 3 * t2 + 1)
@@ -231,16 +229,16 @@ object AnimationControllerHack {
     out.set(p0).scl(2 * t3 - 3 * t2 + 1).mulAdd(m0, t3 - 2 * t2 + t).mulAdd(p1, -2 * t3 + 3 * t2).mulAdd(m1, t3 - t2)
   }
 
-  private def getRotationAtTime(nodeAnim: NodeAnimation, time: Float, out: Quaternion): Quaternion = {
-    if (nodeAnim.rotation.isEmpty) return out.set(nodeAnim.node.rotation) // @nowarn
+  private def getRotationAtTime(nodeAnim: NodeAnimation, time: Float, out: Quaternion): Quaternion = boundary {
+    if (nodeAnim.rotation.isEmpty) break(out.set(nodeAnim.node.rotation))
     val rot = nodeAnim.rotation.get
-    if (rot.size == 1) return out.set(rot(0).value) // @nowarn
+    if (rot.size == 1) break(out.set(rot(0).value))
 
     val index = getFirstKeyframeIndexAtTime(rot, time)
 
     val interpolation: Interpolation = nodeAnim match {
       case nah: NodeAnimationHack => nah.rotationMode.getOrElse(null).asInstanceOf[Interpolation] // @nowarn
-      case _                      => null.asInstanceOf[Interpolation] // @nowarn
+      case _ => null.asInstanceOf[Interpolation] // @nowarn
     }
 
     if (interpolation == Interpolation.STEP) {
@@ -251,19 +249,19 @@ object AnimationControllerHack {
       val nextIndex = index + 1
       if (nextIndex < rot.size) {
         val secondKeyframe = rot(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
         out.slerp(secondKeyframe.value, t)
       } else {
         out.set(firstKeyframe.value)
       }
     } else if (interpolation == Interpolation.CUBICSPLINE) {
       val firstKeyframe = rot(index)
-      val nextIndex = index + 1
+      val nextIndex     = index + 1
       if (nextIndex < rot.size) {
         val secondKeyframe = rot(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV  = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
-        val secondCV = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
+        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicQuaternion]
         cubicQ(out, t, secondKeyframe.keytime - firstKeyframe.keytime, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
@@ -272,16 +270,16 @@ object AnimationControllerHack {
     out
   }
 
-  private def getScalingAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 = {
-    if (nodeAnim.scaling.isEmpty) return out.set(nodeAnim.node.scale) // @nowarn
+  private def getScalingAtTime(nodeAnim: NodeAnimation, time: Float, out: Vector3): Vector3 = boundary {
+    if (nodeAnim.scaling.isEmpty) break(out.set(nodeAnim.node.scale))
     val scl = nodeAnim.scaling.get
-    if (scl.size == 1) return out.set(scl(0).value) // @nowarn
+    if (scl.size == 1) break(out.set(scl(0).value))
 
     val index = getFirstKeyframeIndexAtTime(scl, time)
 
     val interpolation: Interpolation = nodeAnim match {
       case nah: NodeAnimationHack => nah.scalingMode.getOrElse(null).asInstanceOf[Interpolation] // @nowarn
-      case _                      => null.asInstanceOf[Interpolation] // @nowarn
+      case _ => null.asInstanceOf[Interpolation] // @nowarn
     }
 
     if (interpolation == Interpolation.STEP) {
@@ -292,19 +290,19 @@ object AnimationControllerHack {
       val nextIndex = index + 1
       if (nextIndex < scl.size) {
         val secondKeyframe = scl(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
         out.lerp(secondKeyframe.value, t)
       } else {
         out.set(firstKeyframe.value)
       }
     } else if (interpolation == Interpolation.CUBICSPLINE) {
       val firstKeyframe = scl(index)
-      val nextIndex = index + 1
+      val nextIndex     = index + 1
       if (nextIndex < scl.size) {
         val secondKeyframe = scl(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV  = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
-        val secondCV = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val firstCV        = firstKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
+        val secondCV       = secondKeyframe.value.asInstanceOf[AnyRef].asInstanceOf[CubicVector3]
         cubicV3(out, t, firstCV.value, firstCV.tangentOut, secondCV.value, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
@@ -313,9 +311,9 @@ object AnimationControllerHack {
     out
   }
 
-  private def getMorphTargetAtTime(nodeAnim: NodeAnimationHack, time: Float, out: WeightVector): WeightVector = {
-    if (nodeAnim.weights == null) return out.set() // @nowarn
-    if (nodeAnim.weights.size == 1) return out.set(nodeAnim.weights(0).value) // @nowarn
+  private def getMorphTargetAtTime(nodeAnim: NodeAnimationHack, time: Float, out: WeightVector): WeightVector = boundary {
+    if (nodeAnim.weights == null) break(out.set())
+    if (nodeAnim.weights.size == 1) break(out.set(nodeAnim.weights(0).value))
 
     val index = getFirstKeyframeIndexAtTime(nodeAnim.weights, time)
 
@@ -329,19 +327,19 @@ object AnimationControllerHack {
       val nextIndex = index + 1
       if (nextIndex < nodeAnim.weights.size) {
         val secondKeyframe = nodeAnim.weights(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
         out.lerp(secondKeyframe.value, t)
       } else {
         out.set(firstKeyframe.value)
       }
     } else if (interpolation == Interpolation.CUBICSPLINE) {
       val firstKeyframe = nodeAnim.weights(index)
-      val nextIndex = index + 1
+      val nextIndex     = index + 1
       if (nextIndex < nodeAnim.weights.size) {
         val secondKeyframe = nodeAnim.weights(nextIndex)
-        val t = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
-        val firstCV  = firstKeyframe.value.asInstanceOf[CubicWeightVector]
-        val secondCV = secondKeyframe.value.asInstanceOf[CubicWeightVector]
+        val t              = (time - firstKeyframe.keytime) / (secondKeyframe.keytime - firstKeyframe.keytime)
+        val firstCV        = firstKeyframe.value.asInstanceOf[CubicWeightVector]
+        val secondCV       = secondKeyframe.value.asInstanceOf[CubicWeightVector]
         cubicW(out, t, firstCV, firstCV.tangentOut, secondCV, secondCV.tangentIn)
       } else {
         out.set(firstKeyframe.value)
@@ -357,7 +355,7 @@ object AnimationControllerHack {
     getScalingAtTime(nodeAnim, time, transform.scale)
     nodeAnim match {
       case nah: NodeAnimationHack => getMorphTargetAtTime(nah, time, transform.weights)
-      case _                      => ()
+      case _ => ()
     }
     transform
   }
@@ -381,8 +379,7 @@ object AnimationControllerHack {
     }
   }
 
-  private def applyNodeAnimationBlending(nodeAnim: NodeAnimation, out: ObjectMap[Node, Transform],
-    pool: Pool[Transform], alpha: Float, time: Float): Unit = {
+  private def applyNodeAnimationBlending(nodeAnim: NodeAnimation, out: ObjectMap[Node, Transform], pool: Pool[Transform], alpha: Float, time: Float): Unit = {
 
     val node = nodeAnim.node
     node.isAnimated = true
@@ -399,7 +396,7 @@ object AnimationControllerHack {
       } else {
         val npWeights = node match {
           case np: NodePlus => np.weights.getOrElse(null).asInstanceOf[WeightVector] // @nowarn
-          case _            => null.asInstanceOf[WeightVector] // @nowarn
+          case _ => null.asInstanceOf[WeightVector] // @nowarn
         }
         out.put(node, pool.obtain().set(node.translation, node.rotation, node.scale, npWeights).lerp(transform, alpha))
       }
@@ -407,8 +404,7 @@ object AnimationControllerHack {
   }
 
   /** Helper method to apply one animation to either an objectmap for blending or directly to the bones. */
-  def applyAnimationPlus(out: ObjectMap[Node, Transform], pool: Pool[Transform], alpha: Float,
-    animation: Animation, time: Float): Unit = {
+  def applyAnimationPlus(out: ObjectMap[Node, Transform], pool: Pool[Transform], alpha: Float, animation: Animation, time: Float): Unit =
 
     if (out == null) { // @nowarn — null means direct apply
       var i = 0
@@ -428,11 +424,10 @@ object AnimationControllerHack {
           key.isAnimated = true
           val npWeights = key match {
             case np: NodePlus => np.weights.getOrElse(null).asInstanceOf[WeightVector] // @nowarn
-            case _            => null.asInstanceOf[WeightVector] // @nowarn
+            case _ => null.asInstanceOf[WeightVector] // @nowarn
           }
           value.lerp(key.translation, key.rotation, key.scale, npWeights, alpha)
         }
       }
     }
-  }
 }

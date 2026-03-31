@@ -21,11 +21,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 import sge.ecs.signals.Signal
-import sge.ecs.utils.{Bag, ImmutableArray}
+import sge.ecs.utils.{ Bag, ImmutableArray }
 import sge.utils.Nullable
 
-/** Simple containers of [[Component]]s that give them "data". The component's data is then processed by
-  * [[EntitySystem]]s.
+/** Simple containers of [[Component]]s that give them "data". The component's data is then processed by [[EntitySystem]]s.
   *
   * @author
   *   Stefan Bachmann (original implementation)
@@ -41,18 +40,19 @@ class Entity {
   /** Will dispatch an event when a component is removed. */
   val componentRemoved: Signal[Entity] = new Signal[Entity]()
 
-  private[ecs] var scheduledForRemoval: Boolean = false
-  private[ecs] var removing: Boolean = false
+  private[ecs] var scheduledForRemoval:       Boolean                   = false
+  private[ecs] var removing:                  Boolean                   = false
   private[ecs] var componentOperationHandler: ComponentOperationHandler = scala.compiletime.uninitialized
 
-  private val components: Bag[Component] = new Bag[Component]()
-  private val componentsArray: ArrayBuffer[Component] = ArrayBuffer.empty
+  private val components:               Bag[Component]            = new Bag[Component]()
+  private val componentsArray:          ArrayBuffer[Component]    = ArrayBuffer.empty
   private val immutableComponentsArray: ImmutableArray[Component] = new ImmutableArray[Component](componentsArray)
-  private val componentBits: mutable.BitSet = mutable.BitSet()
-  private val familyBits: mutable.BitSet = mutable.BitSet()
+  private val componentBits:            mutable.BitSet            = mutable.BitSet()
+  private val familyBits:               mutable.BitSet            = mutable.BitSet()
 
   /** Adds a [[Component]] to this Entity. If a [[Component]] of the same type already exists, it will be replaced.
-    * @return The Entity for easy chaining
+    * @return
+    *   The Entity for easy chaining
     */
   def add(component: Component): Entity = {
     if (addInternal(component)) {
@@ -66,19 +66,20 @@ class Entity {
   }
 
   /** Adds a [[Component]] to this Entity. If a [[Component]] of the same type already exists, it will be replaced.
-    * @return The Component for direct component manipulation (e.g. PooledComponent)
+    * @return
+    *   The Component for direct component manipulation (e.g. PooledComponent)
     */
   def addAndReturn[T <: Component](component: T): T = {
     add(component)
     component
   }
 
-  /** Removes the [[Component]] of the specified type. Since there is only ever one component of one type, we don't need
-    * an instance reference.
-    * @return The removed [[Component]], or Nullable.empty if the Entity did not contain such a component.
+  /** Removes the [[Component]] of the specified type. Since there is only ever one component of one type, we don't need an instance reference.
+    * @return
+    *   The removed [[Component]], or Nullable.empty if the Entity did not contain such a component.
     */
   def remove[T <: Component](componentClass: Class[T]): Nullable[T] = {
-    val componentType = ComponentType.getFor(componentClass)
+    val componentType      = ComponentType.getFor(componentClass)
     val componentTypeIndex = componentType.index
 
     if (components.isIndexWithinBounds(componentTypeIndex)) {
@@ -99,31 +100,29 @@ class Entity {
   }
 
   /** Removes all the [[Component]]s from the Entity. */
-  def removeAll(): Unit = {
-    while (componentsArray.nonEmpty) {
+  def removeAll(): Unit =
+    while (componentsArray.nonEmpty)
       remove(componentsArray.head.getClass.asInstanceOf[Class[Component]])
-    }
-  }
 
   /** @return immutable collection with all the Entity [[Component]]s. */
   def getComponents: ImmutableArray[Component] = immutableComponentsArray
 
   /** Retrieve a component from this [[Entity]] by class.
     *
-    * ''Note:'' the preferred way of retrieving [[Component]]s is using [[ComponentMapper]]s. This method is provided for
-    * convenience; using a ComponentMapper provides O(1) access to components while this method provides only O(logn).
+    * ''Note:'' the preferred way of retrieving [[Component]]s is using [[ComponentMapper]]s. This method is provided for convenience; using a ComponentMapper provides O(1) access to components while
+    * this method provides only O(logn).
     *
-    * @param componentClass the class of the component to be retrieved.
-    * @return the instance of the specified [[Component]] attached to this [[Entity]], or Nullable.empty if no such
-    *         [[Component]] exists.
+    * @param componentClass
+    *   the class of the component to be retrieved.
+    * @return
+    *   the instance of the specified [[Component]] attached to this [[Entity]], or Nullable.empty if no such [[Component]] exists.
     */
-  def getComponent[T <: Component](componentClass: Class[T]): Nullable[T] = {
+  def getComponent[T <: Component](componentClass: Class[T]): Nullable[T] =
     getComponent(ComponentType.getFor(componentClass))
-  }
 
   /** Internal use.
-    * @return The [[Component]] object for the specified class, or null if the Entity does not have any components for
-    *         that class.
+    * @return
+    *   The [[Component]] object for the specified class, or null if the Entity does not have any components for that class.
     */
   private[ecs] def getComponent[T <: Component](componentType: ComponentType): Nullable[T] = {
     val componentTypeIndex = componentType.index
@@ -135,9 +134,8 @@ class Entity {
   }
 
   /** @return Whether or not the Entity has a [[Component]] for the specified type. */
-  private[ecs] def hasComponent(componentType: ComponentType): Boolean = {
+  private[ecs] def hasComponent(componentType: ComponentType): Boolean =
     componentBits.contains(componentType.index)
-  }
 
   /** @return This Entity's component bits, describing all the [[Component]]s it contains. */
   private[ecs] def getComponentBits: mutable.BitSet = componentBits
@@ -148,7 +146,7 @@ class Entity {
   /** @return whether or not the component was added. */
   private[ecs] def addInternal(component: Component): Boolean = {
     val componentClass = component.getClass
-    val oldComponent = getComponentRaw(componentClass)
+    val oldComponent   = getComponentRaw(componentClass)
 
     if (component eq oldComponent) {
       false
@@ -168,9 +166,9 @@ class Entity {
 
   /** @return the component if the specified class was found and removed. Otherwise, null */
   private[ecs] def removeInternal(componentClass: Class[? <: Component]): Component = {
-    val componentType = ComponentType.getFor(componentClass)
+    val componentType      = ComponentType.getFor(componentClass)
     val componentTypeIndex = componentType.index
-    val removeComponent = components.get(componentTypeIndex)
+    val removeComponent    = components.get(componentTypeIndex)
 
     if (removeComponent != null) {
       components.set(componentTypeIndex, null) // @nowarn: null in internal sparse storage
@@ -182,13 +180,11 @@ class Entity {
     }
   }
 
-  private[ecs] def notifyComponentAdded(): Unit = {
+  private[ecs] def notifyComponentAdded(): Unit =
     componentAdded.dispatch(this)
-  }
 
-  private[ecs] def notifyComponentRemoved(): Unit = {
+  private[ecs] def notifyComponentRemoved(): Unit =
     componentRemoved.dispatch(this)
-  }
 
   /** @return true if the entity is scheduled to be removed */
   def isScheduledForRemoval: Boolean = scheduledForRemoval

@@ -29,15 +29,14 @@ import sge.utils.Pool
   */
 private[ecs] class EntityManager(listener: EntityListener) {
 
-  private val entities: ArrayBuffer[Entity] = ArrayBuffer.empty
-  private val entitySet: HashSet[Entity] = HashSet.empty
-  private val immutableEntities: ImmutableArray[Entity] = new ImmutableArray[Entity](entities)
-  private val pendingOperations: ArrayBuffer[EntityOperation] = ArrayBuffer.empty
-  private val entityOperationPool: EntityOperationPool = new EntityOperationPool()
+  private val entities:            ArrayBuffer[Entity]          = ArrayBuffer.empty
+  private val entitySet:           HashSet[Entity]              = HashSet.empty
+  private val immutableEntities:   ImmutableArray[Entity]       = new ImmutableArray[Entity](entities)
+  private val pendingOperations:   ArrayBuffer[EntityOperation] = ArrayBuffer.empty
+  private val entityOperationPool: EntityOperationPool          = new EntityOperationPool()
 
-  def addEntity(entity: Entity): Unit = {
+  def addEntity(entity: Entity): Unit =
     addEntity(entity, delayed = false)
-  }
 
   def addEntity(entity: Entity, delayed: Boolean): Unit = {
     entity.scheduledForRemoval = false
@@ -51,38 +50,32 @@ private[ecs] class EntityManager(listener: EntityListener) {
     }
   }
 
-  def removeEntity(entity: Entity): Unit = {
+  def removeEntity(entity: Entity): Unit =
     removeEntity(entity, delayed = false)
-  }
 
-  def removeEntity(entity: Entity, delayed: Boolean): Unit = {
+  def removeEntity(entity: Entity, delayed: Boolean): Unit =
     if (delayed) {
-      if (entity.scheduledForRemoval) {
-        return // already scheduled; boundary/break not needed for simple guard in private[ecs] code
+      if (!entity.scheduledForRemoval) {
+        entity.scheduledForRemoval = true
+        val operation = entityOperationPool.obtain()
+        operation.entity = Nullable(entity)
+        operation.operationType = EntityOperation.Type.Remove
+        pendingOperations += operation
       }
-      entity.scheduledForRemoval = true
-      val operation = entityOperationPool.obtain()
-      operation.entity = Nullable(entity)
-      operation.operationType = EntityOperation.Type.Remove
-      pendingOperations += operation
     } else {
       removeEntityInternal(entity)
     }
-  }
 
-  def removeAllEntities(): Unit = {
+  def removeAllEntities(): Unit =
     removeAllEntities(immutableEntities)
-  }
 
-  def removeAllEntities(delayed: Boolean): Unit = {
+  def removeAllEntities(delayed: Boolean): Unit =
     removeAllEntities(immutableEntities, delayed)
-  }
 
-  def removeAllEntities(entitiesToRemove: ImmutableArray[Entity]): Unit = {
+  def removeAllEntities(entitiesToRemove: ImmutableArray[Entity]): Unit =
     removeAllEntities(entitiesToRemove, delayed = false)
-  }
 
-  def removeAllEntities(entitiesToRemove: ImmutableArray[Entity], delayed: Boolean): Unit = {
+  def removeAllEntities(entitiesToRemove: ImmutableArray[Entity], delayed: Boolean): Unit =
     if (delayed) {
       entitiesToRemove.foreach { entity =>
         entity.scheduledForRemoval = true
@@ -92,11 +85,9 @@ private[ecs] class EntityManager(listener: EntityListener) {
       operation.entities = Nullable(entitiesToRemove)
       pendingOperations += operation
     } else {
-      while (entitiesToRemove.size > 0) {
+      while (entitiesToRemove.size > 0)
         removeEntity(entitiesToRemove.first, delayed = false)
-      }
     }
-  }
 
   def getEntities: ImmutableArray[Entity] = immutableEntities
 
@@ -114,9 +105,8 @@ private[ecs] class EntityManager(listener: EntityListener) {
           operation.entity.foreach(removeEntityInternal)
         case EntityOperation.Type.RemoveAll =>
           operation.entities.foreach { ents =>
-            while (ents.size > 0) {
+            while (ents.size > 0)
               removeEntityInternal(ents.first)
-            }
           }
       }
 
@@ -152,10 +142,10 @@ private[ecs] class EntityManager(listener: EntityListener) {
 }
 
 /** A single deferred entity operation (add, remove, or remove-all). */
-private[ecs] final class EntityOperation extends Pool.Poolable {
-  var operationType: EntityOperation.Type = EntityOperation.Type.Add
-  var entity: Nullable[Entity] = Nullable.empty
-  var entities: Nullable[ImmutableArray[Entity]] = Nullable.empty
+final private[ecs] class EntityOperation extends Pool.Poolable {
+  var operationType: EntityOperation.Type             = EntityOperation.Type.Add
+  var entity:        Nullable[Entity]                 = Nullable.empty
+  var entities:      Nullable[ImmutableArray[Entity]] = Nullable.empty
 
   override def reset(): Unit = {
     entity = Nullable.empty
@@ -170,8 +160,8 @@ private[ecs] object EntityOperation {
 }
 
 /** Pool for reusing [[EntityOperation]] instances. */
-private[ecs] final class EntityOperationPool extends Pool[EntityOperation] {
-  override protected val max: Int = Int.MaxValue
+final private[ecs] class EntityOperationPool extends Pool[EntityOperation] {
+  override protected val max:             Int = Int.MaxValue
   override protected val initialCapacity: Int = 16
 
   override protected def newObject(): EntityOperation = new EntityOperation()

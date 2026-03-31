@@ -25,7 +25,7 @@ class OldTvEffect(using Sge)
   import ShaderVfxEffect.*
 
   private val resolution: Vector2 = Vector2()
-  private var _time: Float = 0f
+  private var _time:      Float   = 0f
 
   rebind()
 
@@ -49,8 +49,8 @@ class OldTvEffect(using Sge)
     time = _time + delta
   }
 
-  def time: Float = _time
-  def time_=(value: Float): Unit = {
+  def time:                 Float = _time
+  def time_=(value: Float): Unit  = {
     _time = value
     setUniform("u_time", value)
   }

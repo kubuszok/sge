@@ -42,8 +42,8 @@ class FreeTypeFontGeneratorLoader(resolver: FileHandleResolver)(using Sge)
     file:         FileHandle,
     parameter:    FreeTypeFontGeneratorLoader.FreeTypeFontGeneratorParameters
   ): FreeTypeFontGenerator =
-    if (file.extension() == "gen")
-      FreeTypeFontGenerator(file.sibling(file.nameWithoutExtension()))
+    if (file.extension == "gen")
+      FreeTypeFontGenerator(file.sibling(file.nameWithoutExtension))
     else
       FreeTypeFontGenerator(file)
 

@@ -24,29 +24,26 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
   require(title != null, "title cannot be null.")
   require(replacementFont != null, "replacementFont cannot be null.")
 
-  private var _style: Styles.WindowStyle = style
-  var isMovable:        Boolean = true
-  private var isModal:  Boolean = false
-  var isResizable:      Boolean = false
-  var resizeBorder:     Int     = 8
-  var keepWithinStage:  Boolean = true
-  var titleLabel:       TextraLabel = newLabel(title, replacementFont, Nullable.fold(style.titleFontColor)(null: Color)(identity))
-  var drawTitleTable:   Boolean = false
-  protected var edge:     Int     = 0
-  protected var dragging: Boolean = false
-  protected var font:     Font    = replacementFont
+  private var _style:     Styles.WindowStyle = style
+  var isMovable:          Boolean            = true
+  private var isModal:    Boolean            = false
+  var isResizable:        Boolean            = false
+  var resizeBorder:       Int                = 8
+  var keepWithinStage:    Boolean            = true
+  var titleLabel:         TextraLabel        = newLabel(title, replacementFont, Nullable.fold(style.titleFontColor)(null: Color)(identity))
+  var drawTitleTable:     Boolean            = false
+  protected var edge:     Int                = 0
+  protected var dragging: Boolean            = false
+  protected var font:     Font               = replacementFont
 
-  def this(title: String, style: Styles.WindowStyle) = {
+  def this(title: String, style: Styles.WindowStyle) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), false)
-  }
 
-  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) = {
+  def this(title: String, style: Styles.WindowStyle, scaleTitleFont: Boolean) =
     this(title, style, Nullable.fold(style.titleFont)(new Font())(identity), scaleTitleFont)
-  }
 
-  def this(title: String, style: Styles.WindowStyle, replacementFont: Font) = {
+  def this(title: String, style: Styles.WindowStyle, replacementFont: Font) =
     this(title, style, replacementFont, false)
-  }
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -69,15 +66,14 @@ class TextraWindow(title: String, style: Styles.WindowStyle, replacementFont: Fo
 
   def getStyle: Styles.WindowStyle = _style
 
-  def setModal(modal: Boolean): Unit = isModal = modal
-  def getModal: Boolean = isModal
+  def setModal(modal: Boolean): Unit    = isModal = modal
+  def getModal:                 Boolean = isModal
 
   def getTitleLabel: TextraLabel = titleLabel
 
   /** Does nothing unless the titleLabel used here is a TypingLabel; then, this will skip text progression ahead. */
-  def skipToTheEnd(): Unit = {
+  def skipToTheEnd(): Unit =
     titleLabel.skipToTheEnd()
-  }
 
   def isDragging: Boolean = dragging
 }

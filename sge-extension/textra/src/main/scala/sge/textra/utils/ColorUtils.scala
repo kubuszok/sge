@@ -101,20 +101,24 @@ object ColorUtils {
 
   def mix(colors: Array[Int], offset: Int, size: Int): Int = {
     val end = offset + size
-    if (colors == null || colors.length < end || offset < 0 || size <= 0) return 256
-    var off = offset
-    while (off < end && colors(off) == 256) off += 1
-    if (off >= end) return 256
-    var result = colors(off)
-    var i      = off + 1
-    var denom  = 2
-    while (i < end) {
-      if (colors(i) != 256) { result = lerpColors(result, colors(i), 1f / denom) }
-      else denom -= 1
-      i += 1
-      denom += 1
+    if (colors == null || colors.length < end || offset < 0 || size <= 0) 256
+    else {
+      var off = offset
+      while (off < end && colors(off) == 256) off += 1
+      if (off >= end) 256
+      else {
+        var result = colors(off)
+        var i      = off + 1
+        var denom  = 2
+        while (i < end) {
+          if (colors(i) != 256) { result = lerpColors(result, colors(i), 1f / denom) }
+          else denom -= 1
+          i += 1
+          denom += 1
+        }
+        result
+      }
     }
-    result
   }
 
   /** Looks up a color name from libGDX Colors. Returns 256 if not found. */
@@ -128,10 +132,12 @@ object ColorUtils {
     // Simplified: just try looking up as a single color name first
     val name   = key.substring(beginIndex, endIndex).trim
     val result = lookupInColors(name, 0, name.length)
-    if (result != 256) return result
-    // Try in Palette
-    val paletteColor = Palette.NAMED.get(name)
-    if (paletteColor.isDefined) return paletteColor.get
-    256
+    if (result != 256) result
+    else {
+      // Try in Palette
+      val paletteColor = Palette.NAMED.get(name)
+      if (paletteColor.isDefined) paletteColor.get
+      else 256
+    }
   }
 }

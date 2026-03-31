@@ -19,6 +19,7 @@ import sge.scenes.scene2d.Actor
   *   MJ
   */
 trait ActorLayout {
+
   /** @return passed actors merged into one widget. */
   def convertToActor(widgets: Actor*)(using Sge): Actor
 

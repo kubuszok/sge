@@ -39,21 +39,21 @@ class ChannelBar(commons: PickerCommons, private val mode: Int, private val maxV
   setValue(_value)
   addListener(changeListener)
 
-  addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
-      updateValueFromTouch(x)
-      true
-    }
+  addListener(
+    new InputListener() {
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
+        updateValueFromTouch(x)
+        true
+      }
 
-    override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-      updateValueFromTouch(x)
+      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+        updateValueFromTouch(x)
     }
-  })
+  )
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     super.draw(batch, parentAlpha)
-    style.barSelector.get.draw(batch, x + selectorX - style.barSelector.get.minWidth / 2, y - 1,
-      style.barSelector.get.minWidth, style.barSelector.get.minHeight)
+    style.barSelector.get.draw(batch, x + selectorX - style.barSelector.get.minWidth / 2, y - 1, style.barSelector.get.minWidth, style.barSelector.get.minHeight)
   }
 
   def setValue(newValue: Int): Unit = {
@@ -79,8 +79,8 @@ class ChannelBar(commons: PickerCommons, private val mode: Int, private val maxV
     if (_channelBarListener.isDefined) _channelBarListener.get.setShaderUniforms(shader)
   }
 
-  def channelBarListener:                                        Nullable[ChannelBar.ChannelBarListener] = _channelBarListener
-  def channelBarListener_=(listener: ChannelBar.ChannelBarListener): Unit = _channelBarListener = Nullable(listener)
+  def channelBarListener:                                            Nullable[ChannelBar.ChannelBarListener] = _channelBarListener
+  def channelBarListener_=(listener: ChannelBar.ChannelBarListener): Unit                                    = _channelBarListener = Nullable(listener)
 }
 
 object ChannelBar {
@@ -93,7 +93,7 @@ object ChannelBar {
   val MODE_V:     Int = 6
 
   trait ChannelBarListener {
-    def updateFields(): Unit
+    def updateFields():                           Unit
     def setShaderUniforms(shader: ShaderProgram): Unit
   }
 }

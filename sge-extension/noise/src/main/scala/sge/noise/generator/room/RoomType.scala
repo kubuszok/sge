@@ -12,8 +12,7 @@ package room
 
 /** Represents a single room type. Determines how the room is carved in the map.
   *
-  * Note that even though some room types create non-rectangle rooms, room collisions during map generating are still
-  * checked with room's original rectangle bounds to simplify calculations.
+  * Note that even though some room types create non-rectangle rooms, room collisions during map generating are still checked with room's original rectangle bounds to simplify calculations.
   *
   * @author
   *   MJ
@@ -41,21 +40,19 @@ trait RoomType {
 
 object RoomType {
 
-  /** Wraps around an existing type, allowing to slightly modify its behavior. A common usage can be changing of tile
-    * value in carve method to a custom one, allowing different room types to use different tile sets.
+  /** Wraps around an existing type, allowing to slightly modify its behavior. A common usage can be changing of tile value in carve method to a custom one, allowing different room types to use
+    * different tile sets.
     *
     * @author
     *   MJ
     */
   class Interceptor(protected val roomType: RoomType, protected val value: Float) extends RoomType {
 
-    override def carve(room: AbstractRoomGenerator.Room, grid: Grid, value: Float): Unit = {
+    override def carve(room: AbstractRoomGenerator.Room, grid: Grid, value: Float): Unit =
       roomType.carve(room, grid, this.value)
-    }
 
-    override def isValid(room: AbstractRoomGenerator.Room): Boolean = {
+    override def isValid(room: AbstractRoomGenerator.Room): Boolean =
       roomType.isValid(room)
-    }
   }
 
   /** Contains default implementations of [[RoomType]].
@@ -71,18 +68,15 @@ object RoomType {
     /** Uses a very simple algorithm to round room's corners. Works best for about 5 to 25 room size. */
     case ROUNDED
 
-    /** Instead of carving a simple rectangle, forms a rectangle with four "towers" in rooms' corners. Works with pretty
-      * much any room size, but requires the room to be at least 7x7 squares big.
+    /** Instead of carving a simple rectangle, forms a rectangle with four "towers" in rooms' corners. Works with pretty much any room size, but requires the room to be at least 7x7 squares big.
       */
     case CASTLE
 
-    /** Forms a pyramid-like structure. Can handle only square rooms with side size bigger than 2. Works best on odd room
-      * sizes.
+    /** Forms a pyramid-like structure. Can handle only square rooms with side size bigger than 2. Works best on odd room sizes.
       */
     case DIAMOND
 
-    /** Forms a cross-shaped room, dividing the room into 9 (usually) equal parts and removing the corner ones. Requires
-      * the room to have at least 3x3 size. Works best with square rooms.
+    /** Forms a cross-shaped room, dividing the room into 9 (usually) equal parts and removing the corner ones. Requires the room to have at least 3x3 size. Works best with square rooms.
       */
     case CROSS
 
@@ -92,9 +86,9 @@ object RoomType {
           room.fill(grid, value)
 
         case ROUNDED =>
-          val halfSize = (room.width + room.height) / 2
+          val halfSize              = (room.width + room.height) / 2
           val maxDistanceFromCenter = halfSize * 9 / 10
-          var x = 0
+          var x                     = 0
           while (x < room.width) {
             var y = 0
             while (y < room.height) {
@@ -108,9 +102,9 @@ object RoomType {
           }
 
         case CASTLE =>
-          val size = Math.min(room.width, room.height)
+          val size      = Math.min(room.width, room.height)
           val towerSize = Math.max((size - 1) / 4, DefaultRoomType.CastleMinTower)
-          val offset = Math.max(towerSize / 4, if (towerSize == DefaultRoomType.CastleMinTower) 1 else 2)
+          val offset    = Math.max(towerSize / 4, if (towerSize == DefaultRoomType.CastleMinTower) 1 else 2)
           // Main room:
           var x = offset
           while (x < room.width - offset) {
@@ -161,7 +155,7 @@ object RoomType {
 
         case DIAMOND =>
           val halfSize = room.width / 2
-          var x = 0
+          var x        = 0
           while (x < room.width) {
             var y = 0
             while (y < room.height) {
@@ -177,7 +171,7 @@ object RoomType {
         case CROSS =>
           val offsetX = room.width / 3
           val offsetY = room.height / 3
-          var x = 0
+          var x       = 0
           while (x < room.width) {
             var y = offsetY
             while (y < room.height - offsetY) {
@@ -198,19 +192,18 @@ object RoomType {
       }
     }
 
-    override def isValid(room: AbstractRoomGenerator.Room): Boolean = {
+    override def isValid(room: AbstractRoomGenerator.Room): Boolean =
       this match {
         case CASTLE  => room.width >= DefaultRoomType.CastleMinSize && room.height >= DefaultRoomType.CastleMinSize
         case DIAMOND => room.width > 2 && room.width == room.height
         case CROSS   => room.width >= DefaultRoomType.CrossMinSize && room.height >= DefaultRoomType.CrossMinSize
         case _       => true
       }
-    }
   }
 
   object DefaultRoomType {
-    val CastleMinSize: Int = 7
+    val CastleMinSize:  Int = 7
     val CastleMinTower: Int = 3
-    val CrossMinSize: Int = 3
+    val CrossMinSize:   Int = 3
   }
 }

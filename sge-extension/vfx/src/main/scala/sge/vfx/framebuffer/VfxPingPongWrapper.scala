@@ -13,10 +13,8 @@ import sge.utils.Nullable
 
 /** Encapsulates a pair of [[VfxFrameBuffer]]s with the ability to swap between them.
   *
-  * Upon [[begin]] the buffer is reset to a known initial state, this is usually done just before the first usage of the buffer.
-  * Subsequent [[swap]] calls will initiate writing to the next available buffer, effectively ping-ponging between the two. Chained
-  * rendering will be possible by retrieving the necessary buffers via [[srcBuffer]], [[dstBuffer]], [[srcTexture]] or
-  * [[dstTexture]].
+  * Upon [[begin]] the buffer is reset to a known initial state, this is usually done just before the first usage of the buffer. Subsequent [[swap]] calls will initiate writing to the next available
+  * buffer, effectively ping-ponging between the two. Chained rendering will be possible by retrieving the necessary buffers via [[srcBuffer]], [[dstBuffer]], [[srcTexture]] or [[dstTexture]].
   *
   * When rendering is finished, [[end]] should be called to stop capturing.
   */
@@ -79,8 +77,7 @@ class VfxPingPongWrapper(using Sge) {
 
   def isInitialized: Boolean = bufDst.isDefined && bufSrc.isDefined
 
-  /** Start capturing into the destination buffer. To swap buffers during capturing, call [[swap]]. [[end]] shall be called after
-    * rendering to ping-pong buffer is done.
+  /** Start capturing into the destination buffer. To swap buffers during capturing, call [[swap]]. [[end]] shall be called after rendering to ping-pong buffer is done.
     */
   def begin(): Unit = {
     if (_capturing) {
@@ -136,7 +133,7 @@ class VfxPingPongWrapper(using Sge) {
 
   /** Cleans up managed [[VfxFrameBuffer]]s' with the color specified. */
   def cleanUpBuffers(r: Float, g: Float, b: Float, a: Float): Unit = {
-    val gl = Sge().graphics.gl20
+    val gl           = Sge().graphics.gl20
     val wasCapturing = this._capturing
 
     if (!wasCapturing) { begin() }

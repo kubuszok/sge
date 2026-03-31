@@ -23,8 +23,7 @@ import sge.visui.Sizes
   * @author
   *   Kotcrab
   */
-class Palette(commons: PickerCommons, private val maxValue: Int, listener: ChangeListener)(using Sge)
-    extends ShaderImage(commons.paletteShader, commons.whiteTexture) {
+class Palette(commons: PickerCommons, private val maxValue: Int, listener: ChangeListener)(using Sge) extends ShaderImage(commons.paletteShader, commons.whiteTexture) {
 
   private val style: ColorPickerWidgetStyle = commons.style
   private val sizes: Sizes                  = commons.sizes
@@ -41,43 +40,39 @@ class Palette(commons: PickerCommons, private val maxValue: Int, listener: Chang
   setValue(0, 0)
   addListener(listener)
 
-  addListener(new InputListener() {
-    override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
-      updateValueFromTouch(x, y)
-      true
-    }
+  addListener(
+    new InputListener() {
+      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: Button): Boolean = {
+        updateValueFromTouch(x, y)
+        true
+      }
 
-    override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
-      updateValueFromTouch(x, y)
+      override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
+        updateValueFromTouch(x, y)
     }
-  })
+  )
 
   override def draw(batch: Batch, parentAlpha: Float): Unit = {
     super.draw(batch, parentAlpha)
 
-    style.verticalSelector.get.draw(batch,
-      x,
-      y + selectorY - style.verticalSelector.get.minHeight / 2 + 0.1f,
-      imageWidth, style.verticalSelector.get.minHeight)
+    style.verticalSelector.get.draw(batch, x, y + selectorY - style.verticalSelector.get.minHeight / 2 + 0.1f, imageWidth, style.verticalSelector.get.minHeight)
 
-    style.horizontalSelector.get.draw(batch,
-      x + selectorX - style.horizontalSelector.get.minWidth / 2 + 0.1f,
-      y,
-      style.horizontalSelector.get.minWidth, imageHeight)
+    style.horizontalSelector.get.draw(batch, x + selectorX - style.horizontalSelector.get.minWidth / 2 + 0.1f, y, style.horizontalSelector.get.minWidth, imageHeight)
 
-    style.cross.get.draw(batch,
+    style.cross.get.draw(
+      batch,
       x + selectorX - style.cross.get.minWidth / 2 + 0.1f,
       y + selectorY - style.cross.get.minHeight / 2 + 0.1f,
-      style.cross.get.minWidth, style.cross.get.minHeight)
+      style.cross.get.minWidth,
+      style.cross.get.minHeight
+    )
   }
 
-  override protected def setShaderUniforms(shader: ShaderProgram): Unit = {
+  override protected def setShaderUniforms(shader: ShaderProgram): Unit =
     shader.setUniformf("u_h", _pickerHue)
-  }
 
-  def setPickerHue(pickerHue: Int): Unit = {
+  def setPickerHue(pickerHue: Int): Unit =
     _pickerHue = pickerHue / 360.0f
-  }
 
   def setValue(s: Int, v: Int): Unit = {
     xV = v

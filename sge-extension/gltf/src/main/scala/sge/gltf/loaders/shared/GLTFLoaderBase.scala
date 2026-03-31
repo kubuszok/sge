@@ -9,44 +9,44 @@ package gltf
 package loaders
 package shared
 
-import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet}
+import scala.collection.mutable.{ ArrayBuffer, HashMap, HashSet }
 import sge.Sge
 import sge.utils.Log
-import sge.graphics.{Camera, Mesh, Pixmap, Texture}
-import sge.graphics.g3d.{Material, Model}
-import sge.graphics.g3d.model.{MeshPart, Node, NodePart}
+import sge.graphics.{ Camera, Mesh, Pixmap, Texture }
+import sge.graphics.g3d.{ Material, Model }
+import sge.graphics.g3d.model.{ MeshPart, Node, NodePart }
 import sge.gltf.data.GLTF
 import sge.gltf.data.camera.GLTFCamera
 import sge.gltf.data.extensions.KHRLightsPunctual
-import sge.gltf.data.scene.{GLTFNode, GLTFScene}
+import sge.gltf.data.scene.{ GLTFNode, GLTFScene }
 import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import sge.gltf.loaders.shared.animation.AnimationLoader
-import sge.gltf.loaders.shared.data.{DataFileResolver, DataResolver}
+import sge.gltf.loaders.shared.data.{ DataFileResolver, DataResolver }
 import sge.gltf.loaders.shared.geometry.MeshLoader
-import sge.gltf.loaders.shared.material.{MaterialLoader, PBRMaterialLoader}
-import sge.gltf.loaders.shared.scene.{NodeResolver, SkinLoader}
-import sge.gltf.loaders.shared.texture.{ImageResolver, TextureResolver}
+import sge.gltf.loaders.shared.material.{ MaterialLoader, PBRMaterialLoader }
+import sge.gltf.loaders.shared.scene.{ NodeResolver, SkinLoader }
+import sge.gltf.loaders.shared.texture.{ ImageResolver, TextureResolver }
 import sge.math.Matrix4
 import sge.utils.Nullable
 
 class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nullable.empty) extends AutoCloseable {
 
-  protected var glModel: Nullable[GLTF] = Nullable.empty
+  protected var glModel:          Nullable[GLTF]             = Nullable.empty
   protected var dataFileResolver: Nullable[DataFileResolver] = Nullable.empty
-  protected var materialLoader: Nullable[MaterialLoader] = Nullable.empty
-  protected var dataResolver: Nullable[DataResolver] = Nullable.empty
-  protected var imageResolver: Nullable[ImageResolver] = Nullable.empty
+  protected var materialLoader:   Nullable[MaterialLoader]   = Nullable.empty
+  protected var dataResolver:     Nullable[DataResolver]     = Nullable.empty
+  protected var imageResolver:    Nullable[ImageResolver]    = Nullable.empty
 
   private val animationLoader: AnimationLoader = new AnimationLoader()
-  private val nodeResolver: NodeResolver = new NodeResolver()
-  private val meshLoader: MeshLoader = new MeshLoader()
-  private val skinLoader: SkinLoader = new SkinLoader()
+  private val nodeResolver:    NodeResolver    = new NodeResolver()
+  private val meshLoader:      MeshLoader      = new MeshLoader()
+  private val skinLoader:      SkinLoader      = new SkinLoader()
 
-  private val cameras: ArrayBuffer[Camera] = ArrayBuffer.empty
-  private val cameraMap: HashMap[String, Int] = HashMap.empty
-  private val loadedMeshes: HashSet[Mesh] = HashSet.empty
+  private val cameras:      ArrayBuffer[Camera]  = ArrayBuffer.empty
+  private val cameraMap:    HashMap[String, Int] = HashMap.empty
+  private val loadedMeshes: HashSet[Mesh]        = HashSet.empty
 
-  def load(dataFileResolver: DataFileResolver, withData: Boolean)(using sge: Sge): Model = {
+  def load(dataFileResolver: DataFileResolver, withData: Boolean)(using sge: Sge): Model =
     try {
       this.dataFileResolver = Nullable(dataFileResolver)
 
@@ -55,19 +55,17 @@ class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nu
 
       // prerequisites (mandatory)
       model.extensionsRequired.foreach { required =>
-        for (extension <- required) {
+        for (extension <- required)
           if (!GLTFLoaderBase.supportedExtensions.contains(extension)) {
             throw new GLTFUnsupportedException("Extension " + extension + " required but not supported")
           }
-        }
       }
       // prerequisites (optional)
       model.extensionsUsed.foreach { used =>
-        for (extension <- used) {
+        for (extension <- used)
           if (!GLTFLoaderBase.supportedExtensions.contains(extension)) {
             Log.error(GLTFLoaderBase.TAG + ": " + "Extension " + extension + " used but not supported")
           }
-        }
       }
 
       // load deps from lower to higher
@@ -111,33 +109,28 @@ class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nu
         close()
         throw e
     }
-  }
 
-  protected def createMaterialLoader(textureResolver: TextureResolver): MaterialLoader = {
+  protected def createMaterialLoader(textureResolver: TextureResolver): MaterialLoader =
     new PBRMaterialLoader(textureResolver)
-  }
 
-  private def loadCameras(model: GLTF)(using sge: Sge): Unit = {
+  private def loadCameras(model: GLTF)(using sge: Sge): Unit =
     model.cameras.foreach { cams =>
-      for (glCamera <- cams) {
+      for (glCamera <- cams)
         cameras += GLTFTypes.map(glCamera)
-      }
     }
-  }
 
   private def loadScene(gltfScene: GLTFScene, resultModel: Model)(using sge: Sge): Unit = {
     // add root nodes
     gltfScene.nodes.foreach { nodeIndices =>
-      for (id <- nodeIndices) {
+      for (id <- nodeIndices)
         resultModel.nodes += getNode(id)
-      }
     }
 
     // collect meshes, mesh parts, and materials from nodes
     collectData(resultModel, resultModel.nodes)
   }
 
-  private def collectData(model: Model, nodes: sge.utils.DynamicArray[Node]): Unit = {
+  private def collectData(model: Model, nodes: sge.utils.DynamicArray[Node]): Unit =
     for (node <- nodes) {
       for (part <- node.parts) {
         if (!model.meshes.contains(part.meshPart.mesh)) {
@@ -150,56 +143,54 @@ class GLTFLoaderBase(private var textureResolver: Nullable[TextureResolver] = Nu
       }
       collectData(model, node.children)
     }
-  }
 
-  private def getNode(id: Int)(using sge: Sge): Node = {
-    nodeResolver.get(id).fold {
-      val node = new Node()
-      nodeResolver.put(id, node)
+  private def getNode(id: Int)(using sge: Sge): Node =
+    nodeResolver
+      .get(id)
+      .fold {
+        val node = new Node()
+        nodeResolver.put(id, node)
 
-      val model = glModel.get
-      val glNode = model.nodes.get(id)
+        val model  = glModel.get
+        val glNode = model.nodes.get(id)
 
-      glNode.matrix.foreach { mat =>
-        val matrix = new Matrix4(mat)
-        matrix.translation(node.translation)
-        matrix.getScale(node.scale)
-        matrix.rotation(node.rotation, true)
-      }
-      if (glNode.matrix.isEmpty) {
-        glNode.translation.foreach { t => GLTFTypes.map(node.translation, t) }
-        glNode.rotation.foreach { r => GLTFTypes.map(node.rotation, r) }
-        glNode.scale.foreach { s => GLTFTypes.map(node.scale, s) }
-      }
-
-      node.id = glNode.name.getOrElse("glNode " + id)
-
-      glNode.children.foreach { children =>
-        for (childId <- children) {
-          node.addChild(getNode(childId))
+        glNode.matrix.foreach { mat =>
+          val matrix = new Matrix4(mat)
+          matrix.translation(node.translation)
+          matrix.getScale(node.scale)
+          matrix.rotation(node.rotation, true)
         }
-      }
-
-      glNode.mesh.foreach { meshIdx =>
-        model.meshes.foreach { meshes =>
-          meshLoader.load(node, meshes(meshIdx), dataResolver.get, materialLoader.get)
+        if (glNode.matrix.isEmpty) {
+          glNode.translation.foreach(t => GLTFTypes.map(node.translation, t))
+          glNode.rotation.foreach(r => GLTFTypes.map(node.rotation, r))
+          glNode.scale.foreach(s => GLTFTypes.map(node.scale, s))
         }
-      }
 
-      glNode.camera.foreach { camIdx =>
-        cameraMap.put(node.id, camIdx)
-      }
+        node.id = glNode.name.getOrElse("glNode " + id)
 
-      node
-    }(identity)
-  }
+        glNode.children.foreach { children =>
+          for (childId <- children)
+            node.addChild(getNode(childId))
+        }
+
+        glNode.mesh.foreach { meshIdx =>
+          model.meshes.foreach { meshes =>
+            meshLoader.load(node, meshes(meshIdx), dataResolver.get, materialLoader.get)
+          }
+        }
+
+        glNode.camera.foreach { camIdx =>
+          cameraMap.put(node.id, camIdx)
+        }
+
+        node
+      }(identity)
 
   override def close(): Unit = {
     imageResolver.foreach(_.close())
     textureResolver.foreach(_.close())
-    for (mesh <- loadedMeshes) {
+    for (mesh <- loadedMeshes)
       mesh.close()
-    }
     loadedMeshes.clear()
   }
 }

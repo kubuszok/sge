@@ -20,9 +20,9 @@ import sge.visui.building.utilities.Padding
 class GridTableBuilder(rowSize: Int, estimatedWidgetsAmount: Int, estimatedRowsAmount: Int, defaultWidgetPadding: Padding)
     extends TableBuilder(estimatedWidgetsAmount, estimatedRowsAmount, defaultWidgetPadding) {
 
-  def this(rowSize: Int) = this(rowSize, 10, 3, Padding.PAD_0)
-  def this(defaultWidgetPadding: Padding, rowSize: Int) = this(rowSize, 10, 3, defaultWidgetPadding)
-  def this(rowSize: Int, estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(rowSize, estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
+  def this(rowSize:              Int) = this(rowSize, 10, 3, Padding.PAD_0)
+  def this(defaultWidgetPadding: Padding, rowSize:            Int) = this(rowSize, 10, 3, defaultWidgetPadding)
+  def this(rowSize:              Int, estimatedWidgetsAmount: Int, estimatedRowsAmount: Int) = this(rowSize, estimatedWidgetsAmount, estimatedRowsAmount, Padding.PAD_0)
 
   override protected def fillTable(table: Table): Unit = {
     var widgetsCounter = 0

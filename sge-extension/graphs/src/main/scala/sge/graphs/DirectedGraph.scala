@@ -32,15 +32,12 @@ class DirectedGraph[V] extends Graph[V] {
     if (node == null) -1 else node.inDegree
   }
 
-  /** Get a collection containing all the edges which have v as a head.
-    * That is, for every edge e in the collection, e = (u, v) for some vertex u.
+  /** Get a collection containing all the edges which have v as a head. That is, for every edge e in the collection, e = (u, v) for some vertex u.
     */
   def getInEdges(v: V): Iterable[Edge[V]] = {
     val node = getNode(v)
-    if (node == null) {
-      return null.asInstanceOf[Iterable[Edge[V]]] // @nowarn — null return matches original API
-    }
-    node.inEdges.asInstanceOf[Iterable[Edge[V]]]
+    if (node == null) null.asInstanceOf[Iterable[Edge[V]]] // @nowarn — null return matches original API
+    else node.inEdges.asInstanceOf[Iterable[Edge[V]]]
   }
 
   /** Sort the vertices of this graph in topological order. */

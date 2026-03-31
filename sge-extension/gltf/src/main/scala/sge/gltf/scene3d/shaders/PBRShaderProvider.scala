@@ -25,9 +25,10 @@ import sge.utils.{ Nullable, SgeError }
 
 import scala.language.implicitConversions
 
-class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends DefaultShaderProvider(
-  if (config != null) config else PBRShaderProvider.createDefaultConfig() // @nowarn
-) {
+class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge)
+    extends DefaultShaderProvider(
+      if (config != null) config else PBRShaderProvider.createDefaultConfig() // @nowarn
+    ) {
 
   if (this.config.vertexShader.isEmpty) this.config.vertexShader = Nullable(PBRShaderProvider.getDefaultVertexShader())
   if (this.config.fragmentShader.isEmpty) this.config.fragmentShader = Nullable(PBRShaderProvider.getDefaultFragmentShader())
@@ -46,9 +47,11 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends Default
     if (isGL3) {
       if (sge.application.applicationType == Application.ApplicationType.Desktop) {
         if (version == null) version = "#version 130\n#define GLSL3\n" // @nowarn
-      } else if (sge.application.applicationType == Application.ApplicationType.Android ||
+      } else if (
+        sge.application.applicationType == Application.ApplicationType.Android ||
         sge.application.applicationType == Application.ApplicationType.iOS ||
-        sge.application.applicationType == Application.ApplicationType.WebGL) {
+        sge.application.applicationType == Application.ApplicationType.WebGL
+      ) {
         if (version == null) version = "#version 300 es\n#define GLSL3\n" // @nowarn
       }
     }
@@ -153,14 +156,16 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends Default
 
         if (specularCubemapPresent || hasMirrorSpecular) {
           sb.append("#define USE_IBL\n")
-          val textureLodSupported = if (isGL3) true
-          else if (sge.graphics.supportsExtension("EXT_shader_texture_lod")) {
-            sb.append("#define USE_TEXTURE_LOD_EXT\n"); true
-          } else false
+          val textureLodSupported =
+            if (isGL3) true
+            else if (sge.graphics.supportsExtension("EXT_shader_texture_lod")) {
+              sb.append("#define USE_TEXTURE_LOD_EXT\n"); true
+            } else false
 
           if (specularCubemapPresent && textureLodSupported) {
             // Check if specular cubemap has mipmap filter
-            val specCubemap = env.get.getAs[PBRCubemapAttribute](PBRCubemapAttribute.SpecularEnv)
+            val specCubemap = env.get
+              .getAs[PBRCubemapAttribute](PBRCubemapAttribute.SpecularEnv)
               .orElse(env.get.getAs[PBRCubemapAttribute](PBRCubemapAttribute.DiffuseEnv))
               .orElse(env.get.getAs[PBRCubemapAttribute](PBRCubemapAttribute.EnvironmentMap))
             specCubemap.foreach { attr =>
@@ -183,7 +188,7 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends Default
     sb.append(createPrefixSRGB(renderable, cfg))
 
     // Multi UVs
-    var maxUVIndex = -1
+    var maxUVIndex     = -1
     val uvTextureTypes = Array(
       (TextureAttribute.Diffuse, "v_diffuseUV"),
       (TextureAttribute.Emissive, "v_emissiveUV"),
@@ -197,14 +202,13 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends Default
       (PBRTextureAttribute.IridescenceTexture, "v_iridescenceUV"),
       (PBRTextureAttribute.IridescenceThicknessTexture, "v_iridescenceThicknessUV")
     )
-    for ((texType, define) <- uvTextureTypes) {
+    for ((texType, define) <- uvTextureTypes)
       renderable.material.foreach { mat2 =>
         mat2.getAs[TextureAttribute](texType).foreach { attribute =>
           sb.append("#define ").append(define).append(" v_texCoord").append(attribute.uvIndex).append("\n")
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex)
         }
       }
-    }
     if (maxUVIndex >= 0) sb.append("#define textureFlag\n")
     if (maxUVIndex == 1) sb.append("#define textureCoord1Flag\n")
     else if (maxUVIndex > 1) throw SgeError.InvalidInput("more than 2 texture coordinates attribute not supported")
@@ -216,7 +220,7 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge) extends Default
 
     // Colors
     val vertexAttributes = renderable.meshPart.mesh.vertexAttributes
-    var vIdx = 0
+    var vIdx             = 0
     while (vIdx < vertexAttributes.size) {
       val attribute = vertexAttributes.get(vIdx)
       if (attribute.usage == VertexAttributes.Usage.ColorUnpacked) {
@@ -301,13 +305,13 @@ object PBRShaderProvider {
     PBRDepthShaderProvider(config)
 
   def morphTargetsPrefix(renderable: Renderable): String = {
-    val sb = new StringBuilder
+    val sb               = new StringBuilder
     val vertexAttributes = renderable.meshPart.mesh.vertexAttributes
-    val n = vertexAttributes.size
-    var j = 0
+    val n                = vertexAttributes.size
+    var j                = 0
     while (j < n) {
       val att = vertexAttributes.get(j)
-      var i = 0
+      var i   = 0
       while (i < PBRCommon.MAX_MORPH_TARGETS) {
         if (att.usage == PBRVertexAttributes.Usage.PositionTarget && att.unit == i) {
           sb.append("#define position").append(i).append("Flag\n")

@@ -32,7 +32,7 @@ class FogAttribute(
   override def copy(): Attribute =
     FogAttribute(`type`).set(value)
 
-  override def compare(that: Attribute): Int = {
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other = that.asInstanceOf[FogAttribute]
@@ -41,7 +41,6 @@ class FogAttribute(
       else if (!MathUtils.isEqual(value.z, other.value.z)) { if (value.z < other.value.z) -1 else 1 }
       else 0
     }
-  }
 }
 
 object FogAttribute {

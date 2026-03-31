@@ -55,13 +55,13 @@ class ModelInstanceHack(model: Model) extends ModelInstance(model) {
           nodeAnim.scaling = nanim.scaling
           nanim match {
             case nah: NodeAnimationHack => nodeAnim.weights = nah.weights
-            case _                      => ()
+            case _ => ()
           }
         } else {
           if (nanim.translation.isDefined) {
-            val trans = nanim.translation.get
+            val trans    = nanim.translation.get
             val newTrans = DynamicArray[NodeKeyframe[Vector3]]()
-            var j = 0
+            var j        = 0
             while (j < trans.size) {
               val kf = trans(j)
               newTrans.add(NodeKeyframe(kf.keytime, kf.value))
@@ -70,9 +70,9 @@ class ModelInstanceHack(model: Model) extends ModelInstance(model) {
             nodeAnim.translation = Nullable(newTrans)
           }
           if (nanim.rotation.isDefined) {
-            val rot = nanim.rotation.get
+            val rot    = nanim.rotation.get
             val newRot = DynamicArray[NodeKeyframe[Quaternion]]()
-            var j = 0
+            var j      = 0
             while (j < rot.size) {
               val kf = rot(j)
               newRot.add(NodeKeyframe(kf.keytime, kf.value))
@@ -81,9 +81,9 @@ class ModelInstanceHack(model: Model) extends ModelInstance(model) {
             nodeAnim.rotation = Nullable(newRot)
           }
           if (nanim.scaling.isDefined) {
-            val scl = nanim.scaling.get
+            val scl    = nanim.scaling.get
             val newScl = DynamicArray[NodeKeyframe[Vector3]]()
-            var j = 0
+            var j      = 0
             while (j < scl.size) {
               val kf = scl(j)
               newScl.add(NodeKeyframe(kf.keytime, kf.value))
@@ -94,7 +94,7 @@ class ModelInstanceHack(model: Model) extends ModelInstance(model) {
           nanim match {
             case nah: NodeAnimationHack if nah.weights != null => // @nowarn — nullable field
               val newWeights = DynamicArray[NodeKeyframe[WeightVector]]()
-              var j = 0
+              var j          = 0
               while (j < nah.weights.size) {
                 val kf = nah.weights(j)
                 newWeights.add(NodeKeyframe(kf.keytime, kf.value))
@@ -105,8 +105,10 @@ class ModelInstanceHack(model: Model) extends ModelInstance(model) {
           }
         }
 
-        if (nodeAnim.translation.isDefined || nodeAnim.rotation.isDefined || nodeAnim.scaling.isDefined ||
-          (nanim.isInstanceOf[NodeAnimationHack] && nanim.asInstanceOf[NodeAnimationHack].weights != null)) {
+        if (
+          nodeAnim.translation.isDefined || nodeAnim.rotation.isDefined || nodeAnim.scaling.isDefined ||
+          (nanim.isInstanceOf[NodeAnimationHack] && nanim.asInstanceOf[NodeAnimationHack].weights != null)
+        ) {
           animation.nodeAnimations.add(nodeAnim)
         }
       }

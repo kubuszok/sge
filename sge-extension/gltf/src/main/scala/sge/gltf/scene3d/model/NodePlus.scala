@@ -20,8 +20,7 @@ class NodePlus extends Node {
   /** null if no morph targets */
   var weights: Nullable[WeightVector] = Nullable.empty
 
-  /** optional morph target names (eg. exported from Blender with custom properties enabled).
-    * shared with others nodes with same mesh.
+  /** optional morph target names (eg. exported from Blender with custom properties enabled). shared with others nodes with same mesh.
     */
   var morphTargetNames: Nullable[DynamicArray[String]] = Nullable.empty
 

@@ -14,11 +14,11 @@ package internal
 import sge.files.FileHandle
 
 final case class FileHandleMetadata private (
-    name: String,
-    isDirectory: Boolean,
-    lastModified: Long,
-    length: Long,
-    readableFileSize: String
+  name:             String,
+  isDirectory:      Boolean,
+  lastModified:     Long,
+  length:           Long,
+  readableFileSize: String
 )
 
 object FileHandleMetadata {

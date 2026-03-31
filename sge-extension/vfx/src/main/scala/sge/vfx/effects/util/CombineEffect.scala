@@ -13,8 +13,7 @@ import sge.vfx.VfxRenderContext
 import sge.vfx.framebuffer.VfxFrameBuffer
 import sge.vfx.gl.VfxGLUtils
 
-/** Merges two frames with an option to change intensity and saturation for each. After applying saturation and intensity factors,
-  * the result frame is `src0 * (1.0 - src1) + src1`.
+/** Merges two frames with an option to change intensity and saturation for each. After applying saturation and intensity factors, the result frame is `src0 * (1.0 - src1) + src1`.
   *
   * If you're looking for rather straightforward way to mix two frames into one, have a look at [[MixEffect]].
   */
@@ -53,26 +52,26 @@ class CombineEffect(using Sge)
     renderShader(context, dst)
   }
 
-  def source1Intensity: Float = s1i
-  def source1Intensity_=(intensity: Float): Unit = {
+  def source1Intensity:                     Float = s1i
+  def source1Intensity_=(intensity: Float): Unit  = {
     s1i = intensity
     setUniform("u_src0Intensity", intensity)
   }
 
-  def source2Intensity: Float = s2i
-  def source2Intensity_=(intensity: Float): Unit = {
+  def source2Intensity:                     Float = s2i
+  def source2Intensity_=(intensity: Float): Unit  = {
     s2i = intensity
     setUniform("u_src1Intensity", intensity)
   }
 
-  def source1Saturation: Float = s1s
-  def source1Saturation_=(saturation: Float): Unit = {
+  def source1Saturation:                      Float = s1s
+  def source1Saturation_=(saturation: Float): Unit  = {
     s1s = saturation
     setUniform("u_src0Saturation", saturation)
   }
 
-  def source2Saturation: Float = s2s
-  def source2Saturation_=(saturation: Float): Unit = {
+  def source2Saturation:                      Float = s2s
+  def source2Saturation_=(saturation: Float): Unit  = {
     s2s = saturation
     setUniform("u_src1Saturation", saturation)
   }

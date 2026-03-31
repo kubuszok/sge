@@ -10,36 +10,31 @@ package loaders
 package shared
 package data
 
-import java.nio.{ByteBuffer, ByteOrder}
-import sge.gltf.data.data.{GLTFAccessor, GLTFBufferView}
+import java.nio.{ ByteBuffer, ByteOrder }
+import sge.gltf.data.data.{ GLTFAccessor, GLTFBufferView }
 import sge.gltf.loaders.shared.GLTFTypes
 
 class AccessorBuffer private (
-    private val accessor: GLTFAccessor,
-    /**
-     * BufferView that represents this buffer. Is null when the accessor has no
-     * buffer (is initialized with zeros).
-     */
-    private val bufferView: GLTFBufferView | Null, // @nowarn — nullable for zero-initialized case
-    private var data: ByteBuffer,
-    private var byteOffsetValue: Int
+  private val accessor: GLTFAccessor,
+  /** BufferView that represents this buffer. Is null when the accessor has no buffer (is initialized with zeros).
+    */
+  private val bufferView:      GLTFBufferView | Null, // @nowarn — nullable for zero-initialized case
+  private var data:            ByteBuffer,
+  private var byteOffsetValue: Int
 ) {
 
-  def getByteStride: Int = {
+  def getByteStride: Int =
     if (bufferView != null && bufferView.byteStride.isDefined) {
       bufferView.byteStride.get
     } else {
       GLTFTypes.accessorStrideSize(accessor)
     }
-  }
 
   def getByteOffset: Int = byteOffsetValue
 
-  /**
-   * If the accessor is backed by a buffer potentially used by others,
-   * create a copy so this buffer can be safely manipulated
-   */
-  def prepareForWriting(): Unit = {
+  /** If the accessor is backed by a buffer potentially used by others, create a copy so this buffer can be safely manipulated
+    */
+  def prepareForWriting(): Unit =
     if (bufferView != null) {
       // replace the buffer view with a copy as we will have to modify it
       prepareForReading()
@@ -50,35 +45,31 @@ class AccessorBuffer private (
       data = clone
       byteOffsetValue = 0
     }
-  }
 
-  /**
-   * The buffer will be positioned on the first element belonging
-   * to the accessor.
-   *
-   * @see [[getData]]
-   */
+  /** The buffer will be positioned on the first element belonging to the accessor.
+    *
+    * @see
+    *   [[getData]]
+    */
   def prepareForReading(): ByteBuffer = {
     data.position(getByteOffset)
     data
   }
 
-  /**
-   * Buffer containing the accessors' data. Make sure to consider
-   * [[getByteStride]] and [[getByteOffset]] when reading from this!
-   */
+  /** Buffer containing the accessors' data. Make sure to consider [[getByteStride]] and [[getByteOffset]] when reading from this!
+    */
   def getData: ByteBuffer = data
 }
 
 object AccessorBuffer {
 
   def fromBufferView(
-      glAccessor: GLTFAccessor,
-      glBufferView: GLTFBufferView,
-      resolver: DataFileResolver
+    glAccessor:   GLTFAccessor,
+    glBufferView: GLTFBufferView,
+    resolver:     DataFileResolver
   ): AccessorBuffer = {
     val byteOffset = glBufferView.byteOffset + glAccessor.byteOffset
-    val buf = new AccessorBuffer(
+    val buf        = new AccessorBuffer(
       glAccessor,
       glBufferView,
       resolver.getBuffer(glBufferView.buffer.get),

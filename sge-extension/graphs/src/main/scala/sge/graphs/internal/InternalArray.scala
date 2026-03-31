@@ -8,16 +8,18 @@ package sge
 package graphs
 package internal
 
-/** Resizable array, ported from simple-graphs Array.java.
-  * Used internally for edge lists and path storage.
+import scala.util.boundary
+import scala.util.boundary.break
+
+/** Resizable array, ported from simple-graphs Array.java. Used internally for edge lists and path storage.
   */
 class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = false) extends Iterable[T] {
 
   private var _items: Array[Any] = new Array[Any](initialCapacity)
-  private var _size: Int = if (resizeToCapacity) initialCapacity else 0
+  private var _size:  Int        = if (resizeToCapacity) initialCapacity else 0
 
-  def items: Array[Any] = _items
-  override def size: Int = _size
+  def items:         Array[Any] = _items
+  override def size: Int        = _size
 
   def add(item: T): Boolean = {
     ensureCapacity(_size + 1)
@@ -34,32 +36,32 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
 
   def get(index: Int): T = _items(index).asInstanceOf[T]
 
-  def indexOf(item: Any): Int = {
+  def indexOf(item: Any): Int = boundary {
     if (item == null) {
       throw IllegalArgumentException("No item can be null")
     }
     var i = _size - 1
     while (i >= 0) {
       if (item.equals(_items(i))) {
-        return i
+        break(i)
       }
       i -= 1
     }
     -1
   }
 
-  def removeItem(item: Any): Boolean = {
+  def removeItem(item: Any): Boolean =
     if (item == null) {
-      return false
-    }
-    val idx = indexOf(item)
-    if (idx >= 0) {
-      removeAt(idx)
-      true
-    } else {
       false
+    } else {
+      val idx = indexOf(item)
+      if (idx >= 0) {
+        removeAt(idx)
+        true
+      } else {
+        false
+      }
     }
-  }
 
   def removeAt(index: Int): T = {
     if (index < 0 || index >= _size) {
@@ -77,22 +79,22 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
   }
 
   def addAll(collection: Iterable[T]): Boolean = {
-    val arr = collection.toArray[Any]
+    val arr    = collection.toArray[Any]
     val numNew = arr.length
     if (numNew == 0) {
-      return false
+      false
+    } else {
+      ensureCapacity(_size + numNew)
+      System.arraycopy(arr, 0, _items, _size, numNew)
+      _size += numNew
+      true
     }
-    ensureCapacity(_size + numNew)
-    System.arraycopy(arr, 0, _items, _size, numNew)
-    _size += numNew
-    true
   }
 
-  private def ensureCapacity(newSize: Int): Unit = {
+  private def ensureCapacity(newSize: Int): Unit =
     if (newSize > _items.length) {
       strictResize(math.max(2 * _items.length, newSize))
     }
-  }
 
   protected def strictResize(newSize: Int): Unit = {
     val newItems = new Array[Any](newSize)
@@ -112,7 +114,7 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
   override def iterator: Iterator[T] = new Iterator[T] {
     private var cursor = 0
     def hasNext: Boolean = cursor < _size
-    def next(): T = {
+    def next():  T       = {
       if (cursor >= _size) {
         throw java.util.NoSuchElementException()
       }

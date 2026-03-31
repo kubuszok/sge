@@ -11,18 +11,15 @@ package blender
 
 import scala.collection.mutable.ArrayBuffer
 import sge.gltf.data.geometry.GLTFMesh
-import sge.utils.{Json, Nullable}
+import sge.utils.{ Json, Nullable }
 
-/**
- * Blender stores shape key names in mesh extras.
- *
- * TODO: Implement once GLTF JSON parsing is available.
- * The original Java reads targetNames from the mesh extras JSON.
- */
+/** Blender stores shape key names in mesh extras.
+  *
+  * TODO: Implement once GLTF JSON parsing is available. The original Java reads targetNames from the mesh extras JSON.
+  */
 object BlenderShapeKeys {
 
-  def parse(glMesh: GLTFMesh): Nullable[ArrayBuffer[String]] = {
+  def parse(glMesh: GLTFMesh): Nullable[ArrayBuffer[String]] =
     // TODO: parse targetNames from glMesh.extras once GLTF JSON codecs are available
     Nullable.empty[ArrayBuffer[String]]
-  }
 }

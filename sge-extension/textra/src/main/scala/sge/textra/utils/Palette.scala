@@ -216,12 +216,13 @@ object Palette {
   }
 
   /** Modifies the Palette by adding a color with its name. */
-  def addColor(name: String, rgba8888: Int): Boolean = {
-    if (NAMED.contains(name)) return false
-    NAMED.put(name, rgba8888)
-    LIST += rgba8888
-    NAMES += name
-    NAMES.sortInPlace()
-    true
-  }
+  def addColor(name: String, rgba8888: Int): Boolean =
+    if (NAMED.contains(name)) false
+    else {
+      NAMED.put(name, rgba8888)
+      LIST += rgba8888
+      NAMES += name
+      NAMES.sortInPlace()
+      true
+    }
 }

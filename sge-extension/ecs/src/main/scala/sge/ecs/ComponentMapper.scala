@@ -18,7 +18,8 @@ import sge.utils.Nullable
 
 /** Provides super fast [[Component]] retrieval from [[Entity]] objects.
   *
-  * @tparam A the class type of the [[Component]].
+  * @tparam A
+  *   the class type of the [[Component]].
   * @author
   *   David Saltares (original implementation)
   */
@@ -35,10 +36,11 @@ final class ComponentMapper[A <: Component] private (componentClass: Class[A]) {
 
 object ComponentMapper {
 
-  /** @param componentClass Component class to be retrieved by the mapper.
-    * @return New instance that provides fast access to the [[Component]] of the specified class.
+  /** @param componentClass
+    *   Component class to be retrieved by the mapper.
+    * @return
+    *   New instance that provides fast access to the [[Component]] of the specified class.
     */
-  def getFor[A <: Component](componentClass: Class[A]): ComponentMapper[A] = {
+  def getFor[A <: Component](componentClass: Class[A]): ComponentMapper[A] =
     new ComponentMapper[A](componentClass)
-  }
 }

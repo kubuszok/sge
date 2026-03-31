@@ -23,7 +23,7 @@ class PBRIridescenceAttribute(
   def this() =
     this(1f, 1.3f, 100f, 400f)
 
-  override def compare(that: Attribute): Int = {
+  override def compare(that: Attribute): Int =
     if (`type` != that.`type`) { if (`type` < that.`type`) -1 else 1 }
     else {
       val other = that.asInstanceOf[PBRIridescenceAttribute]
@@ -33,7 +33,6 @@ class PBRIridescenceAttribute(
       else if (!MathUtils.isEqual(thicknessMax, other.thicknessMax)) { if (thicknessMax < other.thicknessMax) -1 else 1 }
       else 0
     }
-  }
 
   override def copy(): Attribute =
     PBRIridescenceAttribute(factor, ior, thicknessMin, thicknessMax)

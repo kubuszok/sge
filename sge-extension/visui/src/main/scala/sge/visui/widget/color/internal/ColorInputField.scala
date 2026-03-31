@@ -22,8 +22,7 @@ import sge.visui.widget.VisValidatableTextField
   * @author
   *   Kotcrab
   */
-class ColorInputField(private val maxValue: Int, listener: ColorInputField.ColorInputFieldListener)(using Sge)
-    extends VisValidatableTextField(new ColorInputField.ColorFieldValidator(maxValue)) {
+class ColorInputField(private val maxValue: Int, listener: ColorInputField.ColorInputFieldListener)(using Sge) extends VisValidatableTextField(new ColorInputField.ColorFieldValidator(maxValue)) {
 
   private var _value: Int = 0
 
@@ -31,32 +30,36 @@ class ColorInputField(private val maxValue: Int, listener: ColorInputField.Color
   setMaxLength(3)
   setTextFieldFilter(Nullable(new ColorInputField.NumberFilter()))
 
-  addListener(new ChangeListener() {
-    override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-      if (text.length > 0) {
-        _value = Integer.valueOf(text).intValue()
+  addListener(
+    new ChangeListener() {
+      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+        if (text.length > 0) {
+          _value = Integer.valueOf(text).intValue()
+        }
+    }
+  )
+
+  addListener(
+    new InputListener() {
+      override def keyTyped(event: InputEvent, character: Char): Boolean = {
+        val field = event.listenerActor.get.asInstanceOf[ColorInputField]
+        if (character == '+') field.changeValue(if (UIUtils.shift()) 10 else 1)
+        if (character == '-') field.changeValue(if (UIUtils.shift()) -10 else -1)
+        if (character != 0) listener.changed(getValue)
+        true
       }
     }
-  })
+  )
 
-  addListener(new InputListener() {
-    override def keyTyped(event: InputEvent, character: Char): Boolean = {
-      val field = event.listenerActor.get.asInstanceOf[ColorInputField]
-      if (character == '+') field.changeValue(if (UIUtils.shift()) 10 else 1)
-      if (character == '-') field.changeValue(if (UIUtils.shift()) -10 else -1)
-      if (character != 0) listener.changed(getValue)
-      true
+  addListener(
+    new FocusListener() {
+      override def keyboardFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit =
+        if (!focused && !isInputValid) {
+          // only possibility on invalid field is that entered value will be bigger than maxValue so we set field value to maxValue
+          setValue(maxValue)
+        }
     }
-  })
-
-  addListener(new FocusListener() {
-    override def keyboardFocusChanged(event: FocusListener.FocusEvent, actor: Actor, focused: Boolean): Unit = {
-      if (!focused && !isInputValid) {
-        // only possibility on invalid field is that entered value will be bigger than maxValue so we set field value to maxValue
-        setValue(maxValue)
-      }
-    }
-  })
+  )
 
   def changeValue(byValue: Int): Unit = {
     _value += byValue
@@ -85,18 +88,16 @@ object ColorInputField {
   }
 
   private class NumberFilter extends TextField.TextFieldFilter {
-    override def acceptChar(textField: TextField, c: Char): Boolean = {
+    override def acceptChar(textField: TextField, c: Char): Boolean =
       Character.isDigit(c)
-    }
   }
 
   private class ColorFieldValidator(maxValue: Int) extends InputValidator {
-    override def validateInput(input: String): Boolean = {
+    override def validateInput(input: String): Boolean =
       if (input.isEmpty) false
       else {
         val number = Integer.parseInt(input)
         number <= maxValue
       }
-    }
   }
 }

@@ -29,7 +29,7 @@ object EmojiProcessor {
   @volatile private var emojiPattern: Pattern = uninitialized
 
   /** Initializes the singleton that stores the massive regular expression Pattern this uses internally. */
-  def initialize(): Unit = {
+  def initialize(): Unit =
     if (emojiPattern == null) {
       // Simplified emoji pattern - the full pattern from the Java source uses RegExodus syntax.
       // For cross-platform compatibility, we use a subset that covers common emoji.
@@ -51,7 +51,6 @@ object EmojiProcessor {
           "\\u3030\\u303D\\u3297\\u3299]\\uFE0F?)"
       )
     }
-  }
 
   /** Gets a replacement function that will replace any standard Unicode 14 or lower emoji that can be displayed by the given Font with the special Unicode PUA char used by that Font to show that
     * emoji. The given Font must have a nameLookup, typically by adding an atlas with KnownFonts.addEmoji(Font). If there is no nameLookup in the given Font, this returns null.

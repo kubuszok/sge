@@ -19,9 +19,9 @@ import sge.utils.Nullable
 
 /** A tooltip that shows a TextraLabel. */
 class TextraTooltip(
-    text: Nullable[String],
-    style: Styles.TextTooltipStyle,
-    replacementFont: Font
+  text:            Nullable[String],
+  style:           Styles.TextTooltipStyle,
+  replacementFont: Font
 ) {
 
   private val _label: TextraLabel = newLabel(
@@ -30,9 +30,8 @@ class TextraTooltip(
     replacementFont
   )
 
-  def this(text: Nullable[String], style: Styles.TextTooltipStyle) = {
+  def this(text: Nullable[String], style: Styles.TextTooltipStyle) =
     this(text, style, Nullable.fold(style.label)(new Font())(ls => Nullable.fold(ls.font)(new Font())(identity)))
-  }
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -67,7 +66,6 @@ class TextraTooltip(
   }
 
   /** Does nothing unless the label used here is a TypingLabel; then, this will skip text progression ahead. */
-  def skipToTheEnd(): Unit = {
+  def skipToTheEnd(): Unit =
     _label.skipToTheEnd()
-  }
 }

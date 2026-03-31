@@ -13,10 +13,10 @@ import sge.vfx.utils.ViewportQuadMesh
 
 class VfxRenderContext(val pixelFormat: Pixmap.Format, initialWidth: Int, initialHeight: Int)(using Sge) extends AutoCloseable {
 
-  val bufferPool: VfxFrameBufferPool = VfxFrameBufferPool(pixelFormat, initialWidth, initialHeight, 8)
+  val bufferPool:     VfxFrameBufferPool     = VfxFrameBufferPool(pixelFormat, initialWidth, initialHeight, 8)
   val bufferRenderer: VfxFrameBufferRenderer = VfxFrameBufferRenderer()
 
-  private var _bufferWidth: Int = initialWidth
+  private var _bufferWidth:  Int = initialWidth
   private var _bufferHeight: Int = initialHeight
 
   override def close(): Unit = {
@@ -35,6 +35,6 @@ class VfxRenderContext(val pixelFormat: Pixmap.Format, initialWidth: Int, initia
 
   def viewportMesh: ViewportQuadMesh = bufferRenderer.getMesh
 
-  def bufferWidth: Int = _bufferWidth
+  def bufferWidth:  Int = _bufferWidth
   def bufferHeight: Int = _bufferHeight
 }

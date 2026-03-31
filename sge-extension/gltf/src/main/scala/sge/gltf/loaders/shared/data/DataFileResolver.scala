@@ -17,8 +17,8 @@ import sge.gltf.data.texture.GLTFImage
 import sge.graphics.Pixmap
 
 trait DataFileResolver {
-  def load(file: FileHandle): Unit
-  def getRoot: GLTF
-  def getBuffer(buffer: Int): ByteBuffer
-  def load(glImage: GLTFImage): Pixmap
+  def load(file:        FileHandle): Unit
+  def getRoot:                       GLTF
+  def getBuffer(buffer: Int):        ByteBuffer
+  def load(glImage:     GLTFImage):  Pixmap
 }

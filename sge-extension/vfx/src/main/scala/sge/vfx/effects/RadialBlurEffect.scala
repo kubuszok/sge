@@ -26,9 +26,9 @@ class RadialBlurEffect(passes: Int)(using Sge)
   import ShaderVfxEffect.*
 
   private var _strength: Float = 0.2f
-  private var _originX: Float = 0.5f
-  private var _originY: Float = 0.5f
-  private var _zoom: Float = 1f
+  private var _originX:  Float = 0.5f
+  private var _originY:  Float = 0.5f
+  private var _zoom:     Float = 1f
 
   rebind()
 
@@ -62,8 +62,10 @@ class RadialBlurEffect(passes: Int)(using Sge)
   }
 
   /** Specify the zoom origin in normalized screen coordinates.
-    * @param ox horizontal origin [0..1].
-    * @param oy vertical origin [0..1].
+    * @param ox
+    *   horizontal origin [0..1].
+    * @param oy
+    *   vertical origin [0..1].
     */
   def setOrigin(ox: Float, oy: Float): Unit = {
     _originX = ox
@@ -74,14 +76,14 @@ class RadialBlurEffect(passes: Int)(using Sge)
     Sge().graphics.gl20.glUseProgram(0)
   }
 
-  def strength: Float = _strength
-  def strength_=(value: Float): Unit = {
+  def strength:                 Float = _strength
+  def strength_=(value: Float): Unit  = {
     _strength = value
     setUniform("u_blurDiv", value / passes.toFloat)
   }
 
-  def zoom: Float = _zoom
-  def zoom_=(value: Float): Unit = {
+  def zoom:                 Float = _zoom
+  def zoom_=(value: Float): Unit  = {
     _zoom = value
     setUniform("u_zoom", value)
   }

@@ -23,53 +23,49 @@ import scala.collection.mutable.HashMap
 import sge.ecs.utils.ImmutableArray
 import sge.utils.Pool
 
-/** Manages [[Family]]-to-entity mappings and notifies [[EntityListener]]s when entity family
-  * membership changes due to component additions or removals.
+/** Manages [[Family]]-to-entity mappings and notifies [[EntityListener]]s when entity family membership changes due to component additions or removals.
   *
-  * This is the most complex manager in the ECS -- it handles deferred listener registration
-  * via bitmask tracking and snapshot-based notification to allow safe concurrent modification.
+  * This is the most complex manager in the ECS -- it handles deferred listener registration via bitmask tracking and snapshot-based notification to allow safe concurrent modification.
   */
 private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
 
-  private val families: HashMap[Family, ArrayBuffer[Entity]] = HashMap.empty
-  private val immutableFamilies: HashMap[Family, ImmutableArray[Entity]] = HashMap.empty
-  private val entityListeners: ArrayBuffer[EntityListenerData] = ArrayBuffer.empty
-  private val entityListenerMasks: HashMap[Family, mutable.BitSet] = HashMap.empty
-  private val bitsPool: BitSetPool = new BitSetPool()
-  private var _notifying: Boolean = false
+  private val families:            HashMap[Family, ArrayBuffer[Entity]]    = HashMap.empty
+  private val immutableFamilies:   HashMap[Family, ImmutableArray[Entity]] = HashMap.empty
+  private val entityListeners:     ArrayBuffer[EntityListenerData]         = ArrayBuffer.empty
+  private val entityListenerMasks: HashMap[Family, mutable.BitSet]         = HashMap.empty
+  private val bitsPool:            BitSetPool                              = new BitSetPool()
+  private var _notifying:          Boolean                                 = false
 
   def notifying: Boolean = _notifying
 
-  def getEntitiesFor(family: Family): ImmutableArray[Entity] = {
+  def getEntitiesFor(family: Family): ImmutableArray[Entity] =
     registerFamily(family)
-  }
 
   def addEntityListener(family: Family, priority: Int, listener: EntityListener): Unit = {
     registerFamily(family)
 
     var insertionIndex = 0
-    var searching = true
-    while (searching && insertionIndex < entityListeners.size) {
+    var searching      = true
+    while (searching && insertionIndex < entityListeners.size)
       if (entityListeners(insertionIndex).priority <= priority) {
         insertionIndex += 1
       } else {
         searching = false
       }
-    }
 
     doAddEntityListenerAtIndex(family, priority, listener, insertionIndex)
   }
 
   private def doAddEntityListenerAtIndex(
-    family: Family,
-    priority: Int,
-    listener: EntityListener,
+    family:         Family,
+    priority:       Int,
+    listener:       EntityListener,
     insertionIndex: Int
   ): Unit = {
     // Shift up bitmasks by one step
     for (mask <- entityListenerMasks.valuesIterator) {
       val len = if (mask.isEmpty) 0 else mask.last + 1
-      var k = len
+      var k   = len
       while (k > insertionIndex) {
         if (mask.contains(k - 1)) {
           mask += k
@@ -97,7 +93,7 @@ private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
         // Shift down bitmasks by one step
         for (mask <- entityListenerMasks.valuesIterator) {
           val len = if (mask.isEmpty) 0 else mask.last + 1
-          var k = i
+          var k   = i
           while (k < len) {
             if (mask.contains(k + 1)) {
               mask += k
@@ -119,18 +115,18 @@ private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
   def updateFamilyMembership(entity: Entity): Unit = {
     // Find families that the entity was added to/removed from, and fill
     // the bitmasks with corresponding listener bits.
-    val addListenerBits = bitsPool.obtain()
+    val addListenerBits    = bitsPool.obtain()
     val removeListenerBits = bitsPool.obtain()
 
     for (family <- entityListenerMasks.keysIterator) {
-      val familyIndex = family.index
+      val familyIndex      = family.index
       val entityFamilyBits = entity.getFamilyBits
 
       val belongsToFamily = entityFamilyBits.contains(familyIndex)
-      val matches = family.matches(entity) && !entity.removing
+      val matches         = family.matches(entity) && !entity.removing
 
       if (belongsToFamily != matches) {
-        val listenersMask = entityListenerMasks(family)
+        val listenersMask  = entityListenerMasks(family)
         val familyEntities = families(family)
         if (matches) {
           addListenerBits |= listenersMask
@@ -170,12 +166,12 @@ private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
     }
   }
 
-  private def registerFamily(family: Family): ImmutableArray[Entity] = {
+  private def registerFamily(family: Family): ImmutableArray[Entity] =
     immutableFamilies.get(family) match {
       case Some(entitiesInFamily) =>
         entitiesInFamily
       case None =>
-        val familyEntities = ArrayBuffer.empty[Entity]
+        val familyEntities   = ArrayBuffer.empty[Entity]
         val entitiesInFamily = new ImmutableArray[Entity](familyEntities)
         families.put(family, familyEntities)
         immutableFamilies.put(family, entitiesInFamily)
@@ -187,18 +183,17 @@ private[ecs] class FamilyManager(val entities: ImmutableArray[Entity]) {
 
         entitiesInFamily
     }
-  }
 }
 
 /** Holds an [[EntityListener]] together with its priority for ordered notification. */
-private[ecs] final class EntityListenerData {
+final private[ecs] class EntityListenerData {
   var listener: EntityListener = scala.compiletime.uninitialized
-  var priority: Int = 0
+  var priority: Int            = 0
 }
 
 /** Pool for reusing [[mutable.BitSet]] instances. */
-private[ecs] final class BitSetPool extends Pool[mutable.BitSet] {
-  override protected val max: Int = Int.MaxValue
+final private[ecs] class BitSetPool extends Pool[mutable.BitSet] {
+  override protected val max:             Int = Int.MaxValue
   override protected val initialCapacity: Int = 16
 
   override protected def newObject(): mutable.BitSet = mutable.BitSet()

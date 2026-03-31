@@ -11,16 +11,14 @@ package generator
 package room
 package dungeon
 
-import java.util.{ArrayList, HashMap, HashSet, Iterator as JIterator, LinkedList, Set as JSet}
+import java.util.{ ArrayList, HashMap, HashSet, Iterator as JIterator, LinkedList, Set as JSet }
 
 import sge.noise.generator.util.Generators
 
-/** Generates a set of rooms with a maze-like system of corridors connecting them. This particular implementation
-  * requires the map and rooms to have odd sizes - if the passed map is not odd, last row and column might be filled with
-  * corridors.
+/** Generates a set of rooms with a maze-like system of corridors connecting them. This particular implementation requires the map and rooms to have odd sizes - if the passed map is not odd, last row
+  * and column might be filled with corridors.
   *
-  * This algorithm fills the whole map. Even if the map was not empty before, [[generate]] method will override the
-  * previous cell settings.
+  * This algorithm fills the whole map. Even if the map was not empty before, [[generate]] method will override the previous cell settings.
   *
   * @author
   *   MJ
@@ -49,11 +47,11 @@ class DungeonGenerator extends AbstractRoomGenerator {
   var deadEndRemovalIterations: Int = Int.MaxValue
 
   // Control variables.
-  private val rooms: ArrayList[AbstractRoomGenerator.Room] = new ArrayList[AbstractRoomGenerator.Room]()
-  private val directions: ArrayList[Direction] = new ArrayList[Direction]()
-  private var regions: Int2dArray = scala.compiletime.uninitialized
-  private var currentRegion: Int = -1
-  private var lastRoomRegion: Int = -1
+  private val rooms:          ArrayList[AbstractRoomGenerator.Room] = new ArrayList[AbstractRoomGenerator.Room]()
+  private val directions:     ArrayList[Direction]                  = new ArrayList[Direction]()
+  private var regions:        Int2dArray                            = scala.compiletime.uninitialized
+  private var currentRegion:  Int                                   = -1
+  private var lastRoomRegion: Int                                   = -1
 
   override def generate(grid: Grid): Unit = {
     validateRoomSizes()
@@ -83,27 +81,24 @@ class DungeonGenerator extends AbstractRoomGenerator {
   }
 
   /** Increases current region index. */
-  protected def nextRegion(): Unit = {
+  protected def nextRegion(): Unit =
     currentRegion += 1
-  }
 
   /** @throws IllegalStateException
     *   if room sizes are not odd.
     */
-  protected def validateRoomSizes(): Unit = {
+  protected def validateRoomSizes(): Unit =
     if (minRoomSize % 2 == 0 || maxRoomSize % 2 == 0) {
       throw new IllegalStateException("Min and max room sizes have to be odd.")
     }
-  }
 
   /** @param grid
     *   will contain generated dungeon.
     * @return
     *   maximum amount of placed rooms. Used if [[roomGenerationAttempts]] is not set.
     */
-  private def getDefaultRoomsAmount(grid: Grid): Int = {
+  private def getDefaultRoomsAmount(grid: Grid): Int =
     grid.width / maxRoomSize * (grid.height / maxRoomSize)
-  }
 
   /** @param grid
     *   is being generated.
@@ -112,17 +107,14 @@ class DungeonGenerator extends AbstractRoomGenerator {
     */
   protected def spawnRooms(grid: Grid, attempts: Int): Unit = {
     val maxRooms = maxRoomsAmount
-    var index = 0
-    while (index < attempts) {
+    var index    = 0
+    while (index < attempts && !(maxRooms > 0 && rooms.size() >= maxRooms)) {
       val newRoom = getRandomRoom(grid)
       if (!overlapsAny(newRoom)) {
         rooms.add(newRoom)
         carveRoom(grid, newRoom, floorThreshold)
         nextRegion()
         newRoom.fill(regions, currentRegion) // Assigning region values to all cells.
-      }
-      if (maxRooms > 0 && rooms.size() >= maxRooms) {
-        return // scalastyle:ignore -- early exit for performance
       }
       index += 1
     }
@@ -135,14 +127,15 @@ class DungeonGenerator extends AbstractRoomGenerator {
     *   true if passed room overlaps with any of the current rooms.
     */
   protected def overlapsAny(room: AbstractRoomGenerator.Room): Boolean = {
-    var i = 0
-    while (i < rooms.size()) {
+    var i     = 0
+    var found = false
+    while (i < rooms.size() && !found) {
       if (rooms.get(i).overlaps(room)) {
-        return true // scalastyle:ignore
+        found = true
       }
       i += 1
     }
-    false
+    found
   }
 
   /** @param grid
@@ -172,9 +165,8 @@ class DungeonGenerator extends AbstractRoomGenerator {
     * @return
     *   true if the selected cell is a wall.
     */
-  protected def isWall(grid: Grid, x: Int, y: Int): Boolean = {
+  protected def isWall(grid: Grid, x: Int, y: Int): Boolean =
     grid.isIndexValid(x, y) && grid.get(x, y) >= wallThreshold
-  }
 
   /** @param grid
     *   contains the point.
@@ -193,7 +185,7 @@ class DungeonGenerator extends AbstractRoomGenerator {
       directions.clear()
       // Checking neighbors - getting possible carving directions:
       val dirValues = Direction.values
-      var di = 0
+      var di        = 0
       while (di < dirValues.length) {
         val dir = dirValues(di)
         if (isCarveable(point, grid, dir)) {
@@ -227,9 +219,8 @@ class DungeonGenerator extends AbstractRoomGenerator {
     * @param point
     *   a point representing a part of a corridor. Should set its value in the grid.
     */
-  protected def carveCorridor(grid: Grid, point: DungeonGenerator.Point): Unit = {
+  protected def carveCorridor(grid: Grid, point: DungeonGenerator.Point): Unit =
     grid.set(point.x, point.y, corridorThreshold)
-  }
 
   /** @param point
     *   part of the corridor.
@@ -256,12 +247,11 @@ class DungeonGenerator extends AbstractRoomGenerator {
     * @return
     *   true if the point can be a corridor.
     */
-  protected def isCarveable(grid: Grid, x: Int, y: Int): Boolean = {
+  protected def isCarveable(grid: Grid, x: Int, y: Int): Boolean =
     isWall(grid, x, y) &&
-    // Diagonal:
-    isWall(grid, x + 1, y + 1) && isWall(grid, x - 1, y + 1) &&
-    isWall(grid, x + 1, y - 1) && isWall(grid, x - 1, y - 1)
-  }
+      // Diagonal:
+      isWall(grid, x + 1, y + 1) && isWall(grid, x - 1, y + 1) &&
+      isWall(grid, x + 1, y - 1) && isWall(grid, x - 1, y - 1)
 
   /** @param grid
     *   contains unconnected room and corridor regions.
@@ -270,10 +260,10 @@ class DungeonGenerator extends AbstractRoomGenerator {
     nextRegion()
     // Working on boxed primitives, because lawl, Java generics and collections.
     val connectorsToRegions = findConnectors(grid)
-    val connectors = new ArrayList[DungeonGenerator.Point](connectorsToRegions.keySet())
-    val merged = new Array[Int](currentRegion) // Keeps track of merged regions.
-    val unjoined = new HashSet[Int]() // Keeps track of unconnected regions.
-    var index = 0
+    val connectors          = new ArrayList[DungeonGenerator.Point](connectorsToRegions.keySet())
+    val merged              = new Array[Int](currentRegion) // Keeps track of merged regions.
+    val unjoined            = new HashSet[Int]() // Keeps track of unconnected regions.
+    var index               = 0
     while (index < currentRegion) {
       // All regions point to themselves at first:
       merged(index) = index
@@ -292,9 +282,8 @@ class DungeonGenerator extends AbstractRoomGenerator {
       val connectorRegions = connectorsToRegions.get(connector)
       tempSet.clear()
       val regIter = connectorRegions.iterator()
-      while (regIter.hasNext) {
+      while (regIter.hasNext)
         tempSet.add(merged(regIter.next()))
-      }
       if (tempSet.size() <= 1) { // All connector's regions point to the same region group...
         if (Generators.randomPercent() < randomConnectorChance) {
           // This connector is not actually needed, but it got lucky - carving:
@@ -304,9 +293,8 @@ class DungeonGenerator extends AbstractRoomGenerator {
         carveConnector(grid, connector.x, connector.y)
         connectorRegions.clear()
         val tempIter = tempSet.iterator()
-        while (tempIter.hasNext) {
+        while (tempIter.hasNext)
           connectorRegions.add(tempIter.next())
-        }
         val regionsIterator = connectorRegions.iterator()
         // Using first region as our "source":
         val source = regionsIterator.next() // Safe, has at least 2 regions.
@@ -355,8 +343,8 @@ class DungeonGenerator extends AbstractRoomGenerator {
     */
   protected def findConnectors(grid: Grid): HashMap[DungeonGenerator.Point, HashSet[Int]] = {
     val connectorsToRegions = new HashMap[DungeonGenerator.Point, HashSet[Int]]()
-    var x = 1
-    val w = grid.width - 1
+    var x                   = 1
+    val w                   = grid.width - 1
     while (x < w) {
       var y = 1
       val h = grid.height - 1
@@ -379,20 +367,20 @@ class DungeonGenerator extends AbstractRoomGenerator {
     *   row index of possible connector.
     */
   protected def addConnector(
-      grid: Grid,
-      connectorsToRegions: HashMap[DungeonGenerator.Point, HashSet[Int]],
-      x: Int,
-      y: Int
-  ): Unit = {
+    grid:                Grid,
+    connectorsToRegions: HashMap[DungeonGenerator.Point, HashSet[Int]],
+    x:                   Int,
+    y:                   Int
+  ): Unit =
     if (isWall(grid, x, y)) {
       val connRegions = new HashSet[Int](4, 1f)
-      val dirValues = Direction.values
-      var di = 0
+      val dirValues   = Direction.values
+      var di          = 0
       while (di < dirValues.length) {
         val direction = dirValues(di)
-        val nx = direction.nextX(x)
-        val ny = direction.nextY(y)
-        val region = getRegion(nx, ny)
+        val nx        = direction.nextX(x)
+        val ny        = direction.nextY(y)
+        val region    = getRegion(nx, ny)
         if (region >= 0 && !isWall(grid, nx, ny)) {
           connRegions.add(region)
         }
@@ -402,7 +390,6 @@ class DungeonGenerator extends AbstractRoomGenerator {
         connectorsToRegions.put(new DungeonGenerator.Point(x, y), connRegions)
       }
     }
-  }
 
   /** @param regions
     *   all regions of a connector.
@@ -416,12 +403,12 @@ class DungeonGenerator extends AbstractRoomGenerator {
     *   [[joinRegions]]
     */
   protected def getDestinations(
-      regions: JSet[Int],
-      regionsIterator: JIterator[Int],
-      merged: Array[Int]
+    regions:         JSet[Int],
+    regionsIterator: JIterator[Int],
+    merged:          Array[Int]
   ): Array[Int] = {
     val destinations = new Array[Int](regions.size() - 1)
-    var index = 0
+    var index        = 0
     while (regionsIterator.hasNext) {
       destinations(index) = merged(regionsIterator.next())
       index += 1
@@ -436,50 +423,49 @@ class DungeonGenerator extends AbstractRoomGenerator {
     * @return
     *   region index of the cell. -1 if not in a region.
     */
-  protected def getRegion(x: Int, y: Int): Int = {
+  protected def getRegion(x: Int, y: Int): Int =
     if (regions.isIndexValid(x, y)) {
       regions.get(x, y)
     } else {
       -1
     }
-  }
 
   /** @param grid
     *   will have its cells with 3 or 4 wall neighbors removed.
     */
-  protected def removeDeadEnds(grid: Grid): Unit = {
+  protected def removeDeadEnds(grid: Grid): Unit =
     if (deadEndRemovalIterations <= 0) {
-      return // scalastyle:ignore -- user wants us to leave all dead ends
-    }
-    val deadEnds = new LinkedList[DungeonGenerator.Point]()
-    var x = 0
-    while (x < grid.width) {
-      var y = 0
-      while (y < grid.height) {
-        if (isDeadEnd(grid, x, y)) {
-          deadEnds.add(new DungeonGenerator.Point(x, y))
+      // user wants us to leave all dead ends
+    } else {
+      val deadEnds = new LinkedList[DungeonGenerator.Point]()
+      var x        = 0
+      while (x < grid.width) {
+        var y = 0
+        while (y < grid.height) {
+          if (isDeadEnd(grid, x, y)) {
+            deadEnds.add(new DungeonGenerator.Point(x, y))
+          }
+          y += 1
         }
-        y += 1
+        x += 1
       }
-      x += 1
-    }
-    // Removing dead ends until there are none left or we've done enough iterations:
-    var iteration = 0
-    while (iteration < deadEndRemovalIterations && !deadEnds.isEmpty) {
-      val iterator = deadEnds.iterator()
-      while (iterator.hasNext) {
-        val deadEnd = iterator.next()
-        // Closing dead end:
-        grid.set(deadEnd.x, deadEnd.y, wallThreshold)
-        // Checking dead end neighbors - one (and only one) of them can be a dead end too:
-        if (!findDeadEndNeighbor(grid, deadEnd)) {
-          // No dead end neighbors found - removing dead end from list:
-          iterator.remove()
-        } // else { Point becomes its neighbor - will be removed on next iteration (or never). }
+      // Removing dead ends until there are none left or we've done enough iterations:
+      var iteration = 0
+      while (iteration < deadEndRemovalIterations && !deadEnds.isEmpty) {
+        val iterator = deadEnds.iterator()
+        while (iterator.hasNext) {
+          val deadEnd = iterator.next()
+          // Closing dead end:
+          grid.set(deadEnd.x, deadEnd.y, wallThreshold)
+          // Checking dead end neighbors - one (and only one) of them can be a dead end too:
+          if (!findDeadEndNeighbor(grid, deadEnd)) {
+            // No dead end neighbors found - removing dead end from list:
+            iterator.remove()
+          } // else { Point becomes its neighbor - will be removed on next iteration (or never). }
+        }
+        iteration += 1
       }
-      iteration += 1
     }
-  }
 
   /** @param grid
     *   contains the cell.
@@ -490,20 +476,21 @@ class DungeonGenerator extends AbstractRoomGenerator {
     */
   private def findDeadEndNeighbor(grid: Grid, deadEnd: DungeonGenerator.Point): Boolean = {
     val dirValues = Direction.values
-    var di = 0
-    while (di < dirValues.length) {
+    var di        = 0
+    var found     = false
+    while (di < dirValues.length && !found) {
       val direction = dirValues(di)
-      val nx = direction.nextX(deadEnd.x)
-      val ny = direction.nextY(deadEnd.y)
+      val nx        = direction.nextX(deadEnd.x)
+      val ny        = direction.nextY(deadEnd.y)
       if (isDeadEnd(grid, nx, ny)) {
         // Setting dead end as its neighbor:
         deadEnd.x = nx
         deadEnd.y = ny
-        return true // scalastyle:ignore
+        found = true
       }
       di += 1
     }
-    false
+    found
   }
 
   /** @param grid
@@ -515,15 +502,15 @@ class DungeonGenerator extends AbstractRoomGenerator {
     * @return
     *   true if the cell has at least 3 wall neighbors.
     */
-  protected def isDeadEnd(grid: Grid, x: Int, y: Int): Boolean = {
+  protected def isDeadEnd(grid: Grid, x: Int, y: Int): Boolean =
     if (grid.isIndexValid(x, y) && !isWall(grid, x, y) && isCorridor(x, y)) {
       var wallNeighbors = 0
-      val dirValues = Direction.values
-      var di = 0
+      val dirValues     = Direction.values
+      var di            = 0
       while (di < dirValues.length) {
         val direction = dirValues(di)
-        val nx = direction.nextX(x)
-        val ny = direction.nextY(y)
+        val nx        = direction.nextX(x)
+        val ny        = direction.nextY(y)
         if (grid.isIndexValid(nx, ny) && isWall(grid, nx, ny)) {
           wallNeighbors += 1
         }
@@ -533,21 +520,18 @@ class DungeonGenerator extends AbstractRoomGenerator {
     } else {
       false
     }
-  }
 
   /** @param x
     *   column index.
     * @param y
     *   row index.
     * @return
-    *   true if selected cell is a corridor. Works only if the cell is not a wall. This check works if all rooms and
-    *   corridors are already spawned.
+    *   true if selected cell is a corridor. Works only if the cell is not a wall. This check works if all rooms and corridors are already spawned.
     */
-  protected def isCorridor(x: Int, y: Int): Boolean = {
+  protected def isCorridor(x: Int, y: Int): Boolean =
     getRegion(x, y) > lastRoomRegion
-  }
 
-  override protected def normalizePosition(position: Int): Int = {
+  override protected def normalizePosition(position: Int): Int =
     if (position == 0) {
       1
     } else if (position % 2 == 0) {
@@ -555,15 +539,13 @@ class DungeonGenerator extends AbstractRoomGenerator {
     } else {
       position
     }
-  }
 
-  override protected def normalizeSize(size: Int): Int = {
+  override protected def normalizeSize(size: Int): Int =
     if (size % 2 != 1) {
       if (Generators.getRandom.nextBoolean()) size - 1 else size + 1
     } else {
       size
     }
-  }
 }
 
 object DungeonGenerator {
@@ -616,12 +598,11 @@ object DungeonGenerator {
       }
     }
 
-    override def equals(obj: Any): Boolean = {
+    override def equals(obj: Any): Boolean =
       obj match {
         case that: Point => (this eq that) || (that.x == x && that.y == y)
-        case _           => false
+        case _ => false
       }
-    }
 
     override def hashCode(): Int = x + y * 653
 
@@ -640,14 +621,13 @@ private[dungeon] enum Direction {
   /** @param point
     *   a point in the grid. Its coordinates will be modified to represent the next cell in the chosen direction.
     */
-  def next(point: DungeonGenerator.Point): Unit = {
+  def next(point: DungeonGenerator.Point): Unit =
     this match {
       case UP    => point.y += 1
       case DOWN  => point.y -= 1
       case LEFT  => point.x -= 1
       case RIGHT => point.x += 1
     }
-  }
 
   /** @param x
     *   current column index.
@@ -670,13 +650,12 @@ private[dungeon] enum Direction {
     * @return
     *   column index of the selected cell.
     */
-  def nextX(x: Int, amount: Int): Int = {
+  def nextX(x: Int, amount: Int): Int =
     this match {
       case LEFT  => x - amount
       case RIGHT => x + amount
       case _     => x
     }
-  }
 
   /** @param y
     *   current row index.
@@ -685,11 +664,10 @@ private[dungeon] enum Direction {
     * @return
     *   row index of the selected cell.
     */
-  def nextY(y: Int, amount: Int): Int = {
+  def nextY(y: Int, amount: Int): Int =
     this match {
       case UP   => y + amount
       case DOWN => y - amount
       case _    => y
     }
-  }
 }

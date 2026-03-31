@@ -57,18 +57,18 @@ import java.util.zip.DeflaterOutputStream
 class FastPNG(initialBufferSize: Int) extends AutoCloseable {
 
   private val SIGNATURE: Array[Byte] = Array(137.toByte, 80, 78, 71, 13, 10, 26, 10)
-  private val IHDR            = 0x49484452
-  private val IDAT            = 0x49444154
-  private val IEND            = 0x49454e44
-  private val COLOR_ARGB:     Byte = 6
+  private val IHDR = 0x49484452
+  private val IDAT = 0x49444154
+  private val IEND = 0x49454e44
+  private val COLOR_ARGB:          Byte = 6
   private val COMPRESSION_DEFLATE: Byte = 0
-  private val FILTER_NONE:    Byte = 0
-  private val INTERLACE_NONE: Byte = 0
+  private val FILTER_NONE:         Byte = 0
+  private val INTERLACE_NONE:      Byte = 0
 
-  private val buffer:   ChunkBuffer = new ChunkBuffer(initialBufferSize)
-  private val deflater: Deflater    = new Deflater(2)
+  private val buffer:       ChunkBuffer        = new ChunkBuffer(initialBufferSize)
+  private val deflater:     Deflater           = new Deflater(2)
   private var curLineBytes: Array[Byte] | Null = null
-  private var flipY: Boolean = true
+  private var flipY:        Boolean            = true
 
   /** Creates a FastPNG writer with an initial buffer size of 1024. */
   def this() = this(1024)
@@ -88,11 +88,10 @@ class FastPNG(initialBufferSize: Int) extends AutoCloseable {
     */
   def write(file: FileHandle, pixmap: Pixmap): Unit = {
     val output = file.write(false)
-    try {
+    try
       write(output, pixmap)
-    } finally {
+    finally
       StreamUtils.closeQuietly(output)
-    }
   }
 
   /** Writes the given Pixmap as a PNG to the given `output` stream without closing the stream. This can use all 32-bit colors.

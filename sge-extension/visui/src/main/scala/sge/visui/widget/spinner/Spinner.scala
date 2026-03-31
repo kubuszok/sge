@@ -147,23 +147,24 @@ class Spinner(style: Spinner.SpinnerStyle, sizes: Sizes, name: String, private v
           true
         }
 
-        override def scrolled(event: InputEvent, x: Float, y: Float, amountX: Float, amountY: Float): Boolean = {
-          if (_disabled) return false
-          if (amountY >= 1) {
-            decrementInternal(fireEvent = true)
-          } else if (amountY <= -1) {
-            incrementInternal(fireEvent = true)
+        override def scrolled(event: InputEvent, x: Float, y: Float, amountX: Float, amountY: Float): Boolean =
+          if (_disabled) false
+          else {
+            if (amountY >= 1) {
+              decrementInternal(fireEvent = true)
+            } else if (amountY <= -1) {
+              incrementInternal(fireEvent = true)
+            }
+            true
           }
-          true
-        }
 
-        override def keyDown(event: InputEvent, keycode: Key): Boolean = {
+        override def keyDown(event: InputEvent, keycode: Key): Boolean =
           if (keycode == Keys.ENTER) {
             notifyValueChanged(true)
-            return true
+            true
+          } else {
+            false
           }
-          false
-        }
       }
     )
   }

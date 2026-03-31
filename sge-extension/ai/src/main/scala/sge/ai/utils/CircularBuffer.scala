@@ -35,19 +35,20 @@ class CircularBuffer[T <: AnyRef](initialCapacity: Int = 16, var resizable: Bool
     * @return
     *   `true` if the item has been successfully added to this circular buffer; `false` otherwise.
     */
-  def store(item: T): Boolean = {
-    if (_size == items.length) {
-      if (!resizable) return false
-
-      // Resize this queue
-      resize(Math.max(8, (items.length * 1.75f).toInt))
+  def store(item: T): Boolean =
+    if (_size == items.length && !resizable) {
+      false
+    } else {
+      if (_size == items.length) {
+        // Resize this queue
+        resize(Math.max(8, (items.length * 1.75f).toInt))
+      }
+      _size += 1
+      items(tail) = item
+      tail += 1
+      if (tail == items.length) tail = 0
+      true
     }
-    _size += 1
-    items(tail) = item
-    tail += 1
-    if (tail == items.length) tail = 0
-    true
-  }
 
   /** Removes and returns the item at the head of this circular buffer (if any).
     * @return

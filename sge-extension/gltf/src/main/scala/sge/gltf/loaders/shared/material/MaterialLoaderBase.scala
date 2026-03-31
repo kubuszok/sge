@@ -17,8 +17,8 @@ import sge.gltf.loaders.shared.texture.TextureResolver
 import sge.utils.Nullable
 
 abstract class MaterialLoaderBase(
-    protected val textureResolver: TextureResolver,
-    private val defaultMaterial: Material
+  protected val textureResolver: TextureResolver,
+  private val defaultMaterial:   Material
 ) extends MaterialLoader {
 
   private val materials: ArrayBuffer[Material] = ArrayBuffer.empty
@@ -27,17 +27,16 @@ abstract class MaterialLoaderBase(
 
   override def get(index: Int): Material = materials(index)
 
-  override def loadMaterials(glMaterials: Nullable[ArrayBuffer[GLTFMaterial]]): Unit = {
+  override def loadMaterials(glMaterials: Nullable[ArrayBuffer[GLTFMaterial]]): Unit =
     glMaterials.foreach { mats =>
       var i = 0
       while (i < mats.size) {
         val glMaterial = mats(i)
-        val material = loadMaterial(glMaterial)
+        val material   = loadMaterial(glMaterial)
         materials += material
         i += 1
       }
     }
-  }
 
   protected def loadMaterial(glMaterial: GLTFMaterial): Material
 }

@@ -9,10 +9,8 @@ package gltf
 package data
 package extensions
 
-/**
- * [[sge.gltf.data.material.GLTFMaterial]] extension.
- * See https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit
- */
+/** [[sge.gltf.data.material.GLTFMaterial]] extension. See https://github.com/KhronosGroup/glTF/blob/master/extensions/2.0/Khronos/KHR_materials_unlit
+  */
 object KHRMaterialsUnlit {
   val EXT: String = "KHR_materials_unlit"
 }

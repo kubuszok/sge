@@ -21,16 +21,15 @@ import sge.visui.widget.{ VisLabel, VisTable }
   * @author
   *   Kotcrab
   */
-class ColorChannelWidget(commons: PickerCommons, label: String, private val mode: Int, private val maxValue: Int, listener: ChannelBar.ChannelBarListener)(using Sge)
-    extends VisTable(true) {
+class ColorChannelWidget(commons: PickerCommons, label: String, private val mode: Int, private val maxValue: Int, listener: ChannelBar.ChannelBarListener)(using Sge) extends VisTable(true) {
 
   @scala.annotation.nowarn("msg=unused")
   private val style: ColorPickerWidgetStyle = commons.style
   private val sizes: Sizes                  = commons.sizes
 
-  private var bar:        ChannelBar      = scala.compiletime.uninitialized
+  private var bar:         ChannelBar      = scala.compiletime.uninitialized
   private var barListener: ChangeListener  = scala.compiletime.uninitialized
-  private var inputField: ColorInputField = scala.compiletime.uninitialized
+  private var inputField:  ColorInputField = scala.compiletime.uninitialized
 
   private var _value: Int = 0
 
@@ -44,13 +43,16 @@ class ColorChannelWidget(commons: PickerCommons, label: String, private val mode
     }
 
     add(Nullable[Actor](new VisLabel(label))).width(10 * sizes.scaleFactor).center()
-    inputField = new ColorInputField(maxValue, new ColorInputField.ColorInputFieldListener {
-      override def changed(newValue: Int): Unit = {
-        _value = newValue
-        listener.updateFields()
-        bar.setValue(newValue)
+    inputField = new ColorInputField(
+      maxValue,
+      new ColorInputField.ColorInputFieldListener {
+        override def changed(newValue: Int): Unit = {
+          _value = newValue
+          listener.updateFields()
+          bar.setValue(newValue)
+        }
       }
-    })
+    )
     add(Nullable[Actor](inputField)).width(BasicColorPicker.FIELD_WIDTH * sizes.scaleFactor)
     bar = createBarImage()
     add(Nullable[Actor](bar)).size(BasicColorPicker.BAR_WIDTH * sizes.scaleFactor, BasicColorPicker.BAR_HEIGHT * sizes.scaleFactor)
@@ -67,10 +69,9 @@ class ColorChannelWidget(commons: PickerCommons, label: String, private val mode
     bar.setValue(value)
   }
 
-  private def createBarImage(): ChannelBar = {
+  private def createBarImage(): ChannelBar =
     if (mode == ChannelBar.MODE_ALPHA) new AlphaChannelBar(commons, mode, maxValue, barListener)
     else new ChannelBar(commons, mode, maxValue, barListener)
-  }
 
   def getBar: ChannelBar = bar
 

@@ -12,6 +12,9 @@
 package sge
 package anim8
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.files.FileHandle
 import sge.graphics.Pixmap
 import sge.utils.StreamUtils
@@ -45,10 +48,10 @@ class AnimatedGif extends AnimationWriter with Dithered {
 
   /** Writes the given Pixmap values in `frames`, in order, to an animated GIF in the OutputStream `output`. The resulting GIF will play back at `fps` frames per second.
     */
-  override def write(output: OutputStream, frames: Array[Pixmap], fps: Int): Unit = {
+  override def write(output: OutputStream, frames: Array[Pixmap], fps: Int): Unit = boundary {
     if (frames == null || frames.isEmpty) {
       // noinspection: null check needed for Java interop @nowarn
-      return // early return via simple guard
+      break(())
     }
     _clearPalette = _palette == null
     if (_clearPalette) {
@@ -60,7 +63,7 @@ class AnimatedGif extends AnimationWriter with Dithered {
       }
     }
     if (!start(output)) {
-      return // early return via simple guard
+      break(())
     }
     setFrameRate(fps.toFloat)
     var i = 0

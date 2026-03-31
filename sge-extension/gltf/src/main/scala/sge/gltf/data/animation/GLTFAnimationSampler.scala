@@ -12,7 +12,7 @@ package animation
 import sge.utils.Nullable
 
 class GLTFAnimationSampler extends GLTFObject {
-  var input: Nullable[Int] = Nullable.empty
-  var output: Nullable[Int] = Nullable.empty
+  var input:         Nullable[Int]    = Nullable.empty
+  var output:        Nullable[Int]    = Nullable.empty
   var interpolation: Nullable[String] = Nullable.empty
 }

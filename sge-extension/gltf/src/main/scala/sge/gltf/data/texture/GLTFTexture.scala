@@ -12,6 +12,6 @@ package texture
 import sge.utils.Nullable
 
 class GLTFTexture extends GLTFEntity {
-  var source: Nullable[Int] = Nullable.empty
+  var source:  Nullable[Int] = Nullable.empty
   var sampler: Nullable[Int] = Nullable.empty
 }

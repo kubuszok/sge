@@ -26,8 +26,13 @@ class GridSubImage(gridShader: ShaderProgram, whiteTexture: Texture, gridSize: F
     gridShader.setUniformf("u_width", parent.width)
     gridShader.setUniformf("u_height", parent.height)
     gridShader.setUniformf("u_gridSize", gridSize)
-    batch.draw(whiteTexture, parent.x + parent.imageX, parent.y + parent.imageY,
-      parent.imageWidth * parent.scaleX, parent.imageHeight * parent.scaleY)
+    batch.draw(
+      whiteTexture,
+      parent.x + parent.imageX,
+      parent.y + parent.imageY,
+      parent.imageWidth * parent.scaleX,
+      parent.imageHeight * parent.scaleY
+    )
     batch.shader = Nullable(originalShader)
   }
 }

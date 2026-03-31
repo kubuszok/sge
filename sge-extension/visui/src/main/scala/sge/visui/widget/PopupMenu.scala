@@ -181,16 +181,17 @@ class PopupMenu(sizes: Sizes, val style: PopupMenu.PopupMenuStyle)(using Sge) ex
   }
 
   private def hasSelectableMenuItems: Boolean = {
-    val ch = PopupMenu.this.children
-    var i  = 0
-    while (i < ch.size) {
+    val ch    = PopupMenu.this.children
+    var i     = 0
+    var found = false
+    while (i < ch.size && !found) {
       ch(i) match {
-        case item: MenuItem if !item.disabled => return true // @nowarn -- boundary/break impractical for simple search
+        case item: MenuItem if !item.disabled => found = true
         case _ => ()
       }
       i += 1
     }
-    false
+    found
   }
 
   override def add[T <: Actor](actor: Nullable[T]): Cell[T] = {

@@ -13,14 +13,11 @@ import sge.vfx.VfxRenderContext
 import sge.vfx.effects.util.{ CopyEffect, MixEffect }
 import sge.vfx.framebuffer.{ VfxFrameBufferQueue, VfxPingPongWrapper }
 
-/** A motion blur effect which draws the last frame with a lower opacity. The result is then stored as the next last frame to create
-  * the trail effect.
+/** A motion blur effect which draws the last frame with a lower opacity. The result is then stored as the next last frame to create the trail effect.
   */
-class MotionBlurEffect(pixelFormat: Pixmap.Format, mixMethod: MixEffect.Method, blurFactor: Float)(using Sge)
-    extends CompositeVfxEffect
-    with ChainVfxEffect {
+class MotionBlurEffect(pixelFormat: Pixmap.Format, mixMethod: MixEffect.Method, blurFactor: Float)(using Sge) extends CompositeVfxEffect with ChainVfxEffect {
 
-  private val mixFilter: MixEffect = register(MixEffect(mixMethod))
+  private val mixFilter:  MixEffect  = register(MixEffect(mixMethod))
   private val copyFilter: CopyEffect = register(CopyEffect())
 
   // On WebGL we cannot render from/into the same texture simultaneously.

@@ -25,18 +25,18 @@ import sge.utils.Nullable
   */
 class TextraListBox(style: Styles.ListStyle) {
 
-  protected var _style: Styles.ListStyle = style
-  protected val items: ArrayBuffer[TextraLabel] = ArrayBuffer.empty
-  private var _selectedIndex: Int = -1
-  private var alignment: Int = 8 // Align.left
-  var pressedIndex: Int = -1
-  var overIndex:    Int = -1
+  protected var _style:       Styles.ListStyle         = style
+  protected val items:        ArrayBuffer[TextraLabel] = ArrayBuffer.empty
+  private var _selectedIndex: Int                      = -1
+  private var alignment:      Int                      = 8 // Align.left
+  var pressedIndex:           Int                      = -1
+  var overIndex:              Int                      = -1
+
   /** When true, typing a character while focused will jump to the first item starting with that character. */
   var typeToSelect: Boolean = false
 
-  def setStyle(style: Styles.ListStyle): Unit = {
+  def setStyle(style: Styles.ListStyle): Unit =
     this._style = style
-  }
 
   def getStyle: Styles.ListStyle = _style
 
@@ -51,25 +51,22 @@ class TextraListBox(style: Styles.ListStyle) {
 
   def getSelectedIndex: Int = _selectedIndex
 
-  def setSelectedIndex(index: Int): Unit = {
+  def setSelectedIndex(index: Int): Unit =
     if (index >= -1 && index < items.size) {
       _selectedIndex = index
     }
-  }
 
-  def getSelected: Nullable[TextraLabel] = {
+  def getSelected: Nullable[TextraLabel] =
     if (_selectedIndex >= 0 && _selectedIndex < items.size) Nullable(items(_selectedIndex))
     else Nullable.empty
-  }
 
   def clearItems(): Unit = {
     items.clear()
     _selectedIndex = -1
   }
 
-  def setAlignment(alignment: Int): Unit = {
+  def setAlignment(alignment: Int): Unit =
     this.alignment = alignment
-  }
 
   def getAlignment: Int = alignment
 }

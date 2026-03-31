@@ -393,11 +393,12 @@ class Font {
   def addSpacingGlyph(representation: Char, advance: Float): Font = {
     val space = mapping.getOrElse(' '.toInt, null)
     if (space == null || (representation >= 0xe000 && representation < 0xf800)) {
-      return this
+      this
+    } else {
+      val next = new GlyphRegion(space.offsetX, space.offsetY, advance)
+      mapping.put(representation.toInt, next)
+      this
     }
-    val next = new GlyphRegion(space.offsetX, space.offsetY, advance)
-    mapping.put(representation.toInt, next)
-    this
   }
 
   //// sharing section
@@ -1119,6 +1120,9 @@ class Font {
 
 object Font {
 
+  import scala.util.boundary
+  import scala.util.boundary.break
+
   //// Style bit flags, stored in the upper 32 bits of a glyph long
 
   /** Bit flag for bold mode, as a long. */
@@ -1211,18 +1215,21 @@ object Font {
 
   /** Gets the distance to advance the cursor after drawing glyph, scaled appropriately. If the glyph is fully transparent, this returns 0.
     */
-  def xAdvance(font: Font, scale: Float, glyph: Long): Float = {
-    if (glyph >>> 32 == 0L) return 0f
-    var ch = (glyph & 0xffff).toChar
-    if ((glyph & ALTERNATE_MODES_MASK) == SMALL_CAPS) ch = Character.toUpperCase(ch)
-    val tr = font.mapping.getOrElse(ch.toInt, null)
-    if (tr == null) return 0f
-    var changedW = tr.xAdvance * scale
-    if (!font.isMono) {
-      if ((glyph & SUPERSCRIPT) != 0L) changedW *= 0.5f
+  def xAdvance(font: Font, scale: Float, glyph: Long): Float =
+    if (glyph >>> 32 == 0L) 0f
+    else {
+      var ch = (glyph & 0xffff).toChar
+      if ((glyph & ALTERNATE_MODES_MASK) == SMALL_CAPS) ch = Character.toUpperCase(ch)
+      val tr = font.mapping.getOrElse(ch.toInt, null)
+      if (tr == null) 0f
+      else {
+        var changedW = tr.xAdvance * scale
+        if (!font.isMono) {
+          if ((glyph & SUPERSCRIPT) != 0L) changedW *= 0.5f
+        }
+        changedW
+      }
     }
-    changedW
-  }
 
   /** Given a glyph as a long, returns the RGBA8888 color it uses. */
   def extractColor(glyph: Long): Int = (glyph >>> 32).toInt
@@ -1266,7 +1273,7 @@ object Font {
     markupGlyph(chr, markupStr, colorLookup, null)
 
   /** Static markupGlyph with explicit ColorLookup and FontFamily. */
-  def markupGlyph(chr: Char, markupStr: String, colorLookup: ColorLookup, familyArg: FontFamily): Long = {
+  def markupGlyph(chr: Char, markupStr: String, colorLookup: ColorLookup, familyArg: FontFamily): Long = boundary {
     val COLOR_MASK = 0xffffffff00000000L
     val baseColor  = 0xfffffffe00000000L | chr.toLong
     var color      = baseColor
@@ -1286,7 +1293,7 @@ object Font {
               i += 1
             } else {
               val len = markupStr.indexOf(']', i) - i
-              if (len < 0) return current
+              if (len < 0) break(current)
               c match {
                 case '*' => current ^= BOLD
                 case '/' => current ^= OBLIQUE
@@ -1434,10 +1441,9 @@ object Font {
     }
 
     /** Gets the corresponding Font for a name/alias, or null if not found. */
-    def get(lookupName: String): Font = {
-      if (lookupName == null) return null
-      connected(fontAliases.get(lookupName, 0) & 15)
-    }
+    def get(lookupName: String): Font =
+      if (lookupName == null) null // @nowarn — matches original API
+      else connected(fontAliases.get(lookupName, 0) & 15)
 
     /** Calls resizeDistanceField on each Font in this FontFamily. */
     def resizeDistanceFields(width: Float, height: Float): Unit = {

@@ -12,14 +12,12 @@ package cellular
 
 import sge.noise.generator.util.Generators
 
-/** Contains a marker - a single float value; every cell below this value is considered dead, the others are alive.
-  * During each iteration, if a living cell has too few living neighbors, it will die (marker will be subtracted from its
-  * value). If a dead cell has enough living neighbors, it will become alive (marker will modify its current value
-  * according to [[mode]] - by default, marker will be added). This usually results in a cave-like map. The more
-  * iterations, the smoother the map is.
+/** Contains a marker - a single float value; every cell below this value is considered dead, the others are alive. During each iteration, if a living cell has too few living neighbors, it will die
+  * (marker will be subtracted from its value). If a dead cell has enough living neighbors, it will become alive (marker will modify its current value according to [[mode]] - by default, marker will
+  * be added). This usually results in a cave-like map. The more iterations, the smoother the map is.
   *
-  * Since this generator creates pretty much boolean-based maps (sets each cell as dead or alive), this generator is
-  * usually used first to create the general layout of the map - like a caverns system or islands.
+  * Since this generator creates pretty much boolean-based maps (sets each cell as dead or alive), this generator is usually used first to create the general layout of the map - like a caverns system
+  * or islands.
   *
   * @author
   *   MJ
@@ -29,32 +27,27 @@ class CellularAutomataGenerator extends AbstractGenerator with Grid.CellConsumer
   /** If true, some alive cells will be spawned before the generation. */
   var initiate: Boolean = true
 
-  /** If cell is equal to or greater than this value, it is considered alive. When the cell dies, this value is
-    * subtracted from it. If the cell becomes alive, this value modifies the current cell value according to current
-    * mode.
+  /** If cell is equal to or greater than this value, it is considered alive. When the cell dies, this value is subtracted from it. If the cell becomes alive, this value modifies the current cell
+    * value according to current mode.
     */
   var marker: Float = 1f
 
-  /** If [[initiate]] is true, some alive cells will be spawned before the generation. This is the chance of the cell
-    * becoming alive before generating. In range from 0 to 1.
+  /** If [[initiate]] is true, some alive cells will be spawned before the generation. This is the chance of the cell becoming alive before generating. In range from 0 to 1.
     */
   var aliveChance: Float = 0.5f
 
   /** Amount of generation iterations. The more iterations, the smoother the result. */
   var iterationsAmount: Int = 3
 
-  /** Dead cell becomes alive if it has more alive neighbors than this value. The lesser this value is, the more alive
-    * cells will be present.
+  /** Dead cell becomes alive if it has more alive neighbors than this value. The lesser this value is, the more alive cells will be present.
     */
   var birthLimit: Int = 4
 
-  /** Living cell dies if it has less alive neighbors than this value. The higher this value is, the less smooth the map
-    * becomes.
+  /** Living cell dies if it has less alive neighbors than this value. The higher this value is, the less smooth the map becomes.
     */
   var deathLimit: Int = 3
 
-  /** Determines how far the cells can be from a cell to be considered neighbors. Defaults to 1 - only direct cell
-    * neighbors (sides + corners) are counted.
+  /** Determines how far the cells can be from a cell to be considered neighbors. Defaults to 1 - only direct cell neighbors (sides + corners) are counted.
     */
   var radius: Int = 1
 
@@ -75,14 +68,12 @@ class CellularAutomataGenerator extends AbstractGenerator with Grid.CellConsumer
   }
 
   /** @param grid
-    *   some of its cells will become alive, according to the current chance settings. The others will die, if they were
-    *   already alive.
+    *   some of its cells will become alive, according to the current chance settings. The others will die, if they were already alive.
     * @see
     *   [[aliveChance]]
     */
-  protected def spawnLivingCells(grid: Grid): Unit = {
+  protected def spawnLivingCells(grid: Grid): Unit =
     CellularAutomataGenerator.initiate(grid, aliveChance, marker)
-  }
 
   /** @return
     *   temporary grid, copied to preserve the correct amounts of living neighbors during iterations.
@@ -108,9 +99,8 @@ class CellularAutomataGenerator extends AbstractGenerator with Grid.CellConsumer
     * @param y
     *   row index of temporary grid.
     */
-  protected def setAlive(x: Int, y: Int): Unit = {
+  protected def setAlive(x: Int, y: Int): Unit =
     modifyCell(temporaryGrid, x, y, marker)
-  }
 
   /** Kills the cell in temporary cached grid copy.
     *
@@ -119,36 +109,32 @@ class CellularAutomataGenerator extends AbstractGenerator with Grid.CellConsumer
     * @param y
     *   row index of temporary grid.
     */
-  protected def setDead(x: Int, y: Int): Unit = {
+  protected def setDead(x: Int, y: Int): Unit =
     temporaryGrid.subtract(x, y, marker)
-  }
 
   /** @param aliveNeighbors
     *   amount of alive tile's neighbors.
     * @return
     *   true if tile has less alive neighbors than the current death limit.
     */
-  protected def shouldDie(aliveNeighbors: Int): Boolean = {
+  protected def shouldDie(aliveNeighbors: Int): Boolean =
     aliveNeighbors < deathLimit
-  }
 
   /** @param aliveNeighbors
     *   amount of alive tile's neighbors.
     * @return
     *   true if tile has more alive neighbors than the current birth limit.
     */
-  protected def shouldBeBorn(aliveNeighbors: Int): Boolean = {
+  protected def shouldBeBorn(aliveNeighbors: Int): Boolean =
     aliveNeighbors > birthLimit
-  }
 
   /** @param value
     *   current cell's value.
     * @return
     *   true if the cell is currently considered alive.
     */
-  protected def isAlive(value: Float): Boolean = {
+  protected def isAlive(value: Float): Boolean =
     value >= marker
-  }
 
   /** @param grid
     *   processed grid.
@@ -160,7 +146,7 @@ class CellularAutomataGenerator extends AbstractGenerator with Grid.CellConsumer
     *   amount of neighbor cells that are considered alive.
     */
   protected def countLivingNeighbors(grid: Grid, x: Int, y: Int): Int = {
-    var count = 0
+    var count   = 0
     var xOffset = -radius
     while (xOffset <= radius) {
       var yOffset = -radius
@@ -184,17 +170,15 @@ object CellularAutomataGenerator {
 
   private var instance: CellularAutomataGenerator = scala.compiletime.uninitialized
 
-  /** Not thread-safe. Uses static generator instance. Since this method provides only basic settings, creating or
-    * obtaining an instance of the generator is generally preferred.
+  /** Not thread-safe. Uses static generator instance. Since this method provides only basic settings, creating or obtaining an instance of the generator is generally preferred.
     *
     * @param grid
     *   its cells will be affected.
     * @param iterationsAmount
     *   see [[CellularAutomataGenerator.iterationsAmount]]
     */
-  def generate(grid: Grid, iterationsAmount: Int): Unit = {
+  def generate(grid: Grid, iterationsAmount: Int): Unit =
     generate(grid, iterationsAmount, 1f, initiate = true)
-  }
 
   /** Not thread-safe. Uses static generator instance.
     *
@@ -230,23 +214,21 @@ object CellularAutomataGenerator {
     * @param generator
     *   its settings will be used.
     */
-  def initiate(grid: Grid, generator: CellularAutomataGenerator): Unit = {
+  def initiate(grid: Grid, generator: CellularAutomataGenerator): Unit =
     initiate(grid, generator.aliveChance, generator.marker)
-  }
 
   /** @param grid
     *   its cells will be initiated.
     * @param aliveChance
     *   see [[CellularAutomataGenerator.aliveChance]].
     * @param marker
-    *   see [[CellularAutomataGenerator.marker]]. If value is already above the marker and rolled as alive, its value
-    *   will not be changed. If cell's value is above the marker and it is rolled as dead, marker will be subtracted from
-    *   its value.
+    *   see [[CellularAutomataGenerator.marker]]. If value is already above the marker and rolled as alive, its value will not be changed. If cell's value is above the marker and it is rolled as dead,
+    *   marker will be subtracted from its value.
     */
   def initiate(grid: Grid, aliveChance: Float, marker: Float): Unit = {
     val random = Generators.getRandom
-    val array = grid.getArray
-    var index = 0
+    val array  = grid.getArray
+    var index  = 0
     val length = array.length
     while (index < length) {
       if (random.nextFloat() > aliveChance) {

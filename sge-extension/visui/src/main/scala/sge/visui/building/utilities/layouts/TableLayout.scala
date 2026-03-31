@@ -27,19 +27,18 @@ enum TableLayout extends ActorLayout {
   /** Converts passed widgets into a single row. */
   case HORIZONTAL
 
-  override def convertToActor(widgets: Actor*)(using Sge): Actor = {
+  override def convertToActor(widgets: Actor*)(using Sge): Actor =
     convertToActorFromCells(CellWidget.wrap(widgets*)*)
-  }
 
-  override def convertToActorFromCells(widgets: CellWidget[?]*)(using Sge): Actor = {
+  override def convertToActorFromCells(widgets: CellWidget[?]*)(using Sge): Actor =
     this match {
       case VERTICAL   => TableLayout.convertToTable(new OneColumnTableBuilder(), widgets*)
       case HORIZONTAL => TableLayout.convertToTable(new OneRowTableBuilder(), widgets*)
     }
-  }
 }
 
 object TableLayout {
+
   /** Utility method. Appends all widgets into the passed builder and creates a table with no additional settings. */
   def convertToTable(usingBuilder: TableBuilder, widgets: CellWidget[?]*)(using Sge): Actor = {
     for (widget <- widgets) usingBuilder.append(widget)

@@ -25,10 +25,10 @@ class LevelsEffect(using Sge)
   import ShaderVfxEffect.*
 
   private var _brightness: Float = 0.0f
-  private var _contrast: Float = 1.0f
+  private var _contrast:   Float = 1.0f
   private var _saturation: Float = 1.0f
-  private var _hue: Float = 1.0f
-  private var _gamma: Float = 1.0f
+  private var _hue:        Float = 1.0f
+  private var _gamma:      Float = 1.0f
 
   rebind()
 
@@ -53,22 +53,27 @@ class LevelsEffect(using Sge)
   }
 
   def contrast: Float = _contrast
+
   /** Sets the contrast level @param value in [0..2] */
   def contrast_=(value: Float): Unit = { _contrast = value; setUniform("u_contrast", value) }
 
   def brightness: Float = _brightness
+
   /** Sets the brightness level @param value in [-1..1] */
   def brightness_=(value: Float): Unit = { _brightness = value; setUniform("u_brightness", value) }
 
   def saturation: Float = _saturation
+
   /** Sets the saturation @param value in [0..2] */
   def saturation_=(value: Float): Unit = { _saturation = value; setUniform("u_saturation", value) }
 
   def hue: Float = _hue
+
   /** Sets the hue @param value in [0..2] */
   def hue_=(value: Float): Unit = { _hue = value; setUniform("u_hue", value) }
 
   def gamma: Float = _gamma
+
   /** Sets the gamma correction value @param value in [0..3] */
   def gamma_=(value: Float): Unit = { _gamma = value; setUniform("u_gamma", value) }
 }

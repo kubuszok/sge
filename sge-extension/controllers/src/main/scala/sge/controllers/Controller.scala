@@ -7,11 +7,11 @@
 package sge
 package controllers
 
-/** Represents a connected controller. Provides methods to query the state of buttons, axes and more information on the controller.
-  * Multiple [[ControllerListener]] instances can be registered with the Controller to receive events in case the controller's state
-  * changes. Listeners will be invoked on the rendering thread.
+/** Represents a connected controller. Provides methods to query the state of buttons, axes and more information on the controller. Multiple [[ControllerListener]] instances can be registered with the
+  * Controller to receive events in case the controller's state changes. Listeners will be invoked on the rendering thread.
   *
-  * @author Nathan Sweet
+  * @author
+  *   Nathan Sweet
   */
 trait Controller {
 
@@ -25,8 +25,7 @@ trait Controller {
   def name: String
 
   /** @return
-    *   unique ID to recognize this controller if more than one of the same controller models are connected. Use this to map a
-    *   controller to a player, but do not use it to save a button mapping.
+    *   unique ID to recognize this controller if more than one of the same controller models are connected. Use this to map a controller to a player, but do not use it to save a button mapping.
     */
   def uniqueId: String
 
@@ -45,8 +44,7 @@ trait Controller {
   def isConnected: Boolean
 
   /** @return
-    *   whether the connected controller or the current controller implementation can rumble. Note that this is no guarantee that
-    *   the connected controller itself can vibrate.
+    *   whether the connected controller or the current controller implementation can rumble. Note that this is no guarantee that the connected controller itself can vibrate.
     */
   def canVibrate: Boolean
 
@@ -71,8 +69,7 @@ trait Controller {
   /** @return 0-based player index of this controller, or [[Controller.PlayerIdxUnset]] if none is set. */
   def playerIndex: Int
 
-  /** Sets the player index of this controller. Please note that this does not always set indication lights of controllers, it is
-    * just an internal representation on some platforms.
+  /** Sets the player index of this controller. Please note that this does not always set indication lights of controllers, it is just an internal representation on some platforms.
     *
     * @param index
     *   typically 0 to 3 for player indices, and [[Controller.PlayerIdxUnset]] for unset
@@ -85,13 +82,11 @@ trait Controller {
   def mapping: ControllerMapping
 
   /** @return
-    *   value of enum [[ControllerPowerLevel]] indicating battery state of the connected controller, or
-    *   [[ControllerPowerLevel.Unknown]] if information is not present.
+    *   value of enum [[ControllerPowerLevel]] indicating battery state of the connected controller, or [[ControllerPowerLevel.Unknown]] if information is not present.
     */
   def powerLevel: ControllerPowerLevel
 
-  /** Adds a new [[ControllerListener]] to this [[Controller]]. The listener will receive calls in case the state of the controller
-    * changes. The listener will be invoked on the rendering thread.
+  /** Adds a new [[ControllerListener]] to this [[Controller]]. The listener will receive calls in case the state of the controller changes. The listener will be invoked on the rendering thread.
     */
   def addListener(listener: ControllerListener): Unit
 

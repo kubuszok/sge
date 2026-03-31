@@ -19,18 +19,18 @@ import sge.utils.Nullable
   *   MJ
   */
 class CellWidget[W <: Actor] private (builder: CellWidget.CellWidgetBuilder[W]) {
-  private val widget:     W                  = builder.widget.asInstanceOf[W]
-  private val padding:    Nullable[Padding]  = builder.padding
-  private val expandX:    Boolean            = builder.expandX
-  private val expandY:    Boolean            = builder.expandY
-  private val fillX:      Boolean            = builder.fillX
-  private val fillY:      Boolean            = builder.fillY
-  private val useSpacing: Boolean            = builder.useSpacing
+  private val widget:     W                   = builder.widget.asInstanceOf[W]
+  private val padding:    Nullable[Padding]   = builder.padding
+  private val expandX:    Boolean             = builder.expandX
+  private val expandY:    Boolean             = builder.expandY
+  private val fillX:      Boolean             = builder.fillX
+  private val fillY:      Boolean             = builder.fillY
+  private val useSpacing: Boolean             = builder.useSpacing
   private val alignment:  Nullable[Alignment] = builder.alignment
-  private val _width:     Int                = builder.width
-  private val _height:    Int                = builder.height
-  private val _minWidth:  Int                = builder.minWidth
-  private val _minHeight: Int                = builder.minHeight
+  private val _width:     Int                 = builder.width
+  private val _height:    Int                 = builder.height
+  private val _minWidth:  Int                 = builder.minWidth
+  private val _minHeight: Int                 = builder.minHeight
 
   def getWidget: W = widget
 
@@ -75,9 +75,8 @@ object CellWidget {
 
   def wrap[W <: Actor](widget: W): CellWidget[W] = of(widget).wrap()
 
-  def wrap(widgets: Actor*): scala.Array[CellWidget[?]] = {
+  def wrap(widgets: Actor*): scala.Array[CellWidget[?]] =
     widgets.map(w => CellWidget.of(w).wrap().asInstanceOf[CellWidget[?]]).toArray
-  }
 
   def empty(): CellWidget[?] = builder().wrap()
 
@@ -113,17 +112,17 @@ object CellWidget {
 
     def wrap(): CellWidget[W] = new CellWidget[W](this)
 
-    def widget(w: W): CellWidgetBuilder[W]               = { this.widget = w; this }
-    def padding(p: Padding): CellWidgetBuilder[W]         = { this.padding = Nullable(p); this }
-    def withSpacing(): CellWidgetBuilder[W]                = { this.useSpacing = true; this }
-    def withExpandX(): CellWidgetBuilder[W]               = { this.expandX = true; this }
-    def withExpandY(): CellWidgetBuilder[W]               = { this.expandY = true; this }
-    def withFillX(): CellWidgetBuilder[W]                 = { this.fillX = true; this }
-    def withFillY(): CellWidgetBuilder[W]                 = { this.fillY = true; this }
-    def align(alignment: Alignment): CellWidgetBuilder[W] = { this.alignment = Nullable(alignment); this }
-    def width(width: Int): CellWidgetBuilder[W]           = { this.width = width; this }
-    def height(height: Int): CellWidgetBuilder[W]         = { this.height = height; this }
-    def minWidth(minWidth: Int): CellWidgetBuilder[W]     = { this.minWidth = minWidth; this }
-    def minHeight(minHeight: Int): CellWidgetBuilder[W]   = { this.minHeight = minHeight; this }
+    def widget(w:            W):         CellWidgetBuilder[W] = { this.widget = w; this }
+    def padding(p:           Padding):   CellWidgetBuilder[W] = { this.padding = Nullable(p); this }
+    def withSpacing():                   CellWidgetBuilder[W] = { this.useSpacing = true; this }
+    def withExpandX():                   CellWidgetBuilder[W] = { this.expandX = true; this }
+    def withExpandY():                   CellWidgetBuilder[W] = { this.expandY = true; this }
+    def withFillX():                     CellWidgetBuilder[W] = { this.fillX = true; this }
+    def withFillY():                     CellWidgetBuilder[W] = { this.fillY = true; this }
+    def align(alignment:     Alignment): CellWidgetBuilder[W] = { this.alignment = Nullable(alignment); this }
+    def width(width:         Int):       CellWidgetBuilder[W] = { this.width = width; this }
+    def height(height:       Int):       CellWidgetBuilder[W] = { this.height = height; this }
+    def minWidth(minWidth:   Int):       CellWidgetBuilder[W] = { this.minWidth = minWidth; this }
+    def minHeight(minHeight: Int):       CellWidgetBuilder[W] = { this.minHeight = minHeight; this }
   }
 }

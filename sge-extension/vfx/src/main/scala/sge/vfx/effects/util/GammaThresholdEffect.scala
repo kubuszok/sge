@@ -49,8 +49,8 @@ class GammaThresholdEffect(thresholdType: GammaThresholdEffect.Type)(using Sge)
     renderShader(context, dst)
   }
 
-  def gamma: Float = _gamma
-  def gamma_=(value: Float): Unit = {
+  def gamma:                 Float = _gamma
+  def gamma_=(value: Float): Unit  = {
     _gamma = value
     setUniform("u_threshold", value)
     setUniform("u_thresholdInv", 1f / (1f - value))

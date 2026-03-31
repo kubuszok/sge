@@ -131,11 +131,7 @@ class FamilySuite extends munit.FunSuite {
   }
 
   test("complex family filtering") {
-    val family = Family
-      .all(classOf[ComponentA], classOf[ComponentB])
-      .one(classOf[ComponentC], classOf[ComponentD])
-      .exclude(classOf[ComponentE], classOf[ComponentF])
-      .get()
+    val family = Family.all(classOf[ComponentA], classOf[ComponentB]).one(classOf[ComponentC], classOf[ComponentD]).exclude(classOf[ComponentE], classOf[ComponentF]).get()
 
     val entity = new Entity
     assert(!family.matches(entity))

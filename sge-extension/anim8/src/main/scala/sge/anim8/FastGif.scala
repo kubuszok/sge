@@ -13,17 +13,20 @@
 package sge
 package anim8
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import java.io.OutputStream
 
 import sge.graphics.Pixmap
 
-/** GIF encoder using standard LZW compression; can write animated and non-animated GIF images. This is a subclass of [[AnimatedGif]] that defaults to using a [[FastPalette]] when possible and defaults
-  * to having [[AnimatedGif.fastAnalysis fastAnalysis]] enabled. An instance can be reused to encode multiple GIFs with minimal allocation.
+/** GIF encoder using standard LZW compression; can write animated and non-animated GIF images. This is a subclass of [[AnimatedGif]] that defaults to using a [[FastPalette]] when possible and
+  * defaults to having [[AnimatedGif.fastAnalysis fastAnalysis]] enabled. An instance can be reused to encode multiple GIFs with minimal allocation.
   *
   * You can configure the target palette and how this can dither colors via the [[palette]] field, which is a [[PaletteReducer]] object that defaults to null and can be reused. If you assign a
-  * PaletteReducer to palette, the methods [[PaletteReducer.exact(Array[Int])* PaletteReducer.exact]] or [[PaletteReducer.analyze(Pixmap)* PaletteReducer.analyze]] can be used to make the target palette
-  * match a specific set of colors or the colors in an existing image. If palette is null, this will use a [[FastPalette]] subclass of PaletteReducer, and will compute a palette for each GIF that
-  * closely fits its set of given animation frames.
+  * PaletteReducer to palette, the methods [[PaletteReducer.exact(Array[Int])* PaletteReducer.exact]] or [[PaletteReducer.analyze(Pixmap)* PaletteReducer.analyze]] can be used to make the target
+  * palette match a specific set of colors or the colors in an existing image. If palette is null, this will use a [[FastPalette]] subclass of PaletteReducer, and will compute a palette for each GIF
+  * that closely fits its set of given animation frames.
   */
 class FastGif extends AnimatedGif {
 
@@ -38,10 +41,10 @@ class FastGif extends AnimatedGif {
     * @param fps
     *   how many frames (from `frames`) to play back per second
     */
-  override def write(output: OutputStream, frames: Array[Pixmap], fps: Int): Unit = {
+  override def write(output: OutputStream, frames: Array[Pixmap], fps: Int): Unit = boundary {
     if (frames == null || frames.isEmpty) {
       // noinspection: null check needed for Java interop @nowarn
-      return // early return via simple guard
+      break(())
     }
     _clearPalette = palette == null
     if (_clearPalette) {
@@ -53,7 +56,7 @@ class FastGif extends AnimatedGif {
       }
     }
     if (!start(output)) {
-      return // early return via simple guard
+      break(())
     }
     setFrameRate(fps.toFloat)
     var i = 0

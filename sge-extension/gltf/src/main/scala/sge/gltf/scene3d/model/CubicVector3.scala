@@ -19,8 +19,7 @@ package model
 
 import sge.math.Vector3
 
-/** Wrapper holding cubic spline tangent data alongside a Vector3 value.
-  * Used as keyframe values in animations with CUBICSPLINE interpolation.
+/** Wrapper holding cubic spline tangent data alongside a Vector3 value. Used as keyframe values in animations with CUBICSPLINE interpolation.
   */
 final case class CubicVector3(
   value:      Vector3 = Vector3(),
