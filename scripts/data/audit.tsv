@@ -883,7 +883,7 @@ MeetEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
 ThinkingEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
 JoltEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
 LZBCompression.scala	textra.utils	pass	no	2026-03-31		textratypist
-Font.scala	textra	pass	no	2026-03-31		textratypist
+Font.scala	textra	minor_issues	no	2026-04-01	Rendering implemented: drawGlyph (all effects), drawGlyphs, drawBlocks, drawBlockSequence, drawFancyLine, enableShader, loadFNT/JSON/Sad. GlyphRegion extends TextureRegion. Minor: glyph-based underline fallback not ported, some null at Java interop.	textratypist
 Parser.scala	textra	pass	no	2026-03-31		textratypist
 TypingLabel.scala	textra	pass	no	2026-03-31		textratypist
 LinkEffect.scala	textra.effects	pass	no	2026-03-31		textratypist
@@ -1018,7 +1018,7 @@ GLTFAccessorSparseValues.scala	gltf.data.data	pass	no	2026-03-31		gdx-gltf
 GLTFAccessorSparseIndices.scala	gltf.data.data	pass	no	2026-03-31		gdx-gltf
 GLTFpbrMetallicRoughness.scala	gltf.data.material	pass	no	2026-03-31		gdx-gltf
 GLTFMaterial.scala	gltf.data.material	pass	no	2026-03-31		gdx-gltf
-GLTFJsonParser.scala	gltf.loaders.gltf	pass	no	2026-03-31		gdx-gltf
+GLTFJsonParser.scala	gltf.loaders.gltf	pass	no	2026-04-01	Fully implemented via readFromString[GLTF] with GLTFCodecs. 8 parser tests.	gdx-gltf
 GLTFLoader.scala	gltf.loaders.gltf	pass	no	2026-03-31		gdx-gltf
 SeparatedDataFileResolver.scala	gltf.loaders.gltf	pass	no	2026-03-31		gdx-gltf
 AnimationLoader.scala	gltf.loaders.shared.animation	pass	no	2026-03-31		gdx-gltf
@@ -1044,13 +1044,13 @@ GLBLoader.scala	gltf.loaders.glb	pass	no	2026-03-31		gdx-gltf
 BinaryDataFileResolver.scala	gltf.loaders.glb	pass	no	2026-03-31		gdx-gltf
 ControllerOps.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 DefaultControllerManager.scala	controllers	pass	yes	2026-03-31		gdx-controllers
-GlfwControllerBackend.scala	controllers	pass	yes	2026-03-31		gdx-controllers
+GlfwControllerBackend.scala	controllers	pass	yes	2026-04-01	Pluggable impl pattern: companion holds pollControllerImpl var. Native wires real GLFW FFI. 25 tests.	gdx-controllers
 ControllerMapping.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 ControllerManager.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 Controllers.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 Controller.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 ControllerAdapter.scala	controllers	pass	yes	2026-03-31		gdx-controllers
-BrowserControllerBackend.scala	controllers	pass	yes	2026-03-31		gdx-controllers
+BrowserControllerBackend.scala	controllers	pass	yes	2026-04-01	Pluggable impl pattern: companion holds pollControllerImpl var. JS wires Web Gamepad API. 25 tests.	gdx-controllers
 ControllerListener.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 ControllerPowerLevel.scala	controllers	pass	yes	2026-03-31		gdx-controllers
 TabbedPane.scala	visui.widget.tabbedpane	pass	no	2026-03-31		vis-ui
@@ -1201,3 +1201,8 @@ FastPalette.scala	anim8	pass	no	2026-03-31		anim8-gdx
 QualityPalette.scala	anim8	pass	no	2026-03-31		anim8-gdx
 ShaderTransition.scala	screen.transition.impl	pass	no	2026-03-31		libgdx-screenmanager
 GLTransitionsShaderTransition.scala	screen.transition.impl	pass	no	2026-03-31		libgdx-screenmanager
+GLTFCodecs.scala	gltf.data	pass	no	2026-04-01	Manual jsoniter-scala codecs for all 43 GLTF data classes. Nullable, GLTFExtensions/Extras raw Json, GLTFMorphTarget HashMap. 8 parser tests.	sge-original
+NativeLibBundle.scala	sbt	pass	no	2026-04-01	sbt plugin: manifest-based native lib config. Discovers native-bundle.json on classpath, merges per-platform linker flags.	sge-original
+GlfwControllerNative.scala	controllers	pass	no	2026-04-01	Scala Native GLFW joystick @extern bindings. Gamepad API + raw joystick fallback. Correct GLFWgamepadstate struct layout.	sge-original
+BrowserControllerImpl.scala	controllers	pass	no	2026-04-01	Scala.js Web Gamepad API via js.Dynamic. Handles null slots, API unavailability.	sge-original
+BrowserControllerInit.scala	controllers	pass	no	2026-04-01	JS init wiring: sets BrowserControllerBackend.pollControllerImpl.	sge-original
