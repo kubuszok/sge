@@ -65,32 +65,34 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     shortcutLabelColor = _shortcutLabel.style.fontColor
 
     subMenuImage = new Image(Nullable(_style.subMenu))
-    subMenuIconCell = add(Nullable(subMenuImage)).padLeft(3).padRight(3)
-      .size(_style.subMenu.minWidth, _style.subMenu.minHeight)
+    subMenuIconCell = add(Nullable(subMenuImage)).padLeft(3).padRight(3).size(_style.subMenu.minWidth, _style.subMenu.minHeight)
     subMenuIconCell.setActor(Nullable.empty)
 
-    addListener(new ChangeListener() {
-      override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit = {
-        if (_subMenu.isDefined) { // makes submenu item not clickable
-          event.stop()
+    addListener(
+      new ChangeListener() {
+        override def changed(event: ChangeListener.ChangeEvent, actor: Actor): Unit =
+          if (_subMenu.isDefined) { // makes submenu item not clickable
+            event.stop()
+          }
+      }
+    )
+
+    addListener(
+      new InputListener() {
+        override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit = {
+          if (_subMenu.isDefined) { // removes selection of child submenu if mouse moved to parent submenu
+            _subMenu.get.setActiveItem(Nullable.empty, changedByKeyboard = false)
+            _subMenu.get.setActiveSubMenu(Nullable.empty)
+          }
+
+          if (_subMenu.isEmpty || disabled) { // hides last visible submenu (if any)
+            hideSubMenu()
+          } else {
+            showSubMenu()
+          }
         }
       }
-    })
-
-    addListener(new InputListener() {
-      override def enter(event: InputEvent, x: Float, y: Float, pointer: Int, fromActor: Nullable[Actor]): Unit = {
-        if (_subMenu.isDefined) { // removes selection of child submenu if mouse moved to parent submenu
-          _subMenu.get.setActiveItem(Nullable.empty, changedByKeyboard = false)
-          _subMenu.get.setActiveSubMenu(Nullable.empty)
-        }
-
-        if (_subMenu.isEmpty || disabled) { // hides last visible submenu (if any)
-          hideSubMenu()
-        } else {
-          showSubMenu()
-        }
-      }
-    })
+    )
   }
 
   def this(text: String)(using Sge) = this(text, Nullable.empty, VisUI.getSkin.get[MenuItem.MenuItemStyle])
@@ -131,7 +133,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     super.setParent(parent)
     parent match {
       case pm if pm.isDefined && pm.get.isInstanceOf[PopupMenu] => containerMenu = Nullable(pm.get.asInstanceOf[PopupMenu])
-      case _ => containerMenu = Nullable.empty
+      case _                                                    => containerMenu = Nullable.empty
     }
   }
 
@@ -146,7 +148,7 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
       val availableSpaceLeft  = pos.x
       val availableSpaceRight = stg.width - (pos.x + width)
       val canFitOnTheRight    = pos.x + width + sm.width <= stg.width
-      val subMenuX =
+      val subMenuX            =
         if (canFitOnTheRight || availableSpaceRight > availableSpaceLeft) pos.x + width - 1
         else pos.x - sm.width + 1
 
@@ -219,8 +221,8 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     if (containerMenu.isEmpty || containerMenu.get.getActiveItem.isEmpty) super.isOver
     else containerMenu.get.getActiveItem.get == this
 
-  def generateDisabledImage:                Boolean = _generateDisabledImage
-  def generateDisabledImage_=(value: Boolean): Unit = _generateDisabledImage = value
+  def generateDisabledImage:                   Boolean = _generateDisabledImage
+  def generateDisabledImage_=(value: Boolean): Unit    = _generateDisabledImage = value
 
   def setShortcut(keycode: Key): MenuItem = {
     val keyName: String = OsUtils.getShortcutFor(keycode)
@@ -248,14 +250,14 @@ class MenuItem private (text: String, initImage: Nullable[Image], initStyle: Men
     _label.invalidate()
   }
 
-  def getImage: Nullable[Image] = _image
-  def getImageCell: Cell[Image] = imageCell
-  def getLabel: Label = _label
-  def getLabelCell: Nullable[Cell[Label]] = getCell(_label)
-  def getText: String = _label.text.toString
-  def setText(text: String): Unit = _label.setText(text)
-  def getSubMenuIconCell: Cell[Image] = subMenuIconCell
-  def getShortcutCell: Nullable[Cell[VisLabel]] = getCell(_shortcutLabel)
+  def getImage:              Nullable[Image]          = _image
+  def getImageCell:          Cell[Image]              = imageCell
+  def getLabel:              Label                    = _label
+  def getLabelCell:          Nullable[Cell[Label]]    = getCell(_label)
+  def getText:               String                   = _label.text.toString
+  def setText(text: String): Unit                     = _label.setText(text)
+  def getSubMenuIconCell:    Cell[Image]              = subMenuIconCell
+  def getShortcutCell:       Nullable[Cell[VisLabel]] = getCell(_shortcutLabel)
 }
 
 object MenuItem {

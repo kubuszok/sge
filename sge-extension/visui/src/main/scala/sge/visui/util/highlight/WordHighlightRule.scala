@@ -22,7 +22,7 @@ import sge.visui.widget.HighlightTextArea
 class WordHighlightRule(color: Color, word: String) extends HighlightRule {
 
   override def process(textArea: HighlightTextArea, highlights: DynamicArray[Highlight]): Unit = {
-    val text = textArea.text
+    val text  = textArea.text
     var index = text.indexOf(word)
     while (index >= 0) {
       val end = index + word.length

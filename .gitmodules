@@ -41,3 +41,9 @@
 [submodule "original-src/vis-ui"]
 	path = original-src/vis-ui
 	url = https://github.com/kotcrab/vis-ui.git
+[submodule "original-src/gdx-gltf"]
+	path = original-src/gdx-gltf
+	url = https://github.com/mgsx-dev/gdx-gltf.git
+[submodule "original-src/gdx-controllers"]
+	path = original-src/gdx-controllers
+	url = https://github.com/libgdx/gdx-controllers.git

@@ -148,9 +148,9 @@ object FormValidator {
   }
 
   class FileExistsValidator(errorMsg: String, var mustNotExist: Boolean = false)(using Sge) extends FormInputValidator(errorMsg) {
-    var relativeTo:         Nullable[VisTextField] = Nullable.empty
-    var relativeToFile:     Nullable[File]         = Nullable.empty
-    var errorIfRelativeEmpty: Boolean               = false
+    var relativeTo:           Nullable[VisTextField] = Nullable.empty
+    var relativeToFile:       Nullable[File]         = Nullable.empty
+    var errorIfRelativeEmpty: Boolean                = false
 
     def this(relativeToField: Nullable[VisTextField], errorMsg: String)(using Sge) = {
       this(errorMsg)

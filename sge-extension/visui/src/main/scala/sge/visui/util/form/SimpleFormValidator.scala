@@ -32,22 +32,24 @@ import sge.visui.widget.{ VisCheckBox, VisValidatableTextField }
   */
 class SimpleFormValidator(targetToDisable: Nullable[Disableable], private var _messageLabel: Nullable[Label], formStyle: SimpleFormValidator.FormValidatorStyle) {
 
-  private val changeListener:              ChangeListener                                       = new SimpleFormValidator.ChangeSharedListener(this)
-  private val fields:                      DynamicArray[VisValidatableTextField]                 = DynamicArray[VisValidatableTextField]()
+  private val changeListener:              ChangeListener                                         = new SimpleFormValidator.ChangeSharedListener(this)
+  private val fields:                      DynamicArray[VisValidatableTextField]                  = DynamicArray[VisValidatableTextField]()
   private val buttons:                     DynamicArray[SimpleFormValidator.CheckedButtonWrapper] = DynamicArray[SimpleFormValidator.CheckedButtonWrapper]()
-  private var _successMsg:                 Nullable[String]                                      = Nullable.empty
-  private var formInvalid:                 Boolean                                               = false
-  private var errorMsgText:                Nullable[String]                                      = Nullable.empty
+  private var _successMsg:                 Nullable[String]                                       = Nullable.empty
+  private var formInvalid:                 Boolean                                                = false
+  private var errorMsgText:                Nullable[String]                                       = Nullable.empty
   private val disableTargets:              DynamicArray[Disableable]                              = DynamicArray[Disableable]()
-  private var _treatDisabledFieldsAsValid: Boolean                                               = true
+  private var _treatDisabledFieldsAsValid: Boolean                                                = true
 
   targetToDisable.foreach(disableTargets.add)
 
   /** @param targetToDisable target actor that will be disabled if form is invalid. May be null. */
   def this(targetToDisable: Disableable) = this(Nullable(targetToDisable), Nullable.empty, VisUI.getSkin.get[SimpleFormValidator.FormValidatorStyle])
 
-  /** @param targetToDisable target actor that will be disabled if form is invalid. May be null.
-    * @param messageLabel label that text will be changed if form is valid or invalid. May be null.
+  /** @param targetToDisable
+    *   target actor that will be disabled if form is invalid. May be null.
+    * @param messageLabel
+    *   label that text will be changed if form is valid or invalid. May be null.
     */
   def this(targetToDisable: Disableable, messageLabel: Label) = this(Nullable(targetToDisable), Nullable(messageLabel), VisUI.getSkin.get[SimpleFormValidator.FormValidatorStyle])
 
@@ -197,7 +199,7 @@ class SimpleFormValidator(targetToDisable: Nullable[Disableable], private var _m
         if (!(_treatDisabledFieldsAsValid && field.disabled)) {
           if (!field.isInputValid) {
             val validators = field.getValidators
-            var j = 0
+            var j          = 0
             while (j < validators.size) {
               validators(j) match {
                 case validator: FormInputValidator =>
@@ -263,7 +265,7 @@ object SimpleFormValidator {
     def setButtonStateInvalid(state: Boolean): Unit =
       button match {
         case cb: VisCheckBox => cb.setStateInvalid(state)
-        case _               => ()
+        case _ => ()
       }
   }
 
@@ -272,8 +274,10 @@ object SimpleFormValidator {
   }
 
   class FormValidatorStyle {
+
     /** Optional */
     var errorLabelColor: Color = scala.compiletime.uninitialized
+
     /** Optional */
     var validLabelColor: Color = scala.compiletime.uninitialized
 

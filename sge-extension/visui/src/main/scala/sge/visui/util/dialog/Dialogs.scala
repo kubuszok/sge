@@ -11,11 +11,11 @@ package util
 package dialog
 
 import sge.Input.{ Key, Keys }
-import sge.scenes.scene2d.{ InputEvent, InputListener, Stage }
+import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
 import sge.utils.Nullable
 import sge.visui.{ Locales, VisUI }
 import sge.visui.i18n.BundleText
-import sge.visui.widget.{ ButtonBar, VisDialog }
+import sge.visui.widget.{ ButtonBar, VisDialog, VisTextField }
 
 /** Utilities for displaying various type of dialogs. Equivalent of JOptionPane from Swing.
   * @author
@@ -96,6 +96,82 @@ object Dialogs {
       builder.append("\nCaused by: ")
       getStackTrace(throwable.getCause, builder)
     }
+  }
+
+  /** Dialog with Yes/No (or Yes/No/Cancel) buttons and a callback. */
+  def showOptionDialog(stage: Stage, title: String, text: String, dialogType: OptionDialogType, listener: OptionDialogListener)(using Sge): VisDialog = {
+    val dialog = new VisDialog(title) {
+      override protected def result(obj: Nullable[AnyRef]): Unit =
+        obj.foreach {
+          case "yes"    => listener.yes()
+          case "no"     => listener.no()
+          case "cancel" => listener.cancel()
+          case _        => ()
+        }
+    }
+    dialog.closeOnEscape()
+    dialog.text(text)
+
+    dialogType match {
+      case OptionDialogType.YES_NO =>
+        dialog.button(ButtonBar.ButtonType.YES.text, Nullable[AnyRef]("yes")).padBottom(3)
+        dialog.button(ButtonBar.ButtonType.NO.text, Nullable[AnyRef]("no")).padBottom(3)
+      case OptionDialogType.YES_NO_CANCEL =>
+        dialog.button(ButtonBar.ButtonType.YES.text, Nullable[AnyRef]("yes")).padBottom(3)
+        dialog.button(ButtonBar.ButtonType.NO.text, Nullable[AnyRef]("no")).padBottom(3)
+        dialog.button(ButtonBar.ButtonType.CANCEL.text, Nullable[AnyRef]("cancel")).padBottom(3)
+      case OptionDialogType.YES_CANCEL =>
+        dialog.button(ButtonBar.ButtonType.YES.text, Nullable[AnyRef]("yes")).padBottom(3)
+        dialog.button(ButtonBar.ButtonType.CANCEL.text, Nullable[AnyRef]("cancel")).padBottom(3)
+    }
+
+    dialog.pack()
+    dialog.centerWindow()
+    stage.addActor(dialog.fadeIn())
+    dialog
+  }
+
+  /** Dialog with a text input field and OK/Cancel buttons. */
+  def showInputDialog(stage: Stage, title: String, fieldTitle: String, cancelable: Boolean, listener: InputDialogListener)(using Sge): VisDialog = {
+    val textField = new VisTextField("")
+    val dialog    = new VisDialog(title) {
+      override protected def result(obj: Nullable[AnyRef]): Unit =
+        obj.foreach {
+          case "ok" => listener.finished(textField.text)
+          case _    => listener.canceled()
+        }
+    }
+    if (cancelable) dialog.closeOnEscape()
+    dialog.text(fieldTitle)
+    dialog.getContentTable.row()
+    dialog.getContentTable.add(Nullable[Actor](textField)).expandX().fillX().pad(3)
+    dialog.button(ButtonBar.ButtonType.OK.text, Nullable[AnyRef]("ok")).padBottom(3)
+    dialog.button(ButtonBar.ButtonType.CANCEL.text, Nullable[AnyRef]("cancel")).padBottom(3)
+    dialog.pack()
+    dialog.centerWindow()
+    stage.addActor(dialog.fadeIn())
+    dialog
+  }
+
+  /** Listener for option dialogs (Yes/No/Cancel). */
+  trait OptionDialogListener {
+    def yes():    Unit = ()
+    def no():     Unit = ()
+    def cancel(): Unit = ()
+  }
+
+  /** Convenience adapter for OptionDialogListener with no-op defaults. */
+  class OptionDialogAdapter extends OptionDialogListener
+
+  /** Listener for input dialogs. */
+  trait InputDialogListener {
+    def finished(input: String): Unit
+    def canceled():              Unit = ()
+  }
+
+  /** Convenience adapter for InputDialogListener. */
+  class InputDialogAdapter extends InputDialogListener {
+    override def finished(input: String): Unit = ()
   }
 
   /** Dialogs I18N properties. */

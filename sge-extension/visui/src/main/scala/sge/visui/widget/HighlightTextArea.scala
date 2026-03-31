@@ -32,10 +32,10 @@ import sge.visui.util.highlight.{ BaseHighlighter, Highlight }
   */
 class HighlightTextArea(text: String, visStyle: VisTextField.VisTextFieldStyle)(using Sge) extends ScrollableTextArea(text, visStyle) { // Cullable from ScrollableTextArea
 
-  private val highlights:  DynamicArray[Highlight] = DynamicArray[Highlight]()
+  private val highlights:   DynamicArray[Highlight]   = DynamicArray[Highlight]()
   private var _highlighter: Nullable[BaseHighlighter] = Nullable.empty
   @annotation.nowarn("msg=unused private member")
-  private var defaultColor: Color                    = Color.WHITE
+  private var defaultColor: Color = Color.WHITE
 
   def this(text: String)(using Sge) = this(text, VisUI.getSkin.get[VisTextField.VisTextFieldStyle])
 

@@ -40,7 +40,7 @@ abstract class ArrayAdapter[ItemT, ViewT <: Actor](private val array: DynamicArr
 
   override def iterable: Iterable[ItemT] = {
     val buf = new scala.collection.mutable.ArrayBuffer[ItemT](array.size)
-    var i = 0
+    var i   = 0
     while (i < array.size) {
       buf += array(i)
       i += 1

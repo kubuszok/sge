@@ -13,7 +13,8 @@ package highlight
 import sge.utils.DynamicArray
 import sge.visui.widget.HighlightTextArea
 
-/** @author Kotcrab
+/** @author
+  *   Kotcrab
   * @since 1.1.2
   */
 trait HighlightRule {

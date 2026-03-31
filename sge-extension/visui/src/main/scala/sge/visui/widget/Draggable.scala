@@ -19,7 +19,6 @@ import sge.scenes.scene2d.actions.Actions
 import sge.scenes.scene2d.utils.Disableable
 import sge.utils.Nullable
 
-
 /** Draws copies of dragged actors which have this listener attached.
   * @author
   *   MJ
@@ -29,15 +28,15 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
   import Draggable._
 
   // Settings.
-  private var blockInput:          Boolean       = BLOCK_INPUT
-  private var invisibleWhenDragged: Boolean      = INVISIBLE_ON_DRAG
-  private var keepWithinParent:    Boolean       = KEEP_WITHIN_PARENT
-  private var _deadzoneRadius:     Float         = 0f
-  private var fadingTime:          Float         = DEFAULT_FADING_TIME
-  private var movingTime:          Float         = DEFAULT_MOVING_TIME
-  private var _alpha:              Float         = DEFAULT_ALPHA
-  private var fadingInterpolation: Interpolation = Interpolation.fade
-  private var movingInterpolation: Interpolation = Interpolation.sineOut
+  private var blockInput:           Boolean       = BLOCK_INPUT
+  private var invisibleWhenDragged: Boolean       = INVISIBLE_ON_DRAG
+  private var keepWithinParent:     Boolean       = KEEP_WITHIN_PARENT
+  private var _deadzoneRadius:      Float         = 0f
+  private var fadingTime:           Float         = DEFAULT_FADING_TIME
+  private var movingTime:           Float         = DEFAULT_MOVING_TIME
+  private var _alpha:               Float         = DEFAULT_ALPHA
+  private var fadingInterpolation:  Interpolation = Interpolation.fade
+  private var movingInterpolation:  Interpolation = Interpolation.sineOut
 
   // Control variables.
   private val mimic:      MimicActor = new MimicActor()
@@ -54,11 +53,11 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
   /** @param actor will have this listener attached and all other [[Draggable]] listeners removed. */
   def attachTo(actor: Actor): Unit = {
     val listeners = actor.listeners
-    var i = listeners.size - 1
+    var i         = listeners.size - 1
     while (i >= 0) {
       listeners(i) match {
         case _: Draggable => listeners.removeIndex(i)
-        case _            => ()
+        case _ => ()
       }
       i -= 1
     }
@@ -68,34 +67,34 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
   def offsetX: Float = _offsetX
   def offsetY: Float = _offsetY
 
-  def alpha: Float = _alpha
-  def alpha_=(value: Float): Unit = _alpha = value
+  def alpha:                 Float = _alpha
+  def alpha_=(value: Float): Unit  = _alpha = value
 
-  def isBlockingInput: Boolean = blockInput
-  def setBlockInput(value: Boolean): Unit = blockInput = value
+  def isBlockingInput:               Boolean = blockInput
+  def setBlockInput(value: Boolean): Unit    = blockInput = value
 
-  def isInvisibleWhenDragged: Boolean = invisibleWhenDragged
-  def setInvisibleWhenDragged(value: Boolean): Unit = invisibleWhenDragged = value
+  def isInvisibleWhenDragged:                  Boolean = invisibleWhenDragged
+  def setInvisibleWhenDragged(value: Boolean): Unit    = invisibleWhenDragged = value
 
-  def isKeptWithinParent: Boolean = keepWithinParent
-  def setKeepWithinParent(value: Boolean): Unit = keepWithinParent = value
+  def isKeptWithinParent:                  Boolean = keepWithinParent
+  def setKeepWithinParent(value: Boolean): Unit    = keepWithinParent = value
 
-  def deadzoneRadius: Float = _deadzoneRadius
-  def deadzoneRadius_=(value: Float): Unit = _deadzoneRadius = value
+  def deadzoneRadius:                 Float = _deadzoneRadius
+  def deadzoneRadius_=(value: Float): Unit  = _deadzoneRadius = value
 
-  def getFadingTime: Float = fadingTime
-  def setFadingTime(value: Float): Unit = fadingTime = value
+  def getFadingTime:               Float = fadingTime
+  def setFadingTime(value: Float): Unit  = fadingTime = value
 
-  def getMovingTime: Float = movingTime
-  def setMovingTime(value: Float): Unit = movingTime = value
+  def getMovingTime:               Float = movingTime
+  def setMovingTime(value: Float): Unit  = movingTime = value
 
   def setMovingInterpolation(interp: Interpolation): Unit = movingInterpolation = interp
   def setFadingInterpolation(interp: Interpolation): Unit = fadingInterpolation = interp
 
-  def listener: Nullable[Draggable.DragListener] = _listener
-  def listener_=(l: Draggable.DragListener): Unit = _listener = Nullable(l)
+  def listener:                              Nullable[Draggable.DragListener] = _listener
+  def listener_=(l: Draggable.DragListener): Unit                             = _listener = Nullable(l)
 
-  override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = {
+  override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean =
     event.listenerActor match {
       case la if la.isDefined =>
         val actor = la.get
@@ -108,7 +107,6 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
         }
       case _ => false
     }
-  }
 
   protected def isValid(actor: Actor): Boolean =
     actor.stage.isDefined
@@ -116,7 +114,7 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
   protected def isDisabled(actor: Actor): Boolean =
     actor match {
       case d: Disableable => d.disabled
-      case _              => false
+      case _ => false
     }
 
   protected def attachMimic(actor: Actor, event: InputEvent, x: Float, y: Float): Unit = {
@@ -139,7 +137,7 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
     }
   }
 
-  protected def getStageCoordinates(event: InputEvent): Unit = {
+  protected def getStageCoordinates(event: InputEvent): Unit =
     if (keepWithinParent) {
       getStageCoordinatesWithinParent(event)
     } else if (_deadzoneRadius > 0f) {
@@ -147,7 +145,6 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
     } else {
       getStageCoordinatesWithOffset(event)
     }
-  }
 
   private def getStageCoordinatesWithDeadzone(event: InputEvent): Unit = {
     var handled = false
@@ -200,21 +197,22 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
     STAGE_COORDINATES.set(event.stageX, event.stageY)
   }
 
-  override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit = {
+  override def touchDragged(event: InputEvent, x: Float, y: Float, pointer: Int): Unit =
     if (isDragged) {
       getStageCoordinates(event)
       mimic.setPosition(MIMIC_COORDINATES.x, MIMIC_COORDINATES.y)
       _listener.foreach(_.onDrag(this, mimic.actor.get, STAGE_COORDINATES.x, STAGE_COORDINATES.y))
     }
-  }
 
-  override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit = {
+  override def touchUp(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Unit =
     if (isDragged) {
       removeBlocker()
       getStageCoordinates(event)
       mimic.setPosition(MIMIC_COORDINATES.x, MIMIC_COORDINATES.y)
-      if (_listener.isEmpty || (mimic.actor.isDefined && mimic.actor.get.stage.isDefined &&
-        _listener.get.onEnd(this, mimic.actor.get, STAGE_COORDINATES.x, STAGE_COORDINATES.y))) {
+      if (
+        _listener.isEmpty || (mimic.actor.isDefined && mimic.actor.get.stage.isDefined &&
+          _listener.get.onEnd(this, mimic.actor.get, STAGE_COORDINATES.x, STAGE_COORDINATES.y))
+      ) {
         // Drag end approved - fading out.
         addMimicHidingAction(Actions.fadeOut(Seconds(fadingTime), fadingInterpolation), fadingTime)
       } else {
@@ -222,7 +220,6 @@ class Draggable(private var _listener: Nullable[Draggable.DragListener])(using S
         addMimicHidingAction(Actions.moveTo(dragStartX, dragStartY, Seconds(movingTime), movingInterpolation), movingTime)
       }
     }
-  }
 
   /** @return true if some actor with this listener attached is currently dragged. */
   def isDragged: Boolean = mimic.actor.isDefined
@@ -264,11 +261,13 @@ object Draggable {
   private def blocker(using Sge): Actor = {
     if (_blocker.isEmpty) {
       val a = new Actor() {}
-      a.addListener(new InputListener() {
-      override def mouseMoved(event: InputEvent, x: Float, y: Float): Boolean = true
-      override def touchDown(event: InputEvent, x: Float, y: Float, pointer: Int, button: sge.Input.Button): Boolean = true
-      override def scrolled(event: InputEvent, x: Float, y: Float, amountX: Float, amountY: Float): Boolean = true
-      })
+      a.addListener(
+        new InputListener() {
+          override def mouseMoved(event: InputEvent, x: Float, y: Float):                                            Boolean = true
+          override def touchDown(event:  InputEvent, x: Float, y: Float, pointer: Int, button:    sge.Input.Button): Boolean = true
+          override def scrolled(event:   InputEvent, x: Float, y: Float, amountX: Float, amountY: Float):            Boolean = true
+        }
+      )
       _blocker = Nullable(a)
     }
     _blocker.get
@@ -294,8 +293,8 @@ object Draggable {
     val APPROVE: Boolean = true
 
     def onStart(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean
-    def onDrag(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Unit
-    def onEnd(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean
+    def onDrag(draggable:  Draggable, actor: Actor, stageX: Float, stageY: Float): Unit
+    def onEnd(draggable:   Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean
   }
 
   /** Default, empty implementation of [[DragListener]]. Approves all drag requests.
@@ -305,8 +304,8 @@ object Draggable {
     */
   class DragAdapter extends DragListener {
     override def onStart(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean = APPROVE
-    override def onDrag(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Unit = ()
-    override def onEnd(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean = APPROVE
+    override def onDrag(draggable:  Draggable, actor: Actor, stageX: Float, stageY: Float): Unit    = ()
+    override def onEnd(draggable:   Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean = APPROVE
   }
 
   /** Draws the chosen actor with modified alpha value in a custom position. Clears mimicked actor upon removing from the stage.
@@ -315,8 +314,8 @@ object Draggable {
     * @since 0.9.3
     */
   class MimicActor(using Sge) extends Actor {
-    private val LAST_POSITION: Vector2 = new Vector2()
-    var actor: Nullable[Actor] = Nullable.empty
+    private val LAST_POSITION: Vector2         = new Vector2()
+    var actor:                 Nullable[Actor] = Nullable.empty
 
     override def remove(): Boolean = {
       actor = Nullable.empty
@@ -324,17 +323,15 @@ object Draggable {
     }
 
     // Note: width/height are vars inherited from Actor; we update them when actor changes
-    def updateSize(): Unit = {
+    def updateSize(): Unit =
       actor.foreach { a => this.width = a.width; this.height = a.height }
-    }
 
-    override def draw(batch: Batch, parentAlpha: Float): Unit = {
+    override def draw(batch: Batch, parentAlpha: Float): Unit =
       actor.foreach { a =>
         LAST_POSITION.set(a.x, a.y)
         a.setPosition(x, y)
         a.draw(batch, color.a * parentAlpha)
         a.setPosition(LAST_POSITION.x, LAST_POSITION.y)
       }
-    }
   }
 }

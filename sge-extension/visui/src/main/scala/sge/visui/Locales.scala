@@ -19,11 +19,13 @@ import sge.visui.i18n.BundleText
   */
 object Locales {
   @SuppressWarnings(Array("deprecation"))
-  private var _locale:          Locale               = Locale.of("en")
-  private var commonBundle:     Nullable[I18NBundle] = Nullable.empty
-  private var buttonBarBundle:  Nullable[I18NBundle] = Nullable.empty
-  private var dialogsBundle:    Nullable[I18NBundle] = Nullable.empty
-  private var tabbedPaneBundle: Nullable[I18NBundle] = Nullable.empty
+  private var _locale:           Locale               = Locale.of("en")
+  private var commonBundle:      Nullable[I18NBundle] = Nullable.empty
+  private var buttonBarBundle:   Nullable[I18NBundle] = Nullable.empty
+  private var dialogsBundle:     Nullable[I18NBundle] = Nullable.empty
+  private var tabbedPaneBundle:  Nullable[I18NBundle] = Nullable.empty
+  private var colorPickerBundle: Nullable[I18NBundle] = Nullable.empty
+  private var fileChooserBundle: Nullable[I18NBundle] = Nullable.empty
 
   /** Returns common I18N bundle. If current bundle is null, a default bundle is set and returned. */
   def getCommonBundle(using Sge): I18NBundle = {
@@ -64,6 +66,24 @@ object Locales {
   /** Changes bundle used by ButtonBar, will not affect already created bars. If set to null then [[getButtonBarBundle]] will return default bundle.
     */
   def setButtonBarBundle(bundle: Nullable[I18NBundle]): Unit = buttonBarBundle = bundle
+
+  /** Returns I18N bundle used by ColorPicker, if current bundle is null, a default bundle is set and returned. */
+  def getColorPickerBundle(using Sge): I18NBundle = {
+    if (colorPickerBundle.isEmpty) colorPickerBundle = Nullable(getBundle("com/kotcrab/vis/ui/i18n/ColorPicker"))
+    colorPickerBundle.get
+  }
+
+  /** Changes bundle used by ColorPicker. If set to null then [[getColorPickerBundle]] will return default bundle. */
+  def setColorPickerBundle(bundle: Nullable[I18NBundle]): Unit = colorPickerBundle = bundle
+
+  /** Returns I18N bundle used by FileChooser, if current bundle is null, a default bundle is set and returned. */
+  def getFileChooserBundle(using Sge): I18NBundle = {
+    if (fileChooserBundle.isEmpty) fileChooserBundle = Nullable(getBundle("com/kotcrab/vis/ui/i18n/FileChooser"))
+    fileChooserBundle.get
+  }
+
+  /** Changes bundle used by FileChooser. If set to null then [[getFileChooserBundle]] will return default bundle. */
+  def setFileChooserBundle(bundle: Nullable[I18NBundle]): Unit = fileChooserBundle = bundle
 
   /** Changes current locale, this should be done when VisUI isn't loaded yet because changing this won't affect bundles that are already loaded.
     */

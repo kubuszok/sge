@@ -74,7 +74,7 @@ object ColorAttribute {
   val FogAlias:          String = "fogColor"
   val Fog:               Long   = Attribute.register(FogAlias)
 
-  protected var Mask: Long = Ambient | Diffuse | Specular | Emissive | Reflection | AmbientLight | Fog
+  private[sge] var Mask: Long = Ambient | Diffuse | Specular | Emissive | Reflection | AmbientLight | Fog
 
   def is(mask: Long): Boolean =
     (mask & Mask) != 0
