@@ -530,11 +530,15 @@ val `sge-controllers` = (projectMatrix in file("sge-extension/controllers"))
   )
   .jsPlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.jsSettings
+    settings = SgePlugin.jsSettings ++ Seq(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scala-js"
+    )
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/controllers")
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/controllers") ++ Seq(
+      Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "sge-extension" / "controllers" / "src" / "main" / "scalanative"
+    )
   )
 
 val `sge-gltf` = (projectMatrix in file("sge-extension/gltf"))

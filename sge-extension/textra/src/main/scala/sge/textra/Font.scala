@@ -30,7 +30,7 @@ import scala.util.boundary.break
 
 import sge.graphics.Color
 import sge.textra.utils.{ CaseInsensitiveIntMap, StringUtils }
-import sge.utils.Nullable
+import sge.utils.{ Json, Nullable, given_JsonCodec_Json }
 
 /** A replacement for libGDX's BitmapFont class, supporting additional markup to allow styling text with various effects. This includes the commonly-requested "faux bold" and oblique mode using one
   * font image; you don't need a bold and italic/oblique image separate from the book face. This also supports underline, strikethrough, subscript/superscript (and "midscript," for a height between
@@ -173,6 +173,14 @@ class Font {
   // Drop shadow offset
   var dropShadowOffsetX: Float = 1f
   var dropShadowOffsetY: Float = -2f
+
+  // Rendering fields (populated by loadFNT/loadJSON/loadSad or constructors that accept textures)
+
+  /** The parent TextureRegions that GlyphRegion images are drawn from (font atlas pages). */
+  var parents: ArrayBuffer[sge.graphics.g2d.TextureRegion] = ArrayBuffer.empty
+
+  /** Distance field shader for SDF/MSDF fonts; null for standard fonts. */
+  var shader: Nullable[sge.graphics.glutils.ShaderProgram] = Nullable.empty
 
   // Internal transient buffers
   protected val vertices:                 Array[Float]          = new Array[Float](20)
@@ -1103,6 +1111,953 @@ class Font {
     layout
   }
 
+  //// rendering section
+
+  /** Enables the appropriate distance field shader on the batch for proper rendering of SDF/MSDF fonts. Must be called before rendering distance field fonts. Does nothing for standard fonts.
+    * Calculates and sets the `u_smoothing` uniform based on current font scale.
+    */
+  def enableShader(batch: sge.graphics.g2d.Batch): Unit = {
+    val batchShader = batch.shader
+    val fontShader  = shader.getOrElse(null) // @nowarn — Java interop, comparing references
+    if (batchShader ne fontShader) {
+      distanceField match {
+        case DistanceFieldType.MSDF =>
+          batch.shader_=(shader)
+          val smoothing = 8f * actualCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)
+          batch.flush()
+          shader.foreach(_.setUniformf("u_smoothing", smoothing))
+          Font.smoothingValues.put(batch, smoothing)
+        case DistanceFieldType.SDF | DistanceFieldType.SDF_OUTLINE =>
+          batch.shader_=(shader)
+          val smoothing = 4f * actualCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)
+          batch.flush()
+          shader.foreach(_.setUniformf("u_smoothing", smoothing))
+          Font.smoothingValues.put(batch, smoothing)
+        case _ =>
+          batch.shader_=(Nullable.empty)
+          Font.smoothingValues.put(batch, 0f)
+      }
+    }
+  }
+
+  /** Resumes the distance field shader if it was paused. Unlike [[enableShader]], this only acts if the batch's shader is already the font's shader. Recalculates smoothing.
+    */
+  def resumeDistanceFieldShader(batch: sge.graphics.g2d.Batch): Unit = {
+    val fontShader = shader.getOrElse(null) // @nowarn — Java interop
+    if (fontShader != null && (batch.shader eq fontShader)) {
+      distanceField match {
+        case DistanceFieldType.MSDF =>
+          val smoothing = 8f * actualCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)
+          batch.flush()
+          shader.foreach(_.setUniformf("u_smoothing", smoothing))
+          Font.smoothingValues.put(batch, smoothing)
+        case DistanceFieldType.SDF | DistanceFieldType.SDF_OUTLINE =>
+          val smoothing = 4f * actualCrispness * Math.max(cellHeight / originalCellHeight, cellWidth / originalCellWidth)
+          batch.flush()
+          shader.foreach(_.setUniformf("u_smoothing", smoothing))
+          Font.smoothingValues.put(batch, smoothing)
+        case _ => ()
+      }
+    }
+  }
+
+  /** Temporarily disables the distance field shader on this batch, so non-distance-field textures can be drawn without artifacts. Call [[resumeDistanceFieldShader]] afterward.
+    */
+  def pauseDistanceFieldShader(batch: sge.graphics.g2d.Batch): Unit =
+    if (distanceField != DistanceFieldType.STANDARD) {
+      batch.shader_=(Nullable.empty)
+    }
+
+  /** Draws a pre-built vertex array (20 floats = 4 vertices * 5 elements: x, y, color, u, v) to the batch. This is the core low-level rendering primitive used by drawBlocks, drawBlockSequence,
+    * drawFancyLine, and drawGlyph.
+    */
+  protected def drawVertices(batch: sge.graphics.g2d.Batch, texture: sge.graphics.Texture, verts: Array[Float]): Unit =
+    batch.draw(texture, verts, 0, 20)
+
+  /** Draws a grid of rectangular color blocks at the given position using the monospace font's solid block character. Only useful for monospace fonts. Colors is [x][y] indexed; zero-alpha colors are
+    * skipped.
+    */
+  def drawBlocks(batch: sge.graphics.g2d.Batch, colors: Array[Array[Int]], x: Float, y: Float): Unit =
+    drawBlocks(batch, solidBlock, colors, x, y)
+
+  /** Draws a grid of rectangular color blocks at the given position using the specified block character. Only useful for monospace fonts. Colors is [x][y] indexed; zero-alpha colors are skipped.
+    */
+  def drawBlocks(batch: sge.graphics.g2d.Batch, blockChar: Char, colors: Array[Array[Int]], x: Float, y: Float): Unit = {
+    val block = mapping.getOrElse(blockChar.toInt, null)
+    if (block == null || block.texture == null) {
+      return // @nowarn — early return, guarding null texture
+    }
+    val parent = block.texture
+    val ipw    = 1.0f / parent.width.toFloat
+    val iph    = 1.0f / parent.height.toFloat
+    val bu     = block.u
+    val bv     = block.v
+    val bu2    = bu + ipw
+    val bv2    = bv + iph
+
+    val xStart = x + 3.90625e-3f // small offset to avoid line artifacts
+    val yStart = y + 3.90625e-3f
+    vertices(0) = xStart
+    vertices(1) = yStart
+    vertices(3) = bu
+    vertices(4) = bv
+    vertices(5) = xStart
+    vertices(6) = yStart + cellHeight
+    vertices(8) = bu
+    vertices(9) = bv2
+    vertices(10) = xStart + cellWidth
+    vertices(11) = yStart + cellHeight
+    vertices(13) = bu2
+    vertices(14) = bv2
+    vertices(15) = xStart + cellWidth
+    vertices(16) = yStart
+    vertices(18) = bu2
+    vertices(19) = bv
+
+    val xn = colors.length
+    val yn = colors(0).length
+    var xi = 0
+    while (xi < xn) {
+      var yi = 0
+      while (yi < yn) {
+        if ((colors(xi)(yi) & 254) != 0) {
+          val c = java.lang.Float.intBitsToFloat(Integer.reverseBytes(colors(xi)(yi) & -2))
+          vertices(2) = c; vertices(7) = c; vertices(12) = c; vertices(17) = c
+          drawVertices(batch, parent, vertices)
+        }
+        vertices(1) += cellHeight; vertices(16) += cellHeight
+        vertices(6) += cellHeight; vertices(11) += cellHeight
+        yi += 1
+      }
+      vertices(0) += cellWidth; vertices(5) += cellWidth
+      vertices(10) += cellWidth; vertices(15) += cellWidth
+      vertices(1) = yStart; vertices(16) = yStart
+      vertices(6) = yStart + cellHeight; vertices(11) = yStart + cellHeight
+      xi += 1
+    }
+  }
+
+  /** Draws blocks in a sequence specified by a float array, with groups of 4: startX, startY, sizeX, sizeY. Used to render box-drawing and block-element characters from a solid block region.
+    */
+  protected def drawBlockSequence(
+    batch:    sge.graphics.g2d.Batch,
+    sequence: Array[Float],
+    block:    sge.graphics.g2d.TextureRegion,
+    color:    Float,
+    x:        Float,
+    y:        Float,
+    width:    Float,
+    height:   Float,
+    rotation: Float
+  ): Unit = drawBlockSequence(batch, sequence, block, color, x, y, width, height, rotation, 1f)
+
+  /** Draws blocks in a sequence with optional breadth multiplier for box-drawing line thickness. */
+  protected def drawBlockSequence(
+    batch:    sge.graphics.g2d.Batch,
+    sequence: Array[Float],
+    block:    sge.graphics.g2d.TextureRegion,
+    color:    Float,
+    x:        Float,
+    y:        Float,
+    width:    Float,
+    height:   Float,
+    rotation: Float,
+    breadth:  Float
+  ): Unit = {
+    if (block.texture == null) {
+      return // @nowarn — early return, guarding null texture
+    }
+    val parent     = block.texture
+    val ipw        = 1f / parent.width.toFloat
+    val iph        = 1f / parent.height.toFloat
+    val halfWidth  = width * 0.5f
+    val halfHeight = height * 0.5f
+    val bu         = block.u
+    val bv         = block.v
+    val bu2        = bu + ipw
+    val bv2        = bv - iph
+    val sn         = sge.math.MathUtils.sinDeg(rotation)
+    val cs         = sge.math.MathUtils.cosDeg(rotation)
+
+    var b = 0
+    while (b < sequence.length) {
+      var startX = sequence(b)
+      var startY = sequence(b + 1)
+      var sizeX  = sequence(b + 2)
+      var sizeY  = sequence(b + 3)
+
+      if (breadth != 1f) {
+        val thinAcross = utils.BlockUtils.THIN_ACROSS * breadth
+        val wideAcross = utils.BlockUtils.WIDE_ACROSS * breadth
+
+        if (sizeX == utils.BlockUtils.THIN_ACROSS || sizeX == utils.BlockUtils.TWIN_ACROSS) sizeX = thinAcross
+        else if (sizeX == utils.BlockUtils.WIDE_ACROSS) sizeX = wideAcross
+        else if (startX == 0f) {
+          if (sizeX == utils.BlockUtils.THIN_OVER || sizeX == utils.BlockUtils.TWIN_OVER1 || sizeX == utils.BlockUtils.TWIN_OVER2) sizeX += thinAcross * 0.25f
+          else if (sizeX == utils.BlockUtils.WIDE_OVER) sizeX += wideAcross * 0.25f
+        } else if (startX > 0f) {
+          if (sizeX == utils.BlockUtils.THIN_OVER || sizeX == utils.BlockUtils.TWIN_OVER1 || sizeX == utils.BlockUtils.TWIN_OVER2) sizeX += thinAcross * 0.25f
+          else if (sizeX == utils.BlockUtils.WIDE_OVER) sizeX += wideAcross * 0.25f
+        }
+
+        if (sizeY == utils.BlockUtils.THIN_ACROSS || sizeY == utils.BlockUtils.TWIN_ACROSS) sizeY = thinAcross
+        else if (sizeY == utils.BlockUtils.WIDE_ACROSS) sizeY = wideAcross
+        else if (startY == 0f) {
+          if (sizeY == utils.BlockUtils.THIN_OVER || sizeY == utils.BlockUtils.TWIN_OVER1 || sizeY == utils.BlockUtils.TWIN_OVER2) sizeY += thinAcross * 0.25f
+          else if (sizeY == utils.BlockUtils.WIDE_OVER) sizeY += wideAcross * 0.25f
+        } else if (startY > 0f) {
+          if (sizeY == utils.BlockUtils.THIN_OVER || sizeY == utils.BlockUtils.TWIN_OVER1 || sizeY == utils.BlockUtils.TWIN_OVER2) sizeY += thinAcross * 0.25f
+          else if (sizeY == utils.BlockUtils.WIDE_OVER) sizeY += wideAcross * 0.25f
+        }
+
+        if (startX == utils.BlockUtils.THIN_START || startX == utils.BlockUtils.TWIN_START1 || startX == utils.BlockUtils.TWIN_START2) startX -= thinAcross * 0.25f
+        else if (startX == utils.BlockUtils.WIDE_START) startX -= wideAcross * 0.25f
+        if (startY == utils.BlockUtils.THIN_START || startY == utils.BlockUtils.TWIN_START1 || startY == utils.BlockUtils.TWIN_START2) startY -= thinAcross * 0.25f
+        else if (startY == utils.BlockUtils.WIDE_START) startY -= wideAcross * 0.25f
+      }
+
+      startX = startX * width - halfWidth
+      startY = startY * height - halfHeight
+      sizeX *= width
+      sizeY *= height
+
+      val p0x = startX
+      val p0y = startY + sizeY
+      val p1x = startX
+      val p1y = startY
+      val p2x = startX + sizeX
+      val p2y = startY
+
+      vertices(0) = x + cs * p0x - sn * p0y
+      vertices(1) = y + sn * p0x + cs * p0y
+      vertices(5) = x + cs * p1x - sn * p1y
+      vertices(6) = y + sn * p1x + cs * p1y
+      vertices(10) = x + cs * p2x - sn * p2y
+      vertices(11) = y + sn * p2x + cs * p2y
+      vertices(15) = vertices(0) - vertices(5) + vertices(10)
+      vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+      vertices(2) = color; vertices(3) = bu; vertices(4) = bv
+      vertices(7) = color; vertices(8) = bu; vertices(9) = bv2
+      vertices(12) = color; vertices(13) = bu2; vertices(14) = bv2
+      vertices(17) = color; vertices(18) = bu2; vertices(19) = bv
+
+      drawVertices(batch, parent, vertices)
+      b += 4
+    }
+  }
+
+  /** Draws a decorative underline pattern for special markup modes (ERROR, WARN, NOTE, CONTEXT, SUGGEST). Creates pixelated or wavy underline effects by repeatedly drawing tiny blocks in patterns.
+    */
+  protected def drawFancyLine(
+    batch:    sge.graphics.g2d.Batch,
+    mode:     Long,
+    x:        Float,
+    y:        Float,
+    width:    Float,
+    xPx:      Float,
+    yPx:      Float,
+    rotation: Float
+  ): Unit = {
+    val block = mapping.getOrElse(solidBlock.toInt, null)
+    if (block == null || block.texture == null) {
+      return // @nowarn — early return, guarding null texture
+    }
+    val parent = block.texture
+    val ipw    = 1f / parent.width.toFloat
+    val iph    = 1f / parent.height.toFloat
+    val bu     = block.u
+    val bv     = block.v
+    val bu2    = bu + ipw
+    val bv2    = bv + iph
+    val sn     = sge.math.MathUtils.sinDeg(rotation)
+    val cs     = sge.math.MathUtils.cosDeg(rotation)
+
+    val color =
+      if (mode == Font.ERROR) PACKED_ERROR_COLOR
+      else if (mode == Font.CONTEXT) PACKED_CONTEXT_COLOR
+      else if (mode == Font.WARN) PACKED_WARN_COLOR
+      else if (mode == Font.SUGGEST) PACKED_SUGGEST_COLOR
+      else PACKED_NOTE_COLOR
+    // TODO: multiplyAlpha with batch color alpha when ColorUtils is available
+    // val adjustedColor = ColorUtils.multiplyAlpha(color, batch.color.a)
+
+    var index  = 0
+    var startX = 0f
+    while (startX <= width) {
+      var shiftX = startX
+      var shiftY = 0f
+      if (mode == Font.ERROR) {
+        shiftY = (index & 1) * yPx
+      } else if (mode == Font.CONTEXT) {
+        shiftX -= (index & 2) * xPx
+        shiftY = -(index & 1) * yPx
+      } else if (mode == Font.WARN) {
+        shiftX += (~index & 1) * xPx
+        shiftY = (~index & 1) * yPx
+      } else if (mode == Font.SUGGEST) {
+        shiftX -= (index & (index >>> 1) & 1) * xPx
+        shiftY = -(index & (index >>> 1) & 1) * yPx
+      } else {
+        shiftY = (index >>> 1 & 1) * yPx
+      }
+      val p0x = shiftX
+      val p0y = shiftY + yPx
+      val p1x = shiftX
+      val p1y = shiftY
+      val p2x = shiftX + xPx
+      val p2y = shiftY
+
+      vertices(0) = x + cs * p0x - sn * p0y
+      vertices(1) = y + sn * p0x + cs * p0y
+      vertices(5) = x + cs * p1x - sn * p1y
+      vertices(6) = y + sn * p1x + cs * p1y
+      vertices(10) = x + cs * p2x - sn * p2y
+      vertices(11) = y + sn * p2x + cs * p2y
+      vertices(15) = vertices(0) - vertices(5) + vertices(10)
+      vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+      vertices(2) = color; vertices(3) = bu; vertices(4) = bv
+      vertices(7) = color; vertices(8) = bu; vertices(9) = bv2
+      vertices(12) = color; vertices(13) = bu2; vertices(14) = bv2
+      vertices(17) = color; vertices(18) = bu2; vertices(19) = bv
+
+      drawVertices(batch, parent, vertices)
+      startX += xPx
+      index += 1
+    }
+  }
+
+  /** Returns x rounded to integer position if [[integerPosition]] is true, otherwise returns x unchanged. */
+  protected def handleIntegerPosition(x: Float): Float =
+    if (integerPosition) Math.round(x).toFloat else x
+
+  /** Sets the quad position vertices (0,1,5,6,10,11,15,16) for a rotated quad from 3 corner offsets. The fourth corner (vertex 3 = index 15,16) is computed as v0 - v1 + v2.
+    */
+  private def setQuadVertices(
+    verts: Array[Float],
+    x:     Float,
+    y:     Float,
+    p0x:   Float,
+    p0y:   Float,
+    p1x:   Float,
+    p1y:   Float,
+    p2x:   Float,
+    p2y:   Float,
+    sin:   Float,
+    cos:   Float
+  ): Unit = {
+    verts(0) = x + cos * p0x - sin * p0y
+    verts(1) = y + sin * p0x + cos * p0y
+    verts(5) = x + cos * p1x - sin * p1y
+    verts(6) = y + sin * p1x + cos * p1y
+    verts(10) = x + cos * p2x - sin * p2y
+    verts(11) = y + sin * p2x + cos * p2y
+    verts(15) = verts(0) - verts(5) + verts(10)
+    verts(16) = verts(1) - verts(6) + verts(11)
+  }
+
+  /** Draws the specified glyph with a Batch at the given x, y position. The glyph contains multiple types of data packed into one long: bottom 16 bits store a char, bits above that store formatting
+    * (bold, underline, etc.), and the upper 32 bits store color as RGBA.
+    * @return
+    *   the distance in world units the drawn glyph uses up for width
+    */
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float): Float =
+    drawGlyph(batch, glyph, x, y, 0f, 1f, 1f, 0, 1f)
+
+  /** Draws the specified glyph with rotation.
+    * @return
+    *   the distance in world units the drawn glyph uses up for width
+    */
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float): Float =
+    drawGlyph(batch, glyph, x, y, rotation, 1f, 1f, 0, 1f)
+
+  /** Draws the specified glyph with rotation and sizing.
+    * @return
+    *   the distance in world units the drawn glyph uses up for width
+    */
+  def drawGlyph(batch: sge.graphics.g2d.Batch, glyph: Long, x: Float, y: Float, rotation: Float, sizingX: Float, sizingY: Float): Float =
+    drawGlyph(batch, glyph, x, y, rotation, sizingX, sizingY, 0, 1f)
+
+  /** Draws the specified glyph with full parameters: position, rotation, sizing, background color, and advance multiplier. This is the core glyph rendering method.
+    * @return
+    *   the distance in world units the drawn glyph uses up for width
+    */
+  def drawGlyph(
+    batch:             sge.graphics.g2d.Batch,
+    glyphIn:           Long,
+    xIn:               Float,
+    yIn:               Float,
+    rotation:          Float,
+    sizingXIn:         Float,
+    sizingYIn:         Float,
+    backgroundColor:   Int,
+    advanceMultiplier: Float
+  ): Float = {
+    var glyph   = glyphIn
+    val sizingX = sizingXIn
+    var sizingY = sizingYIn
+    val sin     = sge.math.MathUtils.sinDeg(rotation)
+    val cos     = sge.math.MathUtils.cosDeg(rotation)
+
+    var font: Font = null
+    family.foreach { fam => font = fam.connected((glyph >>> 16 & 15).toInt) }
+    if (font == null) font = this
+
+    var c        = (glyph & 0xffff).toChar
+    var squashed = false
+    if ((glyph & Font.ALTERNATE_MODES_MASK) == Font.SMALL_CAPS) {
+      val upper = Character.toUpperCase(c)
+      squashed = c != upper
+      c = upper
+      glyph = (glyph & 0xffffffffffff0000L) | c.toLong
+    }
+
+    val tr = font.mapping.getOrElse(c.toInt, null)
+    if (tr == null) return 0f
+
+    if (squashed) sizingY *= 0.75f
+
+    val batchColor    = batch.color
+    val batchAlpha    = batchColor.a
+    val batchAlpha2   = batchAlpha * batchAlpha
+    val batchAlpha3   = batchAlpha2 * batchAlpha
+    val batchAlpha1_5 = Math.sqrt(batchAlpha3).toFloat
+
+    val color = java.lang.Float.intBitsToFloat(
+      ((if ((glyph & Font.BOLD) != 0L) batchAlpha1_5 else batchAlpha) * (glyph >>> 33 & 127)).toInt << 25
+        | (batchColor.r * (glyph >>> 56)).toInt
+        | (batchColor.g * (glyph >>> 48 & 0xff)).toInt << 8
+        | (batchColor.b * (glyph >>> 40 & 0xff)).toInt << 16
+    )
+
+    val scale = 1f
+    var fsx:         Float = 0f
+    var fsy:         Float = 0f
+    var scaleXLocal: Float = 0f
+    var scaleYLocal: Float = 0f
+    if (c >= 0xe000 && c < 0xf800) {
+      fsx = font.cellHeight / tr.maxDimension * font.inlineImageStretch
+      fsy = fsx
+      scaleXLocal = scale * fsx
+      scaleYLocal = scaleXLocal
+    } else {
+      fsx = font.scaleX
+      fsy = font.scaleY
+      scaleXLocal = fsx * scale
+      scaleYLocal = fsy * scale
+    }
+    // osx/osy used by underline/strikethrough (TODO section)
+    @scala.annotation.unused
+    val osx = fsx * (scale + 1f) * 0.5f
+    @scala.annotation.unused
+    val osy             = fsy * (scale + 1f) * 0.5f
+    var centerX         = tr.xAdvance * scaleXLocal * advanceMultiplier * 0.5f
+    var centerY         = font.originalCellHeight * scaleYLocal * 0.5f
+    val scaleCorrection = font.descent * font.scaleY * 2f
+    var x               = xIn
+    var y               = yIn + scaleCorrection * scale
+
+    @scala.annotation.unused
+    val ox = x // used by underline/strikethrough (TODO section)
+    @scala.annotation.unused
+    val oy = y
+
+    val ix     = handleIntegerPosition(x + centerX)
+    val iy     = handleIntegerPosition(y + centerY)
+    val xShift = (x + centerX) - ix
+    val yShift = (y + centerY) - iy
+    x = handleIntegerPosition(ix - xShift)
+    y = handleIntegerPosition(iy - yShift)
+    centerX -= xShift * 0.5f
+    centerY -= yShift * 0.5f
+
+    // Box-drawing characters (offsetX is NaN)
+    if (java.lang.Float.isNaN(tr.offsetX)) {
+      // TODO: implement box-drawing character rendering via drawBlockSequence
+      return font.cellWidth
+    }
+
+    val tex = tr.texture
+    if (tex == null) return 0f
+
+    val scaledHeight = font.cellHeight * scale * sizingY
+    var x0           = 0f; var x1 = 0f; var x2 = 0f
+    var y0           = 0f; var y1 = 0f; var y2 = 0f
+    var w            = tr.regionWidth * scaleXLocal * sizingX
+    val xAdvance     = tr.xAdvance
+    var changedW     = xAdvance * scaleXLocal * advanceMultiplier
+
+    x += cellWidth * 0.5f
+    var xc = tr.offsetX * scaleXLocal * sizingX - cos * centerX - cellWidth * 0.5f
+
+    val trrh = tr.regionHeight.toFloat
+    var yt   = ((font.originalCellHeight - (trrh + tr.offsetY) + font.descent) * sizingY - font.descent) * scaleYLocal + sin * centerX - centerY
+
+    var h = trrh * scaleYLocal * sizingY
+
+    val u  = tr.u
+    val v  = tr.v
+    val u2 = tr.u2
+    val v2 = tr.v2
+
+    // Inline image adjustments
+    if (c >= 0xe000 && c < 0xf800) {
+      val stretchShift = (trrh * font.inlineImageStretch - trrh) * scaleXLocal * sizingX * 0.5f
+      val xch          = tr.offsetX * scaleXLocal * sizingX
+      xc -= xch + stretchShift
+      x += xch + stretchShift
+      val ych = tr.offsetY * scaleYLocal * sizingY
+      yt = (sin * scaledHeight - scaledHeight) * 0.5f - ych - stretchShift
+      y = oy + scaledHeight * 0.5f - ych
+    }
+
+    // Oblique
+    if ((glyph & Font.OBLIQUE) != 0L) {
+      val amount = h * obliqueStrength * 0.2f
+      x0 += amount; x1 -= amount; x2 -= amount
+    }
+
+    // Superscript/subscript/midscript
+    val script = glyph & Font.SUPERSCRIPT
+    if (script == Font.SUPERSCRIPT) {
+      w *= 0.5f; h *= 0.5f; yt = yt * 0.625f
+      y0 += scaledHeight * 0.375f; y1 += scaledHeight * 0.375f; y2 += scaledHeight * 0.375f
+      if (!font.isMono) changedW *= 0.5f
+    } else if (script == Font.SUBSCRIPT) {
+      w *= 0.5f; h *= 0.5f; yt = yt * 0.625f
+      y0 -= scaledHeight * 0.375f; y1 -= scaledHeight * 0.375f; y2 -= scaledHeight * 0.375f
+      if (!font.isMono) changedW *= 0.5f
+    } else if (script == Font.MIDSCRIPT) {
+      w *= 0.5f; h *= 0.5f; yt = yt * 0.625f
+      if (!font.isMono) changedW *= 0.5f
+    }
+
+    // Compute quad vertices
+    var p0x = xc + x0
+    val p0y = yt + y0 + h
+    var p1x = xc + x1
+    val p1y = yt + y1
+    var p2x = xc + x2 + w
+    val p2y = yt + y2
+
+    vertices(3) = u; vertices(4) = v
+    vertices(8) = u; vertices(9) = v2
+    vertices(13) = u2; vertices(14) = v2
+    vertices(18) = u2; vertices(19) = v
+
+    // TODO: Drop shadow, outlines (BLACK_OUTLINE), HALO, NEON, SHINY modes
+    // These require ColorUtils.multiplyAlpha/lerpColorsMultiplyAlpha which are not yet ported
+
+    // Draw the main glyph
+    vertices(2) = color; vertices(7) = color; vertices(12) = color; vertices(17) = color
+    vertices(0) = handleIntegerPosition(x + cos * p0x - sin * p0y)
+    vertices(1) = handleIntegerPosition(y + sin * p0x + cos * p0y)
+    vertices(5) = handleIntegerPosition(x + cos * p1x - sin * p1y)
+    vertices(6) = handleIntegerPosition(y + sin * p1x + cos * p1y)
+    vertices(10) = handleIntegerPosition(x + cos * p2x - sin * p2y)
+    vertices(11) = handleIntegerPosition(y + sin * p2x + cos * p2y)
+    vertices(15) = vertices(0) - vertices(5) + vertices(10)
+    vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+    drawVertices(batch, tex, vertices)
+
+    // Bold: draw extra shifted copies
+    if ((glyph & Font.BOLD) != 0L) {
+      val old0          = p0x; val old1 = p1x; val old2 = p2x
+      val leftStrength  = if (boldStrength >= 1f) boldStrength else 0f
+      val rightStrength = if (boldStrength >= 0f) 1f else 0f
+      if (rightStrength != 0f) {
+        p0x = old0 + rightStrength; p1x = old1 + rightStrength; p2x = old2 + rightStrength
+        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        drawVertices(batch, tex, vertices)
+        p0x = old0 + rightStrength * 0.5f; p1x = old1 + rightStrength * 0.5f; p2x = old2 + rightStrength * 0.5f
+        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        drawVertices(batch, tex, vertices)
+      }
+      if (leftStrength != 0f) {
+        p0x = old0 - leftStrength; p1x = old1 - leftStrength; p2x = old2 - leftStrength
+        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        drawVertices(batch, tex, vertices)
+        p0x = old0 - leftStrength * 0.5f; p1x = old1 - leftStrength * 0.5f; p2x = old2 - leftStrength * 0.5f
+        setQuadVertices(vertices, x, y, p0x, p0y, p1x, p1y, p2x, p2y, sin, cos)
+        drawVertices(batch, tex, vertices)
+      }
+    }
+
+    // TODO: Underline, strikethrough, fancy line effects (ERROR/WARN/NOTE/CONTEXT/SUGGEST)
+    // These are substantial (~200 lines) and depend on BlockUtils.BOX_DRAWING data and ColorUtils
+
+    changedW
+  }
+
+  /** Draws an entire Layout of text at the given position, left-aligned.
+    * @return
+    *   the width of the widest line drawn
+    */
+  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float): Float = {
+    val lines      = layout.lines
+    var drawn      = 0f
+    var lineY      = y
+    var advanceIdx = 0
+
+    var ln = 0
+    while (ln < lines.size) {
+      val line   = lines(ln)
+      val glyphs = line.glyphs
+      val lineW  = line.width
+      var cx     = x
+
+      var i = 0
+      while (i < glyphs.size) {
+        val glyph   = glyphs(i)
+        val advance = if (advanceIdx < layout.advances.size) layout.advances(advanceIdx) else 1f
+        advanceIdx += 1
+        val drawnW = drawGlyph(batch, glyph, cx, lineY, 0f, advance, advance, 0, 1f)
+        cx += drawnW
+        i += 1
+      }
+      if (lineW > drawn) drawn = lineW
+      lineY -= line.height
+      ln += 1
+    }
+    drawn
+  }
+
+  //// font loading section
+
+  /** Loads an AngelCode BMFont .fnt file, parsing glyph metrics and texture pages. Populates [[mapping]], [[parents]], [[kerning]], and all font metrics.
+    */
+  protected def loadFNT(fntHandle: sge.files.FileHandle, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using sge.Sge): Unit = {
+    val fnt = fntHandle.readString(Nullable("UTF-8"))
+    xAdjust = xAdj; yAdjust = yAdj; widthAdjust = wAdj; heightAdjust = hAdj
+
+    var idx = StringUtils.indexAfter(fnt, "padding=", 0)
+    StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, ",", idx + 1); idx })
+    StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, ",", idx + 1); idx })
+    StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, ",", idx + 1); idx })
+    StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "lineHeight=", idx + 1); idx })
+
+    StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "base=", idx); idx })
+    val baseline = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "pages=", idx); idx })
+    descent = 0
+
+    val pages = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "\npage id=", idx); idx })
+    if (parents.isEmpty) {
+      var pi = 0
+      while (pi < pages) {
+        val textureName = fnt.substring({ idx = StringUtils.indexAfter(fnt, "file=\"", idx); idx }, { idx = fnt.indexOf('"', idx); idx })
+        if (Font.canUseTextures) {
+          val textureHandle = summon[sge.Sge].files.internal(textureName)
+          if (textureHandle.exists()) {
+            val tex = new sge.graphics.Texture(textureHandle)
+            if (distanceField != DistanceFieldType.STANDARD)
+              tex.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+            parents += new sge.graphics.g2d.TextureRegion(tex)
+          } else throw new RuntimeException("Missing texture file: " + textureName)
+        }
+        pi += 1
+      }
+    }
+
+    val glyphCount = StringUtils.intFromDec(fnt, { idx = StringUtils.indexAfter(fnt, "\nchars count=", idx); idx }, { idx = StringUtils.indexAfter(fnt, "\nchar id=", idx); idx })
+    mapping = HashMap.empty
+    var minWidth = Float.MaxValue
+    var gi       = 0
+    while (gi < glyphCount) {
+      if (idx >= fnt.length) gi = glyphCount
+      else {
+        val c  = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " x=", idx); idx })
+        val gx = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " y=", idx); idx })
+        val gy = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " width=", idx); idx })
+        val gw = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " height=", idx); idx })
+        val gh = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " xoffset=", idx); idx })
+        val xo = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " yoffset=", idx); idx })
+        val yo = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " xadvance=", idx); idx })
+        var a  = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " page=", idx); idx })
+        val p  = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "\nchar id=", idx); idx })
+
+        if (c != 9608) minWidth = Math.min(minWidth, a + wAdj)
+        val gr = new GlyphRegion(parents(p), gx, gy, gw, gh)
+        if (c == 10) { a = 0; gr.offsetX = 0 }
+        else if (makeGridGlyphs && utils.BlockUtils.isBlockGlyph(c)) gr.offsetX = Float.NaN
+        else gr.offsetX = xo + xAdj
+        gr.offsetY = yo + yAdj
+        gr.xAdvance = a + wAdj
+        cellWidth = Math.max(a + wAdj, cellWidth)
+        cellHeight = Math.max(gh + hAdj, cellHeight)
+        if (gw * gh > 1) descent = Math.min(baseline - gh - yo, descent)
+        mapping.put(c, gr)
+        if (c == '[') mapping.put(2, gr)
+      }
+      gi += 1
+    }
+
+    // Kerning
+    idx = StringUtils.indexAfter(fnt, "\nkernings count=", 0)
+    if (idx < fnt.length) {
+      val kernings = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "\nkerning first=", idx); idx })
+      if (kernings >= 1) {
+        val kern = HashMap[Int, Float]()
+        var ki   = 0
+        while (ki < kernings) {
+          val first  = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " second=", idx); idx })
+          val second = StringUtils.intFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, " amount=", idx); idx })
+          val amount = StringUtils.floatFromDec(fnt, idx, { idx = StringUtils.indexAfter(fnt, "\nkerning first=", idx); idx })
+          kern.put(first << 16 | second, amount)
+          if (first == '[') kern.put(2 << 16 | second, amount)
+          if (second == '[') kern.put(first << 16 | 2, amount)
+          ki += 1
+        }
+        kerning = Nullable(kern)
+      }
+    }
+
+    finalizeFontCommon(makeGridGlyphs)
+    originalCellHeight = cellHeight - descent * 0.25f
+    cellHeight = originalCellHeight
+    isMono = minWidth == cellWidth && kerning.isEmpty
+  }
+
+  /** Loads a Structured JSON font file (from msdf-atlas-gen or fontwriter). Supports .json, .dat (LZB compressed) formats.
+    */
+  protected def loadJSON(jsonHandle: sge.files.FileHandle, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean): Unit = {
+    parents.clear()
+    parents += textureRegion
+    xAdjust = xAdj; yAdjust = yAdj; widthAdjust = wAdj; heightAdjust = hAdj
+
+    val jsonStr =
+      if (jsonHandle.extension == "dat") utils.LZBDecompression.decompressFromBytes(jsonHandle.readBytes())
+      else jsonHandle.readString(Nullable("UTF-8"))
+
+    val fnt  = sge.utils.readFromString[Json](jsonStr)
+    val root = jsonObj(fnt)
+
+    name = {
+      val n = jsonHandle.name; val di = n.indexOf('.'); if (di >= 0) n.substring(0, di) else n
+    }
+
+    val atlas  = jsonObj(root.getOrElse("atlas", emptyJsonObj))
+    val dfType = jsonStrOr(atlas, "type", "")
+
+    if (dfType == "msdf" || dfType == "mtsdf") { setDistanceField(DistanceFieldType.MSDF); setCrispness(jsonNumOr(atlas, "distanceRange", 8f) * 0.2f) }
+    else if (dfType == "sdf" || dfType == "psdf") { setDistanceField(DistanceFieldType.SDF); setCrispness(jsonNumOr(atlas, "distanceRange", 8f) * 0.2f) }
+    else setDistanceField(DistanceFieldType.STANDARD)
+
+    val size = jsonNumOr(atlas, "size", 16f)
+    descent = size * -0.25f
+    originalCellHeight = hAdj - descent + size; cellHeight = originalCellHeight
+    underY = 0.05f; strikeY = 0.15f; strikeBreadth = -0.375f; underBreadth = -0.375f
+    if (makeGridGlyphs) { underLength = 0f; strikeLength = 0f; underX = -0.3f; strikeX = -0.3f }
+    else { underLength = 0f; strikeLength = 0f; underX = 0f; strikeX = 0f }
+    fancyY = 2f
+
+    val glyphs = jsonArr(root.getOrElse("glyphs", emptyJsonArr))
+    mapping = HashMap.empty
+    var minWidth = Float.MaxValue
+    val regH     = textureRegion.regionHeight
+
+    for (current <- glyphs) {
+      val g = jsonObj(current)
+      val c = jsonIntOr(g, "unicode", 65535)
+      var a = jsonNumOr(g, "advance", 1f) * size
+
+      val ab = g.get("atlasBounds").map(jsonObj)
+      val pb = g.get("planeBounds").map(jsonObj)
+
+      val (gx, gy, gw, gh) = ab match {
+        case Some(m) =>
+          val l = jsonNumOr(m, "left", 0f); val r = jsonNumOr(m, "right", 0f)
+          val t = jsonNumOr(m, "top", 0f); val b  = jsonNumOr(m, "bottom", 0f)
+          (l, regH - t, r - l, regH - b - (regH - t))
+        case None => (0f, 0f, 0f, 0f)
+      }
+      val (xo, yo) = pb match {
+        case Some(m) => (jsonNumOr(m, "left", 0f) * size, size - jsonNumOr(m, "top", 0f) * size)
+        case None    => (0f, 0f)
+      }
+
+      if (c != 9608) minWidth = Math.min(minWidth, a + wAdj)
+      val gr = new GlyphRegion(textureRegion, gx, gy, gw, gh)
+      if (c == 10) { a = 0; gr.offsetX = 0 }
+      else if (makeGridGlyphs && utils.BlockUtils.isBlockGlyph(c)) gr.offsetX = Float.NaN
+      else gr.offsetX = xo + xAdj
+      gr.offsetY = yo + yAdj; gr.xAdvance = a + wAdj
+      cellWidth = Math.max(a + wAdj, cellWidth)
+      mapping.put(c, gr)
+      if (c == '[') mapping.put(2, gr)
+    }
+
+    val kernArr = jsonArr(root.getOrElse("kerning", emptyJsonArr))
+    if (kernArr.isEmpty) kerning = Nullable.empty
+    else {
+      val kern = HashMap[Int, Float]()
+      for (current <- kernArr) {
+        val k  = jsonObj(current)
+        val f  = jsonIntOr(k, "unicode1", 65535)
+        val s  = jsonIntOr(k, "unicode2", 65535)
+        val am = jsonNumOr(k, "advance", 0f)
+        kern.put(f << 16 | s, am)
+        if (f == '[') kern.put(2 << 16 | s, am)
+        if (s == '[') kern.put(f << 16 | 2, am)
+      }
+      kerning = Nullable(kern)
+    }
+
+    finalizeJsonFont(textureRegion, makeGridGlyphs, minWidth)
+  }
+
+  /** Loads a SadConsole .font configuration file, which defines a grid-based monospace font. */
+  protected def loadSad(prefix: String, fntName: String)(using app: sge.Sge): Unit = {
+    val fntHandle = app.files.internal(prefix + fntName)
+    if (!fntHandle.exists()) throw new RuntimeException("Missing font file: " + prefix + fntName)
+    val fnt  = sge.utils.readFromString[Json](fntHandle.readString(Nullable("UTF-8")))
+    val root = jsonObj(fnt)
+
+    val parent: sge.graphics.g2d.TextureRegion =
+      if (parents.nonEmpty) parents(0)
+      else {
+        val textureName   = jsonStrOr(root, "FilePath", "")
+        val textureHandle = app.files.internal(prefix + textureName)
+        if (!Font.canUseTextures) { val tr = new sge.graphics.g2d.TextureRegion(); parents += tr; tr }
+        else if (textureHandle.exists()) { val tr = new sge.graphics.g2d.TextureRegion(new sge.graphics.Texture(textureHandle)); parents += tr; tr }
+        else throw new RuntimeException("Missing texture file: " + prefix + textureName)
+      }
+
+    val columns = jsonIntOr(root, "Columns", 16)
+    val padding = jsonIntOr(root, "GlyphPadding", 0)
+    cellHeight = jsonNumOr(root, "GlyphHeight", 16f)
+    cellWidth = jsonNumOr(root, "GlyphWidth", 8f)
+    descent = Math.round(cellHeight * -0.25f).toFloat
+    val rows = (parent.regionHeight - padding) / (cellHeight.toInt + padding)
+    mapping = HashMap.empty
+    var yGrid = 0; var ch = 0
+    while (yGrid < rows) {
+      var xGrid = 0
+      while (xGrid < columns) {
+        val gr = new GlyphRegion(parent, xGrid * (cellWidth.toInt + padding) + padding, yGrid * (cellHeight.toInt + padding) + padding, cellWidth, cellHeight)
+        gr.offsetX = 0; gr.offsetY = descent; gr.xAdvance = if (ch == 10) 0 else cellWidth
+        mapping.put(ch, gr)
+        if (ch == '[') { if (mapping.contains(2)) mapping.put(rows * columns, mapping(2)); mapping.put(2, gr) }
+        xGrid += 1; ch += 1
+      }
+      yGrid += 1
+    }
+
+    solidBlock = jsonIntOr(root, "SolidGlyphIndex", 219).toChar
+    finalizeFontCommon(false)
+    integerPosition = true; isMono = true
+    underY += 0.375f; strikeY += 0.375f
+    inlineImageOffsetX = 0f; inlineImageOffsetY = 0f; inlineImageXAdvance = 0f; inlineImageStretch = 1f
+  }
+
+  // JSON AST helpers (for loadJSON/loadSad)
+  private def jsonObj(j: Json): Map[String, Json] = j match {
+    case Json.Obj(fields) => fields.toMap
+    case _                => Map.empty
+  }
+  private def jsonArr(j: Json): Seq[Json] = j match {
+    case Json.Arr(items) => items.toSeq
+    case _               => Seq.empty
+  }
+  private def jsonStr_(j: Json): String = j match {
+    case Json.Str(s) => s
+    case _           => ""
+  }
+  private def jsonNum(j: Json): Float = j match {
+    case Json.Num(n) => n.toFloat.getOrElse(0f)
+    case _           => 0f
+  }
+  private def jsonInt(j: Json): Int = j match {
+    case Json.Num(n) => n.toInt.getOrElse(0)
+    case _           => 0
+  }
+  private def jsonNumOr(m: Map[String, Json], key: String, default: Float): Float =
+    m.get(key).map(jsonNum).getOrElse(default)
+  private def jsonIntOr(m: Map[String, Json], key: String, default: Int): Int =
+    m.get(key).map(jsonInt).getOrElse(default)
+  private def jsonStrOr(m: Map[String, Json], key: String, default: String): String =
+    m.get(key).map(jsonStr_).getOrElse(default)
+  private val emptyJsonObj: Json = Json.Obj(sge.utils.JsonObject.empty)
+  private val emptyJsonArr: Json = Json.Arr(Vector.empty)
+
+  /** Common finalization: sets up space, newline, zwsp, solidBlock, defaultValue. */
+  private def finalizeFontCommon(@scala.annotation.unused makeGridGlyphs: Boolean): Unit = {
+    var space = mapping.getOrElse(' '.toInt, null)
+    if (space == null) {
+      val guess = mapping.getOrElse('l'.toInt, null)
+      if (guess == null) throw new RuntimeException("Cannot create a font without space or 'l' to guess at space metrics.")
+      space = new GlyphRegion(guess, 0, 0, 0, 0); space.xAdvance = guess.xAdvance; space.offsetX = 0; space.offsetY = 0
+      mapping.put(' '.toInt, space)
+    }
+    mapping.put('\r'.toInt, space)
+    val zwSpace = new GlyphRegion(space.offsetX, space.offsetY, 0f)
+    if (space.texture != null) zwSpace.setRegion(space)
+    mapping.put('\u200b'.toInt, zwSpace)
+    mapping.get('\n'.toInt) match {
+      case Some(gr) => if (Font.canUseTextures) { gr.setRegion(0, 0, 0, 0) }; gr.xAdvance = 0f
+      case None     =>
+        val nl = new GlyphRegion(zwSpace); if (Font.canUseTextures) { nl.setRegion(0, 0, 0, 0) }; nl.xAdvance = 0
+        mapping.put('\n'.toInt, nl)
+    }
+    if (!mapping.contains(solidBlock.toInt)) solidBlock = '\uffff'
+    defaultValue = mapping.getOrElse(' '.toInt, mapping.valuesIterator.next())
+    originalCellWidth = cellWidth; originalCellHeight = cellHeight
+    inlineImageOffsetX = 0f; inlineImageOffsetY = 0f; inlineImageXAdvance = 0f; inlineImageStretch = 1f
+  }
+
+  /** Finalization for loadJSON: solid block from texture corner, grid glyphs. */
+  private def finalizeJsonFont(textureRegion: sge.graphics.g2d.TextureRegion, makeGridGlyphs: Boolean, minWidth: Float): Unit = {
+    var space = mapping.getOrElse(' '.toInt, null)
+    if (space == null) {
+      val guess = mapping.getOrElse('l'.toInt, null)
+      if (guess == null) throw new RuntimeException("Cannot create a font without space or 'l' to guess at space metrics.")
+      space = new GlyphRegion(guess, 0, 0, 0, 0); space.xAdvance = guess.xAdvance; space.offsetX = 0; space.offsetY = 0
+      mapping.put(' '.toInt, space)
+    }
+    mapping.put('\r'.toInt, space)
+    val zwSpace = new GlyphRegion(space.offsetX, space.offsetY, 0f)
+    if (space.texture != null) zwSpace.setRegion(space)
+    mapping.put('\u200b'.toInt, zwSpace)
+    mapping.get('\n'.toInt) match {
+      case Some(gr) => if (Font.canUseTextures) { gr.setRegion(0, 0, 0, 0) }; gr.xAdvance = 0f
+      case None     =>
+        val nl = new GlyphRegion(zwSpace); if (Font.canUseTextures) { nl.setRegion(0, 0, 0, 0) }; nl.xAdvance = 0
+        mapping.put('\n'.toInt, nl)
+    }
+    solidBlock = '\u2588'
+    if (makeGridGlyphs) {
+      val block = new GlyphRegion(
+        new sge.graphics.g2d.TextureRegion(textureRegion, textureRegion.regionWidth - 2, textureRegion.regionHeight - 2, 1, 1),
+        0,
+        cellHeight,
+        cellWidth
+      )
+      mapping.put(solidBlock.toInt, block)
+      var bi = 0x2500;
+      while (bi < 0x2500 + utils.BlockUtils.ALL_BLOCK_CHARS.length) {
+        if (utils.BlockUtils.isBlockGlyph(bi)) mapping.put(bi, new GlyphRegion(block, Float.NaN, cellHeight, cellWidth))
+        bi += 1
+      }
+    } else if (!mapping.contains(solidBlock.toInt)) {
+      mapping.put(
+        solidBlock.toInt,
+        new GlyphRegion(
+          new sge.graphics.g2d.TextureRegion(textureRegion, textureRegion.regionWidth - 2, textureRegion.regionHeight - 2, 1, 1),
+          0,
+          cellHeight,
+          cellWidth
+        )
+      )
+    }
+    defaultValue = mapping.getOrElse(' '.toInt, mapping.valuesIterator.next())
+    originalCellWidth = cellWidth; originalCellHeight = cellHeight
+    if (textureRegion.texture != null) textureRegion.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    isMono = minWidth == cellWidth && kerning.isEmpty
+    integerPosition = false
+    inlineImageOffsetX = 0f; inlineImageOffsetY = 0f; inlineImageXAdvance = 0f; inlineImageStretch = 1f
+  }
+
   def close(): Unit = {
     // Rendering resources would be released here
   }
@@ -1122,6 +2077,10 @@ object Font {
 
   import scala.util.boundary
   import scala.util.boundary.break
+
+  /** Tracks the current u_smoothing uniform value per Batch, used by distance field shader management. */
+  private val smoothingValues: java.util.IdentityHashMap[sge.graphics.g2d.Batch, java.lang.Float] =
+    new java.util.IdentityHashMap(8)
 
   //// Style bit flags, stored in the upper 32 bits of a glyph long
 
@@ -1354,24 +2313,45 @@ object Font {
 
   //// Inner classes
 
-  /** Describes the region of a glyph in a larger TextureRegion. */
+  /** Describes the region of a glyph in a larger TextureRegion, carrying both texture coordinates (inherited from TextureRegion) and glyph-specific offset/advance metrics.
+    */
   class GlyphRegion(
     var offsetX:  Float,
     var offsetY:  Float,
     var xAdvance: Float
-  ) {
-    // In the full implementation, this would extend TextureRegion.
-    // For now, this carries the metric data needed by markup processing and effects.
-    private var regionWidth:  Int = 0
-    private var regionHeight: Int = 0
+  ) extends sge.graphics.g2d.TextureRegion() {
 
-    def getRegionWidth:  Int = regionWidth
-    def getRegionHeight: Int = regionHeight
+    /** Creates a GlyphRegion from a parent TextureRegion with the given offsets and advance. Copies the texture and UV coordinates from the parent.
+      */
+    def this(textureRegion: sge.graphics.g2d.TextureRegion, offsetX: Float, offsetY: Float, xAdvance: Float) = {
+      this(offsetX, offsetY, xAdvance)
+      if (textureRegion.texture != null)
+        setRegion(textureRegion)
+    }
 
-    def setRegionWidth(w:  Int): Unit = regionWidth = w
-    def setRegionHeight(h: Int): Unit = regionHeight = h
+    /** Creates a GlyphRegion from a parent TextureRegion with default offsets (0, 0) and xAdvance equal to the region's width.
+      */
+    def this(textureRegion: sge.graphics.g2d.TextureRegion) =
+      this(textureRegion, 0f, 0f, textureRegion.regionWidth.toFloat)
 
-    def flip(x: Boolean, y: Boolean): Unit = {
+    /** Creates a GlyphRegion from a parent TextureRegion with specific pixel bounds. Useful for constructing glyphs from a font atlas grid.
+      */
+    def this(textureRegion: sge.graphics.g2d.TextureRegion, x: Float, y: Float, width: Float, height: Float) = {
+      this(0f, 0f, width)
+      if (textureRegion.texture != null)
+        setRegion(textureRegion, Math.round(x), Math.round(y), Math.round(width), Math.round(height))
+    }
+
+    /** Copies another GlyphRegion (texture coordinates + metrics). */
+    def this(other: GlyphRegion) = {
+      this(other.offsetX, other.offsetY, other.xAdvance)
+      if (other.texture != null)
+        setRegion(other)
+    }
+
+    /** Flips the glyph region, adjusting offsets accordingly. */
+    override def flip(x: Boolean, y: Boolean): Unit = {
+      super.flip(x, y)
       if (x) { offsetX = -offsetX; xAdvance = -xAdvance }
       if (y) offsetY = -offsetY
     }
