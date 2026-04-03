@@ -20,7 +20,7 @@ env:
   JAVA_DISTRIBUTION: "zulu"
   NODE_VERSION: "22"
   # Native component provider versions (from sge-native-components + sbt-multi-arch-release repos)
-  NATIVE_COMPONENTS_VERSION: "a21ee8a0ef027402662db9dbde85cedc834b608a-SNAPSHOT"
+  NATIVE_COMPONENTS_VERSION: "cfa340140de841e1fe29c87edd9277a0766a8eed-SNAPSHOT"
   SONATYPE_SNAPSHOTS: "https://central.sonatype.com/repository/maven-snapshots"
 
 jobs:
@@ -97,9 +97,9 @@ jobs:
           PLATFORM="${{ matrix.platform }}"
           BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
 
-          # Download and extract panama-sge-ops-provider
-          OPS_JAR="/tmp/panama-sge-ops.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          # Download and extract panama-sge-core-provider
+          OPS_JAR="/tmp/panama-sge-core.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && cd -
           cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
 
@@ -107,6 +107,18 @@ jobs:
           ANGLE_JAR="/tmp/panama-angle.jar"
           curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           cd /tmp && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && cd -
+          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
+
+          # Download and extract panama-sge-freetype-provider
+          FT_JAR="/tmp/panama-sge-freetype.jar"
+          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$FT_JAR" "native/${PLATFORM}/" && cd -
+          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
+
+          # Download and extract panama-sge-physics-provider
+          PHYS_JAR="/tmp/panama-sge-physics.jar"
+          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$PHYS_JAR" "native/${PLATFORM}/" && cd -
           cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
 
           echo "=== Extracted JVM native libs ==="
@@ -199,40 +211,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-          # libobjc stub: @link("objc") is emitted unconditionally but libobjc only exists on macOS
-          STUB_DIR="/usr/local/lib"
-          printf 'void *sel_registerName(const char *s) { return (void*)0; }\nvoid *objc_msgSend(void *self, void *sel, ...) { return (void*)0; }\nvoid *objc_getClass(const char *name) { return (void*)0; }\n' > /tmp/objc_stub.c
-          clang -c /tmp/objc_stub.c -o /tmp/objc_stub.o
-          sudo ar rcs "$STUB_DIR/libobjc.a" /tmp/objc_stub.o
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
         run: choco install llvm --yes
-
-      - name: Create Windows stub libraries
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          # Provider JARs handle sge_native_ops. But Windows needs stub .lib files
-          # for curl/idn2 (sttp @link annotations) since there's no real static curl.
-          DEST="sge-deps/native-components/target/release"
-          mkdir -p "$DEST"
-          # Download sge_native_ops.dll.lib from provider
-          OPS_JAR="/tmp/sn-sge-ops.jar"
-          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/scala-native-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/scala-native-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$OPS_JAR" "native/${{ matrix.platform }}/" && cd -
-          cp /tmp/native/${{ matrix.platform }}/* "$DEST/" 2>/dev/null || true
-          SRC="$DEST/sge_native_ops.lib"
-          if [ -f "$SRC" ]; then
-            for lib in sge_audio freetype glfw glfw3 EGL GLESv2; do
-              cp "$SRC" "$DEST/${lib}.lib"
-            done
-            printf '#include <stdlib.h>\n#include <string.h>\nint idn2_to_ascii_8z(const char *i, char **o, int f) { if(o) *o=_strdup(i?i:""); return 0; }\nconst char *idn2_strerror(int r) { return "stub"; }\nvoid idn2_free(void *p) { free(p); }\nint idn2_lookup_u8(const void *s, void *d, int f) { return 0; }\n' > /tmp/idn2_stub.c
-            clang -c /tmp/idn2_stub.c -o /tmp/idn2_stub.obj
-            llvm-lib /tmp/idn2_stub.obj /out:"$DEST/idn2.lib"
-            cp "$DEST/idn2.lib" "$DEST/curl.lib"
-            echo "Created stub .lib files"
-          fi
 
       - name: Run Scala Native tests
         run: sbt 'sgeNative/test'
@@ -260,8 +242,8 @@ jobs:
       - name: Extract Android native libs from provider JAR
         shell: bash
         run: |
-          ANDROID_JAR="/tmp/android-sge-ops.jar"
-          curl -fSL -o "$ANDROID_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/android-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/android-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          ANDROID_JAR="/tmp/android-sge-core.jar"
+          curl -fSL -o "$ANDROID_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/android-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/android-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           jar xf "$ANDROID_JAR" native/
           # Move to the expected layout for AndroidBuild
           for entry in native/android-*; do
@@ -280,13 +262,18 @@ jobs:
       - name: Extract JVM native libs for publishM2
         shell: bash
         run: |
-          OPS_JAR="/tmp/panama-sge-ops.jar"
-          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
+          OPS_JAR="/tmp/panama-sge-core.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          FT_JAR="/tmp/panama-sge-freetype.jar"
+          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          PHYS_JAR="/tmp/panama-sge-physics.jar"
+          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           DEST="sge-deps/native-components/target/cross"
           mkdir -p "$DEST"
-          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
           cp -r /tmp/native/* "$DEST/"
           rm -rf /tmp/native
           # Also copy to release dir for host platform
@@ -381,13 +368,18 @@ jobs:
       - name: Extract JVM native libs for publishM2
         shell: bash
         run: |
-          OPS_JAR="/tmp/panama-sge-ops.jar"
-          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
+          OPS_JAR="/tmp/panama-sge-core.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           ANGLE_JAR="/tmp/panama-angle.jar"
-          curl -fSL -o "$ANGLE_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          FT_JAR="/tmp/panama-sge-freetype.jar"
+          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          PHYS_JAR="/tmp/panama-sge-physics.jar"
+          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           DEST="sge-deps/native-components/target/cross"
           mkdir -p "$DEST"
-          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
           cp -r /tmp/native/* "$DEST/"
           rm -rf /tmp/native
           mkdir -p sge-deps/native-components/target/release
@@ -456,11 +448,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-          # libobjc stub: @link("objc") is emitted unconditionally but libobjc only exists on macOS
-          STUB_DIR="/usr/local/lib"
-          printf 'void *sel_registerName(const char *s) { return (void*)0; }\nvoid *objc_msgSend(void *self, void *sel, ...) { return (void*)0; }\nvoid *objc_getClass(const char *name) { return (void*)0; }\n' > /tmp/objc_stub.c
-          clang -c /tmp/objc_stub.c -o /tmp/objc_stub.o
-          sudo ar rcs "$STUB_DIR/libobjc.a" /tmp/objc_stub.o
 
       - name: Extract JVM native libs from provider JARs
         shell: bash
@@ -469,16 +456,20 @@ jobs:
           mkdir -p "$DEST"
           PLATFORM="${{ matrix.platform }}"
           BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
-          OPS_JAR="/tmp/panama-sge-ops.jar"
-          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          OPS_JAR="/tmp/panama-sge-core.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-core-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-core-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
           ANGLE_JAR="/tmp/panama-angle.jar"
           curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
-          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && cd -
+          FT_JAR="/tmp/panama-sge-freetype.jar"
+          curl -fSL -o "$FT_JAR" "${BASE_URL}/panama-sge-freetype-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-freetype-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          PHYS_JAR="/tmp/panama-sge-physics.jar"
+          curl -fSL -o "$PHYS_JAR" "${BASE_URL}/panama-sge-physics-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-physics-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && jar xf "$FT_JAR" "native/${PLATFORM}/" && jar xf "$PHYS_JAR" "native/${PLATFORM}/" && cd -
           cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
           # Also need cross dir for JVM JAR packaging
           CROSS_DEST="sge-deps/native-components/target/cross"
           mkdir -p "$CROSS_DEST"
-          cd /tmp && rm -rf native && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cd /tmp && rm -rf native && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && jar xf "$FT_JAR" native/ && jar xf "$PHYS_JAR" native/ && cd -
           cp -r /tmp/native/* "$CROSS_DEST/"
           rm -rf /tmp/native
 

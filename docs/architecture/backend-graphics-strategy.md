@@ -48,23 +48,21 @@ pre-built ANGLE binaries for Windows (32/64), Linux (64), macOS (x64/arm64).
 all Metal backend code into mainline ANGLE (June 2021). Mainline ANGLE now has
 complete ES 3.1 on Metal, surpassing MetalANGLE's ~90% ES 3.0 coverage.
 
-### Why Panama (replacing JNI)
+### Panama FFM (all JVM platforms)
 
 Project Panama's Foreign Function & Memory API (java.lang.foreign) provides
 zero-boilerplate native function calls from the JVM. Finalized in JDK 22;
-SGE targets JDK 23+ for distribution (all 6 desktop platforms including
+SGE targets JDK 25+ for distribution (all 6 desktop platforms including
 Windows ARM64).
 
-Benefits over JNI:
-- No Java native method declarations needed
-- No C/Rust JNI bridge code (eliminates 583 lines of `jni_bridge.rs`)
-- Same C ABI functions called by both JVM (Panama) and Scala Native (@extern)
-- No `jni` Rust crate dependency
-- Better performance (no JNI overhead for simple calls)
+On Android, PanamaPort (com.v7878.foreign) provides the same API on ART.
+All platforms share the same `PanamaProvider` abstraction and C ABI exports:
+- No JNI anywhere — eliminated entirely
+- Same C ABI functions called by JVM (Panama), Android (PanamaPort), and Scala Native (@extern)
 - Type-safe memory access via `MemorySegment`
 
-The Rust library already exports C ABI functions (`sge_copy_bytes`,
-`sge_transform_v4m4`, etc.) for Scala Native. Panama calls these same functions.
+The Rust library exports C ABI functions (`sge_copy_bytes`,
+`sge_transform_v4m4`, etc.) consumed by all platforms.
 
 ### Why eliminate LWJGL
 
@@ -141,15 +139,14 @@ Project Panama (`java.lang.foreign`) is NOT available on Android. Android uses A
 | Desktop JVM | Panama FFM | JDK 22+, zero-boilerplate |
 | Scala Native | @extern C FFI | Desktop + iOS (future) |
 | Scala.js | JS interop | Pure Scala fallback |
-| Android | JNI (traditional) | ART doesn't support Panama |
+| Android | PanamaPort (com.v7878.foreign) | Panama FFM backport for ART |
 
-The Rust library keeps the JNI bridge behind an `android` feature flag for this
-purpose. The same core Rust functions are called by all three mechanisms (Panama,
-@extern, JNI) — only the marshaling layer differs.
+The same core Rust C ABI functions are called by all mechanisms (Panama,
+PanamaPort, @extern) — only the FFM provider implementation differs.
 
 ### Performance
 
 - ANGLE overhead vs native GL: ~5-15% (well-optimized, Chrome default)
 - Metal backend on macOS: faster than deprecated native OpenGL
-- Panama vs JNI: comparable or better (no marshaling overhead for primitives)
+- Panama FFM: zero marshaling overhead for primitives
 - Scala.js Wasm: ~30% faster than JS for Scala-dominated computation

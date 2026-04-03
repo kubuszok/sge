@@ -9,7 +9,7 @@ All native ops are in `sge.platform` with `private[sge]` visibility.
 | **JVM** | Rust via Panama FFM | `BufferOpsPanama.scala` / `ETC1OpsPanama.scala` → `sge_native_ops` library |
 | **Scala.js** | Pure Scala | `BufferOpsJs.scala` / `ETC1OpsJs.scala` |
 | **Scala Native** | Rust via C ABI | `@link("sge_native_ops") @extern` bindings |
-| **Android** | Rust via JNI | `jni_bridge.rs` behind `android` feature flag |
+| **Android** | Rust via PanamaPort | `PanamaPortProvider` → `com.v7878.foreign` (Panama FFM backport for ART) |
 
 ## Package Structure
 
@@ -33,24 +33,35 @@ JDK-version and Android-specific code is isolated into three companion modules:
 |--------|-----|---------|
 | `sge-jvm-platform-api` | 17 | `PanamaProvider` trait + Android ops interfaces |
 | `sge-jvm-platform-jdk` | 22+ | `JdkPanama` — `java.lang.foreign` implementation |
-| `sge-jvm-platform-android` | 17 | `PanamaPortProvider` + Android ops (conditional on android.jar) |
+| `sge-jvm-platform-android` | 17 | `PanamaPortProvider` — `com.v7878.foreign` implementation (Panama FFM backport) |
 
 All three are merged into the sge JVM JAR via `packageBin/mappings` (not `dependsOn`
 — avoids circular dependency). Runtime detection in `Panama.scala` uses
 `Class.forName` + reflection to select the provider.
 
-## Rust Library (native-components)
+Both desktop and Android use the same `PanamaProvider` abstraction — only the
+underlying FFM implementation differs (`java.lang.foreign` vs `com.v7878.foreign`).
 
-The Rust library (`native-components/`) provides the compute implementations:
+## Rust Libraries (sge-native-components)
 
-- **`etc1.rs`** — ETC1 texture compression codec (ported from C), with C ABI exports (`etc1_*`)
-- **`buffer_ops.rs`** — Memory copy, vertex transforms, vertex find, memory management, with C ABI exports (`sge_*`)
-- **`jni_bridge.rs`** — JNI exports for Android only (`#[cfg(feature = "android")]`)
+The Rust workspace (`native-components/`) provides compute implementations as
+three separate libraries:
+
+### Core (`core/` → `libsge_native_ops`)
+- **`etc1.rs`** — ETC1 texture compression codec, C ABI exports (`etc1_*`, `sge_pkm_*`)
+- **`buffer_ops.rs`** — Memory copy, vertex transforms, vertex find, C ABI exports (`sge_*`)
+- **`audio.rs`** — Audio C ABI stubs (miniaudio bridge built by `build.rs`)
+- **`gdx2d.rs`** — Image decoding via `image` crate, C ABI exports (`sge_image_*`)
+
+### FreeType (`freetype/` → `libsge_freetype`)
+- **`lib.rs`** — FreeType font rasterization bindings, C ABI exports (`sge_ft_*`)
+
+### Physics (`physics/` → `libsge_physics`)
+- **`lib.rs`** — 2D physics via Rapier2D, C ABI exports (`sge_phys_*`)
 
 Build and test:
 ```bash
-sge-dev native build              # cargo build --release (C ABI for Panama + Scala Native)
-sge-dev native build --android    # cargo build --release --features android (adds JNI bridge)
+sge-dev native build              # cargo build --release (all 3 crates)
 sge-dev native test               # cargo test
 ```
 
@@ -66,9 +77,9 @@ pub extern "C" fn sge_transform_v4m4(
 ) { ... }
 ```
 
-### Panama FFM Usage (JVM)
+### Panama FFM Usage (JVM + Android)
 
-The JVM implementations use `java.lang.foreign` to call C ABI functions directly:
+Both desktop JVM and Android use `PanamaProvider` to call C ABI functions directly:
 
 ```scala
 private val hTransformV4M4: MethodHandle = linker.downcallHandle(
@@ -77,18 +88,8 @@ private val hTransformV4M4: MethodHandle = linker.downcallHandle(
 )
 ```
 
-This eliminates JNI, the `jni` Rust crate, and Java `native` method declarations
-for desktop JVM. Requires JDK 23+ (Panama FFM finalized in JDK 22).
-
-### JNI Bridge (Android only)
-
-Android's ART runtime does not support Panama FFM. The JNI bridge (`jni_bridge.rs`)
-is retained behind the `android` Cargo feature flag:
-
-```rust
-#[cfg(feature = "android")]
-pub mod jni_bridge;
-```
+Desktop uses `java.lang.foreign` (JDK 22+), Android uses `com.v7878.foreign`
+(PanamaPort backport). No JNI anywhere — all platforms use the same C ABI exports.
 
 ## Core Integration
 
@@ -128,17 +129,15 @@ Encode operations return malloc-backed direct ByteBuffers via
 1. Add method to shared trait (`BufferOps.scala` or `ETC1Ops.scala`)
 2. Implement in Rust (`buffer_ops.rs` or `etc1.rs`)
 3. Add C ABI export (`#[no_mangle] pub extern "C" fn sge_*`)
-4. Add JNI export in `jni_bridge.rs` (for Android)
-5. Implement JVM Panama bridge (`BufferOpsJvm.scala` / `ETC1OpsJvm.scala`)
-6. Implement pure Scala fallback (`BufferOpsJs.scala` / `ETC1OpsJs.scala`)
-7. Implement Scala Native binding (`BufferOpsNative.scala` / `ETC1OpsNative.scala`)
-8. Add tests
-9. Run `sge-dev test unit` to verify JVM, `sge-dev test unit --js` for JS, `sge-dev test unit --native` for Native
+4. Implement JVM Panama bridge (`BufferOpsJvm.scala` / `ETC1OpsJvm.scala`)
+5. Implement pure Scala fallback (`BufferOpsJs.scala` / `ETC1OpsJs.scala`)
+6. Implement Scala Native binding (`BufferOpsNative.scala` / `ETC1OpsNative.scala`)
+7. Add tests
+8. Run `sge-dev test unit` to verify JVM, `sge-dev test unit --js` for JS, `sge-dev test unit --native` for Native
 
 ## Dependencies
 
 | Dependency | Version | Scope |
 |-----------|---------|-------|
 | `libc` (Rust) | 0.2 | Always (memory management C ABI) |
-| `jni` (Rust) | 0.21 | Optional (android feature) |
 | `munit` (Scala) | 1.2.3 | Test only |

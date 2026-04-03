@@ -3,12 +3,12 @@
 This file documents the licenses of third-party software bundled in or
 linked by SGE, as required by their respective licenses.
 
-## Vendored Native Libraries (compiled from source)
+## Vendored Native Libraries (compiled from source in sge-native-components repo)
 
 ### GLFW 3.4
 
   Website: https://www.glfw.org/
-  Source:  native-components/vendor/glfw/ (git submodule)
+  Source:  https://github.com/kubuszok/sge-native-components (vendor/glfw/ submodule)
   License: zlib/libpng license
 
   Copyright (c) 2002-2006 Marcus Geelnard
@@ -36,7 +36,7 @@ linked by SGE, as required by their respective licenses.
 ### miniaudio
 
   Website: https://miniaud.io/
-  Source:  native-components/vendor/miniaudio/ (git submodule)
+  Source:  https://github.com/kubuszok/sge-native-components (vendor/miniaudio/ submodule)
   License: Public domain (Unlicense) OR MIT-0
 
   Copyright 2023 David Reid

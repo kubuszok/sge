@@ -62,7 +62,7 @@ private[sge] object PlatformOps {
 }
 ```
 
-- **JVM**: Delegates to `BufferOpsBridge.java`/`ETC1Bridge.java` (JNI → Rust native library)
+- **JVM / Android**: Panama FFM downcall handles → Rust C ABI (`sge_native_ops` library)
 - **Scala.js**: Pure Scala fallback (no native code)
 - **Scala Native**: `@link("sge_native_ops") @extern` C ABI bindings to Rust
 

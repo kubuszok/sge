@@ -1,6 +1,6 @@
 // SGE FreeType — Panama-based implementation of FreetypeOps
 //
-// Calls Rust C ABI functions using the PanamaProvider abstraction.
+// Calls Rust C ABI functions from the sge_freetype library using the PanamaProvider abstraction.
 // Works on both Desktop JVM (JdkPanama) and Android (PanamaPortProvider).
 //
 // Migration notes:
@@ -22,17 +22,7 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val libName = System.mapLibraryName("sge_native_ops")
-    val libPath = System.getProperty("java.library.path", "")
-    val paths   = libPath.split(java.io.File.pathSeparator)
-    val found   = paths.iterator
-      .map(dir => java.nio.file.Path.of(dir, libName))
-      .find(java.nio.file.Files.exists(_))
-      .getOrElse(
-        throw new UnsatisfiedLinkError(
-          s"Cannot find $libName in java.library.path: $libPath"
-        )
-      )
+    val found = sge.platform.NativeLibLoader.load("sge_freetype")
     p.SymbolLookup.libraryLookup(found, p.Arena.global())
   }
 

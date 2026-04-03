@@ -33,7 +33,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 | `sge-extension/physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
 | `sge-extension/tools/` | TexturePacker CLI (JVM-only) |
 | `sge-build/` | sbt plugin (SgePlugin, AndroidBuild, packaging) |
-| `sge-deps/native-components/` | Rust native library (GLFW, miniaudio, FreeType FFI) |
+| `sge-deps/native-components/` | CI staging dir for provider JAR extraction (native libs built externally in sge-native-components repo) |
 | `sge-test/` | Tests: integration, regression, android-smoke, browser |
 | `demos/` | 10 feature demos (separate sub-build) |
 | `scalafix-rules/` | Custom Scalafix lint rules |
@@ -193,10 +193,10 @@ Each audited file gets a `Migration notes:` block in its header comment.
 **CI-specific mechanisms:**
 - Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
 - `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
-- `matrix.native` flag — controls which verify-release steps run per platform (native link, libobjc stub, static curl)
+- `matrix.native` flag — controls which verify-release steps run per platform (native link, static curl)
 - ANGLE shared libs downloaded in `build-native` via `sge-dev native angle cross-collect`
-- libobjc stub on Linux — no-op `objc_msgSend`/`sel_registerName` for macOS-only `@link("objc")`
-- Windows Native uses compiled C stub `.lib` files for idn2/curl (no real HTTP)
+- Native lib stubs (libobjc on Linux, companion .lib on Windows) are embedded in provider JARs
+- Windows curl uses MSVC-built static libs from kubuszok/curl-natives (real HTTP, not stubs)
 
 **Known CI limitations (excluded from pass/fail):**
 - Android: JSON_XML, FILEHANDLE_TYPES, TOUCH_DISPATCH, LIFECYCLE, CLIPBOARD

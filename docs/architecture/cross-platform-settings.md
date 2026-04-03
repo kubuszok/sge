@@ -135,14 +135,14 @@ lazy val desktopJvm = project.in(file("desktop-jvm"))
   .settings(
     name := "sge-desktop-jvm",
     Compile / mainClass := Some("sge.backend.jvm.Main"),
-    fork := true  // Required for System.loadLibrary (JNI) and proper stdout
+    fork := true  // Required for native library loading and proper stdout
   )
   .dependsOn(app.jvm(scala3))
 ```
 
 **Key settings:**
 
-- `fork := true` — required for JNI (`System.loadLibrary`) and ensures stdout
+- `fork := true` — required for native library loading and ensures stdout
   is properly forwarded through sbt
 - `.dependsOn(app.jvm(scala3))` — selects the JVM variant of the `app`
   projectMatrix. The argument must be the exact Scala version string.
@@ -262,7 +262,7 @@ lazy val core = (projectMatrix in file("core"))
     settings = Seq(
       Compile / unmanagedSourceDirectories +=
         baseDirectory.value / "src" / "main" / "scala-jvm",
-      // Java sources for JNI bridge files
+      // Java sources (if any)
       Compile / unmanagedSourceDirectories +=
         baseDirectory.value / "src" / "main" / "java"
     )
@@ -288,10 +288,9 @@ lazy val core = (projectMatrix in file("core"))
 ```
 core/
 ├── src/main/scala/sge/          # Shared (all platforms)
-├── src/main/scala-jvm/sge/     # JVM-only (LWJGL, JNI)
+├── src/main/scala-jvm/sge/     # JVM-only (Panama FFM)
 ├── src/main/scala-js/sge/      # JS-only (scala-js-dom facades)
-├── src/main/scala-native/sge/  # Native-only (@extern, Zone)
-└── src/main/java/               # JNI bridge files (JVM only)
+└── src/main/scala-native/sge/  # Native-only (@extern, Zone)
 ```
 
 ## Scala.js WASM Configuration (Optional, Experimental)
@@ -377,7 +376,7 @@ object VecMathNative {
 **Key points:**
 
 - `@link("name")` adds `-lname` to the native linker invocation
-- Missing libraries fail at **link time** (not runtime) — better than JNI
+- Missing libraries fail at **link time** (not runtime) — catches errors early
 - `Zone { ... }` provides scoped allocation (memory freed at block exit)
 - Array data must be **copied** into native memory (no zero-copy for dynamic arrays)
 - Use `stackalloc` instead of `alloc` for hot-path code to avoid heap allocation
@@ -393,39 +392,22 @@ object VecMathNative {
 | `const char*` | `CString` | `scala.scalanative.unsafe.CString` |
 | `size_t` | `CSize` | `scala.scalanative.unsigned.CSize` |
 
-## JNI Bridge Pattern
+## Panama FFM Pattern
 
-For JVM-specific native code (LWJGL, custom Rust libraries):
-
-### Java bridge file
-
-```java
-// core/src/main/java/com/badlogic/gdx/utils/BufferUtils.java
-package com.badlogic.gdx.utils;
-
-public class BufferUtils {
-    static { System.loadLibrary("gdx"); }
-    public static native void clear(java.nio.Buffer buffer, int numBytes);
-    public static native void copy(float[] src, java.nio.Buffer dst, int numFloats, int offset);
-}
-```
-
-### Scala wrapper
+SGE uses Panama FFM for all JVM native calls (desktop and Android). No JNI is used.
 
 ```scala
-// core/src/main/scala-jvm/sge/utils/BufferUtils.scala
-package sge.utils
-
-import com.badlogic.gdx.utils.{BufferUtils => BufferUtilsJni}
-
-object BufferUtils {
-  def clear(buffer: java.nio.Buffer, numBytes: Int): Unit =
-    BufferUtilsJni.clear(buffer, numBytes)
+// sge/src/main/scalajvm/sge/platform/BufferOpsPanama.scala
+private[sge] class BufferOpsPanama(val p: PanamaProvider) extends BufferOps {
+  private val hTransformV4M4: MethodHandle = linker.downcallHandle(
+    lookup("sge_transform_v4m4"),
+    FunctionDescriptor.ofVoid(ADDRESS, JAVA_INT, JAVA_INT, ADDRESS, JAVA_INT)
+  )
 }
 ```
 
-**Convention:** Import with alias (`{ClassName => ClassNameJni}`) to avoid name
-collisions between the Java bridge and the Scala wrapper.
+Desktop uses `JdkPanama` (`java.lang.foreign`), Android uses `PanamaPortProvider`
+(`com.v7878.foreign`). Both implement the same `PanamaProvider` trait.
 
 ## sbt Command Reference
 
@@ -547,9 +529,9 @@ explicitly. `ModuleKind.CommonJSModule` also works for Node.js-only targets.
 
 ### 5. fork := true for JVM backends
 
-Always set `fork := true` for JVM backend projects that will use JNI. Without
-forking, `System.loadLibrary` searches the sbt process's library path, not the
-project's. Forking also ensures clean JVM state and proper stdout forwarding.
+Always set `fork := true` for JVM backend projects that load native libraries.
+Without forking, native library loading searches the sbt process's library path,
+not the project's. Forking also ensures clean JVM state and proper stdout forwarding.
 
 ### 6. Scala Native Zone API (0.5.x)
 

@@ -58,7 +58,7 @@ JVM platform modules are merged into the sge JVM JAR via `packageBin/mappings`
 | JVM | ANGLE (libEGL, libGLESv2) | miniaudio (Rust) | GLFW (Rust) | Panama FFM |
 | Scala.js | WebGL/WebGL2 | Web Audio API | DOM/Canvas | N/A |
 | Scala Native | ANGLE | miniaudio (Rust) | GLFW (Rust) | C ABI (@extern) |
-| Android | System GL ES | miniaudio (Rust) | GLSurfaceView | JNI |
+| Android | System GL ES | miniaudio (Rust) | GLSurfaceView | PanamaPort |
 
 ## Demos Sub-Build
 

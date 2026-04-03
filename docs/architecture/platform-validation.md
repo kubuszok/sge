@@ -20,7 +20,7 @@ Prove — in practice, not theory — that:
 3. The user compiles and runs on that platform
 4. **The code just works** — identical behavior, zero platform-specific imports in user code
 5. Native operations (pixel blending, vector math) can be abstracted behind a trait
-   and swapped per platform (pure Scala now, Rust JNI / @extern / WASM later)
+   and swapped per platform (pure Scala, Rust C ABI via Panama / @extern)
 
 ## Architecture
 
@@ -41,9 +41,9 @@ Prove — in practice, not theory — that:
 │ JVM      │ Scala.js     │ Scala Native                │
 │ Backend  │ Backend      │ Backend                     │
 │          │              │                             │
-│ LWJGL    │ scala-js-dom │ GLFW via @extern            │
-│ JNI      │ WebGL2       │ Rust C ABI                  │
-│ Rust JNI │ Rust WASM    │ OpenGL/Vulkan via @extern   │
+│ ANGLE    │ scala-js-dom │ GLFW via @extern            │
+│ Panama   │ WebGL2       │ Rust C ABI                  │
+│ Rust C   │              │ ANGLE via @extern           │
 └──────────┴──────────────┴─────────────────────────────┘
 ```
 
@@ -90,9 +90,9 @@ The `NativeOps` trait abstracts operations that LibGDX implements in C
 
 | Platform | NativeOps implementation | Notes |
 |----------|------------------------|-------|
-| JVM | `NativeOps.pure` (now) → Rust JNI (later) | LWJGL provides many native ops already |
-| Scala.js | `NativeOps.pure` (now) → Rust WASM (later) | WebGL handles GPU-side ops |
-| Scala Native | `NativeOps.pure` (now) → Rust @extern (later) | Direct C ABI, zero overhead |
+| JVM / Android | Panama FFM → Rust C ABI | `PanamaProvider` abstraction (JdkPanama / PanamaPort) |
+| Scala.js | Pure Scala fallback | WebGL handles GPU-side ops |
+| Scala Native | `@link` + `@extern` → Rust C ABI | Direct C ABI, zero overhead |
 
 The pure Scala fallback is always available as a baseline. Platform-specific
 implementations can be swapped in when performance demands it, without changing
@@ -230,21 +230,19 @@ that depend on the correct platform variant:
    ergonomic and the compiler enforces its availability
 3. **Backend injection works** — each platform provides `Application` independently
 4. **NativeOps pattern works** — pure Scala fallback is functional; the trait is
-   ready for platform-specific implementations (Rust JNI, @extern, WASM)
+   ready for platform-specific implementations (Panama FFM, @extern)
 5. **sbt-projectmatrix works** with Scala 3.8.2 on all three platforms
 6. **Regular projects can depend on projectMatrix variants** via `.jvm()`, `.js()`,
    `.native()` selectors
 
-### Not yet validated (future work)
+### Validated since initial analysis
 
-| Gap | What's needed | Priority |
-|-----|---------------|----------|
-| Android | DEX compilation + Activity lifecycle | P2 |
-| iOS (MobiVM) | Scala 3 bytecode → MobiVM AOT compilation | P3 |
-| Rust JNI | `System.loadLibrary` + JNI native methods in JVM backend | P2 |
-| Rust @extern | `@link("libname")` + C ABI calls in Native backend | P1 |
-| Rust WASM | `WebAssembly.instantiate` + JS facade in browser backend | P2 |
-| WASM output | `withExperimentalUseWebAssembly(true)` build flag | P2 |
+| Item | Status |
+|------|--------|
+| Android | Done — PanamaPort for FFM, GLSurfaceView, Activity lifecycle |
+| Rust C ABI via Panama FFM | Done — JVM + Android via PanamaProvider |
+| Rust C ABI via @extern | Done — Scala Native with provider JARs |
+| iOS (MobiVM) | Deferred (14 backend files) |
 | Real graphics | LWJGL/WebGL/GLFW integration | P0-P1 |
 | Real audio | OpenAL/WebAudio integration | P1 |
 | Threading | Gears async or platform threads | P1 |

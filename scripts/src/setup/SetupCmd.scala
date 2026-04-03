@@ -32,14 +32,14 @@ object SetupCmd {
     println("╚══════════════════════════════════════════════════╝")
     println()
 
-    step("1/7", "Git submodules", () => setupSubmodules())
-    step("2/7", "Rust targets", () => setupRustTargets())
-    step("3/7", "Zig (for Linux/Windows cross-compilation)", () => setupZig(isCI))
-    step("4/8", "cargo-zigbuild + cargo-xwin", () => setupCargoTools())
-    step("5/8", "LLVM tools (llvm-lib for Windows cross-compilation)", () => setupLlvm(isCI))
-    step("6/8", "X11 headers (for Linux cross-compilation)", () => setupX11Headers())
-    step("7/8", "Android NDK", () => setupAndroidNdk(isCI))
-    step("8/8", "JDK (Zulu 25 via sdkman)", () => setupJdk(isCI))
+    step("1/6", "Git submodules", () => setupSubmodules())
+    step("2/6", "JDK (Zulu 25 via sdkman)", () => setupJdk(isCI))
+    step("3/6", "Android NDK", () => setupAndroidNdk(isCI))
+    // Steps 4-6 are for native cross-compilation (now in sge-native-components repo).
+    // Kept for developers who clone sge-native-components alongside sge.
+    step("4/6", "Rust targets (sge-native-components)", () => setupRustTargets())
+    step("5/6", "Zig (sge-native-components)", () => setupZig(isCI))
+    step("6/6", "cargo-zigbuild + cargo-xwin (sge-native-components)", () => setupCargoTools())
 
     println()
     println("╔══════════════════════════════════════════════════╗")
@@ -62,12 +62,13 @@ object SetupCmd {
     println()
   }
 
-  // ── 1. Git submodules ──────────────────────────────────────────────
+  // ── 1. Git submodules (original-src/ reference repos) ──────────────
+  // Note: miniaudio/glfw submodules moved to the external sge-native-components repo.
 
   private def setupSubmodules(): Unit = {
+    // Check if any original-src submodule needs initialization
     val submodules = List(
-      s"${Paths.projectRoot}/sge-deps/native-components/vendor/miniaudio",
-      s"${Paths.projectRoot}/sge-deps/native-components/vendor/glfw"
+      s"${Paths.projectRoot}/original-src/libgdx"
     )
     val needsInit = submodules.exists { dir =>
       val d = new File(dir)
@@ -169,20 +170,7 @@ object SetupCmd {
     }
   }
 
-  // ── 6. X11 headers ─────────────────────────────────────────────────
-
-  private def setupX11Headers(): Unit = {
-    val x11Dir = s"${Paths.projectRoot}/sge-deps/native-components/vendor/x11-include"
-    val xlibH = new File(s"$x11Dir/X11/Xlib.h")
-    if (xlibH.exists()) {
-      Term.ok("  X11 headers already present")
-    } else {
-      Term.info("  Downloading X11 headers from Ubuntu packages...")
-      val script = s"${Paths.projectRoot}/sge-deps/native-components/vendor/fetch-x11-headers.sh"
-      val code = Proc.exec("bash", List(script), cwd = Some(Paths.projectRoot))
-      if (code == 0) Term.ok("  X11 headers installed") else Term.err("  Failed to download X11 headers")
-    }
-  }
+  // X11 headers and LLVM tools are now handled by sge-native-components repo setup.
 
   // ── 6. Android NDK ─────────────────────────────────────────────────
 

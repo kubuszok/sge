@@ -31,16 +31,6 @@
         "macos-x86_64":    { "flags": ["-framework", "Cocoa", "-framework", "IOKit", "-framework", "CoreFoundation", "-framework", "CoreVideo", "-framework", "CoreGraphics", "-framework", "QuartzCore", "-lobjc"] },
         "macos-aarch64":   { "flags": ["-framework", "Cocoa", "-framework", "IOKit", "-framework", "CoreFoundation", "-framework", "CoreVideo", "-framework", "CoreGraphics", "-framework", "QuartzCore", "-lobjc"] }
       }
-    },
-    {
-      "name": "freetype",
-      "fullPath": true,
-      "platforms": {
-        "linux-x86_64":    { "flags": [] },
-        "linux-aarch64":   { "flags": [] },
-        "macos-x86_64":    { "flags": ["-lbz2", "-lpng", "-lz"] },
-        "macos-aarch64":   { "flags": ["-lbz2", "-lpng", "-lz"] }
-      }
     }
   ]
 }

@@ -14,7 +14,7 @@ package platform
 
 import scala.scalanative.unsafe.*
 
-@link("sge_native_ops")
+@link("sge_physics")
 @extern
 private object PhysicsC {
   // World lifecycle
@@ -73,7 +73,7 @@ private object PhysicsC {
   def sge_phys_poll_contact_stop_events(world:  Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
 }
 
-/** Scala Native implementation of [[PhysicsOps]] using `@extern` bindings to the Rust `sge_native_ops` library. */
+/** Scala Native implementation of [[PhysicsOps]] using `@extern` bindings to the Rust `sge_physics` library. */
 private[platform] object PhysicsOpsNative extends PhysicsOps {
 
   // ─── World lifecycle ──────────────────────────────────────────────────
