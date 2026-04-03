@@ -122,14 +122,21 @@ object SgePlugin {
 
   // ── Helpers ─────────────────────────────────────────────────────────
 
-  /** Code snippet for Scala Native linking configuration. Paste into your nativePlatform settings. */
+  /** Code snippet for Scala Native linking configuration. Paste into your nativePlatform settings.
+    *
+    * Consumer projects should use sge-native-components provider JARs which are extracted
+    * automatically by SgeNativeLibs. This snippet is a fallback for manual configuration.
+    */
   val nativeLinkingSnippet: String =
-    """nativeConfig := {
-      |  val base      = (ThisBuild / baseDirectory).value
+    """// Native libs are provided by sge-native-components provider JARs.
+      |// SgeNativeLibs.settings extracts them to target/sge-native-libs/<platform>/.
+      |// If you need manual configuration, point -L at your extracted native lib directory:
+      |nativeConfig := {
       |  val c         = nativeConfig.value
+      |  val libDir    = (sgeNativeLibDir.value).getAbsolutePath
       |  val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
       |  val rustLibOpts = Seq(
-      |    s"-L$base/sge-deps/native-components/target/release",
+      |    s"-L$libDir",
       |    "-lsge_native_ops"
       |  )
       |  val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
@@ -167,8 +174,10 @@ object SgePlugin {
 
   /** JVM runtime options: library path for Rust native libs, Panama native access.
     *
-    * All native libraries (libsge_native_ops, libsge_audio, libglfw) are built from vendored source by the Rust build system and placed in native-components/target/release/. ANGLE (libEGL, libGLESv2) is
-    * bundled there as well. No external Homebrew or system library installations required.
+    * Native libraries (libsge_native_ops, libsge_audio, libglfw) are built externally in
+    * sge-native-components and distributed as provider JARs. CI extracts them to
+    * sge-deps/native-components/target/release/ which is the default fallback path.
+    * ANGLE (libEGL, libGLESv2) is bundled there as well.
     */
   private def jvmRuntimeOpts(rustLibPath: Option[String]): Def.Initialize[Seq[String]] = Def.setting {
     val rustLib = rustLibPath.getOrElse {

@@ -88,8 +88,8 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-components repo)
-  val nativeComponents = "a21ee8a0ef027402662db9dbde85cedc834b608a-SNAPSHOT"
-  val curlProvider     = "95b32bdbfc25c3615b08da3f8a34aa9008b779b0-SNAPSHOT"
+  val nativeComponents = "9165c315732bd724f2991f042c9bd9e0237f9afb-SNAPSHOT"
+  val curlProvider     = "24eb1fcf4c97125b022df36b64da9b1bbd352ea3-SNAPSHOT"
 }
 
 // Scalafix custom rules — separate module so rules can lint `core`
@@ -151,16 +151,19 @@ val sge = (projectMatrix in file("sge"))
         val androidDirs = (`sge-jvm-platform-android` / Compile / products).value
         (apiDirs ++ jdkDirs ++ androidDirs).flatMap(collectClassFiles)
       },
-      // Bundle native shared libraries for all platforms into the JAR
+      // Bundle core + ANGLE native shared libraries for all platforms into the JAR.
+      // Extension libs (sge_freetype, sge_physics) are bundled by their respective extension JARs.
       Compile / packageBin / mappings ++= {
         val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
         val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
         val sharedLibExts = Set(".so", ".dylib", ".dll")
         def isSharedLib(name: String) = sharedLibExts.exists(name.endsWith)
+        // Only bundle core + ANGLE shared libs in the sge JAR (exclude extension libs)
+        def isCoreLib(name: String) = isSharedLib(name) && !name.contains("sge_freetype") && !name.contains("sge_physics")
         // Cross-compiled: all 6 platforms from target/cross/<platform>/
         val crossMappings = Platform.desktop.flatMap { platform =>
           val dir = crossDir / platform.classifier
-          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isSharedLib(f.getName))
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
             .map(f => f -> s"native/${platform.classifier}/${f.getName}")
             .toSeq
           else Seq.empty
@@ -170,7 +173,7 @@ val sge = (projectMatrix in file("sge"))
           if (crossMappings.nonEmpty) Seq.empty
           else if (releaseDir.exists()) {
             val host = Platform.host
-            IO.listFiles(releaseDir).filter(f => f.isFile && isSharedLib(f.getName))
+            IO.listFiles(releaseDir).filter(f => f.isFile && isCoreLib(f.getName))
               .map(f => f -> s"native/${host.classifier}/${f.getName}")
               .toSeq
           } else Seq.empty
@@ -181,7 +184,7 @@ val sge = (projectMatrix in file("sge"))
           ("x86_64-linux-android",     "android-x86_64")
         ).flatMap { case (rustTarget, classifier) =>
           val dir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / rustTarget / "release"
-          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isSharedLib(f.getName))
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isCoreLib(f.getName))
             .map(f => f -> s"native/$classifier/${f.getName}")
             .toSeq
           else Seq.empty
@@ -203,47 +206,17 @@ val sge = (projectMatrix in file("sge"))
       _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
       // Native library providers (fat JARs with native-bundle.json manifests)
       libraryDependencies ++= Seq(
-        "com.kubuszok" % "scala-native-sge-ops-provider" % versions.nativeComponents,
+        "com.kubuszok" % "scala-native-sge-core-provider" % versions.nativeComponents,
         "com.kubuszok" % "scala-native-angle-provider" % versions.nativeComponents,
         "com.kubuszok" % "scala-native-curl-provider" % versions.curlProvider
       ),
+      // Windows stub .lib files are now included in provider JARs
       nativeConfig := {
         val c        = nativeConfig.value
         val log      = streams.value.log
         val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
         val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
         val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-        // WORKAROUND: On Windows, stub .lib files are needed for libs merged into
-        // sge_native_ops.dll and for curl/idn2 (no-op C stubs compiled by CI).
-        // CI creates proper stubs in sge-deps/native-components/target/release/.
-        // Also create basic aliases in the extraction dir for libs that just need
-        // symbol resolution against sge_native_ops.dll.
-        // TODO: move all stubs into provider JARs.
-        if (platform.isWindows) {
-          val sgeOpsLib = new java.io.File(libDir, "sge_native_ops.lib")
-          if (sgeOpsLib.exists()) {
-            for (name <- Seq(
-              "sge_audio", "freetype", "glfw3", "glfw", "EGL", "GLESv2",  // merged into sge_native_ops.dll
-              "ssl", "crypto",                                             // OpenSSL (not used on Windows)
-              "nghttp2", "nghttp3", "z", "brotlidec", "brotlicommon",     // curl transitive deps
-              "unistring", "cares", "ssh2", "zstd", "psl"                 // more curl transitive deps
-            )) {
-              val stub = new java.io.File(libDir, s"$name.lib")
-              if (!stub.exists()) java.nio.file.Files.copy(sgeOpsLib.toPath, stub.toPath)
-            }
-          }
-          // curl/idn2 need real C-compiled stubs with actual function symbols.
-          // CI creates these in sge-deps/native-components/target/release/.
-          val ciStubDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
-          if (ciStubDir.exists()) {
-            for (name <- Seq("curl", "idn2")) {
-              val ciStub = new java.io.File(ciStubDir, s"$name.lib")
-              val destStub = new java.io.File(libDir, s"$name.lib")
-              if (ciStub.exists() && !destStub.exists())
-                java.nio.file.Files.copy(ciStub.toPath, destStub.toPath)
-            }
-          }
-        }
         val merged = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
           manifests, platform, if (libDir.exists()) Some(libDir) else None, log
         )
@@ -452,10 +425,34 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/freetype") ++ Seq(
+      resolvers += mavenCentralSnapshots,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
         (apiDirs ++ jdkDirs).map(Attributed.blank)
+      },
+      // Bundle sge_freetype shared libs into the extension JAR
+      Compile / packageBin / mappings ++= {
+        val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
+        val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
+        val sharedLibExts = Set(".so", ".dylib", ".dll")
+        def isFreetypeLib(name: String) = sharedLibExts.exists(name.endsWith) && name.contains("sge_freetype")
+        val crossMappings = Platform.desktop.flatMap { platform =>
+          val dir = crossDir / platform.classifier
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isFreetypeLib(f.getName))
+            .map(f => f -> s"native/${platform.classifier}/${f.getName}")
+            .toSeq
+          else Seq.empty
+        }
+        val hostMappings =
+          if (crossMappings.nonEmpty) Seq.empty
+          else if (releaseDir.exists()) {
+            val host = Platform.host
+            IO.listFiles(releaseDir).filter(f => f.isFile && isFreetypeLib(f.getName))
+              .map(f => f -> s"native/${host.classifier}/${f.getName}")
+              .toSeq
+          } else Seq.empty
+        crossMappings ++ hostMappings
       }
     )
   )
@@ -468,6 +465,8 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++
       _root_.multiarch.sbt.NativeLibBundle.settings ++
       _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
+      resolvers += mavenCentralSnapshots,
+      libraryDependencies += "com.kubuszok" % "scala-native-sge-freetype-provider" % versions.nativeComponents,
       nativeConfig := {
         val c        = nativeConfig.value
         val log      = streams.value.log
@@ -500,10 +499,34 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
+      resolvers += mavenCentralSnapshots,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
         (apiDirs ++ jdkDirs).map(Attributed.blank)
+      },
+      // Bundle sge_physics shared libs into the extension JAR
+      Compile / packageBin / mappings ++= {
+        val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
+        val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
+        val sharedLibExts = Set(".so", ".dylib", ".dll")
+        def isPhysicsLib(name: String) = sharedLibExts.exists(name.endsWith) && name.contains("sge_physics")
+        val crossMappings = Platform.desktop.flatMap { platform =>
+          val dir = crossDir / platform.classifier
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isPhysicsLib(f.getName))
+            .map(f => f -> s"native/${platform.classifier}/${f.getName}")
+            .toSeq
+          else Seq.empty
+        }
+        val hostMappings =
+          if (crossMappings.nonEmpty) Seq.empty
+          else if (releaseDir.exists()) {
+            val host = Platform.host
+            IO.listFiles(releaseDir).filter(f => f.isFile && isPhysicsLib(f.getName))
+              .map(f => f -> s"native/${host.classifier}/${f.getName}")
+              .toSeq
+          } else Seq.empty
+        crossMappings ++ hostMappings
       }
     )
   )
@@ -516,6 +539,8 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++
       _root_.multiarch.sbt.NativeLibBundle.settings ++
       _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
+      resolvers += mavenCentralSnapshots,
+      libraryDependencies += "com.kubuszok" % "scala-native-sge-physics-provider" % versions.nativeComponents,
       nativeConfig := {
         val c        = nativeConfig.value
         val log      = streams.value.log
@@ -977,9 +1002,9 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
     },
     Test / fork := true,
     Test / javaOptions ++= {
-      // All native libs (sge_native_ops, sge_audio, glfw) are built from vendored source
-      // and placed in sge-deps/native-components/target/release/. ANGLE (EGL, GLESv2) needs to be
-      // bundled there as well (see sge-dev native angle setup).
+      // Native libs are built externally in sge-native-components and distributed as provider JARs.
+      // CI extracts provider JARs to sge-deps/native-components/target/release/ for linking/testing.
+      // ANGLE (EGL, GLESv2) is also extracted there (see sge-dev native angle setup).
       val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
       // Note: -XstartOnFirstThread is NOT passed here — the munit test launches
       // the harness as a subprocess with that flag so GLFW runs on thread 0.

@@ -33,7 +33,7 @@ addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
 addSbtPlugin("org.scalameta"    % "sbt-scalafmt"       % "2.5.4")
 
 // Multi-architecture release plugin — provides Platform, NativeLibBundle, ZigCross, JvmPackaging
-addSbtPlugin("com.kubuszok"     % "sbt-multi-arch-release" % "95b32bdbfc25c3615b08da3f8a34aa9008b779b0-SNAPSHOT")
+addSbtPlugin("com.kubuszok"     % "sbt-multi-arch-release" % "24eb1fcf4c97125b022df36b64da9b1bbd352ea3-SNAPSHOT")
 
 // Sonatype snapshots for sbt-multi-arch-release
 resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"

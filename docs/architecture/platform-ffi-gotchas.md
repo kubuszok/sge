@@ -317,22 +317,19 @@ val ptr = stdlib.malloc(32)  // OK: Int for 32 bytes
 
 ---
 
-## 12. Android: Panama FFM is not available
+## 12. Android: Panama FFM via PanamaPort
 
-**Problem:** Android's ART runtime does not support `java.lang.foreign` (Panama FFM).
+**Problem:** Android's ART runtime does not include `java.lang.foreign` (Panama FFM).
 The Panama API is JDK 22+ and is not part of the Android SDK.
 
-**Solution:** SGE retains JNI bridges for Android. The Rust native library
-(`native-components/`) has feature flags:
-- Default: C ABI exports (for Panama and Scala Native)
-- `android` feature: JNI exports via the `jni` crate
+**Solution:** SGE uses [PanamaPort](https://github.com/nicovova/PanamaPort) (vova7878),
+a backport of `java.lang.foreign` for Android (`com.v7878.foreign`). This provides the
+same FFM API as desktop JVM, so all platforms share the same `PanamaProvider` abstraction
+and C ABI exports. No JNI is used anywhere in SGE.
 
-Platform-specific code in `core/src/main/scalajvm/` uses Panama FFM.
-Future Android backend will use a separate `scalaandroid/` source directory with JNI.
-
-**Future option:** [PanamaPort](https://github.com/nicovova/PanamaPort) (vova7878) is
-a backport of `java.lang.foreign` for Android. This could eventually replace JNI on
-Android, but it's not production-ready yet.
+The `PanamaPortProvider` in `sge-jvm-platform-android` implements the `PanamaProvider`
+trait using `com.v7878.foreign` types. Runtime detection in `Panama.scala` selects this
+provider on Android, `JdkPanama` on desktop.
 
 ---
 
@@ -440,5 +437,5 @@ private inline def longFromPtr(p: Ptr[Byte]): Long =
 | toCString syntax | Scala 3 + SN 0.5 | Compile error | `toCString(str)(using zone)` |
 | Zone.alloc(Long) | Scala Native | Type error | Use `Int` or `CSize` |
 | malloc overload | Scala Native | Type error | Pass `Int` directly |
-| Panama on Android | Android | Not available | Retain JNI bridge |
+| Panama on Android | Android | Not in ART | Use PanamaPort (com.v7878.foreign) |
 | Null platform windows | GLFW 3.4 | createWindow fails | Set `GLFW_CLIENT_API = GLFW_NO_API` |

@@ -3,7 +3,13 @@ package native
 
 import java.io.File
 
-/** Rust native library operations — self-contained, no Justfile dependency. */
+/** Rust native library operations — self-contained, no Justfile dependency.
+  *
+  * Note: Rust native library source has moved to the external sge-native-components repo.
+  * Build commands (build, cross, cross-all, cross-android) require that repo cloned alongside sge.
+  * ANGLE and curl download commands still work locally (they populate the staging directory).
+  * CI extracts provider JARs to sge-deps/native-components/target/ as a staging area.
+  */
 object NativeCmd {
 
   private def nativeDir: String = s"${Paths.projectRoot}/sge-deps/native-components"

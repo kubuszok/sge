@@ -193,7 +193,12 @@ object SgeNativeLibs {
     }
   )
 
-  /** Settings for SGE's own build, pointing at the local Rust build output. */
+  /** Settings for SGE's own build, pointing at the cross-compiled native lib staging directory.
+    *
+    * Native libs are built externally in sge-native-components and distributed as provider JARs.
+    * CI extracts provider JARs to sge-deps/native-components/target/cross/ for packaging.
+    * For local dev, clone sge-native-components alongside sge and the path resolves the same way.
+    */
   def localSettings(crossDir: Option[File] = None): Seq[Setting[_]] =
     settings ++ Seq(
       sgeNativeLibSourceDir := Some(crossDir.getOrElse {
@@ -201,7 +206,11 @@ object SgeNativeLibs {
       })
     )
 
-  /** Settings for SGE's own build, pointing at the default release directory (host platform only). */
+  /** Settings for SGE's own build, pointing at the default release directory (host platform only).
+    *
+    * Native libs are built externally in sge-native-components and distributed as provider JARs.
+    * CI extracts provider JARs to sge-deps/native-components/target/release/ for linking and testing.
+    */
   lazy val hostSettings: Seq[Setting[_]] =
     settings ++ Seq(
       sgeNativeLibSourceDir := None,

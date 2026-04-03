@@ -68,7 +68,7 @@ Platform-specific sources: `sge/src/main/scalanative/sge/platform/`
 
 Android target using system GL ES with PanamaPort for FFM on ART:
 - API 36+ minimum (PanamaPort constraint)
-- JNI bridge retained for native ops (ART doesn't support Panama FFM)
+- PanamaPort (com.v7878.foreign) provides Panama FFM on ART — same C ABI as desktop, no JNI
 - Audio via miniaudio (OpenSL ES backend)
 
 See [android-native-constraints.md](android-native-constraints.md) for details.

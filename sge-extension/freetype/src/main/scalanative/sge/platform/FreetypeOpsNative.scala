@@ -1,6 +1,6 @@
 // SGE FreeType — Scala Native implementation of FreetypeOps
 //
-// Binds to the sge_native_ops Rust library using @link/@extern annotations.
+// Binds to the sge_freetype Rust library using @link/@extern annotations.
 // Array data is passed to C functions via .at(offset) to obtain Ptr[Byte]/Ptr[Int].
 //
 // Migration notes:
@@ -14,7 +14,7 @@ package platform
 
 import scala.scalanative.unsafe.*
 
-@link("sge_native_ops")
+@link("sge_freetype")
 @extern
 private object FreetypeC {
   def sge_ft_init_freetype():                                                                                                             Long = extern
