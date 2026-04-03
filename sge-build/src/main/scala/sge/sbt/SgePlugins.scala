@@ -1,5 +1,7 @@
 package sge.sbt
 
+import multiarch.sbt.Platform
+
 import sbt._
 import sbt.Keys._
 
@@ -204,16 +206,28 @@ object SgeDesktopNativePlatform extends AutoPlugin {
   /** Settings for projectMatrix Native axis.  Wires nativeLink, SgeNativeLibs,
     * scaladesktop source directory, and native packaging.
     */
-  lazy val axisSettings: Seq[Setting[_]] = nativeRuntime ++ SgeNativeLibs.settings ++ SgePackaging.nativeSettings ++ Seq(
+  lazy val axisSettings: Seq[Setting[_]] = nativeRuntime ++ SgeNativeLibs.settings ++
+    _root_.multiarch.sbt.NativeLibBundle.settings ++
+    _root_.multiarch.sbt.NativeLibExtract.settings ++
+    SgePackaging.nativeSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_native0.5_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
     SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeNativeLibLocalDir.value.getOrElse(
       target.value / "sge-native-libs" / Platform.host.classifier
     ),
+    // Point NativeLibExtract at the local dir when set (bypasses JAR extraction)
+    _root_.multiarch.sbt.NativeLibExtract.nativeLibSourceDir := SgeProject.autoImport.sgeNativeLibLocalDir.value,
     SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
     nativeConfig := {
-      val c      = nativeConfig.value
-      val libDir = SgeNativeLibs.sgeNativeLibDir.value
-      c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+      val c        = nativeConfig.value
+      val log      = streams.value.log
+      val localDir = SgeProject.autoImport.sgeNativeLibLocalDir.value
+      val libDir   = localDir.getOrElse(_root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value)
+      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+      val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+      )
+      c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir) ++ merged)
     }
   )
 

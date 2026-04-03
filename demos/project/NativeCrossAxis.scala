@@ -6,7 +6,7 @@ import sbt._
   * cross-compilation settings. For example, building for linux-x86_64 from
   * macOS produces a subproject named `pongNativeLinuxX86_64`.
   */
-case class NativeCrossAxis(platform: sge.sbt.Platform) extends VirtualAxis.WeakAxis {
+case class NativeCrossAxis(platform: multiarch.sbt.Platform) extends VirtualAxis.WeakAxis {
   val idSuffix: String = "Native" + platform.classifier.split('-').map(_.capitalize).mkString
   val directorySuffix: String = "native-" + platform.classifier
 }

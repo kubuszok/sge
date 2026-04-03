@@ -9,5 +9,9 @@ addSbtPlugin("org.scala-js"     % "sbt-scalajs"        % "1.20.2")
 addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
 // publishing
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
+// multi-arch release (Platform, NativeLibBundle, ZigCross, JvmPackaging)
+addSbtPlugin("com.kubuszok" % "sbt-multi-arch-release" % "95b32bdbfc25c3615b08da3f8a34aa9008b779b0-SNAPSHOT")
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+// Sonatype snapshots for sbt-multi-arch-release
+ThisBuild / resolvers += "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"

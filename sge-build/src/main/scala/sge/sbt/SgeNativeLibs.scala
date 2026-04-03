@@ -1,5 +1,7 @@
 package sge.sbt
 
+import multiarch.sbt.Platform
+
 import sbt._
 import sbt.Keys._
 
@@ -302,95 +304,25 @@ object SgeNativeLibs {
     }
   }
 
-  /** Linker flags snippet for use in nativeConfig.
+  /** Additional linker flags not covered by native-bundle.json manifests.
     *
-    * Passes full paths to static archives for GLFW and audio bridge to avoid
-    * library search order issues with the system linker. The @link annotations
-    * on @extern objects tell Scala Native which libraries to look for, but
-    * Apple's ld64 deduplicates -l flags, which can cause the wrong archive
-    * to be used if a system copy exists.
-    *
-    * When static curl libraries are present (from `sge-dev native curl setup`),
-    * their transitive dependencies are also added so that sttp's
-    * `@link("curl")` and `@link("idn2")` resolve without system packages.
+    * Library linking (-l flags, full paths, platform frameworks) is now handled
+    * by the NativeLibBundle manifest system from sbt-multi-arch-release.
+    * This method only provides rpath entries for ANGLE dylib resolution on macOS.
     */
   def linkerFlags(
       libDir: File,
       platform: Platform = Platform.host,
-      libName: String = "sge_native_ops"
-  ): Seq[String] = {
-    val base = Seq(s"-L${libDir.getAbsolutePath}", s"-l$libName")
-    // Audio bridge (miniaudio) and GLFW static archives — pass full paths
-    // to bypass library search path ordering issues with @link annotations.
-    val audioA = new File(libDir, "libsge_audio.a")
-    val glfwA  = new File(libDir, "libglfw3.a")
-    // On Windows cross-compilation, audio + GLFW symbols are merged into sge_native_ops.dll
-    // by build.rs (merge_into_cdylib), so no separate libraries to link.
-    val nativeLibs =
-      if (platform.isWindows) Seq.empty
-      else
-        (if (audioA.exists()) Seq(audioA.getAbsolutePath) else Seq("-lsge_audio")) ++
-        (if (glfwA.exists()) Seq(glfwA.getAbsolutePath) else Seq("-lglfw3"))
-    // Rust native-components links against FreeType for font rasterization.
-    // On Windows, FreeType is merged into sge_native_ops.dll by build.rs.
-    val nativeDeps = if (platform.isWindows) Seq.empty else Seq("-lfreetype")
-
-    // Static curl transitive dependencies. When libcurl.a is present (from
-    // stunnel/static-curl), sttp's @link("curl") and @link("idn2") emit
-    // -lcurl and -lidn2 which resolve from the static archives. We add the
-    // transitive deps that those archives reference. Full paths are used to
-    // avoid search order issues.
-    val curlA = new File(libDir, "libcurl.a")
-    val curlDeps = if (curlA.exists()) {
-      val depNames = Seq(
-        "libssl.a", "libcrypto.a", "libnghttp2.a", "libnghttp3.a",
-        "libngtcp2.a", "libngtcp2_crypto_ossl.a", "libz.a",
-        "libbrotlidec.a", "libbrotlicommon.a", "libidn2.a", "libunistring.a",
-        "libcares.a", "libssh2.a", "libzstd.a", "libpsl.a"
-      )
-      depNames.flatMap { name =>
-        val f = new File(libDir, name)
-        if (f.exists()) Seq(f.getAbsolutePath) else Seq.empty
-      }
-    } else Seq.empty
-
-    if (platform.isWindows) base ++ nativeLibs ++ nativeDeps :+ "-lntdll" :+ "-lmsvcrt"
-    else if (platform.isMac) {
-      // macOS frameworks required by statically-linked GLFW and miniaudio
-      val frameworks = Seq(
-        "-framework", "Cocoa",
-        "-framework", "IOKit",
-        "-framework", "CoreFoundation",
-        "-framework", "CoreVideo",
-        "-framework", "CoreGraphics",
-        "-framework", "CoreAudio",
-        "-framework", "AudioToolbox",
-        "-framework", "QuartzCore",
-        "-lobjc"
-      )
-      // Additional frameworks for static curl with OpenSSL
-      val curlFrameworks = if (curlA.exists()) Seq(
-        "-framework", "Security",
-        "-framework", "SystemConfiguration"
-      ) else Seq.empty
+      @deprecated("unused", "") libName: String = "sge_native_ops"
+  ): Seq[String] =
+    if (platform.isMac) {
       // rpath entries so the binary can find ANGLE dylibs at runtime.
       // @rpath/libGLESv2.dylib is embedded in the ANGLE install names.
       // - libDir: for `sbt run` / local dev (ANGLE lives next to Rust libs)
       // - @executable_path: for packaged distributions (libs beside the binary)
-      val rpaths = Seq(
+      Seq(
         "-rpath", libDir.getAbsolutePath,
         "-rpath", "@executable_path"
       )
-      base ++ nativeLibs ++ nativeDeps ++ curlDeps ++ frameworks ++ curlFrameworks ++ rpaths
-    }
-    else {
-      // Linux: wrap static curl archives in --start-group/--end-group to handle
-      // circular dependencies (e.g. libidn2 → libunistring → libidn2).
-      // Also add -lpthread and -ldl for OpenSSL.
-      val curlGroup = if (curlA.exists()) {
-        Seq("-Wl,--start-group") ++ curlDeps ++ Seq("-Wl,--end-group", "-lpthread", "-ldl")
-      } else Seq.empty
-      base ++ nativeLibs ++ nativeDeps ++ curlGroup
-    }
-  }
+    } else Seq.empty
 }
