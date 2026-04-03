@@ -1,5 +1,6 @@
 import _root_.scalafix.sbt.{ BuildInfo => ScalafixBuildInfo }
-import _root_.sge.sbt.{Platform, SgeNativeLibs, SgePlugin}
+import _root_.multiarch.sbt.Platform
+import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
 
 // Reload sbt when build files change (avoids stale --client sessions).
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -85,6 +86,10 @@ val versions = new {
 
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
+
+  // Native component providers (from sge-native-components repo)
+  val nativeComponents = "a21ee8a0ef027402662db9dbde85cedc834b608a-SNAPSHOT"
+  val curlProvider     = "95b32bdbfc25c3615b08da3f8a34aa9008b779b0-SNAPSHOT"
 }
 
 // Scalafix custom rules — separate module so rules can lint `core`
@@ -193,11 +198,57 @@ val sge = (projectMatrix in file("sge"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings() ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings() ++
+      _root_.multiarch.sbt.NativeLibBundle.settings ++
+      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
+      // Native library providers (fat JARs with native-bundle.json manifests)
+      libraryDependencies ++= Seq(
+        "com.kubuszok" % "scala-native-sge-ops-provider" % versions.nativeComponents,
+        "com.kubuszok" % "scala-native-angle-provider" % versions.nativeComponents,
+        "com.kubuszok" % "scala-native-curl-provider" % versions.curlProvider
+      ),
       nativeConfig := {
-        val c      = nativeConfig.value
-        val libDir = SgeNativeLibs.sgeNativeLibDir.value
-        c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+        val c        = nativeConfig.value
+        val log      = streams.value.log
+        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+        // WORKAROUND: On Windows, stub .lib files are needed for libs merged into
+        // sge_native_ops.dll and for curl/idn2 (no-op C stubs compiled by CI).
+        // CI creates proper stubs in sge-deps/native-components/target/release/.
+        // Also create basic aliases in the extraction dir for libs that just need
+        // symbol resolution against sge_native_ops.dll.
+        // TODO: move all stubs into provider JARs.
+        if (platform.isWindows) {
+          val sgeOpsLib = new java.io.File(libDir, "sge_native_ops.lib")
+          if (sgeOpsLib.exists()) {
+            for (name <- Seq(
+              "sge_audio", "freetype", "glfw3", "glfw", "EGL", "GLESv2",  // merged into sge_native_ops.dll
+              "ssl", "crypto",                                             // OpenSSL (not used on Windows)
+              "nghttp2", "nghttp3", "z", "brotlidec", "brotlicommon",     // curl transitive deps
+              "unistring", "cares", "ssh2", "zstd", "psl"                 // more curl transitive deps
+            )) {
+              val stub = new java.io.File(libDir, s"$name.lib")
+              if (!stub.exists()) java.nio.file.Files.copy(sgeOpsLib.toPath, stub.toPath)
+            }
+          }
+          // curl/idn2 need real C-compiled stubs with actual function symbols.
+          // CI creates these in sge-deps/native-components/target/release/.
+          val ciStubDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
+          if (ciStubDir.exists()) {
+            for (name <- Seq("curl", "idn2")) {
+              val ciStub = new java.io.File(ciStubDir, s"$name.lib")
+              val destStub = new java.io.File(libDir, s"$name.lib")
+              if (ciStub.exists() && !destStub.exists())
+                java.nio.file.Files.copy(ciStub.toPath, destStub.toPath)
+            }
+          }
+        }
+        val merged = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+        )
+        val rpaths = SgeNativeLibs.linkerFlags(libDir)
+        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
       }
     )
   )
@@ -247,11 +298,20 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-test/regression") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-test/regression") ++
+      _root_.multiarch.sbt.NativeLibBundle.settings ++
+      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
       nativeConfig := {
-        val c      = nativeConfig.value
-        val libDir = SgeNativeLibs.sgeNativeLibDir.value
-        c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+        val c        = nativeConfig.value
+        val log      = streams.value.log
+        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+        )
+        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
+        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
       }
     )
   )
@@ -405,11 +465,20 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++
+      _root_.multiarch.sbt.NativeLibBundle.settings ++
+      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
       nativeConfig := {
-        val c      = nativeConfig.value
-        val libDir = SgeNativeLibs.sgeNativeLibDir.value
-        c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+        val c        = nativeConfig.value
+        val log      = streams.value.log
+        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+        )
+        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
+        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
       }
     )
   )
@@ -444,11 +513,20 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++ SgeNativeLibs.hostSettings ++ Seq(
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++
+      _root_.multiarch.sbt.NativeLibBundle.settings ++
+      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
       nativeConfig := {
-        val c      = nativeConfig.value
-        val libDir = SgeNativeLibs.sgeNativeLibDir.value
-        c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+        val c        = nativeConfig.value
+        val log      = streams.value.log
+        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+        )
+        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
+        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
       }
     )
   )
@@ -988,14 +1066,24 @@ lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   .settings(noPublishSettings *)
   .dependsOn(sge.native(versions.scala))
   .settings(
-    scalaVersion := versions.scala,
+    scalaVersion := versions.scala
+  )
+  .settings(_root_.multiarch.sbt.NativeLibBundle.settings *)
+  .settings(_root_.multiarch.sbt.NativeLibExtract.settings *)
+  .settings(
     nativeConfig := {
-      val c      = nativeConfig.value
-      val libDir = SgeNativeLibs.sgeNativeLibDir.value
-      c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir))
+      val c        = nativeConfig.value
+      val log      = streams.value.log
+      val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+      val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
+      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+      )
+      val rpaths    = SgeNativeLibs.linkerFlags(libDir)
+      c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
     }
   )
-  .settings(SgeNativeLibs.hostSettings *)
 
 // Write published version to demos/.sge-version so the demos sub-build
 // resolves the same version without depending on sbt-git or env vars.

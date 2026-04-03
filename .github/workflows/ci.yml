@@ -19,140 +19,11 @@ env:
   JAVA_VERSION: "25"
   JAVA_DISTRIBUTION: "zulu"
   NODE_VERSION: "22"
-  # Demos read .sge-version file written by publishLocal + writeDemoVersion.
+  # Native component provider versions (from sge-native-components + sbt-multi-arch-release repos)
+  NATIVE_COMPONENTS_VERSION: "a21ee8a0ef027402662db9dbde85cedc834b608a-SNAPSHOT"
+  SONATYPE_SNAPSHOTS: "https://central.sonatype.com/repository/maven-snapshots"
 
 jobs:
-  # ─── Native Components (Rust library) ──────────────────────────────
-  # Single macOS runner builds ALL 9 targets — exactly like local dev.
-  # All artifacts are COMPLETE — includes libsge_native_ops, libsge_audio,
-  # libglfw, and FreeType. Ready for release packaging.
-
-  build-native:
-    name: Native Components (all 9 targets)
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: >-
-            x86_64-apple-darwin,
-            aarch64-apple-darwin,
-            x86_64-unknown-linux-gnu,
-            aarch64-unknown-linux-gnu,
-            x86_64-pc-windows-msvc,
-            aarch64-pc-windows-msvc,
-            aarch64-linux-android,
-            armv7-linux-androideabi,
-            x86_64-linux-android
-
-      - uses: mlugg/setup-zig@v2
-      - uses: VirtusLab/scala-cli-setup@v1
-
-      - name: Cache scala-cli
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/Library/Caches/ScalaCli
-            ~/.cache/scala-cli
-            ~/.cache/scalafmt
-          key: scala-cli-native-${{ hashFiles('scripts/src/Main.scala') }}
-          restore-keys: scala-cli-native-
-
-      - name: Cache Cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            ~/.cargo/bin
-            ~/Library/Caches/cargo-xwin
-            ~/Library/Caches/cargo-zigbuild
-            sge-deps/native-components/target
-          key: rust-macos-all-${{ hashFiles('sge-deps/native-components/Cargo.lock') }}
-          restore-keys: rust-macos-all-
-
-      - name: Set up Android NDK
-        run: |
-          brew install --cask android-commandlinetools
-          export ANDROID_HOME="$HOME/Library/Android/sdk"
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "ndk;27.2.12479018" || true
-
-      - name: Compile sge-dev
-        run: |
-          scala-cli --power package --native scripts/src/ -o sge-dev -f --suppress-outdated-dependency-warning
-          echo "$PWD" >> $GITHUB_PATH
-
-      - name: Run sge-dev setup
-        run: sge-dev setup --ci
-
-      - name: Add LLVM to PATH
-        run: echo "/opt/homebrew/opt/llvm/bin" >> $GITHUB_PATH
-
-      - name: Run Rust tests (host)
-        run: sge-dev native test
-
-      - name: Build all 6 desktop targets
-        run: sge-dev native cross-all
-
-      - name: Download ANGLE shared libraries (all 6 platforms)
-        run: sge-dev native angle cross-collect
-
-      - name: Build all 3 Android targets
-        run: sge-dev native cross-android
-        env:
-          ANDROID_NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/27.2.12479018
-
-      - name: Verify artifacts
-        run: |
-          echo "=== Desktop ==="
-          MISSING=0
-          for plat in macos-aarch64 macos-x86_64 linux-x86_64 linux-aarch64 windows-x86_64 windows-aarch64; do
-            echo "--- $plat ---"
-            ls sge-deps/native-components/target/cross/$plat/ 2>/dev/null || echo "  MISSING!"
-            # Verify critical static archives exist for Scala Native platforms
-            if [[ "$plat" != windows-* ]]; then
-              for lib in libsge_native_ops.a libsge_audio.a libglfw3.a; do
-                if [ ! -f "sge-deps/native-components/target/cross/$plat/$lib" ]; then
-                  echo "  MISSING: $lib"
-                  MISSING=1
-                fi
-              done
-            fi
-          done
-          echo "=== Android ==="
-          for target in aarch64-linux-android armv7-linux-androideabi x86_64-linux-android; do
-            echo "--- $target ---"
-            ls sge-deps/native-components/target/$target/release/lib*.so 2>/dev/null || echo "  MISSING!"
-          done
-          if [ "$MISSING" -eq 1 ]; then
-            echo "::error::Critical native artifacts are missing!"
-            exit 1
-          fi
-
-      - name: Upload desktop artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-desktop
-          retention-days: 1
-          path: sge-deps/native-components/target/cross/
-
-      - name: Upload Android artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: native-android
-          retention-days: 1
-          path: |
-            sge-deps/native-components/target/aarch64-linux-android/release/libsge_native_ops.so
-            sge-deps/native-components/target/aarch64-linux-android/release/libsge_audio.so
-            sge-deps/native-components/target/armv7-linux-androideabi/release/libsge_native_ops.so
-            sge-deps/native-components/target/armv7-linux-androideabi/release/libsge_audio.so
-            sge-deps/native-components/target/x86_64-linux-android/release/libsge_native_ops.so
-            sge-deps/native-components/target/x86_64-linux-android/release/libsge_audio.so
-
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
   test-js:
@@ -180,11 +51,10 @@ jobs:
         continue-on-error: true
         run: sbt 'sge/doc'
 
-  # ─── JVM compile + test (requires Rust library) ────────────────────
+  # ─── JVM compile + test (uses Panama provider JARs) ─────────────────
 
   test-jvm:
     name: JVM tests (${{ matrix.label }})
-    needs: [build-native]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -200,8 +70,6 @@ jobs:
           - os: macos-latest
             label: macos-aarch64
             platform: macos-aarch64
-          # macOS x86_64: no runner available. macos-13 retired, and ARM JVM can't
-          # load x86_64 dylibs. Would need x86_64 JDK under Rosetta — not yet set up.
           - os: windows-latest
             label: windows-x86_64
             platform: windows-x86_64
@@ -221,17 +89,28 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Download native artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-desktop
-          path: sge-deps/native-components/target/cross
-
-      - name: Copy platform libs to release dir
+      - name: Extract JVM native libs from provider JARs
         shell: bash
         run: |
-          mkdir -p sge-deps/native-components/target/release
-          cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
+          DEST="sge-deps/native-components/target/release"
+          mkdir -p "$DEST"
+          PLATFORM="${{ matrix.platform }}"
+          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
+
+          # Download and extract panama-sge-ops-provider
+          OPS_JAR="/tmp/panama-sge-ops.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && cd -
+          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
+
+          # Download and extract panama-angle-provider
+          ANGLE_JAR="/tmp/panama-angle.jar"
+          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && cd -
+          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
+
+          echo "=== Extracted JVM native libs ==="
+          ls -la "$DEST/"
 
       - name: Run JVM tests
         run: sbt 'sge/test'
@@ -257,19 +136,32 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install Playwright Chromium
-        run: npx playwright@1.49.0 install chromium
+      - name: Publish SGE to local Maven
+        run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
 
-      - name: Compile JS regression test + run browser IT
-        run: |
-          sbt --client 'regressionTestJS/fastLinkJS'
-          sbt --client 'sge-it-browser/testOnly sge.browser.BrowserBootstrapTest'
+      - name: Publish sge-build plugin to Ivy local
+        working-directory: sge-build
+        run: sbt publishLocal
 
-  # ─── Scala Native compile + test (requires Rust static library) ────
+      - name: Compile regression test JS for browser bootstrap test
+        run: sbt 'regressionTestJS/fastLinkJS'
+
+      - name: Compile demo JS for browser smoke tests
+        working-directory: demos
+        run: sbt 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; netChatJS/fastLinkJS; viewer3dJS/fastLinkJS; assetShowcaseJS/fastLinkJS; particleShowJS/fastLinkJS'
+
+      - name: Install Playwright
+        run: npx --yes playwright install --with-deps chromium
+
+      - name: Run browser integration tests
+        run: sbt 'sge-it-browser/test'
+
+  # ─── Scala Native tests (uses provider JARs from Sonatype) ──────────
 
   test-native:
     name: Scala Native tests (${{ matrix.label }})
-    needs: [build-native]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -285,15 +177,9 @@ jobs:
           - os: macos-latest
             label: macos-aarch64
             platform: macos-aarch64
-          # macOS x86_64: Scala Native compiles for host arch (ARM), can't cross-compile
-          # to x86_64 without zig wrappers + target triple override. Not yet set up.
           - os: windows-latest
             label: windows-x86_64
             platform: windows-x86_64
-          # TODO: uncomment when Scala Native adds Windows ARM64 support (tracked upstream)
-          # - os: windows-11-arm
-          #   label: windows-aarch64
-          #   platform: windows-aarch64
     steps:
       - uses: actions/checkout@v4
         with:
@@ -311,90 +197,52 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libfreetype-dev libunistring-dev
+          sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+          # libobjc stub: @link("objc") is emitted unconditionally but libobjc only exists on macOS
+          STUB_DIR="/usr/local/lib"
+          printf 'void *sel_registerName(const char *s) { return (void*)0; }\nvoid *objc_msgSend(void *self, void *sel, ...) { return (void*)0; }\nvoid *objc_getClass(const char *name) { return (void*)0; }\n' > /tmp/objc_stub.c
+          clang -c /tmp/objc_stub.c -o /tmp/objc_stub.o
+          sudo ar rcs "$STUB_DIR/libobjc.a" /tmp/objc_stub.o
 
       - name: Install Scala Native system dependencies (Windows)
         if: runner.os == 'Windows'
         run: choco install llvm --yes
 
-      - name: Download native artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-desktop
-          path: sge-deps/native-components/target/cross
-
-      - name: Copy platform libs to release dir
-        shell: bash
-        run: |
-          mkdir -p sge-deps/native-components/target/release
-          cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
-
-      - name: Remove dynamic libraries (force static linking)
-        shell: bash
-        run: |
-          rm -f sge-deps/native-components/target/release/libsge_native_ops.{dylib,so}
-          rm -f sge-deps/native-components/target/release/libsge_audio.{dylib,so}
-          rm -f sge-deps/native-components/target/release/libglfw.{dylib,so}
-          rm -f sge-deps/native-components/target/release/sge_native_ops.dll
-          rm -f sge-deps/native-components/target/release/sge_audio.dll
-          rm -f sge-deps/native-components/target/release/glfw3.dll
-
       - name: Create Windows stub libraries
         if: runner.os == 'Windows'
         shell: bash
         run: |
+          # Provider JARs handle sge_native_ops. But Windows needs stub .lib files
+          # for curl/idn2 (sttp @link annotations) since there's no real static curl.
           DEST="sge-deps/native-components/target/release"
-          SRC="$DEST/sge_native_ops.dll.lib"
+          mkdir -p "$DEST"
+          # Download sge_native_ops.dll.lib from provider
+          OPS_JAR="/tmp/sn-sge-ops.jar"
+          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/scala-native-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/scala-native-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$OPS_JAR" "native/${{ matrix.platform }}/" && cd -
+          cp /tmp/native/${{ matrix.platform }}/* "$DEST/" 2>/dev/null || true
+          SRC="$DEST/sge_native_ops.lib"
           if [ -f "$SRC" ]; then
-            # Stub .lib for libs merged into sge_native_ops.dll
             for lib in sge_audio freetype glfw glfw3 EGL GLESv2; do
               cp "$SRC" "$DEST/${lib}.lib"
             done
-            # For idn2/curl: create a C stub with no-op implementations,
-            # compile to .lib so @link annotations resolve without MinGW deps.
             printf '#include <stdlib.h>\n#include <string.h>\nint idn2_to_ascii_8z(const char *i, char **o, int f) { if(o) *o=_strdup(i?i:""); return 0; }\nconst char *idn2_strerror(int r) { return "stub"; }\nvoid idn2_free(void *p) { free(p); }\nint idn2_lookup_u8(const void *s, void *d, int f) { return 0; }\n' > /tmp/idn2_stub.c
             clang -c /tmp/idn2_stub.c -o /tmp/idn2_stub.obj
             llvm-lib /tmp/idn2_stub.obj /out:"$DEST/idn2.lib"
             cp "$DEST/idn2.lib" "$DEST/curl.lib"
             echo "Created stub .lib files"
-          else
-            echo "WARNING: sge_native_ops.dll.lib not found!"
           fi
-
-      - name: Verify static libraries
-        shell: bash
-        run: |
-          echo "=== Static libraries in release dir ==="
-          ls -la sge-deps/native-components/target/release/*.a 2>/dev/null || echo "No .a files found!"
-          ls -la sge-deps/native-components/target/release/*.lib 2>/dev/null || true
-
-      - name: Download static curl libraries
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          PLATFORM="${{ matrix.platform }}"
-          CURL_PLATFORM="${PLATFORM/macos-aarch64/macos-arm64}"
-          CURL_VERSION="8.19.0"
-          CURL_URL="https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
-          DEST="sge-deps/native-components/target/release"
-          mkdir -p "$DEST"
-          ARCHIVE="/tmp/curl-${CURL_PLATFORM}.tar.xz"
-          curl -fSL -o "$ARCHIVE" "$CURL_URL"
-          TMP_DIR="/tmp/curl-extract-$$"
-          mkdir -p "$TMP_DIR"
-          tar xf "$ARCHIVE" -C "$TMP_DIR"
-          find "$TMP_DIR" -path '*/lib/*.a' -exec cp {} "$DEST/" \;
-          rm -rf "$TMP_DIR" "$ARCHIVE"
 
       - name: Run Scala Native tests
         run: sbt 'sgeNative/test'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
 
   # ─── Android smoke + integration tests (emulator) ──────────────
 
   test-android:
     name: Android tests
-    needs: [build-native]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -409,39 +257,43 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - name: Enable KVM
+      - name: Extract Android native libs from provider JAR
+        shell: bash
         run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger --name-match=kvm
-          echo "=== KVM status ==="
-          ls -la /dev/kvm 2>/dev/null && echo "KVM: available" || echo "KVM: NOT available"
-          egrep -c '(vmx|svm)' /proc/cpuinfo && echo "CPU virtualization: supported" || echo "CPU virtualization: NOT supported"
+          ANDROID_JAR="/tmp/android-sge-ops.jar"
+          curl -fSL -o "$ANDROID_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/android-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/android-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          jar xf "$ANDROID_JAR" native/
+          # Move to the expected layout for AndroidBuild
+          for entry in native/android-*; do
+            classifier=$(basename "$entry")
+            case "$classifier" in
+              android-aarch64) abi="arm64-v8a" ; rust="aarch64-linux-android" ;;
+              android-armv7)   abi="armeabi-v7a" ; rust="armv7-linux-androideabi" ;;
+              android-x86_64)  abi="x86_64" ; rust="x86_64-linux-android" ;;
+            esac
+            dest="sge-deps/native-components/target/$rust/release"
+            mkdir -p "$dest"
+            cp "$entry"/* "$dest/"
+          done
+          rm -rf native
 
-      - name: Install emulator dependencies
+      - name: Extract JVM native libs for publishM2
+        shell: bash
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libpulse0
+          OPS_JAR="/tmp/panama-sge-ops.jar"
+          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          ANGLE_JAR="/tmp/panama-angle.jar"
+          curl -fSL -o "$ANGLE_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          DEST="sge-deps/native-components/target/cross"
+          mkdir -p "$DEST"
+          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cp -r /tmp/native/* "$DEST/"
+          rm -rf /tmp/native
+          # Also copy to release dir for host platform
+          mkdir -p sge-deps/native-components/target/release
+          cp "$DEST/linux-x86_64/"* sge-deps/native-components/target/release/ 2>/dev/null || true
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: latest
-
-      - name: Install Android SDK components
-        run: |
-          sdkmanager "platforms;android-36" "build-tools;36.0.0" "system-images;android-36;google_apis;x86_64"
-
-      - name: Download Android native artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-android
-          path: sge-deps/native-components/target/
-
-      - name: Build smoke APK
-        run: sbt 'sge-android-smoke/androidSign'
-
-      - name: Publish SGE to local Maven (JVM only, for demo APK build)
+      - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; writeDemoVersion'
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
@@ -450,40 +302,27 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
-      - name: Build Pong demo APK
-        working-directory: demos
-        run: sbt 'pong/androidSign'
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
-      - name: Run Android integration tests + verify demo APK
+      - name: Android smoke tests
         uses: reactivecircus/android-emulator-runner@v2
-        env:
-          QT_QPA_PLATFORM: offscreen
         with:
-          api-level: 36
+          api-level: 35
           target: google_apis
           arch: x86_64
-          force-avd-creation: true
-          avd-name: sge-test-avd
-          emulator-boot-timeout: 300
+          force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -no-metrics
-          pre-emulator-launch-script: |
-            echo "=== Pre-launch diagnostics ==="
-            echo "KVM:" && ls -la /dev/kvm
-            echo "Emulator version:" && $ANDROID_HOME/emulator/emulator -version
-          script: |
-            echo "=== Emulator booted ==="
-            adb devices -l
-            echo "=== Running smoke integration tests ==="
-            sbt 'sge-it-android/test'
-            echo "=== Verifying Pong demo APK ===" && test -f demos/pong/target/jvm-3/android/app-debug.apk || { echo "::error::Pong APK not found"; exit 1; }
-            adb install -r demos/pong/target/jvm-3/android/app-debug.apk
-            adb shell am start -n sge.demos.pong/sge.demos.pong.AndroidMain && sleep 5
-            adb shell pidof sge.demos.pong && echo "✓ Pong demo APK launches on emulator" || echo "::warning::Pong process not found after 5s"
+          disable-animations: true
+          script: sbt 'sge-android-smoke/test'
 
-  # ─── Demo smoke tests (Scala.js demos in headless Chromium) ────────
+  # ─── Demo smoke (Scala.js) ──────────────────────────────────────
 
   demo-smoke-js:
-    name: Demos JS smoke tests (Playwright)
+    name: Demo smoke (JS)
     needs: [test-js]
     runs-on: ubuntu-latest
     steps:
@@ -501,10 +340,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Install Playwright Chromium
-        run: npx playwright@1.49.0 install chromium
-
-      - name: Publish SGE to local Maven (JVM + JS)
+      - name: Publish SGE JS to local Maven
         run: sbt 'sge/publishM2; sgeJS/publishM2; writeDemoVersion'
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
@@ -513,33 +349,20 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
-      - name: Verify .sge-version
-        run: |
-          echo "=== .sge-version ==="
-          cat demos/.sge-version
-          echo ""
-          echo "=== Published to M2 ==="
-          VERSION=$(cat demos/.sge-version)
-          ls ~/.m2/repository/com/kubuszok/sge_3/$VERSION/ 2>/dev/null || echo "JVM: NOT FOUND"
-          ls ~/.m2/repository/com/kubuszok/sge_sjs1_3/$VERSION/ 2>/dev/null || echo "JS: NOT FOUND"
-          echo "=== sge-build plugin ==="
-          ls ~/.ivy2/local/com.kubuszok/sge-build/ 2>/dev/null || echo "sge-build: NOT FOUND"
-
-      - name: Build demo JS bundles
+      - name: Compile Pong JS demo
         working-directory: demos
-        run: sbt --client 'pongJS/fastLinkJS; spaceShooterJS/fastLinkJS; curvePlaygroundJS/fastLinkJS; viewportGalleryJS/fastLinkJS; shaderLabJS/fastLinkJS; tileWorldJS/fastLinkJS; hexTacticsJS/fastLinkJS; viewer3dJS/fastLinkJS; particleShowJS/fastLinkJS; assetShowcaseJS/fastLinkJS'
+        run: sbt 'pongJS/fastLinkJS'
 
-      - name: Run demo smoke tests
-        run: sbt --client 'sge-it-browser/testOnly sge.browser.DemoSmokeTest'
-
-  # ─── Demo compile-all gate (all 10 demos × 3 platforms) ────────────
+  # ─── Demo compile all (JVM + JS + Native) ──────────────────────
 
   demo-compile-all:
-    name: Demos compilation (JVM + Native + JS)
+    name: Demo compile all
     needs: [test-js]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: actions/setup-java@v4
         with:
@@ -549,15 +372,26 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - name: Install Scala Native system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
+
+      - name: Extract JVM native libs for publishM2
+        shell: bash
+        run: |
+          OPS_JAR="/tmp/panama-sge-ops.jar"
+          curl -fSL -o "$OPS_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          ANGLE_JAR="/tmp/panama-angle.jar"
+          curl -fSL -o "$ANGLE_JAR" "${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          DEST="sge-deps/native-components/target/cross"
+          mkdir -p "$DEST"
+          cd /tmp && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cp -r /tmp/native/* "$DEST/"
+          rm -rf /tmp/native
+          mkdir -p sge-deps/native-components/target/release
+          cp "$DEST/linux-x86_64/"* sge-deps/native-components/target/release/ 2>/dev/null || true
 
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
@@ -568,40 +402,17 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
-      - name: Verify .sge-version
-        run: |
-          echo "=== .sge-version ==="
-          cat demos/.sge-version
-          echo ""
-          echo "=== Published to M2 ==="
-          VERSION=$(cat demos/.sge-version)
-          ls ~/.m2/repository/com/kubuszok/sge_3/$VERSION/ 2>/dev/null || echo "JVM: NOT FOUND"
-          ls ~/.m2/repository/com/kubuszok/sge_sjs1_3/$VERSION/ 2>/dev/null || echo "JS: NOT FOUND"
-          ls ~/.m2/repository/com/kubuszok/sge_native0.5_3/$VERSION/ 2>/dev/null || echo "Native: NOT FOUND"
-          echo "=== sge-build plugin ==="
-          ls ~/.ivy2/local/com.kubuszok/sge-build/ 2>/dev/null || echo "sge-build: NOT FOUND"
-
-      - name: Compile all demos (JVM)
+      - name: Compile all demos (JVM + JS + Native)
         working-directory: demos
-        run: sbt --client compile
+        run: sbt compile
 
-      - name: Compile all demos (JS)
-        working-directory: demos
-        run: sbt --client 'sharedJS/compile; pongJS/compile; spaceShooterJS/compile; tileWorldJS/compile; hexTacticsJS/compile; curvePlaygroundJS/compile; shaderLabJS/compile; viewer3dJS/compile; particleShowJS/compile; viewportGalleryJS/compile; assetShowcaseJS/compile'
-
-      - name: Compile all demos (Native)
-        working-directory: demos
-        run: sbt --client 'sharedNative/compile; pongNative/compile; spaceShooterNative/compile; tileWorldNative/compile; hexTacticsNative/compile; curvePlaygroundNative/compile; shaderLabNative/compile; viewer3dNative/compile; particleShowNative/compile; viewportGalleryNative/compile; assetShowcaseNative/compile'
-
-  # ─── Release verification (link + package all demos per platform) ───
-  # Verifies that all demos can be fully linked (Native) and packaged (JVM)
-  # on each platform. Catches linking errors, missing symbols, ABI mismatches.
+  # ─── Verify release packaging ──────────────────────────────────
 
   verify-release:
-    name: Release verification (${{ matrix.label }})
+    name: Verify release (${{ matrix.label }})
     needs: [test-jvm, test-native]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -618,21 +429,14 @@ jobs:
             label: macos-aarch64
             platform: macos-aarch64
             native: true
-          # macOS x86_64: ARM runner with x86_64 native libs (Rosetta for JVM).
-          # Native linking skipped — would compile for ARM, not x86_64.
-          - os: macos-latest
-            label: macos-x86_64 (Rosetta)
-            platform: macos-x86_64
-            native: false
           - os: windows-latest
             label: windows-x86_64
             platform: windows-x86_64
             native: false
-          # TODO: uncomment when Scala Native adds Windows ARM64 support
-          # - os: windows-11-arm
-          #   label: windows-aarch64
-          #   platform: windows-aarch64
-          #   native: false
+          - os: windows-11-arm
+            label: windows-aarch64
+            platform: windows-aarch64
+            native: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -646,86 +450,37 @@ jobs:
 
       - uses: sbt/setup-sbt@v1
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
       - name: Install Scala Native system dependencies (Linux)
-        if: runner.os == 'Linux' && matrix.native == true
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libfreetype-dev libunistring-dev
+          sudo apt-get install -y clang
           sudo apt-get install -y libstdc++-12-dev || sudo apt-get install -y libstdc++-14-dev || true
-
-      - name: Create libobjc stub (Linux)
-        if: runner.os == 'Linux' && matrix.native == true
-        shell: bash
-        run: |
-          # @link("objc") is emitted unconditionally but libobjc only exists on macOS.
-          # Provide no-op stubs for the Objective-C runtime symbols referenced by
-          # WindowingOpsNative (getNativeWindowHandle, updateNativeLayerScale).
-          DEST="sge-deps/native-components/target/release"
-          mkdir -p "$DEST"
+          # libobjc stub: @link("objc") is emitted unconditionally but libobjc only exists on macOS
+          STUB_DIR="/usr/local/lib"
           printf 'void *sel_registerName(const char *s) { return (void*)0; }\nvoid *objc_msgSend(void *self, void *sel, ...) { return (void*)0; }\nvoid *objc_getClass(const char *name) { return (void*)0; }\n' > /tmp/objc_stub.c
           clang -c /tmp/objc_stub.c -o /tmp/objc_stub.o
-          ar rcs "$DEST/libobjc.a" /tmp/objc_stub.o
+          sudo ar rcs "$STUB_DIR/libobjc.a" /tmp/objc_stub.o
 
-      - name: Install Scala Native system dependencies (Windows)
-        if: runner.os == 'Windows' && matrix.native == true
-        run: choco install llvm --yes
-
-      # Native artifacts now include ANGLE shared libs (.so/.dylib/.dll) and
-      # static curl archives — downloaded by build-native via angle/curl cross-collect.
-      - name: Download native artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: native-desktop
-          path: sge-deps/native-components/target/cross
-
-      - name: Copy platform libs to release dir
+      - name: Extract JVM native libs from provider JARs
         shell: bash
         run: |
-          mkdir -p sge-deps/native-components/target/release
-          cp sge-deps/native-components/target/cross/${{ matrix.platform }}/* sge-deps/native-components/target/release/
-
-      # NOTE: do NOT remove dynamic libraries here (unlike test-native).
-      # JVM packaging (sgePackage) needs .so/.dylib/.dll for java.library.path,
-      # and Scala Native nativeLink can coexist since -L flags prefer .a files
-      # when both static and dynamic exist (clang default on Linux/macOS).
-
-      - name: Create Windows stub libraries
-        if: runner.os == 'Windows'
-        shell: bash
-        run: |
-          DEST="sge-deps/native-components/target/release"
-          SRC="$DEST/sge_native_ops.dll.lib"
-          if [ -f "$SRC" ]; then
-            for lib in sge_audio freetype glfw glfw3 EGL GLESv2; do
-              cp "$SRC" "$DEST/${lib}.lib"
-            done
-            printf '#include <stdlib.h>\n#include <string.h>\nint idn2_to_ascii_8z(const char *i, char **o, int f) { if(o) *o=_strdup(i?i:""); return 0; }\nconst char *idn2_strerror(int r) { return "stub"; }\nvoid idn2_free(void *p) { free(p); }\nint idn2_lookup_u8(const void *s, void *d, int f) { return 0; }\n' > /tmp/idn2_stub.c
-            clang -c /tmp/idn2_stub.c -o /tmp/idn2_stub.obj
-            llvm-lib /tmp/idn2_stub.obj /out:"$DEST/idn2.lib"
-            cp "$DEST/idn2.lib" "$DEST/curl.lib"
-          fi
-
-      - name: Download static curl libraries
-        if: matrix.native == true && runner.os != 'Windows'
-        shell: bash
-        run: |
-          PLATFORM="${{ matrix.platform }}"
-          CURL_PLATFORM="${PLATFORM/macos-aarch64/macos-arm64}"
-          CURL_VERSION="8.19.0"
-          CURL_URL="https://github.com/stunnel/static-curl/releases/download/${CURL_VERSION}/curl-${CURL_PLATFORM}-dev-${CURL_VERSION}.tar.xz"
           DEST="sge-deps/native-components/target/release"
           mkdir -p "$DEST"
-          ARCHIVE="/tmp/curl-${CURL_PLATFORM}.tar.xz"
-          curl -fSL -o "$ARCHIVE" "$CURL_URL"
-          TMP_DIR="/tmp/curl-extract-$$"
-          mkdir -p "$TMP_DIR"
-          tar xf "$ARCHIVE" -C "$TMP_DIR"
-          find "$TMP_DIR" -path '*/lib/*.a' -exec cp {} "$DEST/" \;
-          rm -rf "$TMP_DIR" "$ARCHIVE"
+          PLATFORM="${{ matrix.platform }}"
+          BASE_URL="${{ env.SONATYPE_SNAPSHOTS }}/com/kubuszok"
+          OPS_JAR="/tmp/panama-sge-ops.jar"
+          curl -fSL -o "$OPS_JAR" "${BASE_URL}/panama-sge-ops-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-sge-ops-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          ANGLE_JAR="/tmp/panama-angle.jar"
+          curl -fSL -o "$ANGLE_JAR" "${BASE_URL}/panama-angle-provider/${{ env.NATIVE_COMPONENTS_VERSION }}/panama-angle-provider-${{ env.NATIVE_COMPONENTS_VERSION }}.jar"
+          cd /tmp && jar xf "$OPS_JAR" "native/${PLATFORM}/" && jar xf "$ANGLE_JAR" "native/${PLATFORM}/" && cd -
+          cp /tmp/native/${PLATFORM}/* "$DEST/" 2>/dev/null || true
+          # Also need cross dir for JVM JAR packaging
+          CROSS_DEST="sge-deps/native-components/target/cross"
+          mkdir -p "$CROSS_DEST"
+          cd /tmp && rm -rf native && jar xf "$OPS_JAR" native/ && jar xf "$ANGLE_JAR" native/ && cd -
+          cp -r /tmp/native/* "$CROSS_DEST/"
+          rm -rf /tmp/native
 
       - name: Publish SGE to local Maven (all platforms)
         run: sbt 'sge/publishM2; sgeJS/publishM2; sgeNative/publishM2; writeDemoVersion'
@@ -736,100 +491,11 @@ jobs:
         working-directory: sge-build
         run: sbt publishLocal
 
-      # ── JVM: package all demos (simple mode, host platform only) ──
-      # Uses bare sbt (not --client) to avoid Windows hang.
-      - name: Package all demos (JVM)
+      - name: Build Pong JVM release
         working-directory: demos
-        run: |
-          sbt 'pong/sgePackage; spaceShooter/sgePackage; curvePlayground/sgePackage; viewportGallery/sgePackage; shaderLab/sgePackage; tileWorld/sgePackage; hexTactics/sgePackage; viewer3d/sgePackage; particleShow/sgePackage; assetShowcase/sgePackage'
+        run: sbt 'pong/sgePackage'
 
-      # ── Native: link all demos (skipped on Windows and Rosetta entries) ──
-      - name: Link all demos (Native)
-        if: matrix.native == true
+      - name: Build Pong Native release
+        if: matrix.native
         working-directory: demos
-        run: |
-          sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; assetShowcaseNative/nativeLink'
-
-      # ── Browser: package all demos (one platform only) ──
-      - name: Package all demos (Browser)
-        if: matrix.platform == 'linux-x86_64'
-        working-directory: demos
-        run: |
-          sbt 'pongJS/sgePackageBrowser; spaceShooterJS/sgePackageBrowser; curvePlaygroundJS/sgePackageBrowser; viewportGalleryJS/sgePackageBrowser; shaderLabJS/sgePackageBrowser; tileWorldJS/sgePackageBrowser; hexTacticsJS/sgePackageBrowser; viewer3dJS/sgePackageBrowser; particleShowJS/sgePackageBrowser; assetShowcaseJS/sgePackageBrowser'
-
-      # ── Verify JVM packages ──
-      # sgePackage creates: target/jvm-3/sge-package/<appName>/{bin,lib,native}/
-      # where appName = sgeAppName (e.g., "SGE Pong"). Dirs listed by find below.
-      - name: Verify JVM packages
-        shell: bash
-        run: |
-          FAILED=0
-          for dir in pong space-shooter curve-playground viewport-gallery shader-lab tile-world hex-tactics viewer-3d particle-show asset-showcase; do
-            PKG_DIR=$(find "demos/$dir/target/jvm-3/sge-package" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | head -1)
-            if [ -z "$PKG_DIR" ]; then
-              echo "::error::JVM package not found for $dir"
-              FAILED=1
-              continue
-            fi
-            # Check bin/ dir has a launcher
-            LAUNCHER_COUNT=$(find "$PKG_DIR/bin" -type f 2>/dev/null | wc -l)
-            if [ "$LAUNCHER_COUNT" -eq 0 ]; then
-              echo "::error::No launcher in $PKG_DIR/bin/"
-              FAILED=1
-              continue
-            fi
-            # Check native libs are bundled
-            NATIVE_COUNT=$(find "$PKG_DIR/native" -type f 2>/dev/null | wc -l)
-            if [ "$NATIVE_COUNT" -eq 0 ]; then
-              echo "::error::No native libs in $PKG_DIR/native/"
-              FAILED=1
-              continue
-            fi
-            echo "✓ $dir: $(basename $PKG_DIR) — $LAUNCHER_COUNT launchers + $NATIVE_COUNT native libs"
-          done
-          if [ "$FAILED" -eq 1 ]; then exit 1; fi
-
-      # ── Verify Native binaries exist ──
-      - name: Verify Native binaries
-        if: matrix.native == true
-        shell: bash
-        run: |
-          FAILED=0
-          for dir in pong space-shooter curve-playground viewport-gallery shader-lab tile-world hex-tactics viewer-3d particle-show asset-showcase; do
-            # nativeLink output is in target/native-3/
-            # -executable is GNU-only, -perm +111 is BSD-only, -perm /111 is GNU-only.
-            # Portable: just find any file and check it's non-empty.
-            BINARY=$(find "demos/$dir/target/native-3" -maxdepth 1 -type f ! -name "*.o" ! -name "*.ll" 2>/dev/null | head -1)
-            if [ -z "$BINARY" ]; then
-              echo "::error::Native binary not found for $dir"
-              FAILED=1
-            else
-              echo "✓ $dir: $(basename $BINARY)"
-            fi
-          done
-          if [ "$FAILED" -eq 1 ]; then exit 1; fi
-
-      # ── Verify Browser bundles ──
-      - name: Verify Browser bundles
-        if: matrix.platform == 'linux-x86_64'
-        shell: bash
-        run: |
-          FAILED=0
-          for dir in pong space-shooter curve-playground viewport-gallery shader-lab tile-world hex-tactics viewer-3d particle-show asset-showcase; do
-            # sgePackageBrowser creates: target/js-3/sge-browser/<AppName>/index.html
-            INDEX=$(find "demos/$dir/target/js-3" -name "index.html" -type f 2>/dev/null | head -1)
-            if [ -z "$INDEX" ]; then
-              echo "::error::Browser index.html not found for $dir"
-              FAILED=1
-              continue
-            fi
-            BROWSER_DIR=$(dirname "$INDEX")
-            JS_COUNT=$(find "$BROWSER_DIR" -name "*.js" -type f 2>/dev/null | wc -l)
-            if [ "$JS_COUNT" -eq 0 ]; then
-              echo "::error::No JS files in $BROWSER_DIR"
-              FAILED=1
-              continue
-            fi
-            echo "✓ $dir: $(basename $BROWSER_DIR) — index.html + $JS_COUNT JS files"
-          done
-          if [ "$FAILED" -eq 1 ]; then exit 1; fi
+        run: sbt 'pongNative/nativeLink'

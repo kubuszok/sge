@@ -1,4 +1,5 @@
-import _root_.sge.sbt.{AndroidBuild, AndroidSdk, SgeDesktopJvmPlatform, SgeBrowserPlatform, SgeDesktopNativePlatform, Platform, SgePackaging, SgePlugin, SgeProject, ZigCross}
+import _root_.multiarch.sbt.{Platform, ZigCross}
+import _root_.sge.sbt.{AndroidBuild, AndroidSdk, SgeDesktopJvmPlatform, SgeBrowserPlatform, SgeDesktopNativePlatform, SgePackaging, SgePlugin, SgeProject}
 import sbt.internal.ProjectMatrix
 import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
@@ -20,11 +21,9 @@ ThisBuild / resolvers ++= Seq(
 // Disable cached resolution — stale Coursier cache misses local SNAPSHOT JARs.
 ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
 
-// ── Native library directory (local dev mode — bypasses JAR extraction) ──
-
-ThisBuild / SgeProject.autoImport.sgeNativeLibLocalDir := Some(
-  (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "release"
-)
+// Native libraries come from provider JARs (scala-native-sge-ops-provider, etc.)
+// No local sge-deps directory needed.
+ThisBuild / SgeProject.autoImport.sgeNativeLibLocalDir := None
 
 // ── Azul Zulu JDK 25 URLs for distribution packaging ─────────────
 // JDK 25 (LTS) with all 6 desktop platforms including Windows ARM64.
@@ -71,9 +70,6 @@ def androidJvmSettings(dir: String): Seq[Setting[_]] =
 // Shared distribution packaging settings for all demos
 val demoDistSettings: Seq[Setting[_]] = Seq(
   SgePackaging.sgeTargets := jdkUrls,
-  SgePackaging.sgeCrossNativeLibDir := Some(
-    (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross"
-  ),
   SgePackaging.sgeJlinkModules := Seq(
     "java.base", "java.desktop", "java.logging", "java.management",
     "jdk.unsupported", "jdk.zipfs", "java.net.http"
@@ -93,28 +89,32 @@ def nativeAxis(dir: String): Seq[Setting[_]] = SgeProject.nativeAxis
 // Enables building Scala Native binaries for non-host platforms using zig.
 // Each target gets a separate sbt subproject (e.g. pongNativeLinuxX64).
 
-val crossNativeTargets: Seq[Platform] = {
-  val crossDir = new File(System.getProperty("user.dir")).getParentFile / "sge-deps" / "native-components" / "target" / "cross"
-  if (ZigCross.isAvailable && crossDir.exists())
-    Platform.desktop.filterNot(_ == Platform.host)
+// Cross-compilation requires zig and uses provider JARs for native libs.
+val crossNativeTargets: Seq[Platform] =
+  if (ZigCross.isAvailable) Platform.desktop.filterNot(_ == Platform.host)
   else Seq.empty
-}
 
 def crossNativeAxis(dir: String, platform: Platform): Seq[Setting[_]] =
-  SgePlugin.nativeSettings(projectDir = dir) ++ _root_.sge.sbt.SgeNativeLibs.settings ++ SgePackaging.nativeSettings ++ Seq(
-    SgeProject.autoImport.sgeNativeLibLocalDir := Some(
-      (ThisBuild / baseDirectory).value / ".." / "sge-deps" / "native-components" / "target" / "cross" / platform.classifier
-    ),
-    _root_.sge.sbt.SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeNativeLibDir.value,
+  SgePlugin.nativeSettings(projectDir = dir) ++
+    _root_.multiarch.sbt.NativeLibBundle.settings ++
+    _root_.multiarch.sbt.NativeLibExtract.settings ++
+    SgePackaging.nativeSettings ++ Seq(
+    SgeProject.autoImport.sgeNativeLibLocalDir := None,
+    _root_.multiarch.sbt.NativeLibExtract.nativeLibPlatform := platform,
     SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
     nativeConfig := {
-      val c = nativeConfig.value
-      val crossLibDir = SgeProject.autoImport.sgeNativeLibDir.value
+      val c        = nativeConfig.value
+      val log      = streams.value.log
+      val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
+      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
+      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
+        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
+      )
       val wrapperDir = target.value / "zig-wrappers"
       c.withClang(ZigCross.clangWrapper(platform, wrapperDir))
         .withClangPP(ZigCross.clangPPWrapper(platform, wrapperDir))
         .withTargetTriple(Some(platform.scalaNativeTarget))
-        .withLinkingOptions(c.linkingOptions ++ _root_.sge.sbt.SgeNativeLibs.linkerFlags(crossLibDir, platform))
+        .withLinkingOptions(c.linkingOptions ++ merged)
     }
   )
 

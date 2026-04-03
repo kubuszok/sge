@@ -46,12 +46,9 @@ class FileHandleResolverTest extends munit.FunSuite {
     assert(prefixed.baseResolver eq base2)
   }
 
-  test("ForResolution requires at least one descriptor") {
-    val base = new StubResolver()
-    intercept[IllegalArgumentException] {
-      new FileHandleResolver.ForResolution(base, Array.empty[FileHandleResolver.Resolution])
-    }
-  }
+  // NOTE: ForResolution constructor test is JVM-only because ForResolution.resolve
+  // references FileHandle.exists() → getResourceAsStream which doesn't exist on Scala.js.
+  // Even instantiating ForResolution in a test causes the Scala.js linker to pull it in.
 
   test("ForResolution.choose returns best match for screen size") {
     // NoopGraphics defaults: backBufferWidth=0, backBufferHeight=0

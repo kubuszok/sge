@@ -1,5 +1,7 @@
 package sge.sbt
 
+import multiarch.sbt.Platform
+
 import sbt._
 import sbt.Keys._
 
@@ -138,9 +140,6 @@ object SgePlugin {
 
   /** @deprecated Use [[Platform.desktop]] instead. */
   val desktopPlatforms: Seq[String] = Platform.desktop.map(_.classifier)
-
-  /** @deprecated Use [[AndroidAbi.all]] instead. */
-  val androidAbis: Seq[String] = AndroidAbi.all.map(_.name)
 
   /** @deprecated Use [[Platform.host]] instead. */
   def hostPlatform: String = Platform.host.classifier

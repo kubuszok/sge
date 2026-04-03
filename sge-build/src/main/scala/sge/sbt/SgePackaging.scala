@@ -1,5 +1,7 @@
 package sge.sbt
 
+import multiarch.sbt.Platform
+
 import sbt._
 import sbt.Keys._
 import sbt.complete.DefaultParsers._
