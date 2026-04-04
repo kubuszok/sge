@@ -30,12 +30,10 @@ sge-extension/freetype/            # FreeType font extension (projectMatrix)
 sge-extension/physics/             # 2D physics via Rapier2D (projectMatrix)
 sge-extension/tools/               # TexturePacker CLI (JVM-only)
 sge-build/                        # sbt plugin (SgePlugin, packaging, Android)
-sge-deps/native-components/       # Rust native library (GLFW, miniaudio, FFI)
 demo/                             # Single cross-platform demo (root build)
-demos/                            # 10 feature demos (separate sub-build)
+demos/                            # 11 feature demos (separate sub-build)
 sge-test/android-smoke/           # Minimal Android smoke-test APK
 sge-test/                         # Integration tests (desktop, browser, android)
-scalafix-rules/                   # Custom Scalafix lint rules
 ```
 
 ## sbt Project IDs
@@ -66,7 +64,7 @@ The `demos/` directory is a **separate sbt build** that depends on published SGE
 
 ```sh
 sge-dev build publish-local --all   # Publish SGE to local Maven
-cd demos && sbt --client compile    # Compile all 10 demos
+cd demos && sbt --client compile    # Compile all 11 demos
 ```
 
 Each demo uses `projectMatrix` with JVM, JS, and Native axes, plus cross-native

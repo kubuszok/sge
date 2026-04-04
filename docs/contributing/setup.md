@@ -6,24 +6,27 @@ External dependencies required to build, test, and release SGE.
 
 | Dependency | Version | Install (macOS) | Purpose |
 |------------|---------|-----------------|---------|
-| JDK | 23+ | `brew install --cask graalvm-jdk` | Scala compiler, Panama FFM |
+| JDK | 25+ | `brew install --cask zulu` | Scala compiler, Panama FFM |
 | sbt | 1.12+ | `brew install sbt` | Build tool |
-| Rust | stable | `brew install rustup && rustup-init` | native-components (GLFW, miniaudio, buffer ops) |
 | Node.js | 18+ | `brew install node` | Scala.js linking |
-| FreeType | 2.x | `brew install freetype` | Font rasterization (linked by Rust native-components) |
+| FreeType | 2.x | `brew install freetype` | Font rasterization (system library for local dev) |
+
+Native libraries (GLFW, miniaudio, buffer ops) are distributed as provider JARs
+from Maven and resolved automatically by sbt. No local Rust toolchain is needed.
+To modify native code, clone the
+[sge-native-components](https://github.com/kubuszok/sge-native-components) repo.
 
 ### Quick install (macOS)
 
 ```sh
-brew install sbt node rustup freetype
-brew install --cask graalvm-jdk
-rustup-init
+brew install sbt node freetype
+brew install --cask zulu
 ```
 
 ### First build
 
 ```sh
-sge-dev native build          # Compile Rust native library
+sge-dev setup                 # Install toolchain (first time)
 sge-dev native angle setup    # Download ANGLE OpenGL ES libraries
 sge-dev build compile         # Compile SGE core (JVM)
 sge-dev test unit             # Run JVM unit tests
@@ -39,10 +42,6 @@ from macOS):
 | Dependency | Install (macOS) | Purpose |
 |------------|-----------------|---------|
 | zig | `brew install zig` | Cross-compilation C toolchain for Scala Native |
-| cargo-zigbuild | `cargo install cargo-zigbuild` | Rust cross-compilation for Linux targets |
-| cargo-xwin | `cargo install cargo-xwin` | Rust cross-compilation for Windows targets |
-
-Or run `sge-dev native setup-toolchain` to install all three.
 
 ### Browser integration tests
 
@@ -89,22 +88,14 @@ handled automatically by the workflow and don't need manual installation.
 
 ### All platforms
 
-- JDK 21 (via `actions/setup-java` with Temurin)
+- JDK 25 (via `actions/setup-java` with Zulu)
 - sbt (via `sbt/setup-sbt`)
-- Rust stable (via `dtolnay/rust-toolchain`)
 
 ### Linux runners
 
 ```sh
 # Scala Native system dependencies
 sudo apt-get install -y clang libstdc++-12-dev
-
-# Static curl (replaces system libcurl/libidn2 — downloaded from stunnel/static-curl)
-# See .github/workflows/ci.yml for the download step
-
-# Rust cross-compilation
-cargo install cargo-zigbuild cargo-xwin
-# Zig (via mlugg/setup-zig)
 ```
 
 ### Windows runners
@@ -151,18 +142,19 @@ matching release exists in sge-angle-natives.
 
 ## Native components
 
-The Rust library in `native-components/` vendors all its C dependencies
-(GLFW, miniaudio). Only FreeType is linked from the system. The library
-produces:
+Native libraries are built in the external
+[sge-native-components](https://github.com/kubuszok/sge-native-components)
+repository and distributed as provider JARs from Maven. Three libraries
+are produced:
 
-| Output | Purpose |
-|--------|---------|
-| `libsge_native_ops` (.dylib/.so/.dll/.a) | Buffer ops, ETC1 codec |
-| `libsge_audio` (.dylib/.so/.a) | miniaudio wrapper |
-| `libglfw3` (.a) | GLFW 3.4 (static) |
+| Library | Purpose |
+|---------|---------|
+| `libsge_native_ops` | Buffer ops, ETC1 codec, GLFW windowing, miniaudio |
+| `libsge_freetype` | FreeType font rasterization |
+| `libsge_physics` | Rapier2D physics engine |
 
-Build with `sge-dev native build`. For all 6 desktop targets:
-`sge-dev native cross-all`.
+No local Rust build is needed. The sbt build resolves provider JARs
+automatically via `sbt-multi-arch-release`.
 
 ### Static curl (Scala Native only)
 
