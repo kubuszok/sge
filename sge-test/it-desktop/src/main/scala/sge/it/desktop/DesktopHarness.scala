@@ -44,7 +44,10 @@ class DesktopHarness(resultsFile: File)(using sge: Sge) extends ApplicationListe
     (34, () => WindowResizeCheck.run()),
     (36, () => CursorCheck.run()),
     (38, () => InputDispatchCheck.run()),
-    (40, () => FullscreenCheck.run())
+    (40, () => FullscreenCheck.run()),
+    (42, () => FreetypeCheck.run()),
+    (44, () => PhysicsCheck.run()),
+    (46, () => HttpCheck.run())
   )
 
   override def create(): Unit = {

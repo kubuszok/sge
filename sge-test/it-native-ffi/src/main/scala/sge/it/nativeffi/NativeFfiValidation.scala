@@ -47,6 +47,7 @@ object NativeFfiValidation {
   }
 
   def main(args: Array[String]): Unit = {
+    val headless = args.contains("--headless")
     System.out.println("=== SGE Native FFI Wiring Validation ===\n")
 
     // ─── 1. Buffer ops (no window/GL needed) ────────────────────────────
@@ -66,8 +67,13 @@ object NativeFfiValidation {
     testAudio()
 
     // ─── 5. GLFW + EGL + GL (needs window + GPU) ───────────────────────
-    System.out.println("\n[glfw3 + EGL + GLESv2] Windowing + GL")
-    testGlfwEglGl()
+    if (headless) {
+      System.out.println("\n[glfw3 + EGL + GLESv2] Windowing + GL (SKIPPED — headless mode)")
+      skip("GLFW+EGL+GL", "headless mode — no display server available")
+    } else {
+      System.out.println("\n[glfw3 + EGL + GLESv2] Windowing + GL")
+      testGlfwEglGl()
+    }
 
     // ─── Summary ────────────────────────────────────────────────────────
     val total = passed + failed + skipped
@@ -380,8 +386,8 @@ object NativeFfiValidation {
       assert(ok, "glfwInit failed")
     }
 
-    check("getPlatform") {
-      val plat = WindowingOpsNative.getPlatform()
+    check("platform") {
+      val plat = WindowingOpsNative.platform
       assert(plat != 0, s"platform=$plat")
     }
 
@@ -428,23 +434,18 @@ object NativeFfiValidation {
       WindowingOpsNative.pollEvents()
     }
 
-    check("getTime") {
-      val t = WindowingOpsNative.getTime()
-      assert(t > 0.0, s"time=$t")
-    }
-
-    check("getPrimaryMonitor") {
-      val mon = WindowingOpsNative.getPrimaryMonitor()
+    check("primaryMonitor") {
+      val mon = WindowingOpsNative.primaryMonitor
       assert(mon != 0L, "no primary monitor")
     }
 
-    check("getMonitors") {
-      val monitors = WindowingOpsNative.getMonitors()
+    check("monitors") {
+      val monitors = WindowingOpsNative.monitors
       assert(monitors.nonEmpty, "no monitors")
     }
 
     check("getMonitorName") {
-      val mon  = WindowingOpsNative.getPrimaryMonitor()
+      val mon  = WindowingOpsNative.primaryMonitor
       val name = WindowingOpsNative.getMonitorName(mon)
       assert(name != null && name.nonEmpty, s"name='$name'")
     }

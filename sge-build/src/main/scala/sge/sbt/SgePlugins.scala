@@ -227,7 +227,10 @@ object SgeDesktopNativePlatform extends AutoPlugin {
       val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
         manifests, platform, if (libDir.exists()) Some(libDir) else None, log
       )
-      c.withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir) ++ merged)
+      c.withEmbedResources(true)
+        .withResourceIncludePatterns(Seq("**.png", "**.jpg", "**.wav", "**.ogg", "**.mp3",
+          "**.txt", "**.json", "**.xml", "**.g3dj", "**.g3db", "**.atlas", "**.fnt", "**.tmx"))
+        .withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir) ++ merged)
     }
   )
 

@@ -10,7 +10,7 @@ addSbtPlugin("org.scala-native" % "sbt-scala-native"   % "0.5.10")
 // publishing
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
 // multi-arch release (Platform, NativeLibBundle, ZigCross, JvmPackaging)
-addSbtPlugin("com.kubuszok" % "sbt-multi-arch-release" % "24eb1fcf4c97125b022df36b64da9b1bbd352ea3-SNAPSHOT")
+addSbtPlugin("com.kubuszok" % "sbt-multi-arch-release" % "6bbb192b266adc226810c90f820297660c8e89b0-SNAPSHOT")
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 // Sonatype snapshots for sbt-multi-arch-release

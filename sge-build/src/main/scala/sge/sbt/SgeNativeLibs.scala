@@ -317,12 +317,11 @@ object SgeNativeLibs {
     *
     * Library linking (-l flags, full paths, platform frameworks) is now handled
     * by the NativeLibBundle manifest system from sbt-multi-arch-release.
-    * This method only provides rpath entries for ANGLE dylib resolution on macOS.
+    * This method provides rpath entries for shared library resolution at runtime.
     */
   def linkerFlags(
       libDir: File,
-      platform: Platform = Platform.host,
-      @deprecated("unused", "") libName: String = "sge_native_ops"
+      platform: Platform = Platform.host
   ): Seq[String] =
     if (platform.isMac) {
       // rpath entries so the binary can find ANGLE dylibs at runtime.
@@ -332,6 +331,15 @@ object SgeNativeLibs {
       Seq(
         "-rpath", libDir.getAbsolutePath,
         "-rpath", "@executable_path"
+      )
+    } else if (platform.isLinux) {
+      // rpath entries so the binary can find ANGLE .so files at runtime.
+      // Without this, users would need to set LD_LIBRARY_PATH manually.
+      // - libDir: for `sbt run` / local dev
+      // - $ORIGIN: for packaged distributions (libs beside the binary)
+      Seq(
+        s"-Wl,-rpath,${libDir.getAbsolutePath}",
+        "-Wl,-rpath,$ORIGIN"
       )
     } else Seq.empty
 }
