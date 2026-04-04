@@ -1,4 +1,3 @@
-import _root_.scalafix.sbt.{ BuildInfo => ScalafixBuildInfo }
 import _root_.multiarch.sbt.Platform
 import _root_.sge.sbt.{SgeNativeLibs, SgePlugin}
 
@@ -9,7 +8,6 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
 lazy val isCI = sys.env.get("CI").contains("true")
 ThisBuild / packageDoc / publishArtifact := false
 ThisBuild / scalafmtOnCompile := !isCI
-ThisBuild / semanticdbEnabled := true
 
 // Version from git tags: tagged commits get clean versions (e.g. "0.1.0"),
 // untagged commits get SNAPSHOT versions (e.g. "0.1.0-SNAPSHOT").
@@ -92,16 +90,6 @@ val versions = new {
   val curlProvider     = "6bbb192b266adc226810c90f820297660c8e89b0-SNAPSHOT"
 }
 
-// Scalafix custom rules — separate module so rules can lint `core`
-lazy val `scalafix-rules` = (project in file("scalafix-rules"))
-  .disablePlugins(ScalafixPlugin)
-  .settings(
-    scalaVersion := versions.scala,
-    organization := "com.kubuszok",
-    libraryDependencies +=
-      ("ch.epfl.scala" %% "scalafix-core" % ScalafixBuildInfo.scalafixVersion).cross(CrossVersion.for3Use2_13)
-  )
-
 val sge = (projectMatrix in file("sge"))
   .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
   .settings(SgePlugin.commonSettings *)
@@ -124,7 +112,6 @@ val sge = (projectMatrix in file("sge"))
     ),
     testFrameworks += new TestFramework("munit.Framework")
   )
-  .dependsOn(`scalafix-rules` % ScalafixConfig)
   .jvmPlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
@@ -301,7 +288,6 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
 // detection in sge picks the right provider/implementation.
 
 lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -311,7 +297,6 @@ lazy val `sge-jvm-platform-api` = (project in file("sge-jvm-platform/api"))
   )
 
 lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform/jdk"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -325,7 +310,6 @@ lazy val hasAndroidSdk: Boolean = _root_.sge.sbt.AndroidSdk
   .exists(r => _root_.sge.sbt.AndroidSdk.androidJar(r).exists())
 
 lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -388,7 +372,6 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
 // These are published separately from sge-core. They depend on sge.
 
 lazy val `sge-tools` = (project in file("sge-extension/tools"))
-  .disablePlugins(ScalafixPlugin)
   .settings(SgePlugin.commonSettings *)
   .settings(SgePlugin.relaxedSettings *)
   .settings(publishSettings *)
@@ -934,7 +917,6 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
 // Prerequisites: Android SDK (run 'sge-dev test android setup')
 
 lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
-  .disablePlugins(ScalafixPlugin)
   .settings(_root_.sge.sbt.AndroidBuild.settings *)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -976,7 +958,6 @@ lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
 //
 // Run: sbt 'sge-test-it-desktop/test'  or  sge-dev test integration --desktop
 lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -1017,7 +998,6 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
   .dependsOn(sge.jvm(versions.scala), `sge-freetype`.jvm(versions.scala), `sge-physics`.jvm(versions.scala))
 
 lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -1037,7 +1017,6 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
 //
 // Run: sbt 'sge-test-it-browser/test'  or  sge-dev test browser
 lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -1069,7 +1048,6 @@ lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
 //
 // Run: sbt 'sge-test-it-android/test'  or  sge-dev test android test
 lazy val `sge-it-android` = (project in file("sge-test/it-android"))
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -1086,7 +1064,6 @@ lazy val `sge-it-android` = (project in file("sge-test/it-android"))
 // Run: sbt 'sge-test-it-native-ffi/run'  or  sge-dev test integration --native-ffi
 lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   .enablePlugins(ScalaNativePlugin)
-  .disablePlugins(ScalafixPlugin)
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .dependsOn(sge.native(versions.scala))

@@ -16,22 +16,20 @@ SGE is a cross-platform 2D/3D game engine written in Scala 3, ported from
 - **124 / 152** backend files done (desktop, browser, headless, Android complete; iOS deferred)
 - **534+ files audited** against original LibGDX sources
 - **1450 JVM + 1096 JS + 1096 Native** unit tests passing
-- **10 demo applications** build and run on all 4 platforms
-- All 10 demos produce signed Android APKs
-- 9/10 demos link on Scala Native (NetChat excluded: scala-xml SAX dependency)
+- **11 demo applications** build and run on all 4 platforms
+- All 11 demos produce signed Android APKs
+- 10/11 demos link on Scala Native (NetChat excluded: scala-xml SAX dependency)
 
 ## Prerequisites
 
-- **JDK 23+** (GraalVM CE recommended)
+- **JDK 25+** (Azul Zulu recommended)
 - **sbt 1.12+**
-- **Rust toolchain** (for native-components)
 - **Node.js 18+** (for Scala.js linking)
 
 ### macOS (Homebrew)
 
 ```sh
-brew install sbt coursier node rustup freetype
-rustup-init
+brew install sbt coursier node freetype
 ```
 
 Optional (for specific workflows):
@@ -55,7 +53,7 @@ sge-dev test android setup    # Downloads SDK, build-tools, system image, emulat
 ### Build and test (JVM)
 
 ```sh
-sge-dev native build          # Build Rust native library (first time only)
+sge-dev setup                 # Install toolchain (first time)
 sge-dev build compile         # Compile SGE core (JVM)
 sge-dev test unit             # Run 1450 JVM unit tests
 ```
@@ -73,9 +71,8 @@ The `demos/` directory is a separate sbt sub-build that depends on SGE as a
 published library. First build and publish SGE locally, then run any demo:
 
 ```sh
-# One-time: build native libraries
-sge-dev native build              # Rust native-components (GLFW, miniaudio, buffer ops)
-sge-dev native angle setup        # ANGLE OpenGL ES libraries (libEGL, libGLESv2)
+# One-time: download ANGLE OpenGL ES libraries
+sge-dev native angle setup        # ANGLE (libEGL, libGLESv2) for desktop rendering
 
 # Publish SGE to local Ivy/Maven cache
 sge-dev build publish-local       # JVM only (fastest — ~30s)
@@ -89,13 +86,14 @@ cd demos && sbt --client 'pongJS/fastLinkJS'     # Scala.js (output in target/)
 
 Available demos: `pong`, `spaceShooter`, `tileWorld`, `hexTactics`,
 `curvePlayground`, `shaderLab`, `viewer3d`, `particleShow`, `netChat`,
-`viewportGallery`. Append platform suffix (`JS`, `Native`) for non-JVM targets.
+`viewportGallery`, `assetShowcase`. Append platform suffix (`JS`, `Native`)
+for non-JVM targets.
 
 ### Build demo APKs (Android)
 
 ```sh
 sge-dev test android setup                       # One-time setup
-cd demos && sbt --client 'androidAll'             # Build all 10 demo APKs
+cd demos && sbt --client 'androidAll'             # Build all 11 demo APKs
 ```
 
 ### Build demos for browser
@@ -116,12 +114,10 @@ sge-extension/freetype/       FreeType font extension (JVM / JS / Native)
 sge-extension/physics/        2D physics via Rapier2D (JVM / JS / Native)
 sge-extension/tools/          TexturePacker CLI (JVM-only)
 sge-build/                    sbt plugin (SgePlugin, AndroidBuild, packaging)
-sge-deps/native-components/   Rust: GLFW, miniaudio, FreeType, buffer ops
 sge-test/regression/          Single cross-platform demo (root build)
-demos/                        10 feature demos (separate sbt sub-build)
+demos/                        11 feature demos (separate sbt sub-build)
 sge-test/android-smoke/       Minimal Android smoke-test APK
 sge-test/                     Integration tests (desktop, browser, android)
-scalafix-rules/               Custom Scalafix lint rules
 original-src/libgdx/          Original LibGDX Java source (reference only)
 docs/                         Architecture, guides, audit trail, progress
 ```
@@ -136,13 +132,16 @@ Desktop-shared code (JVM + Native, not JS) is in `sge/src/main/scaladesktop/`.
 
 ### Native components
 
-The Rust library in `sge-deps/native-components/` provides:
+Native libraries are built in the external
+[sge-native-components](https://github.com/kubuszok/sge-native-components)
+repository and distributed as provider JARs from Maven. No local Rust build
+is needed — the sbt build resolves native libraries automatically.
 
-- **Buffer operations** (memcpy, direct allocation) via `libsge_native_ops`
-- **Audio engine** (miniaudio wrapper) via `libsge_audio`
-- **Windowing** (GLFW, compiled from vendored source) via `libglfw3`
-- **FreeType** font rasterization (optional feature)
-- **Rapier2D** physics (optional feature)
+Three separate libraries are produced:
+
+- **`libsge_native_ops`** — buffer operations, ETC1 codec, GLFW windowing, miniaudio
+- **`libsge_freetype`** — FreeType font rasterization
+- **`libsge_physics`** — Rapier2D physics engine
 
 On JVM, these are accessed via Panama FFM (JDK 22+ `java.lang.foreign`).
 On Scala Native, via `@extern` C FFI. On Android, via PanamaPort (backport
@@ -167,7 +166,8 @@ parallel testing, multiple app instances, and eliminates global mutable state.
 | Hex Tactics | Hexagonal grid tactics |
 | Viewer 3D | G3DJ model viewer |
 | Particle Show | Particle effects showcase |
-| Net Chat | TCP/UDP networking demo |
+| Net Chat | XML parsing, clipboard, and time utilities |
+| Asset Showcase | Asset loading and management demo |
 
 All demos are in the `demos/` directory (separate sbt sub-build). Each supports
 JVM, JS, Native, and Android targets.
@@ -187,11 +187,12 @@ sge-dev test android test             # Android emulator smoke test
 
 GitHub Actions runs on every push:
 
-- Rust cross-compilation (6 desktop targets + 3 Android targets)
 - Unit tests on JVM, JS, and Native (Linux, macOS, Windows)
+- Native FFI headless validation
 - Browser smoke tests (Playwright + headless Chromium)
 - Android smoke test (emulator + SwiftShader)
-- All 10 demos compiled on all 3 platforms
+- Native linking verification for all 11 demos
+- All 11 demos compiled on all 3 platforms
 - Demo JS bundles verified in browser
 
 ## License

@@ -90,9 +90,11 @@ FFM symbol resolution.
 
 ### Configuration
 
-`native-components/.cargo/config.toml` specifies NDK clang as the linker for each target.
-The `sge-dev native cross-android` command sets `CC_<target>`, `CXX_<target>`, and
-`AR_<target>` environment variables for the `cc` crate used by `build.rs`.
+The `.cargo/config.toml` in the
+[sge-native-components](https://github.com/kubuszok/sge-native-components) repo
+specifies NDK clang as the linker for each target. The cross-android build script
+sets `CC_<target>`, `CXX_<target>`, and `AR_<target>` environment variables for
+the `cc` crate used by `build.rs`.
 
 ### Android-Specific Build Differences
 

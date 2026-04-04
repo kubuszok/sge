@@ -76,7 +76,6 @@ sge-dev test regression --all        # Regression tests
 
 # Quality
 sge-dev quality scan --all           # Run all quality scans
-sge-dev quality scalafix <Rule>      # Run Scalafix rule
 
 # Native
 sge-dev native build                 # Build Rust native library

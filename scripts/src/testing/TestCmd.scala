@@ -45,7 +45,6 @@ object TestCmd {
         if (runJs) { Term.info("Running JS unit tests..."); sbt("sgeJS/test") }
         if (runNative) {
           Term.info("Running Native unit tests...")
-          sgedev.native.NativeCmd.run(List("build", "--static"))
           sbt("sgeNative/test")
         }
     }
@@ -55,8 +54,6 @@ object TestCmd {
     val all = args.hasFlag("all")
     if (all || args.hasFlag("desktop")) {
       Term.info("Running desktop integration tests...")
-      sgedev.native.NativeCmd.run(List("build"))
-      sgedev.native.NativeCmd.run(List("angle", "setup"))
       sbt("sge-it-desktop/test")
     }
     if (all || args.hasFlag("browser")) {
@@ -66,9 +63,7 @@ object TestCmd {
     }
     if (all || args.hasFlag("native-ffi")) {
       Term.info("Running native FFI integration tests...")
-      sgedev.native.NativeCmd.run(List("build", "--static"))
-      sgedev.native.NativeCmd.run(List("angle", "setup"))
-      sbt("sge-it-native-ffi/run")
+      sbt("sge-it-native-ffi/run -- --headless")
     }
     if (all || args.hasFlag("android")) {
       Term.info("Running Android integration tests...")
@@ -87,8 +82,6 @@ object TestCmd {
 
     if (jvm) {
       Term.info("=== Regression test: JVM ===")
-      sgedev.native.NativeCmd.run(List("build"))
-      sgedev.native.NativeCmd.run(List("angle", "setup"))
       val result = Proc.run("sbt", List("--client", "regressionTest/run"), cwd = Some(Paths.projectRoot))
       println(result.stdout)
       if (result.stderr.nonEmpty) System.err.println(result.stderr)
@@ -106,8 +99,6 @@ object TestCmd {
     }
     if (nat) {
       Term.info("=== Regression test: Native ===")
-      sgedev.native.NativeCmd.run(List("build", "--static"))
-      sgedev.native.NativeCmd.run(List("angle", "setup"))
       val result = Proc.run("sbt", List("--client", "regressionTestNative/run"), cwd = Some(Paths.projectRoot))
       println(result.stdout)
       if (result.stderr.nonEmpty) System.err.println(result.stderr)
@@ -246,7 +237,6 @@ object TestCmd {
     regression(Cli.Args(Map("js" -> "true"), Nil))
     println()
     Term.info("=== Phase 3: Unit tests + regression (Native — static lib) ===")
-    sgedev.native.NativeCmd.run(List("build", "--static"))
     sbt("sgeNative/test")
     regression(Cli.Args(Map("native" -> "true"), Nil))
     println()

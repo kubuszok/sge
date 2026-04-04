@@ -12,16 +12,10 @@ object QualityCmd {
                   |Commands:
                   |  scan [--return] [--null] [--null-cast] [--java-syntax] [--todo] [--all] [--summary]
                   |  grep <pattern> [--count] [--files-only]
-                  |  count <pattern>
-                  |  scalafix <rule> [--file PATH]
-                  |  lint-null          Check for null patterns (NullToNullable rule)
-                  |  lint-syntax        Check for banned syntax (DisableSyntax rule)""".stripMargin)
+                  |  count <pattern>""".stripMargin)
       case "scan" :: rest => scan(Cli.parse(rest))
       case "grep" :: rest => grep(Cli.parse(rest))
       case "count" :: rest => count(Cli.parse(rest))
-      case "scalafix" :: rest => scalafix(Cli.parse(rest))
-      case "lint-null" :: _ => sbt("sge / scalafix NullToNullable")
-      case "lint-syntax" :: _ => sbt("sge / scalafix DisableSyntax")
       case other :: _ =>
         Term.err(s"Unknown quality command: $other")
         sys.exit(1)
@@ -185,16 +179,6 @@ object QualityCmd {
     }
   }
 
-  private def scalafix(args: Cli.Args): Unit = {
-    val rule = args.requirePositional(0, "rule")
-    val fileOpt = args.flag("file")
-    val cmd = fileOpt match {
-      case Some(file) => s"sge / scalafix --files=$file $rule"
-      case None => s"sge / scalafix $rule"
-    }
-    sbt(cmd)
-  }
-
   /** Run rg (ripgrep) and capture output. */
   private def rg(args: List[String]): Proc.Result = {
     // Try common rg locations
@@ -212,10 +196,5 @@ object QualityCmd {
     // Check common locations
     val candidates = List("/opt/homebrew/bin/rg", "/usr/local/bin/rg", "/usr/bin/rg", "rg")
     candidates.find(p => new java.io.File(p).exists()).getOrElse("rg")
-  }
-
-  private def sbt(cmd: String): Unit = {
-    val code = Proc.exec("sbt", List("--client", cmd), cwd = Some(Paths.projectRoot))
-    if (code != 0) sys.exit(code)
   }
 }

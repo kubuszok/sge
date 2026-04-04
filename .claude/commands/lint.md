@@ -1,6 +1,6 @@
 Check and manage compiler linter flags for the SGE project.
 
-Argument: `$ARGUMENTS` — one of: `status`, `flags`, `unused`, `null`, `syntax`
+Argument: `$ARGUMENTS` — one of: `status`, `flags`, `unused`, `null`
 
 ## Procedure
 
@@ -50,29 +50,13 @@ Then use the Grep tool to search the output for `[E198]` patterns.
 Count and categorize: unused imports, unused privates, unused locals, unused patvars.
 
 ### `null`
-Run null check analysis using the NullToNullable Scalafix rule.
+Run null check analysis using the quality scan.
 
 ```
-sge-dev quality scalafix NullToNullable
+sge-dev quality scan --null
 ```
 
 Report violations by file.
-
-### `syntax`
-Run DisableSyntax checks for banned patterns.
-
-```
-sge-dev quality scalafix DisableSyntax
-```
-
-Requires `.scalafix.conf` to have DisableSyntax configuration. If not configured,
-suggest adding:
-```
-DisableSyntax {
-  noReturns = true
-  noNulls = true
-}
-```
 
 ## Promoting Warnings to Errors
 
