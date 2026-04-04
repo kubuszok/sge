@@ -29,8 +29,11 @@ object Main {
         testing.TestCmd.run(rest)
       case "setup" :: rest =>
         setup.SetupCmd.run(rest)
-      case "native" :: rest =>
-        native.NativeCmd.run(rest)
+      case "native" :: _ =>
+        Term.err("The 'native' command has been removed.")
+        Term.err("Native libraries are distributed as provider JARs — no local build needed.")
+        Term.err("To build native components from source, see: https://github.com/kubuszok/sge-native-components")
+        sys.exit(1)
       case "compare" :: rest =>
         compare.CompareCmd.run(rest)
       case "metals" :: rest =>
@@ -54,10 +57,10 @@ object Main {
                |  db         Database queries (migration, issues, audit)
                |  git        Git and GitHub operations
                |  build      Build commands (compile, fmt, publish-local)
-               |  quality    Quality scans (grep, count, scalafix)
+               |  quality    Quality scans (grep, count, scan)
                |  test       Test orchestration (unit, integration, regression)
                |  setup      Idempotent dev environment setup (all tools + targets)
-               |  native     Rust native library operations
+               |  native     (removed — native libs from provider JARs)
                |  compare    LibGDX/SGE file comparison
                |  metals     Metals LSP server management
                |  proc       Process listing and killing (project-scoped)

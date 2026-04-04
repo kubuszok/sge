@@ -33,10 +33,8 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 | `sge-extension/physics/` | 2D physics via Rapier2D (JVM/JS/Native) |
 | `sge-extension/tools/` | TexturePacker CLI (JVM-only) |
 | `sge-build/` | sbt plugin (SgePlugin, AndroidBuild, packaging) |
-| `sge-deps/native-components/` | CI staging dir for provider JAR extraction (native libs built externally in sge-native-components repo) |
 | `sge-test/` | Tests: integration, regression, android-smoke, browser |
-| `demos/` | 10 feature demos (separate sub-build) |
-| `scalafix-rules/` | Custom Scalafix lint rules |
+| `demos/` | 11 feature demos (separate sub-build) |
 | `original-src/` | Reference sources (not compiled). **Never fetch from GitHub.** |
 | `original-src/libgdx/` | Local LibGDX reference source |
 | `scripts/` | `sge-dev` CLI toolkit (Scala CLI, no sbt) |
@@ -76,8 +74,6 @@ all Bash commands — if denied, use the suggested alternative.
 | `sge-dev test verify` | Full 4-platform verification gate |
 | `sge-dev quality scan [--return/--null/--todo/--all] [--summary]` | Quality scans |
 | `sge-dev quality grep <pattern> [--count/--files-only]` | Code search |
-| `sge-dev quality scalafix <rule> [--file PATH]` | Run Scalafix rule |
-| `sge-dev quality lint-null` | Check null patterns (NullToNullable) |
 | `sge-dev git status/diff/log/blame/branch/tags` | Git read-only |
 | `sge-dev git diff-stat/diff-count/diff-staged` | Git diff variants |
 | `sge-dev git log-full [-n N]` | Detailed log with stats |
@@ -86,16 +82,7 @@ all Bash commands — if denied, use the suggested alternative.
 | `sge-dev git gh issue list/view` | GitHub issues |
 | `sge-dev git gh run list/view/log` | GitHub CI runs |
 | `sge-dev git gh api <endpoint>` | GitHub API |
-| `sge-dev native build [--static/--android/--freetype/--physics]` | Build Rust native lib |
-| `sge-dev native cross <target>` | Cross-compile for specific target |
-| `sge-dev native cross-all` | Build all 6 desktop targets |
-| `sge-dev native cross-android [target]` | Build for Android NDK |
-| `sge-dev native collect` | Collect cross-compiled artifacts |
-| `sge-dev native test` | Run Rust tests |
-| `sge-dev native angle {setup,download,cross-collect,check}` | ANGLE library management |
-| `sge-dev native curl {setup,download,cross-collect,check}` | Static curl library management |
-| `sge-dev native release-prep` | Full release preparation |
-| `sge-dev native setup-toolchain` | Install cross-compilation tools |
+| `sge-dev native` | (removed — native libs from provider JARs; see sge-native-components repo) |
 | `sge-dev compare file/package/find/status/next-batch` | LibGDX/SGE comparison |
 | `sge-dev metals install/start/stop/status` | Metals LSP server |
 | `sge-dev proc list` | List project processes |
@@ -127,7 +114,6 @@ are denied or redirected to dedicated tools:
 | `metals-mcp` | Compile, search, inspect, format (snapshot — see `sge-dev metals install`) |
 | `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
 | `./original-src/libgdx/` | Local reference source. **Never fetch from GitHub.** |
-| `scalafix-rules/` | Custom Scalafix lint rules. Run: `sge-dev quality scalafix <Rule>` |
 
 ## Skill Dispatch Rules
 
@@ -188,7 +174,7 @@ Each audited file gets a `Migration notes:` block in its header comment.
 | Release verification | above + macos-x86_64 (Rosetta, JVM only) |
 | Android tests | ubuntu-latest (x86_64 emulator) — smoke + Pong demo APK |
 | Browser/JS | ubuntu-latest — Scala.js tests, Playwright smoke, browser packaging |
-| Demo compilation | ubuntu-latest — all 10 demos × JVM + JS + Native |
+| Demo compilation | ubuntu-latest — all 11 demos × JVM + JS + Native |
 
 **CI-specific mechanisms:**
 - Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
