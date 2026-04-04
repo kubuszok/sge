@@ -103,7 +103,13 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Single code path for all asset lookups. Callers acquire locks at the public method level. */
   private def lookup[T](fileName: String, tpe: Nullable[Class[?]]): Nullable[T] = {
-    val resolvedType = if (tpe.isDefined) tpe else assetTypes.get(fileName)
+    // NOTE: Avoid assetTypes.get(fileName) which returns Nullable[Class[?]].
+    // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException
+    // (Class is not Serializable, but NestedNone pattern match checks Product with Serializable first).
+    val resolvedType: Nullable[Class[?]] =
+      if (tpe.isDefined) tpe
+      else if (assetTypes.containsKey(fileName)) Nullable(assetTypes.get(fileName, null.asInstanceOf[Class[?]]))
+      else Nullable.empty
     for {
       t <- resolvedType
       byType <- assets.get(t)
@@ -219,7 +225,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         }
       }
 
-      val tpe = assetTypes.get(fileName)
+      // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
+      // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException
+      // (Class is not Serializable, but NestedNone pattern match checks Product with Serializable first).
+      val hasType = assetTypes.containsKey(fileName)
 
       // check if it's in the queue
       var foundIndex = -1
@@ -237,7 +246,7 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         log.info("Unload (from queue): " + fileName)
 
         // if the queued asset was already loaded, let the callback know it is available.
-        tpe.foreach { _ =>
+        if (hasType) {
           desc.params.foreach { p =>
             p.loadedCallback.foreach { cb =>
               cb.finishedLoading(this, desc.fileName, desc.`type`)
@@ -247,7 +256,8 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
         boundary.break(())
       }
 
-      val loadedType = tpe.getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
+      if (!hasType) throw SgeError.InvalidInput("Asset not loaded: " + fileName)
+      val loadedType: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — Java interop boundary, avoids Nullable[Class[?]]
 
       val assetRef =
         assets.get(loadedType).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName)).get(fileName).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
@@ -404,7 +414,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     }
 
     // check loaded assets
-    assetTypes.get(fileName).foreach { otherType =>
+    // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
+    // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
+    if (assetTypes.containsKey(fileName)) {
+      val otherType: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]])
       if (otherType != `type`)
         throw SgeError.InvalidInput(
           s"Asset with name '$fileName' already loaded, but has different type (expected: ${`type`.getSimpleName}, found: ${otherType.getSimpleName})"
@@ -536,7 +549,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
       // if the asset is already loaded, increase its reference count.
       if (isLoaded(dependendAssetDesc.fileName)) {
         log.debug("Dependency already loaded: " + dependendAssetDesc)
-        assetTypes.get(dependendAssetDesc.fileName).foreach { tpe =>
+        // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
+        // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
+        if (assetTypes.containsKey(dependendAssetDesc.fileName)) {
+          val tpe: Class[?] = assetTypes.get(dependendAssetDesc.fileName, null.asInstanceOf[Class[?]])
           assets.get(tpe).foreach { byType =>
             byType.get(dependendAssetDesc.fileName).foreach { assetRef =>
               assetRef.refCount += 1
@@ -560,7 +576,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
     // if the asset not meant to be reloaded and is already loaded, increase its reference count
     if (isLoaded(assetDesc.fileName)) {
       log.debug("Already loaded: " + assetDesc)
-      assetTypes.get(assetDesc.fileName).foreach { tpe =>
+      // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
+      // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
+      if (assetTypes.containsKey(assetDesc.fileName)) {
+        val tpe: Class[?] = assetTypes.get(assetDesc.fileName, null.asInstanceOf[Class[?]])
         assets.get(tpe).foreach { byType =>
           byType.get(assetDesc.fileName).foreach { assetRef =>
             assetRef.refCount += 1
@@ -664,7 +683,10 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
   private def incrementRefCountedDependencies(parent: String): Unit =
     assetDependencies.get(parent).foreach { dependencies =>
       dependencies.foreach { dependency =>
-        assetTypes.get(dependency).foreach { tpe =>
+        // NOTE: Use containsKey + get(key, default) instead of get(key) which returns Nullable[Class[?]].
+        // On Scala Native, wrapping Class[?] in Nullable's union type causes ClassCastException.
+        if (assetTypes.containsKey(dependency)) {
+          val tpe: Class[?] = assetTypes.get(dependency, null.asInstanceOf[Class[?]])
           assets.get(tpe).foreach { byType =>
             byType.get(dependency).foreach { assetRef =>
               assetRef.refCount += 1
@@ -812,13 +834,15 @@ class AssetManager(val resolver: FileHandleResolver, defaultLoaders: Boolean = t
 
   /** Returns the reference count of an asset. */
   def referenceCount(fileName: String): Int = synchronized {
-    val tpe = assetTypes.get(fileName).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
+    if (!assetTypes.containsKey(fileName)) throw SgeError.InvalidInput("Asset not loaded: " + fileName)
+    val tpe: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — avoids Nullable[Class[?]] (Scala Native cast issue)
     assets.get(tpe).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName)).get(fileName).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName)).refCount
   }
 
   /** Sets the reference count of an asset. */
   def setReferenceCount(fileName: String, refCount: Int): Unit = synchronized {
-    val tpe = assetTypes.get(fileName).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName))
+    if (!assetTypes.containsKey(fileName)) throw SgeError.InvalidInput("Asset not loaded: " + fileName)
+    val tpe: Class[?] = assetTypes.get(fileName, null.asInstanceOf[Class[?]]) // @nowarn — avoids Nullable[Class[?]] (Scala Native cast issue)
     assets.get(tpe).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName)).get(fileName).getOrElse(throw SgeError.InvalidInput("Asset not loaded: " + fileName)).refCount = refCount
   }
 

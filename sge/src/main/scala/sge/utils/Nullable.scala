@@ -15,9 +15,20 @@ package utils
   */
 type Nullable[A] = Nullable.Impl[A]
 
-@scala.annotation.nowarn("msg=type test")
 object Nullable {
   opaque type Impl[A] = A | Nullable.NestedNone
+
+  /** TypeTest so that pattern matching `case a: A` inside Nullable's union type works correctly on Scala Native. Without this, Scala Native generates a `Product with Serializable` cast check for the
+    * `NestedNone` branch, which fails when `A` is `Class[?]` or other types that aren't `Serializable`.
+    *
+    * The test is simple: a value is `A` if it's not `NestedNone`.
+    */
+  private given nullableTypeTest[A]: scala.reflect.TypeTest[A | NestedNone, A] =
+    (x: A | NestedNone) =>
+      x match {
+        case _: NestedNone => scala.None
+        case _ => Some(x.asInstanceOf[x.type & A])
+      }
 
   def apply[A](a: A): Nullable[A] = a match {
     case _ if a == null => None

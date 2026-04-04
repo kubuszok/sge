@@ -89,7 +89,7 @@ val versions = new {
 
   // Native component providers (from sge-native-components repo)
   val nativeComponents = "9165c315732bd724f2991f042c9bd9e0237f9afb-SNAPSHOT"
-  val curlProvider     = "24eb1fcf4c97125b022df36b64da9b1bbd352ea3-SNAPSHOT"
+  val curlProvider     = "6bbb192b266adc226810c90f820297660c8e89b0-SNAPSHOT"
 }
 
 // Scalafix custom rules — separate module so rules can lint `core`
@@ -1014,7 +1014,7 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
       )
     }
   )
-  .dependsOn(sge.jvm(versions.scala))
+  .dependsOn(sge.jvm(versions.scala), `sge-freetype`.jvm(versions.scala), `sge-physics`.jvm(versions.scala))
 
 lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
   .disablePlugins(ScalafixPlugin)

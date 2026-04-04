@@ -221,6 +221,12 @@ jobs:
         env:
           SGE_SKIP_NATIVE_VALIDATION: "true"
 
+      - name: Run native FFI validation (headless)
+        if: runner.os != 'Windows'
+        run: sbt 'sge-it-native-ffi/run -- --headless'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
+
   # ─── Android smoke + integration tests (emulator) ──────────────
 
   test-android:
@@ -397,6 +403,13 @@ jobs:
       - name: Compile all demos (JVM + JS + Native)
         working-directory: demos
         run: sbt compile
+
+      - name: Verify all demos link for Scala Native
+        working-directory: demos
+        run: |
+          sbt 'pongNative/nativeLink; spaceShooterNative/nativeLink; curvePlaygroundNative/nativeLink; viewportGalleryNative/nativeLink; shaderLabNative/nativeLink; tileWorldNative/nativeLink; hexTacticsNative/nativeLink; viewer3dNative/nativeLink; particleShowNative/nativeLink; netChatNative/nativeLink; assetShowcaseNative/nativeLink'
+        env:
+          SGE_SKIP_NATIVE_VALIDATION: "true"
 
   # ─── Verify release packaging ──────────────────────────────────
 

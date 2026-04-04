@@ -208,6 +208,10 @@ class DemoSmokeTest extends FunSuite {
     smokeTestDemo("particle-show", "sge-demo-particles")
   }
 
+  test("NetChat demo runs without errors and renders frames") {
+    smokeTestDemo("net-chat", "sge-demo-netchat")
+  }
+
   // AssetShowcase requires texture/model assets served alongside the JS bundle.
   // In CI, fastLinkJS output doesn't include assets — skip until asset packaging is integrated.
   test("AssetShowcase demo runs without errors and renders frames".ignore) {
