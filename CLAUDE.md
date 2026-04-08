@@ -20,8 +20,8 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 - **`(using Sge)` propagation**: pass `Sge` context wherever needed (replaces LibGDX global `Gdx.*`). Add `(using Sge)` to **class constructors** so it's available in all methods. Never leave TODOs for missing Sge. Sge is effectively a per-application singleton passed explicitly instead of via globals.
 - **Fix bugs, don't work around them**: when a test reveals a pre-existing bug in the codebase, fix the bug in the source code — never patch the test to avoid it
 - **All 4 platforms are baseline**: JVM, JS, Native, Android — changes must be non-regressing on all
-- Use `sge-dev` commands or `sbt --client` — never bare `sbt`
-- **sbt hangs on build.sbt errors**: When `build.sbt` has an error, sbt reload becomes unresponsive. Do NOT mistake this for long compilation — **kill the process immediately** (`sge-dev proc kill-sbt`) to see the error output, then fix `build.sbt` and retry.
+- Use `re-scale` commands or `sbt --client` — never bare `sbt` (avoids the JVM startup tax on every invocation)
+- **sbt server stuck?** kill with `re-scale proc kill --kind sbt --dir .`, fix the cause, retry
 
 ## Project Structure
 
@@ -37,81 +37,97 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 | `demos/` | 11 feature demos (separate sub-build) |
 | `original-src/` | Reference sources (not compiled). **Never fetch from GitHub.** |
 | `original-src/libgdx/` | Local LibGDX reference source |
-| `scripts/` | `sge-dev` CLI toolkit (Scala CLI, no sbt) |
+| `.rescale/` | Per-project re-scale config + data |
+| `.rescale/data/` | TSV databases (migration, issues, audit) |
+| `.rescale/claude-hooks.yaml` | (optional) per-project hook overrides |
+| `.rescale/doctor.yaml` | (optional) dev-environment bootstrap steps |
+| `.rescale/runners.yaml` | (optional) test-runner adapters |
 | `docs/` | Architecture, conversion guides |
 
-## CLI Toolkit: `sge-dev`
+## CLI Toolkit: `re-scale`
 
-**Use `sge-dev` commands for all development tasks.** The PreToolUse hook validates
-all Bash commands — if denied, use the suggested alternative.
+**Use `re-scale` commands for all development tasks.** The PreToolUse hook
+delegates to `re-scale hook`, which validates every Bash command — if
+denied, use the suggested alternative.
 
-**It's not `./sge-dev`, your hooks add it to `$PATH`, and it's defined in `scripts/bin/sge-dev`.**
+Source repo: <https://github.com/kubuszok/re-scale>. Install via
+`scripts/install.sh` from a clone of that repo (builds the Scala
+Native binary + wrapper and copies them into `$HOME/bin/`).
 
 | Command | Purpose |
 |---------|---------|
-| `sge-dev setup [--ci]` | Idempotent dev environment setup (all tools + targets) |
-| `sge-dev build compile [--jvm/--js/--native/--all]` | Compile |
-| `sge-dev build compile --errors-only` | Compile showing only errors |
-| `sge-dev build compile --warnings` | Compile showing warnings + errors |
-| `sge-dev build compile-fmt` | Compile, format, compile again |
-| `sge-dev build fmt` | Scalafmt |
-| `sge-dev build publish-local [--jvm/--js/--native/--all]` | Publish to local Maven |
-| `sge-dev build extensions [--tools/--freetype/--physics/--all]` | Compile extensions |
-| `sge-dev build texture-pack [args]` | Run TexturePacker CLI |
-| `sge-dev build kill-sbt` | Kill sbt server gracefully |
-| `sge-dev build release [--demo <name>] [--publish-first]` | Build demo release archives |
-| `sge-dev build collect` | Collect releases into demos/target/releases/ |
-| `sge-dev build verify-native <demo>` | Verify native release archive |
-| `sge-dev build verify-jvm <demo>` | Verify JVM release archive |
-| `sge-dev build verify-browser <demo>` | Verify browser release archive |
-| `sge-dev build verify-releases [--demo <name>]` | Run all verify-* for a demo |
-| `sge-dev test unit [--jvm/--js/--native/--all] [--only SUITE]` | Unit tests |
-| `sge-dev test integration [--desktop/--browser/--native-ffi/--android/--all]` | Integration tests |
-| `sge-dev test regression [--jvm/--js/--native/--android/--all]` | Regression tests |
-| `sge-dev test browser` | Playwright browser IT |
-| `sge-dev test extensions [--tools/--freetype/--physics/--all]` | Extension module tests |
-| `sge-dev test android {setup,start,stop,ensure,test,demo,...}` | Android emulator + testing |
-| `sge-dev test verify` | Full 4-platform verification gate |
-| `sge-dev quality scan [--return/--null/--todo/--all] [--summary]` | Quality scans |
-| `sge-dev quality grep <pattern> [--count/--files-only]` | Code search |
-| `sge-dev git status/diff/log/blame/branch/tags` | Git read-only |
-| `sge-dev git diff-stat/diff-count/diff-staged` | Git diff variants |
-| `sge-dev git log-full [-n N]` | Detailed log with stats |
-| `sge-dev git stage/commit/push` | Git write |
-| `sge-dev git gh pr list/view/diff/checks/comments` | GitHub PR operations |
-| `sge-dev git gh issue list/view` | GitHub issues |
-| `sge-dev git gh run list/view/log` | GitHub CI runs |
-| `sge-dev git gh api <endpoint>` | GitHub API |
-| `sge-dev native` | (removed — native libs from provider JARs; see sge-native-components repo) |
-| `sge-dev compare file/package/find/status/next-batch` | LibGDX/SGE comparison |
-| `sge-dev metals install/start/stop/status` | Metals LSP server |
-| `sge-dev proc list` | List project processes |
-| `sge-dev proc kill` | Kill all project processes |
-| `sge-dev proc kill-sbt` | Kill sbt server |
-| `sge-dev db migration stats/list/get/set/sync` | Migration database |
-| `sge-dev db issues stats/list/add/resolve/import` | Issues database |
-| `sge-dev db audit stats/list/get/set/import` | Audit database |
+| `re-scale build compile [--module M] [--jvm/--js/--native/--all] [--errors-only]` | Compile via `sbt --client` |
+| `re-scale build compile-fmt` | Run scalafmt then compile |
+| `re-scale build fmt` | Run `scalafmtAll` |
+| `re-scale build publish-local [--module M] [--jvm/--js/--native/--all]` | Publish to local Maven |
+| `re-scale build kill-sbt` | Shut down the sbt server |
+| `re-scale test unit [--module M] [--jvm/--js/--native/--all] [--only SUITE]` | Run unit tests |
+| `re-scale test verify` | Compile every module on every platform (JVM × JS × Native) |
+| `re-scale enforce shortcuts [--src DIRS] [--file F] [--covenanted]` | Scan for shortcut/stub markers |
+| `re-scale enforce stale-stubs [--src DIRS]` | Two-pass scan for stale "not yet ported" comments |
+| `re-scale enforce verify --file <path> \| --all` | Re-verify covenanted file(s) |
+| `re-scale enforce skip-policy [list \| add <path> <tool>]` | Manage the skip-policy allow list |
+| `re-scale enforce compare --port <scala> --source <java> [--strict]` | Cross-language method-set + body comparison |
+| `re-scale git status/diff/log/blame/branch/tags` | Git read-only |
+| `re-scale git stage/commit/push` | Git write |
+| `re-scale git gh pr list/view/diff/checks` | GitHub PR operations |
+| `re-scale git gh issue list/view` | GitHub issues |
+| `re-scale git gh run list/view/log` | GitHub CI runs |
+| `re-scale git gh api <endpoint>` | GitHub API |
+| `re-scale db migration list/get/set/stats` | Migration database |
+| `re-scale db issues list/add/resolve/stats` | Issues database |
+| `re-scale db audit list/get/set/stats` | Audit database |
+| `re-scale db merge --target <tsv> --source <tsv> [--strategy ...]` | Cross-branch TSV reconciliation |
+| `re-scale proc list [--kind sbt\|java\|metals] [--dir DIR]` | List sbt/java/metals processes with cwd |
+| `re-scale proc kill --pid N \| --kind ... --dir DIR` | Targeted process termination |
+| `re-scale doctor [--ci]` | Run `.rescale/doctor.yaml` bootstrap steps |
+| `re-scale runner <name> [--mode MODE] [args...]` | Dispatch a runner from `.rescale/runners.yaml` |
 
-Use `sge-dev db` for all migration/issues/audit queries — never grep markdown files.
+Use `re-scale db` for all migration/issues/audit queries — never read TSVs by hand.
+
+### SGE-specific workflow notes
+
+The legacy `sge-dev` tool had several SGE-specific subcommands that
+re-scale doesn't ship in its core. They're expected to live in
+`.rescale/doctor.yaml` (for setup steps) and `.rescale/runners.yaml`
+(for test harnesses). Until the YAML configs are written, these
+workflows are not invokable from this repo:
+
+| Legacy command | Migration target |
+|----------------|------------------|
+| `sge-dev setup [--ci]` | `re-scale doctor [--ci]` reading `.rescale/doctor.yaml` (Rust targets, NDK, Zig, JDK, cargo-zigbuild, ...) |
+| `sge-dev metals install/start/stop/status` | `re-scale runner metals --mode start` reading `.rescale/runners.yaml`, OR keep using `cs install metals-mcp` directly |
+| `sge-dev test integration --android` | `re-scale runner android-test` reading `.rescale/runners.yaml` |
+| `sge-dev test browser` | `re-scale runner playwright` reading `.rescale/runners.yaml` |
+| `sge-dev build extensions` | `re-scale build compile --module sge-extension-*` (each extension is its own sbt module) |
+| `sge-dev build release/collect/verify-*` | `re-scale runner release-*` reading `.rescale/runners.yaml` |
+| `sge-dev compare file/package/find/status/next-batch` | LibGDX-specific compare workflows have no direct equivalent — use `re-scale enforce compare` for the strict-mode method-by-method gap analysis |
+
+The TSV data files survived the migration unchanged at
+`.rescale/data/{audit,issues,migration}.tsv` so nothing has been
+lost. See <https://github.com/kubuszok/re-scale/blob/master/docs/cross-flavor-diff.md>
+for the rationale.
 
 ## Bash Restrictions
 
-**The PreToolUse hook validates ALL Bash commands.** Only `sge-dev`, `sbt --client`,
-`git`, `cargo`, `npm`, `npx`, and `scala-cli` are allowed directly. All other commands
-are denied or redirected to dedicated tools:
+**The PreToolUse hook validates ALL Bash commands.** Only `re-scale`,
+`sbt --client`, `git`, `cargo`, `npm`, `npx`, and `scala-cli` are allowed
+directly. All other commands are denied or redirected to dedicated tools:
 
 - **Denied**: `python`/`python3`, `kill`/`pkill`, `rm -rf`, `sbt` (without `--client`)
 - **Redirected to tools**: `grep`→Grep, `find`/`ls`→Glob, `cat`/`head`/`tail`→Read, `sed`/`awk`→Edit
-- **Use `sge-dev`** for builds, tests, git, quality scans, process management, and database queries
+- **Use `re-scale`** for builds, tests, git, process management, enforcement, and database queries
 - **Use dedicated tools** (`Grep`, `Glob`, `Read`, `Edit`) for code search and file operations
 - **Path normalization**: `/opt/homebrew/bin/rg` is treated the same as `rg` — full paths don't bypass rules
+
+Per-project rule overrides live at `.rescale/claude-hooks.yaml`.
 
 ## Tooling
 
 | Tool | Purpose |
 |------|---------|
-| `sge-dev` | CLI toolkit — builds, tests, git, quality, databases, process management |
-| `metals-mcp` | Compile, search, inspect, format (snapshot — see `sge-dev metals install`) |
+| `re-scale` | CLI toolkit — builds, tests, git, enforce, databases, process management, doctor, runner |
+| `metals-mcp` | Compile, search, inspect, format (install via `cs install metals-mcp`) |
 | `context7` MCP | External library docs (LWJGL, scala-js-dom, etc) |
 | `./original-src/libgdx/` | Local reference source. **Never fetch from GitHub.** |
 
@@ -158,7 +174,7 @@ Per-file audit trail comparing every SGE Scala file against its LibGDX Java sour
 Each audited file gets a `Migration notes:` block in its header comment.
 
 - **Skills**: `/audit-file <path>`, `/audit-package <pkg>`, `/audit-status [pkg]`
-- **Database**: `sge-dev db audit stats`, `sge-dev db audit list --package <pkg>`
+- **Database**: `re-scale db audit stats`, `re-scale db audit list --package <pkg>`
 - **Statuses**: `pass`, `minor_issues`, `major_issues`, `not_ported`
 - **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date
 - **Progress tracking**: `memory/audit-progress.md`
@@ -180,7 +196,7 @@ Each audited file gets a `Migration notes:` block in its header comment.
 - Demos always consume published sge-build plugin (`sbt publishLocal` in sge-build/ required after plugin changes)
 - `SGE_SKIP_NATIVE_VALIDATION=true` — skip native lib validation when only Android/subset libs present
 - `matrix.native` flag — controls which verify-release steps run per platform (native link, static curl)
-- ANGLE shared libs downloaded in `build-native` via `sge-dev native angle cross-collect`
+- ANGLE shared libs downloaded in build-native (workflow now lives in sge-native-components repo)
 - Native lib stubs (libobjc on Linux, companion .lib on Windows) are embedded in provider JARs
 - Windows curl uses MSVC-built static libs from kubuszok/curl-natives (real HTTP, not stubs)
 
@@ -197,4 +213,4 @@ Each audited file gets a `Migration notes:` block in its header comment.
 | `docs/contributing/` | All conversion guides, code style, tooling |
 | `docs/architecture/` | Platform targets, backend analysis |
 | `docs/improvements/` | Type safety, API design improvements |
-| `scripts/data/` | TSV databases (migration, issues, audit) |
+| `.rescale/data/` | TSV databases (migration, issues, audit) |
