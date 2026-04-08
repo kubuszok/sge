@@ -7,7 +7,7 @@ If omitted, show overall progress.
 
 ### If no argument (overall progress):
 
-1. **Query audit database**: Run `sge-dev db audit stats` for overall counts.
+1. **Query audit database**: Run `re-scale db audit stats` for overall counts.
 
 2. **Read progress file**: Open `memory/audit-progress.md` with the Read tool.
    Display the tier status table and completed packages list.
@@ -20,7 +20,7 @@ If omitted, show overall progress.
 
 ### If package argument given:
 
-1. **Query audit database**: Run `sge-dev db audit list --package $ARGUMENTS`.
+1. **Query audit database**: Run `re-scale db audit list --package $ARGUMENTS`.
 
 2. **If results found**: Display the per-file audit statuses.
 

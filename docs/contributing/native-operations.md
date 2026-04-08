@@ -59,11 +59,14 @@ three separate libraries:
 ### Physics (`physics/` → `libsge_physics`)
 - **`lib.rs`** — 2D physics via Rapier2D, C ABI exports (`sge_phys_*`)
 
-Build and test:
+Build and test (in the external sge-native-components repo):
 ```bash
-sge-dev native build              # cargo build --release (all 3 crates)
-sge-dev native test               # cargo test
+cargo build --release             # All 3 crates
+cargo test                        # All 3 crates
 ```
+
+Inside this repo, native libs are consumed via the published provider
+JARs (`com.kubuszok:panama-sge-*-provider`), not built locally.
 
 ### C ABI Naming Convention
 
@@ -133,7 +136,7 @@ Encode operations return malloc-backed direct ByteBuffers via
 5. Implement pure Scala fallback (`BufferOpsJs.scala` / `ETC1OpsJs.scala`)
 6. Implement Scala Native binding (`BufferOpsNative.scala` / `ETC1OpsNative.scala`)
 7. Add tests
-8. Run `sge-dev test unit` to verify JVM, `sge-dev test unit --js` for JS, `sge-dev test unit --native` for Native
+8. Run `re-scale test unit` to verify JVM, `re-scale test unit --js` for JS, `re-scale test unit --native` for Native
 
 ## Dependencies
 

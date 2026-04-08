@@ -26,11 +26,14 @@ brew install --cask zulu
 ### First build
 
 ```sh
-sge-dev setup                 # Install toolchain (first time)
-sge-dev native angle setup    # Download ANGLE OpenGL ES libraries
-sge-dev build compile         # Compile SGE core (JVM)
-sge-dev test unit             # Run JVM unit tests
+re-scale doctor               # Verify toolchain (first time)
+re-scale build compile        # Compile SGE core (JVM)
+re-scale test unit            # Run JVM unit tests
 ```
+
+ANGLE OpenGL ES libraries (`libEGL`, `libGLESv2`) are bundled in the
+`sge-angle-natives` provider JAR resolved automatically by sbt — no
+manual download step needed.
 
 ## Optional (per workflow)
 
@@ -51,18 +54,13 @@ from macOS):
 
 ### Android
 
-No system packages needed. The SDK, build-tools, and emulator are
-auto-downloaded:
+No system packages needed. The SDK, build-tools, and emulator
+auto-download on the first invocation of any `androidXxx` sbt task —
+no manual setup step is required. To force-download up front, run:
 
 ```sh
-sge-dev test android setup    # Downloads Android SDK, NDK, emulator, system image
+re-scale runner android-smoke-build   # Triggers androidSdkRoot, builds smoke APK
 ```
-
-### Scala CLI (for sge-dev development)
-
-| Dependency | Install (macOS) | Purpose |
-|------------|-----------------|---------|
-| Scala CLI | `brew install coursier && cs install scala-cli` | Building sge-dev toolkit |
 
 ## No longer needed
 
@@ -70,8 +68,8 @@ These were previously required but have been replaced:
 
 | Package | Was used for | Replaced by |
 |---------|-------------|-------------|
-| `angle` (Homebrew tap `startergo/angle/angle`) | ANGLE libraries for desktop OpenGL ES | `sge-dev native angle setup` (downloads from [sge-angle-natives](https://github.com/kubuszok/sge-angle-natives) GitHub Releases) |
-| `libcurl4-openssl-dev` (apt) | Scala Native sttp curl backend | `sge-dev native curl setup` (downloads from [stunnel/static-curl](https://github.com/stunnel/static-curl) GitHub Releases) |
+| `angle` (Homebrew tap `startergo/angle/angle`) | ANGLE libraries for desktop OpenGL ES | `sge-angle-natives` provider JAR auto-resolved by sbt |
+| `libcurl4-openssl-dev` (apt) | Scala Native sttp curl backend | Static curl provider JAR auto-resolved by sbt (from [stunnel/static-curl](https://github.com/stunnel/static-curl) Releases) |
 | `libidn2-dev` (apt) | Scala Native sttp IDN support | Bundled in static curl package (libidn2.a included) |
 
 If you have the ANGLE Homebrew tap installed, you can remove it:
@@ -128,17 +126,8 @@ SGE uses [ANGLE](https://chromium.googlesource.com/angle/angle) to provide
 OpenGL ES on desktop platforms (JVM and Scala Native). ANGLE binaries are
 built from source via CI in the
 [sge-angle-natives](https://github.com/kubuszok/sge-angle-natives)
-repository and downloaded automatically.
-
-```sh
-sge-dev native angle setup          # Download for host platform
-sge-dev native angle check          # Verify ANGLE is present
-sge-dev native angle cross-collect  # Download for all 6 desktop platforms
-```
-
-The ANGLE version is pinned in `scripts/src/native/NativeCmd.scala`
-(`AngleVersion` constant). To upgrade, update the constant and ensure a
-matching release exists in sge-angle-natives.
+repository and packaged into the per-platform provider JARs published to
+Maven. The sbt build resolves them automatically — no manual download.
 
 ## Native components
 
@@ -159,13 +148,9 @@ automatically via `sbt-multi-arch-release`.
 ### Static curl (Scala Native only)
 
 For self-contained Scala Native releases, static curl libraries are
-downloaded from [stunnel/static-curl](https://github.com/stunnel/static-curl):
-
-```sh
-sge-dev native curl setup          # Download for host platform
-sge-dev native curl check          # Verify curl is present
-sge-dev native curl cross-collect  # Download for all 6 desktop platforms
-```
+downloaded from [stunnel/static-curl](https://github.com/stunnel/static-curl)
+and packaged into the curl provider JAR (`com.kubuszok:scala-native-curl-*-provider`)
+that sbt resolves automatically.
 
 This provides `libcurl.a` and all transitive dependencies (`libssl.a`,
 `libcrypto.a`, `libidn2.a`, etc.) so Scala Native binaries don't require

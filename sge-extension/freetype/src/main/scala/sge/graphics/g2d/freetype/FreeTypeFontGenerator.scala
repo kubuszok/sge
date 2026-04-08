@@ -13,6 +13,14 @@
  *   Audited: 2026-03-08
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/freetype/FreeTypeFontGenerator.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - SkylineStrategy not yet ported: GuillotineStrategy is used for both atlas-packing
+ *     paths until SkylineStrategy lands.
  */
 package sge
 package graphics

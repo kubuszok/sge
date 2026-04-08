@@ -53,7 +53,7 @@ class AndroidSmokeTest extends FunSuite {
         "ANDROID_SDK_ROOT", {
           val local = Paths.get(System.getProperty("user.dir"), "sge-deps", "android-sdk")
           if (Files.isDirectory(local)) local.toString
-          else fail("Android SDK not found. Set ANDROID_HOME or run 'sge-dev test android setup'.")
+          else fail("Android SDK not found. Set ANDROID_HOME or trigger any sbt 'androidXxx' task to auto-download it.")
         }
       )
     )

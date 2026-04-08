@@ -1,0 +1,109 @@
+# SGE-specific runner adapters. Invoke with `re-scale runner <name>
+# [--mode MODE]`. Each runner shells out to an actual sbt task / external
+# command — these are thin wrappers, not new build logic.
+
+runners:
+
+  # ── Integration test runners ──────────────────────────────────────
+
+  desktop-it:
+    description: "Desktop integration tests (GLFW + ANGLE + miniaudio + JSON/XML)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-it-desktop/test"]
+    output:
+      failure:
+        keep-lines-matching: ["FAIL", "ERROR", "Caused by", "munit"]
+        max-lines: 30
+
+  browser-it:
+    description: "Browser integration tests via Playwright + headless Chromium"
+    invoke:
+      command: sbt
+      args: [--client, "sge-it-browser/test"]
+    output:
+      failure:
+        keep-lines-matching: ["FAIL", "Error", "page.evaluate", "ReferenceError", "TypeError"]
+        max-lines: 30
+
+  android-it:
+    description: "Android integration tests on emulator (deploys smoke APK, monitors logcat)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-it-android/test"]
+    output:
+      failure:
+        keep-lines-matching: ["FATAL", "AndroidRuntime", "FAIL", "Caused by"]
+        max-lines: 40
+
+  jvm-platform-it:
+    description: "JVM platform provider discovery tests (PanamaProvider, JdkPanama)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-it-jvm-platform/test"]
+
+  native-ffi-it:
+    description: "Scala Native FFI wiring validation (every native C ABI endpoint)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-it-native-ffi/run"]
+
+  android-smoke-build:
+    description: "Build the Android smoke test APK (used by android-it runner)"
+    invoke:
+      command: sbt
+      args: [--client, "sge-android-smoke/androidSign"]
+
+  # ── Demo release runners ──────────────────────────────────────────
+  # All run inside the demos/ sub-build (cwd: demos).
+
+  release-build:
+    description: "Build all 11 demo release archives (JVM + Browser + Native + Android)"
+    invoke:
+      command: sbt
+      args: [--client, releaseAll]
+      cwd: demos
+    modes:
+      all: {}
+      pong: {}
+      space-shooter: {}
+      tile-world: {}
+      hex-tactics: {}
+      curves: {}
+      shader-lab: {}
+      viewer-3d: {}
+      particles: {}
+      net-chat: {}
+      viewports: {}
+      assets: {}
+    # NB: per-demo modes are wired by hand in commands below — see
+    # `re-scale runner release-build --mode pong` which the wrapper
+    # interprets as `sbt --client releasePong`.
+
+  release-collect:
+    description: "Collect demo release archives into demos/target/releases/"
+    invoke:
+      command: sbt
+      args: [--client, collectReleases]
+      cwd: demos
+
+  android-build-all:
+    description: "Build all 11 demo APKs"
+    invoke:
+      command: sbt
+      args: [--client, androidAll]
+      cwd: demos
+
+  # ── Convenience scanners ──────────────────────────────────────────
+
+  shortcuts-extensions:
+    description: "Shortcut scan filtered to sge-extension/ only"
+    invoke:
+      command: re-scale
+      args: [enforce, shortcuts, --src, sge-extension]
+
+  verify-extensions:
+    description: "Covenant verify filtered to sge-extension/ only"
+    invoke:
+      command: re-scale
+      args: [enforce, verify, --all, --src, sge-extension]

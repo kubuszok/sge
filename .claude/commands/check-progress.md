@@ -6,17 +6,17 @@ Show migration progress for the SGE project, optionally filtered by package.
 
    Overall summary:
    ```
-   sge-dev db migration stats
+   re-scale db migration stats
    ```
 
    Filtered by package (e.g., `graphics/g2d`):
    ```
-   sge-dev db migration list --package <package>
+   re-scale db migration list --package <package>
    ```
 
 2. If `$ARGUMENTS` is provided, use it as the package filter:
    ```
-   sge-dev db migration list --package $ARGUMENTS
+   re-scale db migration list --package $ARGUMENTS
    ```
 
 3. Summarize:
@@ -28,5 +28,5 @@ Show migration progress for the SGE project, optionally filtered by package.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `sge-dev db migration` commands or Read the TSV file
-with the Read tool.
+**Do NOT use shell commands directly.** Use `re-scale db migration` commands or Read the TSV file
+at `.rescale/data/migration.tsv` with the Read tool.

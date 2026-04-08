@@ -14,6 +14,14 @@
  *   Convention: FWSkin JSON font/style serializers preserved in API;
  *     actual skin loading deferred until scene2d/rendering layer wired up.
  *   TODOs: Full getJsonLoader() override deferred; requires scene2d Skin base.
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/FWSkin.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - getJsonLoader() override deferred until scene2d Skin base is ported.
+ *   - Skin.getAll(Font.class) integration needed once scene2d.Skin lands.
  */
 package sge
 package textra

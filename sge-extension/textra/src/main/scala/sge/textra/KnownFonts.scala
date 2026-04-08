@@ -15,6 +15,15 @@
  *     font getter methods preserved. Actual font file loading deferred
  *     until rendering layer wired up.
  *   Idiom: Singleton via object; font caching with HashMap.
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/KnownFonts.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Actual font file loading deferred until SGE rendering layer + TextureAtlas
+ *     loading + Gdx.files integration land in textra (currently the get* methods
+ *     create placeholder Fonts so the API surface matches).
  */
 package sge
 package textra

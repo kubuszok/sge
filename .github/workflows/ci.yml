@@ -24,6 +24,39 @@ env:
   SONATYPE_SNAPSHOTS: "https://central.sonatype.com/repository/maven-snapshots"
 
 jobs:
+  # ─── re-scale enforce gate (covenant verify + shortcut budget) ──────
+  #
+  # Non-blocking initially: validates that every file with a `Covenant: full-port`
+  # header still passes (no method dropped, no shortcut introduced) and that no
+  # new shortcut markers leaked into covenanted files. Once the steady state holds
+  # for ~1 week, drop `continue-on-error` to make this a hard gate.
+
+  enforce:
+    name: re-scale enforce
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Install re-scale
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
+          cd "$RUNNER_TEMP/re-scale"
+          ./scripts/install.sh
+          echo "$HOME/bin" >> "$GITHUB_PATH"
+
+      - name: Print re-scale version
+        run: re-scale version
+
+      - name: Verify covenants on covenanted files
+        run: re-scale enforce verify --all
+
+      - name: Shortcut budget on covenanted files
+        run: re-scale enforce shortcuts --covenanted
+
   # ─── Scala.js compile + test (pure Scala, no native dependencies) ───
 
   test-js:

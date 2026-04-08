@@ -9,6 +9,14 @@
  *   Convention: split packages
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/steer/utils/paths/LinePath.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Inherited gdx-ai TODO: "Currently coherence is not implemented" — path coherence
+ *     algorithm not ported.
  */
 package sge
 package ai

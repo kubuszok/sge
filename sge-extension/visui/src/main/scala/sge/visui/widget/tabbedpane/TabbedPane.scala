@@ -4,6 +4,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: vis-ui/ui/src/main/java/com/kotcrab/vis/ui/widget/tabbedpane/TabbedPane.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - "Are you sure you want to close this tab?" Dialogs prompt skipped (Dialogs dependency
+ *     not in this batch); tabs with `isDirty` close immediately instead.
  */
 package sge
 package visui

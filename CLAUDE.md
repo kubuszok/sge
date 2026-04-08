@@ -85,27 +85,18 @@ Native binary + wrapper and copies them into `$HOME/bin/`).
 
 Use `re-scale db` for all migration/issues/audit queries — never read TSVs by hand.
 
-### SGE-specific workflow notes
+### SGE-specific workflows via runners
 
-The legacy `sge-dev` tool had several SGE-specific subcommands that
-re-scale doesn't ship in its core. They're expected to live in
-`.rescale/doctor.yaml` (for setup steps) and `.rescale/runners.yaml`
-(for test harnesses). Until the YAML configs are written, these
-workflows are not invokable from this repo:
+All sge-specific test/build workflows (Android, browser, native release,
+demo packaging) are wired through `.rescale/runners.yaml`. Run
+`re-scale runner list` for the live catalogue. The dev-environment
+bootstrap (JDK, sbt, node, freetype, zig, rust targets, cargo-zigbuild,
+playwright, Android SDK) lives in `.rescale/doctor.yaml` — run
+`re-scale doctor` to check, `re-scale doctor --ci` for non-interactive.
 
-| Legacy command | Migration target |
-|----------------|------------------|
-| `sge-dev setup [--ci]` | `re-scale doctor [--ci]` reading `.rescale/doctor.yaml` (Rust targets, NDK, Zig, JDK, cargo-zigbuild, ...) |
-| `sge-dev metals install/start/stop/status` | `re-scale runner metals --mode start` reading `.rescale/runners.yaml`, OR keep using `cs install metals-mcp` directly |
-| `sge-dev test integration --android` | `re-scale runner android-test` reading `.rescale/runners.yaml` |
-| `sge-dev test browser` | `re-scale runner playwright` reading `.rescale/runners.yaml` |
-| `sge-dev build extensions` | `re-scale build compile --module sge-extension-*` (each extension is its own sbt module) |
-| `sge-dev build release/collect/verify-*` | `re-scale runner release-*` reading `.rescale/runners.yaml` |
-| `sge-dev compare file/package/find/status/next-batch` | LibGDX-specific compare workflows have no direct equivalent — use `re-scale enforce compare` for the strict-mode method-by-method gap analysis |
-
-The TSV data files survived the migration unchanged at
-`.rescale/data/{audit,issues,migration}.tsv` so nothing has been
-lost. See <https://github.com/kubuszok/re-scale/blob/master/docs/cross-flavor-diff.md>
+The TSV data files (`.rescale/data/{audit,issues,migration}.tsv`) survived
+the migration unchanged. See
+<https://github.com/kubuszok/re-scale/blob/master/docs/cross-flavor-diff.md>
 for the rationale.
 
 ## Bash Restrictions
@@ -178,6 +169,39 @@ Each audited file gets a `Migration notes:` block in its header comment.
 - **Statuses**: `pass`, `minor_issues`, `major_issues`, `not_ported`
 - **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date
 - **Progress tracking**: `memory/audit-progress.md`
+
+## Covenant Verification
+
+Audited files should also carry a `Covenant: full-port` header block. The
+covenant captures the file's *baseline contract* — line count, public method
+set, source reference — and `re-scale enforce verify` re-checks that
+contract on every run. A file that loses a public method or grows shortcut
+markers (TODO, FIXME, ???, throw NotImplementedError, null-cast outside Java
+interop, etc.) **fails** verification until either fixed or re-baselined.
+
+This catches the failure mode where an agent "ports" a file by stubbing,
+deferring, or simplifying chunks of work to mark conversion done quickly.
+
+- **Re-verify a single file**: `re-scale enforce verify --file <path>`
+- **Re-verify all covenanted files**: `re-scale enforce verify --all`
+- **Scan covenanted files for shortcut growth**: `re-scale enforce shortcuts --covenanted`
+- **Whitelist a legitimate exemption** (Java interop boundary, intentional
+  `UnsupportedOperationException` like gdx-ai's `NullLimiter`, platform stubs):
+  `re-scale enforce skip-policy add <path> shortcuts --reason "..."`
+
+Covenant header format (added inside the existing file header comment block):
+
+```
+ * Covenant: full-port
+ * Covenant-baseline-loc: 1234
+ * Covenant-baseline-methods: foo,bar,baz
+ * Covenant-source-reference: com/badlogic/gdx/.../Foo.java
+ * Covenant-verified: 2026-04-08
+```
+
+`/audit-file` and `/verify-file` bake the covenant header automatically when
+a file is audited as `pass`. CI runs `re-scale enforce verify --all` as a
+gate.
 
 ## CI Pipeline
 

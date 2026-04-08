@@ -11,6 +11,14 @@
  *   Idiom: Vector2/Vector3 `mul(Matrix3)` -> type match with `rotateRad` for Vector2
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/fma/Formation.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Inherited gdx-ai TODO: "Consider the possibility of declaring mul(orientationMatrix)
+ *     in Vector". Pending upstream design decision.
  */
 package sge
 package ai

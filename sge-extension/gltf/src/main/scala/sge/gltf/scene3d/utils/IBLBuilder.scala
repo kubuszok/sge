@@ -10,6 +10,15 @@
  *
  * NOTE: Build methods (buildEnvMap, buildIrradianceMap, buildRadianceMap) require GL context
  * and throw UnsupportedOperationException until FrameBufferCubemap + ShapeRenderer.rect are ported.
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/scene3d/utils/IBLBuilder.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - buildEnvMap, buildIrradianceMap, buildRadianceMap throw UnsupportedOperationException
+ *   - Requires FrameBufferCubemap side iteration and ShapeRenderer.rect with vertex colors
+ *   - Also requires ScreenUtils.getFrameBufferPixmap and FrameBuffer with Pixels
  */
 package sge
 package gltf

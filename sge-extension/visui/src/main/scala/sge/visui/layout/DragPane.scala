@@ -4,6 +4,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: vis-ui/ui/src/main/java/com/kotcrab/vis/ui/layout/DragPane.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Draggable integration not implemented: the gdx Draggable class is not yet ported.
+ *     Once Draggable lands, the drag-and-drop wiring needs to be added back.
  */
 package sge
 package visui

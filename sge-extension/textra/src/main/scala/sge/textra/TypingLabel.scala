@@ -12,6 +12,13 @@
  *   Convention: TypingLabel extends TextraLabel with typing animation and
  *     effect token support. Full rendering deferred until scene2d wiring.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/TypingLabel.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Clipboard integration deferred until SGE Clipboard backend lands.
  */
 package sge
 package textra

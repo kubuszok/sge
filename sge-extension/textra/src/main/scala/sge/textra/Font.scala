@@ -21,6 +21,18 @@
  *   Remaining TODOs: drawGlyph advanced effects (drop shadow, outlines, HALO, NEON,
  *     SHINY), underline/strikethrough decorations, box-drawing character rendering
  *     (require ColorUtils.multiplyAlpha/lerpColorsMultiplyAlpha and BlockUtils.BOX_DRAWING).
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/Font.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - drawGlyph advanced effects: drop shadow, outlines, HALO, NEON, SHINY (need ColorUtils helpers)
+ *   - Underline/strikethrough decoration rendering
+ *   - Box-drawing character rendering (need BlockUtils.BOX_DRAWING)
+ *   - measureWidth simplification: skips curly content rather than parsing it
+ *   - Truncation/ellipsis simplified
+ *   - Pixel-size projection-matrix calculation uses 1px≈1unit fallback
  */
 package sge
 package textra

@@ -4,6 +4,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/utils/ColorUtils.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - parseDescription stub: only handles single color name lookup, not multi-word descriptions
+ *     like "peach red" or "DARK DULLEST GREEN".
  */
 package sge
 package textra

@@ -350,7 +350,7 @@ addCommandAlias("releaseAll",
 // ── Android APK aliases ───────────────────────────────────────────────
 // Usage: sbt androidPong        — builds APK for Pong
 //        sbt androidAll         — builds APKs for all demos
-// Requires Android SDK: sge-dev test android setup
+// Requires Android SDK (auto-installed by the sbt androidSdkRoot task on first invocation)
 
 def androidAlias(name: String, jvm: String): Seq[Setting[_]] =
   addCommandAlias(s"android${name}", s"$jvm/androidSign")

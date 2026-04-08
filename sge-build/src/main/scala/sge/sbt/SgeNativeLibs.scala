@@ -156,7 +156,9 @@ object SgeNativeLibs {
           if (!platDir.exists()) {
             sys.error(
               s"[sge] Native lib directory not found: ${platDir.getAbsolutePath}\n" +
-                s"Run 'sge-dev native cross $platform && sge-dev native collect' to build it."
+                s"Build natives in the external sge-native-components repo " +
+                s"(https://github.com/kubuszok/sge-native-components) for platform '$platform' " +
+                s"and stage them under sge-deps/native-components/target/cross/."
             )
           }
           log.info(s"[sge] Using local native libs: ${platDir.getAbsolutePath}")
@@ -240,8 +242,9 @@ object SgeNativeLibs {
 
       if (nativeMappings.isEmpty) {
         val msg = "[sge] WARNING: No native shared libraries found in JAR mappings.\n" +
-          "  Run 'sge-dev native build && sge-dev native angle setup' to build native libs for the host platform,\n" +
-          "  or 'sge-dev native release-prep' for all platforms."
+          "  Native libs come from sge-native-components provider JARs on Maven.\n" +
+          "  In CI, ensure the matching panama-sge-*-provider artifacts are downloaded\n" +
+          "  to sge-deps/native-components/target/release/ before packaging."
         val skipValidation = sys.env.get("SGE_SKIP_NATIVE_VALIDATION").contains("true")
         if (isCI && !skipValidation) sys.error(msg) else log.warn(msg)
       } else {
@@ -257,7 +260,9 @@ object SgeNativeLibs {
         if (!skipValidation && !byPlatform.contains(host.classifier)) {
           sys.error(
             s"[sge] Native libraries missing for host platform '${host.classifier}'.\n" +
-              s"  Run 'sge-dev native build && sge-dev native angle setup' to build them.\n" +
+              s"  Native libs come from sge-native-components provider JARs on Maven —\n" +
+              s"  ensure the matching panama-sge-*-provider artifacts are present in\n" +
+              s"  sge-deps/native-components/target/release/.\n" +
               s"  Present platforms: ${byPlatform.keys.mkString(", ")}"
           )
         }
@@ -269,7 +274,8 @@ object SgeNativeLibs {
             sys.error(
               s"[sge] CI: Native libraries missing for platforms: ${missing.map(_.classifier).mkString(", ")}\n" +
                 s"  Present platforms: ${byPlatform.keys.mkString(", ")}\n" +
-                "  Run 'sge-dev native release-prep' to build all platforms."
+                "  Ensure all 6 panama-sge-*-provider artifacts are downloaded from\n" +
+                "  the sge-native-components Maven publication before packaging."
             )
           }
         } else {

@@ -4,6 +4,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: vis-ui/ui/src/main/java/com/kotcrab/vis/ui/util/FloatDigitsOnlyFilter.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Simplified TextField API: validation always uses full text rather than the
+ *     original incremental insertion check (SGE TextField API differs from VisUI).
  */
 package sge
 package visui
