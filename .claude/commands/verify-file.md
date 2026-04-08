@@ -10,7 +10,7 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    Open the source from `./original-src/libgdx/gdx/src/` with the Read tool.
 
 3. **Run the verification checklist** from `docs/contributing/verification-checklist.md`:
-   - Compilation: compile via `sge-dev build compile`, check for errors and warnings
+   - Compilation: compile via `re-scale build compile`, check for errors and warnings
    - Completeness: compare all public methods, constants, enums against LibGDX source
    - Scala idioms: check for `return`, `null`, Java syntax, etc.
    - Type mappings: verify collections, exceptions, Gdx references are converted
@@ -20,14 +20,24 @@ Verify the SGE Scala file at `$ARGUMENTS` against its original LibGDX source.
    - For failures, show the specific line numbers and what needs to change
    - Estimate effort to fix remaining issues
 
-5. **Update tracking**: If all items pass, run `sge-dev db migration set <source_path> --status verified`.
+5. **Update tracking**: If all items pass, run `re-scale db migration set <source_path> --status verified`.
    If issues found, add notes with `--notes`.
 
 6. **Update audit entry**: Add or update the `Migration notes:` block in the file's
    header comment following the format from `/audit-file`. If a per-package audit doc
    exists at `docs/audit/<slug>.md`, update the file's section there as well.
 
+7. **Run the covenant gate**: `re-scale enforce verify --file <path>`.
+   - **If the file has a covenant header and verify passes**: done.
+   - **If the file has a covenant header and verify fails** (method removed or shortcut
+     introduced): the report tells you which method went missing or which line a shortcut
+     was added on. **Fix the underlying issue.** Do **not** "fix" the failure by removing
+     the covenant header — the header is the contract.
+   - **If the file has no covenant header and the audit verdict is `pass`**: bake the
+     covenant header following step 11 of `/audit-file`, then re-run verify.
+
 ## Important
 
-**Do NOT use shell commands directly.** Use `sge-dev build compile` for compilation,
-the Read tool for file reading, and the Grep/Glob tools for code search.
+**Do NOT use shell commands directly.** Use `re-scale build compile` for compilation,
+`re-scale enforce verify --file` for the covenant gate, the Read tool for file reading,
+and the Grep/Glob tools for code search.

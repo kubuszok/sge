@@ -43,20 +43,26 @@ Display this table:
 Run unused symbol analysis.
 
 ```
-sge-dev build compile --warnings
+re-scale build compile
 ```
 
 Then use the Grep tool to search the output for `[E198]` patterns.
 Count and categorize: unused imports, unused privates, unused locals, unused patvars.
 
 ### `null`
-Run null check analysis using the quality scan.
+Run null check analysis using the unified shortcut scanner — its `null-cast`
+pattern category catches `null.asInstanceOf[T]` and the `Nullable.empty.getOrElse(null)`
+anti-patterns.
 
 ```
-sge-dev quality scan --null
+re-scale enforce shortcuts
 ```
 
-Report violations by file.
+Filter the output for `null-cast` hits to see violations by file. For
+legitimate Java interop boundaries, add a skip-policy entry:
+```
+re-scale enforce skip-policy add <path> shortcuts --reason "Java interop boundary"
+```
 
 ## Promoting Warnings to Errors
 
@@ -66,4 +72,4 @@ those warnings back to errors. This prevents regressions.
 
 ## Important
 
-**Do NOT use shell commands directly.** Use `sge-dev` commands or `sbt --client` only.
+**Do NOT use shell commands directly.** Use `re-scale` commands or `sbt --client` only.

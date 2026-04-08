@@ -3,14 +3,6 @@
     "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
   "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          { "type": "command", "command": ".claude/hooks/setup-path.sh" }
-        ]
-      }
-    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

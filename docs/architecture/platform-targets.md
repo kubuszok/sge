@@ -60,7 +60,7 @@ Key characteristics:
 Native compilation target sharing the same C libraries as JVM via Rust C ABI:
 - **GLFW** + **ANGLE** + **miniaudio** (same as JVM, via `@extern` instead of Panama)
 - Binary distribution without JVM dependency
-- Static curl bundled for self-contained sttp HTTP (see `sge-dev native curl setup`)
+- Static curl bundled for self-contained sttp HTTP (via the curl provider JAR auto-resolved by sbt)
 
 Platform-specific sources: `sge/src/main/scalanative/sge/platform/`
 

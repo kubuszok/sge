@@ -1,0 +1,146 @@
+# SGE dev-environment bootstrap. Run with `re-scale doctor` to check, or
+# `re-scale doctor --ci` to run non-interactive checks only.
+#
+# Each step has a `check` (idempotent probe) and an optional `install`
+# command. Steps marked `interactive: true` are skipped in `--ci` mode.
+
+steps:
+
+  # ── Required toolchain ─────────────────────────────────────────────
+
+  - id: jdk
+    name: "JDK 22+ (Panama FFM stable)"
+    check:
+      command: java
+      args: ["-version"]
+      success-when:
+        stderr-matches: 'version "(2[2-9]|[3-9][0-9])\.'
+    install:
+      command: sdk
+      args: [install, java, 25.0.2-zulu]
+      interactive: true
+    hint: "Install Zulu 25 (LTS, has Windows aarch64) via sdkman or `brew install --cask zulu`"
+
+  - id: sbt
+    name: "sbt 1.12+"
+    check:
+      command: sbt
+      args: ["--script-version"]
+      success-when:
+        stdout-matches: '1\.(1[2-9]|[2-9][0-9])\.'
+    install:
+      command: brew
+      args: [install, sbt]
+      interactive: true
+    hint: "brew install sbt"
+
+  - id: node
+    name: "Node 18+ (Scala.js linker)"
+    check:
+      command: node
+      args: ["--version"]
+      success-when:
+        stdout-matches: 'v(1[8-9]|[2-9][0-9])\.'
+    install:
+      command: brew
+      args: [install, node]
+      interactive: true
+    hint: "brew install node"
+
+  - id: freetype
+    name: "FreeType 2.x (font rasterization)"
+    check:
+      command: pkg-config
+      args: [--modversion, freetype2]
+      success-when:
+        stdout-matches: '^2\.'
+    install:
+      command: brew
+      args: [install, freetype]
+      interactive: true
+    hint: "brew install freetype"
+
+  # ── Optional: cross-platform native release builds ─────────────────
+  # Native binaries are built externally in sge-native-components and
+  # distributed as provider JARs from Maven. These steps are only needed
+  # if you want to *build* the natives locally rather than consume the
+  # provider JARs.
+
+  - id: rust
+    name: "Rust toolchain (rustup)"
+    check:
+      command: rustc
+      args: ["--version"]
+      success-when:
+        exit-code: 0
+    hint: "Install via rustup: https://rustup.rs"
+
+  - id: rust-cross-targets
+    name: "Rust cross-compile targets (6 desktop platforms)"
+    check:
+      command: rustup
+      args: [target, list, --installed]
+      success-when:
+        stdout-contains: aarch64-apple-darwin
+    install:
+      command: rustup
+      args:
+        - target
+        - add
+        - aarch64-apple-darwin
+        - x86_64-apple-darwin
+        - x86_64-unknown-linux-gnu
+        - aarch64-unknown-linux-gnu
+        - x86_64-pc-windows-msvc
+        - aarch64-pc-windows-msvc
+
+  - id: zig
+    name: "Zig (cross-compile C toolchain for Scala Native)"
+    check:
+      command: zig
+      args: [version]
+      success-when:
+        exit-code: 0
+    install:
+      command: brew
+      args: [install, zig]
+      interactive: true
+    hint: "brew install zig"
+
+  - id: cargo-zigbuild
+    name: "cargo-zigbuild (Rust + zig glue)"
+    check:
+      command: cargo
+      args: [zigbuild, "--version"]
+      success-when:
+        exit-code: 0
+    install:
+      command: cargo
+      args: [install, cargo-zigbuild]
+      interactive: true
+
+  # ── Optional: integration tests ────────────────────────────────────
+
+  - id: playwright
+    name: "Playwright + Chromium (browser integration tests)"
+    check:
+      command: npx
+      args: [playwright, "--version"]
+      success-when:
+        exit-code: 0
+    install:
+      command: npx
+      args: ["playwright@1.49.0", install, chromium]
+      interactive: true
+    hint: "One-time: npx playwright@1.49.0 install chromium"
+
+  - id: android-sdk
+    name: "Android SDK (auto-downloaded by sbt androidSdkRoot task)"
+    check:
+      command: bash
+      args:
+        - "-c"
+        - 'test -d "$ANDROID_HOME" || test -d "$HOME/Library/Android/sdk" || test -d sge-deps/android-sdk'
+      success-when:
+        exit-code: 0
+    hint: "Run any sbt androidXxx task (e.g. `sbt --client sge-android-smoke/androidSign`) — the SDK auto-downloads on first invocation."

@@ -32,10 +32,18 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
      - If no test exists anywhere: create a basic test covering the public API.
    - **Copyright header**: Fix `Copyright` → `copyright`, `2024` → `2025`.
 
-4. **Compile after each batch of fixes**: Run `sge-dev build compile --errors-only` to catch regressions.
+4. **Compile after each batch of fixes**: Run `re-scale build compile --errors-only` to catch regressions.
    If errors appear, fix them before proceeding.
 
-5. **Run tests**: If tests were added or modified, run `sge-dev test unit` to verify they pass.
+5. **Run tests**: If tests were added or modified, run `re-scale test unit` to verify they pass.
+
+6. **Covenant gate** — for every file touched in this fix loop:
+   - `re-scale enforce shortcuts --file <path>` — must report no new hits beyond what
+     skip-policy already excludes.
+   - `re-scale enforce verify --file <path>` — must pass. If the file already had a
+     covenant header, the verify checks that you didn't drop any methods or introduce
+     new shortcuts. **Don't bypass a covenant failure by removing the header — fix the
+     underlying regression.**
 
 ### Phase 3: Re-audit
 
@@ -46,15 +54,19 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
 
 ### Phase 4: Commit
 
-8. **Compile-verify**: `sge-dev build compile --errors-only` and `sge-dev build compile --warnings`.
+8. **Compile-verify**: `re-scale build compile --errors-only` and `re-scale build compile`.
 
-9. **Commit**: `sge-dev git commit-all 'Correct sge.<pkg>: fix N issues (M major, m minor)'`
+9. **Commit**:
+   ```
+   re-scale git stage-all
+   re-scale git commit -m "Correct sge.<pkg>: fix N issues (M major, m minor)"
+   ```
 
 10. **Update progress**: Update `memory/audit-progress.md` if statuses changed.
 
 ## Important
 
-- **Do NOT use shell commands directly.** Use `sge-dev` commands and dedicated tools only.
+- **Do NOT use shell commands directly.** Use `re-scale` commands and dedicated tools only.
 - **Do NOT remove comments** from the original source — only add/update migration notes.
 - Follow all conversion rules in `docs/contributing/conversion-rules.md`.
 - When porting tests, use munit (`extends munit.FunSuite`).

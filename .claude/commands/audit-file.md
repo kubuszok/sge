@@ -83,7 +83,36 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
    - `major_issues`: Missing methods, incorrect signatures, logic errors, stubs,
      missing tests (when LibGDX has one), missing/incorrect fields, wrong var→val
 
-11. **Return structured result**: Output an `AUDIT_RESULT` block:
+11. **Bake the Covenant header** (only if status is `pass` after all checks):
+    - Run `re-scale enforce shortcuts --file <path>` and confirm zero hits (or every
+      hit is already covered by `re-scale enforce skip-policy list`).
+    - Compute `baseline-loc` from the file's actual line count (read the file or use
+      a Bash `wc -l <path>` if quoting is safe).
+    - Extract `baseline-methods`: every public `def`/`val`/`var` name at the
+      class/object/trait level. The `Methods.extractScalaNames` regex inside re-scale
+      handles this internally — match its behaviour with a comma-separated list.
+    - Determine `source-reference`: the LibGDX path under
+      `original-src/libgdx/gdx/src/com/badlogic/gdx/...` (or matching extension source).
+    - Insert this block into the file's header comment, after the existing
+      `Migration notes:` block, before the closing `*/`:
+      ```
+       *
+       * Covenant: full-port
+       * Covenant-baseline-loc: <line count>
+       * Covenant-baseline-methods: foo,bar,baz,...
+       * Covenant-source-reference: <path under original-src/>
+       * Covenant-verified: <today's date>
+      ```
+    - For files with deliberate, accepted gaps (e.g. iOS-only backends, partial ports
+      where the missing functionality is documented and tracked), use
+      `Covenant: partial-port` instead — the verifier accepts it without enforcing
+      the method/shortcut constraints, but the marker still tracks the file as
+      knowingly incomplete.
+    - Run `re-scale enforce verify --file <path>` to confirm the header parses and
+      passes verification. **If verify fails, fix the underlying issue (don't remove
+      the covenant header).**
+
+12. **Return structured result**: Output an `AUDIT_RESULT` block:
    ```
    AUDIT_RESULT:
    file: <scala path>
@@ -100,5 +129,5 @@ Audit the SGE Scala file at `$ARGUMENTS` against its original LibGDX Java source
 ## Important
 
 **Do NOT use shell commands directly.** Use the Read tool for file reading,
-Grep/Glob tools for code search, and `sge-dev build compile` only if you need to verify
+Grep/Glob tools for code search, and `re-scale build compile` only if you need to verify
 a header edit compiles.

@@ -44,39 +44,41 @@ dependency list, CI setup, and what can be removed.
 
 ### Android (optional)
 
-```sh
-sge-dev test android setup    # Downloads SDK, build-tools, system image, emulator
-```
+The Android SDK auto-downloads on the first invocation of any
+`androidXxx` sbt task — no manual setup needed.
 
 ## Quick Start
+
+The dev workflow uses [`re-scale`](https://github.com/kubuszok/re-scale)
+(install once via `git clone … && ./scripts/install.sh`) which keeps
+sbt warm via `--client` to avoid the 30s JVM startup tax.
 
 ### Build and test (JVM)
 
 ```sh
-sge-dev setup                 # Install toolchain (first time)
-sge-dev build compile         # Compile SGE core (JVM)
-sge-dev test unit             # Run 1450 JVM unit tests
+re-scale doctor                # Check toolchain (first time)
+re-scale build compile         # Compile SGE core (JVM)
+re-scale test unit             # Run 1450 JVM unit tests
 ```
 
 ### All platforms
 
 ```sh
-sge-dev test unit --all               # JVM + JS + Native unit tests
-sge-dev test integration --all        # All integration tests (desktop + browser + android)
+re-scale test unit --all       # JVM + JS + Native unit tests
+re-scale runner desktop-it     # Desktop integration tests (GLFW + ANGLE + miniaudio)
+re-scale runner browser-it     # Playwright browser smoke tests
+re-scale runner android-it     # Android emulator integration tests
 ```
 
 ### Run a demo
 
 The `demos/` directory is a separate sbt sub-build that depends on SGE as a
-published library. First build and publish SGE locally, then run any demo:
+published library. First publish SGE locally, then run any demo:
 
 ```sh
-# One-time: download ANGLE OpenGL ES libraries
-sge-dev native angle setup        # ANGLE (libEGL, libGLESv2) for desktop rendering
-
 # Publish SGE to local Ivy/Maven cache
-sge-dev build publish-local       # JVM only (fastest — ~30s)
-# or: sge-dev build publish-local --all  # All platforms: JVM + JS + Native (~2min)
+re-scale build publish-local       # JVM only (fastest — ~30s)
+# or: re-scale build publish-local --all  # All platforms: JVM + JS + Native (~2min)
 
 # Run a demo (from demos/ sub-build)
 cd demos && sbt --client 'pong/run'              # JVM (GLFW window)
@@ -92,8 +94,7 @@ for non-JVM targets.
 ### Build demo APKs (Android)
 
 ```sh
-sge-dev test android setup                       # One-time setup
-cd demos && sbt --client 'androidAll'             # Build all 11 demo APKs
+re-scale runner android-build-all          # Build all 11 demo APKs (sbt androidAll inside demos/)
 ```
 
 ### Build demos for browser
@@ -175,12 +176,12 @@ JVM, JS, Native, and Android targets.
 ## Testing
 
 ```sh
-sge-dev test unit                     # JVM unit tests (1450)
-sge-dev test unit --js                # Scala.js unit tests (1096)
-sge-dev test unit --native            # Scala Native unit tests (1096)
-sge-dev test browser                  # Playwright browser integration tests
-sge-dev test integration --desktop    # Desktop end-to-end (GLFW + ANGLE + audio)
-sge-dev test android test             # Android emulator smoke test
+re-scale test unit                    # JVM unit tests (1450)
+re-scale test unit --js               # Scala.js unit tests (1096)
+re-scale test unit --native           # Scala Native unit tests (1096)
+re-scale runner browser-it            # Playwright browser integration tests
+re-scale runner desktop-it            # Desktop end-to-end (GLFW + ANGLE + audio)
+re-scale runner android-it            # Android emulator smoke test
 ```
 
 ## CI

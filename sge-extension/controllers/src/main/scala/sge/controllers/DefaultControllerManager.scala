@@ -3,6 +3,13 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-controllers/desktop/src/com/badlogic/gdx/controllers/desktop/DesktopControllerManager.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Vibration not supported in the polling-based stub (rumble/haptics blocked on Panama wiring).
  */
 package sge
 package controllers

@@ -3,6 +3,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/GLTFTypes.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - One inherited TODO at line 106 ("is it the proper way to do it?") — needs upstream
+ *     review against the original Java to confirm semantics.
  */
 package sge
 package gltf

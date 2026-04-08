@@ -12,6 +12,15 @@
  *   Convention: Emoji regex preserved for matching; replacement logic uses
  *     java.util.regex instead of RegExodus.
  *   Note: The massive regex pattern matches all Unicode 14 emoji sequences.
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/EmojiProcessor.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Simplified emoji regex: the original Java pattern uses RegExodus syntax which lacks
+ *     a direct java.util.regex equivalent for some Unicode 14 sequences (skin tones, ZWJ
+ *     joiner sequences). The simplified pattern handles the common cases.
  */
 package sge
 package textra

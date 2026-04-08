@@ -47,8 +47,8 @@ DEXing these dependencies into the APK.
 
 ### Build Pipeline
 
-1. **Rust cross-compilation** (`sge-dev native cross-android`): builds `libsge_native_ops.so`
-   for 3 Android architectures using NDK 27 clang as the linker
+1. **Rust cross-compilation** (in the external sge-native-components repo): builds
+   `libsge_native_ops.so` for 3 Android architectures using NDK 27 clang as the linker
 2. **C audio bridge** (`build.rs`): builds `libsge_audio.so` from vendored miniaudio,
    linked against `-llog -lOpenSLES -lm` (Android audio APIs)
 3. **No GLFW on Android**: Android uses `GLSurfaceView` + system EGL, not GLFW
@@ -84,7 +84,7 @@ FFM symbol resolution.
 
 ### Prerequisites
 
-- Android NDK 27.2 (installed via `sge-dev test android setup`)
+- Android NDK 27.2 (auto-installed by the sbt `androidSdkRoot` task on first invocation)
 - Rust targets: `aarch64-linux-android`, `armv7-linux-androideabi`, `x86_64-linux-android`
 - Installed via `rustup target add` (requires rustup, not Homebrew cargo)
 

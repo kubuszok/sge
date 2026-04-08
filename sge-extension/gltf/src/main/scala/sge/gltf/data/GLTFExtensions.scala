@@ -3,6 +3,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/data/GLTFExtensions.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Typed extension deserialization (KHR_*, EXT_*) not implemented; raw JSON only.
+ *     Blocked on full GLTF JSON codec implementation.
  */
 package sge
 package gltf

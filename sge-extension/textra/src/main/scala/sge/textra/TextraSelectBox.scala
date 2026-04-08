@@ -5,6 +5,13 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
+ * Covenant: partial-port
+ * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/TextraSelectBox.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Scene2D Stage integration deferred (scene2d hasn't fully landed in textra).
+ *
  * Migration notes:
  *   Renames: Widget → standalone class, Disableable → trait field,
  *     Array<T> → ArrayBuffer[T], ArraySelection → deferred,

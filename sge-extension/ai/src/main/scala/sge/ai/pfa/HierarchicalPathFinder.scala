@@ -12,6 +12,14 @@
  *   Idiom: inner static class `LevelPathFinderRequest` -> private class
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-ai/gdx-ai/src/com/badlogic/gdx/ai/pfa/HierarchicalPathFinder.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Inherited gdx-ai FIXME at line 259: "the break below is wrong" — needs investigation
+ *     against the original Java source to confirm semantics.
  */
 package sge
 package ai

@@ -914,7 +914,7 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
 // apksigner). Used by sge-it-android to catch runtime crashes.
 //
 // Build: sbt 'sge-android-smoke/androidSign'
-// Prerequisites: Android SDK (run 'sge-dev test android setup')
+// Prerequisites: Android SDK (auto-downloaded by the sbt androidSdkRoot task on first invocation)
 
 lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
   .settings(_root_.sge.sbt.AndroidBuild.settings *)
@@ -954,9 +954,9 @@ lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
 // miniaudio audio engine and exercises all subsystems end-to-end:
 // bootstrap, GL2D, GL3D, audio, file I/O, JSON/XML parsing.
 //
-// Prerequisites: Rust native lib built (sge-dev native build)
+// Prerequisites: native libs from sge-native-components provider JARs (auto-resolved by sbt)
 //
-// Run: sbt 'sge-test-it-desktop/test'  or  sge-dev test integration --desktop
+// Run: sbt --client 'sge-it-desktop/test'  or  re-scale runner desktop-it
 lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -985,7 +985,7 @@ lazy val `sge-it-desktop` = (project in file("sge-test/it-desktop"))
     Test / javaOptions ++= {
       // Native libs are built externally in sge-native-components and distributed as provider JARs.
       // CI extracts provider JARs to sge-deps/native-components/target/release/ for linking/testing.
-      // ANGLE (EGL, GLESv2) is also extracted there (see sge-dev native angle setup).
+      // ANGLE (EGL, GLESv2) is also packaged into the same provider JARs and extracted there.
       val rustLib = ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath
       // Note: -XstartOnFirstThread is NOT passed here — the munit test launches
       // the harness as a subprocess with that flag so GLFW runs on thread 0.
@@ -1015,7 +1015,7 @@ lazy val `sge-it-jvm-platform` = (project in file("sge-test/it-jvm-platform"))
 // Prerequisites: run `npx playwright@1.49.0 install chromium` once to install
 // the browser binary. Playwright Java auto-manages the driver.
 //
-// Run: sbt 'sge-test-it-browser/test'  or  sge-dev test browser
+// Run: sbt --client 'sge-it-browser/test'  or  re-scale runner browser-it
 lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -1042,11 +1042,11 @@ lazy val `sge-it-browser` = (project in file("sge-test/it-browser"))
 // app startup.
 //
 // Prerequisites:
-//   1. Android SDK + emulator + system image: sge-dev test android setup
+//   1. Android SDK + emulator + system image: auto-installed by androidSdkRoot
 //   2. Build smoke APK: sbt 'sge-test-android-smoke/androidSign'
-//   3. Create + start AVD: sge-dev test android start
+//   3. Create + start AVD via android-emulator-runner GitHub Action (or local AVD manager)
 //
-// Run: sbt 'sge-test-it-android/test'  or  sge-dev test android test
+// Run: sbt --client 'sge-it-android/test'  or  re-scale runner android-it
 lazy val `sge-it-android` = (project in file("sge-test/it-android"))
   .settings(publishSettings *)
   .settings(noPublishSettings *)
@@ -1061,7 +1061,7 @@ lazy val `sge-it-android` = (project in file("sge-test/it-android"))
 // correct symbol resolution, ABI compatibility, and pointer calculations.
 // Catches runtime SIGSEGVs from wrong parameter types or buffer offset bugs.
 //
-// Run: sbt 'sge-test-it-native-ffi/run'  or  sge-dev test integration --native-ffi
+// Run: sbt --client 'sge-it-native-ffi/run'  or  re-scale runner native-ffi-it
 lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   .enablePlugins(ScalaNativePlugin)
   .settings(publishSettings *)

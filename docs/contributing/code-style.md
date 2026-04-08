@@ -97,7 +97,7 @@ and `sge.graphics.g2d`), removing the need for explicit imports.
 
 ## Scalafmt
 
-The project uses scalafmt for formatting. Run `sge-dev build fmt` after changes.
+The project uses scalafmt for formatting. Run `re-scale build fmt` after changes.
 Configuration is in `.scalafmt.conf`.
 
 ## Compiler Flags

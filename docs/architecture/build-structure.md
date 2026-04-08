@@ -63,7 +63,7 @@ JVM platform modules are merged into the sge JVM JAR via `packageBin/mappings`
 The `demos/` directory is a **separate sbt build** that depends on published SGE:
 
 ```sh
-sge-dev build publish-local --all   # Publish SGE to local Maven
+re-scale build publish-local --all  # Publish SGE to local Maven
 cd demos && sbt --client compile    # Compile all 11 demos
 ```
 

@@ -17,10 +17,10 @@ found during the porting process.
 Bugs discovered during porting are tracked in the issues database:
 
 ```bash
-sge-dev db issues list              # List all open issues
-sge-dev db issues add <desc>        # Add a new issue
-sge-dev db issues resolve <id>      # Mark an issue as resolved
-sge-dev db issues stats             # Summary statistics
+re-scale db issues list              # List all open issues
+re-scale db issues add <desc>        # Add a new issue
+re-scale db issues resolve <id>      # Mark an issue as resolved
+re-scale db issues stats             # Summary statistics
 ```
 
 The template above (BA-nnn) can be used for documenting particularly notable bugs

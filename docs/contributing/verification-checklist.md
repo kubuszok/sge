@@ -1,7 +1,7 @@
 # Verification Checklist
 
 Use this checklist when verifying an AI-converted file. Track status via
-`sge-dev db migration` and `sge-dev db audit`.
+`re-scale db migration` and `re-scale db audit`.
 
 ## License Header
 
@@ -12,7 +12,7 @@ Use this checklist when verifying an AI-converted file. Track status via
 
 ## Compilation
 
-- [ ] File compiles without errors via `sge-dev build compile`
+- [ ] File compiles without errors via `re-scale build compile`
 - [ ] File compiles without warnings (warnings are fatal)
 
 ## Completeness
@@ -42,11 +42,21 @@ Use this checklist when verifying an AI-converted file. Track status via
 
 ## Testing
 
-- [ ] Compiles on all platforms: `sge-dev build compile --all`
-- [ ] Tests pass on all platforms: `sge-dev test unit --all`
+- [ ] Compiles on all platforms: `re-scale build compile --all`
+- [ ] Tests pass on all platforms: `re-scale test unit --all`
 - [ ] If a test reveals a pre-existing bug in the codebase, fix the bug — never patch the test to work around it
+
+## Covenant Verification
+
+- [ ] `re-scale enforce shortcuts --file <path>` returns no hits (or every
+  hit is covered by an entry in `re-scale enforce skip-policy list`)
+- [ ] If status is `pass`, the file has a `Covenant: full-port` block in
+  its header comment with `baseline-loc`, `baseline-methods`, and
+  `source-reference`
+- [ ] `re-scale enforce verify --file <path>` exits 0
 
 ## Status Progression
 
-After verification, update status via `sge-dev db audit set <file> pass`.
-See `/audit-file` and `/audit-package` skills for the full audit workflow.
+After verification, update status via `re-scale db audit set <file> pass`.
+See `/audit-file` and `/audit-package` skills for the full audit workflow,
+including covenant header baking.

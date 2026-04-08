@@ -3,6 +3,15 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/material/PBRMaterialLoader.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Full PBR attribute support (PBRTextureAttribute, PBRFloatAttribute, PBRColorAttribute, etc.)
+ *     not yet ported from net.mgsx.gltf.scene3d.attributes.* — currently creates simplified
+ *     materials with just BlendingAttribute, ColorAttribute, FloatAttribute, IntAttribute.
  */
 package sge
 package gltf

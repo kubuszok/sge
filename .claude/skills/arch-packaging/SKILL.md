@@ -25,29 +25,35 @@ Distribution packaging architecture for SGE games.
 - macOS .app bundles with ad-hoc codesigning
 
 ## Release Workflow
+
+Native libs are built externally in
+[sge-native-components](https://github.com/kubuszok/sge-native-components) and
+distributed as provider JARs from Maven. The release flow consumes those
+provider JARs and builds the per-platform demo archives via sbt
+command aliases defined in `demos/build.sbt`.
+
 ```
-sge-dev native release-prep                      # Cross-compile Rust + download ANGLE + curl
-sge-dev build release --publish-first             # Publish SGE locally + build all releases
-sge-dev build collect                             # Collect into demos/target/releases/
+re-scale build publish-local --all                # Publish SGE to local Maven (JVM + JS + Native)
+re-scale runner release-build                     # sbt --client releaseAll (in demos/)
+re-scale runner release-collect                   # sbt --client collectReleases — demos/target/releases/
+re-scale runner android-build-all                 # sbt --client androidAll — all 11 demo APKs
 ```
 
-Or step by step:
-```
-sge-dev build publish-local --all                 # Publish SGE to local Maven
-sge-dev build release                             # Build all demo releases (JVM/JS/Native/Android)
-sge-dev build release --demo pong                 # Build a single demo release
-sge-dev build collect                             # Collect releases
-```
+Per-demo (single demo) is wired via sbt command aliases inside `demos/`,
+e.g. `cd demos && sbt --client releasePong` for the JVM/Browser/Native trio
+of the Pong demo, or `sbt --client androidPong` for the APK alone.
 
-## Verification Commands
+## Verification
+
+Manual archive launch / smoke verification was previously done by legacy
+shell wrappers that are no longer present. There are no equivalent sbt tasks
+yet — verify by running the integration test runners on the host platform:
+
 ```
-sge-dev build verify-native pong                  # Test native archive launches
-sge-dev build verify-jvm pong                     # Test JVM archive launches
-sge-dev build verify-jvm-intel pong               # Test x86_64 under Rosetta
-sge-dev build verify-browser pong                 # Check browser archive structure
-sge-dev build verify-releases --demo pong         # Run all verify-* for a demo
-sge-dev build verify-releases                     # Verify all demos
-sge-dev test android test pong                    # Test collected APK on emulator
+re-scale runner desktop-it                        # GLFW + ANGLE + miniaudio integration test
+re-scale runner browser-it                        # Playwright + headless Chromium
+re-scale runner android-it                        # Android emulator smoke test
+re-scale runner native-ffi-it                     # Scala Native C ABI wiring
 ```
 
 Load the SgePackaging source for implementation details:

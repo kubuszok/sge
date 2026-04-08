@@ -7,6 +7,16 @@
  * The full implementation will be ported separately due to its size.
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: anim8-gdx/src/main/java/com/github/tommyettinger/anim8/PaletteReducer.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Color analysis (analyze, analyzeFast, analyzeReductive) — STUB delegates to default palette
+ *   - Hue-wise analyze variant — STUB delegates to analyze
+ *   - Full implementation tracked separately; this file ports only the public API surface
+ *     consumed by AnimatedGif, PNG8, FastGif, AnimatedPNG.
  */
 package sge
 package anim8

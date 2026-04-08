@@ -3,6 +3,14 @@
  * Licensed under the Apache License, Version 2.0
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
+ *
+ * Covenant: partial-port
+ * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/animation/AnimationLoader.java
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - Weight (morph target) animation channels skipped: requires scene3d types
+ *     (NodePlus, WeightVector) that are not yet ported.
  */
 package sge
 package gltf

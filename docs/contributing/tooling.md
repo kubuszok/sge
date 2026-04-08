@@ -5,14 +5,16 @@
 ### metals-mcp
 
 Official Metals MCP server from [scalameta/metals](https://github.com/scalameta/metals).
-Install and run via `sge-dev`:
+Install via Coursier:
 
 ```bash
-sge-dev metals install   # cs bootstrap from Sonatype snapshots
-sge-dev metals start     # starts the MCP server on port 7845 (background)
-sge-dev metals status    # check if running
-sge-dev metals stop      # stop the server
+cs install metals-mcp
 ```
+
+The lifecycle wrapper that the legacy tool shipped (`metals start/stop/status`)
+is not yet ported into `re-scale` core (deferred — see
+`re-scale/docs/cross-flavor-diff.md` for the rationale). For now, run the
+binary directly or wire it into your editor.
 
 MCP tools available: `compile-file`, `compile-full`, `glob-search`, `typed-glob-search`,
 `inspect`, `get-docs`, `get-usages`, `find-dep`, `list-modules`, `format-file`, `test`.
@@ -40,7 +42,7 @@ Build tool configuration is in `build.sbt`. Key settings:
 
 - Scala 3.8.2
 - Compiler flags: `-deprecation`, `-feature`, `-no-indent`, `-rewrite`, `-Werror`
-- Prefer MCP tools or `sge-dev build compile` / `sge-dev build fmt` over running sbt directly
+- Prefer MCP tools or `re-scale build compile` / `re-scale build fmt` over running sbt directly
 
 If you must run SBT directly (discouraged), **always use `sbt --client`** to avoid the overhead
 of starting and shutting down a new JVM each time:
@@ -53,42 +55,53 @@ sbt --client scalafmt
 The `--client` flag connects to an already-running SBT server (or starts one if needed), making
 subsequent commands much faster. **Never use bare `sbt`** — always use `sbt --client`.
 
-## sge-dev CLI
+## `re-scale` CLI
 
-Development toolkit for all build, test, quality, and release tasks. See CLAUDE.md for
-the full command reference (70+ commands). Key examples:
+Cross-project Scala porting toolkit. See CLAUDE.md for the full command
+reference. Key examples:
 
 ```bash
 # Build
-sge-dev build compile                # Compile SGE core (JVM)
-sge-dev build compile --all          # Compile all platforms (JVM/JS/Native)
-sge-dev build compile --errors-only  # Show only errors
-sge-dev build fmt                    # Run scalafmt
-sge-dev build compile-fmt            # Compile + format + compile
-sge-dev build publish-local --all    # Publish to local Maven (all platforms)
+re-scale build compile                # Compile SGE core (JVM)
+re-scale build compile --all          # Compile all platforms (JVM/JS/Native)
+re-scale build compile --errors-only  # Show only errors
+re-scale build fmt                    # Run scalafmt
+re-scale build compile-fmt            # Compile + format + compile
+re-scale build publish-local --all    # Publish to local Maven (all platforms)
 
 # Test
-sge-dev test unit                    # JVM unit tests
-sge-dev test unit --all              # All platforms (JVM/JS/Native)
-sge-dev test unit --only <Suite>     # Single test suite
-sge-dev test integration --all       # Integration tests
-sge-dev test regression --all        # Regression tests
+re-scale test unit                    # JVM unit tests
+re-scale test unit --all              # All platforms (JVM/JS/Native)
+re-scale test unit --only <Suite>     # Single test suite
+re-scale test verify                  # Cross-platform compile gate
 
-# Quality
-sge-dev quality scan --all           # Run all quality scans
+# Enforcement (covenant + shortcut detection)
+re-scale enforce shortcuts            # Scan all source for shortcut/stub markers
+re-scale enforce shortcuts --covenanted   # Only files with a Covenant: full-port header
+re-scale enforce verify --all         # Re-verify every covenanted file
+re-scale enforce verify --file <path> # Verify a single file
+re-scale enforce stale-stubs          # Two-pass scan for "not yet ported" comments
+re-scale enforce skip-policy add <path> shortcuts --reason "Java interop"
 
-# Native
-sge-dev native build                 # Build Rust native library
-sge-dev native angle setup           # Download ANGLE libraries
-sge-dev native curl setup            # Download static curl libraries
-sge-dev native cross-all             # Cross-compile all 6 desktop targets
+# Cross-language compare
+re-scale enforce compare --port <scala> --source <java> [--strict]
 
-# Compare & audit
-sge-dev compare file <path>          # Side-by-side libgdx vs sge
-sge-dev db audit stats               # Audit progress
-sge-dev db migration stats           # Migration progress
+# Database queries
+re-scale db audit stats               # Audit progress
+re-scale db audit list --package <pkg>
+re-scale db migration stats           # Migration progress
+re-scale db migration list --package <pkg>
+re-scale db issues list --status open
+
+# SGE-specific runners (defined in .rescale/runners.yaml)
+re-scale runner list                  # Catalogue of available runners
+re-scale runner desktop-it            # Desktop integration tests
+re-scale runner browser-it            # Browser integration tests
+re-scale runner android-it            # Android emulator tests
+re-scale runner release-build         # Build all 11 demo releases
+re-scale runner android-build-all     # Build all 11 demo APKs
 ```
 
 ## Scalafmt
 
-Code formatting: `sge-dev build fmt`. Config in `.scalafmt.conf`.
+Code formatting: `re-scale build fmt`. Config in `.scalafmt.conf`.
