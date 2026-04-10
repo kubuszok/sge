@@ -291,6 +291,33 @@ object GeometryUtils {
       area < 0
     }
 
+  def isCCW(polygon: Array[Float], offset: Int, count: Int): Boolean =
+    !isClockwise(polygon, offset, count)
+
+  def ensureClockwise(polygon: Array[Float]): Unit =
+    ensureClockwise(polygon, 0, polygon.length)
+
+  def ensureClockwise(polygon: Array[Float], offset: Int, count: Int): Unit =
+    if (!isClockwise(polygon, offset, count)) {
+      reverseVertices(polygon, offset, count)
+    }
+
+  def reverseVertices(polygon: Array[Float], offset: Int, count: Int): Unit = {
+    val lastX = offset + count - 2
+    var i     = offset
+    val n     = offset + count / 2
+    while (i < n) {
+      val other = lastX - i
+      val x     = polygon(i)
+      val y     = polygon(i + 1)
+      polygon(i) = polygon(other)
+      polygon(i + 1) = polygon(other + 1)
+      polygon(other) = x
+      polygon(other + 1) = y
+      i += 2
+    }
+  }
+
   /** Returns true if the point is inside the polygon using the ray casting algorithm.
     * @param polygon
     *   pairs of x,y coordinates defining the polygon vertices

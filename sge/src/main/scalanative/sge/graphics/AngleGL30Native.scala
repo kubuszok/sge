@@ -15,7 +15,7 @@
 package sge
 package graphics
 
-import java.nio.{ Buffer, ByteBuffer, ByteOrder, FloatBuffer, IntBuffer, LongBuffer }
+import java.nio.{ Buffer, FloatBuffer, IntBuffer, LongBuffer }
 
 import scala.scalanative.unsafe.*
 
@@ -236,13 +236,7 @@ class AngleGL30Native extends AngleGL20Native with GL30 {
   override def glMapBufferRange(target: BufferTarget, offset: Int, length: Int, access: Int): Buffer = {
     val ptr = GL30C.glMapBufferRange(target.toInt, offset, length, access)
     if (ptr == null) null.asInstanceOf[Buffer] // @nowarn - GL interop boundary
-    else {
-      // Wrap native pointer as a ByteBuffer — on Scala Native, this needs special handling
-      // For now, create a direct buffer and note this may need refinement
-      val buf = ByteBuffer.allocateDirect(length).order(ByteOrder.nativeOrder())
-      // TODO: The buffer should point to ptr directly; for now returns fresh buffer
-      buf
-    }
+    else wrapPtr(ptr, length)
   }
 
   override def glFlushMappedBufferRange(target: BufferTarget, offset: Int, length: Int): Unit =

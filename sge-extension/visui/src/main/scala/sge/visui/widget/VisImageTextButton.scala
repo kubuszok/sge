@@ -38,11 +38,12 @@ class VisImageTextButton(text: String, buttonStyle: VisImageTextButton.VisImageT
   private var _focusBorderEnabled:   Boolean                 = true
   private var generateDisabledImage: Boolean                 = false
 
+  private var _orientation: VisImageTextButton.Orientation = VisImageTextButton.Orientation.TEXT_RIGHT
+
   defaults().space(3)
   _image.scaling = Scaling.fit
   _label.setAlignment(Align.center)
-  add(Nullable[sge.scenes.scene2d.Actor](_image))
-  add(Nullable[sge.scenes.scene2d.Actor](_label))
+  addActorsBasedOnOrientation()
   setStyle(buttonStyle)
   setSize(prefWidth, prefHeight)
 
@@ -134,9 +135,42 @@ class VisImageTextButton(text: String, buttonStyle: VisImageTextButton.VisImageT
 
   def isGenerateDisabledImage:                     Boolean = generateDisabledImage
   def setGenerateDisabledImage(generate: Boolean): Unit    = generateDisabledImage = generate
+
+  def orientation: VisImageTextButton.Orientation = _orientation
+
+  def orientation_=(orientation: VisImageTextButton.Orientation): Unit = {
+    _orientation = orientation
+    clearChildren()
+    addActorsBasedOnOrientation()
+  }
+
+  private def addActorsBasedOnOrientation(): Unit = {
+    import VisImageTextButton.Orientation.*
+    _orientation match {
+      case TEXT_RIGHT =>
+        add(Nullable[sge.scenes.scene2d.Actor](_image))
+        add(Nullable[sge.scenes.scene2d.Actor](_label))
+      case TEXT_LEFT =>
+        add(Nullable[sge.scenes.scene2d.Actor](_label))
+        add(Nullable[sge.scenes.scene2d.Actor](_image))
+      case TEXT_TOP =>
+        add(Nullable[sge.scenes.scene2d.Actor](_label))
+        row()
+        add(Nullable[sge.scenes.scene2d.Actor](_image))
+      case TEXT_BOTTOM =>
+        add(Nullable[sge.scenes.scene2d.Actor](_image))
+        row()
+        add(Nullable[sge.scenes.scene2d.Actor](_label))
+    }
+  }
 }
 
 object VisImageTextButton {
+
+  enum Orientation extends java.lang.Enum[Orientation] {
+    case TEXT_RIGHT, TEXT_LEFT, TEXT_TOP, TEXT_BOTTOM
+  }
+
   class VisImageTextButtonStyle() extends VisTextButton.VisTextButtonStyle() {
 
     /** Optional. */

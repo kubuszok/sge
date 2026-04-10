@@ -88,19 +88,22 @@ class DefaultControllerManager(ops: ControllerOps) extends ControllerManager {
     listeners.foreach(_.disconnected(controller))
   }
 
-  private[controllers] def fireButtonDown(controller: Controller, buttonCode: Int): Unit = {
-    val _ = manageCurrentListener.buttonDown(controller, buttonCode)
-    listeners.foreach(_.buttonDown(controller, buttonCode))
+  private[controllers] def fireButtonDown(controller: Controller, buttonCode: Int): Unit = scala.util.boundary {
+    if (manageCurrentListener.buttonDown(controller, buttonCode)) scala.util.boundary.break(())
+    for (listener <- listeners)
+      if (listener.buttonDown(controller, buttonCode)) scala.util.boundary.break(())
   }
 
-  private[controllers] def fireButtonUp(controller: Controller, buttonCode: Int): Unit = {
-    val _ = manageCurrentListener.buttonUp(controller, buttonCode)
-    listeners.foreach(_.buttonUp(controller, buttonCode))
+  private[controllers] def fireButtonUp(controller: Controller, buttonCode: Int): Unit = scala.util.boundary {
+    if (manageCurrentListener.buttonUp(controller, buttonCode)) scala.util.boundary.break(())
+    for (listener <- listeners)
+      if (listener.buttonUp(controller, buttonCode)) scala.util.boundary.break(())
   }
 
-  private[controllers] def fireAxisMoved(controller: Controller, axisCode: Int, value: Float): Unit = {
-    val _ = manageCurrentListener.axisMoved(controller, axisCode, value)
-    listeners.foreach(_.axisMoved(controller, axisCode, value))
+  private[controllers] def fireAxisMoved(controller: Controller, axisCode: Int, value: Float): Unit = scala.util.boundary {
+    if (manageCurrentListener.axisMoved(controller, axisCode, value)) scala.util.boundary.break(())
+    for (listener <- listeners)
+      if (listener.axisMoved(controller, axisCode, value)) scala.util.boundary.break(())
   }
 }
 

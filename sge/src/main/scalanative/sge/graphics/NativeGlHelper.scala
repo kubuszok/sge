@@ -99,6 +99,24 @@ private[graphics] object NativeGlHelper {
       fromRawPtr[Byte](Intrinsics.castLongToRawPtr(baseAddr + byteOffset))
     }
 
+  /** Wrap a native pointer as a direct ByteBuffer of the given length.
+    *
+    * Creates a direct ByteBuffer and overwrites its internal `_rawAddress` field to point to the given native pointer instead of the originally malloc'd memory. The original malloc'd memory is leaked
+    * — this is acceptable for GL-mapped buffers which are short-lived and unmapped by the caller.
+    *
+    * @return
+    *   ByteBuffer wrapping the native pointer, or null if ptr is null
+    */
+  def wrapPtr(ptr: Ptr[Byte], length: Int): ByteBuffer =
+    if (ptr == null) null
+    else {
+      val buf    = ByteBuffer.allocateDirect(length).order(ByteOrder.nativeOrder())
+      val rawObj = Intrinsics.castObjectToRawPtr(buf)
+      val field  = Intrinsics.elemRawPtr(rawObj, Intrinsics.castIntToRawSizeUnsigned(RawAddressOffset))
+      Intrinsics.storeRawPtr(field, scala.scalanative.runtime.toRawPtr(ptr))
+      buf
+    }
+
   /** Get a native pointer to the buffer at a specific byte offset (for GL offset parameters). */
   def offsetPtr(offset: Int): Ptr[Byte] =
     if (offset == 0) null
