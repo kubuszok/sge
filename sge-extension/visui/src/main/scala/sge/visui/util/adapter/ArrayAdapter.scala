@@ -102,4 +102,30 @@ abstract class ArrayAdapter[ItemT, ViewT <: Actor](private val array: DynamicArr
     itemsChanged()
     item
   }
+
+  def removeRange(start: Int, end: Int): Unit = {
+    array.removeRange(start, end)
+    itemsChanged()
+  }
+
+  def removeAll(other: DynamicArray[? <: ItemT]): Boolean = {
+    val res = array.removeAll(other)
+    itemsChanged()
+    res
+  }
+
+  def removeAllByRef(other: DynamicArray[? <: ItemT]): Boolean = {
+    val res = array.removeAllByRef(other)
+    itemsChanged()
+    res
+  }
+
+  def addAll(other: DynamicArray[? <: ItemT], start: Int, count: Int): Unit = {
+    var i = start
+    while (i < start + count && i < other.size) {
+      array.add(other(i))
+      i += 1
+    }
+    itemsChanged()
+  }
 }

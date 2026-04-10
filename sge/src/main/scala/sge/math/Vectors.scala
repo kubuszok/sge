@@ -949,6 +949,84 @@ final case class Vector3(var x: Float = 0, var y: Float = 0, var z: Float = 0) e
     )
   }
 
+  /** Left-multiplies the vector by the given 4x3 column major matrix. The matrix should be composed by a 3x3 matrix representing rotation and scale plus a 1x3 matrix representing the translation.
+    * @param matrix
+    *   The matrix
+    * @return
+    *   This vector for chaining
+    */
+  def mul4x3(matrix: Array[Float]): this.type =
+    set(
+      x * matrix(0) + y * matrix(3) + z * matrix(6) + matrix(9),
+      x * matrix(1) + y * matrix(4) + z * matrix(7) + matrix(10),
+      x * matrix(2) + y * matrix(5) + z * matrix(8) + matrix(11)
+    )
+
+  /** Multiplies the vector by the transpose of the given matrix, assuming the fourth (w) component of the vector is 1.
+    * @param matrix
+    *   The matrix
+    * @return
+    *   This vector for chaining
+    */
+  def traMul(matrix: Matrix4): this.type = {
+    val l_mat = matrix.values
+    set(
+      x * l_mat(Matrix4.M00) + y * l_mat(Matrix4.M10) + z * l_mat(Matrix4.M20) + l_mat(Matrix4.M30),
+      x * l_mat(Matrix4.M01) + y * l_mat(Matrix4.M11) + z * l_mat(Matrix4.M21) + l_mat(Matrix4.M31),
+      x * l_mat(Matrix4.M02) + y * l_mat(Matrix4.M12) + z * l_mat(Matrix4.M22) + l_mat(Matrix4.M32)
+    )
+  }
+
+  /** Multiplies the vector by the transpose of the given matrix.
+    * @param matrix
+    *   The matrix
+    * @return
+    *   This vector for chaining
+    */
+  def traMul(matrix: Matrix3): this.type = {
+    val l_mat = matrix.values
+    set(
+      x * l_mat(Matrix3.M00) + y * l_mat(Matrix3.M10) + z * l_mat(Matrix3.M20),
+      x * l_mat(Matrix3.M01) + y * l_mat(Matrix3.M11) + z * l_mat(Matrix3.M21),
+      x * l_mat(Matrix3.M02) + y * l_mat(Matrix3.M12) + z * l_mat(Matrix3.M22)
+    )
+  }
+
+  /** Multiplies this vector by the transpose of the first three columns of the matrix. Note: only works for translation and rotation, does not work for scaling. For those, use {@link #rot(Matrix4)}
+    * with {@link Matrix4#inv()}.
+    * @param matrix
+    *   The transformation matrix
+    * @return
+    *   The vector for chaining
+    */
+  def unrotate(matrix: Matrix4): this.type = {
+    val l_mat = matrix.values
+    set(
+      x * l_mat(Matrix4.M00) + y * l_mat(Matrix4.M10) + z * l_mat(Matrix4.M20),
+      x * l_mat(Matrix4.M01) + y * l_mat(Matrix4.M11) + z * l_mat(Matrix4.M21),
+      x * l_mat(Matrix4.M02) + y * l_mat(Matrix4.M12) + z * l_mat(Matrix4.M22)
+    )
+  }
+
+  /** Translates this vector in the direction opposite to the translation of the matrix and the multiplies this vector by the transpose of the first three columns of the matrix. Note: only works for
+    * translation and rotation, does not work for scaling. For those, use {@link #mul(Matrix4)} with {@link Matrix4#inv()}.
+    * @param matrix
+    *   The transformation matrix
+    * @return
+    *   The vector for chaining
+    */
+  def untransform(matrix: Matrix4): this.type = {
+    val l_mat = matrix.values
+    x -= l_mat(Matrix4.M03)
+    y -= l_mat(Matrix4.M03)
+    z -= l_mat(Matrix4.M03)
+    set(
+      x * l_mat(Matrix4.M00) + y * l_mat(Matrix4.M10) + z * l_mat(Matrix4.M20),
+      x * l_mat(Matrix4.M01) + y * l_mat(Matrix4.M11) + z * l_mat(Matrix4.M21),
+      x * l_mat(Matrix4.M02) + y * l_mat(Matrix4.M12) + z * l_mat(Matrix4.M22)
+    )
+  }
+
   /** Sets this {@code Vector3} to the value represented by the specified string according to the format of {@link #toString()}.
     * @param v
     *   the string.
@@ -1289,17 +1367,45 @@ final case class Vector4(var x: Float = 0, var y: Float = 0, var z: Float = 0, v
   override def interpolate(target: Vector4, alpha: Float, interpolator: Interpolation): this.type =
     lerp(target, interpolator.apply(0f, 1f, alpha))
 
-  override def isOnLine(other: Vector4)(using Epsilon): Boolean = {
-    // For 4D vectors, we need to check if the cross products of all 2D projections are zero
-    // This is a simplified implementation - a full 4D collinearity test is more complex
+  override def isOnLine(other: Vector4)(using Epsilon): Boolean = scala.util.boundary {
+    // Per-component ratio algorithm from yama C++ math library.
+    // https://github.com/iboB/yama/blob/f08a71c6fd84df5eed62557000373f17f14e1ec7/include/yama/vector4.hpp#L566-L598
     val epsilon = Epsilon()
-    val len1Sq  = lengthSq
-    val len2Sq  = other.lengthSq
-    if (len1Sq == 0f || len2Sq == 0f) true
-    else {
-      val dotProd       = dot(other)
-      val expectedDotSq = len1Sq * len2Sq
-      Math.abs(dotProd * dotProd - expectedDotSq) <= epsilon * epsilon * expectedDotSq
+    var flags   = 0
+    var dx      = 0f
+    var dy      = 0f
+    var dz      = 0f
+    var dw      = 0f
+
+    if (MathUtils.isZero(x, epsilon)) {
+      if (!MathUtils.isZero(other.x, epsilon)) scala.util.boundary.break(false)
+    } else { dx = x / other.x; flags |= 1 }
+
+    if (MathUtils.isZero(y, epsilon)) {
+      if (!MathUtils.isZero(other.y, epsilon)) scala.util.boundary.break(false)
+    } else { dy = y / other.y; flags |= 2 }
+
+    if (MathUtils.isZero(z, epsilon)) {
+      if (!MathUtils.isZero(other.z, epsilon)) scala.util.boundary.break(false)
+    } else { dz = z / other.z; flags |= 4 }
+
+    if (MathUtils.isZero(w, epsilon)) {
+      if (!MathUtils.isZero(other.w, epsilon)) scala.util.boundary.break(false)
+    } else { dw = w / other.w; flags |= 8 }
+
+    flags match {
+      case 0 | 1 | 2 | 4 | 8 => true
+      case 3                 => MathUtils.isEqual(dx, dy, epsilon)
+      case 5                 => MathUtils.isEqual(dx, dz, epsilon)
+      case 9                 => MathUtils.isEqual(dx, dw, epsilon)
+      case 6                 => MathUtils.isEqual(dy, dz, epsilon)
+      case 10                => MathUtils.isEqual(dy, dw, epsilon)
+      case 12                => MathUtils.isEqual(dz, dw, epsilon)
+      case 7                 => MathUtils.isEqual(dx, dy, epsilon) && MathUtils.isEqual(dx, dz, epsilon)
+      case 11                => MathUtils.isEqual(dx, dy, epsilon) && MathUtils.isEqual(dx, dw, epsilon)
+      case 13                => MathUtils.isEqual(dx, dz, epsilon) && MathUtils.isEqual(dx, dw, epsilon)
+      case 14                => MathUtils.isEqual(dy, dz, epsilon) && MathUtils.isEqual(dy, dw, epsilon)
+      case _                 => MathUtils.isEqual(dx, dy, epsilon) && MathUtils.isEqual(dx, dz, epsilon) && MathUtils.isEqual(dx, dw, epsilon)
     }
   }
 

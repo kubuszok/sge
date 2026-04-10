@@ -29,10 +29,9 @@ import sge.platform.android.AndroidPlatformProvider
   */
 class AndroidNet(provider: AndroidPlatformProvider, context: AnyRef) extends sge.Net {
 
-  // Android: use noop HTTP backend — sttp's JDK backend doesn't DEX correctly
-  // (BackendOptions uses JDK APIs that fail Android's DEX verifier).
-  // TODO: replace with an OkHttp or HttpURLConnection-based backend for real HTTP on Android.
-  override val httpClient: SgeHttpClient = SgeHttpClient.noop()
+  // Android uses HttpURLConnection backend — sttp's JDK backend (java.net.http.HttpClient)
+  // doesn't DEX correctly due to BackendOptions referencing unavailable JDK APIs.
+  override val httpClient: SgeHttpClient = new SgeHttpClient(AndroidHttpBackendFactory, 16, 64)
 
   override def newServerSocket(protocol: Net.Protocol, hostname: String, port: Int, hints: ServerSocketHints): ServerSocket =
     NetJavaServerSocketImpl(protocol, sge.utils.Nullable(hostname), port, hints)

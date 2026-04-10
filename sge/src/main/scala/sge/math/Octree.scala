@@ -242,18 +242,19 @@ class Octree[T <: AnyRef: scala.reflect.ClassTag](minimum: Vector3, maximum: Vec
       }
 
     def query(frustum: Frustum, result: Set[T]): Unit =
-      // Placeholder implementation since Frustum methods are not available
-      if (!leaf) {
-        children.foreach { ch =>
-          for (node <- ch)
-            node.query(frustum, result)
-        }
-      } else {
-        for (geometry <- geometries)
-          // Filter geometries using collider
-          if (collider.intersects(frustum, geometry)) {
-            result += geometry
+      if (Intersector.intersectFrustumBounds(frustum, bounds)) {
+        if (!leaf) {
+          children.foreach { ch =>
+            for (node <- ch)
+              node.query(frustum, result)
           }
+        } else {
+          for (geometry <- geometries)
+            // Filter geometries using collider
+            if (collider.intersects(frustum, geometry)) {
+              result += geometry
+            }
+        }
       }
 
     def rayCast(ray: Ray, result: Octree.RayCastResult[T]): Unit = scala.util.boundary {
