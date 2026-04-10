@@ -620,6 +620,12 @@ object PBRShader {
     }
   }
 
+  val projViewTransUniform: BaseShader.Uniform = BaseShader.Uniform("u_projViewTrans")
+  val projViewTransSetter:  BaseShader.Setter  = new BaseShader.LocalSetter {
+    override def set(shader: BaseShader, inputID: Int, renderable: Renderable, combinedAttributes: Attributes): Unit =
+      shader.camera.foreach(cam => shader.set(inputID, cam.combined))
+  }
+
   private val allTextureTypes: Array[Long] = Array(
     PBRTextureAttribute.BaseColorTexture,
     PBRTextureAttribute.EmissiveTexture,
