@@ -35,6 +35,11 @@ class VisValidatableTextField(initialText: Nullable[String], visStyle: VisTextFi
   private var _restoreLastValid:    Boolean                          = false
   private var lastValid:            String                           = ""
 
+  setProgrammaticChangeEvents(true)
+  setIgnoreEqualsTextChange(false)
+
+  override protected def beforeChangeEventFired(): Unit = validateInput()
+
   def this()(using Sge) = this(Nullable(""), VisUI.getSkin.get[VisTextField.VisTextFieldStyle])
   def this(text: String)(using Sge) = this(Nullable(text), VisUI.getSkin.get[VisTextField.VisTextFieldStyle])
   def this(text: String, styleName: String)(using Sge) = this(Nullable(text), VisUI.getSkin.get[VisTextField.VisTextFieldStyle](styleName))

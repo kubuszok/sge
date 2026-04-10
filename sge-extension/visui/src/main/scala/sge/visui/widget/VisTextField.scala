@@ -29,10 +29,13 @@ import sge.visui.util.BorderOwner
 class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldStyle)(using Sge) extends TextField(text, visStyle) with Focusable with BorderOwner {
   import VisTextField._
 
-  private val _visStyle:           VisTextFieldStyle = visStyle
-  private var drawBorder:          Boolean           = false
-  private var _focusBorderEnabled: Boolean           = true
-  private var _inputValid:         Boolean           = true
+  private val _visStyle:               VisTextFieldStyle = visStyle
+  private var drawBorder:              Boolean           = false
+  private var _focusBorderEnabled:     Boolean           = true
+  private var _inputValid:             Boolean           = true
+  private var _readOnly:               Boolean           = false
+  private var _ignoreEqualsTextChange: Boolean           = true
+  private var _cursorPercentHeight:    Float             = 0.8f
 
   addListener(
     new InputListener() {
@@ -64,6 +67,32 @@ class VisTextField(text: Nullable[String], visStyle: VisTextField.VisTextFieldSt
 
   override def focusLost():   Unit = drawBorder = false
   override def focusGained(): Unit = drawBorder = true
+
+  def isReadOnly:                     Boolean = _readOnly
+  def setReadOnly(readOnly: Boolean): Unit    = _readOnly = readOnly
+
+  def isIgnoreEqualsTextChange:                   Boolean = _ignoreEqualsTextChange
+  def setIgnoreEqualsTextChange(ignore: Boolean): Unit    = _ignoreEqualsTextChange = ignore
+
+  def cursorPercentHeight: Float = _cursorPercentHeight
+
+  /** @param value
+    *   cursor size, value from 0..1 range
+    */
+  def setCursorPercentHeight(value: Float): Unit = {
+    if (value < 0 || value > 1) throw IllegalArgumentException("cursorPercentHeight must be >= 0 and <= 1")
+    _cursorPercentHeight = value
+  }
+
+  /** Hook called right before ChangeEvent is fired. Subclasses (e.g. VisValidatableTextField) override this to trigger validation. */
+  protected def beforeChangeEventFired(): Unit = ()
+
+  override private[sge] def changeText(oldText: String, newText: String): Boolean =
+    if (_ignoreEqualsTextChange && newText == oldText) false
+    else {
+      beforeChangeEventFired()
+      super.changeText(oldText, newText)
+    }
 }
 
 object VisTextField {
