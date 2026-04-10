@@ -2,20 +2,6 @@
   "permissions": {
     "allow": ["Bash", "mcp__metals__*", "WebFetch", "WebSearch"]
   },
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/pre-tool-use.sh",
-            "timeout": 15000
-          }
-        ]
-      }
-    ]
-  },
   "enabledMcpjsonServers": ["metals"],
   "enableAllProjectMcpServers": true,
   "attribution": {
