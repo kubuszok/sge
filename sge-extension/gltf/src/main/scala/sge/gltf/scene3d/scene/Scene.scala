@@ -56,6 +56,11 @@ class Scene(
     initFromSceneModel(sceneModel)
   }
 
+  def this(sceneModel: SceneModel, rootNodeIds: String*)(using Sge) = {
+    this(ModelInstanceHack(sceneModel.model, rootNodeIds*))
+    initFromSceneModel(sceneModel)
+  }
+
   // Lazy-init animations player
   private lazy val _animations: AnimationsPlayer = AnimationsPlayer(this)
 

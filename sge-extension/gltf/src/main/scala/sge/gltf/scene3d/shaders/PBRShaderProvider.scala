@@ -229,6 +229,41 @@ class PBRShaderProvider(config: PBRShaderConfig)(using sge: Sge)
       vIdx += 1
     }
 
+    // Validate vertex attribute counts and warn about limits
+    var numBoneInfluence = 0
+    var numMorphTarget   = 0
+    var numColor         = 0
+    vIdx = 0
+    while (vIdx < vertexAttributes.size) {
+      val attribute = vertexAttributes.get(vIdx)
+      if (attribute.usage == VertexAttributes.Usage.ColorPacked) {
+        throw SgeError.InvalidInput("color packed attribute not supported")
+      } else if (attribute.usage == VertexAttributes.Usage.ColorUnpacked) {
+        numColor = Math.max(numColor, attribute.unit + 1)
+      } else if (
+        (attribute.usage == PBRVertexAttributes.Usage.PositionTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS) ||
+        (attribute.usage == PBRVertexAttributes.Usage.NormalTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS) ||
+        (attribute.usage == PBRVertexAttributes.Usage.TangentTarget && attribute.unit >= PBRCommon.MAX_MORPH_TARGETS)
+      ) {
+        numMorphTarget = Math.max(numMorphTarget, attribute.unit + 1)
+      } else if (attribute.usage == VertexAttributes.Usage.BoneWeight) {
+        numBoneInfluence = Math.max(numBoneInfluence, attribute.unit + 1)
+      }
+      vIdx += 1
+    }
+
+    if (numBoneInfluence > 8) System.err.println(s"[$TAG] more than 8 bones influence attributes not supported: $numBoneInfluence found.")
+    if (numMorphTarget > PBRCommon.MAX_MORPH_TARGETS) System.err.println(s"[$TAG] more than ${PBRCommon.MAX_MORPH_TARGETS} morph target attributes not supported: $numMorphTarget found.")
+    if (numColor > cfg.numVertexColors) System.err.println(s"[$TAG] more than ${cfg.numVertexColors} color attributes not supported: $numColor found.")
+
+    renderable.environment.foreach { env =>
+      val lightsInfo = LightUtils.getLightsInfo(LightUtils.LightsInfo(), env)
+      if (lightsInfo.dirLights > cfg.numDirectionalLights) System.err.println(s"[$TAG] too many directional lights detected: ${lightsInfo.dirLights}/${cfg.numDirectionalLights}")
+      if (lightsInfo.pointLights > cfg.numPointLights) System.err.println(s"[$TAG] too many point lights detected: ${lightsInfo.pointLights}/${cfg.numPointLights}")
+      if (lightsInfo.spotLights > cfg.numSpotLights) System.err.println(s"[$TAG] too many spot lights detected: ${lightsInfo.spotLights}/${cfg.numSpotLights}")
+      if (lightsInfo.miscLights > 0) System.err.println(s"[$TAG] unknown type lights not supported.")
+    }
+
     PBRCommon.checkVertexAttributes(renderable)
 
     val prefix = sb.toString
