@@ -101,9 +101,10 @@ for the rationale.
 
 ## Bash Restrictions
 
-**The PreToolUse hook validates ALL Bash commands.** Only `re-scale`,
-`sbt --client`, `git`, `cargo`, `npm`, `npx`, and `scala-cli` are allowed
-directly. All other commands are denied or redirected to dedicated tools:
+**The re-scale plugin's PreToolUse hook validates ALL Bash commands.**
+Only `re-scale`, `sbt --client`, `git`, `cargo`, `npm`, `npx`, and
+`scala-cli` are allowed directly. All other commands are denied or
+redirected to dedicated tools:
 
 - **Denied**: `python`/`python3`, `kill`/`pkill`, `rm -rf`, `sbt` (without `--client`)
 - **Redirected to tools**: `grep`→Grep, `find`/`ls`→Glob, `cat`/`head`/`tail`→Read, `sed`/`awk`→Edit
@@ -129,12 +130,12 @@ with information that isn't needed for the current task.
 
 | Context | Skill to load |
 |---------|---------------|
-| Converting a Java file to Scala | `/guide-conversion` |
-| Code style, license headers, formatting | `/guide-code-style` |
-| Replacing return/break/continue | `/guide-control-flow` |
-| Nullable patterns, null safety | `/guide-nullable` |
+| Converting a Java file to Scala | `/re-scale:guide-conversion` |
+| Code style, license headers, formatting | `/re-scale:guide-code-style` |
+| Replacing return/break/continue | `/re-scale:guide-control-flow` |
+| Nullable patterns, null safety | `/re-scale:guide-nullable` |
 | LibGDX→SGE class/package renames | `/guide-type-mappings` |
-| Post-conversion verification | `/guide-verification` |
+| Post-conversion verification | `/re-scale:guide-verification` |
 | Platform-specific code (JVM/JS/Native) | `/arch-platforms` |
 | FFI issues, native code bugs | `/arch-ffi` |
 | sbt build config, projectMatrix | `/arch-build` or `/arch-cross-platform` |
@@ -143,8 +144,11 @@ with information that isn't needed for the current task.
 | Rust native ops, C ABI bridge | `/arch-native-bridge` |
 | Packaging, distribution, releases | `/arch-packaging` |
 | Opaque types, API improvements | `/guide-improvements` |
-| Auditing a file | `/audit-file <path>` |
+| Auditing a file | `/re-scale:audit-file <path>` |
 | Auditing a package | `/audit-package <pkg>` |
+| Finding code issues | `/re-scale:find-issues` |
+| Fixing enforcement gaps | `/re-scale:gap-fix <path>` |
+| Migration progress | `/re-scale:check-progress` |
 
 ## Conversion Guides
 
@@ -164,7 +168,7 @@ Path mapping: `com/badlogic/gdx/<path>.java` → `sge/src/main/scala/sge/<path>.
 Per-file audit trail comparing every SGE Scala file against its LibGDX Java source.
 Each audited file gets a `Migration notes:` block in its header comment.
 
-- **Skills**: `/audit-file <path>`, `/audit-package <pkg>`, `/audit-status [pkg]`
+- **Skills**: `/re-scale:audit-file <path>`, `/audit-package <pkg>`, `/re-scale:audit-status [pkg]`
 - **Database**: `re-scale db audit stats`, `re-scale db audit list --package <pkg>`
 - **Statuses**: `pass`, `minor_issues`, `major_issues`, `not_ported`
 - **In-file notes**: `Renames`, `Merged with`, `Convention`, `Idiom`, `TODOs`, `Audited` date

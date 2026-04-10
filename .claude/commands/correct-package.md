@@ -47,7 +47,7 @@ Argument: `$ARGUMENTS` — a package path like `math`, `graphics/g2d`, `assets/l
 
 ### Phase 3: Re-audit
 
-6. **Run `/audit-package $ARGUMENTS` again** to verify all issues are resolved.
+7. **Run `/audit-package $ARGUMENTS` again** to verify all issues are resolved.
    New issues may have been accidentally introduced during fixes — catch them now.
 
 7. **If new issues remain**, fix them and re-audit once more (max 3 iterations).

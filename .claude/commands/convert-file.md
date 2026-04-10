@@ -32,7 +32,7 @@ Convert the LibGDX Java file at `$ARGUMENTS` to idiomatic Scala 3 for SGE.
 
 8. **Write initial audit entry**: Add a `Migration notes:` block to the file's header
    comment documenting renames, convention changes, and idiom compliance. Follow the
-   format described in `/audit-file`. Set `Audited:` to today's date.
+   format described in `/re-scale:audit-file`. Set `Audited:` to today's date.
 
 ## Important
 

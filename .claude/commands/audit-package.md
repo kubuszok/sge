@@ -18,7 +18,7 @@ docs and commit progress so work isn't lost if the session is interrupted.
 2. **Check for existing audit doc**: Look for `docs/audit/<slug>.md` where the slug
    is the package path with `/` replaced by `-` (e.g., `graphics/g3d` -> `graphics-g3d`).
 
-3. **Audit each file**: For each Scala file, run the `/audit-file` procedure:
+3. **Audit each file**: For each Scala file, run the `/re-scale:audit-file` procedure:
    - Read the Scala file and its Java source
    - Compare public API (methods, constants, enums, inner types)
    - Check conventions (no return, no null, split packages, braces, comments, copyright)
