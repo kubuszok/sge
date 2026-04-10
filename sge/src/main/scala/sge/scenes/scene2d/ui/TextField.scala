@@ -670,7 +670,7 @@ class TextField(initialText: Nullable[String], initialStyle: TextField.TextField
   def text: String = _text
 
   /** @return True if the text was changed. */
-  private[ui] def changeText(oldText: String, newText: String): Boolean =
+  private[sge] def changeText(oldText: String, newText: String): Boolean =
     if (newText == oldText) false
     else {
       _text = newText
