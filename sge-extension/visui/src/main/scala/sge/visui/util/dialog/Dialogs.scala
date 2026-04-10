@@ -15,7 +15,8 @@ import sge.scenes.scene2d.{ Actor, InputEvent, InputListener, Stage }
 import sge.utils.Nullable
 import sge.visui.{ Locales, VisUI }
 import sge.visui.i18n.BundleText
-import sge.visui.widget.{ ButtonBar, VisDialog, VisTextField }
+import sge.visui.util.InputValidator
+import sge.visui.widget.{ ButtonBar, VisDialog, VisTextField, VisValidatableTextField }
 
 /** Utilities for displaying various type of dialogs. Equivalent of JOptionPane from Swing.
   * @author
@@ -132,9 +133,23 @@ object Dialogs {
   }
 
   /** Dialog with a text input field and OK/Cancel buttons. */
-  def showInputDialog(stage: Stage, title: String, fieldTitle: String, cancelable: Boolean, listener: InputDialogListener)(using Sge): VisDialog = {
-    val textField = new VisTextField("")
-    val dialog    = new VisDialog(title) {
+  def showInputDialog(stage: Stage, title: String, fieldTitle: String, listener: InputDialogListener)(using Sge): VisDialog =
+    showInputDialog(stage, title, fieldTitle, cancelable = true, Nullable.empty[InputValidator], listener)
+
+  /** Dialog with a text input field, validator, and OK/Cancel buttons. */
+  def showInputDialog(stage: Stage, title: String, fieldTitle: String, validator: InputValidator, listener: InputDialogListener)(using Sge): VisDialog =
+    showInputDialog(stage, title, fieldTitle, cancelable = true, Nullable(validator), listener)
+
+  /** Dialog with a text input field and OK/Cancel buttons, with cancelable option. */
+  def showInputDialog(stage: Stage, title: String, fieldTitle: String, cancelable: Boolean, listener: InputDialogListener)(using Sge): VisDialog =
+    showInputDialog(stage, title, fieldTitle, cancelable, Nullable.empty[InputValidator], listener)
+
+  /** Dialog with a text input field, validator, and OK/Cancel buttons, with cancelable option. */
+  def showInputDialog(stage: Stage, title: String, fieldTitle: String, cancelable: Boolean, validator: Nullable[InputValidator], listener: InputDialogListener)(using Sge): VisDialog = {
+    val textField = validator.fold(new VisTextField(""): VisTextField) { v =>
+      new VisValidatableTextField(v)
+    }
+    val dialog = new VisDialog(title) {
       override protected def result(obj: Nullable[AnyRef]): Unit =
         obj.foreach {
           case "ok" => listener.finished(textField.text)
