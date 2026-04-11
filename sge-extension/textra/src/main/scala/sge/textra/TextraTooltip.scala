@@ -6,10 +6,11 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: Tooltip<TextraLabel> → standalone class (scene2d base deferred),
+ *   Renames: Tooltip<TextraLabel> → standalone class (scene2d base not inherited;
+ *     tooltip positioning handled by scene2d Tooltip when integrated),
  *     Container → deferred, TooltipManager → deferred, Skin → removed
- *   Convention: Tooltip behavior preserved in API;
- *     actual scene2d integration deferred.
+ *   Convention: Tooltip label and style management preserved in API.
+ *   Idiom: Nullable[A] for nullable fields.
  */
 package sge
 package textra
@@ -24,14 +25,26 @@ class TextraTooltip(
   replacementFont: Font
 ) {
 
-  private val _label: TextraLabel = newLabel(
-    Nullable.fold(text)("")(identity),
-    Nullable.fold(style.label)(new Styles.LabelStyle())(identity),
-    replacementFont
-  )
+  private val _label: TextraLabel = {
+    val ls = Nullable.fold(style.label)(new Styles.LabelStyle())(identity)
+    val l  = newLabel(Nullable.fold(text)("")(identity), ls, replacementFont)
+    l.setAlignment(sge.utils.Align.center)
+    l.setWrap(true)
+    l
+  }
+
+  /** The background drawable for this tooltip, from the style. */
+  var background: Nullable[AnyRef] = style.background
+
+  /** The wrap width from the style, controlling the container width. */
+  var wrapWidth: Float = style.wrapWidth
 
   def this(text: Nullable[String], style: Styles.TextTooltipStyle) =
-    this(text, style, Nullable.fold(style.label)(new Font())(ls => Nullable.fold(ls.font)(new Font())(identity)))
+    this(
+      text,
+      style,
+      Nullable.fold(style.label)(new Font())(ls => Nullable.fold(ls.font)(new Font())(identity))
+    )
 
   protected def newLabel(text: String, style: Styles.LabelStyle): TextraLabel =
     new TextraLabel(text, style)
@@ -49,20 +62,27 @@ class TextraTooltip(
 
   def setStyle(style: Styles.TextTooltipStyle): Unit = {
     Nullable.foreach(style.label) { ls =>
+      // We don't want to regenerate the layout yet, so the last parameter is false.
       Nullable.foreach(ls.font)(f => _label.setFont(f, false))
       Nullable.foreach(ls.fontColor)(c => _label.setColor(c))
     }
+    // Then we can regenerate the layout.
     _label.getFont.regenerateLayout(_label.layout)
     _label.setSize(_label.layout.getWidth, _label.layout.getHeight)
+    this.background = style.background
+    this.wrapWidth = style.wrapWidth
   }
 
   def setStyle(style: Styles.TextTooltipStyle, font: Font): Unit = {
     _label.setFont(font, false)
+    _label.layout.setTargetWidth(style.wrapWidth)
     Nullable.foreach(style.label) { ls =>
       Nullable.foreach(ls.fontColor)(c => _label.setColor(c))
     }
     font.regenerateLayout(_label.layout)
     _label.setSize(_label.layout.getWidth, _label.layout.getHeight)
+    this.background = style.background
+    this.wrapWidth = style.wrapWidth
   }
 
   /** Does nothing unless the label used here is a TypingLabel; then, this will skip text progression ahead. */
