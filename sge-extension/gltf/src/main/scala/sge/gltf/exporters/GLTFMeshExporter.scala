@@ -27,7 +27,7 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
   private val layouts: HashMap[Mesh, GLTFPrimitive] = HashMap.empty
 
   def exportMeshPart(meshPart: MeshPart): GLTFPrimitive = {
-    val mesh = meshPart.mesh
+    val mesh      = meshPart.mesh
     val primitive = new GLTFPrimitive()
     primitive.attributes = Nullable(HashMap[String, Int]())
     primitive.mode = GLTFMeshExporter.mapPrimitiveMode(meshPart.primitiveType.toInt)
@@ -43,7 +43,7 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
     // mesh may not have indices
     if (mesh.numIndices > 0) {
       val outBuffer = base.binManager.beginShorts(meshPart.size)
-      val inBuffer = mesh.getIndicesBuffer(false)
+      val inBuffer  = mesh.getIndicesBuffer(false)
       if (meshPart.offset == 0 && meshPart.size == mesh.numIndices) {
         outBuffer.put(mesh.getIndicesBuffer(false))
       } else {
@@ -83,21 +83,21 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
     val vertices = mesh.getVerticesBuffer(false)
 
     val boneWeightsBuffers = ArrayBuffer[Nullable[FloatBuffer]]()
-    val boneJointsBuffers = ArrayBuffer[Nullable[ShortBuffer]]() // TODO short or byte (for small amount of bones)
+    val boneJointsBuffers  = ArrayBuffer[Nullable[ShortBuffer]]() // TODO short or byte (for small amount of bones)
 
     // split vertices individual attributes
-    val stride = mesh.vertexAttributes.vertexSize / 4
+    val stride      = mesh.vertexAttributes.vertexSize / 4
     val numVertices = mesh.numVertices
     val vertexAttrs = mesh.vertexAttributes
-    var attrIdx = 0
+    var attrIdx     = 0
     while (attrIdx < vertexAttrs.size) {
       val a = vertexAttrs.get(attrIdx)
-      var accessorType: String = ""
-      var accessorComponentType: Int = GLTFTypes.C_FLOAT
-      var useTargets: Boolean = false
-      var shouldComputeBounds: Boolean = false
-      var attributeKey: String = ""
-      var skipAttribute: Boolean = false
+      var accessorType:          String  = ""
+      var accessorComponentType: Int     = GLTFTypes.C_FLOAT
+      var useTargets:            Boolean = false
+      var shouldComputeBounds:   Boolean = false
+      var attributeKey:          String  = ""
+      var skipAttribute:         Boolean = false
 
       if (a.usage == Usage.Position) {
         attributeKey = "POSITION"
@@ -150,7 +150,7 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
         while (i < numVertices) {
           vertices.position(i * stride + a.offset / 4)
 
-          val boneID = vertices.get().toInt
+          val boneID  = vertices.get().toInt
           val shortID = (boneID & 0xffff).toShort
 
           val boneWeight = vertices.get()
@@ -211,9 +211,9 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
       // export weights
       var g = 0
       while (g < numGroup) {
-        val accessor = base.obtainAccessor()
+        val accessor  = base.obtainAccessor()
         val outBuffer = base.binManager.beginFloats(numVertices * 4)
-        var i = 0
+        var i         = 0
         while (i < numVertices) {
           // first is bone, second is weight
           var j = 0
@@ -240,9 +240,9 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
       // export joints
       g = 0
       while (g < numGroup) {
-        val accessor = base.obtainAccessor()
+        val accessor   = base.obtainAccessor()
         val soutBuffer = base.binManager.beginShorts(numVertices * 4)
-        var i = 0
+        var i          = 0
         while (i < numVertices) {
           // first is bone, second is weight
           var j = 0
@@ -269,16 +269,16 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
   }
 
   private def computeBounds(
-    accessor: GLTFAccessor,
-    vertices: FloatBuffer,
-    attribute: VertexAttribute,
+    accessor:    GLTFAccessor,
+    vertices:    FloatBuffer,
+    attribute:   VertexAttribute,
     numVertices: Int,
-    stride: Int
+    stride:      Int
   ): Unit = {
     accessor.min = Nullable(new Array[Float](attribute.numComponents))
     accessor.max = Nullable(new Array[Float](attribute.numComponents))
     val offset = attribute.offset / 4
-    var i = 0
+    var i      = 0
     while (i < numVertices) {
       var j = 0
       while (j < attribute.numComponents) {
@@ -300,7 +300,7 @@ private[exporters] class GLTFMeshExporter(private val base: GLTFExporter) {
 
 private[exporters] object GLTFMeshExporter {
 
-  def mapPrimitiveMode(primitiveType: Int): Nullable[Int] = {
+  def mapPrimitiveMode(primitiveType: Int): Nullable[Int] =
     if (primitiveType == GL20.GL_POINTS) Nullable(0)
     else if (primitiveType == GL20.GL_LINES) Nullable(1)
     else if (primitiveType == GL20.GL_LINE_LOOP) Nullable(2)
@@ -309,5 +309,4 @@ private[exporters] object GLTFMeshExporter {
     else if (primitiveType == GL20.GL_TRIANGLE_STRIP) Nullable(5)
     else if (primitiveType == GL20.GL_TRIANGLE_FAN) Nullable(6)
     else throw new GLTFUnsupportedException("unsupported primitive type " + primitiveType)
-  }
 }

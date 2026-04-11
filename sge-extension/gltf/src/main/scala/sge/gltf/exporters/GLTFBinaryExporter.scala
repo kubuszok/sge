@@ -27,9 +27,9 @@ private[exporters] class GLTFBinaryExporter(
   private val config: GLTFExporterConfig
 ) {
 
-  private val buffers: ArrayBuffer[ByteBuffer] = ArrayBuffer.empty
-  val views: ArrayBuffer[GLTFBufferView] = ArrayBuffer.empty
-  private var currentBuffer: Nullable[Buffer] = Nullable.empty
+  private val buffers:       ArrayBuffer[ByteBuffer]     = ArrayBuffer.empty
+  val views:                 ArrayBuffer[GLTFBufferView] = ArrayBuffer.empty
+  private var currentBuffer: Nullable[Buffer]            = Nullable.empty
 
   def reset(): Unit = {
     buffers.clear()
@@ -74,10 +74,10 @@ private[exporters] class GLTFBinaryExporter(
     shortBuffer
   }
 
-  /**
-   * end local buffering
-   * @return GLTFBufferView id
-   */
+  /** end local buffering
+    * @return
+    *   GLTFBufferView id
+    */
   def end(): Int = {
     val view = new GLTFBufferView()
     view.buffer = Nullable(buffers.size - 1)
@@ -103,7 +103,7 @@ private[exporters] class GLTFBinaryExporter(
   }
 
   def flushAllToFiles(baseName: String): ArrayBuffer[GLTFBuffer] = {
-    val out = ArrayBuffer[GLTFBuffer]()
+    val out   = ArrayBuffer[GLTFBuffer]()
     var count = 0
     for (b <- buffers) {
       val buffer = new GLTFBuffer()
@@ -123,7 +123,7 @@ private[exporters] class GLTFBinaryExporter(
     val fileName = baseName + ".png"
     image.uri = Nullable(fileName)
     val file = folder.child(fileName)
-    val fbo = new FrameBuffer(texture.textureData.getFormat, texture.width, texture.height, false)
+    val fbo  = new FrameBuffer(texture.textureData.getFormat, texture.width, texture.height, false)
     fbo.begin()
     sge.graphics.gl.glClearColor(0, 0, 0, 0)
     sge.graphics.gl.glClear(ClearMask.ColorBufferBit)
@@ -144,7 +144,7 @@ private[exporters] class GLTFBinaryExporter(
 
 private[exporters] object GLTFBinaryExporter {
 
-  def savePNG(file: FileHandle, pixmap: Pixmap)(using sge: Sge): Unit = {
+  def savePNG(file: FileHandle, pixmap: Pixmap)(using sge: Sge): Unit =
     if (sge.application.applicationType == Application.ApplicationType.WebGL) {
       throw new GLTFUnsupportedException("saving pixmap not supported for WebGL")
     } else {
@@ -159,5 +159,4 @@ private[exporters] object GLTFBinaryExporter {
           throw new GLTFRuntimeException(e)
       }
     }
-  }
 }

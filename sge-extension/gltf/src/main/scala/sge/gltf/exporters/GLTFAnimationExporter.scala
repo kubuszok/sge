@@ -41,7 +41,7 @@ private[exporters] class GLTFAnimationExporter(private val base: GLTFExporter) {
     var i = 0
     while (i < animation.nodeAnimations.size) {
       val nodeAnim = animation.nodeAnimations(i)
-      val nodeID = base.nodeMapping.indexOfByRef(nodeAnim.node)
+      val nodeID   = base.nodeMapping.indexOfByRef(nodeAnim.node)
 
       nodeAnim.translation.foreach { trans =>
         GLTFAnimationExporter.channelExporterVector3.exportChannel(base, a, nodeID, trans, "translation", translationInterpolation(nodeAnim))
@@ -67,19 +67,19 @@ private[exporters] class GLTFAnimationExporter(private val base: GLTFExporter) {
   private def translationInterpolation(nodeAnim: NodeAnimation): Nullable[Interpolation] =
     nodeAnim match {
       case nah: NodeAnimationHack => nah.translationMode
-      case _                      => Nullable.empty
+      case _ => Nullable.empty
     }
 
   private def rotationInterpolation(nodeAnim: NodeAnimation): Nullable[Interpolation] =
     nodeAnim match {
       case nah: NodeAnimationHack => nah.rotationMode
-      case _                      => Nullable.empty
+      case _ => Nullable.empty
     }
 
   private def scaleInterpolation(nodeAnim: NodeAnimation): Nullable[Interpolation] =
     nodeAnim match {
       case nah: NodeAnimationHack => nah.scalingMode
-      case _                      => Nullable.empty
+      case _ => Nullable.empty
     }
 }
 
@@ -87,16 +87,16 @@ private[exporters] object GLTFAnimationExporter {
 
   abstract class ChannelExporter[T](
     val numComponents: Int,
-    val outputType: String,
-    val numElements: Int = 1
+    val outputType:    String,
+    val numElements:   Int = 1
   ) {
 
     def exportChannel(
-      base: GLTFExporter,
-      a: GLTFAnimation,
-      nodeID: Int,
-      keyFrames: DynamicArray[NodeKeyframe[T]],
-      chanName: String,
+      base:          GLTFExporter,
+      a:             GLTFAnimation,
+      nodeID:        Int,
+      keyFrames:     DynamicArray[NodeKeyframe[T]],
+      chanName:      String,
       interpolation: Nullable[Interpolation]
     ): Unit = {
       if (a.channels.isEmpty) a.channels = Nullable(ArrayBuffer[GLTFAnimationChannel]())
@@ -111,14 +111,14 @@ private[exporters] object GLTFAnimationExporter {
       chan.target = Nullable(new GLTFAnimationTarget())
       chan.target.get.node = Nullable(nodeID)
       chan.target.get.path = Nullable(chanName)
-      val numKeyframes = keyFrames.size
-      val inputs = new Array[Float](numKeyframes)
-      val cubic = interpolation.exists(_ == Interpolation.CUBICSPLINE)
+      val numKeyframes        = keyFrames.size
+      val inputs              = new Array[Float](numKeyframes)
+      val cubic               = interpolation.exists(_ == Interpolation.CUBICSPLINE)
       val interpolationFactor = if (cubic) 3 else 1
-      val outputCount = numKeyframes * interpolationFactor * numElements
-      val outputFloats = outputCount * numComponents
-      val outputs = base.binManager.beginFloats(outputFloats)
-      var i = 0
+      val outputCount         = numKeyframes * interpolationFactor * numElements
+      val outputFloats        = outputCount * numComponents
+      val outputs             = base.binManager.beginFloats(outputFloats)
+      var i                   = 0
       while (i < numKeyframes) {
         val kf = keyFrames(i)
         inputs(i) = kf.keytime
@@ -149,8 +149,7 @@ private[exporters] object GLTFAnimationExporter {
     protected def getOutput(outputs: FloatBuffer, value: T): Unit
   }
 
-  /** Exports Vector3 keyframe values. CubicVector3 values (stored via type erasure cast) are
-    * detected by casting to AnyRef and checking isInstanceOf[CubicVector3].
+  /** Exports Vector3 keyframe values. CubicVector3 values (stored via type erasure cast) are detected by casting to AnyRef and checking isInstanceOf[CubicVector3].
     */
   val channelExporterVector3: ChannelExporter[Vector3] = new ChannelExporter[Vector3](3, GLTFTypes.TYPE_VEC3) {
     override protected def getOutput(outputs: FloatBuffer, value: Vector3): Unit = {
@@ -175,8 +174,7 @@ private[exporters] object GLTFAnimationExporter {
     }
   }
 
-  /** Exports Quaternion keyframe values. CubicQuaternion values (stored via type erasure cast) are
-    * detected by casting to AnyRef and checking isInstanceOf[CubicQuaternion].
+  /** Exports Quaternion keyframe values. CubicQuaternion values (stored via type erasure cast) are detected by casting to AnyRef and checking isInstanceOf[CubicQuaternion].
     */
   val channelExporterQuaternion: ChannelExporter[Quaternion] = new ChannelExporter[Quaternion](4, GLTFTypes.TYPE_VEC4) {
     override protected def getOutput(outputs: FloatBuffer, value: Quaternion): Unit = {
@@ -207,11 +205,11 @@ private[exporters] object GLTFAnimationExporter {
 
   def channelExporterWeights(count: Int): ChannelExporter[WeightVector] =
     new ChannelExporter[WeightVector](1, GLTFTypes.TYPE_SCALAR, count) {
-      override protected def getOutput(outputs: FloatBuffer, value: WeightVector): Unit = {
+      override protected def getOutput(outputs: FloatBuffer, value: WeightVector): Unit =
         if (value.isInstanceOf[CubicWeightVector]) {
-          /** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#animations end of chapter :
-            * When used with CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped within keyframes:
-            * a1,a2,...an,v1,v2,...vn,b1,b2,...bn
+
+          /** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#animations end of chapter : When used with CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are
+            * grouped within keyframes: a1,a2,...an,v1,v2,...vn,b1,b2,...bn
             */
           val cubic = value.asInstanceOf[CubicWeightVector]
           outputs.put(cubic.tangentIn.values, 0, value.count)
@@ -220,7 +218,6 @@ private[exporters] object GLTFAnimationExporter {
         } else {
           outputs.put(value.values, 0, value.count)
         }
-      }
     }
 
   def mapInterpolation(interpolation: Nullable[Interpolation]): Nullable[String] =
