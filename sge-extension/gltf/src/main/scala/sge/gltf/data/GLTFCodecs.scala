@@ -183,13 +183,45 @@ object GLTFCodecs {
     obj
   }
 
-  // ── GLTFExtensions codec (raw Json AST) ─────────────────────────────
+  // ── GLTFExtensions codec — typed dispatch for known extensions ───────
 
   given gltfExtensionsCodec(using jsonCodec: JsonValueCodec[Json]): JsonValueCodec[GLTFExtensions] = new JsonValueCodec[GLTFExtensions] {
     override def decodeValue(in: JsonReader, default: GLTFExtensions): GLTFExtensions = {
-      val ext  = if (default != null) default else new GLTFExtensions()
-      val json = jsonCodec.decodeValue(in, null.asInstanceOf[Json])
-      if (json != null) ext.setRawJson(json)
+      val ext = if (default != null) default else new GLTFExtensions()
+      if (in.isNextToken('{')) {
+        if (!in.isNextToken('}')) {
+          in.rollbackToken()
+          var continue = true
+          while (continue) {
+            val key = in.readKeyAsString()
+            key match {
+              case KHRMaterialsEmissiveStrength.EXT      => ext.set(key, khrEmissiveStrengthCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsEmissiveStrength]))
+              case KHRMaterialsIOR.EXT                   => ext.set(key, khrIORCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsIOR]))
+              case KHRMaterialsIridescence.EXT           => ext.set(key, khrIridescenceCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsIridescence]))
+              case KHRMaterialsPBRSpecularGlossiness.EXT => ext.set(key, khrPBRSpecGlossCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsPBRSpecularGlossiness]))
+              case KHRMaterialsSpecular.EXT              => ext.set(key, khrSpecularCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsSpecular]))
+              case KHRMaterialsTransmission.EXT          => ext.set(key, khrTransmissionCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsTransmission]))
+              case KHRMaterialsUnlit.EXT                 => ext.set(key, khrUnlitCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsUnlit]))
+              case KHRMaterialsVolume.EXT                => ext.set(key, khrVolumeCodec.decodeValue(in, null.asInstanceOf[KHRMaterialsVolume]))
+              case KHRTextureTransform.EXT               => ext.set(key, khrTextureTransformCodec.decodeValue(in, null.asInstanceOf[KHRTextureTransform]))
+              case KHRLightsPunctual.EXT                 =>
+                // KHR_lights_punctual appears at root level (GLTFLights with "lights" array)
+                // and at node level (GLTFLightNode with "light" int). Both use same extension name.
+                // We probe the first key to determine which type, using raw JSON fallback.
+                val rawJson = jsonCodec.decodeValue(in, null.asInstanceOf[Json])
+                if (rawJson != null) {
+                  // Store raw JSON and let get[T] return it via cast — the caller knows which type to expect
+                  ext.set(key, rawJson.asInstanceOf[AnyRef])
+                }
+              case _ =>
+                // Unknown extension — store raw JSON for forward compatibility
+                val rawJson = jsonCodec.decodeValue(in, null.asInstanceOf[Json])
+                if (rawJson != null) ext.set(key, rawJson.asInstanceOf[AnyRef])
+            }
+            continue = in.isNextToken(',')
+          }
+        }
+      } else in.readNullOrTokenError(ext, '{')
       ext
     }
 

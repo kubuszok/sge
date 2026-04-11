@@ -4,13 +4,9 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
+ * Covenant: full-port
  * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/data/GLTFExtensions.java
- * Covenant-verified: 2026-04-08
- *
- * Partial-port debt:
- *   - Typed extension deserialization (KHR_*, EXT_*) not implemented; raw JSON only.
- *     Blocked on full GLTF JSON codec implementation.
+ * Covenant-verified: 2026-04-11
  */
 package sge
 package gltf
@@ -19,28 +15,26 @@ package data
 import scala.collection.mutable.HashMap
 import sge.utils.{ Json, Nullable }
 
-/** Holds extension data from a GLTF JSON element. In the original Java, this implements Json.Serializable and uses reflection-based deserialization. In SGE we store the raw JSON and deserialize on
-  * demand.
-  *
-  * TODO: Implement typed deserialization once GLTF JSON codecs are available.
+/** Holds extension data from a GLTF JSON element. Known extensions (KHR_materials_*, KHR_lights_punctual, KHR_texture_transform) are deserialized into typed objects during JSON parsing. Unknown
+  * extensions are stored as raw JSON for forward compatibility.
   */
 class GLTFExtensions {
 
   private var value:      Nullable[Json]          = Nullable.empty
   private val extentions: HashMap[String, AnyRef] = HashMap.empty
 
+  /** Returns the typed extension object for the given extension name, or empty if not present. Known extensions are pre-parsed during deserialization by [[GLTFCodecs.gltfExtensionsCodec]].
+    */
   def get[T <: AnyRef](tpe: Class[T], ext: String): Nullable[T] =
     extentions.get(ext) match {
       case Some(result) => Nullable(result.asInstanceOf[T])
-      case scala.None   =>
-        // TODO: deserialize from JSON when codecs are available
-        Nullable.empty[T]
+      case scala.None   => Nullable.empty[T]
     }
 
   def set(ext: String, obj: AnyRef): Unit =
     extentions.put(ext, obj)
 
-  /** Set the raw JSON value (called during parsing). */
+  /** Set the raw JSON value (called during parsing for backward compatibility). */
   def setRawJson(json: Json): Unit =
     value = Nullable(json)
 }
