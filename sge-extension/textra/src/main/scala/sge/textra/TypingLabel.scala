@@ -774,7 +774,7 @@ class TypingLabel extends TextraLabel {
   //////////////////////////////////
 
   /** Called each frame. Updates typing animation. */
-  def act(delta: Float): Unit =
+  override def act(delta: Float): Unit =
     // In a scene2d setup, super.act(delta) processes Actions.
     // Since we have no Actor base class, we just call subAct directly.
     subAct(delta)
