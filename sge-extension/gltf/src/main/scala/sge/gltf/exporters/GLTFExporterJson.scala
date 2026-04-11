@@ -26,8 +26,7 @@ import sge.gltf.data.scene.{ GLTFNode, GLTFScene, GLTFSkin }
 import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
 import sge.utils.Nullable
 
-/** Minimal JSON writer for GLTF export. Produces pretty-printed, spec-compliant JSON
-  * matching the behavior of LibGDX's Json.prettyPrint with setUsePrototypes(true).
+/** Minimal JSON writer for GLTF export. Produces pretty-printed, spec-compliant JSON matching the behavior of LibGDX's Json.prettyPrint with setUsePrototypes(true).
   */
 private[exporters] object GLTFExporterJson {
 
@@ -58,7 +57,7 @@ private[exporters] object GLTFExporterJson {
         case '\n' => sb.append("\\n")
         case '\r' => sb.append("\\r")
         case '\t' => sb.append("\\t")
-        case _ =>
+        case _    =>
           if (c < ' ') sb.append("\\u%04x".format(c.toInt))
           else sb.append(c)
       }
@@ -67,10 +66,9 @@ private[exporters] object GLTFExporterJson {
     sb.append('"')
   }
 
-  private def writeFloat(sb: StringBuilder, v: Float): Unit = {
+  private def writeFloat(sb: StringBuilder, v: Float): Unit =
     if (v == v.toLong.toFloat && !v.isInfinite) sb.append(v.toLong)
     else sb.append(v)
-  }
 
   private def writeFloatArray(sb: StringBuilder, arr: Array[Float]): Unit = {
     sb.append('[')

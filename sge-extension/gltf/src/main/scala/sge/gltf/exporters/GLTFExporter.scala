@@ -27,9 +27,9 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
 
   private val GeneratorInfo: String = "SGE glTF exporter 1.0"
 
-  var root: GLTF = scala.compiletime.uninitialized // @nowarn — reset before each export
-  var binManager: GLTFBinaryExporter = scala.compiletime.uninitialized // @nowarn — reset before each export
-  private val meshExporter: GLTFMeshExporter = new GLTFMeshExporter(this)
+  var root:                 GLTF               = scala.compiletime.uninitialized // @nowarn — reset before each export
+  var binManager:           GLTFBinaryExporter = scala.compiletime.uninitialized // @nowarn — reset before each export
+  private val meshExporter: GLTFMeshExporter   = new GLTFMeshExporter(this)
 
   val nodeMapping:     DynamicArray[Node]     = DynamicArray[Node]()
   val materialMapping: DynamicArray[Material] = DynamicArray[Material]()
@@ -41,16 +41,15 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
   /** current file handle name without extension */
   protected var fileHandleName: String = ""
 
-  /**
-   * create with default config.
-   */
+  /** create with default config.
+    */
   def this()(using Sge) =
     this(new GLTFExporterConfig())
 
-  /**
-   * sub class may override this method in order to implement some custom name mapping.
-   * @return a unique name for the texture
-   */
+  /** sub class may override this method in order to implement some custom name mapping.
+    * @return
+    *   a unique name for the texture
+    */
   private[exporters] def getImageName(texture: Texture): String = {
     val name = fileHandleName + "texture" + textureFileIndex
     textureFileIndex += 1
@@ -66,9 +65,7 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
     textureFileIndex = 0
   }
 
-  /** convenient method to export a single mesh
-    * primitiveType can be any of OpenGL primitive:
-    * GL_POINTS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, etc.
+  /** convenient method to export a single mesh primitiveType can be any of OpenGL primitive: GL_POINTS, GL_LINES, GL_LINE_STRIP, GL_TRIANGLES, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, etc.
     */
   def exportMesh(mesh: Mesh, primitiveType: PrimitiveMode, file: FileHandle): Unit = {
     val scene = beginSingleScene(file)
@@ -265,8 +262,8 @@ class GLTFExporter(private val config: GLTFExporterConfig)(using Sge) {
         gltfMesh.primitives = Nullable(ArrayBuffer[GLTFPrimitive]())
         var pIdx = 0
         while (pIdx < node.parts.size) {
-          val nodePart = node.parts(pIdx)
-          val primitive = meshExporter.exportMeshPart(nodePart.meshPart)
+          val nodePart      = node.parts(pIdx)
+          val primitive     = meshExporter.exportMeshPart(nodePart.meshPart)
           val materialIndex = materialMapping.indexOfByRef(nodePart.material)
           if (materialIndex < 0) throw new GLTFRuntimeException("material not found")
           primitive.material = Nullable(materialIndex)

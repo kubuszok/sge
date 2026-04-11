@@ -18,33 +18,10 @@ import sge.graphics.g3d.{ Attribute, Material }
 import sge.graphics.g3d.attributes.{ BlendingAttribute, ColorAttribute, FloatAttribute, IntAttribute, TextureAttribute }
 import sge.graphics.g3d.model.{ Node, NodePart }
 import sge.gltf.data.GLTFExtensions
-import sge.gltf.data.extensions.{
-  KHRMaterialsEmissiveStrength,
-  KHRMaterialsIOR,
-  KHRMaterialsIridescence,
-  KHRMaterialsSpecular,
-  KHRMaterialsTransmission,
-  KHRMaterialsUnlit,
-  KHRMaterialsVolume
-}
+import sge.gltf.data.extensions.{ KHRMaterialsEmissiveStrength, KHRMaterialsIOR, KHRMaterialsIridescence, KHRMaterialsSpecular, KHRMaterialsTransmission, KHRMaterialsUnlit, KHRMaterialsVolume }
 import sge.gltf.data.material.{ GLTFMaterial, GLTFpbrMetallicRoughness }
-import sge.gltf.data.texture.{
-  GLTFImage,
-  GLTFNormalTextureInfo,
-  GLTFOcclusionTextureInfo,
-  GLTFSampler,
-  GLTFTexture,
-  GLTFTextureInfo
-}
-import sge.gltf.scene3d.attributes.{
-  PBRColorAttribute,
-  PBRFlagAttribute,
-  PBRFloatAttribute,
-  PBRHDRColorAttribute,
-  PBRIridescenceAttribute,
-  PBRTextureAttribute,
-  PBRVolumeAttribute
-}
+import sge.gltf.data.texture.{ GLTFImage, GLTFNormalTextureInfo, GLTFOcclusionTextureInfo, GLTFSampler, GLTFTexture, GLTFTextureInfo }
+import sge.gltf.scene3d.attributes.{ PBRColorAttribute, PBRFlagAttribute, PBRFloatAttribute, PBRHDRColorAttribute, PBRIridescenceAttribute, PBRTextureAttribute, PBRVolumeAttribute }
 import sge.utils.{ DynamicArray, Nullable, SgeError }
 
 private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(using Sge) {
@@ -53,7 +30,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
     var i = 0
     while (i < nodes.size) {
       val node = nodes(i)
-      var j = 0
+      var j    = 0
       while (j < node.parts.size) {
         exportMaterial(node.parts(j).material)
         j += 1
@@ -63,7 +40,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
     }
   }
 
-  private def exportMaterial(material: Material): Unit = {
+  private def exportMaterial(material: Material): Unit =
     if (base.materialMapping.containsByRef(material)) {
       // already exported
     } else {
@@ -76,7 +53,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
       m.name = Nullable(material.id)
 
       var blending = false
-      for (a <- material) {
+      for (a <- material)
         if (a.`type` == ColorAttribute.Diffuse) {
           pbr(m).baseColorFactor = GLTFExportTypes.rgba(defaultNullAttr(Color.WHITE, a.asInstanceOf[ColorAttribute]))
         } else if (a.`type` == PBRColorAttribute.BaseColorFactor) {
@@ -118,7 +95,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
         // Volume
         else if (a.`type` == PBRVolumeAttribute.Type) {
           val extV = extVolume(m)
-          val v = a.asInstanceOf[PBRVolumeAttribute]
+          val v    = a.asInstanceOf[PBRVolumeAttribute]
           extV.thicknessFactor = v.thicknessFactor
           extV.attenuationDistance = if (v.attenuationDistance > 0) Nullable(v.attenuationDistance) else Nullable.empty
           extV.attenuationColor = rgb(v.attenuationColor)
@@ -142,7 +119,7 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
         }
         // Iridescence
         else if (a.`type` == PBRIridescenceAttribute.Type) {
-          val v = a.asInstanceOf[PBRIridescenceAttribute]
+          val v    = a.asInstanceOf[PBRIridescenceAttribute]
           val extI = extIridescence(m)
           extI.iridescenceFactor = v.factor
           extI.iridescenceIor = v.ior
@@ -157,7 +134,6 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
         else if (a.`type` == PBRFloatAttribute.EmissiveIntensity) {
           extEmissive(m).emissiveStrength = a.asInstanceOf[PBRFloatAttribute].value
         }
-      }
       if (blending) {
         if (m.alphaCutoff.isDefined) {
           m.alphaMode = Nullable("MASK")
@@ -166,7 +142,6 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
         }
       }
     }
-  }
 
   private def rgb(color: Color): Array[Float] =
     Array(color.r, color.g, color.b)
@@ -273,25 +248,22 @@ private[exporters] class GLTFMaterialExporter(private val base: GLTFExporter)(us
     }
   }
 
-  private def mapWrap(wrap: TextureWrap): Nullable[Int] = {
+  private def mapWrap(wrap: TextureWrap): Nullable[Int] =
     if (wrap == TextureWrap.ClampToEdge) Nullable(33071)
     else if (wrap == TextureWrap.MirroredRepeat) Nullable(33648)
     else Nullable.empty // Repeat is default
-  }
 
-  private def mapMag(filter: TextureFilter): Nullable[Int] = {
+  private def mapMag(filter: TextureFilter): Nullable[Int] =
     if (filter == TextureFilter.Nearest) Nullable(9728)
     else Nullable.empty // Linear is default
-  }
 
-  private def mapMin(filter: TextureFilter): Nullable[Int] = {
+  private def mapMin(filter: TextureFilter): Nullable[Int] =
     if (filter == TextureFilter.Nearest) Nullable(9728)
     else if (filter == TextureFilter.MipMap || filter == TextureFilter.MipMapLinearLinear) Nullable(9987)
     else if (filter == TextureFilter.MipMapLinearNearest) Nullable(9985)
     else if (filter == TextureFilter.MipMapNearestLinear) Nullable(9986)
     else if (filter == TextureFilter.MipMapNearestNearest) Nullable(9984)
     else Nullable.empty // Linear is default
-  }
 
   private def pbr(m: GLTFMaterial): GLTFpbrMetallicRoughness = {
     if (m.pbrMetallicRoughness.isEmpty) {

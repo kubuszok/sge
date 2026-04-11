@@ -20,7 +20,7 @@ import sge.utils.{ Nullable, ObjectMap }
 
 private[exporters] class GLTFCameraExporter(private val base: GLTFExporter) {
 
-  def exportCameras(cameras: ObjectMap[Node, Camera]): Unit = {
+  def exportCameras(cameras: ObjectMap[Node, Camera]): Unit =
     cameras.foreachEntry { (key, value) =>
       val nodeID = base.nodeMapping.indexOfByRef(key)
       if (nodeID < 0) throw new GLTFRuntimeException("node not found")
@@ -31,7 +31,6 @@ private[exporters] class GLTFCameraExporter(private val base: GLTFExporter) {
       glNode.camera = Nullable(base.root.cameras.get.size)
       base.root.cameras.get += exportCamera(value)
     }
-  }
 
   private def exportCamera(camera: Camera): GLTFCamera = {
     val glCamera = new GLTFCamera()
@@ -43,7 +42,7 @@ private[exporters] class GLTFCameraExporter(private val base: GLTFExporter) {
         glCamera.perspective.get.znear = camera.near
         glCamera.perspective.get.zfar = Nullable(camera.far)
         glCamera.perspective.get.aspectRatio = Nullable(camera.viewportWidth / camera.viewportHeight) // TODO not sure
-        // TODO aspect ratio and fov should be recomputed...
+      // TODO aspect ratio and fov should be recomputed...
 
       case ocam: OrthographicCamera =>
         glCamera.`type` = Nullable("orthographic")

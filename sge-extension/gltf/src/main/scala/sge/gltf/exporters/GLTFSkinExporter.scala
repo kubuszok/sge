@@ -26,7 +26,7 @@ private[exporters] class GLTFSkinExporter(private val base: GLTFExporter) {
 
     var i = 0
     while (i < base.nodeMapping.size) {
-      val node = base.nodeMapping(i)
+      val node   = base.nodeMapping(i)
       val glNode = base.root.nodes.get(i)
 
       // skip already exported skins (in case of multiple scene)
