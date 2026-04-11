@@ -6,29 +6,31 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: LifecycleListener → deferred, OrderedSet → Set,
+ *   Renames: LifecycleListener → dispose only, OrderedSet → LinkedHashSet,
  *     ObjectMap → HashMap, ShaderProgram → deferred,
- *     Gdx/Application/FileHandle → deferred,
- *     TextureAtlas/Pixmap/Texture → deferred,
- *     BufferedReader → deferred
+ *     Gdx.files.internal → Sge().files.internal,
+ *     TextureAtlas(packFile, imagesDir, flip) → SGE TextureAtlas(packFile, imagesDir, flip),
+ *     BitmapFont/getBitmapFont → skipped (no BitmapFont in SGE)
+ *   Merged with: loadUnicodeAtlas inlined as loadEmojiAtlas (UTF-8 is default in SGE)
  *   Convention: All font name constants preserved; getFont() and specific
- *     font getter methods preserved. Actual font file loading deferred
- *     until rendering layer wired up.
- *   Idiom: Singleton via object; font caching with HashMap.
+ *     font getter methods preserved. Actual font file loading fully ported.
+ *   Idiom: Singleton via object; font caching with HashMap; (using Sge) propagation.
+ *   TODOs: ShaderProgram initialization deferred — SGE manages shaders at a higher level.
+ *     getBitmapFont skipped — SGE does not expose BitmapFont directly.
+ *     loadUnicodeAtlas → uses standard TextureAtlas (SGE reads UTF-8 by default).
+ *     getAll/getAllStandard/getAllSDF/getAllMSDF skipped — bulk-load helpers, not needed for port.
  *
  * Covenant: partial-port
  * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/KnownFonts.java
- * Covenant-verified: 2026-04-08
- *
- * Partial-port debt:
- *   - Actual font file loading deferred until SGE rendering layer + TextureAtlas
- *     loading + Gdx.files integration land in textra (currently the get* methods
- *     create placeholder Fonts so the API surface matches).
+ * Covenant-verified: 2026-04-11
  */
 package sge
 package textra
 
 import scala.collection.mutable.{ HashMap, LinkedHashSet }
+
+import sge.graphics.g2d.TextureAtlas
+import sge.utils.Nullable
 
 /** Preconfigured static Font instances, with any important metric adjustments already applied. This uses a singleton to ensure each font exists at most once.
   *
@@ -40,6 +42,15 @@ object KnownFonts {
   private var initialized: Boolean               = false
   private var prefix:      String                = ""
   private val loaded:      HashMap[String, Font] = HashMap.empty
+
+  // Cached atlas references for emoji/icon sets
+  private var twemoji:        Nullable[TextureAtlas] = Nullable.empty
+  private var openMojiColor:  Nullable[TextureAtlas] = Nullable.empty
+  private var openMojiWhite:  Nullable[TextureAtlas] = Nullable.empty
+  private var notoEmoji:      Nullable[TextureAtlas] = Nullable.empty
+  private var gameIcons:      Nullable[TextureAtlas] = Nullable.empty
+  private var materialDesign: Nullable[TextureAtlas] = Nullable.empty
+  private var gameIconsFont:  Nullable[Font]         = Nullable.empty
 
   /** Initializes the singleton. This is called automatically by every method that uses the internal singleton. */
   def initialize(): Unit =
@@ -370,151 +381,506 @@ object KnownFonts {
   val SDF_NAMES:  LinkedHashSet[String] = LinkedHashSet.from(JSON_NAMES)
   val MSDF_NAMES: LinkedHashSet[String] = LinkedHashSet.from(JSON_NAMES)
 
+  // ---- Internal utilities ----
+
+  /** Tries several extensions for a Structured JSON font file, returning the first that exists. Extensions are checked in order: .ubj.lzma, .json.lzma, .ubj, .dat, .json. Throws if none found.
+    */
+  private def getJsonExtension(jsonName: String)(using Sge): String = {
+    val files = summon[Sge].files
+    if (files.internal(jsonName + ".ubj.lzma").exists()) jsonName + ".ubj.lzma"
+    else if (files.internal(jsonName + ".json.lzma").exists()) jsonName + ".json.lzma"
+    else if (files.internal(jsonName + ".ubj").exists()) jsonName + ".ubj"
+    else if (files.internal(jsonName + ".dat").exists()) jsonName + ".dat"
+    else if (files.internal(jsonName + ".json").exists()) jsonName + ".json"
+    else throw new RuntimeException("No file was found with an appropriate extension appended to " + jsonName)
+  }
+
   // ---- Generic font retrieval ----
 
   /** A general way to get a copied Font from the known set of fonts, treating it as using no distance field effect (STANDARD). */
-  def getFont(baseName: String): Font =
+  def getFont(baseName: String)(using Sge): Font =
     getFont(baseName, Font.DistanceFieldType.STANDARD)
 
-  /** A general way to get a copied Font from the known set of fonts. It looks up the appropriate file name, respecting asset prefix, creates the Font if necessary, then returns a copy of it.
-    *
-    * Note: Actual font file loading is deferred until the rendering layer is wired up. This method provides the API surface for future integration.
+  /** A general way to get a copied Font from the known set of fonts. It looks up the appropriate file name, respecting asset prefix, creates the Font if necessary, then returns a copy of it. This
+    * uses getJsonExtension to try a variety of file extensions for Structured JSON fonts. This also scales Structured JSON fonts to have height 32 using scaleHeightTo, but does not scale .fnt or
+    * .font fonts because those are usually pixel fonts that require very specific sizes.
     */
-  def getFont(baseName: String, distanceField: Font.DistanceFieldType): Font = {
+  def getFont(baseName: String, distanceField: Font.DistanceFieldType)(using Sge): Font = {
     if (baseName == null) throw new RuntimeException("Font name cannot be null.")
     val dft = if (distanceField == null) Font.DistanceFieldType.STANDARD else distanceField
     initialize()
     val rootName = baseName + dft.filePart
-    loaded.getOrElseUpdate(
-      rootName, {
-        // Actual font loading deferred until rendering layer is wired up.
-        // For now, create a placeholder Font with the correct name.
-        val f = new Font()
-        f.setName(baseName + dft.namePart)
-        f.setDistanceField(dft)
-        f
-      }
+    val known    = loaded.getOrElseUpdate(
+      rootName,
+      if (JSON_NAMES.contains(baseName) || LIMITED_JSON_NAMES.contains(baseName))
+        new Font(getJsonExtension(prefix + rootName), true).scaleHeightTo(32)
+      else if (FNT_NAMES.contains(baseName))
+        new Font(prefix + rootName + ".fnt", dft)
+      else if (dft == Font.DistanceFieldType.STANDARD && SAD_NAMES.contains(baseName))
+        new Font(prefix, rootName + ".font", true)
+      else
+        throw new RuntimeException("Unknown font name/distance field: " + baseName + "/" + dft.toString)
     )
-    val cached = loaded(rootName)
-    new Font(cached).setName(baseName + dft.namePart).setDistanceField(dft)
+    new Font(known).setName(baseName + dft.namePart).setDistanceField(dft)
   }
 
   // ---- Convenience getters for specific fonts ----
   // These all delegate to getFont(NAME, DFT) and exist for API compatibility.
 
-  def getAStarry():                            Font = getFont(A_STARRY)
-  def getAStarry(dft: Font.DistanceFieldType): Font = getFont(A_STARRY, dft)
-  def getAbyssinicaSIL():                      Font = getFont(ABYSSINICA_SIL)
-  def getAsul():                               Font = getFont(ASUL)
-  def getAubrey():                             Font = getFont(AUBREY)
-  def getBitter():                             Font = getFont(BITTER)
-  def getBonheurRoyale():                      Font = getFont(BONHEUR_ROYALE)
-  def getCanada1500():                         Font = getFont(CANADA1500)
-  def getCascadiaMono():                       Font = getFont(CASCADIA_MONO)
-  def getCaveat():                             Font = getFont(CAVEAT)
-  def getChangaOne():                          Font = getFont(CHANGA_ONE)
-  def getComicMono():                          Font = getFont(COMIC_MONO)
-  def getComputerSaysNo():                     Font = getFont(COMPUTER_SAYS_NO)
-  def getCozette():                            Font = getFont(COZETTE)
-  def getCreteRound():                         Font = getFont(CRETE_ROUND)
-  def getDejaVuSans():                         Font = getFont(DEJAVU_SANS)
-  def getDejaVuSansCondensed():                Font = getFont(DEJAVU_SANS_CONDENSED)
-  def getDejaVuSansMono():                     Font = getFont(DEJAVU_SANS_MONO)
-  def getDejaVuSerif():                        Font = getFont(DEJAVU_SERIF)
-  def getDejaVuSerifCondensed():               Font = getFont(DEJAVU_SERIF_CONDENSED)
-  def getDINish():                             Font = getFont(DINISH)
-  def getDINishHeavy():                        Font = getFont(DINISH_HEAVY)
-  def getDINishLight():                        Font = getFont(DINISH_LIGHT)
-  def getDINishCondensed():                    Font = getFont(DINISH_CONDENSED)
-  def getDINishCondensedHeavy():               Font = getFont(DINISH_CONDENSED_HEAVY)
-  def getDINishCondensedLight():               Font = getFont(DINISH_CONDENSED_LIGHT)
-  def getDINishExpanded():                     Font = getFont(DINISH_EXPANDED)
-  def getDINishExpandedHeavy():                Font = getFont(DINISH_EXPANDED_HEAVY)
-  def getDINishExpandedLight():                Font = getFont(DINISH_EXPANDED_LIGHT)
-  def getGentium():                            Font = getFont(GENTIUM)
-  def getGentiumUnItalic():                    Font = getFont(GENTIUM_UN_ITALIC)
-  def getGentiumSDF():                         Font = getFont(GENTIUM, Font.DistanceFieldType.SDF)
-  def getGlacialIndifference():                Font = getFont(GLACIAL_INDIFFERENCE)
-  def getGoNotoUniversal():                    Font = getFont(GO_NOTO_UNIVERSAL)
-  def getGrenze():                             Font = getFont(GRENZE)
-  def getHanazono():                           Font = getFont(HANAZONO)
-  def getIBM8x16():                            Font = getFont(IBM_8X16)
-  def getInconsolataLGC():                     Font = getFont(INCONSOLATA_LGC)
-  def getIosevka():                            Font = getFont(IOSEVKA)
-  def getIosevkaSlab():                        Font = getFont(IOSEVKA_SLAB)
-  def getKingthingsFoundation():               Font = getFont(KINGTHINGS_FOUNDATION)
-  def getKingthingsPetrock():                  Font = getFont(KINGTHINGS_PETROCK)
-  def getLanaPixel():                          Font = getFont(LANAPIXEL)
-  def getLeagueGothic():                       Font = getFont(LEAGUE_GOTHIC)
-  def getLibertinusSerif():                    Font = getFont(LIBERTINUS_SERIF)
-  def getLibertinusSerifSemibold():            Font = getFont(LIBERTINUS_SERIF_SEMIBOLD)
-  def getMaShanZheng():                        Font = getFont(MA_SHAN_ZHENG)
-  def getMapleMono():                          Font = getFont(MAPLE_MONO)
-  def getMonogram():                           Font = getFont(MONOGRAM)
-  def getMonogramItalic():                     Font = getFont(MONOGRAM_ITALIC)
-  def getMoonDance():                          Font = getFont(MOON_DANCE)
-  def getNowAlt():                             Font = getFont(NOW_ALT)
-  def getNugothic():                           Font = getFont(NUGOTHIC)
-  def getOpenSans():                           Font = getFont(OPEN_SANS)
-  def getOstrichBlack():                       Font = getFont(OSTRICH_BLACK)
-  def getOverlock():                           Font = getFont(OVERLOCK)
-  def getOverlockUnItalic():                   Font = getFont(OVERLOCK_UN_ITALIC)
-  def getOxanium():                            Font = getFont(OXANIUM)
-  def getPangolin():                           Font = getFont(PANGOLIN)
-  def getProtestRevolution():                  Font = getFont(PROTEST_REVOLUTION)
-  def getQuanPixel():                          Font = getFont(QUANPIXEL)
-  def getRobotoCondensed():                    Font = getFont(ROBOTO_CONDENSED)
-  def getSancreek():                           Font = getFont(SANCREEK)
-  def getSelawik():                            Font = getFont(SELAWIK)
-  def getSelawikBold():                        Font = getFont(SELAWIK_BOLD)
-  def getSourGummy():                          Font = getFont(SOUR_GUMMY)
-  def getSpecialElite():                       Font = getFont(SPECIAL_ELITE)
-  def getTangerine():                          Font = getFont(TANGERINE)
-  def getTillana():                            Font = getFont(TILLANA)
-  def getYanoneKaffeesatz():                   Font = getFont(YANONE_KAFFEESATZ)
-  def getYataghan():                           Font = getFont(YATAGHAN)
+  def getAStarry()(using Sge):                                Font = getFont(A_STARRY)
+  def getAStarry(dft: Font.DistanceFieldType)(using Sge):     Font = getFont(A_STARRY, dft)
+  def getAStarryMSDF()(using Sge):                            Font = getFont(A_STARRY, Font.DistanceFieldType.MSDF)
+  def getAStarryTall()(using Sge):                            Font = getAStarryTall(Font.DistanceFieldType.STANDARD)
+  def getAStarryTall(dft: Font.DistanceFieldType)(using Sge): Font =
+    getFont(A_STARRY, dft).scale(0.5f, 1f).setName(A_STARRY + "-Tall" + dft.namePart)
+  def getAbyssinicaSIL()(using Sge):                                      Font = getFont(ABYSSINICA_SIL)
+  def getAbyssinicaSIL(dft:           Font.DistanceFieldType)(using Sge): Font = getFont(ABYSSINICA_SIL, dft)
+  def getAsul()(using Sge):                                               Font = getFont(ASUL)
+  def getAsul(dft:                    Font.DistanceFieldType)(using Sge): Font = getFont(ASUL, dft)
+  def getAubrey()(using Sge):                                             Font = getFont(AUBREY)
+  def getAubrey(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(AUBREY, dft)
+  def getBirdlandAeroplane()(using Sge):                                  Font = getFont(BIRDLAND_AEROPLANE)
+  def getBirdlandAeroplane(dft:       Font.DistanceFieldType)(using Sge): Font = getFont(BIRDLAND_AEROPLANE, dft)
+  def getBitter()(using Sge):                                             Font = getFont(BITTER)
+  def getBitter(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(BITTER, dft)
+  def getBonheurRoyale()(using Sge):                                      Font = getFont(BONHEUR_ROYALE)
+  def getBonheurRoyale(dft:           Font.DistanceFieldType)(using Sge): Font = getFont(BONHEUR_ROYALE, dft)
+  def getCanada1500()(using Sge):                                         Font = getFont(CANADA1500)
+  def getCanada1500(dft:              Font.DistanceFieldType)(using Sge): Font = getFont(CANADA1500, dft)
+  def getCascadiaMono()(using Sge):                                       Font = getFont(CASCADIA_MONO)
+  def getCascadiaMono(dft:            Font.DistanceFieldType)(using Sge): Font = getFont(CASCADIA_MONO, dft)
+  def getCascadiaMonoMSDF()(using Sge):                                   Font = getFont(CASCADIA_MONO, Font.DistanceFieldType.MSDF)
+  def getCaveat()(using Sge):                                             Font = getFont(CAVEAT)
+  def getCaveat(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(CAVEAT, dft)
+  def getChangaOne()(using Sge):                                          Font = getFont(CHANGA_ONE)
+  def getChangaOne(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(CHANGA_ONE, dft)
+  def getComicMono()(using Sge):                                          Font = getFont(COMIC_MONO)
+  def getComicMono(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(COMIC_MONO, dft)
+  def getComputerSaysNo()(using Sge):                                     Font = getFont(COMPUTER_SAYS_NO)
+  def getComputerSaysNo(dft:          Font.DistanceFieldType)(using Sge): Font = getFont(COMPUTER_SAYS_NO, dft)
+  def getCordata16x26()(using Sge):                                       Font = getFont(CORDATA_16X26)
+  def getCozette()(using Sge):                                            Font = getFont(COZETTE)
+  def getCreteRound()(using Sge):                                         Font = getFont(CRETE_ROUND)
+  def getCreteRound(dft:              Font.DistanceFieldType)(using Sge): Font = getFont(CRETE_ROUND, dft)
+  def getDejaVuSans()(using Sge):                                         Font = getFont(DEJAVU_SANS)
+  def getDejaVuSans(dft:              Font.DistanceFieldType)(using Sge): Font = getFont(DEJAVU_SANS, dft)
+  def getDejaVuSansCondensed()(using Sge):                                Font = getFont(DEJAVU_SANS_CONDENSED)
+  def getDejaVuSansCondensed(dft:     Font.DistanceFieldType)(using Sge): Font = getFont(DEJAVU_SANS_CONDENSED, dft)
+  def getDejaVuSansMono()(using Sge):                                     Font = getFont(DEJAVU_SANS_MONO)
+  def getDejaVuSansMono(dft:          Font.DistanceFieldType)(using Sge): Font = getFont(DEJAVU_SANS_MONO, dft)
+  def getDejaVuSerif()(using Sge):                                        Font = getFont(DEJAVU_SERIF)
+  def getDejaVuSerif(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(DEJAVU_SERIF, dft)
+  def getDejaVuSerifCondensed()(using Sge):                               Font = getFont(DEJAVU_SERIF_CONDENSED)
+  def getDejaVuSerifCondensed(dft:    Font.DistanceFieldType)(using Sge): Font = getFont(DEJAVU_SERIF_CONDENSED, dft)
+  def getDINish()(using Sge):                                             Font = getFont(DINISH)
+  def getDINish(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(DINISH, dft)
+  def getDINishHeavy()(using Sge):                                        Font = getFont(DINISH_HEAVY)
+  def getDINishHeavy(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_HEAVY, dft)
+  def getDINishLight()(using Sge):                                        Font = getFont(DINISH_LIGHT)
+  def getDINishLight(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_LIGHT, dft)
+  def getDINishCondensed()(using Sge):                                    Font = getFont(DINISH_CONDENSED)
+  def getDINishCondensed(dft:         Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_CONDENSED, dft)
+  def getDINishCondensedHeavy()(using Sge):                               Font = getFont(DINISH_CONDENSED_HEAVY)
+  def getDINishCondensedHeavy(dft:    Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_CONDENSED_HEAVY, dft)
+  def getDINishCondensedLight()(using Sge):                               Font = getFont(DINISH_CONDENSED_LIGHT)
+  def getDINishCondensedLight(dft:    Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_CONDENSED_LIGHT, dft)
+  def getDINishExpanded()(using Sge):                                     Font = getFont(DINISH_EXPANDED)
+  def getDINishExpanded(dft:          Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_EXPANDED, dft)
+  def getDINishExpandedHeavy()(using Sge):                                Font = getFont(DINISH_EXPANDED_HEAVY)
+  def getDINishExpandedHeavy(dft:     Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_EXPANDED_HEAVY, dft)
+  def getDINishExpandedLight()(using Sge):                                Font = getFont(DINISH_EXPANDED_LIGHT)
+  def getDINishExpandedLight(dft:     Font.DistanceFieldType)(using Sge): Font = getFont(DINISH_EXPANDED_LIGHT, dft)
+  def getGentium()(using Sge):                                            Font = getFont(GENTIUM)
+  def getGentium(dft:                 Font.DistanceFieldType)(using Sge): Font = getFont(GENTIUM, dft)
+  def getGentiumMSDF()(using Sge):                                        Font = getFont(GENTIUM, Font.DistanceFieldType.MSDF)
+  def getGentiumSDF()(using Sge):                                         Font = getFont(GENTIUM, Font.DistanceFieldType.SDF)
+  def getGentiumUnItalic()(using Sge):                                    Font = getFont(GENTIUM_UN_ITALIC)
+  def getGentiumUnItalic(dft:         Font.DistanceFieldType)(using Sge): Font = getFont(GENTIUM_UN_ITALIC, dft)
+  def getGlacialIndifference()(using Sge):                                Font = getFont(GLACIAL_INDIFFERENCE)
+  def getGlacialIndifference(dft:     Font.DistanceFieldType)(using Sge): Font = getFont(GLACIAL_INDIFFERENCE, dft)
+  def getGoNotoUniversal()(using Sge):                                    Font = getFont(GO_NOTO_UNIVERSAL)
+  def getGoNotoUniversal(dft:         Font.DistanceFieldType)(using Sge): Font = getFont(GO_NOTO_UNIVERSAL, dft)
+  def getGoNotoUniversalSDF()(using Sge):                                 Font = getFont(GO_NOTO_UNIVERSAL, Font.DistanceFieldType.SDF)
+  def getGrenze()(using Sge):                                             Font = getFont(GRENZE)
+  def getGrenze(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(GRENZE, dft)
+  def getHanazono()(using Sge):                                           Font = getFont(HANAZONO)
+  def getIBM8x16()(using Sge):                                            Font = getFont(IBM_8X16)
+  def getIBM8x16Sad()(using Sge):                                         Font = getFont(IBM_8X16_SAD)
+  def getInconsolata()(using Sge):                                        Font = getFont(INCONSOLATA_LGC)
+  def getInconsolata(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(INCONSOLATA_LGC, dft)
+  def getInconsolataMSDF()(using Sge):                                    Font = getFont(INCONSOLATA_LGC, Font.DistanceFieldType.MSDF)
+  def getInconsolataLGC()(using Sge):                                     Font = getFont(INCONSOLATA_LGC)
+  def getIosevka()(using Sge):                                            Font = getFont(IOSEVKA)
+  def getIosevka(dft:                 Font.DistanceFieldType)(using Sge): Font = getFont(IOSEVKA, dft)
+  def getIosevkaMSDF()(using Sge):                                        Font = getFont(IOSEVKA, Font.DistanceFieldType.MSDF)
+  def getIosevkaSDF()(using Sge):                                         Font = getFont(IOSEVKA, Font.DistanceFieldType.SDF)
+  def getIosevkaSlab()(using Sge):                                        Font = getFont(IOSEVKA_SLAB)
+  def getIosevkaSlab(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(IOSEVKA_SLAB, dft)
+  def getIosevkaSlabMSDF()(using Sge):                                    Font = getFont(IOSEVKA_SLAB, Font.DistanceFieldType.MSDF)
+  def getIosevkaSlabSDF()(using Sge):                                     Font = getFont(IOSEVKA_SLAB, Font.DistanceFieldType.SDF)
+  def getKingthingsFoundation()(using Sge):                               Font = getFont(KINGTHINGS_FOUNDATION)
+  def getKingthingsFoundation(dft:    Font.DistanceFieldType)(using Sge): Font = getFont(KINGTHINGS_FOUNDATION, dft)
+  def getKingthingsPetrock()(using Sge):                                  Font = getFont(KINGTHINGS_PETROCK)
+  def getKingthingsPetrock(dft:       Font.DistanceFieldType)(using Sge): Font = getFont(KINGTHINGS_PETROCK, dft)
+  def getLanaPixel()(using Sge):                                          Font = getFont(LANAPIXEL)
+  def getLeagueGothic()(using Sge):                                       Font = getFont(LEAGUE_GOTHIC)
+  def getLeagueGothic(dft:            Font.DistanceFieldType)(using Sge): Font = getFont(LEAGUE_GOTHIC, dft)
+  def getLibertinusSerif()(using Sge):                                    Font = getFont(LIBERTINUS_SERIF)
+  def getLibertinusSerif(dft:         Font.DistanceFieldType)(using Sge): Font = getFont(LIBERTINUS_SERIF, dft)
+  def getLibertinusSerifSemibold()(using Sge):                            Font = getFont(LIBERTINUS_SERIF_SEMIBOLD)
+  def getLibertinusSerifSemibold(dft: Font.DistanceFieldType)(using Sge): Font = getFont(LIBERTINUS_SERIF_SEMIBOLD, dft)
+  def getMaShanZheng()(using Sge):                                        Font = getFont(MA_SHAN_ZHENG)
+  def getMaShanZheng(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(MA_SHAN_ZHENG, dft)
+  def getMapleMono()(using Sge):                                          Font = getFont(MAPLE_MONO)
+  def getMapleMono(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(MAPLE_MONO, dft)
+  def getMonogram()(using Sge):                                           Font = getFont(MONOGRAM)
+  def getMonogramItalic()(using Sge):                                     Font = getFont(MONOGRAM_ITALIC)
+  def getMoonDance()(using Sge):                                          Font = getFont(MOON_DANCE)
+  def getMoonDance(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(MOON_DANCE, dft)
+  def getNowAlt()(using Sge):                                             Font = getFont(NOW_ALT)
+  def getNowAlt(dft:                  Font.DistanceFieldType)(using Sge): Font = getFont(NOW_ALT, dft)
+  def getNugothic()(using Sge):                                           Font = getFont(NUGOTHIC)
+  def getNugothic(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(NUGOTHIC, dft)
+  def getOpenSans()(using Sge):                                           Font = getFont(OPEN_SANS)
+  def getOpenSans(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(OPEN_SANS, dft)
+  def getOstrichBlack()(using Sge):                                       Font = getFont(OSTRICH_BLACK)
+  def getOstrichBlack(dft:            Font.DistanceFieldType)(using Sge): Font = getFont(OSTRICH_BLACK, dft)
+  def getOverlock()(using Sge):                                           Font = getFont(OVERLOCK)
+  def getOverlock(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(OVERLOCK, dft)
+  def getOverlockUnItalic()(using Sge):                                   Font = getFont(OVERLOCK_UN_ITALIC)
+  def getOverlockUnItalic(dft:        Font.DistanceFieldType)(using Sge): Font = getFont(OVERLOCK_UN_ITALIC, dft)
+  def getOxanium()(using Sge):                                            Font = getFont(OXANIUM)
+  def getOxanium(dft:                 Font.DistanceFieldType)(using Sge): Font = getFont(OXANIUM, dft)
+  def getPangolin()(using Sge):                                           Font = getFont(PANGOLIN)
+  def getPangolin(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(PANGOLIN, dft)
+  def getProtestRevolution()(using Sge):                                  Font = getFont(PROTEST_REVOLUTION)
+  def getProtestRevolution(dft:       Font.DistanceFieldType)(using Sge): Font = getFont(PROTEST_REVOLUTION, dft)
+  def getQuanPixel()(using Sge):                                          Font = getFont(QUANPIXEL)
+  def getRobotoCondensed()(using Sge):                                    Font = getFont(ROBOTO_CONDENSED)
+  def getRobotoCondensed(dft:         Font.DistanceFieldType)(using Sge): Font = getFont(ROBOTO_CONDENSED, dft)
+  def getSancreek()(using Sge):                                           Font = getFont(SANCREEK)
+  def getSancreek(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(SANCREEK, dft)
+  def getSelawik()(using Sge):                                            Font = getFont(SELAWIK)
+  def getSelawik(dft:                 Font.DistanceFieldType)(using Sge): Font = getFont(SELAWIK, dft)
+  def getSelawikBold()(using Sge):                                        Font = getFont(SELAWIK_BOLD)
+  def getSelawikBold(dft:             Font.DistanceFieldType)(using Sge): Font = getFont(SELAWIK_BOLD, dft)
+  def getSourGummy()(using Sge):                                          Font = getFont(SOUR_GUMMY)
+  def getSourGummy(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(SOUR_GUMMY, dft)
+  def getSpecialElite()(using Sge):                                       Font = getFont(SPECIAL_ELITE)
+  def getSpecialElite(dft:            Font.DistanceFieldType)(using Sge): Font = getFont(SPECIAL_ELITE, dft)
+  def getTangerine()(using Sge):                                          Font = getFont(TANGERINE)
+  def getTangerine(dft:               Font.DistanceFieldType)(using Sge): Font = getFont(TANGERINE, dft)
+  def getTangerineSDF()(using Sge):                                       Font = getFont(TANGERINE, Font.DistanceFieldType.SDF)
+  def getTillana()(using Sge):                                            Font = getFont(TILLANA)
+  def getTillana(dft:                 Font.DistanceFieldType)(using Sge): Font = getFont(TILLANA, dft)
+  def getYanoneKaffeesatz()(using Sge):                                   Font = getFont(YANONE_KAFFEESATZ)
+  def getYanoneKaffeesatz(dft:        Font.DistanceFieldType)(using Sge): Font = getFont(YANONE_KAFFEESATZ, dft)
+  def getYanoneKaffeesatzMSDF()(using Sge):                               Font = getFont(YANONE_KAFFEESATZ, Font.DistanceFieldType.MSDF)
+  def getYataghan()(using Sge):                                           Font = getFont(YATAGHAN)
+  def getYataghan(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(YATAGHAN, dft)
+  def getYataghanMSDF()(using Sge):                                       Font = getFont(YATAGHAN, Font.DistanceFieldType.MSDF)
 
   // ---- Emoji and icon atlas methods ----
 
   /** Adds Twemoji emoji images to a Font so they can be used with the [+name] syntax. Requires the Twemoji atlas files in the assets folder. */
-  def addEmoji(font: Font): Font =
-    // Deferred: requires TextureAtlas loading and Gdx.files integration
-    font
+  def addEmoji(font: Font)(using Sge): Font =
+    addEmoji(font, 2f, -1f, 4f)
+
+  /** Adds Twemoji emoji images to a Font with customizable offsets and x-advance. */
+  def addEmoji(font: Font, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font =
+    addEmoji(font, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds Twemoji emoji images to a Font with customizable prepend/append strings and metric adjustments. */
+  def addEmoji(font: Font, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font = {
+    initialize()
+    if (Nullable.isEmpty(twemoji)) {
+      try {
+        val atlas = summon[Sge].files.internal(prefix + "Twemoji.atlas")
+        if (summon[Sge].files.internal(prefix + "Twemoji.png").exists())
+          twemoji = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+      } catch {
+        case e: Exception => e.printStackTrace()
+      }
+    }
+    twemoji.fold(throw new RuntimeException("Assets 'Twemoji.atlas' and 'Twemoji.png' not found.")) { ta =>
+      font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+    }
+  }
 
   /** Adds Noto Color Emoji images to a Font so they can be used with the [+name] syntax. Requires the Noto Emoji atlas files in the assets folder. */
-  def addNotoEmoji(font: Font): Font =
-    // Deferred: requires TextureAtlas loading and Gdx.files integration
-    font
+  def addNotoEmoji(font: Font)(using Sge): Font =
+    addNotoEmoji(font, 2f, -1f, 4f)
 
-  /** Adds OpenMoji emoji images to a Font so they can be used with the [+name] syntax. Requires the OpenMoji atlas files in the assets folder. */
-  def addOpenMoji(font: Font, color: Boolean): Font =
-    // Deferred: requires TextureAtlas loading and Gdx.files integration
-    font
+  /** Adds Noto Color Emoji images to a Font with customizable offsets and x-advance. */
+  def addNotoEmoji(font: Font, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font =
+    addNotoEmoji(font, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds Noto Color Emoji images to a Font with customizable prepend/append strings and metric adjustments. */
+  def addNotoEmoji(font: Font, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font = {
+    initialize()
+    if (Nullable.isEmpty(notoEmoji)) {
+      try {
+        val atlas = summon[Sge].files.internal(prefix + "Noto-Emoji.atlas")
+        if (summon[Sge].files.internal(prefix + "Noto-Emoji.png").exists())
+          notoEmoji = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+      } catch {
+        case e: Exception => e.printStackTrace()
+      }
+    }
+    notoEmoji.fold(throw new RuntimeException("Assets 'Noto-Emoji.atlas' and 'Noto-Emoji.png' not found.")) { ta =>
+      font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+    }
+  }
+
+  /** Adds OpenMoji emoji images to a Font so they can be used with the [+name] syntax. Requires the OpenMoji atlas files in the assets folder.
+    * @param color
+    *   if true, uses the full-color set; if false, uses the white-line set
+    */
+  def addOpenMoji(font: Font, color: Boolean)(using Sge): Font =
+    addOpenMoji(font, color, 0f, -1f, 0f)
+
+  /** Adds OpenMoji emoji images to a Font with customizable offsets and x-advance. */
+  def addOpenMoji(font: Font, color: Boolean, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font =
+    addOpenMoji(font, color, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds OpenMoji emoji images to a Font with customizable prepend/append strings and metric adjustments. */
+  def addOpenMoji(font: Font, color: Boolean, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font = {
+    initialize()
+    if (color) {
+      val baseName = "OpenMoji-color"
+      if (Nullable.isEmpty(openMojiColor)) {
+        try {
+          val atlas = summon[Sge].files.internal(prefix + baseName + ".atlas")
+          if (summon[Sge].files.internal(prefix + baseName + ".png").exists())
+            openMojiColor = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+        } catch {
+          case e: Exception => e.printStackTrace()
+        }
+      }
+      openMojiColor.fold(throw new RuntimeException("Assets '" + baseName + ".atlas' and '" + baseName + ".png' not found.")) { ta =>
+        font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+      }
+    } else {
+      val baseName = "OpenMoji-white"
+      if (Nullable.isEmpty(openMojiWhite)) {
+        try {
+          val atlas = summon[Sge].files.internal(prefix + baseName + ".atlas")
+          if (summon[Sge].files.internal(prefix + baseName + ".png").exists())
+            openMojiWhite = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+        } catch {
+          case e: Exception => e.printStackTrace()
+        }
+      }
+      openMojiWhite.fold(throw new RuntimeException("Assets '" + baseName + ".atlas' and '" + baseName + ".png' not found.")) { ta =>
+        font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+      }
+    }
+  }
 
   /** Adds game-icons.net icon images to a Font. Requires the game-icons atlas files in the assets folder. */
-  def addGameIcons(font: Font): Font =
-    // Deferred: requires TextureAtlas loading and Gdx.files integration
-    font
+  def addGameIcons(font: Font)(using Sge): Font =
+    addGameIcons(font, 0f, 0f, 0f)
+
+  /** Adds game-icons.net icon images to a Font with customizable offsets and x-advance. */
+  def addGameIcons(font: Font, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font =
+    addGameIcons(font, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds game-icons.net icon images to a Font with customizable prepend/append strings and metric adjustments. */
+  def addGameIcons(font: Font, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font = {
+    initialize()
+    if (Nullable.isEmpty(gameIcons)) {
+      try {
+        val atlas = summon[Sge].files.internal(prefix + "Game-Icons.atlas")
+        if (summon[Sge].files.internal(prefix + "Game-Icons.png").exists())
+          gameIcons = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+      } catch {
+        case e: Exception => e.printStackTrace()
+      }
+    }
+    gameIcons.fold(throw new RuntimeException("Assets 'Game-Icons.atlas' and 'Game-Icons.png' not found.")) { ta =>
+      font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+    }
+  }
+
+  /** Gets a typically-square Font meant to be used in a FontFamily, allowing switching to a Font with the many game-icons.net icons. The base Font this uses is getAStarry(), because it is perfectly
+    * square by default. The name this will use in a FontFamily is "Icons".
+    */
+  def getGameIconsFont(width: Float, height: Float)(using Sge): Font = {
+    initialize()
+    if (Nullable.isEmpty(gameIconsFont)) {
+      try
+        gameIconsFont = Nullable(addGameIcons(getAStarry().scaleTo(width, height).setName("Icons")))
+      catch {
+        case e: Exception => e.printStackTrace()
+      }
+    }
+    gameIconsFont.fold(throw new RuntimeException("Assets for getGameIconsFont() not found.")) { gif =>
+      new Font(gif)
+    }
+  }
 
   /** Adds Material Design icon images to a Font. Requires the Material Design atlas files in the assets folder. */
-  def addMaterialDesignIcons(font: Font): Font =
-    // Deferred: requires TextureAtlas loading and Gdx.files integration
-    font
+  def addMaterialDesignIcons(font: Font)(using Sge): Font =
+    addMaterialDesignIcons(font, 0f, 0f, 0f)
+
+  /** Adds Material Design icon images to a Font with customizable offsets and x-advance. */
+  def addMaterialDesignIcons(font: Font, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font =
+    addMaterialDesignIcons(font, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds Material Design icon images to a Font with customizable prepend/append strings and metric adjustments. */
+  def addMaterialDesignIcons(font: Font, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float)(using Sge): Font = {
+    initialize()
+    if (Nullable.isEmpty(materialDesign)) {
+      try {
+        val atlas = summon[Sge].files.internal(prefix + "Material-Design.atlas")
+        if (summon[Sge].files.internal(prefix + "Material-Design.png").exists())
+          materialDesign = Nullable(new TextureAtlas(atlas, atlas.parent(), false))
+      } catch {
+        case e: Exception => e.printStackTrace()
+      }
+    }
+    materialDesign.fold(throw new RuntimeException("Assets 'Material-Design.atlas' and 'Material-Design.png' not found.")) { ta =>
+      font.addAtlas(ta, prepend, append, offsetXChange, offsetYChange, xAdvanceChange)
+    }
+  }
 
   // ---- FontFamily convenience ----
 
-  /** Gets a FontFamily that has been pre-populated with many different fonts, accessible by name such as [@Sans]. Requires font assets in the assets folder. */
-  def getStandardFamily(): Font.FontFamily =
-    // Deferred: requires actual font loading
-    new Font.FontFamily()
+  /** Gets a FontFamily that has been pre-populated with many different fonts, accessible by name such as [@Sans]. Requires font assets in the assets folder.
+    *
+    * The names this supports are: Serif (Gentium), Sans (OpenSans), Mono (Inconsolata), Condensed (RobotoCondensed), Humanist (YanoneKaffeesatz), Retro (IBM8x16), Slab (IosevkaSlab), Handwriting
+    * (Caveat), Dark (Grenze), Cozette, Iosevka, Medieval (KingthingsFoundation), Future (Oxanium), Console (AStarryTall), Code (CascadiaMono), Geometric (NowAlt). Bitter is an alias for Gentium;
+    * Canada is an alias for NowAlt.
+    */
+  def getStandardFamily()(using Sge): Font = {
+    val family = new Font.FontFamily(
+      Array(
+        "Serif",
+        "Sans",
+        "Mono",
+        "Condensed",
+        "Humanist",
+        "Retro",
+        "Slab",
+        "Handwriting",
+        "Dark",
+        "Cozette",
+        "Iosevka",
+        "Medieval",
+        "Future",
+        "Console",
+        "Code",
+        "Geometric"
+      ),
+      Array(
+        getGentium(),
+        getOpenSans(),
+        getInconsolata(),
+        getRobotoCondensed(),
+        getYanoneKaffeesatz(),
+        getIBM8x16(),
+        getIosevkaSlab(),
+        getCaveat(),
+        getGrenze(),
+        getCozette(),
+        getIosevka(),
+        getKingthingsFoundation(),
+        getOxanium(),
+        getAStarryTall(),
+        getCascadiaMono(),
+        getNowAlt()
+      )
+    )
+    family.fontAliases.put("Bitter", 0) // for compatibility; Bitter and Gentium look nearly identical anyway...
+    family.fontAliases.put("Canada", 15) // Canada1500 is... sort-of close... to Now Alt...
+    family.connected(0).setFamily(family)
+  }
+
+  /** Gets a FontFamily using the given DistanceFieldType. The names are: Serif (Gentium), Sans (OpenSans), Mono (Inconsolata), Condensed (RobotoCondensed), Humanist (YanoneKaffeesatz), Fantasy
+    * (GentiumUnItalic), Slab (IosevkaSlab), Handwriting (Caveat), Dark (Grenze), Script (Tangerine), Iosevka, Medieval (KingthingsFoundation), Future (Oxanium), Console (AStarryTall), Code
+    * (CascadiaMono), Geometric (NowAlt).
+    */
+  def getFamily(dft: Font.DistanceFieldType)(using Sge): Font = {
+    val family = new Font.FontFamily(
+      Array(
+        "Serif",
+        "Sans",
+        "Mono",
+        "Condensed",
+        "Humanist",
+        "Fantasy",
+        "Slab",
+        "Handwriting",
+        "Dark",
+        "Script",
+        "Iosevka",
+        "Medieval",
+        "Future",
+        "Console",
+        "Code",
+        "Geometric"
+      ),
+      Array(
+        getGentium(dft),
+        getOpenSans(dft),
+        getInconsolata(dft),
+        getRobotoCondensed(dft),
+        getYanoneKaffeesatz(dft),
+        getGentiumUnItalic(dft),
+        getIosevkaSlab(dft),
+        getCaveat(dft),
+        getGrenze(dft),
+        getTangerine(dft),
+        getIosevka(dft),
+        getKingthingsFoundation(dft),
+        getOxanium(dft),
+        getAStarryTall(dft),
+        getCascadiaMono(dft),
+        getNowAlt(dft)
+      )
+    )
+    family.fontAliases.put("Bitter", 0) // for compatibility; Bitter and Gentium look nearly identical anyway...
+    family.fontAliases.put("Canada", 15) // Canada1500 is... sort-of close... to Now Alt...
+    family.fontAliases.put("Retro", 13) // A Starry Tall is similar to IBM 8x16.
+    family.fontAliases.put("Cozette", 13) // A Starry Tall is similar to Cozette.
+    family.connected(0).setFamily(family)
+  }
+
+  /** Gets a FontFamily containing Monogram (regular) and Monogram Italic, with aliases "r", "i", "em". */
+  def getMonogramFamily()(using Sge): Font = {
+    val family = new Font.FontFamily(
+      Array("Regular", "Italic"),
+      Array(getMonogram(), getMonogramItalic())
+    )
+    family.fontAliases.put("r", 0) // regular
+    family.fontAliases.put("i", 1) // italic
+    family.fontAliases.put("em", 1) // emphasis
+    family.connected(0).setFamily(family)
+  }
 
   // ---- Lifecycle ----
 
-  /** Disposes all cached Font instances. */
+  /** Disposes all cached Font instances and atlas resources. */
   def dispose(): Unit = {
     for ((_, font) <- loaded)
       font.close()
     loaded.clear()
+
+    Nullable.foreach(twemoji)(_.close())
+    twemoji = Nullable.empty
+    Nullable.foreach(openMojiColor)(_.close())
+    openMojiColor = Nullable.empty
+    Nullable.foreach(openMojiWhite)(_.close())
+    openMojiWhite = Nullable.empty
+    Nullable.foreach(notoEmoji)(_.close())
+    notoEmoji = Nullable.empty
+    Nullable.foreach(gameIcons)(_.close())
+    gameIcons = Nullable.empty
+    Nullable.foreach(materialDesign)(_.close())
+    materialDesign = Nullable.empty
+    Nullable.foreach(gameIconsFont)(_.close())
+    gameIconsFont = Nullable.empty
+
     initialized = false
   }
 }
