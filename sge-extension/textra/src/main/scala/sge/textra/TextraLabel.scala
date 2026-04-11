@@ -69,6 +69,20 @@ class TextraLabel {
   def getColor:                Color = _color
   def setColor(c:      Color): Unit  = if (c != null) _color.set(c)
 
+  def setColor(r: Float, g: Float, b: Float, a: Float): Unit = _color.set(r, g, b, a)
+
+  def setPosition(x: Float, y: Float): Unit = {
+    _x = x
+    _y = y
+  }
+
+  def setBounds(x: Float, y: Float, width: Float, height: Float): Unit = {
+    _x = x
+    _y = y
+    _width = width
+    _height = height
+  }
+
   /** Creates a TextraLabel that uses the default font with white color. */
   def this(dummy: Unit) = {
     this()
@@ -248,6 +262,9 @@ class TextraLabel {
 
   /** By default, does nothing; this is overridden in TypingLabel to skip its text progression ahead. */
   def skipToTheEnd(): TextraLabel = this
+
+  /** Called each frame with the time since the last frame. No-op for TextraLabel; overridden in TypingLabel. */
+  def act(delta: Float): Unit = ()
 
   def invalidate(): Unit =
     prefSizeInvalid = true

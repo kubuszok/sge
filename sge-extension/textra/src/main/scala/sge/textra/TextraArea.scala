@@ -7,43 +7,166 @@
  *
  * Migration notes:
  *   Renames: TextraField → extends TextraField
- *   Convention: Multi-line text input; scene2d integration deferred.
+ *   Convention: Multi-line text input; drawCursor/getTextY/getPrefHeight/
+ *     moveCursorVertically all overridden for multi-line behavior.
  *   Note: This widget is noted as "not ready for production yet" in the original.
  */
 package sge
 package textra
 
-import sge.utils.Nullable
+import scala.util.boundary
+import scala.util.boundary.break
+
+import sge.graphics.g2d.Batch
+import sge.scenes.scene2d.utils.Drawable
+import sge.utils.{ Align, Nullable }
 
 /** A multiple-line TextraField using a Font; not ready for production yet.
   *
   * If you have to use Font but don't need multiple lines, TextraField should work. If you do need multiple-line input, you can use a libGDX BitmapFont with a scene2d.ui TextField. If you don't need
   * input, just selectable text, you can make a TypingLabel selectable with TypingLabel.setSelectable(boolean).
   */
-class TextraArea(text: Nullable[String], style: Styles.TextFieldStyle) extends TextraField {
+class TextraArea(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle) extends TextraField {
 
-  writeEnters = true
-
-  def this(text: Nullable[String], style: Styles.TextFieldStyle, replacementFont: Font) = {
-    this(text, style)
-    val rf = new Font(replacementFont)
-    rf.enableSquareBrackets = false
-    rf.omitCurlyBraces = false
-    label = new TypingLabel("", new Styles.LabelStyle(rf, style.fontColor))
-    setText(text)
-  }
-
+  // --- Initialization ---
   {
-    val s = new Styles.TextFieldStyle(style)
+    val s = new Styles.TextFieldStyle(areaStyle)
     Nullable.foreach(s.font) { f =>
       f.enableSquareBrackets = false
       f.omitCurlyBraces = false
     }
-    this.style = Nullable(s)
-    Nullable.foreach(s.font) { f =>
-      label = new TypingLabel("", new Styles.LabelStyle(f, style.fontColor))
+    setStyle(s)
+    Nullable.foreach(this.getStyle) { st =>
+      Nullable.foreach(st.font) { f =>
+        label = new TypingLabel("", new Styles.LabelStyle(f, areaStyle.fontColor))
+        label.workingLayout.targetWidth = 1f
+        label.setMaxLines(Int.MaxValue)
+        label.setAlignment(Align.topLeft)
+        label.setWrap(true)
+        label.setSelectable(true)
+        Nullable.foreach(areaStyle.selection) {
+          case d: Drawable => label.selectionDrawable = Nullable(d)
+          case _ => ()
+        }
+      }
     }
+    writeEnters = true
+    initialize()
+    label.setWidth(getPrefWidth)
+    setText(initialText)
+    updateDisplayText()
+  }
+
+  def this(initialText: Nullable[String], areaStyle: Styles.TextFieldStyle, replacementFont: Font) = {
+    this(initialText, areaStyle)
+    setStyle(areaStyle)
+    val rf = new Font(replacementFont)
+    rf.enableSquareBrackets = false
+    rf.omitCurlyBraces = false
+    label = new TypingLabel("", new Styles.LabelStyle(rf, areaStyle.fontColor))
+    label.workingLayout.targetWidth = 1f
+    label.setMaxLines(Int.MaxValue)
+    label.setAlignment(Align.topLeft)
     label.setWrap(true)
-    setText(text)
+    label.setSelectable(true)
+    Nullable.foreach(areaStyle.selection) {
+      case d: Drawable => label.selectionDrawable = Nullable(d)
+      case _ => ()
+    }
+    writeEnters = true
+    initialize()
+    label.setWidth(getPrefWidth)
+    setText(initialText)
+    updateDisplayText()
+  }
+
+  // --- Draw cursor (multi-line) ---
+
+  override protected def drawCursor(cursorPatch: Drawable, batch: Batch, font: Font, x: Float, y: Float): Unit = {
+    val layoutHeight = label.getHeight
+    val linesHeight  = label.getCumulativeLineHeight(cursor)
+    val lineHeight   = label.getLineHeight(cursor)
+
+    if (cursor < glyphPositions.size && visibleTextStart < glyphPositions.size) {
+      cursorPatch.draw(
+        batch,
+        x + textOffset + glyphPositions(cursor) - glyphPositions(visibleTextStart) + fontOffset,
+        y + layoutHeight - linesHeight,
+        cursorPatch.minWidth,
+        lineHeight
+      )
+    }
+  }
+
+  // --- Text Y (multi-line) ---
+
+  override protected def getTextY(font: Font, background: Nullable[Drawable]): Float = {
+    var textY = 0f
+    Nullable.foreach(background) { bg =>
+      textY = textY - bg.topHeight
+    }
+    if (font.integerPosition) textY = textY.toInt.toFloat
+    textY
+  }
+
+  // --- Pref height (multi-line) ---
+
+  override def getPrefHeight: Float =
+    label.getPrefHeight
+
+  // --- Vertical cursor movement (multi-line) ---
+
+  override protected def moveCursorVertically(forward: Boolean, jump: Boolean): Unit = boundary {
+    if (jump) {
+      cursor = if (forward) text.length else 0
+    } else if (cursor >= glyphPositions.size) {
+      break(())
+    } else {
+      val gp          = glyphPositions(cursor)
+      val currentLine = label.getLineIndexInLayout(label.workingLayout, cursor)
+      if (forward) {
+        if (currentLine >= label.getWorkingLayout.lines.size - 1) {
+          cursor = text.length
+        } else {
+          var i     = label.getWorkingLayout.countGlyphsBeforeLine(currentLine + 1)
+          var found = false
+          Nullable.foreach(label.getWorkingLayout.getLine(currentLine + 1)) { nextLine =>
+            val n = i + nextLine.glyphs.size
+            while (i < n && !found)
+              if (
+                i < label.workingLayout.advances.size &&
+                glyphPositions.size > i &&
+                glyphPositions(i) + label.workingLayout.advances(i) * 0.5f > gp
+              ) {
+                found = true
+              } else {
+                i += 1
+              }
+          }
+          cursor = i
+        }
+      } else {
+        if (currentLine <= 0) {
+          cursor = 0
+        } else {
+          var i     = label.getWorkingLayout.countGlyphsBeforeLine(currentLine - 1)
+          var found = false
+          Nullable.foreach(label.getWorkingLayout.getLine(currentLine - 1)) { prevLine =>
+            val n = i + prevLine.glyphs.size
+            while (i < n && !found)
+              if (
+                i < label.workingLayout.advances.size &&
+                glyphPositions.size > i &&
+                glyphPositions(i) + label.workingLayout.advances(i) * 0.5f > gp
+              ) {
+                found = true
+              } else {
+                i += 1
+              }
+          }
+          cursor = i
+        }
+      }
+    }
   }
 }
