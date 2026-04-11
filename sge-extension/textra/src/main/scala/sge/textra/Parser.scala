@@ -98,7 +98,7 @@ object Parser {
     // Parse all regular tokens and properly register them
     parseRegularTokens(label)
 
-    label.setText(label.getIntermediateText.toString, modifyStored = false, restart = false)
+    label.setText(label.getIntermediateText.toString, modifyOriginalText = false, restart = false)
 
     // Sort token entries
     val sorted = label.tokenEntries.sortWith((a, b) => a.compareTo(b) < 0)
