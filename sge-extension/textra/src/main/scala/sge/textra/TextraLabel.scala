@@ -12,7 +12,7 @@
  *     TransformDrawable → AnyRef placeholder
  *   Convention: getX()/setX() → public var where no logic.
  *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
- *   TODOs: draw() requires Batch/rendering layer; deferred until scene2d wiring.
+ *   Ported: draw(), layout(), getPrefWidth/getPrefHeight with background support.
  */
 package sge
 package textra
@@ -21,6 +21,9 @@ import scala.util.boundary
 import scala.util.boundary.break
 
 import sge.graphics.Color
+import sge.scenes.scene2d.utils.Drawable
+import sge.scenes.scene2d.utils.TransformDrawable
+import sge.utils.Align
 import sge.utils.Nullable
 
 /** A scene2d.ui Widget that displays text using a Font rather than a libGDX BitmapFont. This supports being laid out in a Table. This permits square-bracket tag markup from Font. It does not support
@@ -30,7 +33,8 @@ class TextraLabel {
 
   var layout:         Layout = new Layout()
   protected var font: Font   = new Font()
-  var align:          Int    = 8 // Align.left
+  var align:          Align  = Align.left
+
   /** If true, allows text to wrap when it would go past the layout's targetWidth. */
   var wrap:                      Boolean                     = false
   var storedText:                String                      = ""
@@ -158,10 +162,35 @@ class TextraLabel {
 
   def getPrefWidth: Float =
     if (wrap) 0f
-    else layout.getWidth
+    else {
+      if (prefSizeInvalid) validate()
+      var width = layout.getWidth
+      Nullable.foreach(style) { s =>
+        Nullable.foreach(s.background) { bgAny =>
+          bgAny match {
+            case bg: Drawable =>
+              width = Math.max(width + bg.leftWidth + bg.rightWidth, bg.minWidth)
+            case _ => ()
+          }
+        }
+      }
+      width
+    }
 
-  def getPrefHeight: Float =
-    layout.getHeight
+  def getPrefHeight: Float = {
+    if (prefSizeInvalid) validate()
+    var height = layout.getHeight
+    Nullable.foreach(style) { s =>
+      Nullable.foreach(s.background) { bgAny =>
+        bgAny match {
+          case bg: Drawable =>
+            height = Math.max(height + bg.bottomHeight + bg.topHeight, bg.minHeight)
+          case _ => ()
+        }
+      }
+    }
+    height
+  }
 
   /** A no-op unless font is a subclass that overrides Font.handleIntegerPosition(float). */
   def useIntegerPositions(integer: Boolean): TextraLabel = {
@@ -172,15 +201,20 @@ class TextraLabel {
   def isWrap: Boolean = wrap
 
   def setWrap(wrap: Boolean): TextraLabel = {
-    if (this.wrap != wrap) {
-      this.wrap = wrap
+    val old = this.wrap
+    this.wrap = wrap
+    if (old != wrap) {
+      invalidate()
+      if (this.wrap) {
+        doLayout()
+      }
     }
     this
   }
 
-  def getAlignment: Int = align
+  def getAlignment: Align = align
 
-  def setAlignment(alignment: Int): Unit =
+  def setAlignment(alignment: Align): Unit =
     align = alignment
 
   def getFont: Font = font
@@ -220,6 +254,260 @@ class TextraLabel {
 
   def validate(): Unit =
     prefSizeInvalid = false
+
+  /** Performs layout calculations, adjusting wrapping and target width. Called by validate() or when wrap changes. */
+  def doLayout(): Unit = {
+    val width         = _width
+    var adjustedWidth = width
+    Nullable.foreach(style) { s =>
+      Nullable.foreach(s.background) { bgAny =>
+        bgAny match {
+          case bg: Drawable =>
+            adjustedWidth = adjustedWidth - (bg.leftWidth + bg.rightWidth)
+          case _ => ()
+        }
+      }
+    }
+    val originalHeight = layout.getHeight
+    val actualWidth    = font.calculateSize(layout)
+
+    if (wrap) {
+      if (adjustedWidth == 0 || layout.getTargetWidth != adjustedWidth || actualWidth > adjustedWidth) {
+        if (adjustedWidth != 0f) {
+          layout.setTargetWidth(adjustedWidth)
+        }
+        font.regenerateLayout(layout)
+      }
+
+      // If the call to calculateSize() changed layout's height, update height.
+      val newHeight = layout.getHeight
+      if (!sge.math.MathUtils.isEqual(originalHeight, newHeight)) {
+        _height = newHeight
+      }
+    }
+  }
+
+  /** Draws this label using the given Batch. parentAlpha is multiplied into the label's own alpha. */
+  def draw(batch: sge.graphics.g2d.Batch, parentAlpha: Float): Unit = boundary {
+    validate()
+
+    val rot     = _rotation
+    val originX = _originX
+    val originY = _originY
+    val sn      = sge.math.MathUtils.sinDeg(rot)
+    val cs      = sge.math.MathUtils.cosDeg(rot)
+
+    val lines = layout.lineCount
+    var baseX = _x
+    var baseY = _y
+
+    // These two blocks use different height measurements, so center vertical is offset once by half the layout
+    // height, and once by half the widget height.
+    val layoutHeight = layout.getHeight * _scaleY
+    if (align.isBottom) {
+      baseX -= sn * layoutHeight
+      baseY += cs * layoutHeight
+    } else if (align.isCenterVertical) {
+      baseX -= sn * layoutHeight * 0.5f
+      baseY += cs * layoutHeight * 0.5f
+    }
+    val widgetHeight = _height * _scaleY
+    if (align.isTop) {
+      baseX -= sn * widgetHeight
+      baseY += cs * widgetHeight
+    } else if (align.isCenterVertical) {
+      baseX -= sn * widgetHeight * 0.5f
+      baseY += cs * widgetHeight * 0.5f
+    }
+
+    val widgetWidth = _width * _scaleX
+    if (align.isRight) {
+      baseX += cs * widgetWidth
+      baseY += sn * widgetWidth
+    } else if (align.isCenterHorizontal) {
+      baseX += cs * widgetWidth * 0.5f
+      baseY += sn * widgetWidth * 0.5f
+    }
+
+    Nullable.foreach(style) { s =>
+      Nullable.foreach(s.background) { bgAny =>
+        bgAny match {
+          case bg: Drawable =>
+            if (align.isLeft) {
+              baseX += cs * bg.leftWidth
+              baseY += sn * bg.leftWidth
+            } else if (align.isRight) {
+              baseX -= cs * bg.rightWidth
+              baseY -= sn * bg.rightWidth
+            } else {
+              baseX += cs * (bg.leftWidth - bg.rightWidth) * 0.5f
+              baseY += sn * (bg.leftWidth - bg.rightWidth) * 0.5f
+            }
+            if (align.isBottom) {
+              baseX -= sn * bg.bottomHeight
+              baseY += cs * bg.bottomHeight
+            } else if (align.isTop) {
+              baseX += sn * bg.topHeight
+              baseY -= cs * bg.topHeight
+            } else {
+              baseX -= sn * (bg.bottomHeight - bg.topHeight) * 0.5f
+              baseY += cs * (bg.bottomHeight - bg.topHeight) * 0.5f
+            }
+            bg match {
+              case td: TransformDrawable =>
+                try
+                  td.draw(batch,
+                          _x,
+                          _y, // position
+                          originX,
+                          originY, // origin
+                          _width,
+                          _height, // size
+                          1f,
+                          1f, // scale
+                          rot
+                  ) // rotation
+                catch {
+                  case _: UnsupportedOperationException | _: ClassCastException =>
+                    bg.draw(batch, _x, _y, _width, _height)
+                }
+              case _ =>
+                bg.draw(batch, _x, _y, _width, _height)
+            }
+          case _ => ()
+        }
+      }
+    }
+
+    if (layout.lines.isEmpty || parentAlpha <= 0f) break(())
+
+    // we only change the shader or batch color if we actually are drawing something.
+    val resetShader = font.getDistanceField != Font.DistanceFieldType.STANDARD &&
+      Nullable.fold(font.shader)(true)(sh => batch.shader ne sh)
+    if (resetShader) {
+      font.enableShader(batch)
+    }
+    batch.color.set(_color).a *= parentAlpha
+    batch.color = batch.color
+
+    var ln = 0
+    while (ln < lines) {
+      val line = layout.lines(ln)
+
+      if (line.glyphs.nonEmpty) {
+        val lineWidth  = line.width * _scaleX
+        val lineHeight = line.height * _scaleY
+
+        baseX += sn * lineHeight
+        baseY -= cs * lineHeight
+
+        var x = baseX
+        var y = baseY
+
+        val worldOriginX = x + originX
+        val worldOriginY = y + originY
+        val fx           = -originX
+        val fy           = -originY
+        x = cs * fx - sn * fy + worldOriginX
+        y = sn * fx + cs * fy + worldOriginY
+
+        if (align.isCenterHorizontal) {
+          x -= cs * (lineWidth * 0.5f)
+          y -= sn * (lineWidth * 0.5f)
+        } else if (align.isRight) {
+          x -= cs * lineWidth
+          y -= sn * lineWidth
+        }
+        x -= sn * (0.5f * lineHeight)
+        y += cs * (0.5f * lineHeight)
+
+        var xChange = 0f
+        var yChange = 0f
+        var f: Nullable[Font] = Nullable.empty
+        var kern  = -1
+        var curly = false
+        val start = layout.countGlyphsBeforeLine(ln)
+        var i     = 0
+        val n     = line.glyphs.size
+        while (i < n) {
+          val glyph = line.glyphs(i)
+          val ch    = (glyph & 0xffff).toChar
+
+          var skipGlyph = false
+          if (font.omitCurlyBraces) {
+            if (curly) {
+              if (ch == '}') {
+                curly = false
+                skipGlyph = true
+              } else if (ch == '{') {
+                curly = false
+                // fall through to rendering
+              } else {
+                skipGlyph = true
+              }
+            } else if (ch == '{') {
+              curly = true
+              skipGlyph = true
+            }
+          }
+
+          if (!skipGlyph) {
+            Nullable.foreach(font.family) { fam =>
+              f = Nullable(fam.connected((glyph >>> 16 & 15).toInt))
+            }
+            val fFont = Nullable.getOrElse(f)(font)
+            val even  = (start + i) << 1
+            val odd   = even | 1
+            val a     = getAdvances.get(start + i) * _scaleX
+            if (i == 0) {
+              x -= 0.5f * fFont.cellWidth
+              x += cs * 0.5f * fFont.cellWidth
+              y += sn * 0.5f * fFont.cellWidth
+
+              if (font.integerPosition) {
+                x = x.toInt.toFloat
+                y = y.toInt.toFloat
+              }
+
+              val reg = fFont.mapping.getOrElse(ch.toInt, null) // @nowarn — Java interop: HashMap getOrElse default
+              if (reg != null && reg.offsetX < 0 && !font.isMono) {
+                val ox = reg.offsetX * fFont.scaleX * a
+                xChange -= cs * ox
+                yChange -= sn * ox
+              }
+            }
+
+            Nullable.foreach(fFont.kerning) { kernMap =>
+              kern = kern << 16 | (glyph & 0xffff).toInt
+              val amt = kernMap.getOrElse(kern, 0f) * fFont.scaleX * a
+              xChange += cs * amt
+              yChange += sn * amt
+            }
+            if (Nullable.isEmpty(fFont.kerning)) {
+              kern = -1
+            }
+
+            var xx = x + xChange + getOffsets.get(even) * _scaleX
+            var yy = y + yChange + getOffsets.get(odd) * _scaleY
+            if (font.integerPosition) {
+              xx = xx.toInt.toFloat
+              yy = yy.toInt.toFloat
+            }
+
+            val single = fFont.drawGlyph(batch, glyph, xx, yy, getRotations.get(start + i) + rot, getSizing.get(even) * _scaleX, getSizing.get(odd) * _scaleY, 0, a)
+            xChange += cs * single
+            yChange += sn * single
+          }
+          i += 1
+        }
+      }
+      ln += 1
+    }
+
+    if (resetShader) {
+      batch.shader = Nullable.empty
+    }
+  }
 
   /** Gets a glyph from this label's layout. */
   def getGlyph(index: Int): Long = boundary {

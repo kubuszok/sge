@@ -295,7 +295,7 @@ class TypingLabel extends TextraLabel {
     this
   }
 
-  override def setAlignment(alignment: Int): Unit =
+  override def setAlignment(alignment: sge.utils.Align): Unit =
     align = alignment
 
   def getSelectedText(): Nullable[String] =
