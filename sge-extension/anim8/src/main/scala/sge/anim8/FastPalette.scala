@@ -137,39 +137,39 @@ class FastPalette extends PaletteReducer {
   // === Color difference methods using Euclidean RGB distance ===
 
   /** Gets a squared estimate of how different two colors are, with noticeable differences typically at least 25. */
-  def differenceMatch(color1: Int, color2: Int): Double =
+  override def differenceMatch(color1: Int, color2: Int): Double =
     if (((color1 ^ color2) & 0x80) == 0x80) Double.MaxValue
     else differenceMatch(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, color2 >>> 24, color2 >>> 16 & 0xff, color2 >>> 8 & 0xff)
 
-  def differenceAnalyzing(color1: Int, color2: Int): Double =
+  override def differenceAnalyzing(color1: Int, color2: Int): Double =
     if (((color1 ^ color2) & 0x80) == 0x80) Double.MaxValue
     else differenceAnalyzing(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, color2 >>> 24, color2 >>> 16 & 0xff, color2 >>> 8 & 0xff)
 
-  def differenceHW(color1: Int, color2: Int): Double =
+  override def differenceHW(color1: Int, color2: Int): Double =
     if (((color1 ^ color2) & 0x80) == 0x80) Double.MaxValue
     else differenceHW(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, color2 >>> 24, color2 >>> 16 & 0xff, color2 >>> 8 & 0xff)
 
-  def differenceMatch(color1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceMatch(color1: Int, r2: Int, g2: Int, b2: Int): Double =
     if ((color1 & 0x80) == 0) Double.MaxValue
     else differenceMatch(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, r2, g2, b2)
 
-  def differenceAnalyzing(color1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceAnalyzing(color1: Int, r2: Int, g2: Int, b2: Int): Double =
     if ((color1 & 0x80) == 0) Double.MaxValue
     else differenceAnalyzing(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, r2, g2, b2)
 
-  def differenceHW(color1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceHW(color1: Int, r2: Int, g2: Int, b2: Int): Double =
     if ((color1 & 0x80) == 0) Double.MaxValue
     else differenceHW(color1 >>> 24, color1 >>> 16 & 0xff, color1 >>> 8 & 0xff, r2, g2, b2)
 
   /** Gets a squared estimate of how different two colors are, using Euclidean distance in the RGB color cube. This is the core metric for FastPalette -- used by match, analyzing, and HW variants.
     */
-  def differenceMatch(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceMatch(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
     difference(r1, g1, b1, r2, g2, b2)
 
-  def differenceAnalyzing(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceAnalyzing(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
     difference(r1, g1, b1, r2, g2, b2)
 
-  def differenceHW(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
+  override def differenceHW(r1: Int, g1: Int, b1: Int, r2: Int, g2: Int, b2: Int): Double =
     difference(r1, g1, b1, r2, g2, b2)
 
   def difference(color1: Int, color2: Int): Double =
