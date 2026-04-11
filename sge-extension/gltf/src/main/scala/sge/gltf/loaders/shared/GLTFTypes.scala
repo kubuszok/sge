@@ -18,6 +18,7 @@ package loaders
 package shared
 
 import sge.{ Sge, WorldUnits }
+import sge.assets.loaders.TextureLoader
 import sge.graphics.{ Camera, Color, GL20, OrthographicCamera, PerspectiveCamera, Texture }
 import sge.graphics.Texture.{ TextureFilter, TextureWrap }
 import sge.graphics.g3d.utils.TextureDescriptor
@@ -196,6 +197,20 @@ object GLTFTypes {
     textureDescriptor.magFilter = mapTextureMagFilter(glSampler.magFilter)
     textureDescriptor.uWrap = mapTextureWrap(glSampler.wrapS)
     textureDescriptor.vWrap = mapTextureWrap(glSampler.wrapT)
+  }
+
+  def mapTextureSampler(textureParameter: TextureLoader.TextureParameter, glSampler: GLTFSampler): Unit = {
+    textureParameter.minFilter = mapTextureMinFilter(glSampler.minFilter)
+    textureParameter.magFilter = mapTextureMagFilter(glSampler.magFilter)
+    textureParameter.wrapU = mapTextureWrap(glSampler.wrapS)
+    textureParameter.wrapV = mapTextureWrap(glSampler.wrapT)
+  }
+
+  def mapTextureSampler(textureParameter: TextureLoader.TextureParameter): Unit = {
+    textureParameter.minFilter = mapTextureMinFilter(Nullable.empty)
+    textureParameter.magFilter = mapTextureMagFilter(Nullable.empty)
+    textureParameter.wrapU = mapTextureWrap(Nullable.empty)
+    textureParameter.wrapV = mapTextureWrap(Nullable.empty)
   }
 
   // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#samplerwraps
