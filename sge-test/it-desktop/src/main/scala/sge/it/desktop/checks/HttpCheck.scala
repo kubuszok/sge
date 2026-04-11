@@ -15,23 +15,25 @@ object HttpCheck {
     try {
       // Start a tiny HTTP server on a random port
       val server = com.sun.net.httpserver.HttpServer.create(
-        new java.net.InetSocketAddress(0), 0
+        new java.net.InetSocketAddress(0),
+        0
       )
-      server.createContext("/test", exchange => {
-        val response = "hello from sge"
-        exchange.sendResponseHeaders(200, response.length.toLong)
-        val os = exchange.getResponseBody
-        os.write(response.getBytes)
-        os.close()
-      })
+      server.createContext(
+        "/test",
+        exchange => {
+          val response = "hello from sge"
+          exchange.sendResponseHeaders(200, response.length.toLong)
+          val os = exchange.getResponseBody
+          os.write(response.getBytes)
+          os.close()
+        }
+      )
       server.start()
       val port = server.getAddress.getPort
 
       // Make HTTP request using java.net.http.HttpClient
-      val client  = java.net.http.HttpClient.newHttpClient()
-      val request = java.net.http.HttpRequest.newBuilder()
-        .uri(java.net.URI.create(s"http://localhost:$port/test"))
-        .build()
+      val client   = java.net.http.HttpClient.newHttpClient()
+      val request  = java.net.http.HttpRequest.newBuilder().uri(java.net.URI.create(s"http://localhost:$port/test")).build()
       val response = client.send(request, java.net.http.HttpResponse.BodyHandlers.ofString())
 
       server.stop(0)

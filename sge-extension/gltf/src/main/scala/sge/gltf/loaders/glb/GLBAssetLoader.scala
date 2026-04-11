@@ -24,8 +24,7 @@ import sge.gltf.loaders.shared.SceneAssetLoaderParameters
 import sge.gltf.scene3d.scene.SceneAsset
 import sge.utils.{ DynamicArray, Nullable }
 
-class GLBAssetLoader(resolver: FileHandleResolver)(using Sge)
-    extends AsynchronousAssetLoader[SceneAsset, SceneAssetLoaderParameters](resolver) {
+class GLBAssetLoader(resolver: FileHandleResolver)(using Sge) extends AsynchronousAssetLoader[SceneAsset, SceneAssetLoaderParameters](resolver) {
 
   def this()(using sge: Sge) =
     this(new FileHandleResolver.Internal())
