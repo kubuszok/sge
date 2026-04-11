@@ -4,13 +4,7 @@
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
  * Covenant-source-reference: gdx-gltf/gltf/src/net/mgsx/gltf/loaders/shared/animation/AnimationLoader.java
- * Covenant-verified: 2026-04-08
- *
- * Partial-port debt:
- *   - Weight (morph target) animation channels skipped: requires scene3d types
- *     (NodePlus, WeightVector) that are not yet ported.
  */
 package sge
 package gltf
@@ -25,12 +19,22 @@ import sge.gltf.loaders.exceptions.GLTFUnsupportedException
 import sge.gltf.loaders.shared.GLTFTypes
 import sge.gltf.loaders.shared.data.DataResolver
 import sge.gltf.loaders.shared.scene.NodeResolver
+import sge.gltf.scene3d.animation.{ Interpolation as SceneInterpolation, NodeAnimationHack }
+import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, NodePlus, WeightVector }
 import sge.math.{ Quaternion, Vector3 }
 import sge.utils.{ DynamicArray, Nullable }
 
 class AnimationLoader {
 
   val animations: DynamicArray[Animation] = DynamicArray[Animation]()
+
+  /** Maps loaders Interpolation to scene3d Interpolation for NodeAnimationHack mode fields. */
+  private def toSceneInterpolation(interp: Interpolation): SceneInterpolation =
+    interp match {
+      case Interpolation.LINEAR      => SceneInterpolation.LINEAR
+      case Interpolation.STEP        => SceneInterpolation.STEP
+      case Interpolation.CUBICSPLINE => SceneInterpolation.CUBICSPLINE
+    }
 
   def load(glAnimations: Nullable[ArrayBuffer[GLTFAnimation]], nodeResolver: NodeResolver, dataResolver: DataResolver): Unit =
     glAnimations.foreach { anims =>
@@ -54,7 +58,7 @@ class AnimationLoader {
         val node      = nodeResolver.get(glChannel.target.get.node.get).get
 
         val nodeAnimation = animMap.getOrElseUpdate(node, {
-                                                      val na = new NodeAnimation()
+                                                      val na = new NodeAnimationHack()
                                                       na.node = node
                                                       animation.nodeAnimations.add(na)
                                                       na
@@ -81,42 +85,131 @@ class AnimationLoader {
 
         val property = glChannel.target.get.path.get
         if ("translation" == property) {
+
+          nodeAnimation.asInstanceOf[NodeAnimationHack].translationMode = Nullable(toSceneInterpolation(interpolation))
+
           val translationKf = DynamicArray[NodeKeyframe[Vector3]]()
-          // copy first frame if not at zero time
-          if (inputData(0) > 0) {
-            translationKf.add(new NodeKeyframe[Vector3](0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)))
-          }
-          var k = 0
-          while (k < inputData.length) {
-            translationKf.add(new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)))
-            k += 1
+          if (interpolation == Interpolation.CUBICSPLINE) {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              translationKf.add(
+                new NodeKeyframe[Vector3](0, GLTFTypes.map(CubicVector3(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Vector3])
+              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+            }
+            var k = 0
+            while (k < inputData.length) {
+              translationKf.add(
+                new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3).asInstanceOf[AnyRef].asInstanceOf[Vector3])
+              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              k += 1
+            }
+          } else {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              translationKf.add(new NodeKeyframe[Vector3](0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)))
+            }
+            var k = 0
+            while (k < inputData.length) {
+              translationKf.add(new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)))
+              k += 1
+            }
           }
           nodeAnimation.translation = translationKf
         } else if ("rotation" == property) {
+
+          nodeAnimation.asInstanceOf[NodeAnimationHack].rotationMode = Nullable(toSceneInterpolation(interpolation))
+
           val rotationKf = DynamicArray[NodeKeyframe[Quaternion]]()
-          if (inputData(0) > 0) {
-            rotationKf.add(new NodeKeyframe[Quaternion](0, GLTFTypes.map(new Quaternion(), outputData, dataOffset * 4)))
-          }
-          var k = 0
-          while (k < inputData.length) {
-            rotationKf.add(new NodeKeyframe[Quaternion](inputData(k), GLTFTypes.map(new Quaternion(), outputData, (dataOffset + (k * dataStride)) * 4)))
-            k += 1
+          if (interpolation == Interpolation.CUBICSPLINE) {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              rotationKf.add(
+                new NodeKeyframe[Quaternion](0, GLTFTypes.map(CubicQuaternion(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Quaternion])
+              ) // @nowarn — cubic stored as Quaternion for keyframe erasure
+            }
+            var k = 0
+            while (k < inputData.length) {
+              rotationKf.add(
+                new NodeKeyframe[Quaternion](inputData(k), GLTFTypes.map(CubicQuaternion(), outputData, k * dataStride * 4).asInstanceOf[AnyRef].asInstanceOf[Quaternion])
+              ) // @nowarn — cubic stored as Quaternion for keyframe erasure
+              k += 1
+            }
+          } else {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              rotationKf.add(new NodeKeyframe[Quaternion](0, GLTFTypes.map(new Quaternion(), outputData, dataOffset * 4)))
+            }
+            var k = 0
+            while (k < inputData.length) {
+              rotationKf.add(new NodeKeyframe[Quaternion](inputData(k), GLTFTypes.map(new Quaternion(), outputData, (dataOffset + (k * dataStride)) * 4)))
+              k += 1
+            }
           }
           nodeAnimation.rotation = rotationKf
         } else if ("scale" == property) {
+
+          nodeAnimation.asInstanceOf[NodeAnimationHack].scalingMode = Nullable(toSceneInterpolation(interpolation))
+
           val scalingKf = DynamicArray[NodeKeyframe[Vector3]]()
-          if (inputData(0) > 0) {
-            scalingKf.add(new NodeKeyframe[Vector3](0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)))
-          }
-          var k = 0
-          while (k < inputData.length) {
-            scalingKf.add(new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)))
-            k += 1
+          if (interpolation == Interpolation.CUBICSPLINE) {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              scalingKf.add(
+                new NodeKeyframe[Vector3](0, GLTFTypes.map(CubicVector3(), outputData, 0).asInstanceOf[AnyRef].asInstanceOf[Vector3])
+              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+            }
+            var k = 0
+            while (k < inputData.length) {
+              scalingKf.add(
+                new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(CubicVector3(), outputData, k * dataStride * 3).asInstanceOf[AnyRef].asInstanceOf[Vector3])
+              ) // @nowarn — cubic stored as Vector3 for keyframe erasure
+              k += 1
+            }
+          } else {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              scalingKf.add(new NodeKeyframe[Vector3](0, GLTFTypes.map(new Vector3(), outputData, dataOffset * 3)))
+            }
+            var k = 0
+            while (k < inputData.length) {
+              scalingKf.add(new NodeKeyframe[Vector3](inputData(k), GLTFTypes.map(new Vector3(), outputData, (dataOffset + (k * dataStride)) * 3)))
+              k += 1
+            }
           }
           nodeAnimation.scaling = scalingKf
         } else if ("weights" == property) {
-          // Weight animation requires scene3d types (NodePlus, WeightVector) not yet ported
-          throw new GLTFUnsupportedException("weight animation not yet supported in SGE")
+
+          nodeAnimation.asInstanceOf[NodeAnimationHack].weightsMode = Nullable(toSceneInterpolation(interpolation))
+
+          val np        = nodeAnimation.asInstanceOf[NodeAnimationHack]
+          val nbWeights = node.asInstanceOf[NodePlus].weights.get.count
+          val weightsKf = DynamicArray[NodeKeyframe[WeightVector]]()
+          if (interpolation == Interpolation.CUBICSPLINE) {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              weightsKf.add(new NodeKeyframe[WeightVector](0, GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, 0)))
+            }
+            var k = 0
+            while (k < inputData.length) {
+              weightsKf.add(
+                new NodeKeyframe[WeightVector](inputData(k), GLTFTypes.map(new CubicWeightVector(nbWeights), outputData, k * dataStride * nbWeights))
+              )
+              k += 1
+            }
+          } else {
+            // copy first frame if not at zero time
+            if (inputData(0) > 0) {
+              weightsKf.add(new NodeKeyframe[WeightVector](0, GLTFTypes.map(new WeightVector(nbWeights), outputData, dataOffset * nbWeights)))
+            }
+            var k = 0
+            while (k < inputData.length) {
+              weightsKf.add(
+                new NodeKeyframe[WeightVector](inputData(k), GLTFTypes.map(new WeightVector(nbWeights), outputData, (dataOffset + (k * dataStride)) * nbWeights))
+              )
+              k += 1
+            }
+          }
+          np.weights = weightsKf
         } else {
           throw new GLTFUnsupportedException("unsupported " + property)
         }

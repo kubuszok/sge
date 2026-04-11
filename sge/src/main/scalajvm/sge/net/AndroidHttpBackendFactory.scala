@@ -17,9 +17,8 @@ import java.nio.charset.StandardCharsets
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.CollectionConverters.*
 
-/** Android-compatible HTTP backend that uses [[java.net.HttpURLConnection]] instead of sttp's `DefaultFutureBackend`. The sttp JDK
-  * backend fails Android's DEX verifier because it references `java.net.http.HttpClient` APIs not available on Android. This
-  * implementation uses the older `HttpURLConnection` API which is fully supported on Android.
+/** Android-compatible HTTP backend that uses [[java.net.HttpURLConnection]] instead of sttp's `DefaultFutureBackend`. The sttp JDK backend fails Android's DEX verifier because it references
+  * `java.net.http.HttpClient` APIs not available on Android. This implementation uses the older `HttpURLConnection` API which is fully supported on Android.
   */
 private[net] object AndroidHttpBackendFactory extends HttpBackendFactory {
 
