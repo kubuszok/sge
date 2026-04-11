@@ -6,16 +6,21 @@
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
  * Migration notes:
- *   Renames: Button → standalone class (scene2d base deferred),
- *     Cell → deferred, Skin → removed
+ *   Renames: Button → standalone class (scene2d base not inherited;
+ *     button state exposed as mutable fields),
+ *     Cell → Nullable.empty placeholder, Skin → removed
  *   Convention: getX()/setX() → public var or def pairs.
- *   TODOs: Scene2d.ui Button integration deferred until scene2d wiring.
+ *   Idiom: Nullable[A] for nullable fields; boundary/break for early returns.
  */
 package sge
 package textra
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.graphics.Color
-import sge.utils.Nullable
+import sge.graphics.g2d.Batch
+import sge.utils.{ Align, Nullable }
 
 /** A button with a child TextraLabel to display text. */
 class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replacementFont: Font) {
@@ -25,7 +30,16 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
     replacementFont,
     Color.WHITE
   )
+  label.setAlignment(Align.center)
+
   private var _style: Styles.TextButtonStyle = style
+
+  // Button state fields (normally inherited from scene2d Button)
+  private var _isChecked:        Boolean = false
+  private var _isPressed:        Boolean = false
+  private var _isOver:           Boolean = false
+  private var _isDisabled:       Boolean = false
+  private var _hasKeyboardFocus: Boolean = false
 
   def this(text: Nullable[String], style: Styles.TextButtonStyle) =
     this(text, style, Nullable.fold(style.font)(new Font())(f => new Font(f)))
@@ -42,6 +56,12 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
     Nullable.foreach(style.fontColor)(c => label.setColor(c))
   }
 
+  def setStyle(style: Styles.TextButtonStyle, makeGridGlyphs: Boolean): Unit = {
+    this._style = style
+    Nullable.foreach(style.font)(f => label.setFont(f))
+    Nullable.foreach(style.fontColor)(c => label.setColor(c))
+  }
+
   def setStyle(style: Styles.TextButtonStyle, font: Font): Unit = {
     this._style = style
     label.setFont(font)
@@ -51,15 +71,50 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   def getStyle: Styles.TextButtonStyle = _style
 
   /** Returns the appropriate label font color from the style based on the current button state. */
-  protected def getFontColor: Nullable[Color] = _style.fontColor
+  protected def getFontColor: Nullable[Color] = boundary {
+    if (_isDisabled && _style.disabledFontColor.isDefined) break(_style.disabledFontColor)
+    if (_isPressed) {
+      if (_isChecked && _style.checkedDownFontColor.isDefined) break(_style.checkedDownFontColor)
+      if (_style.downFontColor.isDefined) break(_style.downFontColor)
+    }
+    if (_isOver) {
+      if (_isChecked) {
+        if (_style.checkedOverFontColor.isDefined) break(_style.checkedOverFontColor)
+      } else {
+        if (_style.overFontColor.isDefined) break(_style.overFontColor)
+      }
+    }
+    val focused = _hasKeyboardFocus
+    if (_isChecked) {
+      if (focused && _style.checkedFocusedFontColor.isDefined) break(_style.checkedFocusedFontColor)
+      if (_style.checkedFontColor.isDefined) break(_style.checkedFontColor)
+      if (_isOver && _style.overFontColor.isDefined) break(_style.overFontColor)
+    }
+    if (focused && _style.focusedFontColor.isDefined) break(_style.focusedFontColor)
+    _style.fontColor
+  }
 
-  def setTextraLabel(label: TextraLabel): Unit = {
-    require(label != null, "label cannot be null.")
-    this.label = label
+  def draw(batch: Batch, parentAlpha: Float): Unit = {
+    val c = getFontColor
+    Nullable.foreach(c)(label.setColor)
+    label.draw(batch, parentAlpha)
+  }
+
+  def setTextraLabel(newLabel: TextraLabel): Unit = {
+    require(newLabel != null, "label cannot be null.")
+    if (!(this.label eq newLabel)) {
+      this.label = newLabel
+    }
   }
 
   def getTextraLabel: TextraLabel = label
 
+  /** A no-op unless {@code label.getFont()} is a subclass that overrides {@link Font#handleIntegerPosition(float)}.
+    * @param integer
+    *   usually ignored
+    * @return
+    *   this for chaining
+    */
   def useIntegerPositions(integer: Boolean): TextraButton = {
     label.getFont.integerPosition = integer
     this
@@ -74,10 +129,23 @@ class TextraButton(text: Nullable[String], style: Styles.TextButtonStyle, replac
   def skipToTheEnd(): Unit =
     label.skipToTheEnd()
 
+  // Button state accessors
+  def isChecked:                          Boolean = _isChecked
+  def isChecked_=(value:        Boolean): Unit    = _isChecked = value
+  def setChecked(value:         Boolean): Unit    = _isChecked = value
+  def isPressed:                          Boolean = _isPressed
+  def isPressed_=(value:        Boolean): Unit    = _isPressed = value
+  def isOver:                             Boolean = _isOver
+  def isOver_=(value:           Boolean): Unit    = _isOver = value
+  def isDisabled:                         Boolean = _isDisabled
+  def isDisabled_=(value:       Boolean): Unit    = _isDisabled = value
+  def hasKeyboardFocus:                   Boolean = _hasKeyboardFocus
+  def hasKeyboardFocus_=(value: Boolean): Unit    = _hasKeyboardFocus = value
+
   override def toString: String = {
     val className = getClass.getName
     val dotIndex  = className.lastIndexOf('.')
     val cn        = if (dotIndex != -1) className.substring(dotIndex + 1) else className
-    cn + ": " + label.toString
+    (if (cn.indexOf('$') != -1) "TextraButton " else "") + cn + ": " + label.toString
   }
 }
