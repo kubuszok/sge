@@ -11,8 +11,10 @@ package extensions
 
 import scala.collection.mutable.ArrayBuffer
 import sge.graphics.Color
+import sge.graphics.g3d.environment.BaseLight
 import sge.gltf.loaders.exceptions.GLTFIllegalException
 import sge.gltf.loaders.shared.GLTFTypes
+import sge.gltf.scene3d.lights.{ DirectionalLightEx, PointLightEx, SpotLightEx }
 import sge.utils.Nullable
 
 /** [[sge.gltf.data.scene.GLTFNode]] and [[sge.gltf.data.GLTF]] (root) extension. See https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual
@@ -54,5 +56,36 @@ object KHRLightsPunctual {
 
   class GLTFLightNode {
     var light: Nullable[Int] = Nullable.empty
+  }
+
+  def map(light: GLTFLight): BaseLight[?] = {
+    val lightType = light.`type`.getOrElse(throw new GLTFIllegalException("light type is null"))
+    if (GLTFLight.TYPE_DIRECTIONAL == lightType) {
+      val dl = new DirectionalLightEx()
+      dl.baseColor.set(GLTFTypes.mapColor(Nullable(light.color), Color(Color.WHITE)))
+      dl.intensity = light.intensity
+      dl
+    } else if (GLTFLight.TYPE_POINT == lightType) {
+      val pl = new PointLightEx()
+      pl.color.set(GLTFTypes.mapColor(Nullable(light.color), Color(Color.WHITE)))
+      // Blender exported intensity is the raw value in Watts
+      // GLTF spec. states it's in Candela which is lumens per square radian (lm/sr).
+      // adjustement is made empirically here (comparing with Blender rendering)
+      // TODO find if it's a GLTF Blender exporter issue and find the right conversion.
+      pl.intensity = light.intensity / 10f
+      pl.range = light.range
+      pl
+    } else if (GLTFLight.TYPE_SPOT == lightType) {
+      val sl = new SpotLightEx()
+      if (light.spot.isEmpty) throw new GLTFIllegalException("spot property required for spot light type")
+      sl.color.set(GLTFTypes.mapColor(Nullable(light.color), Color(Color.WHITE)))
+      // same hack as point lights (see point light above)
+      sl.intensity = light.intensity / 10f
+      sl.range = light.range
+      sl.setConeRad(light.spot.get.outerConeAngle, light.spot.get.innerConeAngle)
+      sl
+    } else {
+      throw new GLTFIllegalException("unsupported light type " + lightType)
+    }
   }
 }
