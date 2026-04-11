@@ -15,8 +15,8 @@ package controllers
 
 /** [[ControllerOps]] implementation for Android platforms using Android's [[android.view.InputDevice]] APIs.
   *
-  * On JVM (Android builds), this delegates to [[AndroidControllerInit]] which tracks connected controllers via [[android.view.InputDevice]] and [[android.view.MotionEvent]] / [[android.view.KeyEvent]]
-  * events. On other platforms, this is a no-op stub (Android APIs not available).
+  * On JVM (Android builds), this delegates to [[AndroidControllerInit]] which tracks connected controllers via [[android.view.InputDevice]] and [[android.view.MotionEvent]] /
+  * [[android.view.KeyEvent]] events. On other platforms, this is a no-op stub (Android APIs not available).
   *
   * The Android input system identifies controllers by device ID. Each connected game controller or joystick is tracked as a separate controller with its own axis and button state.
   */
