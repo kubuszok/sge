@@ -378,11 +378,1343 @@ class AnimatedGif extends AnimationWriter with Dithered {
     }
   }
 
-  // Note: Many dither algorithms (analyzeChaotic, analyzeAdditive, analyzeRoberts, analyzeLoaf, analyzeGourd,
-  // analyzeDiffusion, analyzeBlue, analyzeBlunt, analyzeBanter, analyzeScatter, analyzeWoven, analyzeDodgy,
-  // analyzeNeue, analyzeWren, analyzeOverboard, analyzeBurkes, analyzeOceanic, analyzeSeaside, analyzeMarten)
-  // follow the same structure. For brevity, we delegate to analyzeWren (the default) for the full error-diffusion
-  // algorithms, and implement the most important ones directly.
+  protected def analyzeChaotic(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val strength = _ditherStrength * pal.populationBias * 1.5
+    var s        = 0xc13fa9a902a6328fL * seq
+    var y0       = 0
+    var i        = 0
+    while (y0 < height && i < nPix) {
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(flipped + flipDir * y0))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          var rr   = color >>> 24
+          var gg   = (color >>> 16) & 0xff
+          var bb   = (color >>> 8) & 0xff
+          val used = paletteArray(paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3)) & 0xff)
+          var adj  = ((TRI_BLUE_NOISE((px & 63) | (y0 & 63) << 6) + 0.5f) * 0.007843138f).toDouble
+          adj *= adj * adj
+          // Complicated... This starts with a checkerboard of -0.5 and 0.5, times a tiny fraction.
+          // The next 3 lines generate 3 low-quality-random numbers based on s, which should be
+          //   different as long as the colors encountered so far were different. The numbers can
+          //   each be positive or negative, and are reduced to a manageable size, summed, and
+          //   multiplied by the earlier tiny fraction. Summing 3 random values gives us a curved
+          //   distribution, centered on about 0.0 and weighted so most results are close to 0.
+          //   Two of the random numbers use an XLCG, and the last uses an LCG.
+          adj += ((px + y0 & 1) - 0.5f) * 2.6645352591003757e-15 * strength *
+            (((s ^ 0x9e3779b97f4a7c15L) * 0xc6bc279692b5cc83L >> 15) +
+              ((~s ^ 0xdb4f0b9175ae2165L) * 0xd1b54a32d192ed03L >> 15) +
+              ({ s = (s ^ rr + gg + bb) * 0xd1342543de82ef95L + 0x91e10da5c79e7b1dL; s } >> 15))
+          rr = Math.min(Math.max((rr + (adj * (rr - (used >>> 24)))).toInt, 0), 0xff)
+          gg = Math.min(Math.max((gg + (adj * (gg - (used >>> 16 & 0xff)))).toInt, 0), 0xff)
+          bb = Math.min(Math.max((bb + (adj * (bb - (used >>> 8 & 0xff)))).toInt, 0), 0xff)
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeAdditive(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val populationBias = _palette.nn.populationBias
+    val s              = 0.08f * _ditherStrength / Math.pow(populationBias, 8f).toFloat
+    val strength       = s / (0.35f + s)
+    var y0             = 0
+    var i              = 0
+    while (y0 < height && i < nPix) {
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(flipped + flipDir * y0))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val rr  = fromLinearLUT((toLinearLUT(color >>> 24) + ((119 * px + 180 * y0 + 54 & 255) - 127.5f) * strength).toInt) & 255
+          val gg  = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + ((119 * px + 180 * y0 + 81 & 255) - 127.5f) * strength).toInt) & 255
+          val bb  = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + ((119 * px + 180 * y0 & 255) - 127.5f) * strength).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeRoberts(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val populationBias = _palette.nn.populationBias
+    val str            = Math.min(48 * _ditherStrength / (populationBias * populationBias * populationBias * populationBias), 127f)
+    var y0             = 0
+    var i              = 0
+    while (y0 < height && i < nPix) {
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(flipped + flipDir * y0))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          // We get a sub-random value from 0-1 using the R2 sequence.
+          // Offsetting this value by different values and feeding into triangleWave()
+          // gives 3 different values for r, g, and b, without much bias toward high or low values.
+          // There is correlation between r, g, and b in certain patterns.
+          val theta = (px * 0xc13fa9a9 + y0 * 0x91e10da5 >>> 9) * 1.1920929e-7f
+          val rr    = fromLinearLUT((toLinearLUT(color >>> 24) + OtherMath.triangleWave(theta) * str).toInt) & 255
+          val gg    = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + OtherMath.triangleWave(theta + 0.209f) * str).toInt) & 255
+          val bb    = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + OtherMath.triangleWave(theta + 0.518f) * str).toInt) & 255
+          val idx   = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeLoaf(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val strength = Math.min(Math.max(2.5f + 5f * _ditherStrength - 5.5f * _palette.nn.populationBias, 0f), 7.9f)
+    var y0       = 0
+    var i        = 0
+    while (y0 < height && i < nPix) {
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(flipped + flipDir * y0))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val adj = ((((px + y0 & 1) << 5) - 16) * strength).toInt // either + 16 * strength or - 16 * strength
+          val rr  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + adj, 0f), 1023f).toInt) & 255
+          val gg  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + adj, 0f), 1023f).toInt) & 255
+          val bb  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + adj, 0f), 1023f).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeGourd(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val strength = (_ditherStrength * 0.7 * Math.pow(_palette.nn.populationBias, -5.50)).toFloat
+    var gi       = 0
+    while (gi < 64) {
+      tempThresholdMatrix(gi) = Math.min(Math.max((thresholdMatrix64(gi) - 31.5f) * strength, -127f), 127f)
+      gi += 1
+    }
+    var oy = 0
+    var i  = 0
+    while (oy < height && i < nPix) {
+      val y = flipped + flipDir * oy
+      var x = 0
+      while (x < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(x), Pixels(y))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val adj = tempThresholdMatrix((x & 7) | (oy & 7) << 3)
+          val rr  = fromLinearLUT((toLinearLUT(color >>> 24) + adj).toInt) & 255
+          val gg  = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + adj).toInt) & 255
+          val bb  = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + adj).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        x += 1
+      }
+      oy += 1
+    }
+  }
+
+  protected def analyzeDiffusion(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w = width
+    // 0x1p-8f = 0.00390625f
+    val w1 = _ditherStrength * 32 / pal.populationBias
+    val w3 = w1 * 3f
+    val w5 = w1 * 5f
+    val w7 = w1 * 7f
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + curErrorRed(px), 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + curErrorGreen(px), 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + curErrorBlue(px), 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used  = paletteArray(paletteIndex & 0xff)
+          val rdiff = Math.min(Math.max(0.00390625f * ((color >>> 24) - (used >>> 24)), -1f), 1f)
+          val gdiff = Math.min(Math.max(0.00390625f * ((color >>> 16 & 255) - (used >>> 16 & 255)), -1f), 1f)
+          val bdiff = Math.min(Math.max(0.00390625f * ((color >>> 8 & 255) - (used >>> 8 & 255)), -1f), 1f)
+
+          if (px < w - 1) {
+            curErrorRed(px + 1) += rdiff * w7
+            curErrorGreen(px + 1) += gdiff * w7
+            curErrorBlue(px + 1) += bdiff * w7
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += rdiff * w3
+              nextErrorGreen(px - 1) += gdiff * w3
+              nextErrorBlue(px - 1) += bdiff * w3
+            }
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += rdiff * w1
+              nextErrorGreen(px + 1) += gdiff * w1
+              nextErrorBlue(px + 1) += bdiff * w1
+            }
+            nextErrorRed(px) += rdiff * w5
+            nextErrorGreen(px) += gdiff * w5
+            nextErrorBlue(px) += bdiff * w5
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeBlue(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val strength = 0.21875f * _ditherStrength / (_palette.nn.populationBias * _palette.nn.populationBias)
+    var y0       = 0
+    var i        = 0
+    while (y0 < height && i < nPix) {
+      val ny = flipped + flipDir * y0
+      var x  = 0
+      while (x < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(x), Pixels(ny))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val adj = Math.min(Math.max((TRI_BLUE_NOISE((x & 63) | (ny & 63) << 6) + ((x + ny & 1) << 8) - 127.5f) * strength, -100.5f), 101.5f)
+          val rr  = fromLinearLUT((toLinearLUT(color >>> 24) + adj).toInt) & 255
+          val gg  = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + adj).toInt) & 255
+          val bb  = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + adj).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        x += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeBlunt(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val populationBias = _palette.nn.populationBias
+    val strength       = Math.min(Math.max(0.35f * _ditherStrength / (populationBias * populationBias * populationBias), -0.6f), 0.6f)
+    var y0             = 0
+    var i              = 0
+    while (y0 < height && i < nPix) {
+      val ny = flipped + flipDir * y0
+      var x  = 0
+      while (x < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(x), Pixels(ny))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val adj = (x + y0 << 7 & 128) - 63.5f
+          val rr  = fromLinearLUT((toLinearLUT(color >>> 24) + (TRI_BLUE_NOISE((x + 62 & 63) << 6 | (y0 + 66 & 63)) + adj) * strength).toInt) & 255
+          val gg  = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + (TRI_BLUE_NOISE_B((x + 31 & 63) << 6 | (y0 + 113 & 63)) + adj) * strength).toInt) & 255
+          val bb  = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + (TRI_BLUE_NOISE_C((x + 71 & 63) << 6 | (y0 + 41 & 63)) + adj) * strength).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        x += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeBanter(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val strength = Math.min(Math.max(0.17f * _ditherStrength * Math.pow(_palette.nn.populationBias, -10f).toFloat, -0.95f), 0.95f)
+    var y0       = 0
+    var i        = 0
+    while (y0 < height && i < nPix) {
+      val ny = flipped + flipDir * y0
+      var x  = 0
+      while (x < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(x), Pixels(ny))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val adj = TRI_BAYER_MATRIX_128((x & TBM_MASK) << TBM_BITS | (y0 & TBM_MASK)) * strength
+          val rr  = fromLinearLUT((toLinearLUT(color >>> 24) + adj).toInt) & 255
+          val gg  = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + adj).toInt) & 255
+          val bb  = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + adj).toInt) & 255
+          val idx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        x += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeScatter(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w = width
+    // 0x2.1p-8f = 0.00805664062f
+    val w1 = Math.min(_ditherStrength * 5.5f / (pal.populationBias * pal.populationBias), 16f)
+    val w3 = w1 * 3f
+    val w5 = w1 * 5f
+    val w7 = w1 * 7f
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val tbn = TRI_BLUE_NOISE_MULTIPLIERS((px & 63) | ((y0 << 6) & 0xfc0))
+          val er  = curErrorRed(px) * tbn
+          val eg  = curErrorGreen(px) * tbn
+          val eb  = curErrorBlue(px) * tbn
+          val rr  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb  = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used = paletteArray(paletteIndex & 0xff)
+          // 0x2.1p-8f = 0.00805664062f
+          var rdiff = 0.00805664062f * ((color >>> 24) - (used >>> 24))
+          var gdiff = 0.00805664062f * ((color >>> 16 & 255) - (used >>> 16 & 255))
+          var bdiff = 0.00805664062f * ((color >>> 8 & 255) - (used >>> 8 & 255))
+          rdiff /= (0.125f + Math.abs(rdiff))
+          gdiff /= (0.125f + Math.abs(gdiff))
+          bdiff /= (0.125f + Math.abs(bdiff))
+          if (px < w - 1) {
+            curErrorRed(px + 1) += rdiff * w7
+            curErrorGreen(px + 1) += gdiff * w7
+            curErrorBlue(px + 1) += bdiff * w7
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += rdiff * w3
+              nextErrorGreen(px - 1) += gdiff * w3
+              nextErrorBlue(px - 1) += bdiff * w3
+            }
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += rdiff * w1
+              nextErrorGreen(px + 1) += gdiff * w1
+              nextErrorBlue(px + 1) += bdiff * w1
+            }
+            nextErrorRed(px) += rdiff * w5
+            nextErrorGreen(px) += gdiff * w5
+            nextErrorBlue(px) += bdiff * w5
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeWoven(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w              = width
+    val populationBias = pal.populationBias
+    // 0x1.4p-23f = 1.4901161e-7f; 0x1.4p-1f = 0.625f; 0x5p-10f = 0.0048828125f
+    val w1       = (10f * Math.sqrt(_ditherStrength) / (populationBias * populationBias)).toFloat
+    val w3       = w1 * 3f
+    val w5       = w1 * 5f
+    val w7       = w1 * 7f
+    val strength = 100f * _ditherStrength / (populationBias * populationBias * populationBias * populationBias)
+    val limit    = 5f + 250f / Math.sqrt(pal.colorCount + 1.5f).toFloat
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val er = Math.min(
+            Math.max(
+              ((((px + 1).toLong * 0xc13fa9a902a6328fL + (y0 + 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.4901161e-7f - 0.625f) * strength,
+              -limit
+            ),
+            limit
+          ) + curErrorRed(px)
+          val eg = Math.min(
+            Math.max(
+              ((((px + 3).toLong * 0xc13fa9a902a6328fL + (y0 - 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.4901161e-7f - 0.625f) * strength,
+              -limit
+            ),
+            limit
+          ) + curErrorGreen(px)
+          val eb = Math.min(
+            Math.max(
+              ((((px + 2).toLong * 0xc13fa9a902a6328fL + (y0 - 4).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.4901161e-7f - 0.625f) * strength,
+              -limit
+            ),
+            limit
+          ) + curErrorBlue(px)
+
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used = paletteArray(paletteIndex & 0xff)
+          // 0x5p-10f = 0.0048828125f
+          val rdiff = 0.0048828125f * ((color >>> 24) - (used >>> 24))
+          val gdiff = 0.0048828125f * ((color >>> 16 & 255) - (used >>> 16 & 255))
+          val bdiff = 0.0048828125f * ((color >>> 8 & 255) - (used >>> 8 & 255))
+          if (px < w - 1) {
+            curErrorRed(px + 1) += rdiff * w7
+            curErrorGreen(px + 1) += gdiff * w7
+            curErrorBlue(px + 1) += bdiff * w7
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += rdiff * w3
+              nextErrorGreen(px - 1) += gdiff * w3
+              nextErrorBlue(px - 1) += bdiff * w3
+            }
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += rdiff * w1
+              nextErrorGreen(px + 1) += gdiff * w1
+              nextErrorBlue(px + 1) += bdiff * w1
+            }
+            nextErrorRed(px) += rdiff * w5
+            nextErrorGreen(px) += gdiff * w5
+            nextErrorBlue(px) += bdiff * w5
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeDodgy(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val w1             = 8f * _ditherStrength
+    val w3             = w1 * 3f
+    val w5             = w1 * 5f
+    val w7             = w1 * 7f
+    val strength       = 0.35f * _ditherStrength / (populationBias * populationBias * populationBias)
+    val limit          = 90f
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val er = Math.min(Math.max((TRI_BLUE_NOISE((px & 63) | (py & 63) << 6) + 0.5f) * strength, -limit), limit) + curErrorRed(px)
+          val eg = Math.min(Math.max((TRI_BLUE_NOISE_B((px & 63) | (py & 63) << 6) + 0.5f) * strength, -limit), limit) + curErrorGreen(px)
+          val eb = Math.min(Math.max((TRI_BLUE_NOISE_C((px & 63) | (py & 63) << 6) + 0.5f) * strength, -limit), limit) + curErrorBlue(px)
+
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used = paletteArray(paletteIndex & 0xff)
+
+          // 0x5p-8f = 0.01953125f
+          var rdiff = 0.01953125f * ((color >>> 24) - (used >>> 24))
+          var gdiff = 0.01953125f * ((color >>> 16 & 255) - (used >>> 16 & 255))
+          var bdiff = 0.01953125f * ((color >>> 8 & 255) - (used >>> 8 & 255))
+          rdiff /= (0.5f + Math.abs(rdiff))
+          gdiff /= (0.5f + Math.abs(gdiff))
+          bdiff /= (0.5f + Math.abs(bdiff))
+
+          if (px < w - 1) {
+            curErrorRed(px + 1) += rdiff * w7
+            curErrorGreen(px + 1) += gdiff * w7
+            curErrorBlue(px + 1) += bdiff * w7
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += rdiff * w3
+              nextErrorGreen(px - 1) += gdiff * w3
+              nextErrorBlue(px - 1) += bdiff * w3
+            }
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += rdiff * w1
+              nextErrorGreen(px + 1) += gdiff * w1
+              nextErrorBlue(px + 1) += bdiff * w1
+            }
+            nextErrorRed(px) += rdiff * w5
+            nextErrorGreen(px) += gdiff * w5
+            nextErrorBlue(px) += bdiff * w5
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeNeue(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val w1             = _ditherStrength * 8f
+    val w3             = w1 * 3f
+    val w5             = w1 * 5f
+    val w7             = w1 * 7f
+    val strength       = 70f * _ditherStrength / (populationBias * populationBias * populationBias)
+    val limit          = Math.min(127f, Math.pow(80.0, 1.635 - populationBias).toFloat)
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          var adj = (TRI_BLUE_NOISE((px & 63) | (py & 63) << 6) + 0.5f) * 0.005f // plus or minus 255/400
+          adj = Math.min(Math.max(adj * strength, -limit), limit)
+          val er = adj + curErrorRed(px)
+          val eg = adj + curErrorGreen(px)
+          val eb = adj + curErrorBlue(px)
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used = paletteArray(paletteIndex & 0xff)
+          // 0x2.Ep-8f = 0.01123046875f
+          var rdiff = 0.01123046875f * ((color >>> 24) - (used >>> 24))
+          var gdiff = 0.01123046875f * ((color >>> 16 & 255) - (used >>> 16 & 255))
+          var bdiff = 0.01123046875f * ((color >>> 8 & 255) - (used >>> 8 & 255))
+          rdiff *= 1.25f / (0.25f + Math.abs(rdiff))
+          gdiff *= 1.25f / (0.25f + Math.abs(gdiff))
+          bdiff *= 1.25f / (0.25f + Math.abs(bdiff))
+          if (px < w - 1) {
+            curErrorRed(px + 1) += rdiff * w7
+            curErrorGreen(px + 1) += gdiff * w7
+            curErrorBlue(px + 1) += bdiff * w7
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += rdiff * w3
+              nextErrorGreen(px - 1) += gdiff * w3
+              nextErrorBlue(px - 1) += bdiff * w3
+            }
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += rdiff * w1
+              nextErrorGreen(px + 1) += gdiff * w1
+              nextErrorBlue(px + 1) += bdiff * w1
+            }
+            nextErrorRed(px) += rdiff * w5
+            nextErrorGreen(px) += gdiff * w5
+            nextErrorBlue(px) += bdiff * w5
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeOverboard(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val strength       = _ditherStrength * 1.5f * (populationBias * populationBias)
+    val noiseStrength  = 4f / (populationBias * populationBias)
+    val limit          = 110f
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var by = 0
+    var y  = flipped
+    var i  = 0
+    while (by < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      var x = 0
+      while (x < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(x), Pixels(y))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          var er = 0f
+          var eg = 0f
+          var eb = 0f
+          // 0x1p-5f = 0.03125f; 0x1p-6f = 0.015625f
+          // 0x1p-20f = 9.5367431640625e-7f; 0x1.8p-20f = 1.430511474609375e-6f; 0x1.8p-21f = 7.152557373046875e-7f
+          ((x << 1 & 2) | (y & 1)) match {
+            case 0 =>
+              er += ((x ^ y) % 9 - 4)
+              er += ((x.toLong * 0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+              eg += (TRI_BLUE_NOISE_B((x & 63) | (y & 63) << 6) + 0.5f) * 0.03125f
+              eg += ((x.toLong * -0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+              eb += (TRI_BLUE_NOISE_C((x & 63) | (y & 63) << 6) + 0.5f) * 0.015625f
+              eb += ((y.toLong * 0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 1.430511474609375e-6f
+            case 1 =>
+              er += (TRI_BLUE_NOISE((x & 63) | (y & 63) << 6) + 0.5f) * 0.03125f
+              er += ((x.toLong * -0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+              eg += (TRI_BLUE_NOISE_B((x & 63) | (y & 63) << 6) + 0.5f) * 0.015625f
+              eg += ((y.toLong * 0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 1.430511474609375e-6f
+              eb += ((x ^ y) % 11 - 5)
+              eb += ((y.toLong * -0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 7.152557373046875e-7f
+            case 2 =>
+              er += (TRI_BLUE_NOISE((x & 63) | (y & 63) << 6) + 0.5f) * 0.015625f
+              er += ((y.toLong * 0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 1.430511474609375e-6f
+              eg += ((x ^ y) % 11 - 5)
+              eg += ((y.toLong * -0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 7.152557373046875e-7f
+              eb += ((x ^ y) % 9 - 4)
+              eb += ((x.toLong * 0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+            case _ => // case 3
+              er += ((x ^ y) % 11 - 5)
+              er += ((y.toLong * -0xc13fa9a902a6328fL + x.toLong * -0x91e10da5c79e7b1dL) >> 41) * 7.152557373046875e-7f
+              eg += ((x ^ y) % 9 - 4)
+              eg += ((x.toLong * 0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+              eb += (TRI_BLUE_NOISE_C((x & 63) | (y & 63) << 6) + 0.5f) * 0.03125f
+              eb += ((x.toLong * -0xc13fa9a902a6328fL + y.toLong * 0x91e10da5c79e7b1dL) >> 41) * 9.5367431640625e-7f
+          }
+          er = er * noiseStrength + curErrorRed(x)
+          eg = eg * noiseStrength + curErrorGreen(x)
+          eb = eb * noiseStrength + curErrorBlue(x)
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + Math.min(Math.max(er, -limit), limit), 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + Math.min(Math.max(eg, -limit), limit), 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + Math.min(Math.max(eb, -limit), limit), 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used  = paletteArray(paletteIndex & 0xff)
+          val rdiff = ((color >>> 24) - (used >>> 24)) * strength
+          val gdiff = ((color >>> 16 & 255) - (used >>> 16 & 255)) * strength
+          val bdiff = ((color >>> 8 & 255) - (used >>> 8 & 255)) * strength
+          val r1    = rdiff * 16f / (45f + Math.abs(rdiff))
+          val g1    = gdiff * 16f / (45f + Math.abs(gdiff))
+          val b1    = bdiff * 16f / (45f + Math.abs(bdiff))
+          val r2    = r1 + r1
+          val g2    = g1 + g1
+          val b2    = b1 + b1
+          val r4    = r2 + r2
+          val g4    = g2 + g2
+          val b4    = b2 + b2
+          if (x < w - 1) {
+            curErrorRed(x + 1) += r4
+            curErrorGreen(x + 1) += g4
+            curErrorBlue(x + 1) += b4
+            if (x < w - 2) {
+              curErrorRed(x + 2) += r2
+              curErrorGreen(x + 2) += g2
+              curErrorBlue(x + 2) += b2
+            }
+          }
+          if (by + 1 < height) {
+            if (x > 0) {
+              nextErrorRed(x - 1) += r2
+              nextErrorGreen(x - 1) += g2
+              nextErrorBlue(x - 1) += b2
+              if (x > 1) {
+                nextErrorRed(x - 2) += r1
+                nextErrorGreen(x - 2) += g1
+                nextErrorBlue(x - 2) += b1
+              }
+            }
+            nextErrorRed(x) += r4
+            nextErrorGreen(x) += g4
+            nextErrorBlue(x) += b4
+            if (x < w - 1) {
+              nextErrorRed(x + 1) += r2
+              nextErrorGreen(x + 1) += g2
+              nextErrorBlue(x + 1) += b2
+              if (x < w - 2) {
+                nextErrorRed(x + 2) += r1
+                nextErrorGreen(x + 2) += g1
+                nextErrorBlue(x + 2) += b1
+              }
+            }
+          }
+          i += 1
+        }
+        x += 1
+      }
+      by += 1
+      y += flipDir
+    }
+  }
+
+  protected def analyzeBurkes(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val s              = 0.13f * _ditherStrength / (populationBias * populationBias)
+    val strength       = s * 0.58f / (0.3f + s)
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val er = curErrorRed(px)
+          val eg = curErrorGreen(px)
+          val eb = curErrorBlue(px)
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used     = paletteArray(paletteIndex & 0xff)
+          val rdiffInt = (color >>> 24) - (used >>> 24)
+          val gdiffInt = (color >>> 16 & 255) - (used >>> 16 & 255)
+          val bdiffInt = (color >>> 8 & 255) - (used >>> 8 & 255)
+          val r1       = rdiffInt * strength
+          val g1       = gdiffInt * strength
+          val b1       = bdiffInt * strength
+          val r2       = r1 + r1
+          val g2       = g1 + g1
+          val b2       = b1 + b1
+          val r4       = r2 + r2
+          val g4       = g2 + g2
+          val b4       = b2 + b2
+          if (px < w - 1) {
+            curErrorRed(px + 1) += r4
+            curErrorGreen(px + 1) += g4
+            curErrorBlue(px + 1) += b4
+            if (px < w - 2) {
+              curErrorRed(px + 2) += r2
+              curErrorGreen(px + 2) += g2
+              curErrorBlue(px + 2) += b2
+            }
+          }
+          if (ny < height) {
+            if (px > 0) {
+              nextErrorRed(px - 1) += r2
+              nextErrorGreen(px - 1) += g2
+              nextErrorBlue(px - 1) += b2
+              if (px > 1) {
+                nextErrorRed(px - 2) += r1
+                nextErrorGreen(px - 2) += g1
+                nextErrorBlue(px - 2) += b1
+              }
+            }
+            nextErrorRed(px) += r4
+            nextErrorGreen(px) += g4
+            nextErrorBlue(px) += b4
+            if (px < w - 1) {
+              nextErrorRed(px + 1) += r2
+              nextErrorGreen(px + 1) += g2
+              nextErrorBlue(px + 1) += b2
+              if (px < w - 2) {
+                nextErrorRed(px + 2) += r1
+                nextErrorGreen(px + 2) += g1
+                nextErrorBlue(px + 2) += b1
+              }
+            }
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeOceanic(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+    val noise          = TRI_BLUE_NOISE_MULTIPLIERS
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val s              = 0.13f * _ditherStrength / (populationBias * populationBias)
+    val strength       = s * 0.58f / (0.3f + s)
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val er = curErrorRed(px)
+          val eg = curErrorGreen(px)
+          val eb = curErrorBlue(px)
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used     = paletteArray(paletteIndex & 0xff)
+          val rdiffInt = (color >>> 24) - (used >>> 24)
+          val gdiffInt = (color >>> 16 & 255) - (used >>> 16 & 255)
+          val bdiffInt = (color >>> 8 & 255) - (used >>> 8 & 255)
+          val r1       = rdiffInt * strength
+          val g1       = gdiffInt * strength
+          val b1       = bdiffInt * strength
+          val r2       = r1 + r1
+          val g2       = g1 + g1
+          val b2       = b1 + b1
+          val r4       = r2 + r2
+          val g4       = g2 + g2
+          val b4       = b2 + b2
+          var modifier = 0f
+          if (px < w - 1) {
+            modifier = noise((px + 1 & 63) | ((py << 6) & 0xfc0))
+            curErrorRed(px + 1) += r4 * modifier
+            curErrorGreen(px + 1) += g4 * modifier
+            curErrorBlue(px + 1) += b4 * modifier
+            if (px < w - 2) {
+              modifier = noise((px + 2 & 63) | ((py << 6) & 0xfc0))
+              curErrorRed(px + 2) += r2 * modifier
+              curErrorGreen(px + 2) += g2 * modifier
+              curErrorBlue(px + 2) += b2 * modifier
+            }
+          }
+          if (ny < height) {
+            if (px > 0) {
+              modifier = noise((px - 1 & 63) | ((ny << 6) & 0xfc0))
+              nextErrorRed(px - 1) += r2 * modifier
+              nextErrorGreen(px - 1) += g2 * modifier
+              nextErrorBlue(px - 1) += b2 * modifier
+              if (px > 1) {
+                modifier = noise((px - 2 & 63) | ((ny << 6) & 0xfc0))
+                nextErrorRed(px - 2) += r1 * modifier
+                nextErrorGreen(px - 2) += g1 * modifier
+                nextErrorBlue(px - 2) += b1 * modifier
+              }
+            }
+            modifier = noise((px & 63) | ((ny << 6) & 0xfc0))
+            nextErrorRed(px) += r4 * modifier
+            nextErrorGreen(px) += g4 * modifier
+            nextErrorBlue(px) += b4 * modifier
+            if (px < w - 1) {
+              modifier = noise((px + 1 & 63) | ((ny << 6) & 0xfc0))
+              nextErrorRed(px + 1) += r2 * modifier
+              nextErrorGreen(px + 1) += g2 * modifier
+              nextErrorBlue(px + 1) += b2 * modifier
+              if (px < w - 2) {
+                modifier = noise((px + 2 & 63) | ((ny << 6) & 0xfc0))
+                nextErrorRed(px + 2) += r1 * modifier
+                nextErrorGreen(px + 2) += g1 * modifier
+                nextErrorBlue(px + 2) += b1 * modifier
+              }
+            }
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeSeaside(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+    val noiseA         = TRI_BLUE_NOISE_MULTIPLIERS
+    val noiseB         = TRI_BLUE_NOISE_MULTIPLIERS_B
+    val noiseC         = TRI_BLUE_NOISE_MULTIPLIERS_C
+
+    val w              = width
+    val populationBias = pal.populationBias
+    val s              = 0.15f * populationBias * _ditherStrength
+    val strength       = s * 0.6f / (0.35f + s)
+
+    pal.ensureErrorCapacity(w)
+    val curErrorRed    = pal.curErrorRedFloats.nn
+    val nextErrorRed   = pal.nextErrorRedFloats.nn
+    val curErrorGreen  = pal.curErrorGreenFloats.nn
+    val nextErrorGreen = pal.nextErrorGreenFloats.nn
+    val curErrorBlue   = pal.curErrorBlueFloats.nn
+    val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+
+    Arrays.fill(nextErrorRed, 0, w, 0f)
+    Arrays.fill(nextErrorGreen, 0, w, 0f)
+    Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+      System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+      System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      val py = flipped + flipDir * y0
+      val ny = y0 + 1
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(py))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          val er = curErrorRed(px)
+          val eg = curErrorGreen(px)
+          val eb = curErrorBlue(px)
+          val rr = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 24) + er, 0f), 1023f).toInt) & 255
+          val gg = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 16 & 0xff) + eg, 0f), 1023f).toInt) & 255
+          val bb = fromLinearLUT(Math.min(Math.max(toLinearLUT(color >>> 8 & 0xff) + eb, 0f), 1023f).toInt) & 255
+
+          val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(paletteIndex & 255) = true
+          indexedPixels.nn(i) = paletteIndex
+          val used     = paletteArray(paletteIndex & 0xff)
+          val rdiffInt = (color >>> 24) - (used >>> 24)
+          val gdiffInt = (color >>> 16 & 255) - (used >>> 16 & 255)
+          val bdiffInt = (color >>> 8 & 255) - (used >>> 8 & 255)
+          var modifier = (px & 63) | (py << 6 & 0xfc0)
+          val r1       = rdiffInt * strength * noiseA(modifier)
+          val g1       = gdiffInt * strength * noiseB(modifier)
+          val b1       = bdiffInt * strength * noiseC(modifier)
+          val r2       = r1 + r1
+          val g2       = g1 + g1
+          val b2       = b1 + b1
+          val r4       = r2 + r2
+          val g4       = g2 + g2
+          val b4       = b2 + b2
+
+          if (px < w - 1) {
+            modifier = (px + 1 & 63) | (py << 6 & 0xfc0)
+            curErrorRed(px + 1) += r4 * noiseA(modifier)
+            curErrorGreen(px + 1) += g4 * noiseB(modifier)
+            curErrorBlue(px + 1) += b4 * noiseC(modifier)
+            if (px < w - 2) {
+              modifier = (px + 2 & 63) | ((py << 6) & 0xfc0)
+              curErrorRed(px + 2) += r2 * noiseA(modifier)
+              curErrorGreen(px + 2) += g2 * noiseB(modifier)
+              curErrorBlue(px + 2) += b2 * noiseC(modifier)
+            }
+          }
+          if (ny < height) {
+            if (px > 0) {
+              modifier = (px - 1 & 63) | ((ny << 6) & 0xfc0)
+              nextErrorRed(px - 1) += r2 * noiseA(modifier)
+              nextErrorGreen(px - 1) += g2 * noiseB(modifier)
+              nextErrorBlue(px - 1) += b2 * noiseC(modifier)
+              if (px > 1) {
+                modifier = (px - 2 & 63) | ((ny << 6) & 0xfc0)
+                nextErrorRed(px - 2) += r1 * noiseA(modifier)
+                nextErrorGreen(px - 2) += g1 * noiseB(modifier)
+                nextErrorBlue(px - 2) += b1 * noiseC(modifier)
+              }
+            }
+            modifier = (px & 63) | ((ny << 6) & 0xfc0)
+            nextErrorRed(px) += r4 * noiseA(modifier)
+            nextErrorGreen(px) += g4 * noiseB(modifier)
+            nextErrorBlue(px) += b4 * noiseC(modifier)
+            if (px < w - 1) {
+              modifier = (px + 1 & 63) | ((ny << 6) & 0xfc0)
+              nextErrorRed(px + 1) += r2 * noiseA(modifier)
+              nextErrorGreen(px + 1) += g2 * noiseB(modifier)
+              nextErrorBlue(px + 1) += b2 * noiseC(modifier)
+              if (px < w - 2) {
+                modifier = (px + 2 & 63) | ((ny << 6) & 0xfc0)
+                nextErrorRed(px + 2) += r1 * noiseA(modifier)
+                nextErrorGreen(px + 2) += g1 * noiseB(modifier)
+                nextErrorBlue(px + 2) += b1 * noiseC(modifier)
+              }
+            }
+          }
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
+
+  protected def analyzeMarten(): Unit = {
+    val nPix           = indexedPixels.nn.length
+    val flipped        = if (flipY) height - 1 else 0
+    val flipDir        = if (flipY) -1 else 1
+    val paletteArray   = _palette.nn.paletteArray
+    val paletteMapping = _palette.nn.paletteMapping
+    val hasTransparent = paletteArray(0) == 0
+
+    val populationBias = _palette.nn.populationBias
+    val str            = Math.min(
+      1100f * (_ditherStrength / Math.sqrt(_palette.nn.colorCount).toFloat * (1f / (populationBias * populationBias * populationBias) - 0.7f)),
+      127f
+    )
+    var y0 = 0
+    var i  = 0
+    while (y0 < height && i < nPix) {
+      var px = 0
+      while (px < width && i < nPix) {
+        val color = image.nn.getPixel(Pixels(px), Pixels(flipped + flipDir * y0))
+        if (hasTransparent && (color & 0x80) == 0) {
+          indexedPixels.nn(i) = 0
+          i += 1
+        } else {
+          // We get a sub-random value from 0-1 using interleaved gradient noise.
+          // Offsetting this value by different values and feeding into triangleWave()
+          // gives 3 different values for r, g, and b, without much bias toward high or low values.
+          // There is correlation between r, g, and b in certain patterns.
+          // 0x1p-8f = 0.00390625f
+          val theta = (px * 142 + y0 * 79 & 255) * 0.00390625f
+          val rr    = fromLinearLUT((toLinearLUT(color >>> 24) + OtherMath.triangleWave(theta) * str).toInt) & 255
+          val gg    = fromLinearLUT((toLinearLUT(color >>> 16 & 0xff) + OtherMath.triangleWave(theta + 0.382f) * str).toInt) & 255
+          val bb    = fromLinearLUT((toLinearLUT(color >>> 8 & 0xff) + OtherMath.triangleWave(theta + 0.618f) * str).toInt) & 255
+          val idx   = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          usedEntry(idx & 255) = true
+          indexedPixels.nn(i) = idx
+          i += 1
+        }
+        px += 1
+      }
+      y0 += 1
+    }
+  }
 
   protected def analyzeWren(): Unit = {
     val nPix           = indexedPixels.nn.length
@@ -554,10 +1886,26 @@ class AnimatedGif extends AnimationWriter with Dithered {
     _ditherAlgorithm match {
       case DitherAlgorithm.NONE           => analyzeNone()
       case DitherAlgorithm.PATTERN        => analyzePattern()
+      case DitherAlgorithm.CHAOTIC_NOISE  => analyzeChaotic()
       case DitherAlgorithm.GRADIENT_NOISE => analyzeGradient()
-      // For now, all other algorithms delegate to WREN (the default and most commonly used)
-      // TODO: Implement remaining dither algorithms individually
-      case _ => analyzeWren()
+      case DitherAlgorithm.ADDITIVE       => analyzeAdditive()
+      case DitherAlgorithm.ROBERTS        => analyzeRoberts()
+      case DitherAlgorithm.LOAF           => analyzeLoaf()
+      case DitherAlgorithm.DIFFUSION      => analyzeDiffusion()
+      case DitherAlgorithm.BLUE_NOISE     => analyzeBlue()
+      case DitherAlgorithm.BLUNT          => analyzeBlunt()
+      case DitherAlgorithm.BANTER         => analyzeBanter()
+      case DitherAlgorithm.SCATTER        => analyzeScatter()
+      case DitherAlgorithm.WOVEN          => analyzeWoven()
+      case DitherAlgorithm.DODGY          => analyzeDodgy()
+      case DitherAlgorithm.NEUE           => analyzeNeue()
+      case DitherAlgorithm.OVERBOARD      => analyzeOverboard()
+      case DitherAlgorithm.BURKES         => analyzeBurkes()
+      case DitherAlgorithm.OCEANIC        => analyzeOceanic()
+      case DitherAlgorithm.SEASIDE        => analyzeSeaside()
+      case DitherAlgorithm.GOURD          => analyzeGourd()
+      case DitherAlgorithm.MARTEN         => analyzeMarten()
+      case DitherAlgorithm.WREN           => analyzeWren()
     }
     colorDepth = 8
     palSize = 7
