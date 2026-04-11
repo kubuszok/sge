@@ -2415,7 +2415,7 @@ class Font {
 
   /** Loads an AngelCode BMFont .fnt file, parsing glyph metrics and texture pages. Populates [[mapping]], [[parents]], [[kerning]], and all font metrics.
     */
-  protected def loadFNT(fntHandle: sge.files.FileHandle, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using sge.Sge): Unit = {
+  private[textra] def loadFNT(fntHandle: sge.files.FileHandle, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using sge.Sge): Unit = {
     val fnt = fntHandle.readString(Nullable("UTF-8"))
     xAdjust = xAdj; yAdjust = yAdj; widthAdjust = wAdj; heightAdjust = hAdj
 
@@ -2508,7 +2508,7 @@ class Font {
 
   /** Loads a Structured JSON font file (from msdf-atlas-gen or fontwriter). Supports .json, .dat (LZB compressed) formats.
     */
-  protected def loadJSON(jsonHandle: sge.files.FileHandle, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean): Unit = {
+  private[textra] def loadJSON(jsonHandle: sge.files.FileHandle, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean): Unit = {
     parents.clear()
     parents += textureRegion
     xAdjust = xAdj; yAdjust = yAdj; widthAdjust = wAdj; heightAdjust = hAdj
