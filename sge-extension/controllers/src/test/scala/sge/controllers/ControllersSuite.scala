@@ -29,7 +29,7 @@ class ControllersSuite extends munit.FunSuite {
     numButtons: Int = 15,
     numAxes:    Int = 6
   ): ControllerState =
-    ControllerState(
+    ControllerState.fromDigitalButtons(
       name = name,
       uniqueId = uniqueId,
       connected = true,
