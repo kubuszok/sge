@@ -11,24 +11,24 @@ package glb
 
 import sge.Sge
 import sge.files.FileHandle
-import sge.graphics.g3d.Model
 import sge.gltf.loaders.shared.GLTFLoaderBase
+import sge.gltf.scene3d.scene.SceneAsset
 
 class GLBLoader extends GLTFLoaderBase() {
 
-  def load(file: FileHandle)(using Sge): Model =
+  def load(file: FileHandle)(using Sge): SceneAsset =
     load(file, false)
 
-  def load(file: FileHandle, withData: Boolean)(using Sge): Model = {
+  def load(file: FileHandle, withData: Boolean)(using Sge): SceneAsset = {
     val dataFileResolver = new BinaryDataFileResolver()
     dataFileResolver.load(file)
     load(dataFileResolver, withData)
   }
 
-  def load(bytes: Array[Byte])(using Sge): Model =
+  def load(bytes: Array[Byte])(using Sge): SceneAsset =
     load(bytes, false)
 
-  def load(bytes: Array[Byte], withData: Boolean)(using Sge): Model = {
+  def load(bytes: Array[Byte], withData: Boolean)(using Sge): SceneAsset = {
     val dataFileResolver = new BinaryDataFileResolver()
     dataFileResolver.load(bytes)
     load(dataFileResolver, withData)

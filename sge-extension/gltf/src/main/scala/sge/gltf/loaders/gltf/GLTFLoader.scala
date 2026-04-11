@@ -11,15 +11,15 @@ package gltf
 
 import sge.Sge
 import sge.files.FileHandle
-import sge.graphics.g3d.Model
 import sge.gltf.loaders.shared.GLTFLoaderBase
+import sge.gltf.scene3d.scene.SceneAsset
 
 class GLTFLoader extends GLTFLoaderBase() {
 
-  def load(glFile: FileHandle)(using Sge): Model =
+  def load(glFile: FileHandle)(using Sge): SceneAsset =
     load(glFile, false)
 
-  def load(glFile: FileHandle, withData: Boolean)(using Sge): Model = {
+  def load(glFile: FileHandle, withData: Boolean)(using Sge): SceneAsset = {
     val dataFileResolver = new SeparatedDataFileResolver()
     dataFileResolver.load(glFile)
     load(dataFileResolver, withData)
