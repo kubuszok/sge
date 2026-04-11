@@ -32,7 +32,7 @@ class TextArea(initialText: Nullable[String], initialStyle: TextField.TextFieldS
   import TextField._
 
   /** Array storing lines breaks positions * */
-  private[ui] var linesBreak: DynamicArray[Int] = scala.compiletime.uninitialized
+  private[sge] var linesBreak: DynamicArray[Int] = scala.compiletime.uninitialized
 
   /** Last text processed. This attribute is used to avoid unnecessary computations while calculating offsets * */
   private var lastText: Nullable[String] = Nullable.empty
@@ -41,10 +41,10 @@ class TextArea(initialText: Nullable[String], initialStyle: TextField.TextFieldS
   private[ui] var cursorLine: Int = 0
 
   /** Index of the first line showed by the text area * */
-  private[ui] var firstLineShowing: Int = 0
+  private[sge] var firstLineShowing: Int = 0
 
   /** Number of lines showed by the text area * */
-  private[ui] var linesShowing: Int = 0
+  private[sge] var linesShowing: Int = 0
 
   /** Variable to maintain the x offset of the cursor when moving up and down. If it's set to -1, the offset is reset * */
   private[ui] var moveOffset: Float = 0
