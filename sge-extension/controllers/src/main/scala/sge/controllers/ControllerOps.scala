@@ -35,14 +35,21 @@ trait ControllerOps {
   def pollController(index: Int): ControllerState
 }
 
-/** Snapshot of a controller's state at a point in time. Returned by [[ControllerOps.pollController]]. */
+/** Snapshot of a controller's state at a point in time. Returned by [[ControllerOps.pollController]].
+  *
+  * @param buttons
+  *   digital pressed state per button (true = pressed, derived from buttonValues with 0.5f threshold)
+  * @param buttonValues
+  *   analog pressure values per button (0.0f to 1.0f). Platforms that only provide digital input (GLFW) set 0.0f/1.0f. The Web Gamepad API provides true analog values for pressure-sensitive triggers.
+  */
 final case class ControllerState(
-  name:       String,
-  uniqueId:   String,
-  connected:  Boolean,
-  buttons:    Array[Boolean],
-  axes:       Array[Float],
-  powerLevel: ControllerPowerLevel
+  name:         String,
+  uniqueId:     String,
+  connected:    Boolean,
+  buttons:      Array[Boolean],
+  buttonValues: Array[Float],
+  axes:         Array[Float],
+  powerLevel:   ControllerPowerLevel
 )
 
 object ControllerState {
@@ -53,7 +60,26 @@ object ControllerState {
     uniqueId = "",
     connected = false,
     buttons = Array.empty,
+    buttonValues = Array.empty,
     axes = Array.empty,
     powerLevel = ControllerPowerLevel.Unknown
   )
+
+  /** Creates a ControllerState from digital-only button data. Analog values default to 0.0f/1.0f. */
+  def fromDigitalButtons(
+    name:       String,
+    uniqueId:   String,
+    connected:  Boolean,
+    buttons:    Array[Boolean],
+    axes:       Array[Float],
+    powerLevel: ControllerPowerLevel
+  ): ControllerState = {
+    val values = new Array[Float](buttons.length)
+    var i      = 0
+    while (i < buttons.length) {
+      values(i) = if (buttons(i)) 1.0f else 0.0f
+      i += 1
+    }
+    ControllerState(name, uniqueId, connected, buttons, values, axes, powerLevel)
+  }
 }

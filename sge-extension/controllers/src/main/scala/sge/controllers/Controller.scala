@@ -18,6 +18,12 @@ trait Controller {
   /** @return whether the button is pressed. */
   def getButton(buttonCode: Int): Boolean
 
+  /** @return
+    *   the analog pressure value of the button, between 0 and 1. Digital buttons return 0.0 or 1.0. Analog triggers return values in between. Uses a 0.5f threshold to determine pressed state (see
+    *   [[getButton]]).
+    */
+  def getButtonValue(buttonCode: Int): Float
+
   /** @return the value of the axis, between -1 and 1. */
   def getAxis(axisCode: Int): Float
 

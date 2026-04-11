@@ -115,6 +115,7 @@ private[controllers] class PolledController(initialState: ControllerState) exten
   private val _uniqueId:              String                          = initialState.uniqueId
   private var _connected:             Boolean                         = initialState.connected
   private var _buttons:               Array[Boolean]                  = initialState.buttons.clone()
+  private var _buttonValues:          Array[Float]                    = initialState.buttonValues.clone()
   private var _axes:                  Array[Float]                    = initialState.axes.clone()
   private var _powerLevel:            ControllerPowerLevel            = initialState.powerLevel
   private var _playerIndex:           Int                             = Controller.PlayerIdxUnset
@@ -124,6 +125,9 @@ private[controllers] class PolledController(initialState: ControllerState) exten
 
   override def getButton(buttonCode: Int): Boolean =
     if (buttonCode >= 0 && buttonCode < _buttons.length) _buttons(buttonCode) else false
+
+  override def getButtonValue(buttonCode: Int): Float =
+    if (buttonCode >= 0 && buttonCode < _buttonValues.length) _buttonValues(buttonCode) else 0f
 
   override def getAxis(axisCode: Int): Float =
     if (axisCode >= 0 && axisCode < _axes.length) _axes(axisCode) else 0f
@@ -189,9 +193,18 @@ private[controllers] class PolledController(initialState: ControllerState) exten
       }
       i += 1
     }
+    // Update analog values alongside digital state
+    val maxBtnVals = scala.math.min(_buttonValues.length, state.buttonValues.length)
+    var bv         = 0
+    while (bv < maxBtnVals) {
+      _buttonValues(bv) = state.buttonValues(bv)
+      bv += 1
+    }
+
     // Handle size changes (new buttons appeared)
     if (state.buttons.length != _buttons.length) {
       _buttons = state.buttons.clone()
+      _buttonValues = state.buttonValues.clone()
     }
 
     // Detect axis changes

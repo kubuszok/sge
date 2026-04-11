@@ -15,8 +15,7 @@ import scala.scalajs.js.Dynamic.{ global => g }
 
 /** Web Gamepad API implementation for the [[BrowserControllerBackend]].
   *
-  * Uses `navigator.getGamepads()` to poll connected gamepads. The "standard" mapping
-  * matches the W3C Standard Gamepad layout (same as Xbox/SDL: 17 buttons, 4 axes).
+  * Uses `navigator.getGamepads()` to poll connected gamepads. The "standard" mapping matches the W3C Standard Gamepad layout (same as Xbox/SDL: 17 buttons, 4 axes).
   *
   * Browser quirks:
   *   - Gamepads are only visible after the user interacts with them (press a button)
@@ -25,10 +24,9 @@ import scala.scalajs.js.Dynamic.{ global => g }
   */
 object BrowserControllerImpl {
 
-  /** Polls a specific gamepad slot using the Web Gamepad API.
-    * Returns [[ControllerState.Disconnected]] if the slot is empty or the API is unavailable.
+  /** Polls a specific gamepad slot using the Web Gamepad API. Returns [[ControllerState.Disconnected]] if the slot is empty or the API is unavailable.
     */
-  def pollController(index: Int): ControllerState = {
+  def pollController(index: Int): ControllerState =
     try {
       val nav = g.navigator
       if (js.isUndefined(nav) || js.isUndefined(nav.getGamepads)) {
@@ -41,20 +39,23 @@ object BrowserControllerImpl {
           if (gp == null || js.isUndefined(gp) || !gp.connected.asInstanceOf[Boolean]) {
             ControllerState.Disconnected
           } else {
-            val id = gp.id.asInstanceOf[String]
+            val id      = gp.id.asInstanceOf[String]
             val gpIndex = gp.index.asInstanceOf[Int]
 
-            val jsButtons = gp.buttons.asInstanceOf[js.Array[js.Dynamic]]
-            val buttons = new Array[Boolean](jsButtons.length)
-            var bi = 0
+            val jsButtons    = gp.buttons.asInstanceOf[js.Array[js.Dynamic]]
+            val buttons      = new Array[Boolean](jsButtons.length)
+            val buttonValues = new Array[Float](jsButtons.length)
+            var bi           = 0
             while (bi < jsButtons.length) {
-              buttons(bi) = jsButtons(bi).pressed.asInstanceOf[Boolean]
+              val value = jsButtons(bi).value.asInstanceOf[Double].toFloat
+              buttonValues(bi) = value
+              buttons(bi) = value >= 0.5f
               bi += 1
             }
 
             val jsAxes = gp.axes.asInstanceOf[js.Array[Double]]
-            val axes = new Array[Float](jsAxes.length)
-            var ai = 0
+            val axes   = new Array[Float](jsAxes.length)
+            var ai     = 0
             while (ai < jsAxes.length) {
               axes(ai) = jsAxes(ai).toFloat
               ai += 1
@@ -65,6 +66,7 @@ object BrowserControllerImpl {
               uniqueId = s"gamepad-$gpIndex",
               connected = true,
               buttons = buttons,
+              buttonValues = buttonValues,
               axes = axes,
               powerLevel = ControllerPowerLevel.Unknown
             )
@@ -74,10 +76,9 @@ object BrowserControllerImpl {
     } catch {
       case _: Exception => ControllerState.Disconnected
     }
-  }
 
   /** Returns the maximum number of gamepads the browser supports (typically 4). */
-  def maxControllers: Int = {
+  def maxControllers: Int =
     try {
       val nav = g.navigator
       if (js.isUndefined(nav) || js.isUndefined(nav.getGamepads)) 0
@@ -85,5 +86,4 @@ object BrowserControllerImpl {
     } catch {
       case _: Exception => 0
     }
-  }
 }
