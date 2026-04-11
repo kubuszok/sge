@@ -70,7 +70,7 @@ class Font {
   var defaultValue: GlyphRegion = new GlyphRegion(0f, 0f, 0f)
 
   /** The distance field type this font uses. */
-  protected var distanceField: DistanceFieldType = DistanceFieldType.STANDARD
+  protected var distanceField: Font.DistanceFieldType = DistanceFieldType.STANDARD
 
   /** If true, this is a fixed-width (monospace) font. */
   var isMono: Boolean = false
@@ -409,6 +409,86 @@ class Font {
   /** Gets the char associated with a name from an atlas added to this, or -1 if not found. */
   def atlasLookup(lookupName: String): Int =
     Nullable.fold(nameLookup)(-1)(_.get(lookupName, -1))
+
+  /** Adds all items in atlas to the private use area of mapping, and stores their names, so they can be looked up with [+saxophone] syntax. Uses defaults of no prepend/append and no metric changes.
+    */
+  def addAtlas(atlas: sge.graphics.g2d.TextureAtlas): Font =
+    addAtlas(atlas, "", "", 0f, 0f, 0f)
+
+  /** Adds all items in atlas with metric adjustments. */
+  def addAtlas(atlas: sge.graphics.g2d.TextureAtlas, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float): Font =
+    addAtlas(atlas, "", "", offsetXChange, offsetYChange, xAdvanceChange)
+
+  /** Adds all items in atlas with prepend/append strings and metric adjustments. Maps TextureRegion names in the atlas to chars in the private use area (0xE000-0xF7FF).
+    */
+  def addAtlas(atlas: sge.graphics.g2d.TextureAtlas, prepend: String, append: String, offsetXChange: Float, offsetYChange: Float, xAdvanceChange: Float): Font = {
+    val regions = atlas.regions
+    if (Nullable.isEmpty(nameLookup))
+      nameLookup = Nullable(new CaseInsensitiveIntMap())
+    if (Nullable.isEmpty(namesByCharCode))
+      namesByCharCode = Nullable(HashMap.empty)
+    val pre = if (prepend == null) "" else prepend
+    val app = if (append == null) "" else append
+
+    val oxc = offsetXChange + inlineImageOffsetX
+    val oyc = offsetYChange + inlineImageOffsetY
+    val xac = xAdvanceChange + inlineImageXAdvance
+
+    val namesByCC = Nullable.getOrElse(namesByCharCode)(HashMap.empty)
+    val nl        = Nullable.getOrElse(nameLookup)(new CaseInsensitiveIntMap())
+    val start     = 0xe000 + namesByCC.size
+
+    if (regions.size > 0) {
+      var previous = regions(0)
+      var gr       = new GlyphRegion(previous, previous.offsetX + oxc, previous.offsetY - oyc, previous.originalWidth.toFloat + xac)
+      mapping.put(start, gr)
+      var regionName = pre + previous.name + app
+      nl.put(regionName, start)
+      namesByCC.put(start, regionName)
+
+      var i = start
+      var a = 1
+      while (i < 0xf800 && a < regions.size) {
+        val region = regions(a)
+        if (
+          previous.regionX == region.regionX && previous.regionY == region.regionY
+          && (previous.texture eq region.texture)
+        ) {
+          regionName = pre + region.name + app
+          nl.put(regionName, i)
+          val f = previous.name.charAt(0)
+          if (f < 0x2000) namesByCC.put(i, regionName)
+        } else {
+          i += 1
+          previous = region
+          gr = new GlyphRegion(region, region.offsetX + oxc, region.offsetY - oyc, region.originalWidth.toFloat + xac)
+          mapping.put(i, gr)
+          regionName = pre + region.name + app
+          nl.put(regionName, i)
+          namesByCC.put(i, regionName)
+        }
+        a += 1
+      }
+    }
+
+    nameLookup = Nullable(nl)
+    namesByCharCode = Nullable(namesByCC)
+    this
+  }
+
+  /** Makes this Font learn a new mapping from a char to a TextureRegion with offset and advance. */
+  def addImage(character: String, region: sge.graphics.g2d.TextureRegion, offsetX: Float, offsetY: Float, xAdvance: Float): Font = {
+    if (character != null && character.nonEmpty)
+      mapping.put(character.charAt(character.length - 1).toInt, new GlyphRegion(region, offsetX, offsetY, xAdvance))
+    this
+  }
+
+  /** Makes this Font learn a new mapping from a char to a TextureRegion with default offset/advance. */
+  def addImage(character: String, region: sge.graphics.g2d.TextureRegion): Font = {
+    if (character != null && character.nonEmpty)
+      mapping.put(character.charAt(character.length - 1).toInt, new GlyphRegion(region))
+    this
+  }
 
   /** Adds a new spacing glyph to this Font. */
   def addSpacingGlyph(representation: Char, advance: Float): Font = {
@@ -1050,7 +1130,236 @@ class Font {
   def insertZeroWidthSpacesInCJK(text: String): String =
     text.replaceAll("([\u2e80-\u303f\u31c0-\u31ef\u3200-\u9fff\uf900-\ufaff\ufe30-\ufe4f])", "$1\u200b")
 
-  //// close section
+  //// constructor section
+  // Note: In Scala, secondary constructors must call a PRECEDING constructor.
+  // Terminal constructors (calling this()) must come before convenience constructors that delegate.
+
+  // --- Terminal constructors (call this() directly) ---
+
+  /** Constructs a new Font by reading in a .fnt file with the specified distance field, adjustments, and grid glyph flag. */
+  def this(fntName: String, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    val fntHandle = summon[Sge].files.internal(fntName)
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntName)
+  }
+
+  /** Constructs a new Font by reading in a .fnt file from the given FileHandle with distance field and adjustments. */
+  def this(fntHandle: sge.files.FileHandle, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntHandle.name)
+  }
+
+  /** Constructs a font using fnt name and texture name with distance field, adjustments, and grid glyph flag. */
+  def this(fntName: String, textureName: String, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    val fntHandle = summon[Sge].files.internal(fntName)
+    if (!fntHandle.exists()) throw new RuntimeException("Missing font file: " + fntName)
+    if (textureName != null) {
+      val textureHandle = summon[Sge].files.internal(textureName)
+      if (textureHandle.exists()) {
+        parents += new sge.graphics.g2d.TextureRegion(new sge.graphics.Texture(textureHandle))
+        if (distanceField != DistanceFieldType.STANDARD)
+          parents(0).texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+      } else {
+        throw new RuntimeException("Missing texture file: " + textureName)
+      }
+    }
+    loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+  }
+
+  /** Constructs a font from a .fnt file name and a TextureRegion with distance field, adjustments, and grid glyph flag. */
+  def this(fntName: String, textureRegion: sge.graphics.g2d.TextureRegion, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean)(using
+    Sge
+  ) = {
+    this()
+    setDistanceField(distanceField)
+    parents += textureRegion
+    if (textureRegion.texture != null && distanceField != DistanceFieldType.STANDARD)
+      textureRegion.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    val fntHandle = summon[Sge].files.internal(fntName)
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntName)
+  }
+
+  /** Constructs a font from a .fnt FileHandle and a TextureRegion with distance field, adjustments, and grid glyph flag. */
+  def this(
+    fntHandle:      sge.files.FileHandle,
+    textureRegion:  sge.graphics.g2d.TextureRegion,
+    distanceField:  Font.DistanceFieldType,
+    xAdj:           Float,
+    yAdj:           Float,
+    wAdj:           Float,
+    hAdj:           Float,
+    makeGridGlyphs: Boolean
+  )(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    parents += textureRegion
+    if (textureRegion.texture != null && distanceField != DistanceFieldType.STANDARD)
+      textureRegion.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntHandle.name)
+  }
+
+  /** Constructs a font from a .fnt file name and an ArrayBuffer of TextureRegions with distance field, adjustments, and grid glyph flag. */
+  def this(
+    fntName:        String,
+    textureRegions: ArrayBuffer[sge.graphics.g2d.TextureRegion],
+    distanceField:  Font.DistanceFieldType,
+    xAdj:           Float,
+    yAdj:           Float,
+    wAdj:           Float,
+    hAdj:           Float,
+    makeGridGlyphs: Boolean
+  )(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    parents ++= textureRegions
+    if (distanceField != DistanceFieldType.STANDARD) {
+      for (parent <- parents)
+        if (parent.texture != null)
+          parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    }
+    val fntHandle = summon[Sge].files.internal(fntName)
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntName)
+  }
+
+  /** Constructs a font from a .fnt FileHandle and an ArrayBuffer of TextureRegions with distance field, adjustments, and grid glyph flag. */
+  def this(
+    fntHandle:      sge.files.FileHandle,
+    textureRegions: ArrayBuffer[sge.graphics.g2d.TextureRegion],
+    distanceField:  Font.DistanceFieldType,
+    xAdj:           Float,
+    yAdj:           Float,
+    wAdj:           Float,
+    hAdj:           Float,
+    makeGridGlyphs: Boolean
+  )(using Sge) = {
+    this()
+    setDistanceField(distanceField)
+    parents ++= textureRegions
+    if (distanceField != DistanceFieldType.STANDARD) {
+      for (parent <- parents)
+        if (parent.texture != null)
+          parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    }
+    if (fntHandle.exists()) loadFNT(fntHandle, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + fntHandle.name)
+  }
+
+  /** Constructs a new Font from a SadConsole .font file. */
+  def this(prefix: String, fontName: String, ignoredSadConsoleFlag: Boolean)(using Sge) = {
+    this()
+    setDistanceField(DistanceFieldType.STANDARD)
+    loadSad(if (prefix == null) "" else prefix, fontName)
+  }
+
+  /** Constructs a Font from a Structured JSON FileHandle with a provided TextureRegion and adjustments. */
+  def this(
+    jsonHandle:                sge.files.FileHandle,
+    textureRegion:             sge.graphics.g2d.TextureRegion,
+    xAdj:                      Float,
+    yAdj:                      Float,
+    wAdj:                      Float,
+    hAdj:                      Float,
+    makeGridGlyphs:            Boolean,
+    ignoredStructuredJsonFlag: Boolean
+  ) = {
+    this()
+    if (jsonHandle.exists()) loadJSON(jsonHandle, textureRegion, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + jsonHandle)
+  }
+
+  /** Constructs a Font from a Structured JSON file with a provided TextureRegion and adjustments. */
+  def this(jsonName: String, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float, makeGridGlyphs: Boolean, ignoredStructuredJsonFlag: Boolean)(using
+    Sge
+  ) = {
+    this()
+    val fntHandle = summon[Sge].files.internal(jsonName)
+    if (fntHandle.exists()) loadJSON(fntHandle, textureRegion, xAdj, yAdj, wAdj, hAdj, makeGridGlyphs)
+    else throw new RuntimeException("Missing font file: " + jsonName)
+  }
+
+  // --- Convenience constructors (delegate to preceding terminal constructors) ---
+
+  /** Constructs a new Font by reading in a .fnt file. No distance field. */
+  def this(fntName: String)(using Sge) =
+    this(fntName, Font.DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f, false)
+
+  /** Constructs a new Font by reading in a .fnt file with distance field. */
+  def this(fntName: String, distanceField: Font.DistanceFieldType)(using Sge) =
+    this(fntName, distanceField, 0f, 0f, 0f, 0f, false)
+
+  /** Constructs a new Font by reading in a .fnt file with adjustments. No distance field. */
+  def this(fntName: String, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, Font.DistanceFieldType.STANDARD, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a new Font by reading in a .fnt file with distance field and adjustments. */
+  def this(fntName: String, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, distanceField, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a new Font from a FileHandle. No distance field. */
+  def this(fntHandle: sge.files.FileHandle)(using Sge) =
+    this(fntHandle, Font.DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f, false)
+
+  /** Constructs a new Font by reading in a .fnt file and a texture by filename. No distance field. */
+  def this(fntName: String, textureName: String)(using Sge) =
+    this(fntName, textureName, Font.DistanceFieldType.STANDARD, 0f, 0f, 0f, 0f, false)
+
+  /** Constructs a new Font by reading in a .fnt file and a texture by filename, with distance field. */
+  def this(fntName: String, textureName: String, distanceField: Font.DistanceFieldType)(using Sge) =
+    this(fntName, textureName, distanceField, 0f, 0f, 0f, 0f, false)
+
+  /** Constructs a font using fnt name and texture name with adjustments. No distance field. */
+  def this(fntName: String, textureName: String, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureName, Font.DistanceFieldType.STANDARD, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a font using fnt name and texture name with distance field and adjustments. */
+  def this(fntName: String, textureName: String, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureName, distanceField, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a font from a .fnt file name and a TextureRegion. No distance field. */
+  def this(fntName: String, textureRegion: sge.graphics.g2d.TextureRegion, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureRegion, Font.DistanceFieldType.STANDARD, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a font from a .fnt file name and a TextureRegion with distance field. */
+  def this(fntName: String, textureRegion: sge.graphics.g2d.TextureRegion, distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureRegion, distanceField, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a font from a .fnt file name and an ArrayBuffer of TextureRegions. No distance field. */
+  def this(fntName: String, textureRegions: ArrayBuffer[sge.graphics.g2d.TextureRegion], xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureRegions, Font.DistanceFieldType.STANDARD, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a font from a .fnt file name and an ArrayBuffer of TextureRegions with distance field. */
+  def this(fntName: String, textureRegions: ArrayBuffer[sge.graphics.g2d.TextureRegion], distanceField: Font.DistanceFieldType, xAdj: Float, yAdj: Float, wAdj: Float, hAdj: Float)(using Sge) =
+    this(fntName, textureRegions, distanceField, xAdj, yAdj, wAdj, hAdj, false)
+
+  /** Constructs a Font from a Structured JSON FileHandle with a provided TextureRegion. */
+  def this(jsonHandle: sge.files.FileHandle, textureRegion: sge.graphics.g2d.TextureRegion, ignoredStructuredJsonFlag: Boolean) =
+    this(jsonHandle, textureRegion, 0f, 0f, 0f, 0f, true, ignoredStructuredJsonFlag)
+
+  /** Constructs a Font from a Structured JSON file with a provided TextureRegion. */
+  def this(jsonName: String, textureRegion: sge.graphics.g2d.TextureRegion, makeGridGlyphs: Boolean, ignoredStructuredJsonFlag: Boolean)(using Sge) =
+    this(jsonName, textureRegion, 0f, 0f, 0f, 0f, makeGridGlyphs, ignoredStructuredJsonFlag)
+
+  /** Constructs a Font from a Structured JSON file, loading a PNG with the same filename. */
+  def this(jsonName: String, ignoredStructuredJsonFlag: Boolean)(using Sge) =
+    this(
+      jsonName,
+      new sge.graphics.g2d.TextureRegion(new sge.graphics.Texture(summon[Sge].files.internal(jsonName.replaceFirst("\\..+$", ".png")))),
+      0f,
+      0f,
+      0f,
+      0f,
+      true,
+      ignoredStructuredJsonFlag
+    )
 
   /** Copy constructor that creates a new Font with the same settings as the given Font. */
   def this(other: Font) = {
@@ -2008,6 +2317,99 @@ class Font {
     }
     drawn
   }
+
+  /** Draws an entire Layout of text at the given position with alignment (Align.left, center, right, etc.).
+    * @return
+    *   the width of the widest line drawn
+    */
+  def drawGlyphs(batch: sge.graphics.g2d.Batch, layout: Layout, x: Float, y: Float, align: sge.utils.Align): Float = {
+    val lines      = layout.lines
+    var drawn      = 0f
+    var lineY      = y
+    var advanceIdx = 0
+
+    var ln = 0
+    while (ln < lines.size) {
+      val line   = lines(ln)
+      val glyphs = line.glyphs
+      val lineW  = line.width
+      var cx     = x
+      if (align.isRight) cx += layout.getWidth - lineW
+      else if (!align.isLeft) cx += (layout.getWidth - lineW) * 0.5f
+
+      var i = 0
+      while (i < glyphs.size) {
+        val glyph   = glyphs(i)
+        val advance = if (advanceIdx < layout.advances.size) layout.advances(advanceIdx) else 1f
+        advanceIdx += 1
+        val drawnW = drawGlyph(batch, glyph, cx, lineY, 0f, advance, advance, 0, 1f)
+        cx += drawnW
+        i += 1
+      }
+      if (lineW > drawn) drawn = lineW
+      lineY -= line.height
+      ln += 1
+    }
+    drawn
+  }
+
+  /** Draws the specified text at the given x,y position (in world space) with a white foreground. This is a simple rendering path that does not process markup.
+    */
+  def drawText(batch: sge.graphics.g2d.Batch, text: CharSequence, x: Float, y: Float): Unit =
+    drawText(batch, text, x, y, -2)
+
+  /** Draws the specified text at the given x,y position (in world space) with the given foreground color. This is a simple rendering path that does not process markup.
+    */
+  def drawText(batch: sge.graphics.g2d.Batch, text: CharSequence, xIn: Float, y: Float, color: Int): Unit = {
+    batch.packedColor = java.lang.Float.intBitsToFloat(Integer.reverseBytes(color & -2))
+    var x = xIn
+    var i = 0
+    val n = text.length
+    while (i < n) {
+      val current = mapping.getOrElse(text.charAt(i).toInt, defaultValue)
+      batch.draw(current, x + current.offsetX * scaleX, y + current.offsetY * scaleY, current.regionWidth * scaleX, current.regionHeight * scaleY)
+      x += current.regionWidth * scaleX
+      i += 1
+    }
+  }
+
+  /** Draws markup text at the given x,y position. Parses markup, draws, and returns width. */
+  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float): Float = {
+    tempLayout.clear()
+    tempLayout.font = Nullable(this)
+    tempLayout.setBaseColor(batch.color)
+    markup(text, tempLayout)
+    drawGlyphs(batch, tempLayout, x, y)
+  }
+
+  /** Draws markup text at the given x,y position with alignment. */
+  def drawMarkupText(batch: sge.graphics.g2d.Batch, text: String, x: Float, y: Float, align: sge.utils.Align, targetWidth: Float): Float = {
+    tempLayout.clear()
+    tempLayout.font = Nullable(this)
+    tempLayout.setTargetWidth(targetWidth)
+    tempLayout.setBaseColor(batch.color)
+    markup(text, tempLayout)
+    drawGlyphs(batch, tempLayout, x, y, align)
+  }
+
+  /** Sets the TextureFilter on each Texture parent to Linear/Linear (for high-quality scaling). */
+  def setTextureFilter(): Font = {
+    for (parent <- parents)
+      if (parent.texture != null)
+        parent.texture.setFilter(sge.graphics.Texture.TextureFilter.Linear, sge.graphics.Texture.TextureFilter.Linear)
+    this
+  }
+
+  /** Sets the TextureFilter on each Texture parent to the specified min and mag filters. */
+  def setTextureFilter(minFilter: sge.graphics.Texture.TextureFilter, magFilter: sge.graphics.Texture.TextureFilter): Font = {
+    for (parent <- parents)
+      if (parent.texture != null)
+        parent.texture.setFilter(minFilter, magFilter)
+    this
+  }
+
+  /** Releases rendering resources held by this Font. */
+  def dispose(): Unit = close()
 
   //// font loading section
 
