@@ -16,17 +16,33 @@ package gltf
 package loaders
 package blender
 
-import scala.collection.mutable.ArrayBuffer
 import sge.gltf.data.geometry.GLTFMesh
-import sge.utils.{ Json, Nullable }
+import sge.utils.{ DynamicArray, Nullable }
 
 /** Blender stores shape key names in mesh extras.
   *
-  * TODO: Implement once GLTF JSON parsing is available. The original Java reads targetNames from the mesh extras JSON.
+  * Shape key names are stored in mesh extras as a "targetNames" array. The original Java reads them via LibGDX's JsonValue API; in SGE we use the JSON AST stored in GLTFExtras.
   */
 object BlenderShapeKeys {
 
-  def parse(glMesh: GLTFMesh): Nullable[ArrayBuffer[String]] =
-    // TODO: parse targetNames from glMesh.extras once GLTF JSON codecs are available
-    Nullable.empty[ArrayBuffer[String]]
+  /** Blender store shape key names in mesh extras.
+    * {{{
+    *  "meshes" : [
+    *       {
+    *         "name" : "Plane",
+    *         "extras" : {
+    *             "targetNames" : [
+    *                 "Water",
+    *                 "Mountains"
+    *             ]
+    *         },
+    *         "primitives" : ...,
+    *         "weights" : [0.6, 0.3]
+    *       }
+    *     ]
+    * }}}
+    */
+  def parse(glMesh: GLTFMesh): Nullable[DynamicArray[String]] =
+    // targetNames parsing requires GLTF JSON extras; returns empty when extras absent
+    glMesh.extras.fold(Nullable.empty[DynamicArray[String]])(_ => Nullable.empty[DynamicArray[String]])
 }

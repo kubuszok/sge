@@ -26,6 +26,7 @@ import sge.gltf.data.data.GLTFAccessor
 import sge.gltf.data.texture.GLTFSampler
 import sge.gltf.loaders.exceptions.{ GLTFIllegalException, GLTFUnsupportedException }
 import sge.gltf.loaders.shared.animation.Interpolation
+import sge.gltf.scene3d.model.{ CubicQuaternion, CubicVector3, CubicWeightVector, WeightVector }
 import sge.math.{ MathUtils, Quaternion, Vector3 }
 import sge.utils.Nullable
 
@@ -78,6 +79,54 @@ object GLTFTypes {
 
   def map(v: Vector3, fv: Array[Float], offset: Int): Vector3 =
     v.set(fv(offset), fv(offset + 1), fv(offset + 2))
+
+  def map(v: CubicVector3, fv: Array[Float], offset: Int): CubicVector3 = {
+    v.tangentIn.set(fv(offset + 0), fv(offset + 1), fv(offset + 2))
+    v.value.set(fv(offset + 3), fv(offset + 4), fv(offset + 5))
+    v.tangentOut.set(fv(offset + 6), fv(offset + 7), fv(offset + 8))
+    v
+  }
+
+  def map(v: CubicQuaternion, fv: Array[Float], offset: Int): CubicQuaternion = {
+    v.tangentIn.set(fv(offset + 0), fv(offset + 1), fv(offset + 2), fv(offset + 3))
+    v.value.set(fv(offset + 4), fv(offset + 5), fv(offset + 6), fv(offset + 7))
+    v.tangentOut.set(fv(offset + 8), fv(offset + 9), fv(offset + 10), fv(offset + 11))
+    v
+  }
+
+  def map(w: WeightVector, outputData: Array[Float], offset: Int): WeightVector = {
+    var i = 0
+    while (i < w.count) {
+      w.values(i) = outputData(offset + i)
+      i += 1
+    }
+    w
+  }
+
+  /** https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#animations end of chapter : When used with CUBICSPLINE interpolation, tangents (ak, bk) and values (vk) are grouped
+    * within keyframes: a1,a2,...an,v1,v2,...vn,b1,b2,...bn
+    */
+  def map(w: CubicWeightVector, outputData: Array[Float], offset: Int): CubicWeightVector = {
+    var off = offset
+    var i   = 0
+    while (i < w.count) {
+      w.tangentIn.values(i) = outputData(off + i)
+      i += 1
+    }
+    off += w.count
+    i = 0
+    while (i < w.count) {
+      w.values(i) = outputData(off + i)
+      i += 1
+    }
+    off += w.count
+    i = 0
+    while (i < w.count) {
+      w.tangentOut.values(i) = outputData(off + i)
+      i += 1
+    }
+    w
+  }
 
   // https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#accessor-element-size
   def accessorTypeSize(accessor: GLTFAccessor): Int =

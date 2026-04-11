@@ -7,12 +7,10 @@
 package sge
 package controllers
 
-/** Call [[init]] once at startup on Scala.js to wire the BrowserControllerBackend
-  * to the real Web Gamepad API implementation.
+/** Call [[init]] once at startup on Scala.js to wire the BrowserControllerBackend to the real Web Gamepad API implementation.
   */
 object BrowserControllerInit {
 
-  def init(): Unit = {
+  def init(): Unit =
     BrowserControllerBackend.pollControllerImpl = BrowserControllerImpl.pollController
-  }
 }
