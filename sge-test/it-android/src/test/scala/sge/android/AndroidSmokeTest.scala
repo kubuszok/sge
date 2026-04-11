@@ -299,7 +299,7 @@ class AndroidSmokeTest extends FunSuite {
         // - LIFECYCLE: pause/resume listener not yet set during first Activity lifecycle
         // - CLIPBOARD: clipboard readback empty on headless CI emulator (no window manager)
         val knownFailures = Set("JSON_XML", "FILEHANDLE_TYPES", "TOUCH_DISPATCH", "LIFECYCLE", "CLIPBOARD")
-        val failedChecks = checkResults.filter { case (name, status, _) =>
+        val failedChecks  = checkResults.filter { case (name, status, _) =>
           status == "FAIL" && !knownFailures.contains(name)
         }
         if (failedChecks.nonEmpty) {

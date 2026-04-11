@@ -15,11 +15,9 @@ import java.lang.foreign.*
 import java.lang.foreign.ValueLayout.*
 import java.lang.invoke.MethodHandle
 
-/** Initializes the GlfwControllerBackend companion object's polling function to use actual GLFW FFI
-  * calls on JVM via Panama FFM downcall handles.
+/** Initializes the GlfwControllerBackend companion object's polling function to use actual GLFW FFI calls on JVM via Panama FFM downcall handles.
   *
-  * This object's [[init]] method replaces the stub implementation, mirroring
-  * GlfwControllerNativeInit on Scala Native.
+  * This object's [[init]] method replaces the stub implementation, mirroring GlfwControllerNativeInit on Scala Native.
   */
 object GlfwControllerJvmInit {
 
@@ -101,17 +99,19 @@ object GlfwControllerJvmInit {
   private def invokeIntPtrPtr(mh: MethodHandle, arg0: Int, arg1: MemorySegment): MemorySegment =
     mh.invokeWithArguments(java.lang.Integer.valueOf(arg0), arg1).asInstanceOf[MemorySegment]
 
-  private def pollController(index: Int): ControllerState = {
+  private def pollController(index: Int): ControllerState =
     if (index < 0 || index > 15) ControllerState.Disconnected
     else if (invokeIntInt(hJoystickPresent, index) == 0) ControllerState.Disconnected
     else {
       val namePtr = invokeIntPtr(hGetJoystickName, index)
-      val name    = if (namePtr == MemorySegment.NULL || namePtr.address() == 0L) ""
-                    else namePtr.reinterpret(256L).getString(0L)
+      val name    =
+        if (namePtr == MemorySegment.NULL || namePtr.address() == 0L) ""
+        else namePtr.reinterpret(256L).getString(0L)
 
       val guidPtr = invokeIntPtr(hGetJoystickGUID, index)
-      val guid    = if (guidPtr == MemorySegment.NULL || guidPtr.address() == 0L) ""
-                    else guidPtr.reinterpret(256L).getString(0L)
+      val guid    =
+        if (guidPtr == MemorySegment.NULL || guidPtr.address() == 0L) ""
+        else guidPtr.reinterpret(256L).getString(0L)
 
       // Try gamepad API first (normalized Xbox layout)
       if (invokeIntInt(hJoystickIsGamepad, index) != 0) {
@@ -142,7 +142,6 @@ object GlfwControllerJvmInit {
         pollRawJoystick(index, name, guid)
       }
     }
-  }
 
   private def pollRawJoystick(index: Int, name: String, guid: String): ControllerState = {
     val arena = Arena.ofConfined()

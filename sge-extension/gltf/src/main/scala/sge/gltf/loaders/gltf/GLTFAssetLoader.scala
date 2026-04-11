@@ -30,8 +30,7 @@ import sge.gltf.loaders.shared.texture.{ ImageResolver, TextureResolver }
 import sge.gltf.scene3d.scene.SceneAsset
 import sge.utils.{ DynamicArray, Nullable }
 
-class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge)
-    extends AsynchronousAssetLoader[SceneAsset, SceneAssetLoaderParameters](resolver) {
+class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge) extends AsynchronousAssetLoader[SceneAsset, SceneAssetLoaderParameters](resolver) {
 
   private class ManagedTextureResolver(private val glModel: GLTF) extends TextureResolver {
 
@@ -48,12 +47,10 @@ class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge)
     )(using Sge): Unit = {}
 
     def fetch(manager: AssetManager): Unit = {
-      for ((key, desc) <- textureDescriptorsSimple) {
+      for ((key, desc) <- textureDescriptorsSimple)
         texturesSimple.put(key, manager(desc))
-      }
-      for ((key, desc) <- textureDescriptorsMipMap) {
+      for ((key, desc) <- textureDescriptorsMipMap)
         texturesMipmap.put(key, manager(desc))
-      }
     }
 
     def loadTextures(): Unit = {
@@ -69,9 +66,8 @@ class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge)
           texturesSimple.put(index, texture)
         }
       }
-      for ((_, pixmap) <- pixmaps) {
+      for ((_, pixmap) <- pixmaps)
         pixmap.close()
-      }
     }
 
     def getDependencies(deps: DynamicArray[AssetDescriptor[?]]): Unit = {
@@ -132,9 +128,8 @@ class GLTFAssetLoader(resolver: FileHandleResolver)(using sge: Sge)
     fileName:  String,
     file:      FileHandle,
     parameter: SceneAssetLoaderParameters
-  ): Unit = {
+  ): Unit =
     textureResolver.foreach(_.fetch(manager))
-  }
 
   override def loadSync(
     manager:   AssetManager,
