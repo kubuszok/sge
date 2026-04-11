@@ -58,3 +58,4 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/scene/SceneManager.scala	shor
 sge-extension/tools/src/main/scala/sge/tools/texturepacker/TexturePacker.scala	shortcuts	this(null,settings) Java interop ctor; 'output file does not yet exist' is staleness check	2026-04-08	dev
 sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala	shortcuts	'Conversion approximation' describes the algorithm being implemented (Blender FBX export plugin)	2026-04-08	dev
 sge-extension/controllers/src/main/scalanative/sge/controllers/GlfwControllerNative.scala	shortcuts	Doc comment about replacing the JVM stub at static-init time	2026-04-08	dev
+sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	Doc comments from original Java source: 'placeholder' describes the color value 256 used by ColorLookup for 'no color found', not a TODO	2026-04-11	dev
