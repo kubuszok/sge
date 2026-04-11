@@ -23,8 +23,8 @@ import scala.collection.mutable
   * This object tracks connected game controllers via [[android.view.InputDevice]], accumulates button and axis state from key/motion events, and provides polling snapshots as [[ControllerState]]
   * instances.
   *
-  * The original gdx-controllers used an event-queue architecture with AndroidController objects, an event pool, and synchronized dispatch. SGE replaces this with a polling model: the Android-side code
-  * tracks state in [[TrackedController]] instances, and [[AndroidControllerBackend]] polls snapshots from them each frame.
+  * The original gdx-controllers used an event-queue architecture with AndroidController objects, an event pool, and synchronized dispatch. SGE replaces this with a polling model: the Android-side
+  * code tracks state in [[TrackedController]] instances, and [[AndroidControllerBackend]] polls snapshots from them each frame.
   *
   * To use, call [[init]] once at startup after the Android Activity is set up.
   */
@@ -54,7 +54,7 @@ object AndroidControllerInit {
   private val KEYCODE_BACK:          Int = 4
   private val KEYCODE_BUTTON_L2:     Int = 104
   private val KEYCODE_BUTTON_R2:     Int = 105
-  private val ACTION_DOWN: Int = 0
+  private val ACTION_DOWN:           Int = 0
   private val SOURCE_CLASS_JOYSTICK: Int = 0x00000010
   private val SOURCE_GAMEPAD:        Int = 0x00000401
   private val KEYBOARD_TYPE_ALPHA:   Int = 2
@@ -100,13 +100,13 @@ object AndroidControllerInit {
     * @return
     *   true if the event was consumed
     */
-  def onKeyEvent(deviceId: Int, keyCode: Int, action: Int, source: Int): Boolean = {
+  def onKeyEvent(deviceId: Int, keyCode: Int, action: Int, source: Int): Boolean =
     if (ignoreNoGamepadButtons && !isGamepadButton(keyCode)) {
       false
     } else {
       lock.synchronized {
         controllerMap.get(deviceId) match {
-          case None => false
+          case None             => false
           case Some(controller) =>
             // If the button is already pressed and this is another DOWN, ignore (auto-repeat)
             if (controller.isButtonPressed(keyCode) && action == ACTION_DOWN) {
@@ -128,7 +128,6 @@ object AndroidControllerInit {
         }
       }
     }
-  }
 
   /** Forward a generic motion event (joystick/gamepad axes) from the Android view.
     *
@@ -143,12 +142,12 @@ object AndroidControllerInit {
     * @return
     *   true if the event was consumed
     */
-  def onMotionEvent(deviceId: Int, axisValues: Map[Int, Float], source: Int): Boolean = {
+  def onMotionEvent(deviceId: Int, axisValues: Map[Int, Float], source: Int): Boolean =
     if ((source & SOURCE_CLASS_JOYSTICK) == 0) false
     else {
       lock.synchronized {
         controllerMap.get(deviceId) match {
-          case None => false
+          case None             => false
           case Some(controller) =>
             // Handle POV (hat) axis -> dpad button mapping
             if (controller.hasPovAxis) {
@@ -204,7 +203,6 @@ object AndroidControllerInit {
         }
       }
     }
-  }
 
   /** Notify the controller system that a device was added (e.g. from InputManager.InputDeviceListener).
     *
@@ -271,7 +269,7 @@ object AndroidControllerInit {
 
   /** Adds a controller for the given device ID if it is a game controller. Uses reflection to access Android InputDevice APIs.
     */
-  private def addController(deviceId: Int): Unit = {
+  private def addController(deviceId: Int): Unit =
     try {
       val inputDeviceClass = Class.forName("android.view.InputDevice")
       val getDevice        = inputDeviceClass.getMethod("getDevice", classOf[Int])
@@ -290,18 +288,16 @@ object AndroidControllerInit {
       // Ignore devices that can't be queried (matches original behavior)
       case _: Exception => ()
     }
-  }
 
   /** Removes the controller with the given device ID. */
-  private def removeController(deviceId: Int): Unit = {
+  private def removeController(deviceId: Int): Unit =
     controllerMap.remove(deviceId).foreach { controller =>
       controller.connected = false
     }
-  }
 
   /** Checks whether an InputDevice is a game controller (joystick + gamepad or non-alphabetic keyboard, excluding fingerprint sensors). Uses reflection.
     */
-  private def isController(device: AnyRef): Boolean = {
+  private def isController(device: AnyRef): Boolean =
     try {
       val cls                = device.getClass()
       val getSources         = cls.getMethod("getSources")
@@ -316,18 +312,16 @@ object AndroidControllerInit {
     } catch {
       case _: Exception => false
     }
-  }
 
   /** Checks whether a keycode is a gamepad button. This mirrors KeyEvent.isGamepadButton() on Android.
     */
-  private def isGamepadButton(keyCode: Int): Boolean = {
+  private def isGamepadButton(keyCode: Int): Boolean =
     // Gamepad button range: KEYCODE_BUTTON_A(96) through KEYCODE_BUTTON_MODE(110)
     // Plus DPAD keys (19-22) and DPAD_CENTER(23)
     (keyCode >= 96 && keyCode <= 110) ||
-    (keyCode >= 19 && keyCode <= 23) ||
-    keyCode == 4 ||   // KEYCODE_BACK
-    keyCode == 108     // KEYCODE_BUTTON_START (KEYCODE_MENU maps to 82 but not a gamepad button)
-  }
+      (keyCode >= 19 && keyCode <= 23) ||
+      keyCode == 4 || // KEYCODE_BACK
+      keyCode == 108 // KEYCODE_BUTTON_START (KEYCODE_MENU maps to 82 but not a gamepad button)
 
   // ── TrackedController ───────────────────────────────────────────────
 
@@ -359,9 +353,8 @@ object AndroidControllerInit {
     }
 
     /** Whether this controller has trigger axes that should be mapped to trigger buttons. */
-    val hasTriggerAxis: Boolean = {
+    val hasTriggerAxis: Boolean =
       useNewAxisLogic && discoverRawAxisIds(device).exists(_ == AXIS_LTRIGGER) && discoverRawAxisIds(device).exists(_ == AXIS_RTRIGGER)
-    }
 
     /** Current POV X value (for tracking changes). */
     var povX: Float = 0f
@@ -396,9 +389,9 @@ object AndroidControllerInit {
       * returned maxButtonIndex = 300.
       */
     def toControllerState: ControllerState = {
-      val maxButton   = 301 // see Android KeyEvent class, max button index is ~300
-      val buttons     = new Array[Boolean](maxButton)
-      val buttonVals  = new Array[Float](maxButton)
+      val maxButton  = 301 // see Android KeyEvent class, max button index is ~300
+      val buttons    = new Array[Boolean](maxButton)
+      val buttonVals = new Array[Float](maxButton)
       pressedButtons.foreach { keyCode =>
         if (keyCode >= 0 && keyCode < maxButton) {
           buttons(keyCode) = true
@@ -462,11 +455,11 @@ object AndroidControllerInit {
     }
 
     /** Gets the raw axis IDs from the device's motion ranges via reflection. */
-    private def discoverRawAxisIds(device: AnyRef): Array[Int] = {
+    private def discoverRawAxisIds(device: AnyRef): Array[Int] =
       try {
-        val cls             = device.getClass()
-        val getMotionRanges = cls.getMethod("getMotionRanges")
-        val ranges          = getMotionRanges.invoke(device).asInstanceOf[java.util.List[?]]
+        val cls              = device.getClass()
+        val getMotionRanges  = cls.getMethod("getMotionRanges")
+        val ranges           = getMotionRanges.invoke(device).asInstanceOf[java.util.List[?]]
         val motionRangeClass = Class.forName("android.view.InputDevice$MotionRange")
         val getAxis          = motionRangeClass.getMethod("getAxis")
         val getSource        = motionRangeClass.getMethod("getSource")
@@ -485,6 +478,5 @@ object AndroidControllerInit {
       } catch {
         case _: Exception => Array.empty[Int]
       }
-    }
   }
 }

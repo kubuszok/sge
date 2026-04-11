@@ -9,6 +9,9 @@ package sge
 package colorful
 package oklab
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.colorful.{ FloatColors, TrigTools }
 import sge.graphics.Color
 import sge.math.MathUtils
@@ -230,14 +233,41 @@ object ColorTools {
   def alphaInt(encoded: Float): Int =
     (java.lang.Float.floatToRawIntBits(encoded) & 0xfe000000) >>> 24
 
-  /** Gets the red channel as a float from 0.0f to 1.0f. */
-  def red(encoded: Float): Float = redInt(encoded) / 255f
+  /** Gets the red channel value of the given encoded color, as a float from 0.0f to 1.0f, inclusive. */
+  def red(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val l       = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+    val m       = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+    val s       = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+    reverseGamma(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f))
+  }
 
-  /** Gets the green channel as a float from 0.0f to 1.0f. */
-  def green(encoded: Float): Float = greenInt(encoded) / 255f
+  /** Gets the green channel value of the given encoded color, as a float from 0.0f to 1.0f, inclusive. */
+  def green(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val l       = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+    val m       = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+    val s       = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+    reverseGamma(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f))
+  }
 
-  /** Gets the blue channel as a float from 0.0f to 1.0f. */
-  def blue(encoded: Float): Float = blueInt(encoded) / 255f
+  /** Gets the blue channel value of the given encoded color, as a float from 0.0f to 1.0f, inclusive. */
+  def blue(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val l       = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+    val m       = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+    val s       = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+    reverseGamma(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f))
+  }
 
   /** Gets the alpha channel as a float from 0.0f to 1.0f. */
   def alpha(encoded: Float): Float =
@@ -562,5 +592,258 @@ object ColorTools {
   def offsetLightness(mainColor: Float): Float = {
     val oklab = java.lang.Float.floatToRawIntBits(mainColor)
     limitToGamut(java.lang.Float.intBitsToFloat((oklab & 0xfeffff00) | (oklab + 128 & 0xff) + (oklab & 0xff) >>> 1))
+  }
+
+  /** Writes an Oklab-format packed float color into an Oklab-format Color (unchanged from its color space). Internally, this simply calls Color.abgr8888ToColor and returns the edited Color.
+    */
+  def toOklabColor(editing: Color, oklab: Float): Color = {
+    Color.abgr8888ToColor(editing, oklab)
+    editing
+  }
+
+  /** Gets the saturation of the given encoded color as HSL would calculate it, as a float from 0.0f to 1.0f. */
+  def saturation(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    if (Math.abs(L - 0.5) > 0.495f) 0f
+    else {
+      val A = ((decoded >>> 8 & 0xff) - 127f) / 127f
+      val B = ((decoded >>> 16 & 255) - 127f) / 127f
+      val l = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+      val m = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+      val s = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+      val r = reverseGamma(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f))
+      val g = reverseGamma(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f))
+      val b = reverseGamma(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f))
+      var x = 0f
+      var y = 0f
+      var w = 0f
+      if (g < b) {
+        x = b
+        y = g
+      } else {
+        x = g
+        y = b
+      }
+      if (r < x) {
+        w = r
+      } else {
+        w = x
+        x = r
+      }
+      x - Math.min(w, y)
+    }
+  }
+
+  /** Defined as per HSL; normally you only need channelL() to get accurate lightness for Oklab. */
+  def lightness(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val l       = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+    val m       = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+    val s       = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+    val r       = reverseGamma(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f))
+    val g       = reverseGamma(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f))
+    val b       = reverseGamma(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f))
+    var x       = 0f
+    var y       = 0f
+    var w       = 0f
+    if (g < b) {
+      x = b
+      y = g
+    } else {
+      x = g
+      y = b
+    }
+    if (r < x) {
+      w = r
+    } else {
+      w = x
+      x = r
+    }
+    val d = x - Math.min(w, y)
+    x * (1f - 0.5f * d / (x + 1e-10f))
+  }
+
+  /** Gets the hue of the given encoded color, as a float from 0f (inclusive, red) to 1f (exclusive, red). */
+  def hue(encoded: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val l       = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+    val m       = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+    val s       = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+    val r       = reverseGamma(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f))
+    val g       = reverseGamma(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f))
+    val b       = reverseGamma(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f))
+    var x       = 0f
+    var y       = 0f
+    var z       = 0f
+    var w       = 0f
+    if (g < b) {
+      x = b
+      y = g
+      z = -1f
+      w = 2f / 3f
+    } else {
+      x = g
+      y = b
+      z = 0f
+      w = -1f / 3f
+    }
+    if (r < x) {
+      z = w
+      w = r
+    } else {
+      w = x
+      x = r
+    }
+    val d = x - Math.min(w, y)
+    Math.abs(z + (w - y) / (6f * d + 1e-10f))
+  }
+
+  /** Gets a variation on the packed float color basis as another packed float that has its hue, saturation, lightness, and opacity adjusted by the specified amounts. Note that this edits the color in
+    * HSL space, not Oklab! Takes floats representing the amounts of change to apply to hue, saturation, lightness, and opacity; these can be between -1f and 1f.
+    */
+  def toEditedFloat(basis: Float, hue: Float, saturation: Float, light: Float, opacity: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(basis)
+    val L       = Math.min(Math.max(light + reverseLight((decoded & 0xff) / 255f), 0f), 1f)
+    val op      = Math.min(Math.max(opacity + (decoded >>> 25) * (1f / 127f), 0f), 1f)
+    if (L <= 0.001f) {
+      java.lang.Float.intBitsToFloat(((op * 255f).toInt << 24 & 0xfe000000) | 0x808000)
+    } else {
+      val A = ((decoded >>> 8 & 0xff) - 127f) / 127f
+      val B = ((decoded >>> 16 & 255) - 127f) / 127f
+      val l = cube(L + 0.3963377774f * A + 0.2158037573f * B)
+      val m = cube(L - 0.1055613458f * A - 0.0638541728f * B)
+      val s = cube(L - 0.0894841775f * A - 1.2914855480f * B)
+      val r = reverseGamma(Math.min(Math.max(+4.0767245293f * l - 3.3072168827f * m + 0.2307590544f * s, 0f), 1f))
+      val g = reverseGamma(Math.min(Math.max(-1.2681437731f * l + 2.6093323231f * m - 0.3411344290f * s, 0f), 1f))
+      val b = reverseGamma(Math.min(Math.max(-0.0041119885f * l - 0.7034763098f * m + 1.7068625689f * s, 0f), 1f))
+      var x = 0f
+      var y = 0f
+      var z = 0f
+      var w = 0f
+      if (g < b) {
+        x = b
+        y = g
+        z = -1f
+        w = 2f / 3f
+      } else {
+        x = g
+        y = b
+        z = 0f
+        w = -1f / 3f
+      }
+      if (r < x) {
+        z = w
+        w = r
+      } else {
+        w = x
+        x = r
+      }
+      val d   = x - Math.min(w, y)
+      val lum = x * (1f - 0.5f * d / (x + 1e-10f))
+      val h   = hue + Math.abs(z + (w - y) / (6f * d + 1e-10f)) + 1f
+      val sat = saturation + (x - lum) / (Math.min(lum, 1f - lum) + 1e-10f)
+      fromRGBA(FloatColors.hsl2rgb(h - h.toInt, Math.min(Math.max(sat, 0f), 1f), lum, op))
+    }
+  }
+
+  /** Makes a quasi-randomly-edited variant on the given color, allowing typically a small amount of variance between the given color and what this can return. The seed should be different each time
+    * this is called.
+    */
+  def randomEdit(color: Float, seed: Long, variance: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(color)
+    val L       = reverseLight((decoded & 0xff) / 255f)
+    val A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    val B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val limit   = variance * variance
+    var sd      = seed
+    // 0x7FFFFFp-1f = 4194303.5f, 0x1p-22f = 2.3841858e-7f
+    boundary[Float] {
+      var j = 0
+      while (j < 50) {
+        val x = (((sd * 0xd1b54a32d192ed03L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        val y = (((sd * 0xabc98388fb8fac03L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        val z = (((sd * 0x8cb92ba72f3d8dd7L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        sd += 0x9e3779b97f4a7c15L
+        val dist = x * x + y * y + z * z
+        if (dist <= limit) {
+          val nx = x + L
+          val ny = (A + y) * 0.5f + 0.5f
+          val nz = (B + z) * 0.5f + 0.5f
+          if (inGamut(nx, ny, nz)) {
+            break(
+              java.lang.Float.intBitsToFloat(
+                (decoded & 0xfe000000) | ((nz * 255.5f).toInt << 16 & 0xff0000)
+                  | ((ny * 255.5f).toInt << 8 & 0xff00) | (nx * 255.5f).toInt
+              )
+            )
+          }
+        }
+        j += 1
+      }
+      color
+    }
+  }
+
+  /** Gets the color with the same L but the furthest A/B from gray possible, keeping the same hue. This overload takes L, A, B, alpha as separate components.
+    */
+  def maximizeSaturation(L: Float, A: Float, B: Float, alpha: Float): Float = {
+    val lc   = Math.min(Math.max(L, 0f), 1f)
+    val ac   = Math.min(Math.max(A, 0f), 1f) - 0.5f
+    val bc   = Math.min(Math.max(B, 0f), 1f) - 0.5f
+    val alc  = Math.min(Math.max(alpha, 0f), 1f)
+    val hue  = TrigTools.atan2Turns(bc, ac)
+    val idx  = (lc * 255f).toInt << 8 | (256f * hue).toInt
+    val dist = GAMUT_DATA(idx) * 0.5f
+    java.lang.Float.intBitsToFloat(
+      (alc * 127.999f).toInt << 25 |
+        (TrigTools.sinTurns(hue) * dist + 127.5f).toInt << 16 |
+        (TrigTools.cosTurns(hue) * dist + 127.5f).toInt << 8 |
+        (lc * 255f).toInt
+    )
+  }
+
+  /** Multiplies the A and B channels of encoded by mul. Typically, mul is non-negative, but if it is negative, that will do some amount of inversion of A and B.
+    */
+  def multiplyChroma(encoded: Float, mul: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(encoded)
+    val L       = (decoded & 0xff) / 255f
+    var A       = ((decoded >>> 8 & 0xff) - 127f) / 127f
+    var B       = ((decoded >>> 16 & 255) - 127f) / 127f
+    val al      = (decoded >>> 25) / 127f
+    A = Math.min(Math.max(A * mul, -1f), 1f) * 0.5f
+    B = Math.min(Math.max(B * mul, -1f), 1f) * 0.5f
+    val hue  = TrigTools.atan2Turns(B, A)
+    val idx  = (L * 255f).toInt << 8 | (256f * hue).toInt
+    val dist = GAMUT_DATA(idx) * 0.5f
+    if (dist * dist * 1.5258789e-5f >= (A * A + B * B)) {
+      oklab(L, A + 0.5f, B + 0.5f, al)
+    } else {
+      java.lang.Float.intBitsToFloat(
+        (al * 127.999f).toInt << 25 |
+          (TrigTools.sinTurns(hue) * dist + 127.5f).toInt << 16 |
+          (TrigTools.cosTurns(hue) * dist + 127.5f).toInt << 8 |
+          (L * 255f).toInt
+      )
+    }
+  }
+
+  /** Produces a random packed float color that is always in-gamut (and opaque) and should be uniformly distributed. */
+  def randomColor(random: java.util.Random): Float = {
+    var L = random.nextFloat()
+    var A = random.nextFloat()
+    var B = random.nextFloat()
+    while (!inGamut(L, A, B)) {
+      L = random.nextFloat()
+      A = random.nextFloat()
+      B = random.nextFloat()
+    }
+    oklab(L, A, B, 1f)
   }
 }

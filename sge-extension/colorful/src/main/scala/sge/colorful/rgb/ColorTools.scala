@@ -9,6 +9,9 @@ package sge
 package colorful
 package rgb
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 import sge.colorful.FloatColors
 import sge.graphics.Color
 
@@ -218,7 +221,9 @@ object ColorTools {
     java.lang.Float.intBitsToFloat(((opacity * (1f - change)).toInt & 0xfe) << 24 | other)
   }
 
-  /** Gets a variation on basis with HSL adjustments applied. */
+  /** Gets a variation on basis with HSL adjustments applied. Note that this edits the color in HSL space, not RGB! Takes floats representing the amounts of change to apply to hue, saturation,
+    * lightness, and opacity; these can be between -1f and 1f.
+    */
   def toEditedFloat(basis: Float, hue: Float, saturation: Float, light: Float, opacity: Float): Float = {
     val decoded = java.lang.Float.floatToRawIntBits(basis)
     val op      = Math.min(Math.max(opacity + (decoded >>> 25) * (1f / 127f), 0f), 1f)
@@ -236,4 +241,139 @@ object ColorTools {
     val sat = (x - lum) / (Math.min(lum, 1f - lum) + 1e-10f) + saturation
     FloatColors.hsl2rgb(h - h.toInt, Math.min(Math.max(sat, 0f), 1f), Math.min(Math.max(lum + light, 0f), 1f), op)
   }
+
+  /** Given a packed float RGBA color mainColor and another RGBA color that it should be made to contrast with, gets a packed float RGBA color with roughly inverted lightness (how the Oklab color
+    * space interprets it), but the same general hue and saturation unless the lightness gets too close to white or black. This won't ever produce black or other very dark colors, and also has a gap
+    * in the range it produces for lightness values between 0.5 and 0.55. That allows most of the colors this method produces to contrast well as a foreground when displayed on a background of
+    * contrastingColor, or vice versa.
+    */
+  def inverseLightness(mainColor: Float, contrastingColor: Float): Float =
+    oklab.ColorTools.toRGBA(
+      oklab.ColorTools.inverseLightness(
+        oklab.ColorTools.fromRGBA(mainColor),
+        oklab.ColorTools.fromRGBA(contrastingColor)
+      )
+    )
+
+  /** Given a packed float RGBA color mainColor and another RGBA color that it should be made to contrast with, gets a packed float RGBA color with lightness that should be quite different from
+    * contrastingColor's lightness, but the same chromatic channels and opacity. This goes through Oklab as an intermediate step.
+    */
+  def differentiateLightness(mainColor: Float, contrastingColor: Float): Float = {
+    val main     = java.lang.Float.floatToRawIntBits(oklab.ColorTools.fromRGBA(mainColor))
+    val contrast = java.lang.Float.floatToRawIntBits(oklab.ColorTools.fromRGBA(contrastingColor))
+    oklab.ColorTools.toRGBA(java.lang.Float.intBitsToFloat((main & 0xfeffff00) | (contrast + 128 & 0xff) + (main & 0xff) >>> 1))
+  }
+
+  /** Pretty simple; adds 0.5 to the given color's lightness (calculated by converting it to Oklab internally) and wraps it around if it would go above 1.0, then averages that with the original
+    * lightness. This means light colors become darker, and dark colors become lighter, with almost all results in the middle-range of possible lightness.
+    */
+  def offsetLightness(mainColor: Float): Float = {
+    val oklab = java.lang.Float.floatToRawIntBits(mainColor)
+    sge.colorful.oklab.ColorTools.toRGBA(java.lang.Float.intBitsToFloat((oklab & 0xfeffff00) | (oklab + 128 & 0xff) + (oklab & 0xff) >>> 1))
+  }
+
+  /** Makes the additive RGBA color stored in color cause less of a change when used as a tint, as if it were mixed with neutral gray. When fraction is 1.0, this returns color unchanged; when fraction
+    * is 0.0, it returns gray, and when it is in-between 0.0 and 1.0 it returns something between the two.
+    */
+  def lessenChange(color: Float, fraction: Float): Float = {
+    val e  = java.lang.Float.floatToRawIntBits(color)
+    val rs = 0x80; val gs     = 0x80; val bs             = 0x80
+    val re = e & 0xff; val ge = (e >>> 8) & 0xff; val be = (e >>> 16) & 0xff; val ae = e >>> 24 & 0xfe
+    java.lang.Float.intBitsToFloat(
+      ((rs + fraction * (re - rs)).toInt & 0xff)
+        | ((gs + fraction * (ge - gs)).toInt & 0xff) << 8
+        | ((bs + fraction * (be - bs)).toInt & 0xff) << 16
+        | (ae << 24)
+    )
+  }
+
+  /** Given a packed float RGB color, this edits its red, green, blue, and alpha channels by adding the corresponding "add" parameter and then clamping. Each value is considered in the 0 to 1 range.
+    * You can give a value of 0 for any "add" parameter you want to stay unchanged.
+    */
+  def editRGB(encoded: Float, addR: Float, addG: Float, addB: Float, addAlpha: Float): Float =
+    editRGB(encoded, addR, addG, addB, addAlpha, 1f, 1f, 1f, 1f)
+
+  /** Given a packed float RGB color, this edits its red, green, blue, and alpha channels by first multiplying each channel by the corresponding "mul" parameter and then adding the corresponding "add"
+    * parameter, before clamping. You can give a value of 0 for any "add" parameter you want to stay unchanged, or a value of 1 for any "mul" parameter that shouldn't change.
+    */
+  def editRGB(
+    encoded:  Float,
+    addR:     Float,
+    addG:     Float,
+    addB:     Float,
+    addAlpha: Float,
+    mulR:     Float,
+    mulG:     Float,
+    mulB:     Float,
+    mulAlpha: Float
+  ): Float = {
+    val s = java.lang.Float.floatToRawIntBits(encoded)
+    val r = s & 0xff; val g = s >>> 8 & 0xff; val b = s >>> 16 & 0xff
+    val a = s >>> 25
+    java.lang.Float.intBitsToFloat(
+      Math.max(0, Math.min(255, (r * mulR + addR * 255.999f).toInt)) |
+        Math.max(0, Math.min(255, (g * mulG + addG * 255.999f).toInt)) << 8 |
+        Math.max(0, Math.min(255, (b * mulB + addB * 255.999f).toInt)) << 16 |
+        Math.max(0, Math.min(127, (a * mulAlpha + addAlpha * 127.999f).toInt)) << 25
+    )
+  }
+
+  /** Makes a quasi-randomly-edited variant on the given color, allowing typically a small amount of variance (such as 0.05 to 0.25) between the given color and what this can return. The seed should
+    * be different each time this is called, and can be obtained from a random number generator to make the colors more random, or can be incremented on each call.
+    */
+  def randomEdit(color: Float, seed: Long, variance: Float): Float = {
+    val decoded = java.lang.Float.floatToRawIntBits(color)
+    val r       = (decoded & 0xff) / 255f
+    val g       = (decoded >>> 8 & 0xff) / 255f
+    val b       = (decoded >>> 16 & 0xff) / 255f
+    val limit   = variance * variance
+    var sd      = seed
+    // 0x7FFFFFp-1f = 4194303.5f, 0x1p-22f = 2.3841858e-7f
+    boundary[Float] {
+      var j = 0
+      while (j < 50) {
+        val x = (((sd * 0xd1b54a32d192ed03L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        val y = (((sd * 0xabc98388fb8fac03L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        val z = (((sd * 0x8cb92ba72f3d8dd7L >>> 41) - 4194303.5f) * 2.3841858e-7f) * variance
+        sd += 0x9e3779b97f4a7c15L
+        val dist = x * x + y * y + z * z
+        val nx   = x + r
+        val ny   = y + g
+        val nz   = z + b
+        if (dist <= limit) {
+          break(
+            java.lang.Float.intBitsToFloat(
+              (decoded & 0xfe000000) | ((nz * 255.999f).toInt << 16 & 0xff0000)
+                | ((ny * 255.999f).toInt << 8 & 0xff00) | (nx * 255.999f).toInt
+            )
+          )
+        }
+        j += 1
+      }
+      color
+    }
+  }
+
+  /** Produces a random packed float color that is always opaque and should be uniformly distributed.
+    */
+  def randomColor(random: java.util.Random): Float = {
+    val r = random.nextFloat(); val g = random.nextFloat(); val b = random.nextFloat()
+    java.lang.Float.intBitsToFloat(
+      0xfe000000
+        | ((b * 256f).toInt << 16 & 0xff0000)
+        | ((g * 256f).toInt << 8 & 0xff00)
+        | ((r * 256f).toInt & 0xff)
+    )
+  }
+
+  /** Limited-use; like randomColor but for cases where you already have three floats (r, g, and b) distributed how you want. This can be somewhat useful if you are using a "subrandom" or
+    * "quasi-random" sequence to get 3D points and map them to colors.
+    */
+  def subrandomColor(r: Float, g: Float, b: Float): Float =
+    java.lang.Float.intBitsToFloat(
+      0xfe000000
+        | (Math.min(Math.max(b * 256f, 0), 255.999f).toInt << 16 & 0xff0000)
+        | (Math.min(Math.max(g * 256f, 0), 255.999f).toInt << 8 & 0xff00)
+        | (Math.min(Math.max(r * 256f, 0), 255.999f).toInt & 0xff)
+    )
 }
