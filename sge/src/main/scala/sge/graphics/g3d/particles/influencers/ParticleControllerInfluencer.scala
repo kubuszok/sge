@@ -25,6 +25,7 @@ package particles
 package influencers
 
 import sge.assets.AssetManager
+import sge.graphics.g3d.particles.EffectReference
 import sge.graphics.g3d.particles.ParallelArray.ObjectChannel
 import sge.graphics.g3d.particles.ParticleChannels
 import sge.graphics.g3d.particles.ParticleController
@@ -41,6 +42,11 @@ abstract class ParticleControllerInfluencer extends Influencer {
 
   var templates:                           DynamicArray[ParticleController]  = scala.compiletime.uninitialized
   protected var particleControllerChannel: ObjectChannel[ParticleController] = scala.compiletime.uninitialized
+
+  /** Transport field for JSON serialization: effect references with controller indices. Since JSON codecs don't have access to AssetManager, this field stores the mapping from effect filenames to
+    * controller indices during serialization/deserialization. The actual templates are resolved via AssetManager post-load (or pre-save by the loader).
+    */
+  var _effectReferences: Array[EffectReference] = Array.empty
 
   this.templates = DynamicArray[ParticleController](1)
 

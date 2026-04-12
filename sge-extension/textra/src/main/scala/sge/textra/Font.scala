@@ -1689,14 +1689,14 @@ class Font {
       val sn     = sge.math.MathUtils.sinDeg(rotation)
       val cs     = sge.math.MathUtils.cosDeg(rotation)
 
-      val color =
+      val color = utils.ColorUtils.multiplyAlpha(
         if (mode == Font.ERROR) PACKED_ERROR_COLOR
         else if (mode == Font.CONTEXT) PACKED_CONTEXT_COLOR
         else if (mode == Font.WARN) PACKED_WARN_COLOR
         else if (mode == Font.SUGGEST) PACKED_SUGGEST_COLOR
-        else PACKED_NOTE_COLOR
-      // TODO: multiplyAlpha with batch color alpha when ColorUtils is available
-      // val adjustedColor = ColorUtils.multiplyAlpha(color, batch.color.a)
+        else PACKED_NOTE_COLOR,
+        batch.color.a
+      )
 
       var index  = 0
       var startX = 0f

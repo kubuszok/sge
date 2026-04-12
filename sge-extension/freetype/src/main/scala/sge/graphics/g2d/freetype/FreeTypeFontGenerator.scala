@@ -10,17 +10,14 @@
  *   Convention: Nullable throughout; using Sge context parameter on constructor;
  *     inner static classes -> companion object members; getters -> property accessors
  *   Idiom: boundary/break (0 return), Nullable (0 null), split packages
- *   Audited: 2026-03-08
+ *   Fixes: SkylineStrategy now correctly used for non-incremental glyph generation (was using GuillotineStrategy)
+ *   Audited: 2026-04-12
  *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
  *
- * Covenant: partial-port
+ * Covenant: full-port
  * Covenant-source-reference: com/badlogic/gdx/graphics/g2d/freetype/FreeTypeFontGenerator.java
- * Covenant-verified: 2026-04-08
- *
- * Partial-port debt:
- *   - SkylineStrategy not yet ported: GuillotineStrategy is used for both atlas-packing
- *     paths until SkylineStrategy lands.
+ * Covenant-verified: 2026-04-12
  */
 package sge
 package graphics
@@ -257,8 +254,8 @@ class FreeTypeFontGenerator(fontFile: FileHandle, faceIndex: Int)(using Sge) ext
         if (maxTextureSize > 0) s = Math.min(s, maxTextureSize)
         s
       }
-      // SkylineStrategy is not yet ported, use GuillotineStrategy for both cases
-      val packStrategy: PixmapPacker.PackStrategy = PixmapPacker.GuillotineStrategy()
+      val packStrategy: PixmapPacker.PackStrategy =
+        if (incremental) PixmapPacker.GuillotineStrategy() else PixmapPacker.SkylineStrategy()
       val p = PixmapPacker(size, size, Format.RGBA8888, 1, false, packStrategy)
       p.transparentColor = Color(parameter.color.r, parameter.color.g, parameter.color.b, 0f)
       if (parameter.borderWidth > 0) {

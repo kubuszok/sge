@@ -22,6 +22,7 @@ converted, 0 not started, 66 skipped (stdlib replacements), 0 deferred.
 - **All 4 platforms are baseline**: JVM, JS, Native, Android — changes must be non-regressing on all
 - Use `re-scale` commands or `sbt --client` — never bare `sbt` (avoids the JVM startup tax on every invocation)
 - **sbt server stuck?** kill with `re-scale proc kill --kind sbt --dir .`, fix the cause, retry
+- **Porting is binary — 100% or not done**: Every method, every branch, every edge case in the original must be ported. A file at 74% coverage is incomplete, not "mostly done". Do not rationalize partial work as acceptable. Do not describe missing logic as "low priority" or "diminishing returns". If the original has it, the port must have it.
 
 ## Project Structure
 
