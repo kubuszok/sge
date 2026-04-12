@@ -35,8 +35,7 @@ import sge.graphics.g3d.particles.renderers._
 import sge.graphics.g3d.particles.values._
 import sge.utils.Nullable
 
-/** Transport structure for ParticleControllerInfluencer serialization.
-  * Maps a ParticleEffect asset filename to the indices of controllers within that effect.
+/** Transport structure for ParticleControllerInfluencer serialization. Maps a ParticleEffect asset filename to the indices of controllers within that effect.
   */
 final case class EffectReference(effectFilename: String, controllerIndices: Array[Int])
 
@@ -124,15 +123,14 @@ object ParticleEffectCodecs {
     out.writeArrayEnd()
   }
 
-  /** Reads a polymorphic JSON object, extracts "class" field, and returns (className, bufferedBytes).
-    * The bufferedBytes can be re-parsed with the appropriate type-specific codec.
-    * This is necessary because jsoniter-scala doesn't support rewinding the reader.
+  /** Reads a polymorphic JSON object, extracts "class" field, and returns (className, bufferedBytes). The bufferedBytes can be re-parsed with the appropriate type-specific codec. This is necessary
+    * because jsoniter-scala doesn't support rewinding the reader.
     */
   private def readPolymorphicObject(in: JsonReader): (Nullable[String], Array[Byte]) = {
     // We need to buffer the entire object to re-parse it
     // jsoniter-scala provides no rewind, so we capture raw bytes
     var className: Nullable[String] = Nullable.empty
-    val buf      = ArrayBuffer[Byte]()
+    val buf = ArrayBuffer[Byte]()
 
     // Read opening brace
     if (!in.isNextToken('{')) {
@@ -182,7 +180,7 @@ object ParticleEffectCodecs {
         in.isNextToken('{') // consume
         if (!in.isNextToken('}')) {
           in.rollbackToken()
-          var first = true
+          var first    = true
           var continue = true
           while (continue) {
             if (!first) buf += ','
@@ -203,7 +201,7 @@ object ParticleEffectCodecs {
         in.isNextToken('[') // consume
         if (!in.isNextToken(']')) {
           in.rollbackToken()
-          var first = true
+          var first    = true
           var continue = true
           while (continue) {
             if (!first) buf += ','
@@ -243,7 +241,7 @@ object ParticleEffectCodecs {
   private def escapeJsonString(s: String): String = {
     if (s == null) return ""
     val sb = new StringBuilder
-    var i = 0
+    var i  = 0
     while (i < s.length) {
       val c = s.charAt(i)
       c match {
@@ -254,7 +252,7 @@ object ParticleEffectCodecs {
         case '\n' => sb.append("\\n")
         case '\r' => sb.append("\\r")
         case '\t' => sb.append("\\t")
-        case _ =>
+        case _    =>
           if (c < ' ') sb.append(f"\\u${c.toInt}%04x")
           else sb.append(c)
       }
@@ -886,24 +884,23 @@ object ParticleEffectCodecs {
 
   // Polymorphic DynamicsModifier codec
   given dynamicsModifierCodec: JsonValueCodec[DynamicsModifier] = new JsonValueCodec[DynamicsModifier] {
-    override def decodeValue(in: JsonReader, default: DynamicsModifier): DynamicsModifier = {
+    override def decodeValue(in: JsonReader, default: DynamicsModifier): DynamicsModifier =
       // DynamicsModifier is abstract and serialized with type info in array context by DynamicsInfluencer
       // This codec handles direct serialization for embedded objects
       throw new UnsupportedOperationException(
         "DynamicsModifier cannot be decoded directly; use typed codecs or DynamicsInfluencer's velocities array"
       )
-    }
 
     override def encodeValue(x: DynamicsModifier, out: JsonWriter): Unit =
       x match {
-        case v: DynamicsModifier.FaceDirection          => faceDirectionCodec.encodeValue(v, out)
-        case v: DynamicsModifier.Rotational2D           => rotational2DCodec.encodeValue(v, out)
-        case v: DynamicsModifier.Rotational3D           => rotational3DCodec.encodeValue(v, out)
+        case v: DynamicsModifier.FaceDirection           => faceDirectionCodec.encodeValue(v, out)
+        case v: DynamicsModifier.Rotational2D            => rotational2DCodec.encodeValue(v, out)
+        case v: DynamicsModifier.Rotational3D            => rotational3DCodec.encodeValue(v, out)
         case v: DynamicsModifier.CentripetalAcceleration => centripetalAccelerationCodec.encodeValue(v, out)
-        case v: DynamicsModifier.PolarAcceleration      => polarAccelerationCodec.encodeValue(v, out)
-        case v: DynamicsModifier.TangentialAcceleration => tangentialAccelerationCodec.encodeValue(v, out)
-        case v: DynamicsModifier.BrownianAcceleration   => brownianAccelerationCodec.encodeValue(v, out)
-        case _                                          => throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: ${x.getClass}")
+        case v: DynamicsModifier.PolarAcceleration       => polarAccelerationCodec.encodeValue(v, out)
+        case v: DynamicsModifier.TangentialAcceleration  => tangentialAccelerationCodec.encodeValue(v, out)
+        case v: DynamicsModifier.BrownianAcceleration    => brownianAccelerationCodec.encodeValue(v, out)
+        case _ => throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: ${x.getClass}")
       }
 
     override def nullValue: DynamicsModifier = null
@@ -922,18 +919,10 @@ object ParticleEffectCodecs {
     "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$FaceDirection" -> (bytes => readFromArray[DynamicsModifier.FaceDirection](bytes)),
     "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$Rotational2D" -> (bytes => readFromArray[DynamicsModifier.Rotational2D](bytes)),
     "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$Rotational3D" -> (bytes => readFromArray[DynamicsModifier.Rotational3D](bytes)),
-    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$CentripetalAcceleration" -> (bytes =>
-      readFromArray[DynamicsModifier.CentripetalAcceleration](bytes)
-    ),
-    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$PolarAcceleration" -> (bytes =>
-      readFromArray[DynamicsModifier.PolarAcceleration](bytes)
-    ),
-    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$TangentialAcceleration" -> (bytes =>
-      readFromArray[DynamicsModifier.TangentialAcceleration](bytes)
-    ),
-    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$BrownianAcceleration" -> (bytes =>
-      readFromArray[DynamicsModifier.BrownianAcceleration](bytes)
-    )
+    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$CentripetalAcceleration" -> (bytes => readFromArray[DynamicsModifier.CentripetalAcceleration](bytes)),
+    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$PolarAcceleration" -> (bytes => readFromArray[DynamicsModifier.PolarAcceleration](bytes)),
+    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$TangentialAcceleration" -> (bytes => readFromArray[DynamicsModifier.TangentialAcceleration](bytes)),
+    "com.badlogic.gdx.graphics.g3d.particles.influencers.DynamicsModifier$BrownianAcceleration" -> (bytes => readFromArray[DynamicsModifier.BrownianAcceleration](bytes))
   )
 
   /** Decodes a polymorphic DynamicsModifier from a JSON object with "class" field. */
@@ -944,7 +933,7 @@ object ParticleEffectCodecs {
     } { className =>
       modifierTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
-        case None =>
+        case None          =>
           throw new UnsupportedOperationException(s"Unknown DynamicsModifier type: $className")
       }
     }
@@ -1025,7 +1014,7 @@ object ParticleEffectCodecs {
             case "u2"                 => v.u2 = readFloat(reader); true
             case "v2"                 => v.v2 = readFloat(reader); true
             case "halfInvAspectRatio" => v.halfInvAspectRatio = readFloat(reader); true
-            case "imageName" =>
+            case "imageName"          =>
               val s = readString(reader)
               v.imageName = if (s != null) Nullable(s) else Nullable.empty
               true
@@ -1193,7 +1182,7 @@ object ParticleEffectCodecs {
     } { className =>
       spawnShapeTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
-        case None =>
+        case None          =>
           // Unknown type, default to PointSpawnShapeValue
           new PointSpawnShapeValue()
       }
@@ -1356,7 +1345,7 @@ object ParticleEffectCodecs {
     } { className =>
       influencerTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
-        case None =>
+        case None          =>
           throw new UnsupportedOperationException(s"Unknown Influencer type: $className")
       }
     }
@@ -1551,7 +1540,7 @@ object ParticleEffectCodecs {
 
   /** Helper to read a single EffectReference object. */
   private def readEffectReference(in: JsonReader): EffectReference = {
-    var effectFilename: String = ""
+    var effectFilename:    String     = ""
     var controllerIndices: Array[Int] = Array.empty
     if (in.isNextToken('{')) {
       if (!in.isNextToken('}')) {
@@ -1697,7 +1686,7 @@ object ParticleEffectCodecs {
     } { className =>
       rendererTypes.get(className) match {
         case Some(decoder) => decoder(bytes)
-        case None =>
+        case None          =>
           throw new UnsupportedOperationException(s"Unknown renderer type: $className")
       }
     }
@@ -1802,7 +1791,7 @@ object ParticleEffectCodecs {
       if (default == null) {
         throw new UnsupportedOperationException(
           "ParticleController cannot be decoded without a pre-constructed default instance (requires Sge context). " +
-          "Use ResourceData.fromJson for full particle effect loading."
+            "Use ResourceData.fromJson for full particle effect loading."
         )
       }
       readFields(in, default) { (key, v, reader) =>
@@ -1844,9 +1833,8 @@ object ParticleEffectCodecs {
       emitterCodec.encodeValue(x.emitter, out)
       out.writeKey("influencers")
       out.writeArrayStart()
-      for (i <- 0 until x.influencers.size) {
+      for (i <- 0 until x.influencers.size)
         influencerCodec.encodeValue(x.influencers(i), out)
-      }
       out.writeArrayEnd()
       out.writeKey("renderer")
       rendererCodec.encodeValue(x.renderer, out)
@@ -1867,8 +1855,8 @@ object ParticleEffectCodecs {
   given assetDataCodec: JsonValueCodec[ResourceData.AssetData[?]] = new JsonValueCodec[ResourceData.AssetData[?]] {
     override def decodeValue(in: JsonReader, default: ResourceData.AssetData[?]): ResourceData.AssetData[?] = {
       // Read into temporary vars since AssetData requires constructor params
-      var filename: String   = ""
-      var typeName: String   = ""
+      var filename: String = ""
+      var typeName: String = ""
 
       readFields(in, ()) { (key, _, reader) =>
         key match {
@@ -1918,7 +1906,7 @@ object ParticleEffectCodecs {
                   bufferJsonValue(reader, valueBuf)
                   // For now, we can re-parse simple values
                   val valueBytes = valueBuf.toArray
-                  val valueStr = new String(valueBytes, "UTF-8")
+                  val valueStr   = new String(valueBytes, "UTF-8")
                   // Try to parse as common types
                   val obj: AnyRef = valueStr match {
                     case s if s.startsWith("\"") && s.endsWith("\"") =>
@@ -1926,12 +1914,12 @@ object ParticleEffectCodecs {
                     case "true"  => java.lang.Boolean.TRUE
                     case "false" => java.lang.Boolean.FALSE
                     case "null"  => null
-                    case _ =>
+                    case _       =>
                       // Try number
-                      try {
+                      try
                         if (valueStr.contains(".")) java.lang.Double.valueOf(valueStr)
                         else java.lang.Long.valueOf(valueStr)
-                      } catch {
+                      catch {
                         case _: NumberFormatException => valueStr
                       }
                   }
@@ -1957,14 +1945,14 @@ object ParticleEffectCodecs {
       x.data.foreachEntry { (key, value) =>
         out.writeKey(key)
         value match {
-          case s: String             => out.writeVal(s)
-          case b: java.lang.Boolean  => out.writeVal(b.booleanValue())
-          case i: java.lang.Integer  => out.writeVal(i.intValue())
-          case l: java.lang.Long     => out.writeVal(l.longValue())
-          case f: java.lang.Float    => out.writeVal(f.floatValue())
-          case d: java.lang.Double   => out.writeVal(d.doubleValue())
-          case null                  => out.writeNull()
-          case other                 => out.writeVal(other.toString)
+          case s: String            => out.writeVal(s)
+          case b: java.lang.Boolean => out.writeVal(b.booleanValue())
+          case i: java.lang.Integer => out.writeVal(i.intValue())
+          case l: java.lang.Long    => out.writeVal(l.longValue())
+          case f: java.lang.Float   => out.writeVal(f.floatValue())
+          case d: java.lang.Double  => out.writeVal(d.doubleValue())
+          case null  => out.writeNull()
+          case other => out.writeVal(other.toString)
         }
       }
       out.writeObjectEnd()
@@ -1989,7 +1977,7 @@ object ParticleEffectCodecs {
                 reader.rollbackToken()
                 var continue = true
                 while (continue) {
-                  val mapKey = reader.readKeyAsString()
+                  val mapKey   = reader.readKeyAsString()
                   val saveData = saveDataCodec.decodeValue(reader, null)
                   saveData.resources = Nullable(v)
                   v.uniqueData.put(mapKey, saveData)
@@ -2049,7 +2037,7 @@ object ParticleEffectCodecs {
                 } else {
                   // For other types, try reflection-based instantiation
                   try {
-                    val clazz = Class.forName(className)
+                    val clazz    = Class.forName(className)
                     val instance = clazz.getDeclaredConstructor().newInstance()
                     v.resource = Nullable(instance.asInstanceOf[Any])
                   } catch {
@@ -2075,15 +2063,13 @@ object ParticleEffectCodecs {
       out.writeObjectEnd()
       out.writeKey("data")
       out.writeArrayStart()
-      for (i <- 0 until x.data.size) {
+      for (i <- 0 until x.data.size)
         saveDataCodec.encodeValue(x.data(i), out)
-      }
       out.writeArrayEnd()
       out.writeKey("assets")
       out.writeArrayStart()
-      for (i <- 0 until x.sharedAssets.size) {
+      for (i <- 0 until x.sharedAssets.size)
         assetDataCodec.encodeValue(x.sharedAssets(i), out)
-      }
       out.writeArrayEnd()
       out.writeKey("resource")
       // Resource is polymorphic - write with class tag like libGDX Json does
@@ -2100,9 +2086,8 @@ object ParticleEffectCodecs {
             case effect: ParticleEffect =>
               out.writeKey("controllers")
               out.writeArrayStart()
-              for (i <- 0 until effect.controllers.size) {
+              for (i <- 0 until effect.controllers.size)
                 particleControllerCodec.encodeValue(effect.controllers(i), out)
-              }
               out.writeArrayEnd()
             case _ =>
               // For unknown types, we can't serialize fields without reflection
