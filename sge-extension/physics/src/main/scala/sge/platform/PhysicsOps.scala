@@ -134,6 +134,30 @@ private[sge] trait PhysicsOps {
   /** Sets whether this collider is a sensor (detects overlap but no physical response). */
   def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit
 
+  // ─── Collision filtering ──────────────────────────────────────────
+
+  /** Sets the collision groups for a collider.
+    * @param memberships
+    *   which groups this collider belongs to (bitmask)
+    * @param filter
+    *   which groups this collider can collide with (bitmask)
+    */
+  def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit
+
+  /** Gets the collision groups for a collider. Fills `out` with [memberships, filter]. */
+  def colliderGetCollisionGroups(world: Long, collider: Long, out: Array[Int]): Unit
+
+  /** Sets the solver groups for a collider (controls force response, not detection).
+    * @param memberships
+    *   which groups this collider belongs to (bitmask)
+    * @param filter
+    *   which groups this collider interacts with for force response (bitmask)
+    */
+  def colliderSetSolverGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit
+
+  /** Gets the solver groups for a collider. Fills `out` with [memberships, filter]. */
+  def colliderGetSolverGroups(world: Long, collider: Long, out: Array[Int]): Unit
+
   // ─── Joints ───────────────────────────────────────────────────────────
 
   /** Creates a revolute (hinge) joint at the given world-space anchor. Returns a joint handle. */
@@ -147,6 +171,72 @@ private[sge] trait PhysicsOps {
 
   /** Destroys a joint. */
   def destroyJoint(world: Long, joint: Long): Unit
+
+  // ─── Revolute joint limits and motors ─────────────────────────────
+
+  /** Enables or disables angular limits on a revolute joint. */
+  def revoluteJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit
+
+  /** Sets the angular limits (in radians) for a revolute joint. */
+  def revoluteJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit
+
+  /** Gets the angular limits for a revolute joint. Fills `out` with [lower, upper]. */
+  def revoluteJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit
+
+  /** Returns true if the revolute joint has limits enabled. */
+  def revoluteJointIsLimitEnabled(world: Long, joint: Long): Boolean
+
+  /** Enables the motor on a revolute joint. */
+  def revoluteJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit
+
+  /** Sets the target velocity for the revolute joint motor (radians/second). */
+  def revoluteJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit
+
+  /** Sets the maximum torque the revolute joint motor can apply. */
+  def revoluteJointSetMaxMotorTorque(world: Long, joint: Long, torque: Float): Unit
+
+  /** Gets the current motor speed setting for a revolute joint. */
+  def revoluteJointGetMotorSpeed(world: Long, joint: Long): Float
+
+  /** Gets the current angle of the revolute joint (radians). */
+  def revoluteJointGetAngle(world: Long, joint: Long): Float
+
+  // ─── Prismatic joint limits and motors ────────────────────────────
+
+  /** Enables or disables translation limits on a prismatic joint. */
+  def prismaticJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit
+
+  /** Sets the translation limits for a prismatic joint. */
+  def prismaticJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit
+
+  /** Gets the translation limits for a prismatic joint. Fills `out` with [lower, upper]. */
+  def prismaticJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit
+
+  /** Enables the motor on a prismatic joint. */
+  def prismaticJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit
+
+  /** Sets the target velocity for the prismatic joint motor. */
+  def prismaticJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit
+
+  /** Sets the maximum force the prismatic joint motor can apply. */
+  def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force: Float): Unit
+
+  /** Gets the current translation of the prismatic joint. */
+  def prismaticJointGetTranslation(world: Long, joint: Long): Float
+
+  // ─── Body mass/inertia ────────────────────────────────────────────
+
+  /** Gets the total mass of a rigid body. */
+  def bodyGetMass(world: Long, body: Long): Float
+
+  /** Gets the angular inertia of a rigid body. */
+  def bodyGetInertia(world: Long, body: Long): Float
+
+  /** Gets the local center of mass. Fills `out` with [x, y]. */
+  def bodyGetLocalCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit
+
+  /** Forces recomputation of mass properties from attached colliders. */
+  def bodyRecomputeMassProperties(world: Long, body: Long): Unit
 
   // ─── Queries ──────────────────────────────────────────────────────────
 
@@ -163,6 +253,12 @@ private[sge] trait PhysicsOps {
     maxDist: Float,
     out:     Array[Float]
   ): Boolean
+
+  /** Finds all colliders intersecting the given axis-aligned bounding box.
+    *
+    * Fills `outColliders` with collider handles and returns the count of results (capped at `maxResults`).
+    */
+  def queryAABB(world: Long, minX: Float, minY: Float, maxX: Float, maxY: Float, outColliders: Array[Long], maxResults: Int): Int
 
   /** Finds all bodies whose colliders contain the given point.
     *

@@ -40,13 +40,25 @@ jobs:
         with:
           submodules: false
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - uses: sbt/setup-sbt@v1
+
+      - name: Install Scala Native deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+
       - name: Install re-scale
         run: |
           set -euo pipefail
           git clone --depth=1 https://github.com/kubuszok/re-scale.git "$RUNNER_TEMP/re-scale"
           cd "$RUNNER_TEMP/re-scale"
-          ./scripts/install.sh
-          echo "$HOME/bin" >> "$GITHUB_PATH"
+          sbt install
+          echo "$RUNNER_TEMP/re-scale/bin" >> "$GITHUB_PATH"
 
       - name: Print re-scale version
         run: re-scale version

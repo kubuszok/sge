@@ -56,7 +56,105 @@ object JointDef {
   *
   * Joints are created via [[PhysicsWorld.createJoint]] and destroyed via [[PhysicsWorld.destroyJoint]].
   */
-class Joint private[physics] (
+sealed trait Joint {
+  private[physics] def world:  PhysicsWorld
+  private[physics] def handle: Long
+}
+
+/** A revolute (hinge) joint that constrains two bodies to rotate around a shared anchor point.
+  *
+  * Supports angular limits and motor control.
+  */
+class RevoluteJoint private[physics] (
   private[physics] val world:  PhysicsWorld,
   private[physics] val handle: Long
-)
+) extends Joint {
+
+  private val limitsBuf = new Array[Float](2)
+
+  /** Enables or disables angular limits for this joint. */
+  def enableLimits(enable: Boolean): Unit =
+    world.ops.revoluteJointEnableLimits(world.handle, handle, enable)
+
+  /** Returns true if angular limits are enabled. */
+  def isLimitEnabled: Boolean =
+    world.ops.revoluteJointIsLimitEnabled(world.handle, handle)
+
+  /** Sets the angular limits (in radians). */
+  def setLimits(lower: Float, upper: Float): Unit =
+    world.ops.revoluteJointSetLimits(world.handle, handle, lower, upper)
+
+  /** Gets the angular limits as (lower, upper) in radians. */
+  def limits: (Float, Float) = {
+    world.ops.revoluteJointGetLimits(world.handle, handle, limitsBuf)
+    (limitsBuf(0), limitsBuf(1))
+  }
+
+  /** Enables or disables the motor for this joint. */
+  def enableMotor(enable: Boolean): Unit =
+    world.ops.revoluteJointEnableMotor(world.handle, handle, enable)
+
+  /** Sets the target motor speed (radians/second). */
+  def motorSpeed_=(speed: Float): Unit =
+    world.ops.revoluteJointSetMotorSpeed(world.handle, handle, speed)
+
+  /** Gets the current motor speed setting. */
+  def motorSpeed: Float =
+    world.ops.revoluteJointGetMotorSpeed(world.handle, handle)
+
+  /** Sets the maximum motor torque. */
+  def maxMotorTorque_=(torque: Float): Unit =
+    world.ops.revoluteJointSetMaxMotorTorque(world.handle, handle, torque)
+
+  /** Gets the current joint angle (radians). */
+  def angle: Float =
+    world.ops.revoluteJointGetAngle(world.handle, handle)
+}
+
+/** A prismatic (slider) joint that constrains two bodies to translate along a given axis.
+  *
+  * Supports translation limits and motor control.
+  */
+class PrismaticJoint private[physics] (
+  private[physics] val world:  PhysicsWorld,
+  private[physics] val handle: Long
+) extends Joint {
+
+  private val limitsBuf = new Array[Float](2)
+
+  /** Enables or disables translation limits for this joint. */
+  def enableLimits(enable: Boolean): Unit =
+    world.ops.prismaticJointEnableLimits(world.handle, handle, enable)
+
+  /** Sets the translation limits. */
+  def setLimits(lower: Float, upper: Float): Unit =
+    world.ops.prismaticJointSetLimits(world.handle, handle, lower, upper)
+
+  /** Gets the translation limits as (lower, upper). */
+  def limits: (Float, Float) = {
+    world.ops.prismaticJointGetLimits(world.handle, handle, limitsBuf)
+    (limitsBuf(0), limitsBuf(1))
+  }
+
+  /** Enables or disables the motor for this joint. */
+  def enableMotor(enable: Boolean): Unit =
+    world.ops.prismaticJointEnableMotor(world.handle, handle, enable)
+
+  /** Sets the target motor speed. */
+  def motorSpeed_=(speed: Float): Unit =
+    world.ops.prismaticJointSetMotorSpeed(world.handle, handle, speed)
+
+  /** Sets the maximum motor force. */
+  def maxMotorForce_=(force: Float): Unit =
+    world.ops.prismaticJointSetMaxMotorForce(world.handle, handle, force)
+
+  /** Gets the current translation of the joint. */
+  def translation: Float =
+    world.ops.prismaticJointGetTranslation(world.handle, handle)
+}
+
+/** A fixed (weld) joint that locks two bodies together at their current relative position and angle. */
+class FixedJoint private[physics] (
+  private[physics] val world:  PhysicsWorld,
+  private[physics] val handle: Long
+) extends Joint

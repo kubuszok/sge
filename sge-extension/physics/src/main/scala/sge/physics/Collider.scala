@@ -39,4 +39,34 @@ class Collider private[physics] (
     */
   def isSensor_=(sensor: Boolean): Unit =
     world.ops.colliderSetSensor(world.handle, handle, sensor)
+
+  // ─── Collision filtering ──────────────────────────────────────────────
+
+  private val groupsBuffer = new Array[Int](2)
+
+  /** Gets the collision groups for this collider. */
+  def collisionGroups: CollisionGroups = {
+    world.ops.colliderGetCollisionGroups(world.handle, handle, groupsBuffer)
+    CollisionGroups(groupsBuffer(0), groupsBuffer(1))
+  }
+
+  /** Sets the collision groups for this collider.
+    *
+    * Collision groups control which colliders can detect each other.
+    */
+  def collisionGroups_=(groups: CollisionGroups): Unit =
+    world.ops.colliderSetCollisionGroups(world.handle, handle, groups.memberships, groups.filter)
+
+  /** Gets the solver groups for this collider. */
+  def solverGroups: CollisionGroups = {
+    world.ops.colliderGetSolverGroups(world.handle, handle, groupsBuffer)
+    CollisionGroups(groupsBuffer(0), groupsBuffer(1))
+  }
+
+  /** Sets the solver groups for this collider.
+    *
+    * Solver groups control which colliders produce a force response (separate from detection). Two colliders can detect each other (via collision groups) but not apply forces (via solver groups).
+    */
+  def solverGroups_=(groups: CollisionGroups): Unit =
+    world.ops.colliderSetSolverGroups(world.handle, handle, groups.memberships, groups.filter)
 }
