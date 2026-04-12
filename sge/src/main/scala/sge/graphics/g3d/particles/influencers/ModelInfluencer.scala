@@ -37,6 +37,11 @@ abstract class ModelInfluencer extends Influencer {
   var models:       DynamicArray[Model]          = DynamicArray[Model](1)
   var modelChannel: ObjectChannel[ModelInstance] = scala.compiletime.uninitialized
 
+  /** Transport field for JSON serialization: model asset filenames. Since JSON codecs don't have access to AssetManager, this field stores the filenames during serialization/deserialization. The
+    * actual models are resolved via AssetManager post-load (or pre-save by the loader).
+    */
+  var _modelFilenames: Array[String] = Array.empty
+
   def this(models: Model*) = {
     this()
     for (m <- models) this.models.add(m)

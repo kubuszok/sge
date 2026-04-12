@@ -66,9 +66,7 @@ import java.util.Arrays
   * @see
   *   TextureArrayColorfulBatch#getMaxTextureUnits()
   */
-class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using Sge)
-    extends Batch
-    with AutoCloseable {
+class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[ShaderProgram] = Nullable.empty)(using Sge) extends Batch with AutoCloseable {
 
   import TextureArrayColorfulBatch.*
 
@@ -101,7 +99,7 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     */
   protected val textureUnitIndicesBuffer: IntBuffer = {
     val buf = BufferUtils.newIntBuffer(_maxTextureUnits)
-    var i = 0
+    var i   = 0
     while (i < _maxTextureUnits) {
       buf.put(i)
       i += 1
@@ -528,37 +526,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x1;       idx += 1
-    vertices(idx) = y1;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x1; idx += 1
+    vertices(idx) = y1; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x2;       idx += 1
-    vertices(idx) = y2;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x2; idx += 1
+    vertices(idx) = y2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x3;       idx += 1
-    vertices(idx) = y3;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x3; idx += 1
+    vertices(idx) = y3; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x4;       idx += 1
-    vertices(idx) = y4;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x4; idx += 1
+    vertices(idx) = y4; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int, flipX: Boolean, flipY: Boolean): Unit = {
@@ -570,10 +568,10 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
 
     val ti = activateTexture(texture)
 
-    var u  = srcX * invTexWidth
-    var v  = (srcY + srcHeight) * invTexHeight
-    var u2 = (srcX + srcWidth) * invTexWidth
-    var v2 = srcY * invTexHeight
+    var u   = srcX * invTexWidth
+    var v   = (srcY + srcHeight) * invTexHeight
+    var u2  = (srcX + srcWidth) * invTexWidth
+    var v2  = srcY * invTexHeight
     val fx2 = x + width
     val fy2 = y + height
 
@@ -592,37 +590,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(texture: Texture, x: Float, y: Float, srcX: Int, srcY: Int, srcWidth: Int, srcHeight: Int): Unit = {
@@ -644,37 +642,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(texture: Texture, x: Float, y: Float, width: Float, height: Float, u: Float, v: Float, u2: Float, v2: Float): Unit = {
@@ -692,37 +690,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(texture: Texture, x: Float, y: Float): Unit =
@@ -747,37 +745,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   /** This is very different from the other overloads in this class; it assumes the float array it is given is in the format libGDX uses to give to SpriteBatch, that is, in groups of 20 floats per
@@ -811,13 +809,13 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     var vv = idx
     var i  = 0
     while (i < copyCount) {
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = tweak;                 vv += 1
-      vertices(vv) = ti;                    vv += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = tweak; vv += 1
+      vertices(vv) = ti; vv += 1
       i += 7
     }
     idx += copyCount
@@ -832,13 +830,13 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
       vv = 0
       i = 0
       while (i < copyCount) {
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = tweak;               vv += 1
-        vertices(vv) = ti;                  vv += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = tweak; vv += 1
+        vertices(vv) = ti; vv += 1
         i += 7
       }
       idx += copyCount
@@ -875,13 +873,13 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     var vv = idx
     var i  = 0
     while (i < copyCount) {
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = spriteVertices(s);     vv += 1; s += 1
-      vertices(vv) = ti;                    vv += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = spriteVertices(s); vv += 1; s += 1
+      vertices(vv) = ti; vv += 1
       i += 7
     }
     idx += copyCount
@@ -896,13 +894,13 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
       vv = 0
       i = 0
       while (i < copyCount) {
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = spriteVertices(s);   vv += 1; s += 1
-        vertices(vv) = ti;                  vv += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = spriteVertices(s); vv += 1; s += 1
+        vertices(vv) = ti; vv += 1
         i += 7
       }
       idx += copyCount
@@ -932,37 +930,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x;        idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = fy2;      idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = fy2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = fx2;      idx += 1
-    vertices(idx) = y;        idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = fx2; idx += 1
+    vertices(idx) = y; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float): Unit = {
@@ -1056,37 +1054,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x1;       idx += 1
-    vertices(idx) = y1;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x1; idx += 1
+    vertices(idx) = y1; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x2;       idx += 1
-    vertices(idx) = y2;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x2; idx += 1
+    vertices(idx) = y2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x3;       idx += 1
-    vertices(idx) = y3;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x3; idx += 1
+    vertices(idx) = y3; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x4;       idx += 1
-    vertices(idx) = y4;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x4; idx += 1
+    vertices(idx) = y4; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(region: TextureRegion, x: Float, y: Float, originX: Float, originY: Float, width: Float, height: Float, scaleX: Float, scaleY: Float, rotation: Float, clockwise: Boolean): Unit = {
@@ -1181,37 +1179,37 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x1;       idx += 1
-    vertices(idx) = y1;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u1;       idx += 1
-    vertices(idx) = v1;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x1; idx += 1
+    vertices(idx) = y1; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u1; idx += 1
+    vertices(idx) = v1; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x2;       idx += 1
-    vertices(idx) = y2;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x2; idx += 1
+    vertices(idx) = y2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x3;       idx += 1
-    vertices(idx) = y3;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u3;       idx += 1
-    vertices(idx) = v3;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x3; idx += 1
+    vertices(idx) = y3; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u3; idx += 1
+    vertices(idx) = v3; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x4;       idx += 1
-    vertices(idx) = y4;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u4;       idx += 1
-    vertices(idx) = v4;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x4; idx += 1
+    vertices(idx) = y4; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u4; idx += 1
+    vertices(idx) = v4; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   override def draw(region: TextureRegion, width: Float, height: Float, transform: Affine2): Unit = {
@@ -1241,46 +1239,45 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     val color = this.colorPacked
     val tweak = this._tweak
 
-    vertices(idx) = x1;       idx += 1
-    vertices(idx) = y1;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x1; idx += 1
+    vertices(idx) = y1; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x2;       idx += 1
-    vertices(idx) = y2;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u;        idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x2; idx += 1
+    vertices(idx) = y2; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x3;       idx += 1
-    vertices(idx) = y3;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v2;       idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x3; idx += 1
+    vertices(idx) = y3; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v2; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
 
-    vertices(idx) = x4;       idx += 1
-    vertices(idx) = y4;       idx += 1
-    vertices(idx) = color;    idx += 1
-    vertices(idx) = u2;       idx += 1
-    vertices(idx) = v;        idx += 1
-    vertices(idx) = tweak;    idx += 1
-    vertices(idx) = ti;       idx += 1
+    vertices(idx) = x4; idx += 1
+    vertices(idx) = y4; idx += 1
+    vertices(idx) = color; idx += 1
+    vertices(idx) = u2; idx += 1
+    vertices(idx) = v; idx += 1
+    vertices(idx) = tweak; idx += 1
+    vertices(idx) = ti; idx += 1
   }
 
   /** Flushes if the vertices array cannot hold an additional sprite ((spriteVertexSize + 1) * 4 vertices) anymore. */
-  protected def flushIfFull(): Unit = {
+  protected def flushIfFull(): Unit =
     // original Sprite attribute size plus two extra floats per sprite vertex
     if (vertices.length - idx < SPRITE_FLOAT_SIZE) {
       flush()
     }
-  }
 
   override def flush(): Unit =
     if (idx != 0) {
@@ -1409,37 +1406,38 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
     }
   }
 
-  /** @return The number of texture swaps the LFU cache performed since calling {@link #begin()}.
+  /** @return
+    *   The number of texture swaps the LFU cache performed since calling {@link #begin()}.
     */
   def textureLFUSwaps: Int = currentTextureLFUSwaps
 
-  /** @return The current number of textures in the LFU cache. Gets reset when calling {@link #begin()}.
+  /** @return
+    *   The current number of textures in the LFU cache. Gets reset when calling {@link #begin()}.
     */
   def textureLFUSize: Int = currentTextureLFUSize
 
-  /** @return The maximum number of textures that the LFU cache can hold. This limit is imposed by the driver.
+  /** @return
+    *   The maximum number of textures that the LFU cache can hold. This limit is imposed by the driver.
     * @see
     *   TextureArrayColorfulBatch#getMaxTextureUnits()
     */
   def textureLFUCapacity: Int = TextureArrayColorfulBatch.getMaxTextureUnits()
 
-  override def disableBlending(): Unit = {
+  override def disableBlending(): Unit =
     if (blendingDisabled) {
       // already disabled
     } else {
       flush()
       blendingDisabled = true
     }
-  }
 
-  override def enableBlending(): Unit = {
+  override def enableBlending(): Unit =
     if (!blendingDisabled) {
       // already enabled
     } else {
       flush()
       blendingDisabled = false
     }
-  }
 
   override def setBlendFunction(srcFunc: Int, dstFunc: Int): Unit =
     setBlendFunctionSeparate(srcFunc, dstFunc, srcFunc, dstFunc)
@@ -1498,9 +1496,9 @@ class TextureArrayColorfulBatch(size: Int = 1000, defaultShader: Nullable[Shader
   /** Sets the shader to be used in a GLES 2.0 environment. Vertex position attribute is called "a_position", the texture coordinates attribute is called "a_texCoord0", the color attribute is called
     * "a_color", texture unit index is called "a_texture_index", this needs to be converted to int with int(...) in the fragment shader. See {@link ShaderProgram#POSITION_ATTRIBUTE},
     * {@link ShaderProgram#COLOR_ATTRIBUTE} and {@link ShaderProgram#TEXCOORD_ATTRIBUTE} which gets "0" appended to indicate the use of the first texture unit. The combined transform and projection
-    * matrix is uploaded via a mat4 uniform called "u_projTrans". The texture sampler array is passed via a uniform called "u_textures", see
-    * {@link TextureArrayColorfulBatch#createDefaultShader(int)} for reference. <p> Call this method with a null argument to use the default shader. <p> This method will flush the batch before
-    * setting the new shader, you can call it in between {@link #begin()} and {@link #end()}.
+    * matrix is uploaded via a mat4 uniform called "u_projTrans". The texture sampler array is passed via a uniform called "u_textures", see {@link TextureArrayColorfulBatch#createDefaultShader(int)}
+    * for reference. <p> Call this method with a null argument to use the default shader. <p> This method will flush the batch before setting the new shader, you can call it in between
+    * {@link #begin()} and {@link #end()}.
     *
     * @param shader
     *   the {@link ShaderProgram} or null to use the default shader.
@@ -1576,7 +1574,7 @@ object TextureArrayColorfulBatch {
       // so we take caution and test it first, reducing the number of slots if needed.
       // Will try to find the maximum amount of texture units supported.
       boundary[Unit] {
-        while (maxTextureUnitsLocal > 0) {
+        while (maxTextureUnitsLocal > 0)
           try {
             val tempProg = createDefaultShader(maxTextureUnitsLocal)
             tempProg.close()
@@ -1586,16 +1584,15 @@ object TextureArrayColorfulBatch {
               maxTextureUnitsLocal /= 2
               shaderErrorLog = e.getMessage
           }
-        }
       }
       _maxTextureUnits = maxTextureUnitsLocal
     }
     _maxTextureUnits
   }
 
-  /** Returns a new instance of the default shader used by TextureArrayColorfulBatch for GL2 when no shader is specified. This overload always uses {@link #vertexShader} and {@link #fragmentShader}
-    * to make its ShaderProgram. This ignores {@link ShaderProgram#prependVertexCode} and {@link ShaderProgram#prependFragmentCode}. Instead, it sets the GLSL version of the shader code automatically
-    * to 100 or 150, as appropriate.
+  /** Returns a new instance of the default shader used by TextureArrayColorfulBatch for GL2 when no shader is specified. This overload always uses {@link #vertexShader} and {@link #fragmentShader} to
+    * make its ShaderProgram. This ignores {@link ShaderProgram#prependVertexCode} and {@link ShaderProgram#prependFragmentCode}. Instead, it sets the GLSL version of the shader code automatically to
+    * 100 or 150, as appropriate.
     * @see
     *   #getMaxTextureUnits()
     * @param maxTextureUnits
@@ -1622,7 +1619,7 @@ object TextureArrayColorfulBatch {
     *   the default ShaderProgram for this Batch
     */
   def createDefaultShader(maxTextureUnits: Int, vertex: String, fragment: String)(using Sge): ShaderProgram = {
-    val appType = Sge().application.applicationType
+    val appType         = Sge().application.applicationType
     val prependVertex   = ShaderProgram.prependVertexCode
     val prependFragment = ShaderProgram.prependFragmentCode
     ShaderProgram.prependVertexCode = ""
@@ -1718,8 +1715,8 @@ object TextureArrayColorfulBatch {
       "}"
 
   /** A special-purpose vertex shader meant for use only here in the Oklab TextureArrayColorfulBatch, this can be used to create a ShaderProgram and passed into the constructor or
-    * {@link TextureArrayColorfulBatch#shader_=}. Using this vertex shader lets you specify the batch color (or the tint) as a "normal" RGBA color, while using Oklab for the tweak. The fragment
-    * shader doesn't need to be modified here, so you can use {@link #fragmentShader} as normal.
+    * {@link TextureArrayColorfulBatch#shader_=}. Using this vertex shader lets you specify the batch color (or the tint) as a "normal" RGBA color, while using Oklab for the tweak. The fragment shader
+    * doesn't need to be modified here, so you can use {@link #fragmentShader} as normal.
     */
   val vertexShaderOklabWithRGBATint: String =
     "attribute vec4 a_position;\n" +

@@ -16,9 +16,9 @@ import sge.graphics.Colors
 import scala.collection.mutable
 
 /** A palette of predefined colors as packed RGB floats, the kind [[ColorTools]] works with, plus a way to describe colors by combinations and adjustments. The description code revolves around
-  * [[parseDescription]], which takes a color description String and returns a packed float color. The color descriptions look like "darker rich mint sage", where the order of the words doesn't matter.
-  * They can optionally include lightness changes (light/dark), and saturation changes (rich/dull), and must include one or more color names that will be mixed together (repeats are allowed to use a
-  * color more heavily). The changes can be suffixed with "er", "est", or "most", such as "duller", "lightest", or "richmost", to progressively increase their effect on lightness or saturation.
+  * [[parseDescription]], which takes a color description String and returns a packed float color. The color descriptions look like "darker rich mint sage", where the order of the words doesn't
+  * matter. They can optionally include lightness changes (light/dark), and saturation changes (rich/dull), and must include one or more color names that will be mixed together (repeats are allowed to
+  * use a color more heavily). The changes can be suffixed with "er", "est", or "most", such as "duller", "lightest", or "richmost", to progressively increase their effect on lightness or saturation.
   *
   * The rest of this is about the same as in [[Palette]].
   *
@@ -62,18 +62,16 @@ object SimplePalette {
     */
   val GRAY: Float = java.lang.Float.intBitsToFloat(0xfe808080)
 
-  /** This color constant "silver" has RGBA8888 code B6B6B6FF, R 0.7137255, G 0.7137255, B 0.7137255, alpha 1.0, hue 0.0, and saturation 0.0. It can be represented as a packed float with the
-    * constant -0x1.6d6d6cp126F.
+  /** This color constant "silver" has RGBA8888 code B6B6B6FF, R 0.7137255, G 0.7137255, B 0.7137255, alpha 1.0, hue 0.0, and saturation 0.0. It can be represented as a packed float with the constant
+    * -0x1.6d6d6cp126F.
     */
   val SILVER: Float = java.lang.Float.intBitsToFloat(0xfeb6b6b6)
 
-  /** This color constant "white" has RGBA8888 code FFFFFFFF, R 1.0, G 1.0, B 1.0, alpha 1.0, hue 0.0, and saturation 0.0. It can be represented as a packed float with the constant
-    * -0x1.fffffep126F.
+  /** This color constant "white" has RGBA8888 code FFFFFFFF, R 1.0, G 1.0, B 1.0, alpha 1.0, hue 0.0, and saturation 0.0. It can be represented as a packed float with the constant -0x1.fffffep126F.
     */
   val WHITE: Float = java.lang.Float.intBitsToFloat(0xfeffffff)
 
-  /** This color constant "red" has RGBA8888 code FF0000FF, R 1.0, G 0.0, B 0.0, alpha 1.0, hue 0.0, and saturation 1.0. It can be represented as a packed float with the constant
-    * -0x1.0001fep125F.
+  /** This color constant "red" has RGBA8888 code FF0000FF, R 1.0, G 0.0, B 0.0, alpha 1.0, hue 0.0, and saturation 1.0. It can be represented as a packed float with the constant -0x1.0001fep125F.
     */
   val RED: Float = java.lang.Float.intBitsToFloat(0xfe0000ff)
 
@@ -92,8 +90,7 @@ object SimplePalette {
     */
   val GREEN: Float = java.lang.Float.intBitsToFloat(0xfe00ff00)
 
-  /** This color constant "blue" has RGBA8888 code 0000FFFF, R 0.0, G 0.0, B 1.0, alpha 1.0, hue 0.6666667, and saturation 1.0. It can be represented as a packed float with the constant
-    * -0x1.fep126F.
+  /** This color constant "blue" has RGBA8888 code 0000FFFF, R 0.0, G 0.0, B 1.0, alpha 1.0, hue 0.6666667, and saturation 1.0. It can be represented as a packed float with the constant -0x1.fep126F.
     */
   val BLUE: Float = java.lang.Float.intBitsToFloat(0xfeff0000)
 
@@ -102,8 +99,8 @@ object SimplePalette {
     */
   val INDIGO: Float = java.lang.Float.intBitsToFloat(0xfee00f52)
 
-  /** This color constant "violet" has RGBA8888 code 9040EFFF, R 0.5647059, G 0.2509804, B 0.9372549, alpha 1.0, hue 0.74285716, and saturation 0.6862745. It can be represented as a packed float
-    * with the constant -0x1.de812p126F.
+  /** This color constant "violet" has RGBA8888 code 9040EFFF, R 0.5647059, G 0.2509804, B 0.9372549, alpha 1.0, hue 0.74285716, and saturation 0.6862745. It can be represented as a packed float with
+    * the constant -0x1.de812p126F.
     */
   val VIOLET: Float = java.lang.Float.intBitsToFloat(0xfeef4090)
 
@@ -132,8 +129,8 @@ object SimplePalette {
     */
   val BRICK: Float = java.lang.Float.intBitsToFloat(0xfe4a52d5)
 
-  /** This color constant "ember" has RGBA8888 code F55A32FF, R 0.9607843, G 0.3529412, B 0.19607843, alpha 1.0, hue 0.034188036, and saturation 0.7647059. It can be represented as a packed float
-    * with the constant -0x1.64b5eap125F.
+  /** This color constant "ember" has RGBA8888 code F55A32FF, R 0.9607843, G 0.3529412, B 0.19607843, alpha 1.0, hue 0.034188036, and saturation 0.7647059. It can be represented as a packed float with
+    * the constant -0x1.64b5eap125F.
     */
   val EMBER: Float = java.lang.Float.intBitsToFloat(0xfe325af5)
 
@@ -147,8 +144,8 @@ object SimplePalette {
     */
   val CHOCOLATE: Float = java.lang.Float.intBitsToFloat(0xfe183868)
 
-  /** This color constant "tan" has RGBA8888 code D2B48CFF, R 0.8235294, G 0.7058824, B 0.54901963, alpha 1.0, hue 0.0952381, and saturation 0.2745098. It can be represented as a packed float with
-    * the constant -0x1.1969a4p126F.
+  /** This color constant "tan" has RGBA8888 code D2B48CFF, R 0.8235294, G 0.7058824, B 0.54901963, alpha 1.0, hue 0.0952381, and saturation 0.2745098. It can be represented as a packed float with the
+    * constant -0x1.1969a4p126F.
     */
   val TAN: Float = java.lang.Float.intBitsToFloat(0xfe8cb4d2)
 
@@ -172,8 +169,8 @@ object SimplePalette {
     */
   val PEACH: Float = java.lang.Float.intBitsToFloat(0xfe81bfff)
 
-  /** This color constant "pear" has RGBA8888 code D3E330FF, R 0.827451, G 0.8901961, B 0.1882353, alpha 1.0, hue 0.18156426, and saturation 0.7019608. It can be represented as a packed float with
-    * the constant -0x1.61c7a6p125F.
+  /** This color constant "pear" has RGBA8888 code D3E330FF, R 0.827451, G 0.8901961, B 0.1882353, alpha 1.0, hue 0.18156426, and saturation 0.7019608. It can be represented as a packed float with the
+    * constant -0x1.61c7a6p125F.
     */
   val PEAR: Float = java.lang.Float.intBitsToFloat(0xfe30e3d3)
 
@@ -182,8 +179,8 @@ object SimplePalette {
     */
   val SAFFRON: Float = java.lang.Float.intBitsToFloat(0xfe10d5ff)
 
-  /** This color constant "butter" has RGBA8888 code FFF288FF, R 1.0, G 0.9490196, B 0.53333336, alpha 1.0, hue 0.14845939, and saturation 0.46666664. It can be represented as a packed float with
-    * the constant -0x1.11e5fep126F.
+  /** This color constant "butter" has RGBA8888 code FFF288FF, R 1.0, G 0.9490196, B 0.53333336, alpha 1.0, hue 0.14845939, and saturation 0.46666664. It can be represented as a packed float with the
+    * constant -0x1.11e5fep126F.
     */
   val BUTTER: Float = java.lang.Float.intBitsToFloat(0xfe88f2ff)
 
@@ -207,13 +204,13 @@ object SimplePalette {
     */
   val OLIVE: Float = java.lang.Float.intBitsToFloat(0xfe008081)
 
-  /** This color constant "fern" has RGBA8888 code 4E7942FF, R 0.30588236, G 0.4745098, B 0.25882354, alpha 1.0, hue 0.2969697, and saturation 0.21568626. It can be represented as a packed float
-    * with the constant -0x1.84f29cp125F.
+  /** This color constant "fern" has RGBA8888 code 4E7942FF, R 0.30588236, G 0.4745098, B 0.25882354, alpha 1.0, hue 0.2969697, and saturation 0.21568626. It can be represented as a packed float with
+    * the constant -0x1.84f29cp125F.
     */
   val FERN: Float = java.lang.Float.intBitsToFloat(0xfe42794e)
 
-  /** This color constant "moss" has RGBA8888 code 204608FF, R 0.1254902, G 0.27450982, B 0.03137255, alpha 1.0, hue 0.26881722, and saturation 0.24313727. It can be represented as a packed float
-    * with the constant -0x1.108c4p125F.
+  /** This color constant "moss" has RGBA8888 code 204608FF, R 0.1254902, G 0.27450982, B 0.03137255, alpha 1.0, hue 0.26881722, and saturation 0.24313727. It can be represented as a packed float with
+    * the constant -0x1.108c4p125F.
     */
   val MOSS: Float = java.lang.Float.intBitsToFloat(0xfe084620)
 
@@ -222,13 +219,13 @@ object SimplePalette {
     */
   val CELERY: Float = java.lang.Float.intBitsToFloat(0xfe73ff7d)
 
-  /** This color constant "sage" has RGBA8888 code ABE3C5FF, R 0.67058825, G 0.8901961, B 0.77254903, alpha 1.0, hue 0.4107143, and saturation 0.21960783. It can be represented as a packed float
-    * with the constant -0x1.8bc756p126F.
+  /** This color constant "sage" has RGBA8888 code ABE3C5FF, R 0.67058825, G 0.8901961, B 0.77254903, alpha 1.0, hue 0.4107143, and saturation 0.21960783. It can be represented as a packed float with
+    * the constant -0x1.8bc756p126F.
     */
   val SAGE: Float = java.lang.Float.intBitsToFloat(0xfec5e3ab)
 
-  /** This color constant "jade" has RGBA8888 code 3FBF3FFF, R 0.24705882, G 0.7490196, B 0.24705882, alpha 1.0, hue 0.33333334, and saturation 0.5019608. It can be represented as a packed float
-    * with the constant -0x1.7f7e7ep125F.
+  /** This color constant "jade" has RGBA8888 code 3FBF3FFF, R 0.24705882, G 0.7490196, B 0.24705882, alpha 1.0, hue 0.33333334, and saturation 0.5019608. It can be represented as a packed float with
+    * the constant -0x1.7f7e7ep125F.
     */
   val JADE: Float = java.lang.Float.intBitsToFloat(0xfe3fbf3f)
 
@@ -241,28 +238,28 @@ object SimplePalette {
     */
   val MINT: Float = java.lang.Float.intBitsToFloat(0xfed4ff7f)
 
-  /** This color constant "teal" has RGBA8888 code 007F7FFF, R 0.0, G 0.49803922, B 0.49803922, alpha 1.0, hue 0.5, and saturation 0.49803922. It can be represented as a packed float with the
-    * constant -0x1.fefep125F.
+  /** This color constant "teal" has RGBA8888 code 007F7FFF, R 0.0, G 0.49803922, B 0.49803922, alpha 1.0, hue 0.5, and saturation 0.49803922. It can be represented as a packed float with the constant
+    * -0x1.fefep125F.
     */
   val TEAL: Float = java.lang.Float.intBitsToFloat(0xfe7f7f00)
 
-  /** This color constant "turquoise" has RGBA8888 code 2ED6C9FF, R 0.18039216, G 0.8392157, B 0.7882353, alpha 1.0, hue 0.48710316, and saturation 0.65882355. It can be represented as a packed
-    * float with the constant -0x1.93ac5cp126F.
+  /** This color constant "turquoise" has RGBA8888 code 2ED6C9FF, R 0.18039216, G 0.8392157, B 0.7882353, alpha 1.0, hue 0.48710316, and saturation 0.65882355. It can be represented as a packed float
+    * with the constant -0x1.93ac5cp126F.
     */
   val TURQUOISE: Float = java.lang.Float.intBitsToFloat(0xfec9d62e)
 
-  /** This color constant "sky" has RGBA8888 code 10C0E0FF, R 0.0627451, G 0.7529412, B 0.8784314, alpha 1.0, hue 0.5256411, and saturation 0.8156863. It can be represented as a packed float with
-    * the constant -0x1.c1802p126F.
+  /** This color constant "sky" has RGBA8888 code 10C0E0FF, R 0.0627451, G 0.7529412, B 0.8784314, alpha 1.0, hue 0.5256411, and saturation 0.8156863. It can be represented as a packed float with the
+    * constant -0x1.c1802p126F.
     */
   val SKY: Float = java.lang.Float.intBitsToFloat(0xfee0c010)
 
-  /** This color constant "cobalt" has RGBA8888 code 0046ABFF, R 0.0, G 0.27450982, B 0.67058825, alpha 1.0, hue 0.5984406, and saturation 0.67058825. It can be represented as a packed float with
-    * the constant -0x1.568cp126F.
+  /** This color constant "cobalt" has RGBA8888 code 0046ABFF, R 0.0, G 0.27450982, B 0.67058825, alpha 1.0, hue 0.5984406, and saturation 0.67058825. It can be represented as a packed float with the
+    * constant -0x1.568cp126F.
     */
   val COBALT: Float = java.lang.Float.intBitsToFloat(0xfeab4600)
 
-  /** This color constant "denim" has RGBA8888 code 3088B8FF, R 0.1882353, G 0.53333336, B 0.72156864, alpha 1.0, hue 0.5588235, and saturation 0.53333336. It can be represented as a packed float
-    * with the constant -0x1.71106p126F.
+  /** This color constant "denim" has RGBA8888 code 3088B8FF, R 0.1882353, G 0.53333336, B 0.72156864, alpha 1.0, hue 0.5588235, and saturation 0.53333336. It can be represented as a packed float with
+    * the constant -0x1.71106p126F.
     */
   val DENIM: Float = java.lang.Float.intBitsToFloat(0xfeb88830)
 
@@ -271,28 +268,28 @@ object SimplePalette {
     */
   val NAVY: Float = java.lang.Float.intBitsToFloat(0xfe800000)
 
-  /** This color constant "lavender" has RGBA8888 code B991FFFF, R 0.7254902, G 0.5686275, B 1.0, alpha 1.0, hue 0.72727275, and saturation 0.43137252. It can be represented as a packed float with
-    * the constant -0x1.ff2372p126F.
+  /** This color constant "lavender" has RGBA8888 code B991FFFF, R 0.7254902, G 0.5686275, B 1.0, alpha 1.0, hue 0.72727275, and saturation 0.43137252. It can be represented as a packed float with the
+    * constant -0x1.ff2372p126F.
     */
   val LAVENDER: Float = java.lang.Float.intBitsToFloat(0xfeff91b9)
 
-  /** This color constant "plum" has RGBA8888 code BE0DC6FF, R 0.74509805, G 0.050980393, B 0.7764706, alpha 1.0, hue 0.82612616, and saturation 0.7254902. It can be represented as a packed float
-    * with the constant -0x1.8c1b7cp126F.
+  /** This color constant "plum" has RGBA8888 code BE0DC6FF, R 0.74509805, G 0.050980393, B 0.7764706, alpha 1.0, hue 0.82612616, and saturation 0.7254902. It can be represented as a packed float with
+    * the constant -0x1.8c1b7cp126F.
     */
   val PLUM: Float = java.lang.Float.intBitsToFloat(0xfec60dbe)
 
-  /** This color constant "mauve" has RGBA8888 code AB73ABFF, R 0.67058825, G 0.4509804, B 0.67058825, alpha 1.0, hue 0.8333334, and saturation 0.21960786. It can be represented as a packed float
-    * with the constant -0x1.56e756p126F.
+  /** This color constant "mauve" has RGBA8888 code AB73ABFF, R 0.67058825, G 0.4509804, B 0.67058825, alpha 1.0, hue 0.8333334, and saturation 0.21960786. It can be represented as a packed float with
+    * the constant -0x1.56e756p126F.
     */
   val MAUVE: Float = java.lang.Float.intBitsToFloat(0xfeab73ab)
 
-  /** This color constant "rose" has RGBA8888 code E61E78FF, R 0.9019608, G 0.11764706, B 0.47058824, alpha 1.0, hue 0.925, and saturation 0.78431374. It can be represented as a packed float with
-    * the constant -0x1.f03dccp125F.
+  /** This color constant "rose" has RGBA8888 code E61E78FF, R 0.9019608, G 0.11764706, B 0.47058824, alpha 1.0, hue 0.925, and saturation 0.78431374. It can be represented as a packed float with the
+    * constant -0x1.f03dccp125F.
     */
   val ROSE: Float = java.lang.Float.intBitsToFloat(0xfe781ee6)
 
-  /** This color constant "raspberry" has RGBA8888 code 911437FF, R 0.5686275, G 0.078431375, B 0.21568628, alpha 1.0, hue 0.9533333, and saturation 0.4901961. It can be represented as a packed
-    * float with the constant -0x1.6e2922p125F.
+  /** This color constant "raspberry" has RGBA8888 code 911437FF, R 0.5686275, G 0.078431375, B 0.21568628, alpha 1.0, hue 0.9533333, and saturation 0.4901961. It can be represented as a packed float
+    * with the constant -0x1.6e2922p125F.
     */
   val RASPBERRY: Float = java.lang.Float.intBitsToFloat(0xfe371491)
 
@@ -309,8 +306,8 @@ object SimplePalette {
   /** All names for colors in this palette, sorted by lightness from black to white. You can fetch the corresponding packed float color by looking up a name in [[NAMED]]. */
   val NAMES_BY_LIGHTNESS: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
 
-  private val namesByHue: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
-  private val colorsByHue: mutable.ArrayBuffer[Float] = mutable.ArrayBuffer.empty[Float]
+  private val namesByHue:  mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+  private val colorsByHue: mutable.ArrayBuffer[Float]  = mutable.ArrayBuffer.empty[Float]
 
   private val lightAdjectives: Array[String] =
     Array("darkmost ", "darkest ", "darker ", "dark ", "", "light ", "lighter ", "lightest ", "lightmost ")
@@ -383,34 +380,35 @@ object SimplePalette {
 
     // Build NAMES_BY_HUE
     NAMES_BY_HUE ++= NAMES
-    NAMES_BY_HUE.sortInPlace()(using (o1: String, o2: String) => {
-      val c1 = NAMED.getOrElse(o1, TRANSPARENT)
-      val c2 = NAMED.getOrElse(o2, TRANSPARENT)
-      val s1 = ColorTools.saturation(c1)
-      val s2 = ColorTools.saturation(c2)
-      // a packed float color with a sign bit of 0 (a non-negative number) is mostly transparent.
-      // this also considers 0x80000000 transparent, but it's almost at the threshold.
-      if (c1 >= 0f) -10000
-      else if (c2 >= 0f) 10000
-      else if (s1 <= 0.05f && s2 > 0.05f) -1000
-      else if (s1 > 0.05f && s2 <= 0.05f) 1000
-      else if (s1 <= 0.05f && s2 <= 0.05f)
-        Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
-      else
-        2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+    NAMES_BY_HUE.sortInPlace()(using
+      (o1: String, o2: String) =>
+        val c1 = NAMED.getOrElse(o1, TRANSPARENT)
+        val c2 = NAMED.getOrElse(o2, TRANSPARENT)
+        val s1 = ColorTools.saturation(c1)
+        val s2 = ColorTools.saturation(c2)
+        // a packed float color with a sign bit of 0 (a non-negative number) is mostly transparent.
+        // this also considers 0x80000000 transparent, but it's almost at the threshold.
+        if (c1 >= 0f) -10000
+        else if (c2 >= 0f) 10000
+        else if (s1 <= 0.05f && s2 > 0.05f) -1000
+        else if (s1 > 0.05f && s2 <= 0.05f) 1000
+        else if (s1 <= 0.05f && s2 <= 0.05f)
           Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
-    })
-    for (name <- NAMES_BY_HUE) {
+        else
+          2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+            Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
+    )
+    for (name <- NAMES_BY_HUE)
       COLORS_BY_HUE += NAMED.getOrElse(name, TRANSPARENT)
-    }
 
     // Build NAMES_BY_LIGHTNESS
     NAMES_BY_LIGHTNESS ++= NAMES
-    NAMES_BY_LIGHTNESS.sortInPlace()(using (o1: String, o2: String) =>
-      java.lang.Float.compare(
-        ColorTools.lightness(NAMED.getOrElse(o1, TRANSPARENT)),
-        ColorTools.lightness(NAMED.getOrElse(o2, TRANSPARENT))
-      )
+    NAMES_BY_LIGHTNESS.sortInPlace()(using
+      (o1: String, o2: String) =>
+        java.lang.Float.compare(
+          ColorTools.lightness(NAMED.getOrElse(o1, TRANSPARENT)),
+          ColorTools.lightness(NAMED.getOrElse(o2, TRANSPARENT))
+        )
     )
 
     // Build namesByHue and colorsByHue (private, for bestMatch; excludes "transparent")
@@ -437,7 +435,7 @@ object SimplePalette {
 
     // Build combinedAdjectives
     var idx = 0
-    for (sat <- 0 until 9) {
+    for (sat <- 0 until 9)
       for (lit <- 0 until 9) {
         val s = sat - 4
         val l = lit - 4
@@ -445,7 +443,6 @@ object SimplePalette {
           combinedAdjectives(idx) = lightAdjectives(lit) + satAdjectives(sat)
         idx += 1
       }
-    }
 
     // Special cases for multiple-effect adjectives:
     combinedAdjectives(0 * 9 + 0) = "weakmost "
@@ -488,8 +485,8 @@ object SimplePalette {
     *
     * If part of a color name or adjective is invalid, it is not considered; if the description is empty or fully invalid, this returns the float color `0f`, or fully transparent black.
     *
-    * Examples of valid descriptions include "blue", "dark green", "duller red", "peach pink", "indigo purple mauve", "lightest richer apricot-olive", "bright magenta", "palest cyan blue",
-    * "deep fern black", "weakmost celery", "red^3 orange", and "dark deep blue^7 cyan^3".
+    * Examples of valid descriptions include "blue", "dark green", "duller red", "peach pink", "indigo purple mauve", "lightest richer apricot-olive", "bright magenta", "palest cyan blue", "deep fern
+    * black", "weakmost celery", "red^3 orange", and "dark deep blue^7 cyan^3".
     *
     * This overload always reads the whole String provided.
     *
@@ -518,8 +515,8 @@ object SimplePalette {
     *
     * If part of a color name or adjective is invalid, it is not considered; if the description is empty or fully invalid, this returns the float color `0f`, or fully transparent black.
     *
-    * Examples of valid descriptions include "blue", "dark green", "duller red", "peach pink", "indigo purple mauve", "lightest richer apricot-olive", "bright magenta", "palest cyan blue",
-    * "deep fern black", "weakmost celery", "red^3 orange", and "dark deep blue^7 cyan^3".
+    * Examples of valid descriptions include "blue", "dark green", "duller red", "peach pink", "indigo purple mauve", "lightest richer apricot-olive", "bright magenta", "palest cyan blue", "deep fern
+    * black", "weakmost celery", "red^3 orange", and "dark deep blue^7 cyan^3".
     *
     * This overload lets you specify a starting index in `description` to read from and a maximum `length` to read before stopping. If `length` is negative, this reads the rest of `description` after
     * `start`.
@@ -536,14 +533,14 @@ object SimplePalette {
   def parseDescription(description: String, start: Int, length: Int): Float = {
     var lightness  = 0f
     var saturation = 0f
-    val end =
+    val end        =
       if (length < 0) description.length - start
       else Math.min(description.length, start + length)
     val terms  = description.substring(start, end).split("[^a-zA-Z0-9_.]+")
     val mixing = mutable.ArrayBuffer.empty[Float]
 
     for (term <- terms if term != null && term.nonEmpty) {
-      val len = term.length
+      val len     = term.length
       var handled = false
 
       term.charAt(0) match {
@@ -554,7 +551,7 @@ object SimplePalette {
               case 9 => lightness += 0.20f * 4; handled = true // lightmost
               case 8 => lightness += 0.20f * 3; handled = true // lightest
               case 7 => lightness += 0.20f * 2; handled = true // lighter
-              case 5 => lightness += 0.20f; handled = true     // light
+              case 5 => lightness += 0.20f; handled = true // light
               case _ => // not a modifier
             }
           }
@@ -564,7 +561,7 @@ object SimplePalette {
               case 10 => lightness += 0.20f * 4; saturation += 0.20f * 4; handled = true // brightmost
               case 9  => lightness += 0.20f * 3; saturation += 0.20f * 3; handled = true // brightest
               case 8  => lightness += 0.20f * 2; saturation += 0.20f * 2; handled = true // brighter
-              case 6  => lightness += 0.20f; saturation += 0.20f; handled = true         // bright
+              case 6  => lightness += 0.20f; saturation += 0.20f; handled = true // bright
               case _  =>
             }
           }
@@ -575,7 +572,7 @@ object SimplePalette {
               case 7 => lightness += 0.20f * 4; saturation -= 0.20f * 4; handled = true // palerer (same as 8, 4 extra chars)
               case 6 => lightness += 0.20f * 3; saturation -= 0.20f * 3; handled = true // palest
               case 5 => lightness += 0.20f * 2; saturation -= 0.20f * 2; handled = true // paler
-              case 4 => lightness += 0.20f; saturation -= 0.20f; handled = true         // pale
+              case 4 => lightness += 0.20f; saturation -= 0.20f; handled = true // pale
               case _ =>
             }
           }
@@ -585,7 +582,7 @@ object SimplePalette {
               case 8 => lightness -= 0.20f * 4; saturation -= 0.20f * 4; handled = true // weakmost
               case 7 => lightness -= 0.20f * 3; saturation -= 0.20f * 3; handled = true // weakest
               case 6 => lightness -= 0.20f * 2; saturation -= 0.20f * 2; handled = true // weaker
-              case 4 => lightness -= 0.20f; saturation -= 0.20f; handled = true         // weak
+              case 4 => lightness -= 0.20f; saturation -= 0.20f; handled = true // weak
               case _ =>
             }
           }
@@ -595,7 +592,7 @@ object SimplePalette {
               case 8 => saturation += 0.20f * 4; handled = true // richmost
               case 7 => saturation += 0.20f * 3; handled = true // richest
               case 6 => saturation += 0.20f * 2; handled = true // richer
-              case 4 => saturation += 0.20f; handled = true     // rich
+              case 4 => saturation += 0.20f; handled = true // rich
               case _ =>
             }
           }
@@ -605,7 +602,7 @@ object SimplePalette {
               case 8 => lightness -= 0.20f * 4; handled = true // darkmost
               case 7 => lightness -= 0.20f * 3; handled = true // darkest
               case 6 => lightness -= 0.20f * 2; handled = true // darker
-              case 4 => lightness -= 0.20f; handled = true     // dark
+              case 4 => lightness -= 0.20f; handled = true // dark
               case _ =>
             }
           } else if (len > 1 && (term.charAt(1) == 'u' || term.charAt(1) == 'U')) { // dull
@@ -613,7 +610,7 @@ object SimplePalette {
               case 8 => saturation -= 0.20f * 4; handled = true // dullmost
               case 7 => saturation -= 0.20f * 3; handled = true // dullest
               case 6 => saturation -= 0.20f * 2; handled = true // duller
-              case 4 => saturation -= 0.20f; handled = true     // dull
+              case 4 => saturation -= 0.20f; handled = true // dull
               case _ =>
             }
           } else if (len > 3 && (term.charAt(3) == 'p' || term.charAt(3) == 'P')) { // deep
@@ -621,16 +618,16 @@ object SimplePalette {
               case 8 => lightness -= 0.20f * 4; saturation += 0.20f * 4; handled = true // deepmost
               case 7 => lightness -= 0.20f * 3; saturation += 0.20f * 3; handled = true // deepest
               case 6 => lightness -= 0.20f * 2; saturation += 0.20f * 2; handled = true // deeper
-              case 4 => lightness -= 0.20f; saturation += 0.20f; handled = true         // deep
+              case 4 => lightness -= 0.20f; saturation += 0.20f; handled = true // deep
               case _ =>
             }
           }
         case c if c >= '0' && c <= '9' =>
           if (mixing.size >= 2) {
             var num = 1f
-            try {
+            try
               num = term.toFloat
-            } catch {
+            catch {
               case _: NumberFormatException => // ignored
             }
             mixing((mixing.size & -2) - 1) = num
@@ -674,7 +671,7 @@ object SimplePalette {
   def bestMatch(rgb: Float, mixCount: Int): String = {
     val mc           = Math.max(1, mixCount)
     var oklab        = sge.colorful.oklab.ColorTools.fromRGBA(rgb)
-    var bestDistance  = Float.PositiveInfinity
+    var bestDistance = Float.PositiveInfinity
     val paletteSize  = namesByHue.size
     val colorTries   = Math.pow(paletteSize, mc).toInt
     val totalTries   = colorTries * 81
@@ -682,9 +679,8 @@ object SimplePalette {
     val targetA      = sge.colorful.oklab.ColorTools.channelA(oklab)
     val targetB      = sge.colorful.oklab.ColorTools.channelB(oklab)
     val mixingArr    = new Array[Float](mc)
-    for (i <- 0 until mc) {
+    for (i <- 0 until mc)
       mixingArr(i) = colorsByHue(0)
-    }
     var bestCode = 0
     var c        = 0
     while (c < totalTries) {
@@ -737,9 +733,7 @@ object SimplePalette {
     *
     * This can be used alongside the method with the same name in Palette, since that uses "Title Cased" names.
     */
-  def appendToKnownColors(): Unit = {
-    for ((key, value) <- NAMED) {
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED)
       Colors.put(key, ColorTools.toColor(new Color(), value))
-    }
-  }
 }
