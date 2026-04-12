@@ -1864,8 +1864,8 @@ class Font {
       scaleXLocal = fsx * scale
       scaleYLocal = fsy * scale
     }
-    @scala.annotation.unused
-    val osx             = fsx * (scale + 1f) * 0.5f // used by glyph-based underline fallback (not yet ported)
+    @scala.annotation.unused // defined but unused in original Java too
+    val osx             = fsx * (scale + 1f) * 0.5f
     val osy             = fsy * (scale + 1f) * 0.5f
     var centerX         = tr.xAdvance * scaleXLocal * advanceMultiplier * 0.5f
     var centerY         = font.originalCellHeight * scaleYLocal * 0.5f
@@ -1874,8 +1874,7 @@ class Font {
     var y               = yIn + scaleCorrection * scale
 
     val ox = x
-    @scala.annotation.unused
-    val oy = y // used by glyph-based underline fallback (not yet ported)
+    val oy = y
 
     val ix     = handleIntegerPosition(x + centerX)
     val iy     = handleIntegerPosition(y + centerY)
@@ -1952,6 +1951,13 @@ class Font {
 
     val tex = tr.texture
     if (tex == null) scala.util.boundary.break(0f)
+
+    // Inverse texture width (for glyph-based underline/strikethrough fallback)
+    val iw = 1f / tex.width.toFloat
+
+    // Approximate pixel sizes from projection matrix (used for underline/strikethrough and fancy lines)
+    val xPx = 2f / Math.max(1f, batch.projectionMatrix.values(0) * 960f)
+    val yPx = 2f / Math.max(1f, batch.projectionMatrix.values(5) * 540f)
 
     val scaledHeight = font.cellHeight * scale * sizingY
     var x0           = 0f; var x1 = 0f; var x2 = 0f
@@ -2200,6 +2206,56 @@ class Font {
           font.cellHeight * sizingY * (1f + font.underBreadth),
           rotation
         )
+      } else {
+        // Fallback underline using underscore glyph when box-drawing char is unavailable
+        val underGlyph = font.mapping.getOrElse('_'.toInt, null)
+        if (underGlyph != null) {
+          val uTrrh   = underGlyph.regionHeight.toFloat
+          val uH      = uTrrh * osy * sizingY + cellHeight * font.underBreadth * sizingY
+          var uYt     = (ucy - (uTrrh + underGlyph.offsetY) * font.scaleY) * sizingY + cellHeight * font.underY * sizingY
+          val underU  = (underGlyph.u + underGlyph.u2) * 0.5f - iw
+          val underV  = underGlyph.v
+          val underU2 = underU + iw
+          val underV2 = underGlyph.v2
+          val uXc     = -0.5f * font.cellWidth + changedW * font.underX - scale * fsx
+          var uX0     = -2f * xPx
+          val addW    = xPx * 2f
+          uX0 += xPx + ucx - cos * ucx
+          uYt += sin * ucx
+
+          vertices(2) = drawColor
+          vertices(3) = underU
+          vertices(4) = underV
+
+          vertices(7) = drawColor
+          vertices(8) = underU
+          vertices(9) = underV2
+
+          vertices(12) = drawColor
+          vertices(13) = underU2
+          vertices(14) = underV2
+
+          vertices(17) = drawColor
+          vertices(18) = underU2
+          vertices(19) = underV
+
+          val up0xF = uXc + uX0 - addW
+          val up0yF = uYt + y0 + uH
+          val up1xF = uXc + uX0 - addW
+          val up1yF = uYt + y1
+          val up2xF = uXc + uX0 + changedW * (font.underLength + 1f) + addW
+          val up2yF = uYt + y2
+          vertices(0) = ux + cos * up0xF - sin * up0yF
+          vertices(1) = uy + sin * up0xF + cos * up0yF
+          vertices(5) = ux + cos * up1xF - sin * up1yF
+          vertices(6) = uy + sin * up1xF + cos * up1yF
+          vertices(10) = ux + cos * up2xF - sin * up2yF
+          vertices(11) = uy + sin * up2xF + cos * up2yF
+          vertices(15) = vertices(0) - vertices(5) + vertices(10)
+          vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+          drawVertices(batch, underGlyph.texture, vertices)
+        }
       }
     }
 
@@ -2259,6 +2315,56 @@ class Font {
           font.cellHeight * sizingY * (1f + font.strikeBreadth),
           rotation
         )
+      } else {
+        // Fallback strikethrough using dash glyph when box-drawing char is unavailable
+        val dashGlyph = font.mapping.getOrElse('-'.toInt, null)
+        if (dashGlyph != null) {
+          val dTrrh  = dashGlyph.regionHeight.toFloat
+          val dH     = dTrrh * osy * sizingY * (1f + font.strikeBreadth)
+          var dYt    = (scy - (dTrrh + dashGlyph.offsetY) * font.scaleY) * scale * sizingY + font.cellHeight * font.strikeY * scale * sizingY
+          val dashU  = (dashGlyph.u + dashGlyph.u2) * 0.5f - iw
+          val dashV  = dashGlyph.v
+          val dashU2 = dashU + iw
+          val dashV2 = dashGlyph.v2
+          val dXc    = -cellWidth * 0.5f + changedW * font.strikeX - scale * fsx
+          var dX0    = -2f * xPx
+          val addW   = xPx * 2f
+          dX0 += xPx + scx - cos * scx
+          dYt += sin * scx
+
+          vertices(2) = drawColor
+          vertices(3) = dashU
+          vertices(4) = dashV
+
+          vertices(7) = drawColor
+          vertices(8) = dashU
+          vertices(9) = dashV2
+
+          vertices(12) = drawColor
+          vertices(13) = dashU2
+          vertices(14) = dashV2
+
+          vertices(17) = drawColor
+          vertices(18) = dashU2
+          vertices(19) = dashV
+
+          val sp0xF = dXc + dX0 - addW
+          val sp0yF = dYt + y0 + dH
+          val sp1xF = dXc + dX0 - addW
+          val sp1yF = dYt + y1
+          val sp2xF = dXc + dX0 + changedW * (font.strikeLength + 1f) + addW
+          val sp2yF = dYt + y2
+          vertices(0) = sx + cos * sp0xF - sin * sp0yF
+          vertices(1) = sy + sin * sp0xF + cos * sp0yF
+          vertices(5) = sx + cos * sp1xF - sin * sp1yF
+          vertices(6) = sy + sin * sp1xF + cos * sp1yF
+          vertices(10) = sx + cos * sp2xF - sin * sp2yF
+          vertices(11) = sy + sin * sp2xF + cos * sp2yF
+          vertices(15) = vertices(0) - vertices(5) + vertices(10)
+          vertices(16) = vertices(1) - vertices(6) + vertices(11)
+
+          drawVertices(batch, dashGlyph.texture, vertices)
+        }
       }
     }
 
@@ -2272,9 +2378,6 @@ class Font {
       val fy  = handleIntegerPosition(fiy + fys)
       val fcx = oCenterX + fxs * 0.5f
       val fcy = oCenterY + fys * 0.5f
-      // Approximate pixel sizes from projection matrix (simplified: assume 1px = 1 world unit fallback)
-      val xPx = 2f / Math.max(1f, batch.projectionMatrix.values(0) * 960f)
-      val yPx = 2f / Math.max(1f, batch.projectionMatrix.values(5) * 540f)
 
       val fp0x = -cos * fcx + changedW * font.fancyX
       val fp0y = (font.descent * font.scaleY * 0.5f) * (scale * sizingY - font.fancyY) - fcy + sin * fcx
