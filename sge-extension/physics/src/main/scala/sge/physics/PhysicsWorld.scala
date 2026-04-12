@@ -47,6 +47,9 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
   /** Scratch buffer for point query results. */
   private val pointBuf = new Array[Long](64)
 
+  /** Scratch buffer for AABB query results. */
+  private val aabbBuf = new Array[Long](256)
+
   private def checkNotClosed(): Unit =
     if (closed) throw new IllegalStateException("PhysicsWorld has been closed")
 
@@ -113,15 +116,17 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
     */
   def createJoint(jointDef: JointDef): Joint = {
     checkNotClosed()
-    val jh = jointDef match {
+    jointDef match {
       case JointDef.Revolute(b1, b2, ax, ay) =>
-        ops.createRevoluteJoint(handle, b1.handle, b2.handle, ax, ay)
+        val jh = ops.createRevoluteJoint(handle, b1.handle, b2.handle, ax, ay)
+        new RevoluteJoint(this, jh)
       case JointDef.Prismatic(b1, b2, ax, ay) =>
-        ops.createPrismaticJoint(handle, b1.handle, b2.handle, ax, ay)
+        val jh = ops.createPrismaticJoint(handle, b1.handle, b2.handle, ax, ay)
+        new PrismaticJoint(this, jh)
       case JointDef.Fixed(b1, b2) =>
-        ops.createFixedJoint(handle, b1.handle, b2.handle)
+        val jh = ops.createFixedJoint(handle, b1.handle, b2.handle)
+        new FixedJoint(this, jh)
     }
-    Joint(this, jh)
   }
 
   /** Destroys a joint. */
@@ -163,6 +168,35 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       )
     } else {
       Nullable.empty
+    }
+  }
+
+  /** Finds all colliders intersecting the given axis-aligned bounding box.
+    *
+    * @param minX
+    *   minimum x coordinate of the box
+    * @param minY
+    *   minimum y coordinate of the box
+    * @param maxX
+    *   maximum x coordinate of the box
+    * @param maxY
+    *   maximum y coordinate of the box
+    * @return
+    *   a sequence of collider handles (up to 256 results)
+    */
+  def queryAABB(minX: Float, minY: Float, maxX: Float, maxY: Float): scala.collection.immutable.Seq[Long] = {
+    checkNotClosed()
+    val count = ops.queryAABB(handle, minX, minY, maxX, maxY, aabbBuf, aabbBuf.length)
+    if (count == 0) {
+      scala.collection.immutable.Seq.empty
+    } else {
+      val builder = scala.collection.immutable.Seq.newBuilder[Long]
+      var i       = 0
+      while (i < count) {
+        builder += aabbBuf(i)
+        i += 1
+      }
+      builder.result()
     }
   }
 

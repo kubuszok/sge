@@ -191,6 +191,24 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
   )
 
+  // Collision filtering
+  private val hColliderSetCollisionGroups: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_collision_groups"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT, p.JAVA_INT)
+  )
+  private val hColliderGetCollisionGroups: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_collision_groups"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hColliderSetSolverGroups: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_solver_groups"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT, p.JAVA_INT)
+  )
+  private val hColliderGetSolverGroups: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_solver_groups"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+
   // Joints
   private val hCreateRevoluteJoint: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_create_revolute_joint"),
@@ -209,7 +227,97 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
   )
 
+  // Revolute joint limits/motors
+  private val hRevoluteJointEnableLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_enable_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hRevoluteJointSetLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_set_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hRevoluteJointGetLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_get_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hRevoluteJointIsLimitEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_is_limit_enabled"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hRevoluteJointEnableMotor: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_enable_motor"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hRevoluteJointSetMotorSpeed: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_set_motor_speed"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hRevoluteJointSetMaxMotorTorque: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_set_max_motor_torque"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hRevoluteJointGetMotorSpeed: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_get_motor_speed"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hRevoluteJointGetAngle: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_get_angle"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+
+  // Prismatic joint limits/motors
+  private val hPrismaticJointEnableLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_enable_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hPrismaticJointSetLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_set_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hPrismaticJointGetLimits: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_get_limits"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hPrismaticJointEnableMotor: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_enable_motor"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hPrismaticJointSetMotorSpeed: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_set_motor_speed"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hPrismaticJointSetMaxMotorForce: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_set_max_motor_force"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hPrismaticJointGetTranslation: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_get_translation"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+
+  // Body mass/inertia
+  private val hBodyGetMass: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_mass"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetInertia: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_inertia"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetLocalCenterOfMass: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_local_center_of_mass"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hBodyRecomputeMassProperties: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_recompute_mass_properties"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
+  )
+
   // Queries
+  private val hQueryAABB: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_query_aabb"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
+  )
   private val hRayCast: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_ray_cast"),
     p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS)
@@ -366,6 +474,34 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   override def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit =
     hColliderSetSensor.invoke(world, collider, if (sensor) 1 else 0)
 
+  // ─── Collision filtering ──────────────────────────────────────────────
+
+  override def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit =
+    hColliderSetCollisionGroups.invoke(world, collider, memberships, filter)
+
+  override def colliderGetCollisionGroups(world: Long, collider: Long, out: Array[Int]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_INT, 2L)
+      hColliderGetCollisionGroups.invoke(world, collider, seg)
+      out(0) = seg.getInt(0L)
+      out(1) = seg.getInt(4L)
+    } finally arena.arenaClose()
+  }
+
+  override def colliderSetSolverGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit =
+    hColliderSetSolverGroups.invoke(world, collider, memberships, filter)
+
+  override def colliderGetSolverGroups(world: Long, collider: Long, out: Array[Int]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_INT, 2L)
+      hColliderGetSolverGroups.invoke(world, collider, seg)
+      out(0) = seg.getInt(0L)
+      out(1) = seg.getInt(4L)
+    } finally arena.arenaClose()
+  }
+
   // ─── Joints ───────────────────────────────────────────────────────────
 
   override def createRevoluteJoint(world: Long, body1: Long, body2: Long, anchorX: Float, anchorY: Float): Long =
@@ -380,7 +516,115 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   override def destroyJoint(world: Long, joint: Long): Unit =
     hDestroyJoint.invoke(world, joint)
 
+  // ─── Revolute joint limits and motors ─────────────────────────────────
+
+  override def revoluteJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit =
+    hRevoluteJointEnableLimits.invoke(world, joint, if (enable) 1 else 0)
+
+  override def revoluteJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit =
+    hRevoluteJointSetLimits.invoke(world, joint, lower, upper)
+
+  override def revoluteJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hRevoluteJointGetLimits.invoke(world, joint, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
+
+  override def revoluteJointIsLimitEnabled(world: Long, joint: Long): Boolean = {
+    val result = hRevoluteJointIsLimitEnabled.invoke(world, joint).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def revoluteJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit =
+    hRevoluteJointEnableMotor.invoke(world, joint, if (enable) 1 else 0)
+
+  override def revoluteJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit =
+    hRevoluteJointSetMotorSpeed.invoke(world, joint, speed)
+
+  override def revoluteJointSetMaxMotorTorque(world: Long, joint: Long, torque: Float): Unit =
+    hRevoluteJointSetMaxMotorTorque.invoke(world, joint, torque)
+
+  override def revoluteJointGetMotorSpeed(world: Long, joint: Long): Float =
+    hRevoluteJointGetMotorSpeed.invoke(world, joint).asInstanceOf[Float]
+
+  override def revoluteJointGetAngle(world: Long, joint: Long): Float =
+    hRevoluteJointGetAngle.invoke(world, joint).asInstanceOf[Float]
+
+  // ─── Prismatic joint limits and motors ────────────────────────────────
+
+  override def prismaticJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit =
+    hPrismaticJointEnableLimits.invoke(world, joint, if (enable) 1 else 0)
+
+  override def prismaticJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit =
+    hPrismaticJointSetLimits.invoke(world, joint, lower, upper)
+
+  override def prismaticJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hPrismaticJointGetLimits.invoke(world, joint, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
+
+  override def prismaticJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit =
+    hPrismaticJointEnableMotor.invoke(world, joint, if (enable) 1 else 0)
+
+  override def prismaticJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit =
+    hPrismaticJointSetMotorSpeed.invoke(world, joint, speed)
+
+  override def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force: Float): Unit =
+    hPrismaticJointSetMaxMotorForce.invoke(world, joint, force)
+
+  override def prismaticJointGetTranslation(world: Long, joint: Long): Float =
+    hPrismaticJointGetTranslation.invoke(world, joint).asInstanceOf[Float]
+
+  // ─── Body mass/inertia ────────────────────────────────────────────────
+
+  override def bodyGetMass(world: Long, body: Long): Float =
+    hBodyGetMass.invoke(world, body).asInstanceOf[Float]
+
+  override def bodyGetInertia(world: Long, body: Long): Float =
+    hBodyGetInertia.invoke(world, body).asInstanceOf[Float]
+
+  override def bodyGetLocalCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hBodyGetLocalCenterOfMass.invoke(world, body, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
+
+  override def bodyRecomputeMassProperties(world: Long, body: Long): Unit =
+    hBodyRecomputeMassProperties.invoke(world, body)
+
   // ─── Queries ──────────────────────────────────────────────────────────
+
+  override def queryAABB(
+    world:        Long,
+    minX:         Float,
+    minY:         Float,
+    maxX:         Float,
+    maxY:         Float,
+    outColliders: Array[Long],
+    maxResults:   Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg   = arena.allocateElems(p.JAVA_LONG, maxResults.toLong)
+      val count = hQueryAABB.invoke(world, minX, minY, maxX, maxY, seg, maxResults).asInstanceOf[Int]
+      var i     = 0
+      while (i < count) {
+        outColliders(i) = seg.getLong(i.toLong * 8L)
+        i += 1
+      }
+      count
+    } finally arena.arenaClose()
+  }
 
   override def rayCast(
     world:   Long,

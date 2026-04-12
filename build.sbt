@@ -86,7 +86,7 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-components repo)
-  val nativeComponents = "9165c315732bd724f2991f042c9bd9e0237f9afb-SNAPSHOT"
+  val nativeComponents = "83e9dafec96fb3d835fd49a9c18a72566e1aecf3-SNAPSHOT"
   val curlProvider     = "6bbb192b266adc226810c90f820297660c8e89b0-SNAPSHOT"
 }
 
@@ -483,7 +483,13 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
       resolvers += mavenCentralSnapshots,
+      libraryDependencies += "com.kubuszok" % "panama-sge-physics-provider" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      },
+      Test / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
         (apiDirs ++ jdkDirs).map(Attributed.blank)

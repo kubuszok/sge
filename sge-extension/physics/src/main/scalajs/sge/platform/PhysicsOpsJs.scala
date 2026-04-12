@@ -62,15 +62,48 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def colliderSetRestitution(world: Long, collider: Long, restitution: Float):                            Unit = unsupported
   override def colliderSetSensor(world:      Long, collider: Long, sensor:      Boolean):                          Unit = unsupported
 
+  // Collision filtering
+  override def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit = unsupported
+  override def colliderGetCollisionGroups(world: Long, collider: Long, out:         Array[Int]):       Unit = unsupported
+  override def colliderSetSolverGroups(world:    Long, collider: Long, memberships: Int, filter: Int): Unit = unsupported
+  override def colliderGetSolverGroups(world:    Long, collider: Long, out:         Array[Int]):       Unit = unsupported
+
   // Joints
   override def createRevoluteJoint(world:  Long, body1: Long, body2: Long, anchorX: Float, anchorY: Float): Long = unsupported
   override def createPrismaticJoint(world: Long, body1: Long, body2: Long, axisX:   Float, axisY:   Float): Long = unsupported
   override def createFixedJoint(world:     Long, body1: Long, body2: Long):                                 Long = unsupported
   override def destroyJoint(world:         Long, joint: Long):                                              Unit = unsupported
 
+  // Revolute joint limits/motors
+  override def revoluteJointEnableLimits(world:      Long, joint: Long, enable: Boolean):             Unit    = unsupported
+  override def revoluteJointSetLimits(world:         Long, joint: Long, lower:  Float, upper: Float): Unit    = unsupported
+  override def revoluteJointGetLimits(world:         Long, joint: Long, out:    Array[Float]):        Unit    = unsupported
+  override def revoluteJointIsLimitEnabled(world:    Long, joint: Long):                              Boolean = unsupported
+  override def revoluteJointEnableMotor(world:       Long, joint: Long, enable: Boolean):             Unit    = unsupported
+  override def revoluteJointSetMotorSpeed(world:     Long, joint: Long, speed:  Float):               Unit    = unsupported
+  override def revoluteJointSetMaxMotorTorque(world: Long, joint: Long, torque: Float):               Unit    = unsupported
+  override def revoluteJointGetMotorSpeed(world:     Long, joint: Long):                              Float   = unsupported
+  override def revoluteJointGetAngle(world:          Long, joint: Long):                              Float   = unsupported
+
+  // Prismatic joint limits/motors
+  override def prismaticJointEnableLimits(world:     Long, joint: Long, enable: Boolean):             Unit  = unsupported
+  override def prismaticJointSetLimits(world:        Long, joint: Long, lower:  Float, upper: Float): Unit  = unsupported
+  override def prismaticJointGetLimits(world:        Long, joint: Long, out:    Array[Float]):        Unit  = unsupported
+  override def prismaticJointEnableMotor(world:      Long, joint: Long, enable: Boolean):             Unit  = unsupported
+  override def prismaticJointSetMotorSpeed(world:    Long, joint: Long, speed:  Float):               Unit  = unsupported
+  override def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force:  Float):               Unit  = unsupported
+  override def prismaticJointGetTranslation(world:   Long, joint: Long):                              Float = unsupported
+
+  // Body mass/inertia
+  override def bodyGetMass(world:                 Long, body: Long):                    Float = unsupported
+  override def bodyGetInertia(world:              Long, body: Long):                    Float = unsupported
+  override def bodyGetLocalCenterOfMass(world:    Long, body: Long, out: Array[Float]): Unit  = unsupported
+  override def bodyRecomputeMassProperties(world: Long, body: Long):                    Unit  = unsupported
+
   // Queries
-  override def rayCast(world:    Long, originX: Float, originY: Float, dirX:      Float, dirY:             Float, maxDist: Float, out: Array[Float]): Boolean = unsupported
-  override def queryPoint(world: Long, x:       Float, y:       Float, outBodies: Array[Long], maxResults: Int):                                      Int     = unsupported
+  override def queryAABB(world:  Long, minX:    Float, minY:    Float, maxX:      Float, maxY:             Float, outColliders: Array[Long], maxResults: Int):          Int     = unsupported
+  override def rayCast(world:    Long, originX: Float, originY: Float, dirX:      Float, dirY:             Float, maxDist:      Float, out:              Array[Float]): Boolean = unsupported
+  override def queryPoint(world: Long, x:       Float, y:       Float, outBodies: Array[Long], maxResults: Int):                                                        Int     = unsupported
 
   // Contact events
   override def pollContactStartEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int = unsupported

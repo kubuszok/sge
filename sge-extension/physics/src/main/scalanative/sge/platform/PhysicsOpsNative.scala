@@ -58,15 +58,48 @@ private object PhysicsC {
   def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat):                           Unit = extern
   def sge_phys_collider_set_sensor(world:      Long, collider: Long, sensor:      CInt):                             Unit = extern
 
+  // Collision filtering
+  def sge_phys_collider_set_collision_groups(world: Long, collider: Long, memberships: CInt, filter: CInt): Unit = extern
+  def sge_phys_collider_get_collision_groups(world: Long, collider: Long, out:         Ptr[CInt]):          Unit = extern
+  def sge_phys_collider_set_solver_groups(world:    Long, collider: Long, memberships: CInt, filter: CInt): Unit = extern
+  def sge_phys_collider_get_solver_groups(world:    Long, collider: Long, out:         Ptr[CInt]):          Unit = extern
+
   // Joints
   def sge_phys_create_revolute_joint(world:  Long, body1: Long, body2: Long, anchorX: CFloat, anchorY: CFloat): Long = extern
   def sge_phys_create_prismatic_joint(world: Long, body1: Long, body2: Long, axisX:   CFloat, axisY:   CFloat): Long = extern
   def sge_phys_create_fixed_joint(world:     Long, body1: Long, body2: Long):                                   Long = extern
   def sge_phys_destroy_joint(world:          Long, joint: Long):                                                Unit = extern
 
+  // Revolute joint limits/motors
+  def sge_phys_revolute_joint_enable_limits(world:        Long, joint: Long, enable: CInt):                  Unit   = extern
+  def sge_phys_revolute_joint_set_limits(world:           Long, joint: Long, lower:  CFloat, upper: CFloat): Unit   = extern
+  def sge_phys_revolute_joint_get_limits(world:           Long, joint: Long, out:    Ptr[CFloat]):           Unit   = extern
+  def sge_phys_revolute_joint_is_limit_enabled(world:     Long, joint: Long):                                CInt   = extern
+  def sge_phys_revolute_joint_enable_motor(world:         Long, joint: Long, enable: CInt):                  Unit   = extern
+  def sge_phys_revolute_joint_set_motor_speed(world:      Long, joint: Long, speed:  CFloat):                Unit   = extern
+  def sge_phys_revolute_joint_set_max_motor_torque(world: Long, joint: Long, torque: CFloat):                Unit   = extern
+  def sge_phys_revolute_joint_get_motor_speed(world:      Long, joint: Long):                                CFloat = extern
+  def sge_phys_revolute_joint_get_angle(world:            Long, joint: Long):                                CFloat = extern
+
+  // Prismatic joint limits/motors
+  def sge_phys_prismatic_joint_enable_limits(world:       Long, joint: Long, enable: CInt):                  Unit   = extern
+  def sge_phys_prismatic_joint_set_limits(world:          Long, joint: Long, lower:  CFloat, upper: CFloat): Unit   = extern
+  def sge_phys_prismatic_joint_get_limits(world:          Long, joint: Long, out:    Ptr[CFloat]):           Unit   = extern
+  def sge_phys_prismatic_joint_enable_motor(world:        Long, joint: Long, enable: CInt):                  Unit   = extern
+  def sge_phys_prismatic_joint_set_motor_speed(world:     Long, joint: Long, speed:  CFloat):                Unit   = extern
+  def sge_phys_prismatic_joint_set_max_motor_force(world: Long, joint: Long, force:  CFloat):                Unit   = extern
+  def sge_phys_prismatic_joint_get_translation(world:     Long, joint: Long):                                CFloat = extern
+
+  // Body mass/inertia
+  def sge_phys_body_get_mass(world:                  Long, body: Long):                   CFloat = extern
+  def sge_phys_body_get_inertia(world:               Long, body: Long):                   CFloat = extern
+  def sge_phys_body_get_local_center_of_mass(world:  Long, body: Long, out: Ptr[CFloat]): Unit   = extern
+  def sge_phys_body_recompute_mass_properties(world: Long, body: Long):                   Unit   = extern
+
   // Queries
-  def sge_phys_ray_cast(world:    Long, originX: CFloat, originY: CFloat, dirX:      CFloat, dirY:          CFloat, maxDist: CFloat, out: Ptr[CFloat]): CInt = extern
-  def sge_phys_query_point(world: Long, x:       CFloat, y:       CFloat, outBodies: Ptr[Long], maxResults: CInt):                                      CInt = extern
+  def sge_phys_query_aabb(world:  Long, minX:    CFloat, minY:    CFloat, maxX:      CFloat, maxY:          CFloat, outColliders: Ptr[Long], maxResults: CInt):        CInt = extern
+  def sge_phys_ray_cast(world:    Long, originX: CFloat, originY: CFloat, dirX:      CFloat, dirY:          CFloat, maxDist:      CFloat, out:           Ptr[CFloat]): CInt = extern
+  def sge_phys_query_point(world: Long, x:       CFloat, y:       CFloat, outBodies: Ptr[Long], maxResults: CInt):                                                     CInt = extern
 
   // Contact events
   def sge_phys_poll_contact_start_events(world: Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
@@ -199,6 +232,28 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
   override def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit =
     PhysicsC.sge_phys_collider_set_sensor(world, collider, if (sensor) 1 else 0)
 
+  // ─── Collision filtering ──────────────────────────────────────────────
+
+  override def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit =
+    PhysicsC.sge_phys_collider_set_collision_groups(world, collider, memberships, filter)
+
+  override def colliderGetCollisionGroups(world: Long, collider: Long, out: Array[Int]): Unit = {
+    val buf = stackalloc[CInt](2)
+    PhysicsC.sge_phys_collider_get_collision_groups(world, collider, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def colliderSetSolverGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit =
+    PhysicsC.sge_phys_collider_set_solver_groups(world, collider, memberships, filter)
+
+  override def colliderGetSolverGroups(world: Long, collider: Long, out: Array[Int]): Unit = {
+    val buf = stackalloc[CInt](2)
+    PhysicsC.sge_phys_collider_get_solver_groups(world, collider, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
   // ─── Joints ───────────────────────────────────────────────────────────
 
   override def createRevoluteJoint(world: Long, body1: Long, body2: Long, anchorX: Float, anchorY: Float): Long =
@@ -213,7 +268,104 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
   override def destroyJoint(world: Long, joint: Long): Unit =
     PhysicsC.sge_phys_destroy_joint(world, joint)
 
+  // ─── Revolute joint limits and motors ─────────────────────────────────
+
+  override def revoluteJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit =
+    PhysicsC.sge_phys_revolute_joint_enable_limits(world, joint, if (enable) 1 else 0)
+
+  override def revoluteJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit =
+    PhysicsC.sge_phys_revolute_joint_set_limits(world, joint, lower, upper)
+
+  override def revoluteJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_revolute_joint_get_limits(world, joint, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def revoluteJointIsLimitEnabled(world: Long, joint: Long): Boolean =
+    PhysicsC.sge_phys_revolute_joint_is_limit_enabled(world, joint) != 0
+
+  override def revoluteJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit =
+    PhysicsC.sge_phys_revolute_joint_enable_motor(world, joint, if (enable) 1 else 0)
+
+  override def revoluteJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit =
+    PhysicsC.sge_phys_revolute_joint_set_motor_speed(world, joint, speed)
+
+  override def revoluteJointSetMaxMotorTorque(world: Long, joint: Long, torque: Float): Unit =
+    PhysicsC.sge_phys_revolute_joint_set_max_motor_torque(world, joint, torque)
+
+  override def revoluteJointGetMotorSpeed(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_revolute_joint_get_motor_speed(world, joint)
+
+  override def revoluteJointGetAngle(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_revolute_joint_get_angle(world, joint)
+
+  // ─── Prismatic joint limits and motors ────────────────────────────────
+
+  override def prismaticJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit =
+    PhysicsC.sge_phys_prismatic_joint_enable_limits(world, joint, if (enable) 1 else 0)
+
+  override def prismaticJointSetLimits(world: Long, joint: Long, lower: Float, upper: Float): Unit =
+    PhysicsC.sge_phys_prismatic_joint_set_limits(world, joint, lower, upper)
+
+  override def prismaticJointGetLimits(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_prismatic_joint_get_limits(world, joint, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def prismaticJointEnableMotor(world: Long, joint: Long, enable: Boolean): Unit =
+    PhysicsC.sge_phys_prismatic_joint_enable_motor(world, joint, if (enable) 1 else 0)
+
+  override def prismaticJointSetMotorSpeed(world: Long, joint: Long, speed: Float): Unit =
+    PhysicsC.sge_phys_prismatic_joint_set_motor_speed(world, joint, speed)
+
+  override def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force: Float): Unit =
+    PhysicsC.sge_phys_prismatic_joint_set_max_motor_force(world, joint, force)
+
+  override def prismaticJointGetTranslation(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_prismatic_joint_get_translation(world, joint)
+
+  // ─── Body mass/inertia ────────────────────────────────────────────────
+
+  override def bodyGetMass(world: Long, body: Long): Float =
+    PhysicsC.sge_phys_body_get_mass(world, body)
+
+  override def bodyGetInertia(world: Long, body: Long): Float =
+    PhysicsC.sge_phys_body_get_inertia(world, body)
+
+  override def bodyGetLocalCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_body_get_local_center_of_mass(world, body, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def bodyRecomputeMassProperties(world: Long, body: Long): Unit =
+    PhysicsC.sge_phys_body_recompute_mass_properties(world, body)
+
   // ─── Queries ──────────────────────────────────────────────────────────
+
+  override def queryAABB(
+    world:        Long,
+    minX:         Float,
+    minY:         Float,
+    maxX:         Float,
+    maxY:         Float,
+    outColliders: Array[Long],
+    maxResults:   Int
+  ): Int = {
+    val buf   = stackalloc[Long](maxResults)
+    val count = PhysicsC.sge_phys_query_aabb(world, minX, minY, maxX, maxY, buf, maxResults)
+    var i     = 0
+    while (i < count) {
+      outColliders(i) = buf(i).toLong
+      i += 1
+    }
+    count
+  }
 
   override def rayCast(
     world:   Long,

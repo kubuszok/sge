@@ -96,6 +96,26 @@ class RigidBody private[physics] (
   def wakeUp(): Unit =
     world.ops.bodyWakeUp(world.handle, handle)
 
+  // ─── Mass properties ──────────────────────────────────────────────────
+
+  /** Returns the total mass of this body (computed from attached colliders). */
+  def mass: Float =
+    world.ops.bodyGetMass(world.handle, handle)
+
+  /** Returns the angular inertia (moment of inertia) of this body. */
+  def inertia: Float =
+    world.ops.bodyGetInertia(world.handle, handle)
+
+  /** Returns the local center of mass as (x, y). */
+  def localCenterOfMass: (Float, Float) = {
+    world.ops.bodyGetLocalCenterOfMass(world.handle, handle, buf2)
+    (buf2(0), buf2(1))
+  }
+
+  /** Forces recomputation of mass properties from attached colliders. */
+  def recomputeMassProperties(): Unit =
+    world.ops.bodyRecomputeMassProperties(world.handle, handle)
+
   /** Attaches a collider with the given shape and material properties to this body.
     *
     * @param shape
