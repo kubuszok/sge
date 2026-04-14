@@ -812,7 +812,7 @@ object WindowingOpsJvm {
     *   the library name (e.g. "glfw")
     */
   def apply(libName: String = "glfw"): WindowingOpsJvm = {
-    val found = NativeLibLoader.load(libName)
+    val found = multiarch.core.NativeLibLoader.load(libName)
     // Use System.load to load the library via the system's dynamic linker,
     // which correctly handles macOS framework dependencies (Cocoa, IOKit, etc.)
     System.load(found.toAbsolutePath.toString)

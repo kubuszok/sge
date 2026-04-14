@@ -278,7 +278,7 @@ object AudioOpsJvm {
     *   the library name (e.g. "sge_audio", "sge_native_ops")
     */
   def apply(libName: String = "sge_audio"): AudioOpsJvm = {
-    val found  = NativeLibLoader.load(libName)
+    val found  = multiarch.core.NativeLibLoader.load(libName)
     val lookup = SymbolLookup.libraryLookup(found, Arena.global())
     new AudioOpsJvm(lookup)
   }

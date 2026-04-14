@@ -22,7 +22,7 @@ private[sge] class FreetypeOpsPanama(val p: PanamaProvider) extends FreetypeOps 
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val found = sge.platform.NativeLibLoader.load("sge_freetype")
+    val found = multiarch.core.NativeLibLoader.load("sge_freetype")
     p.SymbolLookup.libraryLookup(found, p.Arena.global())
   }
 

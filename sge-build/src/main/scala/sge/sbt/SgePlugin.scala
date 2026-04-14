@@ -1,37 +1,115 @@
 package sge.sbt
 
-import multiarch.sbt.Platform
+import multiarch.sbt.{ JvmPackaging, Platform, ProjectMatrixOps => MultiArchProjectMatrixOps }
 
 import sbt._
 import sbt.Keys._
+import sbt.internal.ProjectMatrix
 
-/** Shared SGE build settings for cross-platform Scala 3 game projects (JVM/JS/Native).
-  *
-  * This object provides common compiler flags, dependency management, and platform-specific
-  * source directory wiring. It works both:
-  *   - As a published sbt plugin (external projects add `addSbtPlugin(...)`)
-  *   - As local shared source (SGE itself adds `sge-build/src/main/scala` to the meta-build)
-  *
-  * === Local self-hosting (in SGE's own `project/build.sbt`) ===
+/** Base SGE project plugin. Provides Scala 3 compiler settings, native lib directory
+  * handling, and common keys. Enable on a projectMatrix or Project:
   * {{{
-  * Compile / unmanagedSourceDirectories +=
-  *   baseDirectory.value / ".." / "sge-build" / "src" / "main" / "scala"
+  * val game = (projectMatrix in file("game"))
+  *   .enablePlugins(SgePlugin)
+  *   .settings(JvmPackaging.releaseAppName := "My Game")
+  *   .jvmPlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
+  *   .jsPlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
+  *   .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion))
   * }}}
   *
-  * === External usage (in a game project's `build.sbt`) ===
+  * Platform-specific plugins auto-trigger:
+  *   - [[SgeDesktopJvmPlatform]] — when SgePlugin is enabled (JVM is the default desktop target)
+  *   - [[SgeBrowserPlatform]] — when SgePlugin + ScalaJSPlugin are enabled
+  *   - [[SgeDesktopNativePlatform]] — when SgePlugin + ScalaNativePlugin are enabled
+  *   - [[SgeAndroidPlatform]] — when SgePlugin + AndroidPlugin are enabled
+  *
+  * For local development, set `ThisBuild / sgeNativeLibLocalDir` to point at
+  * the Rust build output directory (bypasses JAR extraction):
   * {{{
-  * lazy val game = (projectMatrix in file("game"))
-  *   .settings(SgePlugin.commonSettings *)
-  *   .dependsOn(...)
-  *   .jvmPlatform(scalaVersions = Seq(SgePlugin.scalaVersion),
-  *     settings = SgePlugin.jvmSettings() *)
-  *   .jsPlatform(scalaVersions = Seq(SgePlugin.scalaVersion),
-  *     settings = SgePlugin.jsSettings *)
-  *   .nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion),
-  *     settings = SgePlugin.nativeSettings() *)
+  * ThisBuild / SgePlugin.autoImport.sgeNativeLibLocalDir := Some(
+  *   (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
+  * )
   * }}}
   */
-object SgePlugin {
+object SgePlugin extends AutoPlugin {
+
+  override def trigger  = noTrigger
+  override def requires = plugins.JvmPlugin
+
+  object autoImport {
+    val sgeNativeLibLocalDir = settingKey[Option[File]](
+      "Local directory containing native libraries (bypasses JAR extraction). " +
+        "Set at ThisBuild scope for development builds. " +
+        "When None, native libs are extracted from classpath JARs."
+    )
+    val sgeNativeLibDir = settingKey[File](
+      "Resolved directory with platform-specific native libraries. " +
+        "Uses sgeNativeLibLocalDir when set, otherwise JAR extraction target."
+    )
+
+    // Re-export JvmPackaging keys for convenience
+    val releaseAppName       = JvmPackaging.releaseAppName
+    val releasePackage       = JvmPackaging.releasePackage
+    val releaseNativeLibDirs = JvmPackaging.releaseNativeLibDirs
+    val releaseTargets       = JvmPackaging.releaseTargets
+    val releaseJlinkModules  = JvmPackaging.releaseJlinkModules
+    val releaseRoastVersion  = JvmPackaging.releaseRoastVersion
+    val releaseVmArgs        = JvmPackaging.releaseVmArgs
+    val releaseUseZgc        = JvmPackaging.releaseUseZgc
+    val releaseMacOsBundleId = JvmPackaging.releaseMacOsBundleId
+    val releaseMacOsIcon     = JvmPackaging.releaseMacOsIcon
+    val releaseCacheDir      = JvmPackaging.releaseCacheDir
+    val releasePlatform      = JvmPackaging.releasePlatform
+    val releaseAll           = JvmPackaging.releaseAll
+
+    // Re-export SGE-specific packaging keys
+    val sgePackageBrowser = SgePackaging.sgePackageBrowser
+    val sgePackageNative  = SgePackaging.sgePackageNative
+    val sgeRelease        = SgePackaging.sgeRelease
+
+    // Re-export Android keys from multiarch-scala
+    val androidDex     = multiarch.sbt.AndroidBuild.androidDex
+    val androidPackage = multiarch.sbt.AndroidBuild.androidPackage
+    val androidSign    = multiarch.sbt.AndroidBuild.androidSign
+    val androidInstall = multiarch.sbt.AndroidBuild.androidInstall
+
+    // ── ProjectMatrix extensions ─────────────────────────────────────
+
+    /** Re-export of multiarch-scala's [[multiarch.sbt.NativeCrossAxis]]. */
+    val NativeCrossAxis  = multiarch.sbt.NativeCrossAxis
+    type NativeCrossAxis = multiarch.sbt.NativeCrossAxis
+
+    /** Extension methods for [[ProjectMatrix]] that apply SGE defaults.
+      *
+      * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] for
+      * cross-native axis generation, passing [[SgePlugin.scalaVersion]] as the default.
+      */
+    implicit class SgeProjectMatrixOps(val matrix: ProjectMatrix) extends AnyVal {
+      /** `.jvmPlatform` with `scalaVersions` defaulted to [[SgePlugin.scalaVersion]]. */
+      def jvmPlatform(settings: Seq[Setting[_]] = Seq.empty): ProjectMatrix =
+        matrix.jvmPlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = settings)
+
+      /** `.jsPlatform` with `scalaVersions` defaulted to [[SgePlugin.scalaVersion]]. */
+      def jsPlatform(settings: Seq[Setting[_]] = Seq.empty): ProjectMatrix =
+        matrix.jsPlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = settings)
+
+      /** `.nativePlatform` with `scalaVersions` defaulted to [[SgePlugin.scalaVersion]]. */
+      def nativePlatform(settings: Seq[Setting[_]] = Seq.empty): ProjectMatrix =
+        matrix.nativePlatform(scalaVersions = Seq(SgePlugin.scalaVersion), settings = settings)
+
+      /** Add cross-native compilation axes for all non-host desktop platforms.
+        * Requires `zig` to be installed. Skipped silently if zig is unavailable.
+        *
+        * Delegates to [[multiarch.sbt.ProjectMatrixOps.Ops.withCrossNative]] using
+        * [[SgePlugin.scalaVersion]] as the default Scala version for the subprojects.
+        */
+      def withCrossNative: ProjectMatrix =
+        new MultiArchProjectMatrixOps.Ops(matrix).withCrossNative(SgePlugin.scalaVersion)
+    }
+  }
+  import autoImport._
+
+  // ── Version ─────────────────────────────────────────────────────────
 
   /** SGE version this plugin was built with. Use for library dependencies:
     * {{{ libraryDependencies += "com.kubuszok" %%% "sge" % SgePlugin.sgeVersion }}}
@@ -40,13 +118,11 @@ object SgePlugin {
     * `.sge-version` file when running from source inclusion.
     */
   val sgeVersion: String = {
-    // Try plugin JAR manifest first (set by sbt-buildinfo / source generator)
     val fromProps = Option(getClass.getResourceAsStream("/sge-build.properties")).map { is =>
       val p = new java.util.Properties()
       try p.load(is) finally is.close()
       p.getProperty("sge.version", "")
     }.filter(_.nonEmpty)
-    // Fall back to .sge-version file (source-inclusion mode)
     fromProps.getOrElse {
       val f = new java.io.File(".sge-version")
       if (f.exists()) scala.io.Source.fromFile(f).mkString.trim
@@ -82,20 +158,29 @@ object SgePlugin {
 
   // ── Dependencies ────────────────────────────────────────────────────
 
-  /** Add sge as a JVM dependency. For cross-platform, use %%% in your build.sbt directly. */
+  /** Add sge as a dependency. For external game projects using the published plugin. */
   def coreDep(version: String): Seq[Setting[_]] = Seq(
     libraryDependencies += "com.kubuszok" %% "sge" % version
   )
 
-  // ── Platform settings ───────────────────────────────────────────────
+  // ── Plugin settings ─────────────────────────────────────────────────
 
-  /** JVM platform settings: fork, Panama native access, Rust library path, scaladesktop source dir.
-    *
-    * @param projectDir directory name of the project (e.g. "sge", "demo"). Used to locate
-    *                   `scaladesktop/` source directory. Defaults to "sge".
-    * @param rustLibPath absolute path to the Rust native-components build output directory.
-    *                    Defaults to `native-components/target/release` under the build root.
-    */
+  override def globalSettings: Seq[Setting[_]] = Seq(
+    sgeNativeLibLocalDir := None
+  )
+
+  override def projectSettings: Seq[Setting[_]] =
+    commonSettings ++ relaxedSettings ++ Seq(
+      JvmPackaging.releaseAppName := name.value,
+      sgeNativeLibDir := sgeNativeLibLocalDir.value.getOrElse(
+        target.value / "sge-native-libs" / Platform.host.classifier
+      ),
+      JvmPackaging.releaseNativeLibDirs := Seq(sgeNativeLibDir.value)
+    )
+
+  // ── Source-inclusion helpers (for root build.sbt) ───────────────────
+
+  /** JVM platform settings: fork, Panama native access, scaladesktop source dir. */
   def jvmSettings(projectDir: String = "sge", rustLibPath: Option[String] = None): Seq[Setting[_]] = Seq(
     Compile / unmanagedSourceDirectories ++= desktopSharedDir(projectDir).value,
     fork := true,
@@ -107,78 +192,19 @@ object SgePlugin {
   /** Scala.js platform settings. Currently empty — scalajs-dom comes transitively from sge. */
   val jsSettings: Seq[Setting[_]] = Seq.empty
 
-  /** Scala Native platform settings: scaladesktop source dir, Rust library linking.
-    *
-    * @param projectDir directory name of the project (e.g. "sge", "demo"). Used to locate
-    *                   `scaladesktop/` source directory. Defaults to "sge".
-    * @param rustLibPath absolute path to the Rust native-components build output directory.
-    *                    Defaults to `native-components/target/release` under the build root.
-    */
+  /** Scala Native platform settings: scaladesktop source dir. */
   def nativeSettings(projectDir: String = "sge", rustLibPath: Option[String] = None): Seq[Setting[_]] = Seq(
     Compile / unmanagedSourceDirectories ++= desktopSharedDir(projectDir).value
-    // Scala Native linking (nativeConfig) must be configured by the caller because
-    // sbt-scala-native types aren't on this plugin's classpath. See nativeLinkingSnippet.
   )
-
-  // ── Helpers ─────────────────────────────────────────────────────────
-
-  /** Code snippet for Scala Native linking configuration. Paste into your nativePlatform settings.
-    *
-    * Consumer projects should use sge-native-components provider JARs which are extracted
-    * automatically by SgeNativeLibs. This snippet is a fallback for manual configuration.
-    */
-  val nativeLinkingSnippet: String =
-    """// Native libs are provided by sge-native-components provider JARs.
-      |// SgeNativeLibs.settings extracts them to target/sge-native-libs/<platform>/.
-      |// If you need manual configuration, point -L at your extracted native lib directory:
-      |nativeConfig := {
-      |  val c         = nativeConfig.value
-      |  val libDir    = (sgeNativeLibDir.value).getAbsolutePath
-      |  val isWindows = System.getProperty("os.name", "").toLowerCase.contains("win")
-      |  val rustLibOpts = Seq(
-      |    s"-L$libDir",
-      |    "-lsge_native_ops"
-      |  )
-      |  val windowsOpts = if (isWindows) Seq("-lntdll") else Seq.empty
-      |  c.withLinkingOptions(c.linkingOptions ++ rustLibOpts ++ windowsOpts)
-      |}""".stripMargin
-
-  // ── Native Library Packaging ───────────────────────────────────────
-
-  /** @deprecated Use [[Platform.desktop]] instead. */
-  val desktopPlatforms: Seq[String] = Platform.desktop.map(_.classifier)
-
-  /** @deprecated Use [[Platform.host]] instead. */
-  def hostPlatform: String = Platform.host.classifier
-
-  /** @deprecated Use [[Platform#rustTarget]] instead. */
-  def platformToRustTarget(platform: String): String = Platform.fromClassifier(platform).rustTarget
-
-  /** @deprecated Use [[Platform#rustTarget]] instead (identical to Rust target). */
-  def platformToScalaNativeTarget(platform: String): String = Platform.fromClassifier(platform).rustTarget
 
   // ── Internal ────────────────────────────────────────────────────────
 
-  /** Discovers the scaladesktop/ shared source directory for JVM and Native desktop builds.
-    *
-    * projectMatrix subprojects have different baseDirectory values: the default-axis project
-    * (JVM) gets the original directory (e.g. `sge/`), but non-default axes (Native) get
-    * `.sbt/matrix/sgeNative/`. We use the explicit `projectDir` name to build the correct
-    * path relative to the build root.
-    */
   private def desktopSharedDir(projectDir: String): Def.Initialize[Seq[File]] = Def.setting {
     val base = (ThisBuild / baseDirectory).value
     val desktopDir = base / projectDir / "src" / "main" / "scaladesktop"
     if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
   }
 
-  /** JVM runtime options: library path for Rust native libs, Panama native access.
-    *
-    * Native libraries (libsge_native_ops, libsge_audio, libglfw) are built externally in
-    * sge-native-components and distributed as provider JARs. CI extracts them to
-    * sge-deps/native-components/target/release/ which is the default fallback path.
-    * ANGLE (libEGL, libGLESv2) is bundled there as well.
-    */
   private def jvmRuntimeOpts(rustLibPath: Option[String]): Def.Initialize[Seq[String]] = Def.setting {
     val rustLib = rustLibPath.getOrElse {
       ((ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release").getAbsolutePath

@@ -542,7 +542,7 @@ jobs:
 
       - name: Build Pong JVM release
         working-directory: demos
-        run: sbt 'pong/sgePackage'
+        run: sbt 'pong/releasePackage'
 
       - name: Build Pong Native release
         if: matrix.native

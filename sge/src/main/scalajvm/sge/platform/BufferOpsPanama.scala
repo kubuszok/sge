@@ -26,7 +26,7 @@ private[platform] class BufferOpsPanama(val p: PanamaProvider) extends BufferOps
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val found = NativeLibLoader.load("sge_native_ops")
+    val found = multiarch.core.NativeLibLoader.load("sge_native_ops")
     p.SymbolLookup.libraryLookup(found, p.Arena.global())
   }
 
