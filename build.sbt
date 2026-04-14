@@ -85,9 +85,9 @@ val versions = new {
   val munit           = "1.2.3"
   val munitScalacheck = "1.2.0"
 
-  // Native component providers (from sge-native-components repo)
-  val nativeComponents = "83e9dafec96fb3d835fd49a9c18a72566e1aecf3-SNAPSHOT"
-  val curlProvider     = "6bbb192b266adc226810c90f820297660c8e89b0-SNAPSHOT"
+  // Native component providers (from sge-native-providers repo)
+  val nativeComponents = "0eef8c01b11f23e2034f808e4e3109dd0660395d-SNAPSHOT"
+  val curlProvider     = "ce606f7fced8d5fcaa9043d416f872c842a26a8c-SNAPSHOT"
 }
 
 val sge = (projectMatrix in file("sge"))
@@ -116,6 +116,8 @@ val sge = (projectMatrix in file("sge"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings() ++ SgeNativeLibs.validationSettings ++ Seq(
       libraryDependencies += "ch.epfl.lamp" %% "gears" % versions.gears,
+      // multiarch-core for NativeLibLoader (runtime shared library loading)
+      libraryDependencies += "com.kubuszok" %% "multiarch-core" % versions.curlProvider,
       // JVM platform modules on classpath (no dependsOn — avoids transitive dep for consumers).
       // All 3 needed: API for compilation, JDK + Android for runtime provider detection.
       Compile / unmanagedClasspath ++= {
@@ -188,28 +190,13 @@ val sge = (projectMatrix in file("sge"))
   )
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
-    settings = SgePlugin.nativeSettings() ++
-      _root_.multiarch.sbt.NativeLibBundle.settings ++
-      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
-      // Native library providers (fat JARs with native-bundle.json manifests)
+    settings = SgePlugin.nativeSettings() ++ _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
+      // Native library providers (fat JARs with sn-provider.json manifests)
+      // sn-provider-sge transitively pulls sn-provider-sge-angle
       libraryDependencies ++= Seq(
-        "com.kubuszok" % "scala-native-sge-core-provider" % versions.nativeComponents,
-        "com.kubuszok" % "scala-native-angle-provider" % versions.nativeComponents,
-        "com.kubuszok" % "scala-native-curl-provider" % versions.curlProvider
-      ),
-      // Windows stub .lib files are now included in provider JARs
-      nativeConfig := {
-        val c        = nativeConfig.value
-        val log      = streams.value.log
-        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-        val merged = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-        )
-        val rpaths = SgeNativeLibs.linkerFlags(libDir)
-        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
-      }
+        "com.kubuszok" % "sn-provider-sge"  % versions.nativeComponents,
+        "com.kubuszok" % "sn-provider-curl" % versions.curlProvider
+      )
     )
   )
 
@@ -259,21 +246,7 @@ val regressionTest = (projectMatrix in file("sge-test/regression"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-test/regression") ++
-      _root_.multiarch.sbt.NativeLibBundle.settings ++
-      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
-      nativeConfig := {
-        val c        = nativeConfig.value
-        val log      = streams.value.log
-        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-        )
-        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
-        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
-      }
-    )
+      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings
   )
 
 // ── JVM Platform modules ──────────────────────────────────────────────
@@ -305,9 +278,11 @@ lazy val `sge-jvm-platform-jdk` = (project in file("sge-jvm-platform/jdk"))
   )
   .dependsOn(`sge-jvm-platform-api`)
 
-lazy val hasAndroidSdk: Boolean = _root_.sge.sbt.AndroidSdk
-  .findSdkRoot(new File("."))
-  .exists(r => _root_.sge.sbt.AndroidSdk.androidJar(r).exists())
+// SGE convention: downloaded Android SDK lives under sge-deps/
+lazy val sgeAndroidSdkCacheDir: File = new File("./sge-deps/android-sdk")
+lazy val hasAndroidSdk: Boolean      = _root_.multiarch.sbt.AndroidSdk
+  .findSdkRoot(sgeAndroidSdkCacheDir)
+  .exists(r => _root_.multiarch.sbt.AndroidSdk.androidJar(r).exists())
 
 lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android"))
   .settings(publishSettings *)
@@ -320,9 +295,10 @@ lazy val `sge-jvm-platform-android` = (project in file("sge-jvm-platform/android
     // src/main/scala/ always compiles (PanamaPortProvider — no Android SDK deps).
     // src/main/scala-android/ only compiled when android.jar is present.
     Compile / unmanagedJars ++= {
-      val base = (ThisBuild / baseDirectory).value
-      _root_.sge.sbt.AndroidSdk.findSdkRoot(base).toSeq.flatMap { sdkRoot =>
-        val jar = _root_.sge.sbt.AndroidSdk.androidJar(sdkRoot)
+      val base     = (ThisBuild / baseDirectory).value
+      val cacheDir = base / "sge-deps" / "android-sdk"
+      _root_.multiarch.sbt.AndroidSdk.findSdkRoot(cacheDir).toSeq.flatMap { sdkRoot =>
+        val jar = _root_.multiarch.sbt.AndroidSdk.androidJar(sdkRoot)
         if (jar.exists()) Seq(Attributed.blank(jar)) else Seq.empty
       }
     },
@@ -446,22 +422,9 @@ val `sge-freetype` = (projectMatrix in file("sge-extension/freetype"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/freetype") ++
-      _root_.multiarch.sbt.NativeLibBundle.settings ++
-      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
+      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
       resolvers += mavenCentralSnapshots,
-      libraryDependencies += "com.kubuszok" % "scala-native-sge-freetype-provider" % versions.nativeComponents,
-      nativeConfig := {
-        val c        = nativeConfig.value
-        val log      = streams.value.log
-        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-        )
-        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
-        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
-      }
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge-freetype" % versions.nativeComponents
     )
   )
   .dependsOn(sge)
@@ -483,7 +446,7 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics") ++ Seq(
       resolvers += mavenCentralSnapshots,
-      libraryDependencies += "com.kubuszok" % "panama-sge-physics-provider" % versions.nativeComponents,
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics-desktop" % versions.nativeComponents,
       Compile / unmanagedClasspath ++= {
         val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
         val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
@@ -526,22 +489,9 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
   .nativePlatform(
     scalaVersions = Seq(versions.scala),
     settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics") ++
-      _root_.multiarch.sbt.NativeLibBundle.settings ++
-      _root_.multiarch.sbt.NativeLibExtract.settings ++ Seq(
+      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
       resolvers += mavenCentralSnapshots,
-      libraryDependencies += "com.kubuszok" % "scala-native-sge-physics-provider" % versions.nativeComponents,
-      nativeConfig := {
-        val c        = nativeConfig.value
-        val log      = streams.value.log
-        val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-        val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-        val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-        val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-          manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-        )
-        val rpaths    = SgeNativeLibs.linkerFlags(libDir)
-        c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
-      }
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics" % versions.nativeComponents
     )
   )
 
@@ -923,7 +873,11 @@ val `sge-jbump` = (projectMatrix in file("sge-extension/jbump"))
 // Prerequisites: Android SDK (auto-downloaded by the sbt androidSdkRoot task on first invocation)
 
 lazy val `sge-android-smoke` = (project in file("sge-test/android-smoke"))
-  .settings(_root_.sge.sbt.AndroidBuild.settings *)
+  .settings(SgePlugin.commonSettings *)
+  .settings(_root_.multiarch.sbt.AndroidBuild.taskSettings *)
+  .settings(
+    _root_.multiarch.sbt.AndroidBuild.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk"
+  )
   .settings(publishSettings *)
   .settings(noPublishSettings *)
   .settings(
@@ -1076,22 +1030,7 @@ lazy val `sge-it-native-ffi` = (project in file("sge-test/it-native-ffi"))
   .settings(
     scalaVersion := versions.scala
   )
-  .settings(_root_.multiarch.sbt.NativeLibBundle.settings *)
-  .settings(_root_.multiarch.sbt.NativeLibExtract.settings *)
-  .settings(
-    nativeConfig := {
-      val c        = nativeConfig.value
-      val log      = streams.value.log
-      val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-      val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-      )
-      val rpaths    = SgeNativeLibs.linkerFlags(libDir)
-      c.withLinkingOptions(c.linkingOptions ++ merged ++ rpaths)
-    }
-  )
+  .settings(_root_.multiarch.sbt.NativeProviderPlugin.projectSettings *)
 
 // Write published version to demos/.sge-version so the demos sub-build
 // resolves the same version without depending on sbt-git or env vars.

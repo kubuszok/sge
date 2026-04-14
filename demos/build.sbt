@@ -1,34 +1,16 @@
-import _root_.multiarch.sbt.{Platform, ZigCross}
-import _root_.sge.sbt.{AndroidBuild, AndroidSdk, SgeDesktopJvmPlatform, SgeBrowserPlatform, SgeDesktopNativePlatform, SgePackaging, SgePlugin, SgeProject}
+import _root_.multiarch.sbt.{JvmPackaging, Platform}
+import _root_.sge.sbt.SgePlugin
 import sbt.internal.ProjectMatrix
-import scala.scalanative.sbtplugin.ScalaNativePlugin
-import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
-Global / excludeLintKeys += SgeProject.autoImport.sgeNativeLibLocalDir
 
-// SGE library version: derived from the sge-build plugin version.
-// The plugin bakes its version into SgePlugin.sgeVersion at build time.
-val sgeVersion: String = SgePlugin.sgeVersion
-val sv: String         = SgePlugin.scalaVersion
-
-// All modules need the snapshot resolver for transitive kindlings dependency.
 ThisBuild / resolvers ++= Seq(
   Resolver.mavenLocal,
   "Maven Central Snapshots" at "https://central.sonatype.com/repository/maven-snapshots"
 )
-
-// Disable cached resolution — stale Coursier cache misses local SNAPSHOT JARs.
 ThisBuild / updateOptions := updateOptions.value.withCachedResolution(false)
 
-// Native libraries come from provider JARs (scala-native-sge-ops-provider, etc.)
-// No local sge-deps directory needed.
-ThisBuild / SgeProject.autoImport.sgeNativeLibLocalDir := None
-
 // ── Azul Zulu JDK 25 URLs for distribution packaging ─────────────
-// JDK 25 (LTS) with all 6 desktop platforms including Windows ARM64.
-// Zulu chosen over Temurin because Temurin 25 lacks Windows aarch64.
-// Panama FFM (java.lang.foreign) is stable since JDK 22.
 
 val zuluBase = "https://cdn.azul.com/zulu/bin"
 
@@ -41,130 +23,41 @@ val jdkUrls: Map[Platform, String] = Map(
   Platform.WindowsAarch64 -> s"$zuluBase/zulu25.32.21-ca-jdk25.0.2-win_aarch64.zip"
 )
 
-// ── Android SDK detection ────────────────────────────────────────────
-
-lazy val hasAndroidSdk: Boolean = AndroidSdk
-  .findSdkRoot(new File(".."))
-  .exists(r => AndroidSdk.androidJar(r).exists())
-
-// ── Per-axis settings ────────────────────────────────────────────────
-
-def androidJvmSettings(dir: String): Seq[Setting[_]] =
-  AndroidBuild.taskSettings ++ Seq(
-    // Conditional scala-android/ sources (only when android.jar is present)
-    Compile / unmanagedSourceDirectories ++= {
-      if (hasAndroidSdk)
-        Seq((ThisBuild / baseDirectory).value / dir / "src" / "main" / "scala-android")
-      else Seq.empty
-    },
-    // android.jar from parent SDK (demos is a sub-build; root project has sge-deps/android-sdk/)
-    Compile / unmanagedJars ++= {
-      val parentBase = (ThisBuild / baseDirectory).value / ".."
-      AndroidSdk.findSdkRoot(parentBase).toSeq.flatMap { sdkRoot =>
-        val jar = AndroidSdk.androidJar(sdkRoot)
-        if (jar.exists()) Seq(Attributed.blank(jar)) else Seq.empty
-      }
-    }
-  )
-
-// Shared distribution packaging settings for all demos
 val demoDistSettings: Seq[Setting[_]] = Seq(
-  SgePackaging.sgeTargets := jdkUrls,
-  SgePackaging.sgeJlinkModules := Seq(
+  JvmPackaging.releaseTargets := jdkUrls,
+  JvmPackaging.releaseJlinkModules := Seq(
     "java.base", "java.desktop", "java.logging", "java.management",
     "jdk.unsupported", "jdk.zipfs", "java.net.http"
   )
 )
 
-def jvmAxis(dir: String, pkg: String): Seq[Setting[_]] =
-  SgeProject.jvmAxis ++ androidJvmSettings(dir) ++ demoDistSettings ++ Seq(
-    Compile / mainClass := Some(s"demos.$pkg.DesktopMain")
-  )
-
-def jsAxis: Seq[Setting[_]] = SgeProject.jsAxis
-
-def nativeAxis(dir: String): Seq[Setting[_]] = SgeProject.nativeAxis
-
-// ── Cross-compilation native axes ──────────────────────────────────
-// Enables building Scala Native binaries for non-host platforms using zig.
-// Each target gets a separate sbt subproject (e.g. pongNativeLinuxX64).
-
-// Cross-compilation requires zig and uses provider JARs for native libs.
-val crossNativeTargets: Seq[Platform] =
-  if (ZigCross.isAvailable) Platform.desktop.filterNot(_ == Platform.host)
-  else Seq.empty
-
-def crossNativeAxis(dir: String, platform: Platform): Seq[Setting[_]] =
-  SgePlugin.nativeSettings(projectDir = dir) ++
-    _root_.multiarch.sbt.NativeLibBundle.settings ++
-    _root_.multiarch.sbt.NativeLibExtract.settings ++
-    SgePackaging.nativeSettings ++ Seq(
-    SgeProject.autoImport.sgeNativeLibLocalDir := None,
-    _root_.multiarch.sbt.NativeLibExtract.nativeLibPlatform := platform,
-    SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
-    nativeConfig := {
-      val c        = nativeConfig.value
-      val log      = streams.value.log
-      val libDir   = _root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value
-      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-      )
-      val wrapperDir = target.value / "zig-wrappers"
-      c.withClang(ZigCross.clangWrapper(platform, wrapperDir))
-        .withClangPP(ZigCross.clangPPWrapper(platform, wrapperDir))
-        .withTargetTriple(Some(platform.scalaNativeTarget))
-        .withLinkingOptions(c.linkingOptions ++ merged)
-    }
-  )
-
-/** Add cross-native axes to a demo project. */
-def withCrossNative(dir: String)(matrix: ProjectMatrix): ProjectMatrix =
-  crossNativeTargets.foldLeft(matrix) { (m, platform) =>
-    m.customRow(
-      autoScalaLibrary = true,
-      scalaVersions = Seq(sv),
-      axisValues = Seq(NativeCrossAxis(platform), VirtualAxis.native, VirtualAxis.scalaABIVersion(sv)),
-      process = _.enablePlugins(ScalaNativePlugin).settings(crossNativeAxis(dir, platform) *)
-    )
-  }
-
 // ── Shared demo framework ───────────────────────────────────────────
 
 val shared = (projectMatrix in file("shared"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .enablePlugins(SgeProject)
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(SgePlugin.scalaVersion))
+  .enablePlugins(SgePlugin)
   .settings(
     name           := "sge-demos-shared",
     organization   := "com.kubuszok",
-    publish / skip := true,
-    // SGE library dependency is auto-added by SgeProject plugin.
-    // jsoniter-scala-macros is "provided" in sge but referenced at runtime
-    // by JsonCodecs.scala (val JsonCodec = JsonCodecMaker) — needed for g3dj loading.
-    libraryDependencies += "com.github.plokhotnyuk.jsoniter-scala" %%% "jsoniter-scala-macros" % "2.38.9"
+    publish / skip := true
   )
-  .jvmPlatform(scalaVersions = Seq(sv),
-    settings = SgeProject.jvmAxis ++ androidJvmSettings("shared"))
-  .jsPlatform(scalaVersions = Seq(sv),
-    settings = SgeProject.jsAxis)
-  .nativePlatform(scalaVersions = Seq(sv),
-    settings = SgeProject.nativeAxis)
+  .jvmPlatform()
+  .jsPlatform()
+  .nativePlatform()
 
 // ── Demo projects ───────────────────────────────────────────────────
-// projectMatrix must be assigned directly to a val (sbt macro constraint).
 
-def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix = {
-  val base = matrix
-    .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-    .enablePlugins(SgeProject)
+def demo(dir: String, sbtName: String, pkg: String, title: String)(matrix: ProjectMatrix): ProjectMatrix =
+  matrix
+    .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(SgePlugin.scalaVersion))
+    .enablePlugins(SgePlugin)
     .settings(name := sbtName, organization := "com.kubuszok", publish / skip := true,
-      SgeProject.autoImport.sgeAppName := title)
+      JvmPackaging.releaseAppName := title)
     .dependsOn(shared)
-    .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis(dir, pkg))
-    .jsPlatform(scalaVersions = Seq(sv), settings = jsAxis)
-    .nativePlatform(scalaVersions = Seq(sv), settings = nativeAxis(dir))
-  withCrossNative(dir)(base)
-}
+    .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some(s"demos.$pkg.DesktopMain")))
+    .jsPlatform()
+    .nativePlatform()
+    .withCrossNative
 
 val pong             = demo("pong",              "sge-demo-pong",         "pong",         "SGE Pong")(projectMatrix in file("pong"))
 val spaceShooter     = demo("space-shooter",     "sge-demo-spaceshooter", "spaceshooter", "SGE Space Shooter")(projectMatrix in file("space-shooter"))
@@ -174,208 +67,61 @@ val curvePlayground  = demo("curve-playground",  "sge-demo-curves",       "curve
 val shaderLab        = demo("shader-lab",        "sge-demo-shaders",      "shaders",      "SGE Shader Lab")(projectMatrix in file("shader-lab"))
 val viewer3d         = demo("viewer-3d",         "sge-demo-viewer3d",     "viewer3d",     "SGE 3D Viewer")(projectMatrix in file("viewer-3d"))
 val particleShow     = demo("particle-show",     "sge-demo-particles",    "particles",    "SGE Particles")(projectMatrix in file("particle-show"))
-// Net Chat — now cross-platform thanks to scala-sax-parser providing SAX APIs on JS/Native.
-val netChat = demo("net-chat", "sge-demo-netchat", "netchat", "SGE Net Chat")(projectMatrix in file("net-chat"))
+val netChat          = demo("net-chat",          "sge-demo-netchat",      "netchat",      "SGE Net Chat")(projectMatrix in file("net-chat"))
 val viewportGallery  = demo("viewport-gallery",  "sge-demo-viewports",    "viewports",    "SGE Viewports")(projectMatrix in file("viewport-gallery"))
-// Asset Showcase: uses real asset files (textures, models, audio) loaded via AssetManager.
-// Resource generators create procedural PNG textures and WAV audio at compile time.
-val assetGeneratorSettings: Seq[Setting[_]] = Seq(
-  Compile / resourceGenerators += Def.task {
-    val outDir = (Compile / resourceManaged).value
-    val texDir = outDir / "textures"
-    val audioDir = outDir / "audio"
-    IO.createDirectories(Seq(texDir, audioDir))
-    val files = new scala.collection.mutable.ArrayBuffer[File]()
 
-    // ── Checkerboard PNG texture (64x64, 8x8 grid) ──────────────────
-    val texFile = texDir / "checkerboard.png"
-    if (!texFile.exists()) {
-      val size = 64
-      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
-      val cellSize = size / 8
-      var y = 0
-      while (y < size) {
-        var x = 0
-        while (x < size) {
-          val light = ((x / cellSize) + (y / cellSize)) % 2 == 0
-          img.setRGB(x, y, if (light) 0xFF4488CC else 0xFF224466)
-          x += 1
-        }
-        y += 1
-      }
-      javax.imageio.ImageIO.write(img, "png", texFile)
-    }
-    files += texFile
-
-    // ── Gradient PNG texture (64x64, vertical blue-to-cyan) ──────────
-    val gradFile = texDir / "gradient.png"
-    if (!gradFile.exists()) {
-      val size = 64
-      val img = new java.awt.image.BufferedImage(size, size, java.awt.image.BufferedImage.TYPE_INT_ARGB)
-      var y = 0
-      while (y < size) {
-        val t = y.toFloat / (size - 1).toFloat
-        val r = (0.1f + 0.2f * t)
-        val g = (0.3f + 0.4f * t)
-        val b = (0.6f + 0.3f * t)
-        val rgb = 0xFF000000 | ((r * 255).toInt << 16) | ((g * 255).toInt << 8) | (b * 255).toInt
-        var x = 0
-        while (x < size) {
-          img.setRGB(x, y, rgb)
-          x += 1
-        }
-        y += 1
-      }
-      javax.imageio.ImageIO.write(img, "png", gradFile)
-    }
-    files += gradFile
-
-    // ── WAV audio: 440Hz sine tone, 1 second, 16-bit mono 22050Hz ───
-    val wavFile = audioDir / "tone.wav"
-    if (!wavFile.exists()) {
-      val sampleRate = 22050
-      val numSamples = sampleRate // 1 second
-      val bitsPerSample = 16
-      val numChannels = 1
-      val byteRate = sampleRate * numChannels * bitsPerSample / 8
-      val blockAlign = numChannels * bitsPerSample / 8
-      val dataSize = numSamples * blockAlign
-      val buf = java.nio.ByteBuffer.allocate(44 + dataSize)
-      buf.order(java.nio.ByteOrder.LITTLE_ENDIAN)
-      // RIFF header
-      buf.put("RIFF".getBytes("US-ASCII"))
-      buf.putInt(36 + dataSize) // chunk size
-      buf.put("WAVE".getBytes("US-ASCII"))
-      // fmt sub-chunk
-      buf.put("fmt ".getBytes("US-ASCII"))
-      buf.putInt(16)            // sub-chunk size
-      buf.putShort(1.toShort)   // PCM
-      buf.putShort(numChannels.toShort)
-      buf.putInt(sampleRate)
-      buf.putInt(byteRate)
-      buf.putShort(blockAlign.toShort)
-      buf.putShort(bitsPerSample.toShort)
-      // data sub-chunk
-      buf.put("data".getBytes("US-ASCII"))
-      buf.putInt(dataSize)
-      var i = 0
-      while (i < numSamples) {
-        // 440Hz sine with fade-out envelope
-        val t = i.toFloat / sampleRate.toFloat
-        val envelope = 1.0f - t // linear fade from 1.0 to 0.0
-        val sample = (math.sin(2.0 * math.Pi * 440.0 * t) * 0.7 * envelope * 32767.0).toInt
-        buf.putShort(sample.toShort)
-        i += 1
-      }
-      IO.write(wavFile, buf.array())
-    }
-    files += wavFile
-
-    // ── Short click sound: 880Hz, 0.1s, 16-bit mono 22050Hz ─────────
-    val clickFile = audioDir / "click.wav"
-    if (!clickFile.exists()) {
-      val sampleRate = 22050
-      val numSamples = sampleRate / 10 // 0.1 second
-      val dataSize = numSamples * 2
-      val buf = java.nio.ByteBuffer.allocate(44 + dataSize)
-      buf.order(java.nio.ByteOrder.LITTLE_ENDIAN)
-      buf.put("RIFF".getBytes("US-ASCII"))
-      buf.putInt(36 + dataSize)
-      buf.put("WAVE".getBytes("US-ASCII"))
-      buf.put("fmt ".getBytes("US-ASCII"))
-      buf.putInt(16)
-      buf.putShort(1.toShort)
-      buf.putShort(1.toShort) // mono
-      buf.putInt(sampleRate)
-      buf.putInt(sampleRate * 2)
-      buf.putShort(2.toShort)
-      buf.putShort(16.toShort)
-      buf.put("data".getBytes("US-ASCII"))
-      buf.putInt(dataSize)
-      var i = 0
-      while (i < numSamples) {
-        val t = i.toFloat / sampleRate.toFloat
-        val envelope = 1.0f - (t * 10.0f) // fast fade
-        val sample = (math.sin(2.0 * math.Pi * 880.0 * t) * 0.5 * envelope * 32767.0).toInt
-        buf.putShort(math.max(-32768, math.min(32767, sample)).toShort)
-        i += 1
-      }
-      IO.write(clickFile, buf.array())
-    }
-    files += clickFile
-
-    files.toSeq
-  }
-)
-
+// Asset Showcase: procedural PNG textures and WAV audio generated at compile time
+// (see project/AssetGenerator.scala).
 val assetShowcase = (projectMatrix in file("asset-showcase"))
-  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(sv))
-  .enablePlugins(SgeProject)
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(SgePlugin.scalaVersion))
+  .enablePlugins(SgePlugin)
   .settings(
     name := "sge-demo-assets", organization := "com.kubuszok", publish / skip := true,
-    SgeProject.autoImport.sgeAppName := "SGE Asset Showcase"
+    JvmPackaging.releaseAppName := "SGE Asset Showcase"
   )
-  .settings(assetGeneratorSettings)
+  .settings(AssetGenerator.settings)
   .dependsOn(shared)
-  .jvmPlatform(scalaVersions = Seq(sv), settings = jvmAxis("asset-showcase", "assets"))
-  .jsPlatform(scalaVersions = Seq(sv), settings = jsAxis)
-  .nativePlatform(scalaVersions = Seq(sv), settings = nativeAxis("asset-showcase"))
+  .jvmPlatform(demoDistSettings ++ Seq(Compile / mainClass := Some("demos.assets.DesktopMain")))
+  .jsPlatform()
+  .nativePlatform()
+  .withCrossNative
 
 // ── Release aliases ─────────────────────────────────────────────────
-// Usage: sbt releasePong    — builds JVM (all 6 platforms) + Browser + Native
-//        sbt releaseAll     — builds all demos
+// Each demo's js/native project IDs are always `${jvm}JS` / `${jvm}Native`.
 
-def releaseAlias(name: String, jvm: String, js: String, native: String): Seq[Setting[_]] =
-  addCommandAlias(s"release${name}", s"$jvm/sgePackageAll; $js/sgePackageBrowser; $native/sgePackageNative")
-
-releaseAlias("Pong",         "pong",            "pongJS",            "pongNative")
-releaseAlias("SpaceShooter", "spaceShooter",    "spaceShooterJS",    "spaceShooterNative")
-releaseAlias("TileWorld",    "tileWorld",       "tileWorldJS",       "tileWorldNative")
-releaseAlias("HexTactics",   "hexTactics",      "hexTacticsJS",      "hexTacticsNative")
-releaseAlias("Curves",       "curvePlayground", "curvePlaygroundJS", "curvePlaygroundNative")
-releaseAlias("ShaderLab",    "shaderLab",       "shaderLabJS",       "shaderLabNative")
-releaseAlias("Viewer3d",     "viewer3d",        "viewer3dJS",        "viewer3dNative")
-releaseAlias("Particles",    "particleShow",    "particleShowJS",    "particleShowNative")
-releaseAlias("NetChat",      "netChat",         "netChatJS",         "netChatNative")
-releaseAlias("Viewports",    "viewportGallery", "viewportGalleryJS", "viewportGalleryNative")
-releaseAlias("Assets",       "assetShowcase",   "assetShowcaseJS",   "assetShowcaseNative")
-
-addCommandAlias("releaseAll",
-  "releasePong; releaseSpaceShooter; releaseTileWorld; releaseHexTactics; " +
-  "releaseCurves; releaseShaderLab; releaseViewer3d; releaseParticles; " +
-  "releaseNetChat; releaseViewports; releaseAssets; " +
-  "androidAll"
-)
-
-// ── Android APK aliases ───────────────────────────────────────────────
-// Usage: sbt androidPong        — builds APK for Pong
-//        sbt androidAll         — builds APKs for all demos
-// Requires Android SDK (auto-installed by the sbt androidSdkRoot task on first invocation)
+def releaseAlias(name: String, jvm: String): Seq[Setting[_]] =
+  addCommandAlias(s"release${name}",
+    s"$jvm/releaseAll; ${jvm}JS/sgePackageBrowser; ${jvm}Native/sgePackageNative")
 
 def androidAlias(name: String, jvm: String): Seq[Setting[_]] =
   addCommandAlias(s"android${name}", s"$jvm/androidSign")
 
-androidAlias("Pong",         "pong")
-androidAlias("SpaceShooter", "spaceShooter")
-androidAlias("TileWorld",    "tileWorld")
-androidAlias("HexTactics",   "hexTactics")
-androidAlias("Curves",       "curvePlayground")
-androidAlias("ShaderLab",    "shaderLab")
-androidAlias("Viewer3d",     "viewer3d")
-androidAlias("Particles",    "particleShow")
-androidAlias("NetChat",      "netChat")
-androidAlias("Viewports",    "viewportGallery")
-androidAlias("Assets",       "assetShowcase")
+val demoAliases: Seq[(String, String)] = Seq(
+  "Pong"         -> "pong",
+  "SpaceShooter" -> "spaceShooter",
+  "TileWorld"    -> "tileWorld",
+  "HexTactics"   -> "hexTactics",
+  "Curves"       -> "curvePlayground",
+  "ShaderLab"    -> "shaderLab",
+  "Viewer3d"     -> "viewer3d",
+  "Particles"    -> "particleShow",
+  "NetChat"      -> "netChat",
+  "Viewports"    -> "viewportGallery",
+  "Assets"       -> "assetShowcase"
+)
+
+demoAliases.flatMap { case (n, j) => releaseAlias(n, j) }
+demoAliases.flatMap { case (n, j) => androidAlias(n, j) }
+
+addCommandAlias("releaseAll",
+  demoAliases.map { case (n, _) => s"release$n" }.mkString("; ")
+)
 
 addCommandAlias("androidAll",
-  "androidPong; androidSpaceShooter; androidTileWorld; androidHexTactics; " +
-  "androidCurves; androidShaderLab; androidViewer3d; androidParticles; " +
-  "androidNetChat; androidViewports; androidAssets"
+  demoAliases.map { case (n, _) => s"android$n" }.mkString("; ")
 )
 
 // ── Collect all release artifacts into one directory ──────────────
-// Usage: sbt collectReleases   (run after releaseAll)
-// Output: demos/target/releases/
 
 val collectReleases = taskKey[File]("Collect all release artifacts into target/releases/")
 
@@ -389,7 +135,6 @@ collectReleases := {
   def isArchive(f: File): Boolean =
     f.isFile && archiveExts.exists(e => f.getName.endsWith(e))
 
-  // Demo project directories (each has target/ with release artifacts)
   val demoDirs = Seq(
     "pong", "space-shooter", "tile-world", "hex-tactics",
     "curve-playground", "shader-lab", "viewer-3d", "particle-show",
@@ -400,29 +145,26 @@ collectReleases := {
   demoDirs.foreach { dir =>
     val projectTarget = baseDirectory.value / dir / "target"
     if (projectTarget.exists()) {
-      // JVM dist archives: target/jvm-3/sge-dist/*.tar.gz, *.zip
-      val jvmDist = projectTarget / "jvm-3" / "sge-dist"
+      // JVM dist archives
+      val jvmDist = projectTarget / "jvm-3" / "release-dist"
       if (jvmDist.exists()) {
         IO.listFiles(jvmDist).filter(isArchive).foreach { f =>
           IO.copyFile(f, outDir / f.getName)
           count += 1
         }
       }
-
-      // Browser package: target/js-3/sge-browser/<AppName>/ (directory, not archive)
+      // Browser package
       val jsBrowser = projectTarget / "js-3" / "sge-browser"
       if (jsBrowser.exists()) {
         IO.listFiles(jsBrowser).filter(_.isDirectory).foreach { appDir =>
-          val archiveName = s"${appDir.getName}-browser.tar.gz"
-          val archive = outDir / archiveName
+          val archive = outDir / s"${appDir.getName}-browser.tar.gz"
           val cmd = Seq("tar", "czf", archive.getAbsolutePath, "-C", jsBrowser.getAbsolutePath, appDir.getName)
           val proc = new ProcessBuilder(cmd: _*).redirectErrorStream(true).start()
           if (proc.waitFor() == 0) { count += 1 }
           else log.warn(s"[sge] Failed to archive browser package: ${appDir.getName}")
         }
       }
-
-      // Native archives: target/native-3/sge-native/*.tar.gz, *.zip
+      // Native archives
       val nativeDist = projectTarget / "native-3" / "sge-native"
       if (nativeDist.exists()) {
         IO.listFiles(nativeDist).filter(isArchive).foreach { f =>
@@ -430,8 +172,7 @@ collectReleases := {
           count += 1
         }
       }
-
-      // Android APK: target/jvm-3/android/app-debug.apk → <dir-name>.apk
+      // Android APK
       val androidApk = projectTarget / "jvm-3" / "android" / "app-debug.apk"
       if (androidApk.exists()) {
         IO.copyFile(androidApk, outDir / s"$dir.apk")

@@ -17,6 +17,8 @@ target/
 .cursorignore
 .cursorignorerules
 .cursorignorerules
+.claude/settings.local.json
+.claude/worktrees
 
 ## IntelliJ, Android Studio:
 .idea/

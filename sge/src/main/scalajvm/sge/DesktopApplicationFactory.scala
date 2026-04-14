@@ -27,7 +27,7 @@ object DesktopApplicationFactory {
     val audioOps  = sge.platform.AudioOpsJvm()
     val glOps     = sge.platform.GlOpsJvm()
     val glLookup  = {
-      val found = sge.platform.NativeLibLoader.load("GLESv2")
+      val found = multiarch.core.NativeLibLoader.load("GLESv2")
       java.lang.foreign.SymbolLookup.libraryLookup(found, java.lang.foreign.Arena.global())
     }
     new DesktopApplication(

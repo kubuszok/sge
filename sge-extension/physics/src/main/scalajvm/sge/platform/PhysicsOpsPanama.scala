@@ -26,7 +26,7 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val linker: p.Linker = p.Linker.nativeLinker()
 
   private val lib: p.SymbolLookup = {
-    val found = sge.platform.NativeLibLoader.load("sge_physics")
+    val found = multiarch.core.NativeLibLoader.load("sge_physics")
     p.SymbolLookup.libraryLookup(found, p.Arena.global())
   }
 

@@ -281,7 +281,7 @@ object GlOpsJvm {
     *   the EGL library name (e.g. "EGL", "libEGL")
     */
   def apply(libName: String = "EGL"): GlOpsJvm = {
-    val found  = NativeLibLoader.load(libName)
+    val found  = multiarch.core.NativeLibLoader.load(libName)
     val lookup = SymbolLookup.libraryLookup(found, Arena.global())
     new GlOpsJvm(lookup)
   }

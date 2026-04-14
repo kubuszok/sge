@@ -1,6 +1,6 @@
 package sge.sbt
 
-import multiarch.sbt.Platform
+import multiarch.sbt.{ AndroidPlugin, JvmPackaging, NativeExtractSettings, NativeProviderPlugin, Platform }
 
 import sbt._
 import sbt.Keys._
@@ -11,122 +11,33 @@ import scala.scalanative.sbtplugin.ScalaNativePlugin
 import scala.scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import sbtprojectmatrix.ProjectMatrixKeys.projectMatrixBaseDirectory
 
-/** Base SGE project plugin.  Provides Scala 3 compiler settings, relaxed linting,
-  * and common keys.  Enable on a projectMatrix or Project:
-  * {{{
-  * val game = (projectMatrix in file("game"))
-  *   .enablePlugins(SgeProject)
-  *   .settings(SgeProject.autoImport.sgeAppName := "My Game")
-  *   .jvmPlatform(scalaVersions = Seq(sv), settings = SgeProject.jvmAxis)
-  *   .jsPlatform(scalaVersions = Seq(sv), settings = SgeProject.jsAxis)
-  *   .nativePlatform(scalaVersions = Seq(sv), settings = SgeProject.nativeAxis)
-  * }}}
+/** JVM desktop platform plugin. Auto-triggers when [[SgePlugin]] is enabled.
   *
-  * For local development, set `ThisBuild / sgeNativeLibLocalDir` to point at
-  * the Rust build output directory (bypasses JAR extraction):
-  * {{{
-  * ThisBuild / SgeProject.autoImport.sgeNativeLibLocalDir := Some(
-  *   (ThisBuild / baseDirectory).value / "native-components" / "target" / "release"
-  * )
-  * }}}
-  */
-object SgeProject extends AutoPlugin {
-
-  override def trigger  = noTrigger
-  override def requires = plugins.JvmPlugin
-
-  object autoImport {
-    val sgeAppName    = SgePackaging.sgeAppName
-    val sgeNativeLibLocalDir = settingKey[Option[File]](
-      "Local directory containing native libraries (bypasses JAR extraction). " +
-        "Set at ThisBuild scope for development builds. " +
-        "When None, native libs are extracted from classpath JARs."
-    )
-    val sgeNativeLibDir = settingKey[File](
-      "Resolved directory with platform-specific native libraries. " +
-        "Uses sgeNativeLibLocalDir when set, otherwise JAR extraction target."
-    )
-    val sgeNativeLibDirs = SgePackaging.sgeNativeLibDirs
-
-    // Re-export packaging keys for convenience
-    val sgePackage        = SgePackaging.sgePackage
-    val sgePackagePlatform = SgePackaging.sgePackagePlatform
-    val sgePackageAll     = SgePackaging.sgePackageAll
-    val sgePackageBrowser = SgePackaging.sgePackageBrowser
-    val sgePackageNative  = SgePackaging.sgePackageNative
-    val sgeRelease        = SgePackaging.sgeRelease
-
-    // Re-export Android keys
-    val androidDex     = AndroidBuild.androidDex
-    val androidPackage = AndroidBuild.androidPackage
-    val androidSign    = AndroidBuild.androidSign
-    val androidInstall = AndroidBuild.androidInstall
-  }
-  import autoImport._
-
-  // Global scope default — lowest precedence, overridden by ThisBuild or project.
-  override def globalSettings: Seq[Setting[_]] = Seq(
-    sgeNativeLibLocalDir := None
-  )
-
-  override def projectSettings: Seq[Setting[_]] =
-    SgePlugin.commonSettings ++ SgePlugin.relaxedSettings ++ Seq(
-      // NOTE: sgeNativeLibLocalDir default is set in globalSettings (None).
-      // Users override at ThisBuild scope in their build.sbt.
-      sgeAppName := name.value,
-      sgeNativeLibDir := sgeNativeLibLocalDir.value.getOrElse(
-        target.value / "sge-native-libs" / Platform.host.classifier
-      ),
-      sgeNativeLibDirs := Seq(sgeNativeLibDir.value)
-    )
-
-  /** Zero-config JVM axis settings for projectMatrix. */
-  def jvmAxis: Seq[Setting[_]] = SgeDesktopJvmPlatform.axisSettings
-
-  /** Zero-config JS/Browser axis settings for projectMatrix. */
-  def jsAxis: Seq[Setting[_]] = SgeBrowserPlatform.axisSettings
-
-  /** Zero-config Scala Native axis settings for projectMatrix. */
-  def nativeAxis: Seq[Setting[_]] = SgeDesktopNativePlatform.axisSettings
-}
-
-/** JVM release plugin.  Enables JVM packaging (simple mode + distribution mode),
-  * forks for Panama FFM, wires java.library.path to native libs.
+  * Provides JVM runtime config (fork for Panama FFM, java.library.path),
+  * scaladesktop source directory discovery, and JVM packaging (simple + distribution).
   *
-  * For regular Project:
-  * {{{
-  * lazy val game = (project in file("game"))
-  *   .enablePlugins(SgeProject, SgeDesktopJvmPlatform)
-  * }}}
-  *
-  * For projectMatrix (per-axis):
-  * {{{
-  * .jvmPlatform(scalaVersions = Seq(sv), settings = SgeProject.jvmAxis)
-  * }}}
+  * Since JvmPlugin is always present in sbt, this plugin triggers for all projects
+  * with SgePlugin enabled. JVM-specific settings (fork, javaOptions) are harmless on
+  * JS/Native axis projects and get overridden by their respective plugins.
   */
 object SgeDesktopJvmPlatform extends AutoPlugin {
 
-  override def trigger  = noTrigger
-  override def requires = SgeProject
+  override def trigger  = allRequirements
+  override def requires = SgePlugin
 
   object autoImport {
-    val sgeTargets          = SgePackaging.sgeTargets
-    val sgeJlinkModules     = SgePackaging.sgeJlinkModules
-    val sgeRoastVersion     = SgePackaging.sgeRoastVersion
-    val sgeVmArgs           = SgePackaging.sgeVmArgs
-    val sgeUseZgc           = SgePackaging.sgeUseZgc
-    val sgeCacheDir         = SgePackaging.sgeCacheDir
-    val sgeCrossNativeLibDir = SgePackaging.sgeCrossNativeLibDir
+    val releaseTargets       = JvmPackaging.releaseTargets
+    val releaseJlinkModules  = JvmPackaging.releaseJlinkModules
+    val releaseRoastVersion  = JvmPackaging.releaseRoastVersion
+    val releaseVmArgs        = JvmPackaging.releaseVmArgs
+    val releaseUseZgc        = JvmPackaging.releaseUseZgc
+    val releaseCacheDir      = JvmPackaging.releaseCacheDir
   }
 
-  /** Settings for projectMatrix JVM axis.  Includes JVM runtime config, scaladesktop
-    * source directory discovery, and full packaging (simple + dist).
-    */
-  lazy val axisSettings: Seq[Setting[_]] = jvmRuntime ++ SgePackaging.jvmSettings ++ SgePackaging.distSettings ++ Seq(
+  override def projectSettings: Seq[Setting[_]] = jvmRuntime ++
+    SgePackaging.jvmSettings ++ SgePackaging.distSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion
   )
-
-  override def projectSettings: Seq[Setting[_]] = axisSettings
 
   /** JVM platform settings: fork for Panama FFM, library path, scaladesktop source dir. */
   private lazy val jvmRuntime: Seq[Setting[_]] = Seq(
@@ -136,7 +47,7 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
     },
     fork := true,
     javaOptions ++= {
-      val libDir = SgeProject.autoImport.sgeNativeLibDir.value.getAbsolutePath
+      val libDir = SgePlugin.autoImport.sgeNativeLibDir.value.getAbsolutePath
       val macFlags = if (Platform.host.isMac)
         Seq("-XstartOnFirstThread") else Seq.empty
       Seq(
@@ -149,128 +60,75 @@ object SgeDesktopJvmPlatform extends AutoPlugin {
   )
 }
 
-/** Browser release plugin.  Enables Scala.js browser packaging.
+/** Browser platform plugin. Auto-triggers when [[SgePlugin]] and `ScalaJSPlugin` are enabled.
   *
-  * For regular Project:
-  * {{{
-  * lazy val gameJs = (project in file("game-js"))
-  *   .enablePlugins(SgeProject, SgeBrowserPlatform, ScalaJSPlugin)
-  * }}}
-  *
-  * For projectMatrix (per-axis):
-  * {{{
-  * .jsPlatform(scalaVersions = Seq(sv), settings = SgeProject.jsAxis)
-  * }}}
+  * Provides Scala.js browser packaging: fullLinkJS wiring, asset manifest generation,
+  * and HTML index page creation.
   */
 object SgeBrowserPlatform extends AutoPlugin {
 
-  override def trigger  = noTrigger
-  override def requires = SgeProject
+  override def trigger  = allRequirements
+  override def requires = SgeDesktopJvmPlatform && ScalaJSPlugin
 
   object autoImport {
     val sgeBrowserTitle = SgePackaging.sgeBrowserTitle
     val sgeJsOutputDir  = SgePackaging.sgeJsOutputDir
   }
 
-  /** Settings for projectMatrix JS axis.  Wires fullLinkJS to browser packaging. */
-  lazy val axisSettings: Seq[Setting[_]] = SgePlugin.jsSettings ++ SgePackaging.browserSettings ++ Seq(
+  override def projectSettings: Seq[Setting[_]] = SgePackaging.browserSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_sjs1_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
     scalaJSUseMainModuleInitializer := true,
     SgePackaging.sgeJsOutputDir := {
       val _ = (Compile / fullLinkJS).value
       (Compile / fullLinkJS / scalaJSLinkerOutputDirectory).value
+    },
+    // Override JVM defaults from SgeDesktopJvmPlatform (which auto-triggers on all SgePlugin projects).
+    // JS projects don't use desktop-shared sources, forking, or JVM options.
+    fork := false,
+    Compile / unmanagedSourceDirectories := {
+      (Compile / unmanagedSourceDirectories).value.filterNot(_.getPath.endsWith("scaladesktop"))
+    },
+    Test / unmanagedSourceDirectories := {
+      (Test / unmanagedSourceDirectories).value.filterNot(_.getPath.endsWith("scaladesktop"))
     }
   )
-
-  override def projectSettings: Seq[Setting[_]] = axisSettings
 }
 
-/** Native release plugin.  Enables Scala Native packaging and native library linking.
+/** Native desktop platform plugin. Auto-triggers when [[SgePlugin]] and `ScalaNativePlugin`
+  * are enabled.
   *
-  * For regular Project:
-  * {{{
-  * lazy val gameNative = (project in file("game-native"))
-  *   .enablePlugins(SgeProject, SgeDesktopNativePlatform, ScalaNativePlugin)
-  * }}}
-  *
-  * For projectMatrix (per-axis):
-  * {{{
-  * .nativePlatform(scalaVersions = Seq(sv), settings = SgeProject.nativeAxis)
-  * }}}
+  * Provides NativeProviderPlugin integration (library extraction + linker flags),
+  * scaladesktop source directory discovery, and native packaging.
   */
 object SgeDesktopNativePlatform extends AutoPlugin {
 
-  override def trigger  = noTrigger
-  override def requires = SgeProject
+  override def trigger  = allRequirements
+  override def requires = SgePlugin && ScalaNativePlugin
 
-  /** Settings for projectMatrix Native axis.  Wires nativeLink, SgeNativeLibs,
-    * scaladesktop source directory, and native packaging.
-    */
-  lazy val axisSettings: Seq[Setting[_]] = nativeRuntime ++ SgeNativeLibs.settings ++
-    _root_.multiarch.sbt.NativeLibBundle.settings ++
-    _root_.multiarch.sbt.NativeLibExtract.settings ++
+  // scaladesktop source dir is already added by SgeDesktopJvmPlatform (which auto-triggers
+  // on all SgePlugin projects). No need to add it again here.
+  override def projectSettings: Seq[Setting[_]] =
+    NativeProviderPlugin.projectSettings ++
     SgePackaging.nativeSettings ++ Seq(
     libraryDependencies += "com.kubuszok" % s"sge_native0.5_${scalaBinaryVersion.value}" % SgePlugin.sgeVersion,
-    SgeNativeLibs.sgeNativeLibDir := SgeProject.autoImport.sgeNativeLibLocalDir.value.getOrElse(
-      target.value / "sge-native-libs" / Platform.host.classifier
-    ),
-    // Point NativeLibExtract at the local dir when set (bypasses JAR extraction)
-    _root_.multiarch.sbt.NativeLibExtract.nativeLibSourceDir := SgeProject.autoImport.sgeNativeLibLocalDir.value,
-    SgePackaging.sgeNativeBinary := (Compile / nativeLink).value,
-    nativeConfig := {
-      val c        = nativeConfig.value
-      val log      = streams.value.log
-      val localDir = SgeProject.autoImport.sgeNativeLibLocalDir.value
-      val libDir   = localDir.getOrElse(_root_.multiarch.sbt.NativeLibExtract.nativeLibExtract.value)
-      val manifests = _root_.multiarch.sbt.NativeLibBundle.discoverManifests.value
-      val platform  = _root_.multiarch.sbt.NativeLibBundle.nativeBundlePlatform.value
-      val merged    = _root_.multiarch.sbt.NativeLibBundle.mergeFlags(
-        manifests, platform, if (libDir.exists()) Some(libDir) else None, log
-      )
-      c.withEmbedResources(true)
-        .withResourceIncludePatterns(Seq("**.png", "**.jpg", "**.wav", "**.ogg", "**.mp3",
-          "**.txt", "**.json", "**.xml", "**.g3dj", "**.g3db", "**.atlas", "**.fnt", "**.tmx"))
-        .withLinkingOptions(c.linkingOptions ++ SgeNativeLibs.linkerFlags(libDir) ++ merged)
-    }
-  )
-
-  override def projectSettings: Seq[Setting[_]] = axisSettings
-
-  /** Native platform settings: scaladesktop source dir. */
-  private lazy val nativeRuntime: Seq[Setting[_]] = Seq(
-    Compile / unmanagedSourceDirectories ++= {
-      val desktopDir = projectMatrixBaseDirectory.value / "src" / "main" / "scaladesktop"
-      if (desktopDir.exists()) Seq(desktopDir) else Seq.empty
-    }
+    NativeExtractSettings.nativeLibSourceDir := SgePlugin.autoImport.sgeNativeLibLocalDir.value,
+    SgePackaging.sgeNativeBinary := (Compile / nativeLink).value
   )
 }
 
-/** Android release plugin.  Enables Android APK building without Gradle.
+/** SGE-specific Android platform plugin. Auto-triggers when [[SgePlugin]] and
+  * [[multiarch.sbt.AndroidPlugin]] are both enabled.
   *
-  * {{{
-  * lazy val gameAndroid = (project in file("game-android"))
-  *   .enablePlugins(SgeProject, SgeAndroidPlatform)
-  *   .settings(
-  *     Compile / mainClass := Some("com.example.game.AndroidMain")
-  *   )
-  * }}}
-  *
-  * Build pipeline: `androidDex` -> `androidPackage` -> `androidSign` -> `androidInstall`
-  *
-  * Requires `AndroidManifest.xml` in `src/main/resources/`.
-  * The Android SDK is auto-downloaded when android tasks are first run.
+  * Overrides the default `androidSdkCacheDir` to `<baseDirectory>/sge-deps/android-sdk`
+  * so CI workflows that pre-populate that path keep working. Provides a hook for
+  * future SGE-specific Android customizations on top of the generic Android build.
   */
 object SgeAndroidPlatform extends AutoPlugin {
 
-  override def trigger  = noTrigger
-  override def requires = SgeProject
+  override def trigger  = allRequirements
+  override def requires = SgePlugin && AndroidPlugin
 
-  object autoImport {
-    val androidSdkRoot           = AndroidBuild.androidSdkRoot
-    val androidMinSdk            = AndroidBuild.androidMinSdk
-    val androidTargetSdk         = AndroidBuild.androidTargetSdk
-    val androidBuildToolsVersion = AndroidBuild.androidBuildToolsVersion
-  }
-
-  override def projectSettings: Seq[Setting[_]] = AndroidBuild.settings
+  override def projectSettings: Seq[Setting[_]] = Seq(
+    AndroidPlugin.autoImport.androidSdkCacheDir := (ThisBuild / baseDirectory).value / "sge-deps" / "android-sdk"
+  )
 }
