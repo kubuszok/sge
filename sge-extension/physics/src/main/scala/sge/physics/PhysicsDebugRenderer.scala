@@ -131,6 +131,31 @@ class PhysicsDebugRenderer(maxVertices: Int = 5000)(using Sge) extends AutoClose
             i += 1
           }
         }
+
+      case Shape.Segment(x1, y1, x2, y2) =>
+        val ax = px + x1 * cosA - y1 * sinA
+        val ay = py + x1 * sinA + y1 * cosA
+        val bx = px + x2 * cosA - y2 * sinA
+        val by = py + x2 * sinA + y2 * cosA
+        shapeRenderer.line(ax, ay, bx, by)
+
+      case Shape.Polyline(vertices) =>
+        val count = vertices.length / 2
+        if (count >= 2) {
+          var i = 0
+          while (i < count - 1) {
+            val vx = vertices(i * 2)
+            val vy = vertices(i * 2 + 1)
+            val wx = vertices((i + 1) * 2)
+            val wy = vertices((i + 1) * 2 + 1)
+            val ax = px + vx * cosA - vy * sinA
+            val ay = py + vx * sinA + vy * cosA
+            val bx = px + wx * cosA - wy * sinA
+            val by = py + wx * sinA + wy * cosA
+            shapeRenderer.line(ax, ay, bx, by)
+            i += 1
+          }
+        }
     }
 
   /** Releases the internal [[ShapeRenderer]]. */

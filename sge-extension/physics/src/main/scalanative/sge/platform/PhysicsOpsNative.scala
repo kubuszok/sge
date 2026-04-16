@@ -48,15 +48,17 @@ private object PhysicsC {
   def sge_phys_body_set_fixed_rotation(world:   Long, body: Long, fixed:   CInt):                  Unit   = extern
 
   // Collider
-  def sge_phys_create_circle_collider(world:   Long, body:     Long, radius:      CFloat):                           Long = extern
-  def sge_phys_create_box_collider(world:      Long, body:     Long, halfWidth:   CFloat, halfHeight:       CFloat): Long = extern
-  def sge_phys_create_capsule_collider(world:  Long, body:     Long, halfHeight:  CFloat, radius:           CFloat): Long = extern
-  def sge_phys_create_polygon_collider(world:  Long, body:     Long, vertices:    Ptr[CFloat], vertexCount: CInt):   Long = extern
-  def sge_phys_destroy_collider(world:         Long, collider: Long):                                                Unit = extern
-  def sge_phys_collider_set_density(world:     Long, collider: Long, density:     CFloat):                           Unit = extern
-  def sge_phys_collider_set_friction(world:    Long, collider: Long, friction:    CFloat):                           Unit = extern
-  def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat):                           Unit = extern
-  def sge_phys_collider_set_sensor(world:      Long, collider: Long, sensor:      CInt):                             Unit = extern
+  def sge_phys_create_circle_collider(world:   Long, body:     Long, radius:      CFloat):                                                   Long = extern
+  def sge_phys_create_box_collider(world:      Long, body:     Long, halfWidth:   CFloat, halfHeight:       CFloat):                         Long = extern
+  def sge_phys_create_capsule_collider(world:  Long, body:     Long, halfHeight:  CFloat, radius:           CFloat):                         Long = extern
+  def sge_phys_create_polygon_collider(world:  Long, body:     Long, vertices:    Ptr[CFloat], vertexCount: CInt):                           Long = extern
+  def sge_phys_create_segment_collider(world:  Long, body:     Long, x1:          CFloat, y1:               CFloat, x2: CFloat, y2: CFloat): Long = extern
+  def sge_phys_create_polyline_collider(world: Long, body:     Long, vertices:    Ptr[CFloat], vertexCount: CInt):                           Long = extern
+  def sge_phys_destroy_collider(world:         Long, collider: Long):                                                                        Unit = extern
+  def sge_phys_collider_set_density(world:     Long, collider: Long, density:     CFloat):                                                   Unit = extern
+  def sge_phys_collider_set_friction(world:    Long, collider: Long, friction:    CFloat):                                                   Unit = extern
+  def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat):                                                   Unit = extern
+  def sge_phys_collider_set_sensor(world:      Long, collider: Long, sensor:      CInt):                                                     Unit = extern
 
   // Collision filtering
   def sge_phys_collider_set_collision_groups(world: Long, collider: Long, memberships: CInt, filter: CInt): Unit = extern
@@ -68,6 +70,7 @@ private object PhysicsC {
   def sge_phys_create_revolute_joint(world:  Long, body1: Long, body2: Long, anchorX: CFloat, anchorY: CFloat): Long = extern
   def sge_phys_create_prismatic_joint(world: Long, body1: Long, body2: Long, axisX:   CFloat, axisY:   CFloat): Long = extern
   def sge_phys_create_fixed_joint(world:     Long, body1: Long, body2: Long):                                   Long = extern
+  def sge_phys_create_rope_joint(world:      Long, body1: Long, body2: Long, maxDist: CFloat):                  Long = extern
   def sge_phys_destroy_joint(world:          Long, joint: Long):                                                Unit = extern
 
   // Revolute joint limits/motors
@@ -90,6 +93,20 @@ private object PhysicsC {
   def sge_phys_prismatic_joint_set_max_motor_force(world: Long, joint: Long, force:  CFloat):                Unit   = extern
   def sge_phys_prismatic_joint_get_translation(world:     Long, joint: Long):                                CFloat = extern
 
+  // Motor joint
+  def sge_phys_create_motor_joint(world:                Long, body1: Long, body2:  Long):              Long   = extern
+  def sge_phys_motor_joint_set_linear_offset(world:     Long, joint: Long, x:      CFloat, y: CFloat): Unit   = extern
+  def sge_phys_motor_joint_get_linear_offset(world:     Long, joint: Long, out:    Ptr[CFloat]):       Unit   = extern
+  def sge_phys_motor_joint_set_angular_offset(world:    Long, joint: Long, angle:  CFloat):            Unit   = extern
+  def sge_phys_motor_joint_get_angular_offset(world:    Long, joint: Long):                            CFloat = extern
+  def sge_phys_motor_joint_set_max_force(world:         Long, joint: Long, force:  CFloat):            Unit   = extern
+  def sge_phys_motor_joint_set_max_torque(world:        Long, joint: Long, torque: CFloat):            Unit   = extern
+  def sge_phys_motor_joint_set_correction_factor(world: Long, joint: Long, factor: CFloat):            Unit   = extern
+
+  // Rope joint
+  def sge_phys_rope_joint_set_max_distance(world: Long, joint: Long, maxDist: CFloat): Unit   = extern
+  def sge_phys_rope_joint_get_max_distance(world: Long, joint: Long):                  CFloat = extern
+
   // Body mass/inertia
   def sge_phys_body_get_mass(world:                  Long, body: Long):                   CFloat = extern
   def sge_phys_body_get_inertia(world:               Long, body: Long):                   CFloat = extern
@@ -100,6 +117,10 @@ private object PhysicsC {
   def sge_phys_query_aabb(world:  Long, minX:    CFloat, minY:    CFloat, maxX:      CFloat, maxY:          CFloat, outColliders: Ptr[Long], maxResults: CInt):        CInt = extern
   def sge_phys_ray_cast(world:    Long, originX: CFloat, originY: CFloat, dirX:      CFloat, dirY:          CFloat, maxDist:      CFloat, out:           Ptr[CFloat]): CInt = extern
   def sge_phys_query_point(world: Long, x:       CFloat, y:       CFloat, outBodies: Ptr[Long], maxResults: CInt):                                                     CInt = extern
+
+  // Contact detail queries
+  def sge_phys_contact_pair_count(world:  Long, collider1: Long, collider2: Long):                                    CInt = extern
+  def sge_phys_contact_pair_points(world: Long, collider1: Long, collider2: Long, out: Ptr[CFloat], maxPoints: CInt): CInt = extern
 
   // Contact events
   def sge_phys_poll_contact_start_events(world: Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
@@ -217,6 +238,12 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
   override def createPolygonCollider(world: Long, body: Long, vertices: Array[Float], vertexCount: Int): Long =
     PhysicsC.sge_phys_create_polygon_collider(world, body, vertices.at(0), vertexCount).toLong
 
+  override def createSegmentCollider(world: Long, body: Long, x1: Float, y1: Float, x2: Float, y2: Float): Long =
+    PhysicsC.sge_phys_create_segment_collider(world, body, x1, y1, x2, y2).toLong
+
+  override def createPolylineCollider(world: Long, body: Long, vertices: Array[Float], vertexCount: Int): Long =
+    PhysicsC.sge_phys_create_polyline_collider(world, body, vertices.at(0), vertexCount).toLong
+
   override def destroyCollider(world: Long, collider: Long): Unit =
     PhysicsC.sge_phys_destroy_collider(world, collider)
 
@@ -264,6 +291,9 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
 
   override def createFixedJoint(world: Long, body1: Long, body2: Long): Long =
     PhysicsC.sge_phys_create_fixed_joint(world, body1, body2).toLong
+
+  override def createRopeJoint(world: Long, body1: Long, body2: Long, maxDist: Float): Long =
+    PhysicsC.sge_phys_create_rope_joint(world, body1, body2, maxDist).toLong
 
   override def destroyJoint(world: Long, joint: Long): Unit =
     PhysicsC.sge_phys_destroy_joint(world, joint)
@@ -327,6 +357,44 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
 
   override def prismaticJointGetTranslation(world: Long, joint: Long): Float =
     PhysicsC.sge_phys_prismatic_joint_get_translation(world, joint)
+
+  // ─── Motor joint ───────────────────────────────────────────────────────
+
+  override def createMotorJoint(world: Long, body1: Long, body2: Long): Long =
+    PhysicsC.sge_phys_create_motor_joint(world, body1, body2).toLong
+
+  override def motorJointSetLinearOffset(world: Long, joint: Long, x: Float, y: Float): Unit =
+    PhysicsC.sge_phys_motor_joint_set_linear_offset(world, joint, x, y)
+
+  override def motorJointGetLinearOffset(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_motor_joint_get_linear_offset(world, joint, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def motorJointSetAngularOffset(world: Long, joint: Long, angle: Float): Unit =
+    PhysicsC.sge_phys_motor_joint_set_angular_offset(world, joint, angle)
+
+  override def motorJointGetAngularOffset(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_motor_joint_get_angular_offset(world, joint)
+
+  override def motorJointSetMaxForce(world: Long, joint: Long, force: Float): Unit =
+    PhysicsC.sge_phys_motor_joint_set_max_force(world, joint, force)
+
+  override def motorJointSetMaxTorque(world: Long, joint: Long, torque: Float): Unit =
+    PhysicsC.sge_phys_motor_joint_set_max_torque(world, joint, torque)
+
+  override def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float): Unit =
+    PhysicsC.sge_phys_motor_joint_set_correction_factor(world, joint, factor)
+
+  // ─── Rope joint ───────────────────────────────────────────────────────
+
+  override def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit =
+    PhysicsC.sge_phys_rope_joint_set_max_distance(world, joint, maxDist)
+
+  override def ropeJointGetMaxDistance(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_rope_joint_get_max_distance(world, joint)
 
   // ─── Body mass/inertia ────────────────────────────────────────────────
 
@@ -432,6 +500,30 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
     while (i < count) {
       outCollider1(i) = buf1(i).toLong
       outCollider2(i) = buf2(i).toLong
+      i += 1
+    }
+    count
+  }
+
+  // ─── Contact detail queries ───────────────────────────────────────────
+
+  override def contactPairCount(world: Long, collider1: Long, collider2: Long): Int =
+    PhysicsC.sge_phys_contact_pair_count(world, collider1, collider2)
+
+  override def contactPairPoints(
+    world:     Long,
+    collider1: Long,
+    collider2: Long,
+    out:       Array[Float],
+    maxPoints: Int
+  ): Int = {
+    val totalFloats = maxPoints * 5
+    val buf         = stackalloc[CFloat](totalFloats)
+    val count       = PhysicsC.sge_phys_contact_pair_points(world, collider1, collider2, buf, maxPoints)
+    val copyCount   = count * 5
+    var i           = 0
+    while (i < copyCount) {
+      out(i) = buf(i)
       i += 1
     }
     count

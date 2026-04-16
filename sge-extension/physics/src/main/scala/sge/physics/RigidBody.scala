@@ -142,6 +142,8 @@ class RigidBody private[physics] (
       case Shape.Box(halfWidth, halfHeight)  => ops.createBoxCollider(wh, handle, halfWidth, halfHeight)
       case Shape.Capsule(halfHeight, radius) => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
       case Shape.Polygon(vertices)           => ops.createPolygonCollider(wh, handle, vertices, vertices.length / 2)
+      case Shape.Segment(x1, y1, x2, y2)     => ops.createSegmentCollider(wh, handle, x1, y1, x2, y2)
+      case Shape.Polyline(vertices)          => ops.createPolylineCollider(wh, handle, vertices, vertices.length / 2)
     }
     ops.colliderSetDensity(wh, ch, density)
     ops.colliderSetFriction(wh, ch, friction)

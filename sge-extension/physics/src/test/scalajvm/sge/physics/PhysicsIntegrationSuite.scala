@@ -349,6 +349,157 @@ class PhysicsIntegrationSuite extends FunSuite {
       world.close()
   }
 
+  test("MotorJoint creation and offset control") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f) // No gravity for predictable behavior
+    try {
+      val body1 = world.createBody(BodyType.Static, x = 0f, y = 0f)
+      val body2 = world.createBody(BodyType.Dynamic, x = 1f, y = 0f)
+      body1.attachCollider(Shape.Circle(0.1f))
+      body2.attachCollider(Shape.Circle(0.1f))
+
+      val joint = world.createJoint(JointDef.Motor(body1, body2))
+      assert(joint.isInstanceOf[MotorJoint], "Should create MotorJoint")
+      val motor = joint.asInstanceOf[MotorJoint]
+
+      // Set and read linear offset
+      motor.linearOffset = (2f, 3f)
+      val (ox, oy) = motor.linearOffset
+      assertEqualsFloat(ox, 2f, 0.001f)
+      assertEqualsFloat(oy, 3f, 0.001f)
+
+      // Set and read angular offset
+      motor.angularOffset = 1.5f
+      val angle = motor.angularOffset
+      assertEqualsFloat(angle, 1.5f, 0.001f)
+
+      // Set motor parameters (no getter needed, just verify no crash)
+      motor.maxForce_=(100f)
+      motor.maxTorque_=(50f)
+      motor.correctionFactor_=(0.5f)
+    } finally
+      world.close()
+  }
+
+  test("MouseJoint creation and target setting") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f) // No gravity for predictable behavior
+    try {
+      val body = world.createBody(BodyType.Dynamic, x = 0f, y = 0f)
+      body.attachCollider(Shape.Circle(0.5f))
+
+      // Create mouse joint targeting (5, 5)
+      val joint = world.createJoint(JointDef.Mouse(body, 5f, 5f))
+      assert(joint.isInstanceOf[MouseJoint], "Should create MouseJoint")
+      val mouse = joint.asInstanceOf[MouseJoint]
+
+      // Verify initial target
+      val (tx, ty) = mouse.target
+      assertEqualsFloat(tx, 5f, 0.001f)
+      assertEqualsFloat(ty, 5f, 0.001f)
+
+      // Update target
+      mouse.target = (10f, -3f)
+      val (tx2, ty2) = mouse.target
+      assertEqualsFloat(tx2, 10f, 0.001f)
+      assertEqualsFloat(ty2, -3f, 0.001f)
+
+      // Set motor parameters (verify no crash)
+      mouse.maxForce_=(500f)
+      mouse.correctionFactor_=(0.5f)
+    } finally
+      world.close()
+  }
+
+  test("MouseJoint target tracking") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f) // No gravity
+    try {
+      val body = world.createBody(BodyType.Dynamic, x = 0f, y = 0f)
+      body.attachCollider(Shape.Circle(0.5f))
+
+      val joint = world.createJoint(JointDef.Mouse(body, 5f, 0f))
+      val mouse = joint.asInstanceOf[MouseJoint]
+
+      // Configure for strong pull
+      mouse.maxForce_=(10000f)
+      mouse.correctionFactor_=(0.8f)
+
+      // Step simulation — body should move toward target
+      for (_ <- 1 to 60)
+        world.step(1f / 60f)
+
+      val (bx, _) = body.position
+      assert(bx > 1f, s"Body should move toward target (x=5), got x=$bx")
+    } finally
+      world.close()
+  }
+
+  test("MouseJoint destruction cleans up anchor body") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f)
+    try {
+      val body = world.createBody(BodyType.Dynamic, x = 0f, y = 0f)
+      body.attachCollider(Shape.Circle(0.5f))
+
+      val joint = world.createJoint(JointDef.Mouse(body, 5f, 5f))
+      // Destroying the mouse joint should not crash (also destroys the anchor body)
+      world.destroyJoint(joint)
+      // Step after destruction — should not crash
+      world.step(1f / 60f)
+    } finally
+      world.close()
+  }
+
+  test("Contact detail query between overlapping bodies") {
+    requireNative()
+    val world = new PhysicsWorld(0f, -10f)
+    try {
+      // Create a static floor
+      val floor    = world.createBody(BodyType.Static, x = 0f, y = 0f)
+      val floorCol = floor.attachCollider(Shape.Box(10f, 0.5f))
+
+      // Create a dynamic body that will fall onto the floor
+      val ball    = world.createBody(BodyType.Dynamic, x = 0f, y = 5f)
+      val ballCol = ball.attachCollider(Shape.Circle(1f))
+
+      // Step simulation until ball contacts the floor
+      for (_ <- 1 to 120)
+        world.step(1f / 60f)
+
+      // Query contact points
+      val contacts = world.getContactPoints(ballCol, floorCol)
+      // The ball should be resting on the floor, so there should be at least 1 contact point
+      assert(contacts.nonEmpty, s"Should have contact points, got ${contacts.length}")
+
+      // Contact normal should point roughly upward (from floor toward ball)
+      val cp = contacts(0)
+      // normalY should be positive (pointing up) or negative (pointing down) depending on convention
+      // Just verify it's a valid normal with nonzero magnitude
+      val normalMag = scala.math.sqrt(cp.normalX * cp.normalX + cp.normalY * cp.normalY).toFloat
+      assert(normalMag > 0.9f && normalMag < 1.1f, s"Normal should be unit length, got $normalMag")
+    } finally
+      world.close()
+  }
+
+  test("Contact pair count returns zero for non-overlapping colliders") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f) // No gravity
+    try {
+      val body1 = world.createBody(BodyType.Static, x = 0f, y = 0f)
+      val col1  = body1.attachCollider(Shape.Circle(1f))
+
+      val body2 = world.createBody(BodyType.Static, x = 100f, y = 100f)
+      val col2  = body2.attachCollider(Shape.Circle(1f))
+
+      world.step(0f) // Update pipeline
+
+      val contacts = world.getContactPoints(col1, col2)
+      assertEquals(contacts.length, 0, "Should have no contact points for non-overlapping colliders")
+    } finally
+      world.close()
+  }
+
   private def assertEqualsFloat(actual: Float, expected: Float, delta: Float)(implicit loc: munit.Location): Unit =
     assert(scala.math.abs(actual - expected) <= delta, s"Expected $expected +/- $delta, got $actual")
 }

@@ -52,15 +52,17 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def bodySetFixedRotation(world:   Long, body: Long, fixed:   Boolean):             Unit    = unsupported
 
   // Collider
-  override def createCircleCollider(world:   Long, body:     Long, radius:      Float):                            Long = unsupported
-  override def createBoxCollider(world:      Long, body:     Long, halfWidth:   Float, halfHeight:         Float): Long = unsupported
-  override def createCapsuleCollider(world:  Long, body:     Long, halfHeight:  Float, radius:             Float): Long = unsupported
-  override def createPolygonCollider(world:  Long, body:     Long, vertices:    Array[Float], vertexCount: Int):   Long = unsupported
-  override def destroyCollider(world:        Long, collider: Long):                                                Unit = unsupported
-  override def colliderSetDensity(world:     Long, collider: Long, density:     Float):                            Unit = unsupported
-  override def colliderSetFriction(world:    Long, collider: Long, friction:    Float):                            Unit = unsupported
-  override def colliderSetRestitution(world: Long, collider: Long, restitution: Float):                            Unit = unsupported
-  override def colliderSetSensor(world:      Long, collider: Long, sensor:      Boolean):                          Unit = unsupported
+  override def createCircleCollider(world:   Long, body:     Long, radius:      Float):                                                  Long = unsupported
+  override def createBoxCollider(world:      Long, body:     Long, halfWidth:   Float, halfHeight:         Float):                       Long = unsupported
+  override def createCapsuleCollider(world:  Long, body:     Long, halfHeight:  Float, radius:             Float):                       Long = unsupported
+  override def createPolygonCollider(world:  Long, body:     Long, vertices:    Array[Float], vertexCount: Int):                         Long = unsupported
+  override def createSegmentCollider(world:  Long, body:     Long, x1:          Float, y1:                 Float, x2: Float, y2: Float): Long = unsupported
+  override def createPolylineCollider(world: Long, body:     Long, vertices:    Array[Float], vertexCount: Int):                         Long = unsupported
+  override def destroyCollider(world:        Long, collider: Long):                                                                      Unit = unsupported
+  override def colliderSetDensity(world:     Long, collider: Long, density:     Float):                                                  Unit = unsupported
+  override def colliderSetFriction(world:    Long, collider: Long, friction:    Float):                                                  Unit = unsupported
+  override def colliderSetRestitution(world: Long, collider: Long, restitution: Float):                                                  Unit = unsupported
+  override def colliderSetSensor(world:      Long, collider: Long, sensor:      Boolean):                                                Unit = unsupported
 
   // Collision filtering
   override def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit = unsupported
@@ -72,6 +74,7 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def createRevoluteJoint(world:  Long, body1: Long, body2: Long, anchorX: Float, anchorY: Float): Long = unsupported
   override def createPrismaticJoint(world: Long, body1: Long, body2: Long, axisX:   Float, axisY:   Float): Long = unsupported
   override def createFixedJoint(world:     Long, body1: Long, body2: Long):                                 Long = unsupported
+  override def createRopeJoint(world:      Long, body1: Long, body2: Long, maxDist: Float):                 Long = unsupported
   override def destroyJoint(world:         Long, joint: Long):                                              Unit = unsupported
 
   // Revolute joint limits/motors
@@ -94,6 +97,20 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   override def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force:  Float):               Unit  = unsupported
   override def prismaticJointGetTranslation(world:   Long, joint: Long):                              Float = unsupported
 
+  // Motor joint
+  override def createMotorJoint(world:              Long, body1: Long, body2:  Long):            Long  = unsupported
+  override def motorJointSetLinearOffset(world:     Long, joint: Long, x:      Float, y: Float): Unit  = unsupported
+  override def motorJointGetLinearOffset(world:     Long, joint: Long, out:    Array[Float]):    Unit  = unsupported
+  override def motorJointSetAngularOffset(world:    Long, joint: Long, angle:  Float):           Unit  = unsupported
+  override def motorJointGetAngularOffset(world:    Long, joint: Long):                          Float = unsupported
+  override def motorJointSetMaxForce(world:         Long, joint: Long, force:  Float):           Unit  = unsupported
+  override def motorJointSetMaxTorque(world:        Long, joint: Long, torque: Float):           Unit  = unsupported
+  override def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float):           Unit  = unsupported
+
+  // Rope joint
+  override def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit  = unsupported
+  override def ropeJointGetMaxDistance(world: Long, joint: Long):                 Float = unsupported
+
   // Body mass/inertia
   override def bodyGetMass(world:                 Long, body: Long):                    Float = unsupported
   override def bodyGetInertia(world:              Long, body: Long):                    Float = unsupported
@@ -108,4 +125,8 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   // Contact events
   override def pollContactStartEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int = unsupported
   override def pollContactStopEvents(world:  Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int = unsupported
+
+  // Contact detail queries
+  override def contactPairCount(world:  Long, collider1: Long, collider2: Long):                                    Int = unsupported
+  override def contactPairPoints(world: Long, collider1: Long, collider2: Long, out: Array[Float], maxPoints: Int): Int = unsupported
 }

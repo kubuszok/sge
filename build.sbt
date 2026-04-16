@@ -86,7 +86,7 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-providers repo)
-  val nativeComponents = "0eef8c01b11f23e2034f808e4e3109dd0660395d-SNAPSHOT"
+  val nativeComponents = "dee4d8232985ca2d680c9bf069c1a3c31bd20c1d-SNAPSHOT"
   val curlProvider     = "ce606f7fced8d5fcaa9043d416f872c842a26a8c-SNAPSHOT"
 }
 

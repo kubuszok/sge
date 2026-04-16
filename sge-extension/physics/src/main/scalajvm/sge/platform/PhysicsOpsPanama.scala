@@ -168,6 +168,14 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     lookup("sge_phys_create_polygon_collider"),
     p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT)
   )
+  private val hCreateSegmentCollider: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_segment_collider"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hCreatePolylineCollider: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_polyline_collider"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT)
+  )
   private val hDestroyCollider: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_destroy_collider"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
@@ -221,6 +229,10 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hCreateFixedJoint: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_create_fixed_joint"),
     p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hCreateRopeJoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_rope_joint"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
   )
   private val hDestroyJoint: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_destroy_joint"),
@@ -295,6 +307,50 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
   )
 
+  // Motor joint
+  private val hCreateMotorJoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_motor_joint"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hMotorJointSetLinearOffset: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_set_linear_offset"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hMotorJointGetLinearOffset: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_get_linear_offset"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hMotorJointSetAngularOffset: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_set_angular_offset"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hMotorJointGetAngularOffset: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_get_angular_offset"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hMotorJointSetMaxForce: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_set_max_force"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hMotorJointSetMaxTorque: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_set_max_torque"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hMotorJointSetCorrectionFactor: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_set_correction_factor"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+
+  // Rope joint
+  private val hRopeJointSetMaxDistance: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_rope_joint_set_max_distance"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hRopeJointGetMaxDistance: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_rope_joint_get_max_distance"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+
   // Body mass/inertia
   private val hBodyGetMass: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_body_get_mass"),
@@ -325,6 +381,16 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hQueryPoint: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_query_point"),
     p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
+  )
+
+  // Contact detail queries
+  private val hContactPairCount: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_contact_pair_count"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hContactPairPoints: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_contact_pair_points"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT)
   )
 
   // Contact events
@@ -459,6 +525,18 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     } finally arena.arenaClose()
   }
 
+  override def createSegmentCollider(world: Long, body: Long, x1: Float, y1: Float, x2: Float, y2: Float): Long =
+    hCreateSegmentCollider.invoke(world, body, x1, y1, x2, y2).asInstanceOf[Long]
+
+  override def createPolylineCollider(world: Long, body: Long, vertices: Array[Float], vertexCount: Int): Long = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, vertices.length.toLong)
+      p.MemorySegment.copyFromFloats(vertices, 0, seg, 0L, vertices.length)
+      hCreatePolylineCollider.invoke(world, body, seg, vertexCount).asInstanceOf[Long]
+    } finally arena.arenaClose()
+  }
+
   override def destroyCollider(world: Long, collider: Long): Unit =
     hDestroyCollider.invoke(world, collider)
 
@@ -512,6 +590,9 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def createFixedJoint(world: Long, body1: Long, body2: Long): Long =
     hCreateFixedJoint.invoke(world, body1, body2).asInstanceOf[Long]
+
+  override def createRopeJoint(world: Long, body1: Long, body2: Long, maxDist: Float): Long =
+    hCreateRopeJoint.invoke(world, body1, body2, maxDist).asInstanceOf[Long]
 
   override def destroyJoint(world: Long, joint: Long): Unit =
     hDestroyJoint.invoke(world, joint)
@@ -581,6 +662,46 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def prismaticJointGetTranslation(world: Long, joint: Long): Float =
     hPrismaticJointGetTranslation.invoke(world, joint).asInstanceOf[Float]
+
+  // ─── Motor joint ───────────────────────────────────────────────────────
+
+  override def createMotorJoint(world: Long, body1: Long, body2: Long): Long =
+    hCreateMotorJoint.invoke(world, body1, body2).asInstanceOf[Long]
+
+  override def motorJointSetLinearOffset(world: Long, joint: Long, x: Float, y: Float): Unit =
+    hMotorJointSetLinearOffset.invoke(world, joint, x, y)
+
+  override def motorJointGetLinearOffset(world: Long, joint: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hMotorJointGetLinearOffset.invoke(world, joint, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
+
+  override def motorJointSetAngularOffset(world: Long, joint: Long, angle: Float): Unit =
+    hMotorJointSetAngularOffset.invoke(world, joint, angle)
+
+  override def motorJointGetAngularOffset(world: Long, joint: Long): Float =
+    hMotorJointGetAngularOffset.invoke(world, joint).asInstanceOf[Float]
+
+  override def motorJointSetMaxForce(world: Long, joint: Long, force: Float): Unit =
+    hMotorJointSetMaxForce.invoke(world, joint, force)
+
+  override def motorJointSetMaxTorque(world: Long, joint: Long, torque: Float): Unit =
+    hMotorJointSetMaxTorque.invoke(world, joint, torque)
+
+  override def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float): Unit =
+    hMotorJointSetCorrectionFactor.invoke(world, joint, factor)
+
+  // ─── Rope joint ───────────────────────────────────────────────────────
+
+  override def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit =
+    hRopeJointSetMaxDistance.invoke(world, joint, maxDist)
+
+  override def ropeJointGetMaxDistance(world: Long, joint: Long): Float =
+    hRopeJointGetMaxDistance.invoke(world, joint).asInstanceOf[Float]
 
   // ─── Body mass/inertia ────────────────────────────────────────────────
 
@@ -702,6 +823,30 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
         outCollider1(i) = seg1.getLong(i.toLong * 8L)
         outCollider2(i) = seg2.getLong(i.toLong * 8L)
         i += 1
+      }
+      count
+    } finally arena.arenaClose()
+  }
+
+  // ─── Contact detail queries ───────────────────────────────────────────
+
+  override def contactPairCount(world: Long, collider1: Long, collider2: Long): Int =
+    hContactPairCount.invoke(world, collider1, collider2).asInstanceOf[Int]
+
+  override def contactPairPoints(
+    world:     Long,
+    collider1: Long,
+    collider2: Long,
+    out:       Array[Float],
+    maxPoints: Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val totalFloats = maxPoints.toLong * 5L
+      val seg         = arena.allocateElems(p.JAVA_FLOAT, totalFloats)
+      val count       = hContactPairPoints.invoke(world, collider1, collider2, seg, maxPoints).asInstanceOf[Int]
+      if (count > 0) {
+        p.MemorySegment.copyToFloats(seg, 0L, out, 0, count * 5)
       }
       count
     } finally arena.arenaClose()

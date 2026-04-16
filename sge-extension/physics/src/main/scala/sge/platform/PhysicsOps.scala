@@ -119,6 +119,28 @@ private[sge] trait PhysicsOps {
     */
   def createPolygonCollider(world: Long, body: Long, vertices: Array[Float], vertexCount: Int): Long
 
+  /** Attaches a segment (edge) collider to a body. Returns a collider handle.
+    *
+    * @param x1
+    *   first endpoint x
+    * @param y1
+    *   first endpoint y
+    * @param x2
+    *   second endpoint x
+    * @param y2
+    *   second endpoint y
+    */
+  def createSegmentCollider(world: Long, body: Long, x1: Float, y1: Float, x2: Float, y2: Float): Long
+
+  /** Attaches a polyline (chain) collider to a body. Returns a collider handle.
+    *
+    * @param vertices
+    *   flat array of [x0, y0, x1, y1, ...] vertex positions
+    * @param vertexCount
+    *   number of vertices (half the array length)
+    */
+  def createPolylineCollider(world: Long, body: Long, vertices: Array[Float], vertexCount: Int): Long
+
   /** Detaches and destroys a collider. */
   def destroyCollider(world: Long, collider: Long): Unit
 
@@ -168,6 +190,9 @@ private[sge] trait PhysicsOps {
 
   /** Creates a fixed (weld) joint between two bodies. Returns a joint handle. */
   def createFixedJoint(world: Long, body1: Long, body2: Long): Long
+
+  /** Creates a rope joint that constrains two bodies to stay within a maximum distance. Returns a joint handle. */
+  def createRopeJoint(world: Long, body1: Long, body2: Long, maxDist: Float): Long
 
   /** Destroys a joint. */
   def destroyJoint(world: Long, joint: Long): Unit
@@ -224,6 +249,40 @@ private[sge] trait PhysicsOps {
   /** Gets the current translation of the prismatic joint. */
   def prismaticJointGetTranslation(world: Long, joint: Long): Float
 
+  // ─── Motor joint ───────────────────────────────────────────────────
+
+  /** Creates a motor joint between two bodies. Returns a joint handle. */
+  def createMotorJoint(world: Long, body1: Long, body2: Long): Long
+
+  /** Sets the linear offset target for a motor joint. */
+  def motorJointSetLinearOffset(world: Long, joint: Long, x: Float, y: Float): Unit
+
+  /** Gets the linear offset target for a motor joint. Fills `out` with [x, y]. */
+  def motorJointGetLinearOffset(world: Long, joint: Long, out: Array[Float]): Unit
+
+  /** Sets the angular offset target for a motor joint (radians). */
+  def motorJointSetAngularOffset(world: Long, joint: Long, angle: Float): Unit
+
+  /** Gets the angular offset target for a motor joint (radians). */
+  def motorJointGetAngularOffset(world: Long, joint: Long): Float
+
+  /** Sets the maximum force the motor joint can apply. */
+  def motorJointSetMaxForce(world: Long, joint: Long, force: Float): Unit
+
+  /** Sets the maximum torque the motor joint can apply. */
+  def motorJointSetMaxTorque(world: Long, joint: Long, torque: Float): Unit
+
+  /** Sets the correction factor for the motor joint (0 = no correction, 1 = full correction per step). */
+  def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float): Unit
+
+  // ─── Rope joint ───────────────────────────────────────────────────
+
+  /** Sets the maximum distance for a rope joint. */
+  def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit
+
+  /** Gets the maximum distance for a rope joint. */
+  def ropeJointGetMaxDistance(world: Long, joint: Long): Float
+
   // ─── Body mass/inertia ────────────────────────────────────────────
 
   /** Gets the total mass of a rigid body. */
@@ -279,4 +338,15 @@ private[sge] trait PhysicsOps {
     * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at `maxEvents`).
     */
   def pollContactStopEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
+
+  // ─── Contact detail queries ───────────────────────────────────────
+
+  /** Returns the number of contact points between two colliders. */
+  def contactPairCount(world: Long, collider1: Long, collider2: Long): Int
+
+  /** Gets contact point details between two colliders.
+    *
+    * Fills `out` with [normalX, normalY, pointX, pointY, penetration] per point (5 floats each). Returns the actual number of points written (capped at `maxPoints`).
+    */
+  def contactPairPoints(world: Long, collider1: Long, collider2: Long, out: Array[Float], maxPoints: Int): Int
 }
