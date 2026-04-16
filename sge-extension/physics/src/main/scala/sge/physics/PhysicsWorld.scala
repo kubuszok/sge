@@ -126,13 +126,35 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       case JointDef.Fixed(b1, b2) =>
         val jh = ops.createFixedJoint(handle, b1.handle, b2.handle)
         new FixedJoint(this, jh)
+      case JointDef.Rope(b1, b2, maxDist) =>
+        val jh = ops.createRopeJoint(handle, b1.handle, b2.handle, maxDist)
+        new RopeJoint(this, jh)
+      case JointDef.Motor(b1, b2) =>
+        val jh = ops.createMotorJoint(handle, b1.handle, b2.handle)
+        new MotorJoint(this, jh)
+      case JointDef.Mouse(body, tx, ty) =>
+        // Create a hidden kinematic anchor body at the target position
+        val anchorHandle = ops.createKinematicBody(handle, tx, ty, 0f)
+        // Create a motor joint between the anchor and the dragged body
+        val jh = ops.createMotorJoint(handle, anchorHandle, body.handle)
+        // Configure the motor for responsive dragging
+        ops.motorJointSetMaxForce(handle, jh, 1000f)
+        ops.motorJointSetCorrectionFactor(handle, jh, 0.3f)
+        new MouseJoint(this, jh, anchorHandle)
     }
   }
 
-  /** Destroys a joint. */
+  /** Destroys a joint.
+    *
+    * For [[MouseJoint]], this also destroys the internal kinematic anchor body.
+    */
   def destroyJoint(joint: Joint): Unit = {
     checkNotClosed()
     ops.destroyJoint(handle, joint.handle)
+    joint match {
+      case mj: MouseJoint => ops.destroyBody(handle, mj.anchorHandle)
+      case _ => ()
+    }
   }
 
   /** Casts a ray and returns the first hit, or [[Nullable.empty]] if nothing was hit.
@@ -256,6 +278,31 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       builder.result()
     }
 
+  /** Gets contact details between two colliders.
+    *
+    * Returns an array of [[ContactPoint]] describing each contact manifold point, including the contact normal, world-space position, and penetration depth.
+    *
+    * @param collider1
+    *   the first collider
+    * @param collider2
+    *   the second collider
+    * @return
+    *   an array of contact points (empty if no contact)
+    */
+  def getContactPoints(collider1: Collider, collider2: Collider): Array[ContactPoint] = {
+    checkNotClosed()
+    val count = ops.contactPairCount(handle, collider1.handle, collider2.handle)
+    if (count == 0) Array.empty
+    else {
+      val buf    = new Array[Float](count * 5)
+      val actual = ops.contactPairPoints(handle, collider1.handle, collider2.handle, buf, count)
+      Array.tabulate(actual) { i =>
+        val off = i * 5
+        ContactPoint(buf(off), buf(off + 1), buf(off + 2), buf(off + 3), buf(off + 4))
+      }
+    }
+  }
+
   /** Releases all native resources held by this world. */
   override def close(): Unit =
     if (!closed) {
@@ -263,3 +310,24 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       ops.destroyWorld(handle)
     }
 }
+
+/** A single contact point between two colliders.
+  *
+  * @param normalX
+  *   x component of the contact normal (pointing from collider1 toward collider2)
+  * @param normalY
+  *   y component of the contact normal
+  * @param pointX
+  *   world-space x coordinate of the contact point
+  * @param pointY
+  *   world-space y coordinate of the contact point
+  * @param penetration
+  *   the penetration depth (positive means overlapping)
+  */
+final case class ContactPoint(
+  normalX:     Float,
+  normalY:     Float,
+  pointX:      Float,
+  pointY:      Float,
+  penetration: Float
+)

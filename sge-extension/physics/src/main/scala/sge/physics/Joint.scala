@@ -50,6 +50,40 @@ object JointDef {
     *   the second body
     */
   final case class Fixed(body1: RigidBody, body2: RigidBody) extends JointDef
+
+  /** A rope joint that constrains two bodies to stay within a maximum distance.
+    *
+    * @param body1
+    *   the first body
+    * @param body2
+    *   the second body
+    * @param maxDistance
+    *   the maximum distance between the bodies' anchor points
+    */
+  final case class Rope(body1: RigidBody, body2: RigidBody, maxDistance: Float) extends JointDef
+
+  /** A motor joint that drives two bodies toward a target relative position and angle.
+    *
+    * @param body1
+    *   the first body
+    * @param body2
+    *   the second body
+    */
+  final case class Motor(body1: RigidBody, body2: RigidBody) extends JointDef
+
+  /** A mouse (drag) joint that pulls a body toward a world-space target position.
+    *
+    * Internally implemented using a kinematic anchor body and a motor joint. The anchor body is created at the target position and hidden from the game. Moving the target teleports the anchor body,
+    * and the motor joint applies forces to pull the dragged body toward it.
+    *
+    * @param body
+    *   the body to drag
+    * @param targetX
+    *   initial world-space x coordinate of the drag target
+    * @param targetY
+    *   initial world-space y coordinate of the drag target
+    */
+  final case class Mouse(body: RigidBody, targetX: Float, targetY: Float) extends JointDef
 }
 
 /** A handle to a joint constraint in the physics world.
@@ -158,3 +192,109 @@ class FixedJoint private[physics] (
   private[physics] val world:  PhysicsWorld,
   private[physics] val handle: Long
 ) extends Joint
+
+/** A rope joint that constrains two bodies to stay within a maximum distance.
+  *
+  * The distance constraint is one-sided: bodies can be closer than `maxDistance` but not farther.
+  */
+class RopeJoint private[physics] (
+  private[physics] val world:  PhysicsWorld,
+  private[physics] val handle: Long
+) extends Joint {
+
+  /** Gets the maximum distance for this rope joint. */
+  def maxDistance: Float =
+    world.ops.ropeJointGetMaxDistance(world.handle, handle)
+
+  /** Sets the maximum distance for this rope joint. */
+  def maxDistance_=(d: Float): Unit =
+    world.ops.ropeJointSetMaxDistance(world.handle, handle, d)
+}
+
+/** A motor joint that drives two bodies toward a target relative position and angle.
+  *
+  * The motor applies forces/torques to move body2 toward a target offset relative to body1. The correction factor controls how aggressively the motor corrects position errors.
+  */
+class MotorJoint private[physics] (
+  private[physics] val world:  PhysicsWorld,
+  private[physics] val handle: Long
+) extends Joint {
+
+  private val offsetBuf = new Array[Float](2)
+
+  /** Gets the linear offset target as (x, y). */
+  def linearOffset: (Float, Float) = {
+    world.ops.motorJointGetLinearOffset(world.handle, handle, offsetBuf)
+    (offsetBuf(0), offsetBuf(1))
+  }
+
+  /** Sets the linear offset target. */
+  def linearOffset_=(xy: (Float, Float)): Unit =
+    world.ops.motorJointSetLinearOffset(world.handle, handle, xy._1, xy._2)
+
+  /** Gets the angular offset target (radians). */
+  def angularOffset: Float =
+    world.ops.motorJointGetAngularOffset(world.handle, handle)
+
+  /** Sets the angular offset target (radians). */
+  def angularOffset_=(a: Float): Unit =
+    world.ops.motorJointSetAngularOffset(world.handle, handle, a)
+
+  /** Sets the maximum force the motor can apply. */
+  def maxForce_=(f: Float): Unit =
+    world.ops.motorJointSetMaxForce(world.handle, handle, f)
+
+  /** Sets the maximum torque the motor can apply. */
+  def maxTorque_=(t: Float): Unit =
+    world.ops.motorJointSetMaxTorque(world.handle, handle, t)
+
+  /** Sets the correction factor (0 = no correction, 1 = full correction per step). */
+  def correctionFactor_=(f: Float): Unit =
+    world.ops.motorJointSetCorrectionFactor(world.handle, handle, f)
+}
+
+/** A mouse (drag) joint that pulls a body toward a world-space target position.
+  *
+  * Internally implemented as a kinematic anchor body combined with a motor joint. The anchor body is created at the target position and is invisible to the game. Moving the target teleports the
+  * anchor body, and the motor joint pulls the dragged body toward it.
+  *
+  * Created via [[PhysicsWorld.createJoint]] with a [[JointDef.Mouse]] definition.
+  */
+class MouseJoint private[physics] (
+  private[physics] val world:        PhysicsWorld,
+  private[physics] val handle:       Long,
+  private[physics] val anchorHandle: Long
+) extends Joint {
+
+  private val posBuf = new Array[Float](2)
+
+  /** Gets the current target position as (x, y).
+    *
+    * Reads the position of the internal kinematic anchor body.
+    */
+  def target: (Float, Float) = {
+    world.ops.bodyGetPosition(world.handle, anchorHandle, posBuf)
+    (posBuf(0), posBuf(1))
+  }
+
+  /** Sets the target position, teleporting the internal anchor body.
+    *
+    * The dragged body will be pulled toward this position by the motor joint.
+    */
+  def target_=(pos: (Float, Float)): Unit =
+    world.ops.bodySetPosition(world.handle, anchorHandle, pos._1, pos._2)
+
+  /** Sets the maximum force the motor joint can apply to pull the body toward the target.
+    *
+    * Higher values make the joint stiffer and more responsive.
+    */
+  def maxForce_=(f: Float): Unit =
+    world.ops.motorJointSetMaxForce(world.handle, handle, f)
+
+  /** Sets the correction factor for the motor joint (0 = no correction, 1 = full correction per step).
+    *
+    * Controls how aggressively the dragged body tracks the target. Higher values make the body snap to the target faster but can cause instability.
+    */
+  def correctionFactor_=(f: Float): Unit =
+    world.ops.motorJointSetCorrectionFactor(world.handle, handle, f)
+}

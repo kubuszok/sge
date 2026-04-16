@@ -47,4 +47,26 @@ object Shape {
     *   flat array of [x0, y0, x1, y1, ...] vertex positions
     */
   final case class Polygon(vertices: Array[Float]) extends Shape
+
+  /** A line segment (edge) defined by two endpoints.
+    *
+    * @param x1
+    *   first endpoint x
+    * @param y1
+    *   first endpoint y
+    * @param x2
+    *   second endpoint x
+    * @param y2
+    *   second endpoint y
+    */
+  final case class Segment(x1: Float, y1: Float, x2: Float, y2: Float) extends Shape
+
+  /** A polyline (chain) shape defined by a sequence of connected vertices.
+    *
+    * Unlike [[Polygon]], a polyline is not closed and has no interior.
+    *
+    * @param vertices
+    *   flat array of [x0, y0, x1, y1, ...] vertex positions
+    */
+  final case class Polyline(vertices: Array[Float]) extends Shape
 }
