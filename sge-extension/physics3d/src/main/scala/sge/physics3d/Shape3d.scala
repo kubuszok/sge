@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: sealed trait + case classes for shape variants
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 97
+ * Covenant-baseline-methods: Box,Capsule,Cone,ConvexHull,Cylinder,Heightfield,Shape3d,Sphere,TriMesh
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

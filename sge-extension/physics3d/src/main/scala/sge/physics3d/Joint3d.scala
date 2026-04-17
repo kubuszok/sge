@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: sealed trait hierarchy for joint definitions and handles
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 147
+ * Covenant-baseline-methods: Fixed,FixedJoint3d,Joint3d,JointDef3d,Motor,MotorJoint3d,Prismatic,PrismaticJoint3d,Revolute,RevoluteJoint3d,Rope,RopeJoint3d,Spring,SpringJoint3d,angle,correctionFactor,correctionFactor_,enableLimits,enableMotor,handle,isLimitEnabled,limits,limitsBuf,linearOffset,linearOffset_,maxDistance,maxDistance_,maxForce,maxForce_,maxMotorForce,maxMotorForce_,maxMotorTorque,maxMotorTorque_,maxTorque,maxTorque_,motorSpeed,motorSpeed_,offsetBuf,restLength,restLength_,setLimits,setParams,translation,world
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

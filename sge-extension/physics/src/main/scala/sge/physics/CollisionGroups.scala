@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: value class for collision group bitmasks
  *   Audited: 2026-04-12
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 60
+ * Covenant-baseline-methods: All,CollisionGroups,None,mask,of,single
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics

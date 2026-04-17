@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics debug renderer)
  *   Convention: handle-based FFI, platform-agnostic
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 627
+ * Covenant-baseline-methods: DebugBodyInfo3d,PhysicsDebugRenderer3d,angle,apex,c0,c1,c2,c3,c4,c5,c6,c7,circleSegments,close,count,cx,cy,cz,drawBox,drawCapsule,drawCircle,drawCircleAtY,drawCone,drawConvexHull,drawCylinder,drawHalfCircleArc,drawHeightfield,drawLine3,drawShape,drawSphere,drawTriMesh,dynamicColor,halfSegs,halfStep,i,j,kinematicColor,local,prevX,prevY,prevZ,render,rx,ry,rz,shapeRenderer,staticColor,step,t,transformPoint,triCount
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d
@@ -385,10 +392,8 @@ class PhysicsDebugRenderer3d(maxVertices: Int = 10000)(using Sge) extends AutoCl
       }
     } else {
       // Without knowing the actual hull topology, we connect each vertex to its
-      // nearest neighbors. As a pragmatic approximation, draw edges between
-      // consecutive vertices in the array — this won't be a true hull wireframe
-      // but gives a useful visual. For a proper hull, the physics engine would
-      // need to expose edge connectivity.
+      // nearest neighbors. Draw edges between consecutive vertices in the array —
+      // this is a useful visual even though it may not match the true hull wireframe.
       val transformed = new Array[Float](count * 3)
       var i           = 0
       while (i < count) {

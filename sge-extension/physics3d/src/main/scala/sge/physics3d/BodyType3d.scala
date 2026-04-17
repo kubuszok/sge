@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: Scala 3 enum for body types
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 24
+ * Covenant-baseline-methods: BodyType3d
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

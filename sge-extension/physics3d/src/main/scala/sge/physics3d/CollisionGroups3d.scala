@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: value class for collision group bitmasks
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 31
+ * Covenant-baseline-methods: All,CollisionGroups3d,None,mask,single
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

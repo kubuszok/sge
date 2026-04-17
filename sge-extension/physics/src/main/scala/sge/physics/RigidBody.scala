@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: handle-based FFI, platform-agnostic trait
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 249
+ * Covenant-baseline-methods: RigidBody,angle,angle_,angularDamping,angularDamping_,angularVelocity,angularVelocity_,applyForce,applyForceAtPoint,applyImpulse,applyImpulseAtPoint,applyTorque,applyTorqueImpulse,attachCollider,bodyType,buf2,ch,dominanceGroup,dominanceGroup_,fixedRotation_,gravityScale,gravityScale_,handle,inertia,isAwake,isCcdEnabled,isCcdEnabled_,isEnabled,isEnabled_,isRotationLocked,isTranslationLockedX,isTranslationLockedY,linearDamping,linearDamping_,linearVelocity,linearVelocity_,localCenterOfMass,mass,ops,position,position_,recomputeMassProperties,resetForces,resetTorques,setEnabledTranslations,sleep,velocityAtPoint,wakeUp,wh,world,worldCenterOfMass
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics

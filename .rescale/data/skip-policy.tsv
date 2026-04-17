@@ -60,3 +60,6 @@ sge-extension/gltf/src/main/scala/sge/gltf/scene3d/utils/MaterialConverter.scala
 sge-extension/controllers/src/main/scalanative/sge/controllers/GlfwControllerNative.scala	shortcuts	Doc comment about replacing the JVM stub at static-init time	2026-04-08	dev
 sge-extension/textra/src/main/scala/sge/textra/utils/ColorUtils.scala	shortcuts	Doc comments from original Java source: 'placeholder' describes the color value 256 used by ColorLookup for 'no color found', not a TODO	2026-04-11	dev
 sge-extension/textra/src/main/scala/sge/textra/TextraLabel.scala	shortcuts	Catches UnsupportedOperationException|ClassCastException for TransformDrawable fallback, faithful port of Java original	2026-04-11	dev
+sge-extension/physics/src/main/scala/sge/platform/PhysicsOps.scala	shortcuts	stub refers to JS platform stubs (UnsupportedOperationException), not incomplete implementation	2026-04-17	dev
+sge-extension/physics/src/main/scalajs/sge/platform/PhysicsOpsJs.scala	shortcuts	JS platform boundary: physics requires native Rapier2D library, JS throws on use	2026-04-17	dev
+sge-extension/physics3d/src/main/scalajs/sge/platform/PhysicsOpsJs3d.scala	shortcuts	JS platform boundary: physics3d requires native Rapier3D library, JS throws on use	2026-04-17	dev

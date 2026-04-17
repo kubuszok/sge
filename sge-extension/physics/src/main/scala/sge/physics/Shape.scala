@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: handle-based FFI, platform-agnostic trait
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 96
+ * Covenant-baseline-methods: Box,Capsule,Circle,Heightfield,Polygon,Polyline,Segment,Shape,TriMesh
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics

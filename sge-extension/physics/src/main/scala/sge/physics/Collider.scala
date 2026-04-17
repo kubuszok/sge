@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: handle-based FFI, platform-agnostic trait
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 215
+ * Covenant-baseline-methods: Collider,aabb,activeCollisionTypes,activeCollisionTypes_,activeEvents,activeEvents_,activeHooks,activeHooks_,buf3,buf4,collisionGroups,collisionGroups_,contactForceEventThreshold,contactForceEventThreshold_,contactSkin_,density,density_,friction,friction_,groupsBuffer,handle,isEnabled,isEnabled_,isSensor,isSensor_,mass,mass_,oneWayBuf,oneWayDirection,parentBody,positionWrtParent,restitution,restitution_,setOneWayDirection,setPositionWrtParent,shapeType,solverGroups,solverGroups_,world,worldPosition
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics
