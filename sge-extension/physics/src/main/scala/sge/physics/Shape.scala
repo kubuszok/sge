@@ -69,4 +69,28 @@ object Shape {
     *   flat array of [x0, y0, x1, y1, ...] vertex positions
     */
   final case class Polyline(vertices: Array[Float]) extends Shape
+
+  /** A triangle mesh shape defined by vertices and triangle indices.
+    *
+    * Typically used for complex static terrain or level geometry.
+    *
+    * @param vertices
+    *   flat array of [x0, y0, x1, y1, ...] vertex positions
+    * @param indices
+    *   flat array of triangle indices [i0, i1, i2, ...] (must be a multiple of 3)
+    */
+  final case class TriMesh(vertices: Array[Float], indices: Array[Int]) extends Shape
+
+  /** A heightfield shape defined by a row of height values.
+    *
+    * The heightfield spans from `(-scaleX/2, 0)` to `(scaleX/2, max_height * scaleY)`.
+    *
+    * @param heights
+    *   array of height values (one per column)
+    * @param scaleX
+    *   horizontal scale of the heightfield
+    * @param scaleY
+    *   vertical scale of the heightfield
+    */
+  final case class Heightfield(heights: Array[Float], scaleX: Float, scaleY: Float) extends Shape
 }

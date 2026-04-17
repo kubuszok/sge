@@ -37,3 +37,45 @@ final case class RayCastHit(
   bodyHandle:     Long,
   colliderHandle: Long
 )
+
+/** Result of a shape cast (sweep) query against the physics world.
+  *
+  * @param hitX
+  *   world-space x coordinate of the hit point
+  * @param hitY
+  *   world-space y coordinate of the hit point
+  * @param normalX
+  *   x component of the surface normal at the hit point
+  * @param normalY
+  *   y component of the surface normal at the hit point
+  * @param timeOfImpact
+  *   the parametric distance along the sweep direction
+  * @param colliderHandle
+  *   the native handle of the collider that was hit
+  */
+final case class ShapeCastHit(
+  hitX:           Float,
+  hitY:           Float,
+  normalX:        Float,
+  normalY:        Float,
+  timeOfImpact:   Float,
+  colliderHandle: Long
+)
+
+/** Result of projecting a point onto the nearest collider surface.
+  *
+  * @param projX
+  *   x coordinate of the projected point on the surface
+  * @param projY
+  *   y coordinate of the projected point on the surface
+  * @param isInside
+  *   true if the query point is inside the collider
+  * @param colliderHandle
+  *   the native handle of the nearest collider
+  */
+final case class PointProjection(
+  projX:          Float,
+  projY:          Float,
+  isInside:       Boolean,
+  colliderHandle: Long
+)

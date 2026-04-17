@@ -141,6 +141,9 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
         ops.motorJointSetMaxForce(handle, jh, 1000f)
         ops.motorJointSetCorrectionFactor(handle, jh, 0.3f)
         new MouseJoint(this, jh, anchorHandle)
+      case JointDef.Spring(b1, b2, restLength, stiffness, damping) =>
+        val jh = ops.createSpringJoint(handle, b1.handle, b2.handle, restLength, stiffness, damping)
+        new SpringJoint(this, jh)
     }
   }
 
@@ -278,6 +281,178 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       builder.result()
     }
 
+  // ─── Advanced queries ──────────────────────────────────────────────────
+
+  /** Scratch buffer for shape cast / point projection results. */
+  private val shapeCastBuf = new Array[Float](7)
+  private val projectBuf   = new Array[Float](5)
+
+  /** Casts a shape and returns the first hit, or [[Nullable.empty]] if nothing was hit.
+    *
+    * @param shape
+    *   the shape to cast (Circle, Box, or Capsule)
+    * @param originX
+    *   sweep origin x
+    * @param originY
+    *   sweep origin y
+    * @param dirX
+    *   sweep direction x
+    * @param dirY
+    *   sweep direction y
+    * @param maxDist
+    *   maximum sweep distance
+    * @return
+    *   the [[ShapeCastHit]] or empty
+    */
+  def castShape(
+    shape:   Shape,
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    maxDist: Float
+  ): Nullable[ShapeCastHit] = {
+    checkNotClosed()
+    val shapeAndParams: Option[(Int, Array[Float])] = shape match {
+      case Shape.Circle(r)      => Some((0, Array(r, 0f)))
+      case Shape.Box(hw, hh)    => Some((1, Array(hw, hh)))
+      case Shape.Capsule(hh, r) => Some((2, Array(hh, r)))
+      case _                    => None // only circle/box/capsule supported for sweep
+    }
+    shapeAndParams match {
+      case None                      => Nullable.empty
+      case Some((shapeType, params)) =>
+        if (ops.castShape(handle, shapeType, params, originX, originY, dirX, dirY, maxDist, shapeCastBuf)) {
+          Nullable(
+            ShapeCastHit(
+              hitX = shapeCastBuf(0),
+              hitY = shapeCastBuf(1),
+              normalX = shapeCastBuf(2),
+              normalY = shapeCastBuf(3),
+              timeOfImpact = shapeCastBuf(4),
+              colliderHandle = (java.lang.Float.floatToRawIntBits(shapeCastBuf(5)).toLong & 0xffffffffL) |
+                ((java.lang.Float.floatToRawIntBits(shapeCastBuf(6)).toLong & 0xffffffffL) << 32)
+            )
+          )
+        } else {
+          Nullable.empty
+        }
+    }
+  }
+
+  /** Casts a ray and returns ALL hits (up to `maxHits`).
+    *
+    * @return
+    *   a sequence of [[RayCastHit]] results
+    */
+  def rayCastAll(
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    maxDist: Float,
+    maxHits: Int = 64
+  ): scala.collection.immutable.Seq[RayCastHit] = {
+    checkNotClosed()
+    val buf   = new Array[Float](maxHits * 7)
+    val count = ops.rayCastAll(handle, originX, originY, dirX, dirY, maxDist, buf, maxHits)
+    if (count == 0) {
+      scala.collection.immutable.Seq.empty
+    } else {
+      val builder = scala.collection.immutable.Seq.newBuilder[RayCastHit]
+      var i       = 0
+      while (i < count) {
+        val off = i * 7
+        builder += RayCastHit(
+          hitX = buf(off),
+          hitY = buf(off + 1),
+          normalX = buf(off + 2),
+          normalY = buf(off + 3),
+          timeOfImpact = buf(off + 4),
+          bodyHandle = 0L, // ray_cast_all returns collider handle, not body
+          colliderHandle = (java.lang.Float.floatToRawIntBits(buf(off + 5)).toLong & 0xffffffffL) |
+            ((java.lang.Float.floatToRawIntBits(buf(off + 6)).toLong & 0xffffffffL) << 32)
+        )
+        i += 1
+      }
+      builder.result()
+    }
+  }
+
+  /** Projects a point onto the nearest collider surface.
+    *
+    * @return
+    *   the [[PointProjection]] or empty if no colliders exist
+    */
+  def projectPoint(x: Float, y: Float): Nullable[PointProjection] = {
+    checkNotClosed()
+    if (ops.projectPoint(handle, x, y, projectBuf)) {
+      Nullable(
+        PointProjection(
+          projX = projectBuf(0),
+          projY = projectBuf(1),
+          isInside = projectBuf(2) != 0f,
+          colliderHandle = (java.lang.Float.floatToRawIntBits(projectBuf(3)).toLong & 0xffffffffL) |
+            ((java.lang.Float.floatToRawIntBits(projectBuf(4)).toLong & 0xffffffffL) << 32)
+        )
+      )
+    } else {
+      Nullable.empty
+    }
+  }
+
+  // ─── Intersection events (sensor overlaps) ────────────────────────────
+
+  /** Polls intersection-start events (sensor overlaps) that occurred during the last step.
+    *
+    * @return
+    *   a sequence of (collider1Handle, collider2Handle) pairs
+    */
+  def pollIntersectionStartEvents(): scala.collection.immutable.Seq[(Long, Long)] = {
+    checkNotClosed()
+    val count = ops.pollIntersectionStartEvents(handle, eventBuf1, eventBuf2, MaxEvents)
+    buildEventPairs(count)
+  }
+
+  /** Polls intersection-stop events (sensor separation) that occurred during the last step.
+    *
+    * @return
+    *   a sequence of (collider1Handle, collider2Handle) pairs
+    */
+  def pollIntersectionStopEvents(): scala.collection.immutable.Seq[(Long, Long)] = {
+    checkNotClosed()
+    val count = ops.pollIntersectionStopEvents(handle, eventBuf1, eventBuf2, MaxEvents)
+    buildEventPairs(count)
+  }
+
+  // ─── Solver parameters ────────────────────────────────────────────────
+
+  /** Gets the number of solver iterations. */
+  def numSolverIterations: Int = {
+    checkNotClosed()
+    ops.worldGetNumSolverIterations(handle)
+  }
+
+  /** Sets the number of solver iterations. More iterations = more accuracy but slower. */
+  def numSolverIterations_=(iters: Int): Unit = {
+    checkNotClosed()
+    ops.worldSetNumSolverIterations(handle, iters)
+  }
+
+  /** Sets the number of additional friction iterations. */
+  def setNumAdditionalFrictionIterations(iters: Int): Unit = {
+    checkNotClosed()
+    ops.worldSetNumAdditionalFrictionIterations(handle, iters)
+  }
+
+  /** Sets the number of internal PGS iterations. */
+  def setNumInternalPgsIterations(iters: Int): Unit = {
+    checkNotClosed()
+    ops.worldSetNumInternalPgsIterations(handle, iters)
+  }
+
+  // ─── Contact details ──────────────────────────────────────────────────
+
   /** Gets contact details between two colliders.
     *
     * Returns an array of [[ContactPoint]] describing each contact manifold point, including the contact normal, world-space position, and penetration depth.
@@ -299,6 +474,52 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
       Array.tabulate(actual) { i =>
         val off = i * 5
         ContactPoint(buf(off), buf(off + 1), buf(off + 2), buf(off + 3), buf(off + 4))
+      }
+    }
+  }
+
+  // ─── Shape intersection ────────────────────────────────────────────────
+
+  /** Tests if a shape at a given position overlaps any collider.
+    *
+    * @param shape
+    *   the shape to test (Circle, Box, or Capsule)
+    * @param posX
+    *   x position of the shape
+    * @param posY
+    *   y position of the shape
+    * @param angle
+    *   rotation angle of the shape in radians
+    * @return
+    *   a sequence of collider handles that overlap
+    */
+  def intersectShape(
+    shape: Shape,
+    posX:  Float,
+    posY:  Float,
+    angle: Float = 0f
+  ): scala.collection.immutable.Seq[Long] = {
+    checkNotClosed()
+    val (shapeType, params) = shape match {
+      case Shape.Circle(r)      => (0, Array(r, 0f))
+      case Shape.Box(hw, hh)    => (1, Array(hw, hh))
+      case Shape.Capsule(hh, r) => (2, Array(hh, r))
+      case _                    => (-1, Array(0f, 0f)) // unsupported
+    }
+    if (shapeType < 0) {
+      scala.collection.immutable.Seq.empty
+    } else {
+      val count = ops.intersectShape(handle, shapeType, params, posX, posY, angle, aabbBuf, aabbBuf.length.min(256))
+      if (count == 0) {
+        scala.collection.immutable.Seq.empty
+      } else {
+        val builder = scala.collection.immutable.Seq.newBuilder[Long]
+        var i       = 0
+        while (i < count) {
+          builder += aabbBuf(i)
+          i += 1
+        }
+        builder.result()
       }
     }
   }

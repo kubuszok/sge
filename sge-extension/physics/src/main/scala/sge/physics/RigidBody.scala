@@ -64,21 +64,53 @@ class RigidBody private[physics] (
   def applyForce(fx: Float, fy: Float): Unit =
     world.ops.bodyApplyForce(world.handle, handle, fx, fy)
 
+  /** Applies a force at a specific world-space point (generates torque if off-center). */
+  def applyForceAtPoint(fx: Float, fy: Float, px: Float, py: Float): Unit =
+    world.ops.bodyApplyForceAtPoint(world.handle, handle, fx, fy, px, py)
+
   /** Applies an impulse at the center of mass (instantaneous velocity change). */
   def applyImpulse(ix: Float, iy: Float): Unit =
     world.ops.bodyApplyImpulse(world.handle, handle, ix, iy)
+
+  /** Applies an impulse at a specific world-space point (generates angular impulse if off-center). */
+  def applyImpulseAtPoint(ix: Float, iy: Float, px: Float, py: Float): Unit =
+    world.ops.bodyApplyImpulseAtPoint(world.handle, handle, ix, iy, px, py)
 
   /** Applies a torque (takes effect on next step). */
   def applyTorque(torque: Float): Unit =
     world.ops.bodyApplyTorque(world.handle, handle, torque)
 
+  /** Applies an angular impulse (instantaneous change to angular velocity). */
+  def applyTorqueImpulse(impulse: Float): Unit =
+    world.ops.bodyApplyTorqueImpulse(world.handle, handle, impulse)
+
+  /** Resets all accumulated forces on this body. */
+  def resetForces(): Unit =
+    world.ops.bodyResetForces(world.handle, handle)
+
+  /** Resets all accumulated torques on this body. */
+  def resetTorques(): Unit =
+    world.ops.bodyResetTorques(world.handle, handle)
+
+  /** Gets the linear damping coefficient. */
+  def linearDamping: Float =
+    world.ops.bodyGetLinearDamping(world.handle, handle)
+
   /** Sets linear damping (velocity decay per second, 0 = no damping). */
   def linearDamping_=(d: Float): Unit =
     world.ops.bodySetLinearDamping(world.handle, handle, d)
 
+  /** Gets the angular damping coefficient. */
+  def angularDamping: Float =
+    world.ops.bodyGetAngularDamping(world.handle, handle)
+
   /** Sets angular damping (angular velocity decay per second, 0 = no damping). */
   def angularDamping_=(d: Float): Unit =
     world.ops.bodySetAngularDamping(world.handle, handle, d)
+
+  /** Gets the gravity scale for this body. */
+  def gravityScale: Float =
+    world.ops.bodyGetGravityScale(world.handle, handle)
 
   /** Sets the gravity scale for this body (1.0 = normal, 0.0 = no gravity). */
   def gravityScale_=(s: Float): Unit =
@@ -95,6 +127,68 @@ class RigidBody private[physics] (
   /** Wakes up the body so it participates in simulation. */
   def wakeUp(): Unit =
     world.ops.bodyWakeUp(world.handle, handle)
+
+  /** Forces the body to sleep (stop simulating until woken by contact or explicit wake). */
+  def sleep(): Unit =
+    world.ops.bodySleep(world.handle, handle)
+
+  /** Returns true if this body is enabled (participating in simulation). */
+  def isEnabled: Boolean =
+    world.ops.bodyIsEnabled(world.handle, handle)
+
+  /** Enables or disables this body. Disabled bodies are removed from simulation. */
+  def isEnabled_=(enabled: Boolean): Unit =
+    world.ops.bodySetEnabled(world.handle, handle, enabled)
+
+  /** Sets which translation axes are enabled for this body. */
+  def setEnabledTranslations(allowX: Boolean, allowY: Boolean): Unit =
+    world.ops.bodySetEnabledTranslations(world.handle, handle, allowX, allowY)
+
+  /** Returns true if translation along the X axis is locked. */
+  def isTranslationLockedX: Boolean =
+    world.ops.bodyIsTranslationLockedX(world.handle, handle)
+
+  /** Returns true if translation along the Y axis is locked. */
+  def isTranslationLockedY: Boolean =
+    world.ops.bodyIsTranslationLockedY(world.handle, handle)
+
+  /** Returns true if rotation is locked. */
+  def isRotationLocked: Boolean =
+    world.ops.bodyIsRotationLocked(world.handle, handle)
+
+  /** Gets the dominance group (-127 to 127). Higher dominance bodies push lower ones. */
+  def dominanceGroup: Int =
+    world.ops.bodyGetDominanceGroup(world.handle, handle)
+
+  /** Sets the dominance group (-127 to 127). */
+  def dominanceGroup_=(group: Int): Unit =
+    world.ops.bodySetDominanceGroup(world.handle, handle, group)
+
+  /** Gets the world-space center of mass as (x, y). */
+  def worldCenterOfMass: (Float, Float) = {
+    world.ops.bodyGetWorldCenterOfMass(world.handle, handle, buf2)
+    (buf2(0), buf2(1))
+  }
+
+  /** Returns true if continuous collision detection is enabled for this body. */
+  def isCcdEnabled: Boolean =
+    world.ops.bodyIsCcdEnabled(world.handle, handle)
+
+  /** Enables or disables continuous collision detection for this body.
+    *
+    * CCD prevents fast-moving bodies from tunneling through thin objects.
+    */
+  def isCcdEnabled_=(enable: Boolean): Unit =
+    world.ops.bodyEnableCcd(world.handle, handle, enable)
+
+  /** Gets the velocity at a world-space point on the body as (vx, vy).
+    *
+    * Useful for computing the velocity of a specific point on a rotating body.
+    */
+  def velocityAtPoint(px: Float, py: Float): (Float, Float) = {
+    world.ops.bodyGetVelocityAtPoint(world.handle, handle, px, py, buf2)
+    (buf2(0), buf2(1))
+  }
 
   // ─── Mass properties ──────────────────────────────────────────────────
 
@@ -138,12 +232,14 @@ class RigidBody private[physics] (
     val ops = world.ops
     val wh  = world.handle
     val ch  = shape match {
-      case Shape.Circle(radius)              => ops.createCircleCollider(wh, handle, radius)
-      case Shape.Box(halfWidth, halfHeight)  => ops.createBoxCollider(wh, handle, halfWidth, halfHeight)
-      case Shape.Capsule(halfHeight, radius) => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
-      case Shape.Polygon(vertices)           => ops.createPolygonCollider(wh, handle, vertices, vertices.length / 2)
-      case Shape.Segment(x1, y1, x2, y2)     => ops.createSegmentCollider(wh, handle, x1, y1, x2, y2)
-      case Shape.Polyline(vertices)          => ops.createPolylineCollider(wh, handle, vertices, vertices.length / 2)
+      case Shape.Circle(radius)               => ops.createCircleCollider(wh, handle, radius)
+      case Shape.Box(halfWidth, halfHeight)   => ops.createBoxCollider(wh, handle, halfWidth, halfHeight)
+      case Shape.Capsule(halfHeight, radius)  => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
+      case Shape.Polygon(vertices)            => ops.createPolygonCollider(wh, handle, vertices, vertices.length / 2)
+      case Shape.Segment(x1, y1, x2, y2)      => ops.createSegmentCollider(wh, handle, x1, y1, x2, y2)
+      case Shape.Polyline(vertices)           => ops.createPolylineCollider(wh, handle, vertices, vertices.length / 2)
+      case Shape.TriMesh(vertices, indices)   => ops.createTriMeshCollider(wh, handle, vertices, vertices.length / 2, indices, indices.length)
+      case Shape.Heightfield(heights, sx, sy) => ops.createHeightfieldCollider(wh, handle, heights, heights.length, sx, sy)
     }
     ops.colliderSetDensity(wh, ch, density)
     ops.colliderSetFriction(wh, ch, friction)

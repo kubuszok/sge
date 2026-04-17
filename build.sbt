@@ -86,7 +86,7 @@ val versions = new {
   val munitScalacheck = "1.2.0"
 
   // Native component providers (from sge-native-providers repo)
-  val nativeComponents = "dee4d8232985ca2d680c9bf069c1a3c31bd20c1d-SNAPSHOT"
+  val nativeComponents = "e7fdb8e03ee08b13cf691f25ca0448e795e51d6d-SNAPSHOT"
   val curlProvider     = "ce606f7fced8d5fcaa9043d416f872c842a26a8c-SNAPSHOT"
 }
 
@@ -492,6 +492,72 @@ val `sge-physics` = (projectMatrix in file("sge-extension/physics"))
       _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
       resolvers += mavenCentralSnapshots,
       libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics" % versions.nativeComponents
+    )
+  )
+
+val `sge-physics3d` = (projectMatrix in file("sge-extension/physics3d"))
+  .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaABIVersion(versions.scala))
+  .settings(SgePlugin.commonSettings *)
+  .settings(publishSettings *)
+  .settings(
+    name := "sge-extension-physics3d",
+    organization := "com.kubuszok",
+    libraryDependencies ++= Seq(
+      "org.scalameta" %%% "munit" % versions.munit % Test
+    ),
+    testFrameworks += new TestFramework("munit.Framework")
+  )
+  .dependsOn(sge)
+  .jvmPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jvmSettings(projectDir = "sge-extension/physics3d") ++ Seq(
+      resolvers += mavenCentralSnapshots,
+      libraryDependencies += "com.kubuszok" % "pnm-provider-sge-physics3d-desktop" % versions.nativeComponents,
+      Compile / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      },
+      Test / unmanagedClasspath ++= {
+        val apiDirs = (`sge-jvm-platform-api` / Compile / products).value
+        val jdkDirs = (`sge-jvm-platform-jdk` / Compile / products).value
+        (apiDirs ++ jdkDirs).map(Attributed.blank)
+      },
+      // Bundle sge_physics3d shared libs into the extension JAR
+      Compile / packageBin / mappings ++= {
+        val crossDir   = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "cross"
+        val releaseDir = (ThisBuild / baseDirectory).value / "sge-deps" / "native-components" / "target" / "release"
+        val sharedLibExts = Set(".so", ".dylib", ".dll")
+        def isPhysics3dLib(name: String) = sharedLibExts.exists(name.endsWith) && name.contains("sge_physics3d")
+        val crossMappings = Platform.desktop.flatMap { platform =>
+          val dir = crossDir / platform.classifier
+          if (dir.exists()) IO.listFiles(dir).filter(f => f.isFile && isPhysics3dLib(f.getName))
+            .map(f => f -> s"native/${platform.classifier}/${f.getName}")
+            .toSeq
+          else Seq.empty
+        }
+        val hostMappings =
+          if (crossMappings.nonEmpty) Seq.empty
+          else if (releaseDir.exists()) {
+            val host = Platform.host
+            IO.listFiles(releaseDir).filter(f => f.isFile && isPhysics3dLib(f.getName))
+              .map(f => f -> s"native/${host.classifier}/${f.getName}")
+              .toSeq
+          } else Seq.empty
+        crossMappings ++ hostMappings
+      }
+    )
+  )
+  .jsPlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.jsSettings
+  )
+  .nativePlatform(
+    scalaVersions = Seq(versions.scala),
+    settings = SgePlugin.nativeSettings(projectDir = "sge-extension/physics3d") ++
+      _root_.multiarch.sbt.NativeProviderPlugin.projectSettings ++ Seq(
+      resolvers += mavenCentralSnapshots,
+      libraryDependencies += "com.kubuszok" % "sn-provider-sge-physics3d" % versions.nativeComponents
     )
   )
 
@@ -1056,6 +1122,7 @@ lazy val root = (project in file("."))
   .aggregate(`sge-tools`)
   .aggregate(`sge-freetype`.projectRefs *)
   .aggregate(`sge-physics`.projectRefs *)
+  .aggregate(`sge-physics3d`.projectRefs *)
   .aggregate(`sge-ai`.projectRefs *)
   .aggregate(`sge-ecs`.projectRefs *)
   .aggregate(`sge-controllers`.projectRefs *)

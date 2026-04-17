@@ -124,6 +124,26 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     lookup("sge_phys_body_apply_torque"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
   )
+  private val hBodyApplyForceAtPoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_apply_force_at_point"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hBodyApplyImpulseAtPoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_apply_impulse_at_point"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hBodyApplyTorqueImpulse: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_apply_torque_impulse"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hBodyResetForces: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_reset_forces"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyResetTorques: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_reset_torques"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
+  )
 
   // Body properties
   private val hBodySetLinearDamping: MethodHandle = linker.downcallHandle(
@@ -149,6 +169,74 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hBodySetFixedRotation: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_body_set_fixed_rotation"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hBodyGetLinearDamping: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_linear_damping"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetAngularDamping: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_angular_damping"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetGravityScale: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_gravity_scale"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetType: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_type"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodySetEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_set_enabled"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hBodyIsEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_is_enabled"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodySetEnabledTranslations: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_set_enabled_translations"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT, p.JAVA_INT)
+  )
+  private val hBodyIsTranslationLockedX: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_is_translation_locked_x"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyIsTranslationLockedY: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_is_translation_locked_y"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyIsRotationLocked: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_is_rotation_locked"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodySetDominanceGroup: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_set_dominance_group"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hBodyGetDominanceGroup: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_dominance_group"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetWorldCenterOfMass: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_world_center_of_mass"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hBodyEnableCcd: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_enable_ccd"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hBodyIsCcdEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_is_ccd_enabled"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodySleep: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_sleep"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hBodyGetVelocityAtPoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_body_get_velocity_at_point"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS)
   )
 
   // Collider creation
@@ -176,6 +264,14 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     lookup("sge_phys_create_polyline_collider"),
     p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT)
   )
+  private val hCreateTriMeshCollider: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_trimesh_collider"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT, p.ADDRESS, p.JAVA_INT)
+  )
+  private val hCreateHeightfieldCollider: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_heightfield_collider"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS, p.JAVA_INT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
   private val hDestroyCollider: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_destroy_collider"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG)
@@ -197,6 +293,82 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hColliderSetSensor: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_collider_set_sensor"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hColliderGetDensity: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_density"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderGetFriction: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_friction"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderGetRestitution: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_restitution"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderIsSensor: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_is_sensor"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderSetEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_enabled"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hColliderIsEnabled: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_is_enabled"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderGetPositionWrtParent: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_position_wrt_parent"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hColliderSetPositionWrtParent: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_position_wrt_parent"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hColliderGetPosition: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_position"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hColliderGetShapeType: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_shape_type"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderGetAabb: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_aabb"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+  private val hColliderGetParentBody: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_parent_body"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderGetMass: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_mass"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderSetMass: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_mass"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hColliderSetContactSkin: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_contact_skin"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hColliderSetActiveEvents: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_active_events"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hColliderGetActiveEvents: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_active_events"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderSetActiveCollisionTypes: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_active_collision_types"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hColliderGetActiveCollisionTypes: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_active_collision_types"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
   )
 
   // Collision filtering
@@ -276,6 +448,10 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     lookup("sge_phys_revolute_joint_get_angle"),
     p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
   )
+  private val hRevoluteJointGetMaxMotorTorque: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_revolute_joint_get_max_motor_torque"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
 
   // Prismatic joint limits/motors
   private val hPrismaticJointEnableLimits: MethodHandle = linker.downcallHandle(
@@ -304,6 +480,14 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   )
   private val hPrismaticJointGetTranslation: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_prismatic_joint_get_translation"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hPrismaticJointGetMotorSpeed: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_get_motor_speed"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hPrismaticJointGetMaxMotorForce: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_prismatic_joint_get_max_motor_force"),
     p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
   )
 
@@ -340,6 +524,18 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     lookup("sge_phys_motor_joint_set_correction_factor"),
     p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
   )
+  private val hMotorJointGetMaxForce: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_get_max_force"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hMotorJointGetMaxTorque: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_get_max_torque"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hMotorJointGetCorrectionFactor: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_motor_joint_get_correction_factor"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
 
   // Rope joint
   private val hRopeJointSetMaxDistance: MethodHandle = linker.downcallHandle(
@@ -349,6 +545,24 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hRopeJointGetMaxDistance: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_rope_joint_get_max_distance"),
     p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+
+  // Spring joint
+  private val hCreateSpringJoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_create_spring_joint"),
+    p.FunctionDescriptor.of(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hSpringJointSetRestLength: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_spring_joint_set_rest_length"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hSpringJointGetRestLength: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_spring_joint_get_rest_length"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hSpringJointSetParams: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_spring_joint_set_params"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT)
   )
 
   // Body mass/inertia
@@ -383,6 +597,31 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
   )
 
+  // Advanced queries
+  private val hCastShape: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_cast_shape"),
+    p.FunctionDescriptor.of(
+      p.JAVA_INT,
+      p.JAVA_LONG,
+      p.JAVA_INT,
+      p.ADDRESS,
+      p.JAVA_FLOAT,
+      p.JAVA_FLOAT,
+      p.JAVA_FLOAT,
+      p.JAVA_FLOAT,
+      p.JAVA_FLOAT,
+      p.ADDRESS
+    )
+  )
+  private val hRayCastAll: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_ray_cast_all"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
+  )
+  private val hProjectPoint: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_project_point"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS)
+  )
+
   // Contact detail queries
   private val hContactPairCount: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_contact_pair_count"),
@@ -401,6 +640,40 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   private val hPollContactStopEvents: MethodHandle = linker.downcallHandle(
     lookup("sge_phys_poll_contact_stop_events"),
     p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.ADDRESS, p.ADDRESS, p.JAVA_INT)
+  )
+
+  // Intersection events
+  private val hPollIntersectionStartEvents: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_poll_intersection_start_events"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.ADDRESS, p.ADDRESS, p.JAVA_INT)
+  )
+  private val hPollIntersectionStopEvents: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_poll_intersection_stop_events"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.ADDRESS, p.ADDRESS, p.JAVA_INT)
+  )
+
+  // Solver parameters
+  private val hWorldSetNumSolverIterations: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_world_set_num_solver_iterations"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hWorldGetNumSolverIterations: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_world_get_num_solver_iterations"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG)
+  )
+  private val hWorldSetNumAdditionalFrictionIterations: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_world_set_num_additional_friction_iterations"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hWorldSetNumInternalPgsIterations: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_world_set_num_internal_pgs_iterations"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_INT)
+  )
+
+  // Shape intersection
+  private val hIntersectShape: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_intersect_shape"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_INT, p.ADDRESS, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
   )
 
   // ─── World lifecycle ──────────────────────────────────────────────────
@@ -485,6 +758,21 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   override def bodyApplyTorque(world: Long, body: Long, torque: Float): Unit =
     hBodyApplyTorque.invoke(world, body, torque)
 
+  override def bodyApplyForceAtPoint(world: Long, body: Long, fx: Float, fy: Float, px: Float, py: Float): Unit =
+    hBodyApplyForceAtPoint.invoke(world, body, fx, fy, px, py)
+
+  override def bodyApplyImpulseAtPoint(world: Long, body: Long, ix: Float, iy: Float, px: Float, py: Float): Unit =
+    hBodyApplyImpulseAtPoint.invoke(world, body, ix, iy, px, py)
+
+  override def bodyApplyTorqueImpulse(world: Long, body: Long, impulse: Float): Unit =
+    hBodyApplyTorqueImpulse.invoke(world, body, impulse)
+
+  override def bodyResetForces(world: Long, body: Long): Unit =
+    hBodyResetForces.invoke(world, body)
+
+  override def bodyResetTorques(world: Long, body: Long): Unit =
+    hBodyResetTorques.invoke(world, body)
+
   override def bodySetLinearDamping(world: Long, body: Long, damping: Float): Unit =
     hBodySetLinearDamping.invoke(world, body, damping)
 
@@ -504,6 +792,79 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def bodySetFixedRotation(world: Long, body: Long, fixed: Boolean): Unit =
     hBodySetFixedRotation.invoke(world, body, if (fixed) 1 else 0)
+
+  override def bodyGetLinearDamping(world: Long, body: Long): Float =
+    hBodyGetLinearDamping.invoke(world, body).asInstanceOf[Float]
+
+  override def bodyGetAngularDamping(world: Long, body: Long): Float =
+    hBodyGetAngularDamping.invoke(world, body).asInstanceOf[Float]
+
+  override def bodyGetGravityScale(world: Long, body: Long): Float =
+    hBodyGetGravityScale.invoke(world, body).asInstanceOf[Float]
+
+  override def bodyGetType(world: Long, body: Long): Int =
+    hBodyGetType.invoke(world, body).asInstanceOf[Int]
+
+  override def bodySetEnabled(world: Long, body: Long, enabled: Boolean): Unit =
+    hBodySetEnabled.invoke(world, body, if (enabled) 1 else 0)
+
+  override def bodyIsEnabled(world: Long, body: Long): Boolean = {
+    val result = hBodyIsEnabled.invoke(world, body).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def bodySetEnabledTranslations(world: Long, body: Long, allowX: Boolean, allowY: Boolean): Unit =
+    hBodySetEnabledTranslations.invoke(world, body, if (allowX) 1 else 0, if (allowY) 1 else 0)
+
+  override def bodyIsTranslationLockedX(world: Long, body: Long): Boolean = {
+    val result = hBodyIsTranslationLockedX.invoke(world, body).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def bodyIsTranslationLockedY(world: Long, body: Long): Boolean = {
+    val result = hBodyIsTranslationLockedY.invoke(world, body).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def bodyIsRotationLocked(world: Long, body: Long): Boolean = {
+    val result = hBodyIsRotationLocked.invoke(world, body).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def bodySetDominanceGroup(world: Long, body: Long, group: Int): Unit =
+    hBodySetDominanceGroup.invoke(world, body, group)
+
+  override def bodyGetDominanceGroup(world: Long, body: Long): Int =
+    hBodyGetDominanceGroup.invoke(world, body).asInstanceOf[Int]
+
+  override def bodyGetWorldCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hBodyGetWorldCenterOfMass.invoke(world, body, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
+
+  override def bodyEnableCcd(world: Long, body: Long, enable: Boolean): Unit =
+    hBodyEnableCcd.invoke(world, body, if (enable) 1 else 0)
+
+  override def bodyIsCcdEnabled(world: Long, body: Long): Boolean = {
+    val result = hBodyIsCcdEnabled.invoke(world, body).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def bodySleep(world: Long, body: Long): Unit =
+    hBodySleep.invoke(world, body)
+
+  override def bodyGetVelocityAtPoint(world: Long, body: Long, px: Float, py: Float, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 2L)
+      hBodyGetVelocityAtPoint.invoke(world, body, px, py, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 2)
+    } finally arena.arenaClose()
+  }
 
   // ─── Collider ─────────────────────────────────────────────────────────
 
@@ -537,6 +898,44 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     } finally arena.arenaClose()
   }
 
+  override def createTriMeshCollider(
+    world:       Long,
+    body:        Long,
+    vertices:    Array[Float],
+    vertexCount: Int,
+    indices:     Array[Int],
+    indexCount:  Int
+  ): Long = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val vertSeg = arena.allocateElems(p.JAVA_FLOAT, vertices.length.toLong)
+      p.MemorySegment.copyFromFloats(vertices, 0, vertSeg, 0L, vertices.length)
+      val idxSeg = arena.allocateElems(p.JAVA_INT, indices.length.toLong)
+      var i      = 0
+      while (i < indices.length) {
+        idxSeg.setInt(i.toLong * 4L, indices(i))
+        i += 1
+      }
+      hCreateTriMeshCollider.invoke(world, body, vertSeg, vertexCount, idxSeg, indexCount).asInstanceOf[Long]
+    } finally arena.arenaClose()
+  }
+
+  override def createHeightfieldCollider(
+    world:   Long,
+    body:    Long,
+    heights: Array[Float],
+    numCols: Int,
+    scaleX:  Float,
+    scaleY:  Float
+  ): Long = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, heights.length.toLong)
+      p.MemorySegment.copyFromFloats(heights, 0, seg, 0L, heights.length)
+      hCreateHeightfieldCollider.invoke(world, body, seg, numCols, scaleX, scaleY).asInstanceOf[Long]
+    } finally arena.arenaClose()
+  }
+
   override def destroyCollider(world: Long, collider: Long): Unit =
     hDestroyCollider.invoke(world, collider)
 
@@ -551,6 +950,85 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit =
     hColliderSetSensor.invoke(world, collider, if (sensor) 1 else 0)
+
+  override def colliderGetDensity(world: Long, collider: Long): Float =
+    hColliderGetDensity.invoke(world, collider).asInstanceOf[Float]
+
+  override def colliderGetFriction(world: Long, collider: Long): Float =
+    hColliderGetFriction.invoke(world, collider).asInstanceOf[Float]
+
+  override def colliderGetRestitution(world: Long, collider: Long): Float =
+    hColliderGetRestitution.invoke(world, collider).asInstanceOf[Float]
+
+  override def colliderIsSensor(world: Long, collider: Long): Boolean = {
+    val result = hColliderIsSensor.invoke(world, collider).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def colliderSetEnabled(world: Long, collider: Long, enabled: Boolean): Unit =
+    hColliderSetEnabled.invoke(world, collider, if (enabled) 1 else 0)
+
+  override def colliderIsEnabled(world: Long, collider: Long): Boolean = {
+    val result = hColliderIsEnabled.invoke(world, collider).asInstanceOf[Int]
+    result != 0
+  }
+
+  override def colliderGetPositionWrtParent(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 3L)
+      hColliderGetPositionWrtParent.invoke(world, collider, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 3)
+    } finally arena.arenaClose()
+  }
+
+  override def colliderSetPositionWrtParent(world: Long, collider: Long, x: Float, y: Float, angle: Float): Unit =
+    hColliderSetPositionWrtParent.invoke(world, collider, x, y, angle)
+
+  override def colliderGetPosition(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 3L)
+      hColliderGetPosition.invoke(world, collider, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 3)
+    } finally arena.arenaClose()
+  }
+
+  override def colliderGetShapeType(world: Long, collider: Long): Int =
+    hColliderGetShapeType.invoke(world, collider).asInstanceOf[Int]
+
+  override def colliderGetAabb(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg = arena.allocateElems(p.JAVA_FLOAT, 4L)
+      hColliderGetAabb.invoke(world, collider, seg)
+      p.MemorySegment.copyToFloats(seg, 0L, out, 0, 4)
+    } finally arena.arenaClose()
+  }
+
+  override def colliderGetParentBody(world: Long, collider: Long): Long =
+    hColliderGetParentBody.invoke(world, collider).asInstanceOf[Long]
+
+  override def colliderGetMass(world: Long, collider: Long): Float =
+    hColliderGetMass.invoke(world, collider).asInstanceOf[Float]
+
+  override def colliderSetMass(world: Long, collider: Long, mass: Float): Unit =
+    hColliderSetMass.invoke(world, collider, mass)
+
+  override def colliderSetContactSkin(world: Long, collider: Long, skin: Float): Unit =
+    hColliderSetContactSkin.invoke(world, collider, skin)
+
+  override def colliderSetActiveEvents(world: Long, collider: Long, flags: Int): Unit =
+    hColliderSetActiveEvents.invoke(world, collider, flags)
+
+  override def colliderGetActiveEvents(world: Long, collider: Long): Int =
+    hColliderGetActiveEvents.invoke(world, collider).asInstanceOf[Int]
+
+  override def colliderSetActiveCollisionTypes(world: Long, collider: Long, flags: Int): Unit =
+    hColliderSetActiveCollisionTypes.invoke(world, collider, flags)
+
+  override def colliderGetActiveCollisionTypes(world: Long, collider: Long): Int =
+    hColliderGetActiveCollisionTypes.invoke(world, collider).asInstanceOf[Int]
 
   // ─── Collision filtering ──────────────────────────────────────────────
 
@@ -634,6 +1112,9 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   override def revoluteJointGetAngle(world: Long, joint: Long): Float =
     hRevoluteJointGetAngle.invoke(world, joint).asInstanceOf[Float]
 
+  override def revoluteJointGetMaxMotorTorque(world: Long, joint: Long): Float =
+    hRevoluteJointGetMaxMotorTorque.invoke(world, joint).asInstanceOf[Float]
+
   // ─── Prismatic joint limits and motors ────────────────────────────────
 
   override def prismaticJointEnableLimits(world: Long, joint: Long, enable: Boolean): Unit =
@@ -662,6 +1143,12 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def prismaticJointGetTranslation(world: Long, joint: Long): Float =
     hPrismaticJointGetTranslation.invoke(world, joint).asInstanceOf[Float]
+
+  override def prismaticJointGetMotorSpeed(world: Long, joint: Long): Float =
+    hPrismaticJointGetMotorSpeed.invoke(world, joint).asInstanceOf[Float]
+
+  override def prismaticJointGetMaxMotorForce(world: Long, joint: Long): Float =
+    hPrismaticJointGetMaxMotorForce.invoke(world, joint).asInstanceOf[Float]
 
   // ─── Motor joint ───────────────────────────────────────────────────────
 
@@ -695,6 +1182,15 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
   override def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float): Unit =
     hMotorJointSetCorrectionFactor.invoke(world, joint, factor)
 
+  override def motorJointGetMaxForce(world: Long, joint: Long): Float =
+    hMotorJointGetMaxForce.invoke(world, joint).asInstanceOf[Float]
+
+  override def motorJointGetMaxTorque(world: Long, joint: Long): Float =
+    hMotorJointGetMaxTorque.invoke(world, joint).asInstanceOf[Float]
+
+  override def motorJointGetCorrectionFactor(world: Long, joint: Long): Float =
+    hMotorJointGetCorrectionFactor.invoke(world, joint).asInstanceOf[Float]
+
   // ─── Rope joint ───────────────────────────────────────────────────────
 
   override def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit =
@@ -702,6 +1198,20 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
 
   override def ropeJointGetMaxDistance(world: Long, joint: Long): Float =
     hRopeJointGetMaxDistance.invoke(world, joint).asInstanceOf[Float]
+
+  // ─── Spring joint ─────────────────────────────────────────────────────
+
+  override def createSpringJoint(world: Long, body1: Long, body2: Long, restLength: Float, stiffness: Float, damping: Float): Long =
+    hCreateSpringJoint.invoke(world, body1, body2, restLength, stiffness, damping).asInstanceOf[Long]
+
+  override def springJointSetRestLength(world: Long, joint: Long, restLength: Float): Unit =
+    hSpringJointSetRestLength.invoke(world, joint, restLength)
+
+  override def springJointGetRestLength(world: Long, joint: Long): Float =
+    hSpringJointGetRestLength.invoke(world, joint).asInstanceOf[Float]
+
+  override def springJointSetParams(world: Long, joint: Long, stiffness: Float, damping: Float): Unit =
+    hSpringJointSetParams.invoke(world, joint, stiffness, damping)
 
   // ─── Body mass/inertia ────────────────────────────────────────────────
 
@@ -784,6 +1294,68 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     } finally arena.arenaClose()
   }
 
+  // ─── Advanced queries ─────────────────────────────────────────────────
+
+  override def castShape(
+    world:       Long,
+    shapeType:   Int,
+    shapeParams: Array[Float],
+    originX:     Float,
+    originY:     Float,
+    dirX:        Float,
+    dirY:        Float,
+    maxDist:     Float,
+    out:         Array[Float]
+  ): Boolean = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val paramSeg = arena.allocateElems(p.JAVA_FLOAT, shapeParams.length.toLong)
+      p.MemorySegment.copyFromFloats(shapeParams, 0, paramSeg, 0L, shapeParams.length)
+      val outSeg = arena.allocateElems(p.JAVA_FLOAT, 7L)
+      val hitInt = hCastShape.invoke(world, shapeType, paramSeg, originX, originY, dirX, dirY, maxDist, outSeg).asInstanceOf[Int]
+      val hit    = hitInt != 0
+      if (hit) {
+        p.MemorySegment.copyToFloats(outSeg, 0L, out, 0, 7)
+      }
+      hit
+    } finally arena.arenaClose()
+  }
+
+  override def rayCastAll(
+    world:   Long,
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    maxDist: Float,
+    outHits: Array[Float],
+    maxHits: Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val totalFloats = maxHits.toLong * 7L
+      val seg         = arena.allocateElems(p.JAVA_FLOAT, totalFloats)
+      val count       = hRayCastAll.invoke(world, originX, originY, dirX, dirY, maxDist, seg, maxHits).asInstanceOf[Int]
+      if (count > 0) {
+        p.MemorySegment.copyToFloats(seg, 0L, outHits, 0, count * 7)
+      }
+      count
+    } finally arena.arenaClose()
+  }
+
+  override def projectPoint(world: Long, x: Float, y: Float, out: Array[Float]): Boolean = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg      = arena.allocateElems(p.JAVA_FLOAT, 5L)
+      val foundInt = hProjectPoint.invoke(world, x, y, seg).asInstanceOf[Int]
+      val found    = foundInt != 0
+      if (found) {
+        p.MemorySegment.copyToFloats(seg, 0L, out, 0, 5)
+      }
+      found
+    } finally arena.arenaClose()
+  }
+
   // ─── Contact events ───────────────────────────────────────────────────
 
   override def pollContactStartEvents(
@@ -847,6 +1419,91 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
       val count       = hContactPairPoints.invoke(world, collider1, collider2, seg, maxPoints).asInstanceOf[Int]
       if (count > 0) {
         p.MemorySegment.copyToFloats(seg, 0L, out, 0, count * 5)
+      }
+      count
+    } finally arena.arenaClose()
+  }
+
+  // ─── Intersection events ──────────────────────────────────────────────
+
+  override def pollIntersectionStartEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    maxEvents:    Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg1  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val seg2  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val count = hPollIntersectionStartEvents.invoke(world, seg1, seg2, maxEvents).asInstanceOf[Int]
+      var i     = 0
+      while (i < count) {
+        outCollider1(i) = seg1.getLong(i.toLong * 8L)
+        outCollider2(i) = seg2.getLong(i.toLong * 8L)
+        i += 1
+      }
+      count
+    } finally arena.arenaClose()
+  }
+
+  override def pollIntersectionStopEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    maxEvents:    Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg1  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val seg2  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val count = hPollIntersectionStopEvents.invoke(world, seg1, seg2, maxEvents).asInstanceOf[Int]
+      var i     = 0
+      while (i < count) {
+        outCollider1(i) = seg1.getLong(i.toLong * 8L)
+        outCollider2(i) = seg2.getLong(i.toLong * 8L)
+        i += 1
+      }
+      count
+    } finally arena.arenaClose()
+  }
+
+  // ─── Solver parameters ────────────────────────────────────────────────
+
+  override def worldSetNumSolverIterations(world: Long, iters: Int): Unit =
+    hWorldSetNumSolverIterations.invoke(world, iters)
+
+  override def worldGetNumSolverIterations(world: Long): Int =
+    hWorldGetNumSolverIterations.invoke(world).asInstanceOf[Int]
+
+  override def worldSetNumAdditionalFrictionIterations(world: Long, iters: Int): Unit =
+    hWorldSetNumAdditionalFrictionIterations.invoke(world, iters)
+
+  override def worldSetNumInternalPgsIterations(world: Long, iters: Int): Unit =
+    hWorldSetNumInternalPgsIterations.invoke(world, iters)
+
+  // ─── Shape intersection ───────────────────────────────────────────────
+
+  override def intersectShape(
+    world:        Long,
+    shapeType:    Int,
+    shapeParams:  Array[Float],
+    posX:         Float,
+    posY:         Float,
+    angle:        Float,
+    outColliders: Array[Long],
+    maxResults:   Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val paramSeg = arena.allocateElems(p.JAVA_FLOAT, shapeParams.length.toLong)
+      p.MemorySegment.copyFromFloats(shapeParams, 0, paramSeg, 0L, shapeParams.length)
+      val outSeg = arena.allocateElems(p.JAVA_LONG, maxResults.toLong)
+      val count  = hIntersectShape.invoke(world, shapeType, paramSeg, posX, posY, angle, outSeg, maxResults).asInstanceOf[Int]
+      var i      = 0
+      while (i < count) {
+        outColliders(i) = outSeg.getLong(i.toLong * 8L)
+        i += 1
       }
       count
     } finally arena.arenaClose()
