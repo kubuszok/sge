@@ -10,9 +10,13 @@
  *   Convention: IntArray -> DynamicArray[Int]
  *   Idiom: Java switch fall-through -> cumulative if/else length checks
  *
- * Covenant: full-port
+ * Covenant: partial-port
  * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/utils/ColorUtils.java
- * Covenant-verified: 2026-04-11
+ * Covenant-verified: 2026-04-08
+ *
+ * Partial-port debt:
+ *   - parseDescription: only handles single color name lookup, not multi-word descriptions
+ *     like "peach red" or "DARK DULLEST GREEN".
  */
 package sge
 package textra
