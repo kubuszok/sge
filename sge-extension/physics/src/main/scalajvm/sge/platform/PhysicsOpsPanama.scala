@@ -676,6 +676,38 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
     p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_INT, p.ADDRESS, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT, p.ADDRESS, p.JAVA_INT)
   )
 
+  // Contact force events
+  private val hPollContactForceEvents: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_poll_contact_force_events"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.ADDRESS, p.ADDRESS, p.ADDRESS, p.JAVA_INT)
+  )
+  private val hColliderSetContactForceEventThreshold: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_contact_force_event_threshold"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT)
+  )
+  private val hColliderGetContactForceEventThreshold: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_contact_force_event_threshold"),
+    p.FunctionDescriptor.of(p.JAVA_FLOAT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+
+  // Active hooks / one-way direction
+  private val hColliderSetActiveHooks: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_active_hooks"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_INT)
+  )
+  private val hColliderGetActiveHooks: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_active_hooks"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG)
+  )
+  private val hColliderSetOneWayDirection: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_set_one_way_direction"),
+    p.FunctionDescriptor.ofVoid(p.JAVA_LONG, p.JAVA_LONG, p.JAVA_FLOAT, p.JAVA_FLOAT, p.JAVA_FLOAT)
+  )
+  private val hColliderGetOneWayDirection: MethodHandle = linker.downcallHandle(
+    lookup("sge_phys_collider_get_one_way_direction"),
+    p.FunctionDescriptor.of(p.JAVA_INT, p.JAVA_LONG, p.JAVA_LONG, p.ADDRESS)
+  )
+
   // ─── World lifecycle ──────────────────────────────────────────────────
 
   override def createWorld(gravityX: Float, gravityY: Float): Long =
@@ -1506,6 +1538,61 @@ private[platform] class PhysicsOpsPanama(val p: PanamaProvider) extends PhysicsO
         i += 1
       }
       count
+    } finally arena.arenaClose()
+  }
+
+  // ─── Contact force events ─────────────────────────────────────────────
+
+  override def pollContactForceEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    outForce:     Array[Float],
+    maxEvents:    Int
+  ): Int = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg1  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val seg2  = arena.allocateElems(p.JAVA_LONG, maxEvents.toLong)
+      val segF  = arena.allocateElems(p.JAVA_FLOAT, maxEvents.toLong)
+      val count = hPollContactForceEvents.invoke(world, seg1, seg2, segF, maxEvents).asInstanceOf[Int]
+      var i     = 0
+      while (i < count) {
+        outCollider1(i) = seg1.getLong(i.toLong * 8L)
+        outCollider2(i) = seg2.getLong(i.toLong * 8L)
+        i += 1
+      }
+      if (count > 0) p.MemorySegment.copyToFloats(segF, 0L, outForce, 0, count)
+      count
+    } finally arena.arenaClose()
+  }
+
+  override def colliderSetContactForceEventThreshold(world: Long, collider: Long, threshold: Float): Unit =
+    hColliderSetContactForceEventThreshold.invoke(world, collider, threshold)
+
+  override def colliderGetContactForceEventThreshold(world: Long, collider: Long): Float =
+    hColliderGetContactForceEventThreshold.invoke(world, collider).asInstanceOf[Float]
+
+  // ─── Active hooks / one-way direction ─────────────────────────────────
+
+  override def colliderSetActiveHooks(world: Long, collider: Long, flags: Int): Unit =
+    hColliderSetActiveHooks.invoke(world, collider, flags)
+
+  override def colliderGetActiveHooks(world: Long, collider: Long): Int =
+    hColliderGetActiveHooks.invoke(world, collider).asInstanceOf[Int]
+
+  override def colliderSetOneWayDirection(world: Long, collider: Long, nx: Float, ny: Float, allowedAngle: Float): Unit =
+    hColliderSetOneWayDirection.invoke(world, collider, nx, ny, allowedAngle)
+
+  override def colliderGetOneWayDirection(world: Long, collider: Long, out: Array[Float]): Boolean = {
+    val arena = p.Arena.ofConfined()
+    try {
+      val seg    = arena.allocateElems(p.JAVA_FLOAT, 3L)
+      val result = hColliderGetOneWayDirection.invoke(world, collider, seg).asInstanceOf[Int]
+      if (result != 0) {
+        p.MemorySegment.copyToFloats(seg, 0L, out, 0, 3)
+      }
+      result != 0
     } finally arena.arenaClose()
   }
 }

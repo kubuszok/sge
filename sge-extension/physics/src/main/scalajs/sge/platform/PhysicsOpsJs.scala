@@ -212,4 +212,15 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
 
   // Shape intersection
   override def intersectShape(world: Long, shapeType: Int, shapeParams: Array[Float], posX: Float, posY: Float, angle: Float, outColliders: Array[Long], maxResults: Int): Int = unsupported
+
+  // Contact force events
+  override def pollContactForceEvents(world:                Long, outCollider1: Array[Long], outCollider2: Array[Long], outForce: Array[Float], maxEvents: Int): Int   = unsupported
+  override def colliderSetContactForceEventThreshold(world: Long, collider:     Long, threshold:           Float):                                               Unit  = unsupported
+  override def colliderGetContactForceEventThreshold(world: Long, collider:     Long):                                                                           Float = unsupported
+
+  // Active hooks / one-way direction
+  override def colliderSetActiveHooks(world:     Long, collider: Long, flags: Int):                                   Unit    = unsupported
+  override def colliderGetActiveHooks(world:     Long, collider: Long):                                               Int     = unsupported
+  override def colliderSetOneWayDirection(world: Long, collider: Long, nx:    Float, ny: Float, allowedAngle: Float): Unit    = unsupported
+  override def colliderGetOneWayDirection(world: Long, collider: Long, out:   Array[Float]):                          Boolean = unsupported
 }

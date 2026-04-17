@@ -206,6 +206,17 @@ private object PhysicsC {
 
   // Shape intersection
   def sge_phys_intersect_shape(world: Long, shapeType: CInt, shapeParams: Ptr[CFloat], posX: CFloat, posY: CFloat, angle: CFloat, outColliders: Ptr[Long], maxResults: CInt): CInt = extern
+
+  // Contact force events
+  def sge_phys_poll_contact_force_events(world:                  Long, out1:     Ptr[Long], out2: Ptr[Long], outForce: Ptr[CFloat], max: CInt): CInt   = extern
+  def sge_phys_collider_set_contact_force_event_threshold(world: Long, collider: Long, threshold: CFloat):                                      Unit   = extern
+  def sge_phys_collider_get_contact_force_event_threshold(world: Long, collider: Long):                                                         CFloat = extern
+
+  // Active hooks / one-way direction
+  def sge_phys_collider_set_active_hooks(world:      Long, collider: Long, flags: CInt):                                     Unit = extern
+  def sge_phys_collider_get_active_hooks(world:      Long, collider: Long):                                                  CInt = extern
+  def sge_phys_collider_set_one_way_direction(world: Long, collider: Long, nx:    CFloat, ny: CFloat, allowedAngle: CFloat): Unit = extern
+  def sge_phys_collider_get_one_way_direction(world: Long, collider: Long, out:   Ptr[CFloat]):                              CInt = extern
 }
 
 /** Scala Native implementation of [[PhysicsOps]] using `@extern` bindings to the Rust `sge_physics` library. */
@@ -945,5 +956,56 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
       i += 1
     }
     count
+  }
+
+  // ─── Contact force events ─────────────────────────────────────────────
+
+  override def pollContactForceEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    outForce:     Array[Float],
+    maxEvents:    Int
+  ): Int = {
+    val buf1  = stackalloc[Long](maxEvents)
+    val buf2  = stackalloc[Long](maxEvents)
+    val bufF  = stackalloc[CFloat](maxEvents)
+    val count = PhysicsC.sge_phys_poll_contact_force_events(world, buf1, buf2, bufF, maxEvents)
+    var i     = 0
+    while (i < count) {
+      outCollider1(i) = buf1(i).toLong
+      outCollider2(i) = buf2(i).toLong
+      outForce(i) = bufF(i)
+      i += 1
+    }
+    count
+  }
+
+  override def colliderSetContactForceEventThreshold(world: Long, collider: Long, threshold: Float): Unit =
+    PhysicsC.sge_phys_collider_set_contact_force_event_threshold(world, collider, threshold)
+
+  override def colliderGetContactForceEventThreshold(world: Long, collider: Long): Float =
+    PhysicsC.sge_phys_collider_get_contact_force_event_threshold(world, collider)
+
+  // ─── Active hooks / one-way direction ─────────────────────────────────
+
+  override def colliderSetActiveHooks(world: Long, collider: Long, flags: Int): Unit =
+    PhysicsC.sge_phys_collider_set_active_hooks(world, collider, flags)
+
+  override def colliderGetActiveHooks(world: Long, collider: Long): Int =
+    PhysicsC.sge_phys_collider_get_active_hooks(world, collider)
+
+  override def colliderSetOneWayDirection(world: Long, collider: Long, nx: Float, ny: Float, allowedAngle: Float): Unit =
+    PhysicsC.sge_phys_collider_set_one_way_direction(world, collider, nx, ny, allowedAngle)
+
+  override def colliderGetOneWayDirection(world: Long, collider: Long, out: Array[Float]): Boolean = {
+    val buf    = stackalloc[CFloat](3)
+    val result = PhysicsC.sge_phys_collider_get_one_way_direction(world, collider, buf)
+    if (result != 0) {
+      out(0) = buf(0)
+      out(1) = buf(1)
+      out(2) = buf(2)
+    }
+    result != 0
   }
 }

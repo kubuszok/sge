@@ -135,6 +135,18 @@ class PhysicsWorld3d(gravityX: Float = 0f, gravityY: Float = -9.81f, gravityZ: F
       case JointDef3d.Rope(b1, b2, maxDist) =>
         val jh = ops.createRopeJoint(handle, b1.handle, b2.handle, maxDist)
         new RopeJoint3d(this, jh)
+      case JointDef3d.Revolute(b1, b2, ax, ay, az, axisX, axisY, axisZ) =>
+        val jh = ops.createRevoluteJoint(handle, b1.handle, b2.handle, ax, ay, az, axisX, axisY, axisZ)
+        new RevoluteJoint3d(this, jh)
+      case JointDef3d.Prismatic(b1, b2, axisX, axisY, axisZ) =>
+        val jh = ops.createPrismaticJoint(handle, b1.handle, b2.handle, axisX, axisY, axisZ)
+        new PrismaticJoint3d(this, jh)
+      case JointDef3d.Motor(b1, b2) =>
+        val jh = ops.createMotorJoint(handle, b1.handle, b2.handle)
+        new MotorJoint3d(this, jh)
+      case JointDef3d.Spring(b1, b2, restLength, stiffness, damping) =>
+        val jh = ops.createSpringJoint(handle, b1.handle, b2.handle, restLength, stiffness, damping)
+        new SpringJoint3d(this, jh)
     }
   }
 
@@ -219,6 +231,128 @@ class PhysicsWorld3d(gravityX: Float = 0f, gravityY: Float = -9.81f, gravityZ: F
       builder.result()
     }
 
+  // ─── Additional queries ──────────────────────────────────────────────
+
+  private val forceBuf = new Array[Float](MaxEvents)
+  private val aabbBuf  = new Array[Long](256)
+  private val pointBuf = new Array[Long](64)
+
+  /** Finds all colliders intersecting the given 3D AABB. */
+  def queryAABB(minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float): scala.collection.immutable.Seq[Long] = {
+    checkNotClosed()
+    val count = ops.queryAABB(handle, minX, minY, minZ, maxX, maxY, maxZ, aabbBuf, aabbBuf.length)
+    if (count == 0) scala.collection.immutable.Seq.empty
+    else {
+      val builder = scala.collection.immutable.Seq.newBuilder[Long]
+      var i       = 0
+      while (i < count) { builder += aabbBuf(i); i += 1 }
+      builder.result()
+    }
+  }
+
+  /** Finds all bodies whose colliders contain the given 3D point. */
+  def queryPoint(x: Float, y: Float, z: Float): scala.collection.immutable.Seq[Long] = {
+    checkNotClosed()
+    val count = ops.queryPoint(handle, x, y, z, pointBuf, pointBuf.length)
+    if (count == 0) scala.collection.immutable.Seq.empty
+    else {
+      val builder = scala.collection.immutable.Seq.newBuilder[Long]
+      var i       = 0
+      while (i < count) { builder += pointBuf(i); i += 1 }
+      builder.result()
+    }
+  }
+
+  /** Casts a ray and returns ALL hits. */
+  def rayCastAll(
+    originX: Float,
+    originY: Float,
+    originZ: Float,
+    dirX:    Float,
+    dirY:    Float,
+    dirZ:    Float,
+    maxDist: Float,
+    maxHits: Int = 64
+  ): scala.collection.immutable.Seq[RayCastHit3d] = {
+    checkNotClosed()
+    val buf   = new Array[Float](maxHits * 9)
+    val count = ops.rayCastAll(handle, originX, originY, originZ, dirX, dirY, dirZ, maxDist, buf, maxHits)
+    if (count == 0) scala.collection.immutable.Seq.empty
+    else {
+      val builder = scala.collection.immutable.Seq.newBuilder[RayCastHit3d]
+      var i       = 0
+      while (i < count) {
+        val off = i * 9
+        builder += RayCastHit3d(
+          buf(off),
+          buf(off + 1),
+          buf(off + 2),
+          buf(off + 3),
+          buf(off + 4),
+          buf(off + 5),
+          buf(off + 6),
+          (java.lang.Float.floatToRawIntBits(buf(off + 7)).toLong & 0xffffffffL) |
+            ((java.lang.Float.floatToRawIntBits(buf(off + 8)).toLong & 0xffffffffL) << 32)
+        )
+        i += 1
+      }
+      builder.result()
+    }
+  }
+
+  // ─── Contact details ──────────────────────────────────────────────────
+
+  /** Gets contact details between two colliders. Returns 3D contact points. */
+  def getContactPoints(collider1: Collider3d, collider2: Collider3d): Array[ContactPoint3d] = {
+    checkNotClosed()
+    val count = ops.contactPairCount(handle, collider1.handle, collider2.handle)
+    if (count == 0) Array.empty
+    else {
+      val buf    = new Array[Float](count * 7)
+      val actual = ops.contactPairPoints(handle, collider1.handle, collider2.handle, buf, count)
+      Array.tabulate(actual) { i =>
+        val off = i * 7
+        ContactPoint3d(buf(off), buf(off + 1), buf(off + 2), buf(off + 3), buf(off + 4), buf(off + 5), buf(off + 6))
+      }
+    }
+  }
+
+  // ─── Intersection events ──────────────────────────────────────────────
+
+  def pollIntersectionStartEvents(): scala.collection.immutable.Seq[(Long, Long)] = {
+    checkNotClosed()
+    val count = ops.pollIntersectionStartEvents(handle, eventBuf1, eventBuf2, MaxEvents)
+    buildEventPairs(count)
+  }
+
+  def pollIntersectionStopEvents(): scala.collection.immutable.Seq[(Long, Long)] = {
+    checkNotClosed()
+    val count = ops.pollIntersectionStopEvents(handle, eventBuf1, eventBuf2, MaxEvents)
+    buildEventPairs(count)
+  }
+
+  // ─── Contact force events ──────────────────────────────────────────────
+
+  /** Polls contact force events that occurred during the last step. */
+  def pollContactForceEvents(): scala.collection.immutable.Seq[(Long, Long, Float)] = {
+    checkNotClosed()
+    val count = ops.pollContactForceEvents(handle, eventBuf1, eventBuf2, forceBuf, MaxEvents)
+    if (count == 0) scala.collection.immutable.Seq.empty
+    else {
+      val builder = scala.collection.immutable.Seq.newBuilder[(Long, Long, Float)]
+      var i       = 0
+      while (i < count) { builder += ((eventBuf1(i), eventBuf2(i), forceBuf(i))); i += 1 }
+      builder.result()
+    }
+  }
+
+  // ─── Solver parameters ────────────────────────────────────────────────
+
+  def numSolverIterations:                            Int  = { checkNotClosed(); ops.worldGetNumSolverIterations(handle) }
+  def numSolverIterations_=(iters:              Int): Unit = { checkNotClosed(); ops.worldSetNumSolverIterations(handle, iters) }
+  def setNumAdditionalFrictionIterations(iters: Int): Unit = { checkNotClosed(); ops.worldSetNumAdditionalFrictionIterations(handle, iters) }
+  def setNumInternalPgsIterations(iters:        Int): Unit = { checkNotClosed(); ops.worldSetNumInternalPgsIterations(handle, iters) }
+
   /** Releases all native resources held by this world. */
   override def close(): Unit =
     if (!closed) {
@@ -226,3 +360,14 @@ class PhysicsWorld3d(gravityX: Float = 0f, gravityY: Float = -9.81f, gravityZ: F
       ops.destroyWorld(handle)
     }
 }
+
+/** A 3D contact point between two colliders. */
+final case class ContactPoint3d(
+  normalX:     Float,
+  normalY:     Float,
+  normalZ:     Float,
+  pointX:      Float,
+  pointY:      Float,
+  pointZ:      Float,
+  penetration: Float
+)
