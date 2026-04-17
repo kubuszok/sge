@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: handle-based FFI wrapper with 3D vectors and quaternions
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 269
+ * Covenant-baseline-methods: RigidBody3d,angularDamping,angularDamping_,angularVelocity,angularVelocity_,applyForce,applyForceAtPoint,applyImpulse,applyImpulseAtPoint,applyTorque,applyTorqueImpulse,attachCollider,bodyType,buf3,buf4,ch,dominanceGroup,dominanceGroup_,fixedRotation_,gravityScale,gravityScale_,handle,inertia,isAwake,isCcdEnabled,isCcdEnabled_,isEnabled,isEnabled_,isRotationLockedX,isRotationLockedY,isRotationLockedZ,isTranslationLockedX,isTranslationLockedY,isTranslationLockedZ,linearDamping,linearDamping_,linearVelocity,linearVelocity_,localCenterOfMass,mass,ops,position,position_,recomputeMassProperties,resetForces,resetTorques,rotation,rotation_,setEnabledRotations,setEnabledTranslations,sleep,velocityAtPoint,wakeUp,wh,world,worldCenterOfMass
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

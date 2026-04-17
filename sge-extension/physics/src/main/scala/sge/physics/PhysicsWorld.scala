@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: handle-based FFI, platform-agnostic trait
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 587
+ * Covenant-baseline-methods: ContactPoint,MaxEvents,PhysicsWorld,aabbBuf,bh,buf,buildEventPairs,castShape,checkNotClosed,close,closed,count,createBody,createJoint,destroyBody,destroyCollider,destroyJoint,eventBuf1,eventBuf2,forceBuf,getContactPoints,gravBuf,gravity,handle,intersectShape,numSolverIterations,numSolverIterations_,ops,pointBuf,pollContactForceEvents,pollContactStartEvents,pollContactStopEvents,pollIntersectionStartEvents,pollIntersectionStopEvents,projectBuf,projectPoint,queryAABB,queryPoint,rayBuf,rayCast,rayCastAll,setGravity,setNumAdditionalFrictionIterations,setNumInternalPgsIterations,shapeAndParams,shapeCastBuf,step
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics

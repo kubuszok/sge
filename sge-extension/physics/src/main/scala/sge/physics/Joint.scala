@@ -7,6 +7,13 @@
  *   Origin: SGE-original (2D physics API backed by Rapier2D)
  *   Convention: handle-based FFI, platform-agnostic trait
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 363
+ * Covenant-baseline-methods: Fixed,FixedJoint,Joint,JointDef,Motor,MotorJoint,Mouse,MouseJoint,Prismatic,PrismaticJoint,Revolute,RevoluteJoint,Rope,RopeJoint,Spring,SpringJoint,anchorHandle,angle,angularOffset,angularOffset_,correctionFactor,correctionFactor_,enableLimits,enableMotor,handle,isLimitEnabled,limits,limitsBuf,linearOffset,linearOffset_,maxDistance,maxDistance_,maxForce,maxForce_,maxMotorForce,maxMotorForce_,maxMotorTorque,maxMotorTorque_,maxTorque,maxTorque_,motorSpeed,motorSpeed_,offsetBuf,posBuf,restLength,restLength_,setLimits,setParams,target,target_,translation,world
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics

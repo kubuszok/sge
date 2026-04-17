@@ -6,6 +6,13 @@
  * Migration notes:
  *   Origin: SGE-original (3D physics API backed by Rapier3D)
  *   Convention: handle-based FFI, platform-agnostic public API
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 373
+ * Covenant-baseline-methods: ContactPoint3d,MaxEvents,PhysicsWorld3d,aabbBuf,bh,buf,buildEventPairs,checkNotClosed,close,closed,count,createBody,createJoint,destroyBody,destroyCollider,destroyJoint,eventBuf1,eventBuf2,forceBuf,getContactPoints,gravBuf,gravity,handle,numSolverIterations,numSolverIterations_,ops,pointBuf,pollContactForceEvents,pollContactStartEvents,pollContactStopEvents,pollIntersectionStartEvents,pollIntersectionStopEvents,queryAABB,queryPoint,rayBuf,rayCast,rayCastAll,setGravity,setNumAdditionalFrictionIterations,setNumInternalPgsIterations,step
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package physics3d

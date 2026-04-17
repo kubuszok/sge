@@ -8,6 +8,13 @@
  *   Convention: Scala Native platform bridge for PhysicsOps via @extern
  *   Idiom: split packages
  *   Audited: 2026-03-08
+ *
+ * Covenant: full-port
+ * Covenant-baseline-spec-pass: 0
+ * Covenant-baseline-loc: 18
+ * Covenant-baseline-methods: PhysicsPlatform,ops
+ * Covenant-source-reference: SGE-original
+ * Covenant-verified: 2026-04-17
  */
 package sge
 package platform

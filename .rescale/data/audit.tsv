@@ -1236,3 +1236,31 @@ scenes.scene2d/Group.scala	scenes.scene2d	pass	no	2026-04-12
 scenes.scene2d.ui/Button.scala	scenes.scene2d.ui	pass	no	2026-04-12		
 scenes.scene2d.ui/Skin.scala	scenes.scene2d.ui	pass	no	2026-04-12		
 textra/Font.scala	textra	pass	no	2026-04-12	All rendering methods ported including glyph-based underline/strikethrough fallback. Box-drawing primary + underscore/dash fallback.	
+sge-extension/physics/src/main/scala/sge/physics/BodyType.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/CollisionGroups.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/Joint.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/PhysicsDebugRenderer.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/RayCastHit.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/RigidBody.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/Shape.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/Collider.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/physics/PhysicsWorld.scala	physics	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scala/sge/platform/PhysicsOps.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scalajvm/sge/platform/PhysicsOpsPanama.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scalanative/sge/platform/PhysicsOpsNative.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scalajvm/sge/platform/PhysicsPlatform.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics/src/main/scalanative/sge/platform/PhysicsPlatform.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/BodyType3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/RayCastHit3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/Joint3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/RigidBody3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/Shape3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/Collider3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/CollisionGroups3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/PhysicsWorld3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/physics3d/PhysicsDebugRenderer3d.scala	physics3d	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scala/sge/platform/PhysicsOps3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scalajvm/sge/platform/PhysicsOpsPanama3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scalanative/sge/platform/PhysicsOpsNative3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scalajvm/sge/platform/PhysicsPlatform3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
+sge-extension/physics3d/src/main/scalanative/sge/platform/PhysicsPlatform3d.scala	platform	pass	yes	2026-04-17	SGE-original, covenanted	
