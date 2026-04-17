@@ -129,4 +129,87 @@ private[platform] object PhysicsOpsJs extends PhysicsOps {
   // Contact detail queries
   override def contactPairCount(world:  Long, collider1: Long, collider2: Long):                                    Int = unsupported
   override def contactPairPoints(world: Long, collider1: Long, collider2: Long, out: Array[Float], maxPoints: Int): Int = unsupported
+
+  // Body forces at point
+  override def bodyApplyForceAtPoint(world:   Long, body: Long, fx:      Float, fy: Float, px: Float, py: Float): Unit = unsupported
+  override def bodyApplyImpulseAtPoint(world: Long, body: Long, ix:      Float, iy: Float, px: Float, py: Float): Unit = unsupported
+  override def bodyApplyTorqueImpulse(world:  Long, body: Long, impulse: Float):                                  Unit = unsupported
+  override def bodyResetForces(world:         Long, body: Long):                                                  Unit = unsupported
+  override def bodyResetTorques(world:        Long, body: Long):                                                  Unit = unsupported
+
+  // Body property getters
+  override def bodyGetLinearDamping(world:       Long, body: Long):                                                     Float   = unsupported
+  override def bodyGetAngularDamping(world:      Long, body: Long):                                                     Float   = unsupported
+  override def bodyGetGravityScale(world:        Long, body: Long):                                                     Float   = unsupported
+  override def bodyGetType(world:                Long, body: Long):                                                     Int     = unsupported
+  override def bodySetEnabled(world:             Long, body: Long, enabled: Boolean):                                   Unit    = unsupported
+  override def bodyIsEnabled(world:              Long, body: Long):                                                     Boolean = unsupported
+  override def bodySetEnabledTranslations(world: Long, body: Long, allowX:  Boolean, allowY: Boolean):                  Unit    = unsupported
+  override def bodyIsTranslationLockedX(world:   Long, body: Long):                                                     Boolean = unsupported
+  override def bodyIsTranslationLockedY(world:   Long, body: Long):                                                     Boolean = unsupported
+  override def bodyIsRotationLocked(world:       Long, body: Long):                                                     Boolean = unsupported
+  override def bodySetDominanceGroup(world:      Long, body: Long, group:   Int):                                       Unit    = unsupported
+  override def bodyGetDominanceGroup(world:      Long, body: Long):                                                     Int     = unsupported
+  override def bodyGetWorldCenterOfMass(world:   Long, body: Long, out:     Array[Float]):                              Unit    = unsupported
+  override def bodyEnableCcd(world:              Long, body: Long, enable:  Boolean):                                   Unit    = unsupported
+  override def bodyIsCcdEnabled(world:           Long, body: Long):                                                     Boolean = unsupported
+  override def bodySleep(world:                  Long, body: Long):                                                     Unit    = unsupported
+  override def bodyGetVelocityAtPoint(world:     Long, body: Long, px:      Float, py:       Float, out: Array[Float]): Unit    = unsupported
+
+  // Collider getters
+  override def colliderGetDensity(world:              Long, collider: Long):                                         Float   = unsupported
+  override def colliderGetFriction(world:             Long, collider: Long):                                         Float   = unsupported
+  override def colliderGetRestitution(world:          Long, collider: Long):                                         Float   = unsupported
+  override def colliderIsSensor(world:                Long, collider: Long):                                         Boolean = unsupported
+  override def colliderSetEnabled(world:              Long, collider: Long, enabled: Boolean):                       Unit    = unsupported
+  override def colliderIsEnabled(world:               Long, collider: Long):                                         Boolean = unsupported
+  override def colliderGetPositionWrtParent(world:    Long, collider: Long, out:     Array[Float]):                  Unit    = unsupported
+  override def colliderSetPositionWrtParent(world:    Long, collider: Long, x:       Float, y: Float, angle: Float): Unit    = unsupported
+  override def colliderGetPosition(world:             Long, collider: Long, out:     Array[Float]):                  Unit    = unsupported
+  override def colliderGetShapeType(world:            Long, collider: Long):                                         Int     = unsupported
+  override def colliderGetAabb(world:                 Long, collider: Long, out:     Array[Float]):                  Unit    = unsupported
+  override def colliderGetParentBody(world:           Long, collider: Long):                                         Long    = unsupported
+  override def colliderGetMass(world:                 Long, collider: Long):                                         Float   = unsupported
+  override def colliderSetMass(world:                 Long, collider: Long, mass:    Float):                         Unit    = unsupported
+  override def colliderSetContactSkin(world:          Long, collider: Long, skin:    Float):                         Unit    = unsupported
+  override def colliderSetActiveEvents(world:         Long, collider: Long, flags:   Int):                           Unit    = unsupported
+  override def colliderGetActiveEvents(world:         Long, collider: Long):                                         Int     = unsupported
+  override def colliderSetActiveCollisionTypes(world: Long, collider: Long, flags:   Int):                           Unit    = unsupported
+  override def colliderGetActiveCollisionTypes(world: Long, collider: Long):                                         Int     = unsupported
+
+  // New shapes
+  override def createTriMeshCollider(world:     Long, body: Long, vertices: Array[Float], vertexCount: Int, indices: Array[Int], indexCount: Int):   Long = unsupported
+  override def createHeightfieldCollider(world: Long, body: Long, heights:  Array[Float], numCols:     Int, scaleX:  Float, scaleY:          Float): Long = unsupported
+
+  // Joint getters
+  override def revoluteJointGetMaxMotorTorque(world: Long, joint: Long): Float = unsupported
+  override def prismaticJointGetMotorSpeed(world:    Long, joint: Long): Float = unsupported
+  override def prismaticJointGetMaxMotorForce(world: Long, joint: Long): Float = unsupported
+  override def motorJointGetMaxForce(world:          Long, joint: Long): Float = unsupported
+  override def motorJointGetMaxTorque(world:         Long, joint: Long): Float = unsupported
+  override def motorJointGetCorrectionFactor(world:  Long, joint: Long): Float = unsupported
+
+  // Spring joint
+  override def createSpringJoint(world:        Long, body1: Long, body2:      Long, restLength: Float, stiffness: Float, damping: Float): Long  = unsupported
+  override def springJointSetRestLength(world: Long, joint: Long, restLength: Float):                                                     Unit  = unsupported
+  override def springJointGetRestLength(world: Long, joint: Long):                                                                        Float = unsupported
+  override def springJointSetParams(world:     Long, joint: Long, stiffness:  Float, damping:   Float):                                   Unit  = unsupported
+
+  // Advanced queries
+  override def castShape(world: Long, shapeType: Int, shapeParams: Array[Float], originX: Float, originY: Float, dirX: Float, dirY: Float, maxDist: Float, out: Array[Float]): Boolean = unsupported
+  override def rayCastAll(world:   Long, originX: Float, originY: Float, dirX: Float, dirY: Float, maxDist: Float, outHits: Array[Float], maxHits: Int): Int     = unsupported
+  override def projectPoint(world: Long, x:       Float, y:       Float, out:  Array[Float]):                                                            Boolean = unsupported
+
+  // Intersection events
+  override def pollIntersectionStartEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int = unsupported
+  override def pollIntersectionStopEvents(world:  Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int = unsupported
+
+  // Solver params
+  override def worldSetNumSolverIterations(world:             Long, iters: Int): Unit = unsupported
+  override def worldGetNumSolverIterations(world:             Long):             Int  = unsupported
+  override def worldSetNumAdditionalFrictionIterations(world: Long, iters: Int): Unit = unsupported
+  override def worldSetNumInternalPgsIterations(world:        Long, iters: Int): Unit = unsupported
+
+  // Shape intersection
+  override def intersectShape(world: Long, shapeType: Int, shapeParams: Array[Float], posX: Float, posY: Float, angle: Float, outColliders: Array[Long], maxResults: Int): Int = unsupported
 }

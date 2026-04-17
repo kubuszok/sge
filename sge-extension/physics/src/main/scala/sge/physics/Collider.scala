@@ -21,17 +21,41 @@ class Collider private[physics] (
   private[physics] val handle: Long
 ) {
 
+  /** Scratch buffer for 3-float outputs (position). */
+  private val buf3 = new Array[Float](3)
+
+  /** Scratch buffer for 4-float outputs (AABB). */
+  private val buf4 = new Array[Float](4)
+
+  // ─── Material properties ──────────────────────────────────────────────
+
+  /** Gets the density of this collider. */
+  def density: Float =
+    world.ops.colliderGetDensity(world.handle, handle)
+
   /** Sets the density of this collider. Affects the parent body's mass and inertia. */
   def density_=(d: Float): Unit =
     world.ops.colliderSetDensity(world.handle, handle, d)
+
+  /** Gets the friction coefficient. */
+  def friction: Float =
+    world.ops.colliderGetFriction(world.handle, handle)
 
   /** Sets the friction coefficient (0 = no friction, typically 0..1). */
   def friction_=(f: Float): Unit =
     world.ops.colliderSetFriction(world.handle, handle, f)
 
+  /** Gets the restitution (bounciness). */
+  def restitution: Float =
+    world.ops.colliderGetRestitution(world.handle, handle)
+
   /** Sets the restitution (bounciness, 0 = no bounce, 1 = perfectly elastic). */
   def restitution_=(r: Float): Unit =
     world.ops.colliderSetRestitution(world.handle, handle, r)
+
+  /** Returns true if this collider is a sensor. */
+  def isSensor: Boolean =
+    world.ops.colliderIsSensor(world.handle, handle)
 
   /** Sets whether this collider is a sensor.
     *
@@ -39,6 +63,83 @@ class Collider private[physics] (
     */
   def isSensor_=(sensor: Boolean): Unit =
     world.ops.colliderSetSensor(world.handle, handle, sensor)
+
+  // ─── Enable/disable ───────────────────────────────────────────────────
+
+  /** Returns true if this collider is enabled. */
+  def isEnabled: Boolean =
+    world.ops.colliderIsEnabled(world.handle, handle)
+
+  /** Enables or disables this collider. Disabled colliders don't participate in collision detection. */
+  def isEnabled_=(enabled: Boolean): Unit =
+    world.ops.colliderSetEnabled(world.handle, handle, enabled)
+
+  // ─── Mass ─────────────────────────────────────────────────────────────
+
+  /** Gets the mass of this collider. */
+  def mass: Float =
+    world.ops.colliderGetMass(world.handle, handle)
+
+  /** Sets the mass of this collider (overrides density-based mass). */
+  def mass_=(m: Float): Unit =
+    world.ops.colliderSetMass(world.handle, handle, m)
+
+  /** Sets the contact skin (margin around the collider for early contact detection). */
+  def contactSkin_=(skin: Float): Unit =
+    world.ops.colliderSetContactSkin(world.handle, handle, skin)
+
+  // ─── Position ─────────────────────────────────────────────────────────
+
+  /** Gets the collider position relative to its parent body as (x, y, angle). */
+  def positionWrtParent: (Float, Float, Float) = {
+    world.ops.colliderGetPositionWrtParent(world.handle, handle, buf3)
+    (buf3(0), buf3(1), buf3(2))
+  }
+
+  /** Sets the collider position relative to its parent body. */
+  def setPositionWrtParent(x: Float, y: Float, angle: Float): Unit =
+    world.ops.colliderSetPositionWrtParent(world.handle, handle, x, y, angle)
+
+  /** Gets the collider world position as (x, y, angle). */
+  def worldPosition: (Float, Float, Float) = {
+    world.ops.colliderGetPosition(world.handle, handle, buf3)
+    (buf3(0), buf3(1), buf3(2))
+  }
+
+  // ─── Shape info ───────────────────────────────────────────────────────
+
+  /** Returns the shape type code: 0=ball, 1=cuboid, 2=capsule, 3=segment, 4=triangle, 5=trimesh, 6=polyline, 7=heightfield, 8=compound, 9=convex_polygon, -1=unknown.
+    */
+  def shapeType: Int =
+    world.ops.colliderGetShapeType(world.handle, handle)
+
+  /** Gets the axis-aligned bounding box as (minX, minY, maxX, maxY). */
+  def aabb: (Float, Float, Float, Float) = {
+    world.ops.colliderGetAabb(world.handle, handle, buf4)
+    (buf4(0), buf4(1), buf4(2), buf4(3))
+  }
+
+  /** Gets the handle of the parent body, or 0 if unattached. */
+  def parentBody: Long =
+    world.ops.colliderGetParentBody(world.handle, handle)
+
+  // ─── Active events/collision types ────────────────────────────────────
+
+  /** Gets the active events flags for this collider. */
+  def activeEvents: Int =
+    world.ops.colliderGetActiveEvents(world.handle, handle)
+
+  /** Sets which events this collider generates (bitmask of ActiveEvents flags). */
+  def activeEvents_=(flags: Int): Unit =
+    world.ops.colliderSetActiveEvents(world.handle, handle, flags)
+
+  /** Gets the active collision types flags for this collider. */
+  def activeCollisionTypes: Int =
+    world.ops.colliderGetActiveCollisionTypes(world.handle, handle)
+
+  /** Sets which collision types this collider participates in (bitmask). */
+  def activeCollisionTypes_=(flags: Int): Unit =
+    world.ops.colliderSetActiveCollisionTypes(world.handle, handle, flags)
 
   // ─── Collision filtering ──────────────────────────────────────────────
 

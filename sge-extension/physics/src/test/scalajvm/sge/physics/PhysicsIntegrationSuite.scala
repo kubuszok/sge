@@ -500,6 +500,256 @@ class PhysicsIntegrationSuite extends FunSuite {
       world.close()
   }
 
+  test("RigidBody damping and gravity scale getters") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      body.linearDamping = 0.5f
+      body.angularDamping = 0.3f
+      body.gravityScale = 2f
+      assertEqualsFloat(body.linearDamping, 0.5f, 0.001f)
+      assertEqualsFloat(body.angularDamping, 0.3f, 0.001f)
+      assertEqualsFloat(body.gravityScale, 2f, 0.001f)
+    } finally world.close()
+  }
+
+  test("RigidBody enable and disable") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      assert(body.isEnabled, "Body should be enabled by default")
+      body.isEnabled = false
+      assert(!body.isEnabled, "Body should be disabled")
+      body.isEnabled = true
+      assert(body.isEnabled, "Body should be re-enabled")
+    } finally world.close()
+  }
+
+  test("RigidBody CCD enable/disable") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      assert(!body.isCcdEnabled, "CCD should be disabled by default")
+      body.isCcdEnabled = true
+      assert(body.isCcdEnabled, "CCD should be enabled")
+    } finally world.close()
+  }
+
+  test("RigidBody translation locking") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      body.setEnabledTranslations(allowX = true, allowY = false)
+      assert(!body.isTranslationLockedX, "X should not be locked")
+      assert(body.isTranslationLockedY, "Y should be locked")
+    } finally world.close()
+  }
+
+  test("RigidBody dominance group") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      body.dominanceGroup = 5
+      assertEquals(body.dominanceGroup, 5)
+    } finally world.close()
+  }
+
+  test("RigidBody force and impulse at point") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f)
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      body.attachCollider(Shape.Circle(1f))
+      body.applyForceAtPoint(10f, 0f, 1f, 0f)
+      body.applyImpulseAtPoint(0f, 5f, 0f, 1f)
+      body.applyTorqueImpulse(1f)
+      world.step(1f / 60f)
+      // Body should have moved
+      val (vx, vy) = body.linearVelocity
+      assert(vx != 0f || vy != 0f, "Body should have velocity after impulse")
+    } finally world.close()
+  }
+
+  test("RigidBody world center of mass") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic, x = 3f, y = 4f)
+      body.attachCollider(Shape.Circle(1f))
+      val (cx, cy) = body.worldCenterOfMass
+      assertEqualsFloat(cx, 3f, 0.1f)
+      assertEqualsFloat(cy, 4f, 0.1f)
+    } finally world.close()
+  }
+
+  test("Collider property getters") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      val col  = body.attachCollider(Shape.Circle(1f), density = 2f, friction = 0.7f, restitution = 0.4f)
+      assertEqualsFloat(col.density, 2f, 0.001f)
+      assertEqualsFloat(col.friction, 0.7f, 0.001f)
+      assertEqualsFloat(col.restitution, 0.4f, 0.001f)
+      assert(!col.isSensor, "Should not be a sensor by default")
+      col.isSensor = true
+      assert(col.isSensor, "Should be a sensor after setting")
+    } finally world.close()
+  }
+
+  test("Collider position and AABB") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Static, x = 5f, y = 3f)
+      val col  = body.attachCollider(Shape.Box(1f, 1f))
+      world.step(0f)
+      val (wx, wy, _) = col.worldPosition
+      assertEqualsFloat(wx, 5f, 0.1f)
+      assertEqualsFloat(wy, 3f, 0.1f)
+      val (minX, minY, maxX, maxY) = col.aabb
+      assert(minX < 5f && maxX > 5f, s"AABB should span body position: $minX..$maxX")
+      assert(minY < 3f && maxY > 3f, s"AABB should span body position: $minY..$maxY")
+    } finally world.close()
+  }
+
+  test("Collider enable and disable") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      val col  = body.attachCollider(Shape.Circle(1f))
+      assert(col.isEnabled, "Collider should be enabled by default")
+      col.isEnabled = false
+      assert(!col.isEnabled, "Collider should be disabled")
+    } finally world.close()
+  }
+
+  test("Collider mass and parent body") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body = world.createBody(BodyType.Dynamic)
+      val col  = body.attachCollider(Shape.Circle(1f), density = 3f)
+      val mass = col.mass
+      assert(mass > 0f, s"Mass should be positive, got $mass")
+      val parent = col.parentBody
+      assert(parent != 0L, "Should have a parent body")
+    } finally world.close()
+  }
+
+  test("SpringJoint creation and properties") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f)
+    try {
+      val body1 = world.createBody(BodyType.Static)
+      val body2 = world.createBody(BodyType.Dynamic, x = 5f, y = 0f)
+      body1.attachCollider(Shape.Circle(0.1f))
+      body2.attachCollider(Shape.Circle(0.1f))
+      val joint = world.createJoint(JointDef.Spring(body1, body2, restLength = 3f, stiffness = 100f, damping = 10f))
+      assert(joint.isInstanceOf[SpringJoint], "Should create SpringJoint")
+      val spring = joint.asInstanceOf[SpringJoint]
+      assertEqualsFloat(spring.restLength, 3f, 0.001f)
+      spring.restLength = 5f
+      assertEqualsFloat(spring.restLength, 5f, 0.001f)
+      spring.setParams(200f, 20f)
+      // Step to verify no crash
+      for (_ <- 1 to 60) world.step(1f / 60f)
+    } finally world.close()
+  }
+
+  test("Joint property getters") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f)
+    try {
+      val b1 = world.createBody(BodyType.Static)
+      val b2 = world.createBody(BodyType.Dynamic, x = 1f)
+      b1.attachCollider(Shape.Circle(0.1f))
+      b2.attachCollider(Shape.Circle(0.1f))
+      // Revolute
+      val rev = world.createJoint(JointDef.Revolute(b1, b2, 0f, 0f)).asInstanceOf[RevoluteJoint]
+      rev.enableMotor(true)
+      rev.maxMotorTorque = 50f
+      assertEqualsFloat(rev.maxMotorTorque, 50f, 0.001f)
+      world.destroyJoint(rev)
+      // Prismatic
+      val pris = world.createJoint(JointDef.Prismatic(b1, b2, 1f, 0f)).asInstanceOf[PrismaticJoint]
+      pris.enableMotor(true)
+      pris.motorSpeed = 3f
+      pris.maxMotorForce = 100f
+      assertEqualsFloat(pris.motorSpeed, 3f, 0.001f)
+      assertEqualsFloat(pris.maxMotorForce, 100f, 0.001f)
+      world.destroyJoint(pris)
+      // Motor
+      val motor = world.createJoint(JointDef.Motor(b1, b2)).asInstanceOf[MotorJoint]
+      motor.maxForce = 200f
+      motor.maxTorque = 100f
+      motor.correctionFactor = 0.5f
+      assertEqualsFloat(motor.maxForce, 200f, 0.001f)
+      assertEqualsFloat(motor.maxTorque, 100f, 0.001f)
+      assertEqualsFloat(motor.correctionFactor, 0.5f, 0.01f)
+    } finally world.close()
+  }
+
+  test("Solver parameters") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      world.numSolverIterations = 8
+      assertEquals(world.numSolverIterations, 8)
+      // Just verify these don't crash
+      world.setNumAdditionalFrictionIterations(2)
+      world.setNumInternalPgsIterations(1)
+    } finally world.close()
+  }
+
+  test("rayCastAll returns multiple hits") {
+    requireNative()
+    val world = new PhysicsWorld(0f, 0f)
+    try {
+      val b1 = world.createBody(BodyType.Static, x = 0f, y = 5f)
+      b1.attachCollider(Shape.Box(5f, 0.5f))
+      val b2 = world.createBody(BodyType.Static, x = 0f, y = 10f)
+      b2.attachCollider(Shape.Box(5f, 0.5f))
+      world.step(0f)
+      val hits = world.rayCastAll(0f, 0f, 0f, 1f, 20f)
+      assert(hits.size >= 2, s"Should hit at least 2 colliders, got ${hits.size}")
+    } finally world.close()
+  }
+
+  test("TriMesh collider creation") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body    = world.createBody(BodyType.Static)
+      val verts   = Array(0f, 0f, 1f, 0f, 0.5f, 1f) // triangle
+      val indices = Array(0, 1, 2)
+      val col     = body.attachCollider(Shape.TriMesh(verts, indices))
+      assert(col.shapeType == 5, s"TriMesh shape type should be 5, got ${col.shapeType}")
+    } finally world.close()
+  }
+
+  test("Heightfield collider creation") {
+    requireNative()
+    val world = new PhysicsWorld()
+    try {
+      val body    = world.createBody(BodyType.Static)
+      val heights = Array(0f, 1f, 0.5f, 0.2f, 0f)
+      val col     = body.attachCollider(Shape.Heightfield(heights, scaleX = 10f, scaleY = 1f))
+      assert(col.shapeType == 7, s"Heightfield shape type should be 7, got ${col.shapeType}")
+    } finally world.close()
+  }
+
   private def assertEqualsFloat(actual: Float, expected: Float, delta: Float)(implicit loc: munit.Location): Unit =
     assert(scala.math.abs(actual - expected) <= delta, s"Expected $expected +/- $delta, got $actual")
 }

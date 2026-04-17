@@ -84,6 +84,23 @@ object JointDef {
     *   initial world-space y coordinate of the drag target
     */
   final case class Mouse(body: RigidBody, targetX: Float, targetY: Float) extends JointDef
+
+  /** A spring joint that connects two bodies with a spring-damper constraint.
+    *
+    * The spring pulls the bodies toward the rest length distance, with configurable stiffness and damping.
+    *
+    * @param body1
+    *   the first body
+    * @param body2
+    *   the second body
+    * @param restLength
+    *   the natural length of the spring
+    * @param stiffness
+    *   the spring stiffness (higher = stiffer)
+    * @param damping
+    *   the spring damping (higher = less oscillation)
+    */
+  final case class Spring(body1: RigidBody, body2: RigidBody, restLength: Float, stiffness: Float, damping: Float) extends JointDef
 }
 
 /** A handle to a joint constraint in the physics world.
@@ -136,6 +153,10 @@ class RevoluteJoint private[physics] (
   def motorSpeed: Float =
     world.ops.revoluteJointGetMotorSpeed(world.handle, handle)
 
+  /** Gets the maximum motor torque. */
+  def maxMotorTorque: Float =
+    world.ops.revoluteJointGetMaxMotorTorque(world.handle, handle)
+
   /** Sets the maximum motor torque. */
   def maxMotorTorque_=(torque: Float): Unit =
     world.ops.revoluteJointSetMaxMotorTorque(world.handle, handle, torque)
@@ -174,9 +195,17 @@ class PrismaticJoint private[physics] (
   def enableMotor(enable: Boolean): Unit =
     world.ops.prismaticJointEnableMotor(world.handle, handle, enable)
 
+  /** Gets the current motor speed setting. */
+  def motorSpeed: Float =
+    world.ops.prismaticJointGetMotorSpeed(world.handle, handle)
+
   /** Sets the target motor speed. */
   def motorSpeed_=(speed: Float): Unit =
     world.ops.prismaticJointSetMotorSpeed(world.handle, handle, speed)
+
+  /** Gets the maximum motor force. */
+  def maxMotorForce: Float =
+    world.ops.prismaticJointGetMaxMotorForce(world.handle, handle)
 
   /** Sets the maximum motor force. */
   def maxMotorForce_=(force: Float): Unit =
@@ -240,17 +269,51 @@ class MotorJoint private[physics] (
   def angularOffset_=(a: Float): Unit =
     world.ops.motorJointSetAngularOffset(world.handle, handle, a)
 
+  /** Gets the maximum force the motor can apply. */
+  def maxForce: Float =
+    world.ops.motorJointGetMaxForce(world.handle, handle)
+
   /** Sets the maximum force the motor can apply. */
   def maxForce_=(f: Float): Unit =
     world.ops.motorJointSetMaxForce(world.handle, handle, f)
+
+  /** Gets the maximum torque the motor can apply. */
+  def maxTorque: Float =
+    world.ops.motorJointGetMaxTorque(world.handle, handle)
 
   /** Sets the maximum torque the motor can apply. */
   def maxTorque_=(t: Float): Unit =
     world.ops.motorJointSetMaxTorque(world.handle, handle, t)
 
+  /** Gets the correction factor. */
+  def correctionFactor: Float =
+    world.ops.motorJointGetCorrectionFactor(world.handle, handle)
+
   /** Sets the correction factor (0 = no correction, 1 = full correction per step). */
   def correctionFactor_=(f: Float): Unit =
     world.ops.motorJointSetCorrectionFactor(world.handle, handle, f)
+}
+
+/** A spring joint that connects two bodies with a spring-damper constraint.
+  *
+  * The spring pulls the bodies toward the rest length distance, with configurable stiffness and damping.
+  */
+class SpringJoint private[physics] (
+  private[physics] val world:  PhysicsWorld,
+  private[physics] val handle: Long
+) extends Joint {
+
+  /** Gets the rest length of the spring. */
+  def restLength: Float =
+    world.ops.springJointGetRestLength(world.handle, handle)
+
+  /** Sets the rest length of the spring. */
+  def restLength_=(length: Float): Unit =
+    world.ops.springJointSetRestLength(world.handle, handle, length)
+
+  /** Sets the stiffness and damping parameters of the spring. */
+  def setParams(stiffness: Float, damping: Float): Unit =
+    world.ops.springJointSetParams(world.handle, handle, stiffness, damping)
 }
 
 /** A mouse (drag) joint that pulls a body toward a world-space target position.

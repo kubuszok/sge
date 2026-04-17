@@ -47,6 +47,30 @@ private object PhysicsC {
   def sge_phys_body_wake_up(world:              Long, body: Long):                                 Unit   = extern
   def sge_phys_body_set_fixed_rotation(world:   Long, body: Long, fixed:   CInt):                  Unit   = extern
 
+  // Body forces at point / additional properties
+  def sge_phys_body_apply_force_at_point(world:     Long, body: Long, fx:      CFloat, fy: CFloat, px:  CFloat, py: CFloat): Unit   = extern
+  def sge_phys_body_apply_impulse_at_point(world:   Long, body: Long, ix:      CFloat, iy: CFloat, px:  CFloat, py: CFloat): Unit   = extern
+  def sge_phys_body_apply_torque_impulse(world:     Long, body: Long, impulse: CFloat):                                      Unit   = extern
+  def sge_phys_body_reset_forces(world:             Long, body: Long):                                                       Unit   = extern
+  def sge_phys_body_reset_torques(world:            Long, body: Long):                                                       Unit   = extern
+  def sge_phys_body_get_linear_damping(world:       Long, body: Long):                                                       CFloat = extern
+  def sge_phys_body_get_angular_damping(world:      Long, body: Long):                                                       CFloat = extern
+  def sge_phys_body_get_gravity_scale(world:        Long, body: Long):                                                       CFloat = extern
+  def sge_phys_body_get_type(world:                 Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_set_enabled(world:              Long, body: Long, enabled: CInt):                                        Unit   = extern
+  def sge_phys_body_is_enabled(world:               Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_set_enabled_translations(world: Long, body: Long, x:       CInt, y:    CInt):                            Unit   = extern
+  def sge_phys_body_is_translation_locked_x(world:  Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_is_translation_locked_y(world:  Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_is_rotation_locked(world:       Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_set_dominance_group(world:      Long, body: Long, group:   CInt):                                        Unit   = extern
+  def sge_phys_body_get_dominance_group(world:      Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_get_world_center_of_mass(world: Long, body: Long, out:     Ptr[CFloat]):                                 Unit   = extern
+  def sge_phys_body_enable_ccd(world:               Long, body: Long, enable:  CInt):                                        Unit   = extern
+  def sge_phys_body_is_ccd_enabled(world:           Long, body: Long):                                                       CInt   = extern
+  def sge_phys_body_sleep(world:                    Long, body: Long):                                                       Unit   = extern
+  def sge_phys_body_get_velocity_at_point(world:    Long, body: Long, px:      CFloat, py: CFloat, out: Ptr[CFloat]):        Unit   = extern
+
   // Collider
   def sge_phys_create_circle_collider(world:   Long, body:     Long, radius:      CFloat):                                                   Long = extern
   def sge_phys_create_box_collider(world:      Long, body:     Long, halfWidth:   CFloat, halfHeight:       CFloat):                         Long = extern
@@ -59,6 +83,31 @@ private object PhysicsC {
   def sge_phys_collider_set_friction(world:    Long, collider: Long, friction:    CFloat):                                                   Unit = extern
   def sge_phys_collider_set_restitution(world: Long, collider: Long, restitution: CFloat):                                                   Unit = extern
   def sge_phys_collider_set_sensor(world:      Long, collider: Long, sensor:      CInt):                                                     Unit = extern
+
+  // Collider getters/properties
+  def sge_phys_collider_get_density(world:                Long, collider: Long):                                            CFloat = extern
+  def sge_phys_collider_get_friction(world:               Long, collider: Long):                                            CFloat = extern
+  def sge_phys_collider_get_restitution(world:            Long, collider: Long):                                            CFloat = extern
+  def sge_phys_collider_is_sensor(world:                  Long, collider: Long):                                            CInt   = extern
+  def sge_phys_collider_set_enabled(world:                Long, collider: Long, enabled: CInt):                             Unit   = extern
+  def sge_phys_collider_is_enabled(world:                 Long, collider: Long):                                            CInt   = extern
+  def sge_phys_collider_get_position_wrt_parent(world:    Long, collider: Long, out:     Ptr[CFloat]):                      Unit   = extern
+  def sge_phys_collider_set_position_wrt_parent(world:    Long, collider: Long, x:       CFloat, y: CFloat, angle: CFloat): Unit   = extern
+  def sge_phys_collider_get_position(world:               Long, collider: Long, out:     Ptr[CFloat]):                      Unit   = extern
+  def sge_phys_collider_get_shape_type(world:             Long, collider: Long):                                            CInt   = extern
+  def sge_phys_collider_get_aabb(world:                   Long, collider: Long, out:     Ptr[CFloat]):                      Unit   = extern
+  def sge_phys_collider_get_parent_body(world:            Long, collider: Long):                                            Long   = extern
+  def sge_phys_collider_get_mass(world:                   Long, collider: Long):                                            CFloat = extern
+  def sge_phys_collider_set_mass(world:                   Long, collider: Long, mass:    CFloat):                           Unit   = extern
+  def sge_phys_collider_set_contact_skin(world:           Long, collider: Long, skin:    CFloat):                           Unit   = extern
+  def sge_phys_collider_set_active_events(world:          Long, collider: Long, flags:   CInt):                             Unit   = extern
+  def sge_phys_collider_get_active_events(world:          Long, collider: Long):                                            CInt   = extern
+  def sge_phys_collider_set_active_collision_types(world: Long, collider: Long, flags:   CInt):                             Unit   = extern
+  def sge_phys_collider_get_active_collision_types(world: Long, collider: Long):                                            CInt   = extern
+
+  // New shapes
+  def sge_phys_create_trimesh_collider(world:     Long, body: Long, vertices: Ptr[CFloat], vertexCount: CInt, indices: Ptr[CInt], indexCount: CInt):   Long = extern
+  def sge_phys_create_heightfield_collider(world: Long, body: Long, heights:  Ptr[CFloat], numCols:     CInt, scaleX:  CFloat, scaleY:        CFloat): Long = extern
 
   // Collision filtering
   def sge_phys_collider_set_collision_groups(world: Long, collider: Long, memberships: CInt, filter: CInt): Unit = extern
@@ -103,6 +152,20 @@ private object PhysicsC {
   def sge_phys_motor_joint_set_max_torque(world:        Long, joint: Long, torque: CFloat):            Unit   = extern
   def sge_phys_motor_joint_set_correction_factor(world: Long, joint: Long, factor: CFloat):            Unit   = extern
 
+  // Joint getters
+  def sge_phys_revolute_joint_get_max_motor_torque(world: Long, joint: Long): CFloat = extern
+  def sge_phys_prismatic_joint_get_motor_speed(world:     Long, joint: Long): CFloat = extern
+  def sge_phys_prismatic_joint_get_max_motor_force(world: Long, joint: Long): CFloat = extern
+  def sge_phys_motor_joint_get_max_force(world:           Long, joint: Long): CFloat = extern
+  def sge_phys_motor_joint_get_max_torque(world:          Long, joint: Long): CFloat = extern
+  def sge_phys_motor_joint_get_correction_factor(world:   Long, joint: Long): CFloat = extern
+
+  // Spring joint
+  def sge_phys_create_spring_joint(world:          Long, body1: Long, body2:      Long, restLength: CFloat, stiffness: CFloat, damping: CFloat): Long   = extern
+  def sge_phys_spring_joint_set_rest_length(world: Long, joint: Long, restLength: CFloat):                                                       Unit   = extern
+  def sge_phys_spring_joint_get_rest_length(world: Long, joint: Long):                                                                           CFloat = extern
+  def sge_phys_spring_joint_set_params(world:      Long, joint: Long, stiffness:  CFloat, damping:  CFloat):                                     Unit   = extern
+
   // Rope joint
   def sge_phys_rope_joint_set_max_distance(world: Long, joint: Long, maxDist: CFloat): Unit   = extern
   def sge_phys_rope_joint_get_max_distance(world: Long, joint: Long):                  CFloat = extern
@@ -125,6 +188,24 @@ private object PhysicsC {
   // Contact events
   def sge_phys_poll_contact_start_events(world: Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
   def sge_phys_poll_contact_stop_events(world:  Long, outCollider1: Ptr[Long], outCollider2: Ptr[Long], maxEvents: CInt): CInt = extern
+
+  // Advanced queries
+  def sge_phys_cast_shape(world: Long, shapeType: CInt, shapeParams: Ptr[CFloat], originX: CFloat, originY: CFloat, dirX: CFloat, dirY: CFloat, maxDist: CFloat, out: Ptr[CFloat]): CInt = extern
+  def sge_phys_ray_cast_all(world:  Long, ox: CFloat, oy: CFloat, dx:  CFloat, dy: CFloat, maxDist: CFloat, outHits: Ptr[CFloat], maxHits: CInt): CInt = extern
+  def sge_phys_project_point(world: Long, x:  CFloat, y:  CFloat, out: Ptr[CFloat]):                                                              CInt = extern
+
+  // Intersection events
+  def sge_phys_poll_intersection_start_events(world: Long, out1: Ptr[Long], out2: Ptr[Long], max: CInt): CInt = extern
+  def sge_phys_poll_intersection_stop_events(world:  Long, out1: Ptr[Long], out2: Ptr[Long], max: CInt): CInt = extern
+
+  // Solver parameters
+  def sge_phys_world_set_num_solver_iterations(world:              Long, iters: CInt): Unit = extern
+  def sge_phys_world_get_num_solver_iterations(world:              Long):              CInt = extern
+  def sge_phys_world_set_num_additional_friction_iterations(world: Long, iters: CInt): Unit = extern
+  def sge_phys_world_set_num_internal_pgs_iterations(world:        Long, iters: CInt): Unit = extern
+
+  // Shape intersection
+  def sge_phys_intersect_shape(world: Long, shapeType: CInt, shapeParams: Ptr[CFloat], posX: CFloat, posY: CFloat, angle: CFloat, outColliders: Ptr[Long], maxResults: CInt): CInt = extern
 }
 
 /** Scala Native implementation of [[PhysicsOps]] using `@extern` bindings to the Rust `sge_physics` library. */
@@ -224,6 +305,80 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
   override def bodySetFixedRotation(world: Long, body: Long, fixed: Boolean): Unit =
     PhysicsC.sge_phys_body_set_fixed_rotation(world, body, if (fixed) 1 else 0)
 
+  override def bodyApplyForceAtPoint(world: Long, body: Long, fx: Float, fy: Float, px: Float, py: Float): Unit =
+    PhysicsC.sge_phys_body_apply_force_at_point(world, body, fx, fy, px, py)
+
+  override def bodyApplyImpulseAtPoint(world: Long, body: Long, ix: Float, iy: Float, px: Float, py: Float): Unit =
+    PhysicsC.sge_phys_body_apply_impulse_at_point(world, body, ix, iy, px, py)
+
+  override def bodyApplyTorqueImpulse(world: Long, body: Long, impulse: Float): Unit =
+    PhysicsC.sge_phys_body_apply_torque_impulse(world, body, impulse)
+
+  override def bodyResetForces(world: Long, body: Long): Unit =
+    PhysicsC.sge_phys_body_reset_forces(world, body)
+
+  override def bodyResetTorques(world: Long, body: Long): Unit =
+    PhysicsC.sge_phys_body_reset_torques(world, body)
+
+  override def bodyGetLinearDamping(world: Long, body: Long): Float =
+    PhysicsC.sge_phys_body_get_linear_damping(world, body)
+
+  override def bodyGetAngularDamping(world: Long, body: Long): Float =
+    PhysicsC.sge_phys_body_get_angular_damping(world, body)
+
+  override def bodyGetGravityScale(world: Long, body: Long): Float =
+    PhysicsC.sge_phys_body_get_gravity_scale(world, body)
+
+  override def bodyGetType(world: Long, body: Long): Int =
+    PhysicsC.sge_phys_body_get_type(world, body)
+
+  override def bodySetEnabled(world: Long, body: Long, enabled: Boolean): Unit =
+    PhysicsC.sge_phys_body_set_enabled(world, body, if (enabled) 1 else 0)
+
+  override def bodyIsEnabled(world: Long, body: Long): Boolean =
+    PhysicsC.sge_phys_body_is_enabled(world, body) != 0
+
+  override def bodySetEnabledTranslations(world: Long, body: Long, allowX: Boolean, allowY: Boolean): Unit =
+    PhysicsC.sge_phys_body_set_enabled_translations(world, body, if (allowX) 1 else 0, if (allowY) 1 else 0)
+
+  override def bodyIsTranslationLockedX(world: Long, body: Long): Boolean =
+    PhysicsC.sge_phys_body_is_translation_locked_x(world, body) != 0
+
+  override def bodyIsTranslationLockedY(world: Long, body: Long): Boolean =
+    PhysicsC.sge_phys_body_is_translation_locked_y(world, body) != 0
+
+  override def bodyIsRotationLocked(world: Long, body: Long): Boolean =
+    PhysicsC.sge_phys_body_is_rotation_locked(world, body) != 0
+
+  override def bodySetDominanceGroup(world: Long, body: Long, group: Int): Unit =
+    PhysicsC.sge_phys_body_set_dominance_group(world, body, group)
+
+  override def bodyGetDominanceGroup(world: Long, body: Long): Int =
+    PhysicsC.sge_phys_body_get_dominance_group(world, body)
+
+  override def bodyGetWorldCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_body_get_world_center_of_mass(world, body, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
+  override def bodyEnableCcd(world: Long, body: Long, enable: Boolean): Unit =
+    PhysicsC.sge_phys_body_enable_ccd(world, body, if (enable) 1 else 0)
+
+  override def bodyIsCcdEnabled(world: Long, body: Long): Boolean =
+    PhysicsC.sge_phys_body_is_ccd_enabled(world, body) != 0
+
+  override def bodySleep(world: Long, body: Long): Unit =
+    PhysicsC.sge_phys_body_sleep(world, body)
+
+  override def bodyGetVelocityAtPoint(world: Long, body: Long, px: Float, py: Float, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](2)
+    PhysicsC.sge_phys_body_get_velocity_at_point(world, body, px, py, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+  }
+
   // ─── Collider ─────────────────────────────────────────────────────────
 
   override def createCircleCollider(world: Long, body: Long, radius: Float): Long =
@@ -258,6 +413,101 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
 
   override def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit =
     PhysicsC.sge_phys_collider_set_sensor(world, collider, if (sensor) 1 else 0)
+
+  override def colliderGetDensity(world: Long, collider: Long): Float =
+    PhysicsC.sge_phys_collider_get_density(world, collider)
+
+  override def colliderGetFriction(world: Long, collider: Long): Float =
+    PhysicsC.sge_phys_collider_get_friction(world, collider)
+
+  override def colliderGetRestitution(world: Long, collider: Long): Float =
+    PhysicsC.sge_phys_collider_get_restitution(world, collider)
+
+  override def colliderIsSensor(world: Long, collider: Long): Boolean =
+    PhysicsC.sge_phys_collider_is_sensor(world, collider) != 0
+
+  override def colliderSetEnabled(world: Long, collider: Long, enabled: Boolean): Unit =
+    PhysicsC.sge_phys_collider_set_enabled(world, collider, if (enabled) 1 else 0)
+
+  override def colliderIsEnabled(world: Long, collider: Long): Boolean =
+    PhysicsC.sge_phys_collider_is_enabled(world, collider) != 0
+
+  override def colliderGetPositionWrtParent(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](3)
+    PhysicsC.sge_phys_collider_get_position_wrt_parent(world, collider, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+    out(2) = buf(2)
+  }
+
+  override def colliderSetPositionWrtParent(world: Long, collider: Long, x: Float, y: Float, angle: Float): Unit =
+    PhysicsC.sge_phys_collider_set_position_wrt_parent(world, collider, x, y, angle)
+
+  override def colliderGetPosition(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](3)
+    PhysicsC.sge_phys_collider_get_position(world, collider, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+    out(2) = buf(2)
+  }
+
+  override def colliderGetShapeType(world: Long, collider: Long): Int =
+    PhysicsC.sge_phys_collider_get_shape_type(world, collider)
+
+  override def colliderGetAabb(world: Long, collider: Long, out: Array[Float]): Unit = {
+    val buf = stackalloc[CFloat](4)
+    PhysicsC.sge_phys_collider_get_aabb(world, collider, buf)
+    out(0) = buf(0)
+    out(1) = buf(1)
+    out(2) = buf(2)
+    out(3) = buf(3)
+  }
+
+  override def colliderGetParentBody(world: Long, collider: Long): Long =
+    PhysicsC.sge_phys_collider_get_parent_body(world, collider).toLong
+
+  override def colliderGetMass(world: Long, collider: Long): Float =
+    PhysicsC.sge_phys_collider_get_mass(world, collider)
+
+  override def colliderSetMass(world: Long, collider: Long, mass: Float): Unit =
+    PhysicsC.sge_phys_collider_set_mass(world, collider, mass)
+
+  override def colliderSetContactSkin(world: Long, collider: Long, skin: Float): Unit =
+    PhysicsC.sge_phys_collider_set_contact_skin(world, collider, skin)
+
+  override def colliderSetActiveEvents(world: Long, collider: Long, flags: Int): Unit =
+    PhysicsC.sge_phys_collider_set_active_events(world, collider, flags)
+
+  override def colliderGetActiveEvents(world: Long, collider: Long): Int =
+    PhysicsC.sge_phys_collider_get_active_events(world, collider)
+
+  override def colliderSetActiveCollisionTypes(world: Long, collider: Long, flags: Int): Unit =
+    PhysicsC.sge_phys_collider_set_active_collision_types(world, collider, flags)
+
+  override def colliderGetActiveCollisionTypes(world: Long, collider: Long): Int =
+    PhysicsC.sge_phys_collider_get_active_collision_types(world, collider)
+
+  // ─── New shapes ───────────────────────────────────────────────────────
+
+  override def createTriMeshCollider(
+    world:       Long,
+    body:        Long,
+    vertices:    Array[Float],
+    vertexCount: Int,
+    indices:     Array[Int],
+    indexCount:  Int
+  ): Long =
+    PhysicsC.sge_phys_create_trimesh_collider(world, body, vertices.at(0), vertexCount, indices.at(0), indexCount).toLong
+
+  override def createHeightfieldCollider(
+    world:   Long,
+    body:    Long,
+    heights: Array[Float],
+    numCols: Int,
+    scaleX:  Float,
+    scaleY:  Float
+  ): Long =
+    PhysicsC.sge_phys_create_heightfield_collider(world, body, heights.at(0), numCols, scaleX, scaleY).toLong
 
   // ─── Collision filtering ──────────────────────────────────────────────
 
@@ -387,6 +637,40 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
 
   override def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float): Unit =
     PhysicsC.sge_phys_motor_joint_set_correction_factor(world, joint, factor)
+
+  // ─── Joint getters ────────────────────────────────────────────────────
+
+  override def revoluteJointGetMaxMotorTorque(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_revolute_joint_get_max_motor_torque(world, joint)
+
+  override def prismaticJointGetMotorSpeed(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_prismatic_joint_get_motor_speed(world, joint)
+
+  override def prismaticJointGetMaxMotorForce(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_prismatic_joint_get_max_motor_force(world, joint)
+
+  override def motorJointGetMaxForce(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_motor_joint_get_max_force(world, joint)
+
+  override def motorJointGetMaxTorque(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_motor_joint_get_max_torque(world, joint)
+
+  override def motorJointGetCorrectionFactor(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_motor_joint_get_correction_factor(world, joint)
+
+  // ─── Spring joint ─────────────────────────────────────────────────────
+
+  override def createSpringJoint(world: Long, body1: Long, body2: Long, restLength: Float, stiffness: Float, damping: Float): Long =
+    PhysicsC.sge_phys_create_spring_joint(world, body1, body2, restLength, stiffness, damping).toLong
+
+  override def springJointSetRestLength(world: Long, joint: Long, restLength: Float): Unit =
+    PhysicsC.sge_phys_spring_joint_set_rest_length(world, joint, restLength)
+
+  override def springJointGetRestLength(world: Long, joint: Long): Float =
+    PhysicsC.sge_phys_spring_joint_get_rest_length(world, joint)
+
+  override def springJointSetParams(world: Long, joint: Long, stiffness: Float, damping: Float): Unit =
+    PhysicsC.sge_phys_spring_joint_set_params(world, joint, stiffness, damping)
 
   // ─── Rope joint ───────────────────────────────────────────────────────
 
@@ -524,6 +808,140 @@ private[platform] object PhysicsOpsNative extends PhysicsOps {
     var i           = 0
     while (i < copyCount) {
       out(i) = buf(i)
+      i += 1
+    }
+    count
+  }
+
+  // ─── Advanced queries ─────────────────────────────────────────────────
+
+  override def castShape(
+    world:       Long,
+    shapeType:   Int,
+    shapeParams: Array[Float],
+    originX:     Float,
+    originY:     Float,
+    dirX:        Float,
+    dirY:        Float,
+    maxDist:     Float,
+    out:         Array[Float]
+  ): Boolean = {
+    val buf = stackalloc[CFloat](7)
+    val hit = PhysicsC.sge_phys_cast_shape(world, shapeType, shapeParams.at(0), originX, originY, dirX, dirY, maxDist, buf) != 0
+    if (hit) {
+      var i = 0
+      while (i < 7) {
+        out(i) = buf(i)
+        i += 1
+      }
+    }
+    hit
+  }
+
+  override def rayCastAll(
+    world:   Long,
+    originX: Float,
+    originY: Float,
+    dirX:    Float,
+    dirY:    Float,
+    maxDist: Float,
+    outHits: Array[Float],
+    maxHits: Int
+  ): Int = {
+    val totalFloats = maxHits * 7
+    val buf         = stackalloc[CFloat](totalFloats)
+    val count       = PhysicsC.sge_phys_ray_cast_all(world, originX, originY, dirX, dirY, maxDist, buf, maxHits)
+    val copyCount   = count * 7
+    var i           = 0
+    while (i < copyCount) {
+      outHits(i) = buf(i)
+      i += 1
+    }
+    count
+  }
+
+  override def projectPoint(world: Long, x: Float, y: Float, out: Array[Float]): Boolean = {
+    val buf    = stackalloc[CFloat](5)
+    val result = PhysicsC.sge_phys_project_point(world, x, y, buf) != 0
+    if (result) {
+      out(0) = buf(0)
+      out(1) = buf(1)
+      out(2) = buf(2)
+      out(3) = buf(3)
+      out(4) = buf(4)
+    }
+    result
+  }
+
+  // ─── Intersection events ──────────────────────────────────────────────
+
+  override def pollIntersectionStartEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    maxEvents:    Int
+  ): Int = {
+    val buf1  = stackalloc[Long](maxEvents)
+    val buf2  = stackalloc[Long](maxEvents)
+    val count = PhysicsC.sge_phys_poll_intersection_start_events(world, buf1, buf2, maxEvents)
+    var i     = 0
+    while (i < count) {
+      outCollider1(i) = buf1(i).toLong
+      outCollider2(i) = buf2(i).toLong
+      i += 1
+    }
+    count
+  }
+
+  override def pollIntersectionStopEvents(
+    world:        Long,
+    outCollider1: Array[Long],
+    outCollider2: Array[Long],
+    maxEvents:    Int
+  ): Int = {
+    val buf1  = stackalloc[Long](maxEvents)
+    val buf2  = stackalloc[Long](maxEvents)
+    val count = PhysicsC.sge_phys_poll_intersection_stop_events(world, buf1, buf2, maxEvents)
+    var i     = 0
+    while (i < count) {
+      outCollider1(i) = buf1(i).toLong
+      outCollider2(i) = buf2(i).toLong
+      i += 1
+    }
+    count
+  }
+
+  // ─── Solver parameters ────────────────────────────────────────────────
+
+  override def worldSetNumSolverIterations(world: Long, iters: Int): Unit =
+    PhysicsC.sge_phys_world_set_num_solver_iterations(world, iters)
+
+  override def worldGetNumSolverIterations(world: Long): Int =
+    PhysicsC.sge_phys_world_get_num_solver_iterations(world)
+
+  override def worldSetNumAdditionalFrictionIterations(world: Long, iters: Int): Unit =
+    PhysicsC.sge_phys_world_set_num_additional_friction_iterations(world, iters)
+
+  override def worldSetNumInternalPgsIterations(world: Long, iters: Int): Unit =
+    PhysicsC.sge_phys_world_set_num_internal_pgs_iterations(world, iters)
+
+  // ─── Shape intersection ───────────────────────────────────────────────
+
+  override def intersectShape(
+    world:        Long,
+    shapeType:    Int,
+    shapeParams:  Array[Float],
+    posX:         Float,
+    posY:         Float,
+    angle:        Float,
+    outColliders: Array[Long],
+    maxResults:   Int
+  ): Int = {
+    val buf   = stackalloc[Long](maxResults)
+    val count = PhysicsC.sge_phys_intersect_shape(world, shapeType, shapeParams.at(0), posX, posY, angle, buf, maxResults)
+    var i     = 0
+    while (i < count) {
+      outColliders(i) = buf(i).toLong
       i += 1
     }
     count

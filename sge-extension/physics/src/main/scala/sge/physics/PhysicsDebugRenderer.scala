@@ -156,6 +156,40 @@ class PhysicsDebugRenderer(maxVertices: Int = 5000)(using Sge) extends AutoClose
             i += 1
           }
         }
+
+      case Shape.TriMesh(vertices, indices) =>
+        val triCount = indices.length / 3
+        var t        = 0
+        while (t < triCount) {
+          val i0  = indices(t * 3)
+          val i1  = indices(t * 3 + 1)
+          val i2  = indices(t * 3 + 2)
+          val v0x = vertices(i0 * 2); val v0y             = vertices(i0 * 2 + 1)
+          val v1x = vertices(i1 * 2); val v1y             = vertices(i1 * 2 + 1)
+          val v2x = vertices(i2 * 2); val v2y             = vertices(i2 * 2 + 1)
+          val a0x = px + v0x * cosA - v0y * sinA; val a0y = py + v0x * sinA + v0y * cosA
+          val a1x = px + v1x * cosA - v1y * sinA; val a1y = py + v1x * sinA + v1y * cosA
+          val a2x = px + v2x * cosA - v2y * sinA; val a2y = py + v2x * sinA + v2y * cosA
+          shapeRenderer.line(a0x, a0y, a1x, a1y)
+          shapeRenderer.line(a1x, a1y, a2x, a2y)
+          shapeRenderer.line(a2x, a2y, a0x, a0y)
+          t += 1
+        }
+
+      case Shape.Heightfield(heights, scaleX, scaleY) =>
+        val count = heights.length
+        if (count >= 2) {
+          val dx = scaleX / (count - 1)
+          var i  = 0
+          while (i < count - 1) {
+            val x1l = -scaleX / 2f + i * dx; val y1l       = heights(i) * scaleY
+            val x2l = -scaleX / 2f + (i + 1) * dx; val y2l = heights(i + 1) * scaleY
+            val ax  = px + x1l * cosA - y1l * sinA; val ay = py + x1l * sinA + y1l * cosA
+            val bx  = px + x2l * cosA - y2l * sinA; val by = py + x2l * sinA + y2l * cosA
+            shapeRenderer.line(ax, ay, bx, by)
+            i += 1
+          }
+        }
     }
 
   /** Releases the internal [[ShapeRenderer]]. */
