@@ -64,7 +64,9 @@ jobs:
         run: re-scale version
 
       - name: Verify covenants on covenanted files
-        run: re-scale enforce verify --all
+        run: |
+          grep -rl 'Covenant:' --include='*.scala' . \
+            | xargs -I{} re-scale enforce verify --file {}
 
       - name: Shortcut budget on covenanted files
         run: re-scale enforce shortcuts --covenanted
