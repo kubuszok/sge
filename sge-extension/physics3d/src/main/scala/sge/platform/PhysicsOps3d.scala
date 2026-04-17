@@ -149,6 +149,54 @@ private[sge] trait PhysicsOps3d {
   /** Forces recomputation of mass properties from attached colliders. */
   def bodyRecomputeMassProperties(world: Long, body: Long): Unit
 
+  /** Applies a torque impulse vector (instantaneous change to angular velocity). */
+  def bodyApplyTorqueImpulse(world: Long, body: Long, tx: Float, ty: Float, tz: Float): Unit
+
+  /** Resets all accumulated forces on the body. */
+  def bodyResetForces(world: Long, body: Long): Unit
+
+  /** Resets all accumulated torques on the body. */
+  def bodyResetTorques(world: Long, body: Long): Unit
+
+  /** Returns the body type: 0=dynamic, 1=fixed(static), 2=kinematic-position, 3=kinematic-velocity. */
+  def bodyGetType(world: Long, body: Long): Int
+
+  /** Sets which translation axes are enabled for the body. */
+  def bodySetEnabledTranslations(world: Long, body: Long, allowX: Boolean, allowY: Boolean, allowZ: Boolean): Unit
+
+  /** Returns true if translation along the X axis is locked. */
+  def bodyIsTranslationLockedX(world: Long, body: Long): Boolean
+
+  /** Returns true if translation along the Y axis is locked. */
+  def bodyIsTranslationLockedY(world: Long, body: Long): Boolean
+
+  /** Returns true if translation along the Z axis is locked. */
+  def bodyIsTranslationLockedZ(world: Long, body: Long): Boolean
+
+  /** Sets which rotation axes are enabled for the body. */
+  def bodySetEnabledRotations(world: Long, body: Long, allowX: Boolean, allowY: Boolean, allowZ: Boolean): Unit
+
+  /** Returns true if rotation around the X axis is locked. */
+  def bodyIsRotationLockedX(world: Long, body: Long): Boolean
+
+  /** Returns true if rotation around the Y axis is locked. */
+  def bodyIsRotationLockedY(world: Long, body: Long): Boolean
+
+  /** Returns true if rotation around the Z axis is locked. */
+  def bodyIsRotationLockedZ(world: Long, body: Long): Boolean
+
+  /** Gets the world-space center of mass. Fills `out` with [x, y, z]. */
+  def bodyGetWorldCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit
+
+  /** Gets the local center of mass. Fills `out` with [x, y, z]. */
+  def bodyGetLocalCenterOfMass(world: Long, body: Long, out: Array[Float]): Unit
+
+  /** Gets the angular inertia of a rigid body. */
+  def bodyGetInertia(world: Long, body: Long): Float
+
+  /** Gets the velocity at a world-space point on the body. Fills `out` with [vx, vy, vz]. */
+  def bodyGetVelocityAtPoint(world: Long, body: Long, px: Float, py: Float, pz: Float, out: Array[Float]): Unit
+
   // ─── Collider ─────────────────────────────────────────────────────────
 
   /** Attaches a sphere collider to a body. Returns a collider handle. */
@@ -231,6 +279,94 @@ private[sge] trait PhysicsOps3d {
   /** Sets whether this collider is a sensor (detects overlap but no physical response). */
   def colliderSetSensor(world: Long, collider: Long, sensor: Boolean): Unit
 
+  /** Gets the collider's density. */
+  def colliderGetDensity(world: Long, collider: Long): Float
+
+  /** Gets the collider's friction coefficient. */
+  def colliderGetFriction(world: Long, collider: Long): Float
+
+  /** Gets the collider's restitution (bounciness). */
+  def colliderGetRestitution(world: Long, collider: Long): Float
+
+  /** Returns true if the collider is a sensor. */
+  def colliderIsSensor(world: Long, collider: Long): Boolean
+
+  /** Enables or disables the collider. */
+  def colliderSetEnabled(world: Long, collider: Long, enabled: Boolean): Unit
+
+  /** Returns true if the collider is enabled. */
+  def colliderIsEnabled(world: Long, collider: Long): Boolean
+
+  /** Gets the collider position relative to its parent body. Fills `out` with [x, y, z, qx, qy, qz, qw]. */
+  def colliderGetPositionWrtParent(world: Long, collider: Long, out: Array[Float]): Unit
+
+  /** Sets the collider position relative to its parent body. */
+  def colliderSetPositionWrtParent(world: Long, collider: Long, x: Float, y: Float, z: Float, qx: Float, qy: Float, qz: Float, qw: Float): Unit
+
+  /** Gets the collider world position. Fills `out` with [x, y, z, qx, qy, qz, qw]. */
+  def colliderGetPosition(world: Long, collider: Long, out: Array[Float]): Unit
+
+  /** Returns the collider shape type: 0=ball, 1=cuboid, 2=capsule, 3=cylinder, 4=cone, 5=convex, 6=trimesh, 7=heightfield, -1=unknown. */
+  def colliderGetShapeType(world: Long, collider: Long): Int
+
+  /** Gets the collider AABB. Fills `out` with [minX, minY, minZ, maxX, maxY, maxZ]. */
+  def colliderGetAabb(world: Long, collider: Long, out: Array[Float]): Unit
+
+  /** Gets the parent body handle of a collider. Returns 0 if no parent. */
+  def colliderGetParentBody(world: Long, collider: Long): Long
+
+  /** Gets the mass of a collider. */
+  def colliderGetMass(world: Long, collider: Long): Float
+
+  /** Sets the mass of a collider (overrides density-based mass). */
+  def colliderSetMass(world: Long, collider: Long, mass: Float): Unit
+
+  /** Sets the contact skin (margin around the collider for early contact detection). */
+  def colliderSetContactSkin(world: Long, collider: Long, skin: Float): Unit
+
+  /** Sets which events this collider generates (bitmask of ActiveEvents flags). */
+  def colliderSetActiveEvents(world: Long, collider: Long, flags: Int): Unit
+
+  /** Gets the active events flags for this collider. */
+  def colliderGetActiveEvents(world: Long, collider: Long): Int
+
+  /** Sets which collision types this collider participates in. */
+  def colliderSetActiveCollisionTypes(world: Long, collider: Long, flags: Int): Unit
+
+  /** Gets the active collision types flags for this collider. */
+  def colliderGetActiveCollisionTypes(world: Long, collider: Long): Int
+
+  /** Sets the collision groups for a collider. */
+  def colliderSetCollisionGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit
+
+  /** Gets the collision groups for a collider. Fills `out` with [memberships, filter]. */
+  def colliderGetCollisionGroups(world: Long, collider: Long, out: Array[Int]): Unit
+
+  /** Sets the solver groups for a collider. */
+  def colliderSetSolverGroups(world: Long, collider: Long, memberships: Int, filter: Int): Unit
+
+  /** Gets the solver groups for a collider. Fills `out` with [memberships, filter]. */
+  def colliderGetSolverGroups(world: Long, collider: Long, out: Array[Int]): Unit
+
+  // ─── New shape types ──────────────────────────────────────────────
+
+  /** Attaches a 3D heightfield collider to a body. Returns a collider handle.
+    *
+    * @param heights
+    *   row-major array of height values (nrows x ncols)
+    * @param nrows
+    *   number of rows
+    * @param ncols
+    *   number of columns
+    * @param scaleX
+    *   scale along x axis
+    * @param scaleY
+    *   scale along y axis (height)
+    * @param scaleZ
+    *   scale along z axis
+    */
+  def createHeightfieldCollider(world: Long, body: Long, heights: Array[Float], nrows: Int, ncols: Int, scaleX: Float, scaleY: Float, scaleZ: Float): Long
+
   // ─── Joints ───────────────────────────────────────────────────────────
 
   /** Creates a fixed (weld) joint between two bodies. Returns a joint handle. */
@@ -239,8 +375,67 @@ private[sge] trait PhysicsOps3d {
   /** Creates a rope joint that constrains two bodies to stay within a maximum distance. Returns a joint handle. */
   def createRopeJoint(world: Long, body1: Long, body2: Long, maxDist: Float): Long
 
+  /** Creates a revolute (hinge) joint around a given axis at the given anchor. Returns a joint handle. */
+  def createRevoluteJoint(world: Long, body1: Long, body2: Long, anchorX: Float, anchorY: Float, anchorZ: Float, axisX: Float, axisY: Float, axisZ: Float): Long
+
+  /** Creates a prismatic (slider) joint along a given axis. Returns a joint handle. */
+  def createPrismaticJoint(world: Long, body1: Long, body2: Long, axisX: Float, axisY: Float, axisZ: Float): Long
+
+  /** Creates a motor joint between two bodies (6-DOF). Returns a joint handle. */
+  def createMotorJoint(world: Long, body1: Long, body2: Long): Long
+
+  /** Creates a spring joint between two bodies. Returns a joint handle. */
+  def createSpringJoint(world: Long, body1: Long, body2: Long, restLength: Float, stiffness: Float, damping: Float): Long
+
   /** Destroys a joint. */
   def destroyJoint(world: Long, joint: Long): Unit
+
+  // ─── Revolute joint limits and motors ─────────────────────────────
+
+  def revoluteJointEnableLimits(world:      Long, joint: Long, enable: Boolean):             Unit
+  def revoluteJointSetLimits(world:         Long, joint: Long, lower:  Float, upper: Float): Unit
+  def revoluteJointGetLimits(world:         Long, joint: Long, out:    Array[Float]):        Unit
+  def revoluteJointIsLimitEnabled(world:    Long, joint: Long):                              Boolean
+  def revoluteJointEnableMotor(world:       Long, joint: Long, enable: Boolean):             Unit
+  def revoluteJointSetMotorSpeed(world:     Long, joint: Long, speed:  Float):               Unit
+  def revoluteJointSetMaxMotorTorque(world: Long, joint: Long, torque: Float):               Unit
+  def revoluteJointGetMotorSpeed(world:     Long, joint: Long):                              Float
+  def revoluteJointGetAngle(world:          Long, joint: Long):                              Float
+  def revoluteJointGetMaxMotorTorque(world: Long, joint: Long):                              Float
+
+  // ─── Prismatic joint limits and motors ────────────────────────────
+
+  def prismaticJointEnableLimits(world:     Long, joint: Long, enable: Boolean):             Unit
+  def prismaticJointSetLimits(world:        Long, joint: Long, lower:  Float, upper: Float): Unit
+  def prismaticJointGetLimits(world:        Long, joint: Long, out:    Array[Float]):        Unit
+  def prismaticJointEnableMotor(world:      Long, joint: Long, enable: Boolean):             Unit
+  def prismaticJointSetMotorSpeed(world:    Long, joint: Long, speed:  Float):               Unit
+  def prismaticJointSetMaxMotorForce(world: Long, joint: Long, force:  Float):               Unit
+  def prismaticJointGetTranslation(world:   Long, joint: Long):                              Float
+  def prismaticJointGetMotorSpeed(world:    Long, joint: Long):                              Float
+  def prismaticJointGetMaxMotorForce(world: Long, joint: Long):                              Float
+
+  // ─── Motor joint ──────────────────────────────────────────────────
+
+  def motorJointSetLinearOffset(world:     Long, joint: Long, x:      Float, y: Float, z: Float): Unit
+  def motorJointGetLinearOffset(world:     Long, joint: Long, out:    Array[Float]):              Unit
+  def motorJointSetMaxForce(world:         Long, joint: Long, force:  Float):                     Unit
+  def motorJointSetMaxTorque(world:        Long, joint: Long, torque: Float):                     Unit
+  def motorJointSetCorrectionFactor(world: Long, joint: Long, factor: Float):                     Unit
+  def motorJointGetMaxForce(world:         Long, joint: Long):                                    Float
+  def motorJointGetMaxTorque(world:        Long, joint: Long):                                    Float
+  def motorJointGetCorrectionFactor(world: Long, joint: Long):                                    Float
+
+  // ─── Rope joint ───────────────────────────────────────────────────
+
+  def ropeJointSetMaxDistance(world: Long, joint: Long, maxDist: Float): Unit
+  def ropeJointGetMaxDistance(world: Long, joint: Long):                 Float
+
+  // ─── Spring joint ─────────────────────────────────────────────────
+
+  def springJointSetRestLength(world: Long, joint: Long, restLength: Float):                 Unit
+  def springJointGetRestLength(world: Long, joint: Long):                                    Float
+  def springJointSetParams(world:     Long, joint: Long, stiffness:  Float, damping: Float): Unit
 
   // ─── Queries ──────────────────────────────────────────────────────────
 
@@ -273,4 +468,51 @@ private[sge] trait PhysicsOps3d {
     * Fills `outCollider1` and `outCollider2` with collider handle pairs. Returns the event count (capped at `maxEvents`).
     */
   def pollContactStopEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
+
+  // ─── Additional queries ───────────────────────────────────────────────
+
+  /** Finds all colliders intersecting the given axis-aligned bounding box. */
+  def queryAABB(world: Long, minX: Float, minY: Float, minZ: Float, maxX: Float, maxY: Float, maxZ: Float, outColliders: Array[Long], maxResults: Int): Int
+
+  /** Finds all bodies whose colliders contain the given point. */
+  def queryPoint(world: Long, x: Float, y: Float, z: Float, outBodies: Array[Long], maxResults: Int): Int
+
+  /** Casts a ray and returns ALL hits (up to `maxHits`). Each hit is 9 floats. */
+  def rayCastAll(world: Long, originX: Float, originY: Float, originZ: Float, dirX: Float, dirY: Float, dirZ: Float, maxDist: Float, outHits: Array[Float], maxHits: Int): Int
+
+  /** Projects a point onto the nearest collider surface. Fills `out` with [projX, projY, projZ, isInside, colliderLo, colliderHi] (6 floats). Returns true if found. */
+  def projectPoint(world: Long, x: Float, y: Float, z: Float, out: Array[Float]): Boolean
+
+  // ─── Contact detail queries ───────────────────────────────────────────
+
+  /** Returns the number of contact points between two colliders. */
+  def contactPairCount(world: Long, collider1: Long, collider2: Long): Int
+
+  /** Gets contact point details. Fills `out` with [nx,ny,nz,px,py,pz,penetration] per point (7 floats each). */
+  def contactPairPoints(world: Long, collider1: Long, collider2: Long, out: Array[Float], maxPoints: Int): Int
+
+  // ─── Intersection events (sensor overlaps) ────────────────────────────
+
+  def pollIntersectionStartEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
+  def pollIntersectionStopEvents(world:  Long, outCollider1: Array[Long], outCollider2: Array[Long], maxEvents: Int): Int
+
+  // ─── Solver parameters ────────────────────────────────────────────────
+
+  def worldSetNumSolverIterations(world:             Long, iters: Int): Unit
+  def worldGetNumSolverIterations(world:             Long):             Int
+  def worldSetNumAdditionalFrictionIterations(world: Long, iters: Int): Unit
+  def worldSetNumInternalPgsIterations(world:        Long, iters: Int): Unit
+
+  // ─── Contact force events ────────────────────────────────────────────
+
+  def pollContactForceEvents(world:                Long, outCollider1: Array[Long], outCollider2: Array[Long], outForce: Array[Float], maxEvents: Int): Int
+  def colliderSetContactForceEventThreshold(world: Long, collider:     Long, threshold:           Float):                                               Unit
+  def colliderGetContactForceEventThreshold(world: Long, collider:     Long):                                                                           Float
+
+  // ─── Active hooks (contact modification) ──────────────────────────────
+
+  def colliderSetActiveHooks(world:     Long, collider: Long, flags: Int):                                              Unit
+  def colliderGetActiveHooks(world:     Long, collider: Long):                                                          Int
+  def colliderSetOneWayDirection(world: Long, collider: Long, nx:    Float, ny: Float, nz: Float, allowedAngle: Float): Unit
+  def colliderGetOneWayDirection(world: Long, collider: Long, out:   Array[Float]):                                     Boolean
 }

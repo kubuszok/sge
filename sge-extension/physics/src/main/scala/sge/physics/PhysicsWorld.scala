@@ -37,6 +37,7 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
   /** Scratch buffers for contact event polling. */
   private val eventBuf1 = new Array[Long](MaxEvents)
   private val eventBuf2 = new Array[Long](MaxEvents)
+  private val forceBuf  = new Array[Float](MaxEvents)
 
   /** Scratch buffer for gravity query. */
   private val gravBuf = new Array[Float](2)
@@ -423,6 +424,31 @@ class PhysicsWorld(gravityX: Float = 0f, gravityY: Float = -9.81f) extends AutoC
     checkNotClosed()
     val count = ops.pollIntersectionStopEvents(handle, eventBuf1, eventBuf2, MaxEvents)
     buildEventPairs(count)
+  }
+
+  // ─── Contact force events ──────────────────────────────────────────────
+
+  /** Polls contact force events that occurred during the last step.
+    *
+    * Contact force events fire when the total force at a contact exceeds the collider's threshold. Requires `ActiveEvents::CONTACT_FORCE_EVENTS` flag set on the collider.
+    *
+    * @return
+    *   a sequence of (collider1Handle, collider2Handle, totalForceMagnitude)
+    */
+  def pollContactForceEvents(): scala.collection.immutable.Seq[(Long, Long, Float)] = {
+    checkNotClosed()
+    val count = ops.pollContactForceEvents(handle, eventBuf1, eventBuf2, forceBuf, MaxEvents)
+    if (count == 0) {
+      scala.collection.immutable.Seq.empty
+    } else {
+      val builder = scala.collection.immutable.Seq.newBuilder[(Long, Long, Float)]
+      var i       = 0
+      while (i < count) {
+        builder += ((eventBuf1(i), eventBuf2(i), forceBuf(i)))
+        i += 1
+      }
+      builder.result()
+    }
   }
 
   // ─── Solver parameters ────────────────────────────────────────────────

@@ -164,11 +164,65 @@ class RigidBody3d private[physics3d] (
   def dominanceGroup_=(group: Int): Unit =
     world.ops.bodySetDominanceGroup(world.handle, handle, group)
 
+  // ─── Forces extras ────────────────────────────────────────────────────
+
+  /** Applies a torque impulse vector (instantaneous change to angular velocity). */
+  def applyTorqueImpulse(tx: Float, ty: Float, tz: Float): Unit =
+    world.ops.bodyApplyTorqueImpulse(world.handle, handle, tx, ty, tz)
+
+  /** Resets all accumulated forces on this body. */
+  def resetForces(): Unit =
+    world.ops.bodyResetForces(world.handle, handle)
+
+  /** Resets all accumulated torques on this body. */
+  def resetTorques(): Unit =
+    world.ops.bodyResetTorques(world.handle, handle)
+
+  // ─── Axis locking ─────────────────────────────────────────────────────
+
+  /** Sets which translation axes are enabled for this body. */
+  def setEnabledTranslations(allowX: Boolean, allowY: Boolean, allowZ: Boolean): Unit =
+    world.ops.bodySetEnabledTranslations(world.handle, handle, allowX, allowY, allowZ)
+
+  def isTranslationLockedX: Boolean = world.ops.bodyIsTranslationLockedX(world.handle, handle)
+  def isTranslationLockedY: Boolean = world.ops.bodyIsTranslationLockedY(world.handle, handle)
+  def isTranslationLockedZ: Boolean = world.ops.bodyIsTranslationLockedZ(world.handle, handle)
+
+  /** Sets which rotation axes are enabled for this body. */
+  def setEnabledRotations(allowX: Boolean, allowY: Boolean, allowZ: Boolean): Unit =
+    world.ops.bodySetEnabledRotations(world.handle, handle, allowX, allowY, allowZ)
+
+  def isRotationLockedX: Boolean = world.ops.bodyIsRotationLockedX(world.handle, handle)
+  def isRotationLockedY: Boolean = world.ops.bodyIsRotationLockedY(world.handle, handle)
+  def isRotationLockedZ: Boolean = world.ops.bodyIsRotationLockedZ(world.handle, handle)
+
   // ─── Mass properties ──────────────────────────────────────────────────
 
   /** Returns the total mass of this body (computed from attached colliders). */
   def mass: Float =
     world.ops.bodyGetMass(world.handle, handle)
+
+  /** Returns the angular inertia of this body. */
+  def inertia: Float =
+    world.ops.bodyGetInertia(world.handle, handle)
+
+  /** Returns the local center of mass as (x, y, z). */
+  def localCenterOfMass: (Float, Float, Float) = {
+    world.ops.bodyGetLocalCenterOfMass(world.handle, handle, buf3)
+    (buf3(0), buf3(1), buf3(2))
+  }
+
+  /** Returns the world-space center of mass as (x, y, z). */
+  def worldCenterOfMass: (Float, Float, Float) = {
+    world.ops.bodyGetWorldCenterOfMass(world.handle, handle, buf3)
+    (buf3(0), buf3(1), buf3(2))
+  }
+
+  /** Gets the velocity at a world-space point on the body as (vx, vy, vz). */
+  def velocityAtPoint(px: Float, py: Float, pz: Float): (Float, Float, Float) = {
+    world.ops.bodyGetVelocityAtPoint(world.handle, handle, px, py, pz, buf3)
+    (buf3(0), buf3(1), buf3(2))
+  }
 
   /** Forces recomputation of mass properties from attached colliders. */
   def recomputeMassProperties(): Unit =
@@ -198,13 +252,14 @@ class RigidBody3d private[physics3d] (
     val ops = world.ops
     val wh  = world.handle
     val ch  = shape match {
-      case Shape3d.Sphere(radius)                => ops.createSphereCollider(wh, handle, radius)
-      case Shape3d.Box(hx, hy, hz)               => ops.createBoxCollider(wh, handle, hx, hy, hz)
-      case Shape3d.Capsule(halfHeight, radius)   => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
-      case Shape3d.Cylinder(halfHeight, radius)  => ops.createCylinderCollider(wh, handle, halfHeight, radius)
-      case Shape3d.Cone(halfHeight, radius)      => ops.createConeCollider(wh, handle, halfHeight, radius)
-      case Shape3d.ConvexHull(vertices)          => ops.createConvexHullCollider(wh, handle, vertices, vertices.length / 3)
-      case Shape3d.TriMesh(vertices, indices)    => ops.createTriMeshCollider(wh, handle, vertices, vertices.length / 3, indices, indices.length)
+      case Shape3d.Sphere(radius)                                 => ops.createSphereCollider(wh, handle, radius)
+      case Shape3d.Box(hx, hy, hz)                                => ops.createBoxCollider(wh, handle, hx, hy, hz)
+      case Shape3d.Capsule(halfHeight, radius)                    => ops.createCapsuleCollider(wh, handle, halfHeight, radius)
+      case Shape3d.Cylinder(halfHeight, radius)                   => ops.createCylinderCollider(wh, handle, halfHeight, radius)
+      case Shape3d.Cone(halfHeight, radius)                       => ops.createConeCollider(wh, handle, halfHeight, radius)
+      case Shape3d.ConvexHull(vertices)                           => ops.createConvexHullCollider(wh, handle, vertices, vertices.length / 3)
+      case Shape3d.TriMesh(vertices, indices)                     => ops.createTriMeshCollider(wh, handle, vertices, vertices.length / 3, indices, indices.length)
+      case Shape3d.Heightfield(heights, nrows, ncols, sx, sy, sz) => ops.createHeightfieldCollider(wh, handle, heights, nrows, ncols, sx, sy, sz)
     }
     ops.colliderSetDensity(wh, ch, density)
     ops.colliderSetFriction(wh, ch, friction)

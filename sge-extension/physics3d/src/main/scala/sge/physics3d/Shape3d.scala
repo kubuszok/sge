@@ -77,4 +77,21 @@ object Shape3d {
     *   flat array of triangle indices [i0, i1, i2, ...] (must be a multiple of 3)
     */
   final case class TriMesh(vertices: Array[Float], indices: Array[Int]) extends Shape3d
+
+  /** A 3D heightfield shape defined by a grid of height values.
+    *
+    * @param heights
+    *   row-major array of height values (nrows x ncols)
+    * @param nrows
+    *   number of rows
+    * @param ncols
+    *   number of columns
+    * @param scaleX
+    *   scale along x axis
+    * @param scaleY
+    *   scale along y axis (height)
+    * @param scaleZ
+    *   scale along z axis
+    */
+  final case class Heightfield(heights: Array[Float], nrows: Int, ncols: Int, scaleX: Float, scaleY: Float, scaleZ: Float) extends Shape3d
 }

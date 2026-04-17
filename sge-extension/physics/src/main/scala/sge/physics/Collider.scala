@@ -141,6 +141,48 @@ class Collider private[physics] (
   def activeCollisionTypes_=(flags: Int): Unit =
     world.ops.colliderSetActiveCollisionTypes(world.handle, handle, flags)
 
+  // ─── Contact force events ──────────────────────────────────────────────
+
+  /** Gets the contact force event threshold. */
+  def contactForceEventThreshold: Float =
+    world.ops.colliderGetContactForceEventThreshold(world.handle, handle)
+
+  /** Sets the contact force event threshold. Force events only fire when total force exceeds this.
+    *
+    * Requires `activeEvents` to include the CONTACT_FORCE_EVENTS flag.
+    */
+  def contactForceEventThreshold_=(threshold: Float): Unit =
+    world.ops.colliderSetContactForceEventThreshold(world.handle, handle, threshold)
+
+  // ─── Active hooks ─────────────────────────────────────────────────────
+
+  /** Gets the active hooks flags. */
+  def activeHooks: Int =
+    world.ops.colliderGetActiveHooks(world.handle, handle)
+
+  /** Sets the active hooks flags. 0x04 = MODIFY_SOLVER_CONTACTS (required for one-way platforms). */
+  def activeHooks_=(flags: Int): Unit =
+    world.ops.colliderSetActiveHooks(world.handle, handle, flags)
+
+  private val oneWayBuf = new Array[Float](3)
+
+  /** Configures this collider as a one-way platform.
+    *
+    * Contacts are only kept if the contact normal aligns with the given direction within the allowed angle. Pass nx=0, ny=0 to disable one-way behavior.
+    *
+    * Requires `activeHooks` to include MODIFY_SOLVER_CONTACTS (0x04).
+    */
+  def setOneWayDirection(nx: Float, ny: Float, allowedAngle: Float): Unit =
+    world.ops.colliderSetOneWayDirection(world.handle, handle, nx, ny, allowedAngle)
+
+  /** Returns the one-way platform direction as Some((nx, ny, angle)), or None if not configured. */
+  def oneWayDirection: Option[(Float, Float, Float)] =
+    if (world.ops.colliderGetOneWayDirection(world.handle, handle, oneWayBuf)) {
+      Some((oneWayBuf(0), oneWayBuf(1), oneWayBuf(2)))
+    } else {
+      None
+    }
+
   // ─── Collision filtering ──────────────────────────────────────────────
 
   private val groupsBuffer = new Array[Int](2)

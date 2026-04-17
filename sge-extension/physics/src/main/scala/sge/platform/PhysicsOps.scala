@@ -616,6 +616,37 @@ private[sge] trait PhysicsOps {
   /** Sets the number of internal PGS iterations. */
   def worldSetNumInternalPgsIterations(world: Long, iters: Int): Unit
 
+  // ─── Contact force events ──────────────────────────────────────────────
+
+  /** Polls contact force events since the last step.
+    *
+    * Fills `outCollider1`, `outCollider2`, and `outForce` arrays. Returns the event count (capped at `maxEvents`).
+    */
+  def pollContactForceEvents(world: Long, outCollider1: Array[Long], outCollider2: Array[Long], outForce: Array[Float], maxEvents: Int): Int
+
+  /** Sets the contact force event threshold for a collider. Force events only fire when total force exceeds this. */
+  def colliderSetContactForceEventThreshold(world: Long, collider: Long, threshold: Float): Unit
+
+  /** Gets the contact force event threshold for a collider. */
+  def colliderGetContactForceEventThreshold(world: Long, collider: Long): Float
+
+  // ─── Active hooks (contact modification) ──────────────────────────────
+
+  /** Sets the active hooks flags for a collider (bitmask). 0x04 = MODIFY_SOLVER_CONTACTS (required for one-way platforms). */
+  def colliderSetActiveHooks(world: Long, collider: Long, flags: Int): Unit
+
+  /** Gets the active hooks flags for a collider. */
+  def colliderGetActiveHooks(world: Long, collider: Long): Int
+
+  /** Marks a collider as a one-way platform. Pass nx=0, ny=0 to disable.
+    *
+    * Requires ActiveHooks::MODIFY_SOLVER_CONTACTS (0x04) to be set via [[colliderSetActiveHooks]].
+    */
+  def colliderSetOneWayDirection(world: Long, collider: Long, nx: Float, ny: Float, allowedAngle: Float): Unit
+
+  /** Returns true if the collider has one-way platform behavior. Fills `out` with [nx, ny, angle]. */
+  def colliderGetOneWayDirection(world: Long, collider: Long, out: Array[Float]): Boolean
+
   // ─── Shape intersection ───────────────────────────────────────────────
 
   /** Tests if a shape at a given position overlaps any collider.

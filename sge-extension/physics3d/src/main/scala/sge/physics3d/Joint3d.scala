@@ -15,47 +15,133 @@ sealed trait JointDef3d
 
 object JointDef3d {
 
-  /** A fixed (weld) joint that locks two bodies together at their current relative position and orientation.
-    *
-    * @param body1
-    *   the first body
-    * @param body2
-    *   the second body
-    */
   final case class Fixed(body1: RigidBody3d, body2: RigidBody3d) extends JointDef3d
 
-  /** A rope joint that constrains two bodies to stay within a maximum distance.
-    *
-    * @param body1
-    *   the first body
-    * @param body2
-    *   the second body
-    * @param maxDistance
-    *   the maximum distance between the bodies' anchor points
-    */
   final case class Rope(body1: RigidBody3d, body2: RigidBody3d, maxDistance: Float) extends JointDef3d
+
+  /** A revolute (hinge) joint around a given axis at a world-space anchor point.
+    *
+    * @param anchorX
+    *   anchor x in local body1 space
+    * @param anchorY
+    *   anchor y
+    * @param anchorZ
+    *   anchor z
+    * @param axisX
+    *   rotation axis x (will be normalized)
+    * @param axisY
+    *   rotation axis y
+    * @param axisZ
+    *   rotation axis z
+    */
+  final case class Revolute(body1: RigidBody3d, body2: RigidBody3d, anchorX: Float, anchorY: Float, anchorZ: Float, axisX: Float, axisY: Float, axisZ: Float) extends JointDef3d
+
+  /** A prismatic (slider) joint along a given axis. */
+  final case class Prismatic(body1: RigidBody3d, body2: RigidBody3d, axisX: Float, axisY: Float, axisZ: Float) extends JointDef3d
+
+  /** A motor joint that drives two bodies toward a target offset (6-DOF). */
+  final case class Motor(body1: RigidBody3d, body2: RigidBody3d) extends JointDef3d
+
+  /** A spring joint with configurable stiffness and damping. */
+  final case class Spring(body1: RigidBody3d, body2: RigidBody3d, restLength: Float, stiffness: Float, damping: Float) extends JointDef3d
 }
 
-/** A handle to a 3D joint constraint in the physics world.
-  *
-  * Joints are created via [[PhysicsWorld3d.createJoint]] and destroyed via [[PhysicsWorld3d.destroyJoint]].
-  */
+/** A handle to a 3D joint constraint in the physics world. */
 sealed trait Joint3d {
   private[physics3d] def world:  PhysicsWorld3d
   private[physics3d] def handle: Long
 }
 
-/** A fixed (weld) joint that locks two bodies together at their current relative position and orientation. */
 class FixedJoint3d private[physics3d] (
   private[physics3d] val world:  PhysicsWorld3d,
   private[physics3d] val handle: Long
 ) extends Joint3d
 
-/** A rope joint that constrains two bodies to stay within a maximum distance.
-  *
-  * The distance constraint is one-sided: bodies can be closer than `maxDistance` but not farther.
-  */
 class RopeJoint3d private[physics3d] (
   private[physics3d] val world:  PhysicsWorld3d,
   private[physics3d] val handle: Long
-) extends Joint3d
+) extends Joint3d {
+
+  def maxDistance:             Float = world.ops.ropeJointGetMaxDistance(world.handle, handle)
+  def maxDistance_=(d: Float): Unit  = world.ops.ropeJointSetMaxDistance(world.handle, handle, d)
+}
+
+class RevoluteJoint3d private[physics3d] (
+  private[physics3d] val world:  PhysicsWorld3d,
+  private[physics3d] val handle: Long
+) extends Joint3d {
+
+  private val limitsBuf = new Array[Float](2)
+
+  def enableLimits(enable: Boolean):             Unit    = world.ops.revoluteJointEnableLimits(world.handle, handle, enable)
+  def isLimitEnabled:                            Boolean = world.ops.revoluteJointIsLimitEnabled(world.handle, handle)
+  def setLimits(lower:     Float, upper: Float): Unit    = world.ops.revoluteJointSetLimits(world.handle, handle, lower, upper)
+
+  def limits: (Float, Float) = {
+    world.ops.revoluteJointGetLimits(world.handle, handle, limitsBuf)
+    (limitsBuf(0), limitsBuf(1))
+  }
+
+  def enableMotor(enable:      Boolean): Unit  = world.ops.revoluteJointEnableMotor(world.handle, handle, enable)
+  def motorSpeed:                        Float = world.ops.revoluteJointGetMotorSpeed(world.handle, handle)
+  def motorSpeed_=(speed:      Float):   Unit  = world.ops.revoluteJointSetMotorSpeed(world.handle, handle, speed)
+  def maxMotorTorque:                    Float = world.ops.revoluteJointGetMaxMotorTorque(world.handle, handle)
+  def maxMotorTorque_=(torque: Float):   Unit  = world.ops.revoluteJointSetMaxMotorTorque(world.handle, handle, torque)
+  def angle:                             Float = world.ops.revoluteJointGetAngle(world.handle, handle)
+}
+
+class PrismaticJoint3d private[physics3d] (
+  private[physics3d] val world:  PhysicsWorld3d,
+  private[physics3d] val handle: Long
+) extends Joint3d {
+
+  private val limitsBuf = new Array[Float](2)
+
+  def enableLimits(enable: Boolean):             Unit = world.ops.prismaticJointEnableLimits(world.handle, handle, enable)
+  def setLimits(lower:     Float, upper: Float): Unit = world.ops.prismaticJointSetLimits(world.handle, handle, lower, upper)
+
+  def limits: (Float, Float) = {
+    world.ops.prismaticJointGetLimits(world.handle, handle, limitsBuf)
+    (limitsBuf(0), limitsBuf(1))
+  }
+
+  def enableMotor(enable:    Boolean): Unit  = world.ops.prismaticJointEnableMotor(world.handle, handle, enable)
+  def motorSpeed:                      Float = world.ops.prismaticJointGetMotorSpeed(world.handle, handle)
+  def motorSpeed_=(speed:    Float):   Unit  = world.ops.prismaticJointSetMotorSpeed(world.handle, handle, speed)
+  def maxMotorForce:                   Float = world.ops.prismaticJointGetMaxMotorForce(world.handle, handle)
+  def maxMotorForce_=(force: Float):   Unit  = world.ops.prismaticJointSetMaxMotorForce(world.handle, handle, force)
+  def translation:                     Float = world.ops.prismaticJointGetTranslation(world.handle, handle)
+}
+
+class MotorJoint3d private[physics3d] (
+  private[physics3d] val world:  PhysicsWorld3d,
+  private[physics3d] val handle: Long
+) extends Joint3d {
+
+  private val offsetBuf = new Array[Float](3)
+
+  def linearOffset: (Float, Float, Float) = {
+    world.ops.motorJointGetLinearOffset(world.handle, handle, offsetBuf)
+    (offsetBuf(0), offsetBuf(1), offsetBuf(2))
+  }
+
+  def linearOffset_=(xyz: (Float, Float, Float)): Unit =
+    world.ops.motorJointSetLinearOffset(world.handle, handle, xyz._1, xyz._2, xyz._3)
+
+  def maxForce:                     Float = world.ops.motorJointGetMaxForce(world.handle, handle)
+  def maxForce_=(f:         Float): Unit  = world.ops.motorJointSetMaxForce(world.handle, handle, f)
+  def maxTorque:                    Float = world.ops.motorJointGetMaxTorque(world.handle, handle)
+  def maxTorque_=(t:        Float): Unit  = world.ops.motorJointSetMaxTorque(world.handle, handle, t)
+  def correctionFactor:             Float = world.ops.motorJointGetCorrectionFactor(world.handle, handle)
+  def correctionFactor_=(f: Float): Unit  = world.ops.motorJointSetCorrectionFactor(world.handle, handle, f)
+}
+
+class SpringJoint3d private[physics3d] (
+  private[physics3d] val world:  PhysicsWorld3d,
+  private[physics3d] val handle: Long
+) extends Joint3d {
+
+  def restLength:                                  Float = world.ops.springJointGetRestLength(world.handle, handle)
+  def restLength_=(length: Float):                 Unit  = world.ops.springJointSetRestLength(world.handle, handle, length)
+  def setParams(stiffness: Float, damping: Float): Unit  = world.ops.springJointSetParams(world.handle, handle, stiffness, damping)
+}
