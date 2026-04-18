@@ -91,6 +91,19 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
     }
   }
 
+  /** Returns a new array containing the elements of this array (up to size). */
+  def toArray: Array[Any] = {
+    val result = new Array[Any](_size)
+    System.arraycopy(_items, 0, result, 0, _size)
+    result
+  }
+
+  /** Ensures the backing array has at least the given capacity, growing if necessary. */
+  private[internal] def resize(newSize: Int): Unit =
+    if (newSize > _items.length) {
+      strictResize(math.max(2 * _items.length, newSize))
+    }
+
   private def ensureCapacity(newSize: Int): Unit =
     if (newSize > _items.length) {
       strictResize(math.max(2 * _items.length, newSize))
@@ -108,6 +121,15 @@ class InternalArray[T](initialCapacity: Int = 8, resizeToCapacity: Boolean = fal
   }
 
   override def isEmpty: Boolean = _size == 0
+
+  def containsAll(collection: Iterable[?]): Boolean = boundary {
+    val iter = collection.iterator
+    while (iter.hasNext)
+      if (!contains(iter.next())) {
+        break(false)
+      }
+    true
+  }
 
   def contains(o: Any): Boolean = o != null && indexOf(o) >= 0
 

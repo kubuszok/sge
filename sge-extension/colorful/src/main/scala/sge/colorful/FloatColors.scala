@@ -53,6 +53,180 @@ object FloatColors {
     hsl2rgb((decoded & 0xff) / 255f, (decoded >>> 8 & 0xff) / 255f, (decoded >>> 16 & 0xff) / 255f, (decoded >>> 25) / 127f)
   }
 
+  /** Converts an int in HSLA format (hue, saturation, lightness, alpha) to an int in RGBA8888 format.
+    * @param hsla
+    *   an HSLA-format int
+    * @return
+    *   an RGBA8888-format int
+    */
+  def hsl2rgbInt(hsla: Int): Int =
+    hsl2rgbInt((hsla >>> 24) * (1f / 255f), (hsla >>> 16 & 0xff) * (1f / 255f), (hsla >>> 16 & 0xff) * (1f / 255f), (hsla & 0xfe) * (1f / 254f))
+
+  /** Converts the four HSLA components, each in the 0.0 to 1.0 range, to an int in RGBA8888 format. [[https://stackoverflow.com/a/64090995 From this StackOverflow answer by Kamil Kiełczewski]]
+    * @param h
+    *   hue, from 0.0 to 1.0
+    * @param s
+    *   saturation, from 0.0 to 1.0
+    * @param l
+    *   lightness, from 0.0 to 1.0
+    * @param a
+    *   alpha, from 0.0 to 1.0
+    * @return
+    *   an RGBA8888-format int
+    */
+  def hsl2rgbInt(h: Float, s: Float, l: Float, a: Float): Int = {
+    val c  = s * Math.min(l, 1f - l) * 3071.999f /* 12 * 256, minus epsilon */
+    val lv = l * 255.999f
+    var r  = h
+    r = lv - c * Math.max(Math.min(Math.min(r - 0.25f, 0.75f - r), 1f / 12f), -1f / 12f)
+    var g = h + (2f / 3f); g -= g.toInt
+    g = lv - c * Math.max(Math.min(Math.min(g - 0.25f, 0.75f - g), 1f / 12f), -1f / 12f)
+    var b = h + (1f / 3f); b -= b.toInt
+    b = lv - c * Math.max(Math.min(Math.min(b - 0.25f, 0.75f - b), 1f / 12f), -1f / 12f)
+    r.toInt << 24 | g.toInt << 16 | b.toInt << 8 | (a * 255.999f).toInt
+  }
+
+  /** Converts an int in RGBA8888 format to an int in "HSLA format" (hue, saturation, lightness, alpha).
+    * @param rgba
+    *   an RGBA8888-format int
+    * @return
+    *   an "HSLA-format" int
+    */
+  def rgb2hslInt(rgba: Int): Int =
+    rgb2hslInt((rgba >>> 24) * (1f / 255f), (rgba >>> 16 & 0xff) * (1f / 255f), (rgba >>> 16 & 0xff) * (1f / 255f), (rgba & 0xfe) * (1f / 254f))
+
+  /** Converts the four RGBA components, each in the 0.0 to 1.0 range, to an int in "HSLA format". [[https://stackoverflow.com/a/64090995 From this StackOverflow answer by Kamil Kiełczewski]]
+    * @param r
+    *   red, from 0.0 to 1.0
+    * @param g
+    *   green, from 0.0 to 1.0
+    * @param b
+    *   blue, from 0.0 to 1.0
+    * @param a
+    *   alpha, from 0.0 to 1.0
+    * @return
+    *   an "HSLA-format" int
+    */
+  def rgb2hslInt(r: Float, g: Float, b: Float, a: Float): Int = {
+    val max    = Math.max(Math.max(r, g), b)
+    val min    = Math.min(Math.min(r, g), b)
+    val chroma = max - min
+    if (chroma < (1f / 256f)) {
+      (max * 255.999f).toInt << 8 | (a * 255.999f).toInt
+    } else {
+      val iDelta = 0.16666667f / chroma
+      val hue    = 1f + (if (max == r) (g - b) * iDelta else if (max == g) (1f / 3f) + (b - r) * iDelta else (2f / 3f) + (r - g) * iDelta)
+      ((hue - hue.toInt) * 255.999f).toInt << 24 |
+        (chroma / (1f - Math.abs(max + min - 1f)) * 255.999f).toInt << 16 |
+        ((max + min) * 127.25f + 0.5f).toInt << 8 |
+        (a * 255.999f).toInt
+    }
+  }
+
+  /** Converts an int in HCLA format (hue, chroma, lightness, alpha) to an int in RGBA8888 format. Here, chroma is similar and related to saturation, but isn't scaled to fit in the 0.0 to 1.0 range
+    * for all lightness values; instead, 0.5 lightness permits chroma up to 1.0, and as lightness approaches 0.0 or 1.0, chroma has its maximum value shrink down to 0.
+    * @param hsla
+    *   an HCLA-format int
+    * @return
+    *   an RGBA8888-format int
+    */
+  def hcl2rgbInt(hsla: Int): Int =
+    hcl2rgbInt((hsla >>> 24) * (1f / 255f), (hsla >>> 16 & 0xff) * (1f / 255f), (hsla >>> 16 & 0xff) * (1f / 255f), (hsla & 0xfe) * (1f / 254f))
+
+  /** Converts the four HCLA components, each in the 0.0 to 1.0 range, to an int in RGBA8888 format. Here, chroma `c` is similar and related to saturation, but isn't scaled to fit in the 0.0 to 1.0
+    * range for all lightness values; instead, 0.5 lightness permits chroma up to 1.0, and as lightness approaches 0.0 or 1.0, chroma has its maximum value shrink down to 0.
+    * [[https://stackoverflow.com/a/64090995 From this StackOverflow answer by Kamil Kiełczewski]]
+    * @param h
+    *   hue, from 0.0 to 1.0
+    * @param c
+    *   chroma, from 0.0 to 1.0
+    * @param l
+    *   lightness, from 0.0 to 1.0
+    * @param a
+    *   alpha, from 0.0 to 1.0
+    * @return
+    *   an RGBA8888-format int
+    */
+  def hcl2rgbInt(h: Float, c: Float, l: Float, a: Float): Int = {
+    val cv = Math.min(c, 2f * Math.min(l, 1f - l)) * 1535.999f /* 12 * 256 / 2.0f, minus epsilon */
+    val lv = l * 255.999f
+    var r  = h
+    r = lv - cv * Math.max(Math.min(Math.min(r - 0.25f, 0.75f - r), 1f / 12f), -1f / 12f)
+    var g = h + (2f / 3f); g -= g.toInt
+    g = lv - cv * Math.max(Math.min(Math.min(g - 0.25f, 0.75f - g), 1f / 12f), -1f / 12f)
+    var b = h + (1f / 3f); b -= b.toInt
+    b = lv - cv * Math.max(Math.min(Math.min(b - 0.25f, 0.75f - b), 1f / 12f), -1f / 12f)
+    r.toInt << 24 | g.toInt << 16 | b.toInt << 8 | (a * 255.999f).toInt
+  }
+
+  /** Converts an int in RGBA8888 format to an int in "HCLA format" (hue, chroma, lightness, alpha). Here, chroma is similar and related to saturation, but isn't scaled to fit in the 0.0 to 1.0 range
+    * for all lightness values; instead, 0.5 lightness permits chroma up to 1.0, and as lightness approaches 0.0 or 1.0, chroma has its maximum value shrink down to 0.
+    * @param rgba
+    *   an RGBA8888-format int
+    * @return
+    *   an "HCLA-format" int
+    */
+  def rgb2hclInt(rgba: Int): Int =
+    rgb2hclInt((rgba >>> 24) * (1f / 255f), (rgba >>> 16 & 0xff) * (1f / 255f), (rgba >>> 16 & 0xff) * (1f / 255f), (rgba & 0xfe) * (1f / 254f))
+
+  /** Converts the four RGBA components, each in the 0.0 to 1.0 range, to an int in "HCLA format" (hue, chroma, lightness, alpha). Here, chroma is similar and related to saturation, but isn't scaled
+    * to fit in the 0.0 to 1.0 range for all lightness values; instead, 0.5 lightness permits chroma up to 1.0, and as lightness approaches 0.0 or 1.0, chroma has its maximum value shrink down to 0.
+    * [[https://stackoverflow.com/a/64090995 From this StackOverflow answer by Kamil Kiełczewski]]
+    * @param r
+    *   red, from 0.0 to 1.0
+    * @param g
+    *   green, from 0.0 to 1.0
+    * @param b
+    *   blue, from 0.0 to 1.0
+    * @param a
+    *   alpha, from 0.0 to 1.0
+    * @return
+    *   an "HCLA-format" int
+    */
+  def rgb2hclInt(r: Float, g: Float, b: Float, a: Float): Int = {
+    val max    = Math.max(Math.max(r, g), b)
+    val min    = Math.min(Math.min(r, g), b)
+    val chroma = max - min
+    if (chroma < (1f / 256f)) {
+      (max * 255.999f).toInt << 8 | (a * 255.999f).toInt
+    } else {
+      val iDelta = 0.16666667f / chroma
+      val hue    = 1f + (if (max == r) (g - b) * iDelta else if (max == g) (1f / 3f) + (b - r) * iDelta else (2f / 3f) + (r - g) * iDelta)
+      ((hue - hue.toInt) * 255.999f).toInt << 24 |
+        (chroma * 255.999f).toInt << 16 |
+        ((max + min) * 127.25f + 0.5f).toInt << 8 |
+        (a * 255.999f).toInt
+    }
+  }
+
+  /** Converts the four HSLA components, each in the 0.0 to 1.0 range, to RGBA and assigns them into changing.
+    * @param changing
+    *   a non-null Color that will be modified
+    * @param h
+    *   hue, from 0.0 to 1.0
+    * @param s
+    *   saturation, from 0.0 to 1.0
+    * @param l
+    *   lightness, from 0.0 to 1.0
+    * @param a
+    *   alpha, from 0.0 to 1.0
+    * @return
+    *   changing, after assignment
+    */
+  def hslColor(changing: Color, h: Float, s: Float, l: Float, a: Float): Color = {
+    val x = Math.min(Math.max(Math.abs(h * 6f - 3f) - 1f, 0f), 1f)
+    var y = h + (2f / 3f)
+    var z = h + (1f / 3f)
+    y -= y.toInt
+    z -= z.toInt
+    y = Math.min(Math.max(Math.abs(y * 6f - 3f) - 1f, 0f), 1f)
+    z = Math.min(Math.max(Math.abs(z * 6f - 3f) - 1f, 0f), 1f)
+    val v = l + s * Math.min(l, 1f - l)
+    val d = 2f * (1f - l / (v + 1e-10f))
+    changing.set(v * MathUtils.lerp(1f, x, d), v * MathUtils.lerp(1f, y, d), v * MathUtils.lerp(1f, z, d), a)
+    changing
+  }
+
   /** Given a color stored as a packed float and an alpha multiplier, this makes a packed float color that has the same channels but has its own alpha multiplied by `alpha`.
     */
   def multiplyAlpha(encodedColor: Float, alpha: Float): Float = {

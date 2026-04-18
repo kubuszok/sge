@@ -794,4 +794,18 @@ object Palette {
     NAMED.put("Raspberry", java.lang.Float.intBitsToFloat(0xfe49f802))
     LIST += java.lang.Float.intBitsToFloat(0xfe49f802)
   }
+
+  /** Converts existing Color entries in [[sge.graphics.Colors]] from RGBA to HSLuv format. */
+  def editKnownColors(): Unit =
+    for (c <- sge.graphics.Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.channelH(f), ColorTools.channelS(f), ColorTools.channelL(f), c.a)
+    }
+
+  /** Appends HSLuv-compatible Color instances to the map in [[sge.graphics.Colors]]. */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      sge.graphics.Colors.put(key, new sge.graphics.Color(ColorTools.channelH(f), ColorTools.channelS(f), ColorTools.channelL(f), ColorTools.alpha(f)))
+    }
 }

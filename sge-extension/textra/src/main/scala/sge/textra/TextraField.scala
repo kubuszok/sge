@@ -1003,11 +1003,11 @@ class TextraField {
           handled = true
           updateSelectionAfterMove(temp)
         case `KeyHOME` =>
-          cursor = 0
+          goHome(jump)
           handled = true
           updateSelectionAfterMove(temp)
         case `KeyEND` =>
-          cursor = text.length
+          goEnd(jump)
           handled = true
           updateSelectionAfterMove(temp)
         case _ => ()
@@ -1036,11 +1036,11 @@ class TextraField {
           repeat = true
           handled = true
         case `KeyHOME` =>
-          cursor = 0
+          goHome(jump)
           clearSelection()
           handled = true
         case `KeyEND` =>
-          cursor = text.length
+          goEnd(jump)
           clearSelection()
           handled = true
         case _ => ()
@@ -1216,6 +1216,16 @@ class TextraField {
     }
   }
 
+  // --- Cursor navigation helpers ---
+
+  /** Moves the cursor to the beginning of the text. Can be overridden for multi-line behavior. */
+  protected def goHome(jump: Boolean): Unit =
+    cursor = 0
+
+  /** Moves the cursor to the end of the text. Can be overridden for multi-line behavior. */
+  protected def goEnd(jump: Boolean): Unit =
+    cursor = text.length
+
   // --- Keyboard state helpers ---
 
   /** Whether ctrl (or cmd on Mac) is pressed. Override for platform integration. */
@@ -1242,9 +1252,29 @@ class TextraField {
       c >= '0' && c <= '9'
   }
 
+  /** Filter that only accepts what Unicode considers "letter characters." */
+  class LetterOnlyFilter extends TextFieldFilter {
+    def acceptChar(textField: TextraField, c: Char): Boolean =
+      Character.isLetter(c)
+  }
+
+  /** Filter that only accepts what Unicode considers "word characters" -- all letters, all numbers, and the underscore (as well as all underscore-like punctuation).
+    */
+  class WordOnlyFilter extends TextFieldFilter {
+    def acceptChar(textField: TextraField, c: Char): Boolean =
+      Character.isLetterOrDigit(c) || c == '_' || Character.getType(c) == Character.CONNECTOR_PUNCTUATION
+  }
+
   /** An interface for an on-screen keyboard. */
   trait OnscreenKeyboard {
     def show(visible: Boolean): Unit
+  }
+
+  /** The default OnscreenKeyboard used by TextraField instances. Uses Sge().input.setOnscreenKeyboardVisible as appropriate. May overlap actual rendering.
+    */
+  class DefaultOnscreenKeyboard(using Sge) extends OnscreenKeyboard {
+    def show(visible: Boolean): Unit =
+      summon[Sge].input.setOnscreenKeyboardVisible(visible)
   }
 }
 

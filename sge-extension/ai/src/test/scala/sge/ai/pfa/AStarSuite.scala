@@ -202,4 +202,75 @@ class AStarSuite extends munit.FunSuite {
     // 4 edges for Manhattan distance of 4 from (0,0) to (2,2)
     assertEquals(path.getCount, 4)
   }
+
+  // ── Dynamic graph tests: graph updating between pathfinding calls ─────
+
+  test("dynamic graph: blocking a node changes path") {
+    val graph = new GridGraph(5, 5)
+    graph.buildConnections()
+
+    val heuristic = new ManhattanHeuristic()
+
+    // First search: direct path from (0,0) to (4,0)
+    val pathFinder1 = new IndexedAStarPathFinder[GridNode](graph)
+    val path1       = DefaultGraphPath[GridNode]()
+    val found1      = pathFinder1.searchNodePath(graph.node(0, 0), graph.node(4, 0), heuristic, path1)
+    assert(found1, "Direct path should be found")
+    val directLength = path1.getCount
+
+    // Block nodes to force a longer path
+    graph.blockNode(1, 0)
+    graph.blockNode(2, 0)
+    graph.blockNode(3, 0)
+
+    // Second search on a new pathfinder (same graph, updated connections)
+    val pathFinder2 = new IndexedAStarPathFinder[GridNode](graph)
+    val path2       = DefaultGraphPath[GridNode]()
+    val found2      = pathFinder2.searchNodePath(graph.node(0, 0), graph.node(4, 0), heuristic, path2)
+    assert(found2, "Path should still be found via detour")
+
+    // Path must not go through blocked nodes
+    var i = 0
+    while (i < path2.getCount) {
+      val n = path2.get(i)
+      assert(!(n.y == 0 && n.x >= 1 && n.x <= 3), s"Path should not go through blocked node (${n.x},${n.y})")
+      i += 1
+    }
+
+    // Detoured path should be longer than the direct path
+    assert(path2.getCount > directLength, s"Detoured path (${path2.getCount}) should be longer than direct ($directLength)")
+  }
+
+  test("dynamic graph: reopening a node restores shorter path") {
+    val graph = new GridGraph(5, 5)
+    graph.buildConnections()
+
+    val heuristic = new ManhattanHeuristic()
+
+    // Block the middle row at y=2 except (0,2) and (4,2)
+    graph.blockNode(1, 2)
+    graph.blockNode(2, 2)
+    graph.blockNode(3, 2)
+
+    // Search with the wall in place
+    val pathFinder1 = new IndexedAStarPathFinder[GridNode](graph)
+    val path1       = DefaultGraphPath[GridNode]()
+    val found1      = pathFinder1.searchNodePath(graph.node(0, 0), graph.node(0, 4), heuristic, path1)
+    assert(found1, "Path should exist even with wall")
+    val wallPathLength = path1.getCount
+
+    // Rebuild connections (clear the wall) by making a fresh graph
+    val graph2 = new GridGraph(5, 5)
+    graph2.buildConnections()
+
+    val pathFinder2 = new IndexedAStarPathFinder[GridNode](graph2)
+    val path2       = DefaultGraphPath[GridNode]()
+    val found2      = pathFinder2.searchNodePath(graph2.node(0, 0), graph2.node(0, 4), heuristic, path2)
+    assert(found2, "Path should be found on open graph")
+
+    // Direct path from (0,0) to (0,4) is just 4 steps straight up
+    assertEquals(path2.getCount, 5) // 5 nodes = 4 edges
+    // Wall path should have been longer
+    assert(wallPathLength >= path2.getCount, s"Wall path ($wallPathLength) should be >= direct path (${path2.getCount})")
+  }
 }

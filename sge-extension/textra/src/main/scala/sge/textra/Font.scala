@@ -30,9 +30,7 @@
  *   - drawGlyph advanced effects: drop shadow, outlines, HALO, NEON, SHINY (need ColorUtils helpers)
  *   - Underline/strikethrough decoration rendering
  *   - Box-drawing character rendering (need BlockUtils.BOX_DRAWING)
- *   - measureWidth simplification: skips curly content rather than parsing it
- *   - Truncation/ellipsis simplified
- *   - Pixel-size projection-matrix calculation uses 1px≈1unit fallback
+ *   - Pixel-size projection-matrix calculation uses 1px≈1unit fallback (requires (using Sge) propagation into drawGlyph)
  */
 package sge
 package textra
@@ -518,6 +516,101 @@ class Font {
     this
   }
 
+  /** Justifies the text in a Layout according to its [[Justify]] setting. Adjusts per-glyph advances to fill targetWidth.
+    * @return
+    *   the width of the layout after justification
+    */
+  def justify(layout: Layout): Float = boundary {
+    if (layout.justification == Justify.NONE) break(layout.getWidth)
+    val lc = layout.lineCount
+    var l  = 0
+    while (l < lc) {
+      val currentLine = layout.getLine(l)
+      if (currentLine.isEmpty) { l += 1 } // skip null lines
+      else {
+        val line = currentLine.get
+        // skip last line if justification says so, or if line ends in \n / is empty
+        val skipLine = layout.justification.ignoreLastLine &&
+          (l + 1 == lc || line.glyphs.isEmpty || line.glyphs.last.toChar == '\n')
+        if (skipLine) { l += 1 }
+        else {
+          val start = layout.countGlyphsBeforeLine(l)
+          if (layout.justification.affectAllGlyphs) {
+            var lastIndex = line.glyphs.size - 1
+            var glyph     = line.glyphs(lastIndex)
+            // skip trailing newlines/spaces
+            var skipPer = true
+            while (skipPer && lastIndex >= 0) {
+              val ch = glyph.toChar
+              if (ch == '\n' || ch == ' ') {
+                lastIndex -= 1
+                if (lastIndex >= 0) glyph = line.glyphs(lastIndex)
+              } else skipPer = false
+            }
+            if (lastIndex < 0) { l += 1 } // all whitespace — skip line
+            else {
+              var font: Font = this
+              Nullable.foreach(family) { fam => font = fam.connected((glyph >>> 16 & 15).toInt) }
+              if (font == null) font = this
+              val lastAdvance = xAdvance(font, font.scaleX * layout.advances(start + lastIndex), glyph)
+              val multiplier  = (layout.targetWidth - lastAdvance) / (line.width - lastAdvance)
+              var g           = 0
+              while (g < lastIndex) {
+                layout.advances(start + g) *= multiplier
+                g += 1
+              }
+              if (line.glyphs.size > 1) line.width = layout.targetWidth
+              l += 1
+            }
+          } else if (layout.justification.affectSpaces) {
+            var sumWidth = 0f
+            var g        = 0
+            val n        = line.glyphs.size - 1
+            while (g < n) {
+              val glyph = line.glyphs(g)
+              val ch    = glyph.toChar
+              if (ch == ' ') {
+                var font: Font = this
+                Nullable.foreach(family) { fam => font = fam.connected((glyph >>> 16 & 15).toInt) }
+                if (font == null) font = this
+                val tr = font.mapping.get(ch)
+                if (tr.nonEmpty) {
+                  sumWidth += xAdvance(font, font.scaleX * layout.advances(start + g), glyph)
+                }
+              }
+              g += 1
+            }
+            if (!sge.math.MathUtils.isZero(sumWidth) && line.glyphs.size > 1) {
+              var lastIndex = line.glyphs.size - 1
+              var glyph     = line.glyphs(lastIndex)
+              var skipPer   = true
+              while (skipPer && lastIndex >= 0) {
+                val ch = glyph.toChar
+                if (ch == '\n' || ch == ' ') {
+                  lastIndex -= 1
+                  if (lastIndex >= 0) glyph = line.glyphs(lastIndex)
+                } else skipPer = false
+              }
+              if (lastIndex >= 0) {
+                val multiplier = (layout.targetWidth - line.width + sumWidth) / sumWidth
+                g = 0
+                while (g < lastIndex) {
+                  if (line.glyphs(g).toChar == ' ') {
+                    layout.advances(start + g) *= multiplier
+                  }
+                  g += 1
+                }
+                line.width = layout.targetWidth
+              }
+            }
+            l += 1
+          } else { l += 1 }
+        }
+      }
+    }
+    layout.getWidth
+  }
+
   //// measurement section
 
   /** Gets the distance to advance the cursor after drawing glyph, scaled by the font's scaleX. */
@@ -538,64 +631,85 @@ class Font {
       var amt: Float = 0f
       line.height = currentHeight
       var i = 0
-      while (i < glyphs.size) {
+      val n = glyphs.size
+      while (i < n) {
         val glyph = glyphs(i)
         var ch    = (glyph & 0xffff).toChar
         advance = layout.advances(a)
         a += 1
         if ((glyph & ALTERNATE_MODES_MASK) == SMALL_CAPS) ch = Character.toUpperCase(ch)
+        var skipGlyph = false
         if (omitCurlyBraces) {
           if (curly) {
-            if (ch == '}') { curly = false; i += 1 }
-            else if (ch == '{') { curly = false; i += 1 }
-            else { i += 1 }
-            // skip this glyph in the curly case (except when ch was { or })
-            if (ch != '{' && ch != '}') {
-              // already incremented i, continue
+            if (ch == '}') {
+              curly = false
+              i += 1
+              skipGlyph = true
+            } else if (ch == '{') {
+              curly = false
+              // fall through to measure '{'
             } else {
-              // fall through to measure
+              i += 1
+              skipGlyph = true
             }
           } else if (ch == '{') {
-            curly = true; i += 1
-          } else {
-            // normal path, don't increment i yet
-          }
-          if (curly || (ch != '{' && ch != '}' && i > 0 && glyphs.size > 0)) {
-            // This simplified logic just skips curly content for width measurement
+            curly = true
+            i += 1
+            skipGlyph = true
           }
         }
-        // simplified: measure width
-        var font: Font = null
-        Nullable.foreach(family)(fam => font = fam.connected((glyph >>> 16 & 15).toInt))
-        if (font == null) font = this
-        val tr = font.mapping.getOrElse(ch.toInt, null)
-        if (tr != null) {
-          if (ch != ' ') {
-            val h = font.cellHeight * advance
-            if (h > currentHeight) currentHeight = h
-            line.height = Math.max(line.height, currentHeight)
+        if (!skipGlyph) {
+          var font: Font = null
+          Nullable.foreach(family)(fam => font = fam.connected((glyph >>> 16 & 15).toInt))
+          if (font == null) font = this
+          val tr = font.mapping.getOrElse(ch.toInt, null)
+          if (tr != null) {
+            Nullable.fold(font.kerning) {
+              // NO KERNING
+              if (ch != ' ') {
+                currentHeight = font.cellHeight * advance
+                line.height = Math.max(line.height, currentHeight)
+              }
+              if (ch >= 0xe000 && ch < 0xf800) {
+                scaleXLocal = advance * font.cellHeight / tr.maxDimension * font.inlineImageStretch
+              } else {
+                scaleXLocal = font.scaleX * advance * (if ((glyph & SUPERSCRIPT) != 0L && !font.isMono) 0.5f else 1.0f)
+              }
+              var changedW = tr.xAdvance * scaleXLocal
+              if (tr.offsetX.isNaN) {
+                changedW = font.cellWidth * advance
+              } else if (initial && !font.isMono) {
+                val ox = tr.offsetX * scaleXLocal
+                if (ox < 0) changedW -= ox
+              }
+              initial = false
+              drawn += changedW
+            } { k =>
+              // YES KERNING
+              kern = kern << 16 | ch.toInt
+              if (ch >= 0xe000 && ch < 0xf800) {
+                scaleXLocal = advance * font.cellHeight / tr.maxDimension * font.inlineImageStretch
+              } else {
+                scaleXLocal = font.scaleX * advance * (1f + 0.5f * (-(glyph & SUPERSCRIPT) >> 63))
+              }
+              if (ch != ' ') {
+                currentHeight = font.cellHeight * advance
+                line.height = Math.max(line.height, currentHeight)
+              }
+              amt = k.getOrElse(kern, 0f) * scaleXLocal
+              var changedW = tr.xAdvance * scaleXLocal
+              if (tr.offsetX.isNaN) {
+                changedW = font.cellWidth * advance
+              } else if (initial && !font.isMono) {
+                val ox = tr.offsetX * scaleXLocal
+                if (ox < 0) changedW -= ox
+              }
+              initial = false
+              drawn += changedW + amt
+            }
           }
-          if (ch >= 0xe000 && ch < 0xf800) {
-            scaleXLocal = advance * font.cellHeight / tr.maxDimension * font.inlineImageStretch
-          } else {
-            scaleXLocal = font.scaleX * advance * (if ((glyph & SUPERSCRIPT) != 0L && !font.isMono) 0.5f else 1.0f)
-          }
-          var changedW = tr.xAdvance * scaleXLocal
-          if (tr.offsetX.isNaN) {
-            changedW = font.cellWidth * advance
-          } else if (initial && !font.isMono) {
-            val ox = tr.offsetX * scaleXLocal
-            if (ox < 0) changedW -= ox
-          }
-          initial = false
-          Nullable.foreach(font.kerning) { k =>
-            kern = kern << 16 | ch.toInt
-            amt = k.getOrElse(kern, 0f) * scaleXLocal
-            drawn += amt
-          }
-          drawn += changedW
+          i += 1
         }
-        i += 1
       }
       line.width = drawn
       w = Math.max(w, drawn)
@@ -935,24 +1049,138 @@ class Font {
     }
   }
 
-  /** Handles ellipsis when max lines are reached. */
-  protected def handleEllipsis(appendTo: Layout): Boolean = {
-    val earlier  = appendTo.peekLine
+  /** Handles ellipsis when max lines are reached. Searches backwards from the end of the line for a break char, then measures whether truncation + ellipsis fits within the target width. Handles both
+    * kerning and non-kerning paths.
+    */
+  protected def handleEllipsis(appendTo: Layout): Boolean = boundary {
+    var font: Font = null
+    val earlier = appendTo.peekLine
+    //// ELLIPSIS FOR VISIBLE
+
+    // here, the max lines have been reached, and an ellipsis may need to be added
+    // to the last line.
     val ellipsis = Nullable.fold(appendTo.ellipsis)("")(identity)
-    // Simplified: just truncate and add ellipsis
-    if (ellipsis.nonEmpty && earlier.glyphs.size > ellipsis.length + 1) {
-      val truncSize = earlier.glyphs.size - ellipsis.length
-      while (earlier.glyphs.size > truncSize) earlier.glyphs.remove(earlier.glyphs.size - 1)
-      val lastGlyph = if (earlier.glyphs.isEmpty) 0L else earlier.glyphs.last
-      var e         = 0
-      while (e < ellipsis.length) {
-        appendTo.add((lastGlyph & 0xffffffff81ff0000L) | ellipsis.charAt(e).toLong)
-        e += 1
+    var j        = earlier.glyphs.size - 2
+    while (j >= 0) {
+      var curr = earlier.glyphs(j)
+      if (
+        curr >>> 32 == 0L ||
+        java.util.Arrays.binarySearch(breakChars, (curr & 0xffff).toChar) >= 0
+      ) {
+        while (
+          j > 0 && {
+            curr = earlier.glyphs(j)
+            curr >>> 32 == 0L ||
+            java.util.Arrays.binarySearch(spaceChars, (curr & 0xffff).toChar) >= 0
+          }
+        )
+          j -= 1
+        Nullable.foreach(family)(fam => font = fam.connected((curr >>> 16 & 15).toInt))
+        if (font == null) font = this
+
+        var change = 0f
+        Nullable.fold(font.kerning) {
+
+          // NO KERNING
+
+          var curly = false
+          var k     = j + 1
+          while (k < earlier.glyphs.size) {
+            curr = earlier.glyphs(k)
+            Nullable.foreach(family)(fam => font = fam.connected((curr >>> 16 & 15).toInt))
+            if (font == null) font = this
+
+            var skipK = false
+            if (omitCurlyBraces) {
+              if (curly) {
+                if ((curr & 0xffff).toChar == '{') {
+                  curly = false
+                } else if ((curr & 0xffff).toChar == '}') {
+                  curly = false
+                  skipK = true
+                } else {
+                  skipK = true
+                }
+              }
+            }
+            if (!skipK) {
+              if ((curr & 0xffff).toChar == '{') {
+                curly = omitCurlyBraces
+              } else {
+                val adv = Font.xAdvance(font, scaleX, curr)
+                change += adv
+              }
+            }
+            k += 1
+          }
+          var e = 0
+          while (e < ellipsis.length) {
+            // 0xFFFFFFFF81FF0000L masks to include everything but style and char
+            curr = (curr & 0xffffffff81ff0000L) | ellipsis.charAt(e).toLong
+            val adv = Font.xAdvance(font, scaleX, curr)
+            change -= adv
+            e += 1
+          }
+        } { kern =>
+          // YES KERNING
+
+          var k2    = (earlier.glyphs(j) & 0xffff).toInt
+          var curly = false
+          var k     = j + 1
+          while (k < earlier.glyphs.size) {
+            curr = earlier.glyphs(k)
+            Nullable.foreach(family)(fam => font = fam.connected((curr >>> 16 & 15).toInt))
+            if (font == null) font = this
+            var skipK = false
+            if (omitCurlyBraces) {
+              if (curly) {
+                if ((curr & 0xffff).toChar == '{') {
+                  curly = false
+                } else if ((curr & 0xffff).toChar == '}') {
+                  curly = false
+                  skipK = true
+                } else {
+                  skipK = true
+                }
+              }
+            }
+            if (!skipK) {
+              if ((curr & 0xffff).toChar == '{') {
+                curly = omitCurlyBraces
+              } else {
+                k2 = k2 << 16 | (curr & 0xffff).toInt
+                val adv = Font.xAdvance(font, scaleX, curr)
+                change += adv + kern.getOrElse(k2, 0f) * scaleX * (if (isMono || (curr & SUPERSCRIPT) == 0L) 1f else 0.5f)
+              }
+            }
+            k += 1
+          }
+          var e = 0
+          while (e < ellipsis.length) {
+            // 0xFFFFFFFF81FF0000L masks to include everything but style and char
+            curr = (curr & 0xffffffff81ff0000L) | ellipsis.charAt(e).toLong
+            k2 = k2 << 16 | (curr & 0xffff).toInt
+            val adv = Font.xAdvance(font, scaleX, curr)
+            change -= adv + kern.getOrElse(k2, 0f) * scaleX * (if (isMono || (curr & SUPERSCRIPT) == 0L) 1f else 0.5f)
+            e += 1
+          }
+        }
+        if (earlier.width - change <= appendTo.targetWidth) {
+          earlier.glyphs.remove(j + 1, earlier.glyphs.size - (j + 1))
+          appendTo.truncateExtra(appendTo.countGlyphs)
+          var e = 0
+          while (e < ellipsis.length) {
+            // 0xFFFFFFFF81FF0000L masks to include everything but style and char
+            appendTo.add((curr & 0xffffffff81ff0000L) | ellipsis.charAt(e).toLong)
+            e += 1
+          }
+          earlier.width -= change
+          break(true)
+        }
       }
-      true
-    } else {
-      false
+      j -= 1
     }
+    false
   }
 
   /** Parses mode flags from text for [?...] and [%?...] markup. */

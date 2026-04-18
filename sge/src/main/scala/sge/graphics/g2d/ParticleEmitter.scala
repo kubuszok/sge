@@ -217,22 +217,21 @@ class ParticleEmitter {
       if (delayTimer < delay) {
         delayTimer += deltaMillis
       } else {
-        var done = false
-        if (firstUpdate) {
-          firstUpdate = false
-          addParticle()
-        }
+        scala.util.boundary {
+          if (firstUpdate) {
+            firstUpdate = false
+            addParticle()
+          }
 
-        if (durationTimer < duration)
-          durationTimer += deltaMillis
-        else {
-          if (!continuous || allowCompletion)
-            done = true
-          else
-            restart()
-        }
+          if (durationTimer < duration)
+            durationTimer += deltaMillis
+          else {
+            if (!continuous || allowCompletion)
+              scala.util.boundary.break(())
+            else
+              restart()
+          }
 
-        if (!done) {
           emissionDelta += deltaMillis
           var emissionTime = emission + emissionDiff * emissionValue.getScale(durationTimer / duration)
           if (emissionTime > 0) {
@@ -543,14 +542,15 @@ class ParticleEmitter {
             }
           } else {
             val radius2 = radiusX * radiusX
-            var done    = false
-            while (!done) {
-              val px = MathUtils.random(width) - radiusX
-              val py = MathUtils.random(width) - radiusX
-              if (px * px + py * py <= radius2) {
-                x += px
-                y += py / scaleY
-                done = true
+            scala.util.boundary {
+              while (true) {
+                val px = MathUtils.random(width) - radiusX
+                val py = MathUtils.random(width) - radiusX
+                if (px * px + py * py <= radius2) {
+                  x += px
+                  y += py / scaleY
+                  scala.util.boundary.break(())
+                }
               }
             }
           }

@@ -123,6 +123,16 @@ class XmlElement(val name: String, var parent: Nullable[XmlElement]) {
     parent = Nullable.empty
   }
 
+  def replaceChild(child: XmlElement, replacement: XmlElement): Unit = {
+    if (children.isEmpty) throw SgeError.InvalidInput("Element has no children: " + name)
+    if (!children.get.replaceFirstByRef(child, replacement)) {
+      throw SgeError.InvalidInput("Element '" + name + "' does not contain child: " + child)
+    } else {
+      replacement.parent = child.parent
+      child.parent = Nullable.empty
+    }
+  }
+
   /** Returns the first child having the given name or empty, does not recurse. */
   def getChildByName(childName: String): Nullable[XmlElement] =
     children.flatMap { c =>

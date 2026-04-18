@@ -1680,6 +1680,545 @@ class PaletteReducer {
     };
     this
   }
+
+  // === Median-Cut Analysis ===
+
+  /** Analyzes the given pixmap using median-cut color quantization to build a palette with at most `limit` colors. */
+  def analyzeMC(pixmap: Pixmap, limit0: Int): Unit = {
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color          = 0
+    val width          = pixmap.width.toInt
+    val height         = pixmap.height.toInt
+    val bin            = new scala.collection.mutable.ArrayBuffer[Int](width * height)
+    val counts         = new mutable.HashMap[Int, Int]()
+    var hasTransparent = 0
+    var rangeR         = 0
+    var rangeG         = 0
+    var rangeB         = 0
+    var y              = 0
+    while (y < height) {
+      var x = 0
+      while (x < width) {
+        color = pixmap.getPixel(Pixels(x), Pixels(y)) & 0xf8f8f880
+        if ((color & 0x80) != 0) {
+          color |= (color >>> 5 & 0x07070700) | 0xff
+          bin += color
+          counts(color) = counts.getOrElse(color, 0) + 1
+        } else {
+          hasTransparent = 1
+        }
+        x += 1
+      }
+      y += 1
+    }
+    val limit = Math.max(2 - hasTransparent, Math.min(limit0 - hasTransparent, 256))
+    if (counts.size > limit) {
+      val numCuts = 32 - Integer.numberOfLeadingZeros(limit - 1)
+      var in      = bin.toArray
+      var out     = new Array[Int](in.length)
+      val bufR    = new Array[Int](32)
+      val bufG    = new Array[Int](32)
+      val bufB    = new Array[Int](32)
+      var stage   = 0
+      while (stage < numCuts) {
+        val size   = in.length >>> stage
+        var offset = 0
+        var end    = 0
+        var part   = 1 << stage
+        while (part > 0) {
+          if (part == 1) {
+            end = in.length
+          } else {
+            end += size
+          }
+          Arrays.fill(bufR, 0)
+          Arrays.fill(bufG, 0)
+          Arrays.fill(bufB, 0)
+          var i = offset
+          while (i < end) {
+            val ii = in(i)
+            bufR(ii >>> 27) += 1
+            bufG(ii >>> 19 & 31) += 1
+            bufB(ii >>> 11 & 31) += 1
+            i += 1
+          }
+          rangeR = 32
+          while (rangeR > 0 && bufR(rangeR - 1) == 0) rangeR -= 1
+          locally { var r2 = 0; while (r2 < rangeR && bufR(r2) == 0) { r2 += 1; rangeR -= 1 } }
+          rangeG = 32
+          while (rangeG > 0 && bufG(rangeG - 1) == 0) rangeG -= 1
+          locally { var r2 = 0; while (r2 < rangeG && bufG(r2) == 0) { r2 += 1; rangeG -= 1 } }
+          rangeB = 32
+          while (rangeB > 0 && bufB(rangeB - 1) == 0) rangeB -= 1
+          locally { var r2 = 0; while (r2 < rangeB && bufB(r2) == 0) { r2 += 1; rangeB -= 1 } }
+
+          if (rangeG >= rangeR && rangeG >= rangeB) {
+            { var j = 1; while (j < 32) { bufG(j) += bufG(j - 1); j += 1 } }
+            { var j = end - 1; while (j >= offset) { bufG(in(j) >>> 19 & 31) -= 1; out(offset + bufG(in(j) >>> 19 & 31)) = in(j); j -= 1 } }
+          } else if (rangeR >= rangeG && rangeR >= rangeB) {
+            { var j = 1; while (j < 32) { bufR(j) += bufR(j - 1); j += 1 } }
+            { var j = end - 1; while (j >= offset) { bufR(in(j) >>> 27) -= 1; out(offset + bufR(in(j) >>> 27)) = in(j); j -= 1 } }
+          } else {
+            { var j = 1; while (j < 32) { bufB(j) += bufB(j - 1); j += 1 } }
+            { var j = end - 1; while (j >= offset) { bufB(in(j) >>> 11 & 31) -= 1; out(offset + bufB(in(j) >>> 11 & 31)) = in(j); j -= 1 } }
+          }
+          offset += size
+          part -= 1
+        }
+        // Swap in and out for next stage
+        val tmp = in; in = out; out = tmp
+        stage += 1
+      }
+      // Now `in` holds the sorted data after all stages
+      val jump     = in.length >>> numCuts
+      var mid      = 0
+      var assigned = 0
+      val fr       = 270.0 / (jump * 31.0)
+      val n        = (1 << numCuts) - 1
+      while (assigned < n) {
+        var r  = 0.0
+        var g  = 0.0
+        var b  = 0.0
+        var i2 = mid + jump - 1
+        while (i2 >= mid) {
+          color = in(i2)
+          r += color >>> 27
+          g += color >>> 19 & 31
+          b += color >>> 11 & 31
+          i2 -= 1
+        }
+        paletteArray(assigned) = Math.min(Math.max(((r - 7.0) * fr).toInt, 0), 255) << 24 |
+          Math.min(Math.max(((g - 7.0) * fr).toInt, 0), 255) << 16 |
+          Math.min(Math.max(((b - 7.0) * fr).toInt, 0), 255) << 8 | 0xff
+        assigned += 1
+        mid += jump
+      }
+      // Handle the last bin (which may differ in size)
+      locally {
+        val j2  = in.length - (mid - jump)
+        var r   = 0.0
+        var g   = 0.0
+        var b   = 0.0
+        val fr2 = 270.0 / (j2 * 31.0)
+        var i2  = in.length - 1
+        while (i2 >= mid) {
+          color = in(i2)
+          r += color >>> 27
+          g += color >>> 19 & 31
+          b += color >>> 11 & 31
+          i2 -= 1
+        }
+        paletteArray(assigned) = Math.min(Math.max(((r - 7.0) * fr2).toInt, 0), 255) << 24 |
+          Math.min(Math.max(((g - 7.0) * fr2).toInt, 0), 255) << 16 |
+          Math.min(Math.max(((b - 7.0) * fr2).toInt, 0), 255) << 8 | 0xff
+        assigned += 1
+      }
+      // Swap less-frequent colors past limit with more-frequent ones in limit range
+      var ci = limit
+      while (ci < assigned) {
+        val currentCount = counts.getOrElse(paletteArray(ci), 0)
+        var j            = 0
+        boundary {
+          while (j < limit) {
+            if (counts.getOrElse(paletteArray(j), 0) < currentCount) {
+              val temp = paletteArray(j)
+              paletteArray(j) = paletteArray(ci)
+              paletteArray(ci) = temp
+              break(())
+            }
+            j += 1
+          }
+        }
+        ci += 1
+      }
+      if (hasTransparent == 1) {
+        var min   = Int.MaxValue
+        var worst = 0
+        var i2    = 0
+        while (i2 < limit) {
+          val currentCount = counts.getOrElse(paletteArray(i2), 0)
+          if (currentCount < min) {
+            min = currentCount
+            worst = i2
+          }
+          i2 += 1
+        }
+        if (worst != 0) {
+          paletteArray(worst) = paletteArray(0)
+        }
+        paletteArray(0) = 0
+      }
+      var i2 = hasTransparent
+      while (i2 < limit) {
+        color = paletteArray(i2)
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i2.toByte
+        i2 += 1
+      }
+      colorCount = limit
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    } else {
+      Arrays.fill(paletteArray, 0)
+      val it = counts.keysIterator
+      var i  = hasTransparent
+      while (i < limit && it.hasNext) {
+        color = it.next()
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        i += 1
+      }
+      colorCount = counts.size + hasTransparent
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    }
+
+    // Fill rest of palette mapping
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i2   = 1
+            while (i2 < colorCount) {
+              val newDist = Math.min(dist, differenceAnalyzing(paletteArray(i2), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i2.toByte
+              }
+              dist = newDist
+              i2 += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
+
+  // === Big Palette / Reductive Analysis ===
+
+  /** Builds the mapping from RGB555 colors to their closest match in BIG_PALETTE by calculating the closest match for every color. The palette should have 1024 colors, if possible, but can be
+    * smaller.
+    */
+  def alterBigPalette(palette: Array[Int]): Unit = {
+    if (PaletteReducer.bigPaletteMapping == null) {
+      PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
+    }
+    val plen = palette.length
+    if (!(palette eq PaletteReducer.BIG_PALETTE)) {
+      System.arraycopy(palette, 0, PaletteReducer.BIG_PALETTE, 0, Math.min(plen, PaletteReducer.BIG_PALETTE.length))
+    }
+    if (plen < PaletteReducer.BIG_PALETTE.length) {
+      Arrays.fill(PaletteReducer.BIG_PALETTE, plen, 1024, 0)
+    }
+    var i = 0
+    while (i < plen) {
+      val color = palette(i)
+      if ((color & 0x80) != 0) {
+        PaletteReducer.bigPaletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toChar
+      }
+      i += 1
+    }
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (PaletteReducer.bigPaletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = 1e100
+            var j    = 1
+            while (j < plen) {
+              val newDist = Math.min(dist, differenceMatch(PaletteReducer.BIG_PALETTE(j), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                PaletteReducer.bigPaletteMapping(c2) = j.toChar
+              }
+              dist = newDist
+              j += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+    PaletteReducer.bigPaletteLoaded = true
+  }
+
+  /** Writes the current bigPaletteMapping to the given FileHandle. */
+  def writeBigPalette(filename: FileHandle | Null): Unit =
+    if (PaletteReducer.bigPaletteMapping != null) {
+      val target =
+        if (filename != null) filename.nn
+        else {
+          // Cannot use Gdx.files in SGE; require an explicit file handle
+          return
+        }
+      target.writeString(new String(PaletteReducer.bigPaletteMapping), false, sge.utils.Nullable("UTF8"))
+    }
+
+  /** Loads the bigPaletteMapping from the given file, using the provided palette. */
+  def loadBigPalette(file: FileHandle, palette: Array[Int]): Unit = {
+    val plen = palette.length
+    System.arraycopy(palette, 0, PaletteReducer.BIG_PALETTE, 0, Math.min(plen, PaletteReducer.BIG_PALETTE.length))
+    if (plen < PaletteReducer.BIG_PALETTE.length) {
+      Arrays.fill(PaletteReducer.BIG_PALETTE, plen, 1024, 0)
+    }
+    if (PaletteReducer.bigPaletteMapping == null) {
+      PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
+    }
+    file.readString(sge.utils.Nullable("UTF8")).getChars(0, 0x8000, PaletteReducer.bigPaletteMapping, 0)
+    PaletteReducer.bigPaletteLoaded = true
+  }
+
+  /** Builds the BIG_PALETTE mapping. If already loaded, this does nothing. */
+  def buildBigPalette(): Unit = {
+    if (PaletteReducer.bigPaletteLoaded) return
+    if (PaletteReducer.bigPaletteMapping == null) {
+      PaletteReducer.bigPaletteMapping = new Array[Char](0x8000)
+    }
+    // In SGE we don't have Gdx.files.classpath, so we always build from scratch.
+    alterBigPalette(PaletteReducer.BIG_PALETTE)
+  }
+
+  /** Analyzes pixmap for color count and frequency using the Reductive algorithm with defaults. */
+  def analyzeReductive(pixmap: Pixmap): Unit =
+    analyzeReductive(pixmap, 100)
+
+  /** Analyzes pixmap using the Reductive algorithm with the given threshold. */
+  def analyzeReductive(pixmap: Pixmap, threshold: Double): Unit =
+    analyzeReductive(pixmap, threshold, 256)
+
+  /** Analyzes pixmap for color count and frequency using the Reductive algorithm. This uses the BIG_PALETTE (1024 colors) and maps image colors through it before selecting a final palette.
+    */
+  def analyzeReductive(pixmap: Pixmap, threshold0: Double, limit0: Int): Unit = {
+    buildBigPalette()
+    Arrays.fill(paletteArray, 0)
+    Arrays.fill(paletteMapping, 0.toByte)
+    var color     = 0
+    val limit     = Math.min(Math.max(limit0, 2), 256)
+    val threshold = threshold0 / Math.min(0.3, Math.pow(limit + 16, 1.45) * 0.00013333)
+    val width     = pixmap.width.toInt
+    val height    = pixmap.height.toInt
+    val counts    = new mutable.HashMap[Int, Int]()
+    val reds      = new Array[Int](limit)
+    val greens    = new Array[Int](limit)
+    val blues     = new Array[Int](limit)
+    var y         = 0
+    while (y < height) {
+      var x = 0
+      while (x < width) {
+        color = pixmap.getPixel(Pixels(x), Pixels(y)) & 0xf8f8f880
+        if ((color & 0x80) != 0) {
+          color = PaletteReducer.BIG_PALETTE(PaletteReducer.bigPaletteMapping(PaletteReducer.shrink(color)))
+          counts(color) = counts.getOrElse(color, 0) + 1
+        }
+        x += 1
+      }
+      y += 1
+    }
+    val cs     = counts.size
+    val sorted = new scala.collection.mutable.ArrayBuffer[(Int, Int)](cs)
+    for ((k, v) <- counts) sorted += ((k, v))
+    sorted.sortInPlaceBy(-_._2)
+    var thresholdVar = threshold
+    if (cs < limit) {
+      var i = 1
+      for ((c, _) <- sorted) {
+        color = c
+        paletteArray(i) = color
+        paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+        reds(i) = color >>> 24
+        greens(i) = color >>> 16 & 255
+        blues(i) = color >>> 8 & 255
+        i += 1
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    } else {
+      var i = 1
+      boundary {
+        var iterations = 0
+        while (iterations < 4) {
+          var c = 0
+          while (c < sorted.size) {
+            color = sorted(c)._1
+            c += 1
+            var tooClose = false
+            boundary {
+              var j = 1
+              while (j < i) {
+                if (differenceAnalyzing(color, paletteArray(j)) < thresholdVar) {
+                  tooClose = true
+                  break(())
+                }
+                j += 1
+              }
+            }
+            if (!tooClose) {
+              sorted.remove(c - 1)
+              c -= 1
+              paletteArray(i) = color
+              paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) = i.toByte
+              reds(i) = color >>> 24
+              greens(i) = color >>> 16 & 255
+              blues(i) = color >>> 8 & 255
+              i += 1
+              if (i >= limit) break(())
+            }
+          }
+          thresholdVar *= 0.65
+          iterations += 1
+        }
+      }
+      colorCount = i
+      populationBias = Math.exp(-1.375 / colorCount).toFloat
+    }
+
+    var r = 0
+    while (r < 32) {
+      val rr = r << 3 | r >>> 2
+      var g  = 0
+      while (g < 32) {
+        val gg = g << 3 | g >>> 2
+        var b  = 0
+        while (b < 32) {
+          val c2 = r << 10 | g << 5 | b
+          if (paletteMapping(c2) == 0) {
+            val bb   = b << 3 | b >>> 2
+            var dist = Double.MaxValue
+            var i2   = 1
+            while (i2 < colorCount) {
+              val newDist = Math.min(dist, differenceAnalyzing(reds(i2), greens(i2), blues(i2), rr, gg, bb))
+              if (dist > newDist) {
+                dist = newDist
+                paletteMapping(c2) = i2.toByte
+              }
+              dist = newDist
+              i2 += 1
+            }
+          }
+          b += 1
+        }
+        g += 1
+      }
+      r += 1
+    }
+  }
+
+  /** Analyzes multiple pixmaps using the Reductive algorithm. */
+  def analyzeReductive(pixmaps: Array[Pixmap], pixmapCount: Int, threshold: Double, limit: Int): Unit =
+    // Delegates to single-pixmap version using the first pixmap
+    if (pixmaps != null && pixmapCount > 0) {
+      analyzeReductive(pixmaps(0), threshold, limit)
+    }
+
+  // === Random Color Selection ===
+
+  /** Retrieves a random non-0 color index for the palette this would reduce to. The index has a higher likelihood for colors that are used more often in reductions.
+    */
+  def randomColorIndex(random: java.util.Random): Byte =
+    paletteMapping(random.nextInt() >>> 17)
+
+  /** Retrieves a random non-transparent color from the palette this would reduce to. Returns an RGBA8888 int.
+    */
+  def randomColor(random: java.util.Random): Int =
+    paletteArray(paletteMapping(random.nextInt() >>> 17) & 255)
+
+  /** Looks up color and finds the closest color in the palette. Both parameter and return are RGBA8888 ints. */
+  def reduceSingle(color: Int): Int = {
+    if ((color & 0x80) == 0) return 0
+    paletteArray(paletteMapping((color >>> 17 & 0x7c00) | (color >>> 14 & 0x3e0) | (color >>> 11 & 0x1f)) & 0xff)
+  }
+
+  // === WrenOriginal Dither ===
+
+  /** WrenOriginal: an older variant of Wren dither that uses per-channel blue noise + R2 hash with non-gamma-corrected error diffusion. Uses Floyd-Steinberg weights.
+    */
+  def reduceWrenOriginal(pixmap: Pixmap): Pixmap = {
+    val hasTransparent                                                                          = paletteArray(0) == 0
+    val lineLen                                                                                 = pixmap.width.toInt; val h = pixmap.height.toInt
+    val (curErrorRed, nextErrorRed, curErrorGreen, nextErrorGreen, curErrorBlue, nextErrorBlue) = ensureErrorArrays(lineLen)
+    val oldBlending                                                                             = pixmap.blending; pixmap.setBlending(Pixmap.Blending.None)
+    // 0x1p-8f = 0.00390625f
+    val w1       = (32.0f * _ditherStrength * (populationBias * populationBias)).toFloat; val w3 = w1 * 3f; val w5 = w1 * 5f; val w7 = w1 * 7f
+    val strength = 0.2f * _ditherStrength / (populationBias * populationBias * populationBias * populationBias)
+    val limit    = 5f + 125f / Math.sqrt(colorCount + 1.5).toFloat
+    val dmul     = 0.00390625f // 0x1p-8f
+    // 0x1p-16f = 1.5258789e-5f; 0x1p+6f = 64f; 0x1p-15f = 3.0517578e-5f; 0x1p+7f = 128f
+    var y = 0;
+    while (y < h) {
+      val ny = y + 1
+      System.arraycopy(nextErrorRed, 0, curErrorRed, 0, lineLen); System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, lineLen); System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, lineLen)
+      Arrays.fill(nextErrorRed, 0, lineLen, 0f); Arrays.fill(nextErrorGreen, 0, lineLen, 0f); Arrays.fill(nextErrorBlue, 0, lineLen, 0f)
+      var px = 0;
+      while (px < lineLen) {
+        val color = pixmap.getPixel(Pixels(px), Pixels(y))
+        if (hasTransparent && (color & 0x80) == 0) pixmap.drawPixel(Pixels(px), Pixels(y), 0)
+        else {
+          val er = Math.min(
+            Math.max(
+              ((PaletteReducer.TRI_BLUE_NOISE(
+                (px & 63) | (y & 63) << 6
+              ) + 0.5f) + ((((px + 1).toLong * 0xc13fa9a902a6328fL + (y + 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.5258789e-5f - 64f)) * strength + curErrorRed(px),
+              -limit
+            ),
+            limit
+          )
+          val eg = Math.min(
+            Math.max(
+              ((PaletteReducer.TRI_BLUE_NOISE_B(
+                (px & 63) | (y & 63) << 6
+              ) + 0.5f) + ((((px + 3).toLong * 0xc13fa9a902a6328fL + (y - 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.5258789e-5f - 64f)) * strength + curErrorGreen(px),
+              -limit
+            ),
+            limit
+          )
+          val eb = Math.min(
+            Math.max(
+              ((PaletteReducer.TRI_BLUE_NOISE_C(
+                (px & 63) | (y & 63) << 6
+              ) + 0.5f) + ((((px + 2).toLong * 0xc13fa9a902a6328fL + (y - 4).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 1.5258789e-5f - 64f)) * strength + curErrorBlue(px),
+              -limit
+            ),
+            limit
+          )
+          val rr   = Math.min(Math.max(((color >>> 24) + er + 0.5f).toInt, 0), 0xff)
+          val gg   = Math.min(Math.max(((color >>> 16 & 0xff) + eg + 0.5f).toInt, 0), 0xff)
+          val bb   = Math.min(Math.max(((color >>> 8 & 0xff) + eb + 0.5f).toInt, 0), 0xff)
+          val pidx = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+          val used = paletteArray(pidx & 0xff)
+          pixmap.drawPixel(Pixels(px), Pixels(y), used)
+          val rdiff = dmul * ((color >>> 24) - (used >>> 24))
+          val gdiff = dmul * ((color >>> 16 & 255) - (used >>> 16 & 255))
+          val bdiff = dmul * ((color >>> 8 & 255) - (used >>> 8 & 255))
+          if (px < lineLen - 1) { curErrorRed(px + 1) += rdiff * w7; curErrorGreen(px + 1) += gdiff * w7; curErrorBlue(px + 1) += bdiff * w7 }
+          if (ny < h) {
+            if (px > 0) { nextErrorRed(px - 1) += rdiff * w3; nextErrorGreen(px - 1) += gdiff * w3; nextErrorBlue(px - 1) += bdiff * w3 }
+            if (px < lineLen - 1) { nextErrorRed(px + 1) += rdiff * w1; nextErrorGreen(px + 1) += gdiff * w1; nextErrorBlue(px + 1) += bdiff * w1 }
+            nextErrorRed(px) += rdiff * w5; nextErrorGreen(px) += gdiff * w5; nextErrorBlue(px) += bdiff * w5
+          }
+        };
+        px += 1
+      };
+      y += 1
+    }
+    pixmap.setBlending(oldBlending); pixmap
+  }
 }
 
 object PaletteReducer {
@@ -1866,4 +2405,78 @@ object PaletteReducer {
     while (i < 256) { arr(i) = OtherMath.triangularRemap(i + 0.5f, 256); i += 1 }
     arr
   }
+
+  // === Big Palette for Reductive Analysis ===
+
+  /** Whether the big palette mapping has been loaded or built. */
+  var bigPaletteLoaded:  Boolean     = false
+  var bigPaletteMapping: Array[Char] = null.asInstanceOf[Array[Char]] // @nowarn -- lazily initialized
+
+  /** An expanded palette with 1024 colors for reductive analysis. */
+  val BIG_PALETTE: Array[Int] = Array(
+    0x00000000, 0x000000ff, 0xffffffff, 0x080808ff, 0x101010ff, 0x181818ff, 0x202020ff, 0x292929ff, 0x313131ff, 0x393939ff, 0x414141ff, 0x4a4a4aff, 0x525252ff, 0x5a5a5aff, 0x626262ff, 0x6a6a6aff,
+    0x737373ff, 0x7b7b7bff, 0x838383ff, 0x8b8b8bff, 0x949494ff, 0x9c9c9cff, 0xa4a4a4ff, 0xacacacff, 0xb4b4b4ff, 0xbdbdbdff, 0xc5c5c5ff, 0xcdcdcdff, 0xd5d5d5ff, 0xdededeff, 0xe6e6e6ff, 0xeeeeeeff,
+    0xf6f6f6ff, 0xf225b9ff, 0xe3db38ff, 0xad8a65ff, 0x77377bff, 0x33d8c9ff, 0x2b7cc9ff, 0xf5b43dff, 0xc85b67ff, 0x379b2eff, 0xf32fedff, 0xacf7a5ff, 0x194847ff, 0x909dceff, 0x7041c7ff, 0xcd1d7dff,
+    0x78752cff, 0xf2c2a4ff, 0x4c173dff, 0xbf68c0ff, 0xcd9327ff, 0x95403aff, 0xcb20c5ff, 0x76d973ff, 0x53859aff, 0x3a1e7eff, 0xde5c23ff, 0xe7f83eff, 0xb6a66bff, 0x2b0b16ff, 0x8d4f87ff, 0x3ef0e9ff,
+    0xe01a2cff, 0x398cf1ff, 0x4a1ce2ff, 0xcd717cff, 0x9b1e90ff, 0x6ab634ff, 0x2b6d54ff, 0xa5b8eeff, 0x110f3aff, 0x8a5fccff, 0xef2584ff, 0x8e8c2eff, 0xecdea6ff, 0x63344dff, 0xc885d4ff, 0x991fc6ff,
+    0xd7ad2aff, 0xa75744ff, 0xe559c6ff, 0x64f888ff, 0x619ca3ff, 0x655194ff, 0xed7228ff, 0xbb224cff, 0xc9bd89ff, 0x452515ff, 0xb36286ff, 0xf5332bff, 0x44a4f3ff, 0x5244eaff, 0x84451fff, 0xf1897eff,
+    0xb64c8fff, 0x70cd38ff, 0x568a70ff, 0x8cd6ecff, 0x1d3665ff, 0x937deaff, 0xf3668bff, 0x97a536ff, 0x8f5a72ff, 0xe98deeff, 0xb024eeff, 0x1f359cff, 0xb5704cff, 0x8b1c63ff, 0xeb6edcff, 0x256323ff,
+    0x4fbfb0ff, 0x6864a0ff, 0xd24059ff, 0xa0c4aeff, 0x1c1ee8ff, 0x26491bff, 0xa67faaff, 0x823da9ff, 0x37ccf1ff, 0x3771edff, 0x965b20ff, 0xf1a385ff, 0x52111aff, 0xa9a385ff, 0x4af53bff, 0x39a67bff,
+    0x94f3eaff, 0x215175ff, 0x828cf3ff, 0x7521e8ff, 0x9a2418ff, 0x9fbc3aff, 0xa27a83ff, 0xdeafebff, 0x511671ff, 0xa95cecff, 0x2751b4ff, 0xcf8a58ff, 0x7d5054ff, 0x297b27ff, 0x77d6b5ff, 0x6073bbff,
+    0x4b1ba9ff, 0xe87461ff, 0xe5f182ff, 0x525324ff, 0xc396beff, 0x8b52a8ff, 0x9f6d24ff, 0x74181fff, 0xc581a7ff, 0x3bb678ff, 0x27648bff, 0x7c51ebff, 0xb13f25ff, 0xdf4c9eff, 0xa0dd3aff, 0x7e946dff,
+    0xebc4eaff, 0x5b3883ff, 0xb383f2ff, 0x286bbbff, 0xdda562ff, 0x8d6562ff, 0x378a33ff, 0xd548ecff, 0x5af6c2ff, 0x708ec7ff, 0x543cb3ff, 0xf06468ff, 0xa8246bff, 0x596d2bff, 0xcba4bcff, 0x35134aff,
+    0xa762afff, 0xf42e5cff, 0xb38427ff, 0x803b47ff, 0xef78b9ff, 0xaf45b2ff, 0x3acd85ff, 0x297894ff, 0x1b1988ff, 0xc05924ff, 0xed8aa7ff, 0xa7f73fff, 0x82a77bff, 0x844a6fff, 0xbe2123ff, 0x3393cbff,
+    0xd0ba67ff, 0x1d1ab9ff, 0xae6d80ff, 0x6e456cff, 0x31ad2dff, 0x246161ff, 0x7aafe2ff, 0x5e5ac9ff, 0xb7466fff, 0x6a8b32ff, 0xafdcb8ff, 0x453863ff, 0x9c73d1ff, 0x731eb9ff, 0xb4a62eff, 0x99685cff,
+    0xf2a1c5ff, 0xaa7fc5ff, 0x38e996ff, 0x2693a1ff, 0x31488bff, 0x111212ff, 0x951d3fff, 0x91bc7fff, 0x182e3fff, 0x87668bff, 0xd2442bff, 0x3da9d0ff, 0xdcd17aff, 0x243fdeff, 0x61381bff, 0xc98a8bff,
+    0x857081ff, 0x2ec534ff, 0x2d7f6bff, 0x74c5deff, 0x151764ff, 0x7371eaff, 0xdb5b84ff, 0x75a33dff, 0xddf8c6ff, 0x55567dff, 0xaf9cefff, 0x9645e3ff, 0xc6c634ff, 0x8a684eff, 0x6c1755ff, 0xc970ebff,
+    0x32aeadff, 0x486597ff, 0xf29032ff, 0xb0565cff, 0xa3d385ff, 0x1b3216ff, 0x8674acff, 0x6f1a8cff, 0xf06041ff, 0x32b8e5ff, 0x265ae8ff, 0x725a24ff, 0xd1a391ff, 0x948c7fff, 0x38de39ff, 0x29936aff,
+    0x5c1ad9ff, 0x711e1aff, 0xf07095ff, 0x85b557ff, 0x5c6365ff, 0xc7b7ebff, 0x2c054dff, 0x9c59e5ff, 0xfc2091ff, 0xdad818ff, 0xa9885bff, 0x70365eff, 0xe682e6ff, 0x60c8b0ff, 0x4a71aeff, 0xfaa737ff,
+    0xbd565bff, 0xf93cdfff, 0xbeef9dff, 0x31432fff, 0x989badff, 0x6d41a3ff, 0x3079fdff, 0x7c681bff, 0xe9bfa0ff, 0x3f1a28ff, 0xb569a8ff, 0x33fb52ff, 0x25a775ff, 0x165271ff, 0x84a9ffff, 0x6943f0ff,
+    0x8a3923ff, 0xc426a0ff, 0x90cf5dff, 0x6b7d72ff, 0xd5d2f8ff, 0x3f2864ff, 0xac76f7ff, 0xe9f211ff, 0xbaa163ff, 0x854f6dff, 0xf89df4ff, 0xc232edff, 0x68e3bbff, 0x548cbfff, 0x3d29a9ff, 0xd27066ff,
+    0x8e0765ff, 0x3f5c3bff, 0xa6b5baff, 0x130b27ff, 0x7d5db6ff, 0xde2e65ff, 0x8d8120ff, 0xf9d9a8ff, 0x3c17f7ff, 0x553336ff, 0xc884b6ff, 0x8f1cabff, 0x2ac27fff, 0x1d6d82ff, 0x170562ff, 0xa1532bff,
+    0xdb49b0ff, 0x9ce962ff, 0x78967eff, 0x4f4278ff, 0x9013f8ff, 0xa7082eff, 0xcabb6bff, 0x98697bff, 0x6ffec5ff, 0x5ca7cfff, 0x4849c0ff, 0xe6896fff, 0xa63175ff, 0x4c7645ff, 0xb3cfc5ff, 0x24253dff,
+    0x8c78c7ff, 0xf74e70ff, 0x9d9b24ff, 0x694c43ff, 0xd99ec3ff, 0xa440beff, 0x2fdc88ff, 0x248791ff, 0x1c2c7cff, 0xb66c31ff, 0x71173dff, 0xf066bfff, 0x85b089ff, 0x5f5c89ff, 0xc13337ff, 0xd9d571ff,
+    0x1028c5ff, 0x3b2c0cff, 0xa98288ff, 0x72297fff, 0x64c1ddff, 0x5166d4ff, 0xfaa377ff, 0xbd4e83ff, 0x578f4fff, 0xbfead0ff, 0x323e4fff, 0x9b92d7ff, 0x712dc7ff, 0xacb426ff, 0x7b654fff, 0xe9b8cfff,
+    0x401042ff, 0xb75ed0ff, 0x33f790ff, 0x2aa29fff, 0x224992ff, 0xc98637ff, 0x8a344bff, 0x90ca93ff, 0x041d1aff, 0x6d7699ff, 0x431382ff, 0xd9503fff, 0xe8ef76ff, 0x4e4515ff, 0xba9c93ff, 0x864691ff,
+    0x6cdceaff, 0x5a81e7ff, 0x561817ff, 0xd26991ff, 0x62a957ff, 0x40575fff, 0xa8ade6ff, 0x814edcff, 0xde1d8bff, 0xbace27ff, 0x8c7e59ff, 0xf9d3dbff, 0x562c55ff, 0xc979e0ff, 0x2fbcacff, 0x2864a6ff,
+    0xdc9f3cff, 0xa04e58ff, 0x338607ff, 0xdc35d8ff, 0x9be59cff, 0x123629ff, 0x7a90a8ff, 0x533599ff, 0xf06b46ff, 0x605e1dff, 0xcab69eff, 0x26111fff, 0x9960a1ff, 0x72f7f6ff, 0xfb1a4aff, 0x639df9ff,
+    0x5133e5ff, 0x6e3221ff, 0xe6839dff, 0xa71f98ff, 0x6cc45eff, 0x4c716dff, 0xb5c8f4ff, 0x281a58ff, 0x906befff, 0xf74499ff, 0xc8e926ff, 0x9c9762ff, 0x694666ff, 0xdb94efff, 0xa726e4ff, 0x33d7b8ff,
+    0x2d7fb8ff, 0xeeb93fff, 0x28149cff, 0xb56863ff, 0x3ca00cff, 0xf257e8ff, 0xa5ffa4ff, 0x1e5036ff, 0x86aab6ff, 0x6251adff, 0xc12b60ff, 0x707723ff, 0xd9d0a7ff, 0x3b292fff, 0xab7bb1ff, 0x750ba0ff,
+    0x5a55fbff, 0x844b2aff, 0xf99da8ff, 0xbe42a9ff, 0x76de64ff, 0x588b7aff, 0x36366eff, 0x8a032bff, 0xabb16bff, 0x7c5f75ff, 0xebaffdff, 0xba4cf7ff, 0x36f2c3ff, 0x339ac8ff, 0xffd341ff, 0x2e3ab4ff,
+    0xc9816dff, 0x8a2a6dff, 0x44bb0cff, 0x286942ff, 0x92c5c2ff, 0x0b1731ff, 0x706cc0ff, 0xd9496cff, 0x7f9029ff, 0xe7eab0ff, 0x4e413eff, 0xbb95bfff, 0x8936b5ff, 0x996432ff, 0x561036ff, 0xd35fb9ff,
+    0x7ff96aff, 0x63a586ff, 0x435081ff, 0xa42e35ff, 0xb9cb72ff, 0x232109ff, 0x8d7983ff, 0x581f74ff, 0x37b5d8ff, 0x3458cbff, 0xdb9b76ff, 0xa0477dff, 0x4bd509ff, 0x32834cff, 0x9cdfceff, 0x163146ff,
+    0x7d87d1ff, 0x591cbbff, 0xf06577ff, 0x8caa2dff, 0x5f5a4bff, 0xcbafccff, 0x9b54c8ff, 0xac7d39ff, 0x6e2d45ff, 0xe77ac8ff, 0x6dbf91ff, 0x4f6a92ff, 0xbc4a3eff, 0xf832c1ff, 0xc7e578ff, 0x343914ff,
+    0x9c9290ff, 0x6c3c88ff, 0x3bd0e6ff, 0x3974dfff, 0xedb57eff, 0x3b1012ff, 0xb5618cff, 0x3b9e56ff, 0xa6fad8ff, 0x214b57ff, 0x89a2e0ff, 0x6841d2ff, 0xc11985ff, 0x9ac430ff, 0x6f7456ff, 0xdac9d8ff,
+    0x3d224cff, 0xad70d9ff, 0xbe963fff, 0x844653ff, 0xfa95d5ff, 0xc02ccfff, 0x76da9bff, 0x5b85a2ff, 0x3c278dff, 0xd36446ff, 0xd3ff7eff, 0x44521dff, 0xabac9bff, 0x0f0513ff, 0x7d569aff, 0x3debf3ff,
+    0xdc1a48ff, 0xfecf86ff, 0x3b1cd8ff, 0x53291eff, 0xc97b99ff, 0x8c158fff, 0x42b85eff, 0x2b6567ff, 0x95bdefff, 0x140649ff, 0x755fe7ff, 0xd93f94ff, 0xa6de31ff, 0x7e8d60ff, 0xe8e4e3ff, 0x4f3b5eff,
+    0xbd8be9ff, 0x8d14d9ff, 0xcfb043ff, 0x98605fff, 0xd54fe1ff, 0x7ef4a4ff, 0x659fb1ff, 0x4945a3ff, 0xe87e4dff, 0xa4265bff, 0x526c25ff, 0xb9c6a5ff, 0x231e27ff, 0x8e71aaff, 0xf64051ff, 0x4145f0ff,
+    0x694228ff, 0xdb95a5ff, 0xa23aa2ff, 0x4ad265ff, 0x347f75ff, 0x9fd7fdff, 0x1d2862ff, 0x827bf9ff, 0xf05ca2ff, 0xb2f931ff, 0x8ca76aff, 0xf5feedff, 0x60556fff, 0xcda6f8ff, 0x9f40eeff, 0xbf210eff,
+    0xdfca47ff, 0x1428a8ff, 0xac796aff, 0x6f2265ff, 0xe96df2ff, 0x6fb9beff, 0x5460b7ff, 0xfc9853ff, 0xbc4468ff, 0x60852bff, 0xc6e0afff, 0x0a0ff5ff, 0x343637ff, 0x9e8bb9ff, 0x6f2aabff, 0x7d5b31ff,
+    0xedafb0ff, 0x3b062cff, 0xb757b3ff, 0x50ed6cff, 0x3c9982ff, 0x274377ff, 0x6f22f8ff, 0x872932ff, 0x99c172ff, 0x0b1405ff, 0x706e7eff, 0x401068ff, 0xd84213ff, 0xeee44aff, 0x0b49c0ff, 0xbd9274ff,
+    0x853e76ff, 0x78d4caff, 0x5f7bc9ff, 0xd25f74ff, 0x6c9f31ff, 0xd3fbb8ff, 0x444f45ff, 0xada5c7ff, 0x8149bfff, 0x8f7439ff, 0xfec9baff, 0x53243eff, 0xca72c2ff, 0x44b48eff, 0x305e8aff, 0x9f433cff,
+    0xda2cbaff, 0xa5db79ff, 0x192d11ff, 0x7f888bff, 0x52307eff, 0xf05e16ff, 0xfdfe4bff, 0xceac7eff, 0x21070cff, 0x995886ff, 0x80efd6ff, 0x6a96daff, 0x5032c7ff, 0xe7797fff, 0xa4127dff, 0x78b935ff,
+    0x526852ff, 0xbabfd4ff, 0x251640ff, 0x9165d1ff, 0xf5367dff, 0xa08d40ff, 0x693d4dff, 0xdc8dd0ff, 0xa422c6ff, 0x4ace99ff, 0x39789bff, 0x271580ff, 0xb55d45ff, 0xf14fcbff, 0xb0f580ff, 0x27461bff,
+    0x8ca298ff, 0x634c92ff, 0xbe1845ff, 0xdec686ff, 0x392019ff, 0xac7294ff, 0x73b1eaff, 0x5b52ddff, 0xfb9388ff, 0xbc398eff, 0x83d438ff, 0x5f825eff, 0xc8dae0ff, 0x363055ff, 0xa181e3ff, 0xb0a746ff,
+    0x7d565bff, 0xeea7deff, 0xb946d9ff, 0x50e9a2ff, 0x4093abff, 0x2f3798ff, 0xca774dff, 0x872054ff, 0x336024ff, 0x99bca3ff, 0x0c111cff, 0x7266a3ff, 0xd83c4fff, 0xeee08dff, 0x2832e4ff, 0x4e3825ff,
+    0xbe8ca1ff, 0x873199ff, 0x7cccf8ff, 0x666ff1ff, 0xd2569cff, 0x8dee3aff, 0x6c9c68ff, 0xd4f4ebff, 0x454967ff, 0xaf9cf2ff, 0x8533e4ff, 0xa11e12ff, 0xc0c04bff, 0x8f7067ff, 0xfec2eaff, 0x55195bff,
+    0xcc65ebff, 0x48adb9ff, 0x3853aeff, 0xde9054ff, 0x9f3d63ff, 0x3e7a2cff, 0xa5d6adff, 0x1a2a2fff, 0x8180b3ff, 0x571b9fff, 0xef5958ff, 0xfcfa93ff, 0x2655fbff, 0x61512fff, 0xcfa6adff, 0x9b4eabff,
+    0x6b222dff, 0xe871aaff, 0x77b671ff, 0x536377ff, 0x9655f9ff, 0xbb3d18ff, 0xf524a5ff, 0xceda4fff, 0xa08972ff, 0x6a356eff, 0xdf81fbff, 0x4ec8c6ff, 0x406fc1ff, 0xf0aa5aff, 0xb55870ff, 0x499433ff,
+    0xf33af3ff, 0xb0f0b7ff, 0x27433fff, 0x8e9bc2ff, 0x673db5ff, 0x736a38ff, 0xdfc0b8ff, 0x3a1b35ff, 0xae69bcff, 0x833c39ff, 0xfc8cb6ff, 0xbe25b3ff, 0x82d079ff, 0x617d86ff, 0x3a2473ff, 0xd3581dff,
+    0xdcf552ff, 0xb0a37cff, 0x7e4f7fff, 0x54e3d3ff, 0x478ad3ff, 0x3a1fbaff, 0xca727bff, 0x880575ff, 0x53ae39ff, 0x335c4dff, 0x9bb5d0ff, 0x110431ff, 0x765ac9ff, 0xd73378ff, 0x838340ff, 0xeedac2ff,
+    0x4f3446ff, 0xbf84cbff, 0x8a12bcff, 0x995543ff, 0xd448c4ff, 0x8cea81ff, 0x6d9793ff, 0x494088ff, 0xe97221ff, 0xa11541ff, 0xbfbc85ff, 0x211613ff, 0x90698eff, 0x59fedeff, 0xf42e2fff, 0x4ea5e3ff,
+    0x4243d2ff, 0xdd8b86ff, 0xa03286ff, 0x5cc83dff, 0x3f765aff, 0xa7cfddff, 0x1e234aff, 0x8476dbff, 0xef5185ff, 0x929d48ff, 0xfcf5cbff, 0x614c55ff, 0xd09ed9ff, 0x9e3cd1ff, 0x16268bff, 0xad6f4cff,
+    0x6b194cff, 0xe966d4ff, 0x78b1a0ff, 0x575a9bff, 0xfe8c23ff, 0xba384cff, 0xcdd68dff, 0x0e18d6ff, 0x352d20ff, 0xa1839cff, 0x6c268fff, 0x54c0f3ff, 0x4961e7ff, 0xf0a590ff, 0xb64f96ff, 0x64e341ff,
+    0x499065ff, 0xb2eae8ff, 0x2a3d5eff, 0x9291ecff, 0x6d23d9ff, 0x841913ff, 0xa0b64eff, 0x736662ff, 0xe0b9e6ff, 0x3c0c4fff, 0xb05be3ff, 0x1745a3ff, 0xc08854ff, 0x83365cff, 0xfd82e2ff, 0x0e6d2bff,
+    0x82cbabff, 0x6475acff, 0xd25357ff, 0xdbf194ff, 0x46462cff, 0xb19da9ff, 0x8044a3ff, 0x517efbff, 0x501b27ff, 0xca6aa5ff, 0x6bfd43ff, 0x52aa6fff, 0x365770ff, 0x9eacfcff, 0x7c48efff, 0x9e371bff,
+    0xd81f9eff, 0xadd053ff, 0x837f6eff, 0xefd3f3ff, 0x502b64ff, 0xc278f5ff, 0x1861b8ff, 0xd2a25bff, 0x99506bff, 0x188733ff, 0xd631ebff, 0x8ce6b5ff, 0x6f8fbcff, 0x4f30aaff, 0xe86e60ff, 0x565f36ff,
+    0xc0b7b5ff, 0x22102aff, 0x925fb4ff, 0xf32460ff, 0xa48203ff, 0x4d26f7ff, 0x683434ff, 0xde84b2ff, 0xa21baaff, 0x5bc578ff, 0x417180ff, 0x241365ff, 0xb55221ff, 0xf045adff, 0xbaeb57ff, 0x929979ff,
+    0xfdeefeff, 0x634577ff, 0xa21af7ff, 0x197dcbff, 0xe3bb62ff, 0xad6977ff, 0x20a23aff, 0xeb55fdff, 0x7baacbff, 0x5c4ebfff, 0xfd8868ff, 0xba2e72ff, 0x657840ff, 0xced1c0ff, 0x35293dff, 0xa37ac5ff,
+    0xb59c00ff, 0x7d4d40ff, 0xf09ebfff, 0xb740bcff, 0x63df81ff, 0x4b8b8eff, 0x30337dff, 0xcb6b26ff, 0x84103cff, 0xa0b283ff, 0x0a0a0aff, 0x745f88ff, 0xd62c30ff, 0x1998ddff, 0xf3d567ff, 0x2932c6ff,
+    0xc08383ff, 0x842a7eff, 0x27bc40ff, 0x116a55ff, 0x85c4d8ff, 0x04143cff, 0x686ad3ff, 0xd24c80ff, 0x739248ff, 0xdbebcaff, 0x47424eff, 0xb294d4ff, 0x8331c7ff, 0x90664aff, 0x511043ff, 0xcc5ecdff,
+    0x54a59bff, 0x3b4e92ff, 0xe0852aff, 0x9d3248ff, 0xadcc8cff, 0x1c221aff, 0x847997ff, 0x541984ff, 0xef4b36ff, 0x18b4edff, 0x2b53ddff, 0x624707ff, 0xd29d8eff, 0x9a468fff, 0x2cd745ff, 0x1a8461ff,
+    0x8edfe5ff, 0x092f53ff, 0x7485e5ff, 0x681412ff, 0xe8678cff, 0x80ac4fff, 0x575b5dff, 0xc1afe2ff, 0x9551dbff, 0xf30888ff, 0xa37f53ff, 0x682d55ff, 0xdf7addff, 0x5dc0a8ff, 0x4669a5ff, 0xf49f2dff,
+    0xb54d54ff, 0xf131d5ff, 0xb9e795ff, 0x2b3a27ff, 0x9392a4ff, 0x663999ff, 0x16cffcff, 0x2d70f2ff, 0x755f0fff, 0xe3b798ff, 0x361220ff, 0xae619fff, 0x31f249ff, 0x219e6dff, 0x97faf1ff, 0x114a67ff,
+    0x7fa0f6ff, 0x633ae4ff, 0x81311bff, 0xfd8298ff, 0xbb1997ff, 0x8cc655ff, 0x65746aff, 0xcfc9efff, 0x381f59ff, 0xa66dedff, 0xb4995bff, 0x7d4764ff, 0xf295ebff, 0xba26e3ff, 0x64dab3ff, 0x4f83b6ff,
+    0x381f9dff, 0xca675eff, 0x3a5333ff, 0xa1adb1ff, 0x7755acff, 0xd5225dff, 0x877914ff, 0xf3d1a0ff, 0x4d2b2eff, 0xc17cadff, 0x860ca0ff, 0x27b977ff, 0x6dfa89ff, 0x196479ff, 0x3e91f1ff, 0x6f5afaff
+  )
 }

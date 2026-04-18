@@ -381,22 +381,25 @@ object SimplePalette {
     // Build NAMES_BY_HUE
     NAMES_BY_HUE ++= NAMES
     NAMES_BY_HUE.sortInPlace()(using
-      (o1: String, o2: String) =>
+      Ordering.fromLessThan[String] { (o1, o2) =>
         val c1 = NAMED.getOrElse(o1, TRANSPARENT)
         val c2 = NAMED.getOrElse(o2, TRANSPARENT)
         val s1 = ColorTools.saturation(c1)
         val s2 = ColorTools.saturation(c2)
         // a packed float color with a sign bit of 0 (a non-negative number) is mostly transparent.
         // this also considers 0x80000000 transparent, but it's almost at the threshold.
-        if (c1 >= 0f) -10000
-        else if (c2 >= 0f) 10000
-        else if (s1 <= 0.05f && s2 > 0.05f) -1000
-        else if (s1 > 0.05f && s2 <= 0.05f) 1000
-        else if (s1 <= 0.05f && s2 <= 0.05f)
-          Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
-        else
-          2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+        val cmp =
+          if (c1 >= 0f) -10000
+          else if (c2 >= 0f) 10000
+          else if (s1 <= 0.05f && s2 > 0.05f) -1000
+          else if (s1 > 0.05f && s2 <= 0.05f) 1000
+          else if (s1 <= 0.05f && s2 <= 0.05f)
             Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
+          else
+            2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+              Math.signum(ColorTools.lightness(c1) - ColorTools.lightness(c2)).toInt
+        cmp < 0
+      }
     )
     for (name <- NAMES_BY_HUE)
       COLORS_BY_HUE += NAMED.getOrElse(name, TRANSPARENT)
@@ -404,11 +407,12 @@ object SimplePalette {
     // Build NAMES_BY_LIGHTNESS
     NAMES_BY_LIGHTNESS ++= NAMES
     NAMES_BY_LIGHTNESS.sortInPlace()(using
-      (o1: String, o2: String) =>
+      Ordering.fromLessThan[String] { (o1, o2) =>
         java.lang.Float.compare(
           ColorTools.lightness(NAMED.getOrElse(o1, TRANSPARENT)),
           ColorTools.lightness(NAMED.getOrElse(o2, TRANSPARENT))
-        )
+        ) < 0
+      }
     )
 
     // Build namesByHue and colorsByHue (private, for bestMatch; excludes "transparent")

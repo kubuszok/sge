@@ -18,7 +18,6 @@
  *   TODOs: ShaderProgram initialization deferred — SGE manages shaders at a higher level.
  *     getBitmapFont skipped — SGE does not expose BitmapFont directly.
  *     loadUnicodeAtlas → uses standard TextureAtlas (SGE reads UTF-8 by default).
- *     getAll/getAllStandard/getAllSDF/getAllMSDF skipped — bulk-load helpers, not needed for port.
  *
  * Covenant: partial-port
  * Covenant-source-reference: textratypist/src/main/java/com/github/tommyettinger/textra/KnownFonts.java
@@ -580,6 +579,135 @@ object KnownFonts {
   def getYataghan(dft:                Font.DistanceFieldType)(using Sge): Font = getFont(YATAGHAN, dft)
   def getYataghanMSDF()(using Sge):                                       Font = getFont(YATAGHAN, Font.DistanceFieldType.MSDF)
 
+  /** Alias for getCanada1500(). Returns a Font with Canada1500 STANDARD distance field type. */
+  def getCanada()(using Sge): Font = getFont(CANADA1500)
+
+  /** Alias for getCanada1500(dft). Returns a Font with Canada1500 using the given distance field type. */
+  def getCanada(dft: Font.DistanceFieldType)(using Sge): Font = getFont(CANADA1500, dft)
+
+  // ---- Bulk font retrieval ----
+
+  /** Returns a new array of Font instances, calling each getXyz() method that returns any Font. This will only function if all font assets are present and loadable. You should store the result rather
+    * than calling often, because each call copies many Fonts. Returns a mix of standard, SDF, and MSDF fonts.
+    */
+  def getAll()(using Sge): Array[Font] = Array(
+    getAStarry(),
+    getAStarryMSDF(),
+    getAStarryTall(),
+    getAbyssinicaSIL(),
+    getAsul(),
+    getAubrey(),
+    getBirdlandAeroplane(),
+    getBitter(),
+    getBonheurRoyale(),
+    getCanada(),
+    getCascadiaMono(),
+    getCascadiaMonoMSDF(),
+    getCaveat(),
+    getChangaOne(),
+    getComicMono(),
+    getComputerSaysNo(),
+    getCordata16x26(),
+    getCozette(),
+    getCreteRound(),
+    getDejaVuSans(),
+    getDejaVuSansCondensed(),
+    getDejaVuSansMono(),
+    getDejaVuSerif(),
+    getDejaVuSerifCondensed(),
+    getGentium(),
+    getGentiumMSDF(),
+    getGentiumSDF(),
+    getGentiumUnItalic(),
+    getGlacialIndifference(),
+    getGoNotoUniversal(),
+    getGoNotoUniversalSDF(),
+    getGrenze(),
+    getHanazono(),
+    getIBM8x16(),
+    getIBM8x16Sad(),
+    getInconsolata(),
+    getInconsolataMSDF(),
+    getIosevka(),
+    getIosevkaMSDF(),
+    getIosevkaSDF(),
+    getIosevkaSlab(),
+    getIosevkaSlabMSDF(),
+    getIosevkaSlabSDF(),
+    getKingthingsFoundation(),
+    getKingthingsPetrock(),
+    getLanaPixel(),
+    getLeagueGothic(),
+    getLibertinusSerif(),
+    getLibertinusSerifSemibold(),
+    getMaShanZheng(),
+    getMapleMono(),
+    getMonogram(),
+    getMonogramItalic(),
+    getMoonDance(),
+    getNowAlt(),
+    getNugothic(),
+    getOpenSans(),
+    getOstrichBlack(),
+    getOverlock(),
+    getOverlockUnItalic(),
+    getOxanium(),
+    getPangolin(),
+    getProtestRevolution(),
+    getQuanPixel(),
+    getRobotoCondensed(),
+    getSancreek(),
+    getSelawik(),
+    getSelawikBold(),
+    getSourGummy(),
+    getSpecialElite(),
+    getTangerine(),
+    getTangerineSDF(),
+    getTillana(),
+    getYanoneKaffeesatz(),
+    getYanoneKaffeesatzMSDF(),
+    getYataghan(),
+    getYataghanMSDF()
+  )
+
+  /** Returns a new array of Font instances for all standard (non-distance-field) fonts. Uses DistanceFieldType.STANDARD for JSON fonts, and specific getters for .fnt/.font fonts.
+    */
+  def getAllStandard()(using Sge): Array[Font] = {
+    val buf = scala.collection.mutable.ArrayBuffer.empty[Font]
+    // Structured JSON format
+    for (name <- JSON_NAMES) buf += getFont(name, Font.DistanceFieldType.STANDARD)
+    // special JSON config
+    buf += getAStarryTall()
+    buf += getCordata16x26()
+    buf += getIBM8x16()
+    // AngelCode BMFont format
+    buf += getCozette()
+    buf += getHanazono()
+    buf += getLanaPixel()
+    buf += getMonogram()
+    buf += getMonogramItalic()
+    buf += getQuanPixel()
+    // SadConsole format
+    buf += getIBM8x16Sad()
+    buf.toArray
+  }
+
+  /** Returns a new array of Font instances for all SDF fonts. */
+  def getAllSDF()(using Sge): Array[Font] = {
+    val buf = scala.collection.mutable.ArrayBuffer.empty[Font]
+    for (name <- SDF_NAMES) buf += getFont(name, Font.DistanceFieldType.SDF)
+    buf += getAStarryTall(Font.DistanceFieldType.SDF)
+    buf.toArray
+  }
+
+  /** Returns a new array of Font instances for all MSDF fonts. */
+  def getAllMSDF()(using Sge): Array[Font] = {
+    val buf = scala.collection.mutable.ArrayBuffer.empty[Font]
+    for (name <- MSDF_NAMES) buf += getFont(name, Font.DistanceFieldType.MSDF)
+    buf += getAStarryTall(Font.DistanceFieldType.MSDF)
+    buf.toArray
+  }
+
   // ---- Emoji and icon atlas methods ----
 
   /** Adds Twemoji emoji images to a Font so they can be used with the [+name] syntax. Requires the Twemoji atlas files in the assets folder. */
@@ -859,6 +987,12 @@ object KnownFonts {
   }
 
   // ---- Lifecycle ----
+
+  /** Called when the application is paused (LifecycleListener). No-op for KnownFonts. */
+  def pause(): Unit = {}
+
+  /** Called when the application is resumed (LifecycleListener). No-op for KnownFonts. */
+  def resume(): Unit = {}
 
   /** Disposes all cached Font instances and atlas resources. */
   def dispose(): Unit = {

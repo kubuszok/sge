@@ -615,6 +615,11 @@ class Skin()(using Sge) extends AutoCloseable {
   /** Returns the {@link TextureAtlas} passed to this skin constructor, or Nullable.empty. */
   def atlas: Nullable[TextureAtlas] = _atlas
 
+  /** Returns the map used to look up JSON class tags. The map can be modified before calling {@link #load(FileHandle)}. By default the map is populated with the simple class names of classes commonly
+    * used in skins.
+    */
+  def getJsonClassTags: Map[String, Class[?]] = Skin.classTagMap
+
   /** Disposes the {@link TextureAtlas} and all {@link AutoCloseable} resources in the skin. */
   override def close(): Unit = {
     _atlas.foreach(_.close())

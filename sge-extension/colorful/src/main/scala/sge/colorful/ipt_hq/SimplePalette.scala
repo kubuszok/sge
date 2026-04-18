@@ -10,6 +10,8 @@ package colorful
 package ipt_hq
 
 import sge.colorful.FloatColors
+import sge.graphics.Color
+import sge.graphics.Colors
 
 import scala.collection.mutable
 
@@ -79,6 +81,27 @@ object SimplePalette {
   val ROSE:        Float = java.lang.Float.intBitsToFloat(0xfe83c982)
   val RASPBERRY:   Float = java.lang.Float.intBitsToFloat(0xfe8db153)
 
+  /** All names for colors in this palette, sorted alphabetically. You can fetch the corresponding packed float color by looking up a name in [[NAMED]]. */
+  val NAMES: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  /** All names for colors in this palette, with grayscale first, then sorted by hue from red to yellow to green to blue. You can fetch the corresponding packed float color by looking up a name in
+    * [[NAMED]].
+    */
+  val NAMES_BY_HUE: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  val COLORS_BY_HUE: mutable.ArrayBuffer[Float] = mutable.ArrayBuffer.empty[Float]
+
+  /** All names for colors in this palette, sorted by intensity from black to white. You can fetch the corresponding packed float color by looking up a name in [[NAMED]]. */
+  val NAMES_BY_LIGHTNESS: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  private val namesByHue:  mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+  private val colorsByHue: mutable.ArrayBuffer[Float]  = mutable.ArrayBuffer.empty[Float]
+
+  private val lightAdjectives: Array[String] =
+    Array("darkmost ", "darkest ", "darker ", "dark ", "", "light ", "lighter ", "lightest ", "lightmost ")
+  private val satAdjectives: Array[String] =
+    Array("dullmost ", "dullest ", "duller ", "dull ", "", "rich ", "richer ", "richest ", "richmost ")
+
   // Register all colors
   locally {
     val colors: Array[(String, Float)] = Array(
@@ -137,6 +160,56 @@ object SimplePalette {
       NAMED.put(name, color)
       LIST += color
     }
+
+    // Build NAMES (alphabetical)
+    NAMES ++= NAMED.keys
+    NAMES.sortInPlace()
+
+    // Build NAMES_BY_HUE
+    NAMES_BY_HUE ++= NAMES
+    NAMES_BY_HUE.sortInPlace()(using
+      Ordering.fromLessThan[String] { (o1, o2) =>
+        val c1  = NAMED.getOrElse(o1, TRANSPARENT)
+        val c2  = NAMED.getOrElse(o2, TRANSPARENT)
+        val s1  = ColorTools.saturation(c1)
+        val s2  = ColorTools.saturation(c2)
+        val cmp =
+          if (c1 >= 0f) -10000
+          else if (c2 >= 0f) 10000
+          else if (s1 <= 0.05f && s2 > 0.05f) -1000
+          else if (s1 > 0.05f && s2 <= 0.05f) 1000
+          else if (s1 <= 0.05f && s2 <= 0.05f)
+            Math.signum(ColorTools.intensity(c1) - ColorTools.intensity(c2)).toInt
+          else
+            2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+              Math.signum(ColorTools.intensity(c1) - ColorTools.intensity(c2)).toInt
+        cmp < 0
+      }
+    )
+    for (name <- NAMES_BY_HUE)
+      COLORS_BY_HUE += NAMED.getOrElse(name, TRANSPARENT)
+
+    // Build NAMES_BY_LIGHTNESS
+    NAMES_BY_LIGHTNESS ++= NAMES
+    NAMES_BY_LIGHTNESS.sortInPlace()(using
+      Ordering.fromLessThan[String] { (o1, o2) =>
+        java.lang.Float.compare(
+          ColorTools.intensity(NAMED.getOrElse(o1, TRANSPARENT)),
+          ColorTools.intensity(NAMED.getOrElse(o2, TRANSPARENT))
+        ) < 0
+      }
+    )
+
+    // Build namesByHue and colorsByHue (private, for bestMatch; excludes "transparent")
+    namesByHue ++= NAMES_BY_HUE
+    colorsByHue ++= COLORS_BY_HUE
+    val trn = namesByHue.indexOf("transparent")
+    if (trn >= 0) {
+      namesByHue.remove(trn)
+      colorsByHue.remove(trn)
+    }
+
+    // Register aliases
     ALIASES.put("grey", GRAY)
     ALIASES.put("gold", SAFFRON)
     ALIASES.put("puce", MAUVE)
@@ -290,4 +363,95 @@ object SimplePalette {
       }
     }
   }
+
+  /** Given a color as a packed IPT_HQ float, this finds the closest description it can to match the given color while using at most `mixCount` colors to mix in. You should only use small numbers for
+    * mixCount, like 1 to 3; this can take quite a while to run otherwise. This returns a String description that can be passed to [[parseDescription]]. It is likely that this will use very
+    * contrasting colors if mixCount is 2 or greater and the color to match is desaturated or brownish.
+    * @param ipt_hq
+    *   a packed IPT_HQ float color to attempt to match
+    * @param mixCount
+    *   how many color names this will use in the returned description
+    * @return
+    *   a description that can be fed to [[parseDescription]] to get a similar color
+    */
+  def bestMatch(ipt_hq: Float, mixCount: Int): String = {
+    val mc           = Math.max(1, mixCount)
+    var bestDistance = Float.PositiveInfinity
+    val paletteSize  = namesByHue.size
+    val colorTries   = Math.pow(paletteSize, mc).toInt
+    val totalTries   = colorTries * 81
+    val targetI      = ColorTools.intensity(ipt_hq)
+    val targetP      = ColorTools.protan(ipt_hq)
+    val targetT      = ColorTools.tritan(ipt_hq)
+    val mixingArr    = new Array[Float](mc)
+    for (i <- 0 until mc)
+      mixingArr(i) = colorsByHue(0)
+    var bestCode = 0
+    var c        = 0
+    while (c < totalTries) {
+      var i = 0
+      var e = 1
+      while (i < mc) {
+        mixingArr(i) = colorsByHue((c / e) % paletteSize)
+        i += 1
+        e *= paletteSize
+      }
+      val idxI       = (c / colorTries) % 9 - 4
+      val idxS       = c / (colorTries * 9) - 4
+      val intensity  = idxI * 0.14f
+      val saturation = idxS * 0.2f
+
+      var result = FloatColors.mix(mixingArr, 0, mc)
+      if (intensity > 0) result = ColorTools.lighten(result, intensity)
+      else if (intensity < 0) result = ColorTools.darken(result, -intensity)
+
+      if (saturation > 0) result = ColorTools.enrich(result, saturation)
+      else if (saturation < 0) result = ColorTools.limitToGamut(ColorTools.dullen(result, -saturation))
+      else result = ColorTools.limitToGamut(result)
+
+      val dI       = ColorTools.intensity(result) - targetI
+      val dP       = ColorTools.protan(result) - targetP
+      val dT       = ColorTools.tritan(result) - targetT
+      val distance = dI * dI * 3f + dP * dP + dT * dT
+      if (distance < bestDistance) {
+        bestDistance = distance
+        bestCode = c
+      }
+      c += 1
+    }
+
+    val description = new StringBuilder(lightAdjectives((bestCode / colorTries) % 9) + satAdjectives(bestCode / (colorTries * 9)))
+    var i           = 0
+    var e           = 1
+    while (i < mc) {
+      description.append(namesByHue((bestCode / e) % paletteSize))
+      i += 1
+      if (i < mc)
+        description.append(' ')
+      e *= paletteSize
+    }
+    description.toString()
+  }
+
+  /** Changes the existing RGBA Color instances in [[Colors]] to use IPT_HQ and so be able to be shown normally by ColorfulBatch. Any colors used in text markup look up their values in Colors, so
+    * calling this can help display fonts where markup is enabled. This only needs to be called once, and if you call [[appendToKnownColors]], then that should be done after this to avoid mixing RGBA
+    * and IPT_HQ colors.
+    */
+  def editKnownColors(): Unit =
+    for (c <- Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.intensity(f), ColorTools.protan(f), ColorTools.tritan(f), c.a)
+    }
+
+  /** Appends IPT_HQ-compatible Color instances to the map in [[Colors]], using the names in [[NAMES]] (which are "lower cased" instead of "ALL UPPER CASE"). This doesn't need any changes to be made
+    * to Colors in order for it to be compatible; just remember that the colors originally in Colors use "UPPER CASE" and these use "lower case". This does append aliases as well, so some color values
+    * will be duplicates.
+    *
+    * This can be used alongside the method with the same name in Palette, since that uses "Title Cased" names.
+    */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      Colors.put(key, new Color(ColorTools.intensity(f), ColorTools.protan(f), ColorTools.tritan(f), ColorTools.alpha(f)))
+    }
 }

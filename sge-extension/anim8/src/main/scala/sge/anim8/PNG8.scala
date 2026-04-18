@@ -2053,6 +2053,523 @@ class PNG8(initialBufferSize: Int) extends AnimationWriter with Dithered with Au
     } catch { case e: IOException => System.err.println("anim8: " + e.getMessage) }
   }
 
+  // === writePreciseSection ===
+
+  /** Attempts to write a rectangular section of the given Pixmap exactly as a PNG-8 image to file. */
+  def writePreciseSection(file: FileHandle, pixmap: Pixmap, exactPalette: Array[Int], startX: Int, startY: Int, width: Int, height: Int): Unit = {
+    val output = file.write(false)
+    try
+      writePreciseSection(output, pixmap, exactPalette, startX, startY, width, height)
+    finally
+      StreamUtils.closeQuietly(output)
+  }
+
+  /** Attempts to write a rectangular section of the given Pixmap exactly as a PNG-8 image to output. This attempt will only succeed if there are no more than 256 colors in the section. If the attempt
+    * fails, this will throw an IllegalArgumentException.
+    */
+  def writePreciseSection(output: OutputStream, pixmap: Pixmap, exactPalette: Array[Int] | Null, startX: Int, startY: Int, width: Int, height: Int): Unit = {
+    val colorToIndex = new mutable.HashMap[Int, Int]()
+    colorToIndex.put(0, 0)
+    var hasTransparent = 0
+    val w              = startX + width
+    val h              = startY + height
+    var paletteArray: Array[Int] = null.asInstanceOf[Array[Int]] // will be assigned @nowarn
+    if (exactPalette == null) {
+      var y0 = startY
+      while (y0 < h) {
+        val py = if (flipY) pixmap.height.toInt - y0 - 1 else y0
+        var px = startX
+        while (px < w) {
+          val color = pixmap.getPixel(Pixels(px), Pixels(py))
+          if ((color & 0xfe) != 0xfe && !colorToIndex.contains(color)) {
+            if (hasTransparent == 0 && colorToIndex.size >= 256) {
+              throw new IllegalArgumentException("Too many colors to write precisely!")
+            }
+            hasTransparent = 1
+          } else if (!colorToIndex.contains(color)) {
+            colorToIndex.put(color, colorToIndex.size & 255)
+            if (colorToIndex.size == 257 && hasTransparent == 0) {
+              colorToIndex.remove(0)
+            }
+            if (colorToIndex.size > 256) {
+              throw new IllegalArgumentException("Too many colors to write precisely!")
+            }
+          }
+          px += 1
+        }
+        y0 += 1
+      }
+      paletteArray = new Array[Int](colorToIndex.size)
+      for ((k, v) <- colorToIndex)
+        paletteArray(v) = k
+    } else {
+      hasTransparent = if (exactPalette.nn(0) == 0) 1 else 0
+      paletteArray = exactPalette.nn
+      var i = hasTransparent
+      while (i < paletteArray.length) {
+        colorToIndex.put(paletteArray(i), i)
+        i += 1
+      }
+    }
+
+    val deflaterOutput = new DeflaterOutputStream(buffer, deflater)
+    val dataOutput     = new DataOutputStream(output)
+    try {
+      dataOutput.write(SIGNATURE)
+
+      buffer.writeInt(IHDR)
+      buffer.writeInt(width)
+      buffer.writeInt(height)
+      buffer.writeByte(8)
+      buffer.writeByte(COLOR_INDEXED)
+      buffer.writeByte(COMPRESSION_DEFLATE)
+      buffer.writeByte(FILTER_NONE)
+      buffer.writeByte(INTERLACE_NONE)
+      buffer.endChunk(dataOutput)
+
+      buffer.writeInt(PLTE)
+      var pi = 0
+      while (pi < paletteArray.length) {
+        val p = paletteArray(pi)
+        buffer.write(p >>> 24)
+        buffer.write(p >>> 16)
+        buffer.write(p >>> 8)
+        pi += 1
+      }
+      buffer.endChunk(dataOutput)
+
+      if (hasTransparent == 1) {
+        buffer.writeInt(TRNS)
+        buffer.write(0)
+        buffer.endChunk(dataOutput)
+      }
+      buffer.writeInt(IDAT)
+      deflater.reset()
+
+      val curLine = ensureCurLine(width)
+
+      var y0 = startY
+      while (y0 < h) {
+        val py = if (flipY) pixmap.height.toInt - y0 - 1 else y0
+        var px = startX
+        while (px < w) {
+          val color = pixmap.getPixel(Pixels(px), Pixels(py))
+          curLine(px - startX) = colorToIndex.getOrElse(color, 0).toByte
+          px += 1
+        }
+        deflaterOutput.write(FILTER_NONE)
+        deflaterOutput.write(curLine, 0, width)
+        y0 += 1
+      }
+      deflaterOutput.finish()
+      buffer.endChunk(dataOutput)
+
+      buffer.writeInt(IEND)
+      buffer.endChunk(dataOutput)
+      output.flush()
+    } catch {
+      case e: IOException =>
+        System.err.println("anim8: " + e.getMessage)
+    }
+  }
+
+  // === writeWrenOriginalDithered ===
+
+  /** Writes the pixmap to the stream using the WrenOriginal dithering algorithm (an older variant of Wren that uses non-gamma-corrected error diffusion with Floyd-Steinberg weights).
+    */
+  def writeWrenOriginalDithered(output: OutputStream, pixmap: Pixmap): Unit = {
+    val deflaterOutput = new DeflaterOutputStream(buffer, deflater)
+    val pal            = _palette.nn
+    val paletteArray   = pal.paletteArray
+    val paletteMapping = pal.paletteMapping
+    val dataOutput     = new DataOutputStream(output)
+    try {
+      dataOutput.write(SIGNATURE)
+      val w = pixmap.width.toInt
+      val h = pixmap.height.toInt
+      pal.ensureErrorCapacity(w)
+      val curErrorRed    = pal.curErrorRedFloats.nn
+      val nextErrorRed   = pal.nextErrorRedFloats.nn
+      val curErrorGreen  = pal.curErrorGreenFloats.nn
+      val nextErrorGreen = pal.nextErrorGreenFloats.nn
+      val curErrorBlue   = pal.curErrorBlueFloats.nn
+      val nextErrorBlue  = pal.nextErrorBlueFloats.nn
+      Arrays.fill(nextErrorRed, 0, w, 0f)
+      Arrays.fill(nextErrorGreen, 0, w, 0f)
+      Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+      buffer.writeInt(IHDR); buffer.writeInt(w); buffer.writeInt(h); buffer.writeByte(8); buffer.writeByte(COLOR_INDEXED); buffer.writeByte(COMPRESSION_DEFLATE); buffer.writeByte(FILTER_NONE)
+      buffer.writeByte(INTERLACE_NONE); buffer.endChunk(dataOutput)
+
+      buffer.writeInt(PLTE)
+      var pi = 0; while (pi < paletteArray.length) { val p = paletteArray(pi); buffer.write(p >>> 24); buffer.write(p >>> 16); buffer.write(p >>> 8); pi += 1 }
+      buffer.endChunk(dataOutput)
+
+      val hasTransparent = paletteArray(0) == 0
+      if (hasTransparent) { buffer.writeInt(TRNS); buffer.write(0); buffer.endChunk(dataOutput) }
+      buffer.writeInt(IDAT)
+      deflater.reset()
+
+      val curLine        = ensureCurLine(w)
+      val populationBias = pal.populationBias
+      // 0x1p-8f = 0.00390625f; 0x1p-15f = 3.0517578e-5f; 0x1p+7f = 128f
+      val w1       = (32.0f * _ditherStrength * (populationBias * populationBias)).toFloat; val w3 = w1 * 3f; val w5 = w1 * 5f; val w7 = w1 * 7f
+      val strength = 0.2f * _ditherStrength / (populationBias * populationBias * populationBias * populationBias)
+      val limit    = 5f + 125f / Math.sqrt(pal.colorCount + 1.5).toFloat
+      val dmul     = 0.00390625f // 0x1p-8f
+
+      var y = 0
+      while (y < h) {
+        System.arraycopy(nextErrorRed, 0, curErrorRed, 0, w)
+        System.arraycopy(nextErrorGreen, 0, curErrorGreen, 0, w)
+        System.arraycopy(nextErrorBlue, 0, curErrorBlue, 0, w)
+        Arrays.fill(nextErrorRed, 0, w, 0f)
+        Arrays.fill(nextErrorGreen, 0, w, 0f)
+        Arrays.fill(nextErrorBlue, 0, w, 0f)
+
+        val py = if (flipY) h - y - 1 else y
+        val ny = y + 1
+        var px = 0
+        while (px < w) {
+          val color = pixmap.getPixel(Pixels(px), Pixels(py))
+          if (hasTransparent && (color & 0x80) == 0) { curLine(px) = 0 }
+          else {
+            // 0x1p-15f = 3.0517578e-5f; 0x1p+7f = 128f
+            val er = Math.min(
+              Math.max(
+                ((PaletteReducer.TRI_BLUE_NOISE(
+                  (px & 63) | (y & 63) << 6
+                ) + 0.5f) + ((((px + 1).toLong * 0xc13fa9a902a6328fL + (y + 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 3.0517578e-5f - 128f)) * strength + curErrorRed(px),
+                -limit
+              ),
+              limit
+            )
+            val eg = Math.min(
+              Math.max(
+                ((PaletteReducer.TRI_BLUE_NOISE_B(
+                  (px & 63) | (y & 63) << 6
+                ) + 0.5f) + ((((px + 3).toLong * 0xc13fa9a902a6328fL + (y - 1).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 3.0517578e-5f - 128f)) * strength + curErrorGreen(px),
+                -limit
+              ),
+              limit
+            )
+            val eb = Math.min(
+              Math.max(
+                ((PaletteReducer.TRI_BLUE_NOISE_C(
+                  (px & 63) | (y & 63) << 6
+                ) + 0.5f) + ((((px + 2).toLong * 0xc13fa9a902a6328fL + (y - 4).toLong * 0x91e10da5c79e7b1dL) >>> 41) * 3.0517578e-5f - 128f)) * strength + curErrorBlue(px),
+                -limit
+              ),
+              limit
+            )
+
+            val rr           = Math.min(Math.max(((color >>> 24) + er + 0.5f).toInt, 0), 0xff)
+            val gg           = Math.min(Math.max(((color >>> 16 & 0xff) + eg + 0.5f).toInt, 0), 0xff)
+            val bb           = Math.min(Math.max(((color >>> 8 & 0xff) + eb + 0.5f).toInt, 0), 0xff)
+            val paletteIndex = paletteMapping(((rr << 7) & 0x7c00) | ((gg << 2) & 0x3e0) | (bb >>> 3))
+            curLine(px) = paletteIndex
+            val used  = paletteArray(paletteIndex & 0xff)
+            val rdiff = dmul * ((color >>> 24) - (used >>> 24))
+            val gdiff = dmul * ((color >>> 16 & 255) - (used >>> 16 & 255))
+            val bdiff = dmul * ((color >>> 8 & 255) - (used >>> 8 & 255))
+            if (px < w - 1) { curErrorRed(px + 1) += rdiff * w7; curErrorGreen(px + 1) += gdiff * w7; curErrorBlue(px + 1) += bdiff * w7 }
+            if (ny < h) {
+              if (px > 0) { nextErrorRed(px - 1) += rdiff * w3; nextErrorGreen(px - 1) += gdiff * w3; nextErrorBlue(px - 1) += bdiff * w3 }
+              if (px < w - 1) { nextErrorRed(px + 1) += rdiff * w1; nextErrorGreen(px + 1) += gdiff * w1; nextErrorBlue(px + 1) += bdiff * w1 }
+              nextErrorRed(px) += rdiff * w5; nextErrorGreen(px) += gdiff * w5; nextErrorBlue(px) += bdiff * w5
+            }
+          }
+          px += 1
+        }
+        deflaterOutput.write(FILTER_NONE)
+        deflaterOutput.write(curLine, 0, w)
+        y += 1
+      }
+      deflaterOutput.finish()
+      buffer.endChunk(dataOutput)
+      buffer.writeInt(IEND)
+      buffer.endChunk(dataOutput)
+      output.flush()
+    } catch { case e: IOException => System.err.println("anim8: " + e.getMessage) }
+  }
+
+  // === PNG chunk I/O (static-like helpers) ===
+
+  /** Should probably be done explicitly; finalize() has been removed from JVM. */
+  def dispose(): Unit = deflater.end()
+
   override def close(): Unit =
     deflater.end()
+}
+
+object PNG8 {
+
+  import java.io.{ DataInputStream, EOFException, InputStream }
+  import java.nio.charset.StandardCharsets
+  import java.util.zip.CRC32
+
+  import PaletteReducer.*
+
+  /** Reads PNG chunks from an input stream. Returns an ordered map of chunk names to chunk contents. */
+  def readChunks(inStream: InputStream): scala.collection.mutable.LinkedHashMap[String, Array[Byte]] = {
+    val in = new DataInputStream(inStream)
+    if (in.readLong() != 0x89504e470d0a1a0aL) {
+      throw new IOException("PNG signature not found!")
+    }
+    val chunks   = new scala.collection.mutable.LinkedHashMap[String, Array[Byte]]()
+    var trucking = true
+    while (trucking)
+      try {
+        val length = in.readInt()
+        if (length < 0) {
+          throw new IOException("Sorry, that file is too long.")
+        }
+        val typeBytes = new Array[Byte](4)
+        in.readFully(typeBytes)
+        val data = new Array[Byte](length)
+        in.readFully(data)
+        in.readInt() // read CRC, discard it
+        val typeName = new String(typeBytes, StandardCharsets.UTF_8)
+        chunks.put(typeName, data)
+      } catch {
+        case _: EOFException => trucking = false
+      }
+    in.close()
+    chunks
+  }
+
+  /** Writes PNG chunks to an output stream. */
+  def writeChunks(outStream: OutputStream, chunks: scala.collection.mutable.LinkedHashMap[String, Array[Byte]]): Unit = {
+    val crc = new CRC32()
+    val out = new DataOutputStream(outStream)
+    try {
+      out.writeLong(0x89504e470d0a1a0aL)
+      for ((key, value) <- chunks) {
+        out.writeInt(value.length)
+        val k = key.getBytes(StandardCharsets.UTF_8)
+        out.write(k)
+        crc.update(k, 0, k.length)
+        out.write(value)
+        crc.update(value, 0, value.length)
+        out.writeInt(crc.getValue.toInt)
+        crc.reset()
+      }
+      out.flush()
+      out.close()
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+  }
+
+  /** Duplicates the input file and changes its palette to exactly match the given palette. */
+  def swapPalette(input: FileHandle, output: FileHandle, palette: Array[Int]): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn -- may not exist
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var i = 0
+      var p = 0
+      while (i < palette.length && p < pal.nn.length - 2) {
+        val rgba = palette(i)
+        pal.nn(p) = (rgba >>> 24).toByte; p += 1
+        pal.nn(p) = (rgba >>> 16).toByte; p += 1
+        pal.nn(p) = (rgba >>> 8).toByte; p += 1
+        i += 1
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Edits all palette channels using a single Interpolation. */
+  def editPalette(input: FileHandle, output: FileHandle, editor: sge.math.Interpolation): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length - 2) {
+        pal.nn(p) = editor.apply(0f, 255.999f, (pal.nn(p) & 255) / 255f).toByte
+        pal.nn(p + 1) = editor.apply(0f, 255.999f, (pal.nn(p + 1) & 255) / 255f).toByte
+        pal.nn(p + 2) = editor.apply(0f, 255.999f, (pal.nn(p + 2) & 255) / 255f).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Edits palette with per-channel Interpolations. */
+  def editPalette(input: FileHandle, output: FileHandle, changeR: sge.math.Interpolation, changeG: sge.math.Interpolation, changeB: sge.math.Interpolation): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length - 2) {
+        pal.nn(p) = changeR.apply(0f, 255.999f, (pal.nn(p) & 255) / 255f).toByte
+        pal.nn(p + 1) = changeG.apply(0f, 255.999f, (pal.nn(p + 1) & 255) / 255f).toByte
+        pal.nn(p + 2) = changeB.apply(0f, 255.999f, (pal.nn(p + 2) & 255) / 255f).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Shifts hues so lighter colors lean warm and darker colors lean cool. Uses default strength of 1. */
+  def hueShift(input: FileHandle, output: FileHandle): Unit =
+    hueShift(input, output, 1f)
+
+  /** Shifts hues with configurable strength multiplier. */
+  def hueShift(input: FileHandle, output: FileHandle, strengthMultiplier: Float): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      val aMul = 1.1f * strengthMultiplier
+      val bMul = 0.125f * strengthMultiplier
+      var p    = 0
+      while (p < pal.nn.length - 2) {
+        var rgb = (pal.nn(p) & 255) << 24 | (pal.nn(p + 1) & 255) << 16 | (pal.nn(p + 2) & 255) << 8 | 255
+        val s   = shrink(rgb)
+        val L   = OKLAB(0)(s)
+        val A   = OKLAB(1)(s) * aMul
+        val B   = OKLAB(2)(s) + OtherMath.asin(L - 0.6f) * bMul * (1f - A * A)
+        rgb = oklabToRGB(L, A, B, 1f)
+        pal.nn(p) = (rgb >>> 24).toByte
+        pal.nn(p + 1) = (rgb >>> 16).toByte
+        pal.nn(p + 2) = (rgb >>> 8).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Edits palette lightness using an Oklab L Interpolation. */
+  def editPaletteLightness(input: FileHandle, output: FileHandle, changeL: sge.math.Interpolation): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length - 2) {
+        var rgb = (pal.nn(p) & 255) << 24 | (pal.nn(p + 1) & 255) << 16 | (pal.nn(p + 2) & 255) << 8 | 255
+        val s   = shrink(rgb)
+        val L   = Math.min(Math.max(changeL.apply(OKLAB(0)(s)), 0f), 1f)
+        val A   = OKLAB(1)(s)
+        val B   = OKLAB(2)(s)
+        rgb = oklabToRGB(L, A, B, 1f)
+        pal.nn(p) = (rgb >>> 24).toByte
+        pal.nn(p + 1) = (rgb >>> 16).toByte
+        pal.nn(p + 2) = (rgb >>> 8).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Edits palette saturation. 0 = grayscale, 1 = no change, >1 = oversaturate. */
+  def editPaletteSaturation(input: FileHandle, output: FileHandle, saturationMultiplier: Float): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length - 2) {
+        var rgb = (pal.nn(p) & 255) << 24 | (pal.nn(p + 1) & 255) << 16 | (pal.nn(p + 2) & 255) << 8 | 255
+        val s   = shrink(rgb)
+        val L   = OKLAB(0)(s)
+        val A   = Math.min(Math.max(OKLAB(1)(s) * saturationMultiplier, -1f), 1f)
+        val B   = Math.min(Math.max(OKLAB(2)(s) * saturationMultiplier, -1f), 1f)
+        rgb = oklabToRGB(L, A, B, 1f)
+        pal.nn(p) = (rgb >>> 24).toByte
+        pal.nn(p + 1) = (rgb >>> 16).toByte
+        pal.nn(p + 2) = (rgb >>> 8).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Edits palette using per-channel Oklab Interpolations (L, A, B). */
+  def editPaletteOklab(input: FileHandle, output: FileHandle, changeL: sge.math.Interpolation, changeA: sge.math.Interpolation, changeB: sge.math.Interpolation): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length - 2) {
+        var rgb = (pal.nn(p) & 255) << 24 | (pal.nn(p + 1) & 255) << 16 | (pal.nn(p + 2) & 255) << 8 | 255
+        val s   = shrink(rgb)
+        val L   = Math.min(Math.max(changeL.apply(0f, 1f, OKLAB(0)(s)), 0f), 1f)
+        val A   = Math.min(Math.max(changeA.apply(-1f, 1f, OKLAB(1)(s) * 0.5f + 0.5f), -1f), 1f)
+        val B   = Math.min(Math.max(changeB.apply(-1f, 1f, OKLAB(2)(s) * 0.5f + 0.5f), -1f), 1f)
+        rgb = oklabToRGB(L, A, B, 1f)
+        pal.nn(p) = (rgb >>> 24).toByte
+        pal.nn(p + 1) = (rgb >>> 16).toByte
+        pal.nn(p + 2) = (rgb >>> 8).toByte
+        p += 3
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
+
+  /** Centralizes palette channels (biases them toward center). Uses full amount. */
+  def centralizePalette(input: FileHandle, output: FileHandle): Unit =
+    centralizePalette(input, output, 1f)
+
+  /** Centralizes palette channels with configurable amount (0 = none, 1 = full). */
+  def centralizePalette(input: FileHandle, output: FileHandle, amount: Float): Unit =
+    try {
+      val inputStream = input.read()
+      val chunks      = readChunks(inputStream)
+      val pal         = chunks.getOrElse("PLTE", null).asInstanceOf[Array[Byte] | Null] // @nowarn
+      if (pal == null) {
+        output.write(inputStream, false)
+        return
+      }
+      var p = 0
+      while (p < pal.nn.length) {
+        val original    = pal.nn(p) & 255
+        val centralized = OtherMath.centralize(pal.nn(p)) & 255
+        pal.nn(p) = (original + (centralized - original) * amount).toInt.toByte
+        p += 1
+      }
+      writeChunks(output.write(false), chunks)
+    } catch {
+      case e: IOException => e.printStackTrace()
+    }
 }

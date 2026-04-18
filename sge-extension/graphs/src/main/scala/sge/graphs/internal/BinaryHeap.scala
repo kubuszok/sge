@@ -95,6 +95,22 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
     node.heapIndex = index
   }
 
+  /** Returns true if the heap contains the specified node.
+    *
+    * @param node
+    *   the node to search for (identity comparison)
+    */
+  def contains(node: Node[V]): Boolean = boundary {
+    var i = 0
+    while (i < size) {
+      if (nodes(i) eq node) {
+        break(true)
+      }
+      i += 1
+    }
+    false
+  }
+
   private def down(idx: Int): Unit = {
     var index = idx
     val node  = nodes(index)
@@ -139,4 +155,51 @@ class BinaryHeap[V](initialCapacity: Int = 16) {
     nodes(index) = node
     node.heapIndex = index
   }
+
+  override def equals(obj: Any): Boolean =
+    if (!obj.isInstanceOf[BinaryHeap[?]]) {
+      false
+    } else {
+      val other = obj.asInstanceOf[BinaryHeap[?]]
+      if (other.size != size) {
+        false
+      } else {
+        var i    = 0
+        var same = true
+        while (i < size && same) {
+          if (nodes(i).heapValue != other.nodes(i).heapValue) {
+            same = false
+          }
+          i += 1
+        }
+        same
+      }
+    }
+
+  override def hashCode(): Int = {
+    var h = 1
+    var i = 0
+    while (i < size) {
+      h = h * 31 + java.lang.Float.floatToIntBits(nodes(i).heapValue)
+      i += 1
+    }
+    h
+  }
+
+  override def toString(): String =
+    if (size == 0) {
+      "[]"
+    } else {
+      val sb = StringBuilder()
+      sb.append('[')
+      sb.append(nodes(0).heapValue)
+      var i = 1
+      while (i < size) {
+        sb.append(", ")
+        sb.append(nodes(i).heapValue)
+        i += 1
+      }
+      sb.append(']')
+      sb.toString()
+    }
 }

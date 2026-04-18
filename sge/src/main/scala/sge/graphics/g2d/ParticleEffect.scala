@@ -31,6 +31,8 @@ import sge.graphics.g2d.Batch
 import sge.utils.{ DynamicArray, Nullable, Seconds, SgeError, StreamUtils }
 
 import scala.language.implicitConversions
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** See <a href= "https://web.archive.org/web/20200427191041/http://www.badlogicgames.com/wordpress/?p=12555">http://www.badlogicgames.com/wordpress/?p=12555</a>
   * @author
@@ -178,14 +180,15 @@ class ParticleEffect()(using Sge) extends AutoCloseable {
     val input = effectFile.read()
     _emitters.clear()
     val reader = new BufferedReader(new InputStreamReader(input), 512)
-    try {
-      var shouldContinue = true
-      while (shouldContinue) {
-        val emitter = newEmitter(reader)
-        _emitters.add(emitter)
-        if (Nullable(reader.readLine()).isEmpty) shouldContinue = false
+    try
+      boundary {
+        while (true) {
+          val emitter = newEmitter(reader)
+          _emitters.add(emitter)
+          if (Nullable(reader.readLine()).isEmpty) break(())
+        }
       }
-    } catch {
+    catch {
       case ex: IOException =>
         throw SgeError.GraphicsError("Error loading effect: " + effectFile, Some(ex))
     } finally StreamUtils.closeQuietly(reader)

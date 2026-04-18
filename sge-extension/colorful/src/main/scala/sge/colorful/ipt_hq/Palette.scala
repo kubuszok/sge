@@ -794,4 +794,18 @@ object Palette {
     NAMED.put("Raspberry", java.lang.Float.intBitsToFloat(0xfe8db153))
     LIST += java.lang.Float.intBitsToFloat(0xfe8db153)
   }
+
+  /** Converts existing Color entries in [[sge.graphics.Colors]] from RGBA to IPT_HQ format. */
+  def editKnownColors(): Unit =
+    for (c <- sge.graphics.Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.intensity(f), ColorTools.protan(f), ColorTools.tritan(f), c.a)
+    }
+
+  /** Appends IPT_HQ-compatible Color instances to the map in [[sge.graphics.Colors]]. */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      sge.graphics.Colors.put(key, new sge.graphics.Color(ColorTools.intensity(f), ColorTools.protan(f), ColorTools.tritan(f), ColorTools.alpha(f)))
+    }
 }

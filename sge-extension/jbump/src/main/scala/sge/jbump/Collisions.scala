@@ -11,7 +11,7 @@ import scala.language.implicitConversions
 
 import sge.jbump.util.Nullable
 
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{ ArrayBuffer, HashMap }
 
 /** Collection of collision results stored in struct-of-arrays layout for performance. */
 class Collisions {
@@ -104,6 +104,7 @@ class Collisions {
   }
 
   private val collision = Collision()
+  private val swapMap   = HashMap.empty[Int, Int]
 
   def get(index: Int): Nullable[Collision] =
     if (index >= _size) {
@@ -182,6 +183,32 @@ class Collisions {
     items.clear()
     others.clear()
     types.clear()
+  }
+
+  /** Reorders the elements of `buf` according to the given index permutation. For each position `i`, the element that was originally at `indices(i)` is moved to position `i`, using an intermediate
+    * swap map to handle transitive index chains.
+    *
+    * @param indices
+    *   a permutation of `[0, size)` specifying the desired order
+    * @param buf
+    *   the buffer to reorder in-place
+    */
+  def keySort[A](indices: IndexedSeq[Int], buf: ArrayBuffer[A]): Unit = {
+    swapMap.clear()
+    var i = 0
+    while (i < indices.length) {
+      var k = indices(i)
+      while (swapMap.contains(k))
+        k = swapMap(k)
+      swapMap(i) = k
+      i += 1
+    }
+
+    swapMap.foreach { (key, value) =>
+      val tmp = buf(key)
+      buf(key) = buf(value)
+      buf(value) = tmp
+    }
   }
 
   /** Sort collisions by ti, then by square distance. */
