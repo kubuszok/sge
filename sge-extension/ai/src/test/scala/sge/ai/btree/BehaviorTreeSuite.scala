@@ -237,4 +237,134 @@ class BehaviorTreeSuite extends munit.FunSuite {
     // The guarded task fails due to guard, selector moves to next child which succeeds
     assertEquals(bt.getStatus, Task.Status.SUCCEEDED)
   }
+
+  // ── Parallel Orchestrator: Resume ─────────────────────────────────────
+
+  test("Parallel Resume + Sequence: all succeed in one step -> SUCCEEDED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Resume
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Resume + Sequence: one fails -> FAILED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Resume
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.FAILED)
+  }
+
+  test("Parallel Resume + Selector: one succeeds -> SUCCEEDED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Selector,
+      orchestrator = Parallel.Orchestrator.Resume
+    )
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new FailTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Resume + Sequence: running child keeps parallel RUNNING") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Resume
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new RunningTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.RUNNING)
+  }
+
+  // ── Parallel Orchestrator: Join ───────────────────────────────────────
+
+  test("Parallel Join + Sequence: all succeed -> SUCCEEDED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Join
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Join + Sequence: one fails -> FAILED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Join
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.FAILED)
+  }
+
+  test("Parallel Join + Selector: one succeeds -> SUCCEEDED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Selector,
+      orchestrator = Parallel.Orchestrator.Join
+    )
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new FailTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.SUCCEEDED)
+  }
+
+  test("Parallel Join + Selector: all fail -> FAILED") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Selector,
+      orchestrator = Parallel.Orchestrator.Join
+    )
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new FailTask[String]())
+    parallel.addChild(new FailTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.FAILED)
+  }
+
+  test("Parallel Join + Sequence: running child keeps parallel RUNNING") {
+    val parallel = new Parallel[String](
+      policy = Parallel.Policy.Sequence,
+      orchestrator = Parallel.Orchestrator.Join
+    )
+    parallel.addChild(new SuccessTask[String]())
+    parallel.addChild(new RunningTask[String]())
+    parallel.addChild(new SuccessTask[String]())
+
+    val bt = makeTree(parallel, "bb")
+    bt.step()
+    assertEquals(bt.getStatus, Task.Status.RUNNING)
+  }
 }

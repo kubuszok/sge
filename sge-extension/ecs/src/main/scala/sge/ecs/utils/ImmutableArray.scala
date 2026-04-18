@@ -16,6 +16,8 @@ package ecs
 package utils
 
 import scala.collection.mutable.ArrayBuffer
+import sge.math.MathUtils
+import sge.utils.Nullable
 
 /** Read-only wrapper around a mutable [[ArrayBuffer]]. This is a live view -- changes to the backing buffer are visible through this wrapper.
   *
@@ -35,6 +37,10 @@ final class ImmutableArray[A](private val array: ArrayBuffer[A]) extends Iterabl
   def indexOf(value: A): Int = array.indexOf(value)
 
   def lastIndexOf(value: A): Int = array.lastIndexOf(value)
+
+  def random(): Nullable[A] =
+    if (array.isEmpty) Nullable.empty[A]
+    else Nullable(array(MathUtils.random(array.size - 1)))
 
   def peek: A = array.last
 

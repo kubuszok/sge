@@ -19,6 +19,9 @@ package math
 
 import java.util.Random
 
+import scala.util.boundary
+import scala.util.boundary.break
+
 /** This class implements the xorshift128+ algorithm that is a very fast, top-quality 64-bit pseudo-random number generator. The quality of this PRNG is much higher than {@link Random} 's, and its
   * cycle length is 2<sup>128</sup>&nbsp;&minus;&nbsp;1, which is more than enough for any single-thread application. More details and algorithms can be found <a
   * href="http://xorshift.di.unimi.it/">here</a>. <p> Instances of RandomXS128 are not thread-safe.
@@ -107,11 +110,12 @@ class RandomXS128() extends Random {
     if (n <= 0) throw new IllegalArgumentException("n must be positive")
     var bits:  Long = 0
     var value: Long = 0
-    var continue = true
-    while (continue) {
-      bits = nextLong() >>> 1
-      value = bits % n
-      continue = bits - value + (n - 1) < 0
+    boundary {
+      while (true) {
+        bits = nextLong() >>> 1
+        value = bits % n
+        if (bits - value + (n - 1) >= 0) break(())
+      }
     }
     value
   }

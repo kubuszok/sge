@@ -10,6 +10,8 @@ package colorful
 package oklab
 
 import sge.colorful.FloatColors
+import sge.graphics.Color
+import sge.graphics.Colors
 
 import scala.collection.mutable
 
@@ -79,6 +81,28 @@ object SimplePalette {
   val ROSE:        Float = java.lang.Float.intBitsToFloat(0xfe7e9d7b)
   val RASPBERRY:   Float = java.lang.Float.intBitsToFloat(0xfe83944c)
 
+  /** All names for colors in this palette, sorted alphabetically. You can fetch the corresponding packed float color by looking up a name in [[NAMED]]. */
+  val NAMES: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  /** All names for colors in this palette, with grayscale first, then sorted by hue from red to yellow to green to blue. You can fetch the corresponding packed float color by looking up a name in
+    * [[NAMED]].
+    */
+  val NAMES_BY_HUE: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  val COLORS_BY_HUE: mutable.ArrayBuffer[Float] = mutable.ArrayBuffer.empty[Float]
+
+  /** All names for colors in this palette, sorted by lightness from black to white. You can fetch the corresponding packed float color by looking up a name in [[NAMED]]. */
+  val NAMES_BY_LIGHTNESS: mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+
+  private val namesByHue:  mutable.ArrayBuffer[String] = mutable.ArrayBuffer.empty[String]
+  private val colorsByHue: mutable.ArrayBuffer[Float]  = mutable.ArrayBuffer.empty[Float]
+
+  private val lightAdjectives: Array[String] =
+    Array("darkmost ", "darkest ", "darker ", "dark ", "", "light ", "lighter ", "lightest ", "lightmost ")
+  private val satAdjectives: Array[String] =
+    Array("dullmost ", "dullest ", "duller ", "dull ", "", "rich ", "richer ", "richest ", "richmost ")
+  private val combinedAdjectives: Array[String] = new Array[String](81)
+
   // Register all colors
   locally {
     val colors: Array[(String, Float)] = Array(
@@ -137,6 +161,56 @@ object SimplePalette {
       NAMED.put(name, color)
       LIST += color
     }
+
+    // Build NAMES (alphabetical)
+    NAMES ++= NAMED.keys
+    NAMES.sortInPlace()
+
+    // Build NAMES_BY_HUE
+    NAMES_BY_HUE ++= NAMES
+    NAMES_BY_HUE.sortInPlace()(using
+      Ordering.fromLessThan[String] { (o1, o2) =>
+        val c1  = NAMED.getOrElse(o1, TRANSPARENT)
+        val c2  = NAMED.getOrElse(o2, TRANSPARENT)
+        val s1  = ColorTools.saturation(c1)
+        val s2  = ColorTools.saturation(c2)
+        val cmp =
+          if (c1 >= 0f) -10000
+          else if (c2 >= 0f) 10000
+          else if (s1 <= 0.05f && s2 > 0.05f) -1000
+          else if (s1 > 0.05f && s2 <= 0.05f) 1000
+          else if (s1 <= 0.05f && s2 <= 0.05f)
+            Math.signum(ColorTools.channelL(c1) - ColorTools.channelL(c2)).toInt
+          else
+            2 * Math.signum(ColorTools.hue(c1) - ColorTools.hue(c2)).toInt +
+              Math.signum(ColorTools.channelL(c1) - ColorTools.channelL(c2)).toInt
+        cmp < 0
+      }
+    )
+    for (name <- NAMES_BY_HUE)
+      COLORS_BY_HUE += NAMED.getOrElse(name, TRANSPARENT)
+
+    // Build NAMES_BY_LIGHTNESS
+    NAMES_BY_LIGHTNESS ++= NAMES
+    NAMES_BY_LIGHTNESS.sortInPlace()(using
+      Ordering.fromLessThan[String] { (o1, o2) =>
+        java.lang.Float.compare(
+          ColorTools.channelL(NAMED.getOrElse(o1, TRANSPARENT)),
+          ColorTools.channelL(NAMED.getOrElse(o2, TRANSPARENT))
+        ) < 0
+      }
+    )
+
+    // Build namesByHue and colorsByHue (private, for bestMatch; excludes "transparent")
+    namesByHue ++= NAMES_BY_HUE
+    colorsByHue ++= COLORS_BY_HUE
+    val trn = namesByHue.indexOf("transparent")
+    if (trn >= 0) {
+      namesByHue.remove(trn)
+      colorsByHue.remove(trn)
+    }
+
+    // Register aliases
     ALIASES.put("grey", GRAY)
     ALIASES.put("gold", SAFFRON)
     ALIASES.put("puce", MAUVE)
@@ -148,6 +222,40 @@ object SimplePalette {
     ALIASES.put("sapphire", COBALT)
     for ((name, color) <- ALIASES)
       NAMED.put(name, color)
+
+    // Build combinedAdjectives
+    var idx = 0
+    for (sat <- 0 until 9)
+      for (lit <- 0 until 9) {
+        val s = sat - 4
+        val l = lit - 4
+        if (s != l && s != -l)
+          combinedAdjectives(idx) = lightAdjectives(lit) + satAdjectives(sat)
+        idx += 1
+      }
+
+    // Special cases for multiple-effect adjectives:
+    combinedAdjectives(0 * 9 + 0) = "weakmost "
+    combinedAdjectives(1 * 9 + 1) = "weakest "
+    combinedAdjectives(2 * 9 + 2) = "weaker "
+    combinedAdjectives(3 * 9 + 3) = "weak "
+
+    combinedAdjectives(0 * 9 + 8) = "palemost "
+    combinedAdjectives(1 * 9 + 7) = "palest "
+    combinedAdjectives(2 * 9 + 6) = "paler "
+    combinedAdjectives(3 * 9 + 5) = "pale "
+
+    combinedAdjectives(8 * 9 + 0) = "deepmost "
+    combinedAdjectives(7 * 9 + 1) = "deepest "
+    combinedAdjectives(6 * 9 + 2) = "deeper "
+    combinedAdjectives(5 * 9 + 3) = "deep "
+
+    combinedAdjectives(8 * 9 + 8) = "brightmost "
+    combinedAdjectives(7 * 9 + 7) = "brightest "
+    combinedAdjectives(6 * 9 + 6) = "brighter "
+    combinedAdjectives(5 * 9 + 5) = "bright "
+
+    combinedAdjectives(4 * 9 + 4) = ""
   }
 
   /** Parses a color description string and returns a packed Oklab float color. The description can include lightness modifiers (light, lighter, lightest, dark, darker, darkest), saturation modifiers
@@ -290,4 +398,93 @@ object SimplePalette {
       }
     }
   }
+
+  /** Given a color as a packed Oklab float, this finds the closest description it can to match the given color while using at most `mixCount` colors to mix in. You should only use small numbers for
+    * mixCount, like 1 to 3; this can take quite a while to run otherwise. This returns a String description that can be passed to [[parseDescription]]. It is likely that this will use very
+    * contrasting colors if mixCount is 2 or greater and the color to match is desaturated or brownish.
+    * @param oklab
+    *   a packed Oklab float color to attempt to match
+    * @param mixCount
+    *   how many color names this will use in the returned description
+    * @return
+    *   a description that can be fed to [[parseDescription]] to get a similar color
+    */
+  def bestMatch(oklab: Float, mixCount: Int): String = {
+    val mc           = Math.max(1, mixCount)
+    var bestDistance = Float.PositiveInfinity
+    val paletteSize  = namesByHue.size
+    val colorTries   = Math.pow(paletteSize, mc).toInt
+    val totalTries   = colorTries * 81
+    val targetL      = ColorTools.channelL(oklab)
+    val targetA      = ColorTools.channelA(oklab)
+    val targetB      = ColorTools.channelB(oklab)
+    val mixingArr    = new Array[Float](mc)
+    for (i <- 0 until mc)
+      mixingArr(i) = colorsByHue(0)
+    var bestCode = 0
+    var c        = 0
+    while (c < totalTries) {
+      var i = 0
+      var e = 1
+      while (i < mc) {
+        mixingArr(i) = colorsByHue((c / e) % paletteSize)
+        i += 1
+        e *= paletteSize
+      }
+      val idxL = (c / colorTries) % 9 - 4
+      val idxS = c / (colorTries * 9) - 4
+
+      var result = FloatColors.mix(mixingArr, 0, mc)
+      if (idxL > 0) result = ColorTools.lighten(result, 0.15f * idxL)
+      else if (idxL < 0) result = ColorTools.darken(result, -0.15f * idxL)
+
+      if (idxS > 0) result = ColorTools.limitToGamut(ColorTools.enrich(result, idxS * (idxS + 3) * 0.025f))
+      else if (idxS < 0) result = ColorTools.dullen(result, idxS * (-idxS + 3) * -0.025f)
+      else result = ColorTools.limitToGamut(result)
+
+      val dL       = ColorTools.channelL(result) - targetL
+      val dA       = ColorTools.channelA(result) - targetA
+      val dB       = ColorTools.channelB(result) - targetB
+      val distance = dL * dL + dA * dA + dB * dB
+      if (distance < bestDistance) {
+        bestDistance = distance
+        bestCode = c
+      }
+      c += 1
+    }
+
+    val description = new StringBuilder(combinedAdjectives(bestCode / colorTries))
+    var i           = 0
+    var e           = 1
+    while (i < mc) {
+      description.append(namesByHue((bestCode / e) % paletteSize))
+      i += 1
+      if (i < mc)
+        description.append(' ')
+      e *= paletteSize
+    }
+    description.toString()
+  }
+
+  /** Changes the existing RGBA Color instances in [[Colors]] to use Oklab and so be able to be shown normally by ColorfulBatch. Any colors used in text markup look up their values in Colors, so
+    * calling this can help display fonts where markup is enabled. This only needs to be called once, and if you call [[appendToKnownColors]], then that should be done after this to avoid mixing RGBA
+    * and Oklab colors.
+    */
+  def editKnownColors(): Unit =
+    for (c <- Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.channelL(f), ColorTools.channelA(f), ColorTools.channelB(f), c.a)
+    }
+
+  /** Appends Oklab-compatible Color instances to the map in [[Colors]], using the names in [[NAMES]] (which are "lower cased" instead of "ALL UPPER CASE"). This doesn't need any changes to be made to
+    * Colors in order for it to be compatible; just remember that the colors originally in Colors use "UPPER CASE" and these use "lower case". This does append aliases as well, so some color values
+    * will be duplicates.
+    *
+    * This can be used alongside the method with the same name in Palette, since that uses "Title Cased" names.
+    */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      Colors.put(key, new Color(ColorTools.channelL(f), ColorTools.channelA(f), ColorTools.channelB(f), ColorTools.alpha(f)))
+    }
 }

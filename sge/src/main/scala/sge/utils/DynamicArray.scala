@@ -474,6 +474,33 @@ final class DynamicArray[A] private (
     Sort.sort(_items, ordering, 0, _size)
   }
 
+  /** Selects the nth-lowest element from the array according to Ordering ranking. This might partially sort the array. The array must have a size greater than 0, or an [[SgeError]] will be thrown.
+    * @param kthLowest
+    *   rank of desired object according to comparison, n is based on ordinal numbers, not array indices. For min value use 1, for max value use size of array, using 0 results in runtime exception.
+    * @return
+    *   the value of the Nth lowest ranked object.
+    */
+  def selectRanked(ordering: Ordering[A], kthLowest: Int): A = {
+    if (kthLowest < 1) {
+      throw SgeError.InvalidInput("nth_lowest must be greater than 0, 1 = first, 2 = second...")
+    }
+    Select.select(_items, ordering, kthLowest, _size)
+  }
+
+  /** @see
+    *   [[selectRanked]]
+    * @param kthLowest
+    *   rank of desired object according to comparison, n is based on ordinal numbers, not array indices. For min value use 1, for max value use size of array, using 0 results in runtime exception.
+    * @return
+    *   the index of the Nth lowest ranked object.
+    */
+  def selectRankedIndex(ordering: Ordering[A], kthLowest: Int): Int = {
+    if (kthLowest < 1) {
+      throw SgeError.InvalidInput("nth_lowest must be greater than 0, 1 = first, 2 = second...")
+    }
+    Select.selectIndex(_items, ordering, kthLowest, _size)
+  }
+
   // --- Size management ---
 
   /** Ensures capacity for at least `additional` more elements beyond current size. */
@@ -678,6 +705,54 @@ final class DynamicArray[A] private (
       }
     case _ => false
   }
+
+  /** Returns true if this array's elements are the same instances as those in the other array (identity comparison). Both arrays must be ordered.
+    */
+  def equalsIdentity(obj: Any): Boolean = obj match {
+    case other: DynamicArray[?] =>
+      if (!preserveOrder || !other.preserveOrder) this eq other
+      else if (_size != other._size) false
+      else {
+        var i     = 0
+        var equal = true
+        while (i < _size && equal) {
+          if (!(_items(i).asInstanceOf[AnyRef] eq other._items(i).asInstanceOf[AnyRef])) equal = false
+          i += 1
+        }
+        equal
+      }
+    case _ => false
+  }
+
+  /** Returns an iterable for elements matching the predicate. */
+  def select(predicate: A => Boolean): Iterable[A] =
+    new Iterable[A] {
+      override def iterator: Iterator[A] = new Iterator[A] {
+        private var index = 0
+        private var nextItem: A = findNext()
+        private var hasNextItem = index <= _size
+
+        private def findNext(): A = {
+          while (index < _size) {
+            val item = _items(index)
+            index += 1
+            if (predicate(item)) return item
+          }
+          index = _size + 1
+          null.asInstanceOf[A] // @nowarn — sentinel for exhausted iterator
+        }
+
+        override def hasNext: Boolean = hasNextItem
+
+        override def next(): A = {
+          if (!hasNextItem) throw new NoSuchElementException()
+          val result = nextItem
+          nextItem = findNext()
+          hasNextItem = index <= _size
+          result
+        }
+      }
+    }
 
   override def toString(): String = toString(", ")
 

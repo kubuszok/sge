@@ -49,6 +49,10 @@ class PrioritizedArray[T] extends Iterable[T] {
 
   override def iterator: Iterator[T] = items.iterator.map(_.item)
 
+  override def toString(): String = items.map(e => e.item.toString + "[" + e.priority + "]").mkString(", ")
+
+  def toString(separator: String): String = items.map(e => e.item.toString + "[" + e.priority + "]").mkString(separator)
+
   private def sortItems(): Unit = {
     // Stable sort by priority
     val sorted = items.sortBy(_.priority)

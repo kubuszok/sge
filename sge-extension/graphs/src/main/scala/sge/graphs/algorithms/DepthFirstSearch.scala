@@ -64,3 +64,47 @@ class DepthFirstSearch[V] private[algorithms] (
 
   override def isFinished: Boolean = queue.isEmpty
 }
+
+object DepthFirstSearch {
+
+  /** Perform a recursive depth first search starting from vertex v. */
+  private[algorithms] def depthFirstSearch[V](id: Int, v: Node[V], processor: SearchProcessor[V]): Unit = {
+    v.resetAlgorithmAttribs(id)
+    v.distance = 0
+    val step = if (processor != null) SearchStep[V]() else null.asInstanceOf[SearchStep[V]] // @nowarn — null when no processor, matching original pattern
+    recursiveDepthFirstSearch(id, v, processor, 0, step)
+  }
+
+  private def recursiveDepthFirstSearch[V](
+    id:        Int,
+    v:         Node[V],
+    processor: SearchProcessor[V],
+    depth:     Int,
+    step:      SearchStep[V]
+  ): Boolean = boundary {
+    if (processor != null) {
+      step.prepare(v)
+      processor.accept(step)
+      if (step.terminateFlag) break(true)
+      if (step.ignoreFlag) break(false)
+    }
+    v.processed = true
+    val n = v.outEdges.size
+    var i = 0
+    while (i < n) {
+      val e = v.outEdges.get(i)
+      val w = e.nodeB
+      w.resetAlgorithmAttribs(id)
+      if (!w.processed) {
+        w.index = depth + 1
+        w.distance = v.distance + e.weight
+        w.connection = e
+        if (recursiveDepthFirstSearch(id, w, processor, depth + 1, step)) {
+          break(true)
+        }
+      }
+      i += 1
+    }
+    false
+  }
+}

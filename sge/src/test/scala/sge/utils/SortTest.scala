@@ -91,6 +91,49 @@ class SortTest extends munit.FunSuite {
     assertEquals(array.toSeq, expected.toSeq)
   }
 
+  test("sort DynamicArray comparable") {
+    val array = DynamicArray[java.lang.Integer]()
+    Seq(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5).map(java.lang.Integer.valueOf).foreach(array.add)
+    Sort.sort(array)
+    assertEquals(
+      (0 until array.size).map(i => array(i).intValue()).toSeq,
+      Seq(1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9)
+    )
+  }
+
+  test("sort array with nulls using NullsFirst ordering") {
+    val arrayWithNulls: Array[AnyRef] =
+      Array[AnyRef](Int.box(3), null, Int.box(1), Int.box(4), null, Int.box(2))
+    val nullsFirstOrdering: Ordering[AnyRef] = (o1: AnyRef, o2: AnyRef) =>
+      if (o1 == null && o2 == null) 0
+      else if (o1 == null) -1
+      else if (o2 == null) 1
+      else o1.asInstanceOf[java.lang.Integer].compareTo(o2.asInstanceOf[java.lang.Integer])
+    Sort.sort(arrayWithNulls, nullsFirstOrdering)
+    val expected: Array[AnyRef] =
+      Array[AnyRef](null, null, Int.box(1), Int.box(2), Int.box(3), Int.box(4))
+    assertEquals(arrayWithNulls.toSeq, expected.toSeq)
+  }
+
+  test("sort array range with invalid indices throws") {
+    val array: Array[AnyRef] = Array[AnyRef](
+      Int.box(3),
+      Int.box(1),
+      Int.box(4),
+      Int.box(1),
+      Int.box(5),
+      Int.box(9),
+      Int.box(2),
+      Int.box(6),
+      Int.box(5),
+      Int.box(3),
+      Int.box(5)
+    )
+    intercept[ArrayIndexOutOfBoundsException] {
+      Sort.sort(array, -1, 15)
+    }
+  }
+
   test("sort DynamicArray with custom comparator (reverse)") {
     val array = DynamicArray[Int]()
     Seq(3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5).foreach(array.add)

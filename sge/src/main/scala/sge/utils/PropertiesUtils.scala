@@ -112,14 +112,15 @@ object PropertiesUtils {
           (nextChar: @annotation.switch) match {
             case '#' | '!' =>
               if (firstChar) {
-                var done = false
-                while (!done) {
-                  val iv = br.read()
-                  if (iv == -1) {
-                    done = true
-                  } else {
-                    val nc = iv.toChar
-                    if (nc == '\r' || nc == '\n') done = true
+                scala.util.boundary {
+                  while (true) {
+                    val iv = br.read()
+                    if (iv == -1) {
+                      scala.util.boundary.break(())
+                    } else {
+                      val nc = iv.toChar
+                      if (nc == '\r' || nc == '\n') scala.util.boundary.break(())
+                    }
                   }
                 }
                 scala.util.boundary.break(())

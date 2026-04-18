@@ -30,6 +30,8 @@ import sge.utils.Nullable
 import scala.annotation.publicInBinary
 import scala.compiletime.uninitialized
 import scala.language.implicitConversions
+import scala.util.boundary
+import scala.util.boundary.break
 
 /** A PolygonSpriteBatch is used to draw 2D polygons that reference a texture (region). The class will batch the drawing commands and optimize them for processing by the GPU. <p> To draw something
   * with a PolygonSpriteBatch one has to first call the {@link PolygonSpriteBatch#begin()} method which will setup appropriate render states. When you are done with drawing you have to call
@@ -769,21 +771,22 @@ class PolygonSpriteBatch(maxVertices: Int, maxTriangles: Int, defaultShader: Nul
 
     var remainingCount = count
     var currentOffset  = offset
-    var continue       = true
-    while (continue) {
-      Array.copy(spriteVertices, currentOffset, vertices, vertexIdx, batch)
-      this.vertexIndex = vertexIdx + batch
-      this.triangleIndex = ti
-      remainingCount -= batch
-      if (remainingCount == 0) {
-        continue = false
-      } else {
-        currentOffset += batch
-        flush()
-        vertexIdx = 0
-        if (batch > remainingCount) {
-          batch = scala.math.min(remainingCount, triangles.length / 6 * SPRITE_SIZE)
-          triangleIdx = batch / SPRITE_SIZE * 6
+    boundary {
+      while (true) {
+        Array.copy(spriteVertices, currentOffset, vertices, vertexIdx, batch)
+        this.vertexIndex = vertexIdx + batch
+        this.triangleIndex = ti
+        remainingCount -= batch
+        if (remainingCount == 0) {
+          break(())
+        } else {
+          currentOffset += batch
+          flush()
+          vertexIdx = 0
+          if (batch > remainingCount) {
+            batch = scala.math.min(remainingCount, triangles.length / 6 * SPRITE_SIZE)
+            triangleIdx = batch / SPRITE_SIZE * 6
+          }
         }
       }
     }

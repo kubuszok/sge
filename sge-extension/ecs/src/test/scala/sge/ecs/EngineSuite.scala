@@ -614,4 +614,267 @@ class EngineSuite extends munit.FunSuite {
     // Only entity with ComponentA removed
     assertEquals(engine.getEntities.size, 1)
   }
+
+  // ── EntityListenerTests: priority ordering ────────────────────────────
+
+  test("entityListenerPriority: listeners called in priority order") {
+    val callOrder = ArrayBuffer[String]()
+
+    val a = new EntityListener {
+      override def entityAdded(entity:   Entity): Unit = callOrder += "a-added"
+      override def entityRemoved(entity: Entity): Unit = callOrder += "a-removed"
+    }
+    val b = new EntityListener {
+      override def entityAdded(entity:   Entity): Unit = callOrder += "b-added"
+      override def entityRemoved(entity: Entity): Unit = callOrder += "b-removed"
+    }
+    val c = new EntityListener {
+      override def entityAdded(entity:   Entity): Unit = callOrder += "c-added"
+      override def entityRemoved(entity: Entity): Unit = callOrder += "c-removed"
+    }
+
+    val entity = new Entity
+    val engine = new Engine
+
+    // b has priority -3, c has default priority 0, a has priority -4
+    engine.addEntityListener(-3, b)
+    engine.addEntityListener(c)
+    engine.addEntityListener(-4, a)
+    assert(callOrder.isEmpty)
+
+    // Add: expect order a(-4), b(-3), c(0)
+    engine.addEntity(entity)
+    assertEquals(callOrder.toList, List("a-added", "b-added", "c-added"))
+    callOrder.clear()
+
+    // Remove: expect same order
+    engine.removeEntity(entity)
+    assertEquals(callOrder.toList, List("a-removed", "b-removed", "c-removed"))
+    callOrder.clear()
+
+    // Remove b, add entity again: expect a, c
+    engine.removeEntityListener(b)
+    engine.addEntity(entity)
+    assertEquals(callOrder.toList, List("a-added", "c-added"))
+    callOrder.clear()
+
+    // Re-add b with priority 4 (after c), remove entity: expect a(-4), c(0), b(4)
+    engine.addEntityListener(4, b)
+    engine.removeEntity(entity)
+    assertEquals(callOrder.toList, List("a-removed", "c-removed", "b-removed"))
+  }
+
+  test("familyListenerPriority: family-scoped listeners called in priority order") {
+    val callOrder = ArrayBuffer[String]()
+
+    val a = new EntityListener {
+      override def entityAdded(entity:   Entity): Unit = callOrder += "a-added"
+      override def entityRemoved(entity: Entity): Unit = callOrder += "a-removed"
+    }
+    val b = new EntityListener {
+      override def entityAdded(entity:   Entity): Unit = callOrder += "b-added"
+      override def entityRemoved(entity: Entity): Unit = callOrder += "b-removed"
+    }
+
+    val engine = new Engine
+    // b listens for ComponentB family with priority -2
+    engine.addEntityListener(Family.all(classOf[ComponentB]).get(), -2, b)
+    // a listens for ComponentA family with priority -3
+    engine.addEntityListener(Family.all(classOf[ComponentA]).get(), -3, a)
+    assert(callOrder.isEmpty)
+
+    val entity = new Entity
+    entity.add(new ComponentA)
+    entity.add(new ComponentB)
+
+    engine.addEntity(entity)
+    assertEquals(callOrder.toList, List("a-added", "b-added"))
+    callOrder.clear()
+
+    entity.remove(classOf[ComponentB])
+    assertEquals(callOrder.toList, List("b-removed"))
+    callOrder.clear()
+
+    entity.remove(classOf[ComponentA])
+    assertEquals(callOrder.toList, List("a-removed"))
+    callOrder.clear()
+
+    entity.add(new ComponentA)
+    assertEquals(callOrder.toList, List("a-added"))
+    callOrder.clear()
+
+    entity.add(new ComponentB)
+    assertEquals(callOrder.toList, List("b-added"))
+  }
+
+  test("componentHandlingInListeners: add/remove components inside entity listeners") {
+    val engine = new Engine
+
+    var addingComponentACalled   = false
+    var removingComponentACalled = false
+    var addingComponentBCalled   = false
+    var removingComponentBCalled = false
+
+    engine.addEntityListener(
+      new EntityListener {
+        override def entityAdded(entity: Entity): Unit = {
+          addingComponentACalled = true
+          entity.add(new ComponentA)
+        }
+        override def entityRemoved(entity: Entity): Unit = {
+          removingComponentACalled = true
+          entity.remove(classOf[ComponentA])
+        }
+      }
+    )
+
+    engine.addEntityListener(
+      new EntityListener {
+        override def entityAdded(entity: Entity): Unit = {
+          addingComponentBCalled = true
+          entity.add(new ComponentB)
+        }
+        override def entityRemoved(entity: Entity): Unit = {
+          removingComponentBCalled = true
+          entity.remove(classOf[ComponentB])
+        }
+      }
+    )
+
+    engine.update(0)
+    val e = new Entity
+    engine.addEntity(e)
+    engine.update(0)
+    engine.removeEntity(e)
+    engine.update(0)
+
+    assert(addingComponentACalled)
+    assert(removingComponentACalled)
+    assert(addingComponentBCalled)
+    assert(removingComponentBCalled)
+  }
+
+  // ── EntityListenerTests: family-scoped add/remove inside listeners ────
+
+  test("addEntityListenerFamilyRemove: add entity inside family listener on remove") {
+    val engine = new Engine
+
+    val e = new Entity
+    e.add(new ComponentA)
+    engine.addEntity(e)
+
+    val family = Family.all(classOf[ComponentA]).get()
+    engine.addEntityListener(
+      family,
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit =
+          engine.addEntity(new Entity)
+        override def entityAdded(entity: Entity): Unit = {}
+      }
+    )
+
+    engine.removeEntity(e)
+    // Should not throw - deferred add inside listener callback
+  }
+
+  test("addEntityListenerFamilyAdd: add entity inside family listener on add") {
+    val engine = new Engine
+
+    val e = new Entity
+    e.add(new ComponentA)
+
+    val family = Family.all(classOf[ComponentA]).get()
+    engine.addEntityListener(
+      family,
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit = {}
+        override def entityAdded(entity: Entity):   Unit =
+          engine.addEntity(new Entity)
+      }
+    )
+
+    engine.addEntity(e)
+    // Should not throw
+  }
+
+  test("addEntityListenerNoFamilyRemove: add entity inside no-family listener on remove") {
+    val engine = new Engine
+
+    val e = new Entity
+    e.add(new ComponentA)
+    engine.addEntity(e)
+
+    val family = Family.all(classOf[ComponentA]).get()
+    engine.addEntityListener(
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit =
+          if (family.matches(entity)) engine.addEntity(new Entity)
+        override def entityAdded(entity: Entity): Unit = {}
+      }
+    )
+
+    engine.removeEntity(e)
+    // Should not throw
+  }
+
+  test("addEntityListenerNoFamilyAdd: add entity inside no-family listener on add") {
+    val engine = new Engine
+
+    val e = new Entity
+    e.add(new ComponentA)
+
+    val family = Family.all(classOf[ComponentA]).get()
+    engine.addEntityListener(
+      new EntityListener {
+        override def entityRemoved(entity: Entity): Unit = {}
+        override def entityAdded(entity: Entity):   Unit =
+          if (family.matches(entity)) engine.addEntity(new Entity)
+      }
+    )
+
+    engine.addEntity(e)
+    // Should not throw
+  }
+
+  // ── EngineTests: removeEntityBeforeAddingAndWhileEngineIsUpdating ─────
+
+  test("removeEntityBeforeAddingAndWhileEngineIsUpdating") {
+    // Test for issue #306 in original Ashley
+    val eng = new Engine
+    eng.addSystem(
+      new EntitySystem() {
+        override def update(deltaTime: Float): Unit = {
+          val entity = new Entity
+          eng.removeEntity(entity)
+          eng.addEntity(entity)
+          eng.removeEntity(entity)
+        }
+      }
+    )
+    eng.update(deltaTime)
+    assertEquals(eng.getEntities.size, 0)
+  }
+
+  // ── FamilyManagerTests: entityListenerThrows ──────────────────────────
+
+  test("entityListenerThrows resets notifying flag") {
+    val engine = new Engine
+
+    engine.addEntityListener(
+      Family.all().get(),
+      new EntityListener {
+        override def entityAdded(entity: Entity): Unit =
+          throw new RuntimeException("throwing")
+        override def entityRemoved(entity: Entity): Unit =
+          throw new RuntimeException("throwing")
+      }
+    )
+
+    val entity = new Entity
+    intercept[RuntimeException] {
+      engine.addEntity(entity)
+    }
+    // After the exception, the engine should recover and be usable
+    // (notifying flag should have been reset)
+  }
 }

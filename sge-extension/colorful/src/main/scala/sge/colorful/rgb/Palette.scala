@@ -794,4 +794,11 @@ object Palette {
     NAMED.put("Raspberry", java.lang.Float.intBitsToFloat(0xfe371491))
     LIST += java.lang.Float.intBitsToFloat(0xfe371491)
   }
+
+  /** Appends standard RGBA Color instances to the map in [[sge.graphics.Colors]], using the names in [[NAMED]] (which are "Title Cased" instead of "ALL UPPER CASE"). This doesn't need any changes to
+    * be made to Colors in order for it to be compatible; just remember that the colors originally in Colors use "UPPER CASE" and these use "Title Case".
+    */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED)
+      sge.graphics.Colors.put(key, ColorTools.toColor(new sge.graphics.Color(), value))
 }

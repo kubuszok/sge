@@ -98,151 +98,183 @@ object DistributionAdapters {
 
     protected def parseDouble(v: String): Double =
       try v.toDouble
-      catch { case _: NumberFormatException => throw new DistributionFormatException(s"Not a double value: $v") }
+      catch { case nfe: NumberFormatException => throw new DistributionFormatException("Not a double value: " + v, nfe) }
 
     protected def parseFloat(v: String): Float =
       try v.toFloat
-      catch { case _: NumberFormatException => throw new DistributionFormatException(s"Not a float value: $v") }
+      catch { case nfe: NumberFormatException => throw new DistributionFormatException("Not a float value: " + v, nfe) }
 
-    protected def parseInt(v: String): Int =
+    protected def parseInteger(v: String): Int =
       try v.toInt
-      catch { case _: NumberFormatException => throw new DistributionFormatException(s"Not an int value: $v") }
+      catch { case nfe: NumberFormatException => throw new DistributionFormatException("Not an int value: " + v, nfe) }
 
     protected def parseLong(v: String): Long =
       try v.toLong
-      catch { case _: NumberFormatException => throw new DistributionFormatException(s"Not a long value: $v") }
+      catch { case nfe: NumberFormatException => throw new DistributionFormatException("Not a long value: " + v, nfe) }
   }
 
-  private def invalidNumberOfArgs(found: Int, expected: Int*): DistributionFormatException = {
-    val msg = if (expected.length < 2) {
-      s"Found $found arguments; expected ${expected.head}"
+  /** Convenience adapter base for [[DoubleDistribution]] types. */
+  abstract class DoubleAdapter[D <: DoubleDistribution](category: String) extends Adapter[D](category, classOf[DoubleDistribution])
+
+  /** Convenience adapter base for [[FloatDistribution]] types. */
+  abstract class FloatAdapter[D <: FloatDistribution](category: String) extends Adapter[D](category, classOf[FloatDistribution])
+
+  /** Convenience adapter base for [[IntegerDistribution]] types. */
+  abstract class IntegerAdapter[D <: IntegerDistribution](category: String) extends Adapter[D](category, classOf[IntegerDistribution])
+
+  /** Convenience adapter base for [[LongDistribution]] types. */
+  abstract class LongAdapter[D <: LongDistribution](category: String) extends Adapter[D](category, classOf[LongDistribution])
+
+  private def invalidNumberOfArgumentsException(found: Int, expected: Int*): DistributionFormatException = {
+    var message = "Found " + found + " arguments in triangular distribution; expected "
+    if (expected.length < 2) {
+      message += expected.length
     } else {
-      val init = expected.init.mkString(", ")
-      s"Found $found arguments; expected $init or ${expected.last}"
+      var sep = ""
+      var i   = 0
+      while (i < expected.length - 1) {
+        message += sep + expected(i)
+        sep = ", "
+        i += 1
+      }
+      message += " or " + expected(i)
     }
-    new DistributionFormatException(msg)
+    new DistributionFormatException(message)
   }
 
   // ── Default adapter registry ──────────────────────────────────────────
 
   private val defaultAdapters: Seq[(Class[?], Adapter[?])] = Seq(
+    //
     // Constant distributions
-    classOf[ConstantFloatDistribution] -> new Adapter[ConstantFloatDistribution]("constant", classOf[FloatDistribution]) {
-      def toDistribution(args: Array[String]): ConstantFloatDistribution = {
-        if (args.length != 1) throw invalidNumberOfArgs(args.length, 1)
-        new ConstantFloatDistribution(parseFloat(args(0)))
-      }
-      def toParameters(d: ConstantFloatDistribution): Array[String] = Array(d.value.toString)
-    },
-    classOf[ConstantDoubleDistribution] -> new Adapter[ConstantDoubleDistribution]("constant", classOf[DoubleDistribution]) {
+    //
+
+    classOf[ConstantDoubleDistribution] -> new DoubleAdapter[ConstantDoubleDistribution]("constant") {
       def toDistribution(args: Array[String]): ConstantDoubleDistribution = {
-        if (args.length != 1) throw invalidNumberOfArgs(args.length, 1)
+        if (args.length != 1) throw invalidNumberOfArgumentsException(args.length, 1)
         new ConstantDoubleDistribution(parseDouble(args(0)))
       }
       def toParameters(d: ConstantDoubleDistribution): Array[String] = Array(d.value.toString)
     },
-    classOf[ConstantIntegerDistribution] -> new Adapter[ConstantIntegerDistribution]("constant", classOf[IntegerDistribution]) {
+    classOf[ConstantFloatDistribution] -> new FloatAdapter[ConstantFloatDistribution]("constant") {
+      def toDistribution(args: Array[String]): ConstantFloatDistribution = {
+        if (args.length != 1) throw invalidNumberOfArgumentsException(args.length, 1)
+        new ConstantFloatDistribution(parseFloat(args(0)))
+      }
+      def toParameters(d: ConstantFloatDistribution): Array[String] = Array(d.value.toString)
+    },
+    classOf[ConstantIntegerDistribution] -> new IntegerAdapter[ConstantIntegerDistribution]("constant") {
       def toDistribution(args: Array[String]): ConstantIntegerDistribution = {
-        if (args.length != 1) throw invalidNumberOfArgs(args.length, 1)
-        new ConstantIntegerDistribution(parseInt(args(0)))
+        if (args.length != 1) throw invalidNumberOfArgumentsException(args.length, 1)
+        new ConstantIntegerDistribution(parseInteger(args(0)))
       }
       def toParameters(d: ConstantIntegerDistribution): Array[String] = Array(d.value.toString)
     },
-    classOf[ConstantLongDistribution] -> new Adapter[ConstantLongDistribution]("constant", classOf[LongDistribution]) {
+    classOf[ConstantLongDistribution] -> new LongAdapter[ConstantLongDistribution]("constant") {
       def toDistribution(args: Array[String]): ConstantLongDistribution = {
-        if (args.length != 1) throw invalidNumberOfArgs(args.length, 1)
+        if (args.length != 1) throw invalidNumberOfArgumentsException(args.length, 1)
         new ConstantLongDistribution(parseLong(args(0)))
       }
       def toParameters(d: ConstantLongDistribution): Array[String] = Array(d.value.toString)
     },
 
+    //
     // Gaussian distributions
-    classOf[GaussianFloatDistribution] -> new Adapter[GaussianFloatDistribution]("gaussian", classOf[FloatDistribution]) {
-      def toDistribution(args: Array[String]): GaussianFloatDistribution = {
-        if (args.length != 2) throw invalidNumberOfArgs(args.length, 2)
-        new GaussianFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
-      }
-      def toParameters(d: GaussianFloatDistribution): Array[String] = Array(d.mean.toString, d.standardDeviation.toString)
-    },
-    classOf[GaussianDoubleDistribution] -> new Adapter[GaussianDoubleDistribution]("gaussian", classOf[DoubleDistribution]) {
+    //
+
+    classOf[GaussianDoubleDistribution] -> new DoubleAdapter[GaussianDoubleDistribution]("gaussian") {
       def toDistribution(args: Array[String]): GaussianDoubleDistribution = {
-        if (args.length != 2) throw invalidNumberOfArgs(args.length, 2)
+        if (args.length != 2) throw invalidNumberOfArgumentsException(args.length, 2)
         new GaussianDoubleDistribution(parseDouble(args(0)), parseDouble(args(1)))
       }
       def toParameters(d: GaussianDoubleDistribution): Array[String] = Array(d.mean.toString, d.standardDeviation.toString)
     },
-
-    // Triangular distributions
-    classOf[TriangularFloatDistribution] -> new Adapter[TriangularFloatDistribution]("triangular", classOf[FloatDistribution]) {
-      def toDistribution(args: Array[String]): TriangularFloatDistribution = args.length match {
-        case 1 => new TriangularFloatDistribution(parseFloat(args(0)))
-        case 2 => new TriangularFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
-        case 3 => new TriangularFloatDistribution(parseFloat(args(0)), parseFloat(args(1)), parseFloat(args(2)))
-        case n => throw invalidNumberOfArgs(n, 1, 2, 3)
+    classOf[GaussianFloatDistribution] -> new FloatAdapter[GaussianFloatDistribution]("gaussian") {
+      def toDistribution(args: Array[String]): GaussianFloatDistribution = {
+        if (args.length != 2) throw invalidNumberOfArgumentsException(args.length, 2)
+        new GaussianFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
       }
-      def toParameters(d: TriangularFloatDistribution): Array[String] = Array(d.low.toString, d.high.toString, d.mode.toString)
+      def toParameters(d: GaussianFloatDistribution): Array[String] = Array(d.mean.toString, d.standardDeviation.toString)
     },
-    classOf[TriangularDoubleDistribution] -> new Adapter[TriangularDoubleDistribution]("triangular", classOf[DoubleDistribution]) {
+
+    //
+    // Triangular distributions
+    //
+
+    classOf[TriangularDoubleDistribution] -> new DoubleAdapter[TriangularDoubleDistribution]("triangular") {
       def toDistribution(args: Array[String]): TriangularDoubleDistribution = args.length match {
         case 1 => new TriangularDoubleDistribution(parseDouble(args(0)))
         case 2 => new TriangularDoubleDistribution(parseDouble(args(0)), parseDouble(args(1)))
         case 3 => new TriangularDoubleDistribution(parseDouble(args(0)), parseDouble(args(1)), parseDouble(args(2)))
-        case n => throw invalidNumberOfArgs(n, 1, 2, 3)
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2, 3)
       }
       def toParameters(d: TriangularDoubleDistribution): Array[String] =
         Array(d.low.toString, d.high.toString, d.mode.toString)
     },
-    classOf[TriangularIntegerDistribution] -> new Adapter[TriangularIntegerDistribution]("triangular", classOf[IntegerDistribution]) {
+    classOf[TriangularFloatDistribution] -> new FloatAdapter[TriangularFloatDistribution]("triangular") {
+      def toDistribution(args: Array[String]): TriangularFloatDistribution = args.length match {
+        case 1 => new TriangularFloatDistribution(parseFloat(args(0)))
+        case 2 => new TriangularFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
+        case 3 => new TriangularFloatDistribution(parseFloat(args(0)), parseFloat(args(1)), parseFloat(args(2)))
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2, 3)
+      }
+      def toParameters(d: TriangularFloatDistribution): Array[String] =
+        Array(d.low.toString, d.high.toString, d.mode.toString)
+    },
+    classOf[TriangularIntegerDistribution] -> new IntegerAdapter[TriangularIntegerDistribution]("triangular") {
       def toDistribution(args: Array[String]): TriangularIntegerDistribution = args.length match {
-        case 1 => new TriangularIntegerDistribution(parseInt(args(0)))
-        case 2 => new TriangularIntegerDistribution(parseInt(args(0)), parseInt(args(1)))
-        case 3 => new TriangularIntegerDistribution(parseInt(args(0)), parseInt(args(1)), parseFloat(args(2)))
-        case n => throw invalidNumberOfArgs(n, 1, 2, 3)
+        case 1 => new TriangularIntegerDistribution(parseInteger(args(0)))
+        case 2 => new TriangularIntegerDistribution(parseInteger(args(0)), parseInteger(args(1)))
+        case 3 => new TriangularIntegerDistribution(parseInteger(args(0)), parseInteger(args(1)), java.lang.Float.valueOf(args(2)))
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2, 3)
       }
       def toParameters(d: TriangularIntegerDistribution): Array[String] =
         Array(d.low.toString, d.high.toString, d.mode.toString)
     },
-    classOf[TriangularLongDistribution] -> new Adapter[TriangularLongDistribution]("triangular", classOf[LongDistribution]) {
+    classOf[TriangularLongDistribution] -> new LongAdapter[TriangularLongDistribution]("triangular") {
       def toDistribution(args: Array[String]): TriangularLongDistribution = args.length match {
         case 1 => new TriangularLongDistribution(parseLong(args(0)))
         case 2 => new TriangularLongDistribution(parseLong(args(0)), parseLong(args(1)))
         case 3 => new TriangularLongDistribution(parseLong(args(0)), parseLong(args(1)), parseDouble(args(2)))
-        case n => throw invalidNumberOfArgs(n, 1, 2, 3)
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2, 3)
       }
       def toParameters(d: TriangularLongDistribution): Array[String] =
         Array(d.low.toString, d.high.toString, d.mode.toString)
     },
 
+    //
     // Uniform distributions
-    classOf[UniformFloatDistribution] -> new Adapter[UniformFloatDistribution]("uniform", classOf[FloatDistribution]) {
-      def toDistribution(args: Array[String]): UniformFloatDistribution = args.length match {
-        case 1 => new UniformFloatDistribution(parseFloat(args(0)))
-        case 2 => new UniformFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
-        case n => throw invalidNumberOfArgs(n, 1, 2)
-      }
-      def toParameters(d: UniformFloatDistribution): Array[String] = Array(d.low.toString, d.high.toString)
-    },
-    classOf[UniformDoubleDistribution] -> new Adapter[UniformDoubleDistribution]("uniform", classOf[DoubleDistribution]) {
+    //
+
+    classOf[UniformDoubleDistribution] -> new DoubleAdapter[UniformDoubleDistribution]("uniform") {
       def toDistribution(args: Array[String]): UniformDoubleDistribution = args.length match {
         case 1 => new UniformDoubleDistribution(parseDouble(args(0)))
         case 2 => new UniformDoubleDistribution(parseDouble(args(0)), parseDouble(args(1)))
-        case n => throw invalidNumberOfArgs(n, 1, 2)
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2)
       }
       def toParameters(d: UniformDoubleDistribution): Array[String] = Array(d.low.toString, d.high.toString)
     },
-    classOf[UniformIntegerDistribution] -> new Adapter[UniformIntegerDistribution]("uniform", classOf[IntegerDistribution]) {
+    classOf[UniformFloatDistribution] -> new FloatAdapter[UniformFloatDistribution]("uniform") {
+      def toDistribution(args: Array[String]): UniformFloatDistribution = args.length match {
+        case 1 => new UniformFloatDistribution(parseFloat(args(0)))
+        case 2 => new UniformFloatDistribution(parseFloat(args(0)), parseFloat(args(1)))
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2)
+      }
+      def toParameters(d: UniformFloatDistribution): Array[String] = Array(d.low.toString, d.high.toString)
+    },
+    classOf[UniformIntegerDistribution] -> new IntegerAdapter[UniformIntegerDistribution]("uniform") {
       def toDistribution(args: Array[String]): UniformIntegerDistribution = args.length match {
-        case 1 => new UniformIntegerDistribution(parseInt(args(0)))
-        case 2 => new UniformIntegerDistribution(parseInt(args(0)), parseInt(args(1)))
-        case n => throw invalidNumberOfArgs(n, 1, 2)
+        case 1 => new UniformIntegerDistribution(parseInteger(args(0)))
+        case 2 => new UniformIntegerDistribution(parseInteger(args(0)), parseInteger(args(1)))
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2)
       }
       def toParameters(d: UniformIntegerDistribution): Array[String] = Array(d.low.toString, d.high.toString)
     },
-    classOf[UniformLongDistribution] -> new Adapter[UniformLongDistribution]("uniform", classOf[LongDistribution]) {
+    classOf[UniformLongDistribution] -> new LongAdapter[UniformLongDistribution]("uniform") {
       def toDistribution(args: Array[String]): UniformLongDistribution = args.length match {
         case 1 => new UniformLongDistribution(parseLong(args(0)))
         case 2 => new UniformLongDistribution(parseLong(args(0)), parseLong(args(1)))
-        case n => throw invalidNumberOfArgs(n, 1, 2)
+        case n => throw invalidNumberOfArgumentsException(n, 1, 2)
       }
       def toParameters(d: UniformLongDistribution): Array[String] = Array(d.low.toString, d.high.toString)
     }

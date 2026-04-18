@@ -794,4 +794,18 @@ object Palette {
     NAMED.put("Raspberry", java.lang.Float.intBitsToFloat(0xfe6eac47))
     LIST += java.lang.Float.intBitsToFloat(0xfe6eac47)
   }
+
+  /** Converts existing Color entries in [[sge.graphics.Colors]] from RGBA to YCwCm format. */
+  def editKnownColors(): Unit =
+    for (c <- sge.graphics.Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.luma(f), ColorTools.chromaWarm(f), ColorTools.chromaMild(f), c.a)
+    }
+
+  /** Appends YCwCm-compatible Color instances to the map in [[sge.graphics.Colors]]. */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      sge.graphics.Colors.put(key, new sge.graphics.Color(ColorTools.luma(f), ColorTools.chromaWarm(f), ColorTools.chromaMild(f), ColorTools.alpha(f)))
+    }
 }

@@ -3,15 +3,12 @@
  * Original authors: Kotcrab, MJ
  * Licensed under the Apache License, Version 2.0
  *
+ * Migration notes:
+ *   Renames: `com.kotcrab.vis.ui.widget.tabbedpane` -> `sge.visui.widget.tabbedpane`
+ *   Convention: split packages; `null` -> `Nullable`; `return` -> `boundary`/`break`
+ *   Idiom: IdentityMap -> java.util.IdentityHashMap; Array -> ArrayBuffer
+ *
  * Scala port copyright 2025-2026 Mateusz Kubuszok
- *
- * Covenant: partial-port
- * Covenant-source-reference: vis-ui/ui/src/main/java/com/kotcrab/vis/ui/widget/tabbedpane/TabbedPane.java
- * Covenant-verified: 2026-04-08
- *
- * Partial-port debt:
- *   - "Are you sure you want to close this tab?" Dialogs prompt skipped (Dialogs dependency
- *     not in this batch); tabs with `isDirty` close immediately instead.
  */
 package sge
 package visui
@@ -21,12 +18,15 @@ package tabbedpane
 import scala.language.implicitConversions
 
 import sge.graphics.Color
+import sge.math.{ Rectangle, Vector2 }
 import sge.scenes.scene2d.{ Actor, Touchable }
 import sge.scenes.scene2d.ui.{ Button, ButtonGroup, Cell, Image }
 import sge.scenes.scene2d.utils.{ ChangeListener, Drawable }
 import sge.utils.{ Nullable, Scaling }
-import sge.visui.{ Sizes, VisUI }
+import sge.visui.{ Locales, Sizes, VisUI }
+import sge.visui.i18n.BundleText
 import sge.visui.layout.{ DragPane, HorizontalFlowGroup, VerticalFlowGroup }
+import sge.visui.util.dialog.Dialogs
 
 import scala.collection.mutable.ArrayBuffer
 import java.util.IdentityHashMap
@@ -59,8 +59,7 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
   private var _allowTabDeselect: Boolean                         = false
 
   {
-    tabsPane.touchable = Touchable.childrenOnly
-    tabsPane.setListener(new DragPane.DragPaneListener.AcceptOwnChildren())
+    configureDragPane(style)
 
     _mainTable.setBackground(Nullable(style.background))
 
@@ -101,7 +100,67 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
 
   def this(style: TabbedPane.TabbedPaneStyle)(using Sge) = this(style, VisUI.getSizes)
 
-  /** @return a direct reference to internal [[DragPane]]. */
+  private def configureDragPane(style: TabbedPane.TabbedPaneStyle): Unit = {
+    tabsPane.touchable = Touchable.childrenOnly
+    tabsPane.setListener(new DragPane.DragPaneListener.AcceptOwnChildren())
+    if (style.draggable) {
+      val draggable = new Draggable()
+      draggable.setInvisibleWhenDragged(true)
+      draggable.setKeepWithinParent(true)
+      draggable.setBlockInput(true)
+      draggable.setFadingTime(0f)
+      draggable.listener = new DragPane.DefaultDragListener() {
+        var dragged: Boolean = false
+
+        override def onStart(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean = {
+          dragged = false
+          actor match {
+            case tbt: TabbedPane.TabButtonTable =>
+              if (tbt.closeButton.isOver) CANCEL
+              else super.onStart(draggable, actor, stageX, stageY)
+            case _ =>
+              super.onStart(draggable, actor, stageX, stageY)
+          }
+        }
+
+        override def onDrag(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Unit = {
+          super.onDrag(draggable, actor, stageX, stageY)
+          dragged = true
+        }
+
+        override def onEnd(draggable: Draggable, actor: Actor, stageX: Float, stageY: Float): Boolean = {
+          val result = super.onEnd(draggable, actor, stageX, stageY)
+          if (result == APPROVE) APPROVE
+          else if (!dragged) CANCEL
+          else {
+            // check if any actor corner is over some other tab
+            val tmpVector = TabbedPane.tmpVector
+            val tmpRect   = TabbedPane.tmpRect
+            tabsPane.stageToLocalCoordinates(tmpVector.set(stageX, stageY))
+            if (tabsPane.hit(tmpVector.x, tmpVector.y, touchable = true).isDefined) CANCEL
+            else if (tabsPane.hit(tmpVector.x + actor.width, tmpVector.y, touchable = true).isDefined) CANCEL
+            else if (tabsPane.hit(tmpVector.x, tmpVector.y - actor.height, touchable = true).isDefined) CANCEL
+            else if (tabsPane.hit(tmpVector.x + actor.width, tmpVector.y - actor.height, touchable = true).isDefined) CANCEL
+            else {
+              val stagePos = tabsPane.localToStageCoordinates(tmpVector.setZero())
+              tmpRect.set(stagePos.x, stagePos.y, tabsPane.getGroup.width, tabsPane.getGroup.height)
+              if (!tmpRect.contains(stageX, stageY)) CANCEL
+              else if (tabsPane.isHorizontalFlow || tabsPane.isVerticalFlow) {
+                DRAG_POSITION.set(stageX, stageY)
+                tabsPane.addActor(actor)
+                APPROVE
+              } else {
+                CANCEL
+              }
+            }
+          }
+        }
+      }
+      tabsPane.setDraggable(draggable)
+    }
+  }
+
+  /** @return a direct reference to internal [[DragPane]]. Allows to manage [[Draggable]] settings. */
   def getTabsPane: DragPane = tabsPane
 
   def allowTabDeselect_=(allow: Boolean): Unit = {
@@ -199,8 +258,21 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
       removeTab(tab)
     } else {
       if (tab.dirty && _mainTable.stage.isDefined) {
-        // In simplified port, just remove directly (Dialogs dependency not ported in this batch)
-        removeTab(tab)
+        Dialogs.showOptionDialog(
+          _mainTable.stage.get,
+          TabbedPane.Text.UNSAVED_DIALOG_TITLE.get,
+          TabbedPane.Text.UNSAVED_DIALOG_TEXT.get,
+          Dialogs.OptionDialogType.YES_NO_CANCEL,
+          new Dialogs.OptionDialogAdapter {
+            override def yes(): Unit = {
+              tab.save()
+              removeTab(tab)
+            }
+            override def no(): Unit =
+              removeTab(tab)
+          }
+        )
+        false
       } else {
         removeTab(tab)
       }
@@ -300,6 +372,23 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
     */
   def getTabs: ArrayBuffer[Tab] = tabs
 
+  /** Returns tabs in order in which they are displayed in the UI - user may drag and move tabs which DOES NOT affect their index. Use [[getTabs]] if you don't care about UI order. This creates new
+    * array every time it's called!
+    */
+  def getUIOrderedTabs: ArrayBuffer[Tab] = {
+    val result   = ArrayBuffer.empty[Tab]
+    val children = getTabsPane.getChildren
+    var i        = 0
+    while (i < children.size) {
+      children(i) match {
+        case tbt: TabbedPane.TabButtonTable => result += tbt.tab
+        case _ => ()
+      }
+      i += 1
+    }
+    result
+  }
+
   // switchToNewTab is called from TabButtonTable; we expose it via package-private
   private[tabbedpane] def handleTabSwitch(tab: Tab, buttonTable: TabbedPane.TabButtonTable): Unit = {
     if (_activeTab.isDefined && _activeTab.get != tab) {
@@ -323,6 +412,9 @@ class TabbedPane(style: TabbedPane.TabbedPaneStyle, sizes: Sizes)(using sge: Sge
 }
 
 object TabbedPane {
+
+  private val tmpVector: Vector2   = new Vector2()
+  private val tmpRect:   Rectangle = new Rectangle()
 
   class TabbedPaneStyle {
     var background:  Drawable                         = scala.compiletime.uninitialized
@@ -426,5 +518,18 @@ object TabbedPane {
 
     def deselect(): Unit =
       closeButton.setStyle(closeButtonStyle)
+  }
+
+  private enum Text(val entryName: String) extends BundleText {
+    case UNSAVED_DIALOG_TITLE extends Text("unsavedDialogTitle")
+    case UNSAVED_DIALOG_TEXT extends Text("unsavedDialogText")
+
+    private def getBundle = Locales.getTabbedPaneBundle(using VisUI.sgeInstance)
+
+    override def name:                       String = entryName
+    override def get:                        String = getBundle.get(entryName)
+    override def format():                   String = getBundle.format(entryName)
+    override def format(arguments: AnyRef*): String = getBundle.format(entryName, arguments*)
+    override def toString:                   String = get
   }
 }

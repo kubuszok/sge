@@ -26,6 +26,8 @@ package particles
 
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
+import scala.util.boundary
+import scala.util.boundary.break
 
 import com.github.plokhotnyuk.jsoniter_scala.core.{ JsonReader, JsonValueCodec, JsonWriter, readFromArray }
 
@@ -140,28 +142,29 @@ object ParticleEffectCodecs {
 
     if (!in.isNextToken('}')) {
       in.rollbackToken()
-      var continue = true
-      var first    = true
-      while (continue) {
-        if (!first) buf += ','
-        first = false
-        val key = in.readKeyAsString()
-        // Write key to buffer
-        buf += '"'
-        buf ++= key.getBytes("UTF-8")
-        buf += '"'
-        buf += ':'
-        if (key == "class") {
-          val value = in.readString(null)
-          className = Nullable(value)
+      var first = true
+      boundary {
+        while (true) {
+          if (!first) buf += ','
+          first = false
+          val key = in.readKeyAsString()
+          // Write key to buffer
           buf += '"'
-          buf ++= value.getBytes("UTF-8")
+          buf ++= key.getBytes("UTF-8")
           buf += '"'
-        } else {
-          // Buffer the value - we need to capture arbitrary JSON
-          bufferJsonValue(in, buf)
+          buf += ':'
+          if (key == "class") {
+            val value = in.readString(null)
+            className = Nullable(value)
+            buf += '"'
+            buf ++= value.getBytes("UTF-8")
+            buf += '"'
+          } else {
+            // Buffer the value - we need to capture arbitrary JSON
+            bufferJsonValue(in, buf)
+          }
+          if (!in.isNextToken(',')) break(())
         }
-        continue = in.isNextToken(',')
       }
     }
     buf += '}'
@@ -180,18 +183,19 @@ object ParticleEffectCodecs {
         in.isNextToken('{') // consume
         if (!in.isNextToken('}')) {
           in.rollbackToken()
-          var first    = true
-          var continue = true
-          while (continue) {
-            if (!first) buf += ','
-            first = false
-            val key = in.readKeyAsString()
-            buf += '"'
-            buf ++= key.getBytes("UTF-8")
-            buf += '"'
-            buf += ':'
-            bufferJsonValue(in, buf)
-            continue = in.isNextToken(',')
+          var first = true
+          boundary {
+            while (true) {
+              if (!first) buf += ','
+              first = false
+              val key = in.readKeyAsString()
+              buf += '"'
+              buf ++= key.getBytes("UTF-8")
+              buf += '"'
+              buf += ':'
+              bufferJsonValue(in, buf)
+              if (!in.isNextToken(',')) break(())
+            }
           }
         }
         buf += '}'
@@ -201,13 +205,14 @@ object ParticleEffectCodecs {
         in.isNextToken('[') // consume
         if (!in.isNextToken(']')) {
           in.rollbackToken()
-          var first    = true
-          var continue = true
-          while (continue) {
-            if (!first) buf += ','
-            first = false
-            bufferJsonValue(in, buf)
-            continue = in.isNextToken(',')
+          var first = true
+          boundary {
+            while (true) {
+              if (!first) buf += ','
+              first = false
+              bufferJsonValue(in, buf)
+              if (!in.isNextToken(',')) break(())
+            }
           }
         }
         buf += ']'
@@ -266,13 +271,14 @@ object ParticleEffectCodecs {
     if (in.isNextToken('{')) {
       if (!in.isNextToken('}')) {
         in.rollbackToken()
-        var continue = true
-        while (continue) {
-          val key = in.readKeyAsString()
-          if (!fieldHandler(key, obj, in)) {
-            in.skip() // skip unknown field
+        boundary {
+          while (true) {
+            val key = in.readKeyAsString()
+            if (!fieldHandler(key, obj, in)) {
+              in.skip() // skip unknown field
+            }
+            if (!in.isNextToken(',')) break(())
           }
-          continue = in.isNextToken(',')
         }
       }
     } else in.readNullOrTokenError(obj, '{')
@@ -951,12 +957,13 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('[')) {
               if (!reader.isNextToken(']')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  // Use buffering approach to properly decode each modifier
-                  val modifier = decodeDynamicsModifier(reader)
-                  v.velocities.add(modifier)
-                  continue = reader.isNextToken(',')
+                boundary {
+                  while (true) {
+                    // Use buffering approach to properly decode each modifier
+                    val modifier = decodeDynamicsModifier(reader)
+                    v.velocities.add(modifier)
+                    if (!reader.isNextToken(',')) break(())
+                  }
                 }
               }
             }
@@ -1545,18 +1552,19 @@ object ParticleEffectCodecs {
     if (in.isNextToken('{')) {
       if (!in.isNextToken('}')) {
         in.rollbackToken()
-        var continue = true
-        while (continue) {
-          val key = in.readKeyAsString()
-          key match {
-            case "effectFilename" =>
-              effectFilename = in.readString(null)
-            case "controllerIndices" =>
-              controllerIndices = readIntArray(in)
-            case _ =>
-              in.skip()
+        boundary {
+          while (true) {
+            val key = in.readKeyAsString()
+            key match {
+              case "effectFilename" =>
+                effectFilename = in.readString(null)
+              case "controllerIndices" =>
+                controllerIndices = readIntArray(in)
+              case _ =>
+                in.skip()
+            }
+            if (!in.isNextToken(',')) break(())
           }
-          continue = in.isNextToken(',')
         }
       }
     }
@@ -1808,11 +1816,12 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('[')) {
               if (!reader.isNextToken(']')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  val influencer = decodeInfluencer(reader)
-                  v.influencers.add(influencer)
-                  continue = reader.isNextToken(',')
+                boundary {
+                  while (true) {
+                    val influencer = decodeInfluencer(reader)
+                    v.influencers.add(influencer)
+                    if (!reader.isNextToken(',')) break(())
+                  }
                 }
               }
             }
@@ -1898,33 +1907,34 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('{')) {
               if (!reader.isNextToken('}')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  val mapKey = reader.readKeyAsString()
-                  // Read the value - we'll store it as raw JSON bytes for later processing
-                  val valueBuf = ArrayBuffer[Byte]()
-                  bufferJsonValue(reader, valueBuf)
-                  // For now, we can re-parse simple values
-                  val valueBytes = valueBuf.toArray
-                  val valueStr   = new String(valueBytes, "UTF-8")
-                  // Try to parse as common types
-                  val obj: AnyRef = valueStr match {
-                    case s if s.startsWith("\"") && s.endsWith("\"") =>
-                      s.substring(1, s.length - 1)
-                    case "true"  => java.lang.Boolean.TRUE
-                    case "false" => java.lang.Boolean.FALSE
-                    case "null"  => null
-                    case _       =>
-                      // Try number
-                      try
-                        if (valueStr.contains(".")) java.lang.Double.valueOf(valueStr)
-                        else java.lang.Long.valueOf(valueStr)
-                      catch {
-                        case _: NumberFormatException => valueStr
-                      }
+                boundary {
+                  while (true) {
+                    val mapKey = reader.readKeyAsString()
+                    // Read the value - we'll store it as raw JSON bytes for later processing
+                    val valueBuf = ArrayBuffer[Byte]()
+                    bufferJsonValue(reader, valueBuf)
+                    // For now, we can re-parse simple values
+                    val valueBytes = valueBuf.toArray
+                    val valueStr   = new String(valueBytes, "UTF-8")
+                    // Try to parse as common types
+                    val obj: AnyRef = valueStr match {
+                      case s if s.startsWith("\"") && s.endsWith("\"") =>
+                        s.substring(1, s.length - 1)
+                      case "true"  => java.lang.Boolean.TRUE
+                      case "false" => java.lang.Boolean.FALSE
+                      case "null"  => null
+                      case _       =>
+                        // Try number
+                        try
+                          if (valueStr.contains(".")) java.lang.Double.valueOf(valueStr)
+                          else java.lang.Long.valueOf(valueStr)
+                        catch {
+                          case _: NumberFormatException => valueStr
+                        }
+                    }
+                    v.data.put(mapKey, obj)
+                    if (!reader.isNextToken(',')) break(())
                   }
-                  v.data.put(mapKey, obj)
-                  continue = reader.isNextToken(',')
                 }
               }
             }
@@ -1975,13 +1985,14 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('{')) {
               if (!reader.isNextToken('}')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  val mapKey   = reader.readKeyAsString()
-                  val saveData = saveDataCodec.decodeValue(reader, null)
-                  saveData.resources = Nullable(v)
-                  v.uniqueData.put(mapKey, saveData)
-                  continue = reader.isNextToken(',')
+                boundary {
+                  while (true) {
+                    val mapKey   = reader.readKeyAsString()
+                    val saveData = saveDataCodec.decodeValue(reader, null)
+                    saveData.resources = Nullable(v)
+                    v.uniqueData.put(mapKey, saveData)
+                    if (!reader.isNextToken(',')) break(())
+                  }
                 }
               }
             }
@@ -1991,12 +2002,13 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('[')) {
               if (!reader.isNextToken(']')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  val saveData = saveDataCodec.decodeValue(reader, null)
-                  saveData.resources = Nullable(v)
-                  v.data.add(saveData)
-                  continue = reader.isNextToken(',')
+                boundary {
+                  while (true) {
+                    val saveData = saveDataCodec.decodeValue(reader, null)
+                    saveData.resources = Nullable(v)
+                    v.data.add(saveData)
+                    if (!reader.isNextToken(',')) break(())
+                  }
                 }
               }
             }
@@ -2006,11 +2018,12 @@ object ParticleEffectCodecs {
             if (reader.isNextToken('[')) {
               if (!reader.isNextToken(']')) {
                 reader.rollbackToken()
-                var continue = true
-                while (continue) {
-                  val assetData = assetDataCodec.decodeValue(reader, null)
-                  v.sharedAssets.add(assetData.asInstanceOf[ResourceData.AssetData[Any]])
-                  continue = reader.isNextToken(',')
+                boundary {
+                  while (true) {
+                    val assetData = assetDataCodec.decodeValue(reader, null)
+                    v.sharedAssets.add(assetData.asInstanceOf[ResourceData.AssetData[Any]])
+                    if (!reader.isNextToken(',')) break(())
+                  }
                 }
               }
             }

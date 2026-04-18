@@ -794,4 +794,18 @@ object Palette {
     NAMED.put("Raspberry", java.lang.Float.intBitsToFloat(0xfe83944c))
     LIST += java.lang.Float.intBitsToFloat(0xfe83944c)
   }
+
+  /** Converts existing Color entries in [[sge.graphics.Colors]] from RGBA to Oklab format. */
+  def editKnownColors(): Unit =
+    for (c <- sge.graphics.Colors.colors.values) {
+      val f = ColorTools.fromColor(c)
+      c.set(ColorTools.channelL(f), ColorTools.channelA(f), ColorTools.channelB(f), c.a)
+    }
+
+  /** Appends Oklab-compatible Color instances to the map in [[sge.graphics.Colors]]. */
+  def appendToKnownColors(): Unit =
+    for ((key, value) <- NAMED) {
+      val f = value
+      sge.graphics.Colors.put(key, new sge.graphics.Color(ColorTools.channelL(f), ColorTools.channelA(f), ColorTools.channelB(f), ColorTools.alpha(f)))
+    }
 }
